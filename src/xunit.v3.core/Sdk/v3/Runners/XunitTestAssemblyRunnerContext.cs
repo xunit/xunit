@@ -30,9 +30,9 @@ public class XunitTestAssemblyRunnerContext : TestAssemblyRunnerContext<IXunitTe
 	{ }
 
 	/// <summary>
-	/// Gets the fixtures (mapped type => instance) that were declared at the assembly level.
+	/// Gets the mapping manager for assembly-level fixtures.
 	/// </summary>
-	public Dictionary<Type, object> AssemblyFixtureMappings { get; } = new();
+	public FixtureMappingManager AssemblyFixtureMappings { get; } = new("Assembly");
 
 	/// <summary>
 	/// Gets the assembly-level test case orderer, if one is present.

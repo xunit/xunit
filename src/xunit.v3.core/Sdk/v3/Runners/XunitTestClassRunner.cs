@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -28,7 +27,7 @@ public class XunitTestClassRunner : TestClassRunner<XunitTestClassRunnerContext,
 	public static XunitTestClassRunner Instance { get; } = new();
 
 	/// <inheritdoc/>
-	protected override ValueTask AfterTestClassStartingAsync(XunitTestClassRunnerContext ctxt)
+	protected override async ValueTask AfterTestClassStartingAsync(XunitTestClassRunnerContext ctxt)
 	{
 		Guard.ArgumentNotNull(ctxt);
 
@@ -73,18 +72,24 @@ public class XunitTestClassRunner : TestClassRunner<XunitTestClassRunnerContext,
 		if (testClassType.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollectionFixture<>)))
 			ctxt.Aggregator.Add(new TestClassException("A test class may not be decorated with ICollectionFixture<> (decorate the test collection class instead)."));
 
-		var createClassFixtureAsyncTasks = new List<Task>();
-		foreach (var interfaceType in testClassType.GetInterfaces().Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IClassFixture<>)))
-			createClassFixtureAsyncTasks.Add(CreateClassFixtureAsync(ctxt, interfaceType.GenericTypeArguments.Single()).AsTask());
+		var classFixtureTypes =
+			testClassType
+				.GetInterfaces()
+				.Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IClassFixture<>))
+				.Select(i => i.GenericTypeArguments.Single());
 
 		if (ctxt.TestClass.TestCollection.CollectionDefinition is _IReflectionTypeInfo collectionDefinition)
-		{
-			var declarationType = collectionDefinition.Type;
-			foreach (var interfaceType in declarationType.GetInterfaces().Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IClassFixture<>)))
-				createClassFixtureAsyncTasks.Add(CreateClassFixtureAsync(ctxt, interfaceType.GenericTypeArguments.Single()).AsTask());
-		}
+			classFixtureTypes = classFixtureTypes.Concat(
+				collectionDefinition
+					.Type
+					.GetInterfaces()
+					.Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IClassFixture<>))
+					.Select(i => i.GenericTypeArguments.Single())
+			);
 
-		return new(Task.WhenAll(createClassFixtureAsyncTasks));
+		await ctxt.Aggregator.RunAsync(() => ctxt.ClassFixtureMappings.InitializeAsync(classFixtureTypes.ToArray()));
+
+		await base.AfterTestClassStartingAsync(ctxt);
 	}
 
 	/// <inheritdoc/>
@@ -92,137 +97,9 @@ public class XunitTestClassRunner : TestClassRunner<XunitTestClassRunnerContext,
 	{
 		Guard.ArgumentNotNull(ctxt);
 
-		var disposeAsyncTasks =
-			ctxt.ClassFixtureMappings
-				.Values
-				.OfType<IAsyncDisposable>()
-				.Select(fixture => ctxt.Aggregator.RunAsync(async () =>
-				{
-					try
-					{
-						await fixture.DisposeAsync();
-					}
-					catch (Exception ex)
-					{
-						throw new TestFixtureCleanupException(string.Format(CultureInfo.CurrentCulture, "Class fixture type '{0}' threw in DisposeAsync", fixture.GetType().FullName), ex.Unwrap());
-					}
-				}).AsTask())
-				.ToList();
+		await ctxt.Aggregator.RunAsync(ctxt.ClassFixtureMappings.DisposeAsync);
 
-		await Task.WhenAll(disposeAsyncTasks);
-
-		foreach (var fixture in ctxt.ClassFixtureMappings.Values.OfType<IDisposable>())
-			ctxt.Aggregator.Run(() =>
-			{
-				try
-				{
-					fixture.Dispose();
-				}
-				catch (Exception ex)
-				{
-					throw new TestFixtureCleanupException(string.Format(CultureInfo.CurrentCulture, "Class fixture type '{0}' threw in Dispose", fixture.GetType().FullName), ex.Unwrap());
-				}
-			});
-	}
-
-	/// <summary>
-	/// Creates the instance of a class fixture type to be used by the test class. If the fixture can be created,
-	/// it should be placed into the ClassFixtureMappings dictionary in <paramref name="ctxt"/>; if it cannot, then
-	/// the method should record the error by calling <code>Aggregator.Add</code> on <paramref name="ctxt"/>.
-	/// </summary>
-	/// <param name="ctxt">The context that describes the current test class</param>
-	/// <param name="fixtureType">The type of the fixture to be created</param>
-	protected virtual void CreateClassFixture(
-		XunitTestClassRunnerContext ctxt,
-		Type fixtureType)
-	{
-		Guard.ArgumentNotNull(ctxt);
-		Guard.ArgumentNotNull(fixtureType);
-
-		var ctors =
-			fixtureType
-				.GetConstructors()
-				.Where(ci => !ci.IsStatic && ci.IsPublic)
-				.CastOrToReadOnlyList();
-
-		if (ctors.Count != 1)
-		{
-			ctxt.Aggregator.Add(new TestClassException(string.Format(CultureInfo.CurrentCulture, "Class fixture type '{0}' may only define a single public constructor.", fixtureType.FullName)));
-			return;
-		}
-
-		var ctor = ctors[0];
-		var missingParameters = new List<ParameterInfo>();
-		var ctorArgs = ctor.GetParameters().Select(p =>
-		{
-			object? arg;
-			if (p.ParameterType == typeof(_IMessageSink))
-				arg = TestContext.Current?.DiagnosticMessageSink;
-			else if (p.ParameterType == typeof(ITestContextAccessor))
-				arg = TestContextAccessor.Instance;
-			else if (!ctxt.CollectionFixtureMappings.TryGetValue(p.ParameterType, out arg) && !ctxt.AssemblyFixtureMappings.TryGetValue(p.ParameterType, out arg))
-				missingParameters.Add(p);
-			return arg;
-		}).ToArray();
-
-		if (missingParameters.Count > 0)
-			ctxt.Aggregator.Add(
-				new TestClassException(
-					string.Format(
-						CultureInfo.CurrentCulture,
-						"Class fixture type '{0}' had one or more unresolved constructor arguments: {1}",
-						fixtureType.FullName,
-						string.Join(", ", missingParameters.Select(p => string.Format(CultureInfo.CurrentCulture, "{0} {1}", p.ParameterType.Name, p.Name)))
-					)
-				)
-			);
-		else
-			ctxt.Aggregator.Run(() =>
-			{
-				try
-				{
-					ctxt.ClassFixtureMappings[fixtureType] = ctor.Invoke(ctorArgs);
-				}
-				catch (Exception ex)
-				{
-					throw new TestClassException(string.Format(CultureInfo.CurrentCulture, "Class fixture type '{0}' threw in its constructor", fixtureType.FullName), ex.Unwrap());
-				}
-			});
-	}
-
-	ValueTask CreateClassFixtureAsync(
-		XunitTestClassRunnerContext ctxt,
-		Type fixtureType)
-	{
-		CreateClassFixture(ctxt, fixtureType);
-
-		var uninitializedFixtures =
-			ctxt.ClassFixtureMappings
-				.Values
-				.OfType<IAsyncLifetime>()
-				.Where(fixture => !ctxt.InitializedAsyncClassFixtures.Contains(fixture))
-				.ToList();
-
-		ctxt.InitializedAsyncClassFixtures.UnionWith(uninitializedFixtures);
-
-		var initializeAsyncTasks =
-			uninitializedFixtures
-				.Select(
-					fixture => ctxt.Aggregator.RunAsync(async () =>
-					{
-						try
-						{
-							await fixture.InitializeAsync();
-						}
-						catch (Exception ex)
-						{
-							throw new TestClassException(string.Format(CultureInfo.CurrentCulture, "Class fixture type '{0}' threw in InitializeAsync", fixture.GetType().FullName), ex.Unwrap());
-						}
-					}).AsTask()
-				)
-				.ToList();
-
-		return new(Task.WhenAll(initializeAsyncTasks));
+		await base.BeforeTestClassFinishedAsync(ctxt);
 	}
 
 	/// <inheritdoc/>
@@ -236,6 +113,33 @@ public class XunitTestClassRunner : TestClassRunner<XunitTestClassRunnerContext,
 				string.Join(", ", unusedArguments.Select(arg => string.Format(CultureInfo.CurrentCulture, "{0} {1}", arg.Item2.ParameterType.Name, arg.Item2.Name)))
 			);
 
+	/// <inheritdoc/>
+	protected override async ValueTask<object?> GetConstructorArgument(
+		XunitTestClassRunnerContext ctxt,
+		ConstructorInfo constructor,
+		int index,
+		ParameterInfo parameter)
+	{
+		Guard.ArgumentNotNull(ctxt);
+		Guard.ArgumentNotNull(constructor);
+		Guard.ArgumentNotNull(parameter);
+
+		var result = await base.GetConstructorArgument(ctxt, constructor, index, parameter);
+		if (result is not null)
+			return result;
+
+		if (parameter.ParameterType == typeof(ITestContextAccessor))
+			return TestContextAccessor.Instance;
+
+		// Logic to support passing Func<T> instead of T lives in XunitTestInvoker.CreateTestClassInstance
+		// The actual TestOutputHelper instance is created in XunitTestRunner.SetTestContext when creating
+		// the test context object.
+		if (parameter.ParameterType == typeof(_ITestOutputHelper))
+			return () => TestContext.Current?.TestOutputHelper;
+
+		return await ctxt.ClassFixtureMappings.GetFixture(parameter.ParameterType);
+	}
+
 	/// <summary>
 	/// Runs the test class.
 	/// </summary>
@@ -247,7 +151,6 @@ public class XunitTestClassRunner : TestClassRunner<XunitTestClassRunnerContext,
 	/// <param name="testCaseOrderer">The test case orderer that will be used to decide how to order the test.</param>
 	/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 	/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
-	/// <param name="assemblyFixtureMappings">The mapping of assembly fixture types to fixtures.</param>
 	/// <param name="collectionFixtureMappings">The mapping of collection fixture types to fixtures.</param>
 	/// <returns></returns>
 	public async ValueTask<RunSummary> RunAsync(
@@ -259,16 +162,14 @@ public class XunitTestClassRunner : TestClassRunner<XunitTestClassRunnerContext,
 		ITestCaseOrderer testCaseOrderer,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource,
-		IReadOnlyDictionary<Type, object> assemblyFixtureMappings,
-		CollectionFixtureMappingManager collectionFixtureMappings)
+		FixtureMappingManager collectionFixtureMappings)
 	{
 		Guard.ArgumentNotNull(testCases);
 		Guard.ArgumentNotNull(messageBus);
 		Guard.ArgumentNotNull(testCaseOrderer);
-		Guard.ArgumentNotNull(assemblyFixtureMappings);
 		Guard.ArgumentNotNull(collectionFixtureMappings);
 
-		await using var ctxt = new XunitTestClassRunnerContext(testClass, @class, testCases, explicitOption, messageBus, testCaseOrderer, aggregator, cancellationTokenSource, assemblyFixtureMappings, collectionFixtureMappings);
+		await using var ctxt = new XunitTestClassRunnerContext(testClass, @class, testCases, explicitOption, messageBus, testCaseOrderer, aggregator, cancellationTokenSource, collectionFixtureMappings);
 		await ctxt.InitializeAsync();
 
 		return await RunAsync(ctxt);
@@ -318,37 +219,5 @@ public class XunitTestClassRunner : TestClassRunner<XunitTestClassRunnerContext,
 
 		ctxt.Aggregator.Add(new TestClassException("A test class may only define a single public constructor."));
 		return null;
-	}
-
-	/// <inheritdoc/>
-	protected override bool TryGetConstructorArgument(
-		XunitTestClassRunnerContext ctxt,
-		ConstructorInfo constructor,
-		int index,
-		ParameterInfo parameter,
-		[MaybeNullWhen(false)] out object argumentValue)
-	{
-		Guard.ArgumentNotNull(ctxt);
-		Guard.ArgumentNotNull(constructor);
-		Guard.ArgumentNotNull(parameter);
-
-		if (parameter.ParameterType == typeof(ITestContextAccessor))
-		{
-			argumentValue = TestContextAccessor.Instance;
-			return true;
-		}
-
-		if (parameter.ParameterType == typeof(_ITestOutputHelper))
-		{
-			// Logic to support passing Func<T> instead of T lives in XunitTestInvoker.CreateTestClassInstance
-			// The actual TestOutputHelper instance is created in XunitTestRunner.SetTestContext when creating
-			// test test context object.
-			argumentValue = () => TestContext.Current?.TestOutputHelper;
-			return true;
-		}
-
-		return ctxt.ClassFixtureMappings.TryGetValue(parameter.ParameterType, out argumentValue)
-			|| ctxt.CollectionFixtureMappings.TryGetValue(parameter.ParameterType, out argumentValue)
-			|| ctxt.AssemblyFixtureMappings.TryGetValue(parameter.ParameterType, out argumentValue);
 	}
 }

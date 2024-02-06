@@ -405,10 +405,9 @@ public class XunitTestClassRunnerTests
 	class TestableXunitTestClassRunner : XunitTestClassRunner
 	{
 		readonly ExceptionAggregator aggregator;
-		readonly IReadOnlyDictionary<Type, object> assemblyFixtureMappings;
 		readonly CancellationTokenSource cancellationTokenSource;
 		readonly _IReflectionTypeInfo @class;
-		readonly CollectionFixtureMappingManager collectionFixtureMappings;
+		readonly FixtureMappingManager collectionFixtureMappings;
 		readonly IMessageBus messageBus;
 		readonly ITestCaseOrderer testCaseOrderer;
 		readonly IReadOnlyCollection<IXunitTestCase> testCases;
@@ -416,7 +415,7 @@ public class XunitTestClassRunnerTests
 
 		public List<object?[]> ConstructorArguments = new();
 		public Exception? RunTestMethodAsync_AggregatorResult;
-		public Dictionary<Type, object>? RunTestMethodsAsync_ClassFixtureMappings;
+		public IReadOnlyDictionary<Type, object>? RunTestMethodsAsync_ClassFixtureMappings;
 		public ITestCaseOrderer? RunTestMethodsAsync_TestCaseOrderer;
 
 		TestableXunitTestClassRunner(
@@ -427,8 +426,7 @@ public class XunitTestClassRunnerTests
 			ITestCaseOrderer testCaseOrderer,
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource,
-			IReadOnlyDictionary<Type, object> assemblyFixtureMappings,
-			CollectionFixtureMappingManager collectionFixtureMappings)
+			FixtureMappingManager collectionFixtureMappings)
 		{
 			this.testClass = testClass;
 			this.@class = @class;
@@ -437,47 +435,35 @@ public class XunitTestClassRunnerTests
 			this.testCaseOrderer = testCaseOrderer;
 			this.aggregator = aggregator;
 			this.cancellationTokenSource = cancellationTokenSource;
-			this.assemblyFixtureMappings = assemblyFixtureMappings;
 			this.collectionFixtureMappings = collectionFixtureMappings;
 		}
 
 		public static TestableXunitTestClassRunner Create(
 			IXunitTestCase testCase,
-			params object[] collectionFixtures)
-		{
-			ExceptionAggregator aggregator = new();
-			CollectionFixtureMappingManager fixtureManager = new(aggregator);
-			for (int i = 0; i < collectionFixtures.Length; i++)
-			{
-				fixtureManager.AddFixture(collectionFixtures[i].GetType(), collectionFixtures[i]);
-			}
-			TestableXunitTestClassRunner runner = new(
-				testCase.TestClass ?? throw new InvalidOperationException("testCase.TestClass cannot be null"),
-				testCase.TestClass.Class as _IReflectionTypeInfo ?? throw new InvalidOperationException("testCase.TestClass.Class must be based on reflection"),
-				new[] { testCase },
-				new SpyMessageBus(),
-				new MockTestCaseOrderer(),
-				aggregator,
-				new CancellationTokenSource(),
-				new Dictionary<Type, object>(),
-				fixtureManager
-			);
-
-			return runner;
-		}
+			params object[] collectionFixtures) =>
+				new(
+					testCase.TestClass ?? throw new InvalidOperationException("testCase.TestClass cannot be null"),
+					testCase.TestClass.Class as _IReflectionTypeInfo ?? throw new InvalidOperationException("testCase.TestClass.Class must be based on reflection"),
+					new[] { testCase },
+					new SpyMessageBus(),
+					new MockTestCaseOrderer(),
+					new ExceptionAggregator(),
+					new CancellationTokenSource(),
+					new TestableFixtureMappingManager(collectionFixtures)
+				);
 
 		protected override ValueTask<RunSummary> RunTestMethodsAsync(XunitTestClassRunnerContext ctxt)
 		{
 			var result = base.RunTestMethodsAsync(ctxt);
 
-			RunTestMethodsAsync_ClassFixtureMappings = ctxt.ClassFixtureMappings;
+			RunTestMethodsAsync_ClassFixtureMappings = ctxt.ClassFixtureMappings.FixtureCache;
 			RunTestMethodsAsync_TestCaseOrderer = ctxt.TestCaseOrderer;
 
 			return result;
 		}
 
 		public ValueTask<RunSummary> RunAsync() =>
-			RunAsync(testClass, @class, testCases, ExplicitOption.Off, messageBus, testCaseOrderer, aggregator, cancellationTokenSource, assemblyFixtureMappings, collectionFixtureMappings);
+			RunAsync(testClass, @class, testCases, ExplicitOption.Off, messageBus, testCaseOrderer, aggregator, cancellationTokenSource, collectionFixtureMappings);
 
 		protected override ValueTask<RunSummary> RunTestMethodAsync(
 			XunitTestClassRunnerContext ctxt,
@@ -490,6 +476,17 @@ public class XunitTestClassRunnerTests
 			RunTestMethodAsync_AggregatorResult = ctxt.Aggregator.ToException();
 
 			return new(new RunSummary());
+		}
+
+		class TestableFixtureMappingManager : FixtureMappingManager
+		{
+			public TestableFixtureMappingManager(FixtureMappingManager parent) :
+				base("Testable", parent)
+			{ }
+
+			public TestableFixtureMappingManager(params object[] cachedFixtureValues) :
+				base("Testable", cachedFixtureValues)
+			{ }
 		}
 	}
 }

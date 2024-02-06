@@ -556,12 +556,11 @@ public class FixtureAcceptanceTests
 		[CollectionDefinition("generic collection")]
 		public class GenericFixtureCollection<T> : ICollectionFixture<GenericFixture<T>> { }
 
-
 		[Collection("generic collection")]
 		abstract class GenericTestBase<T>
 		{
-			protected GenericTestBase(GenericFixture<T> fixture) => _fixture = fixture;
-			protected readonly GenericFixture<T> _fixture;
+			protected GenericTestBase(GenericFixture<T> fixture) => Fixture = fixture;
+			protected readonly GenericFixture<T> Fixture;
 		}
 
 		public class GenericArgument { }
@@ -571,7 +570,7 @@ public class FixtureAcceptanceTests
 #pragma warning disable xUnit1041 // Fixture arguments to test classes must have fixture sources
 			public GenericTests(GenericFixture<GenericArgument> fixture) : base(fixture) { }
 #pragma warning restore xUnit1041 // Fixture arguments to test classes must have fixture sources
-			[Fact] public void Test1() { }
+			[Fact] public void Test1() => Assert.NotNull(Fixture);
 			[Fact] public void Test2() { }
 		}
 	}
@@ -904,6 +903,7 @@ public class FixtureAcceptanceTests
 		{
 			var alphaFixture = Mocks.AssemblyFixtureAttribute(typeof(CountedAsyncFixture<Alpha>));
 			var betaFixture = Mocks.AssemblyFixtureAttribute(typeof(CountedAsyncFixture<Beta>));
+
 			var results = await RunAsync<_TestPassed>(new[] { typeof(TestClass1), typeof(TestClass2) }, additionalAssemblyAttributes: new[] { alphaFixture, betaFixture });
 
 			Assert.Equal(2, results.Count);
@@ -1112,7 +1112,7 @@ public class FixtureAcceptanceTests
 	{
 		public GenericFixture() { }
 		public void Dispose() { }
-		public ValueTask InitializeAsync() => ValueTask.CompletedTask;
-		public ValueTask DisposeAsync() => ValueTask.CompletedTask;
+		public ValueTask InitializeAsync() => default;
+		public ValueTask DisposeAsync() => default;
 	}
 }

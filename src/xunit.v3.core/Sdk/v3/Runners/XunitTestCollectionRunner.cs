@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -31,49 +30,32 @@ public class XunitTestCollectionRunner : TestCollectionRunner<XunitTestCollectio
 	{
 		Guard.ArgumentNotNull(ctxt);
 
-		await CreateCollectionFixturesAsync(ctxt);
-
 		ctxt.TestCaseOrderer = GetTestCaseOrderer(ctxt) ?? ctxt.TestCaseOrderer;
+
+		if (ctxt.TestCollection.CollectionDefinition is _IReflectionTypeInfo collectionDefinition)
+		{
+			var collectionFixtureTypes =
+				collectionDefinition
+					.Type
+					.GetInterfaces()
+					.Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollectionFixture<>))
+					.Select(i => i.GenericTypeArguments.Single())
+					.ToArray();
+
+			await ctxt.Aggregator.RunAsync(() => ctxt.CollectionFixtureMappings.InitializeAsync(collectionFixtureTypes));
+		}
+
+		await base.BeforeTestCollectionFinishedAsync(ctxt);
 	}
 
 	/// <inheritdoc/>
-	protected override ValueTask BeforeTestCollectionFinishedAsync(XunitTestCollectionRunnerContext ctxt)
+	protected override async ValueTask BeforeTestCollectionFinishedAsync(XunitTestCollectionRunnerContext ctxt)
 	{
 		Guard.ArgumentNotNull(ctxt);
 
-		return ctxt.CollectionFixtureMappings.OnFinished();
-	}
+		await ctxt.Aggregator.RunAsync(ctxt.CollectionFixtureMappings.DisposeAsync);
 
-	/// <summary>
-	/// Creates the instance of a collection fixture type to be used by the test collection. If the fixture can be created,
-	/// it should be placed into the CollectionFixtureMappings dictionary of <paramref name="ctxt"/>; if it cannot, then the
-	/// method should record the error by calling <code>Aggregator.Add</code>.
-	/// </summary>
-	/// <param name="ctxt">The context that describes the current test collection</param>
-	/// <param name="fixtureType">The type of the fixture to be created</param>
-	protected virtual void CreateCollectionFixture(
-		XunitTestCollectionRunnerContext ctxt,
-		Type fixtureType)
-	{
-		Guard.ArgumentNotNull(ctxt);
-		Guard.ArgumentNotNull(fixtureType);
-
-		ctxt.CollectionFixtureMappings.AddFixtureForType(fixtureType, ctxt.AssemblyFixtureMappings);
-	}
-
-	ValueTask CreateCollectionFixturesAsync(XunitTestCollectionRunnerContext ctxt)
-	{
-		if (ctxt.TestCollection.CollectionDefinition is null || ctxt.TestCollection.CollectionDefinition is not _IReflectionTypeInfo collectionDefinition)
-			return default;
-
-		var declarationType = collectionDefinition.Type;
-		foreach (var interfaceType in declarationType.GetInterfaces().Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollectionFixture<>)))
-		{
-			var fixtureType = interfaceType.GenericTypeArguments.Single();
-			CreateCollectionFixture(ctxt, fixtureType);
-		}
-
-		return ctxt.CollectionFixtureMappings.OnInitialize();
+		await base.BeforeTestCollectionFinishedAsync(ctxt);
 	}
 
 	/// <summary>
@@ -137,7 +119,7 @@ public class XunitTestCollectionRunner : TestCollectionRunner<XunitTestCollectio
 	/// <param name="testCaseOrderer">The test case orderer that was applied at the assembly level.</param>
 	/// <param name="aggregator">The exception aggregator used to run code and collection exceptions.</param>
 	/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
-	/// <param name="assemblyFixtureMappings">The mapping of assembly fixture types to fixtures.</param>
+	/// <param name="assemblyFixtureMappings">The mapping manager for assembly fixtures.</param>
 	public async ValueTask<RunSummary> RunAsync(
 		_ITestCollection testCollection,
 		IReadOnlyCollection<IXunitTestCase> testCases,
@@ -146,7 +128,7 @@ public class XunitTestCollectionRunner : TestCollectionRunner<XunitTestCollectio
 		ITestCaseOrderer testCaseOrderer,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource,
-		IReadOnlyDictionary<Type, object> assemblyFixtureMappings)
+		FixtureMappingManager assemblyFixtureMappings)
 	{
 		Guard.ArgumentNotNull(testCollection);
 		Guard.ArgumentNotNull(testCases);
@@ -181,7 +163,6 @@ public class XunitTestCollectionRunner : TestCollectionRunner<XunitTestCollectio
 				ctxt.TestCaseOrderer,
 				ctxt.Aggregator.Clone(),
 				ctxt.CancellationTokenSource,
-				ctxt.AssemblyFixtureMappings,
 				ctxt.CollectionFixtureMappings
 			);
 

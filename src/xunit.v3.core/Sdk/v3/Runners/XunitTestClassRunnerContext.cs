@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.Threading;
-using Xunit.Internal;
 using Xunit.Sdk;
 
 namespace Xunit.v3;
@@ -23,31 +21,12 @@ public class XunitTestClassRunnerContext : TestClassRunnerContext<IXunitTestCase
 		ITestCaseOrderer testCaseOrderer,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource,
-		IReadOnlyDictionary<Type, object> assemblyFixtureMappings,
-		CollectionFixtureMappingManager collectionFixtureMappings) :
-			base(testClass, @class, testCases, explicitOption, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
-	{
-		AssemblyFixtureMappings = Guard.ArgumentNotNull(assemblyFixtureMappings);
-		CollectionFixtureMappings = Guard.ArgumentNotNull(collectionFixtureMappings);
-	}
+		FixtureMappingManager collectionFixtureMappings) :
+			base(testClass, @class, testCases, explicitOption, messageBus, testCaseOrderer, aggregator, cancellationTokenSource) =>
+				ClassFixtureMappings = new("Class", collectionFixtureMappings);
 
 	/// <summary>
-	/// Gets the fixtures (mapped type => instance) that were declared at the assembly level.
+	/// Gets the mapping manager for class-level fixtures.
 	/// </summary>
-	public IReadOnlyDictionary<Type, object> AssemblyFixtureMappings { get; }
-
-	/// <summary>
-	/// Gets the fixtures (mapped type => instance) that were declared at the class level.
-	/// </summary>
-	public Dictionary<Type, object> ClassFixtureMappings { get; } = new();
-
-	/// <summary>
-	/// Gets the fixtures (mapped type => instance) that were declared at the collection level.
-	/// </summary>
-	public CollectionFixtureMappingManager CollectionFixtureMappings { get; }
-
-	/// <summary>
-	/// Gets the list of class fixtures that were initialized via <see cref="IAsyncLifetime"/>.
-	/// </summary>
-	public HashSet<IAsyncLifetime> InitializedAsyncClassFixtures { get; } = new();
+	public FixtureMappingManager ClassFixtureMappings { get; }
 }

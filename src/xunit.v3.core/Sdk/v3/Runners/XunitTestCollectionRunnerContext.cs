@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using Xunit.Sdk;
@@ -21,20 +20,12 @@ public class XunitTestCollectionRunnerContext : TestCollectionRunnerContext<IXun
 		ITestCaseOrderer testCaseOrderer,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource,
-		IReadOnlyDictionary<Type, object> assemblyFixtureMappings) :
-			base(testCollection, testCases, explicitOption, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
-	{
-		AssemblyFixtureMappings = assemblyFixtureMappings;
-		CollectionFixtureMappings = new(aggregator);
-	}
+		FixtureMappingManager assemblyFixtureMappings) :
+			base(testCollection, testCases, explicitOption, messageBus, testCaseOrderer, aggregator, cancellationTokenSource) =>
+				CollectionFixtureMappings = new("Collection", assemblyFixtureMappings);
 
 	/// <summary>
-	/// Gets the fixtures (mapped type => instance) that were declared at the assembly level.
+	/// Gets the mapping manager for collection-level fixtures.
 	/// </summary>
-	public IReadOnlyDictionary<Type, object> AssemblyFixtureMappings { get; }
-
-	/// <summary>
-	/// Gets the fixtures (mapped type => instance) that were declared at the collection level.
-	/// </summary>
-	public CollectionFixtureMappingManager CollectionFixtureMappings { get; }
+	public FixtureMappingManager CollectionFixtureMappings { get; }
 }
