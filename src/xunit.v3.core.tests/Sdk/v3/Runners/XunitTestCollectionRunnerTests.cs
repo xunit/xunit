@@ -20,9 +20,9 @@ public class XunitTestCollectionRunnerTests
 
 		Assert.NotNull(runner.RunTestClassesAsync_CollectionFixtureMappings);
 		Assert.Collection(
-			runner.RunTestClassesAsync_CollectionFixtureMappings.Values,
-			mapping => Assert.IsType<FixtureUnderTest>(mapping),
-			mapping => Assert.IsType<object>(mapping)
+			runner.RunTestClassesAsync_CollectionFixtureMappings.OrderBy(mapping => mapping.Key.Name),
+			mapping => Assert.IsType<FixtureUnderTest>(mapping.Value),
+			mapping => Assert.IsType<object>(mapping.Value)
 		);
 	}
 
