@@ -128,11 +128,11 @@ public class FixtureMappingManager : IAsyncDisposable
 
 		// Ensure this is a type that's known to come from this fixture level; otherwise, ask the
 		// parent mapping manager to generate the type (or return null if it's not)
-		var knownType = knownTypes.Contains(fixtureType);
-		if (!knownType && fixtureType.IsGenericType)
-			knownType = knownTypes.Contains(fixtureType.GetGenericTypeDefinition());
+		var isKnownType = knownTypes.Contains(fixtureType);
+		if (!isKnownType && fixtureType.IsGenericType)
+			isKnownType = knownTypes.Contains(fixtureType.GetGenericTypeDefinition());
 
-		if (!knownType)
+		if (!isKnownType)
 		{
 			if (parentMappingManager is null)
 				return null;
