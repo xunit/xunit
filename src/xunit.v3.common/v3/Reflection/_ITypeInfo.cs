@@ -100,7 +100,8 @@ public interface _ITypeInfo
 	/// <summary>
 	/// Gets all the custom attributes for the given type.
 	/// </summary>
-	/// <param name="assemblyQualifiedAttributeTypeName">The type of the attribute, in assembly qualified form</param>
+	/// <param name="assemblyQualifiedAttributeTypeName">The type of the attribute, in assembly qualified form;
+	/// will also accept attribute types that are generic type definitions (e.g., MyAttribute&lt;&gt;) in v3</param>
 	/// <returns>The matching attributes that decorate the type</returns>
 	IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName);
 

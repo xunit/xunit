@@ -23,7 +23,8 @@ public interface _IAttributeInfo
 	/// <summary>
 	/// Gets all the custom attributes for the given attribute.
 	/// </summary>
-	/// <param name="assemblyQualifiedAttributeTypeName">The type of the attribute to find, in assembly-qualified form</param>
+	/// <param name="assemblyQualifiedAttributeTypeName">The type of the attribute to find, in assembly-qualified form
+	/// will also accept attribute types that are generic type definitions (e.g., MyAttribute&lt;&gt;) in v3</param>
 	/// <returns>The matching attributes that decorate the attribute</returns>
 	IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName);
 
