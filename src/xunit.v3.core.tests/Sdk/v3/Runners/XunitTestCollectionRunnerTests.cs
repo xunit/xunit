@@ -274,7 +274,7 @@ public class XunitTestCollectionRunnerTests
 	class TestableXunitTestCollectionRunner : XunitTestCollectionRunner
 	{
 		readonly ExceptionAggregator aggregator;
-		readonly IReadOnlyDictionary<Type, object> assemblyFixtureMappings;
+		readonly FixtureMappingManager assemblyFixtureMappings;
 		readonly CancellationTokenSource cancellationTokenSource;
 		readonly IMessageBus messageBus;
 		readonly ITestCaseOrderer testCaseOrderer;
@@ -282,7 +282,7 @@ public class XunitTestCollectionRunnerTests
 		readonly _ITestCollection testCollection;
 
 		public Exception? RunTestClassAsync_AggregatorResult;
-		public Dictionary<Type, object>? RunTestClassesAsync_CollectionFixtureMappings;
+		public IReadOnlyDictionary<Type, object>? RunTestClassesAsync_CollectionFixtureMappings;
 		public ITestCaseOrderer? RunTestClassesAsync_TestCaseOrderer;
 
 		TestableXunitTestCollectionRunner(
@@ -292,7 +292,7 @@ public class XunitTestCollectionRunnerTests
 			ITestCaseOrderer testCaseOrderer,
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource,
-			IReadOnlyDictionary<Type, object> assemblyFixtureMappings)
+			FixtureMappingManager assemblyFixtureMappings)
 		{
 			this.testCollection = testCollection;
 			this.testCases = testCases;
@@ -313,7 +313,7 @@ public class XunitTestCollectionRunnerTests
 					new MockTestCaseOrderer(),
 					new ExceptionAggregator(),
 					new CancellationTokenSource(),
-					assemblyFixtures.ToDictionary(fixture => fixture.GetType())
+					new TestableFixtureMappingManager(assemblyFixtures)
 				);
 
 		public async ValueTask<RunSummary> RunAsync()
@@ -328,7 +328,7 @@ public class XunitTestCollectionRunnerTests
 		{
 			var result = base.RunTestClassesAsync(ctxt);
 
-			RunTestClassesAsync_CollectionFixtureMappings = ctxt.CollectionFixtureMappings;
+			RunTestClassesAsync_CollectionFixtureMappings = ctxt.CollectionFixtureMappings.FixtureCache;
 			RunTestClassesAsync_TestCaseOrderer = ctxt.TestCaseOrderer;
 
 			return result;
@@ -343,6 +343,17 @@ public class XunitTestCollectionRunnerTests
 			RunTestClassAsync_AggregatorResult = ctxt.Aggregator.ToException();
 
 			return new(new RunSummary());
+		}
+
+		class TestableFixtureMappingManager : FixtureMappingManager
+		{
+			public TestableFixtureMappingManager(FixtureMappingManager parent) :
+				base("Testable", parent)
+			{ }
+
+			public TestableFixtureMappingManager(params object[] cachedFixtureValues) :
+				base("Testable", cachedFixtureValues)
+			{ }
 		}
 	}
 }

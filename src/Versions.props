@@ -3,7 +3,7 @@
   <!-- Package versions shared among multiple .targets files -->
   <PropertyGroup>
     <!-- These versions float and get upgraded when `dotnet outdated` says to -->
-    <ILRepackVersion>2.0.22</ILRepackVersion>
+    <ILRepackVersion>2.0.27</ILRepackVersion>
     <MicrosoftNetFrameworkReferenceAssembliesVersion>1.0.3</MicrosoftNetFrameworkReferenceAssembliesVersion>
     <MicrosoftSourceLinkGitHubVersion>8.0.0</MicrosoftSourceLinkGitHubVersion>
     <MonoCecilVersion>0.11.5</MonoCecilVersion>
@@ -17,9 +17,9 @@
     <TestDrivenFrameworkVersion>2.0.0-alpha2</TestDrivenFrameworkVersion>
     <TunnelVisionLabsReferenceAssemblyAnnotatorVersion>1.0.0-alpha.160</TunnelVisionLabsReferenceAssemblyAnnotatorVersion>
     <XunitAbstractionsVersion>2.0.3</XunitAbstractionsVersion>
-    <XunitAnalyzersVersion>1.9.0-pre.9</XunitAnalyzersVersion>
+    <XunitAnalyzersVersion>1.10.0-pre.9</XunitAnalyzersVersion>
     <XunitV1Version>1.9.2</XunitV1Version>
-    <XunitV2Version>2.6.4</XunitV2Version>
+    <XunitV2Version>2.6.5</XunitV2Version>
 
     <!-- These versions are stuck to represent what shipped with .NET 6 -->
     <FSharpCompilerServiceVersion>43.7.200</FSharpCompilerServiceVersion>

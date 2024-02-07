@@ -544,6 +544,35 @@ public class FixtureAcceptanceTests
 			[Fact]
 			public void TheTest() { }
 		}
+
+		[Fact]
+		public async ValueTask CollectionFixtureOnGenericTestClassAcceptsArgument()
+		{
+			var messages = await RunAsync<_TestPassed>(typeof(GenericTests));
+
+			Assert.Equal(2, messages.Count);
+		}
+
+		[CollectionDefinition("generic collection")]
+		public class GenericFixtureCollection<T> : ICollectionFixture<GenericFixture<T>> { }
+
+		[Collection("generic collection")]
+		abstract class GenericTestBase<T>
+		{
+			protected GenericTestBase(GenericFixture<T> fixture) => Fixture = fixture;
+			protected readonly GenericFixture<T> Fixture;
+		}
+
+		public class GenericArgument { }
+
+		class GenericTests : GenericTestBase<GenericArgument>
+		{
+#pragma warning disable xUnit1041 // Fixture arguments to test classes must have fixture sources
+			public GenericTests(GenericFixture<GenericArgument> fixture) : base(fixture) { }
+#pragma warning restore xUnit1041 // Fixture arguments to test classes must have fixture sources
+			[Fact] public void Test1() => Assert.NotNull(Fixture);
+			[Fact] public void Test2() { }
+		}
 	}
 
 	public class AsyncCollectionFixture : AcceptanceTestV3
@@ -874,6 +903,7 @@ public class FixtureAcceptanceTests
 		{
 			var alphaFixture = Mocks.AssemblyFixtureAttribute(typeof(CountedAsyncFixture<Alpha>));
 			var betaFixture = Mocks.AssemblyFixtureAttribute(typeof(CountedAsyncFixture<Beta>));
+
 			var results = await RunAsync<_TestPassed>(new[] { typeof(TestClass1), typeof(TestClass2) }, additionalAssemblyAttributes: new[] { alphaFixture, betaFixture });
 
 			Assert.Equal(2, results.Count);
@@ -1076,5 +1106,13 @@ public class FixtureAcceptanceTests
 		public CountedFixture() => Identity = ++counter;
 
 		public readonly int Identity;
+	}
+
+	sealed class GenericFixture<T> : IAsyncLifetime, IDisposable
+	{
+		public GenericFixture() { }
+		public void Dispose() { }
+		public ValueTask InitializeAsync() => default;
+		public ValueTask DisposeAsync() => default;
 	}
 }

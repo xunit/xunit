@@ -1,13 +1,4 @@
 <Project>
-  <!-- Conditional assert import for v3 test projects -->
-  <Choose>
-    <When Condition=" $(MSBuildProjectName.Contains('.v3.')) AND $(MSBuildProjectName.EndsWith('.tests')) ">
-      <ItemGroup>
-        <ProjectReference Condition=" '$(TargetFramework)' != 'net6.0' " Include="..\xunit.v3.assert\xunit.v3.assert.csproj" />
-        <ProjectReference Condition=" '$(TargetFramework)' == 'net6.0' " Include="..\xunit.v3.assert.compat\xunit.v3.assert.net6\xunit.v3.assert.net6.csproj" />
-      </ItemGroup>
-    </When>
-  </Choose>
 
   <!-- Enable building .NET Framework on non-Windows machines -->
   <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
@@ -102,6 +93,8 @@
       <Output TaskParameter="Lines" PropertyName="GitAssertModuleCommitId"/>
     </ReadLinesFromFile>
     <PropertyGroup>
+      <SignedPath />
+      <SignedPath Condition=" '$(SIGN_APP_SECRET)' != '' ">signed\</SignedPath>
       <!-- Local builds should have a '-dev' suffix on the build number -->
       <PrereleaseSuffix Condition=" '$(GITHUB_ACTIONS)' != 'true' ">-dev</PrereleaseSuffix>
       <!-- Never put the Git hash in the package version -->
@@ -115,8 +108,10 @@
         MicrosoftBclAsyncInterfacesVersion=$(MicrosoftBclAsyncInterfacesVersion);
         MonoCecilVersion=$(MonoCecilVersion);
         PackageVersion=$(PackageVersion);
+        SignedPath=$(SignedPath);
         SystemIoPipelinesVersion=$(SystemIoPipelinesVersion);
         SystemNetHttpVersion=$(SystemNetHttpVersion);
+        SystemTextJsonVersion=$(SystemTextJsonVersion);
         SystemThreadingTasksExtensionsVersion=$(SystemThreadingTasksExtensionsVersion);
         XunitAbstractionsVersion=$(XunitAbstractionsVersion);
         XunitAnalyzersVersion=$(XunitAnalyzersVersion);

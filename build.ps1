@@ -4,8 +4,29 @@
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-if ($null -eq (Get-Command "git" -ErrorAction Ignore)) {
-	throw "Could not find 'git'; please install the Git command line tooling"
+function GuardBin {
+	param (
+		[string]$binary,
+		[string]$message
+	)
+
+	if ($null -eq (Get-Command $binary -ErrorAction Ignore)) {
+		throw "Could not find '$binary'; $message"
+	}
+}
+
+GuardBin git "please install the Git CLI from https://git-scm.com/"
+GuardBin dotnet "please install the .NET SDK from https://dot.net/"
+
+if ((get-content variable:IsLinux -ErrorAction Ignore) -or (get-content variable:IsMacOS -ErrorAction Ignore)) {
+	GuardBin mono "please install Mono from https://www.mono-project.com/"
+} else {
+	GuardBin msbuild.exe "please run this from a Visual Studio developer shell"
+}
+
+$version = [Version]$([regex]::matches((&dotnet --version), '^(\d+\.)?(\d+\.)?(\*|\d+)').value)
+if ($version.Major -lt 8) {
+	throw ".NET SDK version ($version) is too low; please install version 8.0 or later from https://dot.net/"
 }
 
 & git submodule status | ForEach-Object {
@@ -14,19 +35,6 @@ if ($null -eq (Get-Command "git" -ErrorAction Ignore)) {
 		& git submodule update --init "$($pieces[1])"
 		Write-Host ""
 	}
-}
-
-if ($null -eq (Get-Command "dotnet" -ErrorAction Ignore)) {
-	throw "Could not find 'dotnet'; please install the  .NET Core SDK"
-}
-
-$version = [Version]$([regex]::matches((&dotnet --version), '^(\d+\.)?(\d+\.)?(\*|\d+)').value)
-if ($version.Major -lt 6) {
-	throw ".NET SDK version ($version) is too low; please install version 6.0 or later"
-}
-
-if ($null -eq (Get-Command "msbuild.exe" -ErrorAction Ignore)) {
-	throw "Could not find 'msbuild.exe'; please run this from a Visual Studio developer shell"
 }
 
 Push-Location (Split-Path $MyInvocation.MyCommand.Definition)

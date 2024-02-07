@@ -9,53 +9,7 @@ on:
 jobs:
   build:
     name: "Build"
-    runs-on: ubuntu-22.04
-    env:
-      DOTNET_NOLOGO: true
-    steps:
-      - name: Clone source
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          submodules: true
-
-      - name: Replace global.json
-        run: cp .github/workflows/.global.json global.json
-        shell: bash
-
-      - name: Install .NET SDK
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: |
-            6.0.x
-
-      - name: Get .NET information
-        run: dotnet --info
-
-      - name: Get Mono information
-        run: mono --version
-
-      - name: "Build target: BuildAll"
-        run: dotnet run --project tools/builder --no-launch-profile -- BuildAll --timing
-
-      - name: "Upload artifact: test"
-        uses: actions/upload-artifact@v3
-        with:
-          name: test
-          path: artifacts/test
-        if: always()
-
-      - name: "Upload artifact: packages"
-        uses: actions/upload-artifact@v3
-        with:
-          name: packages
-          path: artifacts/packages
-        if: always()
-
-  publish:
-    name: "Sign and Publish"
-    runs-on: windows-latest
-    needs: build
+    runs-on: windows-2022
     env:
       DOTNET_NOLOGO: true
     steps:
@@ -68,23 +22,21 @@ jobs:
       - name: Add MSBuild to PATH
         uses: microsoft/setup-msbuild@v1
 
+      - name: Replace global.json
+        run: cp .github/workflows/.global.json global.json
+        shell: bash
+
       - name: Install .NET SDK
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: |
             6.0.x
-            7.0.x
+            8.0.x
 
       - name: Get .NET information
         run: dotnet --info
 
-      - name: "Download artifact: packages"
-        uses: actions/download-artifact@v3
-        with:
-          name: packages
-          path: artifacts/packages
-
-      - name: "Build target: PublishPackages"
+      - name: "Build target: BuildAll & PublishPackages"
         env:
           PUSH_APIKEY: ${{ secrets.PUSH_APIKEY }}
           PUSH_URI: ${{ secrets.PUSH_URI }}
@@ -95,7 +47,14 @@ jobs:
           SIGN_TENANT: ${{ secrets.SIGN_TENANT }}
           SIGN_TIMESTAMP_URI: ${{ secrets.SIGN_TIMESTAMP_URI }}
           SIGN_VAULT_URI: ${{ secrets.SIGN_VAULT_URI }}
-        run: dotnet run --project tools/builder --no-launch-profile -- PublishPackages --timing
+        run: dotnet run --project tools/builder --no-launch-profile -- BuildAll PublishPackages --timing
+
+      - name: "Upload artifact: test"
+        uses: actions/upload-artifact@v3
+        with:
+          name: test
+          path: artifacts/test
+        if: always()
 
       - name: "Upload artifact: packages"
         uses: actions/upload-artifact@v3

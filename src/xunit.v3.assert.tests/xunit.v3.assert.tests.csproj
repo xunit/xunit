@@ -4,6 +4,20 @@
     <TargetFrameworks>net472;net6.0</TargetFrameworks>
   </PropertyGroup>
 
+  <!-- Reduce to minimal feature set for .NET Framework tests so we know all paths get covered -->
+  <Choose>
+    <When Condition=" '$(TargetFramework)' == 'net472' ">
+      <PropertyGroup>
+        <DefineConstants>XUNIT_NULLABLE</DefineConstants>
+      </PropertyGroup>
+
+      <ItemGroup>
+        <ProjectReference Remove="..\xunit.v3.assert\xunit.v3.assert.csproj" />
+        <ProjectReference Include="..\xunit.v3.assert.compat\xunit.v3.assert.nullable\xunit.v3.assert.nullable.csproj" />
+      </ItemGroup>
+    </When>
+  </Choose>
+
   <ItemGroup>
     <Compile Include="..\xunit.v3.runner.utility.tests\Compilation\AcceptanceTestAssembly.cs" LinkBase="AcceptanceTesting" />
     <Compile Include="..\xunit.v3.runner.utility.tests\Compilation\CSharpAcceptanceTestAssembly.cs" LinkBase="AcceptanceTesting" />

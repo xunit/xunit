@@ -7,7 +7,8 @@ running macOS can generally follow the Linux instructions (while installing the 
 
 You will need the following software installed (regardless of OS):
 
-* [.NET SDK 6.0](https://dotnet.microsoft.com/download/dotnet/6.0)
+* [.NET SDK 8.0](https://dotnet.microsoft.com/download/dotnet/8.0)
+* [.NET Runtime 6.0](https://dotnet.microsoft.com/download/dotnet/6.0)
 * [git](https://git-scm.com/downloads)
 
 ## Linux Pre-Requisites
@@ -22,7 +23,7 @@ Linux users will additionally need:
 Windows users will additionally need:
 
 * .NET Framework 4.7.2 or later (part of the Windows OS)
-* PowerShell (or [PowerShell Core](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-windows?view=powershell-6))
+* PowerShell (or [PowerShell Core](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-windows))
 
 Ensure that you have configured PowerShell to be able to run local unsigned scripts (either by running
 `Set-ExecutionPolicy RemoteSigned` from within PowerShell, or by launching PowerShell with the
@@ -34,7 +35,7 @@ Ensure that you have configured PowerShell to be able to run local unsigned scri
 
     **Windows users:** Open PowerShell (or PowerShell Core).
 
-1. From the root folder of the source repo, this command will build the code & run all tests:
+1. From the root folder of the source repo, this command will build the code and run all tests:
 
     `./build`
 

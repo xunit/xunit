@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using Xunit;
 using Xunit.Sdk;
+
+#if XUNIT_IMMUTABLE_COLLECTIONS
+using System.Collections.Immutable;
+#endif
 
 public class EquivalenceAssertsTests
 {
@@ -654,6 +657,8 @@ public class EquivalenceAssertsTests
 		}
 	}
 
+#if XUNIT_IMMUTABLE_COLLECTIONS
+
 	public class ImmutableArrayOfValueTypes_NotStrict
 	{
 		[Fact]
@@ -782,6 +787,8 @@ public class EquivalenceAssertsTests
 			);
 		}
 	}
+
+#endif
 
 	public class ArrayOfObjects_NotStrict
 	{
@@ -1085,6 +1092,7 @@ public class EquivalenceAssertsTests
 			Assert.Equivalent(new List<int> { 1, 2, 3 }, new[] { 1, 2, 3 });
 		}
 
+#if XUNIT_IMMUTABLE_COLLECTIONS
 		[Fact]
 		public void ArrayIsEquivalentToImmutableArray()
 		{
@@ -1102,6 +1110,7 @@ public class EquivalenceAssertsTests
 		{
 			Assert.Equivalent(new[] { 1, 2, 3 }.ToImmutableList(), new[] { 1, 2, 3 }.ToImmutableSortedSet());
 		}
+#endif
 	}
 
 	public class Dictionaries_NotStrict

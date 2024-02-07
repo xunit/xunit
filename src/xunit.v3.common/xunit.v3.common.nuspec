@@ -1,22 +1,22 @@
-<?xml version="1.0"?>
-<package>
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
 	<metadata>
-		<id>xunit.v3.runner.msbuild</id>
+		<id>xunit.v3.common</id>
 		<version>$PackageVersion$</version>
-		<title>xUnit.net v3 [Runner: MSBuild]</title>
+		<title>xUnit.net v3 [Common Library]</title>
 		<authors>jnewkirk,bradwilson</authors>
-		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<license type="expression">Apache-2.0</license>
 		<licenseUrl>https://licenses.nuget.org/Apache-2.0</licenseUrl>
 		<icon>_content/logo-128-transparent.png</icon>
 		<readme>_content/README.md</readme>
 		<releaseNotes>https://xunit.net/releases/v3/$PackageVersion$</releaseNotes>
-		<description>MSBuild runner for the xUnit.net framework. Capable of running xUnit.net v1.9.2+ (including v2.x and v3.x) tests. Supports .NET Framework 4.7.2 or later.</description>
+		<description>Includes common code shared between xunit.v3.core and xunit.v3.runner.common (xunit.v3.common.dll). Supports .NET Standard 2.0.</description>
 		<copyright>Copyright (C) .NET Foundation</copyright>
 		<repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
-		<developmentDependency>true</developmentDependency>
 		<dependencies>
-			<group targetFramework="net472" />
+			<group targetFramework="netstandard2.0">
+				<dependency id="System.Text.Json" version="$SystemTextJsonVersion$" />
+			</group>
 		</dependencies>
 	</metadata>
 	<!-- Remember to update tools\builder\targets\SignAssemblies.cs when assemblies are added or removed -->
@@ -24,10 +24,7 @@
 		<file target="_content\" src="..\..\tools\media\logo-128-transparent.png" />
 		<file target="_content\" src="..\..\README.md" />
 
-		<file target="build\net472\" src="bin\$Configuration$\net472\merged\xunit.abstractions.dll" />
-		<file target="build\net472\" src="bin\$Configuration$\net472\merged\$SignedPath$xunit.v3.runner.msbuild.dll" />
-		<file target="build\net472\" src="Package\build\*" />
-
-		<file target="lib\net472\_._" src="..\build\_._" />
+		<file target="lib\netstandard2.0\" src="bin\$Configuration$\netstandard2.0\$SignedPath$xunit.v3.common.dll" />
+		<file target="lib\netstandard2.0\" src="bin\$Configuration$\netstandard2.0\xunit.v3.common.xml" />
 	</files>
 </package>

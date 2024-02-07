@@ -3118,7 +3118,7 @@ public class EqualityAssertsTests
 				Assert.IsType<NotEqualException>(ex);
 				// TODO: Would be better to have formatting that preserves the ranks instead of
 				// flattening, which happens because multi-dimensional arrays enumerate flatly
-				Assert.Equal<object>(
+				Assert.Equal(
 					"Assert.NotEqual() Failure: Collections are equal" + Environment.NewLine +
 					"Expected: Not [1, 2]" + Environment.NewLine +
 					"Actual:       [1, 2]",

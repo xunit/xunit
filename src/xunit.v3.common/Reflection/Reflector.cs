@@ -1,11 +1,9 @@
 using System;
 using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using Xunit.Internal;
 using Xunit.v3;
@@ -17,8 +15,6 @@ namespace Xunit.Sdk;
 /// </summary>
 public static class Reflector
 {
-	static readonly ConcurrentDictionary<(Type enumType, Type valueType), Delegate> enumConverters = new();
-
 	internal readonly static object?[] EmptyArgs = Array.Empty<object?>();
 	internal readonly static Type[] EmptyTypes = Array.Empty<Type>();
 
@@ -72,17 +68,7 @@ public static class Reflector
 					return toArrayMethod.Invoke(null, new object?[] { castMethod.Invoke(null, new object[] { enumerable }) });
 				}
 				else if (type.IsEnum)
-				{
-					var valueType = arg.GetType();
-					var enumConverter = enumConverters.GetOrAdd((type, valueType), _ =>
-					{
-						var parameter = Expression.Parameter(valueType);
-						var funcType = typeof(Func<,>).MakeGenericType(valueType, type);
-						var dynamicMethod = Expression.Lambda(funcType, Expression.Convert(parameter, type), parameter);
-						return dynamicMethod.Compile();
-					});
-					return enumConverter.DynamicInvoke(arg);
-				}
+					return Enum.ToObject(type, arg);
 				else
 				{
 					if (type == typeof(Guid))

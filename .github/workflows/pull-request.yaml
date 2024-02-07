@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2022, ubuntu-22.04, macOS-12]
+        os: [windows-2022, ubuntu-22.04, macOS-14]
     steps:
       - name: Clone source
         uses: actions/checkout@v3
@@ -33,6 +33,7 @@ jobs:
         with:
           dotnet-version: |
             6.0.x
+            8.0.x
 
       - name: Get .NET information
         run: dotnet --info

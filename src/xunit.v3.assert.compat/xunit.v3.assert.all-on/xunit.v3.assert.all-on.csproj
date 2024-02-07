@@ -1,15 +1,20 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <AnalysisLevel>latest-All</AnalysisLevel>
     <DefineConstants>$(DefineConstants);XUNIT_IMMUTABLE_COLLECTIONS;XUNIT_NULLABLE;XUNIT_SPAN</DefineConstants>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <LangVersion>9.0</LangVersion>
+    <!-- .NET Core 2.0 and 2.1 have security vulnerabilities, but we don't care; we just need the build for verification purposes, not to ship it -->
+    <NoWarn>$(NoWarn);NU1902;NU1903</NoWarn>
     <Nullable>enable</Nullable>
-    <TargetFramework>netstandard1.1</TargetFramework>
+    <TargetFrameworks>netstandard1.1;netcoreapp2.0;netcoreapp2.1;net8.0</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
     <!-- Stick to an older version of the package, so we can still target netstandard1.1 -->
-    <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
+    <PackageReference Include="System.Collections.Immutable" Version="5.0.0" Condition=" '$(TargetFramework)' == 'netstandard1.1' " />
     <PackageReference Include="System.Memory" Version="$(SystemMemoryVersion)" />
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="$(SystemThreadingTasksExtensionsVersion)" />
   </ItemGroup>
