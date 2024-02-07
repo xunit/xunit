@@ -1915,29 +1915,42 @@ public class Xunit3TheoryAcceptanceTests
 #pragma warning restore xUnit1019 // MemberData must reference a member providing a valid data type
 		}
 
-#if NET8_0_OR_GREATER
-		class ClassUnderTest_StaticInterfaceMethod
+#if NET7_0_OR_GREATER
+		public abstract class Repro<TSelf> where TSelf : IInterfaceWithStaticVirtualMember
 		{
-			public abstract class Repro<TSelf> where TSelf : ITest
-			{
-				[Theory]
+			[Theory]
 #pragma warning disable xUnit1015 // MemberData must reference an existing member
-				[MemberData(nameof(TSelf.TestData))]
+			[MemberData(nameof(TSelf.TestData))]
 #pragma warning restore xUnit1015 // MemberData must reference an existing member
-				public void Test(int value)
+			public void Test(int value)
+			{
+				Console.WriteLine(value);
+				Assert.NotEqual(0, value);
+			}
+		}
+
+		class ClassUnderTest_StaticInterfaceMethod : Repro<ClassUnderTest_StaticInterfaceMethod>, IInterfaceWithStaticVirtualMember
+		{
+		}
+
+		public interface IInterfaceWithStaticVirtualMember
+		{
+			static virtual TheoryData<int> TestData => new() { 1, 2, 3 };
+		}
+
+		[Fact]
+		public async ValueTask MemberData_ReferencingStaticInterfaceData_Succeeds()
+		{
+			Console.WriteLine("got here");
+			var testMessages = await RunForResultsAsync(typeof(ClassUnderTest_StaticInterfaceMethod));
+
+			Assert.Collection(
+				testMessages.OfType<TestPassedWithDisplayName>().OrderBy(x => x.TestDisplayName),
+				result => 
 				{
-					Assert.NotEqual(0, value);
+					Assert.Equal("Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleValueData.FieldTestMethod", result.TestDisplayName);
 				}
-			}
-
-			public sealed class ReproImpl : Repro<ReproImpl>, ITest
-			{
-			}
-
-			public interface ITest
-			{
-				static virtual TheoryData<int> TestData => new() { 1, 2, 3 };
-			}
+			);
 		}
 #endif
 	}
