@@ -1914,6 +1914,32 @@ public class Xunit3TheoryAcceptanceTests
 			}
 #pragma warning restore xUnit1019 // MemberData must reference a member providing a valid data type
 		}
+
+#if NET8_0_OR_GREATER
+		class ClassUnderTest_StaticInterfaceMethod
+		{
+			public abstract class Repro<TSelf> where TSelf : ITest
+			{
+				[Theory]
+#pragma warning disable xUnit1015 // MemberData must reference an existing member
+				[MemberData(nameof(TSelf.TestData))]
+#pragma warning restore xUnit1015 // MemberData must reference an existing member
+				public void Test(int value)
+				{
+					Assert.NotEqual(0, value);
+				}
+			}
+
+			public sealed class ReproImpl : Repro<ReproImpl>, ITest
+			{
+			}
+
+			public interface ITest
+			{
+				static virtual TheoryData<int> TestData => new() { 1, 2, 3 };
+			}
+		}
+#endif
 	}
 
 	public class MethodDataTests : AcceptanceTestV3
