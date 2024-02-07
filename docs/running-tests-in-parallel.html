@@ -401,38 +401,39 @@ public class TestClass2
 <h2 id="visualizing-execution-history">Visualizing execution history</h2>
 
 <p>
+  Beginning with v2 version <code>x.x.x</code> and v3 version <code>x.x.x</code>,
   xUnit.net is capable of emitting <a href="https://learn.microsoft.com/dotnet/core/diagnostics/eventsource-getting-started">EventSource</a>
-  events that describe when running given test has started and finished. These events can be captured and visualized by a profiler.
-  One of such profilers is <a href="https://learn.microsoft.com/visualstudio/profiling/concurrency-visualizer">Concurrency Visualizer</a> (a free plugin for Visual Studio).
-  Concurrency Visualizer can be used to locate performance bottlenecks, CPU underutilization, thread contention
+  events that describe provide events when a test has started and finished. These events can be captured and visualized by a profiler.
+  One of such profiler is <a href="https://learn.microsoft.com/visualstudio/profiling/concurrency-visualizer">Concurrency Visualizer</a> (a free plugin for Visual Studio).
+  Concurrency Visualizer can be used to locate performance bottlenecks, CPU under-utilization, thread contention
   and other parallelization issues.
 </p>
 
 <p>
-  Concurrency Visualizer needs to enable the xUnit event source. This can be done by selecting
+  Concurrency Visualizer needs to enable the xUnit.net event source. This can be done by selecting
   <em>Analyze -> Concurrency Visualizer -> Advanced Settings</em> in Visual Studio.
 </p>
 
-<p><img class="border" src="D:\projects\xunit\images\concurrency-visualiser\vs_menu.png" width="987" /></p>
+<p><a href="/images/concurrency-visualiser/vs_menu.png"><img class="border" src="/images/concurrency-visualiser/vs_menu.png" width="658" /></a></p>
 
 <p>
-  After clicking the add button, <strong>xUnit.TestEventSource</strong> needs to be specified as <em>Name</em>
-  and <strong>ae399e80-45fc-4219-aacc-b73a458ad7e1</strong> as the <em>Provider GUID</em>.
+  After clicking the add button, <code>xUnit.TestEventSource</code> needs to be specified as <em>Name</em>
+  and <code>ae399e80-45fc-4219-aacc-b73a458ad7e1</code> as the <em>Provider GUID</em>.
 </p>
 
-<p><img class="border" src="D:\projects\xunit\images\concurrency-visualiser\settings.png" width="987" /></p>
+<p><a href="/images/concurrency-visualiser/settings.png"><img class="border" src="/images/concurrency-visualiser/settings.png" width="724" /></a></p>
 
 <p>
-  Following the steps described above is required only once and should allow for visualizing the parallel execution history of given test project.
+  Following the steps described above is required only once and should allow for visualizing the parallel execution history of the given test project.
 </p>
 
-<p><img class="border" src="D:\projects\xunit\images\concurrency-visualiser\cores.png" width="987" /></p>
+<p><a href="/images/concurrency-visualiser/cores.png"><img class="border" src="/images/concurrency-visualiser/cores.png" width="1021" /></a></p>
 
 <p>
-  With test display names being shown in the <em>Threads</em> tab.
+  Test display names will be shown in the <em>Threads</em> tab:
 </p>
 
-<p><img class="border" src="D:\projects\xunit\images\concurrency-visualiser\threads.png" width="987" /></p>
+<p><a href="/images/concurrency-visualiser/threads.png"><img class="border" src="/images/concurrency-visualiser/threads.png" width="1021" /></a></p>
 
 <section class="related-topics">Related topics:</section>
 <ul>
