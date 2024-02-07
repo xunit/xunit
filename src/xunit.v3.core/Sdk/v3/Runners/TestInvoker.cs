@@ -49,9 +49,7 @@ public abstract class TestInvoker<TContext>
 		Guard.ArgumentNotNull(ctxt);
 
 		if (TestEventSource.Log.IsEnabled())
-		{
 			TestEventSource.Log.TestMethodStart(ctxt.Test.TestDisplayName);
-		}
 
 		try
 		{
@@ -59,12 +57,8 @@ public abstract class TestInvoker<TContext>
 		}
 		finally
 		{
-			// There is no guarantee that AfterTestMethodInvokedAsync is always going to be executed,
-			// that is why this logic is part of the finally block.
 			if (TestEventSource.Log.IsEnabled())
-			{
 				TestEventSource.Log.TestMethodStop(ctxt.Test.TestDisplayName);
-			}
 		}
 	}
 
