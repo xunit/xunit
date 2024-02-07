@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using Xunit.Internal;
 
@@ -147,6 +148,24 @@ public struct ExceptionAggregator
 			GetExceptions().Add(ex.Unwrap());
 			return defaultValue;
 		}
+	}
+
+	/// <summary>
+	/// Throws an exception if the aggregator contains any exceptions. If the aggregator contains
+	/// a single exception, it will be re-thrown without losing the original stack trace; if
+	/// the aggregator contains more than one exception, then the original exceptions will be
+	/// wrapped up into an instance of <see cref="AggregateException"/>.
+	/// </summary>
+	public void ThrowIfFaulted()
+	{
+		var exceptions = GetExceptions();
+
+		if (exceptions.Count == 0)
+			return;
+		if (exceptions.Count != 1)
+			throw new AggregateException(exceptions);
+
+		ExceptionDispatchInfo.Capture(exceptions[0]).Throw();
 	}
 
 	/// <summary>

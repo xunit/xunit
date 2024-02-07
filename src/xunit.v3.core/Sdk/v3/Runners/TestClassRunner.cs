@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -34,7 +33,7 @@ public abstract class TestClassRunner<TContext, TTestCase>
 	/// </summary>
 	/// <param name="ctxt">The context that describes the current test class</param>
 	/// <returns>The test class constructor arguments.</returns>
-	protected virtual object?[] CreateTestClassConstructorArguments(TContext ctxt)
+	protected virtual async ValueTask<object?[]> CreateTestClassConstructorArguments(TContext ctxt)
 	{
 		Guard.ArgumentNotNull(ctxt);
 
@@ -52,7 +51,8 @@ public abstract class TestClassRunner<TContext, TTestCase>
 				{
 					var parameter = parameters[idx];
 
-					if (TryGetConstructorArgument(ctxt, ctor, idx, parameter, out var argumentValue))
+					var argumentValue = await GetConstructorArgument(ctxt, ctor, idx, parameter);
+					if (argumentValue is not null)
 						constructorArguments[idx] = argumentValue;
 					else if (parameter.HasDefaultValue)
 						constructorArguments[idx] = parameter.DefaultValue;
@@ -105,6 +105,21 @@ public abstract class TestClassRunner<TContext, TTestCase>
 	/// <param name="ctxt">The context that describes the current test class</param>
 	protected virtual ValueTask BeforeTestClassFinishedAsync(TContext ctxt) =>
 		default;
+
+	/// <summary>
+	/// Tries to supply a test class constructor argument.
+	/// </summary>
+	/// <param name="ctxt">The context that describes the current test class</param>
+	/// <param name="constructor">The constructor that will be used to create the test class.</param>
+	/// <param name="index">The parameter index.</param>
+	/// <param name="parameter">The parameter information.</param>
+	/// <returns>Returns the constructor argument if available, <c>null</c> otherwise.</returns>
+	protected virtual ValueTask<object?> GetConstructorArgument(
+		TContext ctxt,
+		ConstructorInfo constructor,
+		int index,
+		ParameterInfo parameter) =>
+			new((object?)null);
 
 	/// <summary>
 	/// Runs the tests in the test class.
@@ -210,7 +225,7 @@ public abstract class TestClassRunner<TContext, TTestCase>
 			orderedTestCases = ctxt.TestCases.CastOrToReadOnlyCollection();
 		}
 
-		var constructorArguments = CreateTestClassConstructorArguments(ctxt);
+		var constructorArguments = await CreateTestClassConstructorArguments(ctxt);
 
 		foreach (var method in orderedTestCases.GroupBy(tc => tc.TestMethod, TestMethodComparer.Instance))
 		{
@@ -280,26 +295,5 @@ public abstract class TestClassRunner<TContext, TTestCase>
 		Guard.ArgumentNotNull(ctxt);
 
 		TestContext.SetForTestClass(ctxt.TestClass, testClassStatus, ctxt.CancellationTokenSource.Token);
-	}
-
-	/// <summary>
-	/// Tries to supply a test class constructor argument. By default, always fails. Override to
-	/// change the argument lookup logic.
-	/// </summary>
-	/// <param name="ctxt">The context that describes the current test class</param>
-	/// <param name="constructor">The constructor that will be used to create the test class.</param>
-	/// <param name="index">The parameter index.</param>
-	/// <param name="parameter">The parameter information.</param>
-	/// <param name="argumentValue">The argument value that should be used for the parameter.</param>
-	/// <returns>Returns <c>true</c> if the argument was supplied; <c>false</c>, otherwise.</returns>
-	protected virtual bool TryGetConstructorArgument(
-		TContext ctxt,
-		ConstructorInfo constructor,
-		int index,
-		ParameterInfo parameter,
-		[MaybeNullWhen(false)] out object argumentValue)
-	{
-		argumentValue = null;
-		return false;
 	}
 }
