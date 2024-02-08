@@ -22,7 +22,7 @@ public static partial class Mocks
 		var result = Substitute.For<_IAssemblyInfo, InterfaceProxy<_IAssemblyInfo>>();
 		result.AssemblyPath.Returns(assemblyFileName);
 		result.Name.Returns(Path.GetFileNameWithoutExtension(assemblyFileName));
-		result.GetCustomAttributes("").ReturnsForAnyArgs(callInfo => LookupAttribute(callInfo.Arg<string>(), attributes));
+		result.GetCustomAttributes(Arg.Any<_ITypeInfo>()).ReturnsForAnyArgs(callInfo => LookupAttribute(callInfo.Arg<_ITypeInfo>(), attributes));
 		result.GetType("").ReturnsForAnyArgs(types?.FirstOrDefault());
 		result.GetTypes(true).ReturnsForAnyArgs(types ?? new _ITypeInfo[0]);
 		return result;
@@ -66,7 +66,7 @@ public static partial class Mocks
 		result.Name.Returns(methodName);
 		result.ReturnType.Returns(returnType);
 		result.Type.Returns(type);
-		result.GetCustomAttributes("").ReturnsForAnyArgs(callInfo => LookupAttribute(callInfo.Arg<string>(), attributes));
+		result.GetCustomAttributes(Arg.Any<_ITypeInfo>()).ReturnsForAnyArgs(callInfo => LookupAttribute(callInfo.Arg<_ITypeInfo>(), attributes));
 		result.GetGenericArguments().Returns(genericArguments);
 		result.GetParameters().Returns(parameters);
 		// Difficult to simulate MakeGenericMethod here, so better to throw then just return null
@@ -116,7 +116,7 @@ public static partial class Mocks
 		result.IsGenericType.Returns(isGenericType);
 		result.IsValueType.Returns(isValueType);
 		result.Name.Returns(name);
-		result.GetCustomAttributes("").ReturnsForAnyArgs(callInfo => LookupAttribute(callInfo.Arg<string>(), attributes));
+		result.GetCustomAttributes(Arg.Any<_ITypeInfo>()).ReturnsForAnyArgs(callInfo => LookupAttribute(callInfo.Arg<_ITypeInfo>(), attributes));
 		result.GetGenericArguments().Returns(genericArguments);
 		result.GetMethod("", false).ReturnsForAnyArgs(callInfo => methods.FirstOrDefault(m => m.Name == callInfo.Arg<string>()));
 		result.GetMethods(false).ReturnsForAnyArgs(methods);

@@ -43,6 +43,9 @@ public class Xunit3TypeInfo : _ITypeInfo
 	public _IAssemblyInfo Assembly { get; }
 
 	/// <inheritdoc/>
+	public string? AssemblyQualifiedName => null;  // New for v3
+
+	/// <inheritdoc/>
 	public _ITypeInfo? BaseType { get; }
 
 	/// <inheritdoc/>
@@ -53,6 +56,9 @@ public class Xunit3TypeInfo : _ITypeInfo
 
 	/// <inheritdoc/>
 	public bool IsArray => false;  // New for v3
+
+	/// <inheritdoc/>
+	public bool IsConstructedGenericType => false;  // New for v3
 
 	/// <inheritdoc/>
 	public bool IsEnum => false;  // New for v3
@@ -94,8 +100,8 @@ public class Xunit3TypeInfo : _ITypeInfo
 		throw new NotImplementedException("This API is new for v3 and should never be called for v2");
 
 	/// <inheritdoc/>
-	public IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName) =>
-		V2TypeInfo.GetCustomAttributes(assemblyQualifiedAttributeTypeName).Select(a => new Xunit3AttributeInfo(a)).CastOrToReadOnlyCollection();
+	public IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(_ITypeInfo attributeType) =>
+		V2TypeInfo.GetCustomAttributes(Guard.ArgumentNotNull(attributeType).AssemblyQualifiedName).Select(a => new Xunit3AttributeInfo(a)).CastOrToReadOnlyCollection();
 
 	/// <inheritdoc/>
 	public _ITypeInfo? GetElementType() =>

@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Xunit.v3;
 
 /// <summary>
@@ -23,9 +25,11 @@ public interface _IParameterInfo
 	_ITypeInfo ParameterType { get; }
 
 	/// <summary>
-	/// Retrieves a custom attribute of a specified type that is applied to a specified parameter.
+	/// Gets all the custom attributes for the parameter that are of the given attribute type.
 	/// </summary>
-	/// <param name="attributeType">The type of attribute to search for.</param>
-	/// <returns>A custom attribute that matches <paramref name="attributeType"/> if found; <c>null</c>, otherwise.</returns>
-	_IAttributeInfo? GetCustomAttribute(_ITypeInfo attributeType);
+	/// <param name="attributeType">The type of the attribute to find. Will accept attribute types that are concrete,
+	/// closed generic, and open generic. When provided an open generic type (e.g., MyAttribute&lt;&gt;) it will
+	/// return matching closed generic attributes (e.g., MyAttribute&gt;int&lt;)</param>
+	/// <returns>The matching attributes that decorate the parameter</returns>
+	IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(_ITypeInfo attributeType);
 }

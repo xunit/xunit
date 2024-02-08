@@ -48,9 +48,11 @@ public interface _IMethodInfo
 	/// <summary>
 	/// Gets all the custom attributes for the method that are of the given type.
 	/// </summary>
-	/// <param name="assemblyQualifiedAttributeTypeName">The type of the attribute, in assembly qualified form</param>
+	/// <param name="attributeType">The type of the attribute to find. Will accept attribute types that are concrete,
+	/// closed generic, and open generic. When provided an open generic type (e.g., MyAttribute&lt;&gt;) it will
+	/// return matching closed generic attributes (e.g., MyAttribute&gt;int&lt;)</param>
 	/// <returns>The matching attributes that decorate the method</returns>
-	IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName);
+	IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(_ITypeInfo attributeType);
 
 	/// <summary>
 	/// Gets the types of the generic arguments for generic methods.

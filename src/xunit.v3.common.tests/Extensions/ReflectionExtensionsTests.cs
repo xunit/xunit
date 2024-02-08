@@ -1,8 +1,7 @@
 using System;
-using System.Xml;
 using Xunit;
-using Xunit.Internal;
 using Xunit.Sdk;
+using Xunit.v3;
 
 public class ReflectionExtensionsTests
 {
@@ -112,7 +111,7 @@ public class ReflectionExtensionsTests
 			Assert.True(typeof(MyEnum).IsFromLocalAssembly());
 #if NETFRAMEWORK
 			if (!EnvironmentHelper.IsMono)
-				Assert.False(typeof(ConformanceLevel).IsFromLocalAssembly());
+				Assert.False(typeof(System.Xml.ConformanceLevel).IsFromLocalAssembly());
 #endif
 		}
 
@@ -122,7 +121,7 @@ public class ReflectionExtensionsTests
 			Assert.True(Reflector.Wrap(typeof(MyEnum)).IsFromLocalAssembly());
 #if NETFRAMEWORK
 			if (!EnvironmentHelper.IsMono)
-				Assert.False(Reflector.Wrap(typeof(ConformanceLevel)).IsFromLocalAssembly());
+				Assert.False(Reflector.Wrap(typeof(System.Xml.ConformanceLevel)).IsFromLocalAssembly());
 #endif
 		}
 

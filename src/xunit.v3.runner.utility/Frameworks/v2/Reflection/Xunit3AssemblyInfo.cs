@@ -32,8 +32,8 @@ public class Xunit3AssemblyInfo : _IAssemblyInfo
 	public IAssemblyInfo V2AssemblyInfo { get; }
 
 	/// <inheritdoc/>
-	public IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName) =>
-		V2AssemblyInfo.GetCustomAttributes(assemblyQualifiedAttributeTypeName).Select(a => new Xunit3AttributeInfo(a)).CastOrToReadOnlyCollection();
+	public IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(_ITypeInfo attributeType) =>
+		V2AssemblyInfo.GetCustomAttributes(Guard.ArgumentNotNull(attributeType).AssemblyQualifiedName).Select(a => new Xunit3AttributeInfo(a)).CastOrToReadOnlyCollection();
 
 	/// <inheritdoc/>
 	public _ITypeInfo? GetType(string typeName)

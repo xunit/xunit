@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xunit.Abstractions;
 using Xunit.Internal;
+using Xunit.Sdk;
 using Xunit.v3;
 
 namespace Xunit.Runner.v2;
@@ -59,7 +60,7 @@ public class Xunit2TypeInfo : LongLivedMarshalByRefObject, ITypeInfo
 	/// <inheritdoc/>
 	public IEnumerable<IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName) =>
 		V3TypeInfo
-			.GetCustomAttributes(assemblyQualifiedAttributeTypeName)
+			.GetCustomAttributes(Reflector.FindTypeAndWrap(assemblyQualifiedAttributeTypeName))
 			.Select(a => new Xunit2AttributeInfo(a))
 			.CastOrToReadOnlyCollection();
 
