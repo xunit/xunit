@@ -529,6 +529,15 @@ public class FixtureAcceptanceTests
 			Assert.Single(messages);
 		}
 
+		class CountedFixture
+		{
+			static int counter = 0;
+
+			public CountedFixture() => Identity = ++counter;
+
+			public readonly int Identity;
+		}
+
 		[CollectionDefinition("Collection with counted fixture")]
 		public class CollectionWithClassFixtureCounter : ICollectionFixture<CountedFixture> { }
 
@@ -779,6 +788,15 @@ public class FixtureAcceptanceTests
 			Assert.Single(messages);
 		}
 
+		class CountedFixture
+		{
+			static int counter = 0;
+
+			public CountedFixture() => Identity = ++counter;
+
+			public readonly int Identity;
+		}
+
 		public class CollectionWithClassFixtureCounter : ICollectionFixture<CountedFixture> { }
 
 		[Collection(typeof(CollectionWithClassFixtureCounter))]
@@ -998,6 +1016,15 @@ public class FixtureAcceptanceTests
 			var messages = await RunAsync<_TestPassed>(typeof(ClassWithCountedFixture));
 
 			Assert.Single(messages);
+		}
+
+		class CountedFixture
+		{
+			static int counter = 0;
+
+			public CountedFixture() => Identity = ++counter;
+
+			public readonly int Identity;
 		}
 
 		public class CollectionWithClassFixtureCounter : ICollectionFixture<CountedFixture> { }
@@ -1539,15 +1566,6 @@ public class FixtureAcceptanceTests
 	class ThrowingDisposeAsyncFixture : IAsyncDisposable
 	{
 		public ValueTask DisposeAsync() => throw new DivideByZeroException();
-	}
-
-	class CountedFixture
-	{
-		static int counter = 0;
-
-		public CountedFixture() => Identity = ++counter;
-
-		public readonly int Identity;
 	}
 
 	sealed class GenericFixture<T> : IAsyncLifetime, IDisposable
