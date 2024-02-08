@@ -68,7 +68,7 @@ public class CollectionPerAssemblyTestCollectionFactory : IXunitTestCollectionFa
 		string name = UniqueIDGenerator.ForType(fixtureType);
 
 		if (!collectionDefinitions.Value.ContainsKey(name))
-		    collectionDefinitions.Value.Add(name, fixtureType);
+			collectionDefinitions.Value.Add(name, fixtureType);
 
 		return testCollections.GetOrAdd(name, CreateTestCollection);
 	}
