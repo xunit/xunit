@@ -25,6 +25,22 @@ public static partial class Mocks
 		return result;
 	}
 
+	public static _IReflectionAttributeInfo AttributeInfo<TAttribute>()
+		where TAttribute : Attribute, new()
+	{
+		var customAttributes = typeof(TAttribute).GetCustomAttributesData();
+
+		// Assumption here is no constructor arguments and no named arguments. We could mock constructor arguments, but
+		// the named argument method is generic, and NSubtitute can't mock arbitrary generic types. Limiting ourselves
+		// makes this reasonable.
+		var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
+		result.Attribute.Returns(new TAttribute());
+		result.AttributeType.Returns(Reflector.Wrap(typeof(TAttribute)));
+		result.GetConstructorArguments().Returns(Array.Empty<object?>());
+		result.GetCustomAttributes(Arg.Any<_ITypeInfo>()).Returns(callInfo => customAttributes.FindCustomAttributes(callInfo.Arg<_ITypeInfo>()));
+		return result;
+	}
+
 	public static _IReflectionAttributeInfo CollectionAttribute(string collectionName)
 	{
 		var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
@@ -138,20 +154,13 @@ public static partial class Mocks
 	}
 
 	static IReadOnlyCollection<_IAttributeInfo> LookupAttribute(
-		string fullyQualifiedTypeName,
+		_ITypeInfo attributeTypeInfo,
 		_IAttributeInfo[]? attributes)
 	{
 		if (attributes is null)
 			return EmptyAttributeInfos;
 
-		var attributeType = Type.GetType(fullyQualifiedTypeName);
-		if (attributeType is null)
-			return EmptyAttributeInfos;
-
-		return
-			attributes
-				.Where(attribute => attributeType.IsAssignableFrom(attribute.AttributeType))
-				.CastOrToReadOnlyCollection();
+		return attributes.FindCustomAttributes(attributeTypeInfo);
 	}
 
 	static IReadOnlyCollection<_IReflectionAttributeInfo> LookupAttribute<TLookupType, TAttributeType>()
@@ -216,9 +225,9 @@ public static partial class Mocks
 		var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 		result.Attribute.Returns(attribute);
 		result.AttributeType.Returns(Reflector.Wrap(typeof(TTestFrameworkAttribute)));
-		result.GetCustomAttributes(null!).ReturnsForAnyArgs(
+		result.GetCustomAttributes(Arg.Any<_ITypeInfo>()).ReturnsForAnyArgs(
 			callInfo => LookupAttribute(
-				callInfo.Arg<string>(),
+				callInfo.Arg<_ITypeInfo>(),
 				CustomAttributeData.GetCustomAttributes(attribute.GetType()).Select(x => Reflector.Wrap(x)).ToArray()
 			)
 		);
@@ -254,7 +263,7 @@ public static partial class Mocks
 		result.Attribute.Returns(attribute);
 		result.AttributeType.Returns(Reflector.Wrap(typeof(TraitAttribute)));
 		result.GetConstructorArguments().Returns(new object[] { name, value });
-		result.GetCustomAttributes(typeof(TraitDiscovererAttribute)).Returns(traitDiscovererAttributes);
+		result.GetCustomAttributes(Arg.Any<_ITypeInfo>()).Returns(traitDiscovererAttributes);
 		return result;
 	}
 
@@ -267,7 +276,7 @@ public static partial class Mocks
 		var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
 		result.Attribute.Returns(attribute);
 		result.AttributeType.Returns(Reflector.Wrap(typeof(TTraitAttribute)));
-		result.GetCustomAttributes(typeof(TraitDiscovererAttribute)).Returns(traitDiscovererAttributes);
+		result.GetCustomAttributes(Arg.Any<_ITypeInfo>()).Returns(traitDiscovererAttributes);
 		return result;
 	}
 

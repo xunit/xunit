@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -53,25 +52,11 @@ public class ReflectionAssemblyInfo : _IReflectionAssemblyInfo
 	}
 
 	/// <inheritdoc/>
-	public IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
-	{
-		var attributeType = ReflectionAttributeNameCache.GetType(assemblyQualifiedAttributeTypeName);
-
-		Guard.ArgumentNotNull(() => string.Format(CultureInfo.CurrentCulture, "Could not load type: '{0}'", assemblyQualifiedAttributeTypeName), attributeType, nameof(assemblyQualifiedAttributeTypeName));
-
-		return
-			additionalAssemblyAttributes
-				.Where(customAttribute => attributeType.IsAssignableFrom(customAttribute.AttributeType))
-				.Concat(
-					Assembly
-						.CustomAttributes
-						.Where(attr => attributeType.IsAssignableFrom(attr.AttributeType))
-						.OrderBy(attr => attr.AttributeType.Name)
-						.Select(a => Reflector.Wrap(a))
-						.Cast<_IAttributeInfo>()
-				)
-				.CastOrToReadOnlyCollection();
-	}
+	public IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(_ITypeInfo attributeType) =>
+		additionalAssemblyAttributes
+			.FindCustomAttributes(attributeType)
+			.Concat(Assembly.CustomAttributes.FindCustomAttributes(attributeType))
+			.CastOrToReadOnlyCollection();
 
 	/// <inheritdoc/>
 	public _ITypeInfo? GetType(string typeName)

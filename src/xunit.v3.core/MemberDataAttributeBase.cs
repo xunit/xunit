@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Sdk;
+using Xunit.v3;
 
 namespace Xunit;
 

@@ -1,5 +1,5 @@
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Reflection;
 using Xunit.Internal;
 using Xunit.v3;
@@ -37,12 +37,6 @@ public class ReflectionParameterInfo : _IReflectionParameterInfo
 	public _ITypeInfo ParameterType => parameterType.Value;
 
 	/// <inheritdoc/>
-	public _IAttributeInfo? GetCustomAttribute(_ITypeInfo attributeType)
-	{
-		var customAttributeData = ParameterInfo.CustomAttributes.FirstOrDefault(cad => attributeType.Equal(cad.AttributeType));
-		if (customAttributeData is null)
-			return null;
-
-		return Reflector.Wrap(customAttributeData);
-	}
+	public IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(_ITypeInfo attributeType) =>
+		ParameterInfo.CustomAttributes.FindCustomAttributes(attributeType);
 }

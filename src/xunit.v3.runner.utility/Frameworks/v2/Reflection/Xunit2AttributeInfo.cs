@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Xunit.Abstractions;
 using Xunit.Internal;
+using Xunit.Sdk;
 using Xunit.v3;
 
 namespace Xunit.Runner.v2;
@@ -33,7 +34,7 @@ public class Xunit2AttributeInfo : LongLivedMarshalByRefObject, IAttributeInfo
 	/// <inheritdoc/>
 	public IEnumerable<IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName) =>
 		V3AttributeInfo
-			.GetCustomAttributes(assemblyQualifiedAttributeTypeName)
+			.GetCustomAttributes(Reflector.FindTypeAndWrap(assemblyQualifiedAttributeTypeName))
 			.Select(a => new Xunit2AttributeInfo(a))
 			.CastOrToArray();
 

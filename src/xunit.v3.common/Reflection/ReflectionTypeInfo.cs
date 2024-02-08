@@ -33,6 +33,9 @@ public class ReflectionTypeInfo : _IReflectionTypeInfo
 	public _IAssemblyInfo Assembly => assembly.Value;
 
 	/// <inheritdoc/>
+	public string? AssemblyQualifiedName => Type.AssemblyQualifiedName;
+
+	/// <inheritdoc/>
 	public _ITypeInfo? BaseType => baseType.Value;
 
 	/// <inheritdoc/>
@@ -43,6 +46,9 @@ public class ReflectionTypeInfo : _IReflectionTypeInfo
 
 	/// <inheritdoc/>
 	public bool IsArray => Type.IsArray;
+
+	/// <inheritdoc/>
+	public bool IsConstructedGenericType => Type.IsConstructedGenericType;
 
 	/// <inheritdoc/>
 	public bool IsEnum => Type.IsEnum;
@@ -82,11 +88,29 @@ public class ReflectionTypeInfo : _IReflectionTypeInfo
 		Type.GetArrayRank();
 
 	/// <inheritdoc/>
-	public IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
+	public IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(_ITypeInfo attributeType)
 	{
-		Guard.ArgumentNotNull(assemblyQualifiedAttributeTypeName);
+		Guard.ArgumentNotNull(attributeType);
 
-		return ReflectionAttributeInfo.GetCustomAttributes(Type, assemblyQualifiedAttributeTypeName).CastOrToList();
+		return GetCustomAttributes(Type, attributeType, ReflectionAttributeInfo.GetAttributeUsage(attributeType));
+	}
+
+	internal static IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(
+		Type type,
+		_ITypeInfo attributeType) =>
+			GetCustomAttributes(type, attributeType, ReflectionAttributeInfo.GetAttributeUsage(attributeType));
+
+	internal static IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(
+		Type type,
+		_ITypeInfo attributeType,
+		AttributeUsageAttribute attributeUsage)
+	{
+		IReadOnlyCollection<_IAttributeInfo> results = type.CustomAttributes.FindCustomAttributes(attributeType);
+
+		if (attributeUsage.Inherited && type.BaseType is not null && (attributeUsage.AllowMultiple || results.Count == 0))
+			results = results.Concat(GetCustomAttributes(type.BaseType, attributeType, attributeUsage)).CastOrToReadOnlyCollection();
+
+		return results;
 	}
 
 	/// <inheritdoc/>
