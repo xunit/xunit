@@ -146,10 +146,23 @@ public abstract class TestAssemblyRunner<TContext, TTestCase>
 
 				SetTestContext(ctxt, TestEngineStatus.Running);
 
-				// Want clock time, not aggregated run time
-				var clockTimeStopwatch = Stopwatch.StartNew();
-				totalSummary = await RunTestCollectionsAsync(ctxt);
-				totalSummary.Time = (decimal)clockTimeStopwatch.Elapsed.TotalSeconds;
+				var logEnabled = TestEventSource.Log.IsEnabled();
+
+				if (logEnabled)
+					TestEventSource.Log.TestAssemblyStart(ctxt.TestAssembly);
+
+				try
+				{
+					// Want clock time, not aggregated run time
+					var clockTimeStopwatch = Stopwatch.StartNew();
+					totalSummary = await RunTestCollectionsAsync(ctxt);
+					totalSummary.Time = (decimal)clockTimeStopwatch.Elapsed.TotalSeconds;
+				}
+				finally
+				{
+					if (logEnabled)
+						TestEventSource.Log.TestAssemblyStop(ctxt.TestAssembly);
+				}
 
 				SetTestContext(ctxt, TestEngineStatus.CleaningUp);
 

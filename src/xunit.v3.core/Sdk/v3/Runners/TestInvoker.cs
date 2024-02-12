@@ -48,18 +48,7 @@ public abstract class TestInvoker<TContext>
 	{
 		Guard.ArgumentNotNull(ctxt);
 
-		if (TestEventSource.Log.IsEnabled())
-			TestEventSource.Log.TestMethodStart(ctxt.Test.TestDisplayName);
-
-		try
-		{
-			return ctxt.TestMethod.Invoke(testClassInstance, ctxt.TestMethodArguments);
-		}
-		finally
-		{
-			if (TestEventSource.Log.IsEnabled())
-				TestEventSource.Log.TestMethodStop(ctxt.Test.TestDisplayName);
-		}
+		return ctxt.TestMethod.Invoke(testClassInstance, ctxt.TestMethodArguments);
 	}
 
 	/// <summary>
@@ -196,15 +185,28 @@ public abstract class TestInvoker<TContext>
 						}
 						else
 						{
-							var result = CallTestMethod(ctxt, testClassInstance);
-							var valueTask = AsyncUtility.TryConvertToValueTask(result);
-							if (valueTask.HasValue)
-								await valueTask.Value;
-							else if (asyncSyncContext is not null)
+							var logEnabled = TestEventSource.Log.IsEnabled();
+
+							if (logEnabled)
+								TestEventSource.Log.TestStart(ctxt.Test);
+
+							try
 							{
-								var ex = await asyncSyncContext.WaitForCompletionAsync();
-								if (ex is not null)
-									ctxt.Aggregator.Add(ex);
+								var result = CallTestMethod(ctxt, testClassInstance);
+								var valueTask = AsyncUtility.TryConvertToValueTask(result);
+								if (valueTask.HasValue)
+									await valueTask.Value;
+								else if (asyncSyncContext is not null)
+								{
+									var ex = await asyncSyncContext.WaitForCompletionAsync();
+									if (ex is not null)
+										ctxt.Aggregator.Add(ex);
+								}
+							}
+							finally
+							{
+								if (logEnabled)
+									TestEventSource.Log.TestStop(ctxt.Test);
 							}
 						}
 					}
