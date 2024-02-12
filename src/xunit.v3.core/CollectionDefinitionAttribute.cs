@@ -15,15 +15,17 @@ public sealed class CollectionDefinitionAttribute : Attribute
 {
 	/// <summary>
 	/// Initializes a new instance of the <see cref="CollectionDefinitionAttribute" /> class.
-	/// Only use this constructor when collection references by test classes use the generic
+	/// Use this constructor when collection references by test classes use the generic
 	/// <see cref="CollectionAttribute{TCollectionDefinition}"/> attribute or refer to the
-	/// fixture class using typeof(CollectionDefinition).
+	/// fixture class using <see cref="CollectionAttribute(Type)"/>.
 	/// </summary>
 	public CollectionDefinitionAttribute()
 	{ }
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="CollectionDefinitionAttribute" /> class.
+	/// Use this constructor when collection references by test classes use
+	/// <see cref="CollectionAttribute(string)"/>.
 	/// </summary>
 	/// <param name="name">The test collection name.</param>
 	public CollectionDefinitionAttribute(string name)
