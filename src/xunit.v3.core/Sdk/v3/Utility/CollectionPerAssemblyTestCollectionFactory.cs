@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Globalization;
 using System.Linq;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -65,7 +66,7 @@ public class CollectionPerAssemblyTestCollectionFactory : IXunitTestCollectionFa
 
 	_ITestCollection GetForType(_ITypeInfo fixtureType)
 	{
-		string name = UniqueIDGenerator.ForType(fixtureType);
+		var name = string.Format(CultureInfo.InvariantCulture, "Test collection for {0} (id: {1})", Guard.ArgumentNotNull(fixtureType).Name, UniqueIDGenerator.ForType(fixtureType));
 
 		if (!collectionDefinitions.Value.ContainsKey(name))
 			collectionDefinitions.Value.Add(name, fixtureType);
