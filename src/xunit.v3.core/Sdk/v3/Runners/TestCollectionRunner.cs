@@ -76,7 +76,7 @@ public abstract class TestCollectionRunner<TContext, TTestCase>
 				var logEnabled = TestEventSource.Log.IsEnabled();
 
 				if (logEnabled)
-					TestEventSource.Log.TestCollectionStart(ctxt.TestCollection);
+					TestEventSource.Log.TestCollectionStart(ctxt.TestCollection.DisplayName);
 
 				try
 				{
@@ -85,7 +85,7 @@ public abstract class TestCollectionRunner<TContext, TTestCase>
 				finally
 				{
 					if (logEnabled)
-						TestEventSource.Log.TestCollectionStop(ctxt.TestCollection);
+						TestEventSource.Log.TestCollectionStop(ctxt.TestCollection.DisplayName);
 				}
 
 				SetTestContext(ctxt, TestEngineStatus.CleaningUp);

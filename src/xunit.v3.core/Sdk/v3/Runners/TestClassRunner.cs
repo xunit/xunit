@@ -146,7 +146,7 @@ public abstract class TestClassRunner<TContext, TTestCase>
 			var logEnabled = TestEventSource.Log.IsEnabled();
 
 			if (logEnabled)
-				TestEventSource.Log.TestClassStart(ctxt.TestClass);
+				TestEventSource.Log.TestClassStart(ctxt.TestClass.Class.Name);
 
 			try
 			{
@@ -155,7 +155,7 @@ public abstract class TestClassRunner<TContext, TTestCase>
 			finally
 			{
 				if (logEnabled)
-					TestEventSource.Log.TestClassStop(ctxt.TestClass);
+					TestEventSource.Log.TestClassStop(ctxt.TestClass.Class.Name);
 			}
 
 			SetTestContext(ctxt, TestEngineStatus.CleaningUp);

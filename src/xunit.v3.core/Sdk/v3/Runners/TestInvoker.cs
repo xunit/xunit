@@ -188,7 +188,7 @@ public abstract class TestInvoker<TContext>
 							var logEnabled = TestEventSource.Log.IsEnabled();
 
 							if (logEnabled)
-								TestEventSource.Log.TestStart(ctxt.Test);
+								TestEventSource.Log.TestStart(ctxt.Test.TestDisplayName);
 
 							try
 							{
@@ -206,7 +206,7 @@ public abstract class TestInvoker<TContext>
 							finally
 							{
 								if (logEnabled)
-									TestEventSource.Log.TestStop(ctxt.Test);
+									TestEventSource.Log.TestStop(ctxt.Test.TestDisplayName);
 							}
 						}
 					}

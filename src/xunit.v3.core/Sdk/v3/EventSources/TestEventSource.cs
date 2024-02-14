@@ -12,28 +12,28 @@ internal sealed class TestEventSource : EventSource
 	TestEventSource() { }
 
 	[Event(Events.TestAssemblyStart, Level = EventLevel.Informational, Task = Tasks.TestAssembly, Opcode = EventOpcode.Start)]
-	internal void TestAssemblyStart(_ITestAssembly testAssembly) => WriteEvent(Events.TestAssemblyStart, testAssembly.Assembly.AssemblyPath, testAssembly.ConfigFileName);
+	internal void TestAssemblyStart(string? assemblyPath, string? configFileName) => WriteEvent(Events.TestAssemblyStart, assemblyPath, configFileName);
 
 	[Event(Events.TestAssemblyStop, Level = EventLevel.Informational, Task = Tasks.TestAssembly, Opcode = EventOpcode.Stop)]
-	internal void TestAssemblyStop(_ITestAssembly testAssembly) => WriteEvent(Events.TestAssemblyStop, testAssembly.Assembly.AssemblyPath, testAssembly.ConfigFileName);
+	internal void TestAssemblyStop(string? assemblyPath, string? configFileName) => WriteEvent(Events.TestAssemblyStop, assemblyPath, configFileName);
 
 	[Event(Events.TestClassStart, Level = EventLevel.Informational, Task = Tasks.TestClass, Opcode = EventOpcode.Start)]
-	internal void TestClassStart(_ITestClass testClass) => WriteEvent(Events.TestClassStart, testClass.Class.Name);
+	internal void TestClassStart(string testClassName) => WriteEvent(Events.TestClassStart, testClassName);
 
 	[Event(Events.TestClassStop, Level = EventLevel.Informational, Task = Tasks.TestClass, Opcode = EventOpcode.Stop)]
-	internal void TestClassStop(_ITestClass testClass) => WriteEvent(Events.TestClassStop, testClass.Class.Name);
+	internal void TestClassStop(string testClassName) => WriteEvent(Events.TestClassStop, testClassName);
 
 	[Event(Events.TestCollectionStart, Level = EventLevel.Informational, Task = Tasks.TestCollection, Opcode = EventOpcode.Start)]
-	internal void TestCollectionStart(_ITestCollection collection) => WriteEvent(Events.TestCollectionStart, collection.DisplayName);
+	internal void TestCollectionStart(string testCollectionName) => WriteEvent(Events.TestCollectionStart, testCollectionName);
 
 	[Event(Events.TestCollectionStop, Level = EventLevel.Informational, Task = Tasks.TestCollection, Opcode = EventOpcode.Stop)]
-	internal void TestCollectionStop(_ITestCollection collection) => WriteEvent(Events.TestCollectionStop, collection.DisplayName);
+	internal void TestCollectionStop(string testCollectionName) => WriteEvent(Events.TestCollectionStop, testCollectionName);
 
 	[Event(Events.TestStart, Level = EventLevel.Informational, Task = Tasks.Test, Opcode = EventOpcode.Start)]
-	internal void TestStart(_ITest test) => WriteEvent(Events.TestStart, test.TestDisplayName);
+	internal void TestStart(string testName) => WriteEvent(Events.TestStart, testName);
 
 	[Event(Events.TestStop, Level = EventLevel.Informational, Task = Tasks.Test, Opcode = EventOpcode.Stop)]
-	internal void TestStop(_ITest test) => WriteEvent(Events.TestStop, test.TestDisplayName);
+	internal void TestStop(string testName) => WriteEvent(Events.TestStop, testName);
 
 	class Events
 	{
