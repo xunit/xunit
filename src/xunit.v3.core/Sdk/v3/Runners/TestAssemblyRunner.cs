@@ -149,7 +149,7 @@ public abstract class TestAssemblyRunner<TContext, TTestCase>
 				var logEnabled = TestEventSource.Log.IsEnabled();
 
 				if (logEnabled)
-					TestEventSource.Log.TestAssemblyStart(ctxt.TestAssembly.Assembly.AssemblyPath, ctxt.TestAssembly.ConfigFileName);
+					TestEventSource.Log.TestAssemblyStart(ctxt.TestAssembly.Assembly.AssemblyPath ?? "<dynamic>", ctxt.TestAssembly.ConfigFileName ?? "<none>");
 
 				try
 				{
@@ -161,7 +161,7 @@ public abstract class TestAssemblyRunner<TContext, TTestCase>
 				finally
 				{
 					if (logEnabled)
-						TestEventSource.Log.TestAssemblyStop(ctxt.TestAssembly.Assembly.AssemblyPath, ctxt.TestAssembly.ConfigFileName);
+						TestEventSource.Log.TestAssemblyStop(ctxt.TestAssembly.Assembly.AssemblyPath ?? "<dynamic>", ctxt.TestAssembly.ConfigFileName ?? "<none>");
 				}
 
 				SetTestContext(ctxt, TestEngineStatus.CleaningUp);

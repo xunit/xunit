@@ -12,10 +12,10 @@ internal sealed class TestEventSource : EventSource
 	TestEventSource() { }
 
 	[Event(Events.TestAssemblyStart, Level = EventLevel.Informational, Task = Tasks.TestAssembly, Opcode = EventOpcode.Start)]
-	internal void TestAssemblyStart(string? assemblyPath, string? configFileName) => WriteEvent(Events.TestAssemblyStart, assemblyPath, configFileName);
+	internal void TestAssemblyStart(string assemblyPath, string configFileName) => WriteEvent(Events.TestAssemblyStart, assemblyPath, configFileName);
 
 	[Event(Events.TestAssemblyStop, Level = EventLevel.Informational, Task = Tasks.TestAssembly, Opcode = EventOpcode.Stop)]
-	internal void TestAssemblyStop(string? assemblyPath, string? configFileName) => WriteEvent(Events.TestAssemblyStop, assemblyPath, configFileName);
+	internal void TestAssemblyStop(string assemblyPath, string configFileName) => WriteEvent(Events.TestAssemblyStop, assemblyPath, configFileName);
 
 	[Event(Events.TestClassStart, Level = EventLevel.Informational, Task = Tasks.TestClass, Opcode = EventOpcode.Start)]
 	internal void TestClassStart(string testClassName) => WriteEvent(Events.TestClassStart, testClassName);
