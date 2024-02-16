@@ -11,34 +11,74 @@ public class StringAssertsTests
 		public void CanSearchForSubstrings()
 		{
 			Assert.Contains("wor", "Hello, world!");
+#if XUNIT_SPAN
+			Assert.Contains("wor".Memoryify(), "Hello, world!".Memoryify());
+			Assert.Contains("wor".AsMemory(), "Hello, world!".Memoryify());
+			Assert.Contains("wor".Memoryify(), "Hello, world!".AsMemory());
+			Assert.Contains("wor".AsMemory(), "Hello, world!".AsMemory());
+			Assert.Contains("wor".Spanify(), "Hello, world!".Spanify());
+			Assert.Contains("wor".AsSpan(), "Hello, world!".Spanify());
+			Assert.Contains("wor".Spanify(), "Hello, world!".AsSpan());
+			Assert.Contains("wor".AsSpan(), "Hello, world!".AsSpan());
+#endif
 		}
 
 		[Fact]
 		public void SubstringContainsIsCaseSensitiveByDefault()
 		{
-			var ex = Record.Exception(() => Assert.Contains("WORLD", "Hello, world!"));
+			void verify(Action action)
+			{
+				var ex = Record.Exception(action);
 
-			Assert.IsType<ContainsException>(ex);
-			Assert.Equal(
-				"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
-				"String:    \"Hello, world!\"" + Environment.NewLine +
-				"Not found: \"WORLD\"",
-				ex.Message
-			);
+				Assert.IsType<ContainsException>(ex);
+				Assert.Equal(
+					"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
+					"String:    \"Hello, world!\"" + Environment.NewLine +
+					"Not found: \"WORLD\"",
+					ex.Message
+				);
+			}
+
+			verify(() => Assert.Contains("WORLD", "Hello, world!"));
+#if XUNIT_SPAN
+			verify(() => Assert.Contains("WORLD".Memoryify(), "Hello, world!".Memoryify()));
+			verify(() => Assert.Contains("WORLD".AsMemory(), "Hello, world!".Memoryify()));
+			verify(() => Assert.Contains("WORLD".Memoryify(), "Hello, world!".AsMemory()));
+			verify(() => Assert.Contains("WORLD".AsMemory(), "Hello, world!".AsMemory()));
+			verify(() => Assert.Contains("WORLD".Spanify(), "Hello, world!".Spanify()));
+			verify(() => Assert.Contains("WORLD".AsSpan(), "Hello, world!".Spanify()));
+			verify(() => Assert.Contains("WORLD".Spanify(), "Hello, world!".AsSpan()));
+			verify(() => Assert.Contains("WORLD".AsSpan(), "Hello, world!".AsSpan()));
+#endif
 		}
 
 		[Fact]
 		public void SubstringNotFound()
 		{
-			var ex = Record.Exception(() => Assert.Contains("hey", "Hello, world!"));
+			void verify(Action action)
+			{
+				var ex = Record.Exception(action);
 
-			Assert.IsType<ContainsException>(ex);
-			Assert.Equal(
-				"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
-				"String:    \"Hello, world!\"" + Environment.NewLine +
-				"Not found: \"hey\"",
-				ex.Message
-			);
+				Assert.IsType<ContainsException>(ex);
+				Assert.Equal(
+					"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
+					"String:    \"Hello, world!\"" + Environment.NewLine +
+					"Not found: \"hey\"",
+					ex.Message
+				);
+			}
+
+			verify(() => Assert.Contains("hey", "Hello, world!"));
+#if XUNIT_SPAN
+			verify(() => Assert.Contains("hey".Memoryify(), "Hello, world!".Memoryify()));
+			verify(() => Assert.Contains("hey".AsMemory(), "Hello, world!".Memoryify()));
+			verify(() => Assert.Contains("hey".Memoryify(), "Hello, world!".AsMemory()));
+			verify(() => Assert.Contains("hey".AsMemory(), "Hello, world!".AsMemory()));
+			verify(() => Assert.Contains("hey".Spanify(), "Hello, world!".Spanify()));
+			verify(() => Assert.Contains("hey".AsSpan(), "Hello, world!".Spanify()));
+			verify(() => Assert.Contains("hey".Spanify(), "Hello, world!".AsSpan()));
+			verify(() => Assert.Contains("hey".AsSpan(), "Hello, world!".AsSpan()));
+#endif
 		}
 
 		[Fact]
@@ -58,29 +98,49 @@ public class StringAssertsTests
 		[Fact]
 		public void VeryLongStrings()
 		{
-			var ex = Record.Exception(
-				() => Assert.Contains(
-					"We are looking for something very long as well",
-					"This is a relatively long string so that we can see the truncation in action"
-				)
-			);
+			var expected = "We are looking for something very long as well";
+			var actual = "This is a relatively long string so that we can see the truncation in action";
 
-			Assert.IsType<ContainsException>(ex);
-			Assert.Equal(
-				"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
-				$"String:    \"This is a relatively long string so that \"{ArgumentFormatter.Ellipsis}" + Environment.NewLine +
-				$"Not found: \"We are looking for something very long as\"{ArgumentFormatter.Ellipsis}",
-				ex.Message
-			);
+			void verify(Action action)
+			{
+				var ex = Record.Exception(action);
+
+				Assert.IsType<ContainsException>(ex);
+				Assert.Equal(
+					"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
+					$"String:    \"This is a relatively long string so that \"{ArgumentFormatter.Ellipsis}" + Environment.NewLine +
+					$"Not found: \"We are looking for something very long as\"{ArgumentFormatter.Ellipsis}",
+					ex.Message
+				);
+			}
+
+			verify(() => Assert.Contains(expected, actual));
+#if XUNIT_SPAN
+			verify(() => Assert.Contains(expected.Memoryify(), actual.Memoryify()));
+			verify(() => Assert.Contains(expected.AsMemory(), actual.Memoryify()));
+			verify(() => Assert.Contains(expected.Memoryify(), actual.AsMemory()));
+			verify(() => Assert.Contains(expected.AsMemory(), actual.AsMemory()));
+			verify(() => Assert.Contains(expected.Spanify(), actual.Spanify()));
+			verify(() => Assert.Contains(expected.AsSpan(), actual.Spanify()));
+			verify(() => Assert.Contains(expected.Spanify(), actual.AsSpan()));
+			verify(() => Assert.Contains(expected.AsSpan(), actual.AsSpan()));
+#endif
 		}
-	}
 
-	public class Contains_WithComparisonType
-	{
 		[Fact]
 		public void CanSearchForSubstringsCaseInsensitive()
 		{
 			Assert.Contains("WORLD", "Hello, world!", StringComparison.OrdinalIgnoreCase);
+#if XUNIT_SPAN
+			Assert.Contains("WORLD".Memoryify(), "Hello, world!".Memoryify(), StringComparison.OrdinalIgnoreCase);
+			Assert.Contains("WORLD".AsMemory(), "Hello, world!".Memoryify(), StringComparison.OrdinalIgnoreCase);
+			Assert.Contains("WORLD".Memoryify(), "Hello, world!".AsMemory(), StringComparison.OrdinalIgnoreCase);
+			Assert.Contains("WORLD".AsMemory(), "Hello, world!".AsMemory(), StringComparison.OrdinalIgnoreCase);
+			Assert.Contains("WORLD".Spanify(), "Hello, world!".Spanify(), StringComparison.OrdinalIgnoreCase);
+			Assert.Contains("WORLD".AsSpan(), "Hello, world!".Spanify(), StringComparison.OrdinalIgnoreCase);
+			Assert.Contains("WORLD".Spanify(), "Hello, world!".AsSpan(), StringComparison.OrdinalIgnoreCase);
+			Assert.Contains("WORLD".AsSpan(), "Hello, world!".AsSpan(), StringComparison.OrdinalIgnoreCase);
+#endif
 		}
 	}
 
@@ -90,27 +150,62 @@ public class StringAssertsTests
 		public void CanSearchForSubstrings()
 		{
 			Assert.DoesNotContain("hey", "Hello, world!");
+#if XUNIT_SPAN
+			Assert.DoesNotContain("hey".Memoryify(), "Hello, world!".Memoryify());
+			Assert.DoesNotContain("hey".AsMemory(), "Hello, world!".Memoryify());
+			Assert.DoesNotContain("hey".Memoryify(), "Hello, world!".AsMemory());
+			Assert.DoesNotContain("hey".AsMemory(), "Hello, world!".AsMemory());
+			Assert.DoesNotContain("hey".Spanify(), "Hello, world!".Spanify());
+			Assert.DoesNotContain("hey".AsSpan(), "Hello, world!".Spanify());
+			Assert.DoesNotContain("hey".Spanify(), "Hello, world!".AsSpan());
+			Assert.DoesNotContain("hey".AsSpan(), "Hello, world!".AsSpan());
+#endif
 		}
 
 		[Fact]
 		public void SubstringDoesNotContainIsCaseSensitiveByDefault()
 		{
 			Assert.DoesNotContain("WORLD", "Hello, world!");
+#if XUNIT_SPAN
+			Assert.DoesNotContain("WORLD".Memoryify(), "Hello, world!".Memoryify());
+			Assert.DoesNotContain("WORLD".AsMemory(), "Hello, world!".Memoryify());
+			Assert.DoesNotContain("WORLD".Memoryify(), "Hello, world!".AsMemory());
+			Assert.DoesNotContain("WORLD".AsMemory(), "Hello, world!".AsMemory());
+			Assert.DoesNotContain("WORLD".Spanify(), "Hello, world!".Spanify());
+			Assert.DoesNotContain("WORLD".AsSpan(), "Hello, world!".Spanify());
+			Assert.DoesNotContain("WORLD".Spanify(), "Hello, world!".AsSpan());
+			Assert.DoesNotContain("WORLD".AsSpan(), "Hello, world!".AsSpan());
+#endif
 		}
 
 		[Fact]
 		public void SubstringFound()
 		{
-			var ex = Record.Exception(() => Assert.DoesNotContain("world", "Hello, world!"));
+			void verify(Action action)
+			{
+				var ex = Record.Exception(action);
 
-			Assert.IsType<DoesNotContainException>(ex);
-			Assert.Equal(
-				"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
-				"                ↓ (pos 7)" + Environment.NewLine +
-				"String: \"Hello, world!\"" + Environment.NewLine +
-				"Found:  \"world\"",
-				ex.Message
-			);
+				Assert.IsType<DoesNotContainException>(ex);
+				Assert.Equal(
+					"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
+					"                ↓ (pos 7)" + Environment.NewLine +
+					"String: \"Hello, world!\"" + Environment.NewLine +
+					"Found:  \"world\"",
+					ex.Message
+				);
+			}
+
+			verify(() => Assert.DoesNotContain("world", "Hello, world!"));
+#if XUNIT_SPAN
+			verify(() => Assert.DoesNotContain("world".Memoryify(), "Hello, world!".Memoryify()));
+			verify(() => Assert.DoesNotContain("world".AsMemory(), "Hello, world!".Memoryify()));
+			verify(() => Assert.DoesNotContain("world".Memoryify(), "Hello, world!".AsMemory()));
+			verify(() => Assert.DoesNotContain("world".AsMemory(), "Hello, world!".AsMemory()));
+			verify(() => Assert.DoesNotContain("world".Spanify(), "Hello, world!".Spanify()));
+			verify(() => Assert.DoesNotContain("world".AsSpan(), "Hello, world!".Spanify()));
+			verify(() => Assert.DoesNotContain("world".Spanify(), "Hello, world!".AsSpan()));
+			verify(() => Assert.DoesNotContain("world".AsSpan(), "Hello, world!".AsSpan()));
+#endif
 		}
 
 		[Fact]
@@ -122,64 +217,121 @@ public class StringAssertsTests
 		[Fact]
 		public void VeryLongString_FoundAtFront()
 		{
-			var ex = Record.Exception(() => Assert.DoesNotContain("world", "Hello, world from a very long string that will end up being truncated"));
+			void verify(Action action)
+			{
+				var ex = Record.Exception(action);
 
-			Assert.IsType<DoesNotContainException>(ex);
-			Assert.Equal(
-				"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
-				"                ↓ (pos 7)" + Environment.NewLine +
-				$"String: \"Hello, world from a very long string that\"{ArgumentFormatter.Ellipsis}" + Environment.NewLine +
-				"Found:  \"world\"",
-				ex.Message
-			);
+				Assert.IsType<DoesNotContainException>(ex);
+				Assert.Equal(
+					"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
+					"                ↓ (pos 7)" + Environment.NewLine +
+					$"String: \"Hello, world from a very long string that\"{ArgumentFormatter.Ellipsis}" + Environment.NewLine +
+					"Found:  \"world\"",
+					ex.Message
+				);
+			}
+
+			verify(() => Assert.DoesNotContain("world", "Hello, world from a very long string that will end up being truncated"));
+#if XUNIT_SPAN
+			verify(() => Assert.DoesNotContain("world".Memoryify(), "Hello, world from a very long string that will end up being truncated".Memoryify()));
+			verify(() => Assert.DoesNotContain("world".AsMemory(), "Hello, world from a very long string that will end up being truncated".Memoryify()));
+			verify(() => Assert.DoesNotContain("world".Memoryify(), "Hello, world from a very long string that will end up being truncated".AsMemory()));
+			verify(() => Assert.DoesNotContain("world".AsMemory(), "Hello, world from a very long string that will end up being truncated".AsMemory()));
+			verify(() => Assert.DoesNotContain("world".Spanify(), "Hello, world from a very long string that will end up being truncated".Spanify()));
+			verify(() => Assert.DoesNotContain("world".AsSpan(), "Hello, world from a very long string that will end up being truncated".Spanify()));
+			verify(() => Assert.DoesNotContain("world".Spanify(), "Hello, world from a very long string that will end up being truncated".AsSpan()));
+			verify(() => Assert.DoesNotContain("world".AsSpan(), "Hello, world from a very long string that will end up being truncated".AsSpan()));
+#endif
 		}
 
 		[Fact]
 		public void VeryLongString_FoundInMiddle()
 		{
-			var ex = Record.Exception(() => Assert.DoesNotContain("world", "This is a relatively long string that has 'Hello, world' placed in the middle so that we can dual trunaction"));
+			void verify(Action action)
+			{
+				var ex = Record.Exception(action);
 
-			Assert.IsType<DoesNotContainException>(ex);
-			Assert.Equal(
-				"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
-				"                                ↓ (pos 50)" + Environment.NewLine +
-				$"String: {ArgumentFormatter.Ellipsis}\"ng that has 'Hello, world' placed in the \"{ArgumentFormatter.Ellipsis}" + Environment.NewLine +
-				"Found:  \"world\"",
-				ex.Message
-			);
+				Assert.IsType<DoesNotContainException>(ex);
+				Assert.Equal(
+					"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
+					"                                ↓ (pos 50)" + Environment.NewLine +
+					$"String: {ArgumentFormatter.Ellipsis}\"ng that has 'Hello, world' placed in the \"{ArgumentFormatter.Ellipsis}" + Environment.NewLine +
+					"Found:  \"world\"",
+					ex.Message
+				);
+			}
+
+			verify(() => Assert.DoesNotContain("world", "This is a relatively long string that has 'Hello, world' placed in the middle so that we can dual trunaction"));
+#if XUNIT_SPAN
+			verify(() => Assert.DoesNotContain("world".Memoryify(), "This is a relatively long string that has 'Hello, world' placed in the middle so that we can dual trunaction".Memoryify()));
+			verify(() => Assert.DoesNotContain("world".AsMemory(), "This is a relatively long string that has 'Hello, world' placed in the middle so that we can dual trunaction".Memoryify()));
+			verify(() => Assert.DoesNotContain("world".Memoryify(), "This is a relatively long string that has 'Hello, world' placed in the middle so that we can dual trunaction".AsMemory()));
+			verify(() => Assert.DoesNotContain("world".AsMemory(), "This is a relatively long string that has 'Hello, world' placed in the middle so that we can dual trunaction".AsMemory()));
+			verify(() => Assert.DoesNotContain("world".Spanify(), "This is a relatively long string that has 'Hello, world' placed in the middle so that we can dual trunaction".Spanify()));
+			verify(() => Assert.DoesNotContain("world".AsSpan(), "This is a relatively long string that has 'Hello, world' placed in the middle so that we can dual trunaction".Spanify()));
+			verify(() => Assert.DoesNotContain("world".Spanify(), "This is a relatively long string that has 'Hello, world' placed in the middle so that we can dual trunaction".AsSpan()));
+			verify(() => Assert.DoesNotContain("world".AsSpan(), "This is a relatively long string that has 'Hello, world' placed in the middle so that we can dual trunaction".AsSpan()));
+#endif
 		}
 
 		[Fact]
 		public void VeryLongString_FoundAtEnd()
 		{
-			var ex = Record.Exception(() => Assert.DoesNotContain("world", "This is a relatively long string that will from the front truncated, just to say 'Hello, world'"));
+			void verify(Action action)
+			{
+				var ex = Record.Exception(action);
 
-			Assert.IsType<DoesNotContainException>(ex);
-			Assert.Equal(
-				"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
-				"                                               ↓ (pos 89)" + Environment.NewLine +
-				$"String: {ArgumentFormatter.Ellipsis}\"ont truncated, just to say 'Hello, world'\"" + Environment.NewLine +
-				"Found:  \"world\"",
-				ex.Message
-			);
+				Assert.IsType<DoesNotContainException>(ex);
+				Assert.Equal(
+					"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
+					"                                               ↓ (pos 89)" + Environment.NewLine +
+					$"String: {ArgumentFormatter.Ellipsis}\"ont truncated, just to say 'Hello, world'\"" + Environment.NewLine +
+					"Found:  \"world\"",
+					ex.Message
+				);
+			}
+
+			verify(() => Assert.DoesNotContain("world", "This is a relatively long string that will from the front truncated, just to say 'Hello, world'"));
+#if XUNIT_SPAN
+			verify(() => Assert.DoesNotContain("world".Memoryify(), "This is a relatively long string that will from the front truncated, just to say 'Hello, world'".Memoryify()));
+			verify(() => Assert.DoesNotContain("world".AsMemory(), "This is a relatively long string that will from the front truncated, just to say 'Hello, world'".Memoryify()));
+			verify(() => Assert.DoesNotContain("world".Memoryify(), "This is a relatively long string that will from the front truncated, just to say 'Hello, world'".AsMemory()));
+			verify(() => Assert.DoesNotContain("world".AsMemory(), "This is a relatively long string that will from the front truncated, just to say 'Hello, world'".AsMemory()));
+			verify(() => Assert.DoesNotContain("world".Spanify(), "This is a relatively long string that will from the front truncated, just to say 'Hello, world'".Spanify()));
+			verify(() => Assert.DoesNotContain("world".AsSpan(), "This is a relatively long string that will from the front truncated, just to say 'Hello, world'".Spanify()));
+			verify(() => Assert.DoesNotContain("world".Spanify(), "This is a relatively long string that will from the front truncated, just to say 'Hello, world'".AsSpan()));
+			verify(() => Assert.DoesNotContain("world".AsSpan(), "This is a relatively long string that will from the front truncated, just to say 'Hello, world'".AsSpan()));
+#endif
 		}
-	}
 
-	public class DoesNotContain_WithComparisonType
-	{
 		[Fact]
 		public void CanSearchForSubstringsCaseInsensitive()
 		{
-			var ex = Record.Exception(() => Assert.DoesNotContain("WORLD", "Hello, world!", StringComparison.OrdinalIgnoreCase));
+			void verify(Action action)
+			{
+				var ex = Record.Exception(action);
 
-			Assert.IsType<DoesNotContainException>(ex);
-			Assert.Equal(
-				"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
-				"                ↓ (pos 7)" + Environment.NewLine +
-				"String: \"Hello, world!\"" + Environment.NewLine +
-				"Found:  \"WORLD\"",
-				ex.Message
-			);
+				Assert.IsType<DoesNotContainException>(ex);
+				Assert.Equal(
+					"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
+					"                ↓ (pos 7)" + Environment.NewLine +
+					"String: \"Hello, world!\"" + Environment.NewLine +
+					"Found:  \"WORLD\"",
+					ex.Message
+				);
+			}
+
+			verify(() => Assert.DoesNotContain("WORLD", "Hello, world!", StringComparison.OrdinalIgnoreCase));
+#if XUNIT_SPAN
+			verify(() => Assert.DoesNotContain("WORLD".Memoryify(), "Hello, world!".Memoryify(), StringComparison.OrdinalIgnoreCase));
+			verify(() => Assert.DoesNotContain("WORLD".AsMemory(), "Hello, world!".Memoryify(), StringComparison.OrdinalIgnoreCase));
+			verify(() => Assert.DoesNotContain("WORLD".Memoryify(), "Hello, world!".AsMemory(), StringComparison.OrdinalIgnoreCase));
+			verify(() => Assert.DoesNotContain("WORLD".AsMemory(), "Hello, world!".AsMemory(), StringComparison.OrdinalIgnoreCase));
+			verify(() => Assert.DoesNotContain("WORLD".Spanify(), "Hello, world!".Spanify(), StringComparison.OrdinalIgnoreCase));
+			verify(() => Assert.DoesNotContain("WORLD".AsSpan(), "Hello, world!".Spanify(), StringComparison.OrdinalIgnoreCase));
+			verify(() => Assert.DoesNotContain("WORLD".Spanify(), "Hello, world!".AsSpan(), StringComparison.OrdinalIgnoreCase));
+			verify(() => Assert.DoesNotContain("WORLD".AsSpan(), "Hello, world!".AsSpan(), StringComparison.OrdinalIgnoreCase));
+#endif
 		}
 	}
 
@@ -277,40 +429,90 @@ public class StringAssertsTests
 		public void Success()
 		{
 			Assert.EndsWith("world!", "Hello, world!");
+#if XUNIT_SPAN
+			Assert.EndsWith("world!".Memoryify(), "Hello, world!".Memoryify());
+			Assert.EndsWith("world!".AsMemory(), "Hello, world!".Memoryify());
+			Assert.EndsWith("world!".Memoryify(), "Hello, world!".AsMemory());
+			Assert.EndsWith("world!".AsMemory(), "Hello, world!".AsMemory());
+			Assert.EndsWith("world!".Spanify(), "Hello, world!".Spanify());
+			Assert.EndsWith("world!".AsSpan(), "Hello, world!".Spanify());
+			Assert.EndsWith("world!".Spanify(), "Hello, world!".AsSpan());
+			Assert.EndsWith("world!".AsSpan(), "Hello, world!".AsSpan());
+#endif
 		}
 
 		[Fact]
 		public void Failure()
 		{
-			var ex = Record.Exception(() => Assert.EndsWith("hey", "Hello, world!"));
+			void verify(Action action)
+			{
+				var ex = Record.Exception(action);
 
-			Assert.IsType<EndsWithException>(ex);
-			Assert.Equal(
-				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
-				"String:       \"Hello, world!\"" + Environment.NewLine +
-				"Expected end: \"hey\"",
-				ex.Message
-			);
+				Assert.IsType<EndsWithException>(ex);
+				Assert.Equal(
+					"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
+					"String:       \"Hello, world!\"" + Environment.NewLine +
+					"Expected end: \"hey\"",
+					ex.Message
+				);
+			}
+
+			verify(() => Assert.EndsWith("hey", "Hello, world!"));
+#if XUNIT_SPAN
+			verify(() => Assert.EndsWith("hey".Memoryify(), "Hello, world!".Memoryify()));
+			verify(() => Assert.EndsWith("hey".AsMemory(), "Hello, world!".Memoryify()));
+			verify(() => Assert.EndsWith("hey".Memoryify(), "Hello, world!".AsMemory()));
+			verify(() => Assert.EndsWith("hey".AsMemory(), "Hello, world!".AsMemory()));
+			verify(() => Assert.EndsWith("hey".Spanify(), "Hello, world!".Spanify()));
+			verify(() => Assert.EndsWith("hey".AsSpan(), "Hello, world!".Spanify()));
+			verify(() => Assert.EndsWith("hey".Spanify(), "Hello, world!".AsSpan()));
+			verify(() => Assert.EndsWith("hey".AsSpan(), "Hello, world!".AsSpan()));
+#endif
 		}
 
 		[Fact]
 		public void CaseSensitiveByDefault()
 		{
-			var ex = Record.Exception(() => Assert.EndsWith("WORLD!", "world!"));
+			void verify(Action action)
+			{
+				var ex = Record.Exception(action);
 
-			Assert.IsType<EndsWithException>(ex);
-			Assert.Equal(
-				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
-				"String:       \"world!\"" + Environment.NewLine +
-				"Expected end: \"WORLD!\"",
-				ex.Message
-			);
+				Assert.IsType<EndsWithException>(ex);
+				Assert.Equal(
+					"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
+					"String:       \"world!\"" + Environment.NewLine +
+					"Expected end: \"WORLD!\"",
+					ex.Message
+				);
+			}
+
+			verify(() => Assert.EndsWith("WORLD!", "world!"));
+#if XUNIT_SPAN
+			verify(() => Assert.EndsWith("WORLD!".Memoryify(), "world!".Memoryify()));
+			verify(() => Assert.EndsWith("WORLD!".AsMemory(), "world!".Memoryify()));
+			verify(() => Assert.EndsWith("WORLD!".Memoryify(), "world!".AsMemory()));
+			verify(() => Assert.EndsWith("WORLD!".AsMemory(), "world!".AsMemory()));
+			verify(() => Assert.EndsWith("WORLD!".Spanify(), "world!".Spanify()));
+			verify(() => Assert.EndsWith("WORLD!".AsSpan(), "world!".Spanify()));
+			verify(() => Assert.EndsWith("WORLD!".Spanify(), "world!".AsSpan()));
+			verify(() => Assert.EndsWith("WORLD!".AsSpan(), "world!".AsSpan()));
+#endif
 		}
 
 		[Fact]
 		public void CanSpecifyComparisonType()
 		{
 			Assert.EndsWith("WORLD!", "Hello, world!", StringComparison.OrdinalIgnoreCase);
+#if XUNIT_SPAN
+			Assert.EndsWith("WORLD!".Memoryify(), "Hello, world!".Memoryify(), StringComparison.OrdinalIgnoreCase);
+			Assert.EndsWith("WORLD!".AsMemory(), "Hello, world!".Memoryify(), StringComparison.OrdinalIgnoreCase);
+			Assert.EndsWith("WORLD!".Memoryify(), "Hello, world!".AsMemory(), StringComparison.OrdinalIgnoreCase);
+			Assert.EndsWith("WORLD!".AsMemory(), "Hello, world!".AsMemory(), StringComparison.OrdinalIgnoreCase);
+			Assert.EndsWith("WORLD!".Spanify(), "Hello, world!".Spanify(), StringComparison.OrdinalIgnoreCase);
+			Assert.EndsWith("WORLD!".AsSpan(), "Hello, world!".Spanify(), StringComparison.OrdinalIgnoreCase);
+			Assert.EndsWith("WORLD!".Spanify(), "Hello, world!".AsSpan(), StringComparison.OrdinalIgnoreCase);
+			Assert.EndsWith("WORLD!".AsSpan(), "Hello, world!".AsSpan(), StringComparison.OrdinalIgnoreCase);
+#endif
 		}
 
 		[Fact]
@@ -333,15 +535,30 @@ public class StringAssertsTests
 			var expected = "This is a long string that we're looking for at the end";
 			var actual = "This is the long string that we expected to find this ending inside";
 
-			var ex = Record.Exception(() => Assert.EndsWith(expected, actual));
+			void verify(Action action)
+			{
+				var ex = Record.Exception(action);
 
-			Assert.IsType<EndsWithException>(ex);
-			Assert.Equal(
-				"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
-				"String:       " + ArgumentFormatter.Ellipsis + "\"at we expected to find this ending inside\"" + Environment.NewLine +
-				"Expected end: \"This is a long string that we're looking \"" + ArgumentFormatter.Ellipsis,
-				ex.Message
-			);
+				Assert.IsType<EndsWithException>(ex);
+				Assert.Equal(
+					"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
+					"String:       " + ArgumentFormatter.Ellipsis + "\"at we expected to find this ending inside\"" + Environment.NewLine +
+					"Expected end: \"This is a long string that we're looking \"" + ArgumentFormatter.Ellipsis,
+					ex.Message
+				);
+			}
+
+			verify(() => Assert.EndsWith(expected, actual));
+#if XUNIT_SPAN
+			verify(() => Assert.EndsWith(expected.Memoryify(), actual.Memoryify()));
+			verify(() => Assert.EndsWith(expected.AsMemory(), actual.Memoryify()));
+			verify(() => Assert.EndsWith(expected.Memoryify(), actual.AsMemory()));
+			verify(() => Assert.EndsWith(expected.AsMemory(), actual.AsMemory()));
+			verify(() => Assert.EndsWith(expected.Spanify(), actual.Spanify()));
+			verify(() => Assert.EndsWith(expected.AsSpan(), actual.Spanify()));
+			verify(() => Assert.EndsWith(expected.Spanify(), actual.AsSpan()));
+			verify(() => Assert.EndsWith(expected.AsSpan(), actual.AsSpan()));
+#endif
 		}
 	}
 
@@ -364,7 +581,6 @@ public class StringAssertsTests
 		[InlineData(" ", "\t", false, false, true, false)]
 		[InlineData(" \t", "\t ", false, false, true, false)]
 		[InlineData("    ", "\t", false, false, true, false)]
-#if XUNIT_SPAN
 		[InlineData(" ", " \u180E", false, false, true, false)]
 		[InlineData(" \u180E", "\u180E ", false, false, true, false)]
 		[InlineData("    ", "\u180E", false, false, true, false)]
@@ -380,7 +596,6 @@ public class StringAssertsTests
 		[InlineData("\u2007\u2008\u1680\t\u0009\u3000   ", " ", false, false, true, false)]
 		[InlineData("\u1680", "\t", false, false, true, false)]
 		[InlineData("\u1680", "       ", false, false, true, false)]
-#endif
 		// All whitespace differences
 		[InlineData("", "  ", false, false, false, true)]
 		[InlineData("", "  ", false, false, true, true)]
@@ -397,6 +612,24 @@ public class StringAssertsTests
 			// Run them in both directions, as the values should be interchangeable when they're equal
 			Assert.Equal(value1, value2, ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
 			Assert.Equal(value2, value1, ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
+#if XUNIT_SPAN
+			Assert.Equal(value1.Memoryify(), value2.Memoryify(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
+			Assert.Equal(value2.Memoryify(), value1.Memoryify(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
+			Assert.Equal(value1.AsMemory(), value2.Memoryify(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
+			Assert.Equal(value2.AsMemory(), value1.Memoryify(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
+			Assert.Equal(value1.Memoryify(), value2.AsMemory(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
+			Assert.Equal(value2.Memoryify(), value1.AsMemory(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
+			Assert.Equal(value1.AsMemory(), value2.AsMemory(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
+			Assert.Equal(value2.AsMemory(), value1.AsMemory(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
+			Assert.Equal(value1.Spanify(), value2.Spanify(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
+			Assert.Equal(value2.Spanify(), value1.Spanify(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
+			Assert.Equal(value1.AsSpan(), value2.Spanify(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
+			Assert.Equal(value2.AsSpan(), value1.Spanify(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
+			Assert.Equal(value1.Spanify(), value2.AsSpan(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
+			Assert.Equal(value2.Spanify(), value1.AsSpan(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
+			Assert.Equal(value1.AsSpan(), value2.AsSpan(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
+			Assert.Equal(value2.AsSpan(), value1.AsSpan(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
+#endif
 		}
 
 		[Theory]
@@ -427,45 +660,74 @@ public class StringAssertsTests
 			string? expectedPointer,
 			string? actualPointer)
 		{
-			var message = "Assert.Equal() Failure: Strings differ";
+			void verify(Action action)
+			{
+				var message = "Assert.Equal() Failure: Strings differ";
 
-			if (expectedPointer is not null)
-				message += Environment.NewLine + "           " + expectedPointer;
+				if (expectedPointer is not null)
+					message += Environment.NewLine + "           " + expectedPointer;
 
-			message +=
-				Environment.NewLine + "Expected: " + ArgumentFormatter.Format(expected) +
-				Environment.NewLine + "Actual:   " + ArgumentFormatter.Format(actual);
+				message +=
+					Environment.NewLine + "Expected: " + ArgumentFormatter.Format(expected) +
+					Environment.NewLine + "Actual:   " + ArgumentFormatter.Format(actual);
 
-			if (actualPointer is not null)
-				message += Environment.NewLine + "           " + actualPointer;
+				if (actualPointer is not null)
+					message += Environment.NewLine + "           " + actualPointer;
 
-			var ex = Record.Exception(
-				() => Assert.Equal(expected, actual, ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace)
-			);
+				var ex = Record.Exception(action);
 
-			Assert.IsType<EqualException>(ex);
-			Assert.Equal(message, ex.Message);
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(message, ex.Message);
+			}
+
+			verify(() => Assert.Equal(expected, actual, ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace));
+#if XUNIT_SPAN
+			if (expected is not null && actual is not null)
+			{
+				verify(() => Assert.Equal(expected.Memoryify(), actual.Memoryify(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace));
+				verify(() => Assert.Equal(expected.AsMemory(), actual.Memoryify(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace));
+				verify(() => Assert.Equal(expected.Memoryify(), actual.AsMemory(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace));
+				verify(() => Assert.Equal(expected.AsMemory(), actual.AsMemory(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace));
+				verify(() => Assert.Equal(expected.Spanify(), actual.Spanify(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace));
+				verify(() => Assert.Equal(expected.AsSpan(), actual.Spanify(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace));
+				verify(() => Assert.Equal(expected.Spanify(), actual.AsSpan(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace));
+				verify(() => Assert.Equal(expected.AsSpan(), actual.AsSpan(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace));
+			}
+#endif
 		}
 
 		[Fact]
 		public void Truncation()
 		{
-			var ex = Record.Exception(() =>
-				Assert.Equal(
-					"Why hello there world, you're a long string with some truncation!",
-					"Why hello there world! You're a long string!"
-				)
-			);
+			var expected = "Why hello there world, you're a long string with some truncation!";
+			var actual = "Why hello there world! You're a long string!";
 
-			Assert.IsType<EqualException>(ex);
-			Assert.Equal(
-				"Assert.Equal() Failure: Strings differ" + Environment.NewLine +
-				"                                  ↓ (pos 21)" + Environment.NewLine +
-				$"Expected: {ArgumentFormatter.Ellipsis}\"hy hello there world, you're a long strin\"{ArgumentFormatter.Ellipsis}" + Environment.NewLine +
-				$"Actual:   {ArgumentFormatter.Ellipsis}\"hy hello there world! You're a long strin\"{ArgumentFormatter.Ellipsis}" + Environment.NewLine +
-				"                                  ↑ (pos 21)",
-				ex.Message
-			);
+			void verify(Action action)
+			{
+				var ex = Record.Exception(action);
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Strings differ" + Environment.NewLine +
+					"                                  ↓ (pos 21)" + Environment.NewLine +
+					$"Expected: {ArgumentFormatter.Ellipsis}\"hy hello there world, you're a long strin\"{ArgumentFormatter.Ellipsis}" + Environment.NewLine +
+					$"Actual:   {ArgumentFormatter.Ellipsis}\"hy hello there world! You're a long strin\"{ArgumentFormatter.Ellipsis}" + Environment.NewLine +
+					"                                  ↑ (pos 21)",
+					ex.Message
+				);
+			}
+
+			verify(() => Assert.Equal(expected, actual));
+#if XUNIT_SPAN
+			verify(() => Assert.Equal(expected.Memoryify(), actual.Memoryify()));
+			verify(() => Assert.Equal(expected.AsMemory(), actual.Memoryify()));
+			verify(() => Assert.Equal(expected.Memoryify(), actual.AsMemory()));
+			verify(() => Assert.Equal(expected.AsMemory(), actual.AsMemory()));
+			verify(() => Assert.Equal(expected.Spanify(), actual.Spanify()));
+			verify(() => Assert.Equal(expected.AsSpan(), actual.Spanify()));
+			verify(() => Assert.Equal(expected.Spanify(), actual.AsSpan()));
+			verify(() => Assert.Equal(expected.AsSpan(), actual.AsSpan()));
+#endif
 		}
 	}
 
@@ -567,40 +829,90 @@ public class StringAssertsTests
 		public void Success()
 		{
 			Assert.StartsWith("Hello", "Hello, world!");
+#if XUNIT_SPAN
+			Assert.StartsWith("Hello".Memoryify(), "Hello, world!".Memoryify());
+			Assert.StartsWith("Hello".AsMemory(), "Hello, world!".Memoryify());
+			Assert.StartsWith("Hello".Memoryify(), "Hello, world!".AsMemory());
+			Assert.StartsWith("Hello".AsMemory(), "Hello, world!".AsMemory());
+			Assert.StartsWith("Hello".Spanify(), "Hello, world!".Spanify());
+			Assert.StartsWith("Hello".AsSpan(), "Hello, world!".Spanify());
+			Assert.StartsWith("Hello".Spanify(), "Hello, world!".AsSpan());
+			Assert.StartsWith("Hello".AsSpan(), "Hello, world!".AsSpan());
+#endif
 		}
 
 		[Fact]
 		public void Failure()
 		{
-			var ex = Record.Exception(() => Assert.StartsWith("hey", "Hello, world!"));
+			void verify(Action action)
+			{
+				var ex = Record.Exception(action);
 
-			Assert.IsType<StartsWithException>(ex);
-			Assert.Equal(
-				"Assert.StartsWith() Failure: String start does not match" + Environment.NewLine +
-				"String:         \"Hello, world!\"" + Environment.NewLine +
-				"Expected start: \"hey\"",
-				ex.Message
-			);
+				Assert.IsType<StartsWithException>(ex);
+				Assert.Equal(
+					"Assert.StartsWith() Failure: String start does not match" + Environment.NewLine +
+					"String:         \"Hello, world!\"" + Environment.NewLine +
+					"Expected start: \"hey\"",
+					ex.Message
+				);
+			}
+
+			verify(() => Assert.StartsWith("hey", "Hello, world!"));
+#if XUNIT_SPAN
+			verify(() => Assert.StartsWith("hey".Memoryify(), "Hello, world!".Memoryify()));
+			verify(() => Assert.StartsWith("hey".AsMemory(), "Hello, world!".Memoryify()));
+			verify(() => Assert.StartsWith("hey".Memoryify(), "Hello, world!".AsMemory()));
+			verify(() => Assert.StartsWith("hey".AsMemory(), "Hello, world!".AsMemory()));
+			verify(() => Assert.StartsWith("hey".Spanify(), "Hello, world!".Spanify()));
+			verify(() => Assert.StartsWith("hey".AsSpan(), "Hello, world!".Spanify()));
+			verify(() => Assert.StartsWith("hey".Spanify(), "Hello, world!".AsSpan()));
+			verify(() => Assert.StartsWith("hey".AsSpan(), "Hello, world!".AsSpan()));
+#endif
 		}
 
 		[Fact]
 		public void CaseSensitiveByDefault()
 		{
-			var ex = Record.Exception(() => Assert.StartsWith("WORLD!", "world!"));
+			void verify(Action action)
+			{
+				var ex = Record.Exception(action);
 
-			Assert.IsType<StartsWithException>(ex);
-			Assert.Equal(
-				"Assert.StartsWith() Failure: String start does not match" + Environment.NewLine +
-				"String:         \"world!\"" + Environment.NewLine +
-				"Expected start: \"WORLD!\"",
-				ex.Message
-			);
+				Assert.IsType<StartsWithException>(ex);
+				Assert.Equal(
+					"Assert.StartsWith() Failure: String start does not match" + Environment.NewLine +
+					"String:         \"world!\"" + Environment.NewLine +
+					"Expected start: \"WORLD!\"",
+					ex.Message
+				);
+			}
+
+			verify(() => Assert.StartsWith("WORLD!", "world!"));
+#if XUNIT_SPAN
+			verify(() => Assert.StartsWith("WORLD!".Memoryify(), "world!".Memoryify()));
+			verify(() => Assert.StartsWith("WORLD!".AsMemory(), "world!".Memoryify()));
+			verify(() => Assert.StartsWith("WORLD!".Memoryify(), "world!".AsMemory()));
+			verify(() => Assert.StartsWith("WORLD!".AsMemory(), "world!".AsMemory()));
+			verify(() => Assert.StartsWith("WORLD!".Spanify(), "world!".Spanify()));
+			verify(() => Assert.StartsWith("WORLD!".AsSpan(), "world!".Spanify()));
+			verify(() => Assert.StartsWith("WORLD!".Spanify(), "world!".AsSpan()));
+			verify(() => Assert.StartsWith("WORLD!".AsSpan(), "world!".AsSpan()));
+#endif
 		}
 
 		[Fact]
 		public void CanSpecifyComparisonType()
 		{
 			Assert.StartsWith("HELLO", "Hello, world!", StringComparison.OrdinalIgnoreCase);
+#if XUNIT_SPAN
+			Assert.StartsWith("HELLO".Memoryify(), "Hello, world!".Memoryify(), StringComparison.OrdinalIgnoreCase);
+			Assert.StartsWith("HELLO".AsMemory(), "Hello, world!".Memoryify(), StringComparison.OrdinalIgnoreCase);
+			Assert.StartsWith("HELLO".Memoryify(), "Hello, world!".AsMemory(), StringComparison.OrdinalIgnoreCase);
+			Assert.StartsWith("HELLO".AsMemory(), "Hello, world!".AsMemory(), StringComparison.OrdinalIgnoreCase);
+			Assert.StartsWith("HELLO".Spanify(), "Hello, world!".Spanify(), StringComparison.OrdinalIgnoreCase);
+			Assert.StartsWith("HELLO".AsSpan(), "Hello, world!".Spanify(), StringComparison.OrdinalIgnoreCase);
+			Assert.StartsWith("HELLO".Spanify(), "Hello, world!".AsSpan(), StringComparison.OrdinalIgnoreCase);
+			Assert.StartsWith("HELLO".AsSpan(), "Hello, world!".AsSpan(), StringComparison.OrdinalIgnoreCase);
+#endif
 		}
 
 		[Fact]
@@ -623,15 +935,30 @@ public class StringAssertsTests
 			var expected = "This is a long string that we're looking for at the start";
 			var actual = "This is the long string that we expected to find this starting inside";
 
-			var ex = Record.Exception(() => Assert.StartsWith(expected, actual));
+			void verify(Action action)
+			{
+				var ex = Record.Exception(action);
 
-			Assert.IsType<StartsWithException>(ex);
-			Assert.Equal(
-				"Assert.StartsWith() Failure: String start does not match" + Environment.NewLine +
-				"String:         \"This is the long string that we expected \"" + ArgumentFormatter.Ellipsis + Environment.NewLine +
-				"Expected start: \"This is a long string that we're looking \"" + ArgumentFormatter.Ellipsis,
-				ex.Message
-			);
+				Assert.IsType<StartsWithException>(ex);
+				Assert.Equal(
+					"Assert.StartsWith() Failure: String start does not match" + Environment.NewLine +
+					"String:         \"This is the long string that we expected \"" + ArgumentFormatter.Ellipsis + Environment.NewLine +
+					"Expected start: \"This is a long string that we're looking \"" + ArgumentFormatter.Ellipsis,
+					ex.Message
+				);
+			}
+
+			verify(() => Assert.StartsWith(expected, actual));
+#if XUNIT_SPAN
+			verify(() => Assert.StartsWith(expected.Memoryify(), actual.Memoryify()));
+			verify(() => Assert.StartsWith(expected.AsMemory(), actual.Memoryify()));
+			verify(() => Assert.StartsWith(expected.Memoryify(), actual.AsMemory()));
+			verify(() => Assert.StartsWith(expected.AsMemory(), actual.AsMemory()));
+			verify(() => Assert.StartsWith(expected.Spanify(), actual.Spanify()));
+			verify(() => Assert.StartsWith(expected.AsSpan(), actual.Spanify()));
+			verify(() => Assert.StartsWith(expected.Spanify(), actual.AsSpan()));
+			verify(() => Assert.StartsWith(expected.AsSpan(), actual.AsSpan()));
+#endif
 		}
 	}
 }

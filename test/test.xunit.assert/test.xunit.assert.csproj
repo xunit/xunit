@@ -7,6 +7,10 @@
     <TargetFrameworks>net452;netcoreapp2.0;net6.0</TargetFrameworks>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
+    <DefineConstants>$(DefineConstants);XUNIT_IMMUTABLE_COLLECTIONS;XUNIT_SPAN</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
     <PackageReference Include="TunnelVisionLabs.ReferenceAssemblyAnnotator" Version="1.0.0-alpha.160">
