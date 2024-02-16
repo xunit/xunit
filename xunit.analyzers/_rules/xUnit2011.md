@@ -7,7 +7,7 @@ severity: Warning
 
 ## Cause
 
-A violation of this rule occurs when `Assert.Collection` is used without element inspectors to check for an empty collection.
+A violation of this rule occurs when `Assert.Collection` or `Assert.CollectionAsync` is used without element inspectors to check for an empty collection.
 
 ## Reason for rule
 
@@ -18,7 +18,7 @@ There are specialized assertions for checking collection sizes.
 To fix a violation of this rule, you can:
 
 * Use `Assert.Empty` instead.
-* Add element inspectors to the `Assert.Collection` call.
+* Add element inspectors to the `Assert.Collection`/`Assert.CollectionAsync` call.
 
 ## Examples
 

@@ -1,0 +1,41 @@
+---
+layout: default
+title: Release Notes for December 22, 2023
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: February 15, 2024</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<p>Today, we're shipping three new releases:</p>
+
+<ul>
+  <li>xUnit.net Core Framework v2 2.7.0 (<a href="/releases/v2/2.7.0">release notes</a>)</li>
+  <li>xUnit.net Analyzers 1.11.0 (<a href="/releases/analyzers/1.11.0">release notes</a>)</li>
+  <li><strong>xUnit.net Visual Studio adapter 2.5.7</strong></li>
+</ul>
+
+<p>It's been 2 months since the release of <a href="2.5.6">2.5.6 RTM</a>.</p>
+
+<p>
+  As always, we'd like to thank all the users who contributed to the success of xUnit.net through
+  usage, feedback, and code. 🎉
+</p>
+
+<h2>Release Notes</h2>
+
+<p>These release notes are a comprehensive list of changes from 2.5.6 to 2.5.7.</p>
+
+<h3>Features and Fixes</h3>
+<ul>
+  <li>
+    We have fixed a package signing issue which was causing <code>xunit.abstractions.dll</code> to be re-signed
+    despite already being signed, which then caused double-writes when the file was being copied during builds.
+    This did not cause any runtime issues, as the binaries were still identical, but it did cause occasional
+    unnecessary rebuilds (especially for .NET Framework projects) because of the competing files. (This was
+    also true for <code>xunit.runner.reporters.*.dll</code> and <code>xunit.runner.utility.*.dll</code>, though
+    that was less common as it would only affect writers of third party runners.)
+    <a class="issue-link" href="https://github.com/xunit/visualstudio.xunit/issues/399">xunit/visualstudio.xunit#399</a>
+  </li>
+</ul>

@@ -1,0 +1,110 @@
+---
+layout: default
+title: Release Notes for February 15, 2024
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: February 15, 2024</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<p>Today, we're shipping three new releases:</p>
+
+<ul>
+  <li><strong>xUnit.net Core Framework v2 2.7.0</strong></li>
+  <li>xUnit.net Analyzers 1.11.0 (<a href="/releases/analyzers/1.11.0">release notes</a>)</li>
+  <li>xUnit.net Visual Studio adapter 2.5.7 (<a href="/releases/visualstudio/2.5.7">release notes</a>)</li>
+</ul>
+
+<p>It's been 1 month since the release of <a href="2.6.6">2.6.6 RTM</a>.</p>
+
+<p>
+  As always, we'd like to thank all the users who contributed to the success of xUnit.net through
+  usage, feedback, and code. 🎉
+</p>
+
+<h2>Release Notes</h2>
+
+<p>These release notes are a comprehensive list of changes from 2.6.6 to 2.7.0.</p>
+
+<h3>Core Framework</h3>
+<ul>
+  <li>
+    We have fixed a binary breaking change to <code>SynchronousMessageBus</code> caused by a constructor
+    change. The old constructor has been restored and marked as <code>[Obsolete]</code>.
+  </li>
+</ul>
+
+<h3>Runner Utility</h3>
+<ul>
+  <li>
+    We have added a <code>ConfigWarnings</code> property to <code>XunitProjectAssembly</code> which will
+    contain warnings related to unsupported configuration file types, files which cannot be found/loaded,
+    JSON config files which are malformed, or any time an exception is thrown while loading/parsing
+    configuration. It is the responsibility of the runner to find an appropriate place to report these
+    warnings. We have updated all the first party runners (<code>xunit.runner.console</code>,
+    <code>xunit.runner.msbuild</code>, <code>xunit.runner.tdnet</code>, and <code>xunit.runner.visualstudio</code>)
+    to report these.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/1655">xunit/xunit#1655</a>
+  </li>
+  <li>
+    We will only use our <code>AsyncTestSyncContext</code> for tests marked as <code>async void</code>.
+    This may provide a slight performance improvement for some users.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2573">xunit/xunit#2573</a>
+  </li>
+  <li>
+    We will now fail any test which is marked with <code>[Fact(Timeout = n)]</code> if the test is not
+    async. Previously this resulted in behavior where the timeout was ignored.
+  </li>
+</ul>
+
+<h3>Assertion Library</h3>
+<ul>
+  <li>
+    We have added support for <code>IAsyncEnumerable&lt;T&gt;</code> in the following assertions:
+    <ul>
+      <li><code>Assert.All</code></li>
+      <li><code>Assert.AllAsync</code></li>
+      <li><code>Assert.Collection</code></li>
+      <li><code>Assert.CollectionAsync</code></li>
+      <li><code>Assert.Contains</code></li>
+      <li><code>Assert.Distinct</code></li>
+      <li><code>Assert.DoesNotContain</code></li>
+      <li><code>Assert.Empty</code></li>
+      <li><code>Assert.Equal</code></li>
+      <li><code>Assert.NotEqual</code></li>
+      <li><code>Assert.Single</code></li>
+    </ul>
+    For developers taking a binary NuGet dependency (the typical way), you must be using .NET 6 or later
+    to get these new overloads. If you are importing our assertions via source (either as NuGet or via
+    Git submodule), you must be using .NET Core 3.0 or later. In addition, developers importing via source
+    can also take advantage of <code>AssertHelper.ToEnumerable()</code> to convert an async enumerable
+    into a standard enumerable.
+  </li>
+  <li>
+    We have updated <code>Assert.Contains</code> and <code>Assert.DoesNotContain</code> to extend our
+    special handling of sets from just the concrete <code>HashSet&lt;T&gt;</code> to any class which
+    implements <code>ISet&lt;T&gt;</code>. We also extend this support to any class which implements
+    <code>IReadOnlySet&lt;T</code>, if you are using .NET 6 or later (via binary NuGet dependency)
+    or .NET 5 or later (via source dependency).
+  </li>
+  <li>
+    We have updated the XML documentation around the assertions that take <code>Span&lt;char&gt;</code> and
+    <code>ReadOnlySpan&lt;char&gt;</code> to indicate that these assertion treat the spans like strings
+    rather than like collections of characters. While this has always been true, the documentation did not
+    make that clear previously. We have also updated the documentation for the overloads that can ignore
+    white-space to include a complete list of the characters that we consider white-space (there are 21
+    separate characters that we consider white-space at the time of this release).
+  </li>
+  <li>
+    We have updated reporting in <code>Assert.Equal</code> and <code>Assert.NotEqual</code>, when showing
+    type names, if the type is a compiler generated type we simply now display <code>&lt;generated&gt;</code>
+    rather than the mangled auto-generated type name.
+  </li>
+  <li>
+    <strong>BUG:</strong> We have fixed an issue with <code>Assert.Collection</code> where the inner stack trace
+    was no longer being displayed, making it difficult to know which precise line of code caused the
+    comparison failure.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2871">xunit/xunit#2871</a>
+  </li>
+</ul>

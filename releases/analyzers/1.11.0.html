@@ -1,0 +1,78 @@
+---
+layout: default
+title: Release Notes for February 15, 2024
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: February 15, 2024</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<p>Today, we're shipping three new releases:</p>
+
+<ul>
+  <li>xUnit.net Core Framework v2 2.7.0 (<a href="/releases/v2/2.7.0">release notes</a>)</li>
+  <li><strong>xUnit.net Analyzers 1.11.0</strong></li>
+  <li>xUnit.net Visual Studio adapter 2.5.7 (<a href="/releases/visualstudio/2.5.7">release notes</a>)</li>
+</ul>
+
+<p>It's been 1 month since the release of <a href="1.10.0">1.10.0 RTM</a>.</p>
+
+<p>
+  As always, we'd like to thank all the users who contributed to the success of xUnit.net through
+  usage, feedback, and code contributions. 🎉
+</p>
+
+<h2>Release Notes</h2>
+
+<p>These release notes are a comprehensive list of changes from 1.10.0 to 1.11.0.</p>
+
+<h3>General</h3>
+<ul>
+  <li>
+    We have removed support for Roslyn 4.2, as Visual Studio 2022 17.2 is no longer supported by Microsoft. If you
+    are still running this version Visual Studio, the analyzers may not work for you. We are still supporting
+    Visual Studio 2019 16.11, as well as Visual Studio 2022 17.4 (or later).
+  </li>
+</ul>
+
+<h3>Usage Analyzers</h3>
+<ul>
+  <li>
+    We have fixed an issue with false positives from <a href="/xunit.analyzers/rules/xUnit1039">xUnit1039</a> when using
+    anonymous tuples where the types matched but the names did not (for example, <code>(string foo, string bar)</code> is
+    equivalent to <code>(string, string)</code> as well as <code>(string baz, string biff)</code>, since the names are
+    used as compile-time shortcuts and don't impact the underlying tuple type).
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2873">xunit/xunit#2873</a>
+  </li>
+  <li>
+    We have added support for generic fixture collection to v3 Core Framework 0.1.1-pre.366, and have updated
+    <a href="/xunit.analyzers/rules/xUnit1041">xUnit1041</a> to ensure that it recognizes the new source for fixture data.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2557">xunit/xunit#2557</a>
+  </li>
+</ul>
+
+<h3>Assertion Analyzers</h3>
+<ul>
+  <li>
+    We have added support for <code>IAsyncEnumerable&lt;T&gt;</code> in several assertions in v2 Core Framework 2.7.0.
+    We've updated several assertion analyzers that cover usage of <code>IEnumerable&lt;T&gt;</code> to ensure they also
+    cover async enumerables.
+  </li>
+  <li>
+    We have extended <a href="/xunit.analyzers/rules/xUnit2011">xUnit2011</a> to include <code>Assert.CollectionAsync</code>.
+  </li>
+  <li>
+    We have fixed an issue with <a href="/xunit.analyzers/rules/xUnit2014">xUnit2014</a> where the fixer would apply the
+    <code>async</code> attribute at the wrong level when the problematic code lived inside a lambda or a private function
+    of the test method. The fixer will now apply <code>async</code> to the right function, and it will climb through all
+    the parent functions/lambdas adding <code>async</code> to them as well as needed. However, it will only add <code>await</code>
+    to the original problematic code. The resulting fixed code may need additional work to ensure that it is properly awaiting
+    any of the functions/lambdas in use, which the compiler should be able to highlight with <code>CS1998</code>,
+    <a href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-messages/cs4014"><code>CS4014</code></a>,
+    and <a href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-messages/cs0029"><code>CS0029</code></a>
+    if there are any resulting type incompatibilities. <em>If you are suppressing any of these errors or warnings, you may end up
+    with code that is broken at runtime.</em>
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/">xunit/xunit#</a>
+  </li>
+</ul>
