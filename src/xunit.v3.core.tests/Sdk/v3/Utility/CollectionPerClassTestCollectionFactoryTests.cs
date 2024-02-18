@@ -17,7 +17,7 @@ public class CollectionPerClassTestCollectionFactoryTests
 		var result2 = factory.Get(type2);
 
 		Assert.NotSame(result1, result2);
-		Assert.Equal(result1.DisplayName, result2.DisplayName);
+		Assert.NotEqual(result1.DisplayName, result2.DisplayName);
 		Assert.Null(result1.CollectionDefinition);
 		Assert.Null(result2.CollectionDefinition);
 	}
