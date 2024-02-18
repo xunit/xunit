@@ -813,6 +813,8 @@ public class FixtureAcceptanceTests
 		}
 	}
 
+#if !NETFRAMEWORK
+
 	public class CollectionFixtureGeneric : AcceptanceTestV3
 	{
 		[Fact]
@@ -1041,6 +1043,8 @@ public class FixtureAcceptanceTests
 			public void TheTest() { }
 		}
 	}
+
+#endif
 
 	public class AsyncCollectionFixture : AcceptanceTestV3
 	{

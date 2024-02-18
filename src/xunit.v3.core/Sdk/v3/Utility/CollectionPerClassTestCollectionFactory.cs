@@ -7,11 +7,18 @@ using Xunit.Sdk;
 
 namespace Xunit.v3;
 
+#if NETFRAMEWORK
+/// <summary>
+/// Implementation of <see cref="IXunitTestCollectionFactory"/> which creates a new test
+/// collection for each test class that isn't decorated with <see cref="CollectionAttribute"/>.
+/// </summary>
+#else
 /// <summary>
 /// Implementation of <see cref="IXunitTestCollectionFactory"/> which creates a new test
 /// collection for each test class that isn't decorated with <see cref="CollectionAttribute"/>
 /// or <see cref="CollectionAttribute{TCollectionDefinition}"/>.
 /// </summary>
+#endif
 public class CollectionPerClassTestCollectionFactory : IXunitTestCollectionFactory
 {
 	readonly Lazy<Dictionary<string, _ITypeInfo>> collectionDefinitions;
@@ -42,9 +49,11 @@ public class CollectionPerClassTestCollectionFactory : IXunitTestCollectionFacto
 	{
 		Guard.ArgumentNotNull(testClass);
 
+#if !NETFRAMEWORK
 		var genericCollectionAttribute = testClass.GetCustomAttributes(typeof(CollectionAttribute<>)).SingleOrDefault();
 		if (genericCollectionAttribute is not null)
 			return GetForType(genericCollectionAttribute.AttributeType.GetGenericArguments()[0]);
+#endif
 
 		var collectionAttribute = testClass.GetCustomAttributes(typeof(CollectionAttribute)).SingleOrDefault();
 		if (collectionAttribute is null)

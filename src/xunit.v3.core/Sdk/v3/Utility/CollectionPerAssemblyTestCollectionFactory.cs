@@ -47,9 +47,11 @@ public class CollectionPerAssemblyTestCollectionFactory : IXunitTestCollectionFa
 	{
 		Guard.ArgumentNotNull(testClass);
 
+#if !NETFRAMEWORK
 		var genericCollectionAttribute = testClass.GetCustomAttributes(typeof(CollectionAttribute<>)).SingleOrDefault();
 		if (genericCollectionAttribute is not null)
 			return GetForType(genericCollectionAttribute.AttributeType.GetGenericArguments()[0]);
+#endif
 
 		var collectionAttribute = testClass.GetCustomAttributes(typeof(CollectionAttribute)).SingleOrDefault();
 		if (collectionAttribute is null)

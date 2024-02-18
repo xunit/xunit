@@ -18,12 +18,20 @@ public sealed class CollectionAttribute : Attribute
 	public CollectionAttribute(string name)
 	{ }
 
+#if NETFRAMEWORK
+	/// <summary>
+	/// Initializes a new instance of the <see cref="CollectionAttribute" /> class based on
+	/// a collection definition type, with an auto-generated name based on that type.
+	/// </summary>
+	/// <param name="type">The type representing the collection fixture.</param>
+#else
 	/// <summary>
 	/// Initializes a new instance of the <see cref="CollectionAttribute" /> class based on
 	/// a collection definition type, with an auto-generated name based on that type. Equivalent
 	/// to using <see cref="CollectionAttribute{TCollectionDefinition}"/>.
 	/// </summary>
 	/// <param name="type">The type representing the collection fixture.</param>
+#endif
 	public CollectionAttribute(Type type)
 	{ }
 }

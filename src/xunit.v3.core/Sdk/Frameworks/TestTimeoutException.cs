@@ -6,6 +6,9 @@ namespace Xunit.Sdk;
 /// <summary>
 /// Thrown if a test exceeds the specified timeout.
 /// </summary>
+#if NETFRAMEWORK
+[Serializable]
+#endif
 public class TestTimeoutException : Exception, ITestTimeoutException
 {
 	TestTimeoutException(string message)
