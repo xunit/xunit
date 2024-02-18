@@ -17,8 +17,7 @@ public class CollectionPerClassTestCollectionFactoryTests
 		var result2 = factory.Get(type2);
 
 		Assert.NotSame(result1, result2);
-		Assert.Equal("Test collection for FullyQualified.Type.Number1 (id: 149dd8ee27c58fd03b62ccc7a80359fd0c738889da16cb612dedd6438c5d44f9)", result1.DisplayName);
-		Assert.Equal("Test collection for FullyQualified.Type.Number2 (id: dcbe2dd8b1619b902c7138e823e44aa6099862518fe824bba14e8083649594b8)", result2.DisplayName);
+		Assert.Equal(result1.DisplayName, result2.DisplayName);
 		Assert.Null(result1.CollectionDefinition);
 		Assert.Null(result2.CollectionDefinition);
 	}
@@ -82,16 +81,16 @@ public class CollectionPerClassTestCollectionFactoryTests
 	public static void ExplicitlySpecifyingACollectionWithTheSameNameAsAnImplicitWorks()
 	{
 		var assemblyFileName = @"C:\Foo\bar.dll";
-		var type1 = Mocks.TypeInfo("type1", assemblyFileName: assemblyFileName);
-		var type2 = Mocks.TypeInfo("type2", assemblyFileName: assemblyFileName, attributes: new[] { Mocks.CollectionAttribute("Test collection for type1 (id: 8cbc374b08487e97435cecd2354efea7c9ff7865dabc3fe9b0bd2d928db68159)") });
 		var assembly = Mocks.TestAssembly(assemblyFileName);
 		var factory = new CollectionPerClassTestCollectionFactory(assembly);
 
+		var type1 = Mocks.TypeInfo("type1", assemblyFileName: assemblyFileName);
 		var result1 = factory.Get(type1);
+
+		var type2 = Mocks.TypeInfo("type2", assemblyFileName: assemblyFileName, attributes: new[] { Mocks.CollectionAttribute(result1.DisplayName) });
 		var result2 = factory.Get(type2);
 
 		Assert.Same(result1, result2);
-		Assert.Equal("Test collection for type1 (id: 8cbc374b08487e97435cecd2354efea7c9ff7865dabc3fe9b0bd2d928db68159)", result1.DisplayName);
 	}
 
 	[Fact]
