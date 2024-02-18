@@ -223,6 +223,23 @@ public sealed class UniqueIDGenerator : IDisposable
 		return generator.Compute();
 	}
 
+	/// <summary>
+	/// Computes a unique ID for a type/>
+	/// </summary>
+	/// <param name="type">The type to generate an ID for</param>
+	public static string ForType(_ITypeInfo type)
+	{
+		Guard.ArgumentNotNull(type);
+
+		using var generator = new UniqueIDGenerator();
+
+		// Assembly name may include some parts that are less stable, so for now, split on comma
+		var assemblyParts = type.Assembly.Name.Split(',');
+		generator.Add(assemblyParts[0]);
+		generator.Add(type.Name);
+		return generator.Compute();
+	}
+
 	static char ToHexChar(int b) =>
 		(char)(b < 10 ? b + '0' : b - 10 + 'a');
 

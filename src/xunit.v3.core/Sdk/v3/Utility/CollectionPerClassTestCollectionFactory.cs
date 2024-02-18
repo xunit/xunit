@@ -1,17 +1,28 @@
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Xunit.Internal;
+using Xunit.Sdk;
 
 namespace Xunit.v3;
 
+#if NETFRAMEWORK
 /// <summary>
 /// Implementation of <see cref="IXunitTestCollectionFactory"/> which creates a new test
 /// collection for each test class that isn't decorated with <see cref="CollectionAttribute"/>.
 /// </summary>
+#else
+/// <summary>
+/// Implementation of <see cref="IXunitTestCollectionFactory"/> which creates a new test
+/// collection for each test class that isn't decorated with <see cref="CollectionAttribute"/>
+/// or <see cref="CollectionAttribute{TCollectionDefinition}"/>.
+/// </summary>
+#endif
 public class CollectionPerClassTestCollectionFactory : IXunitTestCollectionFactory
 {
-	Dictionary<string, _ITypeInfo>? collectionDefinitions;
+	readonly Lazy<Dictionary<string, _ITypeInfo>> collectionDefinitions;
 	readonly _ITestAssembly testAssembly;
 	readonly ConcurrentDictionary<string, _ITestCollection> testCollections = new();
 
@@ -22,6 +33,7 @@ public class CollectionPerClassTestCollectionFactory : IXunitTestCollectionFacto
 	public CollectionPerClassTestCollectionFactory(_ITestAssembly testAssembly)
 	{
 		this.testAssembly = Guard.ArgumentNotNull(testAssembly);
+		collectionDefinitions = new(InitializeCollections);
 	}
 
 	/// <inheritdoc/>
@@ -29,10 +41,7 @@ public class CollectionPerClassTestCollectionFactory : IXunitTestCollectionFacto
 
 	_ITestCollection CreateCollection(string name)
 	{
-		if (collectionDefinitions is null)
-			collectionDefinitions = TestCollectionFactoryHelper.GetTestCollectionDefinitions(testAssembly.Assembly);
-
-		collectionDefinitions.TryGetValue(name, out var definitionType);
+		collectionDefinitions.Value.TryGetValue(name, out var definitionType);
 		return new TestCollection(testAssembly, definitionType, name);
 	}
 
@@ -41,14 +50,38 @@ public class CollectionPerClassTestCollectionFactory : IXunitTestCollectionFacto
 	{
 		Guard.ArgumentNotNull(testClass);
 
-		string collectionName;
+#if !NETFRAMEWORK
+		var genericCollectionAttribute = testClass.GetCustomAttributes(typeof(CollectionAttribute<>)).SingleOrDefault();
+		if (genericCollectionAttribute is not null)
+			return GetForType(genericCollectionAttribute.AttributeType.GetGenericArguments()[0]);
+#endif
+
 		var collectionAttribute = testClass.GetCustomAttributes(typeof(CollectionAttribute)).SingleOrDefault();
-
 		if (collectionAttribute is null)
-			collectionName = "Test collection for " + testClass.Name;
-		else
-			collectionName = collectionAttribute.GetConstructorArguments().Cast<string>().Single();
+			return testCollections.GetOrAdd(GetCollectionNameForType(testClass), CreateCollection);
 
-		return testCollections.GetOrAdd(collectionName, CreateCollection);
+		var collectionName = collectionAttribute.GetConstructorArguments().Single();
+		if (collectionName is string stringCollection)
+			return testCollections.GetOrAdd(stringCollection, CreateCollection);
+
+		// From the constructor options, the argument must either be a string or a type
+		var typeCollection = (Type)collectionName!;
+		return GetForType(new ReflectionTypeInfo(typeCollection));
 	}
+
+	internal static string GetCollectionNameForType(_ITypeInfo type) =>
+		string.Format(CultureInfo.InvariantCulture, "Test collection for {0} (id: {1})", Guard.ArgumentNotNull(type).Name, UniqueIDGenerator.ForType(type));
+
+	_ITestCollection GetForType(_ITypeInfo fixtureType)
+	{
+		var name = GetCollectionNameForType(fixtureType);
+
+		if (!collectionDefinitions.Value.ContainsKey(name))
+			collectionDefinitions.Value.Add(name, fixtureType);
+
+		return testCollections.GetOrAdd(name, CreateCollection);
+	}
+
+	Dictionary<string, _ITypeInfo> InitializeCollections() =>
+		TestCollectionFactoryHelper.GetTestCollectionDefinitions(testAssembly.Assembly);
 }

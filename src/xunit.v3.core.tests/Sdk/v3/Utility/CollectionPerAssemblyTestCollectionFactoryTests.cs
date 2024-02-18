@@ -37,6 +37,29 @@ public class CollectionPerAssemblyTestCollectionFactoryTests
 		Assert.Equal("My Collection", result1.DisplayName);
 	}
 
+#if !NETFRAMEWORK
+
+	[Fact]
+	public static void ClassesDecoratedWithGenericAndNonGenericTypesAreInSameTestCollection()
+	{
+		var type1 = Mocks.TypeInfo("type1", attributes: new[] { Mocks.CollectionAttribute(typeof(CollectionPerAssemblyTestCollectionFactoryTests)) });
+		var type2 = Mocks.TypeInfo("type2", attributes: new[] { Mocks.CollectionAttribute<CollectionPerAssemblyTestCollectionFactoryTests>() });
+		var assembly = Mocks.TestAssembly(@"C:\Foo\bar.dll");
+		var factory = new CollectionPerAssemblyTestCollectionFactory(assembly);
+
+		var result1 = factory.Get(type1);
+		var result2 = factory.Get(type2);
+
+		Assert.Same(result1, result2);
+#if BUILD_X86  // Assembly name changes for x86 testing, so that changes the ID
+		Assert.Equal("Test collection for CollectionPerAssemblyTestCollectionFactoryTests (id: 22336a3d94850ba9355fc27682274c3e9ebd23bb90eb5846e8ec0b7ddeedd6a3)", result1.DisplayName);
+#else
+		Assert.Equal("Test collection for CollectionPerAssemblyTestCollectionFactoryTests (id: f9ce1cf58a26feb461fdb1787661228ce240a5bf2c097a61653810ecd199889d)", result1.DisplayName);
+#endif
+	}
+
+#endif
+
 	[Fact]
 	public static void ClassesWithDifferentCollectionNamesHaveDifferentCollectionObjects()
 	{

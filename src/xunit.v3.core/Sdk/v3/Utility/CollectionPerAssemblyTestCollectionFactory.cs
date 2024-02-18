@@ -1,19 +1,30 @@
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Xunit.Internal;
+using Xunit.Sdk;
 
 namespace Xunit.v3;
 
+#if NETFRAMEWORK
 /// <summary>
 /// Implementation of <see cref="IXunitTestCollectionFactory"/> that creates a single
-/// default test collection for the assembly, and places any tests classes without
-/// the <see cref="CollectionAttribute"/> into it.
+/// default test collection for the assembly, and places any tests classes which are not
+/// decorated by <see cref="CollectionAttribute"/>.
 /// </summary>
+#else
+/// <summary>
+/// Implementation of <see cref="IXunitTestCollectionFactory"/> that creates a single
+/// default test collection for the assembly, and places any tests classes which are not
+/// decorated by <see cref="CollectionAttribute"/> or
+/// <see cref="CollectionAttribute{TCollectionDefinition}"/>.
+/// </summary>
+#endif
 public class CollectionPerAssemblyTestCollectionFactory : IXunitTestCollectionFactory
 {
-	readonly Dictionary<string, _ITypeInfo> collectionDefinitions;
+	readonly Lazy<Dictionary<string, _ITypeInfo>> collectionDefinitions;
 	readonly TestCollection defaultCollection;
 	readonly _ITestAssembly testAssembly;
 	readonly ConcurrentDictionary<string, _ITestCollection> testCollections = new();
@@ -27,7 +38,7 @@ public class CollectionPerAssemblyTestCollectionFactory : IXunitTestCollectionFa
 		this.testAssembly = Guard.ArgumentNotNull(testAssembly);
 
 		defaultCollection = new TestCollection(testAssembly, null, "Test collection for " + Path.GetFileName(testAssembly.Assembly.AssemblyPath));
-		collectionDefinitions = TestCollectionFactoryHelper.GetTestCollectionDefinitions(testAssembly.Assembly);
+		collectionDefinitions = new(InitializeCollections);
 	}
 
 	/// <inheritdoc/>
@@ -35,7 +46,7 @@ public class CollectionPerAssemblyTestCollectionFactory : IXunitTestCollectionFa
 
 	_ITestCollection CreateTestCollection(string name)
 	{
-		collectionDefinitions.TryGetValue(name, out var definitionType);
+		collectionDefinitions.Value.TryGetValue(name, out var definitionType);
 		return new TestCollection(testAssembly, definitionType, name);
 	}
 
@@ -44,11 +55,35 @@ public class CollectionPerAssemblyTestCollectionFactory : IXunitTestCollectionFa
 	{
 		Guard.ArgumentNotNull(testClass);
 
+#if !NETFRAMEWORK
+		var genericCollectionAttribute = testClass.GetCustomAttributes(typeof(CollectionAttribute<>)).SingleOrDefault();
+		if (genericCollectionAttribute is not null)
+			return GetForType(genericCollectionAttribute.AttributeType.GetGenericArguments()[0]);
+#endif
+
 		var collectionAttribute = testClass.GetCustomAttributes(typeof(CollectionAttribute)).SingleOrDefault();
 		if (collectionAttribute is null)
 			return defaultCollection;
 
-		var collectionName = collectionAttribute.GetConstructorArguments().Cast<string>().Single();
-		return testCollections.GetOrAdd(collectionName, CreateTestCollection);
+		var collectionName = collectionAttribute.GetConstructorArguments().Single();
+		if (collectionName is string stringCollection)
+			return testCollections.GetOrAdd(stringCollection, CreateTestCollection);
+
+		// From the constructor options, the argument must either be a string or a type
+		var typeCollection = (Type)collectionName!;
+		return GetForType(new ReflectionTypeInfo(typeCollection));
 	}
+
+	_ITestCollection GetForType(_ITypeInfo fixtureType)
+	{
+		var name = CollectionPerClassTestCollectionFactory.GetCollectionNameForType(fixtureType);
+
+		if (!collectionDefinitions.Value.ContainsKey(name))
+			collectionDefinitions.Value.Add(name, fixtureType);
+
+		return testCollections.GetOrAdd(name, CreateTestCollection);
+	}
+
+	Dictionary<string, _ITypeInfo> InitializeCollections() =>
+		TestCollectionFactoryHelper.GetTestCollectionDefinitions(testAssembly.Assembly);
 }
