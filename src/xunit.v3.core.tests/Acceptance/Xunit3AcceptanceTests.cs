@@ -54,7 +54,11 @@ public class Xunit3AcceptanceTests
 				{
 					var collectionStarting = Assert.IsType<_TestCollectionStarting>(message);
 					Assert.Null(collectionStarting.TestCollectionClass);
-					Assert.Equal("Test collection for Xunit3AcceptanceTests+SinglePassingTestClass", collectionStarting.TestCollectionDisplayName);
+#if BUILD_X86  // Assembly name changes for x86 testing, so that changes the ID
+					Assert.Equal("Test collection for Xunit3AcceptanceTests+SinglePassingTestClass (id: 6cb828656c4e7792b51bed8fcd2dd9b7579d18c130f061fa24d71af90ebd9147)", collectionStarting.TestCollectionDisplayName);
+#else
+					Assert.Equal("Test collection for Xunit3AcceptanceTests+SinglePassingTestClass (id: 94b6e27b61c59f331879032bb51a9e812c13b2574e286aece991d833e6f52127)", collectionStarting.TestCollectionDisplayName);
+#endif
 					Assert.NotEmpty(collectionStarting.TestCollectionUniqueID);
 					Assert.Equal(observedAssemblyID, collectionStarting.AssemblyUniqueID);
 					observedCollectionID = collectionStarting.TestCollectionUniqueID;

@@ -36,7 +36,11 @@ public class XunitTestFrameworkDiscovererTests
 			var testClass = await discoverer.CreateTestClass(type);
 
 			Assert.NotNull(testClass.TestCollection);
-			Assert.Equal("Test collection for XunitTestFrameworkDiscovererTests+CreateTestClass+ClassWithNoCollection", testClass.TestCollection.DisplayName);
+#if BUILD_X86  // Assembly name changes for x86 testing, so that changes the ID
+			Assert.Equal("Test collection for XunitTestFrameworkDiscovererTests+CreateTestClass+ClassWithNoCollection (id: 853344980e07288ef3b081579c76a63aa6e7004c01cf1f0263810d65e8a7e70d)", testClass.TestCollection.DisplayName);
+#else
+			Assert.Equal("Test collection for XunitTestFrameworkDiscovererTests+CreateTestClass+ClassWithNoCollection (id: 7be14f736e0a0af8d59cc61a320451b57131f8826d997a67c0e0445ac2d717c6)", testClass.TestCollection.DisplayName);
+#endif
 			Assert.Null(testClass.TestCollection.CollectionDefinition);
 		}
 

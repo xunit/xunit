@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using Xunit.Internal;
@@ -9,11 +8,20 @@ using Xunit.Sdk;
 
 namespace Xunit.v3;
 
+#if NETFRAMEWORK
 /// <summary>
 /// Implementation of <see cref="IXunitTestCollectionFactory"/> that creates a single
-/// default test collection for the assembly, and places any tests classes without
-/// the <see cref="CollectionAttribute"/> into it.
+/// default test collection for the assembly, and places any tests classes which are not
+/// decorated by <see cref="CollectionAttribute"/>.
 /// </summary>
+#else
+/// <summary>
+/// Implementation of <see cref="IXunitTestCollectionFactory"/> that creates a single
+/// default test collection for the assembly, and places any tests classes which are not
+/// decorated by <see cref="CollectionAttribute"/> or
+/// <see cref="CollectionAttribute{TCollectionDefinition}"/>.
+/// </summary>
+#endif
 public class CollectionPerAssemblyTestCollectionFactory : IXunitTestCollectionFactory
 {
 	readonly Lazy<Dictionary<string, _ITypeInfo>> collectionDefinitions;
@@ -68,7 +76,7 @@ public class CollectionPerAssemblyTestCollectionFactory : IXunitTestCollectionFa
 
 	_ITestCollection GetForType(_ITypeInfo fixtureType)
 	{
-		var name = string.Format(CultureInfo.InvariantCulture, "Test collection for {0} (id: {1})", Guard.ArgumentNotNull(fixtureType).Name, UniqueIDGenerator.ForType(fixtureType));
+		var name = CollectionPerClassTestCollectionFactory.GetCollectionNameForType(fixtureType);
 
 		if (!collectionDefinitions.Value.ContainsKey(name))
 			collectionDefinitions.Value.Add(name, fixtureType);

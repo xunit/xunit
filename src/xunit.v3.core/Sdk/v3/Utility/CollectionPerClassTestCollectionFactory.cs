@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -57,7 +58,7 @@ public class CollectionPerClassTestCollectionFactory : IXunitTestCollectionFacto
 
 		var collectionAttribute = testClass.GetCustomAttributes(typeof(CollectionAttribute)).SingleOrDefault();
 		if (collectionAttribute is null)
-			return testCollections.GetOrAdd("Test collection for " + testClass.Name, CreateCollection);
+			return testCollections.GetOrAdd(GetCollectionNameForType(testClass), CreateCollection);
 
 		var collectionName = collectionAttribute.GetConstructorArguments().Single();
 		if (collectionName is string stringCollection)
@@ -68,9 +69,12 @@ public class CollectionPerClassTestCollectionFactory : IXunitTestCollectionFacto
 		return GetForType(new ReflectionTypeInfo(typeCollection));
 	}
 
+	internal static string GetCollectionNameForType(_ITypeInfo type) =>
+		string.Format(CultureInfo.InvariantCulture, "Test collection for {0} (id: {1})", Guard.ArgumentNotNull(type).Name, UniqueIDGenerator.ForType(type));
+
 	_ITestCollection GetForType(_ITypeInfo fixtureType)
 	{
-		string name = UniqueIDGenerator.ForType(fixtureType);
+		var name = GetCollectionNameForType(fixtureType);
 
 		if (!collectionDefinitions.Value.ContainsKey(name))
 			collectionDefinitions.Value.Add(name, fixtureType);
