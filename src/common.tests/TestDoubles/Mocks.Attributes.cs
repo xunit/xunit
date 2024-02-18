@@ -50,6 +50,27 @@ public static partial class Mocks
 		return result;
 	}
 
+	public static _IReflectionAttributeInfo CollectionAttribute(Type collectionType)
+	{
+		var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
+		result.Attribute.Returns(new CollectionAttribute(collectionType));
+		result.AttributeType.Returns(Reflector.Wrap(typeof(CollectionAttribute)));
+		result.GetConstructorArguments().Returns(new[] { collectionType });
+		return result;
+	}
+
+#if !NETFRAMEWORK
+
+	public static _IReflectionAttributeInfo CollectionAttribute<TCollectionType>()
+	{
+		var result = Substitute.For<_IReflectionAttributeInfo, InterfaceProxy<_IReflectionAttributeInfo>>();
+		result.Attribute.Returns(new CollectionAttribute<TCollectionType>());
+		result.AttributeType.Returns(Reflector.Wrap(typeof(CollectionAttribute<TCollectionType>)));
+		return result;
+	}
+
+#endif
+
 	public static _IReflectionAttributeInfo CollectionBehaviorAttribute(
 		CollectionBehavior? collectionBehavior = null,
 		bool disableTestParallelization = false,
