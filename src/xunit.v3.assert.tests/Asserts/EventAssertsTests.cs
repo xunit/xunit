@@ -1,7 +1,5 @@
 using System;
-using System.ComponentModel;
 using System.Threading.Tasks;
-using System.Windows.Input;
 using Xunit;
 using Xunit.Sdk;
 
@@ -76,16 +74,16 @@ public class EventAssertsTests
 		{
 			var obj = new RaisingClass_Custom();
 			var eventObj = new object();
-
 			Assert.RaisedEvent<object>? raisedEvent = null;
 			void handler(object? s, object args) => raisedEvent = new Assert.RaisedEvent<object>(s, args);
 
-			var evt = Assert.Raises<object>(
+			var evt = Assert.Raises(
 				() => raisedEvent,
 				() => obj.Completed += handler,
 				() => obj.Completed -= handler,
 				() => obj.RaiseWithArgs(eventObj)
-				);
+			);
+
 			Assert.NotNull(evt);
 			Assert.Equal(obj, evt.Sender);
 			Assert.Equal(eventObj, evt.Arguments);
