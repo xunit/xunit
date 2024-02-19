@@ -68,6 +68,26 @@ public class EventAssertsTests
 				ex.Message
 			);
 		}
+
+		[Fact]
+		public static void CustomRaised()
+		{
+			var obj = new RaisingClass_Custom();
+			var eventObj = new object();
+			Assert.RaisedEvent<object>? raisedEvent = null;
+			void handler(object? s, object args) => raisedEvent = new Assert.RaisedEvent<object>(s, args);
+
+			var evt = Assert.Raises(
+				() => raisedEvent,
+				() => obj.Completed += handler,
+				() => obj.Completed -= handler,
+				() => obj.RaiseWithArgs(eventObj)
+			);
+
+			Assert.NotNull(evt);
+			Assert.Equal(obj, evt.Sender);
+			Assert.Equal(eventObj, evt.Arguments);
+		}
 	}
 
 	public class RaisesAny
@@ -375,6 +395,16 @@ public class EventAssertsTests
 		public event EventHandler<object>? Completed;
 	}
 
+	class RaisingClass_Custom
+	{
+		public void RaiseWithArgs(object args)
+		{
+			Completed!.Invoke(this, args);
+		}
+
+		public event CustomEventHandler<object>? Completed;
+	}
+
 	class RaisingClass_NonGeneric
 	{
 		public void RaiseWithArgs(EventArgs args)
@@ -388,4 +418,6 @@ public class EventAssertsTests
 	class DerivedEventArgs : EventArgs { }
 
 	class DerivedObject : object { }
+
+	delegate void CustomEventHandler<TEventArgs>(object sender, TEventArgs e);
 }
