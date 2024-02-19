@@ -17,6 +17,11 @@ public interface _ITypeInfo
 	_IAssemblyInfo Assembly { get; }
 
 	/// <summary>
+	/// Gets the assembly qualified name for this type.
+	/// </summary>
+	string? AssemblyQualifiedName { get; }
+
+	/// <summary>
 	/// Gets the base type of the given type. Will be <c>null</c> if this type represents
 	/// <see cref="object"/>; otherwise, will not be <c>null</c>.
 	/// </summary>
@@ -36,6 +41,11 @@ public interface _ITypeInfo
 	/// Gets a value indicating whether the type is an array.
 	/// </summary>
 	bool IsArray { get; }
+
+	/// <summary>
+	/// Gets a value indicating whether the type is a constructed generic type.
+	/// </summary>
+	bool IsConstructedGenericType { get; }
 
 	/// <summary>
 	/// Gets a value indicating whether the type is an enum.
@@ -98,11 +108,13 @@ public interface _ITypeInfo
 	int GetArrayRank();
 
 	/// <summary>
-	/// Gets all the custom attributes for the given type.
+	/// Gets all the custom attributes for the type that are of the given attribute type.
 	/// </summary>
-	/// <param name="assemblyQualifiedAttributeTypeName">The type of the attribute, in assembly qualified form</param>
+	/// <param name="attributeType">The type of the attribute to find. Will accept attribute types that are concrete,
+	/// closed generic, and open generic. When provided an open generic type (e.g., MyAttribute&lt;&gt;) it will
+	/// return matching closed generic attributes (e.g., MyAttribute&gt;int&lt;)</param>
 	/// <returns>The matching attributes that decorate the type</returns>
-	IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName);
+	IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(_ITypeInfo attributeType);
 
 	/// <summary>
 	/// Returns the type of the object encompassed or referred to by the current array, pointer or reference type.

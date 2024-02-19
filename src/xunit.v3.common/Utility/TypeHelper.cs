@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -11,6 +12,8 @@ namespace Xunit.Sdk;
 /// </summary>
 public static class TypeHelper
 {
+	static readonly ConcurrentDictionary<string, Type?> typeCache = new();
+
 	/// <summary>
 	/// Converts an assembly qualified type name into a <see cref="Type"/> object.
 	/// </summary>
@@ -20,78 +23,84 @@ public static class TypeHelper
 	{
 		Guard.ArgumentNotNull(assemblyQualifiedTypeName);
 
-		var firstOpenSquare = assemblyQualifiedTypeName.IndexOf('[');
-		if (firstOpenSquare > 0)
-		{
-			var backtick = assemblyQualifiedTypeName.IndexOf('`');
-			if (backtick > 0 && backtick < firstOpenSquare)
+		return typeCache.GetOrAdd(
+			assemblyQualifiedTypeName,
+			aqtn =>
 			{
-				// Run the string looking for the matching closing square brace. Can't just assume the last one
-				// is the end, since the type could be trailed by array designators.
-				var depth = 1;
-				var lastOpenSquare = firstOpenSquare + 1;
-				var sawNonArrayDesignator = false;
-				for (; depth > 0 && lastOpenSquare < assemblyQualifiedTypeName.Length; ++lastOpenSquare)
+				var firstOpenSquare = aqtn.IndexOf('[');
+				if (firstOpenSquare > 0)
 				{
-					switch (assemblyQualifiedTypeName[lastOpenSquare])
+					var backtick = aqtn.IndexOf('`');
+					if (backtick > 0 && backtick < firstOpenSquare)
 					{
-						case '[':
-							++depth;
-							break;
-						case ']':
-							--depth;
-							break;
-						case ',':
-							break;
-						default:
-							sawNonArrayDesignator = true;
-							break;
+						// Run the string looking for the matching closing square brace. Can't just assume the last one
+						// is the end, since the type could be trailed by array designators.
+						var depth = 1;
+						var lastOpenSquare = firstOpenSquare + 1;
+						var sawNonArrayDesignator = false;
+						for (; depth > 0 && lastOpenSquare < aqtn.Length; ++lastOpenSquare)
+						{
+							switch (aqtn[lastOpenSquare])
+							{
+								case '[':
+									++depth;
+									break;
+								case ']':
+									--depth;
+									break;
+								case ',':
+									break;
+								default:
+									sawNonArrayDesignator = true;
+									break;
+							}
+						}
+
+						if (sawNonArrayDesignator)
+						{
+							if (depth != 0)  // Malformed, because we never closed what we opened
+								return null;
+
+							var genericArgument = aqtn.Substring(firstOpenSquare + 1, lastOpenSquare - firstOpenSquare - 2);  // Strip surrounding [ and ]
+							var innerTypeNames = SplitAtOuterCommas(genericArgument).Select(x => x.Substring(1, x.Length - 2));  // Strip surrounding [ and ] from each type name
+							var innerTypes = innerTypeNames.Select(s => GetType(s)).ToArray();
+							if (innerTypes.Any(t => t is null))
+								return null;
+
+							var genericDefinitionName = aqtn.Substring(0, firstOpenSquare) + aqtn.Substring(lastOpenSquare);
+							var genericDefinition = GetType(genericDefinitionName);
+							if (genericDefinition is null)
+								return null;
+
+							// Push array ranks so we can get down to the actual generic definition
+							var arrayRanks = new Stack<int>();
+							while (genericDefinition.IsArray)
+							{
+								arrayRanks.Push(genericDefinition.GetArrayRank());
+								genericDefinition = genericDefinition.GetElementType();
+								if (genericDefinition is null)
+									return null;
+							}
+
+							var closedGenericType = genericDefinition.MakeGenericType(innerTypes!);
+							while (arrayRanks.Count > 0)
+							{
+								var rank = arrayRanks.Pop();
+								closedGenericType = rank > 1 ? closedGenericType.MakeArrayType(rank) : closedGenericType.MakeArrayType();
+							}
+
+							return closedGenericType;
+						}
 					}
 				}
 
-				if (sawNonArrayDesignator)
-				{
-					if (depth != 0)  // Malformed, because we never closed what we opened
-						return null;
-
-					var genericArgument = assemblyQualifiedTypeName.Substring(firstOpenSquare + 1, lastOpenSquare - firstOpenSquare - 2);  // Strip surrounding [ and ]
-					var innerTypeNames = SplitAtOuterCommas(genericArgument).Select(x => x.Substring(1, x.Length - 2));  // Strip surrounding [ and ] from each type name
-					var innerTypes = innerTypeNames.Select(s => GetType(s)).ToArray();
-					if (innerTypes.Any(t => t is null))
-						return null;
-
-					var genericDefinitionName = assemblyQualifiedTypeName.Substring(0, firstOpenSquare) + assemblyQualifiedTypeName.Substring(lastOpenSquare);
-					var genericDefinition = GetType(genericDefinitionName);
-					if (genericDefinition is null)
-						return null;
-
-					// Push array ranks so we can get down to the actual generic definition
-					var arrayRanks = new Stack<int>();
-					while (genericDefinition.IsArray)
-					{
-						arrayRanks.Push(genericDefinition.GetArrayRank());
-						genericDefinition = genericDefinition.GetElementType();
-						if (genericDefinition is null)
-							return null;
-					}
-
-					var closedGenericType = genericDefinition.MakeGenericType(innerTypes!);
-					while (arrayRanks.Count > 0)
-					{
-						var rank = arrayRanks.Pop();
-						closedGenericType = rank > 1 ? closedGenericType.MakeArrayType(rank) : closedGenericType.MakeArrayType();
-					}
-
-					return closedGenericType;
-				}
+				var parts = SplitAtOuterCommas(aqtn, true);
+				return
+					parts.Count == 0 ? null :
+					parts.Count == 1 ? Type.GetType(parts[0]) :
+					GetType(parts[1], parts[0]);
 			}
-		}
-
-		var parts = SplitAtOuterCommas(assemblyQualifiedTypeName, true);
-		return
-			parts.Count == 0 ? null :
-			parts.Count == 1 ? Type.GetType(parts[0]) :
-			GetType(parts[1], parts[0]);
+		);
 	}
 
 	/// <summary>

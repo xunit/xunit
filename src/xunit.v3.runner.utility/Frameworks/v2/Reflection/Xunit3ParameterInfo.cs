@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.v3;
@@ -35,6 +37,6 @@ public class Xunit3ParameterInfo : _IParameterInfo
 	public IParameterInfo V2ParameterInfo { get; }
 
 	/// <inheritdoc/>
-	public _IAttributeInfo? GetCustomAttribute(_ITypeInfo attributeType) =>
-		null;  // New for v3
+	public IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(_ITypeInfo attributeType) =>
+		Array.Empty<_IAttributeInfo>();  // New for v3
 }

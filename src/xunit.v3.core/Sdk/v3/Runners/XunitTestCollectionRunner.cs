@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -31,9 +30,22 @@ public class XunitTestCollectionRunner : TestCollectionRunner<XunitTestCollectio
 	{
 		Guard.ArgumentNotNull(ctxt);
 
-		await CreateCollectionFixturesAsync(ctxt);
-
 		ctxt.TestCaseOrderer = GetTestCaseOrderer(ctxt) ?? ctxt.TestCaseOrderer;
+
+		if (ctxt.TestCollection.CollectionDefinition is _IReflectionTypeInfo collectionDefinition)
+		{
+			var collectionFixtureTypes =
+				collectionDefinition
+					.Type
+					.GetInterfaces()
+					.Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollectionFixture<>))
+					.Select(i => i.GenericTypeArguments.Single())
+					.ToArray();
+
+			await ctxt.Aggregator.RunAsync(() => ctxt.CollectionFixtureMappings.InitializeAsync(collectionFixtureTypes));
+		}
+
+		await base.BeforeTestCollectionFinishedAsync(ctxt);
 	}
 
 	/// <inheritdoc/>
@@ -41,136 +53,9 @@ public class XunitTestCollectionRunner : TestCollectionRunner<XunitTestCollectio
 	{
 		Guard.ArgumentNotNull(ctxt);
 
-		var disposeAsyncTasks =
-			ctxt.CollectionFixtureMappings
-				.Values
-				.OfType<IAsyncDisposable>()
-				.Select(fixture => ctxt.Aggregator.RunAsync(async () =>
-				{
-					try
-					{
-						await fixture.DisposeAsync();
-					}
-					catch (Exception ex)
-					{
-						throw new TestFixtureCleanupException(string.Format(CultureInfo.CurrentCulture, "Collection fixture type '{0}' threw in DisposeAsync", fixture.GetType().FullName), ex.Unwrap());
-					}
-				}).AsTask())
-				.ToList();
+		await ctxt.Aggregator.RunAsync(ctxt.CollectionFixtureMappings.DisposeAsync);
 
-		await Task.WhenAll(disposeAsyncTasks);
-
-		foreach (var fixture in ctxt.CollectionFixtureMappings.Values.OfType<IDisposable>())
-			ctxt.Aggregator.Run(() =>
-			{
-				try
-				{
-					fixture.Dispose();
-				}
-				catch (Exception ex)
-				{
-					throw new TestFixtureCleanupException(string.Format(CultureInfo.CurrentCulture, "Collection fixture type '{0}' threw in Dispose", fixture.GetType().FullName), ex.Unwrap());
-				}
-			});
-	}
-
-	/// <summary>
-	/// Creates the instance of a collection fixture type to be used by the test collection. If the fixture can be created,
-	/// it should be placed into the CollectionFixtureMappings dictionary of <paramref name="ctxt"/>; if it cannot, then the
-	/// method should record the error by calling <code>Aggregator.Add</code>.
-	/// </summary>
-	/// <param name="ctxt">The context that describes the current test collection</param>
-	/// <param name="fixtureType">The type of the fixture to be created</param>
-	protected virtual void CreateCollectionFixture(
-		XunitTestCollectionRunnerContext ctxt,
-		Type fixtureType)
-	{
-		Guard.ArgumentNotNull(ctxt);
-		Guard.ArgumentNotNull(fixtureType);
-
-		var ctors =
-			fixtureType
-				.GetConstructors()
-				.Where(ci => !ci.IsStatic && ci.IsPublic)
-				.ToList();
-
-		if (ctors.Count != 1)
-		{
-			ctxt.Aggregator.Add(new TestClassException(string.Format(CultureInfo.CurrentCulture, "Collection fixture type '{0}' may only define a single public constructor.", fixtureType.FullName)));
-			return;
-		}
-
-		var ctor = ctors[0];
-		var missingParameters = new List<ParameterInfo>();
-		var ctorArgs = ctor.GetParameters().Select(p =>
-		{
-			object? arg = null;
-			if (p.ParameterType == typeof(_IMessageSink))
-				arg = TestContext.Current?.DiagnosticMessageSink;
-			else if (p.ParameterType == typeof(ITestContextAccessor))
-				arg = TestContextAccessor.Instance;
-			else if (!ctxt.AssemblyFixtureMappings.TryGetValue(p.ParameterType, out arg))
-				missingParameters.Add(p);
-			return arg;
-		}).ToArray();
-
-		if (missingParameters.Count > 0)
-			ctxt.Aggregator.Add(
-				new TestClassException(
-					string.Format(
-						CultureInfo.CurrentCulture,
-						"Collection fixture type '{0}' had one or more unresolved constructor arguments: {1}",
-						fixtureType.FullName,
-						string.Join(", ", missingParameters.Select(p => string.Format(CultureInfo.CurrentCulture, "{0} {1}", p.ParameterType.Name, p.Name)))
-					)
-				)
-			);
-		else
-			ctxt.Aggregator.Run(() =>
-			{
-				try
-				{
-					ctxt.CollectionFixtureMappings[fixtureType] = ctor.Invoke(ctorArgs);
-				}
-				catch (Exception ex)
-				{
-					throw new TestClassException(string.Format(CultureInfo.CurrentCulture, "Collection fixture type '{0}' threw in its constructor", fixtureType.FullName), ex.Unwrap());
-				}
-			});
-	}
-
-	ValueTask CreateCollectionFixturesAsync(XunitTestCollectionRunnerContext ctxt)
-	{
-		if (ctxt.TestCollection.CollectionDefinition is null || ctxt.TestCollection.CollectionDefinition is not _IReflectionTypeInfo collectionDefinition)
-			return default;
-
-		var declarationType = collectionDefinition.Type;
-		foreach (var interfaceType in declarationType.GetInterfaces().Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollectionFixture<>)))
-		{
-			var fixtureType = interfaceType.GenericTypeArguments.Single();
-			CreateCollectionFixture(ctxt, fixtureType);
-		}
-
-		var initializeAsyncTasks =
-			ctxt.CollectionFixtureMappings
-				.Values
-				.OfType<IAsyncLifetime>()
-				.Select(
-					fixture => ctxt.Aggregator.RunAsync(async () =>
-					{
-						try
-						{
-							await fixture.InitializeAsync();
-						}
-						catch (Exception ex)
-						{
-							throw new TestClassException(string.Format(CultureInfo.CurrentCulture, "Collection fixture type '{0}' threw in InitializeAsync", fixture.GetType().FullName), ex.Unwrap());
-						}
-					}).AsTask()
-				)
-				.ToList();
-
-		return new(Task.WhenAll(initializeAsyncTasks));
+		await base.BeforeTestCollectionFinishedAsync(ctxt);
 	}
 
 	/// <summary>
@@ -234,7 +119,7 @@ public class XunitTestCollectionRunner : TestCollectionRunner<XunitTestCollectio
 	/// <param name="testCaseOrderer">The test case orderer that was applied at the assembly level.</param>
 	/// <param name="aggregator">The exception aggregator used to run code and collection exceptions.</param>
 	/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
-	/// <param name="assemblyFixtureMappings">The mapping of assembly fixture types to fixtures.</param>
+	/// <param name="assemblyFixtureMappings">The mapping manager for assembly fixtures.</param>
 	public async ValueTask<RunSummary> RunAsync(
 		_ITestCollection testCollection,
 		IReadOnlyCollection<IXunitTestCase> testCases,
@@ -243,7 +128,7 @@ public class XunitTestCollectionRunner : TestCollectionRunner<XunitTestCollectio
 		ITestCaseOrderer testCaseOrderer,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource,
-		IReadOnlyDictionary<Type, object> assemblyFixtureMappings)
+		FixtureMappingManager assemblyFixtureMappings)
 	{
 		Guard.ArgumentNotNull(testCollection);
 		Guard.ArgumentNotNull(testCases);
@@ -278,7 +163,6 @@ public class XunitTestCollectionRunner : TestCollectionRunner<XunitTestCollectio
 				ctxt.TestCaseOrderer,
 				ctxt.Aggregator.Clone(),
 				ctxt.CancellationTokenSource,
-				ctxt.AssemblyFixtureMappings,
 				ctxt.CollectionFixtureMappings
 			);
 

@@ -19,11 +19,12 @@
 			</group>
 		</dependencies>
 	</metadata>
+	<!-- Remember to update tools\builder\targets\SignAssemblies.cs when assemblies are added or removed -->
 	<files>
 		<file target="_content\" src="..\..\tools\media\logo-128-transparent.png" />
 		<file target="_content\" src="..\..\README.md" />
 
-		<file target="lib\netstandard2.0\" src="bin\$Configuration$\netstandard2.0\xunit.v3.common.dll" />
+		<file target="lib\netstandard2.0\" src="bin\$Configuration$\netstandard2.0\$SignedPath$xunit.v3.common.dll" />
 		<file target="lib\netstandard2.0\" src="bin\$Configuration$\netstandard2.0\xunit.v3.common.xml" />
 	</files>
 </package>

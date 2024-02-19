@@ -50,8 +50,8 @@ public class Xunit3MethodInfo : _IMethodInfo
 	public IMethodInfo V2MethodInfo { get; }
 
 	/// <inheritdoc/>
-	public IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName) =>
-		V2MethodInfo.GetCustomAttributes(assemblyQualifiedAttributeTypeName).Select(a => new Xunit3AttributeInfo(a)).CastOrToReadOnlyCollection();
+	public IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(_ITypeInfo attributeType) =>
+		V2MethodInfo.GetCustomAttributes(Guard.ArgumentNotNull(attributeType).AssemblyQualifiedName).Select(a => new Xunit3AttributeInfo(a)).CastOrToReadOnlyCollection();
 
 	/// <inheritdoc/>
 	public IReadOnlyCollection<_ITypeInfo> GetGenericArguments() =>

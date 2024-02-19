@@ -15,7 +15,7 @@ namespace Xunit.Sdk;
 public class ReflectionAttributeInfo : _IReflectionAttributeInfo
 {
 	readonly Lazy<Attribute> attribute;
-	static readonly ConcurrentDictionary<Type, AttributeUsageAttribute> attributeUsageCache = new();
+	static readonly ConcurrentDictionary<(string assemblyName, string typeName), AttributeUsageAttribute> attributeUsageCache = new();
 	static readonly AttributeUsageAttribute defaultAttributeUsageAttribute = new(AttributeTargets.All);
 	static readonly AttributeUsageAttribute traitAttributeUsageAttribute = new(AttributeTargets.All) { AllowMultiple = true };
 
@@ -38,15 +38,34 @@ public class ReflectionAttributeInfo : _IReflectionAttributeInfo
 	/// <inheritdoc/>
 	public _ITypeInfo AttributeType => Reflector.Wrap(AttributeData.AttributeType);
 
-	internal static AttributeUsageAttribute GetAttributeUsage(Type attributeType)
+	internal static AttributeUsageAttribute GetAttributeUsage(_ITypeInfo attributeType)
 	{
+		Guard.ArgumentNotNull(attributeType);
+
 		// Can't have a strong type reference because this is part of xunit.v3.core, but this is required for issue #1958.
-		if (attributeType.FullName == "Xunit.Sdk.ITraitAttribute")
+		if (attributeType.Name == "Xunit.Sdk.ITraitAttribute")
 			return traitAttributeUsageAttribute;
 
 		return attributeUsageCache.GetOrAdd(
-			attributeType,
-			at => at.GetCustomAttributes(typeof(AttributeUsageAttribute), true).FirstOrDefault() as AttributeUsageAttribute ?? defaultAttributeUsageAttribute
+			(attributeType.Assembly.Name, attributeType.Name),
+			_ =>
+			{
+				if (attributeType is _IReflectionTypeInfo reflectionAttributeType)
+					return reflectionAttributeType.Type.GetCustomAttribute<AttributeUsageAttribute>() ?? defaultAttributeUsageAttribute;
+
+				var attributeUsageAttributeInfo = attributeType.GetCustomAttributes(typeof(AttributeUsageAttribute)).SingleOrDefault();
+				if (attributeUsageAttributeInfo is null)
+					return defaultAttributeUsageAttribute;
+
+				var attributeTargetsObj = attributeUsageAttributeInfo.GetConstructorArguments().FirstOrDefault();
+				if (attributeTargetsObj is not AttributeTargets attributeTargets)
+					return defaultAttributeUsageAttribute;
+
+				var allowMultiple = attributeUsageAttributeInfo.GetNamedArgument<bool>(nameof(AttributeUsageAttribute.AllowMultiple));
+				var inherited = attributeUsageAttributeInfo.GetNamedArgument<bool>(nameof(AttributeUsageAttribute.Inherited));
+
+				return new AttributeUsageAttribute(attributeTargets) { AllowMultiple = allowMultiple, Inherited = inherited };
+			}
 		);
 	}
 
@@ -55,53 +74,11 @@ public class ReflectionAttributeInfo : _IReflectionAttributeInfo
 		(object?[])Reflector.ConvertAttributeArgumentCollection(AttributeData.ConstructorArguments.CastOrToReadOnlyCollection(), typeof(object));
 
 	/// <inheritdoc/>
-	public IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
+	public IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(_ITypeInfo attributeType)
 	{
-		Guard.ArgumentNotNull(assemblyQualifiedAttributeTypeName);
+		Guard.ArgumentNotNull(attributeType);
 
-		return GetCustomAttributes(AttributeData.AttributeType, assemblyQualifiedAttributeTypeName);
-	}
-
-	internal static IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(
-		Type type,
-		string assemblyQualifiedAttributeTypeName)
-	{
-		var attributeType = ReflectionAttributeNameCache.GetType(assemblyQualifiedAttributeTypeName);
-
-		Guard.ArgumentNotNull(() => string.Format(CultureInfo.CurrentCulture, "Could not load type: '{0}'", assemblyQualifiedAttributeTypeName), attributeType, nameof(assemblyQualifiedAttributeTypeName));
-
-		return GetCustomAttributes(type, attributeType, GetAttributeUsage(attributeType));
-	}
-
-	internal static IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(
-		Type? type,
-		Type attributeType,
-		AttributeUsageAttribute attributeUsage)
-	{
-		var results = Enumerable.Empty<_IAttributeInfo>();
-
-		if (type is not null)
-		{
-			List<ReflectionAttributeInfo>? list = null;
-			foreach (var attr in type.CustomAttributes)
-			{
-				if (attributeType.IsAssignableFrom(attr.AttributeType))
-				{
-					list ??= new List<ReflectionAttributeInfo>();
-					list.Add(new ReflectionAttributeInfo(attr));
-				}
-			}
-
-			if (list is not null)
-				list.Sort((left, right) => string.Compare(left.AttributeData.AttributeType.Name, right.AttributeData.AttributeType.Name, StringComparison.Ordinal));
-
-			results = list ?? Enumerable.Empty<_IAttributeInfo>();
-
-			if (attributeUsage.Inherited && (attributeUsage.AllowMultiple || list is null))
-				results = results.Concat(GetCustomAttributes(type.BaseType, attributeType, attributeUsage));
-		}
-
-		return results.CastOrToReadOnlyCollection();
+		return ReflectionTypeInfo.GetCustomAttributes(AttributeData.AttributeType, attributeType);
 	}
 
 	/// <inheritdoc/>

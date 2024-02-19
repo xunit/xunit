@@ -488,6 +488,13 @@ public static class TestClassRunnerTests
 			return default;
 		}
 
+		protected override ValueTask<object?> GetConstructorArgument(
+			TestClassRunnerContext<_ITestCase> ctxt,
+			ConstructorInfo constructor,
+			int index,
+			ParameterInfo parameter) =>
+				new(availableArguments.FirstOrDefault(arg => parameter.ParameterType.IsAssignableFrom(arg.GetType())));
+
 		public async ValueTask<RunSummary> RunAsync()
 		{
 			await using var ctxt = new TestClassRunnerContext<_ITestCase>(TestClass, @class, testCases, ExplicitOption.Off, messageBus, testCaseOrderer, aggregator, TokenSource);
@@ -515,28 +522,6 @@ public static class TestClassRunnerTests
 		protected override ConstructorInfo? SelectTestClassConstructor(TestClassRunnerContext<_ITestCase> ctxt)
 		{
 			return constructor ?? base.SelectTestClassConstructor(ctxt);
-		}
-
-		protected override bool TryGetConstructorArgument(
-			TestClassRunnerContext<_ITestCase> ctxt,
-			ConstructorInfo constructor,
-			int index,
-			ParameterInfo parameter,
-			out object argumentValue)
-		{
-			var resultValue = availableArguments.FirstOrDefault(arg => parameter.ParameterType.IsAssignableFrom(arg.GetType()));
-			if (resultValue is null)
-			{
-				var result = base.TryGetConstructorArgument(ctxt, constructor, index, parameter, out resultValue);
-				if (result == false || resultValue is null)
-				{
-					argumentValue = null!;
-					return false;
-				}
-			}
-
-			argumentValue = resultValue;
-			return true;
 		}
 	}
 }

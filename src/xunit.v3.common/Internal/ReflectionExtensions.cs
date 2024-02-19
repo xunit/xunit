@@ -4,13 +4,13 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using Xunit.Internal;
 using Xunit.Sdk;
-using Xunit.v3;
 
-namespace Xunit.Internal;
+namespace Xunit.v3;
 
 /// <summary>
-/// INTERNAL CLASS. DO NOT USE.
+/// Extension methods for xUnit.net's reflection abstractions.
 /// </summary>
 public static class ReflectionExtensions
 {
@@ -29,7 +29,9 @@ public static class ReflectionExtensions
 			yield return current;
 	}
 
-	/// <summary/>
+	/// <summary>
+	/// Determine if two <see cref="_ITypeInfo"/> objects point to the same underlying type.
+	/// </summary>
 	public static bool Equal(
 		this _ITypeInfo? objA,
 		_ITypeInfo? objB)
@@ -42,7 +44,10 @@ public static class ReflectionExtensions
 		return objA.Name == objB.Name && objA.Assembly.Name == objB.Assembly.Name;
 	}
 
-	/// <summary/>
+	/// <summary>
+	/// Determines if an <see cref="_ITypeInfo"/> object and a <see cref="Type"/> object point to the
+	/// same underlying type.
+	/// </summary>
 	public static bool Equal(
 		this _ITypeInfo? objA,
 		Type? objB)
@@ -55,52 +60,261 @@ public static class ReflectionExtensions
 		return objA.Name == objB.FullName && (objA.Assembly.Name == objB.Assembly.FullName || objA.Assembly.Name == objB.Assembly.GetName().Name);
 	}
 
-	/// <summary/>
+	/// <summary>
+	/// Finds instance of an attribute from a collection of <see cref="_IAttributeInfo"/>.
+	/// </summary>
+	/// <param name="attributes">The attributes to search</param>
+	/// <param name="attributeType">The type of the attribute to find. Will accept attribute types that are concrete,
+	/// closed generic, and open generic. When provided an open generic type (e.g., MyAttribute&lt;&gt;) it will
+	/// return matching closed generic attributes (e.g., MyAttribute&gt;int&lt;)</param>
+	/// <returns>The matching attributes that decorate the type</returns>
+	public static IReadOnlyCollection<_IAttributeInfo> FindCustomAttributes(
+		this IEnumerable<_IAttributeInfo> attributes,
+		_ITypeInfo attributeType)
+	{
+		Guard.ArgumentNotNull(attributes);
+		Guard.ArgumentNotNull(attributeType);
+
+		List<_IAttributeInfo>? result = null;
+
+		foreach (var attr in attributes)
+		{
+			if (attributeType.IsAssignableFrom(attr.AttributeType))
+			{
+				result ??= new List<_IAttributeInfo>();
+				result.Add(attr);
+			}
+			else if (attributeType.IsGenericTypeDefinition
+				&& attr.AttributeType.IsConstructedGenericType
+				&& attr.AttributeType.GetGenericTypeDefinition().Equal(attributeType))
+			{
+				result ??= new List<_IAttributeInfo>();
+				result.Add(attr);
+			}
+		}
+
+		result?.Sort((left, right) => string.Compare(left.AttributeType.Name, right.AttributeType.Name, StringComparison.Ordinal));
+
+		return result ?? (IReadOnlyCollection<_IAttributeInfo>)Array.Empty<_IAttributeInfo>();
+	}
+
+	/// <summary>
+	/// Finds instance of an attribute from a collection of <see cref="_IAttributeInfo"/>.
+	/// </summary>
+	/// <param name="attributes">The attributes to search</param>
+	/// <param name="assemblyQualifiedTypeName">The type of the attribute to find. Will accept attribute types that are concrete,
+	/// closed generic, and open generic. When provided an open generic type (e.g., MyAttribute&lt;&gt;) it will
+	/// return matching closed generic attributes (e.g., MyAttribute&gt;int&lt;)</param>
+	/// <returns>The matching attributes that decorate the type</returns>
+	internal static IReadOnlyCollection<_IAttributeInfo> FindCustomAttributes(
+		this IEnumerable<_IAttributeInfo> attributes,
+		string assemblyQualifiedTypeName) =>
+			FindCustomAttributes(attributes, Reflector.FindTypeAndWrap(assemblyQualifiedTypeName));
+
+	/// <summary>
+	/// Finds instance of an attribute from a collection of <see cref="CustomAttributeData"/>.
+	/// </summary>
+	/// <param name="attributes">The attributes to search</param>
+	/// <param name="attributeType">The type of the attribute to find. Will accept attribute types that are concrete,
+	/// closed generic, and open generic. When provided an open generic type (e.g., MyAttribute&lt;&gt;) it will
+	/// return matching closed generic attributes (e.g., MyAttribute&gt;int&lt;)</param>
+	/// <returns>The matching attributes that decorate the type</returns>
+	public static IReadOnlyCollection<_IAttributeInfo> FindCustomAttributes(
+		this IEnumerable<CustomAttributeData> attributes,
+		_ITypeInfo attributeType) =>
+			FindCustomAttributes(attributes.Select(Reflector.Wrap).WhereNotNull(), attributeType);
+
+	/// <summary>
+	/// Finds instance of an attribute from a collection of <see cref="CustomAttributeData"/>.
+	/// </summary>
+	/// <param name="attributes">The attributes to search</param>
+	/// <param name="assemblyQualifiedTypeName">The type of the attribute to find. Will accept attribute types that are concrete,
+	/// closed generic, and open generic. When provided an open generic type (e.g., MyAttribute&lt;&gt;) it will
+	/// return matching closed generic attributes (e.g., MyAttribute&gt;int&lt;)</param>
+	/// <returns>The matching attributes that decorate the type</returns>
+	public static IReadOnlyCollection<_IAttributeInfo> FindCustomAttributes(
+		this IEnumerable<CustomAttributeData> attributes,
+		string assemblyQualifiedTypeName) =>
+			FindCustomAttributes(attributes.Select(Reflector.Wrap).WhereNotNull(), Reflector.FindTypeAndWrap(assemblyQualifiedTypeName));
+
+	/// <summary>
+	/// Gets all the custom attributes for the assembly that are of the given attribute type.
+	/// </summary>
+	/// <param name="assemblyInfo">The assembly to get custom attributes for.</param>
+	/// <param name="attributeType">The type of the attribute to find. Will accept attribute types that are concrete,
+	/// closed generic, and open generic. When provided an open generic type (e.g., MyAttribute&lt;&gt;) it will
+	/// return matching closed generic attributes (e.g., MyAttribute&gt;int&lt;)</param>
+	/// <returns>The matching attributes that decorate the assembly</returns>
 	public static IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(
 		this _IAssemblyInfo assemblyInfo,
 		Type attributeType)
 	{
 		Guard.ArgumentNotNull(assemblyInfo);
 		Guard.ArgumentNotNull(attributeType);
-		Guard.NotNull("Attribute type cannot be a generic type parameter", attributeType.AssemblyQualifiedName);
 
-		return assemblyInfo.GetCustomAttributes(attributeType.AssemblyQualifiedName);
+		return assemblyInfo.GetCustomAttributes(Reflector.Wrap(attributeType));
 	}
 
-	/// <summary/>
+	/// <summary>
+	/// Gets all the custom attributes for the assembly that are of the given attribute type.
+	/// </summary>
+	/// <param name="assemblyInfo">The assembly to get custom attributes for.</param>
+	/// <param name="assemblyQualifiedTypeName">The type of the attribute to find. Will accept attribute types that are concrete,
+	/// closed generic, and open generic. When provided an open generic type (e.g., MyAttribute&lt;&gt;) it will
+	/// return matching closed generic attributes (e.g., MyAttribute&gt;int&lt;)</param>
+	/// <returns>The matching attributes that decorate the assembly</returns>
+	public static IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(
+		this _IAssemblyInfo assemblyInfo,
+		string assemblyQualifiedTypeName)
+	{
+		Guard.ArgumentNotNull(assemblyInfo);
+		Guard.ArgumentNotNull(assemblyQualifiedTypeName);
+
+		return assemblyInfo.GetCustomAttributes(Reflector.FindTypeAndWrap(assemblyQualifiedTypeName));
+	}
+
+	/// <summary>
+	/// Gets all the custom attributes for the attribute that are of the given attribute type.
+	/// </summary>
+	/// <param name="attributeInfo">The attribute to get custom attributes for.</param>
+	/// <param name="attributeType">The type of the attribute to find. Will accept attribute types that are concrete,
+	/// closed generic, and open generic. When provided an open generic type (e.g., MyAttribute&lt;&gt;) it will
+	/// return matching closed generic attributes (e.g., MyAttribute&gt;int&lt;)</param>
+	/// <returns>The matching attributes that decorate the attribute</returns>
 	public static IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(
 		this _IAttributeInfo attributeInfo,
 		Type attributeType)
 	{
 		Guard.ArgumentNotNull(attributeInfo);
 		Guard.ArgumentNotNull(attributeType);
-		Guard.NotNull("Attribute type cannot be a generic type parameter", attributeType.AssemblyQualifiedName);
 
-		return attributeInfo.GetCustomAttributes(attributeType.AssemblyQualifiedName);
+		return attributeInfo.GetCustomAttributes(Reflector.Wrap(attributeType));
 	}
 
-	/// <summary/>
+	/// <summary>
+	/// Gets all the custom attributes for the attribute that are of the given attribute type.
+	/// </summary>
+	/// <param name="attributeInfo">The attribute to get custom attributes for.</param>
+	/// <param name="assemblyQualifiedTypeName">The type of the attribute to find. Will accept attribute types that are concrete,
+	/// closed generic, and open generic. When provided an open generic type (e.g., MyAttribute&lt;&gt;) it will
+	/// return matching closed generic attributes (e.g., MyAttribute&gt;int&lt;)</param>
+	/// <returns>The matching attributes that decorate the attribute</returns>
+	public static IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(
+		this _IAttributeInfo attributeInfo,
+		string assemblyQualifiedTypeName)
+	{
+		Guard.ArgumentNotNull(attributeInfo);
+		Guard.ArgumentNotNull(assemblyQualifiedTypeName);
+
+		return attributeInfo.GetCustomAttributes(Reflector.FindTypeAndWrap(assemblyQualifiedTypeName));
+	}
+
+	/// <summary>
+	/// Gets all the custom attributes for the method that are of the given attribute type.
+	/// </summary>
+	/// <param name="methodInfo">The method to get custom attributes for.</param>
+	/// <param name="attributeType">The type of the attribute to find. Will accept attribute types that are concrete,
+	/// closed generic, and open generic. When provided an open generic type (e.g., MyAttribute&lt;&gt;) it will
+	/// return matching closed generic attributes (e.g., MyAttribute&gt;int&lt;)</param>
+	/// <returns>The matching attributes that decorate the method</returns>
 	public static IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(
 		this _IMethodInfo methodInfo,
 		Type attributeType)
 	{
 		Guard.ArgumentNotNull(methodInfo);
 		Guard.ArgumentNotNull(attributeType);
-		Guard.NotNull("Attribute type cannot be a generic type parameter", attributeType.AssemblyQualifiedName);
 
-		return methodInfo.GetCustomAttributes(attributeType.AssemblyQualifiedName);
+		return methodInfo.GetCustomAttributes(Reflector.Wrap(attributeType));
 	}
 
-	/// <summary/>
+	/// <summary>
+	/// Gets all the custom attributes for the method that are of the given attribute type.
+	/// </summary>
+	/// <param name="methodInfo">The method to get custom attributes for.</param>
+	/// <param name="assemblyQualifiedTypeName">The type of the attribute to find. Will accept attribute types that are concrete,
+	/// closed generic, and open generic. When provided an open generic type (e.g., MyAttribute&lt;&gt;) it will
+	/// return matching closed generic attributes (e.g., MyAttribute&gt;int&lt;)</param>
+	/// <returns>The matching attributes that decorate the method</returns>
+	public static IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(
+		this _IMethodInfo methodInfo,
+		string assemblyQualifiedTypeName)
+	{
+		Guard.ArgumentNotNull(methodInfo);
+		Guard.ArgumentNotNull(assemblyQualifiedTypeName);
+
+		return methodInfo.GetCustomAttributes(Reflector.FindTypeAndWrap(assemblyQualifiedTypeName));
+	}
+
+	/// <summary>
+	/// Gets all the custom attributes for the parameter that are of the given attribute type.
+	/// </summary>
+	/// <param name="parameterInfo">The parameter to get custom attributes for.</param>
+	/// <param name="attributeType">The type of the attribute to find. Will accept attribute types that are concrete,
+	/// closed generic, and open generic. When provided an open generic type (e.g., MyAttribute&lt;&gt;) it will
+	/// return matching closed generic attributes (e.g., MyAttribute&gt;int&lt;)</param>
+	/// <returns>The matching attributes that decorate the parameter</returns>
+	public static IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(
+		this _IParameterInfo parameterInfo,
+		Type attributeType)
+	{
+		Guard.ArgumentNotNull(parameterInfo);
+		Guard.ArgumentNotNull(attributeType);
+
+		return parameterInfo.GetCustomAttributes(Reflector.Wrap(attributeType));
+	}
+
+	/// <summary>
+	/// Gets all the custom attributes for the parameter that are of the given attribute type.
+	/// </summary>
+	/// <param name="parameterInfo">The parameter to get custom attributes for.</param>
+	/// <param name="assemblyQualifiedTypeName">The type of the attribute to find. Will accept attribute types that are concrete,
+	/// closed generic, and open generic. When provided an open generic type (e.g., MyAttribute&lt;&gt;) it will
+	/// return matching closed generic attributes (e.g., MyAttribute&gt;int&lt;)</param>
+	/// <returns>The matching attributes that decorate the parameter</returns>
+	public static IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(
+		this _IParameterInfo parameterInfo,
+		string assemblyQualifiedTypeName)
+	{
+		Guard.ArgumentNotNull(parameterInfo);
+		Guard.ArgumentNotNull(assemblyQualifiedTypeName);
+
+		return parameterInfo.GetCustomAttributes(Reflector.FindTypeAndWrap(assemblyQualifiedTypeName));
+	}
+
+	/// <summary>
+	/// Gets all the custom attributes for the type that are of the given attribute type.
+	/// </summary>
+	/// <param name="typeInfo">The type to get custom attributes for.</param>
+	/// <param name="attributeType">The type of the attribute to find. Will accept attribute types that are concrete,
+	/// closed generic, and open generic. When provided an open generic type (e.g., MyAttribute&lt;&gt;) it will
+	/// return matching closed generic attributes (e.g., MyAttribute&gt;int&lt;)</param>
+	/// <returns>The matching attributes that decorate the type</returns>
 	public static IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(
 		this _ITypeInfo typeInfo,
 		Type attributeType)
 	{
 		Guard.ArgumentNotNull(typeInfo);
 		Guard.ArgumentNotNull(attributeType);
-		Guard.NotNull("Attribute type cannot be a generic type parameter", attributeType.AssemblyQualifiedName);
 
-		return typeInfo.GetCustomAttributes(attributeType.AssemblyQualifiedName);
+		return typeInfo.GetCustomAttributes(Reflector.Wrap(attributeType));
+	}
+
+	/// <summary>
+	/// Gets all the custom attributes for the type that are of the given attribute type.
+	/// </summary>
+	/// <param name="typeInfo">The type to get custom attributes for.</param>
+	/// <param name="assemblyQualifiedTypeName">The type of the attribute to find. Will accept attribute types that are concrete,
+	/// closed generic, and open generic. When provided an open generic type (e.g., MyAttribute&lt;&gt;) it will
+	/// return matching closed generic attributes (e.g., MyAttribute&gt;int&lt;)</param>
+	/// <returns>The matching attributes that decorate the type</returns>
+	public static IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(
+		this _ITypeInfo typeInfo,
+		string assemblyQualifiedTypeName)
+	{
+		Guard.ArgumentNotNull(typeInfo);
+		Guard.ArgumentNotNull(assemblyQualifiedTypeName);
+
+		return typeInfo.GetCustomAttributes(Reflector.FindTypeAndWrap(assemblyQualifiedTypeName));
 	}
 
 	/// <summary>
@@ -164,7 +378,7 @@ public static class ReflectionExtensions
 	}
 
 	/// <summary/>
-	public static IReadOnlyCollection<MethodInfo> GetMatchingMethods(
+	internal static IReadOnlyCollection<MethodInfo> GetMatchingMethods(
 		this Type type,
 		MethodInfo methodInfo)
 	{
@@ -197,37 +411,61 @@ public static class ReflectionExtensions
 		return parameters[index].Name;
 	}
 
-	/// <summary/>
+	/// <summary>
+	/// Determines if the given type implements the given interface.
+	/// </summary>
+	/// <param name="type">The type to check</param>
+	/// <param name="interfaceType">The interface type to look for</param>
+	/// <returns>Returns <c>true</c> if the type implements the interface; <c>false</c>, otherwise</returns>
 	public static bool Implements(
 		this Type type,
 		Type interfaceType) =>
 			Guard.ArgumentNotNull(type).GetInterfaces().Contains(interfaceType);
 
-	/// <summary/>
+	/// <summary>
+	/// Determines if the given type implements the given interface.
+	/// </summary>
+	/// <param name="typeInfo">The type to check</param>
+	/// <param name="interfaceType">The interface type to look for</param>
+	/// <returns>Returns <c>true</c> if the type implements the interface; <c>false</c>, otherwise</returns>
 	public static bool Implements(
 		this _ITypeInfo typeInfo,
 		Type interfaceType) =>
 			Guard.ArgumentNotNull(typeInfo).Interfaces.Any(i => i.Equal(interfaceType));
 
-	/// <summary/>
+	/// <summary>
+	/// Determines if the given type implements the given interface.
+	/// </summary>
+	/// <param name="typeInfo">The type to check</param>
+	/// <param name="interfaceTypeInfo">The interface type to look for</param>
+	/// <returns>Returns <c>true</c> if the type implements the interface; <c>false</c>, otherwise</returns>
 	public static bool Implements(
 		this _ITypeInfo typeInfo,
 		_ITypeInfo interfaceTypeInfo) =>
 			Guard.ArgumentNotNull(typeInfo).Interfaces.Any(i => i.Equal(interfaceTypeInfo));
 
-	/// <summary/>
+	/// <summary>
+	/// Determines whether an instance of <paramref name="otherTypeInfo"/> can be assigned to an
+	/// instance of <paramref name="type"/>.
+	/// </summary>
 	public static bool IsAssignableFrom(
 		this Type type,
 		_ITypeInfo otherTypeInfo) =>
 			IsAssignableFrom(Reflector.Wrap(type), otherTypeInfo);
 
-	/// <summary/>
+	/// <summary>
+	/// Determines whether an instance of <paramref name="otherType"/> can be assigned to an
+	/// instance of <paramref name="typeInfo"/>.
+	/// </summary>
 	public static bool IsAssignableFrom(
 		this _ITypeInfo typeInfo,
 		Type otherType) =>
 			IsAssignableFrom(typeInfo, Reflector.Wrap(otherType));
 
-	/// <summary/>
+	/// <summary>
+	/// Determines whether an instance of <paramref name="otherTypeInfo"/> can be assigned to an
+	/// instance of <paramref name="typeInfo"/>.
+	/// </summary>
 	public static bool IsAssignableFrom(
 		this _ITypeInfo typeInfo,
 		_ITypeInfo otherTypeInfo)
@@ -257,7 +495,11 @@ public static class ReflectionExtensions
 		return false;
 	}
 
-	/// <summary/>
+	/// <summary>
+	/// Determines if the given type is from a local assembly.
+	/// </summary>
+	/// <param name="type">The type to verify</param>
+	/// <returns>Returns <c>true</c> if the type originates in a local assembly; <c>false</c> if the type originates in the GAC.</returns>
 	public static bool IsFromLocalAssembly(this Type type)
 	{
 		Guard.ArgumentNotNull(type);
@@ -278,7 +520,11 @@ public static class ReflectionExtensions
 		});
 	}
 
-	/// <summary/>
+	/// <summary>
+	/// Determines if the given type is from a local assembly.
+	/// </summary>
+	/// <param name="typeInfo">The type to verify</param>
+	/// <returns>Returns <c>true</c> if the type originates in a local assembly; <c>false</c> if the type originates in the GAC.</returns>
 	public static bool IsFromLocalAssembly(this _ITypeInfo typeInfo)
 	{
 		Guard.ArgumentNotNull(typeInfo);
@@ -296,7 +542,10 @@ public static class ReflectionExtensions
 		}
 	}
 
-	/// <summary/>
+	/// <summary>
+	/// Determines whether <paramref name="type"/> is a nullable type; that is, whether it
+	/// represents <see cref="Nullable{T}"/>.
+	/// </summary>
 	public static bool IsNullable(this Type type)
 	{
 		Guard.ArgumentNotNull(type);
@@ -310,7 +559,10 @@ public static class ReflectionExtensions
 		});
 	}
 
-	/// <summary/>
+	/// <summary>
+	/// Determines whether <paramref name="typeInfo"/> is a nullable type; that is, whether it
+	/// represents <see cref="Nullable{T}"/>.
+	/// </summary>
 	public static bool IsNullable(this _ITypeInfo typeInfo)
 	{
 		Guard.ArgumentNotNull(typeInfo);
@@ -321,11 +573,15 @@ public static class ReflectionExtensions
 		return typeInfo.IsGenericType && typeInfo.GetGenericTypeDefinition().Equal(typeof(Nullable<>));
 	}
 
-	/// <summary/>
+	/// <summary>
+	/// Determines whether <paramref name="type"/> represents a nullable enum value.
+	/// </summary>
 	public static bool IsNullableEnum(this Type type) =>
 		isNullableEnumCache.GetOrAdd(Guard.ArgumentNotNull(type), t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Nullable<>) && t.GetGenericArguments()[0].IsEnum);
 
-	/// <summary/>
+	/// <summary>
+	/// Determines whether <paramref name="typeInfo"/> represents a nullable enum value.
+	/// </summary>
 	public static bool IsNullableEnum(this _ITypeInfo typeInfo) =>
 		Guard.ArgumentNotNull(typeInfo).IsGenericType && typeInfo.GetGenericTypeDefinition().Equal(typeof(Nullable<>)) && typeInfo.GetGenericArguments()[0].IsEnum;
 
@@ -391,12 +647,15 @@ public static class ReflectionExtensions
 	/// <param name="passedParameterType">The non-generic or closed generic type, e.g. string, used to resolve the method parameter.</param>
 	/// <param name="resultType">The resolved type, e.g. the parameters (T, T, string, typeof(object)) -> (T, T, string, typeof(string)).</param>
 	/// <returns>True if resolving was successful, else false.</returns>
-	static bool ResolveGenericParameter(
+	public static bool ResolveGenericParameter(
 		this _ITypeInfo genericType,
 		_ITypeInfo methodParameterType,
 		_ITypeInfo passedParameterType,
 		out _ITypeInfo? resultType)
 	{
+		Guard.ArgumentNotNull(methodParameterType);
+		Guard.ArgumentNotNull(passedParameterType);
+
 		if (genericType.Equal(methodParameterType))
 		{
 			resultType = passedParameterType;
@@ -474,12 +733,15 @@ public static class ReflectionExtensions
 	/// <param name="passedParameterType">The non-generic or closed generic type, e.g. string, used to resolve the method parameter.</param>
 	/// <param name="resultType">The resolved type.</param>
 	/// <returns>True if resolving was successful, else false.</returns>
-	static bool ResolveMatchingElementType(
+	public static bool ResolveMatchingElementType(
 		this _ITypeInfo genericType,
 		_ITypeInfo methodParameterType,
 		_ITypeInfo passedParameterType,
 		out _ITypeInfo? resultType)
 	{
+		Guard.ArgumentNotNull(methodParameterType);
+		Guard.ArgumentNotNull(passedParameterType);
+
 		var methodElementType = methodParameterType.GetElementType();
 		if (methodElementType is not null)
 		{
@@ -504,13 +766,17 @@ public static class ReflectionExtensions
 	/// <param name="passedParameterType">The non-generic or closed generic type, e.g. string, used to resolve the method parameter.</param>
 	/// <param name="resultType">The resolved type.</param>
 	/// <returns>True if resolving was successful, else false.</returns>
-	static bool ResolveMatchingGenericArguments(
+	public static bool ResolveMatchingGenericArguments(
 		this _ITypeInfo genericType,
 		_ITypeInfo methodParameterType,
 		_ITypeInfo[] methodParameterArguments,
 		_ITypeInfo passedParameterType,
 		out _ITypeInfo? resultType)
 	{
+		Guard.ArgumentNotNull(methodParameterType);
+		Guard.ArgumentNotNull(methodParameterArguments);
+		Guard.ArgumentNotNull(passedParameterType);
+
 		if (passedParameterType.IsGenericType)
 		{
 			var passedParameterTypeDefinition = passedParameterType.GetGenericTypeDefinition();
@@ -537,12 +803,15 @@ public static class ReflectionExtensions
 	/// <param name="passedParameterType">The non-generic or closed generic type, e.g. string, used to resolve the method parameter.</param>
 	/// <param name="resultType">The resolved type.</param>
 	/// <returns>True if resolving was successful, else false.</returns>
-	static bool ResolveMatchingGenericType(
+	public static bool ResolveMatchingGenericType(
 		this _ITypeInfo genericType,
 		_ITypeInfo methodParameterType,
 		_ITypeInfo passedParameterType,
 		out _ITypeInfo? resultType)
 	{
+		Guard.ArgumentNotNull(methodParameterType);
+		Guard.ArgumentNotNull(passedParameterType);
+
 		if (methodParameterType.IsGenericType)
 		{
 			var methodParameterTypeDefinition = methodParameterType.GetGenericTypeDefinition();
@@ -659,7 +928,13 @@ public static class ReflectionExtensions
 		return newArguments;
 	}
 
-	/// <summary/>
+	/// <summary>
+	/// Gets a fully qualified type name (i.e., <see cref="Type.FullName"/>), falling back to a simple
+	/// type name (i.e., <see cref="MemberInfo.Name"/> when a fully qualified name is not available. Typically
+	/// used when presenting type names to the user.
+	/// </summary>
+	/// <param name="type"></param>
+	/// <returns></returns>
 	public static string SafeName(this Type type)
 	{
 		Guard.ArgumentNotNull(type);
@@ -667,7 +942,11 @@ public static class ReflectionExtensions
 		return type.FullName ?? type.Name;
 	}
 
-	/// <summary/>
+	/// <summary>
+	/// Attempts to convert an instance of <see cref="_IMethodInfo"/> to <see cref="MethodInfo"/> when possible.
+	/// Will rely on <see cref="_IReflectionMethodInfo.MethodInfo"/> when available, falling back to trying
+	/// to locate the method by name and visibility if not.
+	/// </summary>
 	public static MethodInfo? ToRuntimeMethod(this _IMethodInfo methodInfo)
 	{
 		Guard.ArgumentNotNull(methodInfo);
@@ -678,7 +957,11 @@ public static class ReflectionExtensions
 		return methodInfo.Type.ToRuntimeType()?.GetMethodInfoFromIMethodInfo(methodInfo);
 	}
 
-	/// <summary/>
+	/// <summary>
+	/// Attemptes to convert an instance of <see cref="_ITypeInfo"/> to <see cref="Type"/> when possible.
+	/// Will rely on <see cref="_IReflectionTypeInfo.Type"/> when available, falling back to trying to
+	/// load the type by name if not.
+	/// </summary>
 	public static Type? ToRuntimeType(this _ITypeInfo typeInfo)
 	{
 		Guard.ArgumentNotNull(typeInfo);
@@ -690,10 +973,9 @@ public static class ReflectionExtensions
 	}
 
 	/// <summary>
-	/// Converts a type into a name string.
+	/// Converts a type into a name string for display purposes. It attempts to make a more user friendly
+	/// name than <see cref="Type.FullName"/> would give, especially when the type is generic.
 	/// </summary>
-	/// <param name="type">The type to convert.</param>
-	/// <returns>Name string of type.</returns>
 	public static string ToSimpleTypeName(this _ITypeInfo type)
 	{
 		Guard.ArgumentNotNull(type);
@@ -734,7 +1016,10 @@ public static class ReflectionExtensions
 		return PerformDefinedConversions(argumentValue, parameterType) ?? argumentValue;
 	}
 
-	/// <summary/>
+	/// <summary>
+	/// Attempts to strip <see cref="Nullable{T}"/> from a type value and just return T.
+	/// For non-nullable types, will return the type that was passed in.
+	/// </summary>
 	public static Type UnwrapNullable(this Type type)
 	{
 		Guard.ArgumentNotNull(type);
@@ -746,7 +1031,10 @@ public static class ReflectionExtensions
 		return type.GetGenericArguments()[0];
 	}
 
-	/// <summary/>
+	/// <summary>
+	/// Attempts to strip <see cref="Nullable{T}"/> from a type value and just return T.
+	/// For non-nullable types, will return the type that was passed in.
+	/// </summary>
 	public static _ITypeInfo UnwrapNullable(this _ITypeInfo typeInfo)
 	{
 		Guard.ArgumentNotNull(typeInfo);

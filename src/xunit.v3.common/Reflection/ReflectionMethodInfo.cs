@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Xunit.Internal;
@@ -57,59 +56,24 @@ public class ReflectionMethodInfo : _IReflectionMethodInfo
 	public _ITypeInfo Type => type.Value;
 
 	/// <inheritdoc/>
-	public IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName)
-	{
-		Guard.ArgumentNotNull(assemblyQualifiedAttributeTypeName);
-
-		return GetCustomAttributes(MethodInfo, assemblyQualifiedAttributeTypeName).CastOrToList();
-	}
+	public IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(_ITypeInfo attributeType) =>
+		GetCustomAttributes(MethodInfo, attributeType, ReflectionAttributeInfo.GetAttributeUsage(attributeType));
 
 	static IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(
 		MethodInfo method,
-		string assemblyQualifiedAttributeTypeName)
-	{
-		Guard.ArgumentNotNull(method);
-		Guard.ArgumentNotNull(assemblyQualifiedAttributeTypeName);
-
-		var attributeType = ReflectionAttributeNameCache.GetType(assemblyQualifiedAttributeTypeName);
-
-		Guard.ArgumentNotNull(() => string.Format(CultureInfo.CurrentCulture, "Could not load type: '{0}'", assemblyQualifiedAttributeTypeName), attributeType, nameof(assemblyQualifiedAttributeTypeName));
-
-		return GetCustomAttributes(method, attributeType, ReflectionAttributeInfo.GetAttributeUsage(attributeType));
-	}
-
-	static IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(
-		MethodInfo method,
-		Type attributeType,
+		_ITypeInfo attributeType,
 		AttributeUsageAttribute attributeUsage)
 	{
-		List<ReflectionAttributeInfo>? list = null;
+		IReadOnlyCollection<_IAttributeInfo> results = method.CustomAttributes.FindCustomAttributes(attributeType);
 
-		foreach (var attr in method.CustomAttributes)
+		if (attributeUsage.Inherited && (attributeUsage.AllowMultiple || results.Count == 0))
 		{
-			if (attributeType.IsAssignableFrom(attr.AttributeType))
-			{
-				if (list is null)
-					list = new List<ReflectionAttributeInfo>();
-
-				list.Add(new ReflectionAttributeInfo(attr));
-			}
-		}
-
-		if (list is not null)
-			list.Sort((left, right) => string.Compare(left.AttributeData.AttributeType.Name, right.AttributeData.AttributeType.Name, StringComparison.Ordinal));
-
-		var results = list ?? Enumerable.Empty<_IAttributeInfo>();
-
-		if (attributeUsage.Inherited && (attributeUsage.AllowMultiple || list is null))
-		{
-			// Need to find the parent method, which may not necessarily be on the parent type
 			var baseMethod = GetParent(method);
 			if (baseMethod is not null)
-				results = results.Concat(GetCustomAttributes(baseMethod, attributeType, attributeUsage));
+				results = results.Concat(GetCustomAttributes(baseMethod, attributeType, attributeUsage)).CastOrToReadOnlyCollection();
 		}
 
-		return results.CastOrToReadOnlyCollection();
+		return results;
 	}
 
 	/// <inheritdoc/>

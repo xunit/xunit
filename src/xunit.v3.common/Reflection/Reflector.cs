@@ -134,6 +134,21 @@ public static class Reflector
 	}
 
 	/// <summary>
+	/// Converts an assembly qualified type name into an <see cref="_IReflectionTypeInfo"/>, throwing an exception
+	/// if the type is unknown or the type name is malformed.
+	/// </summary>
+	public static _IReflectionTypeInfo FindTypeAndWrap(string assemblyQualifiedTypeName)
+	{
+		Guard.ArgumentNotNull(assemblyQualifiedTypeName);
+
+		var type =
+			TypeHelper.GetType(assemblyQualifiedTypeName)
+			?? throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Type name '{0}' could not be found", assemblyQualifiedTypeName), nameof(assemblyQualifiedTypeName));
+
+		return Wrap(type);
+	}
+
+	/// <summary>
 	/// Converts an <see cref="Assembly"/> into an <see cref="_IReflectionAssemblyInfo"/>.
 	/// </summary>
 	/// <param name="assembly">The assembly to wrap.</param>
@@ -148,7 +163,7 @@ public static class Reflector
 			assembly is null ? null : new ReflectionAssemblyInfo(assembly, additionalAssemblyAttributes);
 
 	/// <summary>
-	/// Converts an <see cref="Attribute"/> into an <see cref="_IAttributeInfo"/> using reflection.
+	/// Converts an <see cref="Attribute"/> into an <see cref="_IReflectionAttributeInfo"/> using reflection.
 	/// </summary>
 	/// <param name="attribute">The attribute to wrap.</param>
 	/// <returns>The wrapper</returns>
@@ -157,7 +172,7 @@ public static class Reflector
 		attribute is null ? null : new ReflectionAttributeInfo(attribute);
 
 	/// <summary>
-	/// Converts a <see cref="MethodInfo"/> into an <see cref="_IMethodInfo"/> using reflection.
+	/// Converts a <see cref="MethodInfo"/> into an <see cref="_IReflectionMethodInfo"/> using reflection.
 	/// </summary>
 	/// <param name="method">The method to wrap</param>
 	/// <returns>The wrapper</returns>
@@ -166,7 +181,7 @@ public static class Reflector
 		method is null ? null : new ReflectionMethodInfo(method);
 
 	/// <summary>
-	/// Converts a <see cref="ParameterInfo"/> into an <see cref="_IParameterInfo"/> using reflection.
+	/// Converts a <see cref="ParameterInfo"/> into an <see cref="_IReflectionParameterInfo"/> using reflection.
 	/// </summary>
 	/// <param name="parameter">THe parameter to wrap</param>
 	/// <returns>The wrapper</returns>
@@ -175,7 +190,7 @@ public static class Reflector
 		parameter is null ? null : new ReflectionParameterInfo(parameter);
 
 	/// <summary>
-	/// Converts a <see cref="Type"/> into an <see cref="_ITypeInfo"/> using reflection.
+	/// Converts a <see cref="Type"/> into an <see cref="_IReflectionTypeInfo"/> using reflection.
 	/// </summary>
 	/// <param name="type">The type to wrap</param>
 	/// <returns>The wrapper</returns>

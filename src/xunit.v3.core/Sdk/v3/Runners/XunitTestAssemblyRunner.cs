@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -31,7 +30,17 @@ public class XunitTestAssemblyRunner : TestAssemblyRunner<XunitTestAssemblyRunne
 	{
 		Guard.ArgumentNotNull(ctxt);
 
-		await CreateAssemblyFixturesAsync(ctxt);
+		var assemblyFixtureTypes =
+			ctxt
+				.TestAssembly
+				.Assembly
+				.GetCustomAttributes(typeof(AssemblyFixtureAttribute))
+				.Select(a => a.GetConstructorArguments().Single() as Type)
+				.WhereNotNull()
+				.ToArray();
+
+		await ctxt.Aggregator.RunAsync(() => ctxt.AssemblyFixtureMappings.InitializeAsync(assemblyFixtureTypes));
+
 		await base.AfterTestAssemblyStartingAsync(ctxt);
 	}
 
@@ -40,136 +49,11 @@ public class XunitTestAssemblyRunner : TestAssemblyRunner<XunitTestAssemblyRunne
 	{
 		Guard.ArgumentNotNull(ctxt);
 
-		var disposeAsyncTasks =
-			ctxt.AssemblyFixtureMappings
-				.Values
-				.OfType<IAsyncDisposable>()
-				.Select(fixture => ctxt.Aggregator.RunAsync(async () =>
-				{
-					try
-					{
-						await fixture.DisposeAsync();
-					}
-					catch (Exception ex)
-					{
-						throw new TestFixtureCleanupException(string.Format(CultureInfo.CurrentCulture, "Assembly fixture type '{0}' threw in DisposeAsync", fixture.GetType().FullName), ex.Unwrap());
-					}
-				}).AsTask())
-				.ToList();
-
-		await Task.WhenAll(disposeAsyncTasks);
-
-		foreach (var fixture in ctxt.AssemblyFixtureMappings.Values.OfType<IDisposable>())
-			ctxt.Aggregator.Run(() =>
-			{
-				try
-				{
-					fixture.Dispose();
-				}
-				catch (Exception ex)
-				{
-					throw new TestFixtureCleanupException(string.Format(CultureInfo.CurrentCulture, "Assembly fixture type '{0}' threw in Dispose", fixture.GetType().FullName), ex.Unwrap());
-				}
-			});
+		await ctxt.Aggregator.RunAsync(ctxt.AssemblyFixtureMappings.DisposeAsync);
 
 		await base.BeforeTestAssemblyFinishedAsync(ctxt);
 	}
 
-	/// <summary>
-	/// Creates the instance of a assembly fixture type to be used by the test assembly. If the fixture can be created,
-	/// it should be placed into the AssemblyFixtureMappings dictionary in <paramref name="ctxt"/>; if it cannot, then
-	/// the method should record the error by calling <code>Aggregator.Add</code>.
-	/// </summary>
-	/// <param name="ctxt">The context that describes the current test assembly</param>
-	/// <param name="fixtureType">The type of the fixture to be created</param>
-	protected virtual void CreateAssemblyFixture(
-		XunitTestAssemblyRunnerContext ctxt,
-		Type fixtureType)
-	{
-		Guard.ArgumentNotNull(ctxt);
-		Guard.ArgumentNotNull(fixtureType);
-
-		var ctors =
-			fixtureType
-				.GetConstructors()
-				.Where(ci => !ci.IsStatic && ci.IsPublic)
-				.ToList();
-
-		if (ctors.Count != 1)
-		{
-			ctxt.Aggregator.Add(new TestClassException(string.Format(CultureInfo.CurrentCulture, "Assembly fixture type '{0}' may only define a single public constructor.", fixtureType.FullName)));
-			return;
-		}
-
-		var ctor = ctors[0];
-		var missingParameters = new List<ParameterInfo>();
-		var ctorArgs = ctor.GetParameters().Select(p =>
-		{
-			object? arg = null;
-			if (p.ParameterType == typeof(_IMessageSink))
-				arg = TestContext.Current?.DiagnosticMessageSink;
-			else if (p.ParameterType == typeof(ITestContextAccessor))
-				arg = TestContextAccessor.Instance;
-			else
-				missingParameters.Add(p);
-			return arg;
-		}).ToArray();
-
-		if (missingParameters.Count > 0)
-			ctxt.Aggregator.Add(
-				new TestClassException(
-					string.Format(
-						CultureInfo.CurrentCulture,
-						"Assembly fixture type '{0}' had one or more unresolved constructor arguments: {1}",
-						fixtureType.FullName,
-						string.Join(", ", missingParameters.Select(p => string.Format(CultureInfo.CurrentCulture, "{0} {1}", p.ParameterType.Name, p.Name)))
-					)
-				)
-			);
-		else
-			ctxt.Aggregator.Run(() =>
-			{
-				try
-				{
-					ctxt.AssemblyFixtureMappings[fixtureType] = ctor.Invoke(ctorArgs);
-				}
-				catch (Exception ex)
-				{
-					throw new TestClassException(string.Format(CultureInfo.CurrentCulture, "Assembly fixture type '{0}' threw in its constructor", fixtureType.FullName), ex.Unwrap());
-				}
-			});
-	}
-
-	ValueTask CreateAssemblyFixturesAsync(XunitTestAssemblyRunnerContext ctxt)
-	{
-		foreach (var attributeInfo in ctxt.TestAssembly.Assembly.GetCustomAttributes(typeof(AssemblyFixtureAttribute)))
-		{
-			var fixtureType = attributeInfo.GetConstructorArguments().Single() as Type;
-			if (fixtureType is not null)
-				CreateAssemblyFixture(ctxt, fixtureType);
-		}
-
-		var initializeAsyncTasks =
-			ctxt.AssemblyFixtureMappings
-				.Values
-				.OfType<IAsyncLifetime>()
-				.Select(
-					fixture => ctxt.Aggregator.RunAsync(async () =>
-					{
-						try
-						{
-							await fixture.InitializeAsync();
-						}
-						catch (Exception ex)
-						{
-							throw new TestClassException(string.Format(CultureInfo.CurrentCulture, "Assembly fixture type '{0}' threw in InitializeAsync", fixture.GetType().FullName), ex.Unwrap());
-						}
-					}).AsTask()
-				)
-				.ToList();
-
-		return new(Task.WhenAll(initializeAsyncTasks));
-	}
 
 	/// <inheritdoc/>
 	protected override ITestCaseOrderer GetTestCaseOrderer(XunitTestAssemblyRunnerContext ctxt) =>

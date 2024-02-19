@@ -39,8 +39,8 @@ public class Xunit3AttributeInfo : _IAttributeInfo
 		V2AttributeInfo.GetConstructorArguments().CastOrToReadOnlyCollection();
 
 	/// <inheritdoc/>
-	public IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(string assemblyQualifiedAttributeTypeName) =>
-		V2AttributeInfo.GetCustomAttributes(assemblyQualifiedAttributeTypeName).Select(a => new Xunit3AttributeInfo(a)).CastOrToReadOnlyCollection();
+	public IReadOnlyCollection<_IAttributeInfo> GetCustomAttributes(_ITypeInfo attributeType) =>
+		V2AttributeInfo.GetCustomAttributes(Guard.ArgumentNotNull(attributeType).AssemblyQualifiedName).Select(a => new Xunit3AttributeInfo(a)).CastOrToReadOnlyCollection();
 
 	/// <inheritdoc/>
 	public TValue GetNamedArgument<TValue>(string argumentName) =>
