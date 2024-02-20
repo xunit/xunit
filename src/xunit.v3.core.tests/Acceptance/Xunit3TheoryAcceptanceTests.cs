@@ -1916,6 +1916,7 @@ public class Xunit3TheoryAcceptanceTests
 		}
 
 #if NET7_0_OR_GREATER
+
 		public abstract class Repro<TSelf> where TSelf : IInterfaceWithStaticVirtualMember
 		{
 			[Theory]
@@ -1924,7 +1925,6 @@ public class Xunit3TheoryAcceptanceTests
 #pragma warning restore xUnit1015 // MemberData must reference an existing member
 			public void Test(int value)
 			{
-				Console.WriteLine(value);
 				Assert.NotEqual(0, value);
 			}
 		}
@@ -1941,18 +1941,18 @@ public class Xunit3TheoryAcceptanceTests
 		[Fact]
 		public async ValueTask MemberData_ReferencingStaticInterfaceData_Succeeds()
 		{
-			Console.WriteLine("got here");
 			var testMessages = await RunForResultsAsync(typeof(ClassUnderTest_StaticInterfaceMethod));
 
 			Assert.Collection(
 				testMessages.OfType<TestPassedWithDisplayName>().OrderBy(x => x.TestDisplayName),
-				result => 
-				{
-					Assert.Equal("Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithIncompatibleValueData.FieldTestMethod", result.TestDisplayName);
-				}
+				result => Assert.Equal("Xunit3TheoryAcceptanceTests+MemberDataTests+ClassUnderTest_StaticInterfaceMethod.Test(value: 1)", result.TestDisplayName),
+				result => Assert.Equal("Xunit3TheoryAcceptanceTests+MemberDataTests+ClassUnderTest_StaticInterfaceMethod.Test(value: 2)", result.TestDisplayName),
+				result => Assert.Equal("Xunit3TheoryAcceptanceTests+MemberDataTests+ClassUnderTest_StaticInterfaceMethod.Test(value: 3)", result.TestDisplayName)
 			);
 		}
+
 #endif
+
 	}
 
 	public class MethodDataTests : AcceptanceTestV3

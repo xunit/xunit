@@ -263,23 +263,23 @@ public abstract class MemberDataAttributeBase : DataAttribute
 		return () => propInfo.GetValue(null, null);
 	}
 
-	static IEnumerable<Type> GetTypesForMemberResolution(Type? typeToInspect, bool includeInterfaces)
+	static IEnumerable<Type> GetTypesForMemberResolution(
+		Type? typeToInspect,
+		bool includeInterfaces)
 	{
-		List<Type> interfaces = new();
+		HashSet<Type> interfaces = new();
 
 		for (var reflectionType = typeToInspect; reflectionType is not null; reflectionType = reflectionType.BaseType)
 		{
 			yield return reflectionType;
+
 			if (includeInterfaces)
-			{
-				interfaces.AddRange(reflectionType.GetInterfaces());
-			}
+				foreach (var @interface in reflectionType.GetInterfaces())
+					interfaces.Add(@interface);
 		}
 
-		foreach (var i in interfaces)
-		{
-			yield return i;
-		}
+		foreach (var @interface in interfaces)
+			yield return @interface;
 	}
 
 	static bool ParameterTypesCompatible(
