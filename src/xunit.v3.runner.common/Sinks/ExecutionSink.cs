@@ -498,7 +498,7 @@ public class ExecutionSink : _IMessageSink, IDisposable
 			metadataCache.Set(args.Message);
 	}
 
-	_MessageSinkMessage MutateForFailSkips(_MessageSinkMessage message)
+	static _MessageSinkMessage MutateForFailSkips(_MessageSinkMessage message)
 	{
 		if (message is _TestSkipped testSkipped)
 			return new _TestFailed
