@@ -320,36 +320,25 @@ public class ConsoleRunner
 
 			var frontController = new InProcessFrontController(testFramework, assemblyInfo, assembly.ConfigFileName);
 
-			IExecutionSink resultsSink = new DelegatingSummarySink(
-				assembly,
-				discoveryOptions,
-				executionOptions,
-				AppDomainOption.NotAvailable,
-				shadowCopy: false,
-				reporterMessageHandler,
-				() => cancel
-			);
-
-			if (assemblyElement is not null)
-				resultsSink = new DelegatingXmlCreationSink(resultsSink, assemblyElement);
-			if (longRunningSeconds > 0 && diagnosticMessageSink is not null)
-				resultsSink = new DelegatingLongRunningTestDetectionSink(resultsSink, TimeSpan.FromSeconds(longRunningSeconds), diagnosticMessageSink);
-			if (assembly.Configuration.FailSkipsOrDefault)
-				resultsSink = new DelegatingFailSkipSink(resultsSink);
-			if (assembly.Configuration.FailWarnsOrDefault)
-				resultsSink = new DelegatingFailWarnSink(resultsSink);
-
-			using (resultsSink)
+			var sinkOptions = new ExecutionSinkOptions
 			{
-				await frontController.FindAndRun(resultsSink, discoveryOptions, executionOptions, assembly.Configuration.Filters.Filter);
+				AssemblyElement = assemblyElement,
+				CancelThunk = () => cancel,
+				DiagnosticMessageSink = diagnosticMessageSink,
+				FailSkips = assembly.Configuration.FailSkipsOrDefault,
+				FailWarn = assembly.Configuration.FailWarnsOrDefault,
+				LongRunningTestTime = TimeSpan.FromSeconds(longRunningSeconds),
+			};
 
-				testExecutionSummaries.Add(frontController.TestAssemblyUniqueID, resultsSink.ExecutionSummary);
+			using var resultsSink = new ExecutionSink(assembly, discoveryOptions, executionOptions, AppDomainOption.NotAvailable, shadowCopy: false, reporterMessageHandler, sinkOptions);
+			await frontController.FindAndRun(resultsSink, discoveryOptions, executionOptions, assembly.Configuration.Filters.Filter);
 
-				if (resultsSink.ExecutionSummary.Failed != 0 && executionOptions.GetStopOnTestFailOrDefault())
-				{
-					Console.WriteLine("Canceling due to test failure...");
-					cancel = true;
-				}
+			testExecutionSummaries.Add(frontController.TestAssemblyUniqueID, resultsSink.ExecutionSummary);
+
+			if (resultsSink.ExecutionSummary.Failed != 0 && executionOptions.GetStopOnTestFailOrDefault())
+			{
+				Console.WriteLine("Canceling due to test failure...");
+				cancel = true;
 			}
 		}
 		catch (Exception ex)

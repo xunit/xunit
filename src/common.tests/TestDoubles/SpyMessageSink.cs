@@ -6,10 +6,15 @@ using Xunit.v3;
 
 public class SpyMessageSink : _IMessageSink
 {
-	public readonly List<_MessageSinkMessage> Messages = new();
+	readonly Func<_MessageSinkMessage, bool> callback;
 
-	public static SpyMessageSink Capture() =>
-		new();
+	protected SpyMessageSink(Func<_MessageSinkMessage, bool>? callback = null) =>
+		this.callback = callback ?? ((msg) => true);
+
+	public List<_MessageSinkMessage> Messages { get; } = new();
+
+	public static SpyMessageSink Capture(Func<_MessageSinkMessage, bool>? callback = null) =>
+		new(callback);
 
 	public static _IMessageSink Create(
 		bool returnResult = true,
@@ -40,24 +45,22 @@ public class SpyMessageSink : _IMessageSink
 	public virtual bool OnMessage(_MessageSinkMessage message)
 	{
 		Messages.Add(message);
-		return true;
+		return callback?.Invoke(message) ?? true;
 	}
 }
 
 public class SpyMessageSink<TFinalMessage> : SpyMessageSink, IDisposable
 {
-	readonly Func<_MessageSinkMessage, bool> cancellationThunk;
 	bool disposed;
 
-	SpyMessageSink(Func<_MessageSinkMessage, bool>? cancellationThunk)
-	{
-		this.cancellationThunk = cancellationThunk ?? (msg => true);
-	}
+	SpyMessageSink(Func<_MessageSinkMessage, bool>? callback) :
+		base(callback)
+	{ }
 
 	public ManualResetEvent Finished = new(initialState: false);
 
-	public static SpyMessageSink<TFinalMessage> Create(Func<_MessageSinkMessage, bool>? cancellationThunk = null) =>
-		new(cancellationThunk);
+	public static SpyMessageSink<TFinalMessage> Create(Func<_MessageSinkMessage, bool>? callback = null) =>
+		new(callback);
 
 	public void Dispose()
 	{
@@ -71,11 +74,11 @@ public class SpyMessageSink<TFinalMessage> : SpyMessageSink, IDisposable
 
 	public override bool OnMessage(_MessageSinkMessage message)
 	{
-		base.OnMessage(message);
+		var result = base.OnMessage(message);
 
 		if (message is TFinalMessage)
 			Finished.Set();
 
-		return cancellationThunk(message);
+		return result;
 	}
 }

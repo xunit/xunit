@@ -332,37 +332,26 @@ sealed class ConsoleRunner
 				(true, _) => AppDomainOption.Enabled,
 			};
 
-			IExecutionSink resultsSink = new DelegatingSummarySink(
-				assembly,
-				discoveryOptions,
-				executionOptions,
-				appDomain,
-				shadowCopy,
-				reporterMessageHandler,
-				() => cancel,
-				(summary, _) => completionMessages.TryAdd(controller.TestAssemblyUniqueID, summary)
-			);
-
-			if (assemblyElement is not null)
-				resultsSink = new DelegatingXmlCreationSink(resultsSink, assemblyElement);
-			if (longRunningSeconds > 0 && diagnosticMessageSink is not null)
-				resultsSink = new DelegatingLongRunningTestDetectionSink(resultsSink, TimeSpan.FromSeconds(longRunningSeconds), diagnosticMessageSink);
-			if (assembly.Configuration.FailSkipsOrDefault)
-				resultsSink = new DelegatingFailSkipSink(resultsSink);
-			if (assembly.Configuration.FailWarnsOrDefault)
-				resultsSink = new DelegatingFailWarnSink(resultsSink);
-
-			using (resultsSink)
+			var sinkOptions = new ExecutionSinkOptions
 			{
-				var settings = new FrontControllerFindAndRunSettings(discoveryOptions, executionOptions, assembly.Configuration.Filters);
-				controller.FindAndRun(resultsSink, settings);
-				resultsSink.Finished.WaitOne();
+				AssemblyElement = assemblyElement,
+				CancelThunk = () => cancel,
+				DiagnosticMessageSink = diagnosticMessageSink,
+				FailSkips = assembly.Configuration.FailSkipsOrDefault,
+				FailWarn = assembly.Configuration.FailWarnsOrDefault,
+				FinishedCallback = summary => completionMessages.TryAdd(controller.TestAssemblyUniqueID, summary),
+				LongRunningTestTime = TimeSpan.FromSeconds(longRunningSeconds),
+			};
 
-				if (resultsSink.ExecutionSummary.Failed != 0 && executionOptions.GetStopOnTestFailOrDefault())
-				{
-					Console.WriteLine("Canceling due to test failure...");
-					cancel = true;
-				}
+			using var resultsSink = new ExecutionSink(assembly, discoveryOptions, executionOptions, appDomain, shadowCopy, reporterMessageHandler, sinkOptions);
+			var settings = new FrontControllerFindAndRunSettings(discoveryOptions, executionOptions, assembly.Configuration.Filters);
+			controller.FindAndRun(resultsSink, settings);
+			resultsSink.Finished.WaitOne();
+
+			if (resultsSink.ExecutionSummary.Failed != 0 && executionOptions.GetStopOnTestFailOrDefault())
+			{
+				Console.WriteLine("Canceling due to test failure...");
+				cancel = true;
 			}
 		}
 		catch (Exception ex)

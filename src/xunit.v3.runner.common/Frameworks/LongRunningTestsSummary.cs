@@ -6,7 +6,7 @@ using Xunit.v3;
 namespace Xunit.Runner.Common;
 
 /// <summary>
-/// Represents information about long running tests from <see cref="DelegatingLongRunningTestDetectionSink"/>.
+/// Represents information about long running tests from <see cref="ExecutionSink"/>.
 /// </summary>
 public class LongRunningTestsSummary
 {

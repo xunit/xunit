@@ -7,7 +7,8 @@ public enum FailureCause
 {
 	/// <summary>
 	/// Indicates that a test failed for some reason other than a typical execution failure
-	/// (for example, if a test was skipped but the flag was given to fail all skipped tests).
+	/// (for example, if a test was skipped but the flag was given to fail all skipped tests,
+	/// or the test passed with warnings but the flag was given to fail tests with warnings).
 	/// </summary>
 	Other = 0,
 
