@@ -377,7 +377,7 @@ public class TestAssemblyRunnerTests
 		protected override IMessageBus CreateMessageBus()
 		{
 			// Use the sync message bus, so that we can immediately react to cancellations.
-			return new SynchronousMessageBus(ExecutionMessageSink);
+			return new SynchronousMessageBus(ExecutionMessageSink, stopOnFail: false);
 		}
 
 		protected override string GetTestFrameworkDisplayName()
