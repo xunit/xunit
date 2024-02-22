@@ -247,15 +247,26 @@ namespace Xunit.Sdk
                             }
                             else
                             {
-                                var result = CallTestMethod(testClassInstance);
-                                var task = AsyncUtility.TryConvertToTask(result);
-                                if (task != null)
-                                    await task;
-                                else if (asyncSyncContext != null)
+                                var logEnabled = TestEventSource.Log.IsEnabled();
+                                if (logEnabled)
+                                    TestEventSource.Log.TestStart(Test.DisplayName);
+
+                                try
                                 {
-                                    var ex = await asyncSyncContext.WaitForCompletionAsync();
-                                    if (ex != null)
-                                        Aggregator.Add(ex);
+                                    var result = CallTestMethod(testClassInstance);
+                                    var task = AsyncUtility.TryConvertToTask(result);
+                                    if (task != null)
+                                        await task;
+                                    else if (asyncSyncContext != null)
+                                    {
+                                        var ex = await asyncSyncContext.WaitForCompletionAsync();
+                                        if (ex != null)
+                                            Aggregator.Add(ex);
+                                    }
+                                }
+                                finally
+                                {
+                                    TestEventSource.Log.TestStart(Test.DisplayName);
                                 }
                             }
                         }
