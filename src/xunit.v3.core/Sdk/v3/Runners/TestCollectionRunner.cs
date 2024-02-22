@@ -73,20 +73,7 @@ public abstract class TestCollectionRunner<TContext, TTestCase>
 
 				SetTestContext(ctxt, TestEngineStatus.Running);
 
-				var logEnabled = TestEventSource.Log.IsEnabled();
-
-				if (logEnabled)
-					TestEventSource.Log.TestCollectionStart(ctxt.TestCollection.DisplayName);
-
-				try
-				{
-					collectionSummary = await RunTestClassesAsync(ctxt);
-				}
-				finally
-				{
-					if (logEnabled)
-						TestEventSource.Log.TestCollectionStop(ctxt.TestCollection.DisplayName);
-				}
+				collectionSummary = await RunTestClassesAsync(ctxt);
 
 				SetTestContext(ctxt, TestEngineStatus.CleaningUp);
 

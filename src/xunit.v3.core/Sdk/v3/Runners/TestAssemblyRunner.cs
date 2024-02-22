@@ -146,23 +146,10 @@ public abstract class TestAssemblyRunner<TContext, TTestCase>
 
 				SetTestContext(ctxt, TestEngineStatus.Running);
 
-				var logEnabled = TestEventSource.Log.IsEnabled();
-
-				if (logEnabled)
-					TestEventSource.Log.TestAssemblyStart(ctxt.TestAssembly.Assembly.AssemblyPath ?? "<dynamic>", ctxt.TestAssembly.ConfigFileName ?? "<none>");
-
-				try
-				{
-					// Want clock time, not aggregated run time
-					var clockTimeStopwatch = Stopwatch.StartNew();
-					totalSummary = await RunTestCollectionsAsync(ctxt);
-					totalSummary.Time = (decimal)clockTimeStopwatch.Elapsed.TotalSeconds;
-				}
-				finally
-				{
-					if (logEnabled)
-						TestEventSource.Log.TestAssemblyStop(ctxt.TestAssembly.Assembly.AssemblyPath ?? "<dynamic>", ctxt.TestAssembly.ConfigFileName ?? "<none>");
-				}
+				// Want clock time, not aggregated run time
+				var clockTimeStopwatch = Stopwatch.StartNew();
+				totalSummary = await RunTestCollectionsAsync(ctxt);
+				totalSummary.Time = (decimal)clockTimeStopwatch.Elapsed.TotalSeconds;
 
 				SetTestContext(ctxt, TestEngineStatus.CleaningUp);
 

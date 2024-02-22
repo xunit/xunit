@@ -143,20 +143,7 @@ public abstract class TestClassRunner<TContext, TTestCase>
 
 			SetTestContext(ctxt, TestEngineStatus.Running);
 
-			var logEnabled = TestEventSource.Log.IsEnabled();
-
-			if (logEnabled)
-				TestEventSource.Log.TestClassStart(ctxt.TestClass.Class.Name);
-
-			try
-			{
-				classSummary = await RunTestMethodsAsync(ctxt);
-			}
-			finally
-			{
-				if (logEnabled)
-					TestEventSource.Log.TestClassStop(ctxt.TestClass.Class.Name);
-			}
+			classSummary = await RunTestMethodsAsync(ctxt);
 
 			SetTestContext(ctxt, TestEngineStatus.CleaningUp);
 

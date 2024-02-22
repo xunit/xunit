@@ -11,24 +11,6 @@ internal sealed class TestEventSource : EventSource
 
 	TestEventSource() { }
 
-	[Event(Events.TestAssemblyStart, Level = EventLevel.Informational, Task = Tasks.TestAssembly, Opcode = EventOpcode.Start)]
-	internal void TestAssemblyStart(string assemblyPath, string configFileName) => WriteEvent(Events.TestAssemblyStart, assemblyPath, configFileName);
-
-	[Event(Events.TestAssemblyStop, Level = EventLevel.Informational, Task = Tasks.TestAssembly, Opcode = EventOpcode.Stop)]
-	internal void TestAssemblyStop(string assemblyPath, string configFileName) => WriteEvent(Events.TestAssemblyStop, assemblyPath, configFileName);
-
-	[Event(Events.TestClassStart, Level = EventLevel.Informational, Task = Tasks.TestClass, Opcode = EventOpcode.Start)]
-	internal void TestClassStart(string testClassName) => WriteEvent(Events.TestClassStart, testClassName);
-
-	[Event(Events.TestClassStop, Level = EventLevel.Informational, Task = Tasks.TestClass, Opcode = EventOpcode.Stop)]
-	internal void TestClassStop(string testClassName) => WriteEvent(Events.TestClassStop, testClassName);
-
-	[Event(Events.TestCollectionStart, Level = EventLevel.Informational, Task = Tasks.TestCollection, Opcode = EventOpcode.Start)]
-	internal void TestCollectionStart(string testCollectionName) => WriteEvent(Events.TestCollectionStart, testCollectionName);
-
-	[Event(Events.TestCollectionStop, Level = EventLevel.Informational, Task = Tasks.TestCollection, Opcode = EventOpcode.Stop)]
-	internal void TestCollectionStop(string testCollectionName) => WriteEvent(Events.TestCollectionStop, testCollectionName);
-
 	[Event(Events.TestStart, Level = EventLevel.Informational, Task = Tasks.Test, Opcode = EventOpcode.Start)]
 	internal void TestStart(string testName) => WriteEvent(Events.TestStart, testName);
 
@@ -37,24 +19,12 @@ internal sealed class TestEventSource : EventSource
 
 	class Events
 	{
-		internal const int TestAssemblyStart = 101;
-		internal const int TestAssemblyStop = 102;
-
-		internal const int TestClassStart = 301;
-		internal const int TestClassStop = 302;
-
-		internal const int TestCollectionStart = 201;
-		internal const int TestCollectionStop = 202;
-
-		internal const int TestStart = 401;
-		internal const int TestStop = 402;
+		internal const int TestStart = 1;
+		internal const int TestStop = 2;
 	}
 
 	class Tasks
 	{
-		internal const EventTask TestAssembly = (EventTask)1;
-		internal const EventTask TestClass = (EventTask)3;
-		internal const EventTask TestCollection = (EventTask)2;
-		internal const EventTask Test = (EventTask)4;
+		internal const EventTask Test = (EventTask)1;
 	}
 }
