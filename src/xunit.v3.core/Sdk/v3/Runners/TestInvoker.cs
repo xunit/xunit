@@ -185,15 +185,28 @@ public abstract class TestInvoker<TContext>
 						}
 						else
 						{
-							var result = CallTestMethod(ctxt, testClassInstance);
-							var valueTask = AsyncUtility.TryConvertToValueTask(result);
-							if (valueTask.HasValue)
-								await valueTask.Value;
-							else if (asyncSyncContext is not null)
+							var logEnabled = TestEventSource.Log.IsEnabled();
+
+							if (logEnabled)
+								TestEventSource.Log.TestStart(ctxt.Test.TestDisplayName);
+
+							try
 							{
-								var ex = await asyncSyncContext.WaitForCompletionAsync();
-								if (ex is not null)
-									ctxt.Aggregator.Add(ex);
+								var result = CallTestMethod(ctxt, testClassInstance);
+								var valueTask = AsyncUtility.TryConvertToValueTask(result);
+								if (valueTask.HasValue)
+									await valueTask.Value;
+								else if (asyncSyncContext is not null)
+								{
+									var ex = await asyncSyncContext.WaitForCompletionAsync();
+									if (ex is not null)
+										ctxt.Aggregator.Add(ex);
+								}
+							}
+							finally
+							{
+								if (logEnabled)
+									TestEventSource.Log.TestStop(ctxt.Test.TestDisplayName);
 							}
 						}
 					}
