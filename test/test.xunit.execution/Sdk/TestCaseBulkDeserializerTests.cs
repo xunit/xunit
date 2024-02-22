@@ -79,7 +79,7 @@ public class TestCaseBulkDeserializerTests
     }
 
     [Fact]
-    public static void DeserializedFactsAndTheoriesFromTheSameClassStillShareFixtures()
+    public static async void DeserializedFactsAndTheoriesFromTheSameClassStillShareFixtures()
     {
         var code = @"
 using System;
@@ -110,7 +110,7 @@ public class TestClass : IClassFixture<TestClassFixture>
     public void TheoryMethod(int x) { Assert.Equal(1, fixture.ConstructorInstance); }
 }
 ";
-        using (var assembly = CSharpAcceptanceTestV2Assembly.Create(code))
+        using (var assembly = await CSharpAcceptanceTestV2Assembly.Create(code))
         {
             var discoverySink = new SpyMessageSink<IDiscoveryCompleteMessage>();
             var serializedTestCases = default(List<string>);

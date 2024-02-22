@@ -4,29 +4,23 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.FSharp.Compiler.SimpleSourceCodeServices;
+using FSharp.Compiler.CodeAnalysis;
+using Microsoft.FSharp.Control;
 using Microsoft.FSharp.Core;
 
 public abstract class FSharpAcceptanceTestAssembly : AcceptanceTestAssembly
 {
-    protected FSharpAcceptanceTestAssembly(string basePath)
-        : base(basePath) { }
+    public FSharpAcceptanceTestAssembly(string basePath = null)
+        : base(basePath)
+    { }
 
-    protected override IEnumerable<string> GetStandardReferences()
+    protected override IEnumerable<string> GetStandardReferences() => Array.Empty<string>();
+
+    protected override async Task Compile(string[] code, params string[] references)
     {
-        var homeDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        // If you update this path, make sure to update the PackageDownload in test.utility.csproj as well
-        var fxDir = $@"{homeDir}\.nuget\packages\microsoft.netframework.referenceassemblies.net452\1.0.3\build\.NETFramework\v4.5.2\";
-        var mscorlib = $@"{fxDir}mscorlib.dll";
-        var sysRuntime = $@"{fxDir}Facades\System.Runtime.dll";
-
-        return new[] { mscorlib, sysRuntime, "xunit.abstractions.dll" };
-    }
-
-    protected override Task Compile(string[] code, params string[] references)
-    {
-        var compilerArgs = new List<string> { "fsc", "--noframework" };
+        var compilerArgs = new List<string> { "fsc" };
 
         foreach (var codeText in code)
         {
@@ -44,17 +38,35 @@ public abstract class FSharpAcceptanceTestAssembly : AcceptanceTestAssembly
         });
         compilerArgs.AddRange(GetStandardReferences().Concat(references).Select(r => $"--reference:{r}"));
 
-        var compiler = new SimpleSourceCodeServices(FSharpOption<bool>.Some(false));
-        var result = compiler.Compile(compilerArgs.ToArray());
+        var checker = FSharpChecker.Create(
+            FSharpOption<int>.None,
+            FSharpOption<bool>.None,
+            FSharpOption<bool>.None,
+#pragma warning disable CS0618
+            FSharpOption<LegacyReferenceResolver>.None,
+#pragma warning restore CS0618
+            FSharpOption<FSharpFunc<Tuple<string, DateTime>, FSharpOption<Tuple<object, IntPtr, int>>>>.None,
+            FSharpOption<bool>.None,
+            FSharpOption<bool>.None,
+            FSharpOption<bool>.None,
+            FSharpOption<bool>.None,
+            FSharpOption<bool>.None,
+            FSharpOption<bool>.None,
+            FSharpOption<DocumentSource>.None,
+            FSharpOption<bool>.None
+        );
+
+        var resultFSharpAsync = checker.Compile(compilerArgs.ToArray(), FSharpOption<string>.None);
+        var result = await FSharpAsync.StartAsTask(resultFSharpAsync, FSharpOption<TaskCreationOptions>.None, FSharpOption<CancellationToken>.None);
         if (result.Item2 != 0)
         {
-            var errors = result.Item1
-                               .Select(e => $"{e.FileName}({e.StartLineAlternate},{e.StartColumn}): {(e.Severity.IsError ? "error" : "warning")} {e.ErrorNumber}: {e.Message}");
+            var errors =
+                result
+                    .Item1
+                    .Select(e => $"{e.FileName}({e.StartLine},{e.StartColumn}): {(e.Severity.IsError ? "error" : "warning")} {e.ErrorNumber}: {e.Message}");
 
             throw new InvalidOperationException($"Compilation Failed:{Environment.NewLine}{string.Join(Environment.NewLine, errors)}");
         }
-
-        return CompletedTask;
     }
 }
 

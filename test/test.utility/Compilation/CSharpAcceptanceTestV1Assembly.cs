@@ -1,24 +1,23 @@
 #if NETFRAMEWORK
 
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
+using System.Threading.Tasks;
 
 public class CSharpAcceptanceTestV1Assembly : CSharpAcceptanceTestAssembly
 {
-    private CSharpAcceptanceTestV1Assembly(string basePath)
-        : base(basePath) { }
+    public CSharpAcceptanceTestV1Assembly(string basePath = null)
+        : base(basePath)
+    { }
 
     protected override IEnumerable<string> GetStandardReferences()
         => base.GetStandardReferences()
                .Concat(new[] { "xunit.dll", "xunit.extensions.dll" });
 
-    public static CSharpAcceptanceTestV1Assembly Create(string code, params string[] references)
+    public static async Task<CSharpAcceptanceTestV1Assembly> Create(string code, params string[] references)
     {
-        var basePath = Path.GetDirectoryName(Assembly.GetCallingAssembly().Location);
-        var assembly = new CSharpAcceptanceTestV1Assembly(basePath);
-        assembly.Compile(new[] { code }, references);
+        var assembly = new CSharpAcceptanceTestV1Assembly();
+        await assembly.Compile(new[] { code }, references);
         return assembly;
     }
 }

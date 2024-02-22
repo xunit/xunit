@@ -12,8 +12,13 @@ public abstract class AcceptanceTestAssembly : IDisposable
 
     protected AcceptanceTestAssembly(string basePath = null)
     {
-        BasePath = basePath ?? Path.GetDirectoryName(typeof(AcceptanceTestAssembly).Assembly.GetLocalCodeBase())!;
+        var packagesPath =
+            Environment.GetEnvironmentVariable("NUGET_PACKAGES") ??
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".nuget", "packages");
+
+        BasePath = basePath ?? Path.GetDirectoryName(typeof(AcceptanceTestAssembly).Assembly.GetLocalCodeBase());
         FileName = Path.Combine(BasePath, Path.GetRandomFileName() + AssemblyFileExtension);
+        NetStandardReferencePath = Path.Combine(packagesPath, "netstandard.library", "2.0.0", "build", "netstandard2.0", "ref");
         PdbName = Path.Combine(BasePath, Path.GetFileNameWithoutExtension(FileName) + ".pdb");
 
         AssemblyName = new AssemblyName()
@@ -30,6 +35,8 @@ public abstract class AcceptanceTestAssembly : IDisposable
     public string BasePath { get; }
 
     public string FileName { get; protected set; }
+
+    public string NetStandardReferencePath { get; }
 
     public string PdbName { get; protected set; }
 
@@ -53,19 +60,17 @@ public abstract class AcceptanceTestAssembly : IDisposable
     protected abstract Task Compile(string[] code, params string[] references);
 
     protected virtual IEnumerable<string> GetStandardReferences()
-        => new[] {
-            "mscorlib.dll",
-            "System.dll",
-            "System.Core.dll",
-            "System.Data.dll",
-            "System.Runtime.dll",
-            "System.Xml.dll",
-        };
+        => new[] { "netstandard.dll", "System.Runtime.dll" };
 
-    protected string ResolveReference(string reference)
+    protected string ResolveReference(string reference) =>
+        ResolveReferenceFrom(reference, BasePath) ??
+        ResolveReferenceFrom(reference, NetStandardReferencePath) ??
+        reference;
+
+    protected string ResolveReferenceFrom(string reference, string path)
     {
-        var localFilename = Path.Combine(BasePath, reference);
-        return File.Exists(localFilename) ? localFilename : reference;
+        var result = Path.Combine(path, reference);
+        return File.Exists(result) ? result : null;
     }
 }
 

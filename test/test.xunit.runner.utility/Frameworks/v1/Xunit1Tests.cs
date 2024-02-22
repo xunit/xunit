@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Web.UI;
 using NSubstitute;
@@ -527,7 +528,7 @@ public class Xunit1Tests
         {
             Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
 
-            using(var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config"))
+            using (var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config"))
             {
                 var testCases = new[] {
                     new Xunit1TestCase("assembly", "config", "type1", "passing", "type1.passing")
@@ -799,7 +800,7 @@ public class Xunit1Tests
     public class AcceptanceTests
     {
         [Fact]
-        public void AmbiguouslyNamedTestMethods_StillReturnAllMessages()
+        public async void AmbiguouslyNamedTestMethods_StillReturnAllMessages()
         {
             var code = @"
 using Xunit;
@@ -820,7 +821,7 @@ public class AmbiguouslyNamedTestMethods
     }
 }";
 
-            using (var assembly = CSharpAcceptanceTestV1Assembly.Create(code))
+            using (var assembly = await CSharpAcceptanceTestV1Assembly.Create(code))
             using (var xunit1 = new Xunit1(AppDomainSupport.Required, new NullSourceInformationProvider(), assembly.FileName))
             {
                 var spy = new SpyMessageSink<ITestAssemblyFinished>();

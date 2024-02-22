@@ -9,8 +9,8 @@ using Microsoft.CSharp;
 
 public abstract class CSharpAcceptanceTestAssembly : AcceptanceTestAssembly
 {
-    protected CSharpAcceptanceTestAssembly(string basePath = null) :
-        base(basePath)
+    public CSharpAcceptanceTestAssembly(string basePath = null)
+        : base(basePath)
     { }
 
     protected override Task Compile(string[] code, params string[] references)
@@ -39,7 +39,7 @@ public abstract class CSharpAcceptanceTestAssembly : AcceptanceTestAssembly
             foreach (var error in results.Errors.Cast<CompilerError>().Where(x => x != null))
                 errors.Add($"{error.FileName}({error.Line},{error.Column}): error {error.ErrorNumber}: {error.ErrorText}");
 
-            throw new InvalidOperationException($"Compilation Failed:{Environment.NewLine}{string.Join(Environment.NewLine, errors.ToArray())}");
+            throw new InvalidOperationException($"Compilation Failed: (BasePath = '{BasePath}', NetStandardReferencePath = '{NetStandardReferencePath}'){Environment.NewLine}{string.Join(Environment.NewLine, errors.ToArray())}");
         }
 
         return CompletedTask;

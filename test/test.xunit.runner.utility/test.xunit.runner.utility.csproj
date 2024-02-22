@@ -3,7 +3,7 @@
   <PropertyGroup>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DefineConstants>$(DefineConstants);UNIT_TEST</DefineConstants>
-    <TargetFrameworks>net452;netcoreapp2.0</TargetFrameworks>
+    <TargetFrameworks>net462;netcoreapp2.0</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -28,7 +28,12 @@
     <Reference Include="System.Web" />
   </ItemGroup>
 
-  <Target Condition=" '$(TargetFramework)' == 'net452' " Name="CopyXunitV1" AfterTargets="Build">
+  <ItemGroup>
+    <PackageDownload Include="xunit" Version="[1.9.2]" />
+    <PackageDownload Include="xunit.extensions" Version="[1.9.2]" />
+  </ItemGroup>
+
+  <Target Condition=" '$(TargetFramework)' == 'net462' " Name="CopyXunitV1" AfterTargets="Build">
     <ItemGroup>
       <XunitV1Binaries Include="$(NuGetPackageRoot)xunit\1.9.2\lib\net20\xunit.dll" />
       <XunitV1Binaries Include="$(NuGetPackageRoot)xunit.extensions\1.9.2\lib\net20\xunit.extensions.dll" />

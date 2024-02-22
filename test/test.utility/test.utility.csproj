@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net452;netstandard1.5;netcoreapp2.0</TargetFrameworks>
+    <TargetFrameworks>net462;netstandard1.5;netcoreapp2.0</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -10,12 +10,6 @@
     <Compile Include="..\..\src\common\ExceptionExtensions.cs" LinkBase="Common" />
     <Compile Include="..\..\src\common\ExecutionHelper.cs" LinkBase="Common" />
     <Compile Include="..\..\src\common\TestOptionsNames.cs" LinkBase="Common" />
-    <Content Include="$(NuGetPackageRoot)\fsharp.core\4.7.2\lib\net45\FSharp.Core.optdata">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="$(NuGetPackageRoot)\fsharp.core\4.7.2\lib\net45\FSharp.Core.sigdata">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -24,8 +18,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Needed by FSharpAcceptanceTestAssembly -->
-    <PackageDownload Include="Microsoft.NETFramework.ReferenceAssemblies.net452" Version="[1.0.3]" />
+    <!-- Needed by AcceptanceTestAssembly -->
+    <PackageDownload Include="NetStandard.Library" Version="[2.0.0]" />
   </ItemGroup>
 
   <ItemGroup>
@@ -34,9 +28,8 @@
     <ProjectReference Include="..\..\src\xunit.runner.utility\xunit.runner.utility.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
-    <PackageReference Include="FSharp.Compiler.Service" Version="[9.0.1]" />
-    <PackageReference Include="FSharp.Core" Version="4.7.2" />
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net462' ">
+    <PackageReference Include="FSharp.Compiler.Service" Version="43.8.200" />
     <ProjectReference Include="..\..\src\xunit.runner.tdnet\xunit.runner.tdnet.csproj" />
   </ItemGroup>
 

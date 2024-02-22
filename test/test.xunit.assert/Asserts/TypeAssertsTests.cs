@@ -487,8 +487,7 @@ public class TypeAssertsTests
 			base(Path.GetTempPath())
 		{ }
 
-		protected override IEnumerable<string> GetStandardReferences() =>
-			new[] { "mscorlib.dll" };
+		protected override IEnumerable<string> GetStandardReferences() => Array.Empty<string>();
 
 		public static async Task<CSharpDynamicAssembly> Create(string code)
 		{

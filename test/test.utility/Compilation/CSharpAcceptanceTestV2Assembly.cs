@@ -1,14 +1,14 @@
 #if NETFRAMEWORK
 
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
+using System.Threading.Tasks;
 
 public class CSharpAcceptanceTestV2Assembly : CSharpAcceptanceTestAssembly
 {
-    private CSharpAcceptanceTestV2Assembly(string basePath)
-        : base(basePath) { }
+    public CSharpAcceptanceTestV2Assembly(string basePath = null)
+        : base(basePath)
+    { }
 
     protected override IEnumerable<string> GetStandardReferences()
     {
@@ -16,11 +16,10 @@ public class CSharpAcceptanceTestV2Assembly : CSharpAcceptanceTestAssembly
                    .Concat(new[] { "xunit.assert.dll", "xunit.core.dll", "xunit.execution.desktop.dll" });
     }
 
-    public static CSharpAcceptanceTestV2Assembly Create(string code, params string[] references)
+    public static async Task<CSharpAcceptanceTestV2Assembly> Create(string code, params string[] references)
     {
-        var basePath = Path.GetDirectoryName(Assembly.GetCallingAssembly().Location);
-        var assembly = new CSharpAcceptanceTestV2Assembly(basePath);
-        assembly.Compile(new[] { code }, references);
+        var assembly = new CSharpAcceptanceTestV2Assembly();
+        await assembly.Compile(new[] { code }, references);
         return assembly;
     }
 }

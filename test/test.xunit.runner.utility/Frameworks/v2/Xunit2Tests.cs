@@ -9,9 +9,9 @@ public class Xunit2Tests
     public class EnumerateTests
     {
         [Fact]
-        public void NoTestMethods()
+        public async void NoTestMethods()
         {
-            using (var assm = CSharpAcceptanceTestV2Assembly.Create(code: ""))
+            using (var assm = await CSharpAcceptanceTestV2Assembly.Create(code: ""))
             using (var controller = new TestableXunit2(assm.FileName, null, true))
             {
                 var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
@@ -25,7 +25,7 @@ public class Xunit2Tests
         }
 
         [Fact]
-        public void SingleTestMethod()
+        public async void SingleTestMethod()
         {
             string code = @"
 using Xunit;
@@ -36,7 +36,7 @@ public class Foo
     public void Bar() { }
 }";
 
-            using (var assm = CSharpAcceptanceTestV2Assembly.Create(code))
+            using (var assm = await CSharpAcceptanceTestV2Assembly.Create(code))
             using (var controller = new TestableXunit2(assm.FileName, null, true))
             {
                 var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
@@ -54,7 +54,7 @@ public class Foo
     public class CSharp
     {
         [Fact]
-        public void FactAcceptanceTest()
+        public async void FactAcceptanceTest()
         {
             string code = @"
 using System;
@@ -88,7 +88,7 @@ namespace Namespace2
     }
 }";
 
-            using (var assembly = CSharpAcceptanceTestV2Assembly.Create(code))
+            using (var assembly = await CSharpAcceptanceTestV2Assembly.Create(code))
             using (var controller = new TestableXunit2(assembly.FileName, null, true))
             {
                 var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
@@ -115,7 +115,7 @@ namespace Namespace2
         }
 
         [CulturedFact]
-        public void TheoryWithInlineData()
+        public async void TheoryWithInlineData()
         {
             string code = @"
 using System;
@@ -130,7 +130,7 @@ public class TestClass
     public void TestMethod(int x) { }
 }";
 
-            using (var assembly = CSharpAcceptanceTestV2Assembly.Create(code))
+            using (var assembly = await CSharpAcceptanceTestV2Assembly.Create(code))
             using (var controller = new TestableXunit2(assembly.FileName, null, true))
             {
                 var sink = new SpyMessageSink<IDiscoveryCompleteMessage>();
@@ -152,7 +152,7 @@ public class TestClass
     public class FSharp
     {
         [Fact]
-        public void FactAcceptanceTest()
+        public async void FactAcceptanceTest()
         {
             string code = @"
 module FSharpTests
@@ -173,7 +173,7 @@ let CustomName() =
     Assert.True(true)
 ";
 
-            using (var assembly = FSharpAcceptanceTestV2Assembly.Create(code))
+            using (var assembly = await FSharpAcceptanceTestV2Assembly.Create(code))
             using (var controller = new TestableXunit2(assembly.FileName, null, true))
             {
                 var sink = new TestDiscoverySink();
@@ -204,7 +204,7 @@ let CustomName() =
         }
 
         [CulturedFact]
-        public void TheoryWithInlineData()
+        public async void TheoryWithInlineData()
         {
             string code = @"
 module FSharpTests
@@ -219,7 +219,7 @@ let TestMethod (x:int) =
     Assert.True(true)
 ";
 
-            using (var assembly = FSharpAcceptanceTestV2Assembly.Create(code))
+            using (var assembly = await FSharpAcceptanceTestV2Assembly.Create(code))
             using (var controller = new TestableXunit2(assembly.FileName, null, true))
             {
                 var sink = new TestDiscoverySink();
@@ -236,7 +236,7 @@ let TestMethod (x:int) =
         }
 
         [Fact]
-        public void SupportsAsyncReturningMethods()
+        public async void SupportsAsyncReturningMethods()
         {
             string code = @"
 module FSharpTests
@@ -251,7 +251,7 @@ let AsyncFailing() =
     }
 ";
 
-            using (var assembly = FSharpAcceptanceTestV2Assembly.Create(code))
+            using (var assembly = await FSharpAcceptanceTestV2Assembly.Create(code))
             using (var controller = new TestableXunit2(assembly.FileName, null, true))
             {
                 var sink = new SpyMessageSink<ITestAssemblyFinished>();
@@ -270,8 +270,7 @@ let AsyncFailing() =
     {
         public TestableXunit2(string assemblyFileName, string configFileName = null, bool shadowCopy = true, AppDomainSupport appDomainSupport = AppDomainSupport.Required)
             : base(appDomainSupport, new NullSourceInformationProvider(), assemblyFileName, configFileName, shadowCopy)
-        {
-        }
+        { }
     }
 }
 

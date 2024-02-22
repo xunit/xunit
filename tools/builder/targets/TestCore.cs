@@ -20,7 +20,7 @@ public static class TestCore
         await RunTests(context, "net6.0", "-net6");
     }
 
-    static Task RunTests(
+    static async Task RunTests(
         BuildContext context,
         string targetFramework,
         string reportSuffix)
@@ -33,8 +33,11 @@ public static class TestCore
                 .Where(x => x.Contains(netFxSubpath))
                 .OrderBy(x => x)
                 .Select(x => '"' + x + '"');
-        var v2OutputFileName = Path.Combine(context.TestOutputFolder, $"v2{reportSuffix}");
 
-        return context.Exec("dotnet", $"\"{runner}\" {string.Join(' ', v2TestDlls)} {context.TestFlagsNonParallel} -xml \"{v2OutputFileName}.xml\" -html \"{v2OutputFileName}.html\"");
+        foreach (var v2TestDll in v2TestDlls)
+        {
+            var outputFileName = Path.Combine(context.TestOutputFolder, $"{Path.GetFileNameWithoutExtension(v2TestDll)}{reportSuffix}");
+            await context.Exec("dotnet", $"\"{runner}\" {v2TestDll} {context.TestFlagsNonParallel} -xml \"{outputFileName}.xml\" -html \"{outputFileName}.html");
+        }
     }
 }

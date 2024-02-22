@@ -11,7 +11,7 @@ public class XunitFrontControllerTests
     public class DescriptorsAndBulkDeserialization
     {
         [Fact]
-        public void RoundTrip()
+        public async void RoundTrip()
         {
             string code = @"
 using System;
@@ -30,7 +30,7 @@ namespace Namespace1
     }
 }";
 
-            using (var assembly = CSharpAcceptanceTestV2Assembly.Create(code))
+            using (var assembly = await CSharpAcceptanceTestV2Assembly.Create(code))
             {
                 var serializations = default(List<string>);
                 var testCollectionId = default(Guid);
@@ -69,8 +69,7 @@ namespace Namespace1
     {
         public TestableXunitFrontController(string assemblyFileName, string configFileName = null, bool shadowCopy = true, AppDomainSupport appDomainSupport = AppDomainSupport.Required)
             : base(appDomainSupport, assemblyFileName, configFileName, shadowCopy)
-        {
-        }
+        { }
     }
 }
 
