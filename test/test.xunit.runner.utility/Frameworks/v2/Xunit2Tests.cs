@@ -235,20 +235,22 @@ let TestMethod (x:int) =
             }
         }
 
-        [Fact]
-        public async void SupportsAsyncReturningMethods()
+        [Theory]
+        [InlineData("async")]
+        [InlineData("task")]
+        public async void SupportsAsyncReturningMethods(string blockType)
         {
-            string code = @"
+            string code = @$"
 module FSharpTests
 
 open Xunit
 
 [<Fact>]
 let AsyncFailing() =
-    async {
+    {blockType} {{
         do! Async.Sleep(10)
-        Assert.True(false)
-    }
+        Assert.Fail(""Make sure things waited"")
+    }}
 ";
 
             using (var assembly = await FSharpAcceptanceTestV2Assembly.Create(code))
@@ -262,6 +264,41 @@ let AsyncFailing() =
                 var failures = sink.Messages.OfType<ITestFailed>();
                 var failure = Assert.Single(failures);
                 Assert.Equal("FSharpTests.AsyncFailing", failure.TestCase.DisplayName);
+                Assert.Equal("Make sure things waited", failure.Messages.Single());
+            }
+        }
+
+        [Theory]
+        [InlineData("async")]
+        [InlineData("task")]
+        public async void SupportsTimeoutOnAsyncReturningMethods(string blockType)
+        {
+            string code = @$"
+module FSharpTests
+
+open System.Threading.Tasks
+open Xunit
+
+[<Fact(Timeout = 3000)>]
+let TestMethod() =
+    {blockType} {{
+        do! Async.Sleep(10)
+        Assert.Fail(""Make sure things waited"")
+    }}
+";
+
+            using (var assembly = await FSharpAcceptanceTestV2Assembly.Create(code))
+            using (var controller = new TestableXunit2(assembly.FileName, null, true))
+            {
+                var sink = new SpyMessageSink<ITestAssemblyFinished>();
+
+                controller.RunAll(sink, discoveryOptions: TestFrameworkOptions.ForDiscovery(), executionOptions: TestFrameworkOptions.ForExecution());
+                sink.Finished.WaitOne();
+
+                var failures = sink.Messages.OfType<ITestFailed>();
+                var failure = Assert.Single(failures);
+                Assert.Equal("FSharpTests.TestMethod", failure.TestCase.DisplayName);
+                Assert.Equal("Make sure things waited", failure.Messages.Single());
             }
         }
     }
