@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -13,6 +14,7 @@ namespace Xunit.Sdk;
 public static class AsyncUtility
 {
 	static MethodInfo? fSharpStartAsTaskOpenGenericMethod;
+	static readonly HashSet<string?> taskGenericTypes = new() { "Microsoft.FSharp.Control.FSharpAsync`1", "System.Threading.Tasks.Task`1", "System.Threading.Tasks.ValueTask`1" };
 
 	/// <summary>
 	/// Determines if the given method is async, as matters to xUnit.net. This means it either (a) returns
@@ -25,15 +27,17 @@ public static class AsyncUtility
 	/// <returns>Returns <c>true</c> if the method is async; returns <c>false</c> otherwise.</returns>
 	public static bool IsAsync(MethodInfo method)
 	{
-		Guard.ArgumentNotNull(method);
-
 		if (IsAsyncVoid(method))
 			return true;
 
 		var methodReturnType = method.ReturnType;
-		return methodReturnType == typeof(Task)
-			|| methodReturnType == typeof(ValueTask)
-			|| (methodReturnType.IsGenericType && methodReturnType.GetGenericTypeDefinition().FullName == "Microsoft.FSharp.Control.FSharpAsync`1");
+		if (methodReturnType == typeof(Task) || methodReturnType == typeof(ValueTask))
+			return true;
+
+		if (methodReturnType.GetTypeInfo().IsGenericType)
+			return taskGenericTypes.Contains(methodReturnType.GetGenericTypeDefinition().FullName);
+
+		return false;
 	}
 
 	/// <summary>
