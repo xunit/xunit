@@ -40,6 +40,13 @@ public class TestProjectConfiguration
 	public bool IgnoreFailuresOrDefault => IgnoreFailures ?? false;
 
 	/// <summary>
+	/// Gets or sets the named pipe by used for Microsoft.Testing.Platform support in 'dotnet test'.
+	/// </summary>
+	// TODO: Per https://github.com/microsoft/testfx/issues/2539#issuecomment-1988009283 this is currently an
+	// internal implementation detail, so we're waiting for an official way to support this.
+	public string? InternalMSBuildNode { get; set; }
+
+	/// <summary>
 	/// Gets or sets a flag to indicate that we should list things instead of run them
 	/// (and what we're listing, and in what format).
 	/// </summary>

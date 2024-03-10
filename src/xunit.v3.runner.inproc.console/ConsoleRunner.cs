@@ -1,15 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using System.Xml.Linq;
+using Microsoft.Testing.Platform.Builder;
 using Xunit.Internal;
 using Xunit.Runner.Common;
+using Xunit.Runner.InProc.SystemConsole.TestPlatform;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -25,11 +24,9 @@ public class ConsoleRunner
 	volatile bool cancel;
 	readonly object consoleLock;
 	bool executed;
-	bool failed;
 	IRunnerLogger? logger;
 	IReadOnlyList<IRunnerReporter>? runnerReporters;
 	readonly Assembly testAssembly;
-	readonly TestExecutionSummaries testExecutionSummaries = new();
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="ConsoleRunner"/> class.
@@ -72,7 +69,7 @@ public class ConsoleRunner
 
 			if (commandLine.HelpRequested)
 			{
-				PrintHeader();
+				ProjectRunner.PrintHeader();
 
 				Console.WriteLine("Copyright (C) .NET Foundation.");
 				Console.WriteLine();
@@ -114,18 +111,29 @@ public class ConsoleRunner
 			var reporter = project.RunnerReporter;
 			var reporterMessageHandler = await reporter.CreateMessageHandler(logger, globalDiagnosticMessageSink);
 
+			if (project.Configuration.InternalMSBuildNode is not null)
+			{
+				string[] testApplicationArgs = ["--internal-msbuild-node", project.Configuration.InternalMSBuildNode];
+				var builder = await TestApplication.CreateBuilderAsync(testApplicationArgs);
+				Microsoft.Testing.Platform.MSBuild.TestingPlatformBuilderHook.AddExtensions(builder, testApplicationArgs);
+				TestPlatformTestFramework.Register(reporterMessageHandler, builder, project, commandLine.ParseWarnings, consoleLock);
+				using var app = await builder.BuildAsync();
+				return await app.RunAsync();
+			}
+
 			if (!reporter.ForceNoLogo && !project.Configuration.NoLogoOrDefault)
-				PrintHeader();
+				ProjectRunner.PrintHeader();
 
 			foreach (string warning in commandLine.ParseWarnings)
 				logger.LogWarning(warning);
 
+			var projectRunner = new ProjectRunner(consoleLock, () => cancel);
 			var failCount = 0;
 
 			if (project.Configuration.List is not null)
 				await ListProject(project);
 			else
-				failCount = await RunProject(project, reporterMessageHandler);
+				failCount = await projectRunner.RunProject(project, reporterMessageHandler);
 
 			if (cancel)
 				return -1073741510;    // 0xC000013A: The application terminated as a result of a CTRL+C
@@ -220,14 +228,6 @@ public class ConsoleRunner
 		Environment.Exit(1);
 	}
 
-	static void PrintHeader() =>
-		Console.WriteLine(
-			"xUnit.net v3 In-Process Runner v{0} ({1}-bit {2})",
-			ThisAssembly.AssemblyInformationalVersion,
-			IntPtr.Size * 8,
-			RuntimeInformation.FrameworkDescription
-		);
-
 	/// <summary>
 	/// Creates a new <see cref="ConsoleRunner"/> instance and runs it via <see cref="EntryPoint"/>.
 	/// </summary>
@@ -242,123 +242,6 @@ public class ConsoleRunner
 		IEnumerable<IRunnerReporter>? runnerReporters = null,
 		object? consoleLock = null) =>
 			new ConsoleRunner(args, testAssembly, runnerReporters, consoleLock).EntryPoint();
-
-	async ValueTask<int> RunProject(
-		XunitProject project,
-		_IMessageSink reporterMessageHandler)
-	{
-		XElement? assembliesElement = null;
-		var clockTime = Stopwatch.StartNew();
-		var xmlTransformers = TransformFactory.GetXmlTransformers(project);
-		var needsXml = xmlTransformers.Count > 0;
-
-		if (needsXml)
-			assembliesElement = TransformFactory.CreateAssembliesElement();
-
-		var originalWorkingFolder = Directory.GetCurrentDirectory();
-
-		var assembly = project.Assemblies.Single();
-		var assemblyElement = await RunProjectAssembly(
-			assembly,
-			needsXml,
-			reporterMessageHandler
-		);
-
-		if (assemblyElement is not null)
-			assembliesElement?.Add(assemblyElement);
-
-		clockTime.Stop();
-
-		testExecutionSummaries.ElapsedClockTime = clockTime.Elapsed;
-		reporterMessageHandler.OnMessage(testExecutionSummaries);
-
-		Directory.SetCurrentDirectory(originalWorkingFolder);
-
-		if (assembliesElement is not null)
-		{
-			TransformFactory.FinishAssembliesElement(assembliesElement);
-			xmlTransformers.ForEach(transformer => transformer(assembliesElement));
-		}
-
-		return failed ? 1 : testExecutionSummaries.SummariesByAssemblyUniqueID.Sum(s => s.Summary.Failed + s.Summary.Errors);
-	}
-
-	async ValueTask<XElement?> RunProjectAssembly(
-		XunitProjectAssembly assembly,
-		bool needsXml,
-		_IMessageSink reporterMessageHandler)
-	{
-		if (cancel)
-			return null;
-
-		var assemblyElement = needsXml ? new XElement("assembly") : null;
-
-		try
-		{
-			// Default to false for console runners
-			assembly.Configuration.PreEnumerateTheories ??= false;
-
-			// Setup discovery and execution options with command-line overrides
-			var discoveryOptions = _TestFrameworkOptions.ForDiscovery(assembly.Configuration);
-			var executionOptions = _TestFrameworkOptions.ForExecution(assembly.Configuration);
-
-			var noColor = assembly.Project.Configuration.NoColorOrDefault;
-			var diagnosticMessages = assembly.Configuration.DiagnosticMessagesOrDefault;
-			var internalDiagnosticMessages = assembly.Configuration.InternalDiagnosticMessagesOrDefault;
-			var diagnosticMessageSink = ConsoleDiagnosticMessageSink.TryCreate(consoleLock, noColor, diagnosticMessages, internalDiagnosticMessages);
-			var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
-
-			TestContext.SetForInitialization(diagnosticMessageSink, diagnosticMessages, internalDiagnosticMessages);
-
-			var assemblyInfo = new ReflectionAssemblyInfo(testAssembly);
-
-#pragma warning disable CA2007 // Cannot use ConfigureAwait here because it changes the type of disposalTracker
-			await using var disposalTracker = new DisposalTracker();
-#pragma warning restore CA2007
-			var testFramework = ExtensibilityPointFactory.GetTestFramework(assemblyInfo);
-			disposalTracker.Add(testFramework);
-
-			var frontController = new InProcessFrontController(testFramework, assemblyInfo, assembly.ConfigFileName);
-
-			var sinkOptions = new ExecutionSinkOptions
-			{
-				AssemblyElement = assemblyElement,
-				CancelThunk = () => cancel,
-				DiagnosticMessageSink = diagnosticMessageSink,
-				FailSkips = assembly.Configuration.FailSkipsOrDefault,
-				FailWarn = assembly.Configuration.FailWarnsOrDefault,
-				LongRunningTestTime = TimeSpan.FromSeconds(longRunningSeconds),
-			};
-
-			using var resultsSink = new ExecutionSink(assembly, discoveryOptions, executionOptions, AppDomainOption.NotAvailable, shadowCopy: false, reporterMessageHandler, sinkOptions);
-			await frontController.FindAndRun(resultsSink, discoveryOptions, executionOptions, assembly.Configuration.Filters.Filter);
-
-			testExecutionSummaries.Add(frontController.TestAssemblyUniqueID, resultsSink.ExecutionSummary);
-
-			if (resultsSink.ExecutionSummary.Failed != 0 && executionOptions.GetStopOnTestFailOrDefault())
-			{
-				Console.WriteLine("Canceling due to test failure...");
-				cancel = true;
-			}
-		}
-		catch (Exception ex)
-		{
-			failed = true;
-
-			var e = ex;
-			while (e is not null)
-			{
-				Console.WriteLine("{0}: {1}", e.GetType().FullName, e.Message);
-
-				if (assembly.Configuration.InternalDiagnosticMessagesOrDefault)
-					Console.WriteLine(e.StackTrace);
-
-				e = e.InnerException;
-			}
-		}
-
-		return assemblyElement;
-	}
 
 	/// <summary>
 	/// Override this function to change the default output encoding for the system console.

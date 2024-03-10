@@ -88,9 +88,12 @@
     <When Condition=" $(MSBuildProjectName.Contains('.v3.')) AND $(MSBuildProjectName.EndsWith('.tests')) ">
       <PropertyGroup>
         <ApplicationManifest>..\xunit.v3.runner.console\app.manifest</ApplicationManifest>
+        <GenerateTestingPlatformEntryPoint>false</GenerateTestingPlatformEntryPoint>
+        <IsTestProject>true</IsTestProject>
         <NoWarn>$(NoWarn);xUnit1000</NoWarn>
         <Nullable>enable</Nullable>
         <OutputType>Exe</OutputType>
+        <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
       </PropertyGroup>
 
       <ItemGroup>

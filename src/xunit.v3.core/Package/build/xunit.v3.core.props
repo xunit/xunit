@@ -9,8 +9,10 @@
     <DebugSymbols Condition=" '$(DebugSymbols)' == '' ">true</DebugSymbols>
     <!-- Turn off Microsoft.NET.Test.SDK's auto-generated entrypoint, as it conflicts with ours -->
     <GenerateProgramFile>false</GenerateProgramFile>
+    <GenerateTestingPlatformEntryPoint>false</GenerateTestingPlatformEntryPoint>
     <IsTestProject>true</IsTestProject>
     <OutputType>Exe</OutputType>
+    <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
     <TestProject>true</TestProject>
   </PropertyGroup>
 

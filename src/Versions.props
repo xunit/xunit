@@ -7,6 +7,7 @@
     <MicrosoftBuildVersion>15.1.548</MicrosoftBuildVersion>
     <MicrosoftNetFrameworkReferenceAssembliesVersion>1.0.3</MicrosoftNetFrameworkReferenceAssembliesVersion>
     <MicrosoftSourceLinkGitHubVersion>8.0.0</MicrosoftSourceLinkGitHubVersion>
+    <MicrosoftTestingPlatformVersion>1.0.2</MicrosoftTestingPlatformVersion>
     <MonoCecilVersion>0.11.5</MonoCecilVersion>
     <MoqVersion>4.17.2</MoqVersion>
     <NerdbankGitVersioningVersion>3.6.133</NerdbankGitVersioningVersion>

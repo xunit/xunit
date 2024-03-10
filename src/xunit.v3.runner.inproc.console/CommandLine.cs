@@ -32,6 +32,9 @@ public class CommandLine : CommandLineParserBase
 			"  none        - turn off parallelization",
 			"  collections - parallelize by collections [default]"
 		);
+
+		// Hidden options
+		AddParser("-internal-msbuild-node", OnInternalMSBuildNode, CommandLineGroup.Hidden, null);
 	}
 
 	void AddAssembly(
@@ -105,5 +108,13 @@ public class CommandLine : CommandLineParserBase
 		AddAssembly(assembly, assemblyFileName, configFileName, seed);
 
 		return ParseInternal(argsStartIndex);
+	}
+
+	void OnInternalMSBuildNode(KeyValuePair<string, string?> option)
+	{
+		if (option.Value is null)
+			throw new ArgumentException("missing argument for --internal-msbuild-node");
+
+		Project.Configuration.InternalMSBuildNode = option.Value;
 	}
 }

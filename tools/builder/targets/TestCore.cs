@@ -4,6 +4,6 @@ namespace Xunit.BuildTools.Targets;
 
 [Target(
 	BuildTarget.TestCore,
-	BuildTarget.TestCoreConsole
+	BuildTarget.TestCoreConsole, BuildTarget.TestCoreDotNetTest
 )]
 public static class TestCore { }
