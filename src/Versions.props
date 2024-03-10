@@ -4,6 +4,7 @@
   <PropertyGroup>
     <!-- These versions float and get upgraded when `dotnet outdated` says to -->
     <ILRepackVersion>2.0.27</ILRepackVersion>
+    <MicrosoftBuildVersion>15.1.548</MicrosoftBuildVersion>
     <MicrosoftNetFrameworkReferenceAssembliesVersion>1.0.3</MicrosoftNetFrameworkReferenceAssembliesVersion>
     <MicrosoftSourceLinkGitHubVersion>8.0.0</MicrosoftSourceLinkGitHubVersion>
     <MonoCecilVersion>0.11.5</MonoCecilVersion>

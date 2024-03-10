@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ILRepackExclusions Include="$(OutputPath)xunit.abstractions.dll" />
+    <ILRepackExclusions Include="$(OutputPath)xunit.abstractions.dll;$(OutputPath)Microsoft.Build.*.dll" />
   </ItemGroup>
 
   <ItemGroup>
@@ -16,12 +16,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Microsoft.Build.Framework" />
-    <Reference Include="Microsoft.Build.Utilities.v4.0" />
+    <ProjectReference Include="..\xunit.v3.runner.utility\xunit.v3.runner.utility.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\xunit.v3.runner.utility\xunit.v3.runner.utility.csproj" />
+    <PackageReference Include="Microsoft.Build.Tasks.Core" Version="[$(MicrosoftBuildVersion)]" />
   </ItemGroup>
 
 </Project>
