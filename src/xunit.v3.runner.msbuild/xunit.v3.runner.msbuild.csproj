@@ -8,10 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ILRepackExclusions Include="$(OutputPath)xunit.abstractions.dll;$(OutputPath)Microsoft.Build.*.dll" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="..\..\tools\builder\msbuild\netfx.proj" LinkBase="builder" />
   </ItemGroup>
 
@@ -22,5 +18,11 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Build.Tasks.Core" Version="[$(MicrosoftBuildVersion)]" />
   </ItemGroup>
+
+  <Target Name="PreILRepack" BeforeTargets="ILRepack" DependsOnTargets="Build">
+    <ItemGroup>
+      <ILRepackExclusions Include="$(OutputPath)xunit.abstractions.dll;$(OutputPath)Microsoft.Build.*.dll" />
+    </ItemGroup>
+  </Target>
 
 </Project>
