@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Configuration;
 using System.Globalization;
 using System.IO;
@@ -13,6 +14,11 @@ namespace Xunit
     /// </summary>
     public static class ConfigReader_Configuration
     {
+        /// <summary/>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static TestAssemblyConfiguration Load(string assemblyFileName, string configFileName = null) =>
+            Load(assemblyFileName, configFileName, null);
+
         /// <summary>
         /// Loads the test assembly configuration for the given test assembly.
         /// </summary>

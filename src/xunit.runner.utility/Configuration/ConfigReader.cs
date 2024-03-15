@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 
@@ -9,6 +10,11 @@ namespace Xunit
     /// </summary>
     public static class ConfigReader
     {
+        /// <summary/>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static TestAssemblyConfiguration Load(string assemblyFileName, string configFileName = null) =>
+            Load(assemblyFileName, configFileName, null);
+
         /// <summary>
         /// Loads the test assembly configuration for the given test assembly.
         /// </summary>
@@ -33,6 +39,11 @@ namespace Xunit
 
             return new TestAssemblyConfiguration();
         }
+
+        /// <summary/>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static TestAssemblyConfiguration Load(Stream configStream) =>
+            Load(configStream, null);
 
         /// <summary>
         /// Loads the test assembly configuration for the given test assembly from a JSON stream. Caller is responsible for opening the stream.
