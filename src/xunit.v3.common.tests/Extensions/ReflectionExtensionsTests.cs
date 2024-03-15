@@ -168,7 +168,7 @@ public class ReflectionExtensionsTests
 		public static void WhenUsingNonReflectionMethodInfo_MethodExists_ReturnsMethodInfo()
 		{
 #if BUILD_X86
-			var typeInfo = Mocks.TypeInfo("ReflectionExtensionsTests+ToRuntimeMethod", assemblyFileName: "xunit.v3.common.tests.x86.exe");
+			var typeInfo = Mocks.TypeInfo("ReflectionExtensionsTests+ToRuntimeMethod", assemblyFileName: "xunit.v3.common.x86.tests.exe");
 #else
 			var typeInfo = Mocks.TypeInfo("ReflectionExtensionsTests+ToRuntimeMethod", assemblyFileName: "xunit.v3.common.tests.exe");
 #endif
@@ -209,7 +209,7 @@ public class ReflectionExtensionsTests
 		public static void WhenUsingNonReflectionTypeInfo_TypeExists_ReturnsType()
 		{
 #if BUILD_X86
-			var typeInfo = Mocks.TypeInfo("ReflectionExtensionsTests+ToRuntimeType", assemblyFileName: "xunit.v3.common.tests.x86.exe");
+			var typeInfo = Mocks.TypeInfo("ReflectionExtensionsTests+ToRuntimeType", assemblyFileName: "xunit.v3.common.x86.tests.exe");
 #else
 			var typeInfo = Mocks.TypeInfo("ReflectionExtensionsTests+ToRuntimeType", assemblyFileName: "xunit.v3.common.tests.exe");
 #endif

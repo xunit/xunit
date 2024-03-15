@@ -55,7 +55,7 @@ public class Xunit3AcceptanceTests
 					var collectionStarting = Assert.IsType<_TestCollectionStarting>(message);
 					Assert.Null(collectionStarting.TestCollectionClass);
 #if BUILD_X86  // Assembly name changes for x86 testing, so that changes the ID
-					Assert.Equal("Test collection for Xunit3AcceptanceTests+SinglePassingTestClass (id: 6cb828656c4e7792b51bed8fcd2dd9b7579d18c130f061fa24d71af90ebd9147)", collectionStarting.TestCollectionDisplayName);
+					Assert.Equal("Test collection for Xunit3AcceptanceTests+SinglePassingTestClass (id: 1ea89e28059c4fd4c4319dac4a5c86ce432cef0cf1ec83ed22553dec40043256)", collectionStarting.TestCollectionDisplayName);
 #else
 					Assert.Equal("Test collection for Xunit3AcceptanceTests+SinglePassingTestClass (id: 94b6e27b61c59f331879032bb51a9e812c13b2574e286aece991d833e6f52127)", collectionStarting.TestCollectionDisplayName);
 #endif

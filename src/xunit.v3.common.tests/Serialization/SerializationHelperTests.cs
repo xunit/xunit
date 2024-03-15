@@ -47,12 +47,12 @@ public class SerializationHelperTests
 
 		// IXunitSerializable and enums contain embedded type information in addition to a type index
 #if BUILD_X86
-		{ new MySerializable(1, "2", 3.4m), $"-4:{ToBase64("SerializationHelperTests+MySerializable,xunit.v3.common.tests.x86")}:{ToBase64($"p1:6:1\np2:0:{ToBase64("2")}\np3:12:3.4")}" },
-		{ MyEnum.MyValue, $"-3:{ToBase64("SerializationHelperTests+MyEnum,xunit.v3.common.tests.x86")}:123" },
-		{ (MyEnum)int.MinValue, $"-3:{ToBase64("SerializationHelperTests+MyEnum,xunit.v3.common.tests.x86")}:-2147483648" },
-		{ (MyEnum)int.MaxValue, $"-3:{ToBase64("SerializationHelperTests+MyEnum,xunit.v3.common.tests.x86")}:2147483647" },
-		{ (MyUnsignedEnum)ulong.MinValue, $"-3:{ToBase64("SerializationHelperTests+MyUnsignedEnum,xunit.v3.common.tests.x86")}:0" },
-		{ (MyUnsignedEnum)ulong.MaxValue, $"-3:{ToBase64("SerializationHelperTests+MyUnsignedEnum,xunit.v3.common.tests.x86")}:18446744073709551615" },
+		{ new MySerializable(1, "2", 3.4m), $"-4:{ToBase64("SerializationHelperTests+MySerializable,xunit.v3.common.x86.tests")}:{ToBase64($"p1:6:1\np2:0:{ToBase64("2")}\np3:12:3.4")}" },
+		{ MyEnum.MyValue, $"-3:{ToBase64("SerializationHelperTests+MyEnum,xunit.v3.common.x86.tests")}:123" },
+		{ (MyEnum)int.MinValue, $"-3:{ToBase64("SerializationHelperTests+MyEnum,xunit.v3.common.x86.tests")}:-2147483648" },
+		{ (MyEnum)int.MaxValue, $"-3:{ToBase64("SerializationHelperTests+MyEnum,xunit.v3.common.x86.tests")}:2147483647" },
+		{ (MyUnsignedEnum)ulong.MinValue, $"-3:{ToBase64("SerializationHelperTests+MyUnsignedEnum,xunit.v3.common.x86.tests")}:0" },
+		{ (MyUnsignedEnum)ulong.MaxValue, $"-3:{ToBase64("SerializationHelperTests+MyUnsignedEnum,xunit.v3.common.x86.tests")}:18446744073709551615" },
 #else
 		{ new MySerializable(1, "2", 3.4m), $"-4:{ToBase64("SerializationHelperTests+MySerializable,xunit.v3.common.tests")}:{ToBase64($"p1:6:1\np2:0:{ToBase64("2")}\np3:12:3.4")}" },
 		{ MyEnum.MyValue, $"-3:{ToBase64("SerializationHelperTests+MyEnum,xunit.v3.common.tests")}:123" },

@@ -1,11 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationManifest>..\xunit.v3.runner.console\app.manifest</ApplicationManifest>
     <OutputType>Exe</OutputType>
     <RunILRepack>true</RunILRepack>
     <TargetFrameworks>net472;net48;net481</TargetFrameworks>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\xunit.v3.runner.console\**\*.cs" Exclude="**\obj\**\*.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <ILRepackExclusions Include="$(OutputPath)xunit.abstractions.dll" />

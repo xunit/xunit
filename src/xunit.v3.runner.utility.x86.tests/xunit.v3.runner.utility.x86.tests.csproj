@@ -1,0 +1,56 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);UNIT_TEST</DefineConstants>
+    <TargetFrameworks>net472;net6.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\xunit.v3.runner.utility.tests\**\*.cs" Exclude="**\obj\**\*.cs" />
+    <Compile Include="..\xunit.v3.runner.utility\Frameworks\v1\Xunit1ExceptionUtility.cs" LinkBase="Frameworks\v1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\xunit.v3.runner.utility.tests\ConfigReader_*.*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
+    <Reference Include="System.Web" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\xunit.v3.runner.utility\xunit.v3.runner.utility.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Required for F# acceptance tests -->
+    <PackageReference Include="FSharp.Compiler.Service" Version="[$(FSharpCompilerServiceVersion)]" />
+    <PackageReference Include="System.Reflection.Metadata" Version="[$(SystemReflectionMetadataVersion)]" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageDownload Include="xunit" Version="[$(XunitV1Version)]" />
+    <PackageDownload Include="xunit.abstractions" Version="[$(XunitAbstractionsVersion)]" />
+    <PackageDownload Include="xunit.assert" Version="[$(XunitV2Version)]" />
+    <PackageDownload Include="xunit.extensibility.core" Version="[$(XunitV2Version)]" />
+    <PackageDownload Include="xunit.extensibility.execution" Version="[$(XunitV2Version)]" />
+    <PackageDownload Include="xunit.extensions" Version="[$(XunitV1Version)]" />
+  </ItemGroup>
+
+  <Target Name="CopyXunitBinaries" AfterTargets="Build" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
+    <ItemGroup>
+      <!-- xUnit.net v1 -->
+      <XunitBinaries Include="$(NuGetPackageRoot)\xunit\$(XunitV1Version)\lib\net20\xunit.dll" />
+      <XunitBinaries Include="$(NuGetPackageRoot)\xunit.extensions\$(XunitV1Version)\lib\net20\xunit.extensions.dll" />
+      <!-- xUnit.net v2 -->
+      <XunitBinaries Include="$(NuGetPackageRoot)\xunit.abstractions\$(XunitAbstractionsVersion)\lib\net35\xunit.abstractions.dll" />
+      <XunitBinaries Include="$(NuGetPackageRoot)\xunit.assert\$(XunitV2Version)\lib\netstandard1.1\xunit.assert.dll" />
+      <XunitBinaries Include="$(NuGetPackageRoot)\xunit.extensibility.core\$(XunitV2Version)\lib\net452\xunit.core.dll" />
+      <XunitBinaries Include="$(NuGetPackageRoot)\xunit.extensibility.execution\$(XunitV2Version)\lib\net452\xunit.execution.desktop.dll" />
+      <!-- Mono doesn't seem to properly find this facade, so copy it from our reference -->
+      <XunitBinaries Include="$(TargetFrameworkRootPath).NETFramework\$(TargetFrameworkVersion)\Facades\System.Runtime.dll" />
+    </ItemGroup>
+    <Copy SourceFiles="@(XunitBinaries)" DestinationFolder="$(OutputPath)" />
+  </Target>
+
+</Project>

@@ -52,7 +52,7 @@ public class CollectionPerAssemblyTestCollectionFactoryTests
 
 		Assert.Same(result1, result2);
 #if BUILD_X86  // Assembly name changes for x86 testing, so that changes the ID
-		Assert.Equal("Test collection for CollectionPerAssemblyTestCollectionFactoryTests (id: 22336a3d94850ba9355fc27682274c3e9ebd23bb90eb5846e8ec0b7ddeedd6a3)", result1.DisplayName);
+		Assert.Equal("Test collection for CollectionPerAssemblyTestCollectionFactoryTests (id: d5994bda26a1b215813f25e9d6483ae3298ccb833477c96762ffdc9c628b7b7c)", result1.DisplayName);
 #else
 		Assert.Equal("Test collection for CollectionPerAssemblyTestCollectionFactoryTests (id: f9ce1cf58a26feb461fdb1787661228ce240a5bf2c097a61653810ecd199889d)", result1.DisplayName);
 #endif

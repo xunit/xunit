@@ -14,6 +14,7 @@
     <LangVersion>12.0</LangVersion>
     <MSBuildCopyContentTransitively>false</MSBuildCopyContentTransitively>
     <NoWarn>$(NoWarn);NU5105;CS0436</NoWarn>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <RootNamespace>Xunit</RootNamespace>
     <SignAssembly>true</SignAssembly>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -76,10 +77,6 @@
   <!-- All test projects -->
   <Choose>
     <When Condition=" $(MSBuildProjectName.EndsWith('.tests')) ">
-      <PropertyGroup>
-        <Configurations>Debug;Debug_x86;Release;Release_x86</Configurations>
-      </PropertyGroup>
-
       <ItemGroup>
         <Content Include="$(MSBuildThisFileDirectory)xunit.runner.json" Link="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
       </ItemGroup>
@@ -119,11 +116,9 @@
   <!-- ============= -->
   <!-- 32-bit builds -->
 
-  <PropertyGroup Condition="$(Configuration.EndsWith('_x86'))">
-    <AssemblyName>$(AssemblyName).x86</AssemblyName>
+  <PropertyGroup Condition=" $(MSBuildProjectName.Contains('.x86')) ">
     <DefineConstants>$(DefineConstants);BUILD_X86</DefineConstants>
     <PlatformTarget>x86</PlatformTarget>
-    <RunCommand Condition=" '$(OS)' == 'Windows_NT' ">$(MSBuildProgramFiles32)\dotnet\dotnet</RunCommand>
   </PropertyGroup>
 
 </Project>

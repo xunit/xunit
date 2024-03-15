@@ -26,19 +26,19 @@
 		<file target="tools\net472\" src="bin\$Configuration$\net472\merged\xunit.abstractions.dll" />
 		<file target="tools\net472\" src="bin\$Configuration$\net472\merged\$SignedPath$xunit.v3.runner.console.exe" />
 		<file target="tools\net472\" src="bin\$Configuration$\net472\merged\xunit.v3.runner.console.exe.config" />
-		<file target="tools\net472\" src="bin\$Configuration$_x86\net472\merged\$SignedPath$xunit.v3.runner.console.x86.exe" />
-		<file target="tools\net472\" src="bin\$Configuration$_x86\net472\merged\xunit.v3.runner.console.x86.exe.config" />
+		<file target="tools\net472\" src="..\xunit.v3.runner.console.x86\bin\$Configuration$\net472\merged\$SignedPath$xunit.v3.runner.console.x86.exe" />
+		<file target="tools\net472\" src="..\xunit.v3.runner.console.x86\bin\$Configuration$\net472\merged\xunit.v3.runner.console.x86.exe.config" />
 
 		<file target="tools\net48\" src="bin\$Configuration$\net48\merged\xunit.abstractions.dll" />
 		<file target="tools\net48\" src="bin\$Configuration$\net48\merged\$SignedPath$xunit.v3.runner.console.exe" />
 		<file target="tools\net48\" src="bin\$Configuration$\net48\merged\xunit.v3.runner.console.exe.config" />
-		<file target="tools\net48\" src="bin\$Configuration$_x86\net48\merged\$SignedPath$xunit.v3.runner.console.x86.exe" />
-		<file target="tools\net48\" src="bin\$Configuration$_x86\net48\merged\xunit.v3.runner.console.x86.exe.config" />
+		<file target="tools\net48\" src="..\xunit.v3.runner.console.x86\bin\$Configuration$\net48\merged\$SignedPath$xunit.v3.runner.console.x86.exe" />
+		<file target="tools\net48\" src="..\xunit.v3.runner.console.x86\bin\$Configuration$\net48\merged\xunit.v3.runner.console.x86.exe.config" />
 
 		<file target="tools\net481\" src="bin\$Configuration$\net481\merged\xunit.abstractions.dll" />
 		<file target="tools\net481\" src="bin\$Configuration$\net481\merged\$SignedPath$xunit.v3.runner.console.exe" />
 		<file target="tools\net481\" src="bin\$Configuration$\net481\merged\xunit.v3.runner.console.exe.config" />
-		<file target="tools\net481\" src="bin\$Configuration$_x86\net481\merged\$SignedPath$xunit.v3.runner.console.x86.exe" />
-		<file target="tools\net481\" src="bin\$Configuration$_x86\net481\merged\xunit.v3.runner.console.x86.exe.config" />
+		<file target="tools\net481\" src="..\xunit.v3.runner.console.x86\bin\$Configuration$\net481\merged\$SignedPath$xunit.v3.runner.console.x86.exe" />
+		<file target="tools\net481\" src="..\xunit.v3.runner.console.x86\bin\$Configuration$\net481\merged\xunit.v3.runner.console.x86.exe.config" />
 	</files>
 </package>

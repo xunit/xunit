@@ -250,8 +250,8 @@ public class ExtensibilityPointFactoryTests
 			TestContext.Current!.DiagnosticMessageSink = spy;
 
 #if BUILD_X86
-			expectedMessage = expectedMessage.Replace("xunit.v3.core.tests", "xunit.v3.core.tests.x86");
-			var attr = Mocks.CollectionBehaviorAttribute(factoryTypeName, "xunit.v3.core.tests.x86");
+			expectedMessage = expectedMessage.Replace("xunit.v3.core.tests", "xunit.v3.core.x86.tests");
+			var attr = Mocks.CollectionBehaviorAttribute(factoryTypeName, "xunit.v3.core.x86.tests");
 #else
 			var attr = Mocks.CollectionBehaviorAttribute(factoryTypeName, "xunit.v3.core.tests");
 #endif

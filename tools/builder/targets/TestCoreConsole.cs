@@ -12,46 +12,23 @@ namespace Xunit.BuildTools.Targets;
 )]
 public static class TestCoreConsole
 {
+	static readonly string refSubPath = Path.DirectorySeparatorChar + "ref" + Path.DirectorySeparatorChar;
+
 	public static async Task OnExecute(BuildContext context)
 	{
-		await RunTests(context, 6);
-		await RunTests(context, 8);
+		await RunTests(context, "net6.0");
+		await RunTests(context, "net8.0");
 	}
 
 	static async Task RunTests(
 		BuildContext context,
-		int dotnetVersion)
+		string framework)
 	{
-		var refPath = Path.DirectorySeparatorChar + "ref" + Path.DirectorySeparatorChar;
-
 		// ------------- AnyCPU -------------
 
-		context.BuildStep($"Running .NET {dotnetVersion} tests (AnyCPU, via Console runner)");
+		context.BuildStep($"Running .NET tests ({framework}, AnyCPU, via Console runner)");
 
-		// v3
-		var netCoreSubpath = Path.Combine("bin", context.ConfigurationText, $"net{dotnetVersion}");
-		var v3TestDlls =
-			Directory
-				.GetFiles(context.BaseFolder, "xunit.v3.*.tests.dll", SearchOption.AllDirectories)
-				.Where(x => x.Contains(netCoreSubpath) && !x.Contains(refPath))
-				.OrderBy(x => x)
-				.Select(x => x.Substring(context.BaseFolder.Length + 1));
-
-		// TODO: When we officially move to console runner, combine x86 and AnyCPU binaries into a single run (and output file)
-#if false
-		var v3OutputFileName = Path.Combine(context.TestOutputFolder, $"xunit.v3.tests-net{dotnetVersion}");
-
-		await context.Exec(context.ConsoleRunnerExe, $"\"{string.Join("\" \"", v3TestDlls)}\" {context.TestFlagsParallel}-preenumeratetheories -xml \"{v3OutputFileName}.xml\" -html \"{v3OutputFileName}.html\" -trx \"{v3OutputFileName}.trx\"");
-#else
-		foreach (var v3TestDll in v3TestDlls)
-		{
-			var fileName = Path.GetFileName(v3TestDll);
-			var folder = Path.GetDirectoryName(v3TestDll);
-			var outputFileName = Path.Combine(context.TestOutputFolder, Path.GetFileNameWithoutExtension(v3TestDll) + "-" + Path.GetFileName(folder));
-
-			await context.Exec("dotnet", $"exec {fileName} {context.TestFlagsParallel}-preenumeratetheories -xml \"{outputFileName}.xml\" -html \"{outputFileName}.html\" -trx \"{outputFileName}.trx\"", workingDirectory: folder);
-		}
-#endif
+		await RunTestAssemblies(context, "dotnet", framework, x86: false);
 
 		// ------------- Forced x86 -------------
 
@@ -68,28 +45,32 @@ public static class TestCoreConsole
 		if (!File.Exists(x86Dotnet))
 			return;
 
-		context.BuildStep($"Running .NET {dotnetVersion} tests (x86, via Console runner)");
+		context.BuildStep($"Running .NET tests ({framework}, x86, via Console runner)");
 
-		// v3 (forced 32-bit)
-		var netCore32Subpath = Path.Combine("bin", context.ConfigurationText + "_x86", $"net{dotnetVersion}");
-		var v3x86TestDlls =
+		await RunTestAssemblies(context, x86Dotnet, framework, x86: true);
+	}
+
+	static async Task RunTestAssemblies(
+		BuildContext context,
+		string command,
+		string framework,
+		bool x86)
+	{
+		var binSubPath = Path.Combine("bin", context.ConfigurationText, framework);
+		var testAssemblies =
 			Directory
-				.GetFiles(context.BaseFolder, "xunit.v3.*.tests.x86.dll", SearchOption.AllDirectories)
-				.Where(x => x.Contains(netCore32Subpath) && !x.Contains(refPath))
+				.GetFiles(context.BaseFolder, "xunit.v3.*.tests.dll", SearchOption.AllDirectories)
+				.Where(x => x.Contains(binSubPath) && !x.Contains(refSubPath) && (x.Contains(".x86") == x86))
 				.OrderBy(x => x)
 				.Select(x => x.Substring(context.BaseFolder.Length + 1));
 
-#if false
-		await context.Exec(context.ConsoleRunnerExe, $"\"{string.Join("\" \"", v3x86TestDlls)}\" {context.TestFlagsParallel}-preenumeratetheories -xml \"{v3OutputFileName}-x86.xml\" -html \"{v3OutputFileName}-x86.html\" -trx \"{v3OutputFileName}-x86.trx\"");
-#else
-		foreach (var v3x86TestDll in v3x86TestDlls)
+		foreach (var testAssembly in testAssemblies)
 		{
-			var fileName = Path.GetFileName(v3x86TestDll);
-			var folder = Path.GetDirectoryName(v3x86TestDll);
-			var outputFileName = Path.Combine(context.TestOutputFolder, Path.GetFileNameWithoutExtension(v3x86TestDll) + "-" + Path.GetFileName(folder));
+			var fileName = Path.GetFileName(testAssembly);
+			var folder = Path.GetDirectoryName(testAssembly);
+			var outputFileName = Path.Combine(context.TestOutputFolder, Path.GetFileNameWithoutExtension(testAssembly) + "-" + Path.GetFileName(folder));
 
-			await context.Exec(x86Dotnet, $"exec {fileName} {context.TestFlagsParallel}-preenumeratetheories -xml \"{outputFileName}.xml\" -html \"{outputFileName}.html\" -trx \"{outputFileName}.trx\"", workingDirectory: folder);
+			await context.Exec(command, $"exec {fileName} {context.TestFlagsParallel}-preenumeratetheories -xml \"{outputFileName}.xml\" -html \"{outputFileName}.html\" -trx \"{outputFileName}.trx\"", workingDirectory: folder);
 		}
-#endif
 	}
 }
