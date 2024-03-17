@@ -26,72 +26,72 @@
     <file target="tools\net452\" src="xunit.console\bin\$Configuration$\net452\xunit.abstractions.dll" />
     <file target="tools\net452\" src="xunit.console\bin\$Configuration$\net452\$SignedPath$xunit.console.exe" />
     <file target="tools\net452\" src="xunit.console\bin\$Configuration$\net452\xunit.console.exe.config" />
-    <file target="tools\net452\" src="xunit.console\bin\$Configuration$_x86\net452\$SignedPath$xunit.console.x86.exe" />
-    <file target="tools\net452\" src="xunit.console\bin\$Configuration$_x86\net452\xunit.console.x86.exe.config" />
+    <file target="tools\net452\" src="xunit.console.x86\bin\$Configuration$\net452\$SignedPath$xunit.console.x86.exe" />
+    <file target="tools\net452\" src="xunit.console.x86\bin\$Configuration$\net452\xunit.console.x86.exe.config" />
     <file target="tools\net452\" src="xunit.runner.reporters\bin\$Configuration$\net452\$SignedPath$xunit.runner.reporters.net452.dll" />
     <file target="tools\net452\" src="xunit.runner.utility\bin\$Configuration$\net452\$SignedPath$xunit.runner.utility.net452.dll" />
 
     <file target="tools\net46\" src="xunit.console\bin\$Configuration$\net46\xunit.abstractions.dll" />
     <file target="tools\net46\" src="xunit.console\bin\$Configuration$\net46\$SignedPath$xunit.console.exe" />
     <file target="tools\net46\" src="xunit.console\bin\$Configuration$\net46\xunit.console.exe.config" />
-    <file target="tools\net46\" src="xunit.console\bin\$Configuration$_x86\net46\$SignedPath$xunit.console.x86.exe" />
-    <file target="tools\net46\" src="xunit.console\bin\$Configuration$_x86\net46\xunit.console.x86.exe.config" />
+    <file target="tools\net46\" src="xunit.console.x86\bin\$Configuration$\net46\$SignedPath$xunit.console.x86.exe" />
+    <file target="tools\net46\" src="xunit.console.x86\bin\$Configuration$\net46\xunit.console.x86.exe.config" />
     <file target="tools\net46\" src="xunit.runner.reporters\bin\$Configuration$\net452\$SignedPath$xunit.runner.reporters.net452.dll" />
     <file target="tools\net46\" src="xunit.runner.utility\bin\$Configuration$\net452\$SignedPath$xunit.runner.utility.net452.dll" />
 
     <file target="tools\net461\" src="xunit.console\bin\$Configuration$\net461\xunit.abstractions.dll" />
     <file target="tools\net461\" src="xunit.console\bin\$Configuration$\net461\$SignedPath$xunit.console.exe" />
     <file target="tools\net461\" src="xunit.console\bin\$Configuration$\net461\xunit.console.exe.config" />
-    <file target="tools\net461\" src="xunit.console\bin\$Configuration$_x86\net461\$SignedPath$xunit.console.x86.exe" />
-    <file target="tools\net461\" src="xunit.console\bin\$Configuration$_x86\net461\xunit.console.x86.exe.config" />
+    <file target="tools\net461\" src="xunit.console.x86\bin\$Configuration$\net461\$SignedPath$xunit.console.x86.exe" />
+    <file target="tools\net461\" src="xunit.console.x86\bin\$Configuration$\net461\xunit.console.x86.exe.config" />
     <file target="tools\net461\" src="xunit.runner.reporters\bin\$Configuration$\net452\$SignedPath$xunit.runner.reporters.net452.dll" />
     <file target="tools\net461\" src="xunit.runner.utility\bin\$Configuration$\net452\$SignedPath$xunit.runner.utility.net452.dll" />
 
     <file target="tools\net462\" src="xunit.console\bin\$Configuration$\net462\xunit.abstractions.dll" />
     <file target="tools\net462\" src="xunit.console\bin\$Configuration$\net462\$SignedPath$xunit.console.exe" />
     <file target="tools\net462\" src="xunit.console\bin\$Configuration$\net462\xunit.console.exe.config" />
-    <file target="tools\net462\" src="xunit.console\bin\$Configuration$_x86\net462\$SignedPath$xunit.console.x86.exe" />
-    <file target="tools\net462\" src="xunit.console\bin\$Configuration$_x86\net462\xunit.console.x86.exe.config" />
+    <file target="tools\net462\" src="xunit.console.x86\bin\$Configuration$\net462\$SignedPath$xunit.console.x86.exe" />
+    <file target="tools\net462\" src="xunit.console.x86\bin\$Configuration$\net462\xunit.console.x86.exe.config" />
     <file target="tools\net462\" src="xunit.runner.reporters\bin\$Configuration$\net452\$SignedPath$xunit.runner.reporters.net452.dll" />
     <file target="tools\net462\" src="xunit.runner.utility\bin\$Configuration$\net452\$SignedPath$xunit.runner.utility.net452.dll" />
 
     <file target="tools\net47\" src="xunit.console\bin\$Configuration$\net47\xunit.abstractions.dll" />
     <file target="tools\net47\" src="xunit.console\bin\$Configuration$\net47\$SignedPath$xunit.console.exe" />
     <file target="tools\net47\" src="xunit.console\bin\$Configuration$\net47\xunit.console.exe.config" />
-    <file target="tools\net47\" src="xunit.console\bin\$Configuration$_x86\net47\$SignedPath$xunit.console.x86.exe" />
-    <file target="tools\net47\" src="xunit.console\bin\$Configuration$_x86\net47\xunit.console.x86.exe.config" />
+    <file target="tools\net47\" src="xunit.console.x86\bin\$Configuration$\net47\$SignedPath$xunit.console.x86.exe" />
+    <file target="tools\net47\" src="xunit.console.x86\bin\$Configuration$\net47\xunit.console.x86.exe.config" />
     <file target="tools\net47\" src="xunit.runner.reporters\bin\$Configuration$\net452\$SignedPath$xunit.runner.reporters.net452.dll" />
     <file target="tools\net47\" src="xunit.runner.utility\bin\$Configuration$\net452\$SignedPath$xunit.runner.utility.net452.dll" />
 
     <file target="tools\net471\" src="xunit.console\bin\$Configuration$\net471\xunit.abstractions.dll" />
     <file target="tools\net471\" src="xunit.console\bin\$Configuration$\net471\$SignedPath$xunit.console.exe" />
     <file target="tools\net471\" src="xunit.console\bin\$Configuration$\net471\xunit.console.exe.config" />
-    <file target="tools\net471\" src="xunit.console\bin\$Configuration$_x86\net471\$SignedPath$xunit.console.x86.exe" />
-    <file target="tools\net471\" src="xunit.console\bin\$Configuration$_x86\net471\xunit.console.x86.exe.config" />
+    <file target="tools\net471\" src="xunit.console.x86\bin\$Configuration$\net471\$SignedPath$xunit.console.x86.exe" />
+    <file target="tools\net471\" src="xunit.console.x86\bin\$Configuration$\net471\xunit.console.x86.exe.config" />
     <file target="tools\net471\" src="xunit.runner.reporters\bin\$Configuration$\net452\$SignedPath$xunit.runner.reporters.net452.dll" />
     <file target="tools\net471\" src="xunit.runner.utility\bin\$Configuration$\net452\$SignedPath$xunit.runner.utility.net452.dll" />
 
     <file target="tools\net472\" src="xunit.console\bin\$Configuration$\net472\xunit.abstractions.dll" />
     <file target="tools\net472\" src="xunit.console\bin\$Configuration$\net472\$SignedPath$xunit.console.exe" />
     <file target="tools\net472\" src="xunit.console\bin\$Configuration$\net472\xunit.console.exe.config" />
-    <file target="tools\net472\" src="xunit.console\bin\$Configuration$_x86\net472\$SignedPath$xunit.console.x86.exe" />
-    <file target="tools\net472\" src="xunit.console\bin\$Configuration$_x86\net472\xunit.console.x86.exe.config" />
+    <file target="tools\net472\" src="xunit.console.x86\bin\$Configuration$\net472\$SignedPath$xunit.console.x86.exe" />
+    <file target="tools\net472\" src="xunit.console.x86\bin\$Configuration$\net472\xunit.console.x86.exe.config" />
     <file target="tools\net472\" src="xunit.runner.reporters\bin\$Configuration$\net452\$SignedPath$xunit.runner.reporters.net452.dll" />
     <file target="tools\net472\" src="xunit.runner.utility\bin\$Configuration$\net452\$SignedPath$xunit.runner.utility.net452.dll" />
 
     <file target="tools\net48\" src="xunit.console\bin\$Configuration$\net48\xunit.abstractions.dll" />
     <file target="tools\net48\" src="xunit.console\bin\$Configuration$\net48\$SignedPath$xunit.console.exe" />
     <file target="tools\net48\" src="xunit.console\bin\$Configuration$\net48\xunit.console.exe.config" />
-    <file target="tools\net48\" src="xunit.console\bin\$Configuration$_x86\net48\$SignedPath$xunit.console.x86.exe" />
-    <file target="tools\net48\" src="xunit.console\bin\$Configuration$_x86\net48\xunit.console.x86.exe.config" />
+    <file target="tools\net48\" src="xunit.console.x86\bin\$Configuration$\net48\$SignedPath$xunit.console.x86.exe" />
+    <file target="tools\net48\" src="xunit.console.x86\bin\$Configuration$\net48\xunit.console.x86.exe.config" />
     <file target="tools\net48\" src="xunit.runner.reporters\bin\$Configuration$\net452\$SignedPath$xunit.runner.reporters.net452.dll" />
     <file target="tools\net48\" src="xunit.runner.utility\bin\$Configuration$\net452\$SignedPath$xunit.runner.utility.net452.dll" />
 
     <file target="tools\net481\" src="xunit.console\bin\$Configuration$\net481\xunit.abstractions.dll" />
     <file target="tools\net481\" src="xunit.console\bin\$Configuration$\net481\$SignedPath$xunit.console.exe" />
     <file target="tools\net481\" src="xunit.console\bin\$Configuration$\net481\xunit.console.exe.config" />
-    <file target="tools\net481\" src="xunit.console\bin\$Configuration$_x86\net481\$SignedPath$xunit.console.x86.exe" />
-    <file target="tools\net481\" src="xunit.console\bin\$Configuration$_x86\net481\xunit.console.x86.exe.config" />
+    <file target="tools\net481\" src="xunit.console.x86\bin\$Configuration$\net481\$SignedPath$xunit.console.x86.exe" />
+    <file target="tools\net481\" src="xunit.console.x86\bin\$Configuration$\net481\xunit.console.x86.exe.config" />
     <file target="tools\net481\" src="xunit.runner.reporters\bin\$Configuration$\net452\$SignedPath$xunit.runner.reporters.net452.dll" />
     <file target="tools\net481\" src="xunit.runner.utility\bin\$Configuration$\net452\$SignedPath$xunit.runner.utility.net452.dll" />
 

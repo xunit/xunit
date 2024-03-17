@@ -20,6 +20,7 @@
     <MSBuildCopyContentTransitively>false</MSBuildCopyContentTransitively>
     <NoWarn>$(NoWarn);NU1603;NU1903;NU5128;NU5131;CS0436;CS1701</NoWarn>
     <PackageId>$(MSBuildProjectName)</PackageId>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <RootNamespace>Xunit</RootNamespace>
     <SignAssembly>true</SignAssembly>
     <WarningsAsErrors>true</WarningsAsErrors>

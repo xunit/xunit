@@ -10,6 +10,5 @@ public static partial class Build
         context.BuildStep("Compiling binaries");
 
         await context.Exec("msbuild", $"xunit.sln /t:build /p:Configuration={context.ConfigurationText} /v:{context.Verbosity} /m");
-        await context.Exec("msbuild", $"src/xunit.console/xunit.console.csproj /t:build /p:Configuration={context.ConfigurationText}_x86 /v:{context.Verbosity} /m");
     }
 }

@@ -48,7 +48,7 @@ public partial class BuildContext
     partial void Initialize()
     {
         ConsoleRunnerExe = Path.Combine(BaseFolder, "src", "xunit.console", "bin", ConfigurationText, "net462", "xunit.console.exe");
-        ConsoleRunner32Exe = Path.Combine(BaseFolder, "src", "xunit.console", "bin", ConfigurationText + "_x86", "net462", "xunit.console.x86.exe");
+        ConsoleRunner32Exe = Path.Combine(BaseFolder, "src", "xunit.console.x86", "bin", ConfigurationText, "net462", "xunit.console.x86.exe");
 
         TestFlagsNonParallel = "-parallel collections";
         TestFlagsParallel = "-parallel all";
