@@ -59,8 +59,7 @@ public static class TestFxConsole
 			Directory
 				.GetFiles(context.BaseFolder, searchPattern, SearchOption.AllDirectories)
 				.Where(x => x.Contains(binSubPath) && !x.Contains(refSubPath) && (x.Contains(".x86") == x86))
-				.OrderBy(x => x)
-				.Select(x => x.Substring(context.BaseFolder.Length + 1));
+				.OrderBy(x => x);
 
 		foreach (var testAssembly in testAssemblies)
 		{
@@ -68,7 +67,7 @@ public static class TestFxConsole
 			var folder = Path.GetDirectoryName(testAssembly);
 			var outputFileName = Path.Combine(context.TestOutputFolder, Path.GetFileNameWithoutExtension(testAssembly) + "-" + Path.GetFileName(folder));
 
-			await context.Exec(fileName, $"{context.TestFlagsParallel}-preenumeratetheories -xml \"{outputFileName}.xml\" -html \"{outputFileName}.html\" -trx \"{outputFileName}.trx\"", workingDirectory: folder);
+			await context.Exec(testAssembly, $"{context.TestFlagsParallel}-preenumeratetheories -xml \"{outputFileName}.xml\" -html \"{outputFileName}.html\" -trx \"{outputFileName}.trx\"", workingDirectory: folder);
 		}
 	}
 }
