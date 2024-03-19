@@ -68,7 +68,7 @@ public static class TestFxConsole
 			var folder = Path.GetDirectoryName(testAssembly);
 			var outputFileName = Path.Combine(context.TestOutputFolder, Path.GetFileNameWithoutExtension(testAssembly) + "-" + Path.GetFileName(folder));
 
-			await context.Exec(testAssembly, $"{context.TestFlagsParallel}-preenumeratetheories -xml \"{outputFileName}.xml\" -html \"{outputFileName}.html\" -trx \"{outputFileName}.trx\"", workingDirectory: folder);
+			await context.Exec(fileName, $"{context.TestFlagsParallel}-preenumeratetheories -xml \"{outputFileName}.xml\" -html \"{outputFileName}.html\" -trx \"{outputFileName}.trx\"", workingDirectory: folder);
 		}
 	}
 }

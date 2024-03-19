@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using FSharp.Compiler.CodeAnalysis;
 using Microsoft.FSharp.Control;
 using Microsoft.FSharp.Core;
+using Xunit.Sdk;
 
 public abstract class FSharpAcceptanceTestAssembly : AcceptanceTestAssembly
 {
@@ -18,6 +19,9 @@ public abstract class FSharpAcceptanceTestAssembly : AcceptanceTestAssembly
 		string[] code,
 		params string[] references)
 	{
+		if (EnvironmentHelper.IsMono)
+			throw SkipException.ForSkip("F# is not supported on Mono https://github.com/dotnet/fsharp/issues/14770");
+
 		var compilerArgs = new List<string> { "fsc" };
 
 		foreach (var codeText in code)

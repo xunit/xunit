@@ -1,3 +1,6 @@
+# Don't commit Mono's local registry storage
+.mono
+
 ##### Copied from https://github.com/github/gitignore/blob/7792e50daeaa6c07460484704671d1dc9f0045a7/VisualStudio.gitignore
 
 ## Ignore Visual Studio temporary files, build results, and
