@@ -13,7 +13,12 @@ using Xunit.Sdk;
 
 public abstract class FSharpAcceptanceTestAssembly : AcceptanceTestAssembly
 {
-	protected override IEnumerable<string> GetStandardReferences() => Enumerable.Empty<string>();
+	public FSharpAcceptanceTestAssembly(string? basePath = null) :
+		base(basePath)
+	{ }
+
+	protected override IEnumerable<string> GetStandardReferences() =>
+		[];
 
 	protected override async Task Compile(
 		string[] code,

@@ -10,19 +10,23 @@ using Xunit.Internal;
 
 public class CSharpAcceptanceTestV3Assembly : CSharpAcceptanceTestAssembly
 {
+	public CSharpAcceptanceTestV3Assembly(string? basePath = null) :
+		base(basePath)
+	{ }
+
 	protected override string AssemblyFileExtension => ".exe";
 
 	protected override IEnumerable<string> GetStandardReferences() =>
 		base
 			.GetStandardReferences()
-			.Concat(new[] {
+			.Concat([
 				"System.Threading.Tasks.Extensions.dll",
 				"xunit.v3.assert.dll",
 				"xunit.v3.common.dll",
 				"xunit.v3.core.dll",
 				"xunit.v3.runner.common.dll",
-				"xunit.v3.runner.inproc.console.dll"
-			});
+				"xunit.v3.runner.inproc.console.dll",
+			]);
 
 	public static async ValueTask<CSharpAcceptanceTestV3Assembly> Create(
 		string code,
@@ -38,7 +42,7 @@ public class CSharpAcceptanceTestV3Assembly : CSharpAcceptanceTestAssembly
 		var programText = File.ReadAllText(programPath);
 
 		var assembly = new CSharpAcceptanceTestV3Assembly();
-		await assembly.Compile(new[] { code, programText }, references);
+		await assembly.Compile([code, programText], references);
 		return assembly;
 	}
 }

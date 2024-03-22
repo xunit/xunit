@@ -488,12 +488,12 @@ public class TypeAssertsTests
 		{ }
 
 		protected override IEnumerable<string> GetStandardReferences() =>
-			new[] { "mscorlib.dll" };
+			[];
 
 		public static async Task<CSharpDynamicAssembly> Create(string code)
 		{
 			var assembly = new CSharpDynamicAssembly();
-			await assembly.Compile(new[] { code });
+			await assembly.Compile([code]);
 			return assembly;
 		}
 	}

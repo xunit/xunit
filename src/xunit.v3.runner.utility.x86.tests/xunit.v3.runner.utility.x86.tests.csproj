@@ -23,6 +23,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Required for AcceptanceTestAssembly -->
+    <PackageDownload Include="NetStandard.Library" Version="[2.0.0]" />
     <!-- Required for F# acceptance tests -->
     <PackageReference Include="FSharp.Compiler.Service" Version="[$(FSharpCompilerServiceVersion)]" />
     <PackageReference Include="System.Reflection.Metadata" Version="[$(SystemReflectionMetadataVersion)]" />

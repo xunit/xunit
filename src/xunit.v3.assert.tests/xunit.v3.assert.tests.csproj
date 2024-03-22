@@ -4,6 +4,11 @@
     <TargetFrameworks>net472;net6.0</TargetFrameworks>
   </PropertyGroup>
 
+  <ItemGroup>
+    <!-- Required for AcceptanceTestAssembly -->
+    <PackageDownload Include="NetStandard.Library" Version="[2.0.0]" />
+  </ItemGroup>
+
   <!-- Reduce to minimal feature set for .NET Framework tests so we know all paths get covered -->
   <Choose>
     <When Condition=" '$(TargetFramework)' == 'net472' ">

@@ -6,11 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CSharp;
-using Xunit.Internal;
 
 public abstract class CSharpAcceptanceTestAssembly : AcceptanceTestAssembly
 {
-	protected CSharpAcceptanceTestAssembly(string? basePath = null) :
+	public CSharpAcceptanceTestAssembly(string? basePath = null) :
 		base(basePath)
 	{ }
 
@@ -39,13 +38,13 @@ public abstract class CSharpAcceptanceTestAssembly : AcceptanceTestAssembly
 		{
 			var errors = new List<string>();
 
-			foreach (var error in results.Errors.Cast<CompilerError>().WhereNotNull())
+			foreach (var error in results.Errors.Cast<CompilerError>().Where(x => x != null))
 				errors.Add($"{error.FileName}({error.Line},{error.Column}): error {error.ErrorNumber}: {error.ErrorText}");
 
-			throw new InvalidOperationException($"Compilation Failed:{Environment.NewLine}{string.Join(Environment.NewLine, errors.ToArray())}");
+			throw new InvalidOperationException($"Compilation Failed: (BasePath = '{BasePath}', NetStandardReferencePath = '{NetStandardReferencePath}'){Environment.NewLine}{string.Join(Environment.NewLine, errors.ToArray())}");
 		}
 
-		return Task.CompletedTask;
+		return CompletedTask;
 	}
 }
 
