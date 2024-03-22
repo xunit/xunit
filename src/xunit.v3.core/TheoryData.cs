@@ -53,7 +53,7 @@ public abstract class TheoryData : IReadOnlyCollection<object?[]>
 public class TheoryData<T> : TheoryData
 {
 	/// <summary>
-	/// Initializes a new isntance of the <see cref="TheoryData{T}"/> class.
+	/// Initializes a new instance of the <see cref="TheoryData{T}"/> class.
 	/// </summary>
 	/// <param name="values">The initial set of values</param>
 	public TheoryData(IEnumerable<T> values)
@@ -64,7 +64,7 @@ public class TheoryData<T> : TheoryData
 	}
 
 	/// <summary>
-	/// Initializes a new isntance of the <see cref="TheoryData{T}"/> class.
+	/// Initializes a new instance of the <see cref="TheoryData{T}"/> class.
 	/// </summary>
 	/// <param name="values">The initial set of values</param>
 	public TheoryData(params T[] values) =>
