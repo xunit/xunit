@@ -487,12 +487,13 @@ public class TypeAssertsTests
 			base(Path.GetTempPath())
 		{ }
 
-		protected override IEnumerable<string> GetStandardReferences() => Array.Empty<string>();
+		protected override IEnumerable<string> GetStandardReferences() =>
+			[];
 
 		public static async Task<CSharpDynamicAssembly> Create(string code)
 		{
 			var assembly = new CSharpDynamicAssembly();
-			await assembly.Compile(new[] { code });
+			await assembly.Compile([code]);
 			return assembly;
 		}
 	}
