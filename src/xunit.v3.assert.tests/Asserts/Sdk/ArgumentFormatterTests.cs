@@ -189,7 +189,11 @@ public class ArgumentFormatterTests
 			{ typeof(IDictionary<string, DateTime>), "typeof(System.Collections.Generic.IDictionary<string, DateTime>)" },
 			{ typeof(IDictionary<string[,], DateTime[,][]>), "typeof(System.Collections.Generic.IDictionary<string[,], DateTime[,][]>)" },
 			{ typeof(bool?), "typeof(bool?)" },
-			{ typeof(bool?[]), "typeof(bool?[])" }
+			{ typeof(bool?[]), "typeof(bool?[])" },
+			{ typeof(nint), "typeof(nint)" },
+			{ typeof(IntPtr), "typeof(nint)" },
+			{ typeof(nuint), "typeof(nuint)" },
+			{ typeof(UIntPtr), "typeof(nuint)" },
 		};
 
 		[Theory]
