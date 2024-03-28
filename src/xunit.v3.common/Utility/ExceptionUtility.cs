@@ -76,18 +76,46 @@ public static class ExceptionUtility
 	{
 		var myIndex = exceptionTypes.Count;
 
-		exceptionTypes.Add(ex.GetType().FullName);
-		messages.Add(ex.Message);
-		stackTraces.Add(ex.StackTrace);
+		try
+		{
+			exceptionTypes.Add(ex.GetType().FullName);
+		}
+		catch (Exception thrown)
+		{
+			exceptionTypes.Add(string.Format(CultureInfo.CurrentCulture, "<exception thrown while retrieving exception type: {0}>", thrown.Message));
+		}
+
+		try
+		{
+			messages.Add(ex.Message);
+		}
+		catch (Exception thrown)
+		{
+			messages.Add(string.Format(CultureInfo.CurrentCulture, "<exception thrown while retrieving exception message: {0}>", thrown.Message));
+		}
+
+		try
+		{
+			stackTraces.Add(ex.StackTrace);
+		}
+		catch (Exception thrown)
+		{
+			stackTraces.Add(string.Format(CultureInfo.CurrentCulture, "<exception thrown while retrieving exception stack trace: {0}>", thrown.Message));
+		}
+
 		indices.Add(parentIndex);
 
-		var innerExceptions = GetInnerExceptions(ex);
+		try
+		{
+			var innerExceptions = GetInnerExceptions(ex);
 
-		if (innerExceptions is not null)
-			foreach (var innerException in innerExceptions)
-				ExtractMetadata(innerException, myIndex, exceptionTypes, messages, stackTraces, indices);
-		else if (ex.InnerException is not null && ex.StackTrace != ex.InnerException.StackTrace)
-			ExtractMetadata(ex.InnerException, myIndex, exceptionTypes, messages, stackTraces, indices);
+			if (innerExceptions is not null)
+				foreach (var innerException in innerExceptions)
+					ExtractMetadata(innerException, myIndex, exceptionTypes, messages, stackTraces, indices);
+			else if (ex.InnerException is not null && ex.StackTrace != ex.InnerException.StackTrace)
+				ExtractMetadata(ex.InnerException, myIndex, exceptionTypes, messages, stackTraces, indices);
+		}
+		catch { }
 	}
 
 	static IEnumerable<Exception>? GetInnerExceptions(Exception ex)
