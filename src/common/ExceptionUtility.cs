@@ -203,20 +203,48 @@ namespace Xunit
         {
             var myIndex = exceptionTypes.Count;
 
-            exceptionTypes.Add(ex.GetType().FullName);
-            messages.Add(ex.Message);
-            stackTraces.Add(ex.StackTrace);
+            try
+            {
+                exceptionTypes.Add(ex.GetType().FullName);
+            }
+            catch (Exception thrown)
+            {
+                exceptionTypes.Add(string.Format(CultureInfo.CurrentCulture, "<exception thrown while retrieving exception type: {0}>", thrown.Message));
+            }
+
+            try
+            {
+                messages.Add(ex.Message);
+            }
+            catch (Exception thrown)
+            {
+                exceptionTypes.Add(string.Format(CultureInfo.CurrentCulture, "<exception thrown while retrieving exception message: {0}>", thrown.Message));
+            }
+
+            try
+            {
+                stackTraces.Add(ex.StackTrace);
+            }
+            catch (Exception thrown)
+            {
+                exceptionTypes.Add(string.Format(CultureInfo.CurrentCulture, "<exception thrown while retrieving exception stack trace: {0}>", thrown.Message));
+            }
+
             indices.Add(parentIndex);
 
+            try
+            {
 #if XUNIT_FRAMEWORK
-            var innerExceptions = GetInnerExceptions(ex);
-            if (innerExceptions != null)
-                foreach (var innerException in innerExceptions)
-                    ConvertExceptionToFailureInformation(innerException, myIndex, exceptionTypes, messages, stackTraces, indices);
-            else
+                var innerExceptions = GetInnerExceptions(ex);
+                if (innerExceptions != null)
+                    foreach (var innerException in innerExceptions)
+                        ConvertExceptionToFailureInformation(innerException, myIndex, exceptionTypes, messages, stackTraces, indices);
+                else
 #endif
-            if (ex.InnerException != null)
-                ConvertExceptionToFailureInformation(ex.InnerException, myIndex, exceptionTypes, messages, stackTraces, indices);
+                if (ex.InnerException != null)
+                    ConvertExceptionToFailureInformation(ex.InnerException, myIndex, exceptionTypes, messages, stackTraces, indices);
+            }
+            catch { }
         }
 
         class FailureInformation : IFailureInformation
