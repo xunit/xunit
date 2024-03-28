@@ -218,7 +218,7 @@ namespace Xunit
             }
             catch (Exception thrown)
             {
-                exceptionTypes.Add(string.Format(CultureInfo.CurrentCulture, "<exception thrown while retrieving exception message: {0}>", thrown.Message));
+                messages.Add(string.Format(CultureInfo.CurrentCulture, "<exception thrown while retrieving exception message: {0}>", thrown.Message));
             }
 
             try
@@ -227,7 +227,7 @@ namespace Xunit
             }
             catch (Exception thrown)
             {
-                exceptionTypes.Add(string.Format(CultureInfo.CurrentCulture, "<exception thrown while retrieving exception stack trace: {0}>", thrown.Message));
+                stackTraces.Add(string.Format(CultureInfo.CurrentCulture, "<exception thrown while retrieving exception stack trace: {0}>", thrown.Message));
             }
 
             indices.Add(parentIndex);
