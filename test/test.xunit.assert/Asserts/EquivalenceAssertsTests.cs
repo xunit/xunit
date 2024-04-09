@@ -74,6 +74,43 @@ public class EquivalenceAssertsTests
 		{
 			Assert.Equivalent(12, 12L);
 		}
+
+		// https://github.com/xunit/xunit/issues/2913
+		[Fact]
+		public void Decimals_Success()
+		{
+			Assert.Equivalent(1m, 1m);
+		}
+
+		// https://github.com/xunit/xunit/issues/2913
+		[Fact]
+		public void Decimals_Failure()
+		{
+			var ex = Record.Exception(() => Assert.Equivalent(1m, 2m));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				"Assert.Equivalent() Failure" + Environment.NewLine +
+				"Expected: 1" + Environment.NewLine +
+				"Actual:   2",
+				ex.Message
+			);
+		}
+
+		// https://github.com/xunit/xunit/issues/2913
+		[Fact]
+		public void IntrinsicPlusNonIntrinsic_Failure()
+		{
+			var ex = Record.Exception(() => Assert.Equivalent(1m, new object()));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				"Assert.Equivalent() Failure" + Environment.NewLine +
+				"Expected: 1" + Environment.NewLine +
+				"Actual:   Object { }",
+				ex.Message
+			);
+		}
 	}
 
 	public class NullableValueTypes
