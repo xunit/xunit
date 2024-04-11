@@ -1,0 +1,100 @@
+---
+layout: default
+title: Release Notes for April 11, 2024
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: April 11, 2024</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<p>Today, we're shipping three new releases:</p>
+
+<ul>
+  <li>xUnit.net Core Framework v2 2.7.1 (<a href="/releases/v2/2.7.1">release notes</a>)</li>
+  <li><strong>xUnit.net Analyzers 1.12.0</strong></li>
+  <li>xUnit.net Visual Studio adapter 2.5.8 (<a href="/releases/visualstudio/2.5.8">release notes</a>)</li>
+</ul>
+
+<p>It's been 2 months since the release of <a href="1.11.0">1.11.0 RTM</a>.</p>
+
+<p>
+  As always, we'd like to thank all the users who contributed to the success of xUnit.net through
+  usage, feedback, and code contributions. 🎉
+</p>
+
+<h2>Release Notes</h2>
+
+<p>These release notes are a comprehensive list of changes from 1.11.0 to 1.12.0.</p>
+
+<h3>General</h3>
+<ul>
+  <li>
+    We are considering when it's appropriate to remove support for Visual Studio 2019 from the analyzers,
+    as this version of Visual Studio has now left
+    <a href="https://learn.microsoft.com/en-us/lifecycle/products/visual-studio-2019">mainstream support</a>.
+    Based on a <a href="https://dotnet.social/@xunit/112209593202825810">poll done on Mastodon</a> there still
+    appears to be a small percentage of users who are using VS 2019, so we have delayed the removal for the
+    time being and will reconsider it again later. The next scheduled removal will be support for VS 2022
+    17.4 on or after July 11th, when it officially
+    <a href="https://learn.microsoft.com/en-us/lifecycle/products/visual-studio-2022">goes out of support</a>.
+    VS 2022 17.6+ will still be supported at that time.
+  </li>
+</ul>
+
+<h3>Usage Analyzers</h3>
+<ul>
+  <li>
+    We have added <a href="/xunit.analyzers/rules/xUnit1044">xUnit1044</a> and
+    <a href="/xunit.analyzers/rules/xUnit1045">xUnit1045</a> to highlight when you use data types in
+    <code>TheoryData&lt;&gt;</code> that are not (1044) or might not (1045) be serializable. The purpose is
+    to highlight cases where you may not be able to run individual data rows in Test Explorer in Visual
+    Studio because of the non-serializability of the theory data. These are separate rules so that you can
+    choose to disable the "might not" rule (which catches a wider net of types) without losing access to
+    the "does not" rule (which only triggers for types known to never be serializable).
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2866">xunit/xunit#2866</a>
+  </li>
+  <li>
+    We have added <a href="/xunit.analyzers/rules/xUnit1046">xUnit1046</a> and
+    <a href="/xunit.analyzers/rules/xUnit1047">xUnit1047</a> to highlight when you pass data to the
+    constructor of <code>TheoryDataRow</code> in xUnit.net v3 that is not (1046) or might not (1047)
+    be serializable. The purpose is to highlight cases where you may not be able to run individual data
+    rows in Test Explorer in Visual Studio because of the non-serializability of the theory data. These
+    are separate rules so that you can choose to disable the "might not" rule (which catches a wider net of
+    types) without losing access to the "is not" rule (which only triggers for types known to never be
+    serializable). Note that we usually have better type information here, since we're using the
+    actual data in question (which the compiler may know more about) vs. the two rules above, which are
+    relying on the generic types rather than concrete data.
+  </li>
+  <li>
+    <strong>BUG:</strong> We fixed an issue in <a href="/xunit.analyzers/rules/xUnit1013">xUnit1013</a>
+    that was incorrectly triggering for overridden test methods which did not include `[Fact]` or `[Theory]`
+    because the base method already included the correct attribute (and that attribute is inherited from
+    the base test method). This only affected analysis, as the test was running correctly at runtime.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2911">xunit/xunit#2911</a>
+  </li>
+</ul>
+
+<h3>Suppressors</h3>
+<ul>
+  <li>
+    This is a new category! We've added our first two suppressors. The first is a suppressor for
+    <a href="https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1515"><code>CA1515</code></a>
+    ("Consider making public types internal"). This is coming in .NET 9 and can be seen already showing up when
+    you are using early access builds. Since all test classes in xUnit.net projects are considered "unreferenced",
+    this analyzer is incorrectly suggesting that the types be made `internal`. We now suppress this for any class
+    which has at least one test method in it. This includes not only `[Fact]` and `[Theory]` but also any attributes
+    derived from `FactAttribute` from third party test framework extensions.
+    <a class="issue-link" href="https://github.com/xunit/xunit.analyzers/pull/182">xunit/xunit.analyzers#182</a>
+  </li>
+  <li>
+    We have added a suppressor for
+    <a href="https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca2007"><code>CA2007</code></a>
+    ("Do not directly await a Task"). This is the analyzer that recommends users always add `.ConfigureAwait(false)`
+    to task code, which is incorrect behavior for xUnit.net tests since this will push the unit test off of the
+    thread pool which we use to limit concurrency. Note that this only applies to code directly in unit test methods;
+    code outside of unit tests (including code in private functions or lambdas inside of a test method) will still
+    raise CA2007 if you have it enabled, as usage there does not break xUnit.net's parallelization limitation
+    functionality.
+  </li>
+</ul>

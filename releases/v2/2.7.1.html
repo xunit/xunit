@@ -1,0 +1,104 @@
+---
+layout: default
+title: Release Notes for April 11, 2024
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: April 11, 2024</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<p>Today, we're shipping three new releases:</p>
+
+<ul>
+  <li><strong>xUnit.net Core Framework v2 2.7.1</strong></li>
+  <li>xUnit.net Analyzers 1.12.0 (<a href="/releases/analyzers/1.12.0">release notes</a>)</li>
+  <li>xUnit.net Visual Studio adapter 2.5.8 (<a href="/releases/visualstudio/2.5.8">release notes</a>)</li>
+</ul>
+
+<p>It's been 2 months since the release of <a href="2.7.0">2.7.0 RTM</a>.</p>
+
+<p>
+  As always, we'd like to thank all the users who contributed to the success of xUnit.net through
+  usage, feedback, and code. 🎉
+</p>
+
+<h2>Release Notes</h2>
+
+<p>These release notes are a comprehensive list of changes from 2.7.0 to 2.7.1.</p>
+
+<h3>Core Framework</h3>
+<ul>
+  <li>
+    We have added support for .NET diagnostic events to be reported for the start and finish of individual
+    tests. The event source name is <code>xUnit.TestEventSource</code>, and the provider GUID is
+    <code>ae399e80-45fc-4219-aacc-b73a458ad7e1</code>. Please note that if you are trying to use
+    <a href="https://learn.microsoft.com/en-us/visualstudio/profiling/concurrency-visualizer">Concurrency Visualizer</a>
+    that sometimes the start &amp; stop events will not be correctly correlated for async tests, as they may
+    begin and end on different threads. This is unfortunately a limitation of Concurrency Visualizer, though
+    the events should always be present (but not correlated, so marked as diamonds). Please see the linked
+    issue for extensive discussion on this.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2884">xunit/xunit#2884</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> We fixed an issue with the timeout async guard (that is, the code that ensures
+    that you must write an async test to use <code>Timeout</code> on <code>[Fact]</code> or
+    <code>[Theory]</code>) which was inappropriately triggering for F# projects using the <code>task</code>
+    keyword to define the async body of the test.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2892">xunit/xunit#2892</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> We fixed an edge case <code>SystemAccessViolation</code> that could occur as we
+    were inspecting thrown exceptions, and their properties (like <code>StackTrace</code> or <code>Message</code>)
+    were in turn throwing. While this violates the contract of the <code>Exception</code> class, the edge case was
+    seemingly caused by something that was corrupting the exception. Catching and ignoring these exceptions will
+    at least all affected projects to continue to run, albeit with missing information in the exceptions.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2503">xunit/xunit#2503</a>
+  </li>
+</ul>
+
+<h3>Runner Utility</h3>
+<ul>
+  <li>
+    <strong>BUG:</strong> We fixed an unintentional binary backward compatibility breaking bug with
+    <code>ConfigReader</code> where we added an optional parameter to the <code>Load</code> functions.
+    The old signature has been restored but marked as obsolete and hidden from Intellisense.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2896">xunit/xunit#2896</a>
+  </li>
+</ul>
+
+<h3>Assertion Library</h3>
+<ul>
+  <li>
+    We have updated <code>Assert.Equal</code> overloads for <code>Memory&lt;char&gt;</code>,
+    <code>ReadOnlyMemory&lt;char&gt;</code>, <code>Span&lt;char&gt;</code>, and
+    <code>ReadOnlySpan&lt;char&gt;</code> to more clearly indicate that the values are treated
+    as strings and not individual characters. This is primarily a documentation issue in the
+    API documentation (via XML doc comments), as they have always been treated this way.
+  </li>
+  <li>
+    We have added an additional overload for <code>Assert.Raises</code> which accepts <code>Action</code>
+    for attach and detach arguments, in addition to the existing <code>Action&lt;EventHandler&gt;</code> and
+    <code>Action&lt;EventHandler&lt;T&gt;&gt;</code> signatures.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2888">xunit/xunit#2888</a>
+  </li>
+  <li>
+    We have added additional overloads for <code>Assert.Raises</code>, <code>Assert.RaisesAny</code>,
+    <code>Assert.RaisesAnyAsync</code>, and <code>Assert.RaisesAsync</code> which accepts
+    <code>Action&lt;Action&gt;</code> and <code>Action&lt;Action&lt;T&gt;&gt;</code> for attach and detach
+    arguments, to support event handlers which are defined as <code>Action</code> or <code>Action&lt;T&gt;</code>
+    rather than <code>EventHandler</code> or <code>EventHandler&lt;T&gt;</code>.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2900">xunit/xunit#2900</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> We fixed an issue for users of the <code>xunit.assert.source</code> NuGet package
+    that caused compilation errors when also referencing <code>xunit.core</code> from duplicate code.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2889">xunit/xunit#2889</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> We fixed an issue with <code>Assert.Equivalent</code> not correctly comparing
+    <code>decimal</code> values. It was always reporting two decimals values as equivalent regardless of
+    their actual value.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2913">xunit/xunit#2913</a>
+  </li>
+</ul>
