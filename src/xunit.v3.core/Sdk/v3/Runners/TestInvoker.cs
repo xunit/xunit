@@ -1,7 +1,6 @@
 using System;
 using System.Globalization;
 using System.Reflection;
-using System.Security;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Internal;
@@ -11,7 +10,7 @@ namespace Xunit.v3;
 
 /// <summary>
 /// A base class that provides default behavior to invoke a test method. This includes
-/// support for async test methods ("async Task", "async ValueTask", and "async void" for C#/VB,
+/// support for async test methods ("async Task" and "async ValueTask" for C#/VB,
 /// and async functions in F#) as well as creation and disposal of the test class. This class
 /// is designed to be a singleton for performance reasons.
 /// </summary>
@@ -134,8 +133,8 @@ public abstract class TestInvoker<TContext>
 	}
 
 	/// <summary>
-	/// Invokes the test method on the given test class instance. This method sets up support for "async void"
-	/// test methods, ensures that the test method has the correct number of arguments, then calls <see cref="CallTestMethod"/>
+	/// Invokes the test method on the given test class instance. This method fast fails any test marked as "async void",
+	/// ensures that the test method has the correct number of arguments, then calls <see cref="CallTestMethod"/>
 	/// to do the actual method invocation. It ensure that any async test method is fully completed before returning, and
 	/// returns the measured clock time that the invocation took. This method should NEVER throw; any exceptions should be
 	/// placed into the aggregator in <paramref name="ctxt"/>.
@@ -149,77 +148,59 @@ public abstract class TestInvoker<TContext>
 	{
 		Guard.ArgumentNotNull(ctxt);
 
-		var oldSyncContext = default(SynchronizationContext);
-		var asyncSyncContext = default(AsyncTestSyncContext);
-
-		try
+		if (AsyncUtility.IsAsyncVoid(ctxt.TestMethod))
 		{
-			if (AsyncUtility.IsAsyncVoid(ctxt.TestMethod))
-			{
-				oldSyncContext = SynchronizationContext.Current;
-				asyncSyncContext = new AsyncTestSyncContext(oldSyncContext);
-				SetSynchronizationContext(asyncSyncContext);
-			}
+			ctxt.Aggregator.Add(new InvalidOperationException("Tests marked as 'async void' are no longer supported. Please convert to 'async Task' or 'async ValueTask'."));
+			return 0m;
+		}
 
-			var elapsed = await ExecutionTimer.MeasureAsync(
-				() => ctxt.Aggregator.RunAsync(
-					async () =>
+		var elapsed = await ExecutionTimer.MeasureAsync(
+			() => ctxt.Aggregator.RunAsync(
+				async () =>
+				{
+					var parameterCount = ctxt.TestMethod.GetParameters().Length;
+					var valueCount = ctxt.TestMethodArguments is null ? 0 : ctxt.TestMethodArguments.Length;
+					if (parameterCount != valueCount)
 					{
-						var parameterCount = ctxt.TestMethod.GetParameters().Length;
-						var valueCount = ctxt.TestMethodArguments is null ? 0 : ctxt.TestMethodArguments.Length;
-						if (parameterCount != valueCount)
-						{
-							ctxt.Aggregator.Add(
-								new InvalidOperationException(
-									string.Format(
-										CultureInfo.CurrentCulture,
-										"The test method expected {0} parameter value{1}, but {2} parameter value{3} {4} provided.",
-										parameterCount,
-										parameterCount == 1 ? "" : "s",
-										valueCount,
-										valueCount == 1 ? "" : "s",
-										valueCount == 1 ? "was" : "were"
-									)
+						ctxt.Aggregator.Add(
+							new InvalidOperationException(
+								string.Format(
+									CultureInfo.CurrentCulture,
+									"The test method expected {0} parameter value{1}, but {2} parameter value{3} {4} provided.",
+									parameterCount,
+									parameterCount == 1 ? "" : "s",
+									valueCount,
+									valueCount == 1 ? "" : "s",
+									valueCount == 1 ? "was" : "were"
 								)
-							);
-						}
-						else
+							)
+						);
+					}
+					else
+					{
+						var logEnabled = TestEventSource.Log.IsEnabled();
+
+						if (logEnabled)
+							TestEventSource.Log.TestStart(ctxt.Test.TestDisplayName);
+
+						try
 						{
-							var logEnabled = TestEventSource.Log.IsEnabled();
-
+							var result = CallTestMethod(ctxt, testClassInstance);
+							var valueTask = AsyncUtility.TryConvertToValueTask(result);
+							if (valueTask.HasValue)
+								await valueTask.Value;
+						}
+						finally
+						{
 							if (logEnabled)
-								TestEventSource.Log.TestStart(ctxt.Test.TestDisplayName);
-
-							try
-							{
-								var result = CallTestMethod(ctxt, testClassInstance);
-								var valueTask = AsyncUtility.TryConvertToValueTask(result);
-								if (valueTask.HasValue)
-									await valueTask.Value;
-								else if (asyncSyncContext is not null)
-								{
-									var ex = await asyncSyncContext.WaitForCompletionAsync();
-									if (ex is not null)
-										ctxt.Aggregator.Add(ex);
-								}
-							}
-							finally
-							{
-								if (logEnabled)
-									TestEventSource.Log.TestStop(ctxt.Test.TestDisplayName);
-							}
+								TestEventSource.Log.TestStop(ctxt.Test.TestDisplayName);
 						}
 					}
-				)
-			);
+				}
+			)
+		);
 
-			return (decimal)elapsed.TotalSeconds;
-		}
-		finally
-		{
-			if (asyncSyncContext is not null)
-				SetSynchronizationContext(oldSyncContext);
-		}
+		return (decimal)elapsed.TotalSeconds;
 	}
 
 	/// <summary>
@@ -321,10 +302,6 @@ public abstract class TestInvoker<TContext>
 			return (decimal)elapsedTime.TotalSeconds;
 		}, 0m);
 	}
-
-	[SecuritySafeCritical]
-	static void SetSynchronizationContext(SynchronizationContext? context) =>
-		SynchronizationContext.SetSynchronizationContext(context);
 
 	/// <summary>
 	/// Sets the test context for the given test state and engine status.

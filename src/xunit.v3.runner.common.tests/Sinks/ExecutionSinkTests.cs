@@ -256,7 +256,7 @@ public class ExecutionSinkTests
 	public class LongRunningTestDetection
 	{
 		[Fact]
-		public async void ShortRunningTests_NoMessages()
+		public async ValueTask ShortRunningTests_NoMessages()
 		{
 			var events = new List<LongRunningTestsSummary>();
 			using var sink = TestableExecutionSink.Create(longRunningSeconds: 1, longRunningTestCallback: events.Add);
@@ -271,7 +271,7 @@ public class ExecutionSinkTests
 		}
 
 		[Fact]
-		public async void LongRunningTest_ReportedOnce()
+		public async ValueTask LongRunningTest_ReportedOnce()
 		{
 			var events = new List<LongRunningTestsSummary>();
 			using var sink = TestableExecutionSink.Create(longRunningSeconds: 1, longRunningTestCallback: events.Add);
@@ -294,7 +294,7 @@ public class ExecutionSinkTests
 		}
 
 		[Fact]
-		public async void LongRunningTest_ReportedTwice()
+		public async ValueTask LongRunningTest_ReportedTwice()
 		{
 			var events = new List<LongRunningTestsSummary>();
 			using var sink = TestableExecutionSink.Create(longRunningSeconds: 1, longRunningTestCallback: events.Add);
@@ -332,7 +332,7 @@ public class ExecutionSinkTests
 		}
 
 		[Fact]
-		public async void OnlyIncludesLongRunningTests()
+		public async ValueTask OnlyIncludesLongRunningTests()
 		{
 			var events = new List<LongRunningTestsSummary>();
 			using var sink = TestableExecutionSink.Create(longRunningSeconds: 1, longRunningTestCallback: events.Add);

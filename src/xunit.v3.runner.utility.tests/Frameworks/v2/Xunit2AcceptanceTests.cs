@@ -224,7 +224,7 @@ let TestMethod (x:int) =
 			[Theory]
 			[InlineData("async")]
 			[InlineData("task")]
-			public async void SupportsAsyncReturningMethods(string blockType)
+			public async ValueTask SupportsAsyncReturningMethods(string blockType)
 			{
 				string code = @$"
 module FSharpTests
@@ -258,7 +258,7 @@ let AsyncFailing() =
 			[Theory]
 			[InlineData("async")]
 			[InlineData("task")]
-			public async void SupportsTimeoutOnAsyncReturningMethods(string blockType)
+			public async ValueTask SupportsTimeoutOnAsyncReturningMethods(string blockType)
 			{
 				string code = @$"
 module FSharpTests

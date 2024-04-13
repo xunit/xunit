@@ -18,17 +18,15 @@ public static class AsyncUtility
 
 	/// <summary>
 	/// Determines if the given method is async, as matters to xUnit.net. This means it either (a) returns
-	/// a <see cref="Task"/> or <see cref="ValueTask"/>; or, (b) is a C#/VB method that is async void
-	/// with the compiler-generated <see cref="AsyncStateMachineAttribute"/> on it; or (c) it is an F#
-	/// function which was declared as async. Note that this is not the same thing as an "awaitable" method,
-	/// since xUnit.net does not recreate the compiler's await machinery at runtime.
+	/// a <see cref="Task"/> or <see cref="ValueTask"/>; or, (b) it is an F# function which was declared as
+	/// async. Note that this is not the same thing as an "awaitable" method, since xUnit.net does not
+	/// recreate the compiler's await machinery at runtime.
 	/// </summary>
 	/// <param name="method">The method to test</param>
 	/// <returns>Returns <c>true</c> if the method is async; returns <c>false</c> otherwise.</returns>
 	public static bool IsAsync(MethodInfo method)
 	{
-		if (IsAsyncVoid(method))
-			return true;
+		Guard.ArgumentNotNull(method);
 
 		var methodReturnType = method.ReturnType;
 		if (methodReturnType == typeof(Task) || methodReturnType == typeof(ValueTask))
@@ -42,7 +40,7 @@ public static class AsyncUtility
 
 	/// <summary>
 	/// Determines if the given method is async void by looking for the <see cref="AsyncStateMachineAttribute"/>
-	/// on the method definition.
+	/// and <see cref="void"/> return type on the method definition.
 	/// </summary>
 	/// <param name="method">The method to test</param>
 	/// <returns>Returns <c>true</c> if the method is async void; returns <c>false</c> otherwise.</returns>

@@ -10,8 +10,7 @@ public class AsyncAcceptanceTests : AcceptanceTestV3
 	[Theory]
 	[InlineData(typeof(ClassWithAsyncValueTask))]
 	[InlineData(typeof(ClassWithAsyncTask))]
-	[InlineData(typeof(ClassWithAsyncVoid))]
-	public async ValueTask AsyncValueTaskTestsRunCorrectly(Type classUnderTest)
+	public async ValueTask AsyncTestsRunCorrectly(Type classUnderTest)
 	{
 		var results = await RunAsync<_TestFailed>(classUnderTest);
 
@@ -34,17 +33,6 @@ public class AsyncAcceptanceTests : AcceptanceTestV3
 	{
 		[Fact]
 		public async Task AsyncTest()
-		{
-			var result = await Task.FromResult(21);
-
-			Assert.Equal(42, result);
-		}
-	}
-
-	class ClassWithAsyncVoid
-	{
-		[Fact]
-		public async void AsyncTest_Void()
 		{
 			var result = await Task.FromResult(21);
 
