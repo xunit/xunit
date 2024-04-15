@@ -110,7 +110,7 @@ public class MessageBusTests
 		);
 	}
 
-	[Fact(Skip = "Flaky")]
+	[Fact]
 	public static void QueueReturnsFalseForFailIfStopOnFailTrue()
 	{
 		var messages = new List<_MessageSinkMessage>();
