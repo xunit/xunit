@@ -1,8 +1,7 @@
 #if NETFRAMEWORK
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Reflection;
 using Xunit.Abstractions;
@@ -19,7 +18,7 @@ namespace Xunit
 
         readonly string directory;
         readonly IMessageSink internalDiagnosticsMessageSink;
-        readonly Dictionary<string, Assembly> lookupCache = new Dictionary<string, Assembly>();
+        readonly ConcurrentDictionary<string, Assembly> lookupCache = new ConcurrentDictionary<string, Assembly>();
 
         /// <summary>
         /// Constructs an instance using the given <paramref name="directory"/> for resolution.
