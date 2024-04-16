@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using Xunit.Internal;
 using Xunit.Runner.Common;
@@ -27,12 +28,20 @@ public class CommandLine : CommandLineParserBase
 
 		// General options
 		AddParser(
+			"automated", OnAutomated, CommandLineGroup.General, null,
+			"enables automated mode (ensures all output is machine parseable)"
+		);
+		AddParser(
 			"parallel", OnParallel, CommandLineGroup.General, "<option>",
 			"set parallelization based on option",
 			"  none        - turn off parallelization",
 			"  collections - parallelize by collections [default]"
 		);
 	}
+
+	/// <summary/>
+	public bool AutomatedRequested =>
+		Args.Any(a => a.Equals("-automated", StringComparison.OrdinalIgnoreCase));
 
 	void AddAssembly(
 		Assembly assembly,
@@ -106,4 +115,9 @@ public class CommandLine : CommandLineParserBase
 
 		return ParseInternal(argsStartIndex);
 	}
+
+	// Don't need to store anything, because we rely on AutomatedRequested instead; just want to validate and
+	// ignore during parsing, which happens later than is normally useful for us.
+	void OnAutomated(KeyValuePair<string, string?> pair) =>
+		GuardNoOptionValue(pair);
 }

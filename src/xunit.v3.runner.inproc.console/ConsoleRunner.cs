@@ -22,6 +22,7 @@ namespace Xunit.Runner.InProc.SystemConsole;
 public class ConsoleRunner
 {
 	readonly string[] args;
+	bool automated;
 	volatile bool cancel;
 	readonly object consoleLock;
 	bool executed;
@@ -82,6 +83,12 @@ public class ConsoleRunner
 				return 2;
 			}
 
+			// We pick up the -automated flag early, because Parse() can throw and we want to use automated output
+			// to report any command line parsing problems.
+			automated = commandLine.AutomatedRequested;
+			if (automated)
+				noColor = true;
+
 			var project = commandLine.Parse();
 
 			AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
@@ -90,7 +97,11 @@ public class ConsoleRunner
 			{
 				if (!cancel)
 				{
-					Console.WriteLine("Canceling... (Press Ctrl+C again to terminate)");
+					if (automated)
+						Console.WriteLine(new _DiagnosticMessage("Cancellation request received").ToJson());
+					else
+						Console.WriteLine("Canceling... (Press Ctrl+C again to terminate)");
+
 					cancel = true;
 					e.Cancel = true;
 				}
@@ -98,9 +109,13 @@ public class ConsoleRunner
 
 			if (project.Configuration.PauseOrDefault)
 			{
-				Console.Write("Press any key to start execution...");
+				if (!automated)
+					Console.Write("Press any key to start execution...");
+
 				Console.ReadKey(true);
-				Console.WriteLine();
+
+				if (!automated)
+					Console.WriteLine();
 			}
 
 			if (project.Configuration.DebugOrDefault)
@@ -108,17 +123,28 @@ public class ConsoleRunner
 
 			var globalDiagnosticMessages = project.Assemblies.Any(a => a.Configuration.DiagnosticMessagesOrDefault);
 			globalInternalDiagnosticMessages = project.Assemblies.Any(a => a.Configuration.InternalDiagnosticMessagesOrDefault);
-			noColor = project.Configuration.NoColorOrDefault;
+
+			if (!automated)
+				noColor = project.Configuration.NoColorOrDefault;
+
 			logger = new ConsoleRunnerLogger(!noColor, consoleLock);
-			var globalDiagnosticMessageSink = ConsoleDiagnosticMessageSink.TryCreate(consoleLock, noColor, globalDiagnosticMessages, globalInternalDiagnosticMessages);
-			var reporter = project.RunnerReporter;
+
+			_IMessageSink? globalDiagnosticMessageSink =
+				automated
+					? new AutomatedDiagnosticMessageSink(consoleLock)
+					: ConsoleDiagnosticMessageSink.TryCreate(consoleLock, noColor, globalDiagnosticMessages, globalInternalDiagnosticMessages);
+
+			var reporter = automated ? new JsonReporter() : project.RunnerReporter;
 			var reporterMessageHandler = await reporter.CreateMessageHandler(logger, globalDiagnosticMessageSink);
 
 			if (!reporter.ForceNoLogo && !project.Configuration.NoLogoOrDefault)
 				PrintHeader();
 
 			foreach (string warning in commandLine.ParseWarnings)
-				logger.LogWarning(warning);
+				if (automated)
+					Console.WriteLine(new _DiagnosticMessage("warning: " + warning).ToJson());
+				else
+					logger.LogWarning(warning);
 
 			var failCount = 0;
 
@@ -132,10 +158,16 @@ public class ConsoleRunner
 
 			if (project.Configuration.WaitOrDefault)
 			{
-				Console.WriteLine();
-				Console.Write("Press any key to continue...");
+				if (!automated)
+				{
+					Console.WriteLine();
+					Console.Write("Press any key to continue...");
+				}
+
 				Console.ReadKey();
-				Console.WriteLine();
+
+				if (!automated)
+					Console.WriteLine();
 			}
 
 			return project.Configuration.IgnoreFailures == true || failCount == 0 ? 0 : 1;
@@ -145,14 +177,19 @@ public class ConsoleRunner
 			if (!noColor)
 				ConsoleHelper.SetForegroundColor(ConsoleColor.Red);
 
-			Console.WriteLine("error: {0}", ex.Message);
-
-			if (globalInternalDiagnosticMessages)
+			if (automated)
+				Console.WriteLine(new _DiagnosticMessage("error: " + ex.Message).ToJson());
+			else
 			{
-				if (!noColor)
-					ConsoleHelper.SetForegroundColor(ConsoleColor.DarkGray);
+				Console.WriteLine("error: {0}", ex.Message);
 
-				Console.WriteLine(ex.StackTrace);
+				if (globalInternalDiagnosticMessages)
+				{
+					if (!noColor)
+						ConsoleHelper.SetForegroundColor(ConsoleColor.DarkGray);
+
+					Console.WriteLine(ex.StackTrace);
+				}
 			}
 
 			return ex is ArgumentException ? 3 : 4;
@@ -213,9 +250,19 @@ public class ConsoleRunner
 		UnhandledExceptionEventArgs e)
 	{
 		if (e.ExceptionObject is Exception ex)
-			Console.WriteLine(ex.ToString());
+		{
+			if (automated)
+				Console.WriteLine(_ErrorMessage.FromException(ex).ToJson());
+			else
+				Console.WriteLine(ex.ToString());
+		}
 		else
-			Console.WriteLine("Error of unknown type thrown in application domain");
+		{
+			if (automated)
+				Console.WriteLine(new _DiagnosticMessage("Error of unknown type thrown in application domain").ToJson());
+			else
+				Console.WriteLine("Error of unknown type thrown in application domain");
+		}
 
 		Environment.Exit(1);
 	}
@@ -337,7 +384,11 @@ public class ConsoleRunner
 
 			if (resultsSink.ExecutionSummary.Failed != 0 && executionOptions.GetStopOnTestFailOrDefault())
 			{
-				Console.WriteLine("Canceling due to test failure...");
+				if (automated)
+					Console.WriteLine(new _DiagnosticMessage("Canceling due to test failure").ToJson());
+				else
+					Console.WriteLine("Canceling due to test failure...");
+
 				cancel = true;
 			}
 		}
@@ -348,10 +399,15 @@ public class ConsoleRunner
 			var e = ex;
 			while (e is not null)
 			{
-				Console.WriteLine("{0}: {1}", e.GetType().FullName, e.Message);
+				if (automated)
+					Console.WriteLine(_ErrorMessage.FromException(e).ToJson());
+				else
+				{
+					Console.WriteLine("{0}: {1}", e.GetType().FullName, e.Message);
 
-				if (assembly.Configuration.InternalDiagnosticMessagesOrDefault)
-					Console.WriteLine(e.StackTrace);
+					if (assembly.Configuration.InternalDiagnosticMessagesOrDefault)
+						Console.WriteLine(e.StackTrace);
+				}
 
 				e = e.InnerException;
 			}
@@ -364,7 +420,7 @@ public class ConsoleRunner
 	/// Override this function to change the default output encoding for the system console.
 	/// The default is set to <see cref="Encoding.UTF8"/> to support our usage of Unicode
 	/// characters in output (for example, the up and down arrows printed for pointers with
-	/// mismatches assertion values).
+	/// mismatched assertion values).
 	/// </summary>
 	protected virtual void SetOutputEncoding() =>
 		Console.OutputEncoding = Encoding.UTF8;
