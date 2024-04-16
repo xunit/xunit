@@ -34,7 +34,7 @@ public class _MessageSinkMessage
 	/// </summary>
 	/// <returns>The serialization of this message, if serialization is supported; <c>null</c> otherwise.</returns>
 	/// <exception cref="UnsetPropertiesException">Throw when one or more properties are missing values.</exception>
-	public byte[]? ToJson()
+	public string? ToJson()
 	{
 		if (type is null)
 			return null;
@@ -43,7 +43,7 @@ public class _MessageSinkMessage
 		using (var serializer = new JsonObjectSerializer(buffer))
 			Serialize(serializer);
 
-		return Encoding.UTF8.GetBytes(buffer.ToString());
+		return buffer.ToString();
 	}
 
 	/// <summary>

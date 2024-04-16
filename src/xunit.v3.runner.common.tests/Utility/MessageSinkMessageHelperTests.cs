@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
@@ -18,7 +17,7 @@ public class MessageSinkMessageHelperTests
 	[Fact]
 	public void DeserializesEnumsAsStrings()
 	{
-		var msg =
+		var json =
 @"{
 	""Type"":                   ""test-failed"",
 	""Cause"":                  ""Assertion"",
@@ -34,7 +33,7 @@ public class MessageSinkMessageHelperTests
 	""AssemblyUniqueID"":       ""asm-id""
 }";
 
-		var result = MessageSinkMessageHelper.Deserialize(Encoding.UTF8.GetBytes(msg));
+		var result = MessageSinkMessageHelper.Deserialize(json);
 
 		var testFailed = Assert.IsType<_TestFailed>(result);
 		Assert.Equal(FailureCause.Assertion, testFailed.Cause);
@@ -71,8 +70,8 @@ public class MessageSinkMessageHelperTests
 
 		// Validate serialization
 
-		var serialized = msg.ToJson();
-		Assert.NotNull(serialized);
+		var json = msg.ToJson();
+		Assert.NotNull(json);
 
 		var expected =
 @"{
@@ -89,11 +88,11 @@ public class MessageSinkMessageHelperTests
 	},
 	""Serialization"":          ""serialized-value""
 }".Replace("\n", "");
-		Assert.Equal(expected, Encoding.UTF8.GetString(serialized), ignoreAllWhiteSpace: true);
+		Assert.Equal(expected, json, ignoreAllWhiteSpace: true);
 
 		// Validate deserialization
 
-		var deserialized = MessageSinkMessageHelper.Deserialize(serialized);
+		var deserialized = MessageSinkMessageHelper.Deserialize(json);
 
 		var deserializedDiscovered = Assert.IsType<_TestCaseDiscovered>(deserialized);
 		Assert.Collection(

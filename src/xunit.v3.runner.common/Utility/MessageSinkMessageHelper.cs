@@ -68,21 +68,21 @@ public static class MessageSinkMessageHelper
 	/// </summary>
 	/// <param name="serialization">The serialized value</param>
 	/// <returns>The deserialized object</returns>
-	public static _MessageSinkMessage? Deserialize(ReadOnlyMemory<byte> serialization)
+	public static _MessageSinkMessage? Deserialize(string serialization)
 	{
 		if (errors.Count != 0)
 			throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "JSON deserialization errors occurred during startup:{0}{1}", Environment.NewLine, string.Join(Environment.NewLine, errors)));
 
 		// Deserialize a type container, which is just the type ID, so we can figure out what the full type
 		// is that we actually need to deserialize.
-		var container = JsonSerializer.Deserialize<TypeContainer>(serialization.Span, jsonSerializerOptions);
+		var container = JsonSerializer.Deserialize<TypeContainer>(serialization, jsonSerializerOptions);
 		if (container is null || container.Type is null)
 			return null;
 
 		if (!typeIdToTypeMappings.TryGetValue(container.Type, out var type))
 			return null;
 
-		var result = JsonSerializer.Deserialize(serialization.Span, type, jsonSerializerOptions);
+		var result = JsonSerializer.Deserialize(serialization, type, jsonSerializerOptions);
 		if (result is not _MessageSinkMessage message)
 			return null;
 

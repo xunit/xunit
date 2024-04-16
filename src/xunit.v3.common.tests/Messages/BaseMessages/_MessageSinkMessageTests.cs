@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using Xunit;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -34,9 +33,9 @@ public class _MessageSinkMessageTests
 			TestFrameworkDisplayName = "test-framework"
 		};
 
-		var result = msg.ToJson();
+		var json = msg.ToJson();
 
-		Assert.NotNull(result);
+		Assert.NotNull(json);
 		var expected =
 @"{
 	""Type"":                     ""test-assembly-starting"",
@@ -46,7 +45,7 @@ public class _MessageSinkMessageTests
 	""TestEnvironment"":          ""test-env"",
 	""TestFrameworkDisplayName"": ""test-framework""
 }".Replace("\n", "");
-		Assert.Equal(expected, Encoding.UTF8.GetString(result), ignoreAllWhiteSpace: true);
+		Assert.Equal(expected, json, ignoreAllWhiteSpace: true);
 	}
 
 	[Fact]
@@ -67,9 +66,9 @@ public class _MessageSinkMessageTests
 			TestUniqueID = "test-id",
 		};
 
-		var result = msg.ToJson();
+		var json = msg.ToJson();
 
-		Assert.NotNull(result);
+		Assert.NotNull(json);
 		var expected =
 @"{
 	""Type"":                   ""test-failed"",
@@ -85,7 +84,7 @@ public class _MessageSinkMessageTests
 	""StackTraces"":            [null],
 	""Cause"":                  ""Assertion""
 }".Replace("\n", "");
-		Assert.Equal(expected, Encoding.UTF8.GetString(result), ignoreAllWhiteSpace: true);
+		Assert.Equal(expected, json, ignoreAllWhiteSpace: true);
 	}
 
 	[Fact]

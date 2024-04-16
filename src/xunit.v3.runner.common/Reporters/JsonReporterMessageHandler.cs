@@ -1,5 +1,4 @@
 using System;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit.v3;
 
@@ -32,9 +31,9 @@ public class JsonReporterMessageHandler : IRunnerReporterMessageHandler
 	/// <inheritdoc/>
 	public bool OnMessage(_MessageSinkMessage message)
 	{
-		var bytes = message?.ToJson();
-		if (bytes is not null)
-			logger.LogImportantMessage(Encoding.UTF8.GetString(bytes));
+		var json = message?.ToJson();
+		if (json is not null)
+			logger.LogImportantMessage(json);
 
 		return true;
 	}
