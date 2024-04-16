@@ -32,7 +32,7 @@ public class _MessageSinkMessage
 	/// <summary>
 	/// Creates a JSON serialized version of this message.
 	/// </summary>
-	/// <returns>The serialization of this message, if serialization is supported; <see href="null" /> otherwise.</returns>
+	/// <returns>The serialization of this message, if serialization is supported; <c>null</c> otherwise.</returns>
 	/// <exception cref="UnsetPropertiesException">Throw when one or more properties are missing values.</exception>
 	public byte[]? ToJson()
 	{
@@ -72,7 +72,7 @@ public class _MessageSinkMessage
 	{ }
 
 	/// <summary>
-	/// Validates that the property value is not <see href="null" /> , and if it is, adds the given
+	/// Validates that the property value is not <c>null</c>, and if it is, adds the given
 	/// property name to the invalid property hash set.
 	/// </summary>
 	/// <param name="propertyValue">The property value</param>
