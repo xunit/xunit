@@ -10,6 +10,7 @@ namespace Xunit.v3;
 /// messages to be displayed (see <see href="https://xunit.net/docs/configuration-files#diagnosticMessages"/> on
 /// how to enable display of diagnostic messages).
 /// </summary>
+[JsonTypeID("diagnostic")]
 public class _DiagnosticMessage : _MessageSinkMessage
 {
 	string? message;
@@ -87,6 +88,13 @@ public class _DiagnosticMessage : _MessageSinkMessage
 		set => message = Guard.ArgumentNotNull(value, nameof(Message));
 	}
 
+	internal override void Serialize(JsonObjectSerializer serializer)
+	{
+		base.Serialize(serializer);
+
+		serializer.Serialize(nameof(Message), Message);
+	}
+
 	/// <inheritdoc/>
 	public override string ToString() =>
 		string.Format(CultureInfo.CurrentCulture, "{0} message={1}", GetType().Name, message.Quoted());
@@ -96,6 +104,6 @@ public class _DiagnosticMessage : _MessageSinkMessage
 	{
 		base.ValidateObjectState(invalidProperties);
 
-		ValidateNullableProperty(message, nameof(Message), invalidProperties);
+		ValidatePropertyIsNotNull(message, nameof(Message), invalidProperties);
 	}
 }

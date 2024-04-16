@@ -7,7 +7,7 @@ namespace Xunit.v3;
 /// <summary>
 /// Base message for all messages related to tests.
 /// </summary>
-public class _TestMessage : _TestCaseMessage
+public abstract class _TestMessage : _TestCaseMessage
 {
 	string? testUniqueID;
 
@@ -22,6 +22,13 @@ public class _TestMessage : _TestCaseMessage
 		set => testUniqueID = Guard.ArgumentNotNullOrEmpty(value, nameof(TestUniqueID));
 	}
 
+	internal override void Serialize(JsonObjectSerializer serializer)
+	{
+		base.Serialize(serializer);
+
+		serializer.Serialize(nameof(TestUniqueID), TestUniqueID);
+	}
+
 	/// <inheritdoc/>
 	public override string ToString() =>
 		string.Format(CultureInfo.CurrentCulture, "{0}({1})", GetType().Name, testUniqueID.Quoted());
@@ -31,6 +38,6 @@ public class _TestMessage : _TestCaseMessage
 	{
 		base.ValidateObjectState(invalidProperties);
 
-		ValidateNullableProperty(testUniqueID, nameof(TestUniqueID), invalidProperties);
+		ValidatePropertyIsNotNull(testUniqueID, nameof(TestUniqueID), invalidProperties);
 	}
 }

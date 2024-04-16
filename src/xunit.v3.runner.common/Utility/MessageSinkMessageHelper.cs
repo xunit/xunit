@@ -1,0 +1,115 @@
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Xunit.Internal;
+using Xunit.v3;
+
+namespace Xunit.Runner.Common;
+
+/// <summary>
+/// A class with helper functions related to <see cref="_MessageSinkMessage"/>.
+/// </summary>
+public static class MessageSinkMessageHelper
+{
+	static readonly List<string> errors = [];
+	static readonly JsonSerializerOptions jsonSerializerOptions = new()
+	{
+		Converters = { new JsonStringEnumConverter(allowIntegerValues: false) },
+		IgnoreReadOnlyProperties = true,
+	};
+	static readonly Dictionary<string, Type> typeIdToTypeMappings = [];
+
+	static MessageSinkMessageHelper()
+	{
+		RegisterTypeMapping(typeof(_AfterTestFinished));
+		RegisterTypeMapping(typeof(_AfterTestStarting));
+		RegisterTypeMapping(typeof(_BeforeTestFinished));
+		RegisterTypeMapping(typeof(_BeforeTestStarting));
+		RegisterTypeMapping(typeof(_DiagnosticMessage));
+		RegisterTypeMapping(typeof(_DiscoveryComplete));
+		RegisterTypeMapping(typeof(_DiscoveryStarting));
+		RegisterTypeMapping(typeof(_ErrorMessage));
+		RegisterTypeMapping(typeof(_InternalDiagnosticMessage));
+		RegisterTypeMapping(typeof(_TestAssemblyCleanupFailure));
+		RegisterTypeMapping(typeof(_TestAssemblyFinished));
+		RegisterTypeMapping(typeof(_TestAssemblyStarting));
+		RegisterTypeMapping(typeof(_TestCaseCleanupFailure));
+		RegisterTypeMapping(typeof(_TestCaseDiscovered));
+		RegisterTypeMapping(typeof(_TestCaseFinished));
+		RegisterTypeMapping(typeof(_TestCaseStarting));
+		RegisterTypeMapping(typeof(_TestClassCleanupFailure));
+		RegisterTypeMapping(typeof(_TestClassConstructionFinished));
+		RegisterTypeMapping(typeof(_TestClassConstructionStarting));
+		RegisterTypeMapping(typeof(_TestClassDisposeFinished));
+		RegisterTypeMapping(typeof(_TestClassDisposeStarting));
+		RegisterTypeMapping(typeof(_TestClassFinished));
+		RegisterTypeMapping(typeof(_TestClassStarting));
+		RegisterTypeMapping(typeof(_TestCleanupFailure));
+		RegisterTypeMapping(typeof(_TestCollectionCleanupFailure));
+		RegisterTypeMapping(typeof(_TestCollectionFinished));
+		RegisterTypeMapping(typeof(_TestCollectionStarting));
+		RegisterTypeMapping(typeof(_TestFailed));
+		RegisterTypeMapping(typeof(_TestFinished));
+		RegisterTypeMapping(typeof(_TestMethodCleanupFailure));
+		RegisterTypeMapping(typeof(_TestMethodFinished));
+		RegisterTypeMapping(typeof(_TestMethodStarting));
+		RegisterTypeMapping(typeof(_TestNotRun));
+		RegisterTypeMapping(typeof(_TestOutput));
+		RegisterTypeMapping(typeof(_TestPassed));
+		RegisterTypeMapping(typeof(_TestSkipped));
+		RegisterTypeMapping(typeof(_TestStarting));
+	}
+
+	/// <summary>
+	/// Parses a previously serialized <see cref="_MessageSinkMessage"/>-derived object.
+	/// </summary>
+	/// <param name="serialization">The serialized value</param>
+	/// <returns>The deserialized object</returns>
+	public static _MessageSinkMessage? Deserialize(ReadOnlyMemory<byte> serialization)
+	{
+		if (errors.Count != 0)
+			throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "JSON deserialization errors occurred during startup:{0}{1}", Environment.NewLine, string.Join(Environment.NewLine, errors)));
+
+		// Deserialize a type container, which is just the type ID, so we can figure out what the full type
+		// is that we actually need to deserialize.
+		var container = JsonSerializer.Deserialize<TypeContainer>(serialization.Span, jsonSerializerOptions);
+		if (container is null || container.Type is null)
+			return null;
+
+		if (!typeIdToTypeMappings.TryGetValue(container.Type, out var type))
+			return null;
+
+		var result = JsonSerializer.Deserialize(serialization.Span, type, jsonSerializerOptions);
+		if (result is not _MessageSinkMessage message)
+			return null;
+
+		message.ValidateObjectState();
+		return message;
+	}
+
+	static void RegisterTypeMapping(Type type)
+	{
+		var attr = type.GetCustomAttribute<JsonTypeIDAttribute>();
+		if (attr is null)
+		{
+			errors.Add(string.Format(CultureInfo.CurrentCulture, "Could not find [JsonTypeID] on type '{0}'", type.SafeName()));
+			return;
+		}
+
+		if (typeIdToTypeMappings.TryGetValue(attr.ID, out var existingType))
+		{
+			errors.Add(string.Format(CultureInfo.CurrentCulture, "Could not add type '{0}' with JSON type ID of '{1}' because it's already assigned to '{2}'", type.SafeName(), attr.ID, existingType.SafeName()));
+			return;
+		}
+
+		typeIdToTypeMappings[attr.ID] = type;
+	}
+
+	class TypeContainer
+	{
+		public string? Type { get; set; }
+	}
+}

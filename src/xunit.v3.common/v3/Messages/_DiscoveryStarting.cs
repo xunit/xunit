@@ -8,7 +8,8 @@ namespace Xunit.v3;
 /// This message indicates that the discovery process is starting for
 /// the requested assembly.
 /// </summary>
-public class _DiscoveryStarting : _TestAssemblyMessage, _IAssemblyMetadata
+[JsonTypeID("discovery-starting")]
+public sealed class _DiscoveryStarting : _TestAssemblyMessage, _IAssemblyMetadata
 {
 	string? assemblyName;
 
@@ -25,6 +26,13 @@ public class _DiscoveryStarting : _TestAssemblyMessage, _IAssemblyMetadata
 	/// <inheritdoc/>
 	public string? ConfigFilePath { get; set; }
 
+	internal override void Serialize(JsonObjectSerializer serializer)
+	{
+		base.Serialize(serializer);
+
+		serializer.SerializeAssemblyMetadata(this);
+	}
+
 	/// <inheritdoc/>
 	public override string ToString() =>
 		string.Format(CultureInfo.CurrentCulture, "{0} name={1} path={2} config={3}", base.ToString(), assemblyName.Quoted(), AssemblyPath.Quoted(), ConfigFilePath.Quoted());
@@ -34,6 +42,6 @@ public class _DiscoveryStarting : _TestAssemblyMessage, _IAssemblyMetadata
 	{
 		base.ValidateObjectState(invalidProperties);
 
-		ValidateNullableProperty(assemblyName, nameof(AssemblyName), invalidProperties);
+		ValidatePropertyIsNotNull(assemblyName, nameof(AssemblyName), invalidProperties);
 	}
 }

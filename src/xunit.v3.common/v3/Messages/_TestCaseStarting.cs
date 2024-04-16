@@ -9,6 +9,7 @@ namespace Xunit.v3;
 /// <summary>
 /// This message indicates that a test case is about to start executing.
 /// </summary>
+[JsonTypeID("test-case-starting")]
 public class _TestCaseStarting : _TestCaseMessage, _ITestCaseMetadata
 {
 	string? testCaseDisplayName;
@@ -73,6 +74,13 @@ public class _TestCaseStarting : _TestCaseMessage, _ITestCaseMetadata
 		set => traits = value ?? new Dictionary<string, IReadOnlyList<string>>();
 	}
 
+	internal override void Serialize(JsonObjectSerializer serializer)
+	{
+		base.Serialize(serializer);
+
+		serializer.SerializeTestCaseMetadata(this);
+	}
+
 	/// <inheritdoc/>
 	public override string ToString() =>
 		string.Format(CultureInfo.CurrentCulture, "{0} name={1}", base.ToString(), testCaseDisplayName.Quoted());
@@ -82,11 +90,11 @@ public class _TestCaseStarting : _TestCaseMessage, _ITestCaseMetadata
 	{
 		base.ValidateObjectState(invalidProperties);
 
-		ValidateNullableProperty(testCaseDisplayName, nameof(TestCaseDisplayName), invalidProperties);
+		ValidatePropertyIsNotNull(testCaseDisplayName, nameof(TestCaseDisplayName), invalidProperties);
 
 		if (TestMethodName is not null)
-			ValidateNullableProperty(testClassName, nameof(TestClassName), invalidProperties);
+			ValidatePropertyIsNotNull(testClassName, nameof(TestClassName), invalidProperties);
 		if (testClassName is not null)
-			ValidateNullableProperty(testClassNameWithNamespace, nameof(TestClassNameWithNamespace), invalidProperties);
+			ValidatePropertyIsNotNull(testClassNameWithNamespace, nameof(TestClassNameWithNamespace), invalidProperties);
 	}
 }

@@ -6,6 +6,7 @@ namespace Xunit.v3;
 /// <summary>
 /// This message indicates that a test was skipped.
 /// </summary>
+[JsonTypeID("test-skipped")]
 public class _TestSkipped : _TestResultMessage
 {
 	string? reason;
@@ -19,11 +20,18 @@ public class _TestSkipped : _TestResultMessage
 		set => reason = Guard.ArgumentNotNull(value, nameof(Reason));
 	}
 
+	internal override void Serialize(JsonObjectSerializer serializer)
+	{
+		base.Serialize(serializer);
+
+		serializer.Serialize(nameof(Reason), Reason);
+	}
+
 	/// <inheritdoc/>
 	protected override void ValidateObjectState(HashSet<string> invalidProperties)
 	{
 		base.ValidateObjectState(invalidProperties);
 
-		ValidateNullableProperty(reason, nameof(Reason), invalidProperties);
+		ValidatePropertyIsNotNull(reason, nameof(Reason), invalidProperties);
 	}
 }

@@ -1,4 +1,5 @@
 using System;
+using Xunit.Internal;
 
 namespace Xunit.v3;
 
@@ -7,6 +8,7 @@ namespace Xunit.v3;
 /// <see cref="IAsyncDisposable.DisposeAsync"/> method was just called on the test class
 /// for the test that just finished executing.
 /// </summary>
+[JsonTypeID("test-class-dispose-finished")]
 public class _TestClassDisposeFinished : _TestMessage
 { }
 

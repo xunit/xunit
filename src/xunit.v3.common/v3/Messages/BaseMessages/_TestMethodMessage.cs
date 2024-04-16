@@ -6,7 +6,7 @@ namespace Xunit.v3;
 /// <summary>
 /// Base message for all messages related to test methods.
 /// </summary>
-public class _TestMethodMessage : _TestClassMessage
+public abstract class _TestMethodMessage : _TestClassMessage
 {
 	/// <summary>
 	/// Gets the test method's unique ID. Can be used to correlate test messages with the appropriate
@@ -15,6 +15,13 @@ public class _TestMethodMessage : _TestClassMessage
 	/// Might be <c>null</c> if the test does not belong to a method.
 	/// </summary>
 	public string? TestMethodUniqueID { get; set; }
+
+	internal override void Serialize(JsonObjectSerializer serializer)
+	{
+		base.Serialize(serializer);
+
+		serializer.Serialize(nameof(TestMethodUniqueID), TestMethodUniqueID);
+	}
 
 	/// <inheritdoc/>
 	public override string ToString() =>

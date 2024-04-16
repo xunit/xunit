@@ -7,7 +7,7 @@ namespace Xunit.v3;
 /// <summary>
 /// Base message for all messages related to test assemblies.
 /// </summary>
-public class _TestAssemblyMessage : _MessageSinkMessage
+public abstract class _TestAssemblyMessage : _MessageSinkMessage
 {
 	string? assemblyUniqueID;
 
@@ -23,6 +23,13 @@ public class _TestAssemblyMessage : _MessageSinkMessage
 		set => assemblyUniqueID = Guard.ArgumentNotNullOrEmpty(value, nameof(AssemblyUniqueID));
 	}
 
+	internal override void Serialize(JsonObjectSerializer serializer)
+	{
+		base.Serialize(serializer);
+
+		serializer.Serialize(nameof(AssemblyUniqueID), AssemblyUniqueID);
+	}
+
 	/// <inheritdoc/>
 	public override string ToString() =>
 		string.Format(CultureInfo.CurrentCulture, "{0}({1})", GetType().Name, assemblyUniqueID.Quoted());
@@ -32,7 +39,7 @@ public class _TestAssemblyMessage : _MessageSinkMessage
 	{
 		base.ValidateObjectState(invalidProperties);
 
-		ValidateNullableProperty(assemblyUniqueID, nameof(AssemblyUniqueID), invalidProperties);
+		ValidatePropertyIsNotNull(assemblyUniqueID, nameof(AssemblyUniqueID), invalidProperties);
 	}
 }
 

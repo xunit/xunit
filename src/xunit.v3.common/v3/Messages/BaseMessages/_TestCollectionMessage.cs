@@ -7,7 +7,7 @@ namespace Xunit.v3;
 /// <summary>
 /// Base message for all messages related to test collections.
 /// </summary>
-public class _TestCollectionMessage : _TestAssemblyMessage
+public abstract class _TestCollectionMessage : _TestAssemblyMessage
 {
 	string? testCollectionUniqueID;
 
@@ -22,6 +22,13 @@ public class _TestCollectionMessage : _TestAssemblyMessage
 		set => testCollectionUniqueID = Guard.ArgumentNotNullOrEmpty(value, nameof(TestCollectionUniqueID));
 	}
 
+	internal override void Serialize(JsonObjectSerializer serializer)
+	{
+		base.Serialize(serializer);
+
+		serializer.Serialize(nameof(TestCollectionUniqueID), TestCollectionUniqueID);
+	}
+
 	/// <inheritdoc/>
 	public override string ToString() =>
 		string.Format(CultureInfo.CurrentCulture, "{0}({1})", GetType().Name, testCollectionUniqueID.Quoted());
@@ -31,6 +38,6 @@ public class _TestCollectionMessage : _TestAssemblyMessage
 	{
 		base.ValidateObjectState(invalidProperties);
 
-		ValidateNullableProperty(testCollectionUniqueID, nameof(TestCollectionUniqueID), invalidProperties);
+		ValidatePropertyIsNotNull(testCollectionUniqueID, nameof(TestCollectionUniqueID), invalidProperties);
 	}
 }

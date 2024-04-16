@@ -8,6 +8,7 @@ namespace Xunit.v3;
 /// This message is sent during execution to indicate that the After method of a
 /// <see cref="T:Xunit.Sdk.BeforeAfterTestAttribute"/> is about to execute.
 /// </summary>
+[JsonTypeID("after-test-starting")]
 public class _AfterTestStarting : _TestMessage
 {
 	string? attributeName;
@@ -21,6 +22,13 @@ public class _AfterTestStarting : _TestMessage
 		set => attributeName = Guard.ArgumentNotNull(value, nameof(AttributeName));
 	}
 
+	internal override void Serialize(JsonObjectSerializer serializer)
+	{
+		base.Serialize(serializer);
+
+		serializer.Serialize(nameof(AttributeName), AttributeName);
+	}
+
 	/// <inheritdoc/>
 	public override string ToString() =>
 		string.Format(CultureInfo.CurrentCulture, "{0} attr={1}", base.ToString(), attributeName.Quoted());
@@ -30,6 +38,6 @@ public class _AfterTestStarting : _TestMessage
 	{
 		base.ValidateObjectState(invalidProperties);
 
-		ValidateNullableProperty(attributeName, nameof(AttributeName), invalidProperties);
+		ValidatePropertyIsNotNull(attributeName, nameof(AttributeName), invalidProperties);
 	}
 }

@@ -7,6 +7,7 @@ namespace Xunit.v3;
 /// <summary>
 /// This message indicates that a test method is about to begin executing.
 /// </summary>
+[JsonTypeID("test-method-starting")]
 public class _TestMethodStarting : _TestMethodMessage, _ITestMethodMetadata
 {
 	string? testMethod;
@@ -18,6 +19,13 @@ public class _TestMethodStarting : _TestMethodMessage, _ITestMethodMetadata
 		set => testMethod = Guard.ArgumentNotNullOrEmpty(value, nameof(TestMethod));
 	}
 
+	internal override void Serialize(JsonObjectSerializer serializer)
+	{
+		base.Serialize(serializer);
+
+		serializer.SerializeTestMethodMetadata(this);
+	}
+
 	/// <inheritdoc/>
 	public override string ToString() =>
 		string.Format(CultureInfo.CurrentCulture, "{0} method={1}", base.ToString(), testMethod.Quoted());
@@ -27,6 +35,6 @@ public class _TestMethodStarting : _TestMethodMessage, _ITestMethodMetadata
 	{
 		base.ValidateObjectState(invalidProperties);
 
-		ValidateNullableProperty(testMethod, nameof(TestMethod), invalidProperties);
+		ValidatePropertyIsNotNull(testMethod, nameof(TestMethod), invalidProperties);
 	}
 }

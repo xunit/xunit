@@ -6,6 +6,7 @@ namespace Xunit.v3;
 /// <summary>
 /// This message indicates that a test case has finished executing.
 /// </summary>
+[JsonTypeID("test-case-finished")]
 public class _TestCaseFinished : _TestCaseMessage, _IExecutionSummaryMetadata
 {
 	decimal? executionTime;
@@ -49,15 +50,22 @@ public class _TestCaseFinished : _TestCaseMessage, _IExecutionSummaryMetadata
 		set => testsTotal = value;
 	}
 
+	internal override void Serialize(JsonObjectSerializer serializer)
+	{
+		base.Serialize(serializer);
+
+		serializer.SerializeExecutionSummaryMetadata(this);
+	}
+
 	/// <inheritdoc/>
 	protected override void ValidateObjectState(HashSet<string> invalidProperties)
 	{
 		base.ValidateObjectState(invalidProperties);
 
-		ValidateNullableProperty(executionTime, nameof(ExecutionTime), invalidProperties);
-		ValidateNullableProperty(testsFailed, nameof(TestsFailed), invalidProperties);
-		ValidateNullableProperty(testsNotRun, nameof(TestsNotRun), invalidProperties);
-		ValidateNullableProperty(testsSkipped, nameof(TestsSkipped), invalidProperties);
-		ValidateNullableProperty(testsTotal, nameof(TestsTotal), invalidProperties);
+		ValidatePropertyIsNotNull(executionTime, nameof(ExecutionTime), invalidProperties);
+		ValidatePropertyIsNotNull(testsFailed, nameof(TestsFailed), invalidProperties);
+		ValidatePropertyIsNotNull(testsNotRun, nameof(TestsNotRun), invalidProperties);
+		ValidatePropertyIsNotNull(testsSkipped, nameof(TestsSkipped), invalidProperties);
+		ValidatePropertyIsNotNull(testsTotal, nameof(TestsTotal), invalidProperties);
 	}
 }

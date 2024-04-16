@@ -7,6 +7,7 @@ namespace Xunit.v3;
 /// <summary>
 /// This message indicates that a test collection is about to start executing.
 /// </summary>
+[JsonTypeID("test-collection-starting")]
 public class _TestCollectionStarting : _TestCollectionMessage, _ITestCollectionMetadata
 {
 	string? testCollectionDisplayName;
@@ -21,6 +22,13 @@ public class _TestCollectionStarting : _TestCollectionMessage, _ITestCollectionM
 		set => testCollectionDisplayName = Guard.ArgumentNotNullOrEmpty(value, nameof(TestCollectionDisplayName));
 	}
 
+	internal override void Serialize(JsonObjectSerializer serializer)
+	{
+		base.Serialize(serializer);
+
+		serializer.SerializeTestCollectionMetadata(this);
+	}
+
 	/// <inheritdoc/>
 	public override string ToString() =>
 		string.Format(CultureInfo.CurrentCulture, "{0} name={1} class={2}", base.ToString(), testCollectionDisplayName.Quoted(), TestCollectionClass.Quoted());
@@ -30,6 +38,6 @@ public class _TestCollectionStarting : _TestCollectionMessage, _ITestCollectionM
 	{
 		base.ValidateObjectState(invalidProperties);
 
-		ValidateNullableProperty(testCollectionDisplayName, nameof(TestCollectionDisplayName), invalidProperties);
+		ValidatePropertyIsNotNull(testCollectionDisplayName, nameof(TestCollectionDisplayName), invalidProperties);
 	}
 }

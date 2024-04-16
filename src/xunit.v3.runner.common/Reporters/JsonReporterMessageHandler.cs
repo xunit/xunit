@@ -32,8 +32,9 @@ public class JsonReporterMessageHandler : IRunnerReporterMessageHandler
 	/// <inheritdoc/>
 	public bool OnMessage(_MessageSinkMessage message)
 	{
-		if (message is _MessageSinkMessage v3Message)
-			logger.LogImportantMessage(Encoding.UTF8.GetString(v3Message.ToJson()));
+		var bytes = message?.ToJson();
+		if (bytes is not null)
+			logger.LogImportantMessage(Encoding.UTF8.GetString(bytes));
 
 		return true;
 	}

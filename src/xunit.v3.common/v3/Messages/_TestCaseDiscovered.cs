@@ -9,6 +9,7 @@ namespace Xunit.v3;
 /// <summary>
 /// This message indicates that a test case had been found during the discovery process.
 /// </summary>
+[JsonTypeID("test-case-discovered")]
 public class _TestCaseDiscovered : _TestCaseMessage, _ITestCaseMetadata
 {
 	string? serialization;
@@ -84,6 +85,14 @@ public class _TestCaseDiscovered : _TestCaseMessage, _ITestCaseMetadata
 		set => traits = value ?? new Dictionary<string, IReadOnlyList<string>>();
 	}
 
+	internal override void Serialize(JsonObjectSerializer serializer)
+	{
+		base.Serialize(serializer);
+
+		serializer.SerializeTestCaseMetadata(this);
+		serializer.Serialize(nameof(Serialization), Serialization);
+	}
+
 	/// <inheritdoc/>
 	public override string ToString() =>
 		string.Format(CultureInfo.CurrentCulture, "{0} name={1}", base.ToString(), testCaseDisplayName.Quoted());
@@ -93,12 +102,12 @@ public class _TestCaseDiscovered : _TestCaseMessage, _ITestCaseMetadata
 	{
 		base.ValidateObjectState(invalidProperties);
 
-		ValidateNullableProperty(serialization, nameof(Serialization), invalidProperties);
-		ValidateNullableProperty(testCaseDisplayName, nameof(TestCaseDisplayName), invalidProperties);
+		ValidatePropertyIsNotNull(serialization, nameof(Serialization), invalidProperties);
+		ValidatePropertyIsNotNull(testCaseDisplayName, nameof(TestCaseDisplayName), invalidProperties);
 
 		if (TestMethodName is not null)
-			ValidateNullableProperty(testClassName, nameof(TestClassName), invalidProperties);
+			ValidatePropertyIsNotNull(testClassName, nameof(TestClassName), invalidProperties);
 		if (testClassName is not null)
-			ValidateNullableProperty(testClassNameWithNamespace, nameof(TestClassNameWithNamespace), invalidProperties);
+			ValidatePropertyIsNotNull(testClassNameWithNamespace, nameof(TestClassNameWithNamespace), invalidProperties);
 	}
 }

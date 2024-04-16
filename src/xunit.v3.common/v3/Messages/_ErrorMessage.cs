@@ -8,7 +8,8 @@ namespace Xunit.v3;
 /// <summary>
 /// This message indicates that an error has occurred in the execution process.
 /// </summary>
-public class _ErrorMessage : _MessageSinkMessage, _IErrorMetadata
+[JsonTypeID("error")]
+public sealed class _ErrorMessage : _MessageSinkMessage, _IErrorMetadata
 {
 	int[]? exceptionParentIndices;
 	string?[]? exceptionTypes;
@@ -62,14 +63,21 @@ public class _ErrorMessage : _MessageSinkMessage, _IErrorMetadata
 		};
 	}
 
+	internal override void Serialize(JsonObjectSerializer serializer)
+	{
+		base.Serialize(serializer);
+
+		serializer.SerializeErrorMetadata(this);
+	}
+
 	/// <inheritdoc/>
 	protected override void ValidateObjectState(HashSet<string> invalidProperties)
 	{
 		base.ValidateObjectState(invalidProperties);
 
-		ValidateNullableProperty(exceptionParentIndices, nameof(ExceptionParentIndices), invalidProperties);
-		ValidateNullableProperty(exceptionTypes, nameof(ExceptionTypes), invalidProperties);
-		ValidateNullableProperty(messages, nameof(Messages), invalidProperties);
-		ValidateNullableProperty(stackTraces, nameof(StackTraces), invalidProperties);
+		ValidatePropertyIsNotNull(exceptionParentIndices, nameof(ExceptionParentIndices), invalidProperties);
+		ValidatePropertyIsNotNull(exceptionTypes, nameof(ExceptionTypes), invalidProperties);
+		ValidatePropertyIsNotNull(messages, nameof(Messages), invalidProperties);
+		ValidatePropertyIsNotNull(stackTraces, nameof(StackTraces), invalidProperties);
 	}
 }

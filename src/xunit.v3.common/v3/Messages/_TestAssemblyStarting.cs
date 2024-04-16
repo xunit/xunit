@@ -10,6 +10,7 @@ namespace Xunit.v3;
 /// This message indicates that the execution process is about to start for
 /// the requested assembly.
 /// </summary>
+[JsonTypeID("test-assembly-starting")]
 public class _TestAssemblyStarting : _TestAssemblyMessage, _IAssemblyMetadata
 {
 	string? assemblyName;
@@ -69,6 +70,18 @@ public class _TestAssemblyStarting : _TestAssemblyMessage, _IAssemblyMetadata
 		set => testFrameworkDisplayName = Guard.ArgumentNotNullOrEmpty(value, nameof(TestFrameworkDisplayName));
 	}
 
+	internal override void Serialize(JsonObjectSerializer serializer)
+	{
+		base.Serialize(serializer);
+
+		serializer.SerializeAssemblyMetadata(this);
+		serializer.Serialize(nameof(Seed), Seed);
+		serializer.Serialize(nameof(StartTime), StartTime);
+		serializer.Serialize(nameof(TargetFramework), TargetFramework);
+		serializer.Serialize(nameof(TestEnvironment), TestEnvironment);
+		serializer.Serialize(nameof(TestFrameworkDisplayName), TestFrameworkDisplayName);
+	}
+
 	/// <inheritdoc/>
 	public override string ToString() =>
 		string.Format(
@@ -86,8 +99,8 @@ public class _TestAssemblyStarting : _TestAssemblyMessage, _IAssemblyMetadata
 	{
 		base.ValidateObjectState(invalidProperties);
 
-		ValidateNullableProperty(assemblyName, nameof(AssemblyName), invalidProperties);
-		ValidateNullableProperty(testEnvironment, nameof(TestEnvironment), invalidProperties);
-		ValidateNullableProperty(testFrameworkDisplayName, nameof(TestFrameworkDisplayName), invalidProperties);
+		ValidatePropertyIsNotNull(assemblyName, nameof(AssemblyName), invalidProperties);
+		ValidatePropertyIsNotNull(testEnvironment, nameof(TestEnvironment), invalidProperties);
+		ValidatePropertyIsNotNull(testFrameworkDisplayName, nameof(TestFrameworkDisplayName), invalidProperties);
 	}
 }

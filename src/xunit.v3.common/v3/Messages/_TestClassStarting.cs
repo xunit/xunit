@@ -7,6 +7,7 @@ namespace Xunit.v3;
 /// <summary>
 /// This message indicates that a test class is about to begin executing.
 /// </summary>
+[JsonTypeID("test-class-starting")]
 public class _TestClassStarting : _TestClassMessage, _ITestClassMetadata
 {
 	string? testClass;
@@ -18,6 +19,13 @@ public class _TestClassStarting : _TestClassMessage, _ITestClassMetadata
 		set => testClass = Guard.ArgumentNotNullOrEmpty(value, nameof(TestClass));
 	}
 
+	internal override void Serialize(JsonObjectSerializer serializer)
+	{
+		base.Serialize(serializer);
+
+		serializer.SerializeTestClassMetadata(this);
+	}
+
 	/// <inheritdoc/>
 	public override string ToString() =>
 		string.Format(CultureInfo.CurrentCulture, "{0} class={1}", base.ToString(), testClass.Quoted());
@@ -27,6 +35,6 @@ public class _TestClassStarting : _TestClassMessage, _ITestClassMetadata
 	{
 		base.ValidateObjectState(invalidProperties);
 
-		ValidateNullableProperty(testClass, nameof(TestClass), invalidProperties);
+		ValidatePropertyIsNotNull(testClass, nameof(TestClass), invalidProperties);
 	}
 }

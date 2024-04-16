@@ -12,6 +12,7 @@ namespace Xunit.v3;
 /// <a href="https://xunit.net/docs/configuration-files#internalDiagnosticMessages"/> on how to enable
 /// display of internal diagnostic messages).
 /// </summary>
+[JsonTypeID("internal-diagnostic")]
 public class _InternalDiagnosticMessage : _MessageSinkMessage
 {
 	string? message;
@@ -25,6 +26,13 @@ public class _InternalDiagnosticMessage : _MessageSinkMessage
 		set => message = Guard.ArgumentNotNull(value, nameof(Message));
 	}
 
+	internal override void Serialize(JsonObjectSerializer serializer)
+	{
+		base.Serialize(serializer);
+
+		serializer.Serialize(nameof(Message), Message);
+	}
+
 	/// <inheritdoc/>
 	public override string ToString() =>
 		string.Format(CultureInfo.CurrentCulture, "{0} message={1}", GetType().Name, message.Quoted());
@@ -34,6 +42,6 @@ public class _InternalDiagnosticMessage : _MessageSinkMessage
 	{
 		base.ValidateObjectState(invalidProperties);
 
-		ValidateNullableProperty(message, nameof(Message), invalidProperties);
+		ValidatePropertyIsNotNull(message, nameof(Message), invalidProperties);
 	}
 }

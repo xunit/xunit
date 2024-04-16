@@ -7,6 +7,7 @@ namespace Xunit.v3;
 /// <summary>
 /// This message indicates that a test is about to start executing.
 /// </summary>
+[JsonTypeID("test-starting")]
 public class _TestStarting : _TestMessage, _ITestMetadata
 {
 	string? testDisplayName;
@@ -32,6 +33,13 @@ public class _TestStarting : _TestMessage, _ITestMetadata
 		set => traits = value ?? new Dictionary<string, IReadOnlyList<string>>();
 	}
 
+	internal override void Serialize(JsonObjectSerializer serializer)
+	{
+		base.Serialize(serializer);
+
+		serializer.SerializeTestMetadata(this);
+	}
+
 	/// <inheritdoc/>
 	public override string ToString() =>
 		string.Format(CultureInfo.CurrentCulture, "{0} name={1}", base.ToString(), testDisplayName.Quoted());
@@ -41,6 +49,6 @@ public class _TestStarting : _TestMessage, _ITestMetadata
 	{
 		base.ValidateObjectState(invalidProperties);
 
-		ValidateNullableProperty(testDisplayName, nameof(TestDisplayName), invalidProperties);
+		ValidatePropertyIsNotNull(testDisplayName, nameof(TestDisplayName), invalidProperties);
 	}
 }
