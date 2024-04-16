@@ -14,11 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="[$(MicrosoftBclAsyncInterfacesVersion)]" />
-    <PackageReference Include="System.Threading.Tasks.Extensions" Version="$(SystemThreadingTasksExtensionsVersion)" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Include="xunit.v3.core.dll.tdnet" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 

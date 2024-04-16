@@ -23,12 +23,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.IO.Pipelines" Version="[$(SystemIoPipelinesVersion)]" />
-    <PackageReference Include="System.Net.Http" Version="$(SystemNetHttpVersion)" />
+    <ProjectReference Include="..\xunit.v3.common\xunit.v3.common.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\xunit.v3.common\xunit.v3.common.csproj" />
+    <PackageReference Include="System.Text.Json" Version="[$(SystemTextJsonVersion)]" />
   </ItemGroup>
 
 </Project>

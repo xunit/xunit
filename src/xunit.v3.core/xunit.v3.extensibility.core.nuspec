@@ -17,12 +17,13 @@
 		<dependencies>
 			<group targetFramework="net472">
 				<dependency id="Microsoft.Bcl.AsyncInterfaces" version="$MicrosoftBclAsyncInterfacesVersion$" />
-				<dependency id="System.Threading.Tasks.Extensions" version="$SystemThreadingTasksExtensionsVersion$" />
 				<dependency id="xunit.v3.common" version="[$PackageVersion$]" />
 			</group>
 			<group targetFramework="netstandard2.0">
 				<dependency id="Microsoft.Bcl.AsyncInterfaces" version="$MicrosoftBclAsyncInterfacesVersion$" />
-				<dependency id="System.Threading.Tasks.Extensions" version="$SystemThreadingTasksExtensionsVersion$" />
+				<dependency id="xunit.v3.common" version="[$PackageVersion$]" />
+			</group>
+			<group targetFramework="net6.0">
 				<dependency id="xunit.v3.common" version="[$PackageVersion$]" />
 			</group>
 		</dependencies>
@@ -32,6 +33,10 @@
 				<reference file="xunit.v3.core.xml" />
 			</group>
 			<group targetFramework="netstandard2.0">
+				<reference file="xunit.v3.core.dll" />
+				<reference file="xunit.v3.core.xml" />
+			</group>
+			<group targetFramework="net6.0">
 				<reference file="xunit.v3.core.dll" />
 				<reference file="xunit.v3.core.xml" />
 			</group>
@@ -56,5 +61,8 @@
 
 		<file target="ref\netstandard2.0\" src="obj\$Configuration$\netstandard2.0\ref\$SignedPath$xunit.v3.core.dll" />
 		<file target="ref\netstandard2.0\" src="bin\$Configuration$\netstandard2.0\xunit.v3.core.xml" />
+
+		<file target="ref\net6.0\" src="obj\$Configuration$\netstandard2.0\ref\$SignedPath$xunit.v3.core.dll" />
+		<file target="ref\net6.0\" src="bin\$Configuration$\netstandard2.0\xunit.v3.core.xml" />
 	</files>
 </package>

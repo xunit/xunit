@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Text.Json" Version="[$(SystemTextJsonVersion)]" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="[$(MicrosoftBclAsyncInterfacesVersion)]" />
   </ItemGroup>
 
 </Project>

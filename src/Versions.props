@@ -2,35 +2,43 @@
 
   <!-- Package versions shared among multiple .targets files -->
   <PropertyGroup>
-    <!-- These versions float and get upgraded when `dotnet outdated` says to -->
+
+    <!-- Used for building -->
     <ILRepackVersion>2.0.27</ILRepackVersion>
-    <MicrosoftBuildVersion>15.1.548</MicrosoftBuildVersion>
+    <MicrosoftNetCoreAppRefVersion>6.0.25</MicrosoftNetCoreAppRefVersion>
     <MicrosoftNetFrameworkReferenceAssembliesVersion>1.0.3</MicrosoftNetFrameworkReferenceAssembliesVersion>
     <MicrosoftSourceLinkGitHubVersion>8.0.0</MicrosoftSourceLinkGitHubVersion>
-    <MonoCecilVersion>0.11.5</MonoCecilVersion>
-    <MoqVersion>4.17.2</MoqVersion>
     <NerdbankGitVersioningVersion>3.6.133</NerdbankGitVersioningVersion>
-    <NSubstituteVersion>5.1.0</NSubstituteVersion>
-    <SystemComponentModelTypeConverterVersion>4.3.0</SystemComponentModelTypeConverterVersion>
-    <SystemMemoryVersion>4.5.5</SystemMemoryVersion>
-    <SystemNetHttpVersion>4.3.4</SystemNetHttpVersion>
-    <SystemThreadingTasksExtensionsVersion>4.5.4</SystemThreadingTasksExtensionsVersion>
-    <TestDrivenFrameworkVersion>2.0.0-alpha2</TestDrivenFrameworkVersion>
     <TunnelVisionLabsReferenceAssemblyAnnotatorVersion>1.0.0-alpha.160</TunnelVisionLabsReferenceAssemblyAnnotatorVersion>
-    <XunitAbstractionsVersion>2.0.3</XunitAbstractionsVersion>
     <XunitAnalyzersVersion>1.11.0</XunitAnalyzersVersion>
+
+    <!-- Used by xunit.v3.assert for immutable collection support (for netstandard2.0 only) -->
+    <SystemCollectionsImmutableVersion>6.0.0</SystemCollectionsImmutableVersion>
+
+    <!-- Used by xunit.v3.core for IAsyncDisposable -->
+    <MicrosoftBclAsyncInterfacesVersion>6.0.0</MicrosoftBclAsyncInterfacesVersion>
+
+    <!-- Used by xunit.v3.runner.common to deserialize JSON config files and message sink messages -->
+    <SystemTextJsonVersion>6.0.0</SystemTextJsonVersion>
+
+    <!-- Used by xunit.v3.runner.msbuild to reference MSBuild types -->
+    <MicrosoftBuildVersion>15.1.548</MicrosoftBuildVersion>
+
+    <!-- Used by xunit.v3.runner.tdnet to reference TestDriven.NET type -->
+    <TestDrivenFrameworkVersion>2.0.0-alpha2</TestDrivenFrameworkVersion>
+
+    <!-- Used by xunit.v3.runner.utility to determine the target framework of an assembly without load-locking it -->
+    <MonoCecilVersion>0.11.5</MonoCecilVersion>
+
+    <!-- Used in non-product (test or back-compat) projects -->
+    <FSharpCompilerServiceVersion>43.7.200</FSharpCompilerServiceVersion>
+    <MoqVersion>4.17.2</MoqVersion>
+    <NSubstituteVersion>5.1.0</NSubstituteVersion>
+    <SystemMemoryVersion>4.5.5</SystemMemoryVersion>
+    <XunitAbstractionsVersion>2.0.3</XunitAbstractionsVersion>
     <XunitV1Version>1.9.2</XunitV1Version>
     <XunitV2Version>2.7.1-pre.7</XunitV2Version>
 
-    <!-- These versions are stuck to represent what shipped with .NET 6 -->
-    <FSharpCompilerServiceVersion>43.7.200</FSharpCompilerServiceVersion>
-    <MicrosoftBclAsyncInterfacesVersion>6.0.0</MicrosoftBclAsyncInterfacesVersion>
-    <MicrosoftNetCoreAppRefVersion>6.0.25</MicrosoftNetCoreAppRefVersion>
-    <SystemCodeDomVersion>6.0.0</SystemCodeDomVersion>
-    <SystemCollectionsImmutableVersion>6.0.0</SystemCollectionsImmutableVersion>
-    <SystemIoPipelinesVersion>6.0.0</SystemIoPipelinesVersion>
-    <SystemReflectionMetadataVersion>6.0.0</SystemReflectionMetadataVersion>
-    <SystemTextJsonVersion>6.0.0</SystemTextJsonVersion>
   </PropertyGroup>
 
 </Project>

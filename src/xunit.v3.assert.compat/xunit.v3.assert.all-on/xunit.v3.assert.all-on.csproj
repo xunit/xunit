@@ -16,7 +16,6 @@
     <!-- Stick to an older version of the package, so we can still target netstandard1.1 -->
     <PackageReference Include="System.Collections.Immutable" Version="5.0.0" Condition=" '$(TargetFramework)' == 'netstandard1.1' " />
     <PackageReference Include="System.Memory" Version="$(SystemMemoryVersion)" />
-    <PackageReference Include="System.Threading.Tasks.Extensions" Version="$(SystemThreadingTasksExtensionsVersion)" />
   </ItemGroup>
 
 </Project>

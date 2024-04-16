@@ -8,4 +8,8 @@
     <ProjectReference Include="..\xunit.v3.runner.console\xunit.v3.runner.console.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="System.Collections.Immutable" Version="[$(SystemCollectionsImmutableVersion)]" />
+  </ItemGroup>
+
 </Project>

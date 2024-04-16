@@ -99,8 +99,6 @@
 
       <ItemGroup>
         <PackageReference Include="NSubstitute" Version="$(NSubstituteVersion)" />
-        <PackageReference Include="System.CodeDom" Version="[$(SystemCodeDomVersion)]" />
-        <PackageReference Include="System.ComponentModel.TypeConverter" Version="$(SystemComponentModelTypeConverterVersion)" />
         <PackageReference Include="xunit.analyzers" Version="$(XunitAnalyzersVersion)" PrivateAssets="all" />
       </ItemGroup>
 

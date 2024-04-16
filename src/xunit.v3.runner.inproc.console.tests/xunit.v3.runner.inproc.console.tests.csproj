@@ -8,4 +8,8 @@
     <ProjectReference Include="..\xunit.v3.runner.inproc.console\xunit.v3.runner.inproc.console.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="System.Collections.Immutable" Version="[$(SystemCollectionsImmutableVersion)]" Condition=" '$(TargetFramework)' == 'net472' " />
+  </ItemGroup>
+
 </Project>
