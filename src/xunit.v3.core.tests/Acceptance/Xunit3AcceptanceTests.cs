@@ -1136,10 +1136,23 @@ public class Xunit3AcceptanceTests
 
 			var failedMessage = Assert.Single(results.OfType<_TestFailed>());
 			var failedStarting = Assert.Single(results.OfType<_TestStarting>().Where(s => s.TestUniqueID == failedMessage.TestUniqueID));
-			Assert.Equal("Xunit3AcceptanceTests+ClassWithAsyncVoidTest.TestMethod", failedStarting.TestDisplayName);
+			Assert.Equal("Xunit3AcceptanceTests+AsyncVoid+ClassWithAsyncVoidTest.TestMethod", failedStarting.TestDisplayName);
 			var message = Assert.Single(failedMessage.Messages);
 			Assert.Equal("Tests marked as 'async void' are no longer supported. Please convert to 'async Task' or 'async ValueTask'.", message);
 		}
+
+#pragma warning disable xUnit1049 // Do not use 'async void' for test methods as it is no longer supported
+
+		class ClassWithAsyncVoidTest
+		{
+			[Fact]
+			public async void TestMethod()
+			{
+				await Task.Yield();
+			}
+		}
+
+#pragma warning restore xUnit1049 // Do not use 'async void' for test methods as it is no longer supported
 	}
 
 	class NoTestsClass { }
@@ -1226,14 +1239,5 @@ public class Xunit3AcceptanceTests
 		[Fact]
 		public void Passing()
 		{ }
-	}
-
-	class ClassWithAsyncVoidTest
-	{
-		[Fact]
-		public async void TestMethod()
-		{
-			await Task.Yield();
-		}
 	}
 }
