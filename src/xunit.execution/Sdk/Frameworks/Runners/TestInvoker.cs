@@ -260,7 +260,7 @@ namespace Xunit.Sdk
                                 }
                                 finally
                                 {
-                                    TestEventSource.Log.TestStart(Test.DisplayName);
+                                    TestEventSource.Log.TestStop(Test.DisplayName);
                                 }
                             }
                         }
