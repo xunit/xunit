@@ -199,18 +199,12 @@ namespace Xunit.Sdk
         /// <returns>Returns the time taken to invoke the test method</returns>
         protected virtual async Task<decimal> InvokeTestMethodAsync(object testClassInstance)
         {
-            var oldSyncContext = default(SynchronizationContext);
-            var asyncSyncContext = default(AsyncTestSyncContext);
+            var oldSyncContext = SynchronizationContext.Current;
+            var asyncSyncContext = new AsyncTestSyncContext(oldSyncContext);
+            SetSynchronizationContext(asyncSyncContext);
 
             try
             {
-                if (AsyncUtility.IsAsyncVoid(TestMethod))
-                {
-                    oldSyncContext = SynchronizationContext.Current;
-                    asyncSyncContext = new AsyncTestSyncContext(oldSyncContext);
-                    SetSynchronizationContext(asyncSyncContext);
-                }
-
                 await Aggregator.RunAsync(
                     () => Timer.AggregateAsync(
                         async () =>
@@ -275,8 +269,7 @@ namespace Xunit.Sdk
             }
             finally
             {
-                if (asyncSyncContext != null)
-                    SetSynchronizationContext(oldSyncContext);
+                SetSynchronizationContext(oldSyncContext);
             }
 
             return Timer.Total;
