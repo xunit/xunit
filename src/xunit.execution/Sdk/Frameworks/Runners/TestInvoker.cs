@@ -260,7 +260,7 @@ namespace Xunit.Sdk
                                 }
                                 finally
                                 {
-                                    if (LogEnabled)
+                                    if (logEnabled)
                                         TestEventSource.Log.TestStop(Test.DisplayName);
                                 }
                             }
