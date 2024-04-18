@@ -52,6 +52,7 @@ namespace Xunit
             {
                 result.SetDiagnosticMessages(configuration.DiagnosticMessages);
                 result.SetInternalDiagnosticMessages(configuration.InternalDiagnosticMessages);
+                result.SetParallelAlgorithm(configuration.ParallelAlgorithm);
                 result.SetDisableParallelization(!configuration.ParallelizeTestCollections);
                 result.SetMaxParallelThreads(configuration.MaxParallelThreads);
                 result.SetStopOnTestFail(configuration.StopOnFail);

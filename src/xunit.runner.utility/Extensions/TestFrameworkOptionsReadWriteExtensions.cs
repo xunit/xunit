@@ -243,6 +243,24 @@ public static class TestFrameworkOptionsReadWriteExtensions
     }
 
     /// <summary>
+    /// Gets the parallel algorithm to be used.
+    /// </summary>
+    public static ParallelAlgorithm? GetParallelAlgorithm(this ITestFrameworkExecutionOptions executionOptions)
+    {
+        var parallelAlgorithmString = executionOptions.GetValue<string>(TestOptionsNames.Execution.ParallelAlgorithm);
+        return parallelAlgorithmString != null ? (ParallelAlgorithm?)Enum.Parse(typeof(ParallelAlgorithm), parallelAlgorithmString) : null;
+    }
+
+    /// <summary>
+    /// Gets the parallel algorithm to be used. If the flag is not present, return the default
+    /// value (<see cref="ParallelAlgorithm.Conservative"/>).
+    /// </summary>
+    public static ParallelAlgorithm GetParallelAlgorithmOrDefault(this ITestFrameworkExecutionOptions executionOptions)
+    {
+        return executionOptions.GetParallelAlgorithm() ?? ParallelAlgorithm.Conservative;
+    }
+
+    /// <summary>
     /// Gets a flag that determines whether xUnit.net stop testing when a test fails.
     /// </summary>
     public static bool? GetStopOnTestFail(this ITestFrameworkExecutionOptions executionOptions)
@@ -290,6 +308,14 @@ public static class TestFrameworkOptionsReadWriteExtensions
     public static void SetInternalDiagnosticMessages(this ITestFrameworkExecutionOptions executionOptions, bool? value)
     {
         executionOptions.SetValue(TestOptionsNames.Execution.InternalDiagnosticMessages, value);
+    }
+
+    /// <summary>
+    /// Sets the parallel algorith to be used.
+    /// </summary>
+    public static void SetParallelAlgorithm(this ITestFrameworkExecutionOptions executionOptions, ParallelAlgorithm? value)
+    {
+        executionOptions.SetValue(TestOptionsNames.Execution.ParallelAlgorithm, value.HasValue ? value.GetValueOrDefault().ToString() : null);
     }
 
     /// <summary>

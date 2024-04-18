@@ -18,7 +18,9 @@ namespace Xunit.Sdk
         bool disableParallelization;
         bool initialized;
         int maxParallelThreads;
+        ParallelAlgorithm parallelAlgorithm;
         SynchronizationContext originalSyncContext;
+        SemaphoreSlim parallelSemaphore;
         MaxConcurrencySyncContext syncContext;
 
         /// <summary>
@@ -101,6 +103,8 @@ namespace Xunit.Sdk
             maxParallelThreads = ExecutionOptions.MaxParallelThreads() ?? maxParallelThreads;
             if (maxParallelThreads == 0)
                 maxParallelThreads = Environment.ProcessorCount;
+
+            parallelAlgorithm = ExecutionOptions.ParallelAlgorithmOrDefault();
 
             var testCaseOrdererAttribute = TestAssembly.Assembly.GetCustomAttributes(typeof(TestCaseOrdererAttribute)).SingleOrDefault();
             if (testCaseOrdererAttribute != null)
@@ -191,7 +195,10 @@ namespace Xunit.Sdk
             if (disableParallelization)
                 return await base.RunTestCollectionsAsync(messageBus, cancellationTokenSource);
 
-            SetupSyncContext(maxParallelThreads);
+            if (parallelAlgorithm == ParallelAlgorithm.Aggressive)
+                SetupSyncContext(maxParallelThreads);
+            else
+                parallelSemaphore = new SemaphoreSlim(maxParallelThreads);
 
             Func<Func<Task<RunSummary>>, Task<RunSummary>> taskRunner;
             if (SynchronizationContext.Current != null)
@@ -259,7 +266,19 @@ namespace Xunit.Sdk
 
         /// <inheritdoc/>
         protected override Task<RunSummary> RunTestCollectionAsync(IMessageBus messageBus, ITestCollection testCollection, IEnumerable<IXunitTestCase> testCases, CancellationTokenSource cancellationTokenSource)
-            => new XunitTestCollectionRunner(testCollection, testCases, DiagnosticMessageSink, messageBus, TestCaseOrderer, new ExceptionAggregator(Aggregator), cancellationTokenSource).RunAsync();
+        {
+
+            parallelSemaphore?.Wait();
+
+            try
+            {
+                return new XunitTestCollectionRunner(testCollection, testCases, DiagnosticMessageSink, messageBus, TestCaseOrderer, new ExceptionAggregator(Aggregator), cancellationTokenSource).RunAsync();
+            }
+            finally
+            {
+                parallelSemaphore?.Release();
+            }
+        }
 
         [SecuritySafeCritical]
         static void SetSynchronizationContext(SynchronizationContext context)

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
+using ParallelAlgorithm = Xunit.ParallelAlgorithm;
 
 public class XunitTestAssemblyRunnerTests
 {
@@ -166,12 +167,13 @@ public class XunitTestAssemblyRunnerTests
     public class RunAsync
     {
         [Fact]
-        public static async void Parallel_SingleThread()
+        public static async void Parallel_SingleThread_Aggressive()
         {
             var passing = Mocks.XunitTestCase<ClassUnderTest>("Passing");
             var other = Mocks.XunitTestCase<ClassUnderTest>("Other");
             var options = TestFrameworkOptions.ForExecution();
             options.SetMaxParallelThreads(1);
+            options.SetParallelAlgorithm(ParallelAlgorithm.Aggressive);
             var runner = TestableXunitTestAssemblyRunner.Create(testCases: new[] { passing, other }, executionOptions: options);
 
             await runner.RunAsync();

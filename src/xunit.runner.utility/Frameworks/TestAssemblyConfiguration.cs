@@ -111,6 +111,16 @@ namespace Xunit
         public TestMethodDisplayOptions MethodDisplayOptionsOrDefault { get { return MethodDisplayOptions ?? TestMethodDisplayOptions.None; } }
 
         /// <summary>
+        /// Gets or sets the algorithm to be used for parallelization.
+        /// </summary>
+        public ParallelAlgorithm? ParallelAlgorithm { get; set; }
+
+        /// <summary>
+        /// Gets or sets the algorithm to be used for parallelization.
+        /// </summary>
+        public ParallelAlgorithm ParallelAlgorithmOrDefault { get { return ParallelAlgorithm ?? Xunit.ParallelAlgorithm.Conservative; } }
+
+        /// <summary>
         /// Gets or sets a flag indicating that this assembly is safe to parallelize against
         /// other assemblies.
         /// </summary>

@@ -160,6 +160,19 @@ namespace Xunit
                                 catch { }
                             }
                         }
+                        else if (string.Equals(propertyName, Configuration.ParallelAlgorithm, StringComparison.OrdinalIgnoreCase))
+                        {
+                            var stringValue = propertyValue as JsonString;
+                            if (stringValue != null)
+                            {
+                                try
+                                {
+                                    var parallelAlgorithm = Enum.Parse(typeof(ParallelAlgorithm), stringValue, true);
+                                    result.ParallelAlgorithm = (ParallelAlgorithm)parallelAlgorithm;
+                                }
+                                catch { }
+                            }
+                        }
                         else if (string.Equals(propertyName, Configuration.AppDomain, StringComparison.OrdinalIgnoreCase))
                         {
                             var stringValue = propertyValue as JsonString;
@@ -237,6 +250,7 @@ namespace Xunit
             public const string MaxParallelThreads = "maxParallelThreads";
             public const string MethodDisplay = "methodDisplay";
             public const string MethodDisplayOptions = "methodDisplayOptions";
+            public const string ParallelAlgorithm = "parallelAlgorithm";
             public const string ParallelizeAssembly = "parallelizeAssembly";
             public const string ParallelizeTestCollections = "parallelizeTestCollections";
             public const string PreEnumerateTheories = "preEnumerateTheories";

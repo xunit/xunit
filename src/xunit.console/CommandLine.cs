@@ -46,6 +46,8 @@ namespace Xunit.ConsoleClient
 
         public XunitProject Project { get; protected set; }
 
+        public ParallelAlgorithm? ParallelAlgorithm { get; protected set; }
+
         public bool? ParallelizeAssemblies { get; protected set; }
 
         public bool? ParallelizeTestCollections { get; set; }
@@ -297,6 +299,16 @@ namespace Xunit.ConsoleClient
                             ParallelizeTestCollections = false;
                             break;
                     }
+                }
+                else if (optionName == "parallelalgorithm")
+                {
+                    if (option.Value == null)
+                        throw new ArgumentException("missing argument for -parallelAlgorithm");
+
+                    if (!Enum.TryParse(option.Value, ignoreCase: true, out ParallelAlgorithm parallelAlgorithm))
+                        throw new ArgumentException("incorrect argument value for -parallelAlgorithm");
+
+                    ParallelAlgorithm = parallelAlgorithm;
                 }
                 else if (optionName == "noshadow")
                 {

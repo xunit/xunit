@@ -120,6 +120,24 @@ public static class TestFrameworkOptionsReadExtensions
     }
 
     /// <summary>
+    /// Gets the parallel algorithm to be used.
+    /// </summary>
+    public static ParallelAlgorithm? ParallelAlgorithm(this ITestFrameworkExecutionOptions executionOptions)
+    {
+        var parallelAlgorithmString = executionOptions.GetValue<string>(TestOptionsNames.Execution.ParallelAlgorithm);
+        return parallelAlgorithmString != null ? (ParallelAlgorithm?)Enum.Parse(typeof(ParallelAlgorithm), parallelAlgorithmString) : null;
+    }
+
+    /// <summary>
+    /// Gets the parallel algorithm to be used. If the flag is not present, return the default
+    /// value (<see cref="ParallelAlgorithm.Conservative"/>).
+    /// </summary>
+    public static ParallelAlgorithm ParallelAlgorithmOrDefault(this ITestFrameworkExecutionOptions executionOptions)
+    {
+        return executionOptions.ParallelAlgorithm() ?? Xunit.Sdk.ParallelAlgorithm.Conservative;
+    }
+
+    /// <summary>
     /// Gets a flag to disable parallelization.
     /// </summary>
     public static bool? DisableParallelization(this ITestFrameworkExecutionOptions executionOptions)

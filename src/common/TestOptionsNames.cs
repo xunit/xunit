@@ -17,6 +17,7 @@ static class TestOptionsNames
         public static readonly string InternalDiagnosticMessages = "xunit.execution.InternalDiagnosticMessages";
         public static readonly string DisableParallelization = "xunit.execution.DisableParallelization";
         public static readonly string MaxParallelThreads = "xunit.execution.MaxParallelThreads";
+        public static readonly string ParallelAlgorithm = "xunit.execution.ParallelAlgorithm";
         public static readonly string SynchronousMessageReporting = "xunit.execution.SynchronousMessageReporting";
     }
 }

@@ -252,14 +252,16 @@ namespace Xunit
             if (executionStarting.ExecutionOptions.GetDiagnosticMessagesOrDefault())
             {
                 var threadCount = executionStarting.ExecutionOptions.GetMaxParallelThreadsOrDefault();
+                var parallelAlgorithm = executionStarting.ExecutionOptions.GetParallelAlgorithmOrDefault();
                 var parallelTestCollections =
                     executionStarting.ExecutionOptions.GetDisableParallelizationOrDefault()
                         ? "off"
                         : string.Format(
                             CultureInfo.CurrentCulture,
-                            "on [{0} thread{1}]",
+                            "on [{0} thread{1}{2}]",
                             threadCount < 0 ? "unlimited" : threadCount.ToString(CultureInfo.CurrentCulture),
-                            threadCount == 1 ? string.Empty : "s"
+                            threadCount == 1 ? string.Empty : "s",
+                            parallelAlgorithm == ParallelAlgorithm.Aggressive ? "/aggressive" : string.Empty
                         );
 
                 Logger.LogImportantMessage(

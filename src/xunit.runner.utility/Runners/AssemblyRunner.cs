@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using Xunit.Abstractions;
@@ -181,7 +182,7 @@ namespace Xunit.Runners
             return discoveryOptions;
         }
 
-        ITestFrameworkExecutionOptions GetExecutionOptions(bool? diagnosticMessages, bool? parallel, int? maxParallelThreads, bool? internalDiagnosticMessages)
+        ITestFrameworkExecutionOptions GetExecutionOptions(bool? diagnosticMessages, bool? parallel, ParallelAlgorithm? parallelAlgorithm, int? maxParallelThreads, bool? internalDiagnosticMessages)
         {
             var executionOptions = TestFrameworkOptions.ForExecution(configuration);
             executionOptions.SetSynchronousMessageReporting(true);
@@ -192,6 +193,8 @@ namespace Xunit.Runners
                 executionOptions.SetDiagnosticMessages(internalDiagnosticMessages);
             if (parallel.HasValue)
                 executionOptions.SetDisableParallelization(!parallel.GetValueOrDefault());
+            if (parallelAlgorithm.HasValue)
+                executionOptions.SetParallelAlgorithm(parallelAlgorithm);
             if (maxParallelThreads.HasValue)
                 executionOptions.SetMaxParallelThreads(maxParallelThreads);
 
@@ -199,8 +202,25 @@ namespace Xunit.Runners
         }
 
         /// <summary>
+        /// Obsolete method. Call the overload with parallelAlgorithm.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Obsolete("Please use the overload with parallelAlgorithm")]
+        public void Start(string typeName = null,
+                          bool? diagnosticMessages = null,
+                          TestMethodDisplay? methodDisplay = null,
+                          TestMethodDisplayOptions? methodDisplayOptions = null,
+                          bool? preEnumerateTheories = null,
+                          bool? parallel = null,
+                          int? maxParallelThreads = null,
+                          bool? internalDiagnosticMessages = null)
+        {
+            Start(typeName, diagnosticMessages, methodDisplay, methodDisplayOptions, preEnumerateTheories, parallel, maxParallelThreads, internalDiagnosticMessages, null);
+        }
+
+        /// <summary>
         /// Starts running tests from a single type (if provided) or the whole assembly (if not). This call returns
-        /// immediately, and status results are dispatched to the Info>s on this class. Callers can check <see cref="Status"/>
+        /// immediately, and status results are dispatched to the events on this class. Callers can check <see cref="Status"/>
         /// to find out the current status.
         /// </summary>
         /// <param name="typeName">The (optional) type name of the single test class to run</param>
@@ -219,6 +239,7 @@ namespace Xunit.Runners
         /// of threads. By default, uses the value from the assembly configuration file. (This parameter is ignored for xUnit.net v1 tests.)</param>
         /// <param name="internalDiagnosticMessages">Set to <c>true</c> to enable internal diagnostic messages; set to <c>false</c> to disable them.
         /// By default, uses the value from the assembly configuration file.</param>
+        /// <param name="parallelAlgorithm">The parallel algorithm to be used; defaults to <see cref="ParallelAlgorithm.Conservative"/>.</param>
         public void Start(string typeName = null,
                           bool? diagnosticMessages = null,
                           TestMethodDisplay? methodDisplay = null,
@@ -226,7 +247,8 @@ namespace Xunit.Runners
                           bool? preEnumerateTheories = null,
                           bool? parallel = null,
                           int? maxParallelThreads = null,
-                          bool? internalDiagnosticMessages = null)
+                          bool? internalDiagnosticMessages = null,
+                          ParallelAlgorithm? parallelAlgorithm = null)
         {
             lock (statusLock)
             {
@@ -257,7 +279,7 @@ namespace Xunit.Runners
                     return;
                 }
 
-                var executionOptions = GetExecutionOptions(diagnosticMessages, parallel, maxParallelThreads, internalDiagnosticMessages);
+                var executionOptions = GetExecutionOptions(diagnosticMessages, parallel, parallelAlgorithm, maxParallelThreads, internalDiagnosticMessages);
                 controller.RunTests(testCasesToRun, this, executionOptions);
                 executionCompleteEvent.WaitOne();
             });

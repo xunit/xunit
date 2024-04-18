@@ -5,6 +5,7 @@
     "maxParallelThreads": "abc",
     "methodDisplay": "fooBar",
     "methodDisplayOptions": "fooBar",
+    "parallelAlgorithm": "blarch",
     "parallelizeAssembly": true,
     "parallelizetestcollections": "biff",
     "preEnumerateTheories": "baz"

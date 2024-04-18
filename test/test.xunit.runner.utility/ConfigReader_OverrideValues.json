@@ -5,6 +5,7 @@
     "maxParallelThreads": 2112,
     "methodDisplay": "method",
     "methodDisplayOptions": "all",
+    "parallelAlgorithm": "aggressive",
     "parallelizeAssembly": true,
     "parallelizetestcollections": false,
     "preEnumerateTheories": false,
