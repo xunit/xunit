@@ -268,7 +268,7 @@ namespace Xunit.Sdk
         protected override async Task<RunSummary> RunTestCollectionAsync(IMessageBus messageBus, ITestCollection testCollection, IEnumerable<IXunitTestCase> testCases, CancellationTokenSource cancellationTokenSource)
         {
             if (parallelSemaphore is not null)
-                await parallelSemaphore.WaitAsync();
+                await parallelSemaphore.WaitAsync(cancellationTokenSource.Token);
 
             try
             {
