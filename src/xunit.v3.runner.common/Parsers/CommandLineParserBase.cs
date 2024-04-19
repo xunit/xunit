@@ -71,8 +71,8 @@ public abstract class CommandLineParserBase
 			"maximum thread count for collection parallelization",
 			"  default   - run with default (1 thread per CPU thread)",
 			"  unlimited - run with unbounded thread count",
-			"  (integer) - use exactly this many threads (f.e., '2' = 2 threads)",
-			"  (float)x  - use a multiple of CPU threads (f.e., '2.0x' = 2.0 * the number of CPU threads)"
+			"  (integer) - use exactly this many threads (e.g., '2' = 2 threads)",
+			"  (float)x  - use a multiple of CPU threads (e.g., '2.0x' = 2.0 * the number of CPU threads)"
 		);
 		AddParser(
 			"noAutoReporters", OnNoAutoReporters, CommandLineGroup.General, "<option>",
