@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using Xunit;
@@ -16,203 +15,131 @@ public class ConfigReaderTests
     }
 
     [Theory]
-    [InlineData("UnknownFile.json")]
+    [InlineData("ConfigReader_Empty.json")]
 #if NETFRAMEWORK
-    [InlineData("UnknownFile.config")]
+    [InlineData("ConfigReader_Empty.config")]
 #endif
-    public static void ConfigurationFileNotFound_ReturnsWarning(string configFileName)
+    public static void EmptyConfigurationFile_ReturnsDefaultValues(string configFileName)
     {
-        var configFilePath = Path.Combine(AssemblyPath, configFileName);
-        var warnings = new List<string>();
+        var configuration = ConfigReader.Load(AssemblyFileName, Path.Combine(AssemblyPath, configFileName));
 
-        ConfigReader.Load(AssemblyFileName, configFilePath, warnings);
+        Assert.False(configuration.DiagnosticMessagesOrDefault);
+        Assert.False(configuration.InternalDiagnosticMessagesOrDefault);
+        Assert.Equal(Environment.ProcessorCount, configuration.MaxParallelThreadsOrDefault);
+        Assert.Equal(TestMethodDisplay.ClassAndMethod, configuration.MethodDisplayOrDefault);
+        Assert.Equal(TestMethodDisplayOptions.None, configuration.MethodDisplayOptionsOrDefault);
+        Assert.False(configuration.ParallelizeAssemblyOrDefault);
+        Assert.True(configuration.ParallelizeTestCollectionsOrDefault);
+        Assert.Null(configuration.PreEnumerateTheories);
 
-        var warning = Assert.Single(warnings);
-        Assert.Equal($"Couldn't load config file '{configFilePath}': file not found", warning);
+        if (configFileName.EndsWith(".json"))
+            Assert.False(configuration.FailSkipsOrDefault);
     }
 
     [Theory]
-    [InlineData("UnknownFile.xml")]
-#if !NETFRAMEWORK
-    [InlineData("UnknownFile.config")]
-#endif
-    public static void ConfigurationFileTypeUnknown_ReturnsWarning(string configFileName)
-    {
-        var configFilePath = Path.Combine(AssemblyPath, configFileName);
-        var warnings = new List<string>();
-
-        ConfigReader.Load(AssemblyFileName, configFilePath, warnings);
-
-        var warning = Assert.Single(warnings);
-        Assert.Equal($"Couldn't load config file '{configFilePath}': unknown file type", warning);
-    }
-
-    public class Load_WithJson
-    {
-        [Fact]
-        public static void EmptyConfigurationFile_ReturnsDefaultValues()
-        {
-            var warnings = new List<string>();
-
-            var result = ConfigReader.Load(AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_Empty.json"), warnings);
-
-            Assert.Empty(warnings);
-            Assert.False(result.DiagnosticMessagesOrDefault);
-            Assert.False(result.FailSkipsOrDefault);
-            Assert.False(result.InternalDiagnosticMessagesOrDefault);
-            Assert.Equal(Environment.ProcessorCount, result.MaxParallelThreadsOrDefault);
-            Assert.Equal(TestMethodDisplay.ClassAndMethod, result.MethodDisplayOrDefault);
-            Assert.Equal(TestMethodDisplayOptions.None, result.MethodDisplayOptionsOrDefault);
-            Assert.Equal(ParallelAlgorithm.Conservative, result.ParallelAlgorithmOrDefault);
-            Assert.False(result.ParallelizeAssemblyOrDefault);
-            Assert.True(result.ParallelizeTestCollectionsOrDefault);
-            Assert.True(result.PreEnumerateTheoriesOrDefault);
-        }
-
-        [Fact]
-        public static void ConfigurationFileWithValidValues_ReturnsConfiguredValues()
-        {
-            var warnings = new List<string>();
-
-            var result = ConfigReader.Load(AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_OverrideValues.json"), warnings);
-
-            Assert.Empty(warnings);
-            Assert.True(result.DiagnosticMessagesOrDefault);
-            Assert.True(result.FailSkipsOrDefault);
-            Assert.True(result.InternalDiagnosticMessagesOrDefault);
-            Assert.Equal(2112, result.MaxParallelThreadsOrDefault);
-            Assert.Equal(TestMethodDisplay.Method, result.MethodDisplayOrDefault);
-            Assert.Equal(TestMethodDisplayOptions.All, result.MethodDisplayOptionsOrDefault);
-            Assert.Equal(ParallelAlgorithm.Aggressive, result.ParallelAlgorithmOrDefault);
-            Assert.True(result.ParallelizeAssemblyOrDefault);
-            Assert.False(result.ParallelizeTestCollectionsOrDefault);
-            Assert.False(result.PreEnumerateTheoriesOrDefault);
-            Assert.Equal(5, result.LongRunningTestSecondsOrDefault);
-        }
-
-        [Fact]
-        public static void ConfigurationFileWithInvalidValues_FallsBackToDefaultValues()
-        {
-            var warnings = new List<string>();
-
-            var result = ConfigReader.Load(AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_BadValues.json"), warnings);
-
-            Assert.Empty(warnings);
-            Assert.False(result.DiagnosticMessagesOrDefault);
-            Assert.False(result.FailSkipsOrDefault);
-            Assert.False(result.InternalDiagnosticMessagesOrDefault);
-            Assert.Equal(Environment.ProcessorCount, result.MaxParallelThreadsOrDefault);
-            Assert.Equal(TestMethodDisplay.ClassAndMethod, result.MethodDisplayOrDefault);
-            Assert.Equal(TestMethodDisplayOptions.None, result.MethodDisplayOptionsOrDefault);
-            Assert.Equal(ParallelAlgorithm.Conservative, result.ParallelAlgorithmOrDefault);
-            // This value was valid as a sentinel to make sure we were trying to read values from the JSON
-            Assert.True(result.ParallelizeAssemblyOrDefault);
-            Assert.True(result.ParallelizeTestCollectionsOrDefault);
-            Assert.True(result.PreEnumerateTheoriesOrDefault);
-        }
-
-        [Fact]
-        public static void ConfigurationFileWithNegativeThreadValue_ReturnsConfiguredValue()
-        {
-            var result = ConfigReader.Load(AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_NegativeThreads.json"));
-
-            Assert.Equal(-1, result.MaxParallelThreadsOrDefault);
-        }
-
-        [Fact]
-        public static void ConfigurationFileWithNonTopLevelObject_ReturnsWarning()
-        {
-            var warnings = new List<string>();
-            var configFilePath = Path.Combine(AssemblyPath, "ConfigReader_NonObject.json");
-
-            ConfigReader.Load(AssemblyFileName, configFilePath, warnings);
-
-            var warning = Assert.Single(warnings);
-            Assert.Equal($"Couldn't parse config file '{configFilePath}': the root must be a JSON object", warning);
-        }
-
-        [Fact]
-        public static void InvalidJson_ReturnsWarning()
-        {
-            var warnings = new List<string>();
-            var configFilePath = Path.Combine(AssemblyPath, "ConfigReader_InvalidJson.json");
-
-            ConfigReader.Load(AssemblyFileName, configFilePath, warnings);
-
-            var warning = Assert.Single(warnings);
-            Assert.Equal($"Exception loading config file '{configFilePath}': Illegal character '?' (Unicode hexadecimal 003F).", warning);
-        }
-    }
-
+    [InlineData("ConfigReader_OverrideValues.json")]
 #if NETFRAMEWORK
-    public class Load_WithXml
-    {
-        [Fact]
-        public static void EmptyConfigurationFile_ReturnsDefaultValues()
-        {
-            var warnings = new List<string>();
-
-            var result = ConfigReader.Load(AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_Empty.config"), warnings);
-
-            Assert.Empty(warnings);
-            Assert.False(result.DiagnosticMessagesOrDefault);
-            Assert.False(result.InternalDiagnosticMessagesOrDefault);
-            Assert.Equal(Environment.ProcessorCount, result.MaxParallelThreadsOrDefault);
-            Assert.Equal(TestMethodDisplay.ClassAndMethod, result.MethodDisplayOrDefault);
-            Assert.Equal(TestMethodDisplayOptions.None, result.MethodDisplayOptionsOrDefault);
-            Assert.Equal(ParallelAlgorithm.Conservative, result.ParallelAlgorithmOrDefault);
-            Assert.False(result.ParallelizeAssemblyOrDefault);
-            Assert.True(result.ParallelizeTestCollectionsOrDefault);
-            Assert.True(result.PreEnumerateTheoriesOrDefault);
-        }
-
-        [Fact]
-        public static void ConfigurationFileWithValidValues_ReturnsConfiguredValues()
-        {
-            var warnings = new List<string>();
-
-            var result = ConfigReader.Load(AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_OverrideValues.config"), warnings);
-
-            Assert.Empty(warnings);
-            Assert.True(result.DiagnosticMessagesOrDefault);
-            Assert.True(result.InternalDiagnosticMessagesOrDefault);
-            Assert.Equal(2112, result.MaxParallelThreadsOrDefault);
-            Assert.Equal(TestMethodDisplay.Method, result.MethodDisplayOrDefault);
-            Assert.Equal(TestMethodDisplayOptions.All, result.MethodDisplayOptionsOrDefault);
-            Assert.Equal(ParallelAlgorithm.Aggressive, result.ParallelAlgorithmOrDefault);
-            Assert.True(result.ParallelizeAssemblyOrDefault);
-            Assert.False(result.ParallelizeTestCollectionsOrDefault);
-            Assert.False(result.PreEnumerateTheoriesOrDefault);
-            Assert.Equal(5, result.LongRunningTestSecondsOrDefault);
-        }
-
-        [Fact]
-        public static void ConfigurationFileWithInvalidValues_FallsBackToDefaultValues()
-        {
-            var warnings = new List<string>();
-
-            var result = ConfigReader.Load(AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_BadValues.config"), warnings);
-
-            Assert.Empty(warnings);
-            Assert.False(result.DiagnosticMessagesOrDefault);
-            Assert.False(result.InternalDiagnosticMessagesOrDefault);
-            Assert.Equal(Environment.ProcessorCount, result.MaxParallelThreadsOrDefault);
-            Assert.Equal(TestMethodDisplay.ClassAndMethod, result.MethodDisplayOrDefault);
-            Assert.Equal(TestMethodDisplayOptions.None, result.MethodDisplayOptionsOrDefault);
-            Assert.Equal(ParallelAlgorithm.Conservative, result.ParallelAlgorithmOrDefault);
-            // This value was valid as a sentinel to make sure we were trying to read values from the file
-            Assert.True(result.ParallelizeAssemblyOrDefault);
-            Assert.True(result.ParallelizeTestCollectionsOrDefault);
-            Assert.True(result.PreEnumerateTheoriesOrDefault);
-        }
-
-        [Fact]
-        public static void ConfigurationFileWithNegativeThreadValue_ReturnsConfiguredValue()
-        {
-            var result = ConfigReader.Load(AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_NegativeThreads.config"));
-
-            Assert.Equal(-1, result.MaxParallelThreadsOrDefault);
-        }
-    }
+    [InlineData("ConfigReader_OverrideValues.config")]
 #endif
+    public static void ConfigurationFileWithValidValues_ReturnsConfiguredValues(string configFileName)
+    {
+        var configuration = ConfigReader.Load(AssemblyFileName, Path.Combine(AssemblyPath, configFileName));
+
+        Assert.True(configuration.DiagnosticMessagesOrDefault);
+        Assert.True(configuration.InternalDiagnosticMessagesOrDefault);
+        Assert.Equal(2112, configuration.MaxParallelThreadsOrDefault);
+        Assert.Equal(TestMethodDisplay.Method, configuration.MethodDisplayOrDefault);
+        Assert.Equal(TestMethodDisplayOptions.All, configuration.MethodDisplayOptionsOrDefault);
+        Assert.True(configuration.ParallelizeAssemblyOrDefault);
+        Assert.False(configuration.ParallelizeTestCollectionsOrDefault);
+        Assert.False(configuration.PreEnumerateTheories);
+        Assert.Equal(5, configuration.LongRunningTestSecondsOrDefault);
+    }
+
+    [Theory]
+    [InlineData("ConfigReader_BadValues.json")]
+#if NETFRAMEWORK
+    [InlineData("ConfigReader_BadValues.config")]
+#endif
+    public static void ConfigurationFileWithInvalidValues_FallsBackToDefaultValues(string configFileName)
+    {
+        var configuration = ConfigReader.Load(AssemblyFileName, Path.Combine(AssemblyPath, configFileName));
+
+        Assert.False(configuration.DiagnosticMessagesOrDefault);
+        Assert.False(configuration.InternalDiagnosticMessagesOrDefault);
+        Assert.Equal(Environment.ProcessorCount, configuration.MaxParallelThreadsOrDefault);
+        Assert.Equal(TestMethodDisplay.ClassAndMethod, configuration.MethodDisplayOrDefault);
+        Assert.Equal(TestMethodDisplayOptions.None, configuration.MethodDisplayOptionsOrDefault);
+        // This value was valid as a sentinel to make sure we were trying to read values from the config file
+        Assert.True(configuration.ParallelizeAssemblyOrDefault);
+        Assert.True(configuration.ParallelizeTestCollectionsOrDefault);
+        Assert.Null(configuration.PreEnumerateTheories);
+
+        if (configFileName.EndsWith(".json"))
+            Assert.False(configuration.FailSkipsOrDefault);
+    }
+
+    [Theory]
+    [InlineData("ConfigReader_MaxThreadsNegativeOne.json")]
+#if NETFRAMEWORK
+    [InlineData("ConfigReader_MaxThreadsNegativeOne.config")]
+#endif
+    public static void ConfigurationFileWithNegativeThreadValue_ReturnsConfiguredValue(string configFileName)
+    {
+        var configuration = ConfigReader.Load(AssemblyFileName, Path.Combine(AssemblyPath, configFileName));
+
+        Assert.Equal(-1, configuration.MaxParallelThreadsOrDefault);
+    }
+
+    [Theory]
+    [InlineData("ConfigReader_MaxThreadsZero.json")]
+#if NETFRAMEWORK
+    [InlineData("ConfigReader_MaxThreadsZero.config")]
+#endif
+    public static void ConfigurationFileWithZeroThreads_ReturnsProcessorCount(string configFileName)
+    {
+        var configuration = ConfigReader.Load(AssemblyFileName, Path.Combine(AssemblyPath, configFileName));
+
+        Assert.Equal(Environment.ProcessorCount, configuration.MaxParallelThreadsOrDefault);
+    }
+
+    [Fact]
+    public static void ConfigurationFileWithMaxThreadsAsMultiplier_ReturnsMultipliedValue()
+    {
+        var configuration = ConfigReader.Load(AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_MaxThreadsMultiplier.json"));
+
+        Assert.Equal(Environment.ProcessorCount * 2, configuration.MaxParallelThreadsOrDefault);
+    }
+
+    [Fact]
+    public static void ConfigurationFileWithMaxThreadsAsMultiplierWithComma_ReturnsMultipliedValue()
+    {
+        var configuration = ConfigReader.Load(AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_MaxThreadsMultiplierComma.json"));
+
+        Assert.Equal(Environment.ProcessorCount * 2, configuration.MaxParallelThreadsOrDefault);
+    }
+
+    [Fact]
+    public static void ConfigurationFileWithMaxThreadsAsMultiplierWithDecimal_ReturnsMultipliedValue()
+    {
+        var configuration = ConfigReader.Load(AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_MaxThreadsMultiplierDecimal.json"));
+
+        Assert.Equal(Environment.ProcessorCount * 2, configuration.MaxParallelThreadsOrDefault);
+    }
+
+    [Fact]
+    public static void ConfigurationFileWithMaxThreadsExplicitDefault_ReturnsProcessorCount()
+    {
+        var configuration = ConfigReader.Load(AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_MaxThreadsDefault.json"));
+
+        Assert.Equal(Environment.ProcessorCount, configuration.MaxParallelThreadsOrDefault);
+    }
+
+    [Fact]
+    public static void ConfigurationFileWithMaxThreadsExplicitUnlimited_ReturnsUnlimited()
+    {
+        var configuration = ConfigReader.Load(AssemblyFileName, Path.Combine(AssemblyPath, "ConfigReader_MaxThreadsUnlimited.json"));
+
+        Assert.Equal(-1, configuration.MaxParallelThreadsOrDefault);
+    }
 }

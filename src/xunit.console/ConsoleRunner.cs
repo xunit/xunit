@@ -224,7 +224,8 @@ namespace Xunit.ConsoleClient
             Console.WriteLine("  -maxthreads count         : maximum thread count for collection parallelization");
             Console.WriteLine("                            :   default   - run with default (1 thread per CPU thread)");
             Console.WriteLine("                            :   unlimited - run with unbounded thread count");
-            Console.WriteLine("                            :   (number)  - limit task thread pool size to 'count'");
+            Console.WriteLine("                            :   (integer) - use exactly this many threads (e.g., '2' = 2 threads)");
+            Console.WriteLine("                            :   (float)x  - use a multiple of CPU threads (e.g., '2.0x' = 2.0 * the number of CPU threads)");
 #if NETFRAMEWORK
             Console.WriteLine("  -appdomains mode          : choose an app domain mode");
             Console.WriteLine("                            :   ifavailable - choose based on library type");

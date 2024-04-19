@@ -116,12 +116,27 @@ namespace Xunit
                         }
                         else if (string.Equals(propertyName, Configuration.MaxParallelThreads, StringComparison.OrdinalIgnoreCase))
                         {
-                            var numberValue = propertyValue as JsonNumber;
-                            if (numberValue != null)
+                            if (propertyValue is JsonNumber numberValue)
                             {
                                 int maxParallelThreads;
                                 if (int.TryParse(numberValue.Raw, out maxParallelThreads) && maxParallelThreads >= -1)
                                     result.MaxParallelThreads = maxParallelThreads;
+                            }
+                            else if (propertyValue is JsonString stringValue)
+                            {
+                                if (string.Equals("default", stringValue, StringComparison.OrdinalIgnoreCase))
+                                    result.MaxParallelThreads = null;
+                                else if (string.Equals("unlimited", stringValue, StringComparison.OrdinalIgnoreCase))
+                                    result.MaxParallelThreads = -1;
+                                else
+                                {
+                                    var match = ConfigUtility.MultiplierStyleMaxParallelThreadsRegex.Match(stringValue);
+                                    // Use invariant format and convert ',' to '.' so we can always support both formats, regardless of locale
+                                    // If we stick to locale-only parsing, we could break people when moving from one locale to another (for example,
+                                    // from people running tests on their desktop in a comma locale vs. running them in CI with a decimal locale).
+                                    if (match.Success && decimal.TryParse(match.Groups[1].Value.Replace(',', '.'), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var maxThreadMultiplier))
+                                        result.MaxParallelThreads = (int)(maxThreadMultiplier * Environment.ProcessorCount);
+                                }
                             }
                         }
                         else if (string.Equals(propertyName, Configuration.LongRunningTestSeconds, StringComparison.OrdinalIgnoreCase))

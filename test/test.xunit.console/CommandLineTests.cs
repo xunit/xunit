@@ -213,7 +213,7 @@ public class CommandLineTests
         {
             var ex = Assert.Throws<ArgumentException>(() => TestableCommandLine.Parse("assemblyName.dll", "-maxthreads", value));
 
-            Assert.Equal("incorrect argument value for -maxthreads (must be 'default', 'unlimited', or a positive number)", ex.Message);
+            Assert.Equal("incorrect argument value for -maxthreads (must be 'default', 'unlimited', a positive number, or a multiplier in the form of '0.0x')", ex.Message);
         }
 
         [Theory]
@@ -225,6 +225,14 @@ public class CommandLineTests
             var commandLine = TestableCommandLine.Parse("assemblyName.dll", "-maxthreads", value);
 
             Assert.Equal(expected, commandLine.MaxParallelThreads);
+        }
+
+        [Theory]
+        public static void MultiplierValue()
+        {
+            var commandLine = TestableCommandLine.Parse("assemblyName.dll", "-maxthreads", "2.0x");
+
+            Assert.Equal(Environment.ProcessorCount * 2, commandLine.MaxParallelThreads);
         }
     }
 

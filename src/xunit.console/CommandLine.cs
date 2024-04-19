@@ -261,11 +261,17 @@ namespace Xunit.ConsoleClient
                             break;
 
                         default:
-                            int threadValue;
-                            if (!int.TryParse(option.Value, out threadValue) || threadValue < 1)
-                                throw new ArgumentException("incorrect argument value for -maxthreads (must be 'default', 'unlimited', or a positive number)");
+                            var match = ConfigUtility.MultiplierStyleMaxParallelThreadsRegex.Match(option.Value);
+                            // Use invariant format and convert ',' to '.' so we can always support both formats, regardless of locale
+                            // If we stick to locale-only parsing, we could break people when moving from one locale to another (for example,
+                            // from people running tests on their desktop in a comma locale vs. running them in CI with a decimal locale).
+                            if (match.Success && decimal.TryParse(match.Groups[1].Value.Replace(',', '.'), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var maxThreadMultiplier))
+                                MaxParallelThreads = (int)(maxThreadMultiplier * Environment.ProcessorCount);
+                            else if (int.TryParse(option.Value, out var threadValue) && threadValue > 0)
+                                MaxParallelThreads = threadValue;
+                            else
+                                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "incorrect argument value for -maxthreads (must be 'default', 'unlimited', a positive number, or a multiplier in the form of '{0}x')", 0.0m));
 
-                            MaxParallelThreads = threadValue;
                             break;
                     }
                 }
