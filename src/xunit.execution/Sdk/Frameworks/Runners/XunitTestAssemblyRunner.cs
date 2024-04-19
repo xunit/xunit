@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Security;
 using System.Threading;
 using System.Threading.Tasks;
@@ -198,7 +199,7 @@ namespace Xunit.Sdk
             if (parallelAlgorithm == ParallelAlgorithm.Aggressive)
                 SetupSyncContext(maxParallelThreads);
             else
-                parallelSemaphore = new SemaphoreSlim(maxParallelThreads);
+                SetupParallelSemaphore(maxParallelThreads);
 
             Func<Func<Task<RunSummary>>, Task<RunSummary>> taskRunner;
             if (SynchronizationContext.Current != null)
@@ -262,6 +263,40 @@ namespace Xunit.Sdk
                 Failed = summaries.Sum(s => s.Failed),
                 Skipped = summaries.Sum(s => s.Skipped)
             };
+        }
+
+        private void SetupParallelSemaphore(int maxParallelThreads)
+        {
+            parallelSemaphore = new SemaphoreSlim(maxParallelThreads);
+
+#if NETSTANDARD
+            var type = Type.GetType("System.Threading.ThreadPool");
+            if (type is null)
+                throw new InvalidOperationException("Cannot find type: System.Threading.ThreadPool");
+
+            var getMethod = type.GetRuntimeMethod("GetMinThreads", new[] { typeof(int).MakeByRefType(), typeof(int).MakeByRefType() });
+            if (getMethod is null)
+                throw new InvalidOperationException("Cannot find method: System.Threading.ThreadPool.GetMinThreads");
+
+            var args = new object[] { 0, 0 };
+            getMethod.Invoke(null, args);
+
+            var minThreads = (int)args[0];
+            var minIOPorts = (int)args[1];
+
+            if (minThreads < maxParallelThreads)
+            {
+                var setMethod = type.GetRuntimeMethod("SetMinThreads", new[] { typeof(int), typeof(int) });
+                if (setMethod is null)
+                    throw new InvalidOperationException("Cannot find method: System.Threading.ThreadPool.SetMinThreads");
+
+                setMethod.Invoke(null, new object[] { maxParallelThreads, minIOPorts });
+            }
+#else
+            ThreadPool.GetMinThreads(out var minThreads, out var minIOPorts);
+            if (minThreads < maxParallelThreads)
+                ThreadPool.SetMinThreads(maxParallelThreads, minIOPorts);
+#endif
         }
 
         /// <inheritdoc/>
