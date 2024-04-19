@@ -218,7 +218,7 @@ namespace Xunit.ConsoleClient
             Console.WriteLine("                            :   collections - only parallelize collections");
             Console.WriteLine("                            :   assemblies  - only parallelize assemblies");
             Console.WriteLine("                            :   all         - parallelize assemblies & collections");
-            Console.WriteLine("  -parallelAlgorithm option : set the parallelization algoritm");
+            Console.WriteLine("  -parallelalgorithm option : set the parallelization algoritm");
             Console.WriteLine("                            :   conservative - start the minimum number of tests (default)");
             Console.WriteLine("                            :   aggressive   - start as many tests as possible");
             Console.WriteLine("  -maxthreads count         : maximum thread count for collection parallelization");
