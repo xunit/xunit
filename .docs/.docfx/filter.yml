@@ -1,0 +1,5 @@
+apiRules:
+- include:
+    uidRegex: ^Xunit
+- exclude:
+    uidRegex: ^System
