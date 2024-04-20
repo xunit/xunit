@@ -33,7 +33,7 @@ public static class Mocks
         return result;
     }
 
-    public static IReflectionAttributeInfo CollectionBehaviorAttribute(CollectionBehavior? collectionBehavior = null, bool disableTestParallelization = false, int maxParallelThreads = 0)
+    public static IReflectionAttributeInfo CollectionBehaviorAttribute(CollectionBehavior? collectionBehavior = null, bool? disableTestParallelization = null, int? maxParallelThreads = null)
     {
         CollectionBehaviorAttribute attribute;
         var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
@@ -49,27 +49,39 @@ public static class Mocks
             result.GetConstructorArguments().Returns(new object[0]);
         }
 
-        attribute.DisableTestParallelization = disableTestParallelization;
-        attribute.MaxParallelThreads = maxParallelThreads;
-
         result.Attribute.Returns(attribute);
-        result.GetNamedArgument<bool>("DisableTestParallelization").Returns(disableTestParallelization);
-        result.GetNamedArgument<int>("MaxParallelThreads").Returns(maxParallelThreads);
+
+        if (disableTestParallelization.HasValue)
+            attribute.DisableTestParallelization = disableTestParallelization.Value;
+        if (maxParallelThreads.HasValue)
+            attribute.MaxParallelThreads = maxParallelThreads.Value;
+
+        if (disableTestParallelization.HasValue)
+            result.GetNamedArgument<bool>("DisableTestParallelization").Returns(disableTestParallelization.Value);
+        if (maxParallelThreads.HasValue)
+            result.GetNamedArgument<int>("MaxParallelThreads").Returns(maxParallelThreads.Value);
+
         return result;
     }
 
-    public static IReflectionAttributeInfo CollectionBehaviorAttribute(string factoryTypeName, string factoryAssemblyName, bool disableTestParallelization = false, int maxParallelThreads = 0)
+    public static IReflectionAttributeInfo CollectionBehaviorAttribute(string factoryTypeName, string factoryAssemblyName, bool? disableTestParallelization = null, int? maxParallelThreads = null)
     {
-        var attribute = new CollectionBehaviorAttribute(factoryTypeName, factoryAssemblyName)
-        {
-            DisableTestParallelization = disableTestParallelization,
-            MaxParallelThreads = maxParallelThreads
-        };
+        var attribute = new CollectionBehaviorAttribute(factoryTypeName, factoryAssemblyName);
+
+        if (disableTestParallelization.HasValue)
+            attribute.DisableTestParallelization = disableTestParallelization.Value;
+        if (maxParallelThreads.HasValue)
+            attribute.MaxParallelThreads = maxParallelThreads.Value;
+
         var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
         result.Attribute.Returns(attribute);
-        result.GetNamedArgument<bool>("DisableTestParallelization").Returns(disableTestParallelization);
-        result.GetNamedArgument<int>("MaxParallelThreads").Returns(maxParallelThreads);
         result.GetConstructorArguments().Returns(new object[] { factoryTypeName, factoryAssemblyName });
+
+        if (disableTestParallelization.HasValue)
+            result.GetNamedArgument<bool>("DisableTestParallelization").Returns(disableTestParallelization.Value);
+        if (maxParallelThreads.HasValue)
+            result.GetNamedArgument<int>("MaxParallelThreads").Returns(maxParallelThreads.Value);
+
         return result;
     }
 
