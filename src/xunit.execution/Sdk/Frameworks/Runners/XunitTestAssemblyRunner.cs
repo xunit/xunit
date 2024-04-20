@@ -267,6 +267,9 @@ namespace Xunit.Sdk
 
         private void SetupParallelSemaphore(int maxParallelThreads)
         {
+            if (maxParallelThreads < 1)
+                return;
+
             parallelSemaphore = new SemaphoreSlim(maxParallelThreads);
 
 #if NETSTANDARD
