@@ -137,6 +137,19 @@ public class XunitTestAssemblyRunnerTests
         }
 
         [Fact]
+        public static void TestOptions_MaxThreads_Aggressive()
+        {
+            var options = TestFrameworkOptions.ForExecution();
+            options.SetMaxParallelThreads(3);
+            options.SetParallelAlgorithm(ParallelAlgorithm.Aggressive);
+            var runner = TestableXunitTestAssemblyRunner.Create(executionOptions: options);
+
+            var result = runner.GetTestFrameworkEnvironment();
+
+            Assert.EndsWith("[collection-per-class, parallel (3 threads/aggressive)]", result);
+        }
+
+        [Fact]
         public static void TestOptions_Unlimited()
         {
             var options = TestFrameworkOptions.ForExecution();

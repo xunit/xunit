@@ -59,13 +59,20 @@ namespace Xunit.Sdk
 
             var testCollectionFactory = ExtensibilityPointFactory.GetXunitTestCollectionFactory(DiagnosticMessageSink, collectionBehaviorAttribute, TestAssembly);
             var threadCountText = maxParallelThreads < 0 ? "unlimited" : maxParallelThreads.ToString(CultureInfo.CurrentCulture);
+            threadCountText += " thread";
+            if (maxParallelThreads != 1)
+                threadCountText += 's';
+            if (parallelAlgorithm == ParallelAlgorithm.Aggressive)
+                threadCountText += "/aggressive";
 
             return string.Format(
                 CultureInfo.CurrentCulture,
                 "{0} [{1}, {2}]",
                 base.GetTestFrameworkEnvironment(),
                 testCollectionFactory.DisplayName,
-                disableParallelization ? "non-parallel" : string.Format(CultureInfo.CurrentCulture, "parallel ({0} threads)", threadCountText)
+                disableParallelization
+                    ? "non-parallel"
+                    : string.Format(CultureInfo.CurrentCulture, "parallel ({0})", threadCountText)
             );
         }
 
