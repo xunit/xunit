@@ -20,6 +20,7 @@ namespace Xunit.Runner.MSBuild
         XunitFilters filters;
         IRunnerLogger logger;
         int? maxThreadCount;
+        ParallelAlgorithm? parallelAlgorithm;
         bool? parallelizeAssemblies;
         bool? parallelizeTestCollections;
         IMessageSinkWithTypes reporterMessageHandler;
@@ -74,6 +75,8 @@ namespace Xunit.Runner.MSBuild
         public bool NoLogo { get; set; }
 
         public ITaskItem NUnit { get; set; }
+
+        public ParallelAlgorithm ParallelAlgorithm { set { parallelAlgorithm = value; } }
 
         public bool ParallelizeAssemblies { set { parallelizeAssemblies = value; } }
 
@@ -277,6 +280,8 @@ namespace Xunit.Runner.MSBuild
                 var executionOptions = TestFrameworkOptions.ForExecution(assembly.Configuration);
                 if (maxThreadCount.HasValue && maxThreadCount.Value > -1)
                     executionOptions.SetMaxParallelThreads(maxThreadCount);
+                if (parallelAlgorithm.HasValue)
+                    executionOptions.SetParallelAlgorithm(parallelAlgorithm);
                 if (parallelizeTestCollections.HasValue)
                     executionOptions.SetDisableParallelization(!parallelizeTestCollections);
                 if (stopOnFail.HasValue)
