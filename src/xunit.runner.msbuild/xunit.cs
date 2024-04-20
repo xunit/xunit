@@ -147,14 +147,16 @@ namespace Xunit.Runner.MSBuild
                     break;
 
                 default:
-                    int threadValue;
-                    if (!int.TryParse(MaxParallelThreads, out threadValue) || threadValue < 1)
-                    {
-                        Log.LogError("MaxParallelThreads value '{0}' is invalid: must be 'default', 'unlimited', or a positive number", MaxParallelThreads);
-                        return false;
-                    }
-
-                    maxThreadCount = threadValue;
+                    var match = ConfigUtility.MultiplierStyleMaxParallelThreadsRegex.Match(MaxParallelThreads);
+                    // Use invariant format and convert ',' to '.' so we can always support both formats, regardless of locale
+                    // If we stick to locale-only parsing, we could break people when moving from one locale to another (for example,
+                    // from people running tests on their desktop in a comma locale vs. running them in CI with a decimal locale).
+                    if (match.Success && decimal.TryParse(match.Groups[1].Value.Replace(',', '.'), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var maxThreadMultiplier))
+                        maxThreadCount = (int)(maxThreadMultiplier * Environment.ProcessorCount);
+                    else if (int.TryParse(MaxParallelThreads, out var threadValue) && threadValue > 0)
+                        maxThreadCount = threadValue;
+                    else
+                        Log.LogError("MaxParallelThreads value '{0} is invalid: must be 'default', 'unlimited', a positive number, or a multiplier in the form of '{1}x')", MaxParallelThreads, 0.0m);
                     break;
             }
 
