@@ -47,7 +47,7 @@ jobs:
           SIGN_TENANT: ${{ secrets.SIGN_TENANT }}
           SIGN_TIMESTAMP_URI: ${{ secrets.SIGN_TIMESTAMP_URI }}
           SIGN_VAULT_URI: ${{ secrets.SIGN_VAULT_URI }}
-        run: dotnet run --project tools/builder --no-launch-profile -- Build --timing
+        run: dotnet run --project tools/builder --no-launch-profile -- BuildAll PublishPackages --timing
 
       - name: Install DocFX
         run: dotnet tool update -g docfx
