@@ -47,7 +47,25 @@ jobs:
           SIGN_TENANT: ${{ secrets.SIGN_TENANT }}
           SIGN_TIMESTAMP_URI: ${{ secrets.SIGN_TIMESTAMP_URI }}
           SIGN_VAULT_URI: ${{ secrets.SIGN_VAULT_URI }}
-        run: dotnet run --project tools/builder --no-launch-profile -- BuildAll PublishPackages --timing
+        run: dotnet run --project tools/builder --no-launch-profile -- Build --timing
+
+      - name: Install DocFX
+        run: dotnet tool update -g docfx
+
+      - name: Generate Docs Metadata
+        run: docfx metadata .docs/.docfx/docfx.json --logLevel info --log .docs/.docfx/_logs/docfxmetadatalog.jsonl
+
+      - name: Build Docs Site
+        run: docfx build .docs/.docfx/docfx.json --logLevel info --log .docs/.docfx/_logs/docfxbuildlog.jsonl
+
+      - name: Build Docs PDF
+        run: docfx pdf .docs/.docfx/docfx.json --logLevel info --log .docs/.docfx/_logs/docfxpdflog.jsonl
+
+      - name: Upload Docs Site
+        uses: actions/upload-artifact@v3
+        with:
+          name: docs
+          path: .docs/_site
 
       - name: "Upload artifact: test"
         uses: actions/upload-artifact@v3
