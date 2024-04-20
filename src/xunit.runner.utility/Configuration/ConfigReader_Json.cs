@@ -125,7 +125,7 @@ namespace Xunit
                             else if (propertyValue is JsonString stringValue)
                             {
                                 if (string.Equals("default", stringValue, StringComparison.OrdinalIgnoreCase))
-                                    result.MaxParallelThreads = null;
+                                    result.MaxParallelThreads = 0;
                                 else if (string.Equals("unlimited", stringValue, StringComparison.OrdinalIgnoreCase))
                                     result.MaxParallelThreads = -1;
                                 else
