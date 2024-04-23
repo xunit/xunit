@@ -261,7 +261,7 @@ namespace Xunit
                             "on [{0} thread{1}{2}]",
                             threadCount < 0 ? "unlimited" : threadCount.ToString(CultureInfo.CurrentCulture),
                             threadCount == 1 ? string.Empty : "s",
-                            parallelAlgorithm == ParallelAlgorithm.Aggressive ? "/aggressive" : string.Empty
+                            threadCount > 0 && parallelAlgorithm == ParallelAlgorithm.Aggressive ? "/aggressive" : string.Empty
                         );
 
                 Logger.LogImportantMessage(

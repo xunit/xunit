@@ -62,7 +62,7 @@ namespace Xunit.Sdk
             threadCountText += " thread";
             if (maxParallelThreads != 1)
                 threadCountText += 's';
-            if (parallelAlgorithm == ParallelAlgorithm.Aggressive)
+            if (maxParallelThreads > 0 && parallelAlgorithm == ParallelAlgorithm.Aggressive)
                 threadCountText += "/aggressive";
 
             return string.Format(

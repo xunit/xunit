@@ -149,11 +149,14 @@ public class XunitTestAssemblyRunnerTests
             Assert.EndsWith("[collection-per-class, parallel (3 threads/aggressive)]", result);
         }
 
-        [Fact]
-        public static void TestOptions_Unlimited()
+        [Theory]
+        [InlineData(ParallelAlgorithm.Conservative)]
+        [InlineData(ParallelAlgorithm.Aggressive)]
+        public static void TestOptions_Unlimited(ParallelAlgorithm parallelAlgorithm)
         {
             var options = TestFrameworkOptions.ForExecution();
             options.SetMaxParallelThreads(-1);
+            options.SetParallelAlgorithm(parallelAlgorithm);  // Either way shouldn't show in the output because unlimited
             var runner = TestableXunitTestAssemblyRunner.Create(executionOptions: options);
 
             var result = runner.GetTestFrameworkEnvironment();
