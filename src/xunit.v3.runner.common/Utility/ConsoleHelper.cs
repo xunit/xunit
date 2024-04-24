@@ -15,17 +15,17 @@ public static class ConsoleHelper
 	/// <summary>
 	/// Equivalent to <see cref="Console"/>.<see cref="Console.ResetColor"/>.
 	/// </summary>
-	public static Action ResetColor { get; }
+	public static Action ResetColor { get; private set; }
 
 	/// <summary>
 	/// Equivalent to <see cref="Console"/>.<see cref="Console.BackgroundColor"/>.
 	/// </summary>
-	public static Action<ConsoleColor> SetBackgroundColor { get; }
+	public static Action<ConsoleColor> SetBackgroundColor { get; private set; }
 
 	/// <summary>
 	/// Equivalent to <see cref="Console"/>.<see cref="Console.ForegroundColor"/>.
 	/// </summary>
-	public static Action<ConsoleColor> SetForegroundColor { get; }
+	public static Action<ConsoleColor> SetForegroundColor { get; private set; }
 
 	static ConsoleHelper()
 	{
@@ -106,4 +106,14 @@ public static class ConsoleHelper
 
 	static void ResetColorConsole() =>
 		Console.ResetColor();
+
+	/// <summary>
+	/// Force using ANSI color instead of deciding based on OS.
+	/// </summary>
+	public static void UseAnsiColor()
+	{
+		ResetColor = ResetColorANSI;
+		SetBackgroundColor = SetBackgroundColorANSI;
+		SetForegroundColor = SetForegroundColorANSI;
+	}
 }

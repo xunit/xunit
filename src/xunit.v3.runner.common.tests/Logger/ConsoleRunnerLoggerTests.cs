@@ -10,7 +10,7 @@ public class ConsoleRunnerLoggerTests
 	{
 		var writer = new StringWriter();
 		var message = "foo bar";
-		var sut = new ConsoleRunnerLogger(true);
+		var sut = new ConsoleRunnerLogger(true, false);
 
 		sut.WriteLine(writer, message);
 
@@ -22,7 +22,7 @@ public class ConsoleRunnerLoggerTests
 	{
 		var writer = new StringWriter();
 		var message = "\x1b[3m\x1b[36mhello world\u001b[0m || \x1b[94;103mbright blue on bright yellow\x1b[m";
-		var sut = new ConsoleRunnerLogger(true);
+		var sut = new ConsoleRunnerLogger(true, false);
 
 		sut.WriteLine(writer, message);
 
@@ -34,7 +34,7 @@ public class ConsoleRunnerLoggerTests
 	{
 		var writer = new StringWriter();
 		var message = "foo bar";
-		var sut = new ConsoleRunnerLogger(false);
+		var sut = new ConsoleRunnerLogger(false, false);
 
 		sut.WriteLine(writer, message);
 
@@ -45,10 +45,31 @@ public class ConsoleRunnerLoggerTests
 	public void WriteLine_ColorsDisabled_AnsiText()
 	{
 		var writer = new StringWriter();
-		var sut = new ConsoleRunnerLogger(false);
+		var sut = new ConsoleRunnerLogger(false, false);
 
 		sut.WriteLine(writer, "\x1b[3m\x1b[36mhello world\u001b[0m || \x1b[94;103mbright blue on bright yellow\x1b[m");
 
 		Assert.Equal("hello world || bright blue on bright yellow" + Environment.NewLine, writer.ToString());
+	}
+
+	[Fact]
+	public void CanForceAnsiColors()
+	{
+		var oldConsoleOut = Console.Out;
+
+		try
+		{
+			var writer = new StringWriter();
+			var sut = new ConsoleRunnerLogger(true, true);
+			Console.SetOut(writer);
+
+			sut.LogError("This is an error message");
+
+			Assert.Equal("\u001b[91mThis is an error message\r\n\u001b[0m", writer.ToString());
+		}
+		finally
+		{
+			Console.SetOut(oldConsoleOut);
+		}
 	}
 }

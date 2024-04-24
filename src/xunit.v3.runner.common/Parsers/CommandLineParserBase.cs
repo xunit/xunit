@@ -84,6 +84,7 @@ public abstract class CommandLineParserBase
 		AddParser("pause", OnPause, CommandLineGroup.General, null, "wait for input before running tests");
 		AddParser("preEnumerateTheories", OnPreEnumerateTheories, CommandLineGroup.General, null, "enable theory pre-enumeration (disabled by default)");
 		AddParser("stopOnFail", OnStopOnFail, CommandLineGroup.General, null, "stop on first test failure");
+		AddParser("useAnsiColor", OnUseAnsiColor, CommandLineGroup.General, null, "force using ANSI color output on Windows (non-Windows always uses ANSI colors)");
 		AddParser("wait", OnWait, CommandLineGroup.General, null, "wait for input after completion");
 
 		// Filter options
@@ -537,6 +538,12 @@ public abstract class CommandLineParserBase
 
 		foreach (var projectAssembly in Project.Assemblies)
 			projectAssembly.Configuration.Filters.ExcludedTraits.Add(name, value);
+	}
+
+	void OnUseAnsiColor(KeyValuePair<string, string?> option)
+	{
+		GuardNoOptionValue(option);
+		Project.Configuration.UseAnsiColor = true;
 	}
 
 	void OnWait(KeyValuePair<string, string?> option)

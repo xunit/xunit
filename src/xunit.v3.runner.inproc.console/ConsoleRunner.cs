@@ -90,6 +90,9 @@ public class ConsoleRunner
 				noColor = true;
 
 			var project = commandLine.Parse();
+			var useAnsiColor = project.Configuration.UseAnsiColorOrDefault;
+			if (useAnsiColor)
+				ConsoleHelper.UseAnsiColor();
 
 			AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
 
@@ -127,7 +130,7 @@ public class ConsoleRunner
 			if (!automated)
 				noColor = project.Configuration.NoColorOrDefault;
 
-			logger = new ConsoleRunnerLogger(!noColor, consoleLock);
+			logger = new ConsoleRunnerLogger(!noColor, useAnsiColor, consoleLock);
 
 			_IMessageSink? globalDiagnosticMessageSink =
 				automated

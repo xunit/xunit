@@ -104,6 +104,18 @@ public class TestProjectConfiguration
 	public bool PauseOrDefault => Pause ?? false;
 
 	/// <summary>
+	/// Gets or sets a flag indicating that ANSI color usage should be forced on Windows.
+	/// ANSI color is always used for non-Windows.
+	/// </summary>
+	public bool? UseAnsiColor { get; set; }
+
+	/// <summary>
+	/// Gets a flag indicating that ANSI color usage should be forced on Windows. ANSI color is
+	/// always used for non-Windows. If the flag is not set, returns the default value (<c>false</c>).
+	/// </summary>
+	public bool UseAnsiColorOrDefault => UseAnsiColor ?? false;
+
+	/// <summary>
 	/// Gets or sets a flag indicating that the test runner should pause after all tests
 	/// have run.
 	/// </summary>

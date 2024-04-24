@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.IO;
 using System.Text.RegularExpressions;
 using Xunit.Internal;
@@ -14,13 +15,20 @@ public class ConsoleRunnerLogger : IRunnerLogger
 	readonly static Regex ansiSgrRegex = new Regex("\\e\\[\\d*(;\\d*)*m");
 	readonly bool useColors;
 
-	/// <summary>
-	/// Initializes a new instance of the <see cref="ConsoleRunnerLogger"/> class.
-	/// </summary>
-	/// <param name="useColors">A flag to indicate whether colors should be used when
-	/// logging messages.</param>
-	public ConsoleRunnerLogger(bool useColors)
-		: this(useColors, new object())
+	/// <summary/>
+	[EditorBrowsable(EditorBrowsableState.Never)]
+	[Obsolete("Please use the new overload with the useAnsiColor flag")]
+	public ConsoleRunnerLogger(bool useColors) :
+		this(useColors, useAnsiColor: false, new object())
+	{ }
+
+	/// <summary/>
+	[EditorBrowsable(EditorBrowsableState.Never)]
+	[Obsolete("Please use the new overload with the useAnsiColor flag")]
+	public ConsoleRunnerLogger(
+		bool useColors,
+		object lockObject) :
+			this(useColors, useAnsiColor: false, lockObject)
 	{ }
 
 	/// <summary>
@@ -28,15 +36,34 @@ public class ConsoleRunnerLogger : IRunnerLogger
 	/// </summary>
 	/// <param name="useColors">A flag to indicate whether colors should be used when
 	/// logging messages.</param>
+	/// <param name="useAnsiColor">A flag to indicate whether ANSI colors should be
+	/// forced on Windows.</param>
+	public ConsoleRunnerLogger(
+		bool useColors,
+		bool useAnsiColor)
+			: this(useColors, useAnsiColor, new object())
+	{ }
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="ConsoleRunnerLogger"/> class.
+	/// </summary>
+	/// <param name="useColors">A flag to indicate whether colors should be used when
+	/// logging messages.</param>
+	/// <param name="useAnsiColor">A flag to indicate whether ANSI colors should be
+	/// forced on Windows.</param>
 	/// <param name="lockObject">The lock object used to prevent console clashes.</param>
 	public ConsoleRunnerLogger(
 		bool useColors,
+		bool useAnsiColor,
 		object lockObject)
 	{
 		Guard.ArgumentNotNull(lockObject);
 
 		this.useColors = useColors;
 		LockObject = lockObject;
+
+		if (useAnsiColor)
+			ConsoleHelper.UseAnsiColor();
 	}
 
 	/// <inheritdoc/>
@@ -51,7 +78,7 @@ public class ConsoleRunnerLogger : IRunnerLogger
 
 		lock (LockObject)
 			using (SetColor(ConsoleColor.Red))
-				WriteLine(Console.Error, message);
+				WriteLine(Console.Out, message);
 	}
 
 	/// <inheritdoc/>

@@ -66,6 +66,9 @@ sealed class ConsoleRunner
 			}
 
 			var project = commandLine.Parse();
+			var useAnsiColor = project.Configuration.UseAnsiColorOrDefault;
+			if (useAnsiColor)
+				ConsoleHelper.UseAnsiColor();
 			if (project.Assemblies.Count == 0)
 				throw new ArgumentException("must specify at least one assembly");
 
@@ -94,7 +97,7 @@ sealed class ConsoleRunner
 			var globalDiagnosticMessages = project.Assemblies.Any(a => a.Configuration.DiagnosticMessagesOrDefault);
 			globalInternalDiagnosticMessages = project.Assemblies.Any(a => a.Configuration.InternalDiagnosticMessagesOrDefault);
 			noColor = project.Configuration.NoColorOrDefault;
-			logger = new ConsoleRunnerLogger(!noColor, consoleLock);
+			logger = new ConsoleRunnerLogger(!noColor, useAnsiColor, consoleLock);
 			var globalDiagnosticMessageSink = ConsoleDiagnosticMessageSink.TryCreate(consoleLock, noColor, globalDiagnosticMessages, globalInternalDiagnosticMessages);
 			var reporter = project.RunnerReporter;
 			var reporterMessageHandler = await reporter.CreateMessageHandler(logger, globalDiagnosticMessageSink);
