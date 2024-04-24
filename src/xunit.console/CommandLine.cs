@@ -56,6 +56,8 @@ namespace Xunit.ConsoleClient
 
         public bool StopOnFail { get; protected set; }
 
+        public bool UseAnsiColor { get; protected set; }
+
         public bool Wait { get; protected set; }
 
         public IRunnerReporter ChooseReporter(IReadOnlyList<IRunnerReporter> reporters)
@@ -389,6 +391,11 @@ namespace Xunit.ConsoleClient
                         throw new ArgumentException("missing argument for -nonamespace");
 
                     project.Filters.ExcludedNamespaces.Add(option.Value);
+                }
+                else if (optionName == "useansicolor")
+                {
+                    GuardNoOptionValue(option);
+                    UseAnsiColor = true;
                 }
                 else
                 {

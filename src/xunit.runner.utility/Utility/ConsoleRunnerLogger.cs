@@ -1,35 +1,52 @@
 #if NETFRAMEWORK || NETCOREAPP
 
 using System;
+using System.ComponentModel;
 
 namespace Xunit
 {
     /// <summary>
-    /// An implementation of <see cref="IRunnerLogger"/> which logs messages
-    /// to <see cref="Console"/> and <see cref="Console.Error"/>.
+    /// An implementation of <see cref="IRunnerLogger"/> which logs messages to <see cref="Console"/>.
     /// </summary>
     public class ConsoleRunnerLogger : IRunnerLogger
     {
         readonly object lockObject;
         readonly bool useColors;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ConsoleRunnerLogger"/> class.
-        /// </summary>
-        /// <param name="useColors">A flag to indicate whether colors should be used when
-        /// logging messages.</param>
-        public ConsoleRunnerLogger(bool useColors) : this(useColors, new object()) { }
+        /// <summary/>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Obsolete("Please use the new overload with the useAnsiColor flag")]
+        public ConsoleRunnerLogger(bool useColors) : this(useColors, useAnsiColor: false, new object()) { }
+
+        /// <summary/>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Obsolete("Please use the new overload with the useAnsiColor flag")]
+        public ConsoleRunnerLogger(bool useColors, object lockObject) : this(useColors, useAnsiColor: false, lockObject) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConsoleRunnerLogger"/> class.
         /// </summary>
         /// <param name="useColors">A flag to indicate whether colors should be used when
         /// logging messages.</param>
+        /// <param name="useAnsiColor">A flag to indicate whether ANSI colors should be
+        /// forced on Windows.</param>
+        public ConsoleRunnerLogger(bool useColors, bool useAnsiColor) : this(useColors, useAnsiColor, new object()) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConsoleRunnerLogger"/> class.
+        /// </summary>
+        /// <param name="useColors">A flag to indicate whether colors should be used when
+        /// logging messages.</param>
+        /// <param name="useAnsiColor">A flag to indicate whether ANSI colors should be
+        /// forced on Windows.</param>
         /// <param name="lockObject">The lock object used to prevent console clashes.</param>
-        public ConsoleRunnerLogger(bool useColors, object lockObject)
+        public ConsoleRunnerLogger(bool useColors, bool useAnsiColor, object lockObject)
         {
             this.useColors = useColors;
             this.lockObject = lockObject;
+
+            if (useAnsiColor)
+                ConsoleHelper.UseAnsiColor();
         }
 
         /// <inheritdoc/>
@@ -40,7 +57,7 @@ namespace Xunit
         {
             lock (LockObject)
                 using (SetColor(ConsoleColor.Red))
-                    Console.Error.WriteLine(message);
+                    Console.WriteLine(message);
         }
 
         /// <inheritdoc/>

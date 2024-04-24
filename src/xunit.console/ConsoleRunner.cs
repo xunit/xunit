@@ -30,6 +30,9 @@ namespace Xunit.ConsoleClient
         {
             commandLine = CommandLine.Parse(args);
 
+            if (commandLine.UseAnsiColor)
+                ConsoleHelper.UseAnsiColor();
+
             try
             {
                 var reporters = GetAvailableRunnerReporters();
@@ -76,7 +79,7 @@ namespace Xunit.ConsoleClient
                 if (commandLine.Debug)
                     Debugger.Launch();
 
-                logger = new ConsoleRunnerLogger(!commandLine.NoColor, consoleLock);
+                logger = new ConsoleRunnerLogger(!commandLine.NoColor, commandLine.UseAnsiColor, consoleLock);
                 reporterMessageHandler = MessageSinkWithTypesAdapter.Wrap(reporter.CreateMessageHandler(logger));
 
                 if (!commandLine.NoLogo)
@@ -240,6 +243,7 @@ namespace Xunit.ConsoleClient
             Console.WriteLine("  -pause                    : pause before doing any work, to help attach a debugger");
 #endif
             Console.WriteLine("  -debug                    : launch the debugger to debug the tests");
+            Console.WriteLine("  -useansicolor             : force using ANSI color output on Windows (non-Windows always uses ANSI colors)");
             Console.WriteLine("  -serialize                : serialize all test cases (for diagnostic purposes only)");
             Console.WriteLine("  -trait \"name=value\"       : only run tests with matching name/value traits");
             Console.WriteLine("                            : if specified more than once, acts as an OR operation");

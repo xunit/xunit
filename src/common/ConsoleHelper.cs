@@ -69,6 +69,12 @@ namespace Xunit
 
         static void ResetColorConsole()
             => Console.ResetColor();
+
+        internal static void UseAnsiColor()
+        {
+            ResetColor = ResetColorANSI;
+            SetForegroundColor = SetForegroundColorANSI;
+        }
     }
 }
 
