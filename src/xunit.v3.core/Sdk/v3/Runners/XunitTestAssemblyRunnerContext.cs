@@ -16,6 +16,7 @@ namespace Xunit.v3;
 public class XunitTestAssemblyRunnerContext : TestAssemblyRunnerContext<IXunitTestCase>
 {
 	_IAttributeInfo? collectionBehaviorAttribute;
+	SemaphoreSlim? parallelSemaphore;
 	MaxConcurrencySyncContext? syncContext;
 
 	/// <summary>
@@ -56,6 +57,11 @@ public class XunitTestAssemblyRunnerContext : TestAssemblyRunnerContext<IXunitTe
 	/// </summary>
 	public int MaxParallelThreads { get; private set; }
 
+	/// <summary>
+	/// Gets the algorithm used for parallelism.
+	/// </summary>
+	public ParallelAlgorithm ParallelAlgorithm { get; private set; }
+
 	/// <inheritdoc/>
 	public override string TestFrameworkDisplayName =>
 		XunitTestFrameworkDiscoverer.DisplayName;
@@ -69,6 +75,13 @@ public class XunitTestAssemblyRunnerContext : TestAssemblyRunnerContext<IXunitTe
 				ExtensibilityPointFactory.GetXunitTestCollectionFactory(collectionBehaviorAttribute, TestAssembly)
 				?? new CollectionPerClassTestCollectionFactory(TestAssembly);
 
+			var threadCountText = MaxParallelThreads < 0 ? "unlimited" : MaxParallelThreads.ToString(CultureInfo.CurrentCulture);
+			threadCountText += " thread";
+			if (MaxParallelThreads != 1)
+				threadCountText += 's';
+			if (MaxParallelThreads > 0 && ParallelAlgorithm == ParallelAlgorithm.Aggressive)
+				threadCountText += "/aggressive";
+
 			return string.Format(
 				CultureInfo.CurrentCulture,
 				"{0} [{1}, {2}]",
@@ -76,11 +89,7 @@ public class XunitTestAssemblyRunnerContext : TestAssemblyRunnerContext<IXunitTe
 				testCollectionFactory.DisplayName,
 				DisableParallelization
 					? "non-parallel"
-					: string.Format(
-						CultureInfo.CurrentCulture,
-						"parallel ({0} threads)",
-						MaxParallelThreads < 0 ? "unlimited" : MaxParallelThreads.ToString(CultureInfo.CurrentCulture)
-					)
+					: string.Format(CultureInfo.CurrentCulture, "parallel ({0})", threadCountText)
 			);
 		}
 	}
@@ -94,6 +103,8 @@ public class XunitTestAssemblyRunnerContext : TestAssemblyRunnerContext<IXunitTe
 			await asyncDisposable.DisposeAsync();
 		else if (syncContext is IDisposable disposable)
 			disposable.Dispose();
+
+		parallelSemaphore?.Dispose();
 
 		await base.DisposeAsync();
 	}
@@ -110,6 +121,7 @@ public class XunitTestAssemblyRunnerContext : TestAssemblyRunnerContext<IXunitTe
 			MaxParallelThreads = collectionBehaviorAttribute.GetNamedArgument<int>(nameof(CollectionBehaviorAttribute.MaxParallelThreads));
 		}
 
+		ParallelAlgorithm = ExecutionOptions.ParallelAlgorithm() ?? ParallelAlgorithm;
 		DisableParallelization = ExecutionOptions.DisableParallelization() ?? DisableParallelization;
 		MaxParallelThreads = ExecutionOptions.MaxParallelThreads() ?? MaxParallelThreads;
 		if (MaxParallelThreads == 0)
@@ -175,14 +187,60 @@ public class XunitTestAssemblyRunnerContext : TestAssemblyRunnerContext<IXunitTe
 	}
 
 	/// <summary>
-	/// Sets up the sync context needed for limiting maximum concurrency, if so configured.
+	/// Delegation of <see cref="XunitTestAssemblyRunner.RunTestCollectionAsync"/> that properly obeys the parallel
+	/// algorithm requirements.
 	/// </summary>
-	public virtual void SetupMaxConcurrencySyncContext()
+	public async ValueTask<RunSummary> RunTestCollectionAsync(
+		_ITestCollection testCollection,
+		IReadOnlyCollection<IXunitTestCase> testCases,
+		ITestCaseOrderer testCaseOrderer)
 	{
-		if (MaxConcurrencySyncContext.IsSupported && MaxParallelThreads > 0)
+		if (parallelSemaphore is not null)
+			await parallelSemaphore.WaitAsync(CancellationTokenSource.Token);
+
+		try
+		{
+			return await XunitTestCollectionRunner.Instance.RunAsync(
+				testCollection,
+				testCases,
+				ExplicitOption,
+				MessageBus,
+				testCaseOrderer,
+				Aggregator.Clone(),
+				CancellationTokenSource,
+				AssemblyFixtureMappings
+			);
+		}
+		finally
+		{
+			parallelSemaphore?.Release();
+		}
+	}
+
+	/// <summary>
+	/// Sets up the mechanics for parallelism.
+	/// </summary>
+	public virtual void SetupParallelism()
+	{
+		// When unlimited, we just launch everything and let the .NET Thread Pool sort it out
+		if (MaxParallelThreads < 0)
+			return;
+
+		// For aggressive, we launch everything and let our sync context limit what's allowed to run
+		if (ParallelAlgorithm == ParallelAlgorithm.Aggressive && MaxConcurrencySyncContext.IsSupported)
 		{
 			syncContext = new MaxConcurrencySyncContext(MaxParallelThreads);
 			SetupSyncContextInternal(syncContext);
+		}
+		// For conversative, we use a semaphore to limit the number of launched tests, and ensure
+		// that the .NET Thread Pool has enough threads based on the user's requested maximum
+		else
+		{
+			parallelSemaphore = new(initialCount: MaxParallelThreads);
+
+			ThreadPool.GetMinThreads(out var minThreads, out var minIOPorts);
+			if (minThreads < MaxParallelThreads)
+				ThreadPool.SetMinThreads(MaxParallelThreads, minIOPorts);
 		}
 	}
 

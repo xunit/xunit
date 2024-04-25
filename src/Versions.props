@@ -37,7 +37,7 @@
     <SystemMemoryVersion>4.5.5</SystemMemoryVersion>
     <XunitAbstractionsVersion>2.0.3</XunitAbstractionsVersion>
     <XunitV1Version>1.9.2</XunitV1Version>
-    <XunitV2Version>2.7.2-pre.2</XunitV2Version>
+    <XunitV2Version>2.7.2-pre.21</XunitV2Version>
 
   </PropertyGroup>
 

@@ -298,15 +298,17 @@ public class DefaultRunnerReporterMessageHandlerTests
 	public class OnMessage_TestAssemblyExecutionStarting
 	{
 		[Theory]
-		[InlineData(false, null, null, null, null, null, "[Imp] =>   Starting:    test-assembly")]
-		[InlineData(true, false, null, null, null, null, "[Imp] =>   Starting:    test-assembly (parallel test collections = off, stop on fail = off, explicit = only)")]
-		[InlineData(true, null, -1, null, null, null, "[Imp] =>   Starting:    test-assembly (parallel test collections = on [unlimited threads], stop on fail = off, explicit = only)")]
-		[InlineData(true, null, 1, null, null, null, "[Imp] =>   Starting:    test-assembly (parallel test collections = on [1 thread], stop on fail = off, explicit = only)")]
-		[InlineData(true, null, null, true, null, null, "[Imp] =>   Starting:    test-assembly (parallel test collections = on [42 threads], stop on fail = on, explicit = only)")]
-		[InlineData(true, null, null, null, null, null, "[Imp] =>   Starting:    test-assembly (parallel test collections = on [42 threads], stop on fail = off, explicit = only)")]
-		[InlineData(true, null, null, null, 2112, null, "[Imp] =>   Starting:    test-assembly (parallel test collections = on [42 threads], stop on fail = off, explicit = only, seed = 2112)")]
-		[InlineData(true, null, null, null, null, "", "[Imp] =>   Starting:    test-assembly (parallel test collections = on [42 threads], stop on fail = off, explicit = only, culture = invariant)")]
-		[InlineData(true, null, null, null, null, "en-US", "[Imp] =>   Starting:    test-assembly (parallel test collections = on [42 threads], stop on fail = off, explicit = only, culture = en-US)")]
+		[InlineData(false, null, null, null, null, null, null, "[Imp] =>   Starting:    test-assembly")]
+		[InlineData(true, false, null, null, null, null, ParallelAlgorithm.Aggressive, "[Imp] =>   Starting:    test-assembly (parallel test collections = off, stop on fail = off, explicit = only)")]
+		[InlineData(true, null, -1, null, null, null, ParallelAlgorithm.Conservative, "[Imp] =>   Starting:    test-assembly (parallel test collections = on [unlimited threads], stop on fail = off, explicit = only)")]
+		[InlineData(true, null, -1, null, null, null, ParallelAlgorithm.Aggressive, "[Imp] =>   Starting:    test-assembly (parallel test collections = on [unlimited threads], stop on fail = off, explicit = only)")]
+		[InlineData(true, null, 1, null, null, null, ParallelAlgorithm.Conservative, "[Imp] =>   Starting:    test-assembly (parallel test collections = on [1 thread], stop on fail = off, explicit = only)")]
+		[InlineData(true, null, 1, null, null, null, ParallelAlgorithm.Aggressive, "[Imp] =>   Starting:    test-assembly (parallel test collections = on [1 thread/aggressive], stop on fail = off, explicit = only)")]
+		[InlineData(true, null, null, true, null, null, null, "[Imp] =>   Starting:    test-assembly (parallel test collections = on [42 threads], stop on fail = on, explicit = only)")]
+		[InlineData(true, null, null, null, null, null, null, "[Imp] =>   Starting:    test-assembly (parallel test collections = on [42 threads], stop on fail = off, explicit = only)")]
+		[InlineData(true, null, null, null, 2112, null, null, "[Imp] =>   Starting:    test-assembly (parallel test collections = on [42 threads], stop on fail = off, explicit = only, seed = 2112)")]
+		[InlineData(true, null, null, null, null, "", null, "[Imp] =>   Starting:    test-assembly (parallel test collections = on [42 threads], stop on fail = off, explicit = only, culture = invariant)")]
+		[InlineData(true, null, null, null, null, "en-US", null, "[Imp] =>   Starting:    test-assembly (parallel test collections = on [42 threads], stop on fail = off, explicit = only, culture = en-US)")]
 		public static void LogsMessage(
 			bool diagnosticMessages,
 			bool? parallelizeTestCollections,
@@ -314,6 +316,7 @@ public class DefaultRunnerReporterMessageHandlerTests
 			bool? stopOnFail,
 			int? seed,
 			string? culture,
+			ParallelAlgorithm? parallelAlgorithm,
 			string expectedResult)
 		{
 			var message = TestData.TestAssemblyExecutionStarting(
@@ -322,6 +325,7 @@ public class DefaultRunnerReporterMessageHandlerTests
 				maxParallelThreads: maxThreads ?? 42,
 				stopOnFail: stopOnFail,
 				explicitOption: ExplicitOption.Only,
+				parallelAlgorithm: parallelAlgorithm,
 				seed: seed,
 				culture: culture
 			);

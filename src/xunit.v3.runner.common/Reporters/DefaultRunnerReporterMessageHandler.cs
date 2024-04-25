@@ -337,14 +337,16 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 		if (executionStarting.ExecutionOptions.GetDiagnosticMessagesOrDefault())
 		{
 			var threadCount = executionStarting.ExecutionOptions.GetMaxParallelThreadsOrDefault();
+			var parallelAlgorithm = executionStarting.ExecutionOptions.GetParallelAlgorithmOrDefault();
 			var parallelTestCollections =
 				executionStarting.ExecutionOptions.GetDisableParallelizationOrDefault()
 					? "off"
 					: string.Format(
 						CultureInfo.CurrentCulture,
-						"on [{0} thread{1}]",
+						"on [{0} thread{1}{2}]",
 						threadCount < 0 ? "unlimited" : threadCount.ToString(CultureInfo.CurrentCulture),
-						threadCount == 1 ? string.Empty : "s"
+						threadCount == 1 ? string.Empty : "s",
+						threadCount > 0 && parallelAlgorithm == ParallelAlgorithm.Aggressive ? "/aggressive" : string.Empty
 					);
 #pragma warning disable CA1308 // This is converted to lower case for display purposes, not normalization purposes
 			var @explicit = executionStarting.ExecutionOptions.GetExplicitOptionOrDefault().ToString().ToLowerInvariant();

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Internal;
@@ -54,7 +53,6 @@ public class XunitTestAssemblyRunner : TestAssemblyRunner<XunitTestAssemblyRunne
 		await base.BeforeTestAssemblyFinishedAsync(ctxt);
 	}
 
-
 	/// <inheritdoc/>
 	protected override ITestCaseOrderer GetTestCaseOrderer(XunitTestAssemblyRunnerContext ctxt) =>
 		Guard.ArgumentNotNull(ctxt).AssemblyTestCaseOrderer ?? base.GetTestCaseOrderer(ctxt);
@@ -97,7 +95,7 @@ public class XunitTestAssemblyRunner : TestAssemblyRunner<XunitTestAssemblyRunne
 		if (ctxt.DisableParallelization)
 			return await base.RunTestCollectionsAsync(ctxt);
 
-		ctxt.SetupMaxConcurrencySyncContext();
+		ctxt.SetupParallelism();
 
 		Func<Func<ValueTask<RunSummary>>, ValueTask<RunSummary>> taskRunner;
 		if (SynchronizationContext.Current is not null)
@@ -162,15 +160,6 @@ public class XunitTestAssemblyRunner : TestAssemblyRunner<XunitTestAssemblyRunne
 		Guard.ArgumentNotNull(testCollection);
 		Guard.ArgumentNotNull(testCases);
 
-		return XunitTestCollectionRunner.Instance.RunAsync(
-			testCollection,
-			testCases,
-			ctxt.ExplicitOption,
-			ctxt.MessageBus,
-			GetTestCaseOrderer(ctxt),
-			ctxt.Aggregator.Clone(),
-			ctxt.CancellationTokenSource,
-			ctxt.AssemblyFixtureMappings
-		);
+		return ctxt.RunTestCollectionAsync(testCollection, testCases, GetTestCaseOrderer(ctxt));
 	}
 }

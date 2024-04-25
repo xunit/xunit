@@ -382,6 +382,24 @@ public static class TestFrameworkOptionsReadWriteExtensions
 	}
 
 	/// <summary>
+	/// Gets the parallel algorithm to be used.
+	/// </summary>
+	public static ParallelAlgorithm? GetParallelAlgorithm(this _ITestFrameworkExecutionOptions executionOptions)
+	{
+		Guard.ArgumentNotNull(executionOptions);
+
+		var parallelAlgorithmString = executionOptions.GetValue<string>(TestOptionsNames.Execution.ParallelAlgorithm);
+		return parallelAlgorithmString != null ? (ParallelAlgorithm?)Enum.Parse(typeof(ParallelAlgorithm), parallelAlgorithmString) : null;
+	}
+
+	/// <summary>
+	/// Gets the parallel algorithm to be used. If the flag is not present, return the default
+	/// value (<see cref="ParallelAlgorithm.Conservative"/>).
+	/// </summary>
+	public static ParallelAlgorithm GetParallelAlgorithmOrDefault(this _ITestFrameworkExecutionOptions executionOptions) =>
+		GetParallelAlgorithm(executionOptions) ?? ParallelAlgorithm.Conservative;
+
+	/// <summary>
 	/// Gets the value that should be used to seed randomness.
 	/// </summary>
 	public static int? GetSeed(this _ITestFrameworkExecutionOptions executionOptions)
@@ -504,6 +522,18 @@ public static class TestFrameworkOptionsReadWriteExtensions
 		Guard.ArgumentNotNull(executionOptions);
 
 		executionOptions.SetValue(TestOptionsNames.Execution.MaxParallelThreads, value);
+	}
+
+	/// <summary>
+	/// Sets the parallel algorithm to be used.
+	/// </summary>
+	public static void SetParallelAlgorithm(
+		this _ITestFrameworkExecutionOptions executionOptions,
+		ParallelAlgorithm? value)
+	{
+		Guard.ArgumentNotNull(executionOptions);
+
+		executionOptions.SetValue(TestOptionsNames.Execution.ParallelAlgorithm, value.HasValue ? value.GetValueOrDefault().ToString() : null);
 	}
 
 	/// <summary>

@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Text.Json;
 using Xunit.Internal;
+using Xunit.Sdk;
 using Xunit.v3;
 
 namespace Xunit.Runner.Common;
@@ -163,6 +164,11 @@ public static class ConfigReader_Json
 							else
 								configuration.Culture = stringValue;
 						}
+						else if (string.Equals(property.Name, Configuration.ParallelAlgorithm, StringComparison.OrdinalIgnoreCase))
+						{
+							if (Enum.TryParse<ParallelAlgorithm>(stringValue, true, out var parallelAlgorithm))
+								configuration.ParallelAlgorithm = parallelAlgorithm;
+						}
 					}
 				}
 			}
@@ -189,6 +195,7 @@ public static class ConfigReader_Json
 		public const string MaxParallelThreads = "maxParallelThreads";
 		public const string MethodDisplay = "methodDisplay";
 		public const string MethodDisplayOptions = "methodDisplayOptions";
+		public const string ParallelAlgorithm = "parallelAlgorithm";
 		public const string ParallelizeAssembly = "parallelizeAssembly";
 		public const string ParallelizeTestCollections = "parallelizeTestCollections";
 		public const string PreEnumerateTheories = "preEnumerateTheories";

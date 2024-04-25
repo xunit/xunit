@@ -5,6 +5,7 @@ using System.Reflection;
 using Xunit;
 using Xunit.Internal;
 using Xunit.Runner.Common;
+using Xunit.Sdk;
 using Xunit.v3;
 
 public class ConfigReaderTests
@@ -74,6 +75,7 @@ public class ConfigReaderTests
 		Assert.Equal(Environment.ProcessorCount, configuration.MaxParallelThreadsOrDefault);
 		Assert.Equal(TestMethodDisplay.ClassAndMethod, configuration.MethodDisplayOrDefault);
 		Assert.Equal(TestMethodDisplayOptions.None, configuration.MethodDisplayOptionsOrDefault);
+		Assert.Equal(ParallelAlgorithm.Conservative, configuration.ParallelAlgorithmOrDefault);
 		Assert.False(configuration.ParallelizeAssemblyOrDefault);
 		Assert.True(configuration.ParallelizeTestCollectionsOrDefault);
 		Assert.Null(configuration.PreEnumerateTheories);
@@ -101,6 +103,7 @@ public class ConfigReaderTests
 		Assert.Equal(2112, configuration.MaxParallelThreadsOrDefault);
 		Assert.Equal(TestMethodDisplay.Method, configuration.MethodDisplayOrDefault);
 		Assert.Equal(TestMethodDisplayOptions.All, configuration.MethodDisplayOptionsOrDefault);
+		Assert.Equal(ParallelAlgorithm.Aggressive, configuration.ParallelAlgorithmOrDefault);
 		Assert.True(configuration.ParallelizeAssemblyOrDefault);
 		Assert.False(configuration.ParallelizeTestCollectionsOrDefault);
 		Assert.False(configuration.PreEnumerateTheories);
@@ -132,6 +135,7 @@ public class ConfigReaderTests
 		Assert.Equal(Environment.ProcessorCount, configuration.MaxParallelThreadsOrDefault);
 		Assert.Equal(TestMethodDisplay.ClassAndMethod, configuration.MethodDisplayOrDefault);
 		Assert.Equal(TestMethodDisplayOptions.None, configuration.MethodDisplayOptionsOrDefault);
+		Assert.Equal(ParallelAlgorithm.Conservative, configuration.ParallelAlgorithmOrDefault);
 		// This value was valid as a sentinel to make sure we were trying to read values from the config file
 		Assert.True(configuration.ParallelizeAssemblyOrDefault);
 		Assert.True(configuration.ParallelizeTestCollectionsOrDefault);

@@ -26,7 +26,10 @@ public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFram
 	}
 
 	/// <summary>
-	/// Creates an instance of <see cref="_TestFrameworkOptions"/> for discovery purposes.
+	/// Creates an instance of <see cref="_TestFrameworkOptions"/> for discovery purposes. Note that this
+	/// method is primarily for testing purposes and is not guaranteed not to have a stable parameter
+	/// list across releases. For a stable API, use the overload that takes <see cref="TestAssemblyConfiguration"/>
+	/// instead.
 	/// </summary>
 	/// <param name="culture">Optional value to indicate the culture used for test discovery</param>
 	/// <param name="diagnosticMessages">Optional flag to enable diagnostic messages</param>
@@ -84,7 +87,10 @@ public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFram
 		new _TestFrameworkOptions(optionsJson);
 
 	/// <summary>
-	/// Creates an instance of <see cref="_TestFrameworkOptions"/> for execution purposes.
+	/// Creates an instance of <see cref="_TestFrameworkOptions"/> for execution purposes. Note that this
+	/// method is primarily for testing purposes and is not guaranteed not to have a stable parameter
+	/// list across releases. For a stable API, use the overload that takes <see cref="TestAssemblyConfiguration"/>
+	/// instead.
 	/// </summary>
 	/// <param name="culture">Optional value to indicate the culture used for test execution</param>
 	/// <param name="diagnosticMessages">Optional flag to enable diagnostic messages</param>
@@ -92,6 +98,7 @@ public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFram
 	/// <param name="explicitOption">Optional flag to indicate how explicit tests should be handled</param>
 	/// <param name="internalDiagnosticMessages">Optional flag to enable internal diagnostic messages</param>
 	/// <param name="maxParallelThreads">Optional value for maximum threads when running tests in parallel</param>
+	/// <param name="parallelAlgorithm">Option value to choose the parallel algorithm</param>
 	/// <param name="seed">Optional override value to seed randomization</param>
 	/// <param name="stopOnFail">Optional flag to indicate that tests should stop running once one test has failed</param>
 	/// <returns></returns>
@@ -102,6 +109,7 @@ public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFram
 		ExplicitOption? explicitOption = null,
 		bool? internalDiagnosticMessages = null,
 		int? maxParallelThreads = null,
+		ParallelAlgorithm? parallelAlgorithm = null,
 		int? seed = null,
 		bool? stopOnFail = null)
 	{
@@ -113,6 +121,7 @@ public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFram
 		result.SetExplicitOption(explicitOption);
 		result.SetInternalDiagnosticMessages(internalDiagnosticMessages);
 		result.SetMaxParallelThreads(maxParallelThreads);
+		result.SetParallelAlgorithm(parallelAlgorithm);
 		result.SetSeed(seed);
 		result.SetStopOnTestFail(stopOnFail);
 
@@ -134,6 +143,7 @@ public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFram
 			configuration.ExplicitOption,
 			configuration.InternalDiagnosticMessages,
 			configuration.MaxParallelThreads,
+			configuration.ParallelAlgorithm,
 			configuration.Seed,
 			configuration.StopOnFail
 		);

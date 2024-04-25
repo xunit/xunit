@@ -81,6 +81,12 @@ public abstract class CommandLineParserBase
 		);
 		AddParser("noColor", OnNoColor, CommandLineGroup.General, null, "do not output results with colors");
 		AddParser("noLogo", OnNoLogo, CommandLineGroup.General, null, "do not show the copyright message");
+		AddParser("parallelAlgorithm", OnParallelAlgorithm, CommandLineGroup.General, "<option>",
+			"set the parallelization algoritm",
+			"  conservative - start the minimum number of tests [default]",
+			"  aggressive   - start as many tests as possible",
+			"for more information, see https://xunit.net/docs/running-tests-in-parallel#algorithms"
+		);
 		AddParser("pause", OnPause, CommandLineGroup.General, null, "wait for input before running tests");
 		AddParser("preEnumerateTheories", OnPreEnumerateTheories, CommandLineGroup.General, null, "enable theory pre-enumeration (disabled by default)");
 		AddParser("stopOnFail", OnStopOnFail, CommandLineGroup.General, null, "stop on first test failure");
@@ -484,6 +490,18 @@ public abstract class CommandLineParserBase
 			projectAssembly.Configuration.ParallelizeAssembly = parallelizeAssemblies;
 			projectAssembly.Configuration.ParallelizeTestCollections = parallelizeTestCollections;
 		}
+	}
+
+	void OnParallelAlgorithm(KeyValuePair<string, string?> option)
+	{
+		if (option.Value is null)
+			throw new ArgumentException("missing argument for -parallelAlgorithm");
+
+		if (!Enum.TryParse(option.Value, ignoreCase: true, out ParallelAlgorithm parallelAlgorithm))
+			throw new ArgumentException("incorrect argument value for -parallelAlgorithm");
+
+		foreach (var projectAssembly in Project.Assemblies)
+			projectAssembly.Configuration.ParallelAlgorithm = parallelAlgorithm;
 	}
 
 	void OnPause(KeyValuePair<string, string?> option)

@@ -44,6 +44,8 @@ public static class TestOptionsNames
 		/// <summary/>
 		public static readonly string MaxParallelThreads = "xunit.execution.MaxParallelThreads";
 		/// <summary/>
+		public static readonly string ParallelAlgorithm = "xunit.execution.ParallelAlgorithm";
+		/// <summary/>
 		public static readonly string Seed = "xunit.execution.Seed";
 		/// <summary/>
 		public static readonly string SynchronousMessageReporting = "xunit.execution.SynchronousMessageReporting";

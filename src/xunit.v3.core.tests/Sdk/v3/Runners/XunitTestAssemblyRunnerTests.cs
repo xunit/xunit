@@ -13,13 +13,17 @@ public class XunitTestAssemblyRunnerTests
 {
 	public class RunAsync
 	{
+		// This test is forced to use the aggressive algorithm so that we know we're running in a thread pool with
+		// a single thread. The default conserative algorithm runs in the .NET Thread Pool, so our async continuation
+		// could end up on any thread, despite the fact that are limited to running one test at a time.
 		[Fact]
-		public static async ValueTask Parallel_SingleThread()
+		public static async ValueTask Parallel_SingleThread_Aggressive()
 		{
 			var passing = TestData.XunitTestCase<ClassUnderTest>("Passing");
 			var other = TestData.XunitTestCase<ClassUnderTest>("Other");
 			var options = _TestFrameworkOptions.ForExecution();
 			options.SetMaxParallelThreads(1);
+			options.SetParallelAlgorithm(ParallelAlgorithm.Aggressive);
 			var runner = TestableXunitTestAssemblyRunner.Create(testCases: new[] { passing, other }, executionOptions: options);
 
 			await runner.RunAsync();

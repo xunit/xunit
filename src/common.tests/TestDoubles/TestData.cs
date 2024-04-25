@@ -295,6 +295,7 @@ public static class TestData
 		ExplicitOption? explicitOption = null,
 		bool internalDiagnosticMessages = false,
 		int maxParallelThreads = 2600,
+		ParallelAlgorithm? parallelAlgorithm = null,
 		bool? parallelizeTestCollections = null,
 		bool? stopOnFail = null,
 		int? seed = null,
@@ -315,6 +316,7 @@ public static class TestData
 			ExplicitOption = explicitOption,
 			InternalDiagnosticMessages = internalDiagnosticMessages,
 			MaxParallelThreads = maxParallelThreads,
+			ParallelAlgorithm = parallelAlgorithm,
 			ParallelizeTestCollections = parallelizeTestCollections,
 			StopOnFail = stopOnFail,
 		});

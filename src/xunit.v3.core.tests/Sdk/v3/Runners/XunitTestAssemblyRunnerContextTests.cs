@@ -51,17 +51,24 @@ public class XunitTestAssemblyRunnerContextTests
 			Assert.EndsWith("[collection-per-class, non-parallel]", result);
 		}
 
-		[Fact]
-		public static async ValueTask Attribute_MaxThreads()
+		[Theory]
+		[InlineData(1, null, "1 thread")]
+		[InlineData(3, ParallelAlgorithm.Conservative, "3 threads")]
+		[InlineData(42, ParallelAlgorithm.Aggressive, "42 threads/aggressive")]
+		public static async ValueTask Attribute_MaxThreads(
+			int maxThreads,
+			ParallelAlgorithm? parallelAlgorithm,
+			string expected)
 		{
-			var attribute = Mocks.CollectionBehaviorAttribute(maxParallelThreads: 3);
+			var attribute = Mocks.CollectionBehaviorAttribute(maxParallelThreads: maxThreads);
 			var assembly = Mocks.TestAssembly("assembly.dll", assemblyAttributes: new[] { attribute });
-			await using var context = TestableXunitTestAssemblyRunnerContext.Create(assembly: assembly);
+			var options = _TestFrameworkOptions.ForExecution(parallelAlgorithm: parallelAlgorithm);
+			await using var context = TestableXunitTestAssemblyRunnerContext.Create(assembly: assembly, executionOptions: options);
 			await context.InitializeAsync();
 
 			var result = context.TestFrameworkEnvironment;
 
-			Assert.EndsWith("[collection-per-class, parallel (3 threads)]", result);
+			Assert.EndsWith($"[collection-per-class, parallel ({expected})]", result);
 		}
 
 		[Fact]
@@ -69,7 +76,8 @@ public class XunitTestAssemblyRunnerContextTests
 		{
 			var attribute = Mocks.CollectionBehaviorAttribute(maxParallelThreads: -1);
 			var assembly = Mocks.TestAssembly("assembly.dll", assemblyAttributes: new[] { attribute });
-			await using var context = TestableXunitTestAssemblyRunnerContext.Create(assembly: assembly);
+			var options = _TestFrameworkOptions.ForExecution(parallelAlgorithm: ParallelAlgorithm.Aggressive);  // Shouldn't show for unlimited threads
+			await using var context = TestableXunitTestAssemblyRunnerContext.Create(assembly: assembly, executionOptions: options);
 			await context.InitializeAsync();
 
 			var result = context.TestFrameworkEnvironment;

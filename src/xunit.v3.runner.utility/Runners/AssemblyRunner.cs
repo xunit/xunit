@@ -221,7 +221,8 @@ public class AssemblyRunner : IAsyncDisposable, _IMessageSink
 		bool? diagnosticMessages,
 		bool? internalDiagnosticMessages,
 		int? maxParallelThreads,
-		bool? parallel)
+		bool? parallel,
+		ParallelAlgorithm? parallelAlgorithm)
 	{
 		var executionOptions = _TestFrameworkOptions.ForExecution(configuration);
 		executionOptions.SetSynchronousMessageReporting(true);
@@ -234,6 +235,8 @@ public class AssemblyRunner : IAsyncDisposable, _IMessageSink
 			executionOptions.SetDisableParallelization(!parallel.GetValueOrDefault());
 		if (maxParallelThreads.HasValue)
 			executionOptions.SetMaxParallelThreads(maxParallelThreads);
+		if (parallelAlgorithm.HasValue)
+			executionOptions.SetParallelAlgorithm(parallelAlgorithm);
 
 		return executionOptions;
 	}
@@ -343,6 +346,7 @@ public class AssemblyRunner : IAsyncDisposable, _IMessageSink
 	/// of threads. By default, uses the value from the assembly configuration file. (This parameter is ignored for xUnit.net v1 tests.)</param>
 	/// <param name="internalDiagnosticMessages">Set to <c>true</c> to enable internal diagnostic messages; set to <c>false</c> to disable them.
 	/// By default, uses the value from the assembly configuration file.</param>
+	/// <param name="parallelAlgorithm">The parallel algorithm to be used; defaults to <see cref="ParallelAlgorithm.Conservative"/>.</param>
 	public void Start(
 		string? typeName = null,
 		bool? diagnosticMessages = null,
@@ -351,7 +355,8 @@ public class AssemblyRunner : IAsyncDisposable, _IMessageSink
 		bool? preEnumerateTheories = null,
 		bool? parallel = null,
 		int? maxParallelThreads = null,
-		bool? internalDiagnosticMessages = null)
+		bool? internalDiagnosticMessages = null,
+		ParallelAlgorithm? parallelAlgorithm = null)
 	{
 		lock (statusLock)
 		{
@@ -384,7 +389,7 @@ public class AssemblyRunner : IAsyncDisposable, _IMessageSink
 				return;
 			}
 
-			var executionOptions = GetExecutionOptions(diagnosticMessages, internalDiagnosticMessages, maxParallelThreads, parallel);
+			var executionOptions = GetExecutionOptions(diagnosticMessages, internalDiagnosticMessages, maxParallelThreads, parallel, parallelAlgorithm);
 			var runSettings = new FrontControllerRunSettings(executionOptions, testCasesToRun.Select(tc => tc.Serialization).CastOrToReadOnlyCollection());
 			controller.Run(this, runSettings);
 			executionCompleteEvent.WaitOne();

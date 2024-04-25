@@ -34,6 +34,7 @@ public class xunit : MSBuildTask, ICancelableTask
 	IRunnerLogger? logger;
 	readonly object logLock = new();
 	int? maxThreadCount;
+	ParallelAlgorithm? parallelAlgorithm;
 	bool? parallelizeAssemblies;
 	bool? parallelizeTestCollections;
 	bool? preEnumerateTheories;
@@ -102,6 +103,8 @@ public class xunit : MSBuildTask, ICancelableTask
 	public bool NoLogo { get; set; }
 
 	public ITaskItem? NUnit { get; set; }
+
+	public ParallelAlgorithm ParallelAlgorithm { set { parallelAlgorithm = value; } }
 
 	public bool ParallelizeAssemblies { set { parallelizeAssemblies = value; } }
 
@@ -353,6 +356,8 @@ public class xunit : MSBuildTask, ICancelableTask
 			var executionOptions = _TestFrameworkOptions.ForExecution(assembly.Configuration);
 			if (maxThreadCount.HasValue && maxThreadCount.Value > -1)
 				executionOptions.SetMaxParallelThreads(maxThreadCount);
+			if (parallelAlgorithm.HasValue)
+				executionOptions.SetParallelAlgorithm(parallelAlgorithm);
 			if (parallelizeTestCollections.HasValue)
 				executionOptions.SetDisableParallelization(!parallelizeTestCollections);
 			if (stopOnFail.HasValue)
