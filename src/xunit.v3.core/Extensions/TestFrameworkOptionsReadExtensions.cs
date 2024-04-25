@@ -10,7 +10,9 @@ namespace Xunit.Sdk;
 /// </summary>
 public static class TestFrameworkOptionsReadExtensions
 {
-	// Read methods for discovery options
+	// ======================================
+	//   Read methods for discovery options
+	// ======================================
 
 	/// <summary>
 	/// Gets the culture to use for discovering tests. <c>null</c> uses the default OS culture;
@@ -40,12 +42,8 @@ public static class TestFrameworkOptionsReadExtensions
 	/// Gets a flag that determines whether diagnostic messages will be emitted. If the flag is not present,
 	/// returns the default value (<c>false</c>).
 	/// </summary>
-	public static bool DiagnosticMessagesOrDefault(this _ITestFrameworkDiscoveryOptions discoveryOptions)
-	{
-		Guard.ArgumentNotNull(discoveryOptions);
-
-		return discoveryOptions.DiagnosticMessages() ?? false;
-	}
+	public static bool DiagnosticMessagesOrDefault(this _ITestFrameworkDiscoveryOptions discoveryOptions) =>
+		DiagnosticMessages(discoveryOptions) ?? false;
 
 	/// <summary>
 	/// Gets a flag that determines whether discovered test cases should include source information.
@@ -65,12 +63,8 @@ public static class TestFrameworkOptionsReadExtensions
 	/// that source information will be provided. If the flag is not present, returns the default
 	/// value (<c>false</c>).
 	/// </summary>
-	public static bool IncludeSourceInformationOrDefault(this _ITestFrameworkDiscoveryOptions discoveryOptions)
-	{
-		Guard.ArgumentNotNull(discoveryOptions);
-
-		return discoveryOptions.IncludeSourceInformation() ?? false;
-	}
+	public static bool IncludeSourceInformationOrDefault(this _ITestFrameworkDiscoveryOptions discoveryOptions) =>
+		IncludeSourceInformation(discoveryOptions) ?? false;
 
 	/// <summary>
 	/// Gets a flag that determines the default display name format for test methods.
@@ -84,6 +78,13 @@ public static class TestFrameworkOptionsReadExtensions
 	}
 
 	/// <summary>
+	/// Gets a flag that determines the default display name format for test methods. If the flag is not present,
+	/// returns the default value (<see cref="TestMethodDisplay.ClassAndMethod"/>).
+	/// </summary>
+	public static TestMethodDisplay MethodDisplayOrDefault(this _ITestFrameworkDiscoveryOptions discoveryOptions) =>
+		MethodDisplay(discoveryOptions) ?? TestMethodDisplay.ClassAndMethod;
+
+	/// <summary>
 	/// Gets a flag that determines the default display options to format test methods.
 	/// </summary>
 	public static TestMethodDisplayOptions? MethodDisplayOptions(this _ITestFrameworkDiscoveryOptions discoveryOptions)
@@ -95,26 +96,11 @@ public static class TestFrameworkOptionsReadExtensions
 	}
 
 	/// <summary>
-	/// Gets a flag that determines the default display name format for test methods. If the flag is not present,
-	/// returns the default value (<see cref="TestMethodDisplay.ClassAndMethod"/>).
-	/// </summary>
-	public static TestMethodDisplay MethodDisplayOrDefault(this _ITestFrameworkDiscoveryOptions discoveryOptions)
-	{
-		Guard.ArgumentNotNull(discoveryOptions);
-
-		return discoveryOptions.MethodDisplay() ?? TestMethodDisplay.ClassAndMethod;
-	}
-
-	/// <summary>
 	/// Gets the options that determine the default display formatting options for test methods. If no options are not present,
 	/// returns the default value (<see cref="TestMethodDisplayOptions.None"/>).
 	/// </summary>
-	public static TestMethodDisplayOptions MethodDisplayOptionsOrDefault(this _ITestFrameworkDiscoveryOptions discoveryOptions)
-	{
-		Guard.ArgumentNotNull(discoveryOptions);
-
-		return discoveryOptions.MethodDisplayOptions() ?? TestMethodDisplayOptions.None;
-	}
+	public static TestMethodDisplayOptions MethodDisplayOptionsOrDefault(this _ITestFrameworkDiscoveryOptions discoveryOptions) =>
+		MethodDisplayOptions(discoveryOptions) ?? TestMethodDisplayOptions.None;
 
 	/// <summary>
 	/// Gets a flag that determines whether theories are pre-enumerated. If they enabled, then the
@@ -134,12 +120,8 @@ public static class TestFrameworkOptionsReadExtensions
 	/// discovery system will return a single test case for the theory. If the flag is not present,
 	/// returns the default value (<c>false</c>).
 	/// </summary>
-	public static bool PreEnumerateTheoriesOrDefault(this _ITestFrameworkDiscoveryOptions discoveryOptions)
-	{
-		Guard.ArgumentNotNull(discoveryOptions);
-
-		return discoveryOptions.PreEnumerateTheories() ?? false;
-	}
+	public static bool PreEnumerateTheoriesOrDefault(this _ITestFrameworkDiscoveryOptions discoveryOptions) =>
+		PreEnumerateTheories(discoveryOptions) ?? false;
 
 	/// <summary>
 	/// Gets a flag that determines whether xUnit.net should report test results synchronously.
@@ -155,14 +137,12 @@ public static class TestFrameworkOptionsReadExtensions
 	/// Gets a flag that determines whether xUnit.net should report test results synchronously.
 	/// If the flag is not set, returns the default value (<c>false</c>).
 	/// </summary>
-	public static bool SynchronousMessageReportingOrDefault(this _ITestFrameworkDiscoveryOptions discoveryOptions)
-	{
-		Guard.ArgumentNotNull(discoveryOptions);
+	public static bool SynchronousMessageReportingOrDefault(this _ITestFrameworkDiscoveryOptions discoveryOptions) =>
+		SynchronousMessageReporting(discoveryOptions) ?? false;
 
-		return discoveryOptions.SynchronousMessageReporting() ?? false;
-	}
-
-	// Read methods for execution options
+	// ======================================
+	//   Read methods for execution options
+	// ======================================
 
 	/// <summary>
 	/// Gets the culture to use for running tests. <c>null</c> uses the default OS culture;
@@ -192,12 +172,8 @@ public static class TestFrameworkOptionsReadExtensions
 	/// Gets a flag that determines whether diagnostic messages will be emitted. If the flag is not
 	/// present, returns the default value (<c>false</c>).
 	/// </summary>
-	public static bool DiagnosticMessagesOrDefault(this _ITestFrameworkExecutionOptions executionOptions)
-	{
-		Guard.ArgumentNotNull(executionOptions);
-
-		return executionOptions.DiagnosticMessages() ?? false;
-	}
+	public static bool DiagnosticMessagesOrDefault(this _ITestFrameworkExecutionOptions executionOptions) =>
+		DiagnosticMessages(executionOptions) ?? false;
 
 	/// <summary>
 	/// Gets a flag to disable parallelization.
@@ -213,12 +189,8 @@ public static class TestFrameworkOptionsReadExtensions
 	/// Gets a flag to disable parallelization. If the flag is not present, returns the
 	/// default value (<c>false</c>).
 	/// </summary>
-	public static bool DisableParallelizationOrDefault(this _ITestFrameworkExecutionOptions executionOptions)
-	{
-		Guard.ArgumentNotNull(executionOptions);
-
-		return executionOptions.DisableParallelization() ?? false;
-	}
+	public static bool DisableParallelizationOrDefault(this _ITestFrameworkExecutionOptions executionOptions) =>
+		DisableParallelization(executionOptions) ?? false;
 
 	/// <summary>
 	/// Gets a flag that indicates how to handle explicit tests.
@@ -238,12 +210,8 @@ public static class TestFrameworkOptionsReadExtensions
 	/// Gets a flag that indicates how to handle explicit tests. If the flag is not present, returns the
 	/// default value (<see cref="ExplicitOption.Off"/>).
 	/// </summary>
-	public static ExplicitOption ExplicitOptionOrDefault(this _ITestFrameworkExecutionOptions executionOptions)
-	{
-		Guard.ArgumentNotNull(executionOptions);
-
-		return executionOptions.ExplicitOption() ?? Sdk.ExplicitOption.Off;
-	}
+	public static ExplicitOption ExplicitOptionOrDefault(this _ITestFrameworkExecutionOptions executionOptions) =>
+		ExplicitOption(executionOptions) ?? Sdk.ExplicitOption.Off;
 
 	/// <summary>
 	/// Gets the maximum number of threads to use when running tests in parallel.
@@ -295,12 +263,8 @@ public static class TestFrameworkOptionsReadExtensions
 	/// Gets a flag to stop testing on test failure. If the flag is not present, returns the
 	/// default value (<c>false</c>).
 	/// </summary>
-	public static bool StopOnTestFailOrDefault(this _ITestFrameworkExecutionOptions executionOptions)
-	{
-		Guard.ArgumentNotNull(executionOptions);
-
-		return executionOptions.StopOnTestFail() ?? false;
-	}
+	public static bool StopOnTestFailOrDefault(this _ITestFrameworkExecutionOptions executionOptions) =>
+		StopOnTestFail(executionOptions) ?? false;
 
 	/// <summary>
 	/// Gets a flag that determines whether xUnit.net should report test results synchronously.
@@ -316,10 +280,6 @@ public static class TestFrameworkOptionsReadExtensions
 	/// Gets a flag that determines whether xUnit.net should report test results synchronously.
 	/// If the flag is not set, returns the default value (<c>false</c>).
 	/// </summary>
-	public static bool SynchronousMessageReportingOrDefault(this _ITestFrameworkExecutionOptions executionOptions)
-	{
-		Guard.ArgumentNotNull(executionOptions);
-
-		return executionOptions.SynchronousMessageReporting() ?? false;
-	}
+	public static bool SynchronousMessageReportingOrDefault(this _ITestFrameworkExecutionOptions executionOptions) =>
+		SynchronousMessageReporting(executionOptions) ?? false;
 }
