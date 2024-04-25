@@ -44,13 +44,13 @@ public class CommandLine : CommandLineParserBase
 
 		// .NET Framework options
 		AddParser(
-			"appdomains", OnAppDomains, CommandLineGroup.NetFramework, "<option>",
+			"appDomains", OnAppDomains, CommandLineGroup.NetFramework, "<option>",
 			"choose an app domain mode",
 			"  required    - force app domains on",
 			"  denied      - force app domains off",
 			"  ifavailable - use app domains if they're available [default]"
 		);
-		AddParser("noshadow", OnNoShadow, CommandLineGroup.NetFramework, null, "do not shadow copy assemblies");
+		AddParser("noShadow", OnNoShadow, CommandLineGroup.NetFramework, null, "do not shadow copy assemblies");
 
 		// Deprecated options
 		AddHiddenParser("noappdomain", OnNoAppDomain);

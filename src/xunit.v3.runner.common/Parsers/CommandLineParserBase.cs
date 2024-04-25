@@ -39,7 +39,7 @@ public abstract class CommandLineParserBase
 			"note: when running a v1/v2 assembly, the culture option will be ignored",
 			"  default   - run with default operating system culture",
 			"  invariant - run with the invariant culture",
-			"  (string)  - run with the given culture (f.e., 'en-US')"
+			"  (string)  - run with the given culture (i.e., 'en-US')"
 		);
 		AddParser("debug", OnDebug, CommandLineGroup.General, null, "launch the debugger to debug the tests");
 		AddParser("diagnostics", OnDiagnostics, CommandLineGroup.General, null, "enable diagnostics messages for all test assemblies");
@@ -51,9 +51,9 @@ public abstract class CommandLineParserBase
 			"  only - run only explicit tests"
 		);
 		AddParser("failSkips", OnFailSkips, CommandLineGroup.General, null, "treat skipped tests as failures");
-		AddParser("failSkips-", OnFailSkipsMinus, CommandLineGroup.General, null, "treat skipped tests as skipped (default)");
+		AddParser("failSkips-", OnFailSkipsMinus, CommandLineGroup.General, null, "treat skipped tests as skipped [default]");
 		AddParser("failWarns", OnFailWarns, CommandLineGroup.General, null, "treat passing tests with warnings as failures");
-		AddParser("failWarns-", OnFailWarnsMinus, CommandLineGroup.General, null, "treat passing tests with warnings as successful (default)");
+		AddParser("failWarns-", OnFailWarnsMinus, CommandLineGroup.General, null, "treat passing tests with warnings as successful [default]");
 		AddParser("ignoreFailures", OnIgnoreFailures, CommandLineGroup.General, null, "if tests fail, do not return a failure exit code");
 		AddParser("internalDiagnostics", OnInternalDiagnostics, CommandLineGroup.General, null, "enable internal diagnostics messages for all test assemblies");
 		AddParser(
@@ -90,14 +90,14 @@ public abstract class CommandLineParserBase
 		// Filter options
 		AddParser(
 			"class", OnClass, CommandLineGroup.Filter, "\"name\"",
-			"run all methods in a given test class (should be fully",
-			"specified; i.e., 'MyNamespace.MyClass')",
+			"run all methods in a given test class (should be fully specified;",
+			"i.e., 'MyNamespace.MyClass' or 'MyNamespace.MyClass+InnerClass')",
 			"  if specified more than once, acts as an OR operation"
 		);
 		AddParser(
 			"class-", OnClassMinus, CommandLineGroup.Filter, "\"name\"",
-			"do not run any methods in a given test class (should be fully",
-			"specified; i.e., 'MyNamespace.MyClass')",
+			"do not run any methods in a given test class (should be fully specified;",
+			"i.e., 'MyNamespace.MyClass' or 'MyNamespace.MyClass+InnerClass')",
 			"  if specified more than once, acts as an AND operation"
 		);
 		AddParser(
@@ -114,14 +114,12 @@ public abstract class CommandLineParserBase
 		);
 		AddParser(
 			"namespace", OnNamespace, CommandLineGroup.Filter, "\"name\"",
-			"run all methods in a given namespace (i.e.,",
-			"'MyNamespace.MySubNamespace')",
+			"run all methods in a given namespace (i.e., 'MyNamespace.MySubNamespace')",
 			"  if specified more than once, acts as an OR operation"
 		);
 		AddParser(
 			"namespace-", OnNamespaceMinus, CommandLineGroup.Filter, "\"name\"",
-			"do not run any methods in a given namespace (i.e.,",
-			"'MyNamespace.MySubNamespace')",
+			"do not run any methods in a given namespace (i.e., 'MyNamespace.MySubNamespace')",
 			"  if specified more than once, acts as an AND operation"
 		);
 		AddParser(
