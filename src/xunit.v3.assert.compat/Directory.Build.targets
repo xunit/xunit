@@ -18,6 +18,10 @@
         <PackageDownload Include="Microsoft.NETCore.App.Ref" Version="[$(MicrosoftNetCoreAppRefVersion)]" />
       </ItemGroup>
 
+      <PropertyGroup>
+        <AnnotatedReferenceAssemblyVersion>$(MicrosoftNetCoreAppRefVersion)</AnnotatedReferenceAssemblyVersion>
+      </PropertyGroup>
+
     </When>
   </Choose>
 

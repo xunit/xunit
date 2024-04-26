@@ -30,6 +30,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{DD6C7641-EDB
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "back-compat", "back-compat", "{E1286501-8361-4D28-B2B7-69DEF241AAB1}"
+	ProjectSection(SolutionItems) = preProject
+		src\xunit.v3.assert.compat\Directory.Build.props = src\xunit.v3.assert.compat\Directory.Build.props
+		src\xunit.v3.assert.compat\Directory.Build.targets = src\xunit.v3.assert.compat\Directory.Build.targets
+		src\xunit.v3.assert.compat\README.md = src\xunit.v3.assert.compat\README.md
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "x86", "x86", "{E855BC6B-EA31-40E4-858E-A0D4C1100184}"
 EndProject
