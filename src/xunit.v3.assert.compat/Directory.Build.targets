@@ -6,6 +6,11 @@
     <When Condition=" '$(LangVersion)' == '9.0' ">
 
       <PropertyGroup>
+        <!--
+        This is stuck to version 6.0.25 of the reference libraries because of a bug in RAA that only seems
+        to surface with the nullable-mixed project.
+        -->
+        <AnnotatedReferenceAssemblyVersion>6.0.25</AnnotatedReferenceAssemblyVersion>
         <!-- On non-Windows, NuGet reports Microsoft.NETCore.App.Ref as being double-imported -->
         <NoWarn>$(NoWarn);NU1505</NoWarn>
       </PropertyGroup>
@@ -15,12 +20,8 @@
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
           <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-        <PackageDownload Include="Microsoft.NETCore.App.Ref" Version="[$(MicrosoftNetCoreAppRefVersion)]" />
+        <PackageDownload Include="Microsoft.NETCore.App.Ref" Version="[6.0.25]" />
       </ItemGroup>
-
-      <PropertyGroup>
-        <AnnotatedReferenceAssemblyVersion>$(MicrosoftNetCoreAppRefVersion)</AnnotatedReferenceAssemblyVersion>
-      </PropertyGroup>
 
     </When>
   </Choose>
