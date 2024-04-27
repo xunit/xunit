@@ -1,13 +1,13 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "id": "https://xunit.net/schema/v3.0-alpha-1/xunit.runner.schema.json",
+  "id": "https://xunit.net/schema/v2.8/xunit.runner.schema.json",
   "title": "xUnit.net Runner Configuration",
   "description": "Configuration file for unit test projects using xUnit.net",
   "type": "object",
   "properties": {
     "$schema": {
       "description": "The document schema",
-      "default": "https://xunit.net/schema/v3.0-alpha-1/xunit.runner.schema.json",
+      "default": "https://xunit.net/schema/v2.8/xunit.runner.schema.json",
       "type": "string"
     },
     "appDomain": {
@@ -19,11 +19,6 @@
         "denied"
       ]
     },
-    "culture": {
-      "description": "Sets the culture used when running tests. It should be one of: a BCP 47-compatible culture name (https://www.rfc-editor.org/info/bcp47); 'invariant' for the system invariant culture; or 'default' for the current system culture.",
-      "default": "default",
-      "type": "string"
-    },
     "diagnosticMessages": {
       "description": "Enables or disables diagnostic information during test discovery and execution.",
       "default": false,
@@ -31,11 +26,6 @@
     },
     "failSkips": {
       "description": "Enables or disables converting skipped tests into failed tests.",
-      "default": false,
-      "type": "boolean"
-    },
-    "failWarns": {
-      "description": "Enables or disables warned tests being treated as errors. Supported for v3+ test assemblies only.",
       "default": false,
       "type": "boolean"
     },

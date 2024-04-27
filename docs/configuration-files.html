@@ -26,6 +26,7 @@ redirect_from:
     <li><a href="#maxParallelThreads"><code>maxParallelThreads</code></a></li>
     <li><a href="#methodDisplay"><code>methodDisplay</code></a></li>
     <li><a href="#methodDisplayOptions"><code>methodDisplayOptions</code></a></li>
+    <li><a href="#parallelAlgorithm"><code>parallelAlgorithm</code></a></li>
     <li><a href="#parallelizeAssembly"><code>parallelizeAssembly</code></a></li>
     <li><a href="#parallelizeTestCollections"><code>parallelizeTestCollections</code></a></li>
     <li><a href="#preEnumerateTheories"><code>preEnumerateTheories</code></a></li>
@@ -236,11 +237,11 @@ redirect_from:
       <p>
         <strong><sup>1</sup> NOTE:</strong> While this configuration value has been present since v2 2.1,
         the newer values (<code>default</code>, <code>unlimited</code>, and the multiplier
-        syntax) are only supported with runners v3.0 and later.
+        syntax) are only supported with Runners v2 2.8 and later.
       </p>
       <p>
-        <em>JSON schema type: <strong>integer</strong> (schema v2.1+), <strong>integer/string</strong> (schema v3.0+)<br />
-        Default value: the number of logical processors in your PC</em>
+        <em>JSON schema type: <strong>integer</strong> (schema v2.1+), <strong>integer/string</strong> (schema v2.8+)<br />
+        Default value: the number of CPU threads available to your PC</em>
       </p>
     </td>
   </tr>
@@ -298,6 +299,23 @@ redirect_from:
         <em>JSON schema type: <strong>string</strong> (comma separated flags)<br />
         Valid values: <code>all</code>, <code>none</code>, or comma separated flags<br />
         Default value: <code>none</code></em>
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <th id="parallelAlgorithm"><code>parallelAlgorithm</code><br />Runners v2 2.8+<br />Test Framework v2 2.8+</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this to change the way tests are scheduled when they're running in parallel. For more
+        information, see <a href="running-tests-in-parallel#algorithms">Running Tests in Parallel</a>.
+        Note that the algorithm only applies when you have <a href="#parallelizeTestCollections">enabled
+        test collection parallelism</a>, and are using a limited <a href="#maxParallelThreads">number of
+        threads</a> (i.e., not <code>unlimited</code> or <code>-1</code>).
+      </p>
+      <p>
+        <em>JSON schema type: <strong>enum</strong><br />
+        Valid values: <code>conservative</code>, <code>aggressive</code><br />
+        Default value: <code>conservative</code></em>
       </p>
     </td>
   </tr>

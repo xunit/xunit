@@ -1,0 +1,45 @@
+---
+layout: default
+title: Release Notes for April 27, 2024
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: April 27, 2024</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<p>Today, we're shipping three new releases:</p>
+
+<ul>
+  <li>xUnit.net Core Framework v2 2.8.0 (<a href="/releases/v2/2.8.0">release notes</a>)</li>
+  <li><strong>xUnit.net Analyzers 1.13.0</strong></li>
+  <li>xUnit.net Visual Studio adapter 2.8.0 (<a href="/releases/visualstudio/2.8.0">release notes</a>)</li>
+</ul>
+
+<p>It's been 2 weeks since the release of <a href="1.12.0">1.12.0 RTM</a>.</p>
+
+<p>
+  As always, we'd like to thank all the users who contributed to the success of xUnit.net through
+  usage, feedback, and code contributions. 🎉
+</p>
+
+<h2>Release Notes</h2>
+
+<p>These release notes are a comprehensive list of changes from 1.12.0 to 1.13.0.</p>
+
+<h3>Usage Analyzers</h3>
+<ul>
+  <li>
+    We have introduced <a href="/xunit.analyzers/rules/xUnit1048">xUnit1048</a> and <a href="/xunit.analyzers/rules/xUnit1049">xUnit1049</a>
+    to flag usage of <code>async void</code> test method signatures. xUnit1048 will trigger as a warning in v2 projects, alerting the
+    developer that <code>async void</code> test methods are no longer supported in v3 and should be converted to <code>async Task</code>
+    instead, whereas xUnit1049 will trigger as an error in v3 projects (and also altering the user that <code>async ValueTask</code>
+    is acceptable as well). Note that <code>ValueTask</code> support for test method signatures only exists in v3.
+  </li>
+  <li>
+    <strong>BUG:</strong> We fixed an issue with <a href="/xunit.analyzers/rules/xUnit1047">xUnit1047</a> which was
+    causing it to report outside the intended context (that is, it was reporting on usages other than <code>TheoryRowData</code>
+    constructors).
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2914">xunit/xunit#2914</a>
+  </li>
+</ul>

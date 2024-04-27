@@ -40,8 +40,13 @@
       "minimum": 0
     },
     "maxParallelThreads": {
-      "description": "Configures the maximum number of threads to be used when parallelizing tests within this assembly. Use a value of 0 to indicate that you would like the default behavior; use a value of -1 to indicate that you do not wish to limit the number of threads used for parallelization.",
-      "type": "integer",
+      "description": "Configures the maximum number of threads to be used when parallelizing tests within this assembly. Use a value of 'default' or 0 to indicate that you would like the default behavior; use a value of 'unlimited' or -1 to indicate that you do not wish to limit the number of threads used for parallelization. Positive integer values indicate an exact number of threads; a string value formatted as a positive integer or decimal followed by 'x' indicates a thread count which is a multiple of the CPU threads available (example: '1x' would give 4 threads on a 4 thread CPU, or '1.5x' would give 6 threads on a 4 thread CPU).",
+      "type": [
+        "integer",
+        "string"
+      ],
+      "default": "default",
+      "pattern": "^(\\d+(\\.\\d+)?(x|X)|default|unlimited)$",
       "minimum": -1
     },
     "methodDisplay": {
@@ -56,6 +61,14 @@
       "description": "Configures one or more automatic transformations of test names. Flag names should be combined with a comma (i.e., flag1,flag2). Valid flags are: 'replaceUnderscoreWithSpace', 'useOperatorMonikers', 'useEscapeSequences', 'replacePeriodWithComma'. There are special flags named 'all' and 'none'.",
       "default": "none",
       "type": "string"
+    },
+    "parallelAlgorithm": {
+      "description": "Configures the algorithm used when parallelizing test collections (and a limited number of threads). Valid values are 'conservative' (default) or 'aggressive'. For more information: https://xunit.net/docs/running-tests-in-parallel#algorithms",
+      "default": "conservative",
+      "enum": [
+        "conservative",
+        "aggressive"
+      ]
     },
     "parallelizeAssembly": {
       "description": "Instructs the test runner that this assembly is willing to run in parallel with other assemblies.",

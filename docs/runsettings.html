@@ -20,6 +20,7 @@ breadcrumb: Documentation
     <li><a href="#MethodDisplay"><code>MethodDisplay</code></a></li>
     <li><a href="#MethodDisplayOptions"><code>MethodDisplayOptions</code></a></li>
     <li><a href="#NoAutoReporters"><code>NoAutoReporters</code></a></li>
+    <li><a href="#ParallelAlgorithm"><code>ParallelAlgorithm</code></a></li>
     <li><a href="#ParallelizeAssembly"><code>ParallelizeAssembly</code></a></li>
     <li><a href="#ParallelizeTestCollections"><code>ParallelizeTestCollections</code></a></li>
     <li><a href="#PreEnumerateTheories"><code>PreEnumerateTheories</code></a></li>
@@ -172,9 +173,16 @@ breadcrumb: Documentation
         like the default behavior; use a value of <code>-1</code> to indicate that you do not
         wish to limit the number of threads used for parallelization.
       </p>
+      <p>
+        As of v2 Test Framework 2.8.0+ and <code>xunit.runner.visualstudio</code> 2.8.0+, you can
+        also use the multiplier syntax, which is a multiplier of the number of CPU threads. For
+        example, <code>2.0x</code> will give you double the CPU thread count. You may also use
+        the string values <code>unlimited</code> and <code>default</code> in place of the integer
+        values <code>-1</code> and <code>0</code>, respectively.
+      </p>
       <p><em>
-        Valid values: Any integer &gt;= -1<br />
-        Default value: the number of logical processors in your PC
+        Valid values: Any integer &gt;= -1, a multiplier, <code>unlimited</code>, or <code>default</code><br />
+        Default value: the number of CPU threads in your PC
       </em></p>
     </td>
   </tr>
@@ -245,6 +253,22 @@ breadcrumb: Documentation
       <p><em>
         Valid values: <code>true</code>, <code>false</code><br />
         Default value: <code>false</code>
+      </em></p>
+    </td>
+  </tr>
+  <tr>
+    <th id="ParallelAlgorithm"><code>ParallelAlgorithm</code><br />xunit.runner.visualstudio 2.8.0+<br />Test Framework v2 2.8.0+</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this to change the way tests are scheduled when they're running in parallel. For more
+        information, see <a href="running-tests-in-parallel#algorithms">Running Tests in Parallel</a>.
+        Note that the algorithm only applies when you have <a href="#ParallelizeTestCollections">enabled
+        test collection parallelism</a>, and are using a limited <a href="#MaxParallelThreads">number of
+        threads</a> (i.e., not <code>unlimited</code> or <code>-1</code>).
+      </p>
+      <p><em>
+        Valid values: <code>conservative</code>, <code>aggressive</code><br />
+        Default value: <code>conservative</code>
       </em></p>
     </td>
   </tr>

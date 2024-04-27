@@ -1,0 +1,91 @@
+---
+layout: default
+title: Release Notes for April 27, 2024
+breadcrumb: Release Notes
+---
+
+<h1>Release Notes: April 27, 2024</h1>
+
+<a href="https://www.dotnetfoundation.org/"><img align="right" src="/images/dotnet-fdn-logo.png" width="100" /></a>
+
+<p>Today, we're shipping three new releases:</p>
+
+<ul>
+  <li><strong>xUnit.net Core Framework v2 2.8.0</strong></li>
+  <li>xUnit.net Analyzers 1.13.0 (<a href="/releases/analyzers/1.13.0">release notes</a>)</li>
+  <li>xUnit.net Visual Studio adapter 2.8.0 (<a href="/releases/visualstudio/2.8.0">release notes</a>)</li>
+</ul>
+
+<p>It's been 2 weeks since the release of <a href="2.7.1">2.7.1 RTM</a>.</p>
+
+<p class="note">
+  This release has been numbered as <code>2.8.0</code> rather than <code>2.7.2</code> because it includes
+  an important change to the default behavior of the system with respect to how parallel tests are run.
+  While we don't anticipate this being a problem (and we believe, in fact, that the new system solves a
+  previous problem with accurate timing and <code>[Fact(Timeout = n)]</code> not being reliable when tests
+  were run in parallel), it was still important enough to warrant the version bump.<br />
+  <br />
+  For more information about this change in parallel algorithms (including how to revert back to the older
+  algorithm, if you so choose), see the <a href="/docs/running-tests-in-parallel#algorithms">Algorithms section
+  of the "Running Tests in Parallel"</a> documentation.
+</p>
+
+<p>
+  As always, we'd like to thank all the users who contributed to the success of xUnit.net through
+  usage, feedback, and code. We would especially like to thank <a href="https://github.com/mconnew">Matt Connew</a>
+  for working through the details of the new algorithm. 🎉
+</p>
+
+<h2>Release Notes</h2>
+
+<p>These release notes are a comprehensive list of changes from 2.7.1 to 2.8.0.</p>
+
+<h3>Core Framework</h3>
+<ul>
+  <li>
+    As mentioned above, there is a new default parallelism algorithm. The work for this was done primarily while
+    chasing down deadlock and failing test issues that users were experiencing after upgrading to 2.7.0. Related,
+    we have also rolled back one of the changes that went into 2.7.0: the conditional disabling of the
+    <code>AsyncTestSyncContext</code>. It was discovered that some situations were made worse in terms of deadlocks
+    and test failures when there were no sync contexts in place, because of the overloaded list of tasks that
+    were scheduled, and the sync context was inadvertently releasing some of that pressure.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2904">xunit/xunit#2904</a>
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/2912">xunit/xunit#2912</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> There was a potential race condition in our assembly lookup cache because of a use
+    of a non-thread-safe dictionary.
+    <a class="issue-link" href="https://github.com/xunit/visualstudio.xunit/pull/407">xunit/visualstudio.xunit#407</a>
+  </li>
+  <li>
+    <strong>BUG:</strong> There was a bug in our ETW code that send a <code>TestStart</code> event twice rather
+    than a <code>TestStart</code> followed by a <code>TestStop</code>.
+  </li>
+</ul>
+
+<h3>Runners</h3>
+<ul>
+  <li>
+    The console runner has added a new <code>-useansicolor</code> switch which will force the runner to use
+    ANSI color codes rather than the direct console color system, when running on Windows systems (non-Windows
+    systems always use ANSI colors). This allows users who redirect or capture the output to be able to include
+    colors in their capture. It is important to note that the default <code>CMD</code> or <code>PowerShell</code>
+    windows which are hosted by CONHOST do <strong>not</strong> support ANSI colors, so you will see the raw
+    ANSI codes; <a href="https://learn.microsoft.com/en-us/windows/terminal/install">Windows Terminal</a> does
+    correctly display ANSI colors.
+    <a class="issue-link" href="https://github.com/xunit/xunit/issues/783">xunit/xunit#783</a>
+  </li>
+</ul>
+
+<h3>Runner Utility</h3>
+<ul>
+  <li>
+    We have back-ported from v3 support for a "multiplier" thread count syntax which can be used in command
+    line switches and configuration files. For more information, see <a href="/docs/configuration-files#maxParallelThreads">the
+    <code>maxParallelThreads</code> section</a> of the configuration file documentation.
+  </li>
+  <li>
+    The default runner reporter will now display <code>/aggressive</code> tacked onto the max thread count (when
+    diagnostic messages are on) when the aggressive parallelism algorithm is enabled.
+  </li>
+</ul>

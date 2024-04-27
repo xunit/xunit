@@ -8,6 +8,7 @@ breadcrumb: Documentation
 
 <ul>
   <li><a href="#background">Background</a></li>
+  <li><a href="#algorithms">Algorithms</a></li>
   <li><a href="#runners-and-test-frameworks">Runners and Test Frameworks</a></li>
   <li><a href="#parallelism-in-test-frameworks">Parallelism in Test Frameworks</a></li>
   <li><a href="#parallelism-in-runners">Parallelism in Runners</a></li>
@@ -31,10 +32,11 @@ breadcrumb: Documentation
   </li>
   <li>
     A typical developer machine in 2006 (when we first started working on
-    xUnit.net) had a single or dual core CPU, and perhaps 2 GB of RAM. Today's
-    modern developer machine is likely to have a CPU with 8 virtual cores and
-    between 8 and 16GB of RAM (or more). These CPUs go to waste when only one
-    of them at a time can be assigned to a given task.
+    xUnit.net) had a single or dual core CPU, no hyper-threading, and perhaps
+    2 GB of RAM. Today's modern developer machine is likely to have a CPU with
+    at least 8 threads and at least 16GB of RAM (and usually more of both).
+    These CPUs go to waste when only one of their threads can be used for a
+    given task.
   </li>
 </ol>
 
@@ -43,7 +45,7 @@ breadcrumb: Documentation
   write tests which themselves use parallelization (so that when the system is
   only running a single test, it still takes advantage of all the resources);
   or, let the unit test framework run many tests at the same time, to help
-  take advantage of the available resource.
+  take advantage of the available resources.
 </p>
 
 <p>
@@ -53,6 +55,84 @@ breadcrumb: Documentation
   the best way to ensure that unit tests can run at the full speed of the host
   computer is to run many of them at the same time.
 </p>
+
+<h2 id="algorithms">Algorithms</h2>
+
+<p>
+  As of v2 Test Framework 2.8, we've changed the default parallelism algorithm,
+  with the ability to fall back to the original. The two algorithms are called
+  <code>conservative</code> (the new default) and <code>aggressive</code> (the
+  original algorithm). They have the following attributes:
+</p>
+
+<p><code>conservative</code></p>
+
+<blockquote>
+  <p>
+    This will only <em>start</em> as many tests as your max parallel threads
+    setting. The system will wait for a test to finish before starting another
+    test. This allows more accurate timing of the running of tests, which
+    allows <code>Timeout</code> on <code>[Fact]</code> to work as expected even
+    when running tests in parallel. It also creates less pressure on the task
+    system, which has occasionally caused deadlocks in complex projects. The
+    downside is that projects with lots of tests which spend a significant amount
+    of time waiting for async operations to complete will under-utilize the
+    maximum CPU potential, so this new algorithm may cause your overall test
+    run to be slower.
+  </p>
+</blockquote>
+
+<p><code>aggressive</code></p>
+
+<blockquote>
+  <p>
+    This is the original parallelism algorithm, which starts as many tests as
+    possible, regardless of your max parallel threads setting, and uses a
+    <a href="https://learn.microsoft.com/en-us/dotnet/api/system.threading.synchronizationcontext"><code>SynchronizationContext</code></a>
+    to limit the number of things that are running at any given time. Since
+    tests in this system which encounter async awaits are put back into a pool
+    to compete against all potential running tests, they may wait longer to resume
+    which causes the inaccuracy of timing that makes <code>Timeout</code> problematic.
+    On the flip side, projects with lots of tests which spend a significant amount
+    of time waiting for async operations will make better use of CPU resources,
+    assuming there are more tests ready to run, so this old algorithm may
+    finish running your tests quicker than the new algorithm.
+  </p>
+</blockquote>
+
+<p>
+  In general, the advice here is to try to use the new (default) algorithm, and only
+  revert back to the original algorithm if you find your tests are significantly
+  slower (understanding that other limitations around timing).
+</p>
+
+<p>
+  With Runners v2 2.8+, you can specify overrides for the parallelism algorithm in the
+  following ways:
+</p>
+
+<ul>
+  <li>You can specify a value in your <a href="configuration-files">configuration file</a></li>
+  <li>The console runner can specify the value via the <code>-parallelalgorithm</code> switch</li>
+  <li>The MSBuild runner can specify the value via the <code>ParallelAlgorithm</code> property</li>
+  <li>The Visual Studio runner can specify the value via <a href="runsettings">RunSettings</a></li>
+</ul>
+
+<p><strong><em>Important notes:</em></strong></p>
+
+<ul>
+  <li>
+    The algorithm is only used when you have enabled test collection parallelism, and
+    you are using a limited number of threads (i.e., not <code>unlimited</code> or
+    <code>-1</code>).
+  </li>
+  <li>You must be using Core Framework v2 2.8 or later for the new algorithm.</li>
+  <li>
+    You must be using a Runner linked against v2 2.8 or later for the new algorithm configuration file support.
+    This includes all in-box runners v2 2.8 or later, and <code>xunit.runner.visualstudio</code> 2.8 or later.
+    Third party runners will need to be linked against <code>xunit.runner.utility</code> 2.8.0 or later.
+  </li>
+</ul>
 
 <h2 id="runners-and-test-frameworks">Runners and Test Frameworks</h2>
 
@@ -79,7 +159,7 @@ breadcrumb: Documentation
   the ones that the unit tests themselves link against, and so those DLLs live
   along side the unit test code itself. For xUnit.net v1, that is
   <code>xunit.dll</code>; for v2, it's <code>xunit.core.dll</code> (and,
-  indirectly, <code>xunit.execution.dll</code>).
+  indirectly, <code>xunit.execution.*.dll</code>).
 </p>
 
 <p>
@@ -106,15 +186,12 @@ breadcrumb: Documentation
   parallelism feature described in the next sub-section.
 </p>
 
-<p>
-  The residual of this section describes features only available for test
-  assemblies linked against xUnit.net v2.
-</p>
+<h3>Parallelism in xUnit.net v2</h3>
 
-<h3>Test Collections</h3>
+<h4>Test Collections</h4>
 
 <p>
-  How does xUnit.net decide which tests can run against each other in parallel?
+  How does xUnit.net v2 decide which tests can run against each other in parallel?
   It uses a concept called <em>test collections</em> to make that decision.
 </p>
 
@@ -174,12 +251,13 @@ public class TestClass2
 
 <p>
   Now when we run this test assembly, we see that the total time spent
-  running the tests is approximately 5 seconds. That's because <code>Test1</code>
+  running the tests is approximately 5 seconds (assuming you have at least
+  two threads available for parallelism). That's because <code>Test1</code>
   and <code>Test2</code> are in different test collections, so they are able
   to run in parallel against one another.
 </p>
 
-<h3>Custom Test Collections</h3>
+<h4>Custom Test Collections</h4>
 
 <p>
   If we need to indicate that multiple test classes should not be run in
@@ -221,7 +299,7 @@ public class TestClass2
   to share text context, see <a href="shared-context.html">Shared Context</a>.
 </em></p>
 
-<h3>Changing Default Behavior</h3>
+<h4>Changing Default Behavior</h4>
 
 <p>
   There are several default pieces of behavior that can be configured by the
@@ -238,7 +316,7 @@ public class TestClass2
   <li>
     Set the maximum number of threads to use when running test in parallel:<br />
     &nbsp; <code>[assembly: CollectionBehavior(MaxParallelThreads = <em>n</em>)]</code><br />
-    <em>Default: number of virtual CPUs in the PC</em>
+    <em>Default: number of CPU threads in the PC</em>
   </li>
   <li>
     Turn off parallelism inside the assembly:<br/>
@@ -247,17 +325,17 @@ public class TestClass2
   </li>
   <li>
     Turn off parallelism for specific Test Collection<br />
-    &nbsp; <code>[CollectionDefinition(DisableParallelization = true)]</code><br />
+    &nbsp; <code>[CollectionDefinition(DisableParallelization = true)]</code> (placed on the collection definition class)<br />
     <em>Default: false</em><br />
     Parallel-capable test collections will be run first (in parallel), followed by parallel-disabled test collections (run sequentially).
   </li>
 </ul>
 
 <p>
-  You can only have one of these attributes per assembly; if you want to
-  combine multiple behaviors, do it with a single attribute. Also be aware that
-  these values affect only this assembly; if multiple assemblies are running
-  in parallel against one another, they have their own independent values.
+  For the assembly-level attributes, you can only have one of these attributes per
+  assembly; if you want to combine multiple behaviors, do it with a single attribute.
+  Also be aware that these values affect only this assembly; if multiple assemblies
+  are running in parallel against one another, they have their own independent values.
 </p>
 
 <h2 id="parallelism-in-runners">Parallelism in Runners</h2>
@@ -324,7 +402,7 @@ public class TestClass2
           </tr>
         </table>
         The default value is <code>collections</code>.<br />
-        <em><strong>Applies to:</strong> xUnit.net v1, v2</em>
+        <em><strong>Applies to:</strong> xUnit.net v1 Core Framework 1.0.0+ and v2 Runners 2.0.0+</em>
       </td>
     </tr>
     <tr>
@@ -332,8 +410,17 @@ public class TestClass2
       <td class="wrapped">
         Overrides the maximum number of threads used <em>per assembly.</em> The
         default value is determined by the test framework (for xUnit.net v2, it
-        is the number of virtual CPUs in the PC).<br />
-        <em><strong>Applies to:</strong> xUnit.net v2</em>
+        is the number of CPU threads in the PC).<br />
+        <em><strong>Applies to:</strong> xUnit.net v2 Core Framework/Runners 2.0.0+</em>
+      </td>
+    </tr>
+    <tr>
+      <th><code>-parallelalgorithm <em>option</em></code></th>
+      <td class="wrapped">
+        Changes the parallelism algorithm. Prior to 2.8.0, the system always used
+        the <code>aggressive</code> algorithm; from 2.8.0 onward, you can specify
+        either <code>conservative</code> or <code>aggressive</code>.<br />
+        <em><strong>Applies to:</strong> xUnit.net v2 Core Framework/Runners 2.8.0+</em>
       </td>
     </tr>
   </tbody>
