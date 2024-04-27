@@ -65,7 +65,7 @@ public class ConsoleRunnerLoggerTests
 
 			sut.LogError("This is an error message");
 
-			Assert.Equal("\u001b[91mThis is an error message\r\n\u001b[0m", writer.ToString());
+			Assert.Equal("\u001b[91mThis is an error message" + Environment.NewLine + "\u001b[0m", writer.ToString());
 		}
 		finally
 		{
