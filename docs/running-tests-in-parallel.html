@@ -410,7 +410,9 @@ public class TestClass2
       <td class="wrapped">
         Overrides the maximum number of threads used <em>per assembly.</em> The
         default value is determined by the test framework (for xUnit.net v2, it
-        is the number of CPU threads in the PC).<br />
+        is the number of CPU threads in the PC). For Console runner v2 2.8.0 or
+        later, you can also use a multiplier syntax (i.e., <code>2.0x</code> will
+        use a max thread count that is double the number of CPU threads).<br />
         <em><strong>Applies to:</strong> xUnit.net v2 Core Framework/Runners 2.0.0+</em>
       </td>
     </tr>
@@ -469,7 +471,9 @@ public class TestClass2
       <td class="wrapped">
         Overrides the maximum number of threads used <em>per assembly.</em> The
         default value is determined by the test framework (for xUnit.net v2, it
-        is the number of virtual CPUs in the PC).<br />
+        is the number of virtual CPUs in the PC). For MSBuild runner v2 2.8.0 or
+        later, you can also use a multiplier syntax (i.e., <code>2.0x</code> will
+        use a max thread count that is double the number of CPU threads).<br />
         <em><strong>Applies to:</strong> xUnit.net v2</em>
       </td>
     </tr>
