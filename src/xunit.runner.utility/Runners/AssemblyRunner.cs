@@ -20,6 +20,7 @@ namespace Xunit.Runners
         readonly TestAssemblyConfiguration configuration;
         readonly IFrontController controller;
         readonly ManualResetEvent discoveryCompleteEvent = new ManualResetEvent(true);
+        readonly ManualResetEvent discoveryCompleteIntermediateEvent = new ManualResetEvent(true);
         readonly ManualResetEvent executionCompleteEvent = new ManualResetEvent(true);
         readonly object statusLock = new object();
         int testCasesDiscovered;
@@ -160,6 +161,7 @@ namespace Xunit.Runners
 
             controller.SafeDispose();
             discoveryCompleteEvent.SafeDispose();
+            discoveryCompleteIntermediateEvent.SafeDispose();
             executionCompleteEvent.SafeDispose();
         }
 
@@ -205,7 +207,7 @@ namespace Xunit.Runners
         /// Obsolete method. Call the overload with parallelAlgorithm.
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        [Obsolete("Please use the overload with parallelAlgorithm")]
+        [Obsolete("Please use the overload with startOptions")]
         public void Start(string typeName = null,
                           bool? diagnosticMessages = null,
                           TestMethodDisplay? methodDisplay = null,
@@ -213,10 +215,18 @@ namespace Xunit.Runners
                           bool? preEnumerateTheories = null,
                           bool? parallel = null,
                           int? maxParallelThreads = null,
-                          bool? internalDiagnosticMessages = null)
-        {
-            Start(typeName, diagnosticMessages, methodDisplay, methodDisplayOptions, preEnumerateTheories, parallel, maxParallelThreads, internalDiagnosticMessages, null);
-        }
+                          bool? internalDiagnosticMessages = null) =>
+            Start(new AssemblyRunnerStartOptions()
+            {
+                DiagnosticMessages = diagnosticMessages,
+                InternalDiagnosticMessages = internalDiagnosticMessages,
+                MaxParallelThreads = maxParallelThreads,
+                MethodDisplay = methodDisplay,
+                MethodDisplayOptions = methodDisplayOptions,
+                Parallel = parallel,
+                PreEnumerateTheories = preEnumerateTheories,
+                TypesToRun = typeName == null ? new string[0] : new string[1] { typeName },
+            });
 
         /// <summary>
         /// Starts running tests from a single type (if provided) or the whole assembly (if not). This call returns
@@ -240,6 +250,8 @@ namespace Xunit.Runners
         /// <param name="internalDiagnosticMessages">Set to <c>true</c> to enable internal diagnostic messages; set to <c>false</c> to disable them.
         /// By default, uses the value from the assembly configuration file.</param>
         /// <param name="parallelAlgorithm">The parallel algorithm to be used; defaults to <see cref="ParallelAlgorithm.Conservative"/>.</param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Obsolete("Please use the overload with startOptions")]
         public void Start(string typeName = null,
                           bool? diagnosticMessages = null,
                           TestMethodDisplay? methodDisplay = null,
@@ -248,7 +260,27 @@ namespace Xunit.Runners
                           bool? parallel = null,
                           int? maxParallelThreads = null,
                           bool? internalDiagnosticMessages = null,
-                          ParallelAlgorithm? parallelAlgorithm = null)
+                          ParallelAlgorithm? parallelAlgorithm = null) =>
+            Start(new AssemblyRunnerStartOptions()
+            {
+                DiagnosticMessages = diagnosticMessages,
+                InternalDiagnosticMessages = internalDiagnosticMessages,
+                MaxParallelThreads = maxParallelThreads,
+                MethodDisplay = methodDisplay,
+                MethodDisplayOptions = methodDisplayOptions,
+                Parallel = parallel,
+                ParallelAlgorithm = parallelAlgorithm,
+                PreEnumerateTheories = preEnumerateTheories,
+                TypesToRun = typeName == null ? new string[0] : new string[1] { typeName },
+            });
+
+        /// <summary>
+        /// Starts running tests. This call returns immediately, and status results are dispatched to the
+        /// events on this class. Callers can check <see cref="Status"/> to find out the current status.
+        /// </summary>
+        /// <param name="startOptions">The start options. For default values, you may pass
+        /// <see cref="AssemblyRunnerStartOptions.Empty"/>.</param>
+        public void Start(AssemblyRunnerStartOptions startOptions)
         {
             lock (statusLock)
             {
@@ -264,22 +296,40 @@ namespace Xunit.Runners
 
             XunitWorkerThread.QueueUserWorkItem(() =>
             {
-                var discoveryOptions = GetDiscoveryOptions(diagnosticMessages, methodDisplay, methodDisplayOptions, preEnumerateTheories, internalDiagnosticMessages);
-                if (typeName != null)
-                    controller.Find(typeName, false, this, discoveryOptions);
-                else
+                var discoveryOptions = GetDiscoveryOptions(startOptions.DiagnosticMessages,
+                                                           startOptions.MethodDisplay,
+                                                           startOptions.MethodDisplayOptions,
+                                                           startOptions.PreEnumerateTheories,
+                                                           startOptions.InternalDiagnosticMessages);
+                if (startOptions.TypesToRun.Length == 0)
+                {
+                    discoveryCompleteIntermediateEvent.Reset();
                     controller.Find(false, this, discoveryOptions);
+                    discoveryCompleteIntermediateEvent.WaitOne();
+                }
+                else
+                    foreach (var typeName in startOptions.TypesToRun.Where(t => !string.IsNullOrEmpty(t)))
+                    {
+                        discoveryCompleteIntermediateEvent.Reset();
+                        controller.Find(typeName, false, this, discoveryOptions);
+                        discoveryCompleteIntermediateEvent.WaitOne();
+                    }
 
-                discoveryCompleteEvent.WaitOne();
+                OnDiscoveryComplete?.Invoke(new DiscoveryCompleteInfo(testCasesDiscovered, testCasesToRun.Count));
+                discoveryCompleteEvent.Set();
+
                 if (cancelled)
                 {
                     // Synthesize the execution complete message, since we're not going to run at all
-                    if (OnExecutionComplete != null)
-                        OnExecutionComplete(ExecutionCompleteInfo.Empty);
+                    OnExecutionComplete?.Invoke(ExecutionCompleteInfo.Empty);
                     return;
                 }
 
-                var executionOptions = GetExecutionOptions(diagnosticMessages, parallel, parallelAlgorithm, maxParallelThreads, internalDiagnosticMessages);
+                var executionOptions = GetExecutionOptions(startOptions.DiagnosticMessages,
+                                                           startOptions.Parallel,
+                                                           startOptions.ParallelAlgorithm,
+                                                           startOptions.MaxParallelThreads,
+                                                           startOptions.InternalDiagnosticMessages);
                 controller.RunTests(testCasesToRun, this, executionOptions);
                 executionCompleteEvent.WaitOne();
             });
@@ -337,8 +387,7 @@ namespace Xunit.Runners
 
             if (DispatchMessage<IDiscoveryCompleteMessage>(message, messageTypes, discoveryComplete =>
             {
-                OnDiscoveryComplete?.Invoke(new DiscoveryCompleteInfo(testCasesDiscovered, testCasesToRun.Count));
-                discoveryCompleteEvent.Set();
+                discoveryCompleteIntermediateEvent.Set();
             }))
                 return !cancelled;
 
