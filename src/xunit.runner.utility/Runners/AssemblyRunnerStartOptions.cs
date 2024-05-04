@@ -8,7 +8,7 @@ namespace Xunit.Runners
     /// </summary>
     public class AssemblyRunnerStartOptions
     {
-        string[] typesToRun;
+        string[] typesToRun = [];
 
         /// <summary>
         /// Indicates whether diagnostic messages should be generated. If unset (or set
