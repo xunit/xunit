@@ -370,7 +370,7 @@ public abstract class CommandLineParserBase
 		}
 
 		Project.Configuration.List = list ?? throw new ArgumentException("invalid argument for -list");
-		Project.Configuration.NoLogo = true;
+		Project.Configuration.NoLogo = list.Value.Format == ListFormat.Json;
 	}
 
 	void OnMaxThreads(KeyValuePair<string, string?> option)
