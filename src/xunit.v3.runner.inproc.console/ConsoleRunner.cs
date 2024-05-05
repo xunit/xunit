@@ -152,7 +152,7 @@ public class ConsoleRunner
 			var failCount = 0;
 
 			if (project.Configuration.List is not null)
-				await ListProject(project);
+				await ListProject(project, automated);
 			else
 				failCount = await RunProject(project, reporterMessageHandler);
 
@@ -204,9 +204,14 @@ public class ConsoleRunner
 		}
 	}
 
-	async ValueTask ListProject(XunitProject project)
+	async ValueTask ListProject(
+		XunitProject project,
+		bool automated)
 	{
 		var (listOption, listFormat) = project.Configuration.List!.Value;
+		if (automated)
+			listFormat = ListFormat.Json;
+
 		var testCasesByAssembly = new Dictionary<string, List<_ITestCase>>();
 
 		foreach (var assembly in project.Assemblies)
