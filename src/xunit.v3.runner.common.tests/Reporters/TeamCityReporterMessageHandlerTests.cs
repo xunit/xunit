@@ -336,7 +336,7 @@ public class TeamCityReporterMessageHandlerTests
 		public static void WithoutOutput()
 		{
 			var startingMessage = TestData.TestStarting(testDisplayName: "This is my display name \t\r\n", testCollectionUniqueID: "test-collection-id\t\r\n");
-			var finishedMessage = TestData.TestFinished(executionTime: 1.2345m, testCollectionUniqueID: "test-collection-id\t\r\n");
+			var finishedMessage = TestData.TestFinished(executionTime: 1.2345m, output: "", testCollectionUniqueID: "test-collection-id\t\r\n");
 			var handler = TestableTeamCityReporterMessageHandler.Create();
 
 			handler.OnMessage(startingMessage);

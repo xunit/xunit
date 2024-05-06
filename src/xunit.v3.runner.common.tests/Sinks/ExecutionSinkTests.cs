@@ -498,7 +498,7 @@ public class ExecutionSinkTests
 			var collectionStarting = TestData.TestCollectionStarting();
 			var classStarting = TestData.TestClassStarting(testClass: typeof(ClassUnderTest).FullName!);
 			var methodStarting = TestData.TestMethodStarting(testMethod: nameof(ClassUnderTest.TestMethod));
-			var caseStarting = TestData.TestCaseStarting();
+			var caseStarting = TestData.TestCaseStarting(traits: TestData.EmptyTraits);
 			var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
 			var testPassed = TestData.TestPassed(executionTime: 123.4567809m, output: "test output");
 
@@ -536,7 +536,7 @@ public class ExecutionSinkTests
 			var collectionStarting = TestData.TestCollectionStarting();
 			var classStarting = TestData.TestClassStarting(testClass: typeof(ClassUnderTest).FullName!);
 			var methodStarting = TestData.TestMethodStarting(testMethod: nameof(ClassUnderTest.TestMethod));
-			var caseStarting = TestData.TestCaseStarting();
+			var caseStarting = TestData.TestCaseStarting(traits: TestData.EmptyTraits);
 			var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
 			var testPassed = TestData.TestPassed(executionTime: 123.4567809m, output: "");
 
