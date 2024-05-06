@@ -714,36 +714,36 @@ public class Xunit3AcceptanceTests
 		[Fact]
 		public async ValueTask ClassWithBrokenFactShouldNotDisruptDiscovery()
 		{
-			var msgs = await RunForResultsAsync(typeof(ClassWithBrokenFactAttribute));
+			var msgs = await RunForResultsAsync(typeof(ClassWithReadOnlySkipFactAttribute));
 
 			Assert.Collection(
 				msgs.OrderBy(x => x.TestDisplayName),
 				msg =>
 				{
-					Assert.Equal("Xunit3AcceptanceTests+CustomFacts+ClassWithBrokenFactAttribute.Test1", msg.TestDisplayName);
+					Assert.Equal("Xunit3AcceptanceTests+CustomFacts+ClassWithReadOnlySkipFactAttribute.Test1", msg.TestDisplayName);
 					var skip = Assert.IsAssignableFrom<_TestSkipped>(msg);
 					Assert.Equal("Skipped with Fact", skip.Reason);
 				},
 				msg =>
 				{
-					Assert.Equal("Xunit3AcceptanceTests+CustomFacts+ClassWithBrokenFactAttribute.Test2", msg.TestDisplayName);
+					Assert.Equal("Xunit3AcceptanceTests+CustomFacts+ClassWithReadOnlySkipFactAttribute.Test2", msg.TestDisplayName);
 					var fail = Assert.IsAssignableFrom<_TestFailed>(msg);
 					var expectedException =
 						EnvironmentHelper.IsMono
-							? "System.ArgumentException: Constructor/initializer arguments for type 'Xunit3AcceptanceTests+CustomFacts+SkipFact' appear to be malformed"
-							: "System.ArgumentException: Could not set property named 'Skip' on instance of 'Xunit3AcceptanceTests+CustomFacts+SkipFact'";
+							? "System.ArgumentException: Constructor/initializer arguments for type 'Xunit3AcceptanceTests+CustomFacts+ReadOnlySkipFact' appear to be malformed"
+							: "System.ArgumentException: Could not set property named 'Skip' on instance of 'Xunit3AcceptanceTests+CustomFacts+ReadOnlySkipFact'";
 
 					Assert.StartsWith("Exception during discovery:" + Environment.NewLine + expectedException, fail.Messages.Single());
 				},
 				msg =>
 				{
-					Assert.Equal("Xunit3AcceptanceTests+CustomFacts+ClassWithBrokenFactAttribute.Test3", msg.TestDisplayName);
+					Assert.Equal("Xunit3AcceptanceTests+CustomFacts+ClassWithReadOnlySkipFactAttribute.Test3", msg.TestDisplayName);
 					Assert.IsAssignableFrom<_TestPassed>(msg);
 				}
 			);
 		}
 
-		class ClassWithBrokenFactAttribute
+		class ClassWithReadOnlySkipFactAttribute
 		{
 			[Fact(Skip = "Skipped with Fact")]
 			public void Test1()
@@ -751,7 +751,7 @@ public class Xunit3AcceptanceTests
 				Assert.True(false);
 			}
 
-			[SkipFact(Skip = "Simple not run, not skipped")]
+			[ReadOnlySkipFact(Skip = "Simple not run, not skipped")]
 			public void Test2()
 			{
 				Assert.True(false);
@@ -762,7 +762,7 @@ public class Xunit3AcceptanceTests
 			{ }
 		}
 
-		public class SkipFact : FactAttribute
+		public class ReadOnlySkipFact : FactAttribute
 		{
 			// Property setter here is missing, so trying to use it with the overridden skip message will fail at runtime
 			public override string Skip => "Skipped";
