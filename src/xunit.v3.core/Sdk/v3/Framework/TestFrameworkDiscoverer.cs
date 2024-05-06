@@ -111,7 +111,7 @@ public abstract class TestFrameworkDiscoverer<TTestCase> : _ITestFrameworkDiscov
 					}
 					catch (Exception ex)
 					{
-						TestContext.Current?.SendDiagnosticMessage("Exception during discovery:{0}{1}", Environment.NewLine, ex);
+						TestContext.Current?.SendDiagnosticMessage("Exception during discovery:{0}{1}", Environment.NewLine, ex.Unwrap());
 					}
 				}
 			}

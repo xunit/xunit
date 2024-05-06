@@ -166,7 +166,7 @@ public class XunitTestFrameworkDiscoverer : TestFrameworkDiscoverer<IXunitTestCa
 					testMethod,
 					details.TestCaseDisplayName,
 					details.UniqueID,
-					string.Format(CultureInfo.CurrentCulture, "Exception during discovery:{0}{1}", Environment.NewLine, ex)
+					string.Format(CultureInfo.CurrentCulture, "Exception during discovery:{0}{1}", Environment.NewLine, ex.Unwrap())
 				);
 				await discoveryCallback(errorTestCase);
 			}
