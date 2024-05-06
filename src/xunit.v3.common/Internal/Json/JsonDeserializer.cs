@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text;
 
@@ -52,6 +53,7 @@ public static class JsonDeserializer
 
 	/// <summary/>
 	public static bool TryDeserialize(
+		[StringSyntax(StringSyntaxAttribute.Json)]
 		string json,
 		out object? result)
 	{

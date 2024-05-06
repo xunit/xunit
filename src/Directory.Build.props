@@ -58,6 +58,10 @@
         <None Include="$(MSBuildThisFileDirectory)../README.md" Visible="false" Pack="true" PackagePath="_content" />
       </ItemGroup>
 
+      <ItemGroup Condition=" !$(MSBuildProjectName.Contains('.assert')) ">
+        <Compile Include="$(MSBuildThisFileDirectory)xunit.v3.assert/Asserts/Sdk/StringSyntaxAttribute.cs" LinkBase="Common" />
+      </ItemGroup>
+
       <ItemGroup>
         <PackageReference Include="ILRepack" Version="$(ILRepackVersion)">
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
