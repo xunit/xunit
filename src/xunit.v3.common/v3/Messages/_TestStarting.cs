@@ -8,7 +8,7 @@ namespace Xunit.v3;
 /// This message indicates that a test is about to start executing.
 /// </summary>
 [JsonTypeID("test-starting")]
-public class _TestStarting : _TestMessage, _ITestMetadata
+public class _TestStarting : _TestMessage, _ITestMetadata, _IWritableTestMetadata
 {
 	string? testDisplayName;
 	IReadOnlyDictionary<string, IReadOnlyList<string>> traits = new Dictionary<string, IReadOnlyList<string>>();
@@ -31,6 +31,13 @@ public class _TestStarting : _TestMessage, _ITestMetadata
 	{
 		get => traits;
 		set => traits = value ?? new Dictionary<string, IReadOnlyList<string>>();
+	}
+
+	internal override void Deserialize(IReadOnlyDictionary<string, object?> root)
+	{
+		base.Deserialize(root);
+
+		root.DeserializeTestMetadata(this);
 	}
 
 	internal override void Serialize(JsonObjectSerializer serializer)

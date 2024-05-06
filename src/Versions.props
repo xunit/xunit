@@ -18,9 +18,6 @@
     <!-- Used by xunit.v3.core for IAsyncDisposable -->
     <MicrosoftBclAsyncInterfacesVersion>6.0.0</MicrosoftBclAsyncInterfacesVersion>
 
-    <!-- Used by xunit.v3.runner.common to deserialize JSON config files and message sink messages -->
-    <SystemTextJsonVersion>6.0.0</SystemTextJsonVersion>
-
     <!-- Used by xunit.v3.runner.msbuild to reference MSBuild types -->
     <MicrosoftBuildVersion>15.1.548</MicrosoftBuildVersion>
 

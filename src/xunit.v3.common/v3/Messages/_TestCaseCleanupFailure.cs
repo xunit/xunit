@@ -9,7 +9,7 @@ namespace Xunit.v3;
 /// This message indicates that an error has occurred during test case cleanup.
 /// </summary>
 [JsonTypeID("test-case-cleanup-failure")]
-public class _TestCaseCleanupFailure : _TestCaseMessage, _IErrorMetadata
+public class _TestCaseCleanupFailure : _TestCaseMessage, _IErrorMetadata, _IWritableErrorMetadata
 {
 	int[]? exceptionParentIndices;
 	string?[]? exceptionTypes;
@@ -80,6 +80,13 @@ public class _TestCaseCleanupFailure : _TestCaseMessage, _IErrorMetadata
 			StackTraces = errorMetadata.StackTraces,
 			ExceptionParentIndices = errorMetadata.ExceptionParentIndices,
 		};
+	}
+
+	internal override void Deserialize(IReadOnlyDictionary<string, object?> root)
+	{
+		base.Deserialize(root);
+
+		root.DeserializeErrorMetadata(this);
 	}
 
 	internal override void Serialize(JsonObjectSerializer serializer)

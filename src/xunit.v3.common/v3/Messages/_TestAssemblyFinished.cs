@@ -9,7 +9,7 @@ namespace Xunit.v3;
 /// the requested assembly.
 /// </summary>
 [JsonTypeID("test-assembly-finished")]
-public class _TestAssemblyFinished : _TestAssemblyMessage, _IExecutionSummaryMetadata
+public class _TestAssemblyFinished : _TestAssemblyMessage, _IExecutionSummaryMetadata, _IWritableExecutionSummaryMetadata
 {
 	decimal? executionTime;
 	int? testsFailed;
@@ -55,6 +55,16 @@ public class _TestAssemblyFinished : _TestAssemblyMessage, _IExecutionSummaryMet
 	{
 		get => this.ValidateNullablePropertyValue(testsTotal, nameof(TestsTotal));
 		set => testsTotal = value;
+	}
+
+	internal override void Deserialize(IReadOnlyDictionary<string, object?> root)
+	{
+		base.Deserialize(root);
+
+		root.DeserializeExecutionSummaryMetadata(this);
+
+		if (TryGetDateTimeOffset(root, nameof(FinishTime)) is DateTimeOffset finishTime)
+			FinishTime = finishTime;
 	}
 
 	internal override void Serialize(JsonObjectSerializer serializer)

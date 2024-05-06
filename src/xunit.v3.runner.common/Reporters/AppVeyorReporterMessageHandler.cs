@@ -230,6 +230,8 @@ public class AppVeyorReporterMessageHandler : DefaultRunnerReporterMessageHandle
 		}
 	}
 
+	// If this method is ever changed to support value types other than string and long, you must update
+	// AppVeyorClient.ToJson() to ensure the types are identified and serialized correctly.
 	static Dictionary<string, object?> GetRequestMessage(
 		string testName,
 		string testFramework,

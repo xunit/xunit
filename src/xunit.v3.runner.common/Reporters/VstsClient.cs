@@ -2,14 +2,13 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Internal;
+using Xunit.v3;
 
 namespace Xunit.Runner.Common;
 
@@ -130,14 +129,17 @@ class VstsClient : IDisposable
 
 	async Task<int> CreateTestRun()
 	{
-		var requestMessage = new Dictionary<string, object?>
-		{
-			{ "name", string.Format(CultureInfo.CurrentCulture, "xUnit Runner Test Run on {0:o}", DateTime.UtcNow) },
-			{ "build", new Dictionary<string, object?> { { "id", buildId } } },
-			{ "isAutomated", true }
-		};
+		var buffer = new StringBuilder();
 
-		var bodyString = JsonSerializer.Serialize(requestMessage);
+		using (var messageSerializer = new JsonObjectSerializer(buffer))
+		{
+			messageSerializer.Serialize("name", string.Format(CultureInfo.CurrentCulture, "xUnit Runner Test Run on {0:o}", DateTime.UtcNow));
+			using (var buildSerializer = messageSerializer.SerializeObject("build"))
+				buildSerializer.Serialize("id", buildId);
+			messageSerializer.Serialize("isAutomated", true);
+		}
+
+		var bodyString = buffer.ToString();
 		var url = baseUri + "?api-version=1.0";
 		var responseString = default(string);
 
@@ -158,14 +160,14 @@ class VstsClient : IDisposable
 			}
 
 			responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-			var responseJson = JsonSerializer.Deserialize<JsonElement>(responseString);
-			if (responseJson.ValueKind != JsonValueKind.Object)
+			if (!JsonDeserializer.TryDeserialize(responseString, out var root))
+				throw new InvalidOperationException("Response was not JSON");
+			if (root is not IReadOnlyDictionary<string, object?> rootObject)
 				throw new InvalidOperationException("Response was not a JSON object");
-
-			if (!responseJson.TryGetProperty("id", out var idProp) || !(idProp.TryGetInt32(out var id)))
+			if (!rootObject.TryGetValue("id", out var idProp) || idProp is not decimal id || id % 1 != 0)
 				throw new InvalidOperationException("Response JSON did not have an integer 'id' property");
 
-			return id;
+			return (int)id;
 		}
 		catch (Exception ex)
 		{
@@ -176,13 +178,15 @@ class VstsClient : IDisposable
 
 	async Task FinishTestRun(int testRunId)
 	{
-		var requestMessage = new Dictionary<string, object?>
-		{
-			{ "completedDate", DateTime.UtcNow },
-			{ "state", "Completed" }
-		};
+		var buffer = new StringBuilder();
 
-		var bodyString = JsonSerializer.Serialize(requestMessage);
+		using (var messageSerializer = new JsonObjectSerializer(buffer))
+		{
+			messageSerializer.Serialize("completedDate", DateTimeOffset.UtcNow);
+			messageSerializer.Serialize("state", "completed");
+		}
+
+		var bodyString = buffer.ToString();
 		var url = string.Format(CultureInfo.InvariantCulture, "{0}/{1}?api-version=1.0", baseUri, testRunId);
 
 		try
@@ -274,25 +278,26 @@ class VstsClient : IDisposable
 			{
 				var respString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
-				var responseJson = JsonSerializer.Deserialize<JsonElement>(respString);
-				if (responseJson.ValueKind != JsonValueKind.Object)
-					throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "JSON response was not in the proper format (expected Object, got {0})", responseJson.ValueKind));
+				if (!JsonDeserializer.TryDeserialize(respString, out var root))
+					throw new InvalidOperationException("Response was not JSON");
+				if (root is not IReadOnlyDictionary<string, object?> rootObject)
+					throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "JSON response was not in the proper format (expected Object, got {0})", root?.GetType().SafeName() ?? "null"));
 
-				if (!responseJson.TryGetProperty("value", out var testCases) || testCases.ValueKind != JsonValueKind.Array)
+				if (!rootObject.TryGetValue("value", out var testCasesValue) || testCasesValue is not object?[] testCases)
 					throw new InvalidOperationException("JSON response was missing top-level 'value' array");
 
-				for (var i = 0; i < testCases.GetArrayLength(); ++i)
+				for (var i = 0; i < testCases.Length; ++i)
 				{
 					var testCase = testCases[i];
-					if (testCase.ValueKind != JsonValueKind.Object)
-						throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "JSON response value element {0} was not in the proper format (expected Object, got {1})", i, testCase.ValueKind));
+					if (testCase is not IReadOnlyDictionary<string, object?> testCaseObject)
+						throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "JSON response value element {0} was not in the proper format (expected Object, got {1})", i, testCase?.GetType().SafeName() ?? "null"));
 
-					if (!testCase.TryGetProperty("id", out var idProp) || !idProp.TryGetInt32(out var id))
+					if (!testCaseObject.TryGetValue("id", out var idProp) || idProp is not decimal id || id % 1 != 0)
 						throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "JSON response value element {0} is missing an 'id' property or it wasn't an integer", i));
 
 					// Match the test by ordinal
 					var test = added![i];
-					testToTestIdMap[test] = id;
+					testToTestIdMap[test] = (int)id;
 				}
 			}
 		}
@@ -303,10 +308,23 @@ class VstsClient : IDisposable
 		}
 	}
 
-	static string ToJson(IEnumerable<IDictionary<string, object?>> data) =>
-		string.Format(
-			CultureInfo.InvariantCulture,
-			"[{0}]",
-			string.Join(",", data.Select(x => JsonSerializer.Serialize(x)))
-		);
+	static string ToJson(IEnumerable<IDictionary<string, object?>> data)
+	{
+		var buffer = new StringBuilder();
+
+		using (var rootSerializer = new JsonArraySerializer(buffer))
+			foreach (var dataRow in data)
+				using (var objectSerializer = rootSerializer.SerializeObject())
+					foreach (var kvp in dataRow)
+						// We know from VstsReporterMessageHandler.VstsAddTest() and .VstsUpdateTest() that the only
+						// possible values are string, long, or DateTimeOffset, so we serialize only those types.
+						if (kvp.Value is long longValue)
+							objectSerializer.Serialize(kvp.Key, longValue);
+						else if (kvp.Value is DateTimeOffset dtoValue)
+							objectSerializer.Serialize(kvp.Key, dtoValue);
+						else
+							objectSerializer.Serialize(kvp.Key, kvp.Value as string, includeNullValues: true);
+
+		return buffer.ToString();
+	}
 }

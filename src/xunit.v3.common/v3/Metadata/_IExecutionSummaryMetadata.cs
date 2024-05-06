@@ -33,3 +33,12 @@ public interface _IExecutionSummaryMetadata
 	/// </summary>
 	int TestsTotal { get; }
 }
+
+internal interface _IWritableExecutionSummaryMetadata
+{
+	decimal ExecutionTime { get; set; }
+	int TestsFailed { get; set; }
+	int TestsNotRun { get; set; }
+	int TestsSkipped { get; set; }
+	int TestsTotal { get; set; }
+}

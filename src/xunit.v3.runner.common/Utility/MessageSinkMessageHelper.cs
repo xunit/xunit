@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using Xunit.Internal;
 using Xunit.v3;
 
@@ -14,12 +12,8 @@ namespace Xunit.Runner.Common;
 /// </summary>
 public static class MessageSinkMessageHelper
 {
+	static readonly MethodInfo? deserialize;
 	static readonly List<string> errors = [];
-	static readonly JsonSerializerOptions jsonSerializerOptions = new()
-	{
-		Converters = { new JsonStringEnumConverter(allowIntegerValues: false) },
-		IgnoreReadOnlyProperties = true,
-	};
 	static readonly Dictionary<string, Type> typeIdToTypeMappings = [];
 
 	static MessageSinkMessageHelper()
@@ -61,6 +55,10 @@ public static class MessageSinkMessageHelper
 		RegisterTypeMapping(typeof(_TestPassed));
 		RegisterTypeMapping(typeof(_TestSkipped));
 		RegisterTypeMapping(typeof(_TestStarting));
+
+		deserialize = typeof(_MessageSinkMessage).GetMethod("Deserialize", BindingFlags.Instance | BindingFlags.NonPublic);
+		if (deserialize is null)
+			errors.Add("Could not find method _MessageSinkMessage.Deserialize");
 	}
 
 	/// <summary>
@@ -70,22 +68,23 @@ public static class MessageSinkMessageHelper
 	/// <returns>The deserialized object</returns>
 	public static _MessageSinkMessage? Deserialize(string serialization)
 	{
-		if (errors.Count != 0)
+		if (errors.Count != 0 || deserialize is null)
 			throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "JSON deserialization errors occurred during startup:{0}{1}", Environment.NewLine, string.Join(Environment.NewLine, errors)));
 
-		// Deserialize a type container, which is just the type ID, so we can figure out what the full type
-		// is that we actually need to deserialize.
-		var container = JsonSerializer.Deserialize<TypeContainer>(serialization, jsonSerializerOptions);
-		if (container is null || container.Type is null)
+		if (!JsonDeserializer.TryDeserialize(serialization, out var json) || json is not IReadOnlyDictionary<string, object?> root)
 			return null;
 
-		if (!typeIdToTypeMappings.TryGetValue(container.Type, out var type))
+		if (!root.TryGetValue("$type", out var typeNameValue) || typeNameValue is not string typeName)
 			return null;
 
-		var result = JsonSerializer.Deserialize(serialization, type, jsonSerializerOptions);
-		if (result is not _MessageSinkMessage message)
+		if (!typeIdToTypeMappings.TryGetValue(typeName, out var type))
 			return null;
 
+		var message = Activator.CreateInstance(type) as _MessageSinkMessage;
+		if (message is null)
+			return null;
+
+		deserialize.Invoke(message, [root]);
 		message.ValidateObjectState();
 		return message;
 	}
@@ -106,10 +105,5 @@ public static class MessageSinkMessageHelper
 		}
 
 		typeIdToTypeMappings[attr.ID] = type;
-	}
-
-	class TypeContainer
-	{
-		public string? Type { get; set; }
 	}
 }

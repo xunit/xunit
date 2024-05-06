@@ -114,7 +114,6 @@
         PackageVersion=$(PackageVersion);
         SignedPath=$(SignedPath);
         SystemCollectionsImmutableVersion=$(SystemCollectionsImmutableVersion);
-        SystemTextJsonVersion=$(SystemTextJsonVersion);
         XunitAbstractionsVersion=$(XunitAbstractionsVersion);
         XunitAnalyzersVersion=$(XunitAnalyzersVersion);
       </NuspecProperties>

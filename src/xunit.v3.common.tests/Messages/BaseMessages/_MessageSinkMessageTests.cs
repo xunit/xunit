@@ -38,7 +38,7 @@ public class _MessageSinkMessageTests
 		Assert.NotNull(json);
 		var expected =
 @"{
-	""Type"":                     ""test-assembly-starting"",
+	""$type"":                    ""test-assembly-starting"",
 	""AssemblyUniqueID"":         ""asm-id"",
 	""AssemblyName"":             ""asm-name"",
 	""StartTime"":                ""2020-09-26T13:55:27.2120000-07:00"",
@@ -71,7 +71,7 @@ public class _MessageSinkMessageTests
 		Assert.NotNull(json);
 		var expected =
 @"{
-	""Type"":                   ""test-failed"",
+	""$type"":                  ""test-failed"",
 	""AssemblyUniqueID"":       ""asm-id"",
 	""TestCollectionUniqueID"": ""test-collection-id"",
 	""TestCaseUniqueID"":       ""test-case-id"",

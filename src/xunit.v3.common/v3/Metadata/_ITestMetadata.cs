@@ -33,5 +33,13 @@ public interface _ITestMetadata
 	/// there are none, or the framework does not support traits,
 	/// this should return an empty dictionary (not <c>null</c>).
 	/// </summary>
-	public IReadOnlyDictionary<string, IReadOnlyList<string>> Traits { get; }
+	IReadOnlyDictionary<string, IReadOnlyList<string>> Traits { get; }
+}
+
+internal interface _IWritableTestMetadata
+{
+	bool Explicit { get; set; }
+	string TestDisplayName { get; set; }
+	int Timeout { get; set; }
+	IReadOnlyDictionary<string, IReadOnlyList<string>> Traits { get; set; }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Text.Json;
+using System.Text;
 using Xunit.Internal;
 using Xunit.Sdk;
 using Xunit.v3;
@@ -22,7 +22,15 @@ public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFram
 	_TestFrameworkOptions(string? optionsJson = null)
 	{
 		if (optionsJson is not null)
-			properties = JsonSerializer.Deserialize<Dictionary<string, string>>(optionsJson) ?? throw new ArgumentException("Invalid JSON", nameof(optionsJson));
+		{
+			if (!JsonDeserializer.TryDeserialize(optionsJson, out var json))
+				throw new ArgumentException("Invalid JSON", nameof(optionsJson));
+			if (json is not IReadOnlyDictionary<string, object> root)
+				throw new ArgumentException("JSON options must be a top-level object", nameof(optionsJson));
+
+			foreach (var kvp in root)
+				properties[kvp.Key] = kvp.Value.ToString() ?? throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Option value '{0}' for key '{1}' is null", kvp.Value, kvp.Key), nameof(optionsJson));
+		}
 	}
 
 	/// <summary>
@@ -206,6 +214,14 @@ public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFram
 		=> string.Format(CultureInfo.CurrentCulture, "{{ {0} }}", string.Join(", ", properties.Select(p => string.Format(CultureInfo.CurrentCulture, "{{ {0} = {1} }}", p.Key, p.Value)).ToArray()));
 
 	/// <inheritdoc/>
-	public string ToJson() =>
-		JsonSerializer.Serialize(properties);
+	public string ToJson()
+	{
+		var buffer = new StringBuilder();
+
+		using (var serializer = new JsonObjectSerializer(buffer))
+			foreach (var kvp in properties)
+				serializer.Serialize(kvp.Key, kvp.Value);
+
+		return buffer.ToString();
+	}
 }

@@ -36,32 +36,45 @@ public interface _ITestCaseMetadata
 	/// in a class, will return <c>null</c>.
 	/// </summary>
 	[NotNullIfNotNull(nameof(TestMethodName))]
-	public string? TestClassName { get; }
+	string? TestClassName { get; }
 
 	/// <summary>
 	/// Gets the namespace of the class where the test is defined. If the test did not
 	/// originate in a class, or the class it originated in does not reside in a namespace,
 	/// will return <c>null</c>.
 	/// </summary>
-	public string? TestClassNamespace { get; }
+	string? TestClassNamespace { get; }
 
 	/// <summary>
 	/// Gets the fully qualified type name (without assembly) of the class where the test is defined.
 	/// If the test did not originiate in a class, will return <c>null</c>.
 	/// </summary>
 	[NotNullIfNotNull(nameof(TestClassName))]
-	public string? TestClassNameWithNamespace { get; }
+	string? TestClassNameWithNamespace { get; }
 
 	/// <summary>
 	/// Gets the method name where the test is defined, in the <see cref="TestClassName"/> class.
 	/// If the test did not originiate in a method, will return <c>null</c>.
 	/// </summary>
-	public string? TestMethodName { get; }
+	string? TestMethodName { get; }
 
 	/// <summary>
 	/// Gets the trait values associated with this test case. If
 	/// there are none, or the framework does not support traits,
 	/// this should return an empty dictionary (not <c>null</c>).
 	/// </summary>
-	public IReadOnlyDictionary<string, IReadOnlyList<string>> Traits { get; }
+	IReadOnlyDictionary<string, IReadOnlyList<string>> Traits { get; }
+}
+
+internal interface _IWritableTestCaseMetadata
+{
+	string? SkipReason { get; set; }
+	string? SourceFilePath { get; set; }
+	int? SourceLineNumber { get; set; }
+	string TestCaseDisplayName { get; set; }
+	string? TestClassName { get; set; }
+	string? TestClassNamespace { get; set; }
+	string? TestClassNameWithNamespace { get; set; }
+	string? TestMethodName { get; set; }
+	IReadOnlyDictionary<string, IReadOnlyList<string>> Traits { get; set; }
 }

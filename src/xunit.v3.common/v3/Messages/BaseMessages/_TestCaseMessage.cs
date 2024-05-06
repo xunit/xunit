@@ -23,6 +23,13 @@ public abstract class _TestCaseMessage : _TestMethodMessage
 		set => testCaseUniqueID = Guard.ArgumentNotNullOrEmpty(value, nameof(TestCaseUniqueID));
 	}
 
+	internal override void Deserialize(IReadOnlyDictionary<string, object?> root)
+	{
+		base.Deserialize(root);
+
+		testCaseUniqueID = TryGetString(root, nameof(TestCaseUniqueID));
+	}
+
 	internal override void Serialize(JsonObjectSerializer serializer)
 	{
 		base.Serialize(serializer);

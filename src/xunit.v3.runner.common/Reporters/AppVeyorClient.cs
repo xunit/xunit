@@ -2,13 +2,12 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Xunit.Internal;
 
 namespace Xunit.Runner.Common;
 
@@ -135,12 +134,23 @@ class AppVeyorClient : IDisposable
 		}
 	}
 
-	static string ToJson(IEnumerable<IDictionary<string, object?>> data) =>
-		string.Format(
-			CultureInfo.InvariantCulture,
-			"[{0}]",
-			string.Join(",", data.Select(x => JsonSerializer.Serialize(x)))
-		);
+	static string ToJson(IEnumerable<IDictionary<string, object?>> data)
+	{
+		var buffer = new StringBuilder();
+
+		using (var rootSerializer = new JsonArraySerializer(buffer))
+			foreach (var dataRow in data)
+				using (var objectSerializer = rootSerializer.SerializeObject())
+					foreach (var kvp in dataRow)
+						// We know from AppVeyorReporterMessageHandler.GetRequestMessage() that the only possible values are
+						// string or long, so we serialize only those types.
+						if (kvp.Value is long longValue)
+							objectSerializer.Serialize(kvp.Key, longValue);
+						else
+							objectSerializer.Serialize(kvp.Key, kvp.Value as string, includeNullValues: true);
+
+		return buffer.ToString();
+	}
 
 	public void UpdateTest(IDictionary<string, object?> request)
 	{

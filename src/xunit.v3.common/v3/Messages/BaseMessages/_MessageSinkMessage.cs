@@ -22,11 +22,14 @@ public class _MessageSinkMessage
 	public _MessageSinkMessage() =>
 		type = typeToTypeIDMappings.GetOrAdd(GetType(), t => t.GetCustomAttribute<JsonTypeIDAttribute>()?.ID);
 
+	internal virtual void Deserialize(IReadOnlyDictionary<string, object?> root)
+	{ }
+
 	internal virtual void Serialize(JsonObjectSerializer serializer)
 	{
 		ValidateObjectState();
 
-		serializer.Serialize("Type", type);
+		serializer.Serialize("$type", type);
 	}
 
 	/// <summary>
@@ -44,6 +47,43 @@ public class _MessageSinkMessage
 			Serialize(serializer);
 
 		return buffer.ToString();
+	}
+
+	internal static DateTimeOffset? TryGetDateTimeOffset(
+		IReadOnlyDictionary<string, object?> root,
+		string key)
+	{
+		if (root.TryGetValue(key, out var value) && value is string strValue && DateTimeOffset.TryParse(strValue, out var dto))
+			return dto;
+
+		return null;
+	}
+
+	internal static TEnum? TryGetEnum<TEnum>(
+		IReadOnlyDictionary<string, object?> root,
+		string key)
+			where TEnum : struct, Enum
+	{
+		if (root.TryGetValue(key, out var value) && value is string strValue && Enum.TryParse<TEnum>(strValue, out var @enum))
+			return @enum;
+
+		return null;
+	}
+
+	internal static int? TryGetInt(
+		IReadOnlyDictionary<string, object?> root,
+		string key)
+	{
+		root.TryGetValue(key, out var obj);
+		return (obj is decimal d && d % 1 == 0) ? (int)d : null;
+	}
+
+	internal static string? TryGetString(
+		IReadOnlyDictionary<string, object?> root,
+		string key)
+	{
+		root.TryGetValue(key, out var result);
+		return result as string;
 	}
 
 	/// <summary>

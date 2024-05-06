@@ -10,7 +10,7 @@ namespace Xunit.v3;
 /// This message indicates that a test has failed.
 /// </summary>
 [JsonTypeID("test-failed")]
-public class _TestFailed : _TestResultMessage, _IErrorMetadata
+public class _TestFailed : _TestResultMessage, _IErrorMetadata, _IWritableErrorMetadata
 {
 	FailureCause cause = FailureCause.Exception;
 	int[]? exceptionParentIndices;
@@ -109,6 +109,16 @@ public class _TestFailed : _TestResultMessage, _IErrorMetadata
 			TestUniqueID = testUniqueID,
 			Warnings = warnings,
 		};
+	}
+
+	internal override void Deserialize(IReadOnlyDictionary<string, object?> root)
+	{
+		base.Deserialize(root);
+
+		root.DeserializeErrorMetadata(this);
+
+		if (TryGetEnum<FailureCause>(root, nameof(Cause)) is FailureCause cause)
+			Cause = cause;
 	}
 
 	internal override void Serialize(JsonObjectSerializer serializer)

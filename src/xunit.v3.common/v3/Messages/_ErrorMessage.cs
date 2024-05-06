@@ -9,7 +9,7 @@ namespace Xunit.v3;
 /// This message indicates that an error has occurred in the execution process.
 /// </summary>
 [JsonTypeID("error")]
-public sealed class _ErrorMessage : _MessageSinkMessage, _IErrorMetadata
+public sealed class _ErrorMessage : _MessageSinkMessage, _IErrorMetadata, _IWritableErrorMetadata
 {
 	int[]? exceptionParentIndices;
 	string?[]? exceptionTypes;
@@ -61,6 +61,13 @@ public sealed class _ErrorMessage : _MessageSinkMessage, _IErrorMetadata
 			StackTraces = errorMetadata.StackTraces,
 			ExceptionParentIndices = errorMetadata.ExceptionParentIndices,
 		};
+	}
+
+	internal override void Deserialize(IReadOnlyDictionary<string, object?> root)
+	{
+		base.Deserialize(root);
+
+		root.DeserializeErrorMetadata(this);
 	}
 
 	internal override void Serialize(JsonObjectSerializer serializer)

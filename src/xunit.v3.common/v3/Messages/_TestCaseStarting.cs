@@ -10,7 +10,7 @@ namespace Xunit.v3;
 /// This message indicates that a test case is about to start executing.
 /// </summary>
 [JsonTypeID("test-case-starting")]
-public class _TestCaseStarting : _TestCaseMessage, _ITestCaseMetadata
+public class _TestCaseStarting : _TestCaseMessage, _ITestCaseMetadata, _IWritableTestCaseMetadata
 {
 	string? testCaseDisplayName;
 	string? testClassName;
@@ -72,6 +72,13 @@ public class _TestCaseStarting : _TestCaseMessage, _ITestCaseMetadata
 	{
 		get => traits;
 		set => traits = value ?? new Dictionary<string, IReadOnlyList<string>>();
+	}
+
+	internal override void Deserialize(IReadOnlyDictionary<string, object?> root)
+	{
+		base.Deserialize(root);
+
+		root.DeserializeTestCaseMetadata(this);
 	}
 
 	internal override void Serialize(JsonObjectSerializer serializer)

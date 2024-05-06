@@ -26,6 +26,13 @@ public class _InternalDiagnosticMessage : _MessageSinkMessage
 		set => message = Guard.ArgumentNotNull(value, nameof(Message));
 	}
 
+	internal override void Deserialize(IReadOnlyDictionary<string, object?> root)
+	{
+		base.Deserialize(root);
+
+		message = TryGetString(root, nameof(Message));
+	}
+
 	internal override void Serialize(JsonObjectSerializer serializer)
 	{
 		base.Serialize(serializer);

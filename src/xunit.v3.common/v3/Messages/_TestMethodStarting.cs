@@ -8,7 +8,7 @@ namespace Xunit.v3;
 /// This message indicates that a test method is about to begin executing.
 /// </summary>
 [JsonTypeID("test-method-starting")]
-public class _TestMethodStarting : _TestMethodMessage, _ITestMethodMetadata
+public class _TestMethodStarting : _TestMethodMessage, _ITestMethodMetadata, _IWritableTestMethodMetadata
 {
 	string? testMethod;
 
@@ -17,6 +17,13 @@ public class _TestMethodStarting : _TestMethodMessage, _ITestMethodMetadata
 	{
 		get => this.ValidateNullablePropertyValue(testMethod, nameof(TestMethod));
 		set => testMethod = Guard.ArgumentNotNullOrEmpty(value, nameof(TestMethod));
+	}
+
+	internal override void Deserialize(IReadOnlyDictionary<string, object?> root)
+	{
+		base.Deserialize(root);
+
+		root.DeserializeTestMethodMetadata(this);
 	}
 
 	internal override void Serialize(JsonObjectSerializer serializer)

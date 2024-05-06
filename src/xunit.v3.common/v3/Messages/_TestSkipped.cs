@@ -20,6 +20,13 @@ public class _TestSkipped : _TestResultMessage
 		set => reason = Guard.ArgumentNotNull(value, nameof(Reason));
 	}
 
+	internal override void Deserialize(IReadOnlyDictionary<string, object?> root)
+	{
+		base.Deserialize(root);
+
+		reason = TryGetString(root, nameof(Reason));
+	}
+
 	internal override void Serialize(JsonObjectSerializer serializer)
 	{
 		base.Serialize(serializer);

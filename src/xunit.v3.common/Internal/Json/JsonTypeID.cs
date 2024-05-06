@@ -3,7 +3,7 @@ using System;
 namespace Xunit.Internal;
 
 /// <summary>
-/// INTERNAL TYPE. DO NOT USE.
+/// INTERNAL CLASS. DO NOT USE.
 /// </summary>
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
 public sealed class JsonTypeIDAttribute : Attribute

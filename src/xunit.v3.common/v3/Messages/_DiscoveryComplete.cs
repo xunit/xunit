@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Xunit.Internal;
 
 namespace Xunit.v3;
@@ -13,6 +14,14 @@ public sealed class _DiscoveryComplete : _TestAssemblyMessage
 	/// Gets a count of the number of test cases that passed the filter and will be run.
 	/// </summary>
 	public int TestCasesToRun { get; set; }
+
+	internal override void Deserialize(IReadOnlyDictionary<string, object?> root)
+	{
+		base.Deserialize(root);
+
+		if (TryGetInt(root, nameof(TestCasesToRun)) is int result)
+			TestCasesToRun = result;
+	}
 
 	internal override void Serialize(JsonObjectSerializer serializer)
 	{

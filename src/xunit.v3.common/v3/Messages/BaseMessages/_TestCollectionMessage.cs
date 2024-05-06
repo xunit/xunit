@@ -22,6 +22,13 @@ public abstract class _TestCollectionMessage : _TestAssemblyMessage
 		set => testCollectionUniqueID = Guard.ArgumentNotNullOrEmpty(value, nameof(TestCollectionUniqueID));
 	}
 
+	internal override void Deserialize(IReadOnlyDictionary<string, object?> root)
+	{
+		base.Deserialize(root);
+
+		testCollectionUniqueID = TryGetString(root, nameof(TestCollectionUniqueID));
+	}
+
 	internal override void Serialize(JsonObjectSerializer serializer)
 	{
 		base.Serialize(serializer);

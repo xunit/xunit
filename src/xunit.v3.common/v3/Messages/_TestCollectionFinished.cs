@@ -8,7 +8,7 @@ namespace Xunit.v3;
 /// all the test classes in the collection has finished).
 /// </summary>
 [JsonTypeID("test-collection-finished")]
-public class _TestCollectionFinished : _TestCollectionMessage, _IExecutionSummaryMetadata
+public class _TestCollectionFinished : _TestCollectionMessage, _IExecutionSummaryMetadata, _IWritableExecutionSummaryMetadata
 {
 	decimal? executionTime;
 	int? testsFailed;
@@ -49,6 +49,13 @@ public class _TestCollectionFinished : _TestCollectionMessage, _IExecutionSummar
 	{
 		get => this.ValidateNullablePropertyValue(testsTotal, nameof(TestsTotal));
 		set => testsTotal = value;
+	}
+
+	internal override void Deserialize(IReadOnlyDictionary<string, object?> root)
+	{
+		base.Deserialize(root);
+
+		root.DeserializeExecutionSummaryMetadata(this);
 	}
 
 	internal override void Serialize(JsonObjectSerializer serializer)
