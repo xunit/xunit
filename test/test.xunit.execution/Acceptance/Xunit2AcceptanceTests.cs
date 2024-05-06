@@ -592,6 +592,33 @@ public class Xunit2AcceptanceTests
             // Property setter here is missing, so trying to use it with the overridden skip message will fail at runtime
             public override string Skip => "Skipped";
         }
+
+        // https://github.com/xunit/xunit/issues/2719
+        [Fact]
+        public void ClassWithThrowingSkipGetterShouldReportThatAsFailure()
+        {
+            var msgs = Run<ITestResultMessage>(new[] { typeof(ClassWithThrowingSkip) }).OrderBy(x => x.Test.DisplayName).ToList();
+
+            var msg = Assert.Single(msgs);
+            Assert.Equal("Xunit2AcceptanceTests+CustomFacts+ClassWithThrowingSkip.TestMethod", msg.Test.DisplayName);
+            var failed = Assert.IsAssignableFrom<ITestFailed>(msg);
+            var message = Assert.Single(failed.Messages);
+            Assert.StartsWith("Exception during initialization:" + Environment.NewLine + "System.DivideByZeroException: Attempted to divide by zero.", message);
+        }
+
+        class ClassWithThrowingSkip
+        {
+            [ThrowingSkipFact]
+            public void TestMethod()
+            {
+                Assert.True(false);
+            }
+        }
+
+        public class ThrowingSkipFactAttribute : FactAttribute
+        {
+            public override string Skip { get => throw new DivideByZeroException(); set => base.Skip = value; }
+        }
     }
 
     public class TestOutput : AcceptanceTestV2

@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -118,25 +119,32 @@ namespace Xunit.Sdk
         {
             base.Initialize();
 
-            var factAttribute = TestMethod.Method.GetCustomAttributes(typeof(FactAttribute)).First();
-            var baseDisplayName = factAttribute.GetNamedArgument<string>("DisplayName") ?? BaseDisplayName;
-
-            DisplayName = GetDisplayName(factAttribute, baseDisplayName);
-            SkipReason = GetSkipReason(factAttribute);
-            Timeout = GetTimeout(factAttribute);
-
-            foreach (var traitAttribute in GetTraitAttributesData(TestMethod))
+            try
             {
-                var discovererAttribute = traitAttribute.GetCustomAttributes(typeof(TraitDiscovererAttribute)).FirstOrDefault();
-                if (discovererAttribute != null)
+                var factAttribute = TestMethod.Method.GetCustomAttributes(typeof(FactAttribute)).First();
+                var baseDisplayName = factAttribute.GetNamedArgument<string>("DisplayName") ?? BaseDisplayName;
+
+                DisplayName = GetDisplayName(factAttribute, baseDisplayName);
+                SkipReason = GetSkipReason(factAttribute);
+                Timeout = GetTimeout(factAttribute);
+
+                foreach (var traitAttribute in GetTraitAttributesData(TestMethod))
                 {
-                    var discoverer = ExtensibilityPointFactory.GetTraitDiscoverer(DiagnosticMessageSink, discovererAttribute);
-                    if (discoverer != null)
-                        foreach (var keyValuePair in discoverer.GetTraits(traitAttribute))
-                            Traits.Add(keyValuePair.Key, keyValuePair.Value);
+                    var discovererAttribute = traitAttribute.GetCustomAttributes(typeof(TraitDiscovererAttribute)).FirstOrDefault();
+                    if (discovererAttribute != null)
+                    {
+                        var discoverer = ExtensibilityPointFactory.GetTraitDiscoverer(DiagnosticMessageSink, discovererAttribute);
+                        if (discoverer != null)
+                            foreach (var keyValuePair in discoverer.GetTraits(traitAttribute))
+                                Traits.Add(keyValuePair.Key, keyValuePair.Value);
+                    }
+                    else
+                        DiagnosticMessageSink.OnMessage(new DiagnosticMessage("Trait attribute on '{0}' did not have [TraitDiscoverer]", DisplayName));
                 }
-                else
-                    DiagnosticMessageSink.OnMessage(new DiagnosticMessage("Trait attribute on '{0}' did not have [TraitDiscoverer]", DisplayName));
+            }
+            catch (Exception ex)
+            {
+                InitializationException = new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Exception during initialization:{0}{1}", Environment.NewLine, ex.Unwrap()));
             }
         }
 
