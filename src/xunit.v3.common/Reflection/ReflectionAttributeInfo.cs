@@ -84,12 +84,23 @@ public class ReflectionAttributeInfo : _IReflectionAttributeInfo
 	/// <inheritdoc/>
 	public TValue? GetNamedArgument<TValue>(string argumentName)
 	{
+		// Check named arguments in the attribute data first...
 		foreach (var namedArgument in AttributeData.NamedArguments)
 			if (namedArgument.MemberName.Equals(argumentName, StringComparison.Ordinal))
 			{
 				var result = Reflector.ConvertArgument(namedArgument.TypedValue.Value, typeof(TValue));
 				return result is null ? default : (TValue)result;
 			}
+
+		// ...then fall back to getting property values (only when they're virtual)...
+		foreach (var propInfo in Attribute.GetType().GetRuntimeProperties())
+			if (propInfo.Name == argumentName && propInfo.GetMethod?.IsVirtual == true)
+				return (TValue?)propInfo.GetValue(Attribute);
+
+		// ...and finally fall back to getting field values when they exist.
+		foreach (var fieldInfo in Attribute.GetType().GetRuntimeFields())
+			if (fieldInfo.Name == argumentName)
+				return (TValue?)fieldInfo.GetValue(Attribute);
 
 		return default;
 	}
