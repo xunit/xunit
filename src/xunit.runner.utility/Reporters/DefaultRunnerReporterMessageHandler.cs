@@ -40,7 +40,7 @@ namespace Xunit
         void AddExecutionOptions(string assemblyFilename, ITestFrameworkExecutionOptions executionOptions)
         {
             using (ReaderWriterLockWrapper.WriteLock())
-                executionOptionsByAssembly[assemblyFilename] = executionOptions;
+                executionOptionsByAssembly[Path.GetFileNameWithoutExtension(assemblyFilename)] = executionOptions;
         }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace Xunit
             ITestFrameworkExecutionOptions result;
 
             using (ReaderWriterLockWrapper.ReadLock())
-                if (!executionOptionsByAssembly.TryGetValue(assemblyFilename, out result))
+                if (!executionOptionsByAssembly.TryGetValue(Path.GetFileNameWithoutExtension(assemblyFilename), out result))
                     result = defaultExecutionOptions;
 
             return result;
@@ -149,7 +149,7 @@ namespace Xunit
         void RemoveExecutionOptions(string assemblyFilename)
         {
             using (ReaderWriterLockWrapper.WriteLock())
-                executionOptionsByAssembly.Remove(assemblyFilename);
+                executionOptionsByAssembly.Remove(Path.GetFileNameWithoutExtension(assemblyFilename));
         }
 
         /// <inheritdoc/>
