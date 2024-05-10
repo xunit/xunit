@@ -83,6 +83,19 @@ public class MyTestClass
 
 <p><img class="border" src="/images/capturing-output/dotnet-test-output.png" width="800" /></p>
 
+<h3>Showing live output from <code>ITestOutputHelper</code></h3>
+
+<p>
+  Starting with xUnit.net 2.8.1 (and runners linked against this version), we have added
+  a new configuration option named <a href="configuration-files#showLiveOutput"><code>showLiveOutput</code></a>
+  to indicate that you would like to be able to see output from <code>ITestOutputHelper</code>
+  live as it occurs, rather than just waiting for the test to finish. This is turned off
+  by default as that was the behavior prior to 2.8.1, and showing live output can add
+  significantly to the noise of the output when not needed. We anticipate that users will
+  turn this option on temporarily while debugging through particular issues rather than
+  be something that's left on all the time.
+</p>
+
 <h2 id="output-in-extensions">Capturing output in extensibility classes</h2>
 
 <p>

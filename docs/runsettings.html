@@ -26,6 +26,7 @@ breadcrumb: Documentation
     <li><a href="#PreEnumerateTheories"><code>PreEnumerateTheories</code></a></li>
     <li><a href="#ReporterSwitch"><code>ReporterSwitch</code></a></li>
     <li><a href="#ShadowCopy"><code>ShadowCopy</code></a></li>
+    <li><a href="#ShowLiveOutput"><code>ShowLiveOutput</code></a></li>
     <li><a href="#StopOnFail"><code>StopOnFail</code></a></li>
   </ul>
 </ul>
@@ -361,6 +362,23 @@ breadcrumb: Documentation
       <p><em>
         Valid values: <code>true</code>, <code>false</code><br />
         Default value: <code>true</code>
+      </em></p>
+    </td>
+  </tr>
+  <tr>
+    <th id="ShowLiveOutput"><code>ShowLiveOutput</code><br />xunit.runner.visualstudio 2.8.1+<br />Test Framework v2</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this to <code>true</code> to show messages from <code>ITestOutputHelper</code>
+        live during the test run, in addition to showing them after the test has completed;
+        set to <code>false</code> to only show test output messages after the test has
+        completed. Note: when using <code>dotnet test</code> you may need to pass an extra
+        command line option (<code>--logger "console;verbosity=normal"</code>) to be able
+        to see messages from xUnit.net, as they are hidden by default.
+      </p>
+      <p><em>
+        Valid values: <code>true</code>, <code>false</code><br />
+        Default value: <code>false</code>
       </em></p>
     </td>
   </tr>
