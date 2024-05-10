@@ -25,6 +25,7 @@ namespace Xunit.Runner.MSBuild
         bool? parallelizeTestCollections;
         IMessageSinkWithTypes reporterMessageHandler;
         bool? shadowCopy;
+        bool? showLiveOutput;
         bool? stopOnFail;
 
         public string AppDomains { get; set; }
@@ -88,6 +89,8 @@ namespace Xunit.Runner.MSBuild
         public bool SerializeTestCases { get; set; }
 
         public bool ShadowCopy { set { shadowCopy = value; } }
+
+        public bool ShowLiveOutput { set { showLiveOutput = value; } }
 
         public bool StopOnFail { set { stopOnFail = value; } }
 
@@ -284,6 +287,8 @@ namespace Xunit.Runner.MSBuild
                     executionOptions.SetParallelAlgorithm(parallelAlgorithm);
                 if (parallelizeTestCollections.HasValue)
                     executionOptions.SetDisableParallelization(!parallelizeTestCollections);
+                if (showLiveOutput.HasValue)
+                    executionOptions.SetShowLiveOutput(showLiveOutput);
                 if (stopOnFail.HasValue)
                     executionOptions.SetStopOnTestFail(stopOnFail);
 

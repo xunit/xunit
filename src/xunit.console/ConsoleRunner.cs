@@ -89,7 +89,7 @@ namespace Xunit.ConsoleClient
                                            commandLine.ParallelizeTestCollections, commandLine.MaxParallelThreads,
                                            commandLine.DiagnosticMessages, commandLine.NoColor, commandLine.AppDomains,
                                            commandLine.FailSkips, commandLine.StopOnFail, commandLine.InternalDiagnosticMessages,
-                                           commandLine.ParallelAlgorithm);
+                                           commandLine.ParallelAlgorithm, commandLine.ShowLiveOutput);
 
                 if (cancel)
                     return -1073741510;    // 0xC000013A: The application terminated as a result of a CTRL+C
@@ -239,6 +239,7 @@ namespace Xunit.ConsoleClient
             Console.WriteLine("  -wait                     : wait for input after completion");
             Console.WriteLine("  -diagnostics              : enable diagnostics messages for all test assemblies");
             Console.WriteLine("  -internaldiagnostics      : enable internal diagnostics messages for all test assemblies");
+            Console.WriteLine("  -showliveoutput           : show output messages from tests live");
 #if DEBUG
             Console.WriteLine("  -pause                    : pause before doing any work, to help attach a debugger");
 #endif
@@ -302,7 +303,8 @@ namespace Xunit.ConsoleClient
                        bool failSkips,
                        bool stopOnFail,
                        bool internalDiagnosticMessages,
-                       ParallelAlgorithm? parallelAlgorithm)
+                       ParallelAlgorithm? parallelAlgorithm,
+                       bool showLiveOutput)
         {
             XElement assembliesElement = null;
             var clockTime = Stopwatch.StartNew();
@@ -319,7 +321,7 @@ namespace Xunit.ConsoleClient
 
             if (parallelizeAssemblies.GetValueOrDefault())
             {
-                var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(consoleLock, assembly, serialize, needsXml, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, appDomains, failSkips, stopOnFail, project.Filters, internalDiagnosticMessages, parallelAlgorithm)));
+                var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(consoleLock, assembly, serialize, needsXml, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, appDomains, failSkips, stopOnFail, project.Filters, internalDiagnosticMessages, parallelAlgorithm, showLiveOutput)));
                 var results = Task.WhenAll(tasks).GetAwaiter().GetResult();
                 foreach (var assemblyElement in results.Where(result => result != null))
                     assembliesElement.Add(assemblyElement);
@@ -328,7 +330,7 @@ namespace Xunit.ConsoleClient
             {
                 foreach (var assembly in project.Assemblies)
                 {
-                    var assemblyElement = ExecuteAssembly(consoleLock, assembly, serialize, needsXml, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, appDomains, failSkips, stopOnFail, project.Filters, internalDiagnosticMessages, parallelAlgorithm);
+                    var assemblyElement = ExecuteAssembly(consoleLock, assembly, serialize, needsXml, parallelizeTestCollections, maxThreadCount, diagnosticMessages, noColor, appDomains, failSkips, stopOnFail, project.Filters, internalDiagnosticMessages, parallelAlgorithm, showLiveOutput);
                     if (assemblyElement != null)
                         assembliesElement.Add(assemblyElement);
                 }
@@ -362,7 +364,8 @@ namespace Xunit.ConsoleClient
                                  bool stopOnFail,
                                  XunitFilters filters,
                                  bool internalDiagnosticMessages,
-                                 ParallelAlgorithm? parallelAlgorithm)
+                                 ParallelAlgorithm? parallelAlgorithm,
+                                 bool showLiveOutput)
         {
             foreach (var warning in assembly.ConfigWarnings)
                 logger.LogWarning(warning);
@@ -394,6 +397,8 @@ namespace Xunit.ConsoleClient
                     executionOptions.SetMaxParallelThreads(maxThreadCount);
                 if (parallelizeTestCollections.HasValue)
                     executionOptions.SetDisableParallelization(!parallelizeTestCollections.GetValueOrDefault());
+                if (showLiveOutput)
+                    executionOptions.SetShowLiveOutput(showLiveOutput);
                 if (stopOnFail)
                     executionOptions.SetStopOnTestFail(stopOnFail);
                 if (parallelAlgorithm.HasValue)

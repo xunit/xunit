@@ -54,6 +54,8 @@ namespace Xunit.ConsoleClient
 
         public bool Serialize { get; protected set; }
 
+        public bool ShowLiveOutput { get; protected set; }
+
         public bool StopOnFail { get; protected set; }
 
         public bool UseAnsiColor { get; protected set; }
@@ -165,6 +167,11 @@ namespace Xunit.ConsoleClient
                 {
                     GuardNoOptionValue(option);
                     FailSkips = true;
+                }
+                else if (optionName == "showliveoutput")
+                {
+                    GuardNoOptionValue(option);
+                    ShowLiveOutput = true;
                 }
                 else if (optionName == "stoponfail")
                 {

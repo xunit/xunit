@@ -331,6 +331,15 @@ namespace Xunit
         }
 
         /// <inheritdoc/>
+        protected override bool Visit(ITestOutput testCaseOutput)
+        {
+            if (GetExecutionOptions(testCaseOutput.TestAssembly.Assembly.AssemblyPath).GetShowLiveOutputOrDefault())
+                Logger.LogMessage("    {0} [OUTPUT] {1}", Escape(testCaseOutput.Test.DisplayName), Escape(testCaseOutput.Output.TrimEnd()));
+
+            return base.Visit(testCaseOutput);
+        }
+
+        /// <inheritdoc/>
         protected override bool Visit(ITestPassed testPassed)
         {
             if (!string.IsNullOrEmpty(testPassed.Output) &&

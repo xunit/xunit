@@ -132,6 +132,7 @@ namespace Xunit
             public const string AppDomain = "xunit.appDomain";
             public const string DiagnosticMessages = "xunit.diagnosticMessages";
             public const string InternalDiagnosticMessages = "xunit.internalDiagnosticMessages";
+            public const string LongRunningTestSeconds = "xunit.longRunningTestSeconds";
             public const string MaxParallelThreads = "xunit.maxParallelThreads";
             public const string MethodDisplay = "xunit.methodDisplay";
             public const string MethodDisplayOptions = "xunit.methodDisplayOptions";
@@ -141,7 +142,6 @@ namespace Xunit
             public const string PreEnumerateTheories = "xunit.preEnumerateTheories";
             public const string ShadowCopy = "xunit.shadowCopy";
             public const string StopOnFail = "xunit.stopOnFail";
-            public const string LongRunningTestSeconds = "xunit.longRunningTestSeconds";
         }
     }
 }

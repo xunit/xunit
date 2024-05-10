@@ -55,6 +55,7 @@ namespace Xunit
                 result.SetParallelAlgorithm(configuration.ParallelAlgorithm);
                 result.SetDisableParallelization(!configuration.ParallelizeTestCollections);
                 result.SetMaxParallelThreads(configuration.MaxParallelThreads);
+                result.SetShowLiveOutput(configuration.ShowLiveOutput);
                 result.SetStopOnTestFail(configuration.StopOnFail);
             }
 

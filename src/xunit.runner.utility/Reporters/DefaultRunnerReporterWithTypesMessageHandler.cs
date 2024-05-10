@@ -39,6 +39,7 @@ namespace Xunit
             Execution.TestCleanupFailureEvent += HandleTestCleanupFailure;
             Execution.TestFailedEvent += HandleTestFailed;
             Execution.TestMethodCleanupFailureEvent += HandleTestMethodCleanupFailure;
+            Execution.TestOutputEvent += HandleTestOutput;
             Execution.TestPassedEvent += HandleTestPassed;
             Execution.TestSkippedEvent += HandleTestSkipped;
 
@@ -344,6 +345,17 @@ namespace Xunit
         /// <param name="args">An object that contains the event data.</param>
         protected virtual void HandleTestMethodCleanupFailure(MessageHandlerArgs<ITestMethodCleanupFailure> args)
             => LogError(string.Format(CultureInfo.CurrentCulture, "Test Method Cleanup Failure ({0})", args.Message.TestMethod.Method.Name), args.Message);
+
+        /// <summary>
+        /// Called when <see cref="ITestOutput"/> is raised.
+        /// </summary>
+        /// <param name="args">An object that contains the event data.</param>
+        protected virtual void HandleTestOutput(MessageHandlerArgs<ITestOutput> args)
+        {
+            var testOutput = args.Message;
+            if (GetExecutionOptions(testOutput.TestAssembly.Assembly.AssemblyPath).GetShowLiveOutputOrDefault())
+                Logger.LogMessage("    {0} [OUTPUT] {1}", Escape(testOutput.Test.DisplayName), Escape(testOutput.Output.TrimEnd()));
+        }
 
         /// <summary>
         /// Called when <see cref="ITestPassed"/> is raised.

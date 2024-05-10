@@ -261,6 +261,25 @@ public static class TestFrameworkOptionsReadWriteExtensions
     }
 
     /// <summary>
+    /// Gets a flag which indicates if the developer wishes to see output from <see cref="ITestOutputHelper"/>
+    /// live while it's being reported (in addition to seeing it collected together when the test is finished).
+    /// </summary>
+    public static bool? GetShowLiveOutput(this ITestFrameworkExecutionOptions executionOptions)
+    {
+        return executionOptions.GetValue<bool?>(TestOptionsNames.Execution.ShowLiveOutput);
+    }
+
+    /// <summary>
+    /// Gets a flag which indicates if the developer wishes to see output from <see cref="ITestOutputHelper"/>
+    /// live while it's being reported (in addition to seeing it collected together when the test is finished).
+    /// If the flag is not present, returns the default value (<c>false</c>).
+    /// </summary>
+    public static bool GetShowLiveOutputOrDefault(this ITestFrameworkExecutionOptions executionOptions)
+    {
+        return executionOptions.GetShowLiveOutput() ?? false;
+    }
+
+    /// <summary>
     /// Gets a flag that determines whether xUnit.net stop testing when a test fails.
     /// </summary>
     public static bool? GetStopOnTestFail(this ITestFrameworkExecutionOptions executionOptions)
@@ -316,6 +335,15 @@ public static class TestFrameworkOptionsReadWriteExtensions
     public static void SetParallelAlgorithm(this ITestFrameworkExecutionOptions executionOptions, ParallelAlgorithm? value)
     {
         executionOptions.SetValue(TestOptionsNames.Execution.ParallelAlgorithm, value.HasValue ? value.GetValueOrDefault().ToString() : null);
+    }
+
+    /// <summary>
+    /// Sets a flag which indicates if the developer wishes to see output from <see cref="ITestOutputHelper"/>
+    /// live while it's being reported (in addition to seeing it collected together when the test is finished).
+    /// </summary>
+    public static void SetShowLiveOutput(this ITestFrameworkExecutionOptions executionOptions, bool? value)
+    {
+        executionOptions.SetValue(TestOptionsNames.Execution.ShowLiveOutput, value);
     }
 
     /// <summary>

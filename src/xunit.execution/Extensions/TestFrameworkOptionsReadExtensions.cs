@@ -177,6 +177,25 @@ public static class TestFrameworkOptionsReadExtensions
     }
 
     /// <summary>
+    /// Gets a flag which indicates if the developer wishes to see output from <see cref="ITestOutputHelper"/>
+    /// live while it's being reported (in addition to seeing it collected together when the test is finished).
+    /// </summary>
+    public static bool? ShowLiveOutput(this ITestFrameworkExecutionOptions executionOptions)
+    {
+        return executionOptions.GetValue<bool?>(TestOptionsNames.Execution.ShowLiveOutput);
+    }
+
+    /// <summary>
+    /// Gets a flag which indicates if the developer wishes to see output from <see cref="ITestOutputHelper"/>
+    /// live while it's being reported (in addition to seeing it collected together when the test is finished).
+    /// If the flag is not present, returns the default value (<c>false</c>).
+    /// </summary>
+    public static bool ShowLiveOutputOrDefault(this ITestFrameworkExecutionOptions executionOptions)
+    {
+        return executionOptions.ShowLiveOutput() ?? false;
+    }
+
+    /// <summary>
     /// Gets a flag to stop testing on test failure.
     /// </summary>
     public static bool? StopOnTestFail(this ITestFrameworkExecutionOptions executionOptions)

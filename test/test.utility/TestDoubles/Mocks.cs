@@ -259,10 +259,10 @@ public static class Mocks
         return result;
     }
 
-    public static ITestAssemblyExecutionStarting TestAssemblyExecutionStarting(bool diagnosticMessages = false, string assemblyFilename = null, bool? parallelizeTestCollections = null, int maxParallelThreads = 42, bool? stopOnFail = null, Xunit.ParallelAlgorithm? parallelAlgorithm = null)
+    public static ITestAssemblyExecutionStarting TestAssemblyExecutionStarting(bool diagnosticMessages = false, string assemblyFilename = null, bool? parallelizeTestCollections = null, int maxParallelThreads = 42, bool? stopOnFail = null, Xunit.ParallelAlgorithm? parallelAlgorithm = null, bool? showLiveOutput = null)
     {
         var assembly = new XunitProjectAssembly { AssemblyFilename = assemblyFilename ?? "testAssembly.dll", ConfigFilename = "testAssembly.dll.config" };
-        var config = new TestAssemblyConfiguration { DiagnosticMessages = diagnosticMessages, MethodDisplay = Xunit.TestMethodDisplay.ClassAndMethod, MaxParallelThreads = maxParallelThreads, ParallelAlgorithm = parallelAlgorithm, ParallelizeTestCollections = parallelizeTestCollections, ShadowCopy = true, StopOnFail = stopOnFail };
+        var config = new TestAssemblyConfiguration { DiagnosticMessages = diagnosticMessages, MethodDisplay = Xunit.TestMethodDisplay.ClassAndMethod, MaxParallelThreads = maxParallelThreads, ParallelAlgorithm = parallelAlgorithm, ParallelizeTestCollections = parallelizeTestCollections, ShadowCopy = true, ShowLiveOutput = showLiveOutput, StopOnFail = stopOnFail };
         var result = Substitute.For<ITestAssemblyExecutionStarting, InterfaceProxy<ITestAssemblyExecutionStarting>>();
         result.Assembly.Returns(assembly);
         result.ExecutionOptions.Returns(TestFrameworkOptions.ForExecution(config));
@@ -499,6 +499,15 @@ public static class Mocks
             throw new Exception($"Unknown method: {type.FullName}.{methodName}");
 
         return new TestMethod(@class, Reflector.Wrap(methodInfo));
+    }
+
+    public static ITestOutput TestOutput(string assemblyPath, string testDisplayName, string output)
+    {
+        var result = Substitute.For<ITestOutput, InterfaceProxy<ITestOutput>>();
+        result.Output.Returns(output);
+        result.Test.DisplayName.Returns(testDisplayName);
+        result.TestAssembly.Assembly.AssemblyPath.Returns(assemblyPath);
+        return result;
     }
 
     public static ITestPassed TestPassed(Type type, string methodName, string displayName = null, string output = null, decimal executionTime = 0M)

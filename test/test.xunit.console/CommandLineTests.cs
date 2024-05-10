@@ -351,6 +351,29 @@ public class CommandLineTests
         }
     }
 
+    public class ShowLiveOutputOption
+    {
+        [Fact]
+        public static void NotSetIsFalse()
+        {
+            var arguments = new[] { "assemblyName.dll" };
+
+            var commandLine = TestableCommandLine.Parse(arguments);
+
+            Assert.False(commandLine.ShowLiveOutput);
+        }
+
+        [Fact]
+        public static void SetIsTrue()
+        {
+            var arguments = new[] { "assemblyName.dll", "-showliveoutput" };
+
+            var commandLine = TestableCommandLine.Parse(arguments);
+
+            Assert.True(commandLine.ShowLiveOutput);
+        }
+    }
+
     public class StopOnFailOption
     {
         [Fact]

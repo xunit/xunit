@@ -244,6 +244,39 @@ public class DefaultRunnerReporterWithTypesMessageHandlerTests
         }
     }
 
+    public class OnMessage_ITestOutput
+    {
+        [Fact]
+        public void WithoutFlag_LogsNothing()
+        {
+            var executionStartingMessage = Mocks.TestAssemblyExecutionStarting(assemblyFilename: "assembly-path", showLiveOutput: false);
+            var outputMessage = Mocks.TestOutput("assembly-path", "test-name", "This is test output");
+            var handler = TestableDefaultRunnerReporterWithTypesMessageHandler.Create();
+
+            handler.OnMessage(executionStartingMessage);
+            handler.OnMessage(outputMessage);
+
+            var msg = Assert.Single(handler.Messages);
+            Assert.Equal("[Imp] =>   Starting:    assembly-path", msg);
+        }
+
+        [Fact]
+        public void WithFlag_LogsOutput()
+        {
+            var executionStartingMessage = Mocks.TestAssemblyExecutionStarting(assemblyFilename: "assembly-path", showLiveOutput: true);
+            var outputMessage = Mocks.TestOutput("assembly-path", "test-name", "This is test output");
+            var handler = TestableDefaultRunnerReporterWithTypesMessageHandler.Create();
+
+            handler.OnMessage(executionStartingMessage);
+            handler.OnMessage(outputMessage);
+
+            Assert.Collection(handler.Messages,
+                msg => Assert.Equal("[Imp] =>   Starting:    assembly-path", msg),
+                msg => Assert.Equal("[---] =>     test-name [OUTPUT] This is test output", msg)
+            );
+        }
+    }
+
     public class OnMessage_ITestPassed
     {
         [Fact]
