@@ -249,8 +249,8 @@ public class DefaultRunnerReporterWithTypesMessageHandlerTests
         [Fact]
         public void WithoutFlag_LogsNothing()
         {
-            var executionStartingMessage = Mocks.TestAssemblyExecutionStarting(assemblyFilename: "assembly-path", showLiveOutput: false);
-            var outputMessage = Mocks.TestOutput("assembly-path", "test-name", "This is test output");
+            var executionStartingMessage = Mocks.TestAssemblyExecutionStarting(assemblyFilename: "/path/to/assembly-path.dll", showLiveOutput: false);
+            var outputMessage = Mocks.TestOutput("assembly-path.DLL", "test-name", "This is test output");
             var handler = TestableDefaultRunnerReporterWithTypesMessageHandler.Create();
 
             handler.OnMessage(executionStartingMessage);
@@ -263,8 +263,8 @@ public class DefaultRunnerReporterWithTypesMessageHandlerTests
         [Fact]
         public void WithFlag_LogsOutput()
         {
-            var executionStartingMessage = Mocks.TestAssemblyExecutionStarting(assemblyFilename: "assembly-path", showLiveOutput: true);
-            var outputMessage = Mocks.TestOutput("assembly-path", "test-name", "This is test output");
+            var executionStartingMessage = Mocks.TestAssemblyExecutionStarting(assemblyFilename: "/path/to/assembly-path.dll", showLiveOutput: true);
+            var outputMessage = Mocks.TestOutput("assembly-path.DLL", "test-name", "This is test output");
             var handler = TestableDefaultRunnerReporterWithTypesMessageHandler.Create();
 
             handler.OnMessage(executionStartingMessage);

@@ -252,7 +252,7 @@ public class DefaultRunnerReporterMessageHandlerTests
         public void WithoutFlag_LogsNothing()
         {
             var executionStartingMessage = Mocks.TestAssemblyExecutionStarting(assemblyFilename: "/path/to/assembly-path.dll", showLiveOutput: false);
-            var outputMessage = Mocks.TestOutput("assembly.DLL", "test-name", "This is test output");
+            var outputMessage = Mocks.TestOutput("assembly-path.DLL", "test-name", "This is test output");
             var handler = TestableDefaultRunnerReporterMessageHandler.Create();
 
             handler.OnMessage(executionStartingMessage);
