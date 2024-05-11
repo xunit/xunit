@@ -106,16 +106,43 @@ public class FixtureAcceptanceTests
         }
 
         [Fact]
-        public void TestClassWithThrowingFixtureConstructorResultsInFailedTest()
+        public void TestClassWithoutCtorWithThrowingFixtureConstructorResultsInFailedTest()
         {
             var messages = Run<ITestFailed>(typeof(ClassWithThrowingFixtureCtor));
 
             var msg = Assert.Single(messages);
-            Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single());
+            Assert.Collection(
+                msg.ExceptionTypes,
+                exceptionTypeName => Assert.Equal(typeof(TestClassException).FullName, exceptionTypeName),
+                exceptionTypeName => Assert.Equal(typeof(DivideByZeroException).FullName, exceptionTypeName)
+            );
+            Assert.Equal("Class fixture type 'FixtureAcceptanceTests+ThrowingCtorFixture' threw in its constructor", msg.Messages.First());
         }
 
         class ClassWithThrowingFixtureCtor : IClassFixture<ThrowingCtorFixture>
         {
+            [Fact]
+            public void TheTest() { }
+        }
+
+        [Fact]
+        public void TestClassWithCtorWithThrowingFixtureConstructorResultsInFailedTest()
+        {
+            var messages = Run<ITestFailed>(typeof(ClassWithCtorAndThrowingFixtureCtor));
+
+            var msg = Assert.Single(messages);
+            Assert.Collection(
+                msg.ExceptionTypes,
+                exceptionTypeName => Assert.Equal(typeof(TestClassException).FullName, exceptionTypeName),
+                exceptionTypeName => Assert.Equal(typeof(DivideByZeroException).FullName, exceptionTypeName)
+            );
+            Assert.Equal("Class fixture type 'FixtureAcceptanceTests+ThrowingCtorFixture' threw in its constructor", msg.Messages.First());
+        }
+
+        class ClassWithCtorAndThrowingFixtureCtor : IClassFixture<ThrowingCtorFixture>
+        {
+            public ClassWithCtorAndThrowingFixtureCtor(ThrowingCtorFixture _) { }
+
             [Fact]
             public void TheTest() { }
         }
@@ -186,7 +213,7 @@ public class FixtureAcceptanceTests
 
         class ClassWithOptionalCtorArg : IClassFixture<EmptyFixtureData>
         {
-            public ClassWithOptionalCtorArg(EmptyFixtureData fixture, [Optional]int x, [Optional]object y)
+            public ClassWithOptionalCtorArg(EmptyFixtureData fixture, [Optional] int x, [Optional] object y)
             {
                 Assert.NotNull(fixture);
                 Assert.Equal(0, x);

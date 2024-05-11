@@ -20,6 +20,15 @@ namespace Xunit.Sdk
             : base(message)
         { }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TestClassException"/> class.
+        /// </summary>
+        /// <param name="message">The exception message.</param>
+        /// <param name="innerException">The inner exception.</param>
+        public TestClassException(string message, Exception innerException)
+            : base(message, innerException)
+        { }
+
 #if NETFRAMEWORK
         /// <inheritdoc/>
         protected TestClassException(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context)

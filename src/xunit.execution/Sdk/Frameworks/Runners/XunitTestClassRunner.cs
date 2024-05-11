@@ -97,7 +97,14 @@ namespace Xunit.Sdk
                 );
             else
             {
-                Aggregator.Run(() => ClassFixtureMappings[fixtureType] = ctor.Invoke(ctorArgs));
+                try
+                {
+                    ClassFixtureMappings[fixtureType] = ctor.Invoke(ctorArgs);
+                }
+                catch (Exception ex)
+                {
+                    Aggregator.Add(new TestClassException(string.Format(CultureInfo.CurrentCulture, "Class fixture type '{0}' threw in its constructor", fixtureType.FullName), ex.Unwrap()));
+                }
             }
         }
 

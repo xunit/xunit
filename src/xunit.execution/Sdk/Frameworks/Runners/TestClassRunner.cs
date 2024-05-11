@@ -123,7 +123,7 @@ namespace Xunit.Sdk
                             unusedArguments.Add(Tuple.Create(idx, parameter));
                     }
 
-                    if (unusedArguments.Count > 0)
+                    if (unusedArguments.Count > 0 && !Aggregator.HasExceptions)
                         Aggregator.Add(new TestClassException(FormatConstructorArgsMissingMessage(ctor, unusedArguments)));
 
                     return constructorArguments;
