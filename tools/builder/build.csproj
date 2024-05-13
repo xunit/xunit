@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- We may not be able to upgrade Bullseye easily because we are leveraging internal APIs -->
+    <PackageReference Include="Bullseye" Version="[3.3.0]" />
+    <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="4.1.1" />
+  </ItemGroup>
+
+</Project>

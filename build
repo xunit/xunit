@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+function write_error {
+	echo "error(1): $1" 2>&1
+	exit 1
+}
+
+function guard_bin {
+	builtin type -P "$1" &>/dev/null || write_error "Could not find '$1'; $2"
+}
+
+guard_bin git "please install the Git CLI from (https://git-scm.com/)"
+guard_bin dotnet "please install the .NET SDK from (https://dot.net/)"
+guard_bin ruby "please install Ruby 2.7.4 (https://www.ruby-lang.org/en/downloads/)"
+guard_bin bundle "please install Bundler 2.1.4 (gem install bundler --version 2.1.4)"
+
+[ $(dotnet --version | cut -d. -f1) -ge 8 ] || write_error ".NET SDK version $(dotnet --version) is too low; please install version 8.0 or later (https://dot.net/)"
+
+git submodule status | while read line; do
+	if [ "$(echo $line | cut -b1)" == "-" ]; then
+		pieces=( $line )
+		git submodule update --init ${pieces[1]}
+		echo ""
+	fi
+done
+
+PUSHED=0
+
+cleanup () {
+	if [[ $PUSHED == 1 ]]; then
+		popd >/dev/null
+		PUSHED=0
+	fi
+}
+
+trap cleanup EXIT ERR INT TERM
+
+pushd $( cd "$(dirname "$0")" ; pwd -P ) >/dev/null
+PUSHED=1
+
+dotnet run --project tools/builder --no-launch-profile -- "$@"

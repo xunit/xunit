@@ -1,0 +1,51 @@
+name: xUnit.net CI Build (gh-pages)
+
+on:
+  push:
+    branches: ["gh-pages"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone source
+        uses: actions/checkout@v4
+
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: |
+            8.0.x
+
+      - name: Get .NET information
+        run: dotnet --info
+
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: "Build target: Build"
+        run: dotnet run --project tools/builder --no-launch-profile -- Build --timing
+
+      - name: "Upload artifact: github-pages"
+        uses: actions/upload-pages-artifact@v3
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
