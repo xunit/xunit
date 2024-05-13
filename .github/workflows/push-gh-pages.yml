@@ -30,11 +30,13 @@ jobs:
       - name: Get .NET information
         run: dotnet --info
 
-      - name: Get Ruby information
-        run: ruby --version
+      - name: Install Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.7.4
 
-      - name: Install Ruby Bundler
-        run: gem install bundler --version 2.1.4
+      - name: Get Ruby information
+        run: ruby --version && bundle --version
 
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v5
