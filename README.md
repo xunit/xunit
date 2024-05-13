@@ -1,10 +1,26 @@
-## About This Project
+# About This Project
 
 This project contains the public site for [https://xunit.net/](https://xunit.net/). When adding new source analysis rules, use the [rule template](RULE_TEMPLATE.md) provided.
 
 To open an issue for this project, please visit the [core xUnit.net project issue tracker](https://github.com/xunit/xunit/issues).
 
-## About xUnit.net
+## Building and Contribution
+
+This site is built with Jekyll, which is based on Ruby, as this is the default system used by GitHub Pages. We use a C#-based build system.
+
+In order to successfully view the content locally, you will need the following pre-requisites:
+
+* [.NET SDK 8.0](https://dotnet.microsoft.com/download/dotnet/8.0)
+* [Ruby 2.7.4](https://www.ruby-lang.org/en/documentation/installation/)
+* [Bundler 2.1.4](https://bundler.io/) (after installing Ruby, run `gem install bundler --version 2.1.4`)
+
+The site content lives in [`/site`](https://github.com/xunit/xunit/tree/gh-pages/site) and the output will placed in `/_site`. To build the static content, run the command `./build` from the root of your clone, via your command prompt (bash and PowerShell are supported). This will do a one-time transformation of the templates in `/site` to the static files in `/_site`.
+
+If you are working interactively, you can run `./build serve` which will start Jekyll in a mode where it incrementally builds the site as needed, and will rebuild pages as you change the files. You can point your browser to [http://localhost:4000/](http://localhost:4000/) while the server is running to view the rendered content. Once you're finished, you can pretty Ctrl+C in the command prompt and the server will shut down.
+
+_Note: if you see a warning about `Auto-regeneration may not work on some Windows versions` and you're running in WSL 2, you may safely ignore this. Auto-regeneration works in WSL 2 without issue, and the warning is based on some very early WSL 1 bugs with file system watchers._
+
+# About xUnit.net
 
 [<img align="right" src="https://xunit.net/images/dotnet-fdn-logo.png" width="100" />](https://www.dotnetfoundation.org/)
 
