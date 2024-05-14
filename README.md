@@ -53,3 +53,11 @@ For project documentation, please visit the [xUnit.net project home](https://xun
 </table>
 
 *For complete CI package lists, please visit the [feedz.io package search](https://feedz.io/org/xunit/repository/xunit/search). A free login is required.*
+
+## Sponsors
+
+Special thanks to the <a href="https://github.com/aws/dotnet-foss">.NET on AWS Open Source Software Fund</a> for sponsoring the ongoing development of xUnit.net.
+
+[<img src="https://xunit.net/images/aws-logo.svg" style="padding: 10px 0; width: 200px" />](https://github.com/aws/dotnet-foss)
+
+Help support this project by becoming a sponsor through <a href="https://github.com/sponsors/xunit">GitHub Sponsors</a>.
