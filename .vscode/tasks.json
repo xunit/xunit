@@ -1,0 +1,59 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "tools/builder",
+        "--no-launch-profile",
+      ],
+      "options": {
+        "cwd": "${workspaceRoot}"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "focus": true,
+      },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "Serve",
+      "type": "process",
+      "command": "dotnet",
+      "args": [
+        "run",
+        "--project",
+        "tools/builder",
+        "--no-launch-profile",
+        "--",
+        "serve",
+      ],
+      "options": {
+        "cwd": "${workspaceRoot}"
+      },
+      "group": {
+        "kind": "build"
+      },
+      "presentation": {
+        "focus": false,
+      },
+      "isBackground": true,
+      "problemMatcher": [
+        {
+          "base": "$msCompile",
+          "background": {
+            "beginsPattern": "Restoring build environment",
+            "endsPattern": "Server running..."
+          },
+        }
+      ],
+    },
+  ]
+}

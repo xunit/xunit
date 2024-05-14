@@ -1,0 +1,21 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Web site (Google Chrome)",
+      "type": "chrome",
+      "url": "http://localhost:4000",
+      "request": "launch",
+      "webRoot": "${workspaceFolder}/site",
+      "preLaunchTask": "Serve"
+    },
+    {
+      "name": "Web site (Microsoft Edge)",
+      "type": "msedge",
+      "url": "http://localhost:4000",
+      "request": "launch",
+      "webRoot": "${workspaceFolder}/site",
+      "preLaunchTask": "Serve",
+    },
+  ]
+}
