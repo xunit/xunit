@@ -323,3 +323,9 @@ blockquote.padded {
 .no-wrap {
   white-space: nowrap;
 }
+.aws-logo {
+  padding: 10px 0;
+}
+.aws-logo img {
+  width: 200px;
+}
