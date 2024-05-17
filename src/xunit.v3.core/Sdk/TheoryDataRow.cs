@@ -55,7 +55,7 @@ public class TheoryDataRow : ITheoryDataRow
 		string name,
 		string value)
 	{
-		var list = Traits.GetOrAdd(name, () => new());
+		var list = Traits.AddOrGet(name, () => new());
 		list.Add(value);
 		return this;
 	}

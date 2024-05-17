@@ -22,21 +22,21 @@ public static class TestIntrospectionHelper
 	{
 		Guard.ArgumentNotNull(assembly);
 
-		return assemblyTraitAttributeCache.GetOrAdd(assembly.Name, () => assembly.GetCustomAttributes(typeof(ITraitAttribute)));
+		return assemblyTraitAttributeCache.GetOrAdd(assembly.Name, _ => assembly.GetCustomAttributes(typeof(ITraitAttribute)));
 	}
 
 	static IReadOnlyCollection<_IAttributeInfo> GetCachedTraitAttributes(_IMethodInfo method)
 	{
 		Guard.ArgumentNotNull(method);
 
-		return methodTraitAttributeCache.GetOrAdd(string.Format(CultureInfo.InvariantCulture, "{0}.{1}", method.Type.Name, method.Name), () => method.GetCustomAttributes(typeof(ITraitAttribute)));
+		return methodTraitAttributeCache.GetOrAdd(string.Format(CultureInfo.InvariantCulture, "{0}.{1}", method.Type.Name, method.Name), _ => method.GetCustomAttributes(typeof(ITraitAttribute)));
 	}
 
 	static IReadOnlyCollection<_IAttributeInfo> GetCachedTraitAttributes(_ITypeInfo type)
 	{
 		Guard.ArgumentNotNull(type);
 
-		return typeTraitAttributeCache.GetOrAdd(type.Name, () => type.GetCustomAttributes(typeof(ITraitAttribute)));
+		return typeTraitAttributeCache.GetOrAdd(type.Name, _ => type.GetCustomAttributes(typeof(ITraitAttribute)));
 	}
 
 	/// <summary>
@@ -197,13 +197,13 @@ public static class TestIntrospectionHelper
 			}
 
 			foreach (var kvp in discoverer.GetTraits(traitAttribute))
-				result.GetOrAdd(kvp.Key).Add(kvp.Value);
+				result.AddOrGet(kvp.Key).Add(kvp.Value);
 		}
 
 		// Traits from the data row
 		if (dataRow?.Traits is not null)
 			foreach (var kvp in dataRow.Traits)
-				result.GetOrAdd(kvp.Key).AddRange(kvp.Value);
+				result.AddOrGet(kvp.Key).AddRange(kvp.Value);
 
 		return result;
 	}
@@ -224,7 +224,7 @@ public static class TestIntrospectionHelper
 
 		while (idx < additionalTraits.Length - 1)
 		{
-			traits.GetOrAdd(additionalTraits[idx]).Add(additionalTraits[idx + 1]);
+			traits.AddOrGet(additionalTraits[idx]).Add(additionalTraits[idx + 1]);
 			idx += 2;
 		}
 	}

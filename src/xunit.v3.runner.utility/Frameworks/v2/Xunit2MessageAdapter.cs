@@ -756,7 +756,7 @@ public class Xunit2MessageAdapter
 	{
 		lock (testUniqueIDsByTestCase)
 		{
-			var uniqueIDLookup = testUniqueIDsByTestCase.GetOrAdd(test.TestCase, () => new Dictionary<ITest, string>());
+			var uniqueIDLookup = testUniqueIDsByTestCase.AddOrGet(test.TestCase, () => new Dictionary<ITest, string>());
 			if (!uniqueIDLookup.TryGetValue(test, out var result))
 			{
 				var testIndex = uniqueIDLookup.Count;

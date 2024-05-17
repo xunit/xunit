@@ -215,7 +215,7 @@ public static class ConsoleProjectLister
 		foreach (var traits in testCasesByAssembly.SelectMany(kvp => kvp.Value).Select(tc => tc.Traits).WhereNotNull())
 			foreach (var kvp in traits)
 			{
-				var list = combinedTraits.GetOrAdd(kvp.Key, () => []);
+				var list = combinedTraits.AddOrGet(kvp.Key, () => []);
 				foreach (var value in kvp.Value)
 					list.Add(value);
 			}
