@@ -4,18 +4,18 @@ using System.Linq;
 
 static class DictionaryExtensions
 {
-    public static void Add<TKey, TValue>(this IDictionary<TKey, List<TValue>> dictionary, TKey key, TValue value)
+    public static void Add<TKey, TValue>(this Dictionary<TKey, List<TValue>> dictionary, TKey key, TValue value)
     {
         dictionary.AddOrGet(key).Add(value);
     }
 
-    public static TValue AddOrGet<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key)
+    public static TValue AddOrGet<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key)
         where TValue : new()
     {
         return dictionary.AddOrGet(key, () => new TValue());
     }
 
-    public static TValue AddOrGet<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, Func<TValue> newValue)
+    public static TValue AddOrGet<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key, Func<TValue> newValue)
     {
         TValue result;
 
@@ -28,7 +28,11 @@ static class DictionaryExtensions
         return result;
     }
 
+#if NET35
     public static bool Contains<TKey, TValue>(this IDictionary<TKey, List<TValue>> dictionary, TKey key, TValue value, IEqualityComparer<TValue> valueComparer)
+#else
+    public static bool Contains<TKey, TValue>(this IReadOnlyDictionary<TKey, List<TValue>> dictionary, TKey key, TValue value, IEqualityComparer<TValue> valueComparer)
+#endif
     {
         List<TValue> values;
 

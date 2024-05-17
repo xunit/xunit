@@ -73,7 +73,7 @@ namespace Xunit.Sdk
         /// <returns>The instance of the type.</returns>
         public static TInterface Get<TInterface>(IMessageSink diagnosticMessageSink, Type type, object[] ctorArgs = null)
         {
-            return (TInterface)instances.AddOrGet(Tuple.Create(type, diagnosticMessageSink), () => CreateInstance(diagnosticMessageSink, type, ctorArgs));
+            return (TInterface)instances.GetOrAdd(Tuple.Create(type, diagnosticMessageSink), _ => CreateInstance(diagnosticMessageSink, type, ctorArgs));
         }
 
         /// <summary>

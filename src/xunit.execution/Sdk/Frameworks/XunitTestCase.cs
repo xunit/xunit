@@ -149,10 +149,10 @@ namespace Xunit.Sdk
         }
 
         static IEnumerable<IAttributeInfo> GetCachedTraitAttributes(IAssemblyInfo assembly)
-            => assemblyTraitAttributeCache.AddOrGet(assembly.Name, () => assembly.GetCustomAttributes(typeof(ITraitAttribute)));
+            => assemblyTraitAttributeCache.GetOrAdd(assembly.Name, _ => assembly.GetCustomAttributes(typeof(ITraitAttribute)));
 
         static IEnumerable<IAttributeInfo> GetCachedTraitAttributes(ITypeInfo type)
-            => typeTraitAttributeCache.AddOrGet(type.Name, () => type.GetCustomAttributes(typeof(ITraitAttribute)));
+            => typeTraitAttributeCache.GetOrAdd(type.Name, _ => type.GetCustomAttributes(typeof(ITraitAttribute)));
 
         static IEnumerable<IAttributeInfo> GetTraitAttributesData(ITestMethod testMethod)
         {
