@@ -1,6 +1,6 @@
 using Xunit.Internal;
 
-namespace Xunit.Sdk;
+namespace Xunit;
 
 /// <summary>
 /// Extension methods for <see cref="TheoryDataRow"/>.

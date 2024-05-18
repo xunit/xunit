@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Xunit.Internal;
 
-namespace Xunit.Sdk;
+namespace Xunit;
 
 /// <summary>
 /// Implementation of <see cref="ITheoryDataRow"/> which accepts untyped pre-enumerated data.
