@@ -2176,6 +2176,46 @@ public class Xunit3TheoryAcceptanceTests
 			public void TestMethod(string _1, int _2)
 			{ }
 		}
+
+		[Fact]
+		public async Task CanProvideAsyncData()
+		{
+			var testMessages = await RunForResultsAsync(typeof(ClassWithAsyncDataSources));
+
+			Assert.Empty(testMessages.OfType<_TestFailed>());
+			Assert.Collection(
+				testMessages.OfType<TestPassedWithDisplayName>().OrderBy(t => t.TestDisplayName),
+				passed => Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ClassWithAsyncDataSources.TestMethod(_1: 0, _2: 0, _3: null)", passed.TestDisplayName),
+				passed => Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ClassWithAsyncDataSources.TestMethod(_1: 42, _2: 21.12, _3: \"Hello world\")", passed.TestDisplayName)
+			);
+			var skipped = Assert.Single(testMessages.OfType<TestSkippedWithDisplayName>());
+			Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ClassWithAsyncDataSources.TestMethod(_1: 1, _2: 2.3, _3: \"No\")", skipped.TestDisplayName);
+			Assert.Equal("This row is skipped", skipped.Reason);
+		}
+
+		class ClassWithAsyncDataSources
+		{
+			public static async Task<IEnumerable<object?[]>> TaskData()
+			{
+				await Task.Yield();
+				return [[42, 21.12m, "Hello world"]];
+			}
+
+			public static async ValueTask<IEnumerable<ITheoryDataRow>> ValueTaskData()
+			{
+				await Task.Yield();
+				return [
+					new TheoryDataRow(0, 0m, null),
+					new TheoryDataRow(1, 2.3m, "No") { Skip = "This row is skipped" },
+				];
+			}
+
+			[Theory]
+			[MemberData(nameof(TaskData))]
+			[MemberData(nameof(ValueTaskData))]
+			public void TestMethod(int _1, decimal _2, string? _3)
+			{ }
+		}
 	}
 
 	public class CustomDataTests : AcceptanceTestV3
