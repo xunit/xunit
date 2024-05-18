@@ -1380,7 +1380,7 @@ public class Xunit3TheoryAcceptanceTests
 
 		class ClassWithIConvertibleData
 		{
-			public static IEnumerable<object?[]> Data = new TheoryData<MyConvertible> { new MyConvertible() };
+			public static IEnumerable<ITheoryDataRow> Data = new TheoryData<MyConvertible> { new MyConvertible() };
 
 			[Theory]
 			[MemberData(nameof(Data))]
