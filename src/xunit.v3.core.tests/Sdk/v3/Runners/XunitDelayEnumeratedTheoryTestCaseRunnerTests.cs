@@ -180,8 +180,8 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerTests
 		{
 			get
 			{
-				yield return new TheoryDataRow(0, 0.0, "SomeData2 not skipped");
-				yield return new TheoryDataRow(18, 36.48, "SomeData2 skipped") { Skip = "Skip this one row" };
+				yield return new TheoryDataRow<int, double, string>(0, 0.0, "SomeData2 not skipped");
+				yield return new TheoryDataRow<int, double, string>(18, 36.48, "SomeData2 skipped") { Skip = "Skip this one row" };
 			}
 		}
 

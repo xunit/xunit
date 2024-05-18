@@ -480,7 +480,7 @@ public class Xunit3TheoryAcceptanceTests
 			[Theory]
 			[InlineData(42, "Hello, world!")]
 			[MemberData(nameof(MemberDataSource), Skip = "Don't run this!")]
-			public void SkippedMemberData(int _, string y)
+			public void SkippedMemberData(int _, string? y)
 			{
 				Assert.NotNull(y);
 			}
@@ -492,15 +492,15 @@ public class Xunit3TheoryAcceptanceTests
 
 			[Theory]
 			[MemberData(nameof(DataRowSource))]
-			public void SkippedDataRow(int _, string y)
+			public void SkippedDataRow(int _, string? y)
 			{
 				Assert.NotNull(y);
 			}
 
 			public static IEnumerable<ITheoryDataRow> DataRowSource()
 			{
-				yield return new TheoryDataRow(42, "Hello, world!");
-				yield return new TheoryDataRow(0, null) { Skip = "Don't run this!" };
+				yield return new TheoryDataRow<int, string?>(42, "Hello, world!");
+				yield return new TheoryDataRow<int, string?>(0, null) { Skip = "Don't run this!" };
 			}
 		}
 
@@ -669,7 +669,7 @@ public class Xunit3TheoryAcceptanceTests
 
 		class ClassUnderTest_ExplicitAcceptanceTests
 		{
-			public static List<TheoryDataRow> MemberDataSource = new()
+			public static List<TheoryDataRow<int, string>> MemberDataSource = new()
 			{
 				new(43, "Member inherited"),
 				new(0, "Member forced true") { Explicit = true },
@@ -735,7 +735,7 @@ public class Xunit3TheoryAcceptanceTests
 
 		class ClassUnderTest_SkipTests
 		{
-			public static List<TheoryDataRow> DataSource = new()
+			public static List<TheoryDataRow<int>> DataSource = new()
 			{
 				new(43),
 				new(2113) { Skip = "Skip from theory data row" }
@@ -778,7 +778,7 @@ public class Xunit3TheoryAcceptanceTests
 
 		class ClassUnderTest_TestDisplayNameTests
 		{
-			public static List<TheoryDataRow> DefaultMemberDataSource = new()
+			public static List<TheoryDataRow<int>> DefaultMemberDataSource = new()
 			{
 				new(43),
 				new(1) { TestDisplayName = "One Test Default (Member)" },
@@ -791,7 +791,7 @@ public class Xunit3TheoryAcceptanceTests
 			public void TestWithDefaultName(int _)
 			{ }
 
-			public static List<TheoryDataRow> OverrideMemberDataSource = new()
+			public static List<TheoryDataRow<int>> OverrideMemberDataSource = new()
 			{
 				new(45),
 				new(3) { TestDisplayName = "Three Test Override (Member)" },
@@ -854,10 +854,10 @@ public class Xunit3TheoryAcceptanceTests
 		[Trait("Location", "Class")]
 		class ClassUnderTests_TraitsTests
 		{
-			public static List<TheoryDataRow> MemberDataSource = new()
+			public static List<TheoryDataRow<int>> MemberDataSource = new()
 			{
-				new TheoryDataRow(2112),
-				new TheoryDataRow(42).WithTrait("Location", "TheoryDataRow"),
+				new TheoryDataRow<int>(2112),
+				new TheoryDataRow<int>(42).WithTrait("Location", "TheoryDataRow"),
 			};
 
 			[Theory]
@@ -905,10 +905,10 @@ public class Xunit3TheoryAcceptanceTests
 
 		class ClassUnderTest
 		{
-			public static List<TheoryDataRow> MemberDataSource = new()
+			public static List<TheoryDataRow<int>> MemberDataSource = new()
 			{
-				new TheoryDataRow(11000),
-				new TheoryDataRow(100) { Timeout = 10000 },
+				new TheoryDataRow<int>(11000),
+				new TheoryDataRow<int>(100) { Timeout = 10000 },
 			};
 
 			[Theory(Timeout = 42)]
@@ -1092,7 +1092,7 @@ public class Xunit3TheoryAcceptanceTests
 					Tuple.Create("Hello from Tuple", 42),
 					("Class source will fail", 2112),
 					new TheoryDataRow("Class source would fail if I ran", 96) { Skip = "Do not run" },
-					new TheoryDataRow("I only run explicitly", 9600) { Explicit = true },
+					new TheoryDataRow<string, int>("I only run explicitly", 9600) { Explicit = true },
 				};
 		}
 
@@ -1625,7 +1625,7 @@ public class Xunit3TheoryAcceptanceTests
 				{
 					new object?[] { "Hello from base" },
 					Tuple.Create("Base will fail"),
-					new TheoryDataRow("Base would fail if I ran") { Skip = "Do not run" },
+					new TheoryDataRow<string>("Base would fail if I ran") { Skip = "Do not run" },
 				};
 			static readonly IAsyncEnumerable<object?> baseDataAsync = baseData.ToAsyncEnumerable();
 
@@ -1634,7 +1634,7 @@ public class Xunit3TheoryAcceptanceTests
 				{
 					new object?[] { "Hello, world!" },
 					Tuple.Create("I will fail"),
-					new TheoryDataRow("I would fail if I ran") { Skip = "Do not run" },
+					new TheoryDataRow<string>("I would fail if I ran") { Skip = "Do not run" },
 				};
 			protected static readonly IAsyncEnumerable<object?> dataAsync = data.ToAsyncEnumerable();
 
@@ -1670,7 +1670,7 @@ public class Xunit3TheoryAcceptanceTests
 				{
 					new object?[] { "Hello from other source" },
 					Tuple.Create("Other source will fail"),
-					new TheoryDataRow("Other source would fail if I ran") { Skip = "Do not run" },
+					new TheoryDataRow<string>("Other source would fail if I ran") { Skip = "Do not run" },
 				};
 			static readonly IAsyncEnumerable<object> dataAsync = data.ToAsyncEnumerable();
 
@@ -2201,12 +2201,12 @@ public class Xunit3TheoryAcceptanceTests
 				return [[42, 21.12m, "Hello world"]];
 			}
 
-			public static async ValueTask<IEnumerable<ITheoryDataRow>> ValueTaskData()
+			public static async ValueTask<IEnumerable<TheoryDataRow<int, decimal, string?>>> ValueTaskData()
 			{
 				await Task.Yield();
 				return [
-					new TheoryDataRow(0, 0m, null),
-					new TheoryDataRow(1, 2.3m, "No") { Skip = "This row is skipped" },
+					new TheoryDataRow<int, decimal, string?>(0, 0m, null),
+					new TheoryDataRow<int, decimal, string?>(1, 2.3m, "No") { Skip = "This row is skipped" },
 				];
 			}
 
@@ -2242,8 +2242,8 @@ public class Xunit3TheoryAcceptanceTests
 				new(
 					new[]
 					{
-						new TheoryDataRow(42),
-						new TheoryDataRow(2112)
+						new TheoryDataRow<int>(42),
+						new TheoryDataRow<int>(2112)
 					}
 				);
 		}
