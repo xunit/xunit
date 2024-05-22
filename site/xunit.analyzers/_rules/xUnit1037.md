@@ -1,14 +1,14 @@
 ---
 title: xUnit1037
-description: There are fewer TheoryData type arguments than required by the parameters of the test method
+description: There are fewer theory data type arguments than required by the parameters of the test method
 category: Usage
 severity: Error
 ---
 
 ## Cause
 
-When you use `TheoryData` with `[MemberData]`, the number of generic types in `TheoryData` must match the
-number of parameters in the test method. In this case, you have provided too few types to `TheoryData`.
+When you use `TheoryData` or `TheoryDataRow` with `[MemberData]`, the number of generic types must match the
+number of parameters in the test method. In this case, you have provided too few types.
 
 ## Reason for rule
 
@@ -22,6 +22,8 @@ parameters from the test method.
 ## Examples
 
 ### Violates
+
+#### Using `TheoryData<>` (for v2 and v3)
 
 ```csharp
 using Xunit;
@@ -37,7 +39,25 @@ public class xUnit1037
 }
 ```
 
+#### Using `TheoryDataRow<>` (for v3 only)
+
+```csharp
+using Xunit;
+
+public class xUnit1037
+{
+    public static IEnumerable<TheoryDataRow<int>> PropertyData =>
+        [new(1), new(2), new(3)];
+
+    [Theory]
+    [MemberData(nameof(PropertyData))]
+    public void TestMethod(int _1, string _2) { }
+}
+```
+
 ### Does not violate
+
+#### Using `TheoryData<>` (for v2 and v3)
 
 ```csharp
 using Xunit;
@@ -67,3 +87,33 @@ public class xUnit1037
 }
 ```
 
+#### Using `TheoryDataRow<>` (for v3 only)
+
+```csharp
+using System.Collections.Generic;
+using Xunit;
+
+public class xUnit1037
+{
+    public static IEnumerable<TheoryDataRow<int, string>> PropertyData =>
+        [new(1, "Hello"), new(2, "World")];
+
+    [Theory]
+    [MemberData(nameof(PropertyData))]
+    public void TestMethod(int _1, string _2) { }
+}
+```
+
+```csharp
+using Xunit;
+
+public class xUnit1037
+{
+    public static IEnumerable<TheoryDataRow<int>> PropertyData =>
+        [new(1), new(2), new(3)];
+
+    [Theory]
+    [MemberData(nameof(PropertyData))]
+    public void TestMethod(int _) { }
+}
+```

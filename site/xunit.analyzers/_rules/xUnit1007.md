@@ -7,7 +7,7 @@ severity: Error
 
 ## Cause
 
-The type referenced by the `[ClassData]` attribute does not implement `IEnumerable<object[]>` or does not have a public parameterless constructor.
+The type referenced by the `[ClassData]` attribute does not implement `IEnumerable<object[]>` or does not have a public parameterless constructor. For v3 projects, the class may also implement `IAsyncEnumerable<object[]>`, `IEnumerable<ITheoryDataRow>`, or `IAsyncEnumerable<ITheoryDataRow>`.
 
 ## Reason for rule
 
@@ -41,6 +41,8 @@ public class xUnit1007
 
 ### Does not violate
 
+#### For v2 and v3
+
 ```csharp
 using System.Collections;
 using System.Collections.Generic;
@@ -55,6 +57,79 @@ class xUnit1007_TestData : IEnumerable<object[]>
     }
 
     IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
+}
+
+public class xUnit1007
+{
+    [Theory]
+    [ClassData(typeof(xUnit1007_TestData))]
+    public void TestMethod(int quantity, string productType)
+    { }
+}
+```
+
+#### For v3 only
+
+```csharp
+using System.Collections.Generic;
+using System.Threading;
+using Xunit;
+
+class xUnit1007_TestData : IAsyncEnumerable<object[]>
+{
+    public async IAsyncEnumerator<object[]> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+    {
+        yield return new object[] { 12, "book" };
+        yield return new object[] { 9, "magnifying glass" };
+    }
+}
+
+public class xUnit1007
+{
+    [Theory]
+    [ClassData(typeof(xUnit1007_TestData))]
+    public void TestMethod(int quantity, string productType)
+    { }
+}
+```
+
+```csharp
+using System.Collections;
+using System.Collections.Generic;
+using Xunit;
+
+class xUnit1007_TestData : IEnumerable<TheoryDataRow<int, string>>
+{
+    public IEnumerator<TheoryDataRow<int, string>> GetEnumerator()
+    {
+        yield return new TheoryDataRow<int, string>(12, "book");
+        yield return new TheoryDataRow<int, string>(9, "magnifying glass");
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() => throw new System.NotImplementedException();
+}
+
+public class xUnit1007
+{
+    [Theory]
+    [ClassData(typeof(xUnit1007_TestData))]
+    public void TestMethod(int quantity, string productType)
+    { }
+}
+```
+
+```csharp
+using System.Collections.Generic;
+using System.Threading;
+using Xunit;
+
+class xUnit1007_TestData : IAsyncEnumerable<TheoryDataRow<int, string>>
+{
+    public async IAsyncEnumerator<TheoryDataRow<int, string>> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+    {
+        yield return new TheoryDataRow<int, string>(12, "book");
+        yield return new TheoryDataRow<int, string>(9, "magnifying glass");
+    }
 }
 
 public class xUnit1007

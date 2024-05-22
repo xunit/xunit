@@ -1,13 +1,13 @@
 ---
 title: xUnit1039
-description: The type argument to TheoryData is not compatible with the type of the corresponding test method parameter
+description: The type argument to theory data is not compatible with the type of the corresponding test method parameter
 category: Usage
 severity: Error
 ---
 
 ## Cause
 
-The type argument given to `TheoryData` is not compatible with the matching parameter in the test method.
+The type argument given to `TheoryData` or `TheoryDataRow` is not compatible with the matching parameter in the test method.
 
 ## Reason for rule
 
@@ -16,11 +16,13 @@ running the test.
 
 ## How to fix violations
 
-To fix a violation of this rule, make the types in the parameter and `TheoryData` compatible.
+To fix a violation of this rule, make the types in the parameter and theory data compatible.
 
 ## Examples
 
 ### Violates
+
+#### Using `TheoryData<>` (for v2 and v3)
 
 ```csharp
 using Xunit;
@@ -36,7 +38,26 @@ public class xUnit1039
 }
 ```
 
+#### Using `TheoryDataRow<>` (for v3 only)
+
+```csharp
+using System.Collections.Generic;
+using Xunit;
+
+public class xUnit1039
+{
+    public static IEnumerable<TheoryDataRow<int>> PropertyData =>
+        [new(1), new(2), new(3)];
+
+    [Theory]
+    [MemberData(nameof(PropertyData))]
+    public void TestMethod(string _) { }
+}
+```
+
 ### Does not violate
+
+#### Using `TheoryData<>` (for v2 and v3)
 
 ```csharp
 using Xunit;
@@ -59,6 +80,38 @@ public class xUnit1039
 {
     public static TheoryData<string> PropertyData =>
         new() { "1", "2", "3" };
+
+    [Theory]
+    [MemberData(nameof(PropertyData))]
+    public void TestMethod(string _) { }
+}
+```
+
+#### Using `TheoryDataRow<>` (for v3 only)
+
+```csharp
+using System.Collections.Generic;
+using Xunit;
+
+public class xUnit1039
+{
+    public static IEnumerable<TheoryDataRow<int>> PropertyData =>
+        [new(1), new(2), new(3)];
+
+    [Theory]
+    [MemberData(nameof(PropertyData))]
+    public void TestMethod(int _) { }
+}
+```
+
+```csharp
+using System.Collections.Generic;
+using Xunit;
+
+public class xUnit1039
+{
+    public static IEnumerable<TheoryDataRow<string>> PropertyData =>
+        [new("1"), new("2"), new("3")];
 
     [Theory]
     [MemberData(nameof(PropertyData))]

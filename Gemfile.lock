@@ -269,7 +269,6 @@ GEM
     unf_ext (0.0.9.1)
     unf_ext (0.0.9.1-x64-mingw32)
     unicode-display_width (1.8.0)
-    wdm (0.1.1)
 
 PLATFORMS
   ruby
@@ -279,7 +278,6 @@ DEPENDENCIES
   github-pages
   jekyll-octicons
   jekyll-redirect-from
-  wdm (>= 0.1.0)
 
 BUNDLED WITH
    2.1.4

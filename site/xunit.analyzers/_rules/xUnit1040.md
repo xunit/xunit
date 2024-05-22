@@ -1,13 +1,13 @@
 ---
 title: xUnit1040
-description: The type argument to TheoryData is nullable, while the type of the corresponding test method parameter is not
+description: The type argument to theory data is nullable, while the type of the corresponding test method parameter is not
 category: Usage
 severity: Warning
 ---
 
 ## Cause
 
-The `TheoryData` type argument is marked as nullable, and the test method argument is marked as non-nullable.
+The `TheoryData` or `TheoryDataRow` type argument is marked as nullable, and the test method argument is marked as non-nullable.
 
 ## Reason for rule
 
@@ -16,11 +16,13 @@ Passing `null` data to a test method that isn't expecting it could cause runtime
 
 ## How to fix violations
 
-To fix a violation of this rule, either make the `TheoryData` type non-nullable, or make the test method parameter nullable.
+To fix a violation of this rule, either make the theory data type non-nullable, or make the test method parameter nullable.
 
 ## Examples
 
 ### Violates
+
+#### Using `TheoryData<>` (for v2 and v3)
 
 ```csharp
 using Xunit;
@@ -28,7 +30,24 @@ using Xunit;
 public class xUnit1040
 {
     public static TheoryData<string?> PropertyData =>
-        new() { "Hello", "World", null };
+        new() { "Hello", "World", default(string) };
+
+    [Theory]
+    [MemberData(nameof(PropertyData))]
+    public void TestMethod(string _) { }
+}
+```
+
+#### Using `TheoryDataRow<>` (for v3 only)
+
+```csharp
+using System.Collections.Generic;
+using Xunit;
+
+public class xUnit1040
+{
+    public static IEnumerable<TheoryDataRow<string?>> PropertyData =>
+        [new("Hello"), new("World"), new(null)];
 
     [Theory]
     [MemberData(nameof(PropertyData))]
@@ -37,6 +56,8 @@ public class xUnit1040
 ```
 
 ### Does not violate
+
+#### Using `TheoryData<>` (for v2 and v3)
 
 ```csharp
 using Xunit;
@@ -58,7 +79,39 @@ using Xunit;
 public class xUnit1040
 {
     public static TheoryData<string?> PropertyData =>
-        new() { "Hello", "World", null };
+        new() { "Hello", "World", default(string) };
+
+    [Theory]
+    [MemberData(nameof(PropertyData))]
+    public void TestMethod(string? _) { }
+}
+```
+
+#### Using `TheoryDataRow<>` (for v3 only)
+
+```csharp
+using System.Collections.Generic;
+using Xunit;
+
+public class xUnit1040
+{
+    public static IEnumerable<TheoryDataRow<string>> PropertyData =>
+        [new("Hello"), new("World")];
+
+    [Theory]
+    [MemberData(nameof(PropertyData))]
+    public void TestMethod(string _) { }
+}
+```
+
+```csharp
+using System.Collections.Generic;
+using Xunit;
+
+public class xUnit1040
+{
+    public static IEnumerable<TheoryDataRow<string?>> PropertyData =>
+        [new("Hello"), new("World"), new(null)];
 
     [Theory]
     [MemberData(nameof(PropertyData))]
