@@ -4,13 +4,13 @@
   <PropertyGroup>
 
     <!-- Used for building -->
-    <ILRepackVersion>2.0.27</ILRepackVersion>
+    <ILRepackVersion>2.0.33</ILRepackVersion>
     <MicrosoftNetCoreAppRefVersion>8.0.4</MicrosoftNetCoreAppRefVersion>
     <MicrosoftNetFrameworkReferenceAssembliesVersion>1.0.3</MicrosoftNetFrameworkReferenceAssembliesVersion>
     <MicrosoftSourceLinkGitHubVersion>8.0.0</MicrosoftSourceLinkGitHubVersion>
     <NerdbankGitVersioningVersion>3.6.133</NerdbankGitVersioningVersion>
     <TunnelVisionLabsReferenceAssemblyAnnotatorVersion>1.0.0-alpha.160</TunnelVisionLabsReferenceAssemblyAnnotatorVersion>
-    <XunitAnalyzersVersion>1.14.0-pre.5</XunitAnalyzersVersion>
+    <XunitAnalyzersVersion>1.14.0-pre.9</XunitAnalyzersVersion>
 
     <!-- Used by xunit.v3.assert for immutable collection support (for netstandard2.0 only) -->
     <SystemCollectionsImmutableVersion>6.0.0</SystemCollectionsImmutableVersion>
@@ -34,7 +34,7 @@
     <SystemMemoryVersion>4.5.5</SystemMemoryVersion>
     <XunitAbstractionsVersion>2.0.3</XunitAbstractionsVersion>
     <XunitV1Version>1.9.2</XunitV1Version>
-    <XunitV2Version>2.7.2-pre.21</XunitV2Version>
+    <XunitV2Version>2.8.1-pre.14</XunitV2Version>
 
   </PropertyGroup>
 

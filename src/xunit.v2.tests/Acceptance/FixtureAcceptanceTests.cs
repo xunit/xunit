@@ -109,7 +109,11 @@ public class FixtureAcceptanceTests
 			var messages = Run<ITestFailed>(typeof(ClassWithThrowingFixtureCtor));
 
 			var msg = Assert.Single(messages);
-			Assert.Equal(typeof(DivideByZeroException).FullName, msg.ExceptionTypes.Single());
+			Assert.Collection(
+				msg.ExceptionTypes,
+				type => Assert.Equal(typeof(TestClassException).FullName, type),
+				type => Assert.Equal(typeof(DivideByZeroException).FullName, type)
+			);
 		}
 
 		class ClassWithThrowingFixtureCtor : IClassFixture<ThrowingCtorFixture>

@@ -89,8 +89,12 @@ namespace TestUtility
 
 		public void Dispose()
 		{
-			if (File.Exists(filename))
-				File.Delete(filename);
+			try
+			{
+				if (File.Exists(filename))
+					File.Delete(filename);
+			}
+			catch { }
 		}
 
 		public XmlNode Run()
