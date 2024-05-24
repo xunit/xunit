@@ -55,6 +55,31 @@ public class xUnit1040
 }
 ```
 
+```csharp
+using System.Collections;
+using System.Collections.Generic;
+using Xunit;
+
+public class ClassRowData : IEnumerable<TheoryDataRow<string?>>
+{
+    public IEnumerator<TheoryDataRow<string?>> GetEnumerator()
+    {
+        yield return new("Hello");
+        yield return new("World");
+        yield return new(null);
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+}
+
+public class xUnit1040
+{
+    [Theory]
+    [ClassData(typeof(ClassRowData))]
+    public void TestMethod(string _) { }
+}
+```
+
 ### Does not violate
 
 #### Using `TheoryData<>` (for v2 and v3)
@@ -115,6 +140,55 @@ public class xUnit1040
 
     [Theory]
     [MemberData(nameof(PropertyData))]
+    public void TestMethod(string? _) { }
+}
+```
+
+```csharp
+using System.Collections;
+using System.Collections.Generic;
+using Xunit;
+
+public class ClassRowData : IEnumerable<TheoryDataRow<string>>
+{
+    public IEnumerator<TheoryDataRow<string>> GetEnumerator()
+    {
+        yield return new("Hello");
+        yield return new("World");
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+}
+
+public class xUnit1040
+{
+    [Theory]
+    [ClassData(typeof(ClassRowData))]
+    public void TestMethod(string _) { }
+}
+```
+
+```csharp
+using System.Collections;
+using System.Collections.Generic;
+using Xunit;
+
+public class ClassRowData : IEnumerable<TheoryDataRow<string?>>
+{
+    public IEnumerator<TheoryDataRow<string?>> GetEnumerator()
+    {
+        yield return new("Hello");
+        yield return new("World");
+        yield return new(null);
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+}
+
+public class xUnit1040
+{
+    [Theory]
+    [ClassData(typeof(ClassRowData))]
     public void TestMethod(string? _) { }
 }
 ```

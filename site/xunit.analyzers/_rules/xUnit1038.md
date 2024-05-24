@@ -7,8 +7,8 @@ severity: Error
 
 ## Cause
 
-When you use `TheoryData` or `TheoryDataRow` with `[MemberData]`, the number of generic types must match the
-number of parameters in the test method. In this case, you have provided too many types.
+When you use `TheoryData` or `TheoryDataRow` with `[MemberData]` or `[ClassData]`, the number of generic types
+must match the number of parameters in the test method. In this case, you have provided too many types.
 
 ## Reason for rule
 
@@ -55,6 +55,30 @@ public class xUnit1038
 }
 ```
 
+```csharp
+using System.Collections;
+using System.Collections.Generic;
+using Xunit;
+
+public class ClassRowData : IEnumerable<TheoryDataRow<int, string>>
+{
+    public IEnumerator<TheoryDataRow<int, string>> GetEnumerator()
+    {
+        yield return new(1, "Hello");
+        yield return new(2, "World");
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+}
+
+public class xUnit1038
+{
+    [Theory]
+    [ClassData(typeof(ClassRowData))]
+    public void TestMethod(int _) { }
+}
+```
+
 ### Does not violate
 
 #### Using `TheoryData<>` (for v2 and v3)
@@ -87,6 +111,7 @@ public class xUnit1038
 }
 ```
 
+
 #### Using `TheoryDataRow<>` (for v3 only)
 
 ```csharp
@@ -115,6 +140,54 @@ public class xUnit1038
 
     [Theory]
     [MemberData(nameof(PropertyRowData))]
+    public void TestMethod(int _1, string _2) { }
+}
+```
+
+```csharp
+using System.Collections;
+using System.Collections.Generic;
+using Xunit;
+
+public class ClassRowData : IEnumerable<TheoryDataRow<int>>
+{
+    public IEnumerator<TheoryDataRow<int>> GetEnumerator()
+    {
+        yield return new(1);
+        yield return new(2);
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+}
+
+public class xUnit1038
+{
+    [Theory]
+    [ClassData(typeof(ClassRowData))]
+    public void TestMethod(int _) { }
+}
+```
+
+```csharp
+using System.Collections;
+using System.Collections.Generic;
+using Xunit;
+
+public class ClassRowData : IEnumerable<TheoryDataRow<int, string>>
+{
+    public IEnumerator<TheoryDataRow<int, string>> GetEnumerator()
+    {
+        yield return new(1, "Hello");
+        yield return new(2, "World");
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+}
+
+public class xUnit1038
+{
+    [Theory]
+    [ClassData(typeof(ClassRowData))]
     public void TestMethod(int _1, string _2) { }
 }
 ```
