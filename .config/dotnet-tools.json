@@ -2,12 +2,6 @@
   "version": 1,
   "isRoot": true,
   "tools": {
-    "dotnet-format": {
-      "version": "5.1.250801",
-      "commands": [
-        "dotnet-format"
-      ]
-    },
     "sign": {
       "version": "0.9.1-beta.23203.3",
       "commands": [
