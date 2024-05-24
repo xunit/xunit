@@ -60,7 +60,7 @@ public class TheoryDataRow : ITheoryDataRow
 /// encapsulating the one item of typed data.
 /// </remarks>
 /// <param name="p1">The first data value.</param>
-public class TheoryDataRow<T1>(T1 p1) :
+public sealed class TheoryDataRow<T1>(T1 p1) :
 	TheoryDataRow(p1)
 { }
 
@@ -75,7 +75,7 @@ public class TheoryDataRow<T1>(T1 p1) :
 /// </remarks>
 /// <param name="p1">The first data value.</param>
 /// <param name="p2">The second data value.</param>
-public class TheoryDataRow<T1, T2>(T1 p1, T2 p2) :
+public sealed class TheoryDataRow<T1, T2>(T1 p1, T2 p2) :
 	TheoryDataRow(p1, p2)
 { }
 
@@ -92,7 +92,7 @@ public class TheoryDataRow<T1, T2>(T1 p1, T2 p2) :
 /// <param name="p1">The first data value.</param>
 /// <param name="p2">The second data value.</param>
 /// <param name="p3">The third data value.</param>
-public class TheoryDataRow<T1, T2, T3>(T1 p1, T2 p2, T3 p3) :
+public sealed class TheoryDataRow<T1, T2, T3>(T1 p1, T2 p2, T3 p3) :
 	TheoryDataRow(p1, p2, p3)
 { }
 
@@ -111,7 +111,7 @@ public class TheoryDataRow<T1, T2, T3>(T1 p1, T2 p2, T3 p3) :
 /// <param name="p2">The second data value.</param>
 /// <param name="p3">The third data value.</param>
 /// <param name="p4">The fourth data value.</param>
-public class TheoryDataRow<T1, T2, T3, T4>(T1 p1, T2 p2, T3 p3, T4 p4) :
+public sealed class TheoryDataRow<T1, T2, T3, T4>(T1 p1, T2 p2, T3 p3, T4 p4) :
 	TheoryDataRow(p1, p2, p3, p4)
 { }
 
@@ -132,7 +132,7 @@ public class TheoryDataRow<T1, T2, T3, T4>(T1 p1, T2 p2, T3 p3, T4 p4) :
 /// <param name="p3">The third data value.</param>
 /// <param name="p4">The fourth data value.</param>
 /// <param name="p5">The fifth data value.</param>
-public class TheoryDataRow<T1, T2, T3, T4, T5>(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5) :
+public sealed class TheoryDataRow<T1, T2, T3, T4, T5>(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5) :
 	TheoryDataRow(p1, p2, p3, p4, p5)
 { }
 
@@ -155,7 +155,7 @@ public class TheoryDataRow<T1, T2, T3, T4, T5>(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5
 /// <param name="p4">The fourth data value.</param>
 /// <param name="p5">The fifth data value.</param>
 /// <param name="p6">The sixth data value.</param>
-public class TheoryDataRow<T1, T2, T3, T4, T5, T6>(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6) :
+public sealed class TheoryDataRow<T1, T2, T3, T4, T5, T6>(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6) :
 	TheoryDataRow(p1, p2, p3, p4, p5, p6)
 { }
 
@@ -180,7 +180,7 @@ public class TheoryDataRow<T1, T2, T3, T4, T5, T6>(T1 p1, T2 p2, T3 p3, T4 p4, T
 /// <param name="p5">The fifth data value.</param>
 /// <param name="p6">The sixth data value.</param>
 /// <param name="p7">The seventh data value.</param>
-public class TheoryDataRow<T1, T2, T3, T4, T5, T6, T7>(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7) :
+public sealed class TheoryDataRow<T1, T2, T3, T4, T5, T6, T7>(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7) :
 	TheoryDataRow(p1, p2, p3, p4, p5, p6, p7)
 { }
 
@@ -207,7 +207,7 @@ public class TheoryDataRow<T1, T2, T3, T4, T5, T6, T7>(T1 p1, T2 p2, T3 p3, T4 p
 /// <param name="p6">The sixth data value.</param>
 /// <param name="p7">The seventh data value.</param>
 /// <param name="p8">The eighth data value.</param>
-public class TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8>(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8) :
+public sealed class TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8>(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8) :
 	TheoryDataRow(p1, p2, p3, p4, p5, p6, p7, p8)
 { }
 
@@ -236,7 +236,7 @@ public class TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8>(T1 p1, T2 p2, T3 p3, 
 /// <param name="p7">The seventh data value.</param>
 /// <param name="p8">The eighth data value.</param>
 /// <param name="p9">The ninth data value.</param>
-public class TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9) :
+public sealed class TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9) :
 	TheoryDataRow(p1, p2, p3, p4, p5, p6, p7, p8, p9)
 { }
 
@@ -267,6 +267,6 @@ public class TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>(T1 p1, T2 p2, T3 
 /// <param name="p8">The eighth data value.</param>
 /// <param name="p9">The ninth data value.</param>
 /// <param name="p10">The tenth data value.</param>
-public class TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10) :
+public sealed class TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10) :
 	TheoryDataRow(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10)
 { }
