@@ -36,7 +36,6 @@ public static partial class SignAssemblies
 				Path.Combine(context.BaseFolder, "src", "xunit.v3.runner.inproc.console", "bin", context.ConfigurationText, "net472",                   "xunit.v3.runner.inproc.console.dll"),
 				Path.Combine(context.BaseFolder, "src", "xunit.v3.runner.inproc.console", "bin", context.ConfigurationText, "net6.0",                   "xunit.v3.runner.inproc.console.dll"),
 				Path.Combine(context.BaseFolder, "src", "xunit.v3.runner.msbuild",        "bin", context.ConfigurationText, "net472",         "merged", "xunit.v3.runner.msbuild.dll"),
-				Path.Combine(context.BaseFolder, "src", "xunit.v3.runner.tdnet",          "bin", context.ConfigurationText, "netstandard2.0", "merged", "xunit.v3.runner.tdnet.dll"),
 				Path.Combine(context.BaseFolder, "src", "xunit.v3.runner.utility",        "bin", context.ConfigurationText, "net472",                   "xunit.v3.runner.utility.net472.dll"),
 				Path.Combine(context.BaseFolder, "src", "xunit.v3.runner.utility",        "bin", context.ConfigurationText, "netstandard2.0",           "xunit.v3.runner.utility.netstandard20.dll"),
 			}.Select(unsignedPath =>

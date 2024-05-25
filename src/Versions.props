@@ -21,9 +21,6 @@
     <!-- Used by xunit.v3.runner.msbuild to reference MSBuild types -->
     <MicrosoftBuildVersion>15.1.548</MicrosoftBuildVersion>
 
-    <!-- Used by xunit.v3.runner.tdnet to reference TestDriven.NET type -->
-    <TestDrivenFrameworkVersion>2.0.0-alpha2</TestDrivenFrameworkVersion>
-
     <!-- Used by xunit.v3.runner.utility to determine the target framework of an assembly without load-locking it -->
     <MonoCecilVersion>0.11.5</MonoCecilVersion>
 
