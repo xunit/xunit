@@ -11,6 +11,7 @@
   <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" rel="stylesheet">
   <link href="/css/pygments.css" rel="stylesheet">
   <link href="/css/site.css" rel="stylesheet">
+  {% if page.css %}<link href="{{ page.css }}" rel="stylesheet">{% endif %}
   <link rel="shortcut icon" href="https://raw.github.com/xunit/media/main/logo-128-transparent.png">
   <style>
     .octicon {

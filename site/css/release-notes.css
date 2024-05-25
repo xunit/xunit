@@ -1,0 +1,22 @@
+img[src="/images/dotnet-fdn-logo.png"] {
+  float: right;
+  padding: 0 0 10px 10px;
+  width: 110px;
+}
+h3~ul a[href*="https://github.com/"] {
+  display: block;
+  margin-left: 1em;
+  font-family: Inconsolata, monospace;
+  font-size: 90%;
+}
+li img {
+  background-color: #ccc;
+  box-shadow: 3px 3px 20px #666;
+  display: inline-block;
+  margin-left: 15px;
+  width: 50%;
+}
+ul ul,
+ul pre {
+  margin-bottom: 15px;
+}
