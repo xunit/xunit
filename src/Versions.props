@@ -5,7 +5,7 @@
 
     <!-- Used for building -->
     <ILRepackVersion>2.0.33</ILRepackVersion>
-    <MicrosoftNetCoreAppRefVersion>8.0.4</MicrosoftNetCoreAppRefVersion>
+    <MicrosoftNetCoreAppRefVersion>8.0.5</MicrosoftNetCoreAppRefVersion>
     <MicrosoftNetFrameworkReferenceAssembliesVersion>1.0.3</MicrosoftNetFrameworkReferenceAssembliesVersion>
     <MicrosoftSourceLinkGitHubVersion>8.0.0</MicrosoftSourceLinkGitHubVersion>
     <NerdbankGitVersioningVersion>3.6.133</NerdbankGitVersioningVersion>
