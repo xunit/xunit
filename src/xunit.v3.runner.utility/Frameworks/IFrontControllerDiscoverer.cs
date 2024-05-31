@@ -42,7 +42,8 @@ public interface IFrontControllerDiscoverer : IAsyncDisposable
 	/// </summary>
 	/// <param name="messageSink">The message sink to report results back to.</param>
 	/// <param name="settings">The settings used during discovery.</param>
-	void Find(
+	/// <returns>Returns the child process ID, if a child process was launched; <c>null</c>, otherwise</returns>
+	int? Find(
 		_IMessageSink messageSink,
 		FrontControllerFindSettings settings
 	);

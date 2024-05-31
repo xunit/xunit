@@ -68,18 +68,18 @@ public class XunitFrontController : IFrontController
 	}
 
 	/// <inheritdoc/>
-	public virtual void Find(
+	public virtual int? Find(
 		_IMessageSink messageSink,
 		FrontControllerFindSettings settings)
 	{
 		Guard.ArgumentNotNull(messageSink);
 		Guard.ArgumentNotNull(settings);
 
-		innerDiscoverer.Find(messageSink, settings);
+		return innerDiscoverer.Find(messageSink, settings);
 	}
 
 	/// <inheritdoc/>
-	public void FindAndRun(
+	public int? FindAndRun(
 		_IMessageSink messageSink,
 		FrontControllerFindAndRunSettings settings)
 	{
@@ -88,11 +88,11 @@ public class XunitFrontController : IFrontController
 		Guard.ArgumentNotNull(messageSink);
 		Guard.ArgumentNotNull(settings);
 
-		innerController.FindAndRun(messageSink, settings);
+		return innerController.FindAndRun(messageSink, settings);
 	}
 
 	/// <inheritdoc/>
-	public void Run(
+	public int? Run(
 		_IMessageSink messageSink,
 		FrontControllerRunSettings settings)
 	{
@@ -101,7 +101,7 @@ public class XunitFrontController : IFrontController
 		Guard.ArgumentNotNull(messageSink);
 		Guard.ArgumentNotNull(settings);
 
-		innerController.Run(messageSink, settings);
+		return innerController.Run(messageSink, settings);
 	}
 
 	// Factory methods
@@ -153,7 +153,8 @@ public class XunitFrontController : IFrontController
 	/// </summary>
 	/// <param name="projectAssembly">The test project assembly.</param>
 	/// <param name="sourceInformationProvider">The optional source information provider.</param>
-	/// <param name="diagnosticMessageSink">The optional message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
+	/// <param name="diagnosticMessageSink">The optional message sink which receives <see cref="_DiagnosticMessage"/>
+	/// and <see cref="_InternalDiagnosticMessage"/> messages.</param>
 	public static IFrontController ForDiscoveryAndExecution(
 		XunitProjectAssembly projectAssembly,
 		_ISourceInformationProvider? sourceInformationProvider = null,
