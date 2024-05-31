@@ -73,7 +73,7 @@ public class XunitProjectAssembly
 				throw new InvalidOperationException(
 					string.Format(
 						CultureInfo.CurrentCulture,
-						"Cannot get the UniqueID of a {0} instance when both {1} and {2} are null",
+						"Cannot get the Identifier of a {0} instance when both {1} and {2} are null",
 						GetType().FullName,
 						nameof(Assembly),
 						nameof(AssemblyFileName)
