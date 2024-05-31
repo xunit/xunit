@@ -54,6 +54,15 @@ sealed class ConsoleRunner
 
 				Console.WriteLine("Copyright (C) .NET Foundation.");
 				Console.WriteLine();
+
+				if (commandLine.ParseWarnings.Count > 0)
+				{
+					foreach (var warning in commandLine.ParseWarnings)
+						Console.WriteLine("Warning: {0}", warning);
+
+					Console.WriteLine();
+				}
+
 				Console.WriteLine("usage: {0} <assemblyFile>[:seed] [configFile] [assemblyFile[:seed] [configFile]...] [options] [reporter] [resultFormat filename [...]]", executableName);
 				Console.WriteLine();
 				Console.WriteLine("Note: Configuration files must end in .json (for JSON) or .config (for XML)");

@@ -127,7 +127,7 @@ public class CommandLine : CommandLineParserBase
 
 		var argsStartIndex = 0;
 
-		while (argsStartIndex < Args.Length)
+		while (argsStartIndex < Args.Count)
 		{
 			if (Args[argsStartIndex].StartsWith("-", StringComparison.Ordinal))
 				break;
@@ -150,7 +150,7 @@ public class CommandLine : CommandLineParserBase
 				throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "expecting assembly, got config file: {0}", assemblyFileName));
 
 			string? configFileName = null;
-			if (argsStartIndex < Args.Length)
+			if (argsStartIndex < Args.Count)
 			{
 				var value = Args[argsStartIndex];
 				if (!value.StartsWith("-", StringComparison.Ordinal) && IsConfigFile(value))

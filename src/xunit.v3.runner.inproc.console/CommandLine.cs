@@ -91,9 +91,9 @@ public class CommandLine : CommandLineParserBase
 
 		int? seed = null;
 #if NETFRAMEWORK
-		if (Args.Length > argsStartIndex && Args[argsStartIndex].StartsWith(":", StringComparison.OrdinalIgnoreCase))
+		if (Args.Count > argsStartIndex && Args[argsStartIndex].StartsWith(":", StringComparison.OrdinalIgnoreCase))
 #else
-		if (Args.Length > argsStartIndex && Args[argsStartIndex].StartsWith(':'))
+		if (Args.Count > argsStartIndex && Args[argsStartIndex].StartsWith(':'))
 #endif
 		{
 			var seedValueText = Args[argsStartIndex].Substring(1);
@@ -106,9 +106,9 @@ public class CommandLine : CommandLineParserBase
 
 		string? configFileName = null;
 #if NETFRAMEWORK
-		if (Args.Length > argsStartIndex && !Args[argsStartIndex].StartsWith("-", StringComparison.OrdinalIgnoreCase) && Args[argsStartIndex].EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+		if (Args.Count > argsStartIndex && !Args[argsStartIndex].StartsWith("-", StringComparison.OrdinalIgnoreCase) && Args[argsStartIndex].EndsWith(".json", StringComparison.OrdinalIgnoreCase))
 #else
-		if (Args.Length > argsStartIndex && !Args[argsStartIndex].StartsWith('-') && Args[argsStartIndex].EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+		if (Args.Count > argsStartIndex && !Args[argsStartIndex].StartsWith('-') && Args[argsStartIndex].EndsWith(".json", StringComparison.OrdinalIgnoreCase))
 #endif
 		{
 			configFileName = Args[argsStartIndex];

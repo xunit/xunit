@@ -27,7 +27,8 @@ public abstract class CommandLineParserBase
 	{
 		this.runnerReporters = runnerReporters;
 		this.reporterFolder = reporterFolder;
-		Args = args;
+
+		Args = GetArguments(Guard.ArgumentNotNull(args));
 
 		if (string.IsNullOrWhiteSpace(this.reporterFolder))
 			this.reporterFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
@@ -75,7 +76,7 @@ public abstract class CommandLineParserBase
 			"  (float)x  - use a multiple of CPU threads (e.g., '2.0x' = 2.0 * the number of CPU threads)"
 		);
 		AddParser(
-			"noAutoReporters", OnNoAutoReporters, CommandLineGroup.General, "<option>",
+			"noAutoReporters", OnNoAutoReporters, CommandLineGroup.General, null,
 			"do not allow reporters to be auto-enabled by environment",
 			"(for example, auto-detecting TeamCity or AppVeyor)"
 		);
@@ -147,11 +148,11 @@ public abstract class CommandLineParserBase
 	}
 
 	/// <summary/>
-	protected string[] Args { get; }
+	protected IReadOnlyList<string> Args { get; }
 
 	/// <summary/>
 	public bool HelpRequested =>
-		Args.Length > 0 && (Args[0] == "-?" || Args[0] == "/?" || Args[0] == "-h" || Args[0] == "--help");
+		Args.Count > 0 && (Args[0] == "-?" || Args[0] == "/?" || Args[0] == "-h" || Args[0] == "--help");
 
 	/// <summary/>
 	public List<string> ParseWarnings { get; } = new();
@@ -200,6 +201,27 @@ public abstract class CommandLineParserBase
 	/// <summary/>
 	protected virtual bool FileExists(string? path) =>
 		File.Exists(path);
+
+	IReadOnlyList<string> GetArguments(string[] args)
+	{
+		if (args.Length == 2 && args[0] == "@@")
+		{
+			var responseFileName = args[1];
+			if (!File.Exists(responseFileName))
+			{
+				ParseWarnings.Add("Response file not found: " + responseFileName);
+				return ["-?"];
+			}
+
+			try
+			{
+				return File.ReadAllLines(responseFileName).Select(x => x.Trim()).Where(x => x.Length > 0).ToList();
+			}
+			catch { }
+		}
+
+		return args;
+	}
 
 	List<IRunnerReporter> GetAvailableRunnerReporters()
 	{
@@ -574,7 +596,7 @@ public abstract class CommandLineParserBase
 		var arguments = new Stack<string>();
 		var unknownOptions = new List<string>();
 
-		for (var i = Args.Length - 1; i >= argStartIndex; i--)
+		for (var i = Args.Count - 1; i >= argStartIndex; i--)
 			arguments.Push(Args[i]);
 
 		while (arguments.Count > 0)

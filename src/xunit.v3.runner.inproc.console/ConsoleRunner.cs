@@ -78,6 +78,15 @@ public class ConsoleRunner
 
 				Console.WriteLine("Copyright (C) .NET Foundation.");
 				Console.WriteLine();
+
+				if (commandLine.ParseWarnings.Count > 0)
+				{
+					foreach (var warning in commandLine.ParseWarnings)
+						Console.WriteLine("Warning: {0}", warning);
+
+					Console.WriteLine();
+				}
+
 				Console.WriteLine("usage: [:seed] [path/to/configFile.json] [options] [filters] [reporter] [resultFormat filename [...]]");
 
 				commandLine.PrintUsage();
