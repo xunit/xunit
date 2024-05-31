@@ -37,6 +37,10 @@ public class CommandLine : CommandLineParserBase
 			"  none        - turn off parallelization",
 			"  collections - parallelize by collections [default]"
 		);
+		AddParser(
+			"waitForDebugger", OnWaitForDebugger, CommandLineGroup.General, null,
+			"pauses execution until a debugger has been attached"
+		);
 	}
 
 	/// <summary/>
@@ -120,4 +124,10 @@ public class CommandLine : CommandLineParserBase
 	// ignore during parsing, which happens later than is normally useful for us.
 	void OnAutomated(KeyValuePair<string, string?> pair) =>
 		GuardNoOptionValue(pair);
+
+	void OnWaitForDebugger(KeyValuePair<string, string?> pair)
+	{
+		GuardNoOptionValue(pair);
+		Project.Configuration.WaitForDebugger = true;
+	}
 }

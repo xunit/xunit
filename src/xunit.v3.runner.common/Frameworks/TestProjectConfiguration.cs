@@ -126,4 +126,16 @@ public class TestProjectConfiguration
 	/// If the flag is not set, returns the default value (<c>false</c>).
 	/// </summary>
 	public bool WaitOrDefault => Wait ?? false;
+
+	/// <summary>
+	/// Gets or sets a flag indicating that the test runner should wait for a debugger to be
+	/// attached before performing any actions.
+	/// </summary>
+	public bool? WaitForDebugger { get; set; }
+
+	/// <summary>
+	/// Gets a flag indicating that the test runner should wait for a debugger to be attached
+	/// before performing any actions. If the flag is not set, returns the default value (<c>false</c>).
+	/// </summary>
+	public bool WaitForDebuggerOrDefault => WaitForDebugger ?? false;
 }

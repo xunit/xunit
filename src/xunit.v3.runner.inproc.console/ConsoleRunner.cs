@@ -29,6 +29,7 @@ public class ConsoleRunner
 	bool failed;
 	IRunnerLogger? logger;
 	IReadOnlyList<IRunnerReporter>? runnerReporters;
+	bool started;
 	readonly Assembly testAssembly;
 	readonly TestExecutionSummaries testExecutionSummaries = new();
 
@@ -98,7 +99,7 @@ public class ConsoleRunner
 
 			Console.CancelKeyPress += (sender, e) =>
 			{
-				if (!cancel)
+				if (started && !cancel)
 				{
 					if (automated)
 						Console.WriteLine(new _DiagnosticMessage("Cancellation request received").ToJson());
@@ -150,6 +151,22 @@ public class ConsoleRunner
 					logger.LogWarning(warning);
 
 			var failCount = 0;
+
+			if (project.Configuration.WaitForDebuggerOrDefault)
+			{
+				if (!automated)
+					Console.WriteLine("Waiting for debugger to be attached... (press Ctrl+C to abort)");
+
+				while (true)
+				{
+					if (Debugger.IsAttached)
+						break;
+
+					await Task.Delay(10);
+				}
+			}
+
+			started = true;
 
 			if (project.Configuration.List is not null)
 				await ListProject(project, automated);
