@@ -34,6 +34,7 @@ public class CommandLine : CommandLineParserBase
 			"  none        - turn off parallelization",
 			"  collections - parallelize by collections [default]"
 		);
+		AddParser("run", OnRun, CommandLineGroup.General, "<serialization>", "Run a test case");
 		AddParser("waitForDebugger", OnWaitForDebugger, CommandLineGroup.General, null, "pauses execution until a debugger has been attached");
 	}
 
@@ -118,6 +119,18 @@ public class CommandLine : CommandLineParserBase
 	// ignore during parsing, which happens later than is normally useful for us.
 	void OnAutomated(KeyValuePair<string, string?> option) =>
 		GuardNoOptionValue(option);
+
+	void OnRun(KeyValuePair<string, string?> option)
+	{
+		if (option.Value is null)
+			throw new ArgumentException("missing argument for -run");
+
+		var assembly = Project.Assemblies.FirstOrDefault();
+		if (assembly is null)
+			throw new ArgumentException("no assembly in the project");
+
+		assembly.TestCasesToRun.Add(option.Value);
+	}
 
 	void OnWaitForDebugger(KeyValuePair<string, string?> option)
 	{

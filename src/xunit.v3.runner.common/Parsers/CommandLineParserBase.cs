@@ -711,7 +711,7 @@ public abstract class CommandLineParserBase
 		var option = arguments.Pop();
 		string? value = null;
 
-		if (arguments.Count > 0 && !arguments.Peek().StartsWith("-", StringComparison.Ordinal))
+		if (arguments.Count > 0 && (option.Equals("-run", StringComparison.OrdinalIgnoreCase) || !arguments.Peek().StartsWith("-", StringComparison.Ordinal)))
 			value = arguments.Pop();
 
 		return new KeyValuePair<string, string?>(option, value);

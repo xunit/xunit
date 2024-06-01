@@ -412,7 +412,17 @@ public class ConsoleRunner
 			};
 
 			using var resultsSink = new ExecutionSink(assembly, discoveryOptions, executionOptions, AppDomainOption.NotAvailable, shadowCopy: false, reporterMessageHandler, sinkOptions);
-			await frontController.FindAndRun(resultsSink, discoveryOptions, executionOptions, assembly.Configuration.Filters.Filter);
+			var testCases =
+				assembly
+					.TestCasesToRun
+					.Select(s => SerializationHelper.Deserialize(s) as _ITestCase)
+					.WhereNotNull()
+					.ToArray();
+
+			if (testCases.Length != 0)
+				await frontController.Run(resultsSink, executionOptions, testCases);
+			else
+				await frontController.FindAndRun(resultsSink, discoveryOptions, executionOptions, assembly.Configuration.Filters.Filter);
 
 			testExecutionSummaries.Add(frontController.TestAssemblyUniqueID, resultsSink.ExecutionSummary);
 
