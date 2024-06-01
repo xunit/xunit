@@ -1,4 +1,5 @@
 using Xunit.Internal;
+using Xunit.v3;
 
 namespace Xunit.Runner.Common;
 
@@ -7,6 +8,10 @@ namespace Xunit.Runner.Common;
 /// </summary>
 public class VerboseReporterMessageHandler : DefaultRunnerReporterMessageHandler
 {
+	// Need to keep our own separate metadata cache because ordering from the base class will remove
+	// the metadata we need during TestEventFinished before we get a chance to see it.
+	readonly MessageMetadataCache metadataCache = new();
+
 	/// <summary>
 	/// Initializes a new instance of the <see cref="VerboseReporterMessageHandler" /> class.
 	/// </summary>
@@ -18,6 +23,8 @@ public class VerboseReporterMessageHandler : DefaultRunnerReporterMessageHandler
 		{
 			Guard.ArgumentNotNull(args);
 
+			metadataCache.Set(args.Message);
+
 			Logger.LogMessage("    {0} [STARTING]", Escape(args.Message.TestDisplayName));
 		};
 
@@ -25,7 +32,7 @@ public class VerboseReporterMessageHandler : DefaultRunnerReporterMessageHandler
 		{
 			Guard.ArgumentNotNull(args);
 
-			var metadata = MetadataCache.TryGetTestMetadata(args.Message);
+			var metadata = metadataCache.TryRemove(args.Message);
 			if (metadata is not null)
 				Logger.LogMessage("    {0} [FINISHED] Time: {1}s", Escape(metadata.TestDisplayName), args.Message.ExecutionTime);
 			else
@@ -36,7 +43,7 @@ public class VerboseReporterMessageHandler : DefaultRunnerReporterMessageHandler
 		{
 			Guard.ArgumentNotNull(args);
 
-			var metadata = MetadataCache.TryGetTestMetadata(args.Message);
+			var metadata = metadataCache.TryGetTestMetadata(args.Message);
 			if (metadata is not null)
 				Logger.LogMessage("    {0} [NOT RUN]", Escape(metadata.TestDisplayName));
 			else
