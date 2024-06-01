@@ -276,7 +276,11 @@ public class ConsoleRunner
 			testCasesByAssembly.Add(assemblyFileName, filteredTestCases);
 		}
 
-		ConsoleProjectLister.List(testCasesByAssembly, listOption, listFormat);
+		if (listOption != ListOption.Discovery)
+			ConsoleProjectLister.List(testCasesByAssembly, listOption, listFormat);
+		else
+			foreach (var testCase in testCasesByAssembly.SelectMany(kvp => kvp.Value))
+				Console.WriteLine(testCase.ToTestCaseDiscovered().ToJson());
 	}
 
 	void OnUnhandledException(
