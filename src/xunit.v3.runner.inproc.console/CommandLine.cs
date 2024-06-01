@@ -27,20 +27,14 @@ public class CommandLine : CommandLineParserBase
 		assemblyFileName = assembly.GetSafeLocation();
 
 		// General options
-		AddParser(
-			"automated", OnAutomated, CommandLineGroup.General, null,
-			"enables automated mode (ensures all output is machine parseable)"
-		);
+		AddParser("automated", OnAutomated, CommandLineGroup.General, null, "enables automated mode; ensures all output is machine parseable");
 		AddParser(
 			"parallel", OnParallel, CommandLineGroup.General, "<option>",
 			"set parallelization based on option",
 			"  none        - turn off parallelization",
 			"  collections - parallelize by collections [default]"
 		);
-		AddParser(
-			"waitForDebugger", OnWaitForDebugger, CommandLineGroup.General, null,
-			"pauses execution until a debugger has been attached"
-		);
+		AddParser("waitForDebugger", OnWaitForDebugger, CommandLineGroup.General, null, "pauses execution until a debugger has been attached");
 	}
 
 	/// <summary/>

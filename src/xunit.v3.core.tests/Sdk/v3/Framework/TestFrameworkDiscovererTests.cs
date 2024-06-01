@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using NSubstitute;
 using Xunit;
-using Xunit.Runner.Common;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -18,7 +17,7 @@ public class TestFrameworkDiscovererTests
 		{
 			var framework = TestableTestFrameworkDiscoverer.Create();
 
-			await Assert.ThrowsAsync<ArgumentNullException>("callback", () => framework.Find(callback: null!, discoveryOptions: _TestFrameworkOptions.ForDiscovery()).AsTask());
+			await Assert.ThrowsAsync<ArgumentNullException>("callback", () => framework.Find(callback: null!, discoveryOptions: TestData.TestFrameworkDiscoveryOptions()).AsTask());
 			await Assert.ThrowsAsync<ArgumentNullException>("discoveryOptions", () => framework.Find(callback: _ => new(true), discoveryOptions: null!).AsTask());
 		}
 
@@ -135,7 +134,7 @@ public class TestFrameworkDiscovererTests
 			{
 				CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
 				var discoverer = TestableTestFrameworkDiscoverer.Create(mockType);
-				var discoveryOptions = _TestFrameworkOptions.ForDiscovery(culture: null);
+				var discoveryOptions = TestData.TestFrameworkDiscoveryOptions(culture: null);
 
 				await discoverer.Find(discoveryOptions);
 
@@ -148,7 +147,7 @@ public class TestFrameworkDiscovererTests
 			{
 				CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
 				var discoverer = TestableTestFrameworkDiscoverer.Create(mockType);
-				var discoveryOptions = _TestFrameworkOptions.ForDiscovery(culture: string.Empty);
+				var discoveryOptions = TestData.TestFrameworkDiscoveryOptions(culture: string.Empty);
 
 				await discoverer.Find(discoveryOptions);
 
@@ -161,7 +160,7 @@ public class TestFrameworkDiscovererTests
 			{
 				CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
 				var discoverer = TestableTestFrameworkDiscoverer.Create(mockType);
-				var discoveryOptions = _TestFrameworkOptions.ForDiscovery(culture: "en-GB");
+				var discoveryOptions = TestData.TestFrameworkDiscoveryOptions(culture: "en-GB");
 
 				await discoverer.Find(discoveryOptions);
 
@@ -204,7 +203,7 @@ public class TestFrameworkDiscovererTests
 			Type[]? types = null) =>
 				Find(
 					testCase => new(true),
-					discoveryOptions ?? _TestFrameworkOptions.ForDiscovery(),
+					discoveryOptions ?? TestData.TestFrameworkDiscoveryOptions(),
 					types
 				);
 

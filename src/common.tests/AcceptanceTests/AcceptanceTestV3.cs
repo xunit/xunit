@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Internal;
-using Xunit.Runner.Common;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -40,11 +39,11 @@ public class AcceptanceTestV3
 				var assemblyInfo = Reflector.Wrap(Assembly.GetEntryAssembly()!, additionalAssemblyAttributes);
 				var discoverer = testFramework.GetDiscoverer(assemblyInfo);
 				var testCases = new List<_ITestCase>();
-				await discoverer.Find(testCase => { testCases.Add(testCase); return new(true); }, _TestFrameworkOptions.ForDiscovery(preEnumerateTheories: preEnumerateTheories), types);
+				await discoverer.Find(testCase => { testCases.Add(testCase); return new(true); }, TestData.TestFrameworkDiscoveryOptions(preEnumerateTheories: preEnumerateTheories), types);
 
 				using var runSink = SpyMessageSink<_TestAssemblyFinished>.Create();
 				var executor = testFramework.GetExecutor(assemblyInfo);
-				await executor.RunTestCases(testCases, runSink, _TestFrameworkOptions.ForExecution(explicitOption: explicitOption));
+				await executor.RunTestCases(testCases, runSink, TestData.TestFrameworkExecutionOptions(explicitOption: explicitOption));
 
 				tcs.TrySetResult(runSink.Messages.ToList());
 			}

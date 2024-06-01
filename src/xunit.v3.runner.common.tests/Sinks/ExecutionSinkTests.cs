@@ -47,7 +47,7 @@ public class ExecutionSinkTests
 			bool shadowCopy)
 		{
 			var assembly = new XunitProjectAssembly(new XunitProject());
-			var discoveryOptions = _TestFrameworkOptions.ForDiscovery(culture: "fr-FR");
+			var discoveryOptions = TestData.TestFrameworkDiscoveryOptions(culture: "fr-FR");
 			using var sink = TestableExecutionSink.Create(assembly: assembly, discoveryOptions: discoveryOptions, appDomainOption: appDomain, shadowCopy: shadowCopy);
 			var testMessage = TestData.DiscoveryStarting();
 
@@ -64,7 +64,7 @@ public class ExecutionSinkTests
 		public void ConvertsDiscoveryComplete()
 		{
 			var assembly = new XunitProjectAssembly(new XunitProject());
-			var discoveryOptions = _TestFrameworkOptions.ForDiscovery(culture: "fr-FR");
+			var discoveryOptions = TestData.TestFrameworkDiscoveryOptions(culture: "fr-FR");
 			using var sink = TestableExecutionSink.Create(assembly: assembly, discoveryOptions: discoveryOptions);
 			var testMessage = TestData.DiscoveryComplete(testCasesToRun: 42);
 
@@ -83,7 +83,7 @@ public class ExecutionSinkTests
 		public void ConvertsTestAssemblyStarting()
 		{
 			var assembly = new XunitProjectAssembly(new XunitProject());
-			var executionOptions = _TestFrameworkOptions.ForExecution(culture: "fr-FR");
+			var executionOptions = TestData.TestFrameworkExecutionOptions(culture: "fr-FR");
 			using var sink = TestableExecutionSink.Create(assembly: assembly, executionOptions: executionOptions);
 			var testMessage = TestData.TestAssemblyStarting();
 
@@ -98,7 +98,7 @@ public class ExecutionSinkTests
 		public void ConvertsTestAssemblyFinished()
 		{
 			var assembly = new XunitProjectAssembly(new XunitProject());
-			var executionOptions = _TestFrameworkOptions.ForExecution(culture: "fr-FR");
+			var executionOptions = TestData.TestFrameworkExecutionOptions(culture: "fr-FR");
 			using var sink = TestableExecutionSink.Create(assembly: assembly, executionOptions: executionOptions);
 			var testMessage = TestData.TestAssemblyFinished();
 
@@ -115,7 +115,7 @@ public class ExecutionSinkTests
 		public void CountsErrors(Type errorType)
 		{
 			var assembly = new XunitProjectAssembly(new XunitProject());
-			var executionOptions = _TestFrameworkOptions.ForExecution(culture: "fr-FR");
+			var executionOptions = TestData.TestFrameworkExecutionOptions(culture: "fr-FR");
 			using var sink = TestableExecutionSink.Create(assembly: assembly, executionOptions: executionOptions);
 			var error = (_MessageSinkMessage)Activator.CreateInstance(errorType)!;
 			var finished = TestData.TestAssemblyFinished();  // Need finished message to finalized the error count
@@ -1185,8 +1185,8 @@ public class ExecutionSinkTests
 
 			return new(
 				assembly ?? new XunitProjectAssembly(new XunitProject()),
-				discoveryOptions ?? _TestFrameworkOptions.ForDiscovery(),
-				executionOptions ?? _TestFrameworkOptions.ForExecution(),
+				discoveryOptions ?? TestData.TestFrameworkDiscoveryOptions(),
+				executionOptions ?? TestData.TestFrameworkExecutionOptions(),
 				appDomainOption ?? AppDomainOption.Disabled,
 				shadowCopy,
 				SpyMessageSink.Capture(innerSinkCallback),

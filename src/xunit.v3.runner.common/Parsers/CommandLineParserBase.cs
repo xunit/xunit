@@ -378,14 +378,14 @@ public abstract class CommandLineParserBase
 	{
 		GuardNoOptionValue(option);
 		foreach (var projectAssembly in Project.Assemblies)
-			projectAssembly.Configuration.FailWarns = true;
+			projectAssembly.Configuration.FailTestsWithWarnings = true;
 	}
 
 	void OnFailWarnsMinus(KeyValuePair<string, string?> option)
 	{
 		GuardNoOptionValue(option);
 		foreach (var projectAssembly in Project.Assemblies)
-			projectAssembly.Configuration.FailWarns = false;
+			projectAssembly.Configuration.FailTestsWithWarnings = false;
 	}
 
 	void OnIgnoreFailures(KeyValuePair<string, string?> option)

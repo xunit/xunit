@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using NSubstitute;
 using Xunit;
 using Xunit.Internal;
-using Xunit.Runner.Common;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -418,7 +417,7 @@ public class TestAssemblyRunnerTests
 				new(
 					testCases ?? new[] { Substitute.For<_ITestCase>() },  // Need at least one so it calls RunTestCollectionAsync
 					executionMessageSink ?? SpyMessageSink.Create(),
-					executionOptions ?? _TestFrameworkOptions.ForExecution(),
+					executionOptions ?? TestData.TestFrameworkExecutionOptions(),
 					result ?? new RunSummary(),
 					cancelInRunTestCollectionAsync,
 					testCollectionOrderer

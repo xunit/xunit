@@ -34,39 +34,10 @@ public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFram
 	}
 
 	/// <summary>
-	/// Creates an instance of <see cref="_TestFrameworkOptions"/> for discovery purposes. Note that this
-	/// method is primarily for testing purposes and is not guaranteed not to have a stable parameter
-	/// list across releases. For a stable API, use the overload that takes <see cref="TestAssemblyConfiguration"/>
-	/// instead.
+	/// INTERNAL METHOD, FOR TESTING PURPOSES ONLY. DO NOT CALL.
 	/// </summary>
-	/// <param name="culture">Optional value to indicate the culture used for test discovery</param>
-	/// <param name="diagnosticMessages">Optional flag to enable diagnostic messages</param>
-	/// <param name="includeSourceInformation">Optional flag to include source information</param>
-	/// <param name="internalDiagnosticMessages">Optional flag to enable internal diagnostic messages</param>
-	/// <param name="methodDisplay">Optional flags for creating the display name of test methods</param>
-	/// <param name="methodDisplayOptions">Optional flags for formatting the display name of test methods</param>
-	/// <param name="preEnumerateTheories">Optional flag to enable pre-enumerating theories</param>
-	public static _ITestFrameworkDiscoveryOptions ForDiscovery(
-		string? culture = null,
-		bool? diagnosticMessages = null,
-		bool? includeSourceInformation = null,
-		bool? internalDiagnosticMessages = null,
-		TestMethodDisplay? methodDisplay = null,
-		TestMethodDisplayOptions? methodDisplayOptions = null,
-		bool? preEnumerateTheories = null)
-	{
-		_ITestFrameworkDiscoveryOptions result = new _TestFrameworkOptions();
-
-		result.SetCulture(culture);
-		result.SetDiagnosticMessages(diagnosticMessages);
-		result.SetIncludeSourceInformation(includeSourceInformation);
-		result.SetInternalDiagnosticMessages(internalDiagnosticMessages);
-		result.SetMethodDisplay(methodDisplay);
-		result.SetMethodDisplayOptions(methodDisplayOptions);
-		result.SetPreEnumerateTheories(preEnumerateTheories);
-
-		return result;
-	}
+	public static _TestFrameworkOptions Empty() =>
+		new();
 
 	/// <summary>
 	/// Creates an instance of <see cref="_TestFrameworkOptions"/> for discovery purposes.
@@ -76,15 +47,18 @@ public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFram
 	{
 		Guard.ArgumentNotNull(configuration);
 
-		return ForDiscovery(
-			configuration.Culture,
-			configuration.DiagnosticMessages,
-			configuration.IncludeSourceInformation,
-			configuration.InternalDiagnosticMessages,
-			configuration.MethodDisplay,
-			configuration.MethodDisplayOptions,
-			configuration.PreEnumerateTheories
-		);
+		_ITestFrameworkDiscoveryOptions result = new _TestFrameworkOptions();
+
+		result.SetCulture(configuration.Culture);
+		result.SetDiagnosticMessages(configuration.DiagnosticMessages);
+		result.SetIncludeSourceInformation(configuration.IncludeSourceInformation);
+		result.SetInternalDiagnosticMessages(configuration.InternalDiagnosticMessages);
+		result.SetMethodDisplay(configuration.MethodDisplay);
+		result.SetMethodDisplayOptions(configuration.MethodDisplayOptions);
+		result.SetPreEnumerateTheories(configuration.PreEnumerateTheories);
+		result.SetSynchronousMessageReporting(configuration.SynchronousMessageReporting);
+
+		return result;
 	}
 
 	/// <summary>
@@ -95,48 +69,6 @@ public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFram
 		new _TestFrameworkOptions(optionsJson);
 
 	/// <summary>
-	/// Creates an instance of <see cref="_TestFrameworkOptions"/> for execution purposes. Note that this
-	/// method is primarily for testing purposes and is not guaranteed not to have a stable parameter
-	/// list across releases. For a stable API, use the overload that takes <see cref="TestAssemblyConfiguration"/>
-	/// instead.
-	/// </summary>
-	/// <param name="culture">Optional value to indicate the culture used for test execution</param>
-	/// <param name="diagnosticMessages">Optional flag to enable diagnostic messages</param>
-	/// <param name="disableParallelization">Optional flag to disable test parallelization</param>
-	/// <param name="explicitOption">Optional flag to indicate how explicit tests should be handled</param>
-	/// <param name="internalDiagnosticMessages">Optional flag to enable internal diagnostic messages</param>
-	/// <param name="maxParallelThreads">Optional value for maximum threads when running tests in parallel</param>
-	/// <param name="parallelAlgorithm">Option value to choose the parallel algorithm</param>
-	/// <param name="seed">Optional override value to seed randomization</param>
-	/// <param name="stopOnFail">Optional flag to indicate that tests should stop running once one test has failed</param>
-	/// <returns></returns>
-	public static _ITestFrameworkExecutionOptions ForExecution(
-		string? culture = null,
-		bool? diagnosticMessages = null,
-		bool? disableParallelization = null,
-		ExplicitOption? explicitOption = null,
-		bool? internalDiagnosticMessages = null,
-		int? maxParallelThreads = null,
-		ParallelAlgorithm? parallelAlgorithm = null,
-		int? seed = null,
-		bool? stopOnFail = null)
-	{
-		_ITestFrameworkExecutionOptions result = new _TestFrameworkOptions();
-
-		result.SetCulture(culture);
-		result.SetDiagnosticMessages(diagnosticMessages);
-		result.SetDisableParallelization(disableParallelization);
-		result.SetExplicitOption(explicitOption);
-		result.SetInternalDiagnosticMessages(internalDiagnosticMessages);
-		result.SetMaxParallelThreads(maxParallelThreads);
-		result.SetParallelAlgorithm(parallelAlgorithm);
-		result.SetSeed(seed);
-		result.SetStopOnTestFail(stopOnFail);
-
-		return result;
-	}
-
-	/// <summary>
 	/// Creates an instance of <see cref="_TestFrameworkOptions"/> for execution purposes.
 	/// </summary>
 	/// <param name="configuration">The configuration to copy values from.</param>
@@ -144,17 +76,22 @@ public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFram
 	{
 		Guard.ArgumentNotNull(configuration);
 
-		return ForExecution(
-			configuration.Culture,
-			configuration.DiagnosticMessages,
-			!configuration.ParallelizeTestCollections,
-			configuration.ExplicitOption,
-			configuration.InternalDiagnosticMessages,
-			configuration.MaxParallelThreads,
-			configuration.ParallelAlgorithm,
-			configuration.Seed,
-			configuration.StopOnFail
-		);
+		_ITestFrameworkExecutionOptions result = new _TestFrameworkOptions();
+
+		result.SetCulture(configuration.Culture);
+		result.SetDiagnosticMessages(configuration.DiagnosticMessages);
+		result.SetDisableParallelization(!configuration.ParallelizeTestCollections);
+		result.SetExplicitOption(configuration.ExplicitOption);
+		result.SetFailSkips(configuration.FailSkips);
+		result.SetFailTestsWithWarnings(configuration.FailTestsWithWarnings);
+		result.SetInternalDiagnosticMessages(configuration.InternalDiagnosticMessages);
+		result.SetMaxParallelThreads(configuration.MaxParallelThreads);
+		result.SetParallelAlgorithm(configuration.ParallelAlgorithm);
+		result.SetSeed(configuration.Seed);
+		result.SetStopOnTestFail(configuration.StopOnFail);
+		result.SetSynchronousMessageReporting(configuration.SynchronousMessageReporting);
+
+		return result;
 	}
 
 	/// <summary>

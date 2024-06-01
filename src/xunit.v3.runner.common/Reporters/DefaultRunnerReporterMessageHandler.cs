@@ -16,7 +16,7 @@ namespace Xunit.Runner.Common;
 public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerReporterMessageHandler
 {
 	readonly string? defaultDirectory;
-	readonly _ITestFrameworkExecutionOptions defaultExecutionOptions = _TestFrameworkOptions.ForExecution();
+	readonly _ITestFrameworkExecutionOptions defaultExecutionOptions = _TestFrameworkOptions.Empty();
 	readonly Dictionary<string, _ITestFrameworkExecutionOptions> executionOptionsByAssembly = new(StringComparer.OrdinalIgnoreCase);
 
 	/// <summary>

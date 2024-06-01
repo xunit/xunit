@@ -214,6 +214,40 @@ public static class TestFrameworkOptionsReadExtensions
 		ExplicitOption(executionOptions) ?? Sdk.ExplicitOption.Off;
 
 	/// <summary>
+	/// Gets a flag to fail skipped tests.
+	/// </summary>
+	public static bool? FailSkips(this _ITestFrameworkExecutionOptions executionOptions)
+	{
+		Guard.ArgumentNotNull(executionOptions);
+
+		return executionOptions.GetValue<bool?>(TestOptionsNames.Execution.FailSkips);
+	}
+
+	/// <summary>
+	/// Gets a flag to fail skipped tests. If the flag is not present, returns the
+	/// default value (<c>false</c>).
+	/// </summary>
+	public static bool FailSkipsOrDefault(this _ITestFrameworkExecutionOptions executionOptions) =>
+		FailSkips(executionOptions) ?? false;
+
+	/// <summary>
+	/// Gets a flag to fail passing tests with warnings.
+	/// </summary>
+	public static bool? FailTestsWithWarnings(this _ITestFrameworkExecutionOptions executionOptions)
+	{
+		Guard.ArgumentNotNull(executionOptions);
+
+		return executionOptions.GetValue<bool?>(TestOptionsNames.Execution.FailTestsWithWarnings);
+	}
+
+	/// <summary>
+	/// Gets a flag to fail passing tests with warnings. If the flag is not present, returns the
+	/// default value (<c>false</c>).
+	/// </summary>
+	public static bool FailTestsWithWarningsOrDefault(this _ITestFrameworkExecutionOptions executionOptions) =>
+		FailTestsWithWarnings(executionOptions) ?? false;
+
+	/// <summary>
 	/// Gets the maximum number of threads to use when running tests in parallel.
 	/// </summary>
 	public static int? MaxParallelThreads(this _ITestFrameworkExecutionOptions executionOptions)

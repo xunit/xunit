@@ -1136,8 +1136,8 @@ public class AmbiguouslyNamedTestMethods
 			var xunit1 = Xunit1.ForDiscoveryAndExecution(projectAssembly);
 			using var spy = SpyMessageSink<_TestAssemblyFinished>.Create();
 			var settings = new FrontControllerFindAndRunSettings(
-				 _TestFrameworkOptions.ForDiscovery(),
-				 _TestFrameworkOptions.ForExecution()
+				 TestData.TestFrameworkDiscoveryOptions(),
+				 TestData.TestFrameworkExecutionOptions()
 			);
 			xunit1.FindAndRun(spy, settings);
 			spy.Finished.WaitOne();

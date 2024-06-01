@@ -407,7 +407,7 @@ public class ConsoleRunner
 				CancelThunk = () => cancel,
 				DiagnosticMessageSink = diagnosticMessageSink,
 				FailSkips = assembly.Configuration.FailSkipsOrDefault,
-				FailWarn = assembly.Configuration.FailWarnsOrDefault,
+				FailWarn = assembly.Configuration.FailTestsWithWarningsOrDefault,
 				LongRunningTestTime = TimeSpan.FromSeconds(longRunningSeconds),
 			};
 

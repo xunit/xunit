@@ -12,7 +12,7 @@ public class _TestFrameworkOptionsTests
 			[Fact]
 			public void DefaultOptions_EmptyJson()
 			{
-				var options = _TestFrameworkOptions.ForDiscovery();
+				_ITestFrameworkDiscoveryOptions options = _TestFrameworkOptions.Empty();
 
 				var result = options.ToJson();
 
@@ -39,7 +39,7 @@ public class _TestFrameworkOptionsTests
 			{
 				// Set one of each known supported CLR type
 				var overrideEnumValue = TestMethodDisplayOptions.ReplaceUnderscoreWithSpace | TestMethodDisplayOptions.UseEscapeSequences;
-				var options = _TestFrameworkOptions.ForDiscovery();
+				_ITestFrameworkDiscoveryOptions options = _TestFrameworkOptions.Empty();
 				options.SetCulture("foo");
 				options.SetDiagnosticMessages(true);
 				options.SetMethodDisplayOptions(overrideEnumValue);
@@ -61,7 +61,7 @@ public class _TestFrameworkOptionsTests
 			[Fact]
 			public void DefaultOptions_EmptyJson()
 			{
-				var options = _TestFrameworkOptions.ForExecution();
+				_ITestFrameworkExecutionOptions options = _TestFrameworkOptions.Empty();
 
 				var result = options.ToJson();
 
@@ -85,7 +85,7 @@ public class _TestFrameworkOptionsTests
 			public void SettingValue_RoundTripsValue()
 			{
 				// Set one of each known supported CLR type
-				var options = _TestFrameworkOptions.ForExecution();
+				_ITestFrameworkExecutionOptions options = _TestFrameworkOptions.Empty();
 				options.SetCulture("foo");
 				options.SetDiagnosticMessages(true);
 				options.SetMaxParallelThreads(42);

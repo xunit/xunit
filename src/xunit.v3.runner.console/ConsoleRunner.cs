@@ -350,7 +350,7 @@ sealed class ConsoleRunner
 				CancelThunk = () => cancel,
 				DiagnosticMessageSink = diagnosticMessageSink,
 				FailSkips = assembly.Configuration.FailSkipsOrDefault,
-				FailWarn = assembly.Configuration.FailWarnsOrDefault,
+				FailWarn = assembly.Configuration.FailTestsWithWarningsOrDefault,
 				FinishedCallback = summary => completionMessages.TryAdd(controller.TestAssemblyUniqueID, summary),
 				LongRunningTestTime = TimeSpan.FromSeconds(longRunningSeconds),
 			};

@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Internal;
-using Xunit.Runner.Common;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -62,7 +61,7 @@ public class XunitTestAssemblyRunnerContextTests
 		{
 			var attribute = Mocks.CollectionBehaviorAttribute(maxParallelThreads: maxThreads);
 			var assembly = Mocks.TestAssembly("assembly.dll", assemblyAttributes: new[] { attribute });
-			var options = _TestFrameworkOptions.ForExecution(parallelAlgorithm: parallelAlgorithm);
+			var options = TestData.TestFrameworkExecutionOptions(parallelAlgorithm: parallelAlgorithm);
 			await using var context = TestableXunitTestAssemblyRunnerContext.Create(assembly: assembly, executionOptions: options);
 			await context.InitializeAsync();
 
@@ -76,7 +75,7 @@ public class XunitTestAssemblyRunnerContextTests
 		{
 			var attribute = Mocks.CollectionBehaviorAttribute(maxParallelThreads: -1);
 			var assembly = Mocks.TestAssembly("assembly.dll", assemblyAttributes: new[] { attribute });
-			var options = _TestFrameworkOptions.ForExecution(parallelAlgorithm: ParallelAlgorithm.Aggressive);  // Shouldn't show for unlimited threads
+			var options = TestData.TestFrameworkExecutionOptions(parallelAlgorithm: ParallelAlgorithm.Aggressive);  // Shouldn't show for unlimited threads
 			await using var context = TestableXunitTestAssemblyRunnerContext.Create(assembly: assembly, executionOptions: options);
 			await context.InitializeAsync();
 
@@ -129,7 +128,7 @@ public class XunitTestAssemblyRunnerContextTests
 		[Fact]
 		public static async ValueTask TestOptions_NonParallel()
 		{
-			var options = _TestFrameworkOptions.ForExecution();
+			var options = TestData.TestFrameworkExecutionOptions();
 			options.SetDisableParallelization(true);
 			await using var context = TestableXunitTestAssemblyRunnerContext.Create(executionOptions: options);
 			await context.InitializeAsync();
@@ -142,7 +141,7 @@ public class XunitTestAssemblyRunnerContextTests
 		[Fact]
 		public static async ValueTask TestOptions_MaxThreads()
 		{
-			var options = _TestFrameworkOptions.ForExecution();
+			var options = TestData.TestFrameworkExecutionOptions();
 			options.SetMaxParallelThreads(3);
 			await using var context = TestableXunitTestAssemblyRunnerContext.Create(executionOptions: options);
 			await context.InitializeAsync();
@@ -155,7 +154,7 @@ public class XunitTestAssemblyRunnerContextTests
 		[Fact]
 		public static async ValueTask TestOptions_Unlimited()
 		{
-			var options = _TestFrameworkOptions.ForExecution();
+			var options = TestData.TestFrameworkExecutionOptions();
 			options.SetMaxParallelThreads(-1);
 			await using var context = TestableXunitTestAssemblyRunnerContext.Create(executionOptions: options);
 			await context.InitializeAsync();
@@ -169,7 +168,7 @@ public class XunitTestAssemblyRunnerContextTests
 		public static async ValueTask TestOptionsOverrideAttribute()
 		{
 			var attribute = Mocks.CollectionBehaviorAttribute(disableTestParallelization: true, maxParallelThreads: 127);
-			var options = _TestFrameworkOptions.ForExecution();
+			var options = TestData.TestFrameworkExecutionOptions();
 			options.SetDisableParallelization(false);
 			options.SetMaxParallelThreads(3);
 			var assembly = Mocks.TestAssembly("assembly.dll", assemblyAttributes: new[] { attribute });
@@ -354,7 +353,7 @@ public class XunitTestAssemblyRunnerContextTests
 					assembly ?? Mocks.TestAssembly(),
 					new[] { TestData.XunitTestCase<ClassUnderTest>("Passing") },
 					SpyMessageSink.Create(),
-					executionOptions ?? _TestFrameworkOptions.ForExecution()
+					executionOptions ?? TestData.TestFrameworkExecutionOptions()
 				);
 	}
 }

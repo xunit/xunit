@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Internal;
-using Xunit.Runner.Common;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -37,7 +36,7 @@ public class TestAssemblyRunnerContextTests
 		[Fact]
 		public static async ValueTask SyncMessageBusOption()
 		{
-			var executionOptions = _TestFrameworkOptions.ForExecution();
+			var executionOptions = TestData.TestFrameworkExecutionOptions();
 			executionOptions.SetSynchronousMessageReporting(true);
 			await using var ctxt = TestableTestAssemblyRunnerContext.Create(executionOptions);
 			await ctxt.InitializeAsync();
@@ -66,7 +65,7 @@ public class TestAssemblyRunnerContextTests
 				Mocks.TestAssembly(),
 				Array.Empty<_ITestCase>(),
 				SpyMessageSink.Create(),
-				executionOptions ?? _TestFrameworkOptions.ForExecution()
+				executionOptions ?? TestData.TestFrameworkExecutionOptions()
 			);
 	}
 }

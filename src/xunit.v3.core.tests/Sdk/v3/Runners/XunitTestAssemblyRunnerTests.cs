@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
-using Xunit.Runner.Common;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -21,7 +20,7 @@ public class XunitTestAssemblyRunnerTests
 		{
 			var passing = TestData.XunitTestCase<ClassUnderTest>("Passing");
 			var other = TestData.XunitTestCase<ClassUnderTest>("Other");
-			var options = _TestFrameworkOptions.ForExecution();
+			var options = TestData.TestFrameworkExecutionOptions();
 			options.SetMaxParallelThreads(1);
 			options.SetParallelAlgorithm(ParallelAlgorithm.Aggressive);
 			var runner = TestableXunitTestAssemblyRunner.Create(testCases: new[] { passing, other }, executionOptions: options);
@@ -37,7 +36,7 @@ public class XunitTestAssemblyRunnerTests
 		{
 			var passing = TestData.XunitTestCase<ClassUnderTest>("Passing");
 			var other = TestData.XunitTestCase<ClassUnderTest>("Other");
-			var options = _TestFrameworkOptions.ForExecution();
+			var options = TestData.TestFrameworkExecutionOptions();
 			options.SetDisableParallelization(true);
 			var runner = TestableXunitTestAssemblyRunner.Create(testCases: new[] { passing, other }, executionOptions: options);
 
@@ -90,7 +89,7 @@ public class XunitTestAssemblyRunnerTests
 				assembly ?? testCases.First().TestCollection.TestAssembly,
 				testCases,
 				SpyMessageSink.Create(),
-				executionOptions ?? _TestFrameworkOptions.ForExecution()
+				executionOptions ?? TestData.TestFrameworkExecutionOptions()
 			);
 		}
 

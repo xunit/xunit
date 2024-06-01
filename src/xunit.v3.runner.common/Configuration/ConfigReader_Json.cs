@@ -89,7 +89,7 @@ public static class ConfigReader_Json
 					else if (string.Equals(kvp.Key, Configuration.FailSkips, StringComparison.OrdinalIgnoreCase))
 						configuration.FailSkips = booleanValue;
 					else if (string.Equals(kvp.Key, Configuration.FailWarns, StringComparison.OrdinalIgnoreCase))
-						configuration.FailWarns = booleanValue;
+						configuration.FailTestsWithWarnings = booleanValue;
 					else if (string.Equals(kvp.Key, Configuration.InternalDiagnosticMessages, StringComparison.OrdinalIgnoreCase))
 						configuration.InternalDiagnosticMessages = booleanValue;
 					else if (string.Equals(kvp.Key, Configuration.ParallelizeAssembly, StringComparison.OrdinalIgnoreCase))

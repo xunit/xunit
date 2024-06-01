@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
-using Xunit.Runner.Common;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -21,7 +20,7 @@ public class FactDiscovererTests
 		cancellationTokenSource = new CancellationTokenSource();
 		factAttribute = Mocks.FactAttribute();
 		messageBus = new SpyMessageBus();
-		options = _TestFrameworkOptions.ForDiscovery();
+		options = TestData.TestFrameworkDiscoveryOptions();
 	}
 
 	[Fact]

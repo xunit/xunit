@@ -4,13 +4,12 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Xunit;
-using Xunit.Runner.Common;
 using Xunit.Sdk;
 using Xunit.v3;
 
 public class TheoryDiscovererTests : AcceptanceTestV3
 {
-	readonly _ITestFrameworkDiscoveryOptions discoveryOptions = _TestFrameworkOptions.ForDiscovery(preEnumerateTheories: true);
+	readonly _ITestFrameworkDiscoveryOptions discoveryOptions = TestData.TestFrameworkDiscoveryOptions(preEnumerateTheories: true);
 
 	[Fact]
 	public async ValueTask NoDataAttributes()

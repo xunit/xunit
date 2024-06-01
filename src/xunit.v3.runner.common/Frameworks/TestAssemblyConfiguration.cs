@@ -70,14 +70,14 @@ public class TestAssemblyConfiguration
 	/// Gets or sets a flag indicating that passing tests with warnings should be
 	/// converted into failed tests.
 	/// </summary>
-	public bool? FailWarns { get; set; }
+	public bool? FailTestsWithWarnings { get; set; }
 
 	/// <summary>
 	/// Gets or sets a flag indicating that passing tests with warnings should be
 	/// converted into failed tests. If the flag is not set, returns the default
 	/// value (<c>false</c>).
 	/// </summary>
-	public bool FailWarnsOrDefault => FailWarns ?? false;
+	public bool FailTestsWithWarningsOrDefault => FailTestsWithWarnings ?? false;
 
 	/// <summary>
 	/// Gets the list of filters used during test discovery.
@@ -232,4 +232,15 @@ public class TestAssemblyConfiguration
 	/// returns the default value (<c>false</c>).
 	/// </summary>
 	public bool StopOnFailOrDefault => StopOnFail ?? false;
+
+	/// <summary>
+	/// Gets or sets a flag indicating that synchronous message reporting is desired.
+	/// </summary>
+	public bool? SynchronousMessageReporting { get; set; }
+
+	/// <summary>
+	/// Gets a flag indicating that synchronous message reporting is desired. If the flag is not set,
+	/// returns the default value (<c>false</c>).
+	/// </summary>
+	public bool SynchronousMessageReportingOrDefault => SynchronousMessageReporting ?? false;
 }

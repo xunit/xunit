@@ -339,6 +339,40 @@ public static class TestFrameworkOptionsReadWriteExtensions
 		GetExplicitOption(executionOptions) ?? ExplicitOption.Off;
 
 	/// <summary>
+	/// Gets a flag to fail skipped tests.
+	/// </summary>
+	public static bool? GetFailSkips(this _ITestFrameworkExecutionOptions executionOptions)
+	{
+		Guard.ArgumentNotNull(executionOptions);
+
+		return executionOptions.GetValue<bool?>(TestOptionsNames.Execution.FailSkips);
+	}
+
+	/// <summary>
+	/// Gets a flag to fail skipped tests. If the flag is not present, returns the default
+	/// value (<c>false</c>).
+	/// </summary>
+	public static bool GetFailSkipsOrDefault(this _ITestFrameworkExecutionOptions executionOptions) =>
+		GetFailSkips(executionOptions) ?? false;
+
+	/// <summary>
+	/// Gets a flag to fail passing tests with warnings.
+	/// </summary>
+	public static bool? GetFailTestsWithWarnings(this _ITestFrameworkExecutionOptions executionOptions)
+	{
+		Guard.ArgumentNotNull(executionOptions);
+
+		return executionOptions.GetValue<bool?>(TestOptionsNames.Execution.FailTestsWithWarnings);
+	}
+
+	/// <summary>
+	/// Gets a flag to fail passing tests with warning. If the flag is not present, returns
+	/// the default value (<c>false</c>).
+	/// </summary>
+	public static bool GetFailTestsWithWarningsOrDefault(this _ITestFrameworkExecutionOptions executionOptions) =>
+		GetFailTestsWithWarnings(executionOptions) ?? false;
+
+	/// <summary>
 	/// Gets a flag that determines whether internal diagnostic messages will be emitted.
 	/// </summary>
 	public static bool? GetInternalDiagnosticMessages(this _ITestFrameworkExecutionOptions executionOptions)
@@ -497,6 +531,30 @@ public static class TestFrameworkOptionsReadWriteExtensions
 		Guard.ArgumentNotNull(executionOptions);
 
 		executionOptions.SetValue(TestOptionsNames.Execution.ExplicitOption, value?.ToString());
+	}
+
+	/// <summary>
+	/// Sets a flag to fail skipped tests.
+	/// </summary>
+	public static void SetFailSkips(
+		this _ITestFrameworkExecutionOptions executionOptions,
+		bool? value)
+	{
+		Guard.ArgumentNotNull(executionOptions);
+
+		executionOptions.SetValue(TestOptionsNames.Execution.FailSkips, value);
+	}
+
+	/// <summary>
+	/// Sets a flag to fail passing tests with warnings.
+	/// </summary>
+	public static void SetFailTestsWithWarnings(
+		this _ITestFrameworkExecutionOptions executionOptions,
+		bool? value)
+	{
+		Guard.ArgumentNotNull(executionOptions);
+
+		executionOptions.SetValue(TestOptionsNames.Execution.FailTestsWithWarnings, value);
 	}
 
 	/// <summary>

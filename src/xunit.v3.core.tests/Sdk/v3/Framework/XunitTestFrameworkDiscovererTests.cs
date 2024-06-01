@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using NSubstitute;
 using Xunit;
-using Xunit.Runner.Common;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -169,7 +168,7 @@ public class XunitTestFrameworkDiscovererTests
 		{
 			var testClass = Mocks.TestClass<TheoryWithInlineData>();
 			var discoverer = TestableXunitTestFrameworkDiscoverer.Create();
-			var discoveryOptions = _TestFrameworkOptions.ForDiscovery(preEnumerateTheories: true);
+			var discoveryOptions = TestData.TestFrameworkDiscoveryOptions(preEnumerateTheories: true);
 
 			await discoverer.FindTestsForType(testClass, discoveryOptions);
 
@@ -185,7 +184,7 @@ public class XunitTestFrameworkDiscovererTests
 		{
 			var testClass = Mocks.TestClass<TheoryWithInlineData>();
 			var discoverer = TestableXunitTestFrameworkDiscoverer.Create();
-			var discoveryOptions = _TestFrameworkOptions.ForDiscovery(preEnumerateTheories: false);
+			var discoveryOptions = TestData.TestFrameworkDiscoveryOptions(preEnumerateTheories: false);
 
 			await discoverer.FindTestsForType(testClass, discoveryOptions);
 
@@ -394,7 +393,7 @@ public class XunitTestFrameworkDiscovererTests
 			_ITestFrameworkDiscoveryOptions? discoveryOptions = null) =>
 				base.FindTestsForType(
 					testClass,
-					discoveryOptions ?? _TestFrameworkOptions.ForDiscovery(preEnumerateTheories: true),
+					discoveryOptions ?? TestData.TestFrameworkDiscoveryOptions(preEnumerateTheories: true),
 					testCase =>
 					{
 						FindTestsForType_TestCases.Add(testCase);

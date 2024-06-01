@@ -275,7 +275,7 @@ public class xunit : MSBuildTask, ICancelableTask
 				if (failSkips.HasValue)
 					projectAssembly.Configuration.FailSkips = failSkips;
 				if (failWarns.HasValue)
-					projectAssembly.Configuration.FailWarns = failWarns;
+					projectAssembly.Configuration.FailTestsWithWarnings = failWarns;
 				if (maxParallelThreads.HasValue)
 					projectAssembly.Configuration.MaxParallelThreads = maxParallelThreads;
 				if (methodDisplay.HasValue)
@@ -398,7 +398,7 @@ public class xunit : MSBuildTask, ICancelableTask
 				CancelThunk = () => cancel,
 				DiagnosticMessageSink = diagnosticMessageSink,
 				FailSkips = assembly.Configuration.FailSkipsOrDefault,
-				FailWarn = assembly.Configuration.FailWarnsOrDefault,
+				FailWarn = assembly.Configuration.FailTestsWithWarningsOrDefault,
 				FinishedCallback = summary => completionMessages.TryAdd(controller.TestAssemblyUniqueID, summary),
 				LongRunningTestTime = TimeSpan.FromSeconds(longRunningSeconds),
 			};

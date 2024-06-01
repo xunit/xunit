@@ -269,15 +269,13 @@ public static class TestData
 			ConfigFileName = configFilePath,
 			TargetFramework = targetFramework
 		};
-		// See the ForDiscovery method to see which TestAssemblyConfiguration options are used for discovery
-		var discoveryOptions = _TestFrameworkOptions.ForDiscovery(new TestAssemblyConfiguration
-		{
-			DiagnosticMessages = diagnosticMessages,
-			InternalDiagnosticMessages = internalDiagnosticMessages,
-			MethodDisplay = methodDisplay,
-			MethodDisplayOptions = methodDisplayOptions,
-			PreEnumerateTheories = preEnumerateTheories
-		});
+		var discoveryOptions = TestFrameworkDiscoveryOptions(
+			diagnosticMessages: diagnosticMessages,
+			internalDiagnosticMessages: internalDiagnosticMessages,
+			methodDisplay: methodDisplay,
+			methodDisplayOptions: methodDisplayOptions,
+			preEnumerateTheories: preEnumerateTheories
+		);
 
 		return new()
 		{
@@ -306,15 +304,13 @@ public static class TestData
 			ConfigFileName = configFilePath,
 			TargetFramework = targetFramework
 		};
-		// See the ForDiscovery method to see which TestAssemblyConfiguration options are used for discovery
-		var discoveryOptions = _TestFrameworkOptions.ForDiscovery(new TestAssemblyConfiguration
-		{
-			DiagnosticMessages = diagnosticMessages,
-			InternalDiagnosticMessages = internalDiagnosticMessages,
-			MethodDisplay = methodDisplay,
-			MethodDisplayOptions = methodDisplayOptions,
-			PreEnumerateTheories = preEnumerateTheories
-		});
+		var discoveryOptions = TestFrameworkDiscoveryOptions(
+			diagnosticMessages: diagnosticMessages,
+			internalDiagnosticMessages: internalDiagnosticMessages,
+			methodDisplay: methodDisplay,
+			methodDisplayOptions: methodDisplayOptions,
+			preEnumerateTheories: preEnumerateTheories
+		);
 
 		return new()
 		{
@@ -348,13 +344,12 @@ public static class TestData
 			TargetFramework = targetFramework
 		};
 		// See the ForExecution method to see which TestAssemblyConfiguration options are used for discovery
-		var executionOptions = _TestFrameworkOptions.ForExecution(new TestAssemblyConfiguration
-		{
-			DiagnosticMessages = diagnosticMessages,
-			InternalDiagnosticMessages = internalDiagnosticMessages,
-			MaxParallelThreads = maxParallelThreads,
-			ParallelizeTestCollections = parallelizeTestCollections
-		});
+		var executionOptions = TestFrameworkExecutionOptions(
+			diagnosticMessages: diagnosticMessages,
+			disableParallelization: !parallelizeTestCollections,
+			internalDiagnosticMessages: internalDiagnosticMessages,
+			maxParallelThreads: maxParallelThreads
+		);
 		var executionSummary = new ExecutionSummary
 		{
 			Errors = testsErrored,
@@ -395,17 +390,16 @@ public static class TestData
 			TargetFramework = targetFramework
 		};
 		// See the ForExecution method to see which TestAssemblyConfiguration options are used for discovery
-		var executionOptions = _TestFrameworkOptions.ForExecution(new TestAssemblyConfiguration
-		{
-			Culture = culture,
-			DiagnosticMessages = diagnosticMessages,
-			ExplicitOption = explicitOption,
-			InternalDiagnosticMessages = internalDiagnosticMessages,
-			MaxParallelThreads = maxParallelThreads,
-			ParallelAlgorithm = parallelAlgorithm,
-			ParallelizeTestCollections = parallelizeTestCollections,
-			StopOnFail = stopOnFail,
-		});
+		var executionOptions = TestFrameworkExecutionOptions(
+			culture: culture,
+			diagnosticMessages: diagnosticMessages,
+			disableParallelization: !parallelizeTestCollections,
+			explicitOption: explicitOption,
+			internalDiagnosticMessages: internalDiagnosticMessages,
+			maxParallelThreads: maxParallelThreads,
+			parallelAlgorithm: parallelAlgorithm,
+			stopOnFail: stopOnFail
+		);
 
 		return new()
 		{
@@ -837,6 +831,62 @@ public static class TestData
 				Warnings = warnings,
 			};
 
+	public static _ITestFrameworkDiscoveryOptions TestFrameworkDiscoveryOptions(
+		string? culture = null,
+		bool? diagnosticMessages = null,
+		bool? includeSourceInformation = null,
+		bool? internalDiagnosticMessages = null,
+		TestMethodDisplay? methodDisplay = null,
+		TestMethodDisplayOptions? methodDisplayOptions = null,
+		bool? preEnumerateTheories = null,
+		bool? synchronousMessageReporting = null)
+	{
+		_ITestFrameworkDiscoveryOptions result = _TestFrameworkOptions.Empty();
+
+		result.SetCulture(culture);
+		result.SetDiagnosticMessages(diagnosticMessages);
+		result.SetIncludeSourceInformation(includeSourceInformation);
+		result.SetInternalDiagnosticMessages(internalDiagnosticMessages);
+		result.SetMethodDisplay(methodDisplay);
+		result.SetMethodDisplayOptions(methodDisplayOptions);
+		result.SetPreEnumerateTheories(preEnumerateTheories);
+		result.SetSynchronousMessageReporting(synchronousMessageReporting);
+
+		return result;
+	}
+
+	public static _ITestFrameworkExecutionOptions TestFrameworkExecutionOptions(
+		string? culture = null,
+		bool? diagnosticMessages = null,
+		bool? disableParallelization = null,
+		ExplicitOption? explicitOption = null,
+		bool? failSkips = null,
+		bool? failTestsWithWarnings = null,
+		bool? internalDiagnosticMessages = null,
+		int? maxParallelThreads = null,
+		ParallelAlgorithm? parallelAlgorithm = null,
+		int? seed = null,
+		bool? stopOnFail = null,
+		bool? synchronousMessageReporting = null)
+	{
+		_ITestFrameworkExecutionOptions result = _TestFrameworkOptions.Empty();
+
+		result.SetCulture(culture);
+		result.SetDiagnosticMessages(diagnosticMessages);
+		result.SetDisableParallelization(disableParallelization);
+		result.SetExplicitOption(explicitOption);
+		result.SetFailSkips(failSkips);
+		result.SetFailTestsWithWarnings(failTestsWithWarnings);
+		result.SetInternalDiagnosticMessages(internalDiagnosticMessages);
+		result.SetMaxParallelThreads(maxParallelThreads);
+		result.SetParallelAlgorithm(parallelAlgorithm);
+		result.SetSeed(seed);
+		result.SetStopOnTestFail(stopOnFail);
+		result.SetSynchronousMessageReporting(synchronousMessageReporting);
+
+		return result;
+	}
+
 	public static TestMethod TestMethod(
 		_ITestClass testClass,
 		_IMethodInfo methodInfo,
@@ -1041,7 +1091,7 @@ public static class TestData
 	{
 		var testMethod = TestMethod<TClassUnderTest>(methodName, collection);
 		var theoryAttribute = Mocks.TheoryAttribute(@explicit: @explicit, timeout: timeout);
-		var discoveryOptions = _TestFrameworkOptions.ForDiscovery(methodDisplay: methodDisplay, methodDisplayOptions: methodDisplayOptions);
+		var discoveryOptions = TestFrameworkDiscoveryOptions(methodDisplay: methodDisplay, methodDisplayOptions: methodDisplayOptions);
 		var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute);
 		if (traits is null)
 			traits = TestIntrospectionHelper.GetTraits(testMethod);
@@ -1070,7 +1120,7 @@ public static class TestData
 	{
 		var testMethod = TestMethod<TClassUnderTest>(methodName, collection);
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
-		var discoveryOptions = _TestFrameworkOptions.ForDiscovery(methodDisplay: methodDisplay, methodDisplayOptions: methodDisplayOptions);
+		var discoveryOptions = TestFrameworkDiscoveryOptions(methodDisplay: methodDisplay, methodDisplayOptions: methodDisplayOptions);
 		var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, factAttribute);
 		if (traits is null)
 			traits = TestIntrospectionHelper.GetTraits(testMethod);
