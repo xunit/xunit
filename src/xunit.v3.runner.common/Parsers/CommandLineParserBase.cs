@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
+using Xunit.v3;
 
 namespace Xunit.Internal;
 
@@ -59,7 +60,7 @@ public abstract class CommandLineParserBase
 		AddParser("internalDiagnostics", OnInternalDiagnostics, CommandLineGroup.General, null, "enable internal diagnostics messages for all test assemblies");
 		AddParser(
 			"list", OnList, CommandLineGroup.General, "<option>",
-			"list information about the test assemblies rather than running tests (implies -nologo)",
+			"list information about the test assemblies rather than running tests (implies -noLogo)",
 			"note: you can add '/json' to the end of any option to get the listing in JSON format",
 			"  classes - list class names of every class which contains tests",
 			"  full    - list complete discovery data",
@@ -74,6 +75,31 @@ public abstract class CommandLineParserBase
 			"  unlimited - run with unbounded thread count",
 			"  (integer) - use exactly this many threads (e.g., '2' = 2 threads)",
 			"  (float)x  - use a multiple of CPU threads (e.g., '2.0x' = 2.0 * the number of CPU threads)"
+		);
+		AddParser(
+			"methodDisplay", OnMethodDisplay, CommandLineGroup.General, "<option>",
+			"set default test display name",
+			"  classAndMethod - Use a fully qualified name [default]",
+			"  method         - Use just the method name"
+		);
+		AddParser(
+			"methodDisplayOptions", OnMethodDisplayOptions, CommandLineGroup.General, "<option>",
+			"alters the default test display name",
+			"note: you can specify more than one flag by joining with commas",
+			"  none                       - apply no alterations [default]",
+			"  all                        - apply all alterations",
+			"  replacePeriodWithComma     - replace periods in names with commas",
+			"  replaceUnderscoreWithSpace - replace underscores in names with spaces",
+			"  useOperatorMonikers        - replace operator names with operators",
+			"                                 'lt' becomes '<'",
+			"                                 'le' becomes '<='",
+			"                                 'eq' becomes '='",
+			"                                 'ne' becomes '!='",
+			"                                 'gt' becomes '>'",
+			"                                 'ge' becomes '>='",
+			"  useEscapeSequences         - replace ASCII and Unicode escape sequences",
+			"                                  X + 2 hex digits (i.e., 'X2C' becomes ',')",
+			"                                  U + 4 hex digits (i.e., 'U0192' becomes '" + (char)0x0192 + "')"
 		);
 		AddParser(
 			"noAutoReporters", OnNoAutoReporters, CommandLineGroup.General, null,
@@ -439,6 +465,30 @@ public abstract class CommandLineParserBase
 
 		foreach (var projectAssembly in Project.Assemblies)
 			projectAssembly.Configuration.Filters.IncludedMethods.Add(option.Value);
+	}
+
+	void OnMethodDisplay(KeyValuePair<string, string?> option)
+	{
+		if (option.Value is null)
+			throw new ArgumentException("missing argument for -methodDisplay");
+
+		if (!Enum.TryParse<TestMethodDisplay>(option.Value, ignoreCase: true, out var methodDisplay))
+			throw new ArgumentException("incorrect argument value for -methodDisplay");
+
+		foreach (var projectAssembly in Project.Assemblies)
+			projectAssembly.Configuration.MethodDisplay = methodDisplay;
+	}
+
+	void OnMethodDisplayOptions(KeyValuePair<string, string?> option)
+	{
+		if (option.Value is null)
+			throw new ArgumentException("missing argument for -methodDisplayOptions");
+
+		if (!Enum.TryParse<TestMethodDisplayOptions>(option.Value, ignoreCase: true, out var methodDisplayOptions))
+			throw new ArgumentException("incorrect argument value for -methodDisplay");
+
+		foreach (var projectAssembly in Project.Assemblies)
+			projectAssembly.Configuration.MethodDisplayOptions = methodDisplayOptions;
 	}
 
 	void OnMethodMinus(KeyValuePair<string, string?> option)
