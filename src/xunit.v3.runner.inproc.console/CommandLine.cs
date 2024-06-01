@@ -116,12 +116,12 @@ public class CommandLine : CommandLineParserBase
 
 	// Don't need to store anything, because we rely on AutomatedRequested instead; just want to validate and
 	// ignore during parsing, which happens later than is normally useful for us.
-	void OnAutomated(KeyValuePair<string, string?> pair) =>
-		GuardNoOptionValue(pair);
+	void OnAutomated(KeyValuePair<string, string?> option) =>
+		GuardNoOptionValue(option);
 
-	void OnWaitForDebugger(KeyValuePair<string, string?> pair)
+	void OnWaitForDebugger(KeyValuePair<string, string?> option)
 	{
-		GuardNoOptionValue(pair);
+		GuardNoOptionValue(option);
 		Project.Configuration.WaitForDebugger = true;
 	}
 }
