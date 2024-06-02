@@ -64,7 +64,7 @@ public class XunitTestAssemblyRunnerContext : TestAssemblyRunnerContext<IXunitTe
 
 	/// <inheritdoc/>
 	public override string TestFrameworkDisplayName =>
-		XunitTestFrameworkDiscoverer.DisplayName;
+		XunitTestFramework.DisplayName;
 
 	/// <inheritdoc/>
 	public override string TestFrameworkEnvironment

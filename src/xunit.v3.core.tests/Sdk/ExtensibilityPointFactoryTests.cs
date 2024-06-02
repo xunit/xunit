@@ -124,6 +124,8 @@ public class ExtensibilityPointFactoryTests
 			public ThrowingTestFrameworkCtor() =>
 				throw new DivideByZeroException();
 
+			public string TestFrameworkDisplayName => "ThrowingTestFrameworkCtor";
+
 			public _ISourceInformationProvider SourceInformationProvider { get; set; }
 
 			public _ITestFrameworkDiscoverer GetDiscoverer(_IAssemblyInfo assembly) =>
@@ -159,6 +161,8 @@ public class ExtensibilityPointFactoryTests
 		public class MyTestFramework : _ITestFramework
 		{
 			public _ISourceInformationProvider? SourceInformationProvider { get; set; }
+
+			public string TestFrameworkDisplayName => "MyTestFramework";
 
 			public _ITestFrameworkDiscoverer GetDiscoverer(_IAssemblyInfo assembly) =>
 				throw new NotImplementedException();

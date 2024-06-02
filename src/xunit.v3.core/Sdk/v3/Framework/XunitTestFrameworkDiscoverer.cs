@@ -18,18 +18,13 @@ public class XunitTestFrameworkDiscoverer : TestFrameworkDiscoverer<IXunitTestCa
 	static readonly Lazy<_IReflectionAttributeInfo> defaultFactAttribute;
 	readonly _ITestAssembly testAssembly;
 
-	/// <summary>
-	/// Gets the display name of the xUnit.net v3 test framework.
-	/// </summary>
-	public static readonly string DisplayName = string.Format(CultureInfo.CurrentCulture, "xUnit.net v3 {0}", ThisAssembly.AssemblyInformationalVersion);
-
 	static XunitTestFrameworkDiscoverer()
 	{
 		[Fact]
 		static _IReflectionAttributeInfo EmptyFact() =>
 			Reflector.Wrap(CustomAttributeData.GetCustomAttributes(MethodBase.GetCurrentMethod()!).Single(cad => cad.AttributeType == typeof(FactAttribute)));
 
-		defaultFactAttribute = new(() => EmptyFact());
+		defaultFactAttribute = new(EmptyFact);
 	}
 
 	/// <summary>
@@ -52,14 +47,6 @@ public class XunitTestFrameworkDiscoverer : TestFrameworkDiscoverer<IXunitTestCa
 			collectionFactory
 				?? ExtensibilityPointFactory.GetXunitTestCollectionFactory(collectionBehaviorAttribute, testAssembly)
 				?? new CollectionPerClassTestCollectionFactory(testAssembly);
-
-		TestFrameworkDisplayName = string.Format(
-			CultureInfo.CurrentCulture,
-			"{0} [{1}, {2}]",
-			DisplayName,
-			TestCollectionFactory.DisplayName,
-			disableParallelization ? "non-parallel" : "parallel"
-		);
 	}
 
 	/// <summary>
@@ -76,9 +63,6 @@ public class XunitTestFrameworkDiscoverer : TestFrameworkDiscoverer<IXunitTestCa
 	/// Gets the test collection factory that makes test collections.
 	/// </summary>
 	public IXunitTestCollectionFactory TestCollectionFactory { get; private set; }
-
-	/// <inheritdoc/>
-	public override string TestFrameworkDisplayName { get; }
 
 	/// <inheritdoc/>
 	protected override ValueTask<_ITestClass> CreateTestClass(_ITypeInfo @class) =>

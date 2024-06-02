@@ -193,8 +193,6 @@ public class TestFrameworkDiscovererTests
 
 		public override _ITestAssembly TestAssembly { get; }
 
-		public override string TestFrameworkDisplayName => "testable-test-framework";
-
 		protected override ValueTask<_ITestClass> CreateTestClass(_ITypeInfo @class) =>
 			new(Mocks.TestClass(@class));
 

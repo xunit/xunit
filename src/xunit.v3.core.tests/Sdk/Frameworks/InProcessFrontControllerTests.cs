@@ -28,7 +28,6 @@ public class InProcessFrontControllerTests
 		{
 			var frontController = TestableInProcessFrontController.Create();
 
-			Assert.Equal(Mocks.DefaultTargetFramework, frontController.TargetFramework);
 			Assert.Equal(Mocks.DefaultTestFrameworkDisplayName, frontController.TestFrameworkDisplayName);
 		}
 	}

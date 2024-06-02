@@ -309,50 +309,6 @@ public class XunitTestFrameworkDiscovererTests
 		}
 	}
 
-	public static class TestFrameworkDisplayName
-	{
-		[Fact]
-		public static void Defaults()
-		{
-			var discoverer = TestableXunitTestFrameworkDiscoverer.Create();
-
-			Assert.Matches(@"xUnit.net v3 \d+\.\d+\.\d+(-pre\.\d+(-dev)?(\+[0-9a-f]+)?)? \[collection-per-class, parallel\]", discoverer.TestFrameworkDisplayName);
-		}
-
-		[Fact]
-		public static void CollectionPerAssembly()
-		{
-			var behaviorAttribute = Mocks.CollectionBehaviorAttribute(CollectionBehavior.CollectionPerAssembly);
-			var assembly = Mocks.AssemblyInfo(attributes: new[] { behaviorAttribute });
-
-			var discoverer = TestableXunitTestFrameworkDiscoverer.Create(assembly);
-
-			Assert.Matches(@"xUnit.net v3 \d+\.\d+\.\d+(-pre\.\d+(-dev)?(\+[0-9a-f]+)?)? \[collection-per-assembly, parallel\]", discoverer.TestFrameworkDisplayName);
-		}
-
-		[Fact]
-		public static void CustomCollectionFactory()
-		{
-			var behaviorAttribute = Mocks.CollectionBehaviorAttribute<CustomTestCollectionFactory>();
-			var assembly = Mocks.AssemblyInfo(attributes: new[] { behaviorAttribute });
-
-			var discoverer = TestableXunitTestFrameworkDiscoverer.Create(assembly);
-
-			Assert.Matches(@"xUnit.net v3 \d+\.\d+\.\d+(-pre\.\d+(-dev)?(\+[0-9a-f]+)?)? \[my-custom-test-collection-factory, parallel\]", discoverer.TestFrameworkDisplayName);
-		}
-
-		[Fact]
-		public static void NonParallel()
-		{
-			var behaviorAttribute = Mocks.CollectionBehaviorAttribute(disableTestParallelization: true);
-			var assembly = Mocks.AssemblyInfo(attributes: new[] { behaviorAttribute });
-
-			var discoverer = TestableXunitTestFrameworkDiscoverer.Create(assembly);
-
-			Assert.Matches(@"xUnit.net v3 \d+\.\d+\.\d+(-pre\.\d+(-dev)?(\+[0-9a-f]+)?)? \[collection-per-class, non-parallel\]", discoverer.TestFrameworkDisplayName);
-		}
-	}
-
 	class ClassWithSingleTest
 	{
 		[Fact]
