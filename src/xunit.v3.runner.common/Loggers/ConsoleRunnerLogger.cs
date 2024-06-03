@@ -1,5 +1,4 @@
 using System;
-using System.ComponentModel;
 using System.IO;
 using System.Text.RegularExpressions;
 using Xunit.Internal;
@@ -12,25 +11,10 @@ namespace Xunit.Runner.Common;
 /// </summary>
 public class ConsoleRunnerLogger : IRunnerLogger
 {
-	readonly static Regex ansiSgrRegex = new Regex("\\e\\[\\d*(;\\d*)*m");
+	readonly static Regex ansiSgrRegex = new("\\e\\[\\d*(;\\d*)*m");
+	readonly TextWriter consoleOutput;
 	readonly bool useColors;
 
-	/// <summary/>
-	[EditorBrowsable(EditorBrowsableState.Never)]
-	[Obsolete("Please use the new overload with the useAnsiColor flag")]
-	public ConsoleRunnerLogger(bool useColors) :
-		this(useColors, useAnsiColor: false, new object())
-	{ }
-
-	/// <summary/>
-	[EditorBrowsable(EditorBrowsableState.Never)]
-	[Obsolete("Please use the new overload with the useAnsiColor flag")]
-	public ConsoleRunnerLogger(
-		bool useColors,
-		object lockObject) :
-			this(useColors, useAnsiColor: false, lockObject)
-	{ }
-
 	/// <summary>
 	/// Initializes a new instance of the <see cref="ConsoleRunnerLogger"/> class.
 	/// </summary>
@@ -38,36 +22,23 @@ public class ConsoleRunnerLogger : IRunnerLogger
 	/// logging messages.</param>
 	/// <param name="useAnsiColor">A flag to indicate whether ANSI colors should be
 	/// forced on Windows.</param>
-	public ConsoleRunnerLogger(
-		bool useColors,
-		bool useAnsiColor)
-			: this(useColors, useAnsiColor, new object())
-	{ }
-
-	/// <summary>
-	/// Initializes a new instance of the <see cref="ConsoleRunnerLogger"/> class.
-	/// </summary>
-	/// <param name="useColors">A flag to indicate whether colors should be used when
-	/// logging messages.</param>
-	/// <param name="useAnsiColor">A flag to indicate whether ANSI colors should be
-	/// forced on Windows.</param>
-	/// <param name="lockObject">The lock object used to prevent console clashes.</param>
+	/// <param name="consoleOutput">The text writer for writing console output.</param>
 	public ConsoleRunnerLogger(
 		bool useColors,
 		bool useAnsiColor,
-		object lockObject)
+		TextWriter consoleOutput)
 	{
-		Guard.ArgumentNotNull(lockObject);
+		Guard.ArgumentNotNull(consoleOutput);
 
 		this.useColors = useColors;
-		LockObject = lockObject;
+		this.consoleOutput = Guard.ArgumentNotNull(consoleOutput);
 
 		if (useAnsiColor)
 			ConsoleHelper.UseAnsiColor();
 	}
 
 	/// <inheritdoc/>
-	public object LockObject { get; }
+	public object LockObject => consoleOutput;
 
 	/// <inheritdoc/>
 	public void LogError(
@@ -78,7 +49,7 @@ public class ConsoleRunnerLogger : IRunnerLogger
 
 		lock (LockObject)
 			using (SetColor(ConsoleColor.Red))
-				WriteLine(Console.Out, message);
+				WriteLine(message);
 	}
 
 	/// <inheritdoc/>
@@ -90,7 +61,7 @@ public class ConsoleRunnerLogger : IRunnerLogger
 
 		lock (LockObject)
 			using (SetColor(ConsoleColor.Gray))
-				WriteLine(Console.Out, message);
+				WriteLine(message);
 	}
 
 	/// <inheritdoc/>
@@ -102,7 +73,7 @@ public class ConsoleRunnerLogger : IRunnerLogger
 
 		lock (LockObject)
 			using (SetColor(ConsoleColor.DarkGray))
-				WriteLine(Console.Out, message);
+				WriteLine(message);
 	}
 
 	/// <inheritdoc/>
@@ -111,7 +82,7 @@ public class ConsoleRunnerLogger : IRunnerLogger
 		Guard.ArgumentNotNull(message);
 
 		lock (LockObject)
-			WriteLine(Console.Out, message);
+			WriteLine(message);
 	}
 
 	/// <inheritdoc/>
@@ -123,24 +94,21 @@ public class ConsoleRunnerLogger : IRunnerLogger
 
 		lock (LockObject)
 			using (SetColor(ConsoleColor.Yellow))
-				WriteLine(Console.Out, message);
+				WriteLine(message);
 	}
 
 	/// <summary>
-	/// Writes a (non-colored) message. If <see cref="ConsoleRunnerLogger.useColors"/> is false, all ANSI-SGR sequences will be removed prior to writing.
+	/// Writes a (non-colored) message. If <see cref="useColors"/> is <c>false</c>, all ANSI-SGR sequences will be
+	/// removed prior to writing.
 	/// </summary>
-	/// <param name="target">Target writer</param>
 	/// <param name="message">Message to write</param>
-	/// <remarks>See https://en.wikipedia.org/wiki/ANSI_escape_code#SGR for details about ANSI-SGR.</remarks>
-	public void WriteLine(
-		TextWriter target,
-		string message)
+	/// <remarks>See <see href="https://en.wikipedia.org/wiki/ANSI_escape_code#SGR" /> for details about ANSI-SGR.</remarks>
+	public void WriteLine(string message)
 	{
-		Guard.ArgumentNotNull(target);
 		Guard.ArgumentNotNull(message);
 
 		var text = useColors ? message : RemoveAnsiSgr(message);
-		target.WriteLine(text);
+		consoleOutput.WriteLine(text);
 	}
 
 	static string RemoveAnsiSgr(string message) =>

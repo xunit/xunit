@@ -10,9 +10,9 @@ public class ConsoleRunnerLoggerTests
 	{
 		var writer = new StringWriter();
 		var message = "foo bar";
-		var sut = new ConsoleRunnerLogger(true, false);
+		var sut = new ConsoleRunnerLogger(true, false, writer);
 
-		sut.WriteLine(writer, message);
+		sut.WriteLine(message);
 
 		Assert.Equal(message + Environment.NewLine, writer.ToString());
 	}
@@ -22,9 +22,9 @@ public class ConsoleRunnerLoggerTests
 	{
 		var writer = new StringWriter();
 		var message = "\x1b[3m\x1b[36mhello world\u001b[0m || \x1b[94;103mbright blue on bright yellow\x1b[m";
-		var sut = new ConsoleRunnerLogger(true, false);
+		var sut = new ConsoleRunnerLogger(true, false, writer);
 
-		sut.WriteLine(writer, message);
+		sut.WriteLine(message);
 
 		Assert.Equal(message + Environment.NewLine, writer.ToString());
 	}
@@ -34,9 +34,9 @@ public class ConsoleRunnerLoggerTests
 	{
 		var writer = new StringWriter();
 		var message = "foo bar";
-		var sut = new ConsoleRunnerLogger(false, false);
+		var sut = new ConsoleRunnerLogger(false, false, writer);
 
-		sut.WriteLine(writer, message);
+		sut.WriteLine(message);
 
 		Assert.Equal(message + Environment.NewLine, writer.ToString());
 	}
@@ -45,23 +45,23 @@ public class ConsoleRunnerLoggerTests
 	public void WriteLine_ColorsDisabled_AnsiText()
 	{
 		var writer = new StringWriter();
-		var sut = new ConsoleRunnerLogger(false, false);
+		var sut = new ConsoleRunnerLogger(false, false, writer);
 
-		sut.WriteLine(writer, "\x1b[3m\x1b[36mhello world\u001b[0m || \x1b[94;103mbright blue on bright yellow\x1b[m");
+		sut.WriteLine("\x1b[3m\x1b[36mhello world\u001b[0m || \x1b[94;103mbright blue on bright yellow\x1b[m");
 
 		Assert.Equal("hello world || bright blue on bright yellow" + Environment.NewLine, writer.ToString());
 	}
 
 	[Fact]
-	public void CanForceAnsiColors()
+	public void WriteLine_ColorsEnabled_AnsiColorsEnabled()
 	{
-		var oldConsoleOut = Console.Out;
+		var oldWriter = ConsoleHelper.ConsoleWriter;
 
 		try
 		{
 			var writer = new StringWriter();
-			var sut = new ConsoleRunnerLogger(true, true);
-			Console.SetOut(writer);
+			var sut = new ConsoleRunnerLogger(true, true, writer);
+			ConsoleHelper.ConsoleWriter = writer;
 
 			sut.LogError("This is an error message");
 
@@ -69,7 +69,7 @@ public class ConsoleRunnerLoggerTests
 		}
 		finally
 		{
-			Console.SetOut(oldConsoleOut);
+			ConsoleHelper.ConsoleWriter = oldWriter;
 		}
 	}
 }

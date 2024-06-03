@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Reflection;
 using Xunit.Internal;
 using Xunit.Runner.Common;
@@ -14,18 +15,20 @@ public class CommandLine : CommandLineParserBase
 {
 	/// <summary/>
 	protected CommandLine(
+		TextWriter consoleWriter,
 		IReadOnlyList<IRunnerReporter> reporters,
 		string[] args)
-			: base(reporters, null, args)
+			: base(consoleWriter, reporters, null, args)
 	{
 		AddParsers();
 	}
 
 	/// <summary/>
 	public CommandLine(
+		TextWriter consoleWriter,
 		string? reporterFolder,
 		string[] args)
-			: base(null, reporterFolder, args)
+			: base(consoleWriter, null, reporterFolder, args)
 	{
 		AddParsers();
 	}

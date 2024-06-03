@@ -17,11 +17,12 @@ public class CommandLine : CommandLineParserBase
 
 	/// <summary/>
 	public CommandLine(
+		TextWriter consoleWriter,
 		Assembly assembly,
 		string[] args,
 		IReadOnlyList<IRunnerReporter>? runnerReporters = null,
 		string? reporterFolder = null)
-			: base(runnerReporters, reporterFolder ?? Path.GetDirectoryName(assembly.GetSafeLocation()), args)
+			: base(consoleWriter, runnerReporters, reporterFolder ?? Path.GetDirectoryName(assembly.GetSafeLocation()), args)
 	{
 		this.assembly = assembly;
 		assemblyFileName = assembly.GetSafeLocation();

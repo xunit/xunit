@@ -2,7 +2,9 @@
 // Under the MIT license https://github.com/Microsoft/msbuild/blob/ab090d1255caa87e742cbdbc6d7fe904ecebd975/LICENSE
 
 using System;
+using System.IO;
 using System.Runtime.InteropServices;
+using Xunit.Internal;
 
 namespace Xunit.Runner.Common;
 
@@ -12,20 +14,7 @@ namespace Xunit.Runner.Common;
 /// </summary>
 public static class ConsoleHelper
 {
-	/// <summary>
-	/// Equivalent to <see cref="Console"/>.<see cref="Console.ResetColor"/>.
-	/// </summary>
-	public static Action ResetColor { get; private set; }
-
-	/// <summary>
-	/// Equivalent to <see cref="Console"/>.<see cref="Console.BackgroundColor"/>.
-	/// </summary>
-	public static Action<ConsoleColor> SetBackgroundColor { get; private set; }
-
-	/// <summary>
-	/// Equivalent to <see cref="Console"/>.<see cref="Console.ForegroundColor"/>.
-	/// </summary>
-	public static Action<ConsoleColor> SetForegroundColor { get; private set; }
+	static TextWriter? consoleWriter;
 
 	static ConsoleHelper()
 	{
@@ -42,6 +31,34 @@ public static class ConsoleHelper
 			SetForegroundColor = SetForegroundColorANSI;
 		}
 	}
+
+	/// <summary>
+	/// Gets or sets the <see cref="TextWriter"/> used for console output.
+	/// </summary>
+	public static TextWriter ConsoleWriter
+	{
+		get
+		{
+			consoleWriter ??= Console.Out;
+			return consoleWriter;
+		}
+		set => consoleWriter = Guard.ArgumentNotNull(value, nameof(ConsoleWriter));
+	}
+
+	/// <summary>
+	/// Equivalent to <see cref="Console.ResetColor"/>.
+	/// </summary>
+	public static Action ResetColor { get; private set; }
+
+	/// <summary>
+	/// Equivalent to <see cref="Console.BackgroundColor"/>.
+	/// </summary>
+	public static Action<ConsoleColor> SetBackgroundColor { get; private set; }
+
+	/// <summary>
+	/// Equivalent to <see cref="Console.ForegroundColor"/>.
+	/// </summary>
+	public static Action<ConsoleColor> SetForegroundColor { get; private set; }
 
 	static void SetBackgroundColorANSI(ConsoleColor c)
 	{
@@ -66,7 +83,7 @@ public static class ConsoleHelper
 			_ => "",
 		};
 
-		Console.Out.Write(colorString);
+		ConsoleWriter.Write(colorString);
 	}
 
 	static void SetBackgroundColorConsole(ConsoleColor c) =>
@@ -95,14 +112,14 @@ public static class ConsoleHelper
 			_ => "",
 		};
 
-		Console.Out.Write(colorString);
+		ConsoleWriter.Write(colorString);
 	}
 
 	static void SetForegroundColorConsole(ConsoleColor c) =>
 		Console.ForegroundColor = c;
 
 	static void ResetColorANSI() =>
-		Console.Out.Write("\x1b[0m");
+		ConsoleWriter.Write("\x1b[0m");
 
 	static void ResetColorConsole() =>
 		Console.ResetColor();

@@ -22,6 +22,7 @@ public abstract class CommandLineParserBase
 
 	/// <summary/>
 	protected CommandLineParserBase(
+		TextWriter consoleWriter,
 		IReadOnlyList<IRunnerReporter>? runnerReporters,
 		string? reporterFolder,
 		string[] args)
@@ -29,6 +30,7 @@ public abstract class CommandLineParserBase
 		this.runnerReporters = runnerReporters;
 		this.reporterFolder = reporterFolder;
 
+		ConsoleWriter = Guard.ArgumentNotNull(consoleWriter);
 		Args = GetArguments(Guard.ArgumentNotNull(args));
 
 		if (string.IsNullOrWhiteSpace(this.reporterFolder))
@@ -177,6 +179,9 @@ public abstract class CommandLineParserBase
 	protected IReadOnlyList<string> Args { get; }
 
 	/// <summary/>
+	protected TextWriter ConsoleWriter { get; }
+
+	/// <summary/>
 	public bool HelpRequested =>
 		Args.Count > 0 && (Args[0] == "-?" || Args[0] == "/?" || Args[0] == "-h" || Args[0] == "--help");
 
@@ -262,7 +267,7 @@ public abstract class CommandLineParserBase
 				ConsoleHelper.SetForegroundColor(ConsoleColor.Yellow);
 
 			foreach (var message in messages)
-				Console.WriteLine(message);
+				ConsoleWriter.WriteLine(message);
 
 			if (!Project.Configuration.NoColorOrDefault)
 				ConsoleHelper.ResetColor();
@@ -726,28 +731,28 @@ public abstract class CommandLineParserBase
 
 		if (RunnerReporters.Count > 0)
 		{
-			Console.WriteLine();
-			Console.WriteLine("Reporters (optional, choose only one)");
-			Console.WriteLine();
+			ConsoleWriter.WriteLine();
+			ConsoleWriter.WriteLine("Reporters (optional, choose only one)");
+			ConsoleWriter.WriteLine();
 
 			var longestSwitch = RunnerReporters.Max(r => r.RunnerSwitch?.Length ?? 0);
 
 			foreach (var switchableReporter in RunnerReporters.Where(r => !string.IsNullOrWhiteSpace(r.RunnerSwitch)).OrderBy(r => r.RunnerSwitch))
-				Console.WriteLine("  -{0} : {1}", switchableReporter.RunnerSwitch!.PadRight(longestSwitch), switchableReporter.Description);
+				ConsoleWriter.WriteLine("  -{0} : {1}", switchableReporter.RunnerSwitch!.PadRight(longestSwitch), switchableReporter.Description);
 
 			foreach (var environmentalReporter in RunnerReporters.Where(r => string.IsNullOrWhiteSpace(r.RunnerSwitch)).OrderBy(r => r.Description))
-				Console.WriteLine("   {0} : {1} [auto-enabled only]", "".PadRight(longestSwitch), environmentalReporter.Description);
+				ConsoleWriter.WriteLine("   {0} : {1} [auto-enabled only]", "".PadRight(longestSwitch), environmentalReporter.Description);
 		}
 
 		if (TransformFactory.AvailableTransforms.Count != 0)
 		{
-			Console.WriteLine();
-			Console.WriteLine("Result formats (optional, choose one or more)");
-			Console.WriteLine();
+			ConsoleWriter.WriteLine();
+			ConsoleWriter.WriteLine("Result formats (optional, choose one or more)");
+			ConsoleWriter.WriteLine();
 
 			var longestTransform = TransformFactory.AvailableTransforms.Max(t => t.ID.Length);
 			foreach (var transform in TransformFactory.AvailableTransforms.OrderBy(t => t.ID))
-				Console.WriteLine("  -{0} : {1}", string.Format(CultureInfo.CurrentCulture, "{0} <filename>", transform.ID).PadRight(longestTransform + 11), transform.Description);
+				ConsoleWriter.WriteLine("  -{0} : {1}", string.Format(CultureInfo.CurrentCulture, "{0} <filename>", transform.ID).PadRight(longestTransform + 11), transform.Description);
 		}
 	}
 
@@ -768,18 +773,18 @@ public abstract class CommandLineParserBase
 		var longestSwitch = options.Max(o => o.@switch.Length);
 		var padding = "".PadRight(longestSwitch);
 
-		Console.WriteLine();
+		ConsoleWriter.WriteLine();
 
 		foreach (var header in headers)
-			Console.WriteLine(header);
+			ConsoleWriter.WriteLine(header);
 
-		Console.WriteLine();
+		ConsoleWriter.WriteLine();
 
 		foreach (var (@switch, descriptions) in options)
 		{
-			Console.WriteLine("  {0} : {1}", @switch.PadRight(longestSwitch), descriptions[0]);
+			ConsoleWriter.WriteLine("  {0} : {1}", @switch.PadRight(longestSwitch), descriptions[0]);
 			for (int idx = 1; idx < descriptions.Length; ++idx)
-				Console.WriteLine("  {0} : {1}", padding, descriptions[idx]);
+				ConsoleWriter.WriteLine("  {0} : {1}", padding, descriptions[idx]);
 		}
 	}
 }
