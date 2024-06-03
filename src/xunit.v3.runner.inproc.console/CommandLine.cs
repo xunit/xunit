@@ -28,6 +28,7 @@ public class CommandLine : CommandLineParserBase
 		assemblyFileName = assembly.GetSafeLocation();
 
 		// General options
+		AddParser("assemblyInfo", OnAssemblyInfo, CommandLineGroup.General, null, "return test assembly information; does not find or run tests (implies -noColor and -noLogo)");
 		AddParser("automated", OnAutomated, CommandLineGroup.General, null, "enables automated mode; ensures all output is machine parseable");
 		AddParser(
 			"parallel", OnParallel, CommandLineGroup.General, "<option>",
@@ -114,6 +115,12 @@ public class CommandLine : CommandLineParserBase
 		AddAssembly(assembly, assemblyFileName, configFileName, seed);
 
 		return ParseInternal(argsStartIndex);
+	}
+
+	void OnAssemblyInfo(KeyValuePair<string, string?> option)
+	{
+		GuardNoOptionValue(option);
+		Project.Configuration.AssemblyInfo = true;
 	}
 
 	// Don't need to store anything, because we rely on AutomatedRequested instead; just want to validate and

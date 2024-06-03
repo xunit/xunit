@@ -11,6 +11,19 @@ namespace Xunit.Runner.Common;
 public class TestProjectConfiguration
 {
 	/// <summary>
+	/// Gets or sets a flag which indicates whether the runner should return assembly
+	/// information rather than listing or executing tests.
+	/// </summary>
+	public bool? AssemblyInfo { get; set; }
+
+	/// <summary>
+	/// Gets a flag which indicates whether the runner should return assembly information
+	/// rather than listing or executing tests. If the flag is not specified, returns the
+	/// default value (<c>false</c>).
+	/// </summary>
+	public bool AssemblyInfoOrDefault => AssemblyInfo ?? false;
+
+	/// <summary>
 	/// Gets the environment variable name used to test for the user requesting no color output.
 	/// </summary>
 	public const string EnvNameNoColor = "NO_COLOR";

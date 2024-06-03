@@ -108,6 +108,13 @@ public class ConsoleRunner
 			if (useAnsiColor)
 				ConsoleHelper.UseAnsiColor();
 
+			if (project.Configuration.AssemblyInfoOrDefault)
+			{
+				noColor = true;
+				PrintAssemblyInfo();
+				return 0;
+			}
+
 			AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
 
 			Console.CancelKeyPress += (sender, e) =>
@@ -307,6 +314,28 @@ public class ConsoleRunner
 		}
 
 		Environment.Exit(1);
+	}
+
+	void PrintAssemblyInfo()
+	{
+		var testFramework = ExtensibilityPointFactory.GetTestFramework(Reflector.Wrap(testAssembly));
+
+		var buffer = new StringBuilder();
+		using (var serializer = new JsonObjectSerializer(buffer))
+		{
+			serializer.Serialize("arch-os", RuntimeInformation.OSArchitecture);
+			serializer.Serialize("arch-process", RuntimeInformation.ProcessArchitecture);
+			// Technically these next two are the versions of xunit.v3.runner.inproc.console and not xunit.v3.core; however,
+			// since they're all compiled and versioned together, we'll take the path of least resistance.
+			serializer.Serialize("core-framework", ThisAssembly.AssemblyVersion);
+			serializer.Serialize("core-framework-informational", ThisAssembly.AssemblyInformationalVersion);
+			serializer.Serialize("pointer-size", IntPtr.Size * 8);
+			serializer.Serialize("runtime-framework", RuntimeInformation.FrameworkDescription);
+			serializer.Serialize("target-framework", testAssembly.GetTargetFramework());
+			serializer.Serialize("test-framework", testFramework.TestFrameworkDisplayName);
+		}
+
+		consoleWriter.WriteLine(buffer.ToString());
 	}
 
 	void PrintHeader() =>
