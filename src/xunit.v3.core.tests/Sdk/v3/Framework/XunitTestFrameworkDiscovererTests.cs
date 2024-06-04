@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using NSubstitute;
 using Xunit;
-using Xunit.Runner.Common;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -169,7 +168,7 @@ public class XunitTestFrameworkDiscovererTests
 		{
 			var testClass = Mocks.TestClass<TheoryWithInlineData>();
 			var discoverer = TestableXunitTestFrameworkDiscoverer.Create();
-			var discoveryOptions = _TestFrameworkOptions.ForDiscovery(preEnumerateTheories: true);
+			var discoveryOptions = TestData.TestFrameworkDiscoveryOptions(preEnumerateTheories: true);
 
 			await discoverer.FindTestsForType(testClass, discoveryOptions);
 
@@ -185,7 +184,7 @@ public class XunitTestFrameworkDiscovererTests
 		{
 			var testClass = Mocks.TestClass<TheoryWithInlineData>();
 			var discoverer = TestableXunitTestFrameworkDiscoverer.Create();
-			var discoveryOptions = _TestFrameworkOptions.ForDiscovery(preEnumerateTheories: false);
+			var discoveryOptions = TestData.TestFrameworkDiscoveryOptions(preEnumerateTheories: false);
 
 			await discoverer.FindTestsForType(testClass, discoveryOptions);
 
@@ -310,50 +309,6 @@ public class XunitTestFrameworkDiscovererTests
 		}
 	}
 
-	public static class TestFrameworkDisplayName
-	{
-		[Fact]
-		public static void Defaults()
-		{
-			var discoverer = TestableXunitTestFrameworkDiscoverer.Create();
-
-			Assert.Matches(@"xUnit.net v3 \d+\.\d+\.\d+(-pre\.\d+(-dev)?(\+[0-9a-f]+)?)? \[collection-per-class, parallel\]", discoverer.TestFrameworkDisplayName);
-		}
-
-		[Fact]
-		public static void CollectionPerAssembly()
-		{
-			var behaviorAttribute = Mocks.CollectionBehaviorAttribute(CollectionBehavior.CollectionPerAssembly);
-			var assembly = Mocks.AssemblyInfo(attributes: new[] { behaviorAttribute });
-
-			var discoverer = TestableXunitTestFrameworkDiscoverer.Create(assembly);
-
-			Assert.Matches(@"xUnit.net v3 \d+\.\d+\.\d+(-pre\.\d+(-dev)?(\+[0-9a-f]+)?)? \[collection-per-assembly, parallel\]", discoverer.TestFrameworkDisplayName);
-		}
-
-		[Fact]
-		public static void CustomCollectionFactory()
-		{
-			var behaviorAttribute = Mocks.CollectionBehaviorAttribute<CustomTestCollectionFactory>();
-			var assembly = Mocks.AssemblyInfo(attributes: new[] { behaviorAttribute });
-
-			var discoverer = TestableXunitTestFrameworkDiscoverer.Create(assembly);
-
-			Assert.Matches(@"xUnit.net v3 \d+\.\d+\.\d+(-pre\.\d+(-dev)?(\+[0-9a-f]+)?)? \[my-custom-test-collection-factory, parallel\]", discoverer.TestFrameworkDisplayName);
-		}
-
-		[Fact]
-		public static void NonParallel()
-		{
-			var behaviorAttribute = Mocks.CollectionBehaviorAttribute(disableTestParallelization: true);
-			var assembly = Mocks.AssemblyInfo(attributes: new[] { behaviorAttribute });
-
-			var discoverer = TestableXunitTestFrameworkDiscoverer.Create(assembly);
-
-			Assert.Matches(@"xUnit.net v3 \d+\.\d+\.\d+(-pre\.\d+(-dev)?(\+[0-9a-f]+)?)? \[collection-per-class, non-parallel\]", discoverer.TestFrameworkDisplayName);
-		}
-	}
-
 	class ClassWithSingleTest
 	{
 		[Fact]
@@ -394,7 +349,7 @@ public class XunitTestFrameworkDiscovererTests
 			_ITestFrameworkDiscoveryOptions? discoveryOptions = null) =>
 				base.FindTestsForType(
 					testClass,
-					discoveryOptions ?? _TestFrameworkOptions.ForDiscovery(preEnumerateTheories: true),
+					discoveryOptions ?? TestData.TestFrameworkDiscoveryOptions(preEnumerateTheories: true),
 					testCase =>
 					{
 						FindTestsForType_TestCases.Add(testCase);

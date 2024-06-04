@@ -5,7 +5,6 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading.Tasks;
 using Xunit;
-using Xunit.Runner.Common;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -31,7 +30,7 @@ public class DynamicAssemblyAcceptanceTests : IClassFixture<DynamicAssemblyFixtu
 
 		var testCases = new List<_ITestCase>();
 		var testDiscoverer = testFramework.GetDiscoverer(assemblyInfo);
-		await testDiscoverer.Find(testCase => { testCases.Add(testCase); return new(true); }, _TestFrameworkOptions.ForDiscovery());
+		await testDiscoverer.Find(testCase => { testCases.Add(testCase); return new(true); }, TestData.TestFrameworkDiscoveryOptions());
 
 		Assert.Collection(
 			testCases.OrderBy(tc => tc.TestCaseDisplayName),
@@ -54,9 +53,9 @@ public class DynamicAssemblyAcceptanceTests : IClassFixture<DynamicAssemblyFixtu
 		var messages = new List<_MessageSinkMessage>();
 		var testDiscoverer = testFramework.GetDiscoverer(assemblyInfo);
 		var testCases = new List<_ITestCase>();
-		await testDiscoverer.Find(testCase => { testCases.Add(testCase); return new(true); }, _TestFrameworkOptions.ForDiscovery());
+		await testDiscoverer.Find(testCase => { testCases.Add(testCase); return new(true); }, TestData.TestFrameworkDiscoveryOptions());
 		var testExecutor = testFramework.GetExecutor(assemblyInfo);
-		await testExecutor.RunTestCases(testCases, SpyMessageSink.Create(messages: messages), _TestFrameworkOptions.ForExecution());
+		await testExecutor.RunTestCases(testCases, SpyMessageSink.Create(messages: messages), TestData.TestFrameworkExecutionOptions());
 
 		var assemblyStarting = Assert.Single(messages.OfType<_TestAssemblyStarting>());
 		Assert.Equal("DynamicAssembly, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null", assemblyStarting.AssemblyName);

@@ -10,3 +10,8 @@ public interface _ITestMethodMetadata
 	/// </summary>
 	string TestMethod { get; }
 }
+
+internal interface _IWritableTestMethodMetadata
+{
+	string TestMethod { get; set; }
+}

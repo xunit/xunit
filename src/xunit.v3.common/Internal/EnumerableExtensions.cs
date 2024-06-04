@@ -51,4 +51,12 @@ public static class EnumerableExtensions
 	public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T?> source)
 		where T : class =>
 			source.Where((Func<T?, bool>)notNullTest)!;
+
+	/// <summary>
+	/// Returns <paramref name="source"/> as an enumerable of <typeparamref name="T"/> with
+	/// all the <c>null</c> items removed.
+	/// </summary>
+	public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T?> source)
+		where T : struct =>
+			source.Where(x => x.HasValue).Select(x => x!.Value);
 }

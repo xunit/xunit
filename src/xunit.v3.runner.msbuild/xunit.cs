@@ -33,7 +33,6 @@ public class xunit : MSBuildTask, ICancelableTask
 	bool? internalDiagnosticMessages;
 	IRunnerLogger? logger;
 	readonly object logLock = new();
-	int? maxThreadCount;
 	bool? parallelizeAssemblies;
 	bool? parallelizeTestCollections;
 	bool? preEnumerateTheories;
@@ -94,6 +93,10 @@ public class xunit : MSBuildTask, ICancelableTask
 
 	public string? MaxParallelThreads { get; set; }
 
+	public string? MethodDisplay { get; set; }
+
+	public string? MethodDisplayOptions { get; set; }
+
 	protected bool NeedsXml =>
 		Xml is not null || XmlV1 is not null || Html is not null || NUnit is not null || JUnit is not null;
 
@@ -102,6 +105,8 @@ public class xunit : MSBuildTask, ICancelableTask
 	public bool NoLogo { get; set; }
 
 	public ITaskItem? NUnit { get; set; }
+
+	public string? ParallelAlgorithm { get; set; }
 
 	public bool ParallelizeAssemblies { set { parallelizeAssemblies = value; } }
 
@@ -140,6 +145,8 @@ public class xunit : MSBuildTask, ICancelableTask
 		if (NeedsXml)
 			assembliesElement = TransformFactory.CreateAssembliesElement();
 
+		// Parse strings into structured values
+
 		var appDomains = default(AppDomainSupport?);
 		switch (AppDomains?.ToUpperInvariant())
 		{
@@ -162,39 +169,55 @@ public class xunit : MSBuildTask, ICancelableTask
 
 			default:
 				lock (logLock)
-					Log.LogError("AppDomains value '{0}' is invalid: must be one of 'IfAvailable', 'Required', or 'Denied'", AppDomains);
+					Log.LogError("AppDomains value '{0}' is invalid: must be one of 'denied', 'ifAvailable', or 'required'", AppDomains);
 
 				return false;
 		}
 
-		switch (MaxParallelThreads)
+		if (!TryParseOptionalEnum<ExplicitOption>(Explicit, "Explicit value '{0}' is invalid: must be one of 'on', 'off', or 'only'", out var explicitOption))
+			return false;
+
+		var maxParallelThreads = default(int?);
+		if (MaxParallelThreads is not null)
 		{
-			case null:
-			case "default":
-			case "0":
-				break;
+			switch (MaxParallelThreads.ToUpperInvariant())
+			{
+				case "DEFAULT":
+				case "0":
+					maxParallelThreads = Environment.ProcessorCount;
+					break;
 
-			case "unlimited":
-			case "-1":
-				maxThreadCount = -1;
-				break;
+				case "UNLIMITED":
+				case "-1":
+					maxParallelThreads = -1;
+					break;
 
-			default:
-				var match = ConfigUtility.MultiplierStyleMaxParallelThreadsRegex.Match(MaxParallelThreads);
-				if (match.Success && decimal.TryParse(match.Groups[1].Value, out var maxThreadMultiplier))
-					maxThreadCount = (int)(maxThreadMultiplier * Environment.ProcessorCount);
-				else if (int.TryParse(MaxParallelThreads, out var threadValue) && threadValue > 0)
-					maxThreadCount = threadValue;
-				else
-				{
-					lock (logLock)
-						Log.LogError("MaxParallelThreads value '{0}' is invalid: must be 'default', 'unlimited', a positive number, or a multiplier in the form of '0.0x'", MaxParallelThreads);
+				default:
+					var match = ConfigUtility.MultiplierStyleMaxParallelThreadsRegex.Match(MaxParallelThreads);
+					if (match.Success && decimal.TryParse(match.Groups[1].Value, out var maxThreadMultiplier))
+						maxParallelThreads = (int)(maxThreadMultiplier * Environment.ProcessorCount);
+					else if (int.TryParse(MaxParallelThreads, out var threadValue) && threadValue > 0)
+						maxParallelThreads = threadValue;
+					else
+					{
+						lock (logLock)
+							Log.LogError("MaxParallelThreads value '{0}' is invalid: must be one of 'default', 'unlimited', a positive number, or a multiplier in the form of '0.0x'", MaxParallelThreads);
 
-					return false;
-				}
+						return false;
+					}
 
-				break;
+					break;
+			}
 		}
+
+		if (!TryParseOptionalEnum<TestMethodDisplay>(MethodDisplay, "MethodDisplay value '{0}' is invalid: must be one of 'classAndMethod' or 'method'", out var methodDisplay))
+			return false;
+
+		if (!TryParseOptionalEnum<TestMethodDisplayOptions>(MethodDisplayOptions, "MethodDisplayOptions value '{0}' is invalid: must be one of 'all', 'none', or a comma-separated list of one or more of 'replacePeriodWithComma', 'replaceUnderscoreWithSpace', 'useOperatorMonikers', or 'useEscapeSequences'", out var methodDisplayOptions))
+			return false;
+
+		if (!TryParseOptionalEnum<ParallelAlgorithm>(ParallelAlgorithm, "ParallelAlgorithm value '{0}' is invalid: must be one of 'aggressive' or 'conservative'", out var parallelAlgorithm))
+			return false;
 
 		var originalWorkingFolder = Directory.GetCurrentDirectory();
 		await using var globalDiagnosticsMessageSink = MSBuildDiagnosticMessageSink.TryCreate(Log, logLock, diagnosticMessages ?? false, internalDiagnosticMessages ?? false);
@@ -234,25 +257,41 @@ public class xunit : MSBuildTask, ICancelableTask
 				foreach (string warning in warnings)
 					logger.LogWarning(warning);
 
+				if (appDomains.HasValue)
+					projectAssembly.Configuration.AppDomain = appDomains;
 				if (Culture is not null)
-					projectAssembly.Configuration.Culture = Culture switch
+					projectAssembly.Configuration.Culture = Culture.ToUpperInvariant() switch
 					{
-						"default" => null,
-						"invariant" => string.Empty,
+						"DEFAULT" => null,
+						"INVARIANT" => string.Empty,
 						_ => Culture,
 					};
-
-				if (Explicit is not null)
-					projectAssembly.Configuration.ExplicitOption = Explicit.ToUpperInvariant() switch
-					{
-						"OFF" => ExplicitOption.Off,
-						"ON" => ExplicitOption.On,
-						"ONLY" => ExplicitOption.Only,
-						_ => throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Invalid value for Explicit ('{0}'); valid values are 'off', 'on', and 'only'", Explicit)),
-					};
-
+				if (diagnosticMessages.HasValue)
+					projectAssembly.Configuration.DiagnosticMessages = diagnosticMessages;
+				if (explicitOption.HasValue)
+					projectAssembly.Configuration.ExplicitOption = explicitOption;
+				if (internalDiagnosticMessages.HasValue)
+					projectAssembly.Configuration.InternalDiagnosticMessages = internalDiagnosticMessages;
+				if (failSkips.HasValue)
+					projectAssembly.Configuration.FailSkips = failSkips;
+				if (failWarns.HasValue)
+					projectAssembly.Configuration.FailTestsWithWarnings = failWarns;
+				if (maxParallelThreads.HasValue)
+					projectAssembly.Configuration.MaxParallelThreads = maxParallelThreads;
+				if (methodDisplay.HasValue)
+					projectAssembly.Configuration.MethodDisplay = methodDisplay;
+				if (methodDisplayOptions.HasValue)
+					projectAssembly.Configuration.MethodDisplayOptions = methodDisplayOptions;
+				if (parallelAlgorithm.HasValue)
+					projectAssembly.Configuration.ParallelAlgorithm = parallelAlgorithm;
+				if (parallelizeTestCollections.HasValue)
+					projectAssembly.Configuration.ParallelizeTestCollections = parallelizeTestCollections;
+				if (preEnumerateTheories.HasValue)
+					projectAssembly.Configuration.PreEnumerateTheories = preEnumerateTheories;
 				if (shadowCopy.HasValue)
 					projectAssembly.Configuration.ShadowCopy = shadowCopy;
+				if (stopOnFail.HasValue)
+					projectAssembly.Configuration.StopOnFail = stopOnFail;
 
 				project.Add(projectAssembly);
 			}
@@ -334,34 +373,13 @@ public class xunit : MSBuildTask, ICancelableTask
 
 		try
 		{
-			if (preEnumerateTheories.HasValue)
-				assembly.Configuration.PreEnumerateTheories = preEnumerateTheories.Value;
-			if (diagnosticMessages.HasValue)
-				assembly.Configuration.DiagnosticMessages = diagnosticMessages.Value;
-			if (internalDiagnosticMessages.HasValue)
-				assembly.Configuration.InternalDiagnosticMessages = internalDiagnosticMessages.Value;
-			if (failSkips.HasValue)
-				assembly.Configuration.FailSkips = failSkips.Value;
-			if (failWarns.HasValue)
-				assembly.Configuration.FailWarns = failWarns.Value;
-
-			if (appDomains.HasValue)
-				assembly.Configuration.AppDomain = appDomains;
-
 			// Setup discovery and execution options with command-line overrides
 			var discoveryOptions = _TestFrameworkOptions.ForDiscovery(assembly.Configuration);
 			var executionOptions = _TestFrameworkOptions.ForExecution(assembly.Configuration);
-			if (maxThreadCount.HasValue && maxThreadCount.Value > -1)
-				executionOptions.SetMaxParallelThreads(maxThreadCount);
-			if (parallelizeTestCollections.HasValue)
-				executionOptions.SetDisableParallelization(!parallelizeTestCollections);
-			if (stopOnFail.HasValue)
-				executionOptions.SetStopOnTestFail(stopOnFail);
 
 			var assemblyDisplayName = Path.GetFileNameWithoutExtension(assembly.AssemblyFileName)!;
 			await using var diagnosticMessageSink = MSBuildDiagnosticMessageSink.TryCreate(Log, logLock, diagnosticMessages ?? assembly.Configuration.DiagnosticMessagesOrDefault, internalDiagnosticMessages ?? assembly.Configuration.InternalDiagnosticMessagesOrDefault, assemblyDisplayName);
 			var appDomainSupport = assembly.Configuration.AppDomainOrDefault;
-			var shadowCopy = assembly.Configuration.ShadowCopyOrDefault;
 			var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
 
 			await using var controller = XunitFrontController.ForDiscoveryAndExecution(assembly, diagnosticMessageSink: diagnosticMessageSink);
@@ -380,12 +398,12 @@ public class xunit : MSBuildTask, ICancelableTask
 				CancelThunk = () => cancel,
 				DiagnosticMessageSink = diagnosticMessageSink,
 				FailSkips = assembly.Configuration.FailSkipsOrDefault,
-				FailWarn = assembly.Configuration.FailWarnsOrDefault,
+				FailWarn = assembly.Configuration.FailTestsWithWarningsOrDefault,
 				FinishedCallback = summary => completionMessages.TryAdd(controller.TestAssemblyUniqueID, summary),
 				LongRunningTestTime = TimeSpan.FromSeconds(longRunningSeconds),
 			};
 
-			using var resultsSink = new ExecutionSink(assembly, discoveryOptions, executionOptions, appDomain, shadowCopy, reporterMessageHandler, sinkOptions);
+			using var resultsSink = new ExecutionSink(assembly, discoveryOptions, executionOptions, appDomain, assembly.Configuration.ShadowCopyOrDefault, reporterMessageHandler, sinkOptions);
 			var settings = new FrontControllerFindAndRunSettings(discoveryOptions, executionOptions, assembly.Configuration.Filters);
 			controller.FindAndRun(resultsSink, settings);
 			resultsSink.Finished.WaitOne();
@@ -472,5 +490,30 @@ public class xunit : MSBuildTask, ICancelableTask
 		}
 
 		return reporter ?? new DefaultRunnerReporter();
+	}
+
+	bool TryParseOptionalEnum<TEnum>(
+		string? value,
+		string failureMessageFormat,
+		out TEnum? result)
+			where TEnum : struct
+	{
+		if (value == null)
+		{
+			result = default;
+			return true;
+		}
+
+		if (Enum.TryParse<TEnum>(value, ignoreCase: true, out var resultValue))
+		{
+			result = resultValue;
+			return true;
+		}
+
+		lock (logLock)
+			Log.LogError(failureMessageFormat, value);
+
+		result = default;
+		return false;
 	}
 }

@@ -9,12 +9,19 @@
     <!-- .NET Core 2.0 and 2.1 have security vulnerabilities, but we don't care; we just need the build for verification purposes, not to ship it -->
     <NoWarn>$(NoWarn);NU1902;NU1903</NoWarn>
     <Nullable>enable</Nullable>
-    <TargetFrameworks>netstandard1.1;netcoreapp2.0;netcoreapp2.1;net8.0</TargetFrameworks>
+    <TargetFrameworks>netstandard1.1;netstandard2.1;netcoreapp2.0;netcoreapp2.1;net8.0</TargetFrameworks>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.1' ">
     <!-- Stick to an older version of the package, so we can still target netstandard1.1 -->
-    <PackageReference Include="System.Collections.Immutable" Version="5.0.0" Condition=" '$(TargetFramework)' == 'netstandard1.1' " />
+    <PackageReference Include="System.Collections.Immutable" Version="[5.0.0]" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.1' ">
+    <PackageReference Include="System.Collections.Immutable" Version="[$(SystemCollectionsImmutableVersion)]" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="System.Memory" Version="$(SystemMemoryVersion)" />
   </ItemGroup>
 

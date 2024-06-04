@@ -14,6 +14,11 @@ namespace Xunit.v3;
 public interface _ITestFramework
 {
 	/// <summary>
+	/// Returns the display name of the test framework that this discoverer is running tests for.
+	/// </summary>
+	string TestFrameworkDisplayName { get; }
+
+	/// <summary>
 	/// Get a test discoverer.
 	/// </summary>
 	/// <param name="assembly">The assembly to discover tests from.</param>

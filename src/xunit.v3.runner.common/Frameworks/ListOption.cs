@@ -11,6 +11,11 @@ public enum ListOption
 	Classes = 1,
 
 	/// <summary>
+	/// Lists the test cases as discovery objects (only valid for the in-process runner).
+	/// </summary>
+	Discovery,
+
+	/// <summary>
 	/// Lists full metadata about the test discovery.
 	/// </summary>
 	Full,

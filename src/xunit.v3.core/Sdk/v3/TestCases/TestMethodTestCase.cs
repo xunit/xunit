@@ -59,7 +59,7 @@ public abstract class TestMethodTestCase : _ITestCase, IXunitSerializable, IAsyn
 		this.traits = new(StringComparer.OrdinalIgnoreCase);
 		if (traits is not null)
 			foreach (var kvp in traits)
-				this.traits.GetOrAdd(kvp.Key).AddRange(kvp.Value);
+				this.traits.AddOrGet(kvp.Key).AddRange(kvp.Value);
 
 		foreach (var testMethodArgument in TestMethodArguments)
 			disposalTracker.Add(testMethodArgument);

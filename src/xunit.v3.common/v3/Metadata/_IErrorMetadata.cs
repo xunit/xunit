@@ -26,3 +26,11 @@ public interface _IErrorMetadata
 	/// </summary>
 	string?[] StackTraces { get; }
 }
+
+internal interface _IWritableErrorMetadata
+{
+	int[] ExceptionParentIndices { get; set; }
+	string?[] ExceptionTypes { get; set; }
+	string[] Messages { get; set; }
+	string?[] StackTraces { get; set; }
+}

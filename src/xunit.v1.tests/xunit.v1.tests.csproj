@@ -19,7 +19,6 @@
   <ItemGroup>
     <Reference Include="System.XML" />
     <Reference Include="System.Web" />
-    <Reference Include="$(NuGetPackageRoot)\xunit\$(XunitV1Version)\lib\net20\xunit.runner.utility.dll" />
   </ItemGroup>
 
 </Project>

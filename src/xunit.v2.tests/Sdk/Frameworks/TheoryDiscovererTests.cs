@@ -37,7 +37,7 @@ public class TheoryDiscovererTests : AcceptanceTestV2
 		Assert.Equal("Test data returned null for TheoryDiscovererTests+NullDataClass.NullMemberData. Make sure it is statically initialized before this test method is called.", failure.Messages.Single());
 	}
 
-	public class NullDataClass
+	class NullDataClass
 	{
 		public static IEnumerable<object[]> InitializedInConstructor;
 
@@ -241,7 +241,7 @@ public class TheoryDiscovererTests : AcceptanceTestV2
 		Assert.Equal("Data discoverer specified for TheoryDiscovererTests+NoSuchDataDiscovererAttribute on TheoryDiscovererTests+NoSuchDataDiscovererClass.Test does not exist.", failure.Messages.Single());
 	}
 
-	public class NoSuchDataDiscovererClass
+	class NoSuchDataDiscovererClass
 	{
 		[Theory]
 		[NoSuchDataDiscoverer]
@@ -267,7 +267,7 @@ public class TheoryDiscovererTests : AcceptanceTestV2
 		Assert.Equal("Data discoverer specified for TheoryDiscovererTests+NotADataDiscovererAttribute on TheoryDiscovererTests+NotADataDiscovererClass.Test does not implement IDataDiscoverer.", failure.Messages.Single());
 	}
 
-	public class NotADataDiscovererClass
+	class NotADataDiscovererClass
 	{
 		[Theory]
 		[NotADataDiscoverer]

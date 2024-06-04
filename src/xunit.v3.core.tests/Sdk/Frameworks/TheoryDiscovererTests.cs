@@ -4,14 +4,12 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Xunit;
-using Xunit.Internal;
-using Xunit.Runner.Common;
 using Xunit.Sdk;
 using Xunit.v3;
 
 public class TheoryDiscovererTests : AcceptanceTestV3
 {
-	readonly _ITestFrameworkDiscoveryOptions discoveryOptions = _TestFrameworkOptions.ForDiscovery(preEnumerateTheories: true);
+	readonly _ITestFrameworkDiscoveryOptions discoveryOptions = TestData.TestFrameworkDiscoveryOptions(preEnumerateTheories: true);
 
 	[Fact]
 	public async ValueTask NoDataAttributes()
@@ -236,8 +234,8 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 			new(
 				new[]
 				{
-					new TheoryDataRow(42),
-					new TheoryDataRow(new NonSerializableDataAttribute())
+					new TheoryDataRow<object>(42),
+					new TheoryDataRow<object>(new NonSerializableDataAttribute())
 				}
 			);
 	}
@@ -459,8 +457,8 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		public static IEnumerable<ITheoryDataRow> Data =>
 			new[]
 			{
-				new TheoryDataRow(42) { Skip = "Do not run this test" },
-				new TheoryDataRow(2112),
+				new TheoryDataRow<int>(42) { Skip = "Do not run this test" },
+				new TheoryDataRow<int>(2112),
 			};
 
 		[Theory]
@@ -505,8 +503,8 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		public static IEnumerable<ITheoryDataRow> Data =>
 			new[]
 			{
-				new TheoryDataRow(42).WithTrait("Number", "42"),
-				new TheoryDataRow(2112) { Skip = "I am skipped" }.WithTrait("Number", "2112"),
+				new TheoryDataRow<int>(42).WithTrait("Number", "42"),
+				new TheoryDataRow<int>(2112) { Skip = "I am skipped" }.WithTrait("Number", "2112"),
 			};
 
 		[Theory]
@@ -602,9 +600,9 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		public static IEnumerable<ITheoryDataRow> Data =>
 			new[]
 			{
-				new TheoryDataRow(42) { TestDisplayName = "I am a special test" },
-				new TheoryDataRow(2112),
-				new TheoryDataRow(2600) { Skip = "I am skipped", TestDisplayName = "I am a skipped test" }
+				new TheoryDataRow<int>(42) { TestDisplayName = "I am a special test" },
+				new TheoryDataRow<int>(2112),
+				new TheoryDataRow<int>(2600) { Skip = "I am skipped", TestDisplayName = "I am a skipped test" }
 			};
 
 		[Theory]
@@ -662,9 +660,9 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 
 				var data = new[]
 				{
-					new TheoryDataRow(42),
-					new TheoryDataRow(2112),
-					new TheoryDataRow(2600),
+					new TheoryDataRow<int>(42),
+					new TheoryDataRow<int>(2112),
+					new TheoryDataRow<int>(2600),
 				};
 
 				return new(data);

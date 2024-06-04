@@ -10,7 +10,7 @@ namespace Xunit.v3;
 /// This message indicates that a test case had been found during the discovery process.
 /// </summary>
 [JsonTypeID("test-case-discovered")]
-public class _TestCaseDiscovered : _TestCaseMessage, _ITestCaseMetadata
+public class _TestCaseDiscovered : _TestCaseMessage, _ITestCaseMetadata, _IWritableTestCaseMetadata
 {
 	string? serialization;
 	string? testCaseDisplayName;
@@ -83,6 +83,14 @@ public class _TestCaseDiscovered : _TestCaseMessage, _ITestCaseMetadata
 	{
 		get => traits;
 		set => traits = value ?? new Dictionary<string, IReadOnlyList<string>>();
+	}
+
+	internal override void Deserialize(IReadOnlyDictionary<string, object?> root)
+	{
+		base.Deserialize(root);
+
+		root.DeserializeTestCaseMetadata(this);
+		serialization = TryGetString(root, nameof(Serialization));
 	}
 
 	internal override void Serialize(JsonObjectSerializer serializer)

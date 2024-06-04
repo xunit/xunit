@@ -243,7 +243,7 @@ public class ExecutionSink : _IMessageSink, IDisposable
 	XElement GetTestCollectionElement(string testCollectionUniqueID)
 	{
 		lock (testCollectionElements)
-			return testCollectionElements.GetOrAdd(testCollectionUniqueID, () => new XElement("collection"));
+			return testCollectionElements.AddOrGet(testCollectionUniqueID, () => new XElement("collection"));
 	}
 
 	void HandleErrorMessage(MessageHandlerArgs<_ErrorMessage> args)
@@ -594,13 +594,13 @@ public class ExecutionSink : _IMessageSink, IDisposable
 		{
 			lock (failCountsByUniqueID)
 			{
-				failCountsByUniqueID[testPassed.TestCaseUniqueID] = failCountsByUniqueID.GetOrAdd(testPassed.TestCaseUniqueID) + 1;
+				failCountsByUniqueID[testPassed.TestCaseUniqueID] = failCountsByUniqueID.AddOrGet(testPassed.TestCaseUniqueID) + 1;
 				if (testPassed.TestMethodUniqueID is not null)
-					failCountsByUniqueID[testPassed.TestMethodUniqueID] = failCountsByUniqueID.GetOrAdd(testPassed.TestMethodUniqueID) + 1;
+					failCountsByUniqueID[testPassed.TestMethodUniqueID] = failCountsByUniqueID.AddOrGet(testPassed.TestMethodUniqueID) + 1;
 				if (testPassed.TestClassUniqueID is not null)
-					failCountsByUniqueID[testPassed.TestClassUniqueID] = failCountsByUniqueID.GetOrAdd(testPassed.TestClassUniqueID) + 1;
-				failCountsByUniqueID[testPassed.TestCollectionUniqueID] = failCountsByUniqueID.GetOrAdd(testPassed.TestCollectionUniqueID) + 1;
-				failCountsByUniqueID[testPassed.AssemblyUniqueID] = failCountsByUniqueID.GetOrAdd(testPassed.AssemblyUniqueID) + 1;
+					failCountsByUniqueID[testPassed.TestClassUniqueID] = failCountsByUniqueID.AddOrGet(testPassed.TestClassUniqueID) + 1;
+				failCountsByUniqueID[testPassed.TestCollectionUniqueID] = failCountsByUniqueID.AddOrGet(testPassed.TestCollectionUniqueID) + 1;
+				failCountsByUniqueID[testPassed.AssemblyUniqueID] = failCountsByUniqueID.AddOrGet(testPassed.AssemblyUniqueID) + 1;
 			}
 
 			return new _TestFailed

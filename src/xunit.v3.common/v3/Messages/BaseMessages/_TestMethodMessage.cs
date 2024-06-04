@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Globalization;
 using Xunit.Internal;
 
@@ -15,6 +16,13 @@ public abstract class _TestMethodMessage : _TestClassMessage
 	/// Might be <c>null</c> if the test does not belong to a method.
 	/// </summary>
 	public string? TestMethodUniqueID { get; set; }
+
+	internal override void Deserialize(IReadOnlyDictionary<string, object?> root)
+	{
+		base.Deserialize(root);
+
+		TestMethodUniqueID = TryGetString(root, nameof(TestMethodUniqueID));
+	}
 
 	internal override void Serialize(JsonObjectSerializer serializer)
 	{

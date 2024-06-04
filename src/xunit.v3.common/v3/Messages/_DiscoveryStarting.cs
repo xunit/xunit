@@ -9,7 +9,7 @@ namespace Xunit.v3;
 /// the requested assembly.
 /// </summary>
 [JsonTypeID("discovery-starting")]
-public sealed class _DiscoveryStarting : _TestAssemblyMessage, _IAssemblyMetadata
+public sealed class _DiscoveryStarting : _TestAssemblyMessage, _IAssemblyMetadata, _IWritableAssemblyMetadata
 {
 	string? assemblyName;
 
@@ -25,6 +25,13 @@ public sealed class _DiscoveryStarting : _TestAssemblyMessage, _IAssemblyMetadat
 
 	/// <inheritdoc/>
 	public string? ConfigFilePath { get; set; }
+
+	internal override void Deserialize(IReadOnlyDictionary<string, object?> root)
+	{
+		base.Deserialize(root);
+
+		root.DeserializeAssemblyMetadata(this);
+	}
 
 	internal override void Serialize(JsonObjectSerializer serializer)
 	{

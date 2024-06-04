@@ -15,11 +15,12 @@ public class XunitFiltersTests
 	static readonly _TestCaseDiscovered MethodWithFooBarTrait = TestData.TestCaseDiscovered<ClassWithTraits>(nameof(ClassWithTraits.FooBar));
 	static readonly _TestCaseDiscovered MethodWithBazBiffTrait = TestData.TestCaseDiscovered<ClassWithTraits>(nameof(ClassWithTraits.BazBiff));
 	static readonly _TestCaseDiscovered MethodWithNoTraits = TestData.TestCaseDiscovered<ClassWithTraits>(nameof(ClassWithTraits.NoTraits));
-	static readonly _TestCaseDiscovered NonClassTest = TestData.TestCaseDiscovered();
+	static readonly _TestCaseDiscovered NonClassTest = TestData.TestCaseDiscovered(traits: TestData.EmptyTraits);
 	static readonly _TestCaseDiscovered NonMethodTest = TestData.TestCaseDiscovered(
 		testClass: typeof(ClassWithTraits).Name,
 		testClassWithNamespace: typeof(ClassWithTraits).FullName,
-		testNamespace: typeof(ClassWithTraits).Namespace
+		testNamespace: typeof(ClassWithTraits).Namespace,
+		traits: TestData.EmptyTraits
 	);
 
 	public static class NoFilters

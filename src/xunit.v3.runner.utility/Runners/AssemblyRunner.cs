@@ -32,7 +32,7 @@ public class AssemblyRunner : IAsyncDisposable, _IMessageSink
 
 	static AssemblyRunner()
 	{
-		MessageTypeNames = new Dictionary<Type, string>();
+		MessageTypeNames = [];
 
 		AddMessageTypeName<_DiagnosticMessage>();
 		AddMessageTypeName<_DiscoveryComplete>();
@@ -221,7 +221,8 @@ public class AssemblyRunner : IAsyncDisposable, _IMessageSink
 		bool? diagnosticMessages,
 		bool? internalDiagnosticMessages,
 		int? maxParallelThreads,
-		bool? parallel)
+		bool? parallel,
+		ParallelAlgorithm? parallelAlgorithm)
 	{
 		var executionOptions = _TestFrameworkOptions.ForExecution(configuration);
 		executionOptions.SetSynchronousMessageReporting(true);
@@ -234,6 +235,8 @@ public class AssemblyRunner : IAsyncDisposable, _IMessageSink
 			executionOptions.SetDisableParallelization(!parallel.GetValueOrDefault());
 		if (maxParallelThreads.HasValue)
 			executionOptions.SetMaxParallelThreads(maxParallelThreads);
+		if (parallelAlgorithm.HasValue)
+			executionOptions.SetParallelAlgorithm(parallelAlgorithm);
 
 		return executionOptions;
 	}
@@ -323,35 +326,11 @@ public class AssemblyRunner : IAsyncDisposable, _IMessageSink
 	}
 
 	/// <summary>
-	/// Starts running tests from a single type (if provided) or the whole assembly (if not). This call returns
-	/// immediately, and status results are dispatched to the Info>s on this class. Callers can check <see cref="Status"/>
-	/// to find out the current status.
+	/// Starts running tests. This call returns immediately, and status results are dispatched to the events on this class.
+	/// Callers can check <see cref="Status"/> to find out the current status.
 	/// </summary>
-	/// <param name="typeName">The (optional) type name of the single test class to run</param>
-	/// <param name="diagnosticMessages">Set to <c>true</c> to enable diagnostic messages; set to <c>false</c> to disable them.
-	/// By default, uses the value from the assembly configuration file.</param>
-	/// <param name="methodDisplay">Set to choose the default display name style for test methods.
-	/// By default, uses the value from the assembly configuration file. (This parameter is ignored for xUnit.net v1 tests.)</param>
-	/// <param name="methodDisplayOptions">Set to choose the default display name style options for test methods.
-	/// By default, uses the value from the assembly configuration file. (This parameter is ignored for xUnit.net v1 tests.)</param>
-	/// <param name="preEnumerateTheories">Set to <c>true</c> to pre-enumerate individual theory tests; set to <c>false</c> to use
-	/// a single test case for the theory. By default, uses the value from the assembly configuration file. (This parameter is ignored
-	/// for xUnit.net v1 tests.)</param>
-	/// <param name="parallel">Set to <c>true</c> to run test collections in parallel; set to <c>false</c> to run them sequentially.
-	/// By default, uses the value from the assembly configuration file. (This parameter is ignored for xUnit.net v1 tests.)</param>
-	/// <param name="maxParallelThreads">Set to 0 to use unlimited threads; set to any other positive integer to limit to an exact number
-	/// of threads. By default, uses the value from the assembly configuration file. (This parameter is ignored for xUnit.net v1 tests.)</param>
-	/// <param name="internalDiagnosticMessages">Set to <c>true</c> to enable internal diagnostic messages; set to <c>false</c> to disable them.
-	/// By default, uses the value from the assembly configuration file.</param>
-	public void Start(
-		string? typeName = null,
-		bool? diagnosticMessages = null,
-		TestMethodDisplay? methodDisplay = null,
-		TestMethodDisplayOptions? methodDisplayOptions = null,
-		bool? preEnumerateTheories = null,
-		bool? parallel = null,
-		int? maxParallelThreads = null,
-		bool? internalDiagnosticMessages = null)
+	/// <param name="startOptions">The start options. For default values, you may pass <see cref="AssemblyRunnerStartOptions.Empty"/>.</param>
+	public void Start(AssemblyRunnerStartOptions startOptions)
 	{
 		lock (statusLock)
 		{
@@ -368,9 +347,9 @@ public class AssemblyRunner : IAsyncDisposable, _IMessageSink
 		ThreadPool.QueueUserWorkItem(_ =>
 		{
 			// TODO: This should be restructured to use FindAndRun, which will require a new design for AssemblyRunner
-			var discoveryOptions = GetDiscoveryOptions(diagnosticMessages, internalDiagnosticMessages, methodDisplay, methodDisplayOptions, preEnumerateTheories);
+			var discoveryOptions = GetDiscoveryOptions(startOptions.DiagnosticMessages, startOptions.InternalDiagnosticMessages, startOptions.MethodDisplay, startOptions.MethodDisplayOptions, startOptions.PreEnumerateTheories);
 			var filters = new XunitFilters();
-			if (typeName is not null)
+			foreach (var typeName in startOptions.TypesToRun)
 				filters.IncludedClasses.Add(typeName);
 
 			var findSettings = new FrontControllerFindSettings(discoveryOptions, filters);
@@ -384,7 +363,7 @@ public class AssemblyRunner : IAsyncDisposable, _IMessageSink
 				return;
 			}
 
-			var executionOptions = GetExecutionOptions(diagnosticMessages, internalDiagnosticMessages, maxParallelThreads, parallel);
+			var executionOptions = GetExecutionOptions(startOptions.DiagnosticMessages, startOptions.InternalDiagnosticMessages, startOptions.MaxParallelThreads, startOptions.Parallel, startOptions.ParallelAlgorithm);
 			var runSettings = new FrontControllerRunSettings(executionOptions, testCasesToRun.Select(tc => tc.Serialization).CastOrToReadOnlyCollection());
 			controller.Run(this, runSettings);
 			executionCompleteEvent.WaitOne();

@@ -4,67 +4,96 @@ using System.Text;
 
 namespace Xunit.Internal;
 
-internal sealed class JsonObjectSerializer(StringBuilder buffer) : JsonSerializerBase(buffer, '{', '}')
+/// <summary>
+/// INTERNAL CLASS. DO NOT USE.
+/// </summary>
+public sealed class JsonObjectSerializer(StringBuilder buffer) : JsonSerializerBase(buffer, '{', '}')
 {
+	/// <summary/>
 	public void Serialize(
 		string key,
-		bool? value)
+		bool? value,
+		bool includeNullValues = false)
 	{
-		if (value.HasValue)
+		if (includeNullValues || value.HasValue)
 		{
 			WriteKey(key);
 			WriteValue(value);
 		}
 	}
 
+	/// <summary/>
 	public void Serialize(
 		string key,
-		DateTimeOffset? value)
+		DateTimeOffset? value,
+		bool includeNullValues = false)
 	{
-		if (value.HasValue)
+		if (includeNullValues || value.HasValue)
 		{
 			WriteKey(key);
 			WriteValue(value);
 		}
 	}
 
+	/// <summary/>
 	public void Serialize(
 		string key,
-		decimal? value)
+		decimal? value,
+		bool includeNullValues = false)
 	{
-		if (value.HasValue)
+		if (includeNullValues || value.HasValue)
 		{
 			WriteKey(key);
 			WriteValue(value);
 		}
 	}
 
+	/// <summary/>
 	public void Serialize(
 		string key,
-		Enum? value)
+		Enum? value,
+		bool includeNullValues = false)
 	{
-		if (value is not null)
+		if (includeNullValues || value is not null)
 		{
 			WriteKey(key);
 			WriteValue(value);
 		}
 	}
 
+	/// <summary/>
 	public void Serialize(
 		string key,
-		int? value)
+		int? value,
+		bool includeNullValues = false)
 	{
-		if (value.HasValue)
+		if (includeNullValues || value.HasValue)
 		{
 			WriteKey(key);
 			WriteValue(value);
 		}
 	}
 
+	/// <summary/>
+	public void Serialize(
+		string key,
+		long? value,
+		bool includeNullValues = false)
+	{
+		if (includeNullValues || value.HasValue)
+		{
+			WriteKey(key);
+			WriteValue(value);
+		}
+	}
+
+	/// <summary/>
 	public void Serialize(
 		string key,
 		IReadOnlyDictionary<string, IReadOnlyList<string>> dictionary)
 	{
+		Guard.ArgumentNotNull(dictionary);
+
 		using var dictionarySerializer = SerializeObject(key);
 
 		foreach (var kvp in dictionary)
@@ -73,23 +102,27 @@ internal sealed class JsonObjectSerializer(StringBuilder buffer) : JsonSerialize
 					arraySerializer.Serialize(value);
 	}
 
+	/// <summary/>
 	public void Serialize(
 		string key,
-		string? value)
+		string? value,
+		bool includeNullValues = false)
 	{
-		if (value is not null)
+		if (includeNullValues || value is not null)
 		{
 			WriteKey(key);
 			WriteValue(value);
 		}
 	}
 
+	/// <summary/>
 	public JsonArraySerializer SerializeArray(string key)
 	{
 		WriteKey(key);
 		return new JsonArraySerializer(Buffer);
 	}
 
+	/// <summary/>
 	public JsonObjectSerializer SerializeObject(string key)
 	{
 		WriteKey(key);

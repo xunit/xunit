@@ -17,6 +17,10 @@
     <PackageDownload Include="Microsoft.NETCore.App.Ref" Version="[$(MicrosoftNetCoreAppRefVersion)]" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <AnnotatedReferenceAssemblyVersion>$(MicrosoftNetCoreAppRefVersion)</AnnotatedReferenceAssemblyVersion>
+  </PropertyGroup>
+
   <!-- On Unix-like systems, mark .NET Framework binaries as executable -->
   <Target
       Name="MarkBinaryExecutable"
@@ -110,7 +114,6 @@
         PackageVersion=$(PackageVersion);
         SignedPath=$(SignedPath);
         SystemCollectionsImmutableVersion=$(SystemCollectionsImmutableVersion);
-        SystemTextJsonVersion=$(SystemTextJsonVersion);
         XunitAbstractionsVersion=$(XunitAbstractionsVersion);
         XunitAnalyzersVersion=$(XunitAnalyzersVersion);
       </NuspecProperties>

@@ -1,117 +1,61 @@
-using System.Collections.Generic;
-using System.Linq;
 using Xunit;
 using Xunit.Runner.Common;
-using Xunit.Sdk;
 using Xunit.v3;
 
 public class MessageSinkMessageHelperTests
 {
-#if false
-	class TestMessageWithEnum : _MessageSinkMessage
+	public static TheoryData<_MessageSinkMessage> MessageData = new()
 	{
-		public FailureCause Cause { get; set; }
-	}
-#endif
+		// Make sure this list always includes every message we serialize
+		TestData.AfterTestFinished(),
+		TestData.AfterTestStarting(),
+		TestData.BeforeTestFinished(),
+		TestData.BeforeTestStarting(),
+		TestData.DiagnosticMessage(),
+		TestData.DiscoveryComplete(),
+		TestData.DiscoveryStarting(),
+		TestData.ErrorMessage(),
+		TestData.InternalDiagnosticMessage(),
+		TestData.TestAssemblyCleanupFailure(),
+		TestData.TestAssemblyFinished(),
+		TestData.TestAssemblyStarting(),
+		TestData.TestCaseCleanupFailure(),
+		TestData.TestCaseDiscovered(),
+		TestData.TestCaseFinished(),
+		TestData.TestCaseStarting(),
+		TestData.TestClassCleanupFailure(),
+		TestData.TestClassConstructionFinished(),
+		TestData.TestClassConstructionStarting(),
+		TestData.TestClassDisposeFinished(),
+		TestData.TestClassDisposeStarting(),
+		TestData.TestClassFinished(),
+		TestData.TestClassStarting(),
+		TestData.TestCleanupFailure(),
+		TestData.TestCollectionCleanupFailure(),
+		TestData.TestCollectionFinished(),
+		TestData.TestCollectionStarting(),
+		TestData.TestFailed(warnings: ["warning 1", "warning 2"]),
+		TestData.TestFinished(warnings: ["warning 1", "warning 2"]),
+		TestData.TestMethodCleanupFailure(),
+		TestData.TestMethodFinished(),
+		TestData.TestMethodStarting(),
+		TestData.TestNotRun(warnings: ["warning 1", "warning 2"]),
+		TestData.TestOutput(),
+		TestData.TestPassed(warnings: ["warning 1", "warning 2"]),
+		TestData.TestSkipped(warnings: ["warning 1", "warning 2"]),
+		TestData.TestStarting(),
+	};
 
-	[Fact]
-	public void DeserializesEnumsAsStrings()
+	[Theory(DisableDiscoveryEnumeration = true)]
+	[MemberData(nameof(MessageData))]
+	public void CanRoundTrip(_MessageSinkMessage message)
 	{
-		var json =
-@"{
-	""Type"":                   ""test-failed"",
-	""Cause"":                  ""Assertion"",
-	""ExceptionParentIndices"": [-1],
-	""ExceptionTypes"":         [""exception-type""],
-	""Messages"":               [""exception-message""],
-	""StackTraces"":            [""stack-trace""],
-	""ExecutionTime"":          123.45,
-	""Output"":                 """",
-	""TestUniqueID"":           ""test-id"",
-	""TestCaseUniqueID"":       ""test-case-id"",
-	""TestCollectionUniqueID"": ""test-collection-id"",
-	""AssemblyUniqueID"":       ""asm-id""
-}";
+		var serialized = message.ToJson();
 
-		var result = MessageSinkMessageHelper.Deserialize(json);
-
-		var testFailed = Assert.IsType<_TestFailed>(result);
-		Assert.Equal(FailureCause.Assertion, testFailed.Cause);
-	}
-
-	[Fact]
-	public void CanRoundTrip()
-	{
-		var serialized = new _DiagnosticMessage { Message = "Hello, world!" }.ToJson();
 		Assert.NotNull(serialized);
 
 		var deserialized = MessageSinkMessageHelper.Deserialize(serialized);
-		var diagnosticMessage = Assert.IsType<_DiagnosticMessage>(deserialized);
-		Assert.Equal("Hello, world!", diagnosticMessage.Message);
-	}
-
-	[Fact]
-	public void CanRoundTripTraits()
-	{
-		var msg = new _TestCaseDiscovered
-		{
-			AssemblyUniqueID = "asm-id",
-			Serialization = "serialized-value",
-			TestCaseDisplayName = "test-case-display-name",
-			TestCaseUniqueID = "test-case-id",
-			TestCollectionUniqueID = "test-collection-id",
-			Traits = new Dictionary<string, IReadOnlyList<string>>
-			{
-				{ "foo", new List<string> { "bar", "baz" } },
-				{ "abc", new List<string> { "123" } },
-				{ "empty", new List<string>() },
-			},
-		};
-
-		// Validate serialization
-
-		var json = msg.ToJson();
-		Assert.NotNull(json);
-
-		var expected =
-@"{
-	""Type"":                   ""test-case-discovered"",
-	""AssemblyUniqueID"":       ""asm-id"",
-	""TestCollectionUniqueID"": ""test-collection-id"",
-	""TestCaseUniqueID"":       ""test-case-id"",
-	""TestCaseDisplayName"":    ""test-case-display-name"",
-	""Traits"":
-	{
-		""foo"":   [""bar"", ""baz""],
-		""abc"":   [""123""],
-		""empty"": []
-	},
-	""Serialization"":          ""serialized-value""
-}".Replace("\n", "");
-		Assert.Equal(expected, json, ignoreAllWhiteSpace: true);
-
-		// Validate deserialization
-
-		var deserialized = MessageSinkMessageHelper.Deserialize(json);
-
-		var deserializedDiscovered = Assert.IsType<_TestCaseDiscovered>(deserialized);
-		Assert.Collection(
-			deserializedDiscovered.Traits.OrderBy(kvp => kvp.Key),
-			trait =>
-			{
-				Assert.Equal("abc", trait.Key);
-				Assert.Equal(new[] { "123" }, trait.Value);
-			},
-			trait =>
-			{
-				Assert.Equal("empty", trait.Key);
-				Assert.Empty(trait.Value);
-			},
-			trait =>
-			{
-				Assert.Equal("foo", trait.Key);
-				Assert.Equal(new[] { "bar", "baz" }, trait.Value);
-			}
-		);
+		Assert.IsType(message.GetType(), deserialized);
+		Assert.Equivalent(message, deserialized);
 	}
 }

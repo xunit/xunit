@@ -9,7 +9,7 @@ namespace Xunit.v3;
 /// This message indicates that an error has occurred in test assembly cleanup.
 /// </summary>
 [JsonTypeID("test-assembly-cleanup-failure")]
-public class _TestAssemblyCleanupFailure : _TestAssemblyMessage, _IErrorMetadata
+public class _TestAssemblyCleanupFailure : _TestAssemblyMessage, _IErrorMetadata, _IWritableErrorMetadata
 {
 	int[]? exceptionParentIndices;
 	string?[]? exceptionTypes;
@@ -66,6 +66,13 @@ public class _TestAssemblyCleanupFailure : _TestAssemblyMessage, _IErrorMetadata
 			StackTraces = errorMetadata.StackTraces,
 			ExceptionParentIndices = errorMetadata.ExceptionParentIndices,
 		};
+	}
+
+	internal override void Deserialize(IReadOnlyDictionary<string, object?> root)
+	{
+		base.Deserialize(root);
+
+		root.DeserializeErrorMetadata(this);
 	}
 
 	internal override void Serialize(JsonObjectSerializer serializer)

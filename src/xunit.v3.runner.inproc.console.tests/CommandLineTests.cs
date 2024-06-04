@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -654,13 +655,13 @@ public class CommandLineTests
 	class TestableCommandLine : CommandLine
 	{
 		public TestableCommandLine(params string[] arguments)
-			: base(Assembly.GetExecutingAssembly(), arguments)
+			: base(TextWriter.Null, Assembly.GetExecutingAssembly(), arguments)
 		{ }
 
 		public TestableCommandLine(
 			IReadOnlyList<IRunnerReporter> reporters,
 			params string[] arguments)
-				: base(Assembly.GetExecutingAssembly(), arguments, reporters)
+				: base(TextWriter.Null, Assembly.GetExecutingAssembly(), arguments, reporters)
 		{ }
 
 		protected override bool FileExists(string? path) =>

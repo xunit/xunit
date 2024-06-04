@@ -147,7 +147,7 @@ public abstract class DataAttribute : Attribute
 
 			if (theoryDataRow.Traits is not null)
 				foreach (var kvp in theoryDataRow.Traits)
-					dataRowTraits.GetOrAdd(kvp.Key).AddRange(kvp.Value);
+					dataRowTraits.AddOrGet(kvp.Key).AddRange(kvp.Value);
 
 			MergeTraitsInto(dataRowTraits);
 

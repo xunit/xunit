@@ -18,18 +18,13 @@ public abstract class TestFrameworkDiscoverer<TTestCase> : _ITestFrameworkDiscov
 {
 	_IAssemblyInfo assemblyInfo;
 	bool disposed;
-	readonly Lazy<string> targetFramework;
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="TestFrameworkDiscoverer{TTestCase}"/> class.
 	/// </summary>
 	/// <param name="assemblyInfo">The test assembly.</param>
-	protected TestFrameworkDiscoverer(_IAssemblyInfo assemblyInfo)
-	{
+	protected TestFrameworkDiscoverer(_IAssemblyInfo assemblyInfo) =>
 		this.assemblyInfo = Guard.ArgumentNotNull(assemblyInfo);
-
-		targetFramework = new Lazy<string>(() => AssemblyInfo.GetTargetFramework());
-	}
 
 	/// <summary>
 	/// Gets the assembly that's being discovered.
@@ -51,11 +46,6 @@ public abstract class TestFrameworkDiscoverer<TTestCase> : _ITestFrameworkDiscov
 	public abstract _ITestAssembly TestAssembly { get; }
 
 	/// <inheritdoc/>
-	public string TargetFramework => targetFramework.Value;
-
-	/// <inheritdoc/>
-	public abstract string TestFrameworkDisplayName { get; }
-
 	/// <summary>
 	/// Implement this method to create a test class for the given CLR type.
 	/// </summary>
@@ -111,7 +101,7 @@ public abstract class TestFrameworkDiscoverer<TTestCase> : _ITestFrameworkDiscov
 					}
 					catch (Exception ex)
 					{
-						TestContext.Current?.SendDiagnosticMessage("Exception during discovery:{0}{1}", Environment.NewLine, ex);
+						TestContext.Current?.SendDiagnosticMessage("Exception during discovery:{0}{1}", Environment.NewLine, ex.Unwrap());
 					}
 				}
 			}

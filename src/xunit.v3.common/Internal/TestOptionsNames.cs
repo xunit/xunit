@@ -36,6 +36,10 @@ public static class TestOptionsNames
 		/// <summary/>
 		public static readonly string ExplicitOption = "xunit.execution.ExplicitOption";
 		/// <summary/>
+		public static readonly string FailSkips = "xunit.execution.FailSkips";
+		/// <summary/>
+		public static readonly string FailTestsWithWarnings = "xunit.execution.FailTestsWithWarnings";
+		/// <summary/>
 		public static readonly string StopOnFail = "xunit.execution.StopOnFail";
 		/// <summary/>
 		public static readonly string InternalDiagnosticMessages = "xunit.execution.InternalDiagnosticMessages";
@@ -43,6 +47,8 @@ public static class TestOptionsNames
 		public static readonly string DisableParallelization = "xunit.execution.DisableParallelization";
 		/// <summary/>
 		public static readonly string MaxParallelThreads = "xunit.execution.MaxParallelThreads";
+		/// <summary/>
+		public static readonly string ParallelAlgorithm = "xunit.execution.ParallelAlgorithm";
 		/// <summary/>
 		public static readonly string Seed = "xunit.execution.Seed";
 		/// <summary/>

@@ -7,6 +7,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using Xunit.Internal;
+using Xunit.Sdk;
 using Xunit.v3;
 
 namespace Xunit.Runner.Common;
@@ -72,6 +73,7 @@ public static class ConfigReader_Configuration
 				configuration.MaxParallelThreads = GetInt(settings, Configuration.MaxParallelThreads) ?? configuration.MaxParallelThreads;
 				configuration.MethodDisplay = GetEnum<TestMethodDisplay>(settings, Configuration.MethodDisplay) ?? configuration.MethodDisplay;
 				configuration.MethodDisplayOptions = GetEnum<TestMethodDisplayOptions>(settings, Configuration.MethodDisplayOptions) ?? configuration.MethodDisplayOptions;
+				configuration.ParallelAlgorithm = GetEnum<ParallelAlgorithm>(settings, Configuration.ParallelAlgorithm) ?? configuration.ParallelAlgorithm;
 				configuration.ParallelizeAssembly = GetBoolean(settings, Configuration.ParallelizeAssembly) ?? configuration.ParallelizeAssembly;
 				configuration.ParallelizeTestCollections = GetBoolean(settings, Configuration.ParallelizeTestCollections) ?? configuration.ParallelizeTestCollections;
 				configuration.PreEnumerateTheories = GetBoolean(settings, Configuration.PreEnumerateTheories) ?? configuration.PreEnumerateTheories;
@@ -159,6 +161,7 @@ public static class ConfigReader_Configuration
 		public const string MaxParallelThreads = "xunit.maxParallelThreads";
 		public const string MethodDisplay = "xunit.methodDisplay";
 		public const string MethodDisplayOptions = "xunit.methodDisplayOptions";
+		public const string ParallelAlgorithm = "xunit.parallelAlgorithm";
 		public const string ParallelizeAssembly = "xunit.parallelizeAssembly";
 		public const string ParallelizeTestCollections = "xunit.parallelizeTestCollections";
 		public const string PreEnumerateTheories = "xunit.preEnumerateTheories";

@@ -26,8 +26,4 @@
     <ProjectReference Include="..\xunit.v3.common\xunit.v3.common.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="System.Text.Json" Version="[$(SystemTextJsonVersion)]" />
-  </ItemGroup>
-
 </Project>

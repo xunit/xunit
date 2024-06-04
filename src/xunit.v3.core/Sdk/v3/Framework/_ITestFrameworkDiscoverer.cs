@@ -13,19 +13,9 @@ namespace Xunit.v3;
 public interface _ITestFrameworkDiscoverer
 {
 	/// <summary>
-	/// Gets the target framework that the test assembly is linked against.
-	/// </summary>
-	string TargetFramework { get; }
-
-	/// <summary>
 	/// Gets the test assembly provided to the discoverer.
 	/// </summary>
 	_ITestAssembly TestAssembly { get; }
-
-	/// <summary>
-	/// Returns the display name of the test framework that this discoverer is running tests for.
-	/// </summary>
-	string TestFrameworkDisplayName { get; }
 
 	/// <summary>
 	/// Finds tests inside an assembly. Calls the callback for each discovered test.

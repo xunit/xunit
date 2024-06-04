@@ -162,6 +162,8 @@ public class VstsReporterMessageHandler : DefaultRunnerReporterMessageHandler
 		base.HandleTestFailed(args);
 	}
 
+	// If this method is ever changed to support value types other than string and DateTimeOffset, you must update
+	// VstsClient.ToJson() to ensure the types are identified and serialized correctly.
 	void VstsAddTest(
 		string testName,
 		string displayName,
@@ -177,12 +179,14 @@ public class VstsReporterMessageHandler : DefaultRunnerReporterMessageHandler
 			{ "automatedTestId", testUniqueID },
 			{ "automatedTestStorage", fileName },
 			{ "state", "InProgress" },
-			{ "startedDate", DateTime.UtcNow }
+			{ "startedDate", DateTimeOffset.UtcNow }
 		};
 
 		Client.AddTest(body, testUniqueID);
 	}
 
+	// If this method is ever changed to support value types other than string and long, you must update
+	// VstsClient.ToJson() to ensure the types are identified and serialized correctly.
 	void VstsUpdateTest(
 		string testUniqueID,
 		string outcome,

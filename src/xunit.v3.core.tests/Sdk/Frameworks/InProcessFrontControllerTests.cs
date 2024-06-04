@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using NSubstitute;
 using Xunit;
-using Xunit.Runner.Common;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -29,7 +28,6 @@ public class InProcessFrontControllerTests
 		{
 			var frontController = TestableInProcessFrontController.Create();
 
-			Assert.Equal(Mocks.DefaultTargetFramework, frontController.TargetFramework);
 			Assert.Equal(Mocks.DefaultTestFrameworkDisplayName, frontController.TestFrameworkDisplayName);
 		}
 	}
@@ -41,7 +39,7 @@ public class InProcessFrontControllerTests
 		{
 			var frontController = TestableInProcessFrontController.Create();
 			var messageSink = SpyMessageSink.Capture();
-			var options = _TestFrameworkOptions.ForDiscovery();
+			var options = TestData.TestFrameworkDiscoveryOptions();
 			var filter = (_ITestCaseMetadata testCase) => true;
 
 			await Assert.ThrowsAsync<ArgumentNullException>("messageSink", () => frontController.Find(null!, options, filter).AsTask());
@@ -54,7 +52,7 @@ public class InProcessFrontControllerTests
 		{
 			var frontController = TestableInProcessFrontController.Create(configFilePath: "/path/to/config.json");
 			var messageSink = SpyMessageSink.Capture();
-			var options = _TestFrameworkOptions.ForDiscovery();
+			var options = TestData.TestFrameworkDiscoveryOptions();
 			var filter = (_ITestCaseMetadata testCase) => true;
 
 			await frontController.Find(messageSink, options, filter);
@@ -88,7 +86,7 @@ public class InProcessFrontControllerTests
 		{
 			var frontController = TestableInProcessFrontController.Create();
 			var messageSink = SpyMessageSink.Capture();
-			var options = _TestFrameworkOptions.ForDiscovery();
+			var options = TestData.TestFrameworkDiscoveryOptions();
 			var validTestCase = Mocks.TestCase();
 			var invalidTestCase = Mocks.TestCase();
 			var filter = (_ITestCaseMetadata testCase) => testCase == validTestCase;
@@ -139,8 +137,8 @@ public class InProcessFrontControllerTests
 		{
 			var frontController = TestableInProcessFrontController.Create();
 			var messageSink = SpyMessageSink.Capture();
-			var discoveryOptions = _TestFrameworkOptions.ForDiscovery();
-			var executionOptions = _TestFrameworkOptions.ForExecution();
+			var discoveryOptions = TestData.TestFrameworkDiscoveryOptions();
+			var executionOptions = TestData.TestFrameworkExecutionOptions();
 			var filter = (_ITestCaseMetadata testCase) => true;
 
 			await Assert.ThrowsAsync<ArgumentNullException>("messageSink", () => frontController.FindAndRun(null!, discoveryOptions, executionOptions, filter).AsTask());
@@ -154,8 +152,8 @@ public class InProcessFrontControllerTests
 		{
 			var frontController = TestableInProcessFrontController.Create();
 			var messageSink = SpyMessageSink.Capture();
-			var discoveryOptions = _TestFrameworkOptions.ForDiscovery();
-			var executionOptions = _TestFrameworkOptions.ForExecution();
+			var discoveryOptions = TestData.TestFrameworkDiscoveryOptions();
+			var executionOptions = TestData.TestFrameworkExecutionOptions();
 			var validTestCase = Mocks.TestCase();
 			var invalidTestCase = Mocks.TestCase();
 			var filter = (_ITestCaseMetadata testCase) => testCase == validTestCase;

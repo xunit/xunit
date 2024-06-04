@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
+using Xunit.v3;
 
 namespace Xunit.Internal;
 
@@ -21,13 +22,16 @@ public abstract class CommandLineParserBase
 
 	/// <summary/>
 	protected CommandLineParserBase(
+		TextWriter consoleWriter,
 		IReadOnlyList<IRunnerReporter>? runnerReporters,
 		string? reporterFolder,
 		string[] args)
 	{
 		this.runnerReporters = runnerReporters;
 		this.reporterFolder = reporterFolder;
-		Args = args;
+
+		ConsoleWriter = Guard.ArgumentNotNull(consoleWriter);
+		Args = GetArguments(Guard.ArgumentNotNull(args));
 
 		if (string.IsNullOrWhiteSpace(this.reporterFolder))
 			this.reporterFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
@@ -39,7 +43,7 @@ public abstract class CommandLineParserBase
 			"note: when running a v1/v2 assembly, the culture option will be ignored",
 			"  default   - run with default operating system culture",
 			"  invariant - run with the invariant culture",
-			"  (string)  - run with the given culture (f.e., 'en-US')"
+			"  (string)  - run with the given culture (i.e., 'en-US')"
 		);
 		AddParser("debug", OnDebug, CommandLineGroup.General, null, "launch the debugger to debug the tests");
 		AddParser("diagnostics", OnDiagnostics, CommandLineGroup.General, null, "enable diagnostics messages for all test assemblies");
@@ -51,14 +55,14 @@ public abstract class CommandLineParserBase
 			"  only - run only explicit tests"
 		);
 		AddParser("failSkips", OnFailSkips, CommandLineGroup.General, null, "treat skipped tests as failures");
-		AddParser("failSkips-", OnFailSkipsMinus, CommandLineGroup.General, null, "treat skipped tests as skipped (default)");
+		AddParser("failSkips-", OnFailSkipsMinus, CommandLineGroup.General, null, "treat skipped tests as skipped [default]");
 		AddParser("failWarns", OnFailWarns, CommandLineGroup.General, null, "treat passing tests with warnings as failures");
-		AddParser("failWarns-", OnFailWarnsMinus, CommandLineGroup.General, null, "treat passing tests with warnings as successful (default)");
+		AddParser("failWarns-", OnFailWarnsMinus, CommandLineGroup.General, null, "treat passing tests with warnings as successful [default]");
 		AddParser("ignoreFailures", OnIgnoreFailures, CommandLineGroup.General, null, "if tests fail, do not return a failure exit code");
 		AddParser("internalDiagnostics", OnInternalDiagnostics, CommandLineGroup.General, null, "enable internal diagnostics messages for all test assemblies");
 		AddParser(
 			"list", OnList, CommandLineGroup.General, "<option>",
-			"list information about the test assemblies rather than running tests (implies -nologo)",
+			"list information about the test assemblies rather than running tests (implies -noLogo)",
 			"note: you can add '/json' to the end of any option to get the listing in JSON format",
 			"  classes - list class names of every class which contains tests",
 			"  full    - list complete discovery data",
@@ -75,28 +79,60 @@ public abstract class CommandLineParserBase
 			"  (float)x  - use a multiple of CPU threads (e.g., '2.0x' = 2.0 * the number of CPU threads)"
 		);
 		AddParser(
-			"noAutoReporters", OnNoAutoReporters, CommandLineGroup.General, "<option>",
+			"methodDisplay", OnMethodDisplay, CommandLineGroup.General, "<option>",
+			"set default test display name",
+			"  classAndMethod - Use a fully qualified name [default]",
+			"  method         - Use just the method name"
+		);
+		AddParser(
+			"methodDisplayOptions", OnMethodDisplayOptions, CommandLineGroup.General, "<option>",
+			"alters the default test display name",
+			"note: you can specify more than one flag by joining with commas",
+			"  none                       - apply no alterations [default]",
+			"  all                        - apply all alterations",
+			"  replacePeriodWithComma     - replace periods in names with commas",
+			"  replaceUnderscoreWithSpace - replace underscores in names with spaces",
+			"  useOperatorMonikers        - replace operator names with operators",
+			"                                 'lt' becomes '<'",
+			"                                 'le' becomes '<='",
+			"                                 'eq' becomes '='",
+			"                                 'ne' becomes '!='",
+			"                                 'gt' becomes '>'",
+			"                                 'ge' becomes '>='",
+			"  useEscapeSequences         - replace ASCII and Unicode escape sequences",
+			"                                  X + 2 hex digits (i.e., 'X2C' becomes ',')",
+			"                                  U + 4 hex digits (i.e., 'U0192' becomes '" + (char)0x0192 + "')"
+		);
+		AddParser(
+			"noAutoReporters", OnNoAutoReporters, CommandLineGroup.General, null,
 			"do not allow reporters to be auto-enabled by environment",
 			"(for example, auto-detecting TeamCity or AppVeyor)"
 		);
 		AddParser("noColor", OnNoColor, CommandLineGroup.General, null, "do not output results with colors");
 		AddParser("noLogo", OnNoLogo, CommandLineGroup.General, null, "do not show the copyright message");
+		AddParser("parallelAlgorithm", OnParallelAlgorithm, CommandLineGroup.General, "<option>",
+			"set the parallelization algoritm",
+			"  conservative - start the minimum number of tests [default]",
+			"  aggressive   - start as many tests as possible",
+			"for more information, see https://xunit.net/docs/running-tests-in-parallel#algorithms"
+		);
 		AddParser("pause", OnPause, CommandLineGroup.General, null, "wait for input before running tests");
 		AddParser("preEnumerateTheories", OnPreEnumerateTheories, CommandLineGroup.General, null, "enable theory pre-enumeration (disabled by default)");
 		AddParser("stopOnFail", OnStopOnFail, CommandLineGroup.General, null, "stop on first test failure");
+		AddParser("useAnsiColor", OnUseAnsiColor, CommandLineGroup.General, null, "force using ANSI color output on Windows (non-Windows always uses ANSI colors)");
 		AddParser("wait", OnWait, CommandLineGroup.General, null, "wait for input after completion");
 
 		// Filter options
 		AddParser(
 			"class", OnClass, CommandLineGroup.Filter, "\"name\"",
-			"run all methods in a given test class (should be fully",
-			"specified; i.e., 'MyNamespace.MyClass')",
+			"run all methods in a given test class (should be fully specified;",
+			"i.e., 'MyNamespace.MyClass' or 'MyNamespace.MyClass+InnerClass')",
 			"  if specified more than once, acts as an OR operation"
 		);
 		AddParser(
 			"class-", OnClassMinus, CommandLineGroup.Filter, "\"name\"",
-			"do not run any methods in a given test class (should be fully",
-			"specified; i.e., 'MyNamespace.MyClass')",
+			"do not run any methods in a given test class (should be fully specified;",
+			"i.e., 'MyNamespace.MyClass' or 'MyNamespace.MyClass+InnerClass')",
 			"  if specified more than once, acts as an AND operation"
 		);
 		AddParser(
@@ -113,14 +149,12 @@ public abstract class CommandLineParserBase
 		);
 		AddParser(
 			"namespace", OnNamespace, CommandLineGroup.Filter, "\"name\"",
-			"run all methods in a given namespace (i.e.,",
-			"'MyNamespace.MySubNamespace')",
+			"run all methods in a given namespace (i.e., 'MyNamespace.MySubNamespace')",
 			"  if specified more than once, acts as an OR operation"
 		);
 		AddParser(
 			"namespace-", OnNamespaceMinus, CommandLineGroup.Filter, "\"name\"",
-			"do not run any methods in a given namespace (i.e.,",
-			"'MyNamespace.MySubNamespace')",
+			"do not run any methods in a given namespace (i.e., 'MyNamespace.MySubNamespace')",
 			"  if specified more than once, acts as an AND operation"
 		);
 		AddParser(
@@ -142,11 +176,14 @@ public abstract class CommandLineParserBase
 	}
 
 	/// <summary/>
-	protected string[] Args { get; }
+	protected IReadOnlyList<string> Args { get; }
+
+	/// <summary/>
+	protected TextWriter ConsoleWriter { get; }
 
 	/// <summary/>
 	public bool HelpRequested =>
-		Args.Length > 0 && (Args[0] == "-?" || Args[0] == "/?" || Args[0] == "-h" || Args[0] == "--help");
+		Args.Count > 0 && (Args[0] == "-?" || Args[0] == "/?" || Args[0] == "-h" || Args[0] == "--help");
 
 	/// <summary/>
 	public List<string> ParseWarnings { get; } = new();
@@ -196,6 +233,27 @@ public abstract class CommandLineParserBase
 	protected virtual bool FileExists(string? path) =>
 		File.Exists(path);
 
+	IReadOnlyList<string> GetArguments(string[] args)
+	{
+		if (args.Length == 2 && args[0] == "@@")
+		{
+			var responseFileName = args[1];
+			if (!File.Exists(responseFileName))
+			{
+				ParseWarnings.Add("Response file not found: " + responseFileName);
+				return ["-?"];
+			}
+
+			try
+			{
+				return File.ReadAllLines(responseFileName).Select(x => x.Trim()).Where(x => x.Length > 0).ToList();
+			}
+			catch { }
+		}
+
+		return args;
+	}
+
 	List<IRunnerReporter> GetAvailableRunnerReporters()
 	{
 		if (string.IsNullOrWhiteSpace(reporterFolder))
@@ -209,7 +267,7 @@ public abstract class CommandLineParserBase
 				ConsoleHelper.SetForegroundColor(ConsoleColor.Yellow);
 
 			foreach (var message in messages)
-				Console.WriteLine(message);
+				ConsoleWriter.WriteLine(message);
 
 			if (!Project.Configuration.NoColorOrDefault)
 				ConsoleHelper.ResetColor();
@@ -325,14 +383,14 @@ public abstract class CommandLineParserBase
 	{
 		GuardNoOptionValue(option);
 		foreach (var projectAssembly in Project.Assemblies)
-			projectAssembly.Configuration.FailWarns = true;
+			projectAssembly.Configuration.FailTestsWithWarnings = true;
 	}
 
 	void OnFailWarnsMinus(KeyValuePair<string, string?> option)
 	{
 		GuardNoOptionValue(option);
 		foreach (var projectAssembly in Project.Assemblies)
-			projectAssembly.Configuration.FailWarns = false;
+			projectAssembly.Configuration.FailTestsWithWarnings = false;
 	}
 
 	void OnIgnoreFailures(KeyValuePair<string, string?> option)
@@ -365,7 +423,7 @@ public abstract class CommandLineParserBase
 		}
 
 		Project.Configuration.List = list ?? throw new ArgumentException("invalid argument for -list");
-		Project.Configuration.NoLogo = true;
+		Project.Configuration.NoLogo = list.Value.Format == ListFormat.Json;
 	}
 
 	void OnMaxThreads(KeyValuePair<string, string?> option)
@@ -412,6 +470,30 @@ public abstract class CommandLineParserBase
 
 		foreach (var projectAssembly in Project.Assemblies)
 			projectAssembly.Configuration.Filters.IncludedMethods.Add(option.Value);
+	}
+
+	void OnMethodDisplay(KeyValuePair<string, string?> option)
+	{
+		if (option.Value is null)
+			throw new ArgumentException("missing argument for -methodDisplay");
+
+		if (!Enum.TryParse<TestMethodDisplay>(option.Value, ignoreCase: true, out var methodDisplay))
+			throw new ArgumentException("incorrect argument value for -methodDisplay");
+
+		foreach (var projectAssembly in Project.Assemblies)
+			projectAssembly.Configuration.MethodDisplay = methodDisplay;
+	}
+
+	void OnMethodDisplayOptions(KeyValuePair<string, string?> option)
+	{
+		if (option.Value is null)
+			throw new ArgumentException("missing argument for -methodDisplayOptions");
+
+		if (!Enum.TryParse<TestMethodDisplayOptions>(option.Value, ignoreCase: true, out var methodDisplayOptions))
+			throw new ArgumentException("incorrect argument value for -methodDisplay");
+
+		foreach (var projectAssembly in Project.Assemblies)
+			projectAssembly.Configuration.MethodDisplayOptions = methodDisplayOptions;
 	}
 
 	void OnMethodMinus(KeyValuePair<string, string?> option)
@@ -487,6 +569,18 @@ public abstract class CommandLineParserBase
 		}
 	}
 
+	void OnParallelAlgorithm(KeyValuePair<string, string?> option)
+	{
+		if (option.Value is null)
+			throw new ArgumentException("missing argument for -parallelAlgorithm");
+
+		if (!Enum.TryParse(option.Value, ignoreCase: true, out ParallelAlgorithm parallelAlgorithm))
+			throw new ArgumentException("incorrect argument value for -parallelAlgorithm");
+
+		foreach (var projectAssembly in Project.Assemblies)
+			projectAssembly.Configuration.ParallelAlgorithm = parallelAlgorithm;
+	}
+
 	void OnPause(KeyValuePair<string, string?> option)
 	{
 		GuardNoOptionValue(option);
@@ -539,6 +633,12 @@ public abstract class CommandLineParserBase
 			projectAssembly.Configuration.Filters.ExcludedTraits.Add(name, value);
 	}
 
+	void OnUseAnsiColor(KeyValuePair<string, string?> option)
+	{
+		GuardNoOptionValue(option);
+		Project.Configuration.UseAnsiColor = true;
+	}
+
 	void OnWait(KeyValuePair<string, string?> option)
 	{
 		GuardNoOptionValue(option);
@@ -551,7 +651,7 @@ public abstract class CommandLineParserBase
 		var arguments = new Stack<string>();
 		var unknownOptions = new List<string>();
 
-		for (var i = Args.Length - 1; i >= argStartIndex; i--)
+		for (var i = Args.Count - 1; i >= argStartIndex; i--)
 			arguments.Push(Args[i]);
 
 		while (arguments.Count > 0)
@@ -616,7 +716,7 @@ public abstract class CommandLineParserBase
 		var option = arguments.Pop();
 		string? value = null;
 
-		if (arguments.Count > 0 && !arguments.Peek().StartsWith("-", StringComparison.Ordinal))
+		if (arguments.Count > 0 && (option.Equals("-run", StringComparison.OrdinalIgnoreCase) || !arguments.Peek().StartsWith("-", StringComparison.Ordinal)))
 			value = arguments.Pop();
 
 		return new KeyValuePair<string, string?>(option, value);
@@ -631,28 +731,28 @@ public abstract class CommandLineParserBase
 
 		if (RunnerReporters.Count > 0)
 		{
-			Console.WriteLine();
-			Console.WriteLine("Reporters (optional, choose only one)");
-			Console.WriteLine();
+			ConsoleWriter.WriteLine();
+			ConsoleWriter.WriteLine("Reporters (optional, choose only one)");
+			ConsoleWriter.WriteLine();
 
 			var longestSwitch = RunnerReporters.Max(r => r.RunnerSwitch?.Length ?? 0);
 
 			foreach (var switchableReporter in RunnerReporters.Where(r => !string.IsNullOrWhiteSpace(r.RunnerSwitch)).OrderBy(r => r.RunnerSwitch))
-				Console.WriteLine("  -{0} : {1}", switchableReporter.RunnerSwitch!.PadRight(longestSwitch), switchableReporter.Description);
+				ConsoleWriter.WriteLine("  -{0} : {1}", switchableReporter.RunnerSwitch!.PadRight(longestSwitch), switchableReporter.Description);
 
 			foreach (var environmentalReporter in RunnerReporters.Where(r => string.IsNullOrWhiteSpace(r.RunnerSwitch)).OrderBy(r => r.Description))
-				Console.WriteLine("   {0} : {1} [auto-enabled only]", "".PadRight(longestSwitch), environmentalReporter.Description);
+				ConsoleWriter.WriteLine("   {0} : {1} [auto-enabled only]", "".PadRight(longestSwitch), environmentalReporter.Description);
 		}
 
 		if (TransformFactory.AvailableTransforms.Count != 0)
 		{
-			Console.WriteLine();
-			Console.WriteLine("Result formats (optional, choose one or more)");
-			Console.WriteLine();
+			ConsoleWriter.WriteLine();
+			ConsoleWriter.WriteLine("Result formats (optional, choose one or more)");
+			ConsoleWriter.WriteLine();
 
 			var longestTransform = TransformFactory.AvailableTransforms.Max(t => t.ID.Length);
 			foreach (var transform in TransformFactory.AvailableTransforms.OrderBy(t => t.ID))
-				Console.WriteLine("  -{0} : {1}", string.Format(CultureInfo.CurrentCulture, "{0} <filename>", transform.ID).PadRight(longestTransform + 11), transform.Description);
+				ConsoleWriter.WriteLine("  -{0} : {1}", string.Format(CultureInfo.CurrentCulture, "{0} <filename>", transform.ID).PadRight(longestTransform + 11), transform.Description);
 		}
 	}
 
@@ -673,18 +773,18 @@ public abstract class CommandLineParserBase
 		var longestSwitch = options.Max(o => o.@switch.Length);
 		var padding = "".PadRight(longestSwitch);
 
-		Console.WriteLine();
+		ConsoleWriter.WriteLine();
 
 		foreach (var header in headers)
-			Console.WriteLine(header);
+			ConsoleWriter.WriteLine(header);
 
-		Console.WriteLine();
+		ConsoleWriter.WriteLine();
 
 		foreach (var (@switch, descriptions) in options)
 		{
-			Console.WriteLine("  {0} : {1}", @switch.PadRight(longestSwitch), descriptions[0]);
+			ConsoleWriter.WriteLine("  {0} : {1}", @switch.PadRight(longestSwitch), descriptions[0]);
 			for (int idx = 1; idx < descriptions.Length; ++idx)
-				Console.WriteLine("  {0} : {1}", padding, descriptions[idx]);
+				ConsoleWriter.WriteLine("  {0} : {1}", padding, descriptions[idx]);
 		}
 	}
 }

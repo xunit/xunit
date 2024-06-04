@@ -16,3 +16,9 @@ public interface _ITestCollectionMetadata
 	/// </summary>
 	string TestCollectionDisplayName { get; }
 }
+
+internal interface _IWritableTestCollectionMetadata
+{
+	string? TestCollectionClass { get; set; }
+	string TestCollectionDisplayName { get; set; }
+}

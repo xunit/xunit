@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
@@ -73,7 +74,7 @@ public class XunitProjectAssembly
 				throw new InvalidOperationException(
 					string.Format(
 						CultureInfo.CurrentCulture,
-						"Cannot get the UniqueID of a {0} instance when both {1} and {2} are null",
+						"Cannot get the Identifier of a {0} instance when both {1} and {2} are null",
 						GetType().FullName,
 						nameof(Assembly),
 						nameof(AssemblyFileName)
@@ -98,4 +99,10 @@ public class XunitProjectAssembly
 		get => targetFramework ?? AssemblyExtensions.UnknownTargetFramework;
 		set => targetFramework = Guard.ArgumentNotNull(value, nameof(TargetFramework));
 	}
+
+	/// <summary>
+	/// Gets a list of serialized test cases to be run. If the list is empty, then all test cases
+	/// (that match the filters) will be run.
+	/// </summary>
+	public List<string> TestCasesToRun { get; } = new();
 }

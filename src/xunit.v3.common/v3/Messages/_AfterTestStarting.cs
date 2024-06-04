@@ -22,6 +22,13 @@ public class _AfterTestStarting : _TestMessage
 		set => attributeName = Guard.ArgumentNotNull(value, nameof(AttributeName));
 	}
 
+	internal override void Deserialize(IReadOnlyDictionary<string, object?> root)
+	{
+		base.Deserialize(root);
+
+		attributeName = TryGetString(root, nameof(AttributeName));
+	}
+
 	internal override void Serialize(JsonObjectSerializer serializer)
 	{
 		base.Serialize(serializer);

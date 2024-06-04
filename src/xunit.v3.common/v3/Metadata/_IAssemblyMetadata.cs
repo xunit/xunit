@@ -25,3 +25,10 @@ public interface _IAssemblyMetadata
 	/// </summary>
 	string? ConfigFilePath { get; }
 }
+
+internal interface _IWritableAssemblyMetadata
+{
+	string AssemblyName { get; set; }
+	string? AssemblyPath { get; set; }
+	string? ConfigFilePath { get; set; }
+}

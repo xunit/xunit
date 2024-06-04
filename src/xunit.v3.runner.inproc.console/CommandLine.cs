@@ -17,26 +17,26 @@ public class CommandLine : CommandLineParserBase
 
 	/// <summary/>
 	public CommandLine(
+		TextWriter consoleWriter,
 		Assembly assembly,
 		string[] args,
 		IReadOnlyList<IRunnerReporter>? runnerReporters = null,
 		string? reporterFolder = null)
-			: base(runnerReporters, reporterFolder ?? Path.GetDirectoryName(assembly.GetSafeLocation()), args)
+			: base(consoleWriter, runnerReporters, reporterFolder ?? Path.GetDirectoryName(assembly.GetSafeLocation()), args)
 	{
 		this.assembly = assembly;
 		assemblyFileName = assembly.GetSafeLocation();
 
 		// General options
-		AddParser(
-			"automated", OnAutomated, CommandLineGroup.General, null,
-			"enables automated mode (ensures all output is machine parseable)"
-		);
+		AddParser("automated", OnAutomated, CommandLineGroup.General, null, "enables automated mode; ensures all output is machine parseable");
 		AddParser(
 			"parallel", OnParallel, CommandLineGroup.General, "<option>",
 			"set parallelization based on option",
 			"  none        - turn off parallelization",
 			"  collections - parallelize by collections [default]"
 		);
+		AddParser("run", OnRun, CommandLineGroup.General, "<serialization>", "Run a test case");
+		AddParser("waitForDebugger", OnWaitForDebugger, CommandLineGroup.General, null, "pauses execution until a debugger has been attached");
 	}
 
 	/// <summary/>
@@ -87,9 +87,9 @@ public class CommandLine : CommandLineParserBase
 
 		int? seed = null;
 #if NETFRAMEWORK
-		if (Args.Length > argsStartIndex && Args[argsStartIndex].StartsWith(":", StringComparison.OrdinalIgnoreCase))
+		if (Args.Count > argsStartIndex && Args[argsStartIndex].StartsWith(":", StringComparison.OrdinalIgnoreCase))
 #else
-		if (Args.Length > argsStartIndex && Args[argsStartIndex].StartsWith(':'))
+		if (Args.Count > argsStartIndex && Args[argsStartIndex].StartsWith(':'))
 #endif
 		{
 			var seedValueText = Args[argsStartIndex].Substring(1);
@@ -102,9 +102,9 @@ public class CommandLine : CommandLineParserBase
 
 		string? configFileName = null;
 #if NETFRAMEWORK
-		if (Args.Length > argsStartIndex && !Args[argsStartIndex].StartsWith("-", StringComparison.OrdinalIgnoreCase) && Args[argsStartIndex].EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+		if (Args.Count > argsStartIndex && !Args[argsStartIndex].StartsWith("-", StringComparison.OrdinalIgnoreCase) && Args[argsStartIndex].EndsWith(".json", StringComparison.OrdinalIgnoreCase))
 #else
-		if (Args.Length > argsStartIndex && !Args[argsStartIndex].StartsWith('-') && Args[argsStartIndex].EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+		if (Args.Count > argsStartIndex && !Args[argsStartIndex].StartsWith('-') && Args[argsStartIndex].EndsWith(".json", StringComparison.OrdinalIgnoreCase))
 #endif
 		{
 			configFileName = Args[argsStartIndex];
@@ -118,6 +118,24 @@ public class CommandLine : CommandLineParserBase
 
 	// Don't need to store anything, because we rely on AutomatedRequested instead; just want to validate and
 	// ignore during parsing, which happens later than is normally useful for us.
-	void OnAutomated(KeyValuePair<string, string?> pair) =>
-		GuardNoOptionValue(pair);
+	void OnAutomated(KeyValuePair<string, string?> option) =>
+		GuardNoOptionValue(option);
+
+	void OnRun(KeyValuePair<string, string?> option)
+	{
+		if (option.Value is null)
+			throw new ArgumentException("missing argument for -run");
+
+		var assembly = Project.Assemblies.FirstOrDefault();
+		if (assembly is null)
+			throw new ArgumentException("no assembly in the project");
+
+		assembly.TestCasesToRun.Add(option.Value);
+	}
+
+	void OnWaitForDebugger(KeyValuePair<string, string?> option)
+	{
+		GuardNoOptionValue(option);
+		Project.Configuration.WaitForDebugger = true;
+	}
 }

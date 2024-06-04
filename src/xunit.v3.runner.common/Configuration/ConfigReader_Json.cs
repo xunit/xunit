@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Text.Json;
 using Xunit.Internal;
+using Xunit.Sdk;
 using Xunit.v3;
 
 namespace Xunit.Runner.Common;
@@ -67,102 +67,108 @@ public static class ConfigReader_Json
 			if (!File.Exists(configFileName))
 				return false;
 
-			using var jsonStream = File.OpenRead(configFileName);
-			var root = JsonSerializer.Deserialize<JsonElement>(jsonStream);
-			if (root.ValueKind != JsonValueKind.Object)
+			var jsonText = File.ReadAllText(configFileName);
+			if (!JsonDeserializer.TryDeserialize(jsonText, out var json))
+			{
+				warnings?.Add(string.Format(CultureInfo.CurrentCulture, "Couldn't parse config file '{0}': the JSON appears to be malformed", configFileName));
+				return false;
+			}
+
+			if (json is not IReadOnlyDictionary<string, object> root)
 			{
 				warnings?.Add(string.Format(CultureInfo.CurrentCulture, "Couldn't parse config file '{0}': the root must be a JSON object", configFileName));
 				return false;
 			}
 
-			foreach (var property in root.EnumerateObject())
+			foreach (var kvp in root)
 			{
-				if (property.Value.ValueKind == JsonValueKind.True || property.Value.ValueKind == JsonValueKind.False)
+				if (kvp.Value is bool booleanValue)
 				{
-					var booleanValue = property.Value.GetBoolean();
-
-					if (string.Equals(property.Name, Configuration.DiagnosticMessages, StringComparison.OrdinalIgnoreCase))
+					if (string.Equals(kvp.Key, Configuration.DiagnosticMessages, StringComparison.OrdinalIgnoreCase))
 						configuration.DiagnosticMessages = booleanValue;
-					else if (string.Equals(property.Name, Configuration.FailSkips, StringComparison.OrdinalIgnoreCase))
+					else if (string.Equals(kvp.Key, Configuration.FailSkips, StringComparison.OrdinalIgnoreCase))
 						configuration.FailSkips = booleanValue;
-					else if (string.Equals(property.Name, Configuration.FailWarns, StringComparison.OrdinalIgnoreCase))
-						configuration.FailWarns = booleanValue;
-					else if (string.Equals(property.Name, Configuration.InternalDiagnosticMessages, StringComparison.OrdinalIgnoreCase))
+					else if (string.Equals(kvp.Key, Configuration.FailWarns, StringComparison.OrdinalIgnoreCase))
+						configuration.FailTestsWithWarnings = booleanValue;
+					else if (string.Equals(kvp.Key, Configuration.InternalDiagnosticMessages, StringComparison.OrdinalIgnoreCase))
 						configuration.InternalDiagnosticMessages = booleanValue;
-					else if (string.Equals(property.Name, Configuration.ParallelizeAssembly, StringComparison.OrdinalIgnoreCase))
+					else if (string.Equals(kvp.Key, Configuration.ParallelizeAssembly, StringComparison.OrdinalIgnoreCase))
 						configuration.ParallelizeAssembly = booleanValue;
-					else if (string.Equals(property.Name, Configuration.ParallelizeTestCollections, StringComparison.OrdinalIgnoreCase))
+					else if (string.Equals(kvp.Key, Configuration.ParallelizeTestCollections, StringComparison.OrdinalIgnoreCase))
 						configuration.ParallelizeTestCollections = booleanValue;
-					else if (string.Equals(property.Name, Configuration.PreEnumerateTheories, StringComparison.OrdinalIgnoreCase))
+					else if (string.Equals(kvp.Key, Configuration.PreEnumerateTheories, StringComparison.OrdinalIgnoreCase))
 						configuration.PreEnumerateTheories = booleanValue;
-					else if (string.Equals(property.Name, Configuration.ShadowCopy, StringComparison.OrdinalIgnoreCase))
+					else if (string.Equals(kvp.Key, Configuration.ShadowCopy, StringComparison.OrdinalIgnoreCase))
 						configuration.ShadowCopy = booleanValue;
-					else if (string.Equals(property.Name, Configuration.StopOnFail, StringComparison.OrdinalIgnoreCase))
+					else if (string.Equals(kvp.Key, Configuration.StopOnFail, StringComparison.OrdinalIgnoreCase))
 						configuration.StopOnFail = booleanValue;
 				}
-				else if (property.Value.ValueKind == JsonValueKind.Number && property.Value.TryGetInt32(out var intValue))
+				else if (kvp.Value is decimal decimalValue && (decimalValue % 1m) == 0m)
 				{
-					if (string.Equals(property.Name, Configuration.MaxParallelThreads, StringComparison.OrdinalIgnoreCase))
+					var intValue = (int)decimalValue;
+
+					if (string.Equals(kvp.Key, Configuration.MaxParallelThreads, StringComparison.OrdinalIgnoreCase))
 					{
 						if (intValue >= -1)
 							configuration.MaxParallelThreads = intValue;
 					}
-					else if (string.Equals(property.Name, Configuration.LongRunningTestSeconds, StringComparison.OrdinalIgnoreCase))
+					else if (string.Equals(kvp.Key, Configuration.LongRunningTestSeconds, StringComparison.OrdinalIgnoreCase))
 					{
 						if (intValue > 0)
 							configuration.LongRunningTestSeconds = intValue;
 					}
-					else if (string.Equals(property.Name, Configuration.Seed, StringComparison.OrdinalIgnoreCase))
+					else if (string.Equals(kvp.Key, Configuration.Seed, StringComparison.OrdinalIgnoreCase))
 					{
 						if (intValue >= 0)
 							configuration.Seed = intValue;
 					}
 				}
-				else if (property.Value.ValueKind == JsonValueKind.String)
+				else if (kvp.Value is string stringValue)
 				{
-					var stringValue = property.Value.GetString();
-					if (stringValue is not null)
+					if (string.Equals(kvp.Key, Configuration.MaxParallelThreads, StringComparison.OrdinalIgnoreCase))
 					{
-						if (string.Equals(property.Name, Configuration.MaxParallelThreads, StringComparison.OrdinalIgnoreCase))
+						if (string.Equals("default", stringValue, StringComparison.OrdinalIgnoreCase))
+							configuration.MaxParallelThreads = null;
+						else if (string.Equals("unlimited", stringValue, StringComparison.OrdinalIgnoreCase))
+							configuration.MaxParallelThreads = -1;
+						else
 						{
-							if (string.Equals("default", stringValue, StringComparison.OrdinalIgnoreCase))
-								configuration.MaxParallelThreads = null;
-							else if (string.Equals("unlimited", stringValue, StringComparison.OrdinalIgnoreCase))
-								configuration.MaxParallelThreads = -1;
-							else
-							{
-								var match = ConfigUtility.MultiplierStyleMaxParallelThreadsRegex.Match(stringValue);
-								// Use invariant format and convert ',' to '.' so we can always support both formats, regardless of locale
-								// If we stick to locale-only parsing, we could break people when moving from one locale to another (for example,
-								// from people running tests on their desktop in a comma locale vs. running them in CI with a decimal locale).
-								if (match.Success && decimal.TryParse(match.Groups[1].Value.Replace(',', '.'), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var maxThreadMultiplier))
-									configuration.MaxParallelThreads = (int)(maxThreadMultiplier * Environment.ProcessorCount);
-							}
+							var match = ConfigUtility.MultiplierStyleMaxParallelThreadsRegex.Match(stringValue);
+							// Use invariant format and convert ',' to '.' so we can always support both formats, regardless of locale
+							// If we stick to locale-only parsing, we could break people when moving from one locale to another (for example,
+							// from people running tests on their desktop in a comma locale vs. running them in CI with a decimal locale).
+							if (match.Success && decimal.TryParse(match.Groups[1].Value.Replace(',', '.'), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var maxThreadMultiplier))
+								configuration.MaxParallelThreads = (int)(maxThreadMultiplier * Environment.ProcessorCount);
 						}
-						else if (string.Equals(property.Name, Configuration.MethodDisplay, StringComparison.OrdinalIgnoreCase))
-						{
-							if (Enum.TryParse<TestMethodDisplay>(stringValue, true, out var methodDisplay))
-								configuration.MethodDisplay = methodDisplay;
-						}
-						else if (string.Equals(property.Name, Configuration.MethodDisplayOptions, StringComparison.OrdinalIgnoreCase))
-						{
-							if (Enum.TryParse<TestMethodDisplayOptions>(stringValue, true, out var methodDisplayOptions))
-								configuration.MethodDisplayOptions = methodDisplayOptions;
-						}
-						else if (string.Equals(property.Name, Configuration.AppDomain, StringComparison.OrdinalIgnoreCase))
-						{
-							if (Enum.TryParse<AppDomainSupport>(stringValue, true, out var appDomain))
-								configuration.AppDomain = appDomain;
-						}
-						else if (string.Equals(property.Name, Configuration.Culture, StringComparison.OrdinalIgnoreCase))
-						{
-							if (string.Equals("default", stringValue, StringComparison.OrdinalIgnoreCase))
-								configuration.Culture = null;
-							else if (string.Equals("invariant", stringValue, StringComparison.OrdinalIgnoreCase))
-								configuration.Culture = string.Empty;
-							else
-								configuration.Culture = stringValue;
-						}
+					}
+					else if (string.Equals(kvp.Key, Configuration.MethodDisplay, StringComparison.OrdinalIgnoreCase))
+					{
+						if (Enum.TryParse<TestMethodDisplay>(stringValue, true, out var methodDisplay))
+							configuration.MethodDisplay = methodDisplay;
+					}
+					else if (string.Equals(kvp.Key, Configuration.MethodDisplayOptions, StringComparison.OrdinalIgnoreCase))
+					{
+						if (Enum.TryParse<TestMethodDisplayOptions>(stringValue, true, out var methodDisplayOptions))
+							configuration.MethodDisplayOptions = methodDisplayOptions;
+					}
+					else if (string.Equals(kvp.Key, Configuration.AppDomain, StringComparison.OrdinalIgnoreCase))
+					{
+						if (Enum.TryParse<AppDomainSupport>(stringValue, true, out var appDomain))
+							configuration.AppDomain = appDomain;
+					}
+					else if (string.Equals(kvp.Key, Configuration.Culture, StringComparison.OrdinalIgnoreCase))
+					{
+						if (string.Equals("default", stringValue, StringComparison.OrdinalIgnoreCase))
+							configuration.Culture = null;
+						else if (string.Equals("invariant", stringValue, StringComparison.OrdinalIgnoreCase))
+							configuration.Culture = string.Empty;
+						else
+							configuration.Culture = stringValue;
+					}
+					else if (string.Equals(kvp.Key, Configuration.ParallelAlgorithm, StringComparison.OrdinalIgnoreCase))
+					{
+						if (Enum.TryParse<ParallelAlgorithm>(stringValue, true, out var parallelAlgorithm))
+							configuration.ParallelAlgorithm = parallelAlgorithm;
 					}
 				}
 			}
@@ -189,6 +195,7 @@ public static class ConfigReader_Json
 		public const string MaxParallelThreads = "maxParallelThreads";
 		public const string MethodDisplay = "methodDisplay";
 		public const string MethodDisplayOptions = "methodDisplayOptions";
+		public const string ParallelAlgorithm = "parallelAlgorithm";
 		public const string ParallelizeAssembly = "parallelizeAssembly";
 		public const string ParallelizeTestCollections = "parallelizeTestCollections";
 		public const string PreEnumerateTheories = "preEnumerateTheories";

@@ -20,6 +20,13 @@ public class _TestOutput : _TestMessage
 		set => output = Guard.ArgumentNotNull(value, nameof(Output));
 	}
 
+	internal override void Deserialize(IReadOnlyDictionary<string, object?> root)
+	{
+		base.Deserialize(root);
+
+		output = TryGetString(root, nameof(Output));
+	}
+
 	internal override void Serialize(JsonObjectSerializer serializer)
 	{
 		base.Serialize(serializer);

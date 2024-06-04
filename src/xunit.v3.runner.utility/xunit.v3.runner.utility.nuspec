@@ -17,13 +17,11 @@
 		<dependencies>
 			<group targetFramework="net472">
 				<dependency id="Mono.Cecil" version="$MonoCecilVersion$" />
-				<dependency id="System.Text.Json" version="$SystemTextJsonVersion$" />
 				<dependency id="xunit.abstractions" version="$XunitAbstractionsVersion$" />
 				<dependency id="xunit.v3.common" version="[$PackageVersion$]" />
 			</group>
 			<group targetFramework="netstandard2.0">
 				<dependency id="Mono.Cecil" version="$MonoCecilVersion$" />
-				<dependency id="System.Text.Json" version="$SystemTextJsonVersion$" />
 				<dependency id="xunit.abstractions" version="$XunitAbstractionsVersion$" />
 				<dependency id="xunit.v3.common" version="[$PackageVersion$]" />
 			</group>

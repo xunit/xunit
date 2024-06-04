@@ -14,10 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="xunit.v3.core.dll.tdnet" CopyToOutputDirectory="PreserveNewest" />
-  </ItemGroup>
-
-  <ItemGroup>
     <EmbeddedResource Include="Resources\*.rd.xml" />
   </ItemGroup>
 

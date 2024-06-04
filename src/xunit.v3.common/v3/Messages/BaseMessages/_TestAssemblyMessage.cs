@@ -23,6 +23,13 @@ public abstract class _TestAssemblyMessage : _MessageSinkMessage
 		set => assemblyUniqueID = Guard.ArgumentNotNullOrEmpty(value, nameof(AssemblyUniqueID));
 	}
 
+	internal override void Deserialize(IReadOnlyDictionary<string, object?> root)
+	{
+		base.Deserialize(root);
+
+		assemblyUniqueID = TryGetString(root, nameof(AssemblyUniqueID));
+	}
+
 	internal override void Serialize(JsonObjectSerializer serializer)
 	{
 		base.Serialize(serializer);

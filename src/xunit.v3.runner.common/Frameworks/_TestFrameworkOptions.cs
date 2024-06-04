@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Text.Json;
+using System.Text;
 using Xunit.Internal;
 using Xunit.Sdk;
 using Xunit.v3;
@@ -22,40 +22,22 @@ public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFram
 	_TestFrameworkOptions(string? optionsJson = null)
 	{
 		if (optionsJson is not null)
-			properties = JsonSerializer.Deserialize<Dictionary<string, string>>(optionsJson) ?? throw new ArgumentException("Invalid JSON", nameof(optionsJson));
+		{
+			if (!JsonDeserializer.TryDeserialize(optionsJson, out var json))
+				throw new ArgumentException("Invalid JSON", nameof(optionsJson));
+			if (json is not IReadOnlyDictionary<string, object> root)
+				throw new ArgumentException("JSON options must be a top-level object", nameof(optionsJson));
+
+			foreach (var kvp in root)
+				properties[kvp.Key] = kvp.Value.ToString() ?? throw new ArgumentException(string.Format(CultureInfo.InvariantCulture, "Option value '{0}' for key '{1}' is null", kvp.Value, kvp.Key), nameof(optionsJson));
+		}
 	}
 
 	/// <summary>
-	/// Creates an instance of <see cref="_TestFrameworkOptions"/> for discovery purposes.
+	/// INTERNAL METHOD, FOR TESTING PURPOSES ONLY. DO NOT CALL.
 	/// </summary>
-	/// <param name="culture">Optional value to indicate the culture used for test discovery</param>
-	/// <param name="diagnosticMessages">Optional flag to enable diagnostic messages</param>
-	/// <param name="includeSourceInformation">Optional flag to include source information</param>
-	/// <param name="internalDiagnosticMessages">Optional flag to enable internal diagnostic messages</param>
-	/// <param name="methodDisplay">Optional flags for creating the display name of test methods</param>
-	/// <param name="methodDisplayOptions">Optional flags for formatting the display name of test methods</param>
-	/// <param name="preEnumerateTheories">Optional flag to enable pre-enumerating theories</param>
-	public static _ITestFrameworkDiscoveryOptions ForDiscovery(
-		string? culture = null,
-		bool? diagnosticMessages = null,
-		bool? includeSourceInformation = null,
-		bool? internalDiagnosticMessages = null,
-		TestMethodDisplay? methodDisplay = null,
-		TestMethodDisplayOptions? methodDisplayOptions = null,
-		bool? preEnumerateTheories = null)
-	{
-		_ITestFrameworkDiscoveryOptions result = new _TestFrameworkOptions();
-
-		result.SetCulture(culture);
-		result.SetDiagnosticMessages(diagnosticMessages);
-		result.SetIncludeSourceInformation(includeSourceInformation);
-		result.SetInternalDiagnosticMessages(internalDiagnosticMessages);
-		result.SetMethodDisplay(methodDisplay);
-		result.SetMethodDisplayOptions(methodDisplayOptions);
-		result.SetPreEnumerateTheories(preEnumerateTheories);
-
-		return result;
-	}
+	public static _TestFrameworkOptions Empty() =>
+		new();
 
 	/// <summary>
 	/// Creates an instance of <see cref="_TestFrameworkOptions"/> for discovery purposes.
@@ -65,15 +47,18 @@ public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFram
 	{
 		Guard.ArgumentNotNull(configuration);
 
-		return ForDiscovery(
-			configuration.Culture,
-			configuration.DiagnosticMessages,
-			configuration.IncludeSourceInformation,
-			configuration.InternalDiagnosticMessages,
-			configuration.MethodDisplay,
-			configuration.MethodDisplayOptions,
-			configuration.PreEnumerateTheories
-		);
+		_ITestFrameworkDiscoveryOptions result = new _TestFrameworkOptions();
+
+		result.SetCulture(configuration.Culture);
+		result.SetDiagnosticMessages(configuration.DiagnosticMessages);
+		result.SetIncludeSourceInformation(configuration.IncludeSourceInformation);
+		result.SetInternalDiagnosticMessages(configuration.InternalDiagnosticMessages);
+		result.SetMethodDisplay(configuration.MethodDisplay);
+		result.SetMethodDisplayOptions(configuration.MethodDisplayOptions);
+		result.SetPreEnumerateTheories(configuration.PreEnumerateTheories);
+		result.SetSynchronousMessageReporting(configuration.SynchronousMessageReporting);
+
+		return result;
 	}
 
 	/// <summary>
@@ -86,57 +71,27 @@ public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFram
 	/// <summary>
 	/// Creates an instance of <see cref="_TestFrameworkOptions"/> for execution purposes.
 	/// </summary>
-	/// <param name="culture">Optional value to indicate the culture used for test execution</param>
-	/// <param name="diagnosticMessages">Optional flag to enable diagnostic messages</param>
-	/// <param name="disableParallelization">Optional flag to disable test parallelization</param>
-	/// <param name="explicitOption">Optional flag to indicate how explicit tests should be handled</param>
-	/// <param name="internalDiagnosticMessages">Optional flag to enable internal diagnostic messages</param>
-	/// <param name="maxParallelThreads">Optional value for maximum threads when running tests in parallel</param>
-	/// <param name="seed">Optional override value to seed randomization</param>
-	/// <param name="stopOnFail">Optional flag to indicate that tests should stop running once one test has failed</param>
-	/// <returns></returns>
-	public static _ITestFrameworkExecutionOptions ForExecution(
-		string? culture = null,
-		bool? diagnosticMessages = null,
-		bool? disableParallelization = null,
-		ExplicitOption? explicitOption = null,
-		bool? internalDiagnosticMessages = null,
-		int? maxParallelThreads = null,
-		int? seed = null,
-		bool? stopOnFail = null)
-	{
-		_ITestFrameworkExecutionOptions result = new _TestFrameworkOptions();
-
-		result.SetCulture(culture);
-		result.SetDiagnosticMessages(diagnosticMessages);
-		result.SetDisableParallelization(disableParallelization);
-		result.SetExplicitOption(explicitOption);
-		result.SetInternalDiagnosticMessages(internalDiagnosticMessages);
-		result.SetMaxParallelThreads(maxParallelThreads);
-		result.SetSeed(seed);
-		result.SetStopOnTestFail(stopOnFail);
-
-		return result;
-	}
-
-	/// <summary>
-	/// Creates an instance of <see cref="_TestFrameworkOptions"/> for execution purposes.
-	/// </summary>
 	/// <param name="configuration">The configuration to copy values from.</param>
 	public static _ITestFrameworkExecutionOptions ForExecution(TestAssemblyConfiguration configuration)
 	{
 		Guard.ArgumentNotNull(configuration);
 
-		return ForExecution(
-			configuration.Culture,
-			configuration.DiagnosticMessages,
-			!configuration.ParallelizeTestCollections,
-			configuration.ExplicitOption,
-			configuration.InternalDiagnosticMessages,
-			configuration.MaxParallelThreads,
-			configuration.Seed,
-			configuration.StopOnFail
-		);
+		_ITestFrameworkExecutionOptions result = new _TestFrameworkOptions();
+
+		result.SetCulture(configuration.Culture);
+		result.SetDiagnosticMessages(configuration.DiagnosticMessages);
+		result.SetDisableParallelization(!configuration.ParallelizeTestCollections);
+		result.SetExplicitOption(configuration.ExplicitOption);
+		result.SetFailSkips(configuration.FailSkips);
+		result.SetFailTestsWithWarnings(configuration.FailTestsWithWarnings);
+		result.SetInternalDiagnosticMessages(configuration.InternalDiagnosticMessages);
+		result.SetMaxParallelThreads(configuration.MaxParallelThreads);
+		result.SetParallelAlgorithm(configuration.ParallelAlgorithm);
+		result.SetSeed(configuration.Seed);
+		result.SetStopOnTestFail(configuration.StopOnFail);
+		result.SetSynchronousMessageReporting(configuration.SynchronousMessageReporting);
+
+		return result;
 	}
 
 	/// <summary>
@@ -196,6 +151,14 @@ public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFram
 		=> string.Format(CultureInfo.CurrentCulture, "{{ {0} }}", string.Join(", ", properties.Select(p => string.Format(CultureInfo.CurrentCulture, "{{ {0} = {1} }}", p.Key, p.Value)).ToArray()));
 
 	/// <inheritdoc/>
-	public string ToJson() =>
-		JsonSerializer.Serialize(properties);
+	public string ToJson()
+	{
+		var buffer = new StringBuilder();
+
+		using (var serializer = new JsonObjectSerializer(buffer))
+			foreach (var kvp in properties)
+				serializer.Serialize(kvp.Key, kvp.Value);
+
+		return buffer.ToString();
+	}
 }

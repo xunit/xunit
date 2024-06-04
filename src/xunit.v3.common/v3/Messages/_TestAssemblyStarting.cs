@@ -11,7 +11,7 @@ namespace Xunit.v3;
 /// the requested assembly.
 /// </summary>
 [JsonTypeID("test-assembly-starting")]
-public class _TestAssemblyStarting : _TestAssemblyMessage, _IAssemblyMetadata
+public class _TestAssemblyStarting : _TestAssemblyMessage, _IAssemblyMetadata, _IWritableAssemblyMetadata
 {
 	string? assemblyName;
 	string? testEnvironment;
@@ -68,6 +68,20 @@ public class _TestAssemblyStarting : _TestAssemblyMessage, _IAssemblyMetadata
 	{
 		get => this.ValidateNullablePropertyValue(testFrameworkDisplayName, nameof(TestFrameworkDisplayName));
 		set => testFrameworkDisplayName = Guard.ArgumentNotNullOrEmpty(value, nameof(TestFrameworkDisplayName));
+	}
+
+	internal override void Deserialize(IReadOnlyDictionary<string, object?> root)
+	{
+		base.Deserialize(root);
+
+		root.DeserializeAssemblyMetadata(this);
+
+		Seed = TryGetInt(root, nameof(Seed));
+		if (TryGetDateTimeOffset(root, nameof(StartTime)) is DateTimeOffset startTime)
+			StartTime = startTime;
+		TargetFramework = TryGetString(root, nameof(TargetFramework));
+		testEnvironment = TryGetString(root, nameof(TestEnvironment));
+		testFrameworkDisplayName = TryGetString(root, nameof(TestFrameworkDisplayName));
 	}
 
 	internal override void Serialize(JsonObjectSerializer serializer)

@@ -98,7 +98,7 @@ public class ReflectionAttributeInfoTests
 		{
 			class AttributeUnderTest : Attribute
 			{
-				public int IntValue { get; set; }
+				public virtual int IntValue { get; set; }
 			}
 
 			[AttributeUnderTest(IntValue = 42)]
@@ -127,6 +127,25 @@ public class ReflectionAttributeInfoTests
 				var result = attributeInfo.GetNamedArgument<int>("IntValue");
 
 				Assert.Equal(0, result);
+			}
+
+			class DerivedAttributeUnderTest : AttributeUnderTest
+			{
+				public override int IntValue => 42;
+			}
+
+			[DerivedAttributeUnderTest]
+			public class ClassWithDerivedAttribute { }
+
+			[Fact]
+			public void ReturnsVirtualOverrideValue()
+			{
+				var attributeData = CustomAttributeData.GetCustomAttributes(typeof(ClassWithDerivedAttribute)).Single(cad => cad.AttributeType == typeof(DerivedAttributeUnderTest));
+				var attributeInfo = new ReflectionAttributeInfo(attributeData);
+
+				var result = attributeInfo.GetNamedArgument<int>("IntValue");
+
+				Assert.Equal(42, result);
 			}
 		}
 

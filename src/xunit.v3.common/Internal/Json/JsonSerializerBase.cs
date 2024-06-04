@@ -4,12 +4,16 @@ using System.Text;
 
 namespace Xunit.Internal;
 
-internal abstract class JsonSerializerBase : IDisposable
+/// <summary>
+/// INTERNAL CLASS. DO NOT USE.
+/// </summary>
+public abstract class JsonSerializerBase : IDisposable
 {
 	readonly char? close;
 	bool writtenValue;
 
-	public JsonSerializerBase(
+	/// <summary/>
+	protected JsonSerializerBase(
 		StringBuilder buffer,
 		char? open = null,
 		char? close = null)
@@ -21,14 +25,19 @@ internal abstract class JsonSerializerBase : IDisposable
 			Buffer.Append(open);
 	}
 
+	/// <summary/>
 	public void Dispose()
 	{
+		GC.SuppressFinalize(this);
+
 		if (close is not null)
 			Buffer.Append(close);
 	}
 
+	/// <summary/>
 	protected StringBuilder Buffer { get; }
 
+	/// <summary/>
 	protected void WriteSeparator()
 	{
 		if (writtenValue)
@@ -37,6 +46,7 @@ internal abstract class JsonSerializerBase : IDisposable
 		writtenValue = true;
 	}
 
+	/// <summary/>
 	protected void WriteValue(bool? value) =>
 		Buffer.Append(value switch
 		{
@@ -45,18 +55,27 @@ internal abstract class JsonSerializerBase : IDisposable
 			_ => "null",
 		});
 
+	/// <summary/>
 	protected void WriteValue(DateTimeOffset? value) =>
 		WriteValue(value?.ToString("o", CultureInfo.InvariantCulture));
 
+	/// <summary/>
 	protected void WriteValue(decimal? value) =>
 		Buffer.Append(value?.ToString(CultureInfo.InvariantCulture) ?? "null");
 
+	/// <summary/>
 	protected void WriteValue(Enum? value) =>
 		WriteValue(value?.ToString());
 
+	/// <summary/>
 	protected void WriteValue(int? value) =>
 		Buffer.Append(value?.ToString(CultureInfo.InvariantCulture) ?? "null");
 
+	/// <summary/>
+	protected void WriteValue(long? value) =>
+		Buffer.Append(value?.ToString(CultureInfo.InvariantCulture) ?? "null");
+
+	/// <summary/>
 	protected void WriteValue(string? value)
 	{
 		if (value is null)

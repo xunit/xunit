@@ -20,6 +20,9 @@ public abstract class TestFramework : _ITestFramework, IAsyncDisposable
 	protected DisposalTracker DisposalTracker { get; } = new();
 
 	/// <inheritdoc/>
+	public abstract string TestFrameworkDisplayName { get; }
+
+	/// <inheritdoc/>
 	public virtual async ValueTask DisposeAsync()
 	{
 		if (disposed)

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Reflection;
 using Xunit.Internal;
 using Xunit.Runner.Common;
@@ -14,18 +15,20 @@ public class CommandLine : CommandLineParserBase
 {
 	/// <summary/>
 	protected CommandLine(
+		TextWriter consoleWriter,
 		IReadOnlyList<IRunnerReporter> reporters,
 		string[] args)
-			: base(reporters, null, args)
+			: base(consoleWriter, reporters, null, args)
 	{
 		AddParsers();
 	}
 
 	/// <summary/>
 	public CommandLine(
+		TextWriter consoleWriter,
 		string? reporterFolder,
 		string[] args)
-			: base(null, reporterFolder, args)
+			: base(consoleWriter, null, reporterFolder, args)
 	{
 		AddParsers();
 	}
@@ -44,13 +47,13 @@ public class CommandLine : CommandLineParserBase
 
 		// .NET Framework options
 		AddParser(
-			"appdomains", OnAppDomains, CommandLineGroup.NetFramework, "<option>",
+			"appDomains", OnAppDomains, CommandLineGroup.NetFramework, "<option>",
 			"choose an app domain mode",
 			"  required    - force app domains on",
 			"  denied      - force app domains off",
 			"  ifavailable - use app domains if they're available [default]"
 		);
-		AddParser("noshadow", OnNoShadow, CommandLineGroup.NetFramework, null, "do not shadow copy assemblies");
+		AddParser("noShadow", OnNoShadow, CommandLineGroup.NetFramework, null, "do not shadow copy assemblies");
 
 		// Deprecated options
 		AddHiddenParser("noappdomain", OnNoAppDomain);
@@ -127,7 +130,7 @@ public class CommandLine : CommandLineParserBase
 
 		var argsStartIndex = 0;
 
-		while (argsStartIndex < Args.Length)
+		while (argsStartIndex < Args.Count)
 		{
 			if (Args[argsStartIndex].StartsWith("-", StringComparison.Ordinal))
 				break;
@@ -150,7 +153,7 @@ public class CommandLine : CommandLineParserBase
 				throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "expecting assembly, got config file: {0}", assemblyFileName));
 
 			string? configFileName = null;
-			if (argsStartIndex < Args.Length)
+			if (argsStartIndex < Args.Count)
 			{
 				var value = Args[argsStartIndex];
 				if (!value.StartsWith("-", StringComparison.Ordinal) && IsConfigFile(value))

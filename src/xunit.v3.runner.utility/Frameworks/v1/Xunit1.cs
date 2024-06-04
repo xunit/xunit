@@ -111,6 +111,8 @@ public class Xunit1 : IFrontController
 
 		int testCasesToRun = 0;
 
+		// TODO: Should discovery be done on a background thread?
+
 		Find(
 			messageSink,
 			includeSourceInformation,
@@ -134,7 +136,7 @@ public class Xunit1 : IFrontController
 	}
 
 	/// <inheritdoc/>
-	public void Find(
+	public int? Find(
 		_IMessageSink messageSink,
 		FrontControllerFindSettings settings)
 	{
@@ -146,6 +148,8 @@ public class Xunit1 : IFrontController
 			settings.Options.GetIncludeSourceInformationOrDefault(),
 			settings.Filters.Empty ? null : settings.Filters.Filter
 		);
+
+		return null;
 	}
 
 	void Find(
@@ -243,6 +247,8 @@ public class Xunit1 : IFrontController
 
 		var testCases = new List<Xunit1TestCase>();
 
+		// TODO: Should discovery be done on a background thread?
+
 		Find(
 			messageSink,
 			includeSourceInformation,
@@ -272,7 +278,7 @@ public class Xunit1 : IFrontController
 	}
 
 	/// <inheritdoc/>
-	public void FindAndRun(
+	public int? FindAndRun(
 		_IMessageSink messageSink,
 		FrontControllerFindAndRunSettings settings)
 	{
@@ -286,6 +292,8 @@ public class Xunit1 : IFrontController
 			settings.Filters.Empty ? null : settings.Filters.Filter,
 			settings.ExecutionOptions.GetExplicitOptionOrDefault() == ExplicitOption.Only
 		);
+
+		return null;
 	}
 
 	/// <summary>
@@ -352,7 +360,7 @@ public class Xunit1 : IFrontController
 	}
 
 	/// <inheritdoc/>
-	public void Run(
+	public int? Run(
 		_IMessageSink messageSink,
 		FrontControllerRunSettings settings)
 	{
@@ -367,6 +375,8 @@ public class Xunit1 : IFrontController
 				.CastOrToReadOnlyCollection();
 
 		Run(testCases, messageSink, settings.Options.GetExplicitOptionOrDefault() == ExplicitOption.Only);
+
+		return null;
 	}
 
 	Xunit1RunSummary RunTestCollection(

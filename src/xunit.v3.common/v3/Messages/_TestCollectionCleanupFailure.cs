@@ -9,7 +9,7 @@ namespace Xunit.v3;
 /// This message indicates that an error has occurred during test collection cleanup.
 /// </summary>
 [JsonTypeID("test-collection-cleanup-failure")]
-public class _TestCollectionCleanupFailure : _TestCollectionMessage, _IErrorMetadata
+public class _TestCollectionCleanupFailure : _TestCollectionMessage, _IErrorMetadata, _IWritableErrorMetadata
 {
 	int[]? exceptionParentIndices;
 	string?[]? exceptionTypes;
@@ -70,6 +70,13 @@ public class _TestCollectionCleanupFailure : _TestCollectionMessage, _IErrorMeta
 			StackTraces = errorMetadata.StackTraces,
 			ExceptionParentIndices = errorMetadata.ExceptionParentIndices,
 		};
+	}
+
+	internal override void Deserialize(IReadOnlyDictionary<string, object?> root)
+	{
+		base.Deserialize(root);
+
+		root.DeserializeErrorMetadata(this);
 	}
 
 	internal override void Serialize(JsonObjectSerializer serializer)

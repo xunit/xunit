@@ -219,7 +219,7 @@ public class Xunit2 : IFrontController
 	}
 
 	/// <inheritdoc/>
-	public void Find(
+	public int? Find(
 		_IMessageSink messageSink,
 		FrontControllerFindSettings settings)
 	{
@@ -230,6 +230,8 @@ public class Xunit2 : IFrontController
 		using var filteringMessageSink = new FilteringMessageSink(messageSink, settings.Filters.Filter);
 		var remoteMessageSink = CreateOptimizedRemoteMessageSink(filteringMessageSink);
 		var v2DiscoveryOptions = Xunit2OptionsAdapter.Adapt(settings.Options);
+
+		// TODO: Should discovery be done on a background thread?
 
 		SendDiscoveryStartingMessage(messageSink);
 
@@ -246,10 +248,12 @@ public class Xunit2 : IFrontController
 			}
 
 		SendDiscoveryCompleteMessage(messageSink, filteringMessageSink.TestCasesToRun);
+
+		return null;
 	}
 
 	/// <inheritdoc/>
-	public void FindAndRun(
+	public int? FindAndRun(
 		_IMessageSink messageSink,
 		FrontControllerFindAndRunSettings settings)
 	{
@@ -259,6 +263,8 @@ public class Xunit2 : IFrontController
 		Guard.ArgumentNotNull(settings);
 
 		var explicitOption = settings.ExecutionOptions.GetExplicitOptionOrDefault();
+
+		// TODO: Should discovery be done on a background thread?
 
 		SendDiscoveryStartingMessage(messageSink);
 
@@ -288,6 +294,8 @@ public class Xunit2 : IFrontController
 				CreateOptimizedRemoteMessageSink(messageSink),
 				Xunit2OptionsAdapter.Adapt(settings.ExecutionOptions)
 			);
+
+		return null;
 	}
 
 	static string GetExecutionAssemblyFileName(AppDomainSupport appDomainSupport, string basePath)
@@ -549,7 +557,7 @@ public class Xunit2 : IFrontController
 	}
 
 	/// <inheritdoc/>
-	public void Run(
+	public int? Run(
 		_IMessageSink messageSink,
 		FrontControllerRunSettings settings)
 	{
@@ -568,6 +576,8 @@ public class Xunit2 : IFrontController
 				CreateOptimizedRemoteMessageSink(messageSink),
 				Xunit2OptionsAdapter.Adapt(settings.Options)
 			);
+
+		return null;
 	}
 
 	void SendDiscoveryStartingMessage(_IMessageSink messageSink)

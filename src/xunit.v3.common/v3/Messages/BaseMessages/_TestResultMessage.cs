@@ -7,7 +7,7 @@ namespace Xunit.v3;
 /// This is the base message for all individual test results (e.g., tests which
 /// pass, fail, or are skipped).
 /// </summary>
-public abstract class _TestResultMessage : _TestMessage, _IExecutionMetadata
+public abstract class _TestResultMessage : _TestMessage, _IExecutionMetadata, _IWritableExecutionMetadata
 {
 	decimal? executionTime;
 	string? output;
@@ -28,6 +28,13 @@ public abstract class _TestResultMessage : _TestMessage, _IExecutionMetadata
 
 	/// <inheritdoc/>
 	public string[]? Warnings { get; set; }
+
+	internal override void Deserialize(IReadOnlyDictionary<string, object?> root)
+	{
+		base.Deserialize(root);
+
+		root.DeserializeExecutionMetadata(this);
+	}
 
 	internal override void Serialize(JsonObjectSerializer serializer)
 	{

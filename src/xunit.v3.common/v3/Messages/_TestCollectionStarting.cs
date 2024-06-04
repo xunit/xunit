@@ -8,7 +8,7 @@ namespace Xunit.v3;
 /// This message indicates that a test collection is about to start executing.
 /// </summary>
 [JsonTypeID("test-collection-starting")]
-public class _TestCollectionStarting : _TestCollectionMessage, _ITestCollectionMetadata
+public class _TestCollectionStarting : _TestCollectionMessage, _ITestCollectionMetadata, _IWritableTestCollectionMetadata
 {
 	string? testCollectionDisplayName;
 
@@ -20,6 +20,13 @@ public class _TestCollectionStarting : _TestCollectionMessage, _ITestCollectionM
 	{
 		get => this.ValidateNullablePropertyValue(testCollectionDisplayName, nameof(TestCollectionDisplayName));
 		set => testCollectionDisplayName = Guard.ArgumentNotNullOrEmpty(value, nameof(TestCollectionDisplayName));
+	}
+
+	internal override void Deserialize(IReadOnlyDictionary<string, object?> root)
+	{
+		base.Deserialize(root);
+
+		root.DeserializeTestCollectionMetadata(this);
 	}
 
 	internal override void Serialize(JsonObjectSerializer serializer)

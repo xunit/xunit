@@ -10,6 +10,7 @@ using Xunit.v3;
 
 public static class TestData
 {
+	public const string DefaultAttributeName = "attribute-name";
 	public const string DefaultAssemblyName = "test-assembly";
 	public const string DefaultAssemblyPath = "./test-assembly.dll";
 	public const string DefaultAssemblyUniqueID = "assembly-id";
@@ -18,12 +19,13 @@ public static class TestData
 	public const int DefaultCountTotal = 2112;
 	public const int DefaultCountSkipped = 6;
 	public const int DefaultCountNotRun = 3;
-	public static int[] DefaultExceptionParentIndices = new[] { -1 };
-	public static string[] DefaultExceptionMessages = new[] { "Attempted to divide by zero. Did you really think that was going to work?" };
-	public static string?[] DefaultExceptionTypes = new[] { typeof(DivideByZeroException).FullName };
+	public static readonly int[] DefaultExceptionParentIndices = [-1];
+	public static readonly string[] DefaultExceptionMessages = ["Attempted to divide by zero. Did you really think that was going to work?"];
+	public static readonly string?[] DefaultExceptionTypes = [typeof(DivideByZeroException).FullName];
 	public const decimal DefaultExecutionTime = 123.4567m;
+	public const string DefaultOutput = "test-helper-output";
 	public const string DefaultSkipReason = "skip-reason";
-	public static string?[] DefaultStackTraces = new[] { $"/path/file.cs(42,0): at SomeInnerCall(){Environment.NewLine}/path/otherFile.cs(2112,0): at SomeOuterMethod" };
+	public static readonly string?[] DefaultStackTraces = [$"/path/file.cs(42,0): at SomeInnerCall(){Environment.NewLine}/path/otherFile.cs(2112,0): at SomeOuterMethod"];
 	public const string DefaultTargetFramework = ".NETMagic,Version=v98.76.54";
 	public const string DefaultTestCaseDisplayName = "test-case-display-name";
 	public const string DefaultTestCaseUniqueID = "test-case-id";
@@ -40,9 +42,90 @@ public static class TestData
 	public const string DefaultTestMethodName = "test-method";
 	public const string DefaultTestMethodUniqueID = "test-method-id";
 	public const string DefaultTestUniqueID = "test-id";
+	public static readonly IReadOnlyDictionary<string, IReadOnlyList<string>> DefaultTraits = new Dictionary<string, List<string>>() { ["foo"] = ["bar", "baz"], ["biff"] = ["bang"] }.ToReadOnly();
+	public static readonly IReadOnlyDictionary<string, IReadOnlyList<string>> EmptyTraits = new Dictionary<string, List<string>>().ToReadOnly();
+
+	public static _AfterTestFinished AfterTestFinished(
+		string assemblyUniqueID = DefaultAssemblyUniqueID,
+		string attributeName = DefaultAttributeName,
+		string testCaseUniqueID = DefaultTestCaseUniqueID,
+		string? testClassUniqueID = DefaultTestClassUniqueID,
+		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
+		string? testMethodUniqueID = DefaultTestMethodUniqueID,
+		string testUniqueID = DefaultTestUniqueID) =>
+			new()
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				AttributeName = attributeName,
+				TestCaseUniqueID = testCaseUniqueID,
+				TestClassUniqueID = testClassUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestMethodUniqueID = testMethodUniqueID,
+				TestUniqueID = testUniqueID,
+			};
+
+	public static _AfterTestStarting AfterTestStarting(
+		string assemblyUniqueID = DefaultAssemblyUniqueID,
+		string attributeName = DefaultAttributeName,
+		string testCaseUniqueID = DefaultTestCaseUniqueID,
+		string? testClassUniqueID = DefaultTestClassUniqueID,
+		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
+		string? testMethodUniqueID = DefaultTestMethodUniqueID,
+		string testUniqueID = DefaultTestUniqueID) =>
+			new()
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				AttributeName = attributeName,
+				TestCaseUniqueID = testCaseUniqueID,
+				TestClassUniqueID = testClassUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestMethodUniqueID = testMethodUniqueID,
+				TestUniqueID = testUniqueID,
+			};
+
+	public static _BeforeTestFinished BeforeTestFinished(
+		string assemblyUniqueID = DefaultAssemblyUniqueID,
+		string attributeName = DefaultAttributeName,
+		string testCaseUniqueID = DefaultTestCaseUniqueID,
+		string? testClassUniqueID = DefaultTestClassUniqueID,
+		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
+		string? testMethodUniqueID = DefaultTestMethodUniqueID,
+		string testUniqueID = DefaultTestUniqueID) =>
+			new()
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				AttributeName = attributeName,
+				TestCaseUniqueID = testCaseUniqueID,
+				TestClassUniqueID = testClassUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestMethodUniqueID = testMethodUniqueID,
+				TestUniqueID = testUniqueID,
+			};
+
+	public static _BeforeTestStarting BeforeTestStarting(
+		string assemblyUniqueID = DefaultAssemblyUniqueID,
+		string attributeName = DefaultAttributeName,
+		string testCaseUniqueID = DefaultTestCaseUniqueID,
+		string? testClassUniqueID = DefaultTestClassUniqueID,
+		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
+		string? testMethodUniqueID = DefaultTestMethodUniqueID,
+		string testUniqueID = DefaultTestUniqueID) =>
+			new()
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				AttributeName = attributeName,
+				TestCaseUniqueID = testCaseUniqueID,
+				TestClassUniqueID = testClassUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestMethodUniqueID = testMethodUniqueID,
+				TestUniqueID = testUniqueID,
+			};
 
 	public static _IReflectionAssemblyInfo AssemblyInfo(Assembly assembly) =>
 		Reflector.Wrap(assembly);
+
+	public static _DiagnosticMessage DiagnosticMessage(string message = "Hello world!") =>
+		new() { Message = message };
 
 	public static _DiscoveryComplete DiscoveryComplete(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
@@ -67,16 +150,16 @@ public static class TestData
 			};
 
 	public static _ErrorMessage ErrorMessage(
-		int[] exceptionParentIndices,
-		string?[] exceptionTypes,
-		string[] messages,
-		string?[] stackTraces) =>
+		int[]? exceptionParentIndices = null,
+		string?[]? exceptionTypes = null,
+		string[]? messages = null,
+		string?[]? stackTraces = null) =>
 			new()
 			{
-				ExceptionParentIndices = exceptionParentIndices,
-				ExceptionTypes = exceptionTypes,
-				Messages = messages,
-				StackTraces = stackTraces,
+				ExceptionParentIndices = exceptionParentIndices ?? DefaultExceptionParentIndices,
+				ExceptionTypes = exceptionTypes ?? DefaultExceptionTypes,
+				Messages = messages ?? DefaultExceptionMessages,
+				StackTraces = stackTraces ?? DefaultStackTraces,
 			};
 
 	static IReadOnlyDictionary<string, IReadOnlyList<string>> GetTraits(MethodInfo method)
@@ -91,6 +174,9 @@ public static class TestData
 
 		return result.ToReadOnly();
 	}
+
+	public static _InternalDiagnosticMessage InternalDiagnosticMessage(string message = "Hello world!") =>
+		new() { Message = message };
 
 	public static _IReflectionMethodInfo MethodInfo<TClass>(string methodName) =>
 		Guard.ArgumentNotNull(
@@ -183,15 +269,13 @@ public static class TestData
 			ConfigFileName = configFilePath,
 			TargetFramework = targetFramework
 		};
-		// See the ForDiscovery method to see which TestAssemblyConfiguration options are used for discovery
-		var discoveryOptions = _TestFrameworkOptions.ForDiscovery(new TestAssemblyConfiguration
-		{
-			DiagnosticMessages = diagnosticMessages,
-			InternalDiagnosticMessages = internalDiagnosticMessages,
-			MethodDisplay = methodDisplay,
-			MethodDisplayOptions = methodDisplayOptions,
-			PreEnumerateTheories = preEnumerateTheories
-		});
+		var discoveryOptions = TestFrameworkDiscoveryOptions(
+			diagnosticMessages: diagnosticMessages,
+			internalDiagnosticMessages: internalDiagnosticMessages,
+			methodDisplay: methodDisplay,
+			methodDisplayOptions: methodDisplayOptions,
+			preEnumerateTheories: preEnumerateTheories
+		);
 
 		return new()
 		{
@@ -220,15 +304,13 @@ public static class TestData
 			ConfigFileName = configFilePath,
 			TargetFramework = targetFramework
 		};
-		// See the ForDiscovery method to see which TestAssemblyConfiguration options are used for discovery
-		var discoveryOptions = _TestFrameworkOptions.ForDiscovery(new TestAssemblyConfiguration
-		{
-			DiagnosticMessages = diagnosticMessages,
-			InternalDiagnosticMessages = internalDiagnosticMessages,
-			MethodDisplay = methodDisplay,
-			MethodDisplayOptions = methodDisplayOptions,
-			PreEnumerateTheories = preEnumerateTheories
-		});
+		var discoveryOptions = TestFrameworkDiscoveryOptions(
+			diagnosticMessages: diagnosticMessages,
+			internalDiagnosticMessages: internalDiagnosticMessages,
+			methodDisplay: methodDisplay,
+			methodDisplayOptions: methodDisplayOptions,
+			preEnumerateTheories: preEnumerateTheories
+		);
 
 		return new()
 		{
@@ -262,13 +344,12 @@ public static class TestData
 			TargetFramework = targetFramework
 		};
 		// See the ForExecution method to see which TestAssemblyConfiguration options are used for discovery
-		var executionOptions = _TestFrameworkOptions.ForExecution(new TestAssemblyConfiguration
-		{
-			DiagnosticMessages = diagnosticMessages,
-			InternalDiagnosticMessages = internalDiagnosticMessages,
-			MaxParallelThreads = maxParallelThreads,
-			ParallelizeTestCollections = parallelizeTestCollections
-		});
+		var executionOptions = TestFrameworkExecutionOptions(
+			diagnosticMessages: diagnosticMessages,
+			disableParallelization: !parallelizeTestCollections,
+			internalDiagnosticMessages: internalDiagnosticMessages,
+			maxParallelThreads: maxParallelThreads
+		);
 		var executionSummary = new ExecutionSummary
 		{
 			Errors = testsErrored,
@@ -295,6 +376,7 @@ public static class TestData
 		ExplicitOption? explicitOption = null,
 		bool internalDiagnosticMessages = false,
 		int maxParallelThreads = 2600,
+		ParallelAlgorithm? parallelAlgorithm = null,
 		bool? parallelizeTestCollections = null,
 		bool? stopOnFail = null,
 		int? seed = null,
@@ -308,16 +390,16 @@ public static class TestData
 			TargetFramework = targetFramework
 		};
 		// See the ForExecution method to see which TestAssemblyConfiguration options are used for discovery
-		var executionOptions = _TestFrameworkOptions.ForExecution(new TestAssemblyConfiguration
-		{
-			Culture = culture,
-			DiagnosticMessages = diagnosticMessages,
-			ExplicitOption = explicitOption,
-			InternalDiagnosticMessages = internalDiagnosticMessages,
-			MaxParallelThreads = maxParallelThreads,
-			ParallelizeTestCollections = parallelizeTestCollections,
-			StopOnFail = stopOnFail,
-		});
+		var executionOptions = TestFrameworkExecutionOptions(
+			culture: culture,
+			diagnosticMessages: diagnosticMessages,
+			disableParallelization: !parallelizeTestCollections,
+			explicitOption: explicitOption,
+			internalDiagnosticMessages: internalDiagnosticMessages,
+			maxParallelThreads: maxParallelThreads,
+			parallelAlgorithm: parallelAlgorithm,
+			stopOnFail: stopOnFail
+		);
 
 		return new()
 		{
@@ -414,7 +496,7 @@ public static class TestData
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestMethodName = testMethod,
 				TestMethodUniqueID = testMethodUniqueID,
-				Traits = traits ?? new Dictionary<string, IReadOnlyList<string>>(),
+				Traits = traits ?? DefaultTraits,
 			};
 
 	public static _TestCaseFinished TestCaseFinished(
@@ -472,7 +554,7 @@ public static class TestData
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestMethodName = testMethodName,
 				TestMethodUniqueID = testMethodUniqueID,
-				Traits = traits ?? new Dictionary<string, IReadOnlyList<string>>(),
+				Traits = traits ?? DefaultTraits,
 			};
 
 	public static _TestClassCleanupFailure TestClassCleanupFailure(
@@ -492,6 +574,74 @@ public static class TestData
 				StackTraces = stackTraces ?? DefaultStackTraces,
 				TestClassUniqueID = testClassUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID,
+			};
+
+	public static _TestClassConstructionFinished TestClassConstructionFinished(
+		string assemblyUniqueID = DefaultAssemblyUniqueID,
+		string testCaseUniqueID = DefaultTestCaseUniqueID,
+		string? testClassUniqueID = DefaultTestClassUniqueID,
+		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
+		string? testMethodUniqueID = DefaultTestMethodUniqueID,
+		string testUniqueID = DefaultTestUniqueID) =>
+			new()
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				TestCaseUniqueID = testCaseUniqueID,
+				TestClassUniqueID = testClassUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestMethodUniqueID = testMethodUniqueID,
+				TestUniqueID = testUniqueID,
+			};
+
+	public static _TestClassConstructionStarting TestClassConstructionStarting(
+		string assemblyUniqueID = DefaultAssemblyUniqueID,
+		string testCaseUniqueID = DefaultTestCaseUniqueID,
+		string? testClassUniqueID = DefaultTestClassUniqueID,
+		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
+		string? testMethodUniqueID = DefaultTestMethodUniqueID,
+		string testUniqueID = DefaultTestUniqueID) =>
+			new()
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				TestCaseUniqueID = testCaseUniqueID,
+				TestClassUniqueID = testClassUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestMethodUniqueID = testMethodUniqueID,
+				TestUniqueID = testUniqueID,
+			};
+
+	public static _TestClassDisposeFinished TestClassDisposeFinished(
+		string assemblyUniqueID = DefaultAssemblyUniqueID,
+		string testCaseUniqueID = DefaultTestCaseUniqueID,
+		string? testClassUniqueID = DefaultTestClassUniqueID,
+		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
+		string? testMethodUniqueID = DefaultTestMethodUniqueID,
+		string testUniqueID = DefaultTestUniqueID) =>
+			new()
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				TestCaseUniqueID = testCaseUniqueID,
+				TestClassUniqueID = testClassUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestMethodUniqueID = testMethodUniqueID,
+				TestUniqueID = testUniqueID,
+			};
+
+	public static _TestClassDisposeStarting TestClassDisposeStarting(
+		string assemblyUniqueID = DefaultAssemblyUniqueID,
+		string testCaseUniqueID = DefaultTestCaseUniqueID,
+		string? testClassUniqueID = DefaultTestClassUniqueID,
+		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
+		string? testMethodUniqueID = DefaultTestMethodUniqueID,
+		string testUniqueID = DefaultTestUniqueID) =>
+			new()
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				TestCaseUniqueID = testCaseUniqueID,
+				TestClassUniqueID = testClassUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestMethodUniqueID = testMethodUniqueID,
+				TestUniqueID = testUniqueID,
 			};
 
 	public static _TestClassFinished TestClassFinished(
@@ -632,7 +782,7 @@ public static class TestData
 		string?[]? exceptionTypes = null,
 		decimal executionTime = DefaultExecutionTime,
 		string[]? messages = null,
-		string output = "",
+		string output = DefaultOutput,
 		string?[]? stackTraces = null,
 		string testCaseUniqueID = DefaultTestCaseUniqueID,
 		string? testClassUniqueID = DefaultTestClassUniqueID,
@@ -661,7 +811,7 @@ public static class TestData
 	public static _TestFinished TestFinished(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		decimal executionTime = DefaultExecutionTime,
-		string output = "",
+		string output = DefaultOutput,
 		string testCaseUniqueID = DefaultTestCaseUniqueID,
 		string? testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
@@ -680,6 +830,62 @@ public static class TestData
 				TestUniqueID = testUniqueID,
 				Warnings = warnings,
 			};
+
+	public static _ITestFrameworkDiscoveryOptions TestFrameworkDiscoveryOptions(
+		string? culture = null,
+		bool? diagnosticMessages = null,
+		bool? includeSourceInformation = null,
+		bool? internalDiagnosticMessages = null,
+		TestMethodDisplay? methodDisplay = null,
+		TestMethodDisplayOptions? methodDisplayOptions = null,
+		bool? preEnumerateTheories = null,
+		bool? synchronousMessageReporting = null)
+	{
+		_ITestFrameworkDiscoveryOptions result = _TestFrameworkOptions.Empty();
+
+		result.SetCulture(culture);
+		result.SetDiagnosticMessages(diagnosticMessages);
+		result.SetIncludeSourceInformation(includeSourceInformation);
+		result.SetInternalDiagnosticMessages(internalDiagnosticMessages);
+		result.SetMethodDisplay(methodDisplay);
+		result.SetMethodDisplayOptions(methodDisplayOptions);
+		result.SetPreEnumerateTheories(preEnumerateTheories);
+		result.SetSynchronousMessageReporting(synchronousMessageReporting);
+
+		return result;
+	}
+
+	public static _ITestFrameworkExecutionOptions TestFrameworkExecutionOptions(
+		string? culture = null,
+		bool? diagnosticMessages = null,
+		bool? disableParallelization = null,
+		ExplicitOption? explicitOption = null,
+		bool? failSkips = null,
+		bool? failTestsWithWarnings = null,
+		bool? internalDiagnosticMessages = null,
+		int? maxParallelThreads = null,
+		ParallelAlgorithm? parallelAlgorithm = null,
+		int? seed = null,
+		bool? stopOnFail = null,
+		bool? synchronousMessageReporting = null)
+	{
+		_ITestFrameworkExecutionOptions result = _TestFrameworkOptions.Empty();
+
+		result.SetCulture(culture);
+		result.SetDiagnosticMessages(diagnosticMessages);
+		result.SetDisableParallelization(disableParallelization);
+		result.SetExplicitOption(explicitOption);
+		result.SetFailSkips(failSkips);
+		result.SetFailTestsWithWarnings(failTestsWithWarnings);
+		result.SetInternalDiagnosticMessages(internalDiagnosticMessages);
+		result.SetMaxParallelThreads(maxParallelThreads);
+		result.SetParallelAlgorithm(parallelAlgorithm);
+		result.SetSeed(seed);
+		result.SetStopOnTestFail(stopOnFail);
+		result.SetSynchronousMessageReporting(synchronousMessageReporting);
+
+		return result;
+	}
 
 	public static TestMethod TestMethod(
 		_ITestClass testClass,
@@ -765,6 +971,7 @@ public static class TestData
 
 	public static _TestNotRun TestNotRun(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
+		string output = DefaultOutput,
 		string testCaseUniqueID = DefaultTestCaseUniqueID,
 		string? testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
@@ -775,7 +982,7 @@ public static class TestData
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = 0m,
-				Output = "",
+				Output = output,
 				TestCaseUniqueID = testCaseUniqueID,
 				TestClassUniqueID = testClassUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID,
@@ -784,10 +991,29 @@ public static class TestData
 				Warnings = warnings,
 			};
 
+	public static _TestOutput TestOutput(
+		string assemblyUniqueID = DefaultAssemblyUniqueID,
+		string output = DefaultOutput,
+		string testCaseUniqueID = DefaultTestCaseUniqueID,
+		string? testClassUniqueID = DefaultTestClassUniqueID,
+		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
+		string? testMethodUniqueID = DefaultTestMethodUniqueID,
+		string testUniqueID = DefaultTestUniqueID) =>
+			new()
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				Output = output,
+				TestCaseUniqueID = testCaseUniqueID,
+				TestClassUniqueID = testClassUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestMethodUniqueID = testMethodUniqueID,
+				TestUniqueID = testUniqueID,
+			};
+
 	public static _TestPassed TestPassed(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		decimal executionTime = DefaultExecutionTime,
-		string output = "",
+		string output = DefaultOutput,
 		string testCaseUniqueID = DefaultTestCaseUniqueID,
 		string? testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
@@ -809,6 +1035,7 @@ public static class TestData
 
 	public static _TestSkipped TestSkipped(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
+		string output = DefaultOutput,
 		string reason = DefaultSkipReason,
 		string testCaseUniqueID = DefaultTestCaseUniqueID,
 		string? testClassUniqueID = DefaultTestClassUniqueID,
@@ -820,7 +1047,7 @@ public static class TestData
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = 0m,
-				Output = "",
+				Output = output,
 				Reason = reason,
 				TestCaseUniqueID = testCaseUniqueID,
 				TestClassUniqueID = testClassUniqueID,
@@ -864,7 +1091,7 @@ public static class TestData
 	{
 		var testMethod = TestMethod<TClassUnderTest>(methodName, collection);
 		var theoryAttribute = Mocks.TheoryAttribute(@explicit: @explicit, timeout: timeout);
-		var discoveryOptions = _TestFrameworkOptions.ForDiscovery(methodDisplay: methodDisplay, methodDisplayOptions: methodDisplayOptions);
+		var discoveryOptions = TestFrameworkDiscoveryOptions(methodDisplay: methodDisplay, methodDisplayOptions: methodDisplayOptions);
 		var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute);
 		if (traits is null)
 			traits = TestIntrospectionHelper.GetTraits(testMethod);
@@ -893,7 +1120,7 @@ public static class TestData
 	{
 		var testMethod = TestMethod<TClassUnderTest>(methodName, collection);
 		var factAttribute = testMethod.Method.GetCustomAttributes(typeof(FactAttribute)).Single();
-		var discoveryOptions = _TestFrameworkOptions.ForDiscovery(methodDisplay: methodDisplay, methodDisplayOptions: methodDisplayOptions);
+		var discoveryOptions = TestFrameworkDiscoveryOptions(methodDisplay: methodDisplay, methodDisplayOptions: methodDisplayOptions);
 		var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, factAttribute);
 		if (traits is null)
 			traits = TestIntrospectionHelper.GetTraits(testMethod);

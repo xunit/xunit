@@ -46,13 +46,8 @@ public class InProcessFrontController
 
 		discoverer = new(() => testFramework.GetDiscoverer(testAssembly));
 		executor = new(() => testFramework.GetExecutor(testAssembly));
+		TestFrameworkDisplayName = testFramework.TestFrameworkDisplayName;
 	}
-
-	/// <summary>
-	/// Gets the target framework that the test assembly is linked against.
-	/// </summary>
-	public string TargetFramework =>
-		discoverer.Value.TargetFramework;
 
 	/// <summary>
 	/// Gets the unique ID for the test assembly provided to the discoverer.
@@ -63,8 +58,7 @@ public class InProcessFrontController
 	/// <summary>
 	/// Returns the display name of the test framework that this discoverer is running tests for.
 	/// </summary>
-	public string TestFrameworkDisplayName =>
-		discoverer.Value.TestFrameworkDisplayName;
+	public string TestFrameworkDisplayName { get; }
 
 	/// <summary>
 	/// Starts the process of finding tests in an assembly. Typically only used by

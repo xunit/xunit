@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
-using Xunit.Runner.Common;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -30,7 +29,7 @@ public class TestIntrospectionHelperTests
 
 	public class GuardClauses
 	{
-		_ITestFrameworkDiscoveryOptions discoveryOptions = _TestFrameworkOptions.ForDiscovery();
+		_ITestFrameworkDiscoveryOptions discoveryOptions = TestData.TestFrameworkDiscoveryOptions();
 
 		[Fact]
 		public void NullDiscoveryOptionsThrows()
@@ -62,7 +61,7 @@ public class TestIntrospectionHelperTests
 
 	public class GetTestCaseDetails
 	{
-		_ITestFrameworkDiscoveryOptions discoveryOptions = _TestFrameworkOptions.ForDiscovery();
+		_ITestFrameworkDiscoveryOptions discoveryOptions = TestData.TestFrameworkDiscoveryOptions();
 
 		[Fact]
 		public void DisplayName()

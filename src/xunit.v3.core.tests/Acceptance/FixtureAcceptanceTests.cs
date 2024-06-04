@@ -107,7 +107,7 @@ public class FixtureAcceptanceTests
 		}
 
 		[Fact]
-		public async ValueTask TestClassWithThrowingFixtureConstructorResultsInFailedTest()
+		public async ValueTask TestClassWithoutCtorWithThrowingFixtureConstructorResultsInFailedTest()
 		{
 			var messages = await RunAsync<_TestFailed>(typeof(ClassWithThrowingFixtureCtor));
 
@@ -122,7 +122,27 @@ public class FixtureAcceptanceTests
 
 		class ClassWithThrowingFixtureCtor : IClassFixture<ThrowingCtorFixture>
 		{
-			public ClassWithThrowingFixtureCtor(ThrowingCtorFixture _) { }
+			[Fact]
+			public void TheTest() { }
+		}
+
+		[Fact]
+		public async ValueTask TestClassWithCtorWithThrowingFixtureConstructorResultsInFailedTest()
+		{
+			var messages = await RunAsync<_TestFailed>(typeof(ClassWithCtorAndThrowingFixtureCtor));
+
+			var msg = Assert.Single(messages);
+			Assert.Collection(
+				msg.ExceptionTypes,
+				exceptionTypeName => Assert.Equal(typeof(TestClassException).FullName, exceptionTypeName),
+				exceptionTypeName => Assert.Equal(typeof(DivideByZeroException).FullName, exceptionTypeName)
+			);
+			Assert.Equal("Class fixture type 'FixtureAcceptanceTests+ThrowingCtorFixture' threw in its constructor", msg.Messages.First());
+		}
+
+		class ClassWithCtorAndThrowingFixtureCtor : IClassFixture<ThrowingCtorFixture>
+		{
+			public ClassWithCtorAndThrowingFixtureCtor(ThrowingCtorFixture _) { }
 
 			[Fact]
 			public void TheTest() { }

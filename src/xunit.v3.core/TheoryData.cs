@@ -8,9 +8,9 @@ namespace Xunit;
 /// <summary>
 /// Provides data for theories based on collection initialization syntax.
 /// </summary>
-public abstract class TheoryData : IReadOnlyCollection<object?[]>
+public abstract class TheoryData : IReadOnlyCollection<ITheoryDataRow>
 {
-	readonly List<object?[]> data = new();
+	readonly List<ITheoryDataRow> data = new();
 
 	/// <inheritdoc/>
 	public int Count => data.Count;
@@ -19,11 +19,18 @@ public abstract class TheoryData : IReadOnlyCollection<object?[]>
 	/// Adds a row to the theory.
 	/// </summary>
 	/// <param name="values">The values to be added.</param>
-	protected void AddRow(params object?[] values)
-	{
-		Guard.ArgumentNotNull(values);
+	protected void AddRow(params object?[] values) =>
+		AddRow(new TheoryDataRow(values));
 
-		data.Add(values);
+	/// <summary>
+	/// Adds a row to the theory.
+	/// </summary>
+	/// <param name="dataRow">The row of data to be added.</param>
+	protected void AddRow(ITheoryDataRow dataRow)
+	{
+		Guard.ArgumentNotNull(dataRow);
+
+		data.Add(dataRow);
 	}
 
 	/// <summary>
@@ -38,8 +45,20 @@ public abstract class TheoryData : IReadOnlyCollection<object?[]>
 			AddRow(row);
 	}
 
+	/// <summary>
+	/// Adds multiple rows to the theory.
+	/// </summary>
+	/// <param name="rows">The rows to be added.</param>
+	protected void AddRows(IEnumerable<ITheoryDataRow> rows)
+	{
+		Guard.ArgumentNotNull(rows);
+
+		foreach (var row in rows)
+			AddRow(row);
+	}
+
 	/// <inheritdoc/>
-	public IEnumerator<object?[]> GetEnumerator() => data.GetEnumerator();
+	public IEnumerator<ITheoryDataRow> GetEnumerator() => data.GetEnumerator();
 
 	/// <inheritdoc/>
 	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -52,6 +71,12 @@ public abstract class TheoryData : IReadOnlyCollection<object?[]>
 /// <typeparam name="T">The parameter type.</typeparam>
 public class TheoryData<T> : TheoryData
 {
+	/// <summary>
+	/// Initializes a new instance of the <see cref="TheoryData{T}"/> class.
+	/// </summary>
+	public TheoryData()
+	{ }
+
 	/// <summary>
 	/// Initializes a new instance of the <see cref="TheoryData{T}"/> class.
 	/// </summary>
@@ -71,6 +96,13 @@ public class TheoryData<T> : TheoryData
 		AddRange(values);
 
 	/// <summary>
+	/// Initializes a new instance of the <see cref="TheoryData{T}"/> class.
+	/// </summary>
+	/// <param name="values">The initial set of values</param>
+	public TheoryData(params TheoryDataRow<T>[] values) =>
+		AddRange(values);
+
+	/// <summary>
 	/// Adds data to the theory data set.
 	/// </summary>
 	/// <param name="p">The data value.</param>
@@ -78,10 +110,24 @@ public class TheoryData<T> : TheoryData
 		AddRow(p);
 
 	/// <summary>
+	/// Adds data to the theory data set.
+	/// </summary>
+	/// <param name="p">The data value.</param>
+	public void Add(TheoryDataRow<T> p) =>
+		AddRow(p);
+
+	/// <summary>
 	/// Adds multiple data items to the theory data set.
 	/// </summary>
 	/// <param name="values">The data values.</param>
 	public void AddRange(params T[] values) =>
+		AddRows(values.Select(x => new object?[] { x }));
+
+	/// <summary>
+	/// Adds multiple data items to the theory data set.
+	/// </summary>
+	/// <param name="values">The data values.</param>
+	public void AddRange(params TheoryDataRow<T>[] values) =>
 		AddRows(values.Select(x => new object?[] { x }));
 }
 
@@ -94,7 +140,13 @@ public class TheoryData<T> : TheoryData
 public class TheoryData<T1, T2> : TheoryData
 {
 	/// <summary>
-	/// Initializes a new isntance of the <see cref="TheoryData{T1, T2}"/> class.
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2}"/> class.
+	/// </summary>
+	public TheoryData()
+	{ }
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2}"/> class.
 	/// </summary>
 	/// <param name="values">The initial set of values</param>
 	public TheoryData(IEnumerable<(T1, T2)> values)
@@ -105,10 +157,17 @@ public class TheoryData<T1, T2> : TheoryData
 	}
 
 	/// <summary>
-	/// Initializes a new isntance of the <see cref="TheoryData{T1, T2}"/> class.
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2}"/> class.
 	/// </summary>
 	/// <param name="values">The initial set of values</param>
 	public TheoryData(params (T1, T2)[] values) =>
+		AddRange(values);
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2}"/> class.
+	/// </summary>
+	/// <param name="values">The initial set of values</param>
+	public TheoryData(params TheoryDataRow<T1, T2>[] values) =>
 		AddRange(values);
 
 	/// <summary>
@@ -120,6 +179,13 @@ public class TheoryData<T1, T2> : TheoryData
 		AddRow(p1, p2);
 
 	/// <summary>
+	/// Adds data to the theory data set.
+	/// </summary>
+	/// <param name="row">The data row.</param>
+	public void Add(TheoryDataRow<T1, T2> row) =>
+		AddRow(row);
+
+	/// <summary>
 	/// Adds multiple data items to the theory data set.
 	/// </summary>
 	/// <param name="values">The data values.</param>
@@ -129,6 +195,13 @@ public class TheoryData<T1, T2> : TheoryData
 
 		AddRows(values.Select(x => new object?[] { x.p1, x.p2 }));
 	}
+
+	/// <summary>
+	/// Adds multiple data items to the theory data set.
+	/// </summary>
+	/// <param name="values">The data values.</param>
+	public void AddRange(params TheoryDataRow<T1, T2>[] values) =>
+		AddRows(values);
 }
 
 /// <summary>
@@ -141,7 +214,13 @@ public class TheoryData<T1, T2> : TheoryData
 public class TheoryData<T1, T2, T3> : TheoryData
 {
 	/// <summary>
-	/// Initializes a new isntance of the <see cref="TheoryData{T1, T2, T3}"/> class.
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3}"/> class.
+	/// </summary>
+	public TheoryData()
+	{ }
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3}"/> class.
 	/// </summary>
 	/// <param name="values">The initial set of values</param>
 	public TheoryData(IEnumerable<(T1, T2, T3)> values)
@@ -152,10 +231,17 @@ public class TheoryData<T1, T2, T3> : TheoryData
 	}
 
 	/// <summary>
-	/// Initializes a new isntance of the <see cref="TheoryData{T1, T2, T3}"/> class.
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3}"/> class.
 	/// </summary>
 	/// <param name="values">The initial set of values</param>
 	public TheoryData(params (T1, T2, T3)[] values) =>
+		AddRange(values);
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3}"/> class.
+	/// </summary>
+	/// <param name="values">The initial set of values</param>
+	public TheoryData(params TheoryDataRow<T1, T2, T3>[] values) =>
 		AddRange(values);
 
 	/// <summary>
@@ -168,6 +254,13 @@ public class TheoryData<T1, T2, T3> : TheoryData
 		AddRow(p1, p2, p3);
 
 	/// <summary>
+	/// Adds data to the theory data set.
+	/// </summary>
+	/// <param name="row">The data row.</param>
+	public void Add(TheoryDataRow<T1, T2, T3> row) =>
+		AddRow(row);
+
+	/// <summary>
 	/// Adds multiple data items to the theory data set.
 	/// </summary>
 	/// <param name="values">The data values.</param>
@@ -177,6 +270,13 @@ public class TheoryData<T1, T2, T3> : TheoryData
 
 		AddRows(values.Select(x => new object?[] { x.p1, x.p2, x.p3 }));
 	}
+
+	/// <summary>
+	/// Adds multiple data items to the theory data set.
+	/// </summary>
+	/// <param name="values">The data values.</param>
+	public void AddRange(params TheoryDataRow<T1, T2, T3>[] values) =>
+		AddRows(values);
 }
 
 /// <summary>
@@ -190,7 +290,13 @@ public class TheoryData<T1, T2, T3> : TheoryData
 public class TheoryData<T1, T2, T3, T4> : TheoryData
 {
 	/// <summary>
-	/// Initializes a new isntance of the <see cref="TheoryData{T1, T2, T3, T4}"/> class.
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4}"/> class.
+	/// </summary>
+	public TheoryData()
+	{ }
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4}"/> class.
 	/// </summary>
 	/// <param name="values">The initial set of values</param>
 	public TheoryData(IEnumerable<(T1, T2, T3, T4)> values)
@@ -201,10 +307,17 @@ public class TheoryData<T1, T2, T3, T4> : TheoryData
 	}
 
 	/// <summary>
-	/// Initializes a new isntance of the <see cref="TheoryData{T1, T2, T3, T4}"/> class.
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4}"/> class.
 	/// </summary>
 	/// <param name="values">The initial set of values</param>
 	public TheoryData(params (T1, T2, T3, T4)[] values) =>
+		AddRange(values);
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4}"/> class.
+	/// </summary>
+	/// <param name="values">The initial set of values</param>
+	public TheoryData(params TheoryDataRow<T1, T2, T3, T4>[] values) =>
 		AddRange(values);
 
 	/// <summary>
@@ -218,6 +331,13 @@ public class TheoryData<T1, T2, T3, T4> : TheoryData
 		AddRow(p1, p2, p3, p4);
 
 	/// <summary>
+	/// Adds data to the theory data set.
+	/// </summary>
+	/// <param name="row">The data row.</param>
+	public void Add(TheoryDataRow<T1, T2, T3, T4> row) =>
+		AddRow(row);
+
+	/// <summary>
 	/// Adds multiple data items to the theory data set.
 	/// </summary>
 	/// <param name="values">The data values.</param>
@@ -227,6 +347,13 @@ public class TheoryData<T1, T2, T3, T4> : TheoryData
 
 		AddRows(values.Select(x => new object?[] { x.p1, x.p2, x.p3, x.p4 }));
 	}
+
+	/// <summary>
+	/// Adds multiple data items to the theory data set.
+	/// </summary>
+	/// <param name="values">The data values.</param>
+	public void AddRange(params TheoryDataRow<T1, T2, T3, T4>[] values) =>
+		AddRows(values);
 }
 
 /// <summary>
@@ -241,7 +368,13 @@ public class TheoryData<T1, T2, T3, T4> : TheoryData
 public class TheoryData<T1, T2, T3, T4, T5> : TheoryData
 {
 	/// <summary>
-	/// Initializes a new isntance of the <see cref="TheoryData{T1, T2, T3, T4, T5}"/> class.
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4, T5}"/> class.
+	/// </summary>
+	public TheoryData()
+	{ }
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4, T5}"/> class.
 	/// </summary>
 	/// <param name="values">The initial set of values</param>
 	public TheoryData(IEnumerable<(T1, T2, T3, T4, T5)> values)
@@ -252,10 +385,17 @@ public class TheoryData<T1, T2, T3, T4, T5> : TheoryData
 	}
 
 	/// <summary>
-	/// Initializes a new isntance of the <see cref="TheoryData{T1, T2, T3, T4, T5}"/> class.
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4, T5}"/> class.
 	/// </summary>
 	/// <param name="values">The initial set of values</param>
 	public TheoryData(params (T1, T2, T3, T4, T5)[] values) =>
+		AddRange(values);
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4, T5}"/> class.
+	/// </summary>
+	/// <param name="values">The initial set of values</param>
+	public TheoryData(params TheoryDataRow<T1, T2, T3, T4, T5>[] values) =>
 		AddRange(values);
 
 	/// <summary>
@@ -270,6 +410,13 @@ public class TheoryData<T1, T2, T3, T4, T5> : TheoryData
 		AddRow(p1, p2, p3, p4, p5);
 
 	/// <summary>
+	/// Adds data to the theory data set.
+	/// </summary>
+	/// <param name="row">The data row.</param>
+	public void Add(TheoryDataRow<T1, T2, T3, T4, T5> row) =>
+		AddRow(row);
+
+	/// <summary>
 	/// Adds multiple data items to the theory data set.
 	/// </summary>
 	/// <param name="values">The data values.</param>
@@ -279,6 +426,13 @@ public class TheoryData<T1, T2, T3, T4, T5> : TheoryData
 
 		AddRows(values.Select(x => new object?[] { x.p1, x.p2, x.p3, x.p4, x.p5 }));
 	}
+
+	/// <summary>
+	/// Adds multiple data items to the theory data set.
+	/// </summary>
+	/// <param name="values">The data values.</param>
+	public void AddRange(params TheoryDataRow<T1, T2, T3, T4, T5>[] values) =>
+		AddRows(values);
 }
 
 /// <summary>
@@ -294,7 +448,13 @@ public class TheoryData<T1, T2, T3, T4, T5> : TheoryData
 public class TheoryData<T1, T2, T3, T4, T5, T6> : TheoryData
 {
 	/// <summary>
-	/// Initializes a new isntance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6}"/> class.
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6}"/> class.
+	/// </summary>
+	public TheoryData()
+	{ }
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6}"/> class.
 	/// </summary>
 	/// <param name="values">The initial set of values</param>
 	public TheoryData(IEnumerable<(T1, T2, T3, T4, T5, T6)> values)
@@ -305,10 +465,17 @@ public class TheoryData<T1, T2, T3, T4, T5, T6> : TheoryData
 	}
 
 	/// <summary>
-	/// Initializes a new isntance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6}"/> class.
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6}"/> class.
 	/// </summary>
 	/// <param name="values">The initial set of values</param>
 	public TheoryData(params (T1, T2, T3, T4, T5, T6)[] values) =>
+		AddRange(values);
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6}"/> class.
+	/// </summary>
+	/// <param name="values">The initial set of values</param>
+	public TheoryData(params TheoryDataRow<T1, T2, T3, T4, T5, T6>[] values) =>
 		AddRange(values);
 
 	/// <summary>
@@ -324,6 +491,13 @@ public class TheoryData<T1, T2, T3, T4, T5, T6> : TheoryData
 		AddRow(p1, p2, p3, p4, p5, p6);
 
 	/// <summary>
+	/// Adds data to the theory data set.
+	/// </summary>
+	/// <param name="row">The data row.</param>
+	public void Add(TheoryDataRow<T1, T2, T3, T4, T5, T6> row) =>
+		AddRow(row);
+
+	/// <summary>
 	/// Adds multiple data items to the theory data set.
 	/// </summary>
 	/// <param name="values">The data values.</param>
@@ -333,6 +507,13 @@ public class TheoryData<T1, T2, T3, T4, T5, T6> : TheoryData
 
 		AddRows(values.Select(x => new object?[] { x.p1, x.p2, x.p3, x.p4, x.p5, x.p6 }));
 	}
+
+	/// <summary>
+	/// Adds multiple data items to the theory data set.
+	/// </summary>
+	/// <param name="values">The data values.</param>
+	public void AddRange(params TheoryDataRow<T1, T2, T3, T4, T5, T6>[] values) =>
+		AddRows(values);
 }
 
 /// <summary>
@@ -349,7 +530,13 @@ public class TheoryData<T1, T2, T3, T4, T5, T6> : TheoryData
 public class TheoryData<T1, T2, T3, T4, T5, T6, T7> : TheoryData
 {
 	/// <summary>
-	/// Initializes a new isntance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6, T7}"/> class.
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6, T7}"/> class.
+	/// </summary>
+	public TheoryData()
+	{ }
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6, T7}"/> class.
 	/// </summary>
 	/// <param name="values">The initial set of values</param>
 	public TheoryData(IEnumerable<(T1, T2, T3, T4, T5, T6, T7)> values)
@@ -360,10 +547,17 @@ public class TheoryData<T1, T2, T3, T4, T5, T6, T7> : TheoryData
 	}
 
 	/// <summary>
-	/// Initializes a new isntance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6, T7}"/> class.
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6, T7}"/> class.
 	/// </summary>
 	/// <param name="values">The initial set of values</param>
 	public TheoryData(params (T1, T2, T3, T4, T5, T6, T7)[] values) =>
+		AddRange(values);
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6, T7}"/> class.
+	/// </summary>
+	/// <param name="values">The initial set of values</param>
+	public TheoryData(params TheoryDataRow<T1, T2, T3, T4, T5, T6, T7>[] values) =>
 		AddRange(values);
 
 	/// <summary>
@@ -380,6 +574,13 @@ public class TheoryData<T1, T2, T3, T4, T5, T6, T7> : TheoryData
 		AddRow(p1, p2, p3, p4, p5, p6, p7);
 
 	/// <summary>
+	/// Adds data to the theory data set.
+	/// </summary>
+	/// <param name="row">The data row.</param>
+	public void Add(TheoryDataRow<T1, T2, T3, T4, T5, T6, T7> row) =>
+		AddRow(row);
+
+	/// <summary>
 	/// Adds multiple data items to the theory data set.
 	/// </summary>
 	/// <param name="values">The data values.</param>
@@ -389,6 +590,13 @@ public class TheoryData<T1, T2, T3, T4, T5, T6, T7> : TheoryData
 
 		AddRows(values.Select(x => new object?[] { x.p1, x.p2, x.p3, x.p4, x.p5, x.p6, x.p7 }));
 	}
+
+	/// <summary>
+	/// Adds multiple data items to the theory data set.
+	/// </summary>
+	/// <param name="values">The data values.</param>
+	public void AddRange(params TheoryDataRow<T1, T2, T3, T4, T5, T6, T7>[] values) =>
+		AddRows(values);
 }
 
 /// <summary>
@@ -406,7 +614,13 @@ public class TheoryData<T1, T2, T3, T4, T5, T6, T7> : TheoryData
 public class TheoryData<T1, T2, T3, T4, T5, T6, T7, T8> : TheoryData
 {
 	/// <summary>
-	/// Initializes a new isntance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6, T7, T8}"/> class.
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6, T7, T8}"/> class.
+	/// </summary>
+	public TheoryData()
+	{ }
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6, T7, T8}"/> class.
 	/// </summary>
 	/// <param name="values">The initial set of values</param>
 	public TheoryData(IEnumerable<(T1, T2, T3, T4, T5, T6, T7, T8)> values)
@@ -417,10 +631,17 @@ public class TheoryData<T1, T2, T3, T4, T5, T6, T7, T8> : TheoryData
 	}
 
 	/// <summary>
-	/// Initializes a new isntance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6, T7, T8}"/> class.
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6, T7, T8}"/> class.
 	/// </summary>
 	/// <param name="values">The initial set of values</param>
 	public TheoryData(params (T1, T2, T3, T4, T5, T6, T7, T8)[] values) =>
+		AddRange(values);
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6, T7, T8}"/> class.
+	/// </summary>
+	/// <param name="values">The initial set of values</param>
+	public TheoryData(params TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8>[] values) =>
 		AddRange(values);
 
 	/// <summary>
@@ -438,6 +659,13 @@ public class TheoryData<T1, T2, T3, T4, T5, T6, T7, T8> : TheoryData
 		AddRow(p1, p2, p3, p4, p5, p6, p7, p8);
 
 	/// <summary>
+	/// Adds data to the theory data set.
+	/// </summary>
+	/// <param name="row">The data row.</param>
+	public void Add(TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8> row) =>
+		AddRow(row);
+
+	/// <summary>
 	/// Adds multiple data items to the theory data set.
 	/// </summary>
 	/// <param name="values">The data values.</param>
@@ -447,6 +675,13 @@ public class TheoryData<T1, T2, T3, T4, T5, T6, T7, T8> : TheoryData
 
 		AddRows(values.Select(x => new object?[] { x.p1, x.p2, x.p3, x.p4, x.p5, x.p6, x.p7, x.p8 }));
 	}
+
+	/// <summary>
+	/// Adds multiple data items to the theory data set.
+	/// </summary>
+	/// <param name="values">The data values.</param>
+	public void AddRange(params TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8>[] values) =>
+		AddRows(values);
 }
 
 /// <summary>
@@ -465,7 +700,13 @@ public class TheoryData<T1, T2, T3, T4, T5, T6, T7, T8> : TheoryData
 public class TheoryData<T1, T2, T3, T4, T5, T6, T7, T8, T9> : TheoryData
 {
 	/// <summary>
-	/// Initializes a new isntance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6, T7, T8, T9}"/> class.
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6, T7, T8, T9}"/> class.
+	/// </summary>
+	public TheoryData()
+	{ }
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6, T7, T8, T9}"/> class.
 	/// </summary>
 	/// <param name="values">The initial set of values</param>
 	public TheoryData(IEnumerable<(T1, T2, T3, T4, T5, T6, T7, T8, T9)> values)
@@ -476,10 +717,17 @@ public class TheoryData<T1, T2, T3, T4, T5, T6, T7, T8, T9> : TheoryData
 	}
 
 	/// <summary>
-	/// Initializes a new isntance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6, T7, T8, T9}"/> class.
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6, T7, T8, T9}"/> class.
 	/// </summary>
 	/// <param name="values">The initial set of values</param>
 	public TheoryData(params (T1, T2, T3, T4, T5, T6, T7, T8, T9)[] values) =>
+		AddRange(values);
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6, T7, T8, T9}"/> class.
+	/// </summary>
+	/// <param name="values">The initial set of values</param>
+	public TheoryData(params TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>[] values) =>
 		AddRange(values);
 
 	/// <summary>
@@ -498,6 +746,13 @@ public class TheoryData<T1, T2, T3, T4, T5, T6, T7, T8, T9> : TheoryData
 		AddRow(p1, p2, p3, p4, p5, p6, p7, p8, p9);
 
 	/// <summary>
+	/// Adds data to the theory data set.
+	/// </summary>
+	/// <param name="row">The data row.</param>
+	public void Add(TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8, T9> row) =>
+		AddRow(row);
+
+	/// <summary>
 	/// Adds multiple data items to the theory data set.
 	/// </summary>
 	/// <param name="values">The data values.</param>
@@ -507,6 +762,13 @@ public class TheoryData<T1, T2, T3, T4, T5, T6, T7, T8, T9> : TheoryData
 
 		AddRows(values.Select(x => new object?[] { x.p1, x.p2, x.p3, x.p4, x.p5, x.p6, x.p7, x.p8, x.p9 }));
 	}
+
+	/// <summary>
+	/// Adds multiple data items to the theory data set.
+	/// </summary>
+	/// <param name="values">The data values.</param>
+	public void AddRange(params TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>[] values) =>
+		AddRows(values);
 }
 
 /// <summary>
@@ -526,7 +788,13 @@ public class TheoryData<T1, T2, T3, T4, T5, T6, T7, T8, T9> : TheoryData
 public class TheoryData<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> : TheoryData
 {
 	/// <summary>
-	/// Initializes a new isntance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10}"/> class.
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10}"/> class.
+	/// </summary>
+	public TheoryData()
+	{ }
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10}"/> class.
 	/// </summary>
 	/// <param name="values">The initial set of values</param>
 	public TheoryData(IEnumerable<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)> values)
@@ -537,10 +805,17 @@ public class TheoryData<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> : TheoryData
 	}
 
 	/// <summary>
-	/// Initializes a new isntance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10}"/> class.
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10}"/> class.
 	/// </summary>
 	/// <param name="values">The initial set of values</param>
 	public TheoryData(params (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)[] values) =>
+		AddRange(values);
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10}"/> class.
+	/// </summary>
+	/// <param name="values">The initial set of values</param>
+	public TheoryData(params TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>[] values) =>
 		AddRange(values);
 
 	/// <summary>
@@ -560,6 +835,13 @@ public class TheoryData<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> : TheoryData
 		AddRow(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10);
 
 	/// <summary>
+	/// Adds data to the theory data set.
+	/// </summary>
+	/// <param name="row">The data row.</param>
+	public void Add(TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> row) =>
+		AddRow(row);
+
+	/// <summary>
 	/// Adds multiple data items to the theory data set.
 	/// </summary>
 	/// <param name="values">The data values.</param>
@@ -569,4 +851,11 @@ public class TheoryData<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> : TheoryData
 
 		AddRows(values.Select(x => new object?[] { x.p1, x.p2, x.p3, x.p4, x.p5, x.p6, x.p7, x.p8, x.p9, x.p10 }));
 	}
+
+	/// <summary>
+	/// Adds multiple data items to the theory data set.
+	/// </summary>
+	/// <param name="values">The data values.</param>
+	public void AddRange(params TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>[] values) =>
+		AddRows(values);
 }

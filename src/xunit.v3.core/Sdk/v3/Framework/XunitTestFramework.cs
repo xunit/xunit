@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace Xunit.v3;
 
 /// <summary>
@@ -26,6 +28,13 @@ public class XunitTestFramework : TestFramework
 	{
 		this.configFileName = configFileName;
 	}
+
+	internal static string DisplayName { get; } =
+		string.Format(CultureInfo.InvariantCulture, "xUnit.net v3 {0}", ThisAssembly.AssemblyInformationalVersion);
+
+	/// <inheritdoc/>
+	public override string TestFrameworkDisplayName =>
+		DisplayName;
 
 	/// <inheritdoc/>
 	protected override _ITestFrameworkDiscoverer CreateDiscoverer(_IAssemblyInfo assembly) =>

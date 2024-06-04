@@ -10,3 +10,8 @@ public interface _ITestClassMetadata
 	/// </summary>
 	string TestClass { get; }
 }
+
+internal interface _IWritableTestClassMetadata
+{
+	string TestClass { get; set; }
+}

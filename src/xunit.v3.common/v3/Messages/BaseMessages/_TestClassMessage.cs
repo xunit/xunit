@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Globalization;
 using Xunit.Internal;
 
@@ -15,6 +16,13 @@ public abstract class _TestClassMessage : _TestCollectionMessage
 	/// Might be <c>null</c> if the test does not belong to a test class.
 	/// </summary>
 	public string? TestClassUniqueID { get; set; }
+
+	internal override void Deserialize(IReadOnlyDictionary<string, object?> root)
+	{
+		base.Deserialize(root);
+
+		TestClassUniqueID = TryGetString(root, nameof(TestClassUniqueID));
+	}
 
 	internal override void Serialize(JsonObjectSerializer serializer)
 	{
