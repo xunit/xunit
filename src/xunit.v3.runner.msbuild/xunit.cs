@@ -243,12 +243,11 @@ public class xunit : MSBuildTask, ICancelableTask
 				if (configFileName is not null && configFileName.Length == 0)
 					configFileName = null;
 
-				var targetFramework = AssemblyUtility.GetTargetFramework(assemblyFileName);
 				var projectAssembly = new XunitProjectAssembly(project)
 				{
 					AssemblyFileName = assemblyFileName,
+					AssemblyMetadata = AssemblyUtility.GetAssemblyMetadata(assemblyFileName),
 					ConfigFileName = configFileName,
-					TargetFramework = targetFramework
 				};
 
 				var warnings = new List<string>();

@@ -69,12 +69,11 @@ public class CommandLine : CommandLineParserBase
 		if (configFileName is not null && !FileExists(configFileName))
 			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "config file not found: {0}", configFileName));
 
-		var targetFramework = AssemblyUtility.GetTargetFramework(assemblyFileName);
 		var projectAssembly = new XunitProjectAssembly(Project)
 		{
 			AssemblyFileName = GetFullPath(assemblyFileName),
+			AssemblyMetadata = AssemblyUtility.GetAssemblyMetadata(assemblyFileName),
 			ConfigFileName = GetFullPath(configFileName),
-			TargetFramework = targetFramework
 		};
 
 		ConfigReader.Load(projectAssembly.Configuration, projectAssembly.AssemblyFileName, projectAssembly.ConfigFileName, ParseWarnings);

@@ -1,8 +1,9 @@
+using System;
 using System.IO;
 using System.Linq;
 using System.Runtime.Versioning;
 using Mono.Cecil;
-using Xunit.Internal;
+using Xunit.Runner.Common;
 
 namespace Xunit;
 
@@ -19,10 +20,9 @@ public static class AssemblyUtility
 	/// <returns>The target framework (typically in a format like ".NETFramework,Version=v4.7.2"
 	/// or ".NETCoreApp,Version=v6.0"). If the target framework type is unknown (missing file,
 	/// missing attribute, etc.) then returns "UnknownTargetFramework".</returns>
-	public static string GetTargetFramework(string assemblyFileName)
+	public static AssemblyMetadata? GetAssemblyMetadata(string assemblyFileName)
 	{
 		if (!string.IsNullOrWhiteSpace(assemblyFileName) && File.Exists(assemblyFileName))
-		{
 			try
 			{
 				var moduleDefinition = ModuleDefinition.ReadModule(assemblyFileName);
@@ -31,16 +31,24 @@ public static class AssemblyUtility
 						.GetCustomAttributes()
 						.FirstOrDefault(ca => ca.AttributeType.FullName == typeof(TargetFrameworkAttribute).FullName);
 
-				if (targetFrameworkAttribute is not null)
-				{
-					var ctorArg = targetFrameworkAttribute.ConstructorArguments[0];
-					if (ctorArg.Value is string targetFramework)
-						return targetFramework;
-				}
-			}
-			catch { }  // Eat exceptions so we just return our unknown value
-		}
+				var targetFramework = targetFrameworkAttribute?.ConstructorArguments[0].Value as string;
+				var xunitVersion = 0;
 
-		return AssemblyExtensions.UnknownTargetFramework;
+				for (int idx = 0; xunitVersion == 0 && idx < moduleDefinition.AssemblyReferences.Count; ++idx)
+				{
+					var reference = moduleDefinition.AssemblyReferences[idx].Name;
+					if (reference.Equals("xunit", StringComparison.OrdinalIgnoreCase))
+						xunitVersion = 1;
+					else if (reference.Equals("xunit.core", StringComparison.OrdinalIgnoreCase))
+						xunitVersion = 2;
+					else if (reference.Equals("xunit.v3.core", StringComparison.OrdinalIgnoreCase))
+						xunitVersion = 3;
+				}
+
+				return new AssemblyMetadata(xunitVersion, targetFramework);
+			}
+			catch { }
+
+		return null;
 	}
 }

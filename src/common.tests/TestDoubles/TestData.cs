@@ -254,7 +254,7 @@ public static class TestData
 	public static TestAssemblyDiscoveryFinished TestAssemblyDiscoveryFinished(
 		string assemblyPath = DefaultAssemblyPath,
 		string configFilePath = DefaultConfigFilePath,
-		string targetFramework = DefaultTargetFramework,
+		AssemblyMetadata? assemblyMetadata = null,
 		bool diagnosticMessages = false,
 		bool internalDiagnosticMessages = false,
 		TestMethodDisplay methodDisplay = TestMethodDisplay.ClassAndMethod,
@@ -266,8 +266,8 @@ public static class TestData
 		var assembly = new XunitProjectAssembly(project)
 		{
 			AssemblyFileName = assemblyPath,
+			AssemblyMetadata = assemblyMetadata,
 			ConfigFileName = configFilePath,
-			TargetFramework = targetFramework
 		};
 		var discoveryOptions = TestFrameworkDiscoveryOptions(
 			diagnosticMessages: diagnosticMessages,
@@ -289,7 +289,7 @@ public static class TestData
 		AppDomainOption appDomain = AppDomainOption.Disabled,
 		string assemblyPath = DefaultAssemblyPath,
 		string configFilePath = DefaultConfigFilePath,
-		string targetFramework = DefaultTargetFramework,
+		AssemblyMetadata? assemblyMetadata = null,
 		bool diagnosticMessages = false,
 		bool internalDiagnosticMessages = false,
 		TestMethodDisplay methodDisplay = TestMethodDisplay.ClassAndMethod,
@@ -301,8 +301,8 @@ public static class TestData
 		var assembly = new XunitProjectAssembly(project)
 		{
 			AssemblyFileName = assemblyPath,
+			AssemblyMetadata = assemblyMetadata,
 			ConfigFileName = configFilePath,
-			TargetFramework = targetFramework
 		};
 		var discoveryOptions = TestFrameworkDiscoveryOptions(
 			diagnosticMessages: diagnosticMessages,
@@ -324,7 +324,7 @@ public static class TestData
 	public static TestAssemblyExecutionFinished TestAssemblyExecutionFinished(
 		string assemblyPath = DefaultAssemblyPath,
 		string configFilePath = DefaultConfigFilePath,
-		string targetFramework = DefaultTargetFramework,
+		AssemblyMetadata? assemblyMetadata = null,
 		bool diagnosticMessages = false,
 		decimal executionTime = 123.4567m,
 		bool internalDiagnosticMessages = false,
@@ -340,8 +340,8 @@ public static class TestData
 		var assembly = new XunitProjectAssembly(project)
 		{
 			AssemblyFileName = assemblyPath,
+			AssemblyMetadata = assemblyMetadata,
 			ConfigFileName = configFilePath,
-			TargetFramework = targetFramework
 		};
 		// See the ForExecution method to see which TestAssemblyConfiguration options are used for discovery
 		var executionOptions = TestFrameworkExecutionOptions(
@@ -371,7 +371,7 @@ public static class TestData
 	public static TestAssemblyExecutionStarting TestAssemblyExecutionStarting(
 		string assemblyPath = DefaultAssemblyPath,
 		string configFilePath = DefaultConfigFilePath,
-		string targetFramework = DefaultTargetFramework,
+		AssemblyMetadata? assemblyMetadata = null,
 		bool diagnosticMessages = false,
 		ExplicitOption? explicitOption = null,
 		bool internalDiagnosticMessages = false,
@@ -386,8 +386,8 @@ public static class TestData
 		var assembly = new XunitProjectAssembly(project)
 		{
 			AssemblyFileName = assemblyPath,
+			AssemblyMetadata = assemblyMetadata,
 			ConfigFileName = configFilePath,
-			TargetFramework = targetFramework
 		};
 		// See the ForExecution method to see which TestAssemblyConfiguration options are used for discovery
 		var executionOptions = TestFrameworkExecutionOptions(

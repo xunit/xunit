@@ -12,8 +12,6 @@ namespace Xunit.Runner.Common;
 /// </summary>
 public class XunitProjectAssembly
 {
-	string? targetFramework;
-
 	/// <summary>
 	/// Initializes a new instance of the <see cref="XunitProjectAssembly"/> class.
 	/// </summary>
@@ -48,6 +46,11 @@ public class XunitProjectAssembly
 	/// Gets or sets the assembly file name.
 	/// </summary>
 	public string? AssemblyFileName { get; set; }
+
+	/// <summary>
+	/// Gets or sets the metadata about the assembly.
+	/// </summary>
+	public AssemblyMetadata? AssemblyMetadata { get; set; }
 
 	/// <summary>
 	/// Gets or sets the config file name.
@@ -89,16 +92,6 @@ public class XunitProjectAssembly
 	/// Gets the project that this project assembly belongs to.
 	/// </summary>
 	public XunitProject Project { get; }
-
-	/// <summary>
-	/// Gets the target framework that the test assembly was compiled against. If the value was not
-	/// set, returns <see cref="AssemblyExtensions.UnknownTargetFramework"/>.
-	/// </summary>
-	public string TargetFramework
-	{
-		get => targetFramework ?? AssemblyExtensions.UnknownTargetFramework;
-		set => targetFramework = Guard.ArgumentNotNull(value, nameof(TargetFramework));
-	}
 
 	/// <summary>
 	/// Gets a list of serialized test cases to be run. If the list is empty, then all test cases

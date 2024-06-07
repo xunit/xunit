@@ -59,8 +59,8 @@ public class CommandLine : CommandLineParserBase
 		{
 			Assembly = assembly,
 			AssemblyFileName = GetFullPath(assemblyFileName),
+			AssemblyMetadata = new(3, targetFramework),
 			ConfigFileName = GetFullPath(configFileName),
-			TargetFramework = targetFramework
 		};
 
 		ConfigReader_Json.Load(projectAssembly.Configuration, projectAssembly.AssemblyFileName, projectAssembly.ConfigFileName, ParseWarnings);
