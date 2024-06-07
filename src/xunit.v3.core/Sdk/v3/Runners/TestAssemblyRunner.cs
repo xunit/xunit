@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -86,16 +87,15 @@ public abstract class TestAssemblyRunner<TContext, TTestCase>
 		{
 			var innerEx = ex.Unwrap();
 
-			TestContext.Current?.SendDiagnosticMessage(
-				"Test collection orderer '{0}' threw '{1}' during ordering: {2}{3}{4}",
-				testCollectionOrderer.GetType().FullName,
-				innerEx.GetType().FullName,
-				innerEx.Message,
-				Environment.NewLine,
-				innerEx.StackTrace
-			);
+			ctxt.MessageBus.QueueMessage(new _ErrorMessage()
+			{
+				ExceptionParentIndices = [-1],
+				ExceptionTypes = ["Xunit.Sdk.XunitException"],
+				Messages = [string.Format(CultureInfo.CurrentCulture, "Test collection orderer '{0}' threw '{1}' during ordering: {2}", testCollectionOrderer.GetType().FullName, innerEx.GetType().FullName, innerEx.Message)],
+				StackTraces = [innerEx.StackTrace],
+			});
 
-			orderedTestCollections = testCasesByCollection.Keys.CastOrToReadOnlyCollection();
+			return [];
 		}
 
 		return

@@ -313,11 +313,8 @@ public class TestAssemblyRunnerTests
 		}
 
 		[Fact]
-		public static async ValueTask TestCaseOrdererWhichThrowsLogsMessageAndDoesNotReorderTestCollections()
+		public static async ValueTask ThrowsWhileOrdering_HaltsProcessing()
 		{
-			var spy = SpyMessageSink.Capture();
-			TestContext.Current!.DiagnosticMessageSink = spy;
-
 			var collection1 = Mocks.TestCollection(displayName: "AAA", uniqueID: "collection-1");
 			var testCase1 = TestCaseForTestCollection(collection1);
 			var collection2 = Mocks.TestCollection(displayName: "ZZZZ", uniqueID: "collection-2");
@@ -325,18 +322,19 @@ public class TestAssemblyRunnerTests
 			var collection3 = Mocks.TestCollection(displayName: "MM", uniqueID: "collection-3");
 			var testCase3 = TestCaseForTestCollection(collection3);
 			var testCases = new[] { testCase1, testCase2, testCase3 };
-			var runner = TestableTestAssemblyRunner.Create(testCases: testCases, testCollectionOrderer: new ThrowingCollectionOrderer());
+			var executionSink = SpyMessageSink.Capture();
+			var runner = TestableTestAssemblyRunner.Create(testCases: testCases, testCollectionOrderer: new ThrowingCollectionOrderer(), executionMessageSink: executionSink);
 
 			await runner.RunAsync();
 
-			Assert.Collection(
-				runner.CollectionsRun,
-				collection => Assert.Same(collection1, collection.Item1),
-				collection => Assert.Same(collection2, collection.Item1),
-				collection => Assert.Same(collection3, collection.Item1)
-			);
-			var diagnosticMessage = Assert.Single(spy.Messages.OfType<_DiagnosticMessage>());
-			Assert.StartsWith("Test collection orderer 'TestAssemblyRunnerTests+TestCollectionOrderer+ThrowingCollectionOrderer' threw 'System.DivideByZeroException' during ordering: Attempted to divide by zero.", diagnosticMessage.Message);
+			var errorMessage = Assert.Single(executionSink.Messages.OfType<_ErrorMessage>());
+			var type = Assert.Single(errorMessage.ExceptionTypes);
+			Assert.Equal(typeof(XunitException).FullName, type);
+			var index = Assert.Single(errorMessage.ExceptionParentIndices);
+			Assert.Equal(-1, index);
+			var msg = Assert.Single(errorMessage.Messages);
+			Assert.Equal("Test collection orderer 'TestAssemblyRunnerTests+TestCollectionOrderer+ThrowingCollectionOrderer' threw 'System.DivideByZeroException' during ordering: Attempted to divide by zero.", msg);
+			Assert.Empty(runner.CollectionsRun);
 		}
 
 		class ThrowingCollectionOrderer : ITestCollectionOrderer

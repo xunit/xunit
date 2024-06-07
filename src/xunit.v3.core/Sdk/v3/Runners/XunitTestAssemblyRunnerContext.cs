@@ -137,7 +137,15 @@ public class XunitTestAssemblyRunnerContext : TestAssemblyRunnerContext<IXunitTe
 				{
 					var (type, assembly) = ExtensibilityPointFactory.TypeStringsFromAttributeConstructor(testCaseOrdererAttribute);
 
-					TestContext.Current?.SendDiagnosticMessage("Could not find type '{0}' in {1} for assembly-level test case orderer", type, assembly);
+					ExecutionMessageSink.OnMessage(new _ErrorMessage
+					{
+						ExceptionParentIndices = [-1],
+						ExceptionTypes = ["Xunit.Sdk.XunitException"],
+						Messages = [string.Format(CultureInfo.CurrentCulture, "Could not find type '{0}' in '{1}' for assembly-level test case orderer", type, assembly)],
+						StackTraces = [null],
+					});
+
+					TestCases = [];
 				}
 			}
 			catch (Exception ex)
@@ -145,14 +153,15 @@ public class XunitTestAssemblyRunnerContext : TestAssemblyRunnerContext<IXunitTe
 				var innerEx = ex.Unwrap();
 				var (type, _) = ExtensibilityPointFactory.TypeStringsFromAttributeConstructor(testCaseOrdererAttribute);
 
-				TestContext.Current?.SendDiagnosticMessage(
-					"Assembly-level test case orderer '{0}' threw '{1}' during construction: {2}{3}{4}",
-					type,
-					innerEx.GetType().FullName,
-					innerEx.Message,
-					Environment.NewLine,
-					innerEx.StackTrace
-				);
+				ExecutionMessageSink.OnMessage(new _ErrorMessage
+				{
+					ExceptionParentIndices = [-1],
+					ExceptionTypes = ["Xunit.Sdk.XunitException"],
+					Messages = [string.Format(CultureInfo.CurrentCulture, "Assembly-level test case orderer '{0}' threw '{1}' during construction: {2}", type, innerEx.GetType().FullName, innerEx.Message)],
+					StackTraces = [innerEx.StackTrace],
+				});
+
+				TestCases = [];
 			}
 		}
 
@@ -166,7 +175,15 @@ public class XunitTestAssemblyRunnerContext : TestAssemblyRunnerContext<IXunitTe
 				{
 					var (type, assembly) = ExtensibilityPointFactory.TypeStringsFromAttributeConstructor(testCollectionOrdererAttribute);
 
-					TestContext.Current?.SendDiagnosticMessage("Could not find type '{0}' in {1} for assembly-level test collection orderer", type, assembly);
+					ExecutionMessageSink.OnMessage(new _ErrorMessage
+					{
+						ExceptionParentIndices = [-1],
+						ExceptionTypes = ["Xunit.Sdk.XunitException"],
+						Messages = [string.Format(CultureInfo.CurrentCulture, "Could not find type '{0}' in '{1}' for assembly-level test collection orderer", type, assembly)],
+						StackTraces = [null],
+					});
+
+					TestCases = [];
 				}
 			}
 			catch (Exception ex)
@@ -174,14 +191,15 @@ public class XunitTestAssemblyRunnerContext : TestAssemblyRunnerContext<IXunitTe
 				var innerEx = ex.Unwrap();
 				var (type, _) = ExtensibilityPointFactory.TypeStringsFromAttributeConstructor(testCollectionOrdererAttribute);
 
-				TestContext.Current?.SendDiagnosticMessage(
-					"Assembly-level test collection orderer '{0}' threw '{1}' during construction: {2}{3}{4}",
-					type,
-					innerEx.GetType().FullName,
-					innerEx.Message,
-					Environment.NewLine,
-					innerEx.StackTrace
-				);
+				ExecutionMessageSink.OnMessage(new _ErrorMessage
+				{
+					ExceptionParentIndices = [-1],
+					ExceptionTypes = ["Xunit.Sdk.XunitException"],
+					Messages = [string.Format(CultureInfo.CurrentCulture, "Assembly-level test collection orderer '{0}' threw '{1}' during construction: {2}", type, innerEx.GetType().FullName, innerEx.Message)],
+					StackTraces = [innerEx.StackTrace],
+				});
+
+				TestCases = [];
 			}
 		}
 	}

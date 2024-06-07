@@ -213,16 +213,15 @@ public abstract class TestClassRunner<TContext, TTestCase>
 		{
 			var innerEx = ex.Unwrap();
 
-			TestContext.Current?.SendDiagnosticMessage(
-				"Test case orderer '{0}' threw '{1}' during ordering: {2}{3}{4}",
-				ctxt.TestCaseOrderer.GetType().FullName,
-				innerEx.GetType().FullName,
-				innerEx.Message,
-				Environment.NewLine,
-				innerEx.StackTrace
-			);
+			ctxt.MessageBus.QueueMessage(new _ErrorMessage
+			{
+				ExceptionParentIndices = [-1],
+				ExceptionTypes = ["Xunit.Sdk.XunitException"],
+				Messages = [string.Format(CultureInfo.CurrentCulture, "Test case orderer '{0}' threw '{1}' during ordering: {2}", ctxt.TestCaseOrderer.GetType().FullName, innerEx.GetType().FullName, innerEx.Message)],
+				StackTraces = [innerEx.StackTrace],
+			});
 
-			orderedTestCases = ctxt.TestCases.CastOrToReadOnlyCollection();
+			orderedTestCases = [];
 		}
 
 		var constructorArguments = await CreateTestClassConstructorArguments(ctxt);

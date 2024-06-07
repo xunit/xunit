@@ -100,7 +100,7 @@ public abstract class TestAssemblyRunnerContext<TTestCase> : IAsyncLifetime
 	/// <summary>
 	/// Gets the test cases associated with this test assembly.
 	/// </summary>
-	public IReadOnlyCollection<TTestCase> TestCases { get; }
+	public IReadOnlyCollection<TTestCase> TestCases { get; protected set; }
 
 	/// <summary>
 	/// Creates the message bus to be used for test execution. By default, it inspects

@@ -276,39 +276,25 @@ public static class TestClassRunnerTests
 		}
 
 		[Fact]
-		public static async ValueTask TestCaseOrdererWhichThrowsLogsMessageAndDoesNotReorderTests()
+		public static async ValueTask ThrowsWhileOrdering_HaltsProcessing()
 		{
-			var spy = SpyMessageSink.Capture();
-			TestContext.Current!.DiagnosticMessageSink = spy;
 			var passing1 = Mocks.TestCase<ClassUnderTest>("Passing");
 			var passing2 = Mocks.TestCase<ClassUnderTest>("Passing");
 			var other1 = Mocks.TestCase<ClassUnderTest>("Other");
 			var other2 = Mocks.TestCase<ClassUnderTest>("Other");
-			var runner = TestableTestClassRunner.Create(testCases: new[] { passing1, other1, passing2, other2 }, orderer: new ThrowingOrderer());
+			var messageBus = new SpyMessageBus();
+			var runner = TestableTestClassRunner.Create(messageBus, [passing1, other1, passing2, other2], new ThrowingOrderer());
 
 			await runner.RunAsync();
 
-			Assert.Collection(
-				runner.MethodsRun,
-				tuple =>
-				{
-					Assert.Equal("Passing", tuple.Item1?.Name);
-					Assert.Collection(tuple.Item2,
-						testCase => Assert.Same(passing1, testCase),
-						testCase => Assert.Same(passing2, testCase)
-					);
-				},
-				tuple =>
-				{
-					Assert.Equal("Other", tuple.Item1?.Name);
-					Assert.Collection(tuple.Item2,
-						testCase => Assert.Same(other1, testCase),
-						testCase => Assert.Same(other2, testCase)
-					);
-				}
-			);
-			var diagnosticMessage = Assert.Single(spy.Messages.Cast<_DiagnosticMessage>());
-			Assert.StartsWith("Test case orderer 'TestClassRunnerTests+TestCaseOrderer+ThrowingOrderer' threw 'System.DivideByZeroException' during ordering: Attempted to divide by zero.", diagnosticMessage.Message);
+			var errorMessage = Assert.Single(messageBus.Messages.OfType<_ErrorMessage>());
+			var type = Assert.Single(errorMessage.ExceptionTypes);
+			Assert.Equal(typeof(XunitException).FullName, type);
+			var index = Assert.Single(errorMessage.ExceptionParentIndices);
+			Assert.Equal(-1, index);
+			var msg = Assert.Single(errorMessage.Messages);
+			Assert.Equal("Test case orderer 'TestClassRunnerTests+TestCaseOrderer+ThrowingOrderer' threw 'System.DivideByZeroException' during ordering: Attempted to divide by zero.", msg);
+			Assert.Empty(runner.MethodsRun);
 		}
 
 		class ThrowingOrderer : ITestCaseOrderer
