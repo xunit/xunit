@@ -207,18 +207,17 @@ namespace Xunit.Sdk
             {
                 var innerEx = ex.Unwrap();
 
-                DiagnosticMessageSink.OnMessage(
-                    new DiagnosticMessage(
-                        "Test case orderer '{0}' threw '{1}' during ordering: {2}{3}{4}",
-                        TestCaseOrderer.GetType().FullName,
-                        innerEx.GetType().FullName,
-                        innerEx.Message,
-                        Environment.NewLine,
-                        innerEx.StackTrace
+                MessageBus.QueueMessage(
+                    new ErrorMessage(
+                        TestCases.Cast<ITestCase>(),
+                        ["Xunit.Sdk.XunitException"],
+                        [string.Format(CultureInfo.CurrentCulture, "Test case orderer '{0}' threw '{1}' during ordering: {2}", TestCaseOrderer.GetType().FullName, innerEx.GetType().FullName, innerEx.Message)],
+                        [innerEx.StackTrace],
+                        [-1]
                     )
                 );
 
-                orderedTestCases = TestCases.ToList();
+                orderedTestCases = [];
             }
 
             var constructorArguments = CreateTestClassConstructorArguments();

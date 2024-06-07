@@ -125,7 +125,18 @@ namespace Xunit.Sdk
                     else
                     {
                         var args = testCaseOrdererAttribute.GetConstructorArguments().Cast<string>().ToList();
-                        DiagnosticMessageSink.OnMessage(new DiagnosticMessage("Could not find type '{0}' in {1} for assembly-level test case orderer", args[0], args[1]));
+
+                        ExecutionMessageSink.OnMessage(
+                            new ErrorMessage(
+                                TestCases,
+                                ["Xunit.Sdk.XunitException"],
+                                [string.Format(CultureInfo.CurrentCulture, "Could not find type '{0}' in '{1}' for assembly-level test case orderer", args[0], args[1])],
+                                [null],
+                                [-1]
+                            )
+                        );
+
+                        TestCases = [];
                     }
                 }
                 catch (Exception ex)
@@ -133,16 +144,17 @@ namespace Xunit.Sdk
                     var innerEx = ex.Unwrap();
                     var args = testCaseOrdererAttribute.GetConstructorArguments().Cast<string>().ToList();
 
-                    DiagnosticMessageSink.OnMessage(
-                        new DiagnosticMessage(
-                            "Assembly-level test case orderer '{0}' threw '{1}' during construction: {2}{3}{4}",
-                            args[0],
-                            innerEx.GetType().FullName,
-                            innerEx.Message,
-                            Environment.NewLine,
-                            innerEx.StackTrace
+                    ExecutionMessageSink.OnMessage(
+                        new ErrorMessage(
+                            TestCases,
+                            ["Xunit.Sdk.XunitException"],
+                            [string.Format(CultureInfo.CurrentCulture, "Assembly-level test case orderer '{0}' threw '{1}' during construction: {2}", args[0], innerEx.GetType().FullName, innerEx.Message)],
+                            [innerEx.StackTrace],
+                            [-1]
                         )
                     );
+
+                    TestCases = [];
                 }
             }
 
@@ -157,7 +169,18 @@ namespace Xunit.Sdk
                     else
                     {
                         var args = testCollectionOrdererAttribute.GetConstructorArguments().Cast<string>().ToList();
-                        DiagnosticMessageSink.OnMessage(new DiagnosticMessage("Could not find type '{0}' in {1} for assembly-level test collection orderer", args[0], args[1]));
+
+                        ExecutionMessageSink.OnMessage(
+                            new ErrorMessage(
+                                TestCases,
+                                ["Xunit.Sdk.XunitException"],
+                                [string.Format(CultureInfo.CurrentCulture, "Could not find type '{0}' in '{1}' for assembly-level test collection orderer", args[0], args[1])],
+                                [null],
+                                [-1]
+                            )
+                        );
+
+                        TestCases = [];
                     }
                 }
                 catch (Exception ex)
@@ -165,16 +188,17 @@ namespace Xunit.Sdk
                     var innerEx = ex.Unwrap();
                     var args = testCollectionOrdererAttribute.GetConstructorArguments().Cast<string>().ToList();
 
-                    DiagnosticMessageSink.OnMessage(
-                        new DiagnosticMessage(
-                            "Assembly-level test collection orderer '{0}' threw '{1}' during construction: {2}{3}{4}",
-                            args[0],
-                            innerEx.GetType().FullName,
-                            innerEx.Message,
-                            Environment.NewLine,
-                            innerEx.StackTrace
+                    ExecutionMessageSink.OnMessage(
+                        new ErrorMessage(
+                            TestCases,
+                            ["Xunit.Sdk.XunitException"],
+                            [string.Format(CultureInfo.CurrentCulture, "Assembly-level test collection orderer '{0}' threw '{1}' during construction: {2}", args[0], innerEx.GetType().FullName, innerEx.Message)],
+                            [innerEx.StackTrace],
+                            [-1]
                         )
                     );
+
+                    TestCases = [];
                 }
             }
 

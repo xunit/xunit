@@ -163,18 +163,17 @@ namespace Xunit.Sdk
             {
                 var innerEx = ex.Unwrap();
 
-                DiagnosticMessageSink.OnMessage(
-                    new DiagnosticMessage(
-                        "Test collection orderer '{0}' threw '{1}' during ordering: {2}{3}{4}",
-                        TestCollectionOrderer.GetType().FullName,
-                        innerEx.GetType().FullName,
-                        innerEx.Message,
-                        Environment.NewLine,
-                        innerEx.StackTrace
+                ExecutionMessageSink.OnMessage(
+                    new ErrorMessage(
+                        TestCases.Cast<ITestCase>(),
+                        ["Xunit.Sdk.XunitException"],
+                        [string.Format(CultureInfo.CurrentCulture, "Test collection orderer '{0}' threw '{1}' during ordering: {2}", TestCollectionOrderer.GetType().FullName, innerEx.GetType().FullName, innerEx.Message)],
+                        [innerEx.StackTrace],
+                        [-1]
                     )
                 );
 
-                orderedTestCollections = testCasesByCollection.Keys.ToList();
+                return [];
             }
 
             return orderedTestCollections.Select(collection => Tuple.Create(collection, testCasesByCollection[collection]))
