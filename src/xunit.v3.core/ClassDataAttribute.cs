@@ -108,3 +108,6 @@ public class ClassDataAttribute : DataAttribute
 		);
 	}
 }
+
+/// <inheritdoc />
+public class ClassDataAttribute<T>() : ClassDataAttribute(typeof(T));
