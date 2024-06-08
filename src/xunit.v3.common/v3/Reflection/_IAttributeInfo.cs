@@ -15,6 +15,11 @@ public interface _IAttributeInfo
 	_ITypeInfo AttributeType { get; }
 
 	/// <summary>
+	/// Gets the type argument of the attribute.
+	/// </summary>
+	_ITypeInfo[] GenericArguments { get; }
+	
+	/// <summary>
 	/// Gets the arguments passed to the constructor.
 	/// </summary>
 	/// <returns>The constructor arguments, in order</returns>

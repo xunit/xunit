@@ -38,6 +38,9 @@ public class ReflectionAttributeInfo : _IReflectionAttributeInfo
 	/// <inheritdoc/>
 	public _ITypeInfo AttributeType => Reflector.Wrap(AttributeData.AttributeType);
 
+	/// <inheritdoc/>
+	public _ITypeInfo[] GenericArguments => AttributeType.GetGenericArguments();
+
 	internal static AttributeUsageAttribute GetAttributeUsage(_ITypeInfo attributeType)
 	{
 		Guard.ArgumentNotNull(attributeType);

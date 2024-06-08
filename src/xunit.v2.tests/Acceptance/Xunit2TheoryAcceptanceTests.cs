@@ -586,7 +586,7 @@ public class Xunit2TheoryAcceptanceTests
 		class ClassUnderTest
 		{
 			[Theory]
-			[ClassData(typeof(ClassDataSource))]
+			[ClassData<ClassDataSource>]
 			public void TestViaClassData(int x, char? y, string z)
 			{
 				Assert.NotNull(z);

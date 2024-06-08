@@ -27,6 +27,10 @@ public class Xunit3AttributeInfo : _IAttributeInfo
 	public _ITypeInfo AttributeType =>
 		throw new NotImplementedException("This is only available on v3 attributes");
 
+	/// <inheritdoc/>
+	public _ITypeInfo GenericArguments=>
+		throw new NotImplementedException("This is only available on v3 attributes");
+
 #pragma warning restore CA1065
 
 	/// <summary>

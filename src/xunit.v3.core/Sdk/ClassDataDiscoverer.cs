@@ -20,7 +20,7 @@ public class ClassDataDiscoverer : DataDiscoverer
 
 		var @class = Guard.NotNull(
 			() => $"Attribute {nameof(ClassDataAttribute)} has been provided without a class type assigned to it.",
-			dataAttribute.GetConstructorArguments().FirstOrDefault() as Type
+			dataAttribute.GetConstructorArguments().FirstOrDefault() as Type ?? dataAttribute.GenericArguments.FirstOrDefault()?.GetType()
 		);
 
 		return !typeof(IDisposable).IsAssignableFrom(@class)
