@@ -14,21 +14,25 @@ public static class TestFxMSBuild
 {
 	public static async Task OnExecute(BuildContext context)
 	{
-		context.BuildStep("Running .NET Framework tests (via MSBuild runner)");
+		context.BuildStep("Running .NET Framework tests (AnyCPU, via MSBuild runner)");
 
 		try
 		{
-			await context.Exec("msbuild", $"tools/builder/msbuild/netfx.proj -target:TestV3 -property:Configuration={context.ConfigurationText} -verbosity:{context.Verbosity}");
+			await context.Exec("msbuild", $"tools/builder/msbuild/netfx.proj -target:TestV3_AnyCPU -property:Configuration={context.ConfigurationText} -verbosity:{context.Verbosity}");
 
-			// Mono is only supported for v3
+			// Mono is only supported for v3 at the installed bitness
 			if (context.NeedMono)
 				return;
 
-			if (context.V3Only)
-				return;
+			if (!context.V3Only)
+			{
+				await context.Exec("msbuild", $"tools/builder/msbuild/netfx.proj -target:TestV2 -property:Configuration={context.ConfigurationText} -verbosity:{context.Verbosity}");
+				await context.Exec("msbuild", $"tools/builder/msbuild/netfx.proj -target:TestV1 -property:Configuration={context.ConfigurationText} -verbosity:{context.Verbosity}");
+			}
 
-			await context.Exec("msbuild", $"tools/builder/msbuild/netfx.proj -target:TestV2 -property:Configuration={context.ConfigurationText} -verbosity:{context.Verbosity}");
-			await context.Exec("msbuild", $"tools/builder/msbuild/netfx.proj -target:TestV1 -property:Configuration={context.ConfigurationText} -verbosity:{context.Verbosity}");
+			context.BuildStep("Running .NET Framework tests (x86, via MSBuild runner)");
+
+			await context.Exec("msbuild", $"tools/builder/msbuild/netfx.proj -target:TestV3_x86 -property:Configuration={context.ConfigurationText} -verbosity:{context.Verbosity}");
 		}
 		catch (Win32Exception ex)
 		{

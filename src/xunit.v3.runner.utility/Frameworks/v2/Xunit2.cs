@@ -619,8 +619,6 @@ public class Xunit2 : IFrontController
 	/// </summary>
 	/// <param name="assemblyInfo">The assembly to use for discovery</param>
 	/// <param name="projectAssembly">The test project assembly.</param>
-	/// <param name="xunitExecutionAssemblyPath">The path on disk of xunit.execution.*.dll; if <c>null</c>, then
-	/// the location of xunit.execution.*.dll is implied based on the location of the test assembly</param>
 	/// <param name="sourceInformationProvider">The optional source information provider.</param>
 	/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/>
 	/// and <see cref="_InternalDiagnosticMessage"/> messages.</param>
@@ -628,7 +626,6 @@ public class Xunit2 : IFrontController
 	public static IFrontControllerDiscoverer ForDiscovery(
 		_IAssemblyInfo assemblyInfo,
 		XunitProjectAssembly projectAssembly,
-		string? xunitExecutionAssemblyPath = null,
 		_ISourceInformationProvider? sourceInformationProvider = null,
 		_IMessageSink? diagnosticMessageSink = null,
 		bool verifyAssembliesOnDisk = true)
@@ -644,7 +641,7 @@ public class Xunit2 : IFrontController
 			sourceInformationProvider ?? _NullSourceInformationProvider.Instance,
 			assemblyInfo,
 			assemblyFileName: null,
-			xunitExecutionAssemblyPath ?? GetXunitExecutionAssemblyPath(appDomainSupport, assemblyInfo),
+			GetXunitExecutionAssemblyPath(appDomainSupport, assemblyInfo),
 			projectAssembly.ConfigFileName,
 			projectAssembly.Configuration.ShadowCopyOrDefault,
 			projectAssembly.Configuration.ShadowCopyFolder,

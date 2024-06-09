@@ -4,6 +4,6 @@ namespace Xunit.BuildTools.Targets;
 
 [Target(
 	BuildTarget.TestMSBuild,
-	BuildTarget.TestFxMSBuild
+	BuildTarget.TestCoreMSBuild, BuildTarget.TestFxMSBuild
 )]
 public static class TestMSBuild { }

@@ -28,7 +28,7 @@ public static class TestCoreConsole
 
 		context.BuildStep($"Running .NET tests ({framework}, AnyCPU, via Console runner)");
 
-		await RunTestAssemblies(context, "dotnet", framework, x86: false);
+		await RunTestAssemblies(context, framework, x86: false);
 
 		// ------------- Forced x86 -------------
 
@@ -47,12 +47,11 @@ public static class TestCoreConsole
 
 		context.BuildStep($"Running .NET tests ({framework}, x86, via Console runner)");
 
-		await RunTestAssemblies(context, x86Dotnet, framework, x86: true);
+		await RunTestAssemblies(context, framework, x86: true);
 	}
 
 	static async Task RunTestAssemblies(
 		BuildContext context,
-		string command,
 		string framework,
 		bool x86)
 	{
@@ -64,13 +63,8 @@ public static class TestCoreConsole
 				.OrderBy(x => x)
 				.Select(x => x.Substring(context.BaseFolder.Length + 1));
 
-		foreach (var testAssembly in testAssemblies)
-		{
-			var fileName = Path.GetFileName(testAssembly);
-			var folder = Path.GetDirectoryName(testAssembly);
-			var outputFileName = Path.Combine(context.TestOutputFolder, Path.GetFileNameWithoutExtension(testAssembly) + "-" + Path.GetFileName(folder));
+		var outputFileName = Path.Combine(context.TestOutputFolder, $"xunit.v3-{framework}-{(x86 ? "x86" : "AnyCPU")}");
 
-			await context.Exec(command, $"exec {fileName} {context.TestFlagsParallel}-preenumeratetheories -xml \"{outputFileName}.xml\" -html \"{outputFileName}.html\" -trx \"{outputFileName}.trx\"", workingDirectory: folder);
-		}
+		await context.Exec(context.ConsoleRunnerExe, $"{string.Join(" ", testAssemblies)} {context.TestFlagsParallel}-preEnumerateTheories -xml \"{outputFileName}.xml\" -html \"{outputFileName}.html\" -trx \"{outputFileName}.trx\"", workingDirectory: context.BaseFolder);
 	}
 }

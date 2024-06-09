@@ -1,0 +1,38 @@
+<Project
+	xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+	<PropertyGroup>
+		<Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
+		<SolutionDir Condition=" '$(SolutionDir)' == '' ">$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)\..\..\..'))\</SolutionDir>
+	</PropertyGroup>
+
+	<UsingTask
+		AssemblyFile="$(SolutionDir)src\xunit.v3.runner.msbuild\bin\$(Configuration)\net472\merged\xunit.v3.runner.msbuild.dll"
+		TaskName="Xunit.Runner.MSBuild.xunit"/>
+
+	<ItemGroup>
+		<Net6_x86_Assemblies Include="$(SolutionDir)src\**\bin\$(Configuration)\net6.0\xunit.*.x86.tests.dll" />
+		<Net6_AnyCPU_Assemblies Include="$(SolutionDir)src\**\bin\$(Configuration)\net6.0\xunit.*.tests.dll" Exclude="@(Net6_x86_Assemblies)" />
+		<Net8_x86_Assemblies Include="$(SolutionDir)src\**\bin\$(Configuration)\net8.0\xunit.*.x86.tests.dll" />
+		<Net8_AnyCPU_Assemblies Include="$(SolutionDir)src\**\bin\$(Configuration)\net8.0\xunit.*.tests.dll" Exclude="@(Net8_x86_Assemblies)" />
+	</ItemGroup>
+
+	<Target Name="Default" />
+
+	<Target Name="Net6_AnyCPU">
+		<xunit Assemblies="@(Net6_AnyCPU_Assemblies)" />
+	</Target>
+
+	<Target Name="Net6_x86">
+		<xunit Assemblies="@(Net6_x86_Assemblies)" />
+	</Target>
+
+	<Target Name="Net8_AnyCPU">
+		<xunit Assemblies="@(Net8_AnyCPU_Assemblies)" />
+	</Target>
+
+	<Target Name="Net8_x86">
+		<xunit Assemblies="@(Net8_x86_Assemblies)" />
+	</Target>
+
+</Project>

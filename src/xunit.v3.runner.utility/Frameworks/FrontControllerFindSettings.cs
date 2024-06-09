@@ -7,9 +7,7 @@ namespace Xunit;
 /// <summary>
 /// Contains the information by <see cref="IFrontControllerDiscoverer.Find"/>.
 /// </summary>
-// TODO: This is currently ctor-based because everything else uses factories,
-// are we comfortable with that design?
-public class FrontControllerFindSettings
+public class FrontControllerFindSettings : FrontControllerSettingsBase
 {
 	/// <summary>
 	/// Initializes a new instance of the <see cref="FrontControllerFindSettings"/> class.

@@ -7,7 +7,7 @@ namespace Xunit;
 /// <summary>
 /// Contains the information by <see cref="IFrontController.Run"/>.
 /// </summary>
-public class FrontControllerRunSettings
+public class FrontControllerRunSettings : FrontControllerSettingsBase
 {
 	/// <summary>
 	/// Initializes a new instance of the <see cref="FrontControllerFindSettings"/> class.

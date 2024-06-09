@@ -26,14 +26,14 @@ public static class TestFxConsole
 			return;
 
 		var v2Folder = Path.Combine(context.BaseFolder, "src", "xunit.v2.tests", "bin", context.ConfigurationText, "net452");
-		var v2OutputFileName = Path.Combine(context.TestOutputFolder, "xunit.v2.tests-netfx");
+		var v2OutputFileName = Path.Combine(context.TestOutputFolder, "xunit.v2-net452");
 		var v1Folder = Path.Combine(context.BaseFolder, "src", "xunit.v1.tests", "bin", context.ConfigurationText, "net45");
-		var v1OutputFileName = Path.Combine(context.TestOutputFolder, "xunit.v1.tests-netfx");
+		var v1OutputFileName = Path.Combine(context.TestOutputFolder, "xunit.v1-net45");
 
 		if (!context.V3Only)
 		{
-			await context.Exec(context.ConsoleRunnerExe, $"{v2Folder}/xunit.v2.tests.dll {context.TestFlagsParallel}-appdomains required -xml \"{v2OutputFileName}.xml\" -html \"{v2OutputFileName}.html\" -trx \"{v2OutputFileName}.trx\"", workingDirectory: v2Folder);
-			await context.Exec(context.ConsoleRunnerExe, $"{v1Folder}/xunit.v1.tests.dll {context.TestFlagsParallel}-appdomains required -xml \"{v1OutputFileName}.xml\" -html \"{v1OutputFileName}.html\" -trx \"{v1OutputFileName}.trx\"", workingDirectory: v1Folder);
+			await context.Exec(context.ConsoleRunnerExe, $"{v2Folder}/xunit.v2.tests.dll {context.TestFlagsParallel}-appdomains required -xml \"{v2OutputFileName}-AnyCPU.xml\" -html \"{v2OutputFileName}-AnyCPU.html\" -trx \"{v2OutputFileName}-AnyCPU.trx\"", workingDirectory: v2Folder);
+			await context.Exec(context.ConsoleRunnerExe, $"{v1Folder}/xunit.v1.tests.dll {context.TestFlagsParallel}-appdomains required -xml \"{v1OutputFileName}-AnyCPU.xml\" -html \"{v1OutputFileName}-AnyCPU.html\" -trx \"{v1OutputFileName}-AnyCPU.trx\"", workingDirectory: v1Folder);
 		}
 
 		// ------------- Forced x86 -------------
@@ -61,13 +61,8 @@ public static class TestFxConsole
 				.Where(x => x.Contains(binSubPath) && !x.Contains(refSubPath) && (x.Contains(".x86") == x86))
 				.OrderBy(x => x);
 
-		foreach (var testAssembly in testAssemblies)
-		{
-			var fileName = Path.GetFileName(testAssembly);
-			var folder = Path.GetDirectoryName(testAssembly);
-			var outputFileName = Path.Combine(context.TestOutputFolder, Path.GetFileNameWithoutExtension(testAssembly) + "-" + Path.GetFileName(folder));
+		var outputFileName = Path.Combine(context.TestOutputFolder, $"xunit.v3-net472-{(x86 ? "x86" : "AnyCPU")}");
 
-			await context.Exec(testAssembly, $"{context.TestFlagsParallel}-preenumeratetheories -xml \"{outputFileName}.xml\" -html \"{outputFileName}.html\" -trx \"{outputFileName}.trx\"", workingDirectory: folder);
-		}
+		await context.Exec(context.ConsoleRunnerExe, $"{string.Join(" ", testAssemblies)} {context.TestFlagsParallel}-preEnumerateTheories -xml \"{outputFileName}.xml\" -html \"{outputFileName}.html\" -trx \"{outputFileName}.trx\"", workingDirectory: context.BaseFolder);
 	}
 }
