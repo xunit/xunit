@@ -125,7 +125,7 @@ public static class TestData
 		Reflector.Wrap(assembly);
 
 	public static _DiagnosticMessage DiagnosticMessage(string message = "Hello world!") =>
-		new() { Message = message };
+		new(message);
 
 	public static _DiscoveryComplete DiscoveryComplete(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
@@ -176,7 +176,7 @@ public static class TestData
 	}
 
 	public static _InternalDiagnosticMessage InternalDiagnosticMessage(string message = "Hello world!") =>
-		new() { Message = message };
+		new(message);
 
 	public static _IReflectionMethodInfo MethodInfo<TClass>(string methodName) =>
 		Guard.ArgumentNotNull(

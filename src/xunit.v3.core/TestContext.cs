@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Threading;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -184,10 +183,7 @@ public class TestContext
 	/// </summary>
 	/// <param name="message">The message to send</param>
 	public void SendDiagnosticMessage(string message)
-	{
-		if (DiagnosticMessageSink is not null)
-			DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = message });
-	}
+		=> DiagnosticMessageSink?.OnMessage(new _DiagnosticMessage(message));
 
 	/// <summary>
 	/// Sends a formatted diagnostic message. Will only be visible if the end user has enabled diagnostic messages.
@@ -197,11 +193,8 @@ public class TestContext
 	/// <param name="arg0">The value to replace {0} in the format string.</param>
 	public void SendDiagnosticMessage(
 		string format,
-		object? arg0)
-	{
-		if (DiagnosticMessageSink is not null)
-			DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = string.Format(CultureInfo.CurrentCulture, format, arg0) });
-	}
+		object? arg0) =>
+			DiagnosticMessageSink?.OnMessage(new _DiagnosticMessage(format, arg0));
 
 	/// <summary>
 	/// Sends a formatted diagnostic message. Will only be visible if the end user has enabled diagnostic messages.
@@ -213,11 +206,8 @@ public class TestContext
 	public void SendDiagnosticMessage(
 		string format,
 		object? arg0,
-		object? arg1)
-	{
-		if (DiagnosticMessageSink is not null)
-			DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = string.Format(CultureInfo.CurrentCulture, format, arg0, arg1) });
-	}
+		object? arg1) =>
+			DiagnosticMessageSink?.OnMessage(new _DiagnosticMessage(format, arg0, arg1));
 
 	/// <summary>
 	/// Sends a formatted diagnostic message. Will only be visible if the end user has enabled diagnostic messages.
@@ -231,11 +221,8 @@ public class TestContext
 		string format,
 		object? arg0,
 		object? arg1,
-		object? arg2)
-	{
-		if (DiagnosticMessageSink is not null)
-			DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = string.Format(CultureInfo.CurrentCulture, format, arg0, arg1, arg2) });
-	}
+		object? arg2) =>
+			DiagnosticMessageSink?.OnMessage(new _DiagnosticMessage(format, arg0, arg1, arg2));
 
 	/// <summary>
 	/// Sends a formatted diagnostic message. Will only be visible if the end user has enabled diagnostic messages.
@@ -245,52 +232,34 @@ public class TestContext
 	/// <param name="args">An object array that contains zero or more objects to format.</param>
 	public void SendDiagnosticMessage(
 		string format,
-		params object?[] args)
-	{
-		if (DiagnosticMessageSink is not null)
-			DiagnosticMessageSink.OnMessage(new _DiagnosticMessage { Message = string.Format(CultureInfo.CurrentCulture, format, args) });
-	}
+		params object?[] args) =>
+			DiagnosticMessageSink?.OnMessage(new _DiagnosticMessage(format, args));
 
-	internal void SendInternalDiagnosticMessage(string message)
-	{
-		if (InternalDiagnosticMessageSink is not null)
-			InternalDiagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage { Message = message });
-	}
+	internal void SendInternalDiagnosticMessage(string message) =>
+		InternalDiagnosticMessageSink?.OnMessage(new _InternalDiagnosticMessage(message));
 
 	internal void SendInternalDiagnosticMessage(
 		string format,
-		object? arg0)
-	{
-		if (InternalDiagnosticMessageSink is not null)
-			InternalDiagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage { Message = string.Format(CultureInfo.CurrentCulture, format, arg0) });
-	}
+		object? arg0) =>
+			InternalDiagnosticMessageSink?.OnMessage(new _InternalDiagnosticMessage(format, arg0));
 
 	internal void SendInternalDiagnosticMessage(
 		string format,
 		object? arg0,
-		object? arg1)
-	{
-		if (InternalDiagnosticMessageSink is not null)
-			InternalDiagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage { Message = string.Format(CultureInfo.CurrentCulture, format, arg0, arg1) });
-	}
+		object? arg1) =>
+			InternalDiagnosticMessageSink?.OnMessage(new _InternalDiagnosticMessage(format, arg0, arg1));
 
 	internal void SendInternalDiagnosticMessage(
 		string format,
 		object? arg0,
 		object? arg1,
-		object? arg2)
-	{
-		if (InternalDiagnosticMessageSink is not null)
-			InternalDiagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage { Message = string.Format(CultureInfo.CurrentCulture, format, arg0, arg1, arg2) });
-	}
+		object? arg2) =>
+			InternalDiagnosticMessageSink?.OnMessage(new _InternalDiagnosticMessage(format, arg0, arg1, arg2));
 
 	internal void SendInternalDiagnosticMessage(
 		string format,
-		params object?[] args)
-	{
-		if (InternalDiagnosticMessageSink is not null)
-			InternalDiagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage { Message = string.Format(CultureInfo.CurrentCulture, format, args) });
-	}
+		params object?[] args) =>
+			InternalDiagnosticMessageSink?.OnMessage(new _InternalDiagnosticMessage(format, args));
 
 	/// <summary>
 	/// Sets the test context for test framework initialization. This is the moment before any specific assembly is

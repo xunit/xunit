@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Globalization;
 using System.IO;
 using System.Reflection;
 using Xunit.Internal;
@@ -72,9 +71,9 @@ public class AssemblyHelper : LongLivedMarshalByRefObject, IDisposable
 		if (diagnosticMessageSink is not null)
 		{
 			if (result is null)
-				diagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage { Message = string.Format(CultureInfo.CurrentCulture, "[AssemblyHelper_Desktop.LoadAssembly] Resolution for '{0}' failed, passed down to next resolver", assemblyName.Name) });
+				diagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage("[AssemblyHelper_Desktop.LoadAssembly] Resolution for '{0}' failed, passed down to next resolver", assemblyName.Name));
 			else
-				diagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage { Message = string.Format(CultureInfo.CurrentCulture, "[AssemblyHelper_Desktop.LoadAssembly] Resolved '{0}' to '{1}'", assemblyName.Name, resolvedAssemblyPath) });
+				diagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage("[AssemblyHelper_Desktop.LoadAssembly] Resolved '{0}' to '{1}'", assemblyName.Name, resolvedAssemblyPath));
 		}
 
 		lookupCache[assemblyName.Name] = result;

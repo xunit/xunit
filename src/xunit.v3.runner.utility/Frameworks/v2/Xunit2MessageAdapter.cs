@@ -168,7 +168,7 @@ public class Xunit2MessageAdapter
 	}
 
 	_DiagnosticMessage AdaptDiagnosticMessage(IDiagnosticMessage message) =>
-		new() { Message = message.Message };
+		new(message.Message);
 
 	_DiscoveryComplete AdaptDiscoveryCompleteMessage(IDiscoveryCompleteMessage message) =>
 		new() { AssemblyUniqueID = assemblyUniqueID };

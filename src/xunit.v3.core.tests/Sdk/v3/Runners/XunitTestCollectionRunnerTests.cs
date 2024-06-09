@@ -176,7 +176,7 @@ public class XunitTestCollectionRunnerTests
 		public CollectionFixtureWithMessageSinkDependency(_IMessageSink messageSink)
 		{
 			MessageSink = messageSink;
-			MessageSink.OnMessage(new _DiagnosticMessage { Message = "CollectionFixtureWithMessageSinkDependency constructor message" });
+			MessageSink.OnMessage(new _DiagnosticMessage("CollectionFixtureWithMessageSinkDependency constructor message"));
 		}
 	}
 
