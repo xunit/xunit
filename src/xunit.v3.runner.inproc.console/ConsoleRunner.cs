@@ -279,7 +279,12 @@ public class ConsoleRunner
 			// Discover & filter the tests
 			var testCases = new List<_ITestCase>();
 			var testDiscoverer = testFramework.GetDiscoverer(assemblyInfo);
-			await testDiscoverer.Find(testCase => { testCases.Add(testCase); return new(!cancel); }, discoveryOptions);
+			var types =
+				assembly.Configuration.Filters.IncludedClasses.Count == 0
+					? null
+					: assembly.Configuration.Filters.IncludedClasses.Select(Type.GetType).WhereNotNull().ToArray();
+
+			await testDiscoverer.Find(testCase => { testCases.Add(testCase); return new(!cancel); }, discoveryOptions, types);
 
 			var testCasesDiscovered = testCases.Count;
 			var filteredTestCases = testCases.Where(assembly.Configuration.Filters.Filter).ToList();
