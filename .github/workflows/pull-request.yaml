@@ -30,10 +30,10 @@ jobs:
 
       - name: Install .NET SDK (Windows)
         run: |
-          .\.github\workflows\dotnet-install.ps1 --channel 8.0
-          .\.github\workflows\dotnet-install.ps1 --channel 6.0 --runtime dotnet
-          .\.github\workflows\dotnet-install.ps1 --architecture x86 --channel 8.0
-          .\.github\workflows\dotnet-install.ps1 --architecture x86 --channel 6.0 --runtime dotnet
+          pwsh -NoLogo -Sta -NoProfile -NonInteractive -ExecutionPolicy Unrestricted -Command & '.\.github\workflows\dotnet-install.ps1 --channel 8.0'
+          pwsh -NoLogo -Sta -NoProfile -NonInteractive -ExecutionPolicy Unrestricted -Command & '.\.github\workflows\dotnet-install.ps1 --channel 6.0 --runtime dotnet'
+          pwsh -NoLogo -Sta -NoProfile -NonInteractive -ExecutionPolicy Unrestricted -Command & '.\.github\workflows\dotnet-install.ps1 --architecture x86 --channel 8.0'
+          pwsh -NoLogo -Sta -NoProfile -NonInteractive -ExecutionPolicy Unrestricted -Command & '.\.github\workflows\dotnet-install.ps1 --architecture x86 --channel 6.0 --runtime dotnet'
         if: matrix.os == 'windows-2022'
 
       - name: Install .NET SDK (non-Windows)
