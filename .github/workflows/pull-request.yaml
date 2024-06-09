@@ -28,12 +28,20 @@ jobs:
         run: cp .github/workflows/.global.json global.json
         shell: bash
 
-      - name: Install .NET SDK
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: |
-            6.0.x
-            8.0.x
+      - name: Install .NET SDK (Windows)
+        run: |
+          pwsh -NoLogo -Sta -NoProfile -NonInteractive -ExecutionPolicy Unrestricted -Command & '.\.github\workflows\dotnet-install.ps1 --channel 8.0'
+          pwsh -NoLogo -Sta -NoProfile -NonInteractive -ExecutionPolicy Unrestricted -Command & '.\.github\workflows\dotnet-install.ps1 --channel 6.0 --runtime dotnet'
+          pwsh -NoLogo -Sta -NoProfile -NonInteractive -ExecutionPolicy Unrestricted -Command & '.\.github\workflows\dotnet-install.ps1 --architecture x86 --channel 8.0'
+          pwsh -NoLogo -Sta -NoProfile -NonInteractive -ExecutionPolicy Unrestricted -Command & '.\.github\workflows\dotnet-install.ps1 --architecture x86 --channel 6.0 --runtime dotnet'
+        if: matrix.os == 'windows-2022'
+
+      - name: Install .NET SDK (non-Windows)
+        run: |
+          ./.github/workflows/dotnet-install --channel 8.0
+          ./.github/workflows/dotnet-install --channel 6.0 --runtime dotnet
+          echo "$HOME/.dotnet" >> $GITHUB_PATH
+        if: matrix.os != 'windows-2022'
 
       - name: Get .NET information
         run: dotnet --info
