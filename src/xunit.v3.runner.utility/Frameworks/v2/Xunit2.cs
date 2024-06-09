@@ -226,28 +226,29 @@ public class Xunit2 : IFrontController
 		Guard.ArgumentNotNull(messageSink);
 		Guard.ArgumentNotNull(settings);
 
-		var includeSourceInformation = settings.Options.GetIncludeSourceInformationOrDefault();
-		using var filteringMessageSink = new FilteringMessageSink(messageSink, settings.Filters.Filter);
-		var remoteMessageSink = CreateOptimizedRemoteMessageSink(filteringMessageSink);
-		var v2DiscoveryOptions = Xunit2OptionsAdapter.Adapt(settings.Options);
-
-		// TODO: Should discovery be done on a background thread?
-
-		SendDiscoveryStartingMessage(messageSink);
-
-		if (settings.Filters.IncludedClasses.Count == 0)
+		ThreadPool.QueueUserWorkItem(_ =>
 		{
-			remoteDiscoverer.Find(includeSourceInformation, remoteMessageSink, v2DiscoveryOptions);
-			filteringMessageSink.Finished.WaitOne();
-		}
-		else
-			foreach (var includedClass in settings.Filters.IncludedClasses)
+			var includeSourceInformation = settings.Options.GetIncludeSourceInformationOrDefault();
+			using var filteringMessageSink = new FilteringMessageSink(messageSink, settings.Filters.Filter);
+			var remoteMessageSink = CreateOptimizedRemoteMessageSink(filteringMessageSink);
+			var v2DiscoveryOptions = Xunit2OptionsAdapter.Adapt(settings.Options);
+
+			SendDiscoveryStartingMessage(messageSink);
+
+			if (settings.Filters.IncludedClasses.Count == 0)
 			{
-				remoteDiscoverer.Find(includedClass, includeSourceInformation, remoteMessageSink, v2DiscoveryOptions);
+				remoteDiscoverer.Find(includeSourceInformation, remoteMessageSink, v2DiscoveryOptions);
 				filteringMessageSink.Finished.WaitOne();
 			}
+			else
+				foreach (var includedClass in settings.Filters.IncludedClasses)
+				{
+					remoteDiscoverer.Find(includedClass, includeSourceInformation, remoteMessageSink, v2DiscoveryOptions);
+					filteringMessageSink.Finished.WaitOne();
+				}
 
-		SendDiscoveryCompleteMessage(messageSink, filteringMessageSink.TestCasesToRun);
+			SendDiscoveryCompleteMessage(messageSink, filteringMessageSink.TestCasesToRun);
+		});
 
 		return null;
 	}
@@ -262,38 +263,39 @@ public class Xunit2 : IFrontController
 		Guard.ArgumentNotNull(messageSink);
 		Guard.ArgumentNotNull(settings);
 
-		var explicitOption = settings.ExecutionOptions.GetExplicitOptionOrDefault();
-
-		// TODO: Should discovery be done on a background thread?
-
-		SendDiscoveryStartingMessage(messageSink);
-
-		using var discoverySink = new Xunit2DiscoverySink(settings.Filters);
-		var v2DiscoveryOptions = Xunit2OptionsAdapter.Adapt(settings.DiscoveryOptions);
-		var testCases = new List<ITestCase>();
-
-		if (settings.Filters.IncludedClasses.Count == 0)
+		ThreadPool.QueueUserWorkItem(_ =>
 		{
-			remoteDiscoverer.Find(includeSourceInformation: false, discoverySink, v2DiscoveryOptions);
-			discoverySink.Finished.WaitOne();
-		}
-		else
-			foreach (var includedClass in settings.Filters.IncludedClasses)
+			var explicitOption = settings.ExecutionOptions.GetExplicitOptionOrDefault();
+
+			SendDiscoveryStartingMessage(messageSink);
+
+			using var discoverySink = new Xunit2DiscoverySink(settings.Filters);
+			var v2DiscoveryOptions = Xunit2OptionsAdapter.Adapt(settings.DiscoveryOptions);
+			var testCases = new List<ITestCase>();
+
+			if (settings.Filters.IncludedClasses.Count == 0)
 			{
-				remoteDiscoverer.Find(includedClass, includeSourceInformation: false, discoverySink, v2DiscoveryOptions);
+				remoteDiscoverer.Find(includeSourceInformation: false, discoverySink, v2DiscoveryOptions);
 				discoverySink.Finished.WaitOne();
 			}
+			else
+				foreach (var includedClass in settings.Filters.IncludedClasses)
+				{
+					remoteDiscoverer.Find(includedClass, includeSourceInformation: false, discoverySink, v2DiscoveryOptions);
+					discoverySink.Finished.WaitOne();
+				}
 
-		SendDiscoveryCompleteMessage(messageSink, discoverySink.TestCases.Count);
+			SendDiscoveryCompleteMessage(messageSink, discoverySink.TestCases.Count);
 
-		if (explicitOption == ExplicitOption.Only)
-			ReportTestCasesAsNotRun(discoverySink.TestCases, messageSink);
-		else
-			remoteExecutor.RunTests(
-				discoverySink.TestCases,
-				CreateOptimizedRemoteMessageSink(messageSink),
-				Xunit2OptionsAdapter.Adapt(settings.ExecutionOptions)
-			);
+			if (explicitOption == ExplicitOption.Only)
+				ReportTestCasesAsNotRun(discoverySink.TestCases, messageSink);
+			else
+				remoteExecutor.RunTests(
+					discoverySink.TestCases,
+					CreateOptimizedRemoteMessageSink(messageSink),
+					Xunit2OptionsAdapter.Adapt(settings.ExecutionOptions)
+				);
+		});
 
 		return null;
 	}

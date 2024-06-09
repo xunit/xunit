@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Xunit.Internal;
@@ -109,30 +110,31 @@ public class Xunit1 : IFrontController
 	{
 		Guard.ArgumentNotNull(messageSink);
 
-		int testCasesToRun = 0;
-
-		// TODO: Should discovery be done on a background thread?
-
-		Find(
-			messageSink,
-			includeSourceInformation,
-			testCase =>
-			{
-				var msg = testCase.ToTestCaseDiscovered(includeSerialization: true);
-				if (filter is null || filter(msg))
-				{
-					messageSink.OnMessage(msg);
-					++testCasesToRun;
-				}
-			}
-		);
-
-		var discoveryComplete = new _DiscoveryComplete
+		ThreadPool.QueueUserWorkItem(_ =>
 		{
-			AssemblyUniqueID = TestAssemblyUniqueID,
-			TestCasesToRun = testCasesToRun,
-		};
-		messageSink.OnMessage(discoveryComplete);
+			int testCasesToRun = 0;
+
+			Find(
+				messageSink,
+				includeSourceInformation,
+				testCase =>
+				{
+					var msg = testCase.ToTestCaseDiscovered(includeSerialization: true);
+					if (filter is null || filter(msg))
+					{
+						messageSink.OnMessage(msg);
+						++testCasesToRun;
+					}
+				}
+			);
+
+			var discoveryComplete = new _DiscoveryComplete
+			{
+				AssemblyUniqueID = TestAssemblyUniqueID,
+				TestCasesToRun = testCasesToRun,
+			};
+			messageSink.OnMessage(discoveryComplete);
+		});
 	}
 
 	/// <inheritdoc/>
@@ -245,36 +247,37 @@ public class Xunit1 : IFrontController
 	{
 		Guard.ArgumentNotNull(messageSink);
 
-		var testCases = new List<Xunit1TestCase>();
-
-		// TODO: Should discovery be done on a background thread?
-
-		Find(
-			messageSink,
-			includeSourceInformation,
-			testCase =>
-			{
-				var include = true;
-
-				if (filter is not null)
-				{
-					var msg = testCase.ToTestCaseDiscovered(includeSerialization: false);
-					include = filter(msg);
-				}
-
-				if (include)
-					testCases.Add(testCase);
-			}
-		);
-
-		var discoveryComplete = new _DiscoveryComplete
+		ThreadPool.QueueUserWorkItem(_ =>
 		{
-			AssemblyUniqueID = TestAssemblyUniqueID,
-			TestCasesToRun = testCases.Count,
-		};
-		messageSink.OnMessage(discoveryComplete);
+			var testCases = new List<Xunit1TestCase>();
 
-		Run(testCases, messageSink, markAllAsNotRun);
+			Find(
+				messageSink,
+				includeSourceInformation,
+				testCase =>
+				{
+					var include = true;
+
+					if (filter is not null)
+					{
+						var msg = testCase.ToTestCaseDiscovered(includeSerialization: false);
+						include = filter(msg);
+					}
+
+					if (include)
+						testCases.Add(testCase);
+				}
+			);
+
+			var discoveryComplete = new _DiscoveryComplete
+			{
+				AssemblyUniqueID = TestAssemblyUniqueID,
+				TestCasesToRun = testCases.Count,
+			};
+			messageSink.OnMessage(discoveryComplete);
+
+			Run(testCases, messageSink, markAllAsNotRun);
+		});
 	}
 
 	/// <inheritdoc/>
