@@ -40,6 +40,7 @@ jobs:
         run: |
           ./.github/workflows/dotnet-install --channel 8.0
           ./.github/workflows/dotnet-install --channel 6.0 --runtime dotnet
+          echo "$HOME/.dotnet" >> $GITHUB_PATH
         if: matrix.os != 'windows-2022'
 
       - name: Get .NET information
