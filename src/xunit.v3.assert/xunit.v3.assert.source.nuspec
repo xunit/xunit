@@ -22,6 +22,7 @@
 		<file target="_content\" src="..\..\tools\media\logo-128-transparent.png" />
 		<file target="_content\" src="..\..\README.md" />
 
+		<file src="..\build\.nuget.editorconfig" target="contentFiles\.editorconfig" />
 		<file target="contentFiles\cs\netstandard1.1\Asserts" src="Asserts\**\*.cs" />
 	</files>
 </package>
