@@ -429,6 +429,38 @@ public class DefaultRunnerReporterMessageHandlerTests
 	}
 #endif
 
+	public class OnMessage_TestOutput
+	{
+		readonly _TestOutput outputMessage = TestData.TestOutput(output: $"This is\t\r\noutput");
+		readonly _TestStarting startingMessage = TestData.TestStarting(testDisplayName: "This is my display name \t\r\n");
+
+		[Fact]
+		public void WithoutFlag_LogsNothing()
+		{
+			var handler = TestableDefaultRunnerReporterMessageHandler.Create();
+
+			handler.OnMessage(startingMessage);
+			handler.OnMessage(outputMessage);
+
+			Assert.Empty(handler.Messages);
+		}
+
+		[Fact]
+		public void WithFlag_LogsOutput()
+		{
+			var handler = TestableDefaultRunnerReporterMessageHandler.Create();
+			handler.OnMessage(TestData.TestAssemblyExecutionStarting(showLiveOutput: true));
+			handler.OnMessage(TestData.TestAssemblyStarting());
+			handler.Messages.Clear();  // Reset any output from previous messages
+
+			handler.OnMessage(startingMessage);
+			handler.OnMessage(outputMessage);
+
+			var msg = Assert.Single(handler.Messages);
+			Assert.Equal("[---] =>     This is my display name \\t\\r\\n [OUTPUT] This is\\t\\r\\noutput", msg);
+		}
+	}
+
 	public class OnMessage_TestPassed
 	{
 		readonly _TestPassed passedMessage = TestData.TestPassed(output: $"This is\t{Environment.NewLine}output");

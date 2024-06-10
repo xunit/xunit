@@ -118,6 +118,7 @@ public abstract class CommandLineParserBase
 		);
 		AddParser("pause", OnPause, CommandLineGroup.General, null, "wait for input before running tests");
 		AddParser("preEnumerateTheories", OnPreEnumerateTheories, CommandLineGroup.General, null, "enable theory pre-enumeration (disabled by default)");
+		AddParser("showLiveOutput", OnShowLiveOutput, CommandLineGroup.General, null, "show output messages from tests live");
 		AddParser("stopOnFail", OnStopOnFail, CommandLineGroup.General, null, "stop on first test failure");
 		AddParser("useAnsiColor", OnUseAnsiColor, CommandLineGroup.General, null, "force using ANSI color output on Windows (non-Windows always uses ANSI colors)");
 		AddParser("wait", OnWait, CommandLineGroup.General, null, "wait for input after completion");
@@ -592,6 +593,13 @@ public abstract class CommandLineParserBase
 		GuardNoOptionValue(option);
 		foreach (var projectAssembly in Project.Assemblies)
 			projectAssembly.Configuration.PreEnumerateTheories = true;
+	}
+
+	void OnShowLiveOutput(KeyValuePair<string, string?> option)
+	{
+		GuardNoOptionValue(option);
+		foreach (var projectAssembly in Project.Assemblies)
+			projectAssembly.Configuration.ShowLiveOutput = true;
 	}
 
 	void OnStopOnFail(KeyValuePair<string, string?> option)

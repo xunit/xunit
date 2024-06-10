@@ -69,9 +69,12 @@ public class ConfigReaderTests
 
 		Assert.True(result);
 		Assert.Empty(warnings);
+		Assert.Equal(AppDomainSupport.IfAvailable, configuration.AppDomainOrDefault);
 		Assert.Null(configuration.Culture);
 		Assert.False(configuration.DiagnosticMessagesOrDefault);
+		Assert.False(configuration.FailSkipsOrDefault);
 		Assert.False(configuration.InternalDiagnosticMessagesOrDefault);
+		Assert.Equal(-1, configuration.LongRunningTestSecondsOrDefault);
 		Assert.Equal(Environment.ProcessorCount, configuration.MaxParallelThreadsOrDefault);
 		Assert.Equal(TestMethodDisplay.ClassAndMethod, configuration.MethodDisplayOrDefault);
 		Assert.Equal(TestMethodDisplayOptions.None, configuration.MethodDisplayOptionsOrDefault);
@@ -79,9 +82,9 @@ public class ConfigReaderTests
 		Assert.False(configuration.ParallelizeAssemblyOrDefault);
 		Assert.True(configuration.ParallelizeTestCollectionsOrDefault);
 		Assert.Null(configuration.PreEnumerateTheories);
-
-		if (configFileName.EndsWith(".json"))
-			Assert.False(configuration.FailSkipsOrDefault);
+		Assert.True(configuration.ShadowCopyOrDefault);
+		Assert.False(configuration.ShowLiveOutputOrDefault);
+		Assert.False(configuration.StopOnFailOrDefault);
 	}
 
 	[Theory]
@@ -98,8 +101,10 @@ public class ConfigReaderTests
 
 		Assert.True(result);
 		Assert.Empty(warnings);
+		Assert.Equal(AppDomainSupport.Denied, configuration.AppDomainOrDefault);
 		Assert.True(configuration.DiagnosticMessagesOrDefault);
 		Assert.True(configuration.InternalDiagnosticMessagesOrDefault);
+		Assert.Equal(5, configuration.LongRunningTestSecondsOrDefault);
 		Assert.Equal(2112, configuration.MaxParallelThreadsOrDefault);
 		Assert.Equal(TestMethodDisplay.Method, configuration.MethodDisplayOrDefault);
 		Assert.Equal(TestMethodDisplayOptions.All, configuration.MethodDisplayOptionsOrDefault);
@@ -107,12 +112,12 @@ public class ConfigReaderTests
 		Assert.True(configuration.ParallelizeAssemblyOrDefault);
 		Assert.False(configuration.ParallelizeTestCollectionsOrDefault);
 		Assert.False(configuration.PreEnumerateTheories);
-		Assert.Equal(5, configuration.LongRunningTestSecondsOrDefault);
 
 		if (configFileName.EndsWith(".json"))
 		{
 			Assert.Equal("en-GB", configuration.Culture);
 			Assert.True(configuration.FailSkipsOrDefault);
+			Assert.True(configuration.ShowLiveOutputOrDefault);
 		}
 	}
 
@@ -130,8 +135,11 @@ public class ConfigReaderTests
 
 		Assert.True(result);
 		Assert.Empty(warnings);
+		Assert.Equal(AppDomainSupport.IfAvailable, configuration.AppDomainOrDefault);
 		Assert.False(configuration.DiagnosticMessagesOrDefault);
+		Assert.False(configuration.FailSkipsOrDefault);
 		Assert.False(configuration.InternalDiagnosticMessagesOrDefault);
+		Assert.Equal(-1, configuration.LongRunningTestSecondsOrDefault);
 		Assert.Equal(Environment.ProcessorCount, configuration.MaxParallelThreadsOrDefault);
 		Assert.Equal(TestMethodDisplay.ClassAndMethod, configuration.MethodDisplayOrDefault);
 		Assert.Equal(TestMethodDisplayOptions.None, configuration.MethodDisplayOptionsOrDefault);
@@ -140,9 +148,9 @@ public class ConfigReaderTests
 		Assert.True(configuration.ParallelizeAssemblyOrDefault);
 		Assert.True(configuration.ParallelizeTestCollectionsOrDefault);
 		Assert.Null(configuration.PreEnumerateTheories);
-
-		if (configFileName.EndsWith(".json"))
-			Assert.False(configuration.FailSkipsOrDefault);
+		Assert.True(configuration.ShadowCopyOrDefault);
+		Assert.False(configuration.ShowLiveOutputOrDefault);
+		Assert.False(configuration.StopOnFailOrDefault);
 	}
 
 	[Fact]

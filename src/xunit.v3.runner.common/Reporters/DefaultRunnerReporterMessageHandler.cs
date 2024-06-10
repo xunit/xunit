@@ -56,6 +56,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 		Execution.TestCleanupFailureEvent += HandleTestCleanupFailure;
 		Execution.TestFinishedEvent += HandleTestFinished;
 		Execution.TestFailedEvent += HandleTestFailed;
+		Execution.TestOutputEvent += HandleTestOutput;
 		Execution.TestPassedEvent += HandleTestPassed;
 		Execution.TestSkippedEvent += HandleTestSkipped;
 		Execution.TestStartingEvent += HandleTestStarting;
@@ -78,11 +79,12 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 	protected MessageMetadataCache MetadataCache { get; } = new();
 
 	void AddExecutionOptions(
-		string assemblyIdentifier,
+		string? assemblyFileName,
 		_ITestFrameworkExecutionOptions executionOptions)
 	{
-		using (ReaderWriterLockWrapper.WriteLock())
-			executionOptionsByAssembly[assemblyIdentifier] = executionOptions;
+		if (assemblyFileName is not null)
+			using (ReaderWriterLockWrapper.WriteLock())
+				executionOptionsByAssembly[Path.GetFileNameWithoutExtension(assemblyFileName)] = executionOptions;
 	}
 
 	/// <summary>
@@ -135,12 +137,12 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 	/// Get the test framework options for the given assembly. If it cannot find them, then it
 	/// returns a default set of options.
 	/// </summary>
-	/// <param name="assemblyFilename">The test assembly filename</param>
-	protected _ITestFrameworkExecutionOptions GetExecutionOptions(string? assemblyFilename)
+	/// <param name="assemblyFileName">The test assembly filename</param>
+	protected _ITestFrameworkExecutionOptions GetExecutionOptions(string? assemblyFileName)
 	{
-		if (assemblyFilename is not null)
+		if (assemblyFileName is not null)
 			using (ReaderWriterLockWrapper.ReadLock())
-				if (executionOptionsByAssembly.TryGetValue(assemblyFilename, out var result))
+				if (executionOptionsByAssembly.TryGetValue(Path.GetFileNameWithoutExtension(assemblyFileName), out var result))
 					return result;
 
 		return defaultExecutionOptions;
@@ -330,7 +332,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 		Guard.ArgumentNotNull(args);
 
 		var executionStarting = args.Message;
-		AddExecutionOptions(executionStarting.Assembly.Identifier, executionStarting.ExecutionOptions);
+		AddExecutionOptions(executionStarting.Assembly.AssemblyFileName, executionStarting.ExecutionOptions);
 
 		var assemblyDisplayName = GetAssemblyDisplayName(executionStarting.Assembly);
 
@@ -605,6 +607,24 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 		Guard.ArgumentNotNull(args);
 
 		MetadataCache.Set(args.Message);
+	}
+
+	/// <inheritdoc/>
+	protected virtual void HandleTestOutput(MessageHandlerArgs<_TestOutput> args)
+	{
+		Guard.ArgumentNotNull(args);
+
+		var testOutput = args.Message;
+		var assemblyMetadata = MetadataCache.TryGetAssemblyMetadata(testOutput);
+		var showLiveOutput = GetExecutionOptions(assemblyMetadata?.AssemblyPath).GetShowLiveOutputOrDefault();
+
+		if (showLiveOutput)
+			lock (Logger.LockObject)
+			{
+				var testMetadata = MetadataCache.TryGetTestMetadata(testOutput);
+
+				Logger.LogMessage("    {0} [OUTPUT] {1}", Escape(testMetadata?.TestDisplayName ?? "<unknown test>"), Escape(testOutput.Output.TrimEnd()));
+			}
 	}
 
 	/// <summary>

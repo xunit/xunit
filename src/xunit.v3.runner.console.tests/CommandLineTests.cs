@@ -167,6 +167,7 @@ public class CommandLineTests
 			("-noshadow", project => !project.Assemblies.Single().Configuration.ShadowCopyOrDefault),
 			("-pause", project => project.Configuration.PauseOrDefault),
 			("-preenumeratetheories", project => project.Assemblies.All(a => a.Configuration.PreEnumerateTheories ?? false)),
+			("-showliveoutput", project => project.Assemblies.All(a => a.Configuration.ShowLiveOutputOrDefault)),
 			("-stoponfail", project => project.Assemblies.All(a => a.Configuration.StopOnFailOrDefault)),
 			("-wait", project => project.Configuration.WaitOrDefault),
 		};

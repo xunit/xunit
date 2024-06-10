@@ -223,6 +223,19 @@ public class TestAssemblyConfiguration
 	public string? ShadowCopyFolder { get; set; }
 
 	/// <summary>
+	/// Gets or sets a flag indicating whether output from <see cref="T:Xunit.v3._ITestOutputHelper"/> should be
+	/// shown live as they're logged (in addition to being collected together after the test finishes).
+	/// </summary>
+	public bool? ShowLiveOutput { get; set; }
+
+	/// <summary>
+	/// Gets a flag indicating whether output from <see cref="T:Xunit.v3._ITestOutputHelper"/> should be
+	/// shown live as they're logged (in addition to being collected together after the test finishes).
+	/// If the flag is not set, returns the default value (<c>false</c>).
+	/// </summary>
+	public bool ShowLiveOutputOrDefault => ShowLiveOutput ?? false;
+
+	/// <summary>
 	/// Gets or sets a flag indicating whether testing should stop on a failure.
 	/// </summary>
 	public bool? StopOnFail { get; set; }

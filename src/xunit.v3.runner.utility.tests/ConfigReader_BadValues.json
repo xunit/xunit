@@ -1,11 +1,16 @@
 {
+  "appDomain": "blarch",
   "diagnosticMessages": "blarch",
   "internalDiagnosticMessages": "blarch",
+  "longRunningTestSeconds": "blarch",
   "maxParallelThreads": "abc",
   "methodDisplay": "fooBar",
   "methodDisplayOptions": "fooBar",
   "parallelAlgorithm": "blarch",
   "parallelizeAssembly": true,
   "parallelizetestcollections": "biff",
-  "preEnumerateTheories": "baz"
+  "preEnumerateTheories": "baz",
+  "shadowCopy": "blarch",
+  "showLiveOutput": "blarch",
+  "stopOnFail": "blarch"
 }

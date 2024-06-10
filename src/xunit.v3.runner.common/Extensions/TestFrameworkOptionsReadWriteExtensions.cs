@@ -444,6 +444,25 @@ public static class TestFrameworkOptionsReadWriteExtensions
 	}
 
 	/// <summary>
+	/// Gets a flag which indicates if the developer wishes to see output from <see cref="T:Xunit.v3._ITestOutputHelper"/>
+	/// live while it's being reported (in addition to seeing it collected together when the test is finished).
+	/// </summary>
+	public static bool? GetShowLiveOutput(this _ITestFrameworkExecutionOptions executionOptions)
+	{
+		Guard.ArgumentNotNull(executionOptions);
+
+		return executionOptions.GetValue<bool?>(TestOptionsNames.Execution.ShowLiveOutput);
+	}
+
+	/// <summary>
+	/// Gets a flag which indicates if the developer wishes to see output from <see cref="T:Xunit.v3._ITestOutputHelper"/>
+	/// live while it's being reported (in addition to seeing it collected together when the test is finished).
+	/// If the flag is not present, returns the default value (<c>false</c>).
+	/// </summary>
+	public static bool GetShowLiveOutputOrDefault(this _ITestFrameworkExecutionOptions executionOptions) =>
+		GetShowLiveOutput(executionOptions) ?? false;
+
+	/// <summary>
 	/// Gets a flag that determines whether xUnit.net stop testing when a test fails.
 	/// </summary>
 	public static bool? GetStopOnTestFail(this _ITestFrameworkExecutionOptions executionOptions)
@@ -604,6 +623,19 @@ public static class TestFrameworkOptionsReadWriteExtensions
 		Guard.ArgumentNotNull(executionOptions);
 
 		executionOptions.SetValue(TestOptionsNames.Execution.Seed, value);
+	}
+
+	/// <summary>
+	/// Sets a flag which indicates if the developer wishes to see output from <see cref="T:Xunit.v3._ITestOutputHelper"/>
+	/// live while it's being reported (in addition to seeing it collected together when the test is finished).
+	/// </summary>
+	public static void SetShowLiveOutput(
+		this _ITestFrameworkExecutionOptions executionOptions,
+		bool? value)
+	{
+		Guard.ArgumentNotNull(executionOptions);
+
+		executionOptions.SetValue(TestOptionsNames.Execution.ShowLiveOutput, value);
 	}
 
 	/// <summary>

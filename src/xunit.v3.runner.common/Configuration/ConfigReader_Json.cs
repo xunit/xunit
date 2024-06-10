@@ -100,6 +100,8 @@ public static class ConfigReader_Json
 						configuration.PreEnumerateTheories = booleanValue;
 					else if (string.Equals(kvp.Key, Configuration.ShadowCopy, StringComparison.OrdinalIgnoreCase))
 						configuration.ShadowCopy = booleanValue;
+					else if (string.Equals(kvp.Key, Configuration.ShowLiveOutput, StringComparison.OrdinalIgnoreCase))
+						configuration.ShowLiveOutput = booleanValue;
 					else if (string.Equals(kvp.Key, Configuration.StopOnFail, StringComparison.OrdinalIgnoreCase))
 						configuration.StopOnFail = booleanValue;
 				}
@@ -201,6 +203,7 @@ public static class ConfigReader_Json
 		public const string PreEnumerateTheories = "preEnumerateTheories";
 		public const string Seed = "seed";
 		public const string ShadowCopy = "shadowCopy";
+		public const string ShowLiveOutput = "showLiveOutput";
 		public const string StopOnFail = "stopOnFail";
 	}
 }

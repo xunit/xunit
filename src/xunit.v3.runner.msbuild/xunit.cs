@@ -38,6 +38,7 @@ public class xunit : MSBuildTask, ICancelableTask
 	bool? preEnumerateTheories;
 	_IMessageSink? reporterMessageHandler;
 	bool? shadowCopy;
+	bool? showLiveOutput;
 	bool? stopOnFail;
 
 	public string? AppDomains { get; set; }
@@ -117,6 +118,8 @@ public class xunit : MSBuildTask, ICancelableTask
 	public string? Reporter { get; set; }
 
 	public bool ShadowCopy { set { shadowCopy = value; } }
+
+	public bool ShowLiveOutput { set { showLiveOutput = value; } }
 
 	public bool StopOnFail { set { stopOnFail = value; } }
 
@@ -289,6 +292,8 @@ public class xunit : MSBuildTask, ICancelableTask
 					projectAssembly.Configuration.PreEnumerateTheories = preEnumerateTheories;
 				if (shadowCopy.HasValue)
 					projectAssembly.Configuration.ShadowCopy = shadowCopy;
+				if (showLiveOutput.HasValue)
+					projectAssembly.Configuration.ShowLiveOutput = showLiveOutput;
 				if (stopOnFail.HasValue)
 					projectAssembly.Configuration.StopOnFail = stopOnFail;
 

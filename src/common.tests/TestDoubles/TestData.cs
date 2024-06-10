@@ -380,7 +380,8 @@ public static class TestData
 		bool? parallelizeTestCollections = null,
 		bool? stopOnFail = null,
 		int? seed = null,
-		string? culture = null)
+		string? culture = null,
+		bool? showLiveOutput = null)
 	{
 		var project = new XunitProject();
 		var assembly = new XunitProjectAssembly(project)
@@ -398,6 +399,7 @@ public static class TestData
 			internalDiagnosticMessages: internalDiagnosticMessages,
 			maxParallelThreads: maxParallelThreads,
 			parallelAlgorithm: parallelAlgorithm,
+			showLiveOutput: showLiveOutput,
 			stopOnFail: stopOnFail
 		);
 
@@ -866,6 +868,7 @@ public static class TestData
 		int? maxParallelThreads = null,
 		ParallelAlgorithm? parallelAlgorithm = null,
 		int? seed = null,
+		bool? showLiveOutput = null,
 		bool? stopOnFail = null,
 		bool? synchronousMessageReporting = null)
 	{
@@ -881,6 +884,7 @@ public static class TestData
 		result.SetMaxParallelThreads(maxParallelThreads);
 		result.SetParallelAlgorithm(parallelAlgorithm);
 		result.SetSeed(seed);
+		result.SetShowLiveOutput(showLiveOutput);
 		result.SetStopOnTestFail(stopOnFail);
 		result.SetSynchronousMessageReporting(synchronousMessageReporting);
 

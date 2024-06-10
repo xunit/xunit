@@ -88,6 +88,7 @@ public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFram
 		result.SetMaxParallelThreads(configuration.MaxParallelThreads);
 		result.SetParallelAlgorithm(configuration.ParallelAlgorithm);
 		result.SetSeed(configuration.Seed);
+		result.SetShowLiveOutput(configuration.ShowLiveOutput);
 		result.SetStopOnTestFail(configuration.StopOnFail);
 		result.SetSynchronousMessageReporting(configuration.SynchronousMessageReporting);
 
