@@ -127,6 +127,7 @@ public class Xunit3 : IFrontController
 		{
 			var assemblyUniqueID = default(string);
 			var testCaseCount = 0;
+			var collectSourceInformation = settings.Options.GetIncludeSourceInformationOrDefault();
 
 			try
 			{
@@ -146,7 +147,7 @@ public class Xunit3 : IFrontController
 					if (message is _TestCaseDiscovered testDiscovered)
 					{
 						// Don't overwrite the source information if it came directly from the test framework
-						if (sourceInformationProvider is not null && testDiscovered.SourceFilePath is null && testDiscovered.SourceLineNumber is null)
+						if (collectSourceInformation && sourceInformationProvider is not null && testDiscovered.SourceFilePath is null && testDiscovered.SourceLineNumber is null)
 						{
 							var (sourceFile, sourceLine) = sourceInformationProvider.GetSourceInformation(testDiscovered.TestClassNameWithNamespace, testDiscovered.TestMethodName);
 							testDiscovered.SourceFilePath = sourceFile;

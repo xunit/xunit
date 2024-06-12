@@ -11,7 +11,7 @@ using Xunit.v3;
 public class Xunit3Tests
 {
 	readonly XunitProjectAssembly Assembly;
-	readonly _ITestFrameworkDiscoveryOptions DiscoveryOptions = TestData.TestFrameworkDiscoveryOptions();
+	readonly _ITestFrameworkDiscoveryOptions DiscoveryOptions = TestData.TestFrameworkDiscoveryOptions(includeSourceInformation: true);
 	readonly _ITestFrameworkExecutionOptions ExecutionOptions = TestData.TestFrameworkExecutionOptions();
 
 	public Xunit3Tests()
