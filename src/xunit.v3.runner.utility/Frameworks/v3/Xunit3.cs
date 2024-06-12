@@ -145,6 +145,14 @@ public class Xunit3 : IFrontController
 
 					if (message is _TestCaseDiscovered testDiscovered)
 					{
+						// Don't overwrite the source information if it came directly from the test framework
+						if (sourceInformationProvider is not null && testDiscovered.SourceFilePath is null && testDiscovered.SourceLineNumber is null)
+						{
+							var (sourceFile, sourceLine) = sourceInformationProvider.GetSourceInformation(testDiscovered.TestClassNameWithNamespace, testDiscovered.TestMethodName);
+							testDiscovered.SourceFilePath = sourceFile;
+							testDiscovered.SourceLineNumber = sourceLine;
+						}
+
 						if (assemblyUniqueID is null)
 						{
 							assemblyUniqueID = testDiscovered.AssemblyUniqueID;

@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using NSubstitute;
 using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Runner.v3;
@@ -68,7 +69,9 @@ public class Xunit3Tests
 	[Fact]
 	public async ValueTask CanFindFilteredTestsAndRunThem_UsingFind_UsingRun()
 	{
-		await using var xunit3 = Xunit3.ForDiscoveryAndExecution(Assembly);
+		var sourceInformationProvider = Substitute.For<_ISourceInformationProvider, InterfaceProxy<_ISourceInformationProvider>>();
+		sourceInformationProvider.GetSourceInformation("Xunit3Tests", "GuardClauses_Ctor").Returns(("/path/to/source/file.cs", 2112));
+		await using var xunit3 = Xunit3.ForDiscoveryAndExecution(Assembly, sourceInformationProvider);
 
 		// Find
 		var filters = new XunitFilters();
@@ -84,6 +87,8 @@ public class Xunit3Tests
 		var testCases = findMessageSink.Messages.OfType<_TestCaseDiscovered>();
 		var testCase = Assert.Single(testCases);
 		Assert.Equal("Xunit3Tests.GuardClauses_Ctor", testCase.TestCaseDisplayName);
+		Assert.Equal("/path/to/source/file.cs", testCase.SourceFilePath);
+		Assert.Equal(2112, testCase.SourceLineNumber);
 
 		// Run
 		var runMessageSink = SpyMessageSink<_TestAssemblyFinished>.Create();
