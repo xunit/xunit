@@ -364,8 +364,13 @@ redirect_from:
         Lens does not support multiple tests from a single method.
       </p>
       <p>
-        <em>JSON schema type: <strong>boolean</strong><br />
-        Default value: <code>true</code></em>
+        This value does not have a default, because it's up to each individual test runner
+        to decide what the best default behavior is. The Visual Studio adapter, for example,
+        will default to <code>true</code>, while the console and MSBuild runners will default
+        to <code>false</code>.
+      </p>
+      <p>
+        <em>JSON schema type: <strong>boolean</strong>
       </p>
     </td>
   </tr>

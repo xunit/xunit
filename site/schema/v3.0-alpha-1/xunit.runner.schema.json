@@ -91,8 +91,7 @@
       "type": "boolean"
     },
     "preEnumerateTheories": {
-      "description": "Enables or disables pre-enumerate of theories so that there is an individual test case for each theory data row. Set this to 'false' to return a single test case for each theory without pre-enumerating the data ahead of time.",
-      "default": true,
+      "description": "Enables or disables pre-enumerate of theories so that there is an individual test case for each theory data row. Set this to 'false' to return a single test case for each theory without pre-enumerating the data ahead of time; set this to 'true' to attempt to pre-enumerate each theory row when possible.",
       "type": "boolean"
     },
     "shadowCopy": {
