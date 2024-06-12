@@ -50,6 +50,6 @@ public class Xunit2SourceInformationProvider : LongLivedMarshalByRefObject, ISou
 			return null;
 
 		var (sourceFile, sourceLine) = v3Provider.GetSourceInformation(className, methodName);
-		return new SourceInformation { FileName = sourceFile, LineNumber = sourceLine };
+		return new Xunit2SourceInformation { FileName = sourceFile, LineNumber = sourceLine };
 	}
 }

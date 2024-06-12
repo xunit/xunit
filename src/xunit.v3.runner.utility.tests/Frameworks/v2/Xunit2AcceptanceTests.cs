@@ -2,6 +2,7 @@
 
 using System.Linq;
 using System.Threading.Tasks;
+using NSubstitute;
 using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Runner.v2;
@@ -65,9 +66,11 @@ namespace Namespace2
 }";
 
 				using var assembly = await CSharpAcceptanceTestV2Assembly.Create(code);
-				var controller = TestableXunit2.Create(assembly.FileName, null, true);
+				var sourceInformationProvider = Substitute.For<_ISourceInformationProvider, InterfaceProxy<_ISourceInformationProvider>>();
+				sourceInformationProvider.GetSourceInformation("Namespace1.Class1", "Trait").Returns(("/path/to/source/file.cs", 2112));
+				var controller = TestableXunit2.Create(assembly.FileName, shadowCopy: true, sourceInformationProvider: sourceInformationProvider);
 				var sink = new TestDiscoverySink();
-				var settings = new FrontControllerFindSettings(TestData.TestFrameworkDiscoveryOptions());
+				var settings = new FrontControllerFindSettings(TestData.TestFrameworkDiscoveryOptions(includeSourceInformation: true));
 
 				controller.Find(sink, settings);
 				sink.Finished.WaitOne();
@@ -83,6 +86,8 @@ namespace Namespace2
 					testCase =>
 					{
 						Assert.Equal("Namespace1.Class1.Trait", testCase.TestCaseDisplayName);
+						Assert.Equal("/path/to/source/file.cs", testCase.SourceFilePath);
+						Assert.Equal(2112, testCase.SourceLineNumber);
 						var key = Assert.Single(testCase.Traits.Keys);
 						Assert.Equal("Name!", key);
 						var value = Assert.Single(testCase.Traits[key]);
@@ -776,7 +781,8 @@ let TestMethod(x : int) =
 			string assemblyFileName,
 			string? configFileName = null,
 			bool shadowCopy = true,
-			AppDomainSupport appDomainSupport = AppDomainSupport.Required)
+			AppDomainSupport appDomainSupport = AppDomainSupport.Required,
+			_ISourceInformationProvider? sourceInformationProvider = null)
 		{
 			var project = new XunitProject();
 			var projectAssembly = new XunitProjectAssembly(project)
@@ -787,7 +793,7 @@ let TestMethod(x : int) =
 			projectAssembly.Configuration.AppDomain = appDomainSupport;
 			projectAssembly.Configuration.ShadowCopy = shadowCopy;
 
-			return Xunit2.ForDiscoveryAndExecution(projectAssembly, diagnosticMessageSink: _NullMessageSink.Instance);
+			return Xunit2.ForDiscoveryAndExecution(projectAssembly, sourceInformationProvider, _NullMessageSink.Instance);
 		}
 	}
 }

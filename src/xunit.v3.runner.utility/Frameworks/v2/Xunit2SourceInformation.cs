@@ -6,7 +6,7 @@ namespace Xunit.Runner.v2;
 /// <summary>
 /// Default implementation of <see cref="ISourceInformation"/>.
 /// </summary>
-public class SourceInformation : ISourceInformation
+public class Xunit2SourceInformation : LongLivedMarshalByRefObject, ISourceInformation
 {
 	/// <inheritdoc/>
 	public string? FileName { get; set; }

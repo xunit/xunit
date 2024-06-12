@@ -249,7 +249,7 @@ namespace Xunit.Runner.v2
 		{
 			var sourceInformation =
 				sourceFileName is not null
-					? new SourceInformation { FileName = sourceFileName, LineNumber = sourceLineNumber }
+					? new Xunit2SourceInformation { FileName = sourceFileName, LineNumber = sourceLineNumber }
 					: null;
 
 			var result = Substitute.For<ITestCase, InterfaceProxy<ITestCase>>();
