@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using Xunit.Internal;
@@ -195,7 +196,11 @@ public static class Xunit3ArgumentFactory
 			result.AddRange(["-methodDisplay", methodDisplay.Value.ToString()]);
 
 		if (methodDisplayOptions.HasValue)
+#if NETFRAMEWORK
 			result.AddRange(["-methodDisplayOptions", methodDisplayOptions.Value.ToString().Replace(" ", "")]);
+#else
+			result.AddRange(["-methodDisplayOptions", methodDisplayOptions.Value.ToString().Replace(" ", "", StringComparison.Ordinal)]);
+#endif
 
 		result.AddRange(disableParallelization switch
 		{

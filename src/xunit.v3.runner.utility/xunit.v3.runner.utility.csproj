@@ -1,15 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <AssemblyName Condition=" '$(TargetFramework)' == 'net472' ">xunit.v3.runner.utility.net472</AssemblyName>
-    <AssemblyName Condition=" '$(TargetFramework)' == 'netstandard2.0' ">xunit.v3.runner.utility.netstandard20</AssemblyName>
+    <AssemblyName Condition=" '$(TargetFramework)' == 'net472' ">xunit.v3.runner.utility.netfx</AssemblyName>
+    <AssemblyName Condition=" '$(TargetFramework)' == 'net6.0' ">xunit.v3.runner.utility.netcore</AssemblyName>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <TargetFrameworks>net472;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net472;net6.0</TargetFrameworks>
   </PropertyGroup>
-
-  <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETStandard' ">
-    <EmbeddedResource Include="Resources\*.rd.xml" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Mono.Cecil" Version="$(MonoCecilVersion)" />

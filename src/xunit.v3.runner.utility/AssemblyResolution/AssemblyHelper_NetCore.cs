@@ -1,4 +1,4 @@
-#if NETSTANDARD
+#if NETCOREAPP
 
 using System;
 using Xunit.v3;
