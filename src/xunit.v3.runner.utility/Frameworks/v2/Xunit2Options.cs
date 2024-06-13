@@ -1,3 +1,4 @@
+using System;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -9,7 +10,7 @@ namespace Xunit.Runner.v2;
 /// <see cref="ITestFrameworkExecutionOptions"/>, which delegates calls to an xUnit.net v3
 /// implementation of <see cref="_ITestFrameworkOptions"/>.
 /// </summary>
-public class Xunit2Options : LongLivedMarshalByRefObject, ITestFrameworkDiscoveryOptions, ITestFrameworkExecutionOptions
+public class Xunit2Options : MarshalByRefObject, ITestFrameworkDiscoveryOptions, ITestFrameworkExecutionOptions
 {
 	private readonly _ITestFrameworkOptions v3Options;
 
@@ -25,6 +26,12 @@ public class Xunit2Options : LongLivedMarshalByRefObject, ITestFrameworkDiscover
 	/// <inheritdoc/>
 	public TValue? GetValue<TValue>(string name) =>
 		v3Options.GetValue<TValue>(name);
+
+#if NETFRAMEWORK
+	/// <inheritdoc/>
+	[System.Security.SecurityCritical]
+	public override sealed object InitializeLifetimeService() => null!;
+#endif
 
 	/// <inheritdoc/>
 	public void SetValue<TValue>(

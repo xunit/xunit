@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit.Abstractions;
@@ -10,7 +11,7 @@ namespace Xunit.Runner.v2;
 /// <summary>
 /// Provides a class which wraps <see cref="_IAssemblyInfo"/> instances to implement <see cref="IAssemblyInfo"/>.
 /// </summary>
-public class Xunit2AssemblyInfo : LongLivedMarshalByRefObject, IAssemblyInfo
+public class Xunit2AssemblyInfo : MarshalByRefObject, IAssemblyInfo
 {
 	/// <summary>
 	/// Initializes a new instance of the <see cref="Xunit2AssemblyInfo"/> class.
@@ -52,4 +53,10 @@ public class Xunit2AssemblyInfo : LongLivedMarshalByRefObject, IAssemblyInfo
 			.GetTypes(includePrivateTypes)
 			.Select(t => new Xunit2TypeInfo(t))
 			.CastOrToArray();
+
+#if NETFRAMEWORK
+	/// <inheritdoc/>
+	[System.Security.SecurityCritical]
+	public override sealed object InitializeLifetimeService() => null!;
+#endif
 }

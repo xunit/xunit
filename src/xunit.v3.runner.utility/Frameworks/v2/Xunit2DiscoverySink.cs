@@ -11,7 +11,7 @@ namespace Xunit.Runner.v2;
 /// An implementation of <see cref="IMessageSink"/> and <see cref="IMessageSinkWithTypes"/> which
 /// collects native xUnit.net v2 test cases, for use with <see cref="Xunit2.FindAndRun"/>.
 /// </summary>
-public class Xunit2DiscoverySink : LongLivedMarshalByRefObject, IMessageSink, IMessageSinkWithTypes
+public class Xunit2DiscoverySink : MarshalByRefObject, IMessageSink, IMessageSinkWithTypes
 {
 	readonly Xunit2MessageAdapter adapter;
 	bool disposed;
@@ -78,6 +78,12 @@ public class Xunit2DiscoverySink : LongLivedMarshalByRefObject, IMessageSink, IM
 		if (filters.Empty || (adapter.Adapt(message) is _TestCaseDiscovered adapted && filters.Filter(adapted)))
 			TestCases.Add(message.TestCase);
 	}
+
+#if NETFRAMEWORK
+	/// <inheritdoc/>
+	[System.Security.SecurityCritical]
+	public override sealed object InitializeLifetimeService() => null!;
+#endif
 
 	/// <inheritdoc/>
 	public bool OnMessage(IMessageSinkMessage message) =>

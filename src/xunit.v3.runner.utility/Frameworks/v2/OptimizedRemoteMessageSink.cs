@@ -16,7 +16,7 @@ namespace Xunit.Runner.v2;
 /// interface list is much faster than attempting to do cross-AppDomain casts. This class is created
 /// remotely in <see cref="Xunit2.CreateOptimizedRemoteMessageSink"/>.
 /// </summary>
-sealed class OptimizedRemoteMessageSink : LongLivedMarshalByRefObject, IMessageSink, IDisposable
+sealed class OptimizedRemoteMessageSink : MarshalByRefObject, IMessageSink, IDisposable
 {
 	readonly ReaderWriterLockSlim cacheLock = new();
 	readonly Dictionary<Type, HashSet<string>> interfaceCache = new();
@@ -67,6 +67,12 @@ sealed class OptimizedRemoteMessageSink : LongLivedMarshalByRefObject, IMessageS
 
 		return result;
 	}
+
+#if NETFRAMEWORK
+	/// <inheritdoc/>
+	[System.Security.SecurityCritical]
+	public override sealed object InitializeLifetimeService() => null!;
+#endif
 
 	public bool OnMessage(IMessageSinkMessage? message)
 	{

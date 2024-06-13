@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit.Abstractions;
@@ -10,7 +11,7 @@ namespace Xunit.Runner.v2;
 /// <summary>
 /// Provides a class which wraps <see cref="_ITypeInfo"/> instances to implement <see cref="ITypeInfo"/>.
 /// </summary>
-public class Xunit2TypeInfo : LongLivedMarshalByRefObject, ITypeInfo
+public class Xunit2TypeInfo : MarshalByRefObject, ITypeInfo
 {
 	/// <summary>
 	/// Initializes a new instance of the <see cref="Xunit2TypeInfo"/> class.
@@ -84,4 +85,10 @@ public class Xunit2TypeInfo : LongLivedMarshalByRefObject, ITypeInfo
 			.GetMethods(includePrivateMethods)
 			.Select(m => new Xunit2MethodInfo(m))
 			.CastOrToReadOnlyCollection();
+
+#if NETFRAMEWORK
+	/// <inheritdoc/>
+	[System.Security.SecurityCritical]
+	public override sealed object InitializeLifetimeService() => null!;
+#endif
 }

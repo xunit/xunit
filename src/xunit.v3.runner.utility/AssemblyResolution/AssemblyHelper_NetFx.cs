@@ -4,6 +4,7 @@ using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Reflection;
+using System.Security;
 using Xunit.Internal;
 using Xunit.v3;
 
@@ -12,7 +13,7 @@ namespace Xunit;
 /// <summary>
 /// This class provides assistance with assembly resolution for missing assemblies.
 /// </summary>
-public class AssemblyHelper : LongLivedMarshalByRefObject, IDisposable
+public class AssemblyHelper : MarshalByRefObject, IDisposable
 {
 	static readonly string[] Extensions = { ".dll", ".exe" };
 
@@ -56,6 +57,10 @@ public class AssemblyHelper : LongLivedMarshalByRefObject, IDisposable
 
 		AppDomain.CurrentDomain.AssemblyResolve -= Resolve;
 	}
+
+	/// <inheritdoc/>
+	[SecurityCritical]
+	public override sealed object InitializeLifetimeService() => null!;
 
 	Assembly? LoadAssembly(AssemblyName assemblyName)
 	{

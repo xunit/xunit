@@ -12,7 +12,7 @@ namespace Xunit.Runner.v2;
 /// which adapts (with <see cref="Xunit2MessageAdapter"/> and dispatches any incoming v2 messages to the
 /// given v3 message sink.
 /// </summary>
-public class Xunit2MessageSink : LongLivedMarshalByRefObject, IMessageSink, IMessageSinkWithTypes
+public class Xunit2MessageSink : MarshalByRefObject, IMessageSink, IMessageSinkWithTypes
 {
 	readonly Xunit2MessageAdapter adapter;
 	readonly _IMessageSink v3MessageSink;
@@ -62,6 +62,12 @@ public class Xunit2MessageSink : LongLivedMarshalByRefObject, IMessageSink, IMes
 			message.GetType().FullName!
 		};
 	}
+
+#if NETFRAMEWORK
+	/// <inheritdoc/>
+	[System.Security.SecurityCritical]
+	public override sealed object InitializeLifetimeService() => null!;
+#endif
 
 	/// <inheritdoc/>
 	public bool OnMessage(IMessageSinkMessage message)

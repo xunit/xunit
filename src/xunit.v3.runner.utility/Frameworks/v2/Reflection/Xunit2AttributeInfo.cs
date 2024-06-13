@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace Xunit.Runner.v2;
 /// <summary>
 /// Provides a class which wraps <see cref="_IAttributeInfo"/> instances to implement <see cref="IAttributeInfo"/>.
 /// </summary>
-public class Xunit2AttributeInfo : LongLivedMarshalByRefObject, IAttributeInfo
+public class Xunit2AttributeInfo : MarshalByRefObject, IAttributeInfo
 {
 	/// <summary>
 	/// Initializes a new instance of the <see cref="Xunit2AttributeInfo"/> class.
@@ -42,4 +43,10 @@ public class Xunit2AttributeInfo : LongLivedMarshalByRefObject, IAttributeInfo
 	[return: MaybeNull]
 	public TValue GetNamedArgument<TValue>(string argumentName) =>
 		V3AttributeInfo.GetNamedArgument<TValue>(argumentName);
+
+#if NETFRAMEWORK
+	/// <inheritdoc/>
+	[System.Security.SecurityCritical]
+	public override sealed object InitializeLifetimeService() => null!;
+#endif
 }

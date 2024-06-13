@@ -11,7 +11,7 @@ namespace Xunit.Runner.v2;
 /// An implementation of xUnit.net v2's <see cref="ISourceInformationProvider"/> which
 /// delegates calls to an xUnit.net v3 implementation of <see cref="_ISourceInformationProvider"/>.
 /// </summary>
-public class Xunit2SourceInformationProvider : LongLivedMarshalByRefObject, ISourceInformationProvider
+public class Xunit2SourceInformationProvider : MarshalByRefObject, ISourceInformationProvider
 {
 #pragma warning disable CA2213 // This is disposed on a background thread (because of the contract of ISourceInformationProvider)
 	readonly DisposalTracker disposalTracker = new();
@@ -52,4 +52,10 @@ public class Xunit2SourceInformationProvider : LongLivedMarshalByRefObject, ISou
 		var (sourceFile, sourceLine) = v3Provider.GetSourceInformation(className, methodName);
 		return new Xunit2SourceInformation { FileName = sourceFile, LineNumber = sourceLine };
 	}
+
+#if NETFRAMEWORK
+	/// <inheritdoc/>
+	[System.Security.SecurityCritical]
+	public override sealed object InitializeLifetimeService() => null!;
+#endif
 }

@@ -1,3 +1,4 @@
+using System;
 using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.v3;
@@ -7,7 +8,7 @@ namespace Xunit.Runner.v2;
 /// <summary>
 /// Provides a class which wraps <see cref="_IParameterInfo"/> instances to implement <see cref="IParameterInfo"/>.
 /// </summary>
-public class Xunit2ParameterInfo : LongLivedMarshalByRefObject, IParameterInfo
+public class Xunit2ParameterInfo : MarshalByRefObject, IParameterInfo
 {
 	/// <summary>
 	/// Initializes a new instance of the <see cref="Xunit2ParameterInfo"/> class.
@@ -30,4 +31,10 @@ public class Xunit2ParameterInfo : LongLivedMarshalByRefObject, IParameterInfo
 	/// Gets the underlying xUnit.net v3 <see cref="_IParameterInfo"/> that this class is wrapping.
 	/// </summary>
 	public _IParameterInfo V3ParameterInfo { get; }
+
+#if NETFRAMEWORK
+	/// <inheritdoc/>
+	[System.Security.SecurityCritical]
+	public override sealed object InitializeLifetimeService() => null!;
+#endif
 }

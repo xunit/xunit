@@ -685,11 +685,17 @@ public class Xunit2 : IFrontController
 
 	// Inner classes
 
-	sealed class DeserializeCallback : LongLivedMarshalByRefObject
+	sealed class DeserializeCallback : MarshalByRefObject
 	{
 		public List<KeyValuePair<string?, ITestCase?>>? Results;
 
 		public void Callback(List<KeyValuePair<string?, ITestCase?>> results) => Results = results;
+
+#if NETFRAMEWORK
+		/// <inheritdoc/>
+		[System.Security.SecurityCritical]
+		public override sealed object InitializeLifetimeService() => null!;
+#endif
 	}
 
 	// This message sink filters out _DiscoveryComplete (to let us run multiple discoveries at once) as well

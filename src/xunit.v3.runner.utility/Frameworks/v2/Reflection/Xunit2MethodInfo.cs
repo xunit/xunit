@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit.Abstractions;
@@ -10,7 +11,7 @@ namespace Xunit.Runner.v2;
 /// <summary>
 /// Provides a class which wraps <see cref="_IMethodInfo"/> instances to implement <see cref="IMethodInfo"/>.
 /// </summary>
-public class Xunit2MethodInfo : LongLivedMarshalByRefObject, IMethodInfo
+public class Xunit2MethodInfo : MarshalByRefObject, IMethodInfo
 {
 	/// <summary>
 	/// Initializes a new instance of the <see cref="Xunit2MethodInfo"/> class.
@@ -70,6 +71,12 @@ public class Xunit2MethodInfo : LongLivedMarshalByRefObject, IMethodInfo
 			.GetParameters()
 			.Select(p => new Xunit2ParameterInfo(p))
 			.CastOrToReadOnlyCollection();
+
+#if NETFRAMEWORK
+	/// <inheritdoc/>
+	[System.Security.SecurityCritical]
+	public override sealed object InitializeLifetimeService() => null!;
+#endif
 
 	/// <inheritdoc/>
 	public IMethodInfo MakeGenericMethod(params ITypeInfo[] typeArguments) =>

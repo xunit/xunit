@@ -2,9 +2,9 @@
 
 using System;
 using System.IO;
+using System.Security;
 using System.Threading;
 using System.Web.UI;
-using System.Web.UI.WebControls;
 using System.Xml;
 
 namespace Xunit.Runner.v1;
@@ -13,7 +13,7 @@ namespace Xunit.Runner.v1;
 /// An implementation of <see cref="ICallbackEventHandler"/> used to translate v1 Executor XML
 /// messages.
 /// </summary>
-public class XmlNodeCallbackHandler : LongLivedMarshalByRefObject, ICallbackEventHandler
+public class XmlNodeCallbackHandler : MarshalByRefObject, ICallbackEventHandler
 {
 	readonly Predicate<XmlNode?>? callback;
 	bool @continue = true;
@@ -43,6 +43,10 @@ public class XmlNodeCallbackHandler : LongLivedMarshalByRefObject, ICallbackEven
 	/// Gets an event that is triggered when the last node has arrived.
 	/// </summary>
 	public ManualResetEvent LastNodeArrived { get; protected set; }
+
+	/// <inheritdoc/>
+	[SecurityCritical]
+	public override sealed object InitializeLifetimeService() => null!;
 
 	/// <summary>
 	/// Called when an XML node arrives. Dispatches the XML node to the callback.
