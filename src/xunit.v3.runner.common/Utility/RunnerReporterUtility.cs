@@ -1,9 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Reflection;
 
 namespace Xunit.Runner.Common;
 
@@ -15,8 +10,8 @@ public static class RunnerReporterUtility
 	/// <summary>
 	/// Gets the list of reporters that are embedded inside xUnit.net itself. Does not include <see cref="DefaultRunnerReporter"/>.
 	/// </summary>
-	public static IReadOnlyList<IRunnerReporter> EmbeddedReporters { get; } = new List<IRunnerReporter>
-	{
+	public static IReadOnlyList<IRunnerReporter> EmbeddedReporters { get; } =
+	[
 		new AppVeyorReporter(),
 		new JsonReporter(),
 		new QuietReporter(),
@@ -24,12 +19,12 @@ public static class RunnerReporterUtility
 		new TeamCityReporter(),
 		new VerboseReporter(),
 		new VstsReporter(),
-	};
+	];
 
 	/// <summary>
-	/// Gets a list of runner reporters from DLLs in the given folder. The only DLLs that are searched are those
-	/// named "*reporters*.dll". The list only includes concrete (non-abstract) types that implement <see cref="IRunnerReporter"/>,
-	/// excluding any class decorated with <see cref="HiddenRunnerReporterAttribute"/>.
+	/// Gets a list of runner reporters from DLLs in the given folder. NOTE: Runner reporter extensibility is not yet
+	/// available for v3 projects, so this currently returns an empty list (plus the embedded reporters, if they are
+	/// requested).
 	/// </summary>
 	/// <param name="folder">The folder to search for reporters in</param>
 	/// <param name="includeEmbeddedReporters">A flag to indicate if the embedded reporters should be included. This
@@ -42,11 +37,13 @@ public static class RunnerReporterUtility
 		out List<string> messages)
 	{
 		var result = new List<IRunnerReporter>();
-		messages = new List<string>();
-		string[] dllFiles;
+		messages = [];
 
 		if (includeEmbeddedReporters)
 			result.AddRange(EmbeddedReporters);
+
+#if false
+		string[] dllFiles;
 
 		try
 		{
@@ -115,6 +112,7 @@ public static class RunnerReporterUtility
 				}
 			}
 		}
+#endif
 
 		return result;
 	}
