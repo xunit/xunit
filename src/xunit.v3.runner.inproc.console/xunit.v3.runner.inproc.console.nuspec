@@ -17,9 +17,11 @@
 		<dependencies>
 			<group targetFramework="net472">
 				<dependency id="xunit.v3.extensibility.core" version="[$PackageVersion$]" />
+				<dependency id="xunit.v3.runner.common" version="[$PackageVersion$]" />
 			</group>
 			<group targetFramework="net6.0">
 				<dependency id="xunit.v3.extensibility.core" version="[$PackageVersion$]" />
+				<dependency id="xunit.v3.runner.common" version="[$PackageVersion$]" />
 			</group>
 		</dependencies>
 	</metadata>
@@ -28,13 +30,9 @@
 		<file target="_content\" src="..\..\tools\media\logo-128-transparent.png" />
 		<file target="_content\" src="..\..\README.md" />
 
-		<file target="lib\net472\" src="..\xunit.v3.runner.common\bin\$Configuration$\netstandard2.0\$SignedPath$xunit.v3.runner.common.dll" />
-		<file target="lib\net472\" src="..\xunit.v3.runner.common\bin\$Configuration$\netstandard2.0\xunit.v3.runner.common.xml" />
 		<file target="lib\net472\" src="bin\$Configuration$\net472\$SignedPath$xunit.v3.runner.inproc.console.dll" />
 		<file target="lib\net472\" src="bin\$Configuration$\net472\xunit.v3.runner.inproc.console.xml" />
 
-		<file target="lib\net6.0\" src="..\xunit.v3.runner.common\bin\$Configuration$\netstandard2.0\$SignedPath$xunit.v3.runner.common.dll" />
-		<file target="lib\net6.0\" src="..\xunit.v3.runner.common\bin\$Configuration$\netstandard2.0\xunit.v3.runner.common.xml" />
 		<file target="lib\net6.0\" src="bin\$Configuration$\net6.0\$SignedPath$xunit.v3.runner.inproc.console.dll" />
 		<file target="lib\net6.0\" src="bin\$Configuration$\net6.0\xunit.v3.runner.inproc.console.xml" />
 	</files>
