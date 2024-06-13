@@ -6,6 +6,7 @@
   <Target Name="XunitTest" DependsOnTargets="$(XunitTest_TargetDependencies)">
     <xunit AppDomains="$(XunitTest_AppDomains)"
            Assemblies="@(XunitTest_Assemblies)"
+           Ctrf="@(XunitTest_Ctrf)"
            DiagnosticMessages="$(XunitTest_DiagnosticMessages)"
            ExcludeTraits="$(XunitTest_ExcludeTraits)"
            FailSkips="$(XunitTest_FailSkips)"

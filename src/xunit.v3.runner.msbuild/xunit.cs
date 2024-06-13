@@ -46,6 +46,8 @@ public class xunit : MSBuildTask, ICancelableTask
 	[Required]
 	public ITaskItem[]? Assemblies { get; set; }
 
+	public ITaskItem? Ctrf { get; set; }
+
 	public string? Culture { get; set; }
 
 	public bool DiagnosticMessages { set { diagnosticMessages = value; } }
@@ -99,7 +101,7 @@ public class xunit : MSBuildTask, ICancelableTask
 	public string? MethodDisplayOptions { get; set; }
 
 	protected bool NeedsXml =>
-		Xml is not null || XmlV1 is not null || Html is not null || NUnit is not null || JUnit is not null;
+		Xml is not null || XmlV1 is not null || Html is not null || NUnit is not null || JUnit is not null || Ctrf is not null;
 
 	public bool NoAutoReporters { get; set; }
 
@@ -356,6 +358,9 @@ public class xunit : MSBuildTask, ICancelableTask
 
 			if (JUnit is not null)
 				TransformFactory.Transform("junit", assembliesElement, JUnit.GetMetadata("FullPath"));
+
+			if (Ctrf is not null)
+				TransformFactory.Transform("ctrf", assembliesElement, Ctrf.GetMetadata("FullPath"));
 		}
 
 		// ExitCode is set to 1 for test failures and -1 for Exceptions.

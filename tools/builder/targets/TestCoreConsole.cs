@@ -65,6 +65,6 @@ public static class TestCoreConsole
 
 		var outputFileName = Path.Combine(context.TestOutputFolder, $"xunit.v3-{framework}-{(x86 ? "x86" : "AnyCPU")}");
 
-		await context.Exec(context.ConsoleRunnerExe, $"{string.Join(" ", testAssemblies)} {context.TestFlagsParallel}-preEnumerateTheories -xml \"{outputFileName}.xml\" -html \"{outputFileName}.html\" -trx \"{outputFileName}.trx\"", workingDirectory: context.BaseFolder);
+		await context.Exec(context.ConsoleRunnerExe, $"{string.Join(" ", testAssemblies)} {context.TestFlagsParallel}-preEnumerateTheories -xml \"{outputFileName}.xml\" -html \"{outputFileName}.html\" -ctrf \"{outputFileName}.ctrf\" -trx \"{outputFileName}.trx\"", workingDirectory: context.BaseFolder);
 	}
 }

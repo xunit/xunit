@@ -32,8 +32,8 @@ public static class TestFxConsole
 
 		if (!context.V3Only)
 		{
-			await context.Exec(context.ConsoleRunnerExe, $"{v2Folder}/xunit.v2.tests.dll {context.TestFlagsParallel}-appdomains required -xml \"{v2OutputFileName}-AnyCPU.xml\" -html \"{v2OutputFileName}-AnyCPU.html\" -trx \"{v2OutputFileName}-AnyCPU.trx\"", workingDirectory: v2Folder);
-			await context.Exec(context.ConsoleRunnerExe, $"{v1Folder}/xunit.v1.tests.dll {context.TestFlagsParallel}-appdomains required -xml \"{v1OutputFileName}-AnyCPU.xml\" -html \"{v1OutputFileName}-AnyCPU.html\" -trx \"{v1OutputFileName}-AnyCPU.trx\"", workingDirectory: v1Folder);
+			await context.Exec(context.ConsoleRunnerExe, $"{v2Folder}/xunit.v2.tests.dll {context.TestFlagsParallel}-appdomains required -xml \"{v2OutputFileName}-AnyCPU.xml\" -html \"{v2OutputFileName}-AnyCPU.html\" -ctrf \"{v2OutputFileName}-AnyCPU.ctrf\" -trx \"{v2OutputFileName}-AnyCPU.trx\"", workingDirectory: v2Folder);
+			await context.Exec(context.ConsoleRunnerExe, $"{v1Folder}/xunit.v1.tests.dll {context.TestFlagsParallel}-appdomains required -xml \"{v1OutputFileName}-AnyCPU.xml\" -html \"{v1OutputFileName}-AnyCPU.html\" -ctrf \"{v1OutputFileName}-AnyCPU.ctrf\" -trx \"{v1OutputFileName}-AnyCPU.trx\"", workingDirectory: v1Folder);
 		}
 
 		// ------------- Forced x86 -------------
@@ -44,8 +44,8 @@ public static class TestFxConsole
 
 		if (!context.V3Only)
 		{
-			await context.Exec(context.ConsoleRunner32Exe, $"{v2Folder}/xunit.v2.tests.dll {context.TestFlagsParallel}-appdomains required -xml \"{v2OutputFileName}-x86.xml\" -html \"{v2OutputFileName}-x86.html\" -trx \"{v2OutputFileName}-x86.trx\"", workingDirectory: v2Folder);
-			await context.Exec(context.ConsoleRunner32Exe, $"{v1Folder}/xunit.v1.tests.dll {context.TestFlagsParallel}-appdomains required -xml \"{v1OutputFileName}-x86.xml\" -html \"{v1OutputFileName}-x86.html\" -trx \"{v1OutputFileName}-x86.trx\"", workingDirectory: v1Folder);
+			await context.Exec(context.ConsoleRunner32Exe, $"{v2Folder}/xunit.v2.tests.dll {context.TestFlagsParallel}-appdomains required -xml \"{v2OutputFileName}-x86.xml\" -html \"{v2OutputFileName}-x86.html\" -ctrf \"{v2OutputFileName}-x86.ctrf\" -trx \"{v2OutputFileName}-x86.trx\"", workingDirectory: v2Folder);
+			await context.Exec(context.ConsoleRunner32Exe, $"{v1Folder}/xunit.v1.tests.dll {context.TestFlagsParallel}-appdomains required -xml \"{v1OutputFileName}-x86.xml\" -html \"{v1OutputFileName}-x86.html\" -ctrf \"{v1OutputFileName}-x86.ctrf\" -trx \"{v1OutputFileName}-x86.trx\"", workingDirectory: v1Folder);
 		}
 	}
 
@@ -63,6 +63,6 @@ public static class TestFxConsole
 
 		var outputFileName = Path.Combine(context.TestOutputFolder, $"xunit.v3-net472-{(x86 ? "x86" : "AnyCPU")}");
 
-		await context.Exec(context.ConsoleRunnerExe, $"{string.Join(" ", testAssemblies)} {context.TestFlagsParallel}-preEnumerateTheories -xml \"{outputFileName}.xml\" -html \"{outputFileName}.html\" -trx \"{outputFileName}.trx\"", workingDirectory: context.BaseFolder);
+		await context.Exec(context.ConsoleRunnerExe, $"{string.Join(" ", testAssemblies)} {context.TestFlagsParallel}-preEnumerateTheories -xml \"{outputFileName}.xml\" -html \"{outputFileName}.html\" -ctrf \"{outputFileName}.ctrf\" -trx \"{outputFileName}.trx\"", workingDirectory: context.BaseFolder);
 	}
 }
