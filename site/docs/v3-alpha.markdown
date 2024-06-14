@@ -146,6 +146,7 @@ at this time (in addition to the fact that the APIs being still very much under 
 
 Change the following package references:
 
+{: .table .latest }
 | v2 package                                                      | v3 package                                       |
 | --------------------------------------------------------------- | ------------------------------------------------ |
 | `xunit`                                                         | `xunit.v3`                                       |
@@ -330,5 +331,5 @@ projects in a future alpha release.
 In general, new (SDK-style) projects are preferred and supported. Old-style project files for .NET
 Framework C# and VB should work as well; if you start by creating a .NET Framework Console
 application project, make sure to delete the generated entry point (`Program.cs` for C# and
-`Module1.vb` for VB) and make sure to remove any `<StartupObject&>` properties that might
+`Module1.vb` for VB) and make sure to remove any `<StartupObject>` properties that might
 exist in your project file, as the entry point is automatically provided by the NuGet package.
