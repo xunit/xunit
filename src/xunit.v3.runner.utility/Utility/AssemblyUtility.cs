@@ -13,18 +13,18 @@ namespace Xunit;
 public static class AssemblyUtility
 {
 	/// <summary>
-	/// Gets the target framework name for the given assembly (on disk). This uses Mono Cecil
-	/// to prevent loading the assembly into memory.
+	/// Gets metadata (including target framework and xUnit.net version) for the given assembly (on disk).
+	/// This uses Mono Cecil to prevent officially loading the assembly into memory.
 	/// </summary>
 	/// <param name="assemblyFileName">The assembly filename.</param>
-	/// <returns>The target framework (typically in a format like ".NETFramework,Version=v4.7.2"
-	/// or ".NETCoreApp,Version=v6.0"). If the target framework type is unknown (missing file,
-	/// missing attribute, etc.) then returns "UnknownTargetFramework".</returns>
+	/// <returns>The assembly metadata, if the assembly was found; <c>null</c>, otherwise.</returns>
 	public static AssemblyMetadata? GetAssemblyMetadata(string assemblyFileName)
 	{
 		if (!string.IsNullOrWhiteSpace(assemblyFileName) && File.Exists(assemblyFileName))
 			try
 			{
+				assemblyFileName = Path.GetFullPath(assemblyFileName);
+
 				var moduleDefinition = ModuleDefinition.ReadModule(assemblyFileName);
 				var targetFrameworkAttribute =
 					moduleDefinition
@@ -34,15 +34,29 @@ public static class AssemblyUtility
 				var targetFramework = targetFrameworkAttribute?.ConstructorArguments[0].Value as string;
 				var xunitVersion = 0;
 
-				for (int idx = 0; xunitVersion == 0 && idx < moduleDefinition.AssemblyReferences.Count; ++idx)
+				// Trust for references is stronger than what's on disk, so try those first, and
+				// we always want to consider the "highest" reference most important, since we have
+				// test projects that might reference more than one for purposes of integration testing.
+				var references = moduleDefinition.AssemblyReferences.Select(r => r.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
+				if (references.Contains("xunit.v3.core"))
+					xunitVersion = 3;
+				else if (references.Contains("xunit.core"))
+					xunitVersion = 2;
+				else if (references.Contains("xunit"))
+					xunitVersion = 1;
+				// Fall back to looking for one of our desired files on disk
+				else
 				{
-					var reference = moduleDefinition.AssemblyReferences[idx].Name;
-					if (reference.Equals("xunit", StringComparison.OrdinalIgnoreCase))
-						xunitVersion = 1;
-					else if (reference.Equals("xunit.core", StringComparison.OrdinalIgnoreCase))
-						xunitVersion = 2;
-					else if (reference.Equals("xunit.v3.core", StringComparison.OrdinalIgnoreCase))
-						xunitVersion = 3;
+					var folder = Path.GetDirectoryName(assemblyFileName);
+					if (folder is not null)
+					{
+						if (Directory.GetFiles(folder, "xunit.v3.core.dll").Length != 0)
+							xunitVersion = 3;
+						else if (Directory.GetFiles(folder, "xunit.core.dll").Length != 0)
+							xunitVersion = 2;
+						else if (Directory.GetFiles(folder, "xunit.dll").Length != 0)
+							xunitVersion = 1;
+					}
 				}
 
 				return new AssemblyMetadata(xunitVersion, targetFramework);
