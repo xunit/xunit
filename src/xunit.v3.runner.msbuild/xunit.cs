@@ -391,7 +391,9 @@ public class xunit : MSBuildTask, ICancelableTask
 			var appDomainSupport = assembly.Configuration.AppDomainOrDefault;
 			var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
 
-			await using var controller = XunitFrontController.ForDiscoveryAndExecution(assembly, diagnosticMessageSink: diagnosticMessageSink);
+			await using var controller =
+				XunitFrontController.ForDiscoveryAndExecution(assembly, diagnosticMessageSink: diagnosticMessageSink)
+					?? throw new ArgumentException("not an xUnit.net test assembly: {0}", assembly.AssemblyFileName);
 
 			var appDomain = (controller.CanUseAppDomains, appDomainSupport) switch
 			{

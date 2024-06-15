@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -75,7 +76,10 @@ public class AssemblyRunner : IAsyncDisposable, _IMessageSink
 
 		project.Add(projectAssembly);
 
-		controller = XunitFrontController.ForDiscoveryAndExecution(projectAssembly, diagnosticMessageSink: this);
+		controller =
+			XunitFrontController.ForDiscoveryAndExecution(projectAssembly, diagnosticMessageSink: this)
+				?? throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Assembly '{0}' does not appear to be an xUnit.net test assembly", assemblyFileName), nameof(assemblyFileName));
+
 		disposalTracker.Add(controller);
 
 		ConfigReader.Load(configuration, assemblyFileName, configFileName);

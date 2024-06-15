@@ -107,12 +107,13 @@ public class XunitFrontController : IFrontController
 	/// <summary>
 	/// Returns an implementation of <see cref="IFrontControllerDiscoverer"/> which can be
 	/// used to discover tests (including source-based discovery for v2 tests).
+	/// If the assembly does not appear to be a test assembly, returns <c>null</c>.
 	/// </summary>
 	/// <param name="assemblyInfo">The assembly to use for discovery</param>
 	/// <param name="projectAssembly">The test project assembly.</param>
 	/// <param name="sourceInformationProvider">The optional source information provider.</param>
 	/// <param name="diagnosticMessageSink">The optional message sink which receives <see cref="_DiagnosticMessage"/> messages.</param>
-	public static IFrontControllerDiscoverer ForDiscovery(
+	public static IFrontControllerDiscoverer? ForDiscovery(
 		_IAssemblyInfo assemblyInfo,
 		XunitProjectAssembly projectAssembly,
 		_ISourceInformationProvider? sourceInformationProvider = null,
@@ -122,27 +123,26 @@ public class XunitFrontController : IFrontController
 		Guard.ArgumentNotNull(projectAssembly);
 		Guard.ArgumentNotNull(projectAssembly.AssemblyMetadata);
 
-		return new XunitFrontController(projectAssembly.AssemblyMetadata.XunitVersion switch
+		return projectAssembly.AssemblyMetadata.XunitVersion switch
 		{
-			3 => Xunit3.ForDiscoveryAndExecution(projectAssembly, sourceInformationProvider, diagnosticMessageSink),
-			2 => Xunit2.ForDiscovery(assemblyInfo, projectAssembly, sourceInformationProvider, diagnosticMessageSink),
+			3 => new XunitFrontController(Xunit3.ForDiscoveryAndExecution(projectAssembly, sourceInformationProvider, diagnosticMessageSink)),
+			2 => new XunitFrontController(Xunit2.ForDiscovery(assemblyInfo, projectAssembly, sourceInformationProvider, diagnosticMessageSink)),
 #if NETFRAMEWORK
-			1 => Xunit1.ForDiscoveryAndExecution(projectAssembly, sourceInformationProvider, diagnosticMessageSink),
-			_ => throw new InvalidOperationException("Unknown test framework: could not find xunit.dll (v1), xunit.core.dll (v2), or xunit.v3.core.dll (v3) in assembly reference list")
-#else
-			_ => throw new InvalidOperationException("Unknown test framework: could not find xunit.core.dll (v2) or xunit.v3.core.dll (v3) in assembly reference list")
+			1 => new XunitFrontController(Xunit1.ForDiscoveryAndExecution(projectAssembly, sourceInformationProvider, diagnosticMessageSink)),
 #endif
-		});
+			_ => null,
+		};
 	}
 
 	/// <summary>
 	/// Returns an implementation of <see cref="IFrontController"/> which can be used for both discovery and execution.
+	/// If the assembly does not appear to be a test assembly, returns <c>null</c>.
 	/// </summary>
 	/// <param name="projectAssembly">The test project assembly.</param>
 	/// <param name="sourceInformationProvider">The optional source information provider.</param>
 	/// <param name="diagnosticMessageSink">The optional message sink which receives <see cref="_DiagnosticMessage"/>
 	/// and <see cref="_InternalDiagnosticMessage"/> messages.</param>
-	public static IFrontController ForDiscoveryAndExecution(
+	public static IFrontController? ForDiscoveryAndExecution(
 		XunitProjectAssembly projectAssembly,
 		_ISourceInformationProvider? sourceInformationProvider = null,
 		_IMessageSink? diagnosticMessageSink = null)
@@ -153,16 +153,14 @@ public class XunitFrontController : IFrontController
 		var assemblyFileName = projectAssembly.AssemblyFileName;
 		var assemblyFolder = Path.GetDirectoryName(assemblyFileName);
 
-		return new XunitFrontController(projectAssembly.AssemblyMetadata.XunitVersion switch
+		return projectAssembly.AssemblyMetadata.XunitVersion switch
 		{
-			3 => Xunit3.ForDiscoveryAndExecution(projectAssembly, sourceInformationProvider, diagnosticMessageSink),
-			2 => Xunit2.ForDiscoveryAndExecution(projectAssembly, sourceInformationProvider, diagnosticMessageSink),
+			3 => new XunitFrontController(Xunit3.ForDiscoveryAndExecution(projectAssembly, sourceInformationProvider, diagnosticMessageSink)),
+			2 => new XunitFrontController(Xunit2.ForDiscoveryAndExecution(projectAssembly, sourceInformationProvider, diagnosticMessageSink)),
 #if NETFRAMEWORK
-			1 => Xunit1.ForDiscoveryAndExecution(projectAssembly, sourceInformationProvider, diagnosticMessageSink),
-			_ => throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Unknown test framework: could not find xunit.dll (v1), xunit.core.dll (v2), or xunit.v3.core.dll (v3) in {0}", assemblyFolder ?? "<unknown assembly folder>")),
-#else
-			_ => throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Unknown test framework: could not find xunit.core.dll (v2) or xunit.v3.core.dll (v3) in {0}", assemblyFolder ?? "<unknown assembly folder>")),
+			1 => new XunitFrontController(Xunit1.ForDiscoveryAndExecution(projectAssembly, sourceInformationProvider, diagnosticMessageSink)),
 #endif
-		});
+			_ => null,
+		};
 	}
 }

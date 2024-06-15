@@ -186,7 +186,9 @@ sealed class ConsoleRunner
 			var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
 
 			using var _ = AssemblyHelper.SubscribeResolveForAssembly(assemblyFileName);
-			await using var controller = XunitFrontController.ForDiscoveryAndExecution(assembly);
+			await using var controller =
+				XunitFrontController.ForDiscoveryAndExecution(assembly)
+					?? throw new ArgumentException("not an xUnit.net test assembly: {0}", assemblyFileName);
 
 			using var discoverySink = new TestDiscoverySink(() => cancel);
 
@@ -338,7 +340,9 @@ sealed class ConsoleRunner
 			var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
 
 			using var _ = AssemblyHelper.SubscribeResolveForAssembly(assemblyFileName, diagnosticMessageSink);
-			await using var controller = XunitFrontController.ForDiscoveryAndExecution(assembly, diagnosticMessageSink: diagnosticMessageSink);
+			await using var controller =
+				XunitFrontController.ForDiscoveryAndExecution(assembly, diagnosticMessageSink: diagnosticMessageSink)
+					?? throw new ArgumentException("not an xUnit.net test assembly: {0}", assemblyFileName);
 
 			var appDomain = (controller.CanUseAppDomains, appDomainSupport) switch
 			{
