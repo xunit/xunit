@@ -6,7 +6,7 @@ breadcrumb: Documentation
 
 # Current state of the xUnit.net v3 alpha
 
-## As of: 2024 June 14 (`0.1.1-pre.475`)
+## As of: 2024 June 15 (`0.1.1-pre.480`)
 
 The purpose of this document is to give a general state of the alpha package releases of xUnit.net v3.
 Note that there have not yet been any "stable alpha" releases to NuGet, so this is a snapshot of a moment
@@ -164,6 +164,13 @@ Change the following package references:
 
 _**Note:** In some cases multiple libraries/packages were merged together into a single new library/package, as denoted in the table above with (*)._
 
+If you want to use the MSBuild runner, we now ship both a .NET Framework and .NET Core/.NET version
+in the same package. It will dynamically select the correct version depending on whether you use
+the .NET Framework MSBuild or the .NET MSBuild (via `dotnet build` or `dotnet msbuild`). However,
+the .NET version only supports v3 test projects. If you need to still run v1 and/or v2 test projects,
+you must use the .NET Framework version. (Mono ships with the .NET Framework version of MSBuild,
+so all comments about .NET Framework also apply to Mono.)
+
 ### Convert to executable project
 
 Update your project file (i.e., `.csproj`) and change `OutputType` from `Library` to
@@ -201,18 +208,19 @@ After creation, edit your project file to make it look something like this:
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="xunit.v3" Version="0.1.1-pre.475" />
+    <PackageReference Include="xunit.v3" Version="0.1.1-pre.480" />
 
-    <!-- To support dotnet test and Test Explorer, add:
-    <PackageReference Include="xunit.runner.visualstudio" Version="3.0.0-pre.7" />
+    <!-- To support 'dotnet test' and Test Explorer, add:
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.0.0-pre.9" />
     -->
 
     <!-- For the console runner, add:
-    <PackageReference Include="xunit.v3.runner.console" Version="0.1.1-pre.475" />
+    <PackageReference Include="xunit.v3.runner.console" Version="0.1.1-pre.480" />
     -->
 
     <!-- For the MSBuild runner, add:
-    <PackageReference Include="xunit.v3.runner.msbuild" Version="0.1.1-pre.475" />
+    <PackageReference Include="xunit.v3.runner.msbuild" Version="0.1.1-pre.480" />
     -->
   </ItemGroup>
 
