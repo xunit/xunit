@@ -26,12 +26,14 @@
 
     <!-- Used in non-product (test or back-compat) projects -->
     <FSharpCompilerServiceVersion>43.7.200</FSharpCompilerServiceVersion>
+    <MicrosoftNetTestSdkVersion>17.10.0</MicrosoftNetTestSdkVersion>
     <MoqVersion>4.17.2</MoqVersion>
     <NSubstituteVersion>5.1.0</NSubstituteVersion>
     <SystemMemoryVersion>4.5.5</SystemMemoryVersion>
     <XunitAbstractionsVersion>2.0.3</XunitAbstractionsVersion>
     <XunitV1Version>1.9.2</XunitV1Version>
     <XunitV2Version>2.8.1-pre.14</XunitV2Version>
+    <XunitVisualStudioRunnerVersion>3.0.0-pre.9</XunitVisualStudioRunnerVersion>
 
   </PropertyGroup>
 

@@ -92,6 +92,7 @@
     <When Condition=" $(MSBuildProjectName.Contains('.v3.')) AND $(MSBuildProjectName.EndsWith('.tests')) ">
       <PropertyGroup>
         <ApplicationManifest>..\xunit.v3.runner.console\app.manifest</ApplicationManifest>
+        <GenerateProgramFile>false</GenerateProgramFile>
         <NoWarn>$(NoWarn);xUnit1000</NoWarn>
         <Nullable>enable</Nullable>
         <OutputType>Exe</OutputType>
@@ -102,8 +103,10 @@
       </ItemGroup>
 
       <ItemGroup>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(MicrosoftNetTestSdkVersion)" />
         <PackageReference Include="NSubstitute" Version="$(NSubstituteVersion)" />
         <PackageReference Include="xunit.analyzers" Version="$(XunitAnalyzersVersion)" PrivateAssets="all" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="$(XunitVisualStudioRunnerVersion)" PrivateAssets="all" />
       </ItemGroup>
 
       <ItemGroup>
