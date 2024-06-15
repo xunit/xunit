@@ -243,20 +243,6 @@ public class xunit : MSBuildTask, ICancelableTask
 			var project = new XunitProject();
 			foreach (var assembly in Assemblies)
 			{
-				/*
-		if (!FileExists(assemblyFileName))
-			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "assembly not found: {0}", assemblyFileName));
-		if (configFileName is not null && !FileExists(configFileName))
-			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "config file not found: {0}", configFileName));
-
-		var metadata =
-			AssemblyUtility.GetAssemblyMetadata(assemblyFileName)
-				?? throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "not a valid .NET assembly: {0}", assemblyFileName));
-		if (metadata.XunitVersion == 0)
-			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "not an xUnit.net test assembly: {0}", assemblyFileName));
-
-		var projectAssembly = new XunitProjectAssembly(Project, GetFullPath(assemblyFileName), metadata) { ConfigFileName = GetFullPath(configFileName) };
-				*/
 				var assemblyFileName = assembly.GetMetadata("FullPath");
 				if (!File.Exists(assemblyFileName))
 				{
@@ -282,6 +268,15 @@ public class xunit : MSBuildTask, ICancelableTask
 						Log.LogError("Assembly '{0}' is not a valid .NET assembly", assemblyFileName);
 					return false;
 				}
+
+#if NETCOREAPP
+				if (metadata.XunitVersion < 3)
+				{
+					lock (logLock)
+						Log.LogError("Assembly '{0}' is not supported (only v3+ tests are supported in dotnet msbuild)", assemblyFileName);
+					return false;
+				}
+#endif
 
 				var projectAssembly = new XunitProjectAssembly(project, assemblyFileName, metadata) { ConfigFileName = configFileName };
 

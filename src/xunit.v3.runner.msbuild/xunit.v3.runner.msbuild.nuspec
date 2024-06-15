@@ -11,7 +11,7 @@
 		<icon>_content/logo-128-transparent.png</icon>
 		<readme>_content/README.md</readme>
 		<releaseNotes>https://xunit.net/releases/v3/$PackageVersion$</releaseNotes>
-		<description>MSBuild runner for the xUnit.net framework. Capable of running xUnit.net v1, v2, and v3 tests. Supports .NET Framework 4.7.2 or later and .NET 6.0 or later.</description>
+		<description>MSBuild runner for the xUnit.net framework. Capable of running xUnit.net v1, v2, and v3 tests; when using dotnet msbuild, only v3 tests are supported. Supports .NET Framework 4.7.2 or later and .NET 6.0 or later.</description>
 		<copyright>Copyright (C) .NET Foundation</copyright>
 		<repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
 		<developmentDependency>true</developmentDependency>
