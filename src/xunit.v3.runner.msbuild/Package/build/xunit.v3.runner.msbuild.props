@@ -1,6 +1,5 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <UsingTask
-    AssemblyFile="$(MSBuildThisFileDirectory)..\net472\xunit.v3.runner.msbuild.dll"
-    Condition=" '$(MSBuildRuntimeType)' != 'Core' "
+    AssemblyFile="$(MSBuildThisFileDirectory)xunit.v3.runner.msbuild.dll"
     TaskName="Xunit.Runner.MSBuild.xunit"/>
 </Project>

@@ -2,9 +2,10 @@
 
   <PropertyGroup>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <RootNamespace>Xunit.Runner.MSBuild</RootNamespace>
     <RunILRepack>true</RunILRepack>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFrameworks>net472;net6.0</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
