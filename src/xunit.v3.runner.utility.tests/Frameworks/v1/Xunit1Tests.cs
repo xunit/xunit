@@ -1131,7 +1131,8 @@ public class AmbiguouslyNamedTestMethods
 
 			using var assembly = await CSharpAcceptanceTestV1Assembly.Create(code);
 			var project = new XunitProject();
-			var projectAssembly = new XunitProjectAssembly(project) { AssemblyFileName = assembly.FileName };
+			var metadata = new AssemblyMetadata(1, ".NETFramework,Version=v4.7.2");
+			var projectAssembly = new XunitProjectAssembly(project, assembly.FileName, metadata);
 			projectAssembly.Configuration.AppDomain = AppDomainSupport.Required;
 			var xunit1 = Xunit1.ForDiscoveryAndExecution(projectAssembly);
 			using var spy = SpyMessageSink<_TestAssemblyFinished>.Create();

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using Xunit;
+using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Runner.SystemConsole;
 
@@ -41,7 +42,7 @@ public class CommandLineTests
 		[InlineData("badConfig.json")]
 		public static void AssemblyExists_ConfigFileDoesNotExist_Throws(string configFile)
 		{
-			var commandLine = new TestableCommandLine("assembly1.dll", configFile);
+			var commandLine = new TestableCommandLine(typeof(CommandLineTests).Assembly.Location, configFile);
 
 			var exception = Record.Exception(() => commandLine.Parse());
 
@@ -52,31 +53,32 @@ public class CommandLineTests
 		[Fact]
 		public static void SingleAssembly_NoConfigFile()
 		{
-			var commandLine = new TestableCommandLine("assembly1.dll");
+			var commandLine = new TestableCommandLine(typeof(CommandLineTests).Assembly.Location);
 
 			var project = commandLine.Parse();
 
 			var assembly = Assert.Single(project.Assemblies);
-			Assert.Equal("/full/path/assembly1.dll", assembly.AssemblyFileName);
+			Assert.Equal(typeof(CommandLineTests).Assembly.Location, assembly.AssemblyFileName);
 			Assert.Null(assembly.ConfigFileName);
 		}
 
 		[Fact]
 		public static void SingleAssembly_WithConfigFile()
 		{
-			var commandLine = new TestableCommandLine("assembly1.dll", "assembly1.json");
+			var commandLine = new TestableCommandLine(typeof(CommandLineTests).Assembly.Location, "assembly1.json");
 
 			var project = commandLine.Parse();
 
 			var assembly = Assert.Single(project.Assemblies);
-			Assert.Equal("/full/path/assembly1.dll", assembly.AssemblyFileName);
-			Assert.Equal("/full/path/assembly1.json", assembly.ConfigFileName);
+			Assert.Equal(typeof(CommandLineTests).Assembly.Location, assembly.AssemblyFileName);
+			var assemblyFolder = Guard.NotNull("Assembly folder cannot be null", Path.GetDirectoryName(typeof(CommandLineTests).Assembly.Location));
+			Assert.Equal(Path.Combine(assemblyFolder, "assembly1.json"), assembly.ConfigFileName);
 		}
 
 		[Fact]
 		public static void MultipleAssemblies_NoConfigFiles()
 		{
-			var arguments = new[] { "assemblyName.dll", "assemblyName2.dll" };
+			var arguments = new[] { typeof(CommandLineTests).Assembly.Location, typeof(CommandLine).Assembly.Location };
 			var commandLine = new TestableCommandLine(arguments);
 
 			var project = commandLine.Parse();
@@ -85,12 +87,12 @@ public class CommandLineTests
 				project.Assemblies,
 				a =>
 				{
-					Assert.Equal("/full/path/assemblyName.dll", a.AssemblyFileName);
+					Assert.Equal(typeof(CommandLineTests).Assembly.Location, a.AssemblyFileName);
 					Assert.Null(a.ConfigFileName);
 				},
 				a =>
 				{
-					Assert.Equal("/full/path/assemblyName2.dll", a.AssemblyFileName);
+					Assert.Equal(typeof(CommandLine).Assembly.Location, a.AssemblyFileName);
 					Assert.Null(a.ConfigFileName);
 				}
 			);
@@ -101,7 +103,7 @@ public class CommandLineTests
 		[InlineData("assembly2.json")]
 		public static void MultipleAssembliesOneWithConfig(string configFile)
 		{
-			var arguments = new[] { "assemblyName.dll", "assemblyName2.dll", configFile };
+			var arguments = new[] { typeof(CommandLineTests).Assembly.Location, typeof(CommandLine).Assembly.Location, configFile };
 			var commandLine = new TestableCommandLine(arguments);
 
 			var project = commandLine.Parse();
@@ -110,13 +112,13 @@ public class CommandLineTests
 				project.Assemblies,
 				item =>
 				{
-					Assert.Equal("/full/path/assemblyName.dll", item.AssemblyFileName);
+					Assert.Equal(typeof(CommandLineTests).Assembly.Location, item.AssemblyFileName);
 					Assert.Null(item.ConfigFileName);
 				},
 				item =>
 				{
-					Assert.Equal("/full/path/assemblyName2.dll", item.AssemblyFileName);
-					Assert.Equal($"/full/path/{configFile}", item.ConfigFileName);
+					Assert.Equal(typeof(CommandLine).Assembly.Location, item.AssemblyFileName);
+					Assert.Equal($"{Path.GetDirectoryName(typeof(CommandLine).Assembly.Location)}{Path.DirectorySeparatorChar}{configFile}", item.ConfigFileName);
 				}
 			);
 		}
@@ -130,7 +132,7 @@ public class CommandLineTests
 			string configFile1,
 			string configFile2)
 		{
-			var arguments = new[] { "assemblyName.dll", configFile1, configFile2 };
+			var arguments = new[] { typeof(CommandLineTests).Assembly.Location, configFile1, configFile2 };
 			var commandLine = new TestableCommandLine(arguments);
 
 			var exception = Record.Exception(() => commandLine.Parse());
@@ -185,7 +187,7 @@ public class CommandLineTests
 			string _,
 			Expression<Func<XunitProject, bool>> accessor)
 		{
-			var commandLine = new TestableCommandLine("assemblyName.dll", "no-config.json");
+			var commandLine = new TestableCommandLine(typeof(CommandLineTests).Assembly.Location, "no-config.json");
 			var project = commandLine.Parse();
 
 			var result = accessor.Compile().Invoke(project);
@@ -200,7 +202,7 @@ public class CommandLineTests
 			string @switch,
 			Expression<Func<XunitProject, bool>> accessor)
 		{
-			var commandLine = new TestableCommandLine("assemblyName.dll", "no-config.json", @switch);
+			var commandLine = new TestableCommandLine(typeof(CommandLineTests).Assembly.Location, "no-config.json", @switch);
 			var project = commandLine.Parse();
 
 			var result = accessor.Compile().Invoke(project);
@@ -213,7 +215,7 @@ public class CommandLineTests
 		{
 			Assert.Null(Environment.GetEnvironmentVariable(TestProjectConfiguration.EnvNameNoColor));
 
-			new TestableCommandLine("assemblyName.dll", "no-config.json", "-nocolor").Parse();
+			new TestableCommandLine(typeof(CommandLineTests).Assembly.Location, "no-config.json", "-nocolor").Parse();
 
 			// Any set (non-null, non-empty) value is acceptable, see https://no-color.org/
 			var envValue = Environment.GetEnvironmentVariable(TestProjectConfiguration.EnvNameNoColor);
@@ -229,7 +231,7 @@ public class CommandLineTests
 			[Fact]
 			public static void DefaultValueIsNull()
 			{
-				var commandLine = new TestableCommandLine("assemblyName.dll", "no-config.json");
+				var commandLine = new TestableCommandLine(typeof(CommandLineTests).Assembly.Location, "no-config.json");
 
 				var project = commandLine.Parse();
 
@@ -240,7 +242,7 @@ public class CommandLineTests
 			[Fact]
 			public static void MissingValue()
 			{
-				var commandLine = new TestableCommandLine("assemblyName.dll", "no-config.json", "-appdomains");
+				var commandLine = new TestableCommandLine(typeof(CommandLineTests).Assembly.Location, "no-config.json", "-appdomains");
 
 				var exception = Record.Exception(() => commandLine.Parse());
 
@@ -251,7 +253,7 @@ public class CommandLineTests
 			[Fact]
 			public static void InvalidValue()
 			{
-				var commandLine = new TestableCommandLine("assemblyName.dll", "no-config.json", "-appdomains", "foo");
+				var commandLine = new TestableCommandLine(typeof(CommandLineTests).Assembly.Location, "no-config.json", "-appdomains", "foo");
 
 				var exception = Record.Exception(() => commandLine.Parse());
 
@@ -267,7 +269,7 @@ public class CommandLineTests
 				string value,
 				AppDomainSupport expected)
 			{
-				var commandLine = new TestableCommandLine("assemblyName.dll", "no-config.json", "-appdomains", value);
+				var commandLine = new TestableCommandLine(typeof(CommandLineTests).Assembly.Location, "no-config.json", "-appdomains", value);
 
 				var project = commandLine.Parse();
 
@@ -281,7 +283,7 @@ public class CommandLineTests
 			[Fact]
 			public static void DefaultValueIsNull()
 			{
-				var commandLine = new TestableCommandLine("assemblyName.dll", "no-config.json");
+				var commandLine = new TestableCommandLine(typeof(CommandLineTests).Assembly.Location, "no-config.json");
 
 				var project = commandLine.Parse();
 
@@ -292,7 +294,7 @@ public class CommandLineTests
 			[Fact]
 			public static void ExplicitDefaultValueIsNull()
 			{
-				var commandLine = new TestableCommandLine("assemblyName.dll", "no-config.json", "-culture", "default");
+				var commandLine = new TestableCommandLine(typeof(CommandLineTests).Assembly.Location, "no-config.json", "-culture", "default");
 
 				var project = commandLine.Parse();
 
@@ -303,7 +305,7 @@ public class CommandLineTests
 			[Fact]
 			public static void InvariantCultureIsEmptyString()
 			{
-				var commandLine = new TestableCommandLine("assemblyName.dll", "no-config.json", "-culture", "invariant");
+				var commandLine = new TestableCommandLine(typeof(CommandLineTests).Assembly.Location, "no-config.json", "-culture", "invariant");
 
 				var project = commandLine.Parse();
 
@@ -314,7 +316,7 @@ public class CommandLineTests
 			[Fact]
 			public static void ValueIsPreserved()
 			{
-				var commandLine = new TestableCommandLine("assemblyName.dll", "no-config.json", "-culture", "foo");
+				var commandLine = new TestableCommandLine(typeof(CommandLineTests).Assembly.Location, "no-config.json", "-culture", "foo");
 
 				var project = commandLine.Parse();
 
@@ -328,7 +330,7 @@ public class CommandLineTests
 			[Fact]
 			public static void DefaultValueIsNull()
 			{
-				var commandLine = new TestableCommandLine("assemblyName.dll", "no-config.json");
+				var commandLine = new TestableCommandLine(typeof(CommandLineTests).Assembly.Location, "no-config.json");
 
 				var project = commandLine.Parse();
 
@@ -339,7 +341,7 @@ public class CommandLineTests
 			[Fact]
 			public static void MissingValue()
 			{
-				var commandLine = new TestableCommandLine("assemblyName.dll", "no-config.json", "-maxthreads");
+				var commandLine = new TestableCommandLine(typeof(CommandLineTests).Assembly.Location, "no-config.json", "-maxthreads");
 
 				var exception = Record.Exception(() => commandLine.Parse());
 
@@ -357,7 +359,7 @@ public class CommandLineTests
 			[InlineData(",0x")]
 			public static void InvalidValues(string value)
 			{
-				var commandLine = new TestableCommandLine("assemblyName.dll", "no-config.json", "-maxthreads", value);
+				var commandLine = new TestableCommandLine(typeof(CommandLineTests).Assembly.Location, "no-config.json", "-maxthreads", value);
 
 				var exception = Record.Exception(() => commandLine.Parse());
 
@@ -374,7 +376,7 @@ public class CommandLineTests
 				string value,
 				int? expected)
 			{
-				var commandLine = new TestableCommandLine("assemblyName.dll", "no-config.json", "-maxthreads", value);
+				var commandLine = new TestableCommandLine(typeof(CommandLineTests).Assembly.Location, "no-config.json", "-maxthreads", value);
 
 				var project = commandLine.Parse();
 
@@ -389,7 +391,7 @@ public class CommandLineTests
 			public static void MultiplierValue(string value)
 			{
 				var expected = Environment.ProcessorCount * 2;
-				var commandLine = new TestableCommandLine("assemblyName.dll", "no-config.json", "-maxthreads", value);
+				var commandLine = new TestableCommandLine(typeof(CommandLineTests).Assembly.Location, "no-config.json", "-maxthreads", value);
 
 				var project = commandLine.Parse();
 
@@ -403,7 +405,7 @@ public class CommandLineTests
 			[Fact]
 			public static void ParallelizationOptionsAreNullByDefault()
 			{
-				var commandLine = new TestableCommandLine("assemblyName.dll", "no-config.json");
+				var commandLine = new TestableCommandLine(typeof(CommandLineTests).Assembly.Location, "no-config.json");
 
 				var project = commandLine.Parse();
 
@@ -417,12 +419,12 @@ public class CommandLineTests
 			[Fact]
 			public static void FailsWithoutOptionOrWithIncorrectOptions()
 			{
-				var commandLine1 = new TestableCommandLine("assemblyName.dll", "no-config.json", "-parallel");
+				var commandLine1 = new TestableCommandLine(typeof(CommandLineTests).Assembly.Location, "no-config.json", "-parallel");
 				var exception1 = Record.Exception(() => commandLine1.Parse());
 				Assert.IsType<ArgumentException>(exception1);
 				Assert.Equal("missing argument for -parallel", exception1.Message);
 
-				var commandLine2 = new TestableCommandLine("assemblyName.dll", "no-config.json", "-parallel", "nonsense");
+				var commandLine2 = new TestableCommandLine(typeof(CommandLineTests).Assembly.Location, "no-config.json", "-parallel", "nonsense");
 				var exception2 = Record.Exception(() => commandLine2.Parse());
 				Assert.IsType<ArgumentException>(exception2);
 				Assert.Equal("incorrect argument value for -parallel", exception2.Message);
@@ -438,7 +440,7 @@ public class CommandLineTests
 				bool expectedAssembliesParallelization,
 				bool expectedCollectionsParallelization)
 			{
-				var commandLine = new TestableCommandLine("assemblyName.dll", "no-config.json", "-parallel", parallelOption);
+				var commandLine = new TestableCommandLine(typeof(CommandLineTests).Assembly.Location, "no-config.json", "-parallel", parallelOption);
 
 				var project = commandLine.Parse();
 
@@ -456,7 +458,7 @@ public class CommandLineTests
 		[Fact]
 		public static void DefaultFilters()
 		{
-			var commandLine = new TestableCommandLine("assemblyName.dll", "no-config.json");
+			var commandLine = new TestableCommandLine(typeof(CommandLineTests).Assembly.Location, "no-config.json");
 
 			var project = commandLine.Parse();
 
@@ -495,7 +497,7 @@ public class CommandLineTests
 			string @switch,
 			Expression<Func<XunitProject, ICollection<string>>> _)
 		{
-			var commandLine = new TestableCommandLine("assemblyName.dll", "no-config.json", @switch);
+			var commandLine = new TestableCommandLine(typeof(CommandLineTests).Assembly.Location, "no-config.json", @switch);
 
 			var exception = Record.Exception(() => commandLine.Parse());
 
@@ -510,7 +512,7 @@ public class CommandLineTests
 			string @switch,
 			Expression<Func<XunitProject, ICollection<string>>> accessor)
 		{
-			var commandLine = new TestableCommandLine("assemblyName.dll", "no-config.json", @switch, "value1");
+			var commandLine = new TestableCommandLine(typeof(CommandLineTests).Assembly.Location, "no-config.json", @switch, "value1");
 			var project = commandLine.Parse();
 
 			var results = accessor.Compile().Invoke(project);
@@ -526,7 +528,7 @@ public class CommandLineTests
 			string @switch,
 			Expression<Func<XunitProject, ICollection<string>>> accessor)
 		{
-			var commandLine = new TestableCommandLine("assemblyName.dll", "no-config.json", @switch, "value2", @switch, "value1");
+			var commandLine = new TestableCommandLine(typeof(CommandLineTests).Assembly.Location, "no-config.json", @switch, "value2", @switch, "value1");
 			var project = commandLine.Parse();
 
 			var results = accessor.Compile().Invoke(project);
@@ -578,7 +580,7 @@ public class CommandLineTests
 				string @switch,
 				Expression<Func<XunitProject, Dictionary<string, List<string>>>> accessor)
 			{
-				var commandLine = new TestableCommandLine("assemblyName.dll", "no-config.json", @switch, "foo=bar");
+				var commandLine = new TestableCommandLine(typeof(CommandLineTests).Assembly.Location, "no-config.json", @switch, "foo=bar");
 				var project = commandLine.Parse();
 
 				var traits = accessor.Compile().Invoke(project);
@@ -595,7 +597,7 @@ public class CommandLineTests
 				string @switch,
 				Expression<Func<XunitProject, Dictionary<string, List<string>>>> accessor)
 			{
-				var commandLine = new TestableCommandLine("assemblyName.dll", "no-config.json", @switch, "foo=bar", @switch, "foo=baz");
+				var commandLine = new TestableCommandLine(typeof(CommandLineTests).Assembly.Location, "no-config.json", @switch, "foo=bar", @switch, "foo=baz");
 				var project = commandLine.Parse();
 
 				var traits = accessor.Compile().Invoke(project);
@@ -613,7 +615,7 @@ public class CommandLineTests
 				string @switch,
 				Expression<Func<XunitProject, Dictionary<string, List<string>>>> accessor)
 			{
-				var commandLine = new TestableCommandLine("assemblyName.dll", "no-config.json", @switch, "foo=bar", @switch, "baz=biff");
+				var commandLine = new TestableCommandLine(typeof(CommandLineTests).Assembly.Location, "no-config.json", @switch, "foo=bar", @switch, "baz=biff");
 				var project = commandLine.Parse();
 
 				var traits = accessor.Compile().Invoke(project);
@@ -632,7 +634,7 @@ public class CommandLineTests
 				string @switch,
 				Expression<Func<XunitProject, Dictionary<string, List<string>>>> _)
 			{
-				var commandLine = new TestableCommandLine("assemblyName.dll", "no-config.json", @switch);
+				var commandLine = new TestableCommandLine(typeof(CommandLineTests).Assembly.Location, "no-config.json", @switch);
 
 				var exception = Record.Exception(() => commandLine.Parse());
 
@@ -647,7 +649,7 @@ public class CommandLineTests
 				string @switch,
 				string optionValue)
 			{
-				var commandLine = new TestableCommandLine("assemblyName.dll", "no-config.json", @switch, optionValue);
+				var commandLine = new TestableCommandLine(typeof(CommandLineTests).Assembly.Location, "no-config.json", @switch, optionValue);
 
 				var exception = Record.Exception(() => commandLine.Parse());
 
@@ -670,7 +672,7 @@ public class CommandLineTests
 		[MemberData(nameof(SwitchesUpperCase))]
 		public static void OutputMissingFilename(string @switch)
 		{
-			var commandLine = new TestableCommandLine("assemblyName.dll", "no-config.json", @switch);
+			var commandLine = new TestableCommandLine(typeof(CommandLineTests).Assembly.Location, "no-config.json", @switch);
 
 			var exception = Record.Exception(() => commandLine.Parse());
 
@@ -683,7 +685,7 @@ public class CommandLineTests
 		[MemberData(nameof(SwitchesUpperCase))]
 		public static void Output(string @switch)
 		{
-			var commandLine = new TestableCommandLine("assemblyName.dll", "no-config.json", @switch, "outputFile");
+			var commandLine = new TestableCommandLine(typeof(CommandLineTests).Assembly.Location, "no-config.json", @switch, "outputFile");
 
 			var project = commandLine.Parse();
 
@@ -706,7 +708,7 @@ public class CommandLineTests
 		[Fact]
 		public void NoReporters_UsesDefaultReporter()
 		{
-			var commandLine = new TestableCommandLine("assemblyName.dll", "no-config.json");
+			var commandLine = new TestableCommandLine(typeof(CommandLineTests).Assembly.Location, "no-config.json");
 
 			var project = commandLine.Parse();
 
@@ -717,7 +719,7 @@ public class CommandLineTests
 		public void NoExplicitReporter_NoEnvironmentallyEnabledReporters_UsesDefaultReporter()
 		{
 			var implicitReporter = Mocks.RunnerReporter(isEnvironmentallyEnabled: false);
-			var commandLine = new TestableCommandLine(new[] { implicitReporter }, "assemblyName.dll", "no-config.json");
+			var commandLine = new TestableCommandLine(new[] { implicitReporter }, typeof(CommandLineTests).Assembly.Location, "no-config.json");
 
 			var project = commandLine.Parse();
 
@@ -728,7 +730,7 @@ public class CommandLineTests
 		public void ExplicitReporter_NoEnvironmentalOverride_UsesExplicitReporter()
 		{
 			var explicitReporter = Mocks.RunnerReporter("switch");
-			var commandLine = new TestableCommandLine(new[] { explicitReporter }, "assemblyName.dll", "no-config.json", "-switch");
+			var commandLine = new TestableCommandLine(new[] { explicitReporter }, typeof(CommandLineTests).Assembly.Location, "no-config.json", "-switch");
 
 			var project = commandLine.Parse();
 
@@ -740,7 +742,7 @@ public class CommandLineTests
 		{
 			var explicitReporter = Mocks.RunnerReporter("switch");
 			var implicitReporter = Mocks.RunnerReporter(isEnvironmentallyEnabled: true);
-			var commandLine = new TestableCommandLine(new[] { explicitReporter, implicitReporter }, "assemblyName.dll", "no-config.json", "-switch");
+			var commandLine = new TestableCommandLine(new[] { explicitReporter, implicitReporter }, typeof(CommandLineTests).Assembly.Location, "no-config.json", "-switch");
 
 			var project = commandLine.Parse();
 
@@ -751,7 +753,7 @@ public class CommandLineTests
 		public void WithEnvironmentalOverride_WithEnvironmentalOverridesDisabled_UsesDefaultReporter()
 		{
 			var implicitReporter = Mocks.RunnerReporter(isEnvironmentallyEnabled: true);
-			var commandLine = new TestableCommandLine(new[] { implicitReporter }, "assemblyName.dll", "no-config.json", "-noautoreporters");
+			var commandLine = new TestableCommandLine(new[] { implicitReporter }, typeof(CommandLineTests).Assembly.Location, "no-config.json", "-noautoreporters");
 
 			var project = commandLine.Parse();
 
@@ -764,7 +766,7 @@ public class CommandLineTests
 			var explicitReporter = Mocks.RunnerReporter("switch");
 			var implicitReporter1 = Mocks.RunnerReporter(isEnvironmentallyEnabled: true);
 			var implicitReporter2 = Mocks.RunnerReporter(isEnvironmentallyEnabled: true);
-			var commandLine = new TestableCommandLine(new[] { explicitReporter, implicitReporter1, implicitReporter2 }, "assemblyName.dll", "no-config.json");
+			var commandLine = new TestableCommandLine(new[] { explicitReporter, implicitReporter1, implicitReporter2 }, typeof(CommandLineTests).Assembly.Location, "no-config.json");
 
 			var project = commandLine.Parse();
 
@@ -786,8 +788,9 @@ public class CommandLineTests
 
 		protected override bool FileExists(string? path) =>
 			path?.StartsWith("bad") != true && path != "fileName";
-
+		/*
 		protected override string? GetFullPath(string? fileName) =>
 			fileName is null ? null : $"/full/path/{fileName}";
+		*/
 	}
 }

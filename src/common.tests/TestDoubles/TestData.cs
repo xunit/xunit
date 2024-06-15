@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Versioning;
 using Xunit;
 using Xunit.Internal;
 using Xunit.Runner.Common;
@@ -263,12 +264,7 @@ public static class TestData
 		int testCasesToRun = 42)
 	{
 		var project = new XunitProject();
-		var assembly = new XunitProjectAssembly(project)
-		{
-			AssemblyFileName = assemblyPath,
-			AssemblyMetadata = assemblyMetadata,
-			ConfigFileName = configFilePath,
-		};
+		var assembly = new XunitProjectAssembly(project, assemblyPath, assemblyMetadata ?? new(3, DefaultTargetFramework)) { ConfigFileName = configFilePath };
 		var discoveryOptions = TestFrameworkDiscoveryOptions(
 			diagnosticMessages: diagnosticMessages,
 			internalDiagnosticMessages: internalDiagnosticMessages,
@@ -298,12 +294,7 @@ public static class TestData
 		bool shadowCopy = false)
 	{
 		var project = new XunitProject();
-		var assembly = new XunitProjectAssembly(project)
-		{
-			AssemblyFileName = assemblyPath,
-			AssemblyMetadata = assemblyMetadata,
-			ConfigFileName = configFilePath,
-		};
+		var assembly = new XunitProjectAssembly(project, assemblyPath, assemblyMetadata ?? new(3, DefaultTargetFramework)) { ConfigFileName = configFilePath };
 		var discoveryOptions = TestFrameworkDiscoveryOptions(
 			diagnosticMessages: diagnosticMessages,
 			internalDiagnosticMessages: internalDiagnosticMessages,
@@ -337,12 +328,7 @@ public static class TestData
 		int testsTotal = DefaultCountTotal)
 	{
 		var project = new XunitProject();
-		var assembly = new XunitProjectAssembly(project)
-		{
-			AssemblyFileName = assemblyPath,
-			AssemblyMetadata = assemblyMetadata,
-			ConfigFileName = configFilePath,
-		};
+		var assembly = new XunitProjectAssembly(project, assemblyPath, assemblyMetadata ?? new(3, DefaultTargetFramework)) { ConfigFileName = configFilePath };
 		// See the ForExecution method to see which TestAssemblyConfiguration options are used for discovery
 		var executionOptions = TestFrameworkExecutionOptions(
 			diagnosticMessages: diagnosticMessages,
@@ -384,12 +370,7 @@ public static class TestData
 		bool? showLiveOutput = null)
 	{
 		var project = new XunitProject();
-		var assembly = new XunitProjectAssembly(project)
-		{
-			AssemblyFileName = assemblyPath,
-			AssemblyMetadata = assemblyMetadata,
-			ConfigFileName = configFilePath,
-		};
+		var assembly = new XunitProjectAssembly(project, assemblyPath, assemblyMetadata ?? new(3, DefaultTargetFramework)) { ConfigFileName = configFilePath };
 		// See the ForExecution method to see which TestAssemblyConfiguration options are used for discovery
 		var executionOptions = TestFrameworkExecutionOptions(
 			culture: culture,
@@ -1108,6 +1089,19 @@ public static class TestData
 			traits,
 			timeout: timeout
 		);
+	}
+
+	public static XunitProjectAssembly XunitProjectAssembly<TTestClass>(
+		XunitProject? project = null,
+		int xUnitVersion = 3)
+	{
+		var assemblyFileName = typeof(TTestClass).Assembly.Location;
+		var targetFrameworkAttribute = typeof(TTestClass).Assembly.GetCustomAttribute<TargetFrameworkAttribute>();
+		if (targetFrameworkAttribute is null)
+			throw new InvalidOperationException($"Assembly '{assemblyFileName}' does not have an assembly-level TargetFrameworkAttribute");
+
+		var assemblyMetadata = new AssemblyMetadata(xUnitVersion, targetFrameworkAttribute.FrameworkName);
+		return new(project ?? new XunitProject(), assemblyFileName, assemblyMetadata);
 	}
 
 	public static XunitTestCase XunitTestCase<TClassUnderTest>(

@@ -46,7 +46,7 @@ public class ExecutionSinkTests
 			AppDomainOption appDomain,
 			bool shadowCopy)
 		{
-			var assembly = new XunitProjectAssembly(new XunitProject());
+			var assembly = TestData.XunitProjectAssembly<ExecutionSinkTests>();
 			var discoveryOptions = TestData.TestFrameworkDiscoveryOptions(culture: "fr-FR");
 			using var sink = TestableExecutionSink.Create(assembly: assembly, discoveryOptions: discoveryOptions, appDomainOption: appDomain, shadowCopy: shadowCopy);
 			var testMessage = TestData.DiscoveryStarting();
@@ -63,7 +63,7 @@ public class ExecutionSinkTests
 		[Fact]
 		public void ConvertsDiscoveryComplete()
 		{
-			var assembly = new XunitProjectAssembly(new XunitProject());
+			var assembly = TestData.XunitProjectAssembly<ExecutionSinkTests>();
 			var discoveryOptions = TestData.TestFrameworkDiscoveryOptions(culture: "fr-FR");
 			using var sink = TestableExecutionSink.Create(assembly: assembly, discoveryOptions: discoveryOptions);
 			var testMessage = TestData.DiscoveryComplete(testCasesToRun: 42);
@@ -82,7 +82,7 @@ public class ExecutionSinkTests
 		[Fact]
 		public void ConvertsTestAssemblyStarting()
 		{
-			var assembly = new XunitProjectAssembly(new XunitProject());
+			var assembly = TestData.XunitProjectAssembly<ExecutionSinkTests>();
 			var executionOptions = TestData.TestFrameworkExecutionOptions(culture: "fr-FR");
 			using var sink = TestableExecutionSink.Create(assembly: assembly, executionOptions: executionOptions);
 			var testMessage = TestData.TestAssemblyStarting();
@@ -97,7 +97,7 @@ public class ExecutionSinkTests
 		[Fact]
 		public void ConvertsTestAssemblyFinished()
 		{
-			var assembly = new XunitProjectAssembly(new XunitProject());
+			var assembly = TestData.XunitProjectAssembly<ExecutionSinkTests>();
 			var executionOptions = TestData.TestFrameworkExecutionOptions(culture: "fr-FR");
 			using var sink = TestableExecutionSink.Create(assembly: assembly, executionOptions: executionOptions);
 			var testMessage = TestData.TestAssemblyFinished();
@@ -114,7 +114,7 @@ public class ExecutionSinkTests
 		[InlineData(typeof(_ErrorMessage))]
 		public void CountsErrors(Type errorType)
 		{
-			var assembly = new XunitProjectAssembly(new XunitProject());
+			var assembly = TestData.XunitProjectAssembly<ExecutionSinkTests>();
 			var executionOptions = TestData.TestFrameworkExecutionOptions(culture: "fr-FR");
 			using var sink = TestableExecutionSink.Create(assembly: assembly, executionOptions: executionOptions);
 			var error = (_MessageSinkMessage)Activator.CreateInstance(errorType)!;
@@ -1184,7 +1184,7 @@ public class ExecutionSinkTests
 			var diagnosticMessageSink = SpyMessageSink.Capture();
 
 			return new(
-				assembly ?? new XunitProjectAssembly(new XunitProject()),
+				assembly ?? TestData.XunitProjectAssembly<ExecutionSinkTests>(),
 				discoveryOptions ?? TestData.TestFrameworkDiscoveryOptions(),
 				executionOptions ?? TestData.TestFrameworkExecutionOptions(),
 				appDomainOption ?? AppDomainOption.Disabled,

@@ -278,7 +278,7 @@ public abstract class CommandLineParserBase
 	}
 
 	/// <summary/>
-	[return: NotNullIfNotNull("fileName")]
+	[return: NotNullIfNotNull(nameof(fileName))]
 	protected virtual string? GetFullPath(string? fileName) =>
 		fileName is null ? null : Path.GetFullPath(fileName);
 

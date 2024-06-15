@@ -13,7 +13,7 @@ namespace Xunit.Runner.InProc.SystemConsole;
 public class CommandLine : CommandLineParserBase
 {
 	readonly Assembly assembly;
-	readonly string? assemblyFileName;
+	readonly string assemblyFileName;
 
 	/// <summary/>
 	public CommandLine(
@@ -46,21 +46,19 @@ public class CommandLine : CommandLineParserBase
 
 	void AddAssembly(
 		Assembly assembly,
-		string? assemblyFileName,
+		string assemblyFileName,
 		string? configFileName,
 		int? seed)
 	{
-		if (assemblyFileName is not null && !FileExists(assemblyFileName))
+		if (!FileExists(assemblyFileName))
 			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "assembly not found: {0}", assemblyFileName));
 		if (configFileName is not null && !FileExists(configFileName))
 			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "config file not found: {0}", configFileName));
 
 		var targetFramework = assembly.GetTargetFramework();
-		var projectAssembly = new XunitProjectAssembly(Project)
+		var projectAssembly = new XunitProjectAssembly(Project, GetFullPath(assemblyFileName), new(3, targetFramework))
 		{
 			Assembly = assembly,
-			AssemblyFileName = GetFullPath(assemblyFileName),
-			AssemblyMetadata = new(3, targetFramework),
 			ConfigFileName = GetFullPath(configFileName),
 		};
 

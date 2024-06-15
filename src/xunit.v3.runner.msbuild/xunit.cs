@@ -243,17 +243,47 @@ public class xunit : MSBuildTask, ICancelableTask
 			var project = new XunitProject();
 			foreach (var assembly in Assemblies)
 			{
+				/*
+		if (!FileExists(assemblyFileName))
+			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "assembly not found: {0}", assemblyFileName));
+		if (configFileName is not null && !FileExists(configFileName))
+			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "config file not found: {0}", configFileName));
+
+		var metadata =
+			AssemblyUtility.GetAssemblyMetadata(assemblyFileName)
+				?? throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "not a valid .NET assembly: {0}", assemblyFileName));
+		if (metadata.XunitVersion == 0)
+			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "not an xUnit.net test assembly: {0}", assemblyFileName));
+
+		var projectAssembly = new XunitProjectAssembly(Project, GetFullPath(assemblyFileName), metadata) { ConfigFileName = GetFullPath(configFileName) };
+				*/
 				var assemblyFileName = assembly.GetMetadata("FullPath");
+				if (!File.Exists(assemblyFileName))
+				{
+					lock (logLock)
+						Log.LogError("Assembly '{0}' does not exist", assemblyFileName);
+					return false;
+				}
+
 				var configFileName = assembly.GetMetadata("ConfigFile");
 				if (configFileName is not null && configFileName.Length == 0)
 					configFileName = null;
-
-				var projectAssembly = new XunitProjectAssembly(project)
+				if (configFileName is not null && !File.Exists(configFileName))
 				{
-					AssemblyFileName = assemblyFileName,
-					AssemblyMetadata = AssemblyUtility.GetAssemblyMetadata(assemblyFileName),
-					ConfigFileName = configFileName,
-				};
+					lock (logLock)
+						Log.LogError("Configuration file '{0}' does not exist", configFileName);
+					return false;
+				}
+
+				var metadata = AssemblyUtility.GetAssemblyMetadata(assemblyFileName);
+				if (metadata is null)
+				{
+					lock (logLock)
+						Log.LogError("Assembly '{0}' is not a valid .NET assembly", assemblyFileName);
+					return false;
+				}
+
+				var projectAssembly = new XunitProjectAssembly(project, assemblyFileName, metadata) { ConfigFileName = configFileName };
 
 				var warnings = new List<string>();
 				ConfigReader.Load(projectAssembly.Configuration, assemblyFileName, configFileName, warnings);

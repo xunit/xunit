@@ -68,8 +68,9 @@ public static class AssemblyExtensions
 	/// <param name="assembly">The assembly.</param>
 	/// <returns>If the assembly is null, or is dynamic, then it returns <c>null</c>; otherwise, it returns the value
 	/// from <see cref="Assembly.CodeBase"/>.</returns>
+	[return: NotNullIfNotNull(nameof(assembly))]
 	public static string? GetSafeCodeBase(this Assembly? assembly) =>
-		assembly is null || assembly.IsDynamic ? null : assembly.CodeBase;
+		assembly is null ? null : assembly.CodeBase;
 
 	/// <summary>
 	/// Safely gets the location of an assembly.
@@ -77,8 +78,9 @@ public static class AssemblyExtensions
 	/// <param name="assembly">The assembly.</param>
 	/// <returns>If the assembly is null, or is dynamic, then it returns <c>null</c>; otherwise, it returns the value
 	/// from <see cref="Assembly.Location"/>.</returns>
+	[return: NotNullIfNotNull(nameof(assembly))]
 	public static string? GetSafeLocation(this Assembly? assembly) =>
-		assembly is null || assembly.IsDynamic ? null : assembly.Location;
+		assembly is null ? null : assembly.Location;
 
 	/// <summary>
 	/// Gets the target framework name for the given assembly.

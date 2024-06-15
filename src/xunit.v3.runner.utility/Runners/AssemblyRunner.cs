@@ -62,12 +62,15 @@ public class AssemblyRunner : IAsyncDisposable, _IMessageSink
 		bool shadowCopy = true,
 		string? shadowCopyFolder = null)
 	{
+		Guard.ArgumentNotNullOrEmpty(assemblyFileName);
+		Guard.FileExists(assemblyFileName);
+
+		var metadata =
+			AssemblyUtility.GetAssemblyMetadata(assemblyFileName)
+				?? throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Assembly '{0}' is not a valid .NET assembly", assemblyFileName), nameof(assemblyFileName));
+
 		var project = new XunitProject();
-		var projectAssembly = new XunitProjectAssembly(project)
-		{
-			AssemblyFileName = assemblyFileName,
-			ConfigFileName = configFileName,
-		};
+		var projectAssembly = new XunitProjectAssembly(project, assemblyFileName, metadata) { ConfigFileName = configFileName };
 
 		ConfigReader.Load(projectAssembly.Configuration, projectAssembly.AssemblyFileName, projectAssembly.ConfigFileName);
 		projectAssembly.Configuration.AppDomain = appDomainSupport;

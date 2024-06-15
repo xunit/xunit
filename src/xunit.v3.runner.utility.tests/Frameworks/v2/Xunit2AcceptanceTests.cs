@@ -785,11 +785,8 @@ let TestMethod(x : int) =
 			_ISourceInformationProvider? sourceInformationProvider = null)
 		{
 			var project = new XunitProject();
-			var projectAssembly = new XunitProjectAssembly(project)
-			{
-				AssemblyFileName = assemblyFileName,
-				ConfigFileName = configFileName,
-			};
+			var metadata = new AssemblyMetadata(2, ".NETFramework,Version=v4.7.2");
+			var projectAssembly = new XunitProjectAssembly(project, assemblyFileName, metadata) { ConfigFileName = configFileName };
 			projectAssembly.Configuration.AppDomain = appDomainSupport;
 			projectAssembly.Configuration.ShadowCopy = shadowCopy;
 

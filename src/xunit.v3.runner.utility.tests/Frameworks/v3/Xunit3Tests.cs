@@ -16,12 +16,7 @@ public class Xunit3Tests
 
 	public Xunit3Tests()
 	{
-		Assembly = new XunitProjectAssembly(new XunitProject())
-		{
-			Assembly = typeof(Xunit3Tests).Assembly,
-			AssemblyFileName = typeof(Xunit3Tests).Assembly.Location,
-			AssemblyMetadata = AssemblyUtility.GetAssemblyMetadata(typeof(Xunit3Tests).Assembly.Location),
-		};
+		Assembly = TestData.XunitProjectAssembly<Xunit3Tests>();
 	}
 
 	[Fact]
@@ -29,7 +24,7 @@ public class Xunit3Tests
 	{
 		Assert.Throws<ArgumentNullException>("projectAssembly", () => Xunit3.ForDiscoveryAndExecution(null!));
 
-		var assembly = new XunitProjectAssembly(new XunitProject()) { AssemblyFileName = "/this/file/does/not/exist.exe", AssemblyMetadata = new(3, ".NETCoreApp,Version=v6.0") };
+		var assembly = new XunitProjectAssembly(new XunitProject(), "/this/file/does/not/exist.exe", new(3, ".NETCoreApp,Version=v6.0"));
 		var argEx = Assert.Throws<ArgumentException>("projectAssembly.AssemblyFileName", () => Xunit3.ForDiscoveryAndExecution(assembly));
 		Assert.StartsWith("File not found: /this/file/does/not/exist.exe", argEx.Message);
 	}

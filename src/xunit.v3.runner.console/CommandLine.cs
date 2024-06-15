@@ -69,12 +69,13 @@ public class CommandLine : CommandLineParserBase
 		if (configFileName is not null && !FileExists(configFileName))
 			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "config file not found: {0}", configFileName));
 
-		var projectAssembly = new XunitProjectAssembly(Project)
-		{
-			AssemblyFileName = GetFullPath(assemblyFileName),
-			AssemblyMetadata = AssemblyUtility.GetAssemblyMetadata(assemblyFileName),
-			ConfigFileName = GetFullPath(configFileName),
-		};
+		var metadata =
+			AssemblyUtility.GetAssemblyMetadata(assemblyFileName)
+				?? throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "not a valid .NET assembly: {0}", assemblyFileName));
+		if (metadata.XunitVersion == 0)
+			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "not an xUnit.net test assembly: {0}", assemblyFileName));
+
+		var projectAssembly = new XunitProjectAssembly(Project, GetFullPath(assemblyFileName), metadata) { ConfigFileName = GetFullPath(configFileName) };
 
 		ConfigReader.Load(projectAssembly.Configuration, projectAssembly.AssemblyFileName, projectAssembly.ConfigFileName, ParseWarnings);
 		projectAssembly.Configuration.Seed = seed ?? projectAssembly.Configuration.Seed;
