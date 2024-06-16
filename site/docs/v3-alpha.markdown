@@ -6,7 +6,7 @@ breadcrumb: Documentation
 
 # Current state of the xUnit.net v3 alpha
 
-## As of: 2024 June 15 (`0.1.1-pre.480`)
+## As of: 2024 June 16 (`0.1.1-pre.484`)
 
 The purpose of this document is to give a general state of the alpha package releases of xUnit.net v3.
 Note that there have not yet been any "stable alpha" releases to NuGet, so this is a snapshot of a moment
@@ -208,7 +208,7 @@ After creation, edit your project file to make it look something like this:
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="xunit.v3" Version="0.1.1-pre.480" />
+    <PackageReference Include="xunit.v3" Version="0.1.1-pre.484" />
 
     <!-- To support 'dotnet test' and Test Explorer, add:
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
@@ -216,11 +216,11 @@ After creation, edit your project file to make it look something like this:
     -->
 
     <!-- For the console runner, add:
-    <PackageReference Include="xunit.v3.runner.console" Version="0.1.1-pre.480" />
+    <PackageReference Include="xunit.v3.runner.console" Version="0.1.1-pre.484" />
     -->
 
     <!-- For the MSBuild runner, add:
-    <PackageReference Include="xunit.v3.runner.msbuild" Version="0.1.1-pre.480" />
+    <PackageReference Include="xunit.v3.runner.msbuild" Version="0.1.1-pre.484" />
     -->
   </ItemGroup>
 
@@ -258,7 +258,11 @@ Examples:
 You can run your v3 test projects with first and third party test runners that have
 been developed to do so (by using `xunit.v3.runner.utility`). We ship NuGet packages
 for our console runner (`xunit.v3.runner.console`) and our MSBuild runner
-(`xunit.v3.runner.msbuild`). These work exactly like their v2 counterparts.
+(`xunit.v3.runner.msbuild`). These work exactly like their v2 counterparts. We have
+included a new .NET Core/.NET version of our MSBuild runner, so it can be used with
+`dotnet build` and/or `dotnet msbuild`; however, this version of the MSBuild runner
+can only run v3 test projects. To be able to run v1 or v2 test projects, you must
+stick with the .NET Framework of the MSBuild runner, run via `msbuild`.
 
 We also are making pre-release builds of `xunit.runner.visualstudio` available for
 developers who wish to run their tests via `dotnet test`, Test Explorer in Visual Studio
@@ -327,12 +331,6 @@ and then calling `ConsoleRunner.Run` to get things started.
 ## <span id="known-issues"><span>Known issues
 
 The best place to keep track of the ongoing work is the [roadmap](https://github.com/xunit/xunit/issues/2133).
-
-### MSBuild runner does not support .NET/.NET Core projects
-
-The current build of the MSBuild runner only includes a version for running with the .NET
-Framework (or Mono) version of MSBuild. We will ship a version for use with .NET/.NET Core
-projects in a future alpha release.
 
 ### Old-style .NET Framework C#/VB project issues.
 
