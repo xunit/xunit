@@ -15,19 +15,8 @@ public static class TestCoreMSBuild
 {
 	public static async Task OnExecute(BuildContext context)
 	{
-		try
-		{
-			await RunTests(context, "net6.0", "Net6");
-			await RunTests(context, "net8.0", "Net8");
-		}
-		catch (Win32Exception ex)
-		{
-			if (ex.NativeErrorCode != 2)
-				throw;
-
-			context.WriteLineColor(ConsoleColor.Red, "Could not find 'msbuild.exe' on the system PATH. Please run the build from a developer command prompt.");
-			throw new ExitCodeException(-2);
-		}
+		await RunTests(context, "net6.0", "Net6");
+		await RunTests(context, "net8.0", "Net8");
 	}
 
 	static async Task RunTests(
@@ -39,7 +28,7 @@ public static class TestCoreMSBuild
 
 		context.BuildStep($"Running .NET tests ({framework}, AnyCPU, via MSBuild runner)");
 
-		await context.Exec("msbuild", $"tools/builder/msbuild/netcore.proj -target:{targetPrefix}_AnyCPU -property:Configuration={context.ConfigurationText} -verbosity:{context.Verbosity}");
+		await context.Exec("dotnet", $"msbuild tools/builder/msbuild/netcore.proj -target:{targetPrefix}_AnyCPU -property:Configuration={context.ConfigurationText} -verbosity:{context.Verbosity} -nologo");
 
 		// ------------- Forced x86 -------------
 
@@ -58,6 +47,6 @@ public static class TestCoreMSBuild
 
 		context.BuildStep($"Running .NET tests ({framework}, x86, via MSBuild runner)");
 
-		await context.Exec("msbuild", $"tools/builder/msbuild/netcore.proj -target:{targetPrefix}_x86 -property:Configuration={context.ConfigurationText} -verbosity:{context.Verbosity}");
+		await context.Exec("dotnet", $"msbuild tools/builder/msbuild/netcore.proj -target:{targetPrefix}_x86 -property:Configuration={context.ConfigurationText} -verbosity:{context.Verbosity} -nologo");
 	}
 }
