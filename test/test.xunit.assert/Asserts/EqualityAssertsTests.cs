@@ -12,6 +12,44 @@ public class EqualityAssertsTests
 {
 	public class Equal
 	{
+		public class ReferenceEquality
+		{
+			// https://github.com/xunit/xunit/issues/2271
+			[Fact]
+			public void TwoIdenticalReferencesShouldBeEqual()
+			{
+				Field x = new Field();
+
+				Assert.Equal(x, x);
+			}
+
+			sealed class Field : IReadOnlyList<Field>
+			{
+				Field IReadOnlyList<Field>.this[int index]
+				{
+					get
+					{
+						if (index != 0)
+							throw new ArgumentOutOfRangeException(nameof(index));
+
+						return this;
+					}
+				}
+
+				int IReadOnlyCollection<Field>.Count => 1;
+
+				IEnumerator<Field> IEnumerable<Field>.GetEnumerator()
+				{
+					yield return this;
+				}
+
+				IEnumerator IEnumerable.GetEnumerator()
+				{
+					yield return this;
+				}
+			}
+		}
+
 		public class Intrinsics
 		{
 			[Fact]
