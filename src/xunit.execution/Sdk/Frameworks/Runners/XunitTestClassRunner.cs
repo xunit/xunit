@@ -225,7 +225,10 @@ namespace Xunit.Sdk
         {
             if (parameter.ParameterType == typeof(ITestOutputHelper))
             {
-                argumentValue = new TestOutputHelper();
+                // To solve https://github.com/xunit/xunit/issues/2377 we're putting a placeholder Func here,
+                // and hardcoding the resolution of that in XunitTestRunner.cs. In v3, we generally support
+                // using Funcs, because we resolve this via the TestContext (so it's already fixed there).
+                argumentValue = () => new TestOutputHelper();
                 return true;
             }
 
