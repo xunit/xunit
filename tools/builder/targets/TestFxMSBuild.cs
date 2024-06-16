@@ -39,8 +39,8 @@ public static class TestFxMSBuild
 			if (ex.NativeErrorCode != 2)
 				throw;
 
-			context.WriteLineColor(ConsoleColor.Red, "Could not find 'msbuild.exe' on the system PATH. Please run the build from a developer command prompt.");
-			throw new ExitCodeException(-2);
+			context.WriteLineColor(ConsoleColor.Yellow, "Skipping MSBuild tests because 'msbuild' is not on the system PATH.");
+			Console.WriteLine();
 		}
 	}
 }
