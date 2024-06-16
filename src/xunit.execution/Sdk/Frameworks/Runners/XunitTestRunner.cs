@@ -54,9 +54,11 @@ namespace Xunit.Sdk
             var output = string.Empty;
 
             TestOutputHelper testOutputHelper = null;
+            int testOutputHelperIdx = -1;
             for (int idx = 0; idx < ConstructorArguments.Length; ++idx)
                 if (ConstructorArguments[idx] is Func<TestOutputHelper>)
                 {
+                    testOutputHelperIdx = idx;
                     testOutputHelper = new TestOutputHelper();
                     ConstructorArguments[idx] = testOutputHelper;
                     break;
@@ -71,6 +73,7 @@ namespace Xunit.Sdk
             {
                 output = testOutputHelper.Output;
                 testOutputHelper.Uninitialize();
+                ConstructorArguments[testOutputHelperIdx] = () => new TestOutputHelper();
             }
 
             return Tuple.Create(executionTime, output);
