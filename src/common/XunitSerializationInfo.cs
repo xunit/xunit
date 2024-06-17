@@ -166,7 +166,7 @@ namespace Xunit.Serialization
 
             Type typeToCheck = valueType;
             if (valueType.IsEnum() || valueType.IsNullableEnum() || (typeToCheck = value as Type) != null)
-                return typeToCheck.IsFromLocalAssembly();
+                return typeToCheck.FullName != null && typeToCheck.IsFromLocalAssembly();
 
             return false;
         }
@@ -463,7 +463,12 @@ namespace Xunit.Serialization
 
             var typeData = value as Type;
             if (typeData != null)
+            {
+                if (typeData.FullName == null)
+                    throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "We don't know how to serialize value typeof({0}) (no full name)", typeData.Name), nameof(value));
+
                 return SerializationHelper.GetTypeNameForSerialization(typeData);
+            }
 
             if (valueType.IsEnum())
                 return SerializeEnum(value, valueType);

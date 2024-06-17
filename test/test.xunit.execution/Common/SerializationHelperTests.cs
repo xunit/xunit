@@ -120,6 +120,23 @@ public class SerializationHelperTests
             Assert.StartsWith("We don't know how to serialize type System.Object", argEx.Message);
         }
 
+        [Fact]
+        public void CannotSerializeGenericArgumentType()
+        {
+            var type = typeof(ClassWithGenericMethod).GetMethod(nameof(ClassWithGenericMethod.GenericMethod)).GetGenericArguments()[0];
+
+            Assert.False(SerializationHelper.IsSerializable(type));
+            var ex = Record.Exception(() => SerializationHelper.Serialize(type));
+            var argEx = Assert.IsType<ArgumentException>(ex);
+            Assert.Equal("value", argEx.ParamName);
+            Assert.StartsWith("We don't know how to serialize value typeof(U) (no full name)", argEx.Message);
+        }
+
+        class ClassWithGenericMethod
+        {
+            public void GenericMethod<U>() { }
+        }
+
         class MySerializable : IXunitSerializable, IEquatable<MySerializable>
         {
             int value;
