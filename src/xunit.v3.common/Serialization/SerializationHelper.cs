@@ -341,6 +341,11 @@ public static class SerializationHelper
 		if (type is null || type == typeof(object))
 			return value is null;
 
+		// We can only serialize fully realized types (with full names); this excludes things like
+		// generic type arguments, generic array type arguments, generic pointer types, or generic byref types.
+		if (value is Type typeValue)
+			return typeValue.FullName is not null;
+
 		// You usually get instances of RuntimeType, not the abstract Type
 		if (typeof(Type).IsAssignableFrom(type))
 			return true;
@@ -370,6 +375,11 @@ public static class SerializationHelper
 	{
 		if (typeInfo is null || typeInfo.Equal(typeof(object)))
 			return value is null;
+
+		// We can only serialize fully realized types (with full names); this excludes things like
+		// generic type arguments, generic array type arguments, generic pointer types, or generic byref types.
+		if (value is Type typeValue)
+			return typeValue.FullName is not null;
 
 		// You usually get instances of RuntimeType, not the abstract Type
 		if (TypeInfo_Type.IsAssignableFrom(typeInfo))
@@ -683,26 +693,31 @@ public static class SerializationHelper
 	/// <summary>
 	/// Gets an assembly qualified type name for serialization.
 	/// </summary>
-	/// <param name="type">The type to get the name for</param>
+	/// <param name="value">The type to get the name for</param>
 	/// <returns>A string in "TypeName" format (for mscorlib types) or "TypeName,AssemblyName" format (for all others)</returns>
-	public static string TypeToSerializedTypeName(Type type) =>
-		TypeToSerializedTypeName(Reflector.Wrap(type));
+	public static string TypeToSerializedTypeName(Type value)
+	{
+		if (Guard.ArgumentNotNull(value).FullName is null)
+			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Cannot serialize typeof({0}) because it has no full name", value.Name), nameof(value));
+
+		return TypeToSerializedTypeName(Reflector.Wrap(value));
+	}
 
 	/// <summary>
 	/// Gets an assembly qualified type name for serialization.
 	/// </summary>
-	/// <param name="typeInfo">The type to get the name for</param>
+	/// <param name="value">The type to get the name for</param>
 	/// <returns>A string in "TypeName" format (for mscorlib types) or "TypeName,AssemblyName" format (for all others)</returns>
-	public static string TypeToSerializedTypeName(_ITypeInfo typeInfo)
+	public static string TypeToSerializedTypeName(_ITypeInfo value)
 	{
 		// Use the abstract Type instead of concretes like RuntimeType
-		if (typeof(Type).IsAssignableFrom(typeInfo))
-			typeInfo = TypeInfo_Type;
+		if (typeof(Type).IsAssignableFrom(value))
+			value = TypeInfo_Type;
 
-		if (!typeInfo.IsFromLocalAssembly())
-			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Cannot serialize type '{0}' because it lives in the GAC", typeInfo.Name), nameof(typeInfo));
+		if (!value.IsFromLocalAssembly())
+			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Cannot serialize type '{0}' because it lives in the GAC", value.Name), nameof(value));
 
-		var typeToMap = typeInfo;
+		var typeToMap = value;
 		var typeName = typeToMap.Name;
 		var assemblyName = typeToMap.Assembly.Name.Split(',')[0];
 

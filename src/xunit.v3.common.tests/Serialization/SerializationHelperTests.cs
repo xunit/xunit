@@ -246,6 +246,21 @@ public class SerializationHelperTests
 			Assert.True(SerializationHelper.IsSerializable(null, type));
 			Assert.True(SerializationHelper.IsSerializable(null, Reflector.Wrap(type)));
 		}
+
+		[Fact]
+		public void CannotSerializeGenericArgumentType()
+		{
+			var value = typeof(ClassWithGenericMethod).GetMethod(nameof(ClassWithGenericMethod.GenericMethod))!.GetGenericArguments()[0];
+			var type = value.GetType();
+
+			Assert.False(SerializationHelper.IsSerializable(value, type));
+			Assert.False(SerializationHelper.IsSerializable(value, Reflector.Wrap(type)));
+		}
+
+		class ClassWithGenericMethod
+		{
+			public void GenericMethod<U>() { }
+		}
 	}
 
 	public class Serialize
@@ -283,32 +298,36 @@ public class SerializationHelperTests
 			Assert.Equal(expectedSerialization, result);
 		}
 
-		public static TheoryData<object?, Type, string> FailureData()
+		public static IEnumerable<TheoryDataRow<object?, Type, string>> FailureData()
 		{
-			var result = new TheoryData<object?, Type, string>();
-
 #if NETFRAMEWORK
 			// GAC'd enums can't be serialized (Mono doesn't have a GAC, so skip it there)
 			if (!EnvironmentHelper.IsMono)
-				result.Add(ConformanceLevel.Auto, typeof(ConformanceLevel), "Cannot serialize enum 'System.Xml.ConformanceLevel.Auto' because it lives in the GAC");
+				yield return new(ConformanceLevel.Auto, typeof(ConformanceLevel), "Cannot serialize enum 'System.Xml.ConformanceLevel.Auto' because it lives in the GAC");
 #endif
 
 			// Unsupported built-in types can't be serialized
-			result.Add(new Exception(), typeof(Exception), "Cannot serialize a value of type 'System.Exception': unsupported type for serialization");
+			yield return new(new Exception(), typeof(Exception), "Cannot serialize a value of type 'System.Exception': unsupported type for serialization");
 
 			// Custom types which aren't IXunitSerializable can't be serialized
-			result.Add(new SerializationHelperTests(), typeof(SerializationHelperTests), "Cannot serialize a value of type 'SerializationHelperTests': unsupported type for serialization");
+			yield return new(new SerializationHelperTests(), typeof(SerializationHelperTests), "Cannot serialize a value of type 'SerializationHelperTests': unsupported type for serialization");
 
 			// Non-null value, incompatible type)
-			result.Add(new object(), typeof(MyEnum), "Cannot serialize a value of type 'System.Object' as type 'SerializationHelperTests+MyEnum' because it's type-incompatible");
+			yield return new(new object(), typeof(MyEnum), "Cannot serialize a value of type 'System.Object' as type 'SerializationHelperTests+MyEnum' because it's type-incompatible");
 
 			// Null value, non-nullable type
-			result.Add(null, typeof(int), "Cannot serialize a null value as type 'System.Int32' because it's type-incompatible");
+			yield return new(null, typeof(int), "Cannot serialize a null value as type 'System.Int32' because it's type-incompatible");
 
 			// Object is a special case: can only be serialized as null
-			result.Add(new object(), typeof(object), "Cannot serialize a non-null value of type 'System.Object'");
+			yield return new(new object(), typeof(object), "Cannot serialize a non-null value of type 'System.Object'");
 
-			return result;
+			// Cannot serialize generic argument types
+			yield return new(typeof(ClassWithGenericMethod).GetMethod(nameof(ClassWithGenericMethod.GenericMethod))!.GetGenericArguments()[0], typeof(Type), "Cannot serialize typeof(U) because it has no full name");
+		}
+
+		class ClassWithGenericMethod
+		{
+			public void GenericMethod<U>() { }
 		}
 
 		[CulturedTheory("en-US", "fo-FO", DisableDiscoveryEnumeration = true)]
