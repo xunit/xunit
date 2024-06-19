@@ -261,6 +261,22 @@ public class SerializationHelperTests
 		{
 			public void GenericMethod<U>() { }
 		}
+
+		[Fact]
+		public void CannotSerializeGenericArgumentTypeInsideArray()
+		{
+			Type[] value =
+			[
+				// Okay
+				typeof(Type),
+				// Not okay
+				typeof(ClassWithGenericMethod).GetMethod(nameof(ClassWithGenericMethod.GenericMethod))!.GetGenericArguments()[0],
+			];
+			var type = value.GetType();
+
+			Assert.False(SerializationHelper.IsSerializable(value, type));
+			Assert.False(SerializationHelper.IsSerializable(value, Reflector.Wrap(type)));
+		}
 	}
 
 	public class Serialize

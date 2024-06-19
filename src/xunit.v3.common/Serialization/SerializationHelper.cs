@@ -351,7 +351,15 @@ public static class SerializationHelper
 			return true;
 
 		if (type.IsArray)
-			return IsSerializable(null, type.GetElementType());
+		{
+			// Start by making sure we're comfortable with the array type itself
+			if (!IsSerializable(null, type.GetElementType()))
+				return false;
+
+			// Then if we can, we want to verify every value in the array is okay
+			if (value is Array valueArray)
+				return valueArray.Cast<object?>().All(item => IsSerializable(item, item?.GetType()));
+		}
 
 		if (type.IsEnum || type.IsNullableEnum())
 			return type.IsFromLocalAssembly();
@@ -386,7 +394,15 @@ public static class SerializationHelper
 			return true;
 
 		if (typeInfo.IsArray)
-			return IsSerializable(null, typeInfo.GetElementType());
+		{
+			// Start by making sure we're comfortable with the array type itself
+			if (!IsSerializable(null, typeInfo.GetElementType()))
+				return false;
+
+			// Then if we can, we want to verify every value in the array is okay
+			if (value is Array valueArray)
+				return valueArray.Cast<object?>().All(item => IsSerializable(item, item?.GetType()));
+		}
 
 		if (typeInfo.IsEnum || typeInfo.IsNullableEnum())
 			return typeInfo.IsFromLocalAssembly();
