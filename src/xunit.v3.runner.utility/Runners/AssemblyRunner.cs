@@ -336,9 +336,11 @@ public class AssemblyRunner : IAsyncDisposable, _IMessageSink
 	/// Starts running tests. This call returns immediately, and status results are dispatched to the events on this class.
 	/// Callers can check <see cref="Status"/> to find out the current status.
 	/// </summary>
-	/// <param name="startOptions">The start options. For default values, you may pass <see cref="AssemblyRunnerStartOptions.Empty"/>.</param>
-	public void Start(AssemblyRunnerStartOptions startOptions)
+	/// <param name="startOptions">The optional start options.</param>
+	public void Start(AssemblyRunnerStartOptions? startOptions = null)
 	{
+		startOptions ??= AssemblyRunnerStartOptions.Empty;
+
 		lock (statusLock)
 		{
 			if (Status != AssemblyRunnerStatus.Idle)
