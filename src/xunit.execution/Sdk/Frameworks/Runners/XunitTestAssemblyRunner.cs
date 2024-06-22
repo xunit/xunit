@@ -318,18 +318,20 @@ namespace Xunit.Sdk
             var minThreads = (int)args[0];
             var minIOPorts = (int)args[1];
 
-            if (minThreads < maxParallelThreads)
+            var threadFloor = Math.Min(4, maxParallelThreads);
+            if (minThreads < threadFloor)
             {
                 var setMethod = type.GetRuntimeMethod("SetMinThreads", new[] { typeof(int), typeof(int) });
                 if (setMethod is null)
                     throw new InvalidOperationException("Cannot find method: System.Threading.ThreadPool.SetMinThreads");
 
-                setMethod.Invoke(null, new object[] { maxParallelThreads, minIOPorts });
+                setMethod.Invoke(null, new object[] { threadFloor, minIOPorts });
             }
 #else
             ThreadPool.GetMinThreads(out var minThreads, out var minIOPorts);
-            if (minThreads < maxParallelThreads)
-                ThreadPool.SetMinThreads(maxParallelThreads, minIOPorts);
+            var threadFloor = Math.Min(4, maxParallelThreads);
+            if (minThreads < threadFloor)
+                ThreadPool.SetMinThreads(threadFloor, minIOPorts);
 #endif
         }
 
