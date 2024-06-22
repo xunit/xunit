@@ -257,8 +257,9 @@ public class XunitTestAssemblyRunnerContext : TestAssemblyRunnerContext<IXunitTe
 			parallelSemaphore = new(initialCount: MaxParallelThreads);
 
 			ThreadPool.GetMinThreads(out var minThreads, out var minIOPorts);
-			if (minThreads < MaxParallelThreads)
-				ThreadPool.SetMinThreads(MaxParallelThreads, minIOPorts);
+			var threadFloor = Math.Min(4, MaxParallelThreads);
+			if (minThreads < threadFloor)
+				ThreadPool.SetMinThreads(threadFloor, minIOPorts);
 		}
 	}
 
