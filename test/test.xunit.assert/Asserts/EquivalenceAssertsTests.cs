@@ -1627,6 +1627,47 @@ public class EquivalenceAssertsTests
 		}
 	}
 
+	public class Obsolete
+	{
+		[Fact]
+		public void SkipsObsoleteProperties()
+		{
+			var value1 = new ClassWithObsoleteProperty { Value = 42 };
+			var value2 = new ClassWithObsoleteProperty { Value = 42 };
+
+			Assert.Equivalent(value1, value2);
+		}
+
+		class ClassWithObsoleteProperty
+		{
+			public int Value { get; set; }
+
+			[Obsolete("This property is obsolete")]
+			public int ObsoleteProperty => throw new NotImplementedException();
+		}
+
+		[Fact]
+		public void SkipsObsoletePropertyGetters()
+		{
+			var value1 = new ClassWithObsoletePropertyGetter { Value = 42, ObsoleteProperty = 2112 };
+			var value2 = new ClassWithObsoletePropertyGetter { Value = 42, ObsoleteProperty = 2600 };
+
+			Assert.Equivalent(value1, value2);
+		}
+
+		class ClassWithObsoletePropertyGetter
+		{
+			public int Value { get; set; }
+
+			public int ObsoleteProperty
+			{
+				[Obsolete("This property is obsolete")]
+				get { throw new NotImplementedException(); }
+				set { }
+			}
+		}
+	}
+
 	public class CircularReferences
 	{
 		[Fact]
