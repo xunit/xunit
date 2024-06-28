@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Xunit.Internal;
 
@@ -69,7 +70,7 @@ public abstract class TheoryData : IReadOnlyCollection<ITheoryDataRow>
 /// be added to the data set using the collection initializer syntax.
 /// </summary>
 /// <typeparam name="T">The parameter type.</typeparam>
-public class TheoryData<T> : TheoryData
+public class TheoryData<T> : TheoryData, IReadOnlyCollection<T?>
 {
 	/// <summary>
 	/// Initializes a new instance of the <see cref="TheoryData{T}"/> class.
@@ -129,6 +130,16 @@ public class TheoryData<T> : TheoryData
 	/// <param name="values">The data values.</param>
 	public void AddRange(params TheoryDataRow<T>[] values) =>
 		AddRows(values.Select(x => new object?[] { x }));
+
+	/// <inheritdoc />
+	public new IEnumerator<T?> GetEnumerator()
+	{
+		foreach(var row in (IEnumerable<ITheoryDataRow>) this)
+		{
+			var data = row.GetData();
+			yield return (T?)data[0];
+		}
+	}
 }
 
 /// <summary>
@@ -137,7 +148,7 @@ public class TheoryData<T> : TheoryData
 /// </summary>
 /// <typeparam name="T1">The first parameter type.</typeparam>
 /// <typeparam name="T2">The second parameter type.</typeparam>
-public class TheoryData<T1, T2> : TheoryData
+public class TheoryData<T1, T2> : TheoryData, IReadOnlyCollection<(T1?, T2?)>
 {
 	/// <summary>
 	/// Initializes a new instance of the <see cref="TheoryData{T1, T2}"/> class.
@@ -182,6 +193,13 @@ public class TheoryData<T1, T2> : TheoryData
 	/// Adds data to the theory data set.
 	/// </summary>
 	/// <param name="row">The data row.</param>
+	public void Add((T1, T2) row) =>
+		Add(row.Item1, row.Item2);
+
+	/// <summary>
+	/// Adds data to the theory data set.
+	/// </summary>
+	/// <param name="row">The data row.</param>
 	public void Add(TheoryDataRow<T1, T2> row) =>
 		AddRow(row);
 
@@ -202,6 +220,16 @@ public class TheoryData<T1, T2> : TheoryData
 	/// <param name="values">The data values.</param>
 	public void AddRange(params TheoryDataRow<T1, T2>[] values) =>
 		AddRows(values);
+
+	/// <inheritdoc />
+	public new IEnumerator<(T1?, T2?)> GetEnumerator()
+	{
+		foreach (var row in (IEnumerable<ITheoryDataRow>) this)
+		{
+			var data = row.GetData();
+			yield return ((T1?)data[0], (T2?)data[1]);
+		}
+	}
 }
 
 /// <summary>
@@ -211,7 +239,7 @@ public class TheoryData<T1, T2> : TheoryData
 /// <typeparam name="T1">The first parameter type.</typeparam>
 /// <typeparam name="T2">The second parameter type.</typeparam>
 /// <typeparam name="T3">The third parameter type.</typeparam>
-public class TheoryData<T1, T2, T3> : TheoryData
+public class TheoryData<T1, T2, T3> : TheoryData, IReadOnlyCollection<(T1?, T2?, T3?)>
 {
 	/// <summary>
 	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3}"/> class.
@@ -261,6 +289,13 @@ public class TheoryData<T1, T2, T3> : TheoryData
 		AddRow(row);
 
 	/// <summary>
+	/// Adds data to the theory data set.
+	/// </summary>
+	/// <param name="row">The data row.</param>
+	public void Add((T1, T2, T3) row) =>
+		Add(row.Item1, row.Item2, row.Item3);
+
+	/// <summary>
 	/// Adds multiple data items to the theory data set.
 	/// </summary>
 	/// <param name="values">The data values.</param>
@@ -277,6 +312,17 @@ public class TheoryData<T1, T2, T3> : TheoryData
 	/// <param name="values">The data values.</param>
 	public void AddRange(params TheoryDataRow<T1, T2, T3>[] values) =>
 		AddRows(values);
+
+	/// <inheritdoc />
+	public new IEnumerator<(T1?, T2?, T3?)> GetEnumerator()
+	{
+		foreach (var row in (IEnumerable<ITheoryDataRow>)this)
+		{
+			var data = row.GetData();
+			Debug.Assert(data != null);
+			yield return ((T1?)data[0], (T2?)data[1], (T3?)data[2]);
+		}
+	}
 }
 
 /// <summary>
@@ -287,7 +333,7 @@ public class TheoryData<T1, T2, T3> : TheoryData
 /// <typeparam name="T2">The second parameter type.</typeparam>
 /// <typeparam name="T3">The third parameter type.</typeparam>
 /// <typeparam name="T4">The fourth parameter type.</typeparam>
-public class TheoryData<T1, T2, T3, T4> : TheoryData
+public class TheoryData<T1, T2, T3, T4> : TheoryData, IReadOnlyCollection<(T1?, T2?, T3?, T4?)>
 {
 	/// <summary>
 	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4}"/> class.
@@ -334,6 +380,13 @@ public class TheoryData<T1, T2, T3, T4> : TheoryData
 	/// Adds data to the theory data set.
 	/// </summary>
 	/// <param name="row">The data row.</param>
+	public void Add((T1, T2, T3, T4) row) =>
+		Add(row.Item1, row.Item2, row.Item3, row.Item4);
+
+	/// <summary>
+	/// Adds data to the theory data set.
+	/// </summary>
+	/// <param name="row">The data row.</param>
 	public void Add(TheoryDataRow<T1, T2, T3, T4> row) =>
 		AddRow(row);
 
@@ -354,6 +407,17 @@ public class TheoryData<T1, T2, T3, T4> : TheoryData
 	/// <param name="values">The data values.</param>
 	public void AddRange(params TheoryDataRow<T1, T2, T3, T4>[] values) =>
 		AddRows(values);
+
+	/// <inheritdoc />
+	public new IEnumerator<(T1?, T2?, T3?, T4?)> GetEnumerator()
+	{
+		foreach (var row in (IEnumerable<ITheoryDataRow>)this)
+		{
+			var data = row.GetData();
+			Debug.Assert(data != null);
+			yield return ((T1?)data[0], (T2?)data[1], (T3?)data[2], (T4?)data[3]);
+		}
+	}
 }
 
 /// <summary>
@@ -365,7 +429,7 @@ public class TheoryData<T1, T2, T3, T4> : TheoryData
 /// <typeparam name="T3">The third parameter type.</typeparam>
 /// <typeparam name="T4">The fourth parameter type.</typeparam>
 /// <typeparam name="T5">The fifth parameter type.</typeparam>
-public class TheoryData<T1, T2, T3, T4, T5> : TheoryData
+public class TheoryData<T1, T2, T3, T4, T5> : TheoryData, IReadOnlyCollection<(T1?, T2?, T3?, T4?, T5?)>
 {
 	/// <summary>
 	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4, T5}"/> class.
@@ -413,6 +477,13 @@ public class TheoryData<T1, T2, T3, T4, T5> : TheoryData
 	/// Adds data to the theory data set.
 	/// </summary>
 	/// <param name="row">The data row.</param>
+	public void Add((T1, T2, T3, T4, T5) row) =>
+		Add(row.Item1, row.Item2, row.Item3, row.Item4, row.Item5);
+
+	/// <summary>
+	/// Adds data to the theory data set.
+	/// </summary>
+	/// <param name="row">The data row.</param>
 	public void Add(TheoryDataRow<T1, T2, T3, T4, T5> row) =>
 		AddRow(row);
 
@@ -433,6 +504,17 @@ public class TheoryData<T1, T2, T3, T4, T5> : TheoryData
 	/// <param name="values">The data values.</param>
 	public void AddRange(params TheoryDataRow<T1, T2, T3, T4, T5>[] values) =>
 		AddRows(values);
+
+	/// <inheritdoc />
+	public new IEnumerator<(T1?, T2?, T3?, T4?, T5?)> GetEnumerator()
+	{
+		foreach (var row in (IEnumerable<ITheoryDataRow>)this)
+		{
+			var data = row.GetData();
+			Debug.Assert(data != null);
+			yield return ((T1?)data[0], (T2?)data[1], (T3?)data[2], (T4?)data[3], (T5?)data[4]);
+		}
+	}
 }
 
 /// <summary>
@@ -445,7 +527,7 @@ public class TheoryData<T1, T2, T3, T4, T5> : TheoryData
 /// <typeparam name="T4">The fourth parameter type.</typeparam>
 /// <typeparam name="T5">The fifth parameter type.</typeparam>
 /// <typeparam name="T6">The sixth parameter type.</typeparam>
-public class TheoryData<T1, T2, T3, T4, T5, T6> : TheoryData
+public class TheoryData<T1, T2, T3, T4, T5, T6> : TheoryData, IReadOnlyCollection<(T1?, T2?, T3?, T4?, T5?, T6?)>
 {
 	/// <summary>
 	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6}"/> class.
@@ -494,6 +576,13 @@ public class TheoryData<T1, T2, T3, T4, T5, T6> : TheoryData
 	/// Adds data to the theory data set.
 	/// </summary>
 	/// <param name="row">The data row.</param>
+	public void Add((T1, T2, T3, T4, T5, T6) row) =>
+		Add(row.Item1, row.Item2, row.Item3, row.Item4, row.Item5, row.Item6);
+
+	/// <summary>
+	/// Adds data to the theory data set.
+	/// </summary>
+	/// <param name="row">The data row.</param>
 	public void Add(TheoryDataRow<T1, T2, T3, T4, T5, T6> row) =>
 		AddRow(row);
 
@@ -514,6 +603,17 @@ public class TheoryData<T1, T2, T3, T4, T5, T6> : TheoryData
 	/// <param name="values">The data values.</param>
 	public void AddRange(params TheoryDataRow<T1, T2, T3, T4, T5, T6>[] values) =>
 		AddRows(values);
+
+	/// <inheritdoc />
+	public new IEnumerator<(T1?, T2?, T3?, T4?, T5?, T6?)> GetEnumerator()
+	{
+		foreach (var row in (IEnumerable<ITheoryDataRow>)this)
+		{
+			var data = row.GetData();
+			Debug.Assert(data != null);
+			yield return ((T1?)data[0], (T2?)data[1], (T3?)data[2], (T4?)data[3], (T5?)data[4], (T6?)data[5]);
+		}
+	}
 }
 
 /// <summary>
@@ -527,7 +627,7 @@ public class TheoryData<T1, T2, T3, T4, T5, T6> : TheoryData
 /// <typeparam name="T5">The fifth parameter type.</typeparam>
 /// <typeparam name="T6">The sixth parameter type.</typeparam>
 /// <typeparam name="T7">The seventh parameter type.</typeparam>
-public class TheoryData<T1, T2, T3, T4, T5, T6, T7> : TheoryData
+public class TheoryData<T1, T2, T3, T4, T5, T6, T7> : TheoryData, IReadOnlyCollection<(T1?, T2?, T3?, T4?, T5?, T6?, T7?)>
 {
 	/// <summary>
 	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6, T7}"/> class.
@@ -577,6 +677,13 @@ public class TheoryData<T1, T2, T3, T4, T5, T6, T7> : TheoryData
 	/// Adds data to the theory data set.
 	/// </summary>
 	/// <param name="row">The data row.</param>
+	public void Add((T1, T2, T3, T4, T5, T6, T7) row) =>
+		Add(row.Item1, row.Item2, row.Item3, row.Item4, row.Item5, row.Item6, row.Item7);
+
+	/// <summary>
+	/// Adds data to the theory data set.
+	/// </summary>
+	/// <param name="row">The data row.</param>
 	public void Add(TheoryDataRow<T1, T2, T3, T4, T5, T6, T7> row) =>
 		AddRow(row);
 
@@ -597,6 +704,17 @@ public class TheoryData<T1, T2, T3, T4, T5, T6, T7> : TheoryData
 	/// <param name="values">The data values.</param>
 	public void AddRange(params TheoryDataRow<T1, T2, T3, T4, T5, T6, T7>[] values) =>
 		AddRows(values);
+
+	/// <inheritdoc />
+	public new IEnumerator<(T1?, T2?, T3?, T4?, T5?, T6?, T7?)> GetEnumerator()
+	{
+		foreach (var row in (IEnumerable<ITheoryDataRow>)this)
+		{
+			var data = row.GetData();
+			Debug.Assert(data != null);
+			yield return ((T1?)data[0], (T2?)data[1], (T3?)data[2], (T4?)data[3], (T5?)data[4], (T6?)data[5], (T7?)data[6]);
+		}
+	}
 }
 
 /// <summary>
@@ -611,7 +729,7 @@ public class TheoryData<T1, T2, T3, T4, T5, T6, T7> : TheoryData
 /// <typeparam name="T6">The sixth parameter type.</typeparam>
 /// <typeparam name="T7">The seventh parameter type.</typeparam>
 /// <typeparam name="T8">The eighth parameter type.</typeparam>
-public class TheoryData<T1, T2, T3, T4, T5, T6, T7, T8> : TheoryData
+public class TheoryData<T1, T2, T3, T4, T5, T6, T7, T8> : TheoryData, IReadOnlyCollection<(T1?, T2?, T3?, T4?, T5?, T6?, T7?, T8?)>
 {
 	/// <summary>
 	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6, T7, T8}"/> class.
@@ -662,6 +780,13 @@ public class TheoryData<T1, T2, T3, T4, T5, T6, T7, T8> : TheoryData
 	/// Adds data to the theory data set.
 	/// </summary>
 	/// <param name="row">The data row.</param>
+	public void Add((T1, T2, T3, T4, T5, T6, T7, T8) row) =>
+		Add(row.Item1, row.Item2, row.Item3, row.Item4, row.Item5, row.Item6, row.Item7, row.Item8);
+
+	/// <summary>
+	/// Adds data to the theory data set.
+	/// </summary>
+	/// <param name="row">The data row.</param>
 	public void Add(TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8> row) =>
 		AddRow(row);
 
@@ -682,6 +807,17 @@ public class TheoryData<T1, T2, T3, T4, T5, T6, T7, T8> : TheoryData
 	/// <param name="values">The data values.</param>
 	public void AddRange(params TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8>[] values) =>
 		AddRows(values);
+
+	/// <inheritdoc />
+	public new IEnumerator<(T1?, T2?, T3?, T4?, T5?, T6?, T7?, T8?)> GetEnumerator()
+	{
+		foreach (var row in (IEnumerable<ITheoryDataRow>)this)
+		{
+			var data = row.GetData();
+			Debug.Assert(data != null);
+			yield return ((T1?)data[0], (T2?)data[1], (T3?)data[2], (T4?)data[3], (T5?)data[4], (T6?)data[5], (T7?)data[6], (T8?)data[7]);
+		}
+	}
 }
 
 /// <summary>
@@ -697,7 +833,7 @@ public class TheoryData<T1, T2, T3, T4, T5, T6, T7, T8> : TheoryData
 /// <typeparam name="T7">The seventh parameter type.</typeparam>
 /// <typeparam name="T8">The eighth parameter type.</typeparam>
 /// <typeparam name="T9">The ninth parameter type.</typeparam>
-public class TheoryData<T1, T2, T3, T4, T5, T6, T7, T8, T9> : TheoryData
+public class TheoryData<T1, T2, T3, T4, T5, T6, T7, T8, T9> : TheoryData, IReadOnlyCollection<(T1?, T2?, T3?, T4?, T5?, T6?, T7?, T8?, T9?)>
 {
 	/// <summary>
 	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6, T7, T8, T9}"/> class.
@@ -749,6 +885,13 @@ public class TheoryData<T1, T2, T3, T4, T5, T6, T7, T8, T9> : TheoryData
 	/// Adds data to the theory data set.
 	/// </summary>
 	/// <param name="row">The data row.</param>
+	public void Add((T1, T2, T3, T4, T5, T6, T7, T8, T9) row) =>
+		Add(row.Item1, row.Item2, row.Item3, row.Item4, row.Item5, row.Item6, row.Item7, row.Item8, row.Item9);
+
+	/// <summary>
+	/// Adds data to the theory data set.
+	/// </summary>
+	/// <param name="row">The data row.</param>
 	public void Add(TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8, T9> row) =>
 		AddRow(row);
 
@@ -769,6 +912,17 @@ public class TheoryData<T1, T2, T3, T4, T5, T6, T7, T8, T9> : TheoryData
 	/// <param name="values">The data values.</param>
 	public void AddRange(params TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>[] values) =>
 		AddRows(values);
+
+	/// <inheritdoc />
+	public new IEnumerator<(T1?, T2?, T3?, T4?, T5?, T6?, T7?, T8?, T9?)> GetEnumerator()
+	{
+		foreach (var row in (IEnumerable<ITheoryDataRow>)this)
+		{
+			var data = row.GetData();
+			Debug.Assert(data != null);
+			yield return ((T1?)data[0], (T2?)data[1], (T3?)data[2], (T4?)data[3], (T5?)data[4], (T6?)data[5], (T7?)data[6], (T8?)data[7], (T9?)data[8]);
+		}
+	}
 }
 
 /// <summary>
@@ -785,7 +939,7 @@ public class TheoryData<T1, T2, T3, T4, T5, T6, T7, T8, T9> : TheoryData
 /// <typeparam name="T8">The eighth parameter type.</typeparam>
 /// <typeparam name="T9">The ninth parameter type.</typeparam>
 /// <typeparam name="T10">The tenth parameter type.</typeparam>
-public class TheoryData<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> : TheoryData
+public class TheoryData<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> : TheoryData, IReadOnlyCollection<(T1?, T2?, T3?, T4?, T5?, T6?, T7?, T8?, T9?, T10?)>
 {
 	/// <summary>
 	/// Initializes a new instance of the <see cref="TheoryData{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10}"/> class.
@@ -838,6 +992,13 @@ public class TheoryData<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> : TheoryData
 	/// Adds data to the theory data set.
 	/// </summary>
 	/// <param name="row">The data row.</param>
+	public void Add((T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) row) =>
+		Add(row.Item1, row.Item2, row.Item3, row.Item4, row.Item5, row.Item6, row.Item7, row.Item8, row.Item9, row.Item10);
+
+	/// <summary>
+	/// Adds data to the theory data set.
+	/// </summary>
+	/// <param name="row">The data row.</param>
 	public void Add(TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> row) =>
 		AddRow(row);
 
@@ -858,4 +1019,15 @@ public class TheoryData<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> : TheoryData
 	/// <param name="values">The data values.</param>
 	public void AddRange(params TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>[] values) =>
 		AddRows(values);
+
+	/// <inheritdoc />
+	public new IEnumerator<(T1?, T2?, T3?, T4?, T5?, T6?, T7?, T8?, T9?, T10?)> GetEnumerator()
+	{
+		foreach (var row in (IEnumerable<ITheoryDataRow>)this)
+		{
+			var data = row.GetData();
+			Debug.Assert(data != null);
+			yield return ((T1?)data[0], (T2?)data[1], (T3?)data[2], (T4?)data[3], (T5?)data[4], (T6?)data[5], (T7?)data[6], (T8?)data[7], (T9?)data[8], (T10?)data[9]);
+		}
+	}
 }
