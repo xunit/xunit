@@ -444,7 +444,7 @@ public static class TestFrameworkOptionsReadWriteExtensions
 	}
 
 	/// <summary>
-	/// Gets a flag which indicates if the developer wishes to see output from <see cref="T:Xunit.v3._ITestOutputHelper"/>
+	/// Gets a flag which indicates if the developer wishes to see output from <see cref="T:Xunit.ITestOutputHelper"/>
 	/// live while it's being reported (in addition to seeing it collected together when the test is finished).
 	/// </summary>
 	public static bool? GetShowLiveOutput(this ITestFrameworkExecutionOptions executionOptions)
@@ -455,7 +455,7 @@ public static class TestFrameworkOptionsReadWriteExtensions
 	}
 
 	/// <summary>
-	/// Gets a flag which indicates if the developer wishes to see output from <see cref="T:Xunit.v3._ITestOutputHelper"/>
+	/// Gets a flag which indicates if the developer wishes to see output from <see cref="T:Xunit.ITestOutputHelper"/>
 	/// live while it's being reported (in addition to seeing it collected together when the test is finished).
 	/// If the flag is not present, returns the default value (<c>false</c>).
 	/// </summary>
@@ -626,7 +626,7 @@ public static class TestFrameworkOptionsReadWriteExtensions
 	}
 
 	/// <summary>
-	/// Sets a flag which indicates if the developer wishes to see output from <see cref="T:Xunit.v3._ITestOutputHelper"/>
+	/// Sets a flag which indicates if the developer wishes to see output from <see cref="T:Xunit.ITestOutputHelper"/>
 	/// live while it's being reported (in addition to seeing it collected together when the test is finished).
 	/// </summary>
 	public static void SetShowLiveOutput(
