@@ -7,12 +7,12 @@ using Xunit.Sdk;
 namespace Xunit.v3;
 
 /// <summary>
-/// A default implementation of <see cref="_ITestFramework"/> that tracks objects to be
+/// A default implementation of <see cref="ITestFramework"/> that tracks objects to be
 /// disposed when the framework is disposed. The discoverer and executor are automatically
 /// tracked for disposal, since those interfaces mandate an implementation
 /// of <see cref="IDisposable"/>.
 /// </summary>
-public abstract class TestFramework : _ITestFramework, IAsyncDisposable
+public abstract class TestFramework : ITestFramework, IAsyncDisposable
 {
 	bool disposed;
 
@@ -38,21 +38,21 @@ public abstract class TestFramework : _ITestFramework, IAsyncDisposable
 	}
 
 	/// <summary>
-	/// Override this method to provide the implementation of <see cref="_ITestFrameworkDiscoverer"/>.
+	/// Override this method to provide the implementation of <see cref="ITestFrameworkDiscoverer"/>.
 	/// </summary>
 	/// <param name="assembly">The assembly that is being discovered.</param>
 	/// <returns>Returns the test framework discoverer.</returns>
-	protected abstract _ITestFrameworkDiscoverer CreateDiscoverer(Assembly assembly);
+	protected abstract ITestFrameworkDiscoverer CreateDiscoverer(Assembly assembly);
 
 	/// <summary>
-	/// Override this method to provide the implementation of <see cref="_ITestFrameworkExecutor"/>.
+	/// Override this method to provide the implementation of <see cref="ITestFrameworkExecutor"/>.
 	/// </summary>
 	/// <param name="assembly">The assembly that is being executed.</param>
 	/// <returns>Returns the test framework executor.</returns>
-	protected abstract _ITestFrameworkExecutor CreateExecutor(Assembly assembly);
+	protected abstract ITestFrameworkExecutor CreateExecutor(Assembly assembly);
 
 	/// <inheritdoc/>
-	public _ITestFrameworkDiscoverer GetDiscoverer(Assembly assembly)
+	public ITestFrameworkDiscoverer GetDiscoverer(Assembly assembly)
 	{
 		Guard.ArgumentNotNull(assembly);
 
@@ -62,7 +62,7 @@ public abstract class TestFramework : _ITestFramework, IAsyncDisposable
 	}
 
 	/// <inheritdoc/>
-	public _ITestFrameworkExecutor GetExecutor(Assembly assembly)
+	public ITestFrameworkExecutor GetExecutor(Assembly assembly)
 	{
 		Guard.ArgumentNotNull(assembly);
 

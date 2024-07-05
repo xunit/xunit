@@ -13,13 +13,13 @@ namespace Xunit.v3;
 /// <param name="callback">The callback to send messages to.</param>
 public class DelegatingMessageBus(
 	IMessageBus innerMessageBus,
-	Action<_MessageSinkMessage>? callback = null) :
+	Action<MessageSinkMessage>? callback = null) :
 		IMessageBus
 {
 	readonly IMessageBus innerMessageBus = Guard.ArgumentNotNull(innerMessageBus);
 
 	/// <inheritdoc/>
-	public virtual bool QueueMessage(_MessageSinkMessage message)
+	public virtual bool QueueMessage(MessageSinkMessage message)
 	{
 		callback?.Invoke(message);
 
@@ -46,9 +46,9 @@ public class DelegatingMessageBus(
 /// <param name="callback">The callback to send messages to.</param>
 public class DelegatingMessageBus<TFinalMessage>(
 	IMessageBus innerMessageBus,
-	Action<_MessageSinkMessage>? callback = null) :
+	Action<MessageSinkMessage>? callback = null) :
 		DelegatingMessageBus(innerMessageBus, callback)
-			where TFinalMessage : _MessageSinkMessage
+			where TFinalMessage : MessageSinkMessage
 {
 	TFinalMessage? finalMessage;
 
@@ -64,7 +64,7 @@ public class DelegatingMessageBus<TFinalMessage>(
 	public ManualResetEvent Finished { get; } = new ManualResetEvent(false);
 
 	/// <inheritdoc/>
-	public override bool QueueMessage(_MessageSinkMessage message)
+	public override bool QueueMessage(MessageSinkMessage message)
 	{
 		var result = base.QueueMessage(message);
 

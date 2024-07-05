@@ -23,7 +23,7 @@ public class TeamCityReporterMessageHandlerTests
 		[Fact]
 		public void ErrorMessage()
 		{
-			var errorMessage = new _ErrorMessage
+			var errorMessage = new ErrorMessage
 			{
 				ExceptionParentIndices = exceptionParentIndices,
 				ExceptionTypes = exceptionTypes,
@@ -40,12 +40,12 @@ public class TeamCityReporterMessageHandlerTests
 		[Fact]
 		public void TestAssemblyCleanupFailure()
 		{
-			var collectionStarting = new _TestAssemblyStarting
+			var collectionStarting = new TestAssemblyStarting
 			{
 				AssemblyUniqueID = assemblyID,
 				AssemblyPath = @"C:\Foo\Bar.dll"
 			};
-			var collectionCleanupFailure = new _TestAssemblyCleanupFailure
+			var collectionCleanupFailure = new TestAssemblyCleanupFailure
 			{
 				AssemblyUniqueID = assemblyID,
 				ExceptionParentIndices = exceptionParentIndices,
@@ -64,7 +64,7 @@ public class TeamCityReporterMessageHandlerTests
 		[Fact]
 		public void TestCaseCleanupFailure()
 		{
-			var caseStarting = new _TestCaseStarting
+			var caseStarting = new TestCaseStarting
 			{
 				AssemblyUniqueID = assemblyID,
 				TestCaseUniqueID = testCaseID,
@@ -73,7 +73,7 @@ public class TeamCityReporterMessageHandlerTests
 				TestCollectionUniqueID = collectionID,
 				TestMethodUniqueID = methodID
 			};
-			var caseCleanupFailure = new _TestCaseCleanupFailure
+			var caseCleanupFailure = new TestCaseCleanupFailure
 			{
 				AssemblyUniqueID = assemblyID,
 				ExceptionParentIndices = exceptionParentIndices,
@@ -96,14 +96,14 @@ public class TeamCityReporterMessageHandlerTests
 		[Fact]
 		public void TestClassCleanupFailure()
 		{
-			var classStarting = new _TestClassStarting
+			var classStarting = new TestClassStarting
 			{
 				AssemblyUniqueID = assemblyID,
 				TestClassName = "MyType\t\r\n",
 				TestClassUniqueID = classID,
 				TestCollectionUniqueID = collectionID
 			};
-			var classCleanupFailure = new _TestClassCleanupFailure
+			var classCleanupFailure = new TestClassCleanupFailure
 			{
 				AssemblyUniqueID = assemblyID,
 				ExceptionParentIndices = exceptionParentIndices,
@@ -124,7 +124,7 @@ public class TeamCityReporterMessageHandlerTests
 		[Fact]
 		public void TestCleanupFailure()
 		{
-			var testStarting = new _TestStarting
+			var testStarting = new TestStarting
 			{
 				AssemblyUniqueID = assemblyID,
 				TestCaseUniqueID = testCaseID,
@@ -134,7 +134,7 @@ public class TeamCityReporterMessageHandlerTests
 				TestMethodUniqueID = methodID,
 				TestUniqueID = testID
 			};
-			var testCleanupFailure = new _TestCleanupFailure
+			var testCleanupFailure = new TestCleanupFailure
 			{
 				AssemblyUniqueID = assemblyID,
 				ExceptionParentIndices = exceptionParentIndices,
@@ -158,13 +158,13 @@ public class TeamCityReporterMessageHandlerTests
 		[Fact]
 		public void TestCollectionCleanupFailure()
 		{
-			var collectionStarting = new _TestCollectionStarting
+			var collectionStarting = new TestCollectionStarting
 			{
 				AssemblyUniqueID = assemblyID,
 				TestCollectionDisplayName = "FooBar\t\r\n",
 				TestCollectionUniqueID = collectionID
 			};
-			var collectionCleanupFailure = new _TestCollectionCleanupFailure
+			var collectionCleanupFailure = new TestCollectionCleanupFailure
 			{
 				AssemblyUniqueID = assemblyID,
 				ExceptionParentIndices = exceptionParentIndices,
@@ -184,7 +184,7 @@ public class TeamCityReporterMessageHandlerTests
 		[Fact]
 		public void TestMethodCleanupFailure()
 		{
-			var methodStarting = new _TestMethodStarting
+			var methodStarting = new TestMethodStarting
 			{
 				AssemblyUniqueID = assemblyID,
 				MethodName = "MyMethod\t\r\n",
@@ -192,7 +192,7 @@ public class TeamCityReporterMessageHandlerTests
 				TestCollectionUniqueID = collectionID,
 				TestMethodUniqueID = methodID,
 			};
-			var methodCleanupFailure = new _TestMethodCleanupFailure
+			var methodCleanupFailure = new TestMethodCleanupFailure
 			{
 				AssemblyUniqueID = assemblyID,
 				ExceptionParentIndices = exceptionParentIndices,

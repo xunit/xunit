@@ -48,7 +48,7 @@ public static partial class TestData
 	public static readonly Dictionary<string, (Type, CollectionDefinitionAttribute)> EmptyCollectionDefinitions = [];
 	public static readonly IReadOnlyDictionary<string, IReadOnlyList<string>> EmptyTraits = new Dictionary<string, List<string>>().ToReadOnly();
 
-	public static _ITestFrameworkDiscoveryOptions TestFrameworkDiscoveryOptions(
+	public static ITestFrameworkDiscoveryOptions TestFrameworkDiscoveryOptions(
 		string? culture = null,
 		bool? diagnosticMessages = null,
 		bool? includeSourceInformation = null,
@@ -58,7 +58,7 @@ public static partial class TestData
 		bool? preEnumerateTheories = null,
 		bool? synchronousMessageReporting = null)
 	{
-		_ITestFrameworkDiscoveryOptions result = _TestFrameworkOptions.Empty();
+		ITestFrameworkDiscoveryOptions result = TestFrameworkOptions.Empty();
 
 		result.SetCulture(culture);
 		result.SetDiagnosticMessages(diagnosticMessages);
@@ -72,7 +72,7 @@ public static partial class TestData
 		return result;
 	}
 
-	public static _ITestFrameworkExecutionOptions TestFrameworkExecutionOptions(
+	public static ITestFrameworkExecutionOptions TestFrameworkExecutionOptions(
 		string? culture = null,
 		bool? diagnosticMessages = null,
 		bool? disableParallelization = null,
@@ -87,7 +87,7 @@ public static partial class TestData
 		bool? stopOnFail = null,
 		bool? synchronousMessageReporting = null)
 	{
-		_ITestFrameworkExecutionOptions result = _TestFrameworkOptions.Empty();
+		ITestFrameworkExecutionOptions result = TestFrameworkOptions.Empty();
 
 		result.SetCulture(culture);
 		result.SetDiagnosticMessages(diagnosticMessages);

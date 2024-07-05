@@ -14,10 +14,10 @@ namespace Xunit.v3;
 /// </summary>
 /// <typeparam name="TContext">The context type used by the invoker</typeparam>
 /// <typeparam name="TTest">The type of the test that the test framework uses. Must be derived
-/// from <see cref="_ITest"/>.</typeparam>
+/// from <see cref="ITest"/>.</typeparam>
 public abstract class TestInvoker<TContext, TTest>
 	where TContext : TestInvokerContext<TTest>
-	where TTest : class, _ITest
+	where TTest : class, ITest
 {
 	/// <summary>
 	/// This method calls the test method via <see cref="MethodBase.Invoke(object, object[])"/>. This is an available

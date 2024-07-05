@@ -46,17 +46,17 @@ public class TestAssemblyRunnerContextTests
 		}
 	}
 
-	class TestableTestAssemblyRunnerContext : TestAssemblyRunnerContext<_ITestAssembly, _ITestCase>
+	class TestableTestAssemblyRunnerContext : TestAssemblyRunnerContext<ITestAssembly, ITestCase>
 	{
 		TestableTestAssemblyRunnerContext(
-			_ITestAssembly testAssembly,
-			IReadOnlyCollection<_ITestCase> testCases,
-			_IMessageSink executionMessageSink,
-			_ITestFrameworkExecutionOptions executionOptions) :
+			ITestAssembly testAssembly,
+			IReadOnlyCollection<ITestCase> testCases,
+			IMessageSink executionMessageSink,
+			ITestFrameworkExecutionOptions executionOptions) :
 				base(testAssembly, testCases, executionMessageSink, executionOptions)
 		{ }
 
-		public static TestableTestAssemblyRunnerContext Create(_ITestFrameworkExecutionOptions? executionOptions = null) =>
+		public static TestableTestAssemblyRunnerContext Create(ITestFrameworkExecutionOptions? executionOptions = null) =>
 			new(Mocks.TestAssembly(), [], SpyMessageSink.Create(), executionOptions ?? TestData.TestFrameworkExecutionOptions());
 	}
 }

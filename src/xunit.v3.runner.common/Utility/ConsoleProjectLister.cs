@@ -25,7 +25,7 @@ public static class ConsoleProjectLister
 		IReadOnlyDictionary<string, List<TTestCase>> testCasesByAssembly,
 		ListOption listOption,
 		ListFormat listFormat)
-			where TTestCase : _ITestCaseMetadata
+			where TTestCase : ITestCaseMetadata
 	{
 		Guard.ArgumentNotNull(consoleWriter);
 		Guard.ArgumentNotNull(testCasesByAssembly);
@@ -47,7 +47,7 @@ public static class ConsoleProjectLister
 		TextWriter consoleWriter,
 		IReadOnlyDictionary<string, List<TTestCase>> testCasesByAssembly,
 		ListFormat format)
-			where TTestCase : _ITestCaseMetadata
+			where TTestCase : ITestCaseMetadata
 	{
 		var testClasses =
 			testCasesByAssembly
@@ -81,7 +81,7 @@ public static class ConsoleProjectLister
 		TextWriter consoleWriter,
 		IReadOnlyDictionary<string, List<TTestCase>> testCasesByAssembly,
 		ListFormat format)
-			where TTestCase : _ITestCaseMetadata
+			where TTestCase : ITestCaseMetadata
 	{
 		var fullTestCases =
 			testCasesByAssembly
@@ -152,7 +152,7 @@ public static class ConsoleProjectLister
 		TextWriter consoleWriter,
 		IReadOnlyDictionary<string, List<TTestCase>> testCasesByAssembly,
 		ListFormat format)
-			where TTestCase : _ITestCaseMetadata
+			where TTestCase : ITestCaseMetadata
 	{
 		var testMethods =
 			testCasesByAssembly
@@ -186,7 +186,7 @@ public static class ConsoleProjectLister
 		TextWriter consoleWriter,
 		IReadOnlyDictionary<string, List<TTestCase>> testCasesByAssembly,
 		ListFormat format)
-			where TTestCase : _ITestCaseMetadata
+			where TTestCase : ITestCaseMetadata
 	{
 		var displayNames =
 			testCasesByAssembly
@@ -218,7 +218,7 @@ public static class ConsoleProjectLister
 		TextWriter consoleWriter,
 		IReadOnlyDictionary<string, List<TTestCase>> testCasesByAssembly,
 		ListFormat format)
-			where TTestCase : _ITestCaseMetadata
+			where TTestCase : ITestCaseMetadata
 	{
 		var combinedTraits = new Dictionary<string, HashSet<string>>();
 

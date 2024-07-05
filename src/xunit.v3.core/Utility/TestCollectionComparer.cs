@@ -5,13 +5,13 @@ using Xunit.Sdk;
 namespace Xunit.v3;
 
 /// <summary>
-/// An implementation of <see cref="IEqualityComparer{T}"/> for <see cref="_ITestCollection"/>.
+/// An implementation of <see cref="IEqualityComparer{T}"/> for <see cref="ITestCollection"/>.
 /// Compares the IDs of the test collections.
 /// </summary>
 /// <typeparam name="TTestCollection">The type of the test collection. Must derive
-/// from <see cref="_ITestCollection"/>.</typeparam>
+/// from <see cref="ITestCollection"/>.</typeparam>
 public class TestCollectionComparer<TTestCollection> : IEqualityComparer<TTestCollection>
-	where TTestCollection : class, _ITestCollection
+	where TTestCollection : class, ITestCollection
 {
 	/// <summary>
 	/// The singleton instance of the comparer.

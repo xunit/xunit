@@ -9,7 +9,7 @@ public class MessageSinkMessageTests
 	[Fact]
 	public void DoesNotSerializeMessagesWithoutJsonTypeID()
 	{
-		var msg = new _MessageSinkMessage();
+		var msg = new MessageSinkMessage();
 
 		var result = msg.ToJson();
 
@@ -20,7 +20,7 @@ public class MessageSinkMessageTests
 	public void SerializationExcludesNullValues()
 	{
 		var startTime = new DateTimeOffset(2020, 09, 26, 13, 55, 27, 212, TimeSpan.FromHours(-7));
-		var msg = new _TestAssemblyStarting
+		var msg = new TestAssemblyStarting
 		{
 			AssemblyUniqueID = "asm-id",
 			AssemblyName = "asm-name",
@@ -52,7 +52,7 @@ public class MessageSinkMessageTests
 	[Fact]
 	public void SerializesEnumsAsStrings()
 	{
-		var msg = new _TestFailed
+		var msg = new TestFailed
 		{
 			AssemblyUniqueID = "asm-id",
 			Cause = FailureCause.Assertion,
@@ -92,10 +92,10 @@ public class MessageSinkMessageTests
 	public void ValidatesAllDerivedTypesAreSupported()
 	{
 		var derivedTypes =
-			typeof(_MessageSinkMessage)
+			typeof(MessageSinkMessage)
 				.Assembly
 				.GetTypes()
-				.Where(t => !t.IsAbstract && t != typeof(_MessageSinkMessage) && typeof(_MessageSinkMessage).IsAssignableFrom(t))
+				.Where(t => !t.IsAbstract && t != typeof(MessageSinkMessage) && typeof(MessageSinkMessage).IsAssignableFrom(t))
 				.ToList();
 		var missingTypes =
 			derivedTypes

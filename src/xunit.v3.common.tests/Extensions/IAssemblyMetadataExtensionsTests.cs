@@ -12,7 +12,7 @@ public class IAssemblyMetadataExtensionsTests
 		{
 			Assert.Throws<ArgumentNullException>("assemblyMetadata", () => IAssemblyMetadataExtensions.SimpleAssemblyName(null!));
 
-			var metadata = Substitute.For<_IAssemblyMetadata, InterfaceProxy<_IAssemblyMetadata>>();
+			var metadata = Substitute.For<IAssemblyMetadata, InterfaceProxy<IAssemblyMetadata>>();
 			metadata.AssemblyName.Returns(default(string));
 			Assert.Throws<ArgumentNullException>("assemblyMetadata.AssemblyName", () => IAssemblyMetadataExtensions.SimpleAssemblyName(metadata));
 		}

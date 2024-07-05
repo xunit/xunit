@@ -308,7 +308,7 @@ public class XunitTestFrameworkDiscovererTests
 
 			Assert.IsType<CollectionPerClassTestCollectionFactory>(discoverer.TestCollectionFactory);
 			var message = Assert.Single(spyMessageSink.Messages);
-			var diagMessage = Assert.IsType<_DiagnosticMessage>(message);
+			var diagMessage = Assert.IsType<DiagnosticMessage>(message);
 			Assert.Equal("Test collection factory type 'System.Object' does not implement IXunitTestCollectionFactory", diagMessage.Message);
 		}
 	}
@@ -321,7 +321,7 @@ public class XunitTestFrameworkDiscovererTests
 
 	class CustomTestCollectionFactory : IXunitTestCollectionFactory
 	{
-		public CustomTestCollectionFactory(_ITestAssembly testAssembly)
+		public CustomTestCollectionFactory(ITestAssembly testAssembly)
 		{ }
 
 		public string DisplayName => "my-custom-test-collection-factory";
@@ -331,7 +331,7 @@ public class XunitTestFrameworkDiscovererTests
 
 	class TestableXunitTestFrameworkDiscoverer : XunitTestFrameworkDiscoverer
 	{
-		public List<_ITestCaseMetadata> FindTestsForType_TestCases = [];
+		public List<ITestCaseMetadata> FindTestsForType_TestCases = [];
 
 		TestableXunitTestFrameworkDiscoverer(
 			IXunitTestAssembly testAssembly,
@@ -344,7 +344,7 @@ public class XunitTestFrameworkDiscovererTests
 
 		public ValueTask<bool> FindTestsForType(
 			IXunitTestClass testClass,
-			_ITestFrameworkDiscoveryOptions? discoveryOptions = null) =>
+			ITestFrameworkDiscoveryOptions? discoveryOptions = null) =>
 				base.FindTestsForType(
 					testClass,
 					discoveryOptions ?? TestData.TestFrameworkDiscoveryOptions(preEnumerateTheories: true),

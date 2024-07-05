@@ -8,7 +8,7 @@ namespace Xunit.v3;
 /// <summary>
 /// Represents a test class from xUnit.net v3 based on reflection.
 /// </summary>
-public interface IXunitTestClass : _ITestClass
+public interface IXunitTestClass : ITestClass
 {
 	/// <summary>
 	/// Gets the <see cref="IBeforeAfterTestAttribute"/>s attached to the test class (and

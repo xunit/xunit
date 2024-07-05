@@ -14,7 +14,7 @@ public interface IBeforeAfterTestAttribute
 	/// This method is called after the test method is executed.
 	/// </summary>
 	/// <param name="methodUnderTest">The method under test</param>
-	/// <param name="test">The current <see cref="_ITest"/></param>
+	/// <param name="test">The current <see cref="ITest"/></param>
 	ValueTask After(
 		MethodInfo methodUnderTest,
 		IXunitTest test);
@@ -23,7 +23,7 @@ public interface IBeforeAfterTestAttribute
 	/// This method is called before the test method is executed.
 	/// </summary>
 	/// <param name="methodUnderTest">The method under test</param>
-	/// <param name="test">The current <see cref="_ITest"/></param>
+	/// <param name="test">The current <see cref="ITest"/></param>
 	ValueTask Before(
 		MethodInfo methodUnderTest,
 		IXunitTest test);

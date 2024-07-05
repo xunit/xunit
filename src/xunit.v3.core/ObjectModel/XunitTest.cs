@@ -6,7 +6,7 @@ using Xunit.Sdk;
 namespace Xunit.v3;
 
 /// <summary>
-/// An implementation of <see cref="_ITest"/> for xUnit v3.
+/// An implementation of <see cref="ITest"/> for xUnit v3.
 /// </summary>
 [DebuggerDisplay("class = {TestCase.TestClassName}, method = {TestCase.TestMethodName}")]
 public class XunitTest : IXunitTest
@@ -86,7 +86,7 @@ public class XunitTest : IXunitTest
 	public IXunitTestCase TestCase { get; }
 
 	/// <inheritdoc/>
-	_ITestCase _ITest.TestCase => TestCase;
+	ITestCase ITest.TestCase => TestCase;
 
 	/// <inheritdoc/>
 	public string TestDisplayName { get; }

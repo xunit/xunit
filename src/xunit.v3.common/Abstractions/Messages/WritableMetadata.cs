@@ -5,7 +5,7 @@ namespace Xunit.Internal;
 /// <summary>
 /// INTERNAL INTERFACE. DO NOT USE.
 /// </summary>
-public interface _IWritableExecutionSummaryMetadata
+public interface IWritableExecutionSummaryMetadata
 {
 	/// <summary/>
 	decimal ExecutionTime { get; set; }
@@ -22,7 +22,7 @@ public interface _IWritableExecutionSummaryMetadata
 /// <summary>
 /// INTERNAL INTERFACE. DO NOT USE.
 /// </summary>
-public interface _IWritableErrorMetadata
+public interface IWritableErrorMetadata
 {
 	/// <summary/>
 	int[] ExceptionParentIndices { get; set; }

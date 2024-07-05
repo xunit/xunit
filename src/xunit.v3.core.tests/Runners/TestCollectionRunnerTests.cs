@@ -155,7 +155,7 @@ public static class TestCollectionRunnerTests
 				"OnTestCollectionCleanupFailure(exception: typeof(ArgumentException))",
 			}, runner.Invocations);
 			var message = Assert.Single(runner.MessageBus.Messages);
-			var errorMessage = Assert.IsType<_ErrorMessage>(message);
+			var errorMessage = Assert.IsType<ErrorMessage>(message);
 			Assert.Equal(new[] { -1 }, errorMessage.ExceptionParentIndices);
 			Assert.Equal(new[] { "System.DivideByZeroException" }, errorMessage.ExceptionTypes);
 			Assert.Equal(new[] { "Attempted to divide by zero." }, errorMessage.Messages);
@@ -164,12 +164,12 @@ public static class TestCollectionRunnerTests
 	}
 
 	class TestableTestCollectionRunner(
-		IReadOnlyCollection<_ITestCase>? testCases = null,
-		_ITestCollection? testCollection = null) :
-			TestCollectionRunner<TestCollectionRunnerContext<_ITestCollection, _ITestCase>, _ITestCollection, _ITestClass, _ITestCase>
+		IReadOnlyCollection<ITestCase>? testCases = null,
+		ITestCollection? testCollection = null) :
+			TestCollectionRunner<TestCollectionRunnerContext<ITestCollection, ITestCase>, ITestCollection, ITestClass, ITestCase>
 	{
-		readonly IReadOnlyCollection<_ITestCase> testCases = testCases ?? [Mocks.TestCase()];
-		readonly _ITestCollection testCollection = testCollection ?? Mocks.TestCollection();
+		readonly IReadOnlyCollection<ITestCase> testCases = testCases ?? [Mocks.TestCase()];
+		readonly ITestCollection testCollection = testCollection ?? Mocks.TestCollection();
 
 		public readonly ExceptionAggregator Aggregator = new();
 		public readonly CancellationTokenSource CancellationTokenSource = new();
@@ -180,7 +180,7 @@ public static class TestCollectionRunnerTests
 		public bool OnTestCollectionCleanupFailure__Result = true;
 
 		protected override ValueTask<bool> OnTestCollectionCleanupFailure(
-			TestCollectionRunnerContext<_ITestCollection, _ITestCase> ctxt,
+			TestCollectionRunnerContext<ITestCollection, ITestCase> ctxt,
 			Exception exception)
 		{
 			Invocations.Add($"OnTestCollectionCleanupFailure(exception: typeof({ArgumentFormatter.FormatTypeName(exception.GetType())}))");
@@ -194,7 +194,7 @@ public static class TestCollectionRunnerTests
 		public bool OnTestCollectionFinished__Result = true;
 
 		protected override ValueTask<bool> OnTestCollectionFinished(
-			TestCollectionRunnerContext<_ITestCollection, _ITestCase> ctxt,
+			TestCollectionRunnerContext<ITestCollection, ITestCase> ctxt,
 			RunSummary summary)
 		{
 			Invocations.Add($"OnTestCollectionFinished(summary: {ArgumentFormatter.Format(summary)})");
@@ -207,7 +207,7 @@ public static class TestCollectionRunnerTests
 		public Action? OnTestCollectionStarting__Lambda = null;
 		public bool OnTestCollectionStarting__Result = true;
 
-		protected override ValueTask<bool> OnTestCollectionStarting(TestCollectionRunnerContext<_ITestCollection, _ITestCase> ctxt)
+		protected override ValueTask<bool> OnTestCollectionStarting(TestCollectionRunnerContext<ITestCollection, ITestCase> ctxt)
 		{
 			Invocations.Add("OnTestCollectionStarting");
 
@@ -219,9 +219,9 @@ public static class TestCollectionRunnerTests
 		public RunSummary RunTestClassAsync__Result = new();
 
 		protected override ValueTask<RunSummary> RunTestClassAsync(
-			TestCollectionRunnerContext<_ITestCollection, _ITestCase> ctxt,
-			_ITestClass? testClass,
-			IReadOnlyCollection<_ITestCase> testCases,
+			TestCollectionRunnerContext<ITestCollection, ITestCase> ctxt,
+			ITestClass? testClass,
+			IReadOnlyCollection<ITestCase> testCases,
 			Exception? exception)
 		{
 			Invocations.Add($"RunTestClassAsync(exception: {TypeName(exception)})");
@@ -231,7 +231,7 @@ public static class TestCollectionRunnerTests
 
 		public async ValueTask<RunSummary> RunAsync()
 		{
-			await using var ctxt = new TestCollectionRunnerContext<_ITestCollection, _ITestCase>(testCollection, testCases, ExplicitOption.Off, MessageBus, Aggregator, CancellationTokenSource);
+			await using var ctxt = new TestCollectionRunnerContext<ITestCollection, ITestCase>(testCollection, testCases, ExplicitOption.Off, MessageBus, Aggregator, CancellationTokenSource);
 			await ctxt.InitializeAsync();
 
 			return await RunAsync(ctxt);

@@ -11,7 +11,7 @@ namespace Xunit.Runner.Common;
 /// <summary>
 /// Logs diagnostic messages to the system console.
 /// </summary>
-public class ConsoleDiagnosticMessageSink : _IMessageSink
+public class ConsoleDiagnosticMessageSink : IMessageSink
 {
 	readonly TextWriter consoleWriter;
 	readonly string displayNewlineReplace;
@@ -51,11 +51,11 @@ public class ConsoleDiagnosticMessageSink : _IMessageSink
 	}
 
 	/// <inheritdoc/>
-	public bool OnMessage(_MessageSinkMessage message)
+	public bool OnMessage(MessageSinkMessage message)
 	{
 		Guard.ArgumentNotNull(message);
 
-		if (message is _DiagnosticMessage diagnosticMessage && displayPrefixDiagnostic is not null)
+		if (message is DiagnosticMessage diagnosticMessage && displayPrefixDiagnostic is not null)
 		{
 			lock (consoleWriter)
 			{
@@ -69,7 +69,7 @@ public class ConsoleDiagnosticMessageSink : _IMessageSink
 			}
 		}
 
-		if (message is _InternalDiagnosticMessage internalDiagnosticMessage && displayPrefixInternal is not null)
+		if (message is InternalDiagnosticMessage internalDiagnosticMessage && displayPrefixInternal is not null)
 		{
 			lock (consoleWriter)
 			{
@@ -88,7 +88,7 @@ public class ConsoleDiagnosticMessageSink : _IMessageSink
 
 	/// <summary>
 	/// Tries to create a new instance of the <see cref="ConsoleDiagnosticMessageSink"/> which will display instances
-	/// of <see cref="_DiagnosticMessage"/> and <see cref="_InternalDiagnosticMessage"/> to the <see cref="Console"/>.
+	/// of <see cref="DiagnosticMessage"/> and <see cref="InternalDiagnosticMessage"/> to the <see cref="Console"/>.
 	/// May return <c>null</c> if both <paramref name="showDiagnosticMessages"/> and <paramref name="showInternalDiagnosticMessages"/>
 	/// are <c>false</c>.
 	/// </summary>

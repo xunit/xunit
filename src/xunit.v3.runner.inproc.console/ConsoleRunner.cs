@@ -122,7 +122,7 @@ public class ConsoleRunner
 				if (started && !cancel)
 				{
 					if (automated)
-						consoleWriter.WriteLine(new _DiagnosticMessage("Cancellation request received").ToJson());
+						consoleWriter.WriteLine(new DiagnosticMessage("Cancellation request received").ToJson());
 					else
 						consoleWriter.WriteLine("Cancelling... (Press Ctrl+C again to terminate)");
 
@@ -153,7 +153,7 @@ public class ConsoleRunner
 
 			logger = new ConsoleRunnerLogger(!noColor, useAnsiColor, consoleWriter);
 
-			_IMessageSink? globalDiagnosticMessageSink =
+			IMessageSink? globalDiagnosticMessageSink =
 				automated
 					? new AutomatedDiagnosticMessageSink(consoleWriter)
 					: ConsoleDiagnosticMessageSink.TryCreate(consoleWriter, noColor, globalDiagnosticMessages, globalInternalDiagnosticMessages);
@@ -166,7 +166,7 @@ public class ConsoleRunner
 
 			foreach (string warning in commandLine.ParseWarnings)
 				if (automated)
-					consoleWriter.WriteLine(new _DiagnosticMessage("warning: " + warning).ToJson());
+					consoleWriter.WriteLine(new DiagnosticMessage("warning: " + warning).ToJson());
 				else
 					logger.LogWarning(warning);
 
@@ -218,7 +218,7 @@ public class ConsoleRunner
 				ConsoleHelper.SetForegroundColor(ConsoleColor.Red);
 
 			if (automated)
-				consoleWriter.WriteLine(new _DiagnosticMessage("error: " + ex.Message).ToJson());
+				consoleWriter.WriteLine(new DiagnosticMessage("error: " + ex.Message).ToJson());
 			else
 			{
 				consoleWriter.WriteLine("error: {0}", ex.Message);
@@ -249,7 +249,7 @@ public class ConsoleRunner
 		if (automated)
 			listFormat = ListFormat.Json;
 
-		var testCasesByAssembly = new Dictionary<string, List<_ITestCase>>();
+		var testCasesByAssembly = new Dictionary<string, List<ITestCase>>();
 
 		foreach (var assembly in project.Assemblies)
 		{
@@ -259,7 +259,7 @@ public class ConsoleRunner
 			assembly.Configuration.PreEnumerateTheories ??= false;
 
 			// Setup discovery options with command line overrides
-			var discoveryOptions = _TestFrameworkOptions.ForDiscovery(assembly.Configuration);
+			var discoveryOptions = TestFrameworkOptions.ForDiscovery(assembly.Configuration);
 
 			var noColor = assembly.Project.Configuration.NoColorOrDefault;
 			var diagnosticMessages = assembly.Configuration.DiagnosticMessagesOrDefault;
@@ -275,7 +275,7 @@ public class ConsoleRunner
 			disposalTracker.Add(testFramework);
 
 			// Discover & filter the tests
-			var testCases = new List<_ITestCase>();
+			var testCases = new List<ITestCase>();
 			var testDiscoverer = testFramework.GetDiscoverer(testAssembly);
 			var types =
 				assembly.Configuration.Filters.IncludedClasses.Count == 0 || assembly.Assembly is null
@@ -304,14 +304,14 @@ public class ConsoleRunner
 		if (e.ExceptionObject is Exception ex)
 		{
 			if (automated)
-				consoleWriter.WriteLine(_ErrorMessage.FromException(ex).ToJson());
+				consoleWriter.WriteLine(ErrorMessage.FromException(ex).ToJson());
 			else
 				consoleWriter.WriteLine(ex.ToString());
 		}
 		else
 		{
 			if (automated)
-				consoleWriter.WriteLine(new _DiagnosticMessage("Error of unknown type thrown in application domain").ToJson());
+				consoleWriter.WriteLine(new DiagnosticMessage("Error of unknown type thrown in application domain").ToJson());
 			else
 				consoleWriter.WriteLine("Error of unknown type thrown in application domain");
 		}
@@ -364,7 +364,7 @@ public class ConsoleRunner
 
 	async ValueTask<int> RunProject(
 		XunitProject project,
-		_IMessageSink reporterMessageHandler)
+		IMessageSink reporterMessageHandler)
 	{
 		XElement? assembliesElement = null;
 		var clockTime = Stopwatch.StartNew();
@@ -405,7 +405,7 @@ public class ConsoleRunner
 	async ValueTask<XElement?> RunProjectAssembly(
 		XunitProjectAssembly assembly,
 		bool needsXml,
-		_IMessageSink reporterMessageHandler)
+		IMessageSink reporterMessageHandler)
 	{
 		if (cancel)
 			return null;
@@ -418,8 +418,8 @@ public class ConsoleRunner
 			assembly.Configuration.PreEnumerateTheories ??= false;
 
 			// Setup discovery and execution options with command-line overrides
-			var discoveryOptions = _TestFrameworkOptions.ForDiscovery(assembly.Configuration);
-			var executionOptions = _TestFrameworkOptions.ForExecution(assembly.Configuration);
+			var discoveryOptions = TestFrameworkOptions.ForDiscovery(assembly.Configuration);
+			var executionOptions = TestFrameworkOptions.ForExecution(assembly.Configuration);
 
 			var noColor = assembly.Project.Configuration.NoColorOrDefault;
 			var diagnosticMessages = assembly.Configuration.DiagnosticMessagesOrDefault;
@@ -451,7 +451,7 @@ public class ConsoleRunner
 			var testCases =
 				assembly
 					.TestCasesToRun
-					.Select(s => SerializationHelper.Deserialize(s) as _ITestCase)
+					.Select(s => SerializationHelper.Deserialize(s) as ITestCase)
 					.WhereNotNull()
 					.ToArray();
 
@@ -465,7 +465,7 @@ public class ConsoleRunner
 			if (resultsSink.ExecutionSummary.Failed != 0 && executionOptions.GetStopOnTestFailOrDefault())
 			{
 				if (automated)
-					consoleWriter.WriteLine(new _DiagnosticMessage("Cancelling due to test failure").ToJson());
+					consoleWriter.WriteLine(new DiagnosticMessage("Cancelling due to test failure").ToJson());
 				else
 					consoleWriter.WriteLine("Cancelling due to test failure...");
 
@@ -480,7 +480,7 @@ public class ConsoleRunner
 			while (e is not null)
 			{
 				if (automated)
-					consoleWriter.WriteLine(_ErrorMessage.FromException(e).ToJson());
+					consoleWriter.WriteLine(ErrorMessage.FromException(e).ToJson());
 				else
 				{
 					consoleWriter.WriteLine("{0}: {1}", e.GetType().SafeName(), e.Message);

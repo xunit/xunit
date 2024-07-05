@@ -8,8 +8,8 @@ namespace Xunit.Runner.Common;
 
 /// <summary>
 /// Caches message metadata for xUnit.net v3 messages. The metadata which is cached depends on
-/// the message that is passed (for example, passing a <see cref="_TestAssemblyMessage"/> will store
-/// and/or return <see cref="_IAssemblyMetadata"/>). Storage methods require the Starting versions
+/// the message that is passed (for example, passing a <see cref="TestAssemblyMessage"/> will store
+/// and/or return <see cref="IAssemblyMetadata"/>). Storage methods require the Starting versions
 /// of messages, as these are the ones which contain the metadata.
 /// </summary>
 public class MessageMetadataCache
@@ -17,18 +17,18 @@ public class MessageMetadataCache
 	readonly Dictionary<string, object> cache = [];
 
 	/// <summary>
-	/// Sets <see cref="_IAssemblyMetadata"/> into the cache.
+	/// Sets <see cref="IAssemblyMetadata"/> into the cache.
 	/// </summary>
 	/// <param name="message">The message that contains the metadata.</param>
-	public void Set(_TestAssemblyStarting message)
+	public void Set(TestAssemblyStarting message)
 	{
 		Guard.ArgumentNotNull(message);
 		Guard.NotNull(
 			() => string.Format(
 				CultureInfo.CurrentCulture,
 				"{0} cannot be null when setting metadata for {1}",
-				nameof(_TestAssemblyStarting.AssemblyUniqueID),
-				typeof(_TestAssemblyStarting).SafeName()
+				nameof(TestAssemblyStarting.AssemblyUniqueID),
+				typeof(TestAssemblyStarting).SafeName()
 			),
 			message.AssemblyUniqueID
 		);
@@ -37,18 +37,18 @@ public class MessageMetadataCache
 	}
 
 	/// <summary>
-	/// Sets <see cref="_ITestCaseMetadata"/> into the cache.
+	/// Sets <see cref="ITestCaseMetadata"/> into the cache.
 	/// </summary>
 	/// <param name="message">The message that contains the metadata.</param>
-	public void Set(_TestCaseStarting message)
+	public void Set(TestCaseStarting message)
 	{
 		Guard.ArgumentNotNull(message);
 		Guard.NotNull(
 			() => string.Format(
 				CultureInfo.CurrentCulture,
 				"{0} cannot be null when setting metadata for {1}",
-				nameof(_TestCaseStarting.TestCaseUniqueID),
-				typeof(_TestCaseStarting).SafeName()
+				nameof(TestCaseStarting.TestCaseUniqueID),
+				typeof(TestCaseStarting).SafeName()
 			),
 			message.TestCaseUniqueID
 		);
@@ -57,18 +57,18 @@ public class MessageMetadataCache
 	}
 
 	/// <summary>
-	/// Sets <see cref="_ITestClassMetadata"/> into the cache.
+	/// Sets <see cref="ITestClassMetadata"/> into the cache.
 	/// </summary>
 	/// <param name="message">The message that contains the metadata.</param>
-	public void Set(_TestClassStarting message)
+	public void Set(TestClassStarting message)
 	{
 		Guard.ArgumentNotNull(message);
 		Guard.NotNull(
 			() => string.Format(
 				CultureInfo.CurrentCulture,
 				"{0} cannot be null when setting metadata for {1}",
-				nameof(_TestClassStarting.TestClassUniqueID),
-				typeof(_TestClassStarting).SafeName()
+				nameof(TestClassStarting.TestClassUniqueID),
+				typeof(TestClassStarting).SafeName()
 			),
 			message.TestClassUniqueID
 		);
@@ -77,18 +77,18 @@ public class MessageMetadataCache
 	}
 
 	/// <summary>
-	/// Sets <see cref="_ITestCollectionMetadata"/> into the cache.
+	/// Sets <see cref="ITestCollectionMetadata"/> into the cache.
 	/// </summary>
 	/// <param name="message">The message that contains the metadata.</param>
-	public void Set(_TestCollectionStarting message)
+	public void Set(TestCollectionStarting message)
 	{
 		Guard.ArgumentNotNull(message);
 		Guard.NotNull(
 			() => string.Format(
 				CultureInfo.CurrentCulture,
 				"{0} cannot be null when setting metadata for {1}",
-				nameof(_TestCollectionStarting.TestCollectionUniqueID),
-				typeof(_TestCollectionStarting).SafeName()
+				nameof(TestCollectionStarting.TestCollectionUniqueID),
+				typeof(TestCollectionStarting).SafeName()
 			),
 			message.TestCollectionUniqueID
 		);
@@ -97,18 +97,18 @@ public class MessageMetadataCache
 	}
 
 	/// <summary>
-	/// Sets <see cref="_ITestMetadata"/> into the cache.
+	/// Sets <see cref="ITestMetadata"/> into the cache.
 	/// </summary>
 	/// <param name="message">The message that contains the metadata.</param>
-	public void Set(_TestStarting message)
+	public void Set(TestStarting message)
 	{
 		Guard.ArgumentNotNull(message);
 		Guard.NotNull(
 			() => string.Format(
 				CultureInfo.CurrentCulture,
 				"{0} cannot be null when setting metadata for {1}",
-				nameof(_TestStarting.TestUniqueID),
-				typeof(_TestStarting).SafeName()
+				nameof(TestStarting.TestUniqueID),
+				typeof(TestStarting).SafeName()
 			),
 			message.TestUniqueID
 		);
@@ -117,18 +117,18 @@ public class MessageMetadataCache
 	}
 
 	/// <summary>
-	/// Sets <see cref="_ITestMethodMetadata"/> into the cache.
+	/// Sets <see cref="ITestMethodMetadata"/> into the cache.
 	/// </summary>
 	/// <param name="message">The message that contains the metadata.</param>
-	public void Set(_TestMethodStarting message)
+	public void Set(TestMethodStarting message)
 	{
 		Guard.ArgumentNotNull(message);
 		Guard.NotNull(
 			() => string.Format(
 				CultureInfo.CurrentCulture,
 				"{0} cannot be null when setting metadata for {1}",
-				nameof(_TestMethodStarting.TestMethodUniqueID),
-				typeof(_TestMethodStarting).SafeName()
+				nameof(TestMethodStarting.TestMethodUniqueID),
+				typeof(TestMethodStarting).SafeName()
 			),
 			message.TestMethodUniqueID
 		);
@@ -137,172 +137,172 @@ public class MessageMetadataCache
 	}
 
 	/// <summary>
-	/// Attempts to retrieve <see cref="_IAssemblyMetadata"/> from the cache (and optionally remove it).
+	/// Attempts to retrieve <see cref="IAssemblyMetadata"/> from the cache (and optionally remove it).
 	/// </summary>
 	/// <param name="assemblyUniqueID">The unique ID of the assembly to retrieve.</param>
 	/// <param name="remove">Set to <c>true</c> to remove the metadata after retrieval.</param>
 	/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
-	public _IAssemblyMetadata? TryGetAssemblyMetadata(
+	public IAssemblyMetadata? TryGetAssemblyMetadata(
 		string assemblyUniqueID,
 		bool remove = false) =>
-			InternalGetAndRemove(Guard.ArgumentNotNull(assemblyUniqueID), remove) as _IAssemblyMetadata;
+			InternalGetAndRemove(Guard.ArgumentNotNull(assemblyUniqueID), remove) as IAssemblyMetadata;
 
 	/// <summary>
-	/// Attempts to retrieve <see cref="_IAssemblyMetadata"/> from the cache.
+	/// Attempts to retrieve <see cref="IAssemblyMetadata"/> from the cache.
 	/// </summary>
 	/// <param name="message">The message that indicates which metadata to retrieve.</param>
 	/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
-	public _IAssemblyMetadata? TryGetAssemblyMetadata(_TestAssemblyMessage message) =>
-		InternalGetAndRemove(Guard.ArgumentNotNull(message).AssemblyUniqueID, false) as _IAssemblyMetadata;
+	public IAssemblyMetadata? TryGetAssemblyMetadata(TestAssemblyMessage message) =>
+		InternalGetAndRemove(Guard.ArgumentNotNull(message).AssemblyUniqueID, false) as IAssemblyMetadata;
 
 	/// <summary>
-	/// Attempts to retrieve <see cref="_ITestCaseMetadata"/> from the cache (and optionally remove it).
+	/// Attempts to retrieve <see cref="ITestCaseMetadata"/> from the cache (and optionally remove it).
 	/// </summary>
 	/// <param name="testCaseUniqueID">The unique ID of the test case to retrieve.</param>
 	/// <param name="remove">Set to <c>true</c> to remove the metadata after retrieval.</param>
 	/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
-	public _ITestCaseMetadata? TryGetTestCaseMetadata(
+	public ITestCaseMetadata? TryGetTestCaseMetadata(
 		string testCaseUniqueID,
 		bool remove = false) =>
-			InternalGetAndRemove(Guard.ArgumentNotNull(testCaseUniqueID), remove) as _ITestCaseMetadata;
+			InternalGetAndRemove(Guard.ArgumentNotNull(testCaseUniqueID), remove) as ITestCaseMetadata;
 
 	/// <summary>
-	/// Attempts to retrieve <see cref="_ITestCaseMetadata"/> from the cache.
+	/// Attempts to retrieve <see cref="ITestCaseMetadata"/> from the cache.
 	/// </summary>
 	/// <param name="message">The message that indicates which metadata to retrieve.</param>
 	/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
-	public _ITestCaseMetadata? TryGetTestCaseMetadata(_TestCaseMessage message) =>
-		InternalGetAndRemove(Guard.ArgumentNotNull(message).TestCaseUniqueID, false) as _ITestCaseMetadata;
+	public ITestCaseMetadata? TryGetTestCaseMetadata(TestCaseMessage message) =>
+		InternalGetAndRemove(Guard.ArgumentNotNull(message).TestCaseUniqueID, false) as ITestCaseMetadata;
 
 	/// <summary>
-	/// Attempts to retrieve <see cref="_ITestClassMetadata"/> from the cache (and optionally remove it).
+	/// Attempts to retrieve <see cref="ITestClassMetadata"/> from the cache (and optionally remove it).
 	/// </summary>
 	/// <param name="testClassUniqueID">The unique ID of the test class to retrieve.</param>
 	/// <param name="remove">Set to <c>true</c> to remove the metadata after retrieval.</param>
 	/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
-	public _ITestClassMetadata? TryGetClassMetadata(
+	public ITestClassMetadata? TryGetClassMetadata(
 		string testClassUniqueID,
 		bool remove = false) =>
-			InternalGetAndRemove(Guard.ArgumentNotNull(testClassUniqueID), remove) as _ITestClassMetadata;
+			InternalGetAndRemove(Guard.ArgumentNotNull(testClassUniqueID), remove) as ITestClassMetadata;
 
 	/// <summary>
-	/// Attempts to retrieve <see cref="_ITestClassMetadata"/> from the cache.
+	/// Attempts to retrieve <see cref="ITestClassMetadata"/> from the cache.
 	/// </summary>
 	/// <param name="message">The message that indicates which metadata to retrieve.</param>
 	/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
-	public _ITestClassMetadata? TryGetClassMetadata(_TestClassMessage message) =>
-		InternalGetAndRemove(Guard.ArgumentNotNull(message).TestClassUniqueID, false) as _ITestClassMetadata;
+	public ITestClassMetadata? TryGetClassMetadata(TestClassMessage message) =>
+		InternalGetAndRemove(Guard.ArgumentNotNull(message).TestClassUniqueID, false) as ITestClassMetadata;
 
 	/// <summary>
-	/// Attempts to retrieve <see cref="_ITestCollectionMetadata"/> from the cache (and optionally remove it).
+	/// Attempts to retrieve <see cref="ITestCollectionMetadata"/> from the cache (and optionally remove it).
 	/// </summary>
 	/// <param name="testCollectionUniqueID">The unique ID of the test collection to retrieve.</param>
 	/// <param name="remove">Set to <c>true</c> to remove the metadata after retrieval.</param>
 	/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
-	public _ITestCollectionMetadata? TryGetCollectionMetadata(
+	public ITestCollectionMetadata? TryGetCollectionMetadata(
 		string testCollectionUniqueID,
 		bool remove = false) =>
-			InternalGetAndRemove(Guard.ArgumentNotNull(testCollectionUniqueID), remove) as _ITestCollectionMetadata;
+			InternalGetAndRemove(Guard.ArgumentNotNull(testCollectionUniqueID), remove) as ITestCollectionMetadata;
 
 	/// <summary>
-	/// Attempts to retrieve <see cref="_ITestCollectionMetadata"/> from the cache.
+	/// Attempts to retrieve <see cref="ITestCollectionMetadata"/> from the cache.
 	/// </summary>
 	/// <param name="message">The message that indicates which metadata to retrieve.</param>
 	/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
-	public _ITestCollectionMetadata? TryGetCollectionMetadata(_TestCollectionMessage message) =>
-		InternalGetAndRemove(Guard.ArgumentNotNull(message).TestCollectionUniqueID, false) as _ITestCollectionMetadata;
+	public ITestCollectionMetadata? TryGetCollectionMetadata(TestCollectionMessage message) =>
+		InternalGetAndRemove(Guard.ArgumentNotNull(message).TestCollectionUniqueID, false) as ITestCollectionMetadata;
 
 	/// <summary>
-	/// Attempts to retrieve <see cref="_ITestMethodMetadata"/> from the cache (and optionally remove it).
+	/// Attempts to retrieve <see cref="ITestMethodMetadata"/> from the cache (and optionally remove it).
 	/// </summary>
 	/// <param name="testMethodUniqueID">The unique ID of the test method to retrieve.</param>
 	/// <param name="remove">Set to <c>true</c> to remove the metadata after retrieval.</param>
 	/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
-	public _ITestMethodMetadata? TryGetMethodMetadata(
+	public ITestMethodMetadata? TryGetMethodMetadata(
 		string testMethodUniqueID,
 		bool remove = false) =>
-			InternalGetAndRemove(Guard.ArgumentNotNull(testMethodUniqueID), remove) as _ITestMethodMetadata;
+			InternalGetAndRemove(Guard.ArgumentNotNull(testMethodUniqueID), remove) as ITestMethodMetadata;
 
 	/// <summary>
-	/// Attempts to retrieve <see cref="_ITestMethodMetadata"/> from the cache.
+	/// Attempts to retrieve <see cref="ITestMethodMetadata"/> from the cache.
 	/// </summary>
 	/// <param name="message">The message that indicates which metadata to retrieve.</param>
 	/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
-	public _ITestMethodMetadata? TryGetMethodMetadata(_TestMethodMessage message) =>
-		InternalGetAndRemove(Guard.ArgumentNotNull(message).TestMethodUniqueID, false) as _ITestMethodMetadata;
+	public ITestMethodMetadata? TryGetMethodMetadata(TestMethodMessage message) =>
+		InternalGetAndRemove(Guard.ArgumentNotNull(message).TestMethodUniqueID, false) as ITestMethodMetadata;
 
 	/// <summary>
-	/// Attempts to retrieve <see cref="_ITestMetadata"/> from the cache (and optionally remove it).
+	/// Attempts to retrieve <see cref="ITestMetadata"/> from the cache (and optionally remove it).
 	/// </summary>
 	/// <param name="testUniqueID">The unique ID of the test to retrieve.</param>
 	/// <param name="remove">Set to <c>true</c> to remove the metadata after retrieval.</param>
 	/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
-	public _ITestMetadata? TryGetTestMetadata(
+	public ITestMetadata? TryGetTestMetadata(
 		string testUniqueID,
 		bool remove = false) =>
-			InternalGetAndRemove(Guard.ArgumentNotNull(testUniqueID), remove) as _ITestMetadata;
+			InternalGetAndRemove(Guard.ArgumentNotNull(testUniqueID), remove) as ITestMetadata;
 
 	/// <summary>
-	/// Attempts to retrieve <see cref="_ITestMetadata"/> from the cache.
+	/// Attempts to retrieve <see cref="ITestMetadata"/> from the cache.
 	/// </summary>
 	/// <param name="message">The message that indicates which metadata to retrieve.</param>
 	/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
-	public _ITestMetadata? TryGetTestMetadata(_TestMessage message) =>
-		InternalGetAndRemove(Guard.ArgumentNotNull(message).TestUniqueID, false) as _ITestMetadata;
+	public ITestMetadata? TryGetTestMetadata(TestMessage message) =>
+		InternalGetAndRemove(Guard.ArgumentNotNull(message).TestUniqueID, false) as ITestMetadata;
 
 	/// <summary>
-	/// Attempts to retrieve <see cref="_IAssemblyMetadata"/> from the cache, and if present,
+	/// Attempts to retrieve <see cref="IAssemblyMetadata"/> from the cache, and if present,
 	/// removes the metadata from the cache.
 	/// </summary>
 	/// <param name="message">The message that indicates which metadata to retrieve.</param>
 	/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
-	public _IAssemblyMetadata? TryRemove(_TestAssemblyFinished message) =>
-		InternalGetAndRemove(Guard.ArgumentNotNull(message).AssemblyUniqueID, true) as _IAssemblyMetadata;
+	public IAssemblyMetadata? TryRemove(TestAssemblyFinished message) =>
+		InternalGetAndRemove(Guard.ArgumentNotNull(message).AssemblyUniqueID, true) as IAssemblyMetadata;
 
 	/// <summary>
-	/// Attempts to retrieve <see cref="_ITestCaseMetadata"/> from the cache, and if present,
+	/// Attempts to retrieve <see cref="ITestCaseMetadata"/> from the cache, and if present,
 	/// removes the metadata from the cache.
 	/// </summary>
 	/// <param name="message">The message that indicates which metadata to retrieve.</param>
 	/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
-	public _ITestCaseMetadata? TryRemove(_TestCaseFinished message) =>
-		InternalGetAndRemove(Guard.ArgumentNotNull(message).TestCaseUniqueID, true) as _ITestCaseMetadata;
+	public ITestCaseMetadata? TryRemove(TestCaseFinished message) =>
+		InternalGetAndRemove(Guard.ArgumentNotNull(message).TestCaseUniqueID, true) as ITestCaseMetadata;
 
 	/// <summary>
-	/// Attempts to retrieve <see cref="_ITestClassMetadata"/> from the cache, and if present,
+	/// Attempts to retrieve <see cref="ITestClassMetadata"/> from the cache, and if present,
 	/// removes the metadata from the cache.
 	/// </summary>
 	/// <param name="message">The message that indicates which metadata to retrieve.</param>
 	/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
-	public _ITestClassMetadata? TryRemove(_TestClassFinished message) =>
-		InternalGetAndRemove(Guard.ArgumentNotNull(message).TestClassUniqueID, true) as _ITestClassMetadata;
+	public ITestClassMetadata? TryRemove(TestClassFinished message) =>
+		InternalGetAndRemove(Guard.ArgumentNotNull(message).TestClassUniqueID, true) as ITestClassMetadata;
 
 	/// <summary>
-	/// Attempts to retrieve <see cref="_ITestCollectionMetadata"/> from the cache, and if present,
+	/// Attempts to retrieve <see cref="ITestCollectionMetadata"/> from the cache, and if present,
 	/// removes the metadata from the cache.
 	/// </summary>
 	/// <param name="message">The message that indicates which metadata to retrieve.</param>
 	/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
-	public _ITestCollectionMetadata? TryRemove(_TestCollectionFinished message) =>
-		InternalGetAndRemove(Guard.ArgumentNotNull(message).TestCollectionUniqueID, true) as _ITestCollectionMetadata;
+	public ITestCollectionMetadata? TryRemove(TestCollectionFinished message) =>
+		InternalGetAndRemove(Guard.ArgumentNotNull(message).TestCollectionUniqueID, true) as ITestCollectionMetadata;
 
 	/// <summary>
-	/// Attempts to retrieve <see cref="_ITestMetadata"/> from the cache, and if present,
+	/// Attempts to retrieve <see cref="ITestMetadata"/> from the cache, and if present,
 	/// removes the metadata from the cache.
 	/// </summary>
 	/// <param name="message">The message that indicates which metadata to retrieve.</param>
 	/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
-	public _ITestMetadata? TryRemove(_TestFinished message) =>
-		InternalGetAndRemove(Guard.ArgumentNotNull(message).TestUniqueID, true) as _ITestMetadata;
+	public ITestMetadata? TryRemove(TestFinished message) =>
+		InternalGetAndRemove(Guard.ArgumentNotNull(message).TestUniqueID, true) as ITestMetadata;
 
 	/// <summary>
-	/// Attempts to retrieve <see cref="_ITestMethodMetadata"/> from the cache, and if present,
+	/// Attempts to retrieve <see cref="ITestMethodMetadata"/> from the cache, and if present,
 	/// removes the metadata from the cache.
 	/// </summary>
 	/// <param name="message">The message that indicates which metadata to retrieve.</param>
 	/// <returns>The cached metadata, if present; or <c>null</c> if there isn't any.</returns>
-	public _ITestMethodMetadata? TryRemove(_TestMethodFinished message) =>
-		InternalGetAndRemove(Guard.ArgumentNotNull(message).TestMethodUniqueID, true) as _ITestMethodMetadata;
+	public ITestMethodMetadata? TryRemove(TestMethodFinished message) =>
+		InternalGetAndRemove(Guard.ArgumentNotNull(message).TestMethodUniqueID, true) as ITestMethodMetadata;
 
 	// Helpers
 

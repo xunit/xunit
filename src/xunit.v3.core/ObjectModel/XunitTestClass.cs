@@ -98,7 +98,7 @@ public class XunitTestClass : IXunitTestClass, IXunitSerializable
 		this.ValidateNullablePropertyValue(testCollection, nameof(TestCollection));
 
 	/// <inheritdoc/>
-	_ITestCollection _ITestClass.TestCollection => TestCollection;
+	ITestCollection ITestClass.TestCollection => TestCollection;
 
 	/// <inheritdoc/>
 	public IReadOnlyDictionary<string, IReadOnlyList<string>> Traits =>

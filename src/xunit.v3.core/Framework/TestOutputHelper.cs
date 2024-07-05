@@ -8,9 +8,9 @@ using Xunit.Sdk;
 namespace Xunit.v3;
 
 /// <summary>
-/// Default implementation of <see cref="_ITestOutputHelper"/>.
+/// Default implementation of <see cref="ITestOutputHelper"/>.
 /// </summary>
-public class TestOutputHelper : _ITestOutputHelper
+public class TestOutputHelper : ITestOutputHelper
 {
 	TestState? state;
 
@@ -32,7 +32,7 @@ public class TestOutputHelper : _ITestOutputHelper
 	/// </summary>
 	public void Initialize(
 		IMessageBus messageBus,
-		_ITest test)
+		ITest test)
 	{
 		if (state is not null)
 			throw new InvalidOperationException("Attempted to initialize a TestOutputHelper that has already been initialized");
@@ -88,7 +88,7 @@ public class TestOutputHelper : _ITestOutputHelper
 
 		public TestState(
 			IMessageBus messageBus,
-			_ITest test)
+			ITest test)
 		{
 			Guard.ArgumentNotNull(test);
 
@@ -118,7 +118,7 @@ public class TestOutputHelper : _ITestOutputHelper
 			lock (lockObject)
 				buffer.Append(output);
 
-			var message = new _TestOutput
+			var message = new TestOutput
 			{
 				AssemblyUniqueID = testAssemblyUniqueID,
 				Output = output,

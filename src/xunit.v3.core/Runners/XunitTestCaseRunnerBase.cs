@@ -17,7 +17,7 @@ public class XunitTestCaseRunnerBase<TContext, TTestCase> : TestCaseRunner<TCont
 	where TTestCase : class, IXunitTestCase
 {
 	/// <summary>
-	/// Creates the <see cref="_ITest"/> instance for the given test case. By default, creates an instance
+	/// Creates the <see cref="ITest"/> instance for the given test case. By default, creates an instance
 	/// of the <see cref="XunitTest"/> class.
 	/// </summary>
 	/// <param name="ctxt">The context that describes the current test case</param>
@@ -48,17 +48,17 @@ public class XunitTestCaseRunnerBase<TContext, TTestCase> : TestCaseRunner<TCont
 	protected override ValueTask<bool> OnTestCaseCleanupFailure(
 		TContext ctxt,
 		Exception exception) =>
-			new(ReportMessage(ctxt, new _TestCaseCleanupFailure(), exception: exception));
+			new(ReportMessage(ctxt, new TestCaseCleanupFailure(), exception: exception));
 
 	/// <inheritdoc/>
 	protected override ValueTask<bool> OnTestCaseFinished(
 		TContext ctxt,
 		RunSummary summary) =>
-			new(ReportMessage(ctxt, new _TestCaseFinished(), summary: summary));
+			new(ReportMessage(ctxt, new TestCaseFinished(), summary: summary));
 
 	/// <inheritdoc/>
 	protected override ValueTask<bool> OnTestCaseStarting(TContext ctxt) =>
-		new(ReportMessage(ctxt, new _TestCaseStarting
+		new(ReportMessage(ctxt, new TestCaseStarting
 		{
 			SkipReason = Guard.ArgumentNotNull(ctxt).TestCase.SkipReason,
 			SourceFilePath = ctxt.TestCase.SourceFilePath,
@@ -69,7 +69,7 @@ public class XunitTestCaseRunnerBase<TContext, TTestCase> : TestCaseRunner<TCont
 
 	static bool ReportMessage(
 		TContext ctxt,
-		_TestCaseMessage message,
+		TestCaseMessage message,
 		RunSummary summary = default,
 		Exception? exception = null)
 	{
@@ -81,7 +81,7 @@ public class XunitTestCaseRunnerBase<TContext, TTestCase> : TestCaseRunner<TCont
 		message.TestCollectionUniqueID = ctxt.TestCase.TestCollection.UniqueID;
 		message.TestMethodUniqueID = ctxt.TestCase.TestMethod?.UniqueID;
 
-		if (message is _IWritableExecutionSummaryMetadata summaryMessage)
+		if (message is IWritableExecutionSummaryMetadata summaryMessage)
 		{
 			summaryMessage.ExecutionTime = summary.Time;
 			summaryMessage.TestsFailed = summary.Failed;
@@ -90,7 +90,7 @@ public class XunitTestCaseRunnerBase<TContext, TTestCase> : TestCaseRunner<TCont
 			summaryMessage.TestsTotal = summary.Total;
 		}
 
-		if (exception is not null && message is _IWritableErrorMetadata errorMessage)
+		if (exception is not null && message is IWritableErrorMetadata errorMessage)
 		{
 			var (types, messages, stackTraces, indices, _) = ExceptionUtility.ExtractMetadata(exception);
 

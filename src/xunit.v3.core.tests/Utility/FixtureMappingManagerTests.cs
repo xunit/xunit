@@ -128,11 +128,11 @@ public class FixtureMappingManagerTests
 	}
 
 	class FixtureWithMessageSinkAndTestContext(
-		_IMessageSink messageSink,
+		IMessageSink messageSink,
 		ITestContextAccessor contextAccessor)
 	{
 		public ITestContextAccessor ContextAccessor { get; } = contextAccessor;
-		public _IMessageSink MessageSink { get; } = messageSink;
+		public IMessageSink MessageSink { get; } = messageSink;
 	}
 
 	[Fact]

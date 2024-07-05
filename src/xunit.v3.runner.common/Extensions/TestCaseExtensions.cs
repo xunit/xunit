@@ -4,19 +4,19 @@ using Xunit.Sdk;
 namespace Xunit.Runner.Common;
 
 /// <summary>
-/// Extension methods for <see cref="_ITestCase"/>.
+/// Extension methods for <see cref="ITestCase"/>.
 /// </summary>
 public static class TestCaseExtensions
 {
 	/// <summary>
-	/// Converts an instance of <see cref="_ITestCase"/> into <see cref="_TestCaseDiscovered"/> for reporting
+	/// Converts an instance of <see cref="ITestCase"/> into <see cref="TestCaseDiscovered"/> for reporting
 	/// back to a remote meta-runner.
 	/// </summary>
-	public static _TestCaseDiscovered ToTestCaseDiscovered(this _ITestCase testCase)
+	public static TestCaseDiscovered ToTestCaseDiscovered(this ITestCase testCase)
 	{
 		Guard.ArgumentNotNull(testCase);
 
-		return new _TestCaseDiscovered()
+		return new TestCaseDiscovered()
 		{
 			AssemblyUniqueID = testCase.TestCollection.TestAssembly.UniqueID,
 			Serialization = SerializationHelper.Serialize(testCase),

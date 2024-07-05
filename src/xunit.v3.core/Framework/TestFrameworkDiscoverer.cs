@@ -8,17 +8,17 @@ using Xunit.Sdk;
 namespace Xunit.v3;
 
 /// <summary>
-/// A base implementation of <see cref="_ITestFrameworkDiscoverer"/> that supports test filtering
+/// A base implementation of <see cref="ITestFrameworkDiscoverer"/> that supports test filtering
 /// and runs the discovery process on a thread pool thread.
 /// </summary>
 /// <typeparam name="TTestCase">The type of the test case used by the test framework. Must
-/// derive from <see cref="_ITestCase"/>.</typeparam>
+/// derive from <see cref="ITestCase"/>.</typeparam>
 /// <typeparam name="TTestClass">The test class object model type. Must derive from
-/// <see cref="_ITestClass"/>.</typeparam>
-public abstract class TestFrameworkDiscoverer<TTestCase, TTestClass>(_ITestAssembly testAssembly) :
-	_ITestFrameworkDiscoverer, IAsyncDisposable
-		where TTestCase : class, _ITestCase
-		where TTestClass : class, _ITestClass
+/// <see cref="ITestClass"/>.</typeparam>
+public abstract class TestFrameworkDiscoverer<TTestCase, TTestClass>(ITestAssembly testAssembly) :
+	ITestFrameworkDiscoverer, IAsyncDisposable
+		where TTestCase : class, ITestCase
+		where TTestClass : class, ITestClass
 {
 	bool disposed;
 
@@ -30,7 +30,7 @@ public abstract class TestFrameworkDiscoverer<TTestCase, TTestClass>(_ITestAssem
 	/// <summary>
 	/// Gets the test assembly.
 	/// </summary>
-	public _ITestAssembly TestAssembly { get; } = Guard.ArgumentNotNull(testAssembly);
+	public ITestAssembly TestAssembly { get; } = Guard.ArgumentNotNull(testAssembly);
 
 	/// <inheritdoc/>
 	/// <summary>
@@ -55,8 +55,8 @@ public abstract class TestFrameworkDiscoverer<TTestCase, TTestClass>(_ITestAssem
 
 	/// <inheritdoc/>
 	public ValueTask Find(
-		Func<_ITestCase, ValueTask<bool>> callback,
-		_ITestFrameworkDiscoveryOptions discoveryOptions,
+		Func<ITestCase, ValueTask<bool>> callback,
+		ITestFrameworkDiscoveryOptions discoveryOptions,
 		Type[]? types = null,
 		CancellationToken? cancellationToken = null)
 	{
@@ -107,7 +107,7 @@ public abstract class TestFrameworkDiscoverer<TTestCase, TTestClass>(_ITestAssem
 	/// <returns>Returns <c>true</c> if discovery should continue; <c>false</c> otherwise.</returns>
 	protected abstract ValueTask<bool> FindTestsForType(
 		TTestClass testClass,
-		_ITestFrameworkDiscoveryOptions discoveryOptions,
+		ITestFrameworkDiscoveryOptions discoveryOptions,
 		Func<TTestCase, ValueTask<bool>> discoveryCallback
 	);
 

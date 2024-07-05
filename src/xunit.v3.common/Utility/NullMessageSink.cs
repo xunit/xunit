@@ -1,9 +1,9 @@
 namespace Xunit.Sdk;
 
 /// <summary>
-/// An implementation of <see cref="_IMessageSink"/> that ignores all messages.
+/// An implementation of <see cref="IMessageSink"/> that ignores all messages.
 /// </summary>
-public class NullMessageSink : _IMessageSink
+public class NullMessageSink : IMessageSink
 {
 	NullMessageSink()
 	{ }
@@ -14,5 +14,5 @@ public class NullMessageSink : _IMessageSink
 	public static NullMessageSink Instance = new();
 
 	/// <inheritdoc/>
-	public bool OnMessage(_MessageSinkMessage message) => true;
+	public bool OnMessage(MessageSinkMessage message) => true;
 }

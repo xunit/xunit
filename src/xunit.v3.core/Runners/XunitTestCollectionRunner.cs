@@ -37,7 +37,7 @@ public class XunitTestCollectionRunner :
 	protected override ValueTask<bool> OnTestCollectionCleanupFailure(
 		XunitTestCollectionRunnerContext ctxt,
 		Exception exception) =>
-			new(ReportMessage(ctxt, new _TestCollectionCleanupFailure(), exception: exception));
+			new(ReportMessage(ctxt, new TestCollectionCleanupFailure(), exception: exception));
 
 	/// <inheritdoc/>
 	protected override async ValueTask<bool> OnTestCollectionFinished(
@@ -46,13 +46,13 @@ public class XunitTestCollectionRunner :
 	{
 		await Guard.ArgumentNotNull(ctxt).Aggregator.RunAsync(ctxt.CollectionFixtureMappings.DisposeAsync);
 
-		return ReportMessage(ctxt, new _TestCollectionFinished(), summary: summary);
+		return ReportMessage(ctxt, new TestCollectionFinished(), summary: summary);
 	}
 
 	/// <inheritdoc/>
 	protected override async ValueTask<bool> OnTestCollectionStarting(XunitTestCollectionRunnerContext ctxt)
 	{
-		var result = ReportMessage(ctxt, new _TestCollectionStarting
+		var result = ReportMessage(ctxt, new TestCollectionStarting
 		{
 			TestCollectionClassName = Guard.ArgumentNotNull(ctxt).TestCollection.TestCollectionClassName,
 			TestCollectionDisplayName = ctxt.TestCollection.TestCollectionDisplayName,
@@ -66,7 +66,7 @@ public class XunitTestCollectionRunner :
 
 	static bool ReportMessage(
 		XunitTestCollectionRunnerContext ctxt,
-		_TestCollectionMessage message,
+		TestCollectionMessage message,
 		RunSummary summary = default,
 		Exception? exception = null)
 	{
@@ -75,7 +75,7 @@ public class XunitTestCollectionRunner :
 		message.AssemblyUniqueID = ctxt.TestCollection.TestAssembly.UniqueID;
 		message.TestCollectionUniqueID = ctxt.TestCollection.UniqueID;
 
-		if (message is _IWritableExecutionSummaryMetadata summaryMessage)
+		if (message is IWritableExecutionSummaryMetadata summaryMessage)
 		{
 			summaryMessage.ExecutionTime = summary.Time;
 			summaryMessage.TestsFailed = summary.Failed;
@@ -84,7 +84,7 @@ public class XunitTestCollectionRunner :
 			summaryMessage.TestsTotal = summary.Total;
 		}
 
-		if (exception is not null && message is _IWritableErrorMetadata errorMessage)
+		if (exception is not null && message is IWritableErrorMetadata errorMessage)
 		{
 			var (types, messages, stackTraces, indices, _) = ExceptionUtility.ExtractMetadata(exception);
 

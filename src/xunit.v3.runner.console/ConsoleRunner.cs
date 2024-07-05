@@ -167,7 +167,7 @@ sealed class ConsoleRunner
 	async ValueTask ListProject(XunitProject project)
 	{
 		var (listOption, listFormat) = project.Configuration.List!.Value;
-		var testCasesByAssembly = new Dictionary<string, List<_TestCaseDiscovered>>();
+		var testCasesByAssembly = new Dictionary<string, List<TestCaseDiscovered>>();
 
 		foreach (var assembly in project.Assemblies)
 		{
@@ -177,7 +177,7 @@ sealed class ConsoleRunner
 			assembly.Configuration.PreEnumerateTheories ??= false;
 
 			// Setup discovery and execution options with command-line overrides
-			var discoveryOptions = _TestFrameworkOptions.ForDiscovery(assembly.Configuration);
+			var discoveryOptions = TestFrameworkOptions.ForDiscovery(assembly.Configuration);
 
 			var assemblyDisplayName = Path.GetFileNameWithoutExtension(assemblyFileName);
 			var appDomainSupport = assembly.Configuration.AppDomainOrDefault;
@@ -242,7 +242,7 @@ sealed class ConsoleRunner
 
 	async ValueTask<int> RunProject(
 		XunitProject project,
-		_IMessageSink reporterMessageHandler)
+		IMessageSink reporterMessageHandler)
 	{
 		XElement? assembliesElement = null;
 		var clockTime = Stopwatch.StartNew();
@@ -311,7 +311,7 @@ sealed class ConsoleRunner
 	async ValueTask<XElement?> RunProjectAssembly(
 		XunitProjectAssembly assembly,
 		bool needsXml,
-		_IMessageSink reporterMessageHandler)
+		IMessageSink reporterMessageHandler)
 	{
 		if (cancel)
 			return null;
@@ -326,8 +326,8 @@ sealed class ConsoleRunner
 			assembly.Configuration.PreEnumerateTheories ??= false;
 
 			// Setup discovery and execution options with command-line overrides
-			var discoveryOptions = _TestFrameworkOptions.ForDiscovery(assembly.Configuration);
-			var executionOptions = _TestFrameworkOptions.ForExecution(assembly.Configuration);
+			var discoveryOptions = TestFrameworkOptions.ForDiscovery(assembly.Configuration);
+			var executionOptions = TestFrameworkOptions.ForExecution(assembly.Configuration);
 
 			var assemblyDisplayName = Path.GetFileNameWithoutExtension(assemblyFileName);
 			var noColor = assembly.Project.Configuration.NoColorOrDefault;

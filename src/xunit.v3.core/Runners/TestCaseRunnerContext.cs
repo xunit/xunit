@@ -13,7 +13,7 @@ namespace Xunit.v3;
 /// <param name="aggregator">The exception aggregator</param>
 /// <param name="cancellationTokenSource">The cancellation token source</param>
 /// <typeparam name="TTestCase">The type of the test case used by the test framework. Must
-/// derive from <see cref="_ITestCase"/>.</typeparam>
+/// derive from <see cref="ITestCase"/>.</typeparam>
 public class TestCaseRunnerContext<TTestCase>(
 	TTestCase testCase,
 	ExplicitOption explicitOption,
@@ -21,7 +21,7 @@ public class TestCaseRunnerContext<TTestCase>(
 	ExceptionAggregator aggregator,
 	CancellationTokenSource cancellationTokenSource) :
 		ContextBase(explicitOption, messageBus, aggregator, cancellationTokenSource)
-			where TTestCase : class, _ITestCase
+			where TTestCase : class, ITestCase
 {
 	/// <summary>
 	/// Gets the test case that is being executed.

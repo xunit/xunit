@@ -26,12 +26,12 @@ public class MatrixTheoryDataTests : AcceptanceTestV3
 		var messages = await RunAsync(typeof(SampleUsage));
 
 		Assert.Collection(
-			messages.OfType<_TestPassed>().Select(passed => messages.OfType<_TestStarting>().Single(ts => ts.TestUniqueID == passed.TestUniqueID).TestDisplayName).OrderBy(x => x),
+			messages.OfType<TestPassed>().Select(passed => messages.OfType<TestStarting>().Single(ts => ts.TestUniqueID == passed.TestUniqueID).TestDisplayName).OrderBy(x => x),
 			displayName => Assert.Equal("MatrixTheoryDataTests+SampleUsage.MyTestMethod(x: \"Hello\", y: 5)", displayName),
 			displayName => Assert.Equal("MatrixTheoryDataTests+SampleUsage.MyTestMethod(x: \"world!\", y: 6)", displayName)
 		);
 		Assert.Collection(
-			messages.OfType<_TestFailed>().Select(failed => messages.OfType<_TestStarting>().Single(ts => ts.TestUniqueID == failed.TestUniqueID).TestDisplayName).OrderBy(x => x),
+			messages.OfType<TestFailed>().Select(failed => messages.OfType<TestStarting>().Single(ts => ts.TestUniqueID == failed.TestUniqueID).TestDisplayName).OrderBy(x => x),
 			displayName => Assert.Equal("MatrixTheoryDataTests+SampleUsage.MyTestMethod(x: \"Hello\", y: 42)", displayName),
 			displayName => Assert.Equal("MatrixTheoryDataTests+SampleUsage.MyTestMethod(x: \"Hello\", y: 6)", displayName),
 			displayName => Assert.Equal("MatrixTheoryDataTests+SampleUsage.MyTestMethod(x: \"world!\", y: 42)", displayName),

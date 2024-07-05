@@ -10,9 +10,9 @@ namespace Xunit.v3;
 /// Base context class for <see cref="TestInvoker{TContext, TTest}"/>.
 /// </summary>
 /// <typeparam name="TTest">The type of the test that the test framework uses. Must be derived
-/// from <see cref="_ITest"/>.</typeparam>
+/// from <see cref="ITest"/>.</typeparam>
 public class TestInvokerContext<TTest> : ContextBase
-	where TTest : class, _ITest
+	where TTest : class, ITest
 {
 	/// <summary>
 	/// Initializes a new instance of the <see cref="TestInvokerContext{TTest}"/> class.

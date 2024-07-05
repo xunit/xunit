@@ -35,7 +35,7 @@ public class xunit : MSBuildTask, ICancelableTask
 	bool? parallelizeAssemblies;
 	bool? parallelizeTestCollections;
 	bool? preEnumerateTheories;
-	_IMessageSink? reporterMessageHandler;
+	IMessageSink? reporterMessageHandler;
 	bool? shadowCopy;
 	bool? showLiveOutput;
 	bool? stopOnFail;
@@ -407,8 +407,8 @@ public class xunit : MSBuildTask, ICancelableTask
 		try
 		{
 			// Setup discovery and execution options with command-line overrides
-			var discoveryOptions = _TestFrameworkOptions.ForDiscovery(assembly.Configuration);
-			var executionOptions = _TestFrameworkOptions.ForExecution(assembly.Configuration);
+			var discoveryOptions = TestFrameworkOptions.ForDiscovery(assembly.Configuration);
+			var executionOptions = TestFrameworkOptions.ForExecution(assembly.Configuration);
 
 			var assemblyDisplayName = Path.GetFileNameWithoutExtension(assembly.AssemblyFileName)!;
 			await using var diagnosticMessageSink = MSBuildDiagnosticMessageSink.TryCreate(Log, logLock, diagnosticMessages ?? assembly.Configuration.DiagnosticMessagesOrDefault, internalDiagnosticMessages ?? assembly.Configuration.InternalDiagnosticMessagesOrDefault, assemblyDisplayName);

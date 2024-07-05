@@ -163,7 +163,7 @@ public static class TestAssemblyRunnerTests
 				"OnTestAssemblyCleanupFailure(exception: typeof(ArgumentException))",
 			}, runner.Invocations);
 			var message = Assert.Single(runner.MessageSink.Messages);
-			var errorMessage = Assert.IsType<_ErrorMessage>(message);
+			var errorMessage = Assert.IsType<ErrorMessage>(message);
 			Assert.Equal(new[] { -1 }, errorMessage.ExceptionParentIndices);
 			Assert.Equal(new[] { "System.DivideByZeroException" }, errorMessage.ExceptionTypes);
 			Assert.Equal(new[] { "Attempted to divide by zero." }, errorMessage.Messages);
@@ -193,23 +193,23 @@ public static class TestAssemblyRunnerTests
 				"OnTestAssemblyFinished(summary: { Total = 0 })",
 			], runner.Invocations);
 
-			static _ITestCase testCaseForCollection(
-				_ITestCollection testCollection,
+			static ITestCase testCaseForCollection(
+				ITestCollection testCollection,
 				string testCaseDisplayName) =>
 					Mocks.TestCase(testMethod: Mocks.TestMethod(testClass: Mocks.TestClass(testCollection: testCollection)), testCaseDisplayName: testCaseDisplayName);
 		}
 	}
 
 	class TestableTestAssemblyRunner(
-		IReadOnlyCollection<_ITestCase>? testCases = null,
-		_ITestAssembly? TestAssembly = null) :
-			TestAssemblyRunner<TestAssemblyRunnerContext<_ITestAssembly, _ITestCase>, _ITestAssembly, _ITestCollection, _ITestCase>
+		IReadOnlyCollection<ITestCase>? testCases = null,
+		ITestAssembly? TestAssembly = null) :
+			TestAssemblyRunner<TestAssemblyRunnerContext<ITestAssembly, ITestCase>, ITestAssembly, ITestCollection, ITestCase>
 	{
-		readonly IReadOnlyCollection<_ITestCase> testCases = testCases ?? [Mocks.TestCase()];
-		readonly _ITestAssembly TestAssembly = TestAssembly ?? Mocks.TestAssembly();
+		readonly IReadOnlyCollection<ITestCase> testCases = testCases ?? [Mocks.TestCase()];
+		readonly ITestAssembly TestAssembly = TestAssembly ?? Mocks.TestAssembly();
 
 		public CancellationTokenSource? CancellationTokenSource;  // Gets set by OnTestAssemblyStarting
-		public readonly _ITestFrameworkExecutionOptions ExecutionOptions = TestData.TestFrameworkExecutionOptions();
+		public readonly ITestFrameworkExecutionOptions ExecutionOptions = TestData.TestFrameworkExecutionOptions();
 		public readonly List<string> Invocations = [];
 		public readonly SpyMessageSink MessageSink = SpyMessageSink.Capture();
 
@@ -217,7 +217,7 @@ public static class TestAssemblyRunnerTests
 		public bool OnTestAssemblyCleanupFailure__Result = true;
 
 		protected override ValueTask<bool> OnTestAssemblyCleanupFailure(
-			TestAssemblyRunnerContext<_ITestAssembly, _ITestCase> ctxt,
+			TestAssemblyRunnerContext<ITestAssembly, ITestCase> ctxt,
 			Exception exception)
 		{
 			Invocations.Add($"OnTestAssemblyCleanupFailure(exception: typeof({ArgumentFormatter.FormatTypeName(exception.GetType())}))");
@@ -231,7 +231,7 @@ public static class TestAssemblyRunnerTests
 		public bool OnTestAssemblyFinished__Result = true;
 
 		protected override ValueTask<bool> OnTestAssemblyFinished(
-			TestAssemblyRunnerContext<_ITestAssembly, _ITestCase> ctxt,
+			TestAssemblyRunnerContext<ITestAssembly, ITestCase> ctxt,
 			RunSummary summary)
 		{
 			// We know that we record clock time, so we're going to zero out the time in the summary, so that we get
@@ -248,7 +248,7 @@ public static class TestAssemblyRunnerTests
 		public Action? OnTestAssemblyStarting__Lambda = null;
 		public bool OnTestAssemblyStarting__Result = true;
 
-		protected override ValueTask<bool> OnTestAssemblyStarting(TestAssemblyRunnerContext<_ITestAssembly, _ITestCase> ctxt)
+		protected override ValueTask<bool> OnTestAssemblyStarting(TestAssemblyRunnerContext<ITestAssembly, ITestCase> ctxt)
 		{
 			CancellationTokenSource = ctxt.CancellationTokenSource;
 
@@ -262,9 +262,9 @@ public static class TestAssemblyRunnerTests
 		public RunSummary RunTestCollectionAsync__Result = new();
 
 		protected override ValueTask<RunSummary> RunTestCollectionAsync(
-			TestAssemblyRunnerContext<_ITestAssembly, _ITestCase> ctxt,
-			_ITestCollection testCollection,
-			IReadOnlyCollection<_ITestCase> testCases,
+			TestAssemblyRunnerContext<ITestAssembly, ITestCase> ctxt,
+			ITestCollection testCollection,
+			IReadOnlyCollection<ITestCase> testCases,
 			Exception? exception)
 		{
 			Invocations.Add($"RunTestCollectionAsync(testCollection: '{testCollection.TestCollectionDisplayName}', testCases: [{string.Join(",", testCases.Select(tc => "'" + tc.TestCaseDisplayName + "'"))}], exception: {TypeName(exception)})");
@@ -274,7 +274,7 @@ public static class TestAssemblyRunnerTests
 
 		public async ValueTask<RunSummary> RunAsync()
 		{
-			await using var ctxt = new TestAssemblyRunnerContext<_ITestAssembly, _ITestCase>(TestAssembly, testCases, MessageSink, ExecutionOptions);
+			await using var ctxt = new TestAssemblyRunnerContext<ITestAssembly, ITestCase>(TestAssembly, testCases, MessageSink, ExecutionOptions);
 			await ctxt.InitializeAsync();
 
 			return await RunAsync(ctxt);

@@ -8,23 +8,23 @@ using Xunit.Sdk;
 namespace Xunit.Runner.v2;
 
 /// <summary>
-/// An implementation of xUnit.net v2's <see cref="ISourceInformationProvider"/> which
-/// delegates calls to an xUnit.net v3 implementation of <see cref="_ISourceInformationProvider"/>.
+/// An implementation of xUnit.net v2's <see cref="Abstractions.ISourceInformationProvider"/> which
+/// delegates calls to an xUnit.net v3 implementation of <see cref="Common.ISourceInformationProvider"/>.
 /// </summary>
-public class Xunit2SourceInformationProvider : MarshalByRefObject, ISourceInformationProvider
+public class Xunit2SourceInformationProvider : MarshalByRefObject, Abstractions.ISourceInformationProvider
 {
 #pragma warning disable CA2213 // This is disposed on a background thread (because of the contract of ISourceInformationProvider)
 	readonly DisposalTracker disposalTracker = new();
 #pragma warning restore CA2213
 #pragma warning disable CA2213 // This is disposed by DisposalTracker
-	readonly _ISourceInformationProvider v3Provider;
+	readonly Common.ISourceInformationProvider v3Provider;
 #pragma warning restore CA2213
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="Xunit2SourceInformationProvider"/> class.
 	/// </summary>
 	/// <param name="v3Provider">The xUnit.net v3 provider that is being wrapped</param>
-	public Xunit2SourceInformationProvider(_ISourceInformationProvider v3Provider)
+	public Xunit2SourceInformationProvider(Common.ISourceInformationProvider v3Provider)
 	{
 		this.v3Provider = Guard.ArgumentNotNull(v3Provider);
 
@@ -42,7 +42,7 @@ public class Xunit2SourceInformationProvider : MarshalByRefObject, ISourceInform
 	}
 
 	/// <inheritdoc/>
-	public ISourceInformation? GetSourceInformation(ITestCase testCase)
+	public ISourceInformation? GetSourceInformation(Abstractions.ITestCase testCase)
 	{
 		var className = testCase?.TestMethod?.TestClass?.Class?.Name;
 		var methodName = testCase?.TestMethod?.Method?.Name;

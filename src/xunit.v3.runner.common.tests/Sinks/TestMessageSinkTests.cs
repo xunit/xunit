@@ -8,45 +8,46 @@ public class TestMessageSinkTests
 	[Theory]
 
 	// Diagnostics
-	[InlineData(typeof(_DiagnosticMessage))]
-	[InlineData(typeof(_ErrorMessage))]
+	[InlineData(typeof(DiagnosticMessage))]
+	[InlineData(typeof(ErrorMessage))]
 
 	// Discovery
-	[InlineData(typeof(_DiscoveryComplete))]
-	[InlineData(typeof(_DiscoveryStarting))]
-	[InlineData(typeof(_TestCaseDiscovered))]
+	[InlineData(typeof(DiscoveryComplete))]
+	[InlineData(typeof(DiscoveryStarting))]
+	[InlineData(typeof(TestCaseDiscovered))]
 
 	// Execution
-	[InlineData(typeof(_AfterTestFinished))]
-	[InlineData(typeof(_AfterTestStarting))]
-	[InlineData(typeof(_BeforeTestFinished))]
-	[InlineData(typeof(_BeforeTestStarting))]
-	[InlineData(typeof(_TestAssemblyCleanupFailure))]
-	[InlineData(typeof(_TestAssemblyFinished))]
-	[InlineData(typeof(_TestAssemblyStarting))]
-	[InlineData(typeof(_TestCaseCleanupFailure))]
-	[InlineData(typeof(_TestCaseFinished))]
-	[InlineData(typeof(_TestCaseStarting))]
-	[InlineData(typeof(_TestClassCleanupFailure))]
-	[InlineData(typeof(_TestClassConstructionFinished))]
-	[InlineData(typeof(_TestClassConstructionStarting))]
-	[InlineData(typeof(_TestClassDisposeFinished))]
-	[InlineData(typeof(_TestClassDisposeStarting))]
-	[InlineData(typeof(_TestClassFinished))]
-	[InlineData(typeof(_TestClassStarting))]
-	[InlineData(typeof(_TestCollectionCleanupFailure))]
-	[InlineData(typeof(_TestCollectionFinished))]
-	[InlineData(typeof(_TestCollectionStarting))]
-	[InlineData(typeof(_TestCleanupFailure))]
-	[InlineData(typeof(_TestFailed))]
-	[InlineData(typeof(_TestFinished))]
-	[InlineData(typeof(_TestMethodCleanupFailure))]
-	[InlineData(typeof(_TestMethodFinished))]
-	[InlineData(typeof(_TestMethodStarting))]
-	[InlineData(typeof(_TestOutput))]
-	[InlineData(typeof(_TestPassed))]
-	[InlineData(typeof(_TestSkipped))]
-	[InlineData(typeof(_TestStarting))]
+	[InlineData(typeof(AfterTestFinished))]
+	[InlineData(typeof(AfterTestStarting))]
+	[InlineData(typeof(BeforeTestFinished))]
+	[InlineData(typeof(BeforeTestStarting))]
+	[InlineData(typeof(TestAssemblyCleanupFailure))]
+	[InlineData(typeof(TestAssemblyFinished))]
+	[InlineData(typeof(TestAssemblyStarting))]
+	[InlineData(typeof(TestCaseCleanupFailure))]
+	[InlineData(typeof(TestCaseFinished))]
+	[InlineData(typeof(TestCaseStarting))]
+	[InlineData(typeof(TestClassCleanupFailure))]
+	[InlineData(typeof(TestClassConstructionFinished))]
+	[InlineData(typeof(TestClassConstructionStarting))]
+	[InlineData(typeof(TestClassDisposeFinished))]
+	[InlineData(typeof(TestClassDisposeStarting))]
+	[InlineData(typeof(TestClassFinished))]
+	[InlineData(typeof(TestClassStarting))]
+	[InlineData(typeof(TestCollectionCleanupFailure))]
+	[InlineData(typeof(TestCollectionFinished))]
+	[InlineData(typeof(TestCollectionStarting))]
+	[InlineData(typeof(TestCleanupFailure))]
+	[InlineData(typeof(TestFailed))]
+	[InlineData(typeof(TestFinished))]
+	[InlineData(typeof(TestMethodCleanupFailure))]
+	[InlineData(typeof(TestMethodFinished))]
+	[InlineData(typeof(TestMethodStarting))]
+	[InlineData(typeof(TestNotRun))]
+	[InlineData(typeof(TestOutput))]
+	[InlineData(typeof(TestPassed))]
+	[InlineData(typeof(TestSkipped))]
+	[InlineData(typeof(TestStarting))]
 
 	// Runner
 	[InlineData(typeof(TestAssemblyExecutionStarting))]
@@ -58,7 +59,7 @@ public class TestMessageSinkTests
 	{
 		var message = Activator.CreateInstance(type);
 		Assert.NotNull(message);
-		var typedMessage = Assert.IsAssignableFrom<_MessageSinkMessage>(message);
+		var typedMessage = Assert.IsAssignableFrom<MessageSinkMessage>(message);
 		var sink = new SpyTestMessageSink();
 
 		sink.OnMessage(typedMessage);

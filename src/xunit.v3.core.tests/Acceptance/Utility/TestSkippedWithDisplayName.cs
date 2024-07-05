@@ -1,10 +1,10 @@
 using Xunit.Internal;
 using Xunit.Sdk;
 
-public class TestSkippedWithDisplayName : _TestResultMessage, ITestResultWithDisplayName
+public class TestSkippedWithDisplayName : TestResultMessage, ITestResultWithDisplayName
 {
 	internal TestSkippedWithDisplayName(
-		_TestSkipped testSkipped,
+		TestSkipped testSkipped,
 		string testDisplayName)
 	{
 		AssemblyUniqueID = testSkipped.AssemblyUniqueID;

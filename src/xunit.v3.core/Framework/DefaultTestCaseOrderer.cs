@@ -23,7 +23,7 @@ public class DefaultTestCaseOrderer : ITestCaseOrderer
 
 	/// <inheritdoc/>
 	public IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> testCases)
-		where TTestCase : notnull, _ITestCase
+		where TTestCase : notnull, ITestCase
 	{
 		var result = testCases.ToList();
 
@@ -62,7 +62,7 @@ public class DefaultTestCaseOrderer : ITestCaseOrderer
 	static int Compare<TTestCase>(
 		TTestCase x,
 		TTestCase y)
-			where TTestCase : notnull, _ITestCase
+			where TTestCase : notnull, ITestCase
 	{
 		Guard.ArgumentNotNull(x.UniqueID);
 		Guard.ArgumentNotNull(y.UniqueID);

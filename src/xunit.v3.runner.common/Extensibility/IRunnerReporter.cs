@@ -48,5 +48,5 @@ public interface IRunnerReporter
 	/// <returns>The message handler that handles the messages</returns>
 	ValueTask<IRunnerReporterMessageHandler> CreateMessageHandler(
 		IRunnerLogger logger,
-		_IMessageSink? diagnosticMessageSink);
+		IMessageSink? diagnosticMessageSink);
 }

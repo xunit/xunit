@@ -7,7 +7,7 @@ namespace Xunit.v3;
 /// <summary>
 /// Represents a single test case from xUnit.net v3 based on reflection.
 /// </summary>
-public interface IXunitTestCase : _ITestCase
+public interface IXunitTestCase : ITestCase
 {
 	/// <summary>
 	/// Gets a flag indicating whether this test case was marked as explicit or not.

@@ -4,10 +4,10 @@ using Xunit.Sdk;
 namespace Xunit.v3;
 
 /// <summary>
-/// An implementation of <see cref="IEqualityComparer{T}"/> for <see cref="_ITestClass"/>.
+/// An implementation of <see cref="IEqualityComparer{T}"/> for <see cref="ITestClass"/>.
 /// Compares the fully qualified names of the types.
 /// </summary>
-public class TestClassComparer : IEqualityComparer<_ITestClass?>
+public class TestClassComparer : IEqualityComparer<ITestClass?>
 {
 	/// <summary>
 	/// The singleton instance of the comparer.
@@ -16,8 +16,8 @@ public class TestClassComparer : IEqualityComparer<_ITestClass?>
 
 	/// <inheritdoc/>
 	public bool Equals(
-		_ITestClass? x,
-		_ITestClass? y)
+		ITestClass? x,
+		ITestClass? y)
 	{
 		if (x is null && y is null)
 			return true;
@@ -28,6 +28,6 @@ public class TestClassComparer : IEqualityComparer<_ITestClass?>
 	}
 
 	/// <inheritdoc/>
-	public int GetHashCode(_ITestClass? obj) =>
+	public int GetHashCode(ITestClass? obj) =>
 		obj is null ? 0 : obj.TestClassName.GetHashCode();
 }

@@ -9,12 +9,12 @@ using Xunit.v3;
 
 public class TheoryDiscovererTests : AcceptanceTestV3
 {
-	readonly _ITestFrameworkDiscoveryOptions discoveryOptions = TestData.TestFrameworkDiscoveryOptions(preEnumerateTheories: true);
+	readonly ITestFrameworkDiscoveryOptions discoveryOptions = TestData.TestFrameworkDiscoveryOptions(preEnumerateTheories: true);
 
 	[Fact]
 	public async ValueTask NoDataAttributes()
 	{
-		var failures = await RunAsync<_TestFailed>(typeof(NoDataAttributesClass));
+		var failures = await RunAsync<TestFailed>(typeof(NoDataAttributesClass));
 
 		var failure = Assert.Single(failures);
 		Assert.Equal(typeof(TestPipelineException).SafeName(), failure.ExceptionTypes.Single());
@@ -34,7 +34,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	[Fact]
 	public async ValueTask NullMemberData_ThrowsInvalidOperationException()
 	{
-		var results = await RunAsync<_TestFailed>(typeof(NullDataClass));
+		var results = await RunAsync<TestFailed>(typeof(NullDataClass));
 
 		var failure = Assert.Single(results);
 		Assert.Equal(typeof(ArgumentException).SafeName(), failure.ExceptionTypes.Single());
@@ -58,7 +58,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	[Fact]
 	public async ValueTask EmptyTheoryData()
 	{
-		var failures = await RunAsync<_TestFailed>(typeof(EmptyTheoryDataClass));
+		var failures = await RunAsync<TestFailed>(typeof(EmptyTheoryDataClass));
 
 		var failure = Assert.Single(failures);
 		Assert.Equal(typeof(TestPipelineException).SafeName(), failure.ExceptionTypes.Single());
@@ -170,7 +170,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		var testCase = Assert.Single(testCases);
 		Assert.IsType<XunitDelayEnumeratedTheoryTestCase>(testCase);
 		Assert.Equal($"{typeof(ThrowingDataClass).FullName}.{nameof(ThrowingDataClass.TheoryWithMisbehavingData)}", testCase.TestCaseDisplayName);
-		var diagnostic = Assert.Single(spy.Messages.OfType<_DiagnosticMessage>());
+		var diagnostic = Assert.Single(spy.Messages.OfType<DiagnosticMessage>());
 		Assert.StartsWith($"Exception thrown during theory discovery on '{typeof(ThrowingDataClass).FullName}.{nameof(ThrowingDataClass.TheoryWithMisbehavingData)}'; falling back to single test case.{Environment.NewLine}System.DivideByZeroException: Attempted to divide by zero.", diagnostic.Message);
 	}
 
@@ -221,7 +221,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		var testCase = Assert.Single(testCases);
 		Assert.IsType<XunitDelayEnumeratedTheoryTestCase>(testCase);
 		Assert.Equal($"{typeof(NonSerializableDataClass).FullName}.{nameof(NonSerializableDataClass.TheoryMethod)}", testCase.TestCaseDisplayName);
-		var diagnostic = Assert.Single(spy.Messages.OfType<_DiagnosticMessage>());
+		var diagnostic = Assert.Single(spy.Messages.OfType<DiagnosticMessage>());
 		Assert.Equal($"Non-serializable data (of type '{typeof(NonSerializableDataAttribute).FullName}') found for '{typeof(NonSerializableDataClass).FullName}.{nameof(NonSerializableDataClass.TheoryMethod)}'; falling back to single test case.", diagnostic.Message);
 	}
 
@@ -319,8 +319,8 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	{
 		var msgs = await RunAsync(typeof(SkippedWithNoData));
 
-		var skip = Assert.Single(msgs.OfType<_TestSkipped>());
-		var skipStarting = Assert.Single(msgs.OfType<_TestStarting>().Where(s => s.TestUniqueID == skip.TestUniqueID));
+		var skip = Assert.Single(msgs.OfType<TestSkipped>());
+		var skipStarting = Assert.Single(msgs.OfType<TestStarting>().Where(s => s.TestUniqueID == skip.TestUniqueID));
 		Assert.Equal($"{typeof(SkippedWithNoData).FullName}.{nameof(SkippedWithNoData.TestMethod)}", skipStarting.TestDisplayName);
 		Assert.Equal("I have no data", skip.Reason);
 	}
@@ -340,8 +340,8 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	{
 		var msgs = await RunAsync(typeof(SkippedWithData));
 
-		var skip = Assert.Single(msgs.OfType<_TestSkipped>());
-		var skipStarting = Assert.Single(msgs.OfType<_TestStarting>().Where(s => s.TestUniqueID == skip.TestUniqueID));
+		var skip = Assert.Single(msgs.OfType<TestSkipped>());
+		var skipStarting = Assert.Single(msgs.OfType<TestStarting>().Where(s => s.TestUniqueID == skip.TestUniqueID));
 		Assert.Equal($"{typeof(SkippedWithData).FullName}.{nameof(SkippedWithData.TestMethod)}", skipStarting.TestDisplayName);
 		Assert.Equal("I have data", skip.Reason);
 	}

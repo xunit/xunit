@@ -1,10 +1,10 @@
 using Xunit.Internal;
 using Xunit.Sdk;
 
-public class TestPassedWithDisplayName : _TestResultMessage, ITestResultWithDisplayName
+public class TestPassedWithDisplayName : TestResultMessage, ITestResultWithDisplayName
 {
 	internal TestPassedWithDisplayName(
-		_TestPassed testPassed,
+		TestPassed testPassed,
 		string testDisplayName)
 	{
 		AssemblyUniqueID = testPassed.AssemblyUniqueID;

@@ -19,7 +19,7 @@ public class AssemblyHelper : MarshalByRefObject, IDisposable
 
 	readonly string directory;
 	bool disposed;
-	readonly _IMessageSink? diagnosticMessageSink;
+	readonly IMessageSink? diagnosticMessageSink;
 	readonly ConcurrentDictionary<string, Assembly?> lookupCache = new();
 
 	/// <summary>
@@ -37,7 +37,7 @@ public class AssemblyHelper : MarshalByRefObject, IDisposable
 	/// <param name="diagnosticMessageSink">The message sink to send diagnostics messages to.</param>
 	public AssemblyHelper(
 		string directory,
-		_IMessageSink? diagnosticMessageSink)
+		IMessageSink? diagnosticMessageSink)
 	{
 		this.directory = Guard.ArgumentNotNull(directory);
 		this.diagnosticMessageSink = diagnosticMessageSink;
@@ -76,9 +76,9 @@ public class AssemblyHelper : MarshalByRefObject, IDisposable
 		if (diagnosticMessageSink is not null)
 		{
 			if (result is null)
-				diagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage("[AssemblyHelper_Desktop.LoadAssembly] Resolution for '{0}' failed, passed down to next resolver", assemblyName.Name));
+				diagnosticMessageSink.OnMessage(new InternalDiagnosticMessage("[AssemblyHelper_Desktop.LoadAssembly] Resolution for '{0}' failed, passed down to next resolver", assemblyName.Name));
 			else
-				diagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage("[AssemblyHelper_Desktop.LoadAssembly] Resolved '{0}' to '{1}'", assemblyName.Name, resolvedAssemblyPath));
+				diagnosticMessageSink.OnMessage(new InternalDiagnosticMessage("[AssemblyHelper_Desktop.LoadAssembly] Resolved '{0}' to '{1}'", assemblyName.Name, resolvedAssemblyPath));
 		}
 
 		lookupCache[assemblyName.Name] = result;
@@ -123,7 +123,7 @@ public class AssemblyHelper : MarshalByRefObject, IDisposable
 	/// <returns>An object which, when disposed, un-subscribes.</returns>
 	public static IDisposable? SubscribeResolveForAssembly(
 		string assemblyFileName,
-		_IMessageSink? diagnosticMessageSink = null)
+		IMessageSink? diagnosticMessageSink = null)
 	{
 		Guard.ArgumentNotNull(assemblyFileName);
 
@@ -138,7 +138,7 @@ public class AssemblyHelper : MarshalByRefObject, IDisposable
 	/// <returns>An object which, when disposed, un-subscribes.</returns>
 	public static IDisposable? SubscribeResolveForAssembly(
 		Type typeInAssembly,
-		_IMessageSink? diagnosticMessageSink = null)
+		IMessageSink? diagnosticMessageSink = null)
 	{
 		Guard.ArgumentNotNull(typeInAssembly);
 

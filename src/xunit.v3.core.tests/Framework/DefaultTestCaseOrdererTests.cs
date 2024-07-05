@@ -5,7 +5,7 @@ using Xunit.v3;
 
 public class DefaultTestCaseOrdererTests
 {
-	static readonly _ITestCase[] TestCases =
+	static readonly ITestCase[] TestCases =
 	[
 		Mocks.XunitTestCase<ClassUnderTest>(nameof(ClassUnderTest.Test1), uniqueID: $"test-case-{Guid.NewGuid():n}"),
 		Mocks.XunitTestCase<ClassUnderTest>(nameof(ClassUnderTest.Test2), uniqueID: $"test-case-{Guid.NewGuid():n}"),

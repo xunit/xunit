@@ -9,15 +9,15 @@ using Xunit.Sdk;
 namespace Xunit.v3;
 
 /// <summary>
-/// A reusable implementation of <see cref="_ITestFrameworkExecutor"/> which contains the basic behavior
+/// A reusable implementation of <see cref="ITestFrameworkExecutor"/> which contains the basic behavior
 /// for running tests.
 /// </summary>
 /// <typeparam name="TTestCase">The type of the test case used by the test framework. Must
-/// derive from <see cref="_ITestCase"/>.</typeparam>
+/// derive from <see cref="ITestCase"/>.</typeparam>
 /// <param name="testAssembly">The test assembly.</param>
-public abstract class TestFrameworkExecutor<TTestCase>(_ITestAssembly testAssembly) :
-	_ITestFrameworkExecutor, IAsyncDisposable
-		where TTestCase : _ITestCase
+public abstract class TestFrameworkExecutor<TTestCase>(ITestAssembly testAssembly) :
+	ITestFrameworkExecutor, IAsyncDisposable
+		where TTestCase : ITestCase
 {
 	bool disposed;
 
@@ -29,14 +29,14 @@ public abstract class TestFrameworkExecutor<TTestCase>(_ITestAssembly testAssemb
 	/// <summary>
 	/// Gets the test assembly for execution.
 	/// </summary>
-	protected _ITestAssembly TestAssembly { get; } = Guard.ArgumentNotNull(testAssembly);
+	protected ITestAssembly TestAssembly { get; } = Guard.ArgumentNotNull(testAssembly);
 
 	/// <summary>
 	/// Override to create a test framework discoverer that can be used to discover
 	/// tests when the user asks to run all test.
 	/// </summary>
 	/// <returns>The test framework discoverer</returns>
-	protected abstract _ITestFrameworkDiscoverer CreateDiscoverer();
+	protected abstract ITestFrameworkDiscoverer CreateDiscoverer();
 
 	/// <inheritdoc/>
 	public virtual ValueTask DisposeAsync()
@@ -54,14 +54,14 @@ public abstract class TestFrameworkExecutor<TTestCase>(_ITestAssembly testAssemb
 	/// <inheritdoc/>
 	public abstract ValueTask RunTestCases(
 		IReadOnlyCollection<TTestCase> testCases,
-		_IMessageSink executionMessageSink,
-		_ITestFrameworkExecutionOptions executionOptions
+		IMessageSink executionMessageSink,
+		ITestFrameworkExecutionOptions executionOptions
 	);
 
-	ValueTask _ITestFrameworkExecutor.RunTestCases(
-		IReadOnlyCollection<_ITestCase> testCases,
-		_IMessageSink executionMessageSink,
-		_ITestFrameworkExecutionOptions executionOptions)
+	ValueTask ITestFrameworkExecutor.RunTestCases(
+		IReadOnlyCollection<ITestCase> testCases,
+		IMessageSink executionMessageSink,
+		ITestFrameworkExecutionOptions executionOptions)
 	{
 		Guard.ArgumentNotNull(testCases);
 		Guard.ArgumentNotNull(executionMessageSink);

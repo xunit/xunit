@@ -7,10 +7,10 @@ using Xunit.Sdk;
 namespace Xunit.Runner.Common;
 
 /// <summary>
-/// An implementation of <see cref="_IMessageSink"/> designed for test discovery for a
+/// An implementation of <see cref="IMessageSink"/> designed for test discovery for a
 /// single test assembly. The <see cref="Finished"/> event is triggered when discovery is complete.
 /// </summary>
-public class TestDiscoverySink : _IMessageSink, IDisposable
+public class TestDiscoverySink : IMessageSink, IDisposable
 {
 	readonly Func<bool> cancelThunk;
 	bool disposed;
@@ -46,7 +46,7 @@ public class TestDiscoverySink : _IMessageSink, IDisposable
 	/// <summary>
 	/// The list of discovered test cases.
 	/// </summary>
-	public List<_TestCaseDiscovered> TestCases { get; } = [];
+	public List<TestCaseDiscovered> TestCases { get; } = [];
 
 	/// <inheritdoc/>
 	public void Dispose()
@@ -62,7 +62,7 @@ public class TestDiscoverySink : _IMessageSink, IDisposable
 	}
 
 	/// <inheritdoc/>
-	public bool OnMessage(_MessageSinkMessage message)
+	public bool OnMessage(MessageSinkMessage message)
 	{
 		Guard.ArgumentNotNull(message);
 

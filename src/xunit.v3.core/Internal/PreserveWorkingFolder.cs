@@ -12,7 +12,7 @@ public class PreserveWorkingFolder : IDisposable
 	readonly string originalWorkingFolder;
 
 	/// <summary/>
-	public PreserveWorkingFolder(_ITestAssembly assembly)
+	public PreserveWorkingFolder(ITestAssembly assembly)
 	{
 		Guard.ArgumentNotNull(assembly);
 

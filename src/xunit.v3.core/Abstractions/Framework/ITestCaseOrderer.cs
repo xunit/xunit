@@ -17,5 +17,5 @@ public interface ITestCaseOrderer
 	/// <param name="testCases">The test cases to be ordered.</param>
 	/// <returns>The test cases in the order to be run.</returns>
 	IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> testCases)
-		where TTestCase : notnull, _ITestCase;
+		where TTestCase : notnull, ITestCase;
 }

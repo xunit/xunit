@@ -170,7 +170,7 @@ namespace SomeNamespace
 	public class MyTestCaseOrderer : ITestCaseOrderer
 	{
 		public IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> testCases)
-			where TTestCase : _ITestCase
+			where TTestCase : ITestCase
 		{
 			throw new NotImplementedException();
 		}
@@ -179,7 +179,7 @@ namespace SomeNamespace
 	public class MyTestCollectionOrderer : ITestCollectionOrderer
 	{
 		public IReadOnlyCollection<TTestCollection> OrderTestCollections<TTestCollection>(IReadOnlyCollection<TTestCollection> testCollections)
-			where TTestCollection : _ITestCollection
+			where TTestCollection : ITestCollection
 		{
 			throw new NotImplementedException();
 		}

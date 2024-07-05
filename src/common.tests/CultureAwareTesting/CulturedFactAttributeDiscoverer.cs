@@ -11,7 +11,7 @@ namespace Xunit;
 public class CulturedFactAttributeDiscoverer : IXunitTestCaseDiscoverer
 {
 	public ValueTask<IReadOnlyCollection<IXunitTestCase>> Discover(
-		_ITestFrameworkDiscoveryOptions discoveryOptions,
+		ITestFrameworkDiscoveryOptions discoveryOptions,
 		IXunitTestMethod testMethod,
 		IFactAttribute factAttribute)
 	{

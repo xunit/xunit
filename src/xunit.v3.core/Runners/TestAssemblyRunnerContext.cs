@@ -12,9 +12,9 @@ namespace Xunit.v3;
 /// Base context class for <see cref="TestAssemblyRunner{TContext, TTestCase, TTestAssembly, TTestCollection}"/>.
 /// </summary>
 /// <typeparam name="TTestAssembly">The type of the test assembly object model. Must derive
-/// from <see cref="_ITestAssembly"/>.</typeparam>
+/// from <see cref="ITestAssembly"/>.</typeparam>
 /// <typeparam name="TTestCase">The type of the test case used by the test framework. Must
-/// derive from <see cref="_ITestCase"/>.</typeparam>
+/// derive from <see cref="ITestCase"/>.</typeparam>
 /// <param name="testAssembly">The test assembly</param>
 /// <param name="testCases">The test cases from the assembly</param>
 /// <param name="executionMessageSink">The message sink to send execution messages to</param>
@@ -22,11 +22,11 @@ namespace Xunit.v3;
 public class TestAssemblyRunnerContext<TTestAssembly, TTestCase>(
 	TTestAssembly testAssembly,
 	IReadOnlyCollection<TTestCase> testCases,
-	_IMessageSink executionMessageSink,
-	_ITestFrameworkExecutionOptions executionOptions) :
+	IMessageSink executionMessageSink,
+	ITestFrameworkExecutionOptions executionOptions) :
 		IAsyncLifetime
-		where TTestCase : class, _ITestCase
-		where TTestAssembly : class, _ITestAssembly
+		where TTestCase : class, ITestCase
+		where TTestAssembly : class, ITestAssembly
 {
 	IMessageBus? messageBus;
 	string? startupCurrentDirectory;
@@ -45,12 +45,12 @@ public class TestAssemblyRunnerContext<TTestAssembly, TTestCase>(
 	/// Gets the execution message sink provided by the runner. This is typically wrapped into
 	/// the message bus by <see cref="CreateMessageBus"/>.
 	/// </summary>
-	protected _IMessageSink ExecutionMessageSink { get; } = Guard.ArgumentNotNull(executionMessageSink);
+	protected IMessageSink ExecutionMessageSink { get; } = Guard.ArgumentNotNull(executionMessageSink);
 
 	/// <summary>
 	/// Gets the execution options provided by the runner.
 	/// </summary>
-	protected _ITestFrameworkExecutionOptions ExecutionOptions { get; } = Guard.ArgumentNotNull(executionOptions);
+	protected ITestFrameworkExecutionOptions ExecutionOptions { get; } = Guard.ArgumentNotNull(executionOptions);
 
 	/// <summary>
 	/// Gets the message bus to send execution engine messages to.

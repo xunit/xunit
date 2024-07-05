@@ -27,7 +27,7 @@ public class XunitTestRunnerTests
 				messageBus.Messages,
 				msg =>
 				{
-					var starting = Assert.IsType<_TestStarting>(msg);
+					var starting = Assert.IsType<TestStarting>(msg);
 					verifyTestMessage(starting);
 					Assert.Equal(true, starting.Explicit);
 					Assert.Equal("test-display-name", starting.TestDisplayName);
@@ -38,40 +38,40 @@ public class XunitTestRunnerTests
 					var value = Assert.Single(trait.Value);
 					Assert.Equal("Trait", value);
 				},
-				msg => verifyTestMessage(Assert.IsType<_TestClassConstructionStarting>(msg)),
-				msg => verifyTestMessage(Assert.IsType<_TestClassConstructionFinished>(msg)),
+				msg => verifyTestMessage(Assert.IsType<TestClassConstructionStarting>(msg)),
+				msg => verifyTestMessage(Assert.IsType<TestClassConstructionFinished>(msg)),
 				msg =>
 				{
-					var beforeStarting = Assert.IsType<_BeforeTestStarting>(msg);
+					var beforeStarting = Assert.IsType<BeforeTestStarting>(msg);
 					verifyTestMessage(beforeStarting);
 					Assert.Equal("SpyBeforeAfterTest", beforeStarting.AttributeName);
 				},
 				msg =>
 				{
-					var beforeFinished = Assert.IsType<_BeforeTestFinished>(msg);
+					var beforeFinished = Assert.IsType<BeforeTestFinished>(msg);
 					verifyTestMessage(beforeFinished);
 					Assert.Equal("SpyBeforeAfterTest", beforeFinished.AttributeName);
 				},
 				// Test method is invoked here
 				msg =>
 				{
-					var afterStarting = Assert.IsType<_AfterTestStarting>(msg);
+					var afterStarting = Assert.IsType<AfterTestStarting>(msg);
 					verifyTestMessage(afterStarting);
 					Assert.Equal("SpyBeforeAfterTest", afterStarting.AttributeName);
 				},
 				msg =>
 				{
-					var afterFinished = Assert.IsType<_AfterTestFinished>(msg);
+					var afterFinished = Assert.IsType<AfterTestFinished>(msg);
 					verifyTestMessage(afterFinished);
 					Assert.Equal("SpyBeforeAfterTest", afterFinished.AttributeName);
 				},
-				msg => verifyTestMessage(Assert.IsType<_TestClassDisposeStarting>(msg)),
-				msg => verifyTestMessage(Assert.IsType<_TestClassDisposeFinished>(msg)),
-				msg => verifyTestMessage(Assert.IsType<_TestPassed>(msg)),
-				msg => verifyTestMessage(Assert.IsType<_TestFinished>(msg))
+				msg => verifyTestMessage(Assert.IsType<TestClassDisposeStarting>(msg)),
+				msg => verifyTestMessage(Assert.IsType<TestClassDisposeFinished>(msg)),
+				msg => verifyTestMessage(Assert.IsType<TestPassed>(msg)),
+				msg => verifyTestMessage(Assert.IsType<TestFinished>(msg))
 			);
 
-			static void verifyTestMessage(_TestMessage testMethod)
+			static void verifyTestMessage(TestMessage testMethod)
 			{
 				Assert.Equal("assembly-id", testMethod.AssemblyUniqueID);
 				Assert.Equal("test-case-id", testMethod.TestCaseUniqueID);
@@ -93,10 +93,10 @@ public class XunitTestRunnerTests
 
 			Assert.Collection(
 				messageBus.Messages,
-				msg => Assert.IsType<_TestStarting>(msg),
+				msg => Assert.IsType<TestStarting>(msg),
 				// Test method is invoked here
-				msg => Assert.IsType<_TestPassed>(msg),
-				msg => Assert.IsType<_TestFinished>(msg)
+				msg => Assert.IsType<TestPassed>(msg),
+				msg => Assert.IsType<TestFinished>(msg)
 			);
 		}
 
@@ -111,19 +111,19 @@ public class XunitTestRunnerTests
 
 			Assert.Collection(
 				messageBus.Messages,
-				msg => Assert.IsType<_TestStarting>(msg),
-				msg => Assert.IsType<_TestClassConstructionStarting>(msg),
-				msg => Assert.IsType<_TestClassConstructionFinished>(msg),
+				msg => Assert.IsType<TestStarting>(msg),
+				msg => Assert.IsType<TestClassConstructionStarting>(msg),
+				msg => Assert.IsType<TestClassConstructionFinished>(msg),
 				// Test method is invoked here
-				msg => Assert.IsType<_TestClassDisposeStarting>(msg),
-				msg => Assert.IsType<_TestClassDisposeFinished>(msg),
+				msg => Assert.IsType<TestClassDisposeStarting>(msg),
+				msg => Assert.IsType<TestClassDisposeFinished>(msg),
 				msg =>
 				{
-					var failed = Assert.IsType<_TestFailed>(msg);
+					var failed = Assert.IsType<TestFailed>(msg);
 					Assert.Equal(-1, failed.ExceptionParentIndices.Single());
 					Assert.Equal("Xunit.Sdk.TrueException", failed.ExceptionTypes.Single());
 				},
-				msg => Assert.IsType<_TestFinished>(msg)
+				msg => Assert.IsType<TestFinished>(msg)
 			);
 		}
 
@@ -138,13 +138,13 @@ public class XunitTestRunnerTests
 
 			Assert.Collection(
 				messageBus.Messages,
-				msg => Assert.IsType<_TestStarting>(msg),
+				msg => Assert.IsType<TestStarting>(msg),
 				msg =>
 				{
-					var skipped = Assert.IsType<_TestSkipped>(msg);
+					var skipped = Assert.IsType<TestSkipped>(msg);
 					Assert.Equal("Don't run me", skipped.Reason);
 				},
-				msg => Assert.IsType<_TestFinished>(msg)
+				msg => Assert.IsType<TestFinished>(msg)
 			);
 		}
 
@@ -159,18 +159,18 @@ public class XunitTestRunnerTests
 
 			Assert.Collection(
 				messageBus.Messages,
-				msg => Assert.IsType<_TestStarting>(msg),
-				msg => Assert.IsType<_TestClassConstructionStarting>(msg),
-				msg => Assert.IsType<_TestClassConstructionFinished>(msg),
+				msg => Assert.IsType<TestStarting>(msg),
+				msg => Assert.IsType<TestClassConstructionStarting>(msg),
+				msg => Assert.IsType<TestClassConstructionFinished>(msg),
 				// Test method is invoked here
-				msg => Assert.IsType<_TestClassDisposeStarting>(msg),
-				msg => Assert.IsType<_TestClassDisposeFinished>(msg),
+				msg => Assert.IsType<TestClassDisposeStarting>(msg),
+				msg => Assert.IsType<TestClassDisposeFinished>(msg),
 				msg =>
 				{
-					var skipped = Assert.IsType<_TestSkipped>(msg);
+					var skipped = Assert.IsType<TestSkipped>(msg);
 					Assert.Equal("This isn't a good time", skipped.Reason);
 				},
-				msg => Assert.IsType<_TestFinished>(msg)
+				msg => Assert.IsType<TestFinished>(msg)
 			);
 		}
 
@@ -185,9 +185,9 @@ public class XunitTestRunnerTests
 
 			Assert.Collection(
 				messageBus.Messages,
-				msg => Assert.IsType<_TestStarting>(msg),
-				msg => Assert.IsType<_TestNotRun>(msg),
-				msg => Assert.IsType<_TestFinished>(msg)
+				msg => Assert.IsType<TestStarting>(msg),
+				msg => Assert.IsType<TestNotRun>(msg),
+				msg => Assert.IsType<TestFinished>(msg)
 			);
 		}
 
@@ -203,21 +203,21 @@ public class XunitTestRunnerTests
 
 			Assert.Collection(
 				messageBus.Messages,
-				msg => Assert.IsType<_TestStarting>(msg),
-				msg => Assert.IsType<_TestClassConstructionStarting>(msg),
-				msg => Assert.IsType<_TestClassConstructionFinished>(msg),
-				msg => Assert.IsType<_BeforeTestStarting>(msg),
-				msg => Assert.IsType<_BeforeTestFinished>(msg),
+				msg => Assert.IsType<TestStarting>(msg),
+				msg => Assert.IsType<TestClassConstructionStarting>(msg),
+				msg => Assert.IsType<TestClassConstructionFinished>(msg),
+				msg => Assert.IsType<BeforeTestStarting>(msg),
+				msg => Assert.IsType<BeforeTestFinished>(msg),
 				// No after messages because nothing to clean up, and test method is NOT invoked
-				msg => Assert.IsType<_TestClassDisposeStarting>(msg),
-				msg => Assert.IsType<_TestClassDisposeFinished>(msg),
+				msg => Assert.IsType<TestClassDisposeStarting>(msg),
+				msg => Assert.IsType<TestClassDisposeFinished>(msg),
 				msg =>
 				{
-					var failed = Assert.IsType<_TestFailed>(msg);
+					var failed = Assert.IsType<TestFailed>(msg);
 					Assert.Equal(-1, failed.ExceptionParentIndices.Single());
 					Assert.Equal("SpyBeforeAfterTest+BeforeException", failed.ExceptionTypes.Single());
 				},
-				msg => Assert.IsType<_TestFinished>(msg)
+				msg => Assert.IsType<TestFinished>(msg)
 			);
 		}
 
@@ -233,19 +233,19 @@ public class XunitTestRunnerTests
 
 			Assert.Collection(
 				messageBus.Messages,
-				msg => Assert.IsType<_TestStarting>(msg),
-				msg => Assert.IsType<_TestClassConstructionStarting>(msg),
-				msg => Assert.IsType<_TestClassConstructionFinished>(msg),
-				msg => Assert.IsType<_BeforeTestStarting>(msg),
-				msg => Assert.IsType<_BeforeTestFinished>(msg),
+				msg => Assert.IsType<TestStarting>(msg),
+				msg => Assert.IsType<TestClassConstructionStarting>(msg),
+				msg => Assert.IsType<TestClassConstructionFinished>(msg),
+				msg => Assert.IsType<BeforeTestStarting>(msg),
+				msg => Assert.IsType<BeforeTestFinished>(msg),
 				// Test method is invoked here
-				msg => Assert.IsType<_AfterTestStarting>(msg),
-				msg => Assert.IsType<_AfterTestFinished>(msg),
-				msg => Assert.IsType<_TestClassDisposeStarting>(msg),
-				msg => Assert.IsType<_TestClassDisposeFinished>(msg),
+				msg => Assert.IsType<AfterTestStarting>(msg),
+				msg => Assert.IsType<AfterTestFinished>(msg),
+				msg => Assert.IsType<TestClassDisposeStarting>(msg),
+				msg => Assert.IsType<TestClassDisposeFinished>(msg),
 				msg =>
 				{
-					var failed = Assert.IsType<_TestFailed>(msg);
+					var failed = Assert.IsType<TestFailed>(msg);
 					Assert.Equivalent(new[] { -1, 0, 0 }, failed.ExceptionParentIndices);
 					Assert.Collection(
 						failed.ExceptionTypes,
@@ -254,7 +254,7 @@ public class XunitTestRunnerTests
 						type => Assert.Equal("SpyBeforeAfterTest+AfterException", type)
 					);
 				},
-				msg => Assert.IsType<_TestFinished>(msg)
+				msg => Assert.IsType<TestFinished>(msg)
 			);
 		}
 

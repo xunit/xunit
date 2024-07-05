@@ -66,7 +66,7 @@ public class XunitTestRunnerContext(
 			foreach (var beforeAfterAttribute in BeforeAfterTestAttributes)
 			{
 				var attributeName = beforeAfterAttribute.GetType().Name;
-				var afterTestStarting = new _AfterTestStarting
+				var afterTestStarting = new AfterTestStarting
 				{
 					AssemblyUniqueID = testAssemblyUniqueID,
 					AttributeName = attributeName,
@@ -82,7 +82,7 @@ public class XunitTestRunnerContext(
 
 				await Aggregator.RunAsync(() => beforeAfterAttribute.After(Test.TestMethod.Method, Test));
 
-				var afterTestFinished = new _AfterTestFinished
+				var afterTestFinished = new AfterTestFinished
 				{
 					AssemblyUniqueID = testAssemblyUniqueID,
 					AttributeName = attributeName,
@@ -124,7 +124,7 @@ public class XunitTestRunnerContext(
 			foreach (var beforeAfterAttribute in BeforeAfterTestAttributes)
 			{
 				var attributeName = beforeAfterAttribute.GetType().Name;
-				var beforeTestStarting = new _BeforeTestStarting
+				var beforeTestStarting = new BeforeTestStarting
 				{
 					AssemblyUniqueID = testAssemblyUniqueID,
 					AttributeName = attributeName,
@@ -151,7 +151,7 @@ public class XunitTestRunnerContext(
 					}
 					finally
 					{
-						var beforeTestFinished = new _BeforeTestFinished
+						var beforeTestFinished = new BeforeTestFinished
 						{
 							AssemblyUniqueID = testAssemblyUniqueID,
 							AttributeName = attributeName,

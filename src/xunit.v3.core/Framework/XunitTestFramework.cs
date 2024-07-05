@@ -5,7 +5,7 @@ using Xunit.Internal;
 namespace Xunit.v3;
 
 /// <summary>
-/// The implementation of <see cref="_ITestFramework"/> that supports discovery and
+/// The implementation of <see cref="ITestFramework"/> that supports discovery and
 /// execution of unit tests linked against xunit.v3.core.dll.
 /// </summary>
 public class XunitTestFramework : TestFramework
@@ -37,10 +37,10 @@ public class XunitTestFramework : TestFramework
 		DisplayName;
 
 	/// <inheritdoc/>
-	protected override _ITestFrameworkDiscoverer CreateDiscoverer(Assembly assembly) =>
+	protected override ITestFrameworkDiscoverer CreateDiscoverer(Assembly assembly) =>
 		new XunitTestFrameworkDiscoverer(new XunitTestAssembly(Guard.ArgumentNotNull(assembly), configFileName, assembly.GetName().Version));
 
 	/// <inheritdoc/>
-	protected override _ITestFrameworkExecutor CreateExecutor(Assembly assembly) =>
+	protected override ITestFrameworkExecutor CreateExecutor(Assembly assembly) =>
 		new XunitTestFrameworkExecutor(new XunitTestAssembly(Guard.ArgumentNotNull(assembly), configFileName, assembly.GetName().Version));
 }

@@ -12,11 +12,11 @@ namespace Xunit.v3;
 /// <summary>
 /// This class is a "philosophical" implementation of <see cref="T:Xunit.IFrontController"/> (which isn't a type
 /// that's available here), intended to be used by in-process runners, wrapped around an implementation
-/// of <see cref="_ITestFramework"/>. The signatures of the methods are slightly different, as they permit
-/// and require direct access to <see cref="_ITestCase"/> instances rather than forcing the test cases through
-/// a round of serialization and deserialization. It will also manufacture the <see cref="_DiscoveryStarting"/>
-/// and <see cref="_DiscoveryComplete"/> messages that the test framework is not responsible for. When connected
-/// to remote meta-runners, the in-process runner can convert <see cref="_ITestCase"/> instances into
+/// of <see cref="ITestFramework"/>. The signatures of the methods are slightly different, as they permit
+/// and require direct access to <see cref="ITestCase"/> instances rather than forcing the test cases through
+/// a round of serialization and deserialization. It will also manufacture the <see cref="DiscoveryStarting"/>
+/// and <see cref="DiscoveryComplete"/> messages that the test framework is not responsible for. When connected
+/// to remote meta-runners, the in-process runner can convert <see cref="ITestCase"/> instances into
 /// <see cref="T:Xunit.Runner.Common._TestCaseDiscovered"/> instances by using a converter like
 /// <see cref="M:Xunit.Runner.Common.TestCaseExtensions.ToTestCaseDiscovered"/> (which should be called from a
 /// callback passed to <see cref="Find"/>).
@@ -24,8 +24,8 @@ namespace Xunit.v3;
 public class InProcessFrontController
 {
 	readonly string? configFilePath;
-	readonly Lazy<_ITestFrameworkDiscoverer> discoverer;
-	readonly Lazy<_ITestFrameworkExecutor> executor;
+	readonly Lazy<ITestFrameworkDiscoverer> discoverer;
+	readonly Lazy<ITestFrameworkExecutor> executor;
 	readonly Assembly testAssembly;
 
 	/// <summary>
@@ -35,7 +35,7 @@ public class InProcessFrontController
 	/// <param name="testAssembly">The assembly under test.</param>
 	/// <param name="configFilePath">The optional configuration file path.</param>
 	public InProcessFrontController(
-		_ITestFramework testFramework,
+		ITestFramework testFramework,
 		Assembly testAssembly,
 		string? configFilePath)
 	{
@@ -77,11 +77,11 @@ public class InProcessFrontController
 	/// <param name="discoveryCallback">An optional callback to be called for each discovered test case.
 	/// It provides both the test case and a flag which indicates if it passed the provided filter.</param>
 	public async ValueTask Find(
-		_IMessageSink messageSink,
-		_ITestFrameworkDiscoveryOptions options,
-		Func<_ITestCaseMetadata, bool> filter,
+		IMessageSink messageSink,
+		ITestFrameworkDiscoveryOptions options,
+		Func<ITestCaseMetadata, bool> filter,
 		Type[]? types = null,
-		Func<_ITestCase, bool, ValueTask<bool>>? discoveryCallback = null)
+		Func<ITestCase, bool, ValueTask<bool>>? discoveryCallback = null)
 	{
 		Guard.ArgumentNotNull(messageSink);
 		Guard.ArgumentNotNull(options);
@@ -89,7 +89,7 @@ public class InProcessFrontController
 
 		int testCasesToRun = 0;
 
-		messageSink.OnMessage(new _DiscoveryStarting
+		messageSink.OnMessage(new DiscoveryStarting
 		{
 			AssemblyName = Path.GetFileNameWithoutExtension(testAssembly.Location),
 			AssemblyPath = testAssembly.Location,
@@ -126,7 +126,7 @@ public class InProcessFrontController
 		}
 		finally
 		{
-			messageSink.OnMessage(new _DiscoveryComplete
+			messageSink.OnMessage(new DiscoveryComplete
 			{
 				AssemblyUniqueID = TestAssemblyUniqueID,
 				TestCasesToRun = testCasesToRun,
@@ -148,10 +148,10 @@ public class InProcessFrontController
 	/// only looks for tests from one of the provided types; when passed a <c>null</c> collection,
 	/// discovery/filtering/execution looks at all types in the assembly.</param>
 	public async ValueTask FindAndRun(
-		_IMessageSink messageSink,
-		_ITestFrameworkDiscoveryOptions discoveryOptions,
-		_ITestFrameworkExecutionOptions executionOptions,
-		Func<_ITestCaseMetadata, bool> filter,
+		IMessageSink messageSink,
+		ITestFrameworkDiscoveryOptions discoveryOptions,
+		ITestFrameworkExecutionOptions executionOptions,
+		Func<ITestCaseMetadata, bool> filter,
 		Type[]? types = null)
 	{
 		Guard.ArgumentNotNull(messageSink);
@@ -159,7 +159,7 @@ public class InProcessFrontController
 		Guard.ArgumentNotNull(executionOptions);
 		Guard.ArgumentNotNull(filter);
 
-		List<_ITestCase> testCasesToRun = [];
+		List<ITestCase> testCasesToRun = [];
 
 		await Find(
 			messageSink,
@@ -183,9 +183,9 @@ public class InProcessFrontController
 	/// calling <see cref="Find"/> and collecting the test cases that were returned via the callback.
 	/// </summary>
 	public ValueTask Run(
-		_IMessageSink messageSink,
-		_ITestFrameworkExecutionOptions executionOptions,
-		IReadOnlyCollection<_ITestCase> testCases)
+		IMessageSink messageSink,
+		ITestFrameworkExecutionOptions executionOptions,
+		IReadOnlyCollection<ITestCase> testCases)
 	{
 		Guard.ArgumentNotNull(messageSink);
 		Guard.ArgumentNotNull(executionOptions);

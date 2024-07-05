@@ -7,15 +7,15 @@ using InnerClass2 = Namespace1.ClassInNamespace1.InnerClass2;
 
 public class XunitFiltersTests
 {
-	static readonly _TestCaseDiscovered InnerClass1Name1 = TestData.TestCaseDiscovered<InnerClass1>(nameof(InnerClass1.Name1));
-	static readonly _TestCaseDiscovered InnerClass1Name2 = TestData.TestCaseDiscovered<InnerClass1>(nameof(InnerClass1.Name2));
-	static readonly _TestCaseDiscovered InnerClass1Name3 = TestData.TestCaseDiscovered<InnerClass1>(nameof(InnerClass1.Name3));
-	static readonly _TestCaseDiscovered InnerClass2Name3 = TestData.TestCaseDiscovered<InnerClass2>(nameof(InnerClass2.Name3));
-	static readonly _TestCaseDiscovered MethodWithFooBarTrait = TestData.TestCaseDiscovered<ClassWithTraits>(nameof(ClassWithTraits.FooBar));
-	static readonly _TestCaseDiscovered MethodWithBazBiffTrait = TestData.TestCaseDiscovered<ClassWithTraits>(nameof(ClassWithTraits.BazBiff));
-	static readonly _TestCaseDiscovered MethodWithNoTraits = TestData.TestCaseDiscovered<ClassWithTraits>(nameof(ClassWithTraits.NoTraits));
-	static readonly _TestCaseDiscovered NonClassTest = TestData.TestCaseDiscovered(traits: TestData.EmptyTraits);
-	static readonly _TestCaseDiscovered NonMethodTest = TestData.TestCaseDiscovered(
+	static readonly TestCaseDiscovered InnerClass1Name1 = TestData.TestCaseDiscovered<InnerClass1>(nameof(InnerClass1.Name1));
+	static readonly TestCaseDiscovered InnerClass1Name2 = TestData.TestCaseDiscovered<InnerClass1>(nameof(InnerClass1.Name2));
+	static readonly TestCaseDiscovered InnerClass1Name3 = TestData.TestCaseDiscovered<InnerClass1>(nameof(InnerClass1.Name3));
+	static readonly TestCaseDiscovered InnerClass2Name3 = TestData.TestCaseDiscovered<InnerClass2>(nameof(InnerClass2.Name3));
+	static readonly TestCaseDiscovered MethodWithFooBarTrait = TestData.TestCaseDiscovered<ClassWithTraits>(nameof(ClassWithTraits.FooBar));
+	static readonly TestCaseDiscovered MethodWithBazBiffTrait = TestData.TestCaseDiscovered<ClassWithTraits>(nameof(ClassWithTraits.BazBiff));
+	static readonly TestCaseDiscovered MethodWithNoTraits = TestData.TestCaseDiscovered<ClassWithTraits>(nameof(ClassWithTraits.NoTraits));
+	static readonly TestCaseDiscovered NonClassTest = TestData.TestCaseDiscovered(traits: TestData.EmptyTraits);
+	static readonly TestCaseDiscovered NonMethodTest = TestData.TestCaseDiscovered(
 		testClassName: typeof(ClassWithTraits).FullName,
 		testNamespace: typeof(ClassWithTraits).Namespace,
 		traits: TestData.EmptyTraits

@@ -24,7 +24,7 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 	/// <param name="testMethodArguments">The arguments for the test method.</param>
 	/// <returns>The test cases</returns>
 	protected virtual ValueTask<IReadOnlyCollection<IXunitTestCase>> CreateTestCasesForDataRow(
-		_ITestFrameworkDiscoveryOptions discoveryOptions,
+		ITestFrameworkDiscoveryOptions discoveryOptions,
 		IXunitTestMethod testMethod,
 		ITheoryAttribute theoryAttribute,
 		ITheoryDataRow dataRow,
@@ -66,7 +66,7 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 	/// <param name="theoryAttribute">The theory attribute attached to the test method.</param>
 	/// <returns>The test case</returns>
 	protected virtual ValueTask<IReadOnlyCollection<IXunitTestCase>> CreateTestCasesForTheory(
-		_ITestFrameworkDiscoveryOptions discoveryOptions,
+		ITestFrameworkDiscoveryOptions discoveryOptions,
 		IXunitTestMethod testMethod,
 		ITheoryAttribute theoryAttribute)
 	{
@@ -116,7 +116,7 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 	/// <param name="factAttribute">The theory attribute attached to the test method.</param>
 	/// <returns>Returns zero or more test cases represented by the test method.</returns>
 	public virtual async ValueTask<IReadOnlyCollection<IXunitTestCase>> Discover(
-		_ITestFrameworkDiscoveryOptions discoveryOptions,
+		ITestFrameworkDiscoveryOptions discoveryOptions,
 		IXunitTestMethod testMethod,
 		IFactAttribute factAttribute)
 	{

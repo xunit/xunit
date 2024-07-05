@@ -15,7 +15,7 @@ public class FrontControllerRunSettings : FrontControllerSettingsBase
 	/// <param name="options">The options used during execution</param>
 	/// <param name="serializedTestCases">The test cases to be run</param>
 	public FrontControllerRunSettings(
-		_ITestFrameworkExecutionOptions options,
+		ITestFrameworkExecutionOptions options,
 		IReadOnlyCollection<string> serializedTestCases)
 	{
 		Options = Guard.ArgumentNotNull(options);
@@ -25,7 +25,7 @@ public class FrontControllerRunSettings : FrontControllerSettingsBase
 	/// <summary>
 	/// The options used during execution.
 	/// </summary>
-	public _ITestFrameworkExecutionOptions Options { get; }
+	public ITestFrameworkExecutionOptions Options { get; }
 
 	/// <summary>
 	/// Get the list of test cases to be run.

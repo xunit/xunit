@@ -41,7 +41,7 @@ public class InProcessFrontControllerTests
 			var frontController = TestableInProcessFrontController.Create();
 			var messageSink = SpyMessageSink.Capture();
 			var options = TestData.TestFrameworkDiscoveryOptions();
-			var filter = (_ITestCaseMetadata testCase) => true;
+			var filter = (ITestCaseMetadata testCase) => true;
 
 			await Assert.ThrowsAsync<ArgumentNullException>("messageSink", () => frontController.Find(null!, options, filter).AsTask());
 			await Assert.ThrowsAsync<ArgumentNullException>("options", () => frontController.Find(messageSink, null!, filter).AsTask());
@@ -54,7 +54,7 @@ public class InProcessFrontControllerTests
 			var frontController = TestableInProcessFrontController.Create(configFilePath: "/path/to/config.json");
 			var messageSink = SpyMessageSink.Capture();
 			var options = TestData.TestFrameworkDiscoveryOptions();
-			var filter = (_ITestCaseMetadata testCase) => true;
+			var filter = (ITestCaseMetadata testCase) => true;
 
 			await frontController.Find(messageSink, options, filter);
 
@@ -62,7 +62,7 @@ public class InProcessFrontControllerTests
 				messageSink.Messages,
 				msg =>
 				{
-					var starting = Assert.IsType<_DiscoveryStarting>(msg);
+					var starting = Assert.IsType<DiscoveryStarting>(msg);
 #if BUILD_X86
 					Assert.StartsWith("xunit.v3.core.x86.tests", starting.AssemblyName);
 					Assert.Equal("xunit.v3.core.x86.tests", Path.GetFileNameWithoutExtension(starting.AssemblyPath));
@@ -75,7 +75,7 @@ public class InProcessFrontControllerTests
 				},
 				msg =>
 				{
-					var complete = Assert.IsType<_DiscoveryComplete>(msg);
+					var complete = Assert.IsType<DiscoveryComplete>(msg);
 					Assert.Equal(frontController.TestAssemblyUniqueID, complete.AssemblyUniqueID);
 					Assert.Equal(0, complete.TestCasesToRun);
 				}
@@ -90,21 +90,21 @@ public class InProcessFrontControllerTests
 			var options = TestData.TestFrameworkDiscoveryOptions();
 			var validTestCase = Mocks.XunitTestCase<Find>(nameof(ReportsDiscoveredTestCasesAndCountsTestCasesWhichPassFilter));
 			var invalidTestCase = Mocks.XunitTestCase<Find>(nameof(SendsStartingAndCompleteMessages));
-			var filter = (_ITestCaseMetadata testCase) => testCase == validTestCase;
-			var callbackCalls = new List<(_ITestCase testCase, bool passedFilter)>();
+			var filter = (ITestCaseMetadata testCase) => testCase == validTestCase;
+			var callbackCalls = new List<(ITestCase testCase, bool passedFilter)>();
 			frontController
 				.Discoverer
 				.WhenForAnyArgs(d => d.Find(null!, null!))
 				.Do(callInfo =>
 				{
-					var callback = callInfo.Arg<Func<_ITestCase, ValueTask<bool>>>();
+					var callback = callInfo.Arg<Func<ITestCase, ValueTask<bool>>>();
 #pragma warning disable xUnit1031  // Test methods must not use blocking task operations
 					callback(validTestCase).GetAwaiter().GetResult();
 					callback(invalidTestCase).GetAwaiter().GetResult();
 #pragma warning restore xUnit1031  // Test methods must not use blocking task operations
 				});
 			ValueTask<bool> frontControllerCallback(
-				_ITestCase testCase,
+				ITestCase testCase,
 				bool passedFilter)
 			{
 				callbackCalls.Add((testCase, passedFilter));
@@ -113,7 +113,7 @@ public class InProcessFrontControllerTests
 
 			await frontController.Find(messageSink, options, filter, discoveryCallback: frontControllerCallback);
 
-			var complete = Assert.Single(messageSink.Messages.OfType<_DiscoveryComplete>());
+			var complete = Assert.Single(messageSink.Messages.OfType<DiscoveryComplete>());
 			Assert.Equal(1, complete.TestCasesToRun);
 			Assert.Collection(
 				callbackCalls,
@@ -140,7 +140,7 @@ public class InProcessFrontControllerTests
 			var messageSink = SpyMessageSink.Capture();
 			var discoveryOptions = TestData.TestFrameworkDiscoveryOptions();
 			var executionOptions = TestData.TestFrameworkExecutionOptions();
-			var filter = (_ITestCaseMetadata testCase) => true;
+			var filter = (ITestCaseMetadata testCase) => true;
 
 			await Assert.ThrowsAsync<ArgumentNullException>("messageSink", () => frontController.FindAndRun(null!, discoveryOptions, executionOptions, filter).AsTask());
 			await Assert.ThrowsAsync<ArgumentNullException>("discoveryOptions", () => frontController.FindAndRun(messageSink, null!, executionOptions, filter).AsTask());
@@ -157,14 +157,14 @@ public class InProcessFrontControllerTests
 			var executionOptions = TestData.TestFrameworkExecutionOptions();
 			var validTestCase = Mocks.XunitTestCase<FindAndRun>(nameof(RunsTestCasesWhichPassFilter));
 			var invalidTestCase = Mocks.XunitTestCase<Find>(nameof(GuardClauses));
-			var filter = (_ITestCaseMetadata testCase) => testCase == validTestCase;
-			var executedTestCases = default(IReadOnlyCollection<_ITestCase>?);
+			var filter = (ITestCaseMetadata testCase) => testCase == validTestCase;
+			var executedTestCases = default(IReadOnlyCollection<ITestCase>?);
 			frontController
 				.Discoverer
 				.WhenForAnyArgs(d => d.Find(null!, null!))
 				.Do(callInfo =>
 				{
-					var callback = callInfo.Arg<Func<_ITestCase, ValueTask<bool>>>();
+					var callback = callInfo.Arg<Func<ITestCase, ValueTask<bool>>>();
 #pragma warning disable xUnit1031  // Test methods must not use blocking task operations
 					callback(validTestCase).GetAwaiter().GetResult();
 					callback(invalidTestCase).GetAwaiter().GetResult();
@@ -173,7 +173,7 @@ public class InProcessFrontControllerTests
 			frontController
 				.Executor
 				.WhenForAnyArgs(e => e.RunTestCases(null!, null!, null!))
-				.Do(callInfo => executedTestCases = callInfo.Arg<IReadOnlyCollection<_ITestCase>>());
+				.Do(callInfo => executedTestCases = callInfo.Arg<IReadOnlyCollection<ITestCase>>());
 
 			await frontController.FindAndRun(messageSink, discoveryOptions, executionOptions, filter);
 
@@ -185,13 +185,13 @@ public class InProcessFrontControllerTests
 
 	class TestableInProcessFrontController : InProcessFrontController
 	{
-		public readonly _ITestFrameworkDiscoverer Discoverer;
-		public readonly _ITestFrameworkExecutor Executor;
+		public readonly ITestFrameworkDiscoverer Discoverer;
+		public readonly ITestFrameworkExecutor Executor;
 		public readonly Assembly TestAssembly;
 
 		TestableInProcessFrontController(
-			_ITestFrameworkDiscoverer discoverer,
-			_ITestFrameworkExecutor executor,
+			ITestFrameworkDiscoverer discoverer,
+			ITestFrameworkExecutor executor,
 			Assembly testAssembly,
 			string? configFilePath) :
 				base(Mocks.TestFramework(discoverer, executor), testAssembly, configFilePath)
@@ -202,8 +202,8 @@ public class InProcessFrontControllerTests
 		}
 
 		public static TestableInProcessFrontController Create(
-			_ITestFrameworkDiscoverer? discoverer = null,
-			_ITestFrameworkExecutor? executor = null,
+			ITestFrameworkDiscoverer? discoverer = null,
+			ITestFrameworkExecutor? executor = null,
 			Assembly? testAssembly = null,
 			string? configFilePath = null)
 		{

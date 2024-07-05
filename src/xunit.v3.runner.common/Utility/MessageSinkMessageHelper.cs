@@ -7,7 +7,7 @@ using Xunit.Sdk;
 namespace Xunit.Runner.Common;
 
 /// <summary>
-/// A class with helper functions related to <see cref="_MessageSinkMessage"/>.
+/// A class with helper functions related to <see cref="MessageSinkMessage"/>.
 /// </summary>
 public static class MessageSinkMessageHelper
 {
@@ -19,55 +19,55 @@ public static class MessageSinkMessageHelper
 	// own messages and participate in deserialization of those messages.
 	static MessageSinkMessageHelper()
 	{
-		RegisterTypeMapping(typeof(_AfterTestFinished));
-		RegisterTypeMapping(typeof(_AfterTestStarting));
-		RegisterTypeMapping(typeof(_BeforeTestFinished));
-		RegisterTypeMapping(typeof(_BeforeTestStarting));
-		RegisterTypeMapping(typeof(_DiagnosticMessage));
-		RegisterTypeMapping(typeof(_DiscoveryComplete));
-		RegisterTypeMapping(typeof(_DiscoveryStarting));
-		RegisterTypeMapping(typeof(_ErrorMessage));
-		RegisterTypeMapping(typeof(_InternalDiagnosticMessage));
-		RegisterTypeMapping(typeof(_TestAssemblyCleanupFailure));
-		RegisterTypeMapping(typeof(_TestAssemblyFinished));
-		RegisterTypeMapping(typeof(_TestAssemblyStarting));
-		RegisterTypeMapping(typeof(_TestCaseCleanupFailure));
-		RegisterTypeMapping(typeof(_TestCaseDiscovered));
-		RegisterTypeMapping(typeof(_TestCaseFinished));
-		RegisterTypeMapping(typeof(_TestCaseStarting));
-		RegisterTypeMapping(typeof(_TestClassCleanupFailure));
-		RegisterTypeMapping(typeof(_TestClassConstructionFinished));
-		RegisterTypeMapping(typeof(_TestClassConstructionStarting));
-		RegisterTypeMapping(typeof(_TestClassDisposeFinished));
-		RegisterTypeMapping(typeof(_TestClassDisposeStarting));
-		RegisterTypeMapping(typeof(_TestClassFinished));
-		RegisterTypeMapping(typeof(_TestClassStarting));
-		RegisterTypeMapping(typeof(_TestCleanupFailure));
-		RegisterTypeMapping(typeof(_TestCollectionCleanupFailure));
-		RegisterTypeMapping(typeof(_TestCollectionFinished));
-		RegisterTypeMapping(typeof(_TestCollectionStarting));
-		RegisterTypeMapping(typeof(_TestFailed));
-		RegisterTypeMapping(typeof(_TestFinished));
-		RegisterTypeMapping(typeof(_TestMethodCleanupFailure));
-		RegisterTypeMapping(typeof(_TestMethodFinished));
-		RegisterTypeMapping(typeof(_TestMethodStarting));
-		RegisterTypeMapping(typeof(_TestNotRun));
-		RegisterTypeMapping(typeof(_TestOutput));
-		RegisterTypeMapping(typeof(_TestPassed));
-		RegisterTypeMapping(typeof(_TestSkipped));
-		RegisterTypeMapping(typeof(_TestStarting));
+		RegisterTypeMapping(typeof(AfterTestFinished));
+		RegisterTypeMapping(typeof(AfterTestStarting));
+		RegisterTypeMapping(typeof(BeforeTestFinished));
+		RegisterTypeMapping(typeof(BeforeTestStarting));
+		RegisterTypeMapping(typeof(DiagnosticMessage));
+		RegisterTypeMapping(typeof(DiscoveryComplete));
+		RegisterTypeMapping(typeof(DiscoveryStarting));
+		RegisterTypeMapping(typeof(ErrorMessage));
+		RegisterTypeMapping(typeof(InternalDiagnosticMessage));
+		RegisterTypeMapping(typeof(TestAssemblyCleanupFailure));
+		RegisterTypeMapping(typeof(TestAssemblyFinished));
+		RegisterTypeMapping(typeof(TestAssemblyStarting));
+		RegisterTypeMapping(typeof(TestCaseCleanupFailure));
+		RegisterTypeMapping(typeof(TestCaseDiscovered));
+		RegisterTypeMapping(typeof(TestCaseFinished));
+		RegisterTypeMapping(typeof(TestCaseStarting));
+		RegisterTypeMapping(typeof(TestClassCleanupFailure));
+		RegisterTypeMapping(typeof(TestClassConstructionFinished));
+		RegisterTypeMapping(typeof(TestClassConstructionStarting));
+		RegisterTypeMapping(typeof(TestClassDisposeFinished));
+		RegisterTypeMapping(typeof(TestClassDisposeStarting));
+		RegisterTypeMapping(typeof(TestClassFinished));
+		RegisterTypeMapping(typeof(TestClassStarting));
+		RegisterTypeMapping(typeof(TestCleanupFailure));
+		RegisterTypeMapping(typeof(TestCollectionCleanupFailure));
+		RegisterTypeMapping(typeof(TestCollectionFinished));
+		RegisterTypeMapping(typeof(TestCollectionStarting));
+		RegisterTypeMapping(typeof(TestFailed));
+		RegisterTypeMapping(typeof(TestFinished));
+		RegisterTypeMapping(typeof(TestMethodCleanupFailure));
+		RegisterTypeMapping(typeof(TestMethodFinished));
+		RegisterTypeMapping(typeof(TestMethodStarting));
+		RegisterTypeMapping(typeof(TestNotRun));
+		RegisterTypeMapping(typeof(TestOutput));
+		RegisterTypeMapping(typeof(TestPassed));
+		RegisterTypeMapping(typeof(TestSkipped));
+		RegisterTypeMapping(typeof(TestStarting));
 
-		deserialize = typeof(_MessageSinkMessage).GetMethod("Deserialize", BindingFlags.Instance | BindingFlags.NonPublic);
+		deserialize = typeof(MessageSinkMessage).GetMethod("Deserialize", BindingFlags.Instance | BindingFlags.NonPublic);
 		if (deserialize is null)
 			errors.Add("Could not find method _MessageSinkMessage.Deserialize");
 	}
 
 	/// <summary>
-	/// Parses a previously serialized <see cref="_MessageSinkMessage"/>-derived object.
+	/// Parses a previously serialized <see cref="MessageSinkMessage"/>-derived object.
 	/// </summary>
 	/// <param name="serialization">The serialized value</param>
 	/// <returns>The deserialized object</returns>
-	public static _MessageSinkMessage? Deserialize(string serialization)
+	public static MessageSinkMessage? Deserialize(string serialization)
 	{
 		if (errors.Count != 0 || deserialize is null)
 			throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "JSON deserialization errors occurred during startup:{0}{1}", Environment.NewLine, string.Join(Environment.NewLine, errors)));
@@ -83,7 +83,7 @@ public static class MessageSinkMessageHelper
 		if (!typeIdToTypeMappings.TryGetValue(typeName, out var type))
 			return null;
 
-		if (Activator.CreateInstance(type) is not _MessageSinkMessage message)
+		if (Activator.CreateInstance(type) is not MessageSinkMessage message)
 			return null;
 
 		deserialize.Invoke(message, [root]);

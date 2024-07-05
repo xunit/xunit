@@ -1,10 +1,10 @@
 using Xunit.Internal;
 using Xunit.Sdk;
 
-public class TestFailedWithDisplayName : _TestResultMessage, ITestResultWithDisplayName
+public class TestFailedWithDisplayName : TestResultMessage, ITestResultWithDisplayName
 {
 	internal TestFailedWithDisplayName(
-		_TestFailed testFailed,
+		TestFailed testFailed,
 		string testDisplayName)
 	{
 		AssemblyUniqueID = testFailed.AssemblyUniqueID;

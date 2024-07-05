@@ -42,7 +42,7 @@ public readonly partial struct StackFrameInfo(
 	/// </summary>
 	/// <param name="errorMetadata">The error to inspect</param>
 	/// <returns>The stack frame info</returns>
-	public static StackFrameInfo FromErrorMetadata(_IErrorMetadata? errorMetadata)
+	public static StackFrameInfo FromErrorMetadata(IErrorMetadata? errorMetadata)
 	{
 		if (errorMetadata is null)
 			return None;

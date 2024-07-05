@@ -11,7 +11,7 @@ namespace Xunit;
 public class CulturedTheoryAttributeDiscoverer : TheoryDiscoverer
 {
 	protected override ValueTask<IReadOnlyCollection<IXunitTestCase>> CreateTestCasesForDataRow(
-		_ITestFrameworkDiscoveryOptions discoveryOptions,
+		ITestFrameworkDiscoveryOptions discoveryOptions,
 		IXunitTestMethod testMethod,
 		ITheoryAttribute theoryAttribute,
 		ITheoryDataRow dataRow,
@@ -39,7 +39,7 @@ public class CulturedTheoryAttributeDiscoverer : TheoryDiscoverer
 	}
 
 	protected override ValueTask<IReadOnlyCollection<IXunitTestCase>> CreateTestCasesForTheory(
-		_ITestFrameworkDiscoveryOptions discoveryOptions,
+		ITestFrameworkDiscoveryOptions discoveryOptions,
 		IXunitTestMethod testMethod,
 		ITheoryAttribute theoryAttribute)
 	{

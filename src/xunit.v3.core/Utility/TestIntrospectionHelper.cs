@@ -30,7 +30,7 @@ public static class TestIntrospectionHelper
 		string UniqueID,
 		IXunitTestMethod ResolvedTestMethod
 	) GetTestCaseDetails(
-		_ITestFrameworkDiscoveryOptions discoveryOptions,
+		ITestFrameworkDiscoveryOptions discoveryOptions,
 		IXunitTestMethod testMethod,
 		IFactAttribute factAttribute,
 		object?[]? testMethodArguments = null,
@@ -89,7 +89,7 @@ public static class TestIntrospectionHelper
 		string UniqueID,
 		IXunitTestMethod ResolvedTestMethod
 	) GetTestCaseDetailsForTheoryDataRow(
-		_ITestFrameworkDiscoveryOptions discoveryOptions,
+		ITestFrameworkDiscoveryOptions discoveryOptions,
 		IXunitTestMethod testMethod,
 		ITheoryAttribute theoryAttribute,
 		ITheoryDataRow dataRow,

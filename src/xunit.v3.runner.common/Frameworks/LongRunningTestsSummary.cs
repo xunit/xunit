@@ -12,11 +12,11 @@ namespace Xunit.Runner.Common;
 /// <param name="testCases">Tests</param>
 public class LongRunningTestsSummary(
 	TimeSpan configuredLongRunningTime,
-	IDictionary<_ITestCaseMetadata, TimeSpan> testCases)
+	IDictionary<ITestCaseMetadata, TimeSpan> testCases)
 {
 	/// <inheritdoc/>
 	public TimeSpan ConfiguredLongRunningTime { get; } = configuredLongRunningTime;
 
 	/// <inheritdoc/>
-	public IDictionary<_ITestCaseMetadata, TimeSpan> TestCases { get; } = Guard.ArgumentNotNull(testCases);
+	public IDictionary<ITestCaseMetadata, TimeSpan> TestCases { get; } = Guard.ArgumentNotNull(testCases);
 }

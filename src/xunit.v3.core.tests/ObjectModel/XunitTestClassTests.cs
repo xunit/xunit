@@ -142,7 +142,7 @@ namespace SomeNamespace
 	class MyTestCaseOrderer : ITestCaseOrderer
 	{
 		public IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> testCases)
-			where TTestCase : notnull, _ITestCase =>
+			where TTestCase : notnull, ITestCase =>
 				throw new NotImplementedException();
 	}
 

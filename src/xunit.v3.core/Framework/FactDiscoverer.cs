@@ -19,7 +19,7 @@ public class FactDiscoverer : IXunitTestCaseDiscoverer
 	/// <param name="testMethod">The test method.</param>
 	/// <param name="factAttribute">The attribute that decorates the test method.</param>
 	protected virtual IXunitTestCase CreateTestCase(
-		_ITestFrameworkDiscoveryOptions discoveryOptions,
+		ITestFrameworkDiscoveryOptions discoveryOptions,
 		IXunitTestMethod testMethod,
 		IFactAttribute factAttribute)
 	{
@@ -50,7 +50,7 @@ public class FactDiscoverer : IXunitTestCaseDiscoverer
 	/// <param name="factAttribute">The fact attribute attached to the test method.</param>
 	/// <returns>Returns zero or more test cases represented by the test method.</returns>
 	public virtual ValueTask<IReadOnlyCollection<IXunitTestCase>> Discover(
-		_ITestFrameworkDiscoveryOptions discoveryOptions,
+		ITestFrameworkDiscoveryOptions discoveryOptions,
 		IXunitTestMethod testMethod,
 		IFactAttribute factAttribute)
 	{
@@ -71,7 +71,7 @@ public class FactDiscoverer : IXunitTestCaseDiscoverer
 	}
 
 	static ExecutionErrorTestCase ErrorTestCase(
-		_ITestFrameworkDiscoveryOptions discoveryOptions,
+		ITestFrameworkDiscoveryOptions discoveryOptions,
 		IXunitTestMethod testMethod,
 		IFactAttribute factAttribute,
 		string message)

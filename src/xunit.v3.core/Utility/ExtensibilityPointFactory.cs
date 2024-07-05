@@ -67,21 +67,21 @@ public static partial class ExtensibilityPointFactory
 	/// </summary>
 	/// <param name="testAssembly">The test assembly to get the test framework for</param>
 	/// <returns>The test framework object</returns>
-	public static _ITestFramework GetTestFramework(Assembly testAssembly)
+	public static ITestFramework GetTestFramework(Assembly testAssembly)
 	{
 		Guard.ArgumentNotNull(testAssembly);
 
 		var testFrameworkAttribute = testAssembly.GetMatchingCustomAttributes(typeof(ITestFrameworkAttribute)).FirstOrDefault() as ITestFrameworkAttribute;
 		var testFrameworkType = testFrameworkAttribute?.FrameworkType ?? typeof(XunitTestFramework);
-		if (!typeof(_ITestFramework).IsAssignableFrom(testFrameworkType))
-			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Test framework type '{0}' does not implement '{1}'", testFrameworkType.SafeName(), typeof(_ITestFramework).SafeName()));
+		if (!typeof(ITestFramework).IsAssignableFrom(testFrameworkType))
+			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Test framework type '{0}' does not implement '{1}'", testFrameworkType.SafeName(), typeof(ITestFramework).SafeName()));
 
 		var obj =
 			Activator.CreateInstance(testFrameworkType)
 				?? throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Failed to create instance of test framework type '{0}'", testFrameworkType.SafeName()));
 
-		if (obj is not _ITestFramework result)
-			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Test framework type '{0}' could not be cast to '{1}'", testFrameworkType.SafeName(), typeof(_ITestFramework).SafeName()));
+		if (obj is not ITestFramework result)
+			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Test framework type '{0}' could not be cast to '{1}'", testFrameworkType.SafeName(), typeof(ITestFramework).SafeName()));
 
 		return result;
 	}

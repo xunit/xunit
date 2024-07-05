@@ -20,8 +20,8 @@ namespace Xunit.v3;
 public class XunitTestAssemblyRunnerContext(
 	IXunitTestAssembly testAssembly,
 	IReadOnlyCollection<IXunitTestCase> testCases,
-	_IMessageSink executionMessageSink,
-	_ITestFrameworkExecutionOptions executionOptions) :
+	IMessageSink executionMessageSink,
+	ITestFrameworkExecutionOptions executionOptions) :
 		TestAssemblyRunnerContext<IXunitTestAssembly, IXunitTestCase>(testAssembly, testCases, executionMessageSink, executionOptions)
 {
 	ICollectionBehaviorAttribute? collectionBehaviorAttribute;

@@ -9,7 +9,7 @@ using Xunit.v3;
 // This file manufactures instances of the test messages
 public static partial class TestData
 {
-	public static _AfterTestFinished AfterTestFinished(
+	public static AfterTestFinished AfterTestFinished(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		string attributeName = DefaultAttributeName,
 		string testCaseUniqueID = DefaultTestCaseUniqueID,
@@ -28,7 +28,7 @@ public static partial class TestData
 				TestUniqueID = testUniqueID,
 			};
 
-	public static _AfterTestStarting AfterTestStarting(
+	public static AfterTestStarting AfterTestStarting(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		string attributeName = DefaultAttributeName,
 		string testCaseUniqueID = DefaultTestCaseUniqueID,
@@ -47,7 +47,7 @@ public static partial class TestData
 				TestUniqueID = testUniqueID,
 			};
 
-	public static _BeforeTestFinished BeforeTestFinished(
+	public static BeforeTestFinished BeforeTestFinished(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		string attributeName = DefaultAttributeName,
 		string testCaseUniqueID = DefaultTestCaseUniqueID,
@@ -66,7 +66,7 @@ public static partial class TestData
 				TestUniqueID = testUniqueID,
 			};
 
-	public static _BeforeTestStarting BeforeTestStarting(
+	public static BeforeTestStarting BeforeTestStarting(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		string attributeName = DefaultAttributeName,
 		string testCaseUniqueID = DefaultTestCaseUniqueID,
@@ -85,10 +85,10 @@ public static partial class TestData
 				TestUniqueID = testUniqueID,
 			};
 
-	public static _DiagnosticMessage DiagnosticMessage(string message = "Hello world!") =>
+	public static DiagnosticMessage DiagnosticMessage(string message = "Hello world!") =>
 		new(message);
 
-	public static _DiscoveryComplete DiscoveryComplete(
+	public static DiscoveryComplete DiscoveryComplete(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		int testCasesToRun = DefaultCountTotal) =>
 			new()
@@ -97,7 +97,7 @@ public static partial class TestData
 				TestCasesToRun = testCasesToRun,
 			};
 
-	public static _DiscoveryStarting DiscoveryStarting(
+	public static DiscoveryStarting DiscoveryStarting(
 		string assemblyName = DefaultAssemblyName,
 		string assemblyPath = DefaultAssemblyPath,
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
@@ -110,7 +110,7 @@ public static partial class TestData
 				ConfigFilePath = configFilePath,
 			};
 
-	public static _ErrorMessage ErrorMessage(
+	public static ErrorMessage ErrorMessage(
 		int[]? exceptionParentIndices = null,
 		string?[]? exceptionTypes = null,
 		string[]? messages = null,
@@ -123,10 +123,10 @@ public static partial class TestData
 				StackTraces = stackTraces ?? DefaultStackTraces,
 			};
 
-	public static _InternalDiagnosticMessage InternalDiagnosticMessage(string message = "Hello world!") =>
+	public static InternalDiagnosticMessage InternalDiagnosticMessage(string message = "Hello world!") =>
 		new(message);
 
-	public static _TestAssemblyCleanupFailure TestAssemblyCleanupFailure(
+	public static TestAssemblyCleanupFailure TestAssemblyCleanupFailure(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		int[]? exceptionParentIndices = null,
 		string?[]? exceptionTypes = null,
@@ -141,7 +141,7 @@ public static partial class TestData
 				StackTraces = stackTraces ?? DefaultStackTraces,
 			};
 
-	public static _TestAssemblyFinished TestAssemblyFinished(
+	public static TestAssemblyFinished TestAssemblyFinished(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		decimal executionTime = DefaultExecutionTime,
 		DateTimeOffset? finishTime = null,
@@ -160,7 +160,7 @@ public static partial class TestData
 				TestsTotal = testsTotal,
 			};
 
-	public static _TestAssemblyStarting TestAssemblyStarting(
+	public static TestAssemblyStarting TestAssemblyStarting(
 		string assemblyName = DefaultAssemblyName,
 		string assemblyPath = DefaultAssemblyPath,
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
@@ -325,7 +325,7 @@ public static partial class TestData
 		};
 	}
 
-	public static _TestCaseCleanupFailure TestCaseCleanupFailure(
+	public static TestCaseCleanupFailure TestCaseCleanupFailure(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		int[]? exceptionParentIndices = null,
 		string?[]? exceptionTypes = null,
@@ -348,7 +348,7 @@ public static partial class TestData
 				TestMethodUniqueID = testMethodUniqueID,
 			};
 
-	public static _TestCaseDiscovered TestCaseDiscovered<TClass>(
+	public static TestCaseDiscovered TestCaseDiscovered<TClass>(
 		string testMethod,
 		string? testCaseDisplayName = null)
 	{
@@ -380,7 +380,7 @@ public static partial class TestData
 		);
 	}
 
-	public static _TestCaseDiscovered TestCaseDiscovered(
+	public static TestCaseDiscovered TestCaseDiscovered(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		string serialization = DefaultTestCaseSerialization,
 		string? skipReason = null,
@@ -413,7 +413,7 @@ public static partial class TestData
 				Traits = traits ?? DefaultTraits,
 			};
 
-	public static _TestCaseFinished TestCaseFinished(
+	public static TestCaseFinished TestCaseFinished(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		decimal executionTime = 123.4567m,
 		string testCaseUniqueID = DefaultTestCaseUniqueID,
@@ -438,7 +438,7 @@ public static partial class TestData
 				TestsTotal = testsTotal,
 			};
 
-	public static _TestCaseStarting TestCaseStarting(
+	public static TestCaseStarting TestCaseStarting(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		string? skipReason = null,
 		string? sourceFilePath = null,
@@ -469,7 +469,7 @@ public static partial class TestData
 				Traits = traits ?? DefaultTraits,
 			};
 
-	public static _TestClassCleanupFailure TestClassCleanupFailure(
+	public static TestClassCleanupFailure TestClassCleanupFailure(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		int[]? exceptionParentIndices = null,
 		string?[]? exceptionTypes = null,
@@ -488,7 +488,7 @@ public static partial class TestData
 				TestCollectionUniqueID = testCollectionUniqueID,
 			};
 
-	public static _TestClassConstructionFinished TestClassConstructionFinished(
+	public static TestClassConstructionFinished TestClassConstructionFinished(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		string testCaseUniqueID = DefaultTestCaseUniqueID,
 		string? testClassUniqueID = DefaultTestClassUniqueID,
@@ -505,7 +505,7 @@ public static partial class TestData
 				TestUniqueID = testUniqueID,
 			};
 
-	public static _TestClassConstructionStarting TestClassConstructionStarting(
+	public static TestClassConstructionStarting TestClassConstructionStarting(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		string testCaseUniqueID = DefaultTestCaseUniqueID,
 		string? testClassUniqueID = DefaultTestClassUniqueID,
@@ -522,7 +522,7 @@ public static partial class TestData
 				TestUniqueID = testUniqueID,
 			};
 
-	public static _TestClassDisposeFinished TestClassDisposeFinished(
+	public static TestClassDisposeFinished TestClassDisposeFinished(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		string testCaseUniqueID = DefaultTestCaseUniqueID,
 		string? testClassUniqueID = DefaultTestClassUniqueID,
@@ -539,7 +539,7 @@ public static partial class TestData
 				TestUniqueID = testUniqueID,
 			};
 
-	public static _TestClassDisposeStarting TestClassDisposeStarting(
+	public static TestClassDisposeStarting TestClassDisposeStarting(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		string testCaseUniqueID = DefaultTestCaseUniqueID,
 		string? testClassUniqueID = DefaultTestClassUniqueID,
@@ -556,7 +556,7 @@ public static partial class TestData
 				TestUniqueID = testUniqueID,
 			};
 
-	public static _TestClassFinished TestClassFinished(
+	public static TestClassFinished TestClassFinished(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		decimal executionTime = DefaultExecutionTime,
 		string? testClassUniqueID = DefaultTestClassUniqueID,
@@ -577,7 +577,7 @@ public static partial class TestData
 				TestsTotal = testsTotal,
 			};
 
-	public static _TestClassStarting TestClassStarting(
+	public static TestClassStarting TestClassStarting(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		string testClassName = DefaultTestClassName,
 		string testClassNamespace = DefaultTestClassNamespace,
@@ -594,7 +594,7 @@ public static partial class TestData
 				Traits = traits ?? DefaultTraits,
 			};
 
-	public static _TestCleanupFailure TestCleanupFailure(
+	public static TestCleanupFailure TestCleanupFailure(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		int[]? exceptionParentIndices = null,
 		string?[]? exceptionTypes = null,
@@ -619,7 +619,7 @@ public static partial class TestData
 				TestUniqueID = testUniqueID,
 			};
 
-	public static _TestCollectionCleanupFailure TestCollectionCleanupFailure(
+	public static TestCollectionCleanupFailure TestCollectionCleanupFailure(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		int[]? exceptionParentIndices = null,
 		string?[]? exceptionTypes = null,
@@ -636,7 +636,7 @@ public static partial class TestData
 				TestCollectionUniqueID = testCollectionUniqueID,
 			};
 
-	public static _TestCollectionFinished TestCollectionFinished(
+	public static TestCollectionFinished TestCollectionFinished(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		decimal executionTime = DefaultExecutionTime,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
@@ -655,7 +655,7 @@ public static partial class TestData
 				TestsTotal = testsTotal,
 			};
 
-	public static _TestCollectionStarting TestCollectionStarting(
+	public static TestCollectionStarting TestCollectionStarting(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		string? testCollectionClass = DefaultTestCollectionClass,
 		string testCollectionDisplayName = DefaultTestCollectionDisplayName,
@@ -687,7 +687,7 @@ public static partial class TestData
 		return result;
 	}
 
-	public static _TestFailed TestFailed(
+	public static TestFailed TestFailed(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		FailureCause cause = FailureCause.Assertion,
 		int[]? exceptionParentIndices = null,
@@ -720,7 +720,7 @@ public static partial class TestData
 				Warnings = warnings,
 			};
 
-	public static _TestFinished TestFinished(
+	public static TestFinished TestFinished(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		decimal executionTime = DefaultExecutionTime,
 		string output = DefaultOutput,
@@ -743,7 +743,7 @@ public static partial class TestData
 				Warnings = warnings,
 			};
 
-	public static _TestMethodCleanupFailure TestMethodCleanupFailure(
+	public static TestMethodCleanupFailure TestMethodCleanupFailure(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		int[]? exceptionParentIndices = null,
 		string?[]? exceptionTypes = null,
@@ -764,7 +764,7 @@ public static partial class TestData
 				TestMethodUniqueID = testMethodUniqueID,
 			};
 
-	public static _TestMethodFinished TestMethodFinished(
+	public static TestMethodFinished TestMethodFinished(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		decimal executionTime = DefaultExecutionTime,
 		string? testClassUniqueID = DefaultTestClassUniqueID,
@@ -787,7 +787,7 @@ public static partial class TestData
 				TestsTotal = testsTotal,
 			};
 
-	public static _TestMethodStarting TestMethodStarting(
+	public static TestMethodStarting TestMethodStarting(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		string testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
@@ -804,7 +804,7 @@ public static partial class TestData
 				Traits = traits ?? DefaultTraits,
 			};
 
-	public static _TestNotRun TestNotRun(
+	public static TestNotRun TestNotRun(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		string output = DefaultOutput,
 		string testCaseUniqueID = DefaultTestCaseUniqueID,
@@ -826,7 +826,7 @@ public static partial class TestData
 				Warnings = warnings,
 			};
 
-	public static _TestOutput TestOutput(
+	public static TestOutput TestOutput(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		string output = DefaultOutput,
 		string testCaseUniqueID = DefaultTestCaseUniqueID,
@@ -845,7 +845,7 @@ public static partial class TestData
 				TestUniqueID = testUniqueID,
 			};
 
-	public static _TestPassed TestPassed(
+	public static TestPassed TestPassed(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		decimal executionTime = DefaultExecutionTime,
 		string output = DefaultOutput,
@@ -868,7 +868,7 @@ public static partial class TestData
 				Warnings = warnings,
 			};
 
-	public static _TestSkipped TestSkipped(
+	public static TestSkipped TestSkipped(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		string output = DefaultOutput,
 		string reason = DefaultSkipReason,
@@ -892,7 +892,7 @@ public static partial class TestData
 				Warnings = warnings,
 			};
 
-	public static _TestStarting TestStarting(
+	public static TestStarting TestStarting(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		bool @explicit = false,
 		string testCaseUniqueID = DefaultTestCaseUniqueID,

@@ -18,7 +18,7 @@ public interface IXunitTestCaseDiscoverer
 	/// <param name="factAttribute">The fact attribute attached to the test method.</param>
 	/// <returns>Returns zero or more test cases represented by the test method.</returns>
 	ValueTask<IReadOnlyCollection<IXunitTestCase>> Discover(
-		_ITestFrameworkDiscoveryOptions discoveryOptions,
+		ITestFrameworkDiscoveryOptions discoveryOptions,
 		IXunitTestMethod testMethod,
 		IFactAttribute factAttribute
 	);

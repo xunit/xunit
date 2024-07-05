@@ -11,7 +11,7 @@ static class AppDomainManagerFactory
 		string? configFileName,
 		bool shadowCopy,
 		string? shadowCopyFolder,
-		_IMessageSink diagnosticMessageSink)
+		IMessageSink diagnosticMessageSink)
 	{
 		Guard.ArgumentNotNullOrEmpty(assemblyFileName);
 		Guard.ArgumentNotNull(diagnosticMessageSink);

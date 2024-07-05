@@ -5,7 +5,7 @@ namespace Xunit.v3;
 /// <summary>
 /// Represents a test from xUnit.net v3 based on reflection.
 /// </summary>
-public interface IXunitTest : _ITest
+public interface IXunitTest : ITest
 {
 	/// <summary>
 	/// Gets a flag indicating whether this test was marked as explicit or not.

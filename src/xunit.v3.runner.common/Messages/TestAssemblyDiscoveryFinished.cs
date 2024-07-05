@@ -6,13 +6,13 @@ namespace Xunit.Runner.Common;
 /// <summary>
 /// Reports that runner has just finished discovery for a test assembly. This message will
 /// arrive after the test framework's "discovery finished" message (i.e., for the default
-/// test framework, <see cref="_DiscoveryComplete"/>), and contains the project metadata
+/// test framework, <see cref="DiscoveryComplete"/>), and contains the project metadata
 /// associated with the discovery.
 /// </summary>
-public class TestAssemblyDiscoveryFinished : _MessageSinkMessage
+public class TestAssemblyDiscoveryFinished : MessageSinkMessage
 {
 	XunitProjectAssembly? assembly;
-	_ITestFrameworkDiscoveryOptions? discoveryOptions;
+	ITestFrameworkDiscoveryOptions? discoveryOptions;
 
 	/// <summary>
 	/// Gets information about the assembly being discovered.
@@ -26,7 +26,7 @@ public class TestAssemblyDiscoveryFinished : _MessageSinkMessage
 	/// <summary>
 	/// Gets the options that were used during discovery.
 	/// </summary>
-	public _ITestFrameworkDiscoveryOptions DiscoveryOptions
+	public ITestFrameworkDiscoveryOptions DiscoveryOptions
 	{
 		get => this.ValidateNullablePropertyValue(discoveryOptions, nameof(DiscoveryOptions));
 		set => discoveryOptions = Guard.ArgumentNotNull(value, nameof(DiscoveryOptions));

@@ -19,15 +19,15 @@ public sealed class TestContext : IDisposable
 	static readonly AsyncLocal<TestContext?> local = new();
 	static readonly HashSet<TestEngineStatus> validExecutionStatuses = [TestEngineStatus.Initializing, TestEngineStatus.Running, TestEngineStatus.CleaningUp];
 
-	_IMessageSink? diagnosticMessageSink;
-	_IMessageSink? internalDiagnosticMessageSink;
+	IMessageSink? diagnosticMessageSink;
+	IMessageSink? internalDiagnosticMessageSink;
 	readonly CancellationTokenSource testCancellationTokenSource = new();
 
 	readonly List<string>? warnings;
 
 	TestContext(
-		_IMessageSink? diagnosticMessageSink,
-		_IMessageSink? internalDiagnosticMessageSink,
+		IMessageSink? diagnosticMessageSink,
+		IMessageSink? internalDiagnosticMessageSink,
 		TestPipelineStage pipelineStage,
 		CancellationToken cancellationToken,
 		List<string>? warnings = null)
@@ -55,7 +55,7 @@ public sealed class TestContext : IDisposable
 	/// </summary>
 	public static TestContext Current => local.Value ?? idleTestContext;
 
-	internal _IMessageSink? DiagnosticMessageSink
+	internal IMessageSink? DiagnosticMessageSink
 	{
 		get => diagnosticMessageSink;
 		set
@@ -67,7 +67,7 @@ public sealed class TestContext : IDisposable
 		}
 	}
 
-	internal _IMessageSink? InternalDiagnosticMessageSink
+	internal IMessageSink? InternalDiagnosticMessageSink
 	{
 		get => internalDiagnosticMessageSink;
 		set
@@ -88,7 +88,7 @@ public sealed class TestContext : IDisposable
 	/// Gets the current test, if the engine is currently in the process of running a test;
 	/// will return <c>null</c> outside of the context of a test.
 	/// </summary>
-	public _ITest? Test { get; private set; }
+	public ITest? Test { get; private set; }
 
 	/// <summary>
 	/// Gets the current test assembly, if the engine is currently in the process of running or
@@ -96,7 +96,7 @@ public sealed class TestContext : IDisposable
 	/// means the test framework itself is being created and initialized).
 	/// </summary>
 	[NotNullIfNotNull(nameof(TestCollection))]
-	public _ITestAssembly? TestAssembly { get; private set; }
+	public ITestAssembly? TestAssembly { get; private set; }
 
 	/// <summary>
 	/// Gets the current test engine status for the test assembly.
@@ -109,7 +109,7 @@ public sealed class TestContext : IDisposable
 	/// test case; will return <c>null</c> outside of the context of a test case.
 	/// </summary>
 	[NotNullIfNotNull(nameof(Test))]
-	public _ITestCase? TestCase { get; private set; }
+	public ITestCase? TestCase { get; private set; }
 
 	/// <summary>
 	/// Gets the current test engine status for the test case. Will only be available when <see cref="TestCase"/>
@@ -125,7 +125,7 @@ public sealed class TestContext : IDisposable
 	/// value may be <c>null</c> even if <see cref="TestCase"/> is not <c>null</c>.
 	/// </summary>
 	[NotNullIfNotNull(nameof(TestMethod))]
-	public _ITestClass? TestClass { get; private set; }
+	public ITestClass? TestClass { get; private set; }
 
 	/// <summary>
 	/// Gets the current test engine status for the test class. Will only be available when <see cref="TestClass"/>
@@ -140,7 +140,7 @@ public sealed class TestContext : IDisposable
 	/// </summary>
 	[NotNullIfNotNull(nameof(TestClass))]
 	[NotNullIfNotNull(nameof(TestCase))]
-	public _ITestCollection? TestCollection { get; private set; }
+	public ITestCollection? TestCollection { get; private set; }
 
 	/// <summary>
 	/// Gets the current test engine status for the test collection. Will only be available when
@@ -155,7 +155,7 @@ public sealed class TestContext : IDisposable
 	/// be <c>null</c> when <see cref="Test"/> is not <c>null</c>, if the test framework
 	/// implementation does not provide output helper support.
 	/// </summary>
-	public _ITestOutputHelper? TestOutputHelper { get; private set; }
+	public ITestOutputHelper? TestOutputHelper { get; private set; }
 
 	/// <summary>
 	/// Gets the current test method, if the engine is currently in the process of running
@@ -163,7 +163,7 @@ public sealed class TestContext : IDisposable
 	/// not all test framework implementations require that tests be based on methods, so this
 	/// value may be <c>null</c> even if <see cref="TestCase"/> is not <c>null</c>.
 	/// </summary>
-	public _ITestMethod? TestMethod { get; private set; }
+	public ITestMethod? TestMethod { get; private set; }
 
 	/// <summary>
 	/// Gets the current test engine status for the test method. Will only be available when <see cref="TestMethod"/>
@@ -221,7 +221,7 @@ public sealed class TestContext : IDisposable
 	/// </summary>
 	/// <param name="message">The message to send</param>
 	public void SendDiagnosticMessage(string message)
-		=> DiagnosticMessageSink?.OnMessage(new _DiagnosticMessage(message));
+		=> DiagnosticMessageSink?.OnMessage(new DiagnosticMessage(message));
 
 	/// <summary>
 	/// Sends a formatted diagnostic message. Will only be visible if the end user has enabled diagnostic messages.
@@ -232,7 +232,7 @@ public sealed class TestContext : IDisposable
 	public void SendDiagnosticMessage(
 		string format,
 		object? arg0) =>
-			DiagnosticMessageSink?.OnMessage(new _DiagnosticMessage(format, arg0));
+			DiagnosticMessageSink?.OnMessage(new DiagnosticMessage(format, arg0));
 
 	/// <summary>
 	/// Sends a formatted diagnostic message. Will only be visible if the end user has enabled diagnostic messages.
@@ -245,7 +245,7 @@ public sealed class TestContext : IDisposable
 		string format,
 		object? arg0,
 		object? arg1) =>
-			DiagnosticMessageSink?.OnMessage(new _DiagnosticMessage(format, arg0, arg1));
+			DiagnosticMessageSink?.OnMessage(new DiagnosticMessage(format, arg0, arg1));
 
 	/// <summary>
 	/// Sends a formatted diagnostic message. Will only be visible if the end user has enabled diagnostic messages.
@@ -260,7 +260,7 @@ public sealed class TestContext : IDisposable
 		object? arg0,
 		object? arg1,
 		object? arg2) =>
-			DiagnosticMessageSink?.OnMessage(new _DiagnosticMessage(format, arg0, arg1, arg2));
+			DiagnosticMessageSink?.OnMessage(new DiagnosticMessage(format, arg0, arg1, arg2));
 
 	/// <summary>
 	/// Sends a formatted diagnostic message. Will only be visible if the end user has enabled diagnostic messages.
@@ -271,45 +271,45 @@ public sealed class TestContext : IDisposable
 	public void SendDiagnosticMessage(
 		string format,
 		params object?[] args) =>
-			DiagnosticMessageSink?.OnMessage(new _DiagnosticMessage(format, args));
+			DiagnosticMessageSink?.OnMessage(new DiagnosticMessage(format, args));
 
 	internal void SendInternalDiagnosticMessage(string message) =>
-		InternalDiagnosticMessageSink?.OnMessage(new _InternalDiagnosticMessage(message));
+		InternalDiagnosticMessageSink?.OnMessage(new InternalDiagnosticMessage(message));
 
 	internal void SendInternalDiagnosticMessage(
 		string format,
 		object? arg0) =>
-			InternalDiagnosticMessageSink?.OnMessage(new _InternalDiagnosticMessage(format, arg0));
+			InternalDiagnosticMessageSink?.OnMessage(new InternalDiagnosticMessage(format, arg0));
 
 	internal void SendInternalDiagnosticMessage(
 		string format,
 		object? arg0,
 		object? arg1) =>
-			InternalDiagnosticMessageSink?.OnMessage(new _InternalDiagnosticMessage(format, arg0, arg1));
+			InternalDiagnosticMessageSink?.OnMessage(new InternalDiagnosticMessage(format, arg0, arg1));
 
 	internal void SendInternalDiagnosticMessage(
 		string format,
 		object? arg0,
 		object? arg1,
 		object? arg2) =>
-			InternalDiagnosticMessageSink?.OnMessage(new _InternalDiagnosticMessage(format, arg0, arg1, arg2));
+			InternalDiagnosticMessageSink?.OnMessage(new InternalDiagnosticMessage(format, arg0, arg1, arg2));
 
 	internal void SendInternalDiagnosticMessage(
 		string format,
 		params object?[] args) =>
-			InternalDiagnosticMessageSink?.OnMessage(new _InternalDiagnosticMessage(format, args));
+			InternalDiagnosticMessageSink?.OnMessage(new InternalDiagnosticMessage(format, args));
 
 	/// <summary>
 	/// Sets the test context for test framework initialization. This is the moment before any specific assembly is
 	/// being discovered or run. This is typically used by custom runners just before they create the test framework
 	/// via a call to <see cref="ExtensibilityPointFactory.GetTestFramework"/>.
 	/// </summary>
-	/// <param name="diagnosticMessageSink">The optional message sink used to receive <see cref="_DiagnosticMessage"/>
-	/// and <see cref="_InternalDiagnosticMessage"/> instances.</param>
+	/// <param name="diagnosticMessageSink">The optional message sink used to receive <see cref="DiagnosticMessage"/>
+	/// and <see cref="InternalDiagnosticMessage"/> instances.</param>
 	/// <param name="diagnosticMessages">A flag to indicate whether the user wants to receive diagnostic messages</param>
 	/// <param name="internalDiagnosticMessages">A flag to indicate whether the user wants to receive internal diagnostic messages</param>
 	public static void SetForInitialization(
-		_IMessageSink? diagnosticMessageSink,
+		IMessageSink? diagnosticMessageSink,
 		bool diagnosticMessages,
 		bool internalDiagnosticMessages) =>
 			local.Value = new TestContext(diagnosticMessages ? diagnosticMessageSink : null, internalDiagnosticMessages ? diagnosticMessageSink : null, TestPipelineStage.Initialization, default);
@@ -328,11 +328,11 @@ public sealed class TestContext : IDisposable
 	/// when <paramref name="testStatus"/> is <see cref="TestEngineStatus.Initializing"/>; can be <c>null</c> for
 	/// other statuses (as it will be pulled from the existing test context).</param>
 	public static void SetForTest(
-		_ITest test,
+		ITest test,
 		TestEngineStatus testStatus,
 		CancellationToken cancellationToken,
 		TestResultState? testState = null,
-		_ITestOutputHelper? testOutputHelper = null)
+		ITestOutputHelper? testOutputHelper = null)
 	{
 		Guard.ArgumentNotNull(test);
 		Guard.ArgumentEnumValid(testStatus, validExecutionStatuses);
@@ -376,7 +376,7 @@ public sealed class TestContext : IDisposable
 	/// <param name="testAssemblyStatus">The test assembly status</param>
 	/// <param name="cancellationToken">The cancellation token used to cancel execution</param>
 	public static void SetForTestAssembly(
-		_ITestAssembly testAssembly,
+		ITestAssembly testAssembly,
 		TestEngineStatus testAssemblyStatus,
 		CancellationToken cancellationToken)
 	{
@@ -404,7 +404,7 @@ public sealed class TestContext : IDisposable
 	/// <see cref="TestEngineStatus.Running"/>, and <see cref="TestEngineStatus.CleaningUp"/>)</param>
 	/// <param name="cancellationToken">The cancellation token used to cancel execution</param>
 	public static void SetForTestCase(
-		_ITestCase testCase,
+		ITestCase testCase,
 		TestEngineStatus testCaseStatus,
 		CancellationToken cancellationToken)
 	{
@@ -440,7 +440,7 @@ public sealed class TestContext : IDisposable
 	/// <see cref="TestEngineStatus.Running"/>, and <see cref="TestEngineStatus.CleaningUp"/>)</param>
 	/// <param name="cancellationToken">The cancellation token used to cancel execution</param>
 	public static void SetForTestClass(
-		_ITestClass testClass,
+		ITestClass testClass,
 		TestEngineStatus testClassStatus,
 		CancellationToken cancellationToken)
 	{
@@ -470,7 +470,7 @@ public sealed class TestContext : IDisposable
 	/// <see cref="TestEngineStatus.Running"/>, and <see cref="TestEngineStatus.CleaningUp"/>)</param>
 	/// <param name="cancellationToken">The cancellation token used to cancel execution</param>
 	public static void SetForTestCollection(
-		_ITestCollection testCollection,
+		ITestCollection testCollection,
 		TestEngineStatus testCollectionStatus,
 		CancellationToken cancellationToken)
 	{
@@ -497,7 +497,7 @@ public sealed class TestContext : IDisposable
 	/// <see cref="TestEngineStatus.Running"/>, and <see cref="TestEngineStatus.CleaningUp"/>)</param>
 	/// <param name="cancellationToken">The cancellation token used to cancel execution</param>
 	public static void SetForTestMethod(
-		_ITestMethod testMethod,
+		ITestMethod testMethod,
 		TestEngineStatus testMethodStatus,
 		CancellationToken cancellationToken)
 	{

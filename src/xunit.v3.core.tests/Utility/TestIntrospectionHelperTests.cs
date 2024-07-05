@@ -15,14 +15,14 @@ public class TestIntrospectionHelperTests
 		string UniqueID,
 		IXunitTestMethod ResolvedTestMethod
 	) _GetTestCaseDetails(
-		_ITestFrameworkDiscoveryOptions discoveryOptions,
+		ITestFrameworkDiscoveryOptions discoveryOptions,
 		IXunitTestMethod testMethod,
 		object?[]? testMethodArguments = null) =>
 			TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, testMethod.FactAttributes.First(), testMethodArguments);
 
 	public class GuardClauses
 	{
-		readonly _ITestFrameworkDiscoveryOptions discoveryOptions = TestData.TestFrameworkDiscoveryOptions();
+		readonly ITestFrameworkDiscoveryOptions discoveryOptions = TestData.TestFrameworkDiscoveryOptions();
 
 		[Fact]
 		public void NullDiscoveryOptionsThrows()
@@ -54,7 +54,7 @@ public class TestIntrospectionHelperTests
 
 	public class GetTestCaseDetails
 	{
-		readonly _ITestFrameworkDiscoveryOptions discoveryOptions = TestData.TestFrameworkDiscoveryOptions();
+		readonly ITestFrameworkDiscoveryOptions discoveryOptions = TestData.TestFrameworkDiscoveryOptions();
 
 		[Fact]
 		public void DisplayName()

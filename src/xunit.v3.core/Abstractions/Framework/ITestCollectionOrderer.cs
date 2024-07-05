@@ -15,9 +15,9 @@ public interface ITestCollectionOrderer
 	/// Orders test collections for execution.
 	/// </summary>
 	/// <typeparam name="TTestCollection">The type of the test collection to be ordered. Must derive
-	/// from <see cref="_ITestCollection"/>.</typeparam>
+	/// from <see cref="ITestCollection"/>.</typeparam>
 	/// <param name="testCollections">The test collections to be ordered.</param>
 	/// <returns>The test collections in the order to be run.</returns>
 	IReadOnlyCollection<TTestCollection> OrderTestCollections<TTestCollection>(IReadOnlyCollection<TTestCollection> testCollections)
-		where TTestCollection : _ITestCollection;
+		where TTestCollection : ITestCollection;
 }

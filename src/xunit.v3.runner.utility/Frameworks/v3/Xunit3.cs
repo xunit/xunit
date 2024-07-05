@@ -19,15 +19,15 @@ public class Xunit3 : IFrontController
 {
 	static readonly bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
-	readonly _IMessageSink? diagnosticMessageSink;
+	readonly IMessageSink? diagnosticMessageSink;
 	readonly XunitProjectAssembly projectAssembly;
-	readonly _ISourceInformationProvider? sourceInformationProvider;
+	readonly ISourceInformationProvider? sourceInformationProvider;
 	readonly Func<IReadOnlyList<string>, ITestProcess?> testProcessLauncher;
 
 	Xunit3(
 		XunitProjectAssembly projectAssembly,
-		_ISourceInformationProvider? sourceInformationProvider,
-		_IMessageSink? diagnosticMessageSink,
+		ISourceInformationProvider? sourceInformationProvider,
+		IMessageSink? diagnosticMessageSink,
 		Func<IReadOnlyList<string>, ITestProcess?> testProcessLauncher)
 	{
 		this.projectAssembly = projectAssembly;
@@ -93,7 +93,7 @@ public class Xunit3 : IFrontController
 
 	/// <inheritdoc/>
 	public int? Find(
-		_IMessageSink messageSink,
+		IMessageSink messageSink,
 		FrontControllerFindSettings settings)
 	{
 		Guard.ArgumentNotNull(messageSink);
@@ -114,7 +114,7 @@ public class Xunit3 : IFrontController
 		// The '-list discovery' only sends test cases, not starting & complete messages,
 		// so we'll fabricate them ourselves.
 		bool SendDiscoveryStarting(string assemblyUniqueID) =>
-			messageSink.OnMessage(new _DiscoveryStarting
+			messageSink.OnMessage(new DiscoveryStarting
 			{
 				AssemblyName = projectAssembly.AssemblyDisplayName,
 				AssemblyPath = projectAssembly.AssemblyFileName,
@@ -139,11 +139,11 @@ public class Xunit3 : IFrontController
 					var message = MessageSinkMessageHelper.Deserialize(line);
 					if (message is null)
 					{
-						diagnosticMessageSink?.OnMessage(new _DiagnosticMessage("Received unparseable output from test process: " + line));
+						diagnosticMessageSink?.OnMessage(new DiagnosticMessage("Received unparseable output from test process: " + line));
 						continue;
 					}
 
-					if (message is _TestCaseDiscovered testDiscovered)
+					if (message is TestCaseDiscovered testDiscovered)
 					{
 						// Don't overwrite the source information if it came directly from the test framework
 						if (collectSourceInformation && sourceInformationProvider is not null && testDiscovered.SourceFilePath is null && testDiscovered.SourceLineNumber is null)
@@ -179,7 +179,7 @@ public class Xunit3 : IFrontController
 					SendDiscoveryStarting(assemblyUniqueID);
 				}
 
-				messageSink.OnMessage(new _DiscoveryComplete
+				messageSink.OnMessage(new DiscoveryComplete
 				{
 					AssemblyUniqueID = assemblyUniqueID,
 					TestCasesToRun = testCaseCount,
@@ -192,7 +192,7 @@ public class Xunit3 : IFrontController
 
 	/// <inheritdoc/>
 	public int? FindAndRun(
-		_IMessageSink messageSink,
+		IMessageSink messageSink,
 		FrontControllerFindAndRunSettings settings)
 	{
 		Guard.ArgumentNotNull(messageSink);
@@ -211,7 +211,7 @@ public class Xunit3 : IFrontController
 
 	/// <inheritdoc/>
 	public int? Run(
-		_IMessageSink messageSink,
+		IMessageSink messageSink,
 		FrontControllerRunSettings settings)
 	{
 		Guard.ArgumentNotNull(messageSink);
@@ -229,7 +229,7 @@ public class Xunit3 : IFrontController
 	}
 
 	int? RunInternal(
-		_IMessageSink messageSink,
+		IMessageSink messageSink,
 		List<string> arguments)
 	{
 		var process =
@@ -249,14 +249,14 @@ public class Xunit3 : IFrontController
 					var message = MessageSinkMessageHelper.Deserialize(line);
 					if (message is null)
 					{
-						diagnosticMessageSink?.OnMessage(new _DiagnosticMessage("Received unparseable output from test process: " + line));
+						diagnosticMessageSink?.OnMessage(new DiagnosticMessage("Received unparseable output from test process: " + line));
 						continue;
 					}
 
 					if (!messageSink.OnMessage(message))
 						break;
 
-					if (message is _TestAssemblyFinished)
+					if (message is TestAssemblyFinished)
 						break;
 				}
 			}
@@ -277,12 +277,12 @@ public class Xunit3 : IFrontController
 	/// </summary>
 	/// <param name="projectAssembly">The test project assembly.</param>
 	/// <param name="sourceInformationProvider">The optional source information provider.</param>
-	/// <param name="diagnosticMessageSink">The message sink which receives <see cref="_DiagnosticMessage"/>
-	/// and <see cref="_InternalDiagnosticMessage"/> messages.</param>
+	/// <param name="diagnosticMessageSink">The message sink which receives <see cref="DiagnosticMessage"/>
+	/// and <see cref="InternalDiagnosticMessage"/> messages.</param>
 	public static IFrontController ForDiscoveryAndExecution(
 		XunitProjectAssembly projectAssembly,
-		_ISourceInformationProvider? sourceInformationProvider = null,
-		_IMessageSink? diagnosticMessageSink = null)
+		ISourceInformationProvider? sourceInformationProvider = null,
+		IMessageSink? diagnosticMessageSink = null)
 	{
 		Guard.ArgumentNotNull(projectAssembly);
 		Guard.FileExists(projectAssembly.AssemblyFileName);

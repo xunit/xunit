@@ -8,5 +8,5 @@ namespace Xunit.Runner.Common;
 /// runner reporters to implement <see cref="IDisposable"/> and forces runners to dispose of the message
 /// handler that's returned to them.
 /// </summary>
-public interface IRunnerReporterMessageHandler : _IMessageSink, IAsyncDisposable
+public interface IRunnerReporterMessageHandler : IMessageSink, IAsyncDisposable
 { }

@@ -13,8 +13,8 @@ public class MessageBus : IMessageBus
 {
 	volatile bool continueRunning = true;
 	bool disposed;
-	readonly _IMessageSink messageSink;
-	readonly ConcurrentQueue<_MessageSinkMessage> reporterQueue = new();
+	readonly IMessageSink messageSink;
+	readonly ConcurrentQueue<MessageSinkMessage> reporterQueue = new();
 	readonly Thread reporterThread;
 	readonly AutoResetEvent reporterWorkEvent = new(initialState: false);
 	volatile bool shutdownRequested;
@@ -22,7 +22,7 @@ public class MessageBus : IMessageBus
 
 	/// <summary/>
 	public MessageBus(
-		_IMessageSink messageSink,
+		IMessageSink messageSink,
 		bool stopOnFail = false)
 	{
 		this.messageSink = messageSink;
@@ -43,7 +43,7 @@ public class MessageBus : IMessageBus
 			{
 				try
 				{
-					var errorMessage = _ErrorMessage.FromException(ex);
+					var errorMessage = ErrorMessage.FromException(ex);
 					if (!messageSink.OnMessage(errorMessage))
 						continueRunning = false;
 				}
@@ -69,14 +69,14 @@ public class MessageBus : IMessageBus
 	}
 
 	/// <summary/>
-	public bool QueueMessage(_MessageSinkMessage message)
+	public bool QueueMessage(MessageSinkMessage message)
 	{
 		Guard.ArgumentNotNull(message);
 
 		if (shutdownRequested)
 			throw new ObjectDisposedException("MessageBus");
 
-		if (stopOnFail && message is _TestFailed)
+		if (stopOnFail && message is TestFailed)
 			continueRunning = false;
 
 		reporterQueue.Enqueue(message);

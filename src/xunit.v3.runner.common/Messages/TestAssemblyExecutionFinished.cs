@@ -6,13 +6,13 @@ namespace Xunit.Runner.Common;
 /// <summary>
 /// Reports that runner is about to start execution for a test assembly. This message will
 /// arrive after the test framework's "assembly finished" message (i.e., for the default
-/// test framework, <see cref="_TestAssemblyFinished"/>), and contains the project metadata
+/// test framework, <see cref="TestAssemblyFinished"/>), and contains the project metadata
 /// associated with the execution.
 /// </summary>
-public class TestAssemblyExecutionFinished : _MessageSinkMessage
+public class TestAssemblyExecutionFinished : MessageSinkMessage
 {
 	XunitProjectAssembly? assembly;
-	_ITestFrameworkExecutionOptions? executionOptions;
+	ITestFrameworkExecutionOptions? executionOptions;
 	ExecutionSummary? executionSummary;
 
 	/// <summary>
@@ -27,7 +27,7 @@ public class TestAssemblyExecutionFinished : _MessageSinkMessage
 	/// <summary>
 	/// Gets the options that was used during execution.
 	/// </summary>
-	public _ITestFrameworkExecutionOptions ExecutionOptions
+	public ITestFrameworkExecutionOptions ExecutionOptions
 	{
 		get => this.ValidateNullablePropertyValue(executionOptions, nameof(ExecutionOptions));
 		set => executionOptions = Guard.ArgumentNotNull(value, nameof(ExecutionOptions));

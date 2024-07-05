@@ -10,7 +10,7 @@ using Xunit.Sdk;
 namespace Xunit.v3;
 
 /// <summary>
-/// The implementation of <see cref="_ITestFrameworkDiscoverer"/> that supports discovery
+/// The implementation of <see cref="ITestFrameworkDiscoverer"/> that supports discovery
 /// of unit tests linked against xunit.v3.core.dll.
 /// </summary>
 public class XunitTestFrameworkDiscoverer : TestFrameworkDiscoverer<IXunitTestCase, IXunitTestClass>
@@ -65,7 +65,7 @@ public class XunitTestFrameworkDiscoverer : TestFrameworkDiscoverer<IXunitTestCa
 	/// <returns>Return <c>true</c> to continue test discovery, <c>false</c>, otherwise.</returns>
 	protected virtual async ValueTask<bool> FindTestsForMethod(
 		IXunitTestMethod testMethod,
-		_ITestFrameworkDiscoveryOptions discoveryOptions,
+		ITestFrameworkDiscoveryOptions discoveryOptions,
 		Func<IXunitTestCase, ValueTask<bool>> discoveryCallback)
 	{
 		Guard.ArgumentNotNull(testMethod);
@@ -113,7 +113,7 @@ public class XunitTestFrameworkDiscoverer : TestFrameworkDiscoverer<IXunitTestCa
 	/// <inheritdoc/>
 	protected override async ValueTask<bool> FindTestsForType(
 		IXunitTestClass testClass,
-		_ITestFrameworkDiscoveryOptions discoveryOptions,
+		ITestFrameworkDiscoveryOptions discoveryOptions,
 		Func<IXunitTestCase, ValueTask<bool>> discoveryCallback)
 	{
 		Guard.ArgumentNotNull(testClass);

@@ -13,16 +13,16 @@ namespace Xunit.v3;
 /// </summary>
 /// <typeparam name="TContext">The context type used by the runner</typeparam>
 /// <typeparam name="TTestClass">The type of the test class used by the test framework.
-/// Must derive from <see cref="_ITestClass"/>.</typeparam>
+/// Must derive from <see cref="ITestClass"/>.</typeparam>
 /// <typeparam name="TTestMethod">The type of the test method used by the test framework.
-/// Must derive from <see cref="_ITestMethod"/>.</typeparam>
+/// Must derive from <see cref="ITestMethod"/>.</typeparam>
 /// <typeparam name="TTestCase">The type of the test case used by the test framework. Must
-/// derive from <see cref="_ITestCase"/>.</typeparam>
+/// derive from <see cref="ITestCase"/>.</typeparam>
 public abstract class TestClassRunner<TContext, TTestClass, TTestMethod, TTestCase>
 	where TContext : TestClassRunnerContext<TTestClass, TTestCase>
-	where TTestClass : class, _ITestClass
-	where TTestMethod : class, _ITestMethod
-	where TTestCase : class, _ITestCase
+	where TTestClass : class, ITestClass
+	where TTestMethod : class, ITestMethod
+	where TTestCase : class, ITestCase
 {
 	/// <summary>
 	/// Initializes a new instance of the <see cref="TestClassRunner{TContext, TTestClass, TTestMethod, TTestCase}"/> class.
@@ -46,11 +46,11 @@ public abstract class TestClassRunner<TContext, TTestClass, TTestMethod, TTestCa
 	/// <summary>
 	/// This method is called when an exception was thrown while cleaning up, after the test class
 	/// has run. This will typically send a "test class cleanup failure" message (like
-	/// <see cref="_TestClassCleanupFailure"/>).
+	/// <see cref="TestClassCleanupFailure"/>).
 	/// </summary>
 	/// <remarks>
 	/// This method runs during <see cref="TestEngineStatus.CleaningUp"/> and any exceptions thrown are
-	/// converted into fatal exception messages (via <see cref="_ErrorMessage"/>) and sent to the message
+	/// converted into fatal exception messages (via <see cref="ErrorMessage"/>) and sent to the message
 	/// bus in <paramref name="ctxt"/>.
 	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test class</param>
@@ -63,7 +63,7 @@ public abstract class TestClassRunner<TContext, TTestClass, TTestMethod, TTestCa
 
 	/// <summary>
 	/// This method will be called when the test class has finished running. This will typically send
-	/// a "test class finished" message (like <see cref="_TestClassFinished"/>) as well as enabling any
+	/// a "test class finished" message (like <see cref="TestClassFinished"/>) as well as enabling any
 	/// extensibility related to test class finish.
 	/// </summary>
 	/// <remarks>
@@ -79,7 +79,7 @@ public abstract class TestClassRunner<TContext, TTestClass, TTestMethod, TTestCa
 
 	/// <summary>
 	/// This method will be called before the test class has started running. This will typically send
-	/// a "test class starting" message (like <see cref="_TestClassStarting"/>) as well as enabling any
+	/// a "test class starting" message (like <see cref="TestClassStarting"/>) as well as enabling any
 	/// extensibility related to test class start.
 	/// </summary>
 	/// <remarks>
@@ -141,7 +141,7 @@ public abstract class TestClassRunner<TContext, TTestClass, TTestMethod, TTestCa
 				ctxt.CancellationTokenSource.Cancel();
 
 			if (ctxt.Aggregator.HasExceptions)
-				ctxt.MessageBus.QueueMessage(_ErrorMessage.FromException(ctxt.Aggregator.ToException()!));
+				ctxt.MessageBus.QueueMessage(ErrorMessage.FromException(ctxt.Aggregator.ToException()!));
 
 			ctxt.Aggregator.Clear();
 		}

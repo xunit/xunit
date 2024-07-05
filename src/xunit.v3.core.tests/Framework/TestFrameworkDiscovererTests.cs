@@ -31,7 +31,7 @@ public class TestFrameworkDiscovererTests
 
 			await discoverer.Find();
 
-			var message = Assert.Single(spy.Messages.OfType<_DiagnosticMessage>());
+			var message = Assert.Single(spy.Messages.OfType<DiagnosticMessage>());
 			Assert.StartsWith($"Exception during discovery:{Environment.NewLine}System.DivideByZeroException: Attempted to divide by zero.", message.Message);
 		}
 
@@ -148,16 +148,16 @@ public class TestFrameworkDiscovererTests
 		}
 	}
 
-	class TestableTestFrameworkDiscoverer : TestFrameworkDiscoverer<_ITestCase, _ITestClass>
+	class TestableTestFrameworkDiscoverer : TestFrameworkDiscoverer<ITestCase, ITestClass>
 	{
 		readonly Type[] exportedTypes;
 		public TestContext? FindTestsForType_Context;
 		public CultureInfo? FindTestsForType_CurrentCulture;
 		public Exception? FindTestsForType_Exception = null;
-		public readonly List<_ITestClass> FindTestsForType_TestClasses = [];
+		public readonly List<ITestClass> FindTestsForType_TestClasses = [];
 
 		TestableTestFrameworkDiscoverer(
-			_ITestAssembly testAssembly,
+			ITestAssembly testAssembly,
 			Type[] exportedTypes) :
 				base(testAssembly)
 		{
@@ -165,11 +165,11 @@ public class TestFrameworkDiscovererTests
 			this.exportedTypes = exportedTypes.Length != 0 ? exportedTypes : [typeof(object)];
 		}
 
-		protected override ValueTask<_ITestClass> CreateTestClass(Type @class) =>
+		protected override ValueTask<ITestClass> CreateTestClass(Type @class) =>
 			new(TestData.XunitTestClass(@class));
 
 		public ValueTask Find(
-			_ITestFrameworkDiscoveryOptions? discoveryOptions = null,
+			ITestFrameworkDiscoveryOptions? discoveryOptions = null,
 			Type[]? types = null) =>
 				Find(
 					testCase => new(true),
@@ -178,9 +178,9 @@ public class TestFrameworkDiscovererTests
 				);
 
 		protected override ValueTask<bool> FindTestsForType(
-			_ITestClass testClass,
-			_ITestFrameworkDiscoveryOptions discoveryOptions,
-			Func<_ITestCase, ValueTask<bool>> discoveryCallback)
+			ITestClass testClass,
+			ITestFrameworkDiscoveryOptions discoveryOptions,
+			Func<ITestCase, ValueTask<bool>> discoveryCallback)
 		{
 			FindTestsForType_Context = TestContext.Current;
 			FindTestsForType_CurrentCulture = CultureInfo.CurrentCulture;

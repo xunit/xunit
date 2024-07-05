@@ -156,7 +156,7 @@ public static class TestClassRunnerTests
 				"OnTestClassCleanupFailure(exception: typeof(ArgumentException))",
 			}, runner.Invocations);
 			var message = Assert.Single(runner.MessageBus.Messages);
-			var errorMessage = Assert.IsType<_ErrorMessage>(message);
+			var errorMessage = Assert.IsType<ErrorMessage>(message);
 			Assert.Equal(new[] { -1 }, errorMessage.ExceptionParentIndices);
 			Assert.Equal(new[] { "System.DivideByZeroException" }, errorMessage.ExceptionTypes);
 			Assert.Equal(new[] { "Attempted to divide by zero." }, errorMessage.Messages);
@@ -164,22 +164,22 @@ public static class TestClassRunnerTests
 		}
 	}
 
-	class TestableTestClassRunner(_ITestCase? testCase = null) :
-		TestClassRunner<TestClassRunnerContext<_ITestClass, _ITestCase>, _ITestClass, _ITestMethod, _ITestCase>
+	class TestableTestClassRunner(ITestCase? testCase = null) :
+		TestClassRunner<TestClassRunnerContext<ITestClass, ITestCase>, ITestClass, ITestMethod, ITestCase>
 	{
-		readonly _ITestCase testCase = testCase ?? Mocks.TestCase();
+		readonly ITestCase testCase = testCase ?? Mocks.TestCase();
 
 		public readonly ExceptionAggregator Aggregator = new();
 		public readonly CancellationTokenSource CancellationTokenSource = new();
 		public readonly List<string> Invocations = [];
 		public readonly SpyMessageBus MessageBus = new();
-		_ITestClass TestClass => Guard.ArgumentNotNull(testCase.TestClass);
+		ITestClass TestClass => Guard.ArgumentNotNull(testCase.TestClass);
 
 		public Action? OnTestClassCleanupFailure__Lambda;
 		public bool OnTestClassCleanupFailure__Result = true;
 
 		protected override ValueTask<bool> OnTestClassCleanupFailure(
-			TestClassRunnerContext<_ITestClass, _ITestCase> ctxt,
+			TestClassRunnerContext<ITestClass, ITestCase> ctxt,
 			Exception exception)
 		{
 			Invocations.Add($"OnTestClassCleanupFailure(exception: {TypeName(exception)})");
@@ -193,7 +193,7 @@ public static class TestClassRunnerTests
 		public bool OnTestClassFinished__Result = true;
 
 		protected override ValueTask<bool> OnTestClassFinished(
-			TestClassRunnerContext<_ITestClass, _ITestCase> ctxt,
+			TestClassRunnerContext<ITestClass, ITestCase> ctxt,
 			RunSummary summary)
 		{
 			Invocations.Add($"OnTestClassFinished(summary: {ArgumentFormatter.Format(summary)})");
@@ -206,7 +206,7 @@ public static class TestClassRunnerTests
 		public Action? OnTestClassStarting__Lambda;
 		public bool OnTestClassStarting__Result = true;
 
-		protected override ValueTask<bool> OnTestClassStarting(TestClassRunnerContext<_ITestClass, _ITestCase> ctxt)
+		protected override ValueTask<bool> OnTestClassStarting(TestClassRunnerContext<ITestClass, ITestCase> ctxt)
 		{
 			Invocations.Add("OnTestClassStarting");
 
@@ -218,9 +218,9 @@ public static class TestClassRunnerTests
 		public RunSummary RunTestMethodAsync__Result = new();
 
 		protected override ValueTask<RunSummary> RunTestMethodAsync(
-			TestClassRunnerContext<_ITestClass, _ITestCase> ctxt,
-			_ITestMethod? testMethod,
-			IReadOnlyCollection<_ITestCase> testCases,
+			TestClassRunnerContext<ITestClass, ITestCase> ctxt,
+			ITestMethod? testMethod,
+			IReadOnlyCollection<ITestCase> testCases,
 			object?[] constructorArguments,
 			Exception? exception)
 		{
@@ -231,7 +231,7 @@ public static class TestClassRunnerTests
 
 		public async ValueTask<RunSummary> RunAsync()
 		{
-			await using var ctxt = new TestClassRunnerContext<_ITestClass, _ITestCase>(TestClass, [testCase], ExplicitOption.Off, MessageBus, Aggregator, CancellationTokenSource);
+			await using var ctxt = new TestClassRunnerContext<ITestClass, ITestCase>(TestClass, [testCase], ExplicitOption.Off, MessageBus, Aggregator, CancellationTokenSource);
 			await ctxt.InitializeAsync();
 
 			return await RunAsync(ctxt);

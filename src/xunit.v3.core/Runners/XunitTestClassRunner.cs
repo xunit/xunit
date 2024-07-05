@@ -109,7 +109,7 @@ public class XunitTestClassRunner :
 		// Logic to support passing Func<T> instead of T lives in XunitTestInvoker.CreateTestClassInstance
 		// The actual TestOutputHelper instance is created in XunitTestRunner.SetTestContext when creating
 		// the test context object.
-		if (parameter.ParameterType == typeof(_ITestOutputHelper))
+		if (parameter.ParameterType == typeof(ITestOutputHelper))
 			return () => TestContext.Current.TestOutputHelper;
 
 		return await ctxt.ClassFixtureMappings.GetFixture(parameter.ParameterType);
@@ -119,7 +119,7 @@ public class XunitTestClassRunner :
 	protected override ValueTask<bool> OnTestClassCleanupFailure(
 		XunitTestClassRunnerContext ctxt,
 		Exception exception) =>
-			new(ReportMessage(ctxt, new _TestClassCleanupFailure(), exception: exception));
+			new(ReportMessage(ctxt, new TestClassCleanupFailure(), exception: exception));
 
 	/// <inheritdoc/>
 	protected override async ValueTask<bool> OnTestClassFinished(
@@ -128,13 +128,13 @@ public class XunitTestClassRunner :
 	{
 		await Guard.ArgumentNotNull(ctxt).Aggregator.RunAsync(ctxt.ClassFixtureMappings.DisposeAsync);
 
-		return ReportMessage(ctxt, new _TestClassFinished(), summary: summary);
+		return ReportMessage(ctxt, new TestClassFinished(), summary: summary);
 	}
 
 	/// <inheritdoc/>
 	protected override async ValueTask<bool> OnTestClassStarting(XunitTestClassRunnerContext ctxt)
 	{
-		var result = ReportMessage(ctxt, new _TestClassStarting
+		var result = ReportMessage(ctxt, new TestClassStarting
 		{
 			TestClassName = Guard.ArgumentNotNull(ctxt).TestClass.TestClassName,
 			TestClassNamespace = ctxt.TestClass.TestClassNamespace,
@@ -168,7 +168,7 @@ public class XunitTestClassRunner :
 		{
 			var innerEx = ex.Unwrap();
 
-			ctxt.MessageBus.QueueMessage(new _ErrorMessage
+			ctxt.MessageBus.QueueMessage(new ErrorMessage
 			{
 				ExceptionParentIndices = [-1],
 				ExceptionTypes = [typeof(TestPipelineException).SafeName()],
@@ -190,7 +190,7 @@ public class XunitTestClassRunner :
 
 	static bool ReportMessage(
 		XunitTestClassRunnerContext ctxt,
-		_TestClassMessage message,
+		TestClassMessage message,
 		RunSummary summary = default,
 		Exception? exception = null)
 	{
@@ -200,7 +200,7 @@ public class XunitTestClassRunner :
 		message.TestClassUniqueID = ctxt.TestClass.UniqueID;
 		message.TestCollectionUniqueID = ctxt.TestClass.TestCollection.UniqueID;
 
-		if (message is _IWritableExecutionSummaryMetadata summaryMessage)
+		if (message is IWritableExecutionSummaryMetadata summaryMessage)
 		{
 			summaryMessage.ExecutionTime = summary.Time;
 			summaryMessage.TestsFailed = summary.Failed;
@@ -209,7 +209,7 @@ public class XunitTestClassRunner :
 			summaryMessage.TestsTotal = summary.Total;
 		}
 
-		if (exception is not null && message is _IWritableErrorMetadata errorMessage)
+		if (exception is not null && message is IWritableErrorMetadata errorMessage)
 		{
 			var (types, messages, stackTraces, indices, _) = ExceptionUtility.ExtractMetadata(exception);
 

@@ -6,21 +6,21 @@ using Xunit.Sdk;
 namespace Xunit.v3;
 
 /// <summary>
-/// Implementation of <see cref="_IMessageSink" /> that delegates to another implementation of
-/// <see cref="_IMessageSink" /> while calling into an optional callback for each message.
+/// Implementation of <see cref="IMessageSink" /> that delegates to another implementation of
+/// <see cref="IMessageSink" /> while calling into an optional callback for each message.
 /// </summary>
 /// <param name="innerSink">The inner message sink.</param>
 /// <param name="callback">The callback.</param>
 public class DelegatingMessageSink(
-	_IMessageSink innerSink,
-	Action<_MessageSinkMessage>? callback = null) :
-		_IMessageSink
+	IMessageSink innerSink,
+	Action<MessageSinkMessage>? callback = null) :
+		IMessageSink
 {
-	readonly Action<_MessageSinkMessage>? callback = callback;
-	readonly _IMessageSink innerSink = Guard.ArgumentNotNull(innerSink);
+	readonly Action<MessageSinkMessage>? callback = callback;
+	readonly IMessageSink innerSink = Guard.ArgumentNotNull(innerSink);
 
 	/// <inheritdoc/>
-	public virtual bool OnMessage(_MessageSinkMessage message)
+	public virtual bool OnMessage(MessageSinkMessage message)
 	{
 		callback?.Invoke(message);
 
@@ -29,8 +29,8 @@ public class DelegatingMessageSink(
 }
 
 /// <summary>
-/// Implementation of <see cref="_IMessageSink" /> that delegates to another implementation of
-/// <see cref="_IMessageSink" /> while calling into an optional callback for each message. In addition,
+/// Implementation of <see cref="IMessageSink" /> that delegates to another implementation of
+/// <see cref="IMessageSink" /> while calling into an optional callback for each message. In addition,
 /// it issues a <see cref="Finished" /> event when a message of the type <typeparamref name="TFinalMessage"/>
 /// is seen and records the final message for later retrieval.
 /// </summary>
@@ -38,10 +38,10 @@ public class DelegatingMessageSink(
 /// <param name="innerSink">The inner message sink.</param>
 /// <param name="callback">The callback.</param>
 public class DelegatingMessageSink<TFinalMessage>(
-	_IMessageSink innerSink,
-	Action<_MessageSinkMessage>? callback = null) :
+	IMessageSink innerSink,
+	Action<MessageSinkMessage>? callback = null) :
 		DelegatingMessageSink(innerSink, callback)
-			where TFinalMessage : _MessageSinkMessage
+			where TFinalMessage : MessageSinkMessage
 {
 	TFinalMessage? finalMessage;
 
@@ -57,7 +57,7 @@ public class DelegatingMessageSink<TFinalMessage>(
 	public ManualResetEvent Finished { get; } = new ManualResetEvent(false);
 
 	/// <inheritdoc/>
-	public override bool OnMessage(_MessageSinkMessage message)
+	public override bool OnMessage(MessageSinkMessage message)
 	{
 		var result = base.OnMessage(message);
 

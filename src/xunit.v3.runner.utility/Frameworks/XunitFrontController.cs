@@ -50,12 +50,12 @@ public class XunitFrontController : IFrontController
 	/// </summary>
 	/// <param name="projectAssembly">The test project assembly.</param>
 	/// <param name="sourceInformationProvider">The optional source information provider.</param>
-	/// <param name="diagnosticMessageSink">The optional message sink which receives <see cref="_DiagnosticMessage"/>
-	/// and <see cref="_InternalDiagnosticMessage"/> messages.</param>
+	/// <param name="diagnosticMessageSink">The optional message sink which receives <see cref="DiagnosticMessage"/>
+	/// and <see cref="InternalDiagnosticMessage"/> messages.</param>
 	public static IFrontController? Create(
 		XunitProjectAssembly projectAssembly,
-		_ISourceInformationProvider? sourceInformationProvider = null,
-		_IMessageSink? diagnosticMessageSink = null)
+		ISourceInformationProvider? sourceInformationProvider = null,
+		IMessageSink? diagnosticMessageSink = null)
 	{
 		Guard.ArgumentNotNull(projectAssembly);
 		Guard.ArgumentNotNull(projectAssembly.AssemblyMetadata);
@@ -89,7 +89,7 @@ public class XunitFrontController : IFrontController
 
 	/// <inheritdoc/>
 	public virtual int? Find(
-		_IMessageSink messageSink,
+		IMessageSink messageSink,
 		FrontControllerFindSettings settings)
 	{
 		Guard.ArgumentNotNull(messageSink);
@@ -100,7 +100,7 @@ public class XunitFrontController : IFrontController
 
 	/// <inheritdoc/>
 	public int? FindAndRun(
-		_IMessageSink messageSink,
+		IMessageSink messageSink,
 		FrontControllerFindAndRunSettings settings)
 	{
 		Guard.ArgumentNotNull(messageSink);
@@ -111,7 +111,7 @@ public class XunitFrontController : IFrontController
 
 	/// <inheritdoc/>
 	public int? Run(
-		_IMessageSink messageSink,
+		IMessageSink messageSink,
 		FrontControllerRunSettings settings)
 	{
 		Guard.ArgumentNotNull(messageSink);

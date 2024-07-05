@@ -9,7 +9,7 @@ namespace Xunit.v3;
 public interface ITestFrameworkAttribute
 {
 	/// <summary>
-	/// Gets the framework type; must implement <see cref="_ITestFramework"/>.
+	/// Gets the framework type; must implement <see cref="ITestFramework"/>.
 	/// </summary>
 	Type FrameworkType { get; }
 }

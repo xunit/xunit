@@ -13,7 +13,7 @@ public class MockTestCaseOrderer : ITestCaseOrderer
 	}
 
 	public IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> testCases)
-		where TTestCase : notnull, _ITestCase
+		where TTestCase : notnull, ITestCase
 	{
 		if (!reverse)
 			return testCases;

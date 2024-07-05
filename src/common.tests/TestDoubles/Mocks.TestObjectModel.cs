@@ -11,12 +11,12 @@ using Xunit.v3;
 // real test class will use live objects from TestData for the parents.
 public static partial class Mocks
 {
-	public static _IAssemblyMetadata AssemblyMetadata(
+	public static IAssemblyMetadata AssemblyMetadata(
 		string assemblyName = TestData.DefaultAssemblyName,
 		string assemblyPath = TestData.DefaultAssemblyPath,
 		string? configFilePath = null)
 	{
-		var result = Substitute.For<_IAssemblyMetadata, InterfaceProxy<_IAssemblyMetadata>>();
+		var result = Substitute.For<IAssemblyMetadata, InterfaceProxy<IAssemblyMetadata>>();
 		result.AssemblyName.Returns(assemblyName);
 		result.AssemblyPath.Returns(assemblyPath);
 		result.ConfigFilePath.Returns(configFilePath);
@@ -25,15 +25,15 @@ public static partial class Mocks
 
 	// ITestXxx
 
-	public static _ITest Test(
-		_ITestCase? testCase = null,
+	public static ITest Test(
+		ITestCase? testCase = null,
 		string testDisplayName = TestData.DefaultTestDisplayName,
 		IReadOnlyDictionary<string, IReadOnlyList<string>>? traits = null,
 		string uniqueID = TestData.DefaultTestUniqueID)
 	{
 		testCase ??= TestCase();
 
-		var result = Substitute.For<_ITest, InterfaceProxy<_ITest>>();
+		var result = Substitute.For<ITest, InterfaceProxy<ITest>>();
 		result.TestCase.Returns(testCase);
 		result.TestDisplayName.Returns(testDisplayName);
 		result.Traits.Returns(traits ?? TestData.EmptyTraits);
@@ -41,14 +41,14 @@ public static partial class Mocks
 		return result;
 	}
 
-	public static _ITestAssembly TestAssembly(
+	public static ITestAssembly TestAssembly(
 		string assemblyName = TestData.DefaultAssemblyName,
 		string assemblyPath = TestData.DefaultAssemblyPath,
 		string? configFilePath = null,
 		Guid? moduleVersionID = null,
 		string uniqueID = TestData.DefaultAssemblyUniqueID)
 	{
-		var result = Substitute.For<_ITestAssembly, InterfaceProxy<_ITestAssembly>>();
+		var result = Substitute.For<ITestAssembly, InterfaceProxy<ITestAssembly>>();
 		result.AssemblyName.Returns(assemblyName);
 		result.AssemblyPath.Returns(assemblyPath);
 		result.ConfigFilePath.Returns(configFilePath);
@@ -57,12 +57,12 @@ public static partial class Mocks
 		return result;
 	}
 
-	public static _ITestCase TestCase(
+	public static ITestCase TestCase(
 		string? skipReason = null,
 		string? sourceFilePath = null,
 		int? sourceLineNumber = null,
 		string testCaseDisplayName = TestData.DefaultTestCaseDisplayName,
-		_ITestMethod? testMethod = null,
+		ITestMethod? testMethod = null,
 		IReadOnlyDictionary<string, IReadOnlyList<string>>? traits = null,
 		string uniqueID = TestData.DefaultTestCaseUniqueID)
 	{
@@ -73,7 +73,7 @@ public static partial class Mocks
 		var testClassName = testClass.TestClassName;
 		var testClassNamespace = testClass.TestClassNamespace;
 
-		var result = Substitute.For<_ITestCase, InterfaceProxy<_ITestCase>>();
+		var result = Substitute.For<ITestCase, InterfaceProxy<ITestCase>>();
 		result.SkipReason.Returns(skipReason);
 		result.SourceFilePath.Returns(sourceFilePath);
 		result.SourceLineNumber.Returns(sourceLineNumber);
@@ -87,15 +87,15 @@ public static partial class Mocks
 		return result;
 	}
 
-	public static _ITestClass TestClass(
+	public static ITestClass TestClass(
 		string testClassName = TestData.DefaultTestClassName,
 		string testClassNamespace = TestData.DefaultTestClassNamespace,
-		_ITestCollection? testCollection = null,
+		ITestCollection? testCollection = null,
 		string uniqueID = TestData.DefaultTestClassUniqueID)
 	{
 		testCollection ??= TestCollection();
 
-		var result = Substitute.For<_ITestClass, InterfaceProxy<_ITestClass>>();
+		var result = Substitute.For<ITestClass, InterfaceProxy<ITestClass>>();
 		result.TestClassName.Returns(testClassName);
 		result.TestClassNamespace.Returns(testClassNamespace);
 		result.TestCollection.Returns(testCollection);
@@ -103,15 +103,15 @@ public static partial class Mocks
 		return result;
 	}
 
-	public static _ITestCollection TestCollection(
-		_ITestAssembly? testAssembly = null,
+	public static ITestCollection TestCollection(
+		ITestAssembly? testAssembly = null,
 		string? testCollectionClassName = null,
 		string testCollectionDisplayName = TestData.DefaultTestCollectionDisplayName,
 		string uniqueID = TestData.DefaultTestCollectionUniqueID)
 	{
 		testAssembly ??= TestAssembly();
 
-		var result = Substitute.For<_ITestCollection, InterfaceProxy<_ITestCollection>>();
+		var result = Substitute.For<ITestCollection, InterfaceProxy<ITestCollection>>();
 		result.TestAssembly.Returns(testAssembly);
 		result.TestCollectionClassName.Returns(testCollectionClassName);
 		result.TestCollectionDisplayName.Returns(testCollectionDisplayName);
@@ -119,14 +119,14 @@ public static partial class Mocks
 		return result;
 	}
 
-	public static _ITestMethod TestMethod(
+	public static ITestMethod TestMethod(
 		string methodName = TestData.DefaultTestMethodName,
-		_ITestClass? testClass = null,
+		ITestClass? testClass = null,
 		string uniqueID = TestData.DefaultTestMethodUniqueID)
 	{
 		testClass ??= TestClass();
 
-		var result = Substitute.For<_ITestMethod, InterfaceProxy<_ITestMethod>>();
+		var result = Substitute.For<ITestMethod, InterfaceProxy<ITestMethod>>();
 		result.MethodName.Returns(methodName);
 		result.TestClass.Returns(testClass);
 		result.UniqueID.Returns(uniqueID);

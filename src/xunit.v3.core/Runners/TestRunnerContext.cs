@@ -21,7 +21,7 @@ public class TestRunnerContext<TTest>(
 	ExceptionAggregator aggregator,
 	CancellationTokenSource cancellationTokenSource) :
 		ContextBase(explicitOption, messageBus, aggregator, cancellationTokenSource)
-			where TTest : class, _ITest
+			where TTest : class, ITest
 {
 	/// <summary>
 	/// Gets the skip reason given for the test; will be <c>null</c> if the test is not

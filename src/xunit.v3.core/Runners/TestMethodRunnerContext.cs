@@ -15,9 +15,9 @@ namespace Xunit.v3;
 /// <param name="aggregator">The exception aggregator</param>
 /// <param name="cancellationTokenSource">The cancellation token source</param>
 /// <typeparam name="TTestMethod">The type of the test method used by the test framework.
-/// Must derive from <see cref="_ITestMethod"/>.</typeparam>
+/// Must derive from <see cref="ITestMethod"/>.</typeparam>
 /// <typeparam name="TTestCase">The type of the test case used by the test framework. Must
-/// derive from <see cref="_ITestCase"/>.</typeparam>
+/// derive from <see cref="ITestCase"/>.</typeparam>
 public class TestMethodRunnerContext<TTestMethod, TTestCase>(
 	TTestMethod testMethod,
 	IReadOnlyCollection<TTestCase> testCases,
@@ -26,8 +26,8 @@ public class TestMethodRunnerContext<TTestMethod, TTestCase>(
 	ExceptionAggregator aggregator,
 	CancellationTokenSource cancellationTokenSource) :
 		ContextBase(explicitOption, messageBus, aggregator, cancellationTokenSource)
-			where TTestMethod : class, _ITestMethod
-			where TTestCase : class, _ITestCase
+			where TTestMethod : class, ITestMethod
+			where TTestCase : class, ITestCase
 {
 	/// <summary>
 	/// Gets the test cases that are derived from this test method.

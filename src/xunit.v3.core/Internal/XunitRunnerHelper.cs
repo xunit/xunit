@@ -20,16 +20,16 @@ public static class XunitRunnerHelper
 	/// <param name="testCases">The test cases to fail</param>
 	/// <param name="messageFormat">A message template where <c>{0}</c> will be replaced with the
 	/// display name of the test case during failure processing</param>
-	/// <param name="sendTestCollectionMessages">Set to <c>true</c> to send <see cref="_TestCollectionStarting"/>
-	/// and <see cref="_TestCollectionFinished"/> messages; set to <c>false</c> to skip</param>
-	/// <param name="sendTestClassMessages">Set to <c>true</c> to send <see cref="_TestClassStarting"/>
-	/// and <see cref="_TestClassFinished"/> messages; set to <c>false</c> to skip</param>
-	/// <param name="sendTestMethodMessages">Set to <c>true</c> to send <see cref="_TestMethodStarting"/>
-	/// and <see cref="_TestMethodFinished"/> messages; set to <c>false</c> to skip</param>
-	/// <param name="sendTestCaseMessages">Set to <c>true</c> to send <see cref="_TestCaseStarting"/>
-	/// and <see cref="_TestCaseFinished"/> messages; set to <c>false</c> to skip</param>
-	/// <param name="sendTestMessages">Set to <c>true</c> to send <see cref="_TestStarting"/>
-	/// and <see cref="_TestFinished"/> messages; set to <c>false</c> to skip</param>
+	/// <param name="sendTestCollectionMessages">Set to <c>true</c> to send <see cref="TestCollectionStarting"/>
+	/// and <see cref="TestCollectionFinished"/> messages; set to <c>false</c> to skip</param>
+	/// <param name="sendTestClassMessages">Set to <c>true</c> to send <see cref="TestClassStarting"/>
+	/// and <see cref="TestClassFinished"/> messages; set to <c>false</c> to skip</param>
+	/// <param name="sendTestMethodMessages">Set to <c>true</c> to send <see cref="TestMethodStarting"/>
+	/// and <see cref="TestMethodFinished"/> messages; set to <c>false</c> to skip</param>
+	/// <param name="sendTestCaseMessages">Set to <c>true</c> to send <see cref="TestCaseStarting"/>
+	/// and <see cref="TestCaseFinished"/> messages; set to <c>false</c> to skip</param>
+	/// <param name="sendTestMessages">Set to <c>true</c> to send <see cref="TestStarting"/>
+	/// and <see cref="TestFinished"/> messages; set to <c>false</c> to skip</param>
 	public static RunSummary FailTestCases(
 		IMessageBus messageBus,
 		CancellationTokenSource cancellationTokenSource,
@@ -70,16 +70,16 @@ public static class XunitRunnerHelper
 	/// <param name="cancellationTokenSource">The cancellation token source to cancel if requested</param>
 	/// <param name="testCases">The test cases to fail</param>
 	/// <param name="exception">The exception to fail the test cases with</param>
-	/// <param name="sendTestCollectionMessages">Set to <c>true</c> to send <see cref="_TestCollectionStarting"/>
-	/// and <see cref="_TestCollectionFinished"/> messages; set to <c>false</c> to skip</param>
-	/// <param name="sendTestClassMessages">Set to <c>true</c> to send <see cref="_TestClassStarting"/>
-	/// and <see cref="_TestClassFinished"/> messages; set to <c>false</c> to skip</param>
-	/// <param name="sendTestMethodMessages">Set to <c>true</c> to send <see cref="_TestMethodStarting"/>
-	/// and <see cref="_TestMethodFinished"/> messages; set to <c>false</c> to skip</param>
-	/// <param name="sendTestCaseMessages">Set to <c>true</c> to send <see cref="_TestCaseStarting"/>
-	/// and <see cref="_TestCaseFinished"/> messages; set to <c>false</c> to skip</param>
-	/// <param name="sendTestMessages">Set to <c>true</c> to send <see cref="_TestStarting"/>
-	/// and <see cref="_TestFinished"/> messages; set to <c>false</c> to skip</param>
+	/// <param name="sendTestCollectionMessages">Set to <c>true</c> to send <see cref="TestCollectionStarting"/>
+	/// and <see cref="TestCollectionFinished"/> messages; set to <c>false</c> to skip</param>
+	/// <param name="sendTestClassMessages">Set to <c>true</c> to send <see cref="TestClassStarting"/>
+	/// and <see cref="TestClassFinished"/> messages; set to <c>false</c> to skip</param>
+	/// <param name="sendTestMethodMessages">Set to <c>true</c> to send <see cref="TestMethodStarting"/>
+	/// and <see cref="TestMethodFinished"/> messages; set to <c>false</c> to skip</param>
+	/// <param name="sendTestCaseMessages">Set to <c>true</c> to send <see cref="TestCaseStarting"/>
+	/// and <see cref="TestCaseFinished"/> messages; set to <c>false</c> to skip</param>
+	/// <param name="sendTestMessages">Set to <c>true</c> to send <see cref="TestStarting"/>
+	/// and <see cref="TestFinished"/> messages; set to <c>false</c> to skip</param>
 	public static RunSummary FailTestCases(
 		IMessageBus messageBus,
 		CancellationTokenSource cancellationTokenSource,
@@ -141,7 +141,7 @@ public static class XunitRunnerHelper
 		var testUniqueID = UniqueIDGenerator.ForTest(testCaseUniqueID, testIndex);
 
 		if (sendTestCollectionMessages)
-			if (!messageBus.QueueMessage(new _TestCollectionStarting
+			if (!messageBus.QueueMessage(new TestCollectionStarting
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				TestCollectionClassName = testCase.TestCollection.TestCollectionClassName,
@@ -152,7 +152,7 @@ public static class XunitRunnerHelper
 				cancellationTokenSource.Cancel();
 
 		if (sendTestClassMessages)
-			if (!messageBus.QueueMessage(new _TestClassStarting
+			if (!messageBus.QueueMessage(new TestClassStarting
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				TestClassName = testCase.TestClassName,
@@ -164,7 +164,7 @@ public static class XunitRunnerHelper
 				cancellationTokenSource.Cancel();
 
 		if (sendTestMethodMessages)
-			if (!messageBus.QueueMessage(new _TestMethodStarting
+			if (!messageBus.QueueMessage(new TestMethodStarting
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				MethodName = testCase.TestMethodName,
@@ -176,7 +176,7 @@ public static class XunitRunnerHelper
 				cancellationTokenSource.Cancel();
 
 		if (sendTestCaseMessages)
-			if (!messageBus.QueueMessage(new _TestCaseStarting
+			if (!messageBus.QueueMessage(new TestCaseStarting
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				SkipReason = testCase.SkipReason,
@@ -195,7 +195,7 @@ public static class XunitRunnerHelper
 				cancellationTokenSource.Cancel();
 
 		if (sendTestMessages)
-			if (!messageBus.QueueMessage(new _TestStarting
+			if (!messageBus.QueueMessage(new TestStarting
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				Explicit = false,
@@ -210,7 +210,7 @@ public static class XunitRunnerHelper
 			}))
 				cancellationTokenSource.Cancel();
 
-		if (!messageBus.QueueMessage(new _TestFailed
+		if (!messageBus.QueueMessage(new TestFailed
 		{
 			AssemblyUniqueID = assemblyUniqueID,
 			Cause = cause,
@@ -229,7 +229,7 @@ public static class XunitRunnerHelper
 			cancellationTokenSource.Cancel();
 
 		if (sendTestMessages)
-			if (!messageBus.QueueMessage(new _TestFinished
+			if (!messageBus.QueueMessage(new TestFinished
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = 0m,
@@ -243,7 +243,7 @@ public static class XunitRunnerHelper
 				cancellationTokenSource.Cancel();
 
 		if (sendTestCaseMessages)
-			if (!messageBus.QueueMessage(new _TestCaseFinished
+			if (!messageBus.QueueMessage(new TestCaseFinished
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = 0m,
@@ -259,7 +259,7 @@ public static class XunitRunnerHelper
 				cancellationTokenSource.Cancel();
 
 		if (sendTestMethodMessages)
-			if (!messageBus.QueueMessage(new _TestMethodFinished
+			if (!messageBus.QueueMessage(new TestMethodFinished
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = 0m,
@@ -274,7 +274,7 @@ public static class XunitRunnerHelper
 				cancellationTokenSource.Cancel();
 
 		if (sendTestClassMessages)
-			if (!messageBus.QueueMessage(new _TestClassFinished
+			if (!messageBus.QueueMessage(new TestClassFinished
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = 0m,
@@ -288,7 +288,7 @@ public static class XunitRunnerHelper
 				cancellationTokenSource.Cancel();
 
 		if (sendTestCollectionMessages)
-			if (!messageBus.QueueMessage(new _TestCollectionFinished
+			if (!messageBus.QueueMessage(new TestCollectionFinished
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = 0m,

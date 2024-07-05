@@ -13,16 +13,16 @@ namespace Xunit.v3;
 /// </summary>
 /// <typeparam name="TContext">The context type used by the runner</typeparam>
 /// <typeparam name="TTestCollection">The type of the test collection used by the test framework.
-/// Must derive from <see cref="_ITestCollection"/>.</typeparam>
+/// Must derive from <see cref="ITestCollection"/>.</typeparam>
 /// <typeparam name="TTestClass">The type of the test class used by the test framework.
-/// Must derive from <see cref="_ITestClass"/>.</typeparam>
+/// Must derive from <see cref="ITestClass"/>.</typeparam>
 /// <typeparam name="TTestCase">The type of the test case used by the test framework. Must
-/// derive from <see cref="_ITestCase"/>.</typeparam>
+/// derive from <see cref="ITestCase"/>.</typeparam>
 public abstract class TestCollectionRunner<TContext, TTestCollection, TTestClass, TTestCase>
 	where TContext : TestCollectionRunnerContext<TTestCollection, TTestCase>
-	where TTestCollection : class, _ITestCollection
-	where TTestClass : class, _ITestClass
-	where TTestCase : class, _ITestCase
+	where TTestCollection : class, ITestCollection
+	where TTestClass : class, ITestClass
+	where TTestCase : class, ITestCase
 {
 	/// <summary>
 	/// Initializes a new instance of the <see cref="TestCollectionRunner{TContext, TTestCollection, TTestClass, TTestCase}"/> class.
@@ -33,11 +33,11 @@ public abstract class TestCollectionRunner<TContext, TTestCollection, TTestClass
 	/// <summary>
 	/// This method is called when an exception was thrown while cleaning up, after the test collection
 	/// has run. This will typically send a "test collection cleanup failure" message (like
-	/// <see cref="_TestCollectionCleanupFailure"/>).
+	/// <see cref="TestCollectionCleanupFailure"/>).
 	/// </summary>
 	/// <remarks>
 	/// This method runs during <see cref="TestEngineStatus.CleaningUp"/> and any exceptions thrown are
-	/// converted into fatal exception messages (via <see cref="_ErrorMessage"/>) and sent to the message
+	/// converted into fatal exception messages (via <see cref="ErrorMessage"/>) and sent to the message
 	/// bus in <paramref name="ctxt"/>.
 	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test collection</param>
@@ -50,7 +50,7 @@ public abstract class TestCollectionRunner<TContext, TTestCollection, TTestClass
 
 	/// <summary>
 	/// This method will be called when the test collection has finished running. This will typically send
-	/// a "test collection finished" message (like <see cref="_TestCollectionFinished"/>) as well as enabling
+	/// a "test collection finished" message (like <see cref="TestCollectionFinished"/>) as well as enabling
 	/// any extensibility related to test collection finish.
 	/// </summary>
 	/// <remarks>
@@ -66,7 +66,7 @@ public abstract class TestCollectionRunner<TContext, TTestCollection, TTestClass
 
 	/// <summary>
 	/// This method will be called before the test collection has started running. This will typically send
-	/// a "test collection starting" message (like <see cref="_TestCollectionStarting"/>) as well as enabling
+	/// a "test collection starting" message (like <see cref="TestCollectionStarting"/>) as well as enabling
 	/// any extensibility related to test collection start.
 	/// </summary>
 	/// <remarks>
@@ -116,7 +116,7 @@ public abstract class TestCollectionRunner<TContext, TTestCollection, TTestClass
 				ctxt.CancellationTokenSource.Cancel();
 
 			if (ctxt.Aggregator.HasExceptions)
-				ctxt.MessageBus.QueueMessage(_ErrorMessage.FromException(ctxt.Aggregator.ToException()!));
+				ctxt.MessageBus.QueueMessage(ErrorMessage.FromException(ctxt.Aggregator.ToException()!));
 
 			ctxt.Aggregator.Clear();
 		}

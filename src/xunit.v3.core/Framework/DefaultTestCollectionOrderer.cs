@@ -22,7 +22,7 @@ public class DefaultTestCollectionOrderer : ITestCollectionOrderer
 
 	/// <inheritdoc/>
 	public IReadOnlyCollection<TTestCollection> OrderTestCollections<TTestCollection>(IReadOnlyCollection<TTestCollection> testCollections)
-		where TTestCollection : _ITestCollection
+		where TTestCollection : ITestCollection
 	{
 		Guard.ArgumentNotNull(testCollections);
 
@@ -34,7 +34,7 @@ public class DefaultTestCollectionOrderer : ITestCollectionOrderer
 	static int Compare<TTestCollection>(
 		TTestCollection x,
 		TTestCollection y)
-			where TTestCollection : _ITestCollection
+			where TTestCollection : ITestCollection
 	{
 		var xHash = x.UniqueID.GetHashCode();
 		var yHash = y.UniqueID.GetHashCode();

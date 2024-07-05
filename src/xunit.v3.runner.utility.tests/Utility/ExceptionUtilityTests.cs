@@ -6,7 +6,7 @@ using Xunit.Sdk;
 
 public class ExceptionUtilityTests
 {
-	class ErrorMetadata : _IErrorMetadata, IEnumerable
+	class ErrorMetadata : IErrorMetadata, IEnumerable
 	{
 		readonly List<int> exceptionParentIndices = new();
 		readonly List<string?> exceptionTypes = new();

@@ -82,7 +82,7 @@ public class XunitFilters
 	/// </summary>
 	/// <param name="testCase">The test case to filter.</param>
 	/// <returns>Returns <c>true</c> if the test case passed the filter; returns <c>false</c> otherwise.</returns>
-	public bool Filter(_ITestCaseMetadata testCase)
+	public bool Filter(ITestCaseMetadata testCase)
 	{
 		Guard.ArgumentNotNull(testCase);
 
@@ -107,7 +107,7 @@ public class XunitFilters
 		return true;
 	}
 
-	bool FilterExcludedClasses(_ITestCaseMetadata testCase)
+	bool FilterExcludedClasses(ITestCaseMetadata testCase)
 	{
 		// No filters == pass
 		if (ExcludedClasses.Count == 0)
@@ -124,7 +124,7 @@ public class XunitFilters
 		return true;
 	}
 
-	bool FilterExcludedMethods(_ITestCaseMetadata testCase)
+	bool FilterExcludedMethods(ITestCaseMetadata testCase)
 	{
 		// No filters == pass
 		if (excludedMethodRegexFilters.Count == 0 && excludedMethodStandardFilters.Count == 0)
@@ -148,7 +148,7 @@ public class XunitFilters
 		return true;
 	}
 
-	bool FilterExcludedNamespaces(_ITestCaseMetadata testCase)
+	bool FilterExcludedNamespaces(ITestCaseMetadata testCase)
 	{
 		// No filters == pass
 		if (ExcludedNamespaces.Count == 0)
@@ -165,7 +165,7 @@ public class XunitFilters
 		return true;
 	}
 
-	bool FilterExcludedTraits(_ITestCaseMetadata testCase)
+	bool FilterExcludedTraits(ITestCaseMetadata testCase)
 	{
 		// No filters == pass
 		if (ExcludedTraits.Count == 0)
@@ -183,7 +183,7 @@ public class XunitFilters
 		return true;
 	}
 
-	bool FilterIncludedClasses(_ITestCaseMetadata testCase)
+	bool FilterIncludedClasses(ITestCaseMetadata testCase)
 	{
 		// No filters == pass
 		if (IncludedClasses.Count == 0)
@@ -200,7 +200,7 @@ public class XunitFilters
 		return false;
 	}
 
-	bool FilterIncludedMethods(_ITestCaseMetadata testCase)
+	bool FilterIncludedMethods(ITestCaseMetadata testCase)
 	{
 		// No filters == pass
 		if (includedMethodRegexFilters.Count == 0 && includedMethodStandardFilters.Count == 0)
@@ -224,7 +224,7 @@ public class XunitFilters
 		return false;
 	}
 
-	bool FilterIncludedNamespaces(_ITestCaseMetadata testCase)
+	bool FilterIncludedNamespaces(ITestCaseMetadata testCase)
 	{
 		// No filters == pass
 		if (IncludedNamespaces.Count == 0)
@@ -241,7 +241,7 @@ public class XunitFilters
 		return false;
 	}
 
-	bool FilterIncludedTraits(_ITestCaseMetadata testCase)
+	bool FilterIncludedTraits(ITestCaseMetadata testCase)
 	{
 		// No filters == pass
 		if (IncludedTraits.Count == 0)

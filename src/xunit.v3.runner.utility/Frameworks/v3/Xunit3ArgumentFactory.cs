@@ -17,7 +17,7 @@ public static class Xunit3ArgumentFactory
 	/// Gets command line switches based on a call to <see cref="Xunit3.Find"/>.
 	/// </summary>
 	public static List<string> ForFind(
-		_ITestFrameworkDiscoveryOptions options,
+		ITestFrameworkDiscoveryOptions options,
 		XunitFilters? filters = null,
 		string? configFileName = null,
 		ListOption? listOption = null,
@@ -52,8 +52,8 @@ public static class Xunit3ArgumentFactory
 	/// Gets command line switches based on a call to <see cref="Xunit3.FindAndRun"/>.
 	/// </summary>
 	public static List<string> ForFindAndRun(
-		_ITestFrameworkDiscoveryOptions discoveryOptions,
-		_ITestFrameworkExecutionOptions executionOptions,
+		ITestFrameworkDiscoveryOptions discoveryOptions,
+		ITestFrameworkExecutionOptions executionOptions,
 		XunitFilters? filters = null,
 		string? configFileName = null,
 		bool waitForDebugger = false)
@@ -89,7 +89,7 @@ public static class Xunit3ArgumentFactory
 	/// Gets command line switches based on a call to <see cref="Xunit3.Run"/>.
 	/// </summary>
 	public static List<string> ForRun(
-		_ITestFrameworkExecutionOptions options,
+		ITestFrameworkExecutionOptions options,
 		IReadOnlyCollection<string> serializedTestCases,
 		string? configFileName = null,
 		bool waitForDebugger = false)

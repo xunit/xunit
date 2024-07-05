@@ -115,10 +115,10 @@ public class TestInvokerTests
 
 	}
 
-	class TestableTestInvoker : TestInvoker<TestInvokerContext<_ITest>, _ITest>
+	class TestableTestInvoker : TestInvoker<TestInvokerContext<ITest>, ITest>
 	{
 		readonly IMessageBus messageBus;
-		readonly _ITest test;
+		readonly ITest test;
 		readonly Type testClass;
 		readonly object? testClassInstance;
 		readonly MethodInfo testMethod;
@@ -131,7 +131,7 @@ public class TestInvokerTests
 			IMessageBus messageBus,
 			ExceptionAggregator aggregator,
 			CancellationTokenSource cancellationTokenSource,
-			_ITest test,
+			ITest test,
 			Type testClass,
 			object? testClassInstance,
 			MethodInfo testMethod,
@@ -171,7 +171,7 @@ public class TestInvokerTests
 
 		public async ValueTask<TimeSpan> RunAsync()
 		{
-			await using var ctxt = new TestInvokerContext<_ITest>(ExplicitOption.Off, messageBus, Aggregator, TokenSource, test, testClass, testClassInstance, testMethod, testMethodArguments);
+			await using var ctxt = new TestInvokerContext<ITest>(ExplicitOption.Off, messageBus, Aggregator, TokenSource, test, testClass, testClassInstance, testMethod, testMethodArguments);
 			await ctxt.InitializeAsync();
 
 			return await RunAsync(ctxt);

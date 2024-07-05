@@ -9,7 +9,7 @@ using Xunit.Sdk;
 namespace Xunit.v3;
 
 /// <summary>
-/// The implementation of <see cref="_ITestFrameworkExecutor"/> that supports execution
+/// The implementation of <see cref="ITestFrameworkExecutor"/> that supports execution
 /// of unit tests linked against xunit.v3.core.dll.
 /// </summary>
 /// <remarks>
@@ -27,13 +27,13 @@ public class XunitTestFrameworkExecutor(IXunitTestAssembly testAssembly) :
 	protected new IXunitTestAssembly TestAssembly { get; } = Guard.ArgumentNotNull(testAssembly);
 
 	/// <inheritdoc/>
-	protected override _ITestFrameworkDiscoverer CreateDiscoverer() =>
+	protected override ITestFrameworkDiscoverer CreateDiscoverer() =>
 		discoverer.Value;
 
 	/// <inheritdoc/>
 	public override async ValueTask RunTestCases(
 		IReadOnlyCollection<IXunitTestCase> testCases,
-		_IMessageSink executionMessageSink,
-		_ITestFrameworkExecutionOptions executionOptions) =>
+		IMessageSink executionMessageSink,
+		ITestFrameworkExecutionOptions executionOptions) =>
 			await XunitTestAssemblyRunner.Instance.RunAsync(TestAssembly, testCases, executionMessageSink, executionOptions);
 }

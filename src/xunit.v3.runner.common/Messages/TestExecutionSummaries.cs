@@ -7,7 +7,7 @@ namespace Xunit.Runner.Common;
 /// <summary>
 /// Reports multi-assembly test execution summary information.
 /// </summary>
-public class TestExecutionSummaries : _MessageSinkMessage
+public class TestExecutionSummaries : MessageSinkMessage
 {
 	/// <summary>
 	/// Gets the clock time elapsed when running the tests. This may different significantly

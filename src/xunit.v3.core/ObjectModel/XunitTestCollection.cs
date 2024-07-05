@@ -85,7 +85,7 @@ public class XunitTestCollection : IXunitTestCollection, IXunitSerializable
 	public IXunitTestAssembly TestAssembly =>
 		this.ValidateNullablePropertyValue(testAssembly, nameof(TestAssembly));
 
-	_ITestAssembly _ITestCollection.TestAssembly => TestAssembly;
+	ITestAssembly ITestCollection.TestAssembly => TestAssembly;
 
 	/// <inheritdoc/>
 	public ITestCaseOrderer? TestCaseOrderer =>

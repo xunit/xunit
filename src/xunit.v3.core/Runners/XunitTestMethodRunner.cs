@@ -51,17 +51,17 @@ public class XunitTestMethodRunner :
 	protected override ValueTask<bool> OnTestMethodCleanupFailure(
 		XunitTestMethodRunnerContext ctxt,
 		Exception exception) =>
-			new(ReportMessage(ctxt, new _TestMethodCleanupFailure(), exception: exception));
+			new(ReportMessage(ctxt, new TestMethodCleanupFailure(), exception: exception));
 
 	/// <inheritdoc/>
 	protected override ValueTask<bool> OnTestMethodFinished(
 		XunitTestMethodRunnerContext ctxt,
 		RunSummary summary) =>
-			new(ReportMessage(ctxt, new _TestMethodFinished(), summary: summary));
+			new(ReportMessage(ctxt, new TestMethodFinished(), summary: summary));
 
 	/// <inheritdoc/>
 	protected override ValueTask<bool> OnTestMethodStarting(XunitTestMethodRunnerContext ctxt) =>
-		new(ReportMessage(ctxt, new _TestMethodStarting
+		new(ReportMessage(ctxt, new TestMethodStarting
 		{
 			MethodName = Guard.ArgumentNotNull(ctxt).TestMethod.MethodName,
 			Traits = ctxt.TestMethod.Traits,
@@ -69,7 +69,7 @@ public class XunitTestMethodRunner :
 
 	static bool ReportMessage(
 		XunitTestMethodRunnerContext ctxt,
-		_TestMethodMessage message,
+		TestMethodMessage message,
 		RunSummary summary = default,
 		Exception? exception = null)
 	{
@@ -80,7 +80,7 @@ public class XunitTestMethodRunner :
 		message.TestCollectionUniqueID = ctxt.TestMethod.TestClass.TestCollection.UniqueID;
 		message.TestMethodUniqueID = ctxt.TestMethod?.UniqueID;
 
-		if (message is _IWritableExecutionSummaryMetadata summaryMessage)
+		if (message is IWritableExecutionSummaryMetadata summaryMessage)
 		{
 			summaryMessage.ExecutionTime = summary.Time;
 			summaryMessage.TestsFailed = summary.Failed;
@@ -89,7 +89,7 @@ public class XunitTestMethodRunner :
 			summaryMessage.TestsTotal = summary.Total;
 		}
 
-		if (exception is not null && message is _IWritableErrorMetadata errorMessage)
+		if (exception is not null && message is IWritableErrorMetadata errorMessage)
 		{
 			var (types, messages, stackTraces, indices, _) = ExceptionUtility.ExtractMetadata(exception);
 

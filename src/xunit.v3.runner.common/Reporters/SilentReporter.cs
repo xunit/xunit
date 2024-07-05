@@ -31,7 +31,7 @@ public class SilentReporter : IRunnerReporter
 	/// <inheritdoc/>
 	public ValueTask<IRunnerReporterMessageHandler> CreateMessageHandler(
 		IRunnerLogger logger,
-		_IMessageSink? diagnosticMessageSink) =>
+		IMessageSink? diagnosticMessageSink) =>
 			new(new SilentReporterMessageHandler());
 
 #pragma warning restore CA2000

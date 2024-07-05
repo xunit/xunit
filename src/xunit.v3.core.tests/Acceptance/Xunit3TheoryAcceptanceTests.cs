@@ -812,7 +812,7 @@ public class Xunit3TheoryAcceptanceTests
 			var testMessages = await RunAsync(typeof(ClassUnderTests_TraitsTests), preEnumerateTheories);
 
 			Assert.Collection(
-				testMessages.OfType<_TestStarting>().OrderBy(x => x.TestDisplayName),
+				testMessages.OfType<TestStarting>().OrderBy(x => x.TestDisplayName),
 				starting =>
 				{
 					Assert.Equal($"{typeof(ClassUnderTests_TraitsTests).FullName}.{nameof(ClassUnderTests_TraitsTests.TestMethod)}(_: 0)", starting.TestDisplayName);
@@ -2073,9 +2073,9 @@ public class Xunit3TheoryAcceptanceTests
 		{
 			var testMessages = await RunAsync(typeof(ClassWithDowncastedMethodData));
 
-			Assert.Equal(2, testMessages.OfType<_TestPassed>().Count());
-			Assert.Empty(testMessages.OfType<_TestFailed>());
-			Assert.Empty(testMessages.OfType<_TestSkipped>());
+			Assert.Equal(2, testMessages.OfType<TestPassed>().Count());
+			Assert.Empty(testMessages.OfType<TestFailed>());
+			Assert.Empty(testMessages.OfType<TestSkipped>());
 		}
 
 		class ClassWithDowncastedMethodData
@@ -2291,9 +2291,9 @@ public class Xunit3TheoryAcceptanceTests
 		{
 			var testMessages = await RunAsync(typeof(DataConstructorOverloadExample));
 
-			Assert.Single(testMessages.OfType<_TestPassed>());
-			Assert.Empty(testMessages.OfType<_TestFailed>());
-			Assert.Empty(testMessages.OfType<_TestSkipped>());
+			Assert.Single(testMessages.OfType<TestPassed>());
+			Assert.Empty(testMessages.OfType<TestFailed>());
+			Assert.Empty(testMessages.OfType<TestSkipped>());
 		}
 
 		class DataConstructorOverloadExample
@@ -2419,9 +2419,9 @@ public class Xunit3TheoryAcceptanceTests
 		{
 			var testMessages = await RunAsync(typeof(ClassUnderTest));
 
-			var methodStarting = Assert.Single(testMessages.OfType<_TestMethodStarting>());
+			var methodStarting = Assert.Single(testMessages.OfType<TestMethodStarting>());
 			Assert.Equal("Theory", methodStarting.MethodName);
-			var methodFinished = Assert.Single(testMessages.OfType<_TestMethodFinished>());
+			var methodFinished = Assert.Single(testMessages.OfType<TestMethodFinished>());
 			Assert.Equal(methodStarting.TestMethodUniqueID, methodFinished.TestMethodUniqueID);
 		}
 

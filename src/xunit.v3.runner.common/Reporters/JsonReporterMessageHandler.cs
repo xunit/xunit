@@ -25,7 +25,7 @@ public class JsonReporterMessageHandler(IRunnerLogger logger) : IRunnerReporterM
 	}
 
 	/// <inheritdoc/>
-	public bool OnMessage(_MessageSinkMessage message)
+	public bool OnMessage(MessageSinkMessage message)
 	{
 		var json = message?.ToJson();
 		if (json is not null)

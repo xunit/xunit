@@ -84,7 +84,7 @@ public sealed class UniqueIDGenerator : IDisposable
 	}
 
 	/// <summary>
-	/// Computes a unique ID for an assembly, to be placed into <see cref="_TestAssemblyMessage.AssemblyUniqueID"/>
+	/// Computes a unique ID for an assembly, to be placed into <see cref="TestAssemblyMessage.AssemblyUniqueID"/>
 	/// </summary>
 	/// <param name="assemblyPath">The optional assembly path</param>
 	/// <param name="configFilePath">The optional configuration file path</param>
@@ -102,7 +102,7 @@ public sealed class UniqueIDGenerator : IDisposable
 	}
 
 	/// <summary>
-	/// Computes a unique ID for a test, to be placed into <see cref="_TestMessage.TestUniqueID"/>
+	/// Computes a unique ID for a test, to be placed into <see cref="TestMessage.TestUniqueID"/>
 	/// </summary>
 	/// <param name="testCaseUniqueID">The unique ID of the test case that this test belongs to.</param>
 	/// <param name="testIndex">The index of this test in the test case, typically starting with 0
@@ -120,7 +120,7 @@ public sealed class UniqueIDGenerator : IDisposable
 	}
 
 	/// <summary>
-	/// Computes a unique ID for a test case, to be placed into <see cref="_TestCaseMessage.TestCaseUniqueID"/>
+	/// Computes a unique ID for a test case, to be placed into <see cref="TestCaseMessage.TestCaseUniqueID"/>
 	/// </summary>
 	/// <param name="parentUniqueID">The unique ID of the parent in the hierarchy; typically the test method
 	/// unique ID, but may also be the test class or test collection unique ID, when test method (and
@@ -150,7 +150,7 @@ public sealed class UniqueIDGenerator : IDisposable
 	}
 
 	/// <summary>
-	/// Computes a unique ID for a test class, to be placed into <see cref="_TestClassMessage.TestClassUniqueID"/>
+	/// Computes a unique ID for a test class, to be placed into <see cref="TestClassMessage.TestClassUniqueID"/>
 	/// </summary>
 	/// <param name="testCollectionUniqueID">The unique ID of the parent test collection for the test class</param>
 	/// <param name="className">The optional fully qualified type name of the test class</param>
@@ -173,7 +173,7 @@ public sealed class UniqueIDGenerator : IDisposable
 	}
 
 	/// <summary>
-	/// Computes a unique ID for a test collection, to be placed into <see cref="_TestCollectionMessage.TestCollectionUniqueID"/>
+	/// Computes a unique ID for a test collection, to be placed into <see cref="TestCollectionMessage.TestCollectionUniqueID"/>
 	/// </summary>
 	/// <param name="assemblyUniqueID">The unique ID of the assembly the test collection lives in</param>
 	/// <param name="collectionDisplayName">The display name of the test collection</param>
@@ -195,7 +195,7 @@ public sealed class UniqueIDGenerator : IDisposable
 	}
 
 	/// <summary>
-	/// Computes a unique ID for a test method, to be placed into <see cref="_TestMethodMessage.TestMethodUniqueID"/>
+	/// Computes a unique ID for a test method, to be placed into <see cref="TestMethodMessage.TestMethodUniqueID"/>
 	/// </summary>
 	/// <param name="testClassUniqueID">The unique ID of the parent test class for the test method</param>
 	/// <param name="methodName">The optional test method name</param>

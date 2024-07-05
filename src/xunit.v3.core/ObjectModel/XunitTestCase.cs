@@ -102,13 +102,13 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 	public IXunitTestCollection TestCollection =>
 		TestMethod.TestClass.TestCollection;
 
-	_ITestCollection _ITestCase.TestCollection => TestCollection;
+	ITestCollection ITestCase.TestCollection => TestCollection;
 
 	/// <inheritdoc/>
 	public IXunitTestClass TestClass =>
 		TestMethod.TestClass;
 
-	_ITestClass _ITestCase.TestClass => TestClass;
+	ITestClass ITestCase.TestClass => TestClass;
 
 	/// <inheritdoc/>
 	public string TestClassName =>
@@ -122,7 +122,7 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 	public IXunitTestMethod TestMethod =>
 		this.ValidateNullablePropertyValue(testMethod, nameof(TestMethod));
 
-	_ITestMethod _ITestCase.TestMethod => TestMethod;
+	ITestMethod ITestCase.TestMethod => TestMethod;
 
 	/// <inheritdoc/>
 	public object?[] TestMethodArguments =>
@@ -139,7 +139,7 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 		this.ValidateNullablePropertyValue(traits, nameof(Traits));
 
 	/// <inheritdoc/>
-	IReadOnlyDictionary<string, IReadOnlyList<string>> _ITestCaseMetadata.Traits =>
+	IReadOnlyDictionary<string, IReadOnlyList<string>> ITestCaseMetadata.Traits =>
 		Traits.ToReadOnly();
 
 	/// <inheritdoc/>

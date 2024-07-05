@@ -1,10 +1,10 @@
 using Xunit.Internal;
 using Xunit.Sdk;
 
-public class TestNotRunWithDisplayName : _TestResultMessage, ITestResultWithDisplayName
+public class TestNotRunWithDisplayName : TestResultMessage, ITestResultWithDisplayName
 {
 	internal TestNotRunWithDisplayName(
-		_TestNotRun testNotRun,
+		TestNotRun testNotRun,
 		string testDisplayName)
 	{
 		AssemblyUniqueID = testNotRun.AssemblyUniqueID;

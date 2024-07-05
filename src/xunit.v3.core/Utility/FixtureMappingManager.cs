@@ -149,7 +149,7 @@ public class FixtureMappingManager(
 		foreach (var parameter in parameters)
 		{
 			object? arg = null;
-			if (parameter.ParameterType == typeof(_IMessageSink))
+			if (parameter.ParameterType == typeof(IMessageSink))
 				arg = TestContext.Current.DiagnosticMessageSink;
 			else if (parameter.ParameterType == typeof(ITestContextAccessor))
 				arg = TestContextAccessor.Instance;

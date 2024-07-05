@@ -26,9 +26,9 @@ public class TeamCityReporterMessageHandler(
 		DateTimeOffset.UtcNow;
 
 	/// <summary>
-	/// Handles instances of <see cref="_ErrorMessage" />.
+	/// Handles instances of <see cref="ErrorMessage" />.
 	/// </summary>
-	protected override void HandleErrorMessage(MessageHandlerArgs<_ErrorMessage> args)
+	protected override void HandleErrorMessage(MessageHandlerArgs<ErrorMessage> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -40,9 +40,9 @@ public class TeamCityReporterMessageHandler(
 	}
 
 	/// <summary>
-	/// Handles instances of <see cref="_TestAssemblyCleanupFailure" />.
+	/// Handles instances of <see cref="TestAssemblyCleanupFailure" />.
 	/// </summary>
-	protected override void HandleTestAssemblyCleanupFailure(MessageHandlerArgs<_TestAssemblyCleanupFailure> args)
+	protected override void HandleTestAssemblyCleanupFailure(MessageHandlerArgs<TestAssemblyCleanupFailure> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -54,9 +54,9 @@ public class TeamCityReporterMessageHandler(
 	}
 
 	/// <summary>
-	/// Handles instances of <see cref="_TestAssemblyFinished" />.
+	/// Handles instances of <see cref="TestAssemblyFinished" />.
 	/// </summary>
-	protected override void HandleTestAssemblyFinished(MessageHandlerArgs<_TestAssemblyFinished> args)
+	protected override void HandleTestAssemblyFinished(MessageHandlerArgs<TestAssemblyFinished> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -70,9 +70,9 @@ public class TeamCityReporterMessageHandler(
 	}
 
 	/// <summary>
-	/// Handles instances of <see cref="_TestAssemblyStarting" />.
+	/// Handles instances of <see cref="TestAssemblyStarting" />.
 	/// </summary>
-	protected override void HandleTestAssemblyStarting(MessageHandlerArgs<_TestAssemblyStarting> args)
+	protected override void HandleTestAssemblyStarting(MessageHandlerArgs<TestAssemblyStarting> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -86,9 +86,9 @@ public class TeamCityReporterMessageHandler(
 	}
 
 	/// <summary>
-	/// Handles instances of <see cref="_TestCaseCleanupFailure" />.
+	/// Handles instances of <see cref="TestCaseCleanupFailure" />.
 	/// </summary>
-	protected override void HandleTestCaseCleanupFailure(MessageHandlerArgs<_TestCaseCleanupFailure> args)
+	protected override void HandleTestCaseCleanupFailure(MessageHandlerArgs<TestCaseCleanupFailure> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -100,9 +100,9 @@ public class TeamCityReporterMessageHandler(
 	}
 
 	/// <summary>
-	/// Handles instances of <see cref="_TestCaseFinished" />.
+	/// Handles instances of <see cref="TestCaseFinished" />.
 	/// </summary>
-	protected override void HandleTestCaseFinished(MessageHandlerArgs<_TestCaseFinished> args)
+	protected override void HandleTestCaseFinished(MessageHandlerArgs<TestCaseFinished> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -112,9 +112,9 @@ public class TeamCityReporterMessageHandler(
 	}
 
 	/// <summary>
-	/// Handles instances of <see cref="_TestCaseStarting" />.
+	/// Handles instances of <see cref="TestCaseStarting" />.
 	/// </summary>
-	protected override void HandleTestCaseStarting(MessageHandlerArgs<_TestCaseStarting> args)
+	protected override void HandleTestCaseStarting(MessageHandlerArgs<TestCaseStarting> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -124,9 +124,9 @@ public class TeamCityReporterMessageHandler(
 	}
 
 	/// <summary>
-	/// Handles instances of <see cref="_TestClassCleanupFailure" />.
+	/// Handles instances of <see cref="TestClassCleanupFailure" />.
 	/// </summary>
-	protected override void HandleTestClassCleanupFailure(MessageHandlerArgs<_TestClassCleanupFailure> args)
+	protected override void HandleTestClassCleanupFailure(MessageHandlerArgs<TestClassCleanupFailure> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -138,9 +138,9 @@ public class TeamCityReporterMessageHandler(
 	}
 
 	/// <summary>
-	/// Handles instances of <see cref="_TestClassFinished" />.
+	/// Handles instances of <see cref="TestClassFinished" />.
 	/// </summary>
-	protected override void HandleTestClassFinished(MessageHandlerArgs<_TestClassFinished> args)
+	protected override void HandleTestClassFinished(MessageHandlerArgs<TestClassFinished> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -150,9 +150,9 @@ public class TeamCityReporterMessageHandler(
 	}
 
 	/// <summary>
-	/// Handles instances of <see cref="_TestClassStarting" />.
+	/// Handles instances of <see cref="TestClassStarting" />.
 	/// </summary>
-	protected override void HandleTestClassStarting(MessageHandlerArgs<_TestClassStarting> args)
+	protected override void HandleTestClassStarting(MessageHandlerArgs<TestClassStarting> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -162,9 +162,9 @@ public class TeamCityReporterMessageHandler(
 	}
 
 	/// <summary>
-	/// Handles instances of <see cref="_TestCollectionCleanupFailure" />.
+	/// Handles instances of <see cref="TestCollectionCleanupFailure" />.
 	/// </summary>
-	protected override void HandleTestCollectionCleanupFailure(MessageHandlerArgs<_TestCollectionCleanupFailure> args)
+	protected override void HandleTestCollectionCleanupFailure(MessageHandlerArgs<TestCollectionCleanupFailure> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -176,9 +176,9 @@ public class TeamCityReporterMessageHandler(
 	}
 
 	/// <summary>
-	/// Handles instances of <see cref="_TestCollectionFinished" />.
+	/// Handles instances of <see cref="TestCollectionFinished" />.
 	/// </summary>
-	protected override void HandleTestCollectionFinished(MessageHandlerArgs<_TestCollectionFinished> args)
+	protected override void HandleTestCollectionFinished(MessageHandlerArgs<TestCollectionFinished> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -192,9 +192,9 @@ public class TeamCityReporterMessageHandler(
 	}
 
 	/// <summary>
-	/// Handles instances of <see cref="_TestCollectionStarting" />.
+	/// Handles instances of <see cref="TestCollectionStarting" />.
 	/// </summary>
-	protected override void HandleTestCollectionStarting(MessageHandlerArgs<_TestCollectionStarting> args)
+	protected override void HandleTestCollectionStarting(MessageHandlerArgs<TestCollectionStarting> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -208,9 +208,9 @@ public class TeamCityReporterMessageHandler(
 	}
 
 	/// <summary>
-	/// Handles instances of <see cref="_TestCleanupFailure" />.
+	/// Handles instances of <see cref="TestCleanupFailure" />.
 	/// </summary>
-	protected override void HandleTestCleanupFailure(MessageHandlerArgs<_TestCleanupFailure> args)
+	protected override void HandleTestCleanupFailure(MessageHandlerArgs<TestCleanupFailure> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -222,9 +222,9 @@ public class TeamCityReporterMessageHandler(
 	}
 
 	/// <summary>
-	/// Handles instances of <see cref="_TestFailed" />.
+	/// Handles instances of <see cref="TestFailed" />.
 	/// </summary>
-	protected override void HandleTestFailed(MessageHandlerArgs<_TestFailed> args)
+	protected override void HandleTestFailed(MessageHandlerArgs<TestFailed> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -243,9 +243,9 @@ public class TeamCityReporterMessageHandler(
 	}
 
 	/// <summary>
-	/// Handles instances of <see cref="_TestFinished" />.
+	/// Handles instances of <see cref="TestFinished" />.
 	/// </summary>
-	protected override void HandleTestFinished(MessageHandlerArgs<_TestFinished> args)
+	protected override void HandleTestFinished(MessageHandlerArgs<TestFinished> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -265,9 +265,9 @@ public class TeamCityReporterMessageHandler(
 	}
 
 	/// <summary>
-	/// Handles instances of <see cref="_TestMethodCleanupFailure" />.
+	/// Handles instances of <see cref="TestMethodCleanupFailure" />.
 	/// </summary>
-	protected override void HandleTestMethodCleanupFailure(MessageHandlerArgs<_TestMethodCleanupFailure> args)
+	protected override void HandleTestMethodCleanupFailure(MessageHandlerArgs<TestMethodCleanupFailure> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -279,9 +279,9 @@ public class TeamCityReporterMessageHandler(
 	}
 
 	/// <summary>
-	/// Handles instances of <see cref="_TestMethodFinished" />.
+	/// Handles instances of <see cref="TestMethodFinished" />.
 	/// </summary>
-	protected override void HandleTestMethodFinished(MessageHandlerArgs<_TestMethodFinished> args)
+	protected override void HandleTestMethodFinished(MessageHandlerArgs<TestMethodFinished> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -291,9 +291,9 @@ public class TeamCityReporterMessageHandler(
 	}
 
 	/// <summary>
-	/// Handles instances of <see cref="_TestMethodStarting" />.
+	/// Handles instances of <see cref="TestMethodStarting" />.
 	/// </summary>
-	protected override void HandleTestMethodStarting(MessageHandlerArgs<_TestMethodStarting> args)
+	protected override void HandleTestMethodStarting(MessageHandlerArgs<TestMethodStarting> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -303,9 +303,9 @@ public class TeamCityReporterMessageHandler(
 	}
 
 	/// <summary>
-	/// Handles instances of <see cref="_TestSkipped" />.
+	/// Handles instances of <see cref="TestSkipped" />.
 	/// </summary>
-	protected override void HandleTestSkipped(MessageHandlerArgs<_TestSkipped> args)
+	protected override void HandleTestSkipped(MessageHandlerArgs<TestSkipped> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -317,9 +317,9 @@ public class TeamCityReporterMessageHandler(
 	}
 
 	/// <summary>
-	/// Handles instances of <see cref="_TestStarting" />.
+	/// Handles instances of <see cref="TestStarting" />.
 	/// </summary>
-	protected override void HandleTestStarting(MessageHandlerArgs<_TestStarting> args)
+	protected override void HandleTestStarting(MessageHandlerArgs<TestStarting> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -390,13 +390,13 @@ public class TeamCityReporterMessageHandler(
 	}
 
 	void TeamCityLogError(
-		_IErrorMetadata errorMetadata,
+		IErrorMetadata errorMetadata,
 		string messageType) =>
 			TeamCityLogError(string.Empty, errorMetadata, "{0}", messageType);
 
 	void TeamCityLogError(
 		string flowId,
-		_IErrorMetadata errorMetadata,
+		IErrorMetadata errorMetadata,
 		string messageTypeFormat,
 		params object?[] args)
 	{
@@ -444,7 +444,7 @@ public class TeamCityReporterMessageHandler(
 		TeamCityLogMessage(flowId, "testSuiteStarted", "name='{0}'", TeamCityEscape(name));
 	}
 
-	string ToAssemblyName(_TestAssemblyMessage message)
+	string ToAssemblyName(TestAssemblyMessage message)
 	{
 		var metadata = metadataCache.TryGetAssemblyMetadata(message);
 		if (metadata is null)
@@ -453,13 +453,13 @@ public class TeamCityReporterMessageHandler(
 		return metadata.AssemblyPath ?? metadata.SimpleAssemblyName();
 	}
 
-	string ToTestCaseName(_TestCaseMessage message) =>
+	string ToTestCaseName(TestCaseMessage message) =>
 		metadataCache.TryGetTestCaseMetadata(message)?.TestCaseDisplayName ?? "<unknown test case>";
 
-	string ToTestClassName(_TestClassMessage message) =>
+	string ToTestClassName(TestClassMessage message) =>
 		metadataCache.TryGetClassMetadata(message)?.TestClassName ?? "<unknown test class>";
 
-	string ToTestCollectionName(_TestCollectionMessage message)
+	string ToTestCollectionName(TestCollectionMessage message)
 	{
 		var metadata = metadataCache.TryGetCollectionMetadata(message);
 		if (metadata is null)
@@ -468,7 +468,7 @@ public class TeamCityReporterMessageHandler(
 		return string.Format(CultureInfo.InvariantCulture, "{0} ({1})", metadata.TestCollectionDisplayName, message.TestCollectionUniqueID);
 	}
 
-	string ToTestMethodName(_TestMethodMessage message)
+	string ToTestMethodName(TestMethodMessage message)
 	{
 		var testMethodMetadata = metadataCache.TryGetMethodMetadata(message);
 		if (testMethodMetadata is null)
@@ -481,7 +481,7 @@ public class TeamCityReporterMessageHandler(
 		return string.Format(CultureInfo.InvariantCulture, "{0}.{1}", testClassMetadata.TestClassName, testMethodMetadata.MethodName);
 	}
 
-	string ToTestName(_TestMessage message) =>
+	string ToTestName(TestMessage message) =>
 		// TODO: Is there a way to get just the component pieces of the display name?
 		// That way we could construct the method name and arguments separately.
 		metadataCache.TryGetTestMetadata(message)?.TestDisplayName ?? "<unknown test>";

@@ -532,7 +532,7 @@ public class TestRunnerTests
 				"OnTestCleanupFailure(exception: typeof(ArgumentException))",
 			}, runner.Invocations);
 			var message = Assert.Single(runner.MessageBus.Messages);
-			var errorMessage = Assert.IsType<_ErrorMessage>(message);
+			var errorMessage = Assert.IsType<ErrorMessage>(message);
 			Assert.Equal(new[] { -1 }, errorMessage.ExceptionParentIndices);
 			Assert.Equal(new[] { "System.DivideByZeroException" }, errorMessage.ExceptionTypes);
 			Assert.Equal(new[] { "Attempted to divide by zero." }, errorMessage.Messages);
@@ -881,19 +881,19 @@ public class TestRunnerTests
 		int skipped = 0) =>
 			Assert.Equivalent(new { Total = total, Failed = failed, NotRun = notRun, Skipped = skipped }, summary);
 
-	class TestableTestRunner(_ITest? test = null) :
-		TestRunner<TestRunnerContext<_ITest>, _ITest>
+	class TestableTestRunner(ITest? test = null) :
+		TestRunner<TestRunnerContext<ITest>, ITest>
 	{
 		public readonly ExceptionAggregator Aggregator = new();
 		public readonly List<string> Invocations = [];
 		public readonly SpyMessageBus MessageBus = new();
-		public readonly _ITest Test = test ?? Mocks.Test();
+		public readonly ITest Test = test ?? Mocks.Test();
 		public readonly CancellationTokenSource TokenSource = new();
 
 		public Action? CreateTestClassInstance__Lambda;
 		public object? CreateTestClassInstance__Result;
 
-		protected override ValueTask<object?> CreateTestClassInstance(TestRunnerContext<_ITest> ctxt)
+		protected override ValueTask<object?> CreateTestClassInstance(TestRunnerContext<ITest> ctxt)
 		{
 			Invocations.Add("CreateTestClassInstance");
 
@@ -905,7 +905,7 @@ public class TestRunnerTests
 		public Action? DisposeTestClassInstance__Lambda;
 
 		protected override ValueTask DisposeTestClassInstance(
-			TestRunnerContext<_ITest> ctxt,
+			TestRunnerContext<ITest> ctxt,
 			object testClassInstance)
 		{
 			Invocations.Add("DisposeTestClassInstance");
@@ -918,7 +918,7 @@ public class TestRunnerTests
 		public string GetTestOutput__Result = string.Empty;
 		public Action? GetTestOutput__Lambda;
 
-		protected override ValueTask<string> GetTestOutput(TestRunnerContext<_ITest> ctxt)
+		protected override ValueTask<string> GetTestOutput(TestRunnerContext<ITest> ctxt)
 		{
 			Invocations.Add("GetTestOutput");
 
@@ -931,7 +931,7 @@ public class TestRunnerTests
 		public TimeSpan InvokeTestAsync__Result = TimeSpan.Zero;
 
 		protected override ValueTask<TimeSpan> InvokeTestAsync(
-			TestRunnerContext<_ITest> ctxt,
+			TestRunnerContext<ITest> ctxt,
 			object? testClassInstance)
 		{
 			Assert.Same(CreateTestClassInstance__Result, testClassInstance);
@@ -946,7 +946,7 @@ public class TestRunnerTests
 		public Action? IsTestClassCreatable__Lambda;
 		public bool IsTestClassCreatable__Result = true;
 
-		protected override bool IsTestClassCreatable(TestRunnerContext<_ITest> ctxt)
+		protected override bool IsTestClassCreatable(TestRunnerContext<ITest> ctxt)
 		{
 			Invocations.Add("IsTestClassCreatable");
 
@@ -959,7 +959,7 @@ public class TestRunnerTests
 		public bool IsTestClassDisposable__Result = true;
 
 		protected override bool IsTestClassDisposable(
-			TestRunnerContext<_ITest> ctxt,
+			TestRunnerContext<ITest> ctxt,
 			object testClassInstance)
 		{
 			Invocations.Add("IsTestClassDisposable");
@@ -972,7 +972,7 @@ public class TestRunnerTests
 		public Action? OnTestClassConstructionFinished__Lambda;
 		public bool OnTestClassConstructionFinished__Result = true;
 
-		protected override ValueTask<bool> OnTestClassConstructionFinished(TestRunnerContext<_ITest> ctxt)
+		protected override ValueTask<bool> OnTestClassConstructionFinished(TestRunnerContext<ITest> ctxt)
 		{
 			Invocations.Add("OnTestClassConstructionFinished");
 
@@ -984,7 +984,7 @@ public class TestRunnerTests
 		public Action? OnTestClassConstructionStarting__Lambda;
 		public bool OnTestClassConstructionStarting__Result = true;
 
-		protected override ValueTask<bool> OnTestClassConstructionStarting(TestRunnerContext<_ITest> ctxt)
+		protected override ValueTask<bool> OnTestClassConstructionStarting(TestRunnerContext<ITest> ctxt)
 		{
 			Invocations.Add("OnTestClassConstructionStarting");
 
@@ -996,7 +996,7 @@ public class TestRunnerTests
 		public Action? OnTestClassDisposeFinished__Lambda;
 		public bool OnTestClassDisposeFinished__Result = true;
 
-		protected override ValueTask<bool> OnTestClassDisposeFinished(TestRunnerContext<_ITest> ctxt)
+		protected override ValueTask<bool> OnTestClassDisposeFinished(TestRunnerContext<ITest> ctxt)
 		{
 			Invocations.Add("OnTestClassDisposeFinished");
 
@@ -1008,7 +1008,7 @@ public class TestRunnerTests
 		public Action? OnTestClassDisposeStarting__Lambda;
 		public bool OnTestClassDisposeStarting__Result = true;
 
-		protected override ValueTask<bool> OnTestClassDisposeStarting(TestRunnerContext<_ITest> ctxt)
+		protected override ValueTask<bool> OnTestClassDisposeStarting(TestRunnerContext<ITest> ctxt)
 		{
 			Invocations.Add("OnTestClassDisposeStarting");
 
@@ -1021,7 +1021,7 @@ public class TestRunnerTests
 		public bool OnTestCleanupFailure__Result = true;
 
 		protected override ValueTask<bool> OnTestCleanupFailure(
-			TestRunnerContext<_ITest> ctxt,
+			TestRunnerContext<ITest> ctxt,
 			Exception exception)
 		{
 			Invocations.Add($"OnTestCleanupFailure(exception: {TypeName(exception)})");
@@ -1035,7 +1035,7 @@ public class TestRunnerTests
 		public bool OnTestFailed__Result = true;
 
 		protected override ValueTask<(bool Continue, TestResultState ResultState)> OnTestFailed(
-			TestRunnerContext<_ITest> ctxt,
+			TestRunnerContext<ITest> ctxt,
 			Exception exception,
 			decimal executionTime,
 			string output)
@@ -1051,7 +1051,7 @@ public class TestRunnerTests
 		public bool OnTestFinished__Result = true;
 
 		protected override ValueTask<bool> OnTestFinished(
-			TestRunnerContext<_ITest> ctxt,
+			TestRunnerContext<ITest> ctxt,
 			decimal executionTime,
 			string output)
 		{
@@ -1066,21 +1066,21 @@ public class TestRunnerTests
 		public bool OnTestNotRun__Result = true;
 
 		protected override ValueTask<(bool Continue, TestResultState ResultState)> OnTestNotRun(
-			TestRunnerContext<_ITest> ctxt,
+			TestRunnerContext<ITest> ctxt,
 			string output)
 		{
 			Invocations.Add($"OnTestNotRun(output: {ArgumentFormatter.Format(output)})");
 
 			OnTestNotRun__Lambda?.Invoke();
 
-			return new((OnTestNotRun__Result, TestResultState.FromTestResult(new _TestNotRun { ExecutionTime = 0m })));
+			return new((OnTestNotRun__Result, TestResultState.FromTestResult(new TestNotRun { ExecutionTime = 0m })));
 		}
 
 		public Action? OnTestPassed__Lambda;
 		public bool OnTestPassed__Result = true;
 
 		protected override ValueTask<(bool Continue, TestResultState ResultState)> OnTestPassed(
-			TestRunnerContext<_ITest> ctxt,
+			TestRunnerContext<ITest> ctxt,
 			decimal executionTime,
 			string output)
 		{
@@ -1088,14 +1088,14 @@ public class TestRunnerTests
 
 			OnTestPassed__Lambda?.Invoke();
 
-			return new((OnTestPassed__Result, TestResultState.FromTestResult(new _TestPassed { ExecutionTime = 0m })));
+			return new((OnTestPassed__Result, TestResultState.FromTestResult(new TestPassed { ExecutionTime = 0m })));
 		}
 
 		public Action? OnTestSkipped__Lambda;
 		public bool OnTestSkipped__Result = true;
 
 		protected override ValueTask<(bool Continue, TestResultState ResultState)> OnTestSkipped(
-			TestRunnerContext<_ITest> ctxt,
+			TestRunnerContext<ITest> ctxt,
 			string skipReason,
 			decimal executionTime,
 			string output)
@@ -1104,13 +1104,13 @@ public class TestRunnerTests
 
 			OnTestSkipped__Lambda?.Invoke();
 
-			return new((OnTestSkipped__Result, TestResultState.FromTestResult(new _TestSkipped { ExecutionTime = 0m })));
+			return new((OnTestSkipped__Result, TestResultState.FromTestResult(new TestSkipped { ExecutionTime = 0m })));
 		}
 
 		public Action? OnTestStarting__Lambda;
 		public bool OnTestStarting__Result = true;
 
-		protected override ValueTask<bool> OnTestStarting(TestRunnerContext<_ITest> ctxt)
+		protected override ValueTask<bool> OnTestStarting(TestRunnerContext<ITest> ctxt)
 		{
 			Invocations.Add("OnTestStarting");
 
@@ -1123,7 +1123,7 @@ public class TestRunnerTests
 
 		public async ValueTask<RunSummary> RunAsync()
 		{
-			await using var ctxt = new TestRunnerContext<_ITest>(Test, MessageBus, RunAsync__SkipReason, ExplicitOption.Off, Aggregator, TokenSource);
+			await using var ctxt = new TestRunnerContext<ITest>(Test, MessageBus, RunAsync__SkipReason, ExplicitOption.Off, Aggregator, TokenSource);
 			await ctxt.InitializeAsync();
 
 			return await RunAsync(ctxt);
@@ -1132,7 +1132,7 @@ public class TestRunnerTests
 		public Action? ShouldTestRun__Lambda;
 		public bool ShouldTestRun__Result = true;
 
-		protected override bool ShouldTestRun(TestRunnerContext<_ITest> ctxt)
+		protected override bool ShouldTestRun(TestRunnerContext<ITest> ctxt)
 		{
 			Invocations.Add("ShouldTestRun");
 

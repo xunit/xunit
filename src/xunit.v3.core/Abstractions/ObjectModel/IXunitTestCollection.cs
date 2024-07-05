@@ -13,7 +13,7 @@ namespace Xunit.v3;
 /// tests, but will run in parallel against tests in other collections. They also provide
 /// a level of shared context via <see cref="ICollectionFixture{TFixture}"/>.
 /// </remarks>
-public interface IXunitTestCollection : _ITestCollection
+public interface IXunitTestCollection : ITestCollection
 {
 	/// <summary>
 	/// Gets the <see cref="IBeforeAfterTestAttribute"/>s attached to the test collection (and

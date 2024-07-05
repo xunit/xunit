@@ -31,7 +31,7 @@ public class XunitTestAssemblyRunner :
 	protected override ValueTask<bool> OnTestAssemblyCleanupFailure(
 		XunitTestAssemblyRunnerContext ctxt,
 		Exception exception) =>
-			new(ReportMessage(ctxt, new _TestAssemblyCleanupFailure(), exception: exception));
+			new(ReportMessage(ctxt, new TestAssemblyCleanupFailure(), exception: exception));
 
 	/// <inheritdoc/>
 	protected override async ValueTask<bool> OnTestAssemblyFinished(
@@ -40,13 +40,13 @@ public class XunitTestAssemblyRunner :
 	{
 		await Guard.ArgumentNotNull(ctxt).Aggregator.RunAsync(ctxt.AssemblyFixtureMappings.DisposeAsync);
 
-		return ReportMessage(ctxt, new _TestAssemblyFinished { FinishTime = DateTimeOffset.Now }, summary: summary);
+		return ReportMessage(ctxt, new TestAssemblyFinished { FinishTime = DateTimeOffset.Now }, summary: summary);
 	}
 
 	/// <inheritdoc/>
 	protected override async ValueTask<bool> OnTestAssemblyStarting(XunitTestAssemblyRunnerContext ctxt)
 	{
-		var result = ReportMessage(ctxt, new _TestAssemblyStarting
+		var result = ReportMessage(ctxt, new TestAssemblyStarting
 		{
 			AssemblyName = Path.GetFileNameWithoutExtension(Guard.ArgumentNotNull(ctxt).TestAssembly.AssemblyPath),
 			AssemblyPath = ctxt.TestAssembly.AssemblyPath,
@@ -84,7 +84,7 @@ public class XunitTestAssemblyRunner :
 		{
 			var innerEx = ex.Unwrap();
 
-			ctxt.MessageBus.QueueMessage(new _ErrorMessage()
+			ctxt.MessageBus.QueueMessage(new ErrorMessage()
 			{
 				ExceptionParentIndices = [-1],
 				ExceptionTypes = [typeof(TestPipelineException).SafeName()],
@@ -111,7 +111,7 @@ public class XunitTestAssemblyRunner :
 
 	static bool ReportMessage(
 		XunitTestAssemblyRunnerContext ctxt,
-		_TestAssemblyMessage message,
+		TestAssemblyMessage message,
 		RunSummary summary = default,
 		Exception? exception = null)
 	{
@@ -119,7 +119,7 @@ public class XunitTestAssemblyRunner :
 
 		message.AssemblyUniqueID = ctxt.TestAssembly.UniqueID;
 
-		if (message is _IWritableExecutionSummaryMetadata summaryMessage)
+		if (message is IWritableExecutionSummaryMetadata summaryMessage)
 		{
 			summaryMessage.ExecutionTime = summary.Time;
 			summaryMessage.TestsFailed = summary.Failed;
@@ -128,7 +128,7 @@ public class XunitTestAssemblyRunner :
 			summaryMessage.TestsTotal = summary.Total;
 		}
 
-		if (exception is not null && message is _IWritableErrorMetadata errorMessage)
+		if (exception is not null && message is IWritableErrorMetadata errorMessage)
 		{
 			var (types, messages, stackTraces, indices, _) = ExceptionUtility.ExtractMetadata(exception);
 
@@ -151,8 +151,8 @@ public class XunitTestAssemblyRunner :
 	public async ValueTask<RunSummary> RunAsync(
 		IXunitTestAssembly testAssembly,
 		IReadOnlyCollection<IXunitTestCase> testCases,
-		_IMessageSink executionMessageSink,
-		_ITestFrameworkExecutionOptions executionOptions)
+		IMessageSink executionMessageSink,
+		ITestFrameworkExecutionOptions executionOptions)
 	{
 		Guard.ArgumentNotNull(testAssembly);
 		Guard.ArgumentNotNull(testCases);

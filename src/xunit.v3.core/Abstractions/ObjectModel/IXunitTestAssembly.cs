@@ -8,7 +8,7 @@ namespace Xunit.v3;
 /// <summary>
 /// Represents a test assembly from xUnit.net v3 based on reflection.
 /// </summary>
-public interface IXunitTestAssembly : _ITestAssembly
+public interface IXunitTestAssembly : ITestAssembly
 {
 	/// <summary>
 	/// Gets the assembly of this test assembly.

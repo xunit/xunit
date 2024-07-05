@@ -45,7 +45,7 @@ public class TestOutputHelperTests
 	{
 		var output = new TestOutputHelper();
 		var messageBus = new SpyMessageBus();
-		var test = Substitute.For<_ITest>();
+		var test = Substitute.For<ITest>();
 		test.UniqueID.Returns("test-id");
 		test.TestCase.UniqueID.Returns("case-id");
 		test.TestCase.TestMethod!.UniqueID.Returns("method-id");
@@ -57,7 +57,7 @@ public class TestOutputHelperTests
 		output.WriteLine(outputText);
 
 		var message = Assert.Single(messageBus.Messages);
-		var outputMessage = Assert.IsType<_TestOutput>(message);
+		var outputMessage = Assert.IsType<TestOutput>(message);
 		Assert.Equal("asm-id", outputMessage.AssemblyUniqueID);
 		Assert.Equal(expected + Environment.NewLine, outputMessage.Output);
 		Assert.Equal("case-id", outputMessage.TestCaseUniqueID);

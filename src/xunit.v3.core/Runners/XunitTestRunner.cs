@@ -119,25 +119,25 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext, IXunitTest>
 
 	/// <inheritdoc/>
 	protected override ValueTask<bool> OnTestClassConstructionFinished(XunitTestRunnerContext ctxt) =>
-		new(ReportMessage(ctxt, new _TestClassConstructionFinished()).Continue);
+		new(ReportMessage(ctxt, new TestClassConstructionFinished()).Continue);
 
 	/// <inheritdoc/>
 	protected override ValueTask<bool> OnTestClassConstructionStarting(XunitTestRunnerContext ctxt) =>
-		new(ReportMessage(ctxt, new _TestClassConstructionStarting()).Continue);
+		new(ReportMessage(ctxt, new TestClassConstructionStarting()).Continue);
 
 	/// <inheritdoc/>
 	protected override ValueTask<bool> OnTestClassDisposeFinished(XunitTestRunnerContext ctxt) =>
-		new(ReportMessage(ctxt, new _TestClassDisposeFinished()).Continue);
+		new(ReportMessage(ctxt, new TestClassDisposeFinished()).Continue);
 
 	/// <inheritdoc/>
 	protected override ValueTask<bool> OnTestClassDisposeStarting(XunitTestRunnerContext ctxt) =>
-		new(ReportMessage(ctxt, new _TestClassDisposeStarting()).Continue);
+		new(ReportMessage(ctxt, new TestClassDisposeStarting()).Continue);
 
 	/// <inheritdoc/>
 	protected override ValueTask<bool> OnTestCleanupFailure(
 		XunitTestRunnerContext ctxt,
 		Exception exception) =>
-			new(ReportMessage(ctxt, new _TestCleanupFailure(), exception: exception).Continue);
+			new(ReportMessage(ctxt, new TestCleanupFailure(), exception: exception).Continue);
 
 	/// <inheritdoc/>
 	protected override ValueTask<(bool Continue, TestResultState ResultState)> OnTestFailed(
@@ -145,7 +145,7 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext, IXunitTest>
 		Exception exception,
 		decimal executionTime,
 		string output) =>
-			new(ReportMessage(ctxt, new _TestFailed(), executionTime, output, exception));
+			new(ReportMessage(ctxt, new TestFailed(), executionTime, output, exception));
 
 	/// <inheritdoc/>
 	protected override ValueTask<bool> OnTestFinished(
@@ -155,7 +155,7 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext, IXunitTest>
 	{
 		Guard.ArgumentNotNull(ctxt);
 
-		var result = ReportMessage(ctxt, new _TestFinished(), executionTime, output).Continue;
+		var result = ReportMessage(ctxt, new TestFinished(), executionTime, output).Continue;
 
 		(TestContext.Current.TestOutputHelper as TestOutputHelper)?.Uninitialize();
 
@@ -166,14 +166,14 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext, IXunitTest>
 	protected override ValueTask<(bool Continue, TestResultState ResultState)> OnTestNotRun(
 		XunitTestRunnerContext ctxt,
 		string output) =>
-			new(ReportMessage(ctxt, new _TestNotRun(), output: output));
+			new(ReportMessage(ctxt, new TestNotRun(), output: output));
 
 	/// <inheritdoc/>
 	protected override ValueTask<(bool Continue, TestResultState ResultState)> OnTestPassed(
 		XunitTestRunnerContext ctxt,
 		decimal executionTime,
 		string output) =>
-			new(ReportMessage(ctxt, new _TestPassed(), executionTime, output));
+			new(ReportMessage(ctxt, new TestPassed(), executionTime, output));
 
 	/// <inheritdoc/>
 	protected override ValueTask<(bool Continue, TestResultState ResultState)> OnTestSkipped(
@@ -181,7 +181,7 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext, IXunitTest>
 		string skipReason,
 		decimal executionTime,
 		string output) =>
-			new(ReportMessage(ctxt, new _TestSkipped { Reason = skipReason }, executionTime, output));
+			new(ReportMessage(ctxt, new TestSkipped { Reason = skipReason }, executionTime, output));
 
 	/// <inheritdoc/>
 	protected override ValueTask<bool> OnTestStarting(XunitTestRunnerContext ctxt)
@@ -190,7 +190,7 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext, IXunitTest>
 
 		(TestContext.Current.TestOutputHelper as TestOutputHelper)?.Initialize(ctxt.MessageBus, ctxt.Test);
 
-		var result = ReportMessage(ctxt, new _TestStarting
+		var result = ReportMessage(ctxt, new TestStarting
 		{
 			Explicit = ctxt.Test.Explicit,
 			TestDisplayName = ctxt.Test.TestDisplayName,
@@ -211,7 +211,7 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext, IXunitTest>
 
 	static (bool Continue, TestResultState ResultState) ReportMessage(
 		XunitTestRunnerContext ctxt,
-		_TestMessage message,
+		TestMessage message,
 		decimal executionTime = 0m,
 		string output = "",
 		Exception? exception = null)
@@ -225,7 +225,7 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext, IXunitTest>
 		message.TestMethodUniqueID = ctxt.Test.TestCase.TestMethod?.UniqueID;
 		message.TestUniqueID = ctxt.Test.UniqueID;
 
-		if (exception is not null && message is _IWritableErrorMetadata errorMessage)
+		if (exception is not null && message is IWritableErrorMetadata errorMessage)
 		{
 			var errorMetadata = ExceptionUtility.ExtractMetadata(exception);
 
@@ -234,13 +234,13 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext, IXunitTest>
 			errorMessage.Messages = errorMetadata.Messages;
 			errorMessage.StackTraces = errorMetadata.StackTraces;
 
-			if (message is _TestFailed testFailed)
+			if (message is TestFailed testFailed)
 				testFailed.Cause = errorMetadata.Cause;
 		}
 
 		var testResultState = TestResultState.ForPassed(executionTime);
 
-		if (message is _TestResultMessage resultMessage)
+		if (message is TestResultMessage resultMessage)
 		{
 			resultMessage.ExecutionTime = executionTime;
 			resultMessage.Output = output;
@@ -248,7 +248,7 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext, IXunitTest>
 
 			// This needs to be absolutely last in this method, because it depends on the result
 			// message being completely filled out.
-			if (message is not _TestFinished)
+			if (message is not TestFinished)
 				testResultState = TestResultState.FromTestResult(resultMessage);
 		}
 

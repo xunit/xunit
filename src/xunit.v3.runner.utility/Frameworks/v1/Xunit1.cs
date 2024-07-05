@@ -24,22 +24,22 @@ public class Xunit1 : IFrontController
 	readonly AppDomainSupport appDomainSupport;
 	readonly string assemblyFileName;
 	readonly string? configFileName;
-	readonly _IMessageSink diagnosticMessageSink;
+	readonly IMessageSink diagnosticMessageSink;
 	readonly DisposalTracker disposalTracker = new();
 	bool disposed;
 	IXunit1Executor? executor;
 	readonly bool shadowCopy;
 	readonly string? shadowCopyFolder;
-	readonly _ISourceInformationProvider sourceInformationProvider;
+	readonly ISourceInformationProvider sourceInformationProvider;
 	readonly string testAssemblyName;
 
 	/// <summary>
 	/// This constructor is used by factory methods and unit tests only.
 	/// </summary>
 	protected Xunit1(
-		_IMessageSink diagnosticMessageSink,
+		IMessageSink diagnosticMessageSink,
 		AppDomainSupport appDomainSupport,
-		_ISourceInformationProvider sourceInformationProvider,
+		ISourceInformationProvider sourceInformationProvider,
 		string assemblyFileName,
 		string? configFileName = null,
 		bool shadowCopy = true,
@@ -102,9 +102,9 @@ public class Xunit1 : IFrontController
 	/// INTERNAL METHOD, FOR TESTING PURPOSES ONLY. DO NOT CALL.
 	/// </summary>
 	protected void Find(
-		_IMessageSink messageSink,
+		IMessageSink messageSink,
 		bool includeSourceInformation,
-		Predicate<_TestCaseDiscovered>? filter)
+		Predicate<TestCaseDiscovered>? filter)
 	{
 		Guard.ArgumentNotNull(messageSink);
 
@@ -126,7 +126,7 @@ public class Xunit1 : IFrontController
 				}
 			);
 
-			var discoveryComplete = new _DiscoveryComplete
+			var discoveryComplete = new DiscoveryComplete
 			{
 				AssemblyUniqueID = TestAssemblyUniqueID,
 				TestCasesToRun = testCasesToRun,
@@ -137,7 +137,7 @@ public class Xunit1 : IFrontController
 
 	/// <inheritdoc/>
 	public int? Find(
-		_IMessageSink messageSink,
+		IMessageSink messageSink,
 		FrontControllerFindSettings settings)
 	{
 		Guard.ArgumentNotNull(messageSink);
@@ -153,11 +153,11 @@ public class Xunit1 : IFrontController
 	}
 
 	void Find(
-		_IMessageSink messageSink,
+		IMessageSink messageSink,
 		bool includeSourceInformation,
 		Action<Xunit1TestCase> callback)
 	{
-		var discoveryStarting = new _DiscoveryStarting
+		var discoveryStarting = new DiscoveryStarting
 		{
 			AssemblyName = testAssemblyName,
 			AssemblyPath = assemblyFileName,
@@ -238,9 +238,9 @@ public class Xunit1 : IFrontController
 	/// INTERNAL METHOD, FOR TESTING PURPOSES ONLY. DO NOT CALL.
 	/// </summary>
 	protected void FindAndRun(
-		_IMessageSink messageSink,
+		IMessageSink messageSink,
 		bool includeSourceInformation,
-		Predicate<_TestCaseDiscovered>? filter,
+		Predicate<TestCaseDiscovered>? filter,
 		bool markAllAsNotRun)
 	{
 		Guard.ArgumentNotNull(messageSink);
@@ -267,7 +267,7 @@ public class Xunit1 : IFrontController
 				}
 			);
 
-			var discoveryComplete = new _DiscoveryComplete
+			var discoveryComplete = new DiscoveryComplete
 			{
 				AssemblyUniqueID = TestAssemblyUniqueID,
 				TestCasesToRun = testCases.Count,
@@ -280,7 +280,7 @@ public class Xunit1 : IFrontController
 
 	/// <inheritdoc/>
 	public int? FindAndRun(
-		_IMessageSink messageSink,
+		IMessageSink messageSink,
 		FrontControllerFindAndRunSettings settings)
 	{
 		Guard.ArgumentNotNull(messageSink);
@@ -302,7 +302,7 @@ public class Xunit1 : IFrontController
 	/// </summary>
 	protected void Run(
 		IReadOnlyCollection<Xunit1TestCase> testCases,
-		_IMessageSink messageSink,
+		IMessageSink messageSink,
 		bool markAllAsNotRun)
 	{
 		Guard.ArgumentNotNull(testCases);
@@ -312,7 +312,7 @@ public class Xunit1 : IFrontController
 		var environment = string.Format(CultureInfo.CurrentCulture, "{0}-bit .NET {1}", IntPtr.Size * 8, Environment.Version);
 		var testCasesList = testCases.ToList();
 
-		var testAssemblyStartingMessage = new _TestAssemblyStarting
+		var testAssemblyStartingMessage = new TestAssemblyStarting
 		{
 			AssemblyName = testAssemblyName,
 			AssemblyPath = assemblyFileName,
@@ -333,7 +333,7 @@ public class Xunit1 : IFrontController
 			catch (Exception ex)
 			{
 				var (exceptionTypes, messages, stackTraces, exceptionParentIndices) = Xunit1ExceptionUtility.ConvertToErrorMetadata(ex);
-				var errorMessage = new _ErrorMessage
+				var errorMessage = new ErrorMessage
 				{
 					ExceptionParentIndices = exceptionParentIndices,
 					ExceptionTypes = exceptionTypes,
@@ -344,7 +344,7 @@ public class Xunit1 : IFrontController
 			}
 			finally
 			{
-				var assemblyFinished = new _TestAssemblyFinished
+				var assemblyFinished = new TestAssemblyFinished
 				{
 					AssemblyUniqueID = testAssemblyStartingMessage.AssemblyUniqueID,
 					ExecutionTime = results.Time,
@@ -362,7 +362,7 @@ public class Xunit1 : IFrontController
 
 	/// <inheritdoc/>
 	public int? Run(
-		_IMessageSink messageSink,
+		IMessageSink messageSink,
 		FrontControllerRunSettings settings)
 	{
 		Guard.ArgumentNotNull(messageSink);
@@ -382,12 +382,12 @@ public class Xunit1 : IFrontController
 
 	Xunit1RunSummary RunTestCollection(
 		IList<Xunit1TestCase> testCases,
-		_IMessageSink messageSink,
+		IMessageSink messageSink,
 		bool markAllAsNotRun)
 	{
 		Guard.ArgumentValid("testCases must contain at least one test case", testCases.Count > 0, nameof(testCases));
 
-		var collectionStarting = new _TestCollectionStarting
+		var collectionStarting = new TestCollectionStarting
 		{
 			AssemblyUniqueID = testCases[0].AssemblyUniqueID,
 			TestCollectionClassName = null,
@@ -413,7 +413,7 @@ public class Xunit1 : IFrontController
 		}
 		finally
 		{
-			var collectionFinished = new _TestCollectionFinished
+			var collectionFinished = new TestCollectionFinished
 			{
 				AssemblyUniqueID = collectionStarting.AssemblyUniqueID,
 				ExecutionTime = results.Time,
@@ -433,7 +433,7 @@ public class Xunit1 : IFrontController
 	Xunit1RunSummary RunTestClass(
 		string typeName,
 		IList<Xunit1TestCase> testCases,
-		_IMessageSink messageSink,
+		IMessageSink messageSink,
 		bool markAllAsNotRun)
 	{
 		Guard.ArgumentValid("testCases must contain at least one test case", testCases.Count > 0, nameof(testCases));
@@ -445,7 +445,7 @@ public class Xunit1 : IFrontController
 
 		var handler = new TestClassCallbackHandler(testCases, messageSink);
 		var results = handler.TestClassResults;
-		var testClassStarting = new _TestClassStarting
+		var testClassStarting = new TestClassStarting
 		{
 			AssemblyUniqueID = testCases[0].AssemblyUniqueID,
 			TestClassName = typeName,
@@ -486,7 +486,7 @@ public class Xunit1 : IFrontController
 		}
 		finally
 		{
-			var testClassFinished = new _TestClassFinished
+			var testClassFinished = new TestClassFinished
 			{
 				AssemblyUniqueID = testClassStarting.AssemblyUniqueID,
 				ExecutionTime = results.Time,
@@ -512,12 +512,12 @@ public class Xunit1 : IFrontController
 	/// </summary>
 	/// <param name="projectAssembly">The test project assembly.</param>
 	/// <param name="sourceInformationProvider">The optional source information provider.</param>
-	/// <param name="diagnosticMessageSink">The optional message sink which receives <see cref="_DiagnosticMessage"/>
-	/// and <see cref="_InternalDiagnosticMessage"/> messages.</param>
+	/// <param name="diagnosticMessageSink">The optional message sink which receives <see cref="DiagnosticMessage"/>
+	/// and <see cref="InternalDiagnosticMessage"/> messages.</param>
 	public static IFrontController ForDiscoveryAndExecution(
 		XunitProjectAssembly projectAssembly,
-		_ISourceInformationProvider? sourceInformationProvider = null,
-		_IMessageSink? diagnosticMessageSink = null)
+		ISourceInformationProvider? sourceInformationProvider = null,
+		IMessageSink? diagnosticMessageSink = null)
 	{
 		Guard.ArgumentNotNull(projectAssembly);
 		var assemblyFileName = Guard.ArgumentNotNull(projectAssembly.AssemblyFileName);
@@ -525,7 +525,7 @@ public class Xunit1 : IFrontController
 		return new Xunit1(
 			diagnosticMessageSink ?? NullMessageSink.Instance,
 			projectAssembly.Configuration.AppDomainOrDefault,
-			sourceInformationProvider ?? _NullSourceInformationProvider.Instance,
+			sourceInformationProvider ?? NullSourceInformationProvider.Instance,
 			assemblyFileName,
 			projectAssembly.ConfigFileName,
 			projectAssembly.Configuration.ShadowCopyOrDefault,

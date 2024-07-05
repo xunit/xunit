@@ -19,7 +19,7 @@ public class DynamicSkipAcceptanceTests
 		{
 			var results = await RunAsync(typeof(ClassUnderTest));
 
-			var skipResult = Assert.Single(results.OfType<_TestSkipped>());
+			var skipResult = Assert.Single(results.OfType<TestSkipped>());
 			Assert.Equal("This test was skipped", skipResult.Reason);
 		}
 
@@ -46,12 +46,12 @@ public class DynamicSkipAcceptanceTests
 		{
 			var results = await RunAsync(typeof(ClassUnderTest));
 
-			var skipResult = Assert.Single(results.OfType<_TestSkipped>());
-			var skipMethodStarting = Assert.Single(results.OfType<_TestMethodStarting>().Where(s => s.TestMethodUniqueID == skipResult.TestMethodUniqueID));
+			var skipResult = Assert.Single(results.OfType<TestSkipped>());
+			var skipMethodStarting = Assert.Single(results.OfType<TestMethodStarting>().Where(s => s.TestMethodUniqueID == skipResult.TestMethodUniqueID));
 			Assert.Equal("Skipped", skipMethodStarting.MethodName);
 			Assert.Equal("This test was skipped", skipResult.Reason);
-			var passResult = Assert.Single(results.OfType<_TestPassed>());
-			var passMethodStarting = results.OfType<_TestMethodStarting>().Where(ts => ts.TestMethodUniqueID == passResult.TestMethodUniqueID).Single();
+			var passResult = Assert.Single(results.OfType<TestPassed>());
+			var passMethodStarting = results.OfType<TestMethodStarting>().Where(ts => ts.TestMethodUniqueID == passResult.TestMethodUniqueID).Single();
 			Assert.Equal("Passed", passMethodStarting.MethodName);
 		}
 
@@ -84,12 +84,12 @@ public class DynamicSkipAcceptanceTests
 		{
 			var results = await RunAsync(typeof(ClassUnderTest));
 
-			var skipResult = Assert.Single(results.OfType<_TestSkipped>());
-			var skipMethodStarting = Assert.Single(results.OfType<_TestMethodStarting>().Where(s => s.TestMethodUniqueID == skipResult.TestMethodUniqueID));
+			var skipResult = Assert.Single(results.OfType<TestSkipped>());
+			var skipMethodStarting = Assert.Single(results.OfType<TestMethodStarting>().Where(s => s.TestMethodUniqueID == skipResult.TestMethodUniqueID));
 			Assert.Equal("Skipped", skipMethodStarting.MethodName);
 			Assert.Equal("This test was skipped", skipResult.Reason);
-			var passResult = Assert.Single(results.OfType<_TestPassed>());
-			var passMethodStarting = results.OfType<_TestMethodStarting>().Where(ts => ts.TestMethodUniqueID == passResult.TestMethodUniqueID).Single();
+			var passResult = Assert.Single(results.OfType<TestPassed>());
+			var passMethodStarting = results.OfType<TestMethodStarting>().Where(ts => ts.TestMethodUniqueID == passResult.TestMethodUniqueID).Single();
 			Assert.Equal("Passed", passMethodStarting.MethodName);
 		}
 
