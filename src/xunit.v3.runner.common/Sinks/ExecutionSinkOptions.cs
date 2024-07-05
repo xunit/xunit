@@ -1,6 +1,6 @@
 using System;
 using System.Xml.Linq;
-using Xunit.v3;
+using Xunit.Sdk;
 
 namespace Xunit.Runner.Common;
 

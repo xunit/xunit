@@ -10,7 +10,6 @@ using System.Xml.XPath;
 using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
-using Xunit.v3;
 
 public class ExecutionSinkTests
 {
@@ -391,15 +390,11 @@ public class ExecutionSinkTests
 
 	public class XmlCreation
 	{
-		[Theory]
-		[InlineData("assembly", "assembly")]
-		[InlineData(null, "<dynamic>")]
-		public void AddsAssemblyStartingInformationToXml(
-			string? assemblyPath,
-			string expectedAssemblyName)
+		[Fact]
+		public void AddsAssemblyStartingInformationToXml()
 		{
 			var assemblyStarting = TestData.TestAssemblyStarting(
-				assemblyPath: assemblyPath,
+				assemblyPath: "/path/to/assembly.dll",
 				assemblyUniqueID: "assembly-id",
 				configFilePath: "config",
 				startTime: new DateTimeOffset(2013, 7, 6, 16, 24, 32, TimeSpan.Zero),
@@ -413,7 +408,7 @@ public class ExecutionSinkTests
 
 			sink.OnMessage(assemblyStarting);
 
-			Assert.Equal(expectedAssemblyName, assemblyElement.Attribute("name")!.Value);
+			Assert.Equal("/path/to/assembly.dll", assemblyElement.Attribute("name")!.Value);
 			Assert.Equal("MentalFloss,Version=v21.12", assemblyElement.Attribute("target-framework")!.Value);
 			Assert.Equal("256-bit MentalFloss", assemblyElement.Attribute("environment")!.Value);
 			Assert.Equal("xUnit.net v14.42", assemblyElement.Attribute("test-framework")!.Value);
@@ -425,7 +420,7 @@ public class ExecutionSinkTests
 		[Fact]
 		public void AssemblyStartingDoesNotIncludeNullValues()
 		{
-			var assemblyStarting = TestData.TestAssemblyStarting(assemblyPath: null, configFilePath: null, targetFramework: null);
+			var assemblyStarting = TestData.TestAssemblyStarting(assemblyPath: "/path/to/assembly.dll", configFilePath: null, targetFramework: null);
 			var assemblyElement = new XElement("assembly");
 			using var sink = TestableExecutionSink.Create(assemblyElement: assemblyElement);
 
@@ -496,7 +491,7 @@ public class ExecutionSinkTests
 			var assemblyFinished = TestData.TestAssemblyFinished();
 			var assemblyStarting = TestData.TestAssemblyStarting();
 			var collectionStarting = TestData.TestCollectionStarting();
-			var classStarting = TestData.TestClassStarting(testClass: typeof(ClassUnderTest).FullName!);
+			var classStarting = TestData.TestClassStarting(testClassName: typeof(ClassUnderTest).FullName!);
 			var methodStarting = TestData.TestMethodStarting(testMethod: nameof(ClassUnderTest.TestMethod));
 			var caseStarting = TestData.TestCaseStarting(traits: TestData.EmptyTraits);
 			var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
@@ -534,7 +529,7 @@ public class ExecutionSinkTests
 			var assemblyFinished = TestData.TestAssemblyFinished();
 			var assemblyStarting = TestData.TestAssemblyStarting();
 			var collectionStarting = TestData.TestCollectionStarting();
-			var classStarting = TestData.TestClassStarting(testClass: typeof(ClassUnderTest).FullName!);
+			var classStarting = TestData.TestClassStarting(testClassName: typeof(ClassUnderTest).FullName!);
 			var methodStarting = TestData.TestMethodStarting(testMethod: nameof(ClassUnderTest.TestMethod));
 			var caseStarting = TestData.TestCaseStarting(traits: TestData.EmptyTraits);
 			var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
@@ -572,7 +567,7 @@ public class ExecutionSinkTests
 			var assemblyFinished = TestData.TestAssemblyFinished();
 			var assemblyStarting = TestData.TestAssemblyStarting();
 			var collectionStarting = TestData.TestCollectionStarting();
-			var classStarting = TestData.TestClassStarting(testClass: typeof(ClassUnderTest).FullName!);
+			var classStarting = TestData.TestClassStarting(testClassName: typeof(ClassUnderTest).FullName!);
 			var methodStarting = TestData.TestMethodStarting(testMethod: nameof(ClassUnderTest.TestMethod));
 			var caseStarting = TestData.TestCaseStarting();
 			var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
@@ -617,7 +612,7 @@ public class ExecutionSinkTests
 			var assemblyFinished = TestData.TestAssemblyFinished();
 			var assemblyStarting = TestData.TestAssemblyStarting();
 			var collectionStarting = TestData.TestCollectionStarting();
-			var classStarting = TestData.TestClassStarting(testClass: typeof(ClassUnderTest).FullName!);
+			var classStarting = TestData.TestClassStarting(testClassName: typeof(ClassUnderTest).FullName!);
 			var methodStarting = TestData.TestMethodStarting(testMethod: nameof(ClassUnderTest.TestMethod));
 			var caseStarting = TestData.TestCaseStarting();
 			var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
@@ -653,7 +648,7 @@ public class ExecutionSinkTests
 			var assemblyFinished = TestData.TestAssemblyFinished();
 			var assemblyStarting = TestData.TestAssemblyStarting();
 			var collectionStarting = TestData.TestCollectionStarting();
-			var classStarting = TestData.TestClassStarting(testClass: typeof(ClassUnderTest).FullName!);
+			var classStarting = TestData.TestClassStarting(testClassName: typeof(ClassUnderTest).FullName!);
 			var methodStarting = TestData.TestMethodStarting(testMethod: nameof(ClassUnderTest.TestMethod));
 			var caseStarting = TestData.TestCaseStarting();
 			var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
@@ -688,7 +683,7 @@ public class ExecutionSinkTests
 			var assemblyFinished = TestData.TestAssemblyFinished();
 			var assemblyStarting = TestData.TestAssemblyStarting();
 			var collectionStarting = TestData.TestCollectionStarting();
-			var classStarting = TestData.TestClassStarting(testClass: typeof(ClassUnderTest).FullName!);
+			var classStarting = TestData.TestClassStarting(testClassName: typeof(ClassUnderTest).FullName!);
 			var methodStarting = TestData.TestMethodStarting(testMethod: nameof(ClassUnderTest.TestMethod));
 			var caseStarting = TestData.TestCaseStarting();
 			var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
@@ -807,7 +802,7 @@ public class ExecutionSinkTests
 			string inputName,
 			string outputName)
 		{
-			var classStarting = TestData.TestClassStarting(testClass: typeof(ClassUnderTest).FullName!);
+			var classStarting = TestData.TestClassStarting(testClassName: typeof(ClassUnderTest).FullName!);
 			var methodStarting = TestData.TestMethodStarting(testMethod: nameof(ClassUnderTest.TestMethod));
 			var testStarting = TestData.TestStarting(testDisplayName: inputName);
 			var testSkipped = TestData.TestSkipped(reason: "Bad\0\r\nString");
@@ -941,7 +936,7 @@ public class ExecutionSinkTests
 		{
 			var classStarting = TestData.TestClassStarting(
 				assemblyUniqueID: assemblyID,
-				testClass: "MyType",
+				testClassName: "MyType",
 				testClassUniqueID: classID,
 				testCollectionUniqueID: collectionID
 			);

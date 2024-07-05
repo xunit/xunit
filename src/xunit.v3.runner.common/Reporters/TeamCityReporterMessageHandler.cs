@@ -4,30 +4,20 @@ using System.Globalization;
 using System.Text;
 using Xunit.Internal;
 using Xunit.Sdk;
-using Xunit.v3;
 
 namespace Xunit.Runner.Common;
 
 /// <summary>
 /// An implementation of <see cref="IRunnerReporterMessageHandler" /> that supports <see cref="TeamCityReporter" />.
 /// </summary>
-public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandler
+/// <param name="logger">The logger used to report messages</param>
+/// <param name="rootFlowId">The root flow ID for reporting to TeamCity</param>
+public class TeamCityReporterMessageHandler(
+	IRunnerLogger logger,
+	string? rootFlowId) :
+		DefaultRunnerReporterMessageHandler(logger)
 {
 	readonly MessageMetadataCache metadataCache = new();
-	readonly string? rootFlowId;
-
-	/// <summary>
-	/// Initializes a new instance of the <see cref="TeamCityReporterMessageHandler" /> class.
-	/// </summary>
-	/// <param name="logger">The logger used to report messages</param>
-	/// <param name="rootFlowId">The root flow ID for reporting to TeamCity</param>
-	public TeamCityReporterMessageHandler(
-		IRunnerLogger logger,
-		string? rootFlowId) :
-			base(logger)
-	{
-		this.rootFlowId = rootFlowId;
-	}
 
 	/// <summary>
 	/// Gets the current date &amp; time in UTC.
@@ -349,7 +339,7 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 	/// </summary>
 	/// <param name="value">The value to be escaped</param>
 	/// <returns>The escaped value</returns>
-	[return: NotNullIfNotNull("value")]
+	[return: NotNullIfNotNull(nameof(value))]
 	public static string? TeamCityEscape(string? value)
 	{
 		if (value is null)
@@ -467,7 +457,7 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 		metadataCache.TryGetTestCaseMetadata(message)?.TestCaseDisplayName ?? "<unknown test case>";
 
 	string ToTestClassName(_TestClassMessage message) =>
-		metadataCache.TryGetClassMetadata(message)?.TestClass ?? "<unknown test class>";
+		metadataCache.TryGetClassMetadata(message)?.TestClassName ?? "<unknown test class>";
 
 	string ToTestCollectionName(_TestCollectionMessage message)
 	{
@@ -486,9 +476,9 @@ public class TeamCityReporterMessageHandler : DefaultRunnerReporterMessageHandle
 
 		var testClassMetadata = metadataCache.TryGetClassMetadata(message);
 		if (testClassMetadata is null)
-			return testMethodMetadata.TestMethod;
+			return testMethodMetadata.MethodName;
 
-		return string.Format(CultureInfo.InvariantCulture, "{0}.{1}", testClassMetadata.TestClass, testMethodMetadata.TestMethod);
+		return string.Format(CultureInfo.InvariantCulture, "{0}.{1}", testClassMetadata.TestClassName, testMethodMetadata.MethodName);
 	}
 
 	string ToTestName(_TestMessage message) =>

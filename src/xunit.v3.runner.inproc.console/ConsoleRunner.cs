@@ -124,7 +124,7 @@ public class ConsoleRunner
 					if (automated)
 						consoleWriter.WriteLine(new _DiagnosticMessage("Cancellation request received").ToJson());
 					else
-						consoleWriter.WriteLine("Canceling... (Press Ctrl+C again to terminate)");
+						consoleWriter.WriteLine("Cancelling... (Press Ctrl+C again to terminate)");
 
 					cancel = true;
 					e.Cancel = true;
@@ -268,21 +268,19 @@ public class ConsoleRunner
 
 			TestContext.SetForInitialization(diagnosticMessageSink, diagnosticMessages, internalDiagnosticMessages);
 
-			var assemblyInfo = new ReflectionAssemblyInfo(testAssembly);
-
 #pragma warning disable CA2007 // Cannot use ConfigureAwait here because it changes the type of disposalTracker
 			await using var disposalTracker = new DisposalTracker();
 #pragma warning restore CA2007
-			var testFramework = ExtensibilityPointFactory.GetTestFramework(assemblyInfo);
+			var testFramework = ExtensibilityPointFactory.GetTestFramework(testAssembly);
 			disposalTracker.Add(testFramework);
 
 			// Discover & filter the tests
 			var testCases = new List<_ITestCase>();
-			var testDiscoverer = testFramework.GetDiscoverer(assemblyInfo);
+			var testDiscoverer = testFramework.GetDiscoverer(testAssembly);
 			var types =
-				assembly.Configuration.Filters.IncludedClasses.Count == 0
+				assembly.Configuration.Filters.IncludedClasses.Count == 0 || assembly.Assembly is null
 					? null
-					: assembly.Configuration.Filters.IncludedClasses.Select(Type.GetType).WhereNotNull().ToArray();
+					: assembly.Configuration.Filters.IncludedClasses.Select(assembly.Assembly.GetType).WhereNotNull().ToArray();
 
 			await testDiscoverer.Find(testCase => { testCases.Add(testCase); return new(!cancel); }, discoveryOptions, types);
 
@@ -323,7 +321,7 @@ public class ConsoleRunner
 
 	void PrintAssemblyInfo()
 	{
-		var testFramework = ExtensibilityPointFactory.GetTestFramework(Reflector.Wrap(testAssembly));
+		var testFramework = ExtensibilityPointFactory.GetTestFramework(testAssembly);
 
 		var buffer = new StringBuilder();
 		using (var serializer = new JsonObjectSerializer(buffer))
@@ -431,15 +429,13 @@ public class ConsoleRunner
 
 			TestContext.SetForInitialization(diagnosticMessageSink, diagnosticMessages, internalDiagnosticMessages);
 
-			var assemblyInfo = new ReflectionAssemblyInfo(testAssembly);
-
 #pragma warning disable CA2007 // Cannot use ConfigureAwait here because it changes the type of disposalTracker
 			await using var disposalTracker = new DisposalTracker();
 #pragma warning restore CA2007
-			var testFramework = ExtensibilityPointFactory.GetTestFramework(assemblyInfo);
+			var testFramework = ExtensibilityPointFactory.GetTestFramework(testAssembly);
 			disposalTracker.Add(testFramework);
 
-			var frontController = new InProcessFrontController(testFramework, assemblyInfo, assembly.ConfigFileName);
+			var frontController = new InProcessFrontController(testFramework, testAssembly, assembly.ConfigFileName);
 
 			var sinkOptions = new ExecutionSinkOptions
 			{
@@ -469,9 +465,9 @@ public class ConsoleRunner
 			if (resultsSink.ExecutionSummary.Failed != 0 && executionOptions.GetStopOnTestFailOrDefault())
 			{
 				if (automated)
-					consoleWriter.WriteLine(new _DiagnosticMessage("Canceling due to test failure").ToJson());
+					consoleWriter.WriteLine(new _DiagnosticMessage("Cancelling due to test failure").ToJson());
 				else
-					consoleWriter.WriteLine("Canceling due to test failure...");
+					consoleWriter.WriteLine("Cancelling due to test failure...");
 
 				cancel = true;
 			}
@@ -487,7 +483,7 @@ public class ConsoleRunner
 					consoleWriter.WriteLine(_ErrorMessage.FromException(e).ToJson());
 				else
 				{
-					consoleWriter.WriteLine("{0}: {1}", e.GetType().FullName, e.Message);
+					consoleWriter.WriteLine("{0}: {1}", e.GetType().SafeName(), e.Message);
 
 					if (assembly.Configuration.InternalDiagnosticMessagesOrDefault)
 						consoleWriter.WriteLine(e.StackTrace);

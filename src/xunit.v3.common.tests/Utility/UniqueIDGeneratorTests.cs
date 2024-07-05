@@ -92,39 +92,23 @@ public class UniqueIDGeneratorTests
 		[Fact]
 		public void GuardClause()
 		{
-			var ex = Record.Exception(() => UniqueIDGenerator.ForAssembly(null!, "asm-path", "config-path"));
+			var ex = Record.Exception(() => UniqueIDGenerator.ForAssembly(null!, "config-path"));
 
 			var argnEx = Assert.IsType<ArgumentNullException>(ex);
-			Assert.Equal("assemblyName", argnEx.ParamName);
+			Assert.Equal("assemblyPath", argnEx.ParamName);
 		}
 
 		[Theory]
-		[InlineData("asm-name", null, null, "bce3e8164ccc32eecdfef49e78069aa95aea6f76d67815b0ac2ee836bc478ea6")]
-		[InlineData("asm-name", "asm-path", null, "705edea4327cfdf358252ca273366183df25159b9168a00a1f4c157229f8ba02")]
-		[InlineData("asm-name", null, "config-path", "9b917782fbbf6985d53762753aff3b5af44a18d329489ef67fdc125ac26f8733")]
-		[InlineData("asm-name", "asm-path", "config-path", "e24f7c871899e85c8fc304b6015bff534dae9947cb1cad8ae91e8d79d79f0a23")]
+		[InlineData("asm-path", null, "9b101eb6f7a9ca48b696d43c4384ce51c3b1522ca5d82cddc04900177ee4824f")]
+		[InlineData("asm-path", "config-path", "87f1ea729573561e318de0a470397143c37511bed90420cb0ad4536b0e149c68")]
 		public void SuccessCases(
-			string assemblyName,
-			string? assemblyPath,
+			string assemblyPath,
 			string? configFilePath,
 			string expected)
 		{
-			var actual = UniqueIDGenerator.ForAssembly(assemblyName, assemblyPath, configFilePath);
+			var actual = UniqueIDGenerator.ForAssembly(assemblyPath, configFilePath);
 
 			Assert.Equal(expected, actual);
-		}
-
-		[Fact]
-		public void UniqueIDUsesOnlyShortAssemblyNameForDiscoveryVsExecutionConsistency()
-		{
-			var longName = "mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089";
-			var shortName = "mscorlib";
-
-			var longID = UniqueIDGenerator.ForAssembly(longName, null, null);
-			var shortID = UniqueIDGenerator.ForAssembly(shortName, null, null);
-
-			Assert.NotEmpty(longID);
-			Assert.Equal(shortID, longID);
 		}
 	}
 }

@@ -16,7 +16,7 @@ public static class EnumerableExtensions
 	/// Returns <paramref name="source"/> as an array of <typeparamref name="T"/>, using a cast when
 	/// available and <see cref="Enumerable.ToArray{TSource}(IEnumerable{TSource})"/> when not.
 	/// </summary>
-	[return: NotNullIfNotNull("source")]
+	[return: NotNullIfNotNull(nameof(source))]
 	public static T[]? CastOrToArray<T>(this IEnumerable<T>? source) =>
 		source is null ? null : source as T[] ?? source.ToArray();
 
@@ -24,7 +24,7 @@ public static class EnumerableExtensions
 	/// Returns <paramref name="source"/> as a <see cref="List{T}"/>, using a cast when
 	/// available and <see cref="Enumerable.ToList{TSource}(IEnumerable{TSource})"/> when not.
 	/// </summary>
-	[return: NotNullIfNotNull("source")]
+	[return: NotNullIfNotNull(nameof(source))]
 	public static List<T>? CastOrToList<T>(this IEnumerable<T>? source) =>
 		source is null ? null : source as List<T> ?? source.ToList();
 
@@ -32,7 +32,7 @@ public static class EnumerableExtensions
 	/// Returns <paramref name="source"/> as an <see cref="IReadOnlyCollection{T}"/> of <typeparamref name="T"/>,
 	/// using a cast when available and <see cref="Enumerable.ToArray{TSource}(IEnumerable{TSource})"/> when not.
 	/// </summary>
-	[return: NotNullIfNotNull("source")]
+	[return: NotNullIfNotNull(nameof(source))]
 	public static IReadOnlyCollection<T>? CastOrToReadOnlyCollection<T>(this IEnumerable<T>? source) =>
 		source is null ? null : source as IReadOnlyCollection<T> ?? source.ToArray();
 
@@ -40,7 +40,7 @@ public static class EnumerableExtensions
 	/// Returns <paramref name="source"/> as an <see cref="IReadOnlyList{T}"/> of <typeparamref name="T"/>,
 	/// using a cast when available and <see cref="Enumerable.ToArray{TSource}(IEnumerable{TSource})"/> when not.
 	/// </summary>
-	[return: NotNullIfNotNull("source")]
+	[return: NotNullIfNotNull(nameof(source))]
 	public static IReadOnlyList<T>? CastOrToReadOnlyList<T>(this IEnumerable<T>? source) =>
 		source is null ? null : source as IReadOnlyList<T> ?? source.ToArray();
 

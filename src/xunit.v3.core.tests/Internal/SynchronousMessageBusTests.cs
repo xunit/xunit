@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Xunit;
 using Xunit.Internal;
-using Xunit.v3;
+using Xunit.Sdk;
 
 public class SynchronousMessageBusTests
 {

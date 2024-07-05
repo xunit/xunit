@@ -15,7 +15,6 @@ using System.Xml.Linq;
 using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
-using Xunit.v3;
 
 namespace Xunit.Runner.SystemConsole;
 
@@ -91,7 +90,7 @@ sealed class ConsoleRunner
 			{
 				if (!cancel)
 				{
-					consoleWriter.WriteLine("Canceling... (Press Ctrl+C again to terminate)");
+					consoleWriter.WriteLine("Cancelling... (Press Ctrl+C again to terminate)");
 					cancel = true;
 					e.Cancel = true;
 				}
@@ -187,7 +186,7 @@ sealed class ConsoleRunner
 
 			using var _ = AssemblyHelper.SubscribeResolveForAssembly(assemblyFileName);
 			await using var controller =
-				XunitFrontController.ForDiscoveryAndExecution(assembly)
+				XunitFrontController.Create(assembly)
 					?? throw new ArgumentException("not an xUnit.net test assembly: {0}", assemblyFileName);
 
 			using var discoverySink = new TestDiscoverySink(() => cancel);
@@ -341,7 +340,7 @@ sealed class ConsoleRunner
 
 			using var _ = AssemblyHelper.SubscribeResolveForAssembly(assemblyFileName, diagnosticMessageSink);
 			await using var controller =
-				XunitFrontController.ForDiscoveryAndExecution(assembly, diagnosticMessageSink: diagnosticMessageSink)
+				XunitFrontController.Create(assembly, diagnosticMessageSink: diagnosticMessageSink)
 					?? throw new ArgumentException("not an xUnit.net test assembly: {0}", assemblyFileName);
 
 			var appDomain = (controller.CanUseAppDomains, appDomainSupport) switch
@@ -370,7 +369,7 @@ sealed class ConsoleRunner
 
 			if (resultsSink.ExecutionSummary.Failed != 0 && executionOptions.GetStopOnTestFailOrDefault())
 			{
-				consoleWriter.WriteLine("Canceling due to test failure...");
+				consoleWriter.WriteLine("Cancelling due to test failure...");
 				cancel = true;
 			}
 		}
@@ -381,7 +380,7 @@ sealed class ConsoleRunner
 			var e = ex;
 			while (e is not null)
 			{
-				consoleWriter.WriteLine("{0}: {1}", e.GetType().FullName, e.Message);
+				consoleWriter.WriteLine("{0}: {1}", e.GetType().SafeName(), e.Message);
 
 				if (assembly.Configuration.InternalDiagnosticMessagesOrDefault)
 					consoleWriter.WriteLine(e.StackTrace);

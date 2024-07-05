@@ -4,7 +4,7 @@ using System.Linq;
 using NSubstitute;
 using Xunit;
 using Xunit.Internal;
-using Xunit.v3;
+using Xunit.Sdk;
 
 public class MessageBusTests
 {

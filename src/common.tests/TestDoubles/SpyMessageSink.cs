@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using NSubstitute;
-using Xunit.v3;
+using Xunit.Sdk;
 
 public class SpyMessageSink : _IMessageSink
 {

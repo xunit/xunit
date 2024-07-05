@@ -17,7 +17,6 @@ using Microsoft.Build.Framework;
 using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
-using Xunit.v3;
 using MSBuildTask = Microsoft.Build.Utilities.Task;
 
 namespace Xunit.Runner.MSBuild;
@@ -417,7 +416,7 @@ public class xunit : MSBuildTask, ICancelableTask
 			var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
 
 			await using var controller =
-				XunitFrontController.ForDiscoveryAndExecution(assembly, diagnosticMessageSink: diagnosticMessageSink)
+				XunitFrontController.Create(assembly, diagnosticMessageSink: diagnosticMessageSink)
 					?? throw new ArgumentException("not an xUnit.net test assembly: {0}", assembly.AssemblyFileName);
 
 			var appDomain = (controller.CanUseAppDomains, appDomainSupport) switch
@@ -450,7 +449,7 @@ public class xunit : MSBuildTask, ICancelableTask
 				if (executionOptions.GetStopOnTestFailOrDefault())
 				{
 					lock (logLock)
-						Log.LogMessage(MessageImportance.High, "Canceling due to test failure...");
+						Log.LogMessage(MessageImportance.High, "Cancelling due to test failure...");
 
 					Cancel();
 				}
@@ -463,7 +462,7 @@ public class xunit : MSBuildTask, ICancelableTask
 			lock (logLock)
 				while (e is not null)
 				{
-					Log.LogError("{0}: {1}", e.GetType().FullName, e.Message);
+					Log.LogError("{0}: {1}", e.GetType().SafeName(), e.Message);
 
 					if (e.StackTrace is not null)
 						foreach (var stackLine in e.StackTrace.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries))

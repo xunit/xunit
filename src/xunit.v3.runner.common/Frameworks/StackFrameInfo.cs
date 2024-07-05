@@ -3,34 +3,24 @@ using System.Globalization;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Xunit.Sdk;
-using Xunit.v3;
 
 namespace Xunit.Runner.Common;
 
 /// <summary>
 /// Represents the top of a stack frame, typically taken from an exception or failure information.
 /// </summary>
-public partial struct StackFrameInfo
+/// <param name="fileName">The file name from the stack frame</param>
+/// <param name="lineNumber">The line number from the stack frame</param>
+public readonly partial struct StackFrameInfo(
+	string? fileName,
+	int lineNumber)
 {
 	readonly static Regex stackFrameRegex = GetStackFrameRegex();
 
 	/// <summary>
-	/// Initializes a new instance of the <see cref="StackFrameInfo"/> class.
-	/// </summary>
-	/// <param name="fileName">The file name from the stack frame</param>
-	/// <param name="lineNumber">The line number from the stack frame</param>
-	public StackFrameInfo(
-		string? fileName,
-		int lineNumber)
-	{
-		FileName = fileName;
-		LineNumber = lineNumber;
-	}
-
-	/// <summary>
 	/// Gets the filename of the stack frame. May be <c>null</c> if the stack frame is not known.
 	/// </summary>
-	public string? FileName { get; }
+	public string? FileName { get; } = fileName;
 
 	/// <summary>
 	/// Returns <c>true</c> if this is an empty stack frame (e.g., <see cref="None"/>).
@@ -40,7 +30,7 @@ public partial struct StackFrameInfo
 	/// <summary>
 	/// Gets the line number of the stack frame. May be 0 if the stack frame is not known.
 	/// </summary>
-	public int LineNumber { get; }
+	public int LineNumber { get; } = lineNumber;
 
 	/// <summary>
 	/// Get a default (unknown) stack frame info.
@@ -80,18 +70,18 @@ public partial struct StackFrameInfo
 
 		try
 		{
-			var getResourceStringMethod = typeof(Environment).GetMethod("GetResourceString", BindingFlags.Static | BindingFlags.NonPublic, null, new Type[] { typeof(string) }, null);
+			var getResourceStringMethod = typeof(Environment).GetMethod("GetResourceString", BindingFlags.Static | BindingFlags.NonPublic, null, [typeof(string)], null);
 			if (getResourceStringMethod is not null)
 			{
-				wordAt = (string?)getResourceStringMethod.Invoke(null, new object[] { "Word_At" });
-				wordsInLine = (string?)getResourceStringMethod.Invoke(null, new object[] { "StackTrace_InFileLineNumber" });
+				wordAt = (string?)getResourceStringMethod.Invoke(null, ["Word_At"]);
+				wordsInLine = (string?)getResourceStringMethod.Invoke(null, ["StackTrace_InFileLineNumber"]);
 			}
 		}
 		catch { }  // Ignore failures that might be related to non-public reflection
 
-		if (wordAt == default || wordAt == "Word_At")
+		if (wordAt is null || wordAt == "Word_At")
 			wordAt = "at";
-		if (wordsInLine == default || wordsInLine == "StackTrace_InFileLineNumber")
+		if (wordsInLine is null || wordsInLine == "StackTrace_InFileLineNumber")
 			wordsInLine = "in {0}:line {1}";
 
 		wordsInLine = wordsInLine.Replace("{0}", "(?<file>.*)").Replace("{1}", "(?<line>\\d+)");

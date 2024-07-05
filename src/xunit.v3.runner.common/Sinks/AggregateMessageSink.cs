@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Sdk;
-using Xunit.v3;
 
 namespace Xunit.Runner.Common;
 
@@ -18,7 +17,7 @@ public class AggregateMessageSink : _IMessageSink, IAsyncDisposable
 	/// <summary>
 	/// The list of event dispatchers that are registered with the system.
 	/// </summary>
-	protected List<_IMessageSink> AggregatedSinks { get; } = new();
+	protected List<_IMessageSink> AggregatedSinks { get; } = [];
 
 	/// <inheritdoc/>
 	public virtual ValueTask DisposeAsync()

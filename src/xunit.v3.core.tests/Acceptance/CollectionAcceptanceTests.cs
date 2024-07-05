@@ -2,14 +2,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
-using Xunit.v3;
+using Xunit.Sdk;
 
 public class CollectionAcceptanceTests : AcceptanceTestV3
 {
 	[Fact]
 	public async ValueTask TwoClasses_OneInExplicitCollection_OneInDefaultCollection()
 	{
-		var results = await RunAsync(new[] { typeof(ClassInExplicitCollection), typeof(ClassInDefaultCollection) });
+		var results = await RunAsync([typeof(ClassInExplicitCollection), typeof(ClassInDefaultCollection)]);
 
 		var defaultCollectionStarting = Assert.Single(results.OfType<_TestCollectionStarting>().Where(x => x.TestCollectionDisplayName.StartsWith("Test collection for ")));
 		var defaultResults = results.OfType<_TestCollectionMessage>().Where(x => x.TestCollectionUniqueID == defaultCollectionStarting.TestCollectionUniqueID);
@@ -35,10 +35,6 @@ public class CollectionAcceptanceTests : AcceptanceTestV3
 			},
 			message => Assert.IsType<_TestClassConstructionStarting>(message),
 			message => Assert.IsType<_TestClassConstructionFinished>(message),
-			message => Assert.IsType<_BeforeTestStarting>(message),
-			message => Assert.IsType<_BeforeTestFinished>(message),
-			message => Assert.IsType<_AfterTestStarting>(message),
-			message => Assert.IsType<_AfterTestFinished>(message),
 			message => Assert.IsType<_TestPassed>(message),
 			message => Assert.IsType<_TestFinished>(message),
 			message => Assert.IsType<_TestCaseFinished>(message),

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using Xunit.Internal;
-using Xunit.v3;
+using Xunit.Sdk;
 
 namespace Xunit.Runner.Common;
 
@@ -46,7 +46,7 @@ public class TestDiscoverySink : _IMessageSink, IDisposable
 	/// <summary>
 	/// The list of discovered test cases.
 	/// </summary>
-	public List<_TestCaseDiscovered> TestCases { get; } = new();
+	public List<_TestCaseDiscovered> TestCases { get; } = [];
 
 	/// <inheritdoc/>
 	public void Dispose()

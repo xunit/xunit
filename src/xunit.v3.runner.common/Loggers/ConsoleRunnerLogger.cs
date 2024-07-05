@@ -6,8 +6,8 @@ using Xunit.Internal;
 namespace Xunit.Runner.Common;
 
 /// <summary>
-/// An implementation of <see cref="IRunnerLogger"/> which logs messages
-/// to <see cref="Console"/> and <see cref="Console.Error"/>.
+/// An implementation of <see cref="IRunnerLogger"/> which logs messages to
+/// a <see cref="TextWriter"/> (typically the one from <see cref="Console.Out"/>).
 /// </summary>
 public class ConsoleRunnerLogger : IRunnerLogger
 {
@@ -117,7 +117,7 @@ public class ConsoleRunnerLogger : IRunnerLogger
 	IDisposable? SetColor(ConsoleColor color) =>
 		useColors ? new ColorRestorer(color) : null;
 
-	class ColorRestorer : IDisposable
+	sealed class ColorRestorer : IDisposable
 	{
 		public ColorRestorer(ConsoleColor color) =>
 			ConsoleHelper.SetForegroundColor(color);

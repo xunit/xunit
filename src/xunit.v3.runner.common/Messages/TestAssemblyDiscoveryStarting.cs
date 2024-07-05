@@ -1,11 +1,13 @@
 using Xunit.Internal;
 using Xunit.Sdk;
-using Xunit.v3;
 
 namespace Xunit.Runner.Common;
 
 /// <summary>
-/// Reports that runner is about to start discovery for a test assembly.
+/// Reports that runner is about to start discovery for a test assembly. This message will
+/// arrive before the test framework's "discovery starting" message (i.e., for the default
+/// test framework, <see cref="_DiscoveryStarting"/>), and contains the project metadata
+/// associated with the discovery.
 /// </summary>
 public class TestAssemblyDiscoveryStarting : _MessageSinkMessage
 {

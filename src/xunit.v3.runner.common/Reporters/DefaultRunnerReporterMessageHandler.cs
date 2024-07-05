@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading;
 using Xunit.Internal;
 using Xunit.Sdk;
-using Xunit.v3;
 
 namespace Xunit.Runner.Common;
 
@@ -453,7 +452,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 
 		var metadata = MetadataCache.TryGetClassMetadata(args.Message);
 
-		LogError(args.Message, "Test Class Cleanup Failure ({0})", metadata?.TestClass ?? "<unknown test class>");
+		LogError(args.Message, "Test Class Cleanup Failure ({0})", metadata?.TestClassName ?? "<unknown test class>");
 	}
 
 	/// <summary>
@@ -584,7 +583,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 		var cleanupFailure = args.Message;
 		var metadata = MetadataCache.TryGetMethodMetadata(args.Message);
 
-		LogError(cleanupFailure, "Test Method Cleanup Failure ({0})", metadata?.TestMethod ?? "<unknown test method>");
+		LogError(cleanupFailure, "Test Method Cleanup Failure ({0})", metadata?.MethodName ?? "<unknown test method>");
 	}
 
 	/// <summary>
@@ -773,7 +772,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 		}
 	}
 
-	class ReaderWriterLockWrapper : IDisposable
+	sealed class ReaderWriterLockWrapper : IDisposable
 	{
 		static readonly ReaderWriterLockSlim @lock = new();
 		static readonly ReaderWriterLockWrapper lockForRead = new(@lock.ExitReadLock);

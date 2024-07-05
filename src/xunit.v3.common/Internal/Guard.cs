@@ -26,7 +26,7 @@ public static class Guard
 	public static T ArgumentEnumValid<T>(
 		T argValue,
 		HashSet<T> validValues,
-		[CallerArgumentExpression("argValue")] string? argName = null)
+		[CallerArgumentExpression(nameof(argValue))] string? argName = null)
 			where T : Enum
 	{
 		ArgumentNotNull(validValues);
@@ -47,7 +47,7 @@ public static class Guard
 	/// <exception cref="ArgumentNullException">Thrown when the argument is null</exception>
 	public static T ArgumentNotNull<T>(
 		[NotNull] T? argValue,
-		[CallerArgumentExpression("argValue")] string? argName = null)
+		[CallerArgumentExpression(nameof(argValue))] string? argName = null)
 			where T : struct
 	{
 		if (!argValue.HasValue)
@@ -66,7 +66,7 @@ public static class Guard
 	/// <exception cref="ArgumentNullException">Thrown when the argument is null</exception>
 	public static T ArgumentNotNull<T>(
 		[NotNull] T? argValue,
-		[CallerArgumentExpression("argValue")] string? argName = null)
+		[CallerArgumentExpression(nameof(argValue))] string? argName = null)
 			where T : class
 	{
 		if (argValue is null)
@@ -127,7 +127,7 @@ public static class Guard
 	/// <exception cref="ArgumentException">Thrown when the argument is null or empty</exception>
 	public static T ArgumentNotNullOrEmpty<T>(
 		[NotNull] T? argValue,
-		[CallerArgumentExpression("argValue")] string? argName = null)
+		[CallerArgumentExpression(nameof(argValue))] string? argName = null)
 			where T : class, IEnumerable
 	{
 		ArgumentNotNull(argValue, argName);
@@ -172,7 +172,7 @@ public static class Guard
 		Func<string> messageFunc,
 		[NotNull] T? argValue,
 		string? argName = null)
-		where T : class, IEnumerable
+			where T : class, IEnumerable
 	{
 		if (argValue is null || !argValue.GetEnumerator().MoveNext())
 			throw new ArgumentException(messageFunc?.Invoke(), argName);
@@ -223,7 +223,7 @@ public static class Guard
 	/// <exception cref="ArgumentException">Thrown when the argument is null, empty, or not on disk</exception>
 	public static string FileExists(
 		[NotNull] string? fileName,
-		[CallerArgumentExpression("fileName")] string? argName = null)
+		[CallerArgumentExpression(nameof(fileName))] string? argName = null)
 	{
 		ArgumentNotNullOrEmpty(fileName, argName);
 		ArgumentValid(() => string.Format(CultureInfo.CurrentCulture, "File not found: {0}", fileName), File.Exists(fileName), argName?.TrimStart('@'));
@@ -242,7 +242,7 @@ public static class Guard
 	/// <exception cref="ArgumentNullException">Thrown when the argument is default</exception>
 	public static T GenericArgumentNotNull<T>(
 		[NotNull] T? argValue,
-		[CallerArgumentExpression("argValue")] string? argName = null)
+		[CallerArgumentExpression(nameof(argValue))] string? argName = null)
 	{
 		if (argValue is null)
 			throw new ArgumentNullException(argName?.TrimStart('@'));
@@ -251,7 +251,7 @@ public static class Guard
 	}
 
 	/// <summary>
-	/// Ensure that a value is not null.
+	/// Ensure that a reference value is not null.
 	/// </summary>
 	/// <typeparam name="T">The value type</typeparam>
 	/// <param name="message">The exception message to use when the value is not valid</param>
@@ -270,7 +270,7 @@ public static class Guard
 	}
 
 	/// <summary>
-	/// Ensure that a value is not null.
+	/// Ensure that a reference value is not null.
 	/// </summary>
 	/// <typeparam name="T">The value type</typeparam>
 	/// <param name="messageFunc">The creator for an exception message to use when the value is not valid</param>
@@ -280,11 +280,49 @@ public static class Guard
 	public static T NotNull<T>(
 		Func<string> messageFunc,
 		[NotNull] T? value)
-		where T : class
+			where T : class
 	{
 		if (value is null)
 			throw new InvalidOperationException(messageFunc?.Invoke());
 
 		return value;
+	}
+
+	/// <summary>
+	/// Ensure that a nullable struct value is not null.
+	/// </summary>
+	/// <typeparam name="T">The value type</typeparam>
+	/// <param name="message">The exception message to use when the value is not valid</param>
+	/// <param name="value">The value to test for null</param>
+	/// <returns>The value as a non-null value</returns>
+	/// <exception cref="InvalidOperationException">Thrown when the value is not valid</exception>
+	public static T NotNull<T>(
+		string message,
+		[NotNull] T? value)
+			where T : struct
+	{
+		if (!value.HasValue)
+			throw new InvalidOperationException(message);
+
+		return value.Value;
+	}
+
+	/// <summary>
+	/// Ensure that a nullable struct value is not null.
+	/// </summary>
+	/// <typeparam name="T">The value type</typeparam>
+	/// <param name="messageFunc">The creator for an exception message to use when the value is not valid</param>
+	/// <param name="value">The value to test for null</param>
+	/// <returns>The value as a non-null value</returns>
+	/// <exception cref="InvalidOperationException">Thrown when the value is not valid</exception>
+	public static T NotNull<T>(
+		Func<string> messageFunc,
+		[NotNull] T? value)
+			where T : struct
+	{
+		if (!value.HasValue)
+			throw new InvalidOperationException(messageFunc?.Invoke());
+
+		return value.Value;
 	}
 }

@@ -11,13 +11,11 @@ using System.Xml;
 using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
-using Xunit.v3;
 
 namespace Xunit.Runner.v1;
 
 /// <summary>
-/// This class be used to do discovery and execution of xUnit.net v1 tests
-/// using a reflection-based implementation of <see cref="_IAssemblyInfo"/>.
+/// This class be used to do discovery and execution of xUnit.net v1 tests.
 /// Runner authors are strongly encouraged to use <see cref="XunitFrontController"/>
 /// instead of using this class directly.
 /// </summary>
@@ -164,7 +162,7 @@ public class Xunit1 : IFrontController
 			AssemblyName = testAssemblyName,
 			AssemblyPath = assemblyFileName,
 			AssemblyUniqueID = TestAssemblyUniqueID,
-			ConfigFilePath = configFileName
+			ConfigFilePath = configFileName,
 		};
 		messageSink.OnMessage(discoveryStarting);
 
@@ -392,7 +390,7 @@ public class Xunit1 : IFrontController
 		var collectionStarting = new _TestCollectionStarting
 		{
 			AssemblyUniqueID = testCases[0].AssemblyUniqueID,
-			TestCollectionClass = null,
+			TestCollectionClassName = null,
 			TestCollectionDisplayName = string.Format(CultureInfo.CurrentCulture, "xUnit.net v1 Tests for {0}", assemblyFileName),
 			TestCollectionUniqueID = testCases[0].TestCollectionUniqueID
 		};
@@ -440,12 +438,18 @@ public class Xunit1 : IFrontController
 	{
 		Guard.ArgumentValid("testCases must contain at least one test case", testCases.Count > 0, nameof(testCases));
 
+		var testClassNamespace = default(string);
+		var idxOfNamespace = typeName.LastIndexOf('.');
+		if (idxOfNamespace > -1)
+			testClassNamespace = typeName.Substring(0, idxOfNamespace);
+
 		var handler = new TestClassCallbackHandler(testCases, messageSink);
 		var results = handler.TestClassResults;
 		var testClassStarting = new _TestClassStarting
 		{
 			AssemblyUniqueID = testCases[0].AssemblyUniqueID,
-			TestClass = typeName,
+			TestClassName = typeName,
+			TestClassNamespace = testClassNamespace,
 			TestClassUniqueID = testCases[0].TestClassUniqueID,
 			TestCollectionUniqueID = testCases[0].TestCollectionUniqueID
 		};
@@ -500,7 +504,7 @@ public class Xunit1 : IFrontController
 		return results;
 	}
 
-	// Factory methods
+	// Factory method
 
 	/// <summary>
 	/// Returns an implementation of <see cref="IFrontController"/> which can be used
@@ -519,7 +523,7 @@ public class Xunit1 : IFrontController
 		var assemblyFileName = Guard.ArgumentNotNull(projectAssembly.AssemblyFileName);
 
 		return new Xunit1(
-			diagnosticMessageSink ?? _NullMessageSink.Instance,
+			diagnosticMessageSink ?? NullMessageSink.Instance,
 			projectAssembly.Configuration.AppDomainOrDefault,
 			sourceInformationProvider ?? _NullSourceInformationProvider.Instance,
 			assemblyFileName,

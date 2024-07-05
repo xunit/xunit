@@ -2,7 +2,6 @@ using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Runner.v3;
 using Xunit.Sdk;
-using Xunit.v3;
 
 public class Xunit3ArgumentFactoryTests
 {

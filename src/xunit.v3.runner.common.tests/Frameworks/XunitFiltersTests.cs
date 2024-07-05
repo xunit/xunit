@@ -1,7 +1,6 @@
 using Xunit;
 using Xunit.Internal;
 using Xunit.Runner.Common;
-using Xunit.v3;
 using ClassWithTraits = Namespace2.ClassWithTraits;
 using InnerClass1 = Namespace1.ClassInNamespace1.InnerClass1;
 using InnerClass2 = Namespace1.ClassInNamespace1.InnerClass2;
@@ -17,8 +16,7 @@ public class XunitFiltersTests
 	static readonly _TestCaseDiscovered MethodWithNoTraits = TestData.TestCaseDiscovered<ClassWithTraits>(nameof(ClassWithTraits.NoTraits));
 	static readonly _TestCaseDiscovered NonClassTest = TestData.TestCaseDiscovered(traits: TestData.EmptyTraits);
 	static readonly _TestCaseDiscovered NonMethodTest = TestData.TestCaseDiscovered(
-		testClass: typeof(ClassWithTraits).Name,
-		testClassWithNamespace: typeof(ClassWithTraits).FullName,
+		testClassName: typeof(ClassWithTraits).FullName,
 		testNamespace: typeof(ClassWithTraits).Namespace,
 		traits: TestData.EmptyTraits
 	);

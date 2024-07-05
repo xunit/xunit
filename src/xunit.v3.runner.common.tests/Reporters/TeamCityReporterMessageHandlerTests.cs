@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 using Xunit.Runner.Common;
-using Xunit.v3;
+using Xunit.Sdk;
 
 public class TeamCityReporterMessageHandlerTests
 {
@@ -99,7 +99,7 @@ public class TeamCityReporterMessageHandlerTests
 			var classStarting = new _TestClassStarting
 			{
 				AssemblyUniqueID = assemblyID,
-				TestClass = "MyType\t\r\n",
+				TestClassName = "MyType\t\r\n",
 				TestClassUniqueID = classID,
 				TestCollectionUniqueID = collectionID
 			};
@@ -187,9 +187,9 @@ public class TeamCityReporterMessageHandlerTests
 			var methodStarting = new _TestMethodStarting
 			{
 				AssemblyUniqueID = assemblyID,
+				MethodName = "MyMethod\t\r\n",
 				TestClassUniqueID = classID,
 				TestCollectionUniqueID = collectionID,
-				TestMethod = "MyMethod\t\r\n",
 				TestMethodUniqueID = methodID,
 			};
 			var methodCleanupFailure = new _TestMethodCleanupFailure
@@ -242,25 +242,6 @@ public class TeamCityReporterMessageHandlerTests
 				msg => Assert.Equal("[Raw] => ##teamcity[flowStarted timestamp='2023-05-03T21:12:00.000+0000' flowId='assembly-id\t|r|n']", msg),
 				msg => Assert.Equal("[Raw] => ##teamcity[testSuiteStarted timestamp='2023-05-03T21:12:00.000+0000' flowId='assembly-id\t|r|n' name='/path/to|0x005Ctest-assembly.exe']", msg),
 				msg => Assert.Equal("[Raw] => ##teamcity[testSuiteFinished timestamp='2023-05-03T21:12:00.000+0000' flowId='assembly-id\t|r|n' name='/path/to|0x005Ctest-assembly.exe']", msg),
-				msg => Assert.Equal("[Raw] => ##teamcity[flowFinished timestamp='2023-05-03T21:12:00.000+0000' flowId='assembly-id\t|r|n']", msg)
-			);
-		}
-
-		[Fact]
-		public static void FallsBackToAssemblyNameWhenPathIsNull()
-		{
-			var startingMessage = TestData.TestAssemblyStarting(assemblyUniqueID: "assembly-id\t\r\n", assemblyPath: null, assemblyName: "test[assembly].exe");
-			var finishedMessage = TestData.TestAssemblyFinished(assemblyUniqueID: "assembly-id\t\r\n");
-			var handler = TestableTeamCityReporterMessageHandler.Create();
-
-			handler.OnMessage(startingMessage);
-			handler.OnMessage(finishedMessage);
-
-			Assert.Collection(
-				handler.Messages.Where(msg => msg.Contains("##teamcity")),
-				msg => Assert.Equal("[Raw] => ##teamcity[flowStarted timestamp='2023-05-03T21:12:00.000+0000' flowId='assembly-id\t|r|n']", msg),
-				msg => Assert.Equal("[Raw] => ##teamcity[testSuiteStarted timestamp='2023-05-03T21:12:00.000+0000' flowId='assembly-id\t|r|n' name='test|[assembly|].exe']", msg),
-				msg => Assert.Equal("[Raw] => ##teamcity[testSuiteFinished timestamp='2023-05-03T21:12:00.000+0000' flowId='assembly-id\t|r|n' name='test|[assembly|].exe']", msg),
 				msg => Assert.Equal("[Raw] => ##teamcity[flowFinished timestamp='2023-05-03T21:12:00.000+0000' flowId='assembly-id\t|r|n']", msg)
 			);
 		}

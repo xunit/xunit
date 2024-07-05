@@ -8,11 +8,11 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Internal;
-using Xunit.v3;
+using Xunit.Sdk;
 
 namespace Xunit.Runner.Common;
 
-class VstsClient : IDisposable
+sealed class VstsClient : IDisposable
 {
 	static readonly MediaTypeWithQualityHeaderValue JsonMediaType = new("application/json");
 	static readonly HttpMethod PatchHttpMethod = new("PATCH");

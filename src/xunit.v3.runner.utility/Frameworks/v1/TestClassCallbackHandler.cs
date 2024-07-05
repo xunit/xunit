@@ -8,7 +8,6 @@ using System.Threading;
 using System.Xml;
 using Xunit.Internal;
 using Xunit.Sdk;
-using Xunit.v3;
 
 namespace Xunit.Runner.v1;
 

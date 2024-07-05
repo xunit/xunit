@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
-using Xunit.v3;
 
 namespace Xunit.Runner.v3;
 
@@ -58,7 +57,7 @@ public class Xunit3 : IFrontController
 		CoreFrameworkVersionInformational = coreFrameworkInformational;
 		TargetFramework = targetFramework;
 		TestFrameworkDisplayName = testFramework;
-		TestAssemblyUniqueID = UniqueIDGenerator.ForAssembly(projectAssembly.AssemblyDisplayName, projectAssembly.AssemblyFileName, projectAssembly.ConfigFileName);
+		TestAssemblyUniqueID = UniqueIDGenerator.ForAssembly(projectAssembly.AssemblyFileName, projectAssembly.ConfigFileName);
 	}
 
 	/// <inheritdoc/>
@@ -149,7 +148,7 @@ public class Xunit3 : IFrontController
 						// Don't overwrite the source information if it came directly from the test framework
 						if (collectSourceInformation && sourceInformationProvider is not null && testDiscovered.SourceFilePath is null && testDiscovered.SourceLineNumber is null)
 						{
-							var (sourceFile, sourceLine) = sourceInformationProvider.GetSourceInformation(testDiscovered.TestClassNameWithNamespace, testDiscovered.TestMethodName);
+							var (sourceFile, sourceLine) = sourceInformationProvider.GetSourceInformation(testDiscovered.TestClassName, testDiscovered.TestMethodName);
 							testDiscovered.SourceFilePath = sourceFile;
 							testDiscovered.SourceLineNumber = sourceLine;
 						}
@@ -176,7 +175,7 @@ public class Xunit3 : IFrontController
 				// sure we send the starting message before the complete message in this case.
 				if (assemblyUniqueID is null)
 				{
-					assemblyUniqueID = UniqueIDGenerator.ForAssembly(projectAssembly.AssemblyDisplayName, projectAssembly.AssemblyFileName, projectAssembly.ConfigFileName);
+					assemblyUniqueID = UniqueIDGenerator.ForAssembly(projectAssembly.AssemblyFileName, projectAssembly.ConfigFileName);
 					SendDiscoveryStarting(assemblyUniqueID);
 				}
 

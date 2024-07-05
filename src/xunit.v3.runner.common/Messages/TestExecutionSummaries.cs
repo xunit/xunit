@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Xunit.v3;
+using Xunit.Sdk;
 
 namespace Xunit.Runner.Common;
 
@@ -20,7 +20,7 @@ public class TestExecutionSummaries : _MessageSinkMessage
 	/// Gets the summaries of all the tests run. The key is the unique ID of the test
 	/// assembly; the value is the summary of test execution for that assembly.
 	/// </summary>
-	public List<(string AssemblyUniqueID, ExecutionSummary Summary)> SummariesByAssemblyUniqueID { get; } = new();
+	public List<(string AssemblyUniqueID, ExecutionSummary Summary)> SummariesByAssemblyUniqueID { get; } = [];
 
 	/// <summary>
 	/// Add assembly summary information.

@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Xunit.Internal;
-using Xunit.v3;
+using Xunit.Sdk;
 
 namespace Xunit.Runner.Common;
 
@@ -52,8 +52,8 @@ public static class ConsoleProjectLister
 		var testClasses =
 			testCasesByAssembly
 				.SelectMany(kvp => kvp.Value)
-				.Where(tc => tc.TestClassName is not null)
-				.Select(tc => tc.TestClassNameWithNamespace)
+				.Select(tc => tc.TestClassName)
+				.WhereNotNull()
 				.Distinct()
 				.OrderBy(x => x)
 				.ToList();
@@ -90,7 +90,7 @@ public static class ConsoleProjectLister
 				{
 					Assembly = tuple.assemblyFileName,
 					DisplayName = tuple.testCase.TestCaseDisplayName,
-					Class = tuple.testCase.TestClassNameWithNamespace,
+					Class = tuple.testCase.TestClassName,
 					Method = tuple.testCase.TestMethodName,
 					Skip = tuple.testCase.SkipReason,
 					Traits = tuple.testCase.Traits.Count > 0 ? tuple.testCase.Traits : null,
@@ -158,7 +158,7 @@ public static class ConsoleProjectLister
 			testCasesByAssembly
 				.SelectMany(kvp => kvp.Value)
 				.Where(tc => tc.TestClassName is not null && tc.TestMethodName is not null)
-				.Select(tc => string.Format(CultureInfo.CurrentCulture, "{0}.{1}", tc.TestClassNameWithNamespace, tc.TestMethodName))
+				.Select(tc => string.Format(CultureInfo.CurrentCulture, "{0}.{1}", tc.TestClassName, tc.TestMethodName))
 				.Distinct()
 				.OrderBy(x => x)
 				.ToList();

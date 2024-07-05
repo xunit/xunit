@@ -7,7 +7,7 @@ using System.IO;
 using System.Reflection;
 using System.Web.UI;
 using Xunit.Internal;
-using Xunit.v3;
+using Xunit.Sdk;
 
 namespace Xunit.Runner.v1;
 

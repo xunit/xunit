@@ -1,13 +1,15 @@
+using System.Reflection;
 using NSubstitute;
+using Xunit.Sdk;
 using Xunit.v3;
 
-// This file contains mocks of test framework interfaces.
+// This file manufactures mocks of test framework interfaces
 public static partial class Mocks
 {
 	public static _ITestFramework TestFramework(
 		_ITestFrameworkDiscoverer? discoverer = null,
 		_ITestFrameworkExecutor? executor = null,
-		string testFrameworkDisplayName = DefaultTestFrameworkDisplayName)
+		string testFrameworkDisplayName = TestData.DefaultTestFrameworkDisplayName)
 	{
 		var result = Substitute.For<_ITestFramework, InterfaceProxy<_ITestFramework>>();
 
@@ -15,8 +17,8 @@ public static partial class Mocks
 		executor ??= TestFrameworkExecutor();
 
 		result.TestFrameworkDisplayName.Returns(testFrameworkDisplayName);
-		result.GetDiscoverer(Arg.Any<_IAssemblyInfo>()).Returns(discoverer);
-		result.GetExecutor(Arg.Any<_IReflectionAssemblyInfo>()).Returns(executor);
+		result.GetDiscoverer(Arg.Any<Assembly>()).Returns(discoverer);
+		result.GetExecutor(Arg.Any<Assembly>()).Returns(executor);
 
 		return result;
 	}
@@ -25,7 +27,7 @@ public static partial class Mocks
 	{
 		var result = Substitute.For<_ITestFrameworkDiscoverer, InterfaceProxy<_ITestFrameworkDiscoverer>>();
 
-		testAssembly ??= TestAssembly();
+		testAssembly ??= XunitTestAssembly();
 
 		result.TestAssembly.Returns(testAssembly);
 

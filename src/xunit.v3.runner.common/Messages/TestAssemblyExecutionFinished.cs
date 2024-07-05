@@ -1,11 +1,13 @@
 using Xunit.Internal;
 using Xunit.Sdk;
-using Xunit.v3;
 
 namespace Xunit.Runner.Common;
 
 /// <summary>
-/// Reports that runner is about to start execution for a test assembly.
+/// Reports that runner is about to start execution for a test assembly. This message will
+/// arrive after the test framework's "assembly finished" message (i.e., for the default
+/// test framework, <see cref="_TestAssemblyFinished"/>), and contains the project metadata
+/// associated with the execution.
 /// </summary>
 public class TestAssemblyExecutionFinished : _MessageSinkMessage
 {

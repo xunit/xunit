@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
-using Xunit.v3;
 
 public class DefaultRunnerReporterMessageHandlerTests
 {
@@ -99,7 +98,7 @@ public class DefaultRunnerReporterMessageHandlerTests
 			var classStarting = new _TestClassStarting
 			{
 				AssemblyUniqueID = assemblyID,
-				TestClass = "MyType",
+				TestClassName = "MyType",
 				TestClassUniqueID = classID,
 				TestCollectionUniqueID = collectionID
 			};
@@ -189,7 +188,7 @@ public class DefaultRunnerReporterMessageHandlerTests
 				AssemblyUniqueID = assemblyID,
 				TestClassUniqueID = classID,
 				TestCollectionUniqueID = collectionID,
-				TestMethod = "MyMethod",
+				MethodName = "MyMethod",
 				TestMethodUniqueID = methodID,
 			};
 			var methodCleanupFailure = new _TestMethodCleanupFailure

@@ -7,11 +7,11 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Xunit.Internal;
+using Xunit.Sdk;
 
 namespace Xunit.Runner.Common;
 
-class AppVeyorClient : IDisposable
+sealed class AppVeyorClient : IDisposable
 {
 	ConcurrentQueue<IDictionary<string, object?>> addQueue = new();
 	readonly string baseUri;

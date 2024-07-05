@@ -1,7 +1,6 @@
 using System;
 using System.Globalization;
 using Xunit.Sdk;
-using Xunit.v3;
 
 namespace Xunit.Runner.Common;
 

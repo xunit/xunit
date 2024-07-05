@@ -11,27 +11,29 @@ using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
-using Xunit.v3;
 
 namespace Xunit.Runner.v2;
 
 /// <summary>
 /// This class be used to do discovery and execution of xUnit.net v2 tests.
 /// Discovery can be source-based; execution requires a file-system based assembly.
+/// Runner authors are strongly encouraged to use <see cref="XunitFrontController"/>
+/// instead of using this class directly, unless you are doing source-based
+/// discovery of v2 tests.
 /// </summary>
 public class Xunit2 : IFrontController
 {
 #if NETFRAMEWORK
-	static readonly string[] SupportedPlatforms = { "dotnet", "desktop" };
-	static readonly string[] SupportedPlatforms_ForcedAppDomains = { "desktop" };
+	static readonly string[] SupportedPlatforms = ["dotnet", "desktop"];
+	static readonly string[] SupportedPlatforms_ForcedAppDomains = ["desktop"];
 #pragma warning disable CA2213 // This is disposed by DisposalTracker
 	readonly AssemblyHelper? assemblyHelper;
 #pragma warning restore CA2213
 #else
-	static readonly string[] SupportedPlatforms = { "dotnet" };
+	static readonly string[] SupportedPlatforms = ["dotnet"];
 #endif
 
-	readonly _IAssemblyInfo assemblyInfo;
+	readonly IAssemblyInfo assemblyInfo;
 	ITestCaseBulkDeserializer? bulkDeserializer;
 	readonly string? configFileName;
 	bool disposed;
@@ -45,7 +47,7 @@ public class Xunit2 : IFrontController
 		_IMessageSink diagnosticMessageSink,
 		AppDomainSupport appDomainSupport,
 		_ISourceInformationProvider sourceInformationProvider,
-		_IAssemblyInfo? assemblyInfo,
+		IAssemblyInfo? assemblyInfo,
 		string? assemblyFileName,
 		string xunitExecutionAssemblyPath,
 		string? configFileName,
@@ -77,22 +79,17 @@ public class Xunit2 : IFrontController
 
 		TestFrameworkAssemblyName = GetTestFrameworkAssemblyName(xunitExecutionAssemblyPath);
 
-		// We need both a v2 and v3 assembly info, so manufacture the things we're missing
-		IAssemblyInfo remoteAssemblyInfo;
 		if (assemblyInfo is not null)
-			remoteAssemblyInfo = new Xunit2AssemblyInfo(assemblyInfo);
+			Guard.ArgumentValid("Assembly info implementation must derive from MarshalByRefObject", assemblyInfo is MarshalByRefObject);
 		else
-		{
-			remoteAssemblyInfo = Guard.NotNull(
-				"Could not create Xunit.Sdk.TestFrameworkProxy for v2 unit test",
+			assemblyInfo = Guard.NotNull(
+				"Could not create Xunit.Sdk.ReflectionAssemblyInfo for v2 unit test",
 				AppDomain.CreateObject<IAssemblyInfo>(TestFrameworkAssemblyName, "Xunit.Sdk.ReflectionAssemblyInfo", assemblyFileName)
 			);
-			assemblyInfo = new Xunit3AssemblyInfo(remoteAssemblyInfo);
-		}
 
 		this.assemblyInfo = assemblyInfo;
 		this.configFileName = configFileName;
-		TestAssemblyUniqueID = UniqueIDGenerator.ForAssembly(this.assemblyInfo.Name, this.assemblyInfo.AssemblyPath, configFileName);
+		TestAssemblyUniqueID = UniqueIDGenerator.ForAssembly(this.assemblyInfo.AssemblyPath, configFileName);
 
 		var v2SourceInformationProvider = Xunit2SourceInformationProviderAdapter.Adapt(sourceInformationProvider);
 		var v2DiagnosticMessageSink = new Xunit2MessageSink(DiagnosticMessageSink);
@@ -101,14 +98,14 @@ public class Xunit2 : IFrontController
 			AppDomain.CreateObject<ITestFramework>(
 				TestFrameworkAssemblyName,
 				"Xunit.Sdk.TestFrameworkProxy",
-				remoteAssemblyInfo,
+				assemblyInfo,
 				v2SourceInformationProvider,
 				v2DiagnosticMessageSink
 			)
 		);
 		DisposalTracker.Add(remoteFramework);
 
-		remoteDiscoverer = Guard.NotNull("Could not get discoverer from test framework for v2 unit test", remoteFramework.GetDiscoverer(remoteAssemblyInfo));
+		remoteDiscoverer = Guard.NotNull("Could not get discoverer from test framework for v2 unit test", remoteFramework.GetDiscoverer(assemblyInfo));
 		DisposalTracker.Add(remoteDiscoverer);
 
 		// If we got an assembly file name, that means we can do execution as well as discovery.
@@ -357,7 +354,7 @@ public class Xunit2 : IFrontController
 
 	static string GetXunitExecutionAssemblyPath(
 		AppDomainSupport appDomainSupport,
-		_IAssemblyInfo assemblyInfo)
+		IAssemblyInfo assemblyInfo)
 	{
 		Guard.ArgumentNotNull(assemblyInfo);
 		Guard.ArgumentNotNullOrEmpty(assemblyInfo.AssemblyPath);
@@ -392,7 +389,7 @@ public class Xunit2 : IFrontController
 		messageSink.OnMessage(new _TestCollectionStarting
 		{
 			AssemblyUniqueID = TestAssemblyUniqueID,
-			TestCollectionClass = null,
+			TestCollectionClassName = null,
 			TestCollectionDisplayName = testCollectionDisplayName,
 			TestCollectionUniqueID = testCollectionUniqueID,
 		});
@@ -403,13 +400,21 @@ public class Xunit2 : IFrontController
 			var classTestCases = testCasesByClass.ToArray();
 
 			if (testCasesByClass.Key is not null)
+			{
+				var testClassNamespace = default(string);
+				var idxOfNamespace = testCasesByClass.Key.LastIndexOf('.');
+				if (idxOfNamespace > -1)
+					testClassNamespace = testCasesByClass.Key.Substring(0, idxOfNamespace);
+
 				messageSink.OnMessage(new _TestClassStarting
 				{
 					AssemblyUniqueID = TestAssemblyUniqueID,
-					TestClass = testCasesByClass.Key,
+					TestClassName = testCasesByClass.Key,
+					TestClassNamespace = testClassNamespace,
 					TestClassUniqueID = testClassUniqueID,
 					TestCollectionUniqueID = testCollectionUniqueID,
 				});
+			}
 
 			foreach (var testCasesByMethod in classTestCases.GroupBy(tc => tc.TestMethod?.Method.Name))
 			{
@@ -422,7 +427,7 @@ public class Xunit2 : IFrontController
 						AssemblyUniqueID = TestAssemblyUniqueID,
 						TestClassUniqueID = testClassUniqueID,
 						TestCollectionUniqueID = testCollectionUniqueID,
-						TestMethod = testCasesByMethod.Key,
+						MethodName = testCasesByMethod.Key,
 						TestMethodUniqueID = testMethodUniqueID,
 					});
 
@@ -430,10 +435,9 @@ public class Xunit2 : IFrontController
 
 				foreach (var testCase in methodTestCases)
 				{
-					var testClassNameWithNamespace = testCasesByClass.Key;
-					var lastDotIdx = testClassNameWithNamespace?.LastIndexOf('.') ?? -1;
-					var testClassNamespace = lastDotIdx > -1 ? testClassNameWithNamespace!.Substring(0, lastDotIdx) : null;
-					var testClassName = lastDotIdx > -1 ? testClassNameWithNamespace!.Substring(lastDotIdx + 1) : testClassNameWithNamespace;
+					var testClassName = testCasesByClass.Key;
+					var lastDotIdx = testClassName?.LastIndexOf('.') ?? -1;
+					var testClassNamespace = lastDotIdx > -1 ? testClassName!.Substring(0, lastDotIdx) : null;
 					var testCaseTraits = testCase.Traits.ToReadOnly();
 
 					messageSink.OnMessage(new _TestCaseStarting
@@ -443,7 +447,6 @@ public class Xunit2 : IFrontController
 						TestCaseUniqueID = testCase.UniqueID,
 						TestClassName = testClassName,
 						TestClassNamespace = testClassNamespace,
-						TestClassNameWithNamespace = testClassNameWithNamespace,
 						TestClassUniqueID = testClassUniqueID,
 						TestCollectionUniqueID = testCollectionUniqueID,
 						TestMethodName = testCasesByMethod.Key,
@@ -589,7 +592,7 @@ public class Xunit2 : IFrontController
 		{
 			AssemblyName = assemblyInfo.Name,
 			AssemblyPath = assemblyInfo.AssemblyPath,
-			AssemblyUniqueID = UniqueIDGenerator.ForAssembly(assemblyInfo.Name, assemblyInfo.AssemblyPath, configFileName),
+			AssemblyUniqueID = UniqueIDGenerator.ForAssembly(assemblyInfo.AssemblyPath, configFileName),
 			ConfigFilePath = configFileName,
 		};
 
@@ -604,7 +607,7 @@ public class Xunit2 : IFrontController
 		// messages, and need to send a single one when we're finished.
 		var discoveryComplete = new _DiscoveryComplete
 		{
-			AssemblyUniqueID = UniqueIDGenerator.ForAssembly(assemblyInfo.Name, assemblyInfo.AssemblyPath, configFileName),
+			AssemblyUniqueID = UniqueIDGenerator.ForAssembly(assemblyInfo.AssemblyPath, configFileName),
 			TestCasesToRun = testCasesToRun,
 		};
 
@@ -624,7 +627,7 @@ public class Xunit2 : IFrontController
 	/// and <see cref="_InternalDiagnosticMessage"/> messages.</param>
 	/// <param name="verifyAssembliesOnDisk">Determines whether or not to check for the existence of assembly files.</param>
 	public static IFrontControllerDiscoverer ForDiscovery(
-		_IAssemblyInfo assemblyInfo,
+		IAssemblyInfo assemblyInfo,
 		XunitProjectAssembly projectAssembly,
 		_ISourceInformationProvider? sourceInformationProvider = null,
 		_IMessageSink? diagnosticMessageSink = null,
@@ -636,7 +639,7 @@ public class Xunit2 : IFrontController
 		var appDomainSupport = projectAssembly.Configuration.AppDomainOrDefault;
 
 		return new Xunit2(
-			diagnosticMessageSink ?? _NullMessageSink.Instance,
+			diagnosticMessageSink ?? NullMessageSink.Instance,
 			appDomainSupport,
 			sourceInformationProvider ?? _NullSourceInformationProvider.Instance,
 			assemblyInfo,
@@ -670,7 +673,7 @@ public class Xunit2 : IFrontController
 		var assemblyFileName = Guard.ArgumentNotNull(projectAssembly.AssemblyFileName);
 
 		return new Xunit2(
-			diagnosticMessageSink ?? _NullMessageSink.Instance,
+			diagnosticMessageSink ?? NullMessageSink.Instance,
 			appDomainSupport,
 			sourceInformationProvider ?? _NullSourceInformationProvider.Instance,
 			assemblyInfo: null,
@@ -700,22 +703,16 @@ public class Xunit2 : IFrontController
 
 	// This message sink filters out _DiscoveryComplete (to let us run multiple discoveries at once) as well
 	// as only reporting discovered test cases which pass the filter.
-	sealed class FilteringMessageSink : _IMessageSink, IDisposable
+	sealed class FilteringMessageSink(
+		_IMessageSink innerMessageSink,
+		Predicate<_TestCaseDiscovered> filter,
+		Action<_TestCaseDiscovered>? discoveryCallback = null) :
+			_IMessageSink, IDisposable
 	{
-		readonly Action<_TestCaseDiscovered>? discoveryCallback;
-		readonly Predicate<_TestCaseDiscovered> filter;
-		readonly _IMessageSink innerMessageSink;
+		readonly Action<_TestCaseDiscovered>? discoveryCallback = discoveryCallback;
+		readonly Predicate<_TestCaseDiscovered> filter = filter;
+		readonly _IMessageSink innerMessageSink = innerMessageSink;
 		volatile int testCasesToRun;
-
-		public FilteringMessageSink(
-			_IMessageSink innerMessageSink,
-			Predicate<_TestCaseDiscovered> filter,
-			Action<_TestCaseDiscovered>? discoveryCallback = null)
-		{
-			this.innerMessageSink = innerMessageSink;
-			this.filter = filter;
-			this.discoveryCallback = discoveryCallback;
-		}
 
 		public AutoResetEvent Finished { get; } = new AutoResetEvent(initialState: false);
 

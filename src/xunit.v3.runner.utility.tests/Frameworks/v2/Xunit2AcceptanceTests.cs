@@ -98,9 +98,8 @@ namespace Namespace2
 						Assert.Equal("Namespace2.OuterClass+Class2.TestMethod", testCase.TestCaseDisplayName);
 						Assert.StartsWith(":F:Namespace2.OuterClass+Class2:TestMethod:1:0:", testCase.Serialization);
 						Assert.Null(testCase.SkipReason);
-						Assert.Equal("Class2", testCase.TestClassName);
+						Assert.Equal("Namespace2.OuterClass+Class2", testCase.TestClassName);
 						Assert.Equal("Namespace2", testCase.TestClassNamespace);
-						Assert.Equal("Namespace2.OuterClass+Class2", testCase.TestClassNameWithNamespace);
 						Assert.Equal("TestMethod", testCase.TestMethodName);
 					}
 				);
@@ -562,7 +561,7 @@ let AsyncFailing() =
 		{
 			using var assembly = await CSharpAcceptanceTestV2Assembly.Create(code: "");
 			var controller = TestableXunit2.Create(assembly.FileName, null, true);
-			var settings = new FrontControllerRunSettings(TestData.TestFrameworkExecutionOptions(), new string[0]);
+			var settings = new FrontControllerRunSettings(TestData.TestFrameworkExecutionOptions(), []);
 			using var sink = SpyMessageSink<_TestAssemblyFinished>.Create();
 
 			controller.Run(sink, settings);
@@ -790,7 +789,7 @@ let TestMethod(x : int) =
 			projectAssembly.Configuration.AppDomain = appDomainSupport;
 			projectAssembly.Configuration.ShadowCopy = shadowCopy;
 
-			return Xunit2.ForDiscoveryAndExecution(projectAssembly, sourceInformationProvider, _NullMessageSink.Instance);
+			return Xunit2.ForDiscoveryAndExecution(projectAssembly, sourceInformationProvider, NullMessageSink.Instance);
 		}
 	}
 }

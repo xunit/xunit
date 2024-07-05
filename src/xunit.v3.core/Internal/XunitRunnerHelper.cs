@@ -1,115 +1,303 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Threading;
+using Xunit.Internal;
 using Xunit.Sdk;
-using Xunit.v3;
 
-namespace Xunit.Internal;
+namespace Xunit.v3;
 
 /// <summary>
-/// INTERNAL CLASS. DO NOT USE.
+/// Helper functions for xUnit.net v3 runners.
 /// </summary>
 public static class XunitRunnerHelper
 {
-	/// <summary/>
+	/// <summary>
+	/// Fail a set of test cases with the given exception.
+	/// </summary>
+	/// <param name="messageBus">The message bus to send the messages to</param>
+	/// <param name="cancellationTokenSource">The cancellation token source to cancel if requested</param>
+	/// <param name="testCases">The test cases to fail</param>
+	/// <param name="messageFormat">A message template where <c>{0}</c> will be replaced with the
+	/// display name of the test case during failure processing</param>
+	/// <param name="sendTestCollectionMessages">Set to <c>true</c> to send <see cref="_TestCollectionStarting"/>
+	/// and <see cref="_TestCollectionFinished"/> messages; set to <c>false</c> to skip</param>
+	/// <param name="sendTestClassMessages">Set to <c>true</c> to send <see cref="_TestClassStarting"/>
+	/// and <see cref="_TestClassFinished"/> messages; set to <c>false</c> to skip</param>
+	/// <param name="sendTestMethodMessages">Set to <c>true</c> to send <see cref="_TestMethodStarting"/>
+	/// and <see cref="_TestMethodFinished"/> messages; set to <c>false</c> to skip</param>
+	/// <param name="sendTestCaseMessages">Set to <c>true</c> to send <see cref="_TestCaseStarting"/>
+	/// and <see cref="_TestCaseFinished"/> messages; set to <c>false</c> to skip</param>
+	/// <param name="sendTestMessages">Set to <c>true</c> to send <see cref="_TestStarting"/>
+	/// and <see cref="_TestFinished"/> messages; set to <c>false</c> to skip</param>
 	public static RunSummary FailTestCases(
-		IReadOnlyCollection<_ITestCase> testCases,
 		IMessageBus messageBus,
-		string messageFormat)
+		CancellationTokenSource cancellationTokenSource,
+		IReadOnlyCollection<IXunitTestCase> testCases,
+		string messageFormat,
+		bool sendTestCollectionMessages = false,
+		bool sendTestClassMessages = false,
+		bool sendTestMethodMessages = false,
+		bool sendTestCaseMessages = true,
+		bool sendTestMessages = true)
 	{
-		Guard.ArgumentNotNull(testCases);
 		Guard.ArgumentNotNull(messageBus);
+		Guard.ArgumentNotNull(cancellationTokenSource);
+		Guard.ArgumentNotNull(testCases);
+		Guard.ArgumentNotNull(messageFormat);
 
 		var result = new RunSummary();
 
 		foreach (var testCase in testCases)
 		{
-			var assemblyUniqueID = testCase.TestCollection.TestAssembly.UniqueID;
-			var testUniqueID = UniqueIDGenerator.ForTest(testCase.UniqueID, -1);
+			result.Total++;
+			result.Failed++;
 
-			var caseStarting = new _TestCaseStarting
+			FailTestCase(
+				messageBus, cancellationTokenSource, testCase, -result.Total,
+				FailureCause.Exception, [-1], [string.Format(CultureInfo.CurrentCulture, messageFormat, testCase.TestCaseDisplayName)], [typeof(TestPipelineException).SafeName()], [null],
+				sendTestCollectionMessages, sendTestClassMessages, sendTestMethodMessages, sendTestCaseMessages, sendTestMessages
+			);
+		}
+
+		return result;
+	}
+
+	/// <summary>
+	/// Fail a set of test cases with the given exception.
+	/// </summary>
+	/// <param name="messageBus">The message bus to send the messages to</param>
+	/// <param name="cancellationTokenSource">The cancellation token source to cancel if requested</param>
+	/// <param name="testCases">The test cases to fail</param>
+	/// <param name="exception">The exception to fail the test cases with</param>
+	/// <param name="sendTestCollectionMessages">Set to <c>true</c> to send <see cref="_TestCollectionStarting"/>
+	/// and <see cref="_TestCollectionFinished"/> messages; set to <c>false</c> to skip</param>
+	/// <param name="sendTestClassMessages">Set to <c>true</c> to send <see cref="_TestClassStarting"/>
+	/// and <see cref="_TestClassFinished"/> messages; set to <c>false</c> to skip</param>
+	/// <param name="sendTestMethodMessages">Set to <c>true</c> to send <see cref="_TestMethodStarting"/>
+	/// and <see cref="_TestMethodFinished"/> messages; set to <c>false</c> to skip</param>
+	/// <param name="sendTestCaseMessages">Set to <c>true</c> to send <see cref="_TestCaseStarting"/>
+	/// and <see cref="_TestCaseFinished"/> messages; set to <c>false</c> to skip</param>
+	/// <param name="sendTestMessages">Set to <c>true</c> to send <see cref="_TestStarting"/>
+	/// and <see cref="_TestFinished"/> messages; set to <c>false</c> to skip</param>
+	public static RunSummary FailTestCases(
+		IMessageBus messageBus,
+		CancellationTokenSource cancellationTokenSource,
+		IReadOnlyCollection<IXunitTestCase> testCases,
+		Exception exception,
+		bool sendTestCollectionMessages = false,
+		bool sendTestClassMessages = false,
+		bool sendTestMethodMessages = false,
+		bool sendTestCaseMessages = true,
+		bool sendTestMessages = true)
+	{
+		Guard.ArgumentNotNull(messageBus);
+		Guard.ArgumentNotNull(cancellationTokenSource);
+		Guard.ArgumentNotNull(testCases);
+		Guard.ArgumentNotNull(exception);
+
+		var result = new RunSummary();
+
+		foreach (var testCase in testCases)
+		{
+			result.Total++;
+			result.Failed++;
+
+			var (types, messages, stackTraces, indices, cause) = ExceptionUtility.ExtractMetadata(exception);
+
+			FailTestCase(
+				messageBus, cancellationTokenSource, testCase, -result.Total,
+				cause, indices, messages, types, stackTraces,
+				sendTestCollectionMessages, sendTestClassMessages, sendTestMethodMessages, sendTestCaseMessages, sendTestMessages
+			);
+		}
+
+		return result;
+	}
+
+	// TODO: Do we also need the ability to send test collection messages? Maybe
+
+	static void FailTestCase(
+		IMessageBus messageBus,
+		CancellationTokenSource cancellationTokenSource,
+		IXunitTestCase testCase,
+		int testIndex,
+		FailureCause cause,
+		int[] parentIndices,
+		string[] messages,
+		string?[] types,
+		string?[] stackTraces,
+		bool sendTestCollectionMessages,
+		bool sendTestClassMessages,
+		bool sendTestMethodMessages,
+		bool sendTestCaseMessages,
+		bool sendTestMessages)
+	{
+		var assemblyUniqueID = testCase.TestCollection.TestAssembly.UniqueID;
+		var testCollectionUniqueID = testCase.TestCollection.UniqueID;
+		var testCaseUniqueID = testCase.UniqueID;
+		var testClassUniqueID = testCase.TestClass.UniqueID;
+		var testMethodUniqueID = testCase.TestMethod.UniqueID;
+		var testUniqueID = UniqueIDGenerator.ForTest(testCaseUniqueID, testIndex);
+
+		if (sendTestCollectionMessages)
+			if (!messageBus.QueueMessage(new _TestCollectionStarting
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				TestCollectionClassName = testCase.TestCollection.TestCollectionClassName,
+				TestCollectionDisplayName = testCase.TestCollection.TestCollectionDisplayName,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				Traits = testCase.TestCollection.Traits,
+			}))
+				cancellationTokenSource.Cancel();
+
+		if (sendTestClassMessages)
+			if (!messageBus.QueueMessage(new _TestClassStarting
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				TestClassName = testCase.TestClassName,
+				TestClassNamespace = testCase.TestClassNamespace,
+				TestClassUniqueID = testClassUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				Traits = testCase.TestClass.Traits,
+			}))
+				cancellationTokenSource.Cancel();
+
+		if (sendTestMethodMessages)
+			if (!messageBus.QueueMessage(new _TestMethodStarting
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				MethodName = testCase.TestMethodName,
+				TestClassUniqueID = testClassUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestMethodUniqueID = testMethodUniqueID,
+				Traits = testCase.TestMethod.Traits,
+			}))
+				cancellationTokenSource.Cancel();
+
+		if (sendTestCaseMessages)
+			if (!messageBus.QueueMessage(new _TestCaseStarting
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				SkipReason = testCase.SkipReason,
 				SourceFilePath = testCase.SourceFilePath,
 				SourceLineNumber = testCase.SourceLineNumber,
 				TestCaseDisplayName = testCase.TestCaseDisplayName,
-				TestCaseUniqueID = testCase.UniqueID,
+				TestCaseUniqueID = testCaseUniqueID,
 				TestClassName = testCase.TestClassName,
 				TestClassNamespace = testCase.TestClassNamespace,
-				TestClassNameWithNamespace = testCase.TestClassNameWithNamespace,
-				TestClassUniqueID = testCase.TestClass?.UniqueID,
-				TestCollectionUniqueID = testCase.TestCollection.UniqueID,
-				TestMethodName = testCase.TestMethod?.Method.Name,
-				TestMethodUniqueID = testCase.TestMethod?.UniqueID,
+				TestClassUniqueID = testClassUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestMethodName = testCase.TestMethod?.MethodName,
+				TestMethodUniqueID = testMethodUniqueID,
 				Traits = testCase.Traits,
-			};
-			messageBus.QueueMessage(caseStarting);
+			}))
+				cancellationTokenSource.Cancel();
 
-			var testStarting = new _TestStarting
+		if (sendTestMessages)
+			if (!messageBus.QueueMessage(new _TestStarting
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				Explicit = false,
-				TestCaseUniqueID = testCase.UniqueID,
-				TestClassUniqueID = testCase.TestClass?.UniqueID,
-				TestCollectionUniqueID = testCase.TestCollection.UniqueID,
+				TestCaseUniqueID = testCaseUniqueID,
+				TestClassUniqueID = testClassUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID,
 				TestDisplayName = testCase.TestCaseDisplayName,
-				TestMethodUniqueID = testCase.TestMethod?.UniqueID,
+				TestMethodUniqueID = testMethodUniqueID,
 				TestUniqueID = testUniqueID,
 				Timeout = 0,
 				Traits = testCase.Traits,
-			};
-			messageBus.QueueMessage(testStarting);
+			}))
+				cancellationTokenSource.Cancel();
 
-			var failed = new _TestFailed
+		if (!messageBus.QueueMessage(new _TestFailed
+		{
+			AssemblyUniqueID = assemblyUniqueID,
+			Cause = cause,
+			ExceptionParentIndices = parentIndices,
+			ExceptionTypes = types,
+			ExecutionTime = 0m,
+			Messages = messages,
+			Output = string.Empty,
+			StackTraces = stackTraces,
+			TestCaseUniqueID = testCaseUniqueID,
+			TestClassUniqueID = testClassUniqueID,
+			TestCollectionUniqueID = testCollectionUniqueID,
+			TestMethodUniqueID = testMethodUniqueID,
+			TestUniqueID = testUniqueID,
+		}))
+			cancellationTokenSource.Cancel();
+
+		if (sendTestMessages)
+			if (!messageBus.QueueMessage(new _TestFinished
 			{
 				AssemblyUniqueID = assemblyUniqueID,
-				Cause = FailureCause.Exception,
-				ExceptionParentIndices = new[] { -1 },
-				ExceptionTypes = new string?[] { null },
 				ExecutionTime = 0m,
-				Messages = new[] { string.Format(CultureInfo.CurrentCulture, messageFormat, testCase.TestCaseDisplayName) },
 				Output = string.Empty,
-				StackTraces = new string?[] { null },
-				TestCaseUniqueID = testCase.UniqueID,
-				TestClassUniqueID = testCase.TestClass?.UniqueID,
-				TestCollectionUniqueID = testCase.TestCollection.UniqueID,
-				TestMethodUniqueID = testCase.TestMethod?.UniqueID,
+				TestCaseUniqueID = testCaseUniqueID,
+				TestClassUniqueID = testClassUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestMethodUniqueID = testMethodUniqueID,
 				TestUniqueID = testUniqueID,
-			};
-			messageBus.QueueMessage(failed);
+			}))
+				cancellationTokenSource.Cancel();
 
-			var testFinished = new _TestFinished
+		if (sendTestCaseMessages)
+			if (!messageBus.QueueMessage(new _TestCaseFinished
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = 0m,
-				Output = string.Empty,
-				TestCaseUniqueID = testCase.UniqueID,
-				TestClassUniqueID = testCase.TestClass?.UniqueID,
-				TestCollectionUniqueID = testCase.TestCollection.UniqueID,
-				TestMethodUniqueID = testCase.TestMethod?.UniqueID,
-				TestUniqueID = testUniqueID,
-			};
-			messageBus.QueueMessage(testFinished);
-
-			var caseFinished = new _TestCaseFinished
-			{
-				AssemblyUniqueID = assemblyUniqueID,
-				ExecutionTime = 0m,
-				TestCaseUniqueID = testCase.UniqueID,
-				TestClassUniqueID = testCase.TestClass?.UniqueID,
-				TestCollectionUniqueID = testCase.TestCollection.UniqueID,
-				TestMethodUniqueID = testCase.TestMethod?.UniqueID,
+				TestCaseUniqueID = testCaseUniqueID,
+				TestClassUniqueID = testClassUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestMethodUniqueID = testMethodUniqueID,
 				TestsFailed = 1,
 				TestsNotRun = 0,
 				TestsSkipped = 0,
 				TestsTotal = 1,
-			};
-			messageBus.QueueMessage(caseFinished);
+			}))
+				cancellationTokenSource.Cancel();
 
-			result.Total++;
-			result.Failed++;
-		}
+		if (sendTestMethodMessages)
+			if (!messageBus.QueueMessage(new _TestMethodFinished
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				ExecutionTime = 0m,
+				TestClassUniqueID = testClassUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestMethodUniqueID = testMethodUniqueID,
+				TestsFailed = 1,
+				TestsNotRun = 0,
+				TestsSkipped = 0,
+				TestsTotal = 1,
+			}))
+				cancellationTokenSource.Cancel();
 
-		return result;
+		if (sendTestClassMessages)
+			if (!messageBus.QueueMessage(new _TestClassFinished
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				ExecutionTime = 0m,
+				TestClassUniqueID = testClassUniqueID,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestsFailed = 1,
+				TestsNotRun = 0,
+				TestsSkipped = 0,
+				TestsTotal = 1,
+			}))
+				cancellationTokenSource.Cancel();
+
+		if (sendTestCollectionMessages)
+			if (!messageBus.QueueMessage(new _TestCollectionFinished
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				ExecutionTime = 0m,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestsFailed = 1,
+				TestsNotRun = 0,
+				TestsSkipped = 0,
+				TestsTotal = 1,
+			}))
+				cancellationTokenSource.Cancel();
 	}
 }

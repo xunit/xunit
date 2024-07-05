@@ -13,10 +13,8 @@ public static class StackFrameTransformer
 {
 	static readonly Regex regex;
 
-	static StackFrameTransformer()
-	{
+	static StackFrameTransformer() =>
 		regex = new Regex(@"^\s*at (?<method>.*) in (?<file>.*):(line )?(?<line>\d+)$");
-	}
 
 	/// <summary>
 	/// Transforms an individual stack frame.

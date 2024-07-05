@@ -5,7 +5,6 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Xunit.Internal;
-using Xunit.v3;
 
 namespace Xunit.Sdk;
 
@@ -78,7 +77,7 @@ public static class ExceptionUtility
 
 		try
 		{
-			exceptionTypes.Add(ex.GetType().FullName);
+			exceptionTypes.Add(ex.GetType().SafeName());
 		}
 		catch (Exception thrown)
 		{

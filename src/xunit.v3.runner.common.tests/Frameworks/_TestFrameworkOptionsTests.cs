@@ -1,7 +1,6 @@
 using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
-using Xunit.v3;
 
 public class _TestFrameworkOptionsTests
 {

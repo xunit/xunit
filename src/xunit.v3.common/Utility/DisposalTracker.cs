@@ -153,26 +153,20 @@ public class DisposalTracker : IAsyncDisposable
 	void GuardNotDisposed()
 	{
 		if (disposed)
-			throw new ObjectDisposedException(GetType().FullName);
+			throw new ObjectDisposedException(GetType().SafeName());
 	}
 
-	sealed class AsyncDisposableWrapper : IAsyncDisposable
+	sealed class AsyncDisposableWrapper(Func<ValueTask> cleanupAction) : IAsyncDisposable
 	{
-		readonly Func<ValueTask> cleanupAction;
-
-		public AsyncDisposableWrapper(Func<ValueTask> cleanupAction) =>
-			this.cleanupAction = Guard.ArgumentNotNull(cleanupAction);
+		readonly Func<ValueTask> cleanupAction = Guard.ArgumentNotNull(cleanupAction);
 
 		public ValueTask DisposeAsync() =>
 			cleanupAction();
 	}
 
-	sealed class DisposableWrapper : IDisposable
+	sealed class DisposableWrapper(Action cleanupAction) : IDisposable
 	{
-		readonly Action cleanupAction;
-
-		public DisposableWrapper(Action cleanupAction) =>
-			this.cleanupAction = Guard.ArgumentNotNull(cleanupAction);
+		readonly Action cleanupAction = Guard.ArgumentNotNull(cleanupAction);
 
 		public void Dispose() =>
 			cleanupAction();

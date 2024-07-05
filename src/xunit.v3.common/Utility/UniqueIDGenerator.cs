@@ -2,11 +2,9 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
-using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using Xunit.Internal;
-using Xunit.v3;
 
 namespace Xunit.Sdk;
 
@@ -17,8 +15,8 @@ namespace Xunit.Sdk;
 public sealed class UniqueIDGenerator : IDisposable
 {
 	bool disposed;
-	HashAlgorithm hasher;
-	Stream stream;
+	readonly HashAlgorithm hasher;
+	readonly Stream stream;
 	readonly object streamLock = new();
 
 	/// <summary>
@@ -88,23 +86,17 @@ public sealed class UniqueIDGenerator : IDisposable
 	/// <summary>
 	/// Computes a unique ID for an assembly, to be placed into <see cref="_TestAssemblyMessage.AssemblyUniqueID"/>
 	/// </summary>
-	/// <param name="assemblyName">The assembly name</param>
 	/// <param name="assemblyPath">The optional assembly path</param>
 	/// <param name="configFilePath">The optional configuration file path</param>
 	/// <returns>The computed unique ID for the assembly</returns>
 	public static string ForAssembly(
-		string assemblyName,
-		string? assemblyPath,
+		string assemblyPath,
 		string? configFilePath)
 	{
-		Guard.ArgumentNotNullOrEmpty(assemblyName);
-
-		var parsedAssemblyName = new AssemblyName(assemblyName);
-		Guard.ArgumentNotNull("assemblyName must include a name component", parsedAssemblyName.Name, nameof(assemblyName));
+		Guard.ArgumentNotNull(assemblyPath);
 
 		using var generator = new UniqueIDGenerator();
-		generator.Add(parsedAssemblyName.Name);
-		generator.Add(assemblyPath ?? string.Empty);
+		generator.Add(assemblyPath);
 		generator.Add(configFilePath ?? string.Empty);
 		return generator.Compute();
 	}
@@ -138,7 +130,7 @@ public sealed class UniqueIDGenerator : IDisposable
 	/// <returns>The computed unique ID for the test case</returns>
 	public static string ForTestCase(
 		string parentUniqueID,
-		_ITypeInfo[]? testMethodGenericTypes,
+		Type[]? testMethodGenericTypes,
 		object?[]? testMethodArguments)
 	{
 		Guard.ArgumentNotNull(parentUniqueID);
@@ -164,7 +156,7 @@ public sealed class UniqueIDGenerator : IDisposable
 	/// <param name="className">The optional fully qualified type name of the test class</param>
 	/// <returns>The computed unique ID for the test class (may return <c>null</c> if <paramref name="className"/>
 	/// is null)</returns>
-	[return: NotNullIfNotNull("className")]
+	[return: NotNullIfNotNull(nameof(className))]
 	public static string? ForTestClass(
 		string testCollectionUniqueID,
 		string? className)
@@ -209,7 +201,7 @@ public sealed class UniqueIDGenerator : IDisposable
 	/// <param name="methodName">The optional test method name</param>
 	/// <returns>The computed unique ID for the test method (may return <c>null</c> if either the class
 	/// unique ID or the method name is null)</returns>
-	[return: NotNullIfNotNull("methodName")]
+	[return: NotNullIfNotNull(nameof(methodName))]
 	public static string? ForTestMethod(
 		string? testClassUniqueID,
 		string? methodName)
@@ -224,19 +216,20 @@ public sealed class UniqueIDGenerator : IDisposable
 	}
 
 	/// <summary>
-	/// Computes a unique ID for a type/>
+	/// Computes a unique ID for a <see cref="Type"/>.
 	/// </summary>
 	/// <param name="type">The type to generate an ID for</param>
-	public static string ForType(_ITypeInfo type)
+	public static string ForType(Type type)
 	{
 		Guard.ArgumentNotNull(type);
+		Guard.ArgumentNotNull(type.Assembly.FullName);
 
 		using var generator = new UniqueIDGenerator();
 
 		// Assembly name may include some parts that are less stable, so for now, split on comma
-		var assemblyParts = type.Assembly.Name.Split(',');
+		var assemblyParts = type.Assembly.FullName.Split(',');
 		generator.Add(assemblyParts[0]);
-		generator.Add(type.Name);
+		generator.Add(type.SafeName());
 		return generator.Compute();
 	}
 

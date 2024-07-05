@@ -23,9 +23,4 @@
     </When>
   </Choose>
 
-  <ItemGroup>
-    <Compile Include="..\xunit.v3.runner.utility.tests\Compilation\AcceptanceTestAssembly.cs" LinkBase="AcceptanceTesting" />
-    <Compile Include="..\xunit.v3.runner.utility.tests\Compilation\CSharpAcceptanceTestAssembly.cs" LinkBase="AcceptanceTesting" />
-  </ItemGroup>
-
 </Project>

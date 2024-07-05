@@ -1,6 +1,6 @@
 using System;
 using System.IO;
-using Xunit.v3;
+using Xunit.Sdk;
 
 namespace Xunit.Internal;
 
@@ -12,18 +12,15 @@ public class PreserveWorkingFolder : IDisposable
 	readonly string originalWorkingFolder;
 
 	/// <summary/>
-	public PreserveWorkingFolder(_IAssemblyInfo assemblyInfo)
+	public PreserveWorkingFolder(_ITestAssembly assembly)
 	{
-		Guard.ArgumentNotNull(assemblyInfo);
+		Guard.ArgumentNotNull(assembly);
 
 		originalWorkingFolder = Directory.GetCurrentDirectory();
 
-		if (!string.IsNullOrWhiteSpace(assemblyInfo.AssemblyPath))
-		{
-			var assemblyFolder = Path.GetDirectoryName(assemblyInfo.AssemblyPath);
-			if (!string.IsNullOrWhiteSpace(assemblyFolder))
-				Directory.SetCurrentDirectory(assemblyFolder);
-		}
+		var assemblyFolder = Path.GetDirectoryName(assembly.AssemblyPath);
+		if (!string.IsNullOrWhiteSpace(assemblyFolder))
+			Directory.SetCurrentDirectory(assemblyFolder);
 	}
 
 	/// <summary/>

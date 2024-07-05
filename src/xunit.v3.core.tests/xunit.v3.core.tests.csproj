@@ -4,4 +4,12 @@
     <TargetFrameworks>net472;net6.0;net8.0</TargetFrameworks>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Include="..\xunit.v3.runner.utility\AssemblyResolution\AssemblyHelper_NetFx.cs" LinkBase="Common" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="TestDoubles\" />
+  </ItemGroup>
+
 </Project>

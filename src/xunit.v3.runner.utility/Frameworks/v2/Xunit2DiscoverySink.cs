@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading;
 using Xunit.Abstractions;
 using Xunit.Runner.Common;
-using Xunit.v3;
 
 namespace Xunit.Runner.v2;
 

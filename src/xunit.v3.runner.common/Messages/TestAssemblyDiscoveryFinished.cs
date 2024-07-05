@@ -1,11 +1,13 @@
 using Xunit.Internal;
 using Xunit.Sdk;
-using Xunit.v3;
 
 namespace Xunit.Runner.Common;
 
 /// <summary>
-/// Reports that runner has just finished discovery for a test assembly.
+/// Reports that runner has just finished discovery for a test assembly. This message will
+/// arrive after the test framework's "discovery finished" message (i.e., for the default
+/// test framework, <see cref="_DiscoveryComplete"/>), and contains the project metadata
+/// associated with the discovery.
 /// </summary>
 public class TestAssemblyDiscoveryFinished : _MessageSinkMessage
 {

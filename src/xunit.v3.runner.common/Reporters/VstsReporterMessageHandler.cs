@@ -4,52 +4,41 @@ using System.Globalization;
 using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Sdk;
-using Xunit.v3;
 
 namespace Xunit.Runner.Common;
 
 /// <summary>
 /// An implementation of <see cref="IRunnerReporterMessageHandler" /> that supports <see cref="VstsReporter" />.
 /// </summary>
-public class VstsReporterMessageHandler : DefaultRunnerReporterMessageHandler
+/// <remarks>
+/// Initializes a new instance of the <see cref="VstsReporterMessageHandler" /> class.
+/// </remarks>
+/// <param name="logger">The logger used to report messages</param>
+/// <param name="baseUri">The base URI for talking to Azure DevOps/VSTS</param>
+/// <param name="accessToken">The access token required to talk to Azure DevOps/VSTS</param>
+/// <param name="buildId">The ID of build that's currently being run</param>
+public class VstsReporterMessageHandler(
+	IRunnerLogger logger,
+	string baseUri,
+	string accessToken,
+	int buildId) :
+		DefaultRunnerReporterMessageHandler(logger)
 {
 	const int MaxLength = 4096;
 
-	readonly string accessToken;
+	readonly string accessToken = Guard.ArgumentNotNull(accessToken);
 	int assembliesInFlight;
-	readonly string baseUri;
-	readonly int buildId;
+	readonly string baseUri = Guard.ArgumentNotNull(baseUri);
+	readonly int buildId = buildId;
 	VstsClient? client;
 	readonly object clientLock = new();
-
-	/// <summary>
-	/// Initializes a new instance of the <see cref="VstsReporterMessageHandler" /> class.
-	/// </summary>
-	/// <param name="logger">The logger used to report messages</param>
-	/// <param name="baseUri">The base URI for talking to Azure DevOps/VSTS</param>
-	/// <param name="accessToken">The access token required to talk to Azure DevOps/VSTS</param>
-	/// <param name="buildId">The ID of build that's currently being run</param>
-	public VstsReporterMessageHandler(
-		IRunnerLogger logger,
-		string baseUri,
-		string accessToken,
-		int buildId)
-			: base(logger)
-	{
-		this.baseUri = baseUri;
-		this.accessToken = accessToken;
-		this.buildId = buildId;
-	}
 
 	VstsClient Client
 	{
 		get
 		{
 			lock (clientLock)
-			{
-				if (client is null)
-					client = new VstsClient(Logger, baseUri, accessToken, buildId);
-			}
+				client ??= new VstsClient(Logger, baseUri, accessToken, buildId);
 
 			return client;
 		}
@@ -113,7 +102,7 @@ public class VstsReporterMessageHandler : DefaultRunnerReporterMessageHandler
 
 		if (assemblyMetadata is not null && classMetadata is not null && methodMetadata is not null)
 		{
-			var testName = string.Format(CultureInfo.InvariantCulture, "{0}.{1}", classMetadata.TestClass, methodMetadata.TestMethod);
+			var testName = string.Format(CultureInfo.InvariantCulture, "{0}.{1}", classMetadata.TestClassName, methodMetadata.MethodName);
 
 			VstsAddTest(testName, testStarting.TestDisplayName, assemblyMetadata.SimpleAssemblyName(), testStarting.TestUniqueID);
 		}

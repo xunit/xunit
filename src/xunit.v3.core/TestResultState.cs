@@ -2,7 +2,6 @@ using System;
 using System.Globalization;
 using Xunit.Internal;
 using Xunit.Sdk;
-using Xunit.v3;
 
 namespace Xunit;
 
@@ -58,7 +57,23 @@ public class TestResultState
 	public TestResult Result { get; private set; }
 
 	/// <summary>
-	/// Gets an immutable instance to indicates a test has a result.
+	/// Create a not run test result.
+	/// </summary>
+	/// <param name="executionTime">The optional execution time</param>
+	public static TestResultState ForNotRun(decimal? executionTime = null) =>
+		new() { ExecutionTime = executionTime ?? 0m, Result = TestResult.NotRun };
+
+	/// <summary>
+	/// Create a passing test result.
+	/// </summary>
+	/// <param name="executionTime">The optional execution time</param>
+	public static TestResultState ForPassed(decimal? executionTime = null) =>
+		new() { ExecutionTime = executionTime ?? 0m, Result = TestResult.Passed };
+
+	/// <summary>
+	/// Creates an instance based on the presence or absence of an exception. If the exception
+	/// is <c>null</c>, then it will be for <see cref="TestResult.Passed"/>; otherwise, it will
+	/// be for <see cref="TestResult.Failed"/>;
 	/// </summary>
 	/// <param name="executionTime">The time spent executing the test</param>
 	/// <param name="exception">The exception, if the test failed</param>
@@ -85,7 +100,11 @@ public class TestResultState
 		return result;
 	}
 
-	/// <summary/>
+	/// <summary>
+	/// Creates an instance based on inspecting the type identity of the
+	/// <paramref name="testResult"/> instance.
+	/// </summary>
+	/// <param name="testResult">The test result</param>
 	public static TestResultState FromTestResult(_TestResultMessage testResult)
 	{
 		Guard.ArgumentNotNull(testResult);
@@ -108,7 +127,7 @@ public class TestResultState
 			result.Result = TestResult.Failed;
 		}
 		else
-			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Unknown type: '{0}'", testResult.GetType().FullName), nameof(testResult));
+			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Unknown type: '{0}'", testResult.GetType().SafeName()), nameof(testResult));
 
 		return result;
 	}

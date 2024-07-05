@@ -2,7 +2,7 @@
 #pragma warning disable CA1713 // The properties here are not intended to be .NET events
 
 using Xunit.Internal;
-using Xunit.v3;
+using Xunit.Sdk;
 
 namespace Xunit.Runner.Common;
 
@@ -11,7 +11,6 @@ namespace Xunit.Runner.Common;
 /// </summary>
 public class ExecutionEventSink : _IMessageSink
 {
-
 	/// <summary>
 	/// Occurs when a <see cref="_AfterTestFinished"/> message is received.
 	/// </summary>

@@ -5,8 +5,8 @@ using System.Linq;
 using System.Runtime.Versioning;
 using Xunit.Abstractions;
 using Xunit.Internal;
+using Xunit.Runner.Common;
 using Xunit.Sdk;
-using Xunit.v3;
 
 namespace Xunit.Runner.v2;
 
@@ -256,23 +256,13 @@ public class Xunit2MessageAdapter
 		var testCaseUniqueID = testCase.UniqueID;
 
 		string? @namespace = null;
-		string? @class = null;
 
 		var typeName = testCase.TestMethod?.TestClass.Class.Name;
 		if (typeName is not null)
 		{
 			var namespaceIdx = typeName.LastIndexOf('.');
-			if (namespaceIdx < 0)
-				@class = typeName;
-			else
-			{
+			if (namespaceIdx > -1)
 				@namespace = typeName.Substring(0, namespaceIdx);
-				@class = typeName.Substring(namespaceIdx + 1);
-
-				var innerClassIdx = @class.LastIndexOf('+');
-				if (innerClassIdx >= 0)
-					@class = @class.Substring(innerClassIdx + 1);
-			}
 		}
 
 		var result = new _TestCaseDiscovered
@@ -284,9 +274,8 @@ public class Xunit2MessageAdapter
 			TestCaseDisplayName = testCase.DisplayName,
 			TestCaseUniqueID = testCaseUniqueID,
 			TestCollectionUniqueID = testCollectionUniqueID,
-			TestClassName = @class,
+			TestClassName = typeName,
 			TestClassNamespace = @namespace,
-			TestClassNameWithNamespace = typeName,
 			TestClassUniqueID = testClassUniqueID,
 			TestMethodName = testCase.TestMethod?.Method.Name,
 			TestMethodUniqueID = testMethodUniqueID,
@@ -331,10 +320,9 @@ public class Xunit2MessageAdapter
 		var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
 		var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
 
-		var testClassNameWithNamespace = message.TestCase.TestMethod?.TestClass.Class.Name;
-		var lastDotIdx = testClassNameWithNamespace?.LastIndexOf('.') ?? -1;
-		var testClassNamespace = lastDotIdx > -1 ? testClassNameWithNamespace!.Substring(0, lastDotIdx) : null;
-		var testClassName = lastDotIdx > -1 ? testClassNameWithNamespace!.Substring(lastDotIdx + 1) : testClassNameWithNamespace;
+		var testClassName = message.TestCase.TestMethod?.TestClass.Class.Name;
+		var lastDotIdx = testClassName?.LastIndexOf('.') ?? -1;
+		var testClassNamespace = lastDotIdx > -1 ? testClassName!.Substring(0, lastDotIdx) : null;
 
 		return new()
 		{
@@ -346,7 +334,6 @@ public class Xunit2MessageAdapter
 			TestCaseUniqueID = message.TestCase.UniqueID,
 			TestClassName = testClassName,
 			TestClassNamespace = testClassNamespace,
-			TestClassNameWithNamespace = testClassNameWithNamespace,
 			TestClassUniqueID = testClassUniqueID,
 			TestCollectionUniqueID = testCollectionUniqueID,
 			TestMethodName = message.TestCase.TestMethod?.Method.Name,
@@ -470,11 +457,17 @@ public class Xunit2MessageAdapter
 	{
 		var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
 		var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
+		var testClassNamespace = default(string);
+
+		var namespaceIdx = message.TestClass.Class.Name.LastIndexOf('.');
+		if (namespaceIdx > -1)
+			testClassNamespace = message.TestClass.Class.Name.Substring(0, namespaceIdx);
 
 		return new()
 		{
 			AssemblyUniqueID = assemblyUniqueID,
-			TestClass = message.TestClass.Class.Name,
+			TestClassName = message.TestClass.Class.Name,
+			TestClassNamespace = testClassNamespace,
 			TestClassUniqueID = testClassUniqueID,
 			TestCollectionUniqueID = testCollectionUniqueID,
 		};
@@ -541,7 +534,7 @@ public class Xunit2MessageAdapter
 		return new()
 		{
 			AssemblyUniqueID = assemblyUniqueID,
-			TestCollectionClass = message.TestCollection.CollectionDefinition?.Name,
+			TestCollectionClassName = message.TestCollection.CollectionDefinition?.Name,
 			TestCollectionDisplayName = message.TestCollection.DisplayName,
 			TestCollectionUniqueID = testCollectionUniqueID,
 		};
@@ -644,7 +637,7 @@ public class Xunit2MessageAdapter
 			AssemblyUniqueID = assemblyUniqueID,
 			TestCollectionUniqueID = testCollectionUniqueID,
 			TestClassUniqueID = testClassUniqueID,
-			TestMethod = message.TestMethod.Method.Name,
+			MethodName = message.TestMethod.Method.Name,
 			TestMethodUniqueID = testMethodUniqueID,
 		};
 	}

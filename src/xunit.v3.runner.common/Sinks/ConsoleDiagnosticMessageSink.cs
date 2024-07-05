@@ -4,7 +4,7 @@ using System;
 using System.Globalization;
 using System.IO;
 using Xunit.Internal;
-using Xunit.v3;
+using Xunit.Sdk;
 
 namespace Xunit.Runner.Common;
 
@@ -103,5 +103,7 @@ public class ConsoleDiagnosticMessageSink : _IMessageSink
 		bool showDiagnosticMessages = false,
 		bool showInternalDiagnosticMessages = false,
 		string? assemblyDisplayName = null) =>
-			showDiagnosticMessages || showInternalDiagnosticMessages ? new(consoleWriter, noColor, showDiagnosticMessages, showInternalDiagnosticMessages, assemblyDisplayName) : null;
+			showDiagnosticMessages || showInternalDiagnosticMessages
+				? new(consoleWriter, noColor, showDiagnosticMessages, showInternalDiagnosticMessages, assemblyDisplayName)
+				: null;
 }

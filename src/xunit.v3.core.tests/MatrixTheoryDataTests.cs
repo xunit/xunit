@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
-using Xunit.v3;
+using Xunit.Sdk;
 
 public class MatrixTheoryDataTests : AcceptanceTestV3
 {

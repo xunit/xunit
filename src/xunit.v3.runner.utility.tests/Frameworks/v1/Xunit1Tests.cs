@@ -111,9 +111,8 @@ public class Xunit1Tests
 					Assert.Null(testCase.SkipReason);
 					Assert.Equal("Method1 Display Name", testCase.TestCaseDisplayName);
 					Assert.Equal($":v1:case:Namespace1.OuterType1+Type1.Method1:{OsSpecificAssemblyPath}:(null)", testCase.TestCaseUniqueID);
-					Assert.Equal("Type1", testCase.TestClassName);
+					Assert.Equal("Namespace1.OuterType1+Type1", testCase.TestClassName);
 					Assert.Equal("Namespace1", testCase.TestClassNamespace);
-					Assert.Equal("Namespace1.OuterType1+Type1", testCase.TestClassNameWithNamespace);
 					Assert.Equal($":v1:class:Namespace1.OuterType1+Type1:{OsSpecificAssemblyPath}:(null)", testCase.TestClassUniqueID);
 					Assert.Equal($":v1:collection:{OsSpecificAssemblyPath}:(null)", testCase.TestCollectionUniqueID);
 					Assert.Equal("Method1", testCase.TestMethodName);
@@ -129,7 +128,6 @@ public class Xunit1Tests
 					Assert.Equal($":v1:case:SpecialType.SkippedMethod:{OsSpecificAssemblyPath}:(null)", testCase.TestCaseUniqueID);
 					Assert.Equal("SpecialType", testCase.TestClassName);
 					Assert.Null(testCase.TestClassNamespace);
-					Assert.Equal("SpecialType", testCase.TestClassNameWithNamespace);
 					Assert.Equal($":v1:class:SpecialType:{OsSpecificAssemblyPath}:(null)", testCase.TestClassUniqueID);
 					Assert.Equal($":v1:collection:{OsSpecificAssemblyPath}:(null)", testCase.TestCollectionUniqueID);
 					Assert.Equal("SkippedMethod", testCase.TestMethodName);
@@ -145,7 +143,6 @@ public class Xunit1Tests
 					Assert.Equal($":v1:case:SpecialType.MethodWithTraits:{OsSpecificAssemblyPath}:(null)", testCase.TestCaseUniqueID);
 					Assert.Equal("SpecialType", testCase.TestClassName);
 					Assert.Null(testCase.TestClassNamespace);
-					Assert.Equal("SpecialType", testCase.TestClassNameWithNamespace);
 					Assert.Equal($":v1:class:SpecialType:{OsSpecificAssemblyPath}:(null)", testCase.TestClassUniqueID);
 					Assert.Equal($":v1:collection:{OsSpecificAssemblyPath}:(null)", testCase.TestCollectionUniqueID);
 					Assert.Equal("MethodWithTraits", testCase.TestMethodName);
@@ -195,7 +192,7 @@ public class Xunit1Tests
 				.Do(callInfo => callInfo.Arg<ICallbackEventHandler>().RaiseCallbackEvent(xml));
 			var sink = new TestableTestDiscoverySink();
 
-			xunit1.Find(sink, filter: msg => msg.TestClassNameWithNamespace == "Namespace1.OuterType1+Type1");
+			xunit1.Find(sink, filter: msg => msg.TestClassName == "Namespace1.OuterType1+Type1");
 			sink.Finished.WaitOne();
 
 			var testCase = Assert.Single(sink.TestCases);
@@ -354,7 +351,7 @@ public class Xunit1Tests
 				{
 					var collectionStarting = Assert.IsType<_TestCollectionStarting>(message);
 					Assert.Equal("asm-id: assembly.dll:config", collectionStarting.AssemblyUniqueID);
-					Assert.Null(collectionStarting.TestCollectionClass);
+					Assert.Null(collectionStarting.TestCollectionClassName);
 					Assert.Equal("xUnit.net v1 Tests for assembly.dll", collectionStarting.TestCollectionDisplayName);
 					Assert.Equal("collection-id: assembly.dll:config", collectionStarting.TestCollectionUniqueID);
 				},
@@ -362,7 +359,7 @@ public class Xunit1Tests
 				{
 					var testClassStarting = Assert.IsType<_TestClassStarting>(message);
 					Assert.Equal("asm-id: assembly.dll:config", testClassStarting.AssemblyUniqueID);
-					Assert.Equal("type1", testClassStarting.TestClass);
+					Assert.Equal("type1", testClassStarting.TestClassName);
 					Assert.Equal("class-id: type1:assembly.dll:config", testClassStarting.TestClassUniqueID);
 					Assert.Equal("collection-id: assembly.dll:config", testClassStarting.TestCollectionUniqueID);
 				},
@@ -372,7 +369,7 @@ public class Xunit1Tests
 					Assert.Equal("asm-id: assembly.dll:config", testMethodStarting.AssemblyUniqueID);
 					Assert.Equal("class-id: type1:assembly.dll:config", testMethodStarting.TestClassUniqueID);
 					Assert.Equal("collection-id: assembly.dll:config", testMethodStarting.TestCollectionUniqueID);
-					Assert.Equal("passing", testMethodStarting.TestMethod);
+					Assert.Equal("passing", testMethodStarting.MethodName);
 					Assert.Equal("method-id: type1:passing:assembly.dll:config", testMethodStarting.TestMethodUniqueID);
 				},
 				message =>
@@ -454,7 +451,7 @@ public class Xunit1Tests
 				message =>
 				{
 					var testMethodStarting = Assert.IsAssignableFrom<_TestMethodStarting>(message);
-					Assert.Equal("failing", testMethodStarting.TestMethod);
+					Assert.Equal("failing", testMethodStarting.MethodName);
 				},
 				message =>
 				{
@@ -520,12 +517,12 @@ public class Xunit1Tests
 				message =>
 				{
 					var testClassStarting = Assert.IsType<_TestClassStarting>(message);
-					Assert.Equal("type2", testClassStarting.TestClass);
+					Assert.Equal("type2", testClassStarting.TestClassName);
 				},
 				message =>
 				{
 					var testMethodStarting = Assert.IsAssignableFrom<_TestMethodStarting>(message);
-					Assert.Equal("skipping", testMethodStarting.TestMethod);
+					Assert.Equal("skipping", testMethodStarting.MethodName);
 				},
 				message =>
 				{
@@ -576,7 +573,7 @@ public class Xunit1Tests
 				message =>
 				{
 					var testMethodStarting = Assert.IsAssignableFrom<_TestMethodStarting>(message);
-					Assert.Equal("skipping_with_start", testMethodStarting.TestMethod);
+					Assert.Equal("skipping_with_start", testMethodStarting.MethodName);
 				},
 				message =>
 				{
@@ -1178,7 +1175,7 @@ public class AmbiguouslyNamedTestMethods
 			TestCollectionUniqueID = $"collection-id: {assemblyPath}:{configFileName}",
 			TestMethod = methodName,
 			TestMethodUniqueID = $"method-id: {typeName}:{methodName}:{assemblyPath}:{configFileName}",
-			Traits = traits ?? new Dictionary<string, IReadOnlyList<string>>()
+			Traits = traits ?? [],
 		};
 	}
 
@@ -1232,7 +1229,7 @@ public class AmbiguouslyNamedTestMethods
 			bool shadowCopy,
 			string? shadowCopyFolder,
 			_ISourceInformationProvider sourceInformationProvider)
-				: base(_NullMessageSink.Instance, appDomainSupport, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder)
+				: base(NullMessageSink.Instance, appDomainSupport, sourceInformationProvider, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder)
 		{
 			Executor_TestAssemblyFileName = assemblyFileName;
 			Executor_ConfigFileName = configFileName;
@@ -1247,7 +1244,7 @@ public class AmbiguouslyNamedTestMethods
 
 	class TestableTestDiscoverySink : TestDiscoverySink
 	{
-		public List<_TestCaseDiscovered> DiscoveredTestCases = new List<_TestCaseDiscovered>();
+		public List<_TestCaseDiscovered> DiscoveredTestCases = [];
 		public bool StartSeen = false;
 
 		public TestableTestDiscoverySink(Func<bool>? cancelThunk = null)

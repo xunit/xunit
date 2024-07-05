@@ -6,7 +6,6 @@ using System.Linq;
 using System.Text;
 using Xunit.Internal;
 using Xunit.Sdk;
-using Xunit.v3;
 
 namespace Xunit.Runner.Common;
 
@@ -16,7 +15,7 @@ namespace Xunit.Runner.Common;
 [DebuggerDisplay("{ToDebuggerDisplay(),nq}")]
 public class _TestFrameworkOptions : _ITestFrameworkDiscoveryOptions, _ITestFrameworkExecutionOptions
 {
-	readonly Dictionary<string, string> properties = new();
+	readonly Dictionary<string, string> properties = [];
 
 	// Force users to use one of the factory methods
 	_TestFrameworkOptions(string? optionsJson = null)

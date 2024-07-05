@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
@@ -12,10 +13,15 @@ namespace Xunit;
 /// various points during the execution pipeline, so consumers must always take care to ensure
 /// that they check for <c>null</c> values from the various properties.
 /// </summary>
-public class TestContext
+public sealed class TestContext : IDisposable
 {
+	static readonly TestContext idleTestContext = new(null, null, TestPipelineStage.Unknown, default);
 	static readonly AsyncLocal<TestContext?> local = new();
-	static readonly HashSet<TestEngineStatus> validExecutionStatuses = new() { TestEngineStatus.Initializing, TestEngineStatus.Running, TestEngineStatus.CleaningUp };
+	static readonly HashSet<TestEngineStatus> validExecutionStatuses = [TestEngineStatus.Initializing, TestEngineStatus.Running, TestEngineStatus.CleaningUp];
+
+	_IMessageSink? diagnosticMessageSink;
+	_IMessageSink? internalDiagnosticMessageSink;
+	readonly CancellationTokenSource testCancellationTokenSource = new();
 
 	readonly List<string>? warnings;
 
@@ -29,7 +35,7 @@ public class TestContext
 		DiagnosticMessageSink = diagnosticMessageSink;
 		InternalDiagnosticMessageSink = internalDiagnosticMessageSink;
 		PipelineStage = pipelineStage;
-		CancellationToken = cancellationToken;
+		CancellationToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, testCancellationTokenSource.Token).Token;
 		this.warnings = warnings;
 	}
 
@@ -42,15 +48,36 @@ public class TestContext
 
 	/// <summary>
 	/// Gets the current test context. If called outside of the text discovery or execution path,
-	/// will return <c>null</c>. The current test context is a "snapshot in time" for when this
-	/// property is called, so do not cache the instance across a single method boundary (or else
-	/// you run the risk of having an out-of-date context).
+	/// will return a test context that is in the <see cref="TestPipelineStage.Unknown"/> stage.
+	/// The current test context is a "snapshot in time" for when this/ property is called, so do
+	/// not cache the instance across a single method boundary (or else/ you run the risk of having
+	/// an out-of-date context).
 	/// </summary>
-	public static TestContext? Current => local.Value;
+	public static TestContext Current => local.Value ?? idleTestContext;
 
-	internal _IMessageSink? DiagnosticMessageSink { get; set; }
+	internal _IMessageSink? DiagnosticMessageSink
+	{
+		get => diagnosticMessageSink;
+		set
+		{
+			if (ReferenceEquals(this, idleTestContext))
+				throw new InvalidOperationException("Cannot set DiagnosticMessageSink on the idle test context");
 
-	internal _IMessageSink? InternalDiagnosticMessageSink { get; set; }
+			diagnosticMessageSink = value;
+		}
+	}
+
+	internal _IMessageSink? InternalDiagnosticMessageSink
+	{
+		get => internalDiagnosticMessageSink;
+		set
+		{
+			if (ReferenceEquals(this, idleTestContext))
+				throw new InvalidOperationException("Cannot set InternalDiagnosticMessageSink on the idle test context");
+
+			internalDiagnosticMessageSink = value;
+		}
+	}
 
 	/// <summary>
 	/// Gets the current test pipeline stage.
@@ -176,6 +203,17 @@ public class TestContext
 		else
 			warnings.Add(message);
 	}
+
+	/// <summary>
+	/// Attempt to cancel the currently executing test, if one is executing. This will
+	/// signal the <see cref="CancellationToken"/> for cancellation.
+	/// </summary>
+	public void Cancel() =>
+		testCancellationTokenSource.Cancel();
+
+	/// <inheritdoc/>
+	public void Dispose() =>
+		testCancellationTokenSource.Dispose();
 
 	/// <summary>
 	/// Sends a diagnostic message. Will only be visible if the end user has enabled diagnostic messages.
@@ -306,7 +344,7 @@ public class TestContext
 		if (Current.TestOutputHelper is null)
 			Guard.ArgumentNotNull(testOutputHelper);
 
-		local.Value = new TestContext(Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, TestPipelineStage.TestExecution, cancellationToken, Current.warnings ?? new())
+		local.Value = new TestContext(Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, TestPipelineStage.TestExecution, cancellationToken, Current.warnings ?? [])
 		{
 			Test = test,
 			TestStatus = testStatus,

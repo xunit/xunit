@@ -1,12 +1,12 @@
 using System;
 using System.Globalization;
 using Xunit.Internal;
-using Xunit.v3;
 
 namespace Xunit.Sdk;
 
 /// <summary>
-/// Extension methods for reading and writing <see cref="_ITestFrameworkDiscoveryOptions"/> and <see cref="_ITestFrameworkExecutionOptions"/>.
+/// Extension methods for reading and writing <see cref="_ITestFrameworkDiscoveryOptions"/>
+/// and <see cref="_ITestFrameworkExecutionOptions"/>.
 /// </summary>
 public static class TestFrameworkOptionsReadWriteExtensions
 {

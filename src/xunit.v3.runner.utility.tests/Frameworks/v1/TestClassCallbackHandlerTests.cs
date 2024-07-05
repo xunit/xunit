@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
 using NSubstitute;
 using Xunit;
@@ -19,7 +20,7 @@ public class TestClassCallbackHandlerTests
 	[Fact]
 	public static void WithClassNode_ParsesNumbersWithInvariantCulture()
 	{
-		var handler = new TestClassCallbackHandler(new Xunit1TestCase[0], Substitute.For<_IMessageSink>());
+		var handler = new TestClassCallbackHandler([], Substitute.For<_IMessageSink>());
 		var xml = new XmlDocument();
 		xml.LoadXml("<class time='1.234' total='4' failed='3' skipped='2' />");
 
@@ -37,7 +38,7 @@ public class TestClassCallbackHandlerTests
 		var messages = new List<_MessageSinkMessage>();
 		var sink = SpyMessageSink.Create(messages: messages);
 		var testCase = CreateTestCase("assembly", "config", "foo", "bar", "foo.bar");
-		var handler = new TestClassCallbackHandler(new[] { testCase }, sink);
+		var handler = new TestClassCallbackHandler([testCase], sink);
 		var startXml = new XmlDocument();
 		startXml.LoadXml("<start type='foo' method='bar' name='foo.bar'></start>");
 		var passXml = new XmlDocument();
@@ -56,7 +57,7 @@ public class TestClassCallbackHandlerTests
 		var messages = new List<_MessageSinkMessage>();
 		var sink = SpyMessageSink.Create(messages: messages);
 		var testCase = CreateTestCase("assembly", "config", "foo", "bar", "foo.bar");
-		var handler = new TestClassCallbackHandler(new[] { testCase }, sink);
+		var handler = new TestClassCallbackHandler([testCase], sink);
 		var startXml = new XmlDocument();
 		startXml.LoadXml("<start type='foo' method='bar' name='foo.bar'></start>");
 		var passXml = new XmlDocument();
@@ -74,11 +75,20 @@ public class TestClassCallbackHandlerTests
 	/// <see cref="Thread.CurrentThread" /> <see cref="CultureInfo.CurrentCulture" /> and
 	/// <see cref="CultureInfo.CurrentUICulture" /> with another culture.
 	/// </summary>
+	/// <remarks>
+	/// Replaces the culture and UI culture of the current thread with
+	/// <paramref name="culture" /> and <paramref name="uiCulture" />
+	/// </remarks>
+	/// <param name="culture">The name of the culture.</param>
+	/// <param name="uiCulture">The name of the UI culture.</param>
 	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
-	class UseCultureAttribute : BeforeAfterTestAttribute
+	class UseCultureAttribute(
+		string culture,
+		string uiCulture) :
+			BeforeAfterTestAttribute
 	{
-		readonly Lazy<CultureInfo> culture;
-		readonly Lazy<CultureInfo> uiCulture;
+		readonly Lazy<CultureInfo> culture = new Lazy<CultureInfo>(() => new CultureInfo(culture, useUserOverride: false));
+		readonly Lazy<CultureInfo> uiCulture = new Lazy<CultureInfo>(() => new CultureInfo(uiCulture, useUserOverride: false));
 
 		CultureInfo? originalCulture;
 		CultureInfo? originalUICulture;
@@ -99,20 +109,6 @@ public class TestClassCallbackHandlerTests
 		{ }
 
 		/// <summary>
-		/// Replaces the culture and UI culture of the current thread with
-		/// <paramref name="culture" /> and <paramref name="uiCulture" />
-		/// </summary>
-		/// <param name="culture">The name of the culture.</param>
-		/// <param name="uiCulture">The name of the UI culture.</param>
-		public UseCultureAttribute(
-			string culture,
-			string uiCulture)
-		{
-			this.culture = new Lazy<CultureInfo>(() => new CultureInfo(culture, useUserOverride: false));
-			this.uiCulture = new Lazy<CultureInfo>(() => new CultureInfo(uiCulture, useUserOverride: false));
-		}
-
-		/// <summary>
 		/// Gets the culture.
 		/// </summary>
 		public CultureInfo Culture => culture.Value;
@@ -128,14 +124,16 @@ public class TestClassCallbackHandlerTests
 		/// and replaces them with the new cultures defined in the constructor.
 		/// </summary>
 		/// <param name="methodUnderTest">The method under test</param>
-		/// <param name="test">The current <see cref="_ITest"/></param>
-		public override void Before(MethodInfo methodUnderTest, _ITest test)
+		/// <param name="test">The current <see cref="IXunitTest"/></param>
+		public override ValueTask Before(MethodInfo methodUnderTest, IXunitTest test)
 		{
 			originalCulture = CultureInfo.CurrentCulture;
 			originalUICulture = CultureInfo.CurrentUICulture;
 
 			CultureInfo.CurrentCulture = Culture;
 			CultureInfo.CurrentUICulture = UICulture;
+
+			return default;
 		}
 
 		/// <summary>
@@ -143,13 +141,15 @@ public class TestClassCallbackHandlerTests
 		/// <see cref="CultureInfo.CurrentUICulture" /> to <see cref="Thread.CurrentPrincipal" />
 		/// </summary>
 		/// <param name="methodUnderTest">The method under test</param>
-		/// <param name="test">The current <see cref="_ITest"/></param>
-		public override void After(MethodInfo methodUnderTest, _ITest test)
+		/// <param name="test">The current <see cref="IXunitTest"/></param>
+		public override ValueTask After(MethodInfo methodUnderTest, IXunitTest test)
 		{
 			if (originalCulture is not null)
 				CultureInfo.CurrentCulture = originalCulture;
 			if (originalUICulture is not null)
 				CultureInfo.CurrentUICulture = originalUICulture;
+
+			return default;
 		}
 	}
 
@@ -173,7 +173,7 @@ public class TestClassCallbackHandlerTests
 			TestCollectionUniqueID = $"collection-id: {assemblyPath}:{configFileName}",
 			TestMethod = methodName,
 			TestMethodUniqueID = $"method-id: {typeName}:{methodName}:{assemblyPath}:{configFileName}",
-			Traits = traits ?? new Dictionary<string, IReadOnlyList<string>>()
+			Traits = traits ?? []
 		};
 	}
 

@@ -5,8 +5,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Xml;
 using Xunit.Internal;
+using Xunit.Runner.Common;
 using Xunit.Sdk;
-using Xunit.v3;
 
 namespace Xunit.Runner.v1;
 
@@ -206,9 +206,8 @@ public sealed class Xunit1TestCase : IXunitSerializable
 			SourceLineNumber = SourceLineNumber,
 			TestCaseDisplayName = TestCaseDisplayName,
 			TestCaseUniqueID = TestCaseUniqueID,
-			TestClassName = @class,
+			TestClassName = TestClass,
 			TestClassNamespace = @namespace,
-			TestClassNameWithNamespace = TestClass,
 			TestClassUniqueID = TestClassUniqueID,
 			TestCollectionUniqueID = TestCollectionUniqueID,
 			TestMethodName = TestMethod,
@@ -269,7 +268,6 @@ public sealed class Xunit1TestCase : IXunitSerializable
 	{
 		var lastDotIdx = TestClass.LastIndexOf('.');
 		var @namespace = lastDotIdx > -1 ? TestClass.Substring(0, lastDotIdx) : null;
-		var testClassWithoutNamespace = lastDotIdx > -1 ? TestClass.Substring(lastDotIdx + 1) : TestClass;
 
 		return new()
 		{
@@ -279,9 +277,8 @@ public sealed class Xunit1TestCase : IXunitSerializable
 			SourceLineNumber = SourceLineNumber,
 			TestCaseDisplayName = TestCaseDisplayName,
 			TestCaseUniqueID = TestCaseUniqueID,
-			TestClassName = testClassWithoutNamespace,
+			TestClassName = TestClass,
 			TestClassNamespace = @namespace,
-			TestClassNameWithNamespace = TestClass,
 			TestClassUniqueID = TestClassUniqueID,
 			TestCollectionUniqueID = TestCollectionUniqueID,
 			TestMethodName = TestMethod,
@@ -401,7 +398,7 @@ public sealed class Xunit1TestCase : IXunitSerializable
 			AssemblyUniqueID = AssemblyUniqueID,
 			TestClassUniqueID = TestClassUniqueID,
 			TestCollectionUniqueID = TestCollectionUniqueID,
-			TestMethod = TestMethod,
+			MethodName = TestMethod,
 			TestMethodUniqueID = TestMethodUniqueID,
 		};
 

@@ -7,7 +7,6 @@ using System.Threading;
 using System.Xml.Linq;
 using Xunit.Internal;
 using Xunit.Sdk;
-using Xunit.v3;
 
 namespace Xunit.Runner.Common;
 
@@ -179,11 +178,11 @@ public class ExecutionSink : _IMessageSink, IDisposable
 				new XAttribute("time-rtf", TimeSpan.FromSeconds((double)testResult.ExecutionTime).ToString("c", CultureInfo.InvariantCulture))
 			);
 
-		var type = testClassMetadata?.TestClass;
+		var type = testClassMetadata?.TestClassName;
 		if (type is not null)
 			testResultElement.Add(new XAttribute("type", type));
 
-		var method = testMethodMetadata?.TestMethod;
+		var method = testMethodMetadata?.MethodName;
 		if (method is not null)
 			testResultElement.Add(new XAttribute("method", method));
 
@@ -364,7 +363,7 @@ public class ExecutionSink : _IMessageSink, IDisposable
 		Interlocked.Increment(ref errors);
 
 		if (options.AssemblyElement is not null)
-			AddError("test-class-cleanup", metadataCache.TryGetClassMetadata(args.Message)?.TestClass, args.Message);
+			AddError("test-class-cleanup", metadataCache.TryGetClassMetadata(args.Message)?.TestClassName, args.Message);
 	}
 
 	void HandleTestClassFinished(MessageHandlerArgs<_TestClassFinished> args)
@@ -454,7 +453,7 @@ public class ExecutionSink : _IMessageSink, IDisposable
 		Interlocked.Increment(ref errors);
 
 		if (options.AssemblyElement is not null)
-			AddError("test-method-cleanup", metadataCache.TryGetMethodMetadata(args.Message)?.TestMethod, args.Message);
+			AddError("test-method-cleanup", metadataCache.TryGetMethodMetadata(args.Message)?.MethodName, args.Message);
 	}
 
 	void HandleTestMethodFinished(MessageHandlerArgs<_TestMethodFinished> args)
@@ -612,7 +611,7 @@ public class ExecutionSink : _IMessageSink, IDisposable
 				ExecutionTime = testPassed.ExecutionTime,
 				Messages = ["This test failed due to one or more warnings"],
 				Output = testPassed.Output,
-				StackTraces = new[] { "" },
+				StackTraces = [""],
 				TestCaseUniqueID = testPassed.TestCaseUniqueID,
 				TestClassUniqueID = testPassed.TestClassUniqueID,
 				TestCollectionUniqueID = testPassed.TestCollectionUniqueID,
@@ -815,15 +814,14 @@ public class ExecutionSink : _IMessageSink, IDisposable
 			if (options.LongRunningTestCallback is not null)
 				options.LongRunningTestCallback(new LongRunningTestsSummary(options.LongRunningTestTime, longRunningTestCases));
 
-			if (options.DiagnosticMessageSink is not null)
-				options.DiagnosticMessageSink.OnMessage(
-					new _DiagnosticMessage(
-						string.Join(
-							Environment.NewLine,
-							longRunningTestCases.Select(pair => string.Format(CultureInfo.CurrentCulture, @"[Long Running Test] '{0}', Elapsed: {1:hh\:mm\:ss}", pair.Key.TestCaseDisplayName, pair.Value)).ToArray()
-						)
+			options.DiagnosticMessageSink?.OnMessage(
+				new _DiagnosticMessage(
+					string.Join(
+						Environment.NewLine,
+						longRunningTestCases.Select(pair => string.Format(CultureInfo.CurrentCulture, @"[Long Running Test] '{0}', Elapsed: {1:hh\:mm\:ss}", pair.Key.TestCaseDisplayName, pair.Value)).ToArray()
 					)
-				);
+				)
+			);
 		}
 	}
 

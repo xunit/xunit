@@ -2,8 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
-using Xunit.Internal;
-using Xunit.v3;
+using Xunit.Sdk;
 
 namespace Xunit.Runner.Common;
 
@@ -16,6 +15,8 @@ public static class MessageSinkMessageHelper
 	static readonly List<string> errors = [];
 	static readonly Dictionary<string, Type> typeIdToTypeMappings = [];
 
+	// TODO: We need to generally solve the problem of how messages get registered, so third parties can create their
+	// own messages and participate in deserialization of those messages.
 	static MessageSinkMessageHelper()
 	{
 		RegisterTypeMapping(typeof(_AfterTestFinished));
@@ -71,6 +72,8 @@ public static class MessageSinkMessageHelper
 		if (errors.Count != 0 || deserialize is null)
 			throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "JSON deserialization errors occurred during startup:{0}{1}", Environment.NewLine, string.Join(Environment.NewLine, errors)));
 
+		// TODO: All these nulls... should they be exceptions?
+
 		if (!JsonDeserializer.TryDeserialize(serialization, out var json) || json is not IReadOnlyDictionary<string, object?> root)
 			return null;
 
@@ -80,8 +83,7 @@ public static class MessageSinkMessageHelper
 		if (!typeIdToTypeMappings.TryGetValue(typeName, out var type))
 			return null;
 
-		var message = Activator.CreateInstance(type) as _MessageSinkMessage;
-		if (message is null)
+		if (Activator.CreateInstance(type) is not _MessageSinkMessage message)
 			return null;
 
 		deserialize.Invoke(message, [root]);

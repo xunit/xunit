@@ -53,7 +53,7 @@ public class Xunit3AcceptanceTests
 				message =>
 				{
 					var collectionStarting = Assert.IsType<_TestCollectionStarting>(message);
-					Assert.Null(collectionStarting.TestCollectionClass);
+					Assert.Null(collectionStarting.TestCollectionClassName);
 #if BUILD_X86  // Assembly name changes for x86 testing, so that changes the ID
 					Assert.Equal("Test collection for Xunit3AcceptanceTests+SinglePassingTestClass (id: 1ea89e28059c4fd4c4319dac4a5c86ce432cef0cf1ec83ed22553dec40043256)", collectionStarting.TestCollectionDisplayName);
 #else
@@ -66,7 +66,7 @@ public class Xunit3AcceptanceTests
 				message =>
 				{
 					var classStarting = Assert.IsType<_TestClassStarting>(message);
-					Assert.Equal("Xunit3AcceptanceTests+SinglePassingTestClass", classStarting.TestClass);
+					Assert.Equal("Xunit3AcceptanceTests+SinglePassingTestClass", classStarting.TestClassName);
 					Assert.Equal(observedAssemblyID, classStarting.AssemblyUniqueID);
 					Assert.Equal(observedCollectionID, classStarting.TestCollectionUniqueID);
 					observedClassID = classStarting.TestClassUniqueID;
@@ -74,7 +74,7 @@ public class Xunit3AcceptanceTests
 				message =>
 				{
 					var testMethodStarting = Assert.IsType<_TestMethodStarting>(message);
-					Assert.Equal("TestMethod", testMethodStarting.TestMethod);
+					Assert.Equal("TestMethod", testMethodStarting.MethodName);
 					Assert.Equal(observedAssemblyID, testMethodStarting.AssemblyUniqueID);
 					Assert.Equal(observedCollectionID, testMethodStarting.TestCollectionUniqueID);
 					Assert.Equal(observedClassID, testMethodStarting.TestClassUniqueID);
@@ -121,26 +121,6 @@ public class Xunit3AcceptanceTests
 					Assert.Equal(observedClassID, classConstructionFinished.TestClassUniqueID);
 					Assert.Equal(observedMethodID, classConstructionFinished.TestMethodUniqueID);
 					Assert.Equal(observedTestID, classConstructionFinished.TestUniqueID);
-				},
-				message =>
-				{
-					var beforeTestStarting = Assert.IsType<_BeforeTestStarting>(message);
-					Assert.Equal("BeforeAfterOnAssembly", beforeTestStarting.AttributeName);
-				},
-				message =>
-				{
-					var beforeTestFinished = Assert.IsType<_BeforeTestFinished>(message);
-					Assert.Equal("BeforeAfterOnAssembly", beforeTestFinished.AttributeName);
-				},
-				message =>
-				{
-					var afterTestStarting = Assert.IsType<_AfterTestStarting>(message);
-					Assert.Equal("BeforeAfterOnAssembly", afterTestStarting.AttributeName);
-				},
-				message =>
-				{
-					var afterTestFinished = Assert.IsType<_AfterTestFinished>(message);
-					Assert.Equal("BeforeAfterOnAssembly", afterTestFinished.AttributeName);
 				},
 				message =>
 				{
@@ -252,7 +232,7 @@ public class Xunit3AcceptanceTests
 	public class ExplicitTests : AcceptanceTestV3
 	{
 		[Theory]
-		[InlineData(new object?[] { null })]
+		[InlineData([null])]
 		[InlineData(ExplicitOption.Off)]
 		public async ValueTask OnlyRunNonExplicit(ExplicitOption? @explicit)
 		{
@@ -299,10 +279,6 @@ public class Xunit3AcceptanceTests
 		}
 	}
 
-	[CollectionDefinition("Timeout Tests", DisableParallelization = true)]
-	public class TimeoutTestsCollection { }
-
-	[Collection("Timeout Tests")]
 	public class TimeoutTests : AcceptanceTestV3
 	{
 		// This test is a little sketchy, because it relies on the execution of the acceptance test to happen in less time
@@ -538,7 +514,7 @@ public class Xunit3AcceptanceTests
 			var testMessages = await RunAsync(typeof(TestClassUsingCollection));
 
 			Assert.Collection(
-				testMessages.OfType<_TestPassed>().Select(p => testMessages.OfType<_TestMethodStarting>().Where(s => s.TestMethodUniqueID == p.TestMethodUniqueID).Single().TestMethod),
+				testMessages.OfType<_TestPassed>().Select(p => testMessages.OfType<_TestMethodStarting>().Where(s => s.TestMethodUniqueID == p.TestMethodUniqueID).Single().MethodName),
 				methodName => Assert.Equal("Test1", methodName),
 				methodName => Assert.Equal("Test2", methodName),
 				methodName => Assert.Equal("Test3", methodName)
@@ -568,7 +544,7 @@ public class Xunit3AcceptanceTests
 			var testMessages = await RunAsync(typeof(TestClassWithoutCollection));
 
 			Assert.Collection(
-				testMessages.OfType<_TestPassed>().Select(p => testMessages.OfType<_TestMethodStarting>().Where(s => s.TestMethodUniqueID == p.TestMethodUniqueID).Single().TestMethod),
+				testMessages.OfType<_TestPassed>().Select(p => testMessages.OfType<_TestMethodStarting>().Where(s => s.TestMethodUniqueID == p.TestMethodUniqueID).Single().MethodName),
 				methodName => Assert.Equal("Test1", methodName),
 				methodName => Assert.Equal("Test2", methodName),
 				methodName => Assert.Equal("Test3", methodName)
@@ -594,7 +570,7 @@ public class Xunit3AcceptanceTests
 				where TTestCase : notnull, _ITestCase
 			{
 				var result = testCases.ToList();
-				result.Sort((x, y) => StringComparer.OrdinalIgnoreCase.Compare(x.TestMethod?.Method.Name, y.TestMethod?.Method.Name));
+				result.Sort((x, y) => StringComparer.OrdinalIgnoreCase.Compare(x.TestMethod?.MethodName, y.TestMethod?.MethodName));
 				return result;
 			}
 		}
@@ -605,13 +581,10 @@ public class Xunit3AcceptanceTests
 		[Fact]
 		public async ValueTask NonParallelCollectionsRunLast()
 		{
-			var testMessages = await RunAsync(new[] {
-				typeof(TestClassNonParallelCollection),
-				typeof(TestClassParallelCollection)
-			});
+			var testMessages = await RunAsync([typeof(TestClassNonParallelCollection), typeof(TestClassParallelCollection)]);
 
 			Assert.Collection(
-				testMessages.OfType<_TestPassed>().Select(p => testMessages.OfType<_TestMethodStarting>().Where(s => s.TestMethodUniqueID == p.TestMethodUniqueID).Single().TestMethod),
+				testMessages.OfType<_TestPassed>().Select(p => testMessages.OfType<_TestMethodStarting>().Where(s => s.TestMethodUniqueID == p.TestMethodUniqueID).Single().MethodName),
 				methodName => Assert.Equal("Test1", methodName),
 				methodName => Assert.Equal("Test2", methodName),
 				methodName => Assert.Equal("IShouldBeLast1", methodName),
@@ -697,76 +670,20 @@ public class Xunit3AcceptanceTests
 			var msgs = await RunAsync<_TestFailed>(typeof(ClassWithMultipleFacts));
 
 			var msg = Assert.Single(msgs);
-			Assert.Equal("System.InvalidOperationException", msg.ExceptionTypes.Single());
+			Assert.Equal(typeof(TestPipelineException).SafeName(), msg.ExceptionTypes.Single());
 			Assert.Equal("Test method 'Xunit3AcceptanceTests+CustomFacts+ClassWithMultipleFacts.Passing' has multiple [Fact]-derived attributes", msg.Messages.Single());
 		}
 
 #pragma warning disable xUnit1002 // Test methods cannot have multiple Fact or Theory attributes
+
 		class ClassWithMultipleFacts
 		{
 			[Fact]
 			[MyCustomFact]
 			public void Passing() { }
 		}
+
 #pragma warning restore xUnit1002 // Test methods cannot have multiple Fact or Theory attributes
-
-		// https://github.com/xunit/xunit/issues/2719
-		[Fact]
-		public async ValueTask ClassWithBrokenFactShouldNotDisruptDiscovery()
-		{
-			var msgs = await RunForResultsAsync(typeof(ClassWithReadOnlySkipFactAttribute));
-
-			Assert.Collection(
-				msgs.OrderBy(x => x.TestDisplayName),
-				msg =>
-				{
-					Assert.Equal("Xunit3AcceptanceTests+CustomFacts+ClassWithReadOnlySkipFactAttribute.Test1", msg.TestDisplayName);
-					var skip = Assert.IsAssignableFrom<_TestSkipped>(msg);
-					Assert.Equal("Skipped with Fact", skip.Reason);
-				},
-				msg =>
-				{
-					Assert.Equal("Xunit3AcceptanceTests+CustomFacts+ClassWithReadOnlySkipFactAttribute.Test2", msg.TestDisplayName);
-					var fail = Assert.IsAssignableFrom<_TestFailed>(msg);
-					var expectedException =
-						EnvironmentHelper.IsMono
-							? "System.ArgumentException: Constructor/initializer arguments for type 'Xunit3AcceptanceTests+CustomFacts+ReadOnlySkipFact' appear to be malformed"
-							: "System.ArgumentException: Could not set property named 'Skip' on instance of 'Xunit3AcceptanceTests+CustomFacts+ReadOnlySkipFact'";
-
-					Assert.StartsWith("Exception during discovery:" + Environment.NewLine + expectedException, fail.Messages.Single());
-				},
-				msg =>
-				{
-					Assert.Equal("Xunit3AcceptanceTests+CustomFacts+ClassWithReadOnlySkipFactAttribute.Test3", msg.TestDisplayName);
-					Assert.IsAssignableFrom<_TestPassed>(msg);
-				}
-			);
-		}
-
-		class ClassWithReadOnlySkipFactAttribute
-		{
-			[Fact(Skip = "Skipped with Fact")]
-			public void Test1()
-			{
-				Assert.True(false);
-			}
-
-			[ReadOnlySkipFact(Skip = "Simple not run, not skipped")]
-			public void Test2()
-			{
-				Assert.True(false);
-			}
-
-			[Fact]
-			public void Test3()
-			{ }
-		}
-
-		public class ReadOnlySkipFact : FactAttribute
-		{
-			// Property setter here is missing, so trying to use it with the overridden skip message will fail at runtime
-			public override string Skip => "Skipped";
-		}
 
 		// https://github.com/xunit/xunit/issues/2719
 		[Fact]
@@ -790,9 +707,14 @@ public class Xunit3AcceptanceTests
 			}
 		}
 
-		public class ThrowingSkipFactAttribute : FactAttribute
+		[XunitTestCaseDiscoverer(typeof(FactDiscoverer))]
+		[AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
+		public class ThrowingSkipFactAttribute : Attribute, IFactAttribute
 		{
-			public override string? Skip { get => throw new DivideByZeroException(); set => base.Skip = value; }
+			public string? DisplayName => null;
+			public bool Explicit => false;
+			public string? Skip => throw new DivideByZeroException();
+			public int Timeout => 0;
 		}
 	}
 
@@ -884,7 +806,6 @@ public class Xunit3AcceptanceTests
 			{
 				output.WriteLine("This is test output");
 			}
-
 		}
 	}
 
@@ -896,10 +817,10 @@ public class Xunit3AcceptanceTests
 			var messages = await RunAsync<_TestPassed>(typeof(ClassWithAsyncLifetime));
 
 			var message = Assert.Single(messages);
-			AssertOperations(message, "Constructor", "InitializeAsync", "Run Test", "DisposeAsync", "Dispose");
+			AssertOperations(message, "Constructor", "InitializeAsync", "Run Test", "DisposeAsync");
 		}
 
-		class ClassWithAsyncLifetime : IAsyncLifetime, IDisposable
+		class ClassWithAsyncLifetime : IAsyncLifetime
 		{
 			protected readonly _ITestOutputHelper output;
 
@@ -914,11 +835,6 @@ public class Xunit3AcceptanceTests
 			{
 				output.WriteLine("InitializeAsync");
 				return default;
-			}
-
-			public virtual void Dispose()
-			{
-				output.WriteLine("Dispose");
 			}
 
 			public virtual ValueTask DisposeAsync()
@@ -940,7 +856,8 @@ public class Xunit3AcceptanceTests
 			var messages = await RunAsync<_TestPassed>(typeof(ClassWithAsyncDisposable));
 
 			var message = Assert.Single(messages);
-			AssertOperations(message, "Constructor", "Run Test", "DisposeAsync", "Dispose");
+			// We prefer DisposeAsync over Dispose, so Dispose won't be in the call list
+			AssertOperations(message, "Constructor", "Run Test", "DisposeAsync");
 		}
 
 		class ClassWithAsyncDisposable : IAsyncDisposable, IDisposable
@@ -963,6 +880,38 @@ public class Xunit3AcceptanceTests
 			{
 				output.WriteLine("DisposeAsync");
 				return default;
+			}
+
+			[Fact]
+			public virtual void TheTest()
+			{
+				output.WriteLine("Run Test");
+			}
+		}
+
+		[Fact]
+		public async ValueTask DisposableAcceptanceTest()
+		{
+			var messages = await RunAsync<_TestPassed>(typeof(ClassWithDisposable));
+
+			var message = Assert.Single(messages);
+			AssertOperations(message, "Constructor", "Run Test", "Dispose");
+		}
+
+		class ClassWithDisposable : IDisposable
+		{
+			protected readonly _ITestOutputHelper output;
+
+			public ClassWithDisposable(_ITestOutputHelper output)
+			{
+				this.output = output;
+
+				output.WriteLine("Constructor");
+			}
+
+			public virtual void Dispose()
+			{
+				output.WriteLine("Dispose");
 			}
 
 			[Fact]
@@ -996,7 +945,7 @@ public class Xunit3AcceptanceTests
 			var messages = await RunAsync<_TestFailed>(typeof(ClassWithAsyncLifetime_ThrowingInitializeAsync));
 
 			var message = Assert.Single(messages);
-			AssertOperations(message, "Constructor", "InitializeAsync", "Dispose");
+			AssertOperations(message, "Constructor", "InitializeAsync");
 		}
 
 		class ClassWithAsyncLifetime_ThrowingInitializeAsync : ClassWithAsyncLifetime
@@ -1017,7 +966,7 @@ public class Xunit3AcceptanceTests
 			var messages = await RunAsync<_TestFailed>(typeof(ClassWithAsyncLifetime_ThrowingDisposeAsync));
 
 			var message = Assert.Single(messages);
-			AssertOperations(message, "Constructor", "InitializeAsync", "Run Test", "DisposeAsync", "Dispose");
+			AssertOperations(message, "Constructor", "InitializeAsync", "Run Test", "DisposeAsync");
 		}
 
 		class ClassWithAsyncLifetime_ThrowingDisposeAsync : ClassWithAsyncLifetime
@@ -1038,7 +987,7 @@ public class Xunit3AcceptanceTests
 			var messages = await RunAsync<_TestFailed>(typeof(ClassWithAsyncDisposable_ThrowingDisposeAsync));
 
 			var message = Assert.Single(messages);
-			AssertOperations(message, "Constructor", "Run Test", "DisposeAsync", "Dispose");
+			AssertOperations(message, "Constructor", "Run Test", "DisposeAsync");
 		}
 
 		class ClassWithAsyncDisposable_ThrowingDisposeAsync : ClassWithAsyncDisposable
@@ -1059,7 +1008,7 @@ public class Xunit3AcceptanceTests
 			var messages = await RunAsync<_TestFailed>(typeof(ClassWithAsyncLifetime_FailingTest));
 
 			var message = Assert.Single(messages);
-			AssertOperations(message, "Constructor", "InitializeAsync", "Run Test", "DisposeAsync", "Dispose");
+			AssertOperations(message, "Constructor", "InitializeAsync", "Run Test", "DisposeAsync");
 		}
 
 		class ClassWithAsyncLifetime_FailingTest : ClassWithAsyncLifetime
@@ -1222,24 +1171,24 @@ public class Xunit3AcceptanceTests
 	{
 		public ClassWithLegalWarnings()
 		{
-			TestContext.Current!.AddWarning("This is a warning message from the constructor");
+			TestContext.Current.AddWarning("This is a warning message from the constructor");
 		}
 
 		public void Dispose()
 		{
-			TestContext.Current!.AddWarning("This is a warning message from Dispose()");
+			TestContext.Current.AddWarning("This is a warning message from Dispose()");
 		}
 
 		[Fact]
 		public void Passing()
 		{
-			TestContext.Current!.AddWarning("This is a warning message from Passing()");
+			TestContext.Current.AddWarning("This is a warning message from Passing()");
 		}
 
 		[Fact]
 		public void Failing()
 		{
-			TestContext.Current!.AddWarning("This is a warning message from Failing()");
+			TestContext.Current.AddWarning("This is a warning message from Failing()");
 			Assert.True(false);
 		}
 
@@ -1250,7 +1199,7 @@ public class Xunit3AcceptanceTests
 		[Fact]
 		public void SkippingDynamic()
 		{
-			TestContext.Current!.AddWarning("This is a warning message from SkippingDynamic()");
+			TestContext.Current.AddWarning("This is a warning message from SkippingDynamic()");
 			Assert.Skip("I decided not to run");
 		}
 	}
@@ -1258,7 +1207,7 @@ public class Xunit3AcceptanceTests
 	class FixtureWithIllegalWarning
 	{
 		public FixtureWithIllegalWarning() =>
-			TestContext.Current!.AddWarning("This is a warning from an illegal part of the pipeline");
+			TestContext.Current.AddWarning("This is a warning from an illegal part of the pipeline");
 	}
 
 	class ClassWithIllegalWarnings : IClassFixture<FixtureWithIllegalWarning>

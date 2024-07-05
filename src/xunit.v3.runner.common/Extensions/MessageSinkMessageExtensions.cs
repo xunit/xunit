@@ -1,7 +1,7 @@
 using Xunit.Internal;
 using Xunit.Runner.Common;
 
-namespace Xunit.v3;
+namespace Xunit.Sdk;
 
 /// <summary>
 /// Extension methods for <see cref="_MessageSinkMessage"/>.

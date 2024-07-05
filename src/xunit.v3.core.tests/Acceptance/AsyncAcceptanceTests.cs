@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Sdk;
-using Xunit.v3;
 
 public class AsyncAcceptanceTests : AcceptanceTestV3
 {

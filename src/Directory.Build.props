@@ -105,8 +105,10 @@
       <ItemGroup>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(MicrosoftNetTestSdkVersion)" />
         <PackageReference Include="NSubstitute" Version="$(NSubstituteVersion)" />
-        <PackageReference Include="xunit.analyzers" Version="$(XunitAnalyzersVersion)" PrivateAssets="all" />
-        <PackageReference Include="xunit.runner.visualstudio" Version="$(XunitVisualStudioRunnerVersion)" PrivateAssets="all" />
+        <!-- Temporarily disable the analyzers while things are moving around in names/namespaces -->
+        <!--<PackageReference Include="xunit.analyzers" Version="$(XunitAnalyzersVersion)" PrivateAssets="all" />-->
+        <!-- Temporarily disable VSTest support while things are moving around in names/namespaces -->
+        <!--<PackageReference Include="xunit.runner.visualstudio" Version="$(XunitVisualStudioRunnerVersion)" PrivateAssets="all" />-->
       </ItemGroup>
 
       <ItemGroup>

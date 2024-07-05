@@ -1,6 +1,6 @@
 using System;
 using System.Threading.Tasks;
-using Xunit.v3;
+using Xunit.Sdk;
 
 namespace Xunit.Runner.Common;
 

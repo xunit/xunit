@@ -6,7 +6,7 @@ using System.IO;
 using System.Reflection;
 using System.Security;
 using Xunit.Internal;
-using Xunit.v3;
+using Xunit.Sdk;
 
 namespace Xunit;
 

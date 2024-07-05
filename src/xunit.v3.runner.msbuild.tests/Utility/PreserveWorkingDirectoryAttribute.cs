@@ -1,24 +1,27 @@
 using System.IO;
 using System.Reflection;
-using Xunit.Sdk;
+using System.Threading.Tasks;
 using Xunit.v3;
 
 public class PreserveWorkingDirectoryAttribute : BeforeAfterTestAttribute
 {
 	string? workingDirectory;
 
-	public override void Before(
+	public override ValueTask Before(
 		MethodInfo methodUnderTest,
-		_ITest test)
+		IXunitTest test)
 	{
 		workingDirectory = Directory.GetCurrentDirectory();
+		return default;
 	}
 
-	public override void After(
+	public override ValueTask After(
 		MethodInfo methodUnderTest,
-		_ITest test)
+		IXunitTest test)
 	{
 		if (workingDirectory is not null)
 			Directory.SetCurrentDirectory(workingDirectory);
+
+		return default;
 	}
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,22 +12,21 @@ public class CulturedFactAttributeDiscoverer : IXunitTestCaseDiscoverer
 {
 	public ValueTask<IReadOnlyCollection<IXunitTestCase>> Discover(
 		_ITestFrameworkDiscoveryOptions discoveryOptions,
-		_ITestMethod testMethod,
-		_IAttributeInfo factAttribute)
+		IXunitTestMethod testMethod,
+		IFactAttribute factAttribute)
 	{
-		var ctorArgs = factAttribute.GetConstructorArguments().ToArray();
-		var cultures = Reflector.ConvertArguments(ctorArgs, new[] { typeof(string[]) }).Cast<string[]>().Single();
+		var culturedFactAttribute = factAttribute as CulturedFactAttribute;
+		Assert.NotNull(culturedFactAttribute);
 
+		var cultures = culturedFactAttribute.Cultures;
 		if (cultures is null || cultures.Length == 0)
-			cultures = new[] { "en-US", "fr-FR" };
+			cultures = ["en-US", "fr-FR"];
 
 		var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, factAttribute);
-		var traits = TestIntrospectionHelper.GetTraits(testMethod);
 
 		var result =
 			cultures
 				.Select(
-					// TODO: How do we get source information in here?
 					culture => new CulturedXunitTestCase(
 						culture,
 						details.ResolvedTestMethod,
@@ -34,7 +34,7 @@ public class CulturedFactAttributeDiscoverer : IXunitTestCaseDiscoverer
 						details.UniqueID,
 						details.Explicit,
 						details.SkipReason,
-						traits,
+						testMethod.Traits.ToReadWrite(StringComparer.OrdinalIgnoreCase),
 						timeout: details.Timeout
 					)
 				)

@@ -7,7 +7,6 @@ using System.Linq;
 using System.Reflection;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
-using Xunit.v3;
 
 namespace Xunit.Internal;
 
@@ -187,7 +186,7 @@ public abstract class CommandLineParserBase
 		Args.Count > 0 && (Args[0] == "-?" || Args[0] == "/?" || Args[0] == "-h" || Args[0] == "--help");
 
 	/// <summary/>
-	public List<string> ParseWarnings { get; } = new();
+	public List<string> ParseWarnings { get; } = [];
 
 	/// <summary/>
 	protected XunitProject Project { get; } = new();
@@ -197,9 +196,7 @@ public abstract class CommandLineParserBase
 	{
 		get
 		{
-			if (runnerReporters is null)
-				runnerReporters = GetAvailableRunnerReporters();
-
+			runnerReporters ??= GetAvailableRunnerReporters();
 			return runnerReporters;
 		}
 	}
@@ -209,7 +206,7 @@ public abstract class CommandLineParserBase
 		string @switch,
 		Action<KeyValuePair<string, string?>> handler,
 		string? replacement = null) =>
-			parsers[@switch] = (CommandLineGroup.Hidden, null, replacement is null ? Array.Empty<string>() : new[] { replacement }, handler);
+			parsers[@switch] = (CommandLineGroup.Hidden, null, replacement is null ? [] : [replacement], handler);
 
 	/// <summary/>
 	protected void AddParser(
@@ -258,7 +255,7 @@ public abstract class CommandLineParserBase
 	List<IRunnerReporter> GetAvailableRunnerReporters()
 	{
 		if (string.IsNullOrWhiteSpace(reporterFolder))
-			return new List<IRunnerReporter>();
+			return [];
 
 		var result = RunnerReporterUtility.GetAvailableRunnerReporters(reporterFolder, includeEmbeddedReporters: true, out var messages);
 

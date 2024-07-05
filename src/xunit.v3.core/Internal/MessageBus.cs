@@ -37,7 +37,7 @@ public class MessageBus : IMessageBus
 		while (reporterQueue.TryDequeue(out var message))
 			try
 			{
-				continueRunning &= messageSink.OnMessage(message);
+				continueRunning = messageSink.OnMessage(message) && continueRunning;
 			}
 			catch (Exception ex)
 			{

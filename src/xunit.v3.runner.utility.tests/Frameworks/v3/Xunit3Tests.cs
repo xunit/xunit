@@ -6,7 +6,6 @@ using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Runner.v3;
 using Xunit.Sdk;
-using Xunit.v3;
 
 public class Xunit3Tests
 {
@@ -42,7 +41,6 @@ public class Xunit3Tests
 	public async ValueTask GathersAssemblyInformation()
 	{
 		var expectedUniqueID = UniqueIDGenerator.ForAssembly(
-			Assembly.AssemblyDisplayName,
 			Assembly.AssemblyFileName,
 			Assembly.ConfigFileName
 		);

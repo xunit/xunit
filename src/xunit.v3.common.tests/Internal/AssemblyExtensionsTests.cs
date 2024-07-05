@@ -76,4 +76,20 @@ public class AssemblyExtensionsTests
 			Assert.Equal(@"\\server\path\to\file.dll", result);
 		}
 	}
+
+	[Fact]
+	public void GetTargetFramework()
+	{
+#if NET472
+		var expected = ".NETFramework,Version=v4.7.2";
+#elif NET6_0
+		var expected = ".NETCoreApp,Version=v6.0";
+#else
+#error Unknown target framework
+#endif
+
+		var result = AssemblyExtensions.GetTargetFramework(typeof(AssemblyExtensionsTests).Assembly);
+
+		Assert.Equal<object>(expected, result);
+	}
 }

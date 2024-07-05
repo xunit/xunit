@@ -1,29 +1,15 @@
-#pragma warning disable CA1019 // The attribute arguments are always read via reflection
-
 using System;
+using Xunit.v3;
 
 namespace Xunit;
 
 /// <summary>
-/// Used to decorate an assembly to allow the use of a custom <see cref="T:Xunit.Sdk.ITestCollectionOrderer"/>.
+/// Used to decorate an assembly to allow the use of a custom test collection orderer.
 /// </summary>
+/// <param name="ordererType">The orderer type; must implement <see cref="ITestCollectionOrderer"/></param>
 [AttributeUsage(AttributeTargets.Assembly, Inherited = true, AllowMultiple = false)]
-public sealed class TestCollectionOrdererAttribute : Attribute
+public sealed class TestCollectionOrdererAttribute(Type ordererType) : Attribute, ITestCollectionOrdererAttribute
 {
-	/// <summary>
-	/// Initializes a new instance of the <see cref="TestCollectionOrdererAttribute"/> class.
-	/// </summary>
-	/// <param name="ordererTypeName">The type name of the orderer class (that implements <see cref="T:Xunit.Sdk.ITestCollectionOrderer"/>).</param>
-	/// <param name="ordererAssemblyName">The assembly that <paramref name="ordererTypeName"/> exists in.</param>
-	public TestCollectionOrdererAttribute(
-		string ordererTypeName,
-		string ordererAssemblyName)
-	{ }
-
-	/// <summary>
-	/// Initializes a new instance of the <see cref="TestCollectionOrdererAttribute"/> class.
-	/// </summary>
-	/// <param name="ordererType">The orderer type</param>
-	public TestCollectionOrdererAttribute(Type ordererType)
-	{ }
+	/// <inheritdoc/>
+	public Type OrdererType { get; } = ordererType;
 }
