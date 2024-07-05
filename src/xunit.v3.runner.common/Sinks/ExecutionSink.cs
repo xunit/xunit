@@ -339,10 +339,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 	{
 		if (executingTestCases is not null)
 			lock (executingTestCases)
-			{
 				executingTestCases.Remove(args.Message.TestCaseUniqueID);
-				lastTestActivity = UtcNow;
-			}
 
 		if (options.AssemblyElement is not null)
 			metadataCache.TryRemove(args.Message);
