@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <Compile Include="..\common\Json.cs" LinkBase="Common" />
+    <Compile Include="..\common\EnvironmentHelper.cs" LinkBase="Common" />
     <Compile Include="..\common\XunitWorkerThread.cs" LinkBase="Common" />
   </ItemGroup>
 

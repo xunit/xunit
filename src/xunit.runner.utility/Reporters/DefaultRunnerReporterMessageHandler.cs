@@ -18,6 +18,7 @@ namespace Xunit
         readonly string defaultDirectory = null;
         readonly ITestFrameworkExecutionOptions defaultExecutionOptions = TestFrameworkOptions.ForExecution();
         readonly Dictionary<string, ITestFrameworkExecutionOptions> executionOptionsByAssembly = new Dictionary<string, ITestFrameworkExecutionOptions>(StringComparer.OrdinalIgnoreCase);
+        readonly bool logPassingTestsWithOutput;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultRunnerReporterMessageHandler"/> class.
@@ -28,6 +29,8 @@ namespace Xunit
 #if NETFRAMEWORK
             defaultDirectory = Directory.GetCurrentDirectory();
 #endif
+
+            logPassingTestsWithOutput = string.IsNullOrEmpty(EnvironmentHelper.GetEnvironmentVariable(DefaultRunnerReporterWithTypesMessageHandler.EnvVar_HidePassingOutput));
 
             Logger = logger;
         }
@@ -342,7 +345,8 @@ namespace Xunit
         /// <inheritdoc/>
         protected override bool Visit(ITestPassed testPassed)
         {
-            if (!string.IsNullOrEmpty(testPassed.Output) &&
+            if (logPassingTestsWithOutput &&
+                !string.IsNullOrEmpty(testPassed.Output) &&
                 GetExecutionOptions(testPassed.TestAssembly.Assembly.AssemblyPath).GetDiagnosticMessagesOrDefault())
             {
                 lock (Logger.LockObject)

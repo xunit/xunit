@@ -1,11 +1,14 @@
 using System;
+
+#if NETSTANDARD1_1
 using System.Reflection;
+#endif
 
 namespace Xunit
 {
     static class EnvironmentHelper
     {
-#if NETFRAMEWORK
+#if !NETSTANDARD1_1
         public static string GetEnvironmentVariable(string variable)
         {
             return Environment.GetEnvironmentVariable(variable);

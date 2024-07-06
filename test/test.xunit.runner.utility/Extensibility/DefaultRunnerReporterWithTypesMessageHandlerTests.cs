@@ -277,6 +277,7 @@ public class DefaultRunnerReporterWithTypesMessageHandlerTests
         }
     }
 
+    [Collection("Environment variable manipulation")]
     public class OnMessage_ITestPassed
     {
         [Fact]
@@ -284,6 +285,8 @@ public class DefaultRunnerReporterWithTypesMessageHandlerTests
         {
             var message = Mocks.TestPassed("This is my display name \t\r\n", output: "This is\t" + Environment.NewLine + "output");
             var handler = TestableDefaultRunnerReporterWithTypesMessageHandler.Create();
+            handler.OnMessage(Mocks.TestAssemblyExecutionStarting(diagnosticMessages: false));
+            handler.Messages.Clear();  // Ignore any output from the "assembly execution starting" message
 
             handler.OnMessageWithTypes(message, null);
 
@@ -306,6 +309,22 @@ public class DefaultRunnerReporterWithTypesMessageHandlerTests
                 msg => Assert.Equal("[Imp] =>         This is\t", msg),
                 msg => Assert.Equal("[Imp] =>         output", msg)
             );
+        }
+
+        [Fact]
+        [EnvironmentRestorer(DefaultRunnerReporterWithTypesMessageHandler.EnvVar_HidePassingOutput)]
+        public void DoesNotLogOutputWhenEnvVarIsSetupWithDiagnosticsEnabled()
+        {
+            Environment.SetEnvironmentVariable(DefaultRunnerReporterWithTypesMessageHandler.EnvVar_HidePassingOutput, "1");
+
+            var message = Mocks.TestPassed("This is my display name \t\r\n", output: "This is\t" + Environment.NewLine + "output");
+            var handler = TestableDefaultRunnerReporterWithTypesMessageHandler.Create();
+            handler.OnMessage(Mocks.TestAssemblyExecutionStarting(diagnosticMessages: true, assemblyFilename: message.TestAssembly.Assembly.AssemblyPath));
+            handler.Messages.Clear();  // Ignore any output from the "assembly execution starting" message
+
+            handler.OnMessage(message);
+
+            Assert.Empty(handler.Messages);
         }
     }
 

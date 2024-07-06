@@ -14,9 +14,16 @@ namespace Xunit
     /// </summary>
     public class DefaultRunnerReporterWithTypesMessageHandler : TestMessageSink
     {
+        /// <summary>
+        /// Gets the environment variable that's used to hide passing tests with output
+        /// when diagnostics messages are enabled.
+        /// </summary>
+        public const string EnvVar_HidePassingOutput = "XUNIT_HIDE_PASSING_OUTPUT_DIAGNOSTICS";
+
         readonly string defaultDirectory = null;
         readonly ITestFrameworkExecutionOptions defaultExecutionOptions = TestFrameworkOptions.ForExecution();
         readonly Dictionary<string, ITestFrameworkExecutionOptions> executionOptionsByAssembly = new Dictionary<string, ITestFrameworkExecutionOptions>(StringComparer.OrdinalIgnoreCase);
+        readonly bool logPassingTestsWithOutput;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultRunnerReporterWithTypesMessageHandler"/> class.
@@ -29,6 +36,8 @@ namespace Xunit
 #endif
 
             Logger = logger;
+
+            logPassingTestsWithOutput = string.IsNullOrEmpty(EnvironmentHelper.GetEnvironmentVariable(EnvVar_HidePassingOutput));
 
             Diagnostics.ErrorMessageEvent += HandleErrorMessage;
 
@@ -364,7 +373,9 @@ namespace Xunit
         protected virtual void HandleTestPassed(MessageHandlerArgs<ITestPassed> args)
         {
             var testPassed = args.Message;
-            if (!string.IsNullOrEmpty(testPassed.Output) &&
+
+            if (logPassingTestsWithOutput &&
+                !string.IsNullOrEmpty(testPassed.Output) &&
                 GetExecutionOptions(testPassed.TestAssembly.Assembly.AssemblyPath).GetDiagnosticMessagesOrDefault())
             {
                 lock (Logger.LockObject)
