@@ -6,7 +6,7 @@ breadcrumb: Documentation
 
 # Current state of the xUnit.net v3 alpha
 
-## As of: 2024 June 16 (`0.1.1-pre.484`)
+## As of: 2024 July 5 (`0.2.0-pre.7`)
 
 The purpose of this document is to give a general state of the alpha package releases of xUnit.net v3.
 Note that there have not yet been any "stable alpha" releases to NuGet, so this is a snapshot of a moment
@@ -185,10 +185,8 @@ default value:
 
 ### Update target framework
 
-There are new <a href="https://github.com/xunit/xunit/issues/2330">minimum target framework
-versions</a>; make sure to update your target framework(s) if you're currently targeting something
-that's too old.
-
+There are new [minimum target framework versions](https://github.com/xunit/xunit/issues/2330); make
+sure to update your target framework(s) if you're currently targeting something that's too old.
 
 ## <span id="creating-test-project"></span>Creating a new v3 test project
 
@@ -208,19 +206,19 @@ After creation, edit your project file to make it look something like this:
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="xunit.v3" Version="0.1.1-pre.484" />
+    <PackageReference Include="xunit.v3" Version="0.2.0-pre.7" />
 
     <!-- To support 'dotnet test' and Test Explorer, add:
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="3.0.0-pre.9" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.0.0-pre.10" />
     -->
 
     <!-- For the console runner, add:
-    <PackageReference Include="xunit.v3.runner.console" Version="0.1.1-pre.484" />
+    <PackageReference Include="xunit.v3.runner.console" Version="0.2.0-pre.7" />
     -->
 
     <!-- For the MSBuild runner, add:
-    <PackageReference Include="xunit.v3.runner.msbuild" Version="0.1.1-pre.484" />
+    <PackageReference Include="xunit.v3.runner.msbuild" Version="0.2.0-pre.7" />
     -->
   </ItemGroup>
 
