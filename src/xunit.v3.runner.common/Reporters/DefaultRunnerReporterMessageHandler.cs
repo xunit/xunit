@@ -14,9 +14,16 @@ namespace Xunit.Runner.Common;
 /// </summary>
 public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerReporterMessageHandler
 {
+	/// <summary>
+	/// Gets the environment variable that's used to hide passing tests with output
+	/// when diagnostics messages are enabled.
+	/// </summary>
+	public const string EnvVar_HidePassingOutput = "XUNIT_HIDE_PASSING_OUTPUT_DIAGNOSTICS";
+
 	readonly string? defaultDirectory;
 	readonly ITestFrameworkExecutionOptions defaultExecutionOptions = TestFrameworkOptions.Empty();
 	readonly Dictionary<string, ITestFrameworkExecutionOptions> executionOptionsByAssembly = new(StringComparer.OrdinalIgnoreCase);
+	readonly bool logPassingTestsWithOutput;
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="DefaultRunnerReporterMessageHandler"/> class.
@@ -29,6 +36,8 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 		defaultDirectory = Directory.GetCurrentDirectory();
 
 		Logger = logger;
+
+		logPassingTestsWithOutput = string.IsNullOrEmpty(Environment.GetEnvironmentVariable(EnvVar_HidePassingOutput));
 
 		Diagnostics.ErrorMessageEvent += HandleErrorMessage;
 
@@ -638,7 +647,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 		var assemblyMetadata = MetadataCache.TryGetAssemblyMetadata(testPassed);
 		var diagnosticMessages = GetExecutionOptions(assemblyMetadata?.AssemblyPath).GetDiagnosticMessagesOrDefault();
 
-		if (testPassed.Warnings?.Length > 0 || (diagnosticMessages && !string.IsNullOrEmpty(testPassed.Output)))
+		if (testPassed.Warnings?.Length > 0 || (logPassingTestsWithOutput && diagnosticMessages && !string.IsNullOrEmpty(testPassed.Output)))
 		{
 			lock (Logger.LockObject)
 			{
@@ -650,7 +659,6 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 				LogWarnings(StackFrameInfo.None, testPassed.Warnings);
 			}
 		}
-		// TODO: What to do if assembly metadata cannot be found?
 	}
 
 	/// <summary>

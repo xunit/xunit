@@ -466,28 +466,39 @@ public class DefaultRunnerReporterMessageHandlerTests
 		readonly TestPassed passedMessageWithWarnings = TestData.TestPassed(output: "", warnings: ["warning1", "warning2 line 1" + Environment.NewLine + "warning2 line 2"]);
 		readonly TestStarting startingMessage = TestData.TestStarting(testDisplayName: "This is my display name \t\r\n");
 
-		[Fact]
-		public void LogsWarnings()
+		[Theory]
+		[InlineData("1")]
+		[InlineData(default(string))]
+		public void LogsWarnings(string? envVarValue)
 		{
-			var handler = TestableDefaultRunnerReporterMessageHandler.Create();
+			using (EnvironmentHelper.RestoreEnvironment(DefaultRunnerReporterMessageHandler.EnvVar_HidePassingOutput))
+			{
+				// Always show warnings, regardless of whether this env var is set or not
+				Environment.SetEnvironmentVariable(DefaultRunnerReporterMessageHandler.EnvVar_HidePassingOutput, envVarValue);
 
-			handler.OnMessage(startingMessage);
-			handler.OnMessage(passedMessageWithWarnings);
+				var handler = TestableDefaultRunnerReporterMessageHandler.Create();
 
-			Assert.Collection(
-				handler.Messages,
-				msg => Assert.Equal("[Imp] =>     This is my display name \\t\\r\\n [PASS]", msg),
-				msg => Assert.Equal("[---] =>       Warnings:", msg),
-				msg => Assert.Equal("[Wrn] =>         • warning1", msg),
-				msg => Assert.Equal("[Wrn] =>         • warning2 line 1", msg),
-				msg => Assert.Equal("[Wrn] =>           warning2 line 2", msg)
-			);
+				handler.OnMessage(startingMessage);
+				handler.OnMessage(passedMessageWithWarnings);
+
+				Assert.Collection(
+					handler.Messages,
+					msg => Assert.Equal("[Imp] =>     This is my display name \\t\\r\\n [PASS]", msg),
+					msg => Assert.Equal("[---] =>       Warnings:", msg),
+					msg => Assert.Equal("[Wrn] =>         • warning1", msg),
+					msg => Assert.Equal("[Wrn] =>         • warning2 line 1", msg),
+					msg => Assert.Equal("[Wrn] =>           warning2 line 2", msg)
+				);
+			}
 		}
 
 		[Fact]
 		public void DoesNotLogOutputByDefault()
 		{
 			var handler = TestableDefaultRunnerReporterMessageHandler.Create();
+			handler.OnMessage(TestData.TestAssemblyExecutionStarting(diagnosticMessages: false));
+			handler.OnMessage(TestData.TestAssemblyStarting());
+			handler.Messages.Clear();  // Reset any output from previous messages
 
 			handler.OnMessage(startingMessage);
 			handler.OnMessage(passedMessage);
@@ -513,6 +524,25 @@ public class DefaultRunnerReporterMessageHandlerTests
 				msg => Assert.Equal("[Imp] =>         This is\t", msg),
 				msg => Assert.Equal("[Imp] =>         output", msg)
 			);
+		}
+
+		[Fact]
+		public void DoesNotLogOutputWhenEnvVarIsSetupWithDiagnosticsEnabled()
+		{
+			using (EnvironmentHelper.RestoreEnvironment(DefaultRunnerReporterMessageHandler.EnvVar_HidePassingOutput))
+			{
+				Environment.SetEnvironmentVariable(DefaultRunnerReporterMessageHandler.EnvVar_HidePassingOutput, "1");
+
+				var handler = TestableDefaultRunnerReporterMessageHandler.Create();
+				handler.OnMessage(TestData.TestAssemblyExecutionStarting(diagnosticMessages: true));
+				handler.OnMessage(TestData.TestAssemblyStarting());
+				handler.Messages.Clear();  // Reset any output from previous messages
+
+				handler.OnMessage(startingMessage);
+				handler.OnMessage(passedMessage);
+
+				Assert.Empty(handler.Messages);
+			}
 		}
 	}
 
