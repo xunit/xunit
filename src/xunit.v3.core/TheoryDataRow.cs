@@ -1,3 +1,5 @@
+#pragma warning disable CA2225  // We don't want to add implicit operator overloads, this is just to support TheoryData changes
+
 using System.Collections.Generic;
 using Xunit.Internal;
 
@@ -53,7 +55,11 @@ public class TheoryDataRow(params object?[] data) : ITheoryDataRow
 /// <param name="p1">The first data value.</param>
 public sealed class TheoryDataRow<T1>(T1 p1) :
 	TheoryDataRow(p1)
-{ }
+{
+	/// <summary/>
+	public static implicit operator TheoryDataRow<T1>(T1 p1) =>
+		new(p1);
+}
 
 /// <summary>
 /// Implementation of <see cref="ITheoryDataRow"/> which accepts two typed values.
@@ -68,7 +74,11 @@ public sealed class TheoryDataRow<T1>(T1 p1) :
 /// <param name="p2">The second data value.</param>
 public sealed class TheoryDataRow<T1, T2>(T1 p1, T2 p2) :
 	TheoryDataRow(p1, p2)
-{ }
+{
+	/// <summary/>
+	public static implicit operator TheoryDataRow<T1, T2>((T1, T2) row) =>
+		new(row.Item1, row.Item2);
+}
 
 /// <summary>
 /// Implementation of <see cref="ITheoryDataRow"/> which accepts three typed values.
@@ -85,7 +95,11 @@ public sealed class TheoryDataRow<T1, T2>(T1 p1, T2 p2) :
 /// <param name="p3">The third data value.</param>
 public sealed class TheoryDataRow<T1, T2, T3>(T1 p1, T2 p2, T3 p3) :
 	TheoryDataRow(p1, p2, p3)
-{ }
+{
+	/// <summary/>
+	public static implicit operator TheoryDataRow<T1, T2, T3>((T1, T2, T3) row) =>
+		new(row.Item1, row.Item2, row.Item3);
+}
 
 /// <summary>
 /// Implementation of <see cref="ITheoryDataRow"/> which accepts four typed values.
@@ -104,7 +118,11 @@ public sealed class TheoryDataRow<T1, T2, T3>(T1 p1, T2 p2, T3 p3) :
 /// <param name="p4">The fourth data value.</param>
 public sealed class TheoryDataRow<T1, T2, T3, T4>(T1 p1, T2 p2, T3 p3, T4 p4) :
 	TheoryDataRow(p1, p2, p3, p4)
-{ }
+{
+	/// <summary/>
+	public static implicit operator TheoryDataRow<T1, T2, T3, T4>((T1, T2, T3, T4) row) =>
+		new(row.Item1, row.Item2, row.Item3, row.Item4);
+}
 
 /// <summary>
 /// Implementation of <see cref="ITheoryDataRow"/> which accepts five typed values.
@@ -125,7 +143,11 @@ public sealed class TheoryDataRow<T1, T2, T3, T4>(T1 p1, T2 p2, T3 p3, T4 p4) :
 /// <param name="p5">The fifth data value.</param>
 public sealed class TheoryDataRow<T1, T2, T3, T4, T5>(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5) :
 	TheoryDataRow(p1, p2, p3, p4, p5)
-{ }
+{
+	/// <summary/>
+	public static implicit operator TheoryDataRow<T1, T2, T3, T4, T5>((T1, T2, T3, T4, T5) row) =>
+		new(row.Item1, row.Item2, row.Item3, row.Item4, row.Item5);
+}
 
 /// <summary>
 /// Implementation of <see cref="ITheoryDataRow"/> which accepts six typed values.
@@ -148,7 +170,11 @@ public sealed class TheoryDataRow<T1, T2, T3, T4, T5>(T1 p1, T2 p2, T3 p3, T4 p4
 /// <param name="p6">The sixth data value.</param>
 public sealed class TheoryDataRow<T1, T2, T3, T4, T5, T6>(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6) :
 	TheoryDataRow(p1, p2, p3, p4, p5, p6)
-{ }
+{
+	/// <summary/>
+	public static implicit operator TheoryDataRow<T1, T2, T3, T4, T5, T6>((T1, T2, T3, T4, T5, T6) row) =>
+		new(row.Item1, row.Item2, row.Item3, row.Item4, row.Item5, row.Item6);
+}
 
 /// <summary>
 /// Implementation of <see cref="ITheoryDataRow"/> which accepts seven typed values.
@@ -173,7 +199,11 @@ public sealed class TheoryDataRow<T1, T2, T3, T4, T5, T6>(T1 p1, T2 p2, T3 p3, T
 /// <param name="p7">The seventh data value.</param>
 public sealed class TheoryDataRow<T1, T2, T3, T4, T5, T6, T7>(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7) :
 	TheoryDataRow(p1, p2, p3, p4, p5, p6, p7)
-{ }
+{
+	/// <summary/>
+	public static implicit operator TheoryDataRow<T1, T2, T3, T4, T5, T6, T7>((T1, T2, T3, T4, T5, T6, T7) row) =>
+		new(row.Item1, row.Item2, row.Item3, row.Item4, row.Item5, row.Item6, row.Item7);
+}
 
 /// <summary>
 /// Implementation of <see cref="ITheoryDataRow"/> which accepts eight typed values.
@@ -200,7 +230,11 @@ public sealed class TheoryDataRow<T1, T2, T3, T4, T5, T6, T7>(T1 p1, T2 p2, T3 p
 /// <param name="p8">The eighth data value.</param>
 public sealed class TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8>(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8) :
 	TheoryDataRow(p1, p2, p3, p4, p5, p6, p7, p8)
-{ }
+{
+	/// <summary/>
+	public static implicit operator TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8>((T1, T2, T3, T4, T5, T6, T7, T8) row) =>
+		new(row.Item1, row.Item2, row.Item3, row.Item4, row.Item5, row.Item6, row.Item7, row.Item8);
+}
 
 /// <summary>
 /// Implementation of <see cref="ITheoryDataRow"/> which accepts nne typed values.
@@ -229,7 +263,11 @@ public sealed class TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8>(T1 p1, T2 p2, 
 /// <param name="p9">The ninth data value.</param>
 public sealed class TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9) :
 	TheoryDataRow(p1, p2, p3, p4, p5, p6, p7, p8, p9)
-{ }
+{
+	/// <summary/>
+	public static implicit operator TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>((T1, T2, T3, T4, T5, T6, T7, T8, T9) row) =>
+		new(row.Item1, row.Item2, row.Item3, row.Item4, row.Item5, row.Item6, row.Item7, row.Item8, row.Item9);
+}
 
 /// <summary>
 /// Implementation of <see cref="ITheoryDataRow"/> which accepts ten typed values.
@@ -260,4 +298,8 @@ public sealed class TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>(T1 p1, T2 
 /// <param name="p10">The tenth data value.</param>
 public sealed class TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10) :
 	TheoryDataRow(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10)
-{ }
+{
+	/// <summary/>
+	public static implicit operator TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>((T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) row) =>
+		new(row.Item1, row.Item2, row.Item3, row.Item4, row.Item5, row.Item6, row.Item7, row.Item8, row.Item9, row.Item10);
+}
