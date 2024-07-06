@@ -174,27 +174,27 @@ public class ArgumentFormatterTests
 			Assert.Equal("Task<int> { Status = Faulted }", ArgumentFormatter.Format(taskCompletionSource.Task));
 		}
 
-		public static TheoryData<Type, string> TypeValueData = new()
-		{
-			{ typeof(string), "typeof(string)" },
-			{ typeof(int[]), "typeof(int[])" },
-			{ typeof(int).MakeArrayType(1), "typeof(int[*])" },
-			{ typeof(int).MakeArrayType(2), "typeof(int[,])" },
-			{ typeof(int).MakeArrayType(3), "typeof(int[,,])" },
-			{ typeof(DateTime[,]), "typeof(System.DateTime[,])" },
-			{ typeof(decimal[][,]), "typeof(decimal[][,])" },
-			{ typeof(IEnumerable<>), "typeof(System.Collections.Generic.IEnumerable<>)" },
-			{ typeof(IEnumerable<int>), "typeof(System.Collections.Generic.IEnumerable<int>)" },
-			{ typeof(IDictionary<,>), "typeof(System.Collections.Generic.IDictionary<,>)" },
-			{ typeof(IDictionary<string, DateTime>), "typeof(System.Collections.Generic.IDictionary<string, DateTime>)" },
-			{ typeof(IDictionary<string[,], DateTime[,][]>), "typeof(System.Collections.Generic.IDictionary<string[,], DateTime[,][]>)" },
-			{ typeof(bool?), "typeof(bool?)" },
-			{ typeof(bool?[]), "typeof(bool?[])" },
-			{ typeof(nint), "typeof(nint)" },
-			{ typeof(IntPtr), "typeof(nint)" },
-			{ typeof(nuint), "typeof(nuint)" },
-			{ typeof(UIntPtr), "typeof(nuint)" },
-		};
+		public static TheoryData<Type, string> TypeValueData =
+		[
+			(typeof(string), "typeof(string)"),
+			(typeof(int[]), "typeof(int[])"),
+			(typeof(int).MakeArrayType(1), "typeof(int[*])"),
+			(typeof(int).MakeArrayType(2), "typeof(int[,])"),
+			(typeof(int).MakeArrayType(3), "typeof(int[,,])"),
+			(typeof(DateTime[,]), "typeof(System.DateTime[,])"),
+			(typeof(decimal[][,]), "typeof(decimal[][,])"),
+			(typeof(IEnumerable<>), "typeof(System.Collections.Generic.IEnumerable<>)"),
+			(typeof(IEnumerable<int>), "typeof(System.Collections.Generic.IEnumerable<int>)"),
+			(typeof(IDictionary<,>), "typeof(System.Collections.Generic.IDictionary<,>)"),
+			(typeof(IDictionary<string, DateTime>), "typeof(System.Collections.Generic.IDictionary<string, DateTime>)"),
+			(typeof(IDictionary<string[,], DateTime[,][]>), "typeof(System.Collections.Generic.IDictionary<string[,], DateTime[,][]>)"),
+			(typeof(bool?), "typeof(bool?)"),
+			(typeof(bool?[]), "typeof(bool?[])"),
+			(typeof(nint), "typeof(nint)"),
+			(typeof(IntPtr), "typeof(nint)"),
+			(typeof(nuint), "typeof(nuint)"),
+			(typeof(UIntPtr), "typeof(nuint)"),
+		];
 
 		[Theory]
 		[MemberData(nameof(TypeValueData), DisableDiscoveryEnumeration = true)]
