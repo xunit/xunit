@@ -19,13 +19,15 @@ public abstract class CSharpAcceptanceTestAssembly : AcceptanceTestAssembly
 	{
 		var parameters = new CompilerParameters()
 		{
+			IncludeDebugInformation = true,
 			OutputAssembly = FileName,
-			IncludeDebugInformation = true
+			TreatWarningsAsErrors = false,
+			WarningLevel = 0,
 		};
 
 		parameters.ReferencedAssemblies.AddRange(
 			GetStandardReferences()
-				.Concat(references ?? new string[0])
+				.Concat(references ?? [])
 				.Select(ResolveReference)
 				.ToArray()
 		);
