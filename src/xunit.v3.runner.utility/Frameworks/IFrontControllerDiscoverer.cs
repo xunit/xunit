@@ -1,5 +1,5 @@
 using System;
-using Xunit.v3;
+using Xunit.Sdk;
 
 namespace Xunit;
 
@@ -44,7 +44,7 @@ public interface IFrontControllerDiscoverer : IAsyncDisposable
 	/// <param name="settings">The settings used during discovery.</param>
 	/// <returns>Returns the child process ID, if a child process was launched; <c>null</c>, otherwise</returns>
 	int? Find(
-		_IMessageSink messageSink,
+		IMessageSink messageSink,
 		FrontControllerFindSettings settings
 	);
 }

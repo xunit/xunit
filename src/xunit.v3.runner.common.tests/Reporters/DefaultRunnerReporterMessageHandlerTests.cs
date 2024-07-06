@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
-using Xunit.v3;
 
 public class DefaultRunnerReporterMessageHandlerTests
 {
@@ -23,7 +22,7 @@ public class DefaultRunnerReporterMessageHandlerTests
 		[Fact]
 		public void ErrorMessage()
 		{
-			var errorMessage = new _ErrorMessage
+			var errorMessage = new ErrorMessage
 			{
 				ExceptionParentIndices = exceptionParentIndices,
 				ExceptionTypes = exceptionTypes,
@@ -40,12 +39,12 @@ public class DefaultRunnerReporterMessageHandlerTests
 		[Fact]
 		public void TestAssemblyCleanupFailure()
 		{
-			var assemblyStarting = new _TestAssemblyStarting
+			var assemblyStarting = new TestAssemblyStarting
 			{
 				AssemblyUniqueID = assemblyID,
 				AssemblyPath = @"C:\Foo\bar.dll"
 			};
-			var assemblyCleanupFailure = new _TestAssemblyCleanupFailure
+			var assemblyCleanupFailure = new TestAssemblyCleanupFailure
 			{
 				AssemblyUniqueID = assemblyID,
 				ExceptionParentIndices = exceptionParentIndices,
@@ -64,7 +63,7 @@ public class DefaultRunnerReporterMessageHandlerTests
 		[Fact]
 		public void TestCaseCleanupFailure()
 		{
-			var caseStarting = new _TestCaseStarting
+			var caseStarting = new TestCaseStarting
 			{
 				AssemblyUniqueID = assemblyID,
 				TestCaseUniqueID = testCaseID,
@@ -73,7 +72,7 @@ public class DefaultRunnerReporterMessageHandlerTests
 				TestCollectionUniqueID = collectionID,
 				TestMethodUniqueID = methodID
 			};
-			var caseCleanupFailure = new _TestCaseCleanupFailure
+			var caseCleanupFailure = new TestCaseCleanupFailure
 			{
 				AssemblyUniqueID = assemblyID,
 				ExceptionParentIndices = exceptionParentIndices,
@@ -96,14 +95,14 @@ public class DefaultRunnerReporterMessageHandlerTests
 		[Fact]
 		public void TestClassCleanupFailure()
 		{
-			var classStarting = new _TestClassStarting
+			var classStarting = new TestClassStarting
 			{
 				AssemblyUniqueID = assemblyID,
-				TestClass = "MyType",
+				TestClassName = "MyType",
 				TestClassUniqueID = classID,
 				TestCollectionUniqueID = collectionID
 			};
-			var classCleanupFailure = new _TestClassCleanupFailure
+			var classCleanupFailure = new TestClassCleanupFailure
 			{
 				AssemblyUniqueID = assemblyID,
 				ExceptionParentIndices = exceptionParentIndices,
@@ -124,7 +123,7 @@ public class DefaultRunnerReporterMessageHandlerTests
 		[Fact]
 		public void TestCleanupFailure()
 		{
-			var testStarting = new _TestStarting
+			var testStarting = new TestStarting
 			{
 				AssemblyUniqueID = assemblyID,
 				TestCaseUniqueID = testCaseID,
@@ -134,7 +133,7 @@ public class DefaultRunnerReporterMessageHandlerTests
 				TestMethodUniqueID = methodID,
 				TestUniqueID = testID
 			};
-			var testCleanupFailure = new _TestCleanupFailure
+			var testCleanupFailure = new TestCleanupFailure
 			{
 				AssemblyUniqueID = assemblyID,
 				ExceptionParentIndices = exceptionParentIndices,
@@ -158,13 +157,13 @@ public class DefaultRunnerReporterMessageHandlerTests
 		[Fact]
 		public void TestCollectionCleanupFailure()
 		{
-			var collectionStarting = new _TestCollectionStarting
+			var collectionStarting = new TestCollectionStarting
 			{
 				AssemblyUniqueID = assemblyID,
 				TestCollectionDisplayName = "FooBar",
 				TestCollectionUniqueID = collectionID
 			};
-			var collectionCleanupFailure = new _TestCollectionCleanupFailure
+			var collectionCleanupFailure = new TestCollectionCleanupFailure
 			{
 				AssemblyUniqueID = assemblyID,
 				ExceptionParentIndices = exceptionParentIndices,
@@ -184,15 +183,15 @@ public class DefaultRunnerReporterMessageHandlerTests
 		[Fact]
 		public void TestMethodCleanupFailure()
 		{
-			var methodStarting = new _TestMethodStarting
+			var methodStarting = new TestMethodStarting
 			{
 				AssemblyUniqueID = assemblyID,
 				TestClassUniqueID = classID,
 				TestCollectionUniqueID = collectionID,
-				TestMethod = "MyMethod",
+				MethodName = "MyMethod",
 				TestMethodUniqueID = methodID,
 			};
-			var methodCleanupFailure = new _TestMethodCleanupFailure
+			var methodCleanupFailure = new TestMethodCleanupFailure
 			{
 				AssemblyUniqueID = assemblyID,
 				ExceptionParentIndices = exceptionParentIndices,
@@ -390,7 +389,7 @@ public class DefaultRunnerReporterMessageHandlerTests
 #if NETCOREAPP  // Stack frame parsing appears to be broken outside of en-US culture on .NET Framework
 	public class OnMessage_TestFailed : DefaultRunnerReporterMessageHandlerTests
 	{
-		readonly _TestFailed failedMessage = TestData.TestFailed(
+		readonly TestFailed failedMessage = TestData.TestFailed(
 			exceptionParentIndices: FailureMessages.exceptionParentIndices,
 			exceptionTypes: FailureMessages.exceptionTypes,
 			output: $"This is\t{Environment.NewLine}output",
@@ -398,7 +397,7 @@ public class DefaultRunnerReporterMessageHandlerTests
 			stackTraces: FailureMessages.stackTraces,
 			warnings: ["warning1", "warning2 line 1" + Environment.NewLine + "warning2 line 2"]
 		);
-		readonly _TestStarting startingMessage = TestData.TestStarting(testDisplayName: "This is my display name \t\r\n");
+		readonly TestStarting startingMessage = TestData.TestStarting(testDisplayName: "This is my display name \t\r\n");
 
 		[Fact]
 		public void LogsTestNameWithExceptionAndStackTraceAndOutput()
@@ -431,8 +430,8 @@ public class DefaultRunnerReporterMessageHandlerTests
 
 	public class OnMessage_TestOutput
 	{
-		readonly _TestOutput outputMessage = TestData.TestOutput(output: $"This is\t\r\noutput");
-		readonly _TestStarting startingMessage = TestData.TestStarting(testDisplayName: "This is my display name \t\r\n");
+		readonly TestOutput outputMessage = TestData.TestOutput(output: $"This is\t\r\noutput");
+		readonly TestStarting startingMessage = TestData.TestStarting(testDisplayName: "This is my display name \t\r\n");
 
 		[Fact]
 		public void WithoutFlag_LogsNothing()
@@ -463,32 +462,43 @@ public class DefaultRunnerReporterMessageHandlerTests
 
 	public class OnMessage_TestPassed
 	{
-		readonly _TestPassed passedMessage = TestData.TestPassed(output: $"This is\t{Environment.NewLine}output");
-		readonly _TestPassed passedMessageWithWarnings = TestData.TestPassed(output: "", warnings: ["warning1", "warning2 line 1" + Environment.NewLine + "warning2 line 2"]);
-		readonly _TestStarting startingMessage = TestData.TestStarting(testDisplayName: "This is my display name \t\r\n");
+		readonly TestPassed passedMessage = TestData.TestPassed(output: $"This is\t{Environment.NewLine}output");
+		readonly TestPassed passedMessageWithWarnings = TestData.TestPassed(output: "", warnings: ["warning1", "warning2 line 1" + Environment.NewLine + "warning2 line 2"]);
+		readonly TestStarting startingMessage = TestData.TestStarting(testDisplayName: "This is my display name \t\r\n");
 
-		[Fact]
-		public void LogsWarnings()
+		[Theory]
+		[InlineData("1")]
+		[InlineData(default(string))]
+		public void LogsWarnings(string? envVarValue)
 		{
-			var handler = TestableDefaultRunnerReporterMessageHandler.Create();
+			using (EnvironmentHelper.RestoreEnvironment(DefaultRunnerReporterMessageHandler.EnvVar_HidePassingOutput))
+			{
+				// Always show warnings, regardless of whether this env var is set or not
+				Environment.SetEnvironmentVariable(DefaultRunnerReporterMessageHandler.EnvVar_HidePassingOutput, envVarValue);
 
-			handler.OnMessage(startingMessage);
-			handler.OnMessage(passedMessageWithWarnings);
+				var handler = TestableDefaultRunnerReporterMessageHandler.Create();
 
-			Assert.Collection(
-				handler.Messages,
-				msg => Assert.Equal("[Imp] =>     This is my display name \\t\\r\\n [PASS]", msg),
-				msg => Assert.Equal("[---] =>       Warnings:", msg),
-				msg => Assert.Equal("[Wrn] =>         • warning1", msg),
-				msg => Assert.Equal("[Wrn] =>         • warning2 line 1", msg),
-				msg => Assert.Equal("[Wrn] =>           warning2 line 2", msg)
-			);
+				handler.OnMessage(startingMessage);
+				handler.OnMessage(passedMessageWithWarnings);
+
+				Assert.Collection(
+					handler.Messages,
+					msg => Assert.Equal("[Imp] =>     This is my display name \\t\\r\\n [PASS]", msg),
+					msg => Assert.Equal("[---] =>       Warnings:", msg),
+					msg => Assert.Equal("[Wrn] =>         • warning1", msg),
+					msg => Assert.Equal("[Wrn] =>         • warning2 line 1", msg),
+					msg => Assert.Equal("[Wrn] =>           warning2 line 2", msg)
+				);
+			}
 		}
 
 		[Fact]
 		public void DoesNotLogOutputByDefault()
 		{
 			var handler = TestableDefaultRunnerReporterMessageHandler.Create();
+			handler.OnMessage(TestData.TestAssemblyExecutionStarting(diagnosticMessages: false));
+			handler.OnMessage(TestData.TestAssemblyStarting());
+			handler.Messages.Clear();  // Reset any output from previous messages
 
 			handler.OnMessage(startingMessage);
 			handler.OnMessage(passedMessage);
@@ -514,6 +524,25 @@ public class DefaultRunnerReporterMessageHandlerTests
 				msg => Assert.Equal("[Imp] =>         This is\t", msg),
 				msg => Assert.Equal("[Imp] =>         output", msg)
 			);
+		}
+
+		[Fact]
+		public void DoesNotLogOutputWhenEnvVarIsSetupWithDiagnosticsEnabled()
+		{
+			using (EnvironmentHelper.RestoreEnvironment(DefaultRunnerReporterMessageHandler.EnvVar_HidePassingOutput))
+			{
+				Environment.SetEnvironmentVariable(DefaultRunnerReporterMessageHandler.EnvVar_HidePassingOutput, "1");
+
+				var handler = TestableDefaultRunnerReporterMessageHandler.Create();
+				handler.OnMessage(TestData.TestAssemblyExecutionStarting(diagnosticMessages: true));
+				handler.OnMessage(TestData.TestAssemblyStarting());
+				handler.Messages.Clear();  // Reset any output from previous messages
+
+				handler.OnMessage(startingMessage);
+				handler.OnMessage(passedMessage);
+
+				Assert.Empty(handler.Messages);
+			}
 		}
 	}
 

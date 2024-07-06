@@ -16,8 +16,8 @@ public class FrontControllerFindAndRunSettings : FrontControllerSettingsBase
 	/// <param name="executionOptions">The options used during execution</param>
 	/// <param name="filters">The optional filters (when not provided, finds all tests)</param>
 	public FrontControllerFindAndRunSettings(
-		_ITestFrameworkDiscoveryOptions discoveryOptions,
-		_ITestFrameworkExecutionOptions executionOptions,
+		ITestFrameworkDiscoveryOptions discoveryOptions,
+		ITestFrameworkExecutionOptions executionOptions,
 		XunitFilters? filters = null)
 	{
 		DiscoveryOptions = Guard.ArgumentNotNull(discoveryOptions);
@@ -28,12 +28,12 @@ public class FrontControllerFindAndRunSettings : FrontControllerSettingsBase
 	/// <summary>
 	/// The options used during discovery.
 	/// </summary>
-	public _ITestFrameworkDiscoveryOptions DiscoveryOptions { get; }
+	public ITestFrameworkDiscoveryOptions DiscoveryOptions { get; }
 
 	/// <summary>
 	/// The options used during execution.
 	/// </summary>
-	public _ITestFrameworkExecutionOptions ExecutionOptions { get; }
+	public ITestFrameworkExecutionOptions ExecutionOptions { get; }
 
 	/// <summary>
 	/// Get the test case filters used during discovery.

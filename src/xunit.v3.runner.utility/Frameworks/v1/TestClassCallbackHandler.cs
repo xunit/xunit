@@ -8,7 +8,6 @@ using System.Threading;
 using System.Xml;
 using Xunit.Internal;
 using Xunit.Sdk;
-using Xunit.v3;
 
 namespace Xunit.Runner.v1;
 
@@ -19,7 +18,7 @@ public class TestClassCallbackHandler : XmlNodeCallbackHandler
 {
 	volatile int currentTestIndex;
 	readonly Dictionary<string, Predicate<XmlNode>> handlers;
-	readonly _IMessageSink messageSink;
+	readonly IMessageSink messageSink;
 	readonly IList<Xunit1TestCase> testCases;
 	readonly Xunit1RunSummary testCaseResults = new();
 	readonly Xunit1RunSummary testMethodResults = new();
@@ -34,7 +33,7 @@ public class TestClassCallbackHandler : XmlNodeCallbackHandler
 	/// <param name="messageSink">The message sink to call with the translated results.</param>
 	public TestClassCallbackHandler(
 		IList<Xunit1TestCase> testCases,
-		_IMessageSink messageSink)
+		IMessageSink messageSink)
 			: base(lastNodeName: "class")
 	{
 		Guard.ArgumentNotNull(testCases);
@@ -70,7 +69,7 @@ public class TestClassCallbackHandler : XmlNodeCallbackHandler
 		if ((failureNode = xml.SelectSingleNode("failure")) is not null)
 		{
 			var (exceptionTypes, messages, stackTraces, exceptionParentIndices) = Xunit1ExceptionUtility.ConvertToErrorMetadata(failureNode);
-			var errorMessage = new _ErrorMessage
+			var errorMessage = new ErrorMessage
 			{
 				ExceptionParentIndices = exceptionParentIndices,
 				ExceptionTypes = exceptionTypes,
@@ -120,7 +119,7 @@ public class TestClassCallbackHandler : XmlNodeCallbackHandler
 			var time = decimal.Parse(xml.Attributes?["time"]?.Value ?? "0", CultureInfo.InvariantCulture);
 			var outputElement = xml.SelectSingleNode("output");
 			var output = outputElement is null ? string.Empty : outputElement.InnerText;
-			_MessageSinkMessage? resultMessage = null;
+			MessageSinkMessage? resultMessage = null;
 
 			// There is no <start> node for skipped tests, or with xUnit prior to v1.1
 			if (!startSeen)

@@ -1,33 +1,22 @@
 using System;
 using System.Collections.Generic;
 using Xunit.Internal;
-using Xunit.v3;
+using Xunit.Sdk;
 
 namespace Xunit.Runner.Common;
 
 /// <summary>
 /// Represents information about long running tests from <see cref="ExecutionSink"/>.
 /// </summary>
-public class LongRunningTestsSummary
+/// <param name="configuredLongRunningTime">Configured notification time</param>
+/// <param name="testCases">Tests</param>
+public class LongRunningTestsSummary(
+	TimeSpan configuredLongRunningTime,
+	IDictionary<ITestCaseMetadata, TimeSpan> testCases)
 {
-	/// <summary>
-	/// Initializes a new instance of the <see cref="LongRunningTestsSummary"/> class.
-	/// </summary>
-	/// <param name="configuredLongRunningTime">Configured notification time</param>
-	/// <param name="testCases">Tests</param>
-	public LongRunningTestsSummary(
-		TimeSpan configuredLongRunningTime,
-		IDictionary<_ITestCaseMetadata, TimeSpan> testCases)
-	{
-		Guard.ArgumentNotNull(testCases);
-
-		ConfiguredLongRunningTime = configuredLongRunningTime;
-		TestCases = testCases;
-	}
+	/// <inheritdoc/>
+	public TimeSpan ConfiguredLongRunningTime { get; } = configuredLongRunningTime;
 
 	/// <inheritdoc/>
-	public TimeSpan ConfiguredLongRunningTime { get; }
-
-	/// <inheritdoc/>
-	public IDictionary<_ITestCaseMetadata, TimeSpan> TestCases { get; }
+	public IDictionary<ITestCaseMetadata, TimeSpan> TestCases { get; } = Guard.ArgumentNotNull(testCases);
 }

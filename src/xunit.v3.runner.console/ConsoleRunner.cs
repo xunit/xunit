@@ -15,7 +15,6 @@ using System.Xml.Linq;
 using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
-using Xunit.v3;
 
 namespace Xunit.Runner.SystemConsole;
 
@@ -91,7 +90,7 @@ sealed class ConsoleRunner
 			{
 				if (!cancel)
 				{
-					consoleWriter.WriteLine("Canceling... (Press Ctrl+C again to terminate)");
+					consoleWriter.WriteLine("Cancelling... (Press Ctrl+C again to terminate)");
 					cancel = true;
 					e.Cancel = true;
 				}
@@ -168,7 +167,7 @@ sealed class ConsoleRunner
 	async ValueTask ListProject(XunitProject project)
 	{
 		var (listOption, listFormat) = project.Configuration.List!.Value;
-		var testCasesByAssembly = new Dictionary<string, List<_TestCaseDiscovered>>();
+		var testCasesByAssembly = new Dictionary<string, List<TestCaseDiscovered>>();
 
 		foreach (var assembly in project.Assemblies)
 		{
@@ -178,7 +177,7 @@ sealed class ConsoleRunner
 			assembly.Configuration.PreEnumerateTheories ??= false;
 
 			// Setup discovery and execution options with command-line overrides
-			var discoveryOptions = _TestFrameworkOptions.ForDiscovery(assembly.Configuration);
+			var discoveryOptions = TestFrameworkOptions.ForDiscovery(assembly.Configuration);
 
 			var assemblyDisplayName = Path.GetFileNameWithoutExtension(assemblyFileName);
 			var appDomainSupport = assembly.Configuration.AppDomainOrDefault;
@@ -187,7 +186,7 @@ sealed class ConsoleRunner
 
 			using var _ = AssemblyHelper.SubscribeResolveForAssembly(assemblyFileName);
 			await using var controller =
-				XunitFrontController.ForDiscoveryAndExecution(assembly)
+				XunitFrontController.Create(assembly)
 					?? throw new ArgumentException("not an xUnit.net test assembly: {0}", assemblyFileName);
 
 			using var discoverySink = new TestDiscoverySink(() => cancel);
@@ -243,7 +242,7 @@ sealed class ConsoleRunner
 
 	async ValueTask<int> RunProject(
 		XunitProject project,
-		_IMessageSink reporterMessageHandler)
+		IMessageSink reporterMessageHandler)
 	{
 		XElement? assembliesElement = null;
 		var clockTime = Stopwatch.StartNew();
@@ -312,7 +311,7 @@ sealed class ConsoleRunner
 	async ValueTask<XElement?> RunProjectAssembly(
 		XunitProjectAssembly assembly,
 		bool needsXml,
-		_IMessageSink reporterMessageHandler)
+		IMessageSink reporterMessageHandler)
 	{
 		if (cancel)
 			return null;
@@ -327,8 +326,8 @@ sealed class ConsoleRunner
 			assembly.Configuration.PreEnumerateTheories ??= false;
 
 			// Setup discovery and execution options with command-line overrides
-			var discoveryOptions = _TestFrameworkOptions.ForDiscovery(assembly.Configuration);
-			var executionOptions = _TestFrameworkOptions.ForExecution(assembly.Configuration);
+			var discoveryOptions = TestFrameworkOptions.ForDiscovery(assembly.Configuration);
+			var executionOptions = TestFrameworkOptions.ForExecution(assembly.Configuration);
 
 			var assemblyDisplayName = Path.GetFileNameWithoutExtension(assemblyFileName);
 			var noColor = assembly.Project.Configuration.NoColorOrDefault;
@@ -341,7 +340,7 @@ sealed class ConsoleRunner
 
 			using var _ = AssemblyHelper.SubscribeResolveForAssembly(assemblyFileName, diagnosticMessageSink);
 			await using var controller =
-				XunitFrontController.ForDiscoveryAndExecution(assembly, diagnosticMessageSink: diagnosticMessageSink)
+				XunitFrontController.Create(assembly, diagnosticMessageSink: diagnosticMessageSink)
 					?? throw new ArgumentException("not an xUnit.net test assembly: {0}", assemblyFileName);
 
 			var appDomain = (controller.CanUseAppDomains, appDomainSupport) switch
@@ -370,7 +369,7 @@ sealed class ConsoleRunner
 
 			if (resultsSink.ExecutionSummary.Failed != 0 && executionOptions.GetStopOnTestFailOrDefault())
 			{
-				consoleWriter.WriteLine("Canceling due to test failure...");
+				consoleWriter.WriteLine("Cancelling due to test failure...");
 				cancel = true;
 			}
 		}
@@ -381,7 +380,7 @@ sealed class ConsoleRunner
 			var e = ex;
 			while (e is not null)
 			{
-				consoleWriter.WriteLine("{0}: {1}", e.GetType().FullName, e.Message);
+				consoleWriter.WriteLine("{0}: {1}", e.GetType().SafeName(), e.Message);
 
 				if (assembly.Configuration.InternalDiagnosticMessagesOrDefault)
 					consoleWriter.WriteLine(e.StackTrace);

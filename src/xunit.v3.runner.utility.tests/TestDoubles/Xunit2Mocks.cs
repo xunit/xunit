@@ -14,7 +14,7 @@ namespace Xunit.Runner.v2
 		static readonly Guid OneGuid = new(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1);
 
 		public static IAfterTestFinished AfterTestFinished(
-			ITest test,
+			Abstractions.ITest test,
 			string attributeName)
 		{
 			var testCase = test.TestCase;
@@ -35,7 +35,7 @@ namespace Xunit.Runner.v2
 		}
 
 		public static IAfterTestStarting AfterTestStarting(
-			ITest test,
+			Abstractions.ITest test,
 			string attributeName)
 		{
 			var testCase = test.TestCase;
@@ -72,7 +72,7 @@ namespace Xunit.Runner.v2
 		}
 
 		public static IBeforeTestFinished BeforeTestFinished(
-			ITest test,
+			Abstractions.ITest test,
 			string attributeName)
 		{
 			var testCase = test.TestCase;
@@ -93,7 +93,7 @@ namespace Xunit.Runner.v2
 		}
 
 		public static IBeforeTestStarting BeforeTestStarting(
-			ITest test,
+			Abstractions.ITest test,
 			string attributeName)
 		{
 			var testCase = test.TestCase;
@@ -159,17 +159,17 @@ namespace Xunit.Runner.v2
 			return result;
 		}
 
-		public static ITest Test(
-			ITestCase testCase,
+		public static Abstractions.ITest Test(
+			Abstractions.ITestCase testCase,
 			string displayName)
 		{
-			var result = Substitute.For<ITest, InterfaceProxy<ITest>>();
+			var result = Substitute.For<Abstractions.ITest, InterfaceProxy<Abstractions.ITest>>();
 			result.DisplayName.Returns(displayName);
 			result.TestCase.Returns(testCase);
 			return result;
 		}
 
-		public static ITestAssembly TestAssembly(
+		public static Abstractions.ITestAssembly TestAssembly(
 			string? assemblyFileName = null,
 			string? configFileName = null,
 			string targetFrameworkName = ".MockEnvironment,Version=v21.12",
@@ -185,14 +185,14 @@ namespace Xunit.Runner.v2
 
 			var assemblyInfo = AssemblyInfo(types, attributes, assemblyFileName);
 
-			var result = Substitute.For<ITestAssembly, InterfaceProxy<ITestAssembly>>();
+			var result = Substitute.For<Abstractions.ITestAssembly, InterfaceProxy<Abstractions.ITestAssembly>>();
 			result.Assembly.Returns(assemblyInfo);
 			result.ConfigFileName.Returns(configFileName);
 			return result;
 		}
 
 		public static ITestAssemblyCleanupFailure TestAssemblyCleanupFailure(
-			ITestAssembly testAssembly,
+			Abstractions.ITestAssembly testAssembly,
 			Exception ex)
 		{
 			var (exceptionTypes, messages, stackTraces, exceptionParentIndices, _) = ExceptionUtility.ExtractMetadata(ex);
@@ -206,7 +206,7 @@ namespace Xunit.Runner.v2
 		}
 
 		public static ITestAssemblyFinished TestAssemblyFinished(
-			ITestAssembly? testAssembly = null,
+			Abstractions.ITestAssembly? testAssembly = null,
 			int testsRun = 0,
 			int testsFailed = 0,
 			int testsSkipped = 0,
@@ -223,7 +223,7 @@ namespace Xunit.Runner.v2
 		}
 
 		public static ITestAssemblyStarting TestAssemblyStarting(
-			ITestAssembly? testAssembly = null,
+			Abstractions.ITestAssembly? testAssembly = null,
 			DateTime? startTime = null,
 			string testEnvironment = "",
 			string testFrameworkDisplayName = "")
@@ -238,8 +238,8 @@ namespace Xunit.Runner.v2
 			return result;
 		}
 
-		public static ITestCase TestCase(
-			ITestMethod testMethod,
+		public static Abstractions.ITestCase TestCase(
+			Abstractions.ITestMethod testMethod,
 			string displayName = "<unset>",
 			string? skipReason = null,
 			string? sourceFileName = null,
@@ -252,7 +252,7 @@ namespace Xunit.Runner.v2
 					? new Xunit2SourceInformation { FileName = sourceFileName, LineNumber = sourceLineNumber }
 					: null;
 
-			var result = Substitute.For<ITestCase, InterfaceProxy<ITestCase>>();
+			var result = Substitute.For<Abstractions.ITestCase, InterfaceProxy<Abstractions.ITestCase>>();
 			result.DisplayName.Returns(displayName);
 			result.SkipReason.Returns(skipReason);
 			result.SourceInformation.Returns(sourceInformation);
@@ -263,7 +263,7 @@ namespace Xunit.Runner.v2
 		}
 
 		public static ITestCaseCleanupFailure TestCaseCleanupFailure(
-			ITestCase testCase,
+			Abstractions.ITestCase testCase,
 			Exception ex)
 		{
 			var testMethod = testCase.TestMethod;
@@ -285,7 +285,7 @@ namespace Xunit.Runner.v2
 			return result;
 		}
 
-		public static ITestCaseDiscoveryMessage TestCaseDiscoveryMessage(ITestCase testCase)
+		public static ITestCaseDiscoveryMessage TestCaseDiscoveryMessage(Abstractions.ITestCase testCase)
 		{
 			var testMethod = testCase.TestMethod;
 			var testClass = testMethod.TestClass;
@@ -302,7 +302,7 @@ namespace Xunit.Runner.v2
 		}
 
 		public static ITestCaseFinished TestCaseFinished(
-			ITestCase testCase,
+			Abstractions.ITestCase testCase,
 			decimal executionTime,
 			int testsFailed,
 			int testsRun,
@@ -326,7 +326,7 @@ namespace Xunit.Runner.v2
 			return result;
 		}
 
-		public static ITestCaseStarting TestCaseStarting(ITestCase testCase)
+		public static ITestCaseStarting TestCaseStarting(Abstractions.ITestCase testCase)
 		{
 			var testMethod = testCase.TestMethod;
 			var testClass = testMethod.TestClass;
@@ -342,21 +342,21 @@ namespace Xunit.Runner.v2
 			return result;
 		}
 
-		public static ITestClass TestClass(
-			ITestCollection? testCollection = null,
+		public static Abstractions.ITestClass TestClass(
+			Abstractions.ITestCollection? testCollection = null,
 			ITypeInfo? classType = null)
 		{
 			testCollection ??= TestCollection();
 			classType ??= TypeInfo();
 
-			var result = Substitute.For<ITestClass, InterfaceProxy<ITestClass>>();
+			var result = Substitute.For<Abstractions.ITestClass, InterfaceProxy<Abstractions.ITestClass>>();
 			result.Class.Returns(classType);
 			result.TestCollection.Returns(testCollection);
 			return result;
 		}
 
 		public static ITestClassCleanupFailure TestClassCleanupFailure(
-			ITestClass testClass,
+			Abstractions.ITestClass testClass,
 			Exception ex)
 		{
 			var testAssembly = testClass.TestCollection.TestAssembly;
@@ -374,7 +374,7 @@ namespace Xunit.Runner.v2
 			return result;
 		}
 
-		public static ITestClassConstructionStarting TestClassConstructionStarting(ITest test)
+		public static ITestClassConstructionStarting TestClassConstructionStarting(Abstractions.ITest test)
 		{
 			var testCase = test.TestCase;
 			var testMethod = testCase.TestMethod;
@@ -392,7 +392,7 @@ namespace Xunit.Runner.v2
 			return result;
 		}
 
-		public static ITestClassConstructionFinished TestClassConstructionFinished(ITest test)
+		public static ITestClassConstructionFinished TestClassConstructionFinished(Abstractions.ITest test)
 		{
 			var testCase = test.TestCase;
 			var testMethod = testCase.TestMethod;
@@ -410,7 +410,7 @@ namespace Xunit.Runner.v2
 			return result;
 		}
 
-		public static ITestClassDisposeFinished TestClassDisposeFinished(ITest test)
+		public static ITestClassDisposeFinished TestClassDisposeFinished(Abstractions.ITest test)
 		{
 			var testCase = test.TestCase;
 			var testMethod = testCase.TestMethod;
@@ -428,7 +428,7 @@ namespace Xunit.Runner.v2
 			return result;
 		}
 
-		public static ITestClassDisposeStarting TestClassDisposeStarting(ITest test)
+		public static ITestClassDisposeStarting TestClassDisposeStarting(Abstractions.ITest test)
 		{
 			var testCase = test.TestCase;
 			var testMethod = testCase.TestMethod;
@@ -447,7 +447,7 @@ namespace Xunit.Runner.v2
 		}
 
 		public static ITestClassFinished TestClassFinished(
-			ITestClass testClass,
+			Abstractions.ITestClass testClass,
 			decimal executionTime,
 			int testsFailed,
 			int testsRun,
@@ -467,7 +467,7 @@ namespace Xunit.Runner.v2
 			return result;
 		}
 
-		public static ITestClassStarting TestClassStarting(ITestClass testClass)
+		public static ITestClassStarting TestClassStarting(Abstractions.ITestClass testClass)
 		{
 			var result = Substitute.For<ITestClassStarting, InterfaceProxy<ITestClassStarting>>();
 			var testCollection = testClass.TestCollection;
@@ -479,7 +479,7 @@ namespace Xunit.Runner.v2
 		}
 
 		public static ITestCleanupFailure TestCleanupFailure(
-			ITest test,
+			Abstractions.ITest test,
 			Exception ex)
 		{
 			var testCase = test.TestCase;
@@ -503,15 +503,15 @@ namespace Xunit.Runner.v2
 			return result;
 		}
 
-		public static ITestCollection TestCollection(
-			ITestAssembly? assembly = null,
+		public static Abstractions.ITestCollection TestCollection(
+			Abstractions.ITestAssembly? assembly = null,
 			ITypeInfo? definition = null,
 			string? displayName = null)
 		{
 			assembly ??= TestAssembly();
 			displayName ??= "Mock test collection";
 
-			var result = Substitute.For<ITestCollection, InterfaceProxy<ITestCollection>>();
+			var result = Substitute.For<Abstractions.ITestCollection, InterfaceProxy<Abstractions.ITestCollection>>();
 			result.CollectionDefinition.Returns(definition);
 			result.DisplayName.Returns(displayName);
 			result.TestAssembly.Returns(assembly);
@@ -520,7 +520,7 @@ namespace Xunit.Runner.v2
 		}
 
 		public static ITestCollectionCleanupFailure TestCollectionCleanupFailure(
-			ITestCollection collection,
+			Abstractions.ITestCollection collection,
 			Exception ex)
 		{
 			var testAssembly = collection.TestAssembly;
@@ -536,7 +536,7 @@ namespace Xunit.Runner.v2
 		}
 
 		public static ITestCollectionFinished TestCollectionFinished(
-			ITestCollection testCollection,
+			Abstractions.ITestCollection testCollection,
 			int testsRun = 0,
 			int testsFailed = 0,
 			int testsSkipped = 0,
@@ -553,7 +553,7 @@ namespace Xunit.Runner.v2
 			return result;
 		}
 
-		public static ITestCollectionStarting TestCollectionStarting(ITestCollection testCollection)
+		public static ITestCollectionStarting TestCollectionStarting(Abstractions.ITestCollection testCollection)
 		{
 			var testAssembly = testCollection.TestAssembly;
 			var result = Substitute.For<ITestCollectionStarting, InterfaceProxy<ITestCollectionStarting>>();
@@ -563,7 +563,7 @@ namespace Xunit.Runner.v2
 		}
 
 		public static ITestFailed TestFailed(
-			ITest test,
+			Abstractions.ITest test,
 			decimal executionTime,
 			string output,
 			Exception ex)
@@ -592,7 +592,7 @@ namespace Xunit.Runner.v2
 		}
 
 		public static ITestFinished TestFinished(
-			ITest test,
+			Abstractions.ITest test,
 			decimal executionTime,
 			string output)
 		{
@@ -614,21 +614,21 @@ namespace Xunit.Runner.v2
 			return result;
 		}
 
-		public static ITestMethod TestMethod(
-			ITestClass testClass,
+		public static Abstractions.ITestMethod TestMethod(
+			Abstractions.ITestClass testClass,
 			string methodName)
 		{
 			var method = Substitute.For<IMethodInfo, InterfaceProxy<IMethodInfo>>();
 			method.Name.Returns(methodName);
 
-			var result = Substitute.For<ITestMethod, InterfaceProxy<ITestMethod>>();
+			var result = Substitute.For<Abstractions.ITestMethod, InterfaceProxy<Abstractions.ITestMethod>>();
 			result.Method.Returns(method);
 			result.TestClass.Returns(testClass);
 			return result;
 		}
 
 		public static ITestMethodCleanupFailure TestMethodCleanupFailure(
-			ITestMethod testMethod,
+			Abstractions.ITestMethod testMethod,
 			Exception ex)
 		{
 			var testClass = testMethod.TestClass;
@@ -649,7 +649,7 @@ namespace Xunit.Runner.v2
 		}
 
 		public static ITestMethodFinished TestMethodFinished(
-			ITestMethod testMethod,
+			Abstractions.ITestMethod testMethod,
 			int testsRun,
 			int testsFailed,
 			int testsSkipped,
@@ -671,7 +671,7 @@ namespace Xunit.Runner.v2
 			return result;
 		}
 
-		public static ITestMethodStarting TestMethodStarting(ITestMethod testMethod)
+		public static ITestMethodStarting TestMethodStarting(Abstractions.ITestMethod testMethod)
 		{
 			var testClass = testMethod.TestClass;
 			var testCollection = testClass.TestCollection;
@@ -686,7 +686,7 @@ namespace Xunit.Runner.v2
 		}
 
 		public static ITestOutput TestOutput(
-			ITest test,
+			Abstractions.ITest test,
 			string output)
 		{
 			var testCase = test.TestCase;
@@ -707,7 +707,7 @@ namespace Xunit.Runner.v2
 		}
 
 		public static ITestPassed TestPassed(
-			ITest test,
+			Abstractions.ITest test,
 			decimal executionTime,
 			string output)
 		{
@@ -730,7 +730,7 @@ namespace Xunit.Runner.v2
 		}
 
 		public static ITestSkipped TestSkipped(
-			ITest test,
+			Abstractions.ITest test,
 			string reason)
 		{
 			var testCase = test.TestCase;
@@ -752,7 +752,7 @@ namespace Xunit.Runner.v2
 			return result;
 		}
 
-		public static ITestStarting TestStarting(ITest test)
+		public static ITestStarting TestStarting(Abstractions.ITest test)
 		{
 			var testCase = test.TestCase;
 			var testMethod = testCase.TestMethod;

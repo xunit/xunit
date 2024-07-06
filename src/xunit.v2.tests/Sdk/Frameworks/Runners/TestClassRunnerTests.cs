@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -51,18 +52,17 @@ public class TestClassRunnerTests
 	{
 		var messages = new List<IMessageSinkMessage>();
 		var messageBus = Substitute.For<IMessageBus>();
-		messageBus
-			.QueueMessage(null)
-			.ReturnsForAnyArgs(callInfo =>
-			{
-				var msg = callInfo.Arg<IMessageSinkMessage>();
-				messages.Add(msg);
+		messageBus.QueueMessage(null)
+				  .ReturnsForAnyArgs(callInfo =>
+				  {
+					  var msg = callInfo.Arg<IMessageSinkMessage>();
+					  messages.Add(msg);
 
-				if (msg is ITestClassStarting)
-					throw new InvalidOperationException();
+					  if (msg is ITestClassStarting)
+						  throw new InvalidOperationException();
 
-				return true;
-			});
+					  return true;
+				  });
 		var runner = TestableTestClassRunner.Create(messageBus);
 
 		await Assert.ThrowsAsync<InvalidOperationException>(() => runner.RunAsync());
@@ -233,43 +233,33 @@ public class TestClassRunnerTests
 			);
 		}
 
-		[CulturedFact("en-US")]
-		public static async void TestCaseOrdererWhichThrowsLogsMessageAndDoesNotReorderTests()
+		[Fact]
+		public static async void ThrowsWhileOrdering_HaltsProcessing()
 		{
+			Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
+
 			var passing1 = Mocks.TestCase<ClassUnderTest>("Passing");
 			var passing2 = Mocks.TestCase<ClassUnderTest>("Passing");
 			var other1 = Mocks.TestCase<ClassUnderTest>("Other");
 			var other2 = Mocks.TestCase<ClassUnderTest>("Other");
-			var runner = TestableTestClassRunner.Create(testCases: new[] { passing1, other1, passing2, other2 }, orderer: new ThrowingOrderer());
+			var messageBus = new SpyMessageBus();
+			var runner = TestableTestClassRunner.Create(messageBus, [passing1, other1, passing2, other2], new ThrowingOrderer());
 
 			await runner.RunAsync();
 
-			Assert.Collection(runner.MethodsRun,
-				tuple =>
-				{
-					Assert.Equal("Passing", tuple.Item1.Name);
-					Assert.Collection(tuple.Item2,
-						testCase => Assert.Same(passing1, testCase),
-						testCase => Assert.Same(passing2, testCase)
-					);
-				},
-				tuple =>
-				{
-					Assert.Equal("Other", tuple.Item1.Name);
-					Assert.Collection(tuple.Item2,
-						testCase => Assert.Same(other1, testCase),
-						testCase => Assert.Same(other2, testCase)
-					);
-				}
-			);
-			var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<IDiagnosticMessage>());
-			Assert.StartsWith("Test case orderer 'TestClassRunnerTests+TestCaseOrderer+ThrowingOrderer' threw 'System.DivideByZeroException' during ordering: Attempted to divide by zero.", diagnosticMessage.Message);
+			var errorMessage = Assert.Single(messageBus.Messages.OfType<IErrorMessage>());
+			var type = Assert.Single(errorMessage.ExceptionTypes);
+			Assert.Equal(typeof(XunitException).FullName, type);
+			var index = Assert.Single(errorMessage.ExceptionParentIndices);
+			Assert.Equal(-1, index);
+			var msg = Assert.Single(errorMessage.Messages);
+			Assert.Equal("Test case orderer 'TestClassRunnerTests+TestCaseOrderer+ThrowingOrderer' threw 'System.DivideByZeroException' during ordering: Attempted to divide by zero.", msg);
+			Assert.Empty(runner.MethodsRun);
 		}
 
 		class ThrowingOrderer : ITestCaseOrderer
 		{
-			public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases)
-				where TTestCase : ITestCase
+			public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> testCases) where TTestCase : ITestCase
 			{
 				throw new DivideByZeroException();
 			}
@@ -354,20 +344,19 @@ public class TestClassRunnerTests
 		public Exception RunTestMethodAsync_AggregatorResult;
 		public readonly CancellationTokenSource TokenSource;
 
-		TestableTestClassRunner(
-			ITestClass testClass,
-			IReflectionTypeInfo @class,
-			IEnumerable<ITestCase> testCases,
-			List<IMessageSinkMessage> diagnosticMessages,
-			IMessageBus messageBus,
-			ITestCaseOrderer testCaseOrderer,
-			ExceptionAggregator aggregator,
-			CancellationTokenSource cancellationTokenSource,
-			ConstructorInfo constructor,
-			object[] availableArguments,
-			RunSummary result,
-			bool cancelInRunTestMethodAsync)
-				: base(testClass, @class, testCases, SpyMessageSink.Create(messages: diagnosticMessages), messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
+		TestableTestClassRunner(ITestClass testClass,
+								IReflectionTypeInfo @class,
+								IEnumerable<ITestCase> testCases,
+								List<IMessageSinkMessage> diagnosticMessages,
+								IMessageBus messageBus,
+								ITestCaseOrderer testCaseOrderer,
+								ExceptionAggregator aggregator,
+								CancellationTokenSource cancellationTokenSource,
+								ConstructorInfo constructor,
+								object[] availableArguments,
+								RunSummary result,
+								bool cancelInRunTestMethodAsync)
+			: base(testClass, @class, testCases, SpyMessageSink.Create(messages: diagnosticMessages), messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
 		{
 			DiagnosticMessages = diagnosticMessages;
 			TokenSource = cancellationTokenSource;
@@ -378,15 +367,14 @@ public class TestClassRunnerTests
 			this.cancelInRunTestMethodAsync = cancelInRunTestMethodAsync;
 		}
 
-		public static TestableTestClassRunner Create(
-			IMessageBus messageBus = null,
-			ITestCase[] testCases = null,
-			ITestCaseOrderer orderer = null,
-			ConstructorInfo constructor = null,
-			object[] availableArguments = null,
-			RunSummary result = null,
-			Exception aggregatorSeedException = null,
-			bool cancelInRunTestMethodAsync = false)
+		public static TestableTestClassRunner Create(IMessageBus messageBus = null,
+													 ITestCase[] testCases = null,
+													 ITestCaseOrderer orderer = null,
+													 ConstructorInfo constructor = null,
+													 object[] availableArguments = null,
+													 RunSummary result = null,
+													 Exception aggregatorSeedException = null,
+													 bool cancelInRunTestMethodAsync = false)
 		{
 			if (testCases == null)
 				testCases = new[] { Mocks.TestCase<ClassUnderTest>("Passing") };
@@ -419,14 +407,14 @@ public class TestClassRunnerTests
 		{
 			AfterTestClassStarting_Called = true;
 			AfterTestClassStarting_Callback(Aggregator);
-			return TaskHelpers.CompletedTask;
+			return Task.FromResult(0);
 		}
 
 		protected override Task BeforeTestClassFinishedAsync()
 		{
 			BeforeTestClassFinished_Called = true;
 			BeforeTestClassFinished_Callback(Aggregator);
-			return TaskHelpers.CompletedTask;
+			return Task.FromResult(0);
 		}
 
 		protected override Task<RunSummary> RunTestMethodAsync(ITestMethod testMethod, IReflectionMethodInfo method, IEnumerable<ITestCase> testCases, object[] constructorArguments)

@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using Xunit.v3;
+using Xunit.Sdk;
 
 namespace Xunit.Runner.Common;
 
@@ -14,6 +14,6 @@ public sealed class SilentReporterMessageHandler : IRunnerReporterMessageHandler
 		default;
 
 	/// <inheritdoc/>
-	public bool OnMessage(_MessageSinkMessage message) =>
+	public bool OnMessage(MessageSinkMessage message) =>
 		true;
 }

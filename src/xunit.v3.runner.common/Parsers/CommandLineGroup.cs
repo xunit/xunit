@@ -1,6 +1,8 @@
 namespace Xunit.Internal;
 
-/// <summary/>
+/// <summary>
+/// INTERNAL ENUM. DO NOT USE.
+/// </summary>
 public enum CommandLineGroup
 {
 	/// <summary/>

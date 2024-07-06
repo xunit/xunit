@@ -1,24 +1,32 @@
-#pragma warning disable CA1019 // The attribute arguments are always read via reflection
-
 using System;
-using Xunit.Sdk;
+using System.Collections.Generic;
+using Xunit.Internal;
+using Xunit.v3;
 
 namespace Xunit;
 
 /// <summary>
-/// Attribute used to decorate a test method, test class, or assembly with arbitrary name/value pairs ("traits").
+/// Attribute used to decorate a test method, test class, or assembly with an arbitrary name/value pair ("trait").
 /// </summary>
-[TraitDiscoverer(typeof(TraitDiscoverer))]
+/// <param name="name">The trait name</param>
+/// <param name="value">The trait value</param>
 [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Assembly, AllowMultiple = true)]
-public sealed class TraitAttribute : Attribute, ITraitAttribute
+public sealed class TraitAttribute(
+	string name,
+	string value) :
+		Attribute, ITraitAttribute
 {
 	/// <summary>
-	/// Creates a new instance of the <see cref="TraitAttribute"/> class.
+	/// Get the trait name.
 	/// </summary>
-	/// <param name="name">The trait name</param>
-	/// <param name="value">The trait value</param>
-	public TraitAttribute(
-		string name,
-		string value)
-	{ }
+	public string Name { get; } = Guard.ArgumentNotNull(name);
+
+	/// <summary>
+	/// Gets the trait value.
+	/// </summary>
+	public string Value { get; } = Guard.ArgumentNotNull(value);
+
+	/// <inheritdoc/>
+	public IReadOnlyCollection<KeyValuePair<string, string>> GetTraits() =>
+		[new(Name, Value)];
 }

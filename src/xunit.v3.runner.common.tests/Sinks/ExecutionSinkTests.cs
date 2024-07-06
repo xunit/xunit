@@ -10,7 +10,6 @@ using System.Xml.XPath;
 using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
-using Xunit.v3;
 
 public class ExecutionSinkTests
 {
@@ -21,7 +20,7 @@ public class ExecutionSinkTests
 		{
 			using var sink = TestableExecutionSink.Create(cancelThunk: () => true);
 
-			var result = sink.OnMessage(new _MessageSinkMessage());
+			var result = sink.OnMessage(new MessageSinkMessage());
 
 			Assert.False(result);
 		}
@@ -31,7 +30,7 @@ public class ExecutionSinkTests
 		{
 			using var sink = TestableExecutionSink.Create(cancelThunk: () => false);
 
-			var result = sink.OnMessage(new _MessageSinkMessage());
+			var result = sink.OnMessage(new MessageSinkMessage());
 
 			Assert.True(result);
 		}
@@ -111,13 +110,13 @@ public class ExecutionSinkTests
 		}
 
 		[Theory]
-		[InlineData(typeof(_ErrorMessage))]
+		[InlineData(typeof(ErrorMessage))]
 		public void CountsErrors(Type errorType)
 		{
 			var assembly = TestData.XunitProjectAssembly<ExecutionSinkTests>();
 			var executionOptions = TestData.TestFrameworkExecutionOptions(culture: "fr-FR");
 			using var sink = TestableExecutionSink.Create(assembly: assembly, executionOptions: executionOptions);
-			var error = (_MessageSinkMessage)Activator.CreateInstance(errorType)!;
+			var error = (MessageSinkMessage)Activator.CreateInstance(errorType)!;
 			var finished = TestData.TestAssemblyFinished();  // Need finished message to finalized the error count
 
 			sink.OnMessage(error);
@@ -139,7 +138,7 @@ public class ExecutionSinkTests
 			sink.OnMessage(startingMessage);
 			sink.OnMessage(skippedMessage);
 
-			var outputMessage = Assert.Single(sink.InnerSink.Messages.OfType<_TestFailed>());
+			var outputMessage = Assert.Single(sink.InnerSink.Messages.OfType<TestFailed>());
 			Assert.Equal(FailureCause.Other, outputMessage.Cause);
 			Assert.Equal(0M, outputMessage.ExecutionTime);
 			Assert.Empty(outputMessage.Output);
@@ -149,7 +148,7 @@ public class ExecutionSinkTests
 			Assert.Equal("", stackTrace);
 		}
 
-		public static TheoryData<_MessageSinkMessage> FinishedMessages = new()
+		public static TheoryData<MessageSinkMessage> FinishedMessages = new()
 		{
 			TestData.TestCaseFinished(testsTotal: 24, testsFailed: 8, testsSkipped: 3, testsNotRun: 1),
 			TestData.TestMethodFinished(testsTotal: 24, testsFailed: 8, testsSkipped: 3, testsNotRun: 1),
@@ -160,14 +159,14 @@ public class ExecutionSinkTests
 
 		[Theory(DisableDiscoveryEnumeration = true)]
 		[MemberData(nameof(FinishedMessages))]
-		public void OnFinished_CountsSkipsAsFails(_MessageSinkMessage finishedMessage)
+		public void OnFinished_CountsSkipsAsFails(MessageSinkMessage finishedMessage)
 		{
-			var inputSummary = (_IExecutionSummaryMetadata)finishedMessage;
+			var inputSummary = (IExecutionSummaryMetadata)finishedMessage;
 			using var sink = TestableExecutionSink.Create(failSkips: true);
 
 			sink.OnMessage(finishedMessage);
 
-			var outputSummary = Assert.Single(sink.InnerSink.Messages.OfType<_IExecutionSummaryMetadata>());
+			var outputSummary = Assert.Single(sink.InnerSink.Messages.OfType<IExecutionSummaryMetadata>());
 			Assert.Equal(inputSummary.TestsTotal, outputSummary.TestsTotal);
 			Assert.Equal(inputSummary.TestsFailed + inputSummary.TestsSkipped, outputSummary.TestsFailed);
 			Assert.Equal(inputSummary.TestsNotRun, outputSummary.TestsNotRun);
@@ -187,7 +186,7 @@ public class ExecutionSinkTests
 			sink.OnMessage(startingMessage);
 			sink.OnMessage(passedMessage);
 
-			var outputMessage = Assert.Single(sink.InnerSink.Messages.OfType<_TestFailed>());
+			var outputMessage = Assert.Single(sink.InnerSink.Messages.OfType<TestFailed>());
 			Assert.Equal(FailureCause.Other, outputMessage.Cause);
 			Assert.Equal("FAIL_WARN", outputMessage.ExceptionTypes.Single());
 			Assert.Equal("This test failed due to one or more warnings", outputMessage.Messages.Single());
@@ -198,7 +197,7 @@ public class ExecutionSinkTests
 			Assert.Equal("warning", warning);
 		}
 
-		public static TheoryData<_TestResultMessage> OtherWarningMessages = new()
+		public static TheoryData<TestResultMessage> OtherWarningMessages = new()
 		{
 			TestData.TestPassed(warnings: null),
 			TestData.TestFailed(warnings: null),
@@ -211,7 +210,7 @@ public class ExecutionSinkTests
 
 		[Theory(DisableDiscoveryEnumeration = true)]
 		[MemberData(nameof(OtherWarningMessages))]
-		public void OtherResultMessages_PassesThrough(_TestResultMessage inputResult)
+		public void OtherResultMessages_PassesThrough(TestResultMessage inputResult)
 		{
 			var startingMessage = TestData.TestStarting();
 			using var sink = TestableExecutionSink.Create(failWarn: true);
@@ -219,11 +218,11 @@ public class ExecutionSinkTests
 			sink.OnMessage(startingMessage);
 			sink.OnMessage(inputResult);
 
-			var outputResult = Assert.Single(sink.InnerSink.Messages.OfType<_TestResultMessage>());
+			var outputResult = Assert.Single(sink.InnerSink.Messages.OfType<TestResultMessage>());
 			Assert.Same(inputResult, outputResult);
 		}
 
-		public static TheoryData<_MessageSinkMessage> FinishedMessages = new()
+		public static TheoryData<MessageSinkMessage> FinishedMessages = new()
 		{
 			TestData.TestCaseFinished(testsTotal: 24, testsFailed: 8, testsSkipped: 3, testsNotRun: 1),
 			TestData.TestMethodFinished(testsTotal: 24, testsFailed: 8, testsSkipped: 3, testsNotRun: 1),
@@ -234,18 +233,18 @@ public class ExecutionSinkTests
 
 		[Theory(DisableDiscoveryEnumeration = true)]
 		[MemberData(nameof(FinishedMessages))]
-		public void OnFinished_CountsWarnsAsFails(_MessageSinkMessage finishedMessage)
+		public void OnFinished_CountsWarnsAsFails(MessageSinkMessage finishedMessage)
 		{
 			var startingMessage = TestData.TestStarting();
 			var passedMessage = TestData.TestPassed(warnings: ["warning"]);
-			var inputSummary = (_IExecutionSummaryMetadata)finishedMessage;
+			var inputSummary = (IExecutionSummaryMetadata)finishedMessage;
 			using var sink = TestableExecutionSink.Create(failWarn: true);
 
 			sink.OnMessage(startingMessage);
 			sink.OnMessage(passedMessage);
 			sink.OnMessage(finishedMessage);
 
-			var outputSummary = Assert.Single(sink.InnerSink.Messages.OfType<_IExecutionSummaryMetadata>());
+			var outputSummary = Assert.Single(sink.InnerSink.Messages.OfType<IExecutionSummaryMetadata>());
 			Assert.Equal(inputSummary.TestsTotal, outputSummary.TestsTotal);
 			Assert.Equal(inputSummary.TestsFailed + 1, outputSummary.TestsFailed);
 			Assert.Equal(inputSummary.TestsNotRun, outputSummary.TestsNotRun);
@@ -289,7 +288,7 @@ public class ExecutionSinkTests
 			Assert.Same(testCaseStarting, receivedTestCasePair.Key);
 			Assert.Equal(TimeSpan.FromMilliseconds(1500), receivedTestCasePair.Value);
 
-			var diagMessage = Assert.Single(sink.DiagnosticMessageSink.Messages.OfType<_DiagnosticMessage>());
+			var diagMessage = Assert.Single(sink.DiagnosticMessageSink.Messages.OfType<DiagnosticMessage>());
 			Assert.Equal("[Long Running Test] 'My test display name', Elapsed: 00:00:01", diagMessage.Message);
 		}
 
@@ -325,7 +324,7 @@ public class ExecutionSinkTests
 				}
 			);
 
-			Assert.Collection(sink.DiagnosticMessageSink.Messages.OfType<_DiagnosticMessage>(),
+			Assert.Collection(sink.DiagnosticMessageSink.Messages.OfType<DiagnosticMessage>(),
 				diagMessage => Assert.Equal("[Long Running Test] 'My test display name', Elapsed: 00:00:01", diagMessage.Message),
 				diagMessage => Assert.Equal("[Long Running Test] 'My test display name', Elapsed: 00:00:02", diagMessage.Message)
 			);
@@ -371,7 +370,7 @@ public class ExecutionSinkTests
 					{
 						if (sink is null)
 							throw new InvalidOperationException("Sink didn't exist in the callback");
-						if (msg is _TestAssemblyFinished)
+						if (msg is TestAssemblyFinished)
 							isFinishedDuringDispatch = sink.Finished.WaitOne(0);
 						return true;
 					});
@@ -391,15 +390,11 @@ public class ExecutionSinkTests
 
 	public class XmlCreation
 	{
-		[Theory]
-		[InlineData("assembly", "assembly")]
-		[InlineData(null, "<dynamic>")]
-		public void AddsAssemblyStartingInformationToXml(
-			string? assemblyPath,
-			string expectedAssemblyName)
+		[Fact]
+		public void AddsAssemblyStartingInformationToXml()
 		{
 			var assemblyStarting = TestData.TestAssemblyStarting(
-				assemblyPath: assemblyPath,
+				assemblyPath: "/path/to/assembly.dll",
 				assemblyUniqueID: "assembly-id",
 				configFilePath: "config",
 				startTime: new DateTimeOffset(2013, 7, 6, 16, 24, 32, TimeSpan.Zero),
@@ -413,7 +408,7 @@ public class ExecutionSinkTests
 
 			sink.OnMessage(assemblyStarting);
 
-			Assert.Equal(expectedAssemblyName, assemblyElement.Attribute("name")!.Value);
+			Assert.Equal("/path/to/assembly.dll", assemblyElement.Attribute("name")!.Value);
 			Assert.Equal("MentalFloss,Version=v21.12", assemblyElement.Attribute("target-framework")!.Value);
 			Assert.Equal("256-bit MentalFloss", assemblyElement.Attribute("environment")!.Value);
 			Assert.Equal("xUnit.net v14.42", assemblyElement.Attribute("test-framework")!.Value);
@@ -425,7 +420,7 @@ public class ExecutionSinkTests
 		[Fact]
 		public void AssemblyStartingDoesNotIncludeNullValues()
 		{
-			var assemblyStarting = TestData.TestAssemblyStarting(assemblyPath: null, configFilePath: null, targetFramework: null);
+			var assemblyStarting = TestData.TestAssemblyStarting(assemblyPath: "/path/to/assembly.dll", configFilePath: null, targetFramework: null);
 			var assemblyElement = new XElement("assembly");
 			using var sink = TestableExecutionSink.Create(assemblyElement: assemblyElement);
 
@@ -496,7 +491,7 @@ public class ExecutionSinkTests
 			var assemblyFinished = TestData.TestAssemblyFinished();
 			var assemblyStarting = TestData.TestAssemblyStarting();
 			var collectionStarting = TestData.TestCollectionStarting();
-			var classStarting = TestData.TestClassStarting(testClass: typeof(ClassUnderTest).FullName!);
+			var classStarting = TestData.TestClassStarting(testClassName: typeof(ClassUnderTest).FullName!);
 			var methodStarting = TestData.TestMethodStarting(testMethod: nameof(ClassUnderTest.TestMethod));
 			var caseStarting = TestData.TestCaseStarting(traits: TestData.EmptyTraits);
 			var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
@@ -534,7 +529,7 @@ public class ExecutionSinkTests
 			var assemblyFinished = TestData.TestAssemblyFinished();
 			var assemblyStarting = TestData.TestAssemblyStarting();
 			var collectionStarting = TestData.TestCollectionStarting();
-			var classStarting = TestData.TestClassStarting(testClass: typeof(ClassUnderTest).FullName!);
+			var classStarting = TestData.TestClassStarting(testClassName: typeof(ClassUnderTest).FullName!);
 			var methodStarting = TestData.TestMethodStarting(testMethod: nameof(ClassUnderTest.TestMethod));
 			var caseStarting = TestData.TestCaseStarting(traits: TestData.EmptyTraits);
 			var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
@@ -572,7 +567,7 @@ public class ExecutionSinkTests
 			var assemblyFinished = TestData.TestAssemblyFinished();
 			var assemblyStarting = TestData.TestAssemblyStarting();
 			var collectionStarting = TestData.TestCollectionStarting();
-			var classStarting = TestData.TestClassStarting(testClass: typeof(ClassUnderTest).FullName!);
+			var classStarting = TestData.TestClassStarting(testClassName: typeof(ClassUnderTest).FullName!);
 			var methodStarting = TestData.TestMethodStarting(testMethod: nameof(ClassUnderTest.TestMethod));
 			var caseStarting = TestData.TestCaseStarting();
 			var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
@@ -617,7 +612,7 @@ public class ExecutionSinkTests
 			var assemblyFinished = TestData.TestAssemblyFinished();
 			var assemblyStarting = TestData.TestAssemblyStarting();
 			var collectionStarting = TestData.TestCollectionStarting();
-			var classStarting = TestData.TestClassStarting(testClass: typeof(ClassUnderTest).FullName!);
+			var classStarting = TestData.TestClassStarting(testClassName: typeof(ClassUnderTest).FullName!);
 			var methodStarting = TestData.TestMethodStarting(testMethod: nameof(ClassUnderTest.TestMethod));
 			var caseStarting = TestData.TestCaseStarting();
 			var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
@@ -653,7 +648,7 @@ public class ExecutionSinkTests
 			var assemblyFinished = TestData.TestAssemblyFinished();
 			var assemblyStarting = TestData.TestAssemblyStarting();
 			var collectionStarting = TestData.TestCollectionStarting();
-			var classStarting = TestData.TestClassStarting(testClass: typeof(ClassUnderTest).FullName!);
+			var classStarting = TestData.TestClassStarting(testClassName: typeof(ClassUnderTest).FullName!);
 			var methodStarting = TestData.TestMethodStarting(testMethod: nameof(ClassUnderTest.TestMethod));
 			var caseStarting = TestData.TestCaseStarting();
 			var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
@@ -688,7 +683,7 @@ public class ExecutionSinkTests
 			var assemblyFinished = TestData.TestAssemblyFinished();
 			var assemblyStarting = TestData.TestAssemblyStarting();
 			var collectionStarting = TestData.TestCollectionStarting();
-			var classStarting = TestData.TestClassStarting(testClass: typeof(ClassUnderTest).FullName!);
+			var classStarting = TestData.TestClassStarting(testClassName: typeof(ClassUnderTest).FullName!);
 			var methodStarting = TestData.TestMethodStarting(testMethod: nameof(ClassUnderTest.TestMethod));
 			var caseStarting = TestData.TestCaseStarting();
 			var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
@@ -807,7 +802,7 @@ public class ExecutionSinkTests
 			string inputName,
 			string outputName)
 		{
-			var classStarting = TestData.TestClassStarting(testClass: typeof(ClassUnderTest).FullName!);
+			var classStarting = TestData.TestClassStarting(testClassName: typeof(ClassUnderTest).FullName!);
 			var methodStarting = TestData.TestMethodStarting(testMethod: nameof(ClassUnderTest.TestMethod));
 			var testStarting = TestData.TestStarting(testDisplayName: inputName);
 			var testSkipped = TestData.TestSkipped(reason: "Bad\0\r\nString");
@@ -941,7 +936,7 @@ public class ExecutionSinkTests
 		{
 			var classStarting = TestData.TestClassStarting(
 				assemblyUniqueID: assemblyID,
-				testClass: "MyType",
+				testClassName: "MyType",
 				testClassUniqueID: classID,
 				testCollectionUniqueID: collectionID
 			);
@@ -1079,8 +1074,8 @@ public class ExecutionSinkTests
 
 		public TestableExecutionSink(
 			XunitProjectAssembly assembly,
-			_ITestFrameworkDiscoveryOptions discoveryOptions,
-			_ITestFrameworkExecutionOptions executionOptions,
+			ITestFrameworkDiscoveryOptions discoveryOptions,
+			ITestFrameworkExecutionOptions executionOptions,
 			AppDomainOption appDomainOption,
 			bool shadowCopy,
 			SpyMessageSink innerSink,
@@ -1168,8 +1163,8 @@ public class ExecutionSinkTests
 
 		public static TestableExecutionSink Create(
 			XunitProjectAssembly? assembly = null,
-			_ITestFrameworkDiscoveryOptions? discoveryOptions = null,
-			_ITestFrameworkExecutionOptions? executionOptions = null,
+			ITestFrameworkDiscoveryOptions? discoveryOptions = null,
+			ITestFrameworkExecutionOptions? executionOptions = null,
 			AppDomainOption? appDomainOption = null,
 			bool shadowCopy = false,
 			XElement? assemblyElement = null,
@@ -1179,7 +1174,7 @@ public class ExecutionSinkTests
 			bool failWarn = false,
 			Action<LongRunningTestsSummary>? longRunningTestCallback = null,
 			long longRunningSeconds = 0L,
-			Func<_MessageSinkMessage, bool>? innerSinkCallback = null)
+			Func<MessageSinkMessage, bool>? innerSinkCallback = null)
 		{
 			var diagnosticMessageSink = SpyMessageSink.Capture();
 

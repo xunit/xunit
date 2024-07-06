@@ -1,7 +1,7 @@
 #if NETCOREAPP
 
 using System;
-using Xunit.v3;
+using Xunit.Sdk;
 
 namespace Xunit;
 
@@ -18,7 +18,7 @@ public static class AssemblyHelper
 	/// <returns>An object which, when disposed, un-subscribes.</returns>
 	public static IDisposable? SubscribeResolveForAssembly(
 		string assemblyFileName,
-		_IMessageSink? diagnosticMessageSink = null) =>
+		IMessageSink? diagnosticMessageSink = null) =>
 			null;
 
 	/// <summary>
@@ -29,7 +29,7 @@ public static class AssemblyHelper
 	/// <returns>An object which, when disposed, un-subscribes.</returns>
 	public static IDisposable? SubscribeResolveForAssembly(
 		Type typeInAssembly,
-		_IMessageSink? diagnosticMessageSink = null) =>
+		IMessageSink? diagnosticMessageSink = null) =>
 			null;
 }
 

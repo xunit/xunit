@@ -11,20 +11,11 @@ namespace Xunit;
 /// as this provides type-safety from the compiler and allows the analyzers to flag instances
 /// where data types from theory data don't match the data types in theory parameters.
 /// </remarks>
-public class TheoryDataRow : ITheoryDataRow
+/// <param name="data">The data for the theory row</param>
+public class TheoryDataRow(params object?[] data) : ITheoryDataRow
 {
-	readonly object?[] data;
-	Dictionary<string, List<string>> traits = new();
-
-	/// <summary>
-	/// Initializes a new instance of the <see cref="TheoryDataRow"/> class, encapsulating the
-	/// provided theory data.
-	/// </summary>
-	/// <param name="data">The data for the theory row</param>
-	public TheoryDataRow(params object?[] data)
-	{
-		this.data = Guard.ArgumentNotNull(data);
-	}
+	readonly object?[] data = Guard.ArgumentNotNull(data);
+	Dictionary<string, List<string>> traits = [];
 
 	/// <inheritdoc/>
 	public bool? Explicit { get; set; }

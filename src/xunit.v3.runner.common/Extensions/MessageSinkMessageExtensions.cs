@@ -1,10 +1,10 @@
 using Xunit.Internal;
 using Xunit.Runner.Common;
 
-namespace Xunit.v3;
+namespace Xunit.Sdk;
 
 /// <summary>
-/// Extension methods for <see cref="_MessageSinkMessage"/>.
+/// Extension methods for <see cref="MessageSinkMessage"/>.
 /// </summary>
 public static partial class MessageSinkMessageExtensions
 {
@@ -16,9 +16,9 @@ public static partial class MessageSinkMessageExtensions
 	/// <param name="callback">The callback to dispatch the message to.</param>
 	/// <returns>Returns <c>true</c> if processing should continue; <c>false</c> otherwise.</returns>
 	public static bool DispatchWhen<TMessage>(
-		this _MessageSinkMessage message,
+		this MessageSinkMessage message,
 		MessageHandler<TMessage>? callback)
-			where TMessage : _MessageSinkMessage
+			where TMessage : MessageSinkMessage
 	{
 		Guard.ArgumentNotNull(message);
 

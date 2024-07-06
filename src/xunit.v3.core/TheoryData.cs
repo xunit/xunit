@@ -11,7 +11,7 @@ namespace Xunit;
 /// </summary>
 public abstract class TheoryData : IReadOnlyCollection<ITheoryDataRow>
 {
-	readonly List<ITheoryDataRow> data = new();
+	readonly List<ITheoryDataRow> data = [];
 
 	/// <inheritdoc/>
 	public int Count => data.Count;

@@ -64,7 +64,7 @@ public class TestProjectConfiguration
 	/// the <see cref="Transform.ID"/> property on the transforms available in
 	/// <see cref="TransformFactory"/>.<see cref="TransformFactory.AvailableTransforms"/>.
 	/// </summary>
-	public Dictionary<string, string> Output { get; } = new();
+	public Dictionary<string, string> Output { get; } = [];
 
 	/// <summary>
 	/// Gets or sets a flag indicating that the test runner should not attempt to use any

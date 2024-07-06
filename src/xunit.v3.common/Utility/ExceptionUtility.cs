@@ -5,12 +5,11 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Xunit.Internal;
-using Xunit.v3;
 
 namespace Xunit.Sdk;
 
 /// <summary>
-/// Utility class for dealing with <see cref="Exception"/> and <see cref="_IErrorMetadata"/> objects.
+/// Utility class for dealing with <see cref="Exception"/> and <see cref="IErrorMetadata"/> objects.
 /// </summary>
 public static class ExceptionUtility
 {
@@ -21,7 +20,7 @@ public static class ExceptionUtility
 	/// </summary>
 	/// <param name="errorMetadata">The error metadata from which to get the messages.</param>
 	/// <returns>The combined string.</returns>
-	public static string CombineMessages(_IErrorMetadata errorMetadata) =>
+	public static string CombineMessages(IErrorMetadata errorMetadata) =>
 		GetMessage(errorMetadata, 0, 0);
 
 	/// <summary>
@@ -29,7 +28,7 @@ public static class ExceptionUtility
 	/// </summary>
 	/// <param name="errorMetadata">The error metadata from which to get the stack traces.</param>
 	/// <returns>The combined string.</returns>
-	public static string? CombineStackTraces(_IErrorMetadata errorMetadata) =>
+	public static string? CombineStackTraces(IErrorMetadata errorMetadata) =>
 		GetStackTrace(errorMetadata, 0);
 
 	/// <summary>
@@ -78,7 +77,7 @@ public static class ExceptionUtility
 
 		try
 		{
-			exceptionTypes.Add(ex.GetType().FullName);
+			exceptionTypes.Add(ex.GetType().SafeName());
 		}
 		catch (Exception thrown)
 		{
@@ -180,7 +179,7 @@ public static class ExceptionUtility
 	}
 
 	static string GetMessage(
-		_IErrorMetadata errorMetadata,
+		IErrorMetadata errorMetadata,
 		int index,
 		int level)
 	{
@@ -219,7 +218,7 @@ public static class ExceptionUtility
 	}
 
 	static string? GetStackTrace(
-		_IErrorMetadata errorMetadata,
+		IErrorMetadata errorMetadata,
 		int index)
 	{
 		Guard.ArgumentNotNull(errorMetadata);

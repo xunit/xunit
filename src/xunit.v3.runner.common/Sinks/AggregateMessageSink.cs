@@ -3,22 +3,21 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Sdk;
-using Xunit.v3;
 
 namespace Xunit.Runner.Common;
 
 /// <summary>
-/// An implementation of <see cref="_IMessageSink"/> which dispatches messages
+/// An implementation of <see cref="IMessageSink"/> which dispatches messages
 /// to one or more individual message sinks.
 /// </summary>
-public class AggregateMessageSink : _IMessageSink, IAsyncDisposable
+public class AggregateMessageSink : IMessageSink, IAsyncDisposable
 {
 	DisposalTracker disposalTracker = new();
 
 	/// <summary>
 	/// The list of event dispatchers that are registered with the system.
 	/// </summary>
-	protected List<_IMessageSink> AggregatedSinks { get; } = new();
+	protected List<IMessageSink> AggregatedSinks { get; } = [];
 
 	/// <inheritdoc/>
 	public virtual ValueTask DisposeAsync()
@@ -44,7 +43,7 @@ public class AggregateMessageSink : _IMessageSink, IAsyncDisposable
 	/// <param name="value">The dispatcher</param>
 	/// <returns>The dispatcher</returns>
 	protected TDispatcher GetOrCreateAggregatedSink<TDispatcher>(ref TDispatcher? value)
-		where TDispatcher : class, _IMessageSink, new()
+		where TDispatcher : class, IMessageSink, new()
 	{
 		if (value is null)
 			lock (AggregatedSinks)
@@ -57,7 +56,7 @@ public class AggregateMessageSink : _IMessageSink, IAsyncDisposable
 	}
 
 	/// <inheritdoc/>
-	public virtual bool OnMessage(_MessageSinkMessage message)
+	public virtual bool OnMessage(MessageSinkMessage message)
 	{
 		Guard.ArgumentNotNull(message);
 

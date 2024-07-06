@@ -9,16 +9,8 @@ namespace Xunit.Runner.Common;
 /// </summary>
 public class XunitProject
 {
-	readonly List<XunitProjectAssembly> assemblies;
+	readonly List<XunitProjectAssembly> assemblies = [];
 	IRunnerReporter? runnerReporter;
-
-	/// <summary>
-	/// Initializes a new instance of the <see cref="XunitProject"/> class.
-	/// </summary>
-	public XunitProject()
-	{
-		assemblies = new List<XunitProjectAssembly>();
-	}
 
 	/// <summary>
 	/// Gets the assemblies that are in the project.

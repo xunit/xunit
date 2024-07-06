@@ -1,22 +1,35 @@
-using System;
 using System.Globalization;
 using System.Threading.Tasks;
 using Xunit.v3;
 
 namespace Xunit.Sdk;
 
-public class CulturedXunitTheoryTestCaseRunner : XunitDelayEnumeratedTheoryTestCaseRunner
+public class CulturedXunitTheoryTestCaseRunner(string culture) :
+	XunitDelayEnumeratedTheoryTestCaseRunner
 {
-	readonly string culture;
 	CultureInfo? originalCulture;
 	CultureInfo? originalUICulture;
 
-	public CulturedXunitTheoryTestCaseRunner(string culture) =>
-		this.culture = culture;
-
-	protected override ValueTask AfterTestCaseStartingAsync(XunitDelayEnumeratedTheoryTestCaseRunnerContext ctxt)
+	protected override ValueTask<bool> OnTestCaseFinished(
+		XunitDelayEnumeratedTheoryTestCaseRunnerContext ctxt,
+		RunSummary summary)
 	{
-		try
+		ctxt.Aggregator.Run(() =>
+		{
+			if (originalUICulture is not null)
+				CultureInfo.CurrentUICulture = originalUICulture;
+			if (originalCulture is not null)
+				CultureInfo.CurrentCulture = originalCulture;
+		});
+
+		return base.OnTestCaseFinished(ctxt, summary);
+	}
+
+	protected override async ValueTask<bool> OnTestCaseStarting(XunitDelayEnumeratedTheoryTestCaseRunnerContext ctxt)
+	{
+		var result = await base.OnTestCaseStarting(ctxt);
+
+		ctxt.Aggregator.Run(() =>
 		{
 			originalCulture = CultureInfo.CurrentCulture;
 			originalUICulture = CultureInfo.CurrentUICulture;
@@ -24,23 +37,8 @@ public class CulturedXunitTheoryTestCaseRunner : XunitDelayEnumeratedTheoryTestC
 			var cultureInfo = new CultureInfo(culture, useUserOverride: false);
 			CultureInfo.CurrentCulture = cultureInfo;
 			CultureInfo.CurrentUICulture = cultureInfo;
-		}
-		catch (Exception ex)
-		{
-			ctxt.Aggregator.Add(ex);
-			return default;
-		}
+		});
 
-		return base.AfterTestCaseStartingAsync(ctxt);
-	}
-
-	protected override ValueTask BeforeTestCaseFinishedAsync(XunitDelayEnumeratedTheoryTestCaseRunnerContext ctxt)
-	{
-		if (originalUICulture is not null)
-			CultureInfo.CurrentUICulture = originalUICulture;
-		if (originalCulture is not null)
-			CultureInfo.CurrentCulture = originalCulture;
-
-		return base.BeforeTestCaseFinishedAsync(ctxt);
+		return result;
 	}
 }

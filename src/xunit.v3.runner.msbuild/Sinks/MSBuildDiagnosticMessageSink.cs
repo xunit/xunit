@@ -1,7 +1,6 @@
 using System.Globalization;
 using Microsoft.Build.Utilities;
 using Xunit.Runner.Common;
-using Xunit.v3;
 
 namespace Xunit.Runner.MSBuild;
 

@@ -4,7 +4,6 @@ using System.Globalization;
 using System.IO;
 using Xunit.Internal;
 using Xunit.Sdk;
-using Xunit.v3;
 
 namespace Xunit.Runner.Common;
 

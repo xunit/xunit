@@ -1,17 +1,19 @@
 using Xunit.Internal;
 using Xunit.Sdk;
-using Xunit.v3;
 
 namespace Xunit.Runner.Common;
 
 /// <summary>
-/// Reports that runner is about to start discovery for a test assembly.
+/// Reports that runner is about to start discovery for a test assembly. This message will
+/// arrive before the test framework's "discovery starting" message (i.e., for the default
+/// test framework, <see cref="DiscoveryStarting"/>), and contains the project metadata
+/// associated with the discovery.
 /// </summary>
-public class TestAssemblyDiscoveryStarting : _MessageSinkMessage
+public class TestAssemblyDiscoveryStarting : MessageSinkMessage
 {
 	AppDomainOption? appDomain;
 	XunitProjectAssembly? assembly;
-	_ITestFrameworkDiscoveryOptions? discoveryOptions;
+	ITestFrameworkDiscoveryOptions? discoveryOptions;
 
 	/// <summary>
 	/// Gets a flag which indicates whether the tests will be discovered and run in a
@@ -35,7 +37,7 @@ public class TestAssemblyDiscoveryStarting : _MessageSinkMessage
 	/// <summary>
 	/// Gets the options that will be used during discovery.
 	/// </summary>
-	public _ITestFrameworkDiscoveryOptions DiscoveryOptions
+	public ITestFrameworkDiscoveryOptions DiscoveryOptions
 	{
 		get => this.ValidateNullablePropertyValue(discoveryOptions, nameof(DiscoveryOptions));
 		set => discoveryOptions = Guard.ArgumentNotNull(value, nameof(DiscoveryOptions));

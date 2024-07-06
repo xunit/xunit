@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -273,8 +272,8 @@ public class Xunit3TheoryAcceptanceTests
 				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.ParameterDeclaredImplicitConversion(i: Implicit { Value = ""abc"" })", displayName),
 				displayName => Assert.Equal(@"Xunit3TheoryAcceptanceTests+TheoryTests+ClassWithOperatorConversions.UIntToULong(i: 1)", displayName)
 			);
-			Assert.Empty(results.OfType<_TestFailed>());
-			Assert.Empty(results.OfType<_TestSkipped>());
+			Assert.Empty(results.OfType<TestFailedWithDisplayName>());
+			Assert.Empty(results.OfType<TestSkippedWithDisplayName>());
 		}
 
 		class ClassWithOperatorConversions
@@ -813,7 +812,7 @@ public class Xunit3TheoryAcceptanceTests
 			var testMessages = await RunAsync(typeof(ClassUnderTests_TraitsTests), preEnumerateTheories);
 
 			Assert.Collection(
-				testMessages.OfType<_TestStarting>().OrderBy(x => x.TestDisplayName),
+				testMessages.OfType<TestStarting>().OrderBy(x => x.TestDisplayName),
 				starting =>
 				{
 					Assert.Equal($"{typeof(ClassUnderTests_TraitsTests).FullName}.{nameof(ClassUnderTests_TraitsTests.TestMethod)}(_: 0)", starting.TestDisplayName);
@@ -930,7 +929,7 @@ public class Xunit3TheoryAcceptanceTests
 			Assert.Equal($"Xunit3TheoryAcceptanceTests+InlineDataTests+ClassUnderTest.TestMethod(_1: 42, _2: {21.12:G17}, z: \"Hello, world!\")", passed.TestDisplayName);
 			var failed = Assert.Single(testMessages.OfType<TestFailedWithDisplayName>());
 			Assert.Equal("Xunit3TheoryAcceptanceTests+InlineDataTests+ClassUnderTest.TestMethod(_1: 0, _2: 0, z: null)", failed.TestDisplayName);
-			Assert.Empty(testMessages.OfType<_TestSkipped>());
+			Assert.Empty(testMessages.OfType<TestSkippedWithDisplayName>());
 		}
 
 		class ClassUnderTest
@@ -1035,7 +1034,7 @@ public class Xunit3TheoryAcceptanceTests
 			Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IncompatibleReturnType.TestMethod", result.TestDisplayName);
 			Assert.Equal("System.ArgumentException", result.ExceptionTypes.Single());
 			Assert.Equal(
-				"'Xunit3TheoryAcceptanceTests+ClassDataTests+ClassWithIncompatibleReturnType' must implement one of the following interfaces to be used as ClassData for the test method named 'TestMethod' on 'Xunit3TheoryAcceptanceTests+ClassDataTests+ClassUnderTest_IncompatibleReturnType':" + Environment.NewLine +
+				"'Xunit3TheoryAcceptanceTests+ClassDataTests+ClassWithIncompatibleReturnType' must implement one of the following interfaces to be used as ClassData:" + Environment.NewLine +
 				"- IEnumerable<ITheoryDataRow>" + Environment.NewLine +
 				"- IEnumerable<object[]>" + Environment.NewLine +
 				"- IAsyncEnumerable<ITheoryDataRow>" + Environment.NewLine +
@@ -1226,7 +1225,7 @@ public class Xunit3TheoryAcceptanceTests
 			var failed = Assert.Single(testMessages.OfType<TestFailedWithDisplayName>());
 			Assert.Equal("Xunit3TheoryAcceptanceTests+MissingDataTests+ClassWithMissingData.TestViaMissingData", failed.TestDisplayName);
 			Assert.Equal("System.ArgumentException", failed.ExceptionTypes.Single());
-			Assert.Equal("Could not find public static member (property, field, or method) named 'Foo' on Xunit3TheoryAcceptanceTests+MissingDataTests+ClassWithMissingData", failed.Messages.Single());
+			Assert.Equal("Could not find public static member (property, field, or method) named 'Foo' on 'Xunit3TheoryAcceptanceTests+MissingDataTests+ClassWithMissingData'", failed.Messages.Single());
 		}
 
 		class ClassWithMissingData
@@ -1401,19 +1400,19 @@ public class Xunit3TheoryAcceptanceTests
 				{
 					Assert.Equal("Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithNonStaticData.FieldTestMethod", result.TestDisplayName);
 					Assert.Equal("System.ArgumentException", result.ExceptionTypes.Single());
-					Assert.Equal("Could not find public static member (property, field, or method) named 'FieldDataSource' on Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithNonStaticData", result.Messages.Single());
+					Assert.Equal("Could not find public static member (property, field, or method) named 'FieldDataSource' on 'Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithNonStaticData'", result.Messages.Single());
 				},
 				result =>
 				{
 					Assert.Equal("Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithNonStaticData.MethodTestMethod", result.TestDisplayName);
 					Assert.Equal("System.ArgumentException", result.ExceptionTypes.Single());
-					Assert.Equal("Could not find public static member (property, field, or method) named 'MethodDataSource' on Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithNonStaticData", result.Messages.Single());
+					Assert.Equal("Could not find public static member (property, field, or method) named 'MethodDataSource' on 'Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithNonStaticData'", result.Messages.Single());
 				},
 				result =>
 				{
 					Assert.Equal("Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithNonStaticData.PropertyTestMethod", result.TestDisplayName);
 					Assert.Equal("System.ArgumentException", result.ExceptionTypes.Single());
-					Assert.Equal("Could not find public static member (property, field, or method) named 'PropertyDataSource' on Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithNonStaticData", result.Messages.Single());
+					Assert.Equal("Could not find public static member (property, field, or method) named 'PropertyDataSource' on 'Xunit3TheoryAcceptanceTests+MemberDataTests+ClassWithNonStaticData'", result.Messages.Single());
 				}
 			);
 		}
@@ -2001,7 +2000,7 @@ public class Xunit3TheoryAcceptanceTests
 			var failed = Assert.Single(testMessages.OfType<TestFailedWithDisplayName>());
 			Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ClassWithMismatchedMethodData.TestViaMethodData", failed.TestDisplayName);
 			Assert.Equal("System.ArgumentException", failed.ExceptionTypes.Single());
-			Assert.Equal("Could not find public static member (property, field, or method) named 'DataSource' on Xunit3TheoryAcceptanceTests+MethodDataTests+ClassWithMismatchedMethodData with parameter types: System.Double", failed.Messages.Single());
+			Assert.Equal("Could not find public static member (property, field, or method) named 'DataSource' on 'Xunit3TheoryAcceptanceTests+MethodDataTests+ClassWithMismatchedMethodData' with parameter types: System.Double", failed.Messages.Single());
 		}
 
 		class ClassWithMismatchedMethodData
@@ -2048,7 +2047,7 @@ public class Xunit3TheoryAcceptanceTests
 			Assert.Equal($"Xunit3TheoryAcceptanceTests+MethodDataTests+ClassWithParameterizedMethodData.TestViaMethodData(_1: 42, _2: {21.12:G17}, z: \"Hello, world!\")", passed.TestDisplayName);
 			var failed = Assert.Single(testMessages.OfType<TestFailedWithDisplayName>());
 			Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ClassWithParameterizedMethodData.TestViaMethodData(_1: 0, _2: 0, z: null)", failed.TestDisplayName);
-			Assert.Empty(testMessages.OfType<_TestSkipped>());
+			Assert.Empty(testMessages.OfType<TestSkippedWithDisplayName>());
 		}
 
 		class ClassWithParameterizedMethodData
@@ -2074,9 +2073,9 @@ public class Xunit3TheoryAcceptanceTests
 		{
 			var testMessages = await RunAsync(typeof(ClassWithDowncastedMethodData));
 
-			Assert.Equal(2, testMessages.OfType<_TestPassed>().Count());
-			Assert.Empty(testMessages.OfType<_TestFailed>());
-			Assert.Empty(testMessages.OfType<_TestSkipped>());
+			Assert.Equal(2, testMessages.OfType<TestPassed>().Count());
+			Assert.Empty(testMessages.OfType<TestFailed>());
+			Assert.Empty(testMessages.OfType<TestSkipped>());
 		}
 
 		class ClassWithDowncastedMethodData
@@ -2102,7 +2101,7 @@ public class Xunit3TheoryAcceptanceTests
 		{
 			[Theory]
 #pragma warning disable xUnit1015 // MemberData must reference an existing member
-			[MemberData(nameof(TestData))]
+			[MemberData(nameof(SubClassWithTestData.TestData))]
 #pragma warning restore xUnit1015 // MemberData must reference an existing member
 			public void Test(int x)
 			{
@@ -2124,8 +2123,8 @@ public class Xunit3TheoryAcceptanceTests
 			var testMessages = await RunForResultsAsync(typeof(ClassWithDataMethodsWithOptionalParameters));
 
 			Assert.NotEmpty(testMessages.OfType<TestPassedWithDisplayName>());
-			Assert.Empty(testMessages.OfType<_TestFailed>());
-			Assert.Empty(testMessages.OfType<_TestSkipped>());
+			Assert.Empty(testMessages.OfType<TestFailedWithDisplayName>());
+			Assert.Empty(testMessages.OfType<TestSkippedWithDisplayName>());
 		}
 
 		class ClassWithDataMethodsWithOptionalParameters
@@ -2152,8 +2151,8 @@ public class Xunit3TheoryAcceptanceTests
 			var testMessages = await RunForResultsAsync(typeof(ClassWithMultipleMethodsButOneWithoutOptionalParameters));
 
 			Assert.Equal(2, testMessages.OfType<TestPassedWithDisplayName>().Count());
-			Assert.Empty(testMessages.OfType<_TestFailed>());
-			Assert.Empty(testMessages.OfType<_TestSkipped>());
+			Assert.Empty(testMessages.OfType<TestFailedWithDisplayName>());
+			Assert.Empty(testMessages.OfType<TestSkippedWithDisplayName>());
 		}
 
 		class ClassWithMultipleMethodsButOneWithoutOptionalParameters
@@ -2184,13 +2183,13 @@ public class Xunit3TheoryAcceptanceTests
 		{
 			var testMessages = await RunForResultsAsync(typeof(ClassWithMultipleMethodsAndAmbiguousOptionalParameters));
 
-			Assert.Empty(testMessages.OfType<_TestPassed>());
-			var failed = Assert.Single(testMessages.OfType<_TestFailed>());
+			Assert.Empty(testMessages.OfType<TestPassedWithDisplayName>());
+			var failed = Assert.Single(testMessages.OfType<TestFailedWithDisplayName>());
 			Assert.StartsWith(
 				"The call to method 'Xunit3TheoryAcceptanceTests+MethodDataTests+ClassWithMultipleMethodsAndAmbiguousOptionalParameters.OverloadedDataMethod' is ambigous between 2 different options for the given arguments.",
 				failed.Messages.Single()
 			);
-			Assert.Empty(testMessages.OfType<_TestSkipped>());
+			Assert.Empty(testMessages.OfType<TestSkippedWithDisplayName>());
 		}
 
 		class ClassWithMultipleMethodsAndAmbiguousOptionalParameters
@@ -2218,7 +2217,7 @@ public class Xunit3TheoryAcceptanceTests
 		{
 			var testMessages = await RunForResultsAsync(typeof(ClassWithAsyncDataSources));
 
-			Assert.Empty(testMessages.OfType<_TestFailed>());
+			Assert.Empty(testMessages.OfType<TestFailedWithDisplayName>());
 			Assert.Collection(
 				testMessages.OfType<TestPassedWithDisplayName>().OrderBy(t => t.TestDisplayName),
 				passed => Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ClassWithAsyncDataSources.TestMethod(_1: 0, _2: 0, _3: null)", passed.TestDisplayName),
@@ -2274,14 +2273,10 @@ public class Xunit3TheoryAcceptanceTests
 		{
 			internal MyCustomData() { }
 
-			public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod, DisposalTracker disposalTracker) =>
-				new(
-					new[]
-					{
-						new TheoryDataRow<int>(42),
-						new TheoryDataRow<int>(2112)
-					}
-				);
+			public override ValueTask<IReadOnlyCollection<ITheoryDataRow>> GetData(DisposalTracker disposalTracker) =>
+				new([new TheoryDataRow<int>(42), new TheoryDataRow<int>(2112)]);
+
+			public override bool SupportsDiscoveryEnumeration() => true;
 		}
 
 		class ClassWithCustomDataWithInternalDataCtor
@@ -2296,9 +2291,9 @@ public class Xunit3TheoryAcceptanceTests
 		{
 			var testMessages = await RunAsync(typeof(DataConstructorOverloadExample));
 
-			Assert.Single(testMessages.OfType<_TestPassed>());
-			Assert.Empty(testMessages.OfType<_TestFailed>());
-			Assert.Empty(testMessages.OfType<_TestSkipped>());
+			Assert.Single(testMessages.OfType<TestPassed>());
+			Assert.Empty(testMessages.OfType<TestFailed>());
+			Assert.Empty(testMessages.OfType<TestSkipped>());
 		}
 
 		class DataConstructorOverloadExample
@@ -2319,8 +2314,10 @@ public class Xunit3TheoryAcceptanceTests
 				Assert.False(true);
 			}
 
-			public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(MethodInfo testMethod, DisposalTracker disposalTracker) =>
-				new(new[] { new TheoryDataRow(new object()) });
+			public override ValueTask<IReadOnlyCollection<ITheoryDataRow>> GetData(DisposalTracker disposalTracker) =>
+				new([new TheoryDataRow(new object())]);
+
+			public override bool SupportsDiscoveryEnumeration() => true;
 		}
 
 		[Fact]
@@ -2345,10 +2342,8 @@ public class Xunit3TheoryAcceptanceTests
 					base(memberName, parameters)
 			{ }
 
-			protected override ITheoryDataRow ConvertDataRow(
-				MethodInfo testMethod,
-				object dataRow) =>
-					new TheoryDataRow(dataRow);
+			protected override ITheoryDataRow ConvertDataRow(object dataRow) =>
+				new TheoryDataRow(dataRow);
 		}
 
 		private class ClassWithMemberDataAttributeBase
@@ -2424,9 +2419,9 @@ public class Xunit3TheoryAcceptanceTests
 		{
 			var testMessages = await RunAsync(typeof(ClassUnderTest));
 
-			var methodStarting = Assert.Single(testMessages.OfType<_TestMethodStarting>());
-			Assert.Equal("Theory", methodStarting.TestMethod);
-			var methodFinished = Assert.Single(testMessages.OfType<_TestMethodFinished>());
+			var methodStarting = Assert.Single(testMessages.OfType<TestMethodStarting>());
+			Assert.Equal("Theory", methodStarting.MethodName);
+			var methodFinished = Assert.Single(testMessages.OfType<TestMethodFinished>());
 			Assert.Equal(methodStarting.TestMethodUniqueID, methodFinished.TestMethodUniqueID);
 		}
 

@@ -1,6 +1,6 @@
 using Xunit;
 using Xunit.Runner.Common;
-using Xunit.v3;
+using Xunit.Sdk;
 
 public class TestDiscoverySinkTests
 {
@@ -8,14 +8,14 @@ public class TestDiscoverySinkTests
 	public void CollectsTestCases()
 	{
 		var visitor = new TestDiscoverySink();
-		var testCase1 = new _TestCaseDiscovered();
-		var testCase2 = new _TestCaseDiscovered();
-		var testCase3 = new _TestCaseDiscovered();
+		var testCase1 = new TestCaseDiscovered();
+		var testCase2 = new TestCaseDiscovered();
+		var testCase3 = new TestCaseDiscovered();
 
 		visitor.OnMessage(testCase1);
 		visitor.OnMessage(testCase2);
 		visitor.OnMessage(testCase3);
-		visitor.OnMessage(new _MessageSinkMessage()); // Ignored
+		visitor.OnMessage(new MessageSinkMessage()); // Ignored
 
 		Assert.Collection(
 			visitor.TestCases,

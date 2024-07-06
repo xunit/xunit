@@ -5,8 +5,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Xml;
 using Xunit.Internal;
+using Xunit.Runner.Common;
 using Xunit.Sdk;
-using Xunit.v3;
 
 namespace Xunit.Runner.v1;
 
@@ -176,11 +176,11 @@ public sealed class Xunit1TestCase : IXunitSerializable
 	}
 
 	/// <summary>
-	/// Converts the test case to <see cref="_TestCaseDiscovered"/>, with optional
+	/// Converts the test case to <see cref="TestCaseDiscovered"/>, with optional
 	/// serialization of the test case.
 	/// </summary>
 	/// <param name="includeSerialization">A flag to indicate whether serialization is needed.</param>
-	public _TestCaseDiscovered ToTestCaseDiscovered(bool includeSerialization)
+	public TestCaseDiscovered ToTestCaseDiscovered(bool includeSerialization)
 	{
 		string? @namespace = null;
 		string? @class;
@@ -198,7 +198,7 @@ public sealed class Xunit1TestCase : IXunitSerializable
 				@class = @class.Substring(innerClassIdx + 1);
 		}
 
-		var result = new _TestCaseDiscovered
+		var result = new TestCaseDiscovered
 		{
 			AssemblyUniqueID = AssemblyUniqueID,
 			SkipReason = SkipReason,
@@ -206,9 +206,8 @@ public sealed class Xunit1TestCase : IXunitSerializable
 			SourceLineNumber = SourceLineNumber,
 			TestCaseDisplayName = TestCaseDisplayName,
 			TestCaseUniqueID = TestCaseUniqueID,
-			TestClassName = @class,
+			TestClassName = TestClass,
 			TestClassNamespace = @namespace,
-			TestClassNameWithNamespace = TestClass,
 			TestClassUniqueID = TestClassUniqueID,
 			TestCollectionUniqueID = TestCollectionUniqueID,
 			TestMethodName = TestMethod,
@@ -223,9 +222,9 @@ public sealed class Xunit1TestCase : IXunitSerializable
 	}
 
 	/// <summary>
-	/// Converts the test case to <see cref="_TestCaseFinished"/>.
+	/// Converts the test case to <see cref="TestCaseFinished"/>.
 	/// </summary>
-	public _TestCaseFinished ToTestCaseFinished(Xunit1RunSummary testCaseResults)
+	public TestCaseFinished ToTestCaseFinished(Xunit1RunSummary testCaseResults)
 	{
 		Guard.ArgumentNotNull(testCaseResults);
 
@@ -245,9 +244,9 @@ public sealed class Xunit1TestCase : IXunitSerializable
 	}
 
 	/// <summary>
-	/// Converts the test case to <see cref="_TestCaseFinished"/> for a not-run test case.
+	/// Converts the test case to <see cref="TestCaseFinished"/> for a not-run test case.
 	/// </summary>
-	public _TestCaseFinished ToTestCaseFinishedNotRun() =>
+	public TestCaseFinished ToTestCaseFinishedNotRun() =>
 		new()
 		{
 			AssemblyUniqueID = AssemblyUniqueID,
@@ -263,13 +262,12 @@ public sealed class Xunit1TestCase : IXunitSerializable
 		};
 
 	/// <summary>
-	/// Converts the test case to <see cref="_TestCaseStarting"/>.
+	/// Converts the test case to <see cref="TestCaseStarting"/>.
 	/// </summary>
-	public _TestCaseStarting ToTestCaseStarting()
+	public TestCaseStarting ToTestCaseStarting()
 	{
 		var lastDotIdx = TestClass.LastIndexOf('.');
 		var @namespace = lastDotIdx > -1 ? TestClass.Substring(0, lastDotIdx) : null;
-		var testClassWithoutNamespace = lastDotIdx > -1 ? TestClass.Substring(lastDotIdx + 1) : TestClass;
 
 		return new()
 		{
@@ -279,9 +277,8 @@ public sealed class Xunit1TestCase : IXunitSerializable
 			SourceLineNumber = SourceLineNumber,
 			TestCaseDisplayName = TestCaseDisplayName,
 			TestCaseUniqueID = TestCaseUniqueID,
-			TestClassName = testClassWithoutNamespace,
+			TestClassName = TestClass,
 			TestClassNamespace = @namespace,
-			TestClassNameWithNamespace = TestClass,
 			TestClassUniqueID = TestClassUniqueID,
 			TestCollectionUniqueID = TestCollectionUniqueID,
 			TestMethodName = TestMethod,
@@ -291,9 +288,9 @@ public sealed class Xunit1TestCase : IXunitSerializable
 	}
 
 	/// <summary>
-	/// Converts the test case to <see cref="_TestFailed"/>.
+	/// Converts the test case to <see cref="TestFailed"/>.
 	/// </summary>
-	public _TestFailed ToTestFailed(
+	public TestFailed ToTestFailed(
 		decimal executionTime,
 		string output,
 		XmlNode failure,
@@ -320,9 +317,9 @@ public sealed class Xunit1TestCase : IXunitSerializable
 	}
 
 	/// <summary>
-	/// Converts the test case to <see cref="_TestFinished"/>.
+	/// Converts the test case to <see cref="TestFinished"/>.
 	/// </summary>
-	public _TestFinished ToTestFinished(
+	public TestFinished ToTestFinished(
 		decimal executionTime,
 		string output,
 		int currentTestIndex) =>
@@ -339,9 +336,9 @@ public sealed class Xunit1TestCase : IXunitSerializable
 			};
 
 	/// <summary>
-	/// Converts the test case to <see cref="_TestFinished"/> for a not-run test.
+	/// Converts the test case to <see cref="TestFinished"/> for a not-run test.
 	/// </summary>
-	public _TestFinished ToTestFinishedNotRun(int currentTestIndex) =>
+	public TestFinished ToTestFinishedNotRun(int currentTestIndex) =>
 		new()
 		{
 			AssemblyUniqueID = AssemblyUniqueID,
@@ -355,9 +352,9 @@ public sealed class Xunit1TestCase : IXunitSerializable
 		};
 
 	/// <summary>
-	/// Converts the test case to <see cref="_TestMethodFinished"/>.
+	/// Converts the test case to <see cref="TestMethodFinished"/>.
 	/// </summary>
-	public _TestMethodFinished ToTestMethodFinished(Xunit1RunSummary testMethodResults)
+	public TestMethodFinished ToTestMethodFinished(Xunit1RunSummary testMethodResults)
 	{
 		Guard.ArgumentNotNull(testMethodResults);
 
@@ -376,9 +373,9 @@ public sealed class Xunit1TestCase : IXunitSerializable
 	}
 
 	/// <summary>
-	/// Converts the test case to <see cref="_TestMethodFinished"/> for a not-run test.
+	/// Converts the test case to <see cref="TestMethodFinished"/> for a not-run test.
 	/// </summary>
-	public _TestMethodFinished ToTestMethodFinishedNotRun() =>
+	public TestMethodFinished ToTestMethodFinishedNotRun() =>
 		new()
 		{
 			AssemblyUniqueID = AssemblyUniqueID,
@@ -393,22 +390,22 @@ public sealed class Xunit1TestCase : IXunitSerializable
 		};
 
 	/// <summary>
-	/// Converts the test case to <see cref="_TestMethodStarting"/>.
+	/// Converts the test case to <see cref="TestMethodStarting"/>.
 	/// </summary>
-	public _TestMethodStarting ToTestMethodStarting() =>
+	public TestMethodStarting ToTestMethodStarting() =>
 		new()
 		{
 			AssemblyUniqueID = AssemblyUniqueID,
 			TestClassUniqueID = TestClassUniqueID,
 			TestCollectionUniqueID = TestCollectionUniqueID,
-			TestMethod = TestMethod,
+			MethodName = TestMethod,
 			TestMethodUniqueID = TestMethodUniqueID,
 		};
 
 	/// <summary>
-	/// Converts the test case to <see cref="_TestNotRun"/>.
+	/// Converts the test case to <see cref="TestNotRun"/>.
 	/// </summary>
-	public _TestNotRun ToTestNotRun(int currentTestIndex) =>
+	public TestNotRun ToTestNotRun(int currentTestIndex) =>
 		new()
 		{
 			AssemblyUniqueID = AssemblyUniqueID,
@@ -422,9 +419,9 @@ public sealed class Xunit1TestCase : IXunitSerializable
 		};
 
 	/// <summary>
-	/// Converts the test case to <see cref="_TestOutput"/>.
+	/// Converts the test case to <see cref="TestOutput"/>.
 	/// </summary>
-	public _TestOutput ToTestOutput(
+	public TestOutput ToTestOutput(
 		string output,
 		int currentTestIndex) =>
 			new()
@@ -439,9 +436,9 @@ public sealed class Xunit1TestCase : IXunitSerializable
 			};
 
 	/// <summary>
-	/// Converts the test case to <see cref="_TestPassed"/>.
+	/// Converts the test case to <see cref="TestPassed"/>.
 	/// </summary>
-	public _TestPassed ToTestPassed(
+	public TestPassed ToTestPassed(
 		decimal executionTime,
 		string output,
 		int currentTestIndex) =>
@@ -458,9 +455,9 @@ public sealed class Xunit1TestCase : IXunitSerializable
 			};
 
 	/// <summary>
-	/// Converts the test case to <see cref="_TestSkipped"/>.
+	/// Converts the test case to <see cref="TestSkipped"/>.
 	/// </summary>
-	public _TestSkipped ToTestSkipped(
+	public TestSkipped ToTestSkipped(
 		string reason,
 		int currentTestIndex) =>
 			new()
@@ -477,9 +474,9 @@ public sealed class Xunit1TestCase : IXunitSerializable
 			};
 
 	/// <summary>
-	/// Converts the test case to <see cref="_TestStarting"/>.
+	/// Converts the test case to <see cref="TestStarting"/>.
 	/// </summary>
-	public _TestStarting ToTestStarting(
+	public TestStarting ToTestStarting(
 		string testDisplayName,
 		int currentTestIndex) =>
 			new()

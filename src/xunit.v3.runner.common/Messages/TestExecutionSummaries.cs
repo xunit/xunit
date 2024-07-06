@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
-using Xunit.v3;
+using Xunit.Sdk;
 
 namespace Xunit.Runner.Common;
 
 /// <summary>
 /// Reports multi-assembly test execution summary information.
 /// </summary>
-public class TestExecutionSummaries : _MessageSinkMessage
+public class TestExecutionSummaries : MessageSinkMessage
 {
 	/// <summary>
 	/// Gets the clock time elapsed when running the tests. This may different significantly
@@ -20,7 +20,7 @@ public class TestExecutionSummaries : _MessageSinkMessage
 	/// Gets the summaries of all the tests run. The key is the unique ID of the test
 	/// assembly; the value is the summary of test execution for that assembly.
 	/// </summary>
-	public List<(string AssemblyUniqueID, ExecutionSummary Summary)> SummariesByAssemblyUniqueID { get; } = new();
+	public List<(string AssemblyUniqueID, ExecutionSummary Summary)> SummariesByAssemblyUniqueID { get; } = [];
 
 	/// <summary>
 	/// Add assembly summary information.

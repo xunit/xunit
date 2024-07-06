@@ -14,7 +14,12 @@ namespace Xunit.Sdk;
 public static class AsyncUtility
 {
 	static MethodInfo? fSharpStartAsTaskOpenGenericMethod;
-	static readonly HashSet<string?> taskGenericTypes = new() { "Microsoft.FSharp.Control.FSharpAsync`1", "System.Threading.Tasks.Task`1", "System.Threading.Tasks.ValueTask`1" };
+	static readonly HashSet<string?> taskGenericTypes =
+	[
+		"Microsoft.FSharp.Control.FSharpAsync`1",
+		"System.Threading.Tasks.Task`1",
+		"System.Threading.Tasks.ValueTask`1",
+	];
 
 	/// <summary>
 	/// Determines if the given method is async, as matters to xUnit.net. This means it either (a) returns
@@ -33,7 +38,7 @@ public static class AsyncUtility
 			return true;
 
 		if (methodReturnType.GetTypeInfo().IsGenericType)
-			return taskGenericTypes.Contains(methodReturnType.GetGenericTypeDefinition().FullName);
+			return taskGenericTypes.Contains(methodReturnType.GetGenericTypeDefinition().SafeName());
 
 		return false;
 	}
@@ -52,7 +57,7 @@ public static class AsyncUtility
 	/// <see cref="T:Microsoft.FSharp.Control.FSharpAsync`1"/> into <see cref="ValueTask"/>
 	/// as appropriate. Will return <c>null</c> if the object is not a task of any supported type.
 	/// Note that this list of supported tasks is purposefully identical to the list used
-	/// by <see cref="IsAsync"/> (minus async void, of course; that's handled separately).
+	/// by <see cref="IsAsync"/>.
 	/// </summary>
 	/// <param name="obj">The object to convert</param>
 	/// <returns>Returns a <see cref="ValueTask"/> for the given object, if it's compatible;
@@ -74,7 +79,7 @@ public static class AsyncUtility
 		}
 
 		var type = obj.GetType();
-		if (type.IsGenericType && type.GetGenericTypeDefinition().FullName == "Microsoft.FSharp.Control.FSharpAsync`1")
+		if (type.IsGenericType && type.GetGenericTypeDefinition().SafeName() == "Microsoft.FSharp.Control.FSharpAsync`1")
 		{
 			if (fSharpStartAsTaskOpenGenericMethod is null)
 			{
@@ -91,7 +96,7 @@ public static class AsyncUtility
 
 			if (fSharpStartAsTaskOpenGenericMethod
 					.MakeGenericMethod(type.GetGenericArguments()[0])
-					.Invoke(null, new[] { obj, null, null }) is Task fsharpTask)
+					.Invoke(null, [obj, null, null]) is Task fsharpTask)
 				return new(fsharpTask);
 		}
 

@@ -1,10 +1,10 @@
 using Xunit;
 using Xunit.Runner.Common;
-using Xunit.v3;
+using Xunit.Sdk;
 
 public class MessageSinkMessageHelperTests
 {
-	public static TheoryData<_MessageSinkMessage> MessageData = new()
+	public static TheoryData<MessageSinkMessage> MessageData = new()
 	{
 		// Make sure this list always includes every message we serialize
 		TestData.AfterTestFinished(),
@@ -48,7 +48,7 @@ public class MessageSinkMessageHelperTests
 
 	[Theory(DisableDiscoveryEnumeration = true)]
 	[MemberData(nameof(MessageData))]
-	public void CanRoundTrip(_MessageSinkMessage message)
+	public void CanRoundTrip(MessageSinkMessage message)
 	{
 		var serialized = message.ToJson();
 

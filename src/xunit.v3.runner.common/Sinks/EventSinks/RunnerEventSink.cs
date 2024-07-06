@@ -1,14 +1,14 @@
 #pragma warning disable CA1003 // The properties here are not intended to be .NET events
 
 using Xunit.Internal;
-using Xunit.v3;
+using Xunit.Sdk;
 
 namespace Xunit.Runner.Common;
 
 /// <summary>
 /// Class that maps test runner messages to events.
 /// </summary>
-public class RunnerEventSink : _IMessageSink
+public class RunnerEventSink : IMessageSink
 {
 	/// <summary>
 	/// Occurs when the runner is starting discovery for a given test assembly.
@@ -36,7 +36,7 @@ public class RunnerEventSink : _IMessageSink
 	public event MessageHandler<TestExecutionSummaries>? TestExecutionSummariesEvent;
 
 	/// <inheritdoc/>
-	public bool OnMessage(_MessageSinkMessage message)
+	public bool OnMessage(MessageSinkMessage message)
 	{
 		Guard.ArgumentNotNull(message);
 

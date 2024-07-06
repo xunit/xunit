@@ -33,7 +33,7 @@ public class CulturedXunitTheoryTestCase : XunitDelayEnumeratedTheoryTestCase
 	/// <param name="timeout">The optional timeout for the test case (in milliseconds).</param>
 	public CulturedXunitTheoryTestCase(
 		string culture,
-		_ITestMethod testMethod,
+		IXunitTestMethod testMethod,
 		string testCaseDisplayName,
 		string uniqueID,
 		bool @explicit,

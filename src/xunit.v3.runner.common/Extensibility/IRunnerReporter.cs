@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using Xunit.v3;
+using Xunit.Sdk;
 
 namespace Xunit.Runner.Common;
 
@@ -48,5 +48,5 @@ public interface IRunnerReporter
 	/// <returns>The message handler that handles the messages</returns>
 	ValueTask<IRunnerReporterMessageHandler> CreateMessageHandler(
 		IRunnerLogger logger,
-		_IMessageSink? diagnosticMessageSink);
+		IMessageSink? diagnosticMessageSink);
 }

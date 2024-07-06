@@ -1,37 +1,25 @@
-using System;
-using Xunit.Abstractions;
 using Xunit.Internal;
 using Xunit.Sdk;
 
 namespace Xunit.Runner.v2;
 
 /// <summary>
-/// An implementation of xUnit.net v2's <see cref="ITestFrameworkDiscoveryOptions"/> and
-/// <see cref="ITestFrameworkExecutionOptions"/>, which delegates calls to an xUnit.net v3
-/// implementation of <see cref="_ITestFrameworkOptions"/>.
+/// An implementation of xUnit.net v2's <see cref="Abstractions.ITestFrameworkDiscoveryOptions"/> and
+/// <see cref="Abstractions.ITestFrameworkExecutionOptions"/>, which delegates calls to an xUnit.net v3
+/// implementation of <see cref="ITestFrameworkOptions"/>.
 /// </summary>
-public class Xunit2Options : MarshalByRefObject, ITestFrameworkDiscoveryOptions, ITestFrameworkExecutionOptions
+/// <remarks>
+/// Initializes a new instance of the <see cref="Xunit2Options"/> class.
+/// </remarks>
+/// <param name="v3Options">The v3 options object to delegate all the calls to.</param>
+public class Xunit2Options(ITestFrameworkOptions v3Options) :
+	LongLivedMarshalByRefObject, Abstractions.ITestFrameworkDiscoveryOptions, Abstractions.ITestFrameworkExecutionOptions
 {
-	private readonly _ITestFrameworkOptions v3Options;
-
-	/// <summary>
-	/// Initializes a new instance of the <see cref="Xunit2Options"/> class.
-	/// </summary>
-	/// <param name="v3Options">The v3 options object to delegate all the calls to.</param>
-	public Xunit2Options(_ITestFrameworkOptions v3Options)
-	{
-		this.v3Options = Guard.ArgumentNotNull(v3Options);
-	}
+	private readonly ITestFrameworkOptions v3Options = Guard.ArgumentNotNull(v3Options);
 
 	/// <inheritdoc/>
 	public TValue? GetValue<TValue>(string name) =>
 		v3Options.GetValue<TValue>(name);
-
-#if NETFRAMEWORK
-	/// <inheritdoc/>
-	[System.Security.SecurityCritical]
-	public override sealed object InitializeLifetimeService() => null!;
-#endif
 
 	/// <inheritdoc/>
 	public void SetValue<TValue>(

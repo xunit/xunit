@@ -1,16 +1,18 @@
 using Xunit.Internal;
 using Xunit.Sdk;
-using Xunit.v3;
 
 namespace Xunit.Runner.Common;
 
 /// <summary>
-/// Reports that runner is about to start execution for a test assembly.
+/// Reports that runner is about to start execution for a test assembly. This message will
+/// arrive before the test framework's "assembly starting" message (i.e., for the default
+/// test framework, <see cref="TestAssemblyStarting"/>), and contains the project metadata
+/// associated with the discovery.
 /// </summary>
-public class TestAssemblyExecutionStarting : _MessageSinkMessage
+public class TestAssemblyExecutionStarting : MessageSinkMessage
 {
 	XunitProjectAssembly? assembly;
-	_ITestFrameworkExecutionOptions? executionOptions;
+	ITestFrameworkExecutionOptions? executionOptions;
 
 	/// <summary>
 	/// Gets information about the assembly being executed.
@@ -24,7 +26,7 @@ public class TestAssemblyExecutionStarting : _MessageSinkMessage
 	/// <summary>
 	/// Gets the options that will be used during execution.
 	/// </summary>
-	public _ITestFrameworkExecutionOptions ExecutionOptions
+	public ITestFrameworkExecutionOptions ExecutionOptions
 	{
 		get => this.ValidateNullablePropertyValue(executionOptions, nameof(ExecutionOptions));
 		set => executionOptions = Guard.ArgumentNotNull(value, nameof(ExecutionOptions));

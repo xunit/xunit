@@ -8,8 +8,8 @@ using System.IO;
 using System.Linq;
 using Xunit.Internal;
 using Xunit.Sdk;
-using Xunit.v3;
 
+// This is in this namespace so that it aligns with ConfigReader_Json, which comes from xunit.v3.runner.common
 namespace Xunit.Runner.Common;
 
 /// <summary>

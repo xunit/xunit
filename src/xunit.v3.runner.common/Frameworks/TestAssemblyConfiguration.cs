@@ -1,13 +1,12 @@
 using System;
 using System.Globalization;
 using Xunit.Sdk;
-using Xunit.v3;
 
 namespace Xunit.Runner.Common;
 
 /// <summary>
 /// Represents the configuration items set in the configuration file of a test assembly.
-/// Should be read with the <see cref="T:Xunit.ConfigReader"/> class.
+/// Should be read with the <see cref="T:Xunit.Runner.Common.ConfigReader"/> class.
 /// </summary>
 public class TestAssemblyConfiguration
 {
@@ -223,13 +222,13 @@ public class TestAssemblyConfiguration
 	public string? ShadowCopyFolder { get; set; }
 
 	/// <summary>
-	/// Gets or sets a flag indicating whether output from <see cref="T:Xunit.v3._ITestOutputHelper"/> should be
+	/// Gets or sets a flag indicating whether output from <see cref="T:Xunit.ITestOutputHelper"/> should be
 	/// shown live as they're logged (in addition to being collected together after the test finishes).
 	/// </summary>
 	public bool? ShowLiveOutput { get; set; }
 
 	/// <summary>
-	/// Gets a flag indicating whether output from <see cref="T:Xunit.v3._ITestOutputHelper"/> should be
+	/// Gets a flag indicating whether output from <see cref="T:Xunit.ITestOutputHelper"/> should be
 	/// shown live as they're logged (in addition to being collected together after the test finishes).
 	/// If the flag is not set, returns the default value (<c>false</c>).
 	/// </summary>

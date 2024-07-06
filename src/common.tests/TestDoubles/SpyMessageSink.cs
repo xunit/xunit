@@ -2,36 +2,36 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using NSubstitute;
-using Xunit.v3;
+using Xunit.Sdk;
 
-public class SpyMessageSink : _IMessageSink
+public class SpyMessageSink : IMessageSink
 {
-	readonly Func<_MessageSinkMessage, bool> callback;
+	readonly Func<MessageSinkMessage, bool> callback;
 
-	protected SpyMessageSink(Func<_MessageSinkMessage, bool>? callback = null) =>
+	protected SpyMessageSink(Func<MessageSinkMessage, bool>? callback = null) =>
 		this.callback = callback ?? ((msg) => true);
 
-	public List<_MessageSinkMessage> Messages { get; } = new();
+	public List<MessageSinkMessage> Messages { get; } = new();
 
-	public static SpyMessageSink Capture(Func<_MessageSinkMessage, bool>? callback = null) =>
+	public static SpyMessageSink Capture(Func<MessageSinkMessage, bool>? callback = null) =>
 		new(callback);
 
-	public static _IMessageSink Create(
+	public static IMessageSink Create(
 		bool returnResult = true,
-		List<_MessageSinkMessage>? messages = null) =>
+		List<MessageSinkMessage>? messages = null) =>
 			Create(_ => returnResult, messages);
 
-	public static _IMessageSink Create(
-		Func<_MessageSinkMessage, bool> lambda,
-		List<_MessageSinkMessage>? messages = null)
+	public static IMessageSink Create(
+		Func<MessageSinkMessage, bool> lambda,
+		List<MessageSinkMessage>? messages = null)
 	{
-		var result = Substitute.For<_IMessageSink>();
+		var result = Substitute.For<IMessageSink>();
 
 		result
 			.OnMessage(null!)
 			.ReturnsForAnyArgs(callInfo =>
 			{
-				var message = callInfo.Arg<_MessageSinkMessage>();
+				var message = callInfo.Arg<MessageSinkMessage>();
 
 				if (messages is not null)
 					messages.Add(message);
@@ -42,7 +42,7 @@ public class SpyMessageSink : _IMessageSink
 		return result;
 	}
 
-	public virtual bool OnMessage(_MessageSinkMessage message)
+	public virtual bool OnMessage(MessageSinkMessage message)
 	{
 		Messages.Add(message);
 		return callback?.Invoke(message) ?? true;
@@ -53,13 +53,13 @@ public class SpyMessageSink<TFinalMessage> : SpyMessageSink, IDisposable
 {
 	bool disposed;
 
-	SpyMessageSink(Func<_MessageSinkMessage, bool>? callback) :
+	SpyMessageSink(Func<MessageSinkMessage, bool>? callback) :
 		base(callback)
 	{ }
 
 	public ManualResetEvent Finished = new(initialState: false);
 
-	public static SpyMessageSink<TFinalMessage> Create(Func<_MessageSinkMessage, bool>? callback = null) =>
+	public static SpyMessageSink<TFinalMessage> Create(Func<MessageSinkMessage, bool>? callback = null) =>
 		new(callback);
 
 	public void Dispose()
@@ -72,7 +72,7 @@ public class SpyMessageSink<TFinalMessage> : SpyMessageSink, IDisposable
 		Finished.Dispose();
 	}
 
-	public override bool OnMessage(_MessageSinkMessage message)
+	public override bool OnMessage(MessageSinkMessage message)
 	{
 		var result = base.OnMessage(message);
 

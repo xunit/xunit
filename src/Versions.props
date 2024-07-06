@@ -10,7 +10,7 @@
     <MicrosoftSourceLinkGitHubVersion>8.0.0</MicrosoftSourceLinkGitHubVersion>
     <NerdbankGitVersioningVersion>3.6.133</NerdbankGitVersioningVersion>
     <TunnelVisionLabsReferenceAssemblyAnnotatorVersion>1.0.0-alpha.160</TunnelVisionLabsReferenceAssemblyAnnotatorVersion>
-    <XunitAnalyzersVersion>1.14.0-pre.9</XunitAnalyzersVersion>
+    <XunitAnalyzersVersion>1.15.0-pre.12</XunitAnalyzersVersion>
 
     <!-- Used by xunit.v3.assert for immutable collection support (for netstandard2.0 only) -->
     <SystemCollectionsImmutableVersion>6.0.0</SystemCollectionsImmutableVersion>
@@ -32,8 +32,8 @@
     <SystemMemoryVersion>4.5.5</SystemMemoryVersion>
     <XunitAbstractionsVersion>2.0.3</XunitAbstractionsVersion>
     <XunitV1Version>1.9.2</XunitV1Version>
-    <XunitV2Version>2.8.1-pre.14</XunitV2Version>
-    <XunitVisualStudioRunnerVersion>3.0.0-pre.9</XunitVisualStudioRunnerVersion>
+    <XunitV2Version>2.8.2-pre.19</XunitV2Version>
+    <XunitVisualStudioRunnerVersion>3.0.0-pre.10</XunitVisualStudioRunnerVersion>
 
   </PropertyGroup>
 

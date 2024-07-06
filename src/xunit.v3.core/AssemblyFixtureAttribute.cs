@@ -1,7 +1,5 @@
-#pragma warning disable CA1019 // The attribute arguments are always read via reflection
-#pragma warning disable CA1813 // This attribute is unsealed because it's an extensibility point
-
 using System;
+using Xunit.v3;
 
 namespace Xunit;
 
@@ -15,13 +13,10 @@ namespace Xunit;
 /// from inside the test, a constructor argument should be added to the test class which exactly
 /// matches the fixture type.
 /// </summary>
+/// <param name="assemblyFixtureType">The assembly fixture class type</param>
 [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true, Inherited = false)]
-public class AssemblyFixtureAttribute : Attribute
+public sealed class AssemblyFixtureAttribute(Type assemblyFixtureType) : Attribute, IAssemblyFixtureAttribute
 {
-	/// <summary>
-	/// Initializes a new instance of the <see cref="AssemblyFixtureAttribute"/> class.
-	/// </summary>
-	/// <param name="assemblyFixtureType">The assembly fixture class type</param>
-	public AssemblyFixtureAttribute(Type assemblyFixtureType)
-	{ }
+	/// <inheritdoc/>
+	public Type AssemblyFixtureType { get; } = assemblyFixtureType;
 }

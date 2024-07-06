@@ -8,20 +8,20 @@ using System.Security;
 using System.Security.Permissions;
 using System.Threading;
 using Xunit.Internal;
-using Xunit.v3;
+using Xunit.Sdk;
 
 namespace Xunit;
 
 sealed class AppDomainManager_AppDomain : IAppDomainManager
 {
-	readonly _IMessageSink diagnosticMessageSink;
+	readonly IMessageSink diagnosticMessageSink;
 
 	public AppDomainManager_AppDomain(
 		string assemblyFileName,
 		string? configFileName,
 		bool shadowCopy,
 		string? shadowCopyFolder,
-		_IMessageSink diagnosticMessageSink)
+		IMessageSink diagnosticMessageSink)
 	{
 		Guard.ArgumentNotNullOrEmpty(assemblyFileName);
 
@@ -140,7 +140,7 @@ sealed class AppDomainManager_AppDomain : IAppDomainManager
 				thread.Start();
 
 				if (!thread.Join(TimeSpan.FromSeconds(10)))
-					diagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage("AppDomain.Unload for '{0}' timed out", AssemblyFileName));
+					diagnosticMessageSink.OnMessage(new InternalDiagnosticMessage("AppDomain.Unload for '{0}' timed out", AssemblyFileName));
 				else
 				{
 					if (cachePath is not null)
@@ -158,7 +158,7 @@ sealed class AppDomainManager_AppDomain : IAppDomainManager
 			}
 
 			if (failure is not null)
-				diagnosticMessageSink.OnMessage(new _InternalDiagnosticMessage("AppDomain.Unload for '{0}' failed: {1}", AssemblyFileName, failure));
+				diagnosticMessageSink.OnMessage(new InternalDiagnosticMessage("AppDomain.Unload for '{0}' failed: {1}", AssemblyFileName, failure));
 		}
 	}
 

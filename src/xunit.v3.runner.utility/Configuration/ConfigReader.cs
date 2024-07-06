@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 
+// This is in this namespace so that it aligns with ConfigReader_Json, which comes from xunit.v3.runner.common
 namespace Xunit.Runner.Common;
 
 /// <summary>

@@ -1,15 +1,15 @@
 using System.Collections.Generic;
 using Xunit;
 using Xunit.Internal;
-using Xunit.v3;
+using Xunit.Sdk;
 
 public class SynchronousMessageBusTests
 {
 	[Fact]
 	public void MessagesAreDispatchedImmediatelyFromBus()
 	{
-		var msg1 = new _MessageSinkMessage();
-		var dispatchedMessages = new List<_MessageSinkMessage>();
+		var msg1 = new MessageSinkMessage();
+		var dispatchedMessages = new List<MessageSinkMessage>();
 
 		using (var bus = new SynchronousMessageBus(SpyMessageSink.Create(messages: dispatchedMessages)))
 			Assert.True(bus.QueueMessage(msg1));
@@ -23,7 +23,7 @@ public class SynchronousMessageBusTests
 	{
 		using var bus = new SynchronousMessageBus(SpyMessageSink.Create(returnResult: false));
 
-		Assert.False(bus.QueueMessage(new _MessageSinkMessage()));
+		Assert.False(bus.QueueMessage(new MessageSinkMessage()));
 	}
 
 	[Fact]

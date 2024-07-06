@@ -11,12 +11,12 @@ public static class Xunit2OptionsAdapter
 	/// <summary>
 	/// Adapts v3 framework discovery options into v2 framework discovery options.
 	/// </summary>
-	public static ITestFrameworkDiscoveryOptions Adapt(_ITestFrameworkDiscoveryOptions options) =>
+	public static Abstractions.ITestFrameworkDiscoveryOptions Adapt(Sdk.ITestFrameworkDiscoveryOptions options) =>
 		new Xunit2Options(options);
 
 	/// <summary>
 	/// Adapts v3 framework execution options into v2 framework execution options.
 	/// </summary>
-	public static ITestFrameworkExecutionOptions Adapt(_ITestFrameworkExecutionOptions options) =>
+	public static Abstractions.ITestFrameworkExecutionOptions Adapt(Sdk.ITestFrameworkExecutionOptions options) =>
 		new Xunit2Options(options);
 }

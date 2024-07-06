@@ -1,12 +1,12 @@
-using Xunit.v3;
+using Xunit.Sdk;
 
 namespace Xunit.Runner.Common;
 
 /// <summary>
-/// An implementation of <see cref="_IMessageSink"/> that provides access to events for all
+/// An implementation of <see cref="IMessageSink"/> that provides access to events for all
 /// levels of reporting.
 /// </summary>
-public class TestMessageSink : AggregateMessageSink, _IMessageSink
+public class TestMessageSink : AggregateMessageSink, IMessageSink
 {
 	DiagnosticEventSink? diagnostics;
 	DiscoveryEventSink? discovery;

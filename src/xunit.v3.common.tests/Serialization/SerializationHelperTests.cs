@@ -36,6 +36,7 @@ public class SerializationHelperTests
 		{ new DateOnly(2023, 1, 7), "18:738526" },
 		{ new TimeOnly(9, 4, 15), "19:326550000000" },
 #endif
+		{ new Version(1, 2, 3, 4), "20:1.2.3.4" },
 
 		// Arrays use array notation for embedded types, plus this serialization format:
 		//   r = ranks, tl = total length, l[n] = length of rank n, lb[n] = lower bound of rank n, i[n] = item[n]
@@ -110,6 +111,7 @@ public class SerializationHelperTests
 		{ typeof(DateOnly?), "18?" },
 		{ typeof(TimeOnly?), "19?" },
 #endif
+		{ typeof(Version), "20" },
 	};
 
 	public class Deserialize
@@ -218,6 +220,7 @@ public class SerializationHelperTests
 			typeof(DateOnly),
 			typeof(TimeOnly),
 #endif
+			typeof(Version),
 		};
 
 		[CulturedTheory("en-US", "fo-FO")]
@@ -225,14 +228,12 @@ public class SerializationHelperTests
 		public void SuccessCases(Type type)
 		{
 			Assert.True(SerializationHelper.IsSerializable(null, type));
-			Assert.True(SerializationHelper.IsSerializable(null, Reflector.Wrap(type)));
 
 			if (type.IsValueType)
 			{
 				var nullableType = typeof(Nullable<>).MakeGenericType(type);
 
 				Assert.True(SerializationHelper.IsSerializable(null, nullableType));
-				Assert.True(SerializationHelper.IsSerializable(null, Reflector.Wrap(nullableType)));
 			}
 		}
 
@@ -244,7 +245,6 @@ public class SerializationHelperTests
 			var type = 42.GetType().GetType();
 
 			Assert.True(SerializationHelper.IsSerializable(null, type));
-			Assert.True(SerializationHelper.IsSerializable(null, Reflector.Wrap(type)));
 		}
 
 		[Fact]
@@ -254,7 +254,6 @@ public class SerializationHelperTests
 			var type = value.GetType();
 
 			Assert.False(SerializationHelper.IsSerializable(value, type));
-			Assert.False(SerializationHelper.IsSerializable(value, Reflector.Wrap(type)));
 		}
 
 		class ClassWithGenericMethod
@@ -275,7 +274,6 @@ public class SerializationHelperTests
 			var type = value.GetType();
 
 			Assert.False(SerializationHelper.IsSerializable(value, type));
-			Assert.False(SerializationHelper.IsSerializable(value, Reflector.Wrap(type)));
 		}
 	}
 

@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using Xunit.v3;
+using Xunit.Sdk;
 
 namespace Xunit.Runner.Common;
 
@@ -25,7 +25,7 @@ public class JsonReporter : IRunnerReporter
 	/// <inheritdoc/>
 	public ValueTask<IRunnerReporterMessageHandler> CreateMessageHandler(
 		IRunnerLogger logger,
-		_IMessageSink? diagnosticMessageSink) =>
+		IMessageSink? diagnosticMessageSink) =>
 #pragma warning disable CA2000 // The disposable object is returned via the ValueTask
 			new(new JsonReporterMessageHandler(logger));
 #pragma warning restore CA2000

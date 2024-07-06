@@ -1,34 +1,44 @@
-#pragma warning disable CA1019 // The attribute arguments are always read via reflection
-
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Threading.Tasks;
 using Xunit.Sdk;
+using Xunit.v3;
 
 namespace Xunit;
 
 /// <summary>
 /// Provides a data source for a data theory, with the data coming from inline values.
 /// </summary>
-[DataDiscoverer(typeof(InlineDataDiscoverer))]
+/// <param name="data">The data values to pass to the theory.</param>
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-public sealed class InlineDataAttribute : DataAttribute
+public sealed class InlineDataAttribute(params object?[] data) : DataAttribute
 {
-	readonly object?[] data;
-
 	/// <summary>
-	/// Initializes a new instance of the <see cref="InlineDataAttribute"/> class.
+	/// Gets the data to be passed to the test.
 	/// </summary>
-	/// <param name="data">The data values to pass to the theory.</param>
-	public InlineDataAttribute(params object?[] data)
+	// When nullable isn't enabled, it becomes legal to pass null to the constructor, and
+	// we assume what the user meant was a single null value to be passed to the test.
+	public object?[] Data { get; } = data ?? [null];
+
+	/// <inheritdoc/>
+	public override ValueTask<IReadOnlyCollection<ITheoryDataRow>> GetData(DisposalTracker disposalTracker)
 	{
-		this.data = data;
+		var traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+		TestIntrospectionHelper.MergeTraitsInto(traits, Traits);
+
+		return new([
+			new TheoryDataRow(Data)
+			{
+				Explicit = ExplicitAsNullable,
+				Skip = Skip,
+				TestDisplayName = TestDisplayName,
+				Timeout = TimeoutAsNullable,
+				Traits = traits,
+			}
+		]);
 	}
 
 	/// <inheritdoc/>
-	public override ValueTask<IReadOnlyCollection<ITheoryDataRow>?> GetData(
-		MethodInfo testMethod,
-		DisposalTracker disposalTracker) =>
-			new(new[] { new TheoryDataRow(data) });
+	public override bool SupportsDiscoveryEnumeration() =>
+		true;
 }

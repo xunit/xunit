@@ -1,6 +1,6 @@
 using System;
 using System.Threading.Tasks;
-using Xunit.v3;
+using Xunit.Sdk;
 
 namespace Xunit.Runner.Common;
 
@@ -28,7 +28,7 @@ public class AppVeyorReporter : IRunnerReporter
 	/// <inheritdoc/>
 	public ValueTask<IRunnerReporterMessageHandler> CreateMessageHandler(
 		IRunnerLogger logger,
-		_IMessageSink? diagnosticMessageSink)
+		IMessageSink? diagnosticMessageSink)
 	{
 		var baseUri = Environment.GetEnvironmentVariable("APPVEYOR_API_URL");
 #pragma warning disable CA2000 // The disposable object is returned via the ValueTask

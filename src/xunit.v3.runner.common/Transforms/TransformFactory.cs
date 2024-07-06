@@ -9,6 +9,7 @@ using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Xsl;
 using Xunit.Internal;
+using Xunit.Sdk;
 
 namespace Xunit.Runner.Common;
 
@@ -23,8 +24,8 @@ public class TransformFactory
 
 	TransformFactory()
 	{
-		availableTransforms = new()
-		{
+		availableTransforms =
+		[
 			new Transform(
 				"xml",
 				"output results to xUnit.net v2+ XML file",
@@ -60,7 +61,7 @@ public class TransformFactory
 				"output results to TRX XML file",
 				(xml, outputFileName) => Handler_XslTransform("TRX.xslt", xml, outputFileName)
 			),
-		};
+		];
 	}
 
 	/// <summary>
@@ -157,7 +158,7 @@ public class TransformFactory
 		XElement xml,
 		string outputFileName)
 	{
-		void SerializeMessageAndTrace(
+		static void SerializeMessageAndTrace(
 			JsonObjectSerializer obj,
 			XElement? failure)
 		{
@@ -415,9 +416,9 @@ public class TransformFactory
 		var fqResourceName = string.Format(CultureInfo.InvariantCulture, "Xunit.Runner.Common.Transforms.templates.{0}", resourceName);
 
 		using var writer = XmlWriter.Create(outputFileName, new XmlWriterSettings { Indent = true });
-		using var xsltStream = typeof(TransformFactory).Assembly.GetManifestResourceStream(fqResourceName);
-		if (xsltStream is null)
-			throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Could not load resource '{0}' from assembly '{1}'", fqResourceName, typeof(TransformFactory).Assembly.Location));
+		using var xsltStream =
+			typeof(TransformFactory).Assembly.GetManifestResourceStream(fqResourceName)
+				?? throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Could not load resource '{0}' from assembly '{1}'", fqResourceName, typeof(TransformFactory).Assembly.Location));
 
 		using var xsltReader = XmlReader.Create(xsltStream);
 		using var xmlReader = xml.CreateReader();

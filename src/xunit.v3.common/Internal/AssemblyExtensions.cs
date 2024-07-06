@@ -20,12 +20,12 @@ public static class AssemblyExtensions
 	public const string UnknownTargetFramework = "UnknownTargetFramework";
 
 	/// <summary/>
-	[return: NotNullIfNotNull("assembly")]
+	[return: NotNullIfNotNull(nameof(assembly))]
 	public static string? GetLocalCodeBase(this Assembly? assembly) =>
 		GetLocalCodeBase(assembly?.GetSafeCodeBase(), Path.DirectorySeparatorChar);
 
 	/// <summary/>
-	[return: NotNullIfNotNull("codeBase")]
+	[return: NotNullIfNotNull(nameof(codeBase))]
 	public static string? GetLocalCodeBase(
 		string? codeBase,
 		char directorySeparator)
@@ -70,7 +70,7 @@ public static class AssemblyExtensions
 	/// from <see cref="Assembly.CodeBase"/>.</returns>
 	[return: NotNullIfNotNull(nameof(assembly))]
 	public static string? GetSafeCodeBase(this Assembly? assembly) =>
-		assembly is null ? null : assembly.CodeBase;
+		assembly?.CodeBase;
 
 	/// <summary>
 	/// Safely gets the location of an assembly.
@@ -80,7 +80,7 @@ public static class AssemblyExtensions
 	/// from <see cref="Assembly.Location"/>.</returns>
 	[return: NotNullIfNotNull(nameof(assembly))]
 	public static string? GetSafeLocation(this Assembly? assembly) =>
-		assembly is null ? null : assembly.Location;
+		assembly?.Location;
 
 	/// <summary>
 	/// Gets the target framework name for the given assembly.

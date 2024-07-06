@@ -4,18 +4,18 @@ using System.Linq;
 using NSubstitute;
 using Xunit;
 using Xunit.Internal;
-using Xunit.v3;
+using Xunit.Sdk;
 
 public class MessageBusTests
 {
 	[Fact]
 	public static void QueuedMessageShowUpInMessageSink()
 	{
-		var messages = new List<_MessageSinkMessage>();
+		var messages = new List<MessageSinkMessage>();
 		var sink = SpyMessageSink.Create(messages: messages);
-		var msg1 = new _MessageSinkMessage();
-		var msg2 = new _MessageSinkMessage();
-		var msg3 = new _MessageSinkMessage();
+		var msg1 = new MessageSinkMessage();
+		var msg2 = new MessageSinkMessage();
+		var msg3 = new MessageSinkMessage();
 
 		using (var bus = new MessageBus(sink))
 		{
@@ -39,7 +39,7 @@ public class MessageBusTests
 		bus.Dispose();
 
 		var exception = Record.Exception(
-			() => bus.QueueMessage(new _MessageSinkMessage())
+			() => bus.QueueMessage(new MessageSinkMessage())
 		);
 
 		Assert.IsType<ObjectDisposedException>(exception);
@@ -48,16 +48,16 @@ public class MessageBusTests
 	[Fact]
 	public static void WhenSinkThrowsMessagesContinueToBeDelivered()
 	{
-		var sink = Substitute.For<_IMessageSink>();
-		var msg1 = new _MessageSinkMessage();
-		var msg2 = new _MessageSinkMessage();
-		var msg3 = new _MessageSinkMessage();
-		var messages = new List<_MessageSinkMessage>();
+		var sink = Substitute.For<IMessageSink>();
+		var msg1 = new MessageSinkMessage();
+		var msg2 = new MessageSinkMessage();
+		var msg3 = new MessageSinkMessage();
+		var messages = new List<MessageSinkMessage>();
 		sink
-			.OnMessage(Arg.Any<_MessageSinkMessage>())
+			.OnMessage(Arg.Any<MessageSinkMessage>())
 			.Returns(callInfo =>
 			{
-				var msg = (_MessageSinkMessage)callInfo[0];
+				var msg = (MessageSinkMessage)callInfo[0];
 				if (msg == msg2)
 					throw new DivideByZeroException("whee!");
 				else
@@ -78,7 +78,7 @@ public class MessageBusTests
 			message => Assert.Same(message, msg1),
 			message =>
 			{
-				var errorMessage = Assert.IsAssignableFrom<_ErrorMessage>(message);
+				var errorMessage = Assert.IsAssignableFrom<ErrorMessage>(message);
 				Assert.Equal("System.DivideByZeroException", errorMessage.ExceptionTypes.Single());
 				Assert.Equal("whee!", errorMessage.Messages.Single());
 			},
@@ -89,11 +89,11 @@ public class MessageBusTests
 	[Fact]
 	public static void QueueReturnsTrueForFailIfStopOnFailFalse()
 	{
-		var messages = new List<_MessageSinkMessage>();
+		var messages = new List<MessageSinkMessage>();
 		var sink = SpyMessageSink.Create(messages: messages);
-		var msg1 = new _MessageSinkMessage();
+		var msg1 = new MessageSinkMessage();
 		var msg2 = TestData.TestFailed();
-		var msg3 = new _MessageSinkMessage();
+		var msg3 = new MessageSinkMessage();
 
 		using (var bus = new MessageBus(sink))
 		{
@@ -113,11 +113,11 @@ public class MessageBusTests
 	[Fact]
 	public static void QueueReturnsFalseForFailIfStopOnFailTrue()
 	{
-		var messages = new List<_MessageSinkMessage>();
+		var messages = new List<MessageSinkMessage>();
 		var sink = SpyMessageSink.Create(messages: messages);
-		var msg1 = new _MessageSinkMessage();
+		var msg1 = new MessageSinkMessage();
 		var msg2 = TestData.TestFailed();
-		var msg3 = new _MessageSinkMessage();
+		var msg3 = new MessageSinkMessage();
 
 		using (var bus = new MessageBus(sink, true))
 		{

@@ -1,37 +1,39 @@
+using System.Reflection;
 using NSubstitute;
+using Xunit.Sdk;
 using Xunit.v3;
 
-// This file contains mocks of test framework interfaces.
+// This file manufactures mocks of test framework interfaces
 public static partial class Mocks
 {
-	public static _ITestFramework TestFramework(
-		_ITestFrameworkDiscoverer? discoverer = null,
-		_ITestFrameworkExecutor? executor = null,
-		string testFrameworkDisplayName = DefaultTestFrameworkDisplayName)
+	public static ITestFramework TestFramework(
+		ITestFrameworkDiscoverer? discoverer = null,
+		ITestFrameworkExecutor? executor = null,
+		string testFrameworkDisplayName = TestData.DefaultTestFrameworkDisplayName)
 	{
-		var result = Substitute.For<_ITestFramework, InterfaceProxy<_ITestFramework>>();
+		var result = Substitute.For<ITestFramework, InterfaceProxy<ITestFramework>>();
 
 		discoverer ??= TestFrameworkDiscoverer();
 		executor ??= TestFrameworkExecutor();
 
 		result.TestFrameworkDisplayName.Returns(testFrameworkDisplayName);
-		result.GetDiscoverer(Arg.Any<_IAssemblyInfo>()).Returns(discoverer);
-		result.GetExecutor(Arg.Any<_IReflectionAssemblyInfo>()).Returns(executor);
+		result.GetDiscoverer(Arg.Any<Assembly>()).Returns(discoverer);
+		result.GetExecutor(Arg.Any<Assembly>()).Returns(executor);
 
 		return result;
 	}
 
-	public static _ITestFrameworkDiscoverer TestFrameworkDiscoverer(_ITestAssembly? testAssembly = null)
+	public static ITestFrameworkDiscoverer TestFrameworkDiscoverer(ITestAssembly? testAssembly = null)
 	{
-		var result = Substitute.For<_ITestFrameworkDiscoverer, InterfaceProxy<_ITestFrameworkDiscoverer>>();
+		var result = Substitute.For<ITestFrameworkDiscoverer, InterfaceProxy<ITestFrameworkDiscoverer>>();
 
-		testAssembly ??= TestAssembly();
+		testAssembly ??= XunitTestAssembly();
 
 		result.TestAssembly.Returns(testAssembly);
 
 		return result;
 	}
 
-	public static _ITestFrameworkExecutor TestFrameworkExecutor() =>
-		Substitute.For<_ITestFrameworkExecutor, InterfaceProxy<_ITestFrameworkExecutor>>();
+	public static ITestFrameworkExecutor TestFrameworkExecutor() =>
+		Substitute.For<ITestFrameworkExecutor, InterfaceProxy<ITestFrameworkExecutor>>();
 }

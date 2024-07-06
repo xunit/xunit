@@ -1,6 +1,6 @@
 using System;
 using System.Xml.Linq;
-using Xunit.v3;
+using Xunit.Sdk;
 
 namespace Xunit.Runner.Common;
 
@@ -26,7 +26,7 @@ public class ExecutionSinkOptions
 	/// Gets or sets the diagnostic message sink to report diagnostic messages to. In order
 	/// for long running tests to be reported, this must not be <c>null</c>.
 	/// </summary>
-	public _IMessageSink? DiagnosticMessageSink { get; set; }
+	public IMessageSink? DiagnosticMessageSink { get; set; }
 
 	/// <summary>
 	/// Gets or sets a callback to be called when execution is complete.

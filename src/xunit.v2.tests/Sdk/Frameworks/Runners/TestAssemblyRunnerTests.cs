@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -59,8 +60,10 @@ public class TestAssemblyRunnerTests
 				msg =>
 				{
 					var starting = Assert.IsAssignableFrom<ITestAssemblyStarting>(msg);
+#if NETFRAMEWORK
 					Assert.Equal(thisAssembly.GetLocalCodeBase(), starting.TestAssembly.Assembly.AssemblyPath);
 					Assert.Equal(thisAppDomain.SetupInformation.ConfigurationFile, starting.TestAssembly.ConfigFileName);
+#endif
 					Assert.InRange(starting.StartTime, DateTime.Now.AddMinutes(-15), DateTime.Now);
 					Assert.Equal("The test framework environment", starting.TestEnvironment);
 					Assert.Equal("The test framework display name", starting.TestFrameworkDisplayName);
@@ -81,18 +84,17 @@ public class TestAssemblyRunnerTests
 		{
 			var messages = new List<IMessageSinkMessage>();
 			var messageSink = Substitute.For<IMessageSink>();
-			messageSink
-				.OnMessage(null)
-				.ReturnsForAnyArgs(callInfo =>
-				{
-					var msg = callInfo.Arg<IMessageSinkMessage>();
-					messages.Add(msg);
+			messageSink.OnMessage(null)
+					   .ReturnsForAnyArgs(callInfo =>
+					   {
+						   var msg = callInfo.Arg<IMessageSinkMessage>();
+						   messages.Add(msg);
 
-					if (msg is ITestAssemblyStarting)
-						throw new InvalidOperationException();
+						   if (msg is ITestAssemblyStarting)
+							   throw new InvalidOperationException();
 
-					return true;
-				});
+						   return true;
+					   });
 			var runner = TestableTestAssemblyRunner.Create(messageSink);
 
 			await Assert.ThrowsAsync<InvalidOperationException>(() => runner.RunAsync());
@@ -134,8 +136,10 @@ public class TestAssemblyRunnerTests
 			await runner.RunAsync();
 
 			var cleanupFailure = Assert.Single(messages.OfType<ITestAssemblyCleanupFailure>());
+#if NETFRAMEWORK
 			Assert.Equal(thisAssembly.GetLocalCodeBase(), cleanupFailure.TestAssembly.Assembly.AssemblyPath);
 			Assert.Equal(thisAppDomain.SetupInformation.ConfigurationFile, cleanupFailure.TestAssembly.ConfigFileName);
+#endif
 			Assert.Equal(testCases, cleanupFailure.TestCases);
 			Assert.Equal(typeof(InvalidOperationException).FullName, cleanupFailure.ExceptionTypes.Single());
 		}
@@ -233,7 +237,7 @@ public class TestAssemblyRunnerTests
 			Assert.IsType<DefaultTestCollectionOrderer>(runner.TestCollectionOrderer);
 		}
 
-		[Fact]
+		[CulturedFact("en-US")]  // Ensure stable ordering by forcing en-US
 		public static async void OrdererUsedToOrderTestCases()
 		{
 			var collection1 = Mocks.TestCollection(displayName: "AAA");
@@ -278,9 +282,11 @@ public class TestAssemblyRunnerTests
 			}
 		}
 
-		[CulturedFact("en-US")]
-		public static async void TestCaseOrdererWhichThrowsLogsMessageAndDoesNotReorderTests()
+		[Fact]
+		public static async void ThrowsWhileOrdering_HaltsProcessing()
 		{
+			Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
+
 			var collection1 = Mocks.TestCollection(displayName: "AAA");
 			var testCase1 = Mocks.TestCase(collection1);
 			var collection2 = Mocks.TestCollection(displayName: "ZZZZ");
@@ -288,18 +294,21 @@ public class TestAssemblyRunnerTests
 			var collection3 = Mocks.TestCollection(displayName: "MM");
 			var testCase3 = Mocks.TestCase(collection3);
 			var testCases = new[] { testCase1, testCase2, testCase3 };
-			var runner = TestableTestAssemblyRunner.Create(testCases: testCases);
+			var executionMessages = new List<IMessageSinkMessage>();
+			var executionSink = SpyMessageSink.Create(messages: executionMessages);
+			var runner = TestableTestAssemblyRunner.Create(testCases: testCases, executionMessageSink: executionSink);
 			runner.TestCollectionOrderer = new ThrowingOrderer();
 
 			await runner.RunAsync();
 
-			Assert.Collection(runner.CollectionsRun,
-				collection => Assert.Same(collection1, collection.Item1),
-				collection => Assert.Same(collection2, collection.Item1),
-				collection => Assert.Same(collection3, collection.Item1)
-			);
-			var diagnosticMessage = Assert.Single(runner.DiagnosticMessages.Cast<IDiagnosticMessage>());
-			Assert.StartsWith("Test collection orderer 'TestAssemblyRunnerTests+TestCollectionOrderer+ThrowingOrderer' threw 'System.DivideByZeroException' during ordering: Attempted to divide by zero.", diagnosticMessage.Message);
+			var errorMessage = Assert.Single(executionMessages.OfType<IErrorMessage>());
+			var type = Assert.Single(errorMessage.ExceptionTypes);
+			Assert.Equal(typeof(XunitException).FullName, type);
+			var index = Assert.Single(errorMessage.ExceptionParentIndices);
+			Assert.Equal(-1, index);
+			var msg = Assert.Single(errorMessage.Messages);
+			Assert.Equal("Test collection orderer 'TestAssemblyRunnerTests+TestCollectionOrderer+ThrowingOrderer' threw 'System.DivideByZeroException' during ordering: Attempted to divide by zero.", msg);
+			Assert.Empty(runner.CollectionsRun);
 		}
 
 		class ThrowingOrderer : ITestCollectionOrderer
@@ -324,15 +333,14 @@ public class TestAssemblyRunnerTests
 		public List<IMessageSinkMessage> DiagnosticMessages;
 		public Exception RunTestCollectionAsync_AggregatorResult;
 
-		TestableTestAssemblyRunner(
-			ITestAssembly testAssembly,
-			IEnumerable<ITestCase> testCases,
-			List<IMessageSinkMessage> diagnosticMessages,
-			IMessageSink executionMessageSink,
-			ITestFrameworkExecutionOptions executionOptions,
-			RunSummary result,
-			bool cancelInRunTestCollectionAsync)
-				: base(testAssembly, testCases, SpyMessageSink.Create(messages: diagnosticMessages), executionMessageSink, executionOptions)
+		TestableTestAssemblyRunner(ITestAssembly testAssembly,
+								   IEnumerable<ITestCase> testCases,
+								   List<IMessageSinkMessage> diagnosticMessages,
+								   IMessageSink executionMessageSink,
+								   ITestFrameworkExecutionOptions executionOptions,
+								   RunSummary result,
+								   bool cancelInRunTestCollectionAsync)
+			: base(testAssembly, testCases, SpyMessageSink.Create(messages: diagnosticMessages), executionMessageSink, executionOptions)
 		{
 			DiagnosticMessages = diagnosticMessages;
 
@@ -340,12 +348,11 @@ public class TestAssemblyRunnerTests
 			this.cancelInRunTestCollectionAsync = cancelInRunTestCollectionAsync;
 		}
 
-		public static TestableTestAssemblyRunner Create(
-			IMessageSink executionMessageSink = null,
-			RunSummary result = null,
-			ITestCase[] testCases = null,
-			ITestFrameworkExecutionOptions executionOptions = null,
-			bool cancelInRunTestCollectionAsync = false)
+		public static TestableTestAssemblyRunner Create(IMessageSink executionMessageSink = null,
+														RunSummary result = null,
+														ITestCase[] testCases = null,
+														ITestFrameworkExecutionOptions executionOptions = null,
+														bool cancelInRunTestCollectionAsync = false)
 		{
 			return new TestableTestAssemblyRunner(
 				Mocks.TestAssembly(Assembly.GetExecutingAssembly()),
@@ -394,21 +401,17 @@ public class TestAssemblyRunnerTests
 		{
 			AfterTestAssemblyStarting_Called = true;
 			AfterTestAssemblyStarting_Callback(Aggregator);
-			return TaskHelpers.CompletedTask;
+			return Task.FromResult(0);
 		}
 
 		protected override Task BeforeTestAssemblyFinishedAsync()
 		{
 			BeforeTestAssemblyFinished_Called = true;
 			BeforeTestAssemblyFinished_Callback(Aggregator);
-			return TaskHelpers.CompletedTask;
+			return Task.FromResult(0);
 		}
 
-		protected override Task<RunSummary> RunTestCollectionAsync(
-			IMessageBus messageBus,
-			ITestCollection testCollection,
-			IEnumerable<ITestCase> testCases,
-			CancellationTokenSource cancellationTokenSource)
+		protected override Task<RunSummary> RunTestCollectionAsync(IMessageBus messageBus, ITestCollection testCollection, IEnumerable<ITestCase> testCases, CancellationTokenSource cancellationTokenSource)
 		{
 			if (cancelInRunTestCollectionAsync)
 				cancellationTokenSource.Cancel();

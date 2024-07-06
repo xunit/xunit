@@ -21,7 +21,7 @@ public class CulturedXunitTestCase : XunitTestCase
 
 	public CulturedXunitTestCase(
 		string culture,
-		_ITestMethod testMethod,
+		IXunitTestMethod testMethod,
 		string testCaseDisplayName,
 		string uniqueID,
 		bool @explicit,

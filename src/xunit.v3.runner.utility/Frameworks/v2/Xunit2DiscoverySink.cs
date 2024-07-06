@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading;
 using Xunit.Abstractions;
 using Xunit.Runner.Common;
-using Xunit.v3;
 
 namespace Xunit.Runner.v2;
 
@@ -75,7 +74,7 @@ public class Xunit2DiscoverySink : MarshalByRefObject, IMessageSink, IMessageSin
 		if (disposed)
 			return;
 
-		if (filters.Empty || (adapter.Adapt(message) is _TestCaseDiscovered adapted && filters.Filter(adapted)))
+		if (filters.Empty || (adapter.Adapt(message) is TestCaseDiscovered adapted && filters.Filter(adapted)))
 			TestCases.Add(message.TestCase);
 	}
 

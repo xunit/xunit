@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Sdk;
-using Xunit.v3;
 
 public class AsyncAcceptanceTests : AcceptanceTestV3
 {
@@ -12,7 +11,7 @@ public class AsyncAcceptanceTests : AcceptanceTestV3
 	[InlineData(typeof(ClassWithAsyncTask))]
 	public async ValueTask AsyncTestsRunCorrectly(Type classUnderTest)
 	{
-		var results = await RunAsync<_TestFailed>(classUnderTest);
+		var results = await RunAsync<TestFailed>(classUnderTest);
 
 		var failed = Assert.Single(results);
 		Assert.Equal(typeof(EqualException).FullName, failed.ExceptionTypes.Single());

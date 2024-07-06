@@ -15,7 +15,7 @@ public class FrontControllerFindSettings : FrontControllerSettingsBase
 	/// <param name="options">The discovery options</param>
 	/// <param name="filters">The optional filters (when not provided, finds all tests)</param>
 	public FrontControllerFindSettings(
-		_ITestFrameworkDiscoveryOptions options,
+		ITestFrameworkDiscoveryOptions options,
 		XunitFilters? filters = null)
 	{
 		Options = Guard.ArgumentNotNull(options);
@@ -30,5 +30,5 @@ public class FrontControllerFindSettings : FrontControllerSettingsBase
 	/// <summary>
 	/// The options used during discovery.
 	/// </summary>
-	public _ITestFrameworkDiscoveryOptions Options { get; }
+	public ITestFrameworkDiscoveryOptions Options { get; }
 }

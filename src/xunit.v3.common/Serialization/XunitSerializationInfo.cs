@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Xunit.Internal;
-using Xunit.v3;
 
 namespace Xunit.Sdk;
 
@@ -13,8 +12,8 @@ namespace Xunit.Sdk;
 /// </summary>
 public class XunitSerializationInfo : IXunitSerializationInfo
 {
-	static readonly char[] colonSeparator = new[] { ':' };
-	readonly Dictionary<string, string> data = new();
+	static readonly char[] colonSeparator = [':'];
+	readonly Dictionary<string, string> data = [];
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="XunitSerializationInfo"/> class
@@ -62,15 +61,14 @@ public class XunitSerializationInfo : IXunitSerializationInfo
 	public void AddValue(
 		string key,
 		object? value,
-		_ITypeInfo? valueTypeInfo = null)
+		Type? valueType = null)
 	{
-		if (valueTypeInfo is null)
-			valueTypeInfo = Reflector.Wrap(value?.GetType()) ?? SerializationHelper.TypeInfo_Object;
+		valueType ??= value?.GetType() ?? typeof(object);
 
-		if (!SerializationHelper.IsSerializable(value, valueTypeInfo))
-			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Cannot serialize a value of type '{0}': unsupported type for serialization", valueTypeInfo.Name), nameof(value));
+		if (!SerializationHelper.IsSerializable(value, valueType))
+			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Cannot serialize a value of type '{0}': unsupported type for serialization", valueType.SafeName()), nameof(value));
 
-		data.Add(key, SerializationHelper.Serialize(value, valueTypeInfo));
+		data.Add(key, SerializationHelper.Serialize(value, valueType));
 	}
 
 	/// <inheritdoc/>

@@ -5,7 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Xunit.Internal;
-using Xunit.v3;
+using Xunit.Sdk;
 
 namespace Xunit.Runner.Common;
 
@@ -15,13 +15,13 @@ namespace Xunit.Runner.Common;
 public class XunitFilters
 {
 	DateTimeOffset includedMethodCacheLastUpdated;
-	List<Regex> includedMethodRegexFilters = new();
-	HashSet<string> includedMethodStandardFilters = new();
+	List<Regex> includedMethodRegexFilters = [];
+	HashSet<string> includedMethodStandardFilters = [];
 	readonly ChangeTrackingHashSet<string> includedMethods = new(StringComparer.OrdinalIgnoreCase);
 
 	DateTimeOffset excludedMethodCacheLastUpdated;
-	List<Regex> excludedMethodRegexFilters = new();
-	HashSet<string> excludedMethodStandardFilters = new();
+	List<Regex> excludedMethodRegexFilters = [];
+	HashSet<string> excludedMethodStandardFilters = [];
 	readonly ChangeTrackingHashSet<string> excludedMethods = new(StringComparer.OrdinalIgnoreCase);
 
 	/// <summary>
@@ -82,7 +82,7 @@ public class XunitFilters
 	/// </summary>
 	/// <param name="testCase">The test case to filter.</param>
 	/// <returns>Returns <c>true</c> if the test case passed the filter; returns <c>false</c> otherwise.</returns>
-	public bool Filter(_ITestCaseMetadata testCase)
+	public bool Filter(ITestCaseMetadata testCase)
 	{
 		Guard.ArgumentNotNull(testCase);
 
@@ -107,24 +107,24 @@ public class XunitFilters
 		return true;
 	}
 
-	bool FilterExcludedClasses(_ITestCaseMetadata testCase)
+	bool FilterExcludedClasses(ITestCaseMetadata testCase)
 	{
 		// No filters == pass
 		if (ExcludedClasses.Count == 0)
 			return true;
 
 		// No class == pass
-		if (testCase.TestClassNameWithNamespace is null)
+		if (testCase.TestClassName is null)
 			return true;
 
 		// Exact match == do not pass
-		if (ExcludedClasses.Contains(testCase.TestClassNameWithNamespace))
+		if (ExcludedClasses.Contains(testCase.TestClassName))
 			return false;
 
 		return true;
 	}
 
-	bool FilterExcludedMethods(_ITestCaseMetadata testCase)
+	bool FilterExcludedMethods(ITestCaseMetadata testCase)
 	{
 		// No filters == pass
 		if (excludedMethodRegexFilters.Count == 0 && excludedMethodStandardFilters.Count == 0)
@@ -134,7 +134,7 @@ public class XunitFilters
 		if (testCase.TestMethodName is null)
 			return true;
 
-		var methodName = string.Format(CultureInfo.InvariantCulture, "{0}.{1}", testCase.TestClassNameWithNamespace, testCase.TestMethodName);
+		var methodName = string.Format(CultureInfo.InvariantCulture, "{0}.{1}", testCase.TestClassName, testCase.TestMethodName);
 
 		// Standard exact match == do not pass
 		if (excludedMethodStandardFilters.Contains(methodName) == true)
@@ -148,7 +148,7 @@ public class XunitFilters
 		return true;
 	}
 
-	bool FilterExcludedNamespaces(_ITestCaseMetadata testCase)
+	bool FilterExcludedNamespaces(ITestCaseMetadata testCase)
 	{
 		// No filters == pass
 		if (ExcludedNamespaces.Count == 0)
@@ -165,7 +165,7 @@ public class XunitFilters
 		return true;
 	}
 
-	bool FilterExcludedTraits(_ITestCaseMetadata testCase)
+	bool FilterExcludedTraits(ITestCaseMetadata testCase)
 	{
 		// No filters == pass
 		if (ExcludedTraits.Count == 0)
@@ -183,24 +183,24 @@ public class XunitFilters
 		return true;
 	}
 
-	bool FilterIncludedClasses(_ITestCaseMetadata testCase)
+	bool FilterIncludedClasses(ITestCaseMetadata testCase)
 	{
 		// No filters == pass
 		if (IncludedClasses.Count == 0)
 			return true;
 
 		// No class == do not pass
-		if (testCase.TestClassNameWithNamespace is null)
+		if (testCase.TestClassName is null)
 			return false;
 
 		// Exact match == pass
-		if (IncludedClasses.Contains(testCase.TestClassNameWithNamespace))
+		if (IncludedClasses.Contains(testCase.TestClassName))
 			return true;
 
 		return false;
 	}
 
-	bool FilterIncludedMethods(_ITestCaseMetadata testCase)
+	bool FilterIncludedMethods(ITestCaseMetadata testCase)
 	{
 		// No filters == pass
 		if (includedMethodRegexFilters.Count == 0 && includedMethodStandardFilters.Count == 0)
@@ -210,7 +210,7 @@ public class XunitFilters
 		if (testCase.TestMethodName is null)
 			return false;
 
-		var methodName = string.Format(CultureInfo.InvariantCulture, "{0}.{1}", testCase.TestClassNameWithNamespace, testCase.TestMethodName);
+		var methodName = string.Format(CultureInfo.InvariantCulture, "{0}.{1}", testCase.TestClassName, testCase.TestMethodName);
 
 		// Standard exact match == pass
 		if (includedMethodStandardFilters.Contains(methodName))
@@ -224,7 +224,7 @@ public class XunitFilters
 		return false;
 	}
 
-	bool FilterIncludedNamespaces(_ITestCaseMetadata testCase)
+	bool FilterIncludedNamespaces(ITestCaseMetadata testCase)
 	{
 		// No filters == pass
 		if (IncludedNamespaces.Count == 0)
@@ -241,7 +241,7 @@ public class XunitFilters
 		return false;
 	}
 
-	bool FilterIncludedTraits(_ITestCaseMetadata testCase)
+	bool FilterIncludedTraits(ITestCaseMetadata testCase)
 	{
 		// No filters == pass
 		if (IncludedTraits.Count == 0)
@@ -295,7 +295,7 @@ public class XunitFilters
 	// This class wraps HashSet<T>, tracking the last mutation date, and using itself
 	// as a lock for mutation (so that we can guarantee a stable data set when transferring
 	// the data into caches).
-	class ChangeTrackingHashSet<T> : ICollection<T>
+	sealed class ChangeTrackingHashSet<T> : ICollection<T>
 	{
 		readonly HashSet<T> innerCollection;
 
