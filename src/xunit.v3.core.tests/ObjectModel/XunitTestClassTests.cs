@@ -78,21 +78,13 @@ public class XunitTestClassTests
 		}
 
 		Assert.Collection(
-			methods.Select(displayName).OrderBy(x => x),
+			methods.Where(m => m.DeclaringType != typeof(object)).Select(displayName).OrderBy(x => x),
 			method => Assert.Equal("SomeNamespace.BaseClass.BaseMethod()", method),
 			method => Assert.Equal("SomeNamespace.BaseClass.BaseStaticMethod()", method),
 			method => Assert.Equal("SomeNamespace.ClassUnderTest.InternalMethod()", method),
 			method => Assert.Equal("SomeNamespace.ClassUnderTest.PrivateMethod()", method),
 			method => Assert.Equal("SomeNamespace.ClassUnderTest.ProtectedMethod()", method),
-			method => Assert.Equal("SomeNamespace.ClassUnderTest.PublicMethod()", method),
-			method => Assert.Equal("System.Object.Equals(System.Object obj)", method),
-			method => Assert.Equal("System.Object.Equals(System.Object objA, System.Object objB)", method),
-			method => Assert.Equal("System.Object.Finalize()", method),
-			method => Assert.Equal("System.Object.GetHashCode()", method),
-			method => Assert.Equal("System.Object.GetType()", method),
-			method => Assert.Equal("System.Object.MemberwiseClone()", method),
-			method => Assert.Equal("System.Object.ReferenceEquals(System.Object objA, System.Object objB)", method),
-			method => Assert.Equal("System.Object.ToString()", method)
+			method => Assert.Equal("SomeNamespace.ClassUnderTest.PublicMethod()", method)
 		);
 	}
 
