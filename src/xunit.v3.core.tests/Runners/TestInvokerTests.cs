@@ -109,10 +109,14 @@ public class TestInvokerTests
 
 #pragma warning restore xUnit1001 // Fact methods cannot have parameters
 
+#pragma warning disable xUnit1049 // Do not use 'async void' for test methods as it is no longer supported
+
 			[Fact]
 			public async void AsyncVoidFact() => await Task.Yield();
-		}
 
+#pragma warning restore xUnit1049 // Do not use 'async void' for test methods as it is no longer supported
+
+		}
 	}
 
 	class TestableTestInvoker : TestInvoker<TestInvokerContext<ITest>, ITest>

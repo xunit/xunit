@@ -98,11 +98,17 @@ public class XunitTestFrameworkDiscovererTests
 			Assert.Equal($"{typeof(ClassWithPrivateTestMethod).FullName}.{nameof(ClassWithPrivateTestMethod.TestMethod)}", testCase.TestCaseDisplayName);
 		}
 
+#pragma warning disable xUnit1003 // Theory methods must have test data
+#pragma warning disable xUnit1006 // Theory methods should have parameters
+
 		class ClassWithPrivateTestMethod()
 		{
 			[Theory]
 			internal void TestMethod() { }
 		}
+
+#pragma warning restore xUnit1006 // Theory methods should have parameters
+#pragma warning restore xUnit1003 // Theory methods must have test data
 
 		[Fact]
 		public static async ValueTask TestMethodWithTooManyFactAttributes_ReturnsExecutionErrorTestCase()

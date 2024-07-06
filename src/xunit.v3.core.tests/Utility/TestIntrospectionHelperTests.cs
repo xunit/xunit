@@ -151,11 +151,15 @@ public class TestIntrospectionHelperTests
 			Assert.Equal($"Custom Display Name(_1: 42, _2: \"Hello, world!\", _3: 'A', ???: {21.12m})", details.TestCaseDisplayName);
 		}
 
+#pragma warning disable xUnit1003 // Theory methods must have test data
+
 		class CustomDisplayNameWithArgumentsTestClass
 		{
-			[Fact(DisplayName = "Custom Display Name")]
+			[Theory(DisplayName = "Custom Display Name")]
 			public void TestMethod(int _1, string _2, char _3) { }
 		}
+
+#pragma warning restore xUnit1003 // Theory methods must have test data
 
 		[Theory]
 		[InlineData(true)]

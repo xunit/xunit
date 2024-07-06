@@ -29,7 +29,7 @@ public class XunitTestRunnerTests
 				{
 					var starting = Assert.IsType<TestStarting>(msg);
 					verifyTestMessage(starting);
-					Assert.Equal(true, starting.Explicit);
+					Assert.True(starting.Explicit);
 					Assert.Equal("test-display-name", starting.TestDisplayName);
 					Assert.Equal(42, starting.Timeout);
 					// Trait comes from an assembly-level trait attribute on this test assembly
@@ -301,7 +301,9 @@ public class XunitTestRunnerTests
 			public void ExplicitTest() => Assert.Fail("Should not run");
 		}
 
+#pragma warning disable xUnit1041 // We push this argument in by hand rather than relying on fixtures
 		class RecordingTestClass(List<string> messages)
+#pragma warning restore xUnit1041
 		{
 			[Fact]
 			public void ExecutionRecorder() => messages.Add("Test method invocation");

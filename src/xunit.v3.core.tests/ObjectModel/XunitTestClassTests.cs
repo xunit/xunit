@@ -57,8 +57,8 @@ public class XunitTestClassTests
 		Assert.NotNull(constructors);
 		Assert.Collection(
 			constructors.OrderBy(c => c.GetParameters().Length),
-			constructor => Assert.Equal(0, constructor.GetParameters().Length),
-			constructor => Assert.Equal(1, constructor.GetParameters().Length)
+			constructor => Assert.Empty(constructor.GetParameters()),
+			constructor => Assert.Single(constructor.GetParameters())
 		);
 	}
 

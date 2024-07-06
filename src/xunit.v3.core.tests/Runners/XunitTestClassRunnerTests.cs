@@ -293,8 +293,8 @@ public class XunitTestClassRunnerTests
 
 			await runner.RunAsync();
 
-			Assert.True(runner.MessageBus.Messages.Any(m => m is TestPassed));
-			Assert.False(runner.MessageBus.Messages.Any(m => m is TestClassCleanupFailure));
+			Assert.Contains(runner.MessageBus.Messages, m => m is TestPassed);
+			Assert.DoesNotContain(runner.MessageBus.Messages, m => m is TestClassCleanupFailure);
 		}
 
 		class ClassUnderTestWithMixedConstructors

@@ -110,12 +110,20 @@ public class XunitTestMethodTests
 	[Collection("foo")]
 	class ClassUnderTest
 	{
+#pragma warning disable xUnit1001 // Fact methods cannot have parameters
+#pragma warning disable xUnit1002 // Test methods cannot have multiple Fact or Theory attributes
+#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
+
 		[Fact]
 		[Theory]
 		[BeforeAfterOnMethod]
 		[InlineData(42, "Hello world")]
 		[Trait("Hello", "World")]
 		public void Passing(int x, string y) { }
+
+#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
+#pragma warning restore xUnit1002 // Test methods cannot have multiple Fact or Theory attributes
+#pragma warning restore xUnit1001 // Fact methods cannot have parameters
 	}
 
 	class BeforeAfterOnAssembly : BeforeAfterTestAttribute { }
