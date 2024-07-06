@@ -32,8 +32,8 @@
     <SystemMemoryVersion>4.5.5</SystemMemoryVersion>
     <XunitAbstractionsVersion>2.0.3</XunitAbstractionsVersion>
     <XunitV1Version>1.9.2</XunitV1Version>
-    <XunitV2Version>2.8.1-pre.14</XunitV2Version>
-    <XunitVisualStudioRunnerVersion>3.0.0-pre.9</XunitVisualStudioRunnerVersion>
+    <XunitV2Version>2.8.2-pre.19</XunitV2Version>
+    <XunitVisualStudioRunnerVersion>3.0.0-pre.10</XunitVisualStudioRunnerVersion>
 
   </PropertyGroup>
 
