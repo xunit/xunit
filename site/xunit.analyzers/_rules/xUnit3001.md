@@ -7,7 +7,7 @@ severity: Error
 
 ## Cause
 
-Classes which implement `Xunit.Abstractions.IXunitSerializable` are required to have a public parameterless constructor.
+Classes which implement `Xunit.Abstractions.IXunitSerializable` (v2) or `Xunit.Sdk.IXunitSerializable` (v3) are required to have a public parameterless constructor.
 
 ## Reason for rule
 
@@ -23,6 +23,8 @@ keep any other public constructors with parameters.
 
 ### Violates
 
+#### v2 Core Framework
+
 ```csharp
 using Xunit.Abstractions;
 
@@ -36,11 +38,46 @@ public class xUnit3001 : IXunitSerializable
 }
 ```
 
+#### v3 Core Framework
+
+```csharp
+using Xunit.Sdk;
+
+public class xUnit3001 : IXunitSerializable
+{
+    public xUnit3001(int _) { }
+
+    public void Deserialize(IXunitSerializationInfo info) { }
+
+    public void Serialize(IXunitSerializationInfo info) { }
+}
+```
 ### Does not violate
+
+#### v2 Core Framework
 
 ```csharp
 using System;
 using Xunit.Abstractions;
+
+public class xUnit3001 : IXunitSerializable
+{
+    [Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
+    public xUnit3001() { }
+
+    public xUnit3001(int _) { }
+
+    public void Deserialize(IXunitSerializationInfo info) { }
+
+    public void Serialize(IXunitSerializationInfo info) { }
+}
+```
+
+#### v3 Core Framework
+
+```csharp
+using System;
+using Xunit.Sdk;
 
 public class xUnit3001 : IXunitSerializable
 {

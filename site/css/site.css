@@ -329,3 +329,12 @@ blockquote.padded {
 .aws-logo img {
   width: 200px;
 }
+.glyphicon-ok-sign {
+  color: #0c0;
+}
+.glyphicon-question-sign {
+  color: #cc0;
+}
+.glyphicon-remove-sign {
+  color: #f30;
+}
