@@ -111,6 +111,46 @@ public class EquivalenceAssertsTests
 				ex.Message
 			);
 		}
+
+		public class Guids
+		{
+			// https://github.com/xunit/xunit/issues/2974
+			[Fact]
+			public void SameType_Success()
+			{
+				Assert.Equivalent(new Guid("b727762b-a1c1-49a0-b045-59ba97b17b61"), new Guid("b727762b-a1c1-49a0-b045-59ba97b17b61"));
+			}
+
+			// https://github.com/xunit/xunit/issues/2974
+			[Fact]
+			public void SameType_Failure()
+			{
+				var ex = Record.Exception(() => Assert.Equivalent(new Guid("b727762b-a1c1-49a0-b045-59ba97b17b61"), new Guid("963ff9f5-cb83-480e-85ea-7e8950a01f00")));
+
+				Assert.IsType<EquivalentException>(ex);
+				Assert.Equal(
+					"Assert.Equivalent() Failure" + Environment.NewLine +
+					"Expected: b727762b-a1c1-49a0-b045-59ba97b17b61" + Environment.NewLine +
+					"Actual:   963ff9f5-cb83-480e-85ea-7e8950a01f00",
+					ex.Message
+				);
+			}
+
+			// https://github.com/xunit/xunit/issues/2974
+			[Fact]
+			public void IntrinsicPlusNonIntrinsic_Failure()
+			{
+				var ex = Record.Exception(() => Assert.Equivalent(new Guid("b727762b-a1c1-49a0-b045-59ba97b17b61"), new object()));
+
+				Assert.IsType<EquivalentException>(ex);
+				Assert.Equal(
+					"Assert.Equivalent() Failure" + Environment.NewLine +
+					"Expected: b727762b-a1c1-49a0-b045-59ba97b17b61" + Environment.NewLine +
+					"Actual:   Object { }",
+					ex.Message
+				);
+			}
+		}
 	}
 
 	public class NullableValueTypes
