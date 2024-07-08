@@ -151,7 +151,6 @@ public class EquivalenceAssertsTests
 				);
 			}
 		}
-
 	}
 
 	public class NullableValueTypes
