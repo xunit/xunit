@@ -74,12 +74,12 @@ namespace Xunit
             var obj = accessor();
             if (obj == null)
                 return null;
-
-            var dataItems = obj as IEnumerable;
-            if (dataItems == null)
+            if (obj is IEnumerable<object[]> arrayEnumerable)
+                return arrayEnumerable;
+            if (obj is not IEnumerable enumerable)
                 throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Property {0} on {1} did not return IEnumerable", MemberName, type.FullName));
 
-            return dataItems.Cast<object>().Select(item => ConvertDataItem(testMethod, item));
+            return enumerable.Cast<object>().Select(item => ConvertDataItem(testMethod, item));
         }
 
         /// <summary>

@@ -750,7 +750,7 @@ public class Xunit2TheoryAcceptanceTests
                 return 42;
             }
 
-#region Noise
+            #region Noise
 
             public bool ToBoolean(IFormatProvider provider)
             {
@@ -827,12 +827,12 @@ public class Xunit2TheoryAcceptanceTests
                 throw new InvalidCastException();
             }
 
-#endregion
+            #endregion
         }
 
         class ClassWithIConvertibleData
         {
-            public static IEnumerable<object[]> Data = new TheoryData<MyConvertible> { new MyConvertible() };
+            public static TheoryData<MyConvertible> Data = [new()];
 
             [Theory]
             [MemberData("Data")]

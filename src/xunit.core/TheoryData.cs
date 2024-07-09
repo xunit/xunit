@@ -9,10 +9,15 @@ namespace Xunit
     /// </summary>
     public abstract class TheoryData : IReadOnlyCollection<object[]>
     {
-        readonly List<object[]> data = new List<object[]>();
+        readonly List<object[]> data = [];
 
         /// <inheritdoc/>
         public int Count => data.Count;
+
+        /// <summary>
+        /// Gets the data that's currently in the collection.
+        /// </summary>
+        protected IReadOnlyCollection<object[]> Data => data;
 
         /// <summary>
         /// Adds a row to the theory.
@@ -49,7 +54,7 @@ namespace Xunit
     /// be added to the data set using the collection initializer syntax.
     /// </summary>
     /// <typeparam name="T">The parameter type.</typeparam>
-    public class TheoryData<T> : TheoryData
+    public class TheoryData<T> : TheoryData, IEnumerable<T>
     {
         /// <summary>
         /// Initializes a new isntance of the <see cref="TheoryData{T}"/> class.
@@ -82,6 +87,10 @@ namespace Xunit
         /// <param name="values">The data values.</param>
         public void AddRange(params T[] values) =>
             AddRows(values.Select(x => new object[] { x }));
+
+        /// <inheritdoc/>
+        public new IEnumerator<T> GetEnumerator() =>
+            Data.Select(array => (T)array[0]).GetEnumerator();
     }
 
     /// <summary>
