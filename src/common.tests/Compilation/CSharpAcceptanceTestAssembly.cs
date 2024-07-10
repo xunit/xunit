@@ -7,13 +7,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CSharp;
 
-public abstract class CSharpAcceptanceTestAssembly : AcceptanceTestAssembly
+public abstract class CSharpAcceptanceTestAssembly(string? basePath = null) :
+	AcceptanceTestAssembly(basePath)
 {
-	public CSharpAcceptanceTestAssembly(string? basePath = null) :
-		base(basePath)
-	{ }
-
-	protected override Task Compile(
+	protected override ValueTask Compile(
 		string[] code,
 		params string[] references)
 	{
@@ -32,21 +29,25 @@ public abstract class CSharpAcceptanceTestAssembly : AcceptanceTestAssembly
 				.ToArray()
 		);
 
+		code = code.Concat(GetAdditionalCode()).ToArray();
+
 		var compilerOptions = new Dictionary<string, string> { { "CompilerVersion", "v4.0" } };
 		var provider = new CSharpCodeProvider(compilerOptions);
 		var results = provider.CompileAssemblyFromSource(parameters, code);
 
 		if (results.Errors.Count != 0)
 		{
-			var errors = new List<string>();
+			var errors =
+				results
+					.Errors
+					.Cast<CompilerError>()
+					.Where(e => e != null)
+					.Select(e => $"{e.FileName}({e.Line},{e.Column}): error {e.ErrorNumber}: {e.ErrorText}");
 
-			foreach (var error in results.Errors.Cast<CompilerError>().Where(x => x != null))
-				errors.Add($"{error.FileName}({error.Line},{error.Column}): error {error.ErrorNumber}: {error.ErrorText}");
-
-			throw new InvalidOperationException($"Compilation Failed: (BasePath = '{BasePath}', NetStandardReferencePath = '{NetStandardReferencePath}'){Environment.NewLine}{string.Join(Environment.NewLine, errors.ToArray())}");
+			throw new InvalidOperationException($"Compilation Failed: (BasePath = '{BasePath}', TargetFrameworkReferencePath = '{TargetFrameworkReferencePath}'){Environment.NewLine}{string.Join(Environment.NewLine, errors)}");
 		}
 
-		return CompletedTask;
+		return default;
 	}
 }
 

@@ -1,48 +1,50 @@
-#if NETFRAMEWORK
-
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.Threading.Tasks;
 using Xunit.Internal;
 
-public abstract class AcceptanceTestAssembly : IDisposable
+public abstract class AcceptanceTestAssembly :
+	IDisposable
 {
-	protected static readonly Task CompletedTask = Task.FromResult(0);
+	string? targetFrameworkReferencePath;
 
 	protected AcceptanceTestAssembly(string? basePath = null)
 	{
-		var packagesPath =
-			Environment.GetEnvironmentVariable("NUGET_PACKAGES") ??
-			Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".nuget", "packages");
-
 		BasePath = basePath ?? Path.GetDirectoryName(typeof(AcceptanceTestAssembly).Assembly.GetLocalCodeBase()) ?? throw new InvalidOperationException($"Cannot find local code base for of {typeof(AcceptanceTestAssembly).Assembly.FullName}");
 		FileName = Path.Combine(BasePath, Path.GetRandomFileName() + AssemblyFileExtension);
-		NetStandardReferencePath = Path.Combine(packagesPath, "netstandard.library", "2.0.0", "build", "netstandard2.0", "ref");
 		PdbName = Path.Combine(BasePath, Path.GetFileNameWithoutExtension(FileName) + ".pdb");
-
-		AssemblyName = new AssemblyName()
-		{
-			Name = Path.GetFileNameWithoutExtension(FileName),
-			CodeBase = Path.GetDirectoryName(Path.GetFullPath(FileName))
-		};
 	}
 
 	protected virtual string AssemblyFileExtension => ".dll";
-
-	public AssemblyName AssemblyName { get; protected set; }
 
 	public string BasePath { get; }
 
 	public string FileName { get; protected set; }
 
-	public string NetStandardReferencePath { get; }
-
 	public string PdbName { get; protected set; }
+
+	public string TargetFrameworkReferencePath
+	{
+		get
+		{
+			if (targetFrameworkReferencePath is null)
+			{
+				var nuGetPackageCachePath =
+					Environment.GetEnvironmentVariable("NUGET_PACKAGES") ??
+					Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".nuget", "packages");
+
+				targetFrameworkReferencePath = GetTargetFrameworkReferencePath(nuGetPackageCachePath);
+			}
+
+			return targetFrameworkReferencePath;
+		}
+	}
 
 	public virtual void Dispose()
 	{
+		GC.SuppressFinalize(this);
+
 		try
 		{
 			if (File.Exists(FileName))
@@ -58,22 +60,28 @@ public abstract class AcceptanceTestAssembly : IDisposable
 		catch { }
 	}
 
-	protected abstract Task Compile(
+	protected abstract ValueTask Compile(
 		string[] code,
 		params string[] references);
 
+	protected virtual IEnumerable<string> GetAdditionalCode() => [];
+
 	protected virtual IEnumerable<string> GetStandardReferences() =>
-		[
-			"System.dll",
-			"System.Core.dll",
-			"System.Data.dll",
-			"System.Runtime.dll",
-			"System.Xml.dll",
-		];
+	[
+		"System.dll",
+		"System.Core.dll",
+		"System.Data.dll",
+		"System.Runtime.dll",
+		"System.Xml.dll",
+	];
+
+	// The version here must match the PackageDownload in $/src/Directory.Build.props
+	protected virtual string GetTargetFrameworkReferencePath(string nuGetPackageCachePath) =>
+		Path.Combine(nuGetPackageCachePath, "netstandard.library", "2.0.0", "build", "netstandard2.0", "ref");
 
 	protected string ResolveReference(string reference) =>
 		ResolveReferenceFrom(reference, BasePath) ??
-		ResolveReferenceFrom(reference, NetStandardReferencePath) ??
+		ResolveReferenceFrom(reference, TargetFrameworkReferencePath) ??
 		reference;
 
 	protected string? ResolveReferenceFrom(
@@ -84,5 +92,3 @@ public abstract class AcceptanceTestAssembly : IDisposable
 		return File.Exists(result) ? result : null;
 	}
 }
-
-#endif

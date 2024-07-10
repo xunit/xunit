@@ -11,16 +11,13 @@ using Microsoft.FSharp.Control;
 using Microsoft.FSharp.Core;
 using Xunit.Sdk;
 
-public abstract class FSharpAcceptanceTestAssembly : AcceptanceTestAssembly
+public abstract class FSharpAcceptanceTestAssembly(string? basePath = null) :
+	AcceptanceTestAssembly(basePath)
 {
-	public FSharpAcceptanceTestAssembly(string? basePath = null) :
-		base(basePath)
-	{ }
-
 	protected override IEnumerable<string> GetStandardReferences() =>
 		[];
 
-	protected override async Task Compile(
+	protected override async ValueTask Compile(
 		string[] code,
 		params string[] references)
 	{
@@ -36,13 +33,13 @@ public abstract class FSharpAcceptanceTestAssembly : AcceptanceTestAssembly
 			compilerArgs.Add(sourcePath);
 		}
 
-		compilerArgs.AddRange(new[] {
+		compilerArgs.AddRange([
 			$"--out:{FileName}",
 			$"--pdb:{PdbName}",
 			$"--lib:\"{BasePath}\"",
 			"--debug",
 			"--target:library"
-		});
+		]);
 		compilerArgs.AddRange(GetStandardReferences().Concat(references).Select(r => $"--reference:{r}"));
 
 		var checker = FSharpChecker.Create(
@@ -70,7 +67,7 @@ public abstract class FSharpAcceptanceTestAssembly : AcceptanceTestAssembly
 					.Item1
 					.Select(e => $"{e.FileName}({e.StartLine},{e.StartColumn}): {(e.Severity.IsError ? "error" : "warning")} {e.ErrorNumber}: {e.Message}");
 
-			throw new InvalidOperationException($"Compilation Failed:{Environment.NewLine}{string.Join(Environment.NewLine, errors)}");
+			throw new InvalidOperationException($"Compilation Failed: (BasePath = '{BasePath}', TargetFrameworkReferencePath = '{TargetFrameworkReferencePath}'){Environment.NewLine}{string.Join(Environment.NewLine, errors)}");
 		}
 	}
 }

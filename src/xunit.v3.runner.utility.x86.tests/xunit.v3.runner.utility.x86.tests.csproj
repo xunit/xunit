@@ -23,27 +23,27 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Required for AcceptanceTestAssembly -->
-    <PackageDownload Include="NetStandard.Library" Version="[2.0.0]" />
     <!-- Required for F# acceptance tests -->
     <PackageReference Include="FSharp.Compiler.Service" Version="[$(FSharpCompilerServiceVersion)]" />
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Required for xUnit.net v1 acceptance tests -->
     <PackageDownload Include="xunit" Version="[$(XunitV1Version)]" />
+    <PackageDownload Include="xunit.extensions" Version="[$(XunitV1Version)]" />
+    <!-- Required for xUnit.net v2 acceptance tests -->
     <PackageDownload Include="xunit.abstractions" Version="[$(XunitAbstractionsVersion)]" />
     <PackageDownload Include="xunit.assert" Version="[$(XunitV2Version)]" />
     <PackageDownload Include="xunit.extensibility.core" Version="[$(XunitV2Version)]" />
     <PackageDownload Include="xunit.extensibility.execution" Version="[$(XunitV2Version)]" />
-    <PackageDownload Include="xunit.extensions" Version="[$(XunitV1Version)]" />
   </ItemGroup>
 
   <Target Name="CopyXunitBinaries" AfterTargets="Build" Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
     <ItemGroup>
-      <!-- xUnit.net v1 -->
+      <!-- Required for xUnit.net v1 acceptance tests -->
       <XunitBinaries Include="$(NuGetPackageRoot)\xunit\$(XunitV1Version)\lib\net20\xunit.dll" />
       <XunitBinaries Include="$(NuGetPackageRoot)\xunit.extensions\$(XunitV1Version)\lib\net20\xunit.extensions.dll" />
-      <!-- xUnit.net v2 -->
+      <!-- Required for xUnit.net v2 acceptance tests -->
       <XunitBinaries Include="$(NuGetPackageRoot)\xunit.abstractions\$(XunitAbstractionsVersion)\lib\net35\xunit.abstractions.dll" />
       <XunitBinaries Include="$(NuGetPackageRoot)\xunit.assert\$(XunitV2Version)\lib\netstandard1.1\xunit.assert.dll" />
       <XunitBinaries Include="$(NuGetPackageRoot)\xunit.extensibility.core\$(XunitV2Version)\lib\net452\xunit.core.dll" />
