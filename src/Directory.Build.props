@@ -118,6 +118,8 @@
       <ItemGroup>
         <!-- Required for AcceptanceTestAssembly -->
         <PackageDownload Include="NetStandard.Library" Version="[2.0.0]" />
+        <!-- Required for CSharpDotNetFrameworkExecutable -->
+        <PackageDownload Include="Microsoft.NETFramework.ReferenceAssemblies.net472" Version="[1.0.3]" />
       </ItemGroup>
 
     </When>

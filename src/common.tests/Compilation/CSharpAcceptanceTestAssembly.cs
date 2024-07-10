@@ -2,7 +2,6 @@
 
 using System;
 using System.CodeDom.Compiler;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CSharp;
@@ -14,13 +13,7 @@ public abstract class CSharpAcceptanceTestAssembly(string? basePath = null) :
 		string[] code,
 		params string[] references)
 	{
-		var parameters = new CompilerParameters()
-		{
-			IncludeDebugInformation = true,
-			OutputAssembly = FileName,
-			TreatWarningsAsErrors = false,
-			WarningLevel = 0,
-		};
+		var parameters = GetCompilerParameters();
 
 		parameters.ReferencedAssemblies.AddRange(
 			GetStandardReferences()
@@ -31,8 +24,7 @@ public abstract class CSharpAcceptanceTestAssembly(string? basePath = null) :
 
 		code = code.Concat(GetAdditionalCode()).ToArray();
 
-		var compilerOptions = new Dictionary<string, string> { { "CompilerVersion", "v4.0" } };
-		var provider = new CSharpCodeProvider(compilerOptions);
+		var provider = new CSharpCodeProvider();
 		var results = provider.CompileAssemblyFromSource(parameters, code);
 
 		if (results.Errors.Count != 0)
@@ -49,6 +41,15 @@ public abstract class CSharpAcceptanceTestAssembly(string? basePath = null) :
 
 		return default;
 	}
+
+	protected virtual CompilerParameters GetCompilerParameters() =>
+		new()
+		{
+			IncludeDebugInformation = true,
+			OutputAssembly = FileName,
+			TreatWarningsAsErrors = false,
+			WarningLevel = 0,
+		};
 }
 
 #endif

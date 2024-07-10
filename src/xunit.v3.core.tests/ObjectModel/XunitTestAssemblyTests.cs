@@ -68,11 +68,7 @@ public class XunitTestAssemblyTests(XunitTestAssemblyTests.XunitTestAssemblyFixt
 	[Fact]
 	public void TargetFramework()
 	{
-		var targetFramework = testAssembly.TargetFramework;
-
-		// We don't specify the attribute, and the dynamic compiler won't put it in there for us
-		// (since we don't have a project file).
-		Assert.Equal("UnknownTargetFramework", targetFramework);
+		Assert.Equal(".NETFramework,Version=v4.7.2", testAssembly.TargetFramework);
 	}
 
 	[Fact]

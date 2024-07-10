@@ -7,10 +7,8 @@ using System.Threading.Tasks;
 using Xunit.Internal;
 
 public class CSharpAcceptanceTestV3Assembly(string? basePath = null) :
-	CSharpAcceptanceTestAssembly(basePath)
+	CSharpDotNetFrameworkExecutable(basePath)
 {
-	protected override string AssemblyFileExtension => ".exe";
-
 	protected override IEnumerable<string> GetAdditionalCode()
 	{
 		foreach (var value in base.GetAdditionalCode())
@@ -42,12 +40,12 @@ public class CSharpAcceptanceTestV3Assembly(string? basePath = null) :
 				"xunit.v3.runner.inproc.console.dll",
 			]);
 
-	public static ValueTask<CSharpAcceptanceTestV3Assembly> Create(
+	public new static ValueTask<CSharpAcceptanceTestV3Assembly> Create(
 		string code,
 		params string[] references) =>
 			CreateIn(Path.GetDirectoryName(typeof(CSharpAcceptanceTestV3Assembly).Assembly.GetLocalCodeBase())!, code, references);
 
-	public static async ValueTask<CSharpAcceptanceTestV3Assembly> CreateIn(
+	public new static async ValueTask<CSharpAcceptanceTestV3Assembly> CreateIn(
 		string basePath,
 		string code,
 		params string[] references)
