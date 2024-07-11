@@ -140,8 +140,8 @@ public class XunitTestAssembly : IXunitTestAssembly, IXunitSerializable
 
 		ConfigFilePath = info.GetValue<string>("cp");
 
-		var assemblyName = Guard.NotNull("Could not retrieve AssemblyName from serialization", info.GetValue<string>("an"));
-		assembly = Guard.NotNull(() => "Could not load assembly " + assemblyName, Assembly.Load(assemblyName));
+		var assemblyPath = Guard.NotNull("Could not retrieve AssemblyPath from serialization", info.GetValue<string>("ap"));
+		assembly = Guard.NotNull(() => "Could not load assembly " + assemblyPath, Assembly.LoadFrom(assemblyPath));
 
 		uniqueID = Guard.NotNull("Could not retrieve UniqueID from serialization", info.GetValue<string>("id"));
 	}
@@ -149,7 +149,7 @@ public class XunitTestAssembly : IXunitTestAssembly, IXunitSerializable
 	/// <inheritdoc/>
 	public void Serialize(IXunitSerializationInfo info)
 	{
-		info.AddValue("an", AssemblyName);
+		info.AddValue("ap", AssemblyPath);
 		info.AddValue("cp", ConfigFilePath);
 		info.AddValue("v", Version.ToString());
 		info.AddValue("id", UniqueID);
