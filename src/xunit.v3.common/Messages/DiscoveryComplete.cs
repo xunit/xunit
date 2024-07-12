@@ -13,7 +13,7 @@ public sealed class DiscoveryComplete : TestAssemblyMessage
 	/// <summary>
 	/// Gets a count of the number of test cases that passed the filter and will be run.
 	/// </summary>
-	public int TestCasesToRun { get; set; }
+	public required int TestCasesToRun { get; set; }
 
 	/// <inheritdoc/>
 	protected override void Deserialize(IReadOnlyDictionary<string, object?> root)

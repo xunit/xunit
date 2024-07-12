@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using Xunit.Internal;
 
@@ -16,37 +17,40 @@ public sealed class DiagnosticMessage : MessageSinkMessage
 	string? message;
 
 	/// <summary>
-	/// Creats a new instance of the <see cref="DiagnosticMessage"/> class.
+	/// Creates a new instance of the <see cref="DiagnosticMessage"/> class.
 	/// </summary>
 	public DiagnosticMessage()
 	{ }
 
 	/// <summary>
-	/// Creats a new instance of the <see cref="DiagnosticMessage"/> class with
+	/// Creates a new instance of the <see cref="DiagnosticMessage"/> class with
 	/// the provided message.
 	/// </summary>
 	/// <param name="message">The diagnostic message</param>
+	[SetsRequiredMembers]
 	public DiagnosticMessage(string message) =>
 		Message = Guard.ArgumentNotNull(message);
 
 	/// <summary>
-	/// Creats a new instance of the <see cref="DiagnosticMessage"/> class with
+	/// Creates a new instance of the <see cref="DiagnosticMessage"/> class with
 	/// the provided message format and single argument.
 	/// </summary>
 	/// <param name="messageFormat">The message format string</param>
 	/// <param name="arg0">The value to replace {0} in the format string.</param>
+	[SetsRequiredMembers]
 	public DiagnosticMessage(
 		string messageFormat,
 		object? arg0) =>
 			Message = string.Format(CultureInfo.CurrentCulture, Guard.ArgumentNotNull(messageFormat), arg0);
 
 	/// <summary>
-	/// Creats a new instance of the <see cref="DiagnosticMessage"/> class with
+	/// Creates a new instance of the <see cref="DiagnosticMessage"/> class with
 	/// the provided message format and two arguments.
 	/// </summary>
 	/// <param name="messageFormat">The message format string</param>
 	/// <param name="arg0">The value to replace {0} in the format string.</param>
 	/// <param name="arg1">The value to replace {1} in the format string.</param>
+	[SetsRequiredMembers]
 	public DiagnosticMessage(
 		string messageFormat,
 		object? arg0,
@@ -54,13 +58,14 @@ public sealed class DiagnosticMessage : MessageSinkMessage
 			Message = string.Format(CultureInfo.CurrentCulture, Guard.ArgumentNotNull(messageFormat), arg0, arg1);
 
 	/// <summary>
-	/// Creats a new instance of the <see cref="DiagnosticMessage"/> class with
+	/// Creates a new instance of the <see cref="DiagnosticMessage"/> class with
 	/// the provided message format and three arguments.
 	/// </summary>
 	/// <param name="messageFormat">The message format string</param>
 	/// <param name="arg0">The value to replace {0} in the format string.</param>
 	/// <param name="arg1">The value to replace {1} in the format string.</param>
 	/// <param name="arg2">The value to replace {2} in the format string.</param>
+	[SetsRequiredMembers]
 	public DiagnosticMessage(
 		string messageFormat,
 		object? arg0,
@@ -69,11 +74,12 @@ public sealed class DiagnosticMessage : MessageSinkMessage
 			Message = string.Format(CultureInfo.CurrentCulture, Guard.ArgumentNotNull(messageFormat), arg0, arg1, arg2);
 
 	/// <summary>
-	/// Creats a new instance of the <see cref="DiagnosticMessage"/> class with
+	/// Creates a new instance of the <see cref="DiagnosticMessage"/> class with
 	/// the provided message format and multiple arguments.
 	/// </summary>
 	/// <param name="messageFormat">The message format string</param>
 	/// <param name="args">An object array that contains zero or more objects to format.</param>
+	[SetsRequiredMembers]
 	public DiagnosticMessage(
 		string messageFormat,
 		params object?[] args) =>
@@ -82,7 +88,7 @@ public sealed class DiagnosticMessage : MessageSinkMessage
 	/// <summary>
 	/// Gets or sets the diagnostic message.
 	/// </summary>
-	public string Message
+	public required string Message
 	{
 		get => this.ValidateNullablePropertyValue(message, nameof(Message));
 		set => message = Guard.ArgumentNotNull(value, nameof(Message));

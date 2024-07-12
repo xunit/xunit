@@ -36,65 +36,61 @@ public class XunitTestCollectionRunner :
 	/// <inheritdoc/>
 	protected override ValueTask<bool> OnTestCollectionCleanupFailure(
 		XunitTestCollectionRunnerContext ctxt,
-		Exception exception) =>
-			new(ReportMessage(ctxt, new TestCollectionCleanupFailure(), exception: exception));
+		Exception exception)
+	{
+		Guard.ArgumentNotNull(ctxt);
+
+		var (types, messages, stackTraces, indices, _) = ExceptionUtility.ExtractMetadata(exception);
+
+		return new(ctxt.MessageBus.QueueMessage(new TestCollectionCleanupFailure
+		{
+			AssemblyUniqueID = ctxt.TestCollection.TestAssembly.UniqueID,
+			ExceptionParentIndices = indices,
+			ExceptionTypes = types,
+			Messages = messages,
+			StackTraces = stackTraces,
+			TestCollectionUniqueID = ctxt.TestCollection.UniqueID,
+		}));
+	}
 
 	/// <inheritdoc/>
 	protected override async ValueTask<bool> OnTestCollectionFinished(
 		XunitTestCollectionRunnerContext ctxt,
 		RunSummary summary)
 	{
-		await Guard.ArgumentNotNull(ctxt).Aggregator.RunAsync(ctxt.CollectionFixtureMappings.DisposeAsync);
+		Guard.ArgumentNotNull(ctxt);
 
-		return ReportMessage(ctxt, new TestCollectionFinished(), summary: summary);
+		await ctxt.Aggregator.RunAsync(ctxt.CollectionFixtureMappings.DisposeAsync);
+
+		return ctxt.MessageBus.QueueMessage(new TestCollectionFinished
+		{
+			AssemblyUniqueID = ctxt.TestCollection.TestAssembly.UniqueID,
+			ExecutionTime = summary.Time,
+			TestCollectionUniqueID = ctxt.TestCollection.UniqueID,
+			TestsFailed = summary.Failed,
+			TestsNotRun = summary.NotRun,
+			TestsSkipped = summary.Skipped,
+			TestsTotal = summary.Total,
+		});
 	}
 
 	/// <inheritdoc/>
 	protected override async ValueTask<bool> OnTestCollectionStarting(XunitTestCollectionRunnerContext ctxt)
 	{
-		var result = ReportMessage(ctxt, new TestCollectionStarting
+		Guard.ArgumentNotNull(ctxt);
+
+		var result = ctxt.MessageBus.QueueMessage(new TestCollectionStarting
 		{
+			AssemblyUniqueID = ctxt.TestCollection.TestAssembly.UniqueID,
 			TestCollectionClassName = Guard.ArgumentNotNull(ctxt).TestCollection.TestCollectionClassName,
 			TestCollectionDisplayName = ctxt.TestCollection.TestCollectionDisplayName,
+			TestCollectionUniqueID = ctxt.TestCollection.UniqueID,
 			Traits = ctxt.TestCollection.Traits,
 		});
 
 		await ctxt.Aggregator.RunAsync(() => ctxt.CollectionFixtureMappings.InitializeAsync(ctxt.TestCollection.CollectionFixtureTypes));
 
 		return result;
-	}
-
-	static bool ReportMessage(
-		XunitTestCollectionRunnerContext ctxt,
-		TestCollectionMessage message,
-		RunSummary summary = default,
-		Exception? exception = null)
-	{
-		Guard.ArgumentNotNull(ctxt);
-
-		message.AssemblyUniqueID = ctxt.TestCollection.TestAssembly.UniqueID;
-		message.TestCollectionUniqueID = ctxt.TestCollection.UniqueID;
-
-		if (message is IWritableExecutionSummaryMetadata summaryMessage)
-		{
-			summaryMessage.ExecutionTime = summary.Time;
-			summaryMessage.TestsFailed = summary.Failed;
-			summaryMessage.TestsNotRun = summary.NotRun;
-			summaryMessage.TestsSkipped = summary.Skipped;
-			summaryMessage.TestsTotal = summary.Total;
-		}
-
-		if (exception is not null && message is IWritableErrorMetadata errorMessage)
-		{
-			var (types, messages, stackTraces, indices, _) = ExceptionUtility.ExtractMetadata(exception);
-
-			errorMessage.ExceptionParentIndices = indices;
-			errorMessage.ExceptionTypes = types;
-			errorMessage.Messages = messages;
-			errorMessage.StackTraces = stackTraces;
-		}
-
-		return ctxt.MessageBus.QueueMessage(message);
 	}
 
 	/// <summary>

@@ -22,23 +22,23 @@ public sealed class TestCaseDiscovered : TestCaseMessage, ITestCaseMetadata, IWr
 	/// Gets the serialized value of the test case, which allows it to be transferred across
 	/// process boundaries.
 	/// </summary>
-	public string Serialization
+	public required string Serialization
 	{
 		get => this.ValidateNullablePropertyValue(serialization, nameof(Serialization));
 		set => serialization = Guard.ArgumentNotNull(value, nameof(Serialization));
 	}
 
 	/// <inheritdoc/>
-	public string? SkipReason { get; set; }
+	public required string? SkipReason { get; set; }
 
 	/// <inheritdoc/>
-	public string? SourceFilePath { get; set; }
+	public required string? SourceFilePath { get; set; }
 
 	/// <inheritdoc/>
-	public int? SourceLineNumber { get; set; }
+	public required int? SourceLineNumber { get; set; }
 
 	/// <inheritdoc/>
-	public string TestCaseDisplayName
+	public required string TestCaseDisplayName
 	{
 		get => this.ValidateNullablePropertyValue(testCaseDisplayName, nameof(TestCaseDisplayName));
 		set => testCaseDisplayName = Guard.ArgumentNotNullOrEmpty(value, nameof(TestCaseDisplayName));
@@ -46,7 +46,7 @@ public sealed class TestCaseDiscovered : TestCaseMessage, ITestCaseMetadata, IWr
 
 	/// <inheritdoc/>
 	[NotNullIfNotNull(nameof(TestMethodName))]
-	public string? TestClassName
+	public required string? TestClassName
 	{
 		get
 		{
@@ -67,13 +67,13 @@ public sealed class TestCaseDiscovered : TestCaseMessage, ITestCaseMetadata, IWr
 	}
 
 	/// <inheritdoc/>
-	public string? TestClassNamespace { get; set; }
+	public required string? TestClassNamespace { get; set; }
 
 	/// <inheritdoc/>
-	public string? TestMethodName { get; set; }
+	public required string? TestMethodName { get; set; }
 
 	/// <inheritdoc/>
-	public IReadOnlyDictionary<string, IReadOnlyList<string>> Traits
+	public required IReadOnlyDictionary<string, IReadOnlyList<string>> Traits
 	{
 		get => this.ValidateNullablePropertyValue(traits, nameof(Traits));
 		set => traits = Guard.ArgumentNotNull(value, nameof(Traits));

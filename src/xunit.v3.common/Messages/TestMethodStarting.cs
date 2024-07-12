@@ -14,14 +14,14 @@ public sealed class TestMethodStarting : TestMethodMessage, ITestMethodMetadata,
 	IReadOnlyDictionary<string, IReadOnlyList<string>>? traits;
 
 	/// <inheritdoc/>
-	public string MethodName
+	public required string MethodName
 	{
 		get => this.ValidateNullablePropertyValue(testMethod, nameof(MethodName));
 		set => testMethod = Guard.ArgumentNotNullOrEmpty(value, nameof(MethodName));
 	}
 
 	/// <inheritdoc/>
-	public IReadOnlyDictionary<string, IReadOnlyList<string>> Traits
+	public required IReadOnlyDictionary<string, IReadOnlyList<string>> Traits
 	{
 		get => this.ValidateNullablePropertyValue(traits, nameof(Traits));
 		set => traits = Guard.ArgumentNotNull(value, nameof(Traits));

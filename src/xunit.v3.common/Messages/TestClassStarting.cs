@@ -14,17 +14,17 @@ public sealed class TestClassStarting : TestClassMessage, ITestClassMetadata, IW
 	IReadOnlyDictionary<string, IReadOnlyList<string>>? traits;
 
 	/// <inheritdoc/>
-	public string TestClassName
+	public required string TestClassName
 	{
 		get => this.ValidateNullablePropertyValue(testClassName, nameof(TestClassName));
 		set => testClassName = Guard.ArgumentNotNullOrEmpty(value, nameof(TestClassName));
 	}
 
 	/// <inheritdoc/>
-	public string? TestClassNamespace { get; set; }
+	public required string? TestClassNamespace { get; set; }
 
 	/// <inheritdoc/>
-	public IReadOnlyDictionary<string, IReadOnlyList<string>> Traits
+	public required IReadOnlyDictionary<string, IReadOnlyList<string>> Traits
 	{
 		get => this.ValidateNullablePropertyValue(traits, nameof(Traits));
 		set => traits = Guard.ArgumentNotNull(value, nameof(Traits));

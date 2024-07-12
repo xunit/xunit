@@ -13,21 +13,21 @@ public abstract class TestResultMessage : TestMessage, IExecutionMetadata
 	string? output;
 
 	/// <inheritdoc/>
-	public decimal ExecutionTime
+	public required decimal ExecutionTime
 	{
 		get => this.ValidateNullablePropertyValue(executionTime, nameof(ExecutionTime));
 		set => executionTime = value;
 	}
 
 	/// <inheritdoc/>
-	public string Output
+	public required string Output
 	{
 		get => this.ValidateNullablePropertyValue(output, nameof(Output));
 		set => output = Guard.ArgumentNotNull(value, nameof(Output));
 	}
 
 	/// <inheritdoc/>
-	public string[]? Warnings { get; set; }
+	public required string[]? Warnings { get; set; }
 
 	/// <inheritdoc/>
 	protected override void ValidateObjectState(HashSet<string> invalidProperties)

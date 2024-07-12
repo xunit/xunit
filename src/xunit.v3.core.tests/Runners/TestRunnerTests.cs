@@ -1073,7 +1073,7 @@ public class TestRunnerTests
 
 			OnTestNotRun__Lambda?.Invoke();
 
-			return new((OnTestNotRun__Result, TestResultState.FromTestResult(new TestNotRun { ExecutionTime = 0m })));
+			return new((OnTestNotRun__Result, TestResultState.FromTestResult(TestData.TestNotRun())));
 		}
 
 		public Action? OnTestPassed__Lambda;
@@ -1088,7 +1088,7 @@ public class TestRunnerTests
 
 			OnTestPassed__Lambda?.Invoke();
 
-			return new((OnTestPassed__Result, TestResultState.FromTestResult(new TestPassed { ExecutionTime = 0m })));
+			return new((OnTestPassed__Result, TestResultState.FromTestResult(TestData.TestPassed())));
 		}
 
 		public Action? OnTestSkipped__Lambda;
@@ -1104,7 +1104,7 @@ public class TestRunnerTests
 
 			OnTestSkipped__Lambda?.Invoke();
 
-			return new((OnTestSkipped__Result, TestResultState.FromTestResult(new TestSkipped { ExecutionTime = 0m })));
+			return new((OnTestSkipped__Result, TestResultState.FromTestResult(TestData.TestSkipped())));
 		}
 
 		public Action? OnTestStarting__Lambda;

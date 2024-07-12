@@ -30,26 +30,53 @@ public class XunitTestAssemblyRunner :
 	/// <inheritdoc/>
 	protected override ValueTask<bool> OnTestAssemblyCleanupFailure(
 		XunitTestAssemblyRunnerContext ctxt,
-		Exception exception) =>
-			new(ReportMessage(ctxt, new TestAssemblyCleanupFailure(), exception: exception));
+		Exception exception)
+	{
+		Guard.ArgumentNotNull(ctxt);
+
+		var (types, messages, stackTraces, indices, _) = ExceptionUtility.ExtractMetadata(exception);
+
+		return new(ctxt.MessageBus.QueueMessage(new TestAssemblyCleanupFailure
+		{
+			AssemblyUniqueID = ctxt.TestAssembly.UniqueID,
+			ExceptionParentIndices = indices,
+			ExceptionTypes = types,
+			Messages = messages,
+			StackTraces = stackTraces,
+		}));
+	}
 
 	/// <inheritdoc/>
 	protected override async ValueTask<bool> OnTestAssemblyFinished(
 		XunitTestAssemblyRunnerContext ctxt,
 		RunSummary summary)
 	{
-		await Guard.ArgumentNotNull(ctxt).Aggregator.RunAsync(ctxt.AssemblyFixtureMappings.DisposeAsync);
+		Guard.ArgumentNotNull(ctxt);
 
-		return ReportMessage(ctxt, new TestAssemblyFinished { FinishTime = DateTimeOffset.Now }, summary: summary);
+		await ctxt.Aggregator.RunAsync(ctxt.AssemblyFixtureMappings.DisposeAsync);
+
+		return ctxt.MessageBus.QueueMessage(new TestAssemblyFinished
+		{
+			AssemblyUniqueID = ctxt.TestAssembly.UniqueID,
+			FinishTime = DateTimeOffset.Now,
+			ExecutionTime = summary.Time,
+			TestsFailed = summary.Failed,
+			TestsNotRun = summary.NotRun,
+			TestsSkipped = summary.Skipped,
+			TestsTotal = summary.Total,
+		});
 	}
 
 	/// <inheritdoc/>
 	protected override async ValueTask<bool> OnTestAssemblyStarting(XunitTestAssemblyRunnerContext ctxt)
 	{
-		var result = ReportMessage(ctxt, new TestAssemblyStarting
+		Guard.ArgumentNotNull(ctxt);
+
+		var result = ctxt.MessageBus.QueueMessage(new TestAssemblyStarting
 		{
-			AssemblyName = Path.GetFileNameWithoutExtension(Guard.ArgumentNotNull(ctxt).TestAssembly.AssemblyPath),
+			AssemblyName = Path.GetFileNameWithoutExtension(ctxt.TestAssembly.AssemblyPath),
 			AssemblyPath = ctxt.TestAssembly.AssemblyPath,
+			AssemblyUniqueID = ctxt.TestAssembly.UniqueID,
 			ConfigFilePath = ctxt.TestAssembly.ConfigFilePath,
 			Seed = Randomizer.Seed,
 			StartTime = DateTimeOffset.Now,
@@ -107,38 +134,6 @@ public class XunitTestAssemblyRunner :
 			orderedTestCollections
 				.Select(collection => (collection, testCasesByCollection[collection]))
 				.ToList();
-	}
-
-	static bool ReportMessage(
-		XunitTestAssemblyRunnerContext ctxt,
-		TestAssemblyMessage message,
-		RunSummary summary = default,
-		Exception? exception = null)
-	{
-		Guard.ArgumentNotNull(ctxt);
-
-		message.AssemblyUniqueID = ctxt.TestAssembly.UniqueID;
-
-		if (message is IWritableExecutionSummaryMetadata summaryMessage)
-		{
-			summaryMessage.ExecutionTime = summary.Time;
-			summaryMessage.TestsFailed = summary.Failed;
-			summaryMessage.TestsNotRun = summary.NotRun;
-			summaryMessage.TestsSkipped = summary.Skipped;
-			summaryMessage.TestsTotal = summary.Total;
-		}
-
-		if (exception is not null && message is IWritableErrorMetadata errorMessage)
-		{
-			var (types, messages, stackTraces, indices, _) = ExceptionUtility.ExtractMetadata(exception);
-
-			errorMessage.ExceptionParentIndices = indices;
-			errorMessage.ExceptionTypes = types;
-			errorMessage.Messages = messages;
-			errorMessage.StackTraces = stackTraces;
-		}
-
-		return ctxt.MessageBus.QueueMessage(message);
 	}
 
 	/// <summary>

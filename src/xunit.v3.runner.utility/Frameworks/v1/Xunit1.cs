@@ -21,6 +21,8 @@ namespace Xunit.Runner.v1;
 /// </summary>
 public class Xunit1 : IFrontController
 {
+	internal static IReadOnlyDictionary<string, IReadOnlyList<string>> EmptyTraits = new Dictionary<string, List<string>>().ToReadOnly();
+
 	readonly AppDomainSupport appDomainSupport;
 	readonly string assemblyFileName;
 	readonly string? configFileName;
@@ -318,9 +320,12 @@ public class Xunit1 : IFrontController
 			AssemblyPath = assemblyFileName,
 			AssemblyUniqueID = TestAssemblyUniqueID,
 			ConfigFilePath = configFileName,
+			Seed = null,
 			StartTime = DateTimeOffset.Now,
 			TestEnvironment = environment,
 			TestFrameworkDisplayName = TestFrameworkDisplayName,
+			TargetFramework = null,
+			Traits = EmptyTraits,
 		};
 
 		if (messageSink.OnMessage(testAssemblyStartingMessage))
@@ -392,7 +397,8 @@ public class Xunit1 : IFrontController
 			AssemblyUniqueID = testCases[0].AssemblyUniqueID,
 			TestCollectionClassName = null,
 			TestCollectionDisplayName = string.Format(CultureInfo.CurrentCulture, "xUnit.net v1 Tests for {0}", assemblyFileName),
-			TestCollectionUniqueID = testCases[0].TestCollectionUniqueID
+			TestCollectionUniqueID = testCases[0].TestCollectionUniqueID,
+			Traits = EmptyTraits,
 		};
 
 		var results = new Xunit1RunSummary
@@ -451,7 +457,8 @@ public class Xunit1 : IFrontController
 			TestClassName = typeName,
 			TestClassNamespace = testClassNamespace,
 			TestClassUniqueID = testCases[0].TestClassUniqueID,
-			TestCollectionUniqueID = testCases[0].TestCollectionUniqueID
+			TestCollectionUniqueID = testCases[0].TestCollectionUniqueID,
+			Traits = EmptyTraits,
 		};
 
 		results.Continue = messageSink.OnMessage(testClassStarting);

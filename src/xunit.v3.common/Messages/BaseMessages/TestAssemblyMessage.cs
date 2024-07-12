@@ -15,7 +15,7 @@ public abstract class TestAssemblyMessage : MessageSinkMessage
 	/// Gets the assembly's unique ID. Can be used to correlate test messages with the appropriate
 	/// assembly that they're related to.
 	/// </summary>
-	public string AssemblyUniqueID
+	public required string AssemblyUniqueID
 	{
 		get => this.ValidateNullablePropertyValue(assemblyUniqueID, nameof(AssemblyUniqueID));
 		set => assemblyUniqueID = Guard.ArgumentNotNullOrEmpty(value, nameof(AssemblyUniqueID));

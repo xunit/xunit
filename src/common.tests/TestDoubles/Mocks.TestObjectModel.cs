@@ -120,7 +120,7 @@ public static partial class Mocks
 	}
 
 	public static ITestMethod TestMethod(
-		string methodName = TestData.DefaultTestMethodName,
+		string methodName = TestData.DefaultMethodName,
 		ITestClass? testClass = null,
 		string uniqueID = TestData.DefaultTestMethodUniqueID)
 	{
@@ -338,7 +338,7 @@ public static partial class Mocks
 		string? displayName = null,
 		IReadOnlyCollection<IFactAttribute>? factAttributes = null,
 		bool isGenericMethodDefinition = false,
-		string methodName = TestData.DefaultTestMethodName,
+		string methodName = TestData.DefaultMethodName,
 		IReadOnlyCollection<ParameterInfo>? parameters = null,
 		IXunitTestClass? testClass = null,
 		object?[]? testMethodArguments = null,
@@ -375,7 +375,7 @@ public static partial class Mocks
 		string? displayName = null,
 		IReadOnlyCollection<IFactAttribute>? factAttributes = null,
 		bool isGenericMethodDefinition = false,
-		string methodName = TestData.DefaultTestMethodName,
+		string methodName = TestData.DefaultMethodName,
 		IReadOnlyCollection<ParameterInfo>? parameters = null,
 		object?[]? testMethodArguments = null,
 		IReadOnlyDictionary<string, IReadOnlyList<string>>? traits = null,

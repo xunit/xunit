@@ -15,7 +15,7 @@ public abstract class TestCollectionMessage : TestAssemblyMessage
 	/// Gets the test collection's unique ID. Can be used to correlate test messages with the appropriate
 	/// test collection that they're related to.
 	/// </summary>
-	public string TestCollectionUniqueID
+	public required string TestCollectionUniqueID
 	{
 		get => this.ValidateNullablePropertyValue(testCollectionUniqueID, nameof(TestCollectionUniqueID));
 		set => testCollectionUniqueID = Guard.ArgumentNotNullOrEmpty(value, nameof(TestCollectionUniqueID));

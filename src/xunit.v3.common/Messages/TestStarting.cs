@@ -14,20 +14,20 @@ public sealed class TestStarting : TestMessage, ITestMetadata, IWritableTestMeta
 	IReadOnlyDictionary<string, IReadOnlyList<string>>? traits;
 
 	/// <inheritdoc/>
-	public bool Explicit { get; set; }
+	public required bool Explicit { get; set; }
 
 	/// <inheritdoc/>
-	public string TestDisplayName
+	public required string TestDisplayName
 	{
 		get => this.ValidateNullablePropertyValue(testDisplayName, nameof(TestDisplayName));
 		set => testDisplayName = Guard.ArgumentNotNullOrEmpty(value, nameof(TestDisplayName));
 	}
 
 	/// <inheritdoc/>
-	public int Timeout { get; set; }
+	public required int Timeout { get; set; }
 
 	/// <inheritdoc/>
-	public IReadOnlyDictionary<string, IReadOnlyList<string>> Traits
+	public required IReadOnlyDictionary<string, IReadOnlyList<string>> Traits
 	{
 		get => this.ValidateNullablePropertyValue(traits, nameof(Traits));
 		set => traits = Guard.ArgumentNotNull(value, nameof(Traits));

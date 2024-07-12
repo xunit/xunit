@@ -492,7 +492,7 @@ public class ExecutionSinkTests
 			var assemblyStarting = TestData.TestAssemblyStarting();
 			var collectionStarting = TestData.TestCollectionStarting();
 			var classStarting = TestData.TestClassStarting(testClassName: typeof(ClassUnderTest).FullName!);
-			var methodStarting = TestData.TestMethodStarting(testMethod: nameof(ClassUnderTest.TestMethod));
+			var methodStarting = TestData.TestMethodStarting(methodName: nameof(ClassUnderTest.TestMethod));
 			var caseStarting = TestData.TestCaseStarting(traits: TestData.EmptyTraits);
 			var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
 			var testPassed = TestData.TestPassed(executionTime: 123.4567809m, output: "test output");
@@ -530,7 +530,7 @@ public class ExecutionSinkTests
 			var assemblyStarting = TestData.TestAssemblyStarting();
 			var collectionStarting = TestData.TestCollectionStarting();
 			var classStarting = TestData.TestClassStarting(testClassName: typeof(ClassUnderTest).FullName!);
-			var methodStarting = TestData.TestMethodStarting(testMethod: nameof(ClassUnderTest.TestMethod));
+			var methodStarting = TestData.TestMethodStarting(methodName: nameof(ClassUnderTest.TestMethod));
 			var caseStarting = TestData.TestCaseStarting(traits: TestData.EmptyTraits);
 			var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
 			var testPassed = TestData.TestPassed(executionTime: 123.4567809m, output: "");
@@ -568,7 +568,7 @@ public class ExecutionSinkTests
 			var assemblyStarting = TestData.TestAssemblyStarting();
 			var collectionStarting = TestData.TestCollectionStarting();
 			var classStarting = TestData.TestClassStarting(testClassName: typeof(ClassUnderTest).FullName!);
-			var methodStarting = TestData.TestMethodStarting(testMethod: nameof(ClassUnderTest.TestMethod));
+			var methodStarting = TestData.TestMethodStarting(methodName: nameof(ClassUnderTest.TestMethod));
 			var caseStarting = TestData.TestCaseStarting();
 			var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
 			var testFailed = TestData.TestFailed(
@@ -613,7 +613,7 @@ public class ExecutionSinkTests
 			var assemblyStarting = TestData.TestAssemblyStarting();
 			var collectionStarting = TestData.TestCollectionStarting();
 			var classStarting = TestData.TestClassStarting(testClassName: typeof(ClassUnderTest).FullName!);
-			var methodStarting = TestData.TestMethodStarting(testMethod: nameof(ClassUnderTest.TestMethod));
+			var methodStarting = TestData.TestMethodStarting(methodName: nameof(ClassUnderTest.TestMethod));
 			var caseStarting = TestData.TestCaseStarting();
 			var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
 			var testFailed = TestData.TestFailed(
@@ -649,7 +649,7 @@ public class ExecutionSinkTests
 			var assemblyStarting = TestData.TestAssemblyStarting();
 			var collectionStarting = TestData.TestCollectionStarting();
 			var classStarting = TestData.TestClassStarting(testClassName: typeof(ClassUnderTest).FullName!);
-			var methodStarting = TestData.TestMethodStarting(testMethod: nameof(ClassUnderTest.TestMethod));
+			var methodStarting = TestData.TestMethodStarting(methodName: nameof(ClassUnderTest.TestMethod));
 			var caseStarting = TestData.TestCaseStarting();
 			var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
 			var testSkipped = TestData.TestSkipped(reason: "Skip Reason");
@@ -684,7 +684,7 @@ public class ExecutionSinkTests
 			var assemblyStarting = TestData.TestAssemblyStarting();
 			var collectionStarting = TestData.TestCollectionStarting();
 			var classStarting = TestData.TestClassStarting(testClassName: typeof(ClassUnderTest).FullName!);
-			var methodStarting = TestData.TestMethodStarting(testMethod: nameof(ClassUnderTest.TestMethod));
+			var methodStarting = TestData.TestMethodStarting(methodName: nameof(ClassUnderTest.TestMethod));
 			var caseStarting = TestData.TestCaseStarting();
 			var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
 			var testNotRun = TestData.TestNotRun();
@@ -803,7 +803,7 @@ public class ExecutionSinkTests
 			string outputName)
 		{
 			var classStarting = TestData.TestClassStarting(testClassName: typeof(ClassUnderTest).FullName!);
-			var methodStarting = TestData.TestMethodStarting(testMethod: nameof(ClassUnderTest.TestMethod));
+			var methodStarting = TestData.TestMethodStarting(methodName: nameof(ClassUnderTest.TestMethod));
 			var testStarting = TestData.TestStarting(testDisplayName: inputName);
 			var testSkipped = TestData.TestSkipped(reason: "Bad\0\r\nString");
 
@@ -1023,7 +1023,7 @@ public class ExecutionSinkTests
 				assemblyUniqueID: assemblyID,
 				testClassUniqueID: classID,
 				testCollectionUniqueID: collectionID,
-				testMethod: "MyMethod",
+				methodName: "MyMethod",
 				testMethodUniqueID: methodID
 			);
 			var methodCleanupFailure = TestData.TestMethodCleanupFailure(

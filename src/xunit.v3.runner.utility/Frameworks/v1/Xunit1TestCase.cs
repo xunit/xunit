@@ -183,24 +183,15 @@ public sealed class Xunit1TestCase : IXunitSerializable
 	public TestCaseDiscovered ToTestCaseDiscovered(bool includeSerialization)
 	{
 		string? @namespace = null;
-		string? @class;
 
 		var namespaceIdx = TestClass.LastIndexOf('.');
-		if (namespaceIdx < 0)
-			@class = TestClass;
-		else
-		{
+		if (namespaceIdx >= 0)
 			@namespace = TestClass.Substring(0, namespaceIdx);
-			@class = TestClass.Substring(namespaceIdx + 1);
-
-			var innerClassIdx = @class.LastIndexOf('+');
-			if (innerClassIdx >= 0)
-				@class = @class.Substring(innerClassIdx + 1);
-		}
 
 		var result = new TestCaseDiscovered
 		{
 			AssemblyUniqueID = AssemblyUniqueID,
+			Serialization = includeSerialization ? SerializationHelper.Serialize(this)! : string.Empty,
 			SkipReason = SkipReason,
 			SourceFilePath = SourceFilePath,
 			SourceLineNumber = SourceLineNumber,
@@ -212,11 +203,8 @@ public sealed class Xunit1TestCase : IXunitSerializable
 			TestCollectionUniqueID = TestCollectionUniqueID,
 			TestMethodName = TestMethod,
 			TestMethodUniqueID = TestMethodUniqueID,
-			Traits = Traits
+			Traits = Traits,
 		};
-
-		if (includeSerialization)
-			result.Serialization = SerializationHelper.Serialize(this)!;
 
 		return result;
 	}
@@ -313,6 +301,7 @@ public sealed class Xunit1TestCase : IXunitSerializable
 			TestCollectionUniqueID = TestCollectionUniqueID,
 			TestMethodUniqueID = TestMethodUniqueID,
 			TestUniqueID = UniqueIDGenerator.ForTest(TestCaseUniqueID, currentTestIndex),
+			Warnings = null,
 		};
 	}
 
@@ -333,6 +322,7 @@ public sealed class Xunit1TestCase : IXunitSerializable
 				TestCollectionUniqueID = TestCollectionUniqueID,
 				TestMethodUniqueID = TestMethodUniqueID,
 				TestUniqueID = UniqueIDGenerator.ForTest(TestCaseUniqueID, currentTestIndex),
+				Warnings = null,
 			};
 
 	/// <summary>
@@ -349,6 +339,7 @@ public sealed class Xunit1TestCase : IXunitSerializable
 			TestCollectionUniqueID = TestCollectionUniqueID,
 			TestMethodUniqueID = TestMethodUniqueID,
 			TestUniqueID = UniqueIDGenerator.ForTest(TestCaseUniqueID, currentTestIndex),
+			Warnings = null,
 		};
 
 	/// <summary>
@@ -396,10 +387,11 @@ public sealed class Xunit1TestCase : IXunitSerializable
 		new()
 		{
 			AssemblyUniqueID = AssemblyUniqueID,
+			MethodName = TestMethod,
 			TestClassUniqueID = TestClassUniqueID,
 			TestCollectionUniqueID = TestCollectionUniqueID,
-			MethodName = TestMethod,
 			TestMethodUniqueID = TestMethodUniqueID,
+			Traits = Xunit1.EmptyTraits,
 		};
 
 	/// <summary>
@@ -416,6 +408,7 @@ public sealed class Xunit1TestCase : IXunitSerializable
 			TestCollectionUniqueID = TestCollectionUniqueID,
 			TestMethodUniqueID = TestMethodUniqueID,
 			TestUniqueID = UniqueIDGenerator.ForTest(TestCaseUniqueID, currentTestIndex),
+			Warnings = null,
 		};
 
 	/// <summary>
@@ -452,6 +445,7 @@ public sealed class Xunit1TestCase : IXunitSerializable
 				TestCollectionUniqueID = TestCollectionUniqueID,
 				TestMethodUniqueID = TestMethodUniqueID,
 				TestUniqueID = UniqueIDGenerator.ForTest(TestCaseUniqueID, currentTestIndex),
+				Warnings = null,
 			};
 
 	/// <summary>
@@ -471,6 +465,7 @@ public sealed class Xunit1TestCase : IXunitSerializable
 				TestCollectionUniqueID = TestCollectionUniqueID,
 				TestMethodUniqueID = TestMethodUniqueID,
 				TestUniqueID = UniqueIDGenerator.ForTest(TestCaseUniqueID, currentTestIndex),
+				Warnings = null,
 			};
 
 	/// <summary>
@@ -482,12 +477,15 @@ public sealed class Xunit1TestCase : IXunitSerializable
 			new()
 			{
 				AssemblyUniqueID = AssemblyUniqueID,
+				Explicit = false,
 				TestCaseUniqueID = TestCaseUniqueID,
 				TestClassUniqueID = TestClassUniqueID,
 				TestCollectionUniqueID = TestCollectionUniqueID,
 				TestDisplayName = testDisplayName,
 				TestMethodUniqueID = TestMethodUniqueID,
 				TestUniqueID = UniqueIDGenerator.ForTest(TestCaseUniqueID, currentTestIndex),
+				Timeout = 0,
+				Traits = Xunit1.EmptyTraits,
 			};
 }
 

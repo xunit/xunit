@@ -10,15 +10,11 @@ public class TeamCityReporterMessageHandlerTests
 	public class FailureMessages
 	{
 		readonly string assemblyID = "assembly-id\t\r\n";
-		readonly string classID = "test-class-id\t\r\n";
 		readonly string collectionID = "test-collection-id\t\r\n";
-		readonly int[] exceptionParentIndices = new[] { -1 };
-		readonly string[] exceptionTypes = new[] { "\x2018ExceptionType\x2019" };
-		readonly string[] messages = new[] { "This is my message \x2020\t\r\n" };
-		readonly string methodID = "test-method-id\t\r\n";
-		readonly string[] stackTraces = new[] { "Line 1 \x0d60\r\nLine 2 \x1f64\r\nLine 3 \x999f" };
-		readonly string testCaseID = "test-case-id\t\r\n";
-		readonly string testID = "test-id\t\r\n";
+		readonly int[] exceptionParentIndices = [-1];
+		readonly string[] exceptionTypes = ["\x2018ExceptionType\x2019"];
+		readonly string[] messages = ["This is my message \x2020\t\r\n"];
+		readonly string[] stackTraces = ["Line 1 \x0d60\r\nLine 2 \x1f64\r\nLine 3 \x999f"];
 
 		[Fact]
 		public void ErrorMessage()
@@ -40,19 +36,14 @@ public class TeamCityReporterMessageHandlerTests
 		[Fact]
 		public void TestAssemblyCleanupFailure()
 		{
-			var collectionStarting = new TestAssemblyStarting
-			{
-				AssemblyUniqueID = assemblyID,
-				AssemblyPath = @"C:\Foo\Bar.dll"
-			};
-			var collectionCleanupFailure = new TestAssemblyCleanupFailure
-			{
-				AssemblyUniqueID = assemblyID,
-				ExceptionParentIndices = exceptionParentIndices,
-				ExceptionTypes = exceptionTypes,
-				Messages = messages,
-				StackTraces = stackTraces
-			};
+			var collectionStarting = TestData.TestAssemblyStarting(assemblyUniqueID: assemblyID, assemblyPath: @"C:\Foo\Bar.dll");
+			var collectionCleanupFailure = TestData.TestAssemblyCleanupFailure(
+				assemblyUniqueID: assemblyID,
+				exceptionParentIndices: exceptionParentIndices,
+				exceptionTypes: exceptionTypes,
+				messages: messages,
+				stackTraces: stackTraces
+			);
 			var handler = TestableTeamCityReporterMessageHandler.Create();
 
 			handler.OnMessage(collectionStarting);
@@ -64,27 +55,14 @@ public class TeamCityReporterMessageHandlerTests
 		[Fact]
 		public void TestCaseCleanupFailure()
 		{
-			var caseStarting = new TestCaseStarting
-			{
-				AssemblyUniqueID = assemblyID,
-				TestCaseUniqueID = testCaseID,
-				TestCaseDisplayName = "MyTestCase\t\r\n",
-				TestClassUniqueID = classID,
-				TestCollectionUniqueID = collectionID,
-				TestMethodUniqueID = methodID
-			};
-			var caseCleanupFailure = new TestCaseCleanupFailure
-			{
-				AssemblyUniqueID = assemblyID,
-				ExceptionParentIndices = exceptionParentIndices,
-				ExceptionTypes = exceptionTypes,
-				Messages = messages,
-				StackTraces = stackTraces,
-				TestCaseUniqueID = testCaseID,
-				TestCollectionUniqueID = collectionID,
-				TestClassUniqueID = classID,
-				TestMethodUniqueID = methodID
-			};
+			var caseStarting = TestData.TestCaseStarting(testCollectionUniqueID: collectionID, testCaseDisplayName: "MyTestCase\t\r\n");
+			var caseCleanupFailure = TestData.TestCaseCleanupFailure(
+				exceptionParentIndices: exceptionParentIndices,
+				exceptionTypes: exceptionTypes,
+				messages: messages,
+				stackTraces: stackTraces,
+				testCollectionUniqueID: collectionID
+			);
 			var handler = TestableTeamCityReporterMessageHandler.Create();
 
 			handler.OnMessage(caseStarting);
@@ -96,23 +74,14 @@ public class TeamCityReporterMessageHandlerTests
 		[Fact]
 		public void TestClassCleanupFailure()
 		{
-			var classStarting = new TestClassStarting
-			{
-				AssemblyUniqueID = assemblyID,
-				TestClassName = "MyType\t\r\n",
-				TestClassUniqueID = classID,
-				TestCollectionUniqueID = collectionID
-			};
-			var classCleanupFailure = new TestClassCleanupFailure
-			{
-				AssemblyUniqueID = assemblyID,
-				ExceptionParentIndices = exceptionParentIndices,
-				ExceptionTypes = exceptionTypes,
-				Messages = messages,
-				StackTraces = stackTraces,
-				TestCollectionUniqueID = collectionID,
-				TestClassUniqueID = classID
-			};
+			var classStarting = TestData.TestClassStarting(testCollectionUniqueID: collectionID, testClassName: "MyType\t\r\n");
+			var classCleanupFailure = TestData.TestClassCleanupFailure(
+				exceptionParentIndices: exceptionParentIndices,
+				exceptionTypes: exceptionTypes,
+				messages: messages,
+				stackTraces: stackTraces,
+				testCollectionUniqueID: collectionID
+			);
 			var handler = TestableTeamCityReporterMessageHandler.Create();
 
 			handler.OnMessage(classStarting);
@@ -124,29 +93,14 @@ public class TeamCityReporterMessageHandlerTests
 		[Fact]
 		public void TestCleanupFailure()
 		{
-			var testStarting = new TestStarting
-			{
-				AssemblyUniqueID = assemblyID,
-				TestCaseUniqueID = testCaseID,
-				TestClassUniqueID = classID,
-				TestDisplayName = "MyTest\t\r\n",
-				TestCollectionUniqueID = collectionID,
-				TestMethodUniqueID = methodID,
-				TestUniqueID = testID
-			};
-			var testCleanupFailure = new TestCleanupFailure
-			{
-				AssemblyUniqueID = assemblyID,
-				ExceptionParentIndices = exceptionParentIndices,
-				ExceptionTypes = exceptionTypes,
-				Messages = messages,
-				StackTraces = stackTraces,
-				TestCaseUniqueID = testCaseID,
-				TestCollectionUniqueID = collectionID,
-				TestClassUniqueID = classID,
-				TestMethodUniqueID = methodID,
-				TestUniqueID = testID
-			};
+			var testStarting = TestData.TestStarting(testCollectionUniqueID: collectionID, testDisplayName: "MyTest\t\r\n");
+			var testCleanupFailure = TestData.TestCleanupFailure(
+				exceptionParentIndices: exceptionParentIndices,
+				exceptionTypes: exceptionTypes,
+				messages: messages,
+				stackTraces: stackTraces,
+				testCollectionUniqueID: collectionID
+			);
 			var handler = TestableTeamCityReporterMessageHandler.Create();
 
 			handler.OnMessage(testStarting);
@@ -158,21 +112,14 @@ public class TeamCityReporterMessageHandlerTests
 		[Fact]
 		public void TestCollectionCleanupFailure()
 		{
-			var collectionStarting = new TestCollectionStarting
-			{
-				AssemblyUniqueID = assemblyID,
-				TestCollectionDisplayName = "FooBar\t\r\n",
-				TestCollectionUniqueID = collectionID
-			};
-			var collectionCleanupFailure = new TestCollectionCleanupFailure
-			{
-				AssemblyUniqueID = assemblyID,
-				ExceptionParentIndices = exceptionParentIndices,
-				ExceptionTypes = exceptionTypes,
-				Messages = messages,
-				StackTraces = stackTraces,
-				TestCollectionUniqueID = collectionID
-			};
+			var collectionStarting = TestData.TestCollectionStarting(testCollectionUniqueID: collectionID, testCollectionDisplayName: "FooBar\t\r\n");
+			var collectionCleanupFailure = TestData.TestCollectionCleanupFailure(
+				exceptionParentIndices: exceptionParentIndices,
+				exceptionTypes: exceptionTypes,
+				messages: messages,
+				stackTraces: stackTraces,
+				testCollectionUniqueID: collectionID
+			);
 			var handler = TestableTeamCityReporterMessageHandler.Create();
 
 			handler.OnMessage(collectionStarting);
@@ -184,25 +131,14 @@ public class TeamCityReporterMessageHandlerTests
 		[Fact]
 		public void TestMethodCleanupFailure()
 		{
-			var methodStarting = new TestMethodStarting
-			{
-				AssemblyUniqueID = assemblyID,
-				MethodName = "MyMethod\t\r\n",
-				TestClassUniqueID = classID,
-				TestCollectionUniqueID = collectionID,
-				TestMethodUniqueID = methodID,
-			};
-			var methodCleanupFailure = new TestMethodCleanupFailure
-			{
-				AssemblyUniqueID = assemblyID,
-				ExceptionParentIndices = exceptionParentIndices,
-				ExceptionTypes = exceptionTypes,
-				Messages = messages,
-				StackTraces = stackTraces,
-				TestCollectionUniqueID = collectionID,
-				TestClassUniqueID = classID,
-				TestMethodUniqueID = methodID
-			};
+			var methodStarting = TestData.TestMethodStarting(testCollectionUniqueID: collectionID, methodName: "MyMethod\t\r\n");
+			var methodCleanupFailure = TestData.TestMethodCleanupFailure(
+				exceptionParentIndices: exceptionParentIndices,
+				exceptionTypes: exceptionTypes,
+				messages: messages,
+				stackTraces: stackTraces,
+				testCollectionUniqueID: collectionID
+			);
 			var handler = TestableTeamCityReporterMessageHandler.Create();
 
 			handler.OnMessage(methodStarting);

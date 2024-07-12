@@ -15,7 +15,7 @@ public abstract class TestCaseMessage : TestMethodMessage
 	/// Gets the test case's unique ID. Can be used to correlate test messages with the appropriate
 	/// test case that they're related to.
 	/// </summary>
-	public string TestCaseUniqueID
+	public required string TestCaseUniqueID
 	{
 		get => this.ValidateNullablePropertyValue(testCaseUniqueID, nameof(TestCaseUniqueID));
 		set => testCaseUniqueID = Guard.ArgumentNotNullOrEmpty(value, nameof(TestCaseUniqueID));

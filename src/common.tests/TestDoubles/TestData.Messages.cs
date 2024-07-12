@@ -449,7 +449,7 @@ public static partial class TestData
 		string testClassNamespace = DefaultTestClassNamespace,
 		string? testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
-		string testMethodName = DefaultTestMethodName,
+		string testMethodName = DefaultMethodName,
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
 		IReadOnlyDictionary<string, IReadOnlyList<string>>? traits = null) =>
 			new()
@@ -789,17 +789,17 @@ public static partial class TestData
 
 	public static TestMethodStarting TestMethodStarting(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
+		string methodName = DefaultMethodName,
 		string testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
-		string testMethod = DefaultTestMethodName,
 		string testMethodUniqueID = DefaultTestMethodUniqueID,
 		IReadOnlyDictionary<string, IReadOnlyList<string>>? traits = null) =>
 			new()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
+				MethodName = methodName,
 				TestClassUniqueID = testClassUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID,
-				MethodName = testMethod,
 				TestMethodUniqueID = testMethodUniqueID,
 				Traits = traits ?? DefaultTraits,
 			};

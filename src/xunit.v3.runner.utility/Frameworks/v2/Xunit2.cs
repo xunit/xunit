@@ -23,6 +23,8 @@ namespace Xunit.Runner.v2;
 /// </summary>
 public class Xunit2 : IFrontController
 {
+	internal static IReadOnlyDictionary<string, IReadOnlyList<string>> EmptyTraits = new Dictionary<string, List<string>>().ToReadOnly();
+
 #if NETFRAMEWORK
 	static readonly string[] SupportedPlatforms = ["dotnet", "desktop"];
 	static readonly string[] SupportedPlatforms_ForcedAppDomains = ["desktop"];
@@ -377,10 +379,12 @@ public class Xunit2 : IFrontController
 			AssemblyPath = assemblyInfo.AssemblyPath,
 			AssemblyUniqueID = TestAssemblyUniqueID,
 			ConfigFilePath = configFileName,
+			Seed = null,
 			StartTime = DateTimeOffset.Now,
 			TargetFramework = TargetFramework,
 			TestEnvironment = string.Format(CultureInfo.CurrentCulture, "{0}-bit {1}", IntPtr.Size * 8, RuntimeInformation.FrameworkDescription),  // This may not be exactly right, but without the remote app domain, we don't know for sure
 			TestFrameworkDisplayName = TestFrameworkDisplayName,
+			Traits = EmptyTraits,
 		});
 
 		// For reporting purposes, assume all tests are in the same collection
@@ -392,6 +396,7 @@ public class Xunit2 : IFrontController
 			TestCollectionClassName = null,
 			TestCollectionDisplayName = testCollectionDisplayName,
 			TestCollectionUniqueID = testCollectionUniqueID,
+			Traits = EmptyTraits,
 		});
 
 		foreach (var testCasesByClass in testCases.WhereNotNull().GroupBy(tc => tc.TestMethod?.TestClass.Class.Name))
@@ -413,6 +418,7 @@ public class Xunit2 : IFrontController
 					TestClassNamespace = testClassNamespace,
 					TestClassUniqueID = testClassUniqueID,
 					TestCollectionUniqueID = testCollectionUniqueID,
+					Traits = EmptyTraits,
 				});
 			}
 
@@ -425,10 +431,11 @@ public class Xunit2 : IFrontController
 					messageSink.OnMessage(new TestMethodStarting
 					{
 						AssemblyUniqueID = TestAssemblyUniqueID,
+						MethodName = testCasesByMethod.Key,
 						TestClassUniqueID = testClassUniqueID,
 						TestCollectionUniqueID = testCollectionUniqueID,
-						MethodName = testCasesByMethod.Key,
 						TestMethodUniqueID = testMethodUniqueID,
+						Traits = EmptyTraits,
 					});
 
 				var currentTestIdx = 0;
@@ -443,6 +450,9 @@ public class Xunit2 : IFrontController
 					messageSink.OnMessage(new TestCaseStarting
 					{
 						AssemblyUniqueID = TestAssemblyUniqueID,
+						SkipReason = null,
+						SourceFilePath = null,
+						SourceLineNumber = null,
 						TestCaseDisplayName = testCase.DisplayName,
 						TestCaseUniqueID = testCase.UniqueID,
 						TestClassName = testClassName,
@@ -480,6 +490,7 @@ public class Xunit2 : IFrontController
 						TestCollectionUniqueID = testCollectionUniqueID,
 						TestMethodUniqueID = testMethodUniqueID,
 						TestUniqueID = testUniqueID,
+						Warnings = null,
 					});
 
 					messageSink.OnMessage(new TestFinished
@@ -492,6 +503,7 @@ public class Xunit2 : IFrontController
 						TestCollectionUniqueID = testCollectionUniqueID,
 						TestMethodUniqueID = testMethodUniqueID,
 						TestUniqueID = testUniqueID,
+						Warnings = null,
 					});
 
 					messageSink.OnMessage(new TestCaseFinished

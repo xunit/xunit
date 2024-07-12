@@ -171,7 +171,11 @@ public class Xunit2MessageAdapter
 		new(message.Message);
 
 	DiscoveryComplete AdaptDiscoveryCompleteMessage(IDiscoveryCompleteMessage message) =>
-		new() { AssemblyUniqueID = assemblyUniqueID };
+		new()
+		{
+			AssemblyUniqueID = assemblyUniqueID,
+			TestCasesToRun = 0,  // TODO: Do we know this number?
+		};
 
 	ErrorMessage AdaptErrorMessage(IErrorMessage message) =>
 		new()
@@ -215,10 +219,12 @@ public class Xunit2MessageAdapter
 			AssemblyPath = message.TestAssembly.Assembly.AssemblyPath,
 			AssemblyUniqueID = assemblyUniqueID,
 			ConfigFilePath = message.TestAssembly.ConfigFileName,
+			Seed = null,
 			StartTime = message.StartTime,
 			TargetFramework = targetFramework,
 			TestEnvironment = message.TestEnvironment,
 			TestFrameworkDisplayName = message.TestFrameworkDisplayName,
+			Traits = Xunit2.EmptyTraits,
 		};
 	}
 
@@ -268,6 +274,7 @@ public class Xunit2MessageAdapter
 		var result = new TestCaseDiscovered
 		{
 			AssemblyUniqueID = assemblyUniqueID,
+			Serialization = discoverer?.Serialize(testCase) ?? string.Empty,
 			SkipReason = testCase.SkipReason,
 			SourceFilePath = testCase.SourceInformation?.FileName,
 			SourceLineNumber = testCase.SourceInformation?.LineNumber,
@@ -281,9 +288,6 @@ public class Xunit2MessageAdapter
 			TestMethodUniqueID = testMethodUniqueID,
 			Traits = testCase.Traits.ToReadOnly(),
 		};
-
-		if (discoverer is not null)
-			result.Serialization = discoverer.Serialize(testCase);
 
 		return result;
 	}
@@ -470,6 +474,7 @@ public class Xunit2MessageAdapter
 			TestClassNamespace = testClassNamespace,
 			TestClassUniqueID = testClassUniqueID,
 			TestCollectionUniqueID = testCollectionUniqueID,
+			Traits = Xunit2.EmptyTraits,
 		};
 	}
 
@@ -537,6 +542,7 @@ public class Xunit2MessageAdapter
 			TestCollectionClassName = message.TestCollection.CollectionDefinition?.Name,
 			TestCollectionDisplayName = message.TestCollection.DisplayName,
 			TestCollectionUniqueID = testCollectionUniqueID,
+			Traits = Xunit2.EmptyTraits,
 		};
 	}
 
@@ -563,6 +569,7 @@ public class Xunit2MessageAdapter
 			TestClassUniqueID = testClassUniqueID,
 			TestMethodUniqueID = testMethodUniqueID,
 			TestUniqueID = testUniqueID,
+			Warnings = null,
 		};
 	}
 
@@ -584,6 +591,7 @@ public class Xunit2MessageAdapter
 			TestClassUniqueID = testClassUniqueID,
 			TestMethodUniqueID = testMethodUniqueID,
 			TestUniqueID = testUniqueID,
+			Warnings = null,
 		};
 	}
 
@@ -635,10 +643,11 @@ public class Xunit2MessageAdapter
 		return new()
 		{
 			AssemblyUniqueID = assemblyUniqueID,
+			MethodName = message.TestMethod.Method.Name,
 			TestCollectionUniqueID = testCollectionUniqueID,
 			TestClassUniqueID = testClassUniqueID,
-			MethodName = message.TestMethod.Method.Name,
 			TestMethodUniqueID = testMethodUniqueID,
+			Traits = Xunit2.EmptyTraits,
 		};
 	}
 
@@ -680,6 +689,7 @@ public class Xunit2MessageAdapter
 			TestClassUniqueID = testClassUniqueID,
 			TestMethodUniqueID = testMethodUniqueID,
 			TestUniqueID = testUniqueID,
+			Warnings = null,
 		};
 	}
 
@@ -702,6 +712,7 @@ public class Xunit2MessageAdapter
 			TestClassUniqueID = testClassUniqueID,
 			TestMethodUniqueID = testMethodUniqueID,
 			TestUniqueID = testUniqueID,
+			Warnings = null,
 		};
 	}
 

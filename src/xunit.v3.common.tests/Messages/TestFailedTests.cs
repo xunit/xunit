@@ -10,31 +10,14 @@ public class TestFailedTests
 		[Fact]
 		public void GuardClause()
 		{
-			var ex = Record.Exception(() => new TestFailed { Cause = (FailureCause)2112 });
+			var failed = TestData.TestFailed();
+
+			var ex = Record.Exception(() => failed.Cause = (FailureCause)2112);
 
 			var argEx = Assert.IsType<ArgumentException>(ex);
 			Assert.Equal("Cause", argEx.ParamName);
 			Assert.StartsWith($"Cause is not a valid value from {typeof(FailureCause).FullName}", argEx.Message);
 		}
-
-		[Fact]
-		public void DefaultFailureCauseIsException()
-		{
-			var failed = new TestFailed();
-
-			Assert.Equal(FailureCause.Exception, failed.Cause);
-		}
-
-		[Theory]
-		[MemberData(nameof(CauseValues))]
-		public void CanOverrideCause(FailureCause cause)
-		{
-			var failed = new TestFailed { Cause = cause };
-
-			Assert.Equal(cause, failed.Cause);
-		}
-
-		public static TheoryData<FailureCause> CauseValues = new() { FailureCause.Assertion, FailureCause.Exception, FailureCause.Timeout };
 	}
 
 	public class FromException

@@ -8,16 +8,10 @@ public class DefaultRunnerReporterMessageHandlerTests
 {
 	public class FailureMessages
 	{
-		internal static readonly string assemblyID = "assembly-id";
-		internal static readonly string classID = "test-class-id";
-		internal static readonly string collectionID = "test-collection-id";
 		internal static readonly int[] exceptionParentIndices = [-1];
 		internal static readonly string[] exceptionTypes = ["ExceptionType"];
 		internal static readonly string[] messages = [$"This is my message \t{Environment.NewLine}Message Line 2"];
-		internal static readonly string methodID = "test-method-id";
 		internal static readonly string[] stackTraces = [$"Line 1{Environment.NewLine}at SomeClass.SomeMethod() in SomeFolder\\SomeClass.cs:line 18{Environment.NewLine}Line 3"];
-		internal static readonly string testCaseID = "test-case-id";
-		readonly string testID = "test-id";
 
 		[Fact]
 		public void ErrorMessage()
@@ -27,7 +21,7 @@ public class DefaultRunnerReporterMessageHandlerTests
 				ExceptionParentIndices = exceptionParentIndices,
 				ExceptionTypes = exceptionTypes,
 				Messages = messages,
-				StackTraces = stackTraces
+				StackTraces = stackTraces,
 			};
 			var handler = TestableDefaultRunnerReporterMessageHandler.Create();
 
@@ -39,19 +33,13 @@ public class DefaultRunnerReporterMessageHandlerTests
 		[Fact]
 		public void TestAssemblyCleanupFailure()
 		{
-			var assemblyStarting = new TestAssemblyStarting
-			{
-				AssemblyUniqueID = assemblyID,
-				AssemblyPath = @"C:\Foo\bar.dll"
-			};
-			var assemblyCleanupFailure = new TestAssemblyCleanupFailure
-			{
-				AssemblyUniqueID = assemblyID,
-				ExceptionParentIndices = exceptionParentIndices,
-				ExceptionTypes = exceptionTypes,
-				Messages = messages,
-				StackTraces = stackTraces
-			};
+			var assemblyStarting = TestData.TestAssemblyStarting(assemblyPath: @"C:\Foo\bar.dll");
+			var assemblyCleanupFailure = TestData.TestAssemblyCleanupFailure(
+				exceptionParentIndices: exceptionParentIndices,
+				exceptionTypes: exceptionTypes,
+				messages: messages,
+				stackTraces: stackTraces
+			);
 			var handler = TestableDefaultRunnerReporterMessageHandler.Create();
 
 			handler.OnMessage(assemblyStarting);
@@ -63,27 +51,13 @@ public class DefaultRunnerReporterMessageHandlerTests
 		[Fact]
 		public void TestCaseCleanupFailure()
 		{
-			var caseStarting = new TestCaseStarting
-			{
-				AssemblyUniqueID = assemblyID,
-				TestCaseUniqueID = testCaseID,
-				TestCaseDisplayName = "MyTestCase",
-				TestClassUniqueID = classID,
-				TestCollectionUniqueID = collectionID,
-				TestMethodUniqueID = methodID
-			};
-			var caseCleanupFailure = new TestCaseCleanupFailure
-			{
-				AssemblyUniqueID = assemblyID,
-				ExceptionParentIndices = exceptionParentIndices,
-				ExceptionTypes = exceptionTypes,
-				Messages = messages,
-				StackTraces = stackTraces,
-				TestCaseUniqueID = testCaseID,
-				TestCollectionUniqueID = collectionID,
-				TestClassUniqueID = classID,
-				TestMethodUniqueID = methodID
-			};
+			var caseStarting = TestData.TestCaseStarting(testCaseDisplayName: "MyTestCase");
+			var caseCleanupFailure = TestData.TestCaseCleanupFailure(
+				exceptionParentIndices: exceptionParentIndices,
+				exceptionTypes: exceptionTypes,
+				messages: messages,
+				stackTraces: stackTraces
+			);
 			var handler = TestableDefaultRunnerReporterMessageHandler.Create();
 
 			handler.OnMessage(caseStarting);
@@ -95,23 +69,13 @@ public class DefaultRunnerReporterMessageHandlerTests
 		[Fact]
 		public void TestClassCleanupFailure()
 		{
-			var classStarting = new TestClassStarting
-			{
-				AssemblyUniqueID = assemblyID,
-				TestClassName = "MyType",
-				TestClassUniqueID = classID,
-				TestCollectionUniqueID = collectionID
-			};
-			var classCleanupFailure = new TestClassCleanupFailure
-			{
-				AssemblyUniqueID = assemblyID,
-				ExceptionParentIndices = exceptionParentIndices,
-				ExceptionTypes = exceptionTypes,
-				Messages = messages,
-				StackTraces = stackTraces,
-				TestCollectionUniqueID = collectionID,
-				TestClassUniqueID = classID
-			};
+			var classStarting = TestData.TestClassStarting(testClassName: "MyType");
+			var classCleanupFailure = TestData.TestClassCleanupFailure(
+				exceptionParentIndices: exceptionParentIndices,
+				exceptionTypes: exceptionTypes,
+				messages: messages,
+				stackTraces: stackTraces
+			);
 			var handler = TestableDefaultRunnerReporterMessageHandler.Create();
 
 			handler.OnMessage(classStarting);
@@ -123,29 +87,13 @@ public class DefaultRunnerReporterMessageHandlerTests
 		[Fact]
 		public void TestCleanupFailure()
 		{
-			var testStarting = new TestStarting
-			{
-				AssemblyUniqueID = assemblyID,
-				TestCaseUniqueID = testCaseID,
-				TestClassUniqueID = classID,
-				TestDisplayName = "MyTest",
-				TestCollectionUniqueID = collectionID,
-				TestMethodUniqueID = methodID,
-				TestUniqueID = testID
-			};
-			var testCleanupFailure = new TestCleanupFailure
-			{
-				AssemblyUniqueID = assemblyID,
-				ExceptionParentIndices = exceptionParentIndices,
-				ExceptionTypes = exceptionTypes,
-				Messages = messages,
-				StackTraces = stackTraces,
-				TestCaseUniqueID = testCaseID,
-				TestCollectionUniqueID = collectionID,
-				TestClassUniqueID = classID,
-				TestMethodUniqueID = methodID,
-				TestUniqueID = testID
-			};
+			var testStarting = TestData.TestStarting(testDisplayName: "MyTest");
+			var testCleanupFailure = TestData.TestCleanupFailure(
+				exceptionParentIndices: exceptionParentIndices,
+				exceptionTypes: exceptionTypes,
+				messages: messages,
+				stackTraces: stackTraces
+			);
 			var handler = TestableDefaultRunnerReporterMessageHandler.Create();
 
 			handler.OnMessage(testStarting);
@@ -157,21 +105,13 @@ public class DefaultRunnerReporterMessageHandlerTests
 		[Fact]
 		public void TestCollectionCleanupFailure()
 		{
-			var collectionStarting = new TestCollectionStarting
-			{
-				AssemblyUniqueID = assemblyID,
-				TestCollectionDisplayName = "FooBar",
-				TestCollectionUniqueID = collectionID
-			};
-			var collectionCleanupFailure = new TestCollectionCleanupFailure
-			{
-				AssemblyUniqueID = assemblyID,
-				ExceptionParentIndices = exceptionParentIndices,
-				ExceptionTypes = exceptionTypes,
-				Messages = messages,
-				StackTraces = stackTraces,
-				TestCollectionUniqueID = collectionID
-			};
+			var collectionStarting = TestData.TestCollectionStarting(testCollectionDisplayName: "FooBar");
+			var collectionCleanupFailure = TestData.TestCollectionCleanupFailure(
+				exceptionParentIndices: exceptionParentIndices,
+				exceptionTypes: exceptionTypes,
+				messages: messages,
+				stackTraces: stackTraces
+			);
 			var handler = TestableDefaultRunnerReporterMessageHandler.Create();
 
 			handler.OnMessage(collectionStarting);
@@ -183,25 +123,13 @@ public class DefaultRunnerReporterMessageHandlerTests
 		[Fact]
 		public void TestMethodCleanupFailure()
 		{
-			var methodStarting = new TestMethodStarting
-			{
-				AssemblyUniqueID = assemblyID,
-				TestClassUniqueID = classID,
-				TestCollectionUniqueID = collectionID,
-				MethodName = "MyMethod",
-				TestMethodUniqueID = methodID,
-			};
-			var methodCleanupFailure = new TestMethodCleanupFailure
-			{
-				AssemblyUniqueID = assemblyID,
-				ExceptionParentIndices = exceptionParentIndices,
-				ExceptionTypes = exceptionTypes,
-				Messages = messages,
-				StackTraces = stackTraces,
-				TestCollectionUniqueID = collectionID,
-				TestClassUniqueID = classID,
-				TestMethodUniqueID = methodID
-			};
+			var methodStarting = TestData.TestMethodStarting(methodName: "MyMethod");
+			var methodCleanupFailure = TestData.TestMethodCleanupFailure(
+				exceptionParentIndices: exceptionParentIndices,
+				exceptionTypes: exceptionTypes,
+				messages: messages,
+				stackTraces: stackTraces
+			);
 			var handler = TestableDefaultRunnerReporterMessageHandler.Create();
 
 			handler.OnMessage(methodStarting);

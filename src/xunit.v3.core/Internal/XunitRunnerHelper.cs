@@ -225,6 +225,7 @@ public static class XunitRunnerHelper
 			TestCollectionUniqueID = testCollectionUniqueID,
 			TestMethodUniqueID = testMethodUniqueID,
 			TestUniqueID = testUniqueID,
+			Warnings = null,
 		}))
 			cancellationTokenSource.Cancel();
 
@@ -239,6 +240,7 @@ public static class XunitRunnerHelper
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestMethodUniqueID = testMethodUniqueID,
 				TestUniqueID = testUniqueID,
+				Warnings = null,
 			}))
 				cancellationTokenSource.Cancel();
 

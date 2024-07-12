@@ -26,10 +26,12 @@ public class MessageSinkMessageTests
 			AssemblyName = "asm-name",
 			AssemblyPath = "asm-path",
 			ConfigFilePath = null,
+			Seed = null,
 			StartTime = startTime,
+			TargetFramework = null,
 			TestEnvironment = "test-env",
 			TestFrameworkDisplayName = "test-framework",
-			Traits = TestData.EmptyTraits
+			Traits = TestData.EmptyTraits,
 		};
 
 		var json = msg.ToJson();
@@ -63,8 +65,11 @@ public class MessageSinkMessageTests
 			Output = "",
 			StackTraces = [null],
 			TestCaseUniqueID = "test-case-id",
+			TestClassUniqueID = null,
 			TestCollectionUniqueID = "test-collection-id",
+			TestMethodUniqueID = null,
 			TestUniqueID = "test-id",
+			Warnings = null,
 		};
 
 		var json = msg.ToJson();

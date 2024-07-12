@@ -21,7 +21,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)common/ExcludeFromCodeCoverageAttribute.cs" LinkBase="Common" />
+    <Compile Include="$(MSBuildThisFileDirectory)common\ExcludeFromCodeCoverageAttribute.cs" LinkBase="Common" />
+    <Compile Include="$(MSBuildThisFileDirectory)common\RequiredMemberAttribute.cs" LinkBase="Common" />
   </ItemGroup>
 
   <ItemGroup>

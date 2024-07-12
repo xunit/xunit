@@ -125,13 +125,13 @@ public class AcceptanceTestV3
 		string testDisplayName)
 	{
 		if (result is TestPassed passed)
-			return new TestPassedWithDisplayName(passed, testDisplayName);
+			return TestPassedWithDisplayName.FromTestPassed(passed, testDisplayName);
 		if (result is TestFailed failed)
-			return new TestFailedWithDisplayName(failed, testDisplayName);
+			return TestFailedWithDisplayName.FromTestFailed(failed, testDisplayName);
 		if (result is TestSkipped skipped)
-			return new TestSkippedWithDisplayName(skipped, testDisplayName);
+			return TestSkippedWithDisplayName.FromTestSkipped(skipped, testDisplayName);
 		if (result is TestNotRun notRun)
-			return new TestNotRunWithDisplayName(notRun, testDisplayName);
+			return TestNotRunWithDisplayName.FromTestNotRun(notRun, testDisplayName);
 
 		return null;
 	}

@@ -17,21 +17,21 @@ public sealed class DiscoveryStarting : TestAssemblyMessage, IAssemblyMetadata, 
 	string? assemblyPath;
 
 	/// <inheritdoc/>
-	public string AssemblyName
+	public required string AssemblyName
 	{
 		get => this.ValidateNullablePropertyValue(assemblyName, nameof(AssemblyName));
 		set => assemblyName = Guard.ArgumentNotNullOrEmpty(value, nameof(AssemblyName));
 	}
 
 	/// <inheritdoc/>
-	public string AssemblyPath
+	public required string AssemblyPath
 	{
 		get => this.ValidateNullablePropertyValue(assemblyPath, nameof(AssemblyPath));
 		set => assemblyPath = Guard.ArgumentNotNullOrEmpty(value, nameof(AssemblyPath));
 	}
 
 	/// <inheritdoc/>
-	public string? ConfigFilePath { get; set; }
+	public required string? ConfigFilePath { get; set; }
 
 	IReadOnlyDictionary<string, IReadOnlyList<string>> IAssemblyMetadata.Traits => EmptyTraits;
 

@@ -14,7 +14,7 @@ public sealed class TestOutput : TestMessage
 	/// <summary>
 	/// Gets or sets the line of output.
 	/// </summary>
-	public string Output
+	public required string Output
 	{
 		get => this.ValidateNullablePropertyValue(output, nameof(Output));
 		set => output = Guard.ArgumentNotNull(value, nameof(Output));

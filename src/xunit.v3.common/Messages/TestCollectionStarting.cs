@@ -14,17 +14,17 @@ public sealed class TestCollectionStarting : TestCollectionMessage, ITestCollect
 	IReadOnlyDictionary<string, IReadOnlyList<string>>? traits;
 
 	/// <inheritdoc/>
-	public string? TestCollectionClassName { get; set; }
+	public required string? TestCollectionClassName { get; set; }
 
 	/// <inheritdoc/>
-	public string TestCollectionDisplayName
+	public required string TestCollectionDisplayName
 	{
 		get => this.ValidateNullablePropertyValue(testCollectionDisplayName, nameof(TestCollectionDisplayName));
 		set => testCollectionDisplayName = Guard.ArgumentNotNullOrEmpty(value, nameof(TestCollectionDisplayName));
 	}
 
 	/// <inheritdoc/>
-	public IReadOnlyDictionary<string, IReadOnlyList<string>> Traits
+	public required IReadOnlyDictionary<string, IReadOnlyList<string>> Traits
 	{
 		get => this.ValidateNullablePropertyValue(traits, nameof(Traits));
 		set => traits = Guard.ArgumentNotNull(value, nameof(Traits));

@@ -20,7 +20,7 @@ public sealed class TestFailed : TestResultMessage, IErrorMetadata, IWritableErr
 	/// <summary>
 	/// Gets or sets the cause of the test failure.
 	/// </summary>
-	public FailureCause Cause
+	public required FailureCause Cause
 	{
 		get => cause;
 		set
@@ -40,28 +40,28 @@ public sealed class TestFailed : TestResultMessage, IErrorMetadata, IWritableErr
 	}
 
 	/// <inheritdoc/>
-	public int[] ExceptionParentIndices
+	public required int[] ExceptionParentIndices
 	{
 		get => this.ValidateNullablePropertyValue(exceptionParentIndices, nameof(ExceptionParentIndices));
 		set => exceptionParentIndices = Guard.ArgumentNotNullOrEmpty(value, nameof(ExceptionParentIndices));
 	}
 
 	/// <inheritdoc/>
-	public string?[] ExceptionTypes
+	public required string?[] ExceptionTypes
 	{
 		get => this.ValidateNullablePropertyValue(exceptionTypes, nameof(ExceptionTypes));
 		set => exceptionTypes = Guard.ArgumentNotNullOrEmpty(value, nameof(ExceptionTypes));
 	}
 
 	/// <inheritdoc/>
-	public string[] Messages
+	public required string[] Messages
 	{
 		get => this.ValidateNullablePropertyValue(messages, nameof(Messages));
 		set => messages = Guard.ArgumentNotNullOrEmpty(value, nameof(Messages));
 	}
 
 	/// <inheritdoc/>
-	public string?[] StackTraces
+	public required string?[] StackTraces
 	{
 		get => this.ValidateNullablePropertyValue(stackTraces, nameof(StackTraces));
 		set => stackTraces = Guard.ArgumentNotNullOrEmpty(value, nameof(StackTraces));

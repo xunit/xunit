@@ -41,7 +41,7 @@ public static partial class TestData
 	public const string DefaultTestDisplayName = "test-display-name";
 	public const string DefaultTestEnvironment = "test-environment";
 	public const string DefaultTestFrameworkDisplayName = "test-framework";
-	public const string DefaultTestMethodName = "test-method";
+	public const string DefaultMethodName = "test-method";
 	public const string DefaultTestMethodUniqueID = "test-method-id";
 	public const string DefaultTestUniqueID = "test-id";
 	public static readonly IReadOnlyDictionary<string, IReadOnlyList<string>> DefaultTraits = new Dictionary<string, List<string>>() { ["foo"] = ["bar", "baz"], ["biff"] = ["bang"] }.ToReadOnly();

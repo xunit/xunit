@@ -3,38 +3,39 @@ using Xunit.Sdk;
 
 public class TestFailedWithDisplayName : TestResultMessage, ITestResultWithDisplayName
 {
-	internal TestFailedWithDisplayName(
-		TestFailed testFailed,
-		string testDisplayName)
-	{
-		AssemblyUniqueID = testFailed.AssemblyUniqueID;
-		Cause = testFailed.Cause;
-		ExceptionParentIndices = testFailed.ExceptionParentIndices;
-		ExceptionTypes = testFailed.ExceptionTypes;
-		ExecutionTime = testFailed.ExecutionTime;
-		Messages = testFailed.Messages;
-		Output = testFailed.Output;
-		StackTraces = testFailed.StackTraces;
-		TestCaseUniqueID = testFailed.TestCaseUniqueID;
-		TestClassUniqueID = testFailed.TestClassUniqueID;
-		TestCollectionUniqueID = testFailed.TestCollectionUniqueID;
-		TestDisplayName = testDisplayName;
-		TestMethodUniqueID = testFailed.TestMethodUniqueID;
-		TestUniqueID = testFailed.TestUniqueID;
-		Warnings = testFailed.Warnings;
-	}
-
 	public FailureCause Cause { get; set; }
 
-	public int[] ExceptionParentIndices { get; set; }
+	public required int[] ExceptionParentIndices { get; set; }
 
-	public string?[] ExceptionTypes { get; set; }
+	public required string?[] ExceptionTypes { get; set; }
 
-	public string[] Messages { get; set; }
+	public required string[] Messages { get; set; }
 
-	public string?[] StackTraces { get; set; }
+	public required string?[] StackTraces { get; set; }
 
-	public string TestDisplayName { get; set; }
+	public required string TestDisplayName { get; set; }
+
+	public static TestFailedWithDisplayName FromTestFailed(
+		TestFailed testFailed,
+		string testDisplayName) =>
+			new()
+			{
+				AssemblyUniqueID = testFailed.AssemblyUniqueID,
+				Cause = testFailed.Cause,
+				ExceptionParentIndices = testFailed.ExceptionParentIndices,
+				ExceptionTypes = testFailed.ExceptionTypes,
+				ExecutionTime = testFailed.ExecutionTime,
+				Messages = testFailed.Messages,
+				Output = testFailed.Output,
+				StackTraces = testFailed.StackTraces,
+				TestCaseUniqueID = testFailed.TestCaseUniqueID,
+				TestClassUniqueID = testFailed.TestClassUniqueID,
+				TestCollectionUniqueID = testFailed.TestCollectionUniqueID,
+				TestDisplayName = testDisplayName,
+				TestMethodUniqueID = testFailed.TestMethodUniqueID,
+				TestUniqueID = testFailed.TestUniqueID,
+				Warnings = testFailed.Warnings,
+			};
 
 	/// <inheritdoc/>
 	public override string ToString() =>

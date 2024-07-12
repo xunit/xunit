@@ -118,26 +118,58 @@ public class XunitTestClassRunner :
 	/// <inheritdoc/>
 	protected override ValueTask<bool> OnTestClassCleanupFailure(
 		XunitTestClassRunnerContext ctxt,
-		Exception exception) =>
-			new(ReportMessage(ctxt, new TestClassCleanupFailure(), exception: exception));
+		Exception exception)
+	{
+		Guard.ArgumentNotNull(ctxt);
+
+		var (types, messages, stackTraces, indices, _) = ExceptionUtility.ExtractMetadata(exception);
+
+		return new(ctxt.MessageBus.QueueMessage(new TestClassCleanupFailure
+		{
+			AssemblyUniqueID = ctxt.TestClass.TestCollection.TestAssembly.UniqueID,
+			ExceptionParentIndices = indices,
+			ExceptionTypes = types,
+			Messages = messages,
+			StackTraces = stackTraces,
+			TestClassUniqueID = ctxt.TestClass.UniqueID,
+			TestCollectionUniqueID = ctxt.TestClass.TestCollection.UniqueID,
+		}));
+	}
 
 	/// <inheritdoc/>
 	protected override async ValueTask<bool> OnTestClassFinished(
 		XunitTestClassRunnerContext ctxt,
 		RunSummary summary)
 	{
-		await Guard.ArgumentNotNull(ctxt).Aggregator.RunAsync(ctxt.ClassFixtureMappings.DisposeAsync);
+		Guard.ArgumentNotNull(ctxt);
 
-		return ReportMessage(ctxt, new TestClassFinished(), summary: summary);
+		await ctxt.Aggregator.RunAsync(ctxt.ClassFixtureMappings.DisposeAsync);
+
+		return ctxt.MessageBus.QueueMessage(new TestClassFinished
+		{
+			AssemblyUniqueID = ctxt.TestClass.TestCollection.TestAssembly.UniqueID,
+			ExecutionTime = summary.Time,
+			TestClassUniqueID = ctxt.TestClass.UniqueID,
+			TestCollectionUniqueID = ctxt.TestClass.TestCollection.UniqueID,
+			TestsFailed = summary.Failed,
+			TestsNotRun = summary.NotRun,
+			TestsSkipped = summary.Skipped,
+			TestsTotal = summary.Total,
+		});
 	}
 
 	/// <inheritdoc/>
 	protected override async ValueTask<bool> OnTestClassStarting(XunitTestClassRunnerContext ctxt)
 	{
-		var result = ReportMessage(ctxt, new TestClassStarting
+		Guard.ArgumentNotNull(ctxt);
+
+		var result = ctxt.MessageBus.QueueMessage(new TestClassStarting
 		{
+			AssemblyUniqueID = ctxt.TestClass.TestCollection.TestAssembly.UniqueID,
 			TestClassName = Guard.ArgumentNotNull(ctxt).TestClass.TestClassName,
 			TestClassNamespace = ctxt.TestClass.TestClassNamespace,
+			TestClassUniqueID = ctxt.TestClass.UniqueID,
+			TestCollectionUniqueID = ctxt.TestClass.TestCollection.UniqueID,
 			Traits = ctxt.TestClass.Traits,
 		});
 
@@ -186,40 +218,6 @@ public class XunitTestClassRunner :
 
 			return [];
 		}
-	}
-
-	static bool ReportMessage(
-		XunitTestClassRunnerContext ctxt,
-		TestClassMessage message,
-		RunSummary summary = default,
-		Exception? exception = null)
-	{
-		Guard.ArgumentNotNull(ctxt);
-
-		message.AssemblyUniqueID = ctxt.TestClass.TestCollection.TestAssembly.UniqueID;
-		message.TestClassUniqueID = ctxt.TestClass.UniqueID;
-		message.TestCollectionUniqueID = ctxt.TestClass.TestCollection.UniqueID;
-
-		if (message is IWritableExecutionSummaryMetadata summaryMessage)
-		{
-			summaryMessage.ExecutionTime = summary.Time;
-			summaryMessage.TestsFailed = summary.Failed;
-			summaryMessage.TestsNotRun = summary.NotRun;
-			summaryMessage.TestsSkipped = summary.Skipped;
-			summaryMessage.TestsTotal = summary.Total;
-		}
-
-		if (exception is not null && message is IWritableErrorMetadata errorMessage)
-		{
-			var (types, messages, stackTraces, indices, _) = ExceptionUtility.ExtractMetadata(exception);
-
-			errorMessage.ExceptionParentIndices = indices;
-			errorMessage.ExceptionTypes = types;
-			errorMessage.Messages = messages;
-			errorMessage.StackTraces = stackTraces;
-		}
-
-		return ctxt.MessageBus.QueueMessage(message);
 	}
 
 	/// <summary>

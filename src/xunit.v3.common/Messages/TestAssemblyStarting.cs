@@ -20,33 +20,33 @@ public sealed class TestAssemblyStarting : TestAssemblyMessage, IAssemblyMetadat
 	IReadOnlyDictionary<string, IReadOnlyList<string>>? traits;
 
 	/// <inheritdoc/>
-	public string AssemblyName
+	public required string AssemblyName
 	{
 		get => this.ValidateNullablePropertyValue(assemblyName, nameof(AssemblyName));
 		set => assemblyName = Guard.ArgumentNotNullOrEmpty(value, nameof(AssemblyName));
 	}
 
 	/// <inheritdoc/>
-	public string AssemblyPath
+	public required string AssemblyPath
 	{
 		get => this.ValidateNullablePropertyValue(assemblyPath, nameof(AssemblyPath));
 		set => assemblyPath = Guard.ArgumentNotNullOrEmpty(value, nameof(AssemblyPath));
 	}
 
 	/// <inheritdoc/>
-	public string? ConfigFilePath { get; set; }
+	public required string? ConfigFilePath { get; set; }
 
 	/// <summary>
 	/// Gets or sets the seed value used for randomization. If <c>null</c>, then the test framework
 	/// does not support getting or setting a randomization seed. (For stock versions of xUnit.net,
 	/// support for settable randomization seeds started with v3.)
 	/// </summary>
-	public int? Seed { get; set; }
+	public required int? Seed { get; set; }
 
 	/// <summary>
 	/// Gets or sets the date and time when the test assembly execution began.
 	/// </summary>
-	public DateTimeOffset StartTime { get; set; }
+	public required DateTimeOffset StartTime { get; set; }
 
 	/// <summary>
 	/// Gets or sets the target framework that the assembly was compiled against.
@@ -54,7 +54,7 @@ public sealed class TestAssemblyStarting : TestAssemblyMessage, IAssemblyMetadat
 	/// is read from <see cref="TargetFrameworkAttribute"/> on the test assembly, which
 	/// is normally auto-generated (but could be missing or empty).
 	/// </summary>
-	public string? TargetFramework { get; set; }
+	public required string? TargetFramework { get; set; }
 
 	/// <summary>
 	/// Gets or sets a display string that describes the test execution environment.

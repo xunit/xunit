@@ -13,7 +13,7 @@ public abstract class TestMethodMessage : TestClassMessage
 	/// Gets the test method's unique ID. Can be used to correlate test messages with the appropriate
 	/// test method that they're related to.
 	/// </summary>
-	public string? TestMethodUniqueID { get; set; }
+	public required string? TestMethodUniqueID { get; set; }
 
 	/// <inheritdoc/>
 	protected override void Deserialize(IReadOnlyDictionary<string, object?> root)

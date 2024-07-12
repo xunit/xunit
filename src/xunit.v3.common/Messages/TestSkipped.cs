@@ -14,7 +14,7 @@ public sealed class TestSkipped : TestResultMessage, IWritableExecutionMetadata
 	/// <summary>
 	/// The reason given for skipping the test.
 	/// </summary>
-	public string Reason
+	public required string Reason
 	{
 		get => this.ValidateNullablePropertyValue(reason, nameof(Reason));
 		set => reason = Guard.ArgumentNotNull(value, nameof(Reason));

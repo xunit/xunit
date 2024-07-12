@@ -17,35 +17,35 @@ public sealed class TestMethodFinished : TestMethodMessage, IExecutionSummaryMet
 	int? testsTotal;
 
 	/// <inheritdoc/>
-	public decimal ExecutionTime
+	public required decimal ExecutionTime
 	{
 		get => this.ValidateNullablePropertyValue(executionTime, nameof(ExecutionTime));
 		set => executionTime = value;
 	}
 
 	/// <inheritdoc/>
-	public int TestsFailed
+	public required int TestsFailed
 	{
 		get => this.ValidateNullablePropertyValue(testsFailed, nameof(TestsFailed));
 		set => testsFailed = value;
 	}
 
 	/// <inheritdoc/>
-	public int TestsNotRun
+	public required int TestsNotRun
 	{
 		get => this.ValidateNullablePropertyValue(testsNotRun, nameof(TestsNotRun));
 		set => testsNotRun = value;
 	}
 
 	/// <inheritdoc/>
-	public int TestsSkipped
+	public required int TestsSkipped
 	{
 		get => this.ValidateNullablePropertyValue(testsSkipped, nameof(TestsSkipped));
 		set => testsSkipped = value;
 	}
 
 	/// <inheritdoc/>
-	public int TestsTotal
+	public required int TestsTotal
 	{
 		get => this.ValidateNullablePropertyValue(testsTotal, nameof(TestsTotal));
 		set => testsTotal = value;

@@ -47,60 +47,69 @@ public class XunitTestCaseRunnerBase<TContext, TTestCase> : TestCaseRunner<TCont
 	/// <inheritdoc/>
 	protected override ValueTask<bool> OnTestCaseCleanupFailure(
 		TContext ctxt,
-		Exception exception) =>
-			new(ReportMessage(ctxt, new TestCaseCleanupFailure(), exception: exception));
+		Exception exception)
+	{
+		Guard.ArgumentNotNull(ctxt);
+
+		var (types, messages, stackTraces, indices, _) = ExceptionUtility.ExtractMetadata(exception);
+
+		return new(ctxt.MessageBus.QueueMessage(new TestCaseCleanupFailure
+		{
+			AssemblyUniqueID = ctxt.TestCase.TestCollection.TestAssembly.UniqueID,
+			ExceptionParentIndices = indices,
+			ExceptionTypes = types,
+			Messages = messages,
+			StackTraces = stackTraces,
+			TestCaseUniqueID = ctxt.TestCase.UniqueID,
+			TestClassUniqueID = ctxt.TestCase.TestClass.UniqueID,
+			TestCollectionUniqueID = ctxt.TestCase.TestCollection.UniqueID,
+			TestMethodUniqueID = ctxt.TestCase.TestMethod?.UniqueID,
+		}));
+	}
 
 	/// <inheritdoc/>
 	protected override ValueTask<bool> OnTestCaseFinished(
 		TContext ctxt,
-		RunSummary summary) =>
-			new(ReportMessage(ctxt, new TestCaseFinished(), summary: summary));
+		RunSummary summary)
+	{
+		Guard.ArgumentNotNull(ctxt);
+
+		return new(ctxt.MessageBus.QueueMessage(new TestCaseFinished
+		{
+			AssemblyUniqueID = ctxt.TestCase.TestCollection.TestAssembly.UniqueID,
+			ExecutionTime = summary.Time,
+			TestCaseUniqueID = ctxt.TestCase.UniqueID,
+			TestClassUniqueID = ctxt.TestCase.TestClass.UniqueID,
+			TestCollectionUniqueID = ctxt.TestCase.TestCollection.UniqueID,
+			TestMethodUniqueID = ctxt.TestCase.TestMethod?.UniqueID,
+			TestsFailed = summary.Failed,
+			TestsNotRun = summary.NotRun,
+			TestsSkipped = summary.Skipped,
+			TestsTotal = summary.Total,
+		}));
+	}
 
 	/// <inheritdoc/>
-	protected override ValueTask<bool> OnTestCaseStarting(TContext ctxt) =>
-		new(ReportMessage(ctxt, new TestCaseStarting
+	protected override ValueTask<bool> OnTestCaseStarting(TContext ctxt)
+	{
+		Guard.ArgumentNotNull(ctxt);
+
+		return new(ctxt.MessageBus.QueueMessage(new TestCaseStarting
 		{
+			AssemblyUniqueID = ctxt.TestCase.TestCollection.TestAssembly.UniqueID,
 			SkipReason = Guard.ArgumentNotNull(ctxt).TestCase.SkipReason,
 			SourceFilePath = ctxt.TestCase.SourceFilePath,
 			SourceLineNumber = ctxt.TestCase.SourceLineNumber,
 			TestCaseDisplayName = ctxt.TestCase.TestCaseDisplayName,
+			TestCaseUniqueID = ctxt.TestCase.UniqueID,
+			TestClassUniqueID = ctxt.TestCase.TestClass.UniqueID,
+			TestClassName = ctxt.TestCase.TestClassName,
+			TestClassNamespace = ctxt.TestCase.TestClassNamespace,
+			TestCollectionUniqueID = ctxt.TestCase.TestCollection.UniqueID,
+			TestMethodName = ctxt.TestCase.TestMethodName,
+			TestMethodUniqueID = ctxt.TestCase.TestMethod?.UniqueID,
 			Traits = ctxt.TestCase.Traits,
 		}));
-
-	static bool ReportMessage(
-		TContext ctxt,
-		TestCaseMessage message,
-		RunSummary summary = default,
-		Exception? exception = null)
-	{
-		Guard.ArgumentNotNull(ctxt);
-
-		message.AssemblyUniqueID = ctxt.TestCase.TestCollection.TestAssembly.UniqueID;
-		message.TestCaseUniqueID = ctxt.TestCase.UniqueID;
-		message.TestClassUniqueID = ctxt.TestCase.TestClass.UniqueID;
-		message.TestCollectionUniqueID = ctxt.TestCase.TestCollection.UniqueID;
-		message.TestMethodUniqueID = ctxt.TestCase.TestMethod?.UniqueID;
-
-		if (message is IWritableExecutionSummaryMetadata summaryMessage)
-		{
-			summaryMessage.ExecutionTime = summary.Time;
-			summaryMessage.TestsFailed = summary.Failed;
-			summaryMessage.TestsNotRun = summary.NotRun;
-			summaryMessage.TestsSkipped = summary.Skipped;
-			summaryMessage.TestsTotal = summary.Total;
-		}
-
-		if (exception is not null && message is IWritableErrorMetadata errorMessage)
-		{
-			var (types, messages, stackTraces, indices, _) = ExceptionUtility.ExtractMetadata(exception);
-
-			errorMessage.ExceptionParentIndices = indices;
-			errorMessage.ExceptionTypes = types;
-			errorMessage.Messages = messages;
-			errorMessage.StackTraces = stackTraces;
-		}
-
-		return ctxt.MessageBus.QueueMessage(message);
 	}
 
 	/// <summary>

@@ -8,9 +8,9 @@ public class TestDiscoverySinkTests
 	public void CollectsTestCases()
 	{
 		var visitor = new TestDiscoverySink();
-		var testCase1 = new TestCaseDiscovered();
-		var testCase2 = new TestCaseDiscovered();
-		var testCase3 = new TestCaseDiscovered();
+		var testCase1 = TestData.TestCaseDiscovered();
+		var testCase2 = TestData.TestCaseDiscovered();
+		var testCase3 = TestData.TestCaseDiscovered();
 
 		visitor.OnMessage(testCase1);
 		visitor.OnMessage(testCase2);

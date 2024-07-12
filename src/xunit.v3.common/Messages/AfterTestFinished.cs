@@ -16,7 +16,7 @@ public sealed class AfterTestFinished : TestMessage
 	/// <summary>
 	/// Gets or sets the fully qualified type name of the <see cref="T:Xunit.v3.IBeforeAfterTestAttribute"/>.
 	/// </summary>
-	public string AttributeName
+	public required string AttributeName
 	{
 		get => this.ValidateNullablePropertyValue(attributeName, nameof(AttributeName));
 		set => attributeName = Guard.ArgumentNotNull(value, nameof(AttributeName));

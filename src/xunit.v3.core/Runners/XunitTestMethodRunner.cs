@@ -50,56 +50,60 @@ public class XunitTestMethodRunner :
 	/// <inheritdoc/>
 	protected override ValueTask<bool> OnTestMethodCleanupFailure(
 		XunitTestMethodRunnerContext ctxt,
-		Exception exception) =>
-			new(ReportMessage(ctxt, new TestMethodCleanupFailure(), exception: exception));
+		Exception exception)
+	{
+		Guard.ArgumentNotNull(ctxt);
+
+		var (types, messages, stackTraces, indices, _) = ExceptionUtility.ExtractMetadata(exception);
+
+		return new(ctxt.MessageBus.QueueMessage(new TestMethodCleanupFailure
+		{
+			AssemblyUniqueID = ctxt.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID,
+			ExceptionParentIndices = indices,
+			ExceptionTypes = types,
+			Messages = messages,
+			StackTraces = stackTraces,
+			TestClassUniqueID = ctxt.TestMethod.TestClass.UniqueID,
+			TestCollectionUniqueID = ctxt.TestMethod.TestClass.TestCollection.UniqueID,
+			TestMethodUniqueID = ctxt.TestMethod.UniqueID,
+		}));
+	}
 
 	/// <inheritdoc/>
 	protected override ValueTask<bool> OnTestMethodFinished(
 		XunitTestMethodRunnerContext ctxt,
-		RunSummary summary) =>
-			new(ReportMessage(ctxt, new TestMethodFinished(), summary: summary));
-
-	/// <inheritdoc/>
-	protected override ValueTask<bool> OnTestMethodStarting(XunitTestMethodRunnerContext ctxt) =>
-		new(ReportMessage(ctxt, new TestMethodStarting
-		{
-			MethodName = Guard.ArgumentNotNull(ctxt).TestMethod.MethodName,
-			Traits = ctxt.TestMethod.Traits,
-		}));
-
-	static bool ReportMessage(
-		XunitTestMethodRunnerContext ctxt,
-		TestMethodMessage message,
-		RunSummary summary = default,
-		Exception? exception = null)
+		RunSummary summary)
 	{
 		Guard.ArgumentNotNull(ctxt);
 
-		message.AssemblyUniqueID = ctxt.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID;
-		message.TestClassUniqueID = ctxt.TestMethod.TestClass.UniqueID;
-		message.TestCollectionUniqueID = ctxt.TestMethod.TestClass.TestCollection.UniqueID;
-		message.TestMethodUniqueID = ctxt.TestMethod?.UniqueID;
-
-		if (message is IWritableExecutionSummaryMetadata summaryMessage)
+		return new(ctxt.MessageBus.QueueMessage(new TestMethodFinished
 		{
-			summaryMessage.ExecutionTime = summary.Time;
-			summaryMessage.TestsFailed = summary.Failed;
-			summaryMessage.TestsNotRun = summary.NotRun;
-			summaryMessage.TestsSkipped = summary.Skipped;
-			summaryMessage.TestsTotal = summary.Total;
-		}
+			AssemblyUniqueID = ctxt.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID,
+			ExecutionTime = summary.Time,
+			TestClassUniqueID = ctxt.TestMethod.TestClass.UniqueID,
+			TestCollectionUniqueID = ctxt.TestMethod.TestClass.TestCollection.UniqueID,
+			TestMethodUniqueID = ctxt.TestMethod.UniqueID,
+			TestsFailed = summary.Failed,
+			TestsNotRun = summary.NotRun,
+			TestsSkipped = summary.Skipped,
+			TestsTotal = summary.Total,
+		}));
+	}
 
-		if (exception is not null && message is IWritableErrorMetadata errorMessage)
+	/// <inheritdoc/>
+	protected override ValueTask<bool> OnTestMethodStarting(XunitTestMethodRunnerContext ctxt)
+	{
+		Guard.ArgumentNotNull(ctxt);
+
+		return new(ctxt.MessageBus.QueueMessage(new TestMethodStarting
 		{
-			var (types, messages, stackTraces, indices, _) = ExceptionUtility.ExtractMetadata(exception);
-
-			errorMessage.ExceptionParentIndices = indices;
-			errorMessage.ExceptionTypes = types;
-			errorMessage.Messages = messages;
-			errorMessage.StackTraces = stackTraces;
-		}
-
-		return ctxt.MessageBus.QueueMessage(message);
+			AssemblyUniqueID = ctxt.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID,
+			MethodName = Guard.ArgumentNotNull(ctxt).TestMethod.MethodName,
+			TestClassUniqueID = ctxt.TestMethod.TestClass.UniqueID,
+			TestCollectionUniqueID = ctxt.TestMethod.TestClass.TestCollection.UniqueID,
+			TestMethodUniqueID = ctxt.TestMethod.UniqueID,
+			Traits = ctxt.TestMethod.Traits,
+		}));
 	}
 
 	/// <inheritdoc/>

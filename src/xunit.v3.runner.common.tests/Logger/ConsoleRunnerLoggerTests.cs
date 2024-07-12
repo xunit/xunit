@@ -3,6 +3,7 @@ using System.IO;
 using Xunit;
 using Xunit.Runner.Common;
 
+[Collection("ConsoleHelper statics")]
 public class ConsoleRunnerLoggerTests
 {
 	[Fact]
