@@ -119,6 +119,10 @@ public class XunitTestMethod : IXunitTestMethod, IXunitSerializable
 		var methodName = Guard.NotNull("Could not retrieve MethodName from serialization", info.GetValue<string>("mn"));
 		method = Guard.NotNull(() => string.Format(CultureInfo.CurrentCulture, "Could not find test method {0} on test class {1}", methodName, testClass.TestClassName), @class.GetMethod(methodName, XunitTestClass.MethodBindingFlags));
 		testMethodArguments = Guard.NotNull("Could not retrieve TestMethodArguments from serialization", info.GetValue<object?[]>("ma"));
+
+		var genericArguments = info.GetValue<Type[]>("ga");
+		if (genericArguments is not null)
+			method = method.MakeGenericMethod(genericArguments);
 	}
 
 	/// <inheritdoc/>
@@ -153,5 +157,8 @@ public class XunitTestMethod : IXunitTestMethod, IXunitSerializable
 		info.AddValue("tc", TestClass);
 		info.AddValue("ma", TestMethodArguments);
 		info.AddValue("id", UniqueID);
+
+		if (Method.IsGenericMethod && !Method.ContainsGenericParameters)
+			info.AddValue("ga", Method.GetGenericArguments());
 	}
 }

@@ -103,6 +103,22 @@ public class XunitTestMethodTests
 		Assert.Equivalent(testMethod, deserialized);
 	}
 
+	// https://github.com/xunit/xunit/issues/2964
+	[Fact]
+	public void CanSerializeClosedGenericTestMethod()
+	{
+		var methodInfo = typeof(ClassUnderTest).GetMethod(nameof(ClassUnderTest.TheoryWithTypeArgument))!;
+		var closedMethodInfo = methodInfo.MakeGenericMethod(typeof(string));
+		var testClass = TestData.XunitTestClass<ClassUnderTest>();
+		var testMethod = new XunitTestMethod(testClass, closedMethodInfo, ["data"]);
+
+		var serialized = SerializationHelper.Serialize(testMethod);
+		var deserialized = SerializationHelper.Deserialize(serialized);
+
+		Assert.IsType<XunitTestMethod>(deserialized);
+		Assert.Equivalent(testMethod, deserialized);
+	}
+
 	[BeforeAfterOnCollection]
 	class BeforeAfterCollection { }
 
@@ -124,6 +140,10 @@ public class XunitTestMethodTests
 #pragma warning restore xUnit1026 // Theory methods should use all of their parameters
 #pragma warning restore xUnit1002 // Test methods cannot have multiple Fact or Theory attributes
 #pragma warning restore xUnit1001 // Fact methods cannot have parameters
+
+		[Theory]
+		[InlineData("data")]
+		public void TheoryWithTypeArgument<T>(T _) { }
 	}
 
 	class BeforeAfterOnAssembly : BeforeAfterTestAttribute { }
