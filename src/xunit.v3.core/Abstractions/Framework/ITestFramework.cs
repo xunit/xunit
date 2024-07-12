@@ -21,6 +21,12 @@ public interface ITestFramework
 	string TestFrameworkDisplayName { get; }
 
 	/// <summary>
+	/// Will be invoked by the test pipeline when the user has provided a startup class. Test frameworks may
+	/// choose to use this in any way they see fit.
+	/// </summary>
+	void SetTestPipelineStartup(ITestPipelineStartup pipelineStartup);
+
+	/// <summary>
 	/// Get a test discoverer.
 	/// </summary>
 	/// <param name="assembly">The assembly to discover tests from.</param>

@@ -24,6 +24,11 @@ public abstract class TestFramework : ITestFramework, IAsyncDisposable
 	/// <inheritdoc/>
 	public abstract string TestFrameworkDisplayName { get; }
 
+	/// <summary>
+	/// Gets the value that was set for the test pipeline startup, if one was present.
+	/// </summary>
+	protected ITestPipelineStartup? TestPipelineStartup { get; private set; }
+
 	/// <inheritdoc/>
 	public virtual async ValueTask DisposeAsync()
 	{
@@ -70,4 +75,8 @@ public abstract class TestFramework : ITestFramework, IAsyncDisposable
 		DisposalTracker.Add(executor);
 		return executor;
 	}
+
+	/// <inheritdoc/>
+	public void SetTestPipelineStartup(ITestPipelineStartup pipelineStartup) =>
+		TestPipelineStartup = Guard.ArgumentNotNull(pipelineStartup);
 }

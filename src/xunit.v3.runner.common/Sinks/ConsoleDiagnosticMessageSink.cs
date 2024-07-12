@@ -17,6 +17,7 @@ public class ConsoleDiagnosticMessageSink : IMessageSink
 	readonly string displayNewlineReplace;
 	readonly string? displayPrefixDiagnostic;
 	readonly string? displayPrefixInternal;
+	readonly string indent;
 	readonly bool noColor;
 
 	ConsoleDiagnosticMessageSink(
@@ -24,12 +25,14 @@ public class ConsoleDiagnosticMessageSink : IMessageSink
 		bool noColor,
 		bool showDiagnosticMessages,
 		bool showInternalDiagnosticMessages,
-		string? assemblyDisplayName)
+		string? assemblyDisplayName,
+		bool indent)
 	{
 		Guard.ArgumentNotNull(consoleWriter);
 
 		this.consoleWriter = consoleWriter;
 		this.noColor = noColor;
+		this.indent = indent ? "    " : string.Empty;
 
 		displayPrefixDiagnostic = (showDiagnosticMessages, assemblyDisplayName, noColor) switch
 		{
@@ -62,7 +65,7 @@ public class ConsoleDiagnosticMessageSink : IMessageSink
 				if (!noColor)
 					ConsoleHelper.SetForegroundColor(ConsoleColor.Yellow);
 
-				consoleWriter.WriteLine("    {0}{1}", displayPrefixDiagnostic, diagnosticMessage.Message.Replace("\n", displayNewlineReplace));
+				consoleWriter.WriteLine("{0}{1}{2}", indent, displayPrefixDiagnostic, diagnosticMessage.Message.Replace("\n", displayNewlineReplace));
 
 				if (!noColor)
 					ConsoleHelper.ResetColor();
@@ -76,7 +79,7 @@ public class ConsoleDiagnosticMessageSink : IMessageSink
 				if (!noColor)
 					ConsoleHelper.SetForegroundColor(ConsoleColor.DarkGray);
 
-				consoleWriter.WriteLine("    {0}{1}", displayPrefixInternal, internalDiagnosticMessage.Message.Replace("\n", displayNewlineReplace));
+				consoleWriter.WriteLine("{0}{1}{2}", indent, displayPrefixInternal, internalDiagnosticMessage.Message.Replace("\n", displayNewlineReplace));
 
 				if (!noColor)
 					ConsoleHelper.ResetColor();
@@ -97,13 +100,15 @@ public class ConsoleDiagnosticMessageSink : IMessageSink
 	/// <param name="showDiagnosticMessages">A flag to indicate whether diagnostic messages should be shown</param>
 	/// <param name="showInternalDiagnosticMessages">A flag to indicate whether internal diagnostic messages should be shown</param>
 	/// <param name="assemblyDisplayName">The optional assembly display name to delineate the messages</param>
+	/// <param name="indent">Whether to indent the message</param>
 	public static ConsoleDiagnosticMessageSink? TryCreate(
 		TextWriter consoleWriter,
 		bool noColor,
 		bool showDiagnosticMessages = false,
 		bool showInternalDiagnosticMessages = false,
-		string? assemblyDisplayName = null) =>
+		string? assemblyDisplayName = null,
+		bool indent = true) =>
 			showDiagnosticMessages || showInternalDiagnosticMessages
-				? new(consoleWriter, noColor, showDiagnosticMessages, showInternalDiagnosticMessages, assemblyDisplayName)
+				? new(consoleWriter, noColor, showDiagnosticMessages, showInternalDiagnosticMessages, assemblyDisplayName, indent)
 				: null;
 }

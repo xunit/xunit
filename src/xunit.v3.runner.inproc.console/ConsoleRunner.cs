@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -21,35 +22,20 @@ namespace Xunit.Runner.InProc.SystemConsole;
 /// This class is the entry point for the in-process console-based runner used for
 /// xUnit.net v3 test projects.
 /// </summary>
-public class ConsoleRunner
+/// <param name="args">The arguments passed to the application; typically pulled from the Main method.</param>
+public class ConsoleRunner(string[] args)
 {
-	readonly string[] args;
+	readonly string[] args = Guard.ArgumentNotNull(args);
 	bool automated;
 	volatile bool cancel;
 	TextWriter consoleWriter = default!;
 	bool executed;
 	bool failed;
 	IRunnerLogger? logger;
-	IReadOnlyList<IRunnerReporter>? runnerReporters;
+	ITestPipelineStartup? pipelineStartup;
 	bool started;
-	readonly Assembly testAssembly;
+	readonly Assembly testAssembly = Guard.NotNull("Assembly.GetEntryAssembly() returned null", Assembly.GetEntryAssembly());
 	readonly TestExecutionSummaries testExecutionSummaries = new();
-
-	/// <summary>
-	/// Initializes a new instance of the <see cref="ConsoleRunner"/> class.
-	/// </summary>
-	/// <param name="args">The arguments passed to the application; typically pulled from the Main method.</param>
-	/// <param name="testAssembly">The (optional) assembly to test; defaults to <see cref="Assembly.GetEntryAssembly"/>.</param>
-	/// <param name="runnerReporters">The (optional) list of runner reporters.</param>
-	public ConsoleRunner(
-		string[] args,
-		Assembly? testAssembly = null,
-		IEnumerable<IRunnerReporter>? runnerReporters = null)
-	{
-		this.args = Guard.ArgumentNotNull(args);
-		this.testAssembly = Guard.ArgumentNotNull("testAssembly was null, and Assembly.GetEntryAssembly() returned null; you should pass a non-null value for testAssembly", testAssembly ?? Assembly.GetEntryAssembly(), nameof(testAssembly));
-		this.runnerReporters = runnerReporters.CastOrToReadOnlyList();
-	}
 
 	/// <summary>
 	/// The entry point to begin running tests.
@@ -71,7 +57,7 @@ public class ConsoleRunner
 
 		try
 		{
-			var commandLine = new CommandLine(consoleWriter, testAssembly, args, runnerReporters);
+			var commandLine = new CommandLine(consoleWriter, testAssembly, args);
 
 			if (commandLine.HelpRequested)
 			{
@@ -158,43 +144,81 @@ public class ConsoleRunner
 					? new AutomatedDiagnosticMessageSink(consoleWriter)
 					: ConsoleDiagnosticMessageSink.TryCreate(consoleWriter, noColor, globalDiagnosticMessages, globalInternalDiagnosticMessages);
 
-			var reporter = automated ? new JsonReporter() : project.RunnerReporter;
-			var reporterMessageHandler = await reporter.CreateMessageHandler(logger, globalDiagnosticMessageSink);
+			var pipelineStartupAttributes = testAssembly.GetMatchingCustomAttributes(typeof(ITestPipelineStartupAttribute));
+			if (pipelineStartupAttributes.Count > 1)
+				throw new TestPipelineException("More than one pipeline startup attribute was specified: " + pipelineStartupAttributes.Select(a => a.GetType()).ToCommaSeparatedList());
 
-			if (!reporter.ForceNoLogo && !project.Configuration.NoLogoOrDefault)
-				PrintHeader();
+			if (pipelineStartupAttributes.FirstOrDefault() is ITestPipelineStartupAttribute pipelineStartupAttribute)
+			{
+				var pipelineStartupType = pipelineStartupAttribute.TestPipelineStartupType;
+				if (!typeof(ITestPipelineStartup).IsAssignableFrom(pipelineStartupType))
+					throw new TestPipelineException(string.Format(CultureInfo.CurrentCulture, "Pipeline startup type '{0}' does not implement '{1}'", pipelineStartupType.SafeName(), typeof(ITestPipelineStartup).SafeName()));
 
-			foreach (string warning in commandLine.ParseWarnings)
-				if (automated)
-					consoleWriter.WriteLine(new DiagnosticMessage("warning: " + warning).ToJson());
-				else
-					logger.LogWarning(warning);
+				try
+				{
+					pipelineStartup = Activator.CreateInstance(pipelineStartupType) as ITestPipelineStartup;
+				}
+				catch (Exception ex)
+				{
+					throw new TestPipelineException(string.Format(CultureInfo.CurrentCulture, "Pipeline startup type '{0}' threw during construction", pipelineStartupType.SafeName()), ex);
+				}
+
+				if (pipelineStartup is null)
+					throw new TestPipelineException(string.Format(CultureInfo.CurrentCulture, "Pipeline startup type '{0}' does not implement '{1}'", pipelineStartupType.SafeName(), typeof(ITestPipelineStartup).SafeName()));
+
+				IMessageSink? pipelineMessageSink =
+					automated
+						? new AutomatedDiagnosticMessageSink(consoleWriter)
+						: ConsoleDiagnosticMessageSink.TryCreate(consoleWriter, noColor, globalDiagnosticMessages, indent: false, assemblyDisplayName: pipelineStartupType.SafeName());
+
+				await pipelineStartup.StartAsync(pipelineMessageSink ?? NullMessageSink.Instance);
+			}
 
 			var failCount = 0;
 
-			if (project.Configuration.WaitForDebuggerOrDefault)
+			try
 			{
-				if (!automated)
-					consoleWriter.WriteLine("Waiting for debugger to be attached... (press Ctrl+C to abort)");
+				var reporter = automated ? new JsonReporter() : project.RunnerReporter;
+				var reporterMessageHandler = await reporter.CreateMessageHandler(logger, globalDiagnosticMessageSink);
 
-				while (true)
+				if (!reporter.ForceNoLogo && !project.Configuration.NoLogoOrDefault)
+					PrintHeader();
+
+				foreach (string warning in commandLine.ParseWarnings)
+					if (automated)
+						consoleWriter.WriteLine(new DiagnosticMessage("warning: " + warning).ToJson());
+					else
+						logger.LogWarning(warning);
+
+				if (project.Configuration.WaitForDebuggerOrDefault)
 				{
-					if (Debugger.IsAttached)
-						break;
+					if (!automated)
+						consoleWriter.WriteLine("Waiting for debugger to be attached... (press Ctrl+C to abort)");
 
-					await Task.Delay(10);
+					while (true)
+					{
+						if (Debugger.IsAttached)
+							break;
+
+						await Task.Delay(10);
+					}
 				}
+
+				started = true;
+
+				if (project.Configuration.List is not null)
+					await ListProject(project, automated);
+				else
+					failCount = await RunProject(project, reporterMessageHandler);
+
+				if (cancel)
+					return -1073741510;    // 0xC000013A: The application terminated as a result of a CTRL+C
 			}
-
-			started = true;
-
-			if (project.Configuration.List is not null)
-				await ListProject(project, automated);
-			else
-				failCount = await RunProject(project, reporterMessageHandler);
-
-			if (cancel)
-				return -1073741510;    // 0xC000013A: The application terminated as a result of a CTRL+C
+			finally
+			{
+				if (pipelineStartup is not null)
+					await pipelineStartup.StopAsync();
+			}
 
 			if (project.Configuration.WaitOrDefault)
 			{
@@ -268,11 +292,12 @@ public class ConsoleRunner
 
 			TestContext.SetForInitialization(diagnosticMessageSink, diagnosticMessages, internalDiagnosticMessages);
 
-#pragma warning disable CA2007 // Cannot use ConfigureAwait here because it changes the type of disposalTracker
 			await using var disposalTracker = new DisposalTracker();
-#pragma warning restore CA2007
 			var testFramework = ExtensibilityPointFactory.GetTestFramework(testAssembly);
 			disposalTracker.Add(testFramework);
+
+			if (pipelineStartup is not null)
+				testFramework.SetTestPipelineStartup(pipelineStartup);
 
 			// Discover & filter the tests
 			var testCases = new List<ITestCase>();
@@ -353,16 +378,11 @@ public class ConsoleRunner
 	/// Creates a new <see cref="ConsoleRunner"/> instance and runs it via <see cref="EntryPoint"/>.
 	/// </summary>
 	/// <param name="args">The arguments passed to the application; typically pulled from the Main method.</param>
-	/// <param name="testAssembly">The (optional) assembly to test; defaults to <see cref="Assembly.GetEntryAssembly"/>.</param>
-	/// <param name="runnerReporters">The (optional) list of runner reporters.</param>
 	/// <returns>The return value intended to be returned by the Main method.</returns>
-	// Note: This returns Task instead of ValueTask, because it's called from the global entry point, and we don't want to
+	// Note: This returns Task instead of ValueTask, because it's called from the injected entry point, and we don't want to
 	// assume that the global entry point can use an async Main method (for acceptance testing purposes).
-	public static Task<int> Run(
-		string[] args,
-		Assembly? testAssembly = null,
-		IEnumerable<IRunnerReporter>? runnerReporters = null) =>
-			new ConsoleRunner(args, testAssembly, runnerReporters).EntryPoint();
+	public static Task<int> Run(string[] args) =>
+		new ConsoleRunner(args).EntryPoint();
 
 	async ValueTask<int> RunProject(
 		XunitProject project,
@@ -431,9 +451,7 @@ public class ConsoleRunner
 
 			TestContext.SetForInitialization(diagnosticMessageSink, diagnosticMessages, internalDiagnosticMessages);
 
-#pragma warning disable CA2007 // Cannot use ConfigureAwait here because it changes the type of disposalTracker
 			await using var disposalTracker = new DisposalTracker();
-#pragma warning restore CA2007
 			var testFramework = ExtensibilityPointFactory.GetTestFramework(testAssembly);
 			disposalTracker.Add(testFramework);
 

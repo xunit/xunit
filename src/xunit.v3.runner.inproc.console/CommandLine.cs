@@ -19,10 +19,17 @@ public class CommandLine : CommandLineParserBase
 	public CommandLine(
 		TextWriter consoleWriter,
 		Assembly assembly,
+		string[] args) :
+			this(consoleWriter, assembly, args, null)
+	{ }
+
+	/// <summary/>
+	protected CommandLine(
+		TextWriter consoleWriter,
+		Assembly assembly,
 		string[] args,
-		IReadOnlyList<IRunnerReporter>? runnerReporters = null,
-		string? reporterFolder = null)
-			: base(consoleWriter, runnerReporters, reporterFolder ?? Path.GetDirectoryName(assembly.GetSafeLocation()), args)
+		IReadOnlyList<IRunnerReporter>? runnerReporters)
+			: base(consoleWriter, runnerReporters, Path.GetDirectoryName(assembly.GetSafeLocation()), args)
 	{
 		this.assembly = assembly;
 		assemblyFileName = assembly.GetSafeLocation();
