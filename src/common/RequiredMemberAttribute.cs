@@ -4,12 +4,12 @@ namespace System.Runtime.CompilerServices
 {
 	/// <summary/>
 	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
-	public sealed class RequiredMemberAttribute : Attribute
+	internal sealed class RequiredMemberAttribute : Attribute
 	{ }
 
 	/// <summary/>
 	[AttributeUsage(AttributeTargets.All, AllowMultiple = true, Inherited = false)]
-	public sealed class CompilerFeatureRequiredAttribute(string featureName) :
+	internal sealed class CompilerFeatureRequiredAttribute(string featureName) :
 		Attribute
 	{
 		/// <summary/>
@@ -24,7 +24,7 @@ namespace System.Diagnostics.CodeAnalysis
 {
 	/// <summary/>
 	[AttributeUsage(AttributeTargets.Constructor, AllowMultiple = false, Inherited = false)]
-	public sealed class SetsRequiredMembersAttribute : Attribute
+	internal sealed class SetsRequiredMembersAttribute : Attribute
 	{ }
 }
 
