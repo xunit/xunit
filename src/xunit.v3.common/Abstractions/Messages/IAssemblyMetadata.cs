@@ -43,11 +43,3 @@ public interface IAssemblyMetadata
 	/// </remarks>
 	string UniqueID { get; }
 }
-
-internal interface IWritableAssemblyMetadata
-{
-	string AssemblyName { get; set; }
-	string AssemblyPath { get; set; }
-	string? ConfigFilePath { get; set; }
-	IReadOnlyDictionary<string, IReadOnlyList<string>> Traits { get; set; }
-}

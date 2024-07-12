@@ -9,7 +9,7 @@ namespace Xunit.Sdk;
 /// the requested assembly.
 /// </summary>
 [JsonTypeID("discovery-starting")]
-public sealed class DiscoveryStarting : TestAssemblyMessage, IAssemblyMetadata, IWritableAssemblyMetadata
+public sealed class DiscoveryStarting : TestAssemblyMessage, IAssemblyMetadata
 {
 	static readonly IReadOnlyDictionary<string, IReadOnlyList<string>> EmptyTraits = new Dictionary<string, IReadOnlyList<string>>();
 
@@ -35,17 +35,19 @@ public sealed class DiscoveryStarting : TestAssemblyMessage, IAssemblyMetadata, 
 
 	IReadOnlyDictionary<string, IReadOnlyList<string>> IAssemblyMetadata.Traits => EmptyTraits;
 
-	IReadOnlyDictionary<string, IReadOnlyList<string>> IWritableAssemblyMetadata.Traits { get => EmptyTraits; set { } }
-
 	string IAssemblyMetadata.UniqueID =>
 		AssemblyUniqueID;
 
 	/// <inheritdoc/>
 	protected override void Deserialize(IReadOnlyDictionary<string, object?> root)
 	{
+		Guard.ArgumentNotNull(root);
+
 		base.Deserialize(root);
 
-		root.DeserializeAssemblyMetadata(this);
+		assemblyName = JsonDeserializer.TryGetString(root, nameof(IAssemblyMetadata.AssemblyName));
+		assemblyPath = JsonDeserializer.TryGetString(root, nameof(IAssemblyMetadata.AssemblyPath));
+		ConfigFilePath = JsonDeserializer.TryGetString(root, nameof(IAssemblyMetadata.ConfigFilePath));
 	}
 
 	/// <inheritdoc/>
@@ -55,7 +57,9 @@ public sealed class DiscoveryStarting : TestAssemblyMessage, IAssemblyMetadata, 
 
 		base.Serialize(serializer);
 
-		serializer.SerializeAssemblyMetadata(this, excludeTraits: true);
+		serializer.Serialize(nameof(IAssemblyMetadata.AssemblyName), AssemblyName);
+		serializer.Serialize(nameof(IAssemblyMetadata.AssemblyPath), AssemblyPath);
+		serializer.Serialize(nameof(IAssemblyMetadata.ConfigFilePath), ConfigFilePath);
 	}
 
 	/// <inheritdoc/>

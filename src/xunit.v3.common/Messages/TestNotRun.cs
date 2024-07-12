@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using Xunit.Internal;
-
 namespace Xunit.Sdk;
 
 /// <summary>
@@ -9,23 +6,5 @@ namespace Xunit.Sdk;
 /// not explicit as only explicit tests were run).
 /// </summary>
 [JsonTypeID("test-not-run")]
-public sealed class TestNotRun : TestResultMessage, IWritableExecutionMetadata
-{
-	/// <inheritdoc/>
-	protected override void Deserialize(IReadOnlyDictionary<string, object?> root)
-	{
-		base.Deserialize(root);
-
-		root.DeserializeExecutionMetadata(this);
-	}
-
-	/// <inheritdoc/>
-	protected override void Serialize(JsonObjectSerializer serializer)
-	{
-		Guard.ArgumentNotNull(serializer);
-
-		base.Serialize(serializer);
-
-		serializer.SerializeExecutionMetadata(this);
-	}
-}
+public sealed class TestNotRun : TestResultMessage
+{ }

@@ -97,6 +97,8 @@ public sealed class DiagnosticMessage : MessageSinkMessage
 	/// <inheritdoc/>
 	protected override void Deserialize(IReadOnlyDictionary<string, object?> root)
 	{
+		Guard.ArgumentNotNull(root);
+
 		base.Deserialize(root);
 
 		message = JsonDeserializer.TryGetString(root, nameof(Message));

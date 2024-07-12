@@ -24,6 +24,8 @@ public abstract class TestAssemblyMessage : MessageSinkMessage
 	/// <inheritdoc/>
 	protected override void Deserialize(IReadOnlyDictionary<string, object?> root)
 	{
+		Guard.ArgumentNotNull(root);
+
 		base.Deserialize(root);
 
 		assemblyUniqueID = JsonDeserializer.TryGetString(root, nameof(AssemblyUniqueID));

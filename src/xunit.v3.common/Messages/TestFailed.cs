@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using Xunit.Internal;
 
 namespace Xunit.Sdk;
@@ -9,9 +8,9 @@ namespace Xunit.Sdk;
 /// This message indicates that a test has failed.
 /// </summary>
 [JsonTypeID("test-failed")]
-public sealed class TestFailed : TestResultMessage, IErrorMetadata, IWritableErrorMetadata, IWritableExecutionMetadata
+public sealed class TestFailed : TestResultMessage, IErrorMetadata
 {
-	FailureCause cause = FailureCause.Exception;
+	FailureCause? cause;
 	int[]? exceptionParentIndices;
 	string?[]? exceptionTypes;
 	string[]? messages;
@@ -22,21 +21,8 @@ public sealed class TestFailed : TestResultMessage, IErrorMetadata, IWritableErr
 	/// </summary>
 	public required FailureCause Cause
 	{
-		get => cause;
-		set
-		{
-			Guard.ArgumentValid(
-				() => string.Format(
-					CultureInfo.CurrentCulture,
-					"{0} is not a valid value from {1}",
-					nameof(Cause),
-					typeof(FailureCause).SafeName()
-				),
-				Enum.IsDefined(typeof(FailureCause), value),
-				nameof(Cause)
-			);
-			cause = value;
-		}
+		get => this.ValidateNullablePropertyValue(cause, nameof(Cause));
+		set => cause = Guard.ArgumentEnumValid(value, [FailureCause.Assertion, FailureCause.Exception, FailureCause.Other, FailureCause.Timeout], nameof(Cause));
 	}
 
 	/// <inheritdoc/>
@@ -65,6 +51,20 @@ public sealed class TestFailed : TestResultMessage, IErrorMetadata, IWritableErr
 	{
 		get => this.ValidateNullablePropertyValue(stackTraces, nameof(StackTraces));
 		set => stackTraces = Guard.ArgumentNotNullOrEmpty(value, nameof(StackTraces));
+	}
+
+	/// <inheritdoc/>
+	protected override void Deserialize(IReadOnlyDictionary<string, object?> root)
+	{
+		Guard.ArgumentNotNull(root);
+
+		base.Deserialize(root);
+
+		cause = JsonDeserializer.TryGetEnum<FailureCause>(root, nameof(Cause));
+		exceptionParentIndices = JsonDeserializer.TryGetArrayOfInt(root, nameof(ExceptionParentIndices));
+		exceptionTypes = JsonDeserializer.TryGetArrayOfNullableString(root, nameof(ExceptionTypes));
+		messages = JsonDeserializer.TryGetArrayOfString(root, nameof(Messages));
+		stackTraces = JsonDeserializer.TryGetArrayOfNullableString(root, nameof(StackTraces));
 	}
 
 	/// <summary>
@@ -120,28 +120,17 @@ public sealed class TestFailed : TestResultMessage, IErrorMetadata, IWritableErr
 	}
 
 	/// <inheritdoc/>
-	protected override void Deserialize(IReadOnlyDictionary<string, object?> root)
-	{
-		base.Deserialize(root);
-
-		root.DeserializeErrorMetadata(this);
-		root.DeserializeExecutionMetadata(this);
-
-		if (JsonDeserializer.TryGetEnum<FailureCause>(root, nameof(Cause)) is FailureCause cause)
-			Cause = cause;
-	}
-
-	/// <inheritdoc/>
 	protected override void Serialize(JsonObjectSerializer serializer)
 	{
 		Guard.ArgumentNotNull(serializer);
 
 		base.Serialize(serializer);
 
-		serializer.SerializeErrorMetadata(this);
-		serializer.SerializeExecutionMetadata(this);
-
 		serializer.Serialize(nameof(Cause), Cause);
+		serializer.SerializeIntArray(nameof(ExceptionParentIndices), ExceptionParentIndices);
+		serializer.SerializeStringArray(nameof(ExceptionTypes), ExceptionTypes);
+		serializer.SerializeStringArray(nameof(Messages), Messages);
+		serializer.SerializeStringArray(nameof(StackTraces), StackTraces);
 	}
 
 	/// <inheritdoc/>
@@ -149,6 +138,7 @@ public sealed class TestFailed : TestResultMessage, IErrorMetadata, IWritableErr
 	{
 		base.ValidateObjectState(invalidProperties);
 
+		ValidatePropertyIsNotNull(cause, nameof(Cause), invalidProperties);
 		ValidatePropertyIsNotNull(exceptionParentIndices, nameof(ExceptionParentIndices), invalidProperties);
 		ValidatePropertyIsNotNull(exceptionTypes, nameof(ExceptionTypes), invalidProperties);
 		ValidatePropertyIsNotNull(messages, nameof(Messages), invalidProperties);

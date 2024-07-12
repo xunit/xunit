@@ -11,12 +11,13 @@ namespace Xunit.Sdk;
 /// the requested assembly.
 /// </summary>
 [JsonTypeID("test-assembly-starting")]
-public sealed class TestAssemblyStarting : TestAssemblyMessage, IAssemblyMetadata, IWritableAssemblyMetadata
+public sealed class TestAssemblyStarting : TestAssemblyMessage, IAssemblyMetadata
 {
 	string? assemblyName;
 	string? assemblyPath;
 	string? testEnvironment;
 	string? testFrameworkDisplayName;
+	DateTimeOffset? startTime;
 	IReadOnlyDictionary<string, IReadOnlyList<string>>? traits;
 
 	/// <inheritdoc/>
@@ -46,7 +47,11 @@ public sealed class TestAssemblyStarting : TestAssemblyMessage, IAssemblyMetadat
 	/// <summary>
 	/// Gets or sets the date and time when the test assembly execution began.
 	/// </summary>
-	public required DateTimeOffset StartTime { get; set; }
+	public required DateTimeOffset StartTime
+	{
+		get => this.ValidateNullablePropertyValue(startTime, nameof(StartTime));
+		set => startTime = value;
+	}
 
 	/// <summary>
 	/// Gets or sets the target framework that the assembly was compiled against.
@@ -89,16 +94,19 @@ public sealed class TestAssemblyStarting : TestAssemblyMessage, IAssemblyMetadat
 	/// <inheritdoc/>
 	protected override void Deserialize(IReadOnlyDictionary<string, object?> root)
 	{
+		Guard.ArgumentNotNull(root);
+
 		base.Deserialize(root);
 
-		root.DeserializeAssemblyMetadata(this);
-
+		assemblyName = JsonDeserializer.TryGetString(root, nameof(AssemblyName));
+		assemblyPath = JsonDeserializer.TryGetString(root, nameof(AssemblyPath));
+		ConfigFilePath = JsonDeserializer.TryGetString(root, nameof(ConfigFilePath));
 		Seed = JsonDeserializer.TryGetInt(root, nameof(Seed));
-		if (JsonDeserializer.TryGetDateTimeOffset(root, nameof(StartTime)) is DateTimeOffset startTime)
-			StartTime = startTime;
+		startTime = JsonDeserializer.TryGetDateTimeOffset(root, nameof(StartTime));
 		TargetFramework = JsonDeserializer.TryGetString(root, nameof(TargetFramework));
 		testEnvironment = JsonDeserializer.TryGetString(root, nameof(TestEnvironment));
 		testFrameworkDisplayName = JsonDeserializer.TryGetString(root, nameof(TestFrameworkDisplayName));
+		traits = JsonDeserializer.TryGetTraits(root, nameof(Traits));
 	}
 
 	/// <inheritdoc/>
@@ -108,13 +116,15 @@ public sealed class TestAssemblyStarting : TestAssemblyMessage, IAssemblyMetadat
 
 		base.Serialize(serializer);
 
-		serializer.SerializeAssemblyMetadata(this);
-
+		serializer.Serialize(nameof(AssemblyName), AssemblyName);
+		serializer.Serialize(nameof(AssemblyPath), AssemblyPath);
+		serializer.Serialize(nameof(ConfigFilePath), ConfigFilePath);
 		serializer.Serialize(nameof(Seed), Seed);
 		serializer.Serialize(nameof(StartTime), StartTime);
 		serializer.Serialize(nameof(TargetFramework), TargetFramework);
 		serializer.Serialize(nameof(TestEnvironment), TestEnvironment);
 		serializer.Serialize(nameof(TestFrameworkDisplayName), TestFrameworkDisplayName);
+		serializer.SerializeTraits(nameof(Traits), Traits);
 	}
 
 	/// <inheritdoc/>
@@ -136,6 +146,7 @@ public sealed class TestAssemblyStarting : TestAssemblyMessage, IAssemblyMetadat
 
 		ValidatePropertyIsNotNull(assemblyName, nameof(AssemblyName), invalidProperties);
 		ValidatePropertyIsNotNull(assemblyPath, nameof(AssemblyPath), invalidProperties);
+		ValidatePropertyIsNotNull(startTime, nameof(StartTime), invalidProperties);
 		ValidatePropertyIsNotNull(testEnvironment, nameof(TestEnvironment), invalidProperties);
 		ValidatePropertyIsNotNull(testFrameworkDisplayName, nameof(TestFrameworkDisplayName), invalidProperties);
 		ValidatePropertyIsNotNull(traits, nameof(Traits), invalidProperties);

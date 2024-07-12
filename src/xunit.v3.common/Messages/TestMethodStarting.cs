@@ -8,16 +8,16 @@ namespace Xunit.Sdk;
 /// This message indicates that a test method is about to begin executing.
 /// </summary>
 [JsonTypeID("test-method-starting")]
-public sealed class TestMethodStarting : TestMethodMessage, ITestMethodMetadata, IWritableTestMethodMetadata
+public sealed class TestMethodStarting : TestMethodMessage, ITestMethodMetadata
 {
-	string? testMethod;
+	string? methodName;
 	IReadOnlyDictionary<string, IReadOnlyList<string>>? traits;
 
 	/// <inheritdoc/>
 	public required string MethodName
 	{
-		get => this.ValidateNullablePropertyValue(testMethod, nameof(MethodName));
-		set => testMethod = Guard.ArgumentNotNullOrEmpty(value, nameof(MethodName));
+		get => this.ValidateNullablePropertyValue(methodName, nameof(MethodName));
+		set => methodName = Guard.ArgumentNotNullOrEmpty(value, nameof(MethodName));
 	}
 
 	/// <inheritdoc/>
@@ -33,9 +33,12 @@ public sealed class TestMethodStarting : TestMethodMessage, ITestMethodMetadata,
 	/// <inheritdoc/>
 	protected override void Deserialize(IReadOnlyDictionary<string, object?> root)
 	{
+		Guard.ArgumentNotNull(root);
+
 		base.Deserialize(root);
 
-		root.DeserializeTestMethodMetadata(this);
+		methodName = JsonDeserializer.TryGetString(root, nameof(MethodName));
+		traits = JsonDeserializer.TryGetTraits(root, nameof(Traits));
 	}
 
 	/// <inheritdoc/>
@@ -45,19 +48,20 @@ public sealed class TestMethodStarting : TestMethodMessage, ITestMethodMetadata,
 
 		base.Serialize(serializer);
 
-		serializer.SerializeTestMethodMetadata(this);
+		serializer.Serialize(nameof(MethodName), MethodName);
+		serializer.SerializeTraits(nameof(Traits), Traits);
 	}
 
 	/// <inheritdoc/>
 	public override string ToString() =>
-		string.Format(CultureInfo.CurrentCulture, "{0} method={1}", base.ToString(), testMethod.Quoted());
+		string.Format(CultureInfo.CurrentCulture, "{0} method={1}", base.ToString(), methodName.Quoted());
 
 	/// <inheritdoc/>
 	protected override void ValidateObjectState(HashSet<string> invalidProperties)
 	{
 		base.ValidateObjectState(invalidProperties);
 
-		ValidatePropertyIsNotNull(testMethod, nameof(MethodName), invalidProperties);
+		ValidatePropertyIsNotNull(methodName, nameof(MethodName), invalidProperties);
 		ValidatePropertyIsNotNull(traits, nameof(Traits), invalidProperties);
 	}
 }

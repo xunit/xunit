@@ -69,15 +69,3 @@ public interface ITestCaseMetadata
 	/// </remarks>
 	string UniqueID { get; }
 }
-
-internal interface IWritableTestCaseMetadata
-{
-	string? SkipReason { get; set; }
-	string? SourceFilePath { get; set; }
-	int? SourceLineNumber { get; set; }
-	string TestCaseDisplayName { get; set; }
-	string? TestClassName { get; set; }
-	string? TestClassNamespace { get; set; }
-	string? TestMethodName { get; set; }
-	IReadOnlyDictionary<string, IReadOnlyList<string>> Traits { get; set; }
-}

@@ -8,7 +8,7 @@ namespace Xunit.Sdk;
 /// This message indicates that a test class is about to begin executing.
 /// </summary>
 [JsonTypeID("test-class-starting")]
-public sealed class TestClassStarting : TestClassMessage, ITestClassMetadata, IWritableTestClassMetadata
+public sealed class TestClassStarting : TestClassMessage, ITestClassMetadata
 {
 	string? testClassName;
 	IReadOnlyDictionary<string, IReadOnlyList<string>>? traits;
@@ -36,9 +36,13 @@ public sealed class TestClassStarting : TestClassMessage, ITestClassMetadata, IW
 	/// <inheritdoc/>
 	protected override void Deserialize(IReadOnlyDictionary<string, object?> root)
 	{
+		Guard.ArgumentNotNull(root);
+
 		base.Deserialize(root);
 
-		root.DeserializeTestClassMetadata(this);
+		testClassName = JsonDeserializer.TryGetString(root, nameof(TestClassName));
+		TestClassNamespace = JsonDeserializer.TryGetString(root, nameof(TestClassNamespace));
+		traits = JsonDeserializer.TryGetTraits(root, nameof(Traits));
 	}
 
 	/// <inheritdoc/>
@@ -48,7 +52,9 @@ public sealed class TestClassStarting : TestClassMessage, ITestClassMetadata, IW
 
 		base.Serialize(serializer);
 
-		serializer.SerializeTestClassMetadata(this);
+		serializer.Serialize(nameof(TestClassName), TestClassName);
+		serializer.Serialize(nameof(TestClassNamespace), TestClassNamespace);
+		serializer.SerializeTraits(nameof(Traits), Traits);
 	}
 
 	/// <inheritdoc/>

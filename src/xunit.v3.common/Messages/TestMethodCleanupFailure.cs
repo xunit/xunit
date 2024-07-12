@@ -8,7 +8,7 @@ namespace Xunit.Sdk;
 /// This message indicates that an error has occurred during test method cleanup.
 /// </summary>
 [JsonTypeID("test-method-cleanup-failure")]
-public sealed class TestMethodCleanupFailure : TestMethodMessage, IErrorMetadata, IWritableErrorMetadata
+public sealed class TestMethodCleanupFailure : TestMethodMessage, IErrorMetadata
 {
 	int[]? exceptionParentIndices;
 	string?[]? exceptionTypes;
@@ -41,6 +41,19 @@ public sealed class TestMethodCleanupFailure : TestMethodMessage, IErrorMetadata
 	{
 		get => this.ValidateNullablePropertyValue(stackTraces, nameof(StackTraces));
 		set => stackTraces = Guard.ArgumentNotNullOrEmpty(value, nameof(StackTraces));
+	}
+
+	/// <inheritdoc/>
+	protected override void Deserialize(IReadOnlyDictionary<string, object?> root)
+	{
+		Guard.ArgumentNotNull(root);
+
+		base.Deserialize(root);
+
+		exceptionParentIndices = JsonDeserializer.TryGetArrayOfInt(root, nameof(ExceptionParentIndices));
+		exceptionTypes = JsonDeserializer.TryGetArrayOfNullableString(root, nameof(ExceptionTypes));
+		messages = JsonDeserializer.TryGetArrayOfString(root, nameof(Messages));
+		stackTraces = JsonDeserializer.TryGetArrayOfNullableString(root, nameof(StackTraces));
 	}
 
 	/// <summary>
@@ -78,21 +91,16 @@ public sealed class TestMethodCleanupFailure : TestMethodMessage, IErrorMetadata
 	}
 
 	/// <inheritdoc/>
-	protected override void Deserialize(IReadOnlyDictionary<string, object?> root)
-	{
-		base.Deserialize(root);
-
-		root.DeserializeErrorMetadata(this);
-	}
-
-	/// <inheritdoc/>
 	protected override void Serialize(JsonObjectSerializer serializer)
 	{
 		Guard.ArgumentNotNull(serializer);
 
 		base.Serialize(serializer);
 
-		serializer.SerializeErrorMetadata(this);
+		serializer.SerializeIntArray(nameof(ExceptionParentIndices), ExceptionParentIndices);
+		serializer.SerializeStringArray(nameof(ExceptionTypes), ExceptionTypes);
+		serializer.SerializeStringArray(nameof(Messages), Messages);
+		serializer.SerializeStringArray(nameof(StackTraces), StackTraces);
 	}
 
 	/// <inheritdoc/>

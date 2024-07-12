@@ -24,6 +24,8 @@ public abstract class TestMessage : TestCaseMessage
 	/// <inheritdoc/>
 	protected override void Deserialize(IReadOnlyDictionary<string, object?> root)
 	{
+		Guard.ArgumentNotNull(root);
+
 		base.Deserialize(root);
 
 		testUniqueID = JsonDeserializer.TryGetString(root, nameof(TestUniqueID));

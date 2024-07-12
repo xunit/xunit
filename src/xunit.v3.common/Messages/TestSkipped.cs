@@ -7,7 +7,7 @@ namespace Xunit.Sdk;
 /// This message indicates that a test was skipped.
 /// </summary>
 [JsonTypeID("test-skipped")]
-public sealed class TestSkipped : TestResultMessage, IWritableExecutionMetadata
+public sealed class TestSkipped : TestResultMessage
 {
 	string? reason;
 
@@ -23,9 +23,10 @@ public sealed class TestSkipped : TestResultMessage, IWritableExecutionMetadata
 	/// <inheritdoc/>
 	protected override void Deserialize(IReadOnlyDictionary<string, object?> root)
 	{
+		Guard.ArgumentNotNull(root);
+
 		base.Deserialize(root);
 
-		root.DeserializeExecutionMetadata(this);
 		reason = JsonDeserializer.TryGetString(root, nameof(Reason));
 	}
 
@@ -36,7 +37,6 @@ public sealed class TestSkipped : TestResultMessage, IWritableExecutionMetadata
 
 		base.Serialize(serializer);
 
-		serializer.SerializeExecutionMetadata(this);
 		serializer.Serialize(nameof(Reason), Reason);
 	}
 

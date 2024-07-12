@@ -39,16 +39,16 @@ public class MessageSinkMessageTests
 		Assert.NotNull(json);
 		var expected =
 @"{
-	""$type"":                    ""test-assembly-starting"",
-	""AssemblyUniqueID"":         ""asm-id"",
-	""AssemblyName"":             ""asm-name"",
-	""AssemblyPath"":             ""asm-path"",
-	""Traits"":                   {},
-	""StartTime"":                ""2020-09-26T13:55:27.2120000-07:00"",
-	""TestEnvironment"":          ""test-env"",
-	""TestFrameworkDisplayName"": ""test-framework""
-}".Replace("\n", "");
-		Assert.Equal(expected, json, ignoreAllWhiteSpace: true);
+    ""$type"":                    ""test-assembly-starting"",
+    ""AssemblyUniqueID"":         ""asm-id"",
+    ""AssemblyName"":             ""asm-name"",
+    ""AssemblyPath"":             ""asm-path"",
+    ""StartTime"":                ""2020-09-26T13:55:27.2120000-07:00"",
+    ""TestEnvironment"":          ""test-env"",
+    ""TestFrameworkDisplayName"": ""test-framework"",
+    ""Traits"":                   {}
+}".Replace("\n", "").Replace(" ", "");
+		Assert.Equal(expected, json);
 	}
 
 	[Fact]
@@ -77,20 +77,20 @@ public class MessageSinkMessageTests
 		Assert.NotNull(json);
 		var expected =
 @"{
-	""$type"":                  ""test-failed"",
-	""AssemblyUniqueID"":       ""asm-id"",
-	""TestCollectionUniqueID"": ""test-collection-id"",
-	""TestCaseUniqueID"":       ""test-case-id"",
-	""TestUniqueID"":           ""test-id"",
-	""ExceptionParentIndices"": [-1],
-	""ExceptionTypes"":         [""exception-type""],
-	""Messages"":               [""exception-message""],
-	""StackTraces"":            [null],
-	""ExecutionTime"":          123.45,
-	""Output"":                 """",
-	""Cause"":                  ""Assertion""
-}".Replace("\n", "");
-		Assert.Equal(expected, json, ignoreAllWhiteSpace: true);
+    ""$type"":                  ""test-failed"",
+    ""AssemblyUniqueID"":       ""asm-id"",
+    ""TestCollectionUniqueID"": ""test-collection-id"",
+    ""TestCaseUniqueID"":       ""test-case-id"",
+    ""TestUniqueID"":           ""test-id"",
+    ""ExecutionTime"":          123.45,
+    ""Output"":                 """",
+    ""Cause"":                  ""Assertion"",
+    ""ExceptionParentIndices"": [-1],
+    ""ExceptionTypes"":         [""exception-type""],
+    ""Messages"":               [""exception-message""],
+    ""StackTraces"":            [null]
+}".Replace("\n", "").Replace(" ", "");
+		Assert.Equal(expected, json);
 	}
 
 	[Fact]

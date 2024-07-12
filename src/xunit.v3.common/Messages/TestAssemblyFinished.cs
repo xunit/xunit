@@ -9,9 +9,10 @@ namespace Xunit.Sdk;
 /// the requested assembly.
 /// </summary>
 [JsonTypeID("test-assembly-finished")]
-public sealed class TestAssemblyFinished : TestAssemblyMessage, IExecutionSummaryMetadata, IWritableExecutionSummaryMetadata
+public sealed class TestAssemblyFinished : TestAssemblyMessage, IExecutionSummaryMetadata
 {
 	decimal? executionTime;
+	DateTimeOffset? finishTime;
 	int? testsFailed;
 	int? testsNotRun;
 	int? testsSkipped;
@@ -27,7 +28,11 @@ public sealed class TestAssemblyFinished : TestAssemblyMessage, IExecutionSummar
 	/// <summary>
 	/// Gets or sets the date and time when the test assembly execution finished.
 	/// </summary>
-	public required DateTimeOffset FinishTime { get; set; }
+	public required DateTimeOffset FinishTime
+	{
+		get => this.ValidateNullablePropertyValue(finishTime, nameof(FinishTime));
+		set => finishTime = value;
+	}
 
 	/// <inheritdoc/>
 	public required int TestsFailed
@@ -60,12 +65,16 @@ public sealed class TestAssemblyFinished : TestAssemblyMessage, IExecutionSummar
 	/// <inheritdoc/>
 	protected override void Deserialize(IReadOnlyDictionary<string, object?> root)
 	{
+		Guard.ArgumentNotNull(root);
+
 		base.Deserialize(root);
 
-		root.DeserializeExecutionSummaryMetadata(this);
-
-		if (JsonDeserializer.TryGetDateTimeOffset(root, nameof(FinishTime)) is DateTimeOffset finishTime)
-			FinishTime = finishTime;
+		executionTime = JsonDeserializer.TryGetDecimal(root, nameof(ExecutionTime));
+		finishTime = JsonDeserializer.TryGetDateTimeOffset(root, nameof(FinishTime));
+		testsFailed = JsonDeserializer.TryGetInt(root, nameof(TestsFailed));
+		testsNotRun = JsonDeserializer.TryGetInt(root, nameof(TestsNotRun));
+		testsSkipped = JsonDeserializer.TryGetInt(root, nameof(TestsSkipped));
+		testsTotal = JsonDeserializer.TryGetInt(root, nameof(TestsTotal));
 	}
 
 	/// <inheritdoc/>
@@ -75,9 +84,12 @@ public sealed class TestAssemblyFinished : TestAssemblyMessage, IExecutionSummar
 
 		base.Serialize(serializer);
 
-		serializer.SerializeExecutionSummaryMetadata(this);
-
+		serializer.Serialize(nameof(ExecutionTime), ExecutionTime);
 		serializer.Serialize(nameof(FinishTime), FinishTime);
+		serializer.Serialize(nameof(TestsFailed), TestsFailed);
+		serializer.Serialize(nameof(TestsNotRun), TestsNotRun);
+		serializer.Serialize(nameof(TestsSkipped), TestsSkipped);
+		serializer.Serialize(nameof(TestsTotal), TestsTotal);
 	}
 
 	/// <inheritdoc/>
@@ -86,6 +98,7 @@ public sealed class TestAssemblyFinished : TestAssemblyMessage, IExecutionSummar
 		base.ValidateObjectState(invalidProperties);
 
 		ValidatePropertyIsNotNull(executionTime, nameof(ExecutionTime), invalidProperties);
+		ValidatePropertyIsNotNull(finishTime, nameof(FinishTime), invalidProperties);
 		ValidatePropertyIsNotNull(testsFailed, nameof(TestsFailed), invalidProperties);
 		ValidatePropertyIsNotNull(testsNotRun, nameof(TestsNotRun), invalidProperties);
 		ValidatePropertyIsNotNull(testsSkipped, nameof(TestsSkipped), invalidProperties);

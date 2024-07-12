@@ -16,7 +16,7 @@ public class TestFailedTests
 
 			var argEx = Assert.IsType<ArgumentException>(ex);
 			Assert.Equal("Cause", argEx.ParamName);
-			Assert.StartsWith($"Cause is not a valid value from {typeof(FailureCause).FullName}", argEx.Message);
+			Assert.StartsWith($"Enum value 2112 not in valid set: [Assertion, Exception, Other, Timeout]", argEx.Message);
 		}
 	}
 

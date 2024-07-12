@@ -30,9 +30,3 @@ public interface ITestMethodMetadata
 	/// </remarks>
 	string UniqueID { get; }
 }
-
-internal interface IWritableTestMethodMetadata
-{
-	string MethodName { get; set; }
-	IReadOnlyDictionary<string, IReadOnlyList<string>> Traits { get; set; }
-}

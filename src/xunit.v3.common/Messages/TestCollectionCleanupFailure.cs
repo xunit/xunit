@@ -8,7 +8,7 @@ namespace Xunit.Sdk;
 /// This message indicates that an error has occurred during test collection cleanup.
 /// </summary>
 [JsonTypeID("test-collection-cleanup-failure")]
-public sealed class TestCollectionCleanupFailure : TestCollectionMessage, IErrorMetadata, IWritableErrorMetadata
+public sealed class TestCollectionCleanupFailure : TestCollectionMessage, IErrorMetadata
 {
 	int[]? exceptionParentIndices;
 	string?[]? exceptionTypes;
@@ -43,6 +43,19 @@ public sealed class TestCollectionCleanupFailure : TestCollectionMessage, IError
 		set => stackTraces = Guard.ArgumentNotNullOrEmpty(value, nameof(StackTraces));
 	}
 
+	/// <inheritdoc/>
+	protected override void Deserialize(IReadOnlyDictionary<string, object?> root)
+	{
+		Guard.ArgumentNotNull(root);
+
+		base.Deserialize(root);
+
+		exceptionParentIndices = JsonDeserializer.TryGetArrayOfInt(root, nameof(ExceptionParentIndices));
+		exceptionTypes = JsonDeserializer.TryGetArrayOfNullableString(root, nameof(ExceptionTypes));
+		messages = JsonDeserializer.TryGetArrayOfString(root, nameof(Messages));
+		stackTraces = JsonDeserializer.TryGetArrayOfNullableString(root, nameof(StackTraces));
+	}
+
 	/// <summary>
 	/// Creates a new <see cref="TestCollectionCleanupFailure"/> constructed from an <see cref="Exception"/> object.
 	/// </summary>
@@ -72,21 +85,16 @@ public sealed class TestCollectionCleanupFailure : TestCollectionMessage, IError
 	}
 
 	/// <inheritdoc/>
-	protected override void Deserialize(IReadOnlyDictionary<string, object?> root)
-	{
-		base.Deserialize(root);
-
-		root.DeserializeErrorMetadata(this);
-	}
-
-	/// <inheritdoc/>
 	protected override void Serialize(JsonObjectSerializer serializer)
 	{
 		Guard.ArgumentNotNull(serializer);
 
 		base.Serialize(serializer);
 
-		serializer.SerializeErrorMetadata(this);
+		serializer.SerializeIntArray(nameof(ExceptionParentIndices), ExceptionParentIndices);
+		serializer.SerializeStringArray(nameof(ExceptionTypes), ExceptionTypes);
+		serializer.SerializeStringArray(nameof(Messages), Messages);
+		serializer.SerializeStringArray(nameof(StackTraces), StackTraces);
 	}
 
 	/// <inheritdoc/>

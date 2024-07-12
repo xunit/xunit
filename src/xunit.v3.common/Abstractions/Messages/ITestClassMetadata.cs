@@ -36,10 +36,3 @@ public interface ITestClassMetadata
 	/// </remarks>
 	string UniqueID { get; }
 }
-
-internal interface IWritableTestClassMetadata
-{
-	string TestClassName { get; set; }
-	string? TestClassNamespace { get; set; }
-	IReadOnlyDictionary<string, IReadOnlyList<string>> Traits { get; set; }
-}

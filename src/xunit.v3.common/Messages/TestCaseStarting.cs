@@ -10,7 +10,7 @@ namespace Xunit.Sdk;
 /// This message indicates that a test case is about to start executing.
 /// </summary>
 [JsonTypeID("test-case-starting")]
-public sealed class TestCaseStarting : TestCaseMessage, ITestCaseMetadata, IWritableTestCaseMetadata
+public sealed class TestCaseStarting : TestCaseMessage, ITestCaseMetadata
 {
 	string? testCaseDisplayName;
 	string? testClassName;
@@ -73,9 +73,18 @@ public sealed class TestCaseStarting : TestCaseMessage, ITestCaseMetadata, IWrit
 	/// <inheritdoc/>
 	protected override void Deserialize(IReadOnlyDictionary<string, object?> root)
 	{
+		Guard.ArgumentNotNull(root);
+
 		base.Deserialize(root);
 
-		root.DeserializeTestCaseMetadata(this);
+		SkipReason = JsonDeserializer.TryGetString(root, nameof(SkipReason));
+		SourceFilePath = JsonDeserializer.TryGetString(root, nameof(SourceFilePath));
+		SourceLineNumber = JsonDeserializer.TryGetInt(root, nameof(SourceLineNumber));
+		testCaseDisplayName = JsonDeserializer.TryGetString(root, nameof(TestCaseDisplayName));
+		testClassName = JsonDeserializer.TryGetString(root, nameof(TestClassName));
+		TestClassNamespace = JsonDeserializer.TryGetString(root, nameof(TestClassNamespace));
+		TestMethodName = JsonDeserializer.TryGetString(root, nameof(TestMethodName));
+		traits = JsonDeserializer.TryGetTraits(root, nameof(Traits));
 	}
 
 	/// <inheritdoc/>
@@ -85,7 +94,14 @@ public sealed class TestCaseStarting : TestCaseMessage, ITestCaseMetadata, IWrit
 
 		base.Serialize(serializer);
 
-		serializer.SerializeTestCaseMetadata(this);
+		serializer.Serialize(nameof(SkipReason), SkipReason);
+		serializer.Serialize(nameof(SourceFilePath), SourceFilePath);
+		serializer.Serialize(nameof(SourceLineNumber), SourceLineNumber);
+		serializer.Serialize(nameof(TestCaseDisplayName), TestCaseDisplayName);
+		serializer.Serialize(nameof(TestClassName), TestClassName);
+		serializer.Serialize(nameof(TestClassNamespace), TestClassNamespace);
+		serializer.Serialize(nameof(TestMethodName), TestMethodName);
+		serializer.SerializeTraits(nameof(Traits), Traits);
 	}
 
 	/// <inheritdoc/>

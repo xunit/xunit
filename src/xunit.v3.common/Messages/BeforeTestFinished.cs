@@ -25,6 +25,8 @@ public sealed class BeforeTestFinished : TestMessage
 	/// <inheritdoc/>
 	protected override void Deserialize(IReadOnlyDictionary<string, object?> root)
 	{
+		Guard.ArgumentNotNull(root);
+
 		base.Deserialize(root);
 
 		attributeName = JsonDeserializer.TryGetString(root, nameof(AttributeName));

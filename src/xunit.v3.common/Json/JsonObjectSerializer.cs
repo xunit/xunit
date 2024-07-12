@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.Text;
-using Xunit.Internal;
 
 namespace Xunit.Sdk;
 
@@ -151,26 +149,6 @@ public sealed class JsonObjectSerializer(
 	}
 
 	/// <summary>
-	/// Serialize a trait dictionary value into the object.
-	/// </summary>
-	/// <param name="key">The name of the value</param>
-	/// <param name="dictionary">The trait dictionary</param>
-	public void Serialize(
-		string key,
-		IReadOnlyDictionary<string, IReadOnlyList<string>> dictionary)
-	{
-		GuardNoOpenChild();
-		Guard.ArgumentNotNull(dictionary);
-
-		using var dictionarySerializer = SerializeObject(key);
-
-		foreach (var kvp in dictionary)
-			using (var arraySerializer = dictionarySerializer.SerializeArray(kvp.Key))
-				foreach (var value in kvp.Value)
-					arraySerializer.Serialize(value);
-	}
-
-	/// <summary>
 	/// Serialize a <see cref="string"/> value into the object.
 	/// </summary>
 	/// <param name="key">The name of the value</param>
@@ -204,6 +182,16 @@ public sealed class JsonObjectSerializer(
 
 		WriteKey(key);
 		return new JsonArraySerializer(Buffer, () => openChild = false);
+	}
+
+	/// <summary>
+	/// Serialize a null value into the object.
+	/// </summary>
+	/// <param name="key">The name of the null value</param>
+	public void SerializeNull(string key)
+	{
+		WriteKey(key);
+		WriteValue(default(string));
 	}
 
 	/// <summary>

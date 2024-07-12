@@ -43,6 +43,17 @@ public sealed class ErrorMessage : MessageSinkMessage, IErrorMetadata
 		set => stackTraces = Guard.ArgumentNotNullOrEmpty(value, nameof(StackTraces));
 	}
 
+	/// <inheritdoc/>
+	protected override void Deserialize(IReadOnlyDictionary<string, object?> root)
+	{
+		base.Deserialize(root);
+
+		exceptionParentIndices = JsonDeserializer.TryGetArrayOfInt(root, nameof(ExceptionParentIndices));
+		exceptionTypes = JsonDeserializer.TryGetArrayOfNullableString(root, nameof(ExceptionTypes));
+		messages = JsonDeserializer.TryGetArrayOfString(root, nameof(Messages));
+		stackTraces = JsonDeserializer.TryGetArrayOfNullableString(root, nameof(StackTraces));
+	}
+
 	/// <summary>
 	/// Creates a new <see cref="ErrorMessage"/> constructed from an <see cref="Exception"/> object.
 	/// </summary>
@@ -63,48 +74,16 @@ public sealed class ErrorMessage : MessageSinkMessage, IErrorMetadata
 	}
 
 	/// <inheritdoc/>
-	protected override void Deserialize(IReadOnlyDictionary<string, object?> root)
-	{
-		base.Deserialize(root);
-
-		// This code is duplicated from JsonObjectSerializerExtensions.DeserializeErrorMetadata because that class
-		// is not available here.
-
-		if (JsonDeserializer.TryGetArrayOfInt(root, nameof(IErrorMetadata.ExceptionParentIndices)) is int[] expectedParentIndices)
-			ExceptionParentIndices = expectedParentIndices;
-		if (JsonDeserializer.TryGetArrayOfNullableString(root, nameof(IErrorMetadata.ExceptionTypes)) is string?[] exceptionTypes)
-			ExceptionTypes = exceptionTypes;
-		if (JsonDeserializer.TryGetArrayOfString(root, nameof(IErrorMetadata.Messages)) is string?[] messages)
-			Messages = messages;
-		if (JsonDeserializer.TryGetArrayOfNullableString(root, nameof(IErrorMetadata.StackTraces)) is string?[] stackTraces)
-			StackTraces = stackTraces;
-	}
-
-	/// <inheritdoc/>
 	protected override void Serialize(JsonObjectSerializer serializer)
 	{
 		Guard.ArgumentNotNull(serializer);
 
 		base.Serialize(serializer);
 
-		// This code is duplicated from JsonObjectSerializerExtensions.SerializeErrorMetadata because that class
-		// is not available here.
-
-		using (var indexArraySerializer = serializer.SerializeArray(nameof(IErrorMetadata.ExceptionParentIndices)))
-			foreach (var index in ExceptionParentIndices)
-				indexArraySerializer.Serialize(index);
-
-		using (var typeArraySerializer = serializer.SerializeArray(nameof(IErrorMetadata.ExceptionTypes)))
-			foreach (var type in ExceptionTypes)
-				typeArraySerializer.Serialize(type);
-
-		using (var messageArraySerializer = serializer.SerializeArray(nameof(IErrorMetadata.Messages)))
-			foreach (var message in Messages)
-				messageArraySerializer.Serialize(message);
-
-		using (var stackTraceArraySerializer = serializer.SerializeArray(nameof(IErrorMetadata.StackTraces)))
-			foreach (var stackTrace in StackTraces)
-				stackTraceArraySerializer.Serialize(stackTrace);
+		serializer.SerializeIntArray(nameof(ExceptionParentIndices), ExceptionParentIndices);
+		serializer.SerializeStringArray(nameof(ExceptionTypes), ExceptionTypes);
+		serializer.SerializeStringArray(nameof(Messages), Messages);
+		serializer.SerializeStringArray(nameof(StackTraces), StackTraces);
 	}
 
 	/// <inheritdoc/>

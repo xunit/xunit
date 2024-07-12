@@ -31,9 +31,3 @@ public interface ITestMetadata
 	/// </remarks>
 	string UniqueID { get; }
 }
-
-internal interface IWritableTestMetadata
-{
-	string TestDisplayName { get; set; }
-	IReadOnlyDictionary<string, IReadOnlyList<string>> Traits { get; set; }
-}

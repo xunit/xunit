@@ -21,10 +21,3 @@ public interface IExecutionMetadata
 	/// </summary>
 	string[]? Warnings { get; }
 }
-
-internal interface IWritableExecutionMetadata
-{
-	decimal ExecutionTime { get; set; }
-	string Output { get; set; }
-	string[]? Warnings { get; set; }
-}

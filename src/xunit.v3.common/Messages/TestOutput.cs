@@ -23,6 +23,8 @@ public sealed class TestOutput : TestMessage
 	/// <inheritdoc/>
 	protected override void Deserialize(IReadOnlyDictionary<string, object?> root)
 	{
+		Guard.ArgumentNotNull(root);
+
 		base.Deserialize(root);
 
 		output = JsonDeserializer.TryGetString(root, nameof(Output));

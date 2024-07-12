@@ -8,7 +8,7 @@ namespace Xunit.Sdk;
 /// test cases in this test class have finished running).
 /// </summary>
 [JsonTypeID("test-class-finished")]
-public sealed class TestClassFinished : TestClassMessage, IExecutionSummaryMetadata, IWritableExecutionSummaryMetadata
+public sealed class TestClassFinished : TestClassMessage, IExecutionSummaryMetadata
 {
 	decimal? executionTime;
 	int? testsFailed;
@@ -54,9 +54,15 @@ public sealed class TestClassFinished : TestClassMessage, IExecutionSummaryMetad
 	/// <inheritdoc/>
 	protected override void Deserialize(IReadOnlyDictionary<string, object?> root)
 	{
+		Guard.ArgumentNotNull(root);
+
 		base.Deserialize(root);
 
-		root.DeserializeExecutionSummaryMetadata(this);
+		executionTime = JsonDeserializer.TryGetDecimal(root, nameof(ExecutionTime));
+		testsFailed = JsonDeserializer.TryGetInt(root, nameof(TestsFailed));
+		testsNotRun = JsonDeserializer.TryGetInt(root, nameof(TestsNotRun));
+		testsSkipped = JsonDeserializer.TryGetInt(root, nameof(TestsSkipped));
+		testsTotal = JsonDeserializer.TryGetInt(root, nameof(TestsTotal));
 	}
 
 	/// <inheritdoc/>
@@ -66,7 +72,11 @@ public sealed class TestClassFinished : TestClassMessage, IExecutionSummaryMetad
 
 		base.Serialize(serializer);
 
-		serializer.SerializeExecutionSummaryMetadata(this);
+		serializer.Serialize(nameof(ExecutionTime), ExecutionTime);
+		serializer.Serialize(nameof(TestsFailed), TestsFailed);
+		serializer.Serialize(nameof(TestsNotRun), TestsNotRun);
+		serializer.Serialize(nameof(TestsSkipped), TestsSkipped);
+		serializer.Serialize(nameof(TestsTotal), TestsTotal);
 	}
 
 	/// <inheritdoc/>

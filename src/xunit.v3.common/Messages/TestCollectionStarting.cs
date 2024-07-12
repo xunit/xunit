@@ -8,7 +8,7 @@ namespace Xunit.Sdk;
 /// This message indicates that a test collection is about to start executing.
 /// </summary>
 [JsonTypeID("test-collection-starting")]
-public sealed class TestCollectionStarting : TestCollectionMessage, ITestCollectionMetadata, IWritableTestCollectionMetadata
+public sealed class TestCollectionStarting : TestCollectionMessage, ITestCollectionMetadata
 {
 	string? testCollectionDisplayName;
 	IReadOnlyDictionary<string, IReadOnlyList<string>>? traits;
@@ -36,9 +36,13 @@ public sealed class TestCollectionStarting : TestCollectionMessage, ITestCollect
 	/// <inheritdoc/>
 	protected override void Deserialize(IReadOnlyDictionary<string, object?> root)
 	{
+		Guard.ArgumentNotNull(root);
+
 		base.Deserialize(root);
 
-		root.DeserializeTestCollectionMetadata(this);
+		TestCollectionClassName = JsonDeserializer.TryGetString(root, nameof(TestCollectionClassName));
+		testCollectionDisplayName = JsonDeserializer.TryGetString(root, nameof(TestCollectionDisplayName));
+		traits = JsonDeserializer.TryGetTraits(root, nameof(Traits));
 	}
 
 	/// <inheritdoc/>
@@ -48,7 +52,9 @@ public sealed class TestCollectionStarting : TestCollectionMessage, ITestCollect
 
 		base.Serialize(serializer);
 
-		serializer.SerializeTestCollectionMetadata(this);
+		serializer.Serialize(nameof(TestCollectionClassName), TestCollectionClassName);
+		serializer.Serialize(nameof(TestCollectionDisplayName), TestCollectionDisplayName);
+		serializer.SerializeTraits(nameof(Traits), Traits);
 	}
 
 	/// <inheritdoc/>

@@ -46,13 +46,23 @@ public class JsonObjectSerializerTests
 		yield return new(s => s.Serialize("value", default(string), includeNullValues: true), @"{""value"":null}");
 		yield return new(s => s.Serialize("value", default(string), includeNullValues: false), "{}");
 
-		// Traits dictionary (IReadOnlyDictionary<string, IReadOnlyList<string>>)
+		// int array, via JsonSerializerExtensions
+		yield return new(s => s.SerializeIntArray("value", [1, 2, 3]), @"{""value"":[1,2,3]}");
+		yield return new(s => s.SerializeIntArray("value", null, includeNullArray: true), @"{""value"":null}");
+		yield return new(s => s.SerializeIntArray("value", null, includeNullArray: false), @"{}");
+
+		// string array, via JsonSerializerExtensions
+		yield return new(s => s.SerializeStringArray("value", ["Hello", null, "World"]), @"{""value"":[""Hello"",null,""World""]}");
+		yield return new(s => s.SerializeStringArray("value", null, includeNullArray: true), @"{""value"":null}");
+		yield return new(s => s.SerializeStringArray("value", null, includeNullArray: false), @"{}");
+
+		// Traits dictionary (IReadOnlyDictionary<string, IReadOnlyList<string>>), via JsonSerializerExtensions
 		var traits = new Dictionary<string, IReadOnlyList<string>>()
 		{
 			["foo"] = ["bar", "baz"],
 			["biff"] = ["bop"]
 		};
-		yield return new(s => s.Serialize("value", traits), @"{""value"":{""foo"":[""bar"",""baz""],""biff"":[""bop""]}}");
+		yield return new(s => s.SerializeTraits("value", traits), @"{""value"":{""biff"":[""bop""],""foo"":[""bar"",""baz""]}}");
 
 		// Complex result
 		yield return new(s =>

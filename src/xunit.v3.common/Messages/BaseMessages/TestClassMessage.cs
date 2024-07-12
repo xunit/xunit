@@ -18,6 +18,8 @@ public abstract class TestClassMessage : TestCollectionMessage
 	/// <inheritdoc/>
 	protected override void Deserialize(IReadOnlyDictionary<string, object?> root)
 	{
+		Guard.ArgumentNotNull(root);
+
 		base.Deserialize(root);
 
 		TestClassUniqueID = JsonDeserializer.TryGetString(root, nameof(TestClassUniqueID));

@@ -30,6 +30,30 @@ public abstract class TestResultMessage : TestMessage, IExecutionMetadata
 	public required string[]? Warnings { get; set; }
 
 	/// <inheritdoc/>
+	protected override void Deserialize(IReadOnlyDictionary<string, object?> root)
+	{
+		Guard.ArgumentNotNull(root);
+
+		base.Deserialize(root);
+
+		executionTime = JsonDeserializer.TryGetDecimal(root, nameof(ExecutionTime));
+		output = JsonDeserializer.TryGetString(root, nameof(Output));
+		Warnings = JsonDeserializer.TryGetArrayOfString(root, nameof(Warnings));
+	}
+
+	/// <inheritdoc/>
+	protected override void Serialize(JsonObjectSerializer serializer)
+	{
+		Guard.ArgumentNotNull(serializer);
+
+		base.Serialize(serializer);
+
+		serializer.Serialize(nameof(ExecutionTime), ExecutionTime);
+		serializer.Serialize(nameof(Output), Output);
+		serializer.SerializeStringArray(nameof(Warnings), Warnings);
+	}
+
+	/// <inheritdoc/>
 	protected override void ValidateObjectState(HashSet<string> invalidProperties)
 	{
 		base.ValidateObjectState(invalidProperties);

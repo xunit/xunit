@@ -10,18 +10,25 @@ namespace Xunit.Sdk;
 [JsonTypeID("discovery-complete")]
 public sealed class DiscoveryComplete : TestAssemblyMessage
 {
+	int? testCasesToRun;
+
 	/// <summary>
 	/// Gets a count of the number of test cases that passed the filter and will be run.
 	/// </summary>
-	public required int TestCasesToRun { get; set; }
+	public required int TestCasesToRun
+	{
+		get => this.ValidateNullablePropertyValue(testCasesToRun, nameof(TestCasesToRun));
+		set => testCasesToRun = value;
+	}
 
 	/// <inheritdoc/>
 	protected override void Deserialize(IReadOnlyDictionary<string, object?> root)
 	{
+		Guard.ArgumentNotNull(root);
+
 		base.Deserialize(root);
 
-		if (JsonDeserializer.TryGetInt(root, nameof(TestCasesToRun)) is int result)
-			TestCasesToRun = result;
+		testCasesToRun = JsonDeserializer.TryGetInt(root, nameof(TestCasesToRun));
 	}
 
 	/// <inheritdoc/>
@@ -32,5 +39,13 @@ public sealed class DiscoveryComplete : TestAssemblyMessage
 		base.Serialize(serializer);
 
 		serializer.Serialize(nameof(TestCasesToRun), TestCasesToRun);
+	}
+
+	/// <inheritdoc/>
+	protected override void ValidateObjectState(HashSet<string> invalidProperties)
+	{
+		base.ValidateObjectState(invalidProperties);
+
+		ValidatePropertyIsNotNull(testCasesToRun, nameof(TestCasesToRun), invalidProperties);
 	}
 }

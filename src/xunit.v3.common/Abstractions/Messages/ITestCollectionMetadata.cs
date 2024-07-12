@@ -37,10 +37,3 @@ public interface ITestCollectionMetadata
 	/// </remarks>
 	string UniqueID { get; }
 }
-
-internal interface IWritableTestCollectionMetadata
-{
-	string? TestCollectionClassName { get; set; }
-	string TestCollectionDisplayName { get; set; }
-	IReadOnlyDictionary<string, IReadOnlyList<string>> Traits { get; set; }
-}

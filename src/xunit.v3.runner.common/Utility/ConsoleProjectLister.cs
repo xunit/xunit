@@ -113,7 +113,7 @@ public static class ConsoleProjectLister
 					if (testCase.Skip is not null)
 						testCaseSerializer.Serialize("Skip", testCase.Skip);
 					if (testCase.Traits is not null)
-						testCaseSerializer.Serialize("Traits", testCase.Traits);
+						testCaseSerializer.SerializeTraits("Traits", testCase.Traits);
 				}
 
 			consoleWriter.WriteLine(buffer.ToString());

@@ -8,13 +8,19 @@ namespace Xunit.Sdk;
 /// This message indicates that a test is about to start executing.
 /// </summary>
 [JsonTypeID("test-starting")]
-public sealed class TestStarting : TestMessage, ITestMetadata, IWritableTestMetadata
+public sealed class TestStarting : TestMessage, ITestMetadata
 {
+	bool? @explicit;
 	string? testDisplayName;
+	int? timeout;
 	IReadOnlyDictionary<string, IReadOnlyList<string>>? traits;
 
 	/// <inheritdoc/>
-	public required bool Explicit { get; set; }
+	public required bool Explicit
+	{
+		get => this.ValidateNullablePropertyValue(@explicit, nameof(Explicit));
+		set => @explicit = value;
+	}
 
 	/// <inheritdoc/>
 	public required string TestDisplayName
@@ -24,7 +30,11 @@ public sealed class TestStarting : TestMessage, ITestMetadata, IWritableTestMeta
 	}
 
 	/// <inheritdoc/>
-	public required int Timeout { get; set; }
+	public required int Timeout
+	{
+		get => this.ValidateNullablePropertyValue(timeout, nameof(Timeout));
+		set => timeout = value;
+	}
 
 	/// <inheritdoc/>
 	public required IReadOnlyDictionary<string, IReadOnlyList<string>> Traits
@@ -39,14 +49,14 @@ public sealed class TestStarting : TestMessage, ITestMetadata, IWritableTestMeta
 	/// <inheritdoc/>
 	protected override void Deserialize(IReadOnlyDictionary<string, object?> root)
 	{
+		Guard.ArgumentNotNull(root);
+
 		base.Deserialize(root);
 
-		root.DeserializeTestMetadata(this);
-
-		if (JsonDeserializer.TryGetBoolean(root, nameof(Explicit)) is bool @explicit)
-			Explicit = @explicit;
-		if (JsonDeserializer.TryGetInt(root, nameof(Timeout)) is int timeout)
-			Timeout = timeout;
+		@explicit = JsonDeserializer.TryGetBoolean(root, nameof(Explicit));
+		testDisplayName = JsonDeserializer.TryGetString(root, nameof(TestDisplayName));
+		timeout = JsonDeserializer.TryGetInt(root, nameof(Timeout));
+		traits = JsonDeserializer.TryGetTraits(root, nameof(Traits));
 	}
 
 	/// <inheritdoc/>
@@ -56,10 +66,10 @@ public sealed class TestStarting : TestMessage, ITestMetadata, IWritableTestMeta
 
 		base.Serialize(serializer);
 
-		serializer.SerializeTestMetadata(this);
-
 		serializer.Serialize(nameof(Explicit), Explicit);
+		serializer.Serialize(nameof(TestDisplayName), TestDisplayName);
 		serializer.Serialize(nameof(Timeout), Timeout);
+		serializer.SerializeTraits(nameof(Traits), Traits);
 	}
 
 	/// <inheritdoc/>
@@ -71,7 +81,9 @@ public sealed class TestStarting : TestMessage, ITestMetadata, IWritableTestMeta
 	{
 		base.ValidateObjectState(invalidProperties);
 
+		ValidatePropertyIsNotNull(@explicit, nameof(Explicit), invalidProperties);
 		ValidatePropertyIsNotNull(testDisplayName, nameof(TestDisplayName), invalidProperties);
+		ValidatePropertyIsNotNull(timeout, nameof(Timeout), invalidProperties);
 		ValidatePropertyIsNotNull(traits, nameof(Traits), invalidProperties);
 	}
 }

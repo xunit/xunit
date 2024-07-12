@@ -32,7 +32,7 @@ public static class Guard
 		ArgumentNotNull(validValues);
 
 		if (!validValues.Contains(argValue))
-			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Enum value {0} not in valid set: [{1}]", argValue, string.Join(",", validValues)), argName?.TrimStart('@'));
+			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Enum value {0} not in valid set: [{1}]", argValue, string.Join(", ", validValues)), argName?.TrimStart('@'));
 
 		return argValue;
 	}
