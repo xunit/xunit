@@ -55,7 +55,7 @@ public class ConsoleRunner
 	/// The entry point to begin running tests.
 	/// </summary>
 	/// <returns>The return value intended to be returned by the Main method.</returns>
-	public async ValueTask<int> EntryPoint()
+	public async Task<int> EntryPoint()
 	{
 		if (executed)
 			throw new InvalidOperationException("The EntryPoint method can only be called once.");
@@ -356,7 +356,9 @@ public class ConsoleRunner
 	/// <param name="testAssembly">The (optional) assembly to test; defaults to <see cref="Assembly.GetEntryAssembly"/>.</param>
 	/// <param name="runnerReporters">The (optional) list of runner reporters.</param>
 	/// <returns>The return value intended to be returned by the Main method.</returns>
-	public static ValueTask<int> Run(
+	// Note: This returns Task instead of ValueTask, because it's called from the global entry point, and we don't want to
+	// assume that the global entry point can use an async Main method (for acceptance testing purposes).
+	public static Task<int> Run(
 		string[] args,
 		Assembly? testAssembly = null,
 		IEnumerable<IRunnerReporter>? runnerReporters = null) =>
