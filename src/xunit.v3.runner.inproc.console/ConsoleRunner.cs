@@ -23,6 +23,8 @@ namespace Xunit.Runner.InProc.SystemConsole;
 /// xUnit.net v3 test projects.
 /// </summary>
 /// <param name="args">The arguments passed to the application; typically pulled from the Main method.</param>
+// The signature of the constructor is known to Xunit3, so do not change it without also changing
+// the code that invokes it dynamically.
 public class ConsoleRunner(string[] args)
 {
 	readonly string[] args = Guard.ArgumentNotNull(args);
@@ -38,18 +40,32 @@ public class ConsoleRunner(string[] args)
 	readonly TestExecutionSummaries testExecutionSummaries = new();
 
 	/// <summary>
+	/// Attempt to cancel the console runner execution.
+	/// </summary>
+	// The signature of this method is known to Xunit3, so do not change it without also changing
+	// the code that invokes it dynamically.
+	public void Cancel() =>
+		cancel = true;
+
+	/// <summary>
 	/// The entry point to begin running tests.
 	/// </summary>
 	/// <returns>The return value intended to be returned by the Main method.</returns>
-	public async Task<int> EntryPoint()
+	// The signature of this method is known to Xunit3, so do not change it without also changing
+	// the code that invokes it dynamically.
+	public async Task<int> EntryPoint(TextWriter? consoleOverride = null)
 	{
 		if (executed)
 			throw new InvalidOperationException("The EntryPoint method can only be called once.");
 
 		executed = true;
 
-		SetOutputEncoding();
-		consoleWriter = Console.Out;
+		if (consoleOverride is null)
+			SetOutputEncoding();
+
+		consoleWriter = consoleOverride ?? Console.Out;
+
+		var oldWriter = ConsoleHelper.ConsoleWriter;
 		ConsoleHelper.ConsoleWriter = consoleWriter;
 
 		var globalInternalDiagnosticMessages = false;
@@ -85,7 +101,9 @@ public class ConsoleRunner(string[] args)
 			automated = commandLine.AutomatedRequested;
 			if (automated)
 			{
-				Console.SetOut(TextWriter.Null);
+				if (consoleOverride is null)
+					Console.SetOut(TextWriter.Null);
+
 				noColor = true;
 			}
 
@@ -262,6 +280,8 @@ public class ConsoleRunner(string[] args)
 		{
 			if (!noColor)
 				ConsoleHelper.ResetColor();
+
+			ConsoleHelper.ConsoleWriter = oldWriter;
 		}
 	}
 

@@ -9,10 +9,10 @@ namespace Xunit.Internal;
 public interface ITestProcess : IDisposable
 {
 	/// <summary/>
-	int ID { get; }
+	int? ID { get; }
 
 	/// <summary/>
-	StreamReader StandardOutput { get; }
+	TextReader StandardOutput { get; }
 
 	/// <summary/>
 	bool WaitForExit(int milliseconds);
