@@ -12,6 +12,7 @@ public class TestPassedWithDisplayName : TestResultMessage, ITestResultWithDispl
 			{
 				AssemblyUniqueID = testPassed.AssemblyUniqueID,
 				ExecutionTime = testPassed.ExecutionTime,
+				FinishTime = testPassed.FinishTime,
 				Output = testPassed.Output,
 				TestCaseUniqueID = testPassed.TestCaseUniqueID,
 				TestClassUniqueID = testPassed.TestClassUniqueID,

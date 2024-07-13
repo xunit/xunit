@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Xunit.Internal;
 
@@ -10,6 +11,7 @@ namespace Xunit.Sdk;
 public abstract class TestResultMessage : TestMessage, IExecutionMetadata
 {
 	decimal? executionTime;
+	DateTimeOffset? finishTime;
 	string? output;
 
 	/// <inheritdoc/>
@@ -17,6 +19,15 @@ public abstract class TestResultMessage : TestMessage, IExecutionMetadata
 	{
 		get => this.ValidateNullablePropertyValue(executionTime, nameof(ExecutionTime));
 		set => executionTime = value;
+	}
+
+	/// <summary>
+	/// Gets or sets the date and time when the test execution finished.
+	/// </summary>
+	public required DateTimeOffset FinishTime
+	{
+		get => this.ValidateNullablePropertyValue(finishTime, nameof(FinishTime));
+		set => finishTime = value;
 	}
 
 	/// <inheritdoc/>
@@ -37,6 +48,7 @@ public abstract class TestResultMessage : TestMessage, IExecutionMetadata
 		base.Deserialize(root);
 
 		executionTime = JsonDeserializer.TryGetDecimal(root, nameof(ExecutionTime));
+		finishTime = JsonDeserializer.TryGetDateTimeOffset(root, nameof(FinishTime));
 		output = JsonDeserializer.TryGetString(root, nameof(Output));
 		Warnings = JsonDeserializer.TryGetArrayOfString(root, nameof(Warnings));
 	}
@@ -49,6 +61,7 @@ public abstract class TestResultMessage : TestMessage, IExecutionMetadata
 		base.Serialize(serializer);
 
 		serializer.Serialize(nameof(ExecutionTime), ExecutionTime);
+		serializer.Serialize(nameof(FinishTime), FinishTime);
 		serializer.Serialize(nameof(Output), Output);
 		serializer.SerializeStringArray(nameof(Warnings), Warnings);
 	}
@@ -59,6 +72,7 @@ public abstract class TestResultMessage : TestMessage, IExecutionMetadata
 		base.ValidateObjectState(invalidProperties);
 
 		ValidatePropertyIsNotNull(executionTime, nameof(ExecutionTime), invalidProperties);
+		ValidatePropertyIsNotNull(finishTime, nameof(FinishTime), invalidProperties);
 		ValidatePropertyIsNotNull(output, nameof(Output), invalidProperties);
 	}
 }

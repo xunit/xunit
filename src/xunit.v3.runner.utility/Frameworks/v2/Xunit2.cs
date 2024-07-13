@@ -465,11 +465,13 @@ public class Xunit2 : IFrontController
 					});
 
 					var testUniqueID = UniqueIDGenerator.ForTest(testCase.UniqueID, currentTestIdx++);
+					var now = DateTimeOffset.UtcNow;
 
 					messageSink.OnMessage(new TestStarting
 					{
 						AssemblyUniqueID = TestAssemblyUniqueID,
 						Explicit = false,
+						StartTime = now,
 						TestCaseUniqueID = testCase.UniqueID,
 						TestClassUniqueID = testClassUniqueID,
 						TestCollectionUniqueID = testCollectionUniqueID,
@@ -484,6 +486,7 @@ public class Xunit2 : IFrontController
 					{
 						AssemblyUniqueID = TestAssemblyUniqueID,
 						ExecutionTime = 0m,
+						FinishTime = now,
 						Output = "",
 						TestCaseUniqueID = testCase.UniqueID,
 						TestClassUniqueID = testClassUniqueID,
@@ -497,6 +500,7 @@ public class Xunit2 : IFrontController
 					{
 						AssemblyUniqueID = TestAssemblyUniqueID,
 						ExecutionTime = 0m,
+						FinishTime = now,
 						Output = "",
 						TestCaseUniqueID = testCase.UniqueID,
 						TestClassUniqueID = testClassUniqueID,

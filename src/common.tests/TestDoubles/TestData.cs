@@ -24,10 +24,12 @@ public static partial class TestData
 	public static readonly string?[] DefaultExceptionTypes = [typeof(DivideByZeroException).FullName];
 	public const decimal DefaultExecutionTime = 123.4567m;
 	public static DateTimeOffset DefaultFinishTime = new(2024, 07, 04, 21, 12, 9, TimeSpan.Zero);
+	public const string DefaultMethodName = "test-method";
 	public static Guid DefaultModuleVersionID = new("61aa43e6-1985-4c43-95c4-b146498925a2");
 	public const string DefaultOutput = "test-helper-output";
 	public const string DefaultSkipReason = "skip-reason";
 	public static readonly string?[] DefaultStackTraces = [$"/path/file.cs(42,0): at SomeInnerCall(){Environment.NewLine}/path/otherFile.cs(2112,0): at SomeOuterMethod"];
+	public static DateTimeOffset DefaultStartTime = new(2024, 07, 04, 21, 12, 8, TimeSpan.Zero);
 	public const string DefaultTargetFramework = ".NETMagic,Version=v98.76.54";
 	public const string DefaultTestCaseDisplayName = "test-case-display-name";
 	public const string DefaultTestCaseUniqueID = "test-case-id";
@@ -41,7 +43,6 @@ public static partial class TestData
 	public const string DefaultTestDisplayName = "test-display-name";
 	public const string DefaultTestEnvironment = "test-environment";
 	public const string DefaultTestFrameworkDisplayName = "test-framework";
-	public const string DefaultMethodName = "test-method";
 	public const string DefaultTestMethodUniqueID = "test-method-id";
 	public const string DefaultTestUniqueID = "test-id";
 	public static readonly IReadOnlyDictionary<string, IReadOnlyList<string>> DefaultTraits = new Dictionary<string, List<string>>() { ["foo"] = ["bar", "baz"], ["biff"] = ["bang"] }.ToReadOnly();

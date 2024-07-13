@@ -80,6 +80,7 @@ public sealed class TestFailed : TestResultMessage, IErrorMetadata
 	/// <param name="executionTime">The execution time of the test (may be <c>null</c> if the test wasn't executed)</param>
 	/// <param name="output">The (optional) output from the test</param>
 	/// <param name="warnings">The (optional) warnings that were recorded during test execution</param>
+	/// <param name="finishTime">The time when the test finished executing; defaults to <see cref="DateTimeOffset.UtcNow"/></param>
 	public static TestFailed FromException(
 		Exception ex,
 		string assemblyUniqueID,
@@ -90,7 +91,8 @@ public sealed class TestFailed : TestResultMessage, IErrorMetadata
 		string testUniqueID,
 		decimal executionTime,
 		string? output,
-		string[]? warnings)
+		string[]? warnings,
+		DateTimeOffset? finishTime = null)
 	{
 		Guard.ArgumentNotNull(ex);
 		Guard.ArgumentNotNull(assemblyUniqueID);
@@ -107,6 +109,7 @@ public sealed class TestFailed : TestResultMessage, IErrorMetadata
 			ExceptionParentIndices = errorMetadata.ExceptionParentIndices,
 			ExceptionTypes = errorMetadata.ExceptionTypes,
 			ExecutionTime = executionTime,
+			FinishTime = finishTime ?? DateTimeOffset.UtcNow,
 			Messages = errorMetadata.Messages,
 			Output = output ?? string.Empty,
 			StackTraces = errorMetadata.StackTraces,

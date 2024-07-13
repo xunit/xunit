@@ -293,6 +293,7 @@ public sealed class Xunit1TestCase : IXunitSerializable
 			ExceptionParentIndices = exceptionParentIndices,
 			ExceptionTypes = exceptionTypes,
 			ExecutionTime = executionTime,
+			FinishTime = DateTimeOffset.UtcNow,
 			Messages = messages,
 			Output = output,
 			StackTraces = stackTraces,
@@ -316,6 +317,7 @@ public sealed class Xunit1TestCase : IXunitSerializable
 			{
 				AssemblyUniqueID = AssemblyUniqueID,
 				ExecutionTime = executionTime,
+				FinishTime = DateTimeOffset.UtcNow,
 				Output = output,
 				TestCaseUniqueID = TestCaseUniqueID,
 				TestClassUniqueID = TestClassUniqueID,
@@ -333,6 +335,7 @@ public sealed class Xunit1TestCase : IXunitSerializable
 		{
 			AssemblyUniqueID = AssemblyUniqueID,
 			ExecutionTime = 0m,
+			FinishTime = DateTimeOffset.UtcNow,
 			Output = "",
 			TestCaseUniqueID = TestCaseUniqueID,
 			TestClassUniqueID = TestClassUniqueID,
@@ -402,6 +405,7 @@ public sealed class Xunit1TestCase : IXunitSerializable
 		{
 			AssemblyUniqueID = AssemblyUniqueID,
 			ExecutionTime = 0m,
+			FinishTime = DateTimeOffset.UtcNow,
 			Output = "",
 			TestCaseUniqueID = TestCaseUniqueID,
 			TestClassUniqueID = TestClassUniqueID,
@@ -439,6 +443,7 @@ public sealed class Xunit1TestCase : IXunitSerializable
 			{
 				AssemblyUniqueID = AssemblyUniqueID,
 				ExecutionTime = executionTime,
+				FinishTime = DateTimeOffset.UtcNow,
 				Output = output,
 				TestCaseUniqueID = TestCaseUniqueID,
 				TestClassUniqueID = TestClassUniqueID,
@@ -458,6 +463,7 @@ public sealed class Xunit1TestCase : IXunitSerializable
 			{
 				AssemblyUniqueID = AssemblyUniqueID,
 				ExecutionTime = 0m,
+				FinishTime = DateTimeOffset.UtcNow,
 				Output = "",
 				Reason = reason,
 				TestCaseUniqueID = TestCaseUniqueID,
@@ -478,6 +484,7 @@ public sealed class Xunit1TestCase : IXunitSerializable
 			{
 				AssemblyUniqueID = AssemblyUniqueID,
 				Explicit = false,
+				StartTime = DateTimeOffset.UtcNow,
 				TestCaseUniqueID = TestCaseUniqueID,
 				TestClassUniqueID = TestClassUniqueID,
 				TestCollectionUniqueID = TestCollectionUniqueID,

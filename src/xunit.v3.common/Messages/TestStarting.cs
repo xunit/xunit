@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using Xunit.Internal;
@@ -11,6 +12,7 @@ namespace Xunit.Sdk;
 public sealed class TestStarting : TestMessage, ITestMetadata
 {
 	bool? @explicit;
+	DateTimeOffset? startTime;
 	string? testDisplayName;
 	int? timeout;
 	IReadOnlyDictionary<string, IReadOnlyList<string>>? traits;
@@ -20,6 +22,15 @@ public sealed class TestStarting : TestMessage, ITestMetadata
 	{
 		get => this.ValidateNullablePropertyValue(@explicit, nameof(Explicit));
 		set => @explicit = value;
+	}
+
+	/// <summary>
+	/// Gets or sets the date and time when the test execution began.
+	/// </summary>
+	public required DateTimeOffset StartTime
+	{
+		get => this.ValidateNullablePropertyValue(startTime, nameof(StartTime));
+		set => startTime = value;
 	}
 
 	/// <inheritdoc/>
@@ -54,6 +65,7 @@ public sealed class TestStarting : TestMessage, ITestMetadata
 		base.Deserialize(root);
 
 		@explicit = JsonDeserializer.TryGetBoolean(root, nameof(Explicit));
+		startTime = JsonDeserializer.TryGetDateTimeOffset(root, nameof(StartTime));
 		testDisplayName = JsonDeserializer.TryGetString(root, nameof(TestDisplayName));
 		timeout = JsonDeserializer.TryGetInt(root, nameof(Timeout));
 		traits = JsonDeserializer.TryGetTraits(root, nameof(Traits));
@@ -67,6 +79,7 @@ public sealed class TestStarting : TestMessage, ITestMetadata
 		base.Serialize(serializer);
 
 		serializer.Serialize(nameof(Explicit), Explicit);
+		serializer.Serialize(nameof(StartTime), StartTime);
 		serializer.Serialize(nameof(TestDisplayName), TestDisplayName);
 		serializer.Serialize(nameof(Timeout), Timeout);
 		serializer.SerializeTraits(nameof(Traits), Traits);
@@ -82,6 +95,7 @@ public sealed class TestStarting : TestMessage, ITestMetadata
 		base.ValidateObjectState(invalidProperties);
 
 		ValidatePropertyIsNotNull(@explicit, nameof(Explicit), invalidProperties);
+		ValidatePropertyIsNotNull(startTime, nameof(StartTime), invalidProperties);
 		ValidatePropertyIsNotNull(testDisplayName, nameof(TestDisplayName), invalidProperties);
 		ValidatePropertyIsNotNull(timeout, nameof(Timeout), invalidProperties);
 		ValidatePropertyIsNotNull(traits, nameof(Traits), invalidProperties);

@@ -54,6 +54,7 @@ public class MessageSinkMessageTests
 	[Fact]
 	public void SerializesEnumsAsStrings()
 	{
+		var finishTime = new DateTimeOffset(2020, 09, 26, 13, 55, 27, 212, TimeSpan.FromHours(-7));
 		var msg = new TestFailed
 		{
 			AssemblyUniqueID = "asm-id",
@@ -61,6 +62,7 @@ public class MessageSinkMessageTests
 			ExceptionParentIndices = [-1],
 			ExceptionTypes = ["exception-type"],
 			ExecutionTime = 123.45m,
+			FinishTime = finishTime,
 			Messages = ["exception-message"],
 			Output = "",
 			StackTraces = [null],
@@ -83,6 +85,7 @@ public class MessageSinkMessageTests
     ""TestCaseUniqueID"":       ""test-case-id"",
     ""TestUniqueID"":           ""test-id"",
     ""ExecutionTime"":          123.45,
+    ""FinishTime"":             ""2020-09-26T13:55:27.2120000-07:00"",
     ""Output"":                 """",
     ""Cause"":                  ""Assertion"",
     ""ExceptionParentIndices"": [-1],

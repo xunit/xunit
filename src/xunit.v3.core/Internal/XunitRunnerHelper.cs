@@ -139,6 +139,7 @@ public static class XunitRunnerHelper
 		var testClassUniqueID = testCase.TestClass.UniqueID;
 		var testMethodUniqueID = testCase.TestMethod.UniqueID;
 		var testUniqueID = UniqueIDGenerator.ForTest(testCaseUniqueID, testIndex);
+		var now = DateTimeOffset.UtcNow;
 
 		if (sendTestCollectionMessages)
 			if (!messageBus.QueueMessage(new TestCollectionStarting
@@ -199,6 +200,7 @@ public static class XunitRunnerHelper
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				Explicit = false,
+				StartTime = now,
 				TestCaseUniqueID = testCaseUniqueID,
 				TestClassUniqueID = testClassUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID,
@@ -217,6 +219,7 @@ public static class XunitRunnerHelper
 			ExceptionParentIndices = parentIndices,
 			ExceptionTypes = types,
 			ExecutionTime = 0m,
+			FinishTime = now,
 			Messages = messages,
 			Output = string.Empty,
 			StackTraces = stackTraces,
@@ -234,6 +237,7 @@ public static class XunitRunnerHelper
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = 0m,
+				FinishTime = now,
 				Output = string.Empty,
 				TestCaseUniqueID = testCaseUniqueID,
 				TestClassUniqueID = testClassUniqueID,

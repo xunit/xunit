@@ -14,6 +14,7 @@ public class TestSkippedWithDisplayName : TestResultMessage, ITestResultWithDisp
 			{
 				AssemblyUniqueID = testSkipped.AssemblyUniqueID,
 				ExecutionTime = testSkipped.ExecutionTime,
+				FinishTime = testSkipped.FinishTime,
 				Output = testSkipped.Output,
 				Reason = testSkipped.Reason,
 				TestCaseUniqueID = testSkipped.TestCaseUniqueID,

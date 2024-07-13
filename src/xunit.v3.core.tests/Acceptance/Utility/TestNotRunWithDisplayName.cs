@@ -12,6 +12,7 @@ public class TestNotRunWithDisplayName : TestResultMessage, ITestResultWithDispl
 			{
 				AssemblyUniqueID = testNotRun.AssemblyUniqueID,
 				ExecutionTime = testNotRun.ExecutionTime,
+				FinishTime = testNotRun.FinishTime,
 				Output = testNotRun.Output,
 				TestCaseUniqueID = testNotRun.TestCaseUniqueID,
 				TestClassUniqueID = testNotRun.TestClassUniqueID,

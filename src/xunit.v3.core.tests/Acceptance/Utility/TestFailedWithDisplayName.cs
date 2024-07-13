@@ -25,6 +25,7 @@ public class TestFailedWithDisplayName : TestResultMessage, ITestResultWithDispl
 				ExceptionParentIndices = testFailed.ExceptionParentIndices,
 				ExceptionTypes = testFailed.ExceptionTypes,
 				ExecutionTime = testFailed.ExecutionTime,
+				FinishTime = testFailed.FinishTime,
 				Messages = testFailed.Messages,
 				Output = testFailed.Output,
 				StackTraces = testFailed.StackTraces,

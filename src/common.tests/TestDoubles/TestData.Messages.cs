@@ -178,7 +178,7 @@ public static partial class TestData
 				AssemblyUniqueID = assemblyUniqueID,
 				ConfigFilePath = configFilePath,
 				Seed = seed,
-				StartTime = startTime ?? new DateTimeOffset(2021, 1, 20, 17, 0, 0, TimeSpan.Zero),
+				StartTime = startTime ?? DefaultStartTime,
 				TargetFramework = targetFramework,
 				TestEnvironment = testEnvironment,
 				TestFrameworkDisplayName = testFrameworkDisplayName,
@@ -693,6 +693,7 @@ public static partial class TestData
 		int[]? exceptionParentIndices = null,
 		string?[]? exceptionTypes = null,
 		decimal executionTime = DefaultExecutionTime,
+		DateTimeOffset? finishTime = null,
 		string[]? messages = null,
 		string output = DefaultOutput,
 		string?[]? stackTraces = null,
@@ -709,6 +710,7 @@ public static partial class TestData
 				ExceptionParentIndices = exceptionParentIndices ?? DefaultExceptionParentIndices,
 				ExceptionTypes = exceptionTypes ?? DefaultExceptionTypes,
 				ExecutionTime = executionTime,
+				FinishTime = finishTime ?? DefaultFinishTime,
 				Messages = messages ?? DefaultExceptionMessages,
 				Output = output,
 				StackTraces = stackTraces ?? DefaultStackTraces,
@@ -723,6 +725,7 @@ public static partial class TestData
 	public static TestFinished TestFinished(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		decimal executionTime = DefaultExecutionTime,
+		DateTimeOffset? finishTime = null,
 		string output = DefaultOutput,
 		string testCaseUniqueID = DefaultTestCaseUniqueID,
 		string? testClassUniqueID = DefaultTestClassUniqueID,
@@ -734,6 +737,7 @@ public static partial class TestData
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = executionTime,
+				FinishTime = finishTime ?? DefaultFinishTime,
 				Output = output,
 				TestCaseUniqueID = testCaseUniqueID,
 				TestClassUniqueID = testClassUniqueID,
@@ -806,6 +810,7 @@ public static partial class TestData
 
 	public static TestNotRun TestNotRun(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
+		DateTimeOffset? finishTime = null,
 		string output = DefaultOutput,
 		string testCaseUniqueID = DefaultTestCaseUniqueID,
 		string? testClassUniqueID = DefaultTestClassUniqueID,
@@ -817,6 +822,7 @@ public static partial class TestData
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = 0m,
+				FinishTime = finishTime ?? DefaultFinishTime,
 				Output = output,
 				TestCaseUniqueID = testCaseUniqueID,
 				TestClassUniqueID = testClassUniqueID,
@@ -848,6 +854,7 @@ public static partial class TestData
 	public static TestPassed TestPassed(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		decimal executionTime = DefaultExecutionTime,
+		DateTimeOffset? finishTime = null,
 		string output = DefaultOutput,
 		string testCaseUniqueID = DefaultTestCaseUniqueID,
 		string? testClassUniqueID = DefaultTestClassUniqueID,
@@ -859,6 +866,7 @@ public static partial class TestData
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = executionTime,
+				FinishTime = finishTime ?? DefaultFinishTime,
 				Output = output,
 				TestCaseUniqueID = testCaseUniqueID,
 				TestClassUniqueID = testClassUniqueID,
@@ -870,6 +878,7 @@ public static partial class TestData
 
 	public static TestSkipped TestSkipped(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
+		DateTimeOffset? finishTime = null,
 		string output = DefaultOutput,
 		string reason = DefaultSkipReason,
 		string testCaseUniqueID = DefaultTestCaseUniqueID,
@@ -882,6 +891,7 @@ public static partial class TestData
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = 0m,
+				FinishTime = finishTime ?? DefaultFinishTime,
 				Output = output,
 				Reason = reason,
 				TestCaseUniqueID = testCaseUniqueID,
@@ -895,6 +905,7 @@ public static partial class TestData
 	public static TestStarting TestStarting(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		bool @explicit = false,
+		DateTimeOffset? startTime = null,
 		string testCaseUniqueID = DefaultTestCaseUniqueID,
 		string? testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
@@ -907,6 +918,7 @@ public static partial class TestData
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				Explicit = @explicit,
+				StartTime = startTime ?? DefaultStartTime,
 				TestCaseUniqueID = testCaseUniqueID,
 				TestClassUniqueID = testClassUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID,

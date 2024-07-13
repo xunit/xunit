@@ -223,6 +223,7 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext, IXunitTest>
 			ExceptionParentIndices = indices,
 			ExceptionTypes = types,
 			ExecutionTime = executionTime,
+			FinishTime = DateTimeOffset.UtcNow,
 			Messages = messages,
 			Output = output,
 			StackTraces = stackTraces,
@@ -249,6 +250,7 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext, IXunitTest>
 		{
 			AssemblyUniqueID = ctxt.Test.TestCase.TestCollection.TestAssembly.UniqueID,
 			ExecutionTime = executionTime,
+			FinishTime = DateTimeOffset.UtcNow,
 			Output = output,
 			TestCaseUniqueID = ctxt.Test.TestCase.UniqueID,
 			TestClassUniqueID = ctxt.Test.TestCase.TestClass.UniqueID,
@@ -274,6 +276,7 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext, IXunitTest>
 		{
 			AssemblyUniqueID = ctxt.Test.TestCase.TestCollection.TestAssembly.UniqueID,
 			ExecutionTime = 0m,
+			FinishTime = DateTimeOffset.UtcNow,
 			Output = output,
 			TestCaseUniqueID = ctxt.Test.TestCase.UniqueID,
 			TestClassUniqueID = ctxt.Test.TestCase.TestClass.UniqueID,
@@ -298,6 +301,7 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext, IXunitTest>
 		{
 			AssemblyUniqueID = ctxt.Test.TestCase.TestCollection.TestAssembly.UniqueID,
 			ExecutionTime = executionTime,
+			FinishTime = DateTimeOffset.UtcNow,
 			Output = output,
 			TestCaseUniqueID = ctxt.Test.TestCase.UniqueID,
 			TestClassUniqueID = ctxt.Test.TestCase.TestClass.UniqueID,
@@ -323,6 +327,7 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext, IXunitTest>
 		{
 			AssemblyUniqueID = ctxt.Test.TestCase.TestCollection.TestAssembly.UniqueID,
 			ExecutionTime = executionTime,
+			FinishTime = DateTimeOffset.UtcNow,
 			Output = output,
 			Reason = skipReason,
 			TestCaseUniqueID = ctxt.Test.TestCase.UniqueID,
@@ -347,6 +352,7 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext, IXunitTest>
 		{
 			AssemblyUniqueID = ctxt.Test.TestCase.TestCollection.TestAssembly.UniqueID,
 			Explicit = ctxt.Test.Explicit,
+			StartTime = DateTimeOffset.UtcNow,
 			TestCaseUniqueID = ctxt.Test.TestCase.UniqueID,
 			TestClassUniqueID = ctxt.Test.TestCase.TestClass.UniqueID,
 			TestCollectionUniqueID = ctxt.Test.TestCase.TestCollection.UniqueID,

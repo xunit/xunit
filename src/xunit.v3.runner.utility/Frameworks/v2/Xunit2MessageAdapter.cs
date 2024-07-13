@@ -13,24 +13,15 @@ namespace Xunit.Runner.v2;
 /// <summary>
 /// A class which adapts xUnit.net v2 messages to xUnit.net v3 messages.
 /// </summary>
-public class Xunit2MessageAdapter
+/// <param name="assemblyUniqueID">The unique ID of the assembly these message belong to</param>
+/// <param name="discoverer">The discoverer used to serialize test cases</param>
+public class Xunit2MessageAdapter(
+	string? assemblyUniqueID = null,
+	ITestFrameworkDiscoverer? discoverer = null)
 {
-	readonly string assemblyUniqueID;
-	readonly ITestFrameworkDiscoverer? discoverer;
-	readonly Dictionary<Abstractions.ITestCase, Dictionary<Abstractions.ITest, string>> testUniqueIDsByTestCase = new();
-
-	/// <summary>
-	/// Initializes a new instance of the <see cref="Xunit2MessageAdapter"/> class.
-	/// </summary>
-	/// <param name="assemblyUniqueID">The unique ID of the assembly these message belong to</param>
-	/// <param name="discoverer">The discoverer used to serialize test cases</param>
-	public Xunit2MessageAdapter(
-		string? assemblyUniqueID = null,
-		ITestFrameworkDiscoverer? discoverer = null)
-	{
-		this.assemblyUniqueID = assemblyUniqueID ?? "<no assembly>";
-		this.discoverer = discoverer;
-	}
+	readonly string assemblyUniqueID = assemblyUniqueID ?? "<no assembly>";
+	readonly ITestFrameworkDiscoverer? discoverer = discoverer;
+	readonly Dictionary<Abstractions.ITestCase, Dictionary<Abstractions.ITest, string>> testUniqueIDsByTestCase = [];
 
 	/// <summary>
 	/// Adapts a v2 message to a v3 message.
@@ -561,6 +552,7 @@ public class Xunit2MessageAdapter
 			ExceptionParentIndices = message.ExceptionParentIndices,
 			ExceptionTypes = message.ExceptionTypes,
 			ExecutionTime = message.ExecutionTime,
+			FinishTime = DateTimeOffset.UtcNow,
 			Messages = message.Messages,
 			Output = message.Output,
 			StackTraces = message.StackTraces,
@@ -585,6 +577,7 @@ public class Xunit2MessageAdapter
 		{
 			AssemblyUniqueID = assemblyUniqueID,
 			ExecutionTime = message.ExecutionTime,
+			FinishTime = DateTimeOffset.UtcNow,
 			Output = message.Output,
 			TestCaseUniqueID = testCaseUniqueID,
 			TestCollectionUniqueID = testCollectionUniqueID,
@@ -683,6 +676,7 @@ public class Xunit2MessageAdapter
 		{
 			AssemblyUniqueID = assemblyUniqueID,
 			ExecutionTime = message.ExecutionTime,
+			FinishTime = DateTimeOffset.UtcNow,
 			Output = message.Output,
 			TestCaseUniqueID = testCaseUniqueID,
 			TestCollectionUniqueID = testCollectionUniqueID,
@@ -705,6 +699,7 @@ public class Xunit2MessageAdapter
 		{
 			AssemblyUniqueID = assemblyUniqueID,
 			ExecutionTime = message.ExecutionTime,
+			FinishTime = DateTimeOffset.UtcNow,
 			Output = message.Output,
 			Reason = message.Reason,
 			TestCaseUniqueID = testCaseUniqueID,
@@ -728,6 +723,7 @@ public class Xunit2MessageAdapter
 		{
 			AssemblyUniqueID = assemblyUniqueID,
 			Explicit = false,
+			StartTime = DateTimeOffset.UtcNow,
 			TestCaseUniqueID = testCaseUniqueID,
 			TestCollectionUniqueID = testCollectionUniqueID,
 			TestClassUniqueID = testClassUniqueID,
@@ -760,7 +756,7 @@ public class Xunit2MessageAdapter
 	{
 		lock (testUniqueIDsByTestCase)
 		{
-			var uniqueIDLookup = testUniqueIDsByTestCase.AddOrGet(test.TestCase, () => new Dictionary<Abstractions.ITest, string>());
+			var uniqueIDLookup = testUniqueIDsByTestCase.AddOrGet(test.TestCase, () => []);
 			if (!uniqueIDLookup.TryGetValue(test, out var result))
 			{
 				var testIndex = uniqueIDLookup.Count;
