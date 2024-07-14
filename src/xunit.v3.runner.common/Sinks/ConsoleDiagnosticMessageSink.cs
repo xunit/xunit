@@ -13,7 +13,7 @@ namespace Xunit.Runner.Common;
 /// </summary>
 public class ConsoleDiagnosticMessageSink : IMessageSink
 {
-	readonly TextWriter consoleWriter;
+	readonly ConsoleHelper consoleHelper;
 	readonly string displayNewlineReplace;
 	readonly string? displayPrefixDiagnostic;
 	readonly string? displayPrefixInternal;
@@ -21,16 +21,14 @@ public class ConsoleDiagnosticMessageSink : IMessageSink
 	readonly bool noColor;
 
 	ConsoleDiagnosticMessageSink(
-		TextWriter consoleWriter,
+		ConsoleHelper consoleHelper,
 		bool noColor,
 		bool showDiagnosticMessages,
 		bool showInternalDiagnosticMessages,
 		string? assemblyDisplayName,
 		bool indent)
 	{
-		Guard.ArgumentNotNull(consoleWriter);
-
-		this.consoleWriter = consoleWriter;
+		this.consoleHelper = Guard.ArgumentNotNull(consoleHelper);
 		this.noColor = noColor;
 		this.indent = indent ? "    " : string.Empty;
 
@@ -60,29 +58,29 @@ public class ConsoleDiagnosticMessageSink : IMessageSink
 
 		if (message is DiagnosticMessage diagnosticMessage && displayPrefixDiagnostic is not null)
 		{
-			lock (consoleWriter)
+			lock (consoleHelper.LockObject)
 			{
 				if (!noColor)
-					ConsoleHelper.SetForegroundColor(ConsoleColor.Yellow);
+					consoleHelper.SetForegroundColor(ConsoleColor.Yellow);
 
-				consoleWriter.WriteLine("{0}{1}{2}", indent, displayPrefixDiagnostic, diagnosticMessage.Message.Replace("\n", displayNewlineReplace));
+				consoleHelper.WriteLine("{0}{1}{2}", indent, displayPrefixDiagnostic, diagnosticMessage.Message.Replace("\n", displayNewlineReplace));
 
 				if (!noColor)
-					ConsoleHelper.ResetColor();
+					consoleHelper.ResetColor();
 			}
 		}
 
 		if (message is InternalDiagnosticMessage internalDiagnosticMessage && displayPrefixInternal is not null)
 		{
-			lock (consoleWriter)
+			lock (consoleHelper.LockObject)
 			{
 				if (!noColor)
-					ConsoleHelper.SetForegroundColor(ConsoleColor.DarkGray);
+					consoleHelper.SetForegroundColor(ConsoleColor.DarkGray);
 
-				consoleWriter.WriteLine("{0}{1}{2}", indent, displayPrefixInternal, internalDiagnosticMessage.Message.Replace("\n", displayNewlineReplace));
+				consoleHelper.WriteLine("{0}{1}{2}", indent, displayPrefixInternal, internalDiagnosticMessage.Message.Replace("\n", displayNewlineReplace));
 
 				if (!noColor)
-					ConsoleHelper.ResetColor();
+					consoleHelper.ResetColor();
 			}
 		}
 
@@ -95,20 +93,20 @@ public class ConsoleDiagnosticMessageSink : IMessageSink
 	/// May return <c>null</c> if both <paramref name="showDiagnosticMessages"/> and <paramref name="showInternalDiagnosticMessages"/>
 	/// are <c>false</c>.
 	/// </summary>
-	/// <param name="consoleWriter">The text writer used to write console messages</param>
+	/// <param name="consoleHelper">The helper used to write console messages</param>
 	/// <param name="noColor">A flag to indicate that the user has asked for no color</param>
 	/// <param name="showDiagnosticMessages">A flag to indicate whether diagnostic messages should be shown</param>
 	/// <param name="showInternalDiagnosticMessages">A flag to indicate whether internal diagnostic messages should be shown</param>
 	/// <param name="assemblyDisplayName">The optional assembly display name to delineate the messages</param>
 	/// <param name="indent">Whether to indent the message</param>
 	public static ConsoleDiagnosticMessageSink? TryCreate(
-		TextWriter consoleWriter,
+		ConsoleHelper consoleHelper,
 		bool noColor,
 		bool showDiagnosticMessages = false,
 		bool showInternalDiagnosticMessages = false,
 		string? assemblyDisplayName = null,
 		bool indent = true) =>
 			showDiagnosticMessages || showInternalDiagnosticMessages
-				? new(consoleWriter, noColor, showDiagnosticMessages, showInternalDiagnosticMessages, assemblyDisplayName, indent)
+				? new(consoleHelper, noColor, showDiagnosticMessages, showInternalDiagnosticMessages, assemblyDisplayName, indent)
 				: null;
 }

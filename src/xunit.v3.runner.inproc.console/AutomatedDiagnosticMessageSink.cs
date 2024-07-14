@@ -1,25 +1,25 @@
 #pragma warning disable CA2002  // The console writer is not cross app-domain
 
-using System.IO;
 using Xunit.Internal;
+using Xunit.Runner.Common;
 using Xunit.Sdk;
 
 namespace Xunit.Runner.InProc.SystemConsole;
 
 internal sealed class AutomatedDiagnosticMessageSink : IMessageSink
 {
-	readonly TextWriter consoleWriter;
+	readonly ConsoleHelper consoleHelper;
 
-	public AutomatedDiagnosticMessageSink(TextWriter consoleWriter) =>
-		this.consoleWriter = consoleWriter;
+	public AutomatedDiagnosticMessageSink(ConsoleHelper consoleHelper) =>
+		this.consoleHelper = consoleHelper;
 
 	public bool OnMessage(MessageSinkMessage message)
 	{
 		Guard.ArgumentNotNull(message);
 
 		if (message is DiagnosticMessage || message is InternalDiagnosticMessage)
-			lock (consoleWriter)
-				consoleWriter.WriteLine(message.ToJson());
+			lock (consoleHelper.LockObject)
+				consoleHelper.WriteLine(message.ToJson());
 
 		return true;
 	}

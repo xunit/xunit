@@ -21,7 +21,7 @@ public abstract class CommandLineParserBase
 
 	/// <summary/>
 	protected CommandLineParserBase(
-		TextWriter consoleWriter,
+		ConsoleHelper consoleHelper,
 		IReadOnlyList<IRunnerReporter>? runnerReporters,
 		string? reporterFolder,
 		string[] args)
@@ -29,7 +29,7 @@ public abstract class CommandLineParserBase
 		this.runnerReporters = runnerReporters;
 		this.reporterFolder = reporterFolder;
 
-		ConsoleWriter = Guard.ArgumentNotNull(consoleWriter);
+		ConsoleHelper = Guard.ArgumentNotNull(consoleHelper);
 		Args = GetArguments(Guard.ArgumentNotNull(args));
 
 		if (string.IsNullOrWhiteSpace(this.reporterFolder))
@@ -179,7 +179,7 @@ public abstract class CommandLineParserBase
 	protected IReadOnlyList<string> Args { get; }
 
 	/// <summary/>
-	protected TextWriter ConsoleWriter { get; }
+	protected ConsoleHelper ConsoleHelper { get; }
 
 	/// <summary/>
 	public bool HelpRequested =>
@@ -265,7 +265,7 @@ public abstract class CommandLineParserBase
 				ConsoleHelper.SetForegroundColor(ConsoleColor.Yellow);
 
 			foreach (var message in messages)
-				ConsoleWriter.WriteLine(message);
+				ConsoleHelper.WriteLine(message);
 
 			if (!Project.Configuration.NoColorOrDefault)
 				ConsoleHelper.ResetColor();
@@ -736,28 +736,28 @@ public abstract class CommandLineParserBase
 
 		if (RunnerReporters.Count > 0)
 		{
-			ConsoleWriter.WriteLine();
-			ConsoleWriter.WriteLine("Reporters (optional, choose only one)");
-			ConsoleWriter.WriteLine();
+			ConsoleHelper.WriteLine();
+			ConsoleHelper.WriteLine("Reporters (optional, choose only one)");
+			ConsoleHelper.WriteLine();
 
 			var longestSwitch = RunnerReporters.Max(r => r.RunnerSwitch?.Length ?? 0);
 
 			foreach (var switchableReporter in RunnerReporters.Where(r => !string.IsNullOrWhiteSpace(r.RunnerSwitch)).OrderBy(r => r.RunnerSwitch))
-				ConsoleWriter.WriteLine("  -{0} : {1}", switchableReporter.RunnerSwitch!.PadRight(longestSwitch), switchableReporter.Description);
+				ConsoleHelper.WriteLine("  -{0} : {1}", switchableReporter.RunnerSwitch!.PadRight(longestSwitch), switchableReporter.Description);
 
 			foreach (var environmentalReporter in RunnerReporters.Where(r => string.IsNullOrWhiteSpace(r.RunnerSwitch)).OrderBy(r => r.Description))
-				ConsoleWriter.WriteLine("   {0} : {1} [auto-enabled only]", "".PadRight(longestSwitch), environmentalReporter.Description);
+				ConsoleHelper.WriteLine("   {0} : {1} [auto-enabled only]", "".PadRight(longestSwitch), environmentalReporter.Description);
 		}
 
 		if (TransformFactory.AvailableTransforms.Count != 0)
 		{
-			ConsoleWriter.WriteLine();
-			ConsoleWriter.WriteLine("Result formats (optional, choose one or more)");
-			ConsoleWriter.WriteLine();
+			ConsoleHelper.WriteLine();
+			ConsoleHelper.WriteLine("Result formats (optional, choose one or more)");
+			ConsoleHelper.WriteLine();
 
 			var longestTransform = TransformFactory.AvailableTransforms.Max(t => t.ID.Length);
 			foreach (var transform in TransformFactory.AvailableTransforms.OrderBy(t => t.ID))
-				ConsoleWriter.WriteLine("  -{0} : {1}", string.Format(CultureInfo.CurrentCulture, "{0} <filename>", transform.ID).PadRight(longestTransform + 11), transform.Description);
+				ConsoleHelper.WriteLine("  -{0} : {1}", string.Format(CultureInfo.CurrentCulture, "{0} <filename>", transform.ID).PadRight(longestTransform + 11), transform.Description);
 		}
 	}
 
@@ -778,18 +778,18 @@ public abstract class CommandLineParserBase
 		var longestSwitch = options.Max(o => o.@switch.Length);
 		var padding = "".PadRight(longestSwitch);
 
-		ConsoleWriter.WriteLine();
+		ConsoleHelper.WriteLine();
 
 		foreach (var header in headers)
-			ConsoleWriter.WriteLine(header);
+			ConsoleHelper.WriteLine(header);
 
-		ConsoleWriter.WriteLine();
+		ConsoleHelper.WriteLine();
 
 		foreach (var (@switch, descriptions) in options)
 		{
-			ConsoleWriter.WriteLine("  {0} : {1}", @switch.PadRight(longestSwitch), descriptions[0]);
+			ConsoleHelper.WriteLine("  {0} : {1}", @switch.PadRight(longestSwitch), descriptions[0]);
 			for (int idx = 1; idx < descriptions.Length; ++idx)
-				ConsoleWriter.WriteLine("  {0} : {1}", padding, descriptions[idx]);
+				ConsoleHelper.WriteLine("  {0} : {1}", padding, descriptions[idx]);
 		}
 	}
 }

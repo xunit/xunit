@@ -21,16 +21,16 @@ public static class ConsoleProjectLister
 	/// List the contents of the test cases to the console, based on the provided option and format.
 	/// </summary>
 	public static void List<TTestCase>(
-		TextWriter consoleWriter,
+		ConsoleHelper consoleHelper,
 		IReadOnlyDictionary<string, List<TTestCase>> testCasesByAssembly,
 		ListOption listOption,
 		ListFormat listFormat)
 			where TTestCase : ITestCaseMetadata
 	{
-		Guard.ArgumentNotNull(consoleWriter);
+		Guard.ArgumentNotNull(consoleHelper);
 		Guard.ArgumentNotNull(testCasesByAssembly);
 
-		Action<TextWriter, IReadOnlyDictionary<string, List<TTestCase>>, ListFormat>? lister = listOption switch
+		Action<ConsoleHelper, IReadOnlyDictionary<string, List<TTestCase>>, ListFormat>? lister = listOption switch
 		{
 			ListOption.Classes => Classes,
 			ListOption.Full => Full,
@@ -40,11 +40,11 @@ public static class ConsoleProjectLister
 			_ => null
 		};
 
-		lister?.Invoke(consoleWriter, testCasesByAssembly, listFormat);
+		lister?.Invoke(consoleHelper, testCasesByAssembly, listFormat);
 	}
 
 	static void Classes<TTestCase>(
-		TextWriter consoleWriter,
+		ConsoleHelper consoleHelper,
 		IReadOnlyDictionary<string, List<TTestCase>> testCasesByAssembly,
 		ListFormat format)
 			where TTestCase : ITestCaseMetadata
@@ -66,19 +66,19 @@ public static class ConsoleProjectLister
 				foreach (var testClass in testClasses)
 					serializer.Serialize(testClass);
 
-			consoleWriter.WriteLine(buffer.ToString());
+			consoleHelper.WriteLine(buffer.ToString());
 		}
 		else
 		{
-			consoleWriter.WriteLine();
+			consoleHelper.WriteLine();
 
 			foreach (var testClass in testClasses)
-				consoleWriter.WriteLine(testClass);
+				consoleHelper.WriteLine(testClass);
 		}
 	}
 
 	static void Full<TTestCase>(
-		TextWriter consoleWriter,
+		ConsoleHelper consoleHelper,
 		IReadOnlyDictionary<string, List<TTestCase>> testCasesByAssembly,
 		ListFormat format)
 			where TTestCase : ITestCaseMetadata
@@ -116,32 +116,32 @@ public static class ConsoleProjectLister
 						testCaseSerializer.SerializeTraits("Traits", testCase.Traits);
 				}
 
-			consoleWriter.WriteLine(buffer.ToString());
+			consoleHelper.WriteLine(buffer.ToString());
 		}
 		else
 		{
 			foreach (var assemblyGroup in fullTestCases.OrderBy(x => x.Assembly).GroupBy(x => x.Assembly))
 			{
-				consoleWriter.WriteLine();
-				consoleWriter.WriteLine("Assembly: {0}", assemblyGroup.Key);
+				consoleHelper.WriteLine();
+				consoleHelper.WriteLine("Assembly: {0}", assemblyGroup.Key);
 
 				foreach (var testCase in assemblyGroup.OrderBy(x => x.Class).ThenBy(x => x.Method))
 				{
-					consoleWriter.WriteLine("      - Display name: \"{0}\"", Escape(testCase.DisplayName));
+					consoleHelper.WriteLine("      - Display name: \"{0}\"", Escape(testCase.DisplayName));
 
 					if (testCase.Method is not null)
-						consoleWriter.WriteLine("        Test method:  {0}.{1}", testCase.Class, testCase.Method);
+						consoleHelper.WriteLine("        Test method:  {0}.{1}", testCase.Class, testCase.Method);
 					else if (testCase.Class is not null)
-						consoleWriter.WriteLine("        Test class:   {0}", testCase.Class);
+						consoleHelper.WriteLine("        Test class:   {0}", testCase.Class);
 
 					if (testCase.Skip is not null)
-						consoleWriter.WriteLine("        Skip reason:  \"{0}\"", Escape(testCase.Skip));
+						consoleHelper.WriteLine("        Skip reason:  \"{0}\"", Escape(testCase.Skip));
 
 					if (testCase.Traits is not null)
 					{
-						consoleWriter.WriteLine("        Traits:");
+						consoleHelper.WriteLine("        Traits:");
 						foreach (var trait in testCase.Traits)
-							consoleWriter.WriteLine("          \"{0}\": [{1}]", Escape(trait.Key), string.Join(", ", trait.Value.OrderBy(v => v).Select(v => '"' + Escape(v) + '"')));
+							consoleHelper.WriteLine("          \"{0}\": [{1}]", Escape(trait.Key), string.Join(", ", trait.Value.OrderBy(v => v).Select(v => '"' + Escape(v) + '"')));
 					}
 				}
 			}
@@ -149,7 +149,7 @@ public static class ConsoleProjectLister
 	}
 
 	static void Methods<TTestCase>(
-		TextWriter consoleWriter,
+		ConsoleHelper consoleHelper,
 		IReadOnlyDictionary<string, List<TTestCase>> testCasesByAssembly,
 		ListFormat format)
 			where TTestCase : ITestCaseMetadata
@@ -171,19 +171,19 @@ public static class ConsoleProjectLister
 				foreach (var testMethod in testMethods)
 					serializer.Serialize(testMethod);
 
-			consoleWriter.WriteLine(buffer.ToString());
+			consoleHelper.WriteLine(buffer.ToString());
 		}
 		else
 		{
-			consoleWriter.WriteLine();
+			consoleHelper.WriteLine();
 
 			foreach (var testMethod in testMethods)
-				consoleWriter.WriteLine(testMethod);
+				consoleHelper.WriteLine(testMethod);
 		}
 	}
 
 	static void Tests<TTestCase>(
-		TextWriter consoleWriter,
+		ConsoleHelper consoleHelper,
 		IReadOnlyDictionary<string, List<TTestCase>> testCasesByAssembly,
 		ListFormat format)
 			where TTestCase : ITestCaseMetadata
@@ -203,19 +203,19 @@ public static class ConsoleProjectLister
 				foreach (var displayName in displayNames)
 					serializer.Serialize(displayName);
 
-			consoleWriter.WriteLine(buffer.ToString());
+			consoleHelper.WriteLine(buffer.ToString());
 		}
 		else
 		{
-			consoleWriter.WriteLine();
+			consoleHelper.WriteLine();
 
 			foreach (var displayName in displayNames)
-				consoleWriter.WriteLine(displayName);
+				consoleHelper.WriteLine(displayName);
 		}
 	}
 
 	static void Traits<TTestCase>(
-		TextWriter consoleWriter,
+		ConsoleHelper consoleHelper,
 		IReadOnlyDictionary<string, List<TTestCase>> testCasesByAssembly,
 		ListFormat format)
 			where TTestCase : ITestCaseMetadata
@@ -240,14 +240,14 @@ public static class ConsoleProjectLister
 						foreach (var value in trait.Value.OrderBy(v => v))
 							valueSerializer.Serialize(value);
 
-			consoleWriter.WriteLine(buffer.ToString());
+			consoleHelper.WriteLine(buffer.ToString());
 		}
 		else
 		{
-			consoleWriter.WriteLine();
+			consoleHelper.WriteLine();
 
 			foreach (var trait in combinedTraits.OrderBy(kvp => kvp.Key))
-				consoleWriter.WriteLine("\"{0}\": [{1}]", Escape(trait.Key), string.Join(", ", trait.Value.OrderBy(v => v).Select(v => '"' + Escape(v) + '"')));
+				consoleHelper.WriteLine("\"{0}\": [{1}]", Escape(trait.Key), string.Join(", ", trait.Value.OrderBy(v => v).Select(v => '"' + Escape(v) + '"')));
 		}
 	}
 }

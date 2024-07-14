@@ -17,19 +17,19 @@ public class CommandLine : CommandLineParserBase
 
 	/// <summary/>
 	public CommandLine(
-		TextWriter consoleWriter,
+		ConsoleHelper consoleHelper,
 		Assembly assembly,
 		string[] args) :
-			this(consoleWriter, assembly, args, null)
+			this(consoleHelper, assembly, args, null)
 	{ }
 
 	/// <summary/>
 	protected CommandLine(
-		TextWriter consoleWriter,
+		ConsoleHelper consoleHelper,
 		Assembly assembly,
 		string[] args,
 		IReadOnlyList<IRunnerReporter>? runnerReporters)
-			: base(consoleWriter, runnerReporters, Path.GetDirectoryName(assembly.GetSafeLocation()), args)
+			: base(consoleHelper, runnerReporters, Path.GetDirectoryName(assembly.GetSafeLocation()), args)
 	{
 		this.assembly = assembly;
 		assemblyFileName = assembly.GetSafeLocation();
@@ -138,9 +138,9 @@ public class CommandLine : CommandLineParserBase
 		if (option.Value is null)
 			throw new ArgumentException("missing argument for -run");
 
-		var assembly = Project.Assemblies.FirstOrDefault();
-		if (assembly is null)
-			throw new ArgumentException("no assembly in the project");
+		var assembly =
+			Project.Assemblies.FirstOrDefault()
+				?? throw new ArgumentException("no assembly in the project");
 
 		assembly.TestCasesToRun.Add(option.Value);
 	}

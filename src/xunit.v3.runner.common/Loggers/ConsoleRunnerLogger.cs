@@ -12,7 +12,7 @@ namespace Xunit.Runner.Common;
 public class ConsoleRunnerLogger : IRunnerLogger
 {
 	readonly static Regex ansiSgrRegex = new("\\e\\[\\d*(;\\d*)*m");
-	readonly TextWriter consoleOutput;
+	readonly ConsoleHelper consoleHelper;
 	readonly bool useColors;
 
 	/// <summary>
@@ -22,23 +22,21 @@ public class ConsoleRunnerLogger : IRunnerLogger
 	/// logging messages.</param>
 	/// <param name="useAnsiColor">A flag to indicate whether ANSI colors should be
 	/// forced on Windows.</param>
-	/// <param name="consoleOutput">The text writer for writing console output.</param>
+	/// <param name="consoleHelper">The helper for writing console output.</param>
 	public ConsoleRunnerLogger(
 		bool useColors,
 		bool useAnsiColor,
-		TextWriter consoleOutput)
+		ConsoleHelper consoleHelper)
 	{
-		Guard.ArgumentNotNull(consoleOutput);
-
 		this.useColors = useColors;
-		this.consoleOutput = Guard.ArgumentNotNull(consoleOutput);
+		this.consoleHelper = Guard.ArgumentNotNull(consoleHelper);
 
 		if (useAnsiColor)
-			ConsoleHelper.UseAnsiColor();
+			consoleHelper.UseAnsiColor();
 	}
 
 	/// <inheritdoc/>
-	public object LockObject => consoleOutput;
+	public object LockObject => consoleHelper.LockObject;
 
 	/// <inheritdoc/>
 	public void LogError(
@@ -108,21 +106,29 @@ public class ConsoleRunnerLogger : IRunnerLogger
 		Guard.ArgumentNotNull(message);
 
 		var text = useColors ? message : RemoveAnsiSgr(message);
-		consoleOutput.WriteLine(text);
+		consoleHelper.WriteLine(text);
 	}
 
 	static string RemoveAnsiSgr(string message) =>
 		ansiSgrRegex.Replace(message, "");
 
 	IDisposable? SetColor(ConsoleColor color) =>
-		useColors ? new ColorRestorer(color) : null;
+		useColors ? new ColorRestorer(consoleHelper, color) : null;
 
 	sealed class ColorRestorer : IDisposable
 	{
-		public ColorRestorer(ConsoleColor color) =>
-			ConsoleHelper.SetForegroundColor(color);
+		readonly ConsoleHelper consoleHelper;
+
+		public ColorRestorer(
+			ConsoleHelper consoleHelper,
+			ConsoleColor color)
+		{
+			this.consoleHelper = consoleHelper;
+
+			consoleHelper.SetForegroundColor(color);
+		}
 
 		public void Dispose() =>
-			ConsoleHelper.ResetColor();
+			consoleHelper.ResetColor();
 	}
 }

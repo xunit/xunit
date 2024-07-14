@@ -1,5 +1,3 @@
-#pragma warning disable CA1849  // We don't want to use the async versions wrapping Console.WriteLine because they're less featureful
-
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -23,7 +21,7 @@ sealed class ConsoleRunner
 	readonly string[] args;
 	volatile bool cancel;
 	readonly ConcurrentDictionary<string, ExecutionSummary> completionMessages = new();
-	TextWriter consoleWriter = default!;
+	ConsoleHelper consoleHelper = default!;
 	bool failed;
 	IRunnerLogger? logger;
 
@@ -38,8 +36,7 @@ sealed class ConsoleRunner
 		// Console.Out when in automated mode. In effort to keep as much code here duplicated as possible (for
 		// future base-class extraction), we do this even though it's not strictly speaking necessary.
 		Console.OutputEncoding = Encoding.UTF8;
-		consoleWriter = Console.Out;
-		ConsoleHelper.ConsoleWriter = consoleWriter;
+		consoleHelper = new(Console.Out);
 
 		var globalInternalDiagnosticMessages = false;
 		var noColor = false;
@@ -47,7 +44,7 @@ sealed class ConsoleRunner
 		try
 		{
 			var runnerFolder = Path.GetDirectoryName(typeof(Program).Assembly.Location);
-			var commandLine = new CommandLine(consoleWriter, runnerFolder, args);
+			var commandLine = new CommandLine(consoleHelper, runnerFolder, args);
 
 			if (args.Length == 0 || commandLine.HelpRequested)
 			{
@@ -55,22 +52,22 @@ sealed class ConsoleRunner
 
 				var executableName = Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().GetLocalCodeBase());
 
-				consoleWriter.WriteLine("Copyright (C) .NET Foundation.");
-				consoleWriter.WriteLine();
+				consoleHelper.WriteLine("Copyright (C) .NET Foundation.");
+				consoleHelper.WriteLine();
 
 				if (commandLine.ParseWarnings.Count > 0)
 				{
 					foreach (var warning in commandLine.ParseWarnings)
-						consoleWriter.WriteLine("Warning: {0}", warning);
+						consoleHelper.WriteLine("Warning: {0}", warning);
 
-					consoleWriter.WriteLine();
+					consoleHelper.WriteLine();
 				}
 
-				consoleWriter.WriteLine("usage: {0} <assemblyFile>[:seed] [configFile] [assemblyFile[:seed] [configFile]...] [options] [reporter] [resultFormat filename [...]]", executableName);
-				consoleWriter.WriteLine();
-				consoleWriter.WriteLine("Note: Configuration files must end in .json (for JSON) or .config (for XML)");
-				consoleWriter.WriteLine("      XML is supported for v1 and v2 only, on .NET Framework only");
-				consoleWriter.WriteLine("      JSON is supported for v2 and later, on all supported platforms");
+				consoleHelper.WriteLine("usage: {0} <assemblyFile>[:seed] [configFile] [assemblyFile[:seed] [configFile]...] [options] [reporter] [resultFormat filename [...]]", executableName);
+				consoleHelper.WriteLine();
+				consoleHelper.WriteLine("Note: Configuration files must end in .json (for JSON) or .config (for XML)");
+				consoleHelper.WriteLine("      XML is supported for v1 and v2 only, on .NET Framework only");
+				consoleHelper.WriteLine("      JSON is supported for v2 and later, on all supported platforms");
 
 				commandLine.PrintUsage();
 
@@ -80,7 +77,7 @@ sealed class ConsoleRunner
 			var project = commandLine.Parse();
 			var useAnsiColor = project.Configuration.UseAnsiColorOrDefault;
 			if (useAnsiColor)
-				ConsoleHelper.UseAnsiColor();
+				consoleHelper.UseAnsiColor();
 			if (project.Assemblies.Count == 0)
 				throw new ArgumentException("must specify at least one assembly");
 
@@ -90,7 +87,7 @@ sealed class ConsoleRunner
 			{
 				if (!cancel)
 				{
-					consoleWriter.WriteLine("Cancelling... (Press Ctrl+C again to terminate)");
+					consoleHelper.WriteLine("Cancelling... (Press Ctrl+C again to terminate)");
 					cancel = true;
 					e.Cancel = true;
 				}
@@ -98,9 +95,9 @@ sealed class ConsoleRunner
 
 			if (project.Configuration.PauseOrDefault)
 			{
-				consoleWriter.Write("Press any key to start execution...");
+				consoleHelper.Write("Press any key to start execution...");
 				Console.ReadKey(true);
-				consoleWriter.WriteLine();
+				consoleHelper.WriteLine();
 			}
 
 			if (project.Configuration.DebugOrDefault)
@@ -109,8 +106,8 @@ sealed class ConsoleRunner
 			var globalDiagnosticMessages = project.Assemblies.Any(a => a.Configuration.DiagnosticMessagesOrDefault);
 			globalInternalDiagnosticMessages = project.Assemblies.Any(a => a.Configuration.InternalDiagnosticMessagesOrDefault);
 			noColor = project.Configuration.NoColorOrDefault;
-			logger = new ConsoleRunnerLogger(!noColor, useAnsiColor, consoleWriter);
-			var globalDiagnosticMessageSink = ConsoleDiagnosticMessageSink.TryCreate(consoleWriter, noColor, globalDiagnosticMessages, globalInternalDiagnosticMessages);
+			logger = new ConsoleRunnerLogger(!noColor, useAnsiColor, consoleHelper);
+			var globalDiagnosticMessageSink = ConsoleDiagnosticMessageSink.TryCreate(consoleHelper, noColor, globalDiagnosticMessages, globalInternalDiagnosticMessages);
 			var reporter = project.RunnerReporter;
 			var reporterMessageHandler = await reporter.CreateMessageHandler(logger, globalDiagnosticMessageSink);
 
@@ -132,10 +129,10 @@ sealed class ConsoleRunner
 
 			if (project.Configuration.WaitOrDefault)
 			{
-				consoleWriter.WriteLine();
-				consoleWriter.Write("Press any key to continue...");
+				consoleHelper.WriteLine();
+				consoleHelper.Write("Press any key to continue...");
 				Console.ReadKey();
-				consoleWriter.WriteLine();
+				consoleHelper.WriteLine();
 			}
 
 			return project.Configuration.IgnoreFailures == true || failCount == 0 ? 0 : 1;
@@ -143,16 +140,16 @@ sealed class ConsoleRunner
 		catch (Exception ex)
 		{
 			if (!noColor)
-				ConsoleHelper.SetForegroundColor(ConsoleColor.Red);
+				consoleHelper.SetForegroundColor(ConsoleColor.Red);
 
-			consoleWriter.WriteLine("error: {0}", ex.Message);
+			consoleHelper.WriteLine("error: {0}", ex.Message);
 
 			if (globalInternalDiagnosticMessages)
 			{
 				if (!noColor)
-					ConsoleHelper.SetForegroundColor(ConsoleColor.DarkGray);
+					consoleHelper.SetForegroundColor(ConsoleColor.DarkGray);
 
-				consoleWriter.WriteLine(ex.StackTrace);
+				consoleHelper.WriteLine(ex.StackTrace);
 			}
 
 			return ex is ArgumentException ? 3 : 4;
@@ -160,7 +157,7 @@ sealed class ConsoleRunner
 		finally
 		{
 			if (!noColor)
-				ConsoleHelper.ResetColor();
+				consoleHelper.ResetColor();
 		}
 	}
 
@@ -198,7 +195,7 @@ sealed class ConsoleRunner
 			testCasesByAssembly.Add(assemblyFileName, discoverySink.TestCases);
 		}
 
-		ConsoleProjectLister.List(consoleWriter, testCasesByAssembly, listOption, listFormat);
+		ConsoleProjectLister.List(consoleHelper, testCasesByAssembly, listOption, listFormat);
 	}
 
 	void OnUnhandledException(
@@ -206,9 +203,9 @@ sealed class ConsoleRunner
 		UnhandledExceptionEventArgs e)
 	{
 		if (e.ExceptionObject is Exception ex)
-			consoleWriter.WriteLine(ex.ToString());
+			consoleHelper.WriteLine(ex.ToString());
 		else
-			consoleWriter.WriteLine("Error of unknown type thrown in application domain");
+			consoleHelper.WriteLine("Error of unknown type thrown in application domain");
 
 		Environment.Exit(1);
 	}
@@ -231,7 +228,7 @@ sealed class ConsoleRunner
 		"/AnyCPU";
 #endif
 
-		consoleWriter.WriteLine(
+		consoleHelper.WriteLine(
 			"xUnit.net v3 Console Runner v{0} [{1}] ({2}-bit {3})",
 			ThisAssembly.AssemblyInformationalVersion,
 			buildTarget,
@@ -333,7 +330,7 @@ sealed class ConsoleRunner
 			var noColor = assembly.Project.Configuration.NoColorOrDefault;
 			var diagnosticMessages = assembly.Configuration.DiagnosticMessagesOrDefault;
 			var internalDiagnosticMessages = assembly.Configuration.InternalDiagnosticMessagesOrDefault;
-			var diagnosticMessageSink = ConsoleDiagnosticMessageSink.TryCreate(consoleWriter, noColor, diagnosticMessages, internalDiagnosticMessages, assemblyDisplayName);
+			var diagnosticMessageSink = ConsoleDiagnosticMessageSink.TryCreate(consoleHelper, noColor, diagnosticMessages, internalDiagnosticMessages, assemblyDisplayName);
 			var appDomainSupport = assembly.Configuration.AppDomainOrDefault;
 			var shadowCopy = assembly.Configuration.ShadowCopyOrDefault;
 			var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
@@ -369,7 +366,7 @@ sealed class ConsoleRunner
 
 			if (resultsSink.ExecutionSummary.Failed != 0 && executionOptions.GetStopOnTestFailOrDefault())
 			{
-				consoleWriter.WriteLine("Cancelling due to test failure...");
+				consoleHelper.WriteLine("Cancelling due to test failure...");
 				cancel = true;
 			}
 		}
@@ -380,10 +377,10 @@ sealed class ConsoleRunner
 			var e = ex;
 			while (e is not null)
 			{
-				consoleWriter.WriteLine("{0}: {1}", e.GetType().SafeName(), e.Message);
+				consoleHelper.WriteLine("{0}: {1}", e.GetType().SafeName(), e.Message);
 
 				if (assembly.Configuration.InternalDiagnosticMessagesOrDefault)
-					consoleWriter.WriteLine(e.StackTrace);
+					consoleHelper.WriteLine(e.StackTrace);
 
 				e = e.InnerException;
 			}

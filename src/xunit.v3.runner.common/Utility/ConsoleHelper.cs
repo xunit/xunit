@@ -4,20 +4,25 @@
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
-using Xunit.Internal;
 
 namespace Xunit.Runner.Common;
 
 /// <summary>
-/// This is a static class which helps write colored text to the console. On Windows, it will use the built-in
+/// This class helps write colored text to the console. On Windows, it will use the built-in
 /// console functions; on Linux and macOS, it will use ANSI color codes.
 /// </summary>
-public static class ConsoleHelper
+public class ConsoleHelper
 {
-	static TextWriter? consoleWriter;
+	readonly TextWriter consoleWriter;
 
-	static ConsoleHelper()
+	/// <summary>
+	/// Initializes a new instance of the <see cref="ConsoleHelper"/> class.
+	/// </summary>
+	/// <param name="consoleWriter"></param>
+	public ConsoleHelper(TextWriter consoleWriter)
 	{
+		this.consoleWriter = consoleWriter;
+
 		if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
 		{
 			ResetColor = ResetColorConsole;
@@ -33,34 +38,27 @@ public static class ConsoleHelper
 	}
 
 	/// <summary>
-	/// Gets or sets the <see cref="TextWriter"/> used for console output.
+	/// Gets a lock object that can be used to lock multiple calls to <see cref="ConsoleHelper"/>
+	/// functions to ensure consistent output.
 	/// </summary>
-	public static TextWriter ConsoleWriter
-	{
-		get
-		{
-			consoleWriter ??= Console.Out;
-			return consoleWriter;
-		}
-		set => consoleWriter = Guard.ArgumentNotNull(value, nameof(ConsoleWriter));
-	}
+	public object LockObject { get; } = new();
 
 	/// <summary>
 	/// Equivalent to <see cref="Console.ResetColor"/>.
 	/// </summary>
-	public static Action ResetColor { get; private set; }
+	public Action ResetColor { get; private set; }
 
 	/// <summary>
 	/// Equivalent to <see cref="Console.BackgroundColor"/>.
 	/// </summary>
-	public static Action<ConsoleColor> SetBackgroundColor { get; private set; }
+	public Action<ConsoleColor> SetBackgroundColor { get; private set; }
 
 	/// <summary>
 	/// Equivalent to <see cref="Console.ForegroundColor"/>.
 	/// </summary>
-	public static Action<ConsoleColor> SetForegroundColor { get; private set; }
+	public Action<ConsoleColor> SetForegroundColor { get; private set; }
 
-	static void SetBackgroundColorANSI(ConsoleColor c)
+	void SetBackgroundColorANSI(ConsoleColor c)
 	{
 		var colorString = c switch
 		{
@@ -83,13 +81,13 @@ public static class ConsoleHelper
 			_ => "",
 		};
 
-		ConsoleWriter.Write(colorString);
+		consoleWriter.Write(colorString);
 	}
 
-	static void SetBackgroundColorConsole(ConsoleColor c) =>
+	void SetBackgroundColorConsole(ConsoleColor c) =>
 		Console.BackgroundColor = c;
 
-	static void SetForegroundColorANSI(ConsoleColor c)
+	void SetForegroundColorANSI(ConsoleColor c)
 	{
 		var colorString = c switch
 		{
@@ -112,25 +110,113 @@ public static class ConsoleHelper
 			_ => "",
 		};
 
-		ConsoleWriter.Write(colorString);
+		consoleWriter.Write(colorString);
 	}
 
-	static void SetForegroundColorConsole(ConsoleColor c) =>
+	void SetForegroundColorConsole(ConsoleColor c) =>
 		Console.ForegroundColor = c;
 
-	static void ResetColorANSI() =>
-		ConsoleWriter.Write("\x1b[0m");
+	void ResetColorANSI() =>
+		consoleWriter.Write("\x1b[0m");
 
-	static void ResetColorConsole() =>
+	void ResetColorConsole() =>
 		Console.ResetColor();
 
 	/// <summary>
 	/// Force using ANSI color instead of deciding based on OS.
 	/// </summary>
-	public static void UseAnsiColor()
+	public void UseAnsiColor()
 	{
 		ResetColor = ResetColorANSI;
 		SetBackgroundColor = SetBackgroundColorANSI;
 		SetForegroundColor = SetForegroundColorANSI;
 	}
+
+	/// <summary>
+	/// Writes the string value to the console.
+	/// </summary>
+	public void Write(string? value) =>
+		consoleWriter.Write(value);
+
+	/// <summary>
+	/// Writes a formatted string value to the console.
+	/// </summary>
+	/// <param name="format">The message format string</param>
+	/// <param name="arg0">The value to replace {0} in the format string</param>
+	public void Write(string format, object? arg0) =>
+		consoleWriter.Write(format, arg0);
+
+	/// <summary>
+	/// Writes a formatted string value to the console.
+	/// </summary>
+	/// <param name="format">The message format string</param>
+	/// <param name="arg0">The value to replace {0} in the format string</param>
+	/// <param name="arg1">The value to replace {1} in the format string</param>
+	public void Write(string format, object? arg0, object? arg1) =>
+		consoleWriter.Write(format, arg0, arg1);
+
+	/// <summary>
+	/// Writes a formatted string value to the console.
+	/// </summary>
+	/// <param name="format">The message format string</param>
+	/// <param name="arg0">The value to replace {0} in the format string</param>
+	/// <param name="arg1">The value to replace {1} in the format string</param>
+	/// <param name="arg2">The value to replace {2} in the format string</param>
+	public void Write(string format, object? arg0, object? arg1, object? arg2) =>
+		consoleWriter.Write(format, arg0, arg1, arg2);
+
+	/// <summary>
+	/// Writes a formatted string value to the console.
+	/// </summary>
+	/// <param name="format">The message format string</param>
+	/// <param name="args">An object array that contains zero or more objects to format.</param>
+	public void Write(string format, params object?[] args) =>
+		consoleWriter.Write(format, args);
+
+	/// <summary>
+	/// Writes <see cref="Environment.NewLine"/> to the console.
+	/// </summary>
+	public void WriteLine() =>
+		consoleWriter.WriteLine();
+
+	/// <summary>
+	/// Writes the string value to the console, followed by <see cref="Environment.NewLine"/>.
+	/// </summary>
+	public void WriteLine(string? value) =>
+		consoleWriter.WriteLine(value);
+
+	/// <summary>
+	/// Writes a formatted string value to the console, followed by <see cref="Environment.NewLine"/>.
+	/// </summary>
+	/// <param name="format">The message format string</param>
+	/// <param name="arg0">The value to replace {0} in the format string</param>
+	public void WriteLine(string format, object? arg0) =>
+		consoleWriter.WriteLine(format, arg0);
+
+	/// <summary>
+	/// Writes a formatted string value to the console, followed by <see cref="Environment.NewLine"/>.
+	/// </summary>
+	/// <param name="format">The message format string</param>
+	/// <param name="arg0">The value to replace {0} in the format string</param>
+	/// <param name="arg1">The value to replace {1} in the format string</param>
+	public void WriteLine(string format, object? arg0, object? arg1) =>
+		consoleWriter.WriteLine(format, arg0, arg1);
+
+	/// <summary>
+	/// Writes a formatted string value to the console, followed by <see cref="Environment.NewLine"/>.
+	/// </summary>
+	/// <param name="format">The message format string</param>
+	/// <param name="arg0">The value to replace {0} in the format string</param>
+	/// <param name="arg1">The value to replace {1} in the format string</param>
+	/// <param name="arg2">The value to replace {2} in the format string</param>
+	public void WriteLine(string format, object? arg0, object? arg1, object? arg2) =>
+		consoleWriter.WriteLine(format, arg0, arg1, arg2);
+
+	/// <summary>
+	/// Writes a formatted string value to the console, followed by <see cref="Environment.NewLine"/>.
+	/// </summary>
+	/// <param name="format">The message format string</param>
+	/// <param name="args">An object array that contains zero or more objects to format.</param>
+	public void WriteLine(string format, params object?[] args) =>
+		consoleWriter.WriteLine(format, args);
 }

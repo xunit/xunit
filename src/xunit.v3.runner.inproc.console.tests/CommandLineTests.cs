@@ -656,13 +656,13 @@ public class CommandLineTests
 	class TestableCommandLine : CommandLine
 	{
 		public TestableCommandLine(params string[] arguments)
-			: base(TextWriter.Null, Assembly.GetExecutingAssembly(), arguments)
+			: base(new ConsoleHelper(TextWriter.Null), Assembly.GetExecutingAssembly(), arguments)
 		{ }
 
 		public TestableCommandLine(
 			IReadOnlyList<IRunnerReporter> reporters,
 			params string[] arguments)
-				: base(TextWriter.Null, Assembly.GetExecutingAssembly(), arguments, reporters)
+				: base(new ConsoleHelper(TextWriter.Null), Assembly.GetExecutingAssembly(), arguments, reporters)
 		{ }
 
 		protected override bool FileExists(string? path) =>

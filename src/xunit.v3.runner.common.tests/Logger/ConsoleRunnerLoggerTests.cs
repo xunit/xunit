@@ -3,7 +3,6 @@ using System.IO;
 using Xunit;
 using Xunit.Runner.Common;
 
-[Collection("ConsoleHelper statics")]
 public class ConsoleRunnerLoggerTests
 {
 	[Fact]
@@ -11,7 +10,7 @@ public class ConsoleRunnerLoggerTests
 	{
 		var writer = new StringWriter();
 		var message = "foo bar";
-		var sut = new ConsoleRunnerLogger(true, false, writer);
+		var sut = new ConsoleRunnerLogger(true, false, new ConsoleHelper(writer));
 
 		sut.WriteLine(message);
 
@@ -23,7 +22,7 @@ public class ConsoleRunnerLoggerTests
 	{
 		var writer = new StringWriter();
 		var message = "\x1b[3m\x1b[36mhello world\u001b[0m || \x1b[94;103mbright blue on bright yellow\x1b[m";
-		var sut = new ConsoleRunnerLogger(true, false, writer);
+		var sut = new ConsoleRunnerLogger(true, false, new ConsoleHelper(writer));
 
 		sut.WriteLine(message);
 
@@ -35,7 +34,7 @@ public class ConsoleRunnerLoggerTests
 	{
 		var writer = new StringWriter();
 		var message = "foo bar";
-		var sut = new ConsoleRunnerLogger(false, false, writer);
+		var sut = new ConsoleRunnerLogger(false, false, new ConsoleHelper(writer));
 
 		sut.WriteLine(message);
 
@@ -46,7 +45,7 @@ public class ConsoleRunnerLoggerTests
 	public void WriteLine_ColorsDisabled_AnsiText()
 	{
 		var writer = new StringWriter();
-		var sut = new ConsoleRunnerLogger(false, false, writer);
+		var sut = new ConsoleRunnerLogger(false, false, new ConsoleHelper(writer));
 
 		sut.WriteLine("\x1b[3m\x1b[36mhello world\u001b[0m || \x1b[94;103mbright blue on bright yellow\x1b[m");
 
@@ -56,21 +55,11 @@ public class ConsoleRunnerLoggerTests
 	[Fact]
 	public void WriteLine_ColorsEnabled_AnsiColorsEnabled()
 	{
-		var oldWriter = ConsoleHelper.ConsoleWriter;
+		var writer = new StringWriter();
+		var sut = new ConsoleRunnerLogger(true, true, new ConsoleHelper(writer));
 
-		try
-		{
-			var writer = new StringWriter();
-			var sut = new ConsoleRunnerLogger(true, true, writer);
-			ConsoleHelper.ConsoleWriter = writer;
+		sut.LogError("This is an error message");
 
-			sut.LogError("This is an error message");
-
-			Assert.Equal("\u001b[91mThis is an error message" + Environment.NewLine + "\u001b[0m", writer.ToString());
-		}
-		finally
-		{
-			ConsoleHelper.ConsoleWriter = oldWriter;
-		}
+		Assert.Equal("\u001b[91mThis is an error message" + Environment.NewLine + "\u001b[0m", writer.ToString());
 	}
 }

@@ -15,20 +15,20 @@ public class CommandLine : CommandLineParserBase
 {
 	/// <summary/>
 	protected CommandLine(
-		TextWriter consoleWriter,
+		ConsoleHelper consoleHelper,
 		IReadOnlyList<IRunnerReporter> reporters,
 		string[] args)
-			: base(consoleWriter, reporters, null, args)
+			: base(consoleHelper, reporters, null, args)
 	{
 		AddParsers();
 	}
 
 	/// <summary/>
 	public CommandLine(
-		TextWriter consoleWriter,
+		ConsoleHelper consoleHelper,
 		string? reporterFolder,
 		string[] args)
-			: base(consoleWriter, null, reporterFolder, args)
+			: base(consoleHelper, null, reporterFolder, args)
 	{
 		AddParsers();
 	}

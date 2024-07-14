@@ -1,5 +1,3 @@
-#pragma warning disable CA1849  // We don't want to use the async versions wrapping Console.WriteLine because they're less featureful
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -30,7 +28,7 @@ public class ConsoleRunner(string[] args)
 	readonly string[] args = Guard.ArgumentNotNull(args);
 	bool automated;
 	volatile bool cancel;
-	TextWriter consoleWriter = default!;
+	ConsoleHelper consoleHelper = default!;
 	bool executed;
 	bool failed;
 	IRunnerLogger? logger;
@@ -63,34 +61,31 @@ public class ConsoleRunner(string[] args)
 		if (consoleOverride is null)
 			SetOutputEncoding();
 
-		consoleWriter = consoleOverride ?? Console.Out;
-
-		var oldWriter = ConsoleHelper.ConsoleWriter;
-		ConsoleHelper.ConsoleWriter = consoleWriter;
+		consoleHelper = new(consoleOverride ?? Console.Out);
 
 		var globalInternalDiagnosticMessages = false;
 		var noColor = false;
 
 		try
 		{
-			var commandLine = new CommandLine(consoleWriter, testAssembly, args);
+			var commandLine = new CommandLine(consoleHelper, testAssembly, args);
 
 			if (commandLine.HelpRequested)
 			{
 				PrintHeader();
 
-				consoleWriter.WriteLine("Copyright (C) .NET Foundation.");
-				consoleWriter.WriteLine();
+				consoleHelper.WriteLine("Copyright (C) .NET Foundation.");
+				consoleHelper.WriteLine();
 
 				if (commandLine.ParseWarnings.Count > 0)
 				{
 					foreach (var warning in commandLine.ParseWarnings)
-						consoleWriter.WriteLine("Warning: {0}", warning);
+						consoleHelper.WriteLine("Warning: {0}", warning);
 
-					consoleWriter.WriteLine();
+					consoleHelper.WriteLine();
 				}
 
-				consoleWriter.WriteLine("usage: [:seed] [path/to/configFile.json] [options] [filters] [reporter] [resultFormat filename [...]]");
+				consoleHelper.WriteLine("usage: [:seed] [path/to/configFile.json] [options] [filters] [reporter] [resultFormat filename [...]]");
 
 				commandLine.PrintUsage();
 				return 2;
@@ -110,7 +105,7 @@ public class ConsoleRunner(string[] args)
 			var project = commandLine.Parse();
 			var useAnsiColor = project.Configuration.UseAnsiColorOrDefault;
 			if (useAnsiColor)
-				ConsoleHelper.UseAnsiColor();
+				consoleHelper.UseAnsiColor();
 
 			if (project.Configuration.AssemblyInfoOrDefault)
 			{
@@ -126,9 +121,9 @@ public class ConsoleRunner(string[] args)
 				if (started && !cancel)
 				{
 					if (automated)
-						consoleWriter.WriteLine(new DiagnosticMessage("Cancellation request received").ToJson());
+						consoleHelper.WriteLine(new DiagnosticMessage("Cancellation request received").ToJson());
 					else
-						consoleWriter.WriteLine("Cancelling... (Press Ctrl+C again to terminate)");
+						consoleHelper.WriteLine("Cancelling... (Press Ctrl+C again to terminate)");
 
 					cancel = true;
 					e.Cancel = true;
@@ -138,12 +133,12 @@ public class ConsoleRunner(string[] args)
 			if (project.Configuration.PauseOrDefault)
 			{
 				if (!automated)
-					consoleWriter.Write("Press any key to start execution...");
+					consoleHelper.Write("Press any key to start execution...");
 
 				Console.ReadKey(true);
 
 				if (!automated)
-					consoleWriter.WriteLine();
+					consoleHelper.WriteLine();
 			}
 
 			if (project.Configuration.DebugOrDefault)
@@ -155,12 +150,12 @@ public class ConsoleRunner(string[] args)
 			if (!automated)
 				noColor = project.Configuration.NoColorOrDefault;
 
-			logger = new ConsoleRunnerLogger(!noColor, useAnsiColor, consoleWriter);
+			logger = new ConsoleRunnerLogger(!noColor, useAnsiColor, consoleHelper);
 
 			IMessageSink? globalDiagnosticMessageSink =
 				automated
-					? new AutomatedDiagnosticMessageSink(consoleWriter)
-					: ConsoleDiagnosticMessageSink.TryCreate(consoleWriter, noColor, globalDiagnosticMessages, globalInternalDiagnosticMessages);
+					? new AutomatedDiagnosticMessageSink(consoleHelper)
+					: ConsoleDiagnosticMessageSink.TryCreate(consoleHelper, noColor, globalDiagnosticMessages, globalInternalDiagnosticMessages);
 
 			var pipelineStartupAttributes = testAssembly.GetMatchingCustomAttributes(typeof(ITestPipelineStartupAttribute));
 			if (pipelineStartupAttributes.Count > 1)
@@ -186,8 +181,8 @@ public class ConsoleRunner(string[] args)
 
 				IMessageSink? pipelineMessageSink =
 					automated
-						? new AutomatedDiagnosticMessageSink(consoleWriter)
-						: ConsoleDiagnosticMessageSink.TryCreate(consoleWriter, noColor, globalDiagnosticMessages, indent: false, assemblyDisplayName: pipelineStartupType.SafeName());
+						? new AutomatedDiagnosticMessageSink(consoleHelper)
+						: ConsoleDiagnosticMessageSink.TryCreate(consoleHelper, noColor, globalDiagnosticMessages, indent: false, assemblyDisplayName: pipelineStartupType.SafeName());
 
 				await pipelineStartup.StartAsync(pipelineMessageSink ?? NullMessageSink.Instance);
 			}
@@ -204,14 +199,14 @@ public class ConsoleRunner(string[] args)
 
 				foreach (string warning in commandLine.ParseWarnings)
 					if (automated)
-						consoleWriter.WriteLine(new DiagnosticMessage("warning: " + warning).ToJson());
+						consoleHelper.WriteLine(new DiagnosticMessage("warning: " + warning).ToJson());
 					else
 						logger.LogWarning(warning);
 
 				if (project.Configuration.WaitForDebuggerOrDefault)
 				{
 					if (!automated)
-						consoleWriter.WriteLine("Waiting for debugger to be attached... (press Ctrl+C to abort)");
+						consoleHelper.WriteLine("Waiting for debugger to be attached... (press Ctrl+C to abort)");
 
 					while (true)
 					{
@@ -242,14 +237,14 @@ public class ConsoleRunner(string[] args)
 			{
 				if (!automated)
 				{
-					consoleWriter.WriteLine();
-					consoleWriter.Write("Press any key to continue...");
+					consoleHelper.WriteLine();
+					consoleHelper.Write("Press any key to continue...");
 				}
 
 				Console.ReadKey();
 
 				if (!automated)
-					consoleWriter.WriteLine();
+					consoleHelper.WriteLine();
 			}
 
 			return project.Configuration.IgnoreFailures == true || failCount == 0 ? 0 : 1;
@@ -257,20 +252,20 @@ public class ConsoleRunner(string[] args)
 		catch (Exception ex)
 		{
 			if (!noColor)
-				ConsoleHelper.SetForegroundColor(ConsoleColor.Red);
+				consoleHelper.SetForegroundColor(ConsoleColor.Red);
 
 			if (automated)
-				consoleWriter.WriteLine(new DiagnosticMessage("error: " + ex.Message).ToJson());
+				consoleHelper.WriteLine(new DiagnosticMessage("error: " + ex.Message).ToJson());
 			else
 			{
-				consoleWriter.WriteLine("error: {0}", ex.Message);
+				consoleHelper.WriteLine("error: {0}", ex.Message);
 
 				if (globalInternalDiagnosticMessages)
 				{
 					if (!noColor)
-						ConsoleHelper.SetForegroundColor(ConsoleColor.DarkGray);
+						consoleHelper.SetForegroundColor(ConsoleColor.DarkGray);
 
-					consoleWriter.WriteLine(ex.StackTrace);
+					consoleHelper.WriteLine(ex.StackTrace);
 				}
 			}
 
@@ -279,9 +274,7 @@ public class ConsoleRunner(string[] args)
 		finally
 		{
 			if (!noColor)
-				ConsoleHelper.ResetColor();
-
-			ConsoleHelper.ConsoleWriter = oldWriter;
+				consoleHelper.ResetColor();
 		}
 	}
 
@@ -308,7 +301,7 @@ public class ConsoleRunner(string[] args)
 			var noColor = assembly.Project.Configuration.NoColorOrDefault;
 			var diagnosticMessages = assembly.Configuration.DiagnosticMessagesOrDefault;
 			var internalDiagnosticMessages = assembly.Configuration.InternalDiagnosticMessagesOrDefault;
-			var diagnosticMessageSink = ConsoleDiagnosticMessageSink.TryCreate(consoleWriter, noColor, diagnosticMessages, internalDiagnosticMessages);
+			var diagnosticMessageSink = ConsoleDiagnosticMessageSink.TryCreate(consoleHelper, noColor, diagnosticMessages, internalDiagnosticMessages);
 
 			TestContext.SetForInitialization(diagnosticMessageSink, diagnosticMessages, internalDiagnosticMessages);
 
@@ -336,10 +329,10 @@ public class ConsoleRunner(string[] args)
 		}
 
 		if (listOption != ListOption.Discovery)
-			ConsoleProjectLister.List(consoleWriter, testCasesByAssembly, listOption, listFormat);
+			ConsoleProjectLister.List(consoleHelper, testCasesByAssembly, listOption, listFormat);
 		else
 			foreach (var testCase in testCasesByAssembly.SelectMany(kvp => kvp.Value))
-				consoleWriter.WriteLine(testCase.ToTestCaseDiscovered().ToJson());
+				consoleHelper.WriteLine(testCase.ToTestCaseDiscovered().ToJson());
 	}
 
 	void OnUnhandledException(
@@ -349,16 +342,16 @@ public class ConsoleRunner(string[] args)
 		if (e.ExceptionObject is Exception ex)
 		{
 			if (automated)
-				consoleWriter.WriteLine(ErrorMessage.FromException(ex).ToJson());
+				consoleHelper.WriteLine(ErrorMessage.FromException(ex).ToJson());
 			else
-				consoleWriter.WriteLine(ex.ToString());
+				consoleHelper.WriteLine(ex.ToString());
 		}
 		else
 		{
 			if (automated)
-				consoleWriter.WriteLine(new DiagnosticMessage("Error of unknown type thrown in application domain").ToJson());
+				consoleHelper.WriteLine(new DiagnosticMessage("Error of unknown type thrown in application domain").ToJson());
 			else
-				consoleWriter.WriteLine("Error of unknown type thrown in application domain");
+				consoleHelper.WriteLine("Error of unknown type thrown in application domain");
 		}
 
 		Environment.Exit(1);
@@ -383,11 +376,11 @@ public class ConsoleRunner(string[] args)
 			serializer.Serialize("test-framework", testFramework.TestFrameworkDisplayName);
 		}
 
-		consoleWriter.WriteLine(buffer.ToString());
+		consoleHelper.WriteLine(buffer.ToString());
 	}
 
 	void PrintHeader() =>
-		consoleWriter.WriteLine(
+		consoleHelper.WriteLine(
 			"xUnit.net v3 In-Process Runner v{0} ({1}-bit {2})",
 			ThisAssembly.AssemblyInformationalVersion,
 			IntPtr.Size * 8,
@@ -466,7 +459,7 @@ public class ConsoleRunner(string[] args)
 			var noColor = assembly.Project.Configuration.NoColorOrDefault;
 			var diagnosticMessages = assembly.Configuration.DiagnosticMessagesOrDefault;
 			var internalDiagnosticMessages = assembly.Configuration.InternalDiagnosticMessagesOrDefault;
-			var diagnosticMessageSink = ConsoleDiagnosticMessageSink.TryCreate(consoleWriter, noColor, diagnosticMessages, internalDiagnosticMessages);
+			var diagnosticMessageSink = ConsoleDiagnosticMessageSink.TryCreate(consoleHelper, noColor, diagnosticMessages, internalDiagnosticMessages);
 			var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
 
 			TestContext.SetForInitialization(diagnosticMessageSink, diagnosticMessages, internalDiagnosticMessages);
@@ -505,9 +498,9 @@ public class ConsoleRunner(string[] args)
 			if (resultsSink.ExecutionSummary.Failed != 0 && executionOptions.GetStopOnTestFailOrDefault())
 			{
 				if (automated)
-					consoleWriter.WriteLine(new DiagnosticMessage("Cancelling due to test failure").ToJson());
+					consoleHelper.WriteLine(new DiagnosticMessage("Cancelling due to test failure").ToJson());
 				else
-					consoleWriter.WriteLine("Cancelling due to test failure...");
+					consoleHelper.WriteLine("Cancelling due to test failure...");
 
 				cancel = true;
 			}
@@ -520,13 +513,13 @@ public class ConsoleRunner(string[] args)
 			while (e is not null)
 			{
 				if (automated)
-					consoleWriter.WriteLine(ErrorMessage.FromException(e).ToJson());
+					consoleHelper.WriteLine(ErrorMessage.FromException(e).ToJson());
 				else
 				{
-					consoleWriter.WriteLine("{0}: {1}", e.GetType().SafeName(), e.Message);
+					consoleHelper.WriteLine("{0}: {1}", e.GetType().SafeName(), e.Message);
 
 					if (assembly.Configuration.InternalDiagnosticMessagesOrDefault)
-						consoleWriter.WriteLine(e.StackTrace);
+						consoleHelper.WriteLine(e.StackTrace);
 				}
 
 				e = e.InnerException;
