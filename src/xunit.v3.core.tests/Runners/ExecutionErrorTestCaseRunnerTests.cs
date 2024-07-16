@@ -116,7 +116,7 @@ public sealed class ExecutionErrorTestCaseRunnerTests : IDisposable
 
 	public static ExecutionErrorTestCase ExecutionErrorTestCase(string message)
 	{
-		var testMethod = Mocks.XunitTestMethod<ExecutionErrorTestCaseRunnerTests>(methodName: nameof(Messages_WithoutAggregatedError));
+		var testMethod = TestData.XunitTestMethod<ExecutionErrorTestCaseRunnerTests>(methodName: nameof(Messages_WithoutAggregatedError));
 
 		return new(
 			testMethod,

@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Sdk;
@@ -20,6 +21,11 @@ public interface IXunitTestCase : ITestCase
 	new IXunitTestClass TestClass { get; }
 
 	/// <summary>
+	/// Gets the <see cref="MemberInfo.MetadataToken"/> for the test class.
+	/// </summary>
+	new int TestClassMetadataToken { get; }
+
+	/// <summary>
 	/// Gets the name of the class where the test is defined.
 	/// </summary>
 	new string TestClassName { get; }
@@ -33,6 +39,11 @@ public interface IXunitTestCase : ITestCase
 	/// Gets the test method this test case belongs to.
 	/// </summary>
 	new IXunitTestMethod TestMethod { get; }
+
+	/// <summary>
+	/// Gets the <see cref="MemberInfo.MetadataToken"/> for the test method.
+	/// </summary>
+	new int TestMethodMetadataToken { get; }
 
 	/// <summary>
 	/// Gets the method name where the test is defined.

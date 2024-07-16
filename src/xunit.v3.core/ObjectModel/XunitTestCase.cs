@@ -111,6 +111,12 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 	ITestClass ITestCase.TestClass => TestClass;
 
 	/// <inheritdoc/>
+	public int TestClassMetadataToken =>
+		TestMethod.TestClass.Class.MetadataToken;
+
+	int? ITestCaseMetadata.TestClassMetadataToken => TestClassMetadataToken;
+
+	/// <inheritdoc/>
 	public string TestClassName =>
 		TestMethod.TestClass.TestClassName;
 
@@ -127,6 +133,12 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 	/// <inheritdoc/>
 	public object?[] TestMethodArguments =>
 		this.ValidateNullablePropertyValue(testMethodArguments, nameof(TestMethodArguments));
+
+	/// <inheritdoc/>
+	public int TestMethodMetadataToken =>
+		TestMethod.Method.MetadataToken;
+
+	int? ITestCaseMetadata.TestMethodMetadataToken => TestMethodMetadataToken;
 
 	/// <inheritdoc/>
 	public string TestMethodName =>

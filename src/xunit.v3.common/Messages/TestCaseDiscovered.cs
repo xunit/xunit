@@ -45,6 +45,9 @@ public sealed class TestCaseDiscovered : TestCaseMessage, ITestCaseMetadata
 	}
 
 	/// <inheritdoc/>
+	public required int? TestClassMetadataToken { get; set; }
+
+	/// <inheritdoc/>
 	[NotNullIfNotNull(nameof(TestMethodName))]
 	public required string? TestClassName
 	{
@@ -68,6 +71,9 @@ public sealed class TestCaseDiscovered : TestCaseMessage, ITestCaseMetadata
 
 	/// <inheritdoc/>
 	public required string? TestClassNamespace { get; set; }
+
+	/// <inheritdoc/>
+	public required int? TestMethodMetadataToken { get; set; }
 
 	/// <inheritdoc/>
 	public required string? TestMethodName { get; set; }
@@ -94,8 +100,10 @@ public sealed class TestCaseDiscovered : TestCaseMessage, ITestCaseMetadata
 		SourceFilePath = JsonDeserializer.TryGetString(root, nameof(SourceFilePath));
 		SourceLineNumber = JsonDeserializer.TryGetInt(root, nameof(SourceLineNumber));
 		testCaseDisplayName = JsonDeserializer.TryGetString(root, nameof(TestCaseDisplayName));
+		TestClassMetadataToken = JsonDeserializer.TryGetInt(root, nameof(TestClassMetadataToken));
 		testClassName = JsonDeserializer.TryGetString(root, nameof(TestClassName));
 		TestClassNamespace = JsonDeserializer.TryGetString(root, nameof(TestClassNamespace));
+		TestMethodMetadataToken = JsonDeserializer.TryGetInt(root, nameof(TestMethodMetadataToken));
 		TestMethodName = JsonDeserializer.TryGetString(root, nameof(TestMethodName));
 		traits = JsonDeserializer.TryGetTraits(root, nameof(Traits));
 	}
@@ -112,8 +120,10 @@ public sealed class TestCaseDiscovered : TestCaseMessage, ITestCaseMetadata
 		serializer.Serialize(nameof(SourceFilePath), SourceFilePath);
 		serializer.Serialize(nameof(SourceLineNumber), SourceLineNumber);
 		serializer.Serialize(nameof(TestCaseDisplayName), TestCaseDisplayName);
+		serializer.Serialize(nameof(TestClassMetadataToken), TestClassMetadataToken);
 		serializer.Serialize(nameof(TestClassName), TestClassName);
 		serializer.Serialize(nameof(TestClassNamespace), TestClassNamespace);
+		serializer.Serialize(nameof(TestMethodMetadataToken), TestMethodMetadataToken);
 		serializer.Serialize(nameof(TestMethodName), TestMethodName);
 		serializer.SerializeTraits(nameof(Traits), Traits);
 	}

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 
 namespace Xunit.Sdk;
 
@@ -32,6 +33,16 @@ public interface ITestCaseMetadata
 	string TestCaseDisplayName { get; }
 
 	/// <summary>
+	/// Gets the <see cref="MemberInfo.MetadataToken"/> for the test class. If the test did not
+	/// originate in a class, will return <c>null</c>.
+	/// </summary>
+	/// <remarks>
+	/// This value is only populated for xUnit.net v3 or later test cases, and will return <c>null</c>
+	/// for v1 or v2 test cases, regardless of whether <see cref="TestClassName"/> is <c>null</c>.
+	/// </remarks>
+	int? TestClassMetadataToken { get; }
+
+	/// <summary>
 	/// Gets the name of the class where the test is defined. If the test did not originiate
 	/// in a class, will return <c>null</c>.
 	/// </summary>
@@ -44,6 +55,16 @@ public interface ITestCaseMetadata
 	/// will return <c>null</c>.
 	/// </summary>
 	string? TestClassNamespace { get; }
+
+	/// <summary>
+	/// Gets the <see cref="MemberInfo.MetadataToken"/> for the test method. If the test did not
+	/// originate in a method, will return <c>null</c>.
+	/// </summary>
+	/// <remarks>
+	/// This value is only populated for xUnit.net v3 or later test cases, and will return <c>null</c>
+	/// for v1 or v2 test cases, regardless of whether <see cref="TestMethodName"/> is <c>null</c>.
+	/// </remarks>
+	int? TestMethodMetadataToken { get; }
 
 	/// <summary>
 	/// Gets the method name where the test is defined, in the <see cref="TestClassName"/> class.
