@@ -6,7 +6,7 @@ breadcrumb: Documentation
 
 # Current state of the xUnit.net v3 alpha
 
-## As of: 2024 July 5 (`0.2.0-pre.7`)
+## As of: 2024 July 17 (`0.2.0-pre.28`)
 
 The purpose of this document is to give a general state of the alpha package releases of xUnit.net v3.
 Note that there have not yet been any "stable alpha" releases to NuGet, so this is a snapshot of a moment
@@ -206,19 +206,19 @@ After creation, edit your project file to make it look something like this:
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="xunit.v3" Version="0.2.0-pre.7" />
+    <PackageReference Include="xunit.v3" Version="0.2.0-pre.28" />
 
     <!-- To support 'dotnet test' and Test Explorer, add:
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="3.0.0-pre.10" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.0.0-pre.17" />
     -->
 
     <!-- For the console runner, add:
-    <PackageReference Include="xunit.v3.runner.console" Version="0.2.0-pre.7" />
+    <PackageReference Include="xunit.v3.runner.console" Version="0.2.0-pre.28" />
     -->
 
     <!-- For the MSBuild runner, add:
-    <PackageReference Include="xunit.v3.runner.msbuild" Version="0.2.0-pre.7" />
+    <PackageReference Include="xunit.v3.runner.msbuild" Version="0.2.0-pre.28" />
     -->
   </ItemGroup>
 
