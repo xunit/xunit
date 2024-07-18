@@ -102,6 +102,8 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext, IXunitTest>
 			ctxt.TestMethodArguments,
 			ctxt.ExplicitOption,
 			ctxt.MessageBus,
+			// We don't clone the aggregator because invoker is an implementation detail in terms of
+			// exceptions during execution; they should be bubbled up from the invoker to us
 			ctxt.Aggregator,
 			ctxt.CancellationTokenSource
 		);

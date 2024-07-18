@@ -195,7 +195,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunner :
 					discoveredTest.TestMethodArguments,
 					discoveredTest.SkipReason,
 					ctxt.ExplicitOption,
-					ctxt.Aggregator,
+					ctxt.Aggregator.Clone(),
 					ctxt.CancellationTokenSource,
 					ctxt.BeforeAfterTestAttributes
 				)

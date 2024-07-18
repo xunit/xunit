@@ -207,7 +207,7 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 		return XunitTestCaseRunner.Instance.RunAsync(
 			this,
 			messageBus,
-			aggregator,
+			aggregator.Clone(),
 			cancellationTokenSource,
 			TestCaseDisplayName,
 			SkipReason,

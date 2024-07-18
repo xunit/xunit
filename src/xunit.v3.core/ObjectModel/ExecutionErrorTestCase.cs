@@ -57,7 +57,7 @@ public class ExecutionErrorTestCase : XunitTestCase
 		object?[] constructorArguments,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource) =>
-			ExecutionErrorTestCaseRunner.Instance.RunAsync(this, messageBus, aggregator, cancellationTokenSource);
+			ExecutionErrorTestCaseRunner.Instance.RunAsync(this, messageBus, aggregator.Clone(), cancellationTokenSource);
 
 	/// <inheritdoc/>
 	protected override void Serialize(IXunitSerializationInfo info)

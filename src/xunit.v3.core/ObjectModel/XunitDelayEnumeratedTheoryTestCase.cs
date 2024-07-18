@@ -52,7 +52,7 @@ public class XunitDelayEnumeratedTheoryTestCase : XunitTestCase
 			XunitDelayEnumeratedTheoryTestCaseRunner.Instance.RunAsync(
 				this,
 				messageBus,
-				aggregator,
+				aggregator.Clone(),
 				cancellationTokenSource,
 				TestCaseDisplayName,
 				SkipReason,

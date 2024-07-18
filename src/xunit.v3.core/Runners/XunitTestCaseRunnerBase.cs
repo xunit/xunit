@@ -151,7 +151,7 @@ public class XunitTestCaseRunnerBase<TContext, TTestCase> : TestCaseRunner<TCont
 			ctxt.TestMethodArguments,
 			ctxt.SkipReason,
 			ctxt.ExplicitOption,
-			ctxt.Aggregator,
+			ctxt.Aggregator.Clone(),
 			ctxt.CancellationTokenSource,
 			ctxt.BeforeAfterTestAttributes
 		);
