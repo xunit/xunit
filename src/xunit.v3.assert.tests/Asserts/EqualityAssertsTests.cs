@@ -124,14 +124,10 @@ public class EqualityAssertsTests
 				);
 			}
 
-			class Comparer<T> : IEqualityComparer<T>
+			class Comparer<T>(bool result) :
+				IEqualityComparer<T>
 			{
-				readonly bool result;
-
-				public Comparer(bool result)
-				{
-					this.result = result;
-				}
+				readonly bool result = result;
 
 				public bool Equals(T? x, T? y) => result;
 
@@ -164,7 +160,7 @@ public class EqualityAssertsTests
 			[Fact]
 			public void Enumerable_WithThrow_RecordsInnerException()
 			{
-				var ex = Record.Exception(() => Assert.Equal(new[] { 1, 2 }, new[] { 1, 3 }, new ThrowingEnumerableComparer()));
+				var ex = Record.Exception(() => Assert.Equal([1, 2], [1, 3], new ThrowingEnumerableComparer()));
 
 				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
@@ -233,8 +229,8 @@ public class EqualityAssertsTests
 			{
 				var ex = Record.Exception(
 					() => Assert.Equal(
-						new[] { 1, 2 },
-						new[] { 1, 3 },
+						[1, 2],
+						[1, 3],
 						(IEnumerable<int> e, IEnumerable<int> a) => throw new DivideByZeroException()
 					)
 				);
@@ -296,7 +292,7 @@ public class EqualityAssertsTests
 				var expected = new MultiComparable(1);
 				var actual = new MultiComparable(2);
 
-				void assertFailure(Action action)
+				static void assertFailure(Action action)
 				{
 					var ex = Record.Exception(action);
 
@@ -330,7 +326,7 @@ public class EqualityAssertsTests
 				var expected = new MultiComparable(1);
 				var actual = 2;
 
-				void assertFailure(Action action)
+				static void assertFailure(Action action)
 				{
 					var ex = Record.Exception(action);
 
@@ -469,7 +465,7 @@ public class EqualityAssertsTests
 				var expected = new ComparableThrower(1);
 				var actual = new ComparableThrower(2);
 
-				void assertFailure(Action action)
+				static void assertFailure(Action action)
 				{
 					var ex = Record.Exception(action);
 
@@ -776,7 +772,7 @@ public class EqualityAssertsTests
 				var expected = new Tuple<StringWrapper>(new StringWrapper("a"));
 				var actual = new Tuple<StringWrapper>(new StringWrapper("b"));
 
-				void assertFailure(Action action)
+				static void assertFailure(Action action)
 				{
 					var ex = Record.Exception(action);
 
@@ -811,7 +807,7 @@ public class EqualityAssertsTests
 				var expected = new Tuple<StringWrapper?>(null);
 				var actual = new Tuple<StringWrapper?>(new StringWrapper("a"));
 
-				void assertFailure(Action action)
+				static void assertFailure(Action action)
 				{
 					var ex = Record.Exception(action);
 
@@ -835,7 +831,7 @@ public class EqualityAssertsTests
 				var expected = new Tuple<StringWrapper?>(new StringWrapper("a"));
 				var actual = new Tuple<StringWrapper?>(null);
 
-				void assertFailure(Action action)
+				static void assertFailure(Action action)
 				{
 					var ex = Record.Exception(action);
 
@@ -870,9 +866,9 @@ public class EqualityAssertsTests
 			public void IReadOnlyCollection_IEnumerable_NotEqual()
 			{
 				var expected = new string[] { "foo", "bar" };
-				var actual = new ReadOnlyCollection<string>(new[] { "bar", "foo" });
+				var actual = new ReadOnlyCollection<string>(["bar", "foo"]);
 
-				void assertFailure(Action action)
+				static void assertFailure(Action action)
 				{
 					var ex = Record.Exception(action);
 
@@ -935,7 +931,7 @@ public class EqualityAssertsTests
 				var expected = new string[] { "foo", "bar" };
 				var actual = new object[] { "foo", "baz" };
 
-				void assertFailure(Action action)
+				static void assertFailure(Action action)
 				{
 					var ex = Record.Exception(action);
 
@@ -985,9 +981,9 @@ public class EqualityAssertsTests
 			[Fact]
 			public void NonZeroBoundedArrays_Equal()
 			{
-				var expected = Array.CreateInstance(typeof(int), new[] { 1 }, new[] { 1 });
+				var expected = Array.CreateInstance(typeof(int), [1], [1]);
 				expected.SetValue(42, 1);
-				var actual = Array.CreateInstance(typeof(int), new[] { 1 }, new[] { 1 });
+				var actual = Array.CreateInstance(typeof(int), [1], [1]);
 				actual.SetValue(42, 1);
 
 				Assert.Equal(expected, actual);
@@ -996,9 +992,9 @@ public class EqualityAssertsTests
 			[Fact]
 			public void NonZeroBoundedArrays_NotEqual()
 			{
-				var expected = Array.CreateInstance(typeof(int), new[] { 1 }, new[] { 1 });
+				var expected = Array.CreateInstance(typeof(int), [1], [1]);
 				expected.SetValue(42, 1);
-				var actual = Array.CreateInstance(typeof(int), new[] { 1 }, new[] { 0 });
+				var actual = Array.CreateInstance(typeof(int), [1], [0]);
 				actual.SetValue(42, 0);
 
 				var ex = Record.Exception(() => Assert.Equal(expected, (object)actual));
@@ -1018,7 +1014,7 @@ public class EqualityAssertsTests
 				var expected = new[] { 1, 2, 3, 4, 5 };
 				var actual = new[] { 1, 2, 0, 4, 5 };
 
-				void assertFailure(Action action)
+				static void assertFailure(Action action)
 				{
 					var ex = Record.Exception(action);
 
@@ -1116,7 +1112,7 @@ public class EqualityAssertsTests
 			public sealed class EnumerableEquatable<T> :
 				IEnumerable<T>, IEquatable<EnumerableEquatable<T>>
 			{
-				List<T> values = new();
+				readonly List<T> values = [];
 
 				public void Add(T value) => values.Add(value);
 
@@ -1153,7 +1149,7 @@ public class EqualityAssertsTests
 				var expected = new Dictionary<string, string> { ["foo"] = "bar" };
 				var actual = new Dictionary<string, string> { ["foo"] = "baz" };
 
-				void assertFailure(Action action)
+				static void assertFailure(Action action)
 				{
 					var ex = Record.Exception(action);
 
@@ -1187,7 +1183,7 @@ public class EqualityAssertsTests
 				var expected = new Dictionary<string, string> { ["foo"] = "bar" };
 				var actual = new ConcurrentDictionary<string, string> { ["foo"] = "baz" };
 
-				void assertFailure(Action action)
+				static void assertFailure(Action action)
 				{
 					var ex = Record.Exception(action);
 
@@ -1327,9 +1323,9 @@ public class EqualityAssertsTests
 
 				Assert.Equal(expected, actual);
 				Assert.Equal(expected, (ISet<string>)actual);
-#pragma warning disable xUnit2027
+#pragma warning disable xUnit2027 // Comparison of sets to linear containers have undefined results
 				Assert.Equal(expected, (object)actual);
-#pragma warning restore xUnit2027
+#pragma warning restore xUnit2027 // Comparison of sets to linear containers have undefined results
 			}
 
 			[Fact]
@@ -1355,9 +1351,9 @@ public class EqualityAssertsTests
 				var expected = new HashSet<string> { "bar" };
 				var actual = new HashSet<string> { "baz" };
 
-#pragma warning disable xUnit2026
+#pragma warning disable xUnit2026 // Comparison of sets must be done with IEqualityComparer
 				var ex = Record.Exception(() => Assert.Equal(expected, actual, (string l, string r) => true));
-#pragma warning restore xUnit2026
+#pragma warning restore xUnit2026 // Comparison of sets must be done with IEqualityComparer
 
 				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
@@ -1377,9 +1373,9 @@ public class EqualityAssertsTests
 
 				Assert.Equal(expected, actual);
 				Assert.Equal(expected, (ISet<string>)actual);
-#pragma warning disable xUnit2027
+#pragma warning disable xUnit2027 // Comparison of sets to linear containers have undefined results
 				Assert.Equal(expected, (object)actual);
-#pragma warning restore xUnit2027
+#pragma warning restore xUnit2027 // Comparison of sets to linear containers have undefined results
 			}
 
 			[Fact]
@@ -1388,7 +1384,7 @@ public class EqualityAssertsTests
 				var expected = new NonGenericSet { "bar", "foo" };
 				var actual = new NonGenericSet { "bar", "baz" };
 
-				void assertFailure(Action action)
+				static void assertFailure(Action action)
 				{
 					var ex = Record.Exception(action);
 
@@ -1403,9 +1399,9 @@ public class EqualityAssertsTests
 
 				assertFailure(() => Assert.Equal(expected, actual));
 				assertFailure(() => Assert.Equal(expected, (ISet<string>)actual));
-#pragma warning disable xUnit2027
+#pragma warning disable xUnit2027 // Comparison of sets to linear containers have undefined results
 				assertFailure(() => Assert.Equal(expected, (object)actual));
-#pragma warning restore xUnit2027
+#pragma warning restore xUnit2027 // Comparison of sets to linear containers have undefined results
 			}
 
 			[Fact]
@@ -1416,9 +1412,9 @@ public class EqualityAssertsTests
 
 				Assert.Equal(expected, actual);
 				Assert.Equal(expected, (ISet<string>)actual);
-#pragma warning disable xUnit2027
+#pragma warning disable xUnit2027 // Comparison of sets to linear containers have undefined results
 				Assert.Equal(expected, (object)actual);
-#pragma warning restore xUnit2027
+#pragma warning restore xUnit2027 // Comparison of sets to linear containers have undefined results
 			}
 
 			[Fact]
@@ -1427,7 +1423,7 @@ public class EqualityAssertsTests
 				var expected = new NonGenericSet { "bar", "foo" };
 				var actual = new NonGenericSet { "foo", "baz" };
 
-				void assertFailure(Action action)
+				static void assertFailure(Action action)
 				{
 					var ex = Record.Exception(action);
 
@@ -1442,9 +1438,9 @@ public class EqualityAssertsTests
 
 				assertFailure(() => Assert.Equal(expected, actual));
 				assertFailure(() => Assert.Equal(expected, (ISet<string>)actual));
-#pragma warning disable xUnit2027
+#pragma warning disable xUnit2027 // Comparison of sets to linear containers have undefined results
 				assertFailure(() => Assert.Equal(expected, (object)actual));
-#pragma warning restore xUnit2027
+#pragma warning restore xUnit2027 // Comparison of sets to linear containers have undefined results
 			}
 
 			[Fact]
@@ -1453,7 +1449,7 @@ public class EqualityAssertsTests
 				var expected = new NonGenericSet { "bar" };
 				var actual = new NonGenericSet { "bar", "foo" };
 
-				void assertFailure(Action action)
+				static void assertFailure(Action action)
 				{
 					var ex = Record.Exception(action);
 
@@ -1468,9 +1464,9 @@ public class EqualityAssertsTests
 
 				assertFailure(() => Assert.Equal(expected, actual));
 				assertFailure(() => Assert.Equal(expected, (ISet<string>)actual));
-#pragma warning disable xUnit2027
+#pragma warning disable xUnit2027 // Comparison of sets to linear containers have undefined results
 				assertFailure(() => Assert.Equal(expected, (object)actual));
-#pragma warning restore xUnit2027
+#pragma warning restore xUnit2027 // Comparison of sets to linear containers have undefined results
 			}
 
 			[Fact]
@@ -1481,9 +1477,9 @@ public class EqualityAssertsTests
 
 				Assert.Equal(expected, actual);
 				Assert.Equal(expected, (ISet<string>)actual);
-#pragma warning disable xUnit2027
+#pragma warning disable xUnit2027 // Comparison of sets to linear containers have undefined results
 				Assert.Equal(expected, (object)actual);
-#pragma warning restore xUnit2027
+#pragma warning restore xUnit2027 // Comparison of sets to linear containers have undefined results
 			}
 
 			[Fact]
@@ -1492,7 +1488,7 @@ public class EqualityAssertsTests
 				var expected = new NonGenericSet { "bar" };
 				var actual = new HashSet<string> { "baz" };
 
-				void assertFailure(Action action)
+				static void assertFailure(Action action)
 				{
 					var ex = Record.Exception(action);
 
@@ -1507,9 +1503,9 @@ public class EqualityAssertsTests
 
 				assertFailure(() => Assert.Equal(expected, actual));
 				assertFailure(() => Assert.Equal(expected, (ISet<string>)actual));
-#pragma warning disable xUnit2027
+#pragma warning disable xUnit2027 // Comparison of sets to linear containers have undefined results
 				assertFailure(() => Assert.Equal(expected, (object)actual));
-#pragma warning restore xUnit2027
+#pragma warning restore xUnit2027 // Comparison of sets to linear containers have undefined results
 			}
 
 			[Fact]
@@ -1520,9 +1516,9 @@ public class EqualityAssertsTests
 
 				Assert.Equal(expected, actual);
 				Assert.Equal(expected, (ISet<string>)actual);
-#pragma warning disable xUnit2027
+#pragma warning disable xUnit2027 // Comparison of sets to linear containers have undefined results
 				Assert.Equal(expected, (object)actual);
-#pragma warning restore xUnit2027
+#pragma warning restore xUnit2027 // Comparison of sets to linear containers have undefined results
 			}
 
 			[Fact]
@@ -1531,7 +1527,7 @@ public class EqualityAssertsTests
 				var expected = new TwoGenericSet<string, int> { "foo", "bar" };
 				var actual = new TwoGenericSet<string, int> { "foo", "baz" };
 
-				void assertFailure(Action action)
+				static void assertFailure(Action action)
 				{
 					var ex = Record.Exception(action);
 
@@ -1546,9 +1542,9 @@ public class EqualityAssertsTests
 
 				assertFailure(() => Assert.Equal(expected, actual));
 				assertFailure(() => Assert.Equal(expected, (ISet<string>)actual));
-#pragma warning disable xUnit2027
+#pragma warning disable xUnit2027 // Comparison of sets to linear containers have undefined results
 				assertFailure(() => Assert.Equal(expected, (object)actual));
-#pragma warning restore xUnit2027
+#pragma warning restore xUnit2027 // Comparison of sets to linear containers have undefined results
 			}
 
 			[Fact]
@@ -1557,9 +1553,9 @@ public class EqualityAssertsTests
 				var expected = new NonGenericSet { "bar" };
 				var actual = new HashSet<string> { "baz" };
 
-#pragma warning disable xUnit2026
+#pragma warning disable xUnit2026 // Comparison of sets must be done with IEqualityComparer
 				var ex = Record.Exception(() => Assert.Equal(expected, actual, (string l, string r) => true));
-#pragma warning restore xUnit2026
+#pragma warning restore xUnit2026 // Comparison of sets must be done with IEqualityComparer
 
 				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
@@ -1574,9 +1570,13 @@ public class EqualityAssertsTests
 			[Fact]
 			public void CollectionKeys_Equal()
 			{
+#pragma warning disable IDE0028 // Simplify collection initialization
+#pragma warning disable IDE0300 // Simplify collection initialization
 				// Different concrete collection types in the key slot, per https://github.com/xunit/xunit/issues/2850
 				var expected = new KeyValuePair<IEnumerable<string>, int>(new List<string> { "Key1", "Key2" }, 42);
 				var actual = new KeyValuePair<IEnumerable<string>, int>(new string[] { "Key1", "Key2" }, 42);
+#pragma warning restore IDE0300 // Simplify collection initialization
+#pragma warning restore IDE0028 // Simplify collection initialization
 
 				Assert.Equal(expected, actual);
 			}
@@ -1584,9 +1584,13 @@ public class EqualityAssertsTests
 			[Fact]
 			public void CollectionKeys_NotEqual()
 			{
+#pragma warning disable IDE0028 // Simplify collection initialization
+#pragma warning disable IDE0300 // Simplify collection initialization
 				// Different concrete collection types in the key slot, per https://github.com/xunit/xunit/issues/2850
 				var expected = new KeyValuePair<IEnumerable<string>, int>(new List<string> { "Key1", "Key2" }, 42);
 				var actual = new KeyValuePair<IEnumerable<string>, int>(new string[] { "Key1", "Key3" }, 42);
+#pragma warning restore IDE0300 // Simplify collection initialization
+#pragma warning restore IDE0028 // Simplify collection initialization
 
 				var ex = Record.Exception(() => Assert.Equal(expected, actual));
 
@@ -1602,9 +1606,13 @@ public class EqualityAssertsTests
 			[Fact]
 			public void CollectionValues_Equal()
 			{
+#pragma warning disable IDE0028 // Simplify collection initialization
+#pragma warning disable IDE0300 // Simplify collection initialization
 				// Different concrete collection types in the value slot, per https://github.com/xunit/xunit/issues/2850
 				var expected = new KeyValuePair<string, IEnumerable<string>>("Key1", new List<string> { "Value1a", "Value1b" });
 				var actual = new KeyValuePair<string, IEnumerable<string>>("Key1", new string[] { "Value1a", "Value1b" });
+#pragma warning restore IDE0300 // Simplify collection initialization
+#pragma warning restore IDE0028 // Simplify collection initialization
 
 				Assert.Equal(expected, actual);
 			}
@@ -1612,9 +1620,13 @@ public class EqualityAssertsTests
 			[Fact]
 			public void CollectionValues_NotEqual()
 			{
+#pragma warning disable IDE0028 // Simplify collection initialization
+#pragma warning disable IDE0300 // Simplify collection initialization
 				// Different concrete collection types in the value slot, per https://github.com/xunit/xunit/issues/2850
 				var expected = new KeyValuePair<string, IEnumerable<string>>("Key1", new List<string> { "Value1a", "Value1b" });
 				var actual = new KeyValuePair<string, IEnumerable<string>>("Key1", new string[] { "Value1a", "Value2a" });
+#pragma warning restore IDE0300 // Simplify collection initialization
+#pragma warning restore IDE0028 // Simplify collection initialization
 
 				var ex = Record.Exception(() => Assert.Equal(expected, actual));
 
@@ -1693,8 +1705,8 @@ public class EqualityAssertsTests
 			[Fact]
 			public static void EnumeratesOnlyOnce_Equal()
 			{
-				var expected = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5 });
-				var actual = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5 });
+				var expected = new RunOnceEnumerable<int>([1, 2, 3, 4, 5]);
+				var actual = new RunOnceEnumerable<int>([1, 2, 3, 4, 5]);
 
 				Assert.Equal(expected, actual);
 			}
@@ -1702,8 +1714,8 @@ public class EqualityAssertsTests
 			[Fact]
 			public static void EnumeratesOnlyOnce_NotEqual()
 			{
-				var expected = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5 });
-				var actual = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5, 6 });
+				var expected = new RunOnceEnumerable<int>([1, 2, 3, 4, 5]);
+				var actual = new RunOnceEnumerable<int>([1, 2, 3, 4, 5, 6]);
 
 				var ex = Record.Exception(() => Assert.Equal(expected, actual));
 
@@ -2296,14 +2308,10 @@ public class EqualityAssertsTests
 				Assert.NotEqual(42, 42, new Comparer<int>(false));
 			}
 
-			class Comparer<T> : IEqualityComparer<T>
+			class Comparer<T>(bool result) :
+				IEqualityComparer<T>
 			{
-				readonly bool result;
-
-				public Comparer(bool result)
-				{
-					this.result = result;
-				}
+				readonly bool result = result;
 
 				public bool Equals(T? x, T? y) => result;
 
@@ -2336,7 +2344,7 @@ public class EqualityAssertsTests
 			[Fact]
 			public void Enumerable_WithThrow_RecordsInnerException()
 			{
-				var ex = Record.Exception(() => Assert.NotEqual(new[] { 1, 2 }, new[] { 1, 2 }, new ThrowingEnumerableComparer()));
+				var ex = Record.Exception(() => Assert.NotEqual([1, 2], [1, 2], new ThrowingEnumerableComparer()));
 
 				Assert.IsType<NotEqualException>(ex);
 				Assert.Equal(
@@ -2428,8 +2436,8 @@ public class EqualityAssertsTests
 			{
 				var ex = Record.Exception(
 					() => Assert.NotEqual(
-						new[] { 1, 2 },
-						new[] { 1, 2 },
+						[1, 2],
+						[1, 2],
 						(IEnumerable<int> e, IEnumerable<int> a) => throw new DivideByZeroException()
 					)
 				);
@@ -2495,7 +2503,7 @@ public class EqualityAssertsTests
 				var expected = new MultiComparable(1);
 				var actual = new MultiComparable(1);
 
-				void assertFailure(Action action)
+				static void assertFailure(Action action)
 				{
 					var ex = Record.Exception(action);
 
@@ -2530,7 +2538,7 @@ public class EqualityAssertsTests
 				var expected = new MultiComparable(1);
 				var actual = 1;
 
-				void assertFailure(Action action)
+				static void assertFailure(Action action)
 				{
 					var ex = Record.Exception(action);
 
@@ -2668,7 +2676,7 @@ public class EqualityAssertsTests
 				var expected = new ComparableThrower(1);
 				var actual = new ComparableThrower(1);
 
-				void assertFailure(Action action)
+				static void assertFailure(Action action)
 				{
 					var ex = Record.Exception(action);
 
@@ -2975,7 +2983,7 @@ public class EqualityAssertsTests
 				var expected = new Tuple<StringWrapper>(new StringWrapper("a"));
 				var actual = new Tuple<StringWrapper>(new StringWrapper("a"));
 
-				void assertFailure(Action action)
+				static void assertFailure(Action action)
 				{
 					var ex = Record.Exception(action);
 
@@ -3010,7 +3018,7 @@ public class EqualityAssertsTests
 				var expected = new Tuple<StringWrapper?>(null);
 				var actual = new Tuple<StringWrapper?>(null);
 
-				void assertFailure(Action action)
+				static void assertFailure(Action action)
 				{
 					var ex = Record.Exception(action);
 
@@ -3059,7 +3067,7 @@ public class EqualityAssertsTests
 				var expected = new string[] { "foo", "bar" };
 				var actual = new ReadOnlyCollection<string>(expected);
 
-				void assertFailure(Action action)
+				static void assertFailure(Action action)
 				{
 					var ex = Record.Exception(action);
 
@@ -3080,7 +3088,7 @@ public class EqualityAssertsTests
 			public void IReadOnlyCollection_IEnumerable_NotEqual()
 			{
 				var expected = new string[] { "foo", "bar" };
-				var actual = new ReadOnlyCollection<string>(new[] { "bar", "foo" });
+				var actual = new ReadOnlyCollection<string>(["bar", "foo"]);
 
 				Assert.NotEqual(expected, (IReadOnlyCollection<string>)actual);
 				Assert.NotEqual(expected, (object)actual);
@@ -3118,7 +3126,7 @@ public class EqualityAssertsTests
 				var expected = new string[] { "foo", "bar" };
 				var actual = new object[] { "foo", "bar" };
 
-				void assertFailure(Action action)
+				static void assertFailure(Action action)
 				{
 					var ex = Record.Exception(action);
 
@@ -3176,9 +3184,9 @@ public class EqualityAssertsTests
 			[Fact]
 			public void NonZeroBoundedArrays_Equal()
 			{
-				var expected = Array.CreateInstance(typeof(int), new[] { 1 }, new[] { 1 });
+				var expected = Array.CreateInstance(typeof(int), [1], [1]);
 				expected.SetValue(42, 1);
-				var actual = Array.CreateInstance(typeof(int), new[] { 1 }, new[] { 1 });
+				var actual = Array.CreateInstance(typeof(int), [1], [1]);
 				actual.SetValue(42, 1);
 
 				var ex = Record.Exception(() => Assert.NotEqual(expected, (object)actual));
@@ -3196,9 +3204,9 @@ public class EqualityAssertsTests
 			[Fact]
 			public void NonZeroBoundedArrays_NotEqual()
 			{
-				var expected = Array.CreateInstance(typeof(int), new[] { 1 }, new[] { 1 });
+				var expected = Array.CreateInstance(typeof(int), [1], [1]);
 				expected.SetValue(42, 1);
-				var actual = Array.CreateInstance(typeof(int), new[] { 1 }, new[] { 0 });
+				var actual = Array.CreateInstance(typeof(int), [1], [0]);
 				actual.SetValue(42, 0);
 
 				Assert.NotEqual(expected, actual);
@@ -3233,7 +3241,7 @@ public class EqualityAssertsTests
 			public sealed class EnumerableEquatable<T> :
 				IEnumerable<T>, IEquatable<EnumerableEquatable<T>>
 			{
-				List<T> values = new();
+				readonly List<T> values = [];
 
 				public void Add(T value) => values.Add(value);
 
@@ -3259,7 +3267,7 @@ public class EqualityAssertsTests
 				var expected = new Dictionary<string, string> { ["foo"] = "bar" };
 				var actual = new Dictionary<string, string> { ["foo"] = "bar" };
 
-				void assertFailure(Action action)
+				static void assertFailure(Action action)
 				{
 					var ex = Record.Exception(action);
 
@@ -3294,7 +3302,7 @@ public class EqualityAssertsTests
 				var expected = new Dictionary<string, string> { ["foo"] = "bar" };
 				var actual = new ConcurrentDictionary<string, string>(expected);
 
-				void assertFailure(Action action)
+				static void assertFailure(Action action)
 				{
 					var ex = Record.Exception(action);
 
@@ -3408,7 +3416,7 @@ public class EqualityAssertsTests
 				var expected = new HashSet<string> { "bar", "foo" };
 				var actual = new SortedSet<string> { "foo", "bar" };
 
-				void assertFailure(Action action)
+				static void assertFailure(Action action)
 				{
 					var ex = Record.Exception(action);
 
@@ -3422,9 +3430,9 @@ public class EqualityAssertsTests
 				}
 
 				assertFailure(() => Assert.NotEqual(expected, (ISet<string>)actual));
-#pragma warning disable xUnit2027
+#pragma warning disable xUnit2027 // Comparison of sets to linear containers have undefined results
 				assertFailure(() => Assert.NotEqual(expected, (object)actual));
-#pragma warning restore xUnit2027
+#pragma warning restore xUnit2027 // Comparison of sets to linear containers have undefined results
 			}
 
 			[Fact]
@@ -3442,9 +3450,9 @@ public class EqualityAssertsTests
 				var expected = new HashSet<string> { "bar" };
 				var actual = new HashSet<string> { "baz" };
 
-#pragma warning disable xUnit2026
+#pragma warning disable xUnit2026 // Comparison of sets must be done with IEqualityComparer
 				var ex = Record.Exception(() => Assert.NotEqual(expected, actual, (string l, string r) => false));
-#pragma warning restore xUnit2026
+#pragma warning restore xUnit2026 // Comparison of sets must be done with IEqualityComparer
 
 				Assert.IsType<NotEqualException>(ex);
 				Assert.Equal(
@@ -3462,7 +3470,7 @@ public class EqualityAssertsTests
 				var expected = new NonGenericSet { "bar", "foo" };
 				var actual = new NonGenericSet { "bar", "foo" };
 
-				void assertFailure(Action action)
+				static void assertFailure(Action action)
 				{
 					var ex = Record.Exception(action);
 
@@ -3477,9 +3485,9 @@ public class EqualityAssertsTests
 
 				assertFailure(() => Assert.NotEqual(expected, actual));
 				assertFailure(() => Assert.NotEqual(expected, (ISet<string>)actual));
-#pragma warning disable xUnit2027
+#pragma warning disable xUnit2027 // Comparison of sets to linear containers have undefined results
 				assertFailure(() => Assert.NotEqual(expected, (object)actual));
-#pragma warning restore xUnit2027
+#pragma warning restore xUnit2027 // Comparison of sets to linear containers have undefined results
 			}
 
 			[Fact]
@@ -3490,9 +3498,9 @@ public class EqualityAssertsTests
 
 				Assert.NotEqual(expected, actual);
 				Assert.NotEqual(expected, (ISet<string>)actual);
-#pragma warning disable xUnit2027
+#pragma warning disable xUnit2027 // Comparison of sets to linear containers have undefined results
 				Assert.NotEqual(expected, (object)actual);
-#pragma warning restore xUnit2027
+#pragma warning restore xUnit2027 // Comparison of sets to linear containers have undefined results
 			}
 
 			[Fact]
@@ -3501,7 +3509,7 @@ public class EqualityAssertsTests
 				var expected = new NonGenericSet { "bar", "foo" };
 				var actual = new NonGenericSet { "foo", "bar" };
 
-				void assertFailure(Action action)
+				static void assertFailure(Action action)
 				{
 					var ex = Record.Exception(action);
 
@@ -3516,9 +3524,9 @@ public class EqualityAssertsTests
 
 				assertFailure(() => Assert.NotEqual(expected, actual));
 				assertFailure(() => Assert.NotEqual(expected, (ISet<string>)actual));
-#pragma warning disable xUnit2027
+#pragma warning disable xUnit2027 // Comparison of sets to linear containers have undefined results
 				assertFailure(() => Assert.NotEqual(expected, (object)actual));
-#pragma warning restore xUnit2027
+#pragma warning restore xUnit2027 // Comparison of sets to linear containers have undefined results
 			}
 
 			[Fact]
@@ -3529,9 +3537,9 @@ public class EqualityAssertsTests
 
 				Assert.NotEqual(expected, actual);
 				Assert.NotEqual(expected, (ISet<string>)actual);
-#pragma warning disable xUnit2027
+#pragma warning disable xUnit2027 // Comparison of sets to linear containers have undefined results
 				Assert.NotEqual(expected, (object)actual);
-#pragma warning restore xUnit2027
+#pragma warning restore xUnit2027 // Comparison of sets to linear containers have undefined results
 			}
 
 			[Fact]
@@ -3542,9 +3550,9 @@ public class EqualityAssertsTests
 
 				Assert.NotEqual(expected, actual);
 				Assert.NotEqual(expected, (ISet<string>)actual);
-#pragma warning disable xUnit2027
+#pragma warning disable xUnit2027 // Comparison of sets to linear containers have undefined results
 				Assert.NotEqual(expected, (object)actual);
-#pragma warning restore xUnit2027
+#pragma warning restore xUnit2027 // Comparison of sets to linear containers have undefined results
 			}
 
 			[Fact]
@@ -3553,7 +3561,7 @@ public class EqualityAssertsTests
 				var expected = new NonGenericSet { "bar" };
 				var actual = new HashSet<string> { "bar" };
 
-				void assertFailure(Action action)
+				static void assertFailure(Action action)
 				{
 					var ex = Record.Exception(action);
 
@@ -3568,9 +3576,9 @@ public class EqualityAssertsTests
 
 				assertFailure(() => Assert.NotEqual(expected, actual));
 				assertFailure(() => Assert.NotEqual(expected, (ISet<string>)actual));
-#pragma warning disable xUnit2027
+#pragma warning disable xUnit2027 // Comparison of sets to linear containers have undefined results
 				assertFailure(() => Assert.NotEqual(expected, (object)actual));
-#pragma warning restore xUnit2027
+#pragma warning restore xUnit2027 // Comparison of sets to linear containers have undefined results
 			}
 
 			[Fact]
@@ -3581,9 +3589,9 @@ public class EqualityAssertsTests
 
 				Assert.NotEqual(expected, actual);
 				Assert.NotEqual(expected, (ISet<string>)actual);
-#pragma warning disable xUnit2027
+#pragma warning disable xUnit2027 // Comparison of sets to linear containers have undefined results
 				Assert.NotEqual(expected, (object)actual);
-#pragma warning restore xUnit2027
+#pragma warning restore xUnit2027 // Comparison of sets to linear containers have undefined results
 			}
 
 			[Fact]
@@ -3592,7 +3600,7 @@ public class EqualityAssertsTests
 				var expected = new TwoGenericSet<string, int> { "foo", "bar" };
 				var actual = new TwoGenericSet<string, int> { "foo", "bar" };
 
-				void assertFailure(Action action)
+				static void assertFailure(Action action)
 				{
 					var ex = Record.Exception(action);
 
@@ -3607,9 +3615,9 @@ public class EqualityAssertsTests
 
 				assertFailure(() => Assert.NotEqual(expected, actual));
 				assertFailure(() => Assert.NotEqual(expected, (ISet<string>)actual));
-#pragma warning disable xUnit2027
+#pragma warning disable xUnit2027 // Comparison of sets to linear containers have undefined results
 				assertFailure(() => Assert.NotEqual(expected, (object)actual));
-#pragma warning restore xUnit2027
+#pragma warning restore xUnit2027 // Comparison of sets to linear containers have undefined results
 			}
 
 			[Fact]
@@ -3620,9 +3628,9 @@ public class EqualityAssertsTests
 
 				Assert.NotEqual(expected, actual);
 				Assert.NotEqual(expected, (ISet<string>)actual);
-#pragma warning disable xUnit2027
+#pragma warning disable xUnit2027 // Comparison of sets to linear containers have undefined results
 				Assert.NotEqual(expected, (object)actual);
-#pragma warning restore xUnit2027
+#pragma warning restore xUnit2027 // Comparison of sets to linear containers have undefined results
 			}
 
 			[Fact]
@@ -3631,9 +3639,9 @@ public class EqualityAssertsTests
 				var expected = new NonGenericSet { "bar" };
 				var actual = new HashSet<string> { "baz" };
 
-#pragma warning disable xUnit2026
+#pragma warning disable xUnit2026 // Comparison of sets must be done with IEqualityComparer
 				var ex = Record.Exception(() => Assert.NotEqual(expected, actual, (string l, string r) => false));
-#pragma warning restore xUnit2026
+#pragma warning restore xUnit2026 // Comparison of sets must be done with IEqualityComparer
 
 				Assert.IsType<NotEqualException>(ex);
 				Assert.Equal(
@@ -3691,8 +3699,12 @@ public class EqualityAssertsTests
 			public void CollectionKeys_Equal()
 			{
 				// Different concrete collection types in the key slot, per https://github.com/xunit/xunit/issues/2850
+#pragma warning disable IDE0028 // Simplify collection initialization
+#pragma warning disable IDE0300 // Simplify collection initialization
 				var expected = new KeyValuePair<IEnumerable<string>, int>(new List<string> { "Key1", "Key2" }, 42);
 				var actual = new KeyValuePair<IEnumerable<string>, int>(new string[] { "Key1", "Key2" }, 42);
+#pragma warning restore IDE0300 // Simplify collection initialization
+#pragma warning restore IDE0028 // Simplify collection initialization
 
 				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
 
@@ -3709,8 +3721,12 @@ public class EqualityAssertsTests
 			public void CollectionKeys_NotEqual()
 			{
 				// Different concrete collection types in the key slot, per https://github.com/xunit/xunit/issues/2850
+#pragma warning disable IDE0028 // Simplify collection initialization
+#pragma warning disable IDE0300 // Simplify collection initialization
 				var expected = new KeyValuePair<IEnumerable<string>, int>(new List<string> { "Key1", "Key2" }, 42);
 				var actual = new KeyValuePair<IEnumerable<string>, int>(new string[] { "Key1", "Key3" }, 42);
+#pragma warning restore IDE0300 // Simplify collection initialization
+#pragma warning restore IDE0028 // Simplify collection initialization
 
 				Assert.NotEqual(expected, actual);
 			}
@@ -3719,8 +3735,12 @@ public class EqualityAssertsTests
 			public void CollectionValues_Equal()
 			{
 				// Different concrete collection types in the key slot, per https://github.com/xunit/xunit/issues/2850
+#pragma warning disable IDE0028 // Simplify collection initialization
+#pragma warning disable IDE0300 // Simplify collection initialization
 				var expected = new KeyValuePair<string, IEnumerable<string>>("Key1", new List<string> { "Value1a", "Value1b" });
 				var actual = new KeyValuePair<string, IEnumerable<string>>("Key1", new string[] { "Value1a", "Value1b" });
+#pragma warning restore IDE0300 // Simplify collection initialization
+#pragma warning restore IDE0028 // Simplify collection initialization
 
 				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
 
@@ -3737,8 +3757,12 @@ public class EqualityAssertsTests
 			public void CollectionValues_NotEqual()
 			{
 				// Different concrete collection types in the key slot, per https://github.com/xunit/xunit/issues/2850
+#pragma warning disable IDE0028 // Simplify collection initialization
+#pragma warning disable IDE0300 // Simplify collection initialization
 				var expected = new KeyValuePair<string, IEnumerable<string>>("Key1", new List<string> { "Value1a", "Value1b" });
 				var actual = new KeyValuePair<string, IEnumerable<string>>("Key1", new string[] { "Value1a", "Value2a" });
+#pragma warning restore IDE0300 // Simplify collection initialization
+#pragma warning restore IDE0028 // Simplify collection initialization
 
 				Assert.NotEqual(expected, actual);
 			}
@@ -3809,8 +3833,8 @@ public class EqualityAssertsTests
 			[Fact]
 			public static void EnumeratesOnlyOnce_Equal()
 			{
-				var expected = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5 });
-				var actual = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5 });
+				var expected = new RunOnceEnumerable<int>([1, 2, 3, 4, 5]);
+				var actual = new RunOnceEnumerable<int>([1, 2, 3, 4, 5]);
 
 				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
 
@@ -3826,8 +3850,8 @@ public class EqualityAssertsTests
 			[Fact]
 			public static void EnumeratesOnlyOnce_NotEqual()
 			{
-				var expected = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5 });
-				var actual = new RunOnceEnumerable<int>(new[] { 1, 2, 3, 4, 5, 6 });
+				var expected = new RunOnceEnumerable<int>([1, 2, 3, 4, 5]);
+				var actual = new RunOnceEnumerable<int>([1, 2, 3, 4, 5, 6]);
 
 				Assert.NotEqual(expected, actual);
 			}
@@ -4213,28 +4237,21 @@ public class EqualityAssertsTests
 		public override int GetHashCode() => 0;
 	}
 
-	class EnumerableClass : IEnumerable<BaseClass>
+	class EnumerableClass(string _, params BaseClass[] bars) :
+		IEnumerable<BaseClass>
 	{
-		private readonly IEnumerable<BaseClass> bars;
-
-		public EnumerableClass(string _, params BaseClass[] bars)
-		{
-			this.bars = bars;
-		}
+		readonly string _ = _;
+		readonly IEnumerable<BaseClass> bars = bars;
 
 		public IEnumerator<BaseClass> GetEnumerator() => bars.GetEnumerator();
 
 		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 	}
 
-	class MultiComparable : IComparable
+	class MultiComparable(int value) :
+		IComparable
 	{
-		public int Value { get; }
-
-		public MultiComparable(int value)
-		{
-			Value = value;
-		}
+		public int Value { get; } = value;
 
 		public int CompareTo(object? obj)
 		{
@@ -4247,79 +4264,55 @@ public class EqualityAssertsTests
 		}
 	}
 
-	class ComparableBaseClass : IComparable<ComparableBaseClass>
+	class ComparableBaseClass(int value) :
+		IComparable<ComparableBaseClass>
 	{
-		public int Value { get; }
-
-		public ComparableBaseClass(int value)
-		{
-			Value = value;
-		}
+		public int Value { get; } = value;
 
 		public int CompareTo(ComparableBaseClass? other) => Value.CompareTo(other!.Value);
 	}
 
-	class ComparableSubClassA : ComparableBaseClass
+	class ComparableSubClassA(int value) :
+		ComparableBaseClass(value)
+	{ }
+
+	class ComparableSubClassB(int value) :
+		ComparableBaseClass(value)
+	{ }
+
+	class ComparableThrower(int value) :
+		IComparable<ComparableThrower>
 	{
-		public ComparableSubClassA(int value) : base(value)
-		{ }
-	}
+		public int Value { get; } = value;
 
-	class ComparableSubClassB : ComparableBaseClass
-	{
-		public ComparableSubClassB(int value) : base(value)
-		{ }
-	}
-
-	class ComparableThrower : IComparable<ComparableThrower>
-	{
-		public int Value { get; }
-
-		public ComparableThrower(int value)
-		{
-			Value = value;
-		}
-
-		public int CompareTo(ComparableThrower? other)
-		{
+		public int CompareTo(ComparableThrower? other) =>
 			throw new InvalidOperationException();
-		}
 
 		public override bool Equals(object? obj) => Value == ((ComparableThrower?)obj)!.Value;
 
 		public override int GetHashCode() => Value;
 	}
 
-	class EquatableBaseClass : IEquatable<EquatableBaseClass>
+	class EquatableBaseClass(int value) :
+		IEquatable<EquatableBaseClass>
 	{
-		public int Value { get; }
-
-		public EquatableBaseClass(int value)
-		{
-			Value = value;
-		}
+		public int Value { get; } = value;
 
 		public bool Equals(EquatableBaseClass? other) => Value == other!.Value;
 	}
 
-	class EquatableSubClassA : EquatableBaseClass
-	{
-		public EquatableSubClassA(int value) : base(value) { }
-	}
+	class EquatableSubClassA(int value) :
+		EquatableBaseClass(value)
+	{ }
 
-	class EquatableSubClassB : EquatableBaseClass
-	{
-		public EquatableSubClassB(int value) : base(value) { }
-	}
+	class EquatableSubClassB(int value) :
+		EquatableBaseClass(value)
+	{ }
 
-	class StringWrapper : IEquatable<StringWrapper>
+	class StringWrapper(string value) :
+		IEquatable<StringWrapper>
 	{
-		public string Value { get; }
-
-		public StringWrapper(string value)
-		{
-			Value = value;
-		}
+		public string Value { get; } = value;
 
 		bool IEquatable<StringWrapper>.Equals(StringWrapper? other) => Value == other!.Value;
 	}
@@ -4328,93 +4321,60 @@ public class EqualityAssertsTests
 
 	class TwoGenericSet<T, U> : HashSet<T> { }
 
-	class ImplicitIEquatableExpected : IEquatable<IntWrapper>
+	class ImplicitIEquatableExpected(int value) :
+		IEquatable<IntWrapper>
 	{
-		public int Value { get; }
-
-		public ImplicitIEquatableExpected(int value)
-		{
-			Value = value;
-		}
+		public int Value { get; } = value;
 
 		public bool Equals(IntWrapper? other) => Value == other!.Value;
 	}
 
-	class ExplicitIEquatableExpected : IEquatable<IntWrapper>
+	class ExplicitIEquatableExpected(int value) :
+		IEquatable<IntWrapper>
 	{
-		public int Value { get; }
-
-		public ExplicitIEquatableExpected(int value)
-		{
-			Value = value;
-		}
+		public int Value { get; } = value;
 
 		bool IEquatable<IntWrapper>.Equals(IntWrapper? other) => Value == other!.Value;
 	}
 
-	class ImplicitIComparableExpected : IComparable<IntWrapper>
+	class ImplicitIComparableExpected(int value) :
+		IComparable<IntWrapper>
 	{
-		public int Value { get; }
-
-		public ImplicitIComparableExpected(int value)
-		{
-			Value = value;
-		}
+		public int Value { get; } = value;
 
 		public int CompareTo(IntWrapper? other) => Value.CompareTo(other!.Value);
 	}
 
-	class ExplicitIComparableActual : IComparable<IntWrapper>
+	class ExplicitIComparableActual(int value) :
+		IComparable<IntWrapper>
 	{
-		public int Value { get; }
-
-		public ExplicitIComparableActual(int value)
-		{
-			Value = value;
-		}
+		public int Value { get; } = value;
 
 		int IComparable<IntWrapper>.CompareTo(IntWrapper? other) => Value.CompareTo(other!.Value);
 	}
 
-	class IComparableActualThrower : IComparable<IntWrapper>
+	class IComparableActualThrower(int value) :
+		IComparable<IntWrapper>
 	{
-		public int Value { get; }
+		public int Value { get; } = value;
 
-		public IComparableActualThrower(int value)
-		{
-			Value = value;
-		}
-
-		public int CompareTo(IntWrapper? other)
-		{
+		public int CompareTo(IntWrapper? other) =>
 			throw new NotSupportedException();
-		}
 
 		public override bool Equals(object? obj) => Value == ((IntWrapper?)obj)!.Value;
 
 		public override int GetHashCode() => Value;
 	}
 
-	class IntWrapper
+	class IntWrapper(int value)
 	{
-		public int Value { get; }
-
-		public IntWrapper(int value)
-		{
-			Value = value;
-		}
+		public int Value { get; } = value;
 	}
 
-	class SpyComparable : IComparable
+	class SpyComparable(int result) :
+		IComparable
 	{
-		readonly int result;
-
 		public bool CompareCalled;
-
-		public SpyComparable(int result)
-		{
-			this.result = result;
-		}
 
 		public int CompareTo(object? obj)
 		{
@@ -4423,16 +4383,10 @@ public class EqualityAssertsTests
 		}
 	}
 
-	class SpyComparable_Generic : IComparable<SpyComparable_Generic>
+	class SpyComparable_Generic(int result = 0) :
+		IComparable<SpyComparable_Generic>
 	{
-		int result;
-
 		public bool CompareCalled;
-
-		public SpyComparable_Generic(int result = 0)
-		{
-			this.result = result;
-		}
 
 		public int CompareTo(SpyComparable_Generic? other)
 		{
@@ -4441,16 +4395,11 @@ public class EqualityAssertsTests
 		}
 	}
 
-	class SpyEquatable : IEquatable<SpyEquatable>
+	class SpyEquatable(bool result = true) :
+		IEquatable<SpyEquatable>
 	{
-		bool result;
 		public bool Equals__Called;
 		public SpyEquatable? Equals_Other;
-
-		public SpyEquatable(bool result = true)
-		{
-			this.result = result;
-		}
 
 		public bool Equals(SpyEquatable? other)
 		{
@@ -4461,30 +4410,19 @@ public class EqualityAssertsTests
 		}
 	}
 
-	class NonComparableObject
+	class NonComparableObject(bool result = true)
 	{
-		bool result;
-
-		public NonComparableObject(bool result = true)
-		{
-			this.result = result;
-		}
-
 		public override bool Equals(object? obj) => result;
 
 		public override int GetHashCode() => 42;
 	}
 
-	sealed class RunOnceEnumerable<T> : IEnumerable<T>
+	sealed class RunOnceEnumerable<T>(IEnumerable<T> source) :
+		IEnumerable<T>
 	{
 		private bool _called;
 
-		public RunOnceEnumerable(IEnumerable<T> source)
-		{
-			Source = source;
-		}
-
-		public IEnumerable<T> Source { get; }
+		public IEnumerable<T> Source { get; } = source;
 
 		public IEnumerator<T> GetEnumerator()
 		{

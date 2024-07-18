@@ -1,3 +1,5 @@
+#pragma warning disable xUnit2015 // Do not use typeof expression to check the exception type
+
 using System;
 using System.Threading.Tasks;
 using Xunit;
@@ -5,7 +7,6 @@ using Xunit.Sdk;
 
 public class ExceptionAssertsTests
 {
-#pragma warning disable xUnit2015 // Do not use typeof expression to check the exception type
 	public class Throws_NonGeneric
 	{
 		public class WithAction

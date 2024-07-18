@@ -1085,55 +1085,13 @@ public class Xunit3TheoryAcceptanceTests
 		class ClassDataSource
 		{
 			public static readonly object[] Data =
-				new object[]
-				{
-					new object?[] { "Hello from class source", 2600 },
-					Tuple.Create("Hello from Tuple", 42),
-					("Class source will fail", 2112),
-					new TheoryDataRow("Class source would fail if I ran", 96) { Skip = "Do not run" },
-					new TheoryDataRow<string, int>("I only run explicitly", 9600) { Explicit = true },
-				};
-		}
-
-		class DataSource_Enumerable : IEnumerable
-		{
-			public IEnumerator GetEnumerator() =>
-				ClassDataSource.Data.GetEnumerator();
-		}
-
-		class DataSource_AsyncEnumerable : IAsyncEnumerable<object?>
-		{
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-			public async IAsyncEnumerator<object?> GetAsyncEnumerator(CancellationToken cancellationToken = default)
-#pragma warning restore CS1998
-			{
-				foreach (var dataValue in ClassDataSource.Data)
-					yield return dataValue;
-			}
-		}
-
-		class ClassUnderTest_IAsyncEnumerable
-		{
-			[Theory]
-#pragma warning disable xUnit1007 // ClassData must point at a valid class
-			[ClassData(typeof(DataSource_AsyncEnumerable))]
-#pragma warning restore xUnit1007 // ClassData must point at a valid class
-			public void TestMethod(string z, int _)
-			{
-				Assert.DoesNotContain("fail", z);
-			}
-		}
-
-		class ClassUnderTest_IEnumerable
-		{
-			[Theory]
-#pragma warning disable xUnit1007 // ClassData must point at a valid class
-			[ClassData(typeof(DataSource_Enumerable))]
-#pragma warning restore xUnit1007 // ClassData must point at a valid class
-			public void TestMethod(string z, int _)
-			{
-				Assert.DoesNotContain("fail", z);
-			}
+			[
+				new object?[] { "Hello from class source", 2600 },
+				Tuple.Create("Hello from Tuple", 42),
+				("Class source will fail", 2112),
+				new TheoryDataRow("Class source would fail if I ran", 96) { Skip = "Do not run" },
+				new TheoryDataRow<string, int>("I only run explicitly", 9600) { Explicit = true },
+			];
 		}
 
 		[Fact]
@@ -1158,6 +1116,8 @@ public class Xunit3TheoryAcceptanceTests
 			public void TestMethod(string _1, int _2) { }
 		}
 
+		// This is IEnumerable instead of strongly typed because it returns all the various forms of
+		// data that are valid in a data source.
 		public class DataSource_ClassDisposable : IEnumerable, IDisposable
 		{
 			public static int DisposeCount;
@@ -1193,6 +1153,8 @@ public class Xunit3TheoryAcceptanceTests
 			public void TestMethod(string _1, int _2) { }
 		}
 
+		// This is IEnumerable instead of strongly typed because it returns all the various forms of
+		// data that are valid in a data source.
 		public class DataSource_ClassAsyncDisposable : IEnumerable, IAsyncLifetime
 		{
 			public static int DisposeCount;
@@ -1417,6 +1379,8 @@ public class Xunit3TheoryAcceptanceTests
 			);
 		}
 
+#pragma warning disable xUnit1017 // MemberData must reference a static member
+
 		class ClassWithNonStaticData
 		{
 			public IEnumerable<object?[]>? FieldDataSource = null;
@@ -1426,23 +1390,19 @@ public class Xunit3TheoryAcceptanceTests
 			public IEnumerable<object?[]>? PropertyDataSource => null;
 
 			[Theory]
-#pragma warning disable xUnit1017 // MemberData must reference a static member
 			[MemberData(nameof(FieldDataSource))]
-#pragma warning restore xUnit1017 // MemberData must reference a static member
 			public void FieldTestMethod(int _1, double _2, string _3) { }
 
 			[Theory]
-#pragma warning disable xUnit1017 // MemberData must reference a static member
 			[MemberData(nameof(MethodDataSource))]
-#pragma warning restore xUnit1017 // MemberData must reference a static member
 			public void MethodTestMethod(int _1, double _2, string _3) { }
 
 			[Theory]
-#pragma warning disable xUnit1017 // MemberData must reference a static member
 			[MemberData(nameof(PropertyDataSource))]
-#pragma warning restore xUnit1017 // MemberData must reference a static member
 			public void PropertyTestMethod(int _1, double _2, string _3) { }
 		}
+
+#pragma warning restore xUnit1017 // MemberData must reference a static member
 
 		[Fact]
 		public async ValueTask IncompatibleDataReturnType_Throws()
@@ -1498,6 +1458,8 @@ public class Xunit3TheoryAcceptanceTests
 			);
 		}
 
+#pragma warning disable xUnit1019 // MemberData must reference a member providing a valid data type
+
 		class ClassWithIncompatibleReturnType
 		{
 			public static int IncompatibleField = 42;
@@ -1507,23 +1469,19 @@ public class Xunit3TheoryAcceptanceTests
 			public static int IncompatibleProperty => 42;
 
 			[Theory]
-#pragma warning disable xUnit1019 // MemberData must reference a member providing a valid data type
 			[MemberData(nameof(IncompatibleField))]
-#pragma warning restore xUnit1019 // MemberData must reference a member providing a valid data type
 			public void FieldTestMethod(int _) { }
 
 			[Theory]
-#pragma warning disable xUnit1019 // MemberData must reference a member providing a valid data type
 			[MemberData(nameof(IncompatibleMethod))]
-#pragma warning restore xUnit1019 // MemberData must reference a member providing a valid data type
 			public void MethodTestMethod(int _) { }
 
 			[Theory]
-#pragma warning disable xUnit1019 // MemberData must reference a member providing a valid data type
 			[MemberData(nameof(IncompatibleProperty))]
-#pragma warning restore xUnit1019 // MemberData must reference a member providing a valid data type
 			public void PropertyTestMethod(int _) { }
 		}
+
+#pragma warning restore xUnit1019 // MemberData must reference a member providing a valid data type
 
 		[Fact]
 		public async ValueTask IncompatibleDataValueType_Throws()
@@ -1553,6 +1511,8 @@ public class Xunit3TheoryAcceptanceTests
 			);
 		}
 
+#pragma warning disable xUnit1019 // MemberData must reference a member providing a valid data type
+
 		class ClassWithIncompatibleValueData
 		{
 			public static IEnumerable<int> IncompatibleFieldData = new[] { 42 };
@@ -1562,23 +1522,19 @@ public class Xunit3TheoryAcceptanceTests
 			public static IEnumerable<int> IncompatiblePropertyData => new[] { 42 };
 
 			[Theory]
-#pragma warning disable xUnit1019 // MemberData must reference a member providing a valid data type
 			[MemberData(nameof(IncompatibleFieldData))]
-#pragma warning restore xUnit1019 // MemberData must reference a member providing a valid data type
 			public void FieldTestMethod(int _) { }
 
 			[Theory]
-#pragma warning disable xUnit1019 // MemberData must reference a member providing a valid data type
 			[MemberData(nameof(IncompatibleMethodData))]
-#pragma warning restore xUnit1019 // MemberData must reference a member providing a valid data type
 			public void MethodTestMethod(int _) { }
 
 			[Theory]
-#pragma warning disable xUnit1019 // MemberData must reference a member providing a valid data type
 			[MemberData(nameof(IncompatiblePropertyData))]
-#pragma warning restore xUnit1019 // MemberData must reference a member providing a valid data type
 			public void PropertyTestMethod(int _) { }
 		}
+
+#pragma warning restore xUnit1019 // MemberData must reference a member providing a valid data type
 
 		[Theory]
 		[InlineData(typeof(ClassUnderTest_IAsyncEnumerable))]
@@ -1632,21 +1588,19 @@ public class Xunit3TheoryAcceptanceTests
 		class DataBase
 		{
 			static readonly object?[] baseData =
-				new object[]
-				{
-					new object?[] { "Hello from base" },
-					Tuple.Create("Base will fail"),
-					new TheoryDataRow<string>("Base would fail if I ran") { Skip = "Do not run" },
-				};
+			[
+				new object?[] { "Hello from base" },
+				Tuple.Create("Base will fail"),
+				new TheoryDataRow<string>("Base would fail if I ran") { Skip = "Do not run" },
+			];
 			static readonly IAsyncEnumerable<object?> baseDataAsync = baseData.ToAsyncEnumerable();
 
 			protected static readonly object?[] data =
-				new object[]
-				{
-					new object?[] { "Hello, world!" },
-					Tuple.Create("I will fail"),
-					new TheoryDataRow<string>("I would fail if I ran") { Skip = "Do not run" },
-				};
+			[
+				new object?[] { "Hello, world!" },
+				Tuple.Create("I will fail"),
+				new TheoryDataRow<string>("I would fail if I ran") { Skip = "Do not run" },
+			];
 			protected static readonly IAsyncEnumerable<object?> dataAsync = data.ToAsyncEnumerable();
 
 			public static IAsyncEnumerable<object?> AsyncEnumerable_FieldBaseDataSource = baseDataAsync;
@@ -1677,12 +1631,11 @@ public class Xunit3TheoryAcceptanceTests
 		class OtherDataSource
 		{
 			static readonly object[] data =
-				new object[]
-				{
-					new object?[] { "Hello from other source" },
-					Tuple.Create("Other source will fail"),
-					new TheoryDataRow<string>("Other source would fail if I ran") { Skip = "Do not run" },
-				};
+			[
+				new object?[] { "Hello from other source" },
+				Tuple.Create("Other source will fail"),
+				new TheoryDataRow<string>("Other source would fail if I ran") { Skip = "Do not run" },
+			];
 			static readonly IAsyncEnumerable<object> dataAsync = data.ToAsyncEnumerable();
 
 			public static IAsyncEnumerable<object> AsyncEnumerable_FieldOtherDataSource = dataAsync;
@@ -1712,6 +1665,8 @@ public class Xunit3TheoryAcceptanceTests
 
 		class ClassUnderTest_IAsyncEnumerable : DataBase
 		{
+			// These are IAsyncEnumerable<object?> instead of strongly typed because they return all the various forms of
+			// data that are valid in a data source.
 			public static IAsyncEnumerable<object?> FieldDataSource = dataAsync;
 			public static IAsyncEnumerable<object?> MethodDataSource() => dataAsync;
 			public static IAsyncEnumerable<object?> PropertyDataSource => dataAsync;
@@ -1752,6 +1707,8 @@ public class Xunit3TheoryAcceptanceTests
 
 		class ClassUnderTest_IEnumerable : DataBase
 		{
+			// These are IEnumerable instead of strongly typed because they return all the various forms of
+			// data that are valid in a data source.
 			public static IEnumerable FieldDataSource = data;
 			public static IEnumerable MethodDataSource() => data;
 			public static IEnumerable PropertyDataSource => data;
@@ -1792,6 +1749,8 @@ public class Xunit3TheoryAcceptanceTests
 
 		class ClassUnderTest_TaskOfIAsyncEnumerable : DataBase
 		{
+			// These are Task<IAsyncEnumerable<object?>> instead of strongly typed because they return all the various forms of
+			// data that are valid in a data source.
 			public static Task<IAsyncEnumerable<object?>> FieldDataSource = Task.FromResult(dataAsync);
 			public static Task<IAsyncEnumerable<object?>> MethodDataSource() => Task.FromResult(dataAsync);
 			public static Task<IAsyncEnumerable<object?>> PropertyDataSource => Task.FromResult(dataAsync);
@@ -1832,6 +1791,8 @@ public class Xunit3TheoryAcceptanceTests
 
 		class ClassUnderTest_TaskOfIEnumerable : DataBase
 		{
+			// These are Task<IEnumerable> instead of strongly typed because they return all the various forms of
+			// data that are valid in a data source.
 			public static Task<IEnumerable> FieldDataSource = Task.FromResult<IEnumerable>(data);
 			public static Task<IEnumerable> MethodDataSource() => Task.FromResult<IEnumerable>(data);
 			public static Task<IEnumerable> PropertyDataSource => Task.FromResult<IEnumerable>(data);
@@ -1872,6 +1833,8 @@ public class Xunit3TheoryAcceptanceTests
 
 		class ClassUnderTest_ValueTaskOfIAsyncEnumerable : DataBase
 		{
+			// These are ValueTask<IAsyncEnumerable<object?>> instead of strongly typed because they return all the various forms of
+			// data that are valid in a data source.
 			public static ValueTask<IAsyncEnumerable<object?>> FieldDataSource = new(dataAsync);
 			public static ValueTask<IAsyncEnumerable<object?>> MethodDataSource() => new(dataAsync);
 			public static ValueTask<IAsyncEnumerable<object?>> PropertyDataSource => new(dataAsync);
@@ -1912,6 +1875,8 @@ public class Xunit3TheoryAcceptanceTests
 
 		class ClassUnderTest_ValueTaskOfIEnumerable : DataBase
 		{
+			// These are ValueTask<IEnumerable> instead of strongly typed because they return all the various forms of
+			// data that are valid in a data source.
 			public static ValueTask<IEnumerable> FieldDataSource = new(data);
 			public static ValueTask<IEnumerable> MethodDataSource() => new(data);
 			public static ValueTask<IEnumerable> PropertyDataSource => new(data);
@@ -2052,13 +2017,11 @@ public class Xunit3TheoryAcceptanceTests
 
 		class ClassWithParameterizedMethodData
 		{
-			public static IEnumerable<object?[]> DataSource(int x)
-			{
-				return new[] {
-					new object?[] { x / 2, 21.12, "Hello, world!" },
-					new object?[] { 0, 0.0, null }
-				};
-			}
+			public static IEnumerable<object?[]> DataSource(int x) =>
+				[
+					[x / 2, 21.12, "Hello, world!"],
+					[0, 0.0, null]
+				];
 
 			[Theory]
 			[MemberData(nameof(DataSource), 84)]
@@ -2425,9 +2388,10 @@ public class Xunit3TheoryAcceptanceTests
 			Assert.Equal(methodStarting.TestMethodUniqueID, methodFinished.TestMethodUniqueID);
 		}
 
+#pragma warning disable xUnit1024 // Test methods cannot have overloads
+
 		class ClassUnderTest
 		{
-#pragma warning disable xUnit1024 // Test methods cannot have overloads
 			[Theory]
 			[InlineData(42)]
 			public void Theory(int _)
@@ -2437,7 +2401,8 @@ public class Xunit3TheoryAcceptanceTests
 			[InlineData("42")]
 			public void Theory(string _)
 			{ }
-#pragma warning restore xUnit1024 // Test methods cannot have overloads
 		}
+
+#pragma warning restore xUnit1024 // Test methods cannot have overloads
 	}
 }
