@@ -914,7 +914,7 @@ public class Xunit3TheoryAcceptanceTests
 			[InlineData(10000)]
 			[InlineData(10, Timeout = 10000)]
 			[MemberData(nameof(MemberDataSource), Timeout = 10)]
-			public Task LongRunningTask(int delay) => Task.Delay(delay);
+			public Task LongRunningTask(int delay) => Task.Delay(delay, TestContext.Current.CancellationToken);
 		}
 	}
 

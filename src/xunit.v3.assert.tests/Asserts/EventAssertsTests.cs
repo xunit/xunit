@@ -379,7 +379,7 @@ public class EventAssertsTests
 			var evt = await Assert.RaisesAnyAsync<object>(
 				h => obj.Completed += h,
 				h => obj.Completed -= h,
-				() => Task.Run(() => obj.RaiseWithArgs(eventObj))
+				() => Task.Run(() => obj.RaiseWithArgs(eventObj), TestContext.Current.CancellationToken)
 			);
 
 			Assert.NotNull(evt);
@@ -396,7 +396,7 @@ public class EventAssertsTests
 			var evt = await Assert.RaisesAnyAsync<object>(
 				h => obj.Completed += h,
 				h => obj.Completed -= h,
-				() => Task.Run(() => obj.RaiseWithArgs(eventObj))
+				() => Task.Run(() => obj.RaiseWithArgs(eventObj), TestContext.Current.CancellationToken)
 			);
 
 			Assert.NotNull(evt);
@@ -460,7 +460,7 @@ public class EventAssertsTests
 			var evt = await Assert.RaisesAnyAsync<object>(
 				h => obj.Completed += h,
 				h => obj.Completed -= h,
-				() => Task.Run(() => obj.RaiseWithArgs(eventObj))
+				() => Task.Run(() => obj.RaiseWithArgs(eventObj), TestContext.Current.CancellationToken)
 			);
 
 			Assert.NotNull(evt);
@@ -477,7 +477,7 @@ public class EventAssertsTests
 			var evt = await Assert.RaisesAnyAsync(
 				h => obj.Completed += h,
 				h => obj.Completed -= h,
-				() => Task.Run(() => obj.RaiseWithArgs(eventObj))
+				() => Task.Run(() => obj.RaiseWithArgs(eventObj), TestContext.Current.CancellationToken)
 			);
 
 			Assert.NotNull(evt);
@@ -494,7 +494,7 @@ public class EventAssertsTests
 			var evt = await Assert.RaisesAnyAsync<object>(
 				h => obj.Completed += h,
 				h => obj.Completed -= h,
-				() => Task.Run(() => obj.RaiseWithArgs(eventObj))
+				() => Task.Run(() => obj.RaiseWithArgs(eventObj), TestContext.Current.CancellationToken)
 			);
 
 			Assert.NotNull(evt);
@@ -511,7 +511,7 @@ public class EventAssertsTests
 			var evt = await Assert.RaisesAnyAsync(
 				h => obj.Completed += h,
 				h => obj.Completed -= h,
-				() => Task.Run(() => obj.RaiseWithArgs(eventObj))
+				() => Task.Run(() => obj.RaiseWithArgs(eventObj), TestContext.Current.CancellationToken)
 			);
 
 			Assert.NotNull(evt);
@@ -570,7 +570,7 @@ public class EventAssertsTests
 			var evt = await Assert.RaisesAsync<object>(
 				h => obj.Completed += h,
 				h => obj.Completed -= h,
-				() => Task.Run(() => obj.RaiseWithArgs(eventObj))
+				() => Task.Run(() => obj.RaiseWithArgs(eventObj), TestContext.Current.CancellationToken)
 			);
 
 			Assert.NotNull(evt);
@@ -588,7 +588,7 @@ public class EventAssertsTests
 				() => Assert.RaisesAsync<object>(
 					h => obj.Completed += h,
 					h => obj.Completed -= h,
-					() => Task.Run(() => obj.RaiseWithArgs(eventObj))
+					() => Task.Run(() => obj.RaiseWithArgs(eventObj), TestContext.Current.CancellationToken)
 				)
 			);
 
@@ -635,7 +635,7 @@ public class EventAssertsTests
 			var evt = await Assert.RaisesAsync<object>(
 				h => obj.Completed += h,
 				h => obj.Completed -= h,
-				() => Task.Run(() => obj.RaiseWithArgs(eventObj))
+				() => Task.Run(() => obj.RaiseWithArgs(eventObj), TestContext.Current.CancellationToken)
 			);
 
 			Assert.NotNull(evt);
@@ -653,7 +653,7 @@ public class EventAssertsTests
 				() => Assert.RaisesAsync<object>(
 					h => obj.Completed += h,
 					h => obj.Completed -= h,
-					() => Task.Run(() => obj.RaiseWithArgs(eventObj))
+					() => Task.Run(() => obj.RaiseWithArgs(eventObj), TestContext.Current.CancellationToken)
 				)
 			);
 

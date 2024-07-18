@@ -159,7 +159,7 @@ public class ArgumentFormatterTests
 		[Fact]
 		public static async Task TaskValue()
 		{
-			var task = Task.Run(() => { });
+			var task = Task.Run(() => { }, TestContext.Current.CancellationToken);
 			await task;
 
 			Assert.Equal("Task { Status = RanToCompletion }", ArgumentFormatter.Format(task));

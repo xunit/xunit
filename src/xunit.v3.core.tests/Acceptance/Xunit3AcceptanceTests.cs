@@ -315,10 +315,10 @@ public class Xunit3AcceptanceTests
 		class ClassUnderTest
 		{
 			[Fact(Timeout = 10)]
-			public Task LongRunningTest() => Task.Delay(10000);
+			public Task LongRunningTest() => Task.Delay(10000, TestContext.Current.CancellationToken);
 
 			[Fact(Timeout = 10000)]
-			public Task ShortRunningTest() => Task.Delay(10);
+			public Task ShortRunningTest() => Task.Delay(10, TestContext.Current.CancellationToken);
 
 			// Can't have timeout on a non-async test
 			[Fact(Timeout = 10000)]
@@ -1162,7 +1162,7 @@ public class Xunit3AcceptanceTests
 		[Fact]
 		public async ValueTask TestMethod()
 		{
-			await Task.Delay(1);
+			await Task.Delay(1, TestContext.Current.CancellationToken);
 			Assert.True(false);
 		}
 	}

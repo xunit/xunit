@@ -59,7 +59,7 @@ public class XunitTestInvokerTests
 		public void TimeoutWithoutAsync() { }
 
 		[Fact]
-		public Task TimeoutWithAsync() => Task.Delay(100);
+		public Task TimeoutWithAsync() => Task.Delay(100, TestContext.Current.CancellationToken);
 	}
 
 	class TestableXunitTestInvoker(

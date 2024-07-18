@@ -34,7 +34,7 @@ public class RecordTests
 		[Fact]
 		public async ValueTask Exception()
 		{
-			static Task testCode() => Task.Run(() => throw new InvalidOperationException());
+			static Task testCode() => Task.Run(() => throw new InvalidOperationException(), TestContext.Current.CancellationToken);
 
 			var ex = await Record.ExceptionAsync(testCode);
 
@@ -45,7 +45,7 @@ public class RecordTests
 		[Fact]
 		public async ValueTask NoException()
 		{
-			static Task testCode() => Task.Run(() => { });
+			static Task testCode() => Task.Run(() => { }, TestContext.Current.CancellationToken);
 
 			var ex = await Record.ExceptionAsync(testCode);
 
@@ -82,7 +82,7 @@ public class RecordTests
 		[Fact]
 		public void GuardClause()
 		{
-			static object testCode() => Task.Run(() => { });
+			static object testCode() => Task.Run(() => { }, TestContext.Current.CancellationToken);
 
 			var ex = Record.Exception(() => Record.Exception(testCode));
 

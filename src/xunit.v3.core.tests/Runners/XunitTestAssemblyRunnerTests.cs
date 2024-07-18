@@ -417,7 +417,7 @@ public class XunitTestAssemblyRunnerTests
 				await runner.RunAsync();
 
 				Assert.Equal(expectedSyncContextType, runner.RunTestCollectionAsync_SyncContext?.GetType());
-			});
+			}, TestContext.Current.CancellationToken);
 		}
 
 		[Fact]
@@ -510,7 +510,7 @@ public class XunitTestAssemblyRunnerTests
 		public async ValueTask ParallelTest1()
 		{
 			TestContext.Current.SendDiagnosticMessage("ParallelTest1 pre-sleep");
-			await Task.Delay(50);
+			await Task.Delay(50, TestContext.Current.CancellationToken);
 			TestContext.Current.SendDiagnosticMessage("ParallelTest1 post-sleep");
 		}
 
@@ -518,7 +518,7 @@ public class XunitTestAssemblyRunnerTests
 		public async ValueTask ParallelTest2()
 		{
 			TestContext.Current.SendDiagnosticMessage("ParallelTest2 pre-sleep");
-			await Task.Delay(50);
+			await Task.Delay(50, TestContext.Current.CancellationToken);
 			TestContext.Current.SendDiagnosticMessage("ParallelTest2 post-sleep");
 		}
 	}
