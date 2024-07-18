@@ -1,7 +1,10 @@
 using System;
 using System.Globalization;
+using Xunit.v3;
 
-namespace Xunit.v3;
+// This lives in Xunit.Sdk instead of Xunit.v3 because our message filter will only simplify exception
+// names in the "Xunit.Sdk" namespace. See ExceptionUtility.GetMessage for more information.
+namespace Xunit.Sdk;
 
 /// <summary>
 /// Thrown if a test exceeds the specified timeout.
