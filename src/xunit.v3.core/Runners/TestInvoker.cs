@@ -92,6 +92,7 @@ public abstract class TestInvoker<TContext, TTest>
 							if (valueTask.HasValue)
 								await valueTask.Value;
 						}
+						catch (TaskCanceledException) { }
 						finally
 						{
 							if (logEnabled)
