@@ -159,7 +159,11 @@ public class ArgumentFormatterTests
 		[Fact]
 		public static async Task TaskValue()
 		{
+#if XUNIT_V2
 			var task = Task.Run(() => { });
+#else
+			var task = Task.Run(() => { }, TestContext.Current.CancellationToken);
+#endif
 			await task;
 
 			Assert.Equal("Task { Status = RanToCompletion }", ArgumentFormatter.Format(task));
@@ -265,11 +269,11 @@ public class ArgumentFormatterTests
 	{
 		// Both tracked and untracked should be the same
 #if XUNIT_V2
-		public static TheoryData<IEnumerable> Collections =
-		[
+		public static TheoryData<IEnumerable> Collections = new()
+		{
 			new object[] { 1, 2.3M, "Hello, world!" },
 			new object[] { 1, 2.3M, "Hello, world!" }.AsTracker(),
-		];
+		};
 #else
 		public static TheoryData<IEnumerable<object>> Collections =
 		[
@@ -301,11 +305,11 @@ public class ArgumentFormatterTests
 		}
 
 #if XUNIT_V2
-		public static TheoryData<IEnumerable<object>> LongCollections =
-		[
-			[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-			CollectionTracker<object>.Wrap([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
-		];
+		public static TheoryData<IEnumerable> LongCollections = new()
+		{
+			new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 },
+			new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }.AsTracker(),
+		};
 #else
 		public static TheoryData<IEnumerable<object>> LongCollections =
 		[

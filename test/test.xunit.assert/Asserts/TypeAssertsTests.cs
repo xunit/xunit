@@ -81,6 +81,7 @@ public class TypeAssertsTests
 	}
 
 #pragma warning disable xUnit2007 // Do not use typeof expression to check the type
+
 	public class IsAssignableFrom_NonGeneric
 	{
 		[Fact]
@@ -148,6 +149,7 @@ public class TypeAssertsTests
 			);
 		}
 	}
+
 #pragma warning restore xUnit2007 // Do not use typeof expression to check the type
 
 	public class IsNotAssignableFrom_Generic
@@ -308,6 +310,7 @@ public class TypeAssertsTests
 	}
 
 #pragma warning disable xUnit2007 // Do not use typeof expression to check the type
+
 	public class IsNotType_NonGeneric
 	{
 		[Fact]
@@ -338,6 +341,7 @@ public class TypeAssertsTests
 			Assert.IsNotType(typeof(object), null);
 		}
 	}
+
 #pragma warning restore xUnit2007 // Do not use typeof expression to check the type
 
 	public class IsType_Generic : TypeAssertsTests
@@ -412,6 +416,7 @@ public class TypeAssertsTests
 	}
 
 #pragma warning disable xUnit2007 // Do not use typeof expression to check the type
+
 	public class IsType_NonGeneric : TypeAssertsTests
 	{
 		[Fact]
@@ -437,6 +442,7 @@ public class TypeAssertsTests
 		}
 
 #if NETFRAMEWORK
+
 		[Fact]
 		public async Task UnmatchedTypesWithIdenticalNamesShowAssemblies()
 		{
@@ -456,6 +462,7 @@ public class TypeAssertsTests
 				result.Message
 			);
 		}
+
 #endif
 
 		[Fact]
@@ -472,6 +479,7 @@ public class TypeAssertsTests
 			);
 		}
 	}
+
 #pragma warning restore xUnit2007 // Do not use typeof expression to check the type
 
 	class DisposableClass : IDisposable
@@ -481,6 +489,7 @@ public class TypeAssertsTests
 	}
 
 #if NETFRAMEWORK
+
 	class CSharpDynamicAssembly : CSharpAcceptanceTestAssembly
 	{
 		public CSharpDynamicAssembly() :
@@ -497,5 +506,6 @@ public class TypeAssertsTests
 			return assembly;
 		}
 	}
+
 #endif
 }
