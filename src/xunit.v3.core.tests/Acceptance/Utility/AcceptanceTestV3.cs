@@ -30,7 +30,7 @@ public class AcceptanceTestV3
 		{
 			try
 			{
-				TestContext.SetForInitialization(diagnosticMessageSink, diagnosticMessages: true, internalDiagnosticMessages: false);
+				TestContext.SetForInitialization(diagnosticMessageSink, diagnosticMessages: diagnosticMessageSink is not null, internalDiagnosticMessages: diagnosticMessageSink is not null);
 
 				await using var testFramework = new XunitTestFramework();
 
