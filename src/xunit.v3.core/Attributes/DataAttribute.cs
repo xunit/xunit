@@ -101,7 +101,7 @@ public abstract class DataAttribute : Attribute, IDataAttribute
 
 		if (dataRow is ITheoryDataRow theoryDataRow)
 		{
-			var dataRowTraits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+			var dataRowTraits = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
 			if (theoryDataRow.Traits is not null)
 				foreach (var kvp in theoryDataRow.Traits)
@@ -119,7 +119,7 @@ public abstract class DataAttribute : Attribute, IDataAttribute
 			};
 		}
 
-		var traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+		var traits = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 		MergeTraitsInto(traits);
 
 		if (dataRow is object?[] array)
@@ -169,7 +169,7 @@ public abstract class DataAttribute : Attribute, IDataAttribute
 	/// <inheritdoc/>
 	public abstract ValueTask<IReadOnlyCollection<ITheoryDataRow>> GetData(DisposalTracker disposalTracker);
 
-	void MergeTraitsInto(Dictionary<string, List<string>> traits) =>
+	void MergeTraitsInto(Dictionary<string, HashSet<string>> traits) =>
 		TestIntrospectionHelper.MergeTraitsInto(traits, Traits);
 
 	/// <inheritdoc/>

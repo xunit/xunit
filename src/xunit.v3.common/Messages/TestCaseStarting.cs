@@ -14,7 +14,7 @@ public sealed class TestCaseStarting : TestCaseMessage, ITestCaseMetadata
 {
 	string? testCaseDisplayName;
 	string? testClassName;
-	IReadOnlyDictionary<string, IReadOnlyList<string>>? traits;
+	IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits;
 
 	/// <inheritdoc/>
 	public required string? SkipReason { get; set; }
@@ -67,7 +67,7 @@ public sealed class TestCaseStarting : TestCaseMessage, ITestCaseMetadata
 	public required string? TestMethodName { get; set; }
 
 	/// <inheritdoc/>
-	public required IReadOnlyDictionary<string, IReadOnlyList<string>> Traits
+	public required IReadOnlyDictionary<string, IReadOnlyCollection<string>> Traits
 	{
 		get => this.ValidateNullablePropertyValue(traits, nameof(Traits));
 		set => traits = Guard.ArgumentNotNull(value, nameof(Traits));

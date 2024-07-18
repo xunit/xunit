@@ -742,7 +742,7 @@ public class ExecutionSinkTests
 		[Fact]
 		public void TestElementTraitsArePlacedInXmlWhenPresent()
 		{
-			var traits = new Dictionary<string, IReadOnlyList<string>>
+			var traits = new Dictionary<string, IReadOnlyCollection<string>>
 			{
 				{ "name1", new List<string> { "value1" }},
 				{ "name2", new List<string> { "value2" }}

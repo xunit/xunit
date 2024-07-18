@@ -56,8 +56,8 @@ public class JsonObjectSerializerTests
 		yield return new(s => s.SerializeStringArray("value", null, includeNullArray: true), @"{""value"":null}");
 		yield return new(s => s.SerializeStringArray("value", null, includeNullArray: false), @"{}");
 
-		// Traits dictionary (IReadOnlyDictionary<string, IReadOnlyList<string>>), via JsonSerializerExtensions
-		var traits = new Dictionary<string, IReadOnlyList<string>>()
+		// Traits dictionary (IReadOnlyDictionary<string, IReadOnlyCollection<string>>), via JsonSerializerExtensions
+		var traits = new Dictionary<string, IReadOnlyCollection<string>>()
 		{
 			["foo"] = ["bar", "baz"],
 			["biff"] = ["bop"]

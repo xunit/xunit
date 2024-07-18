@@ -46,7 +46,7 @@ public class Xunit1TestCaseTests
 		[Fact]
 		public static void CanSerializeTraits_StayCaseInsensitive()
 		{
-			var traits = new Dictionary<string, IReadOnlyList<string>>
+			var traits = new Dictionary<string, IReadOnlyCollection<string>>
 			{
 				{ "foo", new List<string> { "bar", "baz" } },
 				{ "biff", new List<string> { "Hello, world!" } }
@@ -97,7 +97,7 @@ public class Xunit1TestCaseTests
 		[Fact]
 		public void TraitNamesAreCaseInsensitive_PreSeeded()
 		{
-			var traits = new Dictionary<string, IReadOnlyList<string>> { { "FOO", new List<string> { "BAR" } } };
+			var traits = new Dictionary<string, IReadOnlyCollection<string>> { { "FOO", new List<string> { "BAR" } } };
 			var testCase = Create(typeof(Traits), "TraitNamesAreCaseInsensitive_PreSeeded", traits: traits);
 
 			var fooTraitValues = testCase.Traits["foo"];
@@ -111,7 +111,7 @@ public class Xunit1TestCaseTests
 		Type typeUnderTest,
 		string methodName,
 		string? displayName = null,
-		Dictionary<string, IReadOnlyList<string>>? traits = null,
+		Dictionary<string, IReadOnlyCollection<string>>? traits = null,
 		string? skipReason = null)
 	{
 		var typeName = typeUnderTest.FullName!;

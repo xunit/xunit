@@ -16,7 +16,7 @@ public sealed class TestCaseDiscovered : TestCaseMessage, ITestCaseMetadata
 	string? serialization;
 	string? testCaseDisplayName;
 	string? testClassName;
-	IReadOnlyDictionary<string, IReadOnlyList<string>>? traits;
+	IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits;
 
 	/// <summary>
 	/// Gets the serialized value of the test case, which allows it to be transferred across
@@ -79,7 +79,7 @@ public sealed class TestCaseDiscovered : TestCaseMessage, ITestCaseMetadata
 	public required string? TestMethodName { get; set; }
 
 	/// <inheritdoc/>
-	public required IReadOnlyDictionary<string, IReadOnlyList<string>> Traits
+	public required IReadOnlyDictionary<string, IReadOnlyCollection<string>> Traits
 	{
 		get => this.ValidateNullablePropertyValue(traits, nameof(Traits));
 		set => traits = Guard.ArgumentNotNull(value, nameof(Traits));

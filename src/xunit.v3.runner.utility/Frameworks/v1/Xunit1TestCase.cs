@@ -23,7 +23,7 @@ public sealed class Xunit1TestCase : IXunitSerializable
 	string? testClassUniqueID;
 	string? testMethod;
 	string? testMethodUniqueID;
-	IReadOnlyDictionary<string, IReadOnlyList<string>> traits = new Dictionary<string, IReadOnlyList<string>>(StringComparer.OrdinalIgnoreCase);
+	IReadOnlyDictionary<string, IReadOnlyCollection<string>> traits = new Dictionary<string, IReadOnlyCollection<string>>(StringComparer.OrdinalIgnoreCase);
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="Xunit1TestCase"/> class.
@@ -125,12 +125,12 @@ public sealed class Xunit1TestCase : IXunitSerializable
 	/// <summary>
 	/// Gets the traits that are associated with this test case.
 	/// </summary>
-	public IReadOnlyDictionary<string, IReadOnlyList<string>> Traits
+	public IReadOnlyDictionary<string, IReadOnlyCollection<string>> Traits
 	{
 		get => traits;
 		set
 		{
-			var newTraits = new Dictionary<string, IReadOnlyList<string>>(StringComparer.OrdinalIgnoreCase);
+			var newTraits = new Dictionary<string, IReadOnlyCollection<string>>(StringComparer.OrdinalIgnoreCase);
 			if (value is not null)
 				foreach (var kvp in value)
 					newTraits[kvp.Key] = kvp.Value;
@@ -151,7 +151,7 @@ public sealed class Xunit1TestCase : IXunitSerializable
 		TestMethod = Guard.NotNull("Could not retrieve TestMethod from serialization", info.GetValue<string>("me"));
 		TestMethodUniqueID = Guard.NotNull("Could not retrieve TestMethodUniqueID from serialization", info.GetValue<string>("meid"));
 
-		var traits = Guard.NotNull("Could not retrieve Traits from serialization", info.GetValue<Dictionary<string, List<string>>>("tr"));
+		var traits = Guard.NotNull("Could not retrieve Traits from serialization", info.GetValue<Dictionary<string, HashSet<string>>>("tr"));
 		Traits = traits.ToReadOnly();
 
 		var sourceLineNumberText = info.GetValue<string>("SourceLineNumber");
@@ -398,7 +398,7 @@ public sealed class Xunit1TestCase : IXunitSerializable
 			TestClassUniqueID = TestClassUniqueID,
 			TestCollectionUniqueID = TestCollectionUniqueID,
 			TestMethodUniqueID = TestMethodUniqueID,
-			Traits = Xunit1.EmptyTraits,
+			Traits = Xunit1.EmptyV3Traits,
 		};
 
 	/// <summary>
@@ -496,7 +496,7 @@ public sealed class Xunit1TestCase : IXunitSerializable
 				TestMethodUniqueID = TestMethodUniqueID,
 				TestUniqueID = UniqueIDGenerator.ForTest(TestCaseUniqueID, currentTestIndex),
 				Timeout = 0,
-				Traits = Xunit1.EmptyTraits,
+				Traits = Xunit1.EmptyV3Traits,
 			};
 }
 

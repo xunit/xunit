@@ -35,7 +35,7 @@ public class XunitTestCaseRunnerBase<TContext, TTestCase> : TestCaseRunner<TCont
 		bool? @explicit,
 		string? displayName,
 		int testIndex,
-		IReadOnlyDictionary<string, IReadOnlyList<string>> traits,
+		IReadOnlyDictionary<string, IReadOnlyCollection<string>> traits,
 		int timeout)
 	{
 		Guard.ArgumentNotNull(ctxt);

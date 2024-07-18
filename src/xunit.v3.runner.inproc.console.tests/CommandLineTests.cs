@@ -420,8 +420,8 @@ public class CommandLineTests
 
 		public class Traits
 		{
-			static readonly (string Switch, Expression<Func<XunitProject, Dictionary<string, List<string>>>> Accessor)[] SwitchOptionsList =
-				new (string Switch, Expression<Func<XunitProject, Dictionary<string, List<string>>>> Accessor)[]
+			static readonly (string Switch, Expression<Func<XunitProject, Dictionary<string, HashSet<string>>>> Accessor)[] SwitchOptionsList =
+				new (string Switch, Expression<Func<XunitProject, Dictionary<string, HashSet<string>>>> Accessor)[]
 				{
 					("-trait", project => project.Assemblies.Single().Configuration.Filters.IncludedTraits),
 					("-notrait", project => project.Assemblies.Single().Configuration.Filters.ExcludedTraits),
@@ -440,10 +440,10 @@ public class CommandLineTests
 					"foo=bar=baz",
 				};
 
-			public static readonly TheoryData<string, Expression<Func<XunitProject, Dictionary<string, List<string>>>>> SwitchesLowerCase =
+			public static readonly TheoryData<string, Expression<Func<XunitProject, Dictionary<string, HashSet<string>>>>> SwitchesLowerCase =
 				new(SwitchOptionsList);
 
-			public static readonly TheoryData<string, Expression<Func<XunitProject, Dictionary<string, List<string>>>>> SwitchesUpperCase =
+			public static readonly TheoryData<string, Expression<Func<XunitProject, Dictionary<string, HashSet<string>>>>> SwitchesUpperCase =
 				new(SwitchOptionsList.Select(x => (x.Switch.ToUpperInvariant(), x.Accessor)));
 
 			public static readonly TheoryData<string, string> SwitchesWithOptionsLowerCase =
@@ -457,7 +457,7 @@ public class CommandLineTests
 			[MemberData(nameof(SwitchesUpperCase))]
 			public static void SingleValidTraitArgument(
 				string @switch,
-				Expression<Func<XunitProject, Dictionary<string, List<string>>>> accessor)
+				Expression<Func<XunitProject, Dictionary<string, HashSet<string>>>> accessor)
 			{
 				var commandLine = new TestableCommandLine("no-config.json", @switch, "foo=bar");
 				var project = commandLine.Parse();
@@ -474,7 +474,7 @@ public class CommandLineTests
 			[MemberData(nameof(SwitchesUpperCase))]
 			public static void MultipleValidTraitArguments_SameName(
 				string @switch,
-				Expression<Func<XunitProject, Dictionary<string, List<string>>>> accessor)
+				Expression<Func<XunitProject, Dictionary<string, HashSet<string>>>> accessor)
 			{
 				var commandLine = new TestableCommandLine("no-config.json", @switch, "foo=bar", @switch, "foo=baz");
 				var project = commandLine.Parse();
@@ -492,7 +492,7 @@ public class CommandLineTests
 			[MemberData(nameof(SwitchesUpperCase))]
 			public static void MultipleValidTraitArguments_DifferentName(
 				string @switch,
-				Expression<Func<XunitProject, Dictionary<string, List<string>>>> accessor)
+				Expression<Func<XunitProject, Dictionary<string, HashSet<string>>>> accessor)
 			{
 				var commandLine = new TestableCommandLine("no-config.json", @switch, "foo=bar", @switch, "baz=biff");
 				var project = commandLine.Parse();
@@ -511,7 +511,7 @@ public class CommandLineTests
 			[MemberData(nameof(SwitchesUpperCase))]
 			public static void MissingOptionValue(
 				string @switch,
-				Expression<Func<XunitProject, Dictionary<string, List<string>>>> _)
+				Expression<Func<XunitProject, Dictionary<string, HashSet<string>>>> _)
 			{
 				var commandLine = new TestableCommandLine("no-config.json", @switch);
 

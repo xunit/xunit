@@ -12,7 +12,7 @@ public class TestSkippedInfo : TestInfo
 	public TestSkippedInfo(
 		string typeName,
 		string methodName,
-		Dictionary<string, List<string>>? traits,
+		Dictionary<string, HashSet<string>>? traits,
 		string testDisplayName,
 		string testCollectionDisplayName,
 		string skipReason)

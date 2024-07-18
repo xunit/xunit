@@ -21,7 +21,7 @@ namespace Xunit.Runner.v1;
 /// </summary>
 public class Xunit1 : IFrontController
 {
-	internal static IReadOnlyDictionary<string, IReadOnlyList<string>> EmptyTraits = new Dictionary<string, List<string>>().ToReadOnly();
+	internal static IReadOnlyDictionary<string, IReadOnlyCollection<string>> EmptyV3Traits = new Dictionary<string, IReadOnlyCollection<string>>();
 
 	readonly AppDomainSupport appDomainSupport;
 	readonly string assemblyFileName;
@@ -197,7 +197,7 @@ public class Xunit1 : IFrontController
 					if (skipReasonAttribute is not null)
 						skipReason = skipReasonAttribute.Value;
 
-					var traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+					var traits = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 					var traitNodes = methodXml.SelectNodes("traits/trait")?.Cast<XmlNode>();
 					if (traitNodes is not null)
 						foreach (var traitNode in traitNodes)
@@ -325,7 +325,7 @@ public class Xunit1 : IFrontController
 			TestEnvironment = environment,
 			TestFrameworkDisplayName = TestFrameworkDisplayName,
 			TargetFramework = null,
-			Traits = EmptyTraits,
+			Traits = EmptyV3Traits,
 		};
 
 		if (messageSink.OnMessage(testAssemblyStartingMessage))
@@ -398,7 +398,7 @@ public class Xunit1 : IFrontController
 			TestCollectionClassName = null,
 			TestCollectionDisplayName = string.Format(CultureInfo.CurrentCulture, "xUnit.net v1 Tests for {0}", assemblyFileName),
 			TestCollectionUniqueID = testCases[0].TestCollectionUniqueID,
-			Traits = EmptyTraits,
+			Traits = EmptyV3Traits,
 		};
 
 		var results = new Xunit1RunSummary
@@ -458,7 +458,7 @@ public class Xunit1 : IFrontController
 			TestClassNamespace = testClassNamespace,
 			TestClassUniqueID = testCases[0].TestClassUniqueID,
 			TestCollectionUniqueID = testCases[0].TestCollectionUniqueID,
-			Traits = EmptyTraits,
+			Traits = EmptyV3Traits,
 		};
 
 		results.Continue = messageSink.OnMessage(testClassStarting);

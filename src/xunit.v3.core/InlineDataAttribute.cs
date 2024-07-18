@@ -23,7 +23,7 @@ public sealed class InlineDataAttribute(params object?[] data) : DataAttribute
 	/// <inheritdoc/>
 	public override ValueTask<IReadOnlyCollection<ITheoryDataRow>> GetData(DisposalTracker disposalTracker)
 	{
-		var traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+		var traits = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 		TestIntrospectionHelper.MergeTraitsInto(traits, Traits);
 
 		return new([

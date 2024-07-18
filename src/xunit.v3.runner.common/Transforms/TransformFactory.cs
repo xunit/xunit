@@ -341,7 +341,7 @@ public class TransformFactory
 								if (failureXml is not null)
 									SerializeMessageAndTrace(testJson, failureXml);
 
-								var traits = new Dictionary<string, List<string>>();
+								var traits = new Dictionary<string, HashSet<string>>();
 								var traitsXml = testXml.Element("traits")?.Elements("trait");
 								if (traitsXml is not null)
 									foreach (var traitXml in traitsXml)

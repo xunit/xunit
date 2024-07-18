@@ -119,13 +119,13 @@ public static class TestIntrospectionHelper
 	/// <param name="testMethod">The test method to get traits from.</param>
 	/// <param name="dataRow">The data row to get traits from.</param>
 	/// <returns>The traits dictionary</returns>
-	public static Dictionary<string, List<string>> GetTraits(
+	public static Dictionary<string, HashSet<string>> GetTraits(
 		IXunitTestMethod testMethod,
 		ITheoryDataRow? dataRow)
 	{
 		Guard.ArgumentNotNull(testMethod);
 
-		var result = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+		var result = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
 		foreach (var trait in testMethod.Traits)
 			result.AddOrGet(trait.Key).AddRange(trait.Value);
@@ -143,7 +143,7 @@ public static class TestIntrospectionHelper
 	/// <param name="traits">The existing traits dictionary.</param>
 	/// <param name="additionalTraits">The additional traits to merge.</param>
 	public static void MergeTraitsInto(
-		Dictionary<string, List<string>> traits,
+		Dictionary<string, HashSet<string>> traits,
 		string[]? additionalTraits)
 	{
 		if (additionalTraits is null)

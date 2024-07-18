@@ -26,7 +26,7 @@ public class CulturedXunitTestCase : XunitTestCase
 		string uniqueID,
 		bool @explicit,
 		string? skipReason = null,
-		Dictionary<string, List<string>>? traits = null,
+		Dictionary<string, HashSet<string>>? traits = null,
 		object?[]? testMethodArguments = null,
 		string? sourceFilePath = null,
 		int? sourceLineNumber = null,

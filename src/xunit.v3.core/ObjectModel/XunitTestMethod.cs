@@ -25,7 +25,7 @@ public class XunitTestMethod : IXunitTestMethod, IXunitSerializable
 	readonly Lazy<IReadOnlyCollection<IDataAttribute>> dataAttributes;
 	readonly Lazy<IReadOnlyCollection<IFactAttribute>> factAttributes;
 	readonly Lazy<IReadOnlyCollection<ParameterInfo>> parameters;
-	readonly Lazy<IReadOnlyDictionary<string, IReadOnlyList<string>>> traits;
+	readonly Lazy<IReadOnlyDictionary<string, IReadOnlyCollection<string>>> traits;
 
 	/// <summary>
 	/// Called by the de-serializer; should only be called by deriving classes for de-serialization purposes
@@ -101,7 +101,7 @@ public class XunitTestMethod : IXunitTestMethod, IXunitSerializable
 		this.ValidateNullablePropertyValue(testMethodArguments, nameof(TestMethodArguments));
 
 	/// <inheritdoc/>
-	public IReadOnlyDictionary<string, IReadOnlyList<string>> Traits =>
+	public IReadOnlyDictionary<string, IReadOnlyCollection<string>> Traits =>
 		traits.Value;
 
 	/// <inheritdoc/>

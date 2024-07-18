@@ -17,7 +17,7 @@ namespace Xunit;
 public class TheoryDataRow(params object?[] data) : ITheoryDataRow
 {
 	readonly object?[] data = Guard.ArgumentNotNull(data);
-	Dictionary<string, List<string>> traits = [];
+	Dictionary<string, HashSet<string>> traits = [];
 
 	/// <inheritdoc/>
 	public bool? Explicit { get; set; }
@@ -34,7 +34,7 @@ public class TheoryDataRow(params object?[] data) : ITheoryDataRow
 	/// <summary>
 	/// Gets or sets the traits for the theory data row.
 	/// </summary>
-	public Dictionary<string, List<string>> Traits
+	public Dictionary<string, HashSet<string>> Traits
 	{
 		get => traits;
 		set => traits = Guard.ArgumentNotNull(value, nameof(Traits));

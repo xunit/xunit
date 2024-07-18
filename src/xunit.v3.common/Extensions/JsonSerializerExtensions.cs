@@ -74,7 +74,7 @@ public static class JsonSerializerExtensions
 	public static void SerializeTraits(
 		this JsonObjectSerializer serializer,
 		string key,
-		IReadOnlyDictionary<string, IReadOnlyList<string>> dictionary)
+		IReadOnlyDictionary<string, IReadOnlyCollection<string>> dictionary)
 	{
 		Guard.ArgumentNotNull(serializer);
 		Guard.ArgumentNotNull(key);

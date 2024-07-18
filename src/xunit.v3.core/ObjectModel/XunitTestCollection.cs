@@ -23,7 +23,7 @@ public class XunitTestCollection : IXunitTestCollection, IXunitSerializable
 	readonly Lazy<IReadOnlyCollection<Type>> classFixtureTypes;
 	readonly Lazy<IReadOnlyCollection<Type>> collectionFixtureTypes;
 	readonly Lazy<ITestCaseOrderer?> testCaseOrderer;
-	readonly Lazy<IReadOnlyDictionary<string, IReadOnlyList<string>>> traits;
+	readonly Lazy<IReadOnlyDictionary<string, IReadOnlyCollection<string>>> traits;
 
 	/// <summary>
 	/// Called by the de-serializer; should only be called by deriving classes for de-serialization purposes
@@ -100,7 +100,7 @@ public class XunitTestCollection : IXunitTestCollection, IXunitSerializable
 		this.ValidateNullablePropertyValue(testCollectionDisplayName, nameof(TestCollectionDisplayName));
 
 	/// <inheritdoc/>
-	public IReadOnlyDictionary<string, IReadOnlyList<string>> Traits =>
+	public IReadOnlyDictionary<string, IReadOnlyCollection<string>> Traits =>
 		traits.Value;
 
 	/// <inheritdoc/>

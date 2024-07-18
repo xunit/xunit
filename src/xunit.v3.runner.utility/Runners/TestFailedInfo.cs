@@ -12,7 +12,7 @@ public class TestFailedInfo : TestExecutedInfo
 	public TestFailedInfo(
 		string typeName,
 		string methodName,
-		Dictionary<string, List<string>>? traits,
+		Dictionary<string, HashSet<string>>? traits,
 		string testDisplayName,
 		string testCollectionDisplayName,
 		decimal executionTime,

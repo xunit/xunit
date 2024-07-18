@@ -11,7 +11,7 @@ public class TestOutputInfo : TestInfo
 	public TestOutputInfo(
 		string typeName,
 		string methodName,
-		Dictionary<string, List<string>>? traits,
+		Dictionary<string, HashSet<string>>? traits,
 		string testDisplayName,
 		string testCollectionDisplayName,
 		string? output)

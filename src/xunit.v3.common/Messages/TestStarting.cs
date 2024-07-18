@@ -15,7 +15,7 @@ public sealed class TestStarting : TestMessage, ITestMetadata
 	DateTimeOffset? startTime;
 	string? testDisplayName;
 	int? timeout;
-	IReadOnlyDictionary<string, IReadOnlyList<string>>? traits;
+	IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits;
 
 	/// <inheritdoc/>
 	public required bool Explicit
@@ -48,7 +48,7 @@ public sealed class TestStarting : TestMessage, ITestMetadata
 	}
 
 	/// <inheritdoc/>
-	public required IReadOnlyDictionary<string, IReadOnlyList<string>> Traits
+	public required IReadOnlyDictionary<string, IReadOnlyCollection<string>> Traits
 	{
 		get => this.ValidateNullablePropertyValue(traits, nameof(Traits));
 		set => traits = Guard.ArgumentNotNull(value, nameof(Traits));

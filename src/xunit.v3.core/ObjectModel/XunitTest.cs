@@ -11,7 +11,7 @@ namespace Xunit.v3;
 [DebuggerDisplay("class = {TestCase.TestClassName}, method = {TestCase.TestMethodName}")]
 public class XunitTest : IXunitTest
 {
-	static readonly IReadOnlyDictionary<string, IReadOnlyList<string>> EmptyDictionary = new Dictionary<string, IReadOnlyList<string>>();
+	static readonly IReadOnlyDictionary<string, IReadOnlyCollection<string>> EmptyDictionary = new Dictionary<string, IReadOnlyCollection<string>>();
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="XunitTest"/> class.
@@ -29,7 +29,7 @@ public class XunitTest : IXunitTest
 		bool? @explicit,
 		string testDisplayName,
 		int testIndex,
-		IReadOnlyDictionary<string, IReadOnlyList<string>> traits,
+		IReadOnlyDictionary<string, IReadOnlyCollection<string>> traits,
 		int? timeout)
 	{
 		TestCase = Guard.ArgumentNotNull(testCase);
@@ -41,7 +41,7 @@ public class XunitTest : IXunitTest
 
 		Guard.ArgumentNotNull(traits);
 
-		var result = new Dictionary<string, IReadOnlyList<string>>(traits.Count);
+		var result = new Dictionary<string, IReadOnlyCollection<string>>(traits.Count);
 		foreach (var kvp in traits)
 			result.Add(kvp.Key, kvp.Value.CastOrToReadOnlyList());
 		Traits = result;
@@ -56,7 +56,7 @@ public class XunitTest : IXunitTest
 		bool? @explicit,
 		string testDisplayName,
 		string uniqueID,
-		IReadOnlyDictionary<string, IReadOnlyList<string>>? traits = null,
+		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
 		int? timeout = null)
 	{
 		TestCase = Guard.ArgumentNotNull(testCase);
@@ -70,7 +70,7 @@ public class XunitTest : IXunitTest
 			Traits = EmptyDictionary;
 		else
 		{
-			var result = new Dictionary<string, IReadOnlyList<string>>(traits.Count);
+			var result = new Dictionary<string, IReadOnlyCollection<string>>(traits.Count);
 			foreach (var kvp in traits)
 				result.Add(kvp.Key, kvp.Value.CastOrToReadOnlyList());
 			Traits = result;
@@ -98,7 +98,7 @@ public class XunitTest : IXunitTest
 	public int Timeout { get; }
 
 	/// <inheritdoc/>
-	public IReadOnlyDictionary<string, IReadOnlyList<string>> Traits { get; }
+	public IReadOnlyDictionary<string, IReadOnlyCollection<string>> Traits { get; }
 
 	/// <inheritdoc/>
 	public string UniqueID { get; }

@@ -29,7 +29,7 @@ public interface IAssemblyMetadata
 	/// there are none, or the framework does not support traits,
 	/// this should return an empty dictionary (not <c>null</c>).
 	/// </summary>
-	IReadOnlyDictionary<string, IReadOnlyList<string>> Traits { get; }
+	IReadOnlyDictionary<string, IReadOnlyCollection<string>> Traits { get; }
 
 	/// <summary>
 	/// Gets the unique ID for this test assembly.

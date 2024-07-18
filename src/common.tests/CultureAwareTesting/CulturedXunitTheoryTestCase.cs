@@ -37,7 +37,7 @@ public class CulturedXunitTheoryTestCase : XunitDelayEnumeratedTheoryTestCase
 		string testCaseDisplayName,
 		string uniqueID,
 		bool @explicit,
-		Dictionary<string, List<string>>? traits = null,
+		Dictionary<string, HashSet<string>>? traits = null,
 		string? sourceFilePath = null,
 		int? sourceLineNumber = null,
 		int? timeout = null)

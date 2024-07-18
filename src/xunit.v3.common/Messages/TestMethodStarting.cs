@@ -11,7 +11,7 @@ namespace Xunit.Sdk;
 public sealed class TestMethodStarting : TestMethodMessage, ITestMethodMetadata
 {
 	string? methodName;
-	IReadOnlyDictionary<string, IReadOnlyList<string>>? traits;
+	IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits;
 
 	/// <inheritdoc/>
 	public required string MethodName
@@ -21,7 +21,7 @@ public sealed class TestMethodStarting : TestMethodMessage, ITestMethodMetadata
 	}
 
 	/// <inheritdoc/>
-	public required IReadOnlyDictionary<string, IReadOnlyList<string>> Traits
+	public required IReadOnlyDictionary<string, IReadOnlyCollection<string>> Traits
 	{
 		get => this.ValidateNullablePropertyValue(traits, nameof(Traits));
 		set => traits = Guard.ArgumentNotNull(value, nameof(Traits));

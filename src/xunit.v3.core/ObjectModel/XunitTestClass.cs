@@ -26,7 +26,7 @@ public class XunitTestClass : IXunitTestClass, IXunitSerializable
 	readonly Lazy<IReadOnlyCollection<ConstructorInfo>?> constructors;
 	readonly Lazy<IReadOnlyCollection<MethodInfo>> methods;
 	readonly Lazy<ITestCaseOrderer?> testCaseOrderer;
-	readonly Lazy<IReadOnlyDictionary<string, IReadOnlyList<string>>> traits;
+	readonly Lazy<IReadOnlyDictionary<string, IReadOnlyCollection<string>>> traits;
 
 	/// <summary>
 	/// Called by the de-serializer; should only be called by deriving classes for de-serialization purposes
@@ -101,7 +101,7 @@ public class XunitTestClass : IXunitTestClass, IXunitSerializable
 	ITestCollection ITestClass.TestCollection => TestCollection;
 
 	/// <inheritdoc/>
-	public IReadOnlyDictionary<string, IReadOnlyList<string>> Traits =>
+	public IReadOnlyDictionary<string, IReadOnlyCollection<string>> Traits =>
 		traits.Value;
 
 	/// <inheritdoc/>

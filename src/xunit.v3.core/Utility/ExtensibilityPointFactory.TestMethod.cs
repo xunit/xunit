@@ -59,13 +59,13 @@ public static partial class ExtensibilityPointFactory
 	/// </summary>
 	/// <param name="testMethod">The test method</param>
 	/// <param name="testClassTraits">The traits inherited from the test class</param>
-	public static IReadOnlyDictionary<string, IReadOnlyList<string>> GetMethodTraits(
+	public static IReadOnlyDictionary<string, IReadOnlyCollection<string>> GetMethodTraits(
 		MethodInfo testMethod,
-		IReadOnlyDictionary<string, IReadOnlyList<string>>? testClassTraits)
+		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? testClassTraits)
 	{
 		Guard.ArgumentNotNull(testMethod);
 
-		var result = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+		var result = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
 		if (testClassTraits is not null)
 			foreach (var trait in testClassTraits)

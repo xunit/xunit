@@ -23,7 +23,7 @@ namespace Xunit.Runner.v2;
 /// </summary>
 public class Xunit2 : IFrontController
 {
-	internal static IReadOnlyDictionary<string, IReadOnlyList<string>> EmptyTraits = new Dictionary<string, List<string>>().ToReadOnly();
+	internal static IReadOnlyDictionary<string, IReadOnlyCollection<string>> EmptyV3Traits = new Dictionary<string, IReadOnlyCollection<string>>();
 
 #if NETFRAMEWORK
 	static readonly string[] SupportedPlatforms = ["dotnet", "desktop"];
@@ -384,7 +384,7 @@ public class Xunit2 : IFrontController
 			TargetFramework = TargetFramework,
 			TestEnvironment = string.Format(CultureInfo.CurrentCulture, "{0}-bit {1}", IntPtr.Size * 8, RuntimeInformation.FrameworkDescription),  // This may not be exactly right, but without the remote app domain, we don't know for sure
 			TestFrameworkDisplayName = TestFrameworkDisplayName,
-			Traits = EmptyTraits,
+			Traits = EmptyV3Traits,
 		});
 
 		// For reporting purposes, assume all tests are in the same collection
@@ -396,7 +396,7 @@ public class Xunit2 : IFrontController
 			TestCollectionClassName = null,
 			TestCollectionDisplayName = testCollectionDisplayName,
 			TestCollectionUniqueID = testCollectionUniqueID,
-			Traits = EmptyTraits,
+			Traits = EmptyV3Traits,
 		});
 
 		foreach (var testCasesByClass in testCases.WhereNotNull().GroupBy(tc => tc.TestMethod?.TestClass.Class.Name))
@@ -418,7 +418,7 @@ public class Xunit2 : IFrontController
 					TestClassNamespace = testClassNamespace,
 					TestClassUniqueID = testClassUniqueID,
 					TestCollectionUniqueID = testCollectionUniqueID,
-					Traits = EmptyTraits,
+					Traits = EmptyV3Traits,
 				});
 			}
 
@@ -435,7 +435,7 @@ public class Xunit2 : IFrontController
 						TestClassUniqueID = testClassUniqueID,
 						TestCollectionUniqueID = testCollectionUniqueID,
 						TestMethodUniqueID = testMethodUniqueID,
-						Traits = EmptyTraits,
+						Traits = EmptyV3Traits,
 					});
 
 				var currentTestIdx = 0;

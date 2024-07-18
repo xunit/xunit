@@ -9,7 +9,6 @@
     <Compile Include="..\xunit.v3.common\Internal\AssemblyExtensions.cs" LinkBase="Common" />
     <Compile Include="..\xunit.v3.common\Internal\CallerArgumentExpressionAttribute.cs" LinkBase="Common" />
     <Compile Include="..\xunit.v3.common\Internal\Guard.cs" LinkBase="Common" />
-    <Compile Include="..\xunit.v3.common\Internal\DictionaryExtensions.cs" LinkBase="Common" />
   </ItemGroup>
 
   <ItemGroup>

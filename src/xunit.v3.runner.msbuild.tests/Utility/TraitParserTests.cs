@@ -10,7 +10,7 @@ public class TraitParserTests
 		[Fact]
 		public void ReturnsEmptyWhenNull()
 		{
-			var traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+			var traits = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
 			new TraitParser().Parse(null, traits);
 
@@ -20,7 +20,7 @@ public class TraitParserTests
 		[Fact]
 		public void ReturnsEmptyWhenEmpty()
 		{
-			var traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+			var traits = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
 			new TraitParser().Parse(string.Empty, traits);
 
@@ -30,7 +30,7 @@ public class TraitParserTests
 		[Fact]
 		public void ReturnsTraits()
 		{
-			var traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+			var traits = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
 			new TraitParser().Parse("One=1;Two=2", traits);
 
@@ -52,7 +52,7 @@ public class TraitParserTests
 		[Fact]
 		public void IgnoresExtraTraitSeperatorsAndWhitespace()
 		{
-			var traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+			var traits = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
 			new TraitParser().Parse("; One = 1 ;;", traits);
 
@@ -69,7 +69,7 @@ public class TraitParserTests
 		[Fact]
 		public void IncludesExtraKeyValueSeperatorsInValue()
 		{
-			var traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+			var traits = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
 			new TraitParser().Parse("One=1=2=3", traits);
 
@@ -86,7 +86,7 @@ public class TraitParserTests
 		[Fact]
 		public void IgnoresMissingKeyValueSeperator()
 		{
-			var traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+			var traits = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
 			new TraitParser().Parse("One1", traits);
 
@@ -96,7 +96,7 @@ public class TraitParserTests
 		[Fact]
 		public void IgnoresMissingKey()
 		{
-			var traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+			var traits = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
 			new TraitParser().Parse("=1", traits);
 
@@ -106,7 +106,7 @@ public class TraitParserTests
 		[Fact]
 		public void IgnoresMissingValue()
 		{
-			var traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+			var traits = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
 			new TraitParser().Parse("1=", traits);
 
@@ -116,7 +116,7 @@ public class TraitParserTests
 		[Fact]
 		public void ContinuesOnError()
 		{
-			var traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+			var traits = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
 			new TraitParser().Parse("One;Two=2", traits);
 
@@ -133,7 +133,7 @@ public class TraitParserTests
 		[Fact]
 		public void RaisesWarningOnError()
 		{
-			var traits = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+			var traits = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 			var messages = new List<string>();
 			var parser = new TraitParser(messages.Add);
 

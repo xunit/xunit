@@ -160,7 +160,7 @@ public class TestClassCallbackHandlerTests
 		string methodName,
 		string testCaseDisplayName,
 		string? skipReason = null,
-		Dictionary<string, IReadOnlyList<string>>? traits = null)
+		Dictionary<string, IReadOnlyCollection<string>>? traits = null)
 	{
 		return new Xunit1TestCase
 		{

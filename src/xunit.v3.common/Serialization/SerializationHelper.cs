@@ -79,7 +79,7 @@ public static class SerializationHelper
 			{ TypeIndex.Type, (v, _) => TypeToSerializedTypeName((Type)v) },
 			{ TypeIndex.Enum, SerializeEnum },
 			{ TypeIndex.IXunitSerializable, (v, t) => SerializeXunitSerializable((IXunitSerializable)v, t) },
-			{ TypeIndex.TraitDictionary, (v, _) => SerializeTraits((Dictionary<string, List<string>>)v) },
+			{ TypeIndex.TraitDictionary, (v, _) => SerializeTraits((Dictionary<string, HashSet<string>>)v) },
 			{ TypeIndex.Object, (_, __) => string.Empty },
 
 			{ TypeIndex.String, (v, _) => ToBase64((string)v) },
@@ -115,7 +115,7 @@ public static class SerializationHelper
 			{ TypeIndex.Type, typeof(Type) },
 			{ TypeIndex.Enum, typeof(Enum) },
 			{ TypeIndex.IXunitSerializable, typeof(IXunitSerializable) },
-			{ TypeIndex.TraitDictionary, typeof(Dictionary<string, List<string>>) },
+			{ TypeIndex.TraitDictionary, typeof(Dictionary<string, HashSet<string>>) },
 			{ TypeIndex.Object, typeof(object) },
 
 			{ TypeIndex.String, typeof(string) },
@@ -252,9 +252,9 @@ public static class SerializationHelper
 			return Enum.Parse(type, embeddedValue);
 		});
 
-	static Dictionary<string, List<string>> DeserializeTraits(string serializedValue)
+	static Dictionary<string, HashSet<string>> DeserializeTraits(string serializedValue)
 	{
-		var result = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+		var result = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
 		if (serializedValue.Length != 0)
 		{
@@ -268,7 +268,7 @@ public static class SerializationHelper
 
 				foreach (var key in keys)
 				{
-					var list = new List<string>();
+					var list = new HashSet<string>();
 					var valuePieces = FromBase64(pieces[idx++]).Split('\n');
 
 					foreach (var valuePiece in valuePieces)
@@ -486,7 +486,7 @@ public static class SerializationHelper
 		return SerializeEmbeddedTypeValue(result, type);
 	}
 
-	static string SerializeTraits(Dictionary<string, List<string>>? value)
+	static string SerializeTraits(Dictionary<string, HashSet<string>>? value)
 	{
 		if (value is null || value.Count == 0)
 			return string.Empty;
@@ -831,7 +831,7 @@ public static class SerializationHelper
 		Type = -5,                // Custom serialization of the type name
 		IXunitSerializable = -4,  // Supports any object which implements IXunitSerializable
 		Enum = -3,                // Supports any (non-GAC'd) enum value
-		TraitDictionary = -2,     // Only supports Dictionary<string, List<string>> for traits
+		TraitDictionary = -2,     // Only supports Dictionary<string, HashSet<string>> for traits
 		Object = -1,              // Only arrays and null values
 
 		// Supported built-in types

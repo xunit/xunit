@@ -117,11 +117,11 @@ public static partial class ExtensibilityPointFactory
 	/// Gets the traits that are attached to the test assembly via <see cref="ITraitAttribute"/>s.
 	/// </summary>
 	/// <param name="testAssembly">The test assembly</param>
-	public static IReadOnlyDictionary<string, IReadOnlyList<string>> GetAssemblyTraits(Assembly testAssembly)
+	public static IReadOnlyDictionary<string, IReadOnlyCollection<string>> GetAssemblyTraits(Assembly testAssembly)
 	{
 		Guard.ArgumentNotNull(testAssembly);
 
-		var result = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+		var result = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
 		foreach (var traitAttribute in testAssembly.GetMatchingCustomAttributes(typeof(ITraitAttribute)).Cast<ITraitAttribute>())
 			foreach (var kvp in traitAttribute.GetTraits())

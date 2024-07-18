@@ -11,7 +11,7 @@ public class TestStartingInfo : TestInfo
 	public TestStartingInfo(
 		string typeName,
 		string methodName,
-		Dictionary<string, List<string>>? traits,
+		Dictionary<string, HashSet<string>>? traits,
 		string testDisplayName,
 		string testCollectionDisplayName)
 			: base(typeName, methodName, traits, testDisplayName, testCollectionDisplayName)

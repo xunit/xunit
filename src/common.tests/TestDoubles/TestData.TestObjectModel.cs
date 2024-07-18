@@ -16,7 +16,7 @@ public static partial class TestData
 		TestMethodDisplay methodDisplay = TestMethodDisplay.ClassAndMethod,
 		TestMethodDisplayOptions methodDisplayOptions = TestMethodDisplayOptions.None,
 		bool @explicit = false,
-		Dictionary<string, List<string>>? traits = null,
+		Dictionary<string, HashSet<string>>? traits = null,
 		int timeout = 0,
 		string uniqueID = DefaultTestCaseUniqueID)
 	{
@@ -44,7 +44,7 @@ public static partial class TestData
 		IXunitTestMethod? testMethod = null,
 		bool? @explicit = null,
 		string testDisplayName = DefaultTestDisplayName,
-		IReadOnlyDictionary<string, IReadOnlyList<string>>? traits = null,
+		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
 		int? timeout = null,
 		string uniqueID = DefaultTestUniqueID)
 	{
@@ -57,7 +57,7 @@ public static partial class TestData
 		string methodName,
 		bool? @explicit = null,
 		string testDisplayName = DefaultTestDisplayName,
-		IReadOnlyDictionary<string, IReadOnlyList<string>>? traits = null,
+		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
 		int? timeout = null,
 		string uniqueID = DefaultTestUniqueID) =>
 			XunitTest(XunitTestCase<TClassUnderTest>(methodName), null, @explicit, testDisplayName, traits, timeout, uniqueID);
@@ -83,7 +83,7 @@ public static partial class TestData
 		string? skipReason = null,
 		object?[]? testMethodArguments = null,
 		int? timeout = null,
-		Dictionary<string, List<string>>? traits = null,
+		Dictionary<string, HashSet<string>>? traits = null,
 		string uniqueID = DefaultTestCaseUniqueID)
 	{
 		var factAttribute = testMethod.Method.GetMatchingCustomAttributes(typeof(IFactAttribute)).FirstOrDefault() as IFactAttribute;
@@ -113,7 +113,7 @@ public static partial class TestData
 		IXunitTestCollection? testCollection = null,
 		object?[]? testMethodArguments = null,
 		int? timeout = null,
-		Dictionary<string, List<string>>? traits = null,
+		Dictionary<string, HashSet<string>>? traits = null,
 		string uniqueID = DefaultTestCaseUniqueID)
 	{
 		var methodInfo = typeof(TClassUnderTest).GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.FlattenHierarchy);

@@ -215,7 +215,7 @@ public class Xunit2MessageAdapter(
 			TargetFramework = targetFramework,
 			TestEnvironment = message.TestEnvironment,
 			TestFrameworkDisplayName = message.TestFrameworkDisplayName,
-			Traits = Xunit2.EmptyTraits,
+			Traits = Xunit2.EmptyV3Traits,
 		};
 	}
 
@@ -469,7 +469,7 @@ public class Xunit2MessageAdapter(
 			TestClassNamespace = testClassNamespace,
 			TestClassUniqueID = testClassUniqueID,
 			TestCollectionUniqueID = testCollectionUniqueID,
-			Traits = Xunit2.EmptyTraits,
+			Traits = Xunit2.EmptyV3Traits,
 		};
 	}
 
@@ -537,7 +537,7 @@ public class Xunit2MessageAdapter(
 			TestCollectionClassName = message.TestCollection.CollectionDefinition?.Name,
 			TestCollectionDisplayName = message.TestCollection.DisplayName,
 			TestCollectionUniqueID = testCollectionUniqueID,
-			Traits = Xunit2.EmptyTraits,
+			Traits = Xunit2.EmptyV3Traits,
 		};
 	}
 
@@ -644,7 +644,7 @@ public class Xunit2MessageAdapter(
 			TestCollectionUniqueID = testCollectionUniqueID,
 			TestClassUniqueID = testClassUniqueID,
 			TestMethodUniqueID = testMethodUniqueID,
-			Traits = Xunit2.EmptyTraits,
+			Traits = Xunit2.EmptyV3Traits,
 		};
 	}
 

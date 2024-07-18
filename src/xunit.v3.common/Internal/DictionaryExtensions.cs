@@ -1,5 +1,3 @@
-#nullable enable  // This file is temporarily shared with xunit.v2.tests, which is not nullable-enabled
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +11,7 @@ public static class DictionaryExtensions
 {
 	/// <summary/>
 	public static void Add<TKey, TValue>(
-		this Dictionary<TKey, List<TValue>> dictionary,
+		this Dictionary<TKey, HashSet<TValue>> dictionary,
 		TKey key,
 		TValue value)
 			where TKey : notnull
@@ -55,8 +53,20 @@ public static class DictionaryExtensions
 	}
 
 	/// <summary/>
+	public static void AddRange<T>(
+		this HashSet<T> hashSet,
+		IEnumerable<T> values)
+	{
+		Guard.ArgumentNotNull(hashSet);
+		Guard.ArgumentNotNull(values);
+
+		foreach (var value in values)
+			hashSet.Add(value);
+	}
+
+	/// <summary/>
 	public static bool Contains<TKey, TValue>(
-		this IReadOnlyDictionary<TKey, IReadOnlyList<TValue>> dictionary,
+		this IReadOnlyDictionary<TKey, IReadOnlyCollection<TValue>> dictionary,
 		TKey key,
 		TValue value,
 		IEqualityComparer<TValue> valueComparer)
@@ -72,54 +82,31 @@ public static class DictionaryExtensions
 	}
 
 	/// <summary/>
-	public static Dictionary<TKey, TValue> ToDictionaryIgnoringDuplicateKeys<TKey, TValue>(
-		this IEnumerable<TValue> values,
-		Func<TValue, TKey> keySelector,
-		IEqualityComparer<TKey>? comparer = null)
-			where TKey : notnull
-				=> ToDictionaryIgnoringDuplicateKeys(values, keySelector, x => x, comparer);
-
-	/// <summary/>
-	public static Dictionary<TKey, TValue> ToDictionaryIgnoringDuplicateKeys<TInput, TKey, TValue>(
-		this IEnumerable<TInput> inputValues,
-		Func<TInput, TKey> keySelector,
-		Func<TInput, TValue> valueSelector,
-		IEqualityComparer<TKey>? comparer = null)
-			where TKey : notnull
-	{
-		Guard.ArgumentNotNull(inputValues);
-		Guard.ArgumentNotNull(keySelector);
-		Guard.ArgumentNotNull(valueSelector);
-
-		var result = new Dictionary<TKey, TValue>(comparer);
-
-		foreach (var inputValue in inputValues)
-		{
-			var key = keySelector(inputValue);
-			if (!result.ContainsKey(key))
-				result.Add(key, valueSelector(inputValue));
-		}
-
-		return result;
-	}
-
-	/// <summary/>
-	public static IReadOnlyDictionary<TKey, IReadOnlyList<TValue>> ToReadOnly<TKey, TValue>(this Dictionary<TKey, List<TValue>> dictionary)
+	public static IReadOnlyDictionary<TKey, IReadOnlyCollection<TValue>> ToReadOnly<TKey, TValue>(this Dictionary<TKey, HashSet<TValue>> dictionary)
 		where TKey : notnull =>
 			Guard.ArgumentNotNull(dictionary).ToDictionary(
 				kvp => kvp.Key,
-				kvp => (IReadOnlyList<TValue>)kvp.Value.AsReadOnly(),
+				kvp => (IReadOnlyCollection<TValue>)kvp.Value,
 				dictionary.Comparer
 			);
 
 	/// <summary/>
-	public static Dictionary<TKey, List<TValue>> ToReadWrite<TKey, TValue>(
-		this IReadOnlyDictionary<TKey, IReadOnlyList<TValue>> dictionary,
+	public static IReadOnlyDictionary<TKey, IReadOnlyCollection<TValue>> ToReadOnly<TKey, TValue>(this Dictionary<TKey, List<TValue>> dictionary)
+		where TKey : notnull =>
+			Guard.ArgumentNotNull(dictionary).ToDictionary(
+				kvp => kvp.Key,
+				kvp => (IReadOnlyCollection<TValue>)kvp.Value,
+				dictionary.Comparer
+			);
+
+	/// <summary/>
+	public static Dictionary<TKey, HashSet<TValue>> ToReadWrite<TKey, TValue>(
+		this IReadOnlyDictionary<TKey, IReadOnlyCollection<TValue>> dictionary,
 		IEqualityComparer<TKey>? comparer)
 			where TKey : notnull =>
 				Guard.ArgumentNotNull(dictionary).ToDictionary(
 					kvp => kvp.Key,
-					kvp => kvp.Value.ToList(),
+					kvp => new HashSet<TValue>(kvp.Value),
 					comparer
 				);
 }

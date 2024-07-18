@@ -65,7 +65,7 @@ public class SerializationHelperTests
 
 		// Trait dictionaries are serialized as a keys list and values arrays
 		{
-			new Dictionary<string, List<string>>
+			new Dictionary<string, HashSet<string>>
 			{
 				{ "foo", new() { "bar", string.Empty } },
 				{ "biff", new() { "hello" } }
@@ -87,7 +87,7 @@ public class SerializationHelperTests
 		{ typeof(Type), "-5" },
 		{ typeof(MySerializable), "-4" },
 		{ typeof(MyEnum?), "-3?" },
-		{ typeof(Dictionary<string, List<string>>), "-2" },
+		{ typeof(Dictionary<string, HashSet<string>>), "-2" },
 		{ typeof(object), "-1" },
 		{ typeof(string), "0" },
 		{ typeof(char?), "1?" },
@@ -196,7 +196,7 @@ public class SerializationHelperTests
 		{
 			typeof(Enum),
 			typeof(IXunitSerializable),
-			typeof(Dictionary<string, List<string>>),
+			typeof(Dictionary<string, HashSet<string>>),
 			typeof(object),
 			typeof(string),
 			typeof(char),

@@ -20,7 +20,7 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 	string? testCaseDisplayName;
 	IXunitTestMethod? testMethod;
 	object?[]? testMethodArguments;
-	Dictionary<string, List<string>>? traits;
+	Dictionary<string, HashSet<string>>? traits;
 	string? uniqueID;
 
 	// Used to dispose of all the test method arguments
@@ -52,7 +52,7 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 		string uniqueID,
 		bool @explicit,
 		string? skipReason = null,
-		Dictionary<string, List<string>>? traits = null,
+		Dictionary<string, HashSet<string>>? traits = null,
 		object?[]? testMethodArguments = null,
 		string? sourceFilePath = null,
 		int? sourceLineNumber = null,
@@ -147,11 +147,11 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 	/// <summary>
 	/// Gets the traits associated with this test case.
 	/// </summary>
-	public Dictionary<string, List<string>> Traits =>
+	public Dictionary<string, HashSet<string>> Traits =>
 		this.ValidateNullablePropertyValue(traits, nameof(Traits));
 
 	/// <inheritdoc/>
-	IReadOnlyDictionary<string, IReadOnlyList<string>> ITestCaseMetadata.Traits =>
+	IReadOnlyDictionary<string, IReadOnlyCollection<string>> ITestCaseMetadata.Traits =>
 		Traits.ToReadOnly();
 
 	/// <inheritdoc/>
@@ -172,7 +172,7 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 		SourceFilePath = info.GetValue<string>("sf");
 		SourceLineNumber = info.GetValue<int?>("sl");
 		testMethodArguments = info.GetValue<object[]>("tma") ?? Array.Empty<object?>();
-		traits = info.GetValue<Dictionary<string, List<string>>>("tr") ?? new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+		traits = info.GetValue<Dictionary<string, HashSet<string>>>("tr") ?? new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
 		foreach (var testMethodArgument in TestMethodArguments)
 			disposalTracker.Add(testMethodArgument);

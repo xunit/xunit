@@ -11,7 +11,7 @@ public class TestPassedInfo : TestExecutedInfo
 	public TestPassedInfo(
 		string typeName,
 		string methodName,
-		Dictionary<string, List<string>>? traits,
+		Dictionary<string, HashSet<string>>? traits,
 		string testDisplayName,
 		string testCollectionDisplayName,
 		decimal executionTime,

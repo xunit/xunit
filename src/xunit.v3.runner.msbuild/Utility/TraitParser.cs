@@ -19,7 +19,7 @@ public class TraitParser
 
 	public void Parse(
 		string? traits,
-		Dictionary<string, List<string>> traitsDictionary)
+		Dictionary<string, HashSet<string>> traitsDictionary)
 	{
 		if (!string.IsNullOrEmpty(traits))
 		{

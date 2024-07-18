@@ -170,7 +170,7 @@ public static partial class TestData
 		string? targetFramework = DefaultTargetFramework,
 		string testEnvironment = DefaultTestEnvironment,
 		string testFrameworkDisplayName = DefaultTestFrameworkDisplayName,
-		IReadOnlyDictionary<string, IReadOnlyList<string>>? traits = null) =>
+		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null) =>
 			new()
 			{
 				AssemblyName = assemblyName,
@@ -398,7 +398,7 @@ public static partial class TestData
 		string? testMethod = null,
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
 		string? testNamespace = null,
-		IReadOnlyDictionary<string, IReadOnlyList<string>>? traits = null) =>
+		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null) =>
 			new()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
@@ -459,7 +459,7 @@ public static partial class TestData
 		int? testMethodMetadataToken = 2112,
 		string testMethodName = DefaultMethodName,
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
-		IReadOnlyDictionary<string, IReadOnlyList<string>>? traits = null) =>
+		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null) =>
 			new()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
@@ -593,7 +593,7 @@ public static partial class TestData
 		string testClassNamespace = DefaultTestClassNamespace,
 		string testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
-		IReadOnlyDictionary<string, IReadOnlyList<string>>? traits = null) =>
+		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null) =>
 			new()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
@@ -670,7 +670,7 @@ public static partial class TestData
 		string? testCollectionClass = DefaultTestCollectionClass,
 		string testCollectionDisplayName = DefaultTestCollectionDisplayName,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
-		IReadOnlyDictionary<string, IReadOnlyList<string>>? traits = null) =>
+		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null) =>
 			new()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
@@ -807,7 +807,7 @@ public static partial class TestData
 		string testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 		string testMethodUniqueID = DefaultTestMethodUniqueID,
-		IReadOnlyDictionary<string, IReadOnlyList<string>>? traits = null) =>
+		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null) =>
 			new()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
@@ -923,7 +923,7 @@ public static partial class TestData
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
 		string testUniqueID = DefaultTestUniqueID,
 		int timeout = 0,
-		IReadOnlyDictionary<string, IReadOnlyList<string>>? traits = null) =>
+		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null) =>
 			new()
 			{
 				AssemblyUniqueID = assemblyUniqueID,

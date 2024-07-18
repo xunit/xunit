@@ -175,11 +175,11 @@ public static partial class ExtensibilityPointFactory
 	/// </summary>
 	/// <param name="testCollectionDefinition">The test collection</param>
 	/// <param name="testAssemblyTraits">The traits inherited from the test assembly</param>
-	public static IReadOnlyDictionary<string, IReadOnlyList<string>> GetCollectionTraits(
+	public static IReadOnlyDictionary<string, IReadOnlyCollection<string>> GetCollectionTraits(
 		Type? testCollectionDefinition,
-		IReadOnlyDictionary<string, IReadOnlyList<string>>? testAssemblyTraits)
+		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? testAssemblyTraits)
 	{
-		var result = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+		var result = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
 		if (testAssemblyTraits is not null)
 			foreach (var trait in testAssemblyTraits)

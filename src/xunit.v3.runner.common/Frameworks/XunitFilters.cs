@@ -55,7 +55,7 @@ public class XunitFilters
 	/// <summary>
 	/// Gets the set of trait filters for tests to exclude.
 	/// </summary>
-	public Dictionary<string, List<string>> ExcludedTraits { get; } = new(StringComparer.OrdinalIgnoreCase);
+	public Dictionary<string, HashSet<string>> ExcludedTraits { get; } = new(StringComparer.OrdinalIgnoreCase);
 
 	/// <summary>
 	/// Gets the set of class filters for test classes to include.
@@ -75,7 +75,7 @@ public class XunitFilters
 	/// <summary>
 	/// Gets the set of trait filters for tests to include.
 	/// </summary>
-	public Dictionary<string, List<string>> IncludedTraits { get; } = new(StringComparer.OrdinalIgnoreCase);
+	public Dictionary<string, HashSet<string>> IncludedTraits { get; } = new(StringComparer.OrdinalIgnoreCase);
 
 	/// <summary>
 	/// Filters the given method using the defined filter values.

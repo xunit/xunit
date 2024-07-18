@@ -28,7 +28,7 @@ public static partial class Mocks
 	public static ITest Test(
 		ITestCase? testCase = null,
 		string testDisplayName = TestData.DefaultTestDisplayName,
-		IReadOnlyDictionary<string, IReadOnlyList<string>>? traits = null,
+		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
 		string uniqueID = TestData.DefaultTestUniqueID)
 	{
 		testCase ??= TestCase();
@@ -63,7 +63,7 @@ public static partial class Mocks
 		int? sourceLineNumber = null,
 		string testCaseDisplayName = TestData.DefaultTestCaseDisplayName,
 		ITestMethod? testMethod = null,
-		IReadOnlyDictionary<string, IReadOnlyList<string>>? traits = null,
+		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
 		string uniqueID = TestData.DefaultTestCaseUniqueID)
 	{
 		testMethod ??= TestMethod();
@@ -140,7 +140,7 @@ public static partial class Mocks
 		IXunitTestCase? testCase = null,
 		string testDisplayName = TestData.DefaultTestDisplayName,
 		int timeout = 0,
-		IReadOnlyDictionary<string, IReadOnlyList<string>>? traits = null,
+		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
 		string uniqueID = TestData.DefaultTestUniqueID)
 	{
 		testCase ??= XunitTestCase();
@@ -164,7 +164,7 @@ public static partial class Mocks
 		bool @explicit = false,
 		string testDisplayName = TestData.DefaultTestDisplayName,
 		int timeout = 0,
-		IReadOnlyDictionary<string, IReadOnlyList<string>>? traits = null,
+		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
 		string uniqueID = TestData.DefaultTestUniqueID) =>
 			XunitTest(@explicit, TestData.XunitTestCase<TClassUnderTest>(methodName), testDisplayName, timeout, traits, uniqueID);
 
@@ -180,7 +180,7 @@ public static partial class Mocks
 		string targetFramework = TestData.DefaultTargetFramework,
 		ITestCaseOrderer? testCaseOrderer = null,
 		ITestCollectionOrderer? testCollectionOrderer = null,
-		IReadOnlyDictionary<string, IReadOnlyList<string>>? traits = null,
+		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
 		string uniqueID = TestData.DefaultAssemblyUniqueID,
 		Version? version = null)
 	{
@@ -213,7 +213,7 @@ public static partial class Mocks
 		string testCaseDisplayName = TestData.DefaultTestCaseDisplayName,
 		IXunitTestMethod? testMethod = null,
 		int timeout = 0,
-		IReadOnlyDictionary<string, IReadOnlyList<string>>? traits = null,
+		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
 		string uniqueID = TestData.DefaultTestCaseUniqueID)
 	{
 		testMethod ??= XunitTestMethod();
@@ -248,7 +248,7 @@ public static partial class Mocks
 		int? sourceLineNumber = null,
 		string testCaseDisplayName = TestData.DefaultTestCaseDisplayName,
 		int timeout = 0,
-		IReadOnlyDictionary<string, IReadOnlyList<string>>? traits = null,
+		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
 		string uniqueID = TestData.DefaultTestCaseUniqueID) =>
 			XunitTestCase(@explicit, skipReason, sourceFilePath, sourceLineNumber, testCaseDisplayName, TestData.XunitTestMethod<TClassUnderTest>(methodName), timeout, traits, uniqueID);
 
@@ -261,7 +261,7 @@ public static partial class Mocks
 		string testClassName = TestData.DefaultTestClassName,
 		string testClassNamespace = TestData.DefaultTestClassNamespace,
 		IXunitTestCollection? testCollection = null,
-		IReadOnlyDictionary<string, IReadOnlyList<string>>? traits = null,
+		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
 		string uniqueID = TestData.DefaultTestClassUniqueID)
 	{
 		testCollection ??= XunitTestCollection();
@@ -290,7 +290,7 @@ public static partial class Mocks
 		ITestCaseOrderer? testCaseOrderer = null,
 		string testClassName = TestData.DefaultTestClassName,
 		string testClassNamespace = TestData.DefaultTestClassNamespace,
-		IReadOnlyDictionary<string, IReadOnlyList<string>>? traits = null,
+		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
 		string uniqueID = TestData.DefaultTestClassUniqueID) =>
 			XunitTestClass(beforeAfterTestAttributes, classFixtureTypes, constructors, methods, testCaseOrderer, testClassName, testClassNamespace, TestData.XunitTestCollection(TestData.XunitTestAssembly(typeof(TClassUnderTest).Assembly)), traits, uniqueID);
 
@@ -342,7 +342,7 @@ public static partial class Mocks
 		IReadOnlyCollection<ParameterInfo>? parameters = null,
 		IXunitTestClass? testClass = null,
 		object?[]? testMethodArguments = null,
-		IReadOnlyDictionary<string, IReadOnlyList<string>>? traits = null,
+		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
 		string uniqueID = TestData.DefaultTestMethodUniqueID)
 	{
 		factAttributes ??= [FactAttribute()];
@@ -378,7 +378,7 @@ public static partial class Mocks
 		string methodName = TestData.DefaultMethodName,
 		IReadOnlyCollection<ParameterInfo>? parameters = null,
 		object?[]? testMethodArguments = null,
-		IReadOnlyDictionary<string, IReadOnlyList<string>>? traits = null,
+		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
 		string uniqueID = TestData.DefaultTestMethodUniqueID) =>
 			XunitTestMethod(beforeAfterTestAttributes, dataAttributes, displayName, factAttributes, isGenericMethodDefinition, methodName, parameters, TestData.XunitTestClass<TClassUnderTest>(), testMethodArguments, traits, uniqueID);
 }

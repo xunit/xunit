@@ -100,7 +100,7 @@ public sealed class JsonArraySerializer(
 	/// <summary>
 	/// Serialize a trait dictionary value into the array.
 	/// </summary>
-	public void Serialize(IReadOnlyDictionary<string, IReadOnlyList<string>> dictionary)
+	public void Serialize(IReadOnlyDictionary<string, IReadOnlyCollection<string>> dictionary)
 	{
 		GuardNoOpenChild();
 		Guard.ArgumentNotNull(dictionary);

@@ -11,7 +11,7 @@ namespace Xunit.Sdk;
 [JsonTypeID("discovery-starting")]
 public sealed class DiscoveryStarting : TestAssemblyMessage, IAssemblyMetadata
 {
-	static readonly IReadOnlyDictionary<string, IReadOnlyList<string>> EmptyTraits = new Dictionary<string, IReadOnlyList<string>>();
+	static readonly IReadOnlyDictionary<string, IReadOnlyCollection<string>> EmptyTraits = new Dictionary<string, IReadOnlyCollection<string>>();
 
 	string? assemblyName;
 	string? assemblyPath;
@@ -33,7 +33,7 @@ public sealed class DiscoveryStarting : TestAssemblyMessage, IAssemblyMetadata
 	/// <inheritdoc/>
 	public required string? ConfigFilePath { get; set; }
 
-	IReadOnlyDictionary<string, IReadOnlyList<string>> IAssemblyMetadata.Traits => EmptyTraits;
+	IReadOnlyDictionary<string, IReadOnlyCollection<string>> IAssemblyMetadata.Traits => EmptyTraits;
 
 	string IAssemblyMetadata.UniqueID =>
 		AssemblyUniqueID;

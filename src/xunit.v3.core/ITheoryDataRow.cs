@@ -45,7 +45,7 @@ public interface ITheoryDataRow
 	/// Gets the trait values associated with this theory data row. If there are none, you may either
 	/// return a <c>null</c> or empty dictionary.
 	/// </summary>
-	Dictionary<string, List<string>>? Traits { get; }
+	Dictionary<string, HashSet<string>>? Traits { get; }
 
 	/// <summary>
 	/// Gets the theory data.

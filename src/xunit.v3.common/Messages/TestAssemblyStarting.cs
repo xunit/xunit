@@ -18,7 +18,7 @@ public sealed class TestAssemblyStarting : TestAssemblyMessage, IAssemblyMetadat
 	string? testEnvironment;
 	string? testFrameworkDisplayName;
 	DateTimeOffset? startTime;
-	IReadOnlyDictionary<string, IReadOnlyList<string>>? traits;
+	IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits;
 
 	/// <inheritdoc/>
 	public required string AssemblyName
@@ -82,7 +82,7 @@ public sealed class TestAssemblyStarting : TestAssemblyMessage, IAssemblyMetadat
 	}
 
 	/// <inheritdoc/>
-	public IReadOnlyDictionary<string, IReadOnlyList<string>> Traits
+	public IReadOnlyDictionary<string, IReadOnlyCollection<string>> Traits
 	{
 		get => this.ValidateNullablePropertyValue(traits, nameof(Traits));
 		set => traits = Guard.ArgumentNotNull(value, nameof(Traits));

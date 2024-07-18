@@ -620,7 +620,7 @@ public static class JsonDeserializer
 	/// <param name="obj">The deserialized JSON object</param>
 	/// <param name="key">The key for the value</param>
 	/// <returns>Returns the value if present; <c>null</c>, otherwise.</returns>
-	public static IReadOnlyDictionary<string, IReadOnlyList<string>>? TryGetTraits(
+	public static IReadOnlyDictionary<string, IReadOnlyCollection<string>>? TryGetTraits(
 		IReadOnlyDictionary<string, object?> obj,
 		string key) =>
 			Guard.ArgumentNotNull(obj).TryGetValue(key, out var value) ? TryGetTraits(value) : null;
@@ -630,12 +630,12 @@ public static class JsonDeserializer
 	/// </summary>
 	/// <param name="value">The deserialized JSON value</param>
 	/// <returns>Returns the value if present; <c>null</c>, otherwise.</returns>
-	public static IReadOnlyDictionary<string, IReadOnlyList<string>>? TryGetTraits(object? value)
+	public static IReadOnlyDictionary<string, IReadOnlyCollection<string>>? TryGetTraits(object? value)
 	{
 		if (TryGetObject(value) is not IReadOnlyDictionary<string, object?> traits)
 			return null;
 
-		var result = new Dictionary<string, IReadOnlyList<string>>();
+		var result = new Dictionary<string, IReadOnlyCollection<string>>();
 
 		foreach (var kvp in traits)
 		{

@@ -90,11 +90,11 @@ public static partial class ExtensibilityPointFactory
 	/// </summary>
 	/// <param name="testClass">The test class</param>
 	/// <param name="testCollectionTraits">The traits inherited from the test collection</param>
-	public static IReadOnlyDictionary<string, IReadOnlyList<string>> GetClassTraits(
+	public static IReadOnlyDictionary<string, IReadOnlyCollection<string>> GetClassTraits(
 		Type? testClass,
-		IReadOnlyDictionary<string, IReadOnlyList<string>>? testCollectionTraits)
+		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? testCollectionTraits)
 	{
-		var result = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+		var result = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
 		if (testCollectionTraits is not null)
 			foreach (var trait in testCollectionTraits)
