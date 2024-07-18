@@ -159,7 +159,11 @@ public class ArgumentFormatterTests
 		[Fact]
 		public static async Task TaskValue()
 		{
+#if XUNIT_V2
+			var task = Task.Run(() => { });
+#else
 			var task = Task.Run(() => { }, TestContext.Current.CancellationToken);
+#endif
 			await task;
 
 			Assert.Equal("Task { Status = RanToCompletion }", ArgumentFormatter.Format(task));
