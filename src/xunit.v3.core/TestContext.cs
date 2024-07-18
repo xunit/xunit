@@ -208,7 +208,7 @@ public sealed class TestContext : IDisposable
 	/// Attempt to cancel the currently executing test, if one is executing. This will
 	/// signal the <see cref="CancellationToken"/> for cancellation.
 	/// </summary>
-	public void Cancel() =>
+	public void CancelCurrentTest() =>
 		testCancellationTokenSource.Cancel();
 
 	/// <inheritdoc/>

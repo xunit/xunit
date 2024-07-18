@@ -52,7 +52,7 @@ public class XunitTestInvoker : TestInvoker<XunitTestInvokerContext, IXunitTest>
 
 			if (resultTask != baseTask)
 			{
-				TestContext.Current.Cancel();
+				TestContext.Current.CancelCurrentTest();
 				throw TestTimeoutException.ForTimedOutTest(timeout);
 			}
 		});
