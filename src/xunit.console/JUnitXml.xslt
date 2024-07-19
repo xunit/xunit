@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-  <xsl:output cdata-section-elements="message stack-trace"/>
+  <xsl:output cdata-section-elements="failure system-out"/>
 
   <xsl:template match="/">
     <xsl:apply-templates/>
@@ -17,39 +17,12 @@
       <xsl:attribute name="failures">
         <xsl:value-of select="sum(assembly/@failed)"/>
       </xsl:attribute>
-      <properties>
-        <property name="skipped">
-          <xsl:attribute name="value">
-            <xsl:value-of select="sum(assembly/@skipped)"/>
-          </xsl:attribute>
-        </property>
-        <property name="date">
-          <xsl:attribute name="value">
-            <xsl:value-of select="assembly[1]/@run-date"/>
-          </xsl:attribute>
-        </property>
-        <property name="nunit-version">
-          <xsl:attribute name="value">
-            <xsl:value-of select="assembly[1]/@test-framework"/>
-          </xsl:attribute>
-        </property>
-        <property name="clr-version">
-          <xsl:attribute name="value">
-            <xsl:value-of select="assembly[1]/@environment"/>
-          </xsl:attribute>
-        </property>
-        <property name="date">
-          <xsl:attribute name="value">
-            <xsl:value-of select="assembly[1]/@run-date"/>
-          </xsl:attribute>
-        </property>
-        <xsl:if test="sum(assembly/@failed) > 0">
-          <property name="result" value="Failure" />
-        </xsl:if>
-        <xsl:if test="sum(assembly/@failed) = 0">
-          <property name="result" value="Success" />
-        </xsl:if>
-      </properties>
+      <xsl:attribute name="errors">
+        <xsl:value-of select="sum(assembly/@errors)"/>
+      </xsl:attribute>
+      <xsl:attribute name="skipped">
+        <xsl:value-of select="sum(assembly/@skipped)"/>
+      </xsl:attribute>
       <xsl:apply-templates select="assembly/collection"/>
     </testsuites>
   </xsl:template>
@@ -68,6 +41,9 @@
       <xsl:attribute name="failures">
         <xsl:value-of select="@failed"/>
       </xsl:attribute>
+      <xsl:attribute name="skipped">
+        <xsl:value-of select="@skipped"/>
+      </xsl:attribute>
       <xsl:apply-templates select="test"/>
     </testsuite>
   </xsl:template>
@@ -77,13 +53,34 @@
       <xsl:attribute name="name">
         <xsl:value-of select="@name"/>
       </xsl:attribute>
+      <xsl:attribute name="classname">
+        <xsl:value-of select="@type"/>
+      </xsl:attribute>
       <xsl:if test="@time">
         <xsl:attribute name="time">
           <xsl:value-of select="@time"/>
         </xsl:attribute>
       </xsl:if>
+      <xsl:if test="output">
+        <system-out>
+          <xsl:value-of select="output"/>
+        </system-out>
+      </xsl:if>
       <xsl:apply-templates select="failure"/>
+      <xsl:apply-templates select="reason"/>
+      <xsl:if test="traits">
+        <xsl:apply-templates select="traits/trait"/>
+      </xsl:if>
     </testcase>
+  </xsl:template>
+
+  <xsl:template match="trait">
+    <property>
+      <xsl:attribute name="name">trait:<xsl:value-of select="@name"/></xsl:attribute>
+      <xsl:attribute name="value">
+        <xsl:value-of select="@value"/>
+      </xsl:attribute>
+    </property>
   </xsl:template>
 
   <xsl:template match="failure">
@@ -97,9 +94,17 @@
         </xsl:attribute>
       </xsl:if>
       <xsl:if test="stack-trace">
-        <xsl:value-of select="stack-trace"/>
+        <xsl:value-of select="stack-trace" />
       </xsl:if>
     </failure>
+  </xsl:template>
+
+  <xsl:template match="reason">
+    <skipped>
+      <xsl:attribute name="message">
+        <xsl:value-of select="."/>
+      </xsl:attribute>
+    </skipped>
   </xsl:template>
 
 </xsl:stylesheet>
