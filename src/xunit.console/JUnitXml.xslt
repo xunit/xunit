@@ -69,7 +69,9 @@
       <xsl:apply-templates select="failure"/>
       <xsl:apply-templates select="reason"/>
       <xsl:if test="traits">
-        <xsl:apply-templates select="traits/trait"/>
+        <properties>
+          <xsl:apply-templates select="traits/trait"/>
+        </properties>
       </xsl:if>
     </testcase>
   </xsl:template>
