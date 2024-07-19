@@ -15,12 +15,13 @@ namespace Xunit;
 /// </summary>
 public sealed class TestContext : IDisposable
 {
-	static readonly TestContext idleTestContext = new(null, null, TestPipelineStage.Unknown, default);
+	static readonly TestContext idleTestContext = new(null, null, null, TestPipelineStage.Unknown, default);
 	static readonly AsyncLocal<TestContext?> local = new();
 	static readonly HashSet<TestEngineStatus> validExecutionStatuses = [TestEngineStatus.Initializing, TestEngineStatus.Running, TestEngineStatus.CleaningUp];
 
 	IMessageSink? diagnosticMessageSink;
 	IMessageSink? internalDiagnosticMessageSink;
+	readonly Dictionary<string, object?>? keyValueStorage;
 	readonly CancellationTokenSource testCancellationTokenSource = new();
 
 	readonly List<string>? warnings;
@@ -28,12 +29,14 @@ public sealed class TestContext : IDisposable
 	TestContext(
 		IMessageSink? diagnosticMessageSink,
 		IMessageSink? internalDiagnosticMessageSink,
+		Dictionary<string, object?>? keyValueStorage,
 		TestPipelineStage pipelineStage,
 		CancellationToken cancellationToken,
 		List<string>? warnings = null)
 	{
 		DiagnosticMessageSink = diagnosticMessageSink;
 		InternalDiagnosticMessageSink = internalDiagnosticMessageSink;
+		this.keyValueStorage = keyValueStorage;
 		PipelineStage = pipelineStage;
 		CancellationToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, testCancellationTokenSource.Token).Token;
 		this.warnings = warnings;
@@ -78,6 +81,20 @@ public sealed class TestContext : IDisposable
 			internalDiagnosticMessageSink = value;
 		}
 	}
+
+	/// <summary>
+	/// Stores key/value pairs that are available across all stages of the pipeline. Can be used
+	/// to communicate between extensions at different execution stages, in both directions, as
+	/// a single storage container is used for the entire pipeline.
+	/// </summary>
+	/// <remarks>
+	/// This storage system is purely for communication between extension points. The values in here
+	/// are thrown away after the pipeline execution is complete. It is strongly recommend that
+	/// extensions either prefix their key names or use guaranteed unique IDs like GUIDs, to prevent
+	/// collisions with other extension authors.
+	/// </remarks>
+	public Dictionary<string, object?> KeyValueStorage =>
+		keyValueStorage ?? throw new InvalidOperationException("Cannot get KeyValueStorage on the idle test context");
 
 	/// <summary>
 	/// Gets the current test pipeline stage.
@@ -312,7 +329,7 @@ public sealed class TestContext : IDisposable
 		IMessageSink? diagnosticMessageSink,
 		bool diagnosticMessages,
 		bool internalDiagnosticMessages) =>
-			local.Value = new TestContext(diagnosticMessages ? diagnosticMessageSink : null, internalDiagnosticMessages ? diagnosticMessageSink : null, TestPipelineStage.Initialization, default);
+			local.Value = new TestContext(diagnosticMessages ? diagnosticMessageSink : null, internalDiagnosticMessages ? diagnosticMessageSink : null, [], TestPipelineStage.Initialization, default);
 
 	/// <summary>
 	/// Sets the test context for execution of a test. This assumes an existing test context already exists from which
@@ -344,7 +361,7 @@ public sealed class TestContext : IDisposable
 		if (Current.TestOutputHelper is null)
 			Guard.ArgumentNotNull(testOutputHelper);
 
-		local.Value = new TestContext(Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, TestPipelineStage.TestExecution, cancellationToken, Current.warnings ?? [])
+		local.Value = new TestContext(Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, Current.KeyValueStorage, TestPipelineStage.TestExecution, cancellationToken, Current.warnings ?? [])
 		{
 			Test = test,
 			TestStatus = testStatus,
@@ -388,7 +405,7 @@ public sealed class TestContext : IDisposable
 				? TestPipelineStage.Discovery
 				: TestPipelineStage.TestAssemblyExecution;
 
-		local.Value = new TestContext(Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, pipelineStage, cancellationToken)
+		local.Value = new TestContext(Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, Current.KeyValueStorage, pipelineStage, cancellationToken)
 		{
 			TestAssembly = testAssembly,
 			TestAssemblyStatus = testAssemblyStatus,
@@ -412,7 +429,7 @@ public sealed class TestContext : IDisposable
 		Guard.ArgumentEnumValid(testCaseStatus, validExecutionStatuses);
 		Guard.NotNull("TestContext.Current must be non-null", Current);
 
-		local.Value = new TestContext(Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, TestPipelineStage.TestCaseExecution, cancellationToken)
+		local.Value = new TestContext(Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, Current.KeyValueStorage, TestPipelineStage.TestCaseExecution, cancellationToken)
 		{
 			TestCase = testCase,
 			TestCaseStatus = testCaseStatus,
@@ -448,7 +465,7 @@ public sealed class TestContext : IDisposable
 		Guard.ArgumentEnumValid(testClassStatus, validExecutionStatuses);
 		Guard.NotNull("TestContext.Current must be non-null", Current);
 
-		local.Value = new TestContext(Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, TestPipelineStage.TestClassExecution, cancellationToken)
+		local.Value = new TestContext(Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, Current.KeyValueStorage, TestPipelineStage.TestClassExecution, cancellationToken)
 		{
 			TestClass = testClass,
 			TestClassStatus = testClassStatus,
@@ -478,7 +495,7 @@ public sealed class TestContext : IDisposable
 		Guard.ArgumentEnumValid(testCollectionStatus, validExecutionStatuses);
 		Guard.NotNull("TestContext.Current must be non-null", Current);
 
-		local.Value = new TestContext(Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, TestPipelineStage.TestCollectionExecution, cancellationToken)
+		local.Value = new TestContext(Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, Current.KeyValueStorage, TestPipelineStage.TestCollectionExecution, cancellationToken)
 		{
 			TestCollection = testCollection,
 			TestCollectionStatus = testCollectionStatus,
@@ -505,7 +522,7 @@ public sealed class TestContext : IDisposable
 		Guard.ArgumentEnumValid(testMethodStatus, validExecutionStatuses);
 		Guard.NotNull("TestContext.Current must be non-null", Current);
 
-		local.Value = new TestContext(Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, TestPipelineStage.TestMethodExecution, cancellationToken)
+		local.Value = new TestContext(Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, Current.KeyValueStorage, TestPipelineStage.TestMethodExecution, cancellationToken)
 		{
 			TestMethod = testMethod,
 			TestMethodStatus = testMethodStatus,

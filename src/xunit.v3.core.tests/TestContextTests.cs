@@ -1,6 +1,11 @@
+using System;
 using Xunit;
 
-public class TestContextTests
+[CollectionDefinition]
+public class TestContextTestsCollection : ICollectionFixture<TestContextTests.MyCollectionFixture> { }
+
+[Collection(typeof(TestContextTestsCollection))]
+public sealed class TestContextTests : IClassFixture<TestContextTests.MyClassFixture>
 {
 	[Fact]
 	public static void AmbientTestContextIsAvailableInTest()
@@ -30,5 +35,44 @@ public class TestContextTests
 		// Test assembly
 		Assert.Equal(TestEngineStatus.Running, context.TestAssemblyStatus);
 		Assert.Same(test.TestCase.TestCollection.TestAssembly, context.TestAssembly);
+	}
+
+	[Fact]
+	public static void KeyValueStorageIsAvailableThroughoutPipeline()
+	{
+		Assert.Equal(42, TestContext.Current.KeyValueStorage["collectionValue"]);
+		Assert.Equal(2112, TestContext.Current.KeyValueStorage["classValue"]);
+
+		TestContext.Current.KeyValueStorage["testValue"] = 2600;
+	}
+
+	public sealed class MyClassFixture : IDisposable
+	{
+		public MyClassFixture()
+		{
+			Assert.Equal(42, TestContext.Current.KeyValueStorage["collectionValue"]);
+
+			TestContext.Current.KeyValueStorage["classValue"] = 2112;
+		}
+
+		public void Dispose()
+		{
+			Assert.Equal(42, TestContext.Current.KeyValueStorage["collectionValue"]);
+			Assert.Equal(2112, TestContext.Current.KeyValueStorage["classValue"]);
+			Assert.Equal(2600, TestContext.Current.KeyValueStorage["testValue"]);
+		}
+	}
+
+	public sealed class MyCollectionFixture : IDisposable
+	{
+		public MyCollectionFixture() =>
+			TestContext.Current.KeyValueStorage["collectionValue"] = 42;
+
+		public void Dispose()
+		{
+			Assert.Equal(42, TestContext.Current.KeyValueStorage["collectionValue"]);
+			Assert.Equal(2112, TestContext.Current.KeyValueStorage["classValue"]);
+			Assert.Equal(2600, TestContext.Current.KeyValueStorage["testValue"]);
+		}
 	}
 }
