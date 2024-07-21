@@ -1,4 +1,5 @@
-#pragma warning disable CA1812 // This class is instantiated in a remote AppDomain
+#pragma warning disable CA1812    // This class is instantiated in a remote AppDomain
+#pragma warning disable xUnit3000 // This class does not have direct access to v2 xunit.runner.utility, so it can't derive from LLMBRO
 
 using System;
 using System.Collections.Generic;

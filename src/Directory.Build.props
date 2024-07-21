@@ -72,6 +72,7 @@
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
           <PrivateAssets>all</PrivateAssets>
         </PackageReference>
+        <PackageReference Include="xunit.analyzers" Version="$(XunitAnalyzersVersion)" PrivateAssets="all" />
       </ItemGroup>
     </When>
   </Choose>
