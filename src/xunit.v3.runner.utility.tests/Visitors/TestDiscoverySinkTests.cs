@@ -1,6 +1,5 @@
 using Xunit;
 using Xunit.Runner.Common;
-using Xunit.Sdk;
 
 public class TestDiscoverySinkTests
 {
@@ -15,7 +14,7 @@ public class TestDiscoverySinkTests
 		visitor.OnMessage(testCase1);
 		visitor.OnMessage(testCase2);
 		visitor.OnMessage(testCase3);
-		visitor.OnMessage(new MessageSinkMessage()); // Ignored
+		visitor.OnMessage(TestData.DiagnosticMessage()); // Ignored
 
 		Assert.Collection(
 			visitor.TestCases,

@@ -46,7 +46,7 @@ public class TestDiscoverySink : IMessageSink, IDisposable
 	/// <summary>
 	/// The list of discovered test cases.
 	/// </summary>
-	public List<TestCaseDiscovered> TestCases { get; } = [];
+	public List<ITestCaseDiscovered> TestCases { get; } = [];
 
 	/// <inheritdoc/>
 	public void Dispose()
@@ -62,7 +62,7 @@ public class TestDiscoverySink : IMessageSink, IDisposable
 	}
 
 	/// <inheritdoc/>
-	public bool OnMessage(MessageSinkMessage message)
+	public bool OnMessage(IMessageSinkMessage message)
 	{
 		Guard.ArgumentNotNull(message);
 

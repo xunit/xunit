@@ -9,7 +9,7 @@ using Xunit.v3;
 // This file manufactures instances of the test messages
 public static partial class TestData
 {
-	public static AfterTestFinished AfterTestFinished(
+	public static IAfterTestFinished AfterTestFinished(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		string attributeName = DefaultAttributeName,
 		string testCaseUniqueID = DefaultTestCaseUniqueID,
@@ -17,7 +17,7 @@ public static partial class TestData
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
 		string testUniqueID = DefaultTestUniqueID) =>
-			new()
+			new Xunit.Runner.Common.AfterTestFinished()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				AttributeName = attributeName,
@@ -28,7 +28,7 @@ public static partial class TestData
 				TestUniqueID = testUniqueID,
 			};
 
-	public static AfterTestStarting AfterTestStarting(
+	public static IAfterTestStarting AfterTestStarting(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		string attributeName = DefaultAttributeName,
 		string testCaseUniqueID = DefaultTestCaseUniqueID,
@@ -36,7 +36,7 @@ public static partial class TestData
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
 		string testUniqueID = DefaultTestUniqueID) =>
-			new()
+			new Xunit.Runner.Common.AfterTestStarting()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				AttributeName = attributeName,
@@ -47,7 +47,7 @@ public static partial class TestData
 				TestUniqueID = testUniqueID,
 			};
 
-	public static BeforeTestFinished BeforeTestFinished(
+	public static IBeforeTestFinished BeforeTestFinished(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		string attributeName = DefaultAttributeName,
 		string testCaseUniqueID = DefaultTestCaseUniqueID,
@@ -55,7 +55,7 @@ public static partial class TestData
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
 		string testUniqueID = DefaultTestUniqueID) =>
-			new()
+			new Xunit.Runner.Common.BeforeTestFinished()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				AttributeName = attributeName,
@@ -66,7 +66,7 @@ public static partial class TestData
 				TestUniqueID = testUniqueID,
 			};
 
-	public static BeforeTestStarting BeforeTestStarting(
+	public static IBeforeTestStarting BeforeTestStarting(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		string attributeName = DefaultAttributeName,
 		string testCaseUniqueID = DefaultTestCaseUniqueID,
@@ -74,7 +74,7 @@ public static partial class TestData
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
 		string testUniqueID = DefaultTestUniqueID) =>
-			new()
+			new Xunit.Runner.Common.BeforeTestStarting()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				AttributeName = attributeName,
@@ -85,24 +85,24 @@ public static partial class TestData
 				TestUniqueID = testUniqueID,
 			};
 
-	public static DiagnosticMessage DiagnosticMessage(string message = "Hello world!") =>
-		new(message);
+	public static IDiagnosticMessage DiagnosticMessage(string message = "Hello world!") =>
+		new Xunit.Runner.Common.DiagnosticMessage(message);
 
-	public static DiscoveryComplete DiscoveryComplete(
+	public static IDiscoveryComplete DiscoveryComplete(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		int testCasesToRun = DefaultCountTotal) =>
-			new()
+			new Xunit.Runner.Common.DiscoveryComplete()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				TestCasesToRun = testCasesToRun,
 			};
 
-	public static DiscoveryStarting DiscoveryStarting(
+	public static IDiscoveryStarting DiscoveryStarting(
 		string assemblyName = DefaultAssemblyName,
 		string assemblyPath = DefaultAssemblyPath,
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		string? configFilePath = DefaultConfigFilePath) =>
-			new()
+			new Xunit.Runner.Common.DiscoveryStarting()
 			{
 				AssemblyName = assemblyName,
 				AssemblyPath = assemblyPath,
@@ -110,12 +110,12 @@ public static partial class TestData
 				ConfigFilePath = configFilePath,
 			};
 
-	public static ErrorMessage ErrorMessage(
+	public static IErrorMessage ErrorMessage(
 		int[]? exceptionParentIndices = null,
 		string?[]? exceptionTypes = null,
 		string[]? messages = null,
 		string?[]? stackTraces = null) =>
-			new()
+			new Xunit.Runner.Common.ErrorMessage()
 			{
 				ExceptionParentIndices = exceptionParentIndices ?? DefaultExceptionParentIndices,
 				ExceptionTypes = exceptionTypes ?? DefaultExceptionTypes,
@@ -123,16 +123,16 @@ public static partial class TestData
 				StackTraces = stackTraces ?? DefaultStackTraces,
 			};
 
-	public static InternalDiagnosticMessage InternalDiagnosticMessage(string message = "Hello world!") =>
-		new(message);
+	public static IInternalDiagnosticMessage InternalDiagnosticMessage(string message = "Hello world!") =>
+		new Xunit.Runner.Common.InternalDiagnosticMessage(message);
 
-	public static TestAssemblyCleanupFailure TestAssemblyCleanupFailure(
+	public static ITestAssemblyCleanupFailure TestAssemblyCleanupFailure(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		int[]? exceptionParentIndices = null,
 		string?[]? exceptionTypes = null,
 		string[]? messages = null,
 		string?[]? stackTraces = null) =>
-			new()
+			new Xunit.Runner.Common.TestAssemblyCleanupFailure()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExceptionParentIndices = exceptionParentIndices ?? DefaultExceptionParentIndices,
@@ -141,7 +141,7 @@ public static partial class TestData
 				StackTraces = stackTraces ?? DefaultStackTraces,
 			};
 
-	public static TestAssemblyFinished TestAssemblyFinished(
+	public static ITestAssemblyFinished TestAssemblyFinished(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		decimal executionTime = DefaultExecutionTime,
 		DateTimeOffset? finishTime = null,
@@ -149,7 +149,7 @@ public static partial class TestData
 		int testsNotRun = DefaultCountNotRun,
 		int testsSkipped = DefaultCountSkipped,
 		int testsTotal = DefaultCountTotal) =>
-			new()
+			new Xunit.Runner.Common.TestAssemblyFinished()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = executionTime,
@@ -160,7 +160,7 @@ public static partial class TestData
 				TestsTotal = testsTotal,
 			};
 
-	public static TestAssemblyStarting TestAssemblyStarting(
+	public static ITestAssemblyStarting TestAssemblyStarting(
 		string assemblyName = DefaultAssemblyName,
 		string assemblyPath = DefaultAssemblyPath,
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
@@ -171,7 +171,7 @@ public static partial class TestData
 		string testEnvironment = DefaultTestEnvironment,
 		string testFrameworkDisplayName = DefaultTestFrameworkDisplayName,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null) =>
-			new()
+			new Xunit.Runner.Common.TestAssemblyStarting()
 			{
 				AssemblyName = assemblyName,
 				AssemblyPath = assemblyPath,
@@ -325,7 +325,7 @@ public static partial class TestData
 		};
 	}
 
-	public static TestCaseCleanupFailure TestCaseCleanupFailure(
+	public static ITestCaseCleanupFailure TestCaseCleanupFailure(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		int[]? exceptionParentIndices = null,
 		string?[]? exceptionTypes = null,
@@ -335,7 +335,7 @@ public static partial class TestData
 		string? testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 		string? testMethodUniqueID = DefaultTestMethodUniqueID) =>
-			new()
+			new Xunit.Runner.Common.TestCaseCleanupFailure()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExceptionParentIndices = exceptionParentIndices ?? DefaultExceptionParentIndices,
@@ -348,7 +348,7 @@ public static partial class TestData
 				TestMethodUniqueID = testMethodUniqueID,
 			};
 
-	public static TestCaseDiscovered TestCaseDiscovered<TClass>(
+	public static ITestCaseDiscovered TestCaseDiscovered<TClass>(
 		string testMethod,
 		string? testCaseDisplayName = null)
 	{
@@ -382,7 +382,7 @@ public static partial class TestData
 		);
 	}
 
-	public static TestCaseDiscovered TestCaseDiscovered(
+	public static ITestCaseDiscovered TestCaseDiscovered(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		string serialization = DefaultTestCaseSerialization,
 		string? skipReason = null,
@@ -399,7 +399,7 @@ public static partial class TestData
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
 		string? testNamespace = null,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null) =>
-			new()
+			new Xunit.Runner.Common.TestCaseDiscovered()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				Serialization = serialization,
@@ -419,7 +419,7 @@ public static partial class TestData
 				Traits = traits ?? DefaultTraits,
 			};
 
-	public static TestCaseFinished TestCaseFinished(
+	public static ITestCaseFinished TestCaseFinished(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		decimal executionTime = 123.4567m,
 		string testCaseUniqueID = DefaultTestCaseUniqueID,
@@ -430,7 +430,7 @@ public static partial class TestData
 		int testsNotRun = DefaultCountNotRun,
 		int testsSkipped = DefaultCountSkipped,
 		int testsTotal = DefaultCountTotal) =>
-			new()
+			new Xunit.Runner.Common.TestCaseFinished()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = executionTime,
@@ -444,7 +444,7 @@ public static partial class TestData
 				TestsTotal = testsTotal,
 			};
 
-	public static TestCaseStarting TestCaseStarting(
+	public static ITestCaseStarting TestCaseStarting(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		string? skipReason = null,
 		string? sourceFilePath = null,
@@ -460,7 +460,7 @@ public static partial class TestData
 		string testMethodName = DefaultMethodName,
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null) =>
-			new()
+			new Xunit.Runner.Common.TestCaseStarting()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				SkipReason = skipReason,
@@ -479,7 +479,7 @@ public static partial class TestData
 				Traits = traits ?? DefaultTraits,
 			};
 
-	public static TestClassCleanupFailure TestClassCleanupFailure(
+	public static ITestClassCleanupFailure TestClassCleanupFailure(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		int[]? exceptionParentIndices = null,
 		string?[]? exceptionTypes = null,
@@ -487,7 +487,7 @@ public static partial class TestData
 		string?[]? stackTraces = null,
 		string? testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID) =>
-			new()
+			new Xunit.Runner.Common.TestClassCleanupFailure()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExceptionParentIndices = exceptionParentIndices ?? DefaultExceptionParentIndices,
@@ -498,14 +498,14 @@ public static partial class TestData
 				TestCollectionUniqueID = testCollectionUniqueID,
 			};
 
-	public static TestClassConstructionFinished TestClassConstructionFinished(
+	public static ITestClassConstructionFinished TestClassConstructionFinished(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		string testCaseUniqueID = DefaultTestCaseUniqueID,
 		string? testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
 		string testUniqueID = DefaultTestUniqueID) =>
-			new()
+			new Xunit.Runner.Common.TestClassConstructionFinished()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				TestCaseUniqueID = testCaseUniqueID,
@@ -515,14 +515,14 @@ public static partial class TestData
 				TestUniqueID = testUniqueID,
 			};
 
-	public static TestClassConstructionStarting TestClassConstructionStarting(
+	public static ITestClassConstructionStarting TestClassConstructionStarting(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		string testCaseUniqueID = DefaultTestCaseUniqueID,
 		string? testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
 		string testUniqueID = DefaultTestUniqueID) =>
-			new()
+			new Xunit.Runner.Common.TestClassConstructionStarting()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				TestCaseUniqueID = testCaseUniqueID,
@@ -532,14 +532,14 @@ public static partial class TestData
 				TestUniqueID = testUniqueID,
 			};
 
-	public static TestClassDisposeFinished TestClassDisposeFinished(
+	public static ITestClassDisposeFinished TestClassDisposeFinished(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		string testCaseUniqueID = DefaultTestCaseUniqueID,
 		string? testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
 		string testUniqueID = DefaultTestUniqueID) =>
-			new()
+			new Xunit.Runner.Common.TestClassDisposeFinished()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				TestCaseUniqueID = testCaseUniqueID,
@@ -549,14 +549,14 @@ public static partial class TestData
 				TestUniqueID = testUniqueID,
 			};
 
-	public static TestClassDisposeStarting TestClassDisposeStarting(
+	public static ITestClassDisposeStarting TestClassDisposeStarting(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		string testCaseUniqueID = DefaultTestCaseUniqueID,
 		string? testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
 		string testUniqueID = DefaultTestUniqueID) =>
-			new()
+			new Xunit.Runner.Common.TestClassDisposeStarting()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				TestCaseUniqueID = testCaseUniqueID,
@@ -566,7 +566,7 @@ public static partial class TestData
 				TestUniqueID = testUniqueID,
 			};
 
-	public static TestClassFinished TestClassFinished(
+	public static ITestClassFinished TestClassFinished(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		decimal executionTime = DefaultExecutionTime,
 		string? testClassUniqueID = DefaultTestClassUniqueID,
@@ -575,7 +575,7 @@ public static partial class TestData
 		int testsNotRun = DefaultCountNotRun,
 		int testsSkipped = DefaultCountSkipped,
 		int testsTotal = DefaultCountTotal) =>
-			new()
+			new Xunit.Runner.Common.TestClassFinished()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = executionTime,
@@ -587,14 +587,14 @@ public static partial class TestData
 				TestsTotal = testsTotal,
 			};
 
-	public static TestClassStarting TestClassStarting(
+	public static ITestClassStarting TestClassStarting(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		string testClassName = DefaultTestClassName,
 		string testClassNamespace = DefaultTestClassNamespace,
 		string testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null) =>
-			new()
+			new Xunit.Runner.Common.TestClassStarting()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				TestClassName = testClassName,
@@ -604,7 +604,7 @@ public static partial class TestData
 				Traits = traits ?? DefaultTraits,
 			};
 
-	public static TestCleanupFailure TestCleanupFailure(
+	public static ITestCleanupFailure TestCleanupFailure(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		int[]? exceptionParentIndices = null,
 		string?[]? exceptionTypes = null,
@@ -615,7 +615,7 @@ public static partial class TestData
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
 		string testUniqueID = DefaultTestUniqueID) =>
-			new()
+			new Xunit.Runner.Common.TestCleanupFailure()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExceptionParentIndices = exceptionParentIndices ?? DefaultExceptionParentIndices,
@@ -629,14 +629,14 @@ public static partial class TestData
 				TestUniqueID = testUniqueID,
 			};
 
-	public static TestCollectionCleanupFailure TestCollectionCleanupFailure(
+	public static ITestCollectionCleanupFailure TestCollectionCleanupFailure(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		int[]? exceptionParentIndices = null,
 		string?[]? exceptionTypes = null,
 		string[]? messages = null,
 		string?[]? stackTraces = null,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID) =>
-			new()
+			new Xunit.Runner.Common.TestCollectionCleanupFailure()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExceptionParentIndices = exceptionParentIndices ?? DefaultExceptionParentIndices,
@@ -646,7 +646,7 @@ public static partial class TestData
 				TestCollectionUniqueID = testCollectionUniqueID,
 			};
 
-	public static TestCollectionFinished TestCollectionFinished(
+	public static ITestCollectionFinished TestCollectionFinished(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		decimal executionTime = DefaultExecutionTime,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
@@ -654,7 +654,7 @@ public static partial class TestData
 		int testsNotRun = DefaultCountNotRun,
 		int testsSkipped = DefaultCountSkipped,
 		int testsTotal = DefaultCountTotal) =>
-			new()
+			new Xunit.Runner.Common.TestCollectionFinished()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = executionTime,
@@ -665,13 +665,13 @@ public static partial class TestData
 				TestsTotal = testsTotal,
 			};
 
-	public static TestCollectionStarting TestCollectionStarting(
+	public static ITestCollectionStarting TestCollectionStarting(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		string? testCollectionClass = DefaultTestCollectionClass,
 		string testCollectionDisplayName = DefaultTestCollectionDisplayName,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null) =>
-			new()
+			new Xunit.Runner.Common.TestCollectionStarting()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				TestCollectionClassName = testCollectionClass,
@@ -697,7 +697,7 @@ public static partial class TestData
 		return result;
 	}
 
-	public static TestFailed TestFailed(
+	public static ITestFailed TestFailed(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		FailureCause cause = FailureCause.Assertion,
 		int[]? exceptionParentIndices = null,
@@ -713,7 +713,7 @@ public static partial class TestData
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
 		string testUniqueID = DefaultTestUniqueID,
 		string[]? warnings = null) =>
-			new()
+			new Xunit.Runner.Common.TestFailed()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				Cause = cause,
@@ -732,7 +732,7 @@ public static partial class TestData
 				Warnings = warnings,
 			};
 
-	public static TestFinished TestFinished(
+	public static ITestFinished TestFinished(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		decimal executionTime = DefaultExecutionTime,
 		DateTimeOffset? finishTime = null,
@@ -743,7 +743,7 @@ public static partial class TestData
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
 		string testUniqueID = DefaultTestUniqueID,
 		string[]? warnings = null) =>
-			new()
+			new Xunit.Runner.Common.TestFinished()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = executionTime,
@@ -757,7 +757,7 @@ public static partial class TestData
 				Warnings = warnings,
 			};
 
-	public static TestMethodCleanupFailure TestMethodCleanupFailure(
+	public static ITestMethodCleanupFailure TestMethodCleanupFailure(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		int[]? exceptionParentIndices = null,
 		string?[]? exceptionTypes = null,
@@ -766,7 +766,7 @@ public static partial class TestData
 		string? testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 		string? testMethodUniqueID = DefaultTestMethodUniqueID) =>
-			new()
+			new Xunit.Runner.Common.TestMethodCleanupFailure()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExceptionParentIndices = exceptionParentIndices ?? DefaultExceptionParentIndices,
@@ -778,7 +778,7 @@ public static partial class TestData
 				TestMethodUniqueID = testMethodUniqueID,
 			};
 
-	public static TestMethodFinished TestMethodFinished(
+	public static ITestMethodFinished TestMethodFinished(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		decimal executionTime = DefaultExecutionTime,
 		string? testClassUniqueID = DefaultTestClassUniqueID,
@@ -788,7 +788,7 @@ public static partial class TestData
 		int testsNotRun = DefaultCountNotRun,
 		int testsSkipped = DefaultCountSkipped,
 		int testsTotal = DefaultCountTotal) =>
-			new()
+			new Xunit.Runner.Common.TestMethodFinished()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = executionTime,
@@ -801,14 +801,14 @@ public static partial class TestData
 				TestsTotal = testsTotal,
 			};
 
-	public static TestMethodStarting TestMethodStarting(
+	public static ITestMethodStarting TestMethodStarting(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		string methodName = DefaultMethodName,
 		string testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 		string testMethodUniqueID = DefaultTestMethodUniqueID,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null) =>
-			new()
+			new Xunit.Runner.Common.TestMethodStarting()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				MethodName = methodName,
@@ -818,7 +818,7 @@ public static partial class TestData
 				Traits = traits ?? DefaultTraits,
 			};
 
-	public static TestNotRun TestNotRun(
+	public static ITestNotRun TestNotRun(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		DateTimeOffset? finishTime = null,
 		string output = DefaultOutput,
@@ -828,7 +828,7 @@ public static partial class TestData
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
 		string testUniqueID = DefaultTestUniqueID,
 		string[]? warnings = null) =>
-			new()
+			new Xunit.Runner.Common.TestNotRun()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = 0m,
@@ -842,7 +842,7 @@ public static partial class TestData
 				Warnings = warnings,
 			};
 
-	public static TestOutput TestOutput(
+	public static ITestOutput TestOutput(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		string output = DefaultOutput,
 		string testCaseUniqueID = DefaultTestCaseUniqueID,
@@ -850,7 +850,7 @@ public static partial class TestData
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
 		string testUniqueID = DefaultTestUniqueID) =>
-			new()
+			new Xunit.Runner.Common.TestOutput()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				Output = output,
@@ -861,7 +861,7 @@ public static partial class TestData
 				TestUniqueID = testUniqueID,
 			};
 
-	public static TestPassed TestPassed(
+	public static ITestPassed TestPassed(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		decimal executionTime = DefaultExecutionTime,
 		DateTimeOffset? finishTime = null,
@@ -872,7 +872,7 @@ public static partial class TestData
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
 		string testUniqueID = DefaultTestUniqueID,
 		string[]? warnings = null) =>
-			new()
+			new Xunit.Runner.Common.TestPassed()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = executionTime,
@@ -886,7 +886,7 @@ public static partial class TestData
 				Warnings = warnings,
 			};
 
-	public static TestSkipped TestSkipped(
+	public static ITestSkipped TestSkipped(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		DateTimeOffset? finishTime = null,
 		string output = DefaultOutput,
@@ -897,7 +897,7 @@ public static partial class TestData
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
 		string testUniqueID = DefaultTestUniqueID,
 		string[]? warnings = null) =>
-			new()
+			new Xunit.Runner.Common.TestSkipped()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = 0m,
@@ -912,7 +912,7 @@ public static partial class TestData
 				Warnings = warnings,
 			};
 
-	public static TestStarting TestStarting(
+	public static ITestStarting TestStarting(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		bool @explicit = false,
 		DateTimeOffset? startTime = null,
@@ -924,7 +924,7 @@ public static partial class TestData
 		string testUniqueID = DefaultTestUniqueID,
 		int timeout = 0,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null) =>
-			new()
+			new Xunit.Runner.Common.TestStarting()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				Explicit = @explicit,

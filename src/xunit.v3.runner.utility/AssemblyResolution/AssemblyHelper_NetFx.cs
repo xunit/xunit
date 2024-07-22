@@ -8,6 +8,12 @@ using System.Security;
 using Xunit.Internal;
 using Xunit.Sdk;
 
+#if XUNIT_RUNNER_UTILITY
+using Xunit.Runner.Common;
+#else
+using Xunit.v3;
+#endif
+
 namespace Xunit;
 
 /// <summary>
@@ -15,7 +21,7 @@ namespace Xunit;
 /// </summary>
 public class AssemblyHelper : MarshalByRefObject, IDisposable
 {
-	static readonly string[] Extensions = { ".dll", ".exe" };
+	static readonly string[] Extensions = [".dll", ".exe"];
 
 	readonly string directory;
 	bool disposed;

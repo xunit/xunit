@@ -18,5 +18,5 @@ public interface IMessageBus : IDisposable
 	/// for discovery or execution, and this is intended to communicate to those sub-systems that
 	/// that they should short circuit and stop their work as quickly as is reasonable.
 	/// </returns>
-	bool QueueMessage(MessageSinkMessage message);
+	bool QueueMessage(IMessageSinkMessage message);
 }

@@ -11,20 +11,20 @@ using Xunit.v3;
 
 public class AcceptanceTestV3
 {
-	public ValueTask<List<MessageSinkMessage>> RunAsync(
+	public static ValueTask<List<IMessageSinkMessage>> RunAsync(
 		Type type,
 		bool preEnumerateTheories = true,
 		ExplicitOption? explicitOption = null,
 		IMessageSink? diagnosticMessageSink = null) =>
 			RunAsync([type], preEnumerateTheories, explicitOption, diagnosticMessageSink);
 
-	public ValueTask<List<MessageSinkMessage>> RunAsync(
+	public static ValueTask<List<IMessageSinkMessage>> RunAsync(
 		Type[] types,
 		bool preEnumerateTheories = true,
 		ExplicitOption? explicitOption = null,
 		IMessageSink? diagnosticMessageSink = null)
 	{
-		var tcs = new TaskCompletionSource<List<MessageSinkMessage>>();
+		var tcs = new TaskCompletionSource<List<IMessageSinkMessage>>();
 
 		ThreadPool.QueueUserWorkItem(async _ =>
 		{
@@ -39,7 +39,7 @@ public class AcceptanceTestV3
 				var testCases = new List<ITestCase>();
 				await discoverer.Find(testCase => { testCases.Add(testCase); return new(true); }, TestData.TestFrameworkDiscoveryOptions(preEnumerateTheories: preEnumerateTheories), types);
 
-				using var runSink = SpyMessageSink<TestAssemblyFinished>.Create();
+				using var runSink = SpyMessageSink<ITestAssemblyFinished>.Create();
 				var executor = testFramework.GetExecutor(testAssembly);
 				await executor.RunTestCases(testCases, runSink, TestData.TestFrameworkExecutionOptions(explicitOption: explicitOption));
 
@@ -54,36 +54,36 @@ public class AcceptanceTestV3
 		return new(tcs.Task);
 	}
 
-	public async ValueTask<List<TMessageType>> RunAsync<TMessageType>(
+	public async static ValueTask<List<TMessageType>> RunAsync<TMessageType>(
 		Type type,
 		bool preEnumerateTheories = true,
 		ExplicitOption? explicitOption = null,
 		IMessageSink? diagnosticMessageSink = null)
-			where TMessageType : MessageSinkMessage
+			where TMessageType : IMessageSinkMessage
 	{
 		var results = await RunAsync(type, preEnumerateTheories, explicitOption, diagnosticMessageSink);
 		return results.OfType<TMessageType>().ToList();
 	}
 
-	public async ValueTask<List<TMessageType>> RunAsync<TMessageType>(
+	public async static ValueTask<List<TMessageType>> RunAsync<TMessageType>(
 		Type[] types,
 		bool preEnumerateTheories = true,
 		ExplicitOption? explicitOption = null,
 		IMessageSink? diagnosticMessageSink = null)
-			where TMessageType : MessageSinkMessage
+			where TMessageType : IMessageSinkMessage
 	{
 		var results = await RunAsync(types, preEnumerateTheories, explicitOption, diagnosticMessageSink);
 		return results.OfType<TMessageType>().ToList();
 	}
 
-	public ValueTask<List<ITestResultWithDisplayName>> RunForResultsAsync(
+	public static ValueTask<List<ITestResultWithDisplayName>> RunForResultsAsync(
 		Type type,
 		bool preEnumerateTheories = true,
 		ExplicitOption? explicitOption = null,
 		IMessageSink? diagnosticMessageSink = null) =>
-			RunForResultsAsync(new[] { type }, preEnumerateTheories, explicitOption, diagnosticMessageSink);
+			RunForResultsAsync([type], preEnumerateTheories, explicitOption, diagnosticMessageSink);
 
-	public async ValueTask<List<ITestResultWithDisplayName>> RunForResultsAsync(
+	public async static ValueTask<List<ITestResultWithDisplayName>> RunForResultsAsync(
 		Type[] types,
 		bool preEnumerateTheories = true,
 		ExplicitOption? explicitOption = null,
@@ -92,13 +92,13 @@ public class AcceptanceTestV3
 		var results = await RunAsync(types, preEnumerateTheories, explicitOption, diagnosticMessageSink);
 		return
 			results
-				.OfType<TestResultMessage>()
-				.Select(result => TestResultFactory(result, results.OfType<TestStarting>().Where(ts => ts.TestUniqueID == result.TestUniqueID).Single().TestDisplayName))
+				.OfType<ITestResultMessage>()
+				.Select(result => TestResultFactory(result, results.OfType<ITestStarting>().Where(ts => ts.TestUniqueID == result.TestUniqueID).Single().TestDisplayName))
 				.WhereNotNull()
 				.ToList();
 	}
 
-	public async ValueTask<List<TResult>> RunForResultsAsync<TResult>(
+	public async static ValueTask<List<TResult>> RunForResultsAsync<TResult>(
 		Type type,
 		bool preEnumerateTheories = true,
 		ExplicitOption? explicitOption = null,
@@ -109,7 +109,7 @@ public class AcceptanceTestV3
 		return results.OfType<TResult>().ToList();
 	}
 
-	public async ValueTask<List<TResult>> RunForResultsAsync<TResult>(
+	public async static ValueTask<List<TResult>> RunForResultsAsync<TResult>(
 		Type[] types,
 		bool preEnumerateTheories = true,
 		ExplicitOption? explicitOption = null,
@@ -121,16 +121,16 @@ public class AcceptanceTestV3
 	}
 
 	public static ITestResultWithDisplayName? TestResultFactory(
-		TestResultMessage result,
+		ITestResultMessage result,
 		string testDisplayName)
 	{
-		if (result is TestPassed passed)
+		if (result is ITestPassed passed)
 			return TestPassedWithDisplayName.FromTestPassed(passed, testDisplayName);
-		if (result is TestFailed failed)
+		if (result is ITestFailed failed)
 			return TestFailedWithDisplayName.FromTestFailed(failed, testDisplayName);
-		if (result is TestSkipped skipped)
+		if (result is ITestSkipped skipped)
 			return TestSkippedWithDisplayName.FromTestSkipped(skipped, testDisplayName);
-		if (result is TestNotRun notRun)
+		if (result is ITestNotRun notRun)
 			return TestNotRunWithDisplayName.FromTestNotRun(notRun, testDisplayName);
 
 		return null;

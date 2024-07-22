@@ -36,7 +36,7 @@ public class RunnerEventSink : IMessageSink
 	public event MessageHandler<TestExecutionSummaries>? TestExecutionSummariesEvent;
 
 	/// <inheritdoc/>
-	public bool OnMessage(MessageSinkMessage message)
+	public bool OnMessage(IMessageSinkMessage message)
 	{
 		Guard.ArgumentNotNull(message);
 

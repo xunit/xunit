@@ -11,22 +11,22 @@ namespace Xunit.Runner.Common;
 public class DiscoveryEventSink : IMessageSink
 {
 	/// <summary>
-	/// Occurs when a <see cref="DiscoveryComplete"/> message is received.
+	/// Occurs when a <see cref="IDiscoveryComplete"/> message is received.
 	/// </summary>
-	public event MessageHandler<DiscoveryComplete>? DiscoveryCompleteEvent;
+	public event MessageHandler<IDiscoveryComplete>? DiscoveryCompleteEvent;
 
 	/// <summary>
-	/// Occurs when a <see cref="DiscoveryStarting"/> message is received.
+	/// Occurs when a <see cref="IDiscoveryStarting"/> message is received.
 	/// </summary>
-	public event MessageHandler<DiscoveryStarting>? DiscoveryStartingEvent;
+	public event MessageHandler<IDiscoveryStarting>? DiscoveryStartingEvent;
 
 	/// <summary>
-	/// Occurs when a <see cref="TestCaseDiscovered"/> message is received.
+	/// Occurs when a <see cref="ITestCaseDiscovered"/> message is received.
 	/// </summary>
-	public event MessageHandler<TestCaseDiscovered>? TestCaseDiscoveredEvent;
+	public event MessageHandler<ITestCaseDiscovered>? TestCaseDiscoveredEvent;
 
 	/// <inheritdoc/>
-	public bool OnMessage(MessageSinkMessage message)
+	public bool OnMessage(IMessageSinkMessage message)
 	{
 		Guard.ArgumentNotNull(message);
 

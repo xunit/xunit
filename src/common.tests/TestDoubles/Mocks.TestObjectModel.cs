@@ -11,18 +11,6 @@ using Xunit.v3;
 // real test class will use live objects from TestData for the parents.
 public static partial class Mocks
 {
-	public static IAssemblyMetadata AssemblyMetadata(
-		string assemblyName = TestData.DefaultAssemblyName,
-		string assemblyPath = TestData.DefaultAssemblyPath,
-		string? configFilePath = null)
-	{
-		var result = Substitute.For<IAssemblyMetadata, InterfaceProxy<IAssemblyMetadata>>();
-		result.AssemblyName.Returns(assemblyName);
-		result.AssemblyPath.Returns(assemblyPath);
-		result.ConfigFilePath.Returns(configFilePath);
-		return result;
-	}
-
 	// ITestXxx
 
 	public static ITest Test(

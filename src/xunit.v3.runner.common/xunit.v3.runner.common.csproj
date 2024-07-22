@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <DefineConstants>$(DefineConstants);XUNIT_ARGUMENTFORMATTER_PRIVATE</DefineConstants>
+    <DefineConstants>$(DefineConstants);XUNIT_ARGUMENTFORMATTER_PRIVATE;XUNIT_RUNNER_COMMON</DefineConstants>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Nullable>enable</Nullable>
     <RootNamespace>Xunit.Runner.Common</RootNamespace>
@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <Compile Include="..\xunit.v3.assert\Asserts\Sdk\ArgumentFormatter.cs" LinkBase="Common\Asserts" />
+    <Compile Include="..\common\MessagePartials\**\*.cs" LinkBase="Common\MessagePartials" />
   </ItemGroup>
 
   <ItemGroup>

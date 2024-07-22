@@ -19,7 +19,7 @@ public interface ITestPipelineStartup
 	/// <summary>
 	/// Indicates that the test assembly is starting up.
 	/// </summary>
-	/// <param name="diagnosticMessageSink">A message sink to which it can report <see cref="DiagnosticMessage"/>
+	/// <param name="diagnosticMessageSink">A message sink to which it can report <see cref="IDiagnosticMessage"/>
 	/// instances.</param>
 	ValueTask StartAsync(IMessageSink diagnosticMessageSink);
 

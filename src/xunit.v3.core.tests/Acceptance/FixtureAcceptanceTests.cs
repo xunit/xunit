@@ -18,41 +18,41 @@ public class FixtureAcceptanceTests
 
 			Assert.Collection(
 				messages,
-				message => Assert.IsType<TestAssemblyStarting>(message),
-				message => Assert.IsType<TestCollectionStarting>(message),
-				message => Assert.IsType<TestClassStarting>(message),
+				message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
+				message => Assert.IsAssignableFrom<ITestCollectionStarting>(message),
+				message => Assert.IsAssignableFrom<ITestClassStarting>(message),
 
 				// TestMethod1
-				message => Assert.IsType<TestMethodStarting>(message),
-				message => Assert.IsType<TestCaseStarting>(message),
-				message => Assert.IsType<TestStarting>(message),
+				message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
+				message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
+				message => Assert.IsAssignableFrom<ITestStarting>(message),
 				message =>
 				{
-					var failedMessage = Assert.IsType<TestFailed>(message);
+					var failedMessage = Assert.IsAssignableFrom<ITestFailed>(message);
 					Assert.Equal(typeof(TestPipelineException).SafeName(), failedMessage.ExceptionTypes.Single());
 					Assert.Equal("A test class may only define a single public constructor.", failedMessage.Messages.Single());
 				},
-				message => Assert.IsType<TestFinished>(message),
-				message => Assert.IsType<TestCaseFinished>(message),
-				message => Assert.IsType<TestMethodFinished>(message),
+				message => Assert.IsAssignableFrom<ITestFinished>(message),
+				message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
+				message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
 
 				// TestMethod2
-				message => Assert.IsType<TestMethodStarting>(message),
-				message => Assert.IsType<TestCaseStarting>(message),
-				message => Assert.IsType<TestStarting>(message),
+				message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
+				message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
+				message => Assert.IsAssignableFrom<ITestStarting>(message),
 				message =>
 				{
-					var failedMessage = Assert.IsType<TestFailed>(message);
+					var failedMessage = Assert.IsAssignableFrom<ITestFailed>(message);
 					Assert.Equal(typeof(TestPipelineException).SafeName(), failedMessage.ExceptionTypes.Single());
 					Assert.Equal("A test class may only define a single public constructor.", failedMessage.Messages.Single());
 				},
-				message => Assert.IsType<TestFinished>(message),
-				message => Assert.IsType<TestCaseFinished>(message),
-				message => Assert.IsType<TestMethodFinished>(message),
+				message => Assert.IsAssignableFrom<ITestFinished>(message),
+				message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
+				message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
 
-				message => Assert.IsType<TestClassFinished>(message),
-				message => Assert.IsType<TestCollectionFinished>(message),
-				message => Assert.IsType<TestAssemblyFinished>(message)
+				message => Assert.IsAssignableFrom<ITestClassFinished>(message),
+				message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
+				message => Assert.IsAssignableFrom<ITestAssemblyFinished>(message)
 			);
 		}
 
@@ -79,24 +79,24 @@ public class FixtureAcceptanceTests
 
 			Assert.Collection(
 				messages,
-				message => Assert.IsType<TestAssemblyStarting>(message),
-				message => Assert.IsType<TestCollectionStarting>(message),
-				message => Assert.IsType<TestClassStarting>(message),
-				message => Assert.IsType<TestMethodStarting>(message),
-				message => Assert.IsType<TestCaseStarting>(message),
-				message => Assert.IsType<TestStarting>(message),
+				message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
+				message => Assert.IsAssignableFrom<ITestCollectionStarting>(message),
+				message => Assert.IsAssignableFrom<ITestClassStarting>(message),
+				message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
+				message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
+				message => Assert.IsAssignableFrom<ITestStarting>(message),
 				message =>
 				{
-					var failedMessage = Assert.IsType<TestFailed>(message);
+					var failedMessage = Assert.IsAssignableFrom<ITestFailed>(message);
 					Assert.Equal(typeof(TestPipelineException).SafeName(), failedMessage.ExceptionTypes.Single());
 					Assert.Equal("The following constructor parameters did not have matching fixture data: Int32 _1, String _3", failedMessage.Messages.Single());
 				},
-				message => Assert.IsType<TestFinished>(message),
-				message => Assert.IsType<TestCaseFinished>(message),
-				message => Assert.IsType<TestMethodFinished>(message),
-				message => Assert.IsType<TestClassFinished>(message),
-				message => Assert.IsType<TestCollectionFinished>(message),
-				message => Assert.IsType<TestAssemblyFinished>(message)
+				message => Assert.IsAssignableFrom<ITestFinished>(message),
+				message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
+				message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
+				message => Assert.IsAssignableFrom<ITestClassFinished>(message),
+				message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
+				message => Assert.IsAssignableFrom<ITestAssemblyFinished>(message)
 			);
 		}
 
@@ -115,7 +115,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async ValueTask TestClassWithMissingArgumentToConstructorIsAcceptable()
 		{
-			var messages = await RunAsync<TestPassed>(typeof(ClassWithMissingCtorArg));
+			var messages = await RunAsync<ITestPassed>(typeof(ClassWithMissingCtorArg));
 
 			Assert.Single(messages);
 		}
@@ -131,7 +131,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async ValueTask TestClassWithoutCtorWithThrowingFixtureConstructorResultsInFailedTest()
 		{
-			var messages = await RunAsync<TestFailed>(typeof(ClassWithThrowingFixtureCtor));
+			var messages = await RunAsync<ITestFailed>(typeof(ClassWithThrowingFixtureCtor));
 
 			var msg = Assert.Single(messages);
 			Assert.Collection(
@@ -151,7 +151,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async ValueTask TestClassWithCtorWithThrowingFixtureConstructorResultsInFailedTest()
 		{
-			var messages = await RunAsync<TestFailed>(typeof(ClassWithCtorAndThrowingFixtureCtor));
+			var messages = await RunAsync<ITestFailed>(typeof(ClassWithCtorAndThrowingFixtureCtor));
 
 			var msg = Assert.Single(messages);
 			Assert.Collection(
@@ -173,7 +173,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async ValueTask TestClassWithThrowingFixtureDisposeResultsInFailedTest()
 		{
-			var messages = await RunAsync<TestClassCleanupFailure>(typeof(ClassWithThrowingFixtureDispose));
+			var messages = await RunAsync<ITestClassCleanupFailure>(typeof(ClassWithThrowingFixtureDispose));
 
 			var msg = Assert.Single(messages);
 			Assert.Collection(
@@ -193,7 +193,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async ValueTask FixtureDataIsPassedToConstructor()
 		{
-			var messages = await RunAsync<TestPassed>(typeof(FixtureSpy));
+			var messages = await RunAsync<ITestPassed>(typeof(FixtureSpy));
 
 			Assert.Single(messages);
 		}
@@ -214,8 +214,8 @@ public class FixtureAcceptanceTests
 		{
 			var messages = await RunAsync(typeof(ClassWithDefaultCtorArg));
 
-			Assert.Single(messages.OfType<TestPassed>());
-			var starting = Assert.Single(messages.OfType<TestStarting>());
+			Assert.Single(messages.OfType<ITestPassed>());
+			var starting = Assert.Single(messages.OfType<ITestStarting>());
 			Assert.Equal("FixtureAcceptanceTests+ClassFixture+ClassWithDefaultCtorArg.TheTest", starting.TestDisplayName);
 		}
 
@@ -236,8 +236,8 @@ public class FixtureAcceptanceTests
 		{
 			var messages = await RunAsync(typeof(ClassWithOptionalCtorArg));
 
-			Assert.Single(messages.OfType<TestPassed>());
-			var starting = Assert.Single(messages.OfType<TestStarting>());
+			Assert.Single(messages.OfType<ITestPassed>());
+			var starting = Assert.Single(messages.OfType<ITestStarting>());
 			Assert.Equal("FixtureAcceptanceTests+ClassFixture+ClassWithOptionalCtorArg.TheTest", starting.TestDisplayName);
 		}
 
@@ -259,8 +259,8 @@ public class FixtureAcceptanceTests
 		{
 			var messages = await RunAsync(typeof(ClassWithParamsArg));
 
-			Assert.Single(messages.OfType<TestPassed>());
-			var starting = Assert.Single(messages.OfType<TestStarting>());
+			Assert.Single(messages.OfType<ITestPassed>());
+			var starting = Assert.Single(messages.OfType<ITestStarting>());
 			Assert.Equal("FixtureAcceptanceTests+ClassFixture+ClassWithParamsArg.TheTest", starting.TestDisplayName);
 		}
 
@@ -286,7 +286,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async ValueTask FixtureDataShouldHaveBeenSetup()
 		{
-			var messages = await RunAsync<TestPassed>(typeof(FixtureSpy));
+			var messages = await RunAsync<ITestPassed>(typeof(FixtureSpy));
 
 			Assert.Single(messages);
 		}
@@ -329,7 +329,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async ValueTask ThrowingFixtureInitializeAsyncShouldResultInFailedTest()
 		{
-			var messages = await RunAsync<TestFailed>(typeof(ClassWithThrowingFixtureInitializeAsync));
+			var messages = await RunAsync<ITestFailed>(typeof(ClassWithThrowingFixtureInitializeAsync));
 
 			var msg = Assert.Single(messages);
 			Assert.Collection(
@@ -351,7 +351,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async ValueTask TestClassWithThrowingFixtureAsyncDisposeResultsInFailedTest()
 		{
-			var messages = await RunAsync<TestClassCleanupFailure>(typeof(ClassWithThrowingFixtureDisposeAsync));
+			var messages = await RunAsync<ITestClassCleanupFailure>(typeof(ClassWithThrowingFixtureDisposeAsync));
 
 			var msg = Assert.Single(messages);
 			Assert.Collection(
@@ -376,7 +376,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async ValueTask TestClassCannotBeDecoratedWithICollectionFixture()
 		{
-			var messages = await RunAsync<TestFailed>(typeof(TestClassWithCollectionFixture));
+			var messages = await RunAsync<ITestFailed>(typeof(TestClassWithCollectionFixture));
 
 			var msg = Assert.Single(messages);
 			Assert.Equal(typeof(TestPipelineException).SafeName(), msg.ExceptionTypes.Single());
@@ -392,7 +392,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async ValueTask TestClassWithExtraArgumentToConstructorResultsInFailedTest()
 		{
-			var messages = await RunAsync<TestFailed>(typeof(ClassWithExtraCtorArg));
+			var messages = await RunAsync<ITestFailed>(typeof(ClassWithExtraCtorArg));
 
 			var msg = Assert.Single(messages);
 			Assert.Equal(typeof(TestPipelineException).SafeName(), msg.ExceptionTypes.Single());
@@ -418,7 +418,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async ValueTask TestClassWithMissingArgumentToConstructorIsAcceptable()
 		{
-			var messages = await RunAsync<TestPassed>(typeof(ClassWithMissingCtorArg));
+			var messages = await RunAsync<ITestPassed>(typeof(ClassWithMissingCtorArg));
 
 			Assert.Single(messages);
 		}
@@ -435,7 +435,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async ValueTask TestClassWithThrowingFixtureConstructorResultsInFailedTest()
 		{
-			var messages = await RunAsync<TestFailed>(typeof(ClassWithThrowingFixtureCtor));
+			var messages = await RunAsync<ITestFailed>(typeof(ClassWithThrowingFixtureCtor));
 
 			var msg = Assert.Single(messages);
 			Assert.Collection(
@@ -461,7 +461,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async ValueTask TestClassWithThrowingCollectionFixtureDisposeResultsInFailedTest()
 		{
-			var messages = await RunAsync<TestCollectionCleanupFailure>(typeof(ClassWithThrowingFixtureDispose));
+			var messages = await RunAsync<ITestCollectionCleanupFailure>(typeof(ClassWithThrowingFixtureDispose));
 
 			var msg = Assert.Single(messages);
 			Assert.Collection(
@@ -487,7 +487,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async ValueTask FixtureDataIsPassedToConstructor()
 		{
-			var messages = await RunAsync<TestPassed>(typeof(FixtureSpy));
+			var messages = await RunAsync<ITestPassed>(typeof(FixtureSpy));
 
 			Assert.Single(messages);
 		}
@@ -545,7 +545,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async ValueTask ClassFixtureOnCollectionDecorationWorks()
 		{
-			var messages = await RunAsync<TestPassed>(typeof(FixtureSpy_ClassFixture));
+			var messages = await RunAsync<ITestPassed>(typeof(FixtureSpy_ClassFixture));
 
 			Assert.Single(messages);
 		}
@@ -568,7 +568,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async ValueTask ClassFixtureOnTestClassTakesPrecedenceOverClassFixtureOnCollection()
 		{
-			var messages = await RunAsync<TestPassed>(typeof(ClassWithCountedFixture));
+			var messages = await RunAsync<ITestPassed>(typeof(ClassWithCountedFixture));
 
 			Assert.Single(messages);
 		}
@@ -601,7 +601,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async ValueTask CollectionFixtureOnGenericTestClassAcceptsArgument()
 		{
-			var messages = await RunAsync<TestPassed>(typeof(GenericTests));
+			var messages = await RunAsync<ITestPassed>(typeof(GenericTests));
 
 			Assert.Equal(2, messages.Count);
 		}
@@ -632,7 +632,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async ValueTask TestClassCannotBeDecoratedWithICollectionFixture()
 		{
-			var messages = await RunAsync<TestFailed>(typeof(TestClassWithCollectionFixture));
+			var messages = await RunAsync<ITestFailed>(typeof(TestClassWithCollectionFixture));
 
 			var msg = Assert.Single(messages);
 			Assert.Equal(typeof(TestPipelineException).SafeName(), msg.ExceptionTypes.Single());
@@ -648,7 +648,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async ValueTask TestClassWithExtraArgumentToConstructorResultsInFailedTest()
 		{
-			var messages = await RunAsync<TestFailed>(typeof(ClassWithExtraCtorArg));
+			var messages = await RunAsync<ITestFailed>(typeof(ClassWithExtraCtorArg));
 
 			var msg = Assert.Single(messages);
 			Assert.Equal(typeof(TestPipelineException).SafeName(), msg.ExceptionTypes.Single());
@@ -673,7 +673,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async ValueTask TestClassWithMissingArgumentToConstructorIsAcceptable()
 		{
-			var messages = await RunAsync<TestPassed>(typeof(ClassWithMissingCtorArg));
+			var messages = await RunAsync<ITestPassed>(typeof(ClassWithMissingCtorArg));
 
 			Assert.Single(messages);
 		}
@@ -690,7 +690,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async ValueTask TestClassWithThrowingFixtureConstructorResultsInFailedTest()
 		{
-			var messages = await RunAsync<TestFailed>(typeof(ClassWithThrowingFixtureCtor));
+			var messages = await RunAsync<ITestFailed>(typeof(ClassWithThrowingFixtureCtor));
 
 			var msg = Assert.Single(messages);
 			Assert.Collection(
@@ -715,7 +715,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async ValueTask TestClassWithThrowingCollectionFixtureDisposeResultsInFailedTest()
 		{
-			var messages = await RunAsync<TestCollectionCleanupFailure>(typeof(ClassWithThrowingFixtureDispose));
+			var messages = await RunAsync<ITestCollectionCleanupFailure>(typeof(ClassWithThrowingFixtureDispose));
 
 			var msg = Assert.Single(messages);
 			Assert.Collection(
@@ -738,7 +738,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async ValueTask FixtureDataIsPassedToConstructor()
 		{
-			var messages = await RunAsync<TestPassed>(typeof(FixtureSpy));
+			var messages = await RunAsync<ITestPassed>(typeof(FixtureSpy));
 
 			Assert.Single(messages);
 		}
@@ -796,7 +796,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async ValueTask ClassFixtureOnCollectionDecorationWorks()
 		{
-			var messages = await RunAsync<TestPassed>(typeof(FixtureSpy_ClassFixture));
+			var messages = await RunAsync<ITestPassed>(typeof(FixtureSpy_ClassFixture));
 
 			Assert.Single(messages);
 		}
@@ -818,7 +818,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async ValueTask ClassFixtureOnTestClassTakesPrecedenceOverClassFixtureOnCollection()
 		{
-			var messages = await RunAsync<TestPassed>(typeof(ClassWithCountedFixture));
+			var messages = await RunAsync<ITestPassed>(typeof(ClassWithCountedFixture));
 
 			Assert.Single(messages);
 		}
@@ -855,7 +855,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async ValueTask TestClassCannotBeDecoratedWithICollectionFixture()
 		{
-			var messages = await RunAsync<TestFailed>(typeof(TestClassWithCollectionFixture));
+			var messages = await RunAsync<ITestFailed>(typeof(TestClassWithCollectionFixture));
 
 			var msg = Assert.Single(messages);
 			Assert.Equal(typeof(TestPipelineException).SafeName(), msg.ExceptionTypes.Single());
@@ -871,7 +871,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async ValueTask TestClassWithExtraArgumentToConstructorResultsInFailedTest()
 		{
-			var messages = await RunAsync<TestFailed>(typeof(ClassWithExtraCtorArg));
+			var messages = await RunAsync<ITestFailed>(typeof(ClassWithExtraCtorArg));
 
 			var msg = Assert.Single(messages);
 			Assert.Equal(typeof(TestPipelineException).SafeName(), msg.ExceptionTypes.Single());
@@ -896,7 +896,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async ValueTask TestClassWithMissingArgumentToConstructorIsAcceptable()
 		{
-			var messages = await RunAsync<TestPassed>(typeof(ClassWithMissingCtorArg));
+			var messages = await RunAsync<ITestPassed>(typeof(ClassWithMissingCtorArg));
 
 			Assert.Single(messages);
 		}
@@ -913,7 +913,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async ValueTask TestClassWithThrowingFixtureConstructorResultsInFailedTest()
 		{
-			var messages = await RunAsync<TestFailed>(typeof(ClassWithThrowingFixtureCtor));
+			var messages = await RunAsync<ITestFailed>(typeof(ClassWithThrowingFixtureCtor));
 
 			var msg = Assert.Single(messages);
 			Assert.Collection(
@@ -936,7 +936,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async ValueTask TestClassWithThrowingCollectionFixtureDisposeResultsInFailedTest()
 		{
-			var messages = await RunAsync<TestCollectionCleanupFailure>(typeof(ClassWithThrowingFixtureDispose));
+			var messages = await RunAsync<ITestCollectionCleanupFailure>(typeof(ClassWithThrowingFixtureDispose));
 
 			var msg = Assert.Single(messages);
 			Assert.Collection(
@@ -959,7 +959,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async ValueTask FixtureDataIsPassedToConstructor()
 		{
-			var messages = await RunAsync<TestPassed>(typeof(FixtureSpy));
+			var messages = await RunAsync<ITestPassed>(typeof(FixtureSpy));
 
 			Assert.Single(messages);
 		}
@@ -1021,7 +1021,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async ValueTask ClassFixtureOnCollectionDecorationWorks()
 		{
-			var messages = await RunAsync<TestPassed>(typeof(FixtureSpy_ClassFixture));
+			var messages = await RunAsync<ITestPassed>(typeof(FixtureSpy_ClassFixture));
 
 			Assert.Single(messages);
 		}
@@ -1043,7 +1043,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async ValueTask ClassFixtureOnTestClassTakesPrecedenceOverClassFixtureOnCollection()
 		{
-			var messages = await RunAsync<TestPassed>(typeof(ClassWithCountedFixture));
+			var messages = await RunAsync<ITestPassed>(typeof(ClassWithCountedFixture));
 
 			Assert.Single(messages);
 		}
@@ -1080,7 +1080,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async ValueTask TestClassWithThrowingCollectionFixtureSetupAsyncResultsInFailedTest()
 		{
-			var messages = await RunAsync<TestFailed>(typeof(ClassWithThrowingFixtureInitializeAsync));
+			var messages = await RunAsync<ITestFailed>(typeof(ClassWithThrowingFixtureInitializeAsync));
 
 			var msg = Assert.Single(messages);
 			Assert.Collection(
@@ -1104,7 +1104,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async ValueTask TestClassWithThrowingCollectionFixtureDisposeAsyncResultsInFailedTest()
 		{
-			var messages = await RunAsync<TestCollectionCleanupFailure>(typeof(ClassWithThrowingFixtureDisposeAsync));
+			var messages = await RunAsync<ITestCollectionCleanupFailure>(typeof(ClassWithThrowingFixtureDisposeAsync));
 
 			var msg = Assert.Single(messages);
 			Assert.Collection(
@@ -1128,7 +1128,7 @@ public class FixtureAcceptanceTests
 		[Fact]
 		public async ValueTask CollectionFixtureAsyncSetupShouldOnlyRunOnce()
 		{
-			var results = await RunAsync<TestPassed>([typeof(Fixture1), typeof(Fixture2)]);
+			var results = await RunAsync<ITestPassed>([typeof(Fixture1), typeof(Fixture2)]);
 			Assert.Equal(2, results.Count);
 		}
 

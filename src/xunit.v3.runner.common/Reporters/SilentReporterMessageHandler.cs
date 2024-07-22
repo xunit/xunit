@@ -14,6 +14,6 @@ public sealed class SilentReporterMessageHandler : IRunnerReporterMessageHandler
 		default;
 
 	/// <inheritdoc/>
-	public bool OnMessage(MessageSinkMessage message) =>
+	public bool OnMessage(IMessageSinkMessage message) =>
 		true;
 }

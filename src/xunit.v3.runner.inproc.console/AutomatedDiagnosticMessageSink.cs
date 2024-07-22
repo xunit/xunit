@@ -13,11 +13,11 @@ internal sealed class AutomatedDiagnosticMessageSink : IMessageSink
 	public AutomatedDiagnosticMessageSink(ConsoleHelper consoleHelper) =>
 		this.consoleHelper = consoleHelper;
 
-	public bool OnMessage(MessageSinkMessage message)
+	public bool OnMessage(IMessageSinkMessage message)
 	{
 		Guard.ArgumentNotNull(message);
 
-		if (message is DiagnosticMessage || message is InternalDiagnosticMessage)
+		if (message is IDiagnosticMessage || message is IInternalDiagnosticMessage)
 			lock (consoleHelper.LockObject)
 				consoleHelper.WriteLine(message.ToJson());
 

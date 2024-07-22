@@ -56,7 +56,7 @@ public class AggregateMessageSink : IMessageSink, IAsyncDisposable
 	}
 
 	/// <inheritdoc/>
-	public virtual bool OnMessage(MessageSinkMessage message)
+	public virtual bool OnMessage(IMessageSinkMessage message)
 	{
 		Guard.ArgumentNotNull(message);
 

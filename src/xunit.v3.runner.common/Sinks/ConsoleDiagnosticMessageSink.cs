@@ -2,7 +2,6 @@
 
 using System;
 using System.Globalization;
-using System.IO;
 using Xunit.Internal;
 using Xunit.Sdk;
 
@@ -52,11 +51,11 @@ public class ConsoleDiagnosticMessageSink : IMessageSink
 	}
 
 	/// <inheritdoc/>
-	public bool OnMessage(MessageSinkMessage message)
+	public bool OnMessage(IMessageSinkMessage message)
 	{
 		Guard.ArgumentNotNull(message);
 
-		if (message is DiagnosticMessage diagnosticMessage && displayPrefixDiagnostic is not null)
+		if (message is IDiagnosticMessage diagnosticMessage && displayPrefixDiagnostic is not null)
 		{
 			lock (consoleHelper.LockObject)
 			{
@@ -70,7 +69,7 @@ public class ConsoleDiagnosticMessageSink : IMessageSink
 			}
 		}
 
-		if (message is InternalDiagnosticMessage internalDiagnosticMessage && displayPrefixInternal is not null)
+		if (message is IInternalDiagnosticMessage internalDiagnosticMessage && displayPrefixInternal is not null)
 		{
 			lock (consoleHelper.LockObject)
 			{
@@ -89,7 +88,7 @@ public class ConsoleDiagnosticMessageSink : IMessageSink
 
 	/// <summary>
 	/// Tries to create a new instance of the <see cref="ConsoleDiagnosticMessageSink"/> which will display instances
-	/// of <see cref="DiagnosticMessage"/> and <see cref="InternalDiagnosticMessage"/> to the <see cref="Console"/>.
+	/// of <see cref="IDiagnosticMessage"/> and <see cref="IInternalDiagnosticMessage"/> to the <see cref="Console"/>.
 	/// May return <c>null</c> if both <paramref name="showDiagnosticMessages"/> and <paramref name="showInternalDiagnosticMessages"/>
 	/// are <c>false</c>.
 	/// </summary>

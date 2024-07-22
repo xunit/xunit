@@ -13,14 +13,14 @@ namespace Xunit.v3;
 /// <param name="callback">The callback.</param>
 public class DelegatingMessageSink(
 	IMessageSink innerSink,
-	Action<MessageSinkMessage>? callback = null) :
+	Action<IMessageSinkMessage>? callback = null) :
 		IMessageSink
 {
-	readonly Action<MessageSinkMessage>? callback = callback;
+	readonly Action<IMessageSinkMessage>? callback = callback;
 	readonly IMessageSink innerSink = Guard.ArgumentNotNull(innerSink);
 
 	/// <inheritdoc/>
-	public virtual bool OnMessage(MessageSinkMessage message)
+	public virtual bool OnMessage(IMessageSinkMessage message)
 	{
 		callback?.Invoke(message);
 
@@ -39,9 +39,9 @@ public class DelegatingMessageSink(
 /// <param name="callback">The callback.</param>
 public class DelegatingMessageSink<TFinalMessage>(
 	IMessageSink innerSink,
-	Action<MessageSinkMessage>? callback = null) :
+	Action<IMessageSinkMessage>? callback = null) :
 		DelegatingMessageSink(innerSink, callback)
-			where TFinalMessage : MessageSinkMessage
+			where TFinalMessage : IMessageSinkMessage
 {
 	TFinalMessage? finalMessage;
 
@@ -57,7 +57,7 @@ public class DelegatingMessageSink<TFinalMessage>(
 	public ManualResetEvent Finished { get; } = new ManualResetEvent(false);
 
 	/// <inheritdoc/>
-	public override bool OnMessage(MessageSinkMessage message)
+	public override bool OnMessage(IMessageSinkMessage message)
 	{
 		var result = base.OnMessage(message);
 

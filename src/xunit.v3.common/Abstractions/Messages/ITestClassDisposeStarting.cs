@@ -1,0 +1,11 @@
+using System;
+
+namespace Xunit.Sdk;
+
+/// <summary>
+/// This message indicates that the <see cref="IDisposable.Dispose"/> or
+/// <see cref="IAsyncDisposable.DisposeAsync"/> method is about to be called on the
+/// test class for the test that just finished executing.
+/// </summary>
+public interface ITestClassDisposeStarting : ITestMessage
+{ }

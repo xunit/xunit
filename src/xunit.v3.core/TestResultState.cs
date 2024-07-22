@@ -105,19 +105,19 @@ public class TestResultState
 	/// <paramref name="testResult"/> instance.
 	/// </summary>
 	/// <param name="testResult">The test result</param>
-	public static TestResultState FromTestResult(TestResultMessage testResult)
+	public static TestResultState FromTestResult(ITestResultMessage testResult)
 	{
 		Guard.ArgumentNotNull(testResult);
 
 		var result = new TestResultState { ExecutionTime = testResult.ExecutionTime };
 
-		if (testResult is TestPassed)
+		if (testResult is ITestPassed)
 			result.Result = TestResult.Passed;
-		else if (testResult is TestSkipped)
+		else if (testResult is ITestSkipped)
 			result.Result = TestResult.Skipped;
-		else if (testResult is TestNotRun)
+		else if (testResult is ITestNotRun)
 			result.Result = TestResult.NotRun;
-		else if (testResult is TestFailed testFailed)
+		else if (testResult is ITestFailed testFailed)
 		{
 			result.ExceptionMessages = testFailed.Messages;
 			result.ExceptionParentIndices = testFailed.ExceptionParentIndices;

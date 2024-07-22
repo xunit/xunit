@@ -1,12 +1,13 @@
 using Xunit.Internal;
 using Xunit.Sdk;
+using Xunit.v3;
 
-public class TestNotRunWithDisplayName : TestResultMessage, ITestResultWithDisplayName
+public class TestNotRunWithDisplayName : TestResultMessage, ITestResultWithDisplayName, ITestNotRun
 {
 	public required string TestDisplayName { get; set; }
 
 	public static TestNotRunWithDisplayName FromTestNotRun(
-		TestNotRun testNotRun,
+		ITestNotRun testNotRun,
 		string testDisplayName) =>
 			new()
 			{

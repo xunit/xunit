@@ -62,7 +62,7 @@ public class VstsReporterMessageHandler(
 	}
 
 	/// <inheritdoc/>
-	protected override void HandleTestAssemblyFinished(MessageHandlerArgs<TestAssemblyFinished> args)
+	protected override void HandleTestAssemblyFinished(MessageHandlerArgs<ITestAssemblyFinished> args)
 	{
 		base.HandleTestAssemblyFinished(args);
 
@@ -80,7 +80,7 @@ public class VstsReporterMessageHandler(
 	}
 
 	/// <inheritdoc/>
-	protected override void HandleTestAssemblyStarting(MessageHandlerArgs<TestAssemblyStarting> args)
+	protected override void HandleTestAssemblyStarting(MessageHandlerArgs<ITestAssemblyStarting> args)
 	{
 		base.HandleTestAssemblyStarting(args);
 
@@ -89,7 +89,7 @@ public class VstsReporterMessageHandler(
 	}
 
 	/// <inheritdoc/>
-	protected override void HandleTestStarting(MessageHandlerArgs<TestStarting> args)
+	protected override void HandleTestStarting(MessageHandlerArgs<ITestStarting> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -109,7 +109,7 @@ public class VstsReporterMessageHandler(
 	}
 
 	/// <inheritdoc/>
-	protected override void HandleTestPassed(MessageHandlerArgs<TestPassed> args)
+	protected override void HandleTestPassed(MessageHandlerArgs<ITestPassed> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -121,7 +121,7 @@ public class VstsReporterMessageHandler(
 	}
 
 	/// <inheritdoc/>
-	protected override void HandleTestSkipped(MessageHandlerArgs<TestSkipped> args)
+	protected override void HandleTestSkipped(MessageHandlerArgs<ITestSkipped> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -133,7 +133,7 @@ public class VstsReporterMessageHandler(
 	}
 
 	/// <inheritdoc/>
-	protected override void HandleTestFailed(MessageHandlerArgs<TestFailed> args)
+	protected override void HandleTestFailed(MessageHandlerArgs<ITestFailed> args)
 	{
 		Guard.ArgumentNotNull(args);
 

@@ -20,16 +20,16 @@ public static class XunitRunnerHelper
 	/// <param name="testCases">The test cases to fail</param>
 	/// <param name="messageFormat">A message template where <c>{0}</c> will be replaced with the
 	/// display name of the test case during failure processing</param>
-	/// <param name="sendTestCollectionMessages">Set to <c>true</c> to send <see cref="TestCollectionStarting"/>
-	/// and <see cref="TestCollectionFinished"/> messages; set to <c>false</c> to skip</param>
-	/// <param name="sendTestClassMessages">Set to <c>true</c> to send <see cref="TestClassStarting"/>
-	/// and <see cref="TestClassFinished"/> messages; set to <c>false</c> to skip</param>
-	/// <param name="sendTestMethodMessages">Set to <c>true</c> to send <see cref="TestMethodStarting"/>
-	/// and <see cref="TestMethodFinished"/> messages; set to <c>false</c> to skip</param>
-	/// <param name="sendTestCaseMessages">Set to <c>true</c> to send <see cref="TestCaseStarting"/>
-	/// and <see cref="TestCaseFinished"/> messages; set to <c>false</c> to skip</param>
-	/// <param name="sendTestMessages">Set to <c>true</c> to send <see cref="TestStarting"/>
-	/// and <see cref="TestFinished"/> messages; set to <c>false</c> to skip</param>
+	/// <param name="sendTestCollectionMessages">Set to <c>true</c> to send <see cref="ITestCollectionStarting"/>
+	/// and <see cref="ITestCollectionFinished"/> messages; set to <c>false</c> to skip</param>
+	/// <param name="sendTestClassMessages">Set to <c>true</c> to send <see cref="ITestClassStarting"/>
+	/// and <see cref="ITestClassFinished"/> messages; set to <c>false</c> to skip</param>
+	/// <param name="sendTestMethodMessages">Set to <c>true</c> to send <see cref="ITestMethodStarting"/>
+	/// and <see cref="ITestMethodFinished"/> messages; set to <c>false</c> to skip</param>
+	/// <param name="sendTestCaseMessages">Set to <c>true</c> to send <see cref="ITestCaseStarting"/>
+	/// and <see cref="ITestCaseFinished"/> messages; set to <c>false</c> to skip</param>
+	/// <param name="sendTestMessages">Set to <c>true</c> to send <see cref="ITestStarting"/>
+	/// and <see cref="ITestFinished"/> messages; set to <c>false</c> to skip</param>
 	public static RunSummary FailTestCases(
 		IMessageBus messageBus,
 		CancellationTokenSource cancellationTokenSource,
@@ -70,16 +70,16 @@ public static class XunitRunnerHelper
 	/// <param name="cancellationTokenSource">The cancellation token source to cancel if requested</param>
 	/// <param name="testCases">The test cases to fail</param>
 	/// <param name="exception">The exception to fail the test cases with</param>
-	/// <param name="sendTestCollectionMessages">Set to <c>true</c> to send <see cref="TestCollectionStarting"/>
-	/// and <see cref="TestCollectionFinished"/> messages; set to <c>false</c> to skip</param>
-	/// <param name="sendTestClassMessages">Set to <c>true</c> to send <see cref="TestClassStarting"/>
-	/// and <see cref="TestClassFinished"/> messages; set to <c>false</c> to skip</param>
-	/// <param name="sendTestMethodMessages">Set to <c>true</c> to send <see cref="TestMethodStarting"/>
-	/// and <see cref="TestMethodFinished"/> messages; set to <c>false</c> to skip</param>
-	/// <param name="sendTestCaseMessages">Set to <c>true</c> to send <see cref="TestCaseStarting"/>
-	/// and <see cref="TestCaseFinished"/> messages; set to <c>false</c> to skip</param>
-	/// <param name="sendTestMessages">Set to <c>true</c> to send <see cref="TestStarting"/>
-	/// and <see cref="TestFinished"/> messages; set to <c>false</c> to skip</param>
+	/// <param name="sendTestCollectionMessages">Set to <c>true</c> to send <see cref="ITestCollectionStarting"/>
+	/// and <see cref="ITestCollectionFinished"/> messages; set to <c>false</c> to skip</param>
+	/// <param name="sendTestClassMessages">Set to <c>true</c> to send <see cref="ITestClassStarting"/>
+	/// and <see cref="ITestClassFinished"/> messages; set to <c>false</c> to skip</param>
+	/// <param name="sendTestMethodMessages">Set to <c>true</c> to send <see cref="ITestMethodStarting"/>
+	/// and <see cref="ITestMethodFinished"/> messages; set to <c>false</c> to skip</param>
+	/// <param name="sendTestCaseMessages">Set to <c>true</c> to send <see cref="ITestCaseStarting"/>
+	/// and <see cref="ITestCaseFinished"/> messages; set to <c>false</c> to skip</param>
+	/// <param name="sendTestMessages">Set to <c>true</c> to send <see cref="ITestStarting"/>
+	/// and <see cref="ITestFinished"/> messages; set to <c>false</c> to skip</param>
 	public static RunSummary FailTestCases(
 		IMessageBus messageBus,
 		CancellationTokenSource cancellationTokenSource,

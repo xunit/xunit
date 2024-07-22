@@ -34,11 +34,11 @@ public abstract class TestAssemblyRunner<TContext, TTestAssembly, TTestCollectio
 	/// <summary>
 	/// This method is called when an exception was thrown while cleaning up, after the test assembly
 	/// has run. This will typically send a "test assembly cleanup failure" message (like
-	/// <see cref="TestAssemblyCleanupFailure"/>).
+	/// <see cref="ITestAssemblyCleanupFailure"/>).
 	/// </summary>
 	/// <remarks>
 	/// This method runs during <see cref="TestEngineStatus.CleaningUp"/> and any exceptions thrown are
-	/// converted into fatal exception messages (via <see cref="ErrorMessage"/>) and sent to the message
+	/// converted into fatal exception messages (via <see cref="IErrorMessage"/>) and sent to the message
 	/// bus in <paramref name="ctxt"/>.
 	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test assembly</param>
@@ -51,7 +51,7 @@ public abstract class TestAssemblyRunner<TContext, TTestAssembly, TTestCollectio
 
 	/// <summary>
 	/// This method will be called when the test assembly has finished running. This will typically send
-	/// a "test assembly finished" message (like <see cref="TestAssemblyFinished"/>) as well as enabling
+	/// a "test assembly finished" message (like <see cref="ITestAssemblyFinished"/>) as well as enabling
 	/// any extensibility related to test assembly finish.
 	/// </summary>
 	/// <remarks>
@@ -67,7 +67,7 @@ public abstract class TestAssemblyRunner<TContext, TTestAssembly, TTestCollectio
 
 	/// <summary>
 	/// This method will be called before the test assembly has started running. This will typically send
-	/// a "test assembly starting" message (like <see cref="TestAssemblyStarting"/>) as well as enabling
+	/// a "test assembly starting" message (like <see cref="ITestAssemblyStarting"/>) as well as enabling
 	/// any extensibility related to test assembly start.
 	/// </summary>
 	/// <remarks>

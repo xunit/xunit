@@ -20,38 +20,36 @@ public class AssemblyRunner : IAsyncDisposable, IMessageSink
 	volatile bool cancelled;
 	bool disposed;
 	readonly TestAssemblyConfiguration configuration = new();
-#pragma warning disable CA2213 // This is disposed by DisposalTracker
 	readonly IFrontController controller;
-#pragma warning restore CA2213
 	readonly ManualResetEvent discoveryCompleteEvent = new(true);
 	readonly DisposalTracker disposalTracker = new();
 	readonly ManualResetEvent executionCompleteEvent = new(true);
 	readonly object statusLock = new();
 	int testCasesDiscovered;
-	readonly List<TestCaseDiscovered> testCasesToRun = new();
+	readonly List<ITestCaseDiscovered> testCasesToRun = [];
 
 	static AssemblyRunner()
 	{
 		MessageTypeNames = [];
 
-		AddMessageTypeName<DiagnosticMessage>();
-		AddMessageTypeName<DiscoveryComplete>();
-		AddMessageTypeName<ErrorMessage>();
-		AddMessageTypeName<InternalDiagnosticMessage>();
-		AddMessageTypeName<TestAssemblyCleanupFailure>();
-		AddMessageTypeName<TestAssemblyFinished>();
-		AddMessageTypeName<TestCaseCleanupFailure>();
-		AddMessageTypeName<TestCaseDiscovered>();
-		AddMessageTypeName<TestClassCleanupFailure>();
-		AddMessageTypeName<TestCleanupFailure>();
-		AddMessageTypeName<TestCollectionCleanupFailure>();
-		AddMessageTypeName<TestFailed>();
-		AddMessageTypeName<TestFinished>();
-		AddMessageTypeName<TestMethodCleanupFailure>();
-		AddMessageTypeName<TestOutput>();
-		AddMessageTypeName<TestPassed>();
-		AddMessageTypeName<TestSkipped>();
-		AddMessageTypeName<TestStarting>();
+		AddMessageTypeName<IDiagnosticMessage>();
+		AddMessageTypeName<IDiscoveryComplete>();
+		AddMessageTypeName<IErrorMessage>();
+		AddMessageTypeName<IInternalDiagnosticMessage>();
+		AddMessageTypeName<ITestAssemblyCleanupFailure>();
+		AddMessageTypeName<ITestAssemblyFinished>();
+		AddMessageTypeName<ITestCaseCleanupFailure>();
+		AddMessageTypeName<ITestCaseDiscovered>();
+		AddMessageTypeName<ITestClassCleanupFailure>();
+		AddMessageTypeName<ITestCleanupFailure>();
+		AddMessageTypeName<ITestCollectionCleanupFailure>();
+		AddMessageTypeName<ITestFailed>();
+		AddMessageTypeName<ITestFinished>();
+		AddMessageTypeName<ITestMethodCleanupFailure>();
+		AddMessageTypeName<ITestOutput>();
+		AddMessageTypeName<ITestPassed>();
+		AddMessageTypeName<ITestSkipped>();
+		AddMessageTypeName<ITestStarting>();
 	}
 
 	AssemblyRunner(
@@ -164,7 +162,7 @@ public class AssemblyRunner : IAsyncDisposable, IMessageSink
 	/// Set to be able to filter the test cases to decide which ones to run. If this is not set,
 	/// then all test cases will be run.
 	/// </summary>
-	public Func<TestCaseDiscovered, bool>? TestCaseFilter { get; set; }
+	public Func<ITestCaseDiscovered, bool>? TestCaseFilter { get; set; }
 
 	static void AddMessageTypeName<T>() => MessageTypeNames.Add(typeof(T), typeof(T).FullName!);
 
@@ -247,7 +245,7 @@ public class AssemblyRunner : IAsyncDisposable, IMessageSink
 		return executionOptions;
 	}
 
-	bool IMessageSink.OnMessage(MessageSinkMessage message) =>
+	bool IMessageSink.OnMessage(IMessageSinkMessage message) =>
 		OnMessage(message);
 
 	/// <summary>
@@ -256,12 +254,12 @@ public class AssemblyRunner : IAsyncDisposable, IMessageSink
 	/// </summary>
 	/// <param name="message">The message from the message bus</param>
 	/// <returns>Return <c>true</c> to continue running tests, or <c>false</c> to stop.</returns>
-	protected virtual bool OnMessage(MessageSinkMessage message)
+	protected virtual bool OnMessage(IMessageSinkMessage message)
 	{
 		// Temporary
 		var messageTypes = default(HashSet<string>);
 
-		if (DispatchMessage<TestCaseDiscovered>(message, messageTypes, testDiscovered =>
+		if (DispatchMessage<ITestCaseDiscovered>(message, messageTypes, testDiscovered =>
 		{
 			++testCasesDiscovered;
 			if (TestCaseFilter is null || TestCaseFilter(testDiscovered))
@@ -269,14 +267,14 @@ public class AssemblyRunner : IAsyncDisposable, IMessageSink
 		}))
 			return !cancelled;
 
-		if (DispatchMessage<DiscoveryComplete>(message, messageTypes, discoveryComplete =>
+		if (DispatchMessage<IDiscoveryComplete>(message, messageTypes, discoveryComplete =>
 		{
 			OnDiscoveryComplete?.Invoke(new DiscoveryCompleteInfo(testCasesDiscovered, testCasesToRun.Count));
 			discoveryCompleteEvent.Set();
 		}))
 			return !cancelled;
 
-		if (DispatchMessage<TestAssemblyFinished>(message, messageTypes, assemblyFinished =>
+		if (DispatchMessage<ITestAssemblyFinished>(message, messageTypes, assemblyFinished =>
 		{
 			OnExecutionComplete?.Invoke(new ExecutionCompleteInfo(assemblyFinished.TestsTotal, assemblyFinished.TestsFailed, assemblyFinished.TestsSkipped, assemblyFinished.TestsNotRun, assemblyFinished.ExecutionTime));
 			executionCompleteEvent.Set();
@@ -284,47 +282,48 @@ public class AssemblyRunner : IAsyncDisposable, IMessageSink
 			return !cancelled;
 
 		if (OnDiagnosticMessage is not null)
-			if (DispatchMessage<DiagnosticMessage>(message, messageTypes, m => OnDiagnosticMessage(new DiagnosticMessageInfo(m.Message))))
+			if (DispatchMessage<IDiagnosticMessage>(message, messageTypes, m => OnDiagnosticMessage(new DiagnosticMessageInfo(m.Message))))
 				return !cancelled;
 		if (OnInternalDiagnosticMessage is not null)
-			if (DispatchMessage<InternalDiagnosticMessage>(message, messageTypes, m => OnInternalDiagnosticMessage(new InternalDiagnosticMessageInfo(m.Message))))
+			if (DispatchMessage<IInternalDiagnosticMessage>(message, messageTypes, m => OnInternalDiagnosticMessage(new InternalDiagnosticMessageInfo(m.Message))))
 				return !cancelled;
 #if false  // TODO: No simple conversions here yet
 		if (OnTestFailed is not null)
-			if (DispatchMessage<_TestFailed>(message, messageTypes, m => OnTestFailed(new TestFailedInfo(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName, m.ExecutionTime, m.Output, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault()))))
+			if (DispatchMessage<ITestFailed>(message, messageTypes, m => OnTestFailed(new TestFailedInfo(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName, m.ExecutionTime, m.Output, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault()))))
 				return !cancelled;
 		if (OnTestFinished is not null)
-			if (DispatchMessage<_TestFinished>(message, messageTypes, m => OnTestFinished(new TestFinishedInfo(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName, m.ExecutionTime, m.Output))))
+			if (DispatchMessage<ITestFinished>(message, messageTypes, m => OnTestFinished(new TestFinishedInfo(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName, m.ExecutionTime, m.Output))))
 				return !cancelled;
 		if (OnTestOutput is not null)
-			if (DispatchMessage<_TestOutput>(message, messageTypes, m => OnTestOutput(new TestOutputInfo(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName, m.Output))))
+			if (DispatchMessage<ITestOutput>(message, messageTypes, m => OnTestOutput(new TestOutputInfo(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName, m.Output))))
 				return !cancelled;
 		if (OnTestPassed is not null)
-			if (DispatchMessage<_TestPassed>(message, messageTypes, m => OnTestPassed(new TestPassedInfo(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName, m.ExecutionTime, m.Output))))
+			if (DispatchMessage<ITestPassed>(message, messageTypes, m => OnTestPassed(new TestPassedInfo(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName, m.ExecutionTime, m.Output))))
 				return !cancelled;
 		if (OnTestSkipped is not null)
-			if (DispatchMessage<_TestSkipped>(message, messageTypes, m => OnTestSkipped(new TestSkippedInfo(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName, m.Reason))))
+			if (DispatchMessage<ITestSkipped>(message, messageTypes, m => OnTestSkipped(new TestSkippedInfo(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName, m.Reason))))
 				return !cancelled;
 		if (OnTestStarting is not null)
-			if (DispatchMessage<_TestStarting>(message, messageTypes, m => OnTestStarting(new TestStartingInfo(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName))))
+			if (DispatchMessage<ITestStarting>(message, messageTypes, m => OnTestStarting(new TestStartingInfo(m.TestClass.Class.Name, m.TestMethod.Method.Name, m.TestCase.Traits, m.Test.DisplayName, m.TestCollection.DisplayName))))
 				return !cancelled;
 #endif
 
 		if (OnErrorMessage is not null)
 		{
-			if (DispatchMessage<ErrorMessage>(message, messageTypes, m => OnErrorMessage(new ErrorMessageInfo(ErrorMessageType.CatastrophicError, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault()))))
+			// TODO: This only shows the top level error; should we expand the information available here?
+			if (DispatchMessage<IErrorMessage>(message, messageTypes, m => OnErrorMessage(new ErrorMessageInfo(ErrorMessageType.CatastrophicError, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault()))))
 				return !cancelled;
-			if (DispatchMessage<TestAssemblyCleanupFailure>(message, messageTypes, m => OnErrorMessage(new ErrorMessageInfo(ErrorMessageType.TestAssemblyCleanupFailure, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault()))))
+			if (DispatchMessage<ITestAssemblyCleanupFailure>(message, messageTypes, m => OnErrorMessage(new ErrorMessageInfo(ErrorMessageType.TestAssemblyCleanupFailure, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault()))))
 				return !cancelled;
-			if (DispatchMessage<TestCaseCleanupFailure>(message, messageTypes, m => OnErrorMessage(new ErrorMessageInfo(ErrorMessageType.TestCaseCleanupFailure, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault()))))
+			if (DispatchMessage<ITestCaseCleanupFailure>(message, messageTypes, m => OnErrorMessage(new ErrorMessageInfo(ErrorMessageType.TestCaseCleanupFailure, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault()))))
 				return !cancelled;
-			if (DispatchMessage<TestClassCleanupFailure>(message, messageTypes, m => OnErrorMessage(new ErrorMessageInfo(ErrorMessageType.TestClassCleanupFailure, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault()))))
+			if (DispatchMessage<ITestClassCleanupFailure>(message, messageTypes, m => OnErrorMessage(new ErrorMessageInfo(ErrorMessageType.TestClassCleanupFailure, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault()))))
 				return !cancelled;
-			if (DispatchMessage<TestCleanupFailure>(message, messageTypes, m => OnErrorMessage(new ErrorMessageInfo(ErrorMessageType.TestCleanupFailure, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault()))))
+			if (DispatchMessage<ITestCleanupFailure>(message, messageTypes, m => OnErrorMessage(new ErrorMessageInfo(ErrorMessageType.TestCleanupFailure, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault()))))
 				return !cancelled;
-			if (DispatchMessage<TestCollectionCleanupFailure>(message, messageTypes, m => OnErrorMessage(new ErrorMessageInfo(ErrorMessageType.TestCollectionCleanupFailure, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault()))))
+			if (DispatchMessage<ITestCollectionCleanupFailure>(message, messageTypes, m => OnErrorMessage(new ErrorMessageInfo(ErrorMessageType.TestCollectionCleanupFailure, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault()))))
 				return !cancelled;
-			if (DispatchMessage<TestMethodCleanupFailure>(message, messageTypes, m => OnErrorMessage(new ErrorMessageInfo(ErrorMessageType.TestMethodCleanupFailure, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault()))))
+			if (DispatchMessage<ITestMethodCleanupFailure>(message, messageTypes, m => OnErrorMessage(new ErrorMessageInfo(ErrorMessageType.TestMethodCleanupFailure, m.ExceptionTypes.FirstOrDefault(), m.Messages.FirstOrDefault(), m.StackTraces.FirstOrDefault()))))
 				return !cancelled;
 		}
 
@@ -412,8 +411,11 @@ public class AssemblyRunner : IAsyncDisposable, IMessageSink
 		return new AssemblyRunner(AppDomainSupport.Denied, assemblyFileName);
 	}
 
-	static bool DispatchMessage<TMessage>(MessageSinkMessage message, HashSet<string>? messageTypes, Action<TMessage> handler)
-		where TMessage : MessageSinkMessage
+	static bool DispatchMessage<TMessage>(
+		IMessageSinkMessage message,
+		HashSet<string>? messageTypes,
+		Action<TMessage> handler)
+			where TMessage : IMessageSinkMessage
 	{
 		if (messageTypes is null || !MessageTypeNames.TryGetValue(typeof(TMessage), out var typeName) || !messageTypes.Contains(typeName))
 			return false;

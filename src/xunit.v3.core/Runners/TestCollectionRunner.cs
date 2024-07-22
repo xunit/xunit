@@ -33,11 +33,11 @@ public abstract class TestCollectionRunner<TContext, TTestCollection, TTestClass
 	/// <summary>
 	/// This method is called when an exception was thrown while cleaning up, after the test collection
 	/// has run. This will typically send a "test collection cleanup failure" message (like
-	/// <see cref="TestCollectionCleanupFailure"/>).
+	/// <see cref="ITestCollectionCleanupFailure"/>).
 	/// </summary>
 	/// <remarks>
 	/// This method runs during <see cref="TestEngineStatus.CleaningUp"/> and any exceptions thrown are
-	/// converted into fatal exception messages (via <see cref="ErrorMessage"/>) and sent to the message
+	/// converted into fatal exception messages (via <see cref="IErrorMessage"/>) and sent to the message
 	/// bus in <paramref name="ctxt"/>.
 	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test collection</param>
@@ -50,7 +50,7 @@ public abstract class TestCollectionRunner<TContext, TTestCollection, TTestClass
 
 	/// <summary>
 	/// This method will be called when the test collection has finished running. This will typically send
-	/// a "test collection finished" message (like <see cref="TestCollectionFinished"/>) as well as enabling
+	/// a "test collection finished" message (like <see cref="ITestCollectionFinished"/>) as well as enabling
 	/// any extensibility related to test collection finish.
 	/// </summary>
 	/// <remarks>
@@ -66,7 +66,7 @@ public abstract class TestCollectionRunner<TContext, TTestCollection, TTestClass
 
 	/// <summary>
 	/// This method will be called before the test collection has started running. This will typically send
-	/// a "test collection starting" message (like <see cref="TestCollectionStarting"/>) as well as enabling
+	/// a "test collection starting" message (like <see cref="ITestCollectionStarting"/>) as well as enabling
 	/// any extensibility related to test collection start.
 	/// </summary>
 	/// <remarks>

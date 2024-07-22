@@ -20,7 +20,7 @@ public class ExecutionSinkTests
 		{
 			using var sink = TestableExecutionSink.Create(cancelThunk: () => true);
 
-			var result = sink.OnMessage(new MessageSinkMessage());
+			var result = sink.OnMessage(TestData.DiagnosticMessage());
 
 			Assert.False(result);
 		}
@@ -30,7 +30,7 @@ public class ExecutionSinkTests
 		{
 			using var sink = TestableExecutionSink.Create(cancelThunk: () => false);
 
-			var result = sink.OnMessage(new MessageSinkMessage());
+			var result = sink.OnMessage(TestData.DiagnosticMessage());
 
 			Assert.True(result);
 		}
@@ -116,7 +116,7 @@ public class ExecutionSinkTests
 			var assembly = TestData.XunitProjectAssembly<ExecutionSinkTests>();
 			var executionOptions = TestData.TestFrameworkExecutionOptions(culture: "fr-FR");
 			using var sink = TestableExecutionSink.Create(assembly: assembly, executionOptions: executionOptions);
-			var error = (MessageSinkMessage)Activator.CreateInstance(errorType)!;
+			var error = (IMessageSinkMessage)Activator.CreateInstance(errorType)!;
 			var finished = TestData.TestAssemblyFinished();  // Need finished message to finalized the error count
 
 			sink.OnMessage(error);
@@ -138,7 +138,7 @@ public class ExecutionSinkTests
 			sink.OnMessage(startingMessage);
 			sink.OnMessage(skippedMessage);
 
-			var outputMessage = Assert.Single(sink.InnerSink.Messages.OfType<TestFailed>());
+			var outputMessage = Assert.Single(sink.InnerSink.Messages.OfType<ITestFailed>());
 			Assert.Equal(FailureCause.Other, outputMessage.Cause);
 			Assert.Equal(0M, outputMessage.ExecutionTime);
 			Assert.Empty(outputMessage.Output);
@@ -148,7 +148,7 @@ public class ExecutionSinkTests
 			Assert.Equal("", stackTrace);
 		}
 
-		public static TheoryData<MessageSinkMessage> FinishedMessages = new()
+		public static TheoryData<IMessageSinkMessage> FinishedMessages = new()
 		{
 			TestData.TestCaseFinished(testsTotal: 24, testsFailed: 8, testsSkipped: 3, testsNotRun: 1),
 			TestData.TestMethodFinished(testsTotal: 24, testsFailed: 8, testsSkipped: 3, testsNotRun: 1),
@@ -159,7 +159,7 @@ public class ExecutionSinkTests
 
 		[Theory(DisableDiscoveryEnumeration = true)]
 		[MemberData(nameof(FinishedMessages))]
-		public void OnFinished_CountsSkipsAsFails(MessageSinkMessage finishedMessage)
+		public void OnFinished_CountsSkipsAsFails(IMessageSinkMessage finishedMessage)
 		{
 			var inputSummary = (IExecutionSummaryMetadata)finishedMessage;
 			using var sink = TestableExecutionSink.Create(failSkips: true);
@@ -186,7 +186,7 @@ public class ExecutionSinkTests
 			sink.OnMessage(startingMessage);
 			sink.OnMessage(passedMessage);
 
-			var outputMessage = Assert.Single(sink.InnerSink.Messages.OfType<TestFailed>());
+			var outputMessage = Assert.Single(sink.InnerSink.Messages.OfType<ITestFailed>());
 			Assert.Equal(FailureCause.Other, outputMessage.Cause);
 			Assert.Equal("FAIL_WARN", outputMessage.ExceptionTypes.Single());
 			Assert.Equal("This test failed due to one or more warnings", outputMessage.Messages.Single());
@@ -197,7 +197,7 @@ public class ExecutionSinkTests
 			Assert.Equal("warning", warning);
 		}
 
-		public static TheoryData<TestResultMessage> OtherWarningMessages = new()
+		public static TheoryData<ITestResultMessage> OtherWarningMessages = new()
 		{
 			TestData.TestPassed(warnings: null),
 			TestData.TestFailed(warnings: null),
@@ -210,7 +210,7 @@ public class ExecutionSinkTests
 
 		[Theory(DisableDiscoveryEnumeration = true)]
 		[MemberData(nameof(OtherWarningMessages))]
-		public void OtherResultMessages_PassesThrough(TestResultMessage inputResult)
+		public void OtherResultMessages_PassesThrough(ITestResultMessage inputResult)
 		{
 			var startingMessage = TestData.TestStarting();
 			using var sink = TestableExecutionSink.Create(failWarn: true);
@@ -218,11 +218,11 @@ public class ExecutionSinkTests
 			sink.OnMessage(startingMessage);
 			sink.OnMessage(inputResult);
 
-			var outputResult = Assert.Single(sink.InnerSink.Messages.OfType<TestResultMessage>());
+			var outputResult = Assert.Single(sink.InnerSink.Messages.OfType<ITestResultMessage>());
 			Assert.Same(inputResult, outputResult);
 		}
 
-		public static TheoryData<MessageSinkMessage> FinishedMessages = new()
+		public static TheoryData<IMessageSinkMessage> FinishedMessages = new()
 		{
 			TestData.TestCaseFinished(testsTotal: 24, testsFailed: 8, testsSkipped: 3, testsNotRun: 1),
 			TestData.TestMethodFinished(testsTotal: 24, testsFailed: 8, testsSkipped: 3, testsNotRun: 1),
@@ -233,7 +233,7 @@ public class ExecutionSinkTests
 
 		[Theory(DisableDiscoveryEnumeration = true)]
 		[MemberData(nameof(FinishedMessages))]
-		public void OnFinished_CountsWarnsAsFails(MessageSinkMessage finishedMessage)
+		public void OnFinished_CountsWarnsAsFails(IMessageSinkMessage finishedMessage)
 		{
 			var startingMessage = TestData.TestStarting();
 			var passedMessage = TestData.TestPassed(warnings: ["warning"]);
@@ -288,7 +288,7 @@ public class ExecutionSinkTests
 			Assert.Same(testCaseStarting, receivedTestCasePair.Key);
 			Assert.Equal(TimeSpan.FromMilliseconds(1500), receivedTestCasePair.Value);
 
-			var diagMessage = Assert.Single(sink.DiagnosticMessageSink.Messages.OfType<DiagnosticMessage>());
+			var diagMessage = Assert.Single(sink.DiagnosticMessageSink.Messages.OfType<IDiagnosticMessage>());
 			Assert.Equal("[Long Running Test] 'My test display name', Elapsed: 00:00:01", diagMessage.Message);
 		}
 
@@ -324,7 +324,7 @@ public class ExecutionSinkTests
 				}
 			);
 
-			Assert.Collection(sink.DiagnosticMessageSink.Messages.OfType<DiagnosticMessage>(),
+			Assert.Collection(sink.DiagnosticMessageSink.Messages.OfType<IDiagnosticMessage>(),
 				diagMessage => Assert.Equal("[Long Running Test] 'My test display name', Elapsed: 00:00:01", diagMessage.Message),
 				diagMessage => Assert.Equal("[Long Running Test] 'My test display name', Elapsed: 00:00:02", diagMessage.Message)
 			);
@@ -370,7 +370,7 @@ public class ExecutionSinkTests
 					{
 						if (sink is null)
 							throw new InvalidOperationException("Sink didn't exist in the callback");
-						if (msg is TestAssemblyFinished)
+						if (msg is ITestAssemblyFinished)
 							isFinishedDuringDispatch = sink.Finished.WaitOne(0);
 						return true;
 					});
@@ -1174,7 +1174,7 @@ public class ExecutionSinkTests
 			bool failWarn = false,
 			Action<LongRunningTestsSummary>? longRunningTestCallback = null,
 			long longRunningSeconds = 0L,
-			Func<MessageSinkMessage, bool>? innerSinkCallback = null)
+			Func<IMessageSinkMessage, bool>? innerSinkCallback = null)
 		{
 			var diagnosticMessageSink = SpyMessageSink.Capture();
 

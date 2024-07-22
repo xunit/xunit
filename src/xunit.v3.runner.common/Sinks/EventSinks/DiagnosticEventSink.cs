@@ -11,22 +11,22 @@ namespace Xunit.Runner.Common;
 public class DiagnosticEventSink : IMessageSink
 {
 	/// <summary>
-	/// Occurs when a <see cref="DiagnosticMessage"/> message is received.
+	/// Occurs when a <see cref="IDiagnosticMessage"/> message is received.
 	/// </summary>
-	public event MessageHandler<DiagnosticMessage>? DiagnosticMessageEvent;
+	public event MessageHandler<IDiagnosticMessage>? DiagnosticMessageEvent;
 
 	/// <summary>
-	/// Occurs when a <see cref="ErrorMessage"/> message is received.
+	/// Occurs when a <see cref="IErrorMessage"/> message is received.
 	/// </summary>
-	public event MessageHandler<ErrorMessage>? ErrorMessageEvent;
+	public event MessageHandler<IErrorMessage>? ErrorMessageEvent;
 
 	/// <summary>
-	/// Occurs when a <see cref="InternalDiagnosticMessage"/> message is received.
+	/// Occurs when a <see cref="IInternalDiagnosticMessage"/> message is received.
 	/// </summary>
-	public event MessageHandler<InternalDiagnosticMessage>? InternalDiagnosticMessageEvent;
+	public event MessageHandler<IInternalDiagnosticMessage>? InternalDiagnosticMessageEvent;
 
 	/// <inheritdoc/>
-	public bool OnMessage(MessageSinkMessage message)
+	public bool OnMessage(IMessageSinkMessage message)
 	{
 		Guard.ArgumentNotNull(message);
 

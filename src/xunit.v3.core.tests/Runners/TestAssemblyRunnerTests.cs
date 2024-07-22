@@ -163,7 +163,7 @@ public static class TestAssemblyRunnerTests
 				"OnTestAssemblyCleanupFailure(exception: typeof(ArgumentException))",
 			}, runner.Invocations);
 			var message = Assert.Single(runner.MessageSink.Messages);
-			var errorMessage = Assert.IsType<ErrorMessage>(message);
+			var errorMessage = Assert.IsAssignableFrom<IErrorMessage>(message);
 			Assert.Equal(new[] { -1 }, errorMessage.ExceptionParentIndices);
 			Assert.Equal(new[] { "System.DivideByZeroException" }, errorMessage.ExceptionTypes);
 			Assert.Equal(new[] { "Attempted to divide by zero." }, errorMessage.Messages);

@@ -1,7 +1,8 @@
 using Xunit.Internal;
 using Xunit.Sdk;
+using Xunit.v3;
 
-public class TestFailedWithDisplayName : TestResultMessage, ITestResultWithDisplayName
+public class TestFailedWithDisplayName : TestResultMessage, ITestResultWithDisplayName, ITestFailed
 {
 	public FailureCause Cause { get; set; }
 
@@ -16,7 +17,7 @@ public class TestFailedWithDisplayName : TestResultMessage, ITestResultWithDispl
 	public required string TestDisplayName { get; set; }
 
 	public static TestFailedWithDisplayName FromTestFailed(
-		TestFailed testFailed,
+		ITestFailed testFailed,
 		string testDisplayName) =>
 			new()
 			{

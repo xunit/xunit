@@ -1,4 +1,4 @@
-#pragma warning disable xUnit3000 // This class does not have direct access to v2 xunit.runner.utility, so it can't derive from LLMBRO
+#pragma warning disable xUnit3000 // This class does not have direct access to v2 xunit.runner.utility, so it can't derive from v2's LLMBRO
 
 using System;
 using System.Collections.Generic;
@@ -13,27 +13,17 @@ namespace Xunit.Runner.v2;
 /// which adapts (with <see cref="Xunit2MessageAdapter"/> and dispatches any incoming v2 messages to the
 /// given v3 message sink.
 /// </summary>
-public class Xunit2MessageSink : MarshalByRefObject, Abstractions.IMessageSink, IMessageSinkWithTypes
+/// <param name="v3MessageSink">The v3 message sink to which to report the messages</param>
+/// <param name="assemblyUniqueID">The unique ID of the assembly these message belong to</param>
+/// <param name="discoverer">The discoverer used to serialize test cases</param>
+public class Xunit2MessageSink(
+	Sdk.IMessageSink v3MessageSink,
+	string? assemblyUniqueID = null,
+	ITestFrameworkDiscoverer? discoverer = null) :
+		MarshalByRefObject, IMessageSink, IMessageSinkWithTypes
 {
-	readonly Xunit2MessageAdapter adapter;
-	readonly Sdk.IMessageSink v3MessageSink;
-
-	/// <summary>
-	/// Initializes a new instance of the <see cref="Xunit2MessageSink"/> class.
-	/// </summary>
-	/// <param name="v3MessageSink">The v3 message sink to which to report the messages</param>
-	/// <param name="assemblyUniqueID">The unique ID of the assembly these message belong to</param>
-	/// <param name="discoverer">The discoverer used to serialize test cases</param>
-	public Xunit2MessageSink(
-		Sdk.IMessageSink v3MessageSink,
-		string? assemblyUniqueID = null,
-		ITestFrameworkDiscoverer? discoverer = null)
-	{
-		this.v3MessageSink = Guard.ArgumentNotNull(v3MessageSink);
-
-		adapter = new Xunit2MessageAdapter(assemblyUniqueID, discoverer);
-	}
-
+	readonly Xunit2MessageAdapter adapter = new(assemblyUniqueID, discoverer);
+	readonly Sdk.IMessageSink v3MessageSink = Guard.ArgumentNotNull(v3MessageSink);
 
 	/// <inheritdoc/>
 	public void Dispose()

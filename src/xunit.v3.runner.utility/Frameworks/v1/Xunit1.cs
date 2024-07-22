@@ -106,7 +106,7 @@ public class Xunit1 : IFrontController
 	protected void Find(
 		IMessageSink messageSink,
 		bool includeSourceInformation,
-		Predicate<TestCaseDiscovered>? filter)
+		Predicate<ITestCaseDiscovered>? filter)
 	{
 		Guard.ArgumentNotNull(messageSink);
 
@@ -242,7 +242,7 @@ public class Xunit1 : IFrontController
 	protected void FindAndRun(
 		IMessageSink messageSink,
 		bool includeSourceInformation,
-		Predicate<TestCaseDiscovered>? filter,
+		Predicate<ITestCaseDiscovered>? filter,
 		bool markAllAsNotRun)
 	{
 		Guard.ArgumentNotNull(messageSink);
@@ -519,8 +519,8 @@ public class Xunit1 : IFrontController
 	/// </summary>
 	/// <param name="projectAssembly">The test project assembly.</param>
 	/// <param name="sourceInformationProvider">The optional source information provider.</param>
-	/// <param name="diagnosticMessageSink">The optional message sink which receives <see cref="DiagnosticMessage"/>
-	/// and <see cref="InternalDiagnosticMessage"/> messages.</param>
+	/// <param name="diagnosticMessageSink">The optional message sink which receives <see cref="IDiagnosticMessage"/>
+	/// and <see cref="IInternalDiagnosticMessage"/> messages.</param>
 	public static IFrontController ForDiscoveryAndExecution(
 		XunitProjectAssembly projectAssembly,
 		ISourceInformationProvider? sourceInformationProvider = null,

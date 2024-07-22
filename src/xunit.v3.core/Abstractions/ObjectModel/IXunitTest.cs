@@ -23,8 +23,7 @@ public interface IXunitTest : ITest
 	IXunitTestMethod TestMethod { get; }
 
 	/// <summary>
-	/// A value greater than zero marks the test as having a timeout, and gets or sets the
-	/// timeout (in milliseconds).
+	/// Gets the timeout for the test, in milliseconds; if <c>0</c>, there is no timeout.
 	/// </summary>
 	/// <remarks>
 	/// WARNING: Using this with <see cref="ParallelAlgorithm.Aggressive"/> will result

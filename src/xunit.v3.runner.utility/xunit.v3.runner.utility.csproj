@@ -3,6 +3,7 @@
   <PropertyGroup>
     <AssemblyName Condition=" '$(TargetFramework)' == 'net472' ">xunit.v3.runner.utility.netfx</AssemblyName>
     <AssemblyName Condition=" '$(TargetFramework)' == 'net6.0' ">xunit.v3.runner.utility.netcore</AssemblyName>
+    <DefineConstants>$(DefineConstants);XUNIT_RUNNER_UTILITY</DefineConstants>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <TargetFrameworks>net472;net6.0</TargetFrameworks>
   </PropertyGroup>

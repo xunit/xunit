@@ -76,7 +76,7 @@ public class Xunit3Tests
 		var filters = new XunitFilters();
 		filters.IncludedMethods.Add($"{typeof(Xunit3Tests).FullName}.{nameof(GuardClauses_Ctor)}");
 
-		var findMessageSink = SpyMessageSink<DiscoveryComplete>.Create();
+		var findMessageSink = SpyMessageSink<IDiscoveryComplete>.Create();
 		var findProcess = xunit3.Find(findMessageSink, new FrontControllerFindSettings(DiscoveryOptions, filters));
 		if (forceInProcess)
 			Assert.Null(findProcess);
@@ -86,14 +86,14 @@ public class Xunit3Tests
 		var findFinished = findMessageSink.Finished.WaitOne(60_000);
 		Assert.True(findFinished, "Message sink did not see _DiscoveryComplete within 60 seconds");
 
-		var testCases = findMessageSink.Messages.OfType<TestCaseDiscovered>();
+		var testCases = findMessageSink.Messages.OfType<ITestCaseDiscovered>();
 		var testCase = Assert.Single(testCases);
 		Assert.Equal("Xunit3Tests.GuardClauses_Ctor", testCase.TestCaseDisplayName);
 		Assert.Equal("/path/to/source/file.cs", testCase.SourceFilePath);
 		Assert.Equal(2112, testCase.SourceLineNumber);
 
 		// Run
-		var runMessageSink = SpyMessageSink<TestAssemblyFinished>.Create();
+		var runMessageSink = SpyMessageSink<ITestAssemblyFinished>.Create();
 		var runProcess = xunit3.Run(runMessageSink, new FrontControllerRunSettings(ExecutionOptions, [testCase.Serialization]));
 		if (forceInProcess)
 			Assert.Null(runProcess);
@@ -103,12 +103,12 @@ public class Xunit3Tests
 		var runFinished = runMessageSink.Finished.WaitOne(60_000);
 		Assert.True(runFinished, "Message sink did not see _TestAssemblyFinished within 60 seconds");
 
-		var results = runMessageSink.Messages.OfType<TestResultMessage>().ToList();
-		var passed = Assert.Single(runMessageSink.Messages.OfType<TestPassed>());
+		var results = runMessageSink.Messages.OfType<ITestResultMessage>().ToList();
+		var passed = Assert.Single(runMessageSink.Messages.OfType<ITestPassed>());
 		Assert.Equal(testCase.TestCaseUniqueID, passed.TestCaseUniqueID);
-		Assert.Empty(results.OfType<TestFailed>());
-		Assert.Empty(results.OfType<TestSkipped>());
-		Assert.Empty(results.OfType<TestNotRun>());
+		Assert.Empty(results.OfType<ITestFailed>());
+		Assert.Empty(results.OfType<ITestSkipped>());
+		Assert.Empty(results.OfType<ITestNotRun>());
 	}
 
 	[Theory]
@@ -119,7 +119,7 @@ public class Xunit3Tests
 		await using var xunit3 = Xunit3.ForDiscoveryAndExecution(Assembly, forceInProcess: forceInProcess);
 		var filters = new XunitFilters();
 		filters.IncludedMethods.Add($"{typeof(Xunit3Tests).FullName}.{nameof(GuardClauses_Ctor)}");
-		var messageSink = SpyMessageSink<TestAssemblyFinished>.Create();
+		var messageSink = SpyMessageSink<ITestAssemblyFinished>.Create();
 		var process = xunit3.FindAndRun(messageSink, new FrontControllerFindAndRunSettings(DiscoveryOptions, ExecutionOptions, filters));
 
 		if (forceInProcess)
@@ -130,12 +130,12 @@ public class Xunit3Tests
 		var finished = messageSink.Finished.WaitOne(60_000);
 		Assert.True(finished, "Message sink did not see _DiscoveryComplete within 60 seconds");
 
-		var starting = Assert.Single(messageSink.Messages.OfType<TestStarting>());
+		var starting = Assert.Single(messageSink.Messages.OfType<ITestStarting>());
 		Assert.Equal("Xunit3Tests.GuardClauses_Ctor", starting.TestDisplayName);
-		var passed = Assert.Single(messageSink.Messages.OfType<TestPassed>());
+		var passed = Assert.Single(messageSink.Messages.OfType<ITestPassed>());
 		Assert.Equal(starting.TestUniqueID, passed.TestUniqueID);
-		Assert.Empty(messageSink.Messages.OfType<TestFailed>());
-		Assert.Empty(messageSink.Messages.OfType<TestSkipped>());
-		Assert.Empty(messageSink.Messages.OfType<TestNotRun>());
+		Assert.Empty(messageSink.Messages.OfType<ITestFailed>());
+		Assert.Empty(messageSink.Messages.OfType<ITestSkipped>());
+		Assert.Empty(messageSink.Messages.OfType<ITestNotRun>());
 	}
 }

@@ -25,11 +25,16 @@ public class JsonReporterMessageHandler(IRunnerLogger logger) : IRunnerReporterM
 	}
 
 	/// <inheritdoc/>
-	public bool OnMessage(MessageSinkMessage message)
+	public bool OnMessage(IMessageSinkMessage message)
 	{
-		var json = message?.ToJson();
-		if (json is not null)
-			logger.LogImportantMessage(json);
+		try
+		{
+			var json = Guard.ArgumentNotNull(message).ToJson();
+			if (json is not null)
+				logger.LogImportantMessage(json);
+		}
+		// Some messages aren't serializable; we just skip it and move on
+		catch (NotSupportedException) { }
 
 		return true;
 	}

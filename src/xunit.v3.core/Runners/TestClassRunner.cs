@@ -46,11 +46,11 @@ public abstract class TestClassRunner<TContext, TTestClass, TTestMethod, TTestCa
 	/// <summary>
 	/// This method is called when an exception was thrown while cleaning up, after the test class
 	/// has run. This will typically send a "test class cleanup failure" message (like
-	/// <see cref="TestClassCleanupFailure"/>).
+	/// <see cref="ITestClassCleanupFailure"/>).
 	/// </summary>
 	/// <remarks>
 	/// This method runs during <see cref="TestEngineStatus.CleaningUp"/> and any exceptions thrown are
-	/// converted into fatal exception messages (via <see cref="ErrorMessage"/>) and sent to the message
+	/// converted into fatal exception messages (via <see cref="IErrorMessage"/>) and sent to the message
 	/// bus in <paramref name="ctxt"/>.
 	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test class</param>
@@ -63,7 +63,7 @@ public abstract class TestClassRunner<TContext, TTestClass, TTestMethod, TTestCa
 
 	/// <summary>
 	/// This method will be called when the test class has finished running. This will typically send
-	/// a "test class finished" message (like <see cref="TestClassFinished"/>) as well as enabling any
+	/// a "test class finished" message (like <see cref="ITestClassFinished"/>) as well as enabling any
 	/// extensibility related to test class finish.
 	/// </summary>
 	/// <remarks>
@@ -79,7 +79,7 @@ public abstract class TestClassRunner<TContext, TTestClass, TTestMethod, TTestCa
 
 	/// <summary>
 	/// This method will be called before the test class has started running. This will typically send
-	/// a "test class starting" message (like <see cref="TestClassStarting"/>) as well as enabling any
+	/// a "test class starting" message (like <see cref="ITestClassStarting"/>) as well as enabling any
 	/// extensibility related to test class start.
 	/// </summary>
 	/// <remarks>

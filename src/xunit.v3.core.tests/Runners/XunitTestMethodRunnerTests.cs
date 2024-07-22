@@ -24,7 +24,7 @@ public class XunitTestMethodRunnerTests
 				runner.MessageBus.Messages,
 				msg =>
 				{
-					var starting = Assert.IsType<TestMethodStarting>(msg);
+					var starting = Assert.IsAssignableFrom<ITestMethodStarting>(msg);
 					verifyTestMethodMessage(starting);
 					Assert.Equal("Passing", starting.MethodName);
 					// Trait comes from an assembly-level trait attribute on this test assembly
@@ -33,20 +33,20 @@ public class XunitTestMethodRunnerTests
 					var value = Assert.Single(trait.Value);
 					Assert.Equal("Trait", value);
 				},
-				msg => Assert.IsType<TestCaseStarting>(msg),
-				msg => Assert.IsType<TestStarting>(msg),
-				msg => Assert.IsType<TestClassConstructionStarting>(msg),
-				msg => Assert.IsType<TestClassConstructionFinished>(msg),
+				msg => Assert.IsAssignableFrom<ITestCaseStarting>(msg),
+				msg => Assert.IsAssignableFrom<ITestStarting>(msg),
+				msg => Assert.IsAssignableFrom<ITestClassConstructionStarting>(msg),
+				msg => Assert.IsAssignableFrom<ITestClassConstructionFinished>(msg),
 				// Test method is invoked here
-				msg => Assert.IsType<TestClassDisposeStarting>(msg),
-				msg => Assert.IsType<TestClassDisposeFinished>(msg),
-				msg => Assert.IsType<TestPassed>(msg),
-				msg => Assert.IsType<TestFinished>(msg),
-				msg => Assert.IsType<TestCaseFinished>(msg),
-				msg => verifyTestMethodMessage(Assert.IsType<TestMethodFinished>(msg))
+				msg => Assert.IsAssignableFrom<ITestClassDisposeStarting>(msg),
+				msg => Assert.IsAssignableFrom<ITestClassDisposeFinished>(msg),
+				msg => Assert.IsAssignableFrom<ITestPassed>(msg),
+				msg => Assert.IsAssignableFrom<ITestFinished>(msg),
+				msg => Assert.IsAssignableFrom<ITestCaseFinished>(msg),
+				msg => verifyTestMethodMessage(Assert.IsAssignableFrom<ITestMethodFinished>(msg))
 			);
 
-			static void verifyTestMethodMessage(TestMethodMessage message)
+			static void verifyTestMethodMessage(ITestMethodMessage message)
 			{
 				Assert.Equal("assembly-id", message.AssemblyUniqueID);
 				Assert.Equal("test-class-id", message.TestClassUniqueID);
@@ -65,14 +65,14 @@ public class XunitTestMethodRunnerTests
 
 			Assert.Collection(
 				runner.MessageBus.Messages,
-				msg => Assert.IsType<TestMethodStarting>(msg),
-				msg => Assert.IsType<TestCaseStarting>(msg),
-				msg => Assert.IsType<TestStarting>(msg),
+				msg => Assert.IsAssignableFrom<ITestMethodStarting>(msg),
+				msg => Assert.IsAssignableFrom<ITestCaseStarting>(msg),
+				msg => Assert.IsAssignableFrom<ITestStarting>(msg),
 				// Test method is invoked here
-				msg => Assert.IsType<TestPassed>(msg),
-				msg => Assert.IsType<TestFinished>(msg),
-				msg => Assert.IsType<TestCaseFinished>(msg),
-				msg => Assert.IsType<TestMethodFinished>(msg)
+				msg => Assert.IsAssignableFrom<ITestPassed>(msg),
+				msg => Assert.IsAssignableFrom<ITestFinished>(msg),
+				msg => Assert.IsAssignableFrom<ITestCaseFinished>(msg),
+				msg => Assert.IsAssignableFrom<ITestMethodFinished>(msg)
 			);
 		}
 
@@ -86,23 +86,23 @@ public class XunitTestMethodRunnerTests
 
 			Assert.Collection(
 				runner.MessageBus.Messages,
-				msg => Assert.IsType<TestMethodStarting>(msg),
-				msg => Assert.IsType<TestCaseStarting>(msg),
-				msg => Assert.IsType<TestStarting>(msg),
-				msg => Assert.IsType<TestClassConstructionStarting>(msg),
-				msg => Assert.IsType<TestClassConstructionFinished>(msg),
+				msg => Assert.IsAssignableFrom<ITestMethodStarting>(msg),
+				msg => Assert.IsAssignableFrom<ITestCaseStarting>(msg),
+				msg => Assert.IsAssignableFrom<ITestStarting>(msg),
+				msg => Assert.IsAssignableFrom<ITestClassConstructionStarting>(msg),
+				msg => Assert.IsAssignableFrom<ITestClassConstructionFinished>(msg),
 				// Test method is invoked here
-				msg => Assert.IsType<TestClassDisposeStarting>(msg),
-				msg => Assert.IsType<TestClassDisposeFinished>(msg),
+				msg => Assert.IsAssignableFrom<ITestClassDisposeStarting>(msg),
+				msg => Assert.IsAssignableFrom<ITestClassDisposeFinished>(msg),
 				msg =>
 				{
-					var failed = Assert.IsType<TestFailed>(msg);
+					var failed = Assert.IsAssignableFrom<ITestFailed>(msg);
 					Assert.Equal(-1, failed.ExceptionParentIndices.Single());
 					Assert.Equal("Xunit.Sdk.TrueException", failed.ExceptionTypes.Single());
 				},
-				msg => Assert.IsType<TestFinished>(msg),
-				msg => Assert.IsType<TestCaseFinished>(msg),
-				msg => Assert.IsType<TestMethodFinished>(msg)
+				msg => Assert.IsAssignableFrom<ITestFinished>(msg),
+				msg => Assert.IsAssignableFrom<ITestCaseFinished>(msg),
+				msg => Assert.IsAssignableFrom<ITestMethodFinished>(msg)
 			);
 		}
 
@@ -116,17 +116,17 @@ public class XunitTestMethodRunnerTests
 
 			Assert.Collection(
 				runner.MessageBus.Messages,
-				msg => Assert.IsType<TestMethodStarting>(msg),
-				msg => Assert.IsType<TestCaseStarting>(msg),
-				msg => Assert.IsType<TestStarting>(msg),
+				msg => Assert.IsAssignableFrom<ITestMethodStarting>(msg),
+				msg => Assert.IsAssignableFrom<ITestCaseStarting>(msg),
+				msg => Assert.IsAssignableFrom<ITestStarting>(msg),
 				msg =>
 				{
-					var skipped = Assert.IsType<TestSkipped>(msg);
+					var skipped = Assert.IsAssignableFrom<ITestSkipped>(msg);
 					Assert.Equal("Don't run me", skipped.Reason);
 				},
-				msg => Assert.IsType<TestFinished>(msg),
-				msg => Assert.IsType<TestCaseFinished>(msg),
-				msg => Assert.IsType<TestMethodFinished>(msg)
+				msg => Assert.IsAssignableFrom<ITestFinished>(msg),
+				msg => Assert.IsAssignableFrom<ITestCaseFinished>(msg),
+				msg => Assert.IsAssignableFrom<ITestMethodFinished>(msg)
 			);
 		}
 
@@ -140,22 +140,22 @@ public class XunitTestMethodRunnerTests
 
 			Assert.Collection(
 				runner.MessageBus.Messages,
-				msg => Assert.IsType<TestMethodStarting>(msg),
-				msg => Assert.IsType<TestCaseStarting>(msg),
-				msg => Assert.IsType<TestStarting>(msg),
-				msg => Assert.IsType<TestClassConstructionStarting>(msg),
-				msg => Assert.IsType<TestClassConstructionFinished>(msg),
+				msg => Assert.IsAssignableFrom<ITestMethodStarting>(msg),
+				msg => Assert.IsAssignableFrom<ITestCaseStarting>(msg),
+				msg => Assert.IsAssignableFrom<ITestStarting>(msg),
+				msg => Assert.IsAssignableFrom<ITestClassConstructionStarting>(msg),
+				msg => Assert.IsAssignableFrom<ITestClassConstructionFinished>(msg),
 				// Test method is invoked here
-				msg => Assert.IsType<TestClassDisposeStarting>(msg),
-				msg => Assert.IsType<TestClassDisposeFinished>(msg),
+				msg => Assert.IsAssignableFrom<ITestClassDisposeStarting>(msg),
+				msg => Assert.IsAssignableFrom<ITestClassDisposeFinished>(msg),
 				msg =>
 				{
-					var skipped = Assert.IsType<TestSkipped>(msg);
+					var skipped = Assert.IsAssignableFrom<ITestSkipped>(msg);
 					Assert.Equal("This isn't a good time", skipped.Reason);
 				},
-				msg => Assert.IsType<TestFinished>(msg),
-				msg => Assert.IsType<TestCaseFinished>(msg),
-				msg => Assert.IsType<TestMethodFinished>(msg)
+				msg => Assert.IsAssignableFrom<ITestFinished>(msg),
+				msg => Assert.IsAssignableFrom<ITestCaseFinished>(msg),
+				msg => Assert.IsAssignableFrom<ITestMethodFinished>(msg)
 			);
 		}
 
@@ -169,13 +169,13 @@ public class XunitTestMethodRunnerTests
 
 			Assert.Collection(
 				runner.MessageBus.Messages,
-				msg => Assert.IsType<TestMethodStarting>(msg),
-				msg => Assert.IsType<TestCaseStarting>(msg),
-				msg => Assert.IsType<TestStarting>(msg),
-				msg => Assert.IsType<TestNotRun>(msg),
-				msg => Assert.IsType<TestFinished>(msg),
-				msg => Assert.IsType<TestCaseFinished>(msg),
-				msg => Assert.IsType<TestMethodFinished>(msg)
+				msg => Assert.IsAssignableFrom<ITestMethodStarting>(msg),
+				msg => Assert.IsAssignableFrom<ITestCaseStarting>(msg),
+				msg => Assert.IsAssignableFrom<ITestStarting>(msg),
+				msg => Assert.IsAssignableFrom<ITestNotRun>(msg),
+				msg => Assert.IsAssignableFrom<ITestFinished>(msg),
+				msg => Assert.IsAssignableFrom<ITestCaseFinished>(msg),
+				msg => Assert.IsAssignableFrom<ITestMethodFinished>(msg)
 			);
 		}
 

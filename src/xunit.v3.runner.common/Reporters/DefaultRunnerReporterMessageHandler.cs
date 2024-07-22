@@ -258,10 +258,10 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 	}
 
 	/// <summary>
-	/// Called when <see cref="ErrorMessage"/> is raised.
+	/// Called when <see cref="IErrorMessage"/> is raised.
 	/// </summary>
 	/// <param name="args">An object that contains the event data.</param>
-	protected virtual void HandleErrorMessage(MessageHandlerArgs<ErrorMessage> args)
+	protected virtual void HandleErrorMessage(MessageHandlerArgs<IErrorMessage> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -380,10 +380,10 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 	}
 
 	/// <summary>
-	/// Called when <see cref="TestAssemblyCleanupFailure"/> is raised.
+	/// Called when <see cref="ITestAssemblyCleanupFailure"/> is raised.
 	/// </summary>
 	/// <param name="args">An object that contains the event data.</param>
-	protected virtual void HandleTestAssemblyCleanupFailure(MessageHandlerArgs<TestAssemblyCleanupFailure> args)
+	protected virtual void HandleTestAssemblyCleanupFailure(MessageHandlerArgs<ITestAssemblyCleanupFailure> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -393,10 +393,10 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 	}
 
 	/// <summary>
-	/// Called when <see cref="TestAssemblyFinished"/> is raised.
+	/// Called when <see cref="ITestAssemblyFinished"/> is raised.
 	/// </summary>
 	/// <param name="args">An object that contains the event data.</param>
-	protected virtual void HandleTestAssemblyFinished(MessageHandlerArgs<TestAssemblyFinished> args)
+	protected virtual void HandleTestAssemblyFinished(MessageHandlerArgs<ITestAssemblyFinished> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -406,10 +406,10 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 	}
 
 	/// <summary>
-	/// Called when <see cref="TestAssemblyStarting"/> is raised.
+	/// Called when <see cref="ITestAssemblyStarting"/> is raised.
 	/// </summary>
 	/// <param name="args">An object that contains the event data.</param>
-	protected virtual void HandleTestAssemblyStarting(MessageHandlerArgs<TestAssemblyStarting> args)
+	protected virtual void HandleTestAssemblyStarting(MessageHandlerArgs<ITestAssemblyStarting> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -417,10 +417,10 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 	}
 
 	/// <summary>
-	/// Called when <see cref="TestCaseCleanupFailure"/> is raised.
+	/// Called when <see cref="ITestCaseCleanupFailure"/> is raised.
 	/// </summary>
 	/// <param name="args">An object that contains the event data.</param>
-	protected virtual void HandleTestCaseCleanupFailure(MessageHandlerArgs<TestCaseCleanupFailure> args)
+	protected virtual void HandleTestCaseCleanupFailure(MessageHandlerArgs<ITestCaseCleanupFailure> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -430,10 +430,10 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 	}
 
 	/// <summary>
-	/// Called when <see cref="TestCaseFinished"/> is raised.
+	/// Called when <see cref="ITestCaseFinished"/> is raised.
 	/// </summary>
 	/// <param name="args">An object that contains the event data.</param>
-	protected virtual void HandleTestCaseFinished(MessageHandlerArgs<TestCaseFinished> args)
+	protected virtual void HandleTestCaseFinished(MessageHandlerArgs<ITestCaseFinished> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -441,10 +441,10 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 	}
 
 	/// <summary>
-	/// Called when <see cref="TestCaseStarting"/> is raised.
+	/// Called when <see cref="ITestCaseStarting"/> is raised.
 	/// </summary>
 	/// <param name="args">An object that contains the event data.</param>
-	protected virtual void HandleTestCaseStarting(MessageHandlerArgs<TestCaseStarting> args)
+	protected virtual void HandleTestCaseStarting(MessageHandlerArgs<ITestCaseStarting> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -452,10 +452,10 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 	}
 
 	/// <summary>
-	/// Called when <see cref="TestClassCleanupFailure"/> is raised.
+	/// Called when <see cref="ITestClassCleanupFailure"/> is raised.
 	/// </summary>
 	/// <param name="args">An object that contains the event data.</param>
-	protected virtual void HandleTestClassCleanupFailure(MessageHandlerArgs<TestClassCleanupFailure> args)
+	protected virtual void HandleTestClassCleanupFailure(MessageHandlerArgs<ITestClassCleanupFailure> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -465,10 +465,10 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 	}
 
 	/// <summary>
-	/// Called when <see cref="TestClassFinished"/> is raised.
+	/// Called when <see cref="ITestClassFinished"/> is raised.
 	/// </summary>
 	/// <param name="args">An object that contains the event data.</param>
-	protected virtual void HandleTestClassFinished(MessageHandlerArgs<TestClassFinished> args)
+	protected virtual void HandleTestClassFinished(MessageHandlerArgs<ITestClassFinished> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -476,10 +476,10 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 	}
 
 	/// <summary>
-	/// Called when <see cref="TestClassStarting"/> is raised.
+	/// Called when <see cref="ITestClassStarting"/> is raised.
 	/// </summary>
 	/// <param name="args">An object that contains the event data.</param>
-	protected virtual void HandleTestClassStarting(MessageHandlerArgs<TestClassStarting> args)
+	protected virtual void HandleTestClassStarting(MessageHandlerArgs<ITestClassStarting> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -487,10 +487,10 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 	}
 
 	/// <summary>
-	/// Called when <see cref="TestCleanupFailure"/> is raised.
+	/// Called when <see cref="ITestCleanupFailure"/> is raised.
 	/// </summary>
 	/// <param name="args">An object that contains the event data.</param>
-	protected virtual void HandleTestCleanupFailure(MessageHandlerArgs<TestCleanupFailure> args)
+	protected virtual void HandleTestCleanupFailure(MessageHandlerArgs<ITestCleanupFailure> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -500,10 +500,10 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 	}
 
 	/// <summary>
-	/// Called when <see cref="TestCollectionCleanupFailure"/> is raised.
+	/// Called when <see cref="ITestCollectionCleanupFailure"/> is raised.
 	/// </summary>
 	/// <param name="args">An object that contains the event data.</param>
-	protected virtual void HandleTestCollectionCleanupFailure(MessageHandlerArgs<TestCollectionCleanupFailure> args)
+	protected virtual void HandleTestCollectionCleanupFailure(MessageHandlerArgs<ITestCollectionCleanupFailure> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -513,10 +513,10 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 	}
 
 	/// <summary>
-	/// Called when <see cref="TestCollectionFinished"/> is raised.
+	/// Called when <see cref="ITestCollectionFinished"/> is raised.
 	/// </summary>
 	/// <param name="args">An object that contains the event data.</param>
-	protected virtual void HandleTestCollectionFinished(MessageHandlerArgs<TestCollectionFinished> args)
+	protected virtual void HandleTestCollectionFinished(MessageHandlerArgs<ITestCollectionFinished> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -524,10 +524,10 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 	}
 
 	/// <summary>
-	/// Called when <see cref="TestCollectionStarting"/> is raised.
+	/// Called when <see cref="ITestCollectionStarting"/> is raised.
 	/// </summary>
 	/// <param name="args">An object that contains the event data.</param>
-	protected virtual void HandleTestCollectionStarting(MessageHandlerArgs<TestCollectionStarting> args)
+	protected virtual void HandleTestCollectionStarting(MessageHandlerArgs<ITestCollectionStarting> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -546,10 +546,10 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 	}
 
 	/// <summary>
-	/// Called when <see cref="TestFailed"/> is raised.
+	/// Called when <see cref="ITestFailed"/> is raised.
 	/// </summary>
 	/// <param name="args">An object that contains the event data.</param>
-	protected virtual void HandleTestFailed(MessageHandlerArgs<TestFailed> args)
+	protected virtual void HandleTestFailed(MessageHandlerArgs<ITestFailed> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -571,10 +571,10 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 	}
 
 	/// <summary>
-	/// Called when <see cref="TestFinished"/> is raised.
+	/// Called when <see cref="ITestFinished"/> is raised.
 	/// </summary>
 	/// <param name="args">An object that contains the event data.</param>
-	protected virtual void HandleTestFinished(MessageHandlerArgs<TestFinished> args)
+	protected virtual void HandleTestFinished(MessageHandlerArgs<ITestFinished> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -582,10 +582,10 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 	}
 
 	/// <summary>
-	/// Called when <see cref="TestMethodCleanupFailure"/> is raised.
+	/// Called when <see cref="ITestMethodCleanupFailure"/> is raised.
 	/// </summary>
 	/// <param name="args">An object that contains the event data.</param>
-	protected virtual void HandleTestMethodCleanupFailure(MessageHandlerArgs<TestMethodCleanupFailure> args)
+	protected virtual void HandleTestMethodCleanupFailure(MessageHandlerArgs<ITestMethodCleanupFailure> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -596,10 +596,10 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 	}
 
 	/// <summary>
-	/// Called when <see cref="TestMethodFinished"/> is raised.
+	/// Called when <see cref="ITestMethodFinished"/> is raised.
 	/// </summary>
 	/// <param name="args">An object that contains the event data.</param>
-	protected virtual void HandleTestMethodFinished(MessageHandlerArgs<TestMethodFinished> args)
+	protected virtual void HandleTestMethodFinished(MessageHandlerArgs<ITestMethodFinished> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -607,10 +607,10 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 	}
 
 	/// <summary>
-	/// Called when <see cref="TestMethodStarting"/> is raised.
+	/// Called when <see cref="ITestMethodStarting"/> is raised.
 	/// </summary>
 	/// <param name="args">An object that contains the event data.</param>
-	protected virtual void HandleTestMethodStarting(MessageHandlerArgs<TestMethodStarting> args)
+	protected virtual void HandleTestMethodStarting(MessageHandlerArgs<ITestMethodStarting> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -618,7 +618,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 	}
 
 	/// <inheritdoc/>
-	protected virtual void HandleTestOutput(MessageHandlerArgs<TestOutput> args)
+	protected virtual void HandleTestOutput(MessageHandlerArgs<ITestOutput> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -636,10 +636,10 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 	}
 
 	/// <summary>
-	/// Called when <see cref="TestPassed"/> is raised.
+	/// Called when <see cref="ITestPassed"/> is raised.
 	/// </summary>
 	/// <param name="args">An object that contains the event data.</param>
-	protected virtual void HandleTestPassed(MessageHandlerArgs<TestPassed> args)
+	protected virtual void HandleTestPassed(MessageHandlerArgs<ITestPassed> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -662,10 +662,10 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 	}
 
 	/// <summary>
-	/// Called when <see cref="TestSkipped"/> is raised.
+	/// Called when <see cref="ITestSkipped"/> is raised.
 	/// </summary>
 	/// <param name="args">An object that contains the event data.</param>
-	protected virtual void HandleTestSkipped(MessageHandlerArgs<TestSkipped> args)
+	protected virtual void HandleTestSkipped(MessageHandlerArgs<ITestSkipped> args)
 	{
 		Guard.ArgumentNotNull(args);
 
@@ -683,10 +683,10 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 	}
 
 	/// <summary>
-	/// Called when <see cref="TestStarting"/> is raised.
+	/// Called when <see cref="ITestStarting"/> is raised.
 	/// </summary>
 	/// <param name="args">An object that contains the event data.</param>
-	protected virtual void HandleTestStarting(MessageHandlerArgs<TestStarting> args)
+	protected virtual void HandleTestStarting(MessageHandlerArgs<ITestStarting> args)
 	{
 		Guard.ArgumentNotNull(args);
 

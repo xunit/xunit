@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Xml;
 using Xunit.Internal;
+using Xunit.Runner.Common;
 using Xunit.Sdk;
 
 namespace Xunit.Runner.v1;
@@ -119,7 +120,7 @@ public class TestClassCallbackHandler : XmlNodeCallbackHandler
 			var time = decimal.Parse(xml.Attributes?["time"]?.Value ?? "0", CultureInfo.InvariantCulture);
 			var outputElement = xml.SelectSingleNode("output");
 			var output = outputElement is null ? string.Empty : outputElement.InnerText;
-			MessageSinkMessage? resultMessage = null;
+			IMessageSinkMessage? resultMessage = null;
 
 			// There is no <start> node for skipped tests, or with xUnit prior to v1.1
 			if (!startSeen)

@@ -11,7 +11,7 @@ public class AsyncAcceptanceTests : AcceptanceTestV3
 	[InlineData(typeof(ClassWithAsyncTask))]
 	public async ValueTask AsyncTestsRunCorrectly(Type classUnderTest)
 	{
-		var results = await RunAsync<TestFailed>(classUnderTest);
+		var results = await RunAsync<ITestFailed>(classUnderTest);
 
 		var failed = Assert.Single(results);
 		Assert.Equal(typeof(EqualException).FullName, failed.ExceptionTypes.Single());

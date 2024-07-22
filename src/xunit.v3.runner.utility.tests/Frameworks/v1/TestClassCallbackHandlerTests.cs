@@ -35,7 +35,7 @@ public class TestClassCallbackHandlerTests
 	[Fact]
 	public static void WithTestNode_ParsesNumberWithInvariantCulture()
 	{
-		var messages = new List<MessageSinkMessage>();
+		var messages = new List<IMessageSinkMessage>();
 		var sink = SpyMessageSink.Create(messages: messages);
 		var testCase = CreateTestCase("assembly", "config", "foo", "bar", "foo.bar");
 		var handler = new TestClassCallbackHandler([testCase], sink);
@@ -47,14 +47,14 @@ public class TestClassCallbackHandlerTests
 		handler.OnXmlNode(startXml.FirstChild);
 		handler.OnXmlNode(passXml.FirstChild);
 
-		var message = Assert.Single(messages.OfType<TestFinished>());
+		var message = Assert.Single(messages.OfType<ITestFinished>());
 		Assert.Equal(1.234M, message.ExecutionTime);
 	}
 
 	[Fact]
 	public static void WithTestNode_OutputResultsInOutputMessage()
 	{
-		var messages = new List<MessageSinkMessage>();
+		var messages = new List<IMessageSinkMessage>();
 		var sink = SpyMessageSink.Create(messages: messages);
 		var testCase = CreateTestCase("assembly", "config", "foo", "bar", "foo.bar");
 		var handler = new TestClassCallbackHandler([testCase], sink);
@@ -66,7 +66,7 @@ public class TestClassCallbackHandlerTests
 		handler.OnXmlNode(startXml.FirstChild);
 		handler.OnXmlNode(passXml.FirstChild);
 
-		var message = Assert.Single(messages.OfType<TestOutput>());
+		var message = Assert.Single(messages.OfType<ITestOutput>());
 		Assert.Equal("This is output text", message.Output);
 	}
 

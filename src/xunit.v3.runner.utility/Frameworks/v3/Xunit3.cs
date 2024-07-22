@@ -140,21 +140,20 @@ public class Xunit3 : IFrontController
 					if (line is null)
 						break;
 
-					var message = MessageSinkMessageHelper.Deserialize(line);
+					var message = MessageSinkMessageDeserializer.Deserialize(line, diagnosticMessageSink);
 					if (message is null)
 					{
-						diagnosticMessageSink?.OnMessage(new DiagnosticMessage("Received unparseable output from test process: " + line));
+						diagnosticMessageSink?.OnMessage(new InternalDiagnosticMessage("Received unparseable output from test process: " + line));
 						continue;
 					}
 
-					if (message is TestCaseDiscovered testDiscovered)
+					if (message is ITestCaseDiscovered testDiscovered)
 					{
 						// Don't overwrite the source information if it came directly from the test framework
 						if (collectSourceInformation && sourceInformationProvider is not null && testDiscovered.SourceFilePath is null && testDiscovered.SourceLineNumber is null)
 						{
 							var (sourceFile, sourceLine) = sourceInformationProvider.GetSourceInformation(testDiscovered.TestClassName, testDiscovered.TestMethodName);
-							testDiscovered.SourceFilePath = sourceFile;
-							testDiscovered.SourceLineNumber = sourceLine;
+							testDiscovered = testDiscovered.WithSourceInfo(sourceFile, sourceLine);
 						}
 
 						if (assemblyUniqueID is null)
@@ -250,7 +249,7 @@ public class Xunit3 : IFrontController
 					if (line is null)
 						break;
 
-					var message = MessageSinkMessageHelper.Deserialize(line);
+					var message = MessageSinkMessageDeserializer.Deserialize(line, diagnosticMessageSink);
 					if (message is null)
 					{
 						diagnosticMessageSink?.OnMessage(new DiagnosticMessage("Received unparseable output from test process: " + line));
@@ -260,7 +259,7 @@ public class Xunit3 : IFrontController
 					if (!messageSink.OnMessage(message))
 						break;
 
-					if (message is TestAssemblyFinished)
+					if (message is ITestAssemblyFinished)
 						break;
 				}
 			}
@@ -281,8 +280,8 @@ public class Xunit3 : IFrontController
 	/// </summary>
 	/// <param name="projectAssembly">The test project assembly.</param>
 	/// <param name="sourceInformationProvider">The optional source information provider.</param>
-	/// <param name="diagnosticMessageSink">The message sink which receives <see cref="DiagnosticMessage"/>
-	/// and <see cref="InternalDiagnosticMessage"/> messages.</param>
+	/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/>
+	/// and <see cref="IInternalDiagnosticMessage"/> messages.</param>
 	/// <param name="forceInProcess">A flag to force the assembly to load in-process rather than use out-of-process
 	/// execution. Note: this flag requires extensive assembly resolution support by the runner author.</param>
 	public static IFrontController ForDiscoveryAndExecution(

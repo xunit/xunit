@@ -31,7 +31,7 @@ public class TestFrameworkDiscovererTests
 
 			await discoverer.Find();
 
-			var message = Assert.Single(spy.Messages.OfType<DiagnosticMessage>());
+			var message = Assert.Single(spy.Messages.OfType<IDiagnosticMessage>());
 			Assert.StartsWith($"Exception during discovery:{Environment.NewLine}System.DivideByZeroException: Attempted to divide by zero.", message.Message);
 		}
 

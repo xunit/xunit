@@ -139,7 +139,7 @@ public abstract class TestRunner<TContext, TTest>
 
 	/// <summary>
 	/// This method will be called when a test class instance has finished being constructed. This
-	/// will typically send a message like <see cref="TestClassConstructionFinished"/>.
+	/// will typically send a message like <see cref="ITestClassConstructionFinished"/>.
 	/// </summary>
 	/// <remarks>
 	/// This method runs during <see cref="TestEngineStatus.Running"/> and any exceptions thrown will
@@ -151,7 +151,7 @@ public abstract class TestRunner<TContext, TTest>
 
 	/// <summary>
 	/// This method will be called when a test class instance is about to be constructed. This
-	/// will typically send a message like <see cref="TestClassConstructionStarting"/>.
+	/// will typically send a message like <see cref="ITestClassConstructionStarting"/>.
 	/// </summary>
 	/// <remarks>
 	/// This method runs during <see cref="TestEngineStatus.Running"/> and any exceptions thrown will
@@ -163,7 +163,7 @@ public abstract class TestRunner<TContext, TTest>
 
 	/// <summary>
 	/// This method will be called when a test class instance has finished being disposed. This
-	/// will typically send a message like <see cref="TestClassDisposeFinished"/>.
+	/// will typically send a message like <see cref="ITestClassDisposeFinished"/>.
 	/// </summary>
 	/// <remarks>
 	/// This method runs during <see cref="TestEngineStatus.Running"/> and any exceptions thrown will
@@ -175,7 +175,7 @@ public abstract class TestRunner<TContext, TTest>
 
 	/// <summary>
 	/// This method will be called when a test class instance is about to be disposed. This
-	/// will typically send a message like <see cref="TestClassDisposeStarting"/>.
+	/// will typically send a message like <see cref="ITestClassDisposeStarting"/>.
 	/// </summary>
 	/// <remarks>
 	/// This method runs during <see cref="TestEngineStatus.Running"/> and any exceptions thrown will
@@ -187,11 +187,11 @@ public abstract class TestRunner<TContext, TTest>
 
 	/// <summary>
 	/// This method is called when an exception was thrown while cleaning up, after the test has run.
-	/// This will typically send a "test cleanup failure" message (like <see cref="TestCleanupFailure"/>).
+	/// This will typically send a "test cleanup failure" message (like <see cref="ITestCleanupFailure"/>).
 	/// </summary>
 	/// <remarks>
 	/// This method runs during <see cref="TestEngineStatus.CleaningUp"/> and any exceptions thrown are
-	/// converted into fatal exception messages (via <see cref="ErrorMessage"/>) and sent to the message
+	/// converted into fatal exception messages (via <see cref="IErrorMessage"/>) and sent to the message
 	/// bus in <paramref name="ctxt"/>.
 	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test</param>
@@ -202,7 +202,7 @@ public abstract class TestRunner<TContext, TTest>
 
 	/// <summary>
 	/// This method is called when a test has failed. This will typically send a test failed message
-	/// (i.e., <see cref="TestFailed"/>).
+	/// (i.e., <see cref="ITestFailed"/>).
 	/// </summary>
 	/// <remarks>
 	/// This method runs during <see cref="TestEngineStatus.CleaningUp"/> and any exceptions thrown will
@@ -221,7 +221,7 @@ public abstract class TestRunner<TContext, TTest>
 
 	/// <summary>
 	/// This method is called just after the test has finished running. This will typically send a test finished
-	/// message (i.e., <see cref="TestFinished"/>) as well as enabling any extensibility related to test finish.
+	/// message (i.e., <see cref="ITestFinished"/>) as well as enabling any extensibility related to test finish.
 	/// </summary>
 	/// <remarks>
 	/// This method runs during <see cref="TestEngineStatus.CleaningUp"/> and any exceptions thrown will
@@ -238,7 +238,7 @@ public abstract class TestRunner<TContext, TTest>
 
 	/// <summary>
 	/// This method is called when a test was not run. This will typically send a "test not run" message
-	/// (like <see cref="TestNotRun"/>).
+	/// (like <see cref="ITestNotRun"/>).
 	/// </summary>
 	/// <remarks>
 	/// This method runs during <see cref="TestEngineStatus.CleaningUp"/> and any exceptions thrown will
@@ -253,7 +253,7 @@ public abstract class TestRunner<TContext, TTest>
 
 	/// <summary>
 	/// This method is called when a test has passed. This will typically send a "test passed" message
-	/// (like <see cref="TestPassed"/>).
+	/// (like <see cref="ITestPassed"/>).
 	/// </summary>
 	/// <remarks>
 	/// This method runs during <see cref="TestEngineStatus.CleaningUp"/> and any exceptions thrown will
@@ -270,7 +270,7 @@ public abstract class TestRunner<TContext, TTest>
 
 	/// <summary>
 	/// This method is called when a test is skipped. This will typically send a "test not run" message
-	/// (like <see cref="TestNotRun"/>).
+	/// (like <see cref="ITestNotRun"/>).
 	/// </summary>
 	/// <remarks>
 	/// This method runs during <see cref="TestEngineStatus.CleaningUp"/> and any exceptions thrown will
@@ -289,7 +289,7 @@ public abstract class TestRunner<TContext, TTest>
 
 	/// <summary>
 	/// This method is called just before the test is run. This will typically send a "test starting" message
-	/// (like <see cref="TestStarting"/>) as well as enabling any extensibility related to test start.
+	/// (like <see cref="ITestStarting"/>) as well as enabling any extensibility related to test start.
 	/// </summary>
 	/// <remarks>
 	/// This method runs during <see cref="TestEngineStatus.Initializing"/> and any exceptions thrown will

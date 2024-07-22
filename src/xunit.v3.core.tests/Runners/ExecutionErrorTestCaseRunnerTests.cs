@@ -29,11 +29,11 @@ public sealed class ExecutionErrorTestCaseRunnerTests : IDisposable
 		Assert.Equal(0m, result.Time);
 		Assert.Collection(
 			messageBus.Messages,
-			msg => Assert.IsAssignableFrom<TestCaseStarting>(msg),
-			msg => Assert.IsAssignableFrom<TestStarting>(msg),
+			msg => Assert.IsAssignableFrom<ITestCaseStarting>(msg),
+			msg => Assert.IsAssignableFrom<ITestStarting>(msg),
 			msg =>
 			{
-				var failed = Assert.IsAssignableFrom<TestFailed>(msg);
+				var failed = Assert.IsAssignableFrom<ITestFailed>(msg);
 				Assert.Equal(0m, failed.ExecutionTime);
 				Assert.Empty(failed.Output);
 				var exceptionType = Assert.Single(failed.ExceptionTypes);
@@ -43,13 +43,13 @@ public sealed class ExecutionErrorTestCaseRunnerTests : IDisposable
 			},
 			msg =>
 			{
-				var testFinished = Assert.IsAssignableFrom<TestFinished>(msg);
+				var testFinished = Assert.IsAssignableFrom<ITestFinished>(msg);
 				Assert.Equal(0m, testFinished.ExecutionTime);
 				Assert.Empty(testFinished.Output);
 			},
 			msg =>
 			{
-				var testCaseFinished = Assert.IsAssignableFrom<TestCaseFinished>(msg);
+				var testCaseFinished = Assert.IsAssignableFrom<ITestCaseFinished>(msg);
 				Assert.Equal(0m, testCaseFinished.ExecutionTime);
 				Assert.Equal(1, testCaseFinished.TestsFailed);
 				Assert.Equal(0, testCaseFinished.TestsNotRun);
@@ -71,11 +71,11 @@ public sealed class ExecutionErrorTestCaseRunnerTests : IDisposable
 		Assert.Equal(0m, result.Time);
 		Assert.Collection(
 			messageBus.Messages,
-			msg => Assert.IsAssignableFrom<TestCaseStarting>(msg),
-			msg => Assert.IsAssignableFrom<TestStarting>(msg),
+			msg => Assert.IsAssignableFrom<ITestCaseStarting>(msg),
+			msg => Assert.IsAssignableFrom<ITestStarting>(msg),
 			msg =>
 			{
-				var failed = Assert.IsAssignableFrom<TestFailed>(msg);
+				var failed = Assert.IsAssignableFrom<ITestFailed>(msg);
 				Assert.Equal(0m, failed.ExecutionTime);
 				Assert.Empty(failed.Output);
 				Assert.Equal(new[] { -1, 0, 0 }, failed.ExceptionParentIndices);
@@ -84,13 +84,13 @@ public sealed class ExecutionErrorTestCaseRunnerTests : IDisposable
 			},
 			msg =>
 			{
-				var testFinished = Assert.IsAssignableFrom<TestFinished>(msg);
+				var testFinished = Assert.IsAssignableFrom<ITestFinished>(msg);
 				Assert.Equal(0m, testFinished.ExecutionTime);
 				Assert.Empty(testFinished.Output);
 			},
 			msg =>
 			{
-				var testCaseFinished = Assert.IsAssignableFrom<TestCaseFinished>(msg);
+				var testCaseFinished = Assert.IsAssignableFrom<ITestCaseFinished>(msg);
 				Assert.Equal(0m, testCaseFinished.ExecutionTime);
 				Assert.Equal(1, testCaseFinished.TestsFailed);
 				Assert.Equal(0, testCaseFinished.TestsNotRun);

@@ -14,8 +14,8 @@ namespace Xunit.v3;
 /// that's available here), intended to be used by in-process runners, wrapped around an implementation
 /// of <see cref="ITestFramework"/>. The signatures of the methods are slightly different, as they permit
 /// and require direct access to <see cref="ITestCase"/> instances rather than forcing the test cases through
-/// a round of serialization and deserialization. It will also manufacture the <see cref="DiscoveryStarting"/>
-/// and <see cref="DiscoveryComplete"/> messages that the test framework is not responsible for. When connected
+/// a round of serialization and deserialization. It will also manufacture the <see cref="IDiscoveryStarting"/>
+/// and <see cref="IDiscoveryComplete"/> messages that the test framework is not responsible for. When connected
 /// to remote meta-runners, the in-process runner can convert <see cref="ITestCase"/> instances into
 /// <see cref="T:Xunit.Runner.Common.TestCaseDiscovered"/> instances by using a converter like
 /// <see cref="M:Xunit.Runner.Common.TestCaseExtensions.ToTestCaseDiscovered"/> (which should be called from a
@@ -79,7 +79,7 @@ public class InProcessFrontController
 	public async ValueTask Find(
 		IMessageSink messageSink,
 		ITestFrameworkDiscoveryOptions options,
-		Func<ITestCaseMetadata, bool> filter,
+		Func<ITestCase, bool> filter,
 		Type[]? types = null,
 		Func<ITestCase, bool, ValueTask<bool>>? discoveryCallback = null)
 	{
@@ -151,7 +151,7 @@ public class InProcessFrontController
 		IMessageSink messageSink,
 		ITestFrameworkDiscoveryOptions discoveryOptions,
 		ITestFrameworkExecutionOptions executionOptions,
-		Func<ITestCaseMetadata, bool> filter,
+		Func<ITestCase, bool> filter,
 		Type[]? types = null)
 	{
 		Guard.ArgumentNotNull(messageSink);

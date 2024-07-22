@@ -254,6 +254,7 @@ dotnet_diagnostic.CA1859.severity    = none  # Use concrete types when possible 
 dotnet_diagnostic.CA1861.severity    = none  # Avoid constant arrays as arguments
 dotnet_diagnostic.CA2007.severity    = none  # Consider calling ConfigureAwait on the awaited task
 dotnet_diagnostic.CA2211.severity    = none  # Non-constant fields should not be visible
+dotnet_diagnostic.CS9113.severity    = none  # Primary constructor parameter is unread
 dotnet_diagnostic.IDE0040.severity   = none  # Add accessibility modifiers
 dotnet_diagnostic.IDE0042.severity   = none  # Deconstruct variable declaration
 dotnet_diagnostic.IDE0057.severity   = none  # Use range operator (not available in .NET Framework, even with C# 8+)

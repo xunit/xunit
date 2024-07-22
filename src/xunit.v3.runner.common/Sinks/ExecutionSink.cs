@@ -33,7 +33,6 @@ public class ExecutionSink : IMessageSink, IDisposable
 	readonly bool shadowCopy;
 	ManualResetEvent? stopEvent;
 	bool stopRequested;
-
 	readonly Dictionary<string, XElement> testCollectionElements = [];
 
 	/// <summary>
@@ -107,16 +106,16 @@ public class ExecutionSink : IMessageSink, IDisposable
 		errorsElement.Value.Add(errorElement);
 	}
 
-	void ConvertToRunnerMessageAndDispatch(MessageSinkMessage message)
+	void ConvertToRunnerMessageAndDispatch(IMessageSinkMessage message)
 	{
-		if (message is DiscoveryComplete discoveryComplete)
+		if (message is IDiscoveryComplete discoveryComplete)
 			innerSink.OnMessage(new TestAssemblyDiscoveryFinished
 			{
 				Assembly = assembly,
 				DiscoveryOptions = discoveryOptions,
 				TestCasesToRun = discoveryComplete.TestCasesToRun,
 			});
-		else if (message is DiscoveryStarting)
+		else if (message is IDiscoveryStarting)
 			innerSink.OnMessage(new TestAssemblyDiscoveryStarting
 			{
 				AppDomain = appDomainOption,
@@ -124,14 +123,14 @@ public class ExecutionSink : IMessageSink, IDisposable
 				DiscoveryOptions = discoveryOptions,
 				ShadowCopy = shadowCopy,
 			});
-		else if (message is TestAssemblyFinished)
+		else if (message is ITestAssemblyFinished)
 			innerSink.OnMessage(new TestAssemblyExecutionFinished
 			{
 				Assembly = assembly,
 				ExecutionOptions = executionOptions,
 				ExecutionSummary = ExecutionSummary,
 			});
-		else if (message is TestAssemblyStarting testAssemblyStarting)
+		else if (message is ITestAssemblyStarting testAssemblyStarting)
 			innerSink.OnMessage(new TestAssemblyExecutionStarting
 			{
 				Assembly = assembly,
@@ -160,7 +159,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 	}
 
 	XElement CreateTestResultElement(
-		TestResultMessage testResult,
+		ITestResultMessage testResult,
 		string resultText)
 	{
 		var testMetadata = Guard.NotNull(() => string.Format(CultureInfo.CurrentCulture, "Cannot find test metadata for ID {0}", testResult.TestUniqueID), metadataCache.TryGetTestMetadata(testResult));
@@ -245,7 +244,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 			return testCollectionElements.AddOrGet(testCollectionUniqueID, () => new XElement("collection"));
 	}
 
-	void HandleErrorMessage(MessageHandlerArgs<ErrorMessage> args)
+	void HandleErrorMessage(MessageHandlerArgs<IErrorMessage> args)
 	{
 		Interlocked.Increment(ref errors);
 
@@ -253,7 +252,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 			AddError("fatal", null, args.Message);
 	}
 
-	void HandleTestAssemblyCleanupFailure(MessageHandlerArgs<TestAssemblyCleanupFailure> args)
+	void HandleTestAssemblyCleanupFailure(MessageHandlerArgs<ITestAssemblyCleanupFailure> args)
 	{
 		Interlocked.Increment(ref errors);
 
@@ -261,7 +260,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 			AddError("assembly-cleanup", metadataCache.TryGetAssemblyMetadata(args.Message)?.AssemblyPath, args.Message);
 	}
 
-	void HandleTestAssemblyFinished(MessageHandlerArgs<TestAssemblyFinished> args)
+	void HandleTestAssemblyFinished(MessageHandlerArgs<ITestAssemblyFinished> args)
 	{
 		ExecutionSummary.Errors = errors;
 		ExecutionSummary.Failed = args.Message.TestsFailed;
@@ -295,7 +294,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 		stopRequested = true;
 	}
 
-	void HandleTestAssemblyStarting(MessageHandlerArgs<TestAssemblyStarting> args)
+	void HandleTestAssemblyStarting(MessageHandlerArgs<ITestAssemblyStarting> args)
 	{
 		if (executingTestCases is not null)
 		{
@@ -327,7 +326,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 		}
 	}
 
-	void HandleTestCaseCleanupFailure(MessageHandlerArgs<TestCaseCleanupFailure> args)
+	void HandleTestCaseCleanupFailure(MessageHandlerArgs<ITestCaseCleanupFailure> args)
 	{
 		Interlocked.Increment(ref errors);
 
@@ -335,7 +334,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 			AddError("test-case-cleanup", metadataCache.TryGetTestCaseMetadata(args.Message)?.TestCaseDisplayName, args.Message);
 	}
 
-	void HandleTestCaseFinished(MessageHandlerArgs<TestCaseFinished> args)
+	void HandleTestCaseFinished(MessageHandlerArgs<ITestCaseFinished> args)
 	{
 		if (executingTestCases is not null)
 			lock (executingTestCases)
@@ -345,7 +344,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 			metadataCache.TryRemove(args.Message);
 	}
 
-	void HandleTestCaseStarting(MessageHandlerArgs<TestCaseStarting> args)
+	void HandleTestCaseStarting(MessageHandlerArgs<ITestCaseStarting> args)
 	{
 		if (executingTestCases is not null)
 			lock (executingTestCases)
@@ -355,7 +354,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 			metadataCache.Set(args.Message);
 	}
 
-	void HandleTestClassCleanupFailure(MessageHandlerArgs<TestClassCleanupFailure> args)
+	void HandleTestClassCleanupFailure(MessageHandlerArgs<ITestClassCleanupFailure> args)
 	{
 		Interlocked.Increment(ref errors);
 
@@ -363,19 +362,19 @@ public class ExecutionSink : IMessageSink, IDisposable
 			AddError("test-class-cleanup", metadataCache.TryGetClassMetadata(args.Message)?.TestClassName, args.Message);
 	}
 
-	void HandleTestClassFinished(MessageHandlerArgs<TestClassFinished> args)
+	void HandleTestClassFinished(MessageHandlerArgs<ITestClassFinished> args)
 	{
 		if (options.AssemblyElement is not null)
 			metadataCache.TryRemove(args.Message);
 	}
 
-	void HandleTestClassStarting(MessageHandlerArgs<TestClassStarting> args)
+	void HandleTestClassStarting(MessageHandlerArgs<ITestClassStarting> args)
 	{
 		if (options.AssemblyElement is not null)
 			metadataCache.Set(args.Message);
 	}
 
-	void HandleTestCleanupFailure(MessageHandlerArgs<TestCleanupFailure> args)
+	void HandleTestCleanupFailure(MessageHandlerArgs<ITestCleanupFailure> args)
 	{
 		Interlocked.Increment(ref errors);
 
@@ -383,7 +382,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 			AddError("test-cleanup", metadataCache.TryGetTestMetadata(args.Message)?.TestDisplayName, args.Message);
 	}
 
-	void HandleTestCollectionCleanupFailure(MessageHandlerArgs<TestCollectionCleanupFailure> args)
+	void HandleTestCollectionCleanupFailure(MessageHandlerArgs<ITestCollectionCleanupFailure> args)
 	{
 		Interlocked.Increment(ref errors);
 
@@ -391,7 +390,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 			AddError("test-collection-cleanup", metadataCache.TryGetCollectionMetadata(args.Message)?.TestCollectionDisplayName, args.Message);
 	}
 
-	void HandleTestCollectionFinished(MessageHandlerArgs<TestCollectionFinished> args)
+	void HandleTestCollectionFinished(MessageHandlerArgs<ITestCollectionFinished> args)
 	{
 		if (options.AssemblyElement is not null)
 		{
@@ -412,7 +411,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 		}
 	}
 
-	void HandleTestCollectionStarting(MessageHandlerArgs<TestCollectionStarting> args)
+	void HandleTestCollectionStarting(MessageHandlerArgs<ITestCollectionStarting> args)
 	{
 		if (options.AssemblyElement is not null)
 		{
@@ -428,7 +427,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 		}
 	}
 
-	void HandleTestFailed(MessageHandlerArgs<TestFailed> args)
+	void HandleTestFailed(MessageHandlerArgs<ITestFailed> args)
 	{
 		if (options.AssemblyElement is not null)
 		{
@@ -439,13 +438,13 @@ public class ExecutionSink : IMessageSink, IDisposable
 		}
 	}
 
-	void HandleTestFinished(MessageHandlerArgs<TestFinished> args)
+	void HandleTestFinished(MessageHandlerArgs<ITestFinished> args)
 	{
 		if (options.AssemblyElement is not null)
 			metadataCache.TryRemove(args.Message);
 	}
 
-	void HandleTestMethodCleanupFailure(MessageHandlerArgs<TestMethodCleanupFailure> args)
+	void HandleTestMethodCleanupFailure(MessageHandlerArgs<ITestMethodCleanupFailure> args)
 	{
 		Interlocked.Increment(ref errors);
 
@@ -453,31 +452,31 @@ public class ExecutionSink : IMessageSink, IDisposable
 			AddError("test-method-cleanup", metadataCache.TryGetMethodMetadata(args.Message)?.MethodName, args.Message);
 	}
 
-	void HandleTestMethodFinished(MessageHandlerArgs<TestMethodFinished> args)
+	void HandleTestMethodFinished(MessageHandlerArgs<ITestMethodFinished> args)
 	{
 		if (options.AssemblyElement is not null)
 			metadataCache.TryRemove(args.Message);
 	}
 
-	void HandleTestMethodStarting(MessageHandlerArgs<TestMethodStarting> args)
+	void HandleTestMethodStarting(MessageHandlerArgs<ITestMethodStarting> args)
 	{
 		if (options.AssemblyElement is not null)
 			metadataCache.Set(args.Message);
 	}
 
-	void HandleTestNotRun(MessageHandlerArgs<TestNotRun> args)
+	void HandleTestNotRun(MessageHandlerArgs<ITestNotRun> args)
 	{
 		if (options.AssemblyElement is not null)
 			CreateTestResultElement(args.Message, "NotRun");
 	}
 
-	void HandleTestPassed(MessageHandlerArgs<TestPassed> args)
+	void HandleTestPassed(MessageHandlerArgs<ITestPassed> args)
 	{
 		if (options.AssemblyElement is not null)
 			CreateTestResultElement(args.Message, "Pass");
 	}
 
-	void HandleTestSkipped(MessageHandlerArgs<TestSkipped> args)
+	void HandleTestSkipped(MessageHandlerArgs<ITestSkipped> args)
 	{
 		if (options.AssemblyElement is not null)
 		{
@@ -488,15 +487,15 @@ public class ExecutionSink : IMessageSink, IDisposable
 		}
 	}
 
-	void HandleTestStarting(MessageHandlerArgs<TestStarting> args)
+	void HandleTestStarting(MessageHandlerArgs<ITestStarting> args)
 	{
 		if (options.AssemblyElement is not null)
 			metadataCache.Set(args.Message);
 	}
 
-	static MessageSinkMessage MutateForFailSkips(MessageSinkMessage message)
+	static IMessageSinkMessage MutateForFailSkips(IMessageSinkMessage message)
 	{
-		if (message is TestSkipped testSkipped)
+		if (message is ITestSkipped testSkipped)
 			return new TestFailed
 			{
 				AssemblyUniqueID = testSkipped.AssemblyUniqueID,
@@ -516,7 +515,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 				Warnings = testSkipped.Warnings,
 			};
 
-		if (message is TestCaseFinished testCaseFinished)
+		if (message is ITestCaseFinished testCaseFinished)
 			return new TestCaseFinished
 			{
 				AssemblyUniqueID = testCaseFinished.AssemblyUniqueID,
@@ -531,7 +530,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 				TestsSkipped = 0,
 			};
 
-		if (message is TestMethodFinished testMethodFinished)
+		if (message is ITestMethodFinished testMethodFinished)
 			return new TestMethodFinished
 			{
 				AssemblyUniqueID = testMethodFinished.AssemblyUniqueID,
@@ -545,7 +544,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 				TestsSkipped = 0,
 			};
 
-		if (message is TestClassFinished testClassFinished)
+		if (message is ITestClassFinished testClassFinished)
 			return new TestClassFinished
 			{
 				AssemblyUniqueID = testClassFinished.AssemblyUniqueID,
@@ -558,7 +557,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 				TestsSkipped = 0,
 			};
 
-		if (message is TestCollectionFinished testCollectionFinished)
+		if (message is ITestCollectionFinished testCollectionFinished)
 			return new TestCollectionFinished
 			{
 				AssemblyUniqueID = testCollectionFinished.AssemblyUniqueID,
@@ -570,7 +569,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 				TestsSkipped = 0,
 			};
 
-		if (message is TestAssemblyFinished assemblyFinished)
+		if (message is ITestAssemblyFinished assemblyFinished)
 			return new TestAssemblyFinished
 			{
 				AssemblyUniqueID = assemblyFinished.AssemblyUniqueID,
@@ -585,9 +584,9 @@ public class ExecutionSink : IMessageSink, IDisposable
 		return message;
 	}
 
-	MessageSinkMessage MutateForFailWarn(MessageSinkMessage message)
+	IMessageSinkMessage MutateForFailWarn(IMessageSinkMessage message)
 	{
-		if (message is TestPassed testPassed && testPassed.Warnings?.Length > 0)
+		if (message is ITestPassed testPassed && testPassed.Warnings?.Length > 0)
 		{
 			lock (failCountsByUniqueID)
 			{
@@ -620,7 +619,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 			};
 		}
 
-		if (message is TestCaseFinished testCaseFinished)
+		if (message is ITestCaseFinished testCaseFinished)
 		{
 			int failedByCase;
 
@@ -643,7 +642,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 			};
 		}
 
-		if (message is TestMethodFinished testMethodFinished)
+		if (message is ITestMethodFinished testMethodFinished)
 		{
 			int failedByMethod = 0;
 
@@ -666,7 +665,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 			};
 		}
 
-		if (message is TestClassFinished testClassFinished)
+		if (message is ITestClassFinished testClassFinished)
 		{
 			int failedByClass = 0;
 
@@ -688,7 +687,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 			};
 		}
 
-		if (message is TestCollectionFinished testCollectionFinished)
+		if (message is ITestCollectionFinished testCollectionFinished)
 		{
 			int failedByCollection;
 
@@ -708,7 +707,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 			};
 		}
 
-		if (message is TestAssemblyFinished assemblyFinished)
+		if (message is ITestAssemblyFinished assemblyFinished)
 		{
 			int failedByAssembly;
 
@@ -732,7 +731,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 	}
 
 	/// <inheritdoc/>
-	public bool OnMessage(MessageSinkMessage message)
+	public bool OnMessage(IMessageSinkMessage message)
 	{
 		// Mutate messages based on user requirements
 		if (options.FailSkips)
@@ -743,33 +742,33 @@ public class ExecutionSink : IMessageSink, IDisposable
 
 		// General handlers
 		var result =
-			message.DispatchWhen<ErrorMessage>(HandleErrorMessage)
-			&& message.DispatchWhen<TestAssemblyCleanupFailure>(HandleTestAssemblyCleanupFailure)
-			&& message.DispatchWhen<TestAssemblyFinished>(HandleTestAssemblyFinished)
-			&& message.DispatchWhen<TestAssemblyStarting>(HandleTestAssemblyStarting)
-			&& message.DispatchWhen<TestCaseCleanupFailure>(HandleTestCaseCleanupFailure)
-			&& message.DispatchWhen<TestCaseFinished>(HandleTestCaseFinished)
-			&& message.DispatchWhen<TestCaseStarting>(HandleTestCaseStarting)
-			&& message.DispatchWhen<TestClassCleanupFailure>(HandleTestClassCleanupFailure)
-			&& message.DispatchWhen<TestCleanupFailure>(HandleTestCleanupFailure)
-			&& message.DispatchWhen<TestCollectionCleanupFailure>(HandleTestCollectionCleanupFailure)
-			&& message.DispatchWhen<TestMethodCleanupFailure>(HandleTestMethodCleanupFailure);
+			message.DispatchWhen<IErrorMessage>(HandleErrorMessage)
+			&& message.DispatchWhen<ITestAssemblyCleanupFailure>(HandleTestAssemblyCleanupFailure)
+			&& message.DispatchWhen<ITestAssemblyFinished>(HandleTestAssemblyFinished)
+			&& message.DispatchWhen<ITestAssemblyStarting>(HandleTestAssemblyStarting)
+			&& message.DispatchWhen<ITestCaseCleanupFailure>(HandleTestCaseCleanupFailure)
+			&& message.DispatchWhen<ITestCaseFinished>(HandleTestCaseFinished)
+			&& message.DispatchWhen<ITestCaseStarting>(HandleTestCaseStarting)
+			&& message.DispatchWhen<ITestClassCleanupFailure>(HandleTestClassCleanupFailure)
+			&& message.DispatchWhen<ITestCleanupFailure>(HandleTestCleanupFailure)
+			&& message.DispatchWhen<ITestCollectionCleanupFailure>(HandleTestCollectionCleanupFailure)
+			&& message.DispatchWhen<ITestMethodCleanupFailure>(HandleTestMethodCleanupFailure);
 
 		// XML-only handlers
 		if (options.AssemblyElement is not null)
 			result =
-				message.DispatchWhen<TestClassFinished>(HandleTestClassFinished)
-				&& message.DispatchWhen<TestClassStarting>(HandleTestClassStarting)
-				&& message.DispatchWhen<TestCollectionFinished>(HandleTestCollectionFinished)
-				&& message.DispatchWhen<TestCollectionStarting>(HandleTestCollectionStarting)
-				&& message.DispatchWhen<TestFailed>(HandleTestFailed)
-				&& message.DispatchWhen<TestFinished>(HandleTestFinished)
-				&& message.DispatchWhen<TestMethodFinished>(HandleTestMethodFinished)
-				&& message.DispatchWhen<TestMethodStarting>(HandleTestMethodStarting)
-				&& message.DispatchWhen<TestNotRun>(HandleTestNotRun)
-				&& message.DispatchWhen<TestPassed>(HandleTestPassed)
-				&& message.DispatchWhen<TestSkipped>(HandleTestSkipped)
-				&& message.DispatchWhen<TestStarting>(HandleTestStarting)
+				message.DispatchWhen<ITestClassFinished>(HandleTestClassFinished)
+				&& message.DispatchWhen<ITestClassStarting>(HandleTestClassStarting)
+				&& message.DispatchWhen<ITestCollectionFinished>(HandleTestCollectionFinished)
+				&& message.DispatchWhen<ITestCollectionStarting>(HandleTestCollectionStarting)
+				&& message.DispatchWhen<ITestFailed>(HandleTestFailed)
+				&& message.DispatchWhen<ITestFinished>(HandleTestFinished)
+				&& message.DispatchWhen<ITestMethodFinished>(HandleTestMethodFinished)
+				&& message.DispatchWhen<ITestMethodStarting>(HandleTestMethodStarting)
+				&& message.DispatchWhen<ITestNotRun>(HandleTestNotRun)
+				&& message.DispatchWhen<ITestPassed>(HandleTestPassed)
+				&& message.DispatchWhen<ITestSkipped>(HandleTestSkipped)
+				&& message.DispatchWhen<ITestStarting>(HandleTestStarting)
 				&& result;
 
 		// Do the message conversions last, since they consume values created by the general handlers

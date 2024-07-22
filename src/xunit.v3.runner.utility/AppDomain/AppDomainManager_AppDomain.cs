@@ -8,6 +8,7 @@ using System.Security;
 using System.Security.Permissions;
 using System.Threading;
 using Xunit.Internal;
+using Xunit.Runner.Common;
 using Xunit.Sdk;
 
 namespace Xunit;

@@ -22,11 +22,11 @@ public class SynchronousMessageBus(
 		GC.SuppressFinalize(this);
 
 	/// <summary/>
-	public bool QueueMessage(MessageSinkMessage message)
+	public bool QueueMessage(IMessageSinkMessage message)
 	{
 		Guard.ArgumentNotNull(message);
 
-		if (stopOnFail && message is TestFailed)
+		if (stopOnFail && message is ITestFailed)
 			continueRunning = false;
 
 		continueRunning = messageSink.OnMessage(message) && continueRunning;

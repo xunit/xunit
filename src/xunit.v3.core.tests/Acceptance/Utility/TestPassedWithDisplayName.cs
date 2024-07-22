@@ -1,12 +1,13 @@
 using Xunit.Internal;
 using Xunit.Sdk;
+using Xunit.v3;
 
-public class TestPassedWithDisplayName : TestResultMessage, ITestResultWithDisplayName
+public class TestPassedWithDisplayName : TestResultMessage, ITestResultWithDisplayName, ITestPassed
 {
 	public required string TestDisplayName { get; set; }
 
 	public static TestPassedWithDisplayName FromTestPassed(
-		TestPassed testPassed,
+		ITestPassed testPassed,
 		string testDisplayName) =>
 			new()
 			{

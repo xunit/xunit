@@ -1,14 +1,15 @@
 using Xunit.Internal;
 using Xunit.Sdk;
+using Xunit.v3;
 
-public class TestSkippedWithDisplayName : TestResultMessage, ITestResultWithDisplayName
+public class TestSkippedWithDisplayName : TestResultMessage, ITestResultWithDisplayName, ITestSkipped
 {
 	public required string Reason { get; set; }
 
 	public required string TestDisplayName { get; set; }
 
 	public static TestSkippedWithDisplayName FromTestSkipped(
-		TestSkipped testSkipped,
+		ITestSkipped testSkipped,
 		string testDisplayName) =>
 			new()
 			{

@@ -16,19 +16,14 @@ using Xunit.Sdk;
 
 namespace Xunit.Runner.SystemConsole;
 
-sealed class ConsoleRunner
+sealed class ConsoleRunner(string[] args)
 {
-	readonly string[] args;
+	readonly string[] args = Guard.ArgumentNotNull(args);
 	volatile bool cancel;
 	readonly ConcurrentDictionary<string, ExecutionSummary> completionMessages = new();
 	ConsoleHelper consoleHelper = default!;
 	bool failed;
 	IRunnerLogger? logger;
-
-	public ConsoleRunner(string[] args)
-	{
-		this.args = Guard.ArgumentNotNull(args);
-	}
 
 	public async ValueTask<int> EntryPoint()
 	{
@@ -164,7 +159,7 @@ sealed class ConsoleRunner
 	async ValueTask ListProject(XunitProject project)
 	{
 		var (listOption, listFormat) = project.Configuration.List!.Value;
-		var testCasesByAssembly = new Dictionary<string, List<TestCaseDiscovered>>();
+		var testCasesByAssembly = new Dictionary<string, List<ITestCaseDiscovered>>();
 
 		foreach (var assembly in project.Assemblies)
 		{

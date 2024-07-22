@@ -57,7 +57,7 @@ public class TestOutputHelperTests
 		output.WriteLine(outputText);
 
 		var message = Assert.Single(messageBus.Messages);
-		var outputMessage = Assert.IsType<TestOutput>(message);
+		var outputMessage = Assert.IsAssignableFrom<ITestOutput>(message);
 		Assert.Equal("asm-id", outputMessage.AssemblyUniqueID);
 		Assert.Equal(expected + Environment.NewLine, outputMessage.Output);
 		Assert.Equal("case-id", outputMessage.TestCaseUniqueID);

@@ -12,162 +12,162 @@ namespace Xunit.Runner.Common;
 public class ExecutionEventSink : IMessageSink
 {
 	/// <summary>
-	/// Occurs when a <see cref="AfterTestFinished"/> message is received.
+	/// Occurs when a <see cref="IAfterTestFinished"/> message is received.
 	/// </summary>
-	public event MessageHandler<AfterTestFinished>? AfterTestFinishedEvent;
+	public event MessageHandler<IAfterTestFinished>? AfterTestFinishedEvent;
 
 	/// <summary>
-	/// Occurs when a <see cref="AfterTestStarting"/> message is received.
+	/// Occurs when a <see cref="IAfterTestStarting"/> message is received.
 	/// </summary>
-	public event MessageHandler<AfterTestStarting>? AfterTestStartingEvent;
+	public event MessageHandler<IAfterTestStarting>? AfterTestStartingEvent;
 
 	/// <summary>
-	/// Occurs when a <see cref="BeforeTestFinished"/> message is received.
+	/// Occurs when a <see cref="IBeforeTestFinished"/> message is received.
 	/// </summary>
-	public event MessageHandler<BeforeTestFinished>? BeforeTestFinishedEvent;
+	public event MessageHandler<IBeforeTestFinished>? BeforeTestFinishedEvent;
 
 	/// <summary>
-	/// Occurs when a <see cref="BeforeTestStarting"/> message is received.
+	/// Occurs when a <see cref="IBeforeTestStarting"/> message is received.
 	/// </summary>
-	public event MessageHandler<BeforeTestStarting>? BeforeTestStartingEvent;
+	public event MessageHandler<IBeforeTestStarting>? BeforeTestStartingEvent;
 
 	/// <summary>
-	/// Occurs when a <see cref="TestAssemblyCleanupFailure"/> message is received.
+	/// Occurs when a <see cref="ITestAssemblyCleanupFailure"/> message is received.
 	/// </summary>
-	public event MessageHandler<TestAssemblyCleanupFailure>? TestAssemblyCleanupFailureEvent;
+	public event MessageHandler<ITestAssemblyCleanupFailure>? TestAssemblyCleanupFailureEvent;
 
 	/// <summary>
-	/// Occurs when a <see cref="TestAssemblyFinished"/> message is received.
+	/// Occurs when a <see cref="ITestAssemblyFinished"/> message is received.
 	/// </summary>
-	public event MessageHandler<TestAssemblyFinished>? TestAssemblyFinishedEvent;
+	public event MessageHandler<ITestAssemblyFinished>? TestAssemblyFinishedEvent;
 
 	/// <summary>
-	/// Occurs when a <see cref="TestAssemblyStarting"/> message is received.
+	/// Occurs when a <see cref="ITestAssemblyStarting"/> message is received.
 	/// </summary>
-	public event MessageHandler<TestAssemblyStarting>? TestAssemblyStartingEvent;
+	public event MessageHandler<ITestAssemblyStarting>? TestAssemblyStartingEvent;
 
 	/// <summary>
-	/// Occurs when a <see cref="TestCaseCleanupFailure"/> message is received.
+	/// Occurs when a <see cref="ITestCaseCleanupFailure"/> message is received.
 	/// </summary>
-	public event MessageHandler<TestCaseCleanupFailure>? TestCaseCleanupFailureEvent;
+	public event MessageHandler<ITestCaseCleanupFailure>? TestCaseCleanupFailureEvent;
 
 	/// <summary>
-	/// Occurs when a <see cref="TestCaseFinished"/> message is received.
+	/// Occurs when a <see cref="ITestCaseFinished"/> message is received.
 	/// </summary>
-	public event MessageHandler<TestCaseFinished>? TestCaseFinishedEvent;
+	public event MessageHandler<ITestCaseFinished>? TestCaseFinishedEvent;
 
 	/// <summary>
-	/// Occurs when a <see cref="TestCaseStarting"/> message is received.
+	/// Occurs when a <see cref="ITestCaseStarting"/> message is received.
 	/// </summary>
-	public event MessageHandler<TestCaseStarting>? TestCaseStartingEvent;
+	public event MessageHandler<ITestCaseStarting>? TestCaseStartingEvent;
 
 	/// <summary>
-	/// Occurs when a <see cref="TestClassCleanupFailure"/> message is received.
+	/// Occurs when a <see cref="ITestClassCleanupFailure"/> message is received.
 	/// </summary>
-	public event MessageHandler<TestClassCleanupFailure>? TestClassCleanupFailureEvent;
+	public event MessageHandler<ITestClassCleanupFailure>? TestClassCleanupFailureEvent;
 
 	/// <summary>
-	/// Occurs when a <see cref="TestClassConstructionFinished"/> message is received.
+	/// Occurs when a <see cref="ITestClassConstructionFinished"/> message is received.
 	/// </summary>
-	public event MessageHandler<TestClassConstructionFinished>? TestClassConstructionFinishedEvent;
+	public event MessageHandler<ITestClassConstructionFinished>? TestClassConstructionFinishedEvent;
 
 	/// <summary>
-	/// Occurs when a <see cref="TestClassConstructionStarting"/> message is received.
+	/// Occurs when a <see cref="ITestClassConstructionStarting"/> message is received.
 	/// </summary>
-	public event MessageHandler<TestClassConstructionStarting>? TestClassConstructionStartingEvent;
+	public event MessageHandler<ITestClassConstructionStarting>? TestClassConstructionStartingEvent;
 
 	/// <summary>
-	/// Occurs when a <see cref="TestClassDisposeFinished"/> message is received.
+	/// Occurs when a <see cref="ITestClassDisposeFinished"/> message is received.
 	/// </summary>
-	public event MessageHandler<TestClassDisposeFinished>? TestClassDisposeFinishedEvent;
+	public event MessageHandler<ITestClassDisposeFinished>? TestClassDisposeFinishedEvent;
 
 	/// <summary>
-	/// Occurs when a <see cref="TestClassDisposeStarting"/> message is received.
+	/// Occurs when a <see cref="ITestClassDisposeStarting"/> message is received.
 	/// </summary>
-	public event MessageHandler<TestClassDisposeStarting>? TestClassDisposeStartingEvent;
+	public event MessageHandler<ITestClassDisposeStarting>? TestClassDisposeStartingEvent;
 
 	/// <summary>
-	/// Occurs when a <see cref="TestClassFinished"/> message is received.
+	/// Occurs when a <see cref="ITestClassFinished"/> message is received.
 	/// </summary>
-	public event MessageHandler<TestClassFinished>? TestClassFinishedEvent;
+	public event MessageHandler<ITestClassFinished>? TestClassFinishedEvent;
 
 	/// <summary>
-	/// Occurs when a <see cref="TestClassStarting"/> message is received.
+	/// Occurs when a <see cref="ITestClassStarting"/> message is received.
 	/// </summary>
-	public event MessageHandler<TestClassStarting>? TestClassStartingEvent;
+	public event MessageHandler<ITestClassStarting>? TestClassStartingEvent;
 
 	/// <summary>
-	/// Occurs when a <see cref="TestCleanupFailure"/> message is received.
+	/// Occurs when a <see cref="ITestCleanupFailure"/> message is received.
 	/// </summary>
-	public event MessageHandler<TestCleanupFailure>? TestCleanupFailureEvent;
+	public event MessageHandler<ITestCleanupFailure>? TestCleanupFailureEvent;
 
 	/// <summary>
-	/// Occurs when a <see cref="TestCollectionCleanupFailure"/> message is received.
+	/// Occurs when a <see cref="ITestCollectionCleanupFailure"/> message is received.
 	/// </summary>
-	public event MessageHandler<TestCollectionCleanupFailure>? TestCollectionCleanupFailureEvent;
+	public event MessageHandler<ITestCollectionCleanupFailure>? TestCollectionCleanupFailureEvent;
 
 	/// <summary>
-	/// Occurs when a <see cref="TestCollectionFinished"/> message is received.
+	/// Occurs when a <see cref="ITestCollectionFinished"/> message is received.
 	/// </summary>
-	public event MessageHandler<TestCollectionFinished>? TestCollectionFinishedEvent;
+	public event MessageHandler<ITestCollectionFinished>? TestCollectionFinishedEvent;
 
 	/// <summary>
-	/// Occurs when a <see cref="TestCollectionStarting"/> message is received.
+	/// Occurs when a <see cref="ITestCollectionStarting"/> message is received.
 	/// </summary>
-	public event MessageHandler<TestCollectionStarting>? TestCollectionStartingEvent;
+	public event MessageHandler<ITestCollectionStarting>? TestCollectionStartingEvent;
 
 	/// <summary>
-	/// Occurs when a <see cref="TestFailed"/> message is received.
+	/// Occurs when a <see cref="ITestFailed"/> message is received.
 	/// </summary>
-	public event MessageHandler<TestFailed>? TestFailedEvent;
+	public event MessageHandler<ITestFailed>? TestFailedEvent;
 
 	/// <summary>
-	/// Occurs when a <see cref="TestFinished"/> message is received.
+	/// Occurs when a <see cref="ITestFinished"/> message is received.
 	/// </summary>
-	public event MessageHandler<TestFinished>? TestFinishedEvent;
+	public event MessageHandler<ITestFinished>? TestFinishedEvent;
 
 	/// <summary>
-	/// Occurs when a <see cref="TestMethodCleanupFailure"/> message is received.
+	/// Occurs when a <see cref="ITestMethodCleanupFailure"/> message is received.
 	/// </summary>
-	public event MessageHandler<TestMethodCleanupFailure>? TestMethodCleanupFailureEvent;
+	public event MessageHandler<ITestMethodCleanupFailure>? TestMethodCleanupFailureEvent;
 
 	/// <summary>
-	/// Occurs when a <see cref="TestMethodFinished"/> message is received.
+	/// Occurs when a <see cref="ITestMethodFinished"/> message is received.
 	/// </summary>
-	public event MessageHandler<TestMethodFinished>? TestMethodFinishedEvent;
+	public event MessageHandler<ITestMethodFinished>? TestMethodFinishedEvent;
 
 	/// <summary>
-	/// Occurs when a <see cref="TestMethodStarting"/> message is received.
+	/// Occurs when a <see cref="ITestMethodStarting"/> message is received.
 	/// </summary>
-	public event MessageHandler<TestMethodStarting>? TestMethodStartingEvent;
+	public event MessageHandler<ITestMethodStarting>? TestMethodStartingEvent;
 
 	/// <summary>
-	/// Occurs when a <see cref="TestNotRun"/> message is received.
+	/// Occurs when a <see cref="ITestNotRun"/> message is received.
 	/// </summary>
-	public event MessageHandler<TestNotRun>? TestNotRunEvent;
+	public event MessageHandler<ITestNotRun>? TestNotRunEvent;
 
 	/// <summary>
-	/// Occurs when a <see cref="TestOutput"/> message is received.
+	/// Occurs when a <see cref="ITestOutput"/> message is received.
 	/// </summary>
-	public event MessageHandler<TestOutput>? TestOutputEvent;
+	public event MessageHandler<ITestOutput>? TestOutputEvent;
 
 	/// <summary>
-	/// Occurs when a <see cref="TestPassed"/> message is received.
+	/// Occurs when a <see cref="ITestPassed"/> message is received.
 	/// </summary>
-	public event MessageHandler<TestPassed>? TestPassedEvent;
+	public event MessageHandler<ITestPassed>? TestPassedEvent;
 
 	/// <summary>
-	/// Occurs when a <see cref="TestSkipped"/> message is received.
+	/// Occurs when a <see cref="ITestSkipped"/> message is received.
 	/// </summary>
-	public event MessageHandler<TestSkipped>? TestSkippedEvent;
+	public event MessageHandler<ITestSkipped>? TestSkippedEvent;
 
 	/// <summary>
-	/// Occurs when a <see cref="TestStarting"/> message is received.
+	/// Occurs when a <see cref="ITestStarting"/> message is received.
 	/// </summary>
-	public event MessageHandler<TestStarting>? TestStartingEvent;
+	public event MessageHandler<ITestStarting>? TestStartingEvent;
 
 	/// <inheritdoc/>
-	public bool OnMessage(MessageSinkMessage message)
+	public bool OnMessage(IMessageSinkMessage message)
 	{
 		Guard.ArgumentNotNull(message);
 

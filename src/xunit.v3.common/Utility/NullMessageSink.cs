@@ -14,5 +14,5 @@ public class NullMessageSink : IMessageSink
 	public static NullMessageSink Instance = new();
 
 	/// <inheritdoc/>
-	public bool OnMessage(MessageSinkMessage message) => true;
+	public bool OnMessage(IMessageSinkMessage message) => true;
 }

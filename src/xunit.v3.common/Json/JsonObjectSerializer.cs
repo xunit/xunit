@@ -10,8 +10,7 @@ namespace Xunit.Sdk;
 /// <remarks>
 /// These types are made public for third parties only for the purpose of serializing and
 /// deserializing messages that are sent across the process boundary (that is, types which
-/// derived directly or indirectly from <see cref="MessageSinkMessage"/>). Any other usage
-/// is not supported.
+/// implement <see cref="IMessageSinkMessage"/>). Any other usage is not supported.
 /// </remarks>
 /// <param name="buffer">The buffer to write JSON to</param>
 /// <param name="disposeNotifier">An optional callback to be notified when disposed</param>

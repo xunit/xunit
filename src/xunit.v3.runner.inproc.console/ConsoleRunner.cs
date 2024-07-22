@@ -11,6 +11,8 @@ using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
 using Xunit.v3;
+using DiagnosticMessage = Xunit.Runner.Common.DiagnosticMessage;
+using ErrorMessage = Xunit.Runner.Common.ErrorMessage;
 
 namespace Xunit.Runner.InProc.SystemConsole;
 

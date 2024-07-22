@@ -1,5 +1,3 @@
-#pragma warning disable CA1849  // We don't want to use the async versions wrapping Console.WriteLine because they're less featureful
-
 using System;
 using System.Diagnostics;
 using System.Globalization;
@@ -13,6 +11,8 @@ using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
 using Xunit.v3;
+using DiagnosticMessage = Xunit.Runner.Common.DiagnosticMessage;
+using ErrorMessage = Xunit.Runner.Common.ErrorMessage;
 
 namespace Xunit.Runner.InProc.SystemConsole;
 
@@ -22,7 +22,7 @@ internal sealed class ProjectRunner(
 	Func<bool> cancelThunk,
 	bool automated)
 {
-	bool automated = automated;
+	readonly bool automated = automated;
 	volatile bool cancel;
 	readonly Func<bool> cancelThunk = cancelThunk;
 	readonly ConsoleHelper consoleHelper = consoleHelper;

@@ -8,8 +8,8 @@ public class SynchronousMessageBusTests
 	[Fact]
 	public void MessagesAreDispatchedImmediatelyFromBus()
 	{
-		var msg1 = new MessageSinkMessage();
-		var dispatchedMessages = new List<MessageSinkMessage>();
+		var msg1 = TestData.DiagnosticMessage();
+		var dispatchedMessages = new List<IMessageSinkMessage>();
 
 		using (var bus = new SynchronousMessageBus(SpyMessageSink.Create(messages: dispatchedMessages)))
 			Assert.True(bus.QueueMessage(msg1));
@@ -23,7 +23,7 @@ public class SynchronousMessageBusTests
 	{
 		using var bus = new SynchronousMessageBus(SpyMessageSink.Create(returnResult: false));
 
-		Assert.False(bus.QueueMessage(new MessageSinkMessage()));
+		Assert.False(bus.QueueMessage(TestData.DiagnosticMessage()));
 	}
 
 	[Fact]

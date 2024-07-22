@@ -321,8 +321,8 @@ public sealed class TestContext : IDisposable
 	/// being discovered or run. This is typically used by custom runners just before they create the test framework
 	/// via a call to <see cref="ExtensibilityPointFactory.GetTestFramework"/>.
 	/// </summary>
-	/// <param name="diagnosticMessageSink">The optional message sink used to receive <see cref="DiagnosticMessage"/>
-	/// and <see cref="InternalDiagnosticMessage"/> instances.</param>
+	/// <param name="diagnosticMessageSink">The optional message sink used to receive <see cref="IDiagnosticMessage"/>
+	/// and <see cref="IInternalDiagnosticMessage"/> instances.</param>
 	/// <param name="diagnosticMessages">A flag to indicate whether the user wants to receive diagnostic messages</param>
 	/// <param name="internalDiagnosticMessages">A flag to indicate whether the user wants to receive internal diagnostic messages</param>
 	public static void SetForInitialization(

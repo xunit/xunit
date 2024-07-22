@@ -1,4 +1,4 @@
-#pragma warning disable xUnit3000 // This class does not have direct access to v2 xunit.runner.utility, so it can't derive from LLMBRO
+#pragma warning disable xUnit3000 // This class does not have direct access to v2 xunit.runner.utility, so it can't derive from v2's LLMBRO
 
 using System;
 using System.Collections.Generic;

@@ -641,8 +641,8 @@ public class Xunit2 : IFrontController
 	/// <param name="assemblyInfo">The assembly to use for discovery</param>
 	/// <param name="projectAssembly">The test project assembly.</param>
 	/// <param name="sourceInformationProvider">The optional source information provider.</param>
-	/// <param name="diagnosticMessageSink">The message sink which receives <see cref="DiagnosticMessage"/>
-	/// and <see cref="InternalDiagnosticMessage"/> messages.</param>
+	/// <param name="diagnosticMessageSink">The message sink which receives <see cref="Sdk.IDiagnosticMessage"/>
+	/// and <see cref="IInternalDiagnosticMessage"/> messages.</param>
 	/// <param name="verifyAssembliesOnDisk">Determines whether or not to check for the existence of assembly files.</param>
 	public static IFrontControllerDiscoverer ForDiscovery(
 		IAssemblyInfo assemblyInfo,
@@ -676,8 +676,8 @@ public class Xunit2 : IFrontController
 	/// </summary>
 	/// <param name="projectAssembly">The test project assembly.</param>
 	/// <param name="sourceInformationProvider">The optional source information provider.</param>
-	/// <param name="diagnosticMessageSink">The message sink which receives <see cref="DiagnosticMessage"/>
-	/// and <see cref="InternalDiagnosticMessage"/> messages.</param>
+	/// <param name="diagnosticMessageSink">The message sink which receives <see cref="Sdk.IDiagnosticMessage"/>
+	/// and <see cref="IInternalDiagnosticMessage"/> messages.</param>
 	/// <param name="verifyAssembliesOnDisk">Determines whether or not to check for the existence of assembly files.</param>
 	public static IFrontController ForDiscoveryAndExecution(
 		XunitProjectAssembly projectAssembly,
@@ -723,12 +723,12 @@ public class Xunit2 : IFrontController
 	// as only reporting discovered test cases which pass the filter.
 	sealed class FilteringMessageSink(
 		Sdk.IMessageSink innerMessageSink,
-		Predicate<TestCaseDiscovered> filter,
-		Action<TestCaseDiscovered>? discoveryCallback = null) :
+		Predicate<ITestCaseDiscovered> filter,
+		Action<ITestCaseDiscovered>? discoveryCallback = null) :
 			Sdk.IMessageSink, IDisposable
 	{
-		readonly Action<TestCaseDiscovered>? discoveryCallback = discoveryCallback;
-		readonly Predicate<TestCaseDiscovered> filter = filter;
+		readonly Action<ITestCaseDiscovered>? discoveryCallback = discoveryCallback;
+		readonly Predicate<ITestCaseDiscovered> filter = filter;
 		readonly Sdk.IMessageSink innerMessageSink = innerMessageSink;
 		volatile int testCasesToRun;
 
@@ -740,17 +740,17 @@ public class Xunit2 : IFrontController
 		public void Dispose() =>
 			Finished.Dispose();
 
-		public bool OnMessage(MessageSinkMessage message)
+		public bool OnMessage(Sdk.IMessageSinkMessage message)
 		{
 			// Filter out discovery complete (and make it an event) so we can run multiple discoveries
 			// while reporting a single complete message after they're all done
-			if (message is DiscoveryComplete)
+			if (message is IDiscoveryComplete)
 			{
 				Finished.Set();
 				return true;
 			}
 
-			if (message is TestCaseDiscovered discovered)
+			if (message is ITestCaseDiscovered discovered)
 			{
 				if (!filter(discovered))
 					return true;

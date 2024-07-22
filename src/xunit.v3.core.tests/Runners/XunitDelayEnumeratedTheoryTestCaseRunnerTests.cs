@@ -24,11 +24,11 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerTests
 		Assert.Equal(2, summary.Total);
 		Assert.Equal(1, summary.Failed);
 		var messages = runner.MessageBus.Messages;
-		var passed = messages.OfType<TestPassed>().Single();
-		var passedStarting = messages.OfType<TestStarting>().Single(ts => ts.TestUniqueID == passed.TestUniqueID);
+		var passed = messages.OfType<ITestPassed>().Single();
+		var passedStarting = messages.OfType<ITestStarting>().Single(ts => ts.TestUniqueID == passed.TestUniqueID);
 		Assert.Equal($"Display Name(x: 42, _1: {21.12:G17}, _2: \"Hello\")", passedStarting.TestDisplayName);
-		var failed = messages.OfType<TestFailed>().Single();
-		var failedStarting = messages.OfType<TestStarting>().Single(ts => ts.TestUniqueID == failed.TestUniqueID);
+		var failed = messages.OfType<ITestFailed>().Single();
+		var failedStarting = messages.OfType<ITestStarting>().Single(ts => ts.TestUniqueID == failed.TestUniqueID);
 		Assert.Equal("Display Name(x: 0, _1: 0, _2: \"World!\")", failedStarting.TestDisplayName);
 	}
 
@@ -44,8 +44,8 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerTests
 		Assert.Equal(1, summary.Total);
 		Assert.Equal(1, summary.Failed);
 		var messages = runner.MessageBus.Messages;
-		var failed = messages.OfType<TestFailed>().Single();
-		var failedStarting = messages.OfType<TestStarting>().Single(ts => ts.TestUniqueID == failed.TestUniqueID);
+		var failed = messages.OfType<ITestFailed>().Single();
+		var failedStarting = messages.OfType<ITestStarting>().Single(ts => ts.TestUniqueID == failed.TestUniqueID);
 		Assert.Equal("Display Name", failedStarting.TestDisplayName);
 		Assert.Equal(typeof(DivideByZeroException).SafeName(), failed.ExceptionTypes.Single());
 		Assert.Equal("Attempted to divide by zero.", failed.Messages.Single());
@@ -78,16 +78,16 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerTests
 		Assert.Equal(3, summary.Skipped);
 		Assert.Equal(2, summary.Failed);
 		Assert.Collection(
-			messages.OfType<TestPassed>().Select(p => messages.OfType<TestStarting>().Single(s => s.TestUniqueID == p.TestUniqueID).TestDisplayName).OrderBy(x => x),
+			messages.OfType<ITestPassed>().Select(p => messages.OfType<ITestStarting>().Single(s => s.TestUniqueID == p.TestUniqueID).TestDisplayName).OrderBy(x => x),
 			displayName => Assert.Equal($"Display Name(x: 1, _1: {2.1:G17}, _2: \"not skipped\")", displayName)
 		);
 		Assert.Collection(
-			messages.OfType<TestFailed>().Select(p => messages.OfType<TestStarting>().Single(s => s.TestUniqueID == p.TestUniqueID).TestDisplayName).OrderBy(x => x),
+			messages.OfType<ITestFailed>().Select(p => messages.OfType<ITestStarting>().Single(s => s.TestUniqueID == p.TestUniqueID).TestDisplayName).OrderBy(x => x),
 			displayName => Assert.Equal("Display Name(x: 0, _1: 0, _2: \"also not skipped\")", displayName),
 			displayName => Assert.Equal("Display Name(x: 0, _1: 0, _2: \"SomeData2 not skipped\")", displayName)
 		);
 		Assert.Collection(
-			messages.OfType<TestSkipped>().Select(p => messages.OfType<TestStarting>().Single(s => s.TestUniqueID == p.TestUniqueID).TestDisplayName).OrderBy(x => x),
+			messages.OfType<ITestSkipped>().Select(p => messages.OfType<ITestStarting>().Single(s => s.TestUniqueID == p.TestUniqueID).TestDisplayName).OrderBy(x => x),
 			displayName => Assert.Equal("Display Name(x: 0, _1: 0, _2: \"World!\")", displayName),
 			displayName => Assert.Equal($"Display Name(x: 18, _1: {36.48:G17}, _2: \"SomeData2 skipped\")", displayName),
 			displayName => Assert.Equal($"Display Name(x: 42, _1: {21.12:G17}, _2: \"Hello\")", displayName)
@@ -102,8 +102,8 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerTests
 
 		await runner.RunAsync();
 
-		var passed = runner.MessageBus.Messages.OfType<TestPassed>().Single();
-		var passedStarting = runner.MessageBus.Messages.OfType<TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
+		var passed = runner.MessageBus.Messages.OfType<ITestPassed>().Single();
+		var passedStarting = runner.MessageBus.Messages.OfType<ITestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
 		Assert.Equal("Display Name(c: TargetInvocationException was thrown formatting an object of type \"XunitDelayEnumeratedTheoryTestCaseRunnerTests+ClassWithThrowingToString\")", passedStarting.TestDisplayName);
 	}
 
@@ -134,8 +134,8 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerTests
 		var runner = new TestableXunitDelayEnumeratedTheoryTestCaseRunner(testCase) { DisplayName = "Display Name" };
 
 		var summary = await runner.RunAsync();
-		var passed = runner.MessageBus.Messages.OfType<TestPassed>().Single();
-		var passedStarting = runner.MessageBus.Messages.OfType<TestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
+		var passed = runner.MessageBus.Messages.OfType<ITestPassed>().Single();
+		var passedStarting = runner.MessageBus.Messages.OfType<ITestStarting>().Where(ts => ts.TestUniqueID == passed.TestUniqueID).Single();
 		Assert.Equal("Display Name(_: [ClassWithThrowingEnumerator { }])", passedStarting.TestDisplayName);
 	}
 
