@@ -200,8 +200,7 @@ public sealed class TestContext : IDisposable
 	public TestEngineStatus? TestMethodStatus { get; private set; }
 
 	/// <summary>
-	/// Gets the current state of the test. Will only be available when <see cref="TestStatus"/>
-	/// is <see cref="TestEngineStatus.CleaningUp"/>.
+	/// Gets the current state of the test. Will only be available after the test has finished running.
 	/// </summary>
 	public TestResultState? TestState { get; private set; }
 

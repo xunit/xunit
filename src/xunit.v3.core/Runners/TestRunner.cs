@@ -364,6 +364,19 @@ public abstract class TestRunner<TContext, TTest>
 						if (!ctxt.Aggregator.HasExceptions)
 						{
 							elapsedTime += await ctxt.Aggregator.RunAsync(() => InvokeTestAsync(ctxt, testClassInstance), TimeSpan.Zero);
+
+							// Set an early version of TestResultState so anything done in PostInvoke can understand whether
+							// it looks like the test is passing, failing, or dynamically skipped
+							var currentException = ctxt.Aggregator.ToException();
+							var currentSkipReason = GetSkipReason(ctxt, currentException);
+							var currentExecutionTime = (decimal)elapsedTime.TotalMilliseconds;
+							var testResultState =
+								currentSkipReason is not null
+									? TestResultState.ForSkipped(currentExecutionTime)
+									: TestResultState.FromException(currentExecutionTime, currentException);
+
+							SetTestContext(ctxt, TestEngineStatus.Running, testResultState);
+
 							elapsedTime += await ExecutionTimer.MeasureAsync(() => ctxt.Aggregator.RunAsync(() => PostInvoke(ctxt)));
 						}
 

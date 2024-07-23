@@ -71,6 +71,13 @@ public class TestResultState
 		new() { ExecutionTime = executionTime ?? 0m, Result = TestResult.Passed };
 
 	/// <summary>
+	/// Create a skipped test result.
+	/// </summary>
+	/// <param name="executionTime">The optional execution time</param>
+	public static TestResultState ForSkipped(decimal? executionTime = null) =>
+		new() { ExecutionTime = executionTime ?? 0m, Result = TestResult.Skipped };
+
+	/// <summary>
 	/// Creates an instance based on the presence or absence of an exception. If the exception
 	/// is <c>null</c>, then it will be for <see cref="TestResult.Passed"/>; otherwise, it will
 	/// be for <see cref="TestResult.Failed"/>;
