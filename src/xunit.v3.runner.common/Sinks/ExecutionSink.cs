@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -34,6 +35,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 	ManualResetEvent? stopEvent;
 	bool stopRequested;
 	readonly Dictionary<string, XElement> testCollectionElements = [];
+	readonly ConcurrentDictionary<string, XElement> testResultElements = [];
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="ExecutionSink"/> class.
@@ -226,6 +228,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 
 		collectionElement.Add(testResultElement);
 
+		testResultElements[testResult.TestUniqueID] = testResultElement;
 		return testResultElement;
 	}
 
@@ -440,8 +443,32 @@ public class ExecutionSink : IMessageSink, IDisposable
 
 	void HandleTestFinished(MessageHandlerArgs<ITestFinished> args)
 	{
+		var finished = args.Message;
+		if (finished.Attachments.Count != 0 && testResultElements.TryRemove(finished.TestUniqueID, out var testResultElement))
+		{
+			var attachmentsElement = new XElement("attachments");
+
+			foreach (var attachment in finished.Attachments)
+			{
+				var attachmentElement = new XElement("attachment", new XAttribute("name", attachment.Key));
+				if (attachment.Value.AttachmentType == TestAttachmentType.String)
+					attachmentElement.Add(new XCData(attachment.Value.AsString()));
+				else
+				{
+					var (byteArray, mediaType) = attachment.Value.AsByteArray();
+
+					attachmentElement.Add(new XAttribute("media-type", mediaType));
+					attachmentElement.SetValue(Convert.ToBase64String(byteArray));
+				}
+
+				attachmentsElement.Add(attachmentElement);
+			}
+
+			testResultElement.Add(attachmentsElement);
+		}
+
 		if (options.AssemblyElement is not null)
-			metadataCache.TryRemove(args.Message);
+			metadataCache.TryRemove(finished);
 	}
 
 	void HandleTestMethodCleanupFailure(MessageHandlerArgs<ITestMethodCleanupFailure> args)

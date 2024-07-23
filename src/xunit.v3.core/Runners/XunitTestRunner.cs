@@ -251,6 +251,7 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext, IXunitTest>
 		var result = ctxt.MessageBus.QueueMessage(new TestFinished
 		{
 			AssemblyUniqueID = ctxt.Test.TestCase.TestCollection.TestAssembly.UniqueID,
+			Attachments = TestContext.Current.Attachments ?? TestFinished.EmptyAttachments,
 			ExecutionTime = executionTime,
 			FinishTime = DateTimeOffset.UtcNow,
 			Output = output,

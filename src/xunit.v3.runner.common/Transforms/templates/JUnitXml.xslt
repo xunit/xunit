@@ -73,8 +73,11 @@
       </xsl:if>
       <xsl:apply-templates select="failure"/>
       <xsl:apply-templates select="reason"/>
-      <xsl:if test="traits or warnings">
+      <xsl:if test="attachments or traits or warnings">
         <properties>
+          <xsl:if test="attachments">
+            <xsl:apply-templates select="attachments/attachment"/>
+          </xsl:if>
           <xsl:if test="traits">
             <xsl:apply-templates select="traits/trait"/>
           </xsl:if>
@@ -84,6 +87,19 @@
         </properties>
       </xsl:if>
     </testcase>
+  </xsl:template>
+
+  <xsl:template match="attachment">
+    <property>
+      <xsl:attribute name="name">attachment:<xsl:value-of select="@name"/></xsl:attribute>
+      <xsl:choose>
+        <xsl:when test="@media-type">data:<xsl:value-of select="@media-type"/>;base64,<xsl:value-of select="."/></xsl:when>
+        <xsl:otherwise>
+          <xsl:value-of select="."/>
+        </xsl:otherwise>
+      </xsl:choose>
+      <xsl:if test="@media-type"></xsl:if>
+    </property>
   </xsl:template>
 
   <xsl:template match="trait">

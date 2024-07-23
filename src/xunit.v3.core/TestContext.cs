@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Threading;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -19,11 +20,11 @@ public sealed class TestContext : IDisposable
 	static readonly AsyncLocal<TestContext?> local = new();
 	static readonly HashSet<TestEngineStatus> validExecutionStatuses = [TestEngineStatus.Initializing, TestEngineStatus.Running, TestEngineStatus.CleaningUp];
 
+	readonly Dictionary<string, TestAttachment>? attachments;
 	IMessageSink? diagnosticMessageSink;
 	IMessageSink? internalDiagnosticMessageSink;
 	readonly Dictionary<string, object?>? keyValueStorage;
 	readonly CancellationTokenSource testCancellationTokenSource = new();
-
 	readonly List<string>? warnings;
 
 	TestContext(
@@ -32,6 +33,7 @@ public sealed class TestContext : IDisposable
 		Dictionary<string, object?>? keyValueStorage,
 		TestPipelineStage pipelineStage,
 		CancellationToken cancellationToken,
+		Dictionary<string, TestAttachment>? attachments = null,
 		List<string>? warnings = null)
 	{
 		DiagnosticMessageSink = diagnosticMessageSink;
@@ -39,8 +41,16 @@ public sealed class TestContext : IDisposable
 		this.keyValueStorage = keyValueStorage;
 		PipelineStage = pipelineStage;
 		CancellationToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, testCancellationTokenSource.Token).Token;
+		this.attachments = attachments;
 		this.warnings = warnings;
 	}
+
+	/// <summary>
+	/// Gets the attachments for the current test, if the engine is currently in the process of running a test;
+	/// will return <c>null</c> outside of the context of a test.
+	/// </summary>
+	[NotNullIfNotNull(nameof(Test))]
+	public IReadOnlyDictionary<string, TestAttachment>? Attachments => attachments;
 
 	/// <summary>
 	/// Gets the cancellation token that is used to indicate that the test run should be
@@ -210,6 +220,62 @@ public sealed class TestContext : IDisposable
 		warnings?.Count > 0 ? warnings : null;
 
 	/// <summary>
+	/// Adds an attachment that is a string value.
+	/// </summary>
+	/// <param name="name">The name of the attachment</param>
+	/// <param name="value">The value of the attachment</param>
+	public void AddAttachment(
+		string name,
+		string value)
+	{
+		Guard.ArgumentNotNull(name);
+		Guard.ArgumentNotNull(value);
+
+		if (Test is null || attachments is null)
+			SendDiagnosticMessage("Attempted to add an attachment while not running a test (pipeline stage = {0}); name: {1}", PipelineStage, name);
+		else
+			lock (attachments)
+			{
+				if (attachments.ContainsKey(name))
+					throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Attempted to add an attachment with an existing name: '{0}'", name));
+				else
+					attachments.Add(name, TestAttachment.Create(value));
+			}
+	}
+
+	/// <summary>
+	/// Adds an attachment that is a binary value (represented by a byte array and media type).
+	/// </summary>
+	/// <param name="name">The name of the attachment</param>
+	/// <param name="value">The value of the attachment</param>
+	/// <param name="mediaType">The media type of the attachment; defaults to "application/octet-stream"</param>
+	/// <remarks>
+	/// The <paramref name="mediaType"/> value must be in the MIME "type/subtype" form, and does not support
+	/// parameter values. The subtype is allowed to have a single "+" to denote specialization of the
+	/// subtype (i.e., "application/xhtml+xml"). For more information on media types, see
+	/// <see href="https://datatracker.ietf.org/doc/html/rfc2045#section-5.1"/>.
+	/// </remarks>
+	public void AddAttachment(
+		string name,
+		byte[] value,
+		string mediaType = "application/octet-stream")
+	{
+		Guard.ArgumentNotNull(name);
+		Guard.ArgumentNotNull(value);
+
+		if (Test is null || attachments is null)
+			SendDiagnosticMessage("Attempted to add an attachment while not running a test (pipeline stage = {0}); name: {1}", PipelineStage, name);
+		else
+			lock (attachments)
+			{
+				if (attachments.ContainsKey(name))
+					throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Attempted to add an attachment with an existing name: '{0}'", name));
+				else
+					attachments[name] = TestAttachment.Create(value, mediaType);
+			}
+	}
+
+	/// <summary>
 	/// Adds a warning to the test result.
 	/// </summary>
 	/// <param name="message">The warning message to be reported</param>
@@ -361,7 +427,7 @@ public sealed class TestContext : IDisposable
 		if (Current.TestOutputHelper is null)
 			Guard.ArgumentNotNull(testOutputHelper);
 
-		local.Value = new TestContext(Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, Current.KeyValueStorage, TestPipelineStage.TestExecution, cancellationToken, Current.warnings ?? [])
+		local.Value = new TestContext(Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, Current.KeyValueStorage, TestPipelineStage.TestExecution, cancellationToken, Current.attachments ?? [], Current.warnings ?? [])
 		{
 			Test = test,
 			TestStatus = testStatus,

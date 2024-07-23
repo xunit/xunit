@@ -376,11 +376,27 @@ public class TransformFactory
 												warningsJson.Serialize(warningXml.Value);
 
 									if (traits.Count != 0)
-										using (var traitsJson = testJson.SerializeObject("traits"))
+										using (var traitsJson = extraJson.SerializeObject("traits"))
 											foreach (var kvp in traits)
 												using (var traitNameJson = traitsJson.SerializeArray(kvp.Key))
 													foreach (var value in kvp.Value)
 														traitNameJson.Serialize(value);
+
+									var attachmentsXml = testXml.Element("attachments")?.Elements("attachment");
+									if (attachmentsXml is not null)
+										using (var attachmentsJson = extraJson.SerializeObject("attachments"))
+											foreach (var attachmentXml in attachmentsXml)
+												if (attachmentXml.Attribute("name") is XAttribute nameXml)
+												{
+													if (attachmentXml.Attribute("media-type") is not XAttribute mediaTypeXml)
+														attachmentsJson.Serialize(nameXml.Value, attachmentXml.Value);
+													else
+														using (var attachmentJson = attachmentsJson.SerializeObject(nameXml.Value))
+														{
+															attachmentJson.Serialize("media-type", mediaTypeXml.Value);
+															attachmentJson.Serialize("value", attachmentXml.Value);
+														}
+												}
 
 									if (failureXml is not null && failureXml.Attribute("exception-type") is XAttribute exceptionXml)
 										extraJson.Serialize("exception", exceptionXml.Value);

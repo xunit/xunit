@@ -23,6 +23,7 @@ namespace Xunit.Runner.v2;
 /// </summary>
 public class Xunit2 : IFrontController
 {
+	internal static readonly IReadOnlyDictionary<string, TestAttachment> EmptyAttachments = new Dictionary<string, TestAttachment>();
 	internal static IReadOnlyDictionary<string, IReadOnlyCollection<string>> EmptyV3Traits = new Dictionary<string, IReadOnlyCollection<string>>();
 
 #if NETFRAMEWORK
@@ -501,6 +502,7 @@ public class Xunit2 : IFrontController
 					messageSink.OnMessage(new TestFinished
 					{
 						AssemblyUniqueID = TestAssemblyUniqueID,
+						Attachments = EmptyAttachments,
 						ExecutionTime = 0m,
 						FinishTime = now,
 						Output = "",

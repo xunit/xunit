@@ -238,6 +238,7 @@ public static class XunitRunnerHelper
 			if (!messageBus.QueueMessage(new TestFinished
 			{
 				AssemblyUniqueID = assemblyUniqueID,
+				Attachments = TestFinished.EmptyAttachments,
 				ExecutionTime = 0m,
 				FinishTime = now,
 				Output = string.Empty,

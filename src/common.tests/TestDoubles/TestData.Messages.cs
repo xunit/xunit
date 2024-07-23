@@ -734,6 +734,7 @@ public static partial class TestData
 
 	public static ITestFinished TestFinished(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
+		IReadOnlyDictionary<string, TestAttachment>? attachments = null,
 		decimal executionTime = DefaultExecutionTime,
 		DateTimeOffset? finishTime = null,
 		string output = DefaultOutput,
@@ -746,6 +747,7 @@ public static partial class TestData
 			new Xunit.Runner.Common.TestFinished()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
+				Attachments = attachments ?? EmptyAttachments,
 				ExecutionTime = executionTime,
 				FinishTime = finishTime ?? DefaultFinishTime,
 				Output = output,

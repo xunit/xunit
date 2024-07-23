@@ -15,6 +15,8 @@ namespace Xunit.Runner.v1;
 /// </summary>
 public sealed class Xunit1TestCase : IXunitSerializable
 {
+	static readonly IReadOnlyDictionary<string, TestAttachment> EmptyAttachments = new Dictionary<string, TestAttachment>();
+
 	string? assemblyUniqueID;
 	string? testCollectionUniqueID;
 	string? testCaseDisplayName;
@@ -318,6 +320,7 @@ public sealed class Xunit1TestCase : IXunitSerializable
 			new TestFinished()
 			{
 				AssemblyUniqueID = AssemblyUniqueID,
+				Attachments = EmptyAttachments,
 				ExecutionTime = executionTime,
 				FinishTime = DateTimeOffset.UtcNow,
 				Output = output,
@@ -336,6 +339,7 @@ public sealed class Xunit1TestCase : IXunitSerializable
 		new TestFinished()
 		{
 			AssemblyUniqueID = AssemblyUniqueID,
+			Attachments = EmptyAttachments,
 			ExecutionTime = 0m,
 			FinishTime = DateTimeOffset.UtcNow,
 			Output = "",

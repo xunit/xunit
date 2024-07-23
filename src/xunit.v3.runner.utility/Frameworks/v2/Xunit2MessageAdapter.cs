@@ -577,6 +577,7 @@ public class Xunit2MessageAdapter(
 		return new TestFinished()
 		{
 			AssemblyUniqueID = assemblyUniqueID,
+			Attachments = Xunit2.EmptyAttachments,
 			ExecutionTime = message.ExecutionTime,
 			FinishTime = DateTimeOffset.UtcNow,
 			Output = message.Output,
