@@ -153,14 +153,23 @@ public sealed class JsonObjectSerializer(
 	/// <param name="key">The name of the value</param>
 	/// <param name="value">The value</param>
 	/// <param name="includeNullValues">Set to <c>true</c> to serialize a <c>null</c> value, or <c>false</c> to skip it</param>
+	/// <param name="includeEmptyValues">Set to <c>true</c> to serialize empty strings, or <c>false</c> to skip it</param>
 	public void Serialize(
 		string key,
 		string? value,
-		bool includeNullValues = false)
+		bool includeNullValues = false,
+		bool includeEmptyValues = true)
 	{
 		GuardNoOpenChild();
 
-		if (includeNullValues || value is not null)
+		var render = value switch
+		{
+			null => includeNullValues,
+			"" => includeEmptyValues,
+			_ => true,
+		};
+
+		if (render)
 		{
 			WriteKey(key);
 			WriteValue(value);

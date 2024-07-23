@@ -26,7 +26,7 @@ public class MessageSinkMessageTests
 	}
 
 	[Fact]
-	public void SerializationExcludesNullValues()
+	public void SerializationExcludesNullValuesAndEmptyTraits()
 	{
 		var startTime = new DateTimeOffset(2020, 09, 26, 13, 55, 27, 212, TimeSpan.FromHours(-7));
 		var msg = new TestAssemblyStarting
@@ -54,14 +54,13 @@ public class MessageSinkMessageTests
     ""AssemblyPath"":             ""asm-path"",
     ""StartTime"":                ""2020-09-26T13:55:27.2120000-07:00"",
     ""TestEnvironment"":          ""test-env"",
-    ""TestFrameworkDisplayName"": ""test-framework"",
-    ""Traits"":                   {}
+    ""TestFrameworkDisplayName"": ""test-framework""
 }".Replace("\n", "").Replace(" ", "");
 		Assert.Equal(expected, json);
 	}
 
 	[Fact]
-	public void SerializesEnumsAsStrings()
+	public void SerializesEnumsAsStringsAndExcludesEmptyOutput()
 	{
 		var finishTime = new DateTimeOffset(2020, 09, 26, 13, 55, 27, 212, TimeSpan.FromHours(-7));
 		var msg = new TestFailed
@@ -95,7 +94,6 @@ public class MessageSinkMessageTests
     ""TestUniqueID"":           ""test-id"",
     ""ExecutionTime"":          123.45,
     ""FinishTime"":             ""2020-09-26T13:55:27.2120000-07:00"",
-    ""Output"":                 """",
     ""Cause"":                  ""Assertion"",
     ""ExceptionParentIndices"": [-1],
     ""ExceptionTypes"":         [""exception-type""],

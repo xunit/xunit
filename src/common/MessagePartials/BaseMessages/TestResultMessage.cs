@@ -22,7 +22,7 @@ abstract partial class TestResultMessage : TestMessage, ITestResultMessage
 
 		serializer.Serialize(nameof(ExecutionTime), ExecutionTime);
 		serializer.Serialize(nameof(FinishTime), FinishTime);
-		serializer.Serialize(nameof(Output), Output);
+		serializer.Serialize(nameof(Output), Output, includeEmptyValues: false);
 		serializer.SerializeStringArray(nameof(Warnings), Warnings);
 	}
 

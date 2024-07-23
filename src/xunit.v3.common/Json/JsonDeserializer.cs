@@ -31,6 +31,7 @@ public static class JsonDeserializer
 	static readonly HashSet<char> charsNull = ['n', 'u', 'l'];
 	static readonly HashSet<char> charsNumber = ['-', '+', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', 'e', 'E'];
 	static readonly HashSet<char> charsWhiteSpace = [' ', '\t', '\r', '\n'];
+	static readonly IReadOnlyDictionary<string, IReadOnlyCollection<string>> emptyTraits = new Dictionary<string, IReadOnlyCollection<string>>();
 	static readonly Dictionary<char, char> escapesString = new()
 	{
 		{ '"', '"' },
@@ -599,30 +600,36 @@ public static class JsonDeserializer
 	/// </summary>
 	/// <param name="obj">The deserialized JSON object</param>
 	/// <param name="key">The key for the value</param>
+	/// <param name="defaultEmptyString">Flag to indicate if a default empty string should be returned instead of <c>null</c></param>
 	/// <returns>Returns the value if present; <c>null</c>, otherwise.</returns>
 	public static string? TryGetString(
 		IReadOnlyDictionary<string, object?> obj,
-		string key) =>
-			Guard.ArgumentNotNull(obj).TryGetValue(key, out var value) ? TryGetString(value) : null;
+		string key,
+		bool defaultEmptyString = false) =>
+			Guard.ArgumentNotNull(obj).TryGetValue(key, out var value) ? TryGetString(value) : (defaultEmptyString ? string.Empty : null);
 
 	/// <summary>
 	/// Tries to get an <see cref="long"/> value from a deserialized JSON value.
 	/// </summary>
 	/// <param name="value">The deserialized JSON value</param>
+	/// <param name="defaultEmptyString">Flag to indicate if a default empty string should be returned instead of <c>null</c></param>
 	/// <returns>Returns the value if present; <c>null</c>, otherwise.</returns>
-	public static string? TryGetString(object? value) =>
-		value as string;
+	public static string? TryGetString(
+		object? value,
+		bool defaultEmptyString = false) =>
+			value as string ?? (defaultEmptyString ? string.Empty : null);
 
 	/// <summary>
-	/// Tries to get a <see cref="string"/> value from a deserialized JSON object.
+	/// Tries to get a trait dictionary value from a deserialized JSON object.
 	/// </summary>
 	/// <param name="obj">The deserialized JSON object</param>
 	/// <param name="key">The key for the value</param>
-	/// <returns>Returns the value if present; <c>null</c>, otherwise.</returns>
+	/// <param name="defaultEmptyDictionary">Flag to indicate if a default empty dictionary should be returned instead of <c>null</c></param>
 	public static IReadOnlyDictionary<string, IReadOnlyCollection<string>>? TryGetTraits(
 		IReadOnlyDictionary<string, object?> obj,
-		string key) =>
-			Guard.ArgumentNotNull(obj).TryGetValue(key, out var value) ? TryGetTraits(value) : null;
+		string key,
+		bool defaultEmptyDictionary = true) =>
+			Guard.ArgumentNotNull(obj).TryGetValue(key, out var value) ? TryGetTraits(value) : (defaultEmptyDictionary ? emptyTraits : null);
 
 	/// <summary>
 	/// Tries to get a <see cref="string"/> value from a deserialized JSON value.

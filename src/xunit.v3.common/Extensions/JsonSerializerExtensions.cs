@@ -71,14 +71,19 @@ public static class JsonSerializerExtensions
 	/// <param name="serializer"></param>
 	/// <param name="key">The name of the value</param>
 	/// <param name="dictionary">The trait dictionary</param>
+	/// <param name="includeEmptyTraits">A flag to indicate whether to render empty traits</param>
 	public static void SerializeTraits(
 		this JsonObjectSerializer serializer,
 		string key,
-		IReadOnlyDictionary<string, IReadOnlyCollection<string>> dictionary)
+		IReadOnlyDictionary<string, IReadOnlyCollection<string>> dictionary,
+		bool includeEmptyTraits = false)
 	{
 		Guard.ArgumentNotNull(serializer);
 		Guard.ArgumentNotNull(key);
 		Guard.ArgumentNotNull(dictionary);
+
+		if (!includeEmptyTraits && dictionary.Count == 0)
+			return;
 
 		using var dictionarySerializer = serializer.SerializeObject(key);
 		foreach (var kvp in dictionary.OrderBy(kvp => kvp.Key))

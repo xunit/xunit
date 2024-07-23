@@ -37,7 +37,7 @@ public partial class TestResultMessage
 
 		ExecutionTime = JsonDeserializer.TryGetDecimal(root, nameof(ExecutionTime)) ?? ExecutionTime;
 		FinishTime = JsonDeserializer.TryGetDateTimeOffset(root, nameof(FinishTime)) ?? FinishTime;
-		Output = JsonDeserializer.TryGetString(root, nameof(Output)) ?? Output;
+		Output = JsonDeserializer.TryGetString(root, nameof(Output), defaultEmptyString: true) ?? Output;
 		Warnings = JsonDeserializer.TryGetArrayOfString(root, nameof(Warnings));
 	}
 }
