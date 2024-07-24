@@ -21,9 +21,13 @@ namespace Xunit.Runner.InProc.SystemConsole;
 /// xUnit.net v3 test projects.
 /// </summary>
 /// <param name="args">The arguments passed to the application; typically pulled from the Main method.</param>
+/// <param name="testAssembly">The optional test assembly; if <c>null</c>, <see cref="Assembly.GetEntryAssembly"/> is used
+/// to find the current assembly as the test assembly</param>
 // The signature of the constructor is known to Xunit3, so do not change it without also changing
 // the code that invokes it dynamically.
-public class ConsoleRunner(string[] args)
+public class ConsoleRunner(
+	string[] args,
+	Assembly? testAssembly = null)
 {
 	readonly string[] args = Guard.ArgumentNotNull(args);
 	bool automated;
@@ -33,7 +37,7 @@ public class ConsoleRunner(string[] args)
 	IRunnerLogger? logger;
 	ITestPipelineStartup? pipelineStartup;
 	bool started;
-	readonly Assembly testAssembly = Guard.NotNull("Assembly.GetEntryAssembly() returned null", Assembly.GetEntryAssembly());
+	readonly Assembly testAssembly = Guard.NotNull("Assembly.GetEntryAssembly() returned null", testAssembly ?? Assembly.GetEntryAssembly());
 
 	/// <summary>
 	/// Attempt to cancel the console runner execution.

@@ -482,7 +482,7 @@ public class Xunit3 : IFrontController
 			try
 			{
 				var bufferedReaderWriter = new BufferedTextReaderWriter();
-				var consoleRunner = Activator.CreateInstance(consoleRunnerType, [executableArguments.ToArray()]);
+				var consoleRunner = Activator.CreateInstance(consoleRunnerType, [executableArguments.ToArray(), assembly]);
 				var workerThread = new Thread(async () =>
 				{
 					using var writer = bufferedReaderWriter.Writer;

@@ -101,8 +101,14 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.v3.runner.utility", "src\xunit.v3.runner.utility\xunit.v3.runner.utility.csproj", "{83174840-DD7B-4F11-A1AC-08EBD2F50354}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.v3.runner.utility.tests", "src\xunit.v3.runner.utility.tests\xunit.v3.runner.utility.tests.csproj", "{42626F10-47E8-472C-9927-733D3EF9042E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9A2DE0A2-7F0A-4ADF-B37B-B282800BC35B} = {9A2DE0A2-7F0A-4ADF-B37B-B282800BC35B}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.v3.runner.utility.x86.tests", "src\xunit.v3.runner.utility.x86.tests\xunit.v3.runner.utility.x86.tests.csproj", "{742B5F03-4B31-4A09-8696-A13B7FF995F4}"
+	ProjectSection(ProjectDependencies) = postProject
+		{40C9D580-6158-4B11-B4B5-76C3ACD77B53} = {40C9D580-6158-4B11-B4B5-76C3ACD77B53}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
