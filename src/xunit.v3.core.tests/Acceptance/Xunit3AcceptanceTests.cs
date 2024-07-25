@@ -31,6 +31,8 @@ public class Xunit3AcceptanceTests
 			);
 		}
 
+		class NoTestsClass { }
+
 		[Fact]
 		public async ValueTask SinglePassingTest()
 		{
@@ -55,9 +57,9 @@ public class Xunit3AcceptanceTests
 					var collectionStarting = Assert.IsAssignableFrom<ITestCollectionStarting>(message);
 					Assert.Null(collectionStarting.TestCollectionClassName);
 #if BUILD_X86  // Assembly name changes for x86 testing, so that changes the ID
-					Assert.Equal("Test collection for Xunit3AcceptanceTests+SinglePassingTestClass (id: 1ea89e28059c4fd4c4319dac4a5c86ce432cef0cf1ec83ed22553dec40043256)", collectionStarting.TestCollectionDisplayName);
+					Assert.Equal($"Test collection for {typeof(SinglePassingTestClass).SafeName()} (id: 54db054978cb9e2ff055289822aa7a3be7890e656e6369c93c5ac9437858b903)", collectionStarting.TestCollectionDisplayName);
 #else
-					Assert.Equal("Test collection for Xunit3AcceptanceTests+SinglePassingTestClass (id: 94b6e27b61c59f331879032bb51a9e812c13b2574e286aece991d833e6f52127)", collectionStarting.TestCollectionDisplayName);
+					Assert.Equal($"Test collection for {typeof(SinglePassingTestClass).SafeName()} (id: 685938d165702e64e5ba3c42e052172b50dc14d4e497683a69d48324c1935208)", collectionStarting.TestCollectionDisplayName);
 #endif
 					Assert.NotEmpty(collectionStarting.TestCollectionUniqueID);
 					Assert.Equal(observedAssemblyID, collectionStarting.AssemblyUniqueID);
@@ -66,7 +68,7 @@ public class Xunit3AcceptanceTests
 				message =>
 				{
 					var classStarting = Assert.IsAssignableFrom<ITestClassStarting>(message);
-					Assert.Equal("Xunit3AcceptanceTests+SinglePassingTestClass", classStarting.TestClassName);
+					Assert.Equal(typeof(SinglePassingTestClass).SafeName(), classStarting.TestClassName);
 					Assert.Equal(observedAssemblyID, classStarting.AssemblyUniqueID);
 					Assert.Equal(observedCollectionID, classStarting.TestCollectionUniqueID);
 					observedClassID = classStarting.TestClassUniqueID;
@@ -74,7 +76,7 @@ public class Xunit3AcceptanceTests
 				message =>
 				{
 					var testMethodStarting = Assert.IsAssignableFrom<ITestMethodStarting>(message);
-					Assert.Equal("TestMethod", testMethodStarting.MethodName);
+					Assert.Equal(nameof(SinglePassingTestClass.TestMethod), testMethodStarting.MethodName);
 					Assert.Equal(observedAssemblyID, testMethodStarting.AssemblyUniqueID);
 					Assert.Equal(observedCollectionID, testMethodStarting.TestCollectionUniqueID);
 					Assert.Equal(observedClassID, testMethodStarting.TestClassUniqueID);
@@ -84,7 +86,7 @@ public class Xunit3AcceptanceTests
 				{
 					var testCaseStarting = Assert.IsAssignableFrom<ITestCaseStarting>(message);
 					Assert.Equal(observedAssemblyID, testCaseStarting.AssemblyUniqueID);
-					Assert.Equal("Xunit3AcceptanceTests+SinglePassingTestClass.TestMethod", testCaseStarting.TestCaseDisplayName);
+					Assert.Equal($"{typeof(SinglePassingTestClass).SafeName()}.{nameof(SinglePassingTestClass.TestMethod)}", testCaseStarting.TestCaseDisplayName);
 					Assert.Equal(observedCollectionID, testCaseStarting.TestCollectionUniqueID);
 					Assert.Equal(observedClassID, testCaseStarting.TestClassUniqueID);
 					Assert.Equal(observedMethodID, testCaseStarting.TestMethodUniqueID);
@@ -95,7 +97,7 @@ public class Xunit3AcceptanceTests
 					var testStarting = Assert.IsAssignableFrom<ITestStarting>(message);
 					Assert.Equal(observedAssemblyID, testStarting.AssemblyUniqueID);
 					// Test display name == test case display name for Facts
-					Assert.Equal("Xunit3AcceptanceTests+SinglePassingTestClass.TestMethod", testStarting.TestDisplayName);
+					Assert.Equal($"{typeof(SinglePassingTestClass).SafeName()}.{nameof(SinglePassingTestClass.TestMethod)}", testStarting.TestDisplayName);
 					Assert.Equal(observedTestCaseID, testStarting.TestCaseUniqueID);
 					Assert.Equal(observedCollectionID, testStarting.TestCollectionUniqueID);
 					Assert.Equal(observedClassID, testStarting.TestClassUniqueID);
@@ -207,6 +209,12 @@ public class Xunit3AcceptanceTests
 				}
 			);
 		}
+
+		class SinglePassingTestClass
+		{
+			[Fact]
+			public void TestMethod() { }
+		}
 	}
 
 	public class SkippedTests : AcceptanceTestV3
@@ -218,14 +226,22 @@ public class Xunit3AcceptanceTests
 
 			var skippedMessage = Assert.Single(results.OfType<ITestSkipped>());
 			var skippedStarting = Assert.Single(results.OfType<ITestStarting>().Where(s => s.TestUniqueID == skippedMessage.TestUniqueID));
-			Assert.Equal("Xunit3AcceptanceTests+SingleSkippedTestClass.TestMethod", skippedStarting.TestDisplayName);
+			Assert.Equal($"{typeof(SingleSkippedTestClass).SafeName()}.{nameof(SingleSkippedTestClass.TestMethod)}", skippedStarting.TestDisplayName);
 			Assert.Equal("This is a skipped test", skippedMessage.Reason);
 
 			var classFinishedMessage = Assert.Single(results.OfType<ITestClassFinished>());
+			Assert.Equal(1, classFinishedMessage.TestsTotal);
 			Assert.Equal(1, classFinishedMessage.TestsSkipped);
 
 			var collectionFinishedMessage = Assert.Single(results.OfType<ITestCollectionFinished>());
+			Assert.Equal(1, collectionFinishedMessage.TestsTotal);
 			Assert.Equal(1, collectionFinishedMessage.TestsSkipped);
+		}
+
+		class SingleSkippedTestClass
+		{
+			[Fact(Skip = "This is a skipped test")]
+			public void TestMethod() => Assert.True(false);
 		}
 	}
 
@@ -364,6 +380,14 @@ public class Xunit3AcceptanceTests
 			var collectionFinishedMessage = Assert.Single(results.OfType<ITestCollectionFinished>());
 			Assert.Equal(1, collectionFinishedMessage.TestsFailed);
 		}
+		class SingleFailingTestClass
+		{
+			[Fact]
+			public void TestMethod()
+			{
+				Assert.True(false);
+			}
+		}
 
 		[Fact]
 		public async ValueTask SingleFailingTestReturningValueTask()
@@ -378,6 +402,16 @@ public class Xunit3AcceptanceTests
 
 			var collectionFinishedMessage = Assert.Single(results.OfType<ITestCollectionFinished>());
 			Assert.Equal(1, collectionFinishedMessage.TestsFailed);
+		}
+
+		class SingleFailingValueTaskTestClass
+		{
+			[Fact]
+			public async ValueTask TestMethod()
+			{
+				await Task.Delay(1, TestContext.Current.CancellationToken);
+				Assert.True(false);
+			}
 		}
 	}
 
@@ -1086,6 +1120,43 @@ public class Xunit3AcceptanceTests
 			);
 		}
 
+		class ClassWithLegalWarnings : IDisposable
+		{
+			public ClassWithLegalWarnings()
+			{
+				TestContext.Current.AddWarning("This is a warning message from the constructor");
+			}
+
+			public void Dispose()
+			{
+				TestContext.Current.AddWarning("This is a warning message from Dispose()");
+			}
+
+			[Fact]
+			public void Passing()
+			{
+				TestContext.Current.AddWarning("This is a warning message from Passing()");
+			}
+
+			[Fact]
+			public void Failing()
+			{
+				TestContext.Current.AddWarning("This is a warning message from Failing()");
+				Assert.True(false);
+			}
+
+			[Fact(Skip = "I never run")]
+			public void Skipping()
+			{ }
+
+			[Fact]
+			public void SkippingDynamic()
+			{
+				TestContext.Current.AddWarning("This is a warning message from SkippingDynamic()");
+				Assert.Skip("I decided not to run");
+			}
+		}
+
 		[Fact]
 		public async ValueTask IllegalWarning()
 		{
@@ -1100,6 +1171,19 @@ public class Xunit3AcceptanceTests
 			var passed = Assert.IsAssignableFrom<TestPassedWithDisplayName>(result);
 			Assert.Equal($"{typeof(ClassWithIllegalWarnings).FullName}.{nameof(ClassWithIllegalWarnings.Passing)}", passed.TestDisplayName);
 			Assert.Null(passed.Warnings);
+		}
+
+		class FixtureWithIllegalWarning
+		{
+			public FixtureWithIllegalWarning() =>
+				TestContext.Current.AddWarning("This is a warning from an illegal part of the pipeline");
+		}
+
+		class ClassWithIllegalWarnings : IClassFixture<FixtureWithIllegalWarning>
+		{
+			[Fact]
+			public void Passing()
+			{ }
 		}
 	}
 
@@ -1129,91 +1213,5 @@ public class Xunit3AcceptanceTests
 		}
 
 #pragma warning restore xUnit1049 // Do not use 'async void' for test methods as it is no longer supported
-	}
-
-	class NoTestsClass { }
-
-	class SinglePassingTestClass
-	{
-		[Fact]
-		public void TestMethod() { }
-	}
-
-	class SingleSkippedTestClass
-	{
-		[Fact(Skip = "This is a skipped test")]
-		public void TestMethod()
-		{
-			Assert.True(false);
-		}
-	}
-
-	class SingleFailingTestClass
-	{
-		[Fact]
-		public void TestMethod()
-		{
-			Assert.True(false);
-		}
-	}
-
-	class SingleFailingValueTaskTestClass
-	{
-		[Fact]
-		public async ValueTask TestMethod()
-		{
-			await Task.Delay(1, TestContext.Current.CancellationToken);
-			Assert.True(false);
-		}
-	}
-
-	class ClassWithLegalWarnings : IDisposable
-	{
-		public ClassWithLegalWarnings()
-		{
-			TestContext.Current.AddWarning("This is a warning message from the constructor");
-		}
-
-		public void Dispose()
-		{
-			TestContext.Current.AddWarning("This is a warning message from Dispose()");
-		}
-
-		[Fact]
-		public void Passing()
-		{
-			TestContext.Current.AddWarning("This is a warning message from Passing()");
-		}
-
-		[Fact]
-		public void Failing()
-		{
-			TestContext.Current.AddWarning("This is a warning message from Failing()");
-			Assert.True(false);
-		}
-
-		[Fact(Skip = "I never run")]
-		public void Skipping()
-		{ }
-
-		[Fact]
-		public void SkippingDynamic()
-		{
-			TestContext.Current.AddWarning("This is a warning message from SkippingDynamic()");
-			Assert.Skip("I decided not to run");
-		}
-	}
-
-	class FixtureWithIllegalWarning
-	{
-		public FixtureWithIllegalWarning() =>
-			TestContext.Current.AddWarning("This is a warning from an illegal part of the pipeline");
-	}
-
-	class ClassWithIllegalWarnings : IClassFixture<FixtureWithIllegalWarning>
-	{
-		[Fact]
-		public void Passing()
-		{ }
 	}
 }
