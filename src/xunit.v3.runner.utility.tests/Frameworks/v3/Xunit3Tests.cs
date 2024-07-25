@@ -52,6 +52,24 @@ public class Xunit3Tests
 		Assert.Throws<ArgumentNullException>("settings", () => xunit3.Find(SpyMessageSink.Capture(), null!));
 	}
 
+	[Fact]
+	public async ValueTask GuardClauses_FindAndRun()
+	{
+		await using var xunit3 = Xunit3.ForDiscoveryAndExecution(Assembly);
+
+		Assert.Throws<ArgumentNullException>("messageSink", () => xunit3.FindAndRun(null!, new FrontControllerFindAndRunSettings(DiscoveryOptions, ExecutionOptions)));
+		Assert.Throws<ArgumentNullException>("settings", () => xunit3.FindAndRun(SpyMessageSink.Capture(), null!));
+	}
+
+	[Fact]
+	public async ValueTask GuardClauses_Run()
+	{
+		await using var xunit3 = Xunit3.ForDiscoveryAndExecution(Assembly);
+
+		Assert.Throws<ArgumentNullException>("messageSink", () => xunit3.Run(null!, new FrontControllerRunSettings(ExecutionOptions, [])));
+		Assert.Throws<ArgumentNullException>("settings", () => xunit3.Run(SpyMessageSink.Capture(), null!));
+	}
+
 	async ValueTask GathersAssemblyInformation(bool forceInProcess)
 	{
 		var expectedUniqueID = UniqueIDGenerator.ForAssembly(
