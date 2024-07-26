@@ -26,12 +26,29 @@ public class CulturedXunitTestCase : XunitTestCase
 		string uniqueID,
 		bool @explicit,
 		string? skipReason = null,
+		Type? skipType = null,
+		string? skipUnless = null,
+		string? skipWhen = null,
 		Dictionary<string, HashSet<string>>? traits = null,
 		object?[]? testMethodArguments = null,
 		string? sourceFilePath = null,
 		int? sourceLineNumber = null,
-		int? timeout = null)
-			: base(testMethod, $"{testCaseDisplayName}[{culture}]", $"{uniqueID}[{culture}]", @explicit, skipReason, traits, testMethodArguments, sourceFilePath, sourceLineNumber, timeout)
+		int? timeout = null) :
+			base(
+				testMethod,
+				$"{testCaseDisplayName}[{culture}]",
+				$"{uniqueID}[{culture}]",
+				@explicit,
+				skipReason,
+				skipType,
+				skipUnless,
+				skipWhen,
+				traits,
+				testMethodArguments,
+				sourceFilePath,
+				sourceLineNumber,
+				timeout
+			)
 	{
 		this.culture = Guard.ArgumentNotNull(culture);
 

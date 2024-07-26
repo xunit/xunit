@@ -39,7 +39,21 @@ public class XunitDelayEnumeratedTheoryTestCase : XunitTestCase
 		string? sourceFilePath = null,
 		int? sourceLineNumber = null,
 		int? timeout = null) :
-			base(testMethod, testCaseDisplayName, uniqueID, @explicit, skipReason: null, traits, testMethodArguments: null, sourceFilePath, sourceLineNumber, timeout)
+			base(
+				testMethod,
+				testCaseDisplayName,
+				uniqueID,
+				@explicit,
+				skipReason: null,
+				skipType: null,
+				skipUnless: null,
+				skipWhen: null,
+				traits,
+				testMethodArguments: null,
+				sourceFilePath,
+				sourceLineNumber,
+				timeout
+			)
 	{ }
 
 	/// <inheritdoc/>

@@ -26,6 +26,9 @@ public static class TestIntrospectionHelper
 		string TestCaseDisplayName,
 		bool Explicit,
 		string? SkipReason,
+		Type? SkipType,
+		string? SkipUnless,
+		string? SkipWhen,
 		int Timeout,
 		string UniqueID,
 		IXunitTestMethod ResolvedTestMethod
@@ -68,7 +71,7 @@ public static class TestIntrospectionHelper
 		var testCaseDisplayName = testMethod.GetDisplayName(baseDisplayName, testMethodArguments, methodGenericTypes);
 		var uniqueID = UniqueIDGenerator.ForTestCase(testMethod.UniqueID, methodGenericTypes, testMethodArguments);
 
-		return (testCaseDisplayName, factAttribute.Explicit, factAttribute.Skip, timeout.Value, uniqueID, testMethod);
+		return (testCaseDisplayName, factAttribute.Explicit, factAttribute.Skip, factAttribute.SkipType, factAttribute.SkipUnless, factAttribute.SkipWhen, timeout.Value, uniqueID, testMethod);
 	}
 
 	/// <summary>
@@ -85,6 +88,9 @@ public static class TestIntrospectionHelper
 		string TestCaseDisplayName,
 		bool Explicit,
 		string? SkipReason,
+		Type? SkipType,
+		string? SkipUnless,
+		string? SkipWhen,
 		int Timeout,
 		string UniqueID,
 		IXunitTestMethod ResolvedTestMethod

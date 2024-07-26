@@ -1,3 +1,4 @@
+using System;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,6 +15,43 @@ public interface IXunitTestCase : ITestCase
 	/// Gets a flag indicating whether this test case was marked as explicit or not.
 	/// </summary>
 	bool Explicit { get; }
+
+	/// <summary>
+	/// Gets the display text for the reason a test that might being skipped.
+	/// </summary>
+	/// <remarks>
+	/// This differs from the contract of <see cref="ITestCaseMetadata.SkipReason"/> by virtue
+	/// of the fact that when this value is non-<c>null</c>, it may indicate that a test is
+	/// statically skipped (if both <see cref="SkipUnless"/> and <see cref="SkipWhen"/> are
+	/// <c>null</c>) or dynamically skipped (if one is non-<c>null</c>).
+	/// </remarks>
+	new string? SkipReason { get; }
+
+	/// <summary>
+	/// When set, indicates the type to use when resolving <see cref="SkipUnless"/> or
+	/// <see cref="SkipWhen"/>. If not set, uses the test class type.
+	/// </summary>
+	Type? SkipType { get; }
+
+	/// <summary>
+	/// When set, indicates a public static property that is used at runtime to determine
+	/// whether the test is skipped or not (<c>true</c> to run, <c>false</c> to skip).
+	/// </summary>
+	/// <remarks>
+	/// Note: It is an error condition for both <see cref="SkipUnless"/> and <see cref="SkipWhen"/>
+	/// to return a non-<c>null</c> value.
+	/// </remarks>
+	string? SkipUnless { get; }
+
+	/// <summary>
+	/// When set, indicates a public static property that is used at runtime to determine
+	/// whether the test is skipped or not (<c>false</c> to run, <c>true</c> to skip).
+	/// </summary>
+	/// <remarks>
+	/// Note: It is an error condition for both <see cref="SkipUnless"/> and <see cref="SkipWhen"/>
+	/// to return a non-<c>null</c> value.
+	/// </remarks>
+	string? SkipWhen { get; }
 
 	/// <summary>
 	/// Gets the test class that this test case belongs to.

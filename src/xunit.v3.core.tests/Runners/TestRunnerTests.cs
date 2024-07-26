@@ -128,44 +128,6 @@ public class TestRunnerTests
 		[Theory]
 		[InlineData(false)]
 		[InlineData(true)]
-		public static async ValueTask Skipped_Dynamic(bool cancel)
-		{
-			var runner = new TestableTestRunner
-			{
-				GetTestOutput__Result = "the output",
-				InvokeTestAsync__Lambda = () => throw SkipException.ForSkip("This isn't a good time"),
-				OnTestSkipped__Result = !cancel,
-			};
-
-			var summary = await runner.RunAsync();
-
-			VerifyRunSummary(summary, skipped: 1);
-			Assert.Equal(cancel, runner.TokenSource.IsCancellationRequested);
-			Assert.False(runner.Aggregator.HasExceptions);
-			Assert.Equal(new[]
-			{
-				"OnTestStarting",
-				"ShouldTestRun",
-				"IsTestClassCreatable",
-				"OnTestClassConstructionStarting",
-				"CreateTestClassInstance",
-				"OnTestClassConstructionFinished",
-				"InvokeTestAsync(testClassInstance: null)",
-				// IsTestClassDisposable
-				// OnTestClassDisposeStarting
-				// DisposeTestClassInstance
-				// OnTestClassDisposeFinished
-				"GetTestOutput",
-				"OnTestSkipped(reason: \"This isn't a good time\", output: \"the output\")",
-				"OnTestFinished(output: \"the output\")",
-				// OnTestCleanupFailure
-			}, runner.Invocations);
-			Assert.Empty(runner.MessageBus.Messages);
-		}
-
-		[Theory]
-		[InlineData(false)]
-		[InlineData(true)]
 		public static async ValueTask NotRun(bool cancel)
 		{
 			var runner = new TestableTestRunner

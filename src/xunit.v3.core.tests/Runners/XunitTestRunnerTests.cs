@@ -149,6 +149,92 @@ public class XunitTestRunnerTests
 		}
 
 		[Fact]
+		public static async ValueTask SkippedViaSkipUnless()
+		{
+			var messageBus = new SpyMessageBus();
+			var test = TestData.XunitTest<ClassUnderTest>(nameof(ClassUnderTest.SkippedViaSkipUnless));
+			var runner = new TestableXunitTestRunner(test, messageBus: messageBus);
+
+			await runner.RunAsync();
+
+			Assert.Collection(
+				messageBus.Messages,
+				msg => Assert.IsAssignableFrom<ITestStarting>(msg),
+				msg =>
+				{
+					var skipped = Assert.IsAssignableFrom<ITestSkipped>(msg);
+					Assert.Equal("Conditionally don't run me", skipped.Reason);
+				},
+				msg => Assert.IsAssignableFrom<ITestFinished>(msg)
+			);
+		}
+
+		[Fact]
+		public static async ValueTask SkippedViaSkipWhen()
+		{
+			var messageBus = new SpyMessageBus();
+			var test = TestData.XunitTest<ClassUnderTest>(nameof(ClassUnderTest.SkippedViaSkipWhen));
+			var runner = new TestableXunitTestRunner(test, messageBus: messageBus);
+
+			await runner.RunAsync();
+
+			Assert.Collection(
+				messageBus.Messages,
+				msg => Assert.IsAssignableFrom<ITestStarting>(msg),
+				msg =>
+				{
+					var skipped = Assert.IsAssignableFrom<ITestSkipped>(msg);
+					Assert.Equal("Conditionally don't run me", skipped.Reason);
+				},
+				msg => Assert.IsAssignableFrom<ITestFinished>(msg)
+			);
+		}
+
+		[Fact]
+		public static async ValueTask NotSkippedViaSkipUnless()
+		{
+			var messageBus = new SpyMessageBus();
+			var test = TestData.XunitTest<ClassUnderTest>(nameof(ClassUnderTest.NotSkippedViaSkipUnless));
+			var runner = new TestableXunitTestRunner(test, messageBus: messageBus);
+
+			await runner.RunAsync();
+
+			Assert.Collection(
+				messageBus.Messages,
+				msg => Assert.IsAssignableFrom<ITestStarting>(msg),
+				msg => Assert.IsAssignableFrom<ITestClassConstructionStarting>(msg),
+				msg => Assert.IsAssignableFrom<ITestClassConstructionFinished>(msg),
+				// Test method is invoked here
+				msg => Assert.IsAssignableFrom<ITestClassDisposeStarting>(msg),
+				msg => Assert.IsAssignableFrom<ITestClassDisposeFinished>(msg),
+				msg => Assert.IsAssignableFrom<ITestPassed>(msg),
+				msg => Assert.IsAssignableFrom<ITestFinished>(msg)
+			);
+		}
+
+		[Fact]
+		public static async ValueTask NotSkippedViaSkipWhen()
+		{
+			var messageBus = new SpyMessageBus();
+			var test = TestData.XunitTest<ClassUnderTest>(nameof(ClassUnderTest.NotSkippedViaSkipWhen));
+			var runner = new TestableXunitTestRunner(test, messageBus: messageBus);
+
+			await runner.RunAsync();
+
+			Assert.Collection(
+				messageBus.Messages,
+				msg => Assert.IsAssignableFrom<ITestStarting>(msg),
+				msg => Assert.IsAssignableFrom<ITestClassConstructionStarting>(msg),
+				msg => Assert.IsAssignableFrom<ITestClassConstructionFinished>(msg),
+				// Test method is invoked here
+				msg => Assert.IsAssignableFrom<ITestClassDisposeStarting>(msg),
+				msg => Assert.IsAssignableFrom<ITestClassDisposeFinished>(msg),
+				msg => Assert.IsAssignableFrom<ITestPassed>(msg),
+				msg => Assert.IsAssignableFrom<ITestFinished>(msg)
+			);
+		}
+
+		[Fact]
 		public static async ValueTask SkippedViaException()
 		{
 			var messageBus = new SpyMessageBus();
@@ -280,6 +366,10 @@ public class XunitTestRunnerTests
 
 		class ClassUnderTest : IDisposable
 		{
+			public static bool False => false;
+
+			public static bool True => true;
+
 			public void Dispose() { }
 
 			[Fact]
@@ -293,6 +383,18 @@ public class XunitTestRunnerTests
 
 			[Fact(Skip = "Don't run me")]
 			public void SkippedViaAttribute() { }
+
+			[Fact(Skip = "Conditionally don't run me", SkipUnless = nameof(False))]
+			public void SkippedViaSkipUnless() { }
+
+			[Fact(Skip = "Conditionally don't run me", SkipWhen = nameof(True))]
+			public void SkippedViaSkipWhen() { }
+
+			[Fact(Skip = "Conditionally don't run me", SkipUnless = nameof(True))]
+			public void NotSkippedViaSkipUnless() { }
+
+			[Fact(Skip = "Conditionally don't run me", SkipWhen = nameof(False))]
+			public void NotSkippedViaSkipWhen() { }
 
 			[Fact]
 			public void SkippedViaException() => Assert.Skip("This isn't a good time");

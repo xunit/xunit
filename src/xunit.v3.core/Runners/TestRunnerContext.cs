@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -33,4 +34,12 @@ public class TestRunnerContext<TTest>(
 	/// Gets the test that's being invoked.
 	/// </summary>
 	public TTest Test { get; } = Guard.ArgumentNotNull(test);
+
+	/// <summary>
+	/// Gets the runtime skip reason for the test.
+	/// </summary>
+	/// <param name="exception">The exception that was thrown during test invocation</param>
+	/// <returns>The skip reason, if the test is skipped; <c>null</c>, otherwise</returns>
+	public virtual string? GetSkipReason(Exception? exception = null) =>
+		SkipReason;
 }

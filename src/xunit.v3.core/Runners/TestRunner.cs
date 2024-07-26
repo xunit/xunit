@@ -353,7 +353,7 @@ public abstract class TestRunner<TContext, TTest>
 			{
 				shouldRun = ctxt.Aggregator.Run(() => ShouldTestRun(ctxt), true);
 
-				if (shouldRun && ctxt.SkipReason is null && !ctxt.Aggregator.HasExceptions)
+				if (shouldRun && ctxt.GetSkipReason() is null && !ctxt.Aggregator.HasExceptions)
 				{
 					elapsedTime += await ExecutionTimer.MeasureAsync(() => ctxt.Aggregator.RunAsync(async () => { testClassInstance = await CreateTestClass(ctxt); }));
 
@@ -368,7 +368,7 @@ public abstract class TestRunner<TContext, TTest>
 							// Set an early version of TestResultState so anything done in PostInvoke can understand whether
 							// it looks like the test is passing, failing, or dynamically skipped
 							var currentException = ctxt.Aggregator.ToException();
-							var currentSkipReason = GetSkipReason(ctxt, currentException);
+							var currentSkipReason = ctxt.GetSkipReason(currentException);
 							var currentExecutionTime = (decimal)elapsedTime.TotalMilliseconds;
 							var testResultState =
 								currentSkipReason is not null
@@ -389,7 +389,7 @@ public abstract class TestRunner<TContext, TTest>
 			summary.Time = (decimal)elapsedTime.TotalSeconds;
 
 			var exception = ctxt.Aggregator.ToException();
-			var skipReason = GetSkipReason(ctxt, exception);
+			var skipReason = ctxt.GetSkipReason(exception);
 
 			ctxt.Aggregator.Clear();
 
@@ -435,18 +435,6 @@ public abstract class TestRunner<TContext, TTest>
 		}
 
 		return summary;
-	}
-
-	static string? GetSkipReason(
-		TContext ctxt,
-		Exception? exception)
-	{
-		// We don't want a strongly typed contract here; any exception can be a "dynamically
-		// skipped" exception so long as its message starts with the special token.
-		if (exception?.Message.StartsWith(DynamicSkipToken.Value, StringComparison.Ordinal) == true)
-			return exception.Message.Substring(DynamicSkipToken.Value.Length);
-
-		return ctxt.SkipReason;
 	}
 
 	/// <summary>

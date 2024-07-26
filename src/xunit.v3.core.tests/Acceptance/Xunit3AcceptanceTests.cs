@@ -243,6 +243,72 @@ public class Xunit3AcceptanceTests
 			[Fact(Skip = "This is a skipped test")]
 			public void TestMethod() => Assert.True(false);
 		}
+
+		[Fact]
+		public async ValueTask ConditionallySkippedTests()
+		{
+			var results = await RunAsync(typeof(ConditionallySkippedTestClass));
+
+			var skippedMessage = Assert.Single(results.OfType<ITestSkipped>());
+			var skippedStarting = Assert.Single(results.OfType<ITestStarting>().Where(s => s.TestUniqueID == skippedMessage.TestUniqueID));
+			Assert.Equal($"{typeof(ConditionallySkippedTestClass).SafeName()}.{nameof(ConditionallySkippedTestClass.ConditionallyAlwaysSkipped)}", skippedStarting.TestDisplayName);
+			Assert.Equal("I am always skipped, conditionally", skippedMessage.Reason);
+
+			var passedMessage = Assert.Single(results.OfType<ITestPassed>());
+			var passedStarting = Assert.Single(results.OfType<ITestStarting>().Where(s => s.TestUniqueID == passedMessage.TestUniqueID));
+			Assert.Equal($"{typeof(ConditionallySkippedTestClass).SafeName()}.{nameof(ConditionallySkippedTestClass.ConditionallyNeverSkipped)}", passedStarting.TestDisplayName);
+
+			var classFinishedMessage = Assert.Single(results.OfType<ITestClassFinished>());
+			Assert.Equal(2, classFinishedMessage.TestsTotal);
+			Assert.Equal(1, classFinishedMessage.TestsSkipped);
+
+			var collectionFinishedMessage = Assert.Single(results.OfType<ITestCollectionFinished>());
+			Assert.Equal(2, collectionFinishedMessage.TestsTotal);
+			Assert.Equal(1, collectionFinishedMessage.TestsSkipped);
+		}
+
+		class ConditionallySkippedTestClass
+		{
+			public static bool Always => true;
+
+			[Fact(Skip = "I am always skipped, conditionally", SkipWhen = nameof(Always))]
+			public void ConditionallyAlwaysSkipped() => Assert.True(false);
+
+			[Fact(Skip = "I am never skipped, conditionally", SkipUnless = nameof(Always))]
+			public void ConditionallyNeverSkipped() { }
+		}
+
+		[Fact]
+		public async ValueTask ConditionallySkippedTests_UsingSkipType()
+		{
+			var results = await RunAsync(typeof(ConditionallySkippedTestsClass_UsingSkipType));
+
+			var skippedMessage = Assert.Single(results.OfType<ITestSkipped>());
+			var skippedStarting = Assert.Single(results.OfType<ITestStarting>().Where(s => s.TestUniqueID == skippedMessage.TestUniqueID));
+			Assert.Equal($"{typeof(ConditionallySkippedTestsClass_UsingSkipType).SafeName()}.{nameof(ConditionallySkippedTestsClass_UsingSkipType.ConditionallyAlwaysSkipped)}", skippedStarting.TestDisplayName);
+			Assert.Equal("I am always skipped, conditionally", skippedMessage.Reason);
+
+			var passedMessage = Assert.Single(results.OfType<ITestPassed>());
+			var passedStarting = Assert.Single(results.OfType<ITestStarting>().Where(s => s.TestUniqueID == passedMessage.TestUniqueID));
+			Assert.Equal($"{typeof(ConditionallySkippedTestsClass_UsingSkipType).SafeName()}.{nameof(ConditionallySkippedTestsClass_UsingSkipType.ConditionallyNeverSkipped)}", passedStarting.TestDisplayName);
+
+			var classFinishedMessage = Assert.Single(results.OfType<ITestClassFinished>());
+			Assert.Equal(2, classFinishedMessage.TestsTotal);
+			Assert.Equal(1, classFinishedMessage.TestsSkipped);
+
+			var collectionFinishedMessage = Assert.Single(results.OfType<ITestCollectionFinished>());
+			Assert.Equal(2, collectionFinishedMessage.TestsTotal);
+			Assert.Equal(1, collectionFinishedMessage.TestsSkipped);
+		}
+
+		class ConditionallySkippedTestsClass_UsingSkipType
+		{
+			[Fact(Skip = "I am always skipped, conditionally", SkipType = typeof(ConditionallySkippedTestClass), SkipWhen = nameof(ConditionallySkippedTestClass.Always))]
+			public void ConditionallyAlwaysSkipped() => Assert.True(false);
+
+			[Fact(Skip = "I am never skipped, conditionally", SkipType = typeof(ConditionallySkippedTestClass), SkipUnless = nameof(ConditionallySkippedTestClass.Always))]
+			public void ConditionallyNeverSkipped() { }
+		}
 	}
 
 	public class ExplicitTests : AcceptanceTestV3
@@ -748,6 +814,9 @@ public class Xunit3AcceptanceTests
 			public string? DisplayName => null;
 			public bool Explicit => false;
 			public string? Skip => throw new DivideByZeroException();
+			public Type? SkipType => null;
+			public string? SkipUnless => null;
+			public string? SkipWhen => null;
 			public int Timeout => 0;
 		}
 	}

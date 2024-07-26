@@ -11,6 +11,9 @@ public class TestIntrospectionHelperTests
 		string TestCaseDisplayName,
 		bool Explicit,
 		string? SkipReason,
+		Type? SkipType,
+		string? SkipUnless,
+		string? SkipWhen,
 		int Timeout,
 		string UniqueID,
 		IXunitTestMethod ResolvedTestMethod

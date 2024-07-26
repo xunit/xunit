@@ -23,5 +23,14 @@ public class FactAttribute : Attribute, IFactAttribute
 	public string? Skip { get; set; }
 
 	/// <inheritdoc/>
+	public Type? SkipType { get; set; }
+
+	/// <inheritdoc/>
+	public string? SkipUnless { get; set; }
+
+	/// <inheritdoc/>
+	public string? SkipWhen { get; set; }
+
+	/// <inheritdoc/>
 	public int Timeout { get; set; }
 }

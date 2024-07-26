@@ -40,7 +40,10 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 	/// <param name="testCaseDisplayName">The display name for the test case.</param>
 	/// <param name="uniqueID">The unique ID for the test case.</param>
 	/// <param name="explicit">Indicates whether the test case was marked as explicit.</param>
-	/// <param name="skipReason">The optional reason for skipping the test.</param>
+	/// <param name="skipReason">The value obtained from <see cref="IFactAttribute.Skip"/>.</param>
+	/// <param name="skipType">The value obtained from <see cref="IFactAttribute.SkipType"/>.</param>
+	/// <param name="skipUnless">The value obtained from <see cref="IFactAttribute.SkipUnless"/>.</param>
+	/// <param name="skipWhen">The value obtained from <see cref="IFactAttribute.SkipWhen"/>.</param>
 	/// <param name="traits">The optional traits list.</param>
 	/// <param name="testMethodArguments">The optional arguments for the test method.</param>
 	/// <param name="sourceFilePath">The optional source file in where this test case originated.</param>
@@ -52,6 +55,9 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 		string uniqueID,
 		bool @explicit,
 		string? skipReason = null,
+		Type? skipType = null,
+		string? skipUnless = null,
+		string? skipWhen = null,
 		Dictionary<string, HashSet<string>>? traits = null,
 		object?[]? testMethodArguments = null,
 		string? sourceFilePath = null,
@@ -63,18 +69,19 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 		this.uniqueID = Guard.ArgumentNotNull(uniqueID);
 		Explicit = @explicit;
 		SkipReason = skipReason;
+		SkipType = skipType;
+		SkipUnless = skipUnless;
+		SkipWhen = skipWhen;
 		SourceFilePath = sourceFilePath;
 		SourceLineNumber = sourceLineNumber;
 		Timeout = timeout ?? 0;
-
-		this.testMethod = Guard.ArgumentNotNull(testMethod);
-		this.testMethodArguments = testMethodArguments ?? [];
 
 		this.traits = new(StringComparer.OrdinalIgnoreCase);
 		if (traits is not null)
 			foreach (var kvp in traits)
 				this.traits.AddOrGet(kvp.Key).AddRange(kvp.Value);
 
+		this.testMethodArguments = testMethodArguments ?? [];
 		foreach (var testMethodArgument in TestMethodArguments)
 			disposalTracker.Add(testMethodArgument);
 	}
@@ -84,6 +91,21 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 
 	/// <inheritdoc/>
 	public string? SkipReason { get; protected set; }
+
+	// Contractually, we don't want to return a non-null SkipReason when there is
+	// a setting for SkipUnless or SkipWhen, since the contract is to get the reason
+	// for a statically skipped test.
+	string? ITestCaseMetadata.SkipReason =>
+		SkipUnless is null && SkipWhen is null ? SkipReason : null;
+
+	/// <inheritdoc/>
+	public Type? SkipType { get; protected set; }
+
+	/// <inheritdoc/>
+	public string? SkipUnless { get; protected set; }
+
+	/// <inheritdoc/>
+	public string? SkipWhen { get; protected set; }
 
 	/// <inheritdoc/>
 	public string? SourceFilePath { get; set; }
@@ -169,6 +191,9 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 		uniqueID = Guard.NotNull("Could not retrieve UniqueID from serialization", info.GetValue<string>("id"));
 
 		SkipReason = info.GetValue<string>("sr");
+		SkipType = info.GetValue<Type>("st");
+		SkipUnless = info.GetValue<string>("su");
+		SkipWhen = info.GetValue<string>("sw");
 		SourceFilePath = info.GetValue<string>("sf");
 		SourceLineNumber = info.GetValue<int?>("sl");
 		testMethodArguments = info.GetValue<object[]>("tma") ?? Array.Empty<object?>();
@@ -229,6 +254,12 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 
 		if (SkipReason is not null)
 			info.AddValue("sr", SkipReason);
+		if (SkipType is not null)
+			info.AddValue("st", SkipType);
+		if (SkipUnless is not null)
+			info.AddValue("su", SkipUnless);
+		if (SkipWhen is not null)
+			info.AddValue("sw", SkipWhen);
 		if (SourceFilePath is not null)
 			info.AddValue("sf", SourceFilePath);
 		if (SourceLineNumber.HasValue)

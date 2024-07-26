@@ -11,7 +11,8 @@ public interface ITestCaseMetadata
 {
 	/// <summary>
 	/// Gets the display text for the reason a test is being skipped; if the test
-	/// is not skipped, returns <c>null</c>.
+	/// is not statically skipped, returns <c>null</c>. (A test may be dynamically
+	/// skipped at runtime while still returning <c>null</c>.)
 	/// </summary>
 	string? SkipReason { get; }
 

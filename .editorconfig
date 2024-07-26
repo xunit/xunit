@@ -260,5 +260,6 @@ dotnet_diagnostic.IDE0042.severity   = none  # Deconstruct variable declaration
 dotnet_diagnostic.IDE0057.severity   = none  # Use range operator (not available in .NET Framework, even with C# 8+)
 dotnet_diagnostic.IDE0305.severity   = none  # Use collection expression for fluent (turned off because the fix changes semantics)
 dotnet_diagnostic.IDE1006.severity   = none  # Naming rule violation
+dotnet_diagnostic.xUnit1004.severity = none  # Test methods should not be skipped
 dotnet_diagnostic.xUnit1045.severity = none  # Avoid using TheoryData type arguments that might not be serializable
 dotnet_diagnostic.xUnit1046.severity = none  # Avoid using TheoryDataRow arguments that are not serializable

@@ -37,12 +37,18 @@ public static partial class Mocks
 		string? displayName = null,
 		bool? @explicit = null,
 		string? skip = null,
+		Type? skipType = null,
+		string? skipUnless = null,
+		string? skipWhen = null,
 		int timeout = 0)
 	{
 		var result = Substitute.For<IFactAttribute, InterfaceProxy<IFactAttribute>>();
 		result.DisplayName.Returns(displayName);
 		result.Explicit.Returns(@explicit ?? false);
 		result.Skip.Returns(skip);
+		result.SkipType.Returns(skipType);
+		result.SkipUnless.Returns(skipUnless);
+		result.SkipWhen.Returns(skipWhen);
 		result.Timeout.Returns(timeout);
 		return result;
 	}

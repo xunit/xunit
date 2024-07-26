@@ -45,6 +45,9 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 			details.UniqueID,
 			details.Explicit,
 			details.SkipReason,
+			details.SkipType,
+			details.SkipUnless,
+			details.SkipWhen,
 			traits,
 			testMethodArguments,
 			timeout: details.Timeout
@@ -85,6 +88,9 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 				details.UniqueID,
 				details.Explicit,
 				details.SkipReason,
+				details.SkipType,
+				details.SkipUnless,
+				details.SkipWhen,
 				testMethod.Traits.ToReadWrite(StringComparer.OrdinalIgnoreCase),
 				timeout: details.Timeout
 			);

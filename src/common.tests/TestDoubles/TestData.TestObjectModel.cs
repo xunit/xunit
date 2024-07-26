@@ -81,6 +81,9 @@ public static partial class TestData
 		TestMethodDisplay methodDisplay = TestMethodDisplay.ClassAndMethod,
 		TestMethodDisplayOptions methodDisplayOptions = TestMethodDisplayOptions.None,
 		string? skipReason = null,
+		Type? skipType = null,
+		string? skipUnless = null,
+		string? skipWhen = null,
 		object?[]? testMethodArguments = null,
 		int? timeout = null,
 		Dictionary<string, HashSet<string>>? traits = null,
@@ -98,6 +101,9 @@ public static partial class TestData
 			uniqueID ?? details.UniqueID,
 			@explicit ?? details.Explicit,
 			skipReason ?? details.SkipReason,
+			skipType ?? details.SkipType,
+			skipUnless ?? details.SkipUnless,
+			skipWhen ?? details.SkipWhen,
 			traits ?? testMethod.Traits.ToReadWrite(StringComparer.OrdinalIgnoreCase),
 			testMethodArguments,
 			timeout: timeout ?? factAttribute.Timeout
@@ -110,6 +116,9 @@ public static partial class TestData
 		TestMethodDisplay methodDisplay = TestMethodDisplay.ClassAndMethod,
 		TestMethodDisplayOptions methodDisplayOptions = TestMethodDisplayOptions.None,
 		string? skipReason = null,
+		Type? skipType = null,
+		string? skipUnless = null,
+		string? skipWhen = null,
 		IXunitTestCollection? testCollection = null,
 		object?[]? testMethodArguments = null,
 		int? timeout = null,
@@ -121,7 +130,7 @@ public static partial class TestData
 
 		var testClass = XunitTestClass<TClassUnderTest>(testCollection);
 		var testMethod = XunitTestMethod(testClass, methodInfo, testMethodArguments);
-		return XunitTestCase(testMethod, @explicit, methodDisplay, methodDisplayOptions, skipReason, testMethodArguments, timeout, traits, uniqueID);
+		return XunitTestCase(testMethod, @explicit, methodDisplay, methodDisplayOptions, skipReason, skipType, skipUnless, skipWhen, testMethodArguments, timeout, traits, uniqueID);
 	}
 
 	public static XunitTestClass XunitTestClass(
