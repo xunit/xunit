@@ -6,14 +6,24 @@ breadcrumb: Documentation
 
 # Current state of the xUnit.net v3 alpha
 
-## As of: 2024 July 17 (`0.2.0-pre.28`)
+## As of: 2024 July 26 (`0.2.0-pre.52`)
 
 The purpose of this document is to give a general state of the alpha package releases of xUnit.net v3.
 Note that there have not yet been any "stable alpha" releases to NuGet, so this is a snapshot of a moment
 in time.
 
+The current pre-release builds are:
+
+{: .table .latest :}
+| Package                     | Version |
+| --------------------------- | ------- |
+| `xunit.v3.*`                | <a href="https://feedz.io/org/xunit/repository/xunit/packages/xunit.v3"><img src="https://img.shields.io/badge/endpoint.svg?url=https%3A%2F%2Ff.feedz.io%2Fxunit%2Fxunit%2Fshield%2Fxunit.v3%2Flatest"></a> |
+| `xunit.analyzers`           | <a href="https://feedz.io/org/xunit/repository/xunit/packages/xunit.analyzers"><img src="https://img.shields.io/badge/endpoint.svg?url=https%3A%2F%2Ff.feedz.io%2Fxunit%2Fxunit%2Fshield%2Fxunit.analyzers%2Flatest"></a> |
+| `xunit.runner.visualstudio` | <a href="https://feedz.io/org/xunit/repository/xunit/packages/xunit.runner.visualstudio"><img src="https://img.shields.io/badge/endpoint.svg?url=https%3A%2F%2Ff.feedz.io%2Fxunit%2Fxunit%2Fshield%2Fxunit.runner.visualstudio%2Flatest"></a> |
+
 The packages from CI builds are available on feedz.io. For more information on setting up for CI packages,
 see the [Using CI Builds doc page](using-ci-builds).
+
 
 ## Table of contents
 
@@ -22,13 +32,12 @@ see the [Using CI Builds doc page](using-ci-builds).
 * [Migrating a test project from v2 to v3](#migrating-from-v2)
 * [Creating a new v3 test project](#creating-test-project)
 * [Running a v3 test project](#running-test-project)
-* [Overriding the entry point](#overriding-entry-point)
 * [Known issues](#known-issues)
 
 
 ## <span id="v2-changes"></span>Big changes from v2
 
-This list highlights the major architectural changes in v3.
+This list highlights the major architectural changes in v3 for users writing unit tests.
 
 ### New minimum runtime requirements
 
@@ -106,8 +115,15 @@ xUnit.net will use the `xunit.v3.extensibility.core` NuGet package instead, whic
 single-targeted against `netstandard2.0`. Extensibility authors will no longer need to ship
 multi-targeted NuGet packages.
 
+### The `Xunit.Abstractions` namespace goes away
 
-## <span id="feed"></span>Add nuget.config with CI package feed URL
+There are things that may have move namespaces between v2 and v3, and the most common of those
+will be types from the `Xunit.Abstractions` namespace. You will typically find that things have
+moved to either the `Xunit` or `Xunit.Sdk` namespace. Use the facilities in your IDE to determine
+which namespace is appropriate for any type which no longer resolves correctly.
+
+
+## <span id="feed"></span>Step 1: Add nuget.config with CI package feed URL
 
 The CI builds are hosted on [feedz.io](https://feedz.io/org/xunit/repository/xunit/search).
 In order to download packages from this feed, you need to configure it with a `nuget.config`
@@ -134,7 +150,7 @@ If you already have a `nuget.config` file, you can simply merge the `<add key="x
 line into it.
 
 
-## <span id="migrating-from-v2"></span>Migrating a test project from v2 to v3
+## <span id="migrating-from-v2"></span>Step 2 (alt 1): Migrating a test project from v2 to v3
 
 The following is a quick list of changes that are needed when moving a test project from v2
 to v3. Your project may require additional changes. Note that it's generally expected
@@ -188,7 +204,12 @@ default value:
 There are new [minimum target framework versions](https://github.com/xunit/xunit/issues/2330); make
 sure to update your target framework(s) if you're currently targeting something that's too old.
 
-## <span id="creating-test-project"></span>Creating a new v3 test project
+At this point, you should be able to successfully run `dotnet restore`. _(Note: if you get an error
+like `Unable to find package ... with version (>= ...)`, make sure you followed the [step above](#feed)
+to enable the NuGet package feeds.)_
+
+
+## <span id="creating-test-project"></span>Step 2 (alt 2): Creating a new v3 test project
 
 Since there is no project template yet for xUnit.net v3, you should create a project using
 `dotnet new console` from the .NET SDK command line tool (or create a console project from within
@@ -206,27 +227,34 @@ After creation, edit your project file to make it look something like this:
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="xunit.v3" Version="0.2.0-pre.28" />
+    <PackageReference Include="xunit.v3" Version="0.2.0-pre.52" />
 
     <!-- To support 'dotnet test' and Test Explorer, add:
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="3.0.0-pre.17" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.0.0-pre.19" />
     -->
 
     <!-- For the console runner, add:
-    <PackageReference Include="xunit.v3.runner.console" Version="0.2.0-pre.28" />
+    <PackageReference Include="xunit.v3.runner.console" Version="0.2.0-pre.52" />
     -->
 
     <!-- For the MSBuild runner, add:
-    <PackageReference Include="xunit.v3.runner.msbuild" Version="0.2.0-pre.28" />
+    <PackageReference Include="xunit.v3.runner.msbuild" Version="0.2.0-pre.52" />
     -->
   </ItemGroup>
 
 </Project>
 ```
 
+Delete the `Program.cs` (or `Program.vb` or `Program.fs`) file, and for F# projects, make
+sure to remove the reference to `Program.fs` from your `.fsproj` file.
 
-## <span id="running-test-project"></span>Running a v3 test project
+At this point, you should be able to successfully run `dotnet restore`. _(Note: if you get an error
+like `Unable to find package ... with version (>= ...)`, make sure you followed the [step above](#feed)
+to enable the NuGet package feeds.)_
+
+
+## <span id="running-test-project"></span>Step 3: Running a v3 test project
 
 ### Running test projects directly
 
@@ -265,65 +293,8 @@ stick with the .NET Framework of the MSBuild runner, run via `msbuild`.
 We also are making pre-release builds of `xunit.runner.visualstudio` available for
 developers who wish to run their tests via `dotnet test`, Test Explorer in Visual Studio
 2022, or any other IDE which supports VSTest. Make sure to use one of the `3.0.0-pre`
-builds for this functionality, as the builds from the `2.x` tree are still only
+builds for this functionality, as the builds with `2.x.y` version numbers are still only
 capable of running v1 and v2 tests.
-
-
-## <span id="overriding-entry-point"></span>Overriding the entry point
-
-
-Since unit test projects are programs, that means they need a `Main` method. However, you
-didn't write one, so where did it come from?
-
-We inject one. Here are the three versions:
-
-### C#
-
-```csharp
-[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-public class AutoGeneratedEntryPoint
-{
-    public static async global::System.Threading.Tasks.Task<int> Main(string[] args)
-    {
-        return await global::Xunit.Runner.InProc.SystemConsole.ConsoleRunner.Run(args);
-    }
-}
-```
-
-### F#
-
-```fsharp
-module AutoGeneratedEntryPoint
-
-[<EntryPoint>]
-[<global.System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage>]
-let main args =
-    global.Xunit.Runner.InProc.SystemConsole.ConsoleRunner.Run(args).GetAwaiter().GetResult()
-```
-
-### VB
-
-```vb
-<Global.System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage>
-Public Class AutoGeneratedEntryPoint
-    Public Shared Function Main(args As String()) As Integer
-        Return Global.Xunit.Runner.InProc.SystemConsole.ConsoleRunner.Run(args, Nothing, Nothing, Nothing).GetAwaiter().GetResult()
-    End Function
-End Class
-```
-
-If you want to provide your own entry point (for example, because you want to run ASP.NET
-Core initialization code before running your tests), you can set the following property
-in your project file:
-
-```xml
-<PropertyGroup>
-  <XunitAutoGeneratedEntryPoint>false</XunitAutoGeneratedEntryPoint>
-</PropertyGroup>
-```
-
-Once you've done this, you're responsible for defining the `Main` method for your application,
-and then calling `ConsoleRunner.Run` to get things started.
 
 
 ## <span id="known-issues"><span>Known issues
