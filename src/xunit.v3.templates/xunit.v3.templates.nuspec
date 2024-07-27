@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+	<metadata>
+		<id>xunit.v3.templates</id>
+		<version>$PackageVersion$</version>
+		<title>xUnit.net v3 ['dotnet new' Templates]</title>
+		<authors>jnewkirk,bradwilson</authors>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<license type="expression">Apache-2.0</license>
+		<licenseUrl>https://licenses.nuget.org/Apache-2.0</licenseUrl>
+		<icon>_content/logo-128-transparent.png</icon>
+		<readme>_content/README.md</readme>
+		<releaseNotes>https://xunit.net/releases/v3/$PackageVersion$</releaseNotes>
+		<description>Includes templates for use with 'dotnet new' for creating xUnit.net v3 projects</description>
+		<copyright>Copyright (C) .NET Foundation</copyright>
+		<repository type="git" url="https://github.com/xunit/templates.xunit" commit="$GitCommitId$" />
+		<tags>dotnet-new templates xunit</tags>
+		<packageTypes>
+			<packageType name="Template" />
+		</packageTypes>
+		<dependencies>
+			<group targetFramework=".NETStandard2.0" />
+		</dependencies>
+	</metadata>
+	<files>
+		<file target="_content\" src="..\..\tools\media\logo-128-transparent.png" />
+		<file target="_content\" src="..\..\README.md" />
+
+		<file target="content\" src="..\..\artifacts\templates\**\*" />
+	</files>
+</package>

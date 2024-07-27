@@ -110,6 +110,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.v3.runner.utility.x86
 		{40C9D580-6158-4B11-B4B5-76C3ACD77B53} = {40C9D580-6158-4B11-B4B5-76C3ACD77B53}
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.v3.templates", "src\xunit.v3.templates\xunit.v3.templates.csproj", "{64C9121B-0689-4751-82CC-0F20541B07A6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -248,6 +250,10 @@ Global
 		{742B5F03-4B31-4A09-8696-A13B7FF995F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{742B5F03-4B31-4A09-8696-A13B7FF995F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{742B5F03-4B31-4A09-8696-A13B7FF995F4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64C9121B-0689-4751-82CC-0F20541B07A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64C9121B-0689-4751-82CC-0F20541B07A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64C9121B-0689-4751-82CC-0F20541B07A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64C9121B-0689-4751-82CC-0F20541B07A6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -289,6 +295,7 @@ Global
 		{83174840-DD7B-4F11-A1AC-08EBD2F50354} = {DD6C7641-EDB5-445C-8563-15068910979E}
 		{42626F10-47E8-472C-9927-733D3EF9042E} = {DD6C7641-EDB5-445C-8563-15068910979E}
 		{742B5F03-4B31-4A09-8696-A13B7FF995F4} = {E855BC6B-EA31-40E4-858E-A0D4C1100184}
+		{64C9121B-0689-4751-82CC-0F20541B07A6} = {DD6C7641-EDB5-445C-8563-15068910979E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {473062FC-54C1-4B4F-9266-98F43AC17F94}

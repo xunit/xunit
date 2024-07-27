@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "xUnit.net Team",
+  "description": "New project template for xUnit.net v3 (F#)",
+  "classifications": [
+    "Test",
+    "xUnit"
+  ],
+  "name": "xUnit.net v3 Test Project",
+  "identity": "xunit.v3.project.fs",
+  "groupIdentity": "xunit.v3",
+  "shortName": "xunit3",
+  "tags": {
+    "language": "F#",
+    "type": "project"
+  },
+  "sourceName": "TestProject",
+  "preferNameDirectory": true,
+  "primaryOutputs": [
+    {
+      "path": "TestProject.fsproj"
+    }
+  ],
+  "postActions": [
+    {
+      "description": "Restore NuGet packages required by this project",
+      "manualInstructions": [
+        {
+          "text": "Run 'dotnet restore'"
+        }
+      ],
+      "actionId": "210D431B-A78B-4D2F-B762-4ED3E3EA9025",
+      "continueOnError": true,
+      "args": {
+        "files": [
+          "TestProject.fsproj"
+        ]
+      }
+    }
+  ]
+}
