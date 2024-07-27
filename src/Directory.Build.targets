@@ -21,6 +21,14 @@
     <AnnotatedReferenceAssemblyVersion>$(MicrosoftNetCoreAppRefVersion)</AnnotatedReferenceAssemblyVersion>
   </PropertyGroup>
 
+  <!-- Mono doesn't seem to find the System.Runtime facade with dynamic compilation, so copy it into our output for testing -->
+  <Target Name="CopySystemRuntimeFacade" AfterTargets="Build" Condition=" $(MSBuildProjectName.EndsWith('.tests')) AND '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
+    <ItemGroup>
+      <FacadeBinaries Include="$(TargetFrameworkRootPath).NETFramework\$(TargetFrameworkVersion)\Facades\System.Runtime.dll" />
+    </ItemGroup>
+    <Copy SourceFiles="@(FacadeBinaries)" DestinationFolder="$(OutputPath)" />
+  </Target>
+
   <!-- On Unix-like systems, mark .NET Framework binaries as executable -->
   <Target
       Name="MarkBinaryExecutable"

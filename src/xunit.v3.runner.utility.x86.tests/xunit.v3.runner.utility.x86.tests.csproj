@@ -48,8 +48,6 @@
       <XunitBinaries Include="$(NuGetPackageRoot)\xunit.assert\$(XunitV2Version)\lib\netstandard1.1\xunit.assert.dll" />
       <XunitBinaries Include="$(NuGetPackageRoot)\xunit.extensibility.core\$(XunitV2Version)\lib\net452\xunit.core.dll" />
       <XunitBinaries Include="$(NuGetPackageRoot)\xunit.extensibility.execution\$(XunitV2Version)\lib\net452\xunit.execution.desktop.dll" />
-      <!-- Mono doesn't seem to properly find this facade, so copy it from our reference -->
-      <XunitBinaries Include="$(TargetFrameworkRootPath).NETFramework\$(TargetFrameworkVersion)\Facades\System.Runtime.dll" />
     </ItemGroup>
     <Copy SourceFiles="@(XunitBinaries)" DestinationFolder="$(OutputPath)" />
   </Target>
