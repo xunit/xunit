@@ -1,4 +1,4 @@
-module TestProject
+module UnitTest1
 
 open Xunit
 
