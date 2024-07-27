@@ -4,11 +4,11 @@
   <PropertyGroup>
 
     <!-- Used for building -->
-    <ILRepackVersion>2.0.33</ILRepackVersion>
+    <ILRepackVersion>2.0.34</ILRepackVersion>
     <MicrosoftNetCoreAppRefVersion>8.0.5</MicrosoftNetCoreAppRefVersion>
     <MicrosoftNetFrameworkReferenceAssembliesVersion>1.0.3</MicrosoftNetFrameworkReferenceAssembliesVersion>
     <MicrosoftSourceLinkGitHubVersion>8.0.0</MicrosoftSourceLinkGitHubVersion>
-    <NerdbankGitVersioningVersion>3.6.133</NerdbankGitVersioningVersion>
+    <NerdbankGitVersioningVersion>3.6.139</NerdbankGitVersioningVersion>
     <TunnelVisionLabsReferenceAssemblyAnnotatorVersion>1.0.0-alpha.160</TunnelVisionLabsReferenceAssemblyAnnotatorVersion>
     <XunitAnalyzersVersion>1.16.0-pre.21</XunitAnalyzersVersion>
 
@@ -36,7 +36,7 @@
     <XunitAbstractionsVersion>2.0.3</XunitAbstractionsVersion>
     <XunitV1Version>1.9.2</XunitV1Version>
     <XunitV2Version>2.9.1-pre.8</XunitV2Version>
-    <XunitVisualStudioRunnerVersion>3.0.0-pre.18</XunitVisualStudioRunnerVersion>
+    <XunitVisualStudioRunnerVersion>3.0.0-pre.19</XunitVisualStudioRunnerVersion>
 
   </PropertyGroup>
 
