@@ -44,7 +44,7 @@ public partial class BuildContext
 	public bool V3Only { get; }
 
 	public partial IReadOnlyList<string> GetSkippedAnalysisFolders() =>
-		["src/xunit.v3.templates/templates"];
+		["artifacts", "src/xunit.v3.templates/templates"];
 
 	partial void Initialize()
 	{
