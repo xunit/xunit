@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <Target Name="_UpdateTemplates" DependsOnTargets="UpdateNuSpecProperties"
-      Inputs="@(TemplateInput)"
+      Inputs="@(TemplateInput);..\src\Versions.props;..\src\Directory.Build.*"
       Outputs="%(TemplateInput.XunitArtifactLocation)">
     <MakeDir Directories="$(XunitArtifactsPath)" />
     <Copy SourceFiles="%(TemplateInput.Fullpath)" DestinationFiles="%(TemplateInput.XunitArtifactLocation)" />
