@@ -4,6 +4,7 @@
     <BeforePack>_UpdateTemplates</BeforePack>
     <NoWarn>$(NoWarn);NU5128</NoWarn>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <VisualStudioRunnerTemplateVersion Condition=" '$(VisualStudioRunnerTemplateVersion)' == '' ">$(XunitVisualStudioRunnerVersion)</VisualStudioRunnerTemplateVersion>
     <XunitArtifactsPath>$(MSBuildThisFileDirectory)..\..\artifacts\</XunitArtifactsPath>
   </PropertyGroup>
 
@@ -24,7 +25,7 @@
         InputFilename="%(TemplateInput.XunitArtifactLocation)"
         OutputFilename="%(TemplateInput.XunitArtifactLocation)"
         MatchExpression="MICROSOFT_NET_TEST_SDK_VERSION;PACKAGE_VERSION;XUNIT_VISUAL_STUDIO_RUNNER_VERSION"
-        ReplacementText="$(MicrosoftNetTestSdkVersion);$(PackageVersion);$(XunitVisualStudioRunnerVersion)" />
+        ReplacementText="$(MicrosoftNetTestSdkVersion);$(PackageVersion);$(VisualStudioRunnerTemplateVersion)" />
     <ItemGroup>
       <FileWrites Include="%(TemplateInput.XunitArtifactLocation)" />
     </ItemGroup>

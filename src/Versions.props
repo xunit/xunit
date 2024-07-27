@@ -12,6 +12,9 @@
     <TunnelVisionLabsReferenceAssemblyAnnotatorVersion>1.0.0-alpha.160</TunnelVisionLabsReferenceAssemblyAnnotatorVersion>
     <XunitAnalyzersVersion>1.16.0-pre.21</XunitAnalyzersVersion>
 
+    <!-- Used for template packaging, uncomment when building RTW packages -->
+    <!--<VisualStudioRunnerTemplateVersion>3.0.0</VisualStudioRunnerTemplateVersion>-->
+
     <!-- Used by xunit.v3.assert for immutable collection support (for netstandard2.0 only) -->
     <SystemCollectionsImmutableVersion>6.0.0</SystemCollectionsImmutableVersion>
 
