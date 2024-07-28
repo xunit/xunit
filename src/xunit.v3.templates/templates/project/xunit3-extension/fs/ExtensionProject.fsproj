@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <LangVersion>8.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <RootNamespace>ExtensionProject</RootNamespace>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="SupportedOS.fs" />
+    <Compile Include="SupportedOSAttribute.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="xunit.analyzers" Version="XUNIT_ANALYZERS_VERSION" />
+    <PackageReference Include="xunit.v3.extensibility.core" Version="PACKAGE_VERSION" />
+  </ItemGroup>
+
+</Project>

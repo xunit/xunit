@@ -5,27 +5,28 @@
     <NoWarn>$(NoWarn);NU5128</NoWarn>
     <TargetFramework>netstandard2.0</TargetFramework>
     <VisualStudioRunnerTemplateVersion Condition=" '$(VisualStudioRunnerTemplateVersion)' == '' ">$(XunitVisualStudioRunnerVersion)</VisualStudioRunnerTemplateVersion>
+    <XunitAnalyzersTemplateVersion Condition=" '$(XunitAnalyzersTemplateVersion)' == '' ">$(XunitAnalyzersVersion)</XunitAnalyzersTemplateVersion>
     <XunitArtifactsPath>$(MSBuildThisFileDirectory)..\..\artifacts\</XunitArtifactsPath>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Remove="**\*" />
     <None Include="**\*" Exclude="**\obj\**;**\bin\**" />
-    <TemplateInput Include="templates\**\*" Exclude="templates\.*">
+    <TemplateInput Include="templates\**\*" Exclude="templates\.*;templates\Directory.*">
       <XunitArtifactLocation>$(XunitArtifactsPath)$([System.String]::Concat(%(RelativeDir), '%(Filename)%(Extension)'))</XunitArtifactLocation>
     </TemplateInput>
   </ItemGroup>
 
-  <Target Name="_UpdateTemplates" DependsOnTargets="UpdateNuSpecProperties"
-      Inputs="@(TemplateInput);..\src\Versions.props;..\src\Directory.Build.*"
-      Outputs="%(TemplateInput.XunitArtifactLocation)">
+  <Target Name="_UpdateTemplates"
+          DependsOnTargets="UpdateNuSpecProperties"
+          Inputs="@(TemplateInput);..\src\Versions.props;..\src\Directory.Build.*"
+          Outputs="%(TemplateInput.XunitArtifactLocation)">
     <MakeDir Directories="$(XunitArtifactsPath)" />
     <Copy SourceFiles="%(TemplateInput.Fullpath)" DestinationFiles="%(TemplateInput.XunitArtifactLocation)" />
-    <ReplaceFileText
-        InputFilename="%(TemplateInput.XunitArtifactLocation)"
-        OutputFilename="%(TemplateInput.XunitArtifactLocation)"
-        MatchExpression="MICROSOFT_NET_TEST_SDK_VERSION;PACKAGE_VERSION;XUNIT_VISUAL_STUDIO_RUNNER_VERSION"
-        ReplacementText="$(MicrosoftNetTestSdkVersion);$(PackageVersion);$(VisualStudioRunnerTemplateVersion)" />
+    <ReplaceFileText InputFilename="%(TemplateInput.XunitArtifactLocation)"
+                     OutputFilename="%(TemplateInput.XunitArtifactLocation)"
+                     MatchExpression="MICROSOFT_NET_TEST_SDK_VERSION;PACKAGE_VERSION;XUNIT_ANALYZERS_VERSION;XUNIT_VISUAL_STUDIO_RUNNER_VERSION"
+                     ReplacementText="$(MicrosoftNetTestSdkVersion);$(PackageVersion);$(XunitAnalyzersTemplateVersion);$(VisualStudioRunnerTemplateVersion)" />
     <ItemGroup>
       <FileWrites Include="%(TemplateInput.XunitArtifactLocation)" />
     </ItemGroup>
