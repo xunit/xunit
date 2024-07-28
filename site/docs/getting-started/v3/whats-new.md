@@ -8,9 +8,15 @@ breadcrumb: Documentation
 
 ## As of: 2024 July 27 (`0.2.0-pre.59`)
 
+This guide aims to be a comprehensive list of the new features added to v3, written for existing developers who are using v2.
+
+In addition to this new features document (which only covers new features in v3), we have a parallel document which covers [migrating from v2 to v3](migration). The "Migrating from v2 to v3" document describes changes that developers will need to understand when porting their v2 projects to v3, as well as when starting new v3 projects armed with their v2 experience.
+
 ## Table of Contents
 
 * [What's New in the Assertion Library](#whats-new-in-the-assertion-library)
+* [What's New in the Core Framework](#whats-new-in-the-core-framework)
+* [What's New in Runner Utility](#whats-new-in-runner-utility)
 
 ## What's New in the Assertion Library
 
@@ -186,3 +192,7 @@ A hand-crafted JSON serialization system has been added to `xunit.v3.common`, al
 * A new `FailureCause` enum has been added, and is returned inside `ITestFailed` messages. It gives a best guess as to the cause of the test failure: assertion failure, exception thrown, or test timed out.
 
   This best guess is based on two contracts added to v3 which can be implemented by third party assertion libraries. Throwing an exception which implements an interface named `IAssertionException` (in any namespace) will be reported as an assertion failure; similarly, throwing an exception which implements an interface named `ITestTimeoutException` (in any namespace) will be reported as a timed-out test.
+
+## What's New in Runner Utility
+
+_Content coming soon_
