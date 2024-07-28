@@ -81,6 +81,11 @@ ul ul {
   padding-left: 1em;
   font-size: 90%;
 }
+blockquote ul {
+  margin-left: 15px;
+  margin-top: -10px;
+  padding-left: 1em;
+}
 table, .table {
   width: auto;
 }
@@ -138,6 +143,13 @@ table, .table {
 }
 .table.xml-format td {
   vertical-align: top;
+}
+.shrink-75 {
+  width: 75%;
+}
+.shrink-75 img {
+  position: relative;
+  width: 100%;
 }
 .smaller {
   font-size: 90%;
@@ -337,4 +349,7 @@ blockquote.padded {
 }
 .glyphicon-remove-sign {
   color: #f30;
+}
+.indent {
+  margin-left: 20px;
 }
