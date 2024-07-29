@@ -263,6 +263,8 @@ A hand-crafted JSON serialization system has been added to `xunit.v3.common`, al
 
   This best guess is based on two contracts added to v3 which can be implemented by third party assertion libraries. Throwing an exception which implements an interface named `IAssertionException` (in any namespace) will be reported as an assertion failure; similarly, throwing an exception which implements an interface named `ITestTimeoutException` (in any namespace) will be reported as a timed-out test.
 
+* `TheoryAttribute` has a new property, `SkipTestWithoutData`, that can be used to allow theories without any data to be skipped rather than failed.
+
 ## What's New in Runner Utility
 
 ### Test framework updates
