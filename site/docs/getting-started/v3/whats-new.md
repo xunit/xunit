@@ -6,7 +6,7 @@ breadcrumb: Documentation
 
 # What's New in v3
 
-## As of: 2024 July 28 (`0.2.0-pre.61`)
+## As of: 2024 July 29 (`0.2.0-pre.64`)
 
 This guide aims to be a comprehensive list of the new features added to v3, written for existing developers who are using v2.
 

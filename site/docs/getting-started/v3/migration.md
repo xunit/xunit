@@ -6,7 +6,7 @@ breadcrumb: Documentation
 
 # Migrating from v2 to v3
 
-## As of: 2024 July 28 (`0.2.0-pre.61`)
+## As of: 2024 July 29 (`0.2.0-pre.64`)
 
 This migration guide aims to be a comprehensive list helping developers migrate from xUnit.net v2 to v3. It includes information on how to upgrade your v2 projects to v3 (as well as the easiest way to create new v3 projects), what to expect for unit test authors, and what to expect for extensibility authors.
 
@@ -17,8 +17,8 @@ In addition to this migration document (which only covers the differences betwee
 The current builds are:
 
 {: .table .latest }
-Package                     | NuGet Version | [CI Version]((using-ci-builds))
---------------------------- | ------------- | -------------------------------
+Package                     | NuGet Version                                                                                                                               | [CI Version]((using-ci-builds))
+--------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------
 `xunit.v3.*`                | [![](https://img.shields.io/nuget/vpre/xunit.v3.svg?logo=nuget)](https://www.nuget.org/packages/xunit.v3)                                   | [![](https://img.shields.io/badge/endpoint.svg?url=https%3A%2F%2Ff.feedz.io%2Fxunit%2Fxunit%2Fshield%2Fxunit%2Flatest)](https://feedz.io/org/xunit/repository/xunit/packages/xunit)
 `xunit.analyzers`           | [![](https://img.shields.io/nuget/vpre/xunit.analyzers.svg?logo=nuget)](https://www.nuget.org/packages/xunit.analyzers)                     | [![](https://img.shields.io/badge/endpoint.svg?url=https%3A%2F%2Ff.feedz.io%2Fxunit%2Fxunit%2Fshield%2Fxunit.analyzers%2Flatest)](https://feedz.io/org/xunit/repository/xunit/packages/xunit.analyzers)
 `xunit.runner.visualstudio` | [![](https://img.shields.io/nuget/vpre/xunit.runner.visualstudio.svg?logo=nuget)](https://www.nuget.org/packages/xunit.runner.visualstudio) | [![](https://img.shields.io/badge/endpoint.svg?url=https%3A%2F%2Ff.feedz.io%2Fxunit%2Fxunit%2Fshield%2Fxunit.runner.visualstudio%2Flatest)](https://feedz.io/org/xunit/repository/xunit/packages/xunit.runner.visualstudio)
