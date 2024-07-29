@@ -33,23 +33,15 @@ type SupportedOSAttribute([<ParamArray>]supportedOSes: SupportedOS[]) =
     ]
 
     override _.Before(_: MethodInfo, _: IXunitTest) =
-        let mutable matched = false
+        let executionEnvironmentMatches (x: SupportedOS) =
+            match osMappings |> Map.tryFind x with
+            | None -> invalidArg (nameof supportedOSes) $"Supported OS value '{x}' is not a known OS"
+            | Some target -> RuntimeInformation.IsOSPlatform target
 
-        for supportedOS in supportedOSes do
-            let osPlatform =
-                match Map.tryFind supportedOS osMappings with
-                | Some value -> value
-                | None -> invalidArg (nameof supportedOSes) $"Supported OS value '{supportedOS}' is not a known OS"
-
-            if RuntimeInformation.IsOSPlatform osPlatform then
-                matched <- true
-            else
-                () 
-
-        if not matched then
-            // We use the dynamic skip exception message pattern to turn this into a skipped test
-            // when it's not running on one of the targeted OSes
-            failwith $"$XunitDynamicSkip$This test is not supported on {RuntimeInformation.OSDescription}"
-        else ()
+        let canRunHere = supportedOSes |> Seq.exists executionEnvironmentMatches
+        if not canRunHere then
+           // We use the dynamic skip exception message pattern to turn this into a skipped test
+           // when it's not running on one of the targeted OSes
+           failwith $"$XunitDynamicSkip$This test is not supported on {RuntimeInformation.OSDescription}"
 
         Unchecked.defaultof<ValueTask>
