@@ -1,6 +1,6 @@
 Imports Xunit
 
-Public Class TestClass
+Public Class UnitTest1
     <Fact>
     Sub Test1
         Assert.True(True)
