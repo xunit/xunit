@@ -19,4 +19,7 @@ public class TheoryAttribute : FactAttribute, ITheoryAttribute
 {
 	/// <inheritdoc/>
 	public bool DisableDiscoveryEnumeration { get; set; }
+
+	/// <inheritdoc/>
+	public bool SkipTestWithoutData { get; set; }
 }

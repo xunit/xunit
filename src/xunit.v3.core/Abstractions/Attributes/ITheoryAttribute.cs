@@ -19,4 +19,10 @@ public interface ITheoryAttribute : IFactAttribute
 	/// data discovery will be performed during test execution instead of discovery.
 	/// </summary>
 	bool DisableDiscoveryEnumeration { get; }
+
+	/// <summary>
+	/// Gets a flag which indicates whether the test should be skipped (rather than failed) for
+	/// a lack of data.
+	/// </summary>
+	bool SkipTestWithoutData { get; }
 }

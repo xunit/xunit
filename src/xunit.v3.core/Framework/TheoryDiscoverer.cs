@@ -232,20 +232,12 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 				if (results.Count == 0)
 				{
 					var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute);
+					var message = string.Format(CultureInfo.CurrentCulture, "No data found for {0}.{1}", testMethod.TestClass.TestClassName, testMethod.MethodName);
 
-					results.Add(
-						new ExecutionErrorTestCase(
-							details.ResolvedTestMethod,
-							details.TestCaseDisplayName,
-							details.UniqueID,
-							string.Format(
-								CultureInfo.CurrentCulture,
-								"No data found for {0}.{1}",
-								testMethod.TestClass.TestClassName,
-								testMethod.MethodName
-							)
-						)
-					);
+					if (theoryAttribute.SkipTestWithoutData)
+						results.Add(new XunitTestCase(details.ResolvedTestMethod, details.TestCaseDisplayName, details.UniqueID, details.Explicit, message));
+					else
+						results.Add(new ExecutionErrorTestCase(details.ResolvedTestMethod, details.TestCaseDisplayName, details.UniqueID, message));
 				}
 
 				return results;

@@ -56,7 +56,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	}
 
 	[Fact]
-	public async ValueTask EmptyTheoryData()
+	public async ValueTask EmptyTheoryData_Fail()
 	{
 		var failures = await RunAsync<ITestFailed>(typeof(EmptyTheoryDataClass));
 
@@ -76,6 +76,21 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	class EmptyTheoryDataClass
 	{
 		[Theory, EmptyTheoryData]
+		public void TheoryMethod(int _) { }
+	}
+
+	[Fact]
+	public async ValueTask EmptyTheoryData_Skip()
+	{
+		var failures = await RunAsync<ITestSkipped>(typeof(EmptyTheoryDataClass_Skip));
+
+		var skipped = Assert.Single(failures);
+		Assert.Equal($"No data found for {typeof(EmptyTheoryDataClass_Skip).FullName}.{nameof(EmptyTheoryDataClass_Skip.TheoryMethod)}", skipped.Reason);
+	}
+
+	class EmptyTheoryDataClass_Skip
+	{
+		[Theory(SkipTestWithoutData = true), EmptyTheoryData]
 		public void TheoryMethod(int _) { }
 	}
 
