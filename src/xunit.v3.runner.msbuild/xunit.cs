@@ -100,7 +100,7 @@ public class xunit : MSBuildTask, ICancelableTask
 	public string? MethodDisplayOptions { get; set; }
 
 	protected bool NeedsXml =>
-		Xml is not null || XmlV1 is not null || Html is not null || NUnit is not null || JUnit is not null || Ctrf is not null;
+		Xml is not null || XmlV1 is not null || Html is not null || NUnit is not null || JUnit is not null || Ctrf is not null || Trx is not null;
 
 	public bool NoAutoReporters { get; set; }
 
@@ -123,6 +123,8 @@ public class xunit : MSBuildTask, ICancelableTask
 	public bool ShowLiveOutput { set { showLiveOutput = value; } }
 
 	public bool StopOnFail { set { stopOnFail = value; } }
+
+	public ITaskItem? Trx { get; set; }
 
 	public string? WorkingFolder { get; set; }
 
@@ -385,6 +387,9 @@ public class xunit : MSBuildTask, ICancelableTask
 
 			if (Ctrf is not null)
 				TransformFactory.Transform("ctrf", assembliesElement, Ctrf.GetMetadata("FullPath"));
+
+			if (Trx is not null)
+				TransformFactory.Transform("trx", assembliesElement, Trx.GetMetadata("FullPath"));
 		}
 
 		// ExitCode is set to 1 for test failures and -1 for Exceptions.
