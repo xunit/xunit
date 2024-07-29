@@ -39,7 +39,7 @@ type SupportedOSAttribute([<ParamArray>]supportedOSes: SupportedOS[]) =
             let osPlatform =
                 match Map.tryFind supportedOS osMappings with
                 | Some value -> value
-                | None -> raise (new ArgumentException($"Supported OS value '{supportedOS}' is not a known OS", nameof(supportedOSes)))
+                | None -> invalidArg (nameof supportedOSes) $"Supported OS value '{supportedOS}' is not a known OS"
 
             if RuntimeInformation.IsOSPlatform osPlatform then
                 matched <- true
@@ -49,7 +49,7 @@ type SupportedOSAttribute([<ParamArray>]supportedOSes: SupportedOS[]) =
             if not matched then
                 // We use the dynamic skip exception message pattern to turn this into a skipped test
                 // when it's not running on one of the targeted OSes
-                raise (new Exception($"$XunitDynamicSkip$This test is not supported on {RuntimeInformation.OSDescription}"))
+                failwith $"$XunitDynamicSkip$This test is not supported on {RuntimeInformation.OSDescription}"
             else ()
 
         Unchecked.defaultof<ValueTask>
