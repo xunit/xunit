@@ -37,11 +37,14 @@ type SupportedOSAttribute([<ParamArray>]supportedOSes: SupportedOS[]) =
 
         for supportedOS in supportedOSes do
             let osPlatform =
-                match osMappings.TryGetValue supportedOS with
-                | true, value -> value
-                | _ -> raise (new ArgumentException($"Supported OS value '{supportedOS}' is not a known OS", nameof(supportedOSes)))
+                match Map.tryFind supportedOS osMappings with
+                | Some value -> value
+                | None -> raise (new ArgumentException($"Supported OS value '{supportedOS}' is not a known OS", nameof(supportedOSes)))
 
-            if RuntimeInformation.IsOSPlatform osPlatform then matched = true |> ignore else () 
+            if RuntimeInformation.IsOSPlatform osPlatform then
+                matched <- true
+            else
+                () 
 
             if not matched then
                 // We use the dynamic skip exception message pattern to turn this into a skipped test
