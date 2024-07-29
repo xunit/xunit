@@ -6,13 +6,13 @@ breadcrumb: Documentation
 
 # Migrating from v2 to v3
 
-## As of: 2024 July 27 (`0.2.0-pre.59`)
+## As of: 2024 July 28 (`0.2.0-pre.61`)
 
 This migration guide aims to be a comprehensive list helping developers migrate from xUnit.net v2 to v3. It includes information on how to upgrade your v2 projects to v3 (as well as the easiest way to create new v3 projects), what to expect for unit test authors, and what to expect for extensibility authors.
 
 Because this is a comprehensive guide, you may wish to only skim parts of it, and use search functionality to find information on specific issues that arise, rather than trying to read the guide entirely. You should read the first informational section titled "Architectural Changes", then follow the next three sections related to (a) updating NuGet packages, (b) updating to create an executable instead of a library, and (c) updating your target framework. All sections after that should be consider reference material.
 
-In addition to this migration document (which only covers the differences between v2 and v3), we have a parallel document which covers [what's new in v3](whats-new). The "What's New" document describes newly available features, and should be consulting after you've successfully migrated your project from v2 to v3.
+In addition to this migration document (which only covers the differences between v2 and v3), we have a parallel document which covers [what's new in v3](whats-new). The "What's New" document describes newly available features, and should be consulted after you've successfully migrated your project from v2 to v3.
 
 The current builds are:
 
@@ -66,7 +66,7 @@ Test projects in v3 are stand-alone executables now, capable of running themselv
 When you build a v3 test project, the result is directly executable.
 
 * For .NET Framework projects, the resulting `.exe` file is your unit test project and can be run
-* For .NET projects, the resulting `.dll` file is your unit test project, and the build process also create a `.exe` file (or extension-less execution, on Linux and macOS) that can be used to run your test project. _(It's important to remember that the executable for .NET projects is just a stub launcher; the actual unit tests live inside the `.dll`, and when using any multi-assembly runner, you will pass the path to the `.dll` file for .NET projects, not the `.exe` file.)_
+* For .NET projects, the resulting `.dll` file is your unit test project, and the build process also creates a `.exe` file (or extension-less executable, on Linux and macOS) that can be used to run your test project. _(It's important to remember that the executable for .NET projects is just a stub launcher; the actual unit tests live inside the `.dll`, and when using any multi-assembly runner, you will pass the path to the `.dll` file for .NET projects, not the `.exe` file.)_
 
 If you run the executable without any command line options, all your tests will run:
 
@@ -146,7 +146,7 @@ From this point forward, we will discuss the changes you'll see, and where commo
 
 The `xunit.abstractions` package in v2 was used to communicate across the Application Domain between unit tests and unit test runners. Now that the runner lives in the same process with your unit test project, this abstraction layer is no longer necessary.
 
-There are several abstraction interfaces that were previously in the `Xunit.Abstractions` namespace that have been moved to new namespaces. Because `xunit.v3.runner.utility` still needs to link against `xunit.abstractions` to be able to run v2 tests, these types all needed to move into new namespace to prevent collisions with the v2 types.
+There are several abstraction interfaces that were previously in the `Xunit.Abstractions` namespace that have been moved to new namespaces. Because `xunit.v3.runner.utility` still needs to link against `xunit.abstractions` to be able to run v2 tests, these types all needed to move into new namespaces to prevent naming collisions with the v2 types.
 
 The follow types have been moved to `Xunit` (in `xunit.v3.core`):
 
@@ -285,7 +285,7 @@ Many of the namespace changes here have been done in the name of consistency. Ge
 
 * The abstract `DataAttribute` class has moved from the `Xunit.Sdk` to the `Xunit.v3` namespace.
 
-* `DiscoveryCompleteMessage` has been renamed to `DiscoverComplete`, and moved from `Xunit.Sdk` to `Xunit.v3`.
+* `DiscoveryCompleteMessage` has been renamed to `DiscoveryComplete`, and moved from `Xunit.Sdk` to `Xunit.v3`.
 
 * `DisplayNameFormatter` has moved from `Xunit.Sdk` to `Xunit.v3`.
 
@@ -307,13 +307,13 @@ Many of the namespace changes here have been done in the name of consistency. Ge
 
 * `MaxConcurrencySyncContext` has moved from `Xunit.Sdk` to `Xunit.v3`.
 
-* `TestCollectionComparer` has moved from `Xunit.Sdk` to `Xunit.v3` and made generic.
+* `TestCollectionComparer` has moved from `Xunit.Sdk` to `Xunit.v3` and been made generic.
 
 ### Types removed
 
 * The `AsyncTestSyncContext` class which made `async void` tests work has been removed.
 
-* `AssemblyTraitsAttribute` has been removed and `TraitAttribute` can be used on assemblies now.
+* `AssemblyTraitAttribute` has been removed and `TraitAttribute` can be used on assemblies now.
 
 * `LongLivedMarshalByRefObject` (in the `Xunit` namespace) has been removed from the core framework, since v3 does not support running in Application Domains.
 
@@ -335,7 +335,7 @@ Many of the namespace changes here have been done in the name of consistency. Ge
 
 * `DisposalTracker` has been switched from `IDisposable` to `IAsyncDisposable`, and is capable of disposing of objects which implement either interface. Note that if an object implements both interfaces, only `IAsyncDisposable` will be called.
 
-* `ExceptionUtility.ConvertExceptionToFailureInformation` has been replaced by `ExtractMetadata`, which returns the exception metadata as a tuple rather than an interface.
+* `ExceptionUtility.ConvertExceptionToFailureInformation` has been replaced by `.ExtractMetadata`, which returns the exception metadata as a tuple rather than an interface.
 
 * `IAsyncLifetime` has been updated to inherit from `IAsyncDisposable`, and both `DisposeAsync` and `InitializeAsync` have been converted from `Task` to `ValueTask`.
 
@@ -343,9 +343,9 @@ Many of the namespace changes here have been done in the name of consistency. Ge
 
 * `Record.ExceptionAsync` has been updated to return `ValueTask` as well as accepting lambdas that return `ValueTask`.
 
-* `SerializationHelper.GetType` and `GetTypeNameForSerialization` have been replaced with `SerializedTypeNameToType` and `TypeToSerializedTypeName`, respectively. A non-generic version of `Deserialize` has been added, and the `Serialize` method now requires a `Type` to be passed in addition to the value.
+* `SerializationHelper.GetType` and `.GetTypeNameForSerialization` have been replaced with `.SerializedTypeNameToType` and `.TypeToSerializedTypeName`, respectively. A non-generic version of `.Deserialize` has been added, and the `.Serialize` method now requires a `Type` to be passed in addition to the value.
 
-* `TheoryDataBase` is the new base type for the `TheoryData<>` classes, including the untyped `TheoryData`.
+* `TheoryDataBase` is the new base type for the `TheoryData<>` classes as well as the untyped `TheoryData`.
 
 ## Changes to Runner Utility
 
@@ -358,10 +358,6 @@ The split between these two libraries comes from the fact that we now have an in
 The in-process console runner takes dependencies on `xunit.v3.core` and `xunit.v3.runner.common` to be able to perform its runner duties, whereas `xunit.v3.runner.utility` takes dependencies only on `xunit.abstractions` to be able run v2 tests (and `Mono.Cecil` to be able to read assembly metadata without loading the assembly into memory).
 
 At the moment, third party reporters are not supported. We have an [open issue](https://github.com/xunit/xunit/issues/1874) to solve the problem of how to enable third party reporters without creating the strong dependency on `xunit.v3.runner.utility`, as the strong dependency in v2 on `xunit.runner.utility` made writing third party reporters exceptionally fragile.
-
-### Attributes that took type name and assembly name strings
-
-???
 
 ### Namespace changes
 
@@ -381,7 +377,7 @@ At the moment, third party reporters are not supported. We have an [open issue](
 
 * `DiagnosticEventSink` has moved from `Xunit` to `Xunit.Runner.Common`.
 
-* `DiscoveryCompleteMessage` has been renamed to `DiscoverComplete`, and moved from `Xunit` to `Xunit.Runner.Common`.
+* `DiscoveryCompleteMessage` has been renamed to `DiscoveryComplete`, and moved from `Xunit` to `Xunit.Runner.Common`.
 
 * `DiscoveryEventSink` has moved from `Xunit` to `Xunit.Runner.Common`.
 
@@ -398,8 +394,6 @@ At the moment, third party reporters are not supported. We have an [open issue](
 * `IRunnerLogger` has moved from `Xunit` to `Xunit.Runner.Common`.
 
 * `IRunnerReporter` has moved from `Xunit` to `Xunit.Runner.Common`.
-
-* `ISourceInformationProvider` has moved from `Xunit.Abstractions` to `Xunit.Runner.Common`.
 
 * `IXunit1Executor` has moved from `Xunit` to `Xunit.Runner.v1`.
 
@@ -451,6 +445,8 @@ At the moment, third party reporters are not supported. We have an [open issue](
 
 * `IFrontControllerDiscoverer` has been added, with a `Find` method for finding tests (without running them), as well as exposing the metadata about the test project (including the `CanUseAppDomains` property that was removed from `IFrontController`).
 
+* `ISourceInformationProvider.GetSourceInformation` has changed its return value from `ISourceInformation` to `(string? sourceFile, int? sourceLine)`.
+
 * `TestExecutionSummary` (for a single test assembly) has been replaced by `TestExecutionSummaries` (for multiple test assemblies).
 
-* `XunitFrontController` has been updated for the new front controller contract, and is now `IAsyncDisposable` instead of `IDisposable`. Bulk deserializer and tst descriptor functionality has been removed.
+* `XunitFrontController` has been updated for the new front controller contract, and is now `IAsyncDisposable` instead of `IDisposable`. Bulk deserializer and test descriptor functionality has been removed.
