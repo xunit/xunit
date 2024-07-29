@@ -100,6 +100,7 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 				details.TestCaseDisplayName,
 				details.UniqueID,
 				details.Explicit,
+				theoryAttribute.SkipTestWithoutData,
 				testMethod.Traits.ToReadWrite(StringComparer.OrdinalIgnoreCase),
 				timeout: details.Timeout
 			);

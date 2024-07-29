@@ -506,7 +506,7 @@ public class Xunit3TheoryAcceptanceTests
 		[Fact]
 		public async ValueTask GenericTheoryWithSerializableData()
 		{
-			var results = await RunForResultsAsync(typeof(GenericWithSerializableData));
+			var results = await RunForResultsAsync(typeof(GenericWithSerializableData), preEnumerateTheories: false);
 
 			Assert.Collection(
 				results.OfType<TestPassedWithDisplayName>().Select(p => p.TestDisplayName).OrderBy(x => x),

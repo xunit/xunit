@@ -80,6 +80,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunner :
 						continue;
 					}
 
+
 					foreach (var dataRow in data)
 					{
 						var dataRowData = dataRow.GetData();
@@ -103,6 +104,18 @@ public class XunitDelayEnumeratedTheoryTestCaseRunner :
 						var skipReason = dataRow.Skip ?? dataAttribute.Skip ?? ctxt.SkipReason;
 
 						ctxt.DiscoveredTests.Add((test, convertedDataRow, skipReason));
+					}
+
+					if (ctxt.DiscoveredTests.Count == 0)
+					{
+						var testMethod = ctxt.TestCase.TestMethod;
+						var message = string.Format(CultureInfo.CurrentCulture, "No data found for {0}.{1}", testMethod.TestClass.TestClassName, testMethod.MethodName);
+
+						throw new TestPipelineException(
+							ctxt.TestCase is XunitDelayEnumeratedTheoryTestCase { SkipTestWithoutData: true }
+								? DynamicSkipToken.Value + message
+								: message
+						);
 					}
 				}
 			}
@@ -168,13 +181,18 @@ public class XunitDelayEnumeratedTheoryTestCaseRunner :
 
 		if (startupException is not null)
 		{
+			var skipReason =
+				startupException.Message.StartsWith(DynamicSkipToken.Value, StringComparison.Ordinal)
+					? startupException.Message.Substring(DynamicSkipToken.Value.Length)
+					: null;
+
 			// Create a new test case so it reflects the potentially overridden display name and skip reason
 			await using var testCase = new XunitTestCase(
 				ctxt.TestCase.TestMethod,
 				ctxt.DisplayName,
 				ctxt.TestCase.UniqueID,
 				ctxt.TestCase.Explicit,
-				ctxt.SkipReason,
+				skipReason ?? ctxt.SkipReason,
 				ctxt.TestCase.SkipType,
 				ctxt.TestCase.SkipUnless,
 				ctxt.TestCase.SkipWhen,
@@ -184,7 +202,11 @@ public class XunitDelayEnumeratedTheoryTestCaseRunner :
 				ctxt.TestCase.SourceLineNumber,
 				ctxt.TestCase.Timeout
 			);
-			return XunitRunnerHelper.FailTestCases(ctxt.MessageBus, ctxt.CancellationTokenSource, [testCase], startupException, sendTestCaseMessages: false);
+
+			return
+				skipReason is null
+					? XunitRunnerHelper.FailTestCases(ctxt.MessageBus, ctxt.CancellationTokenSource, [testCase], startupException, sendTestCaseMessages: false)
+					: XunitRunnerHelper.SkipTestCases(ctxt.MessageBus, ctxt.CancellationTokenSource, [testCase], skipReason, sendTestCaseMessages: false);
 		}
 
 		var summary = new RunSummary();

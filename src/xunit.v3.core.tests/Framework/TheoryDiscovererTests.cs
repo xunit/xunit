@@ -55,10 +55,12 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		public void NullMemberData(string _1, string _2) { }
 	}
 
-	[Fact]
-	public async ValueTask EmptyTheoryData_Fail()
+	[Theory]
+	[InlineData(true)]
+	[InlineData(false)]
+	public async ValueTask EmptyTheoryData_Fail(bool preEnumerateTheories)
 	{
-		var failures = await RunAsync<ITestFailed>(typeof(EmptyTheoryDataClass));
+		var failures = await RunAsync<ITestFailed>(typeof(EmptyTheoryDataClass), preEnumerateTheories);
 
 		var failure = Assert.Single(failures);
 		Assert.Equal(typeof(TestPipelineException).SafeName(), failure.ExceptionTypes.Single());
@@ -79,10 +81,12 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		public void TheoryMethod(int _) { }
 	}
 
-	[Fact]
-	public async ValueTask EmptyTheoryData_Skip()
+	[Theory]
+	[InlineData(true)]
+	[InlineData(false)]
+	public async ValueTask EmptyTheoryData_Skip(bool preEnumerateTheories)
 	{
-		var failures = await RunAsync<ITestSkipped>(typeof(EmptyTheoryDataClass_Skip));
+		var failures = await RunAsync<ITestSkipped>(typeof(EmptyTheoryDataClass_Skip), preEnumerateTheories);
 
 		var skipped = Assert.Single(failures);
 		Assert.Equal($"No data found for {typeof(EmptyTheoryDataClass_Skip).FullName}.{nameof(EmptyTheoryDataClass_Skip.TheoryMethod)}", skipped.Reason);

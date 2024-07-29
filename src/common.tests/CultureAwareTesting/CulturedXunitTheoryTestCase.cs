@@ -37,11 +37,12 @@ public class CulturedXunitTheoryTestCase : XunitDelayEnumeratedTheoryTestCase
 		string testCaseDisplayName,
 		string uniqueID,
 		bool @explicit,
+		bool skipTestWithoutData,
 		Dictionary<string, HashSet<string>>? traits = null,
 		string? sourceFilePath = null,
 		int? sourceLineNumber = null,
 		int? timeout = null)
-			: base(testMethod, $"{testCaseDisplayName}[{culture}]", $"{uniqueID}[{culture}]", @explicit, traits, sourceFilePath, sourceLineNumber, timeout)
+			: base(testMethod, $"{testCaseDisplayName}[{culture}]", $"{uniqueID}[{culture}]", @explicit, skipTestWithoutData, traits, sourceFilePath, sourceLineNumber, timeout)
 	{
 		this.culture = Guard.ArgumentNotNull(culture);
 

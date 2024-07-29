@@ -16,6 +16,7 @@ public static partial class TestData
 		TestMethodDisplay methodDisplay = TestMethodDisplay.ClassAndMethod,
 		TestMethodDisplayOptions methodDisplayOptions = TestMethodDisplayOptions.None,
 		bool @explicit = false,
+		bool skipTestWithoutData = false,
 		Dictionary<string, HashSet<string>>? traits = null,
 		int timeout = 0,
 		string uniqueID = DefaultTestCaseUniqueID)
@@ -34,6 +35,7 @@ public static partial class TestData
 			details.TestCaseDisplayName,
 			uniqueID ?? details.UniqueID,
 			@explicit,
+			skipTestWithoutData,
 			traits ?? testMethod.Traits.ToReadWrite(StringComparer.OrdinalIgnoreCase),
 			timeout: timeout
 		);
