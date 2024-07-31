@@ -10,7 +10,7 @@
     <MicrosoftSourceLinkGitHubVersion>8.0.0</MicrosoftSourceLinkGitHubVersion>
     <NerdbankGitVersioningVersion>3.6.139</NerdbankGitVersioningVersion>
     <TunnelVisionLabsReferenceAssemblyAnnotatorVersion>1.0.0-alpha.160</TunnelVisionLabsReferenceAssemblyAnnotatorVersion>
-    <XunitAnalyzersVersion>1.16.0-pre.22</XunitAnalyzersVersion>
+    <XunitAnalyzersVersion>1.16.0-pre.23</XunitAnalyzersVersion>
 
     <!-- Used for template packaging, uncomment when building RTW packages -->
     <!--<VisualStudioRunnerTemplateVersion>3.0.0</VisualStudioRunnerTemplateVersion>-->
@@ -35,8 +35,8 @@
     <SystemMemoryVersion>4.5.5</SystemMemoryVersion>
     <XunitAbstractionsVersion>2.0.3</XunitAbstractionsVersion>
     <XunitV1Version>1.9.2</XunitV1Version>
-    <XunitV2Version>2.9.1-pre.8</XunitV2Version>
-    <XunitVisualStudioRunnerVersion>3.0.0-pre.20</XunitVisualStudioRunnerVersion>
+    <XunitV2Version>2.9.1-pre.9</XunitV2Version>
+    <XunitVisualStudioRunnerVersion>3.0.0-pre.21</XunitVisualStudioRunnerVersion>
 
   </PropertyGroup>
 
