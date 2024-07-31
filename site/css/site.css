@@ -178,6 +178,10 @@ pre, code {
   font-weight: 400;
   font-size: 15px;
 }
+strong code,
+strong pre {
+  font-weight: 700;
+}
 h1 code {
   background: inherit;
   color: inherit;
@@ -313,6 +317,12 @@ blockquote.padded {
   text-align: left;
   vertical-align: middle;
 }
+.table.latest td:first-child,
+.table.releases td:first-child,
+.table.smaller td:first-child {
+  font-weight: bold;
+  text-align: left;
+}
 .release-category {
   font-size: 125%;
   color: #363;
@@ -350,6 +360,14 @@ blockquote.padded {
 .glyphicon-remove-sign {
   color: #f30;
 }
-.indent {
+p.indent {
+  padding-left: 20px;
+}
+ol.indent,
+ul.indent {
   margin-left: 20px;
+}
+.float-right-100 {
+  float: right;
+  width: 100px;
 }

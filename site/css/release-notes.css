@@ -1,14 +1,3 @@
-img[src="/images/dotnet-fdn-logo.png"] {
-  float: right;
-  padding: 0 0 10px 10px;
-  width: 110px;
-}
-h3 ~ ul a[href*="https://github.com/"] {
-  display: block;
-  margin-left: 1em;
-  font-family: Inconsolata, monospace;
-  font-size: 90%;
-}
 h3 ~ ul p:has(img) {
   display: inline-block;
   height: 0;
