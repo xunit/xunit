@@ -68,7 +68,7 @@ _New to xUnit.net? These guides will help you get started._
   * Using [JetBrains Rider](/docs/getting-started/v2/netfx/jetbrains-rider) (cross-platform)
 
 {: .indent }
-**<u>v3 Core Framework</u>** ([migrating from v2](/docs/getting-started/v2/migration) and [what's new?](/docs/getting-started/v3/migration))
+**<u>v3 Core Framework</u>** ([migrating from v2](/docs/getting-started/v3/migration) and [what's new?](/docs/getting-started/v3/whats-new))
 
 {: .indent }
 _Content coming soon_
