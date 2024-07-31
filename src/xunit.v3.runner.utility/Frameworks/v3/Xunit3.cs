@@ -276,7 +276,7 @@ public class Xunit3 : IFrontController
 
 	/// <summary>
 	/// Returns an implementation of <see cref="IFrontController"/> which can be used
-	/// for both discovery and execution of xUnit.net v2 tests.
+	/// for both discovery and execution of xUnit.net v3 tests.
 	/// </summary>
 	/// <param name="projectAssembly">The test project assembly.</param>
 	/// <param name="sourceInformationProvider">The optional source information provider.</param>
