@@ -8,11 +8,11 @@ breadcrumb: Documentation
 
 ## As of: 2024 July 30 (`0.2.0-pre.69`)
 
-This migration guide aims to be a comprehensive list helping developers migrate from xUnit.net v2 to v3. It includes information on how to upgrade your v2 projects to v3 (as well as the easiest way to create new v3 projects), what to expect for unit test authors, and what to expect for extensibility authors.
+This migration guide aims to be a comprehensive list helping developers migrate from xUnit.net v2 to v3. It includes information on how to upgrade your v2 projects to v3, what to expect for unit test authors, and what to expect for extensibility authors.
 
 Because this is a comprehensive guide, you may wish to only skim parts of it, and use search functionality to find information on specific issues that arise, rather than trying to read the guide entirely. You should read the first informational section titled "Architectural Changes", then follow the next three sections related to (a) updating NuGet packages, (b) updating to create an executable instead of a library, and (c) updating your target framework. All sections after that should be consider reference material.
 
-In addition to this migration document (which only covers the differences between v2 and v3), we have a parallel document which covers [what's new in v3](whats-new). The "What's New" document describes newly available features, and should be consulted after you've successfully migrated your project from v2 to v3.
+In addition to this migration document (which only covers the differences between v2 and v3), we have a parallel document which covers [what's new in v3](whats-new). The "What's New" document describes newly available features (including information on the best way to create new xUnit.net v3 projects), and should be consulted after you've successfully migrated your project from v2 to v3.
 
 The current builds are:
 
