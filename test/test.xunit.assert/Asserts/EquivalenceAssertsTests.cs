@@ -1665,6 +1665,36 @@ public class EquivalenceAssertsTests
 
 			Assert.Equivalent(expected, actual, strict);
 		}
+
+		// Lazy<T>
+
+		[Fact]
+		public void LazyValueEquivalentToValue()
+		{
+			var expected = "Hello";
+			var actual = new Lazy<string>(() => "Hello");
+
+			Assert.Equivalent(expected, actual);
+		}
+
+		[Fact]
+		public void ValueEquivalentToLazyValue()
+		{
+			var expected = new Lazy<string>(() => "Hello");
+			var actual = "Hello";
+
+			Assert.Equivalent(expected, actual);
+		}
+
+		[Fact]
+		public void UnretrievedLazyValueEquivalentToRetrievedLazyValue()
+		{
+			var expected = new Lazy<string>(() => "Hello");
+			var actual = new Lazy<string>(() => "Hello");
+			_ = expected.Value;
+
+			Assert.Equivalent(expected, actual);
+		}
 	}
 
 	public class Obsolete
