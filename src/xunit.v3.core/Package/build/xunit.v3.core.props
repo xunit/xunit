@@ -12,6 +12,7 @@
     <IsTestProject>true</IsTestProject>
     <OutputType>Exe</OutputType>
     <TestProject>true</TestProject>
+    <XunitV3Core_Reference>true</XunitV3Core_Reference>
   </PropertyGroup>
 
   <!-- Auto-generated entry points -->
