@@ -26,6 +26,6 @@
 		<file target="_content\" src="..\..\tools\media\logo-128-transparent.png" />
 		<file target="_content\" src="..\..\README.md" />
 
-		<file target="content\" src="..\..\artifacts\templates\**\*" />
+		<file target="content\" src="..\..\artifacts\xunit.v3.templates\templates\**\*" />
 	</files>
 </package>

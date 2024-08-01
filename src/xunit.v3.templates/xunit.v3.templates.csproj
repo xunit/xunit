@@ -6,7 +6,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <VisualStudioRunnerTemplateVersion Condition=" '$(VisualStudioRunnerTemplateVersion)' == '' ">$(XunitVisualStudioRunnerVersion)</VisualStudioRunnerTemplateVersion>
     <XunitAnalyzersTemplateVersion Condition=" '$(XunitAnalyzersTemplateVersion)' == '' ">$(XunitAnalyzersVersion)</XunitAnalyzersTemplateVersion>
-    <XunitArtifactsPath>$(MSBuildThisFileDirectory)..\..\artifacts\</XunitArtifactsPath>
+    <XunitArtifactsPath>$(MSBuildThisFileDirectory)..\..\artifacts\xunit.v3.templates\</XunitArtifactsPath>
   </PropertyGroup>
 
   <ItemGroup>
