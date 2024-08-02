@@ -104,7 +104,8 @@ public class ConsoleRunner(
 				noColor = true;
 			}
 
-			var project = commandLine.Parse();
+			var projectAssembly = commandLine.Parse();
+			var project = projectAssembly.Project;
 			var useAnsiColor = project.Configuration.UseAnsiColorOrDefault;
 			if (useAnsiColor)
 				consoleHelper.UseAnsiColor();
@@ -146,8 +147,8 @@ public class ConsoleRunner(
 			if (project.Configuration.DebugOrDefault)
 				Debugger.Launch();
 
-			var globalDiagnosticMessages = project.Assemblies.Any(a => a.Configuration.DiagnosticMessagesOrDefault);
-			globalInternalDiagnosticMessages = project.Assemblies.Any(a => a.Configuration.InternalDiagnosticMessagesOrDefault);
+			var globalDiagnosticMessages = projectAssembly.Configuration.DiagnosticMessagesOrDefault;
+			globalInternalDiagnosticMessages = projectAssembly.Configuration.InternalDiagnosticMessagesOrDefault;
 
 			if (!automated)
 				noColor = project.Configuration.NoColorOrDefault;
@@ -195,9 +196,9 @@ public class ConsoleRunner(
 				started = true;
 
 				if (project.Configuration.List is not null)
-					await ListProject(project, automated);
+					await ListAssembly(projectAssembly, automated);
 				else
-					failCount = await projectRunner.RunProject(project, reporterMessageHandler);
+					failCount = await projectRunner.Run(projectAssembly, reporterMessageHandler);
 
 				if (cancel)
 					return -1073741510;    // 0xC000013A: The application terminated as a result of a CTRL+C
@@ -253,60 +254,56 @@ public class ConsoleRunner(
 		}
 	}
 
-	async ValueTask ListProject(
-		XunitProject project,
+	async ValueTask ListAssembly(
+		XunitProjectAssembly assembly,
 		bool automated)
 	{
-		var (listOption, listFormat) = project.Configuration.List!.Value;
+		var (listOption, listFormat) = assembly.Project.Configuration.List!.Value;
 		if (automated)
 			listFormat = ListFormat.Json;
 
-		var testCasesByAssembly = new Dictionary<string, List<ITestCase>>();
+		var assemblyFileName = Guard.ArgumentNotNull(assembly.AssemblyFileName);
 
-		foreach (var assembly in project.Assemblies)
-		{
-			var assemblyFileName = Guard.ArgumentNotNull(assembly.AssemblyFileName);
+		// Default to false for console runners
+		assembly.Configuration.PreEnumerateTheories ??= false;
 
-			// Default to false for console runners
-			assembly.Configuration.PreEnumerateTheories ??= false;
+		// Setup discovery options with command line overrides
+		var discoveryOptions = TestFrameworkOptions.ForDiscovery(assembly.Configuration);
 
-			// Setup discovery options with command line overrides
-			var discoveryOptions = TestFrameworkOptions.ForDiscovery(assembly.Configuration);
+		var noColor = assembly.Project.Configuration.NoColorOrDefault;
+		var diagnosticMessages = assembly.Configuration.DiagnosticMessagesOrDefault;
+		var internalDiagnosticMessages = assembly.Configuration.InternalDiagnosticMessagesOrDefault;
+		var diagnosticMessageSink = ConsoleDiagnosticMessageSink.TryCreate(consoleHelper, noColor, diagnosticMessages, internalDiagnosticMessages);
 
-			var noColor = assembly.Project.Configuration.NoColorOrDefault;
-			var diagnosticMessages = assembly.Configuration.DiagnosticMessagesOrDefault;
-			var internalDiagnosticMessages = assembly.Configuration.InternalDiagnosticMessagesOrDefault;
-			var diagnosticMessageSink = ConsoleDiagnosticMessageSink.TryCreate(consoleHelper, noColor, diagnosticMessages, internalDiagnosticMessages);
+		TestContext.SetForInitialization(diagnosticMessageSink, diagnosticMessages, internalDiagnosticMessages);
 
-			TestContext.SetForInitialization(diagnosticMessageSink, diagnosticMessages, internalDiagnosticMessages);
+		await using var disposalTracker = new DisposalTracker();
+		var testFramework = ExtensibilityPointFactory.GetTestFramework(testAssembly);
+		disposalTracker.Add(testFramework);
 
-			await using var disposalTracker = new DisposalTracker();
-			var testFramework = ExtensibilityPointFactory.GetTestFramework(testAssembly);
-			disposalTracker.Add(testFramework);
+		if (pipelineStartup is not null)
+			testFramework.SetTestPipelineStartup(pipelineStartup);
 
-			if (pipelineStartup is not null)
-				testFramework.SetTestPipelineStartup(pipelineStartup);
+		// Discover & filter the tests
+		var testCases = new List<ITestCase>();
+		var testDiscoverer = testFramework.GetDiscoverer(testAssembly);
+		var types =
+			assembly.Configuration.Filters.IncludedClasses.Count == 0 || assembly.Assembly is null
+				? null
+				: assembly.Configuration.Filters.IncludedClasses.Select(assembly.Assembly.GetType).WhereNotNull().ToArray();
 
-			// Discover & filter the tests
-			var testCases = new List<ITestCase>();
-			var testDiscoverer = testFramework.GetDiscoverer(testAssembly);
-			var types =
-				assembly.Configuration.Filters.IncludedClasses.Count == 0 || assembly.Assembly is null
-					? null
-					: assembly.Configuration.Filters.IncludedClasses.Select(assembly.Assembly.GetType).WhereNotNull().ToArray();
+		await testDiscoverer.Find(testCase => { testCases.Add(testCase); return new(!cancel); }, discoveryOptions, types);
 
-			await testDiscoverer.Find(testCase => { testCases.Add(testCase); return new(!cancel); }, discoveryOptions, types);
-
-			var testCasesDiscovered = testCases.Count;
-			var filteredTestCases = testCases.Where(assembly.Configuration.Filters.Filter).ToList();
-
-			testCasesByAssembly.Add(assemblyFileName, filteredTestCases);
-		}
+		var testCasesDiscovered = testCases.Count;
+		var filteredTestCases = testCases.Where(assembly.Configuration.Filters.Filter).ToList();
 
 		if (listOption != ListOption.Discovery)
+		{
+			var testCasesByAssembly = new Dictionary<string, List<ITestCase>> { [assemblyFileName] = filteredTestCases };
 			ConsoleProjectLister.List(consoleHelper, testCasesByAssembly, listOption, listFormat);
+		}
 		else
-			foreach (var testCase in testCasesByAssembly.SelectMany(kvp => kvp.Value))
+			foreach (var testCase in filteredTestCases)
 				consoleHelper.WriteLine(testCase.ToTestCaseDiscovered().ToJson());
 	}
 

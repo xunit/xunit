@@ -84,7 +84,7 @@ public class CommandLine : CommandLineParserBase
 #endif
 
 	/// <summary/>
-	public XunitProject Parse()
+	public XunitProjectAssembly Parse()
 	{
 		if (Project.Assemblies.Count > 0)
 			throw new InvalidOperationException("Parse may only be called once");
@@ -118,8 +118,9 @@ public class CommandLine : CommandLineParserBase
 		}
 
 		AddAssembly(assembly, assemblyFileName, configFileName, seed);
+		ParseInternal(argsStartIndex);
 
-		return ParseInternal(argsStartIndex);
+		return Project.Assemblies.Single();
 	}
 
 	void OnAssemblyInfo(KeyValuePair<string, string?> option)

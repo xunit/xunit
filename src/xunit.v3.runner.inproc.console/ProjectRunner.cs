@@ -16,7 +16,14 @@ using ErrorMessage = Xunit.Runner.Common.ErrorMessage;
 
 namespace Xunit.Runner.InProc.SystemConsole;
 
-internal sealed class ProjectRunner(
+/// <summary>
+/// The project runner class, shared between <see cref="ConsoleRunner"/> and xunit.runner.visualstudio.
+/// </summary>
+/// <param name="testAssembly">The test assembly under test</param>
+/// <param name="consoleHelper">The console helper to use for output</param>
+/// <param name="cancelThunk">The thunk to determine if we should cancel</param>
+/// <param name="automated">The flag to indicate if we are in automated mode</param>
+public sealed class ProjectRunner(
 	Assembly testAssembly,
 	ConsoleHelper consoleHelper,
 	Func<bool> cancelThunk,
@@ -29,8 +36,53 @@ internal sealed class ProjectRunner(
 	bool failed;
 	readonly Assembly testAssembly = testAssembly;
 
+	/// <summary>
+	/// Gets the summaries of the test execution, once it is finished.
+	/// </summary>
 	public TestExecutionSummaries TestExecutionSummaries { get; } = new();
 
+	/// <summary>
+	/// Discovers tests in the given test project.
+	/// </summary>
+	/// <param name="assembly">The test project assembly</param>
+	/// <param name="messageSink">The message sink to send messages to</param>
+	public async ValueTask Discover(
+		XunitProjectAssembly assembly,
+		IMessageSink messageSink)
+	{
+		Guard.ArgumentNotNull(assembly);
+		Guard.ArgumentNotNull(messageSink);
+
+		// Default to false for console runners
+		assembly.Configuration.PreEnumerateTheories ??= false;
+
+		// Setup discovery options with command-line overrides
+		var discoveryOptions = TestFrameworkOptions.ForDiscovery(assembly.Configuration);
+
+		var diagnosticMessages = assembly.Configuration.DiagnosticMessagesOrDefault;
+		var internalDiagnosticMessages = assembly.Configuration.InternalDiagnosticMessagesOrDefault;
+		var diagnosticMessageSink = ConsoleDiagnosticMessageSink.TryCreate(consoleHelper, noColor: true, diagnosticMessages, internalDiagnosticMessages);
+
+		TestContext.SetForInitialization(diagnosticMessageSink, diagnosticMessages, internalDiagnosticMessages);
+
+		await using var disposalTracker = new DisposalTracker();
+		var testFramework = ExtensibilityPointFactory.GetTestFramework(testAssembly);
+		disposalTracker.Add(testFramework);
+
+		var frontController = new InProcessFrontController(testFramework, testAssembly, assembly.ConfigFileName);
+		await frontController.Find(messageSink, discoveryOptions, assembly.Configuration.Filters.Filter);
+	}
+
+	/// <summary>
+	/// Invoke the instance of <see cref="ITestPipelineStartup"/>, if it exists, and returns the instance
+	/// that was created.
+	/// </summary>
+	/// <param name="testAssembly">The test assembly under test</param>
+	/// <param name="consoleHelper">The console helper to use for output</param>
+	/// <param name="automated">The flag to indicate if we are in automated mode</param>
+	/// <param name="noColor">The flag to indicate whether we should suppress color in the output</param>
+	/// <param name="diagnosticMessages">The flag to indicate if the user wants to see diagnostic messages</param>
+	/// <param name="internalDiagnosticMessages">The flag to indicate if the user wants to see internal diagnostic messages</param>
 	public static async ValueTask<ITestPipelineStartup?> InvokePipelineStartup(
 		Assembly testAssembly,
 		ConsoleHelper consoleHelper,
@@ -39,6 +91,9 @@ internal sealed class ProjectRunner(
 		bool diagnosticMessages,
 		bool internalDiagnosticMessages)
 	{
+		Guard.ArgumentNotNull(testAssembly);
+		Guard.ArgumentNotNull(consoleHelper);
+
 		var result = default(ITestPipelineStartup);
 
 		var pipelineStartupAttributes = testAssembly.GetMatchingCustomAttributes(typeof(ITestPipelineStartupAttribute));
@@ -74,63 +129,40 @@ internal sealed class ProjectRunner(
 		return result;
 	}
 
+	/// <summary>
+	/// Prints the program header.
+	/// </summary>
+	/// <param name="consoleHelper">The console helper to use for output</param>
 	public static void PrintHeader(ConsoleHelper consoleHelper) =>
-		consoleHelper.WriteLine(
+		Guard.ArgumentNotNull(consoleHelper).WriteLine(
 			"xUnit.net v3 In-Process Runner v{0} ({1}-bit {2})",
 			ThisAssembly.AssemblyInformationalVersion,
 			IntPtr.Size * 8,
 			RuntimeInformation.FrameworkDescription
 		);
 
-	public async ValueTask<int> RunProject(
-		XunitProject project,
-		IMessageSink reporterMessageHandler)
+	/// <summary>
+	/// Runs the given test project.
+	/// </summary>
+	/// <param name="assembly">The test project assembly</param>
+	/// <param name="messageSink">The message sink to send messages to</param>
+	/// <returns>Returns <c>0</c> if there were no failures; non-<c>zero</c> failure count, otherwise</returns>
+	public async ValueTask<int> Run(
+		XunitProjectAssembly assembly,
+		IMessageSink messageSink)
 	{
-		XElement? assembliesElement = null;
+		Guard.ArgumentNotNull(assembly);
+		Guard.ArgumentNotNull(messageSink);
+
+		XElement? assemblyElement = null;
 		var clockTime = Stopwatch.StartNew();
-		var xmlTransformers = TransformFactory.GetXmlTransformers(project);
+		var xmlTransformers = TransformFactory.GetXmlTransformers(assembly.Project);
 		var needsXml = xmlTransformers.Count > 0;
 
 		if (needsXml)
-			assembliesElement = TransformFactory.CreateAssembliesElement();
+			assemblyElement = new XElement("assembly");
 
 		var originalWorkingFolder = Directory.GetCurrentDirectory();
-
-		var assembly = project.Assemblies.Single();
-		var assemblyElement = await RunProjectAssembly(
-			assembly,
-			needsXml,
-			reporterMessageHandler
-		);
-
-		if (assemblyElement is not null)
-			assembliesElement?.Add(assemblyElement);
-
-		clockTime.Stop();
-
-		TestExecutionSummaries.ElapsedClockTime = clockTime.Elapsed;
-		reporterMessageHandler.OnMessage(TestExecutionSummaries);
-
-		Directory.SetCurrentDirectory(originalWorkingFolder);
-
-		if (assembliesElement is not null)
-		{
-			TransformFactory.FinishAssembliesElement(assembliesElement);
-			xmlTransformers.ForEach(transformer => transformer(assembliesElement));
-		}
-
-		return failed ? 1 : TestExecutionSummaries.SummariesByAssemblyUniqueID.Sum(s => s.Summary.Failed + s.Summary.Errors);
-	}
-
-	async ValueTask<XElement?> RunProjectAssembly(
-		XunitProjectAssembly assembly,
-		bool needsXml,
-		IMessageSink reporterMessageHandler)
-	{
-		if (cancelThunk())
-			return null;
-
-		var assemblyElement = needsXml ? new XElement("assembly") : null;
 
 		try
 		{
@@ -165,7 +197,7 @@ internal sealed class ProjectRunner(
 				LongRunningTestTime = TimeSpan.FromSeconds(longRunningSeconds),
 			};
 
-			using var resultsSink = new ExecutionSink(assembly, discoveryOptions, executionOptions, AppDomainOption.NotAvailable, shadowCopy: false, reporterMessageHandler, sinkOptions);
+			using var resultsSink = new ExecutionSink(assembly, discoveryOptions, executionOptions, AppDomainOption.NotAvailable, shadowCopy: false, messageSink, sinkOptions);
 			var testCases =
 				assembly
 					.TestCasesToRun
@@ -211,6 +243,22 @@ internal sealed class ProjectRunner(
 			}
 		}
 
-		return assemblyElement;
+		clockTime.Stop();
+
+		TestExecutionSummaries.ElapsedClockTime = clockTime.Elapsed;
+		messageSink.OnMessage(TestExecutionSummaries);
+
+		Directory.SetCurrentDirectory(originalWorkingFolder);
+
+		if (assemblyElement is not null)
+		{
+			var assembliesElement = TransformFactory.CreateAssembliesElement();
+			assembliesElement.Add(assemblyElement);
+			TransformFactory.FinishAssembliesElement(assembliesElement);
+
+			xmlTransformers.ForEach(transformer => transformer(assembliesElement));
+		}
+
+		return failed ? 1 : TestExecutionSummaries.SummariesByAssemblyUniqueID.Sum(s => s.Summary.Failed + s.Summary.Errors);
 	}
 }
