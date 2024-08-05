@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Sdk;
 using Xunit.v3;
@@ -91,4 +93,57 @@ public class XunitTestCaseTests
 		[Fact]
 		public void Passing() { }
 	}
+
+	// https://github.com/microsoft/vstest/blob/main/docs/RFCs/0017-Managed-TestCase-Properties.md
+	// We don't support test classes nested inside generic classes, so this tests a limited version of the example
+	[Fact]
+	public void ManagedTestCasePropertiesTest()
+	{
+		var type = typeof(GenericTestClass<,>);
+		var testClass = TestData.XunitTestClass(type);
+		var method1 = type.GetMethod("TestMethod1")!;
+		var testMethod1 = TestData.XunitTestMethod(testClass, method1);
+		var testCase1 = new XunitTestCase(testMethod1, "display name", "id", @explicit: false);
+
+		Assert.Equal("XunitTestCaseTests+GenericTestClass`2", testCase1.TestClassName);
+		Assert.Equal("TestMethod1", testCase1.TestMethodName);
+		Assert.Collection(
+			testCase1.TestMethodParameterTypes,
+			p => Assert.Equal("!0", p),
+			p => Assert.Equal("!1", p),
+			p => Assert.Equal("System.String[,]", p)
+		);
+		Assert.Equal("System.Void", testCase1.TestMethodReturnType);
+
+		var method2 = type.GetMethod("TestMethod2")!;
+		var testMethod2 = TestData.XunitTestMethod(testClass, method2);
+		var testCase2 = new XunitTestCase(testMethod2, "display name", "id", @explicit: false);
+
+		Assert.Equal("XunitTestCaseTests+GenericTestClass`2", testCase2.TestClassName);
+		Assert.Equal("TestMethod2", testCase2.TestMethodName);
+		Assert.Collection(
+			testCase2.TestMethodParameterTypes,
+			p => Assert.Equal("!0", p),
+			p => Assert.Equal("System.Collections.Generic.List`1<!1>", p),
+			p => Assert.Equal("!!0", p),
+			p => Assert.Equal("!!1", p),
+			p => Assert.Equal("System.Collections.Generic.List`1<System.String>", p)
+		);
+		Assert.Equal("System.Threading.Tasks.Task`1<System.Int32>", testCase2.TestMethodReturnType);
+	}
+
+#pragma warning disable xUnit1003 // Theory methods must have test data
+#pragma warning disable xUnit1028 // Test method must have valid return type
+
+	class GenericTestClass<X, Y>
+	{
+		[Theory]
+		public void TestMethod1(X _1, Y _2, string[,] _3) { }
+
+		[Theory]
+		public Task<int> TestMethod2<U, V>(X _1, List<Y> _2, U _3, V _4, List<string> _5) => Task.FromResult(42);
+	}
+
+#pragma warning restore xUnit1028
+#pragma warning restore xUnit1003
 }
