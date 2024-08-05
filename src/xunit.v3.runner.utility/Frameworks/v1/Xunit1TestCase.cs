@@ -206,6 +206,8 @@ public sealed class Xunit1TestCase : IXunitSerializable
 			TestCollectionUniqueID = TestCollectionUniqueID,
 			TestMethodMetadataToken = null,
 			TestMethodName = TestMethod,
+			TestMethodParameterTypes = null,
+			TestMethodReturnType = null,
 			TestMethodUniqueID = TestMethodUniqueID,
 			Traits = Traits,
 		};
@@ -274,6 +276,8 @@ public sealed class Xunit1TestCase : IXunitSerializable
 			TestCollectionUniqueID = TestCollectionUniqueID,
 			TestMethodMetadataToken = null,
 			TestMethodName = TestMethod,
+			TestMethodParameterTypes = null,
+			TestMethodReturnType = null,
 			TestMethodUniqueID = TestMethodUniqueID,
 			Traits = Traits,
 		};

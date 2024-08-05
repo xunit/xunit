@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Internal;
@@ -165,6 +166,14 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 	/// <inheritdoc/>
 	public string TestMethodName =>
 		TestMethod.MethodName;
+
+	/// <inheritdoc/>
+	public string[] TestMethodParameterTypes =>
+		TestMethod.Parameters.Select(p => p.ParameterType.SafeName()).ToArray();
+
+	/// <inheritdoc/>
+	public string TestMethodReturnType =>
+		TestMethod.ReturnType.SafeName();
 
 	/// <summary>
 	/// Gets the traits associated with this test case.

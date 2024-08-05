@@ -109,6 +109,8 @@ public class XunitTestCaseRunnerBase<TContext, TTestCase> : TestCaseRunner<TCont
 			TestCollectionUniqueID = ctxt.TestCase.TestCollection.UniqueID,
 			TestMethodMetadataToken = ctxt.TestCase.TestMethodMetadataToken,
 			TestMethodName = ctxt.TestCase.TestMethodName,
+			TestMethodParameterTypes = ctxt.TestCase.TestMethodParameterTypes,
+			TestMethodReturnType = ctxt.TestCase.TestMethodReturnType,
 			TestMethodUniqueID = ctxt.TestCase.TestMethod?.UniqueID,
 			Traits = ctxt.TestCase.Traits,
 		}));

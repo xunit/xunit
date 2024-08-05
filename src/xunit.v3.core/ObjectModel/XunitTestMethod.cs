@@ -91,6 +91,10 @@ public class XunitTestMethod : IXunitTestMethod, IXunitSerializable
 		parameters.Value;
 
 	/// <inheritdoc/>
+	public Type ReturnType =>
+		Method.ReturnType;
+
+	/// <inheritdoc/>
 	public IXunitTestClass TestClass =>
 		this.ValidateNullablePropertyValue(testClass, nameof(TestClass));
 

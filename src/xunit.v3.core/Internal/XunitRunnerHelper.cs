@@ -235,6 +235,8 @@ public static class XunitRunnerHelper
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestMethodMetadataToken = testCase.TestMethodMetadataToken,
 				TestMethodName = testCase.TestMethod?.MethodName,
+				TestMethodParameterTypes = testCase.TestMethodParameterTypes,
+				TestMethodReturnType = testCase.TestMethodReturnType,
 				TestMethodUniqueID = testMethodUniqueID,
 				Traits = testCase.Traits,
 			}))

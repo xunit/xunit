@@ -59,7 +59,7 @@ public interface ITestCaseMetadata
 
 	/// <summary>
 	/// Gets the <see cref="MemberInfo.MetadataToken"/> for the test method. If the test did not
-	/// originate in a method, will return <c>null</c>.
+	/// originate in a method, or the test framework did not provide this information, will return <c>null</c>.
 	/// </summary>
 	/// <remarks>
 	/// This value is only populated for xUnit.net v3 or later test cases, and will return <c>null</c>
@@ -72,6 +72,19 @@ public interface ITestCaseMetadata
 	/// If the test did not originiate in a method, will return <c>null</c>.
 	/// </summary>
 	string? TestMethodName { get; }
+
+	/// <summary>
+	/// Gets the types for the test method parameters. If the test did not originate in a method,
+	/// or the test framework does not provide this information, will return <c>null</c>; if the test
+	/// method has no parameters, will return an empty array.
+	/// </summary>
+	string[]? TestMethodParameterTypes { get; }
+
+	/// <summary>
+	/// Gets the test method return type. If the test did not originate in a method, or the test framework
+	/// did not provide this information, will return <c>null</c>.
+	/// </summary>
+	string? TestMethodReturnType { get; }
 
 	/// <summary>
 	/// Gets the trait values associated with this test case. If there are none, or the framework

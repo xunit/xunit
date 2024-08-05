@@ -376,6 +376,8 @@ public static partial class TestData
 			DefaultTestCollectionUniqueID,
 			methodInfo.MetadataToken,
 			testMethod,
+			methodInfo.GetParameters().Select(p => p.ParameterType.SafeName()).ToArray(),
+			methodInfo.ReturnType.SafeName(),
 			testMethodUniqueID,
 			typeInfo.Namespace,
 			traits
@@ -395,7 +397,9 @@ public static partial class TestData
 		string? testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 		int? testMethodMetadataToken = null,
-		string? testMethod = null,
+		string? testMethodName = null,
+		string[]? testMethodParameterTypes = null,
+		string? testMethodReturnType = null,
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
 		string? testNamespace = null,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null) =>
@@ -414,7 +418,9 @@ public static partial class TestData
 				TestClassUniqueID = testClassUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestMethodMetadataToken = testMethodMetadataToken,
-				TestMethodName = testMethod,
+				TestMethodName = testMethodName,
+				TestMethodParameterTypes = testMethodParameterTypes ?? [],
+				TestMethodReturnType = testMethodReturnType ?? typeof(void).SafeName(),
 				TestMethodUniqueID = testMethodUniqueID,
 				Traits = traits ?? DefaultTraits,
 			};
@@ -458,6 +464,8 @@ public static partial class TestData
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 		int? testMethodMetadataToken = 2112,
 		string testMethodName = DefaultMethodName,
+		string[]? testMethodParameterTypes = null,
+		string? testMethodReturnType = null,
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null) =>
 			new Xunit.Runner.Common.TestCaseStarting()
@@ -475,6 +483,8 @@ public static partial class TestData
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestMethodMetadataToken = testMethodMetadataToken,
 				TestMethodName = testMethodName,
+				TestMethodParameterTypes = testMethodParameterTypes ?? [],
+				TestMethodReturnType = testMethodReturnType ?? typeof(void).SafeName(),
 				TestMethodUniqueID = testMethodUniqueID,
 				Traits = traits ?? DefaultTraits,
 			};

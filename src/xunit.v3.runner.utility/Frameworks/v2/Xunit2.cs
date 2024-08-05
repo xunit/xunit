@@ -463,6 +463,8 @@ public class Xunit2 : IFrontController
 						TestCollectionUniqueID = testCollectionUniqueID,
 						TestMethodMetadataToken = null,
 						TestMethodName = testCasesByMethod.Key,
+						TestMethodParameterTypes = null,
+						TestMethodReturnType = null,
 						TestMethodUniqueID = testMethodUniqueID,
 						Traits = testCaseTraits,
 					});

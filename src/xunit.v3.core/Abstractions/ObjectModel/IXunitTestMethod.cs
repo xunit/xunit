@@ -46,6 +46,11 @@ public interface IXunitTestMethod : ITestMethod
 	IReadOnlyCollection<ParameterInfo> Parameters { get; }
 
 	/// <summary>
+	/// Gets the return type of the test method.
+	/// </summary>
+	Type ReturnType { get; }
+
+	/// <summary>
 	/// Gets the arguments that will be passed to the test method.
 	/// </summary>
 	object?[] TestMethodArguments { get; }

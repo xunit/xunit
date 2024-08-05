@@ -89,6 +89,16 @@ public interface IXunitTestCase : ITestCase
 	new string TestMethodName { get; }
 
 	/// <summary>
+	/// Gets the types for the test method parameters.
+	/// </summary>
+	new string[] TestMethodParameterTypes { get; }
+
+	/// <summary>
+	/// Gets the test method return type.
+	/// </summary>
+	new string TestMethodReturnType { get; }
+
+	/// <summary>
 	/// Gets the timeout of the test, in milliseconds; if zero or negative, means the test case has no timeout.
 	/// </summary>
 	int Timeout { get; }

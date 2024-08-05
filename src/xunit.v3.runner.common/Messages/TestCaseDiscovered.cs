@@ -68,6 +68,18 @@ public partial class TestCaseDiscovered
 
 	/// <inheritdoc/>
 	/// <remarks>
+	/// Note: Will be <c>null</c> if there was no value provided during deserialization.
+	/// </remarks>
+	public required string[]? TestMethodParameterTypes { get; set; }
+
+	/// <inheritdoc/>
+	/// <remarks>
+	/// Note: Will be <c>null</c> if there was no value provided during deserialization.
+	/// </remarks>
+	public required string? TestMethodReturnType { get; set; }
+
+	/// <inheritdoc/>
+	/// <remarks>
 	/// Note: Will be an empty dictionary if there was no value provided during deserialization.
 	/// </remarks>
 	public required IReadOnlyDictionary<string, IReadOnlyCollection<string>> Traits { get; set; } = EmptyTraits;
@@ -89,6 +101,8 @@ public partial class TestCaseDiscovered
 		TestClassNamespace = JsonDeserializer.TryGetString(root, nameof(TestClassNamespace));
 		TestMethodMetadataToken = JsonDeserializer.TryGetInt(root, nameof(TestMethodMetadataToken));
 		TestMethodName = JsonDeserializer.TryGetString(root, nameof(TestMethodName));
+		TestMethodParameterTypes = JsonDeserializer.TryGetArrayOfString(root, nameof(TestMethodParameterTypes));
+		TestMethodReturnType = JsonDeserializer.TryGetString(root, nameof(TestMethodReturnType));
 		Traits = JsonDeserializer.TryGetTraits(root, nameof(Traits)) ?? Traits;
 	}
 }

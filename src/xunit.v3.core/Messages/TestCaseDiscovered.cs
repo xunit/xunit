@@ -1,9 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using Xunit.Internal;
-using Xunit.Sdk;
 
 namespace Xunit.v3;
 
@@ -11,7 +8,6 @@ public partial class TestCaseDiscovered
 {
 	string? serialization;
 	string? testCaseDisplayName;
-	string? testClassName;
 	IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits;
 
 	/// <inheritdoc/>
@@ -42,25 +38,7 @@ public partial class TestCaseDiscovered
 
 	/// <inheritdoc/>
 	[NotNullIfNotNull(nameof(TestMethodName))]
-	public required string? TestClassName
-	{
-		get
-		{
-			if (testClassName is null && TestMethodName is not null)
-				throw new InvalidOperationException(
-					string.Format(
-						CultureInfo.CurrentCulture,
-						"Illegal null {0} on an instance of '{1}' when {2} is not null",
-						nameof(TestClassName),
-						GetType().SafeName(),
-						nameof(TestMethodName)
-					)
-				);
-
-			return testClassName;
-		}
-		set => testClassName = value;
-	}
+	public required string? TestClassName { get; set; }
 
 	/// <inheritdoc/>
 	public required string? TestClassNamespace { get; set; }
@@ -70,6 +48,12 @@ public partial class TestCaseDiscovered
 
 	/// <inheritdoc/>
 	public required string? TestMethodName { get; set; }
+
+	/// <inheritdoc/>
+	public required string[]? TestMethodParameterTypes { get; set; }
+
+	/// <inheritdoc/>
+	public required string? TestMethodReturnType { get; set; }
 
 	/// <inheritdoc/>
 	public required IReadOnlyDictionary<string, IReadOnlyCollection<string>> Traits
@@ -88,6 +72,6 @@ public partial class TestCaseDiscovered
 		ValidatePropertyIsNotNull(traits, nameof(Traits), invalidProperties);
 
 		if (TestMethodName is not null)
-			ValidatePropertyIsNotNull(testClassName, nameof(TestClassName), invalidProperties);
+			ValidatePropertyIsNotNull(TestClassName, nameof(TestClassName), invalidProperties);
 	}
 }

@@ -34,6 +34,8 @@ sealed partial class TestCaseDiscovered : TestCaseMessage, ITestCaseDiscovered
 		serializer.Serialize(nameof(TestClassNamespace), TestClassNamespace);
 		serializer.Serialize(nameof(TestMethodMetadataToken), TestMethodMetadataToken);
 		serializer.Serialize(nameof(TestMethodName), TestMethodName);
+		serializer.SerializeStringArray(nameof(TestMethodParameterTypes), TestMethodParameterTypes);
+		serializer.Serialize(nameof(TestMethodReturnType), TestMethodReturnType);
 		serializer.SerializeTraits(nameof(Traits), Traits);
 	}
 

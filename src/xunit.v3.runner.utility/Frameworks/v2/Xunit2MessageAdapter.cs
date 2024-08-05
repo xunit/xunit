@@ -277,6 +277,8 @@ public class Xunit2MessageAdapter(
 			TestClassUniqueID = testClassUniqueID,
 			TestMethodMetadataToken = null,
 			TestMethodName = testCase.TestMethod?.Method.Name,
+			TestMethodParameterTypes = null,
+			TestMethodReturnType = null,
 			TestMethodUniqueID = testMethodUniqueID,
 			Traits = testCase.Traits.ToReadOnly(),
 		};
@@ -333,6 +335,8 @@ public class Xunit2MessageAdapter(
 			TestCollectionUniqueID = testCollectionUniqueID,
 			TestMethodMetadataToken = null,
 			TestMethodName = message.TestCase.TestMethod?.Method.Name,
+			TestMethodParameterTypes = null,
+			TestMethodReturnType = null,
 			TestMethodUniqueID = testMethodUniqueID,
 			Traits = message.TestCase.Traits.ToReadOnly(),
 		};
