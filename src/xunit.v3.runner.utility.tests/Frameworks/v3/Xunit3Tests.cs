@@ -113,7 +113,7 @@ public class Xunit3Tests
 		string methodName)
 	{
 		var sourceInformationProvider = Substitute.For<ISourceInformationProvider, InterfaceProxy<ISourceInformationProvider>>();
-		sourceInformationProvider.GetSourceInformation(typeName, methodName).Returns(("/path/to/source/file.cs", 2112));
+		sourceInformationProvider.GetSourceInformation(typeName, methodName).Returns(new SourceInformation("/path/to/source/file.cs", 2112));
 		await using var xunit3 = Xunit3.ForDiscoveryAndExecution(Assembly, sourceInformationProvider, forceInProcess: forceInProcess);
 
 		// Find

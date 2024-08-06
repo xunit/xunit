@@ -152,8 +152,8 @@ public class Xunit3 : IFrontController
 						// Don't overwrite the source information if it came directly from the test framework
 						if (collectSourceInformation && sourceInformationProvider is not null && testDiscovered.SourceFilePath is null && testDiscovered.SourceLineNumber is null)
 						{
-							var (sourceFile, sourceLine) = sourceInformationProvider.GetSourceInformation(testDiscovered.TestClassName, testDiscovered.TestMethodName);
-							testDiscovered = testDiscovered.WithSourceInfo(sourceFile, sourceLine);
+							var sourceInformation = sourceInformationProvider.GetSourceInformation(testDiscovered.TestClassName, testDiscovered.TestMethodName);
+							testDiscovered = testDiscovered.WithSourceInfo(sourceInformation.SourceFile, sourceInformation.SourceLine);
 						}
 
 						if (assemblyUniqueID is null)

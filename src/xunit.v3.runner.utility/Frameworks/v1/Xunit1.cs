@@ -209,17 +209,16 @@ public class Xunit1 : IFrontController
 								traits.Add(traitName, traitValue);
 						}
 
-					string? sourceFile = null;
-					int? sourceLine = null;
+					var sourceInformation = default(SourceInformation);
 					if (includeSourceInformation)
-						(sourceFile, sourceLine) = sourceInformationProvider.GetSourceInformation(typeName, methodName);
+						sourceInformation = sourceInformationProvider.GetSourceInformation(typeName, methodName);
 
 					var testCase = new Xunit1TestCase
 					{
 						AssemblyUniqueID = TestAssemblyUniqueID,
 						SkipReason = skipReason,
-						SourceFilePath = sourceFile,
-						SourceLineNumber = sourceLine,
+						SourceFilePath = sourceInformation.SourceFile,
+						SourceLineNumber = sourceInformation.SourceLine,
 						TestCaseDisplayName = displayName ?? string.Format(CultureInfo.InvariantCulture, "{0}.{1}", typeName, methodName),
 						TestCaseUniqueID = string.Format(CultureInfo.InvariantCulture, ":v1:case:{0}.{1}:{2}:{3}", typeName, methodName, assemblyFileName, configFileName ?? "(null)"),
 						TestClass = typeName,

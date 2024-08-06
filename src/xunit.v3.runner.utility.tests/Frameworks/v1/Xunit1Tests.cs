@@ -217,7 +217,7 @@ public class Xunit1Tests
 			xunit1
 				.SourceInformationProvider
 				.GetSourceInformation(null, null)
-				.ReturnsForAnyArgs(callInfo => ($"File for {callInfo.Args()[0]}.{callInfo.Args()[1]}", null));
+				.ReturnsForAnyArgs(callInfo => new SourceInformation($"File for {callInfo.Args()[0]}.{callInfo.Args()[1]}", null));
 			var sink = new TestableTestDiscoverySink();
 
 			xunit1.Find(sink, includeSourceInformation: true);

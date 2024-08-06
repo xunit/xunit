@@ -50,8 +50,8 @@ public class Xunit2SourceInformationProvider : MarshalByRefObject, Abstractions.
 		if (className is null || methodName is null)
 			return null;
 
-		var (sourceFile, sourceLine) = v3Provider.GetSourceInformation(className, methodName);
-		return new Xunit2SourceInformation { FileName = sourceFile, LineNumber = sourceLine };
+		var sourceInformation = v3Provider.GetSourceInformation(className, methodName);
+		return new Xunit2SourceInformation { FileName = sourceInformation.SourceFile, LineNumber = sourceInformation.SourceLine };
 	}
 
 #if NETFRAMEWORK
