@@ -74,7 +74,7 @@ public class ConsoleRunner(
 
 			if (commandLine.HelpRequested)
 			{
-				ProjectRunner.PrintHeader(consoleHelper);
+				ProjectAssemblyRunner.PrintHeader(consoleHelper);
 
 				consoleHelper.WriteLine("Copyright (C) .NET Foundation.");
 				consoleHelper.WriteLine();
@@ -160,7 +160,7 @@ public class ConsoleRunner(
 					? new AutomatedDiagnosticMessageSink(consoleHelper)
 					: ConsoleDiagnosticMessageSink.TryCreate(consoleHelper, noColor, globalDiagnosticMessages, globalInternalDiagnosticMessages);
 
-			pipelineStartup = await ProjectRunner.InvokePipelineStartup(testAssembly, consoleHelper, automated, noColor, globalDiagnosticMessages, globalInternalDiagnosticMessages);
+			pipelineStartup = await ProjectAssemblyRunner.InvokePipelineStartup(testAssembly, consoleHelper, automated, noColor, globalDiagnosticMessages, globalInternalDiagnosticMessages);
 
 			var failCount = 0;
 
@@ -170,7 +170,7 @@ public class ConsoleRunner(
 				var reporterMessageHandler = await reporter.CreateMessageHandler(logger, globalDiagnosticMessageSink);
 
 				if (!reporter.ForceNoLogo && !project.Configuration.NoLogoOrDefault)
-					ProjectRunner.PrintHeader(consoleHelper);
+					ProjectAssemblyRunner.PrintHeader(consoleHelper);
 
 				foreach (string warning in commandLine.ParseWarnings)
 					if (automated)
@@ -178,7 +178,7 @@ public class ConsoleRunner(
 					else
 						logger.LogWarning(warning);
 
-				var projectRunner = new ProjectRunner(testAssembly, consoleHelper, () => cancel, automated);
+				var projectRunner = new ProjectAssemblyRunner(testAssembly, consoleHelper, () => cancel, automated);
 				if (project.Configuration.WaitForDebuggerOrDefault)
 				{
 					if (!automated)
@@ -198,7 +198,7 @@ public class ConsoleRunner(
 				if (project.Configuration.List is not null)
 					await ListAssembly(projectAssembly, automated);
 				else
-					failCount = await projectRunner.Run(projectAssembly, reporterMessageHandler);
+					failCount = await projectRunner.Run(projectAssembly, reporterMessageHandler, pipelineStartup);
 
 				if (cancel)
 					return -1073741510;    // 0xC000013A: The application terminated as a result of a CTRL+C
@@ -263,39 +263,12 @@ public class ConsoleRunner(
 			listFormat = ListFormat.Json;
 
 		var assemblyFileName = Guard.ArgumentNotNull(assembly.AssemblyFileName);
-
-		// Default to false for console runners
-		assembly.Configuration.PreEnumerateTheories ??= false;
-
-		// Setup discovery options with command line overrides
-		var discoveryOptions = TestFrameworkOptions.ForDiscovery(assembly.Configuration);
-
-		var noColor = assembly.Project.Configuration.NoColorOrDefault;
-		var diagnosticMessages = assembly.Configuration.DiagnosticMessagesOrDefault;
-		var internalDiagnosticMessages = assembly.Configuration.InternalDiagnosticMessagesOrDefault;
-		var diagnosticMessageSink = ConsoleDiagnosticMessageSink.TryCreate(consoleHelper, noColor, diagnosticMessages, internalDiagnosticMessages);
-
-		TestContext.SetForInitialization(diagnosticMessageSink, diagnosticMessages, internalDiagnosticMessages);
-
-		await using var disposalTracker = new DisposalTracker();
-		var testFramework = ExtensibilityPointFactory.GetTestFramework(testAssembly);
-		disposalTracker.Add(testFramework);
-
-		if (pipelineStartup is not null)
-			testFramework.SetTestPipelineStartup(pipelineStartup);
-
-		// Discover & filter the tests
-		var testCases = new List<ITestCase>();
-		var testDiscoverer = testFramework.GetDiscoverer(testAssembly);
-		var types =
-			assembly.Configuration.Filters.IncludedClasses.Count == 0 || assembly.Assembly is null
-				? null
-				: assembly.Configuration.Filters.IncludedClasses.Select(assembly.Assembly.GetType).WhereNotNull().ToArray();
-
-		await testDiscoverer.Find(testCase => { testCases.Add(testCase); return new(!cancel); }, discoveryOptions, types);
+		var projectRunner = new ProjectAssemblyRunner(testAssembly, consoleHelper, () => cancel, automated);
+		var testCases = new List<(ITestCase TestCase, bool PassedFilter)>();
+		await projectRunner.Discover(assembly, pipelineStartup, testCases: testCases);
 
 		var testCasesDiscovered = testCases.Count;
-		var filteredTestCases = testCases.Where(assembly.Configuration.Filters.Filter).ToList();
+		var filteredTestCases = testCases.Where(tc => tc.PassedFilter).Select(tc => tc.TestCase).ToList();
 
 		if (listOption != ListOption.Discovery)
 		{

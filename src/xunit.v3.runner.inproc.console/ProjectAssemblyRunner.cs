@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -17,13 +18,13 @@ using ErrorMessage = Xunit.Runner.Common.ErrorMessage;
 namespace Xunit.Runner.InProc.SystemConsole;
 
 /// <summary>
-/// The project runner class, shared between <see cref="ConsoleRunner"/> and xunit.runner.visualstudio.
+/// The project assembly runner class, used by <see cref="ConsoleRunner"/>.
 /// </summary>
-/// <param name="testAssembly">The test assembly under test</param>
+/// <param name="testAssembly">The assembly under test</param>
 /// <param name="consoleHelper">The console helper to use for output</param>
 /// <param name="cancelThunk">The thunk to determine if we should cancel</param>
 /// <param name="automated">The flag to indicate if we are in automated mode</param>
-public sealed class ProjectRunner(
+public sealed class ProjectAssemblyRunner(
 	Assembly testAssembly,
 	ConsoleHelper consoleHelper,
 	Func<bool> cancelThunk,
@@ -45,13 +46,16 @@ public sealed class ProjectRunner(
 	/// Discovers tests in the given test project.
 	/// </summary>
 	/// <param name="assembly">The test project assembly</param>
-	/// <param name="messageSink">The message sink to send messages to</param>
+	/// <param name="pipelineStartup">The pipeline startup object</param>
+	/// <param name="messageSink">The optional message sink to send messages to</param>
+	/// <param name="testCases">A collection to contain the test cases to run, if desired</param>
 	public async ValueTask Discover(
 		XunitProjectAssembly assembly,
-		IMessageSink messageSink)
+		ITestPipelineStartup? pipelineStartup,
+		IMessageSink? messageSink = null,
+		IList<(ITestCase TestCase, bool PassedFilter)>? testCases = null)
 	{
 		Guard.ArgumentNotNull(assembly);
-		Guard.ArgumentNotNull(messageSink);
 
 		// Default to false for console runners
 		assembly.Configuration.PreEnumerateTheories ??= false;
@@ -59,9 +63,10 @@ public sealed class ProjectRunner(
 		// Setup discovery options with command-line overrides
 		var discoveryOptions = TestFrameworkOptions.ForDiscovery(assembly.Configuration);
 
+		var noColor = automated || assembly.Project.Configuration.NoColorOrDefault;
 		var diagnosticMessages = assembly.Configuration.DiagnosticMessagesOrDefault;
 		var internalDiagnosticMessages = assembly.Configuration.InternalDiagnosticMessagesOrDefault;
-		var diagnosticMessageSink = ConsoleDiagnosticMessageSink.TryCreate(consoleHelper, noColor: true, diagnosticMessages, internalDiagnosticMessages);
+		var diagnosticMessageSink = ConsoleDiagnosticMessageSink.TryCreate(consoleHelper, noColor, diagnosticMessages, internalDiagnosticMessages);
 
 		TestContext.SetForInitialization(diagnosticMessageSink, diagnosticMessages, internalDiagnosticMessages);
 
@@ -69,8 +74,27 @@ public sealed class ProjectRunner(
 		var testFramework = ExtensibilityPointFactory.GetTestFramework(testAssembly);
 		disposalTracker.Add(testFramework);
 
+		if (pipelineStartup is not null)
+			testFramework.SetTestPipelineStartup(pipelineStartup);
+
+		var types =
+			assembly.Configuration.Filters.IncludedClasses.Count == 0 || assembly.Assembly is null
+				? null
+				: assembly.Configuration.Filters.IncludedClasses.Select(assembly.Assembly.GetType).WhereNotNull().ToArray();
+
 		var frontController = new InProcessFrontController(testFramework, testAssembly, assembly.ConfigFileName);
-		await frontController.Find(messageSink, discoveryOptions, assembly.Configuration.Filters.Filter);
+
+		await frontController.Find(
+			messageSink ?? NullMessageSink.Instance,
+			discoveryOptions,
+			assembly.Configuration.Filters.Filter,
+			types,
+			(testCase, passedFilter) =>
+			{
+				testCases?.Add((testCase, passedFilter));
+				return new(!cancelThunk());
+			}
+		);
 	}
 
 	/// <summary>
@@ -146,10 +170,12 @@ public sealed class ProjectRunner(
 	/// </summary>
 	/// <param name="assembly">The test project assembly</param>
 	/// <param name="messageSink">The message sink to send messages to</param>
+	/// <param name="pipelineStartup">The pipeline startup object</param>
 	/// <returns>Returns <c>0</c> if there were no failures; non-<c>zero</c> failure count, otherwise</returns>
 	public async ValueTask<int> Run(
 		XunitProjectAssembly assembly,
-		IMessageSink messageSink)
+		IMessageSink messageSink,
+		ITestPipelineStartup? pipelineStartup)
 	{
 		Guard.ArgumentNotNull(assembly);
 		Guard.ArgumentNotNull(messageSink);
@@ -173,7 +199,7 @@ public sealed class ProjectRunner(
 			var discoveryOptions = TestFrameworkOptions.ForDiscovery(assembly.Configuration);
 			var executionOptions = TestFrameworkOptions.ForExecution(assembly.Configuration);
 
-			var noColor = assembly.Project.Configuration.NoColorOrDefault;
+			var noColor = automated || assembly.Project.Configuration.NoColorOrDefault;
 			var diagnosticMessages = assembly.Configuration.DiagnosticMessagesOrDefault;
 			var internalDiagnosticMessages = assembly.Configuration.InternalDiagnosticMessagesOrDefault;
 			var diagnosticMessageSink = ConsoleDiagnosticMessageSink.TryCreate(consoleHelper, noColor, diagnosticMessages, internalDiagnosticMessages);
@@ -184,6 +210,9 @@ public sealed class ProjectRunner(
 			await using var disposalTracker = new DisposalTracker();
 			var testFramework = ExtensibilityPointFactory.GetTestFramework(testAssembly);
 			disposalTracker.Add(testFramework);
+
+			if (pipelineStartup is not null)
+				testFramework.SetTestPipelineStartup(pipelineStartup);
 
 			var frontController = new InProcessFrontController(testFramework, testAssembly, assembly.ConfigFileName);
 
