@@ -474,7 +474,7 @@ public static partial class TestData
 		int? testMethodMetadataToken = 2112,
 		string testMethodName = DefaultMethodName,
 		string[]? testMethodParameterTypes = null,
-		string? testMethodReturnType = null,
+		string? testMethodReturnType = DefaultMethodReturnType,
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null) =>
 			new Xunit.Runner.Common.TestCaseStarting()
@@ -494,8 +494,8 @@ public static partial class TestData
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestMethodMetadataToken = testMethodMetadataToken,
 				TestMethodName = testMethodName,
-				TestMethodParameterTypes = testMethodParameterTypes ?? [],
-				TestMethodReturnType = testMethodReturnType ?? typeof(void).SafeName(),
+				TestMethodParameterTypes = testMethodParameterTypes ?? DefaultMethodParameterTypes,
+				TestMethodReturnType = testMethodReturnType,
 				TestMethodUniqueID = testMethodUniqueID,
 				Traits = traits ?? DefaultTraits,
 			};

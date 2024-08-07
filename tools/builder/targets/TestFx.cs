@@ -4,6 +4,6 @@ namespace Xunit.BuildTools.Targets;
 
 [Target(
 	BuildTarget.TestFx,
-	BuildTarget.TestFxConsole, BuildTarget.TestFxMSBuild
+	BuildTarget.TestFxConsole, BuildTarget.TestFxMTP, BuildTarget.TestFxMSBuild
 )]
 public static class TestFx { }

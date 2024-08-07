@@ -76,8 +76,7 @@ public class ConsoleRunner(
 
 			if (commandLine.HelpRequested)
 			{
-				ProjectAssemblyRunner.PrintHeader(consoleHelper);
-
+				consoleHelper.WriteLine(ProjectAssemblyRunner.Banner);
 				consoleHelper.WriteLine("Copyright (C) .NET Foundation.");
 				consoleHelper.WriteLine();
 
@@ -127,22 +126,6 @@ public class ConsoleRunner(
 				return 0;
 			}
 
-			AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
-
-			Console.CancelKeyPress += (sender, e) =>
-			{
-				if (started && !cancel)
-				{
-					if (automatedMode != AutomatedMode.Off)
-						consoleHelper.WriteMessage(new DiagnosticMessage("Cancellation request received"), automatedMode);
-					else
-						consoleHelper.WriteLine("Cancelling... (Press Ctrl+C again to terminate)");
-
-					cancel = true;
-					e.Cancel = true;
-				}
-			};
-
 			if (project.Configuration.PauseOrDefault && automatedMode == AutomatedMode.Off)
 			{
 				consoleHelper.Write("Press any key to start execution...");
@@ -163,12 +146,46 @@ public class ConsoleRunner(
 
 			logger = new ConsoleRunnerLogger(!noColor, useAnsiColor, consoleHelper, waitForAcknowledgment: automatedMode == AutomatedMode.Sync);
 
+			AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
+			{
+				if (e.ExceptionObject is Exception ex)
+				{
+					if (automatedMode != AutomatedMode.Off)
+						logger.WriteMessage(ErrorMessage.FromException(ex));
+					else
+						consoleHelper.WriteLine(ex.ToString());
+				}
+				else
+				{
+					if (automatedMode != AutomatedMode.Off)
+						logger.WriteMessage(new DiagnosticMessage("Error of unknown type thrown in application domain"));
+					else
+						consoleHelper.WriteLine("Error of unknown type thrown in application domain");
+				}
+
+				Environment.Exit(1);
+			};
+
+			Console.CancelKeyPress += (sender, e) =>
+			{
+				if (started && !cancel)
+				{
+					if (automatedMode != AutomatedMode.Off)
+						logger.WriteMessage(new DiagnosticMessage("Cancellation request received"));
+					else
+						consoleHelper.WriteLine("Cancelling... (Press Ctrl+C again to terminate)");
+
+					cancel = true;
+					e.Cancel = true;
+				}
+			};
+
 			IMessageSink? diagnosticMessageSink =
 				automatedMode != AutomatedMode.Off
-					? new AutomatedDiagnosticMessageSink(consoleHelper, automatedMode)
-					: ConsoleDiagnosticMessageSink.TryCreate(consoleHelper, noColor, diagnosticMessages, internalDiagnosticMessages);
+					? new AutomatedDiagnosticMessageSink(logger)
+					: ConsoleDiagnosticMessageSink.TryCreate(consoleHelper, noColor, diagnosticMessages, internalDiagnosticMessages, assemblyDisplayName: Path.GetFileNameWithoutExtension(testAssembly.Location));
 
-			pipelineStartup = await ProjectAssemblyRunner.InvokePipelineStartup(testAssembly, consoleHelper, automatedMode, noColor, diagnosticMessages, internalDiagnosticMessages);
+			pipelineStartup = await ProjectAssemblyRunner.InvokePipelineStartup(testAssembly, diagnosticMessageSink);
 
 			var failCount = 0;
 
@@ -178,15 +195,15 @@ public class ConsoleRunner(
 				var reporterMessageHandler = await reporter.CreateMessageHandler(logger, diagnosticMessageSink);
 
 				if (!reporter.ForceNoLogo && !project.Configuration.NoLogoOrDefault)
-					ProjectAssemblyRunner.PrintHeader(consoleHelper);
+					consoleHelper.WriteLine(ProjectAssemblyRunner.Banner);
 
 				foreach (var warning in commandLine.ParseWarnings)
 					if (automatedMode != AutomatedMode.Off)
-						consoleHelper.WriteMessage(new DiagnosticMessage("warning: " + warning), automatedMode);
+						logger.WriteMessage(new DiagnosticMessage("warning: " + warning));
 					else
 						logger.LogWarning(warning);
 
-				var projectRunner = new ProjectAssemblyRunner(testAssembly, consoleHelper, () => cancel, automatedMode);
+				var projectRunner = new ProjectAssemblyRunner(testAssembly, () => cancel, automatedMode);
 				if (project.Configuration.WaitForDebuggerOrDefault)
 				{
 					if (automatedMode == AutomatedMode.Off)
@@ -204,9 +221,14 @@ public class ConsoleRunner(
 				started = true;
 
 				if (project.Configuration.List is not null)
-					await ListAssembly(projectAssembly);
+					await ListAssembly(projectAssembly, logger);
 				else
-					failCount = await projectRunner.Run(projectAssembly, reporterMessageHandler, pipelineStartup);
+				{
+					// Default to false for console runners
+					projectAssembly.Configuration.PreEnumerateTheories ??= false;
+
+					failCount = await projectRunner.Run(projectAssembly, reporterMessageHandler, diagnosticMessageSink, logger, pipelineStartup);
+				}
 
 				if (cancel)
 					return -1073741510;    // 0xC000013A: The application terminated as a result of a CTRL+C
@@ -235,7 +257,7 @@ public class ConsoleRunner(
 				consoleHelper.SetForegroundColor(ConsoleColor.Red);
 
 			if (automatedMode != AutomatedMode.Off)
-				consoleHelper.WriteMessage(new DiagnosticMessage("error: " + ex.Message), automatedMode);
+				logger?.WriteMessage(new DiagnosticMessage("error: " + ex.Message));
 			else
 			{
 				consoleHelper.WriteLine("error: {0}", ex.Message);
@@ -258,14 +280,19 @@ public class ConsoleRunner(
 		}
 	}
 
-	async ValueTask ListAssembly(XunitProjectAssembly assembly)
+	async ValueTask ListAssembly(
+		XunitProjectAssembly assembly,
+		IRunnerLogger logger)
 	{
 		var (listOption, listFormat) = assembly.Project.Configuration.List!.Value;
 		if (automatedMode != AutomatedMode.Off)
 			listFormat = ListFormat.Json;
 
+		// Default to false for console runners
+		assembly.Configuration.PreEnumerateTheories ??= false;
+
 		var assemblyFileName = Guard.ArgumentNotNull(assembly.AssemblyFileName);
-		var projectRunner = new ProjectAssemblyRunner(testAssembly, consoleHelper, () => cancel, automatedMode);
+		var projectRunner = new ProjectAssemblyRunner(testAssembly, () => cancel, automatedMode);
 		var testCases = new List<(ITestCase TestCase, bool PassedFilter)>();
 		await projectRunner.Discover(assembly, pipelineStartup, testCases: testCases);
 
@@ -279,29 +306,7 @@ public class ConsoleRunner(
 		}
 		else
 			foreach (var testCase in filteredTestCases)
-				consoleHelper.WriteMessage(testCase.ToTestCaseDiscovered(), automatedMode);
-	}
-
-	void OnUnhandledException(
-		object sender,
-		UnhandledExceptionEventArgs e)
-	{
-		if (e.ExceptionObject is Exception ex)
-		{
-			if (automatedMode != AutomatedMode.Off)
-				consoleHelper.WriteMessage(ErrorMessage.FromException(ex), automatedMode);
-			else
-				consoleHelper.WriteLine(ex.ToString());
-		}
-		else
-		{
-			if (automatedMode != AutomatedMode.Off)
-				consoleHelper.WriteMessage(new DiagnosticMessage("Error of unknown type thrown in application domain"), automatedMode);
-			else
-				consoleHelper.WriteLine("Error of unknown type thrown in application domain");
-		}
-
-		Environment.Exit(1);
+				logger.WriteMessage(testCase.ToTestCaseDiscovered());
 	}
 
 	void PrintAssemblyInfo()

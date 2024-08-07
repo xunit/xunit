@@ -21,21 +21,30 @@ namespace Xunit.Runner.InProc.SystemConsole;
 /// The project assembly runner class, used by <see cref="ConsoleRunner"/>.
 /// </summary>
 /// <param name="testAssembly">The assembly under test</param>
-/// <param name="consoleHelper">The console helper to use for output</param>
 /// <param name="cancelThunk">The thunk to determine if we should cancel</param>
 /// <param name="automatedMode">The automated mode we're running in</param>
 public sealed class ProjectAssemblyRunner(
 	Assembly testAssembly,
-	ConsoleHelper consoleHelper,
 	Func<bool> cancelThunk,
 	AutomatedMode automatedMode)
 {
 	readonly AutomatedMode automatedMode = automatedMode;
 	volatile bool cancel;
 	readonly Func<bool> cancelThunk = cancelThunk;
-	readonly ConsoleHelper consoleHelper = consoleHelper;
 	bool failed;
 	readonly Assembly testAssembly = testAssembly;
+
+	/// <summary>
+	/// Gets a one-line banner to be printed when the runner is executed.
+	/// </summary>
+	public static string Banner =>
+		string.Format(
+			CultureInfo.CurrentCulture,
+			"xUnit.net v3 In-Process Runner v{0} ({1}-bit {2})",
+			ThisAssembly.AssemblyInformationalVersion,
+			IntPtr.Size * 8,
+			RuntimeInformation.FrameworkDescription
+		);
 
 	/// <summary>
 	/// Gets the summaries of the test execution, once it is finished.
@@ -48,29 +57,21 @@ public sealed class ProjectAssemblyRunner(
 	/// <param name="assembly">The test project assembly</param>
 	/// <param name="pipelineStartup">The pipeline startup object</param>
 	/// <param name="messageSink">The optional message sink to send messages to</param>
+	/// <param name="diagnosticMessageSink">The optional message sink to send diagnostic messages to</param>
 	/// <param name="testCases">A collection to contain the test cases to run, if desired</param>
 	public async ValueTask Discover(
 		XunitProjectAssembly assembly,
 		ITestPipelineStartup? pipelineStartup,
 		IMessageSink? messageSink = null,
+		IMessageSink? diagnosticMessageSink = null,
 		IList<(ITestCase TestCase, bool PassedFilter)>? testCases = null)
 	{
 		Guard.ArgumentNotNull(assembly);
 
-		// Default to false for console runners
-		assembly.Configuration.PreEnumerateTheories ??= false;
-
 		// Setup discovery options with command-line overrides
 		var discoveryOptions = TestFrameworkOptions.ForDiscovery(assembly.Configuration);
-
-		var noColor = automatedMode != AutomatedMode.Off || assembly.Project.Configuration.NoColorOrDefault;
 		var diagnosticMessages = assembly.Configuration.DiagnosticMessagesOrDefault;
 		var internalDiagnosticMessages = assembly.Configuration.InternalDiagnosticMessagesOrDefault;
-
-		IMessageSink? diagnosticMessageSink =
-			automatedMode != AutomatedMode.Off
-				? new AutomatedDiagnosticMessageSink(consoleHelper, automatedMode)
-				: ConsoleDiagnosticMessageSink.TryCreate(consoleHelper, noColor, diagnosticMessages, internalDiagnosticMessages, assembly.AssemblyDisplayName);
 
 		TestContext.SetForInitialization(diagnosticMessageSink, diagnosticMessages, internalDiagnosticMessages);
 
@@ -89,14 +90,18 @@ public sealed class ProjectAssemblyRunner(
 		var frontController = new InProcessFrontController(testFramework, testAssembly, assembly.ConfigFileName);
 
 		await frontController.Find(
-			messageSink ?? NullMessageSink.Instance,
+			messageSink,
 			discoveryOptions,
 			assembly.Configuration.Filters.Filter,
 			types,
 			(testCase, passedFilter) =>
 			{
 				testCases?.Add((testCase, passedFilter));
-				return new(!cancelThunk());
+
+				return
+					passedFilter && (messageSink?.OnMessage(testCase.ToTestCaseDiscovered())) == false
+						? new(false)
+						: new(!cancelThunk());
 			}
 		);
 	}
@@ -106,21 +111,12 @@ public sealed class ProjectAssemblyRunner(
 	/// that was created.
 	/// </summary>
 	/// <param name="testAssembly">The test assembly under test</param>
-	/// <param name="consoleHelper">The console helper to use for output</param>
-	/// <param name="automatedMode">The automated mode we're running in</param>
-	/// <param name="noColor">The flag to indicate whether we should suppress color in the output</param>
-	/// <param name="diagnosticMessages">The flag to indicate if the user wants to see diagnostic messages</param>
-	/// <param name="internalDiagnosticMessages">The flag to indicate if the user wants to see internal diagnostic messages</param>
+	/// <param name="diagnosticMessageSink">The optional diagnostic message sink to report diagnostic messages to</param>
 	public static async ValueTask<ITestPipelineStartup?> InvokePipelineStartup(
 		Assembly testAssembly,
-		ConsoleHelper consoleHelper,
-		AutomatedMode automatedMode,
-		bool noColor,
-		bool diagnosticMessages,
-		bool internalDiagnosticMessages)
+		IMessageSink? diagnosticMessageSink)
 	{
 		Guard.ArgumentNotNull(testAssembly);
-		Guard.ArgumentNotNull(consoleHelper);
 
 		var result = default(ITestPipelineStartup);
 
@@ -146,12 +142,7 @@ public sealed class ProjectAssemblyRunner(
 			if (result is null)
 				throw new TestPipelineException(string.Format(CultureInfo.CurrentCulture, "Pipeline startup type '{0}' does not implement '{1}'", pipelineStartupType.SafeName(), typeof(ITestPipelineStartup).SafeName()));
 
-			IMessageSink? pipelineMessageSink =
-				automatedMode != AutomatedMode.Off
-					? new AutomatedDiagnosticMessageSink(consoleHelper, automatedMode)
-					: ConsoleDiagnosticMessageSink.TryCreate(consoleHelper, noColor, diagnosticMessages, internalDiagnosticMessages, assemblyDisplayName: pipelineStartupType.SafeName(), indent: false);
-
-			await result.StartAsync(pipelineMessageSink ?? NullMessageSink.Instance);
+			await result.StartAsync(diagnosticMessageSink ?? NullMessageSink.Instance);
 		}
 
 		return result;
@@ -174,15 +165,22 @@ public sealed class ProjectAssemblyRunner(
 	/// </summary>
 	/// <param name="assembly">The test project assembly</param>
 	/// <param name="messageSink">The message sink to send messages to</param>
+	/// <param name="diagnosticMessageSink">The optional message sink to send diagnostic messages to</param>
+	/// <param name="runnerLogger">The runner logger, to log console output to</param>
 	/// <param name="pipelineStartup">The pipeline startup object</param>
+	/// <param name="testCaseIDsToRun">An optional list of test case unique IDs to run</param>
 	/// <returns>Returns <c>0</c> if there were no failures; non-<c>zero</c> failure count, otherwise</returns>
 	public async ValueTask<int> Run(
 		XunitProjectAssembly assembly,
 		IMessageSink messageSink,
-		ITestPipelineStartup? pipelineStartup)
+		IMessageSink? diagnosticMessageSink,
+		IRunnerLogger runnerLogger,
+		ITestPipelineStartup? pipelineStartup,
+		HashSet<string>? testCaseIDsToRun = null)
 	{
 		Guard.ArgumentNotNull(assembly);
 		Guard.ArgumentNotNull(messageSink);
+		Guard.ArgumentNotNull(runnerLogger);
 
 		XElement? assemblyElement = null;
 		var clockTime = Stopwatch.StartNew();
@@ -196,22 +194,13 @@ public sealed class ProjectAssemblyRunner(
 
 		try
 		{
-			// Default to false for console runners
-			assembly.Configuration.PreEnumerateTheories ??= false;
-
 			// Setup discovery and execution options with command-line overrides
 			var discoveryOptions = TestFrameworkOptions.ForDiscovery(assembly.Configuration);
 			var executionOptions = TestFrameworkOptions.ForExecution(assembly.Configuration);
 
-			var noColor = automatedMode != AutomatedMode.Off || assembly.Project.Configuration.NoColorOrDefault;
 			var diagnosticMessages = assembly.Configuration.DiagnosticMessagesOrDefault;
 			var internalDiagnosticMessages = assembly.Configuration.InternalDiagnosticMessagesOrDefault;
 			var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
-
-			IMessageSink? diagnosticMessageSink =
-				automatedMode != AutomatedMode.Off
-					? new AutomatedDiagnosticMessageSink(consoleHelper, automatedMode)
-					: ConsoleDiagnosticMessageSink.TryCreate(consoleHelper, noColor, diagnosticMessages, internalDiagnosticMessages, assembly.AssemblyDisplayName);
 
 			TestContext.SetForInitialization(diagnosticMessageSink, diagnosticMessages, internalDiagnosticMessages);
 
@@ -245,16 +234,44 @@ public sealed class ProjectAssemblyRunner(
 			if (testCases.Length != 0)
 				await frontController.Run(resultsSink, executionOptions, testCases);
 			else
-				await frontController.FindAndRun(resultsSink, discoveryOptions, executionOptions, assembly.Configuration.Filters.Filter);
+			{
+				// If we were given test case IDs to filter by, we need to see if they asked for
+				// just explicit tests, and then flip the explicit option to support running them,
+				// because the explicit information is not available from MTP.
+				if (testCaseIDsToRun is not null)
+				{
+					List<ITestCase> testCasesToRun = [];
+					var allExplicit = true;
+
+					await frontController.Find(resultsSink, discoveryOptions, assembly.Configuration.Filters.Filter, discoveryCallback: (testCase, passedFilter) =>
+					{
+						if (passedFilter && testCaseIDsToRun.Contains(testCase.UniqueID))
+						{
+							testCasesToRun.Add(testCase);
+							if (!testCase.Explicit)
+								allExplicit = false;
+						}
+
+						return new(true);
+					});
+
+					if (allExplicit)
+						executionOptions.SetExplicitOption(ExplicitOption.Only);
+
+					await frontController.Run(resultsSink, executionOptions, testCasesToRun);
+				}
+				else
+					await frontController.FindAndRun(resultsSink, discoveryOptions, executionOptions, assembly.Configuration.Filters.Filter);
+			}
 
 			TestExecutionSummaries.Add(frontController.TestAssemblyUniqueID, resultsSink.ExecutionSummary);
 
 			if (resultsSink.ExecutionSummary.Failed != 0 && executionOptions.GetStopOnTestFailOrDefault())
 			{
 				if (automatedMode != AutomatedMode.Off)
-					consoleHelper.WriteMessage(new DiagnosticMessage("Cancelling due to test failure"), automatedMode);
+					runnerLogger.WriteMessage(new DiagnosticMessage("Cancelling due to test failure"));
 				else
-					consoleHelper.WriteLine("Cancelling due to test failure...");
+					runnerLogger.LogMessage("Cancelling due to test failure...");
 
 				cancel = true;
 			}
@@ -267,13 +284,13 @@ public sealed class ProjectAssemblyRunner(
 			while (e is not null)
 			{
 				if (automatedMode != AutomatedMode.Off)
-					consoleHelper.WriteMessage(ErrorMessage.FromException(e), automatedMode);
+					runnerLogger.WriteMessage(ErrorMessage.FromException(e));
 				else
 				{
-					consoleHelper.WriteLine("{0}: {1}", e.GetType().SafeName(), e.Message);
+					runnerLogger.LogMessage("{0}: {1}", e.GetType().SafeName(), e.Message);
 
-					if (assembly.Configuration.InternalDiagnosticMessagesOrDefault)
-						consoleHelper.WriteLine(e.StackTrace);
+					if (assembly.Configuration.InternalDiagnosticMessagesOrDefault && e.StackTrace is not null)
+						runnerLogger.LogMessage(e.StackTrace);
 				}
 
 				e = e.InnerException;

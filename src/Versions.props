@@ -5,15 +5,14 @@
 
     <!-- Used for building -->
     <ILRepackVersion>2.0.34</ILRepackVersion>
-    <MicrosoftNetCoreAppRefVersion>8.0.5</MicrosoftNetCoreAppRefVersion>
+    <MicrosoftNetCoreAppRefVersion>8.0.8</MicrosoftNetCoreAppRefVersion>
     <MicrosoftNetFrameworkReferenceAssembliesVersion>1.0.3</MicrosoftNetFrameworkReferenceAssembliesVersion>
     <MicrosoftSourceLinkGitHubVersion>8.0.0</MicrosoftSourceLinkGitHubVersion>
-    <NerdbankGitVersioningVersion>3.6.141</NerdbankGitVersioningVersion>
+    <NerdbankGitVersioningVersion>3.6.143</NerdbankGitVersioningVersion>
     <TunnelVisionLabsReferenceAssemblyAnnotatorVersion>1.0.0-alpha.160</TunnelVisionLabsReferenceAssemblyAnnotatorVersion>
-    <XunitAnalyzersVersion>1.16.0</XunitAnalyzersVersion>
 
-    <!-- Used for template packaging, uncomment when building RTW packages -->
-    <!--<VisualStudioRunnerTemplateVersion>3.0.0</VisualStudioRunnerTemplateVersion>-->
+    <!-- Used by xunit.v3 (NuGet package) -->
+    <XunitAnalyzersVersion>1.16.0</XunitAnalyzersVersion>
 
     <!-- Used by xunit.v3.assert for immutable collection support (for netstandard2.0 only) -->
     <SystemCollectionsImmutableVersion>6.0.0</SystemCollectionsImmutableVersion>
@@ -21,22 +20,31 @@
     <!-- Used by xunit.v3.core for IAsyncDisposable -->
     <MicrosoftBclAsyncInterfacesVersion>6.0.0</MicrosoftBclAsyncInterfacesVersion>
 
+    <!-- Used by xunit.v3.runner.inproc.console to support Microsoft.Testing.Platform -->
+    <MicrosoftTestingPlatformVersion>1.4.0</MicrosoftTestingPlatformVersion>
+
     <!-- Used by xunit.v3.runner.msbuild to reference MSBuild types -->
     <MicrosoftBuildVersion>15.1.548</MicrosoftBuildVersion>
 
     <!-- Used by xunit.v3.runner.utility to determine the target framework of an assembly without load-locking it -->
     <MonoCecilVersion>0.11.5</MonoCecilVersion>
 
+    <!-- Used by xunit.v3.runner.utility to support running v2 test projects -->
+    <XunitAbstractionsVersion>2.0.3</XunitAbstractionsVersion>
+
+    <!-- Used by xunit.v3.templates (NuGet package) -->
+    <MicrosoftNetTestSdkVersion>17.11.1</MicrosoftNetTestSdkVersion>
+    <XunitVisualStudioRunnerVersion>3.0.0-pre.31</XunitVisualStudioRunnerVersion>
+    <!-- Uncomment this line when building RTW packages -->
+    <!--<VisualStudioRunnerTemplateVersion>3.0.0</VisualStudioRunnerTemplateVersion>-->
+
     <!-- Used in non-product (test or back-compat) projects -->
     <FSharpCompilerServiceVersion>43.7.200</FSharpCompilerServiceVersion>
-    <MicrosoftNetTestSdkVersion>17.11.0</MicrosoftNetTestSdkVersion>
     <MoqVersion>4.17.2</MoqVersion>
     <NSubstituteVersion>5.1.0</NSubstituteVersion>
     <SystemMemoryVersion>4.5.5</SystemMemoryVersion>
-    <XunitAbstractionsVersion>2.0.3</XunitAbstractionsVersion>
     <XunitV1Version>1.9.2</XunitV1Version>
     <XunitV2Version>2.9.1-pre.10</XunitV2Version>
-    <XunitVisualStudioRunnerVersion>3.0.0-pre.30</XunitVisualStudioRunnerVersion>
 
   </PropertyGroup>
 

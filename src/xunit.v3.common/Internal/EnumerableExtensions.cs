@@ -45,6 +45,20 @@ public static class EnumerableExtensions
 		source is null ? null : source as IReadOnlyList<T> ?? source.ToArray();
 
 	/// <summary>
+	/// Enumerates all values in a collection, calling the callback for each.
+	/// </summary>
+	public static void ForEach<T>(
+		this IEnumerable<T> source,
+		Action<T> callback)
+	{
+		Guard.ArgumentNotNull(source);
+		Guard.ArgumentNotNull(callback);
+
+		foreach (var value in source)
+			callback(value);
+	}
+
+	/// <summary>
 	/// Returns <paramref name="source"/> as an enumerable of <typeparamref name="T"/> with
 	/// all the <c>null</c> items removed.
 	/// </summary>

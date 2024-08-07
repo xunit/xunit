@@ -25,6 +25,8 @@ public static partial class TestData
 	public const decimal DefaultExecutionTime = 123.4567m;
 	public static DateTimeOffset DefaultFinishTime = new(2024, 07, 04, 21, 12, 9, TimeSpan.Zero);
 	public const string DefaultMethodName = "test-method";
+	public static string[] DefaultMethodParameterTypes = ["System.Int32", "System.String"];
+	public const string DefaultMethodReturnType = "System.Void";
 	public static Guid DefaultModuleVersionID = new("61aa43e6-1985-4c43-95c4-b146498925a2");
 	public const string DefaultOutput = "test-helper-output";
 	public const string DefaultSkipReason = "skip-reason";
@@ -47,6 +49,7 @@ public static partial class TestData
 	public const string DefaultTestMethodUniqueID = "test-method-id";
 	public const string DefaultTestUniqueID = "test-id";
 	public static readonly IReadOnlyDictionary<string, IReadOnlyCollection<string>> DefaultTraits = new Dictionary<string, HashSet<string>>() { ["foo"] = ["bar", "baz"], ["biff"] = ["bang"] }.ToReadOnly();
+	public static readonly IReadOnlyDictionary<string, IReadOnlyCollection<string>> DefaultTraitsWithCategory = new Dictionary<string, HashSet<string>>() { ["foo"] = ["bar", "baz"], ["biff"] = ["bang"], ["category"] = ["interesting"] }.ToReadOnly();
 	public static readonly IReadOnlyDictionary<string, TestAttachment> EmptyAttachments = new Dictionary<string, TestAttachment>();
 	public static readonly Dictionary<string, (Type, CollectionDefinitionAttribute)> EmptyCollectionDefinitions = [];
 	public static readonly IReadOnlyDictionary<string, IReadOnlyCollection<string>> EmptyTraits = new Dictionary<string, IReadOnlyCollection<string>>();

@@ -11,6 +11,7 @@ public partial class BuildContext
 	string? consoleRunner32Exe;
 	string? testFlagsNonParallel;
 	string? testFlagsParallel;
+	string? testFlagsParallelMTP;
 
 	// Calculated properties
 
@@ -38,6 +39,12 @@ public partial class BuildContext
 		private set => testFlagsParallel = value ?? throw new ArgumentNullException(nameof(TestFlagsParallel));
 	}
 
+	public string TestFlagsParallelMTP
+	{
+		get => testFlagsParallelMTP ?? throw new InvalidOperationException($"Tried to retrieve unset {nameof(BuildContext)}.{nameof(TestFlagsParallelMTP)}");
+		private set => testFlagsParallelMTP = value ?? throw new ArgumentNullException(nameof(TestFlagsParallelMTP));
+	}
+
 	// User-controllable command-line options
 
 	[Option("-3|--v3only", Description = "Only run tests for v3 projects (skip tests for v1 and v2)")]
@@ -53,9 +60,13 @@ public partial class BuildContext
 
 		TestFlagsNonParallel = "-parallel none ";
 		TestFlagsParallel = "";
+		TestFlagsParallelMTP = "";
 
 		// Run parallelizable tests with a single thread in CI to help catch Task-related deadlocks
 		if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("CI")))
+		{
 			TestFlagsParallel = "-maxthreads 1 ";
+			TestFlagsParallelMTP = "--max-threads 1 ";
+		}
 	}
 }
