@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using NSubstitute;
 using Xunit;
 using Xunit.Sdk;
 using Xunit.v3;
@@ -220,17 +219,31 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		var spy = SpyMessageSink.Capture();
 		TestContext.Current.DiagnosticMessageSink = spy;
 		var discoverer = new TheoryDiscoverer();
-		var theoryAttribute = new TheoryAttribute();
-		var dataAttribute = Substitute.For<IDataAttribute, InterfaceProxy<IDataAttribute>>();
-		dataAttribute.GetData(null!, null!).ReturnsForAnyArgs(_ => null!);
-		dataAttribute.SupportsDiscoveryEnumeration().Returns(true);
-		var testMethod = Mocks.XunitTestMethod(dataAttributes: [dataAttribute], factAttributes: [theoryAttribute]);
+		var testMethod = TestData.XunitTestMethod<ClassUnderTest>(nameof(ClassUnderTest.TestMethod));
+		var theoryAttribute = (ITheoryAttribute)testMethod.FactAttributes.Single();
 
 		var testCases = await discoverer.Discover(discoveryOptions, testMethod, theoryAttribute);
 
 		var testCase = Assert.Single(testCases);
 		var eeTestCase = Assert.IsType<ExecutionErrorTestCase>(testCase);
-		Assert.Equal("Test data returned null for test-class-name.test-method. Make sure it is statically initialized before this test method is called.", eeTestCase.ErrorMessage);
+		Assert.Equal("Test data returned null for TheoryDiscovererTests+ClassUnderTest.TestMethod. Make sure it is statically initialized before this test method is called.", eeTestCase.ErrorMessage);
+	}
+
+	class ClassUnderTest
+	{
+		[Theory]
+		[NullReturningDataAttribute]
+		public void TestMethod(int _) { }
+	}
+
+	class NullReturningDataAttributeAttribute : DataAttribute
+	{
+		public override ValueTask<IReadOnlyCollection<ITheoryDataRow>> GetData(
+			MethodInfo testMethod,
+			DisposalTracker disposalTracker) =>
+				new(default(IReadOnlyCollection<ITheoryDataRow>)!);
+
+		public override bool SupportsDiscoveryEnumeration() => true;
 	}
 
 	[Fact]
