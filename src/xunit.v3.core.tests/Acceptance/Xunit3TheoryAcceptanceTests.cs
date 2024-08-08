@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -2236,8 +2237,10 @@ public class Xunit3TheoryAcceptanceTests
 		{
 			internal MyCustomData() { }
 
-			public override ValueTask<IReadOnlyCollection<ITheoryDataRow>> GetData(DisposalTracker disposalTracker) =>
-				new([new TheoryDataRow<int>(42), new TheoryDataRow<int>(2112)]);
+			public override ValueTask<IReadOnlyCollection<ITheoryDataRow>> GetData(
+				MethodInfo testMethod,
+				DisposalTracker disposalTracker) =>
+					new([new TheoryDataRow<int>(42), new TheoryDataRow<int>(2112)]);
 
 			public override bool SupportsDiscoveryEnumeration() => true;
 		}
@@ -2277,8 +2280,10 @@ public class Xunit3TheoryAcceptanceTests
 				Assert.False(true);
 			}
 
-			public override ValueTask<IReadOnlyCollection<ITheoryDataRow>> GetData(DisposalTracker disposalTracker) =>
-				new([new TheoryDataRow(new object())]);
+			public override ValueTask<IReadOnlyCollection<ITheoryDataRow>> GetData(
+				MethodInfo testMethod,
+				DisposalTracker disposalTracker) =>
+					new([new TheoryDataRow(new object())]);
 
 			public override bool SupportsDiscoveryEnumeration() => true;
 		}

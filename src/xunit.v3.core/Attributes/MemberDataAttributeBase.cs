@@ -86,7 +86,9 @@ public abstract class MemberDataAttributeBase(
 	}
 
 	/// <inheritdoc/>
-	public override ValueTask<IReadOnlyCollection<ITheoryDataRow>> GetData(DisposalTracker disposalTracker)
+	public override ValueTask<IReadOnlyCollection<ITheoryDataRow>> GetData(
+		MethodInfo testMethod,
+		DisposalTracker disposalTracker)
 	{
 		if (MemberType is null)
 			return new([]);

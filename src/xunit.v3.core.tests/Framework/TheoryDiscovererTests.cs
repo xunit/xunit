@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using NSubstitute;
 using Xunit;
@@ -69,8 +70,10 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 
 	class EmptyTheoryDataAttribute : DataAttribute
 	{
-		public override ValueTask<IReadOnlyCollection<ITheoryDataRow>> GetData(DisposalTracker disposalTracker) =>
-			new([]);
+		public override ValueTask<IReadOnlyCollection<ITheoryDataRow>> GetData(
+			MethodInfo testMethod,
+			DisposalTracker disposalTracker) =>
+				new([]);
 
 		public override bool SupportsDiscoveryEnumeration() => true;
 	}
@@ -132,8 +135,10 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 
 	class MultipleDataAttribute : DataAttribute
 	{
-		public override ValueTask<IReadOnlyCollection<ITheoryDataRow>> GetData(DisposalTracker disposalTracker) =>
-			new([ConvertDataRow(new object?[] { 42 }), ConvertDataRow(new object?[] { 2112 })]);
+		public override ValueTask<IReadOnlyCollection<ITheoryDataRow>> GetData(
+			MethodInfo testMethod,
+			DisposalTracker disposalTracker) =>
+				new([ConvertDataRow(new object?[] { 42 }), ConvertDataRow(new object?[] { 2112 })]);
 
 		public override bool SupportsDiscoveryEnumeration() => true;
 	}
@@ -195,8 +200,10 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 
 	class ThrowingDataAttribute : DataAttribute
 	{
-		public override ValueTask<IReadOnlyCollection<ITheoryDataRow>> GetData(DisposalTracker disposalTracker) =>
-			throw new DivideByZeroException();
+		public override ValueTask<IReadOnlyCollection<ITheoryDataRow>> GetData(
+			MethodInfo testMethod,
+			DisposalTracker disposalTracker) =>
+				throw new DivideByZeroException();
 
 		public override bool SupportsDiscoveryEnumeration() => true;
 	}
@@ -215,7 +222,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		var discoverer = new TheoryDiscoverer();
 		var theoryAttribute = new TheoryAttribute();
 		var dataAttribute = Substitute.For<IDataAttribute, InterfaceProxy<IDataAttribute>>();
-		dataAttribute.GetData(null!).ReturnsForAnyArgs(_ => null!);
+		dataAttribute.GetData(null!, null!).ReturnsForAnyArgs(_ => null!);
 		dataAttribute.SupportsDiscoveryEnumeration().Returns(true);
 		var testMethod = Mocks.XunitTestMethod(dataAttributes: [dataAttribute], factAttributes: [theoryAttribute]);
 
@@ -246,8 +253,10 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 
 	class NonSerializableDataAttribute : DataAttribute
 	{
-		public override ValueTask<IReadOnlyCollection<ITheoryDataRow>> GetData(DisposalTracker disposalTracker) =>
-			new([new TheoryDataRow<object>(42), new TheoryDataRow<object>(new NonSerializableDataAttribute())]);
+		public override ValueTask<IReadOnlyCollection<ITheoryDataRow>> GetData(
+			MethodInfo testMethod,
+			DisposalTracker disposalTracker) =>
+				new([new TheoryDataRow<object>(42), new TheoryDataRow<object>(new NonSerializableDataAttribute())]);
 
 		public override bool SupportsDiscoveryEnumeration() => true;
 	}
@@ -621,7 +630,9 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 				public void Dispose() { }
 			}
 
-			public override ValueTask<IReadOnlyCollection<ITheoryDataRow>> GetData(DisposalTracker disposalTracker)
+			public override ValueTask<IReadOnlyCollection<ITheoryDataRow>> GetData(
+				MethodInfo testMethod,
+				DisposalTracker disposalTracker)
 			{
 				disposalTracker.Add(new DisposableObject());
 

@@ -167,7 +167,9 @@ public abstract class DataAttribute : Attribute, IDataAttribute
 	}
 
 	/// <inheritdoc/>
-	public abstract ValueTask<IReadOnlyCollection<ITheoryDataRow>> GetData(DisposalTracker disposalTracker);
+	public abstract ValueTask<IReadOnlyCollection<ITheoryDataRow>> GetData(
+		MethodInfo testMethod,
+		DisposalTracker disposalTracker);
 
 	void MergeTraitsInto(Dictionary<string, HashSet<string>> traits) =>
 		TestIntrospectionHelper.MergeTraitsInto(traits, Traits);

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
 using Xunit.Sdk;
 
@@ -58,8 +59,11 @@ public interface IDataAttribute
 	/// <summary>
 	/// Returns the data to be used to test the theory.
 	/// </summary>
+	/// <param name="testMethod">The test method the data attribute is attached to</param>
 	/// <param name="disposalTracker">The disposal tracker used to dispose the data</param>
-	ValueTask<IReadOnlyCollection<ITheoryDataRow>> GetData(DisposalTracker disposalTracker);
+	ValueTask<IReadOnlyCollection<ITheoryDataRow>> GetData(
+		MethodInfo testMethod,
+		DisposalTracker disposalTracker);
 
 	/// <summary>
 	/// Returns <c>true</c> if the data attribute supports enumeration during

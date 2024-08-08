@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading.Tasks;
 using Xunit.Sdk;
 using Xunit.v3;
@@ -21,7 +22,9 @@ public sealed class InlineDataAttribute(params object?[] data) : DataAttribute
 	public object?[] Data { get; } = data ?? [null];
 
 	/// <inheritdoc/>
-	public override ValueTask<IReadOnlyCollection<ITheoryDataRow>> GetData(DisposalTracker disposalTracker)
+	public override ValueTask<IReadOnlyCollection<ITheoryDataRow>> GetData(
+		MethodInfo testMethod,
+		DisposalTracker disposalTracker)
 	{
 		var traits = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 		TestIntrospectionHelper.MergeTraitsInto(traits, Traits);

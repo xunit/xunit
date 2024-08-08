@@ -63,7 +63,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunner :
 
 				foreach (var dataAttribute in ctxt.TestCase.TestMethod.DataAttributes)
 				{
-					var data = await dataAttribute.GetData(ctxt.DisposalTracker);
+					var data = await dataAttribute.GetData(ctxt.TestCase.TestMethod.Method, ctxt.DisposalTracker);
 					if (data is null)
 					{
 						ctxt.Aggregator.Add(

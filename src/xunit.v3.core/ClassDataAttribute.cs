@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Reflection;
 using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -48,7 +49,9 @@ public class ClassDataAttribute(Type @class) : DataAttribute
 	}
 
 	/// <inheritdoc/>
-	public override async ValueTask<IReadOnlyCollection<ITheoryDataRow>> GetData(DisposalTracker disposalTracker)
+	public override async ValueTask<IReadOnlyCollection<ITheoryDataRow>> GetData(
+		MethodInfo testMethod,
+		DisposalTracker disposalTracker)
 	{
 		Guard.ArgumentNotNull(disposalTracker);
 
