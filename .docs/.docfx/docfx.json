@@ -1,0 +1,62 @@
+{
+  "metadata": [
+    {
+      "src": [
+        {
+          "src": "../../",
+          "files": [
+            "src/**/*.csproj"
+          ],
+          "exclude": [
+            "src/**/*.tests.csproj"
+          ]
+        }
+      ],
+      "dest": "../api",
+      "filter": "filter.yml",
+      "namespaceLayout": "nested"
+    }
+  ],
+  "build": {
+    "content": [
+      {
+        "src": "../",
+        "files": [
+          "**/*.{md,yml}"
+        ],
+        "exclude": [
+          "_site/**",
+          ".docfx/**"
+        ]
+      }
+    ],
+    "globalMetadata": {
+      "_appName": "xUnit.net",
+      "_appTitle": "xUnit.net",
+      "_enableSearch": false,
+      "_appLogoPath": "images/full-logo.svg",
+      "_appFooter": "Copyright © 2024 <a href=\"https://dotnetfoundation.org/\">.NET Foundation</a>. Made with <a href=\"https://dotnet.github.io/docfx\">docfx</a>.",
+      "_appFaviconPath": "images/logo-128-transparent.png",
+      "pdf": true
+    },
+    "output": "../_site",
+    "resource": [
+      {
+        "src": "../",
+        "files": [
+          "images/**"
+        ]
+      }
+    ],
+    "sitemap": {
+      "baseUrl": "https://xunit.net",
+      "priority": "0.5",
+      "changeFreq": "monthly"
+    },
+    "template": [
+      "default",
+      "modern",
+      "xUnitTemplate"
+    ]
+  }
+}
