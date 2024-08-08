@@ -6,7 +6,7 @@ breadcrumb: Documentation
 
 # Migrating from v2 to v3
 
-## As of: 2024 July 30 (`0.2.0-pre.69`)
+## As of: 2024 August 8 (`0.2.0-pre.69`)
 
 This migration guide aims to be a comprehensive list helping developers migrate from xUnit.net v2 to v3. It includes information on how to upgrade your v2 projects to v3, what to expect for unit test authors, and what to expect for extensibility authors.
 
@@ -35,6 +35,7 @@ Note that while we attempt to ensure that CI builds are always usable, we cannot
 * [Changes to Assertion Library](#changes-to-assertion-library)
 * [Changes to Core Framework](#changes-to-core-framework)
 * [Changes to Runner Utility](#changes-to-runner-utility)
+
 
 ## Architectural Changes
 
@@ -120,6 +121,28 @@ v2 package                                                      | v3 package
 _**Note:** In some cases multiple libraries/packages were merged together into a single new library/package, as denoted in the table above with (*)._
 
 If you want to use the MSBuild runner, we now ship both a .NET Framework and .NET Core/.NET version in the same package. It will dynamically select the correct version depending on whether you use the .NET Framework MSBuild or the .NET MSBuild (via `dotnet build` or `dotnet msbuild`). However, the .NET version only supports v3 test projects. If you need to still run v1 and/or v2 test projects, you must use the .NET Framework version. (Mono ships with a .NET Framework version of MSBuild, so all comments about .NET Framework also apply to Mono.)
+
+### Why did we change the package names?
+
+We changed the package naming scheme from `xunit.*` to `xunit.v3.*` for two primary reasons and one secondary reason:
+
+* We wanted users to make a conscious choice to upgrade and understand what the scope of that work is, rather than being offered a NuGet package upgrade in Visual Studio and then have everything be broken without being told why.
+* We have frequently been asked to observe SemVer for our package versions, which has been impossible previously. Our package naming and versioning system predates SemVer, and trying to adopt it after the fact would be painful. The `2` in the `2.x.y` package versioning scheme implied a _**product version**_ but it was living in the major version of the package. The new package name allows the v3 _**product version**_ to live in the package name instead of the major version, and this allows us to evolve those package versions according to SemVer without implying a new production version has been released.
+
+The secondary reason was:
+
+* As shown above, some packages have been merged (and new intermediate packages have been introduced). We previously tried the "upgrade an obsoleted package" strategy from v1 -> v2 with the `xunit.extensions` package and found that process less than ideal for most users. This is not an area where NuGet is particularly helpful. We would've preferred that we could have automatically removed `xunit.extensions` rather than having a v2 version in place with no code inside as a dead reference. By having users follow this migration guide, we can clearly tell them which packages changed and which should be removed.
+
+### Should extension authors follow this same strategy?
+
+For extension authors, you have (at least) two choices for how to evolve your dependencies and package names:
+
+* You can use your existing package name and just pick a new version that takes a dependency on `xunit.v3.extensibilty.core` rather than `xunit.extensibility.core` and/or `xunit.extensibility.execution`. This means as users pick up new versions of your existing packages, you'll _**also**_ be expecting them to upgrade to xUnit.net v3.
+* You can use a new package name that indicates an updated extension for v3, while leaving the old name in place to support v2. This means as users upgrade up xUnit.net v3, they'll also need to find your new matching package.
+
+The first option probably isn't ideal, for the same reasons we've listed above. We suspect that following our strategy of new package names is probably the one that will lead users to the most success, because as they're consciously choosing to upgrade xUnit.net from v2 to v3, they can also be consciously thinking about what that means for upgrading their extensions.
+
+However, you know your users best, and there's no one right answer here. It's your decision which strategy makes the best sense for you and your users.
 
 
 ## Convert to Executable Project
