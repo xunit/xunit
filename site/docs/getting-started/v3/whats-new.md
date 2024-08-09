@@ -12,6 +12,7 @@ This guide aims to be a comprehensive list of the new features added to v3, writ
 
 In addition to this new features document (which only covers new features in v3), we have a parallel document which covers [migrating from v2 to v3](migration). The "Migrating from v2 to v3" document describes changes that developers will need to understand when porting their v2 projects to v3, as well as when starting new v3 projects armed with their v2 experience.
 
+
 ## Table of Contents
 
 * [New Project Templates](#new-project-templates)
@@ -264,6 +265,7 @@ A hand-crafted JSON serialization system has been added to `xunit.v3.common`, al
   This best guess is based on two contracts added to v3 which can be implemented by third party assertion libraries. Throwing an exception which implements an interface named `IAssertionException` (in any namespace) will be reported as an assertion failure; similarly, throwing an exception which implements an interface named `ITestTimeoutException` (in any namespace) will be reported as a timed-out test.
 
 * `TheoryAttribute` has a new property, `SkipTestWithoutData`, that can be used to allow theories without any data to be skipped rather than failed.
+
 
 ## What's New in Runner Utility
 
