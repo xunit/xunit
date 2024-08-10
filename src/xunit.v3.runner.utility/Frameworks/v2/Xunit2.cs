@@ -219,7 +219,7 @@ public class Xunit2 : IFrontController
 	}
 
 	/// <inheritdoc/>
-	public void Find(
+	public int? Find(
 		Sdk.IMessageSink messageSink,
 		FrontControllerFindSettings settings)
 	{
@@ -249,10 +249,12 @@ public class Xunit2 : IFrontController
 
 			SendDiscoveryCompleteMessage(messageSink, filteringMessageSink.TestCasesToRun);
 		});
+
+		return null;
 	}
 
 	/// <inheritdoc/>
-	public void FindAndRun(
+	public int? FindAndRun(
 		Sdk.IMessageSink messageSink,
 		FrontControllerFindAndRunSettings settings)
 	{
@@ -294,6 +296,8 @@ public class Xunit2 : IFrontController
 					Xunit2OptionsAdapter.Adapt(settings.ExecutionOptions)
 				);
 		});
+
+		return null;
 	}
 
 	static string GetExecutionAssemblyFileName(AppDomainSupport appDomainSupport, string basePath)
@@ -580,7 +584,7 @@ public class Xunit2 : IFrontController
 	}
 
 	/// <inheritdoc/>
-	public void Run(
+	public int? Run(
 		Sdk.IMessageSink messageSink,
 		FrontControllerRunSettings settings)
 	{
@@ -599,6 +603,8 @@ public class Xunit2 : IFrontController
 				CreateOptimizedRemoteMessageSink(messageSink),
 				Xunit2OptionsAdapter.Adapt(settings.Options)
 			);
+
+		return null;
 	}
 
 	void SendDiscoveryStartingMessage(Sdk.IMessageSink messageSink)

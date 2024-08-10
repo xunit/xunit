@@ -6,7 +6,6 @@ using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Runner.v3;
 using Xunit.Sdk;
-using Xunit.v3;
 
 [Collection(typeof(Xunit3Tests))]
 [CollectionDefinition(DisableParallelization = true)]
@@ -71,14 +70,14 @@ public class Xunit3Tests
 		Assert.Throws<ArgumentNullException>("settings", () => xunit3.Run(SpyMessageSink.Capture(), null!));
 	}
 
-	async ValueTask GathersAssemblyInformation(bool runInProcess)
+	async ValueTask GathersAssemblyInformation(bool forceInProcess)
 	{
 		var expectedUniqueID = UniqueIDGenerator.ForAssembly(
 			Assembly.AssemblyFileName,
 			Assembly.ConfigFileName
 		);
 
-		await using var xunit3 = Xunit3.ForDiscoveryAndExecution(Assembly, testProcessLauncher: runInProcess ? InProcessTestProcessLauncher.Instance : LocalOutOfProcessTestProcessLauncher.Instance);
+		await using var xunit3 = Xunit3.ForDiscoveryAndExecution(Assembly, forceInProcess: forceInProcess);
 
 		Assert.False(xunit3.CanUseAppDomains);
 #if NET472
@@ -95,27 +94,27 @@ public class Xunit3Tests
 	[Theory]
 	[InlineData(false)]
 	[InlineData(true)]
-	public ValueTask GathersAssemblyInformation_Self(bool runInProcess) =>
-		GathersAssemblyInformation(runInProcess);
+	public ValueTask GathersAssemblyInformation_Self(bool forceInProcess) =>
+		GathersAssemblyInformation(forceInProcess);
 
 	[Theory]
 	[InlineData(false)]
 	[InlineData(true)]
-	public ValueTask GathersAssemblyInformation_Other(bool runInProcess)
+	public ValueTask GathersAssemblyInformation_Other(bool forceInProcess)
 	{
 		UseAssertTests();
 
-		return GathersAssemblyInformation(runInProcess);
+		return GathersAssemblyInformation(forceInProcess);
 	}
 
 	async ValueTask CanFindFilteredTestsAndRunThem_UsingFind_UsingRun(
-		bool runInProcess,
+		bool forceInProcess,
 		string typeName,
 		string methodName)
 	{
 		var sourceInformationProvider = Substitute.For<ISourceInformationProvider, InterfaceProxy<ISourceInformationProvider>>();
 		sourceInformationProvider.GetSourceInformation(typeName, methodName).Returns(new SourceInformation("/path/to/source/file.cs", 2112));
-		await using var xunit3 = Xunit3.ForDiscoveryAndExecution(Assembly, sourceInformationProvider, testProcessLauncher: runInProcess ? InProcessTestProcessLauncher.Instance : LocalOutOfProcessTestProcessLauncher.Instance);
+		await using var xunit3 = Xunit3.ForDiscoveryAndExecution(Assembly, sourceInformationProvider, forceInProcess: forceInProcess);
 
 		// Find
 		var fullyQualifiedMethodName = typeName + "." + methodName;
@@ -123,7 +122,11 @@ public class Xunit3Tests
 		filters.IncludedMethods.Add(fullyQualifiedMethodName);
 
 		var findMessageSink = SpyMessageSink<IDiscoveryComplete>.Create();
-		xunit3.Find(findMessageSink, new FrontControllerFindSettings(DiscoveryOptions, filters));
+		var findProcess = xunit3.Find(findMessageSink, new FrontControllerFindSettings(DiscoveryOptions, filters));
+		if (forceInProcess)
+			Assert.Null(findProcess);
+		else
+			Assert.NotNull(findProcess);
 
 		var findFinished = findMessageSink.Finished.WaitOne(60_000);
 		Assert.True(findFinished, "Message sink did not see _DiscoveryComplete within 60 seconds");
@@ -136,7 +139,11 @@ public class Xunit3Tests
 
 		// Run
 		var runMessageSink = SpyMessageSink<ITestAssemblyFinished>.Create();
-		xunit3.Run(runMessageSink, new FrontControllerRunSettings(ExecutionOptions, [testCase.Serialization]));
+		var runProcess = xunit3.Run(runMessageSink, new FrontControllerRunSettings(ExecutionOptions, [testCase.Serialization]));
+		if (forceInProcess)
+			Assert.Null(runProcess);
+		else
+			Assert.NotNull(runProcess);
 
 		var runFinished = runMessageSink.Finished.WaitOne(60_000);
 		Assert.True(runFinished, "Message sink did not see _TestAssemblyFinished within 60 seconds");
@@ -152,31 +159,36 @@ public class Xunit3Tests
 	[Theory]
 	[InlineData(false)]
 	[InlineData(true)]
-	public ValueTask CanFindFilteredTestsAndRunThem_UsingFind_UsingRun_Self(bool runInProcess) =>
-		CanFindFilteredTestsAndRunThem_UsingFind_UsingRun(runInProcess, typeof(Xunit3Tests).SafeName(), nameof(GuardClauses_Ctor));
+	public ValueTask CanFindFilteredTestsAndRunThem_UsingFind_UsingRun_Self(bool forceInProcess) =>
+		CanFindFilteredTestsAndRunThem_UsingFind_UsingRun(forceInProcess, typeof(Xunit3Tests).SafeName(), nameof(GuardClauses_Ctor));
 
 	[Theory]
 	[InlineData(false)]
 	[InlineData(true)]
-	public ValueTask CanFindFilteredTestsAndRunThem_UsingFind_UsingRun_Other(bool runInProcess)
+	public ValueTask CanFindFilteredTestsAndRunThem_UsingFind_UsingRun_Other(bool forceInProcess)
 	{
 		UseAssertTests();
 
-		return CanFindFilteredTestsAndRunThem_UsingFind_UsingRun(runInProcess, "BooleanAssertsTests+True", "AssertTrue");
+		return CanFindFilteredTestsAndRunThem_UsingFind_UsingRun(forceInProcess, "BooleanAssertsTests+True", "AssertTrue");
 	}
 
 	async ValueTask CanFindFilteredTestsAndRunThem_UsingFindAndRun(
-		bool runInProcess,
+		bool forceInProcess,
 		string typeName,
 		string methodName)
 	{
 		var fullyQualifiedMethodName = typeName + "." + methodName;
 
-		await using var xunit3 = Xunit3.ForDiscoveryAndExecution(Assembly, testProcessLauncher: runInProcess ? InProcessTestProcessLauncher.Instance : LocalOutOfProcessTestProcessLauncher.Instance);
+		await using var xunit3 = Xunit3.ForDiscoveryAndExecution(Assembly, forceInProcess: forceInProcess);
 		var filters = new XunitFilters();
 		filters.IncludedMethods.Add(fullyQualifiedMethodName);
 		var messageSink = SpyMessageSink<ITestAssemblyFinished>.Create();
-		xunit3.FindAndRun(messageSink, new FrontControllerFindAndRunSettings(DiscoveryOptions, ExecutionOptions, filters));
+		var process = xunit3.FindAndRun(messageSink, new FrontControllerFindAndRunSettings(DiscoveryOptions, ExecutionOptions, filters));
+
+		if (forceInProcess)
+			Assert.Null(process);
+		else
+			Assert.NotNull(process);
 
 		var finished = messageSink.Finished.WaitOne(60_000);
 		Assert.True(finished, "Message sink did not see _DiscoveryComplete within 60 seconds");
@@ -193,16 +205,16 @@ public class Xunit3Tests
 	[Theory]
 	[InlineData(false)]
 	[InlineData(true)]
-	public ValueTask CanFindFilteredTestsAndRunThem_UsingFindAndRun_Self(bool runInProcess) =>
-		CanFindFilteredTestsAndRunThem_UsingFindAndRun(runInProcess, typeof(Xunit3Tests).SafeName(), nameof(GuardClauses_Ctor));
+	public ValueTask CanFindFilteredTestsAndRunThem_UsingFindAndRun_Self(bool forceInProcess) =>
+		CanFindFilteredTestsAndRunThem_UsingFindAndRun(forceInProcess, typeof(Xunit3Tests).SafeName(), nameof(GuardClauses_Ctor));
 
 	[Theory]
 	[InlineData(false)]
 	[InlineData(true)]
-	public ValueTask CanFindFilteredTestsAndRunThem_UsingFindAndRun_Other(bool runInProcess)
+	public ValueTask CanFindFilteredTestsAndRunThem_UsingFindAndRun_Other(bool forceInProcess)
 	{
 		UseAssertTests();
 
-		return CanFindFilteredTestsAndRunThem_UsingFindAndRun(runInProcess, "BooleanAssertsTests+True", "AssertTrue");
+		return CanFindFilteredTestsAndRunThem_UsingFindAndRun(forceInProcess, "BooleanAssertsTests+True", "AssertTrue");
 	}
 }
