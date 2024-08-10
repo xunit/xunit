@@ -7,7 +7,7 @@ namespace Xunit;
 /// <summary>
 /// Contains the information by <see cref="IFrontControllerDiscoverer.Find"/>.
 /// </summary>
-public class FrontControllerFindSettings : FrontControllerSettingsBase
+public class FrontControllerFindSettings
 {
 	/// <summary>
 	/// Initializes a new instance of the <see cref="FrontControllerFindSettings"/> class.
