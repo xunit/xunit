@@ -115,6 +115,10 @@ public sealed class TestContext : IDisposable
 	/// Gets the current test, if the engine is currently in the process of running a test;
 	/// will return <c>null</c> outside of the context of a test.
 	/// </summary>
+	/// <remarks>
+	/// When running with the default test framework implementation, the value here is likely
+	/// to implement <see cref="IXunitTest"/>.
+	/// </remarks>
 	public ITest? Test { get; private set; }
 
 	/// <summary>
@@ -122,6 +126,10 @@ public sealed class TestContext : IDisposable
 	/// discovering tests in assembly; will return <c>null</c> out of this context (this typically
 	/// means the test framework itself is being created and initialized).
 	/// </summary>
+	/// <remarks>
+	/// When running with the default test framework implementation, the value here is likely
+	/// to implement <see cref="IXunitTestAssembly"/>.
+	/// </remarks>
 	[NotNullIfNotNull(nameof(TestCollection))]
 	public ITestAssembly? TestAssembly { get; private set; }
 
@@ -135,6 +143,10 @@ public sealed class TestContext : IDisposable
 	/// Gets the current test case, if the engine is currently in the process of running a
 	/// test case; will return <c>null</c> outside of the context of a test case.
 	/// </summary>
+	/// <remarks>
+	/// When running with the default test framework implementation, the value here is likely
+	/// to implement <see cref="IXunitTestCase"/>.
+	/// </remarks>
 	[NotNullIfNotNull(nameof(Test))]
 	public ITestCase? TestCase { get; private set; }
 
@@ -151,6 +163,10 @@ public sealed class TestContext : IDisposable
 	/// not all test framework implementations require that tests be based on classes, so this
 	/// value may be <c>null</c> even if <see cref="TestCase"/> is not <c>null</c>.
 	/// </summary>
+	/// <remarks>
+	/// When running with the default test framework implementation, the value here is likely
+	/// to implement <see cref="IXunitTestClass"/>.
+	/// </remarks>
 	[NotNullIfNotNull(nameof(TestMethod))]
 	public ITestClass? TestClass { get; private set; }
 
@@ -165,6 +181,10 @@ public sealed class TestContext : IDisposable
 	/// Gets the current test collection, if the engine is currently in the process of running
 	/// a test collection; will return <c>null</c> outside of the context of a test collection.
 	/// </summary>
+	/// <remarks>
+	/// When running with the default test framework implementation, the value here is likely
+	/// to implement <see cref="IXunitTestCollection"/>.
+	/// </remarks>
 	[NotNullIfNotNull(nameof(TestClass))]
 	[NotNullIfNotNull(nameof(TestCase))]
 	public ITestCollection? TestCollection { get; private set; }
@@ -190,6 +210,10 @@ public sealed class TestContext : IDisposable
 	/// not all test framework implementations require that tests be based on methods, so this
 	/// value may be <c>null</c> even if <see cref="TestCase"/> is not <c>null</c>.
 	/// </summary>
+	/// <remarks>
+	/// When running with the default test framework implementation, the value here is likely
+	/// to implement <see cref="IXunitTestMethod"/>.
+	/// </remarks>
 	public ITestMethod? TestMethod { get; private set; }
 
 	/// <summary>
