@@ -451,6 +451,7 @@ public class Xunit2 : IFrontController
 					messageSink.OnMessage(new TestCaseStarting
 					{
 						AssemblyUniqueID = TestAssemblyUniqueID,
+						Explicit = false,
 						SkipReason = null,
 						SourceFilePath = null,
 						SourceLineNumber = null,

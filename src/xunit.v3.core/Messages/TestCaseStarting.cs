@@ -10,6 +10,9 @@ public partial class TestCaseStarting
 	IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits;
 
 	/// <inheritdoc/>
+	public required bool Explicit { get; set; }
+
+	/// <inheritdoc/>
 	public required string? SkipReason { get; set; }
 
 	/// <inheritdoc/>

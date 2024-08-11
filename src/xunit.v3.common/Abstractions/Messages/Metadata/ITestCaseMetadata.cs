@@ -10,6 +10,11 @@ namespace Xunit.Sdk;
 public interface ITestCaseMetadata
 {
 	/// <summary>
+	/// Gets a flag indicating whether this test case was marked as explicit or not.
+	/// </summary>
+	bool Explicit { get; }
+
+	/// <summary>
 	/// Gets the display text for the reason a test is being skipped; if the test
 	/// is not statically skipped, returns <c>null</c>. (A test may be dynamically
 	/// skipped at runtime while still returning <c>null</c>.)

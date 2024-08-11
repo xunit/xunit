@@ -355,6 +355,7 @@ public static partial class TestData
 		var typeInfo = typeof(TClass);
 		var methodInfo = Guard.NotNull($"Could not find method '{testMethod}' in type '{typeInfo.FullName}'", typeInfo.GetMethod(testMethod));
 		var factAttribute = methodInfo.GetMatchingCustomAttributes(typeof(IFactAttribute)).FirstOrDefault() as IFactAttribute;
+		var @explicit = factAttribute?.Explicit ?? false;
 		var skipReason = factAttribute?.Skip;
 		var traits = ExtensibilityPointFactory.GetMethodTraits(methodInfo, testClassTraits: null);
 
@@ -364,6 +365,7 @@ public static partial class TestData
 
 		return TestCaseDiscovered(
 			DefaultAssemblyUniqueID,
+			@explicit,
 			DefaultTestCaseSerialization,
 			skipReason,
 			sourceFilePath: null,
@@ -386,6 +388,7 @@ public static partial class TestData
 
 	public static ITestCaseDiscovered TestCaseDiscovered(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
+		bool @explicit = false,
 		string serialization = DefaultTestCaseSerialization,
 		string? skipReason = null,
 		string? sourceFilePath = null,
@@ -406,6 +409,7 @@ public static partial class TestData
 			new Xunit.Runner.Common.TestCaseDiscovered()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
+				Explicit = @explicit,
 				Serialization = serialization,
 				SkipReason = skipReason,
 				SourceFilePath = sourceFilePath,
@@ -452,6 +456,7 @@ public static partial class TestData
 
 	public static ITestCaseStarting TestCaseStarting(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
+		bool @explicit = false,
 		string? skipReason = null,
 		string? sourceFilePath = null,
 		int? sourceLineNumber = null,
@@ -471,6 +476,7 @@ public static partial class TestData
 			new Xunit.Runner.Common.TestCaseStarting()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
+				Explicit = @explicit,
 				SkipReason = skipReason,
 				SourceFilePath = sourceFilePath,
 				SourceLineNumber = sourceLineNumber,

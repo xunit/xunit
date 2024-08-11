@@ -12,11 +12,6 @@ namespace Xunit.v3;
 public interface IXunitTestCase : ITestCase
 {
 	/// <summary>
-	/// Gets a flag indicating whether this test case was marked as explicit or not.
-	/// </summary>
-	bool Explicit { get; }
-
-	/// <summary>
 	/// Gets the display text for the reason a test that might being skipped.
 	/// </summary>
 	/// <remarks>

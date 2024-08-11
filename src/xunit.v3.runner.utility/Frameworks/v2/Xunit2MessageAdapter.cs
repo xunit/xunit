@@ -264,6 +264,7 @@ public class Xunit2MessageAdapter(
 		return new TestCaseDiscovered
 		{
 			AssemblyUniqueID = assemblyUniqueID,
+			Explicit = false,
 			Serialization = discoverer?.Serialize(testCase) ?? string.Empty,
 			SkipReason = testCase.SkipReason,
 			SourceFilePath = testCase.SourceInformation?.FileName,
@@ -323,6 +324,7 @@ public class Xunit2MessageAdapter(
 		return new TestCaseStarting()
 		{
 			AssemblyUniqueID = assemblyUniqueID,
+			Explicit = false,
 			SkipReason = message.TestCase.SkipReason,
 			SourceFilePath = message.TestCase.SourceInformation?.FileName,
 			SourceLineNumber = message.TestCase.SourceInformation?.LineNumber,

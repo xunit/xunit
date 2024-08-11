@@ -24,6 +24,7 @@ sealed partial class TestCaseDiscovered : TestCaseMessage, ITestCaseDiscovered
 
 		base.Serialize(serializer);
 
+		serializer.Serialize(nameof(Explicit), Explicit);
 		serializer.Serialize(nameof(Serialization), Serialization);
 		serializer.Serialize(nameof(SkipReason), SkipReason);
 		serializer.Serialize(nameof(SourceFilePath), SourceFilePath);

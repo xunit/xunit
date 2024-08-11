@@ -24,6 +24,7 @@ sealed partial class TestCaseStarting : TestCaseMessage, ITestCaseStarting
 
 		base.Serialize(serializer);
 
+		serializer.Serialize(nameof(Explicit), Explicit);
 		serializer.Serialize(nameof(SkipReason), SkipReason);
 		serializer.Serialize(nameof(SourceFilePath), SourceFilePath);
 		serializer.Serialize(nameof(SourceLineNumber), SourceLineNumber);

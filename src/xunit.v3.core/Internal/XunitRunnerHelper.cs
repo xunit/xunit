@@ -223,6 +223,7 @@ public static class XunitRunnerHelper
 			if (!messageBus.QueueMessage(new TestCaseStarting
 			{
 				AssemblyUniqueID = assemblyUniqueID,
+				Explicit = testCase.Explicit,
 				SkipReason = testCase.SkipReason,
 				SourceFilePath = testCase.SourceFilePath,
 				SourceLineNumber = testCase.SourceLineNumber,

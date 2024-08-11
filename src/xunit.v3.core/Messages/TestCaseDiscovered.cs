@@ -11,6 +11,9 @@ public partial class TestCaseDiscovered
 	IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits;
 
 	/// <inheritdoc/>
+	public required bool Explicit { get; set; }
+
+	/// <inheritdoc/>
 	public required string Serialization
 	{
 		get => this.ValidateNullablePropertyValue(serialization, nameof(Serialization));

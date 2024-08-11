@@ -8,6 +8,12 @@ public partial class TestCaseStarting
 {
 	/// <inheritdoc/>
 	/// <remarks>
+	/// Note: Will be <c>false</c> if there was no value provided during deserialization.
+	/// </remarks>
+	public required bool Explicit { get; set; }
+
+	/// <inheritdoc/>
+	/// <remarks>
 	/// Note: Will be <c>null</c> if there was no value provided during deserialization.
 	/// </remarks>
 	public required string? SkipReason { get; set; }
@@ -85,6 +91,7 @@ public partial class TestCaseStarting
 
 		base.Deserialize(root);
 
+		Explicit = JsonDeserializer.TryGetBoolean(root, nameof(Explicit)) ?? false;
 		SkipReason = JsonDeserializer.TryGetString(root, nameof(SkipReason));
 		SourceFilePath = JsonDeserializer.TryGetString(root, nameof(SourceFilePath));
 		SourceLineNumber = JsonDeserializer.TryGetInt(root, nameof(SourceLineNumber));

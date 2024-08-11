@@ -193,6 +193,7 @@ public sealed class Xunit1TestCase : IXunitSerializable
 		return new TestCaseDiscovered
 		{
 			AssemblyUniqueID = AssemblyUniqueID,
+			Explicit = false,
 			Serialization = includeSerialization ? SerializationHelper.Serialize(this)! : string.Empty,
 			SkipReason = SkipReason,
 			SourceFilePath = SourceFilePath,
@@ -264,6 +265,7 @@ public sealed class Xunit1TestCase : IXunitSerializable
 		return new TestCaseStarting()
 		{
 			AssemblyUniqueID = AssemblyUniqueID,
+			Explicit = false,
 			SkipReason = SkipReason,
 			SourceFilePath = SourceFilePath,
 			SourceLineNumber = SourceLineNumber,

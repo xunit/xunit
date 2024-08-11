@@ -97,6 +97,7 @@ public class XunitTestCaseRunnerBase<TContext, TTestCase> : TestCaseRunner<TCont
 		return new(ctxt.MessageBus.QueueMessage(new TestCaseStarting
 		{
 			AssemblyUniqueID = ctxt.TestCase.TestCollection.TestAssembly.UniqueID,
+			Explicit = ctxt.TestCase.Explicit,
 			SkipReason = Guard.ArgumentNotNull(ctxt).TestCase.SkipReason,
 			SourceFilePath = ctxt.TestCase.SourceFilePath,
 			SourceLineNumber = ctxt.TestCase.SourceLineNumber,

@@ -43,6 +43,7 @@ public static partial class MessageSinkMessageExtensions
 		return new TestCaseDiscovered()
 		{
 			AssemblyUniqueID = testCase.TestCollection.TestAssembly.UniqueID,
+			Explicit = testCase.Explicit,
 			Serialization = SerializationHelper.Serialize(testCase),
 			SkipReason = testCase.SkipReason,
 			SourceFilePath = testCase.SourceFilePath,
@@ -77,6 +78,7 @@ public static partial class MessageSinkMessageExtensions
 			new TestCaseDiscovered
 			{
 				AssemblyUniqueID = Guard.ArgumentNotNull(discovered).AssemblyUniqueID,
+				Explicit = discovered.Explicit,
 				Serialization = discovered.Serialization,
 				SkipReason = discovered.SkipReason,
 				SourceFilePath = sourceFilePath,
