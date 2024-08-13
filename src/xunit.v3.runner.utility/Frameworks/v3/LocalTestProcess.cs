@@ -1,4 +1,3 @@
-using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
@@ -10,6 +9,7 @@ namespace Xunit.v3;
 /// </summary>
 public sealed class LocalTestProcess : ITestProcess
 {
+	volatile int cancelSent;
 	readonly Process process;
 	readonly string? responseFile;
 
@@ -32,6 +32,10 @@ public sealed class LocalTestProcess : ITestProcess
 		process.Id;
 
 	/// <inheritdoc/>
+	public TextWriter StandardInput =>
+		process.StandardInput;
+
+	/// <inheritdoc/>
 	public TextReader StandardOutput =>
 		process.StandardOutput;
 
@@ -43,33 +47,37 @@ public sealed class LocalTestProcess : ITestProcess
 	public static LocalTestProcess Attach(
 		int processID,
 		string? responseFile) =>
-			new LocalTestProcess(Process.GetProcessById(processID), responseFile);
+			new(Process.GetProcessById(processID), responseFile);
+
+	/// <inheritdoc/>
+	public void Cancel(bool forceCancellation)
+	{
+		try
+		{
+			if (forceCancellation)
+			{
+				if (!process.HasExited)
+				{
+					// Make sure we sent the first Ctrl+C, then give it 15 seconds to finish up. If it doesn't
+					// finish at that point, then just terminate the process.
+					Cancel(false);
+					if (!process.WaitForExit(15_000))
+						process.Kill();
+				}
+			}
+			else
+			{
+				if (Interlocked.Exchange(ref cancelSent, 1) == 0)
+					process.StandardInput.Write('\x03');
+			}
+		}
+		catch { }
+	}
 
 	/// <inheritdoc/>
 	public void Dispose()
 	{
-		try
-		{
-			if (!process.HasExited)
-			{
-				// We'll start by giving it 15 seconds to finish on its own
-				var stopWait = DateTimeOffset.UtcNow.AddSeconds(15);
-				while (!process.HasExited && DateTimeOffset.UtcNow < stopWait)
-					Thread.Sleep(50);
-
-				// If the sleep wait didn't do it, simulate Ctrl+C to abort
-				if (!process.HasExited)
-				{
-					process.StandardInput.WriteLine("\x3");
-
-					// Give it another 45 seconds to clean itself up, and then
-					// just kill it if it never finishes.
-					if (!process.WaitForExit(45_000))
-						process.Kill();
-				}
-			}
-		}
-		catch { }
+		Cancel(forceCancellation: true);
 
 		try
 		{

@@ -13,10 +13,13 @@ namespace Xunit.Runner.v3;
 /// </summary>
 public static class Xunit3ArgumentFactory
 {
+	static readonly Version Version_0_3_0 = new(0, 3, 0);
+
 	/// <summary>
 	/// Gets command line switches based on a call to <see cref="Xunit3.Find"/>.
 	/// </summary>
 	public static List<string> ForFind(
+		Version coreFrameworkVersion,
 		ITestFrameworkDiscoveryOptions options,
 		XunitFilters? filters = null,
 		string? configFileName = null,
@@ -26,6 +29,7 @@ public static class Xunit3ArgumentFactory
 		Guard.ArgumentNotNull(options);
 
 		return ToArguments(
+			coreFrameworkVersion,
 			configFileName,
 			options.GetCulture(),
 			options.GetDiagnosticMessages(),
@@ -44,6 +48,7 @@ public static class Xunit3ArgumentFactory
 			seed: null,
 			serializedTestCases: null,
 			stopOnTestFail: null,
+			options.GetSynchronousMessageReporting(),
 			waitForDebugger
 		);
 	}
@@ -52,6 +57,7 @@ public static class Xunit3ArgumentFactory
 	/// Gets command line switches based on a call to <see cref="Xunit3.FindAndRun"/>.
 	/// </summary>
 	public static List<string> ForFindAndRun(
+		Version coreFrameworkVersion,
 		ITestFrameworkDiscoveryOptions discoveryOptions,
 		ITestFrameworkExecutionOptions executionOptions,
 		XunitFilters? filters = null,
@@ -62,6 +68,7 @@ public static class Xunit3ArgumentFactory
 		Guard.ArgumentNotNull(executionOptions);
 
 		return ToArguments(
+			coreFrameworkVersion,
 			configFileName,
 			executionOptions.GetCulture() ?? discoveryOptions.GetCulture(),
 			executionOptions.GetDiagnosticMessages() ?? discoveryOptions.GetDiagnosticMessages(),
@@ -80,6 +87,7 @@ public static class Xunit3ArgumentFactory
 			executionOptions.GetSeed(),
 			serializedTestCases: null,
 			executionOptions.GetStopOnTestFail(),
+			executionOptions.GetSynchronousMessageReporting() ?? discoveryOptions.GetSynchronousMessageReporting(),
 			waitForDebugger
 		);
 	}
@@ -89,6 +97,7 @@ public static class Xunit3ArgumentFactory
 	/// Gets command line switches based on a call to <see cref="Xunit3.Run"/>.
 	/// </summary>
 	public static List<string> ForRun(
+		Version coreFrameworkVersion,
 		ITestFrameworkExecutionOptions options,
 		IReadOnlyCollection<string> serializedTestCases,
 		string? configFileName = null,
@@ -98,6 +107,7 @@ public static class Xunit3ArgumentFactory
 		Guard.ArgumentNotNullOrEmpty(serializedTestCases);
 
 		return ToArguments(
+			coreFrameworkVersion,
 			configFileName,
 			options.GetCulture(),
 			options.GetDiagnosticMessages(),
@@ -116,11 +126,13 @@ public static class Xunit3ArgumentFactory
 			options.GetSeed(),
 			serializedTestCases,
 			options.GetStopOnTestFail(),
+			options.GetSynchronousMessageReporting(),
 			waitForDebugger
 		);
 	}
 
 	static List<string> ToArguments(
+		Version coreFrameworkVersion,
 		string? configFileName,
 		string? culture,
 		bool? diagnosicMessages,
@@ -139,6 +151,7 @@ public static class Xunit3ArgumentFactory
 		int? seed,
 		IReadOnlyCollection<string>? serializedTestCases,
 		bool? stopOnTestFail,
+		bool? synchronousMessages,
 		bool waitForDebugger)
 	{
 		var result = new List<string>();
@@ -154,6 +167,9 @@ public static class Xunit3ArgumentFactory
 		// SWITCH VALUES
 
 		result.Add("-automated");
+
+		if (coreFrameworkVersion >= Version_0_3_0 && synchronousMessages == true)
+			result.Add("sync");
 
 		result.AddRange(culture switch
 		{

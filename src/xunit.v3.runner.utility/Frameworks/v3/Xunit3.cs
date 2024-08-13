@@ -11,10 +11,14 @@ using Xunit.v3;
 namespace Xunit.Runner.v3;
 
 /// <summary>
-/// This class be used to do discovery and execution of xUnit.net v3 tests.
+/// This class is used to do discovery and execution of xUnit.net v3 tests.
+/// Runner authors are strongly encouraged to use <see cref="XunitFrontController"/>
+/// instead of using this class directly.
 /// </summary>
 public class Xunit3 : IFrontController
 {
+	static readonly Version Version_0_3_0 = new(0, 3, 0);
+
 	readonly IMessageSink? diagnosticMessageSink;
 	readonly XunitProjectAssembly projectAssembly;
 	readonly ISourceInformationProvider? sourceInformationProvider;
@@ -96,6 +100,7 @@ public class Xunit3 : IFrontController
 		Guard.ArgumentNotNull(settings);
 
 		var arguments = Xunit3ArgumentFactory.ForFind(
+			CoreFrameworkVersion,
 			settings.Options,
 			settings.Filters,
 			projectAssembly.ConfigFileName,
@@ -103,14 +108,21 @@ public class Xunit3 : IFrontController
 			settings.LaunchOptions.WaitForDebugger
 		);
 
+		var synchronousMessageReporting =
+			CoreFrameworkVersion >= Version_0_3_0
+				&& settings.Options.GetSynchronousMessageReportingOrDefault();
+
 		var process =
 			testProcessLauncher.Launch(projectAssembly, arguments)
 				?? throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Could not launch test process. Test assembly '{0}', arguments: '{1}'", projectAssembly.AssemblyFileName, string.Join(" ", arguments)));
 
+		var delegatingDiagnosticSink = new DelegatingProcessCancellationSink(process, diagnosticMessageSink);
+		var delegatingMessageSink = new DelegatingProcessCancellationSink(process, messageSink);
+
 		// The '-list discovery' only sends test cases, not starting & complete messages,
 		// so we'll fabricate them ourselves.
 		bool SendDiscoveryStarting(string assemblyUniqueID) =>
-			messageSink.OnMessage(new DiscoveryStarting
+			delegatingMessageSink.OnMessage(new DiscoveryStarting
 			{
 				AssemblyName = projectAssembly.AssemblyDisplayName,
 				AssemblyPath = projectAssembly.AssemblyFileName,
@@ -132,36 +144,37 @@ public class Xunit3 : IFrontController
 					if (line is null)
 						break;
 
-					var message = MessageSinkMessageDeserializer.Deserialize(line, diagnosticMessageSink);
-					if (message is null)
+					try
 					{
-						diagnosticMessageSink?.OnMessage(new InternalDiagnosticMessage("Received unparseable output from test process: " + line));
-						continue;
-					}
+						var message = MessageSinkMessageDeserializer.Deserialize(line, delegatingDiagnosticSink);
 
-					if (message is IDiagnosticMessage || message is IInternalDiagnosticMessage)
-					{
-						if (diagnosticMessageSink?.OnMessage(message) == false)
-							break;
-					}
-					else if (message is ITestCaseDiscovered testDiscovered)
-					{
-						// Don't overwrite the source information if it came directly from the test framework
-						if (collectSourceInformation && sourceInformationProvider is not null && testDiscovered.SourceFilePath is null && testDiscovered.SourceLineNumber is null)
+						if (message is null)
+							delegatingDiagnosticSink.OnMessage(new InternalDiagnosticMessage("Received unparseable output from test process: " + line));
+						else if (message is IDiagnosticMessage || message is IInternalDiagnosticMessage)
+							delegatingDiagnosticSink.OnMessage(message);
+						else if (message is ITestCaseDiscovered testDiscovered)
 						{
-							var sourceInformation = sourceInformationProvider.GetSourceInformation(testDiscovered.TestClassName, testDiscovered.TestMethodName);
-							testDiscovered = testDiscovered.WithSourceInfo(sourceInformation.SourceFile, sourceInformation.SourceLine);
-						}
+							// Don't overwrite the source information if it came directly from the test framework
+							if (collectSourceInformation && sourceInformationProvider is not null && testDiscovered.SourceFilePath is null && testDiscovered.SourceLineNumber is null)
+							{
+								var sourceInformation = sourceInformationProvider.GetSourceInformation(testDiscovered.TestClassName, testDiscovered.TestMethodName);
+								testDiscovered = testDiscovered.WithSourceInfo(sourceInformation.SourceFile, sourceInformation.SourceLine);
+							}
 
-						if (assemblyUniqueID is null)
-						{
-							assemblyUniqueID = testDiscovered.AssemblyUniqueID;
-							SendDiscoveryStarting(assemblyUniqueID);
-						}
+							if (assemblyUniqueID is null)
+							{
+								assemblyUniqueID = testDiscovered.AssemblyUniqueID;
+								SendDiscoveryStarting(assemblyUniqueID);
+							}
 
-						++testCaseCount;
-						if (!messageSink.OnMessage(testDiscovered))
-							break;
+							++testCaseCount;
+							delegatingMessageSink.OnMessage(testDiscovered);
+						}
+					}
+					finally
+					{
+						if (synchronousMessageReporting)
+							process.StandardInput.WriteLine();
 					}
 				}
 			}
@@ -197,6 +210,7 @@ public class Xunit3 : IFrontController
 		Guard.ArgumentNotNull(settings);
 
 		var arguments = Xunit3ArgumentFactory.ForFindAndRun(
+			CoreFrameworkVersion,
 			settings.DiscoveryOptions,
 			settings.ExecutionOptions,
 			settings.Filters,
@@ -204,7 +218,11 @@ public class Xunit3 : IFrontController
 			settings.LaunchOptions.WaitForDebugger
 		);
 
-		RunInternal(messageSink, arguments);
+		var synchronousMessageReporting =
+			CoreFrameworkVersion >= Version_0_3_0
+				&& (settings.ExecutionOptions.GetSynchronousMessageReporting() ?? settings.DiscoveryOptions.GetSynchronousMessageReporting() ?? false);
+
+		RunInternal(messageSink, arguments, synchronousMessageReporting);
 	}
 
 	/// <inheritdoc/>
@@ -217,22 +235,31 @@ public class Xunit3 : IFrontController
 		Guard.ArgumentNotNullOrEmpty(settings.SerializedTestCases);
 
 		var arguments = Xunit3ArgumentFactory.ForRun(
+			CoreFrameworkVersion,
 			settings.Options,
 			settings.SerializedTestCases,
 			projectAssembly.ConfigFileName,
 			settings.LaunchOptions.WaitForDebugger
 		);
 
-		RunInternal(messageSink, arguments);
+		var synchronousMessageReporting =
+			CoreFrameworkVersion >= Version_0_3_0
+				&& settings.Options.GetSynchronousMessageReportingOrDefault();
+
+		RunInternal(messageSink, arguments, synchronousMessageReporting);
 	}
 
 	void RunInternal(
 		IMessageSink messageSink,
-		List<string> arguments)
+		List<string> arguments,
+		bool synchronousMessageReporting)
 	{
 		var process =
 			testProcessLauncher.Launch(projectAssembly, arguments)
 				?? throw new InvalidOperationException(string.Format(CultureInfo.InvariantCulture, "Could not launch test process. Test assembly '{0}', arguments: '{1}'", projectAssembly.AssemblyFileName, string.Join(" ", arguments)));
+
+		var delegatingDiagnosticSink = new DelegatingProcessCancellationSink(process, diagnosticMessageSink);
+		var delegatingMessageSink = new DelegatingProcessCancellationSink(process, messageSink);
 
 		ThreadPool.QueueUserWorkItem(async _ =>
 		{
@@ -244,26 +271,25 @@ public class Xunit3 : IFrontController
 					if (line is null)
 						break;
 
-					var message = MessageSinkMessageDeserializer.Deserialize(line, diagnosticMessageSink);
-					if (message is null)
+					try
 					{
-						diagnosticMessageSink?.OnMessage(new DiagnosticMessage("Received unparseable output from test process: " + line));
-						continue;
-					}
+						var message = MessageSinkMessageDeserializer.Deserialize(line, delegatingDiagnosticSink);
 
-					if (message is IDiagnosticMessage || message is IInternalDiagnosticMessage)
-					{
-						if (diagnosticMessageSink?.OnMessage(message) == false)
+						if (message is null)
+							delegatingDiagnosticSink.OnMessage(new InternalDiagnosticMessage("Received unparseable output from test process: " + line));
+						else if (message is IDiagnosticMessage || message is IInternalDiagnosticMessage)
+							delegatingDiagnosticSink.OnMessage(message);
+						else
+							delegatingMessageSink.OnMessage(message);
+
+						if (message is ITestAssemblyFinished)
 							break;
 					}
-					else
+					finally
 					{
-						if (!messageSink.OnMessage(message))
-							break;
+						if (synchronousMessageReporting)
+							process.StandardInput.WriteLine();
 					}
-
-					if (message is ITestAssemblyFinished)
-						break;
 				}
 			}
 			finally

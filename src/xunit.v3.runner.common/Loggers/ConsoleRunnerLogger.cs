@@ -14,6 +14,7 @@ public class ConsoleRunnerLogger : IRunnerLogger
 	readonly static Regex ansiSgrRegex = new("\\e\\[\\d*(;\\d*)*m");
 	readonly ConsoleHelper consoleHelper;
 	readonly bool useColors;
+	readonly bool waitForAcknowledgment;
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="ConsoleRunnerLogger"/> class.
@@ -23,13 +24,17 @@ public class ConsoleRunnerLogger : IRunnerLogger
 	/// <param name="useAnsiColor">A flag to indicate whether ANSI colors should be
 	/// forced on Windows.</param>
 	/// <param name="consoleHelper">The helper for writing console output.</param>
+	/// <param name="waitForAcknowledgment">A flag to indicate whether the logger should wait
+	/// for acknowledgments or not</param>
 	public ConsoleRunnerLogger(
 		bool useColors,
 		bool useAnsiColor,
-		ConsoleHelper consoleHelper)
+		ConsoleHelper consoleHelper,
+		bool waitForAcknowledgment)
 	{
 		this.useColors = useColors;
 		this.consoleHelper = Guard.ArgumentNotNull(consoleHelper);
+		this.waitForAcknowledgment = waitForAcknowledgment;
 
 		if (useAnsiColor)
 			consoleHelper.UseAnsiColor();
@@ -93,6 +98,14 @@ public class ConsoleRunnerLogger : IRunnerLogger
 		lock (LockObject)
 			using (SetColor(ConsoleColor.Yellow))
 				WriteLine(message);
+	}
+
+
+	/// <inheritdoc/>
+	public void WaitForAcknowledgment()
+	{
+		if (waitForAcknowledgment)
+			consoleHelper.ReadLine();
 	}
 
 	/// <summary>

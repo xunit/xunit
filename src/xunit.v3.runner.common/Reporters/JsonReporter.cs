@@ -21,7 +21,6 @@ public class JsonReporter : IRunnerReporter
 	/// <inheritdoc/>
 	public string? RunnerSwitch => "json";
 
-
 	/// <inheritdoc/>
 	public ValueTask<IRunnerReporterMessageHandler> CreateMessageHandler(
 		IRunnerLogger logger,

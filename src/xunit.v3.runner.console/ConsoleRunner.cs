@@ -31,7 +31,7 @@ sealed class ConsoleRunner(string[] args)
 		// Console.Out when in automated mode. In effort to keep as much code here duplicated as possible (for
 		// future base-class extraction), we do this even though it's not strictly speaking necessary.
 		Console.OutputEncoding = Encoding.UTF8;
-		consoleHelper = new(Console.Out);
+		consoleHelper = new(Console.In, Console.Out);
 
 		var globalInternalDiagnosticMessages = false;
 		var noColor = false;
@@ -101,7 +101,7 @@ sealed class ConsoleRunner(string[] args)
 			var globalDiagnosticMessages = project.Assemblies.Any(a => a.Configuration.DiagnosticMessagesOrDefault);
 			globalInternalDiagnosticMessages = project.Assemblies.Any(a => a.Configuration.InternalDiagnosticMessagesOrDefault);
 			noColor = project.Configuration.NoColorOrDefault;
-			logger = new ConsoleRunnerLogger(!noColor, useAnsiColor, consoleHelper);
+			logger = new ConsoleRunnerLogger(!noColor, useAnsiColor, consoleHelper, waitForAcknowledgment: false);
 			var globalDiagnosticMessageSink = ConsoleDiagnosticMessageSink.TryCreate(consoleHelper, noColor, globalDiagnosticMessages, globalInternalDiagnosticMessages);
 			var reporter = project.RunnerReporter;
 			var reporterMessageHandler = await reporter.CreateMessageHandler(logger, globalDiagnosticMessageSink);

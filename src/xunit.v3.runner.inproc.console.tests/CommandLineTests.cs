@@ -164,6 +164,49 @@ public class CommandLineTests
 
 	public class OptionsWithArguments
 	{
+		public class Automated
+		{
+			[Fact]
+			public static void DefaultValueIsNull()
+			{
+				var commandLine = new TestableCommandLine("no-config.json");
+
+				var assembly = commandLine.Parse();
+
+				Assert.Null(assembly.Configuration.SynchronousMessageReporting);
+			}
+
+			[Fact]
+			public static void UnspecifiedValueIsNull()
+			{
+				var commandLine = new TestableCommandLine("no-config.json", "-automated");
+
+				var assembly = commandLine.Parse();
+
+				Assert.Null(assembly.Configuration.SynchronousMessageReporting);
+			}
+
+			[Fact]
+			public static void AsyncIsFalse()
+			{
+				var commandLine = new TestableCommandLine("no-config.json", "-automated", "async");
+
+				var assembly = commandLine.Parse();
+
+				Assert.False(assembly.Configuration.SynchronousMessageReporting);
+			}
+
+			[Fact]
+			public static void SyncIsTrue()
+			{
+				var commandLine = new TestableCommandLine("no-config.json", "-automated", "sync");
+
+				var assembly = commandLine.Parse();
+
+				Assert.True(assembly.Configuration.SynchronousMessageReporting);
+			}
+		}
+
 		public class Culture
 		{
 			[Fact]
@@ -642,13 +685,13 @@ public class CommandLineTests
 	class TestableCommandLine : CommandLine
 	{
 		public TestableCommandLine(params string[] arguments)
-			: base(new ConsoleHelper(TextWriter.Null), Assembly.GetExecutingAssembly(), arguments)
+			: base(new ConsoleHelper(TextReader.Null, TextWriter.Null), Assembly.GetExecutingAssembly(), arguments)
 		{ }
 
 		public TestableCommandLine(
 			IReadOnlyList<IRunnerReporter> reporters,
 			params string[] arguments)
-				: base(new ConsoleHelper(TextWriter.Null), Assembly.GetExecutingAssembly(), arguments, reporters)
+				: base(new ConsoleHelper(TextReader.Null, TextWriter.Null), Assembly.GetExecutingAssembly(), arguments, reporters)
 		{ }
 
 		protected override bool FileExists(string? path) =>

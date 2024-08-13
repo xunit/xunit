@@ -777,20 +777,16 @@ public class CommandLineTests
 	class TestableCommandLine : CommandLine
 	{
 		public TestableCommandLine(params string[] args)
-			: base(new ConsoleHelper(TextWriter.Null), Array.Empty<IRunnerReporter>(), args)
+			: base(new ConsoleHelper(TextReader.Null, TextWriter.Null), Array.Empty<IRunnerReporter>(), args)
 		{ }
 
 		public TestableCommandLine(
 			IReadOnlyList<IRunnerReporter> reporters,
 			params string[] args)
-				: base(new ConsoleHelper(TextWriter.Null), reporters, args)
+				: base(new ConsoleHelper(TextReader.Null, TextWriter.Null), reporters, args)
 		{ }
 
 		protected override bool FileExists(string? path) =>
 			path?.StartsWith("bad") != true && path != "fileName";
-		/*
-		protected override string? GetFullPath(string? fileName) =>
-			fileName is null ? null : $"/full/path/{fileName}";
-		*/
 	}
 }

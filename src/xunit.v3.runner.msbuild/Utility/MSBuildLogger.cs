@@ -63,4 +63,7 @@ public class MSBuildLogger : IRunnerLogger
 		else
 			Log.LogWarning(null, null, null, stackFrame.FileName, stackFrame.LineNumber, 0, 0, 0, "{0}", message.Trim());
 	}
+
+	public void WaitForAcknowledgment()
+	{ }
 }

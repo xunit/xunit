@@ -59,4 +59,14 @@ public interface IRunnerLogger
 	/// </summary>
 	/// <param name="message">The message to be logged.</param>
 	void LogRaw(string message);
+
+	/// <summary>
+	/// Waits for an acknowledgement of a message.
+	/// </summary>
+	/// <remarks>
+	/// This is primarily for use by <see cref="JsonReporterMessageHandler"/> so that it can wait for acknowledgment
+	/// of messages when running in synchronous mode by the in-process runner. Other runner loggers running outside
+	/// this context (and/or when not in synchronous automated mode) should NOOP for this.
+	/// </remarks>
+	void WaitForAcknowledgment();
 }

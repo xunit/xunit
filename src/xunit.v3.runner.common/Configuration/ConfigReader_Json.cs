@@ -103,6 +103,8 @@ public static class ConfigReader_Json
 						configuration.ShowLiveOutput = booleanValue;
 					else if (string.Equals(kvp.Key, Configuration.StopOnFail, StringComparison.OrdinalIgnoreCase))
 						configuration.StopOnFail = booleanValue;
+					else if (string.Equals(kvp.Key, Configuration.SynchronousReporting, StringComparison.OrdinalIgnoreCase))
+						configuration.SynchronousMessageReporting = booleanValue;
 				}
 				else if (kvp.Value is decimal decimalValue && (decimalValue % 1m) == 0m)
 				{
@@ -204,5 +206,7 @@ public static class ConfigReader_Json
 		public const string ShadowCopy = "shadowCopy";
 		public const string ShowLiveOutput = "showLiveOutput";
 		public const string StopOnFail = "stopOnFail";
+		// This is undocumented but available for our own internal testing
+		public const string SynchronousReporting = "synchronousReporting";
 	}
 }

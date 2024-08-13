@@ -15,7 +15,7 @@ using Xunit.Sdk;
 namespace Xunit.Runner.v1;
 
 /// <summary>
-/// This class be used to do discovery and execution of xUnit.net v1 tests.
+/// This class is used to do discovery and execution of xUnit.net v1 tests.
 /// Runner authors are strongly encouraged to use <see cref="XunitFrontController"/>
 /// instead of using this class directly.
 /// </summary>

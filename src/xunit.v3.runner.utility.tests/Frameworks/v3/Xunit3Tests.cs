@@ -110,9 +110,12 @@ public class Xunit3Tests
 
 	async ValueTask CanFindFilteredTestsAndRunThem_UsingFind_UsingRun(
 		bool runInProcess,
+		bool synchronousMessageReporting,
 		string typeName,
 		string methodName)
 	{
+		Assembly.Configuration.SynchronousMessageReporting = synchronousMessageReporting;
+
 		var sourceInformationProvider = Substitute.For<ISourceInformationProvider, InterfaceProxy<ISourceInformationProvider>>();
 		sourceInformationProvider.GetSourceInformation(typeName, methodName).Returns(new SourceInformation("/path/to/source/file.cs", 2112));
 		await using var xunit3 = Xunit3.ForDiscoveryAndExecution(Assembly, sourceInformationProvider, testProcessLauncher: runInProcess ? InProcessTestProcessLauncher.Instance : LocalOutOfProcessTestProcessLauncher.Instance);
@@ -150,26 +153,37 @@ public class Xunit3Tests
 	}
 
 	[Theory]
-	[InlineData(false)]
-	[InlineData(true)]
-	public ValueTask CanFindFilteredTestsAndRunThem_UsingFind_UsingRun_Self(bool runInProcess) =>
-		CanFindFilteredTestsAndRunThem_UsingFind_UsingRun(runInProcess, typeof(Xunit3Tests).SafeName(), nameof(GuardClauses_Ctor));
+	[InlineData(false, false)]
+	[InlineData(false, true)]
+	[InlineData(true, false)]
+	[InlineData(true, true)]
+	public ValueTask CanFindFilteredTestsAndRunThem_UsingFind_UsingRun_Self(
+		bool runInProcess,
+		bool synchronousMessageReporting) =>
+			CanFindFilteredTestsAndRunThem_UsingFind_UsingRun(runInProcess, synchronousMessageReporting, typeof(Xunit3Tests).SafeName(), nameof(GuardClauses_Ctor));
 
 	[Theory]
-	[InlineData(false)]
-	[InlineData(true)]
-	public ValueTask CanFindFilteredTestsAndRunThem_UsingFind_UsingRun_Other(bool runInProcess)
+	[InlineData(false, false)]
+	[InlineData(false, true)]
+	[InlineData(true, false)]
+	[InlineData(true, true)]
+	public ValueTask CanFindFilteredTestsAndRunThem_UsingFind_UsingRun_Other(
+		bool runInProcess,
+		bool synchronousMessageReporting)
 	{
 		UseAssertTests();
 
-		return CanFindFilteredTestsAndRunThem_UsingFind_UsingRun(runInProcess, "BooleanAssertsTests+True", "AssertTrue");
+		return CanFindFilteredTestsAndRunThem_UsingFind_UsingRun(runInProcess, synchronousMessageReporting, "BooleanAssertsTests+True", "AssertTrue");
 	}
 
 	async ValueTask CanFindFilteredTestsAndRunThem_UsingFindAndRun(
 		bool runInProcess,
+		bool synchronousMessageReporting,
 		string typeName,
 		string methodName)
 	{
+		Assembly.Configuration.SynchronousMessageReporting = synchronousMessageReporting;
+
 		var fullyQualifiedMethodName = typeName + "." + methodName;
 
 		await using var xunit3 = Xunit3.ForDiscoveryAndExecution(Assembly, testProcessLauncher: runInProcess ? InProcessTestProcessLauncher.Instance : LocalOutOfProcessTestProcessLauncher.Instance);
@@ -191,18 +205,26 @@ public class Xunit3Tests
 	}
 
 	[Theory]
-	[InlineData(false)]
-	[InlineData(true)]
-	public ValueTask CanFindFilteredTestsAndRunThem_UsingFindAndRun_Self(bool runInProcess) =>
-		CanFindFilteredTestsAndRunThem_UsingFindAndRun(runInProcess, typeof(Xunit3Tests).SafeName(), nameof(GuardClauses_Ctor));
+	[InlineData(false, false)]
+	[InlineData(false, true)]
+	[InlineData(true, false)]
+	[InlineData(true, true)]
+	public ValueTask CanFindFilteredTestsAndRunThem_UsingFindAndRun_Self(
+		bool runInProcess,
+		bool synchronousMessageReporting) =>
+			CanFindFilteredTestsAndRunThem_UsingFindAndRun(runInProcess, synchronousMessageReporting, typeof(Xunit3Tests).SafeName(), nameof(GuardClauses_Ctor));
 
 	[Theory]
-	[InlineData(false)]
-	[InlineData(true)]
-	public ValueTask CanFindFilteredTestsAndRunThem_UsingFindAndRun_Other(bool runInProcess)
+	[InlineData(false, false)]
+	[InlineData(false, true)]
+	[InlineData(true, false)]
+	[InlineData(true, true)]
+	public ValueTask CanFindFilteredTestsAndRunThem_UsingFindAndRun_Other(
+		bool runInProcess,
+		bool synchronousMessageReporting)
 	{
 		UseAssertTests();
 
-		return CanFindFilteredTestsAndRunThem_UsingFindAndRun(runInProcess, "BooleanAssertsTests+True", "AssertTrue");
+		return CanFindFilteredTestsAndRunThem_UsingFindAndRun(runInProcess, synchronousMessageReporting, "BooleanAssertsTests+True", "AssertTrue");
 	}
 }

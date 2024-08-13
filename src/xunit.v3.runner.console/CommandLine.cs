@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Reflection;
 using Xunit.Internal;
 using Xunit.Runner.Common;
@@ -44,6 +43,8 @@ public class CommandLine : CommandLineParserBase
 			"  assemblies  - only parallelize assemblies",
 			"  all         - parallelize assemblies & collections"
 		);
+		AddParser("pause", OnPause, CommandLineGroup.General, null, "wait for input before running tests");
+		AddParser("wait", OnWait, CommandLineGroup.General, null, "wait for input after completion");
 
 		// .NET Framework options
 		AddParser(

@@ -30,7 +30,7 @@ public class ConsoleRunner(
 	Assembly? testAssembly = null)
 {
 	readonly string[] args = Guard.ArgumentNotNull(args);
-	bool automated;
+	AutomatedMode automatedMode;
 	volatile bool cancel;
 	ConsoleHelper consoleHelper = default!;
 	bool executed;
@@ -53,19 +53,21 @@ public class ConsoleRunner(
 	/// <returns>The return value intended to be returned by the Main method.</returns>
 	// The signature of this method is known to Xunit3, so do not change it without also changing
 	// the code that invokes it dynamically.
-	public async Task<int> EntryPoint(TextWriter? consoleOverride = null)
+	public async Task<int> EntryPoint(
+		TextReader? consoleReader = null,
+		TextWriter? consoleWriter = null)
 	{
 		if (executed)
 			throw new InvalidOperationException("The EntryPoint method can only be called once.");
 
 		executed = true;
 
-		if (consoleOverride is null)
+		if (consoleWriter is null)
 			SetOutputEncoding();
 
-		consoleHelper = new(consoleOverride ?? Console.Out);
+		consoleHelper = new(consoleReader ?? Console.In, consoleWriter ?? Console.Out);
 
-		var globalInternalDiagnosticMessages = false;
+		var internalDiagnosticMessages = false;
 		var noColor = false;
 
 		try
@@ -95,16 +97,24 @@ public class ConsoleRunner(
 
 			// We pick up the -automated flag early, because Parse() can throw and we want to use automated output
 			// to report any command line parsing problems.
-			automated = commandLine.AutomatedRequested;
-			if (automated)
+			var automatedRequested = commandLine.AutomatedRequested;
+			if (automatedRequested)
 			{
-				if (consoleOverride is null)
+				if (consoleReader is null)
+					Console.SetIn(TextReader.Null);
+				if (consoleWriter is null)
 					Console.SetOut(TextWriter.Null);
 
 				noColor = true;
 			}
 
 			var projectAssembly = commandLine.Parse();
+			automatedMode = (automatedRequested, projectAssembly.Configuration.SynchronousMessageReporting) switch
+			{
+				(true, true) => AutomatedMode.Sync,
+				(true, _) => AutomatedMode.Async,
+				_ => AutomatedMode.Off,
+			};
 			var project = projectAssembly.Project;
 			var useAnsiColor = project.Configuration.UseAnsiColorOrDefault;
 			if (useAnsiColor)
@@ -123,8 +133,8 @@ public class ConsoleRunner(
 			{
 				if (started && !cancel)
 				{
-					if (automated)
-						consoleHelper.WriteLine(new DiagnosticMessage("Cancellation request received").ToJson());
+					if (automatedMode != AutomatedMode.Off)
+						consoleHelper.WriteMessage(new DiagnosticMessage("Cancellation request received"), automatedMode);
 					else
 						consoleHelper.WriteLine("Cancelling... (Press Ctrl+C again to terminate)");
 
@@ -133,55 +143,53 @@ public class ConsoleRunner(
 				}
 			};
 
-			if (project.Configuration.PauseOrDefault)
+			if (project.Configuration.PauseOrDefault && automatedMode == AutomatedMode.Off)
 			{
-				if (!automated)
-					consoleHelper.Write("Press any key to start execution...");
+				consoleHelper.Write("Press any key to start execution...");
 
 				Console.ReadKey(true);
 
-				if (!automated)
-					consoleHelper.WriteLine();
+				consoleHelper.WriteLine();
 			}
 
 			if (project.Configuration.DebugOrDefault)
 				Debugger.Launch();
 
-			var globalDiagnosticMessages = projectAssembly.Configuration.DiagnosticMessagesOrDefault;
-			globalInternalDiagnosticMessages = projectAssembly.Configuration.InternalDiagnosticMessagesOrDefault;
+			var diagnosticMessages = projectAssembly.Configuration.DiagnosticMessagesOrDefault;
+			internalDiagnosticMessages = projectAssembly.Configuration.InternalDiagnosticMessagesOrDefault;
 
-			if (!automated)
+			if (automatedMode == AutomatedMode.Off)
 				noColor = project.Configuration.NoColorOrDefault;
 
-			logger = new ConsoleRunnerLogger(!noColor, useAnsiColor, consoleHelper);
+			logger = new ConsoleRunnerLogger(!noColor, useAnsiColor, consoleHelper, waitForAcknowledgment: automatedMode == AutomatedMode.Sync);
 
-			IMessageSink? globalDiagnosticMessageSink =
-				automated
-					? new AutomatedDiagnosticMessageSink(consoleHelper)
-					: ConsoleDiagnosticMessageSink.TryCreate(consoleHelper, noColor, globalDiagnosticMessages, globalInternalDiagnosticMessages);
+			IMessageSink? diagnosticMessageSink =
+				automatedMode != AutomatedMode.Off
+					? new AutomatedDiagnosticMessageSink(consoleHelper, automatedMode)
+					: ConsoleDiagnosticMessageSink.TryCreate(consoleHelper, noColor, diagnosticMessages, internalDiagnosticMessages);
 
-			pipelineStartup = await ProjectAssemblyRunner.InvokePipelineStartup(testAssembly, consoleHelper, automated, noColor, globalDiagnosticMessages, globalInternalDiagnosticMessages);
+			pipelineStartup = await ProjectAssemblyRunner.InvokePipelineStartup(testAssembly, consoleHelper, automatedMode, noColor, diagnosticMessages, internalDiagnosticMessages);
 
 			var failCount = 0;
 
 			try
 			{
-				var reporter = automated ? new JsonReporter() : project.RunnerReporter;
-				var reporterMessageHandler = await reporter.CreateMessageHandler(logger, globalDiagnosticMessageSink);
+				var reporter = automatedMode != AutomatedMode.Off ? new JsonReporter() : project.RunnerReporter;
+				var reporterMessageHandler = await reporter.CreateMessageHandler(logger, diagnosticMessageSink);
 
 				if (!reporter.ForceNoLogo && !project.Configuration.NoLogoOrDefault)
 					ProjectAssemblyRunner.PrintHeader(consoleHelper);
 
 				foreach (string warning in commandLine.ParseWarnings)
-					if (automated)
-						consoleHelper.WriteLine(new DiagnosticMessage("warning: " + warning).ToJson());
+					if (automatedMode != AutomatedMode.Off)
+						consoleHelper.WriteMessage(new DiagnosticMessage("warning: " + warning), automatedMode);
 					else
 						logger.LogWarning(warning);
 
-				var projectRunner = new ProjectAssemblyRunner(testAssembly, consoleHelper, () => cancel, automated);
+				var projectRunner = new ProjectAssemblyRunner(testAssembly, consoleHelper, () => cancel, automatedMode);
 				if (project.Configuration.WaitForDebuggerOrDefault)
 				{
-					if (!automated)
+					if (automatedMode == AutomatedMode.Off)
 						consoleHelper.WriteLine("Waiting for debugger to be attached... (press Ctrl+C to abort)");
 
 					while (true)
@@ -196,7 +204,7 @@ public class ConsoleRunner(
 				started = true;
 
 				if (project.Configuration.List is not null)
-					await ListAssembly(projectAssembly, automated);
+					await ListAssembly(projectAssembly);
 				else
 					failCount = await projectRunner.Run(projectAssembly, reporterMessageHandler, pipelineStartup);
 
@@ -209,18 +217,14 @@ public class ConsoleRunner(
 					await pipelineStartup.StopAsync();
 			}
 
-			if (project.Configuration.WaitOrDefault)
+			if (project.Configuration.WaitOrDefault && automatedMode == AutomatedMode.Off)
 			{
-				if (!automated)
-				{
-					consoleHelper.WriteLine();
-					consoleHelper.Write("Press any key to continue...");
-				}
+				consoleHelper.WriteLine();
+				consoleHelper.Write("Press any key to continue...");
 
 				Console.ReadKey();
 
-				if (!automated)
-					consoleHelper.WriteLine();
+				consoleHelper.WriteLine();
 			}
 
 			return project.Configuration.IgnoreFailures == true || failCount == 0 ? 0 : 1;
@@ -230,13 +234,13 @@ public class ConsoleRunner(
 			if (!noColor)
 				consoleHelper.SetForegroundColor(ConsoleColor.Red);
 
-			if (automated)
-				consoleHelper.WriteLine(new DiagnosticMessage("error: " + ex.Message).ToJson());
+			if (automatedMode != AutomatedMode.Off)
+				consoleHelper.WriteMessage(new DiagnosticMessage("error: " + ex.Message), automatedMode);
 			else
 			{
 				consoleHelper.WriteLine("error: {0}", ex.Message);
 
-				if (globalInternalDiagnosticMessages)
+				if (internalDiagnosticMessages)
 				{
 					if (!noColor)
 						consoleHelper.SetForegroundColor(ConsoleColor.DarkGray);
@@ -254,16 +258,14 @@ public class ConsoleRunner(
 		}
 	}
 
-	async ValueTask ListAssembly(
-		XunitProjectAssembly assembly,
-		bool automated)
+	async ValueTask ListAssembly(XunitProjectAssembly assembly)
 	{
 		var (listOption, listFormat) = assembly.Project.Configuration.List!.Value;
-		if (automated)
+		if (automatedMode != AutomatedMode.Off)
 			listFormat = ListFormat.Json;
 
 		var assemblyFileName = Guard.ArgumentNotNull(assembly.AssemblyFileName);
-		var projectRunner = new ProjectAssemblyRunner(testAssembly, consoleHelper, () => cancel, automated);
+		var projectRunner = new ProjectAssemblyRunner(testAssembly, consoleHelper, () => cancel, automatedMode);
 		var testCases = new List<(ITestCase TestCase, bool PassedFilter)>();
 		await projectRunner.Discover(assembly, pipelineStartup, testCases: testCases);
 
@@ -277,7 +279,7 @@ public class ConsoleRunner(
 		}
 		else
 			foreach (var testCase in filteredTestCases)
-				consoleHelper.WriteLine(testCase.ToTestCaseDiscovered().ToJson());
+				consoleHelper.WriteMessage(testCase.ToTestCaseDiscovered(), automatedMode);
 	}
 
 	void OnUnhandledException(
@@ -286,15 +288,15 @@ public class ConsoleRunner(
 	{
 		if (e.ExceptionObject is Exception ex)
 		{
-			if (automated)
-				consoleHelper.WriteLine(ErrorMessage.FromException(ex).ToJson());
+			if (automatedMode != AutomatedMode.Off)
+				consoleHelper.WriteMessage(ErrorMessage.FromException(ex), automatedMode);
 			else
 				consoleHelper.WriteLine(ex.ToString());
 		}
 		else
 		{
-			if (automated)
-				consoleHelper.WriteLine(new DiagnosticMessage("Error of unknown type thrown in application domain").ToJson());
+			if (automatedMode != AutomatedMode.Off)
+				consoleHelper.WriteMessage(new DiagnosticMessage("Error of unknown type thrown in application domain"), automatedMode);
 			else
 				consoleHelper.WriteLine("Error of unknown type thrown in application domain");
 		}

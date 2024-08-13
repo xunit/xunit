@@ -115,12 +115,10 @@ public abstract class CommandLineParserBase
 			"  aggressive   - start as many tests as possible",
 			"for more information, see https://xunit.net/docs/running-tests-in-parallel#algorithms"
 		);
-		AddParser("pause", OnPause, CommandLineGroup.General, null, "wait for input before running tests");
 		AddParser("preEnumerateTheories", OnPreEnumerateTheories, CommandLineGroup.General, null, "enable theory pre-enumeration (disabled by default)");
 		AddParser("showLiveOutput", OnShowLiveOutput, CommandLineGroup.General, null, "show output messages from tests live");
 		AddParser("stopOnFail", OnStopOnFail, CommandLineGroup.General, null, "stop on first test failure");
 		AddParser("useAnsiColor", OnUseAnsiColor, CommandLineGroup.General, null, "force using ANSI color output on Windows (non-Windows always uses ANSI colors)");
-		AddParser("wait", OnWait, CommandLineGroup.General, null, "wait for input after completion");
 
 		// Filter options
 		AddParser(
@@ -579,7 +577,8 @@ public abstract class CommandLineParserBase
 			projectAssembly.Configuration.ParallelAlgorithm = parallelAlgorithm;
 	}
 
-	void OnPause(KeyValuePair<string, string?> option)
+	/// <summary/>
+	protected void OnPause(KeyValuePair<string, string?> option)
 	{
 		GuardNoOptionValue(option);
 		Project.Configuration.Pause = true;
@@ -644,7 +643,8 @@ public abstract class CommandLineParserBase
 		Project.Configuration.UseAnsiColor = true;
 	}
 
-	void OnWait(KeyValuePair<string, string?> option)
+	/// <summary/>
+	protected void OnWait(KeyValuePair<string, string?> option)
 	{
 		GuardNoOptionValue(option);
 		Project.Configuration.Wait = true;

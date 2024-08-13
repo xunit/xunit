@@ -6,20 +6,18 @@ using Xunit.Sdk;
 
 namespace Xunit.Runner.InProc.SystemConsole;
 
-internal sealed class AutomatedDiagnosticMessageSink : IMessageSink
+internal sealed class AutomatedDiagnosticMessageSink(
+	ConsoleHelper consoleHelper,
+	AutomatedMode automatedMode) :
+		IMessageSink
 {
-	readonly ConsoleHelper consoleHelper;
-
-	public AutomatedDiagnosticMessageSink(ConsoleHelper consoleHelper) =>
-		this.consoleHelper = consoleHelper;
-
 	public bool OnMessage(IMessageSinkMessage message)
 	{
 		Guard.ArgumentNotNull(message);
 
 		if (message is IDiagnosticMessage || message is IInternalDiagnosticMessage)
 			lock (consoleHelper.LockObject)
-				consoleHelper.WriteLine(message.ToJson());
+				consoleHelper.WriteMessage(message, automatedMode);
 
 		return true;
 	}

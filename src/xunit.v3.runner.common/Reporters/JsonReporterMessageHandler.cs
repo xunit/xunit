@@ -12,7 +12,8 @@ namespace Xunit.Runner.Common;
 /// Initializes a new instance of the <see cref="JsonReporterMessageHandler" /> class.
 /// </remarks>
 /// <param name="logger">The logger used to report messages</param>
-public class JsonReporterMessageHandler(IRunnerLogger logger) : IRunnerReporterMessageHandler
+public class JsonReporterMessageHandler(IRunnerLogger logger) :
+	IRunnerReporterMessageHandler
 {
 	readonly IRunnerLogger logger = Guard.ArgumentNotNull(logger);
 
@@ -29,9 +30,10 @@ public class JsonReporterMessageHandler(IRunnerLogger logger) : IRunnerReporterM
 	{
 		try
 		{
-			var json = Guard.ArgumentNotNull(message).ToJson();
-			if (json is not null)
-				logger.LogImportantMessage(json);
+			Guard.ArgumentNotNull(message);
+
+			logger.LogImportantMessage(message.ToJson());
+			logger.WaitForAcknowledgment();
 		}
 		// Some messages aren't serializable; we just skip it and move on
 		catch (NotSupportedException) { }

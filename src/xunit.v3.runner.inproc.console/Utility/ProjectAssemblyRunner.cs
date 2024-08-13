@@ -23,14 +23,14 @@ namespace Xunit.Runner.InProc.SystemConsole;
 /// <param name="testAssembly">The assembly under test</param>
 /// <param name="consoleHelper">The console helper to use for output</param>
 /// <param name="cancelThunk">The thunk to determine if we should cancel</param>
-/// <param name="automated">The flag to indicate if we are in automated mode</param>
+/// <param name="automatedMode">The automated mode we're running in</param>
 public sealed class ProjectAssemblyRunner(
 	Assembly testAssembly,
 	ConsoleHelper consoleHelper,
 	Func<bool> cancelThunk,
-	bool automated)
+	AutomatedMode automatedMode)
 {
-	readonly bool automated = automated;
+	readonly AutomatedMode automatedMode = automatedMode;
 	volatile bool cancel;
 	readonly Func<bool> cancelThunk = cancelThunk;
 	readonly ConsoleHelper consoleHelper = consoleHelper;
@@ -63,10 +63,14 @@ public sealed class ProjectAssemblyRunner(
 		// Setup discovery options with command-line overrides
 		var discoveryOptions = TestFrameworkOptions.ForDiscovery(assembly.Configuration);
 
-		var noColor = automated || assembly.Project.Configuration.NoColorOrDefault;
+		var noColor = automatedMode != AutomatedMode.Off || assembly.Project.Configuration.NoColorOrDefault;
 		var diagnosticMessages = assembly.Configuration.DiagnosticMessagesOrDefault;
 		var internalDiagnosticMessages = assembly.Configuration.InternalDiagnosticMessagesOrDefault;
-		var diagnosticMessageSink = ConsoleDiagnosticMessageSink.TryCreate(consoleHelper, noColor, diagnosticMessages, internalDiagnosticMessages);
+
+		IMessageSink? diagnosticMessageSink =
+			automatedMode != AutomatedMode.Off
+				? new AutomatedDiagnosticMessageSink(consoleHelper, automatedMode)
+				: ConsoleDiagnosticMessageSink.TryCreate(consoleHelper, noColor, diagnosticMessages, internalDiagnosticMessages, assembly.AssemblyDisplayName);
 
 		TestContext.SetForInitialization(diagnosticMessageSink, diagnosticMessages, internalDiagnosticMessages);
 
@@ -103,14 +107,14 @@ public sealed class ProjectAssemblyRunner(
 	/// </summary>
 	/// <param name="testAssembly">The test assembly under test</param>
 	/// <param name="consoleHelper">The console helper to use for output</param>
-	/// <param name="automated">The flag to indicate if we are in automated mode</param>
+	/// <param name="automatedMode">The automated mode we're running in</param>
 	/// <param name="noColor">The flag to indicate whether we should suppress color in the output</param>
 	/// <param name="diagnosticMessages">The flag to indicate if the user wants to see diagnostic messages</param>
 	/// <param name="internalDiagnosticMessages">The flag to indicate if the user wants to see internal diagnostic messages</param>
 	public static async ValueTask<ITestPipelineStartup?> InvokePipelineStartup(
 		Assembly testAssembly,
 		ConsoleHelper consoleHelper,
-		bool automated,
+		AutomatedMode automatedMode,
 		bool noColor,
 		bool diagnosticMessages,
 		bool internalDiagnosticMessages)
@@ -143,8 +147,8 @@ public sealed class ProjectAssemblyRunner(
 				throw new TestPipelineException(string.Format(CultureInfo.CurrentCulture, "Pipeline startup type '{0}' does not implement '{1}'", pipelineStartupType.SafeName(), typeof(ITestPipelineStartup).SafeName()));
 
 			IMessageSink? pipelineMessageSink =
-				automated
-					? new AutomatedDiagnosticMessageSink(consoleHelper)
+				automatedMode != AutomatedMode.Off
+					? new AutomatedDiagnosticMessageSink(consoleHelper, automatedMode)
 					: ConsoleDiagnosticMessageSink.TryCreate(consoleHelper, noColor, diagnosticMessages, internalDiagnosticMessages, assemblyDisplayName: pipelineStartupType.SafeName(), indent: false);
 
 			await result.StartAsync(pipelineMessageSink ?? NullMessageSink.Instance);
@@ -199,11 +203,15 @@ public sealed class ProjectAssemblyRunner(
 			var discoveryOptions = TestFrameworkOptions.ForDiscovery(assembly.Configuration);
 			var executionOptions = TestFrameworkOptions.ForExecution(assembly.Configuration);
 
-			var noColor = automated || assembly.Project.Configuration.NoColorOrDefault;
+			var noColor = automatedMode != AutomatedMode.Off || assembly.Project.Configuration.NoColorOrDefault;
 			var diagnosticMessages = assembly.Configuration.DiagnosticMessagesOrDefault;
 			var internalDiagnosticMessages = assembly.Configuration.InternalDiagnosticMessagesOrDefault;
-			var diagnosticMessageSink = ConsoleDiagnosticMessageSink.TryCreate(consoleHelper, noColor, diagnosticMessages, internalDiagnosticMessages);
 			var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
+
+			IMessageSink? diagnosticMessageSink =
+				automatedMode != AutomatedMode.Off
+					? new AutomatedDiagnosticMessageSink(consoleHelper, automatedMode)
+					: ConsoleDiagnosticMessageSink.TryCreate(consoleHelper, noColor, diagnosticMessages, internalDiagnosticMessages, assembly.AssemblyDisplayName);
 
 			TestContext.SetForInitialization(diagnosticMessageSink, diagnosticMessages, internalDiagnosticMessages);
 
@@ -243,8 +251,8 @@ public sealed class ProjectAssemblyRunner(
 
 			if (resultsSink.ExecutionSummary.Failed != 0 && executionOptions.GetStopOnTestFailOrDefault())
 			{
-				if (automated)
-					consoleHelper.WriteLine(new DiagnosticMessage("Cancelling due to test failure").ToJson());
+				if (automatedMode != AutomatedMode.Off)
+					consoleHelper.WriteMessage(new DiagnosticMessage("Cancelling due to test failure"), automatedMode);
 				else
 					consoleHelper.WriteLine("Cancelling due to test failure...");
 
@@ -258,8 +266,8 @@ public sealed class ProjectAssemblyRunner(
 			var e = ex;
 			while (e is not null)
 			{
-				if (automated)
-					consoleHelper.WriteLine(ErrorMessage.FromException(e).ToJson());
+				if (automatedMode != AutomatedMode.Off)
+					consoleHelper.WriteMessage(ErrorMessage.FromException(e), automatedMode);
 				else
 				{
 					consoleHelper.WriteLine("{0}: {1}", e.GetType().SafeName(), e.Message);

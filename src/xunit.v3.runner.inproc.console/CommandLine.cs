@@ -36,14 +36,22 @@ public class CommandLine : CommandLineParserBase
 
 		// General options
 		AddParser("assemblyInfo", OnAssemblyInfo, CommandLineGroup.General, null, "return test assembly information; does not find or run tests (implies -noColor and -noLogo)");
-		AddParser("automated", OnAutomated, CommandLineGroup.General, null, "enables automated mode; ensures all output is machine parseable");
+		AddParser(
+			"automated", OnAutomated, CommandLineGroup.General, "[option]",
+			"enables automated mode (ensures all output is machine parseable)",
+			"  <unset> - use synchronous reporting requested by the configuration",
+			"  async   - asynchronously report messages (and don't wait)",
+			"  sync    - synchronously report messages (and wait for a carriage return after each)"
+		);
 		AddParser(
 			"parallel", OnParallel, CommandLineGroup.General, "<option>",
 			"set parallelization based on option",
 			"  none        - turn off parallelization",
 			"  collections - parallelize by collections [default]"
 		);
+		AddParser("pause", OnPause, CommandLineGroup.General, null, "wait for input before running tests (ignored with -automated)");
 		AddParser("run", OnRun, CommandLineGroup.General, "<serialization>", "Run a test case");
+		AddParser("wait", OnWait, CommandLineGroup.General, null, "wait for input after completion (ignored with -automated)");
 		AddParser("waitForDebugger", OnWaitForDebugger, CommandLineGroup.General, null, "pauses execution until a debugger has been attached");
 	}
 
@@ -129,10 +137,20 @@ public class CommandLine : CommandLineParserBase
 		Project.Configuration.AssemblyInfo = true;
 	}
 
-	// Don't need to store anything, because we rely on AutomatedRequested instead; just want to validate and
-	// ignore during parsing, which happens later than is normally useful for us.
-	void OnAutomated(KeyValuePair<string, string?> option) =>
-		GuardNoOptionValue(option);
+	void OnAutomated(KeyValuePair<string, string?> option)
+	{
+		var assembly =
+			Project.Assemblies.FirstOrDefault()
+				?? throw new ArgumentException("no assembly in the project");
+
+		if (option.Value is not null)
+			assembly.Configuration.SynchronousMessageReporting = option.Value.ToUpperInvariant() switch
+			{
+				"ASYNC" => false,
+				"SYNC" => true,
+				_ => throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "invalid automated option '{0}'", option.Value)),
+			};
+	}
 
 	void OnRun(KeyValuePair<string, string?> option)
 	{

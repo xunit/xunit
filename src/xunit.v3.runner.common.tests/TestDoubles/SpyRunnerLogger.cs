@@ -7,47 +7,35 @@ public class SpyRunnerLogger : IRunnerLogger
 {
 	static readonly string currentDirectory = Directory.GetCurrentDirectory();
 
-	public List<string> Messages = new();
+	public List<string> Messages = [];
 
-	public SpyRunnerLogger()
-	{
-		LockObject = new object();
-	}
-
-	public object LockObject { get; private set; }
+	public object LockObject { get; } = new();
 
 	public void LogError(
 		StackFrameInfo stackFrame,
-		string message)
-	{
-		AddMessage("Err", stackFrame, message);
-	}
+		string message) =>
+			AddMessage("Err", stackFrame, message);
 
 	public void LogImportantMessage(
 		StackFrameInfo stackFrame,
-		string message)
-	{
-		AddMessage("Imp", stackFrame, message);
-	}
+		string message) =>
+			AddMessage("Imp", stackFrame, message);
 
 	public void LogMessage(
 		StackFrameInfo stackFrame,
-		string message)
-	{
-		AddMessage("---", stackFrame, message);
-	}
+		string message) =>
+			AddMessage("---", stackFrame, message);
 
-	public void LogRaw(string message)
-	{
+	public void LogRaw(string message) =>
 		AddMessage("Raw", StackFrameInfo.None, message);
-	}
 
 	public void LogWarning(
 		StackFrameInfo stackFrame,
-		string message)
-	{
-		AddMessage("Wrn", stackFrame, message);
-	}
+		string message) =>
+			AddMessage("Wrn", stackFrame, message);
+
+	public void WaitForAcknowledgment() =>
+		AddMessage("Ack", StackFrameInfo.None, "Acknolwedgment requested");
 
 	void AddMessage(
 		string category,

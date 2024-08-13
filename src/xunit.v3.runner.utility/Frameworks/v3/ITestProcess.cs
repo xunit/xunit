@@ -16,10 +16,31 @@ public interface ITestProcess : IDisposable
 	bool HasExited { get; }
 
 	/// <summary>
+	/// Gets a <see cref="TextWriter"/> that can be used to write text from the standard
+	/// input of the test process.
+	/// </summary>
+	TextWriter StandardInput { get; }
+
+	/// <summary>
 	/// Gets a <see cref="TextReader"/> that can be used to read text from the standard
 	/// output of the test process.
 	/// </summary>
 	TextReader StandardOutput { get; }
+
+	/// <summary>
+	/// Cancels the test pipeline, forcefully if necessary.
+	/// </summary>
+	/// <param name="forceCancellation">When set to <c>false</c>, this should request graceful termination
+	/// of the test pipeline; when set to <c>true</c>, the test process should be forcefully shut down as
+	/// quickly as possible.</param>
+	/// <remarks>
+	/// Note that repeated calls to this method with <paramref name="forceCancellation"/> set to <c>false</c>
+	/// may be possible, since it may be dispatched every time a remote runner returns <c>false</c> from
+	/// a message sink/message bus call. For out of process runners using Ctrl+C via standard input, it
+	/// should only send Ctrl+C the first time this is called (since double Ctrl+C is the forceful
+	/// cancellation signal).
+	/// </remarks>
+	void Cancel(bool forceCancellation);
 
 	/// <summary>
 	/// Wait for the specified number of milliseconds for the test process to exit.

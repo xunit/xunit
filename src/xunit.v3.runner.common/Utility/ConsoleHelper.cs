@@ -4,6 +4,7 @@
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
+using Xunit.Internal;
 
 namespace Xunit.Runner.Common;
 
@@ -13,15 +14,20 @@ namespace Xunit.Runner.Common;
 /// </summary>
 public class ConsoleHelper
 {
+	readonly TextReader consoleReader;
 	readonly TextWriter consoleWriter;
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="ConsoleHelper"/> class.
 	/// </summary>
-	/// <param name="consoleWriter"></param>
-	public ConsoleHelper(TextWriter consoleWriter)
+	/// <param name="consoleReader">The <see cref="TextReader"/> for the console (typically <see cref="Console.In"/>).</param>
+	/// <param name="consoleWriter">The <see cref="TextWriter"/> for the console (typically <see cref="Console.Out"/>).</param>
+	public ConsoleHelper(
+		TextReader consoleReader,
+		TextWriter consoleWriter)
 	{
-		this.consoleWriter = consoleWriter;
+		this.consoleReader = Guard.ArgumentNotNull(consoleReader);
+		this.consoleWriter = Guard.ArgumentNotNull(consoleWriter);
 
 		if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
 		{
@@ -57,6 +63,18 @@ public class ConsoleHelper
 	/// Equivalent to <see cref="Console.ForegroundColor"/>.
 	/// </summary>
 	public Action<ConsoleColor> SetForegroundColor { get; private set; }
+
+	/// <summary>
+	/// Gets a line of input from the console.
+	/// </summary>
+	public string? ReadLine() =>
+		consoleReader.ReadLine();
+
+	void ResetColorANSI() =>
+		consoleWriter.Write("\x1b[0m");
+
+	void ResetColorConsole() =>
+		Console.ResetColor();
 
 	void SetBackgroundColorANSI(ConsoleColor c)
 	{
@@ -115,12 +133,6 @@ public class ConsoleHelper
 
 	void SetForegroundColorConsole(ConsoleColor c) =>
 		Console.ForegroundColor = c;
-
-	void ResetColorANSI() =>
-		consoleWriter.Write("\x1b[0m");
-
-	void ResetColorConsole() =>
-		Console.ResetColor();
 
 	/// <summary>
 	/// Force using ANSI color instead of deciding based on OS.
