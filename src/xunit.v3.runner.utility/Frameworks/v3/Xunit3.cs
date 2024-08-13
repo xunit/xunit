@@ -139,7 +139,12 @@ public class Xunit3 : IFrontController
 						continue;
 					}
 
-					if (message is ITestCaseDiscovered testDiscovered)
+					if (message is IDiagnosticMessage || message is IInternalDiagnosticMessage)
+					{
+						if (diagnosticMessageSink?.OnMessage(message) == false)
+							break;
+					}
+					else if (message is ITestCaseDiscovered testDiscovered)
 					{
 						// Don't overwrite the source information if it came directly from the test framework
 						if (collectSourceInformation && sourceInformationProvider is not null && testDiscovered.SourceFilePath is null && testDiscovered.SourceLineNumber is null)
@@ -246,8 +251,16 @@ public class Xunit3 : IFrontController
 						continue;
 					}
 
-					if (!messageSink.OnMessage(message))
-						break;
+					if (message is IDiagnosticMessage || message is IInternalDiagnosticMessage)
+					{
+						if (diagnosticMessageSink?.OnMessage(message) == false)
+							break;
+					}
+					else
+					{
+						if (!messageSink.OnMessage(message))
+							break;
+					}
 
 					if (message is ITestAssemblyFinished)
 						break;
