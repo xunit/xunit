@@ -17,8 +17,7 @@ public interface IFrontController : IFrontControllerDiscoverer
 	/// </summary>
 	/// <param name="messageSink">The message sink to report results back to.</param>
 	/// <param name="settings">The settings used during discovery and execution.</param>
-	/// <returns>Returns the child process ID, if a child process was launched; <c>null</c>, otherwise</returns>
-	int? FindAndRun(
+	void FindAndRun(
 		IMessageSink messageSink,
 		FrontControllerFindAndRunSettings settings
 	);
@@ -29,8 +28,7 @@ public interface IFrontController : IFrontControllerDiscoverer
 	/// </summary>
 	/// <param name="messageSink">The message sink to report results back to.</param>
 	/// <param name="settings">The settings used during execution.</param>
-	/// <returns>Returns the child process ID, if a child process was launched; <c>null</c>, otherwise</returns>
-	int? Run(
+	void Run(
 		IMessageSink messageSink,
 		FrontControllerRunSettings settings
 	);
