@@ -25,6 +25,12 @@ public sealed class LocalTestProcess : ITestProcess
 	public bool HasExited =>
 		process.HasExited;
 
+	/// <summary>
+	/// Gets the process ID of the local process.
+	/// </summary>
+	public int ProcessID =>
+		process.Id;
+
 	/// <inheritdoc/>
 	public TextReader StandardOutput =>
 		process.StandardOutput;
@@ -34,7 +40,7 @@ public sealed class LocalTestProcess : ITestProcess
 	/// </summary>
 	/// <param name="processID">The process ID</param>
 	/// <param name="responseFile">The response file (to be cleaned up during disposal)</param>
-	public static ITestProcess Attach(
+	public static LocalTestProcess Attach(
 		int processID,
 		string? responseFile) =>
 			new LocalTestProcess(Process.GetProcessById(processID), responseFile);
@@ -79,7 +85,7 @@ public sealed class LocalTestProcess : ITestProcess
 	/// <param name="executable">The executable to be launched</param>
 	/// <param name="executableArguments">The arguments to the executable</param>
 	/// <param name="responseFile">The response file (to be cleaned up during disposal)</param>
-	public static ITestProcess? Start(
+	public static LocalTestProcess? Start(
 		string executable,
 		string executableArguments,
 		string? responseFile)
