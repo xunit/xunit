@@ -37,6 +37,10 @@ public class SerializationHelperTests
 		{ new TimeOnly(9, 4, 15), "19:326550000000" },
 #endif
 		{ new Version(1, 2, 3, 4), "20:1.2.3.4" },
+#if NET6_0_OR_GREATER
+		{ new Index(42, fromEnd: true), "21:^42" },
+		{ new Range(10, new Index(10, fromEnd: true)), "22:10..^10" },
+#endif
 
 		// Arrays use array notation for embedded types, plus this serialization format:
 		//   r = ranks, tl = total length, l[n] = length of rank n, lb[n] = lower bound of rank n, i[n] = item[n]
@@ -112,6 +116,10 @@ public class SerializationHelperTests
 		{ typeof(TimeOnly?), "19?" },
 #endif
 		{ typeof(Version), "20" },
+#if NET6_0_OR_GREATER
+		{ typeof(Index?), "21?" },
+		{ typeof(Range?), "22?" },
+#endif
 	};
 
 	public class Deserialize
@@ -177,6 +185,10 @@ public class SerializationHelperTests
 		[InlineData("18?", "DateOnly")]
 		[InlineData("19:326550000000", "TimeOnly")]
 		[InlineData("19?", "TimeOnly")]
+		[InlineData("21:123", "Index")]
+		[InlineData("21?", "Index")]
+		[InlineData("22:1..2", "Range")]
+		[InlineData("22?", "Range")]
 		public void UnsupportedPlatform(
 			string value,
 			string typeName)
@@ -192,8 +204,8 @@ public class SerializationHelperTests
 
 	public class IsSerializable
 	{
-		public static TheoryData<Type> SupportedTypes = new()
-		{
+		public static TheoryData<Type> SupportedTypes =
+		[
 			typeof(Enum),
 			typeof(IXunitSerializable),
 			typeof(Dictionary<string, HashSet<string>>),
@@ -221,7 +233,11 @@ public class SerializationHelperTests
 			typeof(TimeOnly),
 #endif
 			typeof(Version),
-		};
+#if NET6_0_OR_GREATER
+			typeof(Index),
+			typeof(Range),
+#endif
+		];
 
 		[CulturedTheory("en-US", "fo-FO")]
 		[MemberData(nameof(SupportedTypes), DisableDiscoveryEnumeration = true)]
@@ -312,6 +328,8 @@ public class SerializationHelperTests
 			Assert.Equal(expectedSerialization, result);
 		}
 
+#pragma warning disable xUnit1047
+
 		public static IEnumerable<TheoryDataRow<object?, Type, string>> FailureData()
 		{
 #if NETFRAMEWORK
@@ -338,6 +356,8 @@ public class SerializationHelperTests
 			// Cannot serialize generic argument types
 			yield return new(typeof(ClassWithGenericMethod).GetMethod(nameof(ClassWithGenericMethod.GenericMethod))!.GetGenericArguments()[0], typeof(Type), "Cannot serialize typeof(U) because it has no full name");
 		}
+
+#pragma warning restore xUnit1047
 
 		class ClassWithGenericMethod
 		{

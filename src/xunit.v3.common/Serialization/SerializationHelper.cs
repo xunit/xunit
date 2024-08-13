@@ -38,6 +38,12 @@ public static class SerializationHelper
 		var timeOnlyTicks = timeOnlyType?.GetProperty("Ticks");
 		var timeOnlyCtor = timeOnlyType?.GetConstructor([typeof(long)]);
 
+		var indexType = Type.GetType("System.Index");
+		var indexCtor = indexType?.GetConstructor([typeof(int), typeof(bool)]);
+
+		var rangeType = Type.GetType("System.Range");
+		var rangeCtor = indexType is null ? null : rangeType?.GetConstructor([indexType, indexType]);
+
 		deserializersByTypeIdx = new()
 		{
 			{ TypeIndex.Type, SerializedTypeNameToType },
@@ -71,6 +77,10 @@ public static class SerializationHelper
 			deserializersByTypeIdx.Add(TypeIndex.DateOnly, v => dateOnlyFromDayNumber.Invoke(null, [int.Parse(v, CultureInfo.InvariantCulture)]));
 		if (timeOnlyCtor is not null)
 			deserializersByTypeIdx.Add(TypeIndex.TimeOnly, v => timeOnlyCtor.Invoke([long.Parse(v, CultureInfo.InvariantCulture)]));
+		if (indexCtor is not null)
+			deserializersByTypeIdx.Add(TypeIndex.Index, v => DeserializeIndex(indexCtor, v));
+		if (indexCtor is not null && rangeCtor is not null)
+			deserializersByTypeIdx.Add(TypeIndex.Range, v => DeserializeRange(indexCtor, rangeCtor, v));
 
 #pragma warning disable CA1065 // These thrown exceptions are done in lambdas, not directly in the static constructor
 
@@ -107,6 +117,10 @@ public static class SerializationHelper
 			serializersByTypeIdx.Add(TypeIndex.DateOnly, (v, _) => dateOnlyDayNumber.GetValue(v)?.ToString() ?? throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Could not call GetValue on an instance of '{0}': {1}", dateOnlyType!.SafeName(), v)));
 		if (timeOnlyTicks is not null)
 			serializersByTypeIdx.Add(TypeIndex.TimeOnly, (v, _) => timeOnlyTicks.GetValue(v)?.ToString() ?? throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Could not call Ticks on an instance of '{0}': {1}", timeOnlyType!.SafeName(), v)));
+		if (indexCtor is not null)
+			serializersByTypeIdx.Add(TypeIndex.Index, (v, _) => v.ToString() ?? throw new InvalidOperationException("Index value returned null from ToString()"));
+		if (rangeCtor is not null)
+			serializersByTypeIdx.Add(TypeIndex.Range, (v, _) => v.ToString() ?? throw new InvalidOperationException("Range value returned null from ToString()"));
 
 #pragma warning restore CA1065
 
@@ -143,6 +157,10 @@ public static class SerializationHelper
 			typesByTypeIdx.Add(TypeIndex.DateOnly, dateOnlyType);
 		if (timeOnlyType is not null)
 			typesByTypeIdx.Add(TypeIndex.TimeOnly, timeOnlyType);
+		if (indexType is not null && indexCtor is not null)
+			typesByTypeIdx.Add(TypeIndex.Index, indexType);
+		if (rangeType is not null && rangeCtor is not null)
+			typesByTypeIdx.Add(TypeIndex.Range, rangeType);
 
 		typeIndicesByType = typesByTypeIdx.ToDictionary(kvp => kvp.Value, kvp => kvp.Key);
 
@@ -161,6 +179,7 @@ public static class SerializationHelper
 			{ typeof(ulong), false },
 		};
 	}
+
 
 	/// <summary>
 	/// De-serializes an object.
@@ -251,6 +270,42 @@ public static class SerializationHelper
 
 			return Enum.Parse(type, embeddedValue);
 		});
+
+	static object? DeserializeIndex(
+		ConstructorInfo indexCtor,
+		string serializedValue)
+	{
+		try
+		{
+			if (serializedValue.StartsWith("^", StringComparison.Ordinal))
+				return indexCtor.Invoke([int.Parse(serializedValue.Substring(1), CultureInfo.InvariantCulture), true]);
+
+			return indexCtor.Invoke([int.Parse(serializedValue, CultureInfo.InvariantCulture), false]);
+		}
+		catch
+		{
+			throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Attempted to deserialize invalid System.Index value '{0}'", serializedValue));
+		}
+	}
+
+	static object? DeserializeRange(
+		ConstructorInfo indexCtor,
+		ConstructorInfo rangeCtor,
+		string serializedValue)
+	{
+		try
+		{
+			var idxSeparator = serializedValue.IndexOf("..", StringComparison.InvariantCulture);
+			if (idxSeparator > 0)
+				return rangeCtor.Invoke([
+					DeserializeIndex(indexCtor, serializedValue.Substring(0, idxSeparator)),
+					DeserializeIndex(indexCtor, serializedValue.Substring(idxSeparator + 2))
+				]);
+		}
+		catch { }
+
+		throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Attempted to deserialize invalid System.Range value '{0}'", serializedValue));
+	}
 
 	static Dictionary<string, HashSet<string>> DeserializeTraits(string serializedValue)
 	{
@@ -856,8 +911,10 @@ public static class SerializationHelper
 		DateOnly = 18,
 		TimeOnly = 19,
 		Version = 20,
+		Index = 21,
+		Range = 22,
 	}
 
 	const TypeIndex TypeIndex_MinValue = TypeIndex.Type;
-	const TypeIndex TypeIndex_MaxValue = TypeIndex.Version;
+	const TypeIndex TypeIndex_MaxValue = TypeIndex.Range;
 }
