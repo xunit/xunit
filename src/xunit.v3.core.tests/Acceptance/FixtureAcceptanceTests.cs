@@ -277,9 +277,10 @@ public class FixtureAcceptanceTests
 			[Fact]
 			public void TheTest() { }
 		}
-	}
 
 #pragma warning restore xUnit1041 // Fixture arguments to test classes must have fixture sources
+
+	}
 
 	public class AsyncClassFixture : AcceptanceTestV3
 	{
