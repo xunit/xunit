@@ -150,7 +150,7 @@ public class FixtureMappingManager(
 		{
 			object? arg = null;
 			if (parameter.ParameterType == typeof(IMessageSink))
-				arg = TestContext.Current.DiagnosticMessageSink;
+				arg = TestContext.Current.DiagnosticMessageSink ?? NullMessageSink.Instance;
 			else if (parameter.ParameterType == typeof(ITestContextAccessor))
 				arg = TestContextAccessor.Instance;
 			else if (parentMappingManager is not null)

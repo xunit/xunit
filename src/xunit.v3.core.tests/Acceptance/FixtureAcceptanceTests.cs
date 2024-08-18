@@ -280,6 +280,34 @@ public class FixtureAcceptanceTests
 
 #pragma warning restore xUnit1041 // Fixture arguments to test classes must have fixture sources
 
+		[Fact]
+		public async ValueTask ClassFixtureCanAcceptIMessageSink()
+		{
+			var messages = await RunForResultsAsync(typeof(ClassWithMessageSinkFixture));
+
+			var passed = Assert.Single(messages.OfType<TestPassedWithDisplayName>());
+			Assert.Equal("FixtureAcceptanceTests+ClassFixture+ClassWithMessageSinkFixture.MessageSinkWasInjected", passed.TestDisplayName);
+		}
+
+		class ClassWithMessageSinkFixture : IClassFixture<MessageSinkFixture>
+		{
+			readonly MessageSinkFixture fixture;
+
+			public ClassWithMessageSinkFixture(MessageSinkFixture fixture) =>
+				this.fixture = fixture;
+
+			[Fact]
+			public void MessageSinkWasInjected() =>
+				Assert.NotNull(fixture.MessageSink);
+		}
+
+		class MessageSinkFixture
+		{
+			public MessageSinkFixture(IMessageSink messageSink) =>
+				MessageSink = messageSink;
+
+			public IMessageSink MessageSink { get; }
+		}
 	}
 
 	public class AsyncClassFixture : AcceptanceTestV3
@@ -625,6 +653,39 @@ public class FixtureAcceptanceTests
 
 			[Fact] public void Test1() => Assert.NotNull(Fixture);
 			[Fact] public void Test2() { }
+		}
+
+		[Fact]
+		public async ValueTask CollectionFixtureCanAcceptIMessageSink()
+		{
+			var messages = await RunForResultsAsync(typeof(ClassWithMessageSinkFixture));
+
+			var passed = Assert.Single(messages.OfType<TestPassedWithDisplayName>());
+			Assert.Equal("FixtureAcceptanceTests+CollectionFixture+ClassWithMessageSinkFixture.MessageSinkWasInjected", passed.TestDisplayName);
+		}
+
+		[CollectionDefinition("collection with message sink fixture")]
+		public class ClassWithMessageSinkFixtureCollection : ICollectionFixture<MessageSinkFixture> { }
+
+		[Collection("collection with message sink fixture")]
+		class ClassWithMessageSinkFixture
+		{
+			readonly MessageSinkFixture fixture;
+
+			public ClassWithMessageSinkFixture(MessageSinkFixture fixture) =>
+				this.fixture = fixture;
+
+			[Fact]
+			public void MessageSinkWasInjected() =>
+				Assert.NotNull(fixture.MessageSink);
+		}
+
+		class MessageSinkFixture
+		{
+			public MessageSinkFixture(IMessageSink messageSink) =>
+				MessageSink = messageSink;
+
+			public IMessageSink MessageSink { get; }
 		}
 	}
 
