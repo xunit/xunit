@@ -16,11 +16,16 @@ public class TestRunnerTests
 		[InlineData(true)]
 		public static async ValueTask Passed(bool cancel)
 		{
+			var testClassInstance = new object();
+
 			var runner = new TestableTestRunner
 			{
-				CreateTestClassInstance__Result = new object(),  // Make sure to pass an instance so we can see the disposal flow as well as the creation flow
+				CreateTestClassInstance__Result = testClassInstance,
 				GetTestOutput__Result = "the output",
+				InvokeTestAsync__Lambda = () => Assert.Same(testClassInstance, TestContext.Current.TestClassInstance),
 				OnTestPassed__Result = !cancel,
+				PostInvoke__Lambda = () => Assert.Same(testClassInstance, TestContext.Current.TestClassInstance),
+				PreInvoke__Lambda = () => Assert.Same(testClassInstance, TestContext.Current.TestClassInstance),
 			};
 
 			var summary = await runner.RunAsync();

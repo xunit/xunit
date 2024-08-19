@@ -357,6 +357,8 @@ public abstract class TestRunner<TContext, TTest>
 				{
 					elapsedTime += await ExecutionTimer.MeasureAsync(() => ctxt.Aggregator.RunAsync(async () => { testClassInstance = await CreateTestClass(ctxt); }));
 
+					SetTestContext(ctxt, TestEngineStatus.Running, testClassInstance: testClassInstance);
+
 					if (!ctxt.Aggregator.HasExceptions)
 					{
 						elapsedTime += await ExecutionTimer.MeasureAsync(() => ctxt.Aggregator.RunAsync(() => PreInvoke(ctxt)));
@@ -375,12 +377,14 @@ public abstract class TestRunner<TContext, TTest>
 									? TestResultState.ForSkipped(currentExecutionTime)
 									: TestResultState.FromException(currentExecutionTime, currentException);
 
-							SetTestContext(ctxt, TestEngineStatus.Running, testResultState);
+							SetTestContext(ctxt, TestEngineStatus.Running, testResultState, testClassInstance: testClassInstance);
 
 							elapsedTime += await ExecutionTimer.MeasureAsync(() => ctxt.Aggregator.RunAsync(() => PostInvoke(ctxt)));
 						}
 
 						elapsedTime += await ExecutionTimer.MeasureAsync(() => ctxt.Aggregator.RunAsync(() => DisposeTestClass(ctxt, testClassInstance)));
+
+						SetTestContext(ctxt, TestEngineStatus.Running, TestContext.Current.TestState, testClassInstance: null);
 					}
 				}
 			}
@@ -448,14 +452,16 @@ public abstract class TestRunner<TContext, TTest>
 	/// <param name="ctxt">The context that describes the current test</param>
 	/// <param name="testStatus">The current engine status for the test</param>
 	/// <param name="testState">The current test state</param>
+	/// <param name="testClassInstance">The instance of the test class</param>
 	protected virtual void SetTestContext(
 		TContext ctxt,
 		TestEngineStatus testStatus,
-		TestResultState? testState = null)
+		TestResultState? testState = null,
+		object? testClassInstance = null)
 	{
 		Guard.ArgumentNotNull(ctxt);
 
-		TestContext.SetForTest(ctxt.Test, testStatus, ctxt.CancellationTokenSource.Token, testState);
+		TestContext.SetForTest(ctxt.Test, testStatus, ctxt.CancellationTokenSource.Token, testState, testClassInstance: testClassInstance);
 	}
 
 	/// <summary>

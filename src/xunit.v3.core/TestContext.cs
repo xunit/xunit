@@ -171,6 +171,18 @@ public sealed class TestContext : IDisposable
 	public ITestClass? TestClass { get; private set; }
 
 	/// <summary>
+	/// Gets the instance of the test class; will return <c>null</c> outside of the context of
+	/// a test. Static test methods do not create test class instances, so this will always be <c>null</c>
+	/// for static test methods.
+	/// </summary>
+	/// <remarks>
+	/// This value will only be available when <see cref="PipelineStage"/> is <see cref="TestPipelineStage.TestExecution"/>
+	/// and <see cref="TestStatus"/> is <see cref="TestEngineStatus.Running"/>, and only after the test class has been
+	/// created. It will become <c>null</c> again immediately after the test class has been disposed.
+	/// </remarks>
+	public object? TestClassInstance { get; private set; }
+
+	/// <summary>
 	/// Gets the current test engine status for the test class. Will only be available when <see cref="TestClass"/>
 	/// is not <c>null</c>.
 	/// </summary>
@@ -433,12 +445,15 @@ public sealed class TestContext : IDisposable
 	/// <param name="testOutputHelper">The test output helper that the test can use to write output. Must be passed
 	/// when <paramref name="testStatus"/> is <see cref="TestEngineStatus.Initializing"/>; can be <c>null</c> for
 	/// other statuses (as it will be pulled from the existing test context).</param>
+	/// <param name="testClassInstance">The instance of the test class (may be <c>null</c> for static class and
+	/// before the test class has been created)</param>
 	public static void SetForTest(
 		ITest test,
 		TestEngineStatus testStatus,
 		CancellationToken cancellationToken,
 		TestResultState? testState = null,
-		ITestOutputHelper? testOutputHelper = null)
+		ITestOutputHelper? testOutputHelper = null,
+		object? testClassInstance = null)
 	{
 		Guard.ArgumentNotNull(test);
 		Guard.ArgumentEnumValid(testStatus, validExecutionStatuses);
@@ -453,9 +468,10 @@ public sealed class TestContext : IDisposable
 		local.Value = new TestContext(Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, Current.KeyValueStorage, TestPipelineStage.TestExecution, cancellationToken, Current.attachments ?? [], Current.warnings ?? [])
 		{
 			Test = test,
-			TestStatus = testStatus,
+			TestClassInstance = testClassInstance,
 			TestOutputHelper = testOutputHelper ?? Current.TestOutputHelper,
 			TestState = testState,
+			TestStatus = testStatus,
 
 			TestCase = test.TestCase,
 			TestCaseStatus = TestEngineStatus.Running,

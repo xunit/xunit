@@ -409,7 +409,8 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext, IXunitTest>
 	protected override void SetTestContext(
 		XunitTestRunnerContext ctxt,
 		TestEngineStatus testStatus,
-		TestResultState? testState = null)
+		TestResultState? testState = null,
+		object? testClassInstance = null)
 	{
 		Guard.ArgumentNotNull(ctxt);
 
@@ -418,7 +419,8 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext, IXunitTest>
 			testStatus,
 			ctxt.CancellationTokenSource.Token,
 			testState,
-			testStatus == TestEngineStatus.Initializing ? new TestOutputHelper() : TestContext.Current.TestOutputHelper
+			testStatus == TestEngineStatus.Initializing ? new TestOutputHelper() : TestContext.Current.TestOutputHelper,
+			testClassInstance: testClassInstance
 		);
 	}
 
