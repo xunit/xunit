@@ -36,7 +36,9 @@ public class TestRunnerTests
 				"OnTestClassConstructionStarting",
 				"CreateTestClassInstance",
 				"OnTestClassConstructionFinished",
+				"PreInvoke",
 				"InvokeTestAsync(testClassInstance: typeof(object))",
+				"PostInvoke",
 				"IsTestClassDisposable",
 				"OnTestClassDisposeStarting",
 				"DisposeTestClassInstance",
@@ -75,7 +77,9 @@ public class TestRunnerTests
 				// OnTestClassConstructionStarting
 				// CreateTestClassInstance
 				// OnTestClassConstructionFinished
+				"PreInvoke",
 				"InvokeTestAsync(testClassInstance: null)",
+				"PostInvoke",
 				// IsTestClassDisposable
 				// OnTestClassDisposeStarting
 				// DisposeTestClassInstance
@@ -218,7 +222,9 @@ public class TestRunnerTests
 				"OnTestClassConstructionStarting",
 				"CreateTestClassInstance",
 				"OnTestClassConstructionFinished",
+				"PreInvoke",
 				"InvokeTestAsync(testClassInstance: typeof(object))",
+				"PostInvoke",
 				"IsTestClassDisposable",
 				"OnTestClassDisposeStarting",
 				"DisposeTestClassInstance",
@@ -249,7 +255,9 @@ public class TestRunnerTests
 				"OnTestClassConstructionStarting",
 				"CreateTestClassInstance",
 				"OnTestClassConstructionFinished",
+				"PreInvoke",
 				"InvokeTestAsync(testClassInstance: null)",
+				"PostInvoke",
 				"GetTestOutput",
 				// IsTestClassDisposable
 				// OnTestClassDisposeStarting
@@ -315,7 +323,9 @@ public class TestRunnerTests
 				"OnTestClassConstructionStarting",
 				"CreateTestClassInstance",
 				"OnTestClassConstructionFinished",
+				"PreInvoke",
 				"InvokeTestAsync(testClassInstance: typeof(object))",
+				"PostInvoke",
 				"IsTestClassDisposable",
 				// OnTestClassDisposeStarting
 				// DisposeTestClassInstance
@@ -412,7 +422,9 @@ public class TestRunnerTests
 				"OnTestClassConstructionStarting",
 				"CreateTestClassInstance",
 				"OnTestClassConstructionFinished",
+				"PreInvoke",
 				"InvokeTestAsync(testClassInstance: typeof(object))",
+				"PostInvoke",
 				"IsTestClassDisposable",
 				"OnTestClassDisposeStarting",
 				"DisposeTestClassInstance",
@@ -447,7 +459,9 @@ public class TestRunnerTests
 				"OnTestClassConstructionStarting",
 				"CreateTestClassInstance",
 				"OnTestClassConstructionFinished",
+				"PreInvoke",
 				"InvokeTestAsync(testClassInstance: typeof(object))",
+				"PostInvoke",
 				"IsTestClassDisposable",
 				"OnTestClassDisposeStarting",
 				"DisposeTestClassInstance",
@@ -483,7 +497,9 @@ public class TestRunnerTests
 				"OnTestClassConstructionStarting",
 				"CreateTestClassInstance",
 				"OnTestClassConstructionFinished",
+				"PreInvoke",
 				"InvokeTestAsync(testClassInstance: null)",
+				"PostInvoke",
 				// IsTestClassDisposable
 				// OnTestClassDisposeStarting
 				// DisposeTestClassInstance
@@ -523,7 +539,9 @@ public class TestRunnerTests
 				"OnTestClassConstructionStarting",
 				"CreateTestClassInstance",
 				"OnTestClassConstructionFinished",
+				"PreInvoke",
 				"InvokeTestAsync(testClassInstance: null)",
+				"PostInvoke",
 				// IsTestClassDisposable
 				// OnTestClassDisposeStarting
 				// DisposeTestClassInstance
@@ -554,7 +572,9 @@ public class TestRunnerTests
 				"OnTestClassConstructionStarting",
 				"CreateTestClassInstance",
 				"OnTestClassConstructionFinished",
+				"PreInvoke",
 				"InvokeTestAsync(testClassInstance: null)",
+				"PostInvoke",
 				// IsTestClassDisposable
 				// OnTestClassDisposeStarting
 				// DisposeTestClassInstance
@@ -620,7 +640,9 @@ public class TestRunnerTests
 				"OnTestClassConstructionStarting",
 				"CreateTestClassInstance",
 				"OnTestClassConstructionFinished",
+				"PreInvoke",
 				"InvokeTestAsync(testClassInstance: null)",
+				"PostInvoke",
 				// IsTestClassDisposable
 				// OnTestClassDisposeStarting
 				// DisposeTestClassInstance
@@ -759,7 +781,9 @@ public class TestRunnerTests
 				"OnTestClassConstructionStarting",
 				"CreateTestClassInstance",
 				"OnTestClassConstructionFinished",
+				"PreInvoke",
 				"InvokeTestAsync(testClassInstance: null)",
+				"PostInvoke",
 				// IsTestClassDisposable
 				// OnTestClassDisposeStarting
 				// DisposeTestClassInstance
@@ -790,7 +814,9 @@ public class TestRunnerTests
 				"OnTestClassConstructionStarting",
 				"CreateTestClassInstance",
 				"OnTestClassConstructionFinished",
+				"PreInvoke",
 				"InvokeTestAsync(testClassInstance: null)",
+				"PostInvoke",
 				// IsTestClassDisposable
 				// OnTestClassDisposeStarting
 				// DisposeTestClassInstance
@@ -1079,6 +1105,28 @@ public class TestRunnerTests
 			OnTestStarting__Lambda?.Invoke();
 
 			return new(OnTestStarting__Result);
+		}
+
+		public Action? PostInvoke__Lambda;
+
+		protected override ValueTask PostInvoke(TestRunnerContext<ITest> ctxt)
+		{
+			Invocations.Add("PostInvoke");
+
+			PostInvoke__Lambda?.Invoke();
+
+			return default;
+		}
+
+		public Action? PreInvoke__Lambda;
+
+		protected override ValueTask PreInvoke(TestRunnerContext<ITest> ctxt)
+		{
+			Invocations.Add("PreInvoke");
+
+			PreInvoke__Lambda?.Invoke();
+
+			return default;
 		}
 
 		public string? RunAsync__SkipReason = null;
