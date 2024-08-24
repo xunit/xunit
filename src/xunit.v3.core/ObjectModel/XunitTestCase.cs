@@ -169,11 +169,11 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 
 	/// <inheritdoc/>
 	public string[] TestMethodParameterTypes =>
-		TestMethod.Parameters.Select(p => p.ParameterType.ToTestingPlatformTypeName(TestMethod.Method, TestClass.Class)).ToArray();
+		TestMethod.Parameters.Select(p => p.ParameterType.SafeName()).ToArray();
 
 	/// <inheritdoc/>
 	public string TestMethodReturnType =>
-		TestMethod.ReturnType.ToTestingPlatformTypeName();
+		TestMethod.ReturnType.SafeName();
 
 	/// <summary>
 	/// Gets the traits associated with this test case.

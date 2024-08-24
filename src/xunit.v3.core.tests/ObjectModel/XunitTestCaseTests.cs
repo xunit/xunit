@@ -94,8 +94,6 @@ public class XunitTestCaseTests
 		public void Passing() { }
 	}
 
-	// https://github.com/microsoft/vstest/blob/main/docs/RFCs/0017-Managed-TestCase-Properties.md
-	// We don't support test classes nested inside generic classes, so this tests a limited version of the example
 	[Fact]
 	public void ManagedTestCasePropertiesTest()
 	{
@@ -105,13 +103,13 @@ public class XunitTestCaseTests
 		var testMethod1 = TestData.XunitTestMethod(testClass, method1);
 		var testCase1 = new XunitTestCase(testMethod1, "display name", "id", @explicit: false);
 
-		Assert.Equal("XunitTestCaseTests+GenericTestClass`2", testCase1.TestClassName);
+		Assert.Equal(typeof(GenericTestClass<,>).FullName, testCase1.TestClassName);
 		Assert.Equal("TestMethod1", testCase1.TestMethodName);
 		Assert.Collection(
 			testCase1.TestMethodParameterTypes,
-			p => Assert.Equal("!0", p),
-			p => Assert.Equal("!1", p),
-			p => Assert.Equal("System.String[,]", p)
+			p => Assert.Equal("X", p),
+			p => Assert.Equal("Y", p),
+			p => Assert.Equal(typeof(string[,]).FullName, p)
 		);
 		Assert.Equal("System.Void", testCase1.TestMethodReturnType);
 
@@ -119,17 +117,17 @@ public class XunitTestCaseTests
 		var testMethod2 = TestData.XunitTestMethod(testClass, method2);
 		var testCase2 = new XunitTestCase(testMethod2, "display name", "id", @explicit: false);
 
-		Assert.Equal("XunitTestCaseTests+GenericTestClass`2", testCase2.TestClassName);
+		Assert.Equal(typeof(GenericTestClass<,>).FullName, testCase2.TestClassName);
 		Assert.Equal("TestMethod2", testCase2.TestMethodName);
 		Assert.Collection(
 			testCase2.TestMethodParameterTypes,
-			p => Assert.Equal("!0", p),
-			p => Assert.Equal("System.Collections.Generic.List`1<!1>", p),
-			p => Assert.Equal("!!0", p),
-			p => Assert.Equal("!!1", p),
-			p => Assert.Equal("System.Collections.Generic.List`1<System.String>", p)
+			p => Assert.Equal("X", p),
+			p => Assert.Equal("List`1", p),  // List<Y> ends up with an odd name here
+			p => Assert.Equal("U", p),
+			p => Assert.Equal("V", p),
+			p => Assert.Equal(typeof(List<string>).FullName, p)
 		);
-		Assert.Equal("System.Threading.Tasks.Task`1<System.Int32>", testCase2.TestMethodReturnType);
+		Assert.Equal(typeof(Task<int>).FullName, testCase2.TestMethodReturnType);
 	}
 
 #pragma warning disable xUnit1003 // Theory methods must have test data

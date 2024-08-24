@@ -674,54 +674,6 @@ public static class ReflectionExtensions
 		return string.Format(CultureInfo.CurrentCulture, "{0}<{1}>", baseTypeName, string.Join(", ", simpleNames));
 	}
 
-	/// <summary>
-	/// Converts a <see cref="Type"/> name into the correct form for a Microsoft.Testing.Platform
-	/// managed type name for using in managed TestCase properties.
-	/// </summary>
-	/// <remarks>
-	/// See <see href="https://github.com/microsoft/vstest/blob/main/docs/RFCs/0017-Managed-TestCase-Properties.md"/>
-	/// </remarks>
-	public static string ToTestingPlatformTypeName(
-		this Type type,
-		MethodInfo? testMethod = null,
-		Type? testClass = null)
-	{
-		Guard.ArgumentNotNull(type);
-
-		if (type.IsGenericParameter)
-		{
-			if (testMethod is not null)
-			{
-				var methodGenericArgs = testMethod.GetGenericArguments();
-				for (int i = 0; i < methodGenericArgs.Length; ++i)
-					if (methodGenericArgs[i] == type)
-						return "!!" + i;
-			}
-
-			if (testClass is not null)
-			{
-				var testClassGenericArgs = testClass.GetGenericArguments();
-				for (int i = 0; i < testClassGenericArgs.Length; ++i)
-					if (testClassGenericArgs[i] == type)
-						return "!" + i;
-			}
-		}
-
-		if (!type.IsGenericType)
-			return type.SafeName();
-
-		var baseTypeName = type.Name;
-		if (type.Namespace is not null)
-			baseTypeName = type.Namespace + "." + baseTypeName;
-
-		var genericTypes =
-			type
-				.GenericTypeArguments
-				.Select(t => ToTestingPlatformTypeName(t, testMethod, testClass));
-
-		return baseTypeName + "<" + string.Join(",", genericTypes) + ">";
-	}
-
 	static object? TryConvertObject(
 		object? argumentValue,
 		Type parameterType)
