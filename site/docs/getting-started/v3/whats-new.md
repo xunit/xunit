@@ -133,7 +133,7 @@ We have added a `TestContext` class which is designed to:
 * Provide (via `.CancellationToken`) a cancellation token that can be passed to downstream methods in your test to help cancellation occur sooner, as well as (via `.CancelCurrentTest`) to attempt to cancel the execution of the current test.
 * Provide (via `.SendDiagnosticMessage`) the ability to send diagnostic messages from anywhere.
 * Store and retrieve (via `.KeyValueStorage`) information that can be used to communicate between different stages of the test pipeline
-* Add (via `.AddAttachment`) attachments to the test results, that will be recorded into the various report formats. Attachments are named, and may container either plain-text string content or binary content (with an associated MIME media type).
+* Add (via `.AddAttachment`) attachments to the test results, that will be recorded into the various report formats. Attachments are named, and may contain either plain-text string content or binary content (with an associated MIME media type).
 * Add (via `.AddWarning`) warnings to test results, which will be reported to the test runner as well as recorded into the various report formats
 
 Access to the test context is available in two ways:
