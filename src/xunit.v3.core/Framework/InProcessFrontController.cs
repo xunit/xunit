@@ -68,7 +68,10 @@ public class InProcessFrontController
 	/// discover and immediately run tests, they should instead use <see cref="FindAndRun"/>,
 	/// which permits the same filtering logic as this method.
 	/// </summary>
-	/// <param name="messageSink">The message sink to report messages to.</param>
+	/// <param name="messageSink">The message sink to report discovery starting and discovery complete messages to.
+	/// Discovered tests are *not* reported to this message sink, since it's also used for <see cref="FindAndRun"/>,
+	/// so it is assumed that callers to this method will use the <paramref name="discoveryCallback"/> to report
+	/// discovered tests if needed.</param>
 	/// <param name="options">The options to be used for discovery.</param>
 	/// <param name="filter">The filter function for filtering test cases.</param>
 	/// <param name="types">When passed a non-<c>null</c> collection, only returns tests found
@@ -77,19 +80,18 @@ public class InProcessFrontController
 	/// <param name="discoveryCallback">An optional callback to be called for each discovered test case.
 	/// It provides both the test case and a flag which indicates if it passed the provided filter.</param>
 	public async ValueTask Find(
-		IMessageSink messageSink,
+		IMessageSink? messageSink,
 		ITestFrameworkDiscoveryOptions options,
 		Func<ITestCase, bool> filter,
 		Type[]? types = null,
 		Func<ITestCase, bool, ValueTask<bool>>? discoveryCallback = null)
 	{
-		Guard.ArgumentNotNull(messageSink);
 		Guard.ArgumentNotNull(options);
 		Guard.ArgumentNotNull(filter);
 
 		int testCasesToRun = 0;
 
-		messageSink.OnMessage(new DiscoveryStarting
+		messageSink?.OnMessage(new DiscoveryStarting
 		{
 			AssemblyName = Path.GetFileNameWithoutExtension(testAssembly.Location),
 			AssemblyPath = testAssembly.Location,
@@ -126,7 +128,7 @@ public class InProcessFrontController
 		}
 		finally
 		{
-			messageSink.OnMessage(new DiscoveryComplete
+			messageSink?.OnMessage(new DiscoveryComplete
 			{
 				AssemblyUniqueID = TestAssemblyUniqueID,
 				TestCasesToRun = testCasesToRun,

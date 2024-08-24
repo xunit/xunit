@@ -39,13 +39,11 @@ public class InProcessFrontControllerTests
 		public async ValueTask GuardClauses()
 		{
 			var frontController = TestableInProcessFrontController.Create();
-			var messageSink = SpyMessageSink.Capture();
 			var options = TestData.TestFrameworkDiscoveryOptions();
 			var filter = (ITestCase testCase) => true;
 
-			await Assert.ThrowsAsync<ArgumentNullException>("messageSink", () => frontController.Find(null!, options, filter).AsTask());
-			await Assert.ThrowsAsync<ArgumentNullException>("options", () => frontController.Find(messageSink, null!, filter).AsTask());
-			await Assert.ThrowsAsync<ArgumentNullException>("filter", () => frontController.Find(messageSink, options, null!).AsTask());
+			await Assert.ThrowsAsync<ArgumentNullException>("options", () => frontController.Find(null, null!, filter).AsTask());
+			await Assert.ThrowsAsync<ArgumentNullException>("filter", () => frontController.Find(null, options, null!).AsTask());
 		}
 
 		[Fact]
