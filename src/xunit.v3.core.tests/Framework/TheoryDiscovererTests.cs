@@ -361,7 +361,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		var msgs = await RunAsync(typeof(SkippedWithNoData));
 
 		var skip = Assert.Single(msgs.OfType<ITestSkipped>());
-		var skipStarting = Assert.Single(msgs.OfType<ITestStarting>().Where(s => s.TestUniqueID == skip.TestUniqueID));
+		var skipStarting = Assert.Single(msgs.OfType<ITestStarting>(), s => s.TestUniqueID == skip.TestUniqueID);
 		Assert.Equal($"{typeof(SkippedWithNoData).FullName}.{nameof(SkippedWithNoData.TestMethod)}", skipStarting.TestDisplayName);
 		Assert.Equal("I have no data", skip.Reason);
 	}
@@ -382,7 +382,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		var msgs = await RunAsync(typeof(SkippedWithData));
 
 		var skip = Assert.Single(msgs.OfType<ITestSkipped>());
-		var skipStarting = Assert.Single(msgs.OfType<ITestStarting>().Where(s => s.TestUniqueID == skip.TestUniqueID));
+		var skipStarting = Assert.Single(msgs.OfType<ITestStarting>(), s => s.TestUniqueID == skip.TestUniqueID);
 		Assert.Equal($"{typeof(SkippedWithData).FullName}.{nameof(SkippedWithData.TestMethod)}", skipStarting.TestDisplayName);
 		Assert.Equal("I have data", skip.Reason);
 	}

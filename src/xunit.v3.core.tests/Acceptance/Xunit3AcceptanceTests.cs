@@ -225,7 +225,7 @@ public class Xunit3AcceptanceTests
 			var results = await RunAsync(typeof(SingleSkippedTestClass));
 
 			var skippedMessage = Assert.Single(results.OfType<ITestSkipped>());
-			var skippedStarting = Assert.Single(results.OfType<ITestStarting>().Where(s => s.TestUniqueID == skippedMessage.TestUniqueID));
+			var skippedStarting = Assert.Single(results.OfType<ITestStarting>(), s => s.TestUniqueID == skippedMessage.TestUniqueID);
 			Assert.Equal($"{typeof(SingleSkippedTestClass).SafeName()}.{nameof(SingleSkippedTestClass.TestMethod)}", skippedStarting.TestDisplayName);
 			Assert.Equal("This is a skipped test", skippedMessage.Reason);
 
@@ -250,12 +250,12 @@ public class Xunit3AcceptanceTests
 			var results = await RunAsync(typeof(ConditionallySkippedTestClass));
 
 			var skippedMessage = Assert.Single(results.OfType<ITestSkipped>());
-			var skippedStarting = Assert.Single(results.OfType<ITestStarting>().Where(s => s.TestUniqueID == skippedMessage.TestUniqueID));
+			var skippedStarting = Assert.Single(results.OfType<ITestStarting>(), s => s.TestUniqueID == skippedMessage.TestUniqueID);
 			Assert.Equal($"{typeof(ConditionallySkippedTestClass).SafeName()}.{nameof(ConditionallySkippedTestClass.ConditionallyAlwaysSkipped)}", skippedStarting.TestDisplayName);
 			Assert.Equal("I am always skipped, conditionally", skippedMessage.Reason);
 
 			var passedMessage = Assert.Single(results.OfType<ITestPassed>());
-			var passedStarting = Assert.Single(results.OfType<ITestStarting>().Where(s => s.TestUniqueID == passedMessage.TestUniqueID));
+			var passedStarting = Assert.Single(results.OfType<ITestStarting>(), s => s.TestUniqueID == passedMessage.TestUniqueID);
 			Assert.Equal($"{typeof(ConditionallySkippedTestClass).SafeName()}.{nameof(ConditionallySkippedTestClass.ConditionallyNeverSkipped)}", passedStarting.TestDisplayName);
 
 			var classFinishedMessage = Assert.Single(results.OfType<ITestClassFinished>());
@@ -284,12 +284,12 @@ public class Xunit3AcceptanceTests
 			var results = await RunAsync(typeof(ConditionallySkippedTestsClass_UsingSkipType));
 
 			var skippedMessage = Assert.Single(results.OfType<ITestSkipped>());
-			var skippedStarting = Assert.Single(results.OfType<ITestStarting>().Where(s => s.TestUniqueID == skippedMessage.TestUniqueID));
+			var skippedStarting = Assert.Single(results.OfType<ITestStarting>(), s => s.TestUniqueID == skippedMessage.TestUniqueID);
 			Assert.Equal($"{typeof(ConditionallySkippedTestsClass_UsingSkipType).SafeName()}.{nameof(ConditionallySkippedTestsClass_UsingSkipType.ConditionallyAlwaysSkipped)}", skippedStarting.TestDisplayName);
 			Assert.Equal("I am always skipped, conditionally", skippedMessage.Reason);
 
 			var passedMessage = Assert.Single(results.OfType<ITestPassed>());
-			var passedStarting = Assert.Single(results.OfType<ITestStarting>().Where(s => s.TestUniqueID == passedMessage.TestUniqueID));
+			var passedStarting = Assert.Single(results.OfType<ITestStarting>(), s => s.TestUniqueID == passedMessage.TestUniqueID);
 			Assert.Equal($"{typeof(ConditionallySkippedTestsClass_UsingSkipType).SafeName()}.{nameof(ConditionallySkippedTestsClass_UsingSkipType.ConditionallyNeverSkipped)}", passedStarting.TestDisplayName);
 
 			var classFinishedMessage = Assert.Single(results.OfType<ITestClassFinished>());
@@ -1264,7 +1264,7 @@ public class Xunit3AcceptanceTests
 			var results = await RunAsync(typeof(ClassWithAsyncVoidTest));
 
 			var failedMessage = Assert.Single(results.OfType<ITestFailed>());
-			var failedStarting = Assert.Single(results.OfType<ITestStarting>().Where(s => s.TestUniqueID == failedMessage.TestUniqueID));
+			var failedStarting = Assert.Single(results.OfType<ITestStarting>(), s => s.TestUniqueID == failedMessage.TestUniqueID);
 			Assert.Equal("Xunit3AcceptanceTests+AsyncVoid+ClassWithAsyncVoidTest.TestMethod", failedStarting.TestDisplayName);
 			var message = Assert.Single(failedMessage.Messages);
 			Assert.Equal("Tests marked as 'async void' are no longer supported. Please convert to 'async Task' or 'async ValueTask'.", message);

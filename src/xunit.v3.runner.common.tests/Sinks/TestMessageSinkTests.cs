@@ -1,3 +1,5 @@
+#pragma warning disable xUnit3002  // We use the concrete message types here because we Activator.Create them
+
 using System;
 using Xunit;
 using Xunit.Runner.Common;

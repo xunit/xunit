@@ -109,14 +109,13 @@ public class ExecutionSinkTests
 			Assert.Same(sink.ExecutionSummary, result.ExecutionSummary);
 		}
 
-		[Theory]
-		[InlineData(typeof(ErrorMessage))]
-		public void CountsErrors(Type errorType)
+		[Fact]
+		public void CountsErrors()
 		{
 			var assembly = TestData.XunitProjectAssembly<ExecutionSinkTests>();
 			var executionOptions = TestData.TestFrameworkExecutionOptions(culture: "fr-FR");
 			using var sink = TestableExecutionSink.Create(assembly: assembly, executionOptions: executionOptions);
-			var error = (IMessageSinkMessage)Activator.CreateInstance(errorType)!;
+			var error = TestData.ErrorMessage();
 			var finished = TestData.TestAssemblyFinished();  // Need finished message to finalized the error count
 
 			sink.OnMessage(error);

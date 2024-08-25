@@ -10,7 +10,7 @@
     <MicrosoftSourceLinkGitHubVersion>8.0.0</MicrosoftSourceLinkGitHubVersion>
     <NerdbankGitVersioningVersion>3.6.141</NerdbankGitVersioningVersion>
     <TunnelVisionLabsReferenceAssemblyAnnotatorVersion>1.0.0-alpha.160</TunnelVisionLabsReferenceAssemblyAnnotatorVersion>
-    <XunitAnalyzersVersion>1.16.0-pre.23</XunitAnalyzersVersion>
+    <XunitAnalyzersVersion>1.16.0-pre.27</XunitAnalyzersVersion>
 
     <!-- Used for template packaging, uncomment when building RTW packages -->
     <!--<VisualStudioRunnerTemplateVersion>3.0.0</VisualStudioRunnerTemplateVersion>-->

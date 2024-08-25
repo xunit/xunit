@@ -253,7 +253,7 @@ let AsyncFailing() =
 				var failures = sink.Messages.OfType<ITestFailed>();
 				var failure = Assert.Single(failures);
 				var starts = sink.Messages.OfType<ITestStarting>();
-				var start = Assert.Single(starts.Where(s => s.TestUniqueID == failure.TestUniqueID));
+				var start = Assert.Single(starts, s => s.TestUniqueID == failure.TestUniqueID);
 				Assert.Equal("FSharpTests.AsyncFailing", start.TestDisplayName);
 				Assert.Equal("Make sure things waited", failure.Messages.Single());
 			}
@@ -288,7 +288,7 @@ let TestMethod() =
 				var failures = sink.Messages.OfType<ITestFailed>();
 				var failure = Assert.Single(failures);
 				var starts = sink.Messages.OfType<ITestStarting>();
-				var start = Assert.Single(starts.Where(s => s.TestUniqueID == failure.TestUniqueID));
+				var start = Assert.Single(starts, s => s.TestUniqueID == failure.TestUniqueID);
 				Assert.Equal("FSharpTests.TestMethod", start.TestDisplayName);
 				Assert.Equal("Make sure things waited", failure.Messages.Single());
 			}

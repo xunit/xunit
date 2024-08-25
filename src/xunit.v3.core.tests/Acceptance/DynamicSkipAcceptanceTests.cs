@@ -47,7 +47,7 @@ public class DynamicSkipAcceptanceTests
 			var results = await RunAsync(typeof(ClassUnderTest));
 
 			var skipResult = Assert.Single(results.OfType<ITestSkipped>());
-			var skipMethodStarting = Assert.Single(results.OfType<ITestMethodStarting>().Where(s => s.TestMethodUniqueID == skipResult.TestMethodUniqueID));
+			var skipMethodStarting = Assert.Single(results.OfType<ITestMethodStarting>(), s => s.TestMethodUniqueID == skipResult.TestMethodUniqueID);
 			Assert.Equal("Skipped", skipMethodStarting.MethodName);
 			Assert.Equal("This test was skipped", skipResult.Reason);
 			var passResult = Assert.Single(results.OfType<ITestPassed>());
@@ -85,7 +85,7 @@ public class DynamicSkipAcceptanceTests
 			var results = await RunAsync(typeof(ClassUnderTest));
 
 			var skipResult = Assert.Single(results.OfType<ITestSkipped>());
-			var skipMethodStarting = Assert.Single(results.OfType<ITestMethodStarting>().Where(s => s.TestMethodUniqueID == skipResult.TestMethodUniqueID));
+			var skipMethodStarting = Assert.Single(results.OfType<ITestMethodStarting>(), s => s.TestMethodUniqueID == skipResult.TestMethodUniqueID);
 			Assert.Equal("Skipped", skipMethodStarting.MethodName);
 			Assert.Equal("This test was skipped", skipResult.Reason);
 			var passResult = Assert.Single(results.OfType<ITestPassed>());

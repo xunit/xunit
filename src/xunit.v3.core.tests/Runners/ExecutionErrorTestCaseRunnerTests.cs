@@ -101,9 +101,9 @@ public sealed class ExecutionErrorTestCaseRunnerTests : IDisposable
 	}
 
 	[Theory]
-	[InlineData(typeof(TestStarting))]
-	[InlineData(typeof(TestFailed))]
-	[InlineData(typeof(TestFinished))]
+	[InlineData(typeof(ITestStarting))]
+	[InlineData(typeof(ITestFailed))]
+	[InlineData(typeof(ITestFinished))]
 	public async ValueTask Cancellation_TriggersCancellationTokenSource(Type messageTypeToCancelOn)
 	{
 		var testCase = ExecutionErrorTestCase("This is my error message");
