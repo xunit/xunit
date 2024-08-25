@@ -3,6 +3,8 @@ title: xUnit1019
 description: MemberData must reference a member providing a valid data type
 category: Usage
 severity: Error
+v2: true
+v3: true
 ---
 
 ## Cause

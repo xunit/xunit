@@ -3,6 +3,8 @@ title: xUnit1028
 description: Test method must have valid return type
 category: Usage
 severity: Error
+v2: true
+v3: true
 ---
 
 ## Cause

@@ -3,6 +3,8 @@ title: xUnit1043
 description: Constructors on classes derived from FactAttribute must be public when used on test methods
 category: Usage
 severity: Error
+v2: true
+v3: true
 ---
 
 ## Cause

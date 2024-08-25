@@ -3,6 +3,8 @@ title: xUnit1007
 description: ClassData must point at a valid class
 category: Usage
 severity: Error
+v2: true
+v3: true
 ---
 
 ## Cause

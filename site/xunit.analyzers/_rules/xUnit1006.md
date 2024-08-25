@@ -3,6 +3,8 @@ title: xUnit1006
 description: Theory methods should have parameters
 category: Usage
 severity: Warning
+v2: true
+v3: true
 ---
 
 ## Cause

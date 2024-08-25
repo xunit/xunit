@@ -3,6 +3,8 @@ title: xUnit2024
 description: Do not use boolean asserts for simple equality tests
 category: Assertions
 severity: Info
+v2: true
+v3: true
 ---
 
 ## Cause

@@ -3,6 +3,8 @@ title: xUnit1044
 description: Avoid using TheoryData type arguments that are not serializable
 category: Usage
 severity: Info
+v2: true
+v3: true
 ---
 
 ## Cause

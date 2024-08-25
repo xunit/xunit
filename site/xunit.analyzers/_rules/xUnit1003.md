@@ -3,6 +3,8 @@ title: xUnit1003
 description: Theory methods must have test data
 category: Usage
 severity: Error
+v2: true
+v3: true
 ---
 
 ## Cause

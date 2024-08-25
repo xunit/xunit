@@ -3,6 +3,8 @@ title: xUnit2005
 description: Do not use identity check on value type
 category: Assertions
 severity: Warning
+v2: true
+v3: true
 ---
 
 ## Cause

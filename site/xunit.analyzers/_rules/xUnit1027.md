@@ -3,6 +3,8 @@ title: xUnit1027
 description: Collection definition classes must be public
 category: Usage
 severity: Error
+v2: true
+v3: true
 ---
 
 ## Cause

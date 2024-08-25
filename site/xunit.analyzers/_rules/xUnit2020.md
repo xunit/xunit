@@ -3,6 +3,8 @@ title: xUnit2020
 description: Do not use always-failing boolean assertion to fail a test
 category: Assertions
 severity: Warning
+v2: true
+v3: true
 ---
 
 ## Cause

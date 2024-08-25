@@ -3,6 +3,8 @@ title: xUnit1025
 description: InlineData should be unique within the Theory it belongs to
 category: Usage
 severity: Warning
+v2: true
+v3: true
 ---
 
 ## Cause

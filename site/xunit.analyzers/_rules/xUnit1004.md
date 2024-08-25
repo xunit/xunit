@@ -3,6 +3,8 @@ title: xUnit1004
 description: Test methods should not be skipped
 category: Usage
 severity: Info
+v2: true
+v3: true
 ---
 
 ## Cause

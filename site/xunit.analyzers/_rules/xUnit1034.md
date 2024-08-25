@@ -3,6 +3,8 @@ title: xUnit1034
 description: Null should only be used for nullable parameters
 category: Usage
 severity: Warning
+v2: true
+v3: true
 ---
 
 ## Cause

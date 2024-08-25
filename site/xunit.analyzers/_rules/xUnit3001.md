@@ -3,6 +3,8 @@ title: xUnit3001
 description: Classes that implement IXunitSerializable or are marked with [JsonTypeID] must have a public parameterless constructor
 category: Extensibility
 severity: Error
+v2: true
+v3: true
 ---
 
 ## Cause

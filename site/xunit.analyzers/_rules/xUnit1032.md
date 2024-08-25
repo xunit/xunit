@@ -3,6 +3,8 @@ title: xUnit1032
 description: Test classes cannot be nested within a generic class
 category: Usage
 severity: Error
+v2: true
+v3: true
 ---
 
 ## Cause

@@ -3,6 +3,8 @@ title: xUnit1012
 description: Null should not be used for value type parameters
 category: Usage
 severity: Warning
+v2: true
+v3: true
 ---
 
 ## Cause

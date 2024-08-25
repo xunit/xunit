@@ -3,6 +3,8 @@ title: xUnit1022
 description: Theory methods cannot have a parameter array
 category: Usage
 severity: Error
+v2: true
+v3: false
 ---
 
 ## Cause

@@ -3,6 +3,8 @@ title: xUnit2015
 description: Do not use typeof expression to check the exception type
 category: Assertions
 severity: Warning
+v2: true
+v3: true
 ---
 
 ## Cause

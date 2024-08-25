@@ -3,6 +3,8 @@ title: xUnit1021
 description: MemberData should not have parameters if the referenced member is not a method
 category: Usage
 severity: Warning
+v2: true
+v3: true
 ---
 
 ## Cause

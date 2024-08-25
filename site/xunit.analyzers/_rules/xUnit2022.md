@@ -3,6 +3,8 @@ title: xUnit2022
 description: Boolean assertions should not be negated
 category: Assertions
 severity: Info
+v2: true
+v3: true
 ---
 
 ## Cause

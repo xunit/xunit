@@ -3,6 +3,8 @@ title: xUnit1013
 description: Public method should be marked as test
 category: Usage
 severity: Warning
+v2: true
+v3: true
 ---
 
 ## Cause

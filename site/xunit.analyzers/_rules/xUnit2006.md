@@ -3,6 +3,8 @@ title: xUnit2006
 description: Do not use invalid string equality check
 category: Assertions
 severity: Warning
+v2: true
+v3: true
 ---
 
 ## Cause

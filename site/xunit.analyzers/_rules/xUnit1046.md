@@ -3,6 +3,8 @@ title: xUnit1046
 description: Avoid using TheoryDataRow arguments that are not serializable
 category: Usage
 severity: Info
+v2: false
+v3: true
 ---
 
 ## Cause

@@ -3,6 +3,8 @@ title: xUnit1001
 description: Fact methods cannot have parameters
 category: Usage
 severity: Error
+v2: true
+v3: true
 ---
 
 ## Cause

@@ -3,6 +3,8 @@ title: xUnit1042
 description: The member referenced by the MemberData attribute returns untyped data rows
 category: Usage
 severity: Info
+v2: true
+v3: true
 ---
 
 ## Cause

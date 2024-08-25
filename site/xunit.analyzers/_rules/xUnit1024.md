@@ -3,6 +3,8 @@ title: xUnit1024
 description: Test methods cannot have overloads
 category: Usage
 severity: Error
+v2: true
+v3: true
 ---
 
 ## Cause

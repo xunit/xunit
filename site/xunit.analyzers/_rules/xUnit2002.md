@@ -3,6 +3,8 @@ title: xUnit2002
 description: Do not use null check on value type
 category: Assertions
 severity: Warning
+v2: true
+v3: true
 ---
 
 ## Cause

@@ -15,8 +15,19 @@ layout: default
     {% assign severity-label = '' %}
 {% endcase %}
 <div>
-  <div style="float:right">{% octicon mark-github height:14 aria-label:"GitHub Mark" %} <a style="color:black" href="{{ site.github.repository_url }}/tree/gh-pages/site/xunit.analyzers/{{ page.relative_path }}">Edit on GitHub</a></div>
-  <h1>{{ page.title }} <small><span style="vertical-align:text-top" class="label {{ severity-label }}">{{ page.severity }}</span></small></h1>
+  <div style="float:right">
+    {% octicon mark-github height:14 aria-label:"GitHub Mark" %} <a style="color:black" href="{{ site.github.repository_url }}/tree/gh-pages/site/xunit.analyzers/{{ page.relative_path }}">Edit on GitHub</a>
+  </div>
+  <h1>
+    {{ page.title }}
+    <small>
+      &nbsp;
+      <span style="vertical-align:text-top" class="label label-version-{{ page.v2 }}">v2</span>
+      <span style="vertical-align:text-top" class="label label-version-{{ page.v3 }}">v3</span>
+      &nbsp;
+      <span style="vertical-align:text-top" class="label {{ severity-label }}">{{ page.severity }}</span>
+    </small>
+  </h1>
 </div>
 
 <p>{{ page.description }}</p>

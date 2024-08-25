@@ -3,6 +3,8 @@ title: xUnit2004
 description: Do not use equality check to test for boolean conditions
 category: Assertions
 severity: Warning
+v2: true
+v3: true
 ---
 
 ## Cause

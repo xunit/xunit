@@ -2,16 +2,15 @@
 title: xUnit3002
 description: Classes which are JSON serializable should not be tested for their concrete type
 category: Extensibility
-severity: Hidden
+severity: Warning
+v2: false
+v3: true
 ---
 
 ## Cause
 
 A violation of this rule occurs when a developer is dependent on the concrete type of a JSON serializable object
 (usually a message sink message implementation).
-
-_Note: This rule is currently hidden because it has some cases where it reports false positives. Once the false
-positives have been tracked down, the rule will be turned into a Warning._
 
 ## Reason for rule
 

@@ -3,6 +3,8 @@ title: xUnit1049
 description: Do not use 'async void' for test methods as it is no longer supported
 category: Usage
 severity: Error
+v2: false
+v3: true
 ---
 
 ## Cause

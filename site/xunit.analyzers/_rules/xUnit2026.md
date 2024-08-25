@@ -3,6 +3,8 @@ title: xUnit2026
 description: Comparison of sets must be done with IEqualityComparer
 category: Assertions
 severity: Warning
+v2: true
+v3: true
 ---
 
 ## Cause

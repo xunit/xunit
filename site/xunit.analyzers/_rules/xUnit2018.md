@@ -3,6 +3,8 @@ title: xUnit2018
 description: Do not compare an object's exact type to an abstract class or interface
 category: Assertions
 severity: Warning
+v2: true
+v3: true
 ---
 
 ## Cause

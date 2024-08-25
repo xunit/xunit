@@ -3,6 +3,8 @@ title: xUnit1018
 description: MemberData must reference a valid member kind
 category: Usage
 severity: Error
+v2: true
+v3: true
 ---
 
 ## Cause

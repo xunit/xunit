@@ -3,6 +3,8 @@ title: xUnit2003
 description: Do not use equality check to test for null value
 category: Assertions
 severity: Warning
+v2: true
+v3: true
 ---
 
 ## Cause

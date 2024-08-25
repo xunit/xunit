@@ -3,6 +3,8 @@ title: xUnit1000
 description: Test classes must be public
 category: Usage
 severity: Error
+v2: true
+v3: true
 ---
 
 ## Cause

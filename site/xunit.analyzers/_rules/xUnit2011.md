@@ -3,6 +3,8 @@ title: xUnit2011
 description: Do not use empty collection check
 category: Assertions
 severity: Warning
+v2: true
+v3: true
 ---
 
 ## Cause

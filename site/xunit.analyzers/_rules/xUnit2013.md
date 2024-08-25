@@ -3,6 +3,8 @@ title: xUnit2013
 description: Do not use equality check to check for collection size.
 category: Assertions
 severity: Warning
+v2: true
+v3: true
 ---
 
 ## Cause

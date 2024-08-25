@@ -3,6 +3,8 @@ title: xUnit1017
 description: MemberData must reference a static member
 category: Usage
 severity: Error
+v2: true
+v3: true
 ---
 
 ## Cause

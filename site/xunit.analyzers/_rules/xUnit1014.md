@@ -3,6 +3,8 @@ title: xUnit1014
 description: MemberData should use nameof operator for member name
 category: Usage
 severity: Warning
+v2: true
+v3: true
 ---
 
 ## Cause

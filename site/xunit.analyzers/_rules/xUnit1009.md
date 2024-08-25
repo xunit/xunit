@@ -3,6 +3,8 @@ title: xUnit1009
 description: InlineData values must match the number of method parameters
 category: Usage
 severity: Error
+v2: true
+v3: true
 ---
 
 ## Cause

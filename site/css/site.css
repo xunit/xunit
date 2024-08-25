@@ -371,3 +371,16 @@ ul.indent {
   float: right;
   width: 100px;
 }
+.label-version-false {
+  background-color: #e8d0e8;
+  color: #000;
+}
+.label-version-false::after {
+  content: " ✕";
+}
+.label-version-true {
+  background-color: #800080;
+}
+.label-version-true::after {
+  content: " ✓";
+}

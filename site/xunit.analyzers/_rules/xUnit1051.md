@@ -3,6 +3,8 @@ title: xUnit1051
 description: Calls to methods which accept CancellationToken should use TestContext.Current.CancellationToken
 category: Usage
 severity: Warning
+v2: false
+v3: true
 ---
 
 ## Cause
