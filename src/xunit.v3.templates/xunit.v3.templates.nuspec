@@ -13,7 +13,7 @@
 		<releaseNotes>https://xunit.net/releases/v3/$PackageVersion$</releaseNotes>
 		<description>Includes templates for use with 'dotnet new' for creating xUnit.net v3 projects</description>
 		<copyright>Copyright (C) .NET Foundation</copyright>
-		<repository type="git" url="https://github.com/xunit/templates.xunit" commit="$GitCommitId$" />
+		<repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
 		<tags>dotnet-new templates xunit</tags>
 		<packageTypes>
 			<packageType name="Template" />
