@@ -53,6 +53,12 @@ breadcrumb: Documentation
   class, and put the cleanup code in the <code>Dispose()</code> method.
 </p>
 
+<p>
+  Note: you cannot call asynchronous methods in a constructor.
+  Also xUnit v2 does not call <code>IAsyncDisposable</code> (it is planned for xUnit v3).
+  To perform async setup and cleanup you need to implement <code>IAsyncLifetime</code>.
+</p>
+
 <p>Here is a simple example:</p>
 
 {% highlight C# %}
