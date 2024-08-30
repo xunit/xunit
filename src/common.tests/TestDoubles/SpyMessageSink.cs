@@ -6,12 +6,12 @@ using Xunit.Sdk;
 
 public class SpyMessageSink : IMessageSink
 {
-	readonly Func<IMessageSinkMessage, bool> callback;
-
 	protected SpyMessageSink(Func<IMessageSinkMessage, bool>? callback = null) =>
-		this.callback = callback ?? ((msg) => true);
+		Callback = callback ?? ((msg) => true);
 
-	public List<IMessageSinkMessage> Messages { get; } = new();
+	public Func<IMessageSinkMessage, bool> Callback { get; set; }
+
+	public List<IMessageSinkMessage> Messages { get; } = [];
 
 	public static SpyMessageSink Capture(Func<IMessageSinkMessage, bool>? callback = null) =>
 		new(callback);
@@ -32,10 +32,7 @@ public class SpyMessageSink : IMessageSink
 			.ReturnsForAnyArgs(callInfo =>
 			{
 				var message = callInfo.Arg<IMessageSinkMessage>();
-
-				if (messages is not null)
-					messages.Add(message);
-
+				messages?.Add(message);
 				return lambda(message);
 			});
 
@@ -45,11 +42,11 @@ public class SpyMessageSink : IMessageSink
 	public virtual bool OnMessage(IMessageSinkMessage message)
 	{
 		Messages.Add(message);
-		return callback?.Invoke(message) ?? true;
+		return Callback?.Invoke(message) ?? true;
 	}
 }
 
-public class SpyMessageSink<TFinalMessage> : SpyMessageSink, IDisposable
+public sealed class SpyMessageSink<TFinalMessage> : SpyMessageSink, IDisposable
 {
 	bool disposed;
 
