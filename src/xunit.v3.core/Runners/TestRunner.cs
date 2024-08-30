@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -22,23 +23,23 @@ public abstract class TestRunner<TContext, TTest>
 	protected TestRunner()
 	{ }
 
-	async ValueTask<object?> CreateTestClass(TContext ctxt)
+	async ValueTask<(object?, SynchronizationContext?)> CreateTestClass(TContext ctxt)
 	{
 		Guard.ArgumentNotNull(ctxt);
 
 		if (!ctxt.Aggregator.Run(() => IsTestClassCreatable(ctxt), false))
-			return null;
+			return (null, SynchronizationContext.Current);
 
 		if (ctxt.CancellationTokenSource.IsCancellationRequested || ctxt.Aggregator.HasExceptions)
-			return null;
+			return (null, SynchronizationContext.Current);
 
 		if (!await ctxt.Aggregator.RunAsync(() => OnTestClassConstructionStarting(ctxt), true))
 			ctxt.CancellationTokenSource.Cancel();
 
 		if (ctxt.CancellationTokenSource.IsCancellationRequested || ctxt.Aggregator.HasExceptions)
-			return null;
+			return (null, SynchronizationContext.Current);
 
-		var result = await ctxt.Aggregator.RunAsync(() => CreateTestClassInstance(ctxt), null);
+		var result = await ctxt.Aggregator.RunAsync(() => CreateTestClassInstance(ctxt), (null, null));
 
 		if (!await ctxt.Aggregator.RunAsync(() => OnTestClassConstructionFinished(ctxt), true))
 			ctxt.CancellationTokenSource.Cancel();
@@ -49,12 +50,14 @@ public abstract class TestRunner<TContext, TTest>
 	/// <summary>
 	/// Override to creates and initialize the instance of the test class.
 	/// </summary>
+	/// <param name="ctxt">The context that describes the current test</param>
+	/// <returns>Returns the test class instance, and the sync context that is current after the creation</returns>
 	/// <remarks>
 	/// This method runs during <see cref="TestEngineStatus.Running"/> and any exceptions thrown will
-	/// contribute to test failure.
+	/// contribute to test failure. Since the method is potentially async, we depend on it to capture and
+	/// return the sync context so that it may be propagated appropriately.
 	/// </remarks>
-	/// <param name="ctxt">The context that describes the current test</param>
-	protected abstract ValueTask<object?> CreateTestClassInstance(TContext ctxt);
+	protected abstract ValueTask<(object? Instance, SynchronizationContext? SyncContext)> CreateTestClassInstance(TContext ctxt);
 
 	async ValueTask DisposeTestClass(
 		TContext ctxt,
@@ -355,8 +358,11 @@ public abstract class TestRunner<TContext, TTest>
 
 				if (shouldRun && ctxt.GetSkipReason() is null && !ctxt.Aggregator.HasExceptions)
 				{
-					elapsedTime += await ExecutionTimer.MeasureAsync(() => ctxt.Aggregator.RunAsync(async () => { testClassInstance = await CreateTestClass(ctxt); }));
+					SynchronizationContext? syncContext = null;
 
+					elapsedTime += await ExecutionTimer.MeasureAsync(() => ctxt.Aggregator.RunAsync(async () => { (testClassInstance, syncContext) = await CreateTestClass(ctxt); }));
+
+					SynchronizationContext.SetSynchronizationContext(syncContext);
 					SetTestContext(ctxt, TestEngineStatus.Running, testClassInstance: testClassInstance);
 
 					if (!ctxt.Aggregator.HasExceptions)
