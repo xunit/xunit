@@ -62,16 +62,19 @@ _New to xUnit.net? These guides will help you get started._
 * **.NET Core & .NET 5+** &ndash; cross-platform applications, including ASP.NET Core
   * Using [command line](/docs/getting-started/v2/netcore/cmdline) (cross-platform)
   * Using [Visual Studio](/docs/getting-started/v2/netcore/visual-studio) (Windows)
-* **.NET Framework** &ndash; Windows desktop &amp server applications, including ASP.NET
+* **.NET Framework** &ndash; Windows desktop & server applications, including ASP.NET
   * Using [command line](/docs/getting-started/v2/netfx/cmdline) (cross-platform)
   * Using [Visual Studio](/docs/getting-started/v2/netfx/visual-studio) (Windows)
   * Using [JetBrains Rider](/docs/getting-started/v2/netfx/jetbrains-rider) (cross-platform)
 
 {: .indent }
-**<u>v3 Core Framework</u>** ([migrating from v2](/docs/getting-started/v3/migration) and [what's new?](/docs/getting-started/v3/whats-new))
+**<u>v3 Core Framework</u>** (.NET 6+ and .NET Framework 4.7.2+, cross-platform)
 
 {: .indent }
-_Content coming soon_
+* [Getting started with the .NET SDK command line](/docs/getting-started/v3/cmdline)<br />
+  _Includes running tests from the command line, Visual Studio, Visual Studio Code, and JetBrains Rider_
+* [Migrating from xUnit.net v2](/docs/getting-started/v3/migration)
+* [What's new in xUnit.net v3](/docs/getting-started/v3/whats-new)
 
 {: .indent }
 **<u>Source Analyzers</u>**

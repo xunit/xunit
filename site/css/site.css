@@ -384,3 +384,7 @@ ul.indent {
 .label-version-true::after {
   content: " ✓";
 }
+.newline-indent {
+  display: block;
+  margin-left: 1em;
+}
