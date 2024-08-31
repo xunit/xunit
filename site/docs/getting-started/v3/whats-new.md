@@ -6,7 +6,7 @@ breadcrumb: Documentation
 
 # What's New in v3
 
-## As of: 2024 July 30 (`0.2.0-pre.69`)
+## As of: 2024 August 30 (`0.3.0-pre.18`)
 
 This guide aims to be a comprehensive list of the new features added to v3, written for existing developers who are using v2.
 
@@ -81,6 +81,8 @@ Items here are related to the assertion library, from the `xunit.v3.assert` and 
 > * `Assert.Skip(string message)`
 > * `Assert.SkipUnless(bool condition, string reason)` will dynamically skip the test only if `condition` is `false`
 > * `Assert.SkipWhen(bool condition, string reason)` will dynamically skip the test only if `condition` is `true`
+>
+> The ability to dynamically skip tests has been added to support determining when to skip a test at runtime rather than at compile time. An example of a reason to dynamically skip a test at runtime would include: skipping a test based on the execution environment. That might include the operating system (Windows vs. macOS vs. Linux) or the runtime environment (interactive tests run by developers vs. tests run during continuous integration).
 
 ### New assertions for projects previously targeting .NET Framework/.NET 5 or older
 
