@@ -7,9 +7,15 @@
     <!-- LangVersion 6 aligns with C# as it existed in VS 2015. -->
     <LangVersion>6</LangVersion>
 
+    <!-- We don't care about security vulnerabilities, because we're just building and not shipping -->
+    <NoWarn>$(NoWarn);NETSDK1215;NU1901;NU1902;NU1903;NU1904</NoWarn>
+
     <!-- Sign assemblies so they can used if needed -->
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)..\signing.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
+
+    <!-- Don't show preview .NET SDK message, if the user chooses to use one -->
+    <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
   </PropertyGroup>
 
   <ItemGroup>

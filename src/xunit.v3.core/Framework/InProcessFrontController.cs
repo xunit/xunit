@@ -89,7 +89,7 @@ public class InProcessFrontController
 		Guard.ArgumentNotNull(options);
 		Guard.ArgumentNotNull(filter);
 
-		int testCasesToRun = 0;
+		var testCasesToRun = 0;
 
 		messageSink?.OnMessage(new DiscoveryStarting
 		{

@@ -100,13 +100,10 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 	/// </summary>
 	/// <param name="text">The text to be escaped</param>
 	/// <returns>The escaped text</returns>
-	protected virtual string Escape(string? text)
-	{
-		if (text is null)
-			return string.Empty;
-
-		return text.Replace("\r", "\\r").Replace("\n", "\\n").Replace("\t", "\\t").Replace("\0", "\\0");
-	}
+	protected virtual string Escape(string? text) =>
+		text is not null
+			? text.Replace("\r", "\\r").Replace("\n", "\\n").Replace("\t", "\\t").Replace("\0", "\\0")
+			: string.Empty;
 
 	/// <summary>
 	/// Escapes multi-line text for display purposes, indenting on newlines.
@@ -116,18 +113,10 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 	/// <returns>The escaped text</returns>
 	protected virtual string EscapeMultiLineIndent(
 		string? text,
-		string indent)
-	{
-		if (text is null)
-			return string.Empty;
-
-		return
-			text
-				.Replace("\r\n", "\n")
-				.Replace("\r", "\n")
-				.Replace("\n", Environment.NewLine + indent)
-				.Replace("\0", "\\0");
-	}
+		string indent) =>
+			text is not null
+				? text.Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", Environment.NewLine + indent).Replace("\0", "\\0")
+				: string.Empty;
 
 	/// <summary>
 	/// Gets the display name of a test assembly from a test assembly message.
@@ -302,7 +291,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 			{
 				AppDomainOption.Enabled => string.Format(CultureInfo.CurrentCulture, "app domain = on [{0}shadow copy], ", discoveryStarting.ShadowCopy ? "" : "no "),
 				AppDomainOption.Disabled => "app domain = off, ",
-				_ => "",
+				AppDomainOption.NotAvailable or _ => "",
 			};
 
 			Logger.LogImportantMessage(
@@ -396,14 +385,11 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 	/// Called when <see cref="ITestAssemblyFinished"/> is raised.
 	/// </summary>
 	/// <param name="args">An object that contains the event data.</param>
-	protected virtual void HandleTestAssemblyFinished(MessageHandlerArgs<ITestAssemblyFinished> args)
-	{
-		Guard.ArgumentNotNull(args);
-
+	protected virtual void HandleTestAssemblyFinished(MessageHandlerArgs<ITestAssemblyFinished> args) =>
 		// We don't remove this metadata from the cache, because the assembly ID is how we map
 		// execution results. We need the cache to still contain that mapping so we can print
 		// results at the end of execution.
-	}
+		Guard.ArgumentNotNull(args);
 
 	/// <summary>
 	/// Called when <see cref="ITestAssemblyStarting"/> is raised.
@@ -788,15 +774,11 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 
 		readonly Action unlock;
 
-		ReaderWriterLockWrapper(Action unlock)
-		{
+		ReaderWriterLockWrapper(Action unlock) =>
 			this.unlock = unlock;
-		}
 
-		public void Dispose()
-		{
+		public void Dispose() =>
 			unlock();
-		}
 
 		public static IDisposable ReadLock()
 		{

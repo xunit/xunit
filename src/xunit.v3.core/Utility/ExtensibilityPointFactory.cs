@@ -52,13 +52,10 @@ public static partial class ExtensibilityPointFactory
 	public static TInterface? Get<TInterface>(
 		Type? type,
 		object?[]? ctorArgs = null)
-			where TInterface : class
-	{
-		if (type is null)
-			return default;
-
-		return CreateInstance(type, ctorArgs) as TInterface;
-	}
+			where TInterface : class =>
+				type is not null
+					? CreateInstance(type, ctorArgs) as TInterface
+					: default;
 
 	/// <summary>
 	/// Gets the test framework object for the given test assembly. It is important that callers to this function have
@@ -80,10 +77,10 @@ public static partial class ExtensibilityPointFactory
 			Activator.CreateInstance(testFrameworkType)
 				?? throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Failed to create instance of test framework type '{0}'", testFrameworkType.SafeName()));
 
-		if (obj is not ITestFramework result)
-			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Test framework type '{0}' could not be cast to '{1}'", testFrameworkType.SafeName(), typeof(ITestFramework).SafeName()));
-
-		return result;
+		return
+			obj is ITestFramework result
+				? result
+				: throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Test framework type '{0}' could not be cast to '{1}'", testFrameworkType.SafeName(), typeof(ITestFramework).SafeName()));
 	}
 
 	/// <summary>

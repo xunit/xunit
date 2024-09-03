@@ -13,7 +13,7 @@ public abstract class LongLivedMarshalByRefObject : MarshalByRefObject
 {
 	/// <inheritdoc/>
 	[SecurityCritical]
-	public override sealed object InitializeLifetimeService() => null!;
+	public sealed override object InitializeLifetimeService() => null!;
 }
 #else
 /// <summary>

@@ -112,7 +112,7 @@ public class Xunit1 : IFrontController
 
 		ThreadPool.QueueUserWorkItem(_ =>
 		{
-			int testCasesToRun = 0;
+			var testCasesToRun = 0;
 
 			Find(
 				messageSink,
@@ -371,7 +371,7 @@ public class Xunit1 : IFrontController
 		var testCases =
 			settings
 				.SerializedTestCases
-				.Select(serialized => SerializationHelper.Deserialize<Xunit1TestCase>(serialized))
+				.Select(SerializationHelper.Deserialize<Xunit1TestCase>)
 				.WhereNotNull()
 				.CastOrToReadOnlyCollection();
 

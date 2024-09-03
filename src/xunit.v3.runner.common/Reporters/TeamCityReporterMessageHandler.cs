@@ -416,16 +416,14 @@ public class TeamCityReporterMessageHandler(
 		string flowId,
 		string messageType,
 		string extraMetadataFormat = "",
-		params object?[] args)
-	{
-		Logger.LogRaw(
-			"##teamcity[{0} timestamp='{1}+0000'{2}{3}]",
-			messageType,
-			TeamCityEscape(UtcNow.ToString("yyyy-MM-dd'T'HH:mm:ss.fff", CultureInfo.InvariantCulture)),
-			flowId.Length != 0 ? string.Format(CultureInfo.InvariantCulture, " flowId='{0}'", TeamCityEscape(flowId)) : "",
-			extraMetadataFormat.Length != 0 ? " " + string.Format(CultureInfo.InvariantCulture, extraMetadataFormat, args) : ""
-		);
-	}
+		params object?[] args) =>
+			Logger.LogRaw(
+				"##teamcity[{0} timestamp='{1}+0000'{2}{3}]",
+				messageType,
+				TeamCityEscape(UtcNow.ToString("yyyy-MM-dd'T'HH:mm:ss.fff", CultureInfo.InvariantCulture)),
+				flowId.Length != 0 ? string.Format(CultureInfo.InvariantCulture, " flowId='{0}'", TeamCityEscape(flowId)) : "",
+				extraMetadataFormat.Length != 0 ? " " + string.Format(CultureInfo.InvariantCulture, extraMetadataFormat, args) : ""
+			);
 
 	void TeamCityLogSuiteFinished(
 		string flowId,
@@ -447,10 +445,11 @@ public class TeamCityReporterMessageHandler(
 	string ToAssemblyName(ITestAssemblyMessage message)
 	{
 		var metadata = metadataCache.TryGetAssemblyMetadata(message);
-		if (metadata is null)
-			return "<unknown test assembly>";
 
-		return metadata.AssemblyPath ?? metadata.SimpleAssemblyName();
+		return
+			metadata is not null
+				? metadata.AssemblyPath ?? metadata.SimpleAssemblyName()
+				: "<unknown test assembly>";
 	}
 
 	string ToTestCaseName(ITestCaseMessage message) =>
@@ -462,10 +461,11 @@ public class TeamCityReporterMessageHandler(
 	string ToTestCollectionName(ITestCollectionMessage message)
 	{
 		var metadata = metadataCache.TryGetCollectionMetadata(message);
-		if (metadata is null)
-			return "<unknown test collection>";
 
-		return string.Format(CultureInfo.InvariantCulture, "{0} ({1})", metadata.TestCollectionDisplayName, message.TestCollectionUniqueID);
+		return
+			metadata is not null
+				? string.Format(CultureInfo.InvariantCulture, "{0} ({1})", metadata.TestCollectionDisplayName, message.TestCollectionUniqueID)
+				: "<unknown test collection>";
 	}
 
 	string ToTestMethodName(ITestMethodMessage message)
@@ -475,10 +475,10 @@ public class TeamCityReporterMessageHandler(
 			return "<unknown test method>";
 
 		var testClassMetadata = metadataCache.TryGetClassMetadata(message);
-		if (testClassMetadata is null)
-			return testMethodMetadata.MethodName;
-
-		return string.Format(CultureInfo.InvariantCulture, "{0}.{1}", testClassMetadata.TestClassName, testMethodMetadata.MethodName);
+		return
+			testClassMetadata is not null
+				? string.Format(CultureInfo.InvariantCulture, "{0}.{1}", testClassMetadata.TestClassName, testMethodMetadata.MethodName)
+				: testMethodMetadata.MethodName;
 	}
 
 	string ToTestName(ITestMessage message) =>

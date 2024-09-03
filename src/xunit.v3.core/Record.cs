@@ -51,29 +51,32 @@ public static class Record
 			return ex;
 		}
 
-		if (testCodeResult is Task || testCodeResult is ValueTask)
-			throw new InvalidOperationException("You must call Assert.ThrowsAsync, Assert.DoesNotThrowAsync, or Record.ExceptionAsync when testing async code.");
-
-		return null;
+		return
+			testCodeResult is not Task and not ValueTask
+				? null
+				: throw new InvalidOperationException("You must call Assert.ThrowsAsync, Assert.DoesNotThrowAsync, or Record.ExceptionAsync when testing async code.");
 	}
 
 	/// <summary/>
 	[EditorBrowsable(EditorBrowsableState.Never)]
 	[DoesNotReturn]
 	[Obsolete("You must call Record.ExceptionAsync (and await the result) when testing async code.", true)]
-	public static Exception Exception(Func<Task> testCode) => throw new NotImplementedException("You must call Record.ExceptionAsync (and await the result) when testing async code.");
+	public static Exception Exception(Func<Task> testCode) =>
+		throw new NotImplementedException("You must call Record.ExceptionAsync (and await the result) when testing async code.");
 
 	/// <summary/>
 	[EditorBrowsable(EditorBrowsableState.Never)]
 	[DoesNotReturn]
 	[Obsolete("You must call Record.ExceptionAsync (and await the result) when testing async code.", true)]
-	public static Exception Exception(Func<ValueTask> testCode) => throw new NotImplementedException("You must call Record.ExceptionAsync (and await the result) when testing async code.");
+	public static Exception Exception(Func<ValueTask> testCode) =>
+		throw new NotImplementedException("You must call Record.ExceptionAsync (and await the result) when testing async code.");
 
 	/// <summary/>
 	[EditorBrowsable(EditorBrowsableState.Never)]
 	[DoesNotReturn]
 	[Obsolete("You must call Record.ExceptionAsync (and await the result) when testing async code.", true)]
-	public static Exception Exception<T>(Func<ValueTask<T>> testCode) => throw new NotImplementedException("You must call Record.ExceptionAsync (and await the result) when testing async code.");
+	public static Exception Exception<T>(Func<ValueTask<T>> testCode) =>
+		throw new NotImplementedException("You must call Record.ExceptionAsync (and await the result) when testing async code.");
 
 	/// <summary>
 	/// Records any exception which is thrown by the given task.

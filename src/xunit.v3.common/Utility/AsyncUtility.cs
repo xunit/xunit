@@ -34,13 +34,10 @@ public static class AsyncUtility
 		Guard.ArgumentNotNull(method);
 
 		var methodReturnType = method.ReturnType;
-		if (methodReturnType == typeof(Task) || methodReturnType == typeof(ValueTask))
-			return true;
-
-		if (methodReturnType.GetTypeInfo().IsGenericType)
-			return taskGenericTypes.Contains(methodReturnType.GetGenericTypeDefinition().SafeName());
-
-		return false;
+		return
+			methodReturnType == typeof(Task) ||
+			methodReturnType == typeof(ValueTask) ||
+			(methodReturnType.GetTypeInfo().IsGenericType && taskGenericTypes.Contains(methodReturnType.GetGenericTypeDefinition().SafeName()));
 	}
 
 	/// <summary>
@@ -71,12 +68,10 @@ public static class AsyncUtility
 			return valueTask;
 
 		if (obj is Task task)
-		{
-			if (task.Status == TaskStatus.Created)
-				throw new InvalidOperationException("Test method returned a non-started Task (tasks must be started before being returned)");
-
-			return new(task);
-		}
+			return
+				task.Status != TaskStatus.Created
+					? new(task)
+					: throw new InvalidOperationException("Test method returned a non-started Task (tasks must be started before being returned)");
 
 		var type = obj.GetType();
 		if (type.IsGenericType && type.GetGenericTypeDefinition().SafeName() == "Microsoft.FSharp.Control.FSharpAsync`1")

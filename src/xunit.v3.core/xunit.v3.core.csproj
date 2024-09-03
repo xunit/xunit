@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>NU5100;$(NoWarn)</NoWarn>
+    <NoWarn>$(NoWarn);NU5100</NoWarn>
     <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
     <RootNamespace>Xunit.v3</RootNamespace>
     <TargetFrameworks>net472;netstandard2.0</TargetFrameworks>

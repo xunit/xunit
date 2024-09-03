@@ -122,12 +122,10 @@ public class FixtureMappingManager(
 			isKnownType = knownTypes.Contains(fixtureType.GetGenericTypeDefinition());
 
 		if (!isKnownType)
-		{
-			if (parentMappingManager is null)
-				return null;
-
-			return await parentMappingManager.GetFixture(fixtureType);
-		}
+			return
+				parentMappingManager is not null
+					? await parentMappingManager.GetFixture(fixtureType)
+					: null;
 
 		// Ensure there is a single public constructor
 		var ctors =

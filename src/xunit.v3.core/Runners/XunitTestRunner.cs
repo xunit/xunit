@@ -117,7 +117,7 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext, IXunitTest>
 	protected override bool IsTestClassDisposable(
 		XunitTestRunnerContext ctxt,
 		object testClassInstance) =>
-			testClassInstance is IDisposable || testClassInstance is IAsyncDisposable;
+			testClassInstance is IDisposable or IAsyncDisposable;
 
 	/// <inheritdoc/>
 	protected override ValueTask<bool> OnTestClassConstructionFinished(XunitTestRunnerContext ctxt)
@@ -430,6 +430,6 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext, IXunitTest>
 		{
 			ExplicitOption.Only => ctxt.Test.Explicit,
 			ExplicitOption.Off => !ctxt.Test.Explicit,
-			_ => true,
+			ExplicitOption.On or _ => true,
 		};
 }

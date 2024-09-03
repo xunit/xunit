@@ -60,10 +60,10 @@ public static class ObjectExtensions
 	{
 		Guard.ArgumentNotNull(@object);
 
-		if (value is null)
-			throw new UnsetPropertyException(propertyName, @object.GetType());
-
-		return value;
+		return
+			value is not null
+				? value
+				: throw new UnsetPropertyException(propertyName, @object.GetType());
 	}
 
 	/// <summary/>
@@ -75,9 +75,9 @@ public static class ObjectExtensions
 	{
 		Guard.ArgumentNotNull(@object);
 
-		if (value is null)
-			throw new UnsetPropertyException(propertyName, @object.GetType());
-
-		return value.Value;
+		return
+			value is not null
+				? value.Value
+				: throw new UnsetPropertyException(propertyName, @object.GetType());
 	}
 }

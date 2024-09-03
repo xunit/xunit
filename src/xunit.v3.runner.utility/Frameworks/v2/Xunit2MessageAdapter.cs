@@ -28,36 +28,41 @@ public class Xunit2MessageAdapter(
 	/// <exception cref="ArgumentException">Thrown if the message is not of a known type.</exception>
 	public Sdk.IMessageSinkMessage Adapt(
 		IMessageSinkMessage message,
-		HashSet<string>? messageTypes = null)
-	{
-		return
+		HashSet<string>? messageTypes = null) =>
+			// Discovery
 			TryConvert<IDiagnosticMessage>(message, messageTypes, AdaptDiagnosticMessage) ??
-
 			TryConvert<IDiscoveryCompleteMessage>(message, messageTypes, AdaptDiscoveryCompleteMessage) ??
 			TryConvert<ITestCaseDiscoveryMessage>(message, messageTypes, AdaptTestCaseDiscoveryMessage) ??
 
+			// Fatal error
 			TryConvert<IErrorMessage>(message, messageTypes, AdaptErrorMessage) ??
 
+			// Test assembly
 			TryConvert<ITestAssemblyCleanupFailure>(message, messageTypes, AdaptTestAssemblyCleanupFailure) ??
 			TryConvert<ITestAssemblyFinished>(message, messageTypes, AdaptTestAssemblyFinished) ??
 			TryConvert<ITestAssemblyStarting>(message, messageTypes, AdaptTestAssemblyStarting) ??
 
+			// Test case
 			TryConvert<ITestCaseCleanupFailure>(message, messageTypes, AdaptTestCaseCleanupFailure) ??
 			TryConvert<ITestCaseFinished>(message, messageTypes, AdaptTestCaseFinished) ??
 			TryConvert<ITestCaseStarting>(message, messageTypes, AdaptTestCaseStarting) ??
 
+			// Test class
 			TryConvert<ITestClassCleanupFailure>(message, messageTypes, AdaptTestClassCleanupFailure) ??
 			TryConvert<ITestClassFinished>(message, messageTypes, AdaptTestClassFinished) ??
 			TryConvert<ITestClassStarting>(message, messageTypes, AdaptTestClassStarting) ??
 
+			// Test collection
 			TryConvert<ITestCollectionCleanupFailure>(message, messageTypes, AdaptTestCollectionCleanupFailure) ??
 			TryConvert<ITestCollectionFinished>(message, messageTypes, AdaptTestCollectionFinished) ??
 			TryConvert<ITestCollectionStarting>(message, messageTypes, AdaptTestCollectionStarting) ??
 
+			// Test method
 			TryConvert<ITestMethodCleanupFailure>(message, messageTypes, AdaptTestMethodCleanupFailure) ??
 			TryConvert<ITestMethodFinished>(message, messageTypes, AdaptTestMethodFinished) ??
 			TryConvert<ITestMethodStarting>(message, messageTypes, AdaptTestMethodStarting) ??
 
+			// Test
 			TryConvert<IAfterTestFinished>(message, messageTypes, AdaptAfterTestFinished) ??
 			TryConvert<IAfterTestStarting>(message, messageTypes, AdaptAfterTestStarting) ??
 			TryConvert<IBeforeTestFinished>(message, messageTypes, AdaptBeforeTestFinished) ??
@@ -74,8 +79,8 @@ public class Xunit2MessageAdapter(
 			TryConvert<ITestSkipped>(message, messageTypes, AdaptTestSkipped) ??
 			TryConvert<ITestStarting>(message, messageTypes, AdaptTestStarting) ??
 
+			// Unknown
 			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Unknown message type '{0}'", message.GetType().FullName), nameof(message));
-	}
 
 	Sdk.IAfterTestFinished AdaptAfterTestFinished(IAfterTestFinished message)
 	{
@@ -752,10 +757,11 @@ public class Xunit2MessageAdapter(
 		Guard.ArgumentNotNull(message);
 
 		var castMessage = messageTypes is null || messageTypes.Contains(typeof(TMessage).FullName!) ? message as TMessage : null;
-		if (castMessage is not null)
-			return converter(castMessage);
 
-		return null;
+		return
+			castMessage is not null
+				? converter(castMessage)
+				: null;
 	}
 
 	string UniqueIDForTest(

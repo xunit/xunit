@@ -22,8 +22,7 @@ public class TransformFactory
 
 	readonly List<Transform> availableTransforms;
 
-	TransformFactory()
-	{
+	TransformFactory() =>
 		availableTransforms =
 		[
 			new Transform(
@@ -62,12 +61,12 @@ public class TransformFactory
 				(xml, outputFileName) => Handler_XslTransform("TRX.xslt", xml, outputFileName)
 			),
 		];
-	}
 
 	/// <summary>
 	/// Gets the list of available transforms.
 	/// </summary>
-	public static IReadOnlyList<Transform> AvailableTransforms => instance.availableTransforms;
+	public static IReadOnlyList<Transform> AvailableTransforms =>
+		instance.availableTransforms;
 
 	/// <summary>
 	/// Creates the root "assemblies" XML element.
@@ -202,82 +201,82 @@ public class TransformFactory
 
 				environmentJson.Serialize("osPlatform", osPlatform);
 				environmentJson.Serialize("osRelease", RuntimeInformation.OSDescription.Trim());
+			}
 
-				using (var extraJson = environmentJson.SerializeObject("extra"))
+			using (var extraJson = resultsJson.SerializeObject("extra"))
+			{
+				if (xml.Attribute("computer") is XAttribute computerXml)
+					extraJson.Serialize("computer", computerXml.Value);
+				if (xml.Attribute("user") is XAttribute userXml)
+					extraJson.Serialize("user", userXml.Value);
+
+				using var suitesJson = extraJson.SerializeArray("suites");
+				foreach (var assemblyXml in xml.Elements("assembly"))
 				{
-					if (xml.Attribute("computer") is XAttribute computerXml)
-						extraJson.Serialize("computer", computerXml.Value);
-					if (xml.Attribute("user") is XAttribute userXml)
-						extraJson.Serialize("user", userXml.Value);
+					using var suiteJson = suitesJson.SerializeObject();
 
-					using (var suitesJson = environmentJson.SerializeArray("suites"))
-						foreach (var assemblyXml in xml.Elements("assembly"))
-						{
-							using var suiteJson = suitesJson.SerializeObject();
+					totalSuites++;
 
-							totalSuites++;
+					if (assemblyXml.Attribute("id") is XAttribute idXml)
+						suiteJson.Serialize("id", idXml.Value);
+					if (assemblyXml.Attribute("name") is XAttribute nameXml)
+						suiteJson.Serialize("filePath", nameXml.Value);
+					if (assemblyXml.Attribute("config-file") is XAttribute configFileXml)
+						suiteJson.Serialize("configPath", configFileXml.Value);
+					if (assemblyXml.Attribute("environment") is XAttribute environmentXml)
+						suiteJson.Serialize("environment", environmentXml.Value);
+					if (assemblyXml.Attribute("test-framework") is XAttribute testFrameworkXml)
+						suiteJson.Serialize("testFramework", testFrameworkXml.Value);
+					if (assemblyXml.Attribute("target-framework") is XAttribute targetFrameworkXml)
+						suiteJson.Serialize("targetFramework", targetFrameworkXml.Value);
+					if (xml.Attribute("start-rtf") is XAttribute startRtfXml)
+						suiteJson.Serialize("start", DateTimeOffset.Parse(startRtfXml.Value, CultureInfo.InvariantCulture).ToUnixTimeSeconds());
+					if (xml.Attribute("finish-rtf") is XAttribute finishRtfXml)
+						suiteJson.Serialize("stop", DateTimeOffset.Parse(finishRtfXml.Value, CultureInfo.InvariantCulture).ToUnixTimeSeconds());
+					if (assemblyXml.Attribute("time") is XAttribute timeXml)
+						suiteJson.Serialize("duration", (long)(decimal.Parse(timeXml.Value, CultureInfo.InvariantCulture) * 1000));
 
-							if (assemblyXml.Attribute("id") is XAttribute idXml)
-								suiteJson.Serialize("id", idXml.Value);
-							if (assemblyXml.Attribute("name") is XAttribute nameXml)
-								suiteJson.Serialize("filePath", nameXml.Value);
-							if (assemblyXml.Attribute("config-file") is XAttribute configFileXml)
-								suiteJson.Serialize("configPath", configFileXml.Value);
-							if (assemblyXml.Attribute("environment") is XAttribute environmentXml)
-								suiteJson.Serialize("environment", environmentXml.Value);
-							if (assemblyXml.Attribute("test-framework") is XAttribute testFrameworkXml)
-								suiteJson.Serialize("testFramework", testFrameworkXml.Value);
-							if (assemblyXml.Attribute("target-framework") is XAttribute targetFrameworkXml)
-								suiteJson.Serialize("targetFramework", targetFrameworkXml.Value);
-							if (xml.Attribute("start-rtf") is XAttribute startRtfXml)
-								suiteJson.Serialize("start", DateTimeOffset.Parse(startRtfXml.Value, CultureInfo.InvariantCulture).ToUnixTimeSeconds());
-							if (xml.Attribute("finish-rtf") is XAttribute finishRtfXml)
-								suiteJson.Serialize("stop", DateTimeOffset.Parse(finishRtfXml.Value, CultureInfo.InvariantCulture).ToUnixTimeSeconds());
-							if (assemblyXml.Attribute("time") is XAttribute timeXml)
-								suiteJson.Serialize("duration", (long)(decimal.Parse(timeXml.Value, CultureInfo.InvariantCulture) * 1000));
+					if (assemblyXml.Attribute("errors") is XAttribute errorsXml)
+						totalOther += long.Parse(errorsXml.Value, CultureInfo.InvariantCulture);
+					if (assemblyXml.Attribute("failed") is XAttribute failedXml)
+						totalFailed += long.Parse(failedXml.Value, CultureInfo.InvariantCulture);
+					if (assemblyXml.Attribute("not-run") is XAttribute notRunXml)
+						totalNotRun += long.Parse(notRunXml.Value, CultureInfo.InvariantCulture);
+					if (assemblyXml.Attribute("passed") is XAttribute passedXml)
+						totalPassed += long.Parse(passedXml.Value, CultureInfo.InvariantCulture);
+					if (assemblyXml.Attribute("skipped") is XAttribute skippedXml)
+						totalSkipped += long.Parse(skippedXml.Value, CultureInfo.InvariantCulture);
+					if (assemblyXml.Attribute("total") is XAttribute totalXml)
+						totalRun += long.Parse(totalXml.Value, CultureInfo.InvariantCulture);
 
-							if (assemblyXml.Attribute("errors") is XAttribute errorsXml)
-								totalOther += long.Parse(errorsXml.Value, CultureInfo.InvariantCulture);
-							if (assemblyXml.Attribute("failed") is XAttribute failedXml)
-								totalFailed += long.Parse(failedXml.Value, CultureInfo.InvariantCulture);
-							if (assemblyXml.Attribute("not-run") is XAttribute notRunXml)
-								totalNotRun += long.Parse(notRunXml.Value, CultureInfo.InvariantCulture);
-							if (assemblyXml.Attribute("passed") is XAttribute passedXml)
-								totalPassed += long.Parse(passedXml.Value, CultureInfo.InvariantCulture);
-							if (assemblyXml.Attribute("skipped") is XAttribute skippedXml)
-								totalSkipped += long.Parse(skippedXml.Value, CultureInfo.InvariantCulture);
-							if (assemblyXml.Attribute("total") is XAttribute totalXml)
-								totalRun += long.Parse(totalXml.Value, CultureInfo.InvariantCulture);
+					using (var collectionsJson = suiteJson.SerializeArray("collections"))
+						foreach (var collectionXml in assemblyXml.Elements("collection"))
+							using (var collection = collectionsJson.SerializeObject())
+							{
+								if (collectionXml.Attribute("id") is XAttribute collectionIdXml)
+									collection.Serialize("id", collectionIdXml.Value);
+								if (collectionXml.Attribute("name") is XAttribute collectionNameXml)
+									collection.Serialize("name", collectionNameXml.Value);
+							}
 
-							using (var collectionsJson = suiteJson.SerializeArray("collections"))
-								foreach (var collectionXml in assemblyXml.Elements("collection"))
-									using (var collection = collectionsJson.SerializeObject())
-									{
-										if (collectionXml.Attribute("id") is XAttribute collectionIdXml)
-											collection.Serialize("id", collectionIdXml.Value);
-										if (collectionXml.Attribute("name") is XAttribute collectionNameXml)
-											collection.Serialize("name", collectionNameXml.Value);
-									}
+					using var errorsJson = suiteJson.SerializeArray("errors");
+					if (assemblyXml.Element("errors") is XElement assemblyErrorsXml)
+						foreach (var assemblyErrorXml in assemblyErrorsXml.Elements("error"))
+							using (var error = errorsJson.SerializeObject())
+							{
+								if (assemblyErrorXml.Attribute("name") is XAttribute assemblyErrorNameXml)
+									error.Serialize("name", assemblyErrorNameXml.Value);
+								if (assemblyErrorXml.Attribute("type") is XAttribute assemblyErrorTypeXml)
+									error.Serialize("type", assemblyErrorTypeXml.Value);
 
-							using (var errorsJson = suiteJson.SerializeArray("errors"))
-								if (assemblyXml.Element("errors") is XElement assemblyErrorsXml)
-									foreach (var assemblyErrorXml in assemblyErrorsXml.Elements("error"))
-										using (var error = errorsJson.SerializeObject())
-										{
-											if (assemblyErrorXml.Attribute("name") is XAttribute assemblyErrorNameXml)
-												error.Serialize("name", assemblyErrorNameXml.Value);
-											if (assemblyErrorXml.Attribute("type") is XAttribute assemblyErrorTypeXml)
-												error.Serialize("type", assemblyErrorTypeXml.Value);
+								if (assemblyErrorsXml.Element("failure") is XElement assemblyErrorFailureXml)
+								{
+									if (assemblyErrorFailureXml.Attribute("exception-type") is XAttribute failureExceptionXml)
+										error.Serialize("exception", failureExceptionXml.Value);
 
-											if (assemblyErrorsXml.Element("failure") is XElement assemblyErrorFailureXml)
-											{
-												if (assemblyErrorFailureXml.Attribute("exception-type") is XAttribute failureExceptionXml)
-													error.Serialize("exception", failureExceptionXml.Value);
-
-												SerializeMessageAndTrace(error, assemblyErrorFailureXml);
-											}
-										}
-						}
+									SerializeMessageAndTrace(error, assemblyErrorFailureXml);
+								}
+							}
 				}
 			}
 
@@ -302,108 +301,106 @@ public class TransformFactory
 				summaryJson.Serialize("stop", stop);
 			}
 
-			using (var testsJson = resultsJson.SerializeArray("tests"))
-				foreach (var assemblyXml in xml.Elements("assembly"))
+			using var testsJson = resultsJson.SerializeArray("tests");
+			foreach (var assemblyXml in xml.Elements("assembly"))
+			{
+				var suiteID = assemblyXml.Attribute("id")?.Value;
+
+				foreach (var collectionXml in assemblyXml.Elements("collection"))
 				{
-					var suiteID = assemblyXml.Attribute("id")?.Value;
+					var collectionID = collectionXml.Attribute("id")?.Value;
 
-					foreach (var collectionXml in assemblyXml.Elements("collection"))
-					{
-						var collectionID = collectionXml.Attribute("id")?.Value;
-
-						foreach (var testXml in collectionXml.Elements("test"))
-							using (var testJson = testsJson.SerializeObject())
+					foreach (var testXml in collectionXml.Elements("test"))
+						using (var testJson = testsJson.SerializeObject())
+						{
+							var name = testXml.Attribute("name")?.Value ?? "<unnamed test>";
+							var status = testXml.Attribute("result")?.Value.ToUpperInvariant() switch
 							{
-								var name = testXml.Attribute("name")?.Value ?? "<unnamed test>";
-								var status = testXml.Attribute("result")?.Value.ToUpperInvariant() switch
-								{
-									"PASS" => "passed",
-									"FAIL" => "failed",
-									"SKIP" => "skipped",
-									"NOTRUN" => "pending",
-									_ => "other",
-								};
-								var duration = 0L;
+								"PASS" => "passed",
+								"FAIL" => "failed",
+								"SKIP" => "skipped",
+								"NOTRUN" => "pending",
+								_ => "other",
+							};
+							var duration = 0L;
 
-								if (testXml.Attribute("time") is XAttribute timeXml)
-									duration = (long)(decimal.Parse(timeXml.Value, CultureInfo.InvariantCulture) * 1000);
+							if (testXml.Attribute("time") is XAttribute timeXml)
+								duration = (long)(decimal.Parse(timeXml.Value, CultureInfo.InvariantCulture) * 1000);
 
-								testJson.Serialize("name", name);
-								testJson.Serialize("status", status);
-								testJson.Serialize("duration", duration);
+							testJson.Serialize("name", name);
+							testJson.Serialize("status", status);
+							testJson.Serialize("duration", duration);
 
-								if (suiteID is not null)
-									testJson.Serialize("suite", suiteID);
-								if (testXml.Attribute("source-file") is XAttribute sourceFileXml)
-									testJson.Serialize("filePath", sourceFileXml.Value);
+							if (suiteID is not null)
+								testJson.Serialize("suite", suiteID);
+							if (testXml.Attribute("source-file") is XAttribute sourceFileXml)
+								testJson.Serialize("filePath", sourceFileXml.Value);
 
-								var failureXml = testXml.Element("failure");
-								if (failureXml is not null)
-									SerializeMessageAndTrace(testJson, failureXml);
+							var failureXml = testXml.Element("failure");
+							if (failureXml is not null)
+								SerializeMessageAndTrace(testJson, failureXml);
 
-								var traits = new Dictionary<string, HashSet<string>>();
-								var traitsXml = testXml.Element("traits")?.Elements("trait");
-								if (traitsXml is not null)
-									foreach (var traitXml in traitsXml)
-										if (traitXml.Attribute("name") is XAttribute nameXml && traitXml.Attribute("value") is XAttribute valueXml)
-											traits.Add(nameXml.Value, valueXml.Value);
+							var traits = new Dictionary<string, HashSet<string>>();
+							var traitsXml = testXml.Element("traits")?.Elements("trait");
+							if (traitsXml is not null)
+								foreach (var traitXml in traitsXml)
+									if (traitXml.Attribute("name") is XAttribute nameXml && traitXml.Attribute("value") is XAttribute valueXml)
+										traits.Add(nameXml.Value, valueXml.Value);
 
-								if (traits.TryGetValue("Category", out var categories))
-									using (var tags = testJson.SerializeArray("tags"))
-										foreach (var categoryValue in categories)
-											tags.Serialize(categoryValue);
+							if (traits.TryGetValue("Category", out var categories))
+								using (var tags = testJson.SerializeArray("tags"))
+									foreach (var categoryValue in categories)
+										tags.Serialize(categoryValue);
 
-								using (var extraJson = testJson.SerializeObject("extra"))
-								{
-									if (testXml.Attribute("id") is XAttribute idXml)
-										extraJson.Serialize("id", idXml.Value);
-									if (collectionID is not null)
-										extraJson.Serialize("collection", collectionID);
-									if (testXml.Attribute("source-line") is XAttribute sourceLineXml)
-										extraJson.Serialize("fileLine", long.Parse(sourceLineXml.Value, CultureInfo.InvariantCulture));
-									if (testXml.Attribute("type") is XAttribute typeXml)
-										extraJson.Serialize("type", typeXml.Value);
-									if (testXml.Attribute("method") is XAttribute methodXml)
-										extraJson.Serialize("method", methodXml.Value);
+							using var extraJson = testJson.SerializeObject("extra");
+							if (testXml.Attribute("id") is XAttribute idXml)
+								extraJson.Serialize("id", idXml.Value);
+							if (collectionID is not null)
+								extraJson.Serialize("collection", collectionID);
+							if (testXml.Attribute("source-line") is XAttribute sourceLineXml)
+								extraJson.Serialize("fileLine", long.Parse(sourceLineXml.Value, CultureInfo.InvariantCulture));
+							if (testXml.Attribute("type") is XAttribute typeXml)
+								extraJson.Serialize("type", typeXml.Value);
+							if (testXml.Attribute("method") is XAttribute methodXml)
+								extraJson.Serialize("method", methodXml.Value);
 
-									if (testXml.Element("reason") is XElement reasonXml)
-										extraJson.Serialize("reason", reasonXml.Value);
-									if (testXml.Element("output") is XElement outputXml)
-										extraJson.Serialize("output", outputXml.Value);
-									if (testXml.Element("warnings")?.Elements("warning") is IEnumerable<XElement> warningsXml)
-										using (var warningsJson = extraJson.SerializeArray("warnings"))
-											foreach (var warningXml in warningsXml)
-												warningsJson.Serialize(warningXml.Value);
+							if (testXml.Element("reason") is XElement reasonXml)
+								extraJson.Serialize("reason", reasonXml.Value);
+							if (testXml.Element("output") is XElement outputXml)
+								extraJson.Serialize("output", outputXml.Value);
+							if (testXml.Element("warnings")?.Elements("warning") is IEnumerable<XElement> warningsXml)
+								using (var warningsJson = extraJson.SerializeArray("warnings"))
+									foreach (var warningXml in warningsXml)
+										warningsJson.Serialize(warningXml.Value);
 
-									if (traits.Count != 0)
-										using (var traitsJson = extraJson.SerializeObject("traits"))
-											foreach (var kvp in traits)
-												using (var traitNameJson = traitsJson.SerializeArray(kvp.Key))
-													foreach (var value in kvp.Value)
-														traitNameJson.Serialize(value);
+							if (traits.Count != 0)
+								using (var traitsJson = extraJson.SerializeObject("traits"))
+									foreach (var kvp in traits)
+										using (var traitNameJson = traitsJson.SerializeArray(kvp.Key))
+											foreach (var value in kvp.Value)
+												traitNameJson.Serialize(value);
 
-									var attachmentsXml = testXml.Element("attachments")?.Elements("attachment");
-									if (attachmentsXml is not null)
-										using (var attachmentsJson = extraJson.SerializeObject("attachments"))
-											foreach (var attachmentXml in attachmentsXml)
-												if (attachmentXml.Attribute("name") is XAttribute nameXml)
+							var attachmentsXml = testXml.Element("attachments")?.Elements("attachment");
+							if (attachmentsXml is not null)
+								using (var attachmentsJson = extraJson.SerializeObject("attachments"))
+									foreach (var attachmentXml in attachmentsXml)
+										if (attachmentXml.Attribute("name") is XAttribute nameXml)
+										{
+											if (attachmentXml.Attribute("media-type") is not XAttribute mediaTypeXml)
+												attachmentsJson.Serialize(nameXml.Value, attachmentXml.Value);
+											else
+												using (var attachmentJson = attachmentsJson.SerializeObject(nameXml.Value))
 												{
-													if (attachmentXml.Attribute("media-type") is not XAttribute mediaTypeXml)
-														attachmentsJson.Serialize(nameXml.Value, attachmentXml.Value);
-													else
-														using (var attachmentJson = attachmentsJson.SerializeObject(nameXml.Value))
-														{
-															attachmentJson.Serialize("media-type", mediaTypeXml.Value);
-															attachmentJson.Serialize("value", attachmentXml.Value);
-														}
+													attachmentJson.Serialize("media-type", mediaTypeXml.Value);
+													attachmentJson.Serialize("value", attachmentXml.Value);
 												}
+										}
 
-									if (failureXml is not null && failureXml.Attribute("exception-type") is XAttribute exceptionXml)
-										extraJson.Serialize("exception", exceptionXml.Value);
-								}
-							}
-					}
+							if (failureXml is not null && failureXml.Attribute("exception-type") is XAttribute exceptionXml)
+								extraJson.Serialize("exception", exceptionXml.Value);
+						}
 				}
+			}
 		}
 
 		File.WriteAllText(outputFileName, buffer.ToString(), Encoding.UTF8);

@@ -60,10 +60,8 @@ public class XunitDelayEnumeratedTheoryTestCase : XunitTestCase
 				sourceFilePath,
 				sourceLineNumber,
 				timeout
-			)
-	{
-		SkipTestWithoutData = skipTestWithoutData;
-	}
+			) =>
+				SkipTestWithoutData = skipTestWithoutData;
 
 	/// <inheritdoc/>
 	protected override void Deserialize(IXunitSerializationInfo info)

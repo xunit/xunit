@@ -7,28 +7,20 @@ namespace Xunit;
 /// <summary>
 /// Contains the information by <see cref="IFrontControllerDiscoverer.Find"/>.
 /// </summary>
-public class FrontControllerFindSettings : FrontControllerSettingsBase
+/// <param name="options">The discovery options</param>
+/// <param name="filters">The optional filters (when not provided, finds all tests)</param>
+public class FrontControllerFindSettings(
+	ITestFrameworkDiscoveryOptions options,
+	XunitFilters? filters = null) :
+		FrontControllerSettingsBase
 {
-	/// <summary>
-	/// Initializes a new instance of the <see cref="FrontControllerFindSettings"/> class.
-	/// </summary>
-	/// <param name="options">The discovery options</param>
-	/// <param name="filters">The optional filters (when not provided, finds all tests)</param>
-	public FrontControllerFindSettings(
-		ITestFrameworkDiscoveryOptions options,
-		XunitFilters? filters = null)
-	{
-		Options = Guard.ArgumentNotNull(options);
-		Filters = filters ?? new XunitFilters();
-	}
-
 	/// <summary>
 	/// Get the test case filters used during discovery.
 	/// </summary>
-	public XunitFilters Filters { get; }
+	public XunitFilters Filters { get; } = filters ?? new XunitFilters();
 
 	/// <summary>
 	/// The options used during discovery.
 	/// </summary>
-	public ITestFrameworkDiscoveryOptions Options { get; }
+	public ITestFrameworkDiscoveryOptions Options { get; } = Guard.ArgumentNotNull(options);
 }

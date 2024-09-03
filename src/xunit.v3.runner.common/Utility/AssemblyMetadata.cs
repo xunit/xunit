@@ -19,7 +19,7 @@ public class AssemblyMetadata
 		int xunitVersion,
 		string? targetFramework)
 	{
-		Guard.ArgumentValid("xunitVersion must be between 0 and 3", xunitVersion >= 0 && xunitVersion <= 3, nameof(xunitVersion));
+		Guard.ArgumentValid("xunitVersion must be between 0 and 3", xunitVersion is >= 0 and <= 3, nameof(xunitVersion));
 
 		XunitVersion = xunitVersion;
 		TargetFrameworkIdentifier = TargetFrameworkIdentifier.UnknownTargetFramework;

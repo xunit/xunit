@@ -23,8 +23,7 @@ public abstract class MemberDataAttributeBase(
 {
 	static readonly Lazy<string> supportedDataSignatures;
 
-	static MemberDataAttributeBase()
-	{
+	static MemberDataAttributeBase() =>
 		supportedDataSignatures = new(() =>
 		{
 			var dataSignatures = new List<string>(18);
@@ -36,7 +35,6 @@ public abstract class MemberDataAttributeBase(
 
 			return string.Join(Environment.NewLine, dataSignatures);
 		});
-	}
 
 	/// <summary>
 	/// Gets or sets the arguments passed to the member. Only supported for static methods.
@@ -186,10 +184,10 @@ public abstract class MemberDataAttributeBase(
 				break;
 		}
 
-		if (fieldInfo is null || !fieldInfo.IsStatic)
-			return null;
-
-		return () => fieldInfo.GetValue(null);
+		return
+			fieldInfo is not null && fieldInfo.IsStatic
+				? (() => fieldInfo.GetValue(null))
+				: null;
 	}
 
 	Func<object?>? GetMethodAccessor(Type? type)
@@ -250,10 +248,10 @@ public abstract class MemberDataAttributeBase(
 				break;
 		}
 
-		if (propInfo is null || propInfo.GetMethod is null || !propInfo.GetMethod.IsStatic)
-			return null;
-
-		return () => propInfo.GetValue(null, null);
+		return
+			propInfo is not null && propInfo.GetMethod is not null && propInfo.GetMethod.IsStatic
+				? (() => propInfo.GetValue(null, null))
+				: null;
 	}
 
 	static IEnumerable<Type> GetTypesForMemberResolution(

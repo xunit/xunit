@@ -38,7 +38,7 @@ public abstract class OutOfProcessTestProcessLauncherBase : ITestProcessLauncher
 
 		string? responseFile = default;
 		string executable;
-		string executableArguments = string.Empty;
+		var executableArguments = string.Empty;
 
 		if (projectAssembly.AssemblyMetadata.TargetFrameworkIdentifier == TargetFrameworkIdentifier.DotNetCore)
 		{

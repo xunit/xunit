@@ -160,14 +160,13 @@ sealed class VstsClient : IDisposable
 			}
 
 			responseString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-			if (!JsonDeserializer.TryDeserialize(responseString, out var root))
-				throw new InvalidOperationException("Response was not JSON");
-			if (root is not IReadOnlyDictionary<string, object?> rootObject)
-				throw new InvalidOperationException("Response was not a JSON object");
-			if (!rootObject.TryGetValue("id", out var idProp) || idProp is not decimal id || id % 1 != 0)
-				throw new InvalidOperationException("Response JSON did not have an integer 'id' property");
-
-			return (int)id;
+			return !JsonDeserializer.TryDeserialize(responseString, out var root)
+				? throw new InvalidOperationException("Response was not JSON")
+				: root is not IReadOnlyDictionary<string, object?> rootObject
+					? throw new InvalidOperationException("Response was not a JSON object")
+					: !rootObject.TryGetValue("id", out var idProp) || idProp is not decimal id || id % 1 != 0
+						? throw new InvalidOperationException("Response JSON did not have an integer 'id' property")
+						: (int)id;
 		}
 		catch (Exception ex)
 		{

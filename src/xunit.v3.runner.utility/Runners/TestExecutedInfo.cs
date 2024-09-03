@@ -5,30 +5,23 @@ namespace Xunit.Runners;
 /// <summary>
 /// Represents information about a test that was executed.
 /// </summary>
-public abstract class TestExecutedInfo : TestInfo
+public abstract class TestExecutedInfo(
+	string typeName,
+	string methodName,
+	Dictionary<string, HashSet<string>>? traits,
+	string testDisplayName,
+	string testCollectionDisplayName,
+	decimal executionTime,
+	string? output) :
+		TestInfo(typeName, methodName, traits, testDisplayName, testCollectionDisplayName)
 {
-	/// <summary/>
-	protected TestExecutedInfo(
-		string typeName,
-		string methodName,
-		Dictionary<string, HashSet<string>>? traits,
-		string testDisplayName,
-		string testCollectionDisplayName,
-		decimal executionTime,
-		string? output)
-			: base(typeName, methodName, traits, testDisplayName, testCollectionDisplayName)
-	{
-		ExecutionTime = executionTime;
-		Output = output ?? string.Empty;
-	}
-
 	/// <summary>
 	/// The number of seconds the test spent executing.
 	/// </summary>
-	public decimal ExecutionTime { get; }
+	public decimal ExecutionTime { get; } = executionTime;
 
 	/// <summary>
 	/// The output from the test.
 	/// </summary>
-	public string Output { get; }
+	public string Output { get; } = output ?? string.Empty;
 }

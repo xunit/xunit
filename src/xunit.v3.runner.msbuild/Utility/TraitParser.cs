@@ -5,18 +5,13 @@ using Xunit.Internal;
 
 namespace Xunit.Runner.MSBuild;
 
-public class TraitParser
+/// <summary/>
+public class TraitParser(Action<string>? warningHandler = null)
 {
-	static readonly char[] TraitSeparator = { ';' };
-	static readonly char[] KeyValueSeparator = { '=' };
+	static readonly char[] TraitSeparator = [';'];
+	static readonly char[] KeyValueSeparator = ['='];
 
-	readonly Action<string>? warningHandler;
-
-	public TraitParser(Action<string>? warningHandler = null)
-	{
-		this.warningHandler = warningHandler;
-	}
-
+	/// <summary/>
 	public void Parse(
 		string? traits,
 		Dictionary<string, HashSet<string>> traitsDictionary)
@@ -38,6 +33,7 @@ public class TraitParser
 		}
 	}
 
+	/// <summary/>
 	protected virtual void OnWarning(string message)
 	{
 		Guard.ArgumentNotNullOrEmpty(message);

@@ -93,7 +93,7 @@ public class XunitTestClassRunner :
 	/// <param name="index">The parameter index.</param>
 	/// <param name="parameter">The parameter information.</param>
 	/// <returns>Returns the constructor argument if available, <c>null</c> otherwise.</returns>
-	protected async virtual ValueTask<object?> GetConstructorArgument(
+	protected virtual async ValueTask<object?> GetConstructorArgument(
 		XunitTestClassRunnerContext ctxt,
 		ConstructorInfo constructor,
 		int index,
@@ -109,10 +109,10 @@ public class XunitTestClassRunner :
 		// Logic to support passing Func<T> instead of T lives in XunitTestInvoker.CreateTestClassInstance
 		// The actual TestOutputHelper instance is created in XunitTestRunner.SetTestContext when creating
 		// the test context object.
-		if (parameter.ParameterType == typeof(ITestOutputHelper))
-			return () => TestContext.Current.TestOutputHelper;
-
-		return await ctxt.ClassFixtureMappings.GetFixture(parameter.ParameterType);
+		return
+			parameter.ParameterType == typeof(ITestOutputHelper)
+				? (() => TestContext.Current.TestOutputHelper)
+				: await ctxt.ClassFixtureMappings.GetFixture(parameter.ParameterType);
 	}
 
 	/// <inheritdoc/>
@@ -174,15 +174,12 @@ public class XunitTestClassRunner :
 		});
 
 		await ctxt.Aggregator.RunAsync(() =>
-		{
-			if (ctxt.TestClass.Class.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollectionFixture<>)))
-				throw new TestPipelineException("A test class may not be decorated with ICollectionFixture<> (decorate the test collection class instead).");
-
-			if (ctxt.TestClass.Constructors?.Count > 1)
-				throw new TestPipelineException("A test class may only define a single public constructor.");
-
-			return ctxt.ClassFixtureMappings.InitializeAsync(ctxt.TestClass.ClassFixtureTypes);
-		});
+			ctxt.TestClass.Class.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollectionFixture<>))
+				? throw new TestPipelineException("A test class may not be decorated with ICollectionFixture<> (decorate the test collection class instead).")
+				: ctxt.TestClass.Constructors?.Count > 1
+					? throw new TestPipelineException("A test class may only define a single public constructor.")
+					: ctxt.ClassFixtureMappings.InitializeAsync(ctxt.TestClass.ClassFixtureTypes)
+		);
 
 		return result;
 	}
@@ -270,18 +267,18 @@ public class XunitTestClassRunner :
 
 		// Technically not possible because of the design of IXunitTestClass, but this signature is imposed
 		// by the base class, which allows method-less tests
-		if (testMethod is null)
-			return new(XunitRunnerHelper.FailTestCases(ctxt.MessageBus, ctxt.CancellationTokenSource, testCases, "Test case '{0}' does not have an associated method and cannot be run by XunitTestMethodRunner", sendTestMethodMessages: true));
-
-		return XunitTestMethodRunner.Instance.RunAsync(
-			testMethod,
-			testCases,
-			ctxt.ExplicitOption,
-			ctxt.MessageBus,
-			ctxt.Aggregator.Clone(),
-			ctxt.CancellationTokenSource,
-			constructorArguments
-		);
+		return
+			testMethod is null
+				? new(XunitRunnerHelper.FailTestCases(ctxt.MessageBus, ctxt.CancellationTokenSource, testCases, "Test case '{0}' does not have an associated method and cannot be run by XunitTestMethodRunner", sendTestMethodMessages: true))
+				: XunitTestMethodRunner.Instance.RunAsync(
+					testMethod,
+					testCases,
+					ctxt.ExplicitOption,
+					ctxt.MessageBus,
+					ctxt.Aggregator.Clone(),
+					ctxt.CancellationTokenSource,
+					constructorArguments
+				);
 	}
 
 	/// <summary>
@@ -293,12 +290,12 @@ public class XunitTestClassRunner :
 		Guard.ArgumentNotNull(ctxt);
 
 		var ctors = ctxt.TestClass.Constructors;
-		if (ctors is null)
-			return null;
 
-		if (ctors.Count == 1)
-			return ctors.First();
-
-		throw new InvalidOperationException("Multiple constructors found; expected the context to have caught this earlier");
+		return ctors switch
+		{
+			null => null,
+			{ Count: 1 } => ctors.First(),
+			_ => throw new InvalidOperationException("Multiple constructors found; expected the context to have caught this earlier")
+		};
 	}
 }

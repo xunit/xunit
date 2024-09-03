@@ -132,7 +132,7 @@ public class TestAssemblyConfiguration
 	/// If the value is not set, returns the default value (<see cref="Environment.ProcessorCount"/>).
 	/// </summary>
 	public int MaxParallelThreadsOrDefault =>
-		MaxParallelThreads is null || MaxParallelThreads == 0
+		MaxParallelThreads is null or 0
 			? Environment.ProcessorCount
 			: MaxParallelThreads.Value;
 
@@ -166,7 +166,7 @@ public class TestAssemblyConfiguration
 	/// <summary>
 	/// Gets or sets the algorithm to be used for parallelization.
 	/// </summary>
-	public ParallelAlgorithm ParallelAlgorithmOrDefault { get { return ParallelAlgorithm ?? Sdk.ParallelAlgorithm.Conservative; } }
+	public ParallelAlgorithm ParallelAlgorithmOrDefault => ParallelAlgorithm ?? Sdk.ParallelAlgorithm.Conservative;
 
 	/// <summary>
 	/// Gets or sets a flag indicating that this assembly is safe to parallelize against

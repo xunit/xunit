@@ -20,7 +20,7 @@ namespace Xunit.Runner.v2;
 sealed class OptimizedRemoteMessageSink : MarshalByRefObject, IMessageSink, IDisposable
 {
 	readonly ReaderWriterLockSlim cacheLock = new();
-	readonly Dictionary<Type, HashSet<string>> interfaceCache = new();
+	readonly Dictionary<Type, HashSet<string>> interfaceCache = [];
 	readonly IMessageSinkWithTypes runnerSink;
 
 	public OptimizedRemoteMessageSink(IMessageSinkWithTypes runnerSink)
@@ -30,10 +30,8 @@ sealed class OptimizedRemoteMessageSink : MarshalByRefObject, IMessageSink, IDis
 		this.runnerSink = runnerSink;
 	}
 
-	public void Dispose()
-	{
+	public void Dispose() =>
 		cacheLock.Dispose();
-	}
 
 	HashSet<string> GetMessageTypes(IMessageSinkMessage message)
 	{
@@ -72,14 +70,9 @@ sealed class OptimizedRemoteMessageSink : MarshalByRefObject, IMessageSink, IDis
 #if NETFRAMEWORK
 	/// <inheritdoc/>
 	[System.Security.SecurityCritical]
-	public override sealed object InitializeLifetimeService() => null!;
+	public sealed override object InitializeLifetimeService() => null!;
 #endif
 
-	public bool OnMessage(IMessageSinkMessage? message)
-	{
-		if (message is not null)
-			return runnerSink.OnMessageWithTypes(message, GetMessageTypes(message));
-
-		return true;
-	}
+	public bool OnMessage(IMessageSinkMessage? message) =>
+		message is null || runnerSink.OnMessageWithTypes(message, GetMessageTypes(message));
 }

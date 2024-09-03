@@ -15,7 +15,7 @@ public sealed class LocalOutOfProcessTestProcessLauncher : OutOfProcessTestProce
 	public static LocalOutOfProcessTestProcessLauncher Instance { get; } = new();
 
 	/// <inheritdoc/>
-	protected override sealed ITestProcess? StartTestProcess(
+	protected sealed override ITestProcess? StartTestProcess(
 		string executable,
 		string executableArguments,
 		string? responseFile) =>

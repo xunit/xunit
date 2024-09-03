@@ -263,13 +263,13 @@ public static class SerializationHelper
 	}
 
 	static object? DeserializeEnum(string serializedValue) =>
-		DeserializeEmbeddedTypeValue(serializedValue, (type, embeddedValue) =>
-		{
-			if (!type.IsEnum)
-				throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Attempted to deserialize type '{0}' which was not an enum", type.SafeName()));
-
-			return Enum.Parse(type, embeddedValue);
-		});
+		DeserializeEmbeddedTypeValue(
+			serializedValue,
+			(type, embeddedValue) =>
+				type.IsEnum
+					? Enum.Parse(type, embeddedValue)
+					: throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Attempted to deserialize type '{0}' which was not an enum", type.SafeName()))
+		);
 
 	static object? DeserializeIndex(
 		ConstructorInfo indexCtor,
@@ -277,10 +277,10 @@ public static class SerializationHelper
 	{
 		try
 		{
-			if (serializedValue.StartsWith("^", StringComparison.Ordinal))
-				return indexCtor.Invoke([int.Parse(serializedValue.Substring(1), CultureInfo.InvariantCulture), true]);
-
-			return indexCtor.Invoke([int.Parse(serializedValue, CultureInfo.InvariantCulture), false]);
+			return
+				serializedValue.StartsWith("^", StringComparison.Ordinal)
+					? indexCtor.Invoke([int.Parse(serializedValue.Substring(1), CultureInfo.InvariantCulture), true])
+					: indexCtor.Invoke([int.Parse(serializedValue, CultureInfo.InvariantCulture), false]);
 		}
 		catch
 		{
@@ -386,19 +386,17 @@ public static class SerializationHelper
 	}
 
 	/// <summary>
-	/// Determines if an object instance is serializable. Note that null values always return true,
-	/// even if the underlying type (which is unknown) might not be serializable, so it's better to
-	/// test via <see cref="IsSerializable(object, Type)"/> whenever possible.
+	/// Determines if an object instance is serializable.
 	/// </summary>
 	/// <param name="value">The object to test for serializability.</param>
 	/// <returns>Returns <c>true</c> if the object can be serialized; <c>false</c>, otherwise.</returns>
-	public static bool IsSerializable(object? value)
-	{
-		if (value is null)
-			return true;
-
-		return IsSerializable(value, value.GetType());
-	}
+	/// <remarks>
+	/// As <c>null</c> values always return <c>true</c>, even if the underlying type (which is unknown)
+	/// might not be serializable, it's better to test via <see cref="IsSerializable(object?, Type?)"/>
+	/// whenever possible.
+	/// </remarks>
+	public static bool IsSerializable(object? value) =>
+		value is null || IsSerializable(value, value.GetType());
 
 	/// <summary>
 	/// Determines if a given type supports serialization.
@@ -487,16 +485,14 @@ public static class SerializationHelper
 
 		var typeIdxText = string.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", (int)typeIdx, coreValueType != nonNullableCoreValueType ? "?" : "", isArray ? "[]" : "");
 
-		if (value is null)
-			return typeIdxText;
-
-		if (isArray)
-			return string.Format(CultureInfo.InvariantCulture, "{0}:{1}", typeIdxText, SerializeArray((Array)value));
-
-		if (typeIdx == TypeIndex.Object)
-			throw new ArgumentException("Cannot serialize a non-null value of type 'System.Object'", nameof(value));
-
-		return string.Format(CultureInfo.InvariantCulture, "{0}:{1}", typeIdxText, serializer(value, nonNullableCoreValueType));
+		return
+			value is null
+				? typeIdxText
+				: isArray
+					? string.Format(CultureInfo.InvariantCulture, "{0}:{1}", typeIdxText, SerializeArray((Array)value))
+					: typeIdx != TypeIndex.Object
+						? string.Format(CultureInfo.InvariantCulture, "{0}:{1}", typeIdxText, serializer(value, nonNullableCoreValueType))
+						: throw new ArgumentException("Cannot serialize a non-null value of type 'System.Object'", nameof(value));
 	}
 
 	static string SerializeArray(Array array)
@@ -576,218 +572,19 @@ public static class SerializationHelper
 	/// </summary>
 	/// <param name="assemblyQualifiedTypeName">The assembly qualified type name ("TypeName,AssemblyName")</param>
 	/// <returns>The instance of the <see cref="Type"/>, if available; <c>null</c>, otherwise.</returns>
-	public static Type? SerializedTypeNameToType(string assemblyQualifiedTypeName)
-	{
-		Guard.ArgumentNotNull(assemblyQualifiedTypeName);
-
-		var firstOpenSquare = assemblyQualifiedTypeName.IndexOf('[');
-		if (firstOpenSquare > 0)
-		{
-			var backtick = assemblyQualifiedTypeName.IndexOf('`');
-			if (backtick > 0 && backtick < firstOpenSquare)
-			{
-				// Run the string looking for the matching closing square brace. Can't just assume the last one
-				// is the end, since the type could be trailed by array designators.
-				var depth = 1;
-				var lastOpenSquare = firstOpenSquare + 1;
-				var sawNonArrayDesignator = false;
-				for (; depth > 0 && lastOpenSquare < assemblyQualifiedTypeName.Length; ++lastOpenSquare)
-				{
-					switch (assemblyQualifiedTypeName[lastOpenSquare])
-					{
-						case '[': ++depth; break;
-						case ']': --depth; break;
-						case ',': break;
-						default: sawNonArrayDesignator = true; break;
-					}
-				}
-
-				if (sawNonArrayDesignator)
-				{
-					if (depth != 0)  // Malformed, because we never closed what we opened
-						return null;
-
-					var genericArgument = assemblyQualifiedTypeName.Substring(firstOpenSquare + 1, lastOpenSquare - firstOpenSquare - 2);  // Strip surrounding [ and ]
-					var innerTypeNames = SplitAtOuterCommas(genericArgument).Select(x => x.Substring(1, x.Length - 2)).ToArray();  // Strip surrounding [ and ] from each type name
-					var innerTypes = innerTypeNames.Select(s => SerializedTypeNameToType(s)).WhereNotNull().ToArray();
-
-					// Lengths won't be equal if any types failed to load (they'd show up as null, and we filtered out nulls)
-					if (innerTypes.Length != innerTypeNames.Length)
-						return null;
-
-					var genericDefinitionName = assemblyQualifiedTypeName.Substring(0, firstOpenSquare) + assemblyQualifiedTypeName.Substring(lastOpenSquare);
-					var genericDefinition = SerializedTypeNameToType(genericDefinitionName);
-					if (genericDefinition is null)
-						return null;
-
-					// Push array ranks so we can get down to the actual generic definition
-					var arrayRanks = new Stack<int>();
-					while (true)
-					{
-						var elementType = genericDefinition.GetElementType();
-						if (elementType is null)
-							break;
-
-						arrayRanks.Push(genericDefinition.GetArrayRank());
-						genericDefinition = elementType;
-					}
-
-					var closedGenericType = genericDefinition.MakeGenericType(innerTypes);
-					while (arrayRanks.Count > 0)
-					{
-						var rank = arrayRanks.Pop();
-						closedGenericType = rank > 1 ? closedGenericType.MakeArrayType(rank) : closedGenericType.MakeArrayType();
-					}
-
-					return closedGenericType;
-				}
-			}
-		}
-
-		var parts = SplitAtOuterCommas(assemblyQualifiedTypeName, true);
-		if (parts.Count == 0)
-			return null;
-		if (parts.Count == 1)
-			return Type.GetType(parts[0]);
-
-		var typeName = parts[0];
-		var assemblyName = parts[1];
-		var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.GetName().Name == assemblyName);
-		if (assembly is null)
-		{
-			try
-			{
-				assembly = Assembly.Load(assemblyName);
-			}
-			catch { }
-		}
-
-		if (assembly is null)
-			return null;
-
-		return assembly.GetType(typeName);
-	}
-
-	static IList<string> SplitAtOuterCommas(string value, bool trimWhitespace = false)
-	{
-		var results = new List<string>();
-
-		var startIndex = 0;
-		var endIndex = 0;
-		var depth = 0;
-
-		for (; endIndex < value.Length; ++endIndex)
-		{
-			switch (value[endIndex])
-			{
-				case '[': ++depth; break;
-				case ']': --depth; break;
-				case ',':
-					if (depth == 0)
-					{
-						results.Add(trimWhitespace ?
-							SubstringTrim(value, startIndex, endIndex - startIndex) :
-							value.Substring(startIndex, endIndex - startIndex));
-						startIndex = endIndex + 1;
-					}
-					break;
-			}
-		}
-
-		if (depth != 0 || startIndex >= endIndex)
-		{
-			results.Clear();
-		}
-		else
-		{
-			results.Add(trimWhitespace ?
-				SubstringTrim(value, startIndex, endIndex - startIndex) :
-				value.Substring(startIndex, endIndex - startIndex));
-		}
-
-		return results;
-	}
-
-	static string SubstringTrim(string str, int startIndex, int length)
-	{
-		int endIndex = startIndex + length;
-
-		while (startIndex < endIndex && char.IsWhiteSpace(str[startIndex]))
-			startIndex++;
-
-		while (endIndex > startIndex && char.IsWhiteSpace(str[endIndex - 1]))
-			endIndex--;
-
-		return str.Substring(startIndex, endIndex - startIndex);
-	}
+	public static Type? SerializedTypeNameToType(string assemblyQualifiedTypeName) =>
+		TypeHelper.GetType(assemblyQualifiedTypeName);
 
 	/// <summary>
 	/// Gets an assembly qualified type name for serialization.
 	/// </summary>
 	/// <param name="value">The type to get the name for</param>
 	/// <returns>A string in "TypeName" format (for mscorlib types) or "TypeName,AssemblyName" format (for all others)</returns>
-	public static string TypeToSerializedTypeName(Type value)
-	{
-		if (Guard.ArgumentNotNull(value).FullName is null)
-			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Cannot serialize typeof({0}) because it has no full name", value.Name), nameof(value));
+	public static string TypeToSerializedTypeName(Type value) =>
+		TypeHelper.GetTypeName(value);
 
-		// Use the abstract Type instead of concretes like RuntimeType
-		if (typeof(Type).IsAssignableFrom(value))
-			value = typeof(Type);
-
-		if (!value.IsFromLocalAssembly())
-			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Cannot serialize type '{0}' because it lives in the GAC", value.SafeName()), nameof(value));
-
-		var typeToMap = value;
-		if (typeToMap.Assembly.FullName is null)
-			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Cannot serialize type '{0}' because its assembly does not have a full name", value.SafeName()), nameof(value));
-
-		var typeName = typeToMap.SafeName();
-		var assemblyName = typeToMap.Assembly.FullName.Split(',')[0];
-
-		var arrayRanks = new Stack<int>();
-		while (true)
-		{
-			var elementType = typeToMap.GetElementType();
-			if (elementType is null)
-				break;
-
-			arrayRanks.Push(typeToMap.GetArrayRank());
-			typeToMap = elementType;
-		}
-
-		if (typeToMap.IsGenericType && !typeToMap.IsGenericTypeDefinition)
-		{
-			var typeDefinition = typeToMap.GetGenericTypeDefinition();
-			var innerTypes =
-				typeToMap
-					.GetGenericArguments()
-					.Select(t => string.Format(CultureInfo.InvariantCulture, "[{0}]", TypeToSerializedTypeName(t)))
-					.ToArray();
-
-			typeName = string.Format(CultureInfo.InvariantCulture, "{0}[{1}]", typeDefinition.SafeName(), string.Join(",", innerTypes));
-
-			while (arrayRanks.Count > 0)
-			{
-				typeName += '[';
-				for (var commas = arrayRanks.Pop() - 1; commas > 0; --commas)
-					typeName += ',';
-				typeName += ']';
-			}
-		}
-
-		if (string.Equals(assemblyName, "mscorlib", StringComparison.OrdinalIgnoreCase) ||
-			string.Equals(assemblyName, "System.Private.CoreLib", StringComparison.OrdinalIgnoreCase))
-			return typeName;
-
-		return string.Format(CultureInfo.InvariantCulture, "{0},{1}", typeName, assemblyName);
-	}
-
-	internal static string ToBase64(string value)
-	{
-		var bytes = Encoding.UTF8.GetBytes(value);
-		return Convert.ToBase64String(bytes);
-	}
+	internal static string ToBase64(string value) =>
+		Convert.ToBase64String(Encoding.UTF8.GetBytes(value));
 
 	sealed class ArraySerializer : IXunitSerializable
 	{
@@ -830,15 +627,15 @@ public static class SerializationHelper
 
 			array = Array.CreateInstance(elementType, lengths, lowerBounds);
 
-			int[] indices = new int[rank];
-			for (int i = 0; i < indices.Length; i++)
+			var indices = new int[rank];
+			for (var i = 0; i < indices.Length; i++)
 				indices[i] = lowerBounds[i];
 
-			for (int i = 0; i < totalLength; i++)
+			for (var i = 0; i < totalLength; i++)
 			{
 				var complete = false;
 
-				for (int dim = rank - 1; dim >= 0; dim--)
+				for (var dim = rank - 1; dim >= 0; dim--)
 				{
 					if (indices[dim] >= lowerBounds[dim] + lengths[dim])
 					{
@@ -847,7 +644,7 @@ public static class SerializationHelper
 							complete = true;
 							break;
 						}
-						for (int j = dim; j < rank; j++)
+						for (var j = dim; j < rank; j++)
 							indices[j] = lowerBounds[dim];
 						indices[dim - 1]++;
 					}
@@ -869,13 +666,13 @@ public static class SerializationHelper
 			info.AddValue("r", array.Rank);
 			info.AddValue("tl", array.Length);
 
-			for (int dimension = 0; dimension < array.Rank; dimension++)
+			for (var dimension = 0; dimension < array.Rank; dimension++)
 				info.AddValue(string.Format(CultureInfo.InvariantCulture, "l{0}", dimension), array.GetLength(dimension));
-			for (int dimension = 0; dimension < array.Rank; dimension++)
+			for (var dimension = 0; dimension < array.Rank; dimension++)
 				info.AddValue(string.Format(CultureInfo.InvariantCulture, "lb{0}", dimension), array.GetLowerBound(dimension));
 
-			int i = 0;
-			foreach (object obj in array)
+			var i = 0;
+			foreach (var obj in array)
 				info.AddValue(string.Format(CultureInfo.InvariantCulture, "i{0}", i++), obj, obj?.GetType() ?? elementType);
 		}
 	}

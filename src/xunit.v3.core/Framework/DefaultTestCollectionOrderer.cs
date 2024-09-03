@@ -39,10 +39,11 @@ public class DefaultTestCollectionOrderer : ITestCollectionOrderer
 		var xHash = x.UniqueID.GetHashCode();
 		var yHash = y.UniqueID.GetHashCode();
 
-		if (xHash == yHash)
-			return 0;
-		if (xHash < yHash)
-			return -1;
-		return 1;
+		return
+			xHash == yHash
+			? 0
+			: xHash < yHash
+				? -1
+				: 1;
 	}
 }

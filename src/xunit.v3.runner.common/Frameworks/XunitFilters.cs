@@ -88,23 +88,15 @@ public class XunitFilters
 
 		SplitFilters();
 
-		if (!FilterIncludedNamespaces(testCase))
-			return false;
-		if (!FilterExcludedNamespaces(testCase))
-			return false;
-		if (!FilterIncludedClasses(testCase))
-			return false;
-		if (!FilterExcludedClasses(testCase))
-			return false;
-		if (!FilterIncludedMethods(testCase))
-			return false;
-		if (!FilterExcludedMethods(testCase))
-			return false;
-		if (!FilterIncludedTraits(testCase))
-			return false;
-		if (!FilterExcludedTraits(testCase))
-			return false;
-		return true;
+		return
+			FilterIncludedNamespaces(testCase) &&
+			FilterExcludedNamespaces(testCase) &&
+			FilterIncludedClasses(testCase) &&
+			FilterExcludedClasses(testCase) &&
+			FilterIncludedMethods(testCase) &&
+			FilterExcludedMethods(testCase) &&
+			FilterIncludedTraits(testCase) &&
+			FilterExcludedTraits(testCase);
 	}
 
 	bool FilterExcludedClasses(ITestCaseMetadata testCase)
@@ -118,10 +110,7 @@ public class XunitFilters
 			return true;
 
 		// Exact match == do not pass
-		if (ExcludedClasses.Contains(testCase.TestClassName))
-			return false;
-
-		return true;
+		return !ExcludedClasses.Contains(testCase.TestClassName);
 	}
 
 	bool FilterExcludedMethods(ITestCaseMetadata testCase)
@@ -137,7 +126,7 @@ public class XunitFilters
 		var methodName = string.Format(CultureInfo.InvariantCulture, "{0}.{1}", testCase.TestClassName, testCase.TestMethodName);
 
 		// Standard exact match == do not pass
-		if (excludedMethodStandardFilters.Contains(methodName) == true)
+		if (excludedMethodStandardFilters.Contains(methodName))
 			return false;
 
 		// Regex match == do not pass
@@ -159,10 +148,7 @@ public class XunitFilters
 			return true;
 
 		// Exact match or starts-with match == do not pass
-		if (ExcludedNamespaces.Any(ns => testCase.TestClassNamespace.Equals(ns, StringComparison.OrdinalIgnoreCase) || testCase.TestClassNamespace.StartsWith(ns + ".", StringComparison.OrdinalIgnoreCase)))
-			return false;
-
-		return true;
+		return !ExcludedNamespaces.Any(ns => testCase.TestClassNamespace.Equals(ns, StringComparison.OrdinalIgnoreCase) || testCase.TestClassNamespace.StartsWith(ns + ".", StringComparison.OrdinalIgnoreCase));
 	}
 
 	bool FilterExcludedTraits(ITestCaseMetadata testCase)
@@ -194,10 +180,7 @@ public class XunitFilters
 			return false;
 
 		// Exact match == pass
-		if (IncludedClasses.Contains(testCase.TestClassName))
-			return true;
-
-		return false;
+		return IncludedClasses.Contains(testCase.TestClassName);
 	}
 
 	bool FilterIncludedMethods(ITestCaseMetadata testCase)
@@ -235,10 +218,7 @@ public class XunitFilters
 			return false;
 
 		// Exact match or starts-with match == pass
-		if (IncludedNamespaces.Any(ns => testCase.TestClassNamespace.Equals(ns, StringComparison.OrdinalIgnoreCase) || testCase.TestClassNamespace.StartsWith(ns + ".", StringComparison.OrdinalIgnoreCase)))
-			return true;
-
-		return false;
+		return IncludedNamespaces.Any(ns => testCase.TestClassNamespace.Equals(ns, StringComparison.OrdinalIgnoreCase) || testCase.TestClassNamespace.StartsWith(ns + ".", StringComparison.OrdinalIgnoreCase));
 	}
 
 	bool FilterIncludedTraits(ITestCaseMetadata testCase)
@@ -278,7 +258,7 @@ public class XunitFilters
 			return;
 
 		standardFilters = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-		regexFilters = new List<Regex>();
+		regexFilters = [];
 
 		foreach (var filter in toSplit)
 			if (filter.Contains("*") || filter.Contains("?"))
@@ -295,14 +275,10 @@ public class XunitFilters
 	// This class wraps HashSet<T>, tracking the last mutation date, and using itself
 	// as a lock for mutation (so that we can guarantee a stable data set when transferring
 	// the data into caches).
-	sealed class ChangeTrackingHashSet<T> : ICollection<T>
+	sealed class ChangeTrackingHashSet<T>(IEqualityComparer<T> comparer) :
+		ICollection<T>
 	{
-		readonly HashSet<T> innerCollection;
-
-		public ChangeTrackingHashSet(IEqualityComparer<T> comparer)
-		{
-			innerCollection = new HashSet<T>(comparer);
-		}
+		readonly HashSet<T> innerCollection = new(comparer);
 
 		public int Count => innerCollection.Count;
 
@@ -328,10 +304,19 @@ public class XunitFilters
 			}
 		}
 
-		public bool Contains(T item) => innerCollection.Contains(item);
-		public void CopyTo(T[] array, int arrayIndex) => innerCollection.CopyTo(array, arrayIndex);
-		public IEnumerator<T> GetEnumerator() => innerCollection.GetEnumerator();
-		IEnumerator IEnumerable.GetEnumerator() => innerCollection.GetEnumerator();
+		public bool Contains(T item) =>
+			innerCollection.Contains(item);
+
+		public void CopyTo(
+			T[] array,
+			int arrayIndex) =>
+				innerCollection.CopyTo(array, arrayIndex);
+
+		public IEnumerator<T> GetEnumerator() =>
+			innerCollection.GetEnumerator();
+
+		IEnumerator IEnumerable.GetEnumerator() =>
+			innerCollection.GetEnumerator();
 
 		public bool Remove(T item)
 		{

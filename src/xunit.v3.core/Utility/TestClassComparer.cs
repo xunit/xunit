@@ -17,15 +17,8 @@ public class TestClassComparer : IEqualityComparer<ITestClass?>
 	/// <inheritdoc/>
 	public bool Equals(
 		ITestClass? x,
-		ITestClass? y)
-	{
-		if (x is null && y is null)
-			return true;
-		if (x is null || y is null)
-			return false;
-
-		return x.UniqueID == y.UniqueID;
-	}
+		ITestClass? y) =>
+			(x is null && y is null) || (x is not null && y is not null && x.UniqueID == y.UniqueID);
 
 	/// <inheritdoc/>
 	public int GetHashCode(ITestClass? obj) =>

@@ -146,6 +146,9 @@ public class TestClassCallbackHandler : XmlNodeCallbackHandler
 					testCaseResults.Skipped++;
 					resultMessage = testCase.ToTestSkipped(xml.SelectSingleNode("reason/message")?.InnerText ?? "<unknown skip reason>", currentTestIndex);
 					break;
+
+				default:
+					break;
 			}
 
 			// Since we don't get live output from xUnit.net v1, we just send a single output message just before

@@ -1,6 +1,3 @@
-using Xunit.Abstractions;
-using Xunit.Runner.Common;
-
 namespace Xunit.Runner.v2;
 
 /// <summary>

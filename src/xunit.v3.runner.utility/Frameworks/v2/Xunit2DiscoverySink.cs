@@ -12,22 +12,12 @@ namespace Xunit.Runner.v2;
 /// An implementation of <see cref="IMessageSink"/> and <see cref="IMessageSinkWithTypes"/> which
 /// collects native xUnit.net v2 test cases, for use with <see cref="Xunit2.FindAndRun"/>.
 /// </summary>
-public class Xunit2DiscoverySink : MarshalByRefObject, IMessageSink, IMessageSinkWithTypes
+/// <param name="filters">The filters to be applied to the discovered test cases</param>
+public class Xunit2DiscoverySink(XunitFilters filters) :
+	MarshalByRefObject, IMessageSink, IMessageSinkWithTypes
 {
-	readonly Xunit2MessageAdapter adapter;
+	readonly Xunit2MessageAdapter adapter = new();
 	bool disposed;
-	readonly XunitFilters filters;
-
-	/// <summary>
-	/// Initializes a new instance of the <see cref="Xunit2DiscoverySink"/> class.
-	/// </summary>
-	/// <param name="filters">The filters to be applied to the discovered test cases</param>
-	public Xunit2DiscoverySink(XunitFilters filters)
-	{
-		this.filters = filters;
-
-		adapter = new Xunit2MessageAdapter();
-	}
 
 	/// <summary>
 	/// Gets an event which is signaled once discovery is finished.
@@ -37,7 +27,7 @@ public class Xunit2DiscoverySink : MarshalByRefObject, IMessageSink, IMessageSin
 	/// <summary>
 	/// The list of discovered test cases.
 	/// </summary>
-	public List<ITestCase> TestCases { get; } = new();
+	public List<ITestCase> TestCases { get; } = [];
 
 	static void Dispatch<TMessage>(
 		IMessageSinkMessage message,
@@ -83,7 +73,7 @@ public class Xunit2DiscoverySink : MarshalByRefObject, IMessageSink, IMessageSin
 #if NETFRAMEWORK
 	/// <inheritdoc/>
 	[System.Security.SecurityCritical]
-	public override sealed object InitializeLifetimeService() => null!;
+	public sealed override object InitializeLifetimeService() => null!;
 #endif
 
 	/// <inheritdoc/>

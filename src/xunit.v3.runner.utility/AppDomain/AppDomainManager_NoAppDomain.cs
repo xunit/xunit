@@ -1,8 +1,11 @@
 using System;
-using System.Globalization;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using Xunit.Internal;
+
+#if !NETFRAMEWORK
+using System.Globalization;
+#endif
 
 namespace Xunit;
 
@@ -26,10 +29,10 @@ sealed class AppDomainManager_NoAppDomain : IAppDomainManager
 #else
 			var type = Type.GetType(string.Format(CultureInfo.InvariantCulture, "{0}, {1}", typeName, assemblyName.FullName), throwOnError: true);
 #endif
-			if (type is null)
-				return default;
-
-			return (TObject?)Activator.CreateInstance(type, args);
+			return
+				type is not null
+					? (TObject?)Activator.CreateInstance(type, args)
+					: default;
 		}
 		catch (TargetInvocationException ex)
 		{
@@ -51,10 +54,11 @@ sealed class AppDomainManager_NoAppDomain : IAppDomainManager
 		try
 		{
 			var type = Assembly.LoadFrom(assemblyLocation).GetType(typeName, throwOnError: true);
-			if (type is null)
-				return default;
 
-			return (TObject?)Activator.CreateInstance(type, args);
+			return
+				type is not null
+					? (TObject?)Activator.CreateInstance(type, args)
+					: default;
 		}
 		catch (TargetInvocationException ex)
 		{

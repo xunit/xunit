@@ -320,24 +320,20 @@ public class Xunit2 : IFrontController
 		throw new InvalidOperationException("Could not find/load any of the following assemblies: " + string.Join(", ", supportedPlatformSuffixes.Select(suffix => string.Format(CultureInfo.InvariantCulture, "xunit.execution.{0}.dll", suffix)).ToArray()));
 	}
 
-	static string[] GetSupportedPlatformSuffixes(AppDomainSupport appDomainSupport)
-	{
+	static string[] GetSupportedPlatformSuffixes(AppDomainSupport appDomainSupport) =>
 #if NETFRAMEWORK
-		return appDomainSupport == AppDomainSupport.Required ? SupportedPlatforms_ForcedAppDomains : SupportedPlatforms;
+		appDomainSupport == AppDomainSupport.Required ? SupportedPlatforms_ForcedAppDomains : SupportedPlatforms;
 #else
-		return SupportedPlatforms;
+		SupportedPlatforms;
 #endif
-	}
 
-	static AssemblyName GetTestFrameworkAssemblyName(string xunitExecutionAssemblyPath)
-	{
+	static AssemblyName GetTestFrameworkAssemblyName(string xunitExecutionAssemblyPath) =>
 #if NETFRAMEWORK
-		return AssemblyName.GetAssemblyName(xunitExecutionAssemblyPath);
+		AssemblyName.GetAssemblyName(xunitExecutionAssemblyPath);
 #else
 		// Make sure we only use the short form
-		return Assembly.Load(new AssemblyName { Name = Path.GetFileNameWithoutExtension(xunitExecutionAssemblyPath), Version = new Version(0, 0, 0, 0) }).GetName();
+		Assembly.Load(new AssemblyName { Name = Path.GetFileNameWithoutExtension(xunitExecutionAssemblyPath), Version = new Version(0, 0, 0, 0) }).GetName();
 #endif
-	}
 
 	static string GetXunitExecutionAssemblyPath(
 		AppDomainSupport appDomainSupport,
@@ -714,7 +710,7 @@ public class Xunit2 : IFrontController
 #if NETFRAMEWORK
 		/// <inheritdoc/>
 		[System.Security.SecurityCritical]
-		public override sealed object InitializeLifetimeService() => null!;
+		public sealed override object InitializeLifetimeService() => null!;
 #endif
 	}
 

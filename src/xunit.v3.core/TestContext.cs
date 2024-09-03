@@ -303,10 +303,10 @@ public sealed class TestContext : IDisposable
 		else
 			lock (attachments)
 			{
-				if (attachments.ContainsKey(name))
-					throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Attempted to add an attachment with an existing name: '{0}'", name));
-				else
-					attachments[name] = TestAttachment.Create(value, mediaType);
+				attachments[name] =
+					!attachments.ContainsKey(name)
+						? TestAttachment.Create(value, mediaType)
+						: throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Attempted to add an attachment with an existing name: '{0}'", name));
 			}
 	}
 

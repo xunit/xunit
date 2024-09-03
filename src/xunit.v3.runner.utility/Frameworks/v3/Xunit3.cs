@@ -150,7 +150,7 @@ public class Xunit3 : IFrontController
 
 						if (message is null)
 							delegatingDiagnosticSink.OnMessage(new InternalDiagnosticMessage("Received unparseable output from test process: " + line));
-						else if (message is IDiagnosticMessage || message is IInternalDiagnosticMessage)
+						else if (message is IDiagnosticMessage or IInternalDiagnosticMessage)
 							delegatingDiagnosticSink.OnMessage(message);
 						else if (message is ITestCaseDiscovered testDiscovered)
 						{
@@ -277,7 +277,7 @@ public class Xunit3 : IFrontController
 
 						if (message is null)
 							delegatingDiagnosticSink.OnMessage(new InternalDiagnosticMessage("Received unparseable output from test process: " + line));
-						else if (message is IDiagnosticMessage || message is IInternalDiagnosticMessage)
+						else if (message is IDiagnosticMessage or IInternalDiagnosticMessage)
 							delegatingDiagnosticSink.OnMessage(message);
 						else
 							delegatingMessageSink.OnMessage(message);

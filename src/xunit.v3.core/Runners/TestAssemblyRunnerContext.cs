@@ -75,13 +75,10 @@ public class TestAssemblyRunnerContext<TTestAssembly, TTestCase>(
 	/// on the same thread.
 	/// </summary>
 	/// <returns>The message bus.</returns>
-	protected virtual IMessageBus CreateMessageBus()
-	{
-		if (ExecutionOptions.SynchronousMessageReportingOrDefault())
-			return new SynchronousMessageBus(ExecutionMessageSink, ExecutionOptions.StopOnTestFailOrDefault());
-
-		return new MessageBus(ExecutionMessageSink, ExecutionOptions.StopOnTestFailOrDefault());
-	}
+	protected virtual IMessageBus CreateMessageBus() =>
+		ExecutionOptions.SynchronousMessageReportingOrDefault()
+			? new SynchronousMessageBus(ExecutionMessageSink, ExecutionOptions.StopOnTestFailOrDefault())
+			: new MessageBus(ExecutionMessageSink, ExecutionOptions.StopOnTestFailOrDefault());
 
 	/// <inheritdoc/>
 	public virtual ValueTask DisposeAsync()

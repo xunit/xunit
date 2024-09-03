@@ -21,6 +21,7 @@ using MSBuildTask = Microsoft.Build.Utilities.Task;
 
 namespace Xunit.Runner.MSBuild;
 
+/// <summary/>
 public class xunit : MSBuildTask, ICancelableTask
 {
 	volatile bool cancel;
@@ -40,28 +41,39 @@ public class xunit : MSBuildTask, ICancelableTask
 	bool? showLiveOutput;
 	bool? stopOnFail;
 
+	/// <summary/>
 	public string? AppDomains { get; set; }
 
+	/// <summary/>
 	[Required]
 	public ITaskItem[]? Assemblies { get; set; }
 
+	/// <summary/>
 	public ITaskItem? Ctrf { get; set; }
 
+	/// <summary/>
 	public string? Culture { get; set; }
 
-	public bool DiagnosticMessages { set { diagnosticMessages = value; } }
+	/// <summary/>
+	public bool DiagnosticMessages { set => diagnosticMessages = value; }
 
+	/// <summary/>
 	public string? ExcludeTraits { get; set; }
 
+	/// <summary/>
 	public string? Explicit { get; set; }
 
+	/// <summary/>
 	[Output]
 	public int ExitCode { get; protected set; }
 
-	public bool FailSkips { set { failSkips = value; } }
+	/// <summary/>
+	public bool FailSkips { set => failSkips = value; }
 
-	public bool FailWarns { set { failWarns = value; } }
+	/// <summary/>
+	public bool FailWarns { set => failWarns = value; }
 
+	/// <summary/>
 	protected XunitFilters Filters
 	{
 		get
@@ -83,60 +95,84 @@ public class xunit : MSBuildTask, ICancelableTask
 		}
 	}
 
+	/// <summary/>
 	public ITaskItem? Html { get; set; }
 
+	/// <summary/>
 	public bool IgnoreFailures { get; set; }
 
+	/// <summary/>
 	public string? IncludeTraits { get; set; }
 
-	public bool InternalDiagnosticMessages { set { internalDiagnosticMessages = value; } }
+	/// <summary/>
+	public bool InternalDiagnosticMessages { set => internalDiagnosticMessages = value; }
 
+	/// <summary/>
 	public ITaskItem? JUnit { get; set; }
 
+	/// <summary/>
 	public string? MaxParallelThreads { get; set; }
 
+	/// <summary/>
 	public string? MethodDisplay { get; set; }
 
+	/// <summary/>
 	public string? MethodDisplayOptions { get; set; }
 
+	/// <summary/>
 	protected bool NeedsXml =>
 		Xml is not null || XmlV1 is not null || Html is not null || NUnit is not null || JUnit is not null || Ctrf is not null || Trx is not null;
 
+	/// <summary/>
 	public bool NoAutoReporters { get; set; }
 
+	/// <summary/>
 	public bool NoLogo { get; set; }
 
+	/// <summary/>
 	public ITaskItem? NUnit { get; set; }
 
+	/// <summary/>
 	public string? ParallelAlgorithm { get; set; }
 
-	public bool ParallelizeAssemblies { set { parallelizeAssemblies = value; } }
+	/// <summary/>
+	public bool ParallelizeAssemblies { set => parallelizeAssemblies = value; }
 
-	public bool ParallelizeTestCollections { set { parallelizeTestCollections = value; } }
+	/// <summary/>
+	public bool ParallelizeTestCollections { set => parallelizeTestCollections = value; }
 
-	public bool PreEnumerateTheories { set { preEnumerateTheories = value; } }
+	/// <summary/>
+	public bool PreEnumerateTheories { set => preEnumerateTheories = value; }
 
+	/// <summary/>
 	public string? Reporter { get; set; }
 
-	public bool ShadowCopy { set { shadowCopy = value; } }
+	/// <summary/>
+	public bool ShadowCopy { set => shadowCopy = value; }
 
-	public bool ShowLiveOutput { set { showLiveOutput = value; } }
+	/// <summary/>
+	public bool ShowLiveOutput { set => showLiveOutput = value; }
 
-	public bool StopOnFail { set { stopOnFail = value; } }
+	/// <summary/>
+	public bool StopOnFail { set => stopOnFail = value; }
 
+	/// <summary/>
 	public ITaskItem? Trx { get; set; }
 
+	/// <summary/>
 	public string? WorkingFolder { get; set; }
 
+	/// <summary/>
 	public ITaskItem? Xml { get; set; }
 
+	/// <summary/>
 	public ITaskItem? XmlV1 { get; set; }
 
-	public void Cancel()
-	{
+	/// <summary/>
+	public void Cancel() =>
 		cancel = true;
-	}
 
+	/// <summary/>
 	public override bool Execute() =>
 		ExecuteAsync().GetAwaiter().GetResult();
 
@@ -284,7 +320,7 @@ public class xunit : MSBuildTask, ICancelableTask
 				var warnings = new List<string>();
 				ConfigReader.Load(projectAssembly.Configuration, assemblyFileName, configFileName, warnings);
 
-				foreach (string warning in warnings)
+				foreach (var warning in warnings)
 					logger.LogWarning(warning);
 
 				if (appDomains.HasValue)
@@ -396,6 +432,7 @@ public class xunit : MSBuildTask, ICancelableTask
 		return ExitCode == 0 || (ExitCode == 1 && IgnoreFailures);
 	}
 
+	/// <summary/>
 	protected virtual async ValueTask<XElement?> ExecuteAssembly(
 		XunitProjectAssembly assembly,
 		AppDomainSupport? appDomains)
@@ -429,7 +466,7 @@ public class xunit : MSBuildTask, ICancelableTask
 				(false, AppDomainSupport.Required) => throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "AppDomains were required but assembly '{0}' does not support them", assembly.AssemblyFileName)),
 				(false, _) => AppDomainOption.NotAvailable,
 				(true, AppDomainSupport.Denied) => AppDomainOption.Disabled,
-				(true, _) => AppDomainOption.Enabled,
+				(true, _) or _ => AppDomainOption.Enabled,
 			};
 
 			var sinkOptions = new ExecutionSinkOptions
@@ -482,11 +519,12 @@ public class xunit : MSBuildTask, ICancelableTask
 		return assemblyElement;
 	}
 
+	/// <summary/>
 	protected virtual List<IRunnerReporter> GetAvailableRunnerReporters()
 	{
 		var runnerPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetLocalCodeBase());
 		if (runnerPath is null)
-			return new List<IRunnerReporter>();
+			return [];
 
 		var result = RunnerReporterUtility.GetAvailableRunnerReporters(runnerPath, includeEmbeddedReporters: true, out var messages);
 
@@ -498,6 +536,7 @@ public class xunit : MSBuildTask, ICancelableTask
 		return result;
 	}
 
+	/// <summary/>
 	protected IRunnerReporter? GetReporter()
 	{
 		var reporters = GetAvailableRunnerReporters();

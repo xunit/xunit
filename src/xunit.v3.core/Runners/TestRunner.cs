@@ -340,7 +340,7 @@ public abstract class TestRunner<TContext, TTest>
 		if (!await ctxt.Aggregator.RunAsync(() => OnTestStarting(ctxt), true))
 			ctxt.CancellationTokenSource.Cancel();
 
-		bool @continue = true;
+		var @continue = true;
 		TestResultState? resultState = null;
 
 		SetTestContext(ctxt, TestEngineStatus.Running);

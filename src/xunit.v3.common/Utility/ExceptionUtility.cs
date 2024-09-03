@@ -160,23 +160,17 @@ public static class ExceptionUtility
 
 	static string GetAt(
 		string?[]? values,
-		int index)
-	{
-		if (values is null || index < 0 || values.Length <= index)
-			return string.Empty;
-
-		return values[index] ?? string.Empty;
-	}
+		int index) =>
+			values is not null && index >= 0 && values.Length > index
+				? values[index] ?? string.Empty
+				: string.Empty;
 
 	static int GetAt(
 		int[]? values,
-		int index)
-	{
-		if (values is null || values.Length <= index)
-			return -1;
-
-		return values[index];
-	}
+		int index) =>
+			values is not null && values.Length > index
+				? values[index]
+				: -1;
 
 	static string GetMessage(
 		IErrorMetadata errorMetadata,
@@ -211,10 +205,7 @@ public static class ExceptionUtility
 	static string GetNamespace(string exceptionType)
 	{
 		var nsIndex = exceptionType.LastIndexOf('.');
-		if (nsIndex > 0)
-			return exceptionType.Substring(0, nsIndex);
-
-		return "";
+		return nsIndex > 0 ? exceptionType.Substring(0, nsIndex) : "";
 	}
 
 	static string? GetStackTrace(

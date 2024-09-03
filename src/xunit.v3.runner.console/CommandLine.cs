@@ -1,3 +1,5 @@
+#pragma warning disable CA1515  // This type is public for testing purposes
+
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -17,20 +19,16 @@ public class CommandLine : CommandLineParserBase
 		ConsoleHelper consoleHelper,
 		IReadOnlyList<IRunnerReporter> reporters,
 		string[] args)
-			: base(consoleHelper, reporters, null, args)
-	{
-		AddParsers();
-	}
+			: base(consoleHelper, reporters, null, args) =>
+				AddParsers();
 
 	/// <summary/>
 	public CommandLine(
 		ConsoleHelper consoleHelper,
 		string? reporterFolder,
 		string[] args)
-			: base(consoleHelper, null, reporterFolder, args)
-	{
-		AddParsers();
-	}
+			: base(consoleHelper, null, reporterFolder, args) =>
+				AddParsers();
 
 	private void AddParsers()
 	{
@@ -139,11 +137,11 @@ public class CommandLine : CommandLineParserBase
 			var assemblyFileName = Args[argsStartIndex++];
 
 			int? seed = null;
-			int seedIndex = assemblyFileName.LastIndexOf(':');
+			var seedIndex = assemblyFileName.LastIndexOf(':');
 			if (seedIndex > 1)  // Skip colon from drive letter
 			{
 				var seedValueText = assemblyFileName.Substring(seedIndex + 1);
-				if (!int.TryParse(seedValueText, NumberStyles.None, NumberFormatInfo.CurrentInfo, out int parsedValue) || parsedValue < 0)
+				if (!int.TryParse(seedValueText, NumberStyles.None, NumberFormatInfo.CurrentInfo, out var parsedValue) || parsedValue < 0)
 					throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "invalid seed value '{0}' (must be an integer in the range of 0 - 2147483647)", seedValueText));
 
 				seed = parsedValue;

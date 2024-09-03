@@ -15,7 +15,7 @@ internal sealed class AutomatedDiagnosticMessageSink(
 	{
 		Guard.ArgumentNotNull(message);
 
-		if (message is IDiagnosticMessage || message is IInternalDiagnosticMessage)
+		if (message is IDiagnosticMessage or IInternalDiagnosticMessage)
 			lock (consoleHelper.LockObject)
 				consoleHelper.WriteMessage(message, automatedMode);
 

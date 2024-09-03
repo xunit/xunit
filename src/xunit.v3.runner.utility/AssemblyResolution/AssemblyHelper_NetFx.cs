@@ -66,7 +66,7 @@ public class AssemblyHelper : MarshalByRefObject, IDisposable
 
 	/// <inheritdoc/>
 	[SecurityCritical]
-	public override sealed object InitializeLifetimeService() => null!;
+	public sealed override object InitializeLifetimeService() => null!;
 
 	Assembly? LoadAssembly(AssemblyName assemblyName)
 	{
@@ -93,13 +93,10 @@ public class AssemblyHelper : MarshalByRefObject, IDisposable
 
 	Assembly? Resolve(
 		object? sender,
-		ResolveEventArgs args)
-	{
-		if (args.Name is null)
-			return null;
-
-		return LoadAssembly(new AssemblyName(args.Name));
-	}
+		ResolveEventArgs args) =>
+			args.Name is not null
+				? LoadAssembly(new AssemblyName(args.Name))
+				: null;
 
 	static Assembly? ResolveAndLoadAssembly(
 		string pathWithoutExtension,

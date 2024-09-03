@@ -69,15 +69,15 @@ public class ExecutionSink : IMessageSink, IDisposable
 		if (options.LongRunningTestTime > TimeSpan.Zero)
 			executingTestCases = [];
 
-		if (options.AssemblyElement is not null)
-			errorsElement = new(() =>
-			{
-				var result = new XElement("errors");
-				options.AssemblyElement.Add(result);
-				return result;
-			});
-		else
-			errorsElement = new(() => new XElement("errors"));
+		errorsElement =
+			options.AssemblyElement is null
+				? new(() => new XElement("errors"))
+				: new(() =>
+				{
+					var result = new XElement("errors");
+					options.AssemblyElement.Add(result);
+					return result;
+				});
 	}
 
 	/// <inheritdoc/>
@@ -520,10 +520,10 @@ public class ExecutionSink : IMessageSink, IDisposable
 			metadataCache.Set(args.Message);
 	}
 
-	static IMessageSinkMessage MutateForFailSkips(IMessageSinkMessage message)
-	{
-		if (message is ITestSkipped testSkipped)
-			return new TestFailed
+	static IMessageSinkMessage MutateForFailSkips(IMessageSinkMessage message) =>
+		message switch
+		{
+			ITestSkipped testSkipped => new TestFailed
 			{
 				AssemblyUniqueID = testSkipped.AssemblyUniqueID,
 				Cause = FailureCause.Other,
@@ -540,10 +540,8 @@ public class ExecutionSink : IMessageSink, IDisposable
 				TestMethodUniqueID = testSkipped.TestMethodUniqueID,
 				TestUniqueID = testSkipped.TestUniqueID,
 				Warnings = testSkipped.Warnings,
-			};
-
-		if (message is ITestCaseFinished testCaseFinished)
-			return new TestCaseFinished
+			},
+			ITestCaseFinished testCaseFinished => new TestCaseFinished
 			{
 				AssemblyUniqueID = testCaseFinished.AssemblyUniqueID,
 				ExecutionTime = testCaseFinished.ExecutionTime,
@@ -555,10 +553,8 @@ public class ExecutionSink : IMessageSink, IDisposable
 				TestsNotRun = testCaseFinished.TestsNotRun,
 				TestsTotal = testCaseFinished.TestsTotal,
 				TestsSkipped = 0,
-			};
-
-		if (message is ITestMethodFinished testMethodFinished)
-			return new TestMethodFinished
+			},
+			ITestMethodFinished testMethodFinished => new TestMethodFinished
 			{
 				AssemblyUniqueID = testMethodFinished.AssemblyUniqueID,
 				ExecutionTime = testMethodFinished.ExecutionTime,
@@ -569,10 +565,8 @@ public class ExecutionSink : IMessageSink, IDisposable
 				TestsNotRun = testMethodFinished.TestsNotRun,
 				TestsTotal = testMethodFinished.TestsTotal,
 				TestsSkipped = 0,
-			};
-
-		if (message is ITestClassFinished testClassFinished)
-			return new TestClassFinished
+			},
+			ITestClassFinished testClassFinished => new TestClassFinished
 			{
 				AssemblyUniqueID = testClassFinished.AssemblyUniqueID,
 				ExecutionTime = testClassFinished.ExecutionTime,
@@ -582,10 +576,8 @@ public class ExecutionSink : IMessageSink, IDisposable
 				TestsNotRun = testClassFinished.TestsNotRun,
 				TestsTotal = testClassFinished.TestsTotal,
 				TestsSkipped = 0,
-			};
-
-		if (message is ITestCollectionFinished testCollectionFinished)
-			return new TestCollectionFinished
+			},
+			ITestCollectionFinished testCollectionFinished => new TestCollectionFinished
 			{
 				AssemblyUniqueID = testCollectionFinished.AssemblyUniqueID,
 				ExecutionTime = testCollectionFinished.ExecutionTime,
@@ -594,10 +586,8 @@ public class ExecutionSink : IMessageSink, IDisposable
 				TestsNotRun = testCollectionFinished.TestsNotRun,
 				TestsTotal = testCollectionFinished.TestsTotal,
 				TestsSkipped = 0,
-			};
-
-		if (message is ITestAssemblyFinished assemblyFinished)
-			return new TestAssemblyFinished
+			},
+			ITestAssemblyFinished assemblyFinished => new TestAssemblyFinished
 			{
 				AssemblyUniqueID = assemblyFinished.AssemblyUniqueID,
 				ExecutionTime = assemblyFinished.ExecutionTime,
@@ -606,10 +596,9 @@ public class ExecutionSink : IMessageSink, IDisposable
 				TestsNotRun = assemblyFinished.TestsNotRun,
 				TestsTotal = assemblyFinished.TestsTotal,
 				TestsSkipped = 0,
-			};
-
-		return message;
-	}
+			},
+			_ => message,
+		};
 
 	IMessageSinkMessage MutateForFailWarn(IMessageSinkMessage message)
 	{
@@ -671,7 +660,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 
 		if (message is ITestMethodFinished testMethodFinished)
 		{
-			int failedByMethod = 0;
+			var failedByMethod = 0;
 
 			if (testMethodFinished.TestMethodUniqueID is not null)
 				lock (failCountsByUniqueID)
@@ -694,7 +683,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 
 		if (message is ITestClassFinished testClassFinished)
 		{
-			int failedByClass = 0;
+			var failedByClass = 0;
 
 			if (testClassFinished.TestClassUniqueID is not null)
 				lock (failCountsByUniqueID)
@@ -899,7 +888,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 		var escapedValue = new StringBuilder(value.Length);
 		for (var idx = 0; idx < value.Length; ++idx)
 		{
-			char ch = value[idx];
+			var ch = value[idx];
 			if (ch < 32)
 				escapedValue.Append(string.Format(CultureInfo.InvariantCulture, @"\x{0:x2}", +ch));
 			else if (char.IsSurrogatePair(value, idx)) // Takes care of the case when idx + 1 == value.Length

@@ -1,3 +1,5 @@
+#pragma warning disable IDE0161
+
 // Important note: do not "modernize" this file, as it's used by CSharpAcceptanceTestV3Assembly, which
 // does not use a current compiler version.
 

@@ -49,7 +49,7 @@ public class TestInvokerContext<TTest> : ContextBase
 		{
 			var parameter = TestMethod.GetParameters()[0];
 			var elementType = parameter.ParameterType.GetElementType();
-			if (parameter.GetCustomAttribute(typeof(ParamArrayAttribute)) is not null && elementType is not null)
+			if (parameter.GetCustomAttribute<ParamArrayAttribute>() is not null && elementType is not null)
 				TestMethodArguments = [Array.CreateInstance(elementType, 0)];
 		}
 	}

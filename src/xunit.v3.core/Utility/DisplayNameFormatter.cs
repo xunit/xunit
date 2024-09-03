@@ -41,12 +41,10 @@ public class DisplayNameFormatter
 			rule = new ReplaceOperatorMonikerRule() { Next = rule };
 
 		if (display == TestMethodDisplay.ClassAndMethod)
-		{
-			if ((displayOptions & TestMethodDisplayOptions.ReplacePeriodWithComma) == TestMethodDisplayOptions.ReplacePeriodWithComma)
-				rule = new ReplacePeriodRule() { Next = rule };
-			else
-				rule = new KeepPeriodRule() { Next = rule };
-		}
+			rule =
+				(displayOptions & TestMethodDisplayOptions.ReplacePeriodWithComma) == TestMethodDisplayOptions.ReplacePeriodWithComma
+					? new ReplacePeriodRule() { Next = rule }
+					: new KeepPeriodRule() { Next = rule };
 	}
 
 	/// <summary>
@@ -216,7 +214,8 @@ public class DisplayNameFormatter
 			return consumed;
 		}
 
-		static bool IsHex(char c) => (c > 64 && c < 71) || (c > 47 && c < 58);
+		static bool IsHex(char c) =>
+			c is (>= '0' and <= '9') or (>= 'A' and <= 'F');
 
 		static int HexToInt32(char[] hex)
 		{
@@ -226,7 +225,7 @@ public class DisplayNameFormatter
 			for (var i = 0; i <= length; i++)
 			{
 				var c = hex[i];
-				var v = c < 58 ? c - 48 : c - 55;
+				var v = c <= '9' ? c - '0' : c - 'A' + 10;
 				@int += v << ((length - i) << 2);
 			}
 

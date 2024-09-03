@@ -72,13 +72,10 @@ public class XunitSerializationInfo : IXunitSerializationInfo
 	}
 
 	/// <inheritdoc/>
-	public object? GetValue(string key)
-	{
-		if (data.TryGetValue(key, out var value))
-			return SerializationHelper.Deserialize(value);
-
-		return null;
-	}
+	public object? GetValue(string key) =>
+		data.TryGetValue(key, out var value)
+			? SerializationHelper.Deserialize(value)
+			: null;
 
 	/// <summary>
 	/// Returns Base64 encoded string that represents the entirety of the data.

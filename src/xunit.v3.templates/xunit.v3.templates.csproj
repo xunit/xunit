@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <BeforePack>_UpdateTemplates</BeforePack>
+    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
     <NoWarn>$(NoWarn);NU5128</NoWarn>
     <TargetFramework>netstandard2.0</TargetFramework>
     <VisualStudioRunnerTemplateVersion Condition=" '$(VisualStudioRunnerTemplateVersion)' == '' ">$(XunitVisualStudioRunnerVersion)</VisualStudioRunnerTemplateVersion>

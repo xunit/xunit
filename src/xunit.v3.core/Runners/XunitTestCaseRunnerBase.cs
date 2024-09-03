@@ -144,19 +144,19 @@ public class XunitTestCaseRunnerBase<TContext, TTestCase> : TestCaseRunner<TCont
 	{
 		Guard.ArgumentNotNull(ctxt);
 
-		if (exception is not null)
-			return XunitRunnerHelper.FailTestCases(ctxt.MessageBus, ctxt.CancellationTokenSource, [ctxt.TestCase], exception, sendTestCaseMessages: false);
-
-		return await XunitTestRunner.Instance.RunAsync(
-			CreateTest(ctxt, ctxt.TestCase.TestMethod, @explicit: null, displayName: null, testIndex: 0, ctxt.TestCase.Traits, ctxt.TestCase.Timeout),
-			ctxt.MessageBus,
-			ctxt.ConstructorArguments,
-			ctxt.TestMethodArguments,
-			ctxt.SkipReason,
-			ctxt.ExplicitOption,
-			ctxt.Aggregator.Clone(),
-			ctxt.CancellationTokenSource,
-			ctxt.BeforeAfterTestAttributes
-		);
+		return
+			exception is not null
+				? XunitRunnerHelper.FailTestCases(ctxt.MessageBus, ctxt.CancellationTokenSource, [ctxt.TestCase], exception, sendTestCaseMessages: false)
+				: await XunitTestRunner.Instance.RunAsync(
+					CreateTest(ctxt, ctxt.TestCase.TestMethod, @explicit: null, displayName: null, testIndex: 0, ctxt.TestCase.Traits, ctxt.TestCase.Timeout),
+					ctxt.MessageBus,
+					ctxt.ConstructorArguments,
+					ctxt.TestMethodArguments,
+					ctxt.SkipReason,
+					ctxt.ExplicitOption,
+					ctxt.Aggregator.Clone(),
+					ctxt.CancellationTokenSource,
+					ctxt.BeforeAfterTestAttributes
+				);
 	}
 }

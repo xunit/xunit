@@ -180,7 +180,7 @@ public class ConsoleRunner(
 				if (!reporter.ForceNoLogo && !project.Configuration.NoLogoOrDefault)
 					ProjectAssemblyRunner.PrintHeader(consoleHelper);
 
-				foreach (string warning in commandLine.ParseWarnings)
+				foreach (var warning in commandLine.ParseWarnings)
 					if (automatedMode != AutomatedMode.Off)
 						consoleHelper.WriteMessage(new DiagnosticMessage("warning: " + warning), automatedMode);
 					else

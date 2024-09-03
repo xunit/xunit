@@ -24,14 +24,12 @@ public class MaxConcurrencySyncContext : SynchronizationContext, IDisposable
 	/// Initializes a new instance of the <see cref="MaxConcurrencySyncContext"/> class.
 	/// </summary>
 	/// <param name="maximumConcurrencyLevel">The maximum number of tasks to run at any one time.</param>
-	public MaxConcurrencySyncContext(int maximumConcurrencyLevel)
-	{
+	public MaxConcurrencySyncContext(int maximumConcurrencyLevel) =>
 		workerThreads =
 			Enumerable
 				.Range(0, maximumConcurrencyLevel)
 				.Select(_ => { var result = new Thread(WorkerThreadProc); result.Start(); return result; })
 				.ToList();
-	}
 
 	/// <inheritdoc/>
 	public void Dispose()

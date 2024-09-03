@@ -11,7 +11,7 @@ namespace Xunit.Runner.Common;
 /// </summary>
 public class ConsoleRunnerLogger : IRunnerLogger
 {
-	readonly static Regex ansiSgrRegex = new("\\e\\[\\d*(;\\d*)*m");
+	static readonly Regex ansiSgrRegex = new("\\e\\[\\d*(;\\d*)*m");
 	readonly ConsoleHelper consoleHelper;
 	readonly bool useColors;
 	readonly bool waitForAcknowledgment;

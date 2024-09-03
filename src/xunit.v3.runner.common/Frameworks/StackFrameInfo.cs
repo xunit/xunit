@@ -15,7 +15,7 @@ public readonly partial struct StackFrameInfo(
 	string? fileName,
 	int lineNumber)
 {
-	readonly static Regex stackFrameRegex = GetStackFrameRegex();
+	static readonly Regex stackFrameRegex = GetStackFrameRegex();
 
 	/// <summary>
 	/// Gets the filename of the stack frame. May be <c>null</c> if the stack frame is not known.
@@ -79,9 +79,9 @@ public readonly partial struct StackFrameInfo(
 		}
 		catch { }  // Ignore failures that might be related to non-public reflection
 
-		if (wordAt is null || wordAt == "Word_At")
+		if (wordAt is null or "Word_At")
 			wordAt = "at";
-		if (wordsInLine is null || wordsInLine == "StackTrace_InFileLineNumber")
+		if (wordsInLine is null or "StackTrace_InFileLineNumber")
 			wordsInLine = "in {0}:line {1}";
 
 		wordsInLine = wordsInLine.Replace("{0}", "(?<file>.*)").Replace("{1}", "(?<line>\\d+)");

@@ -117,13 +117,10 @@ public class TestAttachment
 	/// Gets a string value for the test attachment. For string value attachments, will return the string value;
 	/// for byte array values, it will return the base-64 encoded value of the bytes.
 	/// </summary>
-	public override string ToString()
-	{
-		if (stringValue is not null)
-			return StringHeader + stringValue;
-		if (byteArrayValue is not null)
-			return string.Format(CultureInfo.InvariantCulture, "{0}{1};{2}", BinaryHeader, mediaType, Convert.ToBase64String(byteArrayValue));
-
-		return "<unset>";
-	}
+	public override string ToString() =>
+		stringValue is not null
+			? StringHeader + stringValue
+			: byteArrayValue is not null
+				? string.Format(CultureInfo.InvariantCulture, "{0}{1};{2}", BinaryHeader, mediaType, Convert.ToBase64String(byteArrayValue))
+				: "<unset>";
 }

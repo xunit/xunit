@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Xunit.Runner.SystemConsole;
 
-public static class Program
+internal static class Program
 {
 	[STAThread]
 	public static Task<int> Main(string[] args) =>

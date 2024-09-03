@@ -24,13 +24,10 @@ public abstract class TestCollectionFactoryBase(IXunitTestAssembly testAssembly)
 	/// </summary>
 	protected IXunitTestAssembly TestAssembly { get; } = Guard.ArgumentNotNull(testAssembly);
 
-	IXunitTestCollection CreateCollection(ICollectionAttribute attribute)
-	{
-		if (TestAssembly.CollectionDefinitions.TryGetValue(attribute.Name, out var definition))
-			return new XunitTestCollection(TestAssembly, definition.Type, definition.Attribute.DisableParallelization, attribute.Name);
-
-		return new XunitTestCollection(TestAssembly, attribute.Type, disableParallelization: false, attribute.Name);
-	}
+	IXunitTestCollection CreateCollection(ICollectionAttribute attribute) =>
+		TestAssembly.CollectionDefinitions.TryGetValue(attribute.Name, out var definition)
+			? new XunitTestCollection(TestAssembly, definition.Type, definition.Attribute.DisableParallelization, attribute.Name)
+			: (IXunitTestCollection)new XunitTestCollection(TestAssembly, attribute.Type, disableParallelization: false, attribute.Name);
 
 	/// <inheritdoc/>
 	public IXunitTestCollection Get(Type testClass)
@@ -38,20 +35,12 @@ public abstract class TestCollectionFactoryBase(IXunitTestAssembly testAssembly)
 		Guard.ArgumentNotNull(testClass);
 
 		var attributes = testClass.GetMatchingCustomAttributes(typeof(ICollectionAttribute));
-		if (attributes.Count > 1)
-			throw new ArgumentException(
-				string.Format(
-					CultureInfo.CurrentCulture,
-					"More than one collection attribute was found on test class {0}: {1}",
-					testClass.SafeName(),
-					string.Join(", ", attributes.Select(a => a.GetType()).ToCommaSeparatedList())
-				)
-			);
 
-		if (attributes.FirstOrDefault() is ICollectionAttribute attribute)
-			return testCollections.GetOrAdd(attribute.Name, _ => CreateCollection(attribute));
-
-		return GetDefaultTestCollection(testClass);
+		return attributes.Count > 1
+			? throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "More than one collection attribute was found on test class {0}: {1}", testClass.SafeName(), string.Join(", ", attributes.Select(a => a.GetType()).ToCommaSeparatedList())))
+			: attributes.FirstOrDefault() is ICollectionAttribute attribute
+				? testCollections.GetOrAdd(attribute.Name, _ => CreateCollection(attribute))
+				: GetDefaultTestCollection(testClass);
 	}
 
 	/// <summary>

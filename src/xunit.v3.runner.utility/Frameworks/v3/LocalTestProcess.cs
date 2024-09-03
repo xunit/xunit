@@ -106,10 +106,11 @@ public sealed class LocalTestProcess : ITestProcess
 		};
 
 		var process = Process.Start(psi);
-		if (process is null)
-			return null;
 
-		return new LocalTestProcess(process, responseFile);
+		return
+			process is not null
+				? new LocalTestProcess(process, responseFile)
+				: null;
 	}
 
 	/// <inheritdoc/>

@@ -107,7 +107,7 @@ public class CommandLine : CommandLineParserBase
 #endif
 		{
 			var seedValueText = Args[argsStartIndex].Substring(1);
-			if (!int.TryParse(seedValueText, NumberStyles.None, NumberFormatInfo.CurrentInfo, out int parsedValue) || parsedValue < 0)
+			if (!int.TryParse(seedValueText, NumberStyles.None, NumberFormatInfo.CurrentInfo, out var parsedValue) || parsedValue < 0)
 				throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "invalid seed value '{0}' (must be an integer in the range of 0 - 2147483647)", seedValueText));
 
 			seed = parsedValue;

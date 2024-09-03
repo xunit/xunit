@@ -41,22 +41,15 @@ public static class AssemblyExtensions
 
 		// POSIX-style directories
 		if (directorySeparator == '/')
-		{
-			if (localFile)
-				return codeBase.Substring(7);
-
-			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "UNC-style codebase '{0}' is not supported on POSIX-style file systems.", codeBase), nameof(codeBase));
-		}
+			return localFile
+				? codeBase.Substring(7)
+				: throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "UNC-style codebase '{0}' is not supported on POSIX-style file systems.", codeBase), nameof(codeBase));
 
 		// Windows-style directories
 		if (directorySeparator == '\\')
 		{
 			codeBase = codeBase.Replace('/', '\\');
-
-			if (localFile)
-				return codeBase.Substring(8);
-
-			return codeBase.Substring(5);
+			return localFile ? codeBase.Substring(8) : codeBase.Substring(5);
 		}
 
 		throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Unknown directory separator '{0}'; must be one of '/' or '\\'.", directorySeparator), nameof(directorySeparator));
@@ -94,9 +87,6 @@ public static class AssemblyExtensions
 		Guard.ArgumentNotNull(assembly);
 
 		var targetFrameworkAttribute = assembly.GetCustomAttribute<TargetFrameworkAttribute>();
-		if (targetFrameworkAttribute is not null)
-			return targetFrameworkAttribute.FrameworkName;
-
-		return UnknownTargetFramework;
+		return targetFrameworkAttribute is not null ? targetFrameworkAttribute.FrameworkName : UnknownTargetFramework;
 	}
 }

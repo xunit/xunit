@@ -113,12 +113,12 @@ public abstract class TestInvoker<TContext, TTest>
 	{
 		Guard.ArgumentNotNull(ctxt);
 
-		return ctxt.Aggregator.RunAsync(async () =>
-		{
-			if (!ctxt.CancellationTokenSource.IsCancellationRequested && !ctxt.Aggregator.HasExceptions)
-				return await InvokeTestMethodAsync(ctxt);
-
-			return TimeSpan.Zero;
-		}, TimeSpan.Zero);
+		return ctxt.Aggregator.RunAsync(
+			async () =>
+				!ctxt.CancellationTokenSource.IsCancellationRequested && !ctxt.Aggregator.HasExceptions
+					? await InvokeTestMethodAsync(ctxt)
+					: TimeSpan.Zero,
+			TimeSpan.Zero
+		);
 	}
 }

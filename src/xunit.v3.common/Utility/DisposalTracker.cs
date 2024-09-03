@@ -74,7 +74,7 @@ public class DisposalTracker : IAsyncDisposable
 	void AddInternal(object? @object)
 	{
 		if (@object is not null)
-			if (@object is IDisposable || @object is IAsyncDisposable)
+			if (@object is IDisposable or IAsyncDisposable)
 				trackedObjects.Push(@object);
 	}
 

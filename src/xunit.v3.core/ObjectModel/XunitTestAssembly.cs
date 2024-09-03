@@ -41,7 +41,9 @@ public class XunitTestAssembly : IXunitTestAssembly, IXunitSerializable
 		beforeAfterTestAttributes = new(() => ExtensibilityPointFactory.GetAssemblyBeforeAfterTestAttributes(Assembly));
 		collectionBehavior = new(() => ExtensibilityPointFactory.GetCollectionBehavior(Assembly));
 		collectionDefinitions = new(() => ExtensibilityPointFactory.GetCollectionDefinitions(Assembly));
+#pragma warning disable IDE0200 // The lambda is necessary to prevent prematurely dereferencing the Assembly properly
 		targetFramework = new(() => Assembly.GetTargetFramework());
+#pragma warning restore IDE0200
 		testCaseOrderer = new(() => ExtensibilityPointFactory.GetAssemblyTestCaseOrderer(Assembly));
 		testCollectionOrderer = new(() => ExtensibilityPointFactory.GetAssemblyTestCollectionOrderer(Assembly));
 		traits = new(() => ExtensibilityPointFactory.GetAssemblyTraits(Assembly));

@@ -1,3 +1,5 @@
+#pragma warning disable IDE0060  // Cannot remove unused parameters, this must match the signature of the .NET Framework version
+
 #if NETCOREAPP
 
 using System;

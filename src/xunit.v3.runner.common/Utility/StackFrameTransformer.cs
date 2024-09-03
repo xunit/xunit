@@ -51,17 +51,14 @@ public static class StackFrameTransformer
 	/// <returns>The transformed stack</returns>
 	public static string? TransformStack(
 		string? stack,
-		string? defaultDirectory)
-	{
-		if (stack is null)
-			return null;
-
-		return string.Join(
-			Environment.NewLine,
-			stack
-				.Split(new[] { Environment.NewLine }, StringSplitOptions.None)
-				.Select(frame => TransformFrame(frame, defaultDirectory))
-				.ToArray()
-		);
-	}
+		string? defaultDirectory) =>
+			stack is null
+				? null
+				: string.Join(
+					Environment.NewLine,
+					stack
+						.Split(new[] { Environment.NewLine }, StringSplitOptions.None)
+						.Select(frame => TransformFrame(frame, defaultDirectory))
+						.ToArray()
+				);
 }

@@ -5,18 +5,17 @@ using Xunit.Runner.Common;
 
 namespace Xunit.Runner.MSBuild;
 
-public class MSBuildLogger : IRunnerLogger
+/// <summary/>
+public class MSBuildLogger(TaskLoggingHelper log) :
+	IRunnerLogger
 {
-	public MSBuildLogger(TaskLoggingHelper log)
-	{
-		LockObject = new object();
-		Log = log;
-	}
+	/// <summary/>
+	public object LockObject { get; private set; } = new object();
 
-	public object LockObject { get; private set; }
+	/// <summary/>
+	public TaskLoggingHelper Log { get; private set; } = log;
 
-	public TaskLoggingHelper Log { get; private set; }
-
+	/// <summary/>
 	public void LogError(
 		StackFrameInfo stackFrame,
 		string message)
@@ -26,6 +25,7 @@ public class MSBuildLogger : IRunnerLogger
 		Log.LogError(null, null, null, stackFrame.FileName, stackFrame.LineNumber, 0, 0, 0, "{0}", message.Trim());
 	}
 
+	/// <summary/>
 	public void LogImportantMessage(
 		StackFrameInfo stackFrame,
 		string message)
@@ -35,6 +35,7 @@ public class MSBuildLogger : IRunnerLogger
 		Log.LogMessage(MessageImportance.High, "{0}", message);
 	}
 
+	/// <summary/>
 	public void LogMessage(
 		StackFrameInfo stackFrame,
 		string message)
@@ -44,6 +45,7 @@ public class MSBuildLogger : IRunnerLogger
 		Log.LogMessage("{0}", message);
 	}
 
+	/// <summary/>
 	public void LogRaw(string message)
 	{
 		Guard.ArgumentNotNull(message);
@@ -52,6 +54,7 @@ public class MSBuildLogger : IRunnerLogger
 		Log.LogMessage(MessageImportance.High, "{0}", message);
 	}
 
+	/// <summary/>
 	public void LogWarning(
 		StackFrameInfo stackFrame,
 		string message)
@@ -64,6 +67,7 @@ public class MSBuildLogger : IRunnerLogger
 			Log.LogWarning(null, null, null, stackFrame.FileName, stackFrame.LineNumber, 0, 0, 0, "{0}", message.Trim());
 	}
 
+	/// <summary/>
 	public void WaitForAcknowledgment()
 	{ }
 }

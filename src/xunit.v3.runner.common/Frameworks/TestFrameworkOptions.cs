@@ -139,16 +139,14 @@ public class TestFrameworkOptions : ITestFrameworkDiscoveryOptions, ITestFramewo
 		if (value is null)
 			properties.Remove(name);
 		else
-		{
-			if (typeof(TValue) == typeof(string))
-				properties[name] = (string)(object)value;
-			else
-				properties[name] = (string)Convert.ChangeType(value, typeof(string), CultureInfo.InvariantCulture);
-		}
+			properties[name] =
+				typeof(TValue) == typeof(string)
+					? (string)(object)value
+					: (string)Convert.ChangeType(value, typeof(string), CultureInfo.InvariantCulture);
 	}
 
-	string ToDebuggerDisplay()
-		=> string.Format(CultureInfo.CurrentCulture, "{{ {0} }}", string.Join(", ", properties.Select(p => string.Format(CultureInfo.CurrentCulture, "{{ {0} = {1} }}", p.Key, p.Value)).ToArray()));
+	string ToDebuggerDisplay() =>
+		string.Format(CultureInfo.CurrentCulture, "{{ {0} }}", string.Join(", ", properties.Select(p => string.Format(CultureInfo.CurrentCulture, "{{ {0} = {1} }}", p.Key, p.Value)).ToArray()));
 
 	/// <inheritdoc/>
 	public string ToJson()

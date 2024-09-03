@@ -57,6 +57,6 @@ public class Xunit2SourceInformationProvider : MarshalByRefObject, Abstractions.
 #if NETFRAMEWORK
 	/// <inheritdoc/>
 	[System.Security.SecurityCritical]
-	public override sealed object InitializeLifetimeService() => null!;
+	public sealed override object InitializeLifetimeService() => null!;
 #endif
 }

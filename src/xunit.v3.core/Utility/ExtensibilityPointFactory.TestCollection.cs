@@ -24,15 +24,14 @@ public static partial class ExtensibilityPointFactory
 	{
 		Guard.ArgumentNotNull(assemblyBeforeAfterTestAttributes);
 
-		if (collectionDefinition is null)
-			return assemblyBeforeAfterTestAttributes;
-
 		return
-			collectionDefinition
-				.GetMatchingCustomAttributes(typeof(IBeforeAfterTestAttribute))
-				.Cast<IBeforeAfterTestAttribute>()
-				.Concat(assemblyBeforeAfterTestAttributes)
-				.CastOrToReadOnlyCollection();
+			collectionDefinition is null
+				? assemblyBeforeAfterTestAttributes
+				: collectionDefinition
+					.GetMatchingCustomAttributes(typeof(IBeforeAfterTestAttribute))
+					.Cast<IBeforeAfterTestAttribute>()
+					.Concat(assemblyBeforeAfterTestAttributes)
+					.CastOrToReadOnlyCollection();
 	}
 
 	/// <summary>
@@ -44,16 +43,16 @@ public static partial class ExtensibilityPointFactory
 		Guard.ArgumentNotNull(testAssembly);
 
 		var collectionBehaviorAttributes = testAssembly.GetMatchingCustomAttributes(typeof(ICollectionBehaviorAttribute));
-		if (collectionBehaviorAttributes.Count > 1)
-			throw new InvalidOperationException(
-				string.Format(
-					CultureInfo.CurrentCulture,
-					"More than one assembly-level ICollectionBehaviorAttribute was discovered: {0}",
-					string.Join(", ", collectionBehaviorAttributes.Select(a => a.GetType()).ToCommaSeparatedList())
-				)
-			);
-
-		return collectionBehaviorAttributes.FirstOrDefault() as ICollectionBehaviorAttribute;
+		return
+			collectionBehaviorAttributes.Count <= 1
+				? collectionBehaviorAttributes.FirstOrDefault() as ICollectionBehaviorAttribute
+				: throw new InvalidOperationException(
+					string.Format(
+						CultureInfo.CurrentCulture,
+						"More than one assembly-level ICollectionBehaviorAttribute was discovered: {0}",
+						string.Join(", ", collectionBehaviorAttributes.Select(a => a.GetType()).ToCommaSeparatedList())
+					)
+				);
 	}
 
 	/// <summary>
@@ -95,36 +94,28 @@ public static partial class ExtensibilityPointFactory
 	/// </summary>
 	/// <param name="collectionDefinition">The test collection definition type</param>
 	/// <returns></returns>
-	public static IReadOnlyCollection<Type> GetCollectionClassFixtureTypes(Type? collectionDefinition)
-	{
-		if (collectionDefinition is null)
-			return [];
-
-		return
-			collectionDefinition
+	public static IReadOnlyCollection<Type> GetCollectionClassFixtureTypes(Type? collectionDefinition) =>
+		collectionDefinition is null
+			? []
+			: collectionDefinition
 				.GetInterfaces()
 				.Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IClassFixture<>))
 				.Select(i => i.GenericTypeArguments[0])
 				.CastOrToReadOnlyCollection();
-	}
 
 	/// <summary>
 	/// Gets the fixture types that are attached to the test collection via <see cref="ICollectionFixture{TFixture}"/>.
 	/// </summary>
 	/// <param name="collectionDefinition">The test collection definition type</param>
 	/// <returns></returns>
-	public static IReadOnlyCollection<Type> GetCollectionCollectionFixtureTypes(Type? collectionDefinition)
-	{
-		if (collectionDefinition is null)
-			return [];
-
-		return
-			collectionDefinition
+	public static IReadOnlyCollection<Type> GetCollectionCollectionFixtureTypes(Type? collectionDefinition) =>
+		collectionDefinition is null
+			? []
+			: collectionDefinition
 				.GetInterfaces()
 				.Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollectionFixture<>))
 				.Select(i => i.GenericTypeArguments[0])
 				.CastOrToReadOnlyCollection();
-	}
 
 	/// <summary>
 	/// Gets the test case orderer that's attached to a test collection. Returns <c>null</c> if there

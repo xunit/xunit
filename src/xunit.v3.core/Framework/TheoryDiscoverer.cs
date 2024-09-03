@@ -53,7 +53,9 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 			timeout: details.Timeout
 		);
 
+#pragma warning disable IDE0300 // Changes the semantics
 		return new(new[] { testCase });
+#pragma warning restore IDE0300
 	}
 
 	/// <summary>
@@ -78,34 +80,33 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 		Guard.ArgumentNotNull(theoryAttribute);
 
 		var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute);
+		var testCase =
+			details.SkipReason is not null
+				? new XunitTestCase(
+					details.ResolvedTestMethod,
+					details.TestCaseDisplayName,
+					details.UniqueID,
+					details.Explicit,
+					details.SkipReason,
+					details.SkipType,
+					details.SkipUnless,
+					details.SkipWhen,
+					testMethod.Traits.ToReadWrite(StringComparer.OrdinalIgnoreCase),
+					timeout: details.Timeout
+				)
+				: (IXunitTestCase)new XunitDelayEnumeratedTheoryTestCase(
+					details.ResolvedTestMethod,
+					details.TestCaseDisplayName,
+					details.UniqueID,
+					details.Explicit,
+					theoryAttribute.SkipTestWithoutData,
+					testMethod.Traits.ToReadWrite(StringComparer.OrdinalIgnoreCase),
+					timeout: details.Timeout
+				);
 
-		IXunitTestCase testCase;
-
-		if (details.SkipReason is not null)
-			testCase = new XunitTestCase(
-				details.ResolvedTestMethod,
-				details.TestCaseDisplayName,
-				details.UniqueID,
-				details.Explicit,
-				details.SkipReason,
-				details.SkipType,
-				details.SkipUnless,
-				details.SkipWhen,
-				testMethod.Traits.ToReadWrite(StringComparer.OrdinalIgnoreCase),
-				timeout: details.Timeout
-			);
-		else
-			testCase = new XunitDelayEnumeratedTheoryTestCase(
-				details.ResolvedTestMethod,
-				details.TestCaseDisplayName,
-				details.UniqueID,
-				details.Explicit,
-				theoryAttribute.SkipTestWithoutData,
-				testMethod.Traits.ToReadWrite(StringComparer.OrdinalIgnoreCase),
-				timeout: details.Timeout
-			);
-
+#pragma warning disable IDE0300 // Changes the semantics
 		return new(new[] { testCase });
+#pragma warning restore IDE0300
 	}
 
 	/// <summary>

@@ -82,12 +82,12 @@ csharp_style_var_when_type_is_apparent = true
 
 # Expression-bodied members
 csharp_style_expression_bodied_accessors = true
-csharp_style_expression_bodied_constructors = false
+csharp_style_expression_bodied_constructors = true
 csharp_style_expression_bodied_indexers = true
 csharp_style_expression_bodied_lambdas = true
-csharp_style_expression_bodied_local_functions = false
-csharp_style_expression_bodied_methods = when_on_single_line
-csharp_style_expression_bodied_operators = false
+csharp_style_expression_bodied_local_functions = true
+csharp_style_expression_bodied_methods = true
+csharp_style_expression_bodied_operators = true
 csharp_style_expression_bodied_properties = true
 
 # Pattern matching preferences
@@ -258,6 +258,8 @@ dotnet_diagnostic.CS9113.severity    = none  # Primary constructor parameter is 
 dotnet_diagnostic.IDE0040.severity   = none  # Add accessibility modifiers
 dotnet_diagnostic.IDE0042.severity   = none  # Deconstruct variable declaration
 dotnet_diagnostic.IDE0057.severity   = none  # Use range operator (not available in .NET Framework, even with C# 8+)
+dotnet_diagnostic.IDE0058.severity   = none  # Expression value is never used
+dotnet_diagnostic.IDE0240.severity   = none  # Nullable directive is redundant
 dotnet_diagnostic.IDE0305.severity   = none  # Use collection expression for fluent (turned off because the fix changes semantics)
 dotnet_diagnostic.IDE1006.severity   = none  # Naming rule violation
 dotnet_diagnostic.xUnit1004.severity = none  # Test methods should not be skipped

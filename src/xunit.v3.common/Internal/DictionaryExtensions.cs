@@ -75,10 +75,7 @@ public static class DictionaryExtensions
 		Guard.ArgumentNotNull(dictionary);
 		Guard.ArgumentNotNull(valueComparer);
 
-		if (!dictionary.TryGetValue(key, out var values))
-			return false;
-
-		return values.Contains(value, valueComparer);
+		return dictionary.TryGetValue(key, out var values) && values.Contains(value, valueComparer);
 	}
 
 	/// <summary/>

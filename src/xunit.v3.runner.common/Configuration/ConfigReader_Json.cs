@@ -161,12 +161,12 @@ public static class ConfigReader_Json
 					}
 					else if (string.Equals(kvp.Key, Configuration.Culture, StringComparison.OrdinalIgnoreCase))
 					{
-						if (string.Equals("default", stringValue, StringComparison.OrdinalIgnoreCase))
-							configuration.Culture = null;
-						else if (string.Equals("invariant", stringValue, StringComparison.OrdinalIgnoreCase))
-							configuration.Culture = string.Empty;
-						else
-							configuration.Culture = stringValue;
+						configuration.Culture =
+							string.Equals("default", stringValue, StringComparison.OrdinalIgnoreCase)
+								? null
+								: string.Equals("invariant", stringValue, StringComparison.OrdinalIgnoreCase)
+									? string.Empty
+									: stringValue;
 					}
 					else if (string.Equals(kvp.Key, Configuration.ParallelAlgorithm, StringComparison.OrdinalIgnoreCase))
 					{

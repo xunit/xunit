@@ -109,7 +109,7 @@ sealed class ConsoleRunner(string[] args)
 			if (!reporter.ForceNoLogo && !project.Configuration.NoLogoOrDefault)
 				PrintHeader();
 
-			foreach (string warning in commandLine.ParseWarnings)
+			foreach (var warning in commandLine.ParseWarnings)
 				logger.LogWarning(warning);
 
 			var failCount = 0;
@@ -340,7 +340,7 @@ sealed class ConsoleRunner(string[] args)
 				(false, AppDomainSupport.Required) => throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "AppDomains were required but assembly '{0}' does not support them", assembly.AssemblyFileName)),
 				(false, _) => AppDomainOption.NotAvailable,
 				(true, AppDomainSupport.Denied) => AppDomainOption.Disabled,
-				(true, _) => AppDomainOption.Enabled,
+				(true, _) or _ => AppDomainOption.Enabled,
 			};
 
 			var sinkOptions = new ExecutionSinkOptions

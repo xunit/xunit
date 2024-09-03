@@ -137,21 +137,20 @@ public class XunitTestCollectionRunner :
 		Guard.ArgumentNotNull(ctxt);
 		Guard.ArgumentNotNull(testCases);
 
-		if (exception is not null)
-			return new(XunitRunnerHelper.FailTestCases(ctxt.MessageBus, ctxt.CancellationTokenSource, testCases, exception, sendTestClassMessages: true, sendTestMethodMessages: true));
-
-		if (testClass is null)
-			return new(XunitRunnerHelper.FailTestCases(ctxt.MessageBus, ctxt.CancellationTokenSource, testCases, "Test case {0} does not have an associated class and cannot be run by XunitTestClassRunner", sendTestClassMessages: true, sendTestMethodMessages: true));
-
-		return XunitTestClassRunner.Instance.RunAsync(
-			testClass,
-			testCases,
-			ctxt.ExplicitOption,
-			ctxt.MessageBus,
-			ctxt.TestCaseOrderer,
-			ctxt.Aggregator.Clone(),
-			ctxt.CancellationTokenSource,
-			ctxt.CollectionFixtureMappings
-		);
+		return
+			exception is not null
+				? new(XunitRunnerHelper.FailTestCases(ctxt.MessageBus, ctxt.CancellationTokenSource, testCases, exception, sendTestClassMessages: true, sendTestMethodMessages: true))
+				: testClass is null
+					? new(XunitRunnerHelper.FailTestCases(ctxt.MessageBus, ctxt.CancellationTokenSource, testCases, "Test case {0} does not have an associated class and cannot be run by XunitTestClassRunner", sendTestClassMessages: true, sendTestMethodMessages: true))
+					: XunitTestClassRunner.Instance.RunAsync(
+						testClass,
+						testCases,
+						ctxt.ExplicitOption,
+						ctxt.MessageBus,
+						ctxt.TestCaseOrderer,
+						ctxt.Aggregator.Clone(),
+						ctxt.CancellationTokenSource,
+						ctxt.CollectionFixtureMappings
+					);
 	}
 }

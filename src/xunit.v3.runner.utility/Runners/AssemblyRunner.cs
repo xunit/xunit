@@ -145,18 +145,12 @@ public class AssemblyRunner : IAsyncDisposable, IMessageSink
 	/// <summary>
 	/// Gets the current status of the assembly runner
 	/// </summary>
-	public AssemblyRunnerStatus Status
-	{
-		get
-		{
-			if (!discoveryCompleteEvent.WaitOne(0))
-				return AssemblyRunnerStatus.Discovering;
-			if (!executionCompleteEvent.WaitOne(0))
-				return AssemblyRunnerStatus.Executing;
-
-			return AssemblyRunnerStatus.Idle;
-		}
-	}
+	public AssemblyRunnerStatus Status =>
+		!discoveryCompleteEvent.WaitOne(0)
+			? AssemblyRunnerStatus.Discovering
+			: !executionCompleteEvent.WaitOne(0)
+				? AssemblyRunnerStatus.Executing
+				: AssemblyRunnerStatus.Idle;
 
 	/// <summary>
 	/// Set to be able to filter the test cases to decide which ones to run. If this is not set,
@@ -171,10 +165,8 @@ public class AssemblyRunner : IAsyncDisposable, IMessageSink
 	/// instantaneous, and even after cancellation has been acknowledged, you can expect to
 	/// receive all the cleanup-related messages.
 	/// </summary>
-	public void Cancel()
-	{
+	public void Cancel() =>
 		cancelled = true;
-	}
 
 	/// <inheritdoc/>
 	public async ValueTask DisposeAsync()
@@ -394,7 +386,7 @@ public class AssemblyRunner : IAsyncDisposable, IMessageSink
 		string? shadowCopyFolder = null)
 	{
 		Guard.FileExists(assemblyFileName);
-		Guard.ArgumentValid("Cannot set shadowCopyFolder if shadowCopy is false", shadowCopy == true || shadowCopyFolder is null, nameof(shadowCopyFolder));
+		Guard.ArgumentValid("Cannot set shadowCopyFolder if shadowCopy is false", shadowCopy || shadowCopyFolder is null, nameof(shadowCopyFolder));
 
 		return new AssemblyRunner(AppDomainSupport.Required, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
 	}

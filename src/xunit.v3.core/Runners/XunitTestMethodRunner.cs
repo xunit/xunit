@@ -115,15 +115,15 @@ public class XunitTestMethodRunner :
 		Guard.ArgumentNotNull(ctxt);
 		Guard.ArgumentNotNull(testCase);
 
-		if (exception is not null)
-			return new(XunitRunnerHelper.FailTestCases(ctxt.MessageBus, ctxt.CancellationTokenSource, [testCase], exception));
-
-		return testCase.RunAsync(
-			ctxt.ExplicitOption,
-			ctxt.MessageBus,
-			ctxt.ConstructorArguments,
-			ctxt.Aggregator,
-			ctxt.CancellationTokenSource
-		);
+		return
+			exception is not null
+				? new(XunitRunnerHelper.FailTestCases(ctxt.MessageBus, ctxt.CancellationTokenSource, [testCase], exception))
+				: testCase.RunAsync(
+					ctxt.ExplicitOption,
+					ctxt.MessageBus,
+					ctxt.ConstructorArguments,
+					ctxt.Aggregator,
+					ctxt.CancellationTokenSource
+				);
 	}
 }

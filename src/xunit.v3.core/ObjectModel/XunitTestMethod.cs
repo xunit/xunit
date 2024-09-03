@@ -36,7 +36,9 @@ public class XunitTestMethod : IXunitTestMethod, IXunitSerializable
 		beforeAfterTestAttributes = new(() => ExtensibilityPointFactory.GetMethodBeforeAfterTestAttributes(Method, TestClass.BeforeAfterTestAttributes));
 		dataAttributes = new(() => ExtensibilityPointFactory.GetMethodDataAttributes(Method));
 		factAttributes = new(() => ExtensibilityPointFactory.GetMethodFactAttributes(Method));
+#pragma warning disable IDE0200 // The lambda is necessary to prevent prematurely dereferencing the Method properly
 		parameters = new(() => Method.GetParameters());
+#pragma warning restore IDE0200
 		traits = new(() => ExtensibilityPointFactory.GetMethodTraits(Method, TestClass.Traits));
 	}
 

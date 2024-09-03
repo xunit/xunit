@@ -67,15 +67,10 @@ public static class ReflectionExtensions
 	/// </summary>
 	/// <param name="type">The type to get the default value of.</param>
 	/// <returns>The default value for the given type.</returns>
-	public static object? GetDefaultValue(this Type type)
-	{
-		Guard.ArgumentNotNull(type);
-
-		if (type.IsValueType)
-			return Activator.CreateInstance(type);
-
-		return null;
-	}
+	public static object? GetDefaultValue(this Type type) =>
+		Guard.ArgumentNotNull(type).IsValueType
+			? Activator.CreateInstance(type)
+			: null;
 
 	/// <summary>
 	/// Formulates the extended portion of the display name for a test method. For tests with no arguments, this will
@@ -112,10 +107,10 @@ public static class ReflectionExtensions
 		{
 			var parameterInfo = parameterInfos[idx];
 			var parameterName = GetParameterName(parameterInfos, idx);
-			if (parameterInfo.IsOptional)
-				displayValues[idx] = ParameterToDisplayValue(parameterName, parameterInfo.DefaultValue);
-			else
-				displayValues[idx] = parameterName + ": ???";
+			displayValues[idx] =
+				parameterInfo.IsOptional
+					? ParameterToDisplayValue(parameterName, parameterInfo.DefaultValue)
+					: parameterName + ": ???";
 		}
 
 		return string.Format(CultureInfo.CurrentCulture, "{0}({1})", baseDisplayName, string.Join(", ", displayValues));
@@ -253,13 +248,10 @@ public static class ReflectionExtensions
 
 	static string GetParameterName(
 		ParameterInfo[] parameters,
-		int index)
-	{
-		if (index >= parameters.Length)
-			return "???";
-
-		return parameters[index].Name ?? "???";
-	}
+		int index) =>
+			index < parameters.Length
+				? parameters[index].Name ?? "???"
+				: "???";
 
 	/// <summary>
 	/// Determines if the given type implements the given interface.
@@ -310,18 +302,11 @@ public static class ReflectionExtensions
 	/// Determines whether <paramref name="type"/> is a nullable type; that is, whether it
 	/// represents <see cref="Nullable{T}"/>.
 	/// </summary>
-	public static bool IsNullable(this Type type)
-	{
-		Guard.ArgumentNotNull(type);
-
-		return isNullableCache.GetOrAdd(type, t =>
-		{
-			if (!t.IsValueType)
-				return true;
-
-			return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
-		});
-	}
+	public static bool IsNullable(this Type type) =>
+		isNullableCache.GetOrAdd(
+			Guard.ArgumentNotNull(type),
+			t => !t.IsValueType || (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+		);
 
 	/// <summary>
 	/// Determines whether <paramref name="type"/> represents a nullable enum value.
@@ -544,7 +529,7 @@ public static class ReflectionExtensions
 
 		// Params can only be added at the end of the parameter list
 		if (parameters.Length > 0)
-			hasParamsParameter = parameters[parameters.Length - 1].GetCustomAttribute(typeof(ParamArrayAttribute)) is not null;
+			hasParamsParameter = parameters[parameters.Length - 1].GetCustomAttribute<ParamArrayAttribute>() is not null;
 
 		var nonOptionalParameterCount = parameters.Count(p => !p.IsOptional);
 		if (hasParamsParameter)
@@ -614,10 +599,10 @@ public static class ReflectionExtensions
 		for (var i = arguments.Length; i < unresolvedParametersCount; i++)
 		{
 			var parameter = parameters[i];
-			if (parameter.HasDefaultValue)
-				newArguments[i] = parameter.DefaultValue;
-			else
-				newArguments[i] = parameter.ParameterType.GetDefaultValue();
+			newArguments[i] =
+				parameter.HasDefaultValue
+					? parameter.DefaultValue
+					: parameter.ParameterType.GetDefaultValue();
 		}
 
 		return newArguments;
@@ -682,24 +667,18 @@ public static class ReflectionExtensions
 			return null;
 
 		// No need to perform conversion
-		if (parameterType.IsAssignableFrom(argumentValue.GetType()))
-			return argumentValue;
-
-		return PerformDefinedConversions(argumentValue, parameterType) ?? argumentValue;
+		return
+			parameterType.IsAssignableFrom(argumentValue.GetType())
+				? argumentValue
+				: PerformDefinedConversions(argumentValue, parameterType) ?? argumentValue;
 	}
 
 	/// <summary>
 	/// Attempts to strip <see cref="Nullable{T}"/> from a type value and just return T.
 	/// For non-nullable types, will return the type that was passed in.
 	/// </summary>
-	public static Type UnwrapNullable(this Type type)
-	{
-		Guard.ArgumentNotNull(type);
-
-		if (!type.IsGenericType)
-			return type;
-		if (type.GetGenericTypeDefinition() != typeof(Nullable<>))
-			return type;
-		return type.GetGenericArguments()[0];
-	}
+	public static Type UnwrapNullable(this Type type) =>
+		Guard.ArgumentNotNull(type).IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>)
+			? type.GetGenericArguments()[0]
+			: type;
 }

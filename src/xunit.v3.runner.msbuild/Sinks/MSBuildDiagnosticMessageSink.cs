@@ -1,9 +1,11 @@
 using System.Globalization;
 using Microsoft.Build.Utilities;
 using Xunit.Runner.Common;
+using Xunit.Sdk;
 
 namespace Xunit.Runner.MSBuild;
 
+/// <summary/>
 public class MSBuildDiagnosticMessageSink : TestMessageSink
 {
 	MSBuildDiagnosticMessageSink()
@@ -11,7 +13,7 @@ public class MSBuildDiagnosticMessageSink : TestMessageSink
 
 	/// <summary>
 	/// Tries to create a new instance of the <see cref="MSBuildDiagnosticMessageSink"/> which will display instances
-	/// of <see cref="_DiagnosticMessage"/> and <see cref="_InternalDiagnosticMessage"/> to the <paramref name="log"/>.
+	/// of <see cref="IDiagnosticMessage"/> and <see cref="IInternalDiagnosticMessage"/> to the <paramref name="log"/>.
 	/// May return <c>null</c> if both <paramref name="showDiagnosticMessages"/> and <paramref name="showInternalDiagnosticMessages"/>
 	/// are <c>false</c>.
 	/// </summary>

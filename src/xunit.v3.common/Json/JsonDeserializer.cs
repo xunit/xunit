@@ -96,23 +96,19 @@ public static class JsonDeserializer
 	{
 		result = default;
 
-		while (true)
-		{
-			SkipWhiteSpace(json, ref idx);
-			if (idx >= json.Length)
-				return false;
+		SkipWhiteSpace(json, ref idx);
 
-			return json[idx] switch
+		return
+			idx < json.Length && json[idx] switch
 			{
 				't' or 'f' => TryDeserializeBoolean(json, ref idx, out result),
 				'n' => TryDeserializeNull(json, ref idx),
-				'-' or >= '0' and <= '9' => TryDeserializeNumber(json, ref idx, out result),
+				'-' or (>= '0' and <= '9') => TryDeserializeNumber(json, ref idx, out result),
 				'"' => TryDeserializeString(json, ref idx, out result),
 				'[' => TryDeserializeArray(json, ref idx, out result),
 				'{' => TryDeserializeObject(json, ref idx, out result),
 				_ => false,
 			};
-		}
 	}
 
 	static bool TryDeserializeArray(
@@ -212,7 +208,7 @@ public static class JsonDeserializer
 			var ch = json[idx++];
 
 			// No embedded newlines allowed
-			if (ch == '\r' || ch == '\n')
+			if (ch is '\r' or '\n')
 			{
 				success = false;
 				break;

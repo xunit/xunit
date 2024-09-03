@@ -49,15 +49,12 @@ public static class TestIntrospectionHelper
 		var formatter = new DisplayNameFormatter(defaultMethodDisplay, defaultMethodDisplayOptions);
 
 		baseDisplayName ??= factAttribute.DisplayName;
-		timeout ??= factAttribute.Timeout;
+		baseDisplayName ??=
+			defaultMethodDisplay == TestMethodDisplay.ClassAndMethod
+				? formatter.Format(string.Format(CultureInfo.CurrentCulture, "{0}.{1}", testMethod.TestClass.TestClassName, testMethod.MethodName))
+				: formatter.Format(testMethod.MethodName);
 
-		if (baseDisplayName is null)
-		{
-			if (defaultMethodDisplay == TestMethodDisplay.ClassAndMethod)
-				baseDisplayName = formatter.Format(string.Format(CultureInfo.CurrentCulture, "{0}.{1}", testMethod.TestClass.TestClassName, testMethod.MethodName));
-			else
-				baseDisplayName = formatter.Format(testMethod.MethodName);
-		}
+		timeout ??= factAttribute.Timeout;
 
 		var methodGenericTypes = default(Type[]);
 

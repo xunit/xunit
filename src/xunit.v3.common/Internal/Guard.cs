@@ -27,15 +27,10 @@ public static class Guard
 		T argValue,
 		HashSet<T> validValues,
 		[CallerArgumentExpression(nameof(argValue))] string? argName = null)
-			where T : Enum
-	{
-		ArgumentNotNull(validValues);
-
-		if (!validValues.Contains(argValue))
-			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Enum value {0} not in valid set: [{1}]", argValue, string.Join(", ", validValues)), argName?.TrimStart('@'));
-
-		return argValue;
-	}
+			where T : Enum =>
+				ArgumentNotNull(validValues).Contains(argValue)
+					? argValue
+					: throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Enum value {0} not in valid set: [{1}]", argValue, string.Join(", ", validValues)), argName?.TrimStart('@'));
 
 	/// <summary>
 	/// Ensures that a nullable value type argument is not null.
@@ -48,13 +43,8 @@ public static class Guard
 	public static T ArgumentNotNull<T>(
 		[NotNull] T? argValue,
 		[CallerArgumentExpression(nameof(argValue))] string? argName = null)
-			where T : struct
-	{
-		if (!argValue.HasValue)
-			throw new ArgumentNullException(argName?.TrimStart('@'));
-
-		return argValue.Value;
-	}
+			where T : struct =>
+				argValue ?? throw new ArgumentNullException(argName?.TrimStart('@'));
 
 	/// <summary>
 	/// Ensures that a nullable reference type argument is not null.
@@ -67,13 +57,8 @@ public static class Guard
 	public static T ArgumentNotNull<T>(
 		[NotNull] T? argValue,
 		[CallerArgumentExpression(nameof(argValue))] string? argName = null)
-			where T : class
-	{
-		if (argValue is null)
-			throw new ArgumentNullException(argName?.TrimStart('@'));
-
-		return argValue;
-	}
+			where T : class =>
+				argValue ?? throw new ArgumentNullException(argName?.TrimStart('@'));
 
 	/// <summary>
 	/// Ensures that a nullable reference type argument is not null.
@@ -88,13 +73,8 @@ public static class Guard
 		string message,
 		[NotNull] T? argValue,
 		string? argName = null)
-			where T : class
-	{
-		if (argValue is null)
-			throw new ArgumentNullException(argName, message);
-
-		return argValue;
-	}
+			where T : class =>
+				argValue ?? throw new ArgumentNullException(argName, message);
 
 	/// <summary>
 	/// Ensures that a nullable reference type argument is not null.
@@ -109,13 +89,8 @@ public static class Guard
 		Func<string> messageFunc,
 		[NotNull] T? argValue,
 		string? argName = null)
-		where T : class
-	{
-		if (argValue is null)
-			throw new ArgumentNullException(argName, messageFunc?.Invoke());
-
-		return argValue;
-	}
+		where T : class =>
+			argValue ?? throw new ArgumentNullException(argName, messageFunc?.Invoke());
 
 	/// <summary>
 	/// Ensures that a nullable enumerable type argument is not null or empty.
@@ -128,15 +103,10 @@ public static class Guard
 	public static T ArgumentNotNullOrEmpty<T>(
 		[NotNull] T? argValue,
 		[CallerArgumentExpression(nameof(argValue))] string? argName = null)
-			where T : class, IEnumerable
-	{
-		ArgumentNotNull(argValue, argName);
-
-		if (!argValue.GetEnumerator().MoveNext())
-			throw new ArgumentException("Argument was empty", argName?.TrimStart('@'));
-
-		return argValue;
-	}
+			where T : class, IEnumerable =>
+				ArgumentNotNull(argValue, argName).GetEnumerator().MoveNext()
+					? argValue
+					: throw new ArgumentException("Argument was empty", argName?.TrimStart('@'));
 
 	/// <summary>
 	/// Ensures that a nullable enumerable type argument is not null or empty.
@@ -151,13 +121,10 @@ public static class Guard
 		string message,
 		[NotNull] T? argValue,
 		string? argName = null)
-			where T : class, IEnumerable
-	{
-		if (argValue is null || !argValue.GetEnumerator().MoveNext())
-			throw new ArgumentException(message, argName);
-
-		return argValue;
-	}
+			where T : class, IEnumerable =>
+				ArgumentNotNull(argValue, argName).GetEnumerator().MoveNext()
+					? argValue
+					: throw new ArgumentException(message, argName);
 
 	/// <summary>
 	/// Ensures that a nullable enumerable type argument is not null or empty.
@@ -172,13 +139,10 @@ public static class Guard
 		Func<string> messageFunc,
 		[NotNull] T? argValue,
 		string? argName = null)
-			where T : class, IEnumerable
-	{
-		if (argValue is null || !argValue.GetEnumerator().MoveNext())
-			throw new ArgumentException(messageFunc?.Invoke(), argName);
-
-		return argValue;
-	}
+			where T : class, IEnumerable =>
+				argValue is not null && argValue.GetEnumerator().MoveNext()
+					? argValue
+					: throw new ArgumentException(messageFunc?.Invoke(), argName);
 
 	/// <summary>
 	/// Ensures that an argument is valid.
@@ -242,13 +206,8 @@ public static class Guard
 	/// <exception cref="ArgumentNullException">Thrown when the argument is default</exception>
 	public static T GenericArgumentNotNull<T>(
 		[NotNull] T? argValue,
-		[CallerArgumentExpression(nameof(argValue))] string? argName = null)
-	{
-		if (argValue is null)
-			throw new ArgumentNullException(argName?.TrimStart('@'));
-
-		return argValue;
-	}
+		[CallerArgumentExpression(nameof(argValue))] string? argName = null) =>
+			argValue ?? throw new ArgumentNullException(argName?.TrimStart('@'));
 
 	/// <summary>
 	/// Ensure that a reference value is not null.
@@ -261,13 +220,8 @@ public static class Guard
 	public static T NotNull<T>(
 		string message,
 		[NotNull] T? value)
-			where T : class
-	{
-		if (value is null)
-			throw new InvalidOperationException(message);
-
-		return value;
-	}
+			where T : class =>
+				value ?? throw new InvalidOperationException(message);
 
 	/// <summary>
 	/// Ensure that a reference value is not null.
@@ -280,13 +234,8 @@ public static class Guard
 	public static T NotNull<T>(
 		Func<string> messageFunc,
 		[NotNull] T? value)
-			where T : class
-	{
-		if (value is null)
-			throw new InvalidOperationException(messageFunc?.Invoke());
-
-		return value;
-	}
+			where T : class =>
+				value ?? throw new InvalidOperationException(messageFunc?.Invoke());
 
 	/// <summary>
 	/// Ensure that a nullable struct value is not null.
@@ -299,13 +248,8 @@ public static class Guard
 	public static T NotNull<T>(
 		string message,
 		[NotNull] T? value)
-			where T : struct
-	{
-		if (!value.HasValue)
-			throw new InvalidOperationException(message);
-
-		return value.Value;
-	}
+			where T : struct =>
+				value ?? throw new InvalidOperationException(message);
 
 	/// <summary>
 	/// Ensure that a nullable struct value is not null.
@@ -318,11 +262,6 @@ public static class Guard
 	public static T NotNull<T>(
 		Func<string> messageFunc,
 		[NotNull] T? value)
-			where T : struct
-	{
-		if (!value.HasValue)
-			throw new InvalidOperationException(messageFunc?.Invoke());
-
-		return value.Value;
-	}
+			where T : struct =>
+				value ?? throw new InvalidOperationException(messageFunc?.Invoke());
 }

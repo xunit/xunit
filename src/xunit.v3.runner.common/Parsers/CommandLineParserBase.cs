@@ -445,12 +445,12 @@ public abstract class CommandLineParserBase
 				// Use invariant format and convert ',' to '.' so we can always support both formats, regardless of locale
 				// If we stick to locale-only parsing, we could break people when moving from one locale to another (for example,
 				// from people running tests on their desktop in a comma locale vs. running them in CI with a decimal locale).
-				if (match.Success && decimal.TryParse(match.Groups[1].Value.Replace(',', '.'), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var maxThreadMultiplier))
-					maxParallelThreads = (int)(maxThreadMultiplier * Environment.ProcessorCount);
-				else if (int.TryParse(option.Value, out var threadValue) && threadValue > 0)
-					maxParallelThreads = threadValue;
-				else
-					throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "incorrect argument value for -maxthreads (must be 'default', 'unlimited', a positive number, or a multiplier in the form of '{0}x')", 0.0m));
+				maxParallelThreads =
+					match.Success && decimal.TryParse(match.Groups[1].Value.Replace(',', '.'), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var maxThreadMultiplier)
+					? (int)(maxThreadMultiplier * Environment.ProcessorCount)
+					: int.TryParse(option.Value, out var threadValue) && threadValue > 0
+						? threadValue
+						: throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "incorrect argument value for -maxthreads (must be 'default', 'unlimited', a positive number, or a multiplier in the form of '{0}x')", 0.0m));
 
 				break;
 		}
@@ -555,7 +555,7 @@ public abstract class CommandLineParserBase
 			ParallelismOption.all => (true, true),
 			ParallelismOption.assemblies => (true, false),
 			ParallelismOption.collections => (false, true),
-			_ => (false, false)
+			ParallelismOption.none or _ => (false, false)
 		};
 
 		foreach (var projectAssembly in Project.Assemblies)
@@ -788,7 +788,7 @@ public abstract class CommandLineParserBase
 		foreach (var (@switch, descriptions) in options)
 		{
 			ConsoleHelper.WriteLine("  {0} : {1}", @switch.PadRight(longestSwitch), descriptions[0]);
-			for (int idx = 1; idx < descriptions.Length; ++idx)
+			for (var idx = 1; idx < descriptions.Length; ++idx)
 				ConsoleHelper.WriteLine("  {0} : {1}", padding, descriptions[idx]);
 		}
 	}

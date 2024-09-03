@@ -94,51 +94,43 @@ public static class ConfigReader_Configuration
 
 	static bool? GetBoolean(
 		KeyValueConfigurationCollection settings,
-		string key)
-	{
-		return GetValue<bool>(settings, key,
-			value =>
-			{
-				return (value.ToUpperInvariant()) switch
+		string key) =>
+			GetValue<bool>(
+				settings,
+				key,
+				value =>
 				{
-					"TRUE" => true,
-					"FALSE" => false,
-					_ => null,
-				};
-			});
-	}
+					return value.ToUpperInvariant() switch
+					{
+						"TRUE" => true,
+						"FALSE" => false,
+						_ => null,
+					};
+				}
+			);
 
 	static TValue? GetEnum<TValue>(
 		KeyValueConfigurationCollection settings,
 		string key)
-			where TValue : struct
-	{
-		return GetValue<TValue>(
-			settings,
-			key,
-			value =>
-			{
-				try { return (TValue)Enum.Parse(typeof(TValue), value, true); }
-				catch { return null; }
-			}
-		);
-	}
+			where TValue : struct =>
+				GetValue<TValue>(
+					settings,
+					key,
+					value =>
+					{
+						try { return (TValue)Enum.Parse(typeof(TValue), value, true); }
+						catch { return null; }
+					}
+				);
 
 	static int? GetInt(
 		KeyValueConfigurationCollection settings,
-		string key)
-	{
-		return GetValue<int>(
-			settings,
-			key,
-			ValueType =>
-			{
-				if (int.TryParse(ValueType, out var result))
-					return result;
-				return null;
-			}
-		);
-	}
+		string key) =>
+			GetValue<int>(
+				settings,
+				key,
+				ValueType => int.TryParse(ValueType, out var result) ? result : null
+			);
 
 	static T? GetValue<T>(
 		KeyValueConfigurationCollection settings,
@@ -147,10 +139,11 @@ public static class ConfigReader_Configuration
 			where T : struct
 	{
 		var settingsKey = settings.AllKeys.FirstOrDefault(k => k.Equals(key, StringComparison.OrdinalIgnoreCase));
-		if (settingsKey is null)
-			return default;
 
-		return converter(settings[settingsKey].Value);
+		return
+			settingsKey is not null
+				? converter(settings[settingsKey].Value)
+				: default;
 	}
 
 	static class Configuration

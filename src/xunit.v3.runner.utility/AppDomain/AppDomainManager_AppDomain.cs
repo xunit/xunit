@@ -29,8 +29,7 @@ sealed class AppDomainManager_AppDomain : IAppDomainManager
 		assemblyFileName = Path.GetFullPath(assemblyFileName);
 		Guard.FileExists(assemblyFileName);
 
-		if (configFileName is null)
-			configFileName = GetDefaultConfigFile(assemblyFileName);
+		configFileName ??= GetDefaultConfigFile(assemblyFileName);
 
 		if (configFileName is not null)
 			configFileName = Path.GetFullPath(configFileName);
@@ -167,10 +166,10 @@ sealed class AppDomainManager_AppDomain : IAppDomainManager
 	{
 		var configFilename = assemblyFile + ".config";
 
-		if (File.Exists(configFilename))
-			return configFilename;
-
-		return null;
+		return
+			File.Exists(configFilename)
+				? configFilename
+				: null;
 	}
 }
 

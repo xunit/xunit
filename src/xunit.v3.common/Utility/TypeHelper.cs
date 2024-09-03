@@ -62,21 +62,16 @@ public static class TypeHelper
 					var toArrayMethod = enumerableToArray.MakeGenericMethod(elementType);
 					return toArrayMethod.Invoke(null, [castMethod.Invoke(null, [enumerable])]);
 				}
-				else if (type.IsEnum)
-					return Enum.ToObject(type, arg);
 				else
-				{
-					if (type == typeof(Guid))
-						return Guid.Parse(arg.ToString()!);
-
-					if (type == typeof(DateTime))
-						return DateTime.Parse(arg.ToString()!, CultureInfo.InvariantCulture);
-
-					if (type == typeof(DateTimeOffset))
-						return DateTimeOffset.Parse(arg.ToString()!, CultureInfo.InvariantCulture);
-
-					return Convert.ChangeType(arg, type, CultureInfo.CurrentCulture);
-				}
+					return type.IsEnum
+					? Enum.ToObject(type, arg)
+					: type == typeof(Guid)
+						? Guid.Parse(arg.ToString()!)
+						: type == typeof(DateTime)
+							? DateTime.Parse(arg.ToString()!, CultureInfo.InvariantCulture)
+							: type == typeof(DateTimeOffset)
+								? DateTimeOffset.Parse(arg.ToString()!, CultureInfo.InvariantCulture)
+								: Convert.ChangeType(arg, type, CultureInfo.CurrentCulture);
 			}
 			catch { } // Eat conversion-related exceptions; they'll get re-surfaced during execution
 		}
@@ -125,8 +120,10 @@ public static class TypeHelper
 
 		return result;
 	}
+
 	/// <summary>
-	/// Converts an assembly qualified type name into a <see cref="Type"/> object.
+	/// Converts an assembly qualified type name from <see cref="GetTypeName"/> back into
+	/// a <see cref="Type"/> object.
 	/// </summary>
 	/// <param name="assemblyQualifiedTypeName">The assembly qualified type name.</param>
 	/// <returns>The instance of the <see cref="Type"/>, if available; <c>null</c>, otherwise.</returns>
@@ -170,7 +167,7 @@ public static class TypeHelper
 								return null;
 
 							var genericArgument = aqtn.Substring(firstOpenSquare + 1, lastOpenSquare - firstOpenSquare - 2);  // Strip surrounding [ and ]
-							var innerTypeNames = SplitAtOuterCommas(genericArgument).Select(x => x.Substring(1, x.Length - 2));  // Strip surrounding [ and ] from each type name
+							var innerTypeNames = genericArgument.SplitAtOuterCommas().Select(x => x.Substring(1, x.Length - 2));  // Strip surrounding [ and ] from each type name
 							var innerTypes = innerTypeNames.Select(s => GetType(s)).ToArray();
 							if (innerTypes.Any(t => t is null))
 								return null;
@@ -202,22 +199,15 @@ public static class TypeHelper
 					}
 				}
 
-				var parts = SplitAtOuterCommas(aqtn, true);
-				return
-					parts.Count == 0 ? null :
-					parts.Count == 1 ? Type.GetType(parts[0]) :
-					GetType(parts[1], parts[0]);
+				var parts = aqtn.SplitAtOuterCommas(trimWhitespace: true);
+				return parts.Count switch
+				{
+					0 => null,
+					1 => Type.GetType(parts[0]),
+					_ => GetType(parts[1], parts[0]),
+				};
 			}
 		);
-
-	/// <summary>
-	/// Converts an assembly qualified type name into a <see cref="Type"/> object. If the
-	/// type does not exist, throws an <see cref="ArgumentException"/>.
-	/// </summary>
-	/// <param name="assemblyQualifiedTypeName">The assembly qualified type name.</param>
-	/// <returns>The instance of the <see cref="Type"/>.</returns>
-	public static Type GetTypeStrict(string assemblyQualifiedTypeName) =>
-		GetType(assemblyQualifiedTypeName) ?? throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Type name '{0}' could not be found", assemblyQualifiedTypeName), nameof(assemblyQualifiedTypeName));
 
 	/// <summary>
 	/// Converts an assembly name + type name into a <see cref="Type"/> object.
@@ -245,74 +235,79 @@ public static class TypeHelper
 			catch { }
 		}
 
-		if (assembly is null)
-			return null;
-
-		return assembly.GetType(typeName);
+		return assembly?.GetType(typeName);
 	}
 
-	static IList<string> SplitAtOuterCommas(
-		string value,
-		bool trimWhitespace = false)
+	/// <summary>
+	/// Gets an assembly-qualified type name suitable for serialization.
+	/// </summary>
+	/// <param name="value">The type value</param>
+	/// <returns>A string in "TypeName" format (for mscorlib types) or "TypeName,AssemblyName" format (for all others)</returns>
+	/// <remarks>
+	/// Dynamic types, or types which live in the GAC, are not supported.
+	/// </remarks>
+	public static string GetTypeName(Type value)
 	{
-		var results = new List<string>();
+		if (Guard.ArgumentNotNull(value).FullName is null)
+			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Cannot serialize typeof({0}) because it has no full name", value.Name), nameof(value));
 
-		var startIndex = 0;
-		var endIndex = 0;
-		var depth = 0;
+		// Use the abstract Type instead of concretes like RuntimeType
+		if (typeof(Type).IsAssignableFrom(value))
+			value = typeof(Type);
 
-		for (; endIndex < value.Length; ++endIndex)
+		if (!value.IsFromLocalAssembly())
+			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Cannot serialize type '{0}' because it lives in the GAC", value.SafeName()), nameof(value));
+
+		var typeToMap = value;
+		if (typeToMap.Assembly.FullName is null)
+			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Cannot serialize type '{0}' because its assembly does not have a full name", value.SafeName()), nameof(value));
+
+		var typeName = typeToMap.SafeName();
+		var assemblyName = typeToMap.Assembly.FullName.Split(',')[0];
+
+		var arrayRanks = new Stack<int>();
+		while (true)
 		{
-			switch (value[endIndex])
+			var elementType = typeToMap.GetElementType();
+			if (elementType is null)
+				break;
+
+			arrayRanks.Push(typeToMap.GetArrayRank());
+			typeToMap = elementType;
+		}
+
+		if (typeToMap.IsGenericType && !typeToMap.IsGenericTypeDefinition)
+		{
+			var typeDefinition = typeToMap.GetGenericTypeDefinition();
+			var innerTypes =
+				typeToMap
+					.GetGenericArguments()
+					.Select(t => string.Format(CultureInfo.InvariantCulture, "[{0}]", GetTypeName(t)))
+					.ToArray();
+
+			typeName = string.Format(CultureInfo.InvariantCulture, "{0}[{1}]", typeDefinition.SafeName(), string.Join(",", innerTypes));
+
+			while (arrayRanks.Count > 0)
 			{
-				case '[':
-					++depth;
-					break;
-
-				case ']':
-					--depth;
-					break;
-
-				case ',':
-					if (depth == 0)
-					{
-						results.Add(
-							trimWhitespace
-								? SubstringTrim(value, startIndex, endIndex - startIndex)
-								: value.Substring(startIndex, endIndex - startIndex)
-						);
-
-						startIndex = endIndex + 1;
-					}
-					break;
+				typeName += '[';
+				for (var commas = arrayRanks.Pop() - 1; commas > 0; --commas)
+					typeName += ',';
+				typeName += ']';
 			}
 		}
 
-		if (depth != 0 || startIndex >= endIndex)
-			results.Clear();
-		else
-			results.Add(
-				trimWhitespace
-					? SubstringTrim(value, startIndex, endIndex - startIndex)
-					: value.Substring(startIndex, endIndex - startIndex)
-			);
-
-		return results;
+		return
+			string.Equals(assemblyName, "mscorlib", StringComparison.OrdinalIgnoreCase) || string.Equals(assemblyName, "System.Private.CoreLib", StringComparison.OrdinalIgnoreCase)
+				? typeName
+				: string.Format(CultureInfo.InvariantCulture, "{0},{1}", typeName, assemblyName);
 	}
 
-	static string SubstringTrim(
-		string str,
-		int startIndex,
-		int length)
-	{
-		var endIndex = startIndex + length;
-
-		while (startIndex < endIndex && char.IsWhiteSpace(str[startIndex]))
-			startIndex++;
-
-		while (endIndex > startIndex && char.IsWhiteSpace(str[endIndex - 1]))
-			endIndex--;
-
-		return str.Substring(startIndex, endIndex - startIndex);
-	}
+	/// <summary>
+	/// Converts an assembly qualified type name into a <see cref="Type"/> object. If the
+	/// type does not exist, throws an <see cref="ArgumentException"/>.
+	/// </summary>
+	/// <param name="assemblyQualifiedTypeName">The assembly qualified type name.</param>
+	/// <returns>The instance of the <see cref="Type"/>.</returns>
+	public static Type GetTypeStrict(string assemblyQualifiedTypeName) =>
+		GetType(assemblyQualifiedTypeName) ?? throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Type name '{0}' could not be found", assemblyQualifiedTypeName), nameof(assemblyQualifiedTypeName));
 }

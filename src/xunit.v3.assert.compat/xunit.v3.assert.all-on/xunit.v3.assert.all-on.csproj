@@ -5,9 +5,8 @@
     <DefineConstants>$(DefineConstants);XUNIT_IMMUTABLE_COLLECTIONS;XUNIT_NULLABLE;XUNIT_SPAN</DefineConstants>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <LangVersion>9.0</LangVersion>
-    <!-- .NET Core 2.0 and 2.1 have security vulnerabilities, but we don't care; we just need the build for verification purposes, not to ship it -->
-    <NoWarn>$(NoWarn);NU1902;NU1903</NoWarn>
     <Nullable>enable</Nullable>
     <TargetFrameworks>netstandard1.1;netstandard2.1;netcoreapp2.0;netcoreapp2.1;net8.0</TargetFrameworks>
   </PropertyGroup>

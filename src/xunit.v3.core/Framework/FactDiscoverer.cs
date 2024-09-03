@@ -61,14 +61,12 @@ public class FactDiscoverer : IXunitTestCaseDiscoverer
 		Guard.ArgumentNotNull(testMethod);
 		Guard.ArgumentNotNull(factAttribute);
 
-		IXunitTestCase testCase;
-
-		if (testMethod.Parameters.Count != 0)
-			testCase = ErrorTestCase(discoveryOptions, testMethod, factAttribute, "[Fact] methods are not allowed to have parameters. Did you mean to use [Theory]?");
-		else if (testMethod.IsGenericMethodDefinition)
-			testCase = ErrorTestCase(discoveryOptions, testMethod, factAttribute, "[Fact] methods are not allowed to be generic.");
-		else
-			testCase = CreateTestCase(discoveryOptions, testMethod, factAttribute);
+		var testCase =
+			testMethod.Parameters.Count != 0
+				? ErrorTestCase(discoveryOptions, testMethod, factAttribute, "[Fact] methods are not allowed to have parameters. Did you mean to use [Theory]?")
+				: testMethod.IsGenericMethodDefinition
+					? ErrorTestCase(discoveryOptions, testMethod, factAttribute, "[Fact] methods are not allowed to be generic.")
+					: CreateTestCase(discoveryOptions, testMethod, factAttribute);
 
 		return new([testCase]);
 	}

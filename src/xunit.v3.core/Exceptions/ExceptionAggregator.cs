@@ -6,6 +6,9 @@ using Xunit.Internal;
 
 namespace Xunit.v3;
 
+#pragma warning disable IDE0250  // This struct may *look* readonly to the analyzer, but it's logically not
+#pragma warning disable IDE0251  // The same goes for the members of this struct
+
 /// <summary>
 /// Aggregates exceptions. Intended to run one or more code blocks, and collect the
 /// exceptions thrown by those code blocks.
@@ -177,10 +180,11 @@ public struct ExceptionAggregator
 	{
 		var exceptions = GetExceptions();
 
-		if (exceptions.Count == 0)
-			return null;
-		if (exceptions.Count == 1)
-			return exceptions[0];
-		return new AggregateException(exceptions);
+		return exceptions.Count switch
+		{
+			0 => null,
+			1 => exceptions[0],
+			_ => new AggregateException(exceptions)
+		};
 	}
 }

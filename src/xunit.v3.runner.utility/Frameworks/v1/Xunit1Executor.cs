@@ -73,10 +73,8 @@ public class Xunit1Executor : IXunit1Executor
 	}
 
 	/// <inheritdoc/>
-	public void EnumerateTests(ICallbackEventHandler? handler)
-	{
+	public void EnumerateTests(ICallbackEventHandler? handler) =>
 		CreateObject("Xunit.Sdk.Executor+EnumerateTests", executor, handler);
-	}
 
 	static string GetXunitAssemblyPath(string testAssemblyFileName)
 	{

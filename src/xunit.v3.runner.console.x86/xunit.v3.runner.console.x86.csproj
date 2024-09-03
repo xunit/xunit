@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <ApplicationManifest>..\xunit.v3.runner.console\app.manifest</ApplicationManifest>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <OutputType>Exe</OutputType>
     <RunILRepack>true</RunILRepack>
     <TargetFrameworks>net472;net48;net481</TargetFrameworks>

@@ -74,11 +74,11 @@ public class TestOutputHelper : ITestOutputHelper
 
 	sealed class TestState
 	{
-		readonly static Regex ansiSgrRegex = new("^\\e\\[\\d*(;\\d*)*m");
+		static readonly Regex ansiSgrRegex = new("^\\e\\[\\d*(;\\d*)*m");
 		readonly StringBuilder buffer = new();
 		readonly object lockObject = new();
 		readonly IMessageBus messageBus;
-		readonly static int numberOfMinimalRemainingCharsForValidAnsiSgr = 3 + Environment.NewLine.Length;  // ESC + [ + m
+		static readonly int numberOfMinimalRemainingCharsForValidAnsiSgr = 3 + Environment.NewLine.Length;  // ESC + [ + m
 		readonly string testAssemblyUniqueID;
 		readonly string testCollectionUniqueID;
 		readonly string? testClassUniqueID;

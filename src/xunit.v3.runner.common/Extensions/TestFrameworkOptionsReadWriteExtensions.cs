@@ -325,10 +325,7 @@ public static class TestFrameworkOptionsReadWriteExtensions
 		Guard.ArgumentNotNull(executionOptions);
 
 		var explicitText = executionOptions.GetValue<string?>(TestOptionsNames.Execution.ExplicitOption);
-		if (Enum.TryParse<ExplicitOption>(explicitText, out var result))
-			return result;
-
-		return null;
+		return Enum.TryParse<ExplicitOption>(explicitText, out var result) ? result : null;
 	}
 
 	/// <summary>
@@ -409,10 +406,11 @@ public static class TestFrameworkOptionsReadWriteExtensions
 		Guard.ArgumentNotNull(executionOptions);
 
 		var result = executionOptions.GetMaxParallelThreads();
-		if (result is null || result == 0)
-			return Environment.ProcessorCount;
 
-		return result.GetValueOrDefault();
+		return
+			result is null or 0
+				? Environment.ProcessorCount
+				: result.Value;
 	}
 
 	/// <summary>

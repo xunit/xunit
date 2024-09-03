@@ -7,28 +7,20 @@ namespace Xunit;
 /// <summary>
 /// Contains the information by <see cref="IFrontController.Run"/>.
 /// </summary>
-public class FrontControllerRunSettings : FrontControllerSettingsBase
+/// <param name="options">The options used during execution</param>
+/// <param name="serializedTestCases">The test cases to be run</param>
+public class FrontControllerRunSettings(
+	ITestFrameworkExecutionOptions options,
+	IReadOnlyCollection<string> serializedTestCases) :
+		FrontControllerSettingsBase
 {
-	/// <summary>
-	/// Initializes a new instance of the <see cref="FrontControllerFindSettings"/> class.
-	/// </summary>
-	/// <param name="options">The options used during execution</param>
-	/// <param name="serializedTestCases">The test cases to be run</param>
-	public FrontControllerRunSettings(
-		ITestFrameworkExecutionOptions options,
-		IReadOnlyCollection<string> serializedTestCases)
-	{
-		Options = Guard.ArgumentNotNull(options);
-		SerializedTestCases = Guard.ArgumentNotNull(serializedTestCases);
-	}
-
 	/// <summary>
 	/// The options used during execution.
 	/// </summary>
-	public ITestFrameworkExecutionOptions Options { get; }
+	public ITestFrameworkExecutionOptions Options { get; } = Guard.ArgumentNotNull(options);
 
 	/// <summary>
 	/// Get the list of test cases to be run.
 	/// </summary>
-	public IReadOnlyCollection<string> SerializedTestCases { get; }
+	public IReadOnlyCollection<string> SerializedTestCases { get; } = Guard.ArgumentNotNull(serializedTestCases);
 }

@@ -21,21 +21,10 @@ public class TestCollectionComparer<TTestCollection> : IEqualityComparer<TTestCo
 	/// <inheritdoc/>
 	public bool Equals(
 		TTestCollection? x,
-		TTestCollection? y)
-	{
-		if (x is null && y is null)
-			return true;
-		if (x is null || y is null)
-			return false;
-
-		return x.UniqueID == y.UniqueID;
-	}
+		TTestCollection? y) =>
+			(x is null && y is null) || (x is not null && y is not null && x.UniqueID == y.UniqueID);
 
 	/// <inheritdoc/>
-	public int GetHashCode(TTestCollection obj)
-	{
-		Guard.ArgumentNotNull(obj);
-
-		return obj.UniqueID.GetHashCode();
-	}
+	public int GetHashCode(TTestCollection obj) =>
+		Guard.ArgumentNotNull(obj).UniqueID.GetHashCode();
 }

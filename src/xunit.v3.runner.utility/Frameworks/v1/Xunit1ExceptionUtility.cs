@@ -78,7 +78,7 @@ static class Xunit1ExceptionUtility
 
 		var stackTraces = NestedStackTracesRegex.Split(nestedStackTraces);
 		var exceptionParentIndices = new int[stackTraces.Length];
-		for (int i = 0; i < exceptionParentIndices.Length; i++)
+		for (var i = 0; i < exceptionParentIndices.Length; i++)
 			exceptionParentIndices[i] = i - 1;
 
 		return (
