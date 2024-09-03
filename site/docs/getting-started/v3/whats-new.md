@@ -6,7 +6,7 @@ breadcrumb: Documentation
 
 # What's New in v3
 
-## As of: 2024 August 30 (`0.3.0-pre.18`)
+## As of: 2024 September 2 (`0.3.0-pre.18`)
 
 This guide aims to be a comprehensive list of the new features added to v3, written for existing developers who are using v2.
 
@@ -81,8 +81,6 @@ Items here are related to the assertion library, from the `xunit.v3.assert` and 
 > * `Assert.Skip(string message)`
 > * `Assert.SkipUnless(bool condition, string reason)` will dynamically skip the test only if `condition` is `false`
 > * `Assert.SkipWhen(bool condition, string reason)` will dynamically skip the test only if `condition` is `true`
->
-> The ability to dynamically skip tests has been added to support determining when to skip a test at runtime rather than at compile time. An example of a reason to dynamically skip a test at runtime would include: skipping a test based on the execution environment. That might include the operating system (Windows vs. macOS vs. Linux) or the runtime environment (interactive tests run by developers vs. tests run during continuous integration).
 
 ### New assertions for projects previously targeting .NET Framework/.NET 5 or older
 
@@ -116,6 +114,8 @@ Items here are related to the core framework used for writing tests, from the `x
 ### Dynamically skippable tests
 
 We have added the ability to dynamically skip tests via the `[Fact]` and `[Theory]` attributes, in addition to the `Assert.Skip` family of assertions mentioned above.
+
+The ability to dynamically skip tests has been added to support determining when to skip a test at runtime rather than at compile time. An example of a reason to dynamically skip a test at runtime would include: skipping a test based on the execution environment. That might include the operating system (Windows vs. macOS vs. Linux) or the runtime environment (interactive tests run by developers vs. tests run during continuous integration). The project template `xunit3-extension` illustrates one way to add a dynamic skip system (via an attribute) based on the operating system.
 
 You may set either `SkipUnless` or `SkipWhen` (but not both) to point at a public static property on the test class which returns `bool`; to skip the test, return `false` for `SkipUnless` or `true` for `SkipWhen`. You may also place the public static property on another class by setting `SkipType`. Note that setting both `SkipUnless` and `SkipWhen` will result in a runtime test failure.
 
@@ -243,6 +243,20 @@ In addition to running tests, you can now also list tests and test metadata rath
 The cross-process communication between the unit tests and the runner (when using a multi-assembly runner like `xunit.v3.runner.console` or `xunit.runner.visualstudio`) is handled via JSON-encoded messages. This means that all the message classes must now support serialization.
 
 A hand-crafted JSON serialization system has been added to `xunit.v3.common`, along with two interfaces (`IJsonSerializable` and `IJsonDeserializable`) that are implemented by messages which support serialization. This JSON serializer is very feature sparse and not guaranteed to be able to handle arbitrary JSON from outside sources; it is only intended to be used to explicitly serialize and deserialize the message classes. Using this for any other purpose is not supported.
+
+### Third party assertion library extension points
+
+Test results can now include a cause field, which will generally be one of `Assertion`, `Timeout`, or `Exception` (as well as two catch-all values of `Other` and `Unknown`). Any test which fails will show up by default with a failure cause of `Exception` unless the system is otherwise notified of the type of failure.
+
+For the first party assertions, we have decorated them with interfaces that let the system know that these exceptions are a special kind of exception that indicate either an assertion failure or a timeout failure.
+
+Third party assertion libraries can also influence the failure cause by decorating their exceptions with interfaces. These interfaces are not "hard" contracts, but rather a runtime inspection that looks for interfaces with a given name (in any namespace) to provide a hint as the kind of exception that is being thrown. This design was done so that third party assertion libraries did not need to create any hard dependencies on xUnit.net, as most are designed to be cross-test framework.
+
+When inspecting the exception that caused the test failure, xUnit.net v3 will look at the interfaces that the exception implements. If one of the interfaces of the exception is named `IAssertionException` (in any namespace), that will cause xUnit.net to consider the failure cause to be an assertion failure; similarly, any exception where one of the interfaces is named `ITestTimeoutException` (in any namespace) will cause xUnit.net to consider that failure cause to be a timeout failure. Neither of these interfaces needs to have any methods or properties; they are merely name markers that xUnit.net can look at to help categorize the exception type.
+
+Dynamic skipping is also done via exception. Unlike the failure exceptions, though, this is done by manipulating the _exception message_. Any exception message which starts with `$XunitDynamicSkip$` will be considered to be a dynamic skip, and the skip reason will be the remainder of the message after token. There are no interface requirements for this; any exception (including any built-in system exception) can serve this purpose so long as the message begins with the token.
+
+The project template `xunit3-extension` illustrates one way to add a dynamic skip system (via a before/after test attribute) that will skip based on the runtime operating system. It utilizes the dynamic skip token by throwing `System.Exception` with the skip reason in the message.
 
 ### Miscellaneous changes
 
