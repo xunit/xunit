@@ -17,13 +17,6 @@ public class TestTimeoutException : Exception, ITestTimeoutException
 	{ }
 
 	/// <summary>
-	/// Creates a new instance of <see cref="TestTimeoutException"/> for a test which is
-	/// not compatible with timeout.
-	/// </summary>
-	public static TestTimeoutException ForIncompatibleTest() =>
-		new("Tests marked with Timeout are only supported for async tests");
-
-	/// <summary>
 	/// Creates a new instance of <see cref="TestTimeoutException"/> for a test that has
 	/// timed out.
 	/// </summary>

@@ -10,7 +10,7 @@ public class XunitTestInvokerTests
 	public class Timeout
 	{
 		[Fact]
-		public async ValueTask WithoutTimeout_RunsTest()
+		public async ValueTask WithoutTimeout()
 		{
 			var invoker = new TestableXunitTestInvoker(nameof(ClassUnderTest.WithoutTimeout));
 
@@ -22,22 +22,9 @@ public class XunitTestInvokerTests
 		}
 
 		[Fact]
-		public async ValueTask WithTimeout_NonAsyncMethod_Fails()
+		public async ValueTask WithTimeout()
 		{
-			var invoker = new TestableXunitTestInvoker(nameof(ClassUnderTest.TimeoutWithoutAsync), timeout: 10);
-
-			await invoker.RunAsync();
-
-			var ex = invoker.Aggregator.ToException();
-			Assert.IsType<TestTimeoutException>(ex);
-			Assert.Equal("Tests marked with Timeout are only supported for async tests", ex.Message);
-			Assert.False(invoker.CancellationTokenSource.IsCancellationRequested);
-		}
-
-		[Fact]
-		public async ValueTask WithoutTimeout_AsyncMethod_RunsTestWithTimeout()
-		{
-			var invoker = new TestableXunitTestInvoker(nameof(ClassUnderTest.TimeoutWithAsync), timeout: 10);
+			var invoker = new TestableXunitTestInvoker(nameof(ClassUnderTest.WithTimeout), timeout: 10);
 
 			await invoker.RunAsync();
 
@@ -56,10 +43,7 @@ public class XunitTestInvokerTests
 		public void WithoutTimeout() => WithoutTimeout_Called = true;
 
 		[Fact]
-		public void TimeoutWithoutAsync() { }
-
-		[Fact]
-		public Task TimeoutWithAsync() => Task.Delay(100, TestContext.Current.CancellationToken);
+		public Task WithTimeout() => Task.Delay(100, TestContext.Current.CancellationToken);
 	}
 
 	class TestableXunitTestInvoker(

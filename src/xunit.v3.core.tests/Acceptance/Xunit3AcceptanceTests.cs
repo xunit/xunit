@@ -361,12 +361,13 @@ public class Xunit3AcceptanceTests
 		}
 	}
 
+	// Disable parallelization because the timing performance here is important
+	[CollectionDefinition(DisableParallelization = true)]
+	public class TimeoutTestsCollection { }
+
+	[Collection(typeof(TimeoutTestsCollection))]
 	public class TimeoutTests : AcceptanceTestV3
 	{
-		// This ITest is a little sketchy, because it relies on the execution of the acceptance test to happen in less time
-		// than the timeout. The timeout is set arbitrarily high in order to give some padding to the timing, but even on
-		// a Core i7-7820HK, the execution time is ~ 400 milliseconds for what should be about 10 milliseconds of wait
-		// time. If this ITest becomes flaky, a higher value than 10000 could be considered.
 		[Fact]
 		public async ValueTask TimedOutTest()
 		{
@@ -374,19 +375,30 @@ public class Xunit3AcceptanceTests
 			var results = await RunForResultsAsync(typeof(ClassUnderTest));
 			stopwatch.Stop();
 
-			var passed = Assert.Single(results.OfType<TestPassedWithDisplayName>());
-			Assert.Equal("Xunit3AcceptanceTests+TimeoutTests+ClassUnderTest.ShortRunningTest", passed.TestDisplayName);
+			Assert.Collection(
+				results.OfType<TestPassedWithDisplayName>().OrderBy(t => t.TestDisplayName),
+				passed =>
+				{
+					Assert.Equal($"{typeof(ClassUnderTest).FullName}.{nameof(ClassUnderTest.ShortRunningAsyncTest)}", passed.TestDisplayName);
+					Assert.True(passed.ExecutionTime < 10m);
+				},
+				passed =>
+				{
+					Assert.Equal($"{typeof(ClassUnderTest).FullName}.{nameof(ClassUnderTest.ShortRunningSyncTest)}", passed.TestDisplayName);
+					Assert.True(passed.ExecutionTime < 10m);
+				}
+			);
 
 			Assert.Collection(
 				results.OfType<TestFailedWithDisplayName>().OrderBy(f => f.TestDisplayName),
 				failed =>
 				{
-					Assert.Equal("Xunit3AcceptanceTests+TimeoutTests+ClassUnderTest.IllegalTest", failed.TestDisplayName);
-					Assert.Equal("Tests marked with Timeout are only supported for async tests", failed.Messages.Single());
+					Assert.Equal($"{typeof(ClassUnderTest).FullName}.{nameof(ClassUnderTest.LongRunningAsyncTest)}", failed.TestDisplayName);
+					Assert.Equal("Test execution timed out after 10 milliseconds", failed.Messages.Single());
 				},
 				failed =>
 				{
-					Assert.Equal("Xunit3AcceptanceTests+TimeoutTests+ClassUnderTest.LongRunningTest", failed.TestDisplayName);
+					Assert.Equal($"{typeof(ClassUnderTest).FullName}.{nameof(ClassUnderTest.LongRunningSyncTest)}", failed.TestDisplayName);
 					Assert.Equal("Test execution timed out after 10 milliseconds", failed.Messages.Single());
 				}
 			);
@@ -396,15 +408,35 @@ public class Xunit3AcceptanceTests
 
 		class ClassUnderTest
 		{
+			[Fact(Timeout = 10000)]
+			public Task ShortRunningAsyncTest() => Task.Delay(10, TestContext.Current.CancellationToken);
+
+			[Fact(Timeout = 10000)]
+			public void ShortRunningSyncTest()
+			{
+				var stop = DateTimeOffset.UtcNow.AddMilliseconds(10);
+
+				while (DateTimeOffset.UtcNow < stop)
+				{
+					Thread.Sleep(5);
+					TestContext.Current.CancellationToken.ThrowIfCancellationRequested();
+				}
+			}
+
 			[Fact(Timeout = 10)]
-			public Task LongRunningTest() => Task.Delay(10000, TestContext.Current.CancellationToken);
+			public Task LongRunningAsyncTest() => Task.Delay(10000, TestContext.Current.CancellationToken);
 
-			[Fact(Timeout = 10000)]
-			public Task ShortRunningTest() => Task.Delay(10, TestContext.Current.CancellationToken);
+			[Fact(Timeout = 10)]
+			public void LongRunningSyncTest()
+			{
+				var stop = DateTimeOffset.UtcNow.AddMilliseconds(10000);
 
-			// Can't have timeout on a non-async test
-			[Fact(Timeout = 10000)]
-			public void IllegalTest() { }
+				while (DateTimeOffset.UtcNow < stop)
+				{
+					Thread.Sleep(5);
+					TestContext.Current.CancellationToken.ThrowIfCancellationRequested();
+				}
+			}
 		}
 	}
 
