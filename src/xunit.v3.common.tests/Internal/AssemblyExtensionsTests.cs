@@ -90,6 +90,6 @@ public class AssemblyExtensionsTests
 
 		var result = AssemblyExtensions.GetTargetFramework(typeof(AssemblyExtensionsTests).Assembly);
 
-		Assert.Equal<object>(expected, result);
+		Assert.Equal(expected, result);
 	}
 }
