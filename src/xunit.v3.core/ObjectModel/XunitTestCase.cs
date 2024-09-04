@@ -115,9 +115,6 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 	public int? SourceLineNumber { get; set; }
 
 	/// <inheritdoc/>
-	public int Timeout { get; private set; }
-
-	/// <inheritdoc/>
 	public string TestCaseDisplayName =>
 		this.ValidateNullablePropertyValue(testCaseDisplayName, nameof(TestCaseDisplayName));
 
@@ -174,6 +171,9 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 	/// <inheritdoc/>
 	public string TestMethodReturnType =>
 		TestMethod.ReturnType.SafeName();
+
+	/// <inheritdoc/>
+	public int Timeout { get; private set; }
 
 	/// <summary>
 	/// Gets the traits associated with this test case.
