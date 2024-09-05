@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Threading;
 using Xunit.Internal;
@@ -14,7 +13,7 @@ namespace Xunit;
 /// various points during the execution pipeline, so consumers must always take care to ensure
 /// that they check for <c>null</c> values from the various properties.
 /// </summary>
-public sealed class TestContext : IDisposable
+public sealed class TestContext : ITestContext, IDisposable
 {
 	static readonly TestContext idleTestContext = new(null, null, null, TestPipelineStage.Unknown, default);
 	static readonly AsyncLocal<TestContext?> local = new();
@@ -45,18 +44,10 @@ public sealed class TestContext : IDisposable
 		this.warnings = warnings;
 	}
 
-	/// <summary>
-	/// Gets the attachments for the current test, if the engine is currently in the process of running a test;
-	/// will return <c>null</c> outside of the context of a test.
-	/// </summary>
-	[NotNullIfNotNull(nameof(Test))]
+	/// <inheritdoc/>
 	public IReadOnlyDictionary<string, TestAttachment>? Attachments => attachments;
 
-	/// <summary>
-	/// Gets the cancellation token that is used to indicate that the test run should be
-	/// aborted. Async tests should pass this along to any async functions that support
-	/// cancellation tokens, to help speed up the cancellation process.
-	/// </summary>
+	/// <inheritdoc/>
 	public CancellationToken CancellationToken { get; }
 
 	/// <summary>
@@ -66,7 +57,11 @@ public sealed class TestContext : IDisposable
 	/// not cache the instance across a single method boundary (or else/ you run the risk of having
 	/// an out-of-date context).
 	/// </summary>
-	public static TestContext Current => local.Value ?? idleTestContext;
+	public static ITestContext Current =>
+		CurrentInternal;
+
+	internal static TestContext CurrentInternal =>
+		local.Value ?? idleTestContext;
 
 	internal IMessageSink? DiagnosticMessageSink
 	{
@@ -92,173 +87,63 @@ public sealed class TestContext : IDisposable
 		}
 	}
 
-	/// <summary>
-	/// Stores key/value pairs that are available across all stages of the pipeline. Can be used
-	/// to communicate between extensions at different execution stages, in both directions, as
-	/// a single storage container is used for the entire pipeline.
-	/// </summary>
-	/// <remarks>
-	/// This storage system is purely for communication between extension points. The values in here
-	/// are thrown away after the pipeline execution is complete. It is strongly recommend that
-	/// extensions either prefix their key names or use guaranteed unique IDs like GUIDs, to prevent
-	/// collisions with other extension authors.
-	/// </remarks>
+	/// <inheritdoc/>
 	public Dictionary<string, object?> KeyValueStorage =>
 		keyValueStorage ?? throw new InvalidOperationException("Cannot get KeyValueStorage on the idle test context");
 
-	/// <summary>
-	/// Gets the current test pipeline stage.
-	/// </summary>
+	/// <inheritdoc/>
 	public TestPipelineStage PipelineStage { get; private set; }
 
-	/// <summary>
-	/// Gets the current test, if the engine is currently in the process of running a test;
-	/// will return <c>null</c> outside of the context of a test.
-	/// </summary>
-	/// <remarks>
-	/// When running with the default test framework implementation, the value here is likely
-	/// to implement <see cref="IXunitTest"/>.
-	/// </remarks>
+	/// <inheritdoc/>
 	public ITest? Test { get; private set; }
 
-	/// <summary>
-	/// Gets the current test assembly, if the engine is currently in the process of running or
-	/// discovering tests in assembly; will return <c>null</c> out of this context (this typically
-	/// means the test framework itself is being created and initialized).
-	/// </summary>
-	/// <remarks>
-	/// When running with the default test framework implementation, the value here is likely
-	/// to implement <see cref="IXunitTestAssembly"/>.
-	/// </remarks>
-	[NotNullIfNotNull(nameof(TestCollection))]
+	/// <inheritdoc/>
 	public ITestAssembly? TestAssembly { get; private set; }
 
-	/// <summary>
-	/// Gets the current test engine status for the test assembly.
-	/// </summary>
-	[NotNullIfNotNull(nameof(TestAssembly))]
+	/// <inheritdoc/>
 	public TestEngineStatus? TestAssemblyStatus { get; private set; }
 
-	/// <summary>
-	/// Gets the current test case, if the engine is currently in the process of running a
-	/// test case; will return <c>null</c> outside of the context of a test case.
-	/// </summary>
-	/// <remarks>
-	/// When running with the default test framework implementation, the value here is likely
-	/// to implement <see cref="IXunitTestCase"/>.
-	/// </remarks>
-	[NotNullIfNotNull(nameof(Test))]
+	/// <inheritdoc/>
 	public ITestCase? TestCase { get; private set; }
 
-	/// <summary>
-	/// Gets the current test engine status for the test case. Will only be available when <see cref="TestCase"/>
-	/// is not <c>null</c>.
-	/// </summary>
-	[NotNullIfNotNull(nameof(TestCase))]
+	/// <inheritdoc/>
 	public TestEngineStatus? TestCaseStatus { get; private set; }
 
-	/// <summary>
-	/// Gets the current test method, if the engine is currently in the process of running
-	/// a test class; will return <c>null</c> outside of the context of a test class. Note that
-	/// not all test framework implementations require that tests be based on classes, so this
-	/// value may be <c>null</c> even if <see cref="TestCase"/> is not <c>null</c>.
-	/// </summary>
-	/// <remarks>
-	/// When running with the default test framework implementation, the value here is likely
-	/// to implement <see cref="IXunitTestClass"/>.
-	/// </remarks>
-	[NotNullIfNotNull(nameof(TestMethod))]
+	/// <inheritdoc/>
 	public ITestClass? TestClass { get; private set; }
 
-	/// <summary>
-	/// Gets the instance of the test class; will return <c>null</c> outside of the context of
-	/// a test. Static test methods do not create test class instances, so this will always be <c>null</c>
-	/// for static test methods.
-	/// </summary>
-	/// <remarks>
-	/// This value will only be available when <see cref="PipelineStage"/> is <see cref="TestPipelineStage.TestExecution"/>
-	/// and <see cref="TestStatus"/> is <see cref="TestEngineStatus.Running"/>, and only after the test class has been
-	/// created. It will become <c>null</c> again immediately after the test class has been disposed.
-	/// </remarks>
+	/// <inheritdoc/>
 	public object? TestClassInstance { get; private set; }
 
-	/// <summary>
-	/// Gets the current test engine status for the test class. Will only be available when <see cref="TestClass"/>
-	/// is not <c>null</c>.
-	/// </summary>
-	[NotNullIfNotNull(nameof(TestClass))]
+	/// <inheritdoc/>
 	public TestEngineStatus? TestClassStatus { get; private set; }
 
-	/// <summary>
-	/// Gets the current test collection, if the engine is currently in the process of running
-	/// a test collection; will return <c>null</c> outside of the context of a test collection.
-	/// </summary>
-	/// <remarks>
-	/// When running with the default test framework implementation, the value here is likely
-	/// to implement <see cref="IXunitTestCollection"/>.
-	/// </remarks>
-	[NotNullIfNotNull(nameof(TestClass))]
-	[NotNullIfNotNull(nameof(TestCase))]
+	/// <inheritdoc/>
 	public ITestCollection? TestCollection { get; private set; }
 
-	/// <summary>
-	/// Gets the current test engine status for the test collection. Will only be available when
-	/// <see cref="TestCollection"/> is not <c>null</c>.
-	/// </summary>
-	[NotNullIfNotNull(nameof(TestCollection))]
+	/// <inheritdoc/>
 	public TestEngineStatus? TestCollectionStatus { get; private set; }
 
-	/// <summary>
-	/// Gets the output helper, which can be used to add output to the test. Will only be
-	/// available when <see cref="Test"/> is not <c>null</c>. Note that the value may still
-	/// be <c>null</c> when <see cref="Test"/> is not <c>null</c>, if the test framework
-	/// implementation does not provide output helper support.
-	/// </summary>
-	public ITestOutputHelper? TestOutputHelper { get; private set; }
-
-	/// <summary>
-	/// Gets the current test method, if the engine is currently in the process of running
-	/// a test method; will return <c>null</c> outside of the context of a test method. Note that
-	/// not all test framework implementations require that tests be based on methods, so this
-	/// value may be <c>null</c> even if <see cref="TestCase"/> is not <c>null</c>.
-	/// </summary>
-	/// <remarks>
-	/// When running with the default test framework implementation, the value here is likely
-	/// to implement <see cref="IXunitTestMethod"/>.
-	/// </remarks>
+	/// <inheritdoc/>
 	public ITestMethod? TestMethod { get; private set; }
 
-	/// <summary>
-	/// Gets the current test engine status for the test method. Will only be available when <see cref="TestMethod"/>
-	/// is not <c>null</c>.
-	/// </summary>
-	[NotNullIfNotNull(nameof(TestMethod))]
+	/// <inheritdoc/>
 	public TestEngineStatus? TestMethodStatus { get; private set; }
 
-	/// <summary>
-	/// Gets the current state of the test. Will only be available after the test has finished running.
-	/// </summary>
+	/// <inheritdoc/>
+	public ITestOutputHelper? TestOutputHelper { get; private set; }
+
+	/// <inheritdoc/>
 	public TestResultState? TestState { get; private set; }
 
-	/// <summary>
-	/// Gets the current test engine status for the test. Will only be available when <see cref="Test"/>
-	/// is not <c>null</c>.
-	/// </summary>
-	[NotNullIfNotNull(nameof(Test))]
+	/// <inheritdoc/>
 	public TestEngineStatus? TestStatus { get; private set; }
 
-	/// <summary>
-	/// Gets the set of warnings associated with the current test. Will only be available when <see cref="Test"/>
-	/// is not <c>null</c>; will also return <c>null</c> if there have been no warnings issued.
-	/// </summary>
+	/// <inheritdoc/>
 	public IReadOnlyList<string>? Warnings =>
 		warnings?.Count > 0 ? warnings : null;
 
-	/// <summary>
-	/// Adds an attachment that is a string value.
-	/// </summary>
-	/// <param name="name">The name of the attachment</param>
-	/// <param name="value">The value of the attachment</param>
+	/// <inheritdoc/>
 	public void AddAttachment(
 		string name,
 		string value)
@@ -278,18 +163,7 @@ public sealed class TestContext : IDisposable
 			}
 	}
 
-	/// <summary>
-	/// Adds an attachment that is a binary value (represented by a byte array and media type).
-	/// </summary>
-	/// <param name="name">The name of the attachment</param>
-	/// <param name="value">The value of the attachment</param>
-	/// <param name="mediaType">The media type of the attachment; defaults to "application/octet-stream"</param>
-	/// <remarks>
-	/// The <paramref name="mediaType"/> value must be in the MIME "type/subtype" form, and does not support
-	/// parameter values. The subtype is allowed to have a single "+" to denote specialization of the
-	/// subtype (i.e., "application/xhtml+xml"). For more information on media types, see
-	/// <see href="https://datatracker.ietf.org/doc/html/rfc2045#section-5.1"/>.
-	/// </remarks>
+	/// <inheritdoc/>
 	public void AddAttachment(
 		string name,
 		byte[] value,
@@ -310,10 +184,7 @@ public sealed class TestContext : IDisposable
 			}
 	}
 
-	/// <summary>
-	/// Adds a warning to the test result.
-	/// </summary>
-	/// <param name="message">The warning message to be reported</param>
+	/// <inheritdoc/>
 	public void AddWarning(string message)
 	{
 		if (Test is null || warnings is null)
@@ -322,10 +193,7 @@ public sealed class TestContext : IDisposable
 			warnings.Add(message);
 	}
 
-	/// <summary>
-	/// Attempt to cancel the currently executing test, if one is executing. This will
-	/// signal the <see cref="CancellationToken"/> for cancellation.
-	/// </summary>
+	/// <inheritdoc/>
 	public void CancelCurrentTest() =>
 		testCancellationTokenSource.Cancel();
 
@@ -333,46 +201,24 @@ public sealed class TestContext : IDisposable
 	public void Dispose() =>
 		testCancellationTokenSource.Dispose();
 
-	/// <summary>
-	/// Sends a diagnostic message. Will only be visible if the end user has enabled diagnostic messages.
-	/// See https://xunit.net/docs/configuration-files for configuration information.
-	/// </summary>
-	/// <param name="message">The message to send</param>
+	/// <inheritdoc/>
 	public void SendDiagnosticMessage(string message)
 		=> DiagnosticMessageSink?.OnMessage(new DiagnosticMessage(message));
 
-	/// <summary>
-	/// Sends a formatted diagnostic message. Will only be visible if the end user has enabled diagnostic messages.
-	/// See https://xunit.net/docs/configuration-files for configuration information.
-	/// </summary>
-	/// <param name="format">A composite format string.</param>
-	/// <param name="arg0">The value to replace {0} in the format string.</param>
+	/// <inheritdoc/>
 	public void SendDiagnosticMessage(
 		string format,
 		object? arg0) =>
 			DiagnosticMessageSink?.OnMessage(new DiagnosticMessage(format, arg0));
 
-	/// <summary>
-	/// Sends a formatted diagnostic message. Will only be visible if the end user has enabled diagnostic messages.
-	/// See https://xunit.net/docs/configuration-files for configuration information.
-	/// </summary>
-	/// <param name="format">A composite format string.</param>
-	/// <param name="arg0">The value to replace {0} in the format string.</param>
-	/// <param name="arg1">The value to replace {1} in the format string.</param>
+	/// <inheritdoc/>
 	public void SendDiagnosticMessage(
 		string format,
 		object? arg0,
 		object? arg1) =>
 			DiagnosticMessageSink?.OnMessage(new DiagnosticMessage(format, arg0, arg1));
 
-	/// <summary>
-	/// Sends a formatted diagnostic message. Will only be visible if the end user has enabled diagnostic messages.
-	/// See https://xunit.net/docs/configuration-files for configuration information.
-	/// </summary>
-	/// <param name="format">A composite format string.</param>
-	/// <param name="arg0">The value to replace {0} in the format string.</param>
-	/// <param name="arg1">The value to replace {1} in the format string.</param>
-	/// <param name="arg2">The value to replace {2} in the format string.</param>
+	/// <inheritdoc/>
 	public void SendDiagnosticMessage(
 		string format,
 		object? arg0,
@@ -380,12 +226,7 @@ public sealed class TestContext : IDisposable
 		object? arg2) =>
 			DiagnosticMessageSink?.OnMessage(new DiagnosticMessage(format, arg0, arg1, arg2));
 
-	/// <summary>
-	/// Sends a formatted diagnostic message. Will only be visible if the end user has enabled diagnostic messages.
-	/// See https://xunit.net/docs/configuration-files for configuration information.
-	/// </summary>
-	/// <param name="format">A composite format string.</param>
-	/// <param name="args">An object array that contains zero or more objects to format.</param>
+	/// <inheritdoc/>
 	public void SendDiagnosticMessage(
 		string format,
 		params object?[] args) =>
@@ -457,19 +298,18 @@ public sealed class TestContext : IDisposable
 	{
 		Guard.ArgumentNotNull(test);
 		Guard.ArgumentEnumValid(testStatus, validExecutionStatuses);
-		Guard.NotNull("TestContext.Current must be non-null", Current);
 
 		if (testStatus == TestEngineStatus.CleaningUp)
 			Guard.ArgumentNotNull(testState);
 
-		if (Current.TestOutputHelper is null)
+		if (CurrentInternal.TestOutputHelper is null)
 			Guard.ArgumentNotNull(testOutputHelper);
 
-		local.Value = new TestContext(Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, Current.KeyValueStorage, TestPipelineStage.TestExecution, cancellationToken, Current.attachments ?? [], Current.warnings ?? [])
+		local.Value = new TestContext(CurrentInternal.DiagnosticMessageSink, CurrentInternal.InternalDiagnosticMessageSink, CurrentInternal.KeyValueStorage, TestPipelineStage.TestExecution, cancellationToken, CurrentInternal.attachments ?? [], CurrentInternal.warnings ?? [])
 		{
 			Test = test,
 			TestClassInstance = testClassInstance,
-			TestOutputHelper = testOutputHelper ?? Current.TestOutputHelper,
+			TestOutputHelper = testOutputHelper ?? CurrentInternal.TestOutputHelper,
 			TestState = testState,
 			TestStatus = testStatus,
 
@@ -503,14 +343,13 @@ public sealed class TestContext : IDisposable
 		CancellationToken cancellationToken)
 	{
 		Guard.ArgumentNotNull(testAssembly);
-		Guard.NotNull("TestContext.Current must be non-null", Current);
 
 		var pipelineStage =
 			testAssemblyStatus == TestEngineStatus.Discovering
 				? TestPipelineStage.Discovery
 				: TestPipelineStage.TestAssemblyExecution;
 
-		local.Value = new TestContext(Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, Current.KeyValueStorage, pipelineStage, cancellationToken)
+		local.Value = new TestContext(CurrentInternal.DiagnosticMessageSink, CurrentInternal.InternalDiagnosticMessageSink, CurrentInternal.KeyValueStorage, pipelineStage, cancellationToken)
 		{
 			TestAssembly = testAssembly,
 			TestAssemblyStatus = testAssemblyStatus,
@@ -532,9 +371,8 @@ public sealed class TestContext : IDisposable
 	{
 		Guard.ArgumentNotNull(testCase);
 		Guard.ArgumentEnumValid(testCaseStatus, validExecutionStatuses);
-		Guard.NotNull("TestContext.Current must be non-null", Current);
 
-		local.Value = new TestContext(Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, Current.KeyValueStorage, TestPipelineStage.TestCaseExecution, cancellationToken)
+		local.Value = new TestContext(CurrentInternal.DiagnosticMessageSink, CurrentInternal.InternalDiagnosticMessageSink, CurrentInternal.KeyValueStorage, TestPipelineStage.TestCaseExecution, cancellationToken)
 		{
 			TestCase = testCase,
 			TestCaseStatus = testCaseStatus,
@@ -568,9 +406,8 @@ public sealed class TestContext : IDisposable
 	{
 		Guard.ArgumentNotNull(testClass);
 		Guard.ArgumentEnumValid(testClassStatus, validExecutionStatuses);
-		Guard.NotNull("TestContext.Current must be non-null", Current);
 
-		local.Value = new TestContext(Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, Current.KeyValueStorage, TestPipelineStage.TestClassExecution, cancellationToken)
+		local.Value = new TestContext(CurrentInternal.DiagnosticMessageSink, CurrentInternal.InternalDiagnosticMessageSink, CurrentInternal.KeyValueStorage, TestPipelineStage.TestClassExecution, cancellationToken)
 		{
 			TestClass = testClass,
 			TestClassStatus = testClassStatus,
@@ -598,9 +435,8 @@ public sealed class TestContext : IDisposable
 	{
 		Guard.ArgumentNotNull(testCollection);
 		Guard.ArgumentEnumValid(testCollectionStatus, validExecutionStatuses);
-		Guard.NotNull("TestContext.Current must be non-null", Current);
 
-		local.Value = new TestContext(Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, Current.KeyValueStorage, TestPipelineStage.TestCollectionExecution, cancellationToken)
+		local.Value = new TestContext(CurrentInternal.DiagnosticMessageSink, CurrentInternal.InternalDiagnosticMessageSink, CurrentInternal.KeyValueStorage, TestPipelineStage.TestCollectionExecution, cancellationToken)
 		{
 			TestCollection = testCollection,
 			TestCollectionStatus = testCollectionStatus,
@@ -625,9 +461,8 @@ public sealed class TestContext : IDisposable
 	{
 		Guard.ArgumentNotNull(testMethod);
 		Guard.ArgumentEnumValid(testMethodStatus, validExecutionStatuses);
-		Guard.NotNull("TestContext.Current must be non-null", Current);
 
-		local.Value = new TestContext(Current.DiagnosticMessageSink, Current.InternalDiagnosticMessageSink, Current.KeyValueStorage, TestPipelineStage.TestMethodExecution, cancellationToken)
+		local.Value = new TestContext(CurrentInternal.DiagnosticMessageSink, CurrentInternal.InternalDiagnosticMessageSink, CurrentInternal.KeyValueStorage, TestPipelineStage.TestMethodExecution, cancellationToken)
 		{
 			TestMethod = testMethod,
 			TestMethodStatus = testMethodStatus,

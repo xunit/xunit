@@ -124,7 +124,7 @@ public class FixtureMappingManagerTests
 		var typedResult = Assert.IsType<FixtureWithMessageSinkAndTestContext>(result);
 		Assert.NotNull(TestContext.Current);
 		Assert.Same(TestContext.Current, typedResult.ContextAccessor.Current);
-		Assert.Same(TestContext.Current.DiagnosticMessageSink, typedResult.MessageSink);
+		Assert.Same(TestContext.CurrentInternal.DiagnosticMessageSink, typedResult.MessageSink);
 	}
 
 	class FixtureWithMessageSinkAndTestContext(

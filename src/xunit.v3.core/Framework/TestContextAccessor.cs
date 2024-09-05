@@ -14,5 +14,5 @@ public class TestContextAccessor : ITestContextAccessor
 	public static TestContextAccessor Instance = new();
 
 	/// <inheritdoc/>
-	public TestContext Current => TestContext.Current;
+	public ITestContext Current => TestContext.Current;
 }

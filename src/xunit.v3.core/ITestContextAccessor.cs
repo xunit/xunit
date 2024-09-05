@@ -13,5 +13,5 @@ public interface ITestContextAccessor
 	/// not cache the instance across a single method boundary (or else/ you run the risk of having
 	/// an out-of-date context).
 	/// </summary>
-	TestContext Current { get; }
+	ITestContext Current { get; }
 }

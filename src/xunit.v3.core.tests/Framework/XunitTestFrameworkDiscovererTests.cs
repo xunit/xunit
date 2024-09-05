@@ -306,7 +306,7 @@ public class XunitTestFrameworkDiscovererTests
 		public static void InvalidCustomFactoryFallsBackToDefault()
 		{
 			var spyMessageSink = SpyMessageSink.Capture();
-			TestContext.Current.DiagnosticMessageSink = spyMessageSink;
+			TestContext.CurrentInternal.DiagnosticMessageSink = spyMessageSink;
 			var behaviorAttribute = Mocks.CollectionBehaviorAttribute(typeof(object));
 			var testAssembly = Mocks.XunitTestAssembly(collectionBehavior: behaviorAttribute);
 

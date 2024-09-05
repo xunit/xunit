@@ -484,7 +484,7 @@ public class XunitTestClassRunnerTests
 		public static async ValueTask CanInjectMessageSinkIntoClassFixture()
 		{
 			var spy = SpyMessageSink.Capture();
-			TestContext.Current.DiagnosticMessageSink = spy;
+			TestContext.CurrentInternal.DiagnosticMessageSink = spy;
 			var testCase = TestData.XunitTestCase<TestClassWithClassFixtureWithMessageSinkDependency>(nameof(ClassUnderTest.Passing));
 			var runner = new TestableXunitTestClassRunner(testCase);
 
@@ -546,7 +546,7 @@ public class XunitTestClassRunnerTests
 		public static async ValueTask SettingTestCaseOrdererWithThrowingConstructorLogsDiagnosticMessage()
 		{
 			var spy = SpyMessageSink.Capture();
-			TestContext.Current.DiagnosticMessageSink = spy;
+			TestContext.CurrentInternal.DiagnosticMessageSink = spy;
 			var testCase = TestData.XunitTestCase<TestClassWithCtorThrowingTestCaseOrder>(nameof(ClassUnderTest.Passing));
 			var runner = new TestableXunitTestClassRunner(testCase);
 

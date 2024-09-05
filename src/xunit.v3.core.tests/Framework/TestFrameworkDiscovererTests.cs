@@ -24,7 +24,7 @@ public class TestFrameworkDiscovererTests
 		public async ValueTask ExceptionDuringFindTestsForType_ReportsExceptionAsDiagnosticMessage()
 		{
 			var spy = SpyMessageSink.Capture();
-			TestContext.Current.DiagnosticMessageSink = spy;
+			TestContext.CurrentInternal.DiagnosticMessageSink = spy;
 
 			var discoverer = TestableTestFrameworkDiscoverer.Create();
 			discoverer.FindTestsForType_Exception = new DivideByZeroException();
@@ -151,7 +151,7 @@ public class TestFrameworkDiscovererTests
 	class TestableTestFrameworkDiscoverer : TestFrameworkDiscoverer<ITestCase, ITestClass>
 	{
 		readonly Type[] exportedTypes;
-		public TestContext? FindTestsForType_Context;
+		public ITestContext? FindTestsForType_Context;
 		public CultureInfo? FindTestsForType_CurrentCulture;
 		public Exception? FindTestsForType_Exception = null;
 		public readonly List<ITestClass> FindTestsForType_TestClasses = [];
