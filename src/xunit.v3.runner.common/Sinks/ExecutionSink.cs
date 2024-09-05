@@ -165,6 +165,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 		string resultText)
 	{
 		var testMetadata = Guard.NotNull(() => string.Format(CultureInfo.CurrentCulture, "Cannot find test metadata for ID {0}", testResult.TestUniqueID), metadataCache.TryGetTestMetadata(testResult));
+		var testStartTime = (testMetadata as ITestStarting)?.StartTime ?? testResult.FinishTime;
 		var testCaseMetadata = Guard.NotNull(() => string.Format(CultureInfo.CurrentCulture, "Cannot find test case metadata for ID {0}", testResult.TestCaseUniqueID), metadataCache.TryGetTestCaseMetadata(testResult));
 		var testMethodMetadata = metadataCache.TryGetMethodMetadata(testResult);
 		var testClassMetadata = metadataCache.TryGetClassMetadata(testResult);
@@ -176,7 +177,9 @@ public class ExecutionSink : IMessageSink, IDisposable
 				new XAttribute("name", XmlEscape(testMetadata.TestDisplayName)),
 				new XAttribute("result", resultText),
 				new XAttribute("time", testResult.ExecutionTime.ToString(CultureInfo.InvariantCulture)),
-				new XAttribute("time-rtf", TimeSpan.FromSeconds((double)testResult.ExecutionTime).ToString("c", CultureInfo.InvariantCulture))
+				new XAttribute("time-rtf", TimeSpan.FromSeconds((double)testResult.ExecutionTime).ToString(@"hh\:mm\:ss\.fffffff", CultureInfo.InvariantCulture)),
+				new XAttribute("start-rtf", testStartTime.ToString("O", CultureInfo.InvariantCulture)),
+				new XAttribute("finish-rtf", testResult.FinishTime.ToString("O", CultureInfo.InvariantCulture))
 			);
 
 		var type = testClassMetadata?.TestClassName;

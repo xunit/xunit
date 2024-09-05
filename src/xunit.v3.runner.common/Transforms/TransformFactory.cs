@@ -76,7 +76,7 @@ public class TransformFactory
 	{
 		var result = new XElement(
 			"assemblies",
-			new XAttribute("schema-version", "2"),
+			new XAttribute("schema-version", "3"),
 			new XAttribute("id", Guid.NewGuid().ToString("d"))
 		);
 
