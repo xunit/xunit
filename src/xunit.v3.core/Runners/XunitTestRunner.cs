@@ -99,7 +99,6 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext, IXunitTest>
 		return XunitTestInvoker.Instance.RunAsync(
 			ctxt.Test,
 			testClassInstance,
-			ctxt.TestMethodArguments,
 			ctxt.ExplicitOption,
 			ctxt.MessageBus,
 			// We don't clone the aggregator because invoker is an implementation detail in terms of
@@ -381,7 +380,6 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext, IXunitTest>
 	/// <param name="test">The test that this invocation belongs to.</param>
 	/// <param name="messageBus">The message bus to report run status to.</param>
 	/// <param name="constructorArguments">The arguments to be passed to the test class constructor.</param>
-	/// <param name="testMethodArguments">The arguments to be passed to the test method.</param>
 	/// <param name="skipReason">The skip reason, if the test is to be skipped.</param>
 	/// <param name="explicitOption">A flag to indicate how explicit tests should be treated.</param>
 	/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
@@ -392,14 +390,13 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext, IXunitTest>
 		IXunitTest test,
 		IMessageBus messageBus,
 		object?[] constructorArguments,
-		object?[] testMethodArguments,
 		string? skipReason,
 		ExplicitOption explicitOption,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource,
 		IReadOnlyCollection<IBeforeAfterTestAttribute> beforeAfterAttributes)
 	{
-		await using var ctxt = new XunitTestRunnerContext(test, messageBus, skipReason, explicitOption, aggregator, cancellationTokenSource, beforeAfterAttributes, constructorArguments, testMethodArguments);
+		await using var ctxt = new XunitTestRunnerContext(test, messageBus, skipReason, explicitOption, aggregator, cancellationTokenSource, beforeAfterAttributes, constructorArguments);
 		await ctxt.InitializeAsync();
 
 		return await RunAsync(ctxt);

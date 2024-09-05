@@ -23,6 +23,7 @@ public class XunitTest : IXunitTest
 	/// <param name="testIndex">The index of this test inside the test case. Used for computing <see cref="UniqueID"/>.</param>
 	/// <param name="traits">The traits for the given test.</param>
 	/// <param name="timeout">The timeout for the test; if not set, will fall back to the test case</param>
+	/// <param name="testMethodArguments">The arguments to be passed to the test method</param>
 	public XunitTest(
 		IXunitTestCase testCase,
 		IXunitTestMethod testMethod,
@@ -30,7 +31,8 @@ public class XunitTest : IXunitTest
 		string testDisplayName,
 		int testIndex,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>> traits,
-		int? timeout)
+		int? timeout,
+		object?[] testMethodArguments)
 	{
 		TestCase = Guard.ArgumentNotNull(testCase);
 		TestMethod = Guard.ArgumentNotNull(testMethod);
@@ -38,6 +40,7 @@ public class XunitTest : IXunitTest
 		TestDisplayName = Guard.ArgumentNotNull(testDisplayName);
 		UniqueID = UniqueIDGenerator.ForTest(testCase.UniqueID, testIndex);
 		Timeout = timeout ?? TestCase.Timeout;
+		TestMethodArguments = Guard.ArgumentNotNull(testMethodArguments);
 
 		Guard.ArgumentNotNull(traits);
 
@@ -57,7 +60,8 @@ public class XunitTest : IXunitTest
 		string testDisplayName,
 		string uniqueID,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
-		int? timeout = null)
+		int? timeout = null,
+		object?[]? testMethodArguments = null)
 	{
 		TestCase = Guard.ArgumentNotNull(testCase);
 		TestMethod = Guard.ArgumentNotNull(testMethod);
@@ -65,6 +69,7 @@ public class XunitTest : IXunitTest
 		TestDisplayName = Guard.ArgumentNotNull(testDisplayName);
 		UniqueID = Guard.ArgumentNotNull(uniqueID);
 		Timeout = timeout ?? TestCase.Timeout;
+		TestMethodArguments = testMethodArguments ?? [];
 
 		if (traits is null)
 			Traits = EmptyDictionary;
@@ -93,6 +98,9 @@ public class XunitTest : IXunitTest
 
 	/// <inheritdoc/>
 	public IXunitTestMethod TestMethod { get; }
+
+	/// <inheritdoc/>
+	public object?[] TestMethodArguments { get; }
 
 	/// <inheritdoc/>
 	public int Timeout { get; }

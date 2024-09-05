@@ -127,6 +127,7 @@ public static partial class Mocks
 		bool @explicit = false,
 		IXunitTestCase? testCase = null,
 		string testDisplayName = TestData.DefaultTestDisplayName,
+		object?[]? testMethodArguments = null,
 		int timeout = 0,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
 		string uniqueID = TestData.DefaultTestUniqueID)
@@ -141,6 +142,7 @@ public static partial class Mocks
 		result.TestCase.Returns(testCase);
 		result.TestDisplayName.Returns(testDisplayName);
 		result.TestMethod.Returns(testMethod);
+		result.TestMethodArguments.Returns(testMethodArguments ?? []);
 		result.Timeout.Returns(timeout);
 		result.Traits.Returns(traits);
 		result.UniqueID.Returns(uniqueID);
@@ -151,10 +153,11 @@ public static partial class Mocks
 		string methodName,
 		bool @explicit = false,
 		string testDisplayName = TestData.DefaultTestDisplayName,
+		object?[]? testMethodArguments = null,
 		int timeout = 0,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
 		string uniqueID = TestData.DefaultTestUniqueID) =>
-			XunitTest(@explicit, TestData.XunitTestCase<TClassUnderTest>(methodName), testDisplayName, timeout, traits, uniqueID);
+			XunitTest(@explicit, TestData.XunitTestCase<TClassUnderTest>(methodName), testDisplayName, testMethodArguments, timeout, traits, uniqueID);
 
 	public static IXunitTestAssembly XunitTestAssembly(
 		IReadOnlyCollection<Type>? assemblyFixtureTypes = null,

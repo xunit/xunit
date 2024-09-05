@@ -32,7 +32,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerContext(
 	/// <summary>
 	/// Gets a container to place tests found during discovery.
 	/// </summary>
-	public List<(IXunitTest Test, object?[] TestMethodArguments, string? SkipReason)> DiscoveredTests { get; } = [];
+	public List<(IXunitTest Test, string? SkipReason)> DiscoveredTests { get; } = [];
 
 	/// <summary>
 	/// Gets or sets the exception that occurred during data discovery. When this is set, running the test case will result in

@@ -82,7 +82,6 @@ public class XunitTestInvoker : TestInvoker<XunitTestInvokerContext, IXunitTest>
 	/// </summary>
 	/// <param name="test">The test that should be run</param>
 	/// <param name="testClassInstance">The test class instance</param>
-	/// <param name="testMethodArguments">The arguments for the test method</param>
 	/// <param name="explicitOption">A flag to indicate how explicit tests should be treated.</param>
 	/// <param name="messageBus">The message bus to send execution messages to</param>
 	/// <param name="aggregator">The aggregator used to </param>
@@ -92,13 +91,12 @@ public class XunitTestInvoker : TestInvoker<XunitTestInvokerContext, IXunitTest>
 	public async ValueTask<TimeSpan> RunAsync(
 		IXunitTest test,
 		object? testClassInstance,
-		object?[] testMethodArguments,
 		ExplicitOption explicitOption,
 		IMessageBus messageBus,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource)
 	{
-		await using var ctxt = new XunitTestInvokerContext(explicitOption, messageBus, aggregator, cancellationTokenSource, test, testClassInstance, testMethodArguments);
+		await using var ctxt = new XunitTestInvokerContext(explicitOption, messageBus, aggregator, cancellationTokenSource, test, testClassInstance);
 		await ctxt.InitializeAsync();
 
 		return await RunAsync(ctxt);

@@ -23,6 +23,11 @@ public interface IXunitTest : ITest
 	IXunitTestMethod TestMethod { get; }
 
 	/// <summary>
+	/// Gets the arguments to be passed to the test method during invocation.
+	/// </summary>
+	public object?[] TestMethodArguments { get; }
+
+	/// <summary>
 	/// Gets the timeout for the test, in milliseconds; if <c>0</c>, there is no timeout.
 	/// </summary>
 	/// <remarks>

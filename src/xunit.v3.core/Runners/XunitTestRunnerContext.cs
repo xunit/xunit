@@ -29,7 +29,6 @@ public class XunitTestRunnerContext : TestRunnerContext<IXunitTest>
 	/// <param name="cancellationTokenSource">The cancellation token source</param>
 	/// <param name="beforeAfterTestAttributes">The <see cref="IBeforeAfterTestAttribute"/>s that are applied to the test</param>
 	/// <param name="constructorArguments">The constructor arguments for the test class</param>
-	/// <param name="testMethodArguments">The method arguments for the test method</param>
 	public XunitTestRunnerContext(
 		IXunitTest test,
 		IMessageBus messageBus,
@@ -38,12 +37,10 @@ public class XunitTestRunnerContext : TestRunnerContext<IXunitTest>
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource,
 		IReadOnlyCollection<IBeforeAfterTestAttribute> beforeAfterTestAttributes,
-		object?[] constructorArguments,
-		object?[] testMethodArguments) : base(test, messageBus, skipReason, explicitOption, aggregator, cancellationTokenSource)
+		object?[] constructorArguments) : base(test, messageBus, skipReason, explicitOption, aggregator, cancellationTokenSource)
 	{
 		BeforeAfterTestAttributes = Guard.ArgumentNotNull(beforeAfterTestAttributes);
 		ConstructorArguments = Guard.ArgumentNotNull(constructorArguments);
-		TestMethodArguments = Guard.ArgumentNotNull(testMethodArguments);
 
 		getRuntimeSkipReason = new(GetRuntimeSkipReason);
 	}
@@ -57,11 +54,6 @@ public class XunitTestRunnerContext : TestRunnerContext<IXunitTest>
 	/// Gets the arguments that should be passed to the test class when it's constructed.
 	/// </summary>
 	public object?[] ConstructorArguments { get; }
-
-	/// <summary>
-	/// Gets the arguments to be passed to the test method during invocation.
-	/// </summary>
-	public object?[] TestMethodArguments { get; }
 
 	string? GetRuntimeSkipReason() =>
 		// We want to record any issues as exceptions in the aggregator so that the test

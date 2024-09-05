@@ -100,10 +100,10 @@ public class XunitDelayEnumeratedTheoryTestCaseRunner :
 						var theoryDisplayName = testMethod.GetDisplayName(baseDisplayName, convertedDataRow, resolvedTypes);
 						var traits = TestIntrospectionHelper.GetTraits(testMethod, dataRow);
 						var timeout = dataRow.Timeout ?? dataAttribute.Timeout ?? ctxt.TestCase.Timeout;
-						var test = CreateTest(ctxt, testMethod, dataRow.Explicit, theoryDisplayName, testIndex++, traits.ToReadOnly(), timeout);
+						var test = CreateTest(ctxt, testMethod, dataRow.Explicit, theoryDisplayName, testIndex++, traits.ToReadOnly(), timeout, convertedDataRow);
 						var skipReason = dataRow.Skip ?? dataAttribute.Skip ?? ctxt.SkipReason;
 
-						ctxt.DiscoveredTests.Add((test, convertedDataRow, skipReason));
+						ctxt.DiscoveredTests.Add((test, skipReason));
 					}
 
 					if (ctxt.DiscoveredTests.Count == 0)
@@ -217,7 +217,6 @@ public class XunitDelayEnumeratedTheoryTestCaseRunner :
 					discoveredTest.Test,
 					ctxt.MessageBus,
 					ctxt.ConstructorArguments,
-					discoveredTest.TestMethodArguments,
 					discoveredTest.SkipReason,
 					ctxt.ExplicitOption,
 					ctxt.Aggregator.Clone(),

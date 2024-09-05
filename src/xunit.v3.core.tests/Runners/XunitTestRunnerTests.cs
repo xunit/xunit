@@ -432,8 +432,7 @@ public class XunitTestRunnerTests
 		IReadOnlyCollection<IBeforeAfterTestAttribute>? beforeAfterTestAttributes = null,
 		object?[]? constructorArguments = null,
 		ExplicitOption? explicitOption = null,
-		IMessageBus? messageBus = null,
-		object?[]? testMethodArguments = null) :
+		IMessageBus? messageBus = null) :
 			XunitTestRunner
 	{
 		readonly IReadOnlyCollection<IBeforeAfterTestAttribute> beforeAfterTestAttributes = beforeAfterTestAttributes ?? [];
@@ -441,12 +440,11 @@ public class XunitTestRunnerTests
 		readonly ExplicitOption explicitOption = explicitOption ?? ExplicitOption.Off;
 		readonly IMessageBus messageBus = messageBus ?? new SpyMessageBus();
 		readonly IXunitTest test = test;
-		readonly object?[] testMethodArguments = testMethodArguments ?? [];
 
 		public readonly ExceptionAggregator Aggregator = new();
 		public readonly CancellationTokenSource TokenSource = new();
 
 		public ValueTask<RunSummary> RunAsync() =>
-			RunAsync(test, messageBus, constructorArguments, testMethodArguments, test.TestCase.SkipReason, explicitOption, Aggregator, TokenSource, beforeAfterTestAttributes);
+			RunAsync(test, messageBus, constructorArguments, test.TestCase.SkipReason, explicitOption, Aggregator, TokenSource, beforeAfterTestAttributes);
 	}
 }

@@ -54,8 +54,7 @@ public class XunitTestInvokerTests
 			XunitTestInvoker
 	{
 		readonly SpyMessageBus messageBus = new();
-		readonly IXunitTest test = TestData.XunitTest<ClassUnderTest>(methodName, timeout: timeout);
-		readonly object?[] testMethodArguments = testMethodArguments ?? [];
+		readonly IXunitTest test = TestData.XunitTest<ClassUnderTest>(methodName, timeout: timeout, testMethodArguments: testMethodArguments);
 
 		public readonly ExceptionAggregator Aggregator = new();
 		public readonly CancellationTokenSource CancellationTokenSource = cancellationTokenSource ?? new();
@@ -71,6 +70,6 @@ public class XunitTestInvokerTests
 		}
 
 		public ValueTask<TimeSpan> RunAsync() =>
-			RunAsync(test, TestClassInstance, testMethodArguments, ExplicitOption.Off, messageBus, Aggregator, CancellationTokenSource);
+			RunAsync(test, TestClassInstance, ExplicitOption.Off, messageBus, Aggregator, CancellationTokenSource);
 	}
 }

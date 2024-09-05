@@ -29,6 +29,7 @@ public class XunitTestCaseRunnerBase<TContext, TTestCase> : TestCaseRunner<TCont
 	/// to use the test index to help construct the test unique ID.</param>
 	/// <param name="traits">The traits for the test.</param>
 	/// <param name="timeout">The timeout for the test.</param>
+	/// <param name="testMethodArguments">The arguments to be passed to the test method</param>
 	protected virtual IXunitTest CreateTest(
 		TContext ctxt,
 		IXunitTestMethod testMethod,
@@ -36,12 +37,13 @@ public class XunitTestCaseRunnerBase<TContext, TTestCase> : TestCaseRunner<TCont
 		string? displayName,
 		int testIndex,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>> traits,
-		int timeout)
+		int timeout,
+		object?[] testMethodArguments)
 	{
 		Guard.ArgumentNotNull(ctxt);
 		Guard.ArgumentNotNull(traits);
 
-		return new XunitTest(ctxt.TestCase, testMethod, @explicit, displayName ?? ctxt.DisplayName, testIndex, traits, timeout);
+		return new XunitTest(ctxt.TestCase, testMethod, @explicit, displayName ?? ctxt.DisplayName, testIndex, traits, timeout, testMethodArguments);
 	}
 
 	/// <inheritdoc/>
@@ -148,10 +150,9 @@ public class XunitTestCaseRunnerBase<TContext, TTestCase> : TestCaseRunner<TCont
 			exception is not null
 				? XunitRunnerHelper.FailTestCases(ctxt.MessageBus, ctxt.CancellationTokenSource, [ctxt.TestCase], exception, sendTestCaseMessages: false)
 				: await XunitTestRunner.Instance.RunAsync(
-					CreateTest(ctxt, ctxt.TestCase.TestMethod, @explicit: null, displayName: null, testIndex: 0, ctxt.TestCase.Traits, ctxt.TestCase.Timeout),
+					CreateTest(ctxt, ctxt.TestCase.TestMethod, @explicit: null, displayName: null, testIndex: 0, ctxt.TestCase.Traits, ctxt.TestCase.Timeout, ctxt.TestMethodArguments),
 					ctxt.MessageBus,
 					ctxt.ConstructorArguments,
-					ctxt.TestMethodArguments,
 					ctxt.SkipReason,
 					ctxt.ExplicitOption,
 					ctxt.Aggregator.Clone(),

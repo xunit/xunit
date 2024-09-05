@@ -13,15 +13,13 @@ namespace Xunit.v3;
 /// <param name="cancellationTokenSource">The cancellation token source</param>
 /// <param name="test">The test</param>
 /// <param name="testClassInstance">The test class instance</param>
-/// <param name="testMethodArguments">The method arguments for the test method</param>
 public class XunitTestInvokerContext(
 	ExplicitOption explicitOption,
 	IMessageBus messageBus,
 	ExceptionAggregator aggregator,
 	CancellationTokenSource cancellationTokenSource,
 	IXunitTest test,
-	object? testClassInstance,
-	object?[] testMethodArguments) :
+	object? testClassInstance) :
 		TestInvokerContext<IXunitTest>(
 			explicitOption,
 			messageBus,
@@ -31,6 +29,6 @@ public class XunitTestInvokerContext(
 			Guard.ArgumentNotNull(test).TestMethod.TestClass.Class,
 			testClassInstance,
 			test.TestMethod.Method,
-			testMethodArguments
+			test.TestMethodArguments
 		)
 { }

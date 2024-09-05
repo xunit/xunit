@@ -46,23 +46,25 @@ public static partial class TestData
 		IXunitTestMethod? testMethod = null,
 		bool? @explicit = null,
 		string testDisplayName = DefaultTestDisplayName,
+		object?[]? testMethodArguments = null,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
 		int? timeout = null,
 		string uniqueID = DefaultTestUniqueID)
 	{
 		testMethod ??= testCase.TestMethod;
 
-		return new(testCase, testMethod, @explicit, testDisplayName, uniqueID, traits ?? testMethod.Traits, timeout);
+		return new(testCase, testMethod, @explicit, testDisplayName, uniqueID, traits ?? testMethod.Traits, timeout, testMethodArguments);
 	}
 
 	public static XunitTest XunitTest<TClassUnderTest>(
 		string methodName,
 		bool? @explicit = null,
 		string testDisplayName = DefaultTestDisplayName,
+		object?[]? testMethodArguments = null,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
 		int? timeout = null,
 		string uniqueID = DefaultTestUniqueID) =>
-			XunitTest(XunitTestCase<TClassUnderTest>(methodName), null, @explicit, testDisplayName, traits, timeout, uniqueID);
+			XunitTest(XunitTestCase<TClassUnderTest>(methodName), null, @explicit, testDisplayName, testMethodArguments, traits, timeout, uniqueID);
 
 	public static XunitTestAssembly XunitTestAssembly(
 		Assembly assembly,
