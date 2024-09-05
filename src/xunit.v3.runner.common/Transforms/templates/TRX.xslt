@@ -53,7 +53,7 @@
                 <xsl:if test="@result = 'Pass'">Passed</xsl:if>
                 <xsl:if test="@result = 'Fail'">Failed</xsl:if>
                 <xsl:if test="@result = 'Skip'">NotExecuted</xsl:if>
-                <xsl:if test="@result = 'NotRun'">NotExecuted</xsl:if>
+                <xsl:if test="@result = 'NotRun'">NotRunnable</xsl:if>
               </xsl:attribute>
               <xsl:attribute name="duration">
                 <xsl:value-of select="@time-rtf"/>
@@ -159,7 +159,10 @@
             <xsl:value-of select="sum(assembly/@failed)"/>
           </xsl:attribute>
           <xsl:attribute name="notExecuted">
-            <xsl:value-of select="sum(assembly/@skipped) + sum(assembly/@not-run)"/>
+            <xsl:value-of select="sum(assembly/@skipped)"/>
+          </xsl:attribute>
+          <xsl:attribute name="notRunnable">
+            <xsl:value-of select="sum(assembly/@not-run)"/>
           </xsl:attribute>
         </Counters>
       </ResultSummary>
