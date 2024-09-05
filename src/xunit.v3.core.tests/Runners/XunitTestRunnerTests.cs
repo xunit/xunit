@@ -17,7 +17,7 @@ public class XunitTestRunnerTests
 		{
 			var messageBus = new SpyMessageBus();
 			var attribute = new SpyBeforeAfterTest();
-			var test = TestData.XunitTest<ClassUnderTest>(nameof(ClassUnderTest.Passing), @explicit: true, timeout: 42);
+			var test = TestData.XunitTest<ClassUnderTest>(nameof(ClassUnderTest.Passing), @explicit: true, timeout: 12345678);
 			var runner = new TestableXunitTestRunner(test, beforeAfterTestAttributes: [attribute], messageBus: messageBus, explicitOption: ExplicitOption.On);
 
 			await runner.RunAsync();
@@ -31,7 +31,7 @@ public class XunitTestRunnerTests
 					verifyTestMessage(starting);
 					Assert.True(starting.Explicit);
 					Assert.Equal("test-display-name", starting.TestDisplayName);
-					Assert.Equal(42, starting.Timeout);
+					Assert.Equal(12345678, starting.Timeout);
 					// Trait comes from an assembly-level trait attribute on this test assembly
 					var trait = Assert.Single(starting.Traits);
 					Assert.Equal("Assembly", trait.Key);
@@ -373,7 +373,7 @@ public class XunitTestRunnerTests
 			public void Dispose() { }
 
 			[Fact]
-			public async Task Passing() => await Task.Yield();
+			public void Passing() { }
 
 			[Fact]
 			public static void StaticPassing() { }
