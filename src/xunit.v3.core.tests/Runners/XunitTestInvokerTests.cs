@@ -7,6 +7,7 @@ using Xunit.v3;
 
 public class XunitTestInvokerTests
 {
+	[Collection(typeof(XunitTestInvokerTestsCollection))]
 	public class Timeout
 	{
 		[Fact]
@@ -73,3 +74,6 @@ public class XunitTestInvokerTests
 			RunAsync(test, TestClassInstance, ExplicitOption.Off, messageBus, Aggregator, CancellationTokenSource);
 	}
 }
+
+[CollectionDefinition(DisableParallelization = true)]
+public class XunitTestInvokerTestsCollection { }
