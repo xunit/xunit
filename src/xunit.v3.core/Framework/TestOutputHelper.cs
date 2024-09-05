@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Xunit.Internal;
@@ -14,15 +15,14 @@ public class TestOutputHelper : ITestOutputHelper
 {
 	TestState? state;
 
-	/// <summary>
-	/// Gets the output provided by the test.
-	/// </summary>
+	/// <inheritdoc/>
 	public string Output
 	{
 		get
 		{
 			Guard.NotNull("There is no currently active test.", state);
 
+			state.SendPendingOutput();
 			return state.BufferedOutput;
 		}
 	}
@@ -50,8 +50,30 @@ public class TestOutputHelper : ITestOutputHelper
 	/// <summary>
 	/// Resets the test output helper to its uninitialized state.
 	/// </summary>
-	public void Uninitialize() =>
+	public void Uninitialize()
+	{
+		state?.SendPendingOutput();
 		state = null;
+	}
+
+	/// <inheritdoc/>
+	public void Write(string message)
+	{
+		Guard.ArgumentNotNull(message);
+
+		QueueTestOutput(message);
+	}
+
+	/// <inheritdoc/>
+	public void Write(
+		string format,
+		params object[] args)
+	{
+		Guard.ArgumentNotNull(format);
+		Guard.ArgumentNotNull(args);
+
+		QueueTestOutput(string.Format(CultureInfo.CurrentCulture, format, args));
+	}
 
 	/// <inheritdoc/>
 	public void WriteLine(string message)
@@ -79,6 +101,7 @@ public class TestOutputHelper : ITestOutputHelper
 		readonly object lockObject = new();
 		readonly IMessageBus messageBus;
 		static readonly int numberOfMinimalRemainingCharsForValidAnsiSgr = 3 + Environment.NewLine.Length;  // ESC + [ + m
+		readonly StringBuilder residual = new();
 		readonly string testAssemblyUniqueID;
 		readonly string testCollectionUniqueID;
 		readonly string? testClassUniqueID;
@@ -115,21 +138,48 @@ public class TestOutputHelper : ITestOutputHelper
 		{
 			output = EscapeInvalidHexChars(output);
 
+			string[]? lines = default;
+
 			lock (lockObject)
+			{
 				buffer.Append(output);
 
-			var message = new TestOutput
+				residual.Append(output);
+				var residualLines = residual.ToString().Split([Environment.NewLine], StringSplitOptions.None);
+				if (residualLines.Length > 1)
+				{
+					residual.Clear();
+					residual.Append(residualLines.Last());
+					lines = residualLines.Take(residualLines.Length - 1).ToArray();
+				}
+			}
+
+			if (lines is not null)
+				foreach (var line in lines)
+					SendOutput(line);
+		}
+
+		void SendOutput(string line) =>
+			messageBus.QueueMessage(new TestOutput
 			{
 				AssemblyUniqueID = testAssemblyUniqueID,
-				Output = output,
+				Output = line + Environment.NewLine,
 				TestCaseUniqueID = testCaseUniqueID,
 				TestClassUniqueID = testClassUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestMethodUniqueID = testMethodUniqueID,
 				TestUniqueID = testUniqueID
-			};
+			});
 
-			messageBus.QueueMessage(message);
+		public void SendPendingOutput()
+		{
+			lock (lockObject)
+			{
+				if (residual.Length != 0)
+					SendOutput(residual.ToString());
+
+				residual.Clear();
+			}
 		}
 
 		static string EscapeInvalidHexChars(string s)

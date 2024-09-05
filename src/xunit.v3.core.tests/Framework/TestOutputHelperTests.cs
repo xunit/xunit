@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using NSubstitute;
 using Xunit;
 using Xunit.Sdk;
@@ -66,5 +67,33 @@ public class TestOutputHelperTests
 		Assert.Equal("method-id", outputMessage.TestMethodUniqueID);
 		Assert.Equal("test-id", outputMessage.TestUniqueID);
 		Assert.Equal(expected + Environment.NewLine, output.Output);
+	}
+
+	[Fact]
+	public void LinesAreBufferedBasedOnEnvironmentNewLine()
+	{
+		var output = new TestOutputHelper();
+		var messageBus = new SpyMessageBus();
+		var test = Mocks.Test();
+		output.Initialize(messageBus, test);
+
+		output.Write("1");
+		output.Write("2");
+
+		Assert.Empty(messageBus.Messages);
+
+		output.Write($"3{Environment.NewLine}4{Environment.NewLine}5");
+
+		Assert.Collection(
+			messageBus.Messages.OfType<ITestOutput>(),
+			message => Assert.Equal($"123{Environment.NewLine}", message.Output),
+			message => Assert.Equal($"4{Environment.NewLine}", message.Output)
+		);
+		messageBus.Messages.Clear();
+
+		output.Uninitialize();
+
+		var message = Assert.Single(messageBus.Messages.OfType<ITestOutput>());
+		Assert.Equal($"5{Environment.NewLine}", message.Output);
 	}
 }
