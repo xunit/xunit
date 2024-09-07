@@ -39,6 +39,10 @@ public partial class TestCaseStarting
 	public required string? TestClassNamespace { get; set; }
 
 	/// <inheritdoc/>
+	[NotNullIfNotNull(nameof(TestMethodName))]
+	public required string? TestClassSimpleName { get; set; }
+
+	/// <inheritdoc/>
 	public required int? TestMethodMetadataToken { get; set; }
 
 	/// <inheritdoc/>

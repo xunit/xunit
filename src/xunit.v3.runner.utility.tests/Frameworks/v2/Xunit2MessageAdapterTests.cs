@@ -377,6 +377,7 @@ public class Xunit2MessageAdapterTests
 			Assert.Equal("test-case-id", v3Message.TestCaseUniqueID);
 			Assert.Equal("TestNamespace.TestClass+EmbeddedClass", v3Message.TestClassName);
 			Assert.Equal("TestNamespace", v3Message.TestClassNamespace);
+			Assert.Equal("EmbeddedClass", v3Message.TestClassSimpleName);
 			Assert.Equal(TestClassUniqueID, v3Message.TestClassUniqueID);
 			Assert.Equal(TestCollectionUniqueID, v3Message.TestCollectionUniqueID);
 			Assert.Equal("MyTestMethod", v3Message.TestMethodName);

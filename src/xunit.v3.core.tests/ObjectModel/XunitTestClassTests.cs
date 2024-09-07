@@ -25,6 +25,7 @@ public class XunitTestClassTests
 		Assert.Equal(typeof(ClassUnderTest), testClass.Class);
 		Assert.Equal("SomeNamespace.ClassUnderTest", testClass.TestClassName);
 		Assert.Equal("SomeNamespace", testClass.TestClassNamespace);
+		Assert.Equal("ClassUnderTest", testClass.TestClassSimpleName);
 	}
 
 	[Fact]

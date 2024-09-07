@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Xml;
 using Xunit.Internal;
 using Xunit.Runner.Common;
@@ -184,11 +185,9 @@ public sealed class Xunit1TestCase : IXunitSerializable
 	/// <param name="includeSerialization">A flag to indicate whether serialization is needed.</param>
 	public ITestCaseDiscovered ToTestCaseDiscovered(bool includeSerialization)
 	{
-		string? @namespace = null;
-
-		var namespaceIdx = TestClass.LastIndexOf('.');
-		if (namespaceIdx >= 0)
-			@namespace = TestClass.Substring(0, namespaceIdx);
+		var lastDotIdx = TestClass.LastIndexOf('.');
+		var @namespace = lastDotIdx > -1 ? TestClass.Substring(0, lastDotIdx) : null;
+		var simpleName = (lastDotIdx > -1 ? TestClass.Substring(lastDotIdx + 1) : TestClass).Split('+').Last();
 
 		return new TestCaseDiscovered
 		{
@@ -203,6 +202,7 @@ public sealed class Xunit1TestCase : IXunitSerializable
 			TestClassMetadataToken = null,
 			TestClassName = TestClass,
 			TestClassNamespace = @namespace,
+			TestClassSimpleName = simpleName,
 			TestClassUniqueID = TestClassUniqueID,
 			TestCollectionUniqueID = TestCollectionUniqueID,
 			TestMethodMetadataToken = null,
@@ -261,6 +261,7 @@ public sealed class Xunit1TestCase : IXunitSerializable
 	{
 		var lastDotIdx = TestClass.LastIndexOf('.');
 		var @namespace = lastDotIdx > -1 ? TestClass.Substring(0, lastDotIdx) : null;
+		var simpleName = (lastDotIdx > -1 ? TestClass.Substring(lastDotIdx + 1) : TestClass).Split('+').Last();
 
 		return new TestCaseStarting()
 		{
@@ -274,6 +275,7 @@ public sealed class Xunit1TestCase : IXunitSerializable
 			TestClassMetadataToken = null,
 			TestClassName = TestClass,
 			TestClassNamespace = @namespace,
+			TestClassSimpleName = simpleName,
 			TestClassUniqueID = TestClassUniqueID,
 			TestCollectionUniqueID = TestCollectionUniqueID,
 			TestMethodMetadataToken = null,

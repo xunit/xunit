@@ -20,6 +20,12 @@ public partial class TestClassStarting
 
 	/// <inheritdoc/>
 	/// <remarks>
+	/// Note: Will be <see cref="MessageSinkMessage.UnsetStringPropertyValue"/> if there was no value provided during deserialization.
+	/// </remarks>
+	public required string TestClassSimpleName { get; set; } = UnsetStringPropertyValue;
+
+	/// <inheritdoc/>
+	/// <remarks>
 	/// Note: Will be an empty dictionary if there was no value provided during deserialization.
 	/// </remarks>
 	public required IReadOnlyDictionary<string, IReadOnlyCollection<string>> Traits { get; set; } = EmptyTraits;
@@ -33,6 +39,7 @@ public partial class TestClassStarting
 
 		TestClassName = JsonDeserializer.TryGetString(root, nameof(TestClassName)) ?? TestClassName;
 		TestClassNamespace = JsonDeserializer.TryGetString(root, nameof(TestClassNamespace));
+		TestClassSimpleName = JsonDeserializer.TryGetString(root, nameof(TestClassSimpleName)) ?? TestClassSimpleName;
 		Traits = JsonDeserializer.TryGetTraits(root, nameof(Traits)) ?? Traits;
 	}
 }

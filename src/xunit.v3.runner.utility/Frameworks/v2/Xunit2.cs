@@ -399,16 +399,17 @@ public class Xunit2 : IFrontController
 
 			if (testCasesByClass.Key is not null)
 			{
-				var testClassNamespace = default(string);
-				var idxOfNamespace = testCasesByClass.Key.LastIndexOf('.');
-				if (idxOfNamespace > -1)
-					testClassNamespace = testCasesByClass.Key.Substring(0, idxOfNamespace);
+				var typeName = testCasesByClass.Key;
+				var lastDotIdx = typeName.LastIndexOf('.');
+				var @namespace = lastDotIdx > -1 ? typeName.Substring(0, lastDotIdx) : null;
+				var simpleName = (lastDotIdx > -1 ? typeName.Substring(lastDotIdx + 1) : typeName).Split('+').Last();
 
 				messageSink.OnMessage(new TestClassStarting
 				{
 					AssemblyUniqueID = TestAssemblyUniqueID,
-					TestClassName = testCasesByClass.Key,
-					TestClassNamespace = testClassNamespace,
+					TestClassName = typeName,
+					TestClassNamespace = @namespace,
+					TestClassSimpleName = simpleName,
 					TestClassUniqueID = testClassUniqueID,
 					TestCollectionUniqueID = testCollectionUniqueID,
 					Traits = EmptyV3Traits,
@@ -435,9 +436,10 @@ public class Xunit2 : IFrontController
 
 				foreach (var testCase in methodTestCases)
 				{
-					var testClassName = testCasesByClass.Key;
-					var lastDotIdx = testClassName?.LastIndexOf('.') ?? -1;
-					var testClassNamespace = lastDotIdx > -1 ? testClassName!.Substring(0, lastDotIdx) : null;
+					var typeName = testCasesByClass.Key;
+					var lastDotIdx = typeName?.LastIndexOf('.') ?? -1;
+					var @namespace = typeName is not null && lastDotIdx > -1 ? typeName.Substring(0, lastDotIdx) : null;
+					var simpleName = (typeName is not null && lastDotIdx > -1 ? typeName.Substring(lastDotIdx + 1) : typeName)?.Split('+').Last();
 					var testCaseTraits = testCase.Traits.ToReadOnly();
 
 					messageSink.OnMessage(new TestCaseStarting
@@ -450,8 +452,9 @@ public class Xunit2 : IFrontController
 						TestCaseDisplayName = testCase.DisplayName,
 						TestCaseUniqueID = testCase.UniqueID,
 						TestClassMetadataToken = null,
-						TestClassName = testClassName,
-						TestClassNamespace = testClassNamespace,
+						TestClassName = typeName,
+						TestClassNamespace = @namespace,
+						TestClassSimpleName = simpleName,
 						TestClassUniqueID = testClassUniqueID,
 						TestCollectionUniqueID = testCollectionUniqueID,
 						TestMethodMetadataToken = null,

@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace Xunit.Sdk;
 
@@ -8,7 +10,7 @@ namespace Xunit.Sdk;
 public interface ITestClassMetadata
 {
 	/// <summary>
-	/// Gets the full name of the test class.
+	/// Gets the full name of the test class (i.e., <see cref="Type.FullName"/>).
 	/// </summary>
 	string TestClassName { get; }
 
@@ -17,6 +19,11 @@ public interface ITestClassMetadata
 	/// classes not residing in a namespace.
 	/// </summary>
 	string? TestClassNamespace { get; }
+
+	/// <summary>
+	/// Gets the simple name of the test class (i.e., <see cref="MemberInfo.Name"/>).
+	/// </summary>
+	string TestClassSimpleName { get; }
 
 	/// <summary>
 	/// Gets the trait values associated with this test class (and the test collection, and test

@@ -256,9 +256,11 @@ public class Xunit2MessageAdapter(
 		var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
 		var testCaseUniqueID = testCase.UniqueID;
 
-		string? @namespace = null;
-
 		var typeName = testCase.TestMethod?.TestClass.Class.Name;
+		var lastDotIdx = typeName?.LastIndexOf('.') ?? -1;
+		var @namespace = typeName is not null && lastDotIdx > -1 ? typeName.Substring(0, lastDotIdx) : null;
+		var simpleName = (typeName is not null && lastDotIdx > -1 ? typeName.Substring(lastDotIdx + 1) : typeName)?.Split('+').Last();
+
 		if (typeName is not null)
 		{
 			var namespaceIdx = typeName.LastIndexOf('.');
@@ -280,6 +282,7 @@ public class Xunit2MessageAdapter(
 			TestClassMetadataToken = null,
 			TestClassName = typeName,
 			TestClassNamespace = @namespace,
+			TestClassSimpleName = simpleName,
 			TestClassUniqueID = testClassUniqueID,
 			TestMethodMetadataToken = null,
 			TestMethodName = testCase.TestMethod?.Method.Name,
@@ -322,9 +325,10 @@ public class Xunit2MessageAdapter(
 		var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
 		var testMethodUniqueID = UniqueIDForTestMethod(testClassUniqueID, message.TestMethod);
 
-		var testClassName = message.TestCase.TestMethod?.TestClass.Class.Name;
-		var lastDotIdx = testClassName?.LastIndexOf('.') ?? -1;
-		var testClassNamespace = lastDotIdx > -1 ? testClassName!.Substring(0, lastDotIdx) : null;
+		var typeName = message.TestCase.TestMethod?.TestClass.Class.Name;
+		var lastDotIdx = typeName?.LastIndexOf('.') ?? -1;
+		var @namespace = typeName is not null && lastDotIdx > -1 ? typeName.Substring(0, lastDotIdx) : null;
+		var simpleName = (typeName is not null && lastDotIdx > -1 ? typeName.Substring(lastDotIdx + 1) : typeName)?.Split('+').Last();
 
 		return new TestCaseStarting()
 		{
@@ -336,8 +340,9 @@ public class Xunit2MessageAdapter(
 			TestCaseDisplayName = message.TestCase.DisplayName,
 			TestCaseUniqueID = message.TestCase.UniqueID,
 			TestClassMetadataToken = null,
-			TestClassName = testClassName,
-			TestClassNamespace = testClassNamespace,
+			TestClassName = typeName,
+			TestClassNamespace = @namespace,
+			TestClassSimpleName = simpleName,
 			TestClassUniqueID = testClassUniqueID,
 			TestCollectionUniqueID = testCollectionUniqueID,
 			TestMethodMetadataToken = null,
@@ -464,17 +469,18 @@ public class Xunit2MessageAdapter(
 	{
 		var testCollectionUniqueID = UniqueIDForTestCollection(assemblyUniqueID, message.TestCollection);
 		var testClassUniqueID = UniqueIDForTestClass(testCollectionUniqueID, message.TestClass);
-		var testClassNamespace = default(string);
 
-		var namespaceIdx = message.TestClass.Class.Name.LastIndexOf('.');
-		if (namespaceIdx > -1)
-			testClassNamespace = message.TestClass.Class.Name.Substring(0, namespaceIdx);
+		var typeName = message.TestClass.Class.Name;
+		var lastDotIdx = typeName.LastIndexOf('.');
+		var @namespace = lastDotIdx > -1 ? typeName.Substring(0, lastDotIdx) : null;
+		var simpleName = (lastDotIdx > -1 ? typeName.Substring(lastDotIdx + 1) : typeName).Split('+').Last();
 
 		return new TestClassStarting()
 		{
 			AssemblyUniqueID = assemblyUniqueID,
 			TestClassName = message.TestClass.Class.Name,
-			TestClassNamespace = testClassNamespace,
+			TestClassNamespace = @namespace,
+			TestClassSimpleName = simpleName,
 			TestClassUniqueID = testClassUniqueID,
 			TestCollectionUniqueID = testCollectionUniqueID,
 			Traits = Xunit2.EmptyV3Traits,

@@ -18,7 +18,7 @@ public class XunitFiltersTests
 	static readonly ITestCaseDiscovered NonClassTest = TestData.TestCaseDiscovered(traits: TestData.EmptyTraits);
 	static readonly ITestCaseDiscovered NonMethodTest = TestData.TestCaseDiscovered(
 		testClassName: typeof(ClassWithTraits).FullName,
-		testNamespace: typeof(ClassWithTraits).Namespace,
+		testClassNamespace: typeof(ClassWithTraits).Namespace,
 		traits: TestData.EmptyTraits
 	);
 

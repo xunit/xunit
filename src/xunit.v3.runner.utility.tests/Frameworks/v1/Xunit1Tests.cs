@@ -112,6 +112,7 @@ public class Xunit1Tests
 					Assert.Equal($":v1:case:Namespace1.OuterType1+Type1.Method1:{OsSpecificAssemblyPath}:(null)", testCase.TestCaseUniqueID);
 					Assert.Equal("Namespace1.OuterType1+Type1", testCase.TestClassName);
 					Assert.Equal("Namespace1", testCase.TestClassNamespace);
+					Assert.Equal("Type1", testCase.TestClassSimpleName);
 					Assert.Equal($":v1:class:Namespace1.OuterType1+Type1:{OsSpecificAssemblyPath}:(null)", testCase.TestClassUniqueID);
 					Assert.Equal($":v1:collection:{OsSpecificAssemblyPath}:(null)", testCase.TestCollectionUniqueID);
 					Assert.Equal("Method1", testCase.TestMethodName);
@@ -127,6 +128,7 @@ public class Xunit1Tests
 					Assert.Equal($":v1:case:SpecialType.SkippedMethod:{OsSpecificAssemblyPath}:(null)", testCase.TestCaseUniqueID);
 					Assert.Equal("SpecialType", testCase.TestClassName);
 					Assert.Null(testCase.TestClassNamespace);
+					Assert.Equal("SpecialType", testCase.TestClassSimpleName);
 					Assert.Equal($":v1:class:SpecialType:{OsSpecificAssemblyPath}:(null)", testCase.TestClassUniqueID);
 					Assert.Equal($":v1:collection:{OsSpecificAssemblyPath}:(null)", testCase.TestCollectionUniqueID);
 					Assert.Equal("SkippedMethod", testCase.TestMethodName);
@@ -142,6 +144,7 @@ public class Xunit1Tests
 					Assert.Equal($":v1:case:SpecialType.MethodWithTraits:{OsSpecificAssemblyPath}:(null)", testCase.TestCaseUniqueID);
 					Assert.Equal("SpecialType", testCase.TestClassName);
 					Assert.Null(testCase.TestClassNamespace);
+					Assert.Equal("SpecialType", testCase.TestClassSimpleName);
 					Assert.Equal($":v1:class:SpecialType:{OsSpecificAssemblyPath}:(null)", testCase.TestClassUniqueID);
 					Assert.Equal($":v1:collection:{OsSpecificAssemblyPath}:(null)", testCase.TestCollectionUniqueID);
 					Assert.Equal("MethodWithTraits", testCase.TestMethodName);

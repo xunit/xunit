@@ -437,10 +437,9 @@ public class Xunit1 : IFrontController
 	{
 		Guard.ArgumentValid("testCases must contain at least one test case", testCases.Count > 0, nameof(testCases));
 
-		var testClassNamespace = default(string);
-		var idxOfNamespace = typeName.LastIndexOf('.');
-		if (idxOfNamespace > -1)
-			testClassNamespace = typeName.Substring(0, idxOfNamespace);
+		var lastDotIdx = typeName.LastIndexOf('.');
+		var @namespace = lastDotIdx > -1 ? typeName.Substring(0, lastDotIdx) : null;
+		var simpleName = (lastDotIdx > -1 ? typeName.Substring(lastDotIdx + 1) : typeName).Split('+').Last();
 
 		var handler = new TestClassCallbackHandler(testCases, messageSink);
 		var results = handler.TestClassResults;
@@ -448,7 +447,8 @@ public class Xunit1 : IFrontController
 		{
 			AssemblyUniqueID = testCases[0].AssemblyUniqueID,
 			TestClassName = typeName,
-			TestClassNamespace = testClassNamespace,
+			TestClassNamespace = @namespace,
+			TestClassSimpleName = simpleName,
 			TestClassUniqueID = testCases[0].TestClassUniqueID,
 			TestCollectionUniqueID = testCases[0].TestCollectionUniqueID,
 			Traits = EmptyV3Traits,

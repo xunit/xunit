@@ -28,6 +28,7 @@ public class XunitTestClassRunnerTests
 					verifyTestClassMessage(starting);
 					Assert.Equal(typeof(ClassUnderTest).SafeName(), starting.TestClassName);
 					Assert.Null(starting.TestClassNamespace);
+					Assert.Equal(typeof(ClassUnderTest).Name, starting.TestClassSimpleName);
 					// Trait comes from an assembly-level trait attribute on this ITest assembly
 					var trait = Assert.Single(starting.Traits);
 					Assert.Equal("Assembly", trait.Key);

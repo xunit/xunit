@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
@@ -49,8 +50,8 @@ public interface ITestCaseMetadata
 	int? TestClassMetadataToken { get; }
 
 	/// <summary>
-	/// Gets the name of the class where the test is defined. If the test did not originiate
-	/// in a class, will return <c>null</c>.
+	/// Gets the full name of the class where the test is defined (i.e., <see cref="Type.FullName"/>).
+	/// If the test did not originiate in a class, will return <c>null</c>.
 	/// </summary>
 	[NotNullIfNotNull(nameof(TestMethodName))]
 	string? TestClassName { get; }
@@ -61,6 +62,13 @@ public interface ITestCaseMetadata
 	/// will return <c>null</c>.
 	/// </summary>
 	string? TestClassNamespace { get; }
+
+	/// <summary>
+	/// Gets the simple name of the class where the test is defined (i.e., <see cref="MemberInfo.Name"/>).
+	/// If the test did not originiate in a class, will return <c>null</c>.
+	/// </summary>
+	[NotNullIfNotNull(nameof(TestMethodName))]
+	string? TestClassSimpleName { get; }
 
 	/// <summary>
 	/// Gets the <see cref="MemberInfo.MetadataToken"/> for the test method. If the test did not

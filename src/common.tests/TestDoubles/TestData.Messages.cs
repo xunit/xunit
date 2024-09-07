@@ -374,6 +374,8 @@ public static partial class TestData
 			testCaseUniqueID,
 			typeInfo.MetadataToken,
 			typeInfo.FullName,
+			typeInfo.Namespace,
+			typeInfo.Name,
 			testClassUniqueID,
 			DefaultTestCollectionUniqueID,
 			methodInfo.MetadataToken,
@@ -381,7 +383,6 @@ public static partial class TestData
 			methodInfo.GetParameters().Select(p => p.ParameterType.SafeName()).ToArray(),
 			methodInfo.ReturnType.SafeName(),
 			testMethodUniqueID,
-			typeInfo.Namespace,
 			traits
 		);
 	}
@@ -397,6 +398,8 @@ public static partial class TestData
 		string testCaseUniqueID = DefaultTestCaseUniqueID,
 		int? testClassMetadataToken = null,
 		string? testClassName = null,
+		string? testClassNamespace = null,
+		string? testClassSimpleName = null,
 		string? testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 		int? testMethodMetadataToken = null,
@@ -404,7 +407,6 @@ public static partial class TestData
 		string[]? testMethodParameterTypes = null,
 		string? testMethodReturnType = null,
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
-		string? testNamespace = null,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null) =>
 			new Xunit.Runner.Common.TestCaseDiscovered()
 			{
@@ -418,7 +420,8 @@ public static partial class TestData
 				TestCaseUniqueID = testCaseUniqueID,
 				TestClassMetadataToken = testClassMetadataToken,
 				TestClassName = testClassName,
-				TestClassNamespace = testNamespace,
+				TestClassNamespace = testClassNamespace,
+				TestClassSimpleName = testClassSimpleName,
 				TestClassUniqueID = testClassUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestMethodMetadataToken = testMethodMetadataToken,
@@ -465,6 +468,7 @@ public static partial class TestData
 		int? testClassMetadataToken = 42,
 		string testClassName = DefaultTestClassName,
 		string testClassNamespace = DefaultTestClassNamespace,
+		string testClassSimpleName = DefaultTestClassSimpleName,
 		string? testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 		int? testMethodMetadataToken = 2112,
@@ -485,6 +489,7 @@ public static partial class TestData
 				TestClassMetadataToken = testClassMetadataToken,
 				TestClassName = testClassName,
 				TestClassNamespace = testClassNamespace,
+				TestClassSimpleName = testClassSimpleName,
 				TestClassUniqueID = testClassUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestMethodMetadataToken = testMethodMetadataToken,
@@ -607,6 +612,7 @@ public static partial class TestData
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		string testClassName = DefaultTestClassName,
 		string testClassNamespace = DefaultTestClassNamespace,
+		string testClassSimpleName = DefaultTestClassSimpleName,
 		string testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null) =>
@@ -615,6 +621,7 @@ public static partial class TestData
 				AssemblyUniqueID = assemblyUniqueID,
 				TestClassName = testClassName,
 				TestClassNamespace = testClassNamespace,
+				TestClassSimpleName = testClassSimpleName,
 				TestClassUniqueID = testClassUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID,
 				Traits = traits ?? DefaultTraits,

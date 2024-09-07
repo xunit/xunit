@@ -145,6 +145,10 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 		TestMethod.TestClass.TestClassNamespace;
 
 	/// <inheritdoc/>
+	public string TestClassSimpleName =>
+		TestMethod.TestClass.TestClassSimpleName;
+
+	/// <inheritdoc/>
 	public IXunitTestMethod TestMethod =>
 		this.ValidateNullablePropertyValue(testMethod, nameof(TestMethod));
 

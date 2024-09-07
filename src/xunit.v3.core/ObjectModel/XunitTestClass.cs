@@ -94,6 +94,10 @@ public class XunitTestClass : IXunitTestClass, IXunitSerializable
 		Class.Namespace;
 
 	/// <inheritdoc/>
+	public string TestClassSimpleName =>
+		Class.Name;
+
+	/// <inheritdoc/>
 	public IXunitTestCollection TestCollection =>
 		this.ValidateNullablePropertyValue(testCollection, nameof(TestCollection));
 

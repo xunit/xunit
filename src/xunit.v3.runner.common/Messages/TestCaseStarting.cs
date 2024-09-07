@@ -58,6 +58,12 @@ public partial class TestCaseStarting
 	/// <remarks>
 	/// Note: Will be <c>null</c> if there was no value provided during deserialization.
 	/// </remarks>
+	public required string? TestClassSimpleName { get; set; }
+
+	/// <inheritdoc/>
+	/// <remarks>
+	/// Note: Will be <c>null</c> if there was no value provided during deserialization.
+	/// </remarks>
 	public required int? TestMethodMetadataToken { get; set; }
 
 	/// <inheritdoc/>
@@ -99,6 +105,7 @@ public partial class TestCaseStarting
 		TestClassMetadataToken = JsonDeserializer.TryGetInt(root, nameof(TestClassMetadataToken));
 		TestClassName = JsonDeserializer.TryGetString(root, nameof(TestClassName));
 		TestClassNamespace = JsonDeserializer.TryGetString(root, nameof(TestClassNamespace));
+		TestClassSimpleName = JsonDeserializer.TryGetString(root, nameof(TestClassSimpleName));
 		TestMethodMetadataToken = JsonDeserializer.TryGetInt(root, nameof(TestMethodMetadataToken));
 		TestMethodName = JsonDeserializer.TryGetString(root, nameof(TestMethodName));
 		TestMethodParameterTypes = JsonDeserializer.TryGetArrayOfString(root, nameof(TestMethodParameterTypes));

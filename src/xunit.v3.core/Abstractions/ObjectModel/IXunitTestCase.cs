@@ -59,9 +59,14 @@ public interface IXunitTestCase : ITestCase
 	new int TestClassMetadataToken { get; }
 
 	/// <summary>
-	/// Gets the name of the class where the test is defined.
+	/// Gets the full name of the class where the test is defined (i.e. <see cref="Type.FullName"/>).
 	/// </summary>
 	new string TestClassName { get; }
+
+	/// <summary>
+	/// Gets the simple name of the class where the test is defined (i.e. <see cref="MemberInfo.Name"/>).
+	/// </summary>
+	new string TestClassSimpleName { get; }
 
 	/// <summary>
 	/// Gets the test collection this test case belongs to.

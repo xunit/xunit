@@ -26,6 +26,7 @@ sealed partial class TestClassStarting : TestClassMessage, ITestClassStarting
 
 		serializer.Serialize(nameof(TestClassName), TestClassName);
 		serializer.Serialize(nameof(TestClassNamespace), TestClassNamespace);
+		serializer.Serialize(nameof(TestClassSimpleName), TestClassSimpleName);
 		serializer.SerializeTraits(nameof(Traits), Traits);
 	}
 

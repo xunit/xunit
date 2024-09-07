@@ -168,6 +168,7 @@ public class XunitTestClassRunner :
 			AssemblyUniqueID = ctxt.TestClass.TestCollection.TestAssembly.UniqueID,
 			TestClassName = Guard.ArgumentNotNull(ctxt).TestClass.TestClassName,
 			TestClassNamespace = ctxt.TestClass.TestClassNamespace,
+			TestClassSimpleName = ctxt.TestClass.TestClassSimpleName,
 			TestClassUniqueID = ctxt.TestClass.UniqueID,
 			TestCollectionUniqueID = ctxt.TestClass.TestCollection.UniqueID,
 			Traits = ctxt.TestClass.Traits,

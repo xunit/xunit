@@ -36,6 +36,7 @@ public static partial class TestData
 	public const string DefaultTestCaseSerialization = "test-case-serialization";
 	public const string DefaultTestClassName = "test-class-name";
 	public const string DefaultTestClassNamespace = "test-class-namespace";
+	public const string DefaultTestClassSimpleName = "test-class-simple-name";
 	public const string DefaultTestClassUniqueID = "test-class-id";
 	public const string DefaultTestCollectionClass = "test-collection-class";
 	public const string DefaultTestCollectionDisplayName = "test-collection-display-name";

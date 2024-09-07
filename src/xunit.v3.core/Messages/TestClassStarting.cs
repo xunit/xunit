@@ -6,6 +6,7 @@ namespace Xunit.v3;
 public partial class TestClassStarting
 {
 	string? testClassName;
+	string? testClassSimpleName;
 	IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits;
 
 	/// <inheritdoc/>
@@ -17,6 +18,13 @@ public partial class TestClassStarting
 
 	/// <inheritdoc/>
 	public required string? TestClassNamespace { get; set; }
+
+	/// <inheritdoc/>
+	public required string TestClassSimpleName
+	{
+		get => this.ValidateNullablePropertyValue(testClassSimpleName, nameof(TestClassSimpleName));
+		set => testClassSimpleName = Guard.ArgumentNotNullOrEmpty(value, nameof(TestClassSimpleName));
+	}
 
 	/// <inheritdoc/>
 	public required IReadOnlyDictionary<string, IReadOnlyCollection<string>> Traits

@@ -32,6 +32,7 @@ sealed partial class TestCaseStarting : TestCaseMessage, ITestCaseStarting
 		serializer.Serialize(nameof(TestClassMetadataToken), TestClassMetadataToken);
 		serializer.Serialize(nameof(TestClassName), TestClassName);
 		serializer.Serialize(nameof(TestClassNamespace), TestClassNamespace);
+		serializer.Serialize(nameof(TestClassSimpleName), TestClassSimpleName);
 		serializer.Serialize(nameof(TestMethodMetadataToken), TestMethodMetadataToken);
 		serializer.Serialize(nameof(TestMethodName), TestMethodName);
 		serializer.SerializeStringArray(nameof(TestMethodParameterTypes), TestMethodParameterTypes);

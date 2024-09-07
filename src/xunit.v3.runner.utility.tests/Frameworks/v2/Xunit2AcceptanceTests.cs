@@ -99,6 +99,7 @@ namespace Namespace2
 						Assert.Null(testCase.SkipReason);
 						Assert.Equal("Namespace2.OuterClass+Class2", testCase.TestClassName);
 						Assert.Equal("Namespace2", testCase.TestClassNamespace);
+						Assert.Equal("Class2", testCase.TestClassSimpleName);
 						Assert.Equal("TestMethod", testCase.TestMethodName);
 					}
 				);
