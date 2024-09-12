@@ -694,6 +694,14 @@ public class SpanAssertsTests
 					)
 				);
 			}
+
+			// https://github.com/xunit/xunit/discussions/3021
+			[Fact]
+			public void ArrayOverload()
+			{
+				string[] str = ["hello"];
+				Assert.Equal(["hello"], str);
+			}
 		}
 
 		public class Ints
