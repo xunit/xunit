@@ -9,6 +9,9 @@ launchSettings.json
 # Mono's local registry
 .mono
 
+# If the user wants to override to a specific SDK, don't commit that
+global.json
+
 ##### Copied from https://github.com/github/gitignore/blob/7b22f8ab6c85b4ef1469d72a8ba96462e2a44853/VisualStudio.gitignore
 
 ## Ignore Visual Studio temporary files, build results, and
