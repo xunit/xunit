@@ -44,26 +44,25 @@ public class XunitTestInvoker : TestInvoker<XunitTestInvokerContext, IXunitTest>
 
 		await ctxt.Aggregator.RunAsync(async () =>
 		{
-			Task baseTask;
 			var syncContext = SynchronizationContext.Current;
 
-			if (syncContext is null)
-				baseTask = Task.Run(async () => await base.InvokeTestMethodAsync(ctxt));
-			else
-				baseTask = Task.Run(() =>
-				{
-					var tcs = new TaskCompletionSource<object?>();
-
-					syncContext.Post(async _ =>
+			Task baseTask =
+				syncContext is null
+					? Task.Run(async () => await base.InvokeTestMethodAsync(ctxt))
+					: Task.Run(() =>
 					{
-						// base.InvokeTestMethodAsync is guarded against throwing, so no need to
-						// try/catch and report exceptions via the TCS
-						await base.InvokeTestMethodAsync(ctxt);
-						tcs.TrySetResult(null);
-					}, null);
+						var tcs = new TaskCompletionSource<object?>();
 
-					return tcs.Task;
-				});
+						syncContext.Post(async _ =>
+						{
+							// base.InvokeTestMethodAsync is guarded against throwing, so no need to
+							// try/catch and report exceptions via the TCS
+							await base.InvokeTestMethodAsync(ctxt);
+							tcs.TrySetResult(null);
+						}, null);
+
+						return tcs.Task;
+					});
 
 			var resultTask = await Task.WhenAny(baseTask, Task.Delay(timeout));
 
