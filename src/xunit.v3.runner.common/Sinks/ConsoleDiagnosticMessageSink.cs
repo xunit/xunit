@@ -37,7 +37,7 @@ public class ConsoleDiagnosticMessageSink : IMessageSink
 			(true, null, false) => "",
 			(true, null, true) => "[D] ",
 			(true, _, false) => string.Format(CultureInfo.InvariantCulture, "[{0}] ", assemblyDisplayName),
-			(true, _, true) or _ => string.Format(CultureInfo.InvariantCulture, "[D::{0}] ", assemblyDisplayName),
+			(true, _, true) => string.Format(CultureInfo.InvariantCulture, "[D::{0}] ", assemblyDisplayName),
 		};
 		displayPrefixInternal = (showInternalDiagnosticMessages, assemblyDisplayName, noColor) switch
 		{
@@ -45,7 +45,7 @@ public class ConsoleDiagnosticMessageSink : IMessageSink
 			(true, null, false) => "",
 			(true, null, true) => "[I] ",
 			(true, _, false) => string.Format(CultureInfo.InvariantCulture, "[{0}] ", assemblyDisplayName),
-			(true, _, true) or _ => string.Format(CultureInfo.InvariantCulture, "[I::{0}] ", assemblyDisplayName),
+			(true, _, true) => string.Format(CultureInfo.InvariantCulture, "[I::{0}] ", assemblyDisplayName),
 		};
 
 		displayNewlineReplace = "\n" + new string(' ', (displayPrefixDiagnostic?.Length ?? displayPrefixInternal?.Length ?? 0) + 4);

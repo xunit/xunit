@@ -259,6 +259,7 @@ dotnet_diagnostic.IDE0040.severity   = none  # Add accessibility modifiers
 dotnet_diagnostic.IDE0042.severity   = none  # Deconstruct variable declaration
 dotnet_diagnostic.IDE0057.severity   = none  # Use range operator (not available in .NET Framework, even with C# 8+)
 dotnet_diagnostic.IDE0058.severity   = none  # Expression value is never used
+dotnet_diagnostic.IDE0072.severity   = none  # Populate switch
 dotnet_diagnostic.IDE0240.severity   = none  # Nullable directive is redundant
 dotnet_diagnostic.IDE0305.severity   = none  # Use collection expression for fluent (turned off because the fix changes semantics)
 dotnet_diagnostic.IDE1006.severity   = none  # Naming rule violation

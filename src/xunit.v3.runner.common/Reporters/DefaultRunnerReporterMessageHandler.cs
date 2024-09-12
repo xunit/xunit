@@ -291,7 +291,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 			{
 				AppDomainOption.Enabled => string.Format(CultureInfo.CurrentCulture, "app domain = on [{0}shadow copy], ", discoveryStarting.ShadowCopy ? "" : "no "),
 				AppDomainOption.Disabled => "app domain = off, ",
-				AppDomainOption.NotAvailable or _ => "",
+				_ => "",
 			};
 
 			Logger.LogImportantMessage(

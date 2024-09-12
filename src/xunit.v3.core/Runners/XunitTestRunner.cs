@@ -427,6 +427,6 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext, IXunitTest>
 		{
 			ExplicitOption.Only => ctxt.Test.Explicit,
 			ExplicitOption.Off => !ctxt.Test.Explicit,
-			ExplicitOption.On or _ => true,
+			_ => true,
 		};
 }

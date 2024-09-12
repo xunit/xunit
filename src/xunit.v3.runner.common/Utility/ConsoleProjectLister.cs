@@ -36,7 +36,7 @@ public static class ConsoleProjectLister
 			ListOption.Methods => Methods,
 			ListOption.Tests => Tests,
 			ListOption.Traits => Traits,
-			ListOption.Discovery or _ => null
+			_ => null
 		};
 
 		lister?.Invoke(consoleHelper, testCasesByAssembly, listFormat);

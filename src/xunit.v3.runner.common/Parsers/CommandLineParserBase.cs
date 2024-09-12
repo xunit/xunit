@@ -555,7 +555,7 @@ public abstract class CommandLineParserBase
 			ParallelismOption.all => (true, true),
 			ParallelismOption.assemblies => (true, false),
 			ParallelismOption.collections => (false, true),
-			ParallelismOption.none or _ => (false, false)
+			_ => (false, false)
 		};
 
 		foreach (var projectAssembly in Project.Assemblies)

@@ -340,7 +340,7 @@ sealed class ConsoleRunner(string[] args)
 				(false, AppDomainSupport.Required) => throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "AppDomains were required but assembly '{0}' does not support them", assembly.AssemblyFileName)),
 				(false, _) => AppDomainOption.NotAvailable,
 				(true, AppDomainSupport.Denied) => AppDomainOption.Disabled,
-				(true, _) or _ => AppDomainOption.Enabled,
+				(true, _) => AppDomainOption.Enabled,
 			};
 
 			var sinkOptions = new ExecutionSinkOptions
