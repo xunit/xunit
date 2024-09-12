@@ -603,6 +603,7 @@ public class CommandLineTests
 		}
 	}
 
+	[Collection(nameof(EnvironmentHelper.NullifyEnvironmentalReporters))]
 	public sealed class Reporters : IDisposable
 	{
 		readonly IDisposable environmentCleanup;

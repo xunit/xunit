@@ -695,6 +695,7 @@ public class CommandLineTests
 		}
 	}
 
+	[Collection(nameof(EnvironmentHelper.NullifyEnvironmentalReporters))]
 	public class Reporters : IDisposable
 	{
 		readonly IDisposable environmentCleanup;
