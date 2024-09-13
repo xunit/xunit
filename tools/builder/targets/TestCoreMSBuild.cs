@@ -33,7 +33,7 @@ public static class TestCoreMSBuild
 		// ------------- Forced x86 -------------
 
 		// Only run 32-bit .NET Core tests on Windows
-		if (context.NeedMono)
+		if (context.NeedMono || context.NoX86)
 			return;
 
 		// Only run 32-bit .NET Core tests if 32-bit .NET Core is installed

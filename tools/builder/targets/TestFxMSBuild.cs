@@ -30,9 +30,12 @@ public static class TestFxMSBuild
 				await context.Exec("msbuild", $"tools/builder/msbuild/netfx.proj -target:TestV1 -property:Configuration={context.ConfigurationText} -verbosity:{context.Verbosity}");
 			}
 
-			context.BuildStep("Running .NET Framework tests (x86, via MSBuild runner)");
+			if (!context.NoX86)
+			{
+				context.BuildStep("Running .NET Framework tests (x86, via MSBuild runner)");
 
-			await context.Exec("msbuild", $"tools/builder/msbuild/netfx.proj -target:TestV3_x86 -property:Configuration={context.ConfigurationText} -verbosity:{context.Verbosity}");
+				await context.Exec("msbuild", $"tools/builder/msbuild/netfx.proj -target:TestV3_x86 -property:Configuration={context.ConfigurationText} -verbosity:{context.Verbosity}");
+			}
 		}
 		catch (Win32Exception ex)
 		{

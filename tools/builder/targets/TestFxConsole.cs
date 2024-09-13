@@ -38,6 +38,9 @@ public static class TestFxConsole
 
 		// ------------- Forced x86 -------------
 
+		if (context.NoX86)
+			return;
+
 		context.BuildStep($"Running .NET Framework tests (x86, via Console runner)");
 
 		await RunTestAssemblies(context, "xunit.v3.*.tests.exe", x86: true);

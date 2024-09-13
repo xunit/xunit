@@ -25,7 +25,7 @@ public static class TestFxMTP
 		// ------------- Forced x86 -------------
 
 		// Only Windows supports side-by-side 64- and 32-bit installs of .NET SDK
-		if (!context.NeedMono)
+		if (!context.NeedMono && !context.NoX86)
 		{
 			// Only run 32-bit .NET Core tests if 32-bit .NET Core is installed
 			var programFilesX86 = Environment.GetEnvironmentVariable("ProgramFiles(x86)");
@@ -42,7 +42,6 @@ public static class TestFxMTP
 		}
 
 		// Clean out all the 'dotnet test' log files, because if we got this far everything succeeded
-
 		foreach (var logFile in Directory.GetFiles(context.TestOutputFolder, "*.log"))
 			File.Delete(logFile);
 	}

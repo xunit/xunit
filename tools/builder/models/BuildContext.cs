@@ -47,6 +47,9 @@ public partial class BuildContext
 
 	// User-controllable command-line options
 
+	[Option("--no-x86", Description = "Do not try to run x86 tests")]
+	public bool NoX86 { get; }
+
 	[Option("-3|--v3only", Description = "Only run tests for v3 projects (skip tests for v1 and v2)")]
 	public bool V3Only { get; }
 

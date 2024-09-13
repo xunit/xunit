@@ -47,7 +47,7 @@ jobs:
           SIGN_TENANT: ${{ secrets.SIGN_TENANT }}
           SIGN_TIMESTAMP_URI: ${{ secrets.SIGN_TIMESTAMP_URI }}
           SIGN_VAULT_URI: ${{ secrets.SIGN_VAULT_URI }}
-        run: dotnet run --project tools/builder --no-launch-profile -- BuildAll PublishPackages --timing
+        run: dotnet run --project tools/builder --no-launch-profile -- BuildAll PublishPackages --timing --no-x86
 
       - name: "Upload artifact: test"
         uses: actions/upload-artifact@v4

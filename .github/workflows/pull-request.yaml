@@ -46,12 +46,12 @@ jobs:
       - name: Get .NET information
         run: dotnet --info
 
-      - name: Get Mono information
+      - name: Get Mono information (non-Windows)
         run: mono --version
         if: ${{ matrix.os != 'windows-2022' }}
 
       - name: "Build target: BuildAll"
-        run: dotnet run --project tools/builder --no-launch-profile -- BuildAll --timing
+        run: dotnet run --project tools/builder --no-launch-profile -- BuildAll --timing --no-x86
 
       - name: "Upload artifact: test-${{ matrix.os }}"
         uses: actions/upload-artifact@v4
