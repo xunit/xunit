@@ -33,7 +33,7 @@ jobs:
       - name: Install Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 2.7.4
+          ruby-version: 3.3.0
 
       - name: Get Ruby information
         run: ruby --version && bundle --version
