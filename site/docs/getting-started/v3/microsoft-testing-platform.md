@@ -8,7 +8,7 @@ breadcrumb: Documentation
 
 _Last updated: 2024 September 12_
 
-Starting with build `0.4.0-pre.7`, we have added support for the new [Microsoft Testing Platform](https://learn.microsoft.com/dotnet/core/testing/unit-testing-platform-intro) natively into xUnit.net v3.
+Starting with build `0.4.0-pre.10`, we have added support for the new [Microsoft Testing Platform](https://learn.microsoft.com/dotnet/core/testing/unit-testing-platform-intro) natively into xUnit.net v3.
 
 ## What is Microsoft Testing Platform?
 
@@ -33,7 +33,7 @@ If you `dotnet run` your test project, you should see something like this (examp
 
 ```
 $ dotnet run
-xUnit.net v3 In-Process Runner v0.4.0-pre.7+b90464fbdf (64-bit .NET 8.0.8)
+xUnit.net v3 In-Process Runner v0.4.0-pre.10+cb346dccba (64-bit .NET 8.0.8)
   Discovering: MyFirstUnitTests
   Discovered:  MyFirstUnitTests
   Starting:    MyFirstUnitTests
@@ -66,7 +66,7 @@ Now, using `dotnet run`, you should see:
 
 ```
 $ dotnet run
-xUnit.net v3 Microsoft.Testing.Platform Runner v0.4.0-pre.7+b90464fbdf (64-bit .NET 8.0.8)
+xUnit.net v3 Microsoft.Testing.Platform Runner v0.4.0-pre.10+cb346dccba (64-bit .NET 8.0.8)
 
 failed MyFirstUnitTests.UnitTest1.MyFirstTheory(value: 6) (0ms)
   Assert.True() Failure
@@ -146,9 +146,9 @@ We have added one new switch (`--xunit-info`) which allows you to see the output
 
 ```
 $ dotnet run -- --xunit-info
-xUnit.net v3 Microsoft.Testing.Platform Runner v0.4.0-pre.7+b90464fbdf (64-bit .NET 8.0.8)
+xUnit.net v3 Microsoft.Testing.Platform Runner v0.4.0-pre.10+cb346dccba (64-bit .NET 8.0.8)
 
-xUnit.net v3 In-Process Runner v0.4.0-pre.7+b90464fbdf (64-bit .NET 8.0.8)
+xUnit.net v3 In-Process Runner v0.4.0-pre.10+cb346dccba (64-bit .NET 8.0.8)
   Discovering: MyFirstUnitTests
   Discovered:  MyFirstUnitTests
   Starting:    MyFirstUnitTests
@@ -254,7 +254,7 @@ C:\Dev\repro\MyFirstUnitTests\bin\Debug\net8.0\MyFirstUnitTests.dll : error run 
 A log file is always generated from `dotnet test` runs, but is usually only shown when the test run failed. The failure log in this case looks like:
 
 ```
-xUnit.net v3 Microsoft.Testing.Platform Runner v0.4.0-pre.7+b90464fbdf (64-bit .NET 8.0.8)
+xUnit.net v3 Microsoft.Testing.Platform Runner v0.4.0-pre.10+cb346dccba (64-bit .NET 8.0.8)
 
 failed MyFirstUnitTests.UnitTest1.MyFirstTheory(value: 6) (0ms)
   Assert.True() Failure
