@@ -6,6 +6,7 @@ using Xunit;
 using Xunit.Sdk;
 
 #if NETFRAMEWORK
+using System.Runtime.InteropServices;
 using System.Xml;
 #endif
 
@@ -185,11 +186,26 @@ public class SerializationHelperTests
 		[InlineData("18?", "DateOnly")]
 		[InlineData("19:326550000000", "TimeOnly")]
 		[InlineData("19?", "TimeOnly")]
+		public void UnsupportedPlatform(
+			string value,
+			string typeName)
+		{
+			var ex = Record.Exception(() => SerializationHelper.Deserialize(value));
+
+			var argEx = Assert.IsType<ArgumentException>(ex);
+			Assert.Equal("serializedValue", argEx.ParamName);
+			Assert.StartsWith($"Cannot deserialize value of '{typeName}': unsupported platform", argEx.Message);
+		}
+
+		public static bool IsWindows => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+
+		// Index and Range are available on Mono, but not on .NET Framework on Windows
+		[Theory(Skip = "This test is only supported on Windows", SkipUnless = nameof(IsWindows))]
 		[InlineData("21:123", "Index")]
 		[InlineData("21?", "Index")]
 		[InlineData("22:1..2", "Range")]
 		[InlineData("22?", "Range")]
-		public void UnsupportedPlatform(
+		public void UnsupportedPlatform_Windows(
 			string value,
 			string typeName)
 		{

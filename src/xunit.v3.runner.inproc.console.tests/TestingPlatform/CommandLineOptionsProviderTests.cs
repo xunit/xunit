@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq.Expressions;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Microsoft.Testing.Platform.CommandLine;
 using Microsoft.Testing.Platform.Configurations;
@@ -144,6 +145,9 @@ public class CommandLineOptionsProviderTests
 			string @switch,
 			params string[] argValues)
 		{
+			if (@switch == "culture")
+				Assert.SkipUnless(RuntimeInformation.IsOSPlatform(OSPlatform.Windows), "This value only throws on Windows");
+
 			commandLineOptions.Set(@switch, argValues);
 
 			var ex = Record.Exception(() => CommandLineOptionsProvider.Parse(configuration, commandLineOptions, projectAssembly));
