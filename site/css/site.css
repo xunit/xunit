@@ -312,6 +312,8 @@ blockquote.padded {
 .prerelease {
   background-color: #c9510c;
 }
+.table.left th,
+.table.left td,
 .table.releases th,
 .table.releases td {
   text-align: left;
@@ -319,7 +321,7 @@ blockquote.padded {
 }
 .table.latest td:first-child,
 .table.releases td:first-child,
-.table.smaller td:first-child {
+.table.bold-first td:first-child {
   font-weight: bold;
   text-align: left;
 }

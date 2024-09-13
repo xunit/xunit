@@ -121,7 +121,7 @@ _New to xUnit.net? These guides will help you get started._
 
 _The following target frameworks are current supported:_
 
-{: .table .smaller }
+{: .table .smaller .bold-first }
 |                                                      | xUnit.net | Console                | MSBuild                | TestDriven.NET <sup>2</sup> | Visual Studio <sup>3</sup>
 | ---------------------------------------------------- | --------- | ---------------------- | ---------------------- | --------------------------- | --------------------------
 | .NET Framework<br />(Windows)                        | 1.9.2+    | &#x2714; <sup>4a</sup> | &#x2714; <sup>4a</sup> | &#x2714; <sup>4a</sup>      | &#x2714; <sup>4b</sup>
@@ -129,7 +129,7 @@ _The following target frameworks are current supported:_
 
 _The following target frameworks have been deprecated and are no longer supported:_
 
-{: .table .smaller }
+{: .table .smaller .bold-first }
 |                                               | xUnit.net   | Visual Studio <sup>2</sup> | Devices
 | --------------------------------------------- | ----------- | -------------------------- | -------
 | Universal Application<br />(Win/WinPhone 8.1) | 2.0 - 2.1   | &#x2714; <sup>4b</sup>     | &#x2714; <sup>4c</sup>

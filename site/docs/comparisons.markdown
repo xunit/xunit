@@ -12,7 +12,7 @@ breadcrumb: Documentation
 
 ## Attributes
 
-{: .table .smaller }
+{: .table .smaller .bold-first }
 | NUnit 3.x                           | MSTest 15.x           | xUnit.net v2                          | Comments |
 | :---------------------------------- | :-------------------- | :------------------------------------ | :------- |
 | `[Test]`                            | `[TestMethod]`        | `[Fact]`                              | Marks a test method. |
@@ -41,7 +41,7 @@ breadcrumb: Documentation
 
 NUnit uses a [Constraint Model](https://github.com/nunit/docs/wiki/Constraint-Model). All the assertions start with `Assert.That` followed by a constraint. In the table below, we compare NUnit constraints, MSTest asserts, and xUnit.net asserts.
 
-{: .table .smaller }
+{: .table .smaller .bold-first }
 | NUnit 3.x (Constraint)     | MSTest 15.x           | xUnit.net v2          | Comments |
 | :------------------------- | :-------------------- | :-------------------- | :------- |
 | `Is.EqualTo`               | `AreEqual`            | `Equal`               | MSTest and xUnit.net support generic versions of this method |
