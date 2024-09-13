@@ -81,7 +81,7 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 
 		var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute);
 		var testCase =
-			details.SkipReason is not null
+			details.SkipReason is not null && details.SkipUnless is null && details.SkipWhen is null
 				? new XunitTestCase(
 					details.ResolvedTestMethod,
 					details.TestCaseDisplayName,
@@ -100,6 +100,10 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 					details.UniqueID,
 					details.Explicit,
 					theoryAttribute.SkipTestWithoutData,
+					details.SkipReason,
+					details.SkipType,
+					details.SkipUnless,
+					details.SkipWhen,
 					testMethod.Traits.ToReadWrite(StringComparer.OrdinalIgnoreCase),
 					timeout: details.Timeout
 				);
@@ -135,10 +139,9 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 		if (factAttribute is not ITheoryAttribute theoryAttribute)
 			throw new ArgumentException("TheoryDiscoverer.Discover must be passed an attribute that implements ITheoryAttribute", nameof(factAttribute));
 
-		// Special case Skip, because we want a single Skip (not one per data item); plus, a skipped theory may
+		// Special case unconditional skip, because we want a single Skip (not one per data item); plus, a skipped theory may
 		// not actually have any data (which is quasi-legal, since it's skipped).
-		var theoryAttributeSkipReason = theoryAttribute.Skip;
-		if (theoryAttributeSkipReason is not null)
+		if (theoryAttribute.Skip is not null && theoryAttribute.SkipUnless is null && theoryAttribute.SkipWhen is null)
 			return await CreateTestCasesForTheory(discoveryOptions, testMethod, theoryAttribute);
 
 		var preEnumerate =

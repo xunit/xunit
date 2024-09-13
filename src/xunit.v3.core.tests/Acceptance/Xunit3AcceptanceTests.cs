@@ -244,38 +244,51 @@ public class Xunit3AcceptanceTests
 			public void TestMethod() => Assert.True(false);
 		}
 
-		[Fact]
-		public async ValueTask ConditionallySkippedTests()
+		[Theory]
+		[InlineData(true)]
+		[InlineData(false)]
+		public async ValueTask ConditionallySkippedTests(bool preEnumerateTheories)
 		{
-			var results = await RunAsync(typeof(ConditionallySkippedTestClass));
+			var results = await RunAsync(typeof(ConditionallySkippedTestClass), preEnumerateTheories: preEnumerateTheories);
 
 			var skippedMessage = Assert.Single(results.OfType<ITestSkipped>());
 			var skippedStarting = Assert.Single(results.OfType<ITestStarting>(), s => s.TestUniqueID == skippedMessage.TestUniqueID);
-			Assert.Equal($"{typeof(ConditionallySkippedTestClass).SafeName()}.{nameof(ConditionallySkippedTestClass.ConditionallyAlwaysSkipped)}", skippedStarting.TestDisplayName);
+			Assert.Equal($"{typeof(ConditionallySkippedTestClass).SafeName()}.{nameof(ConditionallySkippedTestClass.ConditionallyAlwaysSkipped)}(value: False)", skippedStarting.TestDisplayName);
 			Assert.Equal("I am always skipped, conditionally", skippedMessage.Reason);
 
 			var passedMessage = Assert.Single(results.OfType<ITestPassed>());
 			var passedStarting = Assert.Single(results.OfType<ITestStarting>(), s => s.TestUniqueID == passedMessage.TestUniqueID);
-			Assert.Equal($"{typeof(ConditionallySkippedTestClass).SafeName()}.{nameof(ConditionallySkippedTestClass.ConditionallyNeverSkipped)}", passedStarting.TestDisplayName);
+			Assert.Equal($"{typeof(ConditionallySkippedTestClass).SafeName()}.{nameof(ConditionallySkippedTestClass.ConditionallyNeverSkipped)}(value: True)", passedStarting.TestDisplayName);
+
+			var failedMessage = Assert.Single(results.OfType<ITestFailed>());
+			var failedStarting = Assert.Single(results.OfType<ITestStarting>(), s => s.TestUniqueID == failedMessage.TestUniqueID);
+			Assert.Equal($"{typeof(ConditionallySkippedTestClass).SafeName()}.{nameof(ConditionallySkippedTestClass.ConditionallyNeverSkipped)}(value: False)", failedStarting.TestDisplayName);
+			Assert.Equal("Xunit.Sdk.TrueException", failedMessage.ExceptionTypes.Single());
 
 			var classFinishedMessage = Assert.Single(results.OfType<ITestClassFinished>());
-			Assert.Equal(2, classFinishedMessage.TestsTotal);
+			Assert.Equal(3, classFinishedMessage.TestsTotal);
 			Assert.Equal(1, classFinishedMessage.TestsSkipped);
+			Assert.Equal(1, classFinishedMessage.TestsFailed);
 
 			var collectionFinishedMessage = Assert.Single(results.OfType<ITestCollectionFinished>());
-			Assert.Equal(2, collectionFinishedMessage.TestsTotal);
+			Assert.Equal(3, collectionFinishedMessage.TestsTotal);
 			Assert.Equal(1, collectionFinishedMessage.TestsSkipped);
+			Assert.Equal(1, collectionFinishedMessage.TestsFailed);
 		}
 
+		// Use theories for both to ensure that any "skip" logic in TheoryDiscoverer doesn't kick in for conditional skips
 		class ConditionallySkippedTestClass
 		{
 			public static bool Always => true;
 
-			[Fact(Skip = "I am always skipped, conditionally", SkipWhen = nameof(Always))]
-			public void ConditionallyAlwaysSkipped() => Assert.True(false);
+			[Theory(Skip = "I am always skipped, conditionally", SkipWhen = nameof(Always))]
+			[InlineData(false)]
+			public void ConditionallyAlwaysSkipped(bool value) => Assert.True(value);
 
-			[Fact(Skip = "I am never skipped, conditionally", SkipUnless = nameof(Always))]
-			public void ConditionallyNeverSkipped() { }
+			[Theory(Skip = "I am never skipped, conditionally", SkipUnless = nameof(Always))]
+			[InlineData(false)]
+			[InlineData(true)]
+			public void ConditionallyNeverSkipped(bool value) => Assert.True(value);
 		}
 
 		[Fact]

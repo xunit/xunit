@@ -59,6 +59,10 @@ public class CulturedTheoryAttributeDiscoverer : TheoryDiscoverer
 						details.UniqueID,
 						details.Explicit,
 						theoryAttribute.SkipTestWithoutData,
+						details.SkipReason,
+						details.SkipType,
+						details.SkipUnless,
+						details.SkipWhen,
 						testMethod.Traits.ToReadWrite(StringComparer.OrdinalIgnoreCase),
 						timeout: details.Timeout
 					)

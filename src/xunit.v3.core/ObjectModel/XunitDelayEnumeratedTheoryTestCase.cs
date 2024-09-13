@@ -32,6 +32,10 @@ public class XunitDelayEnumeratedTheoryTestCase : XunitTestCase
 	/// <param name="uniqueID">The optional unique ID for the test case; if not provided, will be calculated.</param>
 	/// <param name="explicit">Indicates whether the test case was marked as explicit.</param>
 	/// <param name="skipTestWithoutData">Set to <c>true</c> to skip if the test has no data, rather than fail.</param>
+	/// <param name="skipReason">The value from <see cref="IFactAttribute.Skip"/></param>
+	/// <param name="skipType">The value from <see cref="IFactAttribute.SkipType"/> </param>
+	/// <param name="skipUnless">The value from <see cref="IFactAttribute.SkipUnless"/></param>
+	/// <param name="skipWhen">The value from <see cref="IFactAttribute.SkipWhen"/></param>
 	/// <param name="traits">The optional traits list.</param>
 	/// <param name="sourceFilePath">The optional source file in where this test case originated.</param>
 	/// <param name="sourceLineNumber">The optional source line number where this test case originated.</param>
@@ -42,6 +46,10 @@ public class XunitDelayEnumeratedTheoryTestCase : XunitTestCase
 		string uniqueID,
 		bool @explicit,
 		bool skipTestWithoutData,
+		string? skipReason = null,
+		Type? skipType = null,
+		string? skipUnless = null,
+		string? skipWhen = null,
 		Dictionary<string, HashSet<string>>? traits = null,
 		string? sourceFilePath = null,
 		int? sourceLineNumber = null,
@@ -51,10 +59,10 @@ public class XunitDelayEnumeratedTheoryTestCase : XunitTestCase
 				testCaseDisplayName,
 				uniqueID,
 				@explicit,
-				skipReason: null,
-				skipType: null,
-				skipUnless: null,
-				skipWhen: null,
+				skipReason,
+				skipType,
+				skipUnless,
+				skipWhen,
 				traits,
 				testMethodArguments: null,
 				sourceFilePath,
