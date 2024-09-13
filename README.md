@@ -14,7 +14,7 @@ In order to successfully view the content locally, you will need the following p
 
 * [.NET SDK 8.0](https://dotnet.microsoft.com/download/dotnet/8.0)
 * [Ruby 2.7.4](https://www.ruby-lang.org/en/documentation/installation/)
-* [Bundler 2.1.4](https://bundler.io/) (after installing Ruby, run `gem install bundler --version 2.1.4`)
+* [Bundler 2.4.22](https://bundler.io/) (after installing Ruby, run `gem install bundler --version 2.4.22`)
 
 We have verified this works using both Windows and Linux, though using Windows might try to add additional Windows-only dependencies to [`Gemfile.lock`](Gemfile.lock). We recommend Windows users a Linux distribution via WSL 2 and [VSCode](https://code.visualstudio.com/) for the smoothest experience.
 
