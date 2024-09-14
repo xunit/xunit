@@ -36,6 +36,7 @@ public static partial class TestData
 	public const string DefaultTestCaseDisplayName = "test-case-display-name";
 	public const string DefaultTestCaseUniqueID = "test-case-id";
 	public const string DefaultTestCaseSerialization = "test-case-serialization";
+	public const int DefaultTestClassMetadataToken = 2600;
 	public const string DefaultTestClassName = "test-class-name";
 	public const string DefaultTestClassNamespace = "test-class-namespace";
 	public const string DefaultTestClassSimpleName = "test-class-simple-name";
@@ -46,6 +47,7 @@ public static partial class TestData
 	public const string DefaultTestDisplayName = "test-display-name";
 	public const string DefaultTestEnvironment = "test-environment";
 	public const string DefaultTestFrameworkDisplayName = "test-framework";
+	public const int DefaultTestMethodMetadataToken = 5200;
 	public const string DefaultTestMethodUniqueID = "test-method-id";
 	public const string DefaultTestUniqueID = "test-id";
 	public static readonly IReadOnlyDictionary<string, IReadOnlyCollection<string>> DefaultTraits = new Dictionary<string, HashSet<string>>() { ["foo"] = ["bar", "baz"], ["biff"] = ["bang"] }.ToReadOnly();

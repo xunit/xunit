@@ -46,7 +46,7 @@ public static class TestClassRunnerTests
 			Assert.Equal(new[]
 			{
 				"OnTestClassStarting",
-				"RunTestMethodAsync(testMethod: \"\", constructorArguments: [], exception: null)",
+				"RunTestMethodAsync(testMethod: \"test-method\", constructorArguments: [], exception: null)",
 				"OnTestClassFinished(summary: { Total = 0 })",
 				// OnTestClassCleanupFailure
 			}, runner.Invocations);
@@ -69,7 +69,7 @@ public static class TestClassRunnerTests
 			Assert.Equal(new[]
 			{
 				"OnTestClassStarting",
-				"RunTestMethodAsync(testMethod: \"\", constructorArguments: [], exception: null)",
+				"RunTestMethodAsync(testMethod: \"test-method\", constructorArguments: [], exception: null)",
 				"OnTestClassFinished(summary: { Total = 0 })",
 				"OnTestClassCleanupFailure(exception: typeof(DivideByZeroException))",
 			}, runner.Invocations);
@@ -92,7 +92,7 @@ public static class TestClassRunnerTests
 			Assert.Equal(new[]
 			{
 				"OnTestClassStarting",
-				"RunTestMethodAsync(testMethod: \"\", constructorArguments: [], exception: null)",
+				"RunTestMethodAsync(testMethod: \"test-method\", constructorArguments: [], exception: null)",
 				"OnTestClassFinished(summary: { Total = 9, Failed = 2, Skipped = 1, NotRun = 3, Time = 21.12 })",
 				// OnTestClassCleanupFailure
 			}, runner.Invocations);
@@ -110,7 +110,7 @@ public static class TestClassRunnerTests
 			Assert.Equal(new[]
 			{
 				"OnTestClassStarting",
-				"RunTestMethodAsync(testMethod: \"\", constructorArguments: [], exception: typeof(DivideByZeroException))",
+				"RunTestMethodAsync(testMethod: \"test-method\", constructorArguments: [], exception: typeof(DivideByZeroException))",
 				"OnTestClassFinished(summary: { Total = 0 })",
 				// OnTestClassCleanupFailure
 			}, runner.Invocations);
@@ -128,7 +128,7 @@ public static class TestClassRunnerTests
 			Assert.Equal(new[]
 			{
 				"OnTestClassStarting",
-				"RunTestMethodAsync(testMethod: \"\", constructorArguments: [], exception: null)",
+				"RunTestMethodAsync(testMethod: \"test-method\", constructorArguments: [], exception: null)",
 				"OnTestClassFinished(summary: { Total = 0 })",
 				"OnTestClassCleanupFailure(exception: typeof(DivideByZeroException))",
 			}, runner.Invocations);
@@ -151,7 +151,7 @@ public static class TestClassRunnerTests
 			Assert.Equal(new[]
 			{
 				"OnTestClassStarting",
-				"RunTestMethodAsync(testMethod: \"\", constructorArguments: [], exception: null)",
+				"RunTestMethodAsync(testMethod: \"test-method\", constructorArguments: [], exception: null)",
 				"OnTestClassFinished(summary: { Total = 0 })",
 				"OnTestClassCleanupFailure(exception: typeof(ArgumentException))",
 			}, runner.Invocations);
