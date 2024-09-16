@@ -2,6 +2,5 @@
   "$schema": "https://xunit.net/schema/v3.0-alpha-1/xunit.runner.schema.json",
   "culture": "invariant",
   "diagnosticMessages": true,
-  "parallelizeAssembly": true,
-  "preEnumerateTheories": false
+  "parallelizeAssembly": true
 }
