@@ -86,6 +86,9 @@ blockquote ul {
   margin-top: -10px;
   padding-left: 1em;
 }
+blockquote ul ul {
+  margin-top: 0px;
+}
 table, .table {
   width: auto;
 }
