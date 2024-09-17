@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Globalization;
 using System.Reflection;
 using System.Security;
@@ -146,6 +147,11 @@ namespace Xunit.Sdk
         /// <returns>The return value from the test method invocation</returns>
         protected virtual object CallTestMethod(object testClassInstance)
             => TestMethod.Invoke(testClassInstance, TestMethodArguments);
+
+        /// <summary/>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static Task GetTaskFromResult(object obj) =>
+            AsyncUtility.TryConvertToTask(obj);
 
         /// <summary>
         /// Creates the test class (if necessary), and invokes the test method.
