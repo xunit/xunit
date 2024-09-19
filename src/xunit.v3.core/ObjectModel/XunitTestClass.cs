@@ -95,7 +95,7 @@ public class XunitTestClass : IXunitTestClass, IXunitSerializable
 
 	/// <inheritdoc/>
 	public string TestClassSimpleName =>
-		Class.Name;
+		Class.ToSimpleName();
 
 	/// <inheritdoc/>
 	public IXunitTestCollection TestCollection =>

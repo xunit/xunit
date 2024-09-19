@@ -64,7 +64,7 @@ public interface ITestCaseMetadata
 	string? TestClassNamespace { get; }
 
 	/// <summary>
-	/// Gets the simple name of the class where the test is defined (i.e., <see cref="MemberInfo.Name"/>).
+	/// Gets the simple name of the class where the test is defined (the class name without namespace).
 	/// If the test did not originiate in a class, will return <c>null</c>.
 	/// </summary>
 	[NotNullIfNotNull(nameof(TestMethodName))]

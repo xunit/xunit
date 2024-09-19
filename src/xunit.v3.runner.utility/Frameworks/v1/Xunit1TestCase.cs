@@ -187,7 +187,7 @@ public sealed class Xunit1TestCase : IXunitSerializable
 	{
 		var lastDotIdx = TestClass.LastIndexOf('.');
 		var @namespace = lastDotIdx > -1 ? TestClass.Substring(0, lastDotIdx) : null;
-		var simpleName = (lastDotIdx > -1 ? TestClass.Substring(lastDotIdx + 1) : TestClass).Split('+').Last();
+		var simpleName = lastDotIdx > -1 ? TestClass.Substring(lastDotIdx + 1) : TestClass;
 
 		return new TestCaseDiscovered
 		{
@@ -261,7 +261,7 @@ public sealed class Xunit1TestCase : IXunitSerializable
 	{
 		var lastDotIdx = TestClass.LastIndexOf('.');
 		var @namespace = lastDotIdx > -1 ? TestClass.Substring(0, lastDotIdx) : null;
-		var simpleName = (lastDotIdx > -1 ? TestClass.Substring(lastDotIdx + 1) : TestClass).Split('+').Last();
+		var simpleName = lastDotIdx > -1 ? TestClass.Substring(lastDotIdx + 1) : TestClass;
 
 		return new TestCaseStarting()
 		{

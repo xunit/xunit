@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 
 namespace Xunit.Sdk;
 
@@ -21,7 +20,7 @@ public interface ITestClassMetadata
 	string? TestClassNamespace { get; }
 
 	/// <summary>
-	/// Gets the simple name of the test class (i.e., <see cref="MemberInfo.Name"/>).
+	/// Gets the simple name of the test class (the class name without namespace).
 	/// </summary>
 	string TestClassSimpleName { get; }
 

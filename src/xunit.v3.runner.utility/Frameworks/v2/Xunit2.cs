@@ -402,7 +402,7 @@ public class Xunit2 : IFrontController
 				var typeName = testCasesByClass.Key;
 				var lastDotIdx = typeName.LastIndexOf('.');
 				var @namespace = lastDotIdx > -1 ? typeName.Substring(0, lastDotIdx) : null;
-				var simpleName = (lastDotIdx > -1 ? typeName.Substring(lastDotIdx + 1) : typeName).Split('+').Last();
+				var simpleName = lastDotIdx > -1 ? typeName.Substring(lastDotIdx + 1) : typeName;
 
 				messageSink.OnMessage(new TestClassStarting
 				{
@@ -439,7 +439,7 @@ public class Xunit2 : IFrontController
 					var typeName = testCasesByClass.Key;
 					var lastDotIdx = typeName?.LastIndexOf('.') ?? -1;
 					var @namespace = typeName is not null && lastDotIdx > -1 ? typeName.Substring(0, lastDotIdx) : null;
-					var simpleName = (typeName is not null && lastDotIdx > -1 ? typeName.Substring(lastDotIdx + 1) : typeName)?.Split('+').Last();
+					var simpleName = typeName is not null && lastDotIdx > -1 ? typeName.Substring(lastDotIdx + 1) : typeName;
 					var testCaseTraits = testCase.Traits.ToReadOnly();
 
 					messageSink.OnMessage(new TestCaseStarting

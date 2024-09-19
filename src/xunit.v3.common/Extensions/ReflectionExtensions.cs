@@ -364,7 +364,7 @@ public static class ReflectionExtensions
 
 		var typeNames = new string[genericTypes.Length];
 		for (var idx = 0; idx < genericTypes.Length; idx++)
-			typeNames[idx] = ToSimpleTypeName(genericTypes[idx]);
+			typeNames[idx] = ToDisplayName(genericTypes[idx]);
 
 		return string.Format(CultureInfo.CurrentCulture, "<{0}>", string.Join(", ", typeNames));
 	}
@@ -633,7 +633,7 @@ public static class ReflectionExtensions
 	/// Converts a type into a name string for display purposes. It attempts to make a more user friendly
 	/// name than <see cref="Type.FullName"/> would give, especially when the type is generic.
 	/// </summary>
-	public static string ToSimpleTypeName(this Type type)
+	public static string ToDisplayName(this Type type)
 	{
 		Guard.ArgumentNotNull(type);
 
@@ -654,9 +654,28 @@ public static class ReflectionExtensions
 		var simpleNames = new string[genericTypes.Length];
 
 		for (var idx = 0; idx < genericTypes.Length; idx++)
-			simpleNames[idx] = ToSimpleTypeName(genericTypes[idx]);
+			simpleNames[idx] = ToDisplayName(genericTypes[idx]);
 
 		return string.Format(CultureInfo.CurrentCulture, "{0}<{1}>", baseTypeName, string.Join(", ", simpleNames));
+	}
+
+	/// <summary>
+	/// Gets the simple name for a type, suitable for use with <see cref="ITestCaseMetadata.TestClassSimpleName"/>.
+	/// </summary>
+	public static string ToSimpleName(this Type type)
+	{
+		Guard.ArgumentNotNull(type);
+
+		if (type.FullName is null)
+			return type.Name;
+
+		if (type.Namespace is null)
+			return type.FullName;
+
+		if (!type.FullName.StartsWith(type.Namespace, StringComparison.Ordinal))
+			return type.FullName;
+
+		return type.FullName.Substring(type.Namespace.Length + 1);
 	}
 
 	static object? TryConvertObject(

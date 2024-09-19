@@ -146,7 +146,7 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 
 	/// <inheritdoc/>
 	public string TestClassSimpleName =>
-		TestMethod.TestClass.TestClassSimpleName;
+		TestMethod.TestClass.Class.ToSimpleName();
 
 	/// <inheritdoc/>
 	public IXunitTestMethod TestMethod =>

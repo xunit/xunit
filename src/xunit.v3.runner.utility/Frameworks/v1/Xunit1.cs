@@ -439,7 +439,7 @@ public class Xunit1 : IFrontController
 
 		var lastDotIdx = typeName.LastIndexOf('.');
 		var @namespace = lastDotIdx > -1 ? typeName.Substring(0, lastDotIdx) : null;
-		var simpleName = (lastDotIdx > -1 ? typeName.Substring(lastDotIdx + 1) : typeName).Split('+').Last();
+		var simpleName = lastDotIdx > -1 ? typeName.Substring(lastDotIdx + 1) : typeName;
 
 		var handler = new TestClassCallbackHandler(testCases, messageSink);
 		var results = handler.TestClassResults;

@@ -653,10 +653,22 @@ public class ReflectionExtensionsTests
 	}
 
 	[Fact]
-	public void ToSimpleTypeName()
+	public void ToDisplayName()
 	{
-		Assert.Equal("Object", typeof(object).ToSimpleTypeName());
-		Assert.Equal("Dictionary<String, List<Int32>>", typeof(Dictionary<string, List<int>>).ToSimpleTypeName());
+		Assert.Equal("Object", typeof(object).ToDisplayName());
+		Assert.Equal("Dictionary<String, List<Int32>>", typeof(Dictionary<string, List<int>>).ToDisplayName());
+	}
+
+	[Fact]
+	public void ToSimpleName()
+	{
+		// Without namespace
+		Assert.Equal("ReflectionExtensionsTests", typeof(ReflectionExtensionsTests).ToSimpleName());
+		Assert.Equal("ReflectionExtensionsTests+ResolveMethodArguments", typeof(ResolveMethodArguments).ToSimpleName());
+
+		// With namespace
+		Assert.Equal("ParentClass", typeof(NS1.ParentClass).ToSimpleName());
+		Assert.Equal("ParentClass+ChildClass", typeof(NS1.ParentClass.ChildClass).ToSimpleName());
 	}
 
 	[Fact]
@@ -665,5 +677,13 @@ public class ReflectionExtensionsTests
 		Assert.Equal(typeof(object), typeof(object).UnwrapNullable());
 		Assert.Equal(typeof(int), typeof(int).UnwrapNullable());
 		Assert.Equal(typeof(int), typeof(int?).UnwrapNullable());
+	}
+}
+
+namespace NS1
+{
+	public class ParentClass
+	{
+		public class ChildClass { }
 	}
 }

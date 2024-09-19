@@ -259,7 +259,7 @@ public class Xunit2MessageAdapter(
 		var typeName = testCase.TestMethod?.TestClass.Class.Name;
 		var lastDotIdx = typeName?.LastIndexOf('.') ?? -1;
 		var @namespace = typeName is not null && lastDotIdx > -1 ? typeName.Substring(0, lastDotIdx) : null;
-		var simpleName = (typeName is not null && lastDotIdx > -1 ? typeName.Substring(lastDotIdx + 1) : typeName)?.Split('+').Last();
+		var simpleName = typeName is not null && lastDotIdx > -1 ? typeName.Substring(lastDotIdx + 1) : typeName;
 
 		if (typeName is not null)
 		{
@@ -328,7 +328,7 @@ public class Xunit2MessageAdapter(
 		var typeName = message.TestCase.TestMethod?.TestClass.Class.Name;
 		var lastDotIdx = typeName?.LastIndexOf('.') ?? -1;
 		var @namespace = typeName is not null && lastDotIdx > -1 ? typeName.Substring(0, lastDotIdx) : null;
-		var simpleName = (typeName is not null && lastDotIdx > -1 ? typeName.Substring(lastDotIdx + 1) : typeName)?.Split('+').Last();
+		var simpleName = typeName is not null && lastDotIdx > -1 ? typeName.Substring(lastDotIdx + 1) : typeName;
 
 		return new TestCaseStarting()
 		{
@@ -473,7 +473,7 @@ public class Xunit2MessageAdapter(
 		var typeName = message.TestClass.Class.Name;
 		var lastDotIdx = typeName.LastIndexOf('.');
 		var @namespace = lastDotIdx > -1 ? typeName.Substring(0, lastDotIdx) : null;
-		var simpleName = (lastDotIdx > -1 ? typeName.Substring(lastDotIdx + 1) : typeName).Split('+').Last();
+		var simpleName = lastDotIdx > -1 ? typeName.Substring(lastDotIdx + 1) : typeName;
 
 		return new TestClassStarting()
 		{
