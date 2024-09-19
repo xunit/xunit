@@ -25,16 +25,16 @@ The query filter supported in xUnit.net v3 is structured with between one and fo
 
 `/<assemblyFilter>/<namespaceFilter>/<classFilter>/<methodFilter>`
 
-The four segments represent the four parts of a fully qualified test method in an assembly. For the purposes of illustration, let's assume a test method of `MyTests.MyNamespace.MySubNamespace.MyClass+MySubClass.MyTestMethod` that lives in `C:\Dev\MyProjects\Tests\bin\Debug\net8.0\MyTests.dll`:
+The four segments represent the four parts of a fully qualified test method in an assembly. For the purposes of illustration, let's assume a test method of `MyNamespace.MySubNamespace.MyClass+MySubClass.MyTestMethod` that lives in `C:\Dev\MyProjects\Tests\bin\Debug\net8.0\MyTests.dll`:
 
 - `assemblyFilter` is matched against the test assembly name (i.e., `MyTests`)
-- `namespaceFilter` is matched against the namespace of the test (i.e., `MyTests.MyNamespace.MySubNamespace`)
-- `classFilter` is matched against the simple name of the test class (i.e., `MySubClass`)
+- `namespaceFilter` is matched against the namespace of the test (i.e., `MyNamespace.MySubNamespace`)
+- `classFilter` is matched against the name of the test class (i.e., `MyClass+MySubClass`)
 - `methodFilter` is matched against the name of the test method (i.e., `MyTestMethod`)
 
 > Example:
 >
-> `/MyAssembly/MyTests.MyNamespace.MySubNamespace/MySubClass/MyTestMethod` will match the example test method above.
+> `/MyTests/MyNamespace.MySubNamespace/MyClass+MySubClass/MyTestMethod` will match the example test method above.
 
 ### Use a wildcard in a segment to indicate a "match all"
 
@@ -45,8 +45,8 @@ In addition, any segment left off the query is considered to be an implicit "mat
 > Examples:
 >
 > - `/` is equivalent to `/*`, `/*/*`, `/*/*/*`, and `/*/*/*/*`.
-> - `/MyTests` is equivalent to `/MyTests/*`, `/MyTests/*/*`, and `/MyTests/*/*/*`.
-> - `/MyTests/MyNamespace` is equivalent to `/MyTests/MyNamespace/*` and `/MyTests/MyNamespace/*/*`.
+> - `/MyAssembly` is equivalent to `/MyAssembly/*`, `/MyAssembly/*/*`, and `/MyAssembly/*/*/*`.
+> - `/MyAssembly/MyNamespace` is equivalent to `/MyAssembly/MyNamespace/*` and `/MyAssembly/MyNamespace/*/*`.
 > - etc.
 
 _**Note:** Queries must always start with `/`, even if you are not specifying any segment values. Specifying more than four segments results in a parsing error for the query._
