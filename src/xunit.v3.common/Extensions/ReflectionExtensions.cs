@@ -610,8 +610,8 @@ public static class ReflectionExtensions
 
 	/// <summary>
 	/// Gets a fully qualified type name (i.e., <see cref="Type.FullName"/>), falling back to a simple
-	/// type name (i.e., <see cref="MemberInfo.Name"/> when a fully qualified name is not available. Typically
-	/// used when presenting type names to the user.
+	/// type name (i.e., <see cref="MemberInfo.Name"/>) when a fully qualified name is not available. Typically
+	/// used when presenting type names to the user, or to guarantee the type name is never <c>null</c>.
 	/// </summary>
 	public static string SafeName(this Type type)
 	{

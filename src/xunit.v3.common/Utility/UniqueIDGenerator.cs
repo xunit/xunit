@@ -144,7 +144,7 @@ public sealed class UniqueIDGenerator : IDisposable
 
 		if (testMethodGenericTypes is not null)
 			for (var idx = 0; idx < testMethodGenericTypes.Length; idx++)
-				generator.Add(testMethodGenericTypes[idx].ToDisplayName());
+				generator.Add(testMethodGenericTypes[idx].SafeName());
 
 		return generator.Compute();
 	}
