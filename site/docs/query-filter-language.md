@@ -109,18 +109,6 @@ Multipart queries cannot span across segment boundaries.
 > - `/[(name1=value1)&(name2=value2)]` means "run all tests with both traits `name1=value1` and `name2=value2`.
 > - `/[((name1=value1a)|(name1=value1b))&(name2!=value2)]` means "run all tests with either traits `name1=value1a` or `name1=value1b`, and also with no trait matching `name2=value2`.
 
-You can escape special characters (`(`, `)`, `[`, `]`, and `/`) and any other character your terminal might not directly support by encoding them using the hexadecimal HTML character encoding scheme. Escape the value with `&#x1234;` where `1234` is the 1-4 digit hex code for a UTF-16 character.
-
-> Commonly escaped special characters:
->
-> * `!` is `&#x21;`
-> * `(` is `&#x28;`
-> * `)` is `&#x29;`
-> * `/` is `&#x2f;`
-> * `=` is `&#x3d;`
-> * `[` is `&#x5b;`
-> * `]` is `&#x5d;`
-
 ### Negate a segment query
 
 You may negate a segment query by prepending `!` on the segment filter expression.
@@ -133,6 +121,20 @@ _**Note:** If you are using wildcard expressions, the negate operator comes befo
 > - `/*/*/(Foo*)&(!*Bar)` means "run all tests whose class name starts with `Foo` and does not end with `Bar`
 
 _**Note:** Negating a trait query is done by using `[name!=value]`, not `![name=value]`._
+
+### Escaping special characters
+
+You can escape special characters (like `(` and `)`) and any other character your terminal might not directly support by encoding them using the hexadecimal HTML character encoding scheme. Escape the value with `&#x1234;` where `1234` is the 1-4 digit hex code for a UTF-16 character.
+
+> Commonly escaped special characters:
+>
+> * `!` is `&#x21;`
+> * `(` is `&#x28;`
+> * `)` is `&#x29;`
+> * `/` is `&#x2f;`
+> * `=` is `&#x3d;`
+> * `[` is `&#x5b;`
+> * `]` is `&#x5d;`
 
 ## Specifying a query filter
 
