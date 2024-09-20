@@ -144,7 +144,7 @@ public class TestPlatformTestFrameworkTests
 			var uid = new SessionUid("abc");
 			var messageBus = new SpyTestPlatformMessageBus();
 			var framework = TestableTestPlatformTestFramework.Create();
-			framework.ProjectAssembly.Configuration.Filters.IncludedClasses.Add("TestPlatformTestFrameworkTests+SessionManagement");
+			framework.ProjectAssembly.Configuration.Filters.AddIncludedClassFilter(typeof(SessionManagement).FullName!);
 			framework.CreateTestSession(uid);
 
 			// Discover tests

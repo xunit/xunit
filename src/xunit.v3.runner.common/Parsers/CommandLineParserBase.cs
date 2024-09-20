@@ -120,49 +120,65 @@ public abstract class CommandLineParserBase
 		AddParser("stopOnFail", OnStopOnFail, CommandLineGroup.General, null, "stop on first test failure");
 		AddParser("useAnsiColor", OnUseAnsiColor, CommandLineGroup.General, null, "force using ANSI color output on Windows (non-Windows always uses ANSI colors)");
 
-		// Filter options
+		// Query filtering
 		AddParser(
-			"class", OnClass, CommandLineGroup.Filter, "\"name\"",
-			"run all methods in a given test class (should be fully specified;",
-			"i.e., 'MyNamespace.MyClass' or 'MyNamespace.MyClass+InnerClass')",
+			"filter", OnFilter, CommandLineGroup.FilterQuery, "\"query\"",
+			"use a query filter to select tests (using the query filter language;",
+			"in '/assemblyName/namespace/class/method[trait=value]' format)",
+			"for more information, see https://xunit.net/docs/query-filter-language"
+		);
+
+		// Simple filtering
+		AddParser(
+			"class", OnClass, CommandLineGroup.FilterSimple, "\"name\"",
+			"run all methods in a given test class (type names are fully qualified;",
+			"i.e., 'MyNamespace.MyClass' or 'MyNamespace.MyClass+InnerClass'; wildcard '*'",
+			"is supported at the beginning and/or end of the filter)",
 			"  if specified more than once, acts as an OR operation"
 		);
 		AddParser(
-			"class-", OnClassMinus, CommandLineGroup.Filter, "\"name\"",
-			"do not run any methods in a given test class (should be fully specified;",
-			"i.e., 'MyNamespace.MyClass' or 'MyNamespace.MyClass+InnerClass')",
+			"class-", OnClassMinus, CommandLineGroup.FilterSimple, "\"name\"",
+			"do not run any methods in a given test class (type names are fully qualified;",
+			"i.e., 'MyNamespace.MyClass' or 'MyNamespace.MyClass+InnerClass'; wildcard '*'",
+			"is supported at the beginning and/or end of the filter)",
 			"  if specified more than once, acts as an AND operation"
 		);
 		AddParser(
-			"method", OnMethod, CommandLineGroup.Filter, "\"name\"",
-			"run a given test method (can be fully specified or use a wildcard;",
-			"i.e., 'MyNamespace.MyClass.MyTestMethod' or '*.MyTestMethod')",
+			"method", OnMethod, CommandLineGroup.FilterSimple, "\"name\"",
+			"run a given test method (including the fully qualified type name;",
+			"i.e., 'MyNamespace.MyClass.MyTestMethod'; wildcard '*' is supported",
+			"at the beginning and/or end of the filter)",
 			"  if specified more than once, acts as an OR operation"
 		);
 		AddParser(
-			"method-", OnMethodMinus, CommandLineGroup.Filter, "\"name\"",
-			"do not run a given test method (can be fully specified or use a wildcard;",
-			"i.e., 'MyNamespace.MyClass.MyTestMethod' or '*.MyTestMethod')",
+			"method-", OnMethodMinus, CommandLineGroup.FilterSimple, "\"name\"",
+			"do not run a given test method (including the fully qualified type name;",
+			"i.e., 'MyNamespace.MyClass.MyTestMethod'; wildcard '*' is supported",
+			"at the beginning and/or end of the filter)",
 			"  if specified more than once, acts as an AND operation"
 		);
 		AddParser(
-			"namespace", OnNamespace, CommandLineGroup.Filter, "\"name\"",
-			"run all methods in a given namespace (i.e., 'MyNamespace.MySubNamespace')",
+			"namespace", OnNamespace, CommandLineGroup.FilterSimple, "\"name\"",
+			"run all methods in a given namespace (i.e., 'MyNamespace.MySubNamespace';" +
+			"wildcard '*' is supported at the beginning and/or end of the filter)",
 			"  if specified more than once, acts as an OR operation"
 		);
 		AddParser(
-			"namespace-", OnNamespaceMinus, CommandLineGroup.Filter, "\"name\"",
-			"do not run any methods in a given namespace (i.e., 'MyNamespace.MySubNamespace')",
+			"namespace-", OnNamespaceMinus, CommandLineGroup.FilterSimple, "\"name\"",
+			"do not run any methods in a given namespace (i.e., 'MyNamespace.MySubNamespace';",
+			"wildcard '*' is supported at the beginning and/or end of the filter)",
 			"  if specified more than once, acts as an AND operation"
 		);
 		AddParser(
-			"trait", OnTrait, CommandLineGroup.Filter, "\"name=value\"",
-			"only run tests with matching name/value traits",
+			"trait", OnTrait, CommandLineGroup.FilterSimple, "\"name=value\"",
+			"only run tests with matching name/value traits (wildcard '*' is supported at the",
+			"beginning and/or end of the trait name and/or value)",
 			"  if specified more than once, acts as an OR operation"
 		);
 		AddParser(
-			"trait-", OnTraitMinus, CommandLineGroup.Filter, "\"name=value\"",
-			"do not run tests with matching name/value traits",
+			"trait-", OnTraitMinus, CommandLineGroup.FilterSimple, "\"name=value\"",
+			"do not run tests with matching name/value traits (wildcard '*' is supported at the",
+			"beginning and/or end of the trait name and/or value)",
 			"  if specified more than once, acts as an AND operation"
 		);
 
@@ -303,16 +319,16 @@ public abstract class CommandLineParserBase
 			throw new ArgumentException("missing argument for -class");
 
 		foreach (var projectAssembly in Project.Assemblies)
-			projectAssembly.Configuration.Filters.IncludedClasses.Add(option.Value);
+			projectAssembly.Configuration.Filters.AddIncludedClassFilter(option.Value);
 	}
 
 	void OnClassMinus(KeyValuePair<string, string?> option)
 	{
 		if (option.Value is null)
-			throw new ArgumentException("missing argument for -noclass");
+			throw new ArgumentException("missing argument for -class-");
 
 		foreach (var projectAssembly in Project.Assemblies)
-			projectAssembly.Configuration.Filters.ExcludedClasses.Add(option.Value);
+			projectAssembly.Configuration.Filters.AddExcludedClassFilter(option.Value);
 	}
 
 	void OnCulture(KeyValuePair<string, string?> option)
@@ -387,6 +403,15 @@ public abstract class CommandLineParserBase
 		GuardNoOptionValue(option);
 		foreach (var projectAssembly in Project.Assemblies)
 			projectAssembly.Configuration.FailTestsWithWarnings = false;
+	}
+
+	void OnFilter(KeyValuePair<string, string?> option)
+	{
+		if (option.Value is null)
+			throw new ArgumentException("missing argument for -filter");
+
+		foreach (var projectAssembly in Project.Assemblies)
+			projectAssembly.Configuration.Filters.AddQueryFilter(option.Value);
 	}
 
 	void OnIgnoreFailures(KeyValuePair<string, string?> option)
@@ -465,7 +490,7 @@ public abstract class CommandLineParserBase
 			throw new ArgumentException("missing argument for -method");
 
 		foreach (var projectAssembly in Project.Assemblies)
-			projectAssembly.Configuration.Filters.IncludedMethods.Add(option.Value);
+			projectAssembly.Configuration.Filters.AddIncludedMethodFilter(option.Value);
 	}
 
 	void OnMethodDisplay(KeyValuePair<string, string?> option)
@@ -495,10 +520,10 @@ public abstract class CommandLineParserBase
 	void OnMethodMinus(KeyValuePair<string, string?> option)
 	{
 		if (option.Value is null)
-			throw new ArgumentException("missing argument for -nomethod");
+			throw new ArgumentException("missing argument for -method-");
 
 		foreach (var projectAssembly in Project.Assemblies)
-			projectAssembly.Configuration.Filters.ExcludedMethods.Add(option.Value);
+			projectAssembly.Configuration.Filters.AddExcludedMethodFilter(option.Value);
 	}
 
 	void OnNamespace(KeyValuePair<string, string?> option)
@@ -507,16 +532,16 @@ public abstract class CommandLineParserBase
 			throw new ArgumentException("missing argument for -namespace");
 
 		foreach (var projectAssembly in Project.Assemblies)
-			projectAssembly.Configuration.Filters.IncludedNamespaces.Add(option.Value);
+			projectAssembly.Configuration.Filters.AddIncludedNamespaceFilter(option.Value);
 	}
 
 	void OnNamespaceMinus(KeyValuePair<string, string?> option)
 	{
 		if (option.Value is null)
-			throw new ArgumentException("missing argument for -nonamespace");
+			throw new ArgumentException("missing argument for -namespace-");
 
 		foreach (var projectAssembly in Project.Assemblies)
-			projectAssembly.Configuration.Filters.ExcludedNamespaces.Add(option.Value);
+			projectAssembly.Configuration.Filters.AddExcludedNamespaceFilter(option.Value);
 	}
 
 	void OnNoAutoReporters(KeyValuePair<string, string?> option)
@@ -618,23 +643,23 @@ public abstract class CommandLineParserBase
 		var value = pieces[1];
 
 		foreach (var projectAssembly in Project.Assemblies)
-			projectAssembly.Configuration.Filters.IncludedTraits.Add(name, value);
+			projectAssembly.Configuration.Filters.AddIncludedTraitFilter(name, value);
 	}
 
 	void OnTraitMinus(KeyValuePair<string, string?> option)
 	{
 		if (option.Value is null)
-			throw new ArgumentException("missing argument for -notrait");
+			throw new ArgumentException("missing argument for -trait-");
 
 		var pieces = option.Value.Split('=');
 		if (pieces.Length != 2 || string.IsNullOrEmpty(pieces[0]) || string.IsNullOrEmpty(pieces[1]))
-			throw new ArgumentException("incorrect argument format for -notrait (should be \"name=value\")");
+			throw new ArgumentException("incorrect argument format for -trait- (should be \"name=value\")");
 
 		var name = pieces[0];
 		var value = pieces[1];
 
 		foreach (var projectAssembly in Project.Assemblies)
-			projectAssembly.Configuration.Filters.ExcludedTraits.Add(name, value);
+			projectAssembly.Configuration.Filters.AddExcludedTraitFilter(name, value);
 	}
 
 	void OnUseAnsiColor(KeyValuePair<string, string?> option)
@@ -732,7 +757,8 @@ public abstract class CommandLineParserBase
 	{
 		PrintUsageGroup(CommandLineGroup.General, "General options");
 		PrintUsageGroup(CommandLineGroup.NetFramework, "Options for .NET Framework projects (v1 or v2 only)");
-		PrintUsageGroup(CommandLineGroup.Filter, "Filtering (optional, choose one or more)", "If more than one filter type is specified, cross-filter type filters act as an AND operation");
+		PrintUsageGroup(CommandLineGroup.FilterQuery, "Query filtering (optional, choose one or more)", "If more than one query filter is specified, the filters act as an OR operation", "  Note: You cannot mix simple filtering and query filtering.");
+		PrintUsageGroup(CommandLineGroup.FilterSimple, "Simple filtering (optional, choose one or more)", "If more than one simple filter type is specified, cross-filter type filters act as an AND operation", "  Note: You cannot mix simple filtering and query filtering.");
 
 		if (RunnerReporters.Count > 0)
 		{

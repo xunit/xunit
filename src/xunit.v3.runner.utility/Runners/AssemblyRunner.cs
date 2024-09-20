@@ -349,7 +349,7 @@ public class AssemblyRunner : IAsyncDisposable, IMessageSink
 			var discoveryOptions = GetDiscoveryOptions(startOptions.DiagnosticMessages, startOptions.InternalDiagnosticMessages, startOptions.MethodDisplay, startOptions.MethodDisplayOptions, startOptions.PreEnumerateTheories);
 			var filters = new XunitFilters();
 			foreach (var typeName in startOptions.TypesToRun)
-				filters.IncludedClasses.Add(typeName);
+				filters.AddIncludedClassFilter(typeName);
 
 			var findSettings = new FrontControllerFindSettings(discoveryOptions, filters);
 			controller.Find(this, findSettings);

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using Xunit.Internal;
 
@@ -14,8 +13,10 @@ public class TraitParser(Action<string>? warningHandler = null)
 	/// <summary/>
 	public void Parse(
 		string? traits,
-		Dictionary<string, HashSet<string>> traitsDictionary)
+		Action<string, string> addFilterFunction)
 	{
+		Guard.ArgumentNotNull(addFilterFunction);
+
 		if (!string.IsNullOrEmpty(traits))
 		{
 			foreach (var trait in traits.Split(TraitSeparator, StringSplitOptions.RemoveEmptyEntries))
@@ -28,7 +29,7 @@ public class TraitParser(Action<string>? warningHandler = null)
 					continue;
 				}
 
-				traitsDictionary.Add(pieces[0].Trim(), pieces[1].Trim());
+				addFilterFunction(pieces[0].Trim(), pieces[1].Trim());
 			}
 		}
 	}

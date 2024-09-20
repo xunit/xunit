@@ -374,38 +374,29 @@ public class CommandLineTests
 			var assembly = commandLine.Parse();
 
 			var filters = assembly.Configuration.Filters;
-			Assert.Empty(filters.IncludedTraits);
-			Assert.Empty(filters.ExcludedTraits);
-			Assert.Empty(filters.IncludedNamespaces);
-			Assert.Empty(filters.ExcludedNamespaces);
-			Assert.Empty(filters.IncludedClasses);
-			Assert.Empty(filters.ExcludedClasses);
-			Assert.Empty(filters.IncludedMethods);
-			Assert.Empty(filters.ExcludedMethods);
+			Assert.True(filters.Empty);
 		}
 
-		static readonly (string Switch, Expression<Func<XunitProjectAssembly, ICollection<string>>> Accessor)[] SwitchOptionsList =
+		static readonly string[] SwitchOptionsList =
 		[
-			("-namespace", assembly => assembly.Configuration.Filters.IncludedNamespaces),
-			("-nonamespace", assembly => assembly.Configuration.Filters.ExcludedNamespaces),
-			("-class", assembly => assembly.Configuration.Filters.IncludedClasses),
-			("-noclass", assembly => assembly.Configuration.Filters.ExcludedClasses),
-			("-method", assembly => assembly.Configuration.Filters.IncludedMethods),
-			("-nomethod", assembly => assembly.Configuration.Filters.ExcludedMethods),
+			"-namespace",
+			"-namespace-",
+			"-class",
+			"-class-",
+			"-method",
+			"-method-",
 		];
 
-		public static readonly TheoryData<string, Expression<Func<XunitProjectAssembly, ICollection<string>>>> SwitchesLowerCase =
+		public static readonly TheoryData<string> SwitchesLowerCase =
 			new(SwitchOptionsList);
 
-		public static readonly TheoryData<string, Expression<Func<XunitProjectAssembly, ICollection<string>>>> SwitchesUpperCase =
-			new(SwitchOptionsList.Select(t => (t.Switch.ToUpperInvariant(), t.Accessor)));
+		public static readonly TheoryData<string> SwitchesUpperCase =
+			new(SwitchOptionsList.Select(t => t.ToUpperInvariant()));
 
-		[Theory(DisableDiscoveryEnumeration = true)]
+		[Theory]
 		[MemberData(nameof(SwitchesLowerCase))]
 		[MemberData(nameof(SwitchesUpperCase))]
-		public static void MissingOptionValue(
-			string @switch,
-			Expression<Func<XunitProjectAssembly, ICollection<string>>> _)
+		public static void MissingOptionValue(string @switch)
 		{
 			var commandLine = new TestableCommandLine("no-config.json", @switch);
 
@@ -415,46 +406,46 @@ public class CommandLineTests
 			Assert.Equal($"missing argument for {@switch.ToLowerInvariant()}", exception.Message);
 		}
 
-		[Theory(DisableDiscoveryEnumeration = true)]
+		[Theory]
 		[MemberData(nameof(SwitchesLowerCase))]
 		[MemberData(nameof(SwitchesUpperCase))]
-		public static void SingleValidArgument(
-			string @switch,
-			Expression<Func<XunitProjectAssembly, ICollection<string>>> accessor)
+		public static void SingleValidArgument(string @switch)
 		{
 			var commandLine = new TestableCommandLine("no-config.json", @switch, "value1");
+
 			var assembly = commandLine.Parse();
 
-			var results = accessor.Compile().Invoke(assembly);
-
-			var item = Assert.Single(results.OrderBy(x => x));
-			Assert.Equal("value1", item);
+			Assert.Collection(
+				assembly.Configuration.Filters.ToXunit3Arguments(),
+				arg => Assert.Equal(@switch.ToLowerInvariant(), arg),
+				arg => Assert.Equal("value1", arg)
+			);
 		}
 
-		[Theory(DisableDiscoveryEnumeration = true)]
+		[Theory]
 		[MemberData(nameof(SwitchesLowerCase))]
 		[MemberData(nameof(SwitchesUpperCase))]
-		public static void MultipleValidArguments(
-			string @switch,
-			Expression<Func<XunitProjectAssembly, ICollection<string>>> accessor)
+		public static void MultipleValidArguments(string @switch)
 		{
 			var commandLine = new TestableCommandLine("no-config.json", @switch, "value2", @switch, "value1");
+
 			var assembly = commandLine.Parse();
 
-			var results = accessor.Compile().Invoke(assembly);
-
-			Assert.Collection(results.OrderBy(x => x),
-				item => Assert.Equal("value1", item),
-				item => Assert.Equal("value2", item)
+			Assert.Collection(
+				assembly.Configuration.Filters.ToXunit3Arguments(),
+				arg => Assert.Equal(@switch.ToLowerInvariant(), arg),
+				arg => Assert.Equal("value2", arg),
+				arg => Assert.Equal(@switch.ToLowerInvariant(), arg),
+				arg => Assert.Equal("value1", arg)
 			);
 		}
 
 		public class Traits
 		{
-			static readonly (string Switch, Expression<Func<XunitProjectAssembly, Dictionary<string, HashSet<string>>>> Accessor)[] SwitchOptionsList =
+			static readonly string[] SwitchOptionsList =
 			[
-				("-trait", assembly => assembly.Configuration.Filters.IncludedTraits),
-				("-notrait", assembly => assembly.Configuration.Filters.ExcludedTraits),
+				"-trait",
+				"-trait-",
 			];
 
 			static readonly string[] BadFormatValues =
@@ -469,78 +460,56 @@ public class CommandLineTests
 				"foo=bar=baz",
 			];
 
-			public static readonly TheoryData<string, Expression<Func<XunitProjectAssembly, Dictionary<string, HashSet<string>>>>> SwitchesLowerCase =
+			public static readonly TheoryData<string> SwitchesLowerCase =
 				new(SwitchOptionsList);
 
-			public static readonly TheoryData<string, Expression<Func<XunitProjectAssembly, Dictionary<string, HashSet<string>>>>> SwitchesUpperCase =
-				new(SwitchOptionsList.Select(x => (x.Switch.ToUpperInvariant(), x.Accessor)));
+			public static readonly TheoryData<string> SwitchesUpperCase =
+				new(SwitchOptionsList.Select(x => x.ToUpperInvariant()));
 
 			public static readonly TheoryData<string, string> SwitchesWithOptionsLowerCase =
-				new(SwitchOptionsList.SelectMany(tuple => BadFormatValues.Select(value => (tuple.Switch, value))));
+				new(SwitchOptionsList.SelectMany(@switch => BadFormatValues.Select(value => (@switch, value))));
 
 			public static readonly TheoryData<string, string> SwitchesWithOptionsUpperCase =
-				new(SwitchOptionsList.SelectMany(tuple => BadFormatValues.Select(value => (tuple.Switch.ToUpperInvariant(), value))));
+				new(SwitchOptionsList.SelectMany(@switch => BadFormatValues.Select(value => (@switch.ToUpperInvariant(), value))));
 
-			[Theory(DisableDiscoveryEnumeration = true)]
+			[Theory]
 			[MemberData(nameof(SwitchesLowerCase))]
 			[MemberData(nameof(SwitchesUpperCase))]
-			public static void SingleValidTraitArgument(
-				string @switch,
-				Expression<Func<XunitProjectAssembly, Dictionary<string, HashSet<string>>>> accessor)
+			public static void SingleValidTraitArgument(string @switch)
 			{
 				var commandLine = new TestableCommandLine("no-config.json", @switch, "foo=bar");
+
 				var assembly = commandLine.Parse();
 
-				var traits = accessor.Compile().Invoke(assembly);
-
-				Assert.Single(traits);
-				Assert.Single(traits["foo"]);
-				Assert.Contains("bar", traits["foo"]);
+				Assert.Collection(
+					assembly.Configuration.Filters.ToXunit3Arguments(),
+					arg => Assert.Equal(@switch.ToLowerInvariant(), arg),
+					arg => Assert.Equal("foo=bar", arg)
+				);
 			}
 
-			[Theory(DisableDiscoveryEnumeration = true)]
+			[Theory]
 			[MemberData(nameof(SwitchesLowerCase))]
 			[MemberData(nameof(SwitchesUpperCase))]
-			public static void MultipleValidTraitArguments_SameName(
-				string @switch,
-				Expression<Func<XunitProjectAssembly, Dictionary<string, HashSet<string>>>> accessor)
+			public static void MultipleValidTraitArguments(string @switch)
 			{
 				var commandLine = new TestableCommandLine("no-config.json", @switch, "foo=bar", @switch, "foo=baz");
+
 				var assembly = commandLine.Parse();
 
-				var traits = accessor.Compile().Invoke(assembly);
-
-				Assert.Single(traits);
-				Assert.Equal(2, traits["foo"].Count);
-				Assert.Contains("bar", traits["foo"]);
-				Assert.Contains("baz", traits["foo"]);
+				Assert.Collection(
+					assembly.Configuration.Filters.ToXunit3Arguments(),
+					arg => Assert.Equal(@switch.ToLowerInvariant(), arg),
+					arg => Assert.Equal("foo=bar", arg),
+					arg => Assert.Equal(@switch.ToLowerInvariant(), arg),
+					arg => Assert.Equal("foo=baz", arg)
+				);
 			}
 
-			[Theory(DisableDiscoveryEnumeration = true)]
+			[Theory]
 			[MemberData(nameof(SwitchesLowerCase))]
 			[MemberData(nameof(SwitchesUpperCase))]
-			public static void MultipleValidTraitArguments_DifferentName(
-				string @switch,
-				Expression<Func<XunitProjectAssembly, Dictionary<string, HashSet<string>>>> accessor)
-			{
-				var commandLine = new TestableCommandLine("no-config.json", @switch, "foo=bar", @switch, "baz=biff");
-				var assembly = commandLine.Parse();
-
-				var traits = accessor.Compile().Invoke(assembly);
-
-				Assert.Equal(2, traits.Count);
-				Assert.Single(traits["foo"]);
-				Assert.Contains("bar", traits["foo"]);
-				Assert.Single(traits["baz"]);
-				Assert.Contains("biff", traits["baz"]);
-			}
-
-			[Theory(DisableDiscoveryEnumeration = true)]
-			[MemberData(nameof(SwitchesLowerCase))]
-			[MemberData(nameof(SwitchesUpperCase))]
-			public static void MissingOptionValue(
-				string @switch,
-				Expression<Func<XunitProjectAssembly, Dictionary<string, HashSet<string>>>> _)
+			public static void MissingOptionValue(string @switch)
 			{
 				var commandLine = new TestableCommandLine("no-config.json", @switch);
 

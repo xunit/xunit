@@ -82,19 +82,13 @@ public sealed class ProjectAssemblyRunner(
 		if (pipelineStartup is not null)
 			testFramework.SetTestPipelineStartup(pipelineStartup);
 
-		var types =
-			assembly.Configuration.Filters.IncludedClasses.Count == 0 || assembly.Assembly is null
-				? null
-				: assembly.Configuration.Filters.IncludedClasses.Select(assembly.Assembly.GetType).WhereNotNull().ToArray();
-
 		var frontController = new InProcessFrontController(testFramework, testAssembly, assembly.ConfigFileName);
 
 		await frontController.Find(
 			messageSink,
 			discoveryOptions,
-			assembly.Configuration.Filters.Filter,
-			types,
-			(testCase, passedFilter) =>
+			testCase => assembly.Configuration.Filters.Filter(Path.GetFileNameWithoutExtension(assembly.AssemblyFileName), testCase),
+			discoveryCallback: (testCase, passedFilter) =>
 			{
 				testCases?.Add((testCase, passedFilter));
 
@@ -243,17 +237,22 @@ public sealed class ProjectAssemblyRunner(
 					List<ITestCase> testCasesToRun = [];
 					var allExplicit = true;
 
-					await frontController.Find(resultsSink, discoveryOptions, assembly.Configuration.Filters.Filter, discoveryCallback: (testCase, passedFilter) =>
-					{
-						if (passedFilter && testCaseIDsToRun.Contains(testCase.UniqueID))
+					await frontController.Find(
+						resultsSink,
+						discoveryOptions,
+						testCase => assembly.Configuration.Filters.Filter(Path.GetFileNameWithoutExtension(assembly.AssemblyFileName), testCase),
+						discoveryCallback: (testCase, passedFilter) =>
 						{
-							testCasesToRun.Add(testCase);
-							if (!testCase.Explicit)
-								allExplicit = false;
-						}
+							if (passedFilter && testCaseIDsToRun.Contains(testCase.UniqueID))
+							{
+								testCasesToRun.Add(testCase);
+								if (!testCase.Explicit)
+									allExplicit = false;
+							}
 
-						return new(true);
-					});
+							return new(true);
+						}
+					);
 
 					if (allExplicit)
 						executionOptions.SetExplicitOption(ExplicitOption.Only);
@@ -261,7 +260,12 @@ public sealed class ProjectAssemblyRunner(
 					await frontController.Run(resultsSink, executionOptions, testCasesToRun);
 				}
 				else
-					await frontController.FindAndRun(resultsSink, discoveryOptions, executionOptions, assembly.Configuration.Filters.Filter);
+					await frontController.FindAndRun(
+						resultsSink,
+						discoveryOptions,
+						executionOptions,
+						testCase => assembly.Configuration.Filters.Filter(Path.GetFileNameWithoutExtension(assembly.AssemblyFileName), testCase)
+					);
 			}
 
 			TestExecutionSummaries.Add(frontController.TestAssemblyUniqueID, resultsSink.ExecutionSummary);

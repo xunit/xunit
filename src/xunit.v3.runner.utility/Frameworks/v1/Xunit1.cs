@@ -148,7 +148,7 @@ public class Xunit1 : IFrontController
 		Find(
 			messageSink,
 			settings.Options.GetIncludeSourceInformationOrDefault(),
-			settings.Filters.Empty ? null : settings.Filters.Filter
+			settings.Filters.Empty ? null : testCase => settings.Filters.Filter(testAssemblyName, testCase)
 		);
 	}
 
@@ -289,7 +289,7 @@ public class Xunit1 : IFrontController
 		FindAndRun(
 			messageSink,
 			settings.DiscoveryOptions.GetIncludeSourceInformationOrDefault(),
-			settings.Filters.Empty ? null : settings.Filters.Filter,
+			settings.Filters.Empty ? null : testCase => settings.Filters.Filter(testAssemblyName, testCase),
 			settings.ExecutionOptions.GetExplicitOptionOrDefault() == ExplicitOption.Only
 		);
 	}

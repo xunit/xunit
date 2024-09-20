@@ -15,5 +15,8 @@ public enum CommandLineGroup
 	NetFramework,
 
 	/// <summary/>
-	Filter,
+	FilterSimple,
+
+	/// <summary/>
+	FilterQuery,
 }

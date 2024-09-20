@@ -87,8 +87,8 @@ public class xunit : MSBuildTask, ICancelableTask
 				});
 
 				filters = new XunitFilters();
-				traitParser.Parse(IncludeTraits, filters.IncludedTraits);
-				traitParser.Parse(ExcludeTraits, filters.ExcludedTraits);
+				traitParser.Parse(IncludeTraits, filters.AddIncludedTraitFilter);
+				traitParser.Parse(ExcludeTraits, filters.AddExcludedTraitFilter);
 			}
 
 			return filters;

@@ -292,29 +292,50 @@ public class CommandLineOptionsProviderTests
 
 	public class Filters : CommandLineOptionsProviderTests
 	{
-		public static readonly TheoryData<string, Expression<Func<XunitProjectAssembly, ICollection<string>>>> FilterOptionList =
+		public static readonly TheoryData<string, string> FilterOptionList =
 		[
-			("filter-class", assembly => assembly.Configuration.Filters.IncludedClasses),
-			("filter-not-class", assembly => assembly.Configuration.Filters.ExcludedClasses),
-			("filter-method", assembly => assembly.Configuration.Filters.IncludedMethods),
-			("filter-not-method", assembly => assembly.Configuration.Filters.ExcludedMethods),
-			("filter-namespace", assembly => assembly.Configuration.Filters.IncludedNamespaces),
-			("filter-not-namespace", assembly => assembly.Configuration.Filters.ExcludedNamespaces),
+			("filter-class", "-class"),
+			("filter-not-class", "-class-"),
+			("filter-method", "-method"),
+			("filter-not-method", "-method-"),
+			("filter-namespace", "-namespace"),
+			("filter-not-namespace", "-namespace-"),
 		];
 
-		[Theory(DisableDiscoveryEnumeration = true)]
+		[Theory]
 		[MemberData(nameof(FilterOptionList))]
-		public void Filter(
-			string @switch,
-			Expression<Func<XunitProjectAssembly, ICollection<string>>> accessor)
+		public void Filter_SingleValue(
+			string mtpSwitch,
+			string xunit3Switch)
 		{
-			commandLineOptions.Set(@switch, ["foo"]);
+			commandLineOptions.Set(mtpSwitch, ["foo"]);
 
 			CommandLineOptionsProvider.Parse(configuration, commandLineOptions, projectAssembly);
 
-			var collection = accessor.Compile().Invoke(projectAssembly);
-			var value = Assert.Single(collection);
-			Assert.Equal("foo", value);
+			Assert.Collection(
+				projectAssembly.Configuration.Filters.ToXunit3Arguments(),
+				arg => Assert.Equal(xunit3Switch, arg),
+				arg => Assert.Equal("foo", arg)
+			);
+		}
+
+		[Theory]
+		[MemberData(nameof(FilterOptionList))]
+		public void Filter_MultiValue(
+			string mtpSwitch,
+			string xunit3Switch)
+		{
+			commandLineOptions.Set(mtpSwitch, ["foo", "bar"]);
+
+			CommandLineOptionsProvider.Parse(configuration, commandLineOptions, projectAssembly);
+
+			Assert.Collection(
+				projectAssembly.Configuration.Filters.ToXunit3Arguments(),
+				arg => Assert.Equal(xunit3Switch, arg),
+				arg => Assert.Equal("foo", arg),
+				arg => Assert.Equal(xunit3Switch, arg),
+				arg => Assert.Equal("bar", arg)
+			);
 		}
 
 		[Fact]
@@ -325,15 +346,13 @@ public class CommandLineOptionsProviderTests
 
 			CommandLineOptionsProvider.Parse(configuration, commandLineOptions, projectAssembly);
 
-			var includedTrait = Assert.Single(projectAssembly.Configuration.Filters.IncludedTraits);
-			Assert.Equal("foo", includedTrait.Key);
-			var includedValue = Assert.Single(includedTrait.Value);
-			Assert.Equal("bar", includedValue);
-
-			var excludedTrait = Assert.Single(projectAssembly.Configuration.Filters.ExcludedTraits);
-			Assert.Equal("baz", excludedTrait.Key);
-			var excludedValue = Assert.Single(excludedTrait.Value);
-			Assert.Equal("biff", excludedValue);
+			Assert.Collection(
+				projectAssembly.Configuration.Filters.ToXunit3Arguments(),
+				arg => Assert.Equal("-trait", arg),
+				arg => Assert.Equal("foo=bar", arg),
+				arg => Assert.Equal("-trait-", arg),
+				arg => Assert.Equal("baz=biff", arg)
+			);
 		}
 
 		[Theory]

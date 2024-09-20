@@ -37,6 +37,7 @@ public class Xunit2 : IFrontController
 #endif
 
 	readonly IAssemblyInfo assemblyInfo;
+	readonly string assemblyName;
 	ITestCaseBulkDeserializer? bulkDeserializer;
 	readonly string? configFileName;
 	bool disposed;
@@ -91,6 +92,7 @@ public class Xunit2 : IFrontController
 			);
 
 		this.assemblyInfo = assemblyInfo;
+		assemblyName = assemblyInfo.Name.Split(',')[0];
 		this.configFileName = configFileName;
 		TestAssemblyUniqueID = UniqueIDGenerator.ForAssembly(this.assemblyInfo.AssemblyPath, configFileName);
 
@@ -229,23 +231,14 @@ public class Xunit2 : IFrontController
 		ThreadPool.QueueUserWorkItem(_ =>
 		{
 			var includeSourceInformation = settings.Options.GetIncludeSourceInformationOrDefault();
-			using var filteringMessageSink = new FilteringMessageSink(messageSink, settings.Filters.Filter);
+			using var filteringMessageSink = new FilteringMessageSink(messageSink, testCase => settings.Filters.Filter(assemblyName, testCase));
 			var remoteMessageSink = CreateOptimizedRemoteMessageSink(filteringMessageSink);
 			var v2DiscoveryOptions = Xunit2OptionsAdapter.Adapt(settings.Options);
 
 			SendDiscoveryStartingMessage(messageSink);
 
-			if (settings.Filters.IncludedClasses.Count == 0)
-			{
-				remoteDiscoverer.Find(includeSourceInformation, remoteMessageSink, v2DiscoveryOptions);
-				filteringMessageSink.Finished.WaitOne();
-			}
-			else
-				foreach (var includedClass in settings.Filters.IncludedClasses)
-				{
-					remoteDiscoverer.Find(includedClass, includeSourceInformation, remoteMessageSink, v2DiscoveryOptions);
-					filteringMessageSink.Finished.WaitOne();
-				}
+			remoteDiscoverer.Find(includeSourceInformation, remoteMessageSink, v2DiscoveryOptions);
+			filteringMessageSink.Finished.WaitOne();
 
 			SendDiscoveryCompleteMessage(messageSink, filteringMessageSink.TestCasesToRun);
 		});
@@ -267,21 +260,12 @@ public class Xunit2 : IFrontController
 
 			SendDiscoveryStartingMessage(messageSink);
 
-			using var discoverySink = new Xunit2DiscoverySink(settings.Filters);
+			using var discoverySink = new Xunit2DiscoverySink(assemblyName, settings.Filters);
 			var v2DiscoveryOptions = Xunit2OptionsAdapter.Adapt(settings.DiscoveryOptions);
 			var testCases = new List<Abstractions.ITestCase>();
 
-			if (settings.Filters.IncludedClasses.Count == 0)
-			{
-				remoteDiscoverer.Find(includeSourceInformation: false, discoverySink, v2DiscoveryOptions);
-				discoverySink.Finished.WaitOne();
-			}
-			else
-				foreach (var includedClass in settings.Filters.IncludedClasses)
-				{
-					remoteDiscoverer.Find(includedClass, includeSourceInformation: false, discoverySink, v2DiscoveryOptions);
-					discoverySink.Finished.WaitOne();
-				}
+			remoteDiscoverer.Find(includeSourceInformation: false, discoverySink, v2DiscoveryOptions);
+			discoverySink.Finished.WaitOne();
 
 			SendDiscoveryCompleteMessage(messageSink, discoverySink.TestCases.Count);
 

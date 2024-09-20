@@ -123,7 +123,7 @@ public class Xunit3Tests
 		// Find
 		var fullyQualifiedMethodName = typeName + "." + methodName;
 		var filters = new XunitFilters();
-		filters.IncludedMethods.Add(fullyQualifiedMethodName);
+		filters.AddIncludedMethodFilter(fullyQualifiedMethodName);
 
 		var findMessageSink = SpyMessageSink<IDiscoveryComplete>.Create();
 		xunit3.Find(findMessageSink, new FrontControllerFindSettings(DiscoveryOptions, filters));
@@ -188,7 +188,7 @@ public class Xunit3Tests
 
 		await using var xunit3 = Xunit3.ForDiscoveryAndExecution(Assembly, testProcessLauncher: runInProcess ? InProcessTestProcessLauncher.Instance : LocalOutOfProcessTestProcessLauncher.Instance);
 		var filters = new XunitFilters();
-		filters.IncludedMethods.Add(fullyQualifiedMethodName);
+		filters.AddIncludedMethodFilter(fullyQualifiedMethodName);
 		var messageSink = SpyMessageSink<ITestAssemblyFinished>.Create();
 		xunit3.FindAndRun(messageSink, new FrontControllerFindAndRunSettings(DiscoveryOptions, ExecutionOptions, filters));
 

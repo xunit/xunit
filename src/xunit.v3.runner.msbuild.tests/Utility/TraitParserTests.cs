@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Xunit;
+using Xunit.Internal;
 using Xunit.Runner.MSBuild;
 
 public class TraitParserTests
@@ -12,7 +13,7 @@ public class TraitParserTests
 		{
 			var traits = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
-			new TraitParser().Parse(null, traits);
+			new TraitParser().Parse(null, (name, value) => traits.Add(name, value));
 
 			Assert.Empty(traits);
 		}
@@ -22,7 +23,7 @@ public class TraitParserTests
 		{
 			var traits = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
-			new TraitParser().Parse(string.Empty, traits);
+			new TraitParser().Parse(string.Empty, (name, value) => traits.Add(name, value));
 
 			Assert.Empty(traits);
 		}
@@ -32,7 +33,7 @@ public class TraitParserTests
 		{
 			var traits = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
-			new TraitParser().Parse("One=1;Two=2", traits);
+			new TraitParser().Parse("One=1;Two=2", (name, value) => traits.Add(name, value));
 
 			Assert.Collection(
 				traits.Keys,
@@ -54,16 +55,11 @@ public class TraitParserTests
 		{
 			var traits = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
-			new TraitParser().Parse("; One = 1 ;;", traits);
+			new TraitParser().Parse("; One = 1 ;;", (name, value) => traits.Add(name, value));
 
-			Assert.Collection(
-				traits.Keys,
-				key =>
-				{
-					Assert.Equal("One", key);
-					Assert.Equal("1", Assert.Single(traits[key]));
-				}
-			);
+			var key = Assert.Single(traits.Keys);
+			Assert.Equal("One", key);
+			Assert.Equal("1", Assert.Single(traits[key]));
 		}
 
 		[Fact]
@@ -71,16 +67,11 @@ public class TraitParserTests
 		{
 			var traits = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
-			new TraitParser().Parse("One=1=2=3", traits);
+			new TraitParser().Parse("One=1=2=3", (name, value) => traits.Add(name, value));
 
-			Assert.Collection(
-				traits.Keys,
-				key =>
-				{
-					Assert.Equal("One", key);
-					Assert.Equal("1=2=3", Assert.Single(traits[key]));
-				}
-			);
+			var key = Assert.Single(traits.Keys);
+			Assert.Equal("One", key);
+			Assert.Equal("1=2=3", Assert.Single(traits[key]));
 		}
 
 		[Fact]
@@ -88,7 +79,7 @@ public class TraitParserTests
 		{
 			var traits = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
-			new TraitParser().Parse("One1", traits);
+			new TraitParser().Parse("One1", (name, value) => traits.Add(name, value));
 
 			Assert.Empty(traits);
 		}
@@ -98,7 +89,7 @@ public class TraitParserTests
 		{
 			var traits = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
-			new TraitParser().Parse("=1", traits);
+			new TraitParser().Parse("=1", (name, value) => traits.Add(name, value));
 
 			Assert.Empty(traits);
 		}
@@ -108,7 +99,7 @@ public class TraitParserTests
 		{
 			var traits = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
-			new TraitParser().Parse("1=", traits);
+			new TraitParser().Parse("1=", (name, value) => traits.Add(name, value));
 
 			Assert.Empty(traits);
 		}
@@ -118,16 +109,11 @@ public class TraitParserTests
 		{
 			var traits = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
-			new TraitParser().Parse("One;Two=2", traits);
+			new TraitParser().Parse("One;Two=2", (name, value) => traits.Add(name, value));
 
-			Assert.Collection(
-				traits.Keys,
-				key =>
-				{
-					Assert.Equal("Two", key);
-					Assert.Equal("2", Assert.Single(traits[key]));
-				}
-			);
+			var key = Assert.Single(traits.Keys);
+			Assert.Equal("Two", key);
+			Assert.Equal("2", Assert.Single(traits[key]));
 		}
 
 		[Fact]
@@ -137,7 +123,7 @@ public class TraitParserTests
 			var messages = new List<string>();
 			var parser = new TraitParser(messages.Add);
 
-			parser.Parse("One1", traits);
+			parser.Parse("One1", (name, value) => traits.Add(name, value));
 
 			var msg = Assert.Single(messages);
 			Assert.Equal("Invalid trait 'One1'. The format should be 'name=value'. This trait will be ignored.", msg);

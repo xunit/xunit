@@ -12,9 +12,12 @@ namespace Xunit.Runner.v2;
 /// An implementation of <see cref="IMessageSink"/> and <see cref="IMessageSinkWithTypes"/> which
 /// collects native xUnit.net v2 test cases, for use with <see cref="Xunit2.FindAndRun"/>.
 /// </summary>
+/// <param name="assemblyName">The assembly name that this discovery sink is discovering</param>
 /// <param name="filters">The filters to be applied to the discovered test cases</param>
-public class Xunit2DiscoverySink(XunitFilters filters) :
-	MarshalByRefObject, IMessageSink, IMessageSinkWithTypes
+public class Xunit2DiscoverySink(
+	string assemblyName,
+	XunitFilters filters) :
+		MarshalByRefObject, IMessageSink, IMessageSinkWithTypes
 {
 	readonly Xunit2MessageAdapter adapter = new();
 	bool disposed;
@@ -66,7 +69,7 @@ public class Xunit2DiscoverySink(XunitFilters filters) :
 		if (disposed)
 			return;
 
-		if (filters.Empty || (adapter.Adapt(message) is TestCaseDiscovered adapted && filters.Filter(adapted)))
+		if (filters.Empty || (adapter.Adapt(message) is TestCaseDiscovered adapted && filters.Filter(assemblyName, adapted)))
 			TestCases.Add(message.TestCase);
 	}
 

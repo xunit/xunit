@@ -89,22 +89,26 @@ public class Xunit3ArgumentFactoryTests
 		{
 			var options = TestData.TestFrameworkDiscoveryOptions();
 			var filters = new XunitFilters();
-			filters.IncludedClasses.Add("class1");
-			filters.IncludedClasses.Add("class2");
-			filters.ExcludedClasses.Add("class3");
-			filters.ExcludedClasses.Add("class4");
-			filters.IncludedMethods.Add("method1");
-			filters.IncludedMethods.Add("method2");
-			filters.ExcludedMethods.Add("method3");
-			filters.ExcludedMethods.Add("method4");
-			filters.IncludedNamespaces.Add("namespace1");
-			filters.IncludedNamespaces.Add("namespace2");
-			filters.ExcludedNamespaces.Add("namespace3");
-			filters.ExcludedNamespaces.Add("namespace4");
-			filters.IncludedTraits.Add("trait1", ["value1a", "value1b"]);
-			filters.IncludedTraits.Add("trait2", ["value2a", "value2b"]);
-			filters.ExcludedTraits.Add("trait3", ["value3a", "value3b"]);
-			filters.ExcludedTraits.Add("trait4", ["value4a", "value4b"]);
+			filters.AddIncludedClassFilter("class1");
+			filters.AddIncludedClassFilter("class2");
+			filters.AddExcludedClassFilter("class3");
+			filters.AddExcludedClassFilter("class4");
+			filters.AddIncludedMethodFilter("method1");
+			filters.AddIncludedMethodFilter("method2");
+			filters.AddExcludedMethodFilter("method3");
+			filters.AddExcludedMethodFilter("method4");
+			filters.AddIncludedNamespaceFilter("namespace1");
+			filters.AddIncludedNamespaceFilter("namespace2");
+			filters.AddExcludedNamespaceFilter("namespace3");
+			filters.AddExcludedNamespaceFilter("namespace4");
+			filters.AddIncludedTraitFilter("trait1", "value1a");
+			filters.AddIncludedTraitFilter("trait1", "value1b");
+			filters.AddIncludedTraitFilter("trait2", "value2a");
+			filters.AddIncludedTraitFilter("trait2", "value2b");
+			filters.AddExcludedTraitFilter("trait3", "value3a");
+			filters.AddExcludedTraitFilter("trait3", "value3b");
+			filters.AddExcludedTraitFilter("trait4", "value4a");
+			filters.AddExcludedTraitFilter("trait4", "value4b");
 
 			var arguments = Xunit3ArgumentFactory.ForFind(Version_0_3_0, options, filters: filters);
 
@@ -117,15 +121,30 @@ public class Xunit3ArgumentFactoryTests
 				arg => Assert.Equal("-class", arg),
 				arg => Assert.Equal("class2", arg),
 
+				arg => Assert.Equal("-class-", arg),
+				arg => Assert.Equal("class3", arg),
+				arg => Assert.Equal("-class-", arg),
+				arg => Assert.Equal("class4", arg),
+
 				arg => Assert.Equal("-method", arg),
 				arg => Assert.Equal("method1", arg),
 				arg => Assert.Equal("-method", arg),
 				arg => Assert.Equal("method2", arg),
 
+				arg => Assert.Equal("-method-", arg),
+				arg => Assert.Equal("method3", arg),
+				arg => Assert.Equal("-method-", arg),
+				arg => Assert.Equal("method4", arg),
+
 				arg => Assert.Equal("-namespace", arg),
 				arg => Assert.Equal("namespace1", arg),
 				arg => Assert.Equal("-namespace", arg),
 				arg => Assert.Equal("namespace2", arg),
+
+				arg => Assert.Equal("-namespace-", arg),
+				arg => Assert.Equal("namespace3", arg),
+				arg => Assert.Equal("-namespace-", arg),
+				arg => Assert.Equal("namespace4", arg),
 
 				arg => Assert.Equal("-trait", arg),
 				arg => Assert.Equal("trait1=value1a", arg),
@@ -135,21 +154,6 @@ public class Xunit3ArgumentFactoryTests
 				arg => Assert.Equal("trait2=value2a", arg),
 				arg => Assert.Equal("-trait", arg),
 				arg => Assert.Equal("trait2=value2b", arg),
-
-				arg => Assert.Equal("-class-", arg),
-				arg => Assert.Equal("class3", arg),
-				arg => Assert.Equal("-class-", arg),
-				arg => Assert.Equal("class4", arg),
-
-				arg => Assert.Equal("-method-", arg),
-				arg => Assert.Equal("method3", arg),
-				arg => Assert.Equal("-method-", arg),
-				arg => Assert.Equal("method4", arg),
-
-				arg => Assert.Equal("-namespace-", arg),
-				arg => Assert.Equal("namespace3", arg),
-				arg => Assert.Equal("-namespace-", arg),
-				arg => Assert.Equal("namespace4", arg),
 
 				arg => Assert.Equal("-trait-", arg),
 				arg => Assert.Equal("trait3=value3a", arg),
@@ -306,22 +310,26 @@ public class Xunit3ArgumentFactoryTests
 			var discoveryOptions = TestData.TestFrameworkDiscoveryOptions();
 			var executionOptions = TestData.TestFrameworkExecutionOptions();
 			var filters = new XunitFilters();
-			filters.IncludedClasses.Add("class1");
-			filters.IncludedClasses.Add("class2");
-			filters.ExcludedClasses.Add("class3");
-			filters.ExcludedClasses.Add("class4");
-			filters.IncludedMethods.Add("method1");
-			filters.IncludedMethods.Add("method2");
-			filters.ExcludedMethods.Add("method3");
-			filters.ExcludedMethods.Add("method4");
-			filters.IncludedNamespaces.Add("namespace1");
-			filters.IncludedNamespaces.Add("namespace2");
-			filters.ExcludedNamespaces.Add("namespace3");
-			filters.ExcludedNamespaces.Add("namespace4");
-			filters.IncludedTraits.Add("trait1", ["value1a", "value1b"]);
-			filters.IncludedTraits.Add("trait2", ["value2a", "value2b"]);
-			filters.ExcludedTraits.Add("trait3", ["value3a", "value3b"]);
-			filters.ExcludedTraits.Add("trait4", ["value4a", "value4b"]);
+			filters.AddIncludedClassFilter("class1");
+			filters.AddIncludedClassFilter("class2");
+			filters.AddExcludedClassFilter("class3");
+			filters.AddExcludedClassFilter("class4");
+			filters.AddIncludedMethodFilter("method1");
+			filters.AddIncludedMethodFilter("method2");
+			filters.AddExcludedMethodFilter("method3");
+			filters.AddExcludedMethodFilter("method4");
+			filters.AddIncludedNamespaceFilter("namespace1");
+			filters.AddIncludedNamespaceFilter("namespace2");
+			filters.AddExcludedNamespaceFilter("namespace3");
+			filters.AddExcludedNamespaceFilter("namespace4");
+			filters.AddIncludedTraitFilter("trait1", "value1a");
+			filters.AddIncludedTraitFilter("trait1", "value1b");
+			filters.AddIncludedTraitFilter("trait2", "value2a");
+			filters.AddIncludedTraitFilter("trait2", "value2b");
+			filters.AddExcludedTraitFilter("trait3", "value3a");
+			filters.AddExcludedTraitFilter("trait3", "value3b");
+			filters.AddExcludedTraitFilter("trait4", "value4a");
+			filters.AddExcludedTraitFilter("trait4", "value4b");
 
 			var arguments = Xunit3ArgumentFactory.ForFindAndRun(Version_0_3_0, discoveryOptions, executionOptions, filters: filters);
 
@@ -334,15 +342,30 @@ public class Xunit3ArgumentFactoryTests
 				arg => Assert.Equal("-class", arg),
 				arg => Assert.Equal("class2", arg),
 
+				arg => Assert.Equal("-class-", arg),
+				arg => Assert.Equal("class3", arg),
+				arg => Assert.Equal("-class-", arg),
+				arg => Assert.Equal("class4", arg),
+
 				arg => Assert.Equal("-method", arg),
 				arg => Assert.Equal("method1", arg),
 				arg => Assert.Equal("-method", arg),
 				arg => Assert.Equal("method2", arg),
 
+				arg => Assert.Equal("-method-", arg),
+				arg => Assert.Equal("method3", arg),
+				arg => Assert.Equal("-method-", arg),
+				arg => Assert.Equal("method4", arg),
+
 				arg => Assert.Equal("-namespace", arg),
 				arg => Assert.Equal("namespace1", arg),
 				arg => Assert.Equal("-namespace", arg),
 				arg => Assert.Equal("namespace2", arg),
+
+				arg => Assert.Equal("-namespace-", arg),
+				arg => Assert.Equal("namespace3", arg),
+				arg => Assert.Equal("-namespace-", arg),
+				arg => Assert.Equal("namespace4", arg),
 
 				arg => Assert.Equal("-trait", arg),
 				arg => Assert.Equal("trait1=value1a", arg),
@@ -352,21 +375,6 @@ public class Xunit3ArgumentFactoryTests
 				arg => Assert.Equal("trait2=value2a", arg),
 				arg => Assert.Equal("-trait", arg),
 				arg => Assert.Equal("trait2=value2b", arg),
-
-				arg => Assert.Equal("-class-", arg),
-				arg => Assert.Equal("class3", arg),
-				arg => Assert.Equal("-class-", arg),
-				arg => Assert.Equal("class4", arg),
-
-				arg => Assert.Equal("-method-", arg),
-				arg => Assert.Equal("method3", arg),
-				arg => Assert.Equal("-method-", arg),
-				arg => Assert.Equal("method4", arg),
-
-				arg => Assert.Equal("-namespace-", arg),
-				arg => Assert.Equal("namespace3", arg),
-				arg => Assert.Equal("-namespace-", arg),
-				arg => Assert.Equal("namespace4", arg),
 
 				arg => Assert.Equal("-trait-", arg),
 				arg => Assert.Equal("trait3=value3a", arg),

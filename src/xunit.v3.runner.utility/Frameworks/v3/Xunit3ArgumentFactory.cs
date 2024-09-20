@@ -243,27 +243,7 @@ public static class Xunit3ArgumentFactory
 		// FILTERS
 
 		if (filters is not null)
-		{
-			foreach (var includedClass in filters.IncludedClasses)
-				result.AddRange(["-class", includedClass]);
-			foreach (var includedMethod in filters.IncludedMethods)
-				result.AddRange(["-method", includedMethod]);
-			foreach (var includedNamespace in filters.IncludedNamespaces)
-				result.AddRange(["-namespace", includedNamespace]);
-			foreach (var includedTrait in filters.IncludedTraits)
-				foreach (var traitValue in includedTrait.Value)
-					result.AddRange(["-trait", string.Format(CultureInfo.InvariantCulture, "{0}={1}", includedTrait.Key, traitValue)]);
-
-			foreach (var excludedClass in filters.ExcludedClasses)
-				result.AddRange(["-class-", excludedClass]);
-			foreach (var excludedMethod in filters.ExcludedMethods)
-				result.AddRange(["-method-", excludedMethod]);
-			foreach (var excludedNamespace in filters.ExcludedNamespaces)
-				result.AddRange(["-namespace-", excludedNamespace]);
-			foreach (var excludedTrait in filters.ExcludedTraits)
-				foreach (var traitValue in excludedTrait.Value)
-					result.AddRange(["-trait-", string.Format(CultureInfo.InvariantCulture, "{0}={1}", excludedTrait.Key, traitValue)]);
-		}
+			result.AddRange(filters.ToXunit3Arguments());
 
 		return result;
 	}

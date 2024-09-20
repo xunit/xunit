@@ -1,17 +1,18 @@
+using System;
+using System.Collections.Generic;
 using Xunit;
-using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
-using ClassWithTraits = Namespace2.ClassWithTraits;
-using InnerClass1 = Namespace1.ClassInNamespace1.InnerClass1;
-using InnerClass2 = Namespace1.ClassInNamespace1.InnerClass2;
+using ClassWithTraits = NamespaceTwo.ClassWithTraits;
+using InnerClassOne = NamespaceOne.ClassInNamespace1.InnerClassOne;
+using InnerClassTwo = NamespaceOne.ClassInNamespace1.InnerClassTwo;
 
 public class XunitFiltersTests
 {
-	static readonly ITestCaseDiscovered InnerClass1Name1 = TestData.TestCaseDiscovered<InnerClass1>(nameof(InnerClass1.Name1));
-	static readonly ITestCaseDiscovered InnerClass1Name2 = TestData.TestCaseDiscovered<InnerClass1>(nameof(InnerClass1.Name2));
-	static readonly ITestCaseDiscovered InnerClass1Name3 = TestData.TestCaseDiscovered<InnerClass1>(nameof(InnerClass1.Name3));
-	static readonly ITestCaseDiscovered InnerClass2Name3 = TestData.TestCaseDiscovered<InnerClass2>(nameof(InnerClass2.Name3));
+	static readonly ITestCaseDiscovered InnerClassOne_NameOne = TestData.TestCaseDiscovered<InnerClassOne>(nameof(InnerClassOne.NameOne));
+	static readonly ITestCaseDiscovered InnerClassOne_NameTwo = TestData.TestCaseDiscovered<InnerClassOne>(nameof(InnerClassOne.NameTwo));
+	static readonly ITestCaseDiscovered InnerClassOne_NameThree = TestData.TestCaseDiscovered<InnerClassOne>(nameof(InnerClassOne.NameThree));
+	static readonly ITestCaseDiscovered InnerClassTwo_NameThree = TestData.TestCaseDiscovered<InnerClassTwo>(nameof(InnerClassTwo.NameThree));
 	static readonly ITestCaseDiscovered MethodWithFooBarTrait = TestData.TestCaseDiscovered<ClassWithTraits>(nameof(ClassWithTraits.FooBar));
 	static readonly ITestCaseDiscovered MethodWithBazBiffTrait = TestData.TestCaseDiscovered<ClassWithTraits>(nameof(ClassWithTraits.BazBiff));
 	static readonly ITestCaseDiscovered MethodWithNoTraits = TestData.TestCaseDiscovered<ClassWithTraits>(nameof(ClassWithTraits.NoTraits));
@@ -22,364 +23,459 @@ public class XunitFiltersTests
 		traits: TestData.EmptyTraits
 	);
 
-	public static class NoFilters
+	static IEnumerable<string> WithWildcards(string value)
 	{
-		[Fact]
-		public static void AlwaysPass()
-		{
-			var filters = new XunitFilters();
-
-			Assert.True(filters.Filter(NonClassTest));
-			Assert.True(filters.Filter(NonMethodTest));
-			Assert.True(filters.Filter(InnerClass1Name1));
-			Assert.True(filters.Filter(InnerClass1Name2));
-			Assert.True(filters.Filter(InnerClass1Name3));
-			Assert.True(filters.Filter(InnerClass2Name3));
-			Assert.True(filters.Filter(MethodWithNoTraits));
-			Assert.True(filters.Filter(MethodWithFooBarTrait));
-			Assert.True(filters.Filter(MethodWithBazBiffTrait));
-		}
+		yield return value;
+		// Case insensitive
+		yield return value.ToLowerInvariant();
+		yield return value.ToUpperInvariant();
+		// Wildcards
+		yield return $"*{value.Substring(1)}";
+		yield return $"{value.Substring(0, value.Length - 1)}*";
+		yield return $"*{value.Substring(1, value.Length - 2)}*";
 	}
 
-	public static class ExcludedClasses
+	[Fact]
+	public static void NoFilters_AlwaysPass()
 	{
+		var filters = new XunitFilters();
+
+		Assert.True(filters.Filter("asm1", NonClassTest));
+		Assert.True(filters.Filter("asm1", NonMethodTest));
+		Assert.True(filters.Filter("asm1", InnerClassOne_NameOne));
+		Assert.True(filters.Filter("asm1", InnerClassOne_NameTwo));
+		Assert.True(filters.Filter("asm1", InnerClassOne_NameThree));
+		Assert.True(filters.Filter("asm1", InnerClassTwo_NameThree));
+		Assert.True(filters.Filter("asm1", MethodWithNoTraits));
+		Assert.True(filters.Filter("asm1", MethodWithFooBarTrait));
+		Assert.True(filters.Filter("asm1", MethodWithBazBiffTrait));
+	}
+
+	[Fact]
+	public static void MixedFilters_NotAllowed_SimpleFirst()
+	{
+		var filters = new XunitFilters();
+		filters.AddIncludedClassFilter("class");
+
+		var ex = Record.Exception(() => filters.AddQueryFilter("/1/2/3/4"));
+
+		var argEx = Assert.IsType<ArgumentException>(ex);
+		Assert.Equal("query", argEx.ParamName);
+		Assert.StartsWith("Cannot add query filter; simple filters already exist", argEx.Message);
+	}
+
+	public static IEnumerable<TheoryDataRow<Action<XunitFilters>>> SimpleFilterActions =
+	[
+		new(filter => filter.AddIncludedClassFilter("class")),
+		new(filter => filter.AddIncludedMethodFilter("method")),
+		new(filter => filter.AddIncludedNamespaceFilter("namespace")),
+		new(filter => filter.AddIncludedTraitFilter("name", "value")),
+		new(filter => filter.AddExcludedClassFilter("class")),
+		new(filter => filter.AddExcludedMethodFilter("method")),
+		new(filter => filter.AddExcludedNamespaceFilter("namespace")),
+		new(filter => filter.AddExcludedTraitFilter("name", "value")),
+	];
+
+	[Theory(DisableDiscoveryEnumeration = true)]
+	[MemberData(nameof(SimpleFilterActions))]
+	public static void MixedFilters_NotAllowed_QueryFirst(Action<XunitFilters> simpleFilterAction)
+	{
+		var filters = new XunitFilters();
+		filters.AddQueryFilter("/1/2/3/4");
+
+		var ex = Record.Exception(() => simpleFilterAction(filters));
+
+		var argEx = Assert.IsType<ArgumentException>(ex);
+		Assert.Equal("query", argEx.ParamName);
+		Assert.StartsWith("Cannot add simple filter; query filters already exist", argEx.Message);
+	}
+
+	public class QueryFilters
+	{
+		// These tests aren't meant to be comprehensive tests against the query language; those exist
+		// in GraphQueryFilterParserTests.
+
 		[Fact]
-		public static void SingleFilter_ExcludesMatchingClass()
+		public static void SingleFilter_MatchesQuery()
 		{
 			var filters = new XunitFilters();
-			filters.ExcludedClasses.Add(typeof(InnerClass1).FullName!);
+			filters.AddQueryFilter($"/asm1/{typeof(InnerClassOne).Namespace}/{typeof(InnerClassOne).Name}/{nameof(InnerClassOne.NameOne)}");
 
-			Assert.True(filters.Filter(NonClassTest));
-			Assert.True(filters.Filter(NonMethodTest));
-			Assert.False(filters.Filter(InnerClass1Name1));
-			Assert.False(filters.Filter(InnerClass1Name2));
-			Assert.False(filters.Filter(InnerClass1Name3));
-			Assert.True(filters.Filter(InnerClass2Name3));
+			Assert.False(filters.Filter("asm1", NonClassTest));
+			Assert.False(filters.Filter("asm1", NonMethodTest));
+			Assert.True(filters.Filter("asm1", InnerClassOne_NameOne));
+			Assert.False(filters.Filter("asm1", InnerClassOne_NameTwo));
+			Assert.False(filters.Filter("asm1", InnerClassOne_NameThree));
+			Assert.False(filters.Filter("asm1", InnerClassTwo_NameThree));
 		}
 
 		[Fact]
 		public static void MultipleFilters_ActsAsAnOrOperation()
 		{
 			var filters = new XunitFilters();
-			filters.ExcludedClasses.Add(typeof(InnerClass1).FullName!);
-			filters.ExcludedClasses.Add(typeof(InnerClass2).FullName!.ToUpperInvariant());
+			filters.AddQueryFilter($"/asm1/{typeof(InnerClassOne).Namespace}/{typeof(InnerClassOne).Name}");
+			filters.AddQueryFilter($"/asm1/{typeof(InnerClassOne).Namespace}/{typeof(InnerClassTwo).Name}");
 
-			Assert.True(filters.Filter(NonClassTest));
-			Assert.True(filters.Filter(NonMethodTest));
-			Assert.False(filters.Filter(InnerClass1Name1));
-			Assert.False(filters.Filter(InnerClass1Name2));
-			Assert.False(filters.Filter(InnerClass1Name3));
-			Assert.False(filters.Filter(InnerClass2Name3));
+			Assert.False(filters.Filter("asm1", NonClassTest));
+			Assert.False(filters.Filter("asm1", NonMethodTest));
+			Assert.True(filters.Filter("asm1", InnerClassOne_NameOne));
+			Assert.True(filters.Filter("asm1", InnerClassOne_NameTwo));
+			Assert.True(filters.Filter("asm1", InnerClassOne_NameThree));
+			Assert.True(filters.Filter("asm1", InnerClassTwo_NameThree));
 		}
 	}
 
-	public static class ExcludedMethods
+	public class SimpleFilters
 	{
-		[Fact]
-		public static void ExactMatch_ExcludesMatchingMethod()
+		public static IEnumerable<TheoryDataRow<string>> ClassNameData()
 		{
-			var filters = new XunitFilters();
-			filters.ExcludedMethods.Add($"{typeof(InnerClass1).FullName}.{nameof(InnerClass1.Name1)}");
-
-			Assert.True(filters.Filter(NonClassTest));
-			Assert.True(filters.Filter(NonMethodTest));
-			Assert.False(filters.Filter(InnerClass1Name1));
-			Assert.True(filters.Filter(InnerClass1Name2));
-			Assert.True(filters.Filter(InnerClass1Name3));
-			Assert.True(filters.Filter(InnerClass2Name3));
+			foreach (var value in WithWildcards(typeof(InnerClassOne).FullName!))
+				yield return value;
 		}
 
-		[Fact]
-		public static void WildcardMatch_ExcludesMatchingMethod()
+		public static IEnumerable<TheoryDataRow<string>> MethodNameData()
 		{
-			var filters = new XunitFilters();
-			filters.ExcludedMethods.Add($"*.nAmE1");
-
-			Assert.True(filters.Filter(NonClassTest));
-			Assert.True(filters.Filter(NonMethodTest));
-			Assert.False(filters.Filter(InnerClass1Name1));
-			Assert.True(filters.Filter(InnerClass1Name2));
-			Assert.True(filters.Filter(InnerClass1Name3));
-			Assert.True(filters.Filter(InnerClass2Name3));
+			foreach (var value in WithWildcards($"{typeof(InnerClassOne).FullName}.{nameof(InnerClassOne.NameOne)}"))
+				yield return value;
 		}
 
-		[Fact]
-		public static void MultipleFilters_ActsAsOrOperation()
+		public static IEnumerable<TheoryDataRow<string>> NamespaceData()
 		{
-			var filters = new XunitFilters();
-			filters.ExcludedMethods.Add($"{typeof(InnerClass1).FullName}.{nameof(InnerClass1.Name1)}");
-			filters.ExcludedMethods.Add($"*.nAmE2");
-
-			Assert.True(filters.Filter(NonClassTest));
-			Assert.True(filters.Filter(NonMethodTest));
-			Assert.False(filters.Filter(InnerClass1Name1));
-			Assert.False(filters.Filter(InnerClass1Name2));
-			Assert.True(filters.Filter(InnerClass1Name3));
-			Assert.True(filters.Filter(InnerClass2Name3));
-		}
-	}
-
-	public static class ExcludedNamespaces
-	{
-		[Fact]
-		public static void SingleFilter_ExcludesMatchingClass()
-		{
-			var filters = new XunitFilters();
-			filters.ExcludedNamespaces.Add(typeof(InnerClass1).Namespace!);
-
-			Assert.True(filters.Filter(NonClassTest));
-			Assert.True(filters.Filter(NonMethodTest));
-			Assert.False(filters.Filter(InnerClass1Name1));
-			Assert.False(filters.Filter(InnerClass1Name2));
-			Assert.False(filters.Filter(InnerClass1Name3));
-			Assert.False(filters.Filter(InnerClass2Name3));
-			Assert.True(filters.Filter(MethodWithNoTraits));
-			Assert.True(filters.Filter(MethodWithFooBarTrait));
-			Assert.True(filters.Filter(MethodWithBazBiffTrait));
+			foreach (var value in WithWildcards(typeof(InnerClassOne).Namespace!))
+				yield return value;
 		}
 
-		[Fact]
-		public static void MultipleFilters_ActsAsAnOrOperation()
+		public static IEnumerable<TheoryDataRow<string, string>> TraitData()
 		{
-			var filters = new XunitFilters();
-			filters.ExcludedNamespaces.Add(typeof(InnerClass1).Namespace!);
-			filters.ExcludedNamespaces.Add(typeof(ClassWithTraits).Namespace!.ToUpperInvariant());
-
-			Assert.True(filters.Filter(NonClassTest));
-			Assert.False(filters.Filter(NonMethodTest));
-			Assert.False(filters.Filter(InnerClass1Name1));
-			Assert.False(filters.Filter(InnerClass1Name2));
-			Assert.False(filters.Filter(InnerClass1Name3));
-			Assert.False(filters.Filter(InnerClass2Name3));
-			Assert.False(filters.Filter(MethodWithNoTraits));
-			Assert.False(filters.Filter(MethodWithFooBarTrait));
-			Assert.False(filters.Filter(MethodWithBazBiffTrait));
-		}
-	}
-
-	public static class ExcludedTraits
-	{
-		[Fact]
-		public static void SingleFilter_ExcludesMatchingTrait()
-		{
-			var filters = new XunitFilters();
-			filters.ExcludedTraits.Add("foo", "bar");
-
-			Assert.True(filters.Filter(NonClassTest));
-			Assert.True(filters.Filter(NonMethodTest));
-			Assert.True(filters.Filter(MethodWithNoTraits));
-			Assert.False(filters.Filter(MethodWithFooBarTrait));
-			Assert.True(filters.Filter(MethodWithBazBiffTrait));
+			foreach (var name in WithWildcards("foo"))
+				foreach (var value in WithWildcards("bar"))
+					yield return (name, value);
 		}
 
-		[Fact]
-		public static void MultipleFilters_ActsAsOrOperation()
+		public static class ExcludedClasses
 		{
-			var filters = new XunitFilters();
-			filters.ExcludedTraits.Add("fOo", "bAr");
-			filters.ExcludedTraits.Add("bAz", "bIff");
+			[Theory]
+			[MemberData(nameof(ClassNameData), MemberType = typeof(SimpleFilters))]
+			public static void SingleFilter_ExcludesMatchingClass(string query)
+			{
+				var filters = new XunitFilters();
+				filters.AddExcludedClassFilter(query);
 
-			Assert.True(filters.Filter(NonClassTest));
-			Assert.True(filters.Filter(NonMethodTest));
-			Assert.True(filters.Filter(MethodWithNoTraits));
-			Assert.False(filters.Filter(MethodWithFooBarTrait));
-			Assert.False(filters.Filter(MethodWithBazBiffTrait));
-		}
-	}
+				Assert.True(filters.Filter("asm1", NonClassTest));
+				Assert.True(filters.Filter("asm1", NonMethodTest));
+				Assert.False(filters.Filter("asm1", InnerClassOne_NameOne));
+				Assert.False(filters.Filter("asm1", InnerClassOne_NameTwo));
+				Assert.False(filters.Filter("asm1", InnerClassOne_NameThree));
+				Assert.True(filters.Filter("asm1", InnerClassTwo_NameThree));
+			}
 
-	public static class IncludedClasses
-	{
-		[Fact]
-		public static void SingleFilter_IncludesMatchingClass()
-		{
-			var filters = new XunitFilters();
-			filters.IncludedClasses.Add(typeof(InnerClass1).FullName!);
+			[Fact]
+			public static void MultipleFilters_ActsAsAnOrOperation()
+			{
+				var filters = new XunitFilters();
+				filters.AddExcludedClassFilter(typeof(InnerClassOne).FullName!);
+				filters.AddExcludedClassFilter(typeof(InnerClassTwo).FullName!.ToUpperInvariant());
 
-			Assert.False(filters.Filter(NonClassTest));
-			Assert.False(filters.Filter(NonMethodTest));
-			Assert.True(filters.Filter(InnerClass1Name1));
-			Assert.True(filters.Filter(InnerClass1Name2));
-			Assert.True(filters.Filter(InnerClass1Name3));
-			Assert.False(filters.Filter(InnerClass2Name3));
-		}
-
-		[Fact]
-		public static void MultipleFilters_ActsAsAnAndOperation()
-		{
-			var filters = new XunitFilters();
-			filters.IncludedClasses.Add(typeof(InnerClass1).FullName!);
-			filters.IncludedClasses.Add(typeof(InnerClass2).FullName!.ToUpperInvariant());
-
-			Assert.False(filters.Filter(NonClassTest));
-			Assert.False(filters.Filter(NonMethodTest));
-			Assert.True(filters.Filter(InnerClass1Name1));
-			Assert.True(filters.Filter(InnerClass1Name2));
-			Assert.True(filters.Filter(InnerClass1Name3));
-			Assert.True(filters.Filter(InnerClass2Name3));
-		}
-	}
-
-	public static class IncludedMethods
-	{
-		[Fact]
-		public static void ExactMatch_IncludesMatchingMethod()
-		{
-			var filters = new XunitFilters();
-			filters.IncludedMethods.Add($"{typeof(InnerClass1).FullName}.{nameof(InnerClass1.Name1)}");
-
-			Assert.False(filters.Filter(NonClassTest));
-			Assert.False(filters.Filter(NonMethodTest));
-			Assert.True(filters.Filter(InnerClass1Name1));
-			Assert.False(filters.Filter(InnerClass1Name2));
-			Assert.False(filters.Filter(InnerClass1Name3));
-			Assert.False(filters.Filter(InnerClass2Name3));
+				Assert.True(filters.Filter("asm1", NonClassTest));
+				Assert.True(filters.Filter("asm1", NonMethodTest));
+				Assert.False(filters.Filter("asm1", InnerClassOne_NameOne));
+				Assert.False(filters.Filter("asm1", InnerClassOne_NameTwo));
+				Assert.False(filters.Filter("asm1", InnerClassOne_NameThree));
+				Assert.False(filters.Filter("asm1", InnerClassTwo_NameThree));
+			}
 		}
 
-		[Fact]
-		public static void WildcardMatch_IncludesMatchingMethod()
+		public static class ExcludedMethods
 		{
-			var filters = new XunitFilters();
-			filters.IncludedMethods.Add($"*.{nameof(InnerClass1.Name1)}");
+			[Theory]
+			[MemberData(nameof(MethodNameData), MemberType = typeof(SimpleFilters))]
+			public static void SingleFilter_ExcludesMatchingMethod(string query)
+			{
+				var filters = new XunitFilters();
+				filters.AddExcludedMethodFilter(query);
 
-			Assert.False(filters.Filter(NonClassTest));
-			Assert.False(filters.Filter(NonMethodTest));
-			Assert.True(filters.Filter(InnerClass1Name1));
-			Assert.False(filters.Filter(InnerClass1Name2));
-			Assert.False(filters.Filter(InnerClass1Name3));
-			Assert.False(filters.Filter(InnerClass2Name3));
+				Assert.True(filters.Filter("asm1", NonClassTest));
+				Assert.True(filters.Filter("asm1", NonMethodTest));
+				Assert.False(filters.Filter("asm1", InnerClassOne_NameOne));
+				Assert.True(filters.Filter("asm1", InnerClassOne_NameTwo));
+				Assert.True(filters.Filter("asm1", InnerClassOne_NameThree));
+				Assert.True(filters.Filter("asm1", InnerClassTwo_NameThree));
+			}
+
+			[Fact]
+			public static void MultipleFilters_ActsAsOrOperation()
+			{
+				var filters = new XunitFilters();
+				filters.AddExcludedMethodFilter($"{typeof(InnerClassOne).FullName}.{nameof(InnerClassOne.NameOne)}");
+				filters.AddExcludedMethodFilter($"*.nAmEtWo");
+
+				Assert.True(filters.Filter("asm1", NonClassTest));
+				Assert.True(filters.Filter("asm1", NonMethodTest));
+				Assert.False(filters.Filter("asm1", InnerClassOne_NameOne));
+				Assert.False(filters.Filter("asm1", InnerClassOne_NameTwo));
+				Assert.True(filters.Filter("asm1", InnerClassOne_NameThree));
+				Assert.True(filters.Filter("asm1", InnerClassTwo_NameThree));
+			}
 		}
 
-		[Fact]
-		public static void MultipleFilters_ActsAsAndOperation()
+		public static class ExcludedNamespaces
 		{
-			var filters = new XunitFilters();
-			filters.IncludedMethods.Add($"{typeof(InnerClass1).FullName}.{nameof(InnerClass1.Name1)}");
-			filters.IncludedMethods.Add($"*.{nameof(InnerClass1.Name2).ToUpperInvariant()}");
+			[Theory]
+			[MemberData(nameof(NamespaceData), MemberType = typeof(SimpleFilters))]
+			public static void SingleFilter_ExcludesMatchingClass(string query)
+			{
+				var filters = new XunitFilters();
+				filters.AddExcludedNamespaceFilter(query);
 
-			Assert.False(filters.Filter(NonClassTest));
-			Assert.False(filters.Filter(NonMethodTest));
-			Assert.True(filters.Filter(InnerClass1Name1));
-			Assert.True(filters.Filter(InnerClass1Name2));
-			Assert.False(filters.Filter(InnerClass1Name3));
-			Assert.False(filters.Filter(InnerClass2Name3));
-		}
-	}
+				Assert.True(filters.Filter("asm1", NonClassTest));
+				Assert.True(filters.Filter("asm1", NonMethodTest));
+				Assert.False(filters.Filter("asm1", InnerClassOne_NameOne));
+				Assert.False(filters.Filter("asm1", InnerClassOne_NameTwo));
+				Assert.False(filters.Filter("asm1", InnerClassOne_NameThree));
+				Assert.False(filters.Filter("asm1", InnerClassTwo_NameThree));
+				Assert.True(filters.Filter("asm1", MethodWithNoTraits));
+				Assert.True(filters.Filter("asm1", MethodWithFooBarTrait));
+				Assert.True(filters.Filter("asm1", MethodWithBazBiffTrait));
+			}
 
-	public static class IncludedNamespaces
-	{
-		[Fact]
-		public static void SingleFilter_ExcludesMatchingClass()
-		{
-			var filters = new XunitFilters();
-			filters.IncludedNamespaces.Add(typeof(InnerClass1).Namespace!);
+			[Fact]
+			public static void MultipleFilters_ActsAsAnOrOperation()
+			{
+				var filters = new XunitFilters();
+				filters.AddExcludedNamespaceFilter(typeof(InnerClassOne).Namespace!);
+				filters.AddExcludedNamespaceFilter(typeof(ClassWithTraits).Namespace!.ToUpperInvariant());
 
-			Assert.False(filters.Filter(NonClassTest));
-			Assert.False(filters.Filter(NonMethodTest));
-			Assert.True(filters.Filter(InnerClass1Name1));
-			Assert.True(filters.Filter(InnerClass1Name2));
-			Assert.True(filters.Filter(InnerClass1Name3));
-			Assert.True(filters.Filter(InnerClass2Name3));
-			Assert.False(filters.Filter(MethodWithNoTraits));
-			Assert.False(filters.Filter(MethodWithFooBarTrait));
-			Assert.False(filters.Filter(MethodWithBazBiffTrait));
-		}
-
-		[Fact]
-		public static void MultipleFilters_ActsAsAnOrOperation()
-		{
-			var filters = new XunitFilters();
-			filters.IncludedNamespaces.Add(typeof(InnerClass1).Namespace!);
-			filters.IncludedNamespaces.Add(typeof(ClassWithTraits).Namespace!.ToUpperInvariant());
-
-			Assert.False(filters.Filter(NonClassTest));
-			Assert.True(filters.Filter(NonMethodTest));
-			Assert.True(filters.Filter(InnerClass1Name1));
-			Assert.True(filters.Filter(InnerClass1Name2));
-			Assert.True(filters.Filter(InnerClass1Name3));
-			Assert.True(filters.Filter(InnerClass2Name3));
-			Assert.True(filters.Filter(MethodWithNoTraits));
-			Assert.True(filters.Filter(MethodWithFooBarTrait));
-			Assert.True(filters.Filter(MethodWithBazBiffTrait));
-		}
-	}
-
-	public static class IncludedTraits
-	{
-		[Fact]
-		public static void SingleFilter_IncludesMatchingTrait()
-		{
-			var filters = new XunitFilters();
-			filters.IncludedTraits.Add("foo", "bar");
-
-			Assert.False(filters.Filter(NonClassTest));
-			Assert.False(filters.Filter(NonMethodTest));
-			Assert.False(filters.Filter(MethodWithNoTraits));
-			Assert.True(filters.Filter(MethodWithFooBarTrait));
-			Assert.False(filters.Filter(MethodWithBazBiffTrait));
+				Assert.True(filters.Filter("asm1", NonClassTest));
+				Assert.False(filters.Filter("asm1", NonMethodTest));
+				Assert.False(filters.Filter("asm1", InnerClassOne_NameOne));
+				Assert.False(filters.Filter("asm1", InnerClassOne_NameTwo));
+				Assert.False(filters.Filter("asm1", InnerClassOne_NameThree));
+				Assert.False(filters.Filter("asm1", InnerClassTwo_NameThree));
+				Assert.False(filters.Filter("asm1", MethodWithNoTraits));
+				Assert.False(filters.Filter("asm1", MethodWithFooBarTrait));
+				Assert.False(filters.Filter("asm1", MethodWithBazBiffTrait));
+			}
 		}
 
-		[Fact]
-		public static void MultipleFilters_ActsAsAndOperation()
+		public static class ExcludedTraits
 		{
-			var filters = new XunitFilters();
-			filters.IncludedTraits.Add("fOo", "bAr");
-			filters.IncludedTraits.Add("bAz", "bIff");
+			[Theory]
+			[MemberData(nameof(TraitData), MemberType = typeof(SimpleFilters))]
+			public static void SingleFilter_ExcludesMatchingTrait(
+				string name,
+				string value)
+			{
+				var filters = new XunitFilters();
+				filters.AddExcludedTraitFilter(name, value);
 
-			Assert.False(filters.Filter(NonClassTest));
-			Assert.False(filters.Filter(NonMethodTest));
-			Assert.False(filters.Filter(MethodWithNoTraits));
-			Assert.True(filters.Filter(MethodWithFooBarTrait));
-			Assert.True(filters.Filter(MethodWithBazBiffTrait));
+				Assert.True(filters.Filter("asm1", NonClassTest));
+				Assert.True(filters.Filter("asm1", NonMethodTest));
+				Assert.True(filters.Filter("asm1", MethodWithNoTraits));
+				Assert.False(filters.Filter("asm1", MethodWithFooBarTrait));
+				Assert.True(filters.Filter("asm1", MethodWithBazBiffTrait));
+			}
+
+			[Fact]
+			public static void MultipleFilters_ActsAsOrOperation()
+			{
+				var filters = new XunitFilters();
+				filters.AddExcludedTraitFilter("fOo", "bAr");
+				filters.AddExcludedTraitFilter("bAz", "bIff");
+
+				Assert.True(filters.Filter("asm1", NonClassTest));
+				Assert.True(filters.Filter("asm1", NonMethodTest));
+				Assert.True(filters.Filter("asm1", MethodWithNoTraits));
+				Assert.False(filters.Filter("asm1", MethodWithFooBarTrait));
+				Assert.False(filters.Filter("asm1", MethodWithBazBiffTrait));
+			}
 		}
-	}
 
-	public static class MixedFilters
-	{
-		[Fact]
-		public static void ActsAsAnAndOperation()
+		public static class IncludedClasses
 		{
-			var filters = new XunitFilters();
-			filters.IncludedClasses.Add(typeof(InnerClass1).FullName!);
-			filters.IncludedMethods.Add("*.nAmE3");
+			[Theory]
+			[MemberData(nameof(ClassNameData), MemberType = typeof(SimpleFilters))]
+			public static void SingleFilter_IncludesMatchingClass(string query)
+			{
+				var filters = new XunitFilters();
+				filters.AddIncludedClassFilter(query);
 
-			Assert.False(filters.Filter(NonClassTest));
-			Assert.False(filters.Filter(NonMethodTest));
-			Assert.False(filters.Filter(InnerClass1Name1));
-			Assert.False(filters.Filter(InnerClass1Name2));
-			Assert.True(filters.Filter(InnerClass1Name3));
-			Assert.False(filters.Filter(InnerClass2Name3));
-			Assert.False(filters.Filter(MethodWithNoTraits));
-			Assert.False(filters.Filter(MethodWithFooBarTrait));
-			Assert.False(filters.Filter(MethodWithBazBiffTrait));
+				Assert.False(filters.Filter("asm1", NonClassTest));
+				Assert.False(filters.Filter("asm1", NonMethodTest));
+				Assert.True(filters.Filter("asm1", InnerClassOne_NameOne));
+				Assert.True(filters.Filter("asm1", InnerClassOne_NameTwo));
+				Assert.True(filters.Filter("asm1", InnerClassOne_NameThree));
+				Assert.False(filters.Filter("asm1", InnerClassTwo_NameThree));
+			}
+
+			[Fact]
+			public static void MultipleFilters_ActsAsAnAndOperation()
+			{
+				var filters = new XunitFilters();
+				filters.AddIncludedClassFilter(typeof(InnerClassOne).FullName!);
+				filters.AddIncludedClassFilter(typeof(InnerClassTwo).FullName!.ToUpperInvariant());
+
+				Assert.False(filters.Filter("asm1", NonClassTest));
+				Assert.False(filters.Filter("asm1", NonMethodTest));
+				Assert.True(filters.Filter("asm1", InnerClassOne_NameOne));
+				Assert.True(filters.Filter("asm1", InnerClassOne_NameTwo));
+				Assert.True(filters.Filter("asm1", InnerClassOne_NameThree));
+				Assert.True(filters.Filter("asm1", InnerClassTwo_NameThree));
+			}
+		}
+
+		public static class IncludedMethods
+		{
+			[Theory]
+			[MemberData(nameof(MethodNameData), MemberType = typeof(SimpleFilters))]
+			public static void SingleFilter_IncludesMatchingMethod(string query)
+			{
+				var filters = new XunitFilters();
+				filters.AddIncludedMethodFilter(query);
+
+				Assert.False(filters.Filter("asm1", NonClassTest));
+				Assert.False(filters.Filter("asm1", NonMethodTest));
+				Assert.True(filters.Filter("asm1", InnerClassOne_NameOne));
+				Assert.False(filters.Filter("asm1", InnerClassOne_NameTwo));
+				Assert.False(filters.Filter("asm1", InnerClassOne_NameThree));
+				Assert.False(filters.Filter("asm1", InnerClassTwo_NameThree));
+			}
+
+			[Fact]
+			public static void MultipleFilters_ActsAsAndOperation()
+			{
+				var filters = new XunitFilters();
+				filters.AddIncludedMethodFilter($"{typeof(InnerClassOne).FullName}.{nameof(InnerClassOne.NameOne)}");
+				filters.AddIncludedMethodFilter($"*.{nameof(InnerClassOne.NameTwo).ToUpperInvariant()}");
+
+				Assert.False(filters.Filter("asm1", NonClassTest));
+				Assert.False(filters.Filter("asm1", NonMethodTest));
+				Assert.True(filters.Filter("asm1", InnerClassOne_NameOne));
+				Assert.True(filters.Filter("asm1", InnerClassOne_NameTwo));
+				Assert.False(filters.Filter("asm1", InnerClassOne_NameThree));
+				Assert.False(filters.Filter("asm1", InnerClassTwo_NameThree));
+			}
+		}
+
+		public static class IncludedNamespaces
+		{
+			[Theory]
+			[MemberData(nameof(NamespaceData), MemberType = typeof(SimpleFilters))]
+			public static void SingleFilter_ExcludesMatchingClass(string query)
+			{
+				var filters = new XunitFilters();
+				filters.AddIncludedNamespaceFilter(query);
+
+				Assert.False(filters.Filter("asm1", NonClassTest));
+				Assert.False(filters.Filter("asm1", NonMethodTest));
+				Assert.True(filters.Filter("asm1", InnerClassOne_NameOne));
+				Assert.True(filters.Filter("asm1", InnerClassOne_NameTwo));
+				Assert.True(filters.Filter("asm1", InnerClassOne_NameThree));
+				Assert.True(filters.Filter("asm1", InnerClassTwo_NameThree));
+				Assert.False(filters.Filter("asm1", MethodWithNoTraits));
+				Assert.False(filters.Filter("asm1", MethodWithFooBarTrait));
+				Assert.False(filters.Filter("asm1", MethodWithBazBiffTrait));
+			}
+
+			[Fact]
+			public static void MultipleFilters_ActsAsAnOrOperation()
+			{
+				var filters = new XunitFilters();
+				filters.AddIncludedNamespaceFilter(typeof(InnerClassOne).Namespace!);
+				filters.AddIncludedNamespaceFilter(typeof(ClassWithTraits).Namespace!.ToUpperInvariant());
+
+				Assert.False(filters.Filter("asm1", NonClassTest));
+				Assert.True(filters.Filter("asm1", NonMethodTest));
+				Assert.True(filters.Filter("asm1", InnerClassOne_NameOne));
+				Assert.True(filters.Filter("asm1", InnerClassOne_NameTwo));
+				Assert.True(filters.Filter("asm1", InnerClassOne_NameThree));
+				Assert.True(filters.Filter("asm1", InnerClassTwo_NameThree));
+				Assert.True(filters.Filter("asm1", MethodWithNoTraits));
+				Assert.True(filters.Filter("asm1", MethodWithFooBarTrait));
+				Assert.True(filters.Filter("asm1", MethodWithBazBiffTrait));
+			}
+		}
+
+		public static class IncludedTraits
+		{
+			[Theory]
+			[MemberData(nameof(TraitData), MemberType = typeof(SimpleFilters))]
+			public static void SingleFilter_IncludesMatchingTrait(
+				string name,
+				string value)
+			{
+				var filters = new XunitFilters();
+				filters.AddIncludedTraitFilter(name, value);
+
+				Assert.False(filters.Filter("asm1", NonClassTest));
+				Assert.False(filters.Filter("asm1", NonMethodTest));
+				Assert.False(filters.Filter("asm1", MethodWithNoTraits));
+				Assert.True(filters.Filter("asm1", MethodWithFooBarTrait));
+				Assert.False(filters.Filter("asm1", MethodWithBazBiffTrait));
+			}
+
+			[Fact]
+			public static void MultipleFilters_ActsAsAndOperation()
+			{
+				var filters = new XunitFilters();
+				filters.AddIncludedTraitFilter("fOo", "bAr");
+				filters.AddIncludedTraitFilter("bAz", "bIff");
+
+				Assert.False(filters.Filter("asm1", NonClassTest));
+				Assert.False(filters.Filter("asm1", NonMethodTest));
+				Assert.False(filters.Filter("asm1", MethodWithNoTraits));
+				Assert.True(filters.Filter("asm1", MethodWithFooBarTrait));
+				Assert.True(filters.Filter("asm1", MethodWithBazBiffTrait));
+			}
+		}
+
+		public static class MixedFilters
+		{
+			[Fact]
+			public static void ActsAsAnAndOperation()
+			{
+				var filters = new XunitFilters();
+				filters.AddIncludedClassFilter(typeof(InnerClassOne).FullName!);
+				filters.AddIncludedMethodFilter("*.nAmEtHrEe");
+
+				Assert.False(filters.Filter("asm1", NonClassTest));
+				Assert.False(filters.Filter("asm1", NonMethodTest));
+				Assert.False(filters.Filter("asm1", InnerClassOne_NameOne));
+				Assert.False(filters.Filter("asm1", InnerClassOne_NameTwo));
+				Assert.True(filters.Filter("asm1", InnerClassOne_NameThree));
+				Assert.False(filters.Filter("asm1", InnerClassTwo_NameThree));
+				Assert.False(filters.Filter("asm1", MethodWithNoTraits));
+				Assert.False(filters.Filter("asm1", MethodWithFooBarTrait));
+				Assert.False(filters.Filter("asm1", MethodWithBazBiffTrait));
+			}
 		}
 	}
 }
 
-namespace Namespace1
+namespace NamespaceOne
 {
 	class ClassInNamespace1
 	{
-		internal class InnerClass1
+		internal class InnerClassOne
 		{
 			[Fact]
-			public static void Name1() { }
+			public static void NameOne() { }
 
 			[Fact]
-			public static void Name2() { }
+			public static void NameTwo() { }
 
 			[Fact]
-			public static void Name3() { }
+			public static void NameThree() { }
 		}
 
-		internal class InnerClass2
+		internal class InnerClassTwo
 		{
 			[Fact]
-			public static void Name3() { }
+			public static void NameThree() { }
 		}
 	}
 }
 
-namespace Namespace2
+namespace NamespaceTwo
 {
 	internal class ClassWithTraits
 	{
