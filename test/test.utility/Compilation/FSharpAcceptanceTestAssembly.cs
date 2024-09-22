@@ -53,6 +53,7 @@ public abstract class FSharpAcceptanceTestAssembly : AcceptanceTestAssembly
             FSharpOption<bool>.None,
             FSharpOption<bool>.None,
             FSharpOption<DocumentSource>.None,
+            FSharpOption<bool>.None,
             FSharpOption<bool>.None
         );
 

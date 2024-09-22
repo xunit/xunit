@@ -29,7 +29,7 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net462' ">
-    <PackageReference Include="FSharp.Compiler.Service" Version="43.8.200" />
+    <PackageReference Include="FSharp.Compiler.Service" Version="43.8.400" />
     <ProjectReference Include="..\..\src\xunit.runner.tdnet\xunit.runner.tdnet.csproj" />
   </ItemGroup>
 
