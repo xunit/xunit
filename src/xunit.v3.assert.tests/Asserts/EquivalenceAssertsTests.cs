@@ -1478,6 +1478,53 @@ public class EquivalenceAssertsTests
 		}
 	}
 
+	// https://github.com/xunit/xunit/issues/3028
+	public class Groupings
+	{
+		[Fact]
+		public static void Success()
+		{
+			var expected = Enumerable.Range(1, 4).ToLookup(i => (i % 2) == 0);
+			var actual = Enumerable.Range(1, 4).GroupBy(i => (i % 2) == 0);
+
+			Assert.Equivalent(expected, actual);
+		}
+
+		[Fact]
+		public static void Failure_KeysDontMatch()
+		{
+			var expected = Enumerable.Range(1, 4).ToLookup(i => true);
+			var actual = Enumerable.Range(1, 4).GroupBy(i => false);
+
+			var ex = Record.Exception(() => Assert.Equivalent(expected, actual));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				"Assert.Equivalent() Failure: Collection value not found" + Environment.NewLine +
+				"Expected: [True] = [1, 2, 3, 4]" + Environment.NewLine +
+				"In:       [[False] = [1, 2, 3, 4]]",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public static void Failure_KeysMatch_ValuesDoNot()
+		{
+			var expected = Enumerable.Range(1, 4).ToLookup(i => (i % 2) == 0);
+			var actual = Enumerable.Range(1, 4).GroupBy(i => (i % 2) == 1);
+
+			var ex = Record.Exception(() => Assert.Equivalent(expected, actual));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				"Assert.Equivalent() Failure: Grouping key [False] has mismatched values" + Environment.NewLine +
+				"Expected: [1, 3]" + Environment.NewLine +
+				"Actual:   [2, 4]",
+				ex.Message
+			);
+		}
+	}
+
 	public class SpecialCases
 	{
 		// DateTime
