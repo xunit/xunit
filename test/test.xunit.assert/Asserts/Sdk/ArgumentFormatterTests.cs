@@ -334,6 +334,22 @@ public class ArgumentFormatterTests
 
 			Assert.Equal($"[42, [42, [{ArgumentFormatter.Ellipsis}]]]", ArgumentFormatter.Format(looping));
 		}
+
+		[Fact]
+		public static void GroupingIsRenderedAsCollectionsOfKeysLinkedToCollectionsOfValues()
+		{
+			var grouping = Enumerable.Range(0, 10).GroupBy(i => i % 2 == 0).FirstOrDefault(g => g.Key == true);
+
+			Assert.Equal("[True] = [0, 2, 4, 6, 8]", ArgumentFormatter.Format(grouping));
+		}
+
+		[Fact]
+		public static void GroupingsAreRenderedAsCollectionsOfKeysLinkedToCollectionsOfValues()
+		{
+			var grouping = Enumerable.Range(0, 10).GroupBy(i => i % 2 == 0);
+
+			Assert.Equal("[[True] = [0, 2, 4, 6, 8], [False] = [1, 3, 5, 7, 9]]", ArgumentFormatter.Format(grouping));
+		}
 	}
 
 	public class ComplexTypes
