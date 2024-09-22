@@ -10,5 +10,5 @@ internal sealed class FilterLogicalNot(ITestCaseFilter innerFilter) :
 	public bool Filter(
 		string assemblyName,
 		ITestCaseMetadata testCase) =>
-			!(innerFilter.Filter(assemblyName, testCase));
+			!innerFilter.Filter(assemblyName, testCase);
 }

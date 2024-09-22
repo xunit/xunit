@@ -666,16 +666,14 @@ public static class ReflectionExtensions
 	{
 		Guard.ArgumentNotNull(type);
 
-		if (type.FullName is null)
-			return type.Name;
-
-		if (type.Namespace is null)
-			return type.FullName;
-
-		if (!type.FullName.StartsWith(type.Namespace, StringComparison.Ordinal))
-			return type.FullName;
-
-		return type.FullName.Substring(type.Namespace.Length + 1);
+		return
+			type.FullName is null
+				? type.Name
+				: type.Namespace is null
+					? type.FullName
+					: type.FullName.StartsWith(type.Namespace, StringComparison.Ordinal)
+						? type.FullName.Substring(type.Namespace.Length + 1)
+						: type.FullName;
 	}
 
 	static object? TryConvertObject(
