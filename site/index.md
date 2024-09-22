@@ -43,10 +43,10 @@ xUnit.net is a free, open source, community-focused unit testing tool for the .N
 {: .table .latest }
 |                           | Stable                                             | Prerelease                                                          |
 | ------------------------- | -------------------------------------------------- | ------------------------------------------------------------------- | ----------------------------------------
-| v2 core framework         | [2.9.0](/releases/v2/2.9.0){: .release }           |                                                                     | ([all releases](/releases/v2/))
-| v3 core framework         |                                                    | [0.3.0-pre.18](/releases/v3/0.3.0-pre.18){: .prerelease }           | ([all releases](/releases/v3/))
+| v2 core framework         | [2.9.1](/releases/v2/2.9.1){: .release }           |                                                                     | ([all releases](/releases/v2/))
+| v3 core framework         |                                                    | [0.4.0-pre.20](/releases/v3/0.4.0-pre.20){: .prerelease }           | ([all releases](/releases/v3/))
 | xunit.analyzers           | [1.16.0](/releases/analyzers/1.16.0){: .release }  |                                                                     | ([all releases](/releases/analyzers/))
-| xunit.runner.visualstudio | [2.8.2](/releases/visualstudio/2.8.2){: .release } | [3.0.0-pre.30](/releases/visualstudio/3.0.0-pre.30){: .prerelease } | ([all releases](/releases/visualstudio/))
+| xunit.runner.visualstudio | [2.8.2](/releases/visualstudio/2.8.2){: .release } | [3.0.0-pre.35](/releases/visualstudio/3.0.0-pre.35){: .prerelease } | ([all releases](/releases/visualstudio/))
 
 
 ## Documentation
@@ -76,6 +76,7 @@ _New to xUnit.net? These guides will help you get started._
 * [Migrating from xUnit.net v2](/docs/getting-started/v3/migration)
 * [What's new in xUnit.net v3](/docs/getting-started/v3/whats-new)
 * [Microsoft Testing Platform support in v3](/docs/getting-started/v3/microsoft-testing-platform)
+* [Query Filter Language](/docs/query-filter-language)
 
 {: .indent }
 **<u>Source Analyzers</u>**
