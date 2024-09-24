@@ -52,6 +52,9 @@ public abstract class OutOfProcessTestProcessLauncherBase : ITestProcessLauncher
 				executable = executable.Substring(0, projectAssembly.AssemblyFileName.Length - 4);
 			if (IsWindows)
 				executable += ".exe";
+
+			if (!File.Exists(executable))
+				throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Could not find app host executable '{0}'. Make sure you did not disable the app host when building the test project.", executable));
 		}
 		else if (!IsWindows)
 		{
