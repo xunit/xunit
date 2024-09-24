@@ -511,6 +511,32 @@ public class Xunit2TheoryAcceptanceTests
             [Theory, MemberData("GenericData")]
             public void GenericTest<T>(T value) { }
         }
+
+        // https://github.com/xunit/xunit/issues/3031
+        [Fact]
+        public void TheoryDataOfArray()
+        {
+            var results = Run<ITestResultMessage>(typeof(ClassWithTheoryDataOfArray));
+
+            Assert.Collection(
+                results.Cast<ITestPassed>().OrderBy(r => r.Test.DisplayName),
+                result => Assert.Equal("Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithTheoryDataOfArray.TestMethod(_: [\"0\", \"2\", \"4\"])", result.Test.DisplayName),
+                result => Assert.Equal("Xunit2TheoryAcceptanceTests+TheoryTests+ClassWithTheoryDataOfArray.TestMethod(_: [\"0\", \"8\", \"6\"])", result.Test.DisplayName)
+            );
+        }
+
+        class ClassWithTheoryDataOfArray
+        {
+            public static TheoryData<string[]> DataSource =>
+            [
+                ["0", "2", "4"],
+                ["0", "8", "6"],
+            ];
+
+            [Theory]
+            [MemberData(nameof(DataSource))]
+            public void TestMethod(string[] _) { }
+        }
     }
 
     public class InlineDataTests : AcceptanceTestV2

@@ -74,6 +74,8 @@ namespace Xunit
             var obj = accessor();
             if (obj == null)
                 return null;
+            if (obj is ITheoryData theoryData)
+                return theoryData.GetData();
             if (obj is IEnumerable<object[]> arrayEnumerable)
                 return arrayEnumerable;
             if (obj is not IEnumerable enumerable)

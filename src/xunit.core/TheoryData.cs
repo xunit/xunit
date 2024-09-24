@@ -1,13 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Xunit.Sdk;
 
 namespace Xunit
 {
     /// <summary>
     /// Provides data for theories based on collection initialization syntax.
     /// </summary>
-    public abstract class TheoryData : IReadOnlyCollection<object[]>
+    public abstract class TheoryData : IReadOnlyCollection<object[]>, ITheoryData
     {
         readonly List<object[]> data = [];
 
@@ -41,6 +42,8 @@ namespace Xunit
             foreach (var row in rows)
                 AddRow(row);
         }
+
+        IReadOnlyCollection<object[]> ITheoryData.GetData() => data;
 
         /// <inheritdoc/>
         public IEnumerator<object[]> GetEnumerator() => data.GetEnumerator();
