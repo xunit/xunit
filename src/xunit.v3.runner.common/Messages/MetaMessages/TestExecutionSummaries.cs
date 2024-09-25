@@ -38,6 +38,6 @@ public class TestExecutionSummaries : IMessageSinkMessage
 			SummariesByAssemblyUniqueID.Add((assemblyUniqueID, summary));
 
 	/// <inheritdoc/>
-	public string ToJson() =>
-		throw new System.NotSupportedException();
+	public string? ToJson() =>
+		null;
 }

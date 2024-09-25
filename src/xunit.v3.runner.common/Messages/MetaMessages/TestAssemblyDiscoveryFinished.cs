@@ -42,6 +42,6 @@ public class TestAssemblyDiscoveryFinished : IMessageSinkMessage
 	public int TestCasesToRun { get; set; }
 
 	/// <inheritdoc/>
-	public string ToJson() =>
-		throw new System.NotSupportedException();
+	public string? ToJson() =>
+		null;
 }

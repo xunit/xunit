@@ -44,6 +44,6 @@ public class TestAssemblyExecutionStarting : IMessageSinkMessage
 	public required int? Seed { get; set; }
 
 	/// <inheritdoc/>
-	public string ToJson() =>
-		throw new System.NotSupportedException();
+	public string? ToJson() =>
+		null;
 }

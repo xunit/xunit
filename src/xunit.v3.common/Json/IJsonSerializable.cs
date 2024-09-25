@@ -8,5 +8,9 @@ public interface IJsonSerializable
 	/// <summary>
 	/// Converts the given object to JSON.
 	/// </summary>
-	string ToJson();
+	/// <returns>
+	/// Returns the object in JSON form, if possible; returns <c>null</c> if the object
+	/// cannot be represented in JSON form.
+	/// </returns>
+	string? ToJson();
 }

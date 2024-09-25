@@ -54,6 +54,6 @@ public class TestAssemblyDiscoveryStarting : IMessageSinkMessage
 	public required bool ShadowCopy { get; set; }
 
 	/// <inheritdoc/>
-	public string ToJson() =>
-		throw new System.NotSupportedException();
+	public string? ToJson() =>
+		null;
 }

@@ -20,7 +20,11 @@ public static class RunnerLoggerExtensions
 		Guard.ArgumentNotNull(runnerLogger);
 		Guard.ArgumentNotNull(message);
 
-		runnerLogger.LogRaw(message.ToJson());
-		runnerLogger.WaitForAcknowledgment();
+		var json = message.ToJson();
+		if (json is not null)
+		{
+			runnerLogger.LogRaw(json);
+			runnerLogger.WaitForAcknowledgment();
+		}
 	}
 }
