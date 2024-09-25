@@ -852,8 +852,16 @@ public class ExecutionSink : IMessageSink, IDisposable
 
 		while (true)
 		{
-			if (WaitForStopEvent(delayTime))
+			try
+			{
+				if (WaitForStopEvent(delayTime))
+					return;
+			}
+			catch (ObjectDisposedException)
+			{
+				// Seeming race condition waiting for the event vs. the event being disposed
 				return;
+			}
 
 			var now = UtcNow;
 			if (now - lastTestActivity >= options.LongRunningTestTime)
