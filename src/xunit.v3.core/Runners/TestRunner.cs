@@ -23,23 +23,23 @@ public abstract class TestRunner<TContext, TTest>
 	protected TestRunner()
 	{ }
 
-	async ValueTask<(object?, SynchronizationContext?)> CreateTestClass(TContext ctxt)
+	async ValueTask<(object?, SynchronizationContext?, ExecutionContext?)> CreateTestClass(TContext ctxt)
 	{
 		Guard.ArgumentNotNull(ctxt);
 
 		if (!ctxt.Aggregator.Run(() => IsTestClassCreatable(ctxt), false))
-			return (null, SynchronizationContext.Current);
+			return (null, SynchronizationContext.Current, ExecutionContext.Capture());
 
 		if (ctxt.CancellationTokenSource.IsCancellationRequested || ctxt.Aggregator.HasExceptions)
-			return (null, SynchronizationContext.Current);
+			return (null, SynchronizationContext.Current, ExecutionContext.Capture());
 
 		if (!await ctxt.Aggregator.RunAsync(() => OnTestClassConstructionStarting(ctxt), true))
 			ctxt.CancellationTokenSource.Cancel();
 
 		if (ctxt.CancellationTokenSource.IsCancellationRequested || ctxt.Aggregator.HasExceptions)
-			return (null, SynchronizationContext.Current);
+			return (null, SynchronizationContext.Current, ExecutionContext.Capture());
 
-		var result = await ctxt.Aggregator.RunAsync(() => CreateTestClassInstance(ctxt), (null, null));
+		var result = await ctxt.Aggregator.RunAsync(() => CreateTestClassInstance(ctxt), (null, null, null));
 
 		if (!await ctxt.Aggregator.RunAsync(() => OnTestClassConstructionFinished(ctxt), true))
 			ctxt.CancellationTokenSource.Cancel();
@@ -57,7 +57,7 @@ public abstract class TestRunner<TContext, TTest>
 	/// contribute to test failure. Since the method is potentially async, we depend on it to capture and
 	/// return the sync context so that it may be propagated appropriately.
 	/// </remarks>
-	protected abstract ValueTask<(object? Instance, SynchronizationContext? SyncContext)> CreateTestClassInstance(TContext ctxt);
+	protected abstract ValueTask<(object? Instance, SynchronizationContext? SyncContext, ExecutionContext? ExecutionContext)> CreateTestClassInstance(TContext ctxt);
 
 	async ValueTask DisposeTestClass(
 		TContext ctxt,
@@ -359,38 +359,60 @@ public abstract class TestRunner<TContext, TTest>
 				if (shouldRun && ctxt.GetSkipReason() is null && !ctxt.Aggregator.HasExceptions)
 				{
 					SynchronizationContext? syncContext = null;
+					ExecutionContext? executionContext = null;
 
-					elapsedTime += await ExecutionTimer.MeasureAsync(() => ctxt.Aggregator.RunAsync(async () => { (testClassInstance, syncContext) = await CreateTestClass(ctxt); }));
+					elapsedTime += await ExecutionTimer.MeasureAsync(() => ctxt.Aggregator.RunAsync(async () => { (testClassInstance, syncContext, executionContext) = await CreateTestClass(ctxt); }));
 
-					SynchronizationContext.SetSynchronizationContext(syncContext);
-					SetTestContext(ctxt, TestEngineStatus.Running, testClassInstance: testClassInstance);
+					TaskCompletionSource<object?> finished = new();
 
-					if (!ctxt.Aggregator.HasExceptions)
+					if (executionContext is not null)
+						ExecutionContext.Run(executionContext, runTest, null);
+					else
+						runTest(null);
+
+					await finished.Task;
+
+					async void runTest(object? _)
 					{
-						elapsedTime += await ExecutionTimer.MeasureAsync(() => ctxt.Aggregator.RunAsync(() => PreInvoke(ctxt)));
+						SynchronizationContext.SetSynchronizationContext(syncContext);
+						SetTestContext(ctxt, TestEngineStatus.Running, testClassInstance: testClassInstance);
 
-						if (!ctxt.Aggregator.HasExceptions)
+						try
 						{
-							elapsedTime += await ctxt.Aggregator.RunAsync(() => InvokeTestAsync(ctxt, testClassInstance), TimeSpan.Zero);
+							if (!ctxt.Aggregator.HasExceptions)
+							{
+								elapsedTime += await ExecutionTimer.MeasureAsync(() => ctxt.Aggregator.RunAsync(() => PreInvoke(ctxt)));
 
-							// Set an early version of TestResultState so anything done in PostInvoke can understand whether
-							// it looks like the test is passing, failing, or dynamically skipped
-							var currentException = ctxt.Aggregator.ToException();
-							var currentSkipReason = ctxt.GetSkipReason(currentException);
-							var currentExecutionTime = (decimal)elapsedTime.TotalMilliseconds;
-							var testResultState =
-								currentSkipReason is not null
-									? TestResultState.ForSkipped(currentExecutionTime)
-									: TestResultState.FromException(currentExecutionTime, currentException);
+								if (!ctxt.Aggregator.HasExceptions)
+								{
+									elapsedTime += await ctxt.Aggregator.RunAsync(() => InvokeTestAsync(ctxt, testClassInstance), TimeSpan.Zero);
 
-							SetTestContext(ctxt, TestEngineStatus.Running, testResultState, testClassInstance: testClassInstance);
+									// Set an early version of TestResultState so anything done in PostInvoke can understand whether
+									// it looks like the test is passing, failing, or dynamically skipped
+									var currentException = ctxt.Aggregator.ToException();
+									var currentSkipReason = ctxt.GetSkipReason(currentException);
+									var currentExecutionTime = (decimal)elapsedTime.TotalMilliseconds;
+									var testResultState =
+										currentSkipReason is not null
+											? TestResultState.ForSkipped(currentExecutionTime)
+											: TestResultState.FromException(currentExecutionTime, currentException);
 
-							elapsedTime += await ExecutionTimer.MeasureAsync(() => ctxt.Aggregator.RunAsync(() => PostInvoke(ctxt)));
+									SetTestContext(ctxt, TestEngineStatus.Running, testResultState, testClassInstance: testClassInstance);
+
+									elapsedTime += await ExecutionTimer.MeasureAsync(() => ctxt.Aggregator.RunAsync(() => PostInvoke(ctxt)));
+								}
+
+								elapsedTime += await ExecutionTimer.MeasureAsync(() => ctxt.Aggregator.RunAsync(() => DisposeTestClass(ctxt, testClassInstance)));
+
+								SetTestContext(ctxt, TestEngineStatus.Running, TestContext.Current.TestState, testClassInstance: null);
+							}
+
+							finished.TrySetResult(null);
 						}
-
-						elapsedTime += await ExecutionTimer.MeasureAsync(() => ctxt.Aggregator.RunAsync(() => DisposeTestClass(ctxt, testClassInstance)));
-
-						SetTestContext(ctxt, TestEngineStatus.Running, TestContext.Current.TestState, testClassInstance: null);
+						catch (Exception ex)
+						{
+							finished.TrySetException(ex);
+						}
 					}
 				}
 			}

@@ -25,7 +25,7 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext, IXunitTest>
 	public static XunitTestRunner Instance = new();
 
 	/// <inheritdoc/>
-	protected override async ValueTask<(object? Instance, SynchronizationContext? SyncContext)> CreateTestClassInstance(XunitTestRunnerContext ctxt)
+	protected override async ValueTask<(object? Instance, SynchronizationContext? SyncContext, ExecutionContext? ExecutionContext)> CreateTestClassInstance(XunitTestRunnerContext ctxt)
 	{
 		Guard.ArgumentNotNull(ctxt);
 
@@ -69,7 +69,7 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext, IXunitTest>
 		if (instance is IAsyncLifetime asyncLifetime)
 			await asyncLifetime.InitializeAsync();
 
-		return (instance, SynchronizationContext.Current);
+		return (instance, SynchronizationContext.Current, ExecutionContext.Capture());
 	}
 
 	/// <inheritdoc/>

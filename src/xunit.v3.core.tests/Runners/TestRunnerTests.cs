@@ -20,7 +20,7 @@ public class TestRunnerTests
 
 			var runner = new TestableTestRunner
 			{
-				CreateTestClassInstance__Result = (testClassInstance, SynchronizationContext.Current),
+				CreateTestClassInstance__Result = testClassInstance,
 				GetTestOutput__Result = "the output",
 				InvokeTestAsync__Lambda = () => Assert.Same(testClassInstance, TestContext.Current.TestClassInstance),
 				OnTestPassed__Result = !cancel,
@@ -210,7 +210,7 @@ public class TestRunnerTests
 		{
 			var runner = new TestableTestRunner
 			{
-				CreateTestClassInstance__Result = (new object(), SynchronizationContext.Current),
+				CreateTestClassInstance__Result = new object(),
 				DisposeTestClassInstance__Lambda = () => throw new DivideByZeroException(),
 			};
 
@@ -311,7 +311,7 @@ public class TestRunnerTests
 		{
 			var runner = new TestableTestRunner
 			{
-				CreateTestClassInstance__Result = (new object(), SynchronizationContext.Current),
+				CreateTestClassInstance__Result = new object(),
 				IsTestClassDisposable__Lambda = () => throw new DivideByZeroException(),
 			};
 
@@ -410,7 +410,7 @@ public class TestRunnerTests
 		{
 			var runner = new TestableTestRunner
 			{
-				CreateTestClassInstance__Result = (new object(), SynchronizationContext.Current),
+				CreateTestClassInstance__Result = new object(),
 				OnTestClassDisposeFinished__Lambda = () => throw new DivideByZeroException(),
 			};
 
@@ -447,7 +447,7 @@ public class TestRunnerTests
 		{
 			var runner = new TestableTestRunner
 			{
-				CreateTestClassInstance__Result = (new object(), SynchronizationContext.Current),
+				CreateTestClassInstance__Result = new object(),
 				OnTestClassDisposeStarting__Lambda = () => throw new DivideByZeroException(),
 			};
 
@@ -884,15 +884,15 @@ public class TestRunnerTests
 		public readonly CancellationTokenSource TokenSource = new();
 
 		public Action? CreateTestClassInstance__Lambda;
-		public (object? Instance, SynchronizationContext? SyncContext)? CreateTestClassInstance__Result;
+		public object? CreateTestClassInstance__Result;
 
-		protected override ValueTask<(object? Instance, SynchronizationContext? SyncContext)> CreateTestClassInstance(TestRunnerContext<ITest> ctxt)
+		protected override ValueTask<(object? Instance, SynchronizationContext? SyncContext, ExecutionContext? ExecutionContext)> CreateTestClassInstance(TestRunnerContext<ITest> ctxt)
 		{
 			Invocations.Add("CreateTestClassInstance");
 
 			CreateTestClassInstance__Lambda?.Invoke();
 
-			return new(CreateTestClassInstance__Result ?? (null, SynchronizationContext.Current));
+			return new((CreateTestClassInstance__Result, SynchronizationContext.Current, ExecutionContext.Capture()));
 		}
 
 		public Action? DisposeTestClassInstance__Lambda;
@@ -927,7 +927,7 @@ public class TestRunnerTests
 			TestRunnerContext<ITest> ctxt,
 			object? testClassInstance)
 		{
-			Assert.Same(CreateTestClassInstance__Result?.Instance, testClassInstance);
+			Assert.Same(CreateTestClassInstance__Result, testClassInstance);
 
 			Invocations.Add($"InvokeTestAsync(testClassInstance: {TypeName(testClassInstance)})");
 

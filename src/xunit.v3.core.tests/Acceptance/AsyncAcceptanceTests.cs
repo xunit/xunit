@@ -62,4 +62,17 @@ public class AsyncAcceptanceTests : AcceptanceTestV3
 			public override void Send(SendOrPostCallback d, object? state) => innerContext?.Send(d, state);
 		}
 	}
+
+	public class AsyncLocalUsage
+	{
+		static readonly AsyncLocal<int> asyncLocal = new();
+
+		public AsyncLocalUsage() =>
+			asyncLocal.Value = 42;
+
+		// https://github.com/xunit/xunit/issues/3033
+		[Fact]
+		public void Test() =>
+			Assert.Equal(42, asyncLocal.Value);
+	}
 }
