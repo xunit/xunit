@@ -36,6 +36,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 	bool stopRequested;
 	readonly Dictionary<string, XElement> testCollectionElements = [];
 	readonly ConcurrentDictionary<string, XElement> testResultElements = [];
+	ManualResetEvent? workerFinished;
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="ExecutionSink"/> class.
@@ -240,8 +241,15 @@ public class ExecutionSink : IMessageSink, IDisposable
 	{
 		GC.SuppressFinalize(this);
 
+		// Make sure the timeout worker is finished, it may be sitting waiting past the time when the final
+		// message has been delivered.
+		Finished.Set();
+		stopEvent?.Set();
+		workerFinished?.WaitOne();
+
 		Finished.Dispose();
 		stopEvent?.Dispose();
+		workerFinished?.Dispose();
 	}
 
 	XElement GetTestCollectionElement(string testCollectionUniqueID)
@@ -305,6 +313,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 		if (executingTestCases is not null)
 		{
 			stopEvent = new ManualResetEvent(initialState: false);
+			workerFinished = new ManualResetEvent(initialState: false);
 			lastTestActivity = UtcNow;
 			ThreadPool.QueueUserWorkItem(ThreadWorker);
 		}
@@ -852,14 +861,9 @@ public class ExecutionSink : IMessageSink, IDisposable
 
 		while (true)
 		{
-			try
+			if (WaitForStopEvent(delayTime))
 			{
-				if (WaitForStopEvent(delayTime))
-					return;
-			}
-			catch (ObjectDisposedException)
-			{
-				// Seeming race condition waiting for the event vs. the event being disposed
+				workerFinished?.Set();
 				return;
 			}
 
