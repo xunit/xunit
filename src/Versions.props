@@ -34,7 +34,7 @@
 
     <!-- Used by xunit.v3.templates (NuGet package) -->
     <MicrosoftNetTestSdkVersion>17.11.1</MicrosoftNetTestSdkVersion>
-    <XunitVisualStudioRunnerVersion>3.0.0-pre.35</XunitVisualStudioRunnerVersion>
+    <XunitVisualStudioRunnerVersion>3.0.0-pre.37</XunitVisualStudioRunnerVersion>
     <!-- Uncomment this line when building RTW packages -->
     <!--<VisualStudioRunnerTemplateVersion>3.0.0</VisualStudioRunnerTemplateVersion>-->
 
