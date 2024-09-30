@@ -25,8 +25,8 @@ public static partial class TestData
 	public const decimal DefaultExecutionTime = 123.4567m;
 	public static DateTimeOffset DefaultFinishTime = new(2024, 07, 04, 21, 12, 9, TimeSpan.Zero);
 	public const string DefaultMethodName = "test-method";
-	public static string[] DefaultMethodParameterTypes = ["System.Int32", "System.String"];
-	public const string DefaultMethodReturnType = "System.Void";
+	public static string[] DefaultMethodParameterTypes = [typeof(int).ToVSTestTypeName(), typeof(string).ToVSTestTypeName()];
+	public static string DefaultMethodReturnType = typeof(void).ToVSTestTypeName();
 	public static Guid DefaultModuleVersionID = new("61aa43e6-1985-4c43-95c4-b146498925a2");
 	public const string DefaultOutput = "test-helper-output";
 	public const string DefaultSkipReason = "skip-reason";

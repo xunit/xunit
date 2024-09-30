@@ -676,6 +676,71 @@ public static class ReflectionExtensions
 						: type.FullName;
 	}
 
+	/// <summary>
+	/// Converts a <see cref="Type"/> name into the correct form for VSTest managed type name for
+	/// using in managed TestCase properties and by xunit.runner.visualstudio.
+	/// </summary>
+	/// <remarks>
+	/// See <see href="https://github.com/microsoft/vstest/blob/main/docs/RFCs/0017-Managed-TestCase-Properties.md"/>
+	/// </remarks>
+	public static string ToVSTestTypeName(
+		this Type type,
+		MethodInfo? testMethod = null,
+		Type? testClass = null)
+	{
+		Guard.ArgumentNotNull(type);
+
+		if (type.IsGenericParameter)
+		{
+			if (testMethod is not null)
+			{
+				var methodGenericArgs = testMethod.GetGenericArguments();
+				for (int i = 0; i < methodGenericArgs.Length; ++i)
+					if (methodGenericArgs[i] == type)
+						return "!!" + i;
+			}
+
+			if (testClass is not null)
+			{
+				var testClassGenericArgs = testClass.GetGenericArguments();
+				for (int i = 0; i < testClassGenericArgs.Length; ++i)
+					if (testClassGenericArgs[i] == type)
+						return "!" + i;
+			}
+		}
+
+		if (!type.IsGenericType)
+			return type.SafeName();
+
+		// We don't use .FullName here because we don't want the generic [[...]] to show up in our name.
+		// So we reconstruct starting with the simple name and work backward from the declaring types
+		// since there's no built-in way to get "Namespace.ParentType+ChildType`1".
+		var baseTypeName = type.Name;
+		var currentType = type.DeclaringType;
+
+		while (currentType is not null)
+		{
+			if (currentType.FullName is not null)
+			{
+				baseTypeName = currentType.FullName + "+" + baseTypeName;
+				break;
+			}
+
+			baseTypeName = currentType.Name + "+" + baseTypeName;
+			currentType = currentType.DeclaringType;
+		}
+
+		if (currentType is null)
+			baseTypeName = type.Namespace + "." + baseTypeName;
+
+		var genericTypes =
+			type
+				.GenericTypeArguments
+				.Select(t => ToVSTestTypeName(t, testMethod, testClass));
+
+		return baseTypeName + "<" + string.Join(",", genericTypes) + ">";
+	}
+
 	static object? TryConvertObject(
 		object? argumentValue,
 		Type parameterType)

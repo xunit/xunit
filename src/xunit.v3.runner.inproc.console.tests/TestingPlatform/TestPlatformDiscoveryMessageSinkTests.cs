@@ -49,8 +49,8 @@ public class TestPlatformDiscoveryMessageSinkTests
 				sourceLineNumber: 42,
 				testClassName: "test-class",
 				testMethodName: "test-method",
-				testMethodParameterTypes: ["int", "string"],
-				testMethodReturnType: "void",
+				testMethodParameterTypesVSTest: ["System.Int32", "System.String"],
+				testMethodReturnTypeVSTest: "System.Void",
 				testClassNamespace: "ns",
 				traits: TestData.DefaultTraits
 			);
@@ -68,8 +68,8 @@ public class TestPlatformDiscoveryMessageSinkTests
 			Assert.Equal(AssemblyFullName, testMethodProperty.AssemblyFullName);
 			Assert.Equal("test-method", testMethodProperty.MethodName);
 			Assert.Equal("ns", testMethodProperty.Namespace);
-			Assert.Equivalent(new[] { "int", "string" }, testMethodProperty.ParameterTypeFullNames);
-			Assert.Equal("void", testMethodProperty.ReturnTypeFullName);
+			Assert.Equivalent(new[] { "System.Int32", "System.String" }, testMethodProperty.ParameterTypeFullNames);
+			Assert.Equal("System.Void", testMethodProperty.ReturnTypeFullName);
 			Assert.Equal("test-class", testMethodProperty.TypeName);
 
 			var testLocationProperty = testNode.Properties.Single<TestFileLocationProperty>();

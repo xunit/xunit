@@ -58,8 +58,8 @@ public static partial class MessageSinkMessageExtensions
 			TestCollectionUniqueID = testCase.TestCollection.UniqueID,
 			TestMethodMetadataToken = testCase.TestMethodMetadataToken,
 			TestMethodName = testCase.TestMethodName,
-			TestMethodParameterTypes = testCase.TestMethodParameterTypes,
-			TestMethodReturnType = testCase.TestMethodReturnType,
+			TestMethodParameterTypesVSTest = testCase.TestMethodParameterTypesVSTest,
+			TestMethodReturnTypeVSTest = testCase.TestMethodReturnTypeVSTest,
 			TestMethodUniqueID = testCase.TestMethod?.UniqueID,
 			Traits = testCase.Traits,
 		};
@@ -94,8 +94,8 @@ public static partial class MessageSinkMessageExtensions
 				TestCollectionUniqueID = discovered.TestCollectionUniqueID,
 				TestMethodMetadataToken = discovered.TestMethodMetadataToken,
 				TestMethodName = discovered.TestMethodName,
-				TestMethodParameterTypes = discovered.TestMethodParameterTypes,
-				TestMethodReturnType = discovered.TestMethodReturnType,
+				TestMethodParameterTypesVSTest = discovered.TestMethodParameterTypesVSTest,
+				TestMethodReturnTypeVSTest = discovered.TestMethodReturnTypeVSTest,
 				TestMethodUniqueID = discovered.TestMethodUniqueID,
 				Traits = discovered.Traits,
 			};

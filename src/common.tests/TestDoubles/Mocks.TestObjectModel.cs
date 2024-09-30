@@ -56,8 +56,8 @@ public static partial class Mocks
 		int testClassMetadataToken = TestData.DefaultTestClassMetadataToken,
 		ITestMethod? testMethod = null,
 		int testMethodMetadataToken = TestData.DefaultTestMethodMetadataToken,
-		string[]? testMethodParameterTypes = null,
-		string testMethodReturnType = "System.Void",
+		string[]? testMethodParameterTypesVSTest = null,
+		string testMethodReturnTypeVSTest = "System.Void",
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
 		string uniqueID = TestData.DefaultTestCaseUniqueID)
 	{
@@ -85,8 +85,8 @@ public static partial class Mocks
 		result.TestMethod.Returns(testMethod);
 		result.TestMethodMetadataToken.Returns(testMethodMetadataToken);
 		result.TestMethodName.Returns(testMethodName);
-		result.TestMethodParameterTypes.Returns(testMethodParameterTypes ?? []);
-		result.TestMethodReturnType.Returns(testMethodReturnType);
+		result.TestMethodParameterTypesVSTest.Returns(testMethodParameterTypesVSTest ?? []);
+		result.TestMethodReturnTypeVSTest.Returns(testMethodReturnTypeVSTest);
 		result.Traits.Returns(traits ?? TestData.DefaultTraits);
 		result.UniqueID.Returns(uniqueID);
 		return result;
@@ -241,8 +241,8 @@ public static partial class Mocks
 		int testClassMetadataToken = TestData.DefaultTestClassMetadataToken,
 		IXunitTestMethod? testMethod = null,
 		int testMethodMetadataToken = TestData.DefaultTestMethodMetadataToken,
-		string[]? testMethodParameterTypes = null,
-		string testMethodReturnType = "System.Void",
+		string[]? testMethodParameterTypesVSTest = null,
+		string testMethodReturnTypeVSTest = "System.Void",
 		int timeout = 0,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
 		string uniqueID = TestData.DefaultTestCaseUniqueID)
@@ -275,8 +275,8 @@ public static partial class Mocks
 		result.TestMethod.Returns(testMethod);
 		result.TestMethodMetadataToken.Returns(testMethodMetadataToken);
 		result.TestMethodName.Returns(testMethodName);
-		result.TestMethodParameterTypes.Returns(testMethodParameterTypes ?? []);
-		result.TestMethodReturnType.Returns(testMethodReturnType);
+		result.TestMethodParameterTypesVSTest.Returns(testMethodParameterTypesVSTest ?? []);
+		result.TestMethodReturnTypeVSTest.Returns(testMethodReturnTypeVSTest);
 		result.Timeout.Returns(timeout);
 		result.Traits.Returns(traits);
 		result.UniqueID.Returns(uniqueID);

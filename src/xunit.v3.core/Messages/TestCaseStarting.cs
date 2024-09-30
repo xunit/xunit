@@ -49,10 +49,10 @@ public partial class TestCaseStarting
 	public required string? TestMethodName { get; set; }
 
 	/// <inheritdoc/>
-	public required string[]? TestMethodParameterTypes { get; set; }
+	public required string[]? TestMethodParameterTypesVSTest { get; set; }
 
 	/// <inheritdoc/>
-	public required string? TestMethodReturnType { get; set; }
+	public required string? TestMethodReturnTypeVSTest { get; set; }
 
 	/// <inheritdoc/>
 	public required IReadOnlyDictionary<string, IReadOnlyCollection<string>> Traits

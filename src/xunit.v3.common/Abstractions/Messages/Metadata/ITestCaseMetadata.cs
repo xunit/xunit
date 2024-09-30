@@ -91,13 +91,23 @@ public interface ITestCaseMetadata
 	/// or the test framework does not provide this information, will return <c>null</c>; if the test
 	/// method has no parameters, will return an empty array.
 	/// </summary>
-	string[]? TestMethodParameterTypes { get; }
+	/// <remarks>
+	/// The values here are formatted according to
+	/// <see href="https://github.com/microsoft/vstest/blob/main/docs/RFCs/0017-Managed-TestCase-Properties.md">VSTest rules</see>
+	/// in order to support Test Explorer. Note that this is not the same as <see cref="Type.FullName"/>.
+	/// </remarks>
+	string[]? TestMethodParameterTypesVSTest { get; }
 
 	/// <summary>
 	/// Gets the test method return type. If the test did not originate in a method, or the test framework
 	/// did not provide this information, will return <c>null</c>.
 	/// </summary>
-	string? TestMethodReturnType { get; }
+	/// <remarks>
+	/// The value here is formatted according to
+	/// <see href="https://github.com/microsoft/vstest/blob/main/docs/RFCs/0017-Managed-TestCase-Properties.md">VSTest rules</see>
+	/// in order to support Test Explorer. Note that this is not the same as <see cref="Type.FullName"/>.
+	/// </remarks>
+	string? TestMethodReturnTypeVSTest { get; }
 
 	/// <summary>
 	/// Gets the trait values associated with this test case. If there are none, or the framework

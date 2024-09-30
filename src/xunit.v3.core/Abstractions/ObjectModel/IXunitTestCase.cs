@@ -91,12 +91,22 @@ public interface IXunitTestCase : ITestCase
 	/// <summary>
 	/// Gets the types for the test method parameters.
 	/// </summary>
-	new string[] TestMethodParameterTypes { get; }
+	/// <remarks>
+	/// The values here are formatted according to
+	/// <see href="https://github.com/microsoft/vstest/blob/main/docs/RFCs/0017-Managed-TestCase-Properties.md">VSTest rules</see>
+	/// in order to support Test Explorer. Note that this is not the same as <see cref="Type.FullName"/>.
+	/// </remarks>
+	new string[] TestMethodParameterTypesVSTest { get; }
 
 	/// <summary>
 	/// Gets the test method return type.
 	/// </summary>
-	new string TestMethodReturnType { get; }
+	/// <remarks>
+	/// The value here is formatted according to
+	/// <see href="https://github.com/microsoft/vstest/blob/main/docs/RFCs/0017-Managed-TestCase-Properties.md">VSTest rules</see>
+	/// in order to support Test Explorer. Note that this is not the same as <see cref="Type.FullName"/>.
+	/// </remarks>
+	new string TestMethodReturnTypeVSTest { get; }
 
 	/// <summary>
 	/// Gets the timeout of the test, in milliseconds; if zero or negative, means the test case has no timeout.

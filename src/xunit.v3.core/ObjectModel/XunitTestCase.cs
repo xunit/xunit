@@ -169,12 +169,12 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 		TestMethod.MethodName;
 
 	/// <inheritdoc/>
-	public string[] TestMethodParameterTypes =>
-		TestMethod.Parameters.Select(p => p.ParameterType.SafeName()).ToArray();
+	public string[] TestMethodParameterTypesVSTest =>
+		TestMethod.Parameters.Select(p => p.ParameterType.ToVSTestTypeName(TestMethod.Method, TestClass.Class)).ToArray();
 
 	/// <inheritdoc/>
-	public string TestMethodReturnType =>
-		TestMethod.ReturnType.SafeName();
+	public string TestMethodReturnTypeVSTest =>
+		TestMethod.ReturnType.ToVSTestTypeName();
 
 	/// <inheritdoc/>
 	public int Timeout { get; private set; }
