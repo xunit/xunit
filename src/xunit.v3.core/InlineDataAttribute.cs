@@ -12,13 +12,13 @@ namespace Xunit;
 /// </summary>
 /// <param name="data">The data values to pass to the theory.</param>
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
-public sealed class InlineDataAttribute(params object?[] data) : DataAttribute
+public sealed class InlineDataAttribute(params object?[]? data) : DataAttribute
 {
 	/// <summary>
 	/// Gets the data to be passed to the test.
 	/// </summary>
-	// When nullable isn't enabled, it becomes legal to pass null to the constructor, and
-	// we assume what the user meant was a single null value to be passed to the test.
+	// If the user passes null to the constructor, we assume what they meant was a
+	// single null value to be passed to the test.
 	public object?[] Data { get; } = data ?? [null];
 
 	/// <inheritdoc/>

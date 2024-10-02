@@ -67,7 +67,7 @@ public class Xunit3TheoryAcceptanceTests
 			}
 
 			[Theory]
-			[InlineData(null!)]
+			[InlineData(null)]
 			public void OneOptional_OneNullParameter_OneNullPassed(string? s = null)
 			{
 				Assert.Null(s);
@@ -156,7 +156,7 @@ public class Xunit3TheoryAcceptanceTests
 			}
 
 			[Theory]
-			[InlineData(null!)]
+			[InlineData(null)]
 			public void OneParameter_OnePassed_Null(params object?[] array)
 			{
 				Assert.Null(array);
@@ -956,7 +956,7 @@ public class Xunit3TheoryAcceptanceTests
 		class ClassUnderTestForNullValues
 		{
 			[Theory]
-			[InlineData(null!)]
+			[InlineData(null)]
 			public void TestMethod(string? _) { }
 		}
 
