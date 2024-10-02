@@ -243,13 +243,13 @@ public class ExecutionSink : IMessageSink, IDisposable
 
 		// Make sure the timeout worker is finished, it may be sitting waiting past the time when the final
 		// message has been delivered.
-		Finished.Set();
-		stopEvent?.Set();
+		Finished.SafeSet();
+		stopEvent?.SafeSet();
 		workerFinished?.WaitOne();
 
-		Finished.Dispose();
-		stopEvent?.Dispose();
-		workerFinished?.Dispose();
+		Finished.SafeDispose();
+		stopEvent?.SafeDispose();
+		workerFinished?.SafeDispose();
 	}
 
 	XElement GetTestCollectionElement(string testCollectionUniqueID)
@@ -812,8 +812,8 @@ public class ExecutionSink : IMessageSink, IDisposable
 		// per https://github.com/xunit/visualstudio.xunit/issues/396
 		if (stopRequested)
 		{
-			Finished.Set();
-			stopEvent?.Set();
+			Finished.SafeSet();
+			stopEvent?.SafeSet();
 		}
 
 		return result;
@@ -863,7 +863,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 		{
 			if (WaitForStopEvent(delayTime))
 			{
-				workerFinished?.Set();
+				workerFinished?.SafeSet();
 				return;
 			}
 
