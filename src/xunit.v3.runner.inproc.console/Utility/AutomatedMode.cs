@@ -8,15 +8,15 @@ public enum AutomatedMode
 	/// <summary>
 	/// We are running in non-automated mode
 	/// </summary>
-	Off = 1,
+	Off = 0,
 
 	/// <summary>
 	/// We are running in automated mode, without synchronous message reporting
 	/// </summary>
-	Async = 2,
+	Async = 1,
 
 	/// <summary>
 	/// We are running in automated mode, with synchronous message reporting
 	/// </summary>
-	Sync = 3,
+	Sync = 2,
 }
