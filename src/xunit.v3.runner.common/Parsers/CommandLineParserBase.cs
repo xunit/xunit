@@ -325,7 +325,9 @@ public abstract class CommandLineParserBase
 	void OnClassMinus(KeyValuePair<string, string?> option)
 	{
 		if (option.Value is null)
-			throw new ArgumentException("missing argument for -class-");
+#pragma warning disable CA1308  // This is for UI purposes, not normalization purposes
+			throw new ArgumentException("missing argument for " + option.Key.ToLowerInvariant());
+#pragma warning restore CA1308
 
 		foreach (var projectAssembly in Project.Assemblies)
 			projectAssembly.Configuration.Filters.AddExcludedClassFilter(option.Value);
@@ -520,7 +522,9 @@ public abstract class CommandLineParserBase
 	void OnMethodMinus(KeyValuePair<string, string?> option)
 	{
 		if (option.Value is null)
-			throw new ArgumentException("missing argument for -method-");
+#pragma warning disable CA1308  // This is for UI purposes, not normalization purposes
+			throw new ArgumentException("missing argument for " + option.Key.ToLowerInvariant());
+#pragma warning restore CA1308
 
 		foreach (var projectAssembly in Project.Assemblies)
 			projectAssembly.Configuration.Filters.AddExcludedMethodFilter(option.Value);
@@ -538,7 +542,9 @@ public abstract class CommandLineParserBase
 	void OnNamespaceMinus(KeyValuePair<string, string?> option)
 	{
 		if (option.Value is null)
-			throw new ArgumentException("missing argument for -namespace-");
+#pragma warning disable CA1308  // This is for UI purposes, not normalization purposes
+			throw new ArgumentException("missing argument for " + option.Key.ToLowerInvariant());
+#pragma warning restore CA1308
 
 		foreach (var projectAssembly in Project.Assemblies)
 			projectAssembly.Configuration.Filters.AddExcludedNamespaceFilter(option.Value);
@@ -649,7 +655,9 @@ public abstract class CommandLineParserBase
 	void OnTraitMinus(KeyValuePair<string, string?> option)
 	{
 		if (option.Value is null)
-			throw new ArgumentException("missing argument for -trait-");
+#pragma warning disable CA1308  // This is for UI purposes, not normalization purposes
+			throw new ArgumentException("missing argument for " + option.Key.ToLowerInvariant());
+#pragma warning restore CA1308
 
 		var pieces = option.Value.Split('=');
 		if (pieces.Length != 2 || string.IsNullOrEmpty(pieces[0]) || string.IsNullOrEmpty(pieces[1]))
