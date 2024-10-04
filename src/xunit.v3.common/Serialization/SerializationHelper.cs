@@ -71,6 +71,8 @@ public static class SerializationHelper
 			{ TypeIndex.TimeSpan, v => TimeSpan.Parse(v, CultureInfo.InvariantCulture) },
 			{ TypeIndex.BigInteger, v => BigInteger.Parse(v, CultureInfo.InvariantCulture) },
 			{ TypeIndex.Version, Version.Parse },
+			{ TypeIndex.Guid, v => Guid.Parse(v) },
+			{ TypeIndex.Uri, v => new Uri(FromBase64(v), UriKind.RelativeOrAbsolute) },
 		};
 
 		if (dateOnlyFromDayNumber is not null)
@@ -111,6 +113,8 @@ public static class SerializationHelper
 			{ TypeIndex.TimeSpan, (v, _) => ((TimeSpan)v).ToString("c", CultureInfo.InvariantCulture) },
 			{ TypeIndex.BigInteger, (v, _) => ((BigInteger)v).ToString(CultureInfo.InvariantCulture) },
 			{ TypeIndex.Version, (v, _) => ((Version)v).ToString() },
+			{ TypeIndex.Guid, (v, _) => ((Guid)v).ToString("N") },
+			{ TypeIndex.Uri, (v, _) => ToBase64(((Uri)v).OriginalString) },
 		};
 
 		if (dateOnlyDayNumber is not null)
@@ -151,6 +155,8 @@ public static class SerializationHelper
 			{ TypeIndex.TimeSpan, typeof(TimeSpan) },
 			{ TypeIndex.BigInteger, typeof(BigInteger) },
 			{ TypeIndex.Version, typeof(Version) },
+			{ TypeIndex.Guid, typeof(Guid) },
+			{ TypeIndex.Uri, typeof(Uri) },
 		};
 
 		if (dateOnlyType is not null)
@@ -710,8 +716,10 @@ public static class SerializationHelper
 		Version = 20,
 		Index = 21,
 		Range = 22,
+		Guid = 23,
+		Uri = 24,
 	}
 
 	const TypeIndex TypeIndex_MinValue = TypeIndex.Type;
-	const TypeIndex TypeIndex_MaxValue = TypeIndex.Range;
+	const TypeIndex TypeIndex_MaxValue = TypeIndex.Uri;
 }

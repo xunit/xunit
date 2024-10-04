@@ -42,6 +42,9 @@ public class SerializationHelperTests
 		{ new Index(42, fromEnd: true), "21:^42" },
 		{ new Range(10, new Index(10, fromEnd: true)), "22:10..^10" },
 #endif
+		{ new Guid("cbe55b7a-51ad-4e97-a3d9-e41e1db75364"), "23:cbe55b7a51ad4e97a3d9e41e1db75364" },
+		{ new Uri("https://xunit.net/"), $"24:{ToBase64("https://xunit.net/")}" },  // Absolute
+		{ new Uri("a/b#c", UriKind.Relative), $"24:{ToBase64("a/b#c")}" },          // Relative
 
 		// Arrays use array notation for embedded types, plus this serialization format:
 		//   r = ranks, tl = total length, l[n] = length of rank n, lb[n] = lower bound of rank n, i[n] = item[n]
@@ -121,6 +124,8 @@ public class SerializationHelperTests
 		{ typeof(Index?), "21?" },
 		{ typeof(Range?), "22?" },
 #endif
+		{ typeof(Guid?), "23?" },
+		{ typeof(Uri), "24" },
 	};
 
 	public class Deserialize
