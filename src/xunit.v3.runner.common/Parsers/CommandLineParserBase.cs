@@ -159,7 +159,7 @@ public abstract class CommandLineParserBase
 		);
 		AddParser(
 			"namespace", OnNamespace, CommandLineGroup.FilterSimple, "\"name\"",
-			"run all methods in a given namespace (i.e., 'MyNamespace.MySubNamespace';" +
+			"run all methods in a given namespace (i.e., 'MyNamespace.MySubNamespace';",
 			"wildcard '*' is supported at the beginning and/or end of the filter)",
 			"  if specified more than once, acts as an OR operation"
 		);
