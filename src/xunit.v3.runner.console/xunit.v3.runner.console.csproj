@@ -9,6 +9,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\xunit.v3.core\Package\Content\DefaultRunnerReporters.cs" LinkBase="Common" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ILRepackExclusions Include="$(OutputPath)xunit.abstractions.dll" />
   </ItemGroup>
 

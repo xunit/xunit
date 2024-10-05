@@ -10,16 +10,24 @@ namespace Xunit.Runner.Common;
 public class JsonReporter : IRunnerReporter
 {
 	/// <inheritdoc/>
-	public string Description => "show progress messages in JSON format";
+	public bool CanBeEnvironmentallyEnabled =>
+		false;
 
 	/// <inheritdoc/>
-	public bool ForceNoLogo => true;
+	public string Description =>
+		"show full progress messages in JSON";
 
 	/// <inheritdoc/>
-	public bool IsEnvironmentallyEnabled => false;
+	public bool ForceNoLogo =>
+		true;
 
 	/// <inheritdoc/>
-	public string? RunnerSwitch => "json";
+	public bool IsEnvironmentallyEnabled =>
+		false;
+
+	/// <inheritdoc/>
+	public string? RunnerSwitch =>
+		"json";
 
 	/// <inheritdoc/>
 	public ValueTask<IRunnerReporterMessageHandler> CreateMessageHandler(

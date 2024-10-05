@@ -12,6 +12,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\xunit.v3.core\Package\Content\DefaultRunnerReporters.cs" LinkBase="Common" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="..\..\tools\builder\msbuild\netfx.proj" LinkBase="builder" />
   </ItemGroup>
 

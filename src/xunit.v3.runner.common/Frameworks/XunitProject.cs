@@ -23,6 +23,11 @@ public class XunitProject
 	public TestProjectConfiguration Configuration { get; } = new();
 
 	/// <summary>
+	/// Gets a flag indicating whether <see cref="RunnerReporter"/> has been set yet or not.
+	/// </summary>
+	public bool HasRunnerReporter => runnerReporter is not null;
+
+	/// <summary>
 	/// Gets or sets the runner reporter.
 	/// </summary>
 	public IRunnerReporter RunnerReporter

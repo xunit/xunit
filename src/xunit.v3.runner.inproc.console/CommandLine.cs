@@ -84,6 +84,26 @@ public class CommandLine : CommandLineParserBase
 	}
 
 	/// <summary/>
+	protected override IReadOnlyList<IRunnerReporter> GetAvailableRunnerReporters()
+	{
+		var result = RegisteredRunnerReporters.Get(assembly, out var messages);
+
+		if (messages.Count != 0)
+		{
+			if (!Project.Configuration.NoColorOrDefault)
+				ConsoleHelper.SetForegroundColor(ConsoleColor.Yellow);
+
+			foreach (var message in messages)
+				ConsoleHelper.WriteLine(message);
+
+			if (!Project.Configuration.NoColorOrDefault)
+				ConsoleHelper.ResetColor();
+		}
+
+		return result;
+	}
+
+	/// <summary/>
 	protected override Assembly LoadAssembly(string dllFile) =>
 #if NETFRAMEWORK
 		Assembly.LoadFile(dllFile);

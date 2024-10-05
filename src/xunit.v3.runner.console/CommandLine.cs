@@ -83,6 +83,10 @@ public class CommandLine : CommandLineParserBase
 	}
 
 	/// <summary/>
+	protected override IReadOnlyList<IRunnerReporter> GetAvailableRunnerReporters() =>
+		RegisteredRunnerReporters.Get(typeof(CommandLine).Assembly, out _);
+
+	/// <summary/>
 	protected override Assembly LoadAssembly(string dllFile) =>
 #if NETFRAMEWORK
 		Assembly.LoadFile(dllFile);

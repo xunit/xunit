@@ -182,7 +182,17 @@ public abstract class CommandLineParserBase
 			"  if specified more than once, acts as an AND operation"
 		);
 
-		// Deprecated/hidden options
+		// Reporter is hidden because the available list is dynamic
+		AddHiddenParser("reporter", OnReporter);
+
+		// Deprecated reporter switches
+		AddHiddenParser("json", kvp => OnReporter(new("-reporter", "json")));
+		AddHiddenParser("quiet", kvp => OnReporter(new("-reporter", "quiet")));
+		AddHiddenParser("silent", kvp => OnReporter(new("-reporter", "silent")));
+		AddHiddenParser("teamcity", kvp => OnReporter(new("-reporter", "teamcity")));
+		AddHiddenParser("verbose", kvp => OnReporter(new("-reporter", "verbose")));
+
+		// Deprecated filters
 		AddHiddenParser("noclass", OnClassMinus);
 		AddHiddenParser("nomethod", OnMethodMinus);
 		AddHiddenParser("nonamespace", OnNamespaceMinus);
@@ -266,27 +276,8 @@ public abstract class CommandLineParserBase
 		return args;
 	}
 
-	List<IRunnerReporter> GetAvailableRunnerReporters()
-	{
-		if (string.IsNullOrWhiteSpace(reporterFolder))
-			return [];
-
-		var result = RunnerReporterUtility.GetAvailableRunnerReporters(reporterFolder, includeEmbeddedReporters: true, out var messages);
-
-		if (messages.Count != 0)
-		{
-			if (!Project.Configuration.NoColorOrDefault)
-				ConsoleHelper.SetForegroundColor(ConsoleColor.Yellow);
-
-			foreach (var message in messages)
-				ConsoleHelper.WriteLine(message);
-
-			if (!Project.Configuration.NoColorOrDefault)
-				ConsoleHelper.ResetColor();
-		}
-
-		return result;
-	}
+	/// <summary/>
+	protected abstract IReadOnlyList<IRunnerReporter> GetAvailableRunnerReporters();
 
 	/// <summary/>
 	[return: NotNullIfNotNull(nameof(fileName))]
@@ -622,6 +613,36 @@ public abstract class CommandLineParserBase
 			projectAssembly.Configuration.PreEnumerateTheories = true;
 	}
 
+	void OnReporter(KeyValuePair<string, string?> option)
+	{
+		if (option.Value is null)
+			throw new ArgumentException("missing argument for -reporter");
+
+		if (Project.HasRunnerReporter)
+			throw new ArgumentException("cannot specify more than one reporter");
+
+		var switchedReporters = RunnerReporters.Where(r => !string.IsNullOrWhiteSpace(r.RunnerSwitch)).ToList();
+		if (switchedReporters.Count == 0)
+			throw new ArgumentException(
+				string.Format(
+					CultureInfo.CurrentCulture,
+					"unknown reporter '{0}' (there are no registered reporters with switches)",
+					option.Value
+				)
+			);
+
+		Project.RunnerReporter =
+			switchedReporters.FirstOrDefault(r => option.Value.Equals(r.RunnerSwitch, StringComparison.OrdinalIgnoreCase))
+				?? throw new ArgumentException(
+					string.Format(
+						CultureInfo.CurrentCulture,
+						"unknown reporter '{0}' (must be one of: {1})",
+						option.Value,
+						string.Join(", ", switchedReporters.OrderBy(r => r.RunnerSwitch).Select(r => "'" + r.RunnerSwitch + "'"))
+					)
+				);
+	}
+
 	void OnShowLiveOutput(KeyValuePair<string, string?> option)
 	{
 		GuardNoOptionValue(option);
@@ -687,7 +708,6 @@ public abstract class CommandLineParserBase
 	protected XunitProject ParseInternal(int argStartIndex)
 	{
 		var arguments = new Stack<string>();
-		var unknownOptions = new List<string>();
 
 		for (var i = Args.Count - 1; i >= argStartIndex; i--)
 			arguments.Push(Args[i]);
@@ -716,35 +736,23 @@ public abstract class CommandLineParserBase
 
 					Project.Configuration.Output.Add(optionName, option.Value);
 				}
-				// ...or it might be a reporter (we won't know until later)
 				else
-				{
-					GuardNoOptionValue(option);
-					unknownOptions.Add(optionName);
-				}
+					throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "unknown option: {0}", option.Key));
 			}
 		}
 
-		// Determine the runner reporter while validating the unknown parsed options
-		runnerReporters ??= GetAvailableRunnerReporters();
-
-		var runnerReporter = default(IRunnerReporter);
 		var autoReporter =
 			Project.Configuration.NoAutoReportersOrDefault
 				? null
-				: runnerReporters.FirstOrDefault(r => r.IsEnvironmentallyEnabled);
+				: RunnerReporters.FirstOrDefault(r => r.IsEnvironmentallyEnabled);
 
-		foreach (var unknownOption in unknownOptions)
-		{
-			var reporter = runnerReporters.FirstOrDefault(r => unknownOption.Equals(r.RunnerSwitch, StringComparison.OrdinalIgnoreCase)) ?? throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "unknown option: -{0}", unknownOption));
+		if (autoReporter is not null)
+			Project.RunnerReporter = autoReporter;
 
-			if (runnerReporter is not null)
-				throw new ArgumentException("only one reporter is allowed");
-
-			runnerReporter = reporter;
-		}
-
-		Project.RunnerReporter = autoReporter ?? runnerReporter ?? new DefaultRunnerReporter();
+		if (!Project.HasRunnerReporter)
+			Project.RunnerReporter =
+				RunnerReporters.FirstOrDefault(r => "default".Equals(r.RunnerSwitch, StringComparison.OrdinalIgnoreCase))
+					?? new DefaultRunnerReporter();
 
 		return Project;
 	}
@@ -770,17 +778,39 @@ public abstract class CommandLineParserBase
 
 		if (RunnerReporters.Count > 0)
 		{
+			var switchableRunners = RunnerReporters.Where(r => !string.IsNullOrWhiteSpace(r.RunnerSwitch)).OrderBy(r => r.RunnerSwitch).ToList();
+
 			ConsoleHelper.WriteLine();
-			ConsoleHelper.WriteLine("Reporters (optional, choose only one)");
-			ConsoleHelper.WriteLine();
+			ConsoleHelper.WriteLine("Runner reporters ({0})", switchableRunners.Count != 0 ? "optional, choose only one" : "environmentally enabled");
 
-			var longestSwitch = RunnerReporters.Max(r => r.RunnerSwitch?.Length ?? 0);
+			if (switchableRunners.Count != 0)
+			{
+				var longestSwitch = switchableRunners.Max(r => r.RunnerSwitch!.Length);
 
-			foreach (var switchableReporter in RunnerReporters.Where(r => !string.IsNullOrWhiteSpace(r.RunnerSwitch)).OrderBy(r => r.RunnerSwitch))
-				ConsoleHelper.WriteLine("  -{0} : {1}", switchableReporter.RunnerSwitch!.PadRight(longestSwitch), switchableReporter.Description);
+				ConsoleHelper.WriteLine();
+				ConsoleHelper.WriteLine("  -reporter <option> : choose a reporter");
 
-			foreach (var environmentalReporter in RunnerReporters.Where(r => string.IsNullOrWhiteSpace(r.RunnerSwitch)).OrderBy(r => r.Description))
-				ConsoleHelper.WriteLine("   {0} : {1} [auto-enabled only]", "".PadRight(longestSwitch), environmentalReporter.Description);
+				foreach (var switchableReporter in switchableRunners)
+					ConsoleHelper.WriteLine(
+						"                     :   {0} - {1}{2}",
+						switchableReporter.RunnerSwitch!.PadRight(longestSwitch),
+						switchableReporter.Description,
+						switchableReporter.ForceNoLogo ? " [implies '-noLogo']" : string.Empty
+					);
+			}
+
+			var environmentalRunners = RunnerReporters.Where(r => r.CanBeEnvironmentallyEnabled).OrderBy(r => r.Description).ToList();
+			if (environmentalRunners.Count != 0)
+			{
+				ConsoleHelper.WriteLine();
+				ConsoleHelper.WriteLine("  The following reporters will be automatically enabled in the appropriate environment.");
+				ConsoleHelper.WriteLine("  An automatically enabled reporter will override a manually selected reporter.");
+				ConsoleHelper.WriteLine("    Note: You can disable auto-enabled reporters by specifying the '-noAutoReporters' switch");
+				ConsoleHelper.WriteLine();
+
+				foreach (var environmentalReporter in environmentalRunners)
+					ConsoleHelper.WriteLine("    * {0}", environmentalReporter.Description);
+			}
 		}
 
 		if (TransformFactory.AvailableTransforms.Count != 0)

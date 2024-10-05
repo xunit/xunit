@@ -9,7 +9,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -520,21 +519,8 @@ public class xunit : MSBuildTask, ICancelableTask
 	}
 
 	/// <summary/>
-	protected virtual List<IRunnerReporter> GetAvailableRunnerReporters()
-	{
-		var runnerPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetLocalCodeBase());
-		if (runnerPath is null)
-			return [];
-
-		var result = RunnerReporterUtility.GetAvailableRunnerReporters(runnerPath, includeEmbeddedReporters: true, out var messages);
-
-		if (messages.Count != 0)
-			lock (logLock)
-				foreach (var message in messages)
-					Log.LogWarning(message);
-
-		return result;
-	}
+	protected virtual IReadOnlyList<IRunnerReporter> GetAvailableRunnerReporters() =>
+		RegisteredRunnerReporters.Get(typeof(xunit).Assembly, out _);
 
 	/// <summary/>
 	protected IRunnerReporter? GetReporter()

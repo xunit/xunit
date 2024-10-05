@@ -9,16 +9,24 @@ namespace Xunit.Runner.Common;
 public class QuietReporter : IRunnerReporter
 {
 	/// <inheritdoc/>
-	public string Description => "do not show progress messages";
+	public bool CanBeEnvironmentallyEnabled =>
+		false;
 
 	/// <inheritdoc/>
-	public bool ForceNoLogo => false;
+	public string Description =>
+		"only show failure messages";
 
 	/// <inheritdoc/>
-	public bool IsEnvironmentallyEnabled => false;
+	public bool ForceNoLogo =>
+		false;
 
 	/// <inheritdoc/>
-	public string RunnerSwitch => "quiet";
+	public bool IsEnvironmentallyEnabled =>
+		false;
+
+	/// <inheritdoc/>
+	public string RunnerSwitch =>
+		"quiet";
 
 	/// <inheritdoc/>
 	public ValueTask<IRunnerReporterMessageHandler> CreateMessageHandler(

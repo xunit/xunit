@@ -10,16 +10,24 @@ namespace Xunit.Runner.Common;
 public class VerboseReporter : IRunnerReporter
 {
 	/// <inheritdoc/>
-	public string Description => "show verbose progress messages";
+	public bool CanBeEnvironmentallyEnabled =>
+		false;
 
 	/// <inheritdoc/>
-	public bool ForceNoLogo => false;
+	public string Description =>
+		"show verbose progress messages";
 
 	/// <inheritdoc/>
-	public bool IsEnvironmentallyEnabled => false;
+	public bool ForceNoLogo =>
+		false;
 
 	/// <inheritdoc/>
-	public string RunnerSwitch => "verbose";
+	public bool IsEnvironmentallyEnabled =>
+		false;
+
+	/// <inheritdoc/>
+	public string RunnerSwitch =>
+		"verbose";
 
 	/// <inheritdoc/>
 	public ValueTask<IRunnerReporterMessageHandler> CreateMessageHandler(

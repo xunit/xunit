@@ -73,4 +73,11 @@ public static class EnumerableExtensions
 	public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T?> source)
 		where T : struct =>
 			source.Where(x => x.HasValue).Select(x => x!.Value);
+
+	/// <summary>
+	/// Returns <paramref name="source"/> with all the <c>null</c> or whitespace-only strings removed.
+	/// </summary>
+	public static IEnumerable<string> WhereNotNullOrWhitespace(this IEnumerable<string?> source) =>
+		source.Where(s => !string.IsNullOrWhiteSpace(s))!;
+
 }

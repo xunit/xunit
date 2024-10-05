@@ -11,17 +11,24 @@ namespace Xunit.Runner.Common;
 public class TeamCityReporter : IRunnerReporter
 {
 	/// <inheritdoc/>
-	public string Description => "TeamCity CI support [normally auto-enabled]";
+	public bool CanBeEnvironmentallyEnabled =>
+		true;
 
 	/// <inheritdoc/>
-	public bool ForceNoLogo => false;
+	public string Description =>
+		"TeamCity CI support";
+
+	/// <inheritdoc/>
+	public bool ForceNoLogo =>
+		false;
 
 	/// <inheritdoc/>
 	public bool IsEnvironmentallyEnabled =>
 		!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("TEAMCITY_PROJECT_NAME"));
 
 	/// <inheritdoc/>
-	public string RunnerSwitch => "teamCity";
+	public string RunnerSwitch =>
+		"teamCity";
 
 	/// <inheritdoc/>
 	public ValueTask<IRunnerReporterMessageHandler> CreateMessageHandler(

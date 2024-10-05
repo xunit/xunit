@@ -697,7 +697,7 @@ public class CommandLineTests
 		public void ExplicitReporter_NoEnvironmentalOverride_UsesExplicitReporter()
 		{
 			var explicitReporter = Mocks.RunnerReporter("switch");
-			var commandLine = new TestableCommandLine([explicitReporter], typeof(CommandLineTests).Assembly.Location, "no-config.json", "-switch");
+			var commandLine = new TestableCommandLine([explicitReporter], typeof(CommandLineTests).Assembly.Location, "no-config.json", "-reporter", "switch");
 
 			var project = commandLine.Parse();
 
@@ -709,7 +709,7 @@ public class CommandLineTests
 		{
 			var explicitReporter = Mocks.RunnerReporter("switch");
 			var implicitReporter = Mocks.RunnerReporter(isEnvironmentallyEnabled: true);
-			var commandLine = new TestableCommandLine([explicitReporter, implicitReporter], typeof(CommandLineTests).Assembly.Location, "no-config.json", "-switch");
+			var commandLine = new TestableCommandLine([explicitReporter, implicitReporter], typeof(CommandLineTests).Assembly.Location, "no-config.json", "-reporter", "switch");
 
 			var project = commandLine.Parse();
 

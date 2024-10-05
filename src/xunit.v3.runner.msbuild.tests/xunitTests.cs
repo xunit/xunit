@@ -194,7 +194,7 @@ public class xunitTests
 
 	public class Testable_xunit : xunit
 	{
-		public readonly List<IRunnerReporter> AvailableReporters = new();
+		public readonly List<IRunnerReporter> AvailableReporters = [];
 
 		public Testable_xunit()
 			: this(0)
@@ -207,7 +207,7 @@ public class xunitTests
 			ExitCode = exitCode;
 		}
 
-		protected override List<IRunnerReporter> GetAvailableRunnerReporters() =>
+		protected override IReadOnlyList<IRunnerReporter> GetAvailableRunnerReporters() =>
 			AvailableReporters;
 
 		public new IRunnerReporter? GetReporter() =>

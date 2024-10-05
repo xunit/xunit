@@ -12,6 +12,18 @@ namespace Xunit.Runner.Common;
 public interface IRunnerReporter
 {
 	/// <summary>
+	/// Gets a value which indicates if it's possible for this reporter to be environmentally
+	/// enabled.
+	/// </summary>
+	/// <remarks>
+	/// Note that this differs from <see cref="IsEnvironmentallyEnabled"/> which checks to see whether
+	/// the conditions currently exist to environmentally enable the reporter. This value is used when
+	/// constructing the console runner help output that lists which runners might be environmentally
+	/// enabled.
+	/// </remarks>
+	bool CanBeEnvironmentallyEnabled { get; }
+
+	/// <summary>
 	/// Gets the description of the reporter. This is typically used when showing
 	/// the user the invocation option for the reporter.
 	/// </summary>
@@ -28,6 +40,17 @@ public interface IRunnerReporter
 	/// Gets a value which indicates whether the reporter should be
 	/// environmentally enabled.
 	/// </summary>
+	/// <remarks>
+	/// When a runner reporter is environmentally enabled in Microsoft Testing Platform
+	/// CLI mode (or <c>dotnet test</c>), by default all realtime output is filtered except
+	/// calls to <see cref="IRunnerLogger.LogRaw"/> (unless the user has specified the
+	/// <c>--xunit-info</c> switch). Environmentally enabled reporters that require
+	/// realtime console output (for example, to send formatted messages to a CI system
+	/// which parses the console output) must use <see cref="IRunnerLogger.LogRaw"/> to
+	/// ensure those messages will always be visible. All other messages will always be
+	/// output to the Microsoft Testing Platform diagnostic logs, which are enabled via
+	/// the <c>--diagnostic</c> switch.
+	/// </remarks>
 	bool IsEnvironmentallyEnabled { get; }
 
 	/// <summary>
@@ -37,6 +60,11 @@ public interface IRunnerReporter
 	/// This value is used either as a command line switch (with the console or
 	/// .NET CLI runner) or as a runner configuration value (with the MSBuild runner).
 	/// </summary>
+	/// <remarks>
+	/// Runner switches are only used in xUnit.net native CLI mode. When Microsoft
+	/// Testing Platform CLI mode is enabled, reporters are only supported via environmental
+	/// enablement, since MTP generally controls all the normal output.
+	/// </remarks>
 	string? RunnerSwitch { get; }
 
 	/// <summary>

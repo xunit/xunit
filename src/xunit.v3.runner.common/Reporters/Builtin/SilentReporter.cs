@@ -11,8 +11,12 @@ namespace Xunit.Runner.Common;
 public class SilentReporter : IRunnerReporter
 {
 	/// <inheritdoc/>
+	public bool CanBeEnvironmentallyEnabled =>
+		false;
+
+	/// <inheritdoc/>
 	public string Description =>
-		"turns off all output messages";
+		"do not show any messages";
 
 	/// <inheritdoc/>
 	public bool ForceNoLogo =>

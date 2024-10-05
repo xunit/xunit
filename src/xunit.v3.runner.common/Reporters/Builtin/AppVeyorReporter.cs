@@ -13,17 +13,24 @@ namespace Xunit.Runner.Common;
 public class AppVeyorReporter : IRunnerReporter
 {
 	/// <inheritdoc/>
-	public string Description => "AppVeyor CI support";
+	public bool CanBeEnvironmentallyEnabled =>
+		true;
 
 	/// <inheritdoc/>
-	public bool ForceNoLogo => false;
+	public string Description =>
+		"AppVeyor CI support";
+
+	/// <inheritdoc/>
+	public bool ForceNoLogo =>
+		false;
 
 	/// <inheritdoc/>
 	public bool IsEnvironmentallyEnabled =>
 		!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("APPVEYOR_API_URL"));
 
 	/// <inheritdoc/>
-	public string? RunnerSwitch => null;
+	public string? RunnerSwitch =>
+		null;
 
 	/// <inheritdoc/>
 	public ValueTask<IRunnerReporterMessageHandler> CreateMessageHandler(

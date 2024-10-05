@@ -255,12 +255,9 @@ public class TestPlatformTestFramework :
 				if (commandLineOptions.TryGetOptionArgumentList("auto-reporters", out var autoReportersArguments))
 					supportAutoReporters = string.Equals(autoReportersArguments[0], "on", StringComparison.OrdinalIgnoreCase);
 
-				var autoReporter =
-					supportAutoReporters
-						? RunnerReporterUtility.GetAvailableRunnerReporters(assemblyFolder, includeEmbeddedReporters: true, out var _).FirstOrDefault(r => r.IsEnvironmentallyEnabled)
-						: default;
-
-				var reporter = autoReporter ?? new DefaultRunnerReporter();
+				var reporters = RegisteredRunnerReporters.Get(testAssembly, out _);
+				var autoReporter = supportAutoReporters ? reporters.FirstOrDefault(r => r.IsEnvironmentallyEnabled) : default;
+				var reporter = autoReporter ?? reporters.FirstOrDefault(r => "default".Equals(r.RunnerSwitch, StringComparison.OrdinalIgnoreCase)) ?? new DefaultRunnerReporter();
 				var reporterMessageHandler = reporter.CreateMessageHandler(runnerLogger, diagnosticMessageSink).SpinWait();
 
 				return new TestPlatformTestFramework(runnerLogger, reporterMessageHandler, diagnosticMessageSink, projectAssembly, testAssembly, trxCapability, outputDevice);

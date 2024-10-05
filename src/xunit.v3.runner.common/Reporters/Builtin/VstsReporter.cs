@@ -14,10 +14,16 @@ namespace Xunit.Runner.Common;
 public class VstsReporter : IRunnerReporter
 {
 	/// <inheritdoc/>
-	public string Description => "Azure DevOps/VSTS CI support";
+	public bool CanBeEnvironmentallyEnabled =>
+		true;
 
 	/// <inheritdoc/>
-	public bool ForceNoLogo => false;
+	public string Description =>
+		"Azure DevOps/VSTS CI support";
+
+	/// <inheritdoc/>
+	public bool ForceNoLogo =>
+		false;
 
 	/// <inheritdoc/>
 	public bool IsEnvironmentallyEnabled =>
@@ -27,7 +33,8 @@ public class VstsReporter : IRunnerReporter
 		!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("BUILD_BUILDID"));
 
 	/// <inheritdoc/>
-	public string? RunnerSwitch => null;
+	public string? RunnerSwitch =>
+		null;
 
 	/// <inheritdoc/>
 	public ValueTask<IRunnerReporterMessageHandler> CreateMessageHandler(
