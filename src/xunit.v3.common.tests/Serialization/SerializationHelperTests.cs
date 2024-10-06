@@ -258,6 +258,8 @@ public class SerializationHelperTests
 			typeof(Index),
 			typeof(Range),
 #endif
+			typeof(Guid),
+			typeof(Uri),
 		];
 
 		[CulturedTheory("en-US", "fo-FO")]
