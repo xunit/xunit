@@ -25,8 +25,9 @@ public class SerializationHelperTests
 		{ 6U, "7:6" },
 		{ 7L, "8:7" },
 		{ 8UL, "9:8" },
-		{ 21.12f, $"10:{SerializationHelper.Serialize(BitConverter.GetBytes(21.12f))}" },
-		{ 21.12d, $"11:{SerializationHelper.Serialize(BitConverter.GetBytes(21.12d))}" },
+		// Floats and doubles are converted to byte[] and then serialized
+		{ 21.12f, $"10:2[]:{ToBase64("r:6:1\ntl:6:4\nl0:6:4\nlb0:6:0\ni0:2:195\ni1:2:245\ni2:2:168\ni3:2:65")}" },
+		{ 21.12d, $"11:2[]:{ToBase64("r:6:1\ntl:6:8\nl0:6:8\nlb0:6:0\ni0:2:31\ni1:2:133\ni2:2:235\ni3:2:81\ni4:2:184\ni5:2:30\ni6:2:53\ni7:2:64")}" },
 		{ 21.12m, "12:21.12" },
 		{ true, "13:True" },
 		{ new DateTime(2022, 4, 21, 23, 18, 19, 20, DateTimeKind.Utc), "14:2022-04-21T23:18:19.0200000Z" },
@@ -52,24 +53,16 @@ public class SerializationHelperTests
 		{ new int?[] { 1, null, 3 }, $"6?[]:{ToBase64("r:6:1\ntl:6:3\nl0:6:3\nlb0:6:0\ni0:6:1\ni1:6?\ni2:6:3")}" },
 
 		// Types are serialized as their type name
-		{ typeof(string), "-5:System.String" },
+		{ typeof(string), "-4:System.String" },
 
-		// IXunitSerializable and enums contain embedded type information in addition to a type index
-#if BUILD_X86
-		{ new MySerializable(1, "2", 3.4m), $"-4:{ToBase64("SerializationHelperTests+MySerializable,xunit.v3.common.x86.tests")}:{ToBase64($"p1:6:1\np2:0:{ToBase64("2")}\np3:12:3.4")}" },
-		{ MyEnum.MyValue, $"-3:{ToBase64("SerializationHelperTests+MyEnum,xunit.v3.common.x86.tests")}:123" },
-		{ (MyEnum)int.MinValue, $"-3:{ToBase64("SerializationHelperTests+MyEnum,xunit.v3.common.x86.tests")}:-2147483648" },
-		{ (MyEnum)int.MaxValue, $"-3:{ToBase64("SerializationHelperTests+MyEnum,xunit.v3.common.x86.tests")}:2147483647" },
-		{ (MyUnsignedEnum)ulong.MinValue, $"-3:{ToBase64("SerializationHelperTests+MyUnsignedEnum,xunit.v3.common.x86.tests")}:0" },
-		{ (MyUnsignedEnum)ulong.MaxValue, $"-3:{ToBase64("SerializationHelperTests+MyUnsignedEnum,xunit.v3.common.x86.tests")}:18446744073709551615" },
-#else
-		{ new MySerializable(1, "2", 3.4m), $"-4:{ToBase64("SerializationHelperTests+MySerializable,xunit.v3.common.tests")}:{ToBase64($"p1:6:1\np2:0:{ToBase64("2")}\np3:12:3.4")}" },
-		{ MyEnum.MyValue, $"-3:{ToBase64("SerializationHelperTests+MyEnum,xunit.v3.common.tests")}:123" },
-		{ (MyEnum)int.MinValue, $"-3:{ToBase64("SerializationHelperTests+MyEnum,xunit.v3.common.tests")}:-2147483648" },
-		{ (MyEnum)int.MaxValue, $"-3:{ToBase64("SerializationHelperTests+MyEnum,xunit.v3.common.tests")}:2147483647" },
-		{ (MyUnsignedEnum)ulong.MinValue, $"-3:{ToBase64("SerializationHelperTests+MyUnsignedEnum,xunit.v3.common.tests")}:0" },
-		{ (MyUnsignedEnum)ulong.MaxValue, $"-3:{ToBase64("SerializationHelperTests+MyUnsignedEnum,xunit.v3.common.tests")}:18446744073709551615" },
-#endif
+		// Enums, IXunitSerializable types, and types supported by IXunitSerializer contain embedded type information in addition to a type index
+		{ new MySerializable(1, "2", 3.4m), $"-3:{ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof(MySerializable)))}:{ToBase64($"p1:6:1\np2:0:{ToBase64("2")}\np3:12:3.4")}" },
+		{ MyEnum.MyValue, $"-3:{ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof(MyEnum)))}:{ToBase64("123")}" },
+		{ (MyEnum)int.MinValue, $"-3:{ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof(MyEnum)))}:{ToBase64("-2147483648")}" },
+		{ (MyEnum)int.MaxValue, $"-3:{ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof(MyEnum)))}:{ToBase64("2147483647")}" },
+		{ (MyUnsignedEnum)ulong.MinValue, $"-3:{ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof(MyUnsignedEnum)))}:{ToBase64("0")}" },
+		{ (MyUnsignedEnum)ulong.MaxValue, $"-3:{ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof(MyUnsignedEnum)))}:{ToBase64("18446744073709551615")}" },
+		{ new MyCustomType { Age = 42, Name = "Someone" }, $"-3:{ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof(MyCustomType)))}:{ToBase64("42:Someone")}" },
 
 		// Trait dictionaries are serialized as a keys list and values arrays
 		{
@@ -92,8 +85,9 @@ public class SerializationHelperTests
 
 	public static TheoryData<Type, string> NullSuccessData = new()
 	{
-		{ typeof(Type), "-5" },
-		{ typeof(MySerializable), "-4" },
+		{ typeof(Type), "-4" },
+		{ typeof(MyCustomType), "-3" },
+		{ typeof(MySerializable), "-3" },
 		{ typeof(MyEnum?), "-3?" },
 		{ typeof(Dictionary<string, HashSet<string>>), "-2" },
 		{ typeof(object), "-1" },
@@ -133,7 +127,7 @@ public class SerializationHelperTests
 		[Fact]
 		public void GuardClauseForNullSerializedValue()
 		{
-			var ex = Record.Exception(() => SerializationHelper.Deserialize(null!));
+			var ex = Record.Exception(() => TestableSerializationHelper.Instance.Deserialize(null!));
 
 			var argnEx = Assert.IsType<ArgumentNullException>(ex);
 			Assert.Equal("serializedValue", argnEx.ParamName);
@@ -145,7 +139,7 @@ public class SerializationHelperTests
 		[InlineData("abc[]:def")]
 		public void GuardClauseForUnknownTypeIndex(string value)
 		{
-			var ex = Record.Exception(() => SerializationHelper.Deserialize(value));
+			var ex = Record.Exception(() => TestableSerializationHelper.Instance.Deserialize(value));
 
 			var argEx = Assert.IsType<ArgumentException>(ex);
 			Assert.Equal("serializedValue", argEx.ParamName);
@@ -158,7 +152,7 @@ public class SerializationHelperTests
 			Type _,
 			string serialization)
 		{
-			var result = SerializationHelper.Deserialize(serialization);
+			var result = TestableSerializationHelper.Instance.Deserialize(serialization);
 
 			Assert.Null(result);
 		}
@@ -169,7 +163,7 @@ public class SerializationHelperTests
 			Type _,
 			string serialization)
 		{
-			var result = SerializationHelper.Deserialize(serialization + "[]");
+			var result = TestableSerializationHelper.Instance.Deserialize(serialization + "[]");
 
 			Assert.Null(result);
 		}
@@ -180,7 +174,7 @@ public class SerializationHelperTests
 			T? expectedValue,
 			string serialization)
 		{
-			var result = SerializationHelper.Deserialize<T>(serialization);
+			var result = TestableSerializationHelper.Instance.Deserialize<T>(serialization);
 
 			Assert.Equivalent(expectedValue, result);
 		}
@@ -195,7 +189,7 @@ public class SerializationHelperTests
 			string value,
 			string typeName)
 		{
-			var ex = Record.Exception(() => SerializationHelper.Deserialize(value));
+			var ex = Record.Exception(() => TestableSerializationHelper.Instance.Deserialize(value));
 
 			var argEx = Assert.IsType<ArgumentException>(ex);
 			Assert.Equal("serializedValue", argEx.ParamName);
@@ -214,7 +208,7 @@ public class SerializationHelperTests
 			string value,
 			string typeName)
 		{
-			var ex = Record.Exception(() => SerializationHelper.Deserialize(value));
+			var ex = Record.Exception(() => TestableSerializationHelper.Instance.Deserialize(value));
 
 			var argEx = Assert.IsType<ArgumentException>(ex);
 			Assert.Equal("serializedValue", argEx.ParamName);
@@ -227,7 +221,7 @@ public class SerializationHelperTests
 	{
 		public static TheoryData<Type> SupportedTypes =
 		[
-			typeof(Enum),
+			typeof(MyEnum),
 			typeof(IXunitSerializable),
 			typeof(Dictionary<string, HashSet<string>>),
 			typeof(object),
@@ -260,19 +254,21 @@ public class SerializationHelperTests
 #endif
 			typeof(Guid),
 			typeof(Uri),
+			// Registered into TestableSerializationHelper by default
+			typeof(MyCustomType),
 		];
 
 		[CulturedTheory("en-US", "fo-FO")]
 		[MemberData(nameof(SupportedTypes), DisableDiscoveryEnumeration = true)]
 		public void SuccessCases(Type type)
 		{
-			Assert.True(SerializationHelper.IsSerializable(null, type));
+			Assert.True(TestableSerializationHelper.Instance.IsSerializable(null, type));
 
 			if (type.IsValueType)
 			{
 				var nullableType = typeof(Nullable<>).MakeGenericType(type);
 
-				Assert.True(SerializationHelper.IsSerializable(null, nullableType));
+				Assert.True(TestableSerializationHelper.Instance.IsSerializable(null, nullableType));
 			}
 		}
 
@@ -283,7 +279,7 @@ public class SerializationHelperTests
 			// internal, we can't just call typeof() to get one
 			var type = 42.GetType().GetType();
 
-			Assert.True(SerializationHelper.IsSerializable(null, type));
+			Assert.True(TestableSerializationHelper.Instance.IsSerializable(null, type));
 		}
 
 		[Fact]
@@ -292,7 +288,7 @@ public class SerializationHelperTests
 			var value = typeof(ClassWithGenericMethod).GetMethod(nameof(ClassWithGenericMethod.GenericMethod))!.GetGenericArguments()[0];
 			var type = value.GetType();
 
-			Assert.False(SerializationHelper.IsSerializable(value, type));
+			Assert.False(TestableSerializationHelper.Instance.IsSerializable(value, type));
 		}
 
 		class ClassWithGenericMethod
@@ -312,7 +308,7 @@ public class SerializationHelperTests
 			];
 			var type = value.GetType();
 
-			Assert.False(SerializationHelper.IsSerializable(value, type));
+			Assert.False(TestableSerializationHelper.Instance.IsSerializable(value, type));
 		}
 	}
 
@@ -324,7 +320,7 @@ public class SerializationHelperTests
 			Type nullableType,
 			string? expectedSerialization)
 		{
-			var result = SerializationHelper.Serialize(null, nullableType);
+			var result = TestableSerializationHelper.Instance.Serialize(null, nullableType);
 
 			Assert.Equal(expectedSerialization, result);
 		}
@@ -335,7 +331,7 @@ public class SerializationHelperTests
 			Type nullableType,
 			string? expectedSerialization)
 		{
-			var result = SerializationHelper.Serialize(null, nullableType.MakeArrayType());
+			var result = TestableSerializationHelper.Instance.Serialize(null, nullableType.MakeArrayType());
 
 			Assert.Equal(expectedSerialization + "[]", result);
 		}
@@ -346,7 +342,7 @@ public class SerializationHelperTests
 			T? value,
 			string? expectedSerialization)
 		{
-			var result = SerializationHelper.Serialize(value);
+			var result = TestableSerializationHelper.Instance.Serialize(value);
 
 			Assert.Equal(expectedSerialization, result);
 		}
@@ -358,7 +354,7 @@ public class SerializationHelperTests
 #if NETFRAMEWORK
 			// GAC'd enums can't be serialized (Mono doesn't have a GAC, so skip it there)
 			if (!EnvironmentHelper.IsMono)
-				yield return new(ConformanceLevel.Auto, typeof(ConformanceLevel), "Cannot serialize enum 'System.Xml.ConformanceLevel.Auto' because it lives in the GAC");
+				yield return new(ConformanceLevel.Auto, typeof(ConformanceLevel), "Cannot serialize type 'System.Xml.ConformanceLevel' because it lives in the GAC");
 #endif
 
 			// Unsupported built-in types can't be serialized
@@ -394,7 +390,7 @@ public class SerializationHelperTests
 			Type valueType,
 			string expectedExceptionMessage)
 		{
-			var ex = Record.Exception(() => SerializationHelper.Serialize(value, valueType));
+			var ex = Record.Exception(() => TestableSerializationHelper.Instance.Serialize(value, valueType));
 
 			Assert.NotNull(ex);
 			var argEx = Assert.IsType<ArgumentException>(ex);
@@ -496,5 +492,48 @@ public class SerializationHelperTests
 			info.AddValue("p2", P2);
 			info.AddValue("p3", P3);
 		}
+	}
+
+	sealed class MyCustomType
+	{
+		public required int Age { get; set; }
+		public required string Name { get; set; }
+	}
+
+	class MyCustomTypeSerializer : IXunitSerializer
+	{
+		public object Deserialize(
+			Type type,
+			string serializedValue)
+		{
+			var pieces = serializedValue?.Split([':'], 2);
+			if (pieces is null || pieces.Length != 2)
+				throw new ArgumentException($"Improperly formatted serialized value '{serializedValue ?? "null"}'");
+
+			return new MyCustomType { Age = int.Parse(pieces[0]), Name = pieces[1] };
+		}
+
+		public bool IsSerializable(
+			Type type,
+			object? value) =>
+				type == typeof(MyCustomType);
+
+		public string Serialize(object value)
+		{
+			if (value is not MyCustomType myCustomType)
+				throw new ArgumentException($"Tried to serialize a value of type '{value?.GetType().FullName ?? "(null)"}'");
+
+			return $"{myCustomType.Age}:{myCustomType.Name}";
+		}
+	}
+
+	class TestableSerializationHelper : SerializationHelper
+	{
+		public TestableSerializationHelper(params IRegisterXunitSerializerAttribute[] serializers) =>
+			AddSerializers(serializers, Warnings);
+
+		public List<string> Warnings { get; } = [];
+
+		public new static TestableSerializationHelper Instance { get; } = new(new RegisterXunitSerializerAttribute(typeof(MyCustomTypeSerializer), typeof(MyCustomType)));
 	}
 }

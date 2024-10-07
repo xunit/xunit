@@ -300,7 +300,7 @@ public static class ReflectionExtensions
 
 	/// <summary>
 	/// Determines whether <paramref name="type"/> is a nullable type; that is, whether it
-	/// represents <see cref="Nullable{T}"/>.
+	/// is a reference type or it represents <see cref="Nullable{T}"/> for a value type.
 	/// </summary>
 	public static bool IsNullable(this Type type) =>
 		isNullableCache.GetOrAdd(

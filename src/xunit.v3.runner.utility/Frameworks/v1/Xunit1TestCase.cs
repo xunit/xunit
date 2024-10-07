@@ -192,7 +192,7 @@ public sealed class Xunit1TestCase : IXunitSerializable
 		{
 			AssemblyUniqueID = AssemblyUniqueID,
 			Explicit = false,
-			Serialization = includeSerialization ? SerializationHelper.Serialize(this)! : string.Empty,
+			Serialization = includeSerialization ? SerializationHelper.Instance.Serialize(this)! : string.Empty,
 			SkipReason = SkipReason,
 			SourceFilePath = SourceFilePath,
 			SourceLineNumber = SourceLineNumber,

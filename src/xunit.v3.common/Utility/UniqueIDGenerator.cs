@@ -140,7 +140,7 @@ public sealed class UniqueIDGenerator : IDisposable
 		generator.Add(parentUniqueID);
 
 		if (testMethodArguments is not null)
-			generator.Add(SerializationHelper.Serialize(testMethodArguments));
+			generator.Add(SerializationHelper.Instance.Serialize(testMethodArguments));
 
 		if (testMethodGenericTypes is not null)
 			for (var idx = 0; idx < testMethodGenericTypes.Length; idx++)

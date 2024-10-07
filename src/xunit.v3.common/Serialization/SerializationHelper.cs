@@ -11,128 +11,35 @@ namespace Xunit.Sdk;
 
 /// <summary>
 /// Serializes and de-serializes objects. It supports a limited set of built-in types,
-/// as well as anything which implements <see cref="IXunitSerializable"/>.
+/// as well as anything which implements <see cref="IXunitSerializable"/>. Custom serializers
+/// can implement <see cref="IXunitSerializer"/> and register by decorating the test
+/// assembly with <see cref="RegisterXunitSerializerAttribute"/>.
 /// </summary>
-public static class SerializationHelper
+public class SerializationHelper
 {
 	static readonly char[] colonSeparator = [':'];
-	static readonly Dictionary<TypeIndex, Func<string, object?>> deserializersByTypeIdx;
-	static readonly Dictionary<Type, bool> enumSignsByType;
-	static readonly Dictionary<TypeIndex, Func<object, Type, string>> serializersByTypeIdx;
+	static readonly Type? dateOnlyType = Type.GetType("System.DateOnly");
+	static readonly PropertyInfo? dateOnlyDayNumber = dateOnlyType?.GetProperty("DayNumber");
+	static readonly MethodInfo? dateOnlyFromDayNumber = dateOnlyType?.GetMethod("FromDayNumber", BindingFlags.Public | BindingFlags.Static, null, [typeof(int)], null);
+	static readonly Type? indexType = Type.GetType("System.Index");
+	static readonly ConstructorInfo? indexCtor = indexType?.GetConstructor([typeof(int), typeof(bool)]);
+	static readonly Type? rangeType = Type.GetType("System.Range");
+	static readonly ConstructorInfo? rangeCtor = indexType is null ? null : rangeType?.GetConstructor([indexType, indexType]);
+	static readonly Type? timeOnlyType = Type.GetType("System.TimeOnly");
+	static readonly PropertyInfo? timeOnlyTicks = timeOnlyType?.GetProperty("Ticks");
+	static readonly ConstructorInfo? timeOnlyCtor = timeOnlyType?.GetConstructor([typeof(long)]);
 	static readonly Dictionary<Type, TypeIndex> typeIndicesByType;
 	static readonly Dictionary<TypeIndex, Type> typesByTypeIdx;
 
+	readonly Dictionary<TypeIndex, Func<string, object?>> deserializersByTypeIdx;
+	readonly Dictionary<TypeIndex, Func<object, Type, string>> serializersByTypeIdx;
+	readonly Dictionary<Type, IXunitSerializer> xunitSeralizersByType;
+
 	static SerializationHelper()
 	{
-		static string extractValue(string v) =>
-			v.Split(colonSeparator, 2).Last();
-
-		static DateTimeStyles getDateStyle(string v) =>
-			v.EndsWith("Z", StringComparison.Ordinal) ? DateTimeStyles.AdjustToUniversal : DateTimeStyles.None;
-
-		var dateOnlyType = Type.GetType("System.DateOnly");
-		var dateOnlyDayNumber = dateOnlyType?.GetProperty("DayNumber");
-		var dateOnlyFromDayNumber = dateOnlyType?.GetMethod("FromDayNumber", BindingFlags.Public | BindingFlags.Static, null, [typeof(int)], null);
-
-		var timeOnlyType = Type.GetType("System.TimeOnly");
-		var timeOnlyTicks = timeOnlyType?.GetProperty("Ticks");
-		var timeOnlyCtor = timeOnlyType?.GetConstructor([typeof(long)]);
-
-		var indexType = Type.GetType("System.Index");
-		var indexCtor = indexType?.GetConstructor([typeof(int), typeof(bool)]);
-
-		var rangeType = Type.GetType("System.Range");
-		var rangeCtor = indexType is null ? null : rangeType?.GetConstructor([indexType, indexType]);
-
-		deserializersByTypeIdx = new()
-		{
-			{ TypeIndex.Type, SerializedTypeNameToType },
-			{ TypeIndex.Enum, DeserializeEnum },
-			{ TypeIndex.IXunitSerializable, DeserializeXunitSerializable },
-			{ TypeIndex.TraitDictionary, DeserializeTraits },
-			{ TypeIndex.Object, v => null },
-
-			{ TypeIndex.String, FromBase64 },
-			{ TypeIndex.Char, v => (char)ushort.Parse(v, CultureInfo.InvariantCulture) },
-			{ TypeIndex.Byte, v => byte.Parse(v, CultureInfo.InvariantCulture) },
-			{ TypeIndex.SByte, v => sbyte.Parse(v, CultureInfo.InvariantCulture) },
-			{ TypeIndex.Int16, v => short.Parse(v, CultureInfo.InvariantCulture) },
-			{ TypeIndex.UInt16, v => ushort.Parse(v, CultureInfo.InvariantCulture) },
-			{ TypeIndex.Int32, v => int.Parse(v, CultureInfo.InvariantCulture) },
-			{ TypeIndex.UInt32, v => uint.Parse(v, CultureInfo.InvariantCulture) },
-			{ TypeIndex.Int64, v => long.Parse(v, CultureInfo.InvariantCulture) },
-			{ TypeIndex.UInt64, v => ulong.Parse(v, CultureInfo.InvariantCulture) },
-			{ TypeIndex.Single, v => BitConverter.ToSingle((byte[])DeserializeArray(typeof(byte), extractValue(v)), 0) },
-			{ TypeIndex.Double, v => BitConverter.ToDouble((byte[])DeserializeArray(typeof(byte), extractValue(v)), 0) },
-			{ TypeIndex.Decimal, v => decimal.Parse(v, CultureInfo.InvariantCulture) },
-			{ TypeIndex.Boolean, v => bool.Parse(v) },
-			{ TypeIndex.DateTime, v => DateTime.Parse(v, CultureInfo.InvariantCulture, getDateStyle(v)) },
-			{ TypeIndex.DateTimeOffset, v => DateTimeOffset.Parse(v, CultureInfo.InvariantCulture, getDateStyle(v)) },
-			{ TypeIndex.TimeSpan, v => TimeSpan.Parse(v, CultureInfo.InvariantCulture) },
-			{ TypeIndex.BigInteger, v => BigInteger.Parse(v, CultureInfo.InvariantCulture) },
-			{ TypeIndex.Version, Version.Parse },
-			{ TypeIndex.Guid, v => Guid.Parse(v) },
-			{ TypeIndex.Uri, v => new Uri(FromBase64(v), UriKind.RelativeOrAbsolute) },
-		};
-
-		if (dateOnlyFromDayNumber is not null)
-			deserializersByTypeIdx.Add(TypeIndex.DateOnly, v => dateOnlyFromDayNumber.Invoke(null, [int.Parse(v, CultureInfo.InvariantCulture)]));
-		if (timeOnlyCtor is not null)
-			deserializersByTypeIdx.Add(TypeIndex.TimeOnly, v => timeOnlyCtor.Invoke([long.Parse(v, CultureInfo.InvariantCulture)]));
-		if (indexCtor is not null)
-			deserializersByTypeIdx.Add(TypeIndex.Index, v => DeserializeIndex(indexCtor, v));
-		if (indexCtor is not null && rangeCtor is not null)
-			deserializersByTypeIdx.Add(TypeIndex.Range, v => DeserializeRange(indexCtor, rangeCtor, v));
-
-#pragma warning disable CA1065 // These thrown exceptions are done in lambdas, not directly in the static constructor
-
-		serializersByTypeIdx = new()
-		{
-			{ TypeIndex.Type, (v, _) => TypeToSerializedTypeName((Type)v) },
-			{ TypeIndex.Enum, SerializeEnum },
-			{ TypeIndex.IXunitSerializable, (v, t) => SerializeXunitSerializable((IXunitSerializable)v, t) },
-			{ TypeIndex.TraitDictionary, (v, _) => SerializeTraits((Dictionary<string, HashSet<string>>)v) },
-			{ TypeIndex.Object, (_, __) => string.Empty },
-
-			{ TypeIndex.String, (v, _) => ToBase64((string)v) },
-			{ TypeIndex.Char, (v, _) => Convert.ToUInt16(v, CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture) },
-			{ TypeIndex.Byte, (v, _) => ((byte)v).ToString(CultureInfo.InvariantCulture) },
-			{ TypeIndex.SByte, (v, _) => ((sbyte)v).ToString(CultureInfo.InvariantCulture) },
-			{ TypeIndex.Int16, (v, _) => ((short)v).ToString(CultureInfo.InvariantCulture) },
-			{ TypeIndex.UInt16, (v, _) => ((ushort)v).ToString(CultureInfo.InvariantCulture) },
-			{ TypeIndex.Int32, (v, _) => ((int)v).ToString(CultureInfo.InvariantCulture) },
-			{ TypeIndex.UInt32, (v, _) => ((uint)v).ToString(CultureInfo.InvariantCulture) },
-			{ TypeIndex.Int64, (v, _) => ((long)v).ToString(CultureInfo.InvariantCulture) },
-			{ TypeIndex.UInt64, (v, _) => ((ulong)v).ToString(CultureInfo.InvariantCulture) },
-			{ TypeIndex.Single, (v, _) => "2[]:" + SerializeArray(BitConverter.GetBytes((float)v)) },
-			{ TypeIndex.Double, (v, _) => "2[]:" + SerializeArray(BitConverter.GetBytes((double)v)) },
-			{ TypeIndex.Decimal, (v, _) => ((decimal)v).ToString(CultureInfo.InvariantCulture) },
-			{ TypeIndex.Boolean, (v, _) => v.ToString() ?? throw new InvalidOperationException("Boolean value returned null from ToString()") },
-			{ TypeIndex.DateTime, (v, _) => ((DateTime)v).ToString("O", CultureInfo.InvariantCulture) },
-			{ TypeIndex.DateTimeOffset, (v, _) => ((DateTimeOffset)v).ToString("O", CultureInfo.InvariantCulture) },
-			{ TypeIndex.TimeSpan, (v, _) => ((TimeSpan)v).ToString("c", CultureInfo.InvariantCulture) },
-			{ TypeIndex.BigInteger, (v, _) => ((BigInteger)v).ToString(CultureInfo.InvariantCulture) },
-			{ TypeIndex.Version, (v, _) => ((Version)v).ToString() },
-			{ TypeIndex.Guid, (v, _) => ((Guid)v).ToString("N") },
-			{ TypeIndex.Uri, (v, _) => ToBase64(((Uri)v).OriginalString) },
-		};
-
-		if (dateOnlyDayNumber is not null)
-			serializersByTypeIdx.Add(TypeIndex.DateOnly, (v, _) => dateOnlyDayNumber.GetValue(v)?.ToString() ?? throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Could not call GetValue on an instance of '{0}': {1}", dateOnlyType!.SafeName(), v)));
-		if (timeOnlyTicks is not null)
-			serializersByTypeIdx.Add(TypeIndex.TimeOnly, (v, _) => timeOnlyTicks.GetValue(v)?.ToString() ?? throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Could not call Ticks on an instance of '{0}': {1}", timeOnlyType!.SafeName(), v)));
-		if (indexCtor is not null)
-			serializersByTypeIdx.Add(TypeIndex.Index, (v, _) => v.ToString() ?? throw new InvalidOperationException("Index value returned null from ToString()"));
-		if (rangeCtor is not null)
-			serializersByTypeIdx.Add(TypeIndex.Range, (v, _) => v.ToString() ?? throw new InvalidOperationException("Range value returned null from ToString()"));
-
-#pragma warning restore CA1065
-
 		typesByTypeIdx = new()
 		{
 			{ TypeIndex.Type, typeof(Type) },
-			{ TypeIndex.Enum, typeof(Enum) },
-			{ TypeIndex.IXunitSerializable, typeof(IXunitSerializable) },
 			{ TypeIndex.TraitDictionary, typeof(Dictionary<string, HashSet<string>>) },
 			{ TypeIndex.Object, typeof(object) },
 
@@ -168,24 +75,219 @@ public static class SerializationHelper
 		if (rangeType is not null && rangeCtor is not null)
 			typesByTypeIdx.Add(TypeIndex.Range, rangeType);
 
-		typeIndicesByType = typesByTypeIdx.ToDictionary(kvp => kvp.Value, kvp => kvp.Key);
+		// Exclude IXunitSerializer since it duplicates typeof(object)
+		typeIndicesByType =
+			typesByTypeIdx
+				.Where(kvp => kvp.Key != TypeIndex.IXunitSerializer)
+				.ToDictionary(kvp => kvp.Value, kvp => kvp.Key);
+	}
 
-		enumSignsByType = new()
+	/// <summary>
+	/// Initializes a new instance of the <see cref="SerializationHelper"/> class.
+	/// </summary>
+	protected SerializationHelper()
+	{
+		static string extractValue(string v) =>
+			v.Split(colonSeparator, 2).Last();
+
+		static DateTimeStyles getDateStyle(string v) =>
+			v.EndsWith("Z", StringComparison.Ordinal) ? DateTimeStyles.AdjustToUniversal : DateTimeStyles.None;
+
+		deserializersByTypeIdx = new()
 		{
-			// Signed
-			{ typeof(sbyte), true },
-			{ typeof(short), true },
-			{ typeof(int), true },
-			{ typeof(long), true },
+			{ TypeIndex.Type, SerializedTypeNameToType },
+			{ TypeIndex.IXunitSerializer, DeserializeXunitSerializer },
+			{ TypeIndex.TraitDictionary, DeserializeTraits },
+			{ TypeIndex.Object, v => null },
 
-			// Unsigned
-			{ typeof(byte), false },
-			{ typeof(ushort), false },
-			{ typeof(uint), false },
-			{ typeof(ulong), false },
+			{ TypeIndex.String, FromBase64 },
+			{ TypeIndex.Char, v => (char)ushort.Parse(v, CultureInfo.InvariantCulture) },
+			{ TypeIndex.Byte, v => byte.Parse(v, CultureInfo.InvariantCulture) },
+			{ TypeIndex.SByte, v => sbyte.Parse(v, CultureInfo.InvariantCulture) },
+			{ TypeIndex.Int16, v => short.Parse(v, CultureInfo.InvariantCulture) },
+			{ TypeIndex.UInt16, v => ushort.Parse(v, CultureInfo.InvariantCulture) },
+			{ TypeIndex.Int32, v => int.Parse(v, CultureInfo.InvariantCulture) },
+			{ TypeIndex.UInt32, v => uint.Parse(v, CultureInfo.InvariantCulture) },
+			{ TypeIndex.Int64, v => long.Parse(v, CultureInfo.InvariantCulture) },
+			{ TypeIndex.UInt64, v => ulong.Parse(v, CultureInfo.InvariantCulture) },
+			{ TypeIndex.Single, v => BitConverter.ToSingle((byte[])DeserializeArray(typeof(byte), extractValue(v)), 0) },
+			{ TypeIndex.Double, v => BitConverter.ToDouble((byte[])DeserializeArray(typeof(byte), extractValue(v)), 0) },
+			{ TypeIndex.Decimal, v => decimal.Parse(v, CultureInfo.InvariantCulture) },
+			{ TypeIndex.Boolean, v => bool.Parse(v) },
+			{ TypeIndex.DateTime, v => DateTime.Parse(v, CultureInfo.InvariantCulture, getDateStyle(v)) },
+			{ TypeIndex.DateTimeOffset, v => DateTimeOffset.Parse(v, CultureInfo.InvariantCulture, getDateStyle(v)) },
+			{ TypeIndex.TimeSpan, v => TimeSpan.Parse(v, CultureInfo.InvariantCulture) },
+			{ TypeIndex.BigInteger, v => BigInteger.Parse(v, CultureInfo.InvariantCulture) },
+			{ TypeIndex.Version, Version.Parse },
+			{ TypeIndex.Guid, v => Guid.Parse(v) },
+			{ TypeIndex.Uri, v => new Uri(FromBase64(v), UriKind.RelativeOrAbsolute) },
+		};
+
+		if (dateOnlyFromDayNumber is not null)
+			deserializersByTypeIdx.Add(TypeIndex.DateOnly, v => dateOnlyFromDayNumber.Invoke(null, [int.Parse(v, CultureInfo.InvariantCulture)]));
+		if (timeOnlyCtor is not null)
+			deserializersByTypeIdx.Add(TypeIndex.TimeOnly, v => timeOnlyCtor.Invoke([long.Parse(v, CultureInfo.InvariantCulture)]));
+		if (indexCtor is not null)
+			deserializersByTypeIdx.Add(TypeIndex.Index, v => DeserializeIndex(indexCtor, v));
+		if (indexCtor is not null && rangeCtor is not null)
+			deserializersByTypeIdx.Add(TypeIndex.Range, v => DeserializeRange(indexCtor, rangeCtor, v));
+
+		serializersByTypeIdx = new()
+		{
+			{ TypeIndex.Type, (v, _) => TypeToSerializedTypeName((Type)v) },
+			// No registration for IXunitSerializer, because we do a type-compatible search for the serializer
+			// (inside Serialize) rather than a strong type matching
+			{ TypeIndex.TraitDictionary, (v, _) => SerializeTraits((Dictionary<string, HashSet<string>>)v) },
+			{ TypeIndex.Object, (_, __) => string.Empty },
+
+			{ TypeIndex.String, (v, _) => ToBase64((string)v) },
+			{ TypeIndex.Char, (v, _) => Convert.ToUInt16(v, CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture) },
+			{ TypeIndex.Byte, (v, _) => ((byte)v).ToString(CultureInfo.InvariantCulture) },
+			{ TypeIndex.SByte, (v, _) => ((sbyte)v).ToString(CultureInfo.InvariantCulture) },
+			{ TypeIndex.Int16, (v, _) => ((short)v).ToString(CultureInfo.InvariantCulture) },
+			{ TypeIndex.UInt16, (v, _) => ((ushort)v).ToString(CultureInfo.InvariantCulture) },
+			{ TypeIndex.Int32, (v, _) => ((int)v).ToString(CultureInfo.InvariantCulture) },
+			{ TypeIndex.UInt32, (v, _) => ((uint)v).ToString(CultureInfo.InvariantCulture) },
+			{ TypeIndex.Int64, (v, _) => ((long)v).ToString(CultureInfo.InvariantCulture) },
+			{ TypeIndex.UInt64, (v, _) => ((ulong)v).ToString(CultureInfo.InvariantCulture) },
+			{ TypeIndex.Single, (v, _) => "2[]:" + SerializeArray(BitConverter.GetBytes((float)v)) },
+			{ TypeIndex.Double, (v, _) => "2[]:" + SerializeArray(BitConverter.GetBytes((double)v)) },
+			{ TypeIndex.Decimal, (v, _) => ((decimal)v).ToString(CultureInfo.InvariantCulture) },
+			{ TypeIndex.Boolean, (v, _) => v.ToString() ?? throw new InvalidOperationException("Boolean value returned null from ToString()") },
+			{ TypeIndex.DateTime, (v, _) => ((DateTime)v).ToString("O", CultureInfo.InvariantCulture) },
+			{ TypeIndex.DateTimeOffset, (v, _) => ((DateTimeOffset)v).ToString("O", CultureInfo.InvariantCulture) },
+			{ TypeIndex.TimeSpan, (v, _) => ((TimeSpan)v).ToString("c", CultureInfo.InvariantCulture) },
+			{ TypeIndex.BigInteger, (v, _) => ((BigInteger)v).ToString(CultureInfo.InvariantCulture) },
+			{ TypeIndex.Version, (v, _) => ((Version)v).ToString() },
+			{ TypeIndex.Guid, (v, _) => ((Guid)v).ToString("N") },
+			{ TypeIndex.Uri, (v, _) => ToBase64(((Uri)v).OriginalString) },
+		};
+
+		if (dateOnlyDayNumber is not null)
+			serializersByTypeIdx.Add(TypeIndex.DateOnly, (v, _) => dateOnlyDayNumber.GetValue(v)?.ToString() ?? throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Could not call GetValue on an instance of '{0}': {1}", dateOnlyType!.SafeName(), v)));
+		if (timeOnlyTicks is not null)
+			serializersByTypeIdx.Add(TypeIndex.TimeOnly, (v, _) => timeOnlyTicks.GetValue(v)?.ToString() ?? throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Could not call Ticks on an instance of '{0}': {1}", timeOnlyType!.SafeName(), v)));
+		if (indexCtor is not null)
+			serializersByTypeIdx.Add(TypeIndex.Index, (v, _) => v.ToString() ?? throw new InvalidOperationException("Index value returned null from ToString()"));
+		if (rangeCtor is not null)
+			serializersByTypeIdx.Add(TypeIndex.Range, (v, _) => v.ToString() ?? throw new InvalidOperationException("Range value returned null from ToString()"));
+
+		xunitSeralizersByType = new()
+		{
+			{ typeof(IXunitSerializable), new XunitSerializableSerializer(this) },
+			{ typeof(Enum), new EnumSerializer() },
 		};
 	}
 
+	/// <summary>
+	/// Gets the singleton instance of <see cref="SerializationHelper"/>.
+	/// </summary>
+	public static SerializationHelper Instance { get; } = new();
+
+	/// <summary>
+	/// Add serializers that have been registered in the given assembly.
+	/// </summary>
+	/// <param name="assembly">The assembly to get registrations from</param>
+	/// <param name="warnings">An optional collection to receive warnings generated during the registration</param>
+	/// <remarks>
+	/// The warnings collection will include warnings in the following circumstances:<br />
+	/// * When the serializer type that does not implement <see cref="IXunitSerializer"/><br />
+	/// * When the registration contains no support types to serialize<br />
+	/// * When a supported type to serialize is duplicated with another serializer<br />
+	/// * When a supported type is covered by a built-in serializer<br />
+	/// * An exception is thrown while creating the serializer
+	/// </remarks>
+	public void AddRegisteredSerializers(
+		Assembly assembly,
+		List<string>? warnings = null)
+	{
+		Guard.ArgumentNotNull(assembly);
+
+		var registrations =
+			assembly
+				.GetCustomAttributes()
+				.OfType<IRegisterXunitSerializerAttribute>()
+				.ToArray();
+
+		AddSerializers(registrations, warnings);
+	}
+
+	/// <summary>
+	/// Add serializers to the supported serializer list.
+	/// </summary>
+	/// <param name="registrations">The serialization registrations</param>
+	/// <param name="warnings">An optional collection to receive warnings generated during the registration</param>
+	/// <remarks>
+	/// The warnings collection will include warnings in the following circumstances:<br />
+	/// * When the serializer type that does not implement <see cref="IXunitSerializer"/><br />
+	/// * When the registration contains no support types to serialize<br />
+	/// * When a supported type to serialize is duplicated with another serializer<br />
+	/// * When a supported type is covered by a built-in serializer<br />
+	/// * An exception is thrown while creating the serializer
+	/// </remarks>
+	protected void AddSerializers(
+		IRegisterXunitSerializerAttribute[] registrations,
+		List<string>? warnings = null)
+	{
+		Guard.ArgumentNotNull(registrations);
+
+		foreach (var registration in registrations)
+		{
+			try
+			{
+				if (registration.SupportedTypesForSerialization is null || registration.SupportedTypesForSerialization.Length == 0)
+				{
+					warnings?.Add(string.Format(
+						CultureInfo.CurrentCulture,
+						"Serializer type '{0}' does not have any supported types in the registration",
+						registration.SerializerType.SafeName()
+					));
+					continue;
+				}
+
+				if (Activator.CreateInstance(registration.SerializerType) is not IXunitSerializer serializer)
+				{
+					warnings?.Add(string.Format(
+						CultureInfo.CurrentCulture,
+						"Serializer type '{0}' does not implement '{1}'",
+						registration.SerializerType.SafeName(),
+						typeof(IXunitSerializer).SafeName()
+					));
+					continue;
+				}
+
+				foreach (var supportedType in registration.SupportedTypesForSerialization)
+				{
+					if (xunitSeralizersByType.TryGetValue(supportedType, out var existingSerializer))
+						warnings?.Add(string.Format(
+							CultureInfo.CurrentCulture,
+							"Serializer type '{0}' tried to register for type '{1}' which is already supported by serializer type '{2}'",
+							registration.SerializerType.SafeName(),
+							supportedType.SafeName(),
+							existingSerializer.GetType().SafeName()
+						));
+					else if (IsSerializable(null, supportedType))
+						warnings?.Add(string.Format(
+							CultureInfo.CurrentCulture,
+							"Serializer type '{0}' tried to register for type '{1}' which is supported by a built-in serializer",
+							registration.SerializerType.SafeName(),
+							supportedType.SafeName()
+						));
+					else
+						xunitSeralizersByType[supportedType] = serializer;
+				}
+			}
+			catch (Exception ex)
+			{
+				warnings?.Add(string.Format(
+					CultureInfo.CurrentCulture,
+					"Exception while creating serializer type '{0}': {1}",
+					registration.SerializerType.SafeName(),
+					ex
+				));
+			}
+		}
+	}
 
 	/// <summary>
 	/// De-serializes an object.
@@ -193,7 +295,7 @@ public static class SerializationHelper
 	/// <typeparam name="T">The type of the object</typeparam>
 	/// <param name="serializedValue">The object's serialized value</param>
 	/// <returns>The de-serialized object</returns>
-	public static T? Deserialize<T>(string serializedValue) =>
+	public T? Deserialize<T>(string serializedValue) =>
 		(T?)Deserialize(serializedValue);
 
 	/// <summary>
@@ -201,7 +303,7 @@ public static class SerializationHelper
 	/// </summary>
 	/// <param name="serializedValue">The serialized value</param>
 	/// <returns>The de-serialized object</returns>
-	public static object? Deserialize(string serializedValue)
+	public object? Deserialize(string serializedValue)
 	{
 		Guard.ArgumentNotNull(serializedValue);
 
@@ -226,7 +328,14 @@ public static class SerializationHelper
 			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Tried to deserialize unknown type index '{0}'", typeIdxText), nameof(serializedValue));
 
 		if (!deserializersByTypeIdx.TryGetValue(typeIdx, out var deserializer))
-			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Cannot deserialize value of '{0}': unsupported platform", typeIdx), nameof(serializedValue));
+			throw new ArgumentException(
+				string.Format(
+					CultureInfo.CurrentCulture,
+					"Cannot deserialize value of '{0}': unsupported platform",
+					typeIdx
+				),
+				nameof(serializedValue)
+			);
 
 		if (pieces.Length != 2)
 			return null;
@@ -237,45 +346,16 @@ public static class SerializationHelper
 			if (isNullable)
 				elementType = typeof(Nullable<>).MakeGenericType(elementType);
 
-			return DeserializeArray(elementType, pieces[1]);
+			return ArraySerializer.Deserialize(this, elementType, FromBase64(pieces[1]));
 		}
 
 		return deserializer(pieces[1]);
 	}
 
-	static Array DeserializeArray(
+	object DeserializeArray(
 		Type elementType,
-		string serializedArray)
-	{
-		var serializer = new ArraySerializer(elementType);
-		var info = new XunitSerializationInfo(serializedArray);
-		serializer.Deserialize(info);
-		return serializer.ArrayData;
-	}
-
-	static T? DeserializeEmbeddedTypeValue<T>(
-		string serializedValue,
-		Func<Type, string, T?> converter)
-	{
-		var pieces = serializedValue.Split(colonSeparator, 2);
-		if (pieces.Length == 1)
-			return default;
-
-		var type =
-			SerializedTypeNameToType(FromBase64(pieces[0]))
-				?? throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Serialized type name '{0}' could not be converted into a Type object.", pieces[0]));
-
-		return converter(type, pieces[1]);
-	}
-
-	static object? DeserializeEnum(string serializedValue) =>
-		DeserializeEmbeddedTypeValue(
-			serializedValue,
-			(type, embeddedValue) =>
-				type.IsEnum
-					? Enum.Parse(type, embeddedValue)
-					: throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Attempted to deserialize type '{0}' which was not an enum", type.SafeName()))
-		);
+		string serializedValue) =>
+			ArraySerializer.Deserialize(this, elementType, FromBase64(serializedValue));
 
 	static object? DeserializeIndex(
 		ConstructorInfo indexCtor,
@@ -343,52 +423,59 @@ public static class SerializationHelper
 		return result;
 	}
 
-	static IXunitSerializable? DeserializeXunitSerializable(string serializedValue) =>
-		DeserializeEmbeddedTypeValue(serializedValue, (type, embeddedValue) =>
-		{
-			if (!typeof(IXunitSerializable).IsAssignableFrom(type))
-				throw new InvalidOperationException(
+	object? DeserializeXunitSerializer(string serializedValue)
+	{
+		var pieces = serializedValue.Split(colonSeparator, 2);
+		if (pieces.Length != 2)
+			throw new ArgumentException(
+				string.Format(
+					CultureInfo.CurrentCulture,
+					"IXunitSerializer serialization '{0}' is malformed: expected two pieces, got one",
+					serializedValue
+				),
+				nameof(serializedValue)
+			);
+
+		var type =
+			SerializedTypeNameToType(FromBase64(pieces[0]))
+				?? throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Serialized type name '{0}' could not be converted into a Type object.", pieces[0]));
+
+		var xunitSerializer =
+			FindXunitSerializer(type)
+				?? throw new ArgumentException(
 					string.Format(
 						CultureInfo.CurrentCulture,
-						"Attempted to deserialize type '{0}' which did not implement {1}.",
-						type.SafeName(),
-						typeof(IXunitSerializable).SafeName()
-					)
-				);
-
-			var serializationInfo = new XunitSerializationInfo(embeddedValue);
-
-			try
-			{
-				if (Activator.CreateInstance(type) is not IXunitSerializable value)
-					throw new InvalidOperationException(
-						string.Format(
-							CultureInfo.CurrentCulture,
-							"Attempted to deserialize type '{0}' which did not implement {1}.",
-							type.SafeName(),
-							typeof(IXunitSerializable).SafeName()
-						)
-					);
-
-				value.Deserialize(serializationInfo);
-				return value;
-			}
-			catch (MissingMemberException)
-			{
-				throw new InvalidOperationException(
-					string.Format(
-						CultureInfo.CurrentCulture,
-						"Could not de-serialize type '{0}' because it lacks a parameterless constructor.",
+						"Cannot deserialize value of type '{0}': no compatible serializer has been registered",
 						type.SafeName()
-					)
+					),
+					nameof(serializedValue)
 				);
-			}
-		});
 
-	internal static string FromBase64(string serializedValue)
+		return xunitSerializer.Deserialize(type, FromBase64(pieces[1]));
+	}
+
+	static string FromBase64(string serializedValue)
 	{
 		var bytes = Convert.FromBase64String(serializedValue);
 		return Encoding.UTF8.GetString(bytes, 0, bytes.Length);
+	}
+
+	IXunitSerializer? FindXunitSerializer(Type type)
+	{
+		var inexactMatch = default(IXunitSerializer);
+
+		foreach (var kvp in xunitSeralizersByType)
+		{
+			// Exact match always prevails
+			if (kvp.Key == type)
+				return kvp.Value;
+
+			// Keep the first compatible match
+			if (inexactMatch is null && kvp.Key.IsAssignableFrom(type))
+				inexactMatch = kvp.Value;
+		}
+
+		return inexactMatch;
 	}
 
 	/// <summary>
@@ -401,7 +488,7 @@ public static class SerializationHelper
 	/// might not be serializable, it's better to test via <see cref="IsSerializable(object?, Type?)"/>
 	/// whenever possible.
 	/// </remarks>
-	public static bool IsSerializable(object? value) =>
+	public bool IsSerializable(object? value) =>
 		value is null || IsSerializable(value, value.GetType());
 
 	/// <summary>
@@ -410,7 +497,7 @@ public static class SerializationHelper
 	/// <param name="value">The object to test for serializability.</param>
 	/// <param name="type">The type to test for serializability.</param>
 	/// <returns>Returns <c>true</c> if objects of the given type can be serialized; <c>false</c>, otherwise.</returns>
-	public static bool IsSerializable(
+	public bool IsSerializable(
 		object? value,
 		Type? type)
 	{
@@ -437,14 +524,10 @@ public static class SerializationHelper
 				return valueArray.Cast<object?>().All(item => IsSerializable(item, item?.GetType()));
 		}
 
-		if (type.IsEnum || type.IsNullableEnum())
-			return type.IsFromLocalAssembly();
-
-		if (type.Implements(typeof(IXunitSerializable)))
-			return true;
-
 		type = type.UnwrapNullable();
-		return typeIndicesByType.ContainsKey(type);
+		return
+			typeIndicesByType.ContainsKey(type) ||
+			FindXunitSerializer(type)?.IsSerializable(type, value) == true;
 	}
 
 	/// <summary>
@@ -453,7 +536,7 @@ public static class SerializationHelper
 	/// <param name="value">The value to be serialized</param>
 	/// <param name="type">The type of the value to be serialized (cannot be <c>null</c> if <paramref name="value"/> is <c>null</c>)</param>
 	/// <returns>The serialized object</returns>
-	public static string Serialize(
+	public string Serialize(
 		object? value,
 		Type? type = null)
 	{
@@ -470,23 +553,28 @@ public static class SerializationHelper
 			coreValueType = type.GetElementType()!;  // We know GetElementType() will not return null for arrays
 
 		var nonNullableCoreValueType = coreValueType.UnwrapNullable();
+		var serializer = default(Func<object, Type, string>);
 
 		TypeIndex typeIdx;
-		if (nonNullableCoreValueType.IsEnum)
-			typeIdx = TypeIndex.Enum;
-		else if (nonNullableCoreValueType.Implements(typeof(IXunitSerializable)))
-			typeIdx = TypeIndex.IXunitSerializable;
-		else if (typeof(Type).IsAssignableFrom(nonNullableCoreValueType))
+		if (typeof(Type).IsAssignableFrom(nonNullableCoreValueType))
 			typeIdx = TypeIndex.Type;
 		else
 		{
 			var kvp = typeIndicesByType.FirstOrDefault(kvp => nonNullableCoreValueType == kvp.Key);
-			if (kvp.Key is null)
-				throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Cannot serialize a value of type '{0}': unsupported type for serialization", type.SafeName()), nameof(value));
-			typeIdx = kvp.Value;
+			if (kvp.Key is not null)
+				typeIdx = kvp.Value;
+			else
+			{
+				var xunitSerializer =
+					FindXunitSerializer(nonNullableCoreValueType)
+						?? throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Cannot serialize a value of type '{0}': unsupported type for serialization", type.SafeName()), nameof(value));
+
+				typeIdx = TypeIndex.IXunitSerializer;
+				serializer = (v, t) => string.Format(CultureInfo.InvariantCulture, "{0}:{1}", ToBase64(TypeToSerializedTypeName(t)), ToBase64(xunitSerializer.Serialize(v)));
+			}
 		}
 
-		if (!serializersByTypeIdx.TryGetValue(typeIdx, out var serializer))
+		if (serializer is null && !serializersByTypeIdx.TryGetValue(typeIdx, out serializer))
 			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Cannot serialize a value of type '{0}': unsupported platform", typeIdx), nameof(value));
 
 		var typeIdxText = string.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", (int)typeIdx, coreValueType != nonNullableCoreValueType ? "?" : "", isArray ? "[]" : "");
@@ -495,53 +583,14 @@ public static class SerializationHelper
 			value is null
 				? typeIdxText
 				: isArray
-					? string.Format(CultureInfo.InvariantCulture, "{0}:{1}", typeIdxText, SerializeArray((Array)value))
+					? string.Format(CultureInfo.InvariantCulture, "{0}:{1}", typeIdxText, ToBase64(ArraySerializer.Serialize(this, coreValueType, (Array)value)))
 					: typeIdx != TypeIndex.Object
 						? string.Format(CultureInfo.InvariantCulture, "{0}:{1}", typeIdxText, serializer(value, nonNullableCoreValueType))
 						: throw new ArgumentException("Cannot serialize a non-null value of type 'System.Object'", nameof(value));
 	}
 
-	static string SerializeArray(Array array)
-	{
-		var info = new XunitSerializationInfo();
-		var arraySer = new ArraySerializer(array);
-		arraySer.Serialize(info);
-		return info.ToSerializedString();
-	}
-
-	static string SerializeEmbeddedTypeValue(
-		string? value,
-		Type type) =>
-			string.Format(CultureInfo.InvariantCulture, "{0}:{1}", ToBase64(TypeToSerializedTypeName(type)), value);
-
-	static string SerializeEnum(
-		object value,
-		Type type)
-	{
-		if (!type.IsFromLocalAssembly())
-			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Cannot serialize enum '{0}.{1}' because it lives in the GAC", type.SafeName(), value), nameof(value));
-
-		Type underlyingType;
-
-		try
-		{
-			underlyingType = Enum.GetUnderlyingType(value.GetType());
-		}
-		catch (Exception ex)
-		{
-			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Cannot serialize enum '{0}.{1}' because an exception was thrown getting its underlying type", type.SafeName(), value), ex);
-		}
-
-		if (!enumSignsByType.TryGetValue(underlyingType, out var signed))
-			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Cannot serialize enum '{0}.{1}' because the underlying type '{2}' is not supported", type.SafeName(), value, underlyingType.SafeName()), nameof(value));
-
-		var result =
-			signed
-				? Convert.ToInt64(value, CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture)
-				: Convert.ToUInt64(value, CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture);
-
-		return SerializeEmbeddedTypeValue(result, type);
-	}
+	string SerializeArray<T>(T[] array) =>
+		ToBase64(ArraySerializer.Serialize(this, array));
 
 	static string SerializeTraits(Dictionary<string, HashSet<string>>? value)
 	{
@@ -562,16 +611,6 @@ public static class SerializationHelper
 		return ToBase64(result.ToString());
 	}
 
-	static string SerializeXunitSerializable(
-		IXunitSerializable value,
-		Type type)
-	{
-		var info = new XunitSerializationInfo();
-		value.Serialize(info);
-
-		return SerializeEmbeddedTypeValue(info.ToSerializedString(), type);
-	}
-
 	/// <summary>
 	/// Converts a type name (in "TypeName" format for mscorlib types, or "TypeName,AssemblyName" format for
 	/// all others) into a <see cref="Type"/> object.
@@ -589,106 +628,14 @@ public static class SerializationHelper
 	public static string TypeToSerializedTypeName(Type value) =>
 		TypeHelper.GetTypeName(value);
 
-	internal static string ToBase64(string value) =>
+	static string ToBase64(string value) =>
 		Convert.ToBase64String(Encoding.UTF8.GetBytes(value));
-
-	sealed class ArraySerializer : IXunitSerializable
-	{
-		Array? array;
-		readonly Type? elementType;
-
-		public Array ArrayData => Guard.NotNull("Array must not be null (did you forget to deserialize?)", array);
-
-		public ArraySerializer(Array array)
-		{
-			Guard.ArgumentNotNull(array);
-
-			elementType = array.GetType().GetElementType();
-			Guard.ArgumentNotNull("The element type of the array is unknown", elementType, nameof(array));
-
-			this.array = array;
-		}
-
-		public ArraySerializer(Type elementType)
-		{
-			Guard.ArgumentNotNull(elementType);
-
-			this.elementType = elementType;
-		}
-
-		public void Deserialize(IXunitSerializationInfo info)
-		{
-			Guard.NotNull("Element type must not be null", elementType);
-
-			var rank = info.GetValue<int>("r");
-			var totalLength = info.GetValue<int>("tl");
-
-			var lengths = new int[rank];
-			var lowerBounds = new int[rank];
-			for (var i = 0; i < lengths.Length; i++)
-			{
-				lengths[i] = info.GetValue<int>(string.Format(CultureInfo.InvariantCulture, "l{0}", i));
-				lowerBounds[i] = info.GetValue<int>(string.Format(CultureInfo.InvariantCulture, "lb{0}", i));
-			}
-
-			array = Array.CreateInstance(elementType, lengths, lowerBounds);
-
-			var indices = new int[rank];
-			for (var i = 0; i < indices.Length; i++)
-				indices[i] = lowerBounds[i];
-
-			for (var i = 0; i < totalLength; i++)
-			{
-				var complete = false;
-
-				for (var dim = rank - 1; dim >= 0; dim--)
-				{
-					if (indices[dim] >= lowerBounds[dim] + lengths[dim])
-					{
-						if (dim == 0)
-						{
-							complete = true;
-							break;
-						}
-						for (var j = dim; j < rank; j++)
-							indices[j] = lowerBounds[dim];
-						indices[dim - 1]++;
-					}
-				}
-
-				if (complete)
-					break;
-
-				var item = info.GetValue(string.Format(CultureInfo.InvariantCulture, "i{0}", i));
-				array.SetValue(item, indices);
-				indices[rank - 1]++;
-			}
-		}
-
-		public void Serialize(IXunitSerializationInfo info)
-		{
-			Guard.NotNull("Array must not be null", array);
-
-			info.AddValue("r", array.Rank);
-			info.AddValue("tl", array.Length);
-
-			for (var dimension = 0; dimension < array.Rank; dimension++)
-				info.AddValue(string.Format(CultureInfo.InvariantCulture, "l{0}", dimension), array.GetLength(dimension));
-			for (var dimension = 0; dimension < array.Rank; dimension++)
-				info.AddValue(string.Format(CultureInfo.InvariantCulture, "lb{0}", dimension), array.GetLowerBound(dimension));
-
-			var i = 0;
-			foreach (var obj in array)
-				info.AddValue(string.Format(CultureInfo.InvariantCulture, "i{0}", i++), obj, obj?.GetType() ?? elementType);
-		}
-	}
 
 	enum TypeIndex
 	{
 		// Special cases
-		Type = -5,                // Custom serialization of the type name
-		IXunitSerializable = -4,  // Supports any object which implements IXunitSerializable
-		Enum = -3,                // Supports any (non-GAC'd) enum value
+		Type = -4,                // Custom serialization of the type name
+		IXunitSerializer = -3,    // Supports any object with a registered IXunitSerializer
 		TraitDictionary = -2,     // Only supports Dictionary<string, HashSet<string>> for traits
 		Object = -1,              // Only arrays and null values
 

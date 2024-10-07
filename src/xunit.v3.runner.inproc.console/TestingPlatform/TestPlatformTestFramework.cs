@@ -61,6 +61,8 @@ public class TestPlatformTestFramework :
 		this.testAssembly = testAssembly;
 		this.trxCapability = trxCapability;
 		this.outputDevice = outputDevice;
+
+		SerializationHelper.Instance.AddRegisteredSerializers(testAssembly);
 	}
 
 	/// <inheritdoc/>

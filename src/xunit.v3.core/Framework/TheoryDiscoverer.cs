@@ -199,7 +199,7 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 						foreach (var argument in resolvedData.WhereNotNull())
 						{
 							var argumentType = argument.GetType();
-							if (!SerializationHelper.IsSerializable(argument, argumentType))
+							if (!SerializationHelper.Instance.IsSerializable(argument, argumentType))
 								nonSerializableTypes.Add(argumentType);
 						}
 

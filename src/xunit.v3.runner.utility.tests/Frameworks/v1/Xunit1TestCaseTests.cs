@@ -15,8 +15,8 @@ public class Xunit1TestCaseTests
 		{
 			var testCase = Create(typeof(Serialization), nameof(CanRoundTrip_PublicClass_PublicTestMethod));
 
-			var serialized = SerializationHelper.Serialize(testCase);
-			var deserialized = SerializationHelper.Deserialize<Xunit1TestCase>(serialized);
+			var serialized = SerializationHelper.Instance.Serialize(testCase);
+			var deserialized = SerializationHelper.Instance.Deserialize<Xunit1TestCase>(serialized);
 
 			Assert.NotNull(deserialized);
 		}
@@ -26,8 +26,8 @@ public class Xunit1TestCaseTests
 		{
 			var testCase = Create(typeof(Serialization), nameof(PrivateTestMethod));
 
-			var serialized = SerializationHelper.Serialize(testCase);
-			var deserialized = SerializationHelper.Deserialize<Xunit1TestCase>(serialized);
+			var serialized = SerializationHelper.Instance.Serialize(testCase);
+			var deserialized = SerializationHelper.Instance.Deserialize<Xunit1TestCase>(serialized);
 
 			Assert.NotNull(deserialized);
 		}
@@ -37,8 +37,8 @@ public class Xunit1TestCaseTests
 		{
 			var testCase = Create(typeof(PrivateClass), nameof(PrivateClass.TestMethod));
 
-			var serialized = SerializationHelper.Serialize(testCase);
-			var deserialized = SerializationHelper.Deserialize<Xunit1TestCase>(serialized);
+			var serialized = SerializationHelper.Instance.Serialize(testCase);
+			var deserialized = SerializationHelper.Instance.Deserialize<Xunit1TestCase>(serialized);
 
 			Assert.NotNull(deserialized);
 		}
@@ -53,8 +53,8 @@ public class Xunit1TestCaseTests
 			};
 			var testCase = Create(typeof(Serialization), nameof(CanRoundTrip_PublicClass_PublicTestMethod), traits: traits);
 
-			var serialized = SerializationHelper.Serialize(testCase);
-			var deserialized = SerializationHelper.Deserialize<Xunit1TestCase>(serialized);
+			var serialized = SerializationHelper.Instance.Serialize(testCase);
+			var deserialized = SerializationHelper.Instance.Deserialize<Xunit1TestCase>(serialized);
 
 			Assert.NotNull(deserialized);
 			Assert.NotNull(deserialized.Traits);

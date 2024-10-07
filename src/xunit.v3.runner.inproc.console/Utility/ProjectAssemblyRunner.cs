@@ -221,7 +221,7 @@ public sealed class ProjectAssemblyRunner(
 			var testCases =
 				assembly
 					.TestCasesToRun
-					.Select(s => SerializationHelper.Deserialize(s) as ITestCase)
+					.Select(s => SerializationHelper.Instance.Deserialize(s) as ITestCase)
 					.WhereNotNull()
 					.ToArray();
 

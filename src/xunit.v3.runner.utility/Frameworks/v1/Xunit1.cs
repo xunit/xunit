@@ -371,7 +371,7 @@ public class Xunit1 : IFrontController
 		var testCases =
 			settings
 				.SerializedTestCases
-				.Select(SerializationHelper.Deserialize<Xunit1TestCase>)
+				.Select(SerializationHelper.Instance.Deserialize<Xunit1TestCase>)
 				.WhereNotNull()
 				.CastOrToReadOnlyCollection();
 

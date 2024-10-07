@@ -111,8 +111,8 @@ public class XunitTestAssemblyTests(XunitTestAssemblyTests.XunitTestAssemblyFixt
 	[Fact]
 	public void Serialization()
 	{
-		var serialized = SerializationHelper.Serialize(testAssembly);
-		var deserialized = SerializationHelper.Deserialize(serialized);
+		var serialized = SerializationHelper.Instance.Serialize(testAssembly);
+		var deserialized = SerializationHelper.Instance.Deserialize(serialized);
 
 		Assert.IsType<XunitTestAssembly>(deserialized);
 		Assert.Equivalent(testAssembly, deserialized);

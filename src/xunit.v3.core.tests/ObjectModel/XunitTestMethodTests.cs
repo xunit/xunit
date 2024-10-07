@@ -96,8 +96,8 @@ public class XunitTestMethodTests
 		var method = typeof(ClassUnderTest).GetMethod("Passing") ?? throw new InvalidOperationException("Could not find test method");
 		var testMethod = new XunitTestMethod(testClass, method, []);
 
-		var serialized = SerializationHelper.Serialize(testMethod);
-		var deserialized = SerializationHelper.Deserialize(serialized);
+		var serialized = SerializationHelper.Instance.Serialize(testMethod);
+		var deserialized = SerializationHelper.Instance.Deserialize(serialized);
 
 		Assert.IsType<XunitTestMethod>(deserialized);
 		Assert.Equivalent(testMethod, deserialized);
@@ -112,8 +112,8 @@ public class XunitTestMethodTests
 		var testClass = TestData.XunitTestClass<ClassUnderTest>();
 		var testMethod = new XunitTestMethod(testClass, closedMethodInfo, ["data"]);
 
-		var serialized = SerializationHelper.Serialize(testMethod);
-		var deserialized = SerializationHelper.Deserialize(serialized);
+		var serialized = SerializationHelper.Instance.Serialize(testMethod);
+		var deserialized = SerializationHelper.Instance.Deserialize(serialized);
 
 		Assert.IsType<XunitTestMethod>(deserialized);
 		Assert.Equivalent(testMethod, deserialized);

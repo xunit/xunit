@@ -79,8 +79,8 @@ public class XunitTestCollectionTests
 		var testAssembly = TestData.XunitTestAssembly<ClassUnderTest>();
 		var testCollection = new XunitTestCollection(testAssembly, typeof(MyCollection), true, "display name");
 
-		var serialized = SerializationHelper.Serialize(testCollection);
-		var deserialized = SerializationHelper.Deserialize(serialized);
+		var serialized = SerializationHelper.Instance.Serialize(testCollection);
+		var deserialized = SerializationHelper.Instance.Deserialize(serialized);
 
 		Assert.IsType<XunitTestCollection>(deserialized);
 		Assert.Equivalent(testCollection, deserialized);

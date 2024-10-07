@@ -10,7 +10,7 @@ public class XunitSerializationInfoTests
 		[Fact]
 		public void GuardClause()
 		{
-			var ex = Record.Exception(() => new XunitSerializationInfo(default(IXunitSerializable)!));
+			var ex = Record.Exception(() => new XunitSerializationInfo(SerializationHelper.Instance, default(IXunitSerializable)!));
 
 			var argnEx = Assert.IsType<ArgumentNullException>(ex);
 			Assert.Equal("object", argnEx.ParamName);
@@ -21,7 +21,7 @@ public class XunitSerializationInfoTests
 		[InlineData("")]
 		public void EmptySerializedValueResultsInEmptySerialization(string? serialization)
 		{
-			var info = new XunitSerializationInfo(serialization!);
+			var info = new XunitSerializationInfo(SerializationHelper.Instance, serialization!);
 
 			Assert.Empty(info.ToSerializedString());
 		}
@@ -29,7 +29,7 @@ public class XunitSerializationInfoTests
 		[Fact]
 		public void InitializedWithSerializedValue()
 		{
-			var info = new XunitSerializationInfo(ToBase64($"ch:1:97\nst:0:{ToBase64("Hello world")}\ndec:12:21.12"));
+			var info = new XunitSerializationInfo(SerializationHelper.Instance, $"ch:1:97\nst:0:{ToBase64("Hello world")}\ndec:12:21.12");
 
 			Assert.Equal('a', info.GetValue<char>("ch"));
 			Assert.Equal("Hello world", info.GetValue<string>("st"));
@@ -41,7 +41,7 @@ public class XunitSerializationInfoTests
 		{
 			var serialization = "ch:1:97\nst\ndec:12:21.12";
 
-			var ex = Record.Exception(() => new XunitSerializationInfo(ToBase64(serialization)));
+			var ex = Record.Exception(() => new XunitSerializationInfo(SerializationHelper.Instance, serialization));
 
 			var argEx = Assert.IsType<ArgumentException>(ex);
 			Assert.Equal("serializedValue", argEx.ParamName);
@@ -54,7 +54,7 @@ public class XunitSerializationInfoTests
 		[Fact]
 		public void GuardClauseForNonSerializableData()
 		{
-			var info = new XunitSerializationInfo();
+			var info = new XunitSerializationInfo(SerializationHelper.Instance);
 
 			var ex = Record.Exception(() => info.AddValue("v", new MyClass()));
 
@@ -69,7 +69,7 @@ public class XunitSerializationInfoTests
 		[Fact]
 		public void EmptyInfo()
 		{
-			var info = new XunitSerializationInfo();
+			var info = new XunitSerializationInfo(SerializationHelper.Instance);
 
 			var result = info.ToSerializedString();
 
@@ -174,13 +174,13 @@ public class XunitSerializationInfoTests
 			object? value,
 			Type valueType)
 		{
-			var info = new XunitSerializationInfo();
+			var info = new XunitSerializationInfo(SerializationHelper.Instance);
 			info.AddValue("v", value, valueType);
 
 			var result = info.ToSerializedString();
 
-			var serialization = SerializationHelper.Serialize(value, valueType);
-			Assert.Equal($"v:{serialization}", FromBase64(result));
+			var serialization = SerializationHelper.Instance.Serialize(value, valueType);
+			Assert.Equal($"v:{serialization}", result);
 		}
 
 		[Theory]
@@ -189,7 +189,7 @@ public class XunitSerializationInfoTests
 			object? value,
 			Type valueType)
 		{
-			var info = new XunitSerializationInfo();
+			var info = new XunitSerializationInfo(SerializationHelper.Instance);
 			var arrayType = valueType.MakeArrayType();
 			var array = Array.CreateInstance(valueType, 1);
 			array.SetValue(value, 0);
@@ -197,8 +197,8 @@ public class XunitSerializationInfoTests
 
 			var result = info.ToSerializedString();
 
-			var serialization = SerializationHelper.Serialize(array, arrayType);
-			Assert.Equal($"v:{serialization}", FromBase64(result));
+			var serialization = SerializationHelper.Instance.Serialize(array, arrayType);
+			Assert.Equal($"v:{serialization}", result);
 		}
 	}
 

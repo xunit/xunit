@@ -116,8 +116,8 @@ public class XunitTestClassTests
 		var testCollection = TestData.XunitTestCollection<ClassUnderTest>();
 		var testClass = new XunitTestClass(typeof(ClassUnderTest), testCollection);
 
-		var serialized = SerializationHelper.Serialize(testClass);
-		var deserialized = SerializationHelper.Deserialize(serialized);
+		var serialized = SerializationHelper.Instance.Serialize(testClass);
+		var deserialized = SerializationHelper.Instance.Deserialize(serialized);
 
 		Assert.IsType<XunitTestClass>(deserialized);
 		Assert.Equivalent(testClass, deserialized);

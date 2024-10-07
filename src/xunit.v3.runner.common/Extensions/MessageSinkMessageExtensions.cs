@@ -44,7 +44,7 @@ public static partial class MessageSinkMessageExtensions
 		{
 			AssemblyUniqueID = testCase.TestCollection.TestAssembly.UniqueID,
 			Explicit = testCase.Explicit,
-			Serialization = SerializationHelper.Serialize(testCase),
+			Serialization = SerializationHelper.Instance.Serialize(testCase),
 			SkipReason = testCase.SkipReason,
 			SourceFilePath = testCase.SourceFilePath,
 			SourceLineNumber = testCase.SourceLineNumber,

@@ -73,6 +73,7 @@ public class ConsoleRunner(
 		try
 		{
 			var commandLine = new CommandLine(consoleHelper, testAssembly, args);
+			var warnings = commandLine.ParseWarnings.ToList();
 
 			if (commandLine.HelpRequested)
 			{
@@ -80,9 +81,9 @@ public class ConsoleRunner(
 				consoleHelper.WriteLine("Copyright (C) .NET Foundation.");
 				consoleHelper.WriteLine();
 
-				if (commandLine.ParseWarnings.Count > 0)
+				if (warnings.Count > 0)
 				{
-					foreach (var warning in commandLine.ParseWarnings)
+					foreach (var warning in warnings)
 						consoleHelper.WriteLine("Warning: {0}", warning);
 
 					consoleHelper.WriteLine();
@@ -93,6 +94,8 @@ public class ConsoleRunner(
 				commandLine.PrintUsage();
 				return 2;
 			}
+
+			SerializationHelper.Instance.AddRegisteredSerializers(testAssembly, warnings);
 
 			// We pick up the -automated flag early, because Parse() can throw and we want to use automated output
 			// to report any command line parsing problems.
@@ -197,7 +200,7 @@ public class ConsoleRunner(
 				if (!reporter.ForceNoLogo && !project.Configuration.NoLogoOrDefault)
 					consoleHelper.WriteLine(ProjectAssemblyRunner.Banner);
 
-				foreach (var warning in commandLine.ParseWarnings)
+				foreach (var warning in warnings)
 					if (automatedMode != AutomatedMode.Off)
 						logger.WriteMessage(new DiagnosticMessage("warning: " + warning));
 					else

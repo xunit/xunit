@@ -1200,7 +1200,7 @@ public class AmbiguouslyNamedTestMethods
 		{ }
 
 		public Xunit1TestCase? Deserialize(string value) =>
-			SerializationHelper.Deserialize<Xunit1TestCase>(value);
+			SerializationHelper.Instance.Deserialize<Xunit1TestCase>(value);
 
 		public new void Find(
 			IMessageSink messageSink,
@@ -1222,7 +1222,7 @@ public class AmbiguouslyNamedTestMethods
 				base.Run(testCases.CastOrToReadOnlyCollection(), messageSink, markAllAsNotRun);
 
 		public string Serialize(Xunit1TestCase testCase) =>
-			SerializationHelper.Serialize(testCase);
+			SerializationHelper.Instance.Serialize(testCase);
 
 		TestableXunit1(
 			AppDomainSupport appDomainSupport,

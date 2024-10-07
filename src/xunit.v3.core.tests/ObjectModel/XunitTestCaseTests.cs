@@ -54,8 +54,8 @@ public class XunitTestCaseTests
 			2600
 		);
 
-		var serialized = SerializationHelper.Serialize(testCase);
-		var deserialized = SerializationHelper.Deserialize(serialized);
+		var serialized = SerializationHelper.Instance.Serialize(testCase);
+		var deserialized = SerializationHelper.Instance.Deserialize(serialized);
 
 		Assert.IsType<XunitTestCase>(deserialized);
 		Assert.Equivalent(testCase, deserialized);
