@@ -124,22 +124,22 @@ _New to xUnit.net? These guides will help you get started._
 _The following target frameworks are current supported:_
 
 {: .table .smaller .bold-first }
-|                                                      | xUnit.net | Console                | MSBuild                | TestDriven.NET <sup>2</sup> | Visual Studio <sup>3</sup>
-| ---------------------------------------------------- | --------- | ---------------------- | ---------------------- | --------------------------- | --------------------------
-| .NET Framework<br />(Windows)                        | 1.9.2+    | &#x2714; <sup>4a</sup> | &#x2714; <sup>4a</sup> | &#x2714; <sup>4a</sup>      | &#x2714; <sup>4b</sup>
-| .NET Core &amp; .NET 5+<br />(Windows, Linux, macOS) | 2.2+      |                        |                        |                             | &#x2714; <sup>4b</sup>
+|                                                      | xUnit.net     | Console                | MSBuild                | TestDriven.NET <sup>2</sup> | Visual Studio <sup>3</sup>
+| ---------------------------------------------------- | ------------- | ---------------------- | ---------------------- | --------------------------- | --------------------------
+| .NET Framework<br />(Windows)                        | v1, v2, v3    | &#x2714; <sup>4a</sup> | &#x2714; <sup>4a</sup> | &#x2714; <sup>4a</sup>      | &#x2714; <sup>4b</sup>
+| .NET Core &amp; .NET 5+<br />(Windows, Linux, macOS) | v2 (2.2+), v3 |                        |                        |                             | &#x2714; <sup>4b</sup>
 
 _The following target frameworks have been deprecated and are no longer supported:_
 
 {: .table .smaller .bold-first }
-|                                               | xUnit.net   | Visual Studio <sup>2</sup> | Devices
-| --------------------------------------------- | ----------- | -------------------------- | -------
-| Universal Application<br />(Win/WinPhone 8.1) | 2.0 - 2.1   | &#x2714; <sup>4b</sup>     | &#x2714; <sup>4c</sup>
-| Universal Windows Platform                    | 2.1 - 2.4.2 | &#x2714; <sup>4b</sup>     | &#x2714; <sup>4c</sup>
-| Windows Phone 8 (Silverlight)                 | 2.0 - 2.1   |                            | &#x2714; <sup>4c</sup>
-| Xamarin iOS Unified <sup>1</sup>              | 2.0 - 2.4.2 |                            | &#x2714; <sup>4c</sup>
-| Xamarin MonoAndroid <sup>1</sup>              | 2.0 - 2.4.2 |                            | &#x2714; <sup>4c</sup>
-| Xamarin MonoTouch (iOS Classic) <sup>1</sup>  | 2.0 - 2.1   |                            | &#x2714; <sup>4c</sup>
+|                                               | xUnit.net        | Visual Studio <sup>2</sup> | Devices
+| --------------------------------------------- | ---------------- | -------------------------- | -------
+| Universal Application<br />(Win/WinPhone 8.1) | v2 (2.0 - 2.1)   | &#x2714; <sup>4b</sup>     | &#x2714; <sup>4c</sup>
+| Universal Windows Platform                    | v2 (2.1 - 2.4.2) | &#x2714; <sup>4b</sup>     | &#x2714; <sup>4c</sup>
+| Windows Phone 8 (Silverlight)                 | v2 (2.0 - 2.1)   |                            | &#x2714; <sup>4c</sup>
+| Xamarin iOS Unified <sup>1</sup>              | v2 (2.0 - 2.4.2) |                            | &#x2714; <sup>4c</sup>
+| Xamarin MonoAndroid <sup>1</sup>              | v2 (2.0 - 2.4.2) |                            | &#x2714; <sup>4c</sup>
+| Xamarin MonoTouch (iOS Classic) <sup>1</sup>  | v2 (2.0 - 2.1)   |                            | &#x2714; <sup>4c</sup>
 
 {: .indent }
 1. Requires Xamarin for Visual Studio or Xamarin Studio.
