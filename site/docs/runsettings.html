@@ -12,8 +12,11 @@ breadcrumb: Documentation
   <li><a href="#items">Supported configuration items</a></li>
   <ul>
     <li><a href="#AppDomain"><code>AppDomain</code></a></li>
+    <li><a href="#Culture"><code>Culture</code></a></li>
     <li><a href="#DiagnosticMessages"><code>DiagnosticMessages</code></a></li>
+    <li><a href="#Explicit"><code>Explicit</code></a></li>
     <li><a href="#FailSkips"><code>FailSkips</code></a></li>
+    <li><a href="#FailWarns"><code>FailWarns</code></a></li>
     <li><a href="#InternalDiagnosticMessages"><code>InternalDiagnosticMessages</code></a></li>
     <li><a href="#LongRunningTestSeconds"><code>LongRunningTestSeconds</code></a></li>
     <li><a href="#MaxParallelThreads"><code>MaxParallelThreads</code></a></li>
@@ -25,6 +28,7 @@ breadcrumb: Documentation
     <li><a href="#ParallelizeTestCollections"><code>ParallelizeTestCollections</code></a></li>
     <li><a href="#PreEnumerateTheories"><code>PreEnumerateTheories</code></a></li>
     <li><a href="#ReporterSwitch"><code>ReporterSwitch</code></a></li>
+    <li><a href="#Seed"><code>Seed</code></a></li>
     <li><a href="#ShadowCopy"><code>ShadowCopy</code></a></li>
     <li><a href="#ShowLiveOutput"><code>ShowLiveOutput</code></a></li>
     <li><a href="#StopOnFail"><code>StopOnFail</code></a></li>
@@ -106,6 +110,24 @@ breadcrumb: Documentation
     </td>
   </tr>
   <tr>
+    <th id="Culture"><code>Culture</code><br />xunit.runner.visualstudio 3.0.0-pre.41+<br />Test Framework v3+</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this value to override the default culture used to run all unit tests in
+        the assembly. You can pass <code>default</code> to use the default behavior
+        (use the default culture of the operating system); you can pass <code>invariant</code>
+        to use the invariant culture; or you can pass any string which describes a
+        valid culture on the target operating system (see <a href="https://www.rfc-editor.org/info/bcp47">BCP
+        47</a> for a description of how culture names are formatted; note that the list
+        of supported cultures will vary by target operating system).
+      </p>
+      <p><em>
+        Valid values: <code>default</code>, <code>invariant</code>, any OS supported culture<br />
+        Default value: <code>default</code>
+      </em></p>
+    </td>
+  </tr>
+  <tr>
     <th id="DiagnosticMessages"><code>DiagnosticMessages</code><br />xunit.runner.visualstudio 2.5.1+<br />Test Framework v2+</th>
     <td class="wrapped-wide">
       <p>
@@ -113,10 +135,27 @@ breadcrumb: Documentation
         discovery and execution. Each runner has a unique method of presenting diagnostic
         messages.
       </p>
-      <p>
+      <p><em>
         Valid values: <code>true</code>, <code>false</code><br />
         Default value: <code>false</code></em>
+      </em></p>
+    </td>
+  </tr>
+  <tr>
+    <th id="Explicit"><code>Explicit</code><br />xunit.runner.visualstudio 3.0.0-pre.41+<br />Test Framework v3+</th>
+    <td class="wrapped-wide">
+      <p>Change the way explicit tests are handled:</p>
+      <p>
+        <ul>
+          <li><code>on</code> Run both explicit and non-explicit tests</li>
+          <li><code>off</code> Run only non-explicit tests</li>
+          <li><code>only</code> Run only explicit tests</li>
+        </ul>
       </p>
+      <p><em>
+        Valid values: <code>on</code>, <code>off</code>, <code>only</code><br />
+        Default value: <code>off</code>
+      </em></p>
     </td>
   </tr>
   <tr>
@@ -124,6 +163,19 @@ breadcrumb: Documentation
     <td class="wrapped-wide">
       <p>
         Set this to <code>true</code> to enable skipped tests to be treated as errors.
+      </p>
+      <p><em>
+        Valid values: <code>true</code>, <code>false</code><br />
+        Default value: <code>false</code>
+      </em></p>
+    </td>
+  </tr>
+  <tr>
+    <th id="FailWarns"><code>FailWarns</code><br />xunit.runner.visualstudio 3.0.0-pre.41+<br />Test Framework v3+</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this to <code>true</code> to enable warned tests to be treated as errors.
+        By default, warnings will be reported with a passing test result.
       </p>
       <p><em>
         Valid values: <code>true</code>, <code>false</code><br />
@@ -331,7 +383,7 @@ breadcrumb: Documentation
     <th id="ReporterSwitch"><code>ReporterSwitch</code><br />xunit.runner.visualstudio 2.5.1+<br />Test Framework v1+</th>
     <td class="wrapped-wide">
       <p>
-        Set this value to use a different reporter than the default. There are four reporters
+        Set this value to use a different reporter than the default. There are five reporters
         that ship with <code>xunit.runner.visualstudio</code> with behavior that deviates from
         the default:
       </p>
@@ -352,6 +404,22 @@ breadcrumb: Documentation
       </p>
       <p><em>
         Valid values: <code>quiet</code>, <code>verbose</code>, <code>json</code>, <code>teamcity</code><br />
+        Default value: unset
+      </em></p>
+    </td>
+  </tr>
+  <tr>
+    <th id="Seed"><code>Seed</code><br />xunit.runner.visualstudio 3.0.0-pre.41+<br />Test Framework v3+</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this to set the seed used for randomization (affects how the test cases are randomized).
+        This is only valid for v3.0+ test assemblies; it will be ignored for v1 or v2 assemblies.
+        If the seed value isn't set, then the system will determine a reasonable seed (and print
+        that seed when running the test assembly, to assist you in reproducing order-dependent
+        failures).
+      </p>
+      <p><em>
+        Valid values: between <code>0</code> and <code>2147483647</code><br />
         Default value: unset
       </em></p>
     </td>
