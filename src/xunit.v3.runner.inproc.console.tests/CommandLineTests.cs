@@ -250,6 +250,53 @@ public class CommandLineTests
 			}
 		}
 
+		public class LongRunning
+		{
+			[Fact]
+			public static void DefaultValueIsNull()
+			{
+				var commandLine = new TestableCommandLine("no-config.json");
+
+				var assembly = commandLine.Parse();
+
+				Assert.Null(assembly.Configuration.DiagnosticMessages);
+				Assert.Null(assembly.Configuration.LongRunningTestSeconds);
+			}
+
+			[Fact]
+			public static void MissingValue()
+			{
+				var commandLine = new TestableCommandLine("no-config.json", "-longrunning");
+
+				var exception = Record.Exception(commandLine.Parse);
+
+				Assert.IsType<ArgumentException>(exception);
+				Assert.Equal("missing argument for -longRunning", exception.Message);
+			}
+
+			[Fact]
+			public static void InvalidValue()
+			{
+				var commandLine = new TestableCommandLine("no-config.json", "-longrunning", "abc");
+
+				var exception = Record.Exception(commandLine.Parse);
+
+				Assert.IsType<ArgumentException>(exception);
+				Assert.Equal("incorrect argument value for -longRunning (must be a positive integer)", exception.Message);
+			}
+
+			[Fact]
+			public static void ValidValue()
+			{
+				var commandLine = new TestableCommandLine("no-config.json", "-LONGRUNNING", "123");
+
+				var assembly = commandLine.Parse();
+
+				Assert.True(assembly.Configuration.DiagnosticMessages);
+				Assert.Equal(123, assembly.Configuration.LongRunningTestSeconds);
+			}
+		}
+
 		public class MaxThreads
 		{
 			[Fact]

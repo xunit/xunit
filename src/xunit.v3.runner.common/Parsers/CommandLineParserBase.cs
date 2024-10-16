@@ -70,6 +70,12 @@ public abstract class CommandLineParserBase
 			"  traits  - list the set of trait name/value pairs used in the test assemblies"
 		);
 		AddParser(
+			"longRunning", OnLongRunning, CommandLineGroup.General, "<seconds>",
+			"enable long running (hung) test detection (implies -diagnostics) by specifying",
+			"the number of seconds (as a positive integer) to report a test as running",
+			"too long (most effective with parallelAlgorithm 'conservative')"
+		);
+		AddParser(
 			"maxThreads", OnMaxThreads, CommandLineGroup.General, "<option>",
 			"maximum thread count for collection parallelization",
 			"  default   - run with default (1 thread per CPU thread)",
@@ -438,6 +444,21 @@ public abstract class CommandLineParserBase
 
 		Project.Configuration.List = list ?? throw new ArgumentException("invalid argument for -list");
 		Project.Configuration.NoLogo = list.Value.Format == ListFormat.Json;
+	}
+
+	void OnLongRunning(KeyValuePair<string, string?> option)
+	{
+		if (option.Value is null)
+			throw new ArgumentException("missing argument for -longRunning");
+
+		if (!int.TryParse(option.Value, NumberStyles.None, NumberFormatInfo.CurrentInfo, out var longRunning))
+			throw new ArgumentException("incorrect argument value for -longRunning (must be a positive integer)");
+
+		foreach (var projectAssembly in Project.Assemblies)
+		{
+			projectAssembly.Configuration.DiagnosticMessages = true;
+			projectAssembly.Configuration.LongRunningTestSeconds = longRunning;
+		}
 	}
 
 	void OnMaxThreads(KeyValuePair<string, string?> option)
