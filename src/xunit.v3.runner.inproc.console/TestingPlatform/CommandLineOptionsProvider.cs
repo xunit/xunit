@@ -45,6 +45,10 @@ public sealed class CommandLineOptionsProvider() :
 			    on  - treat passing tests with warnings as failed
 			    off - treat passing tests with warnings as passed [default]
 			""", ArgumentArity.ExactlyOne, OnFailWarns) },
+		{ "long-running", ("""
+			Enable long running (hung) test detection.
+			    (integer) - number of seconds a test runs to be considered 'long running'
+			""", ArgumentArity.ExactlyOne, OnLongRunning) },
 		{ "max-threads", ("""
 			Set maximum thread count for collection parallelization.
 			    default   - run with default (1 thread per CPU thread)
@@ -301,6 +305,16 @@ public sealed class CommandLineOptionsProvider() :
 
 	static void OnInternalDiagnostics(ParseOptions options) =>
 		options.AssemblyConfig.InternalDiagnosticMessages = ParseOnOff(options.Arguments[0]);
+
+	static void OnLongRunning(ParseOptions options)
+	{
+		var longRunningString = options.Arguments[0];
+
+		if (!int.TryParse(longRunningString, NumberStyles.None, NumberFormatInfo.CurrentInfo, out var longRunning))
+			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Invalid value '{0}' (must be a positive integer)", longRunningString));
+
+		options.AssemblyConfig.LongRunningTestSeconds = longRunning;
+	}
 
 	static void OnMaxThreads(ParseOptions options) =>
 		options.AssemblyConfig.MaxParallelThreads = options.Arguments[0].ToUpperInvariant() switch

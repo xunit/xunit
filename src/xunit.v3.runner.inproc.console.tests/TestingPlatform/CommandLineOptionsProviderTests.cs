@@ -132,6 +132,7 @@ public class CommandLineOptionsProviderTests
 		[Theory]
 		[InlineData("Invalid value '123'", "culture", "123")]
 		[InlineData("Invalid value 'abc' (must be one of: 'off', 'on', 'only')", "explicit", "abc")]
+		[InlineData("Invalid value 'abc' (must be a positive integer)", "long-running", "abc")]
 		[InlineData("Invalid value 'abc' (must be one of: 'default', 'unlimited', a positive number, a multiplier in the form of '0.0x')", "max-threads", "abc")]
 		[InlineData("Invalid value 'abc' (must be one of: 'classAndMethod', 'method')", "method-display", "abc")]
 		[InlineData("Invalid value 'abc' (must be one of: 'none', 'replaceUnderscoreWithSpace', 'useOperatorMonikers', 'useEscapeSequences', 'replacePeriodWithComma', 'all')", "method-display-options", "abc")]
@@ -195,6 +196,16 @@ public class CommandLineOptionsProviderTests
 			CommandLineOptionsProvider.Parse(configuration, commandLineOptions, projectAssembly);
 
 			Assert.Equal(expected, projectAssembly.Configuration.ExplicitOption);
+		}
+
+		[Fact]
+		public void LongRunning()
+		{
+			commandLineOptions.Set("long-running", ["123"]);
+
+			CommandLineOptionsProvider.Parse(configuration, commandLineOptions, projectAssembly);
+
+			Assert.Equal(123, projectAssembly.Configuration.LongRunningTestSeconds);
 		}
 
 		public static TheoryData<string, int?> MaxThreadsData =
