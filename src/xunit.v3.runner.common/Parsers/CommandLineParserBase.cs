@@ -443,7 +443,7 @@ public abstract class CommandLineParserBase
 	void OnMaxThreads(KeyValuePair<string, string?> option)
 	{
 		if (option.Value is null)
-			throw new ArgumentException("missing argument for -maxthreads");
+			throw new ArgumentException("missing argument for -maxThreads");
 
 		int? maxParallelThreads = null;
 
@@ -468,7 +468,7 @@ public abstract class CommandLineParserBase
 					? (int)(maxThreadMultiplier * Environment.ProcessorCount)
 					: int.TryParse(option.Value, out var threadValue) && threadValue > 0
 						? threadValue
-						: throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "incorrect argument value for -maxthreads (must be 'default', 'unlimited', a positive number, or a multiplier in the form of '{0}x')", 0.0m));
+						: throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "incorrect argument value for -maxThreads (must be 'default', 'unlimited', a positive number, or a multiplier in the form of '{0}x')", 0.0m));
 
 				break;
 		}
