@@ -168,7 +168,7 @@ public class SerializationHelperTests
 			Assert.Null(result);
 		}
 
-		[CulturedTheory("en-US", "fo-FO")]
+		[CulturedTheory("en-US", "fo-FO", DisableDiscoveryEnumeration = true)]
 		[MemberData(nameof(NonNullSuccessData), MemberType = typeof(SerializationHelperTests))]
 		public void NonNullSuccessCases<T>(
 			T? expectedValue,
@@ -336,7 +336,7 @@ public class SerializationHelperTests
 			Assert.Equal(expectedSerialization + "[]", result);
 		}
 
-		[CulturedTheory("en-US", "fo-FO")]
+		[CulturedTheory("en-US", "fo-FO", DisableDiscoveryEnumeration = true)]
 		[MemberData(nameof(NonNullSuccessData), MemberType = typeof(SerializationHelperTests))]
 		public void NonNullSuccessCases<T>(
 			T? value,
