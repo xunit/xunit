@@ -23,8 +23,7 @@ public sealed class CommandLineOptionsProvider() :
 	static readonly Dictionary<string, (string Description, ArgumentArity Arity, Action<ParseOptions> Parse)> options = new(StringComparer.OrdinalIgnoreCase)
 	{
 		// General options
-		{ "culture", (
-			"""
+		{ "culture", ("""
 			Run tests under the given culture.
 			    default   - run with the default operating system culture [default]
 			    invariant - run with the invariant culture
