@@ -111,6 +111,7 @@ xUnit.net                        | Microsoft Testing Platform                   
 `-internalDiagnostics`           | `--xunit-internal-diagnostics on`<sup>3</sup>                             | Display internal diagnostic messages
 `-html <filename>`               | `--report-xunit-html --report-xunit-html-filename <filename>`<sup>2</sup> | Enable generating xUnit.net HTML report
 `-jUnit <filename>`              | `--report-junit --report-junit-filename <filename>`<sup>2</sup>           | Enable generating JUnit (XML) report
+`-longRunning <seconds>`         | `--long-running <seconds>`                                                | Enable long running (hung) test detection
 `-maxThreads <option>`           | `--max-threads <option>`                                                  | Set maximum thread count for collection parallelization
 `-method "name"`                 | `--filter-method "name"`<sup>1</sup>                                      | Run a given test method
 `-method- "name"`                | `--filter-not-method "name"`<sup>1</sup>                                  | Do not run a given test method
