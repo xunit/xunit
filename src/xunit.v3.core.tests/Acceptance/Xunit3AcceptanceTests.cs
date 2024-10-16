@@ -407,12 +407,14 @@ public class Xunit3AcceptanceTests
 				failed =>
 				{
 					Assert.Equal($"{typeof(ClassUnderTest).FullName}.{nameof(ClassUnderTest.LongRunningAsyncTest)}", failed.TestDisplayName);
-					Assert.Equal("Test execution timed out after 10 milliseconds", failed.Messages.Single());
+					var message = Assert.Single(failed.Messages);
+					Assert.Equal("Test execution timed out after 10 milliseconds", message);
 				},
 				failed =>
 				{
 					Assert.Equal($"{typeof(ClassUnderTest).FullName}.{nameof(ClassUnderTest.LongRunningSyncTest)}", failed.TestDisplayName);
-					Assert.Equal("Test execution timed out after 10 milliseconds", failed.Messages.Single());
+					var message = Assert.Single(failed.Messages);
+					Assert.Equal("Test execution timed out after 10 milliseconds", message);
 				}
 			);
 
