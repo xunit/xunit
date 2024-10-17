@@ -4,7 +4,7 @@
   <PropertyGroup>
 
     <!-- Used for building -->
-    <ILRepackVersion>2.0.34</ILRepackVersion>
+    <ILRepackVersion>2.0.35</ILRepackVersion>
     <MicrosoftNetCoreAppRefVersion>8.0.8</MicrosoftNetCoreAppRefVersion>
     <MicrosoftNetFrameworkReferenceAssembliesVersion>1.0.3</MicrosoftNetFrameworkReferenceAssembliesVersion>
     <MicrosoftSourceLinkGitHubVersion>8.0.0</MicrosoftSourceLinkGitHubVersion>
@@ -21,20 +21,20 @@
     <MicrosoftBclAsyncInterfacesVersion>6.0.0</MicrosoftBclAsyncInterfacesVersion>
 
     <!-- Used by xunit.v3.runner.inproc.console to support Microsoft.Testing.Platform -->
-    <MicrosoftTestingPlatformVersion>1.4.0</MicrosoftTestingPlatformVersion>
+    <MicrosoftTestingPlatformVersion>1.4.1</MicrosoftTestingPlatformVersion>
 
     <!-- Used by xunit.v3.runner.msbuild to reference MSBuild types -->
     <MicrosoftBuildVersion>15.1.548</MicrosoftBuildVersion>
 
     <!-- Used by xunit.v3.runner.utility to determine the target framework of an assembly without load-locking it -->
-    <MonoCecilVersion>0.11.5</MonoCecilVersion>
+    <MonoCecilVersion>0.11.6</MonoCecilVersion>
 
     <!-- Used by xunit.v3.runner.utility to support running v2 test projects -->
     <XunitAbstractionsVersion>2.0.3</XunitAbstractionsVersion>
 
     <!-- Used by xunit.v3.templates (NuGet package) -->
     <MicrosoftNetTestSdkVersion>17.11.1</MicrosoftNetTestSdkVersion>
-    <XunitVisualStudioRunnerVersion>3.0.0-pre.37</XunitVisualStudioRunnerVersion>
+    <XunitVisualStudioRunnerVersion>3.0.0-pre.42</XunitVisualStudioRunnerVersion>
     <!-- Uncomment this line when building RTW packages -->
     <!--<VisualStudioRunnerTemplateVersion>3.0.0</VisualStudioRunnerTemplateVersion>-->
 
@@ -44,7 +44,7 @@
     <NSubstituteVersion>5.1.0</NSubstituteVersion>
     <SystemMemoryVersion>4.5.5</SystemMemoryVersion>
     <XunitV1Version>1.9.2</XunitV1Version>
-    <XunitV2Version>2.9.1</XunitV2Version>
+    <XunitV2Version>2.9.2</XunitV2Version>
 
   </PropertyGroup>
 
