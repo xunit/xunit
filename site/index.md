@@ -77,6 +77,8 @@ _New to xUnit.net? These guides will help you get started._
 * [What's new in xUnit.net v3](/docs/getting-started/v3/whats-new)
 * [Microsoft Testing Platform support in v3](/docs/getting-started/v3/microsoft-testing-platform)
 * [Query Filter Language](/docs/query-filter-language)
+* [Serialization with `IXunitSerializer` and `IXunitSerializable`](/docs/getting-started/v3/custom-serialization)
+* [Writing a custom Runner Reporter for xUnit.net v3](/docs/getting-started/v3/custom-runner-reporter)
 
 {: .indent }
 **<u>Source Analyzers</u>**
