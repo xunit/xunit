@@ -56,18 +56,6 @@ xUnit.net is a free, open source, community-focused unit testing tool for the .N
 _New to xUnit.net? These guides will help you get started._
 
 {: .indent }
-**<u>v2 Core Framework</u>** ([migrating from v1](/docs/getting-started/v2/migration))
-
-{: .indent }
-* **.NET Core & .NET 5+** &ndash; cross-platform applications, including ASP.NET Core
-  * Using [command line](/docs/getting-started/v2/netcore/cmdline) (cross-platform)
-  * Using [Visual Studio](/docs/getting-started/v2/netcore/visual-studio) (Windows)
-* **.NET Framework** &ndash; Windows desktop & server applications, including ASP.NET
-  * Using [command line](/docs/getting-started/v2/netfx/cmdline) (cross-platform)
-  * Using [Visual Studio](/docs/getting-started/v2/netfx/visual-studio) (Windows)
-  * Using [JetBrains Rider](/docs/getting-started/v2/netfx/jetbrains-rider) (cross-platform)
-
-{: .indent }
 **<u>v3 Core Framework</u>** (.NET 6+ and .NET Framework 4.7.2+, cross-platform)
 
 {: .indent }
@@ -79,6 +67,19 @@ _New to xUnit.net? These guides will help you get started._
 * [Query Filter Language](/docs/query-filter-language)
 * [Serialization with `IXunitSerializer` and `IXunitSerializable`](/docs/getting-started/v3/custom-serialization)
 * [Writing a custom Runner Reporter for xUnit.net v3](/docs/getting-started/v3/custom-runner-reporter)
+
+{: .indent }
+**<u>v2 Core Framework</u>**
+
+{: .indent }
+* **.NET Core & .NET 5+** &ndash; cross-platform applications, including ASP.NET Core
+  * Using [command line](/docs/getting-started/v2/netcore/cmdline) (cross-platform)
+  * Using [Visual Studio](/docs/getting-started/v2/netcore/visual-studio) (Windows)
+* **.NET Framework** &ndash; Windows desktop & server applications, including ASP.NET
+  * Using [command line](/docs/getting-started/v2/netfx/cmdline) (cross-platform)
+  * Using [Visual Studio](/docs/getting-started/v2/netfx/visual-studio) (Windows)
+  * Using [JetBrains Rider](/docs/getting-started/v2/netfx/jetbrains-rider) (cross-platform)
+* [Migrating from xUnit.net v1](/docs/getting-started/v2/migration)
 
 {: .indent }
 **<u>Source Analyzers</u>**
