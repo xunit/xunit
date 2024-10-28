@@ -310,10 +310,10 @@ blockquote.padded {
   margin-right: 5px;
 }
 .release {
-  background-color: #6cc644;
+  background-color: #0f81c1;
 }
 .prerelease {
-  background-color: #c9510c;
+  background-color: #f58142;
 }
 .table.left th,
 .table.left td,
