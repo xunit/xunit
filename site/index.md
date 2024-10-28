@@ -14,7 +14,7 @@ xUnit.net is a free, open source, community-focused unit testing tool for the .N
 > _Resharper/Rider support is provided and supported by [JetBrains](https://www.jetbrains.com/)._\\
 > _CodeRush support is provided and supported by [DevExpress](https://www.devexpress.com/)._\\
 > _NCrunch support is provided and supported by [Remco Software](https://www.ncrunch.net/)._\\
-> _The xUnit.net logo was designed by Nathan Young._
+> _The xUnit.net logo was designed by [Nathan Young](https://mas.to/@nathanyoung)._
 
 
 ## Table of Contents
