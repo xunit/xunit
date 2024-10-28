@@ -6,7 +6,7 @@ breadcrumb: Documentation
 
 # Migrating from v2 to v3
 
-## As of: 2024 August 8 (`0.2.0-pre.69`)
+## As of: 2024 October 27 (`0.5.0-pre.27`)
 
 This migration guide aims to be a comprehensive list helping developers migrate from xUnit.net v2 to v3. It includes information on how to upgrade your v2 projects to v3, what to expect for unit test authors, and what to expect for extensibility authors.
 
@@ -186,7 +186,7 @@ The following types have been moved to `Xunit.Sdk` (in `xunit.v3.common`):
 * `IBeforeTestFinished`
 * `IBeforeTestStarting`
 * `IDiagnosticMessage` (note that internal diagnostic messages now send `IInternalDiagnosticMessage`)
-* `IDiscoveryCompleteMessage`
+* `IDiscoveryCompleteMessage` (renamed to `IDiscoveryComplete`)
 * `IErrorMessage`
 * `IFailureInformation` (renamed to `IErrorMetadata`)
 * `IFinishedMessage` (renamed to `IExecutionSummaryMetadata`)
@@ -200,7 +200,7 @@ The following types have been moved to `Xunit.Sdk` (in `xunit.v3.common`):
 * `ITestAssemblyStarting`
 * `ITestCase`
 * `ITestCaseCleanupFailure`
-* `ITestCaseDiscoveryMessage`
+* `ITestCaseDiscoveryMessage` (renamed to `ITestCaseDiscovered`)
 * `ITestCaseFinished`
 * `ITestCaseMessage`
 * `ITestCaseStarting`
@@ -256,7 +256,7 @@ The following types have been removed:
 * `IReflectionMethodInfo`
 * `IReflectionParameterInfo`
 * `IReflectionTypeInfo`
-* `ISourceInformation`
+* `ISourceInformation` (replaced with `SourceInformation`)
 * `ITypeInfo`
 
 
@@ -390,6 +390,12 @@ The split between these two libraries comes from the fact that we now have an in
 The in-process console runner takes dependencies on `xunit.v3.core` and `xunit.v3.runner.common` to be able to perform its runner duties, whereas `xunit.v3.runner.utility` takes dependencies only on `xunit.abstractions` to be able run v2 tests (and `Mono.Cecil` to be able to read assembly metadata without loading the assembly into memory).
 
 At the moment, third party reporters are not supported. We have an [open issue](https://github.com/xunit/xunit/issues/1874) to solve the problem of how to enable third party reporters without creating the strong dependency on `xunit.v3.runner.utility`, as the strong dependency in v2 on `xunit.runner.utility` made writing third party reporters exceptionally fragile.
+
+### Updated support for custom runner reporters
+
+We have overhauled the way custom runner reporters are supported in v3. The new design for runner reporters directly links them into your test assembly, and the reporter is now chosen via the `-reporter` switch (only available when you run your test project directly).
+
+For more information, see the [documentation page](/docs/getting-started/v3/custom-runner-reporter.md).
 
 ### Namespace changes
 

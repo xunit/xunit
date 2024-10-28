@@ -6,7 +6,7 @@ breadcrumb: Documentation
 
 # What's New in v3
 
-## As of: 2024 September 2 (`0.3.0-pre.18`)
+## As of: 2024 October 27 (`0.5.0-pre.27`)
 
 This guide aims to be a comprehensive list of the new features added to v3, written for existing developers who are using v2.
 
@@ -74,13 +74,11 @@ Items here are related to the assertion library, from the `xunit.v3.assert` and 
 
 ### New assertions for everybody
 
-#### Dynamic skipping
+Three new assertions have been added to support dynamically skipping a test at runtime.
 
-> Three new assertions have been added to support dynamically skipping a test at runtime.
->
-> * `Assert.Skip(string message)`
-> * `Assert.SkipUnless(bool condition, string reason)` will dynamically skip the test only if `condition` is `false`
-> * `Assert.SkipWhen(bool condition, string reason)` will dynamically skip the test only if `condition` is `true`
+* `Assert.Skip(string message)`
+* `Assert.SkipUnless(bool condition, string reason)` will dynamically skip the test only if `condition` is `false`
+* `Assert.SkipWhen(bool condition, string reason)` will dynamically skip the test only if `condition` is `true`
 
 ### New assertions for projects previously targeting .NET Framework/.NET 5 or older
 
@@ -107,6 +105,11 @@ Items here are related to the assertion library, from the `xunit.v3.assert` and 
 > * `Assert.Equal`
 > * `Assert.StartsWith`
 
+### Updated assertions
+
+* `Assert.Equivalent` now supports comparing two `Uri` values. It does so by comparing that the two `Uri`s have identical `OriginalString` values.
+
+
 ## What's New in the Core Framework
 
 Items here are related to the core framework used for writing tests, from the `xunit.v3.common` and `xunit.v3.core` NuGet packages.
@@ -127,6 +130,12 @@ We have added support for explicit tests; that is: tests which are normally not 
 
 A test is marked as explicit through the new `Explicit` property on the `[Fact]` and `[Theory]` attributes. Tests which aren't run (because they don't match the requested explicit option) are reported in runners as "not run".
 
+### Test filtering expressions
+
+In addition to supporting our standard command line "simple" filters (like `-class` or `-method`), for v3 runners we have added a new "query filter language" that can be invoked via `-filter`. This query filter language allows more complex filtering operations than were previously possible with the simple filters. These complex filters also work via `xunit.v3.runner.console` when running older tests linked against v1 or v2, as the filtering is performed inside the runner.
+
+For more information, see the [documentation page](/docs/query-filter-language.md).
+
 ### Test context
 
 We have added a `TestContext` class which is designed to:
@@ -141,7 +150,7 @@ We have added a `TestContext` class which is designed to:
 Access to the test context is available in two ways:
 
 * You can access it from anywhere via the static `TestContext.Current`.
-* You can access it via `ITestContextAccessor`, which can be injected into a test class's constructor alongside fixtures. _(There is an [open issue](https://github.com/xunit/xunit/issues/1738) related to expanding dependency injection support in the framework itself, which would include allowing `ITestContextAccessor` to be injected in other places besides test classes.)_
+* You can access it via `ITestContextAccessor`, which can be injected into a test class's constructor alongside fixtures.
 
 Regardless of whether you use `TestContext.Current` or `ITestContextAccessor.Current`, this provides a "moment in time" snapshot of the current state, so the context should be used immediately rather than stored away for later use.
 
@@ -207,6 +216,18 @@ This would create the 6 combinations of these data values for your theory:
 * `2600, "Hello"`
 * `2600, "World"`
 
+### Capturing `Console`, `Debug`, and `Trace` output
+
+In v2, we do not capture any output calls to `Console`, `Debug`, or `Trace`.
+
+In v3, we have added two assembly-level attributes that you can use to capture output (and redirect it as though you had written the output via `ITestOutputHelper`), which enables capture for all tests in the assembly. These are:
+
+* `[assembly: CaptureConsole]` can capture standard output and standard error (by default it will capture both, which you can override via the `CaptureOutput` and `CaptureError` properties on the attribute, respectively)
+
+* `[assembly: CaptureTrace]` will capture output from `Debug` and `Trace` (note that `Debug` output is only available with debug builds of your unit tests, as the compiler filters out all `Debug` output in release builds)
+
+For backward compatibility reasons, these are both disabled by default.
+
 ### Test pipeline startup
 
 A new test pipeline startup capability has been added, which allows unit test developers to be able to run startup and cleanup code very early in the test pipeline. This differs from an assembly-level fixture because of how early it runs, and because it runs for both discovery and execution (whereas fixtures only run during execution). The intention with this hook is to perform some global initialization work that is needed for both discovery and execution to take place successfully.
@@ -226,6 +247,25 @@ In v3, while using the default culture of your PC remains the default behavior, 
 ### Repeatable randomization
 
 The randomization of test cases in v3 is stable until you rebuild, and then the order may change. In an attempt to help developer track down issues related to the particular random order of specific test cases, we will print the randomization seed we use when [diagnostic messages are enabled](/docs/configuration-files#diagnosticMessages). The command line of the console runner has been updated to allow passing this seed value so you can attempt to reproduce the same random order that was used previously, as well as providing the seed [in your configuration file](/docs/configuration-files#seed).
+
+### Updated theory data serialization support
+
+#### External serialization with `IXunitSerializer`
+
+> In v2, users who wanted to support serializable theory data items were forced to implement `IXunitSerializable` on their custom data types. Users who wanted to serialize data which they did not control, or which they did not want to add `IXunitSerializable` to, were out of luck, and forced to mark their data as non-serializable (and therefore unable to run the individual data rows in Test Explorer).
+>
+> In v3, we have added a way to create external serializers for theory data. To support this, developers create a class which implements `IXunitSerializer`, and then register the serializer the serializer with an assembly-level attribute.
+>
+> For more information, see the [documentation page](/docs/getting-started/v3/custom-serialization.md).
+
+#### Updated built-in serialization support
+
+> We have added built-in serialization support for:
+>
+> * [`System.Guid`](https://learn.microsoft.com/dotnet/api/system.guid)
+> * [`System.Index`](https://learn.microsoft.com/dotnet/api/system.index)
+> * [`System.Range`](https://learn.microsoft.com/dotnet/api/system.range)
+> * [`System.Uri`](https://learn.microsoft.com/dotnet/api/system.uri)
 
 ### New report formats in the console and MSBuild runners
 
@@ -258,6 +298,12 @@ Dynamic skipping is also done via exception. Unlike the failure exceptions, thou
 
 The project template `xunit3-extension` illustrates one way to add a dynamic skip system (via a before/after test attribute) that will skip based on the runtime operating system. It utilizes the dynamic skip token by throwing `System.Exception` with the skip reason in the message.
 
+### Support for Microsoft Testing Platform
+
+The VSTest team at Microsoft has created a new testing platform to replace the existing VSTest APIs. This new platform includes features like stand-alone executables for test projects (much like xUnit.net v3), improved performance, a NuGet-based extensibility model, and will be supported by both `dotnet test` and Test Explorer inside Visual Studio. It can also provide an alternative command line experience for xUnit.net v3 test projects which can give a unified command line experience across xUnit.net v3, MSTest 3.6+, and other testing frameworks.
+
+For more information, see the [documentation page](/docs/getting-started/v3/microsoft-testing-platform).
+
 ### Miscellaneous changes
 
 * Several classes have had their constructors simplified by removing `IMessageSink` parameters that were previously used to send diagnostic messages to. Instead, developers can use the ambient `TestContext.Current.SendDiagnosticMessage` to simplify the sending of diagnostic messages.
@@ -276,9 +322,23 @@ The project template `xunit3-extension` illustrates one way to add a dynamic ski
 
 * `CollectionBehaviorAttribute` has a new property (`ParallelAlgorithm`) that can be used to set the parallel algorithm for the test assembly. This value can be overridden by a configuration file or a command line switch to the runner. If the value is not set, the default (`ParallelAlgorithm.Conservative`) is used.
 
+* In v2, `Timeout` on `FactAttribute` required an async test. In v3, this requirement is not longer present; timeouts are supported now for non-async test methods.
+
+  Note that a test which has timed out does not stop running forcefully; rather, the cancellation token available via `TestContext.Current.CancellationToken` will be signaled to indicate that the test should stop running. Regardless of whether the test method is async or not, any test should consciously check the cancellation token whenever it is reasonable & convenient, as the cancellation token will be triggered for both timeouts as well as when the user has requested to cancel the test run. We have created [an analyzer rule](/xunit.analyzers/rules/xUnit1051) which will trigger when it sees test methods calling into a method which could take a cancellation token but is not currently being passed one.
+
 * A new `FailureCause` enum has been added, and is returned inside `ITestFailed` messages. It gives a best guess as to the cause of the test failure: assertion failure, exception thrown, or test timed out.
 
   This best guess is based on two contracts added to v3 which can be implemented by third party assertion libraries. Throwing an exception which implements an interface named `IAssertionException` (in any namespace) will be reported as an assertion failure; similarly, throwing an exception which implements an interface named `ITestTimeoutException` (in any namespace) will be reported as a timed-out test.
+
+* `ITestCaseMetadata` has three new properties: `Explicit, `TestMethodParameterTypes` and `TestMethodReturnType`.
+
+  Note that type names here are returned in [VSTest format](https://github.com/microsoft/vstest/blob/main/docs/RFCs/0017-Managed-TestCase-Properties.md), not in .NET canonical format, as they are intended to be used for VSTest and Microsoft Testing Platform consumption. We do not recommend using these properties in any other capacity.
+
+* `ITestOutputHelper` now includes `Write` methods, in addition to the existing `WriteLine` methods. Note that test output is still buffered until it sees `Environment.NewLine`, so this does not change the contract of output reporting via `ITestOutput`, and runners will only print live test output after a full line has been written.
+
+* `IXunitTest` has a new property, `TestMethodArguments`.
+
+* `IXunitTestMethod` has a new property, `ReturnType`.
 
 * `TheoryAttribute` has a new property, `SkipTestWithoutData`, that can be used to allow theories without any data to be skipped rather than failed.
 
@@ -325,13 +385,13 @@ Because the API of the front controller directly mimics the test framework, it's
 
 In v3, the front controller interface is split into `IFrontController` and `IFrontControllerDiscoverer`, where the former implies the latter. The split apart discoverer is mostly an artifact of trying to continue to support source-based discovery, at least for v2 test projects (though the developer must talk directly to `Xunit2` to achieve this now).
 
-The newly updated `XunitFrontController` in v3 has a static factory method, `Create`, which only requires one piece of information: `XunitProjectAssembly`. This consolidates the various pieces of information that were necessary in the old model into a central location that's easier to understand and pass along. You may also pass along an implementation of `ISourceInformationProvider` if you have one, to supplement discovered test cases with source information (the `xunit.runner.visualstudio` project does this by utilizing information available to it by virtue of running inside Visual Studio).
+The newly updated `XunitFrontController` in v3 has a static factory method, `Create`, which only requires one piece of information: `XunitProjectAssembly`. This consolidates the various pieces of information that were necessary in the old model into a central location that's easier to understand and pass along. You may also pass along an implementation of `ISourceInformationProvider` if you have one, to supplement discovered test cases with source information, a diagnostic message sink for reporting diagnostic messages to, and an implementation of `ITestProcessLauncher` which will be used to control how v3 test projects are launched (by default, they are launched as separate processes on the same machine).
 
 The APIs here look slightly different now, and they've been designed to optimize the round-trip requirements across the Application Domain or process boundary. The new methods are `Find`, `FindAndRun`, and `Run`.
 
 One of the most expensive requirements in the v2 runners was round-tripping test case objects across the Application Domain boundary. This was required because of the design that separated discovery and execution operations into separate method calls. The new `FindAndRun` API consolidates all of that into a single call across the process boundary in v3, passing the filter along so that the filtering operation takes place inside the test assembly, and not inside the runner assembly.
 
-It is anticipated that most runner authors will choose to use `FindAndRun` as their single entry point into running tests, as this is the most optimized path. Typically only runners with separated discovery and execution process (like Visual Studio's Test Explorer) will end up using the separate `Find` and `Run` methods.
+It is anticipated that most runner authors will choose to use `FindAndRun` as their single entry point into running tests, as this is the most optimized path. Typically only runners with separated discovery and execution processes (like Visual Studio's Test Explorer) will end up using the separate `Find` and `Run` methods.
 
 Each of the three methods now accepts just two parameters: a message sink for the runner to receive status messages from the test run, and the settings to perform the operation in question. The settings class is a wrapper around your options (an instance of `ITestFrameworkDiscoveryOptions` and/or `ITestFrameworkExecutionOptions`) as well as the filters (if you're calling `Find` or `FindAndRun`) or the list of test cases to run (if you're calling `Run`).
 
@@ -368,3 +428,5 @@ The second overload of `TryGetCollectionMetadata` is usually not necessary, but 
 * Added `ConsoleHelper` to wrap around any `TextWriter` (typically `System.Console.Out`) and takes responsibility for locking writes so they don't collide. It's also responsible for determining when to use `System.Console` to change colors vs. using ANSI control sequences.
 
 * Added a `DiscoveryStarting` message as the counterpart to the existing `DiscoveryComplete` message. The front controller is responsible for sending both of these messages rather than the test framework, since the front controller may want to send repeated `Find` requests to the framework's discoverer in the context of a single "discovery" (based on the filters that were requested).
+
+* `IRunnerLogger` gets a new method: `void WaitForAcknowledgment()`. This method is called by the in-process runner when writing messages as JSON to the console due to the v3 test process being launched with the `-automated sync` command line switch. Other consumers of runner loggers (i.e., runner reporter implementations which need to write messages for the end user to the console) may safely ignore this method.
