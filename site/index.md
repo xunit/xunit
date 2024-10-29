@@ -93,6 +93,10 @@ _New to xUnit.net? These guides will help you get started._
 * [What is the JSON schema for <code>xunit.runner.json</code>?](/schema/)
 * [RunSettings and <code>xunit.runner.visualstudio</code>](/docs/runsettings)
 
+### Assertions
+
+* [Assertions](/docs/assertions/)
+
 ### Unit Test Parallelism
 
 * [Running tests in parallel](/docs/running-tests-in-parallel)

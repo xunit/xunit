@@ -1,4 +1,4 @@
-# <a id="Xunit_Assert"></a> Class Assert
+# <a href="#Xunit_Assert"></a> Class Assert
 
 Namespace: [Xunit](Xunit.md)  
 Assembly: xunit.v3.assert.dll  
@@ -27,7 +27,7 @@ public class Assert
 
 ## Constructors
 
-### <a id="Xunit_Assert__ctor"></a> Assert\(\)
+### <a href="#Xunit_Assert__ctor"></a> Assert\(\)
 
 Initializes a new instance of the <xref href="Xunit.Assert" data-throw-if-not-resolved="false"></xref> class.
 
@@ -37,7 +37,7 @@ protected Assert()
 
 ## Methods
 
-### <a id="Xunit_Assert_All__1_System_Collections_Generic_IEnumerable___0__System_Action___0__"></a> All<T\>\(IEnumerable<T\>, Action<T\>\)
+### <a href="#Xunit_Assert_All__1_System_Collections_Generic_IEnumerable___0__System_Action___0__"></a> All<T\>\(IEnumerable<T\>, Action<T\>\)
 
 Verifies that all items in the collection pass when executed against
 action.
@@ -68,7 +68,7 @@ The type of the object to be verified
 
 Thrown when the collection contains at least one non-matching element
 
-### <a id="Xunit_Assert_All__1_System_Collections_Generic_IEnumerable___0__System_Action___0_System_Int32__"></a> All<T\>\(IEnumerable<T\>, Action<T, int\>\)
+### <a href="#Xunit_Assert_All__1_System_Collections_Generic_IEnumerable___0__System_Action___0_System_Int32__"></a> All<T\>\(IEnumerable<T\>, Action<T, int\>\)
 
 Verifies that all items in the collection pass when executed against
 action. The item index is provided to the action, in addition to the item.
@@ -99,7 +99,7 @@ The type of the object to be verified
 
 Thrown when the collection contains at least one non-matching element
 
-### <a id="Xunit_Assert_AllAsync__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Threading_Tasks_Task__"></a> AllAsync<T\>\(IEnumerable<T\>, Func<T, Task\>\)
+### <a href="#Xunit_Assert_AllAsync__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Threading_Tasks_Task__"></a> AllAsync<T\>\(IEnumerable<T\>, Func<T, Task\>\)
 
 Verifies that all items in the collection pass when executed against
 action.
@@ -134,7 +134,7 @@ The type of the object to be verified
 
 Thrown when the collection contains at least one non-matching element
 
-### <a id="Xunit_Assert_AllAsync__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Int32_System_Threading_Tasks_Task__"></a> AllAsync<T\>\(IEnumerable<T\>, Func<T, int, Task\>\)
+### <a href="#Xunit_Assert_AllAsync__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Int32_System_Threading_Tasks_Task__"></a> AllAsync<T\>\(IEnumerable<T\>, Func<T, int, Task\>\)
 
 Verifies that all items in the collection pass when executed against
 action. The item index is provided to the action, in addition to the item.
@@ -169,7 +169,7 @@ The type of the object to be verified
 
 Thrown when the collection contains at least one non-matching element
 
-### <a id="Xunit_Assert_Collection__1_System_Collections_Generic_IEnumerable___0__System_Action___0____"></a> Collection<T\>\(IEnumerable<T\>, params Action<T\>\[\]\)
+### <a href="#Xunit_Assert_Collection__1_System_Collections_Generic_IEnumerable___0__System_Action___0____"></a> Collection<T\>\(IEnumerable<T\>, params Action<T\>\[\]\)
 
 Verifies that a collection contains exactly a given number of elements, which meet
 the criteria provided by the element inspectors.
@@ -195,7 +195,7 @@ The element inspectors, which inspect each element in turn. The
 
 The type of the object to be verified
 
-### <a id="Xunit_Assert_CollectionAsync__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Threading_Tasks_Task____"></a> CollectionAsync<T\>\(IEnumerable<T\>, params Func<T, Task\>\[\]\)
+### <a href="#Xunit_Assert_CollectionAsync__1_System_Collections_Generic_IEnumerable___0__System_Func___0_System_Threading_Tasks_Task____"></a> CollectionAsync<T\>\(IEnumerable<T\>, params Func<T, Task\>\[\]\)
 
 Verifies that a collection contains exactly a given number of elements, which meet
 the criteria provided by the element inspectors.
@@ -225,7 +225,7 @@ The element inspectors, which inspect each element in turn. The
 
 The type of the object to be verified
 
-### <a id="Xunit_Assert_Contains__1___0_System_Collections_Generic_IEnumerable___0__"></a> Contains<T\>\(T, IEnumerable<T\>\)
+### <a href="#Xunit_Assert_Contains__1___0_System_Collections_Generic_IEnumerable___0__"></a> Contains<T\>\(T, IEnumerable<T\>\)
 
 Verifies that a collection contains a given object.
 
@@ -255,7 +255,7 @@ The type of the object to be verified
 
 Thrown when the object is not present in the collection
 
-### <a id="Xunit_Assert_Contains__1___0_System_Collections_Generic_IEnumerable___0__System_Collections_Generic_IEqualityComparer___0__"></a> Contains<T\>\(T, IEnumerable<T\>, IEqualityComparer<T\>\)
+### <a href="#Xunit_Assert_Contains__1___0_System_Collections_Generic_IEnumerable___0__System_Collections_Generic_IEqualityComparer___0__"></a> Contains<T\>\(T, IEnumerable<T\>, IEqualityComparer<T\>\)
 
 Verifies that a collection contains a given object, using an equality comparer.
 
@@ -289,7 +289,7 @@ The type of the object to be verified
 
 Thrown when the object is not present in the collection
 
-### <a id="Xunit_Assert_Contains__1_System_Collections_Generic_IEnumerable___0__System_Predicate___0__"></a> Contains<T\>\(IEnumerable<T\>, Predicate<T\>\)
+### <a href="#Xunit_Assert_Contains__1_System_Collections_Generic_IEnumerable___0__System_Predicate___0__"></a> Contains<T\>\(IEnumerable<T\>, Predicate<T\>\)
 
 Verifies that a collection contains a given object.
 
@@ -319,7 +319,7 @@ The type of the object to be verified
 
 Thrown when the object is not present in the collection
 
-### <a id="Xunit_Assert_Contains__2___0_System_Collections_Generic_IDictionary___0___1__"></a> Contains<TKey, TValue\>\(TKey, IDictionary<TKey, TValue\>\)
+### <a href="#Xunit_Assert_Contains__2___0_System_Collections_Generic_IDictionary___0___1__"></a> Contains<TKey, TValue\>\(TKey, IDictionary<TKey, TValue\>\)
 
 Verifies that a dictionary contains a given key.
 
@@ -359,7 +359,7 @@ The type of the values of the object to be verified.
 
 Thrown when the object is not present in the collection
 
-### <a id="Xunit_Assert_Contains__2___0_System_Collections_Generic_IReadOnlyDictionary___0___1__"></a> Contains<TKey, TValue\>\(TKey, IReadOnlyDictionary<TKey, TValue\>\)
+### <a href="#Xunit_Assert_Contains__2___0_System_Collections_Generic_IReadOnlyDictionary___0___1__"></a> Contains<TKey, TValue\>\(TKey, IReadOnlyDictionary<TKey, TValue\>\)
 
 Verifies that a read-only dictionary contains a given key.
 
@@ -399,7 +399,7 @@ The type of the values of the object to be verified.
 
 Thrown when the object is not present in the collection
 
-### <a id="Xunit_Assert_Contains__2___0_System_Collections_Concurrent_ConcurrentDictionary___0___1__"></a> Contains<TKey, TValue\>\(TKey, ConcurrentDictionary<TKey, TValue\>\)
+### <a href="#Xunit_Assert_Contains__2___0_System_Collections_Concurrent_ConcurrentDictionary___0___1__"></a> Contains<TKey, TValue\>\(TKey, ConcurrentDictionary<TKey, TValue\>\)
 
 Verifies that a dictionary contains a given key.
 
@@ -439,7 +439,7 @@ The type of the values of the object to be verified.
 
 Thrown when the object is not present in the collection
 
-### <a id="Xunit_Assert_Contains__2___0_System_Collections_Generic_Dictionary___0___1__"></a> Contains<TKey, TValue\>\(TKey, Dictionary<TKey, TValue\>\)
+### <a href="#Xunit_Assert_Contains__2___0_System_Collections_Generic_Dictionary___0___1__"></a> Contains<TKey, TValue\>\(TKey, Dictionary<TKey, TValue\>\)
 
 Verifies that a dictionary contains a given key.
 
@@ -479,7 +479,7 @@ The type of the values of the object to be verified.
 
 Thrown when the object is not present in the collection
 
-### <a id="Xunit_Assert_Contains__2___0_System_Collections_ObjectModel_ReadOnlyDictionary___0___1__"></a> Contains<TKey, TValue\>\(TKey, ReadOnlyDictionary<TKey, TValue\>\)
+### <a href="#Xunit_Assert_Contains__2___0_System_Collections_ObjectModel_ReadOnlyDictionary___0___1__"></a> Contains<TKey, TValue\>\(TKey, ReadOnlyDictionary<TKey, TValue\>\)
 
 Verifies that a dictionary contains a given key.
 
@@ -519,7 +519,7 @@ The type of the values of the object to be verified.
 
 Thrown when the object is not present in the collection
 
-### <a id="Xunit_Assert_Contains__2___0_System_Collections_Immutable_ImmutableDictionary___0___1__"></a> Contains<TKey, TValue\>\(TKey, ImmutableDictionary<TKey, TValue\>\)
+### <a href="#Xunit_Assert_Contains__2___0_System_Collections_Immutable_ImmutableDictionary___0___1__"></a> Contains<TKey, TValue\>\(TKey, ImmutableDictionary<TKey, TValue\>\)
 
 Verifies that a dictionary contains a given key.
 
@@ -559,7 +559,7 @@ The type of the values of the object to be verified.
 
 Thrown when the object is not present in the collection
 
-### <a id="Xunit_Assert_Contains__1_System_Memory___0__System_Memory___0__"></a> Contains<T\>\(Memory<T\>, Memory<T\>\)
+### <a href="#Xunit_Assert_Contains__1_System_Memory___0__System_Memory___0__"></a> Contains<T\>\(Memory<T\>, Memory<T\>\)
 
 Verifies that a Memory contains a given sub-Memory
 
@@ -587,7 +587,7 @@ The Memory to be inspected
 
 Thrown when the sub-Memory is not present inside the Memory
 
-### <a id="Xunit_Assert_Contains__1_System_Memory___0__System_ReadOnlyMemory___0__"></a> Contains<T\>\(Memory<T\>, ReadOnlyMemory<T\>\)
+### <a href="#Xunit_Assert_Contains__1_System_Memory___0__System_ReadOnlyMemory___0__"></a> Contains<T\>\(Memory<T\>, ReadOnlyMemory<T\>\)
 
 Verifies that a Memory contains a given sub-Memory
 
@@ -615,7 +615,7 @@ The Memory to be inspected
 
 Thrown when the sub-Memory is not present inside the Memory
 
-### <a id="Xunit_Assert_Contains__1_System_ReadOnlyMemory___0__System_Memory___0__"></a> Contains<T\>\(ReadOnlyMemory<T\>, Memory<T\>\)
+### <a href="#Xunit_Assert_Contains__1_System_ReadOnlyMemory___0__System_Memory___0__"></a> Contains<T\>\(ReadOnlyMemory<T\>, Memory<T\>\)
 
 Verifies that a Memory contains a given sub-Memory
 
@@ -643,7 +643,7 @@ The Memory to be inspected
 
 Thrown when the sub-Memory is not present inside the Memory
 
-### <a id="Xunit_Assert_Contains__1_System_ReadOnlyMemory___0__System_ReadOnlyMemory___0__"></a> Contains<T\>\(ReadOnlyMemory<T\>, ReadOnlyMemory<T\>\)
+### <a href="#Xunit_Assert_Contains__1_System_ReadOnlyMemory___0__System_ReadOnlyMemory___0__"></a> Contains<T\>\(ReadOnlyMemory<T\>, ReadOnlyMemory<T\>\)
 
 Verifies that a Memory contains a given sub-Memory
 
@@ -671,7 +671,7 @@ The Memory to be inspected
 
 Thrown when the sub-Memory is not present inside the Memory
 
-### <a id="Xunit_Assert_Contains__1___0_System_Collections_Generic_ISet___0__"></a> Contains<T\>\(T, ISet<T\>\)
+### <a href="#Xunit_Assert_Contains__1___0_System_Collections_Generic_ISet___0__"></a> Contains<T\>\(T, ISet<T\>\)
 
 Verifies that the set contains the given object.
 
@@ -701,7 +701,7 @@ The type of the object to be verified
 
 Thrown when the object is not present in the set
 
-### <a id="Xunit_Assert_Contains__1___0_System_Collections_Generic_HashSet___0__"></a> Contains<T\>\(T, HashSet<T\>\)
+### <a href="#Xunit_Assert_Contains__1___0_System_Collections_Generic_HashSet___0__"></a> Contains<T\>\(T, HashSet<T\>\)
 
 Verifies that the hashset contains the given object.
 
@@ -731,7 +731,7 @@ The type of the object to be verified
 
 Thrown when the object is not present in the set
 
-### <a id="Xunit_Assert_Contains__1___0_System_Collections_Generic_SortedSet___0__"></a> Contains<T\>\(T, SortedSet<T\>\)
+### <a href="#Xunit_Assert_Contains__1___0_System_Collections_Generic_SortedSet___0__"></a> Contains<T\>\(T, SortedSet<T\>\)
 
 Verifies that the sorted hashset contains the given object.
 
@@ -761,7 +761,7 @@ The type of the object to be verified
 
 Thrown when the object is not present in the set
 
-### <a id="Xunit_Assert_Contains__1___0_System_Collections_Immutable_ImmutableHashSet___0__"></a> Contains<T\>\(T, ImmutableHashSet<T\>\)
+### <a href="#Xunit_Assert_Contains__1___0_System_Collections_Immutable_ImmutableHashSet___0__"></a> Contains<T\>\(T, ImmutableHashSet<T\>\)
 
 Verifies that the immutable hashset contains the given object.
 
@@ -791,7 +791,7 @@ The type of the object to be verified
 
 Thrown when the object is not present in the set
 
-### <a id="Xunit_Assert_Contains__1___0_System_Collections_Immutable_ImmutableSortedSet___0__"></a> Contains<T\>\(T, ImmutableSortedSet<T\>\)
+### <a href="#Xunit_Assert_Contains__1___0_System_Collections_Immutable_ImmutableSortedSet___0__"></a> Contains<T\>\(T, ImmutableSortedSet<T\>\)
 
 Verifies that the immutable sorted hashset contains the given object.
 
@@ -821,7 +821,7 @@ The type of the object to be verified
 
 Thrown when the object is not present in the set
 
-### <a id="Xunit_Assert_Contains__1_System_Span___0__System_Span___0__"></a> Contains<T\>\(Span<T\>, Span<T\>\)
+### <a href="#Xunit_Assert_Contains__1_System_Span___0__System_Span___0__"></a> Contains<T\>\(Span<T\>, Span<T\>\)
 
 Verifies that a span contains a given sub-span
 
@@ -849,7 +849,7 @@ The span to be inspected
 
 Thrown when the sub-span is not present inside the span
 
-### <a id="Xunit_Assert_Contains__1_System_Span___0__System_ReadOnlySpan___0__"></a> Contains<T\>\(Span<T\>, ReadOnlySpan<T\>\)
+### <a href="#Xunit_Assert_Contains__1_System_Span___0__System_ReadOnlySpan___0__"></a> Contains<T\>\(Span<T\>, ReadOnlySpan<T\>\)
 
 Verifies that a span contains a given sub-span
 
@@ -877,7 +877,7 @@ The span to be inspected
 
 Thrown when the sub-span is not present inside the span
 
-### <a id="Xunit_Assert_Contains__1_System_ReadOnlySpan___0__System_Span___0__"></a> Contains<T\>\(ReadOnlySpan<T\>, Span<T\>\)
+### <a href="#Xunit_Assert_Contains__1_System_ReadOnlySpan___0__System_Span___0__"></a> Contains<T\>\(ReadOnlySpan<T\>, Span<T\>\)
 
 Verifies that a span contains a given sub-span
 
@@ -905,7 +905,7 @@ The span to be inspected
 
 Thrown when the sub-span is not present inside the span
 
-### <a id="Xunit_Assert_Contains__1_System_ReadOnlySpan___0__System_ReadOnlySpan___0__"></a> Contains<T\>\(ReadOnlySpan<T\>, ReadOnlySpan<T\>\)
+### <a href="#Xunit_Assert_Contains__1_System_ReadOnlySpan___0__System_ReadOnlySpan___0__"></a> Contains<T\>\(ReadOnlySpan<T\>, ReadOnlySpan<T\>\)
 
 Verifies that a span contains a given sub-span
 
@@ -933,7 +933,7 @@ The span to be inspected
 
 Thrown when the sub-span is not present inside the span
 
-### <a id="Xunit_Assert_Contains_System_String_System_String_"></a> Contains\(string, string?\)
+### <a href="#Xunit_Assert_Contains_System_String_System_String_"></a> Contains\(string, string?\)
 
 Verifies that a string contains a given sub-string, using the current culture.
 
@@ -957,7 +957,7 @@ The string to be inspected
 
 Thrown when the sub-string is not present inside the string
 
-### <a id="Xunit_Assert_Contains_System_String_System_String_System_StringComparison_"></a> Contains\(string, string?, StringComparison\)
+### <a href="#Xunit_Assert_Contains_System_String_System_String_System_StringComparison_"></a> Contains\(string, string?, StringComparison\)
 
 Verifies that a string contains a given sub-string, using the given comparison type.
 
@@ -985,7 +985,7 @@ The type of string comparison to perform
 
 Thrown when the sub-string is not present inside the string
 
-### <a id="Xunit_Assert_Contains_System_Memory_System_Char__System_Memory_System_Char__"></a> Contains\(Memory<char\>, Memory<char\>\)
+### <a href="#Xunit_Assert_Contains_System_Memory_System_Char__System_Memory_System_Char__"></a> Contains\(Memory<char\>, Memory<char\>\)
 
 Verifies that a string contains a given sub-string, using the current culture.
 
@@ -1009,7 +1009,7 @@ The string to be inspected
 
 Thrown when the sub-string is not present inside the string
 
-### <a id="Xunit_Assert_Contains_System_Memory_System_Char__System_ReadOnlyMemory_System_Char__"></a> Contains\(Memory<char\>, ReadOnlyMemory<char\>\)
+### <a href="#Xunit_Assert_Contains_System_Memory_System_Char__System_ReadOnlyMemory_System_Char__"></a> Contains\(Memory<char\>, ReadOnlyMemory<char\>\)
 
 Verifies that a string contains a given sub-string, using the current culture.
 
@@ -1033,7 +1033,7 @@ The string to be inspected
 
 Thrown when the sub-string is not present inside the string
 
-### <a id="Xunit_Assert_Contains_System_ReadOnlyMemory_System_Char__System_Memory_System_Char__"></a> Contains\(ReadOnlyMemory<char\>, Memory<char\>\)
+### <a href="#Xunit_Assert_Contains_System_ReadOnlyMemory_System_Char__System_Memory_System_Char__"></a> Contains\(ReadOnlyMemory<char\>, Memory<char\>\)
 
 Verifies that a string contains a given sub-string, using the current culture.
 
@@ -1057,7 +1057,7 @@ The string to be inspected
 
 Thrown when the sub-string is not present inside the string
 
-### <a id="Xunit_Assert_Contains_System_ReadOnlyMemory_System_Char__System_ReadOnlyMemory_System_Char__"></a> Contains\(ReadOnlyMemory<char\>, ReadOnlyMemory<char\>\)
+### <a href="#Xunit_Assert_Contains_System_ReadOnlyMemory_System_Char__System_ReadOnlyMemory_System_Char__"></a> Contains\(ReadOnlyMemory<char\>, ReadOnlyMemory<char\>\)
 
 Verifies that a string contains a given sub-string, using the current culture.
 
@@ -1081,7 +1081,7 @@ The string to be inspected
 
 Thrown when the sub-string is not present inside the string
 
-### <a id="Xunit_Assert_Contains_System_Memory_System_Char__System_Memory_System_Char__System_StringComparison_"></a> Contains\(Memory<char\>, Memory<char\>, StringComparison\)
+### <a href="#Xunit_Assert_Contains_System_Memory_System_Char__System_Memory_System_Char__System_StringComparison_"></a> Contains\(Memory<char\>, Memory<char\>, StringComparison\)
 
 Verifies that a string contains a given sub-string, using the given comparison type.
 
@@ -1109,7 +1109,7 @@ The type of string comparison to perform
 
 Thrown when the sub-string is not present inside the string
 
-### <a id="Xunit_Assert_Contains_System_Memory_System_Char__System_ReadOnlyMemory_System_Char__System_StringComparison_"></a> Contains\(Memory<char\>, ReadOnlyMemory<char\>, StringComparison\)
+### <a href="#Xunit_Assert_Contains_System_Memory_System_Char__System_ReadOnlyMemory_System_Char__System_StringComparison_"></a> Contains\(Memory<char\>, ReadOnlyMemory<char\>, StringComparison\)
 
 Verifies that a string contains a given sub-string, using the given comparison type.
 
@@ -1137,7 +1137,7 @@ The type of string comparison to perform
 
 Thrown when the sub-string is not present inside the string
 
-### <a id="Xunit_Assert_Contains_System_ReadOnlyMemory_System_Char__System_Memory_System_Char__System_StringComparison_"></a> Contains\(ReadOnlyMemory<char\>, Memory<char\>, StringComparison\)
+### <a href="#Xunit_Assert_Contains_System_ReadOnlyMemory_System_Char__System_Memory_System_Char__System_StringComparison_"></a> Contains\(ReadOnlyMemory<char\>, Memory<char\>, StringComparison\)
 
 Verifies that a string contains a given sub-string, using the given comparison type.
 
@@ -1165,7 +1165,7 @@ The type of string comparison to perform
 
 Thrown when the sub-string is not present inside the string
 
-### <a id="Xunit_Assert_Contains_System_ReadOnlyMemory_System_Char__System_ReadOnlyMemory_System_Char__System_StringComparison_"></a> Contains\(ReadOnlyMemory<char\>, ReadOnlyMemory<char\>, StringComparison\)
+### <a href="#Xunit_Assert_Contains_System_ReadOnlyMemory_System_Char__System_ReadOnlyMemory_System_Char__System_StringComparison_"></a> Contains\(ReadOnlyMemory<char\>, ReadOnlyMemory<char\>, StringComparison\)
 
 Verifies that a string contains a given sub-string, using the given comparison type.
 
@@ -1193,7 +1193,7 @@ The type of string comparison to perform
 
 Thrown when the sub-string is not present inside the string
 
-### <a id="Xunit_Assert_Contains_System_Span_System_Char__System_Span_System_Char__System_StringComparison_"></a> Contains\(Span<char\>, Span<char\>, StringComparison\)
+### <a href="#Xunit_Assert_Contains_System_Span_System_Char__System_Span_System_Char__System_StringComparison_"></a> Contains\(Span<char\>, Span<char\>, StringComparison\)
 
 Verifies that a string contains a given string, using the given comparison type.
 
@@ -1221,7 +1221,7 @@ The type of string comparison to perform
 
 Thrown when the string is not present inside the string
 
-### <a id="Xunit_Assert_Contains_System_Span_System_Char__System_ReadOnlySpan_System_Char__System_StringComparison_"></a> Contains\(Span<char\>, ReadOnlySpan<char\>, StringComparison\)
+### <a href="#Xunit_Assert_Contains_System_Span_System_Char__System_ReadOnlySpan_System_Char__System_StringComparison_"></a> Contains\(Span<char\>, ReadOnlySpan<char\>, StringComparison\)
 
 Verifies that a string contains a given string, using the given comparison type.
 
@@ -1249,7 +1249,7 @@ The type of string comparison to perform
 
 Thrown when the string is not present inside the string
 
-### <a id="Xunit_Assert_Contains_System_ReadOnlySpan_System_Char__System_Span_System_Char__System_StringComparison_"></a> Contains\(ReadOnlySpan<char\>, Span<char\>, StringComparison\)
+### <a href="#Xunit_Assert_Contains_System_ReadOnlySpan_System_Char__System_Span_System_Char__System_StringComparison_"></a> Contains\(ReadOnlySpan<char\>, Span<char\>, StringComparison\)
 
 Verifies that a string contains a given string, using the given comparison type.
 
@@ -1277,7 +1277,7 @@ The type of string comparison to perform
 
 Thrown when the string is not present inside the string
 
-### <a id="Xunit_Assert_Contains_System_ReadOnlySpan_System_Char__System_ReadOnlySpan_System_Char__System_StringComparison_"></a> Contains\(ReadOnlySpan<char\>, ReadOnlySpan<char\>, StringComparison\)
+### <a href="#Xunit_Assert_Contains_System_ReadOnlySpan_System_Char__System_ReadOnlySpan_System_Char__System_StringComparison_"></a> Contains\(ReadOnlySpan<char\>, ReadOnlySpan<char\>, StringComparison\)
 
 Verifies that a string contains a given string, using the given comparison type.
 
@@ -1305,7 +1305,7 @@ The type of string comparison to perform
 
 Thrown when the string is not present inside the string
 
-### <a id="Xunit_Assert_Contains_System_Span_System_Char__System_Span_System_Char__"></a> Contains\(Span<char\>, Span<char\>\)
+### <a href="#Xunit_Assert_Contains_System_Span_System_Char__System_Span_System_Char__"></a> Contains\(Span<char\>, Span<char\>\)
 
 Verifies that a string contains a given string, using the current culture.
 
@@ -1329,7 +1329,7 @@ The string to be inspected
 
 Thrown when the string is not present inside the string
 
-### <a id="Xunit_Assert_Contains_System_Span_System_Char__System_ReadOnlySpan_System_Char__"></a> Contains\(Span<char\>, ReadOnlySpan<char\>\)
+### <a href="#Xunit_Assert_Contains_System_Span_System_Char__System_ReadOnlySpan_System_Char__"></a> Contains\(Span<char\>, ReadOnlySpan<char\>\)
 
 Verifies that a string contains a given string, using the current culture.
 
@@ -1353,7 +1353,7 @@ The string to be inspected
 
 Thrown when the string is not present inside the string
 
-### <a id="Xunit_Assert_Contains_System_ReadOnlySpan_System_Char__System_Span_System_Char__"></a> Contains\(ReadOnlySpan<char\>, Span<char\>\)
+### <a href="#Xunit_Assert_Contains_System_ReadOnlySpan_System_Char__System_Span_System_Char__"></a> Contains\(ReadOnlySpan<char\>, Span<char\>\)
 
 Verifies that a string contains a given string, using the current culture.
 
@@ -1377,7 +1377,7 @@ The string to be inspected
 
 Thrown when the string is not present inside the string
 
-### <a id="Xunit_Assert_Contains_System_ReadOnlySpan_System_Char__System_ReadOnlySpan_System_Char__"></a> Contains\(ReadOnlySpan<char\>, ReadOnlySpan<char\>\)
+### <a href="#Xunit_Assert_Contains_System_ReadOnlySpan_System_Char__System_ReadOnlySpan_System_Char__"></a> Contains\(ReadOnlySpan<char\>, ReadOnlySpan<char\>\)
 
 Verifies that a string contains a given string, using the current culture.
 
@@ -1401,7 +1401,7 @@ The string to be inspected
 
 Thrown when the string is not present inside the string
 
-### <a id="Xunit_Assert_Distinct__1_System_Collections_Generic_IEnumerable___0__"></a> Distinct<T\>\(IEnumerable<T\>\)
+### <a href="#Xunit_Assert_Distinct__1_System_Collections_Generic_IEnumerable___0__"></a> Distinct<T\>\(IEnumerable<T\>\)
 
 Verifies that a collection contains each object only once.
 
@@ -1427,7 +1427,7 @@ The type of the object to be compared
 
 Thrown when an object is present inside the collection more than once
 
-### <a id="Xunit_Assert_Distinct__1_System_Collections_Generic_IEnumerable___0__System_Collections_Generic_IEqualityComparer___0__"></a> Distinct<T\>\(IEnumerable<T\>, IEqualityComparer<T\>\)
+### <a href="#Xunit_Assert_Distinct__1_System_Collections_Generic_IEnumerable___0__System_Collections_Generic_IEqualityComparer___0__"></a> Distinct<T\>\(IEnumerable<T\>, IEqualityComparer<T\>\)
 
 Verifies that a collection contains each object only once.
 
@@ -1457,7 +1457,7 @@ The type of the object to be compared
 
 Thrown when an object is present inside the collection more than once
 
-### <a id="Xunit_Assert_DoesNotContain__1___0_System_Collections_Generic_IEnumerable___0__"></a> DoesNotContain<T\>\(T, IEnumerable<T\>\)
+### <a href="#Xunit_Assert_DoesNotContain__1___0_System_Collections_Generic_IEnumerable___0__"></a> DoesNotContain<T\>\(T, IEnumerable<T\>\)
 
 Verifies that a collection does not contain a given object.
 
@@ -1487,7 +1487,7 @@ The type of the object to be compared
 
 Thrown when the object is present inside the collection
 
-### <a id="Xunit_Assert_DoesNotContain__1___0_System_Collections_Generic_IEnumerable___0__System_Collections_Generic_IEqualityComparer___0__"></a> DoesNotContain<T\>\(T, IEnumerable<T\>, IEqualityComparer<T\>\)
+### <a href="#Xunit_Assert_DoesNotContain__1___0_System_Collections_Generic_IEnumerable___0__System_Collections_Generic_IEqualityComparer___0__"></a> DoesNotContain<T\>\(T, IEnumerable<T\>, IEqualityComparer<T\>\)
 
 Verifies that a collection does not contain a given object, using an equality comparer.
 
@@ -1521,7 +1521,7 @@ The type of the object to be compared
 
 Thrown when the object is present inside the collection
 
-### <a id="Xunit_Assert_DoesNotContain__1_System_Collections_Generic_IEnumerable___0__System_Predicate___0__"></a> DoesNotContain<T\>\(IEnumerable<T\>, Predicate<T\>\)
+### <a href="#Xunit_Assert_DoesNotContain__1_System_Collections_Generic_IEnumerable___0__System_Predicate___0__"></a> DoesNotContain<T\>\(IEnumerable<T\>, Predicate<T\>\)
 
 Verifies that a collection does not contain a given object.
 
@@ -1551,7 +1551,7 @@ The type of the object to be compared
 
 Thrown when the object is present inside the collection
 
-### <a id="Xunit_Assert_DoesNotContain__2___0_System_Collections_Generic_IDictionary___0___1__"></a> DoesNotContain<TKey, TValue\>\(TKey, IDictionary<TKey, TValue\>\)
+### <a href="#Xunit_Assert_DoesNotContain__2___0_System_Collections_Generic_IDictionary___0___1__"></a> DoesNotContain<TKey, TValue\>\(TKey, IDictionary<TKey, TValue\>\)
 
 Verifies that a dictionary does not contain a given key.
 
@@ -1585,7 +1585,7 @@ The type of the values of the object to be verified.
 
 Thrown when the object is present in the collection
 
-### <a id="Xunit_Assert_DoesNotContain__2___0_System_Collections_Generic_IReadOnlyDictionary___0___1__"></a> DoesNotContain<TKey, TValue\>\(TKey, IReadOnlyDictionary<TKey, TValue\>\)
+### <a href="#Xunit_Assert_DoesNotContain__2___0_System_Collections_Generic_IReadOnlyDictionary___0___1__"></a> DoesNotContain<TKey, TValue\>\(TKey, IReadOnlyDictionary<TKey, TValue\>\)
 
 Verifies that a dictionary does not contain a given key.
 
@@ -1619,7 +1619,7 @@ The type of the values of the object to be verified.
 
 Thrown when the object is present in the collection
 
-### <a id="Xunit_Assert_DoesNotContain__2___0_System_Collections_Concurrent_ConcurrentDictionary___0___1__"></a> DoesNotContain<TKey, TValue\>\(TKey, ConcurrentDictionary<TKey, TValue\>\)
+### <a href="#Xunit_Assert_DoesNotContain__2___0_System_Collections_Concurrent_ConcurrentDictionary___0___1__"></a> DoesNotContain<TKey, TValue\>\(TKey, ConcurrentDictionary<TKey, TValue\>\)
 
 Verifies that a dictionary does not contain a given key.
 
@@ -1653,7 +1653,7 @@ The type of the values of the object to be verified.
 
 Thrown when the object is present in the collection
 
-### <a id="Xunit_Assert_DoesNotContain__2___0_System_Collections_Generic_Dictionary___0___1__"></a> DoesNotContain<TKey, TValue\>\(TKey, Dictionary<TKey, TValue\>\)
+### <a href="#Xunit_Assert_DoesNotContain__2___0_System_Collections_Generic_Dictionary___0___1__"></a> DoesNotContain<TKey, TValue\>\(TKey, Dictionary<TKey, TValue\>\)
 
 Verifies that a dictionary does not contain a given key.
 
@@ -1687,7 +1687,7 @@ The type of the values of the object to be verified.
 
 Thrown when the object is present in the collection
 
-### <a id="Xunit_Assert_DoesNotContain__2___0_System_Collections_ObjectModel_ReadOnlyDictionary___0___1__"></a> DoesNotContain<TKey, TValue\>\(TKey, ReadOnlyDictionary<TKey, TValue\>\)
+### <a href="#Xunit_Assert_DoesNotContain__2___0_System_Collections_ObjectModel_ReadOnlyDictionary___0___1__"></a> DoesNotContain<TKey, TValue\>\(TKey, ReadOnlyDictionary<TKey, TValue\>\)
 
 Verifies that a dictionary does not contain a given key.
 
@@ -1721,7 +1721,7 @@ The type of the values of the object to be verified.
 
 Thrown when the object is present in the collection
 
-### <a id="Xunit_Assert_DoesNotContain__2___0_System_Collections_Immutable_ImmutableDictionary___0___1__"></a> DoesNotContain<TKey, TValue\>\(TKey, ImmutableDictionary<TKey, TValue\>\)
+### <a href="#Xunit_Assert_DoesNotContain__2___0_System_Collections_Immutable_ImmutableDictionary___0___1__"></a> DoesNotContain<TKey, TValue\>\(TKey, ImmutableDictionary<TKey, TValue\>\)
 
 Verifies that a dictionary does not contain a given key.
 
@@ -1755,7 +1755,7 @@ The type of the values of the object to be verified.
 
 Thrown when the object is present in the collection
 
-### <a id="Xunit_Assert_DoesNotContain__1_System_Memory___0__System_Memory___0__"></a> DoesNotContain<T\>\(Memory<T\>, Memory<T\>\)
+### <a href="#Xunit_Assert_DoesNotContain__1_System_Memory___0__System_Memory___0__"></a> DoesNotContain<T\>\(Memory<T\>, Memory<T\>\)
 
 Verifies that a Memory does not contain a given sub-Memory
 
@@ -1783,7 +1783,7 @@ The Memory to be inspected
 
 Thrown when the sub-Memory is present inside the Memory
 
-### <a id="Xunit_Assert_DoesNotContain__1_System_Memory___0__System_ReadOnlyMemory___0__"></a> DoesNotContain<T\>\(Memory<T\>, ReadOnlyMemory<T\>\)
+### <a href="#Xunit_Assert_DoesNotContain__1_System_Memory___0__System_ReadOnlyMemory___0__"></a> DoesNotContain<T\>\(Memory<T\>, ReadOnlyMemory<T\>\)
 
 Verifies that a Memory does not contain a given sub-Memory
 
@@ -1811,7 +1811,7 @@ The Memory to be inspected
 
 Thrown when the sub-Memory is present inside the Memory
 
-### <a id="Xunit_Assert_DoesNotContain__1_System_ReadOnlyMemory___0__System_Memory___0__"></a> DoesNotContain<T\>\(ReadOnlyMemory<T\>, Memory<T\>\)
+### <a href="#Xunit_Assert_DoesNotContain__1_System_ReadOnlyMemory___0__System_Memory___0__"></a> DoesNotContain<T\>\(ReadOnlyMemory<T\>, Memory<T\>\)
 
 Verifies that a Memory does not contain a given sub-Memory
 
@@ -1839,7 +1839,7 @@ The Memory to be inspected
 
 Thrown when the sub-Memory is present inside the Memory
 
-### <a id="Xunit_Assert_DoesNotContain__1_System_ReadOnlyMemory___0__System_ReadOnlyMemory___0__"></a> DoesNotContain<T\>\(ReadOnlyMemory<T\>, ReadOnlyMemory<T\>\)
+### <a href="#Xunit_Assert_DoesNotContain__1_System_ReadOnlyMemory___0__System_ReadOnlyMemory___0__"></a> DoesNotContain<T\>\(ReadOnlyMemory<T\>, ReadOnlyMemory<T\>\)
 
 Verifies that a Memory does not contain a given sub-Memory
 
@@ -1867,7 +1867,7 @@ The Memory to be inspected
 
 Thrown when the sub-Memory is present inside the Memory
 
-### <a id="Xunit_Assert_DoesNotContain__1___0_System_Collections_Generic_ISet___0__"></a> DoesNotContain<T\>\(T, ISet<T\>\)
+### <a href="#Xunit_Assert_DoesNotContain__1___0_System_Collections_Generic_ISet___0__"></a> DoesNotContain<T\>\(T, ISet<T\>\)
 
 Verifies that the set does not contain the given item.
 
@@ -1897,7 +1897,7 @@ The type of the object to be compared
 
 Thrown when the object is present inside the set
 
-### <a id="Xunit_Assert_DoesNotContain__1___0_System_Collections_Generic_HashSet___0__"></a> DoesNotContain<T\>\(T, HashSet<T\>\)
+### <a href="#Xunit_Assert_DoesNotContain__1___0_System_Collections_Generic_HashSet___0__"></a> DoesNotContain<T\>\(T, HashSet<T\>\)
 
 Verifies that the hashset does not contain the given item.
 
@@ -1927,7 +1927,7 @@ The type of the object to be verified
 
 Thrown when the object is not present in the set
 
-### <a id="Xunit_Assert_DoesNotContain__1___0_System_Collections_Generic_SortedSet___0__"></a> DoesNotContain<T\>\(T, SortedSet<T\>\)
+### <a href="#Xunit_Assert_DoesNotContain__1___0_System_Collections_Generic_SortedSet___0__"></a> DoesNotContain<T\>\(T, SortedSet<T\>\)
 
 Verifies that the sorted hashset does not contain the given item.
 
@@ -1957,7 +1957,7 @@ The type of the object to be verified
 
 Thrown when the object is not present in the set
 
-### <a id="Xunit_Assert_DoesNotContain__1___0_System_Collections_Immutable_ImmutableHashSet___0__"></a> DoesNotContain<T\>\(T, ImmutableHashSet<T\>\)
+### <a href="#Xunit_Assert_DoesNotContain__1___0_System_Collections_Immutable_ImmutableHashSet___0__"></a> DoesNotContain<T\>\(T, ImmutableHashSet<T\>\)
 
 Verifies that the immutable hashset does not contain the given item.
 
@@ -1987,7 +1987,7 @@ The type of the object to be verified
 
 Thrown when the object is not present in the set
 
-### <a id="Xunit_Assert_DoesNotContain__1___0_System_Collections_Immutable_ImmutableSortedSet___0__"></a> DoesNotContain<T\>\(T, ImmutableSortedSet<T\>\)
+### <a href="#Xunit_Assert_DoesNotContain__1___0_System_Collections_Immutable_ImmutableSortedSet___0__"></a> DoesNotContain<T\>\(T, ImmutableSortedSet<T\>\)
 
 Verifies that the immutable sorted hashset does not contain the given item.
 
@@ -2017,7 +2017,7 @@ The type of the object to be verified
 
 Thrown when the object is not present in the set
 
-### <a id="Xunit_Assert_DoesNotContain__1_System_Span___0__System_Span___0__"></a> DoesNotContain<T\>\(Span<T\>, Span<T\>\)
+### <a href="#Xunit_Assert_DoesNotContain__1_System_Span___0__System_Span___0__"></a> DoesNotContain<T\>\(Span<T\>, Span<T\>\)
 
 Verifies that a span does not contain a given sub-span
 
@@ -2045,7 +2045,7 @@ The span to be inspected
 
 Thrown when the sub-span is present inside the span
 
-### <a id="Xunit_Assert_DoesNotContain__1_System_Span___0__System_ReadOnlySpan___0__"></a> DoesNotContain<T\>\(Span<T\>, ReadOnlySpan<T\>\)
+### <a href="#Xunit_Assert_DoesNotContain__1_System_Span___0__System_ReadOnlySpan___0__"></a> DoesNotContain<T\>\(Span<T\>, ReadOnlySpan<T\>\)
 
 Verifies that a span does not contain a given sub-span
 
@@ -2073,7 +2073,7 @@ The span to be inspected
 
 Thrown when the sub-span is present inside the span
 
-### <a id="Xunit_Assert_DoesNotContain__1_System_ReadOnlySpan___0__System_Span___0__"></a> DoesNotContain<T\>\(ReadOnlySpan<T\>, Span<T\>\)
+### <a href="#Xunit_Assert_DoesNotContain__1_System_ReadOnlySpan___0__System_Span___0__"></a> DoesNotContain<T\>\(ReadOnlySpan<T\>, Span<T\>\)
 
 Verifies that a span does not contain a given sub-span
 
@@ -2101,7 +2101,7 @@ The span to be inspected
 
 Thrown when the sub-span is present inside the span
 
-### <a id="Xunit_Assert_DoesNotContain__1_System_ReadOnlySpan___0__System_ReadOnlySpan___0__"></a> DoesNotContain<T\>\(ReadOnlySpan<T\>, ReadOnlySpan<T\>\)
+### <a href="#Xunit_Assert_DoesNotContain__1_System_ReadOnlySpan___0__System_ReadOnlySpan___0__"></a> DoesNotContain<T\>\(ReadOnlySpan<T\>, ReadOnlySpan<T\>\)
 
 Verifies that a span does not contain a given sub-span
 
@@ -2129,7 +2129,7 @@ The span to be inspected
 
 Thrown when the sub-span is present inside the span
 
-### <a id="Xunit_Assert_DoesNotContain_System_String_System_String_"></a> DoesNotContain\(string, string?\)
+### <a href="#Xunit_Assert_DoesNotContain_System_String_System_String_"></a> DoesNotContain\(string, string?\)
 
 Verifies that a string does not contain a given sub-string, using the current culture.
 
@@ -2153,7 +2153,7 @@ The string to be inspected
 
 Thrown when the sub-string is present inside the string
 
-### <a id="Xunit_Assert_DoesNotContain_System_String_System_String_System_StringComparison_"></a> DoesNotContain\(string, string?, StringComparison\)
+### <a href="#Xunit_Assert_DoesNotContain_System_String_System_String_System_StringComparison_"></a> DoesNotContain\(string, string?, StringComparison\)
 
 Verifies that a string does not contain a given sub-string, using the current culture.
 
@@ -2181,7 +2181,7 @@ The type of string comparison to perform
 
 Thrown when the sub-string is present inside the string
 
-### <a id="Xunit_Assert_DoesNotContain_System_Memory_System_Char__System_Memory_System_Char__"></a> DoesNotContain\(Memory<char\>, Memory<char\>\)
+### <a href="#Xunit_Assert_DoesNotContain_System_Memory_System_Char__System_Memory_System_Char__"></a> DoesNotContain\(Memory<char\>, Memory<char\>\)
 
 Verifies that a string does not contain a given sub-string, using the current culture.
 
@@ -2205,7 +2205,7 @@ The string to be inspected
 
 Thrown when the sub-string is present inside the string
 
-### <a id="Xunit_Assert_DoesNotContain_System_Memory_System_Char__System_ReadOnlyMemory_System_Char__"></a> DoesNotContain\(Memory<char\>, ReadOnlyMemory<char\>\)
+### <a href="#Xunit_Assert_DoesNotContain_System_Memory_System_Char__System_ReadOnlyMemory_System_Char__"></a> DoesNotContain\(Memory<char\>, ReadOnlyMemory<char\>\)
 
 Verifies that a string does not contain a given sub-string, using the current culture.
 
@@ -2229,7 +2229,7 @@ The string to be inspected
 
 Thrown when the sub-string is present inside the string
 
-### <a id="Xunit_Assert_DoesNotContain_System_ReadOnlyMemory_System_Char__System_Memory_System_Char__"></a> DoesNotContain\(ReadOnlyMemory<char\>, Memory<char\>\)
+### <a href="#Xunit_Assert_DoesNotContain_System_ReadOnlyMemory_System_Char__System_Memory_System_Char__"></a> DoesNotContain\(ReadOnlyMemory<char\>, Memory<char\>\)
 
 Verifies that a string does not contain a given sub-string, using the current culture.
 
@@ -2253,7 +2253,7 @@ The string to be inspected
 
 Thrown when the sub-string is present inside the string
 
-### <a id="Xunit_Assert_DoesNotContain_System_ReadOnlyMemory_System_Char__System_ReadOnlyMemory_System_Char__"></a> DoesNotContain\(ReadOnlyMemory<char\>, ReadOnlyMemory<char\>\)
+### <a href="#Xunit_Assert_DoesNotContain_System_ReadOnlyMemory_System_Char__System_ReadOnlyMemory_System_Char__"></a> DoesNotContain\(ReadOnlyMemory<char\>, ReadOnlyMemory<char\>\)
 
 Verifies that a string does not contain a given sub-string, using the current culture.
 
@@ -2277,7 +2277,7 @@ The string to be inspected
 
 Thrown when the sub-string is present inside the string
 
-### <a id="Xunit_Assert_DoesNotContain_System_Memory_System_Char__System_Memory_System_Char__System_StringComparison_"></a> DoesNotContain\(Memory<char\>, Memory<char\>, StringComparison\)
+### <a href="#Xunit_Assert_DoesNotContain_System_Memory_System_Char__System_Memory_System_Char__System_StringComparison_"></a> DoesNotContain\(Memory<char\>, Memory<char\>, StringComparison\)
 
 Verifies that a string does not contain a given sub-string, using the given comparison type.
 
@@ -2305,7 +2305,7 @@ The type of string comparison to perform
 
 Thrown when the sub-string is present inside the string
 
-### <a id="Xunit_Assert_DoesNotContain_System_Memory_System_Char__System_ReadOnlyMemory_System_Char__System_StringComparison_"></a> DoesNotContain\(Memory<char\>, ReadOnlyMemory<char\>, StringComparison\)
+### <a href="#Xunit_Assert_DoesNotContain_System_Memory_System_Char__System_ReadOnlyMemory_System_Char__System_StringComparison_"></a> DoesNotContain\(Memory<char\>, ReadOnlyMemory<char\>, StringComparison\)
 
 Verifies that a string does not contain a given sub-string, using the given comparison type.
 
@@ -2333,7 +2333,7 @@ The type of string comparison to perform
 
 Thrown when the sub-string is present inside the string
 
-### <a id="Xunit_Assert_DoesNotContain_System_ReadOnlyMemory_System_Char__System_Memory_System_Char__System_StringComparison_"></a> DoesNotContain\(ReadOnlyMemory<char\>, Memory<char\>, StringComparison\)
+### <a href="#Xunit_Assert_DoesNotContain_System_ReadOnlyMemory_System_Char__System_Memory_System_Char__System_StringComparison_"></a> DoesNotContain\(ReadOnlyMemory<char\>, Memory<char\>, StringComparison\)
 
 Verifies that a string does not contain a given sub-string, using the given comparison type.
 
@@ -2361,7 +2361,7 @@ The type of string comparison to perform
 
 Thrown when the sub-string is present inside the string
 
-### <a id="Xunit_Assert_DoesNotContain_System_ReadOnlyMemory_System_Char__System_ReadOnlyMemory_System_Char__System_StringComparison_"></a> DoesNotContain\(ReadOnlyMemory<char\>, ReadOnlyMemory<char\>, StringComparison\)
+### <a href="#Xunit_Assert_DoesNotContain_System_ReadOnlyMemory_System_Char__System_ReadOnlyMemory_System_Char__System_StringComparison_"></a> DoesNotContain\(ReadOnlyMemory<char\>, ReadOnlyMemory<char\>, StringComparison\)
 
 Verifies that a string does not contain a given sub-string, using the given comparison type.
 
@@ -2389,7 +2389,7 @@ The type of string comparison to perform
 
 Thrown when the sub-string is present inside the string
 
-### <a id="Xunit_Assert_DoesNotContain_System_Span_System_Char__System_Span_System_Char__System_StringComparison_"></a> DoesNotContain\(Span<char\>, Span<char\>, StringComparison\)
+### <a href="#Xunit_Assert_DoesNotContain_System_Span_System_Char__System_Span_System_Char__System_StringComparison_"></a> DoesNotContain\(Span<char\>, Span<char\>, StringComparison\)
 
 Verifies that a string does not contain a given sub-string, using the given comparison type.
 
@@ -2417,7 +2417,7 @@ The type of string comparison to perform
 
 Thrown when the sub-string is present inside the string
 
-### <a id="Xunit_Assert_DoesNotContain_System_Span_System_Char__System_ReadOnlySpan_System_Char__System_StringComparison_"></a> DoesNotContain\(Span<char\>, ReadOnlySpan<char\>, StringComparison\)
+### <a href="#Xunit_Assert_DoesNotContain_System_Span_System_Char__System_ReadOnlySpan_System_Char__System_StringComparison_"></a> DoesNotContain\(Span<char\>, ReadOnlySpan<char\>, StringComparison\)
 
 Verifies that a string does not contain a given sub-string, using the given comparison type.
 
@@ -2445,7 +2445,7 @@ The type of string comparison to perform
 
 Thrown when the sub-string is present inside the string
 
-### <a id="Xunit_Assert_DoesNotContain_System_ReadOnlySpan_System_Char__System_Span_System_Char__System_StringComparison_"></a> DoesNotContain\(ReadOnlySpan<char\>, Span<char\>, StringComparison\)
+### <a href="#Xunit_Assert_DoesNotContain_System_ReadOnlySpan_System_Char__System_Span_System_Char__System_StringComparison_"></a> DoesNotContain\(ReadOnlySpan<char\>, Span<char\>, StringComparison\)
 
 Verifies that a string does not contain a given sub-string, using the given comparison type.
 
@@ -2473,7 +2473,7 @@ The type of string comparison to perform
 
 Thrown when the sub-string is present inside the string
 
-### <a id="Xunit_Assert_DoesNotContain_System_ReadOnlySpan_System_Char__System_ReadOnlySpan_System_Char__System_StringComparison_"></a> DoesNotContain\(ReadOnlySpan<char\>, ReadOnlySpan<char\>, StringComparison\)
+### <a href="#Xunit_Assert_DoesNotContain_System_ReadOnlySpan_System_Char__System_ReadOnlySpan_System_Char__System_StringComparison_"></a> DoesNotContain\(ReadOnlySpan<char\>, ReadOnlySpan<char\>, StringComparison\)
 
 Verifies that a string does not contain a given sub-string, using the given comparison type.
 
@@ -2501,7 +2501,7 @@ The type of string comparison to perform
 
 Thrown when the sub-string is present inside the string
 
-### <a id="Xunit_Assert_DoesNotContain_System_Span_System_Char__System_Span_System_Char__"></a> DoesNotContain\(Span<char\>, Span<char\>\)
+### <a href="#Xunit_Assert_DoesNotContain_System_Span_System_Char__System_Span_System_Char__"></a> DoesNotContain\(Span<char\>, Span<char\>\)
 
 Verifies that a string does not contain a given sub-string, using the current culture.
 
@@ -2525,7 +2525,7 @@ The string to be inspected
 
 Thrown when the sub-string is present inside the string
 
-### <a id="Xunit_Assert_DoesNotContain_System_Span_System_Char__System_ReadOnlySpan_System_Char__"></a> DoesNotContain\(Span<char\>, ReadOnlySpan<char\>\)
+### <a href="#Xunit_Assert_DoesNotContain_System_Span_System_Char__System_ReadOnlySpan_System_Char__"></a> DoesNotContain\(Span<char\>, ReadOnlySpan<char\>\)
 
 Verifies that a string does not contain a given sub-string, using the current culture.
 
@@ -2549,7 +2549,7 @@ The string to be inspected
 
 Thrown when the sub-string is present inside the string
 
-### <a id="Xunit_Assert_DoesNotContain_System_ReadOnlySpan_System_Char__System_Span_System_Char__"></a> DoesNotContain\(ReadOnlySpan<char\>, Span<char\>\)
+### <a href="#Xunit_Assert_DoesNotContain_System_ReadOnlySpan_System_Char__System_Span_System_Char__"></a> DoesNotContain\(ReadOnlySpan<char\>, Span<char\>\)
 
 Verifies that a string does not contain a given sub-string, using the current culture.
 
@@ -2573,7 +2573,7 @@ The string to be inspected
 
 Thrown when the sub-string is present inside the string
 
-### <a id="Xunit_Assert_DoesNotContain_System_ReadOnlySpan_System_Char__System_ReadOnlySpan_System_Char__"></a> DoesNotContain\(ReadOnlySpan<char\>, ReadOnlySpan<char\>\)
+### <a href="#Xunit_Assert_DoesNotContain_System_ReadOnlySpan_System_Char__System_ReadOnlySpan_System_Char__"></a> DoesNotContain\(ReadOnlySpan<char\>, ReadOnlySpan<char\>\)
 
 Verifies that a string does not contain a given sub-string, using the current culture.
 
@@ -2597,7 +2597,7 @@ The string to be inspected
 
 Thrown when the sub-string is present inside the string
 
-### <a id="Xunit_Assert_DoesNotMatch_System_String_System_String_"></a> DoesNotMatch\(string, string?\)
+### <a href="#Xunit_Assert_DoesNotMatch_System_String_System_String_"></a> DoesNotMatch\(string, string?\)
 
 Verifies that a string does not match a regular expression.
 
@@ -2621,7 +2621,7 @@ The string to be inspected
 
 Thrown when the string matches the regex pattern
 
-### <a id="Xunit_Assert_DoesNotMatch_System_Text_RegularExpressions_Regex_System_String_"></a> DoesNotMatch\(Regex, string?\)
+### <a href="#Xunit_Assert_DoesNotMatch_System_Text_RegularExpressions_Regex_System_String_"></a> DoesNotMatch\(Regex, string?\)
 
 Verifies that a string does not match a regular expression.
 
@@ -2645,7 +2645,7 @@ The string to be inspected
 
 Thrown when the string matches the regex
 
-### <a id="Xunit_Assert_Empty_System_Collections_IEnumerable_"></a> Empty\(IEnumerable\)
+### <a href="#Xunit_Assert_Empty_System_Collections_IEnumerable_"></a> Empty\(IEnumerable\)
 
 Verifies that a collection is empty.
 
@@ -2669,7 +2669,7 @@ Thrown when the collection is null
 
 Thrown when the collection is not empty
 
-### <a id="Xunit_Assert_Empty_System_String_"></a> Empty\(string\)
+### <a href="#Xunit_Assert_Empty_System_String_"></a> Empty\(string\)
 
 Verifies that a string is empty.
 
@@ -2693,7 +2693,7 @@ Thrown when the string is null
 
 Thrown when the string is not empty
 
-### <a id="Xunit_Assert_EndsWith_System_String_System_String_"></a> EndsWith\(string?, string?\)
+### <a href="#Xunit_Assert_EndsWith_System_String_System_String_"></a> EndsWith\(string?, string?\)
 
 Verifies that a string ends with a given sub-string, using the current culture.
 
@@ -2717,7 +2717,7 @@ The string to be inspected
 
 Thrown when the string does not end with the expected sub-string
 
-### <a id="Xunit_Assert_EndsWith_System_String_System_String_System_StringComparison_"></a> EndsWith\(string?, string?, StringComparison\)
+### <a href="#Xunit_Assert_EndsWith_System_String_System_String_System_StringComparison_"></a> EndsWith\(string?, string?, StringComparison\)
 
 Verifies that a string ends with a given sub-string, using the given comparison type.
 
@@ -2745,7 +2745,7 @@ The type of string comparison to perform
 
 Thrown when the string does not end with the expected sub-string
 
-### <a id="Xunit_Assert_EndsWith_System_Memory_System_Char__System_Memory_System_Char__"></a> EndsWith\(Memory<char\>, Memory<char\>\)
+### <a href="#Xunit_Assert_EndsWith_System_Memory_System_Char__System_Memory_System_Char__"></a> EndsWith\(Memory<char\>, Memory<char\>\)
 
 Verifies that a string ends with a given sub-string, using the current culture.
 
@@ -2769,7 +2769,7 @@ The string to be inspected
 
 Thrown when the string does not end with the expected sub-string
 
-### <a id="Xunit_Assert_EndsWith_System_Memory_System_Char__System_ReadOnlyMemory_System_Char__"></a> EndsWith\(Memory<char\>, ReadOnlyMemory<char\>\)
+### <a href="#Xunit_Assert_EndsWith_System_Memory_System_Char__System_ReadOnlyMemory_System_Char__"></a> EndsWith\(Memory<char\>, ReadOnlyMemory<char\>\)
 
 Verifies that a string ends with a given sub-string, using the current culture.
 
@@ -2793,7 +2793,7 @@ The string to be inspected
 
 Thrown when the string does not end with the expected sub-string
 
-### <a id="Xunit_Assert_EndsWith_System_ReadOnlyMemory_System_Char__System_Memory_System_Char__"></a> EndsWith\(ReadOnlyMemory<char\>, Memory<char\>\)
+### <a href="#Xunit_Assert_EndsWith_System_ReadOnlyMemory_System_Char__System_Memory_System_Char__"></a> EndsWith\(ReadOnlyMemory<char\>, Memory<char\>\)
 
 Verifies that a string ends with a given sub-string, using the current culture.
 
@@ -2817,7 +2817,7 @@ The string to be inspected
 
 Thrown when the string does not end with the expected sub-string
 
-### <a id="Xunit_Assert_EndsWith_System_ReadOnlyMemory_System_Char__System_ReadOnlyMemory_System_Char__"></a> EndsWith\(ReadOnlyMemory<char\>, ReadOnlyMemory<char\>\)
+### <a href="#Xunit_Assert_EndsWith_System_ReadOnlyMemory_System_Char__System_ReadOnlyMemory_System_Char__"></a> EndsWith\(ReadOnlyMemory<char\>, ReadOnlyMemory<char\>\)
 
 Verifies that a string ends with a given sub-string, using the current culture.
 
@@ -2841,7 +2841,7 @@ The string to be inspected
 
 Thrown when the string does not end with the expected sub-string
 
-### <a id="Xunit_Assert_EndsWith_System_Memory_System_Char__System_Memory_System_Char__System_StringComparison_"></a> EndsWith\(Memory<char\>, Memory<char\>, StringComparison\)
+### <a href="#Xunit_Assert_EndsWith_System_Memory_System_Char__System_Memory_System_Char__System_StringComparison_"></a> EndsWith\(Memory<char\>, Memory<char\>, StringComparison\)
 
 Verifies that a string ends with a given sub-string, using the given comparison type.
 
@@ -2869,7 +2869,7 @@ The type of string comparison to perform
 
 Thrown when the string does not end with the expected sub-string
 
-### <a id="Xunit_Assert_EndsWith_System_Memory_System_Char__System_ReadOnlyMemory_System_Char__System_StringComparison_"></a> EndsWith\(Memory<char\>, ReadOnlyMemory<char\>, StringComparison\)
+### <a href="#Xunit_Assert_EndsWith_System_Memory_System_Char__System_ReadOnlyMemory_System_Char__System_StringComparison_"></a> EndsWith\(Memory<char\>, ReadOnlyMemory<char\>, StringComparison\)
 
 Verifies that a string ends with a given sub-string, using the given comparison type.
 
@@ -2897,7 +2897,7 @@ The type of string comparison to perform
 
 Thrown when the string does not end with the expected sub-string
 
-### <a id="Xunit_Assert_EndsWith_System_ReadOnlyMemory_System_Char__System_Memory_System_Char__System_StringComparison_"></a> EndsWith\(ReadOnlyMemory<char\>, Memory<char\>, StringComparison\)
+### <a href="#Xunit_Assert_EndsWith_System_ReadOnlyMemory_System_Char__System_Memory_System_Char__System_StringComparison_"></a> EndsWith\(ReadOnlyMemory<char\>, Memory<char\>, StringComparison\)
 
 Verifies that a string ends with a given sub-string, using the given comparison type.
 
@@ -2925,7 +2925,7 @@ The type of string comparison to perform
 
 Thrown when the string does not end with the expected sub-string
 
-### <a id="Xunit_Assert_EndsWith_System_ReadOnlyMemory_System_Char__System_ReadOnlyMemory_System_Char__System_StringComparison_"></a> EndsWith\(ReadOnlyMemory<char\>, ReadOnlyMemory<char\>, StringComparison\)
+### <a href="#Xunit_Assert_EndsWith_System_ReadOnlyMemory_System_Char__System_ReadOnlyMemory_System_Char__System_StringComparison_"></a> EndsWith\(ReadOnlyMemory<char\>, ReadOnlyMemory<char\>, StringComparison\)
 
 Verifies that a string ends with a given sub-string, using the given comparison type.
 
@@ -2953,7 +2953,7 @@ The type of string comparison to perform
 
 Thrown when the string does not end with the expected sub-string
 
-### <a id="Xunit_Assert_EndsWith_System_Span_System_Char__System_Span_System_Char__"></a> EndsWith\(Span<char\>, Span<char\>\)
+### <a href="#Xunit_Assert_EndsWith_System_Span_System_Char__System_Span_System_Char__"></a> EndsWith\(Span<char\>, Span<char\>\)
 
 Verifies that a string ends with a given sub-string, using the current culture.
 
@@ -2977,7 +2977,7 @@ The string to be inspected
 
 Thrown when the string does not end with the expected sub-string
 
-### <a id="Xunit_Assert_EndsWith_System_Span_System_Char__System_ReadOnlySpan_System_Char__"></a> EndsWith\(Span<char\>, ReadOnlySpan<char\>\)
+### <a href="#Xunit_Assert_EndsWith_System_Span_System_Char__System_ReadOnlySpan_System_Char__"></a> EndsWith\(Span<char\>, ReadOnlySpan<char\>\)
 
 Verifies that a string ends with a given sub-string, using the current culture.
 
@@ -3001,7 +3001,7 @@ The string to be inspected
 
 Thrown when the string does not end with the expected sub-string
 
-### <a id="Xunit_Assert_EndsWith_System_ReadOnlySpan_System_Char__System_Span_System_Char__"></a> EndsWith\(ReadOnlySpan<char\>, Span<char\>\)
+### <a href="#Xunit_Assert_EndsWith_System_ReadOnlySpan_System_Char__System_Span_System_Char__"></a> EndsWith\(ReadOnlySpan<char\>, Span<char\>\)
 
 Verifies that a string ends with a given sub-string, using the current culture.
 
@@ -3025,7 +3025,7 @@ The string to be inspected
 
 Thrown when the string does not end with the expected sub-string
 
-### <a id="Xunit_Assert_EndsWith_System_ReadOnlySpan_System_Char__System_ReadOnlySpan_System_Char__"></a> EndsWith\(ReadOnlySpan<char\>, ReadOnlySpan<char\>\)
+### <a href="#Xunit_Assert_EndsWith_System_ReadOnlySpan_System_Char__System_ReadOnlySpan_System_Char__"></a> EndsWith\(ReadOnlySpan<char\>, ReadOnlySpan<char\>\)
 
 Verifies that a string ends with a given sub-string, using the current culture.
 
@@ -3049,7 +3049,7 @@ The string to be inspected
 
 Thrown when the string does not end with the expected sub-string
 
-### <a id="Xunit_Assert_EndsWith_System_Span_System_Char__System_Span_System_Char__System_StringComparison_"></a> EndsWith\(Span<char\>, Span<char\>, StringComparison\)
+### <a href="#Xunit_Assert_EndsWith_System_Span_System_Char__System_Span_System_Char__System_StringComparison_"></a> EndsWith\(Span<char\>, Span<char\>, StringComparison\)
 
 Verifies that a string ends with a given sub-string, using the given comparison type.
 
@@ -3077,7 +3077,7 @@ The type of string comparison to perform
 
 Thrown when the string does not end with the expected sub-string
 
-### <a id="Xunit_Assert_EndsWith_System_Span_System_Char__System_ReadOnlySpan_System_Char__System_StringComparison_"></a> EndsWith\(Span<char\>, ReadOnlySpan<char\>, StringComparison\)
+### <a href="#Xunit_Assert_EndsWith_System_Span_System_Char__System_ReadOnlySpan_System_Char__System_StringComparison_"></a> EndsWith\(Span<char\>, ReadOnlySpan<char\>, StringComparison\)
 
 Verifies that a string ends with a given sub-string, using the given comparison type.
 
@@ -3105,7 +3105,7 @@ The type of string comparison to perform
 
 Thrown when the string does not end with the expected sub-string
 
-### <a id="Xunit_Assert_EndsWith_System_ReadOnlySpan_System_Char__System_Span_System_Char__System_StringComparison_"></a> EndsWith\(ReadOnlySpan<char\>, Span<char\>, StringComparison\)
+### <a href="#Xunit_Assert_EndsWith_System_ReadOnlySpan_System_Char__System_Span_System_Char__System_StringComparison_"></a> EndsWith\(ReadOnlySpan<char\>, Span<char\>, StringComparison\)
 
 Verifies that a string ends with a given sub-string, using the given comparison type.
 
@@ -3133,7 +3133,7 @@ The type of string comparison to perform
 
 Thrown when the string does not end with the expected sub-string
 
-### <a id="Xunit_Assert_EndsWith_System_ReadOnlySpan_System_Char__System_ReadOnlySpan_System_Char__System_StringComparison_"></a> EndsWith\(ReadOnlySpan<char\>, ReadOnlySpan<char\>, StringComparison\)
+### <a href="#Xunit_Assert_EndsWith_System_ReadOnlySpan_System_Char__System_ReadOnlySpan_System_Char__System_StringComparison_"></a> EndsWith\(ReadOnlySpan<char\>, ReadOnlySpan<char\>, StringComparison\)
 
 Verifies that a string ends with a given sub-string, using the given comparison type.
 
@@ -3161,7 +3161,7 @@ The type of string comparison to perform
 
 Thrown when the string does not end with the expected sub-string
 
-### <a id="Xunit_Assert_Equal__1_System_Collections_Generic_IEnumerable___0__System_Collections_Generic_IEnumerable___0__"></a> Equal<T\>\(IEnumerable<T\>?, IEnumerable<T\>?\)
+### <a href="#Xunit_Assert_Equal__1_System_Collections_Generic_IEnumerable___0__System_Collections_Generic_IEnumerable___0__"></a> Equal<T\>\(IEnumerable<T\>?, IEnumerable<T\>?\)
 
 Verifies that two sequences are equivalent, using a default comparer.
 
@@ -3191,7 +3191,7 @@ The type of the objects to be compared
 
 Thrown when the objects are not equal
 
-### <a id="Xunit_Assert_Equal__1_System_Collections_Generic_IEnumerable___0__System_Collections_Generic_IEnumerable___0__System_Collections_Generic_IEqualityComparer___0__"></a> Equal<T\>\(IEnumerable<T\>?, IEnumerable<T\>?, IEqualityComparer<T\>\)
+### <a href="#Xunit_Assert_Equal__1_System_Collections_Generic_IEnumerable___0__System_Collections_Generic_IEnumerable___0__System_Collections_Generic_IEqualityComparer___0__"></a> Equal<T\>\(IEnumerable<T\>?, IEnumerable<T\>?, IEqualityComparer<T\>\)
 
 Verifies that two sequences are equivalent, using a custom equatable comparer.
 
@@ -3225,7 +3225,7 @@ The type of the objects to be compared
 
 Thrown when the objects are not equal
 
-### <a id="Xunit_Assert_Equal__1_System_Collections_Generic_IEnumerable___0__System_Collections_Generic_IEnumerable___0__System_Func___0___0_System_Boolean__"></a> Equal<T\>\(IEnumerable<T\>?, IEnumerable<T\>?, Func<T, T, bool\>\)
+### <a href="#Xunit_Assert_Equal__1_System_Collections_Generic_IEnumerable___0__System_Collections_Generic_IEnumerable___0__System_Func___0___0_System_Boolean__"></a> Equal<T\>\(IEnumerable<T\>?, IEnumerable<T\>?, Func<T, T, bool\>\)
 
 Verifies that two collections are equal, using a comparer function against
 items in the two collections.
@@ -3254,7 +3254,7 @@ The function to compare two items for equality
 
 The type of the objects to be compared
 
-### <a id="Xunit_Assert_Equal__1___0_____0___"></a> Equal<T\>\(T\[\], T\[\]\)
+### <a href="#Xunit_Assert_Equal__1___0_____0___"></a> Equal<T\>\(T\[\], T\[\]\)
 
 Verifies that two arrays of un-managed type T are equal, using Span&lt;T&gt;.SequenceEqual.
 This can be significantly faster than generic enumerables, when the collections are actually
@@ -3285,7 +3285,7 @@ The type of items whose arrays are to be compared
 If <xref href="System.MemoryExtensions.SequenceEqual%60%601(System.Span%7b%60%600%7d%2cSystem.ReadOnlySpan%7b%60%600%7d)" data-throw-if-not-resolved="false"></xref> fails, a call
 to <xref href="Xunit.Assert.Equal%60%601(%60%600%2c%60%600)" data-throw-if-not-resolved="false"></xref> is made, to provide a more meaningful error message.
 
-### <a id="Xunit_Assert_Equal__1___0___0_"></a> Equal<T\>\(T, T\)
+### <a href="#Xunit_Assert_Equal__1___0___0_"></a> Equal<T\>\(T, T\)
 
 Verifies that two objects are equal, using a default comparer.
 
@@ -3309,7 +3309,7 @@ The value to be compared against
 
 The type of the objects to be compared
 
-### <a id="Xunit_Assert_Equal__1___0___0_System_Func___0___0_System_Boolean__"></a> Equal<T\>\(T, T, Func<T, T, bool\>\)
+### <a href="#Xunit_Assert_Equal__1___0___0_System_Func___0___0_System_Boolean__"></a> Equal<T\>\(T, T, Func<T, T, bool\>\)
 
 Verifies that two objects are equal, using a custom comparer function.
 
@@ -3337,7 +3337,7 @@ The comparer used to compare the two objects
 
 The type of the objects to be compared
 
-### <a id="Xunit_Assert_Equal__1___0___0_System_Collections_Generic_IEqualityComparer___0__"></a> Equal<T\>\(T, T, IEqualityComparer<T\>\)
+### <a href="#Xunit_Assert_Equal__1___0___0_System_Collections_Generic_IEqualityComparer___0__"></a> Equal<T\>\(T, T, IEqualityComparer<T\>\)
 
 Verifies that two objects are equal, using a custom equatable comparer.
 
@@ -3365,7 +3365,7 @@ The comparer used to compare the two objects
 
 The type of the objects to be compared
 
-### <a id="Xunit_Assert_Equal_System_Double_System_Double_System_Int32_"></a> Equal\(double, double, int\)
+### <a href="#Xunit_Assert_Equal_System_Double_System_Double_System_Int32_"></a> Equal\(double, double, int\)
 
 Verifies that two <xref href="System.Double" data-throw-if-not-resolved="false"></xref> values are equal, within the number of decimal
 places given by <code class="paramref">precision</code>. The values are rounded before comparison.
@@ -3388,7 +3388,7 @@ The value to be compared against
 
 The number of decimal places (valid values: 0-15)
 
-### <a id="Xunit_Assert_Equal_System_Double_System_Double_System_Int32_System_MidpointRounding_"></a> Equal\(double, double, int, MidpointRounding\)
+### <a href="#Xunit_Assert_Equal_System_Double_System_Double_System_Int32_System_MidpointRounding_"></a> Equal\(double, double, int, MidpointRounding\)
 
 Verifies that two <xref href="System.Double" data-throw-if-not-resolved="false"></xref> values are equal, within the number of decimal
 places given by <code class="paramref">precision</code>. The values are rounded before comparison.
@@ -3416,7 +3416,7 @@ The number of decimal places (valid values: 0-15)
 
 Rounding method to use to process a number that is midway between two numbers
 
-### <a id="Xunit_Assert_Equal_System_Double_System_Double_System_Double_"></a> Equal\(double, double, double\)
+### <a href="#Xunit_Assert_Equal_System_Double_System_Double_System_Double_"></a> Equal\(double, double, double\)
 
 Verifies that two <xref href="System.Double" data-throw-if-not-resolved="false"></xref> values are equal, within the tolerance given by
 <code class="paramref">tolerance</code> (positive or negative).
@@ -3439,7 +3439,7 @@ The value to be compared against
 
 The allowed difference between values
 
-### <a id="Xunit_Assert_Equal_System_Single_System_Single_System_Int32_"></a> Equal\(float, float, int\)
+### <a href="#Xunit_Assert_Equal_System_Single_System_Single_System_Int32_"></a> Equal\(float, float, int\)
 
 Verifies that two <xref href="System.Single" data-throw-if-not-resolved="false"></xref> values are equal, within the number of decimal
 places given by <code class="paramref">precision</code>. The values are rounded before comparison.
@@ -3462,7 +3462,7 @@ The value to be compared against
 
 The number of decimal places (valid values: 0-15)
 
-### <a id="Xunit_Assert_Equal_System_Single_System_Single_System_Int32_System_MidpointRounding_"></a> Equal\(float, float, int, MidpointRounding\)
+### <a href="#Xunit_Assert_Equal_System_Single_System_Single_System_Int32_System_MidpointRounding_"></a> Equal\(float, float, int, MidpointRounding\)
 
 Verifies that two <xref href="System.Single" data-throw-if-not-resolved="false"></xref> values are equal, within the number of decimal
 places given by <code class="paramref">precision</code>. The values are rounded before comparison.
@@ -3490,7 +3490,7 @@ The number of decimal places (valid values: 0-15)
 
 Rounding method to use to process a number that is midway between two numbers
 
-### <a id="Xunit_Assert_Equal_System_Single_System_Single_System_Single_"></a> Equal\(float, float, float\)
+### <a href="#Xunit_Assert_Equal_System_Single_System_Single_System_Single_"></a> Equal\(float, float, float\)
 
 Verifies that two <xref href="System.Single" data-throw-if-not-resolved="false"></xref> values are equal, within the tolerance given by
 <code class="paramref">tolerance</code> (positive or negative).
@@ -3513,7 +3513,7 @@ The value to be compared against
 
 The allowed difference between values
 
-### <a id="Xunit_Assert_Equal_System_Decimal_System_Decimal_System_Int32_"></a> Equal\(decimal, decimal, int\)
+### <a href="#Xunit_Assert_Equal_System_Decimal_System_Decimal_System_Int32_"></a> Equal\(decimal, decimal, int\)
 
 Verifies that two <xref href="System.Decimal" data-throw-if-not-resolved="false"></xref> values are equal, within the number of decimal
 places given by <code class="paramref">precision</code>. The values are rounded before comparison.
@@ -3536,7 +3536,7 @@ The value to be compared against
 
 The number of decimal places (valid values: 0-28)
 
-### <a id="Xunit_Assert_Equal_System_DateTime_System_DateTime_"></a> Equal\(DateTime, DateTime\)
+### <a href="#Xunit_Assert_Equal_System_DateTime_System_DateTime_"></a> Equal\(DateTime, DateTime\)
 
 Verifies that two <xref href="System.DateTime" data-throw-if-not-resolved="false"></xref> values are equal.
 
@@ -3554,7 +3554,7 @@ The expected value
 
 The value to be compared against
 
-### <a id="Xunit_Assert_Equal_System_DateTime_System_DateTime_System_TimeSpan_"></a> Equal\(DateTime, DateTime, TimeSpan\)
+### <a href="#Xunit_Assert_Equal_System_DateTime_System_DateTime_System_TimeSpan_"></a> Equal\(DateTime, DateTime, TimeSpan\)
 
 Verifies that two <xref href="System.DateTime" data-throw-if-not-resolved="false"></xref> values are equal, within the precision
 given by <code class="paramref">precision</code>.
@@ -3577,7 +3577,7 @@ The value to be compared against
 
 The allowed difference in time where the two dates are considered equal
 
-### <a id="Xunit_Assert_Equal_System_DateTimeOffset_System_DateTimeOffset_"></a> Equal\(DateTimeOffset, DateTimeOffset\)
+### <a href="#Xunit_Assert_Equal_System_DateTimeOffset_System_DateTimeOffset_"></a> Equal\(DateTimeOffset, DateTimeOffset\)
 
 Verifies that two <xref href="System.DateTimeOffset" data-throw-if-not-resolved="false"></xref> values are equal.
 
@@ -3595,7 +3595,7 @@ The expected value
 
 The value to be compared against
 
-### <a id="Xunit_Assert_Equal_System_DateTimeOffset_System_DateTimeOffset_System_TimeSpan_"></a> Equal\(DateTimeOffset, DateTimeOffset, TimeSpan\)
+### <a href="#Xunit_Assert_Equal_System_DateTimeOffset_System_DateTimeOffset_System_TimeSpan_"></a> Equal\(DateTimeOffset, DateTimeOffset, TimeSpan\)
 
 Verifies that two <xref href="System.DateTimeOffset" data-throw-if-not-resolved="false"></xref> values are equal, within the precision
 given by <code class="paramref">precision</code>.
@@ -3618,7 +3618,7 @@ The value to be compared against
 
 The allowed difference in time where the two dates are considered equal
 
-### <a id="Xunit_Assert_Equal__1_System_Memory___0__System_Memory___0__"></a> Equal<T\>\(Memory<T\>, Memory<T\>\)
+### <a href="#Xunit_Assert_Equal__1_System_Memory___0__System_Memory___0__"></a> Equal<T\>\(Memory<T\>, Memory<T\>\)
 
 Verifies that two Memory values are equivalent.
 
@@ -3646,7 +3646,7 @@ The actual Memory value.
 
 Thrown when the Memory values are not equivalent.
 
-### <a id="Xunit_Assert_Equal__1_System_Memory___0__System_ReadOnlyMemory___0__"></a> Equal<T\>\(Memory<T\>, ReadOnlyMemory<T\>\)
+### <a href="#Xunit_Assert_Equal__1_System_Memory___0__System_ReadOnlyMemory___0__"></a> Equal<T\>\(Memory<T\>, ReadOnlyMemory<T\>\)
 
 Verifies that two Memory values are equivalent.
 
@@ -3674,7 +3674,7 @@ The actual Memory value.
 
 Thrown when the Memory values are not equivalent.
 
-### <a id="Xunit_Assert_Equal__1_System_ReadOnlyMemory___0__System_Memory___0__"></a> Equal<T\>\(ReadOnlyMemory<T\>, Memory<T\>\)
+### <a href="#Xunit_Assert_Equal__1_System_ReadOnlyMemory___0__System_Memory___0__"></a> Equal<T\>\(ReadOnlyMemory<T\>, Memory<T\>\)
 
 Verifies that two Memory values are equivalent.
 
@@ -3702,7 +3702,7 @@ The actual Memory value.
 
 Thrown when the Memory values are not equivalent.
 
-### <a id="Xunit_Assert_Equal__1_System_ReadOnlyMemory___0__System_ReadOnlyMemory___0__"></a> Equal<T\>\(ReadOnlyMemory<T\>, ReadOnlyMemory<T\>\)
+### <a href="#Xunit_Assert_Equal__1_System_ReadOnlyMemory___0__System_ReadOnlyMemory___0__"></a> Equal<T\>\(ReadOnlyMemory<T\>, ReadOnlyMemory<T\>\)
 
 Verifies that two Memory values are equivalent.
 
@@ -3730,7 +3730,7 @@ The actual Memory value.
 
 Thrown when the Memory values are not equivalent.
 
-### <a id="Xunit_Assert_Equal__1_System_ReadOnlySpan___0____0___"></a> Equal<T\>\(ReadOnlySpan<T\>, T\[\]\)
+### <a href="#Xunit_Assert_Equal__1_System_ReadOnlySpan___0____0___"></a> Equal<T\>\(ReadOnlySpan<T\>, T\[\]\)
 
 Verifies that a span and an array contain the same values in the same order.
 
@@ -3758,7 +3758,7 @@ The actual array value.
 
 Thrown when the collections are not equal.
 
-### <a id="Xunit_Assert_Equal__1_System_Span___0__System_Span___0__"></a> Equal<T\>\(Span<T\>, Span<T\>\)
+### <a href="#Xunit_Assert_Equal__1_System_Span___0__System_Span___0__"></a> Equal<T\>\(Span<T\>, Span<T\>\)
 
 Verifies that two spans contain the same values in the same order.
 
@@ -3786,7 +3786,7 @@ The actual span value.
 
 Thrown when the spans are not equal.
 
-### <a id="Xunit_Assert_Equal__1_System_Span___0__System_ReadOnlySpan___0__"></a> Equal<T\>\(Span<T\>, ReadOnlySpan<T\>\)
+### <a href="#Xunit_Assert_Equal__1_System_Span___0__System_ReadOnlySpan___0__"></a> Equal<T\>\(Span<T\>, ReadOnlySpan<T\>\)
 
 Verifies that two spans contain the same values in the same order.
 
@@ -3814,7 +3814,7 @@ The actual span value.
 
 Thrown when the spans are not equal.
 
-### <a id="Xunit_Assert_Equal__1_System_ReadOnlySpan___0__System_Span___0__"></a> Equal<T\>\(ReadOnlySpan<T\>, Span<T\>\)
+### <a href="#Xunit_Assert_Equal__1_System_ReadOnlySpan___0__System_Span___0__"></a> Equal<T\>\(ReadOnlySpan<T\>, Span<T\>\)
 
 Verifies that two spans contain the same values in the same order.
 
@@ -3842,7 +3842,7 @@ The actual span value.
 
 Thrown when the spans are not equal.
 
-### <a id="Xunit_Assert_Equal__1_System_ReadOnlySpan___0__System_ReadOnlySpan___0__"></a> Equal<T\>\(ReadOnlySpan<T\>, ReadOnlySpan<T\>\)
+### <a href="#Xunit_Assert_Equal__1_System_ReadOnlySpan___0__System_ReadOnlySpan___0__"></a> Equal<T\>\(ReadOnlySpan<T\>, ReadOnlySpan<T\>\)
 
 Verifies that two spans contain the same values in the same order.
 
@@ -3870,7 +3870,7 @@ The actual span value.
 
 Thrown when the spans are not equal.
 
-### <a id="Xunit_Assert_Equal_System_String_System_String_"></a> Equal\(string?, string?\)
+### <a href="#Xunit_Assert_Equal_System_String_System_String_"></a> Equal\(string?, string?\)
 
 Verifies that two strings are equivalent.
 
@@ -3894,7 +3894,7 @@ The actual string value.
 
 Thrown when the strings are not equivalent.
 
-### <a id="Xunit_Assert_Equal_System_ReadOnlySpan_System_Char__System_ReadOnlySpan_System_Char__System_Boolean_System_Boolean_System_Boolean_System_Boolean_"></a> Equal\(ReadOnlySpan<char\>, ReadOnlySpan<char\>, bool, bool, bool, bool\)
+### <a href="#Xunit_Assert_Equal_System_ReadOnlySpan_System_Char__System_ReadOnlySpan_System_Char__System_Boolean_System_Boolean_System_Boolean_System_Boolean_"></a> Equal\(ReadOnlySpan<char\>, ReadOnlySpan<char\>, bool, bool, bool, bool\)
 
 Verifies that two strings are equivalent.
 
@@ -3962,7 +3962,7 @@ In particular, it does not include carriage return (\r) or line feed (\n), which
 
 Thrown when the strings are not equivalent.
 
-### <a id="Xunit_Assert_Equal_System_Memory_System_Char__System_Memory_System_Char__"></a> Equal\(Memory<char\>, Memory<char\>\)
+### <a href="#Xunit_Assert_Equal_System_Memory_System_Char__System_Memory_System_Char__"></a> Equal\(Memory<char\>, Memory<char\>\)
 
 Verifies that two strings are equivalent.
 
@@ -3986,7 +3986,7 @@ The actual string value.
 
 Thrown when the strings are not equivalent.
 
-### <a id="Xunit_Assert_Equal_System_Memory_System_Char__System_ReadOnlyMemory_System_Char__"></a> Equal\(Memory<char\>, ReadOnlyMemory<char\>\)
+### <a href="#Xunit_Assert_Equal_System_Memory_System_Char__System_ReadOnlyMemory_System_Char__"></a> Equal\(Memory<char\>, ReadOnlyMemory<char\>\)
 
 Verifies that two strings are equivalent.
 
@@ -4010,7 +4010,7 @@ The actual string value.
 
 Thrown when the strings are not equivalent.
 
-### <a id="Xunit_Assert_Equal_System_ReadOnlyMemory_System_Char__System_Memory_System_Char__"></a> Equal\(ReadOnlyMemory<char\>, Memory<char\>\)
+### <a href="#Xunit_Assert_Equal_System_ReadOnlyMemory_System_Char__System_Memory_System_Char__"></a> Equal\(ReadOnlyMemory<char\>, Memory<char\>\)
 
 Verifies that two strings are equivalent.
 
@@ -4034,7 +4034,7 @@ The actual string value.
 
 Thrown when the strings are not equivalent.
 
-### <a id="Xunit_Assert_Equal_System_ReadOnlyMemory_System_Char__System_ReadOnlyMemory_System_Char__"></a> Equal\(ReadOnlyMemory<char\>, ReadOnlyMemory<char\>\)
+### <a href="#Xunit_Assert_Equal_System_ReadOnlyMemory_System_Char__System_ReadOnlyMemory_System_Char__"></a> Equal\(ReadOnlyMemory<char\>, ReadOnlyMemory<char\>\)
 
 Verifies that two strings are equivalent.
 
@@ -4058,7 +4058,7 @@ The actual string value.
 
 Thrown when the strings are not equivalent.
 
-### <a id="Xunit_Assert_Equal_System_Memory_System_Char__System_Memory_System_Char__System_Boolean_System_Boolean_System_Boolean_System_Boolean_"></a> Equal\(Memory<char\>, Memory<char\>, bool, bool, bool, bool\)
+### <a href="#Xunit_Assert_Equal_System_Memory_System_Char__System_Memory_System_Char__System_Boolean_System_Boolean_System_Boolean_System_Boolean_"></a> Equal\(Memory<char\>, Memory<char\>, bool, bool, bool, bool\)
 
 Verifies that two strings are equivalent.
 
@@ -4098,7 +4098,7 @@ If set to <code>true</code>, treats horizontal white-space (i.e. spaces, tabs, a
 
 Thrown when the strings are not equivalent.
 
-### <a id="Xunit_Assert_Equal_System_Memory_System_Char__System_ReadOnlyMemory_System_Char__System_Boolean_System_Boolean_System_Boolean_System_Boolean_"></a> Equal\(Memory<char\>, ReadOnlyMemory<char\>, bool, bool, bool, bool\)
+### <a href="#Xunit_Assert_Equal_System_Memory_System_Char__System_ReadOnlyMemory_System_Char__System_Boolean_System_Boolean_System_Boolean_System_Boolean_"></a> Equal\(Memory<char\>, ReadOnlyMemory<char\>, bool, bool, bool, bool\)
 
 Verifies that two strings are equivalent.
 
@@ -4138,7 +4138,7 @@ If set to <code>true</code>, treats horizontal white-space (i.e. spaces, tabs, a
 
 Thrown when the strings are not equivalent.
 
-### <a id="Xunit_Assert_Equal_System_ReadOnlyMemory_System_Char__System_Memory_System_Char__System_Boolean_System_Boolean_System_Boolean_System_Boolean_"></a> Equal\(ReadOnlyMemory<char\>, Memory<char\>, bool, bool, bool, bool\)
+### <a href="#Xunit_Assert_Equal_System_ReadOnlyMemory_System_Char__System_Memory_System_Char__System_Boolean_System_Boolean_System_Boolean_System_Boolean_"></a> Equal\(ReadOnlyMemory<char\>, Memory<char\>, bool, bool, bool, bool\)
 
 Verifies that two strings are equivalent.
 
@@ -4178,7 +4178,7 @@ If set to <code>true</code>, treats horizontal white-space (i.e. spaces, tabs, a
 
 Thrown when the strings are not equivalent.
 
-### <a id="Xunit_Assert_Equal_System_ReadOnlyMemory_System_Char__System_ReadOnlyMemory_System_Char__System_Boolean_System_Boolean_System_Boolean_System_Boolean_"></a> Equal\(ReadOnlyMemory<char\>, ReadOnlyMemory<char\>, bool, bool, bool, bool\)
+### <a href="#Xunit_Assert_Equal_System_ReadOnlyMemory_System_Char__System_ReadOnlyMemory_System_Char__System_Boolean_System_Boolean_System_Boolean_System_Boolean_"></a> Equal\(ReadOnlyMemory<char\>, ReadOnlyMemory<char\>, bool, bool, bool, bool\)
 
 Verifies that two strings are equivalent.
 
@@ -4218,7 +4218,7 @@ If set to <code>true</code>, treats horizontal white-space (i.e. spaces, tabs, a
 
 Thrown when the strings are not equivalent.
 
-### <a id="Xunit_Assert_Equal_System_Span_System_Char__System_Span_System_Char__"></a> Equal\(Span<char\>, Span<char\>\)
+### <a href="#Xunit_Assert_Equal_System_Span_System_Char__System_Span_System_Char__"></a> Equal\(Span<char\>, Span<char\>\)
 
 Verifies that two strings are equivalent.
 
@@ -4242,7 +4242,7 @@ The actual string value.
 
 Thrown when the strings are not equivalent.
 
-### <a id="Xunit_Assert_Equal_System_Span_System_Char__System_ReadOnlySpan_System_Char__"></a> Equal\(Span<char\>, ReadOnlySpan<char\>\)
+### <a href="#Xunit_Assert_Equal_System_Span_System_Char__System_ReadOnlySpan_System_Char__"></a> Equal\(Span<char\>, ReadOnlySpan<char\>\)
 
 Verifies that two strings are equivalent.
 
@@ -4266,7 +4266,7 @@ The actual string value.
 
 Thrown when the strings are not equivalent.
 
-### <a id="Xunit_Assert_Equal_System_ReadOnlySpan_System_Char__System_Span_System_Char__"></a> Equal\(ReadOnlySpan<char\>, Span<char\>\)
+### <a href="#Xunit_Assert_Equal_System_ReadOnlySpan_System_Char__System_Span_System_Char__"></a> Equal\(ReadOnlySpan<char\>, Span<char\>\)
 
 Verifies that two strings are equivalent.
 
@@ -4290,7 +4290,7 @@ The actual string value.
 
 Thrown when the strings are not equivalent.
 
-### <a id="Xunit_Assert_Equal_System_ReadOnlySpan_System_Char__System_ReadOnlySpan_System_Char__"></a> Equal\(ReadOnlySpan<char\>, ReadOnlySpan<char\>\)
+### <a href="#Xunit_Assert_Equal_System_ReadOnlySpan_System_Char__System_ReadOnlySpan_System_Char__"></a> Equal\(ReadOnlySpan<char\>, ReadOnlySpan<char\>\)
 
 Verifies that two strings are equivalent.
 
@@ -4314,7 +4314,7 @@ The actual string value.
 
 Thrown when the strings are not equivalent.
 
-### <a id="Xunit_Assert_Equal_System_Span_System_Char__System_Span_System_Char__System_Boolean_System_Boolean_System_Boolean_System_Boolean_"></a> Equal\(Span<char\>, Span<char\>, bool, bool, bool, bool\)
+### <a href="#Xunit_Assert_Equal_System_Span_System_Char__System_Span_System_Char__System_Boolean_System_Boolean_System_Boolean_System_Boolean_"></a> Equal\(Span<char\>, Span<char\>, bool, bool, bool, bool\)
 
 Verifies that two strings are equivalent.
 
@@ -4382,7 +4382,7 @@ In particular, it does not include carriage return (\r) or line feed (\n), which
 
 Thrown when the strings are not equivalent.
 
-### <a id="Xunit_Assert_Equal_System_Span_System_Char__System_ReadOnlySpan_System_Char__System_Boolean_System_Boolean_System_Boolean_System_Boolean_"></a> Equal\(Span<char\>, ReadOnlySpan<char\>, bool, bool, bool, bool\)
+### <a href="#Xunit_Assert_Equal_System_Span_System_Char__System_ReadOnlySpan_System_Char__System_Boolean_System_Boolean_System_Boolean_System_Boolean_"></a> Equal\(Span<char\>, ReadOnlySpan<char\>, bool, bool, bool, bool\)
 
 Verifies that two strings are equivalent.
 
@@ -4450,7 +4450,7 @@ In particular, it does not include carriage return (\r) or line feed (\n), which
 
 Thrown when the strings are not equivalent.
 
-### <a id="Xunit_Assert_Equal_System_ReadOnlySpan_System_Char__System_Span_System_Char__System_Boolean_System_Boolean_System_Boolean_System_Boolean_"></a> Equal\(ReadOnlySpan<char\>, Span<char\>, bool, bool, bool, bool\)
+### <a href="#Xunit_Assert_Equal_System_ReadOnlySpan_System_Char__System_Span_System_Char__System_Boolean_System_Boolean_System_Boolean_System_Boolean_"></a> Equal\(ReadOnlySpan<char\>, Span<char\>, bool, bool, bool, bool\)
 
 Verifies that two strings are equivalent.
 
@@ -4518,7 +4518,7 @@ In particular, it does not include carriage return (\r) or line feed (\n), which
 
 Thrown when the strings are not equivalent.
 
-### <a id="Xunit_Assert_Equal_System_String_System_String_System_Boolean_System_Boolean_System_Boolean_System_Boolean_"></a> Equal\(string?, string?, bool, bool, bool, bool\)
+### <a href="#Xunit_Assert_Equal_System_String_System_String_System_Boolean_System_Boolean_System_Boolean_System_Boolean_"></a> Equal\(string?, string?, bool, bool, bool, bool\)
 
 Verifies that two strings are equivalent.
 
@@ -4586,7 +4586,7 @@ In particular, it does not include carriage return (\r) or line feed (\n), which
 
 Thrown when the strings are not equivalent.
 
-### <a id="Xunit_Assert_Equivalent_System_Object_System_Object_System_Boolean_"></a> Equivalent\(object?, object?, bool\)
+### <a href="#Xunit_Assert_Equivalent_System_Object_System_Object_System_Boolean_"></a> Equivalent\(object?, object?, bool\)
 
 Verifies that two objects are equivalent, using a default comparer. This comparison is done
 without regard to type, and only inspects public property and field values for individual
@@ -4615,7 +4615,7 @@ The actual value
 
 A flag which enables strict comparison mode
 
-### <a id="Xunit_Assert_Fail_System_String_"></a> Fail\(string?\)
+### <a href="#Xunit_Assert_Fail_System_String_"></a> Fail\(string?\)
 
 Indicates that the test should immediately fail.
 
@@ -4629,7 +4629,7 @@ public static void Fail(string? message = null)
 
 The optional failure message
 
-### <a id="Xunit_Assert_False_System_Boolean_"></a> False\(bool\)
+### <a href="#Xunit_Assert_False_System_Boolean_"></a> False\(bool\)
 
 Verifies that the condition is false.
 
@@ -4649,7 +4649,7 @@ The condition to be tested
 
 Thrown if the condition is not false
 
-### <a id="Xunit_Assert_False_System_Nullable_System_Boolean__"></a> False\(bool?\)
+### <a href="#Xunit_Assert_False_System_Nullable_System_Boolean__"></a> False\(bool?\)
 
 Verifies that the condition is false.
 
@@ -4669,7 +4669,7 @@ The condition to be tested
 
 Thrown if the condition is not false
 
-### <a id="Xunit_Assert_False_System_Boolean_System_String_"></a> False\(bool, string?\)
+### <a href="#Xunit_Assert_False_System_Boolean_System_String_"></a> False\(bool, string?\)
 
 Verifies that the condition is false.
 
@@ -4693,7 +4693,7 @@ The message to show when the condition is not false
 
 Thrown if the condition is not false
 
-### <a id="Xunit_Assert_False_System_Nullable_System_Boolean__System_String_"></a> False\(bool?, string?\)
+### <a href="#Xunit_Assert_False_System_Nullable_System_Boolean__System_String_"></a> False\(bool?, string?\)
 
 Verifies that the condition is false.
 
@@ -4717,7 +4717,7 @@ The message to show when the condition is not false
 
 Thrown if the condition is not false
 
-### <a id="Xunit_Assert_InRange__1___0___0___0_"></a> InRange<T\>\(T, T, T\)
+### <a href="#Xunit_Assert_InRange__1___0___0___0_"></a> InRange<T\>\(T, T, T\)
 
 Verifies that a value is within a given range.
 
@@ -4751,7 +4751,7 @@ The type of the value to be compared
 
 Thrown when the value is not in the given range
 
-### <a id="Xunit_Assert_InRange__1___0___0___0_System_Collections_Generic_IComparer___0__"></a> InRange<T\>\(T, T, T, IComparer<T\>\)
+### <a href="#Xunit_Assert_InRange__1___0___0___0_System_Collections_Generic_IComparer___0__"></a> InRange<T\>\(T, T, T, IComparer<T\>\)
 
 Verifies that a value is within a given range, using a comparer.
 
@@ -4789,7 +4789,7 @@ The type of the value to be compared
 
 Thrown when the value is not in the given range
 
-### <a id="Xunit_Assert_IsAssignableFrom__1_System_Object_"></a> IsAssignableFrom<T\>\(object?\)
+### <a href="#Xunit_Assert_IsAssignableFrom__1_System_Object_"></a> IsAssignableFrom<T\>\(object?\)
 
 Verifies that an object is of the given type or a derived type.
 
@@ -4821,7 +4821,7 @@ The type the object should be
 
 Thrown when the object is not the given type
 
-### <a id="Xunit_Assert_IsAssignableFrom_System_Type_System_Object_"></a> IsAssignableFrom\(Type, object?\)
+### <a href="#Xunit_Assert_IsAssignableFrom_System_Type_System_Object_"></a> IsAssignableFrom\(Type, object?\)
 
 Verifies that an object is of the given type or a derived type.
 
@@ -4845,7 +4845,7 @@ The object to be evaluated
 
 Thrown when the object is not the given type
 
-### <a id="Xunit_Assert_IsNotAssignableFrom__1_System_Object_"></a> IsNotAssignableFrom<T\>\(object?\)
+### <a href="#Xunit_Assert_IsNotAssignableFrom__1_System_Object_"></a> IsNotAssignableFrom<T\>\(object?\)
 
 Verifies that an object is not of the given type or a derived type.
 
@@ -4871,7 +4871,7 @@ The type the object should not be
 
 Thrown when the object is of the given type
 
-### <a id="Xunit_Assert_IsNotAssignableFrom_System_Type_System_Object_"></a> IsNotAssignableFrom\(Type, object?\)
+### <a href="#Xunit_Assert_IsNotAssignableFrom_System_Type_System_Object_"></a> IsNotAssignableFrom\(Type, object?\)
 
 Verifies that an object is not of the given type or a derived type.
 
@@ -4895,7 +4895,7 @@ The object to be evaluated
 
 Thrown when the object is of the given type
 
-### <a id="Xunit_Assert_IsNotType__1_System_Object_"></a> IsNotType<T\>\(object?\)
+### <a href="#Xunit_Assert_IsNotType__1_System_Object_"></a> IsNotType<T\>\(object?\)
 
 Verifies that an object is not exactly the given type.
 
@@ -4921,7 +4921,7 @@ The type the object should not be
 
 Thrown when the object is the given type
 
-### <a id="Xunit_Assert_IsNotType_System_Type_System_Object_"></a> IsNotType\(Type, object?\)
+### <a href="#Xunit_Assert_IsNotType_System_Type_System_Object_"></a> IsNotType\(Type, object?\)
 
 Verifies that an object is not exactly the given type.
 
@@ -4945,7 +4945,7 @@ The object to be evaluated
 
 Thrown when the object is the given type
 
-### <a id="Xunit_Assert_IsType__1_System_Object_"></a> IsType<T\>\(object?\)
+### <a href="#Xunit_Assert_IsType__1_System_Object_"></a> IsType<T\>\(object?\)
 
 Verifies that an object is exactly the given type (and not a derived type).
 
@@ -4977,7 +4977,7 @@ The type the object should be
 
 Thrown when the object is not the given type
 
-### <a id="Xunit_Assert_IsType_System_Type_System_Object_"></a> IsType\(Type, object?\)
+### <a href="#Xunit_Assert_IsType_System_Type_System_Object_"></a> IsType\(Type, object?\)
 
 Verifies that an object is exactly the given type (and not a derived type).
 
@@ -5001,7 +5001,7 @@ The object to be evaluated
 
 Thrown when the object is not the given type
 
-### <a id="Xunit_Assert_Matches_System_String_System_String_"></a> Matches\(string, string?\)
+### <a href="#Xunit_Assert_Matches_System_String_System_String_"></a> Matches\(string, string?\)
 
 Verifies that a string matches a regular expression.
 
@@ -5025,7 +5025,7 @@ The string to be inspected
 
 Thrown when the string does not match the regex pattern
 
-### <a id="Xunit_Assert_Matches_System_Text_RegularExpressions_Regex_System_String_"></a> Matches\(Regex, string?\)
+### <a href="#Xunit_Assert_Matches_System_Text_RegularExpressions_Regex_System_String_"></a> Matches\(Regex, string?\)
 
 Verifies that a string matches a regular expression.
 
@@ -5049,7 +5049,7 @@ The string to be inspected
 
 Thrown when the string does not match the regex
 
-### <a id="Xunit_Assert_Multiple_System_Action___"></a> Multiple\(params Action\[\]\)
+### <a href="#Xunit_Assert_Multiple_System_Action___"></a> Multiple\(params Action\[\]\)
 
 Runs multiple checks, collecting the exceptions from each one, and then bundles all failures
 up into a single assertion failure.
@@ -5064,7 +5064,7 @@ public static void Multiple(params Action[] checks)
 
 The individual assertions to run, as actions.
 
-### <a id="Xunit_Assert_NotEmpty_System_Collections_IEnumerable_"></a> NotEmpty\(IEnumerable\)
+### <a href="#Xunit_Assert_NotEmpty_System_Collections_IEnumerable_"></a> NotEmpty\(IEnumerable\)
 
 Verifies that a collection is not empty.
 
@@ -5088,7 +5088,7 @@ Thrown when a null collection is passed
 
 Thrown when the collection is empty
 
-### <a id="Xunit_Assert_NotEqual__1_System_Collections_Generic_IEnumerable___0__System_Collections_Generic_IEnumerable___0__"></a> NotEqual<T\>\(IEnumerable<T\>?, IEnumerable<T\>?\)
+### <a href="#Xunit_Assert_NotEqual__1_System_Collections_Generic_IEnumerable___0__System_Collections_Generic_IEnumerable___0__"></a> NotEqual<T\>\(IEnumerable<T\>?, IEnumerable<T\>?\)
 
 Verifies that two sequences are not equivalent, using a default comparer.
 
@@ -5118,7 +5118,7 @@ The type of the objects to be compared
 
 Thrown when the objects are equal
 
-### <a id="Xunit_Assert_NotEqual__1_System_Collections_Generic_IEnumerable___0__System_Collections_Generic_IEnumerable___0__System_Collections_Generic_IEqualityComparer___0__"></a> NotEqual<T\>\(IEnumerable<T\>?, IEnumerable<T\>?, IEqualityComparer<T\>\)
+### <a href="#Xunit_Assert_NotEqual__1_System_Collections_Generic_IEnumerable___0__System_Collections_Generic_IEnumerable___0__System_Collections_Generic_IEqualityComparer___0__"></a> NotEqual<T\>\(IEnumerable<T\>?, IEnumerable<T\>?, IEqualityComparer<T\>\)
 
 Verifies that two sequences are not equivalent, using a custom equality comparer.
 
@@ -5152,7 +5152,7 @@ The type of the objects to be compared
 
 Thrown when the objects are equal
 
-### <a id="Xunit_Assert_NotEqual__1_System_Collections_Generic_IEnumerable___0__System_Collections_Generic_IEnumerable___0__System_Func___0___0_System_Boolean__"></a> NotEqual<T\>\(IEnumerable<T\>?, IEnumerable<T\>?, Func<T, T, bool\>\)
+### <a href="#Xunit_Assert_NotEqual__1_System_Collections_Generic_IEnumerable___0__System_Collections_Generic_IEnumerable___0__System_Func___0___0_System_Boolean__"></a> NotEqual<T\>\(IEnumerable<T\>?, IEnumerable<T\>?, Func<T, T, bool\>\)
 
 Verifies that two collections are not equal, using a comparer function against
 items in the two collections.
@@ -5181,7 +5181,7 @@ The function to compare two items for equality
 
 The type of the objects to be compared
 
-### <a id="Xunit_Assert_NotEqual__1___0_____0___"></a> NotEqual<T\>\(T\[\], T\[\]\)
+### <a href="#Xunit_Assert_NotEqual__1___0_____0___"></a> NotEqual<T\>\(T\[\], T\[\]\)
 
 Verifies that two arrays of un-managed type T are not equal, using Span&lt;T&gt;.SequenceEqual.
 
@@ -5205,7 +5205,7 @@ The value to be compared against
 
 The type of items whose arrays are to be compared
 
-### <a id="Xunit_Assert_NotEqual__1___0___0_"></a> NotEqual<T\>\(T, T\)
+### <a href="#Xunit_Assert_NotEqual__1___0___0_"></a> NotEqual<T\>\(T, T\)
 
 Verifies that two objects are not equal, using a default comparer.
 
@@ -5229,7 +5229,7 @@ The actual object
 
 The type of the objects to be compared
 
-### <a id="Xunit_Assert_NotEqual__1___0___0_System_Func___0___0_System_Boolean__"></a> NotEqual<T\>\(T, T, Func<T, T, bool\>\)
+### <a href="#Xunit_Assert_NotEqual__1___0___0_System_Func___0___0_System_Boolean__"></a> NotEqual<T\>\(T, T, Func<T, T, bool\>\)
 
 Verifies that two objects are not equal, using a custom equality comparer function.
 
@@ -5257,7 +5257,7 @@ The comparer used to examine the objects
 
 The type of the objects to be compared
 
-### <a id="Xunit_Assert_NotEqual__1___0___0_System_Collections_Generic_IEqualityComparer___0__"></a> NotEqual<T\>\(T, T, IEqualityComparer<T\>\)
+### <a href="#Xunit_Assert_NotEqual__1___0___0_System_Collections_Generic_IEqualityComparer___0__"></a> NotEqual<T\>\(T, T, IEqualityComparer<T\>\)
 
 Verifies that two objects are not equal, using a custom equality comparer.
 
@@ -5285,7 +5285,7 @@ The comparer used to examine the objects
 
 The type of the objects to be compared
 
-### <a id="Xunit_Assert_NotEqual_System_Double_System_Double_System_Int32_"></a> NotEqual\(double, double, int\)
+### <a href="#Xunit_Assert_NotEqual_System_Double_System_Double_System_Int32_"></a> NotEqual\(double, double, int\)
 
 Verifies that two <xref href="System.Double" data-throw-if-not-resolved="false"></xref> values are not equal, within the number of decimal
 places given by <code class="paramref">precision</code>.
@@ -5308,7 +5308,7 @@ The value to be compared against
 
 The number of decimal places (valid values: 0-15)
 
-### <a id="Xunit_Assert_NotEqual_System_Double_System_Double_System_Int32_System_MidpointRounding_"></a> NotEqual\(double, double, int, MidpointRounding\)
+### <a href="#Xunit_Assert_NotEqual_System_Double_System_Double_System_Int32_System_MidpointRounding_"></a> NotEqual\(double, double, int, MidpointRounding\)
 
 Verifies that two <xref href="System.Double" data-throw-if-not-resolved="false"></xref> values are not equal, within the number of decimal
 places given by <code class="paramref">precision</code>. The values are rounded before comparison.
@@ -5336,7 +5336,7 @@ The number of decimal places (valid values: 0-15)
 
 Rounding method to use to process a number that is midway between two numbers
 
-### <a id="Xunit_Assert_NotEqual_System_Double_System_Double_System_Double_"></a> NotEqual\(double, double, double\)
+### <a href="#Xunit_Assert_NotEqual_System_Double_System_Double_System_Double_"></a> NotEqual\(double, double, double\)
 
 Verifies that two <xref href="System.Double" data-throw-if-not-resolved="false"></xref> values are not equal, within the tolerance given by
 <code class="paramref">tolerance</code> (positive or negative).
@@ -5359,7 +5359,7 @@ The value to be compared against
 
 The allowed difference between values
 
-### <a id="Xunit_Assert_NotEqual_System_Single_System_Single_System_Int32_"></a> NotEqual\(float, float, int\)
+### <a href="#Xunit_Assert_NotEqual_System_Single_System_Single_System_Int32_"></a> NotEqual\(float, float, int\)
 
 Verifies that two <xref href="System.Single" data-throw-if-not-resolved="false"></xref> values are not equal, within the number of decimal
 places given by <code class="paramref">precision</code>.
@@ -5382,7 +5382,7 @@ The value to be compared against
 
 The number of decimal places (valid values: 0-15)
 
-### <a id="Xunit_Assert_NotEqual_System_Single_System_Single_System_Int32_System_MidpointRounding_"></a> NotEqual\(float, float, int, MidpointRounding\)
+### <a href="#Xunit_Assert_NotEqual_System_Single_System_Single_System_Int32_System_MidpointRounding_"></a> NotEqual\(float, float, int, MidpointRounding\)
 
 Verifies that two <xref href="System.Single" data-throw-if-not-resolved="false"></xref> values are not equal, within the number of decimal
 places given by <code class="paramref">precision</code>. The values are rounded before comparison.
@@ -5410,7 +5410,7 @@ The number of decimal places (valid values: 0-15)
 
 Rounding method to use to process a number that is midway between two numbers
 
-### <a id="Xunit_Assert_NotEqual_System_Single_System_Single_System_Single_"></a> NotEqual\(float, float, float\)
+### <a href="#Xunit_Assert_NotEqual_System_Single_System_Single_System_Single_"></a> NotEqual\(float, float, float\)
 
 Verifies that two <xref href="System.Single" data-throw-if-not-resolved="false"></xref> values are not equal, within the tolerance given by
 <code class="paramref">tolerance</code> (positive or negative).
@@ -5433,7 +5433,7 @@ The value to be compared against
 
 The allowed difference between values
 
-### <a id="Xunit_Assert_NotEqual_System_Decimal_System_Decimal_System_Int32_"></a> NotEqual\(decimal, decimal, int\)
+### <a href="#Xunit_Assert_NotEqual_System_Decimal_System_Decimal_System_Int32_"></a> NotEqual\(decimal, decimal, int\)
 
 Verifies that two <xref href="System.Decimal" data-throw-if-not-resolved="false"></xref> values are not equal, within the number of decimal
 places given by <code class="paramref">precision</code>.
@@ -5456,7 +5456,7 @@ The value to be compared against
 
 The number of decimal places (valid values: 0-28)
 
-### <a id="Xunit_Assert_NotInRange__1___0___0___0_"></a> NotInRange<T\>\(T, T, T\)
+### <a href="#Xunit_Assert_NotInRange__1___0___0___0_"></a> NotInRange<T\>\(T, T, T\)
 
 Verifies that a value is not within a given range, using the default comparer.
 
@@ -5490,7 +5490,7 @@ The type of the value to be compared
 
 Thrown when the value is in the given range
 
-### <a id="Xunit_Assert_NotInRange__1___0___0___0_System_Collections_Generic_IComparer___0__"></a> NotInRange<T\>\(T, T, T, IComparer<T\>\)
+### <a href="#Xunit_Assert_NotInRange__1___0___0___0_System_Collections_Generic_IComparer___0__"></a> NotInRange<T\>\(T, T, T, IComparer<T\>\)
 
 Verifies that a value is not within a given range, using a comparer.
 
@@ -5528,7 +5528,7 @@ The type of the value to be compared
 
 Thrown when the value is in the given range
 
-### <a id="Xunit_Assert_NotNull_System_Object_"></a> NotNull\(object?\)
+### <a href="#Xunit_Assert_NotNull_System_Object_"></a> NotNull\(object?\)
 
 Verifies that an object reference is not null.
 
@@ -5548,7 +5548,7 @@ The object to be validated
 
 Thrown when the object reference is null
 
-### <a id="Xunit_Assert_NotNull__1_System_Nullable___0__"></a> NotNull<T\>\(T?\)
+### <a href="#Xunit_Assert_NotNull__1_System_Nullable___0__"></a> NotNull<T\>\(T?\)
 
 Verifies that a nullable struct value is not null.
 
@@ -5580,7 +5580,7 @@ The type of the struct
 
 Thrown when the value is null
 
-### <a id="Xunit_Assert_NotSame_System_Object_System_Object_"></a> NotSame\(object?, object?\)
+### <a href="#Xunit_Assert_NotSame_System_Object_System_Object_"></a> NotSame\(object?, object?\)
 
 Verifies that two objects are not the same instance.
 
@@ -5604,7 +5604,7 @@ The actual object instance
 
 Thrown when the objects are the same instance
 
-### <a id="Xunit_Assert_NotStrictEqual__1___0___0_"></a> NotStrictEqual<T\>\(T, T\)
+### <a href="#Xunit_Assert_NotStrictEqual__1___0___0_"></a> NotStrictEqual<T\>\(T, T\)
 
 Verifies that two objects are strictly not equal, using the type's default comparer.
 
@@ -5628,7 +5628,7 @@ The actual object
 
 The type of the objects to be compared
 
-### <a id="Xunit_Assert_Null_System_Object_"></a> Null\(object?\)
+### <a href="#Xunit_Assert_Null_System_Object_"></a> Null\(object?\)
 
 Verifies that an object reference is null.
 
@@ -5648,7 +5648,7 @@ The object to be inspected
 
 Thrown when the object reference is not null
 
-### <a id="Xunit_Assert_Null__1_System_Nullable___0__"></a> Null<T\>\(T?\)
+### <a href="#Xunit_Assert_Null__1_System_Nullable___0__"></a> Null<T\>\(T?\)
 
 Verifies that a nullable struct value is null.
 
@@ -5672,7 +5672,7 @@ The value to be inspected
 
 Thrown when the value is not null
 
-### <a id="Xunit_Assert_ProperSubset__1_System_Collections_Generic_ISet___0__System_Collections_Generic_ISet___0__"></a> ProperSubset<T\>\(ISet<T\>, ISet<T\>?\)
+### <a href="#Xunit_Assert_ProperSubset__1_System_Collections_Generic_ISet___0__System_Collections_Generic_ISet___0__"></a> ProperSubset<T\>\(ISet<T\>, ISet<T\>?\)
 
 Verifies that a set is a proper subset of another set.
 
@@ -5702,7 +5702,7 @@ The type of the object to be verified
 
 Thrown when the actual set is not a proper subset of the expected set
 
-### <a id="Xunit_Assert_ProperSuperset__1_System_Collections_Generic_ISet___0__System_Collections_Generic_ISet___0__"></a> ProperSuperset<T\>\(ISet<T\>, ISet<T\>?\)
+### <a href="#Xunit_Assert_ProperSuperset__1_System_Collections_Generic_ISet___0__System_Collections_Generic_ISet___0__"></a> ProperSuperset<T\>\(ISet<T\>, ISet<T\>?\)
 
 Verifies that a set is a proper superset of another set.
 
@@ -5732,7 +5732,7 @@ The type of the object to be verified
 
 Thrown when the actual set is not a proper superset of the expected set
 
-### <a id="Xunit_Assert_PropertyChanged_System_ComponentModel_INotifyPropertyChanged_System_String_System_Action_"></a> PropertyChanged\(INotifyPropertyChanged, string, Action\)
+### <a href="#Xunit_Assert_PropertyChanged_System_ComponentModel_INotifyPropertyChanged_System_String_System_Action_"></a> PropertyChanged\(INotifyPropertyChanged, string, Action\)
 
 Verifies that the provided object raised <xref href="System.ComponentModel.INotifyPropertyChanged.PropertyChanged" data-throw-if-not-resolved="false"></xref>
 as a result of executing the given test code.
@@ -5761,7 +5761,7 @@ The test code which should cause the notification to be raised
 
 Thrown when the notification is not raised
 
-### <a id="Xunit_Assert_PropertyChangedAsync_System_ComponentModel_INotifyPropertyChanged_System_String_System_Func_System_Threading_Tasks_Task__"></a> PropertyChangedAsync\(INotifyPropertyChanged, string, Func<Task\>\)
+### <a href="#Xunit_Assert_PropertyChangedAsync_System_ComponentModel_INotifyPropertyChanged_System_String_System_Func_System_Threading_Tasks_Task__"></a> PropertyChangedAsync\(INotifyPropertyChanged, string, Func<Task\>\)
 
 Verifies that the provided object raised <xref href="System.ComponentModel.INotifyPropertyChanged.PropertyChanged" data-throw-if-not-resolved="false"></xref>
 as a result of executing the given test code.
@@ -5794,7 +5794,7 @@ The test code which should cause the notification to be raised
 
 Thrown when the notification is not raised
 
-### <a id="Xunit_Assert_Raises_System_Action_System_Action__System_Action_System_Action__System_Action_"></a> Raises\(Action<Action\>, Action<Action\>, Action\)
+### <a href="#Xunit_Assert_Raises_System_Action_System_Action__System_Action_System_Action__System_Action_"></a> Raises\(Action<Action\>, Action<Action\>, Action\)
 
 Verifies that an event is raised.
 
@@ -5822,7 +5822,7 @@ A delegate to the code to be tested
 
 Thrown when the expected event was not raised.
 
-### <a id="Xunit_Assert_Raises__1_System_Action_System_Action___0___System_Action_System_Action___0___System_Action_"></a> Raises<T\>\(Action<Action<T\>\>, Action<Action<T\>\>, Action\)
+### <a href="#Xunit_Assert_Raises__1_System_Action_System_Action___0___System_Action_System_Action___0___System_Action_"></a> Raises<T\>\(Action<Action<T\>\>, Action<Action<T\>\>, Action\)
 
 Verifies that an event with the exact event args is raised.
 
@@ -5862,7 +5862,7 @@ The type of the event arguments to expect
 
 Thrown when the expected event was not raised.
 
-### <a id="Xunit_Assert_Raises__1_System_Action_System_EventHandler___0___System_Action_System_EventHandler___0___System_Action_"></a> Raises<T\>\(Action<EventHandler<T\>\>, Action<EventHandler<T\>\>, Action\)
+### <a href="#Xunit_Assert_Raises__1_System_Action_System_EventHandler___0___System_Action_System_EventHandler___0___System_Action_"></a> Raises<T\>\(Action<EventHandler<T\>\>, Action<EventHandler<T\>\>, Action\)
 
 Verifies that an event with the exact event args is raised.
 
@@ -5902,7 +5902,7 @@ The type of the event arguments to expect
 
 Thrown when the expected event was not raised.
 
-### <a id="Xunit_Assert_Raises__1_System_Func_Xunit_Assert_RaisedEvent___0___System_Action_System_Action_System_Action_"></a> Raises<T\>\(Func<RaisedEvent<T\>?\>, Action, Action, Action\)
+### <a href="#Xunit_Assert_Raises__1_System_Func_Xunit_Assert_RaisedEvent___0___System_Action_System_Action_System_Action_"></a> Raises<T\>\(Func<RaisedEvent<T\>?\>, Action, Action, Action\)
 
 Verifies that an event with the exact event args is raised.
 
@@ -5946,7 +5946,7 @@ The type of the event arguments to expect
 
 Thrown when the expected event was not raised.
 
-### <a id="Xunit_Assert_RaisesAny_System_Action_System_EventHandler__System_Action_System_EventHandler__System_Action_"></a> RaisesAny\(Action<EventHandler\>, Action<EventHandler\>, Action\)
+### <a href="#Xunit_Assert_RaisesAny_System_Action_System_EventHandler__System_Action_System_EventHandler__System_Action_"></a> RaisesAny\(Action<EventHandler\>, Action<EventHandler\>, Action\)
 
 Verifies that an event is raised.
 
@@ -5980,7 +5980,7 @@ The event sender and arguments wrapped in an object
 
 Thrown when the expected event was not raised.
 
-### <a id="Xunit_Assert_RaisesAny__1_System_Action_System_Action___0___System_Action_System_Action___0___System_Action_"></a> RaisesAny<T\>\(Action<Action<T\>\>, Action<Action<T\>\>, Action\)
+### <a href="#Xunit_Assert_RaisesAny__1_System_Action_System_Action___0___System_Action_System_Action___0___System_Action_"></a> RaisesAny<T\>\(Action<Action<T\>\>, Action<Action<T\>\>, Action\)
 
 Verifies that an event with the exact or a derived event args is raised.
 
@@ -6020,7 +6020,7 @@ The type of the event arguments to expect
 
 Thrown when the expected event was not raised.
 
-### <a id="Xunit_Assert_RaisesAny__1_System_Action_System_EventHandler___0___System_Action_System_EventHandler___0___System_Action_"></a> RaisesAny<T\>\(Action<EventHandler<T\>\>, Action<EventHandler<T\>\>, Action\)
+### <a href="#Xunit_Assert_RaisesAny__1_System_Action_System_EventHandler___0___System_Action_System_EventHandler___0___System_Action_"></a> RaisesAny<T\>\(Action<EventHandler<T\>\>, Action<EventHandler<T\>\>, Action\)
 
 Verifies that an event with the exact or a derived event args is raised.
 
@@ -6060,7 +6060,7 @@ The type of the event arguments to expect
 
 Thrown when the expected event was not raised.
 
-### <a id="Xunit_Assert_RaisesAnyAsync_System_Action_System_EventHandler__System_Action_System_EventHandler__System_Func_System_Threading_Tasks_Task__"></a> RaisesAnyAsync\(Action<EventHandler\>, Action<EventHandler\>, Func<Task\>\)
+### <a href="#Xunit_Assert_RaisesAnyAsync_System_Action_System_EventHandler__System_Action_System_EventHandler__System_Func_System_Threading_Tasks_Task__"></a> RaisesAnyAsync\(Action<EventHandler\>, Action<EventHandler\>, Func<Task\>\)
 
 Verifies that an event is raised.
 
@@ -6094,7 +6094,7 @@ The event sender and arguments wrapped in an object
 
 Thrown when the expected event was not raised.
 
-### <a id="Xunit_Assert_RaisesAnyAsync__1_System_Action_System_Action___0___System_Action_System_Action___0___System_Func_System_Threading_Tasks_Task__"></a> RaisesAnyAsync<T\>\(Action<Action<T\>\>, Action<Action<T\>\>, Func<Task\>\)
+### <a href="#Xunit_Assert_RaisesAnyAsync__1_System_Action_System_Action___0___System_Action_System_Action___0___System_Func_System_Threading_Tasks_Task__"></a> RaisesAnyAsync<T\>\(Action<Action<T\>\>, Action<Action<T\>\>, Func<Task\>\)
 
 Verifies that an event with the exact or a derived event args is raised.
 
@@ -6134,7 +6134,7 @@ The type of the event arguments to expect
 
 Thrown when the expected event was not raised.
 
-### <a id="Xunit_Assert_RaisesAnyAsync__1_System_Action_System_EventHandler___0___System_Action_System_EventHandler___0___System_Func_System_Threading_Tasks_Task__"></a> RaisesAnyAsync<T\>\(Action<EventHandler<T\>\>, Action<EventHandler<T\>\>, Func<Task\>\)
+### <a href="#Xunit_Assert_RaisesAnyAsync__1_System_Action_System_EventHandler___0___System_Action_System_EventHandler___0___System_Func_System_Threading_Tasks_Task__"></a> RaisesAnyAsync<T\>\(Action<EventHandler<T\>\>, Action<EventHandler<T\>\>, Func<Task\>\)
 
 Verifies that an event with the exact or a derived event args is raised.
 
@@ -6174,7 +6174,7 @@ The type of the event arguments to expect
 
 Thrown when the expected event was not raised.
 
-### <a id="Xunit_Assert_RaisesAsync_System_Action_System_Action__System_Action_System_Action__System_Func_System_Threading_Tasks_Task__"></a> RaisesAsync\(Action<Action\>, Action<Action\>, Func<Task\>\)
+### <a href="#Xunit_Assert_RaisesAsync_System_Action_System_Action__System_Action_System_Action__System_Func_System_Threading_Tasks_Task__"></a> RaisesAsync\(Action<Action\>, Action<Action\>, Func<Task\>\)
 
 Verifies that an event is raised.
 
@@ -6208,7 +6208,7 @@ The event sender and arguments wrapped in an object
 
 Thrown when the expected event was not raised.
 
-### <a id="Xunit_Assert_RaisesAsync__1_System_Action_System_Action___0___System_Action_System_Action___0___System_Func_System_Threading_Tasks_Task__"></a> RaisesAsync<T\>\(Action<Action<T\>\>, Action<Action<T\>\>, Func<Task\>\)
+### <a href="#Xunit_Assert_RaisesAsync__1_System_Action_System_Action___0___System_Action_System_Action___0___System_Func_System_Threading_Tasks_Task__"></a> RaisesAsync<T\>\(Action<Action<T\>\>, Action<Action<T\>\>, Func<Task\>\)
 
 Verifies that an event with the exact event args (and not a derived type) is raised.
 
@@ -6248,7 +6248,7 @@ The type of the event arguments to expect
 
 Thrown when the expected event was not raised.
 
-### <a id="Xunit_Assert_RaisesAsync__1_System_Action_System_EventHandler___0___System_Action_System_EventHandler___0___System_Func_System_Threading_Tasks_Task__"></a> RaisesAsync<T\>\(Action<EventHandler<T\>\>, Action<EventHandler<T\>\>, Func<Task\>\)
+### <a href="#Xunit_Assert_RaisesAsync__1_System_Action_System_EventHandler___0___System_Action_System_EventHandler___0___System_Func_System_Threading_Tasks_Task__"></a> RaisesAsync<T\>\(Action<EventHandler<T\>\>, Action<EventHandler<T\>\>, Func<Task\>\)
 
 Verifies that an event with the exact event args (and not a derived type) is raised.
 
@@ -6288,7 +6288,7 @@ The type of the event arguments to expect
 
 Thrown when the expected event was not raised.
 
-### <a id="Xunit_Assert_RecordException_System_Action_"></a> RecordException\(Action\)
+### <a href="#Xunit_Assert_RecordException_System_Action_"></a> RecordException\(Action\)
 
 Records any exception which is thrown by the given code.
 
@@ -6308,7 +6308,7 @@ The code which may thrown an exception.
 
 Returns the exception that was thrown by the code; null, otherwise.
 
-### <a id="Xunit_Assert_RecordException_System_Func_System_Object__System_String_"></a> RecordException\(Func<object?\>, string\)
+### <a href="#Xunit_Assert_RecordException_System_Func_System_Object__System_String_"></a> RecordException\(Func<object?\>, string\)
 
 Records any exception which is thrown by the given code that has
 a return value. Generally used for testing property accessors.
@@ -6334,7 +6334,7 @@ The name of the async method the user should've called if they accidentally
 
 Returns the exception that was thrown by the code; null, otherwise.
 
-### <a id="Xunit_Assert_RecordExceptionAsync_System_Func_System_Threading_Tasks_Task__"></a> RecordExceptionAsync\(Func<Task\>\)
+### <a href="#Xunit_Assert_RecordExceptionAsync_System_Func_System_Threading_Tasks_Task__"></a> RecordExceptionAsync\(Func<Task\>\)
 
 Records any exception which is thrown by the given task.
 
@@ -6354,7 +6354,7 @@ The task which may thrown an exception.
 
 Returns the exception that was thrown by the code; null, otherwise.
 
-### <a id="Xunit_Assert_Same_System_Object_System_Object_"></a> Same\(object?, object?\)
+### <a href="#Xunit_Assert_Same_System_Object_System_Object_"></a> Same\(object?, object?\)
 
 Verifies that two objects are the same instance.
 
@@ -6378,7 +6378,7 @@ The actual object instance
 
 Thrown when the objects are not the same instance
 
-### <a id="Xunit_Assert_Single_System_Collections_IEnumerable_"></a> Single\(IEnumerable\)
+### <a href="#Xunit_Assert_Single_System_Collections_IEnumerable_"></a> Single\(IEnumerable\)
 
 Verifies that the given collection contains only a single
 element of the given type.
@@ -6406,7 +6406,7 @@ The single item in the collection.
 Thrown when the collection does not contain
     exactly one element.
 
-### <a id="Xunit_Assert_Single_System_Collections_IEnumerable_System_Object_"></a> Single\(IEnumerable, object?\)
+### <a href="#Xunit_Assert_Single_System_Collections_IEnumerable_System_Object_"></a> Single\(IEnumerable, object?\)
 
 Verifies that the given collection contains only a single
 element of the given value. The collection may or may not
@@ -6433,7 +6433,7 @@ The value to find in the collection.
 Thrown when the collection does not contain
     exactly one element.
 
-### <a id="Xunit_Assert_Single__1_System_Collections_Generic_IEnumerable___0__"></a> Single<T\>\(IEnumerable<T\>\)
+### <a href="#Xunit_Assert_Single__1_System_Collections_Generic_IEnumerable___0__"></a> Single<T\>\(IEnumerable<T\>\)
 
 Verifies that the given collection contains only a single
 element of the given type.
@@ -6467,7 +6467,7 @@ The collection type.
 Thrown when the collection does not contain
     exactly one element.
 
-### <a id="Xunit_Assert_Single__1_System_Collections_Generic_IEnumerable___0__System_Predicate___0__"></a> Single<T\>\(IEnumerable<T\>, Predicate<T\>\)
+### <a href="#Xunit_Assert_Single__1_System_Collections_Generic_IEnumerable___0__System_Predicate___0__"></a> Single<T\>\(IEnumerable<T\>, Predicate<T\>\)
 
 Verifies that the given collection contains only a single
 element of the given type which matches the given predicate. The
@@ -6507,7 +6507,7 @@ The collection type.
 Thrown when the filtered collection does
     not contain exactly one element.
 
-### <a id="Xunit_Assert_Skip_System_String_"></a> Skip\(string\)
+### <a href="#Xunit_Assert_Skip_System_String_"></a> Skip\(string\)
 
 Skips the current test. Used when determining whether a test should be skipped
 happens at runtime rather than at discovery time.
@@ -6522,7 +6522,7 @@ public static void Skip(string reason)
 
 The message to indicate why the test was skipped
 
-### <a id="Xunit_Assert_SkipUnless_System_Boolean_System_String_"></a> SkipUnless\(bool, string\)
+### <a href="#Xunit_Assert_SkipUnless_System_Boolean_System_String_"></a> SkipUnless\(bool, string\)
 
 Will skip the current test unless <code class="paramref">condition</code> evaluates to <code>true</code>.
 
@@ -6541,7 +6541,7 @@ When <code>true</code>, the test will continue to run; when <code>false</code>,
 
 The message to indicate why the test was skipped
 
-### <a id="Xunit_Assert_SkipWhen_System_Boolean_System_String_"></a> SkipWhen\(bool, string\)
+### <a href="#Xunit_Assert_SkipWhen_System_Boolean_System_String_"></a> SkipWhen\(bool, string\)
 
 Will skip the current test when <code class="paramref">condition</code> evaluates to <code>true</code>.
 
@@ -6560,7 +6560,7 @@ When <code>true</code>, the test will be skipped; when <code>false</code>,
 
 The message to indicate why the test was skipped
 
-### <a id="Xunit_Assert_StartsWith_System_String_System_String_"></a> StartsWith\(string?, string?\)
+### <a href="#Xunit_Assert_StartsWith_System_String_System_String_"></a> StartsWith\(string?, string?\)
 
 Verifies that a string starts with a given string, using the current culture.
 
@@ -6584,7 +6584,7 @@ The string to be inspected
 
 Thrown when the string does not start with the expected sub-string
 
-### <a id="Xunit_Assert_StartsWith_System_String_System_String_System_StringComparison_"></a> StartsWith\(string?, string?, StringComparison\)
+### <a href="#Xunit_Assert_StartsWith_System_String_System_String_System_StringComparison_"></a> StartsWith\(string?, string?, StringComparison\)
 
 Verifies that a string starts with a given sub-string, using the given comparison type.
 
@@ -6612,7 +6612,7 @@ The type of string comparison to perform
 
 Thrown when the string does not start with the expected sub-string
 
-### <a id="Xunit_Assert_StartsWith_System_Memory_System_Char__System_Memory_System_Char__"></a> StartsWith\(Memory<char\>, Memory<char\>\)
+### <a href="#Xunit_Assert_StartsWith_System_Memory_System_Char__System_Memory_System_Char__"></a> StartsWith\(Memory<char\>, Memory<char\>\)
 
 Verifies that a string starts with a given sub-string, using the current culture.
 
@@ -6636,7 +6636,7 @@ The string to be inspected
 
 Thrown when the string does not start with the expected sub-string
 
-### <a id="Xunit_Assert_StartsWith_System_Memory_System_Char__System_ReadOnlyMemory_System_Char__"></a> StartsWith\(Memory<char\>, ReadOnlyMemory<char\>\)
+### <a href="#Xunit_Assert_StartsWith_System_Memory_System_Char__System_ReadOnlyMemory_System_Char__"></a> StartsWith\(Memory<char\>, ReadOnlyMemory<char\>\)
 
 Verifies that a string starts with a given sub-string, using the current culture.
 
@@ -6660,7 +6660,7 @@ The string to be inspected
 
 Thrown when the string does not start with the expected sub-string
 
-### <a id="Xunit_Assert_StartsWith_System_ReadOnlyMemory_System_Char__System_Memory_System_Char__"></a> StartsWith\(ReadOnlyMemory<char\>, Memory<char\>\)
+### <a href="#Xunit_Assert_StartsWith_System_ReadOnlyMemory_System_Char__System_Memory_System_Char__"></a> StartsWith\(ReadOnlyMemory<char\>, Memory<char\>\)
 
 Verifies that a string starts with a given sub-string, using the current culture.
 
@@ -6684,7 +6684,7 @@ The string to be inspected
 
 Thrown when the string does not start with the expected sub-string
 
-### <a id="Xunit_Assert_StartsWith_System_ReadOnlyMemory_System_Char__System_ReadOnlyMemory_System_Char__"></a> StartsWith\(ReadOnlyMemory<char\>, ReadOnlyMemory<char\>\)
+### <a href="#Xunit_Assert_StartsWith_System_ReadOnlyMemory_System_Char__System_ReadOnlyMemory_System_Char__"></a> StartsWith\(ReadOnlyMemory<char\>, ReadOnlyMemory<char\>\)
 
 Verifies that a string starts with a given sub-string, using the default StringComparison.CurrentCulture comparison type.
 
@@ -6708,7 +6708,7 @@ The string to be inspected
 
 Thrown when the string does not start with the expected sub-string
 
-### <a id="Xunit_Assert_StartsWith_System_Memory_System_Char__System_Memory_System_Char__System_StringComparison_"></a> StartsWith\(Memory<char\>, Memory<char\>, StringComparison\)
+### <a href="#Xunit_Assert_StartsWith_System_Memory_System_Char__System_Memory_System_Char__System_StringComparison_"></a> StartsWith\(Memory<char\>, Memory<char\>, StringComparison\)
 
 Verifies that a string starts with a given sub-string, using the given comparison type.
 
@@ -6736,7 +6736,7 @@ The type of string comparison to perform
 
 Thrown when the string does not start with the expected sub-string
 
-### <a id="Xunit_Assert_StartsWith_System_Memory_System_Char__System_ReadOnlyMemory_System_Char__System_StringComparison_"></a> StartsWith\(Memory<char\>, ReadOnlyMemory<char\>, StringComparison\)
+### <a href="#Xunit_Assert_StartsWith_System_Memory_System_Char__System_ReadOnlyMemory_System_Char__System_StringComparison_"></a> StartsWith\(Memory<char\>, ReadOnlyMemory<char\>, StringComparison\)
 
 Verifies that a string starts with a given sub-string, using the given comparison type.
 
@@ -6764,7 +6764,7 @@ The type of string comparison to perform
 
 Thrown when the string does not start with the expected sub-string
 
-### <a id="Xunit_Assert_StartsWith_System_ReadOnlyMemory_System_Char__System_Memory_System_Char__System_StringComparison_"></a> StartsWith\(ReadOnlyMemory<char\>, Memory<char\>, StringComparison\)
+### <a href="#Xunit_Assert_StartsWith_System_ReadOnlyMemory_System_Char__System_Memory_System_Char__System_StringComparison_"></a> StartsWith\(ReadOnlyMemory<char\>, Memory<char\>, StringComparison\)
 
 Verifies that a string starts with a given sub-string, using the given comparison type.
 
@@ -6792,7 +6792,7 @@ The type of string comparison to perform
 
 Thrown when the string does not start with the expected sub-string
 
-### <a id="Xunit_Assert_StartsWith_System_ReadOnlyMemory_System_Char__System_ReadOnlyMemory_System_Char__System_StringComparison_"></a> StartsWith\(ReadOnlyMemory<char\>, ReadOnlyMemory<char\>, StringComparison\)
+### <a href="#Xunit_Assert_StartsWith_System_ReadOnlyMemory_System_Char__System_ReadOnlyMemory_System_Char__System_StringComparison_"></a> StartsWith\(ReadOnlyMemory<char\>, ReadOnlyMemory<char\>, StringComparison\)
 
 Verifies that a string starts with a given sub-string, using the given comparison type.
 
@@ -6820,7 +6820,7 @@ The type of string comparison to perform
 
 Thrown when the string does not start with the expected sub-string
 
-### <a id="Xunit_Assert_StartsWith_System_Span_System_Char__System_Span_System_Char__"></a> StartsWith\(Span<char\>, Span<char\>\)
+### <a href="#Xunit_Assert_StartsWith_System_Span_System_Char__System_Span_System_Char__"></a> StartsWith\(Span<char\>, Span<char\>\)
 
 Verifies that a string starts with a given sub-string, using the current culture.
 
@@ -6844,7 +6844,7 @@ The string to be inspected
 
 Thrown when the string does not start with the expected sub-string
 
-### <a id="Xunit_Assert_StartsWith_System_Span_System_Char__System_ReadOnlySpan_System_Char__"></a> StartsWith\(Span<char\>, ReadOnlySpan<char\>\)
+### <a href="#Xunit_Assert_StartsWith_System_Span_System_Char__System_ReadOnlySpan_System_Char__"></a> StartsWith\(Span<char\>, ReadOnlySpan<char\>\)
 
 Verifies that a string starts with a given sub-string, using the current culture.
 
@@ -6868,7 +6868,7 @@ The string to be inspected
 
 Thrown when the string does not start with the expected sub-string
 
-### <a id="Xunit_Assert_StartsWith_System_ReadOnlySpan_System_Char__System_Span_System_Char__"></a> StartsWith\(ReadOnlySpan<char\>, Span<char\>\)
+### <a href="#Xunit_Assert_StartsWith_System_ReadOnlySpan_System_Char__System_Span_System_Char__"></a> StartsWith\(ReadOnlySpan<char\>, Span<char\>\)
 
 Verifies that a string starts with a given sub-string, using the current culture.
 
@@ -6892,7 +6892,7 @@ The string to be inspected
 
 Thrown when the string does not start with the expected sub-string
 
-### <a id="Xunit_Assert_StartsWith_System_ReadOnlySpan_System_Char__System_ReadOnlySpan_System_Char__"></a> StartsWith\(ReadOnlySpan<char\>, ReadOnlySpan<char\>\)
+### <a href="#Xunit_Assert_StartsWith_System_ReadOnlySpan_System_Char__System_ReadOnlySpan_System_Char__"></a> StartsWith\(ReadOnlySpan<char\>, ReadOnlySpan<char\>\)
 
 Verifies that a string starts with a given sub-string, using the current culture.
 
@@ -6916,7 +6916,7 @@ The string to be inspected
 
 Thrown when the string does not start with the expected sub-string
 
-### <a id="Xunit_Assert_StartsWith_System_Span_System_Char__System_Span_System_Char__System_StringComparison_"></a> StartsWith\(Span<char\>, Span<char\>, StringComparison\)
+### <a href="#Xunit_Assert_StartsWith_System_Span_System_Char__System_Span_System_Char__System_StringComparison_"></a> StartsWith\(Span<char\>, Span<char\>, StringComparison\)
 
 Verifies that a string starts with a given sub-string, using the given comparison type.
 
@@ -6944,7 +6944,7 @@ The type of string comparison to perform
 
 Thrown when the string does not start with the expected sub-string
 
-### <a id="Xunit_Assert_StartsWith_System_Span_System_Char__System_ReadOnlySpan_System_Char__System_StringComparison_"></a> StartsWith\(Span<char\>, ReadOnlySpan<char\>, StringComparison\)
+### <a href="#Xunit_Assert_StartsWith_System_Span_System_Char__System_ReadOnlySpan_System_Char__System_StringComparison_"></a> StartsWith\(Span<char\>, ReadOnlySpan<char\>, StringComparison\)
 
 Verifies that a string starts with a given sub-string, using the given comparison type.
 
@@ -6972,7 +6972,7 @@ The type of string comparison to perform
 
 Thrown when the string does not start with the expected sub-string
 
-### <a id="Xunit_Assert_StartsWith_System_ReadOnlySpan_System_Char__System_Span_System_Char__System_StringComparison_"></a> StartsWith\(ReadOnlySpan<char\>, Span<char\>, StringComparison\)
+### <a href="#Xunit_Assert_StartsWith_System_ReadOnlySpan_System_Char__System_Span_System_Char__System_StringComparison_"></a> StartsWith\(ReadOnlySpan<char\>, Span<char\>, StringComparison\)
 
 Verifies that a string starts with a given sub-string, using the given comparison type.
 
@@ -7000,7 +7000,7 @@ The type of string comparison to perform
 
 Thrown when the string does not start with the expected sub-string
 
-### <a id="Xunit_Assert_StartsWith_System_ReadOnlySpan_System_Char__System_ReadOnlySpan_System_Char__System_StringComparison_"></a> StartsWith\(ReadOnlySpan<char\>, ReadOnlySpan<char\>, StringComparison\)
+### <a href="#Xunit_Assert_StartsWith_System_ReadOnlySpan_System_Char__System_ReadOnlySpan_System_Char__System_StringComparison_"></a> StartsWith\(ReadOnlySpan<char\>, ReadOnlySpan<char\>, StringComparison\)
 
 Verifies that a string starts with a given sub-string, using the given comparison type.
 
@@ -7028,7 +7028,7 @@ The type of string comparison to perform
 
 Thrown when the string does not start with the expected sub-string
 
-### <a id="Xunit_Assert_StrictEqual__1___0___0_"></a> StrictEqual<T\>\(T, T\)
+### <a href="#Xunit_Assert_StrictEqual__1___0___0_"></a> StrictEqual<T\>\(T, T\)
 
 Verifies that two objects are strictly equal, using the type's default comparer.
 
@@ -7052,7 +7052,7 @@ The value to be compared against
 
 The type of the objects to be compared
 
-### <a id="Xunit_Assert_Subset__1_System_Collections_Generic_ISet___0__System_Collections_Generic_ISet___0__"></a> Subset<T\>\(ISet<T\>, ISet<T\>?\)
+### <a href="#Xunit_Assert_Subset__1_System_Collections_Generic_ISet___0__System_Collections_Generic_ISet___0__"></a> Subset<T\>\(ISet<T\>, ISet<T\>?\)
 
 Verifies that a set is a subset of another set.
 
@@ -7082,7 +7082,7 @@ The type of the object to be verified
 
 Thrown when the actual set is not a subset of the expected set
 
-### <a id="Xunit_Assert_Superset__1_System_Collections_Generic_ISet___0__System_Collections_Generic_ISet___0__"></a> Superset<T\>\(ISet<T\>, ISet<T\>?\)
+### <a href="#Xunit_Assert_Superset__1_System_Collections_Generic_ISet___0__System_Collections_Generic_ISet___0__"></a> Superset<T\>\(ISet<T\>, ISet<T\>?\)
 
 Verifies that a set is a superset of another set.
 
@@ -7112,7 +7112,7 @@ The type of the object to be verified
 
 Thrown when the actual set is not a superset of the expected set
 
-### <a id="Xunit_Assert_Throws_System_Type_System_Action_"></a> Throws\(Type, Action\)
+### <a href="#Xunit_Assert_Throws_System_Type_System_Action_"></a> Throws\(Type, Action\)
 
 Verifies that the exact exception is thrown (and not a derived exception type).
 
@@ -7136,7 +7136,7 @@ A delegate to the code to be tested
 
 The exception that was thrown, when successful
 
-### <a id="Xunit_Assert_Throws_System_Type_System_Func_System_Object__"></a> Throws\(Type, Func<object?\>\)
+### <a href="#Xunit_Assert_Throws_System_Type_System_Func_System_Object__"></a> Throws\(Type, Func<object?\>\)
 
 Verifies that the exact exception is thrown (and not a derived exception type).
 Generally used to test property accessors.
@@ -7161,7 +7161,7 @@ A delegate to the code to be tested
 
 The exception that was thrown, when successful
 
-### <a id="Xunit_Assert_Throws__1_System_Action_"></a> Throws<T\>\(Action\)
+### <a href="#Xunit_Assert_Throws__1_System_Action_"></a> Throws<T\>\(Action\)
 
 Verifies that the exact exception is thrown (and not a derived exception type).
 
@@ -7187,7 +7187,7 @@ The exception that was thrown, when successful
 
 The type of the exception expected to be thrown
 
-### <a id="Xunit_Assert_Throws__1_System_Func_System_Object__"></a> Throws<T\>\(Func<object?\>\)
+### <a href="#Xunit_Assert_Throws__1_System_Func_System_Object__"></a> Throws<T\>\(Func<object?\>\)
 
 Verifies that the exact exception is thrown (and not a derived exception type).
 Generally used to test property accessors.
@@ -7214,7 +7214,7 @@ The exception that was thrown, when successful
 
 The type of the exception expected to be thrown
 
-### <a id="Xunit_Assert_Throws__1_System_String_System_Action_"></a> Throws<T\>\(string?, Action\)
+### <a href="#Xunit_Assert_Throws__1_System_String_System_Action_"></a> Throws<T\>\(string?, Action\)
 
 Verifies that the exact exception is thrown (and not a derived exception type), where the exception
 derives from <xref href="System.ArgumentException" data-throw-if-not-resolved="false"></xref> and has the given parameter name.
@@ -7243,7 +7243,7 @@ The exception that was thrown, when successful
 
 `T` 
 
-### <a id="Xunit_Assert_Throws__1_System_String_System_Func_System_Object__"></a> Throws<T\>\(string?, Func<object?\>\)
+### <a href="#Xunit_Assert_Throws__1_System_String_System_Func_System_Object__"></a> Throws<T\>\(string?, Func<object?\>\)
 
 Verifies that the exact exception is thrown (and not a derived exception type), where the exception
 derives from <xref href="System.ArgumentException" data-throw-if-not-resolved="false"></xref> and has the given parameter name.
@@ -7272,7 +7272,7 @@ The exception that was thrown, when successful
 
 `T` 
 
-### <a id="Xunit_Assert_ThrowsAny__1_System_Action_"></a> ThrowsAny<T\>\(Action\)
+### <a href="#Xunit_Assert_ThrowsAny__1_System_Action_"></a> ThrowsAny<T\>\(Action\)
 
 Verifies that the exact exception or a derived exception type is thrown.
 
@@ -7298,7 +7298,7 @@ The exception that was thrown, when successful
 
 The type of the exception expected to be thrown
 
-### <a id="Xunit_Assert_ThrowsAny__1_System_Func_System_Object__"></a> ThrowsAny<T\>\(Func<object?\>\)
+### <a href="#Xunit_Assert_ThrowsAny__1_System_Func_System_Object__"></a> ThrowsAny<T\>\(Func<object?\>\)
 
 Verifies that the exact exception or a derived exception type is thrown.
 Generally used to test property accessors.
@@ -7325,7 +7325,7 @@ The exception that was thrown, when successful
 
 The type of the exception expected to be thrown
 
-### <a id="Xunit_Assert_ThrowsAnyAsync__1_System_Func_System_Threading_Tasks_Task__"></a> ThrowsAnyAsync<T\>\(Func<Task\>\)
+### <a href="#Xunit_Assert_ThrowsAnyAsync__1_System_Func_System_Threading_Tasks_Task__"></a> ThrowsAnyAsync<T\>\(Func<Task\>\)
 
 Verifies that the exact exception or a derived exception type is thrown.
 
@@ -7351,7 +7351,7 @@ The exception that was thrown, when successful
 
 The type of the exception expected to be thrown
 
-### <a id="Xunit_Assert_ThrowsAsync_System_Type_System_Func_System_Threading_Tasks_Task__"></a> ThrowsAsync\(Type, Func<Task\>\)
+### <a href="#Xunit_Assert_ThrowsAsync_System_Type_System_Func_System_Threading_Tasks_Task__"></a> ThrowsAsync\(Type, Func<Task\>\)
 
 Verifies that the exact exception is thrown (and not a derived exception type).
 
@@ -7375,7 +7375,7 @@ A delegate to the task to be tested
 
 The exception that was thrown, when successful
 
-### <a id="Xunit_Assert_ThrowsAsync__1_System_Func_System_Threading_Tasks_Task__"></a> ThrowsAsync<T\>\(Func<Task\>\)
+### <a href="#Xunit_Assert_ThrowsAsync__1_System_Func_System_Threading_Tasks_Task__"></a> ThrowsAsync<T\>\(Func<Task\>\)
 
 Verifies that the exact exception is thrown (and not a derived exception type).
 
@@ -7401,7 +7401,7 @@ The exception that was thrown, when successful
 
 The type of the exception expected to be thrown
 
-### <a id="Xunit_Assert_ThrowsAsync__1_System_String_System_Func_System_Threading_Tasks_Task__"></a> ThrowsAsync<T\>\(string?, Func<Task\>\)
+### <a href="#Xunit_Assert_ThrowsAsync__1_System_String_System_Func_System_Threading_Tasks_Task__"></a> ThrowsAsync<T\>\(string?, Func<Task\>\)
 
 Verifies that the exact exception is thrown (and not a derived exception type), where the exception
 derives from <xref href="System.ArgumentException" data-throw-if-not-resolved="false"></xref> and has the given parameter name.
@@ -7430,7 +7430,7 @@ The exception that was thrown, when successful
 
 `T` 
 
-### <a id="Xunit_Assert_True_System_Boolean_"></a> True\(bool\)
+### <a href="#Xunit_Assert_True_System_Boolean_"></a> True\(bool\)
 
 Verifies that an expression is true.
 
@@ -7450,7 +7450,7 @@ The condition to be inspected
 
 Thrown when the condition is false
 
-### <a id="Xunit_Assert_True_System_Nullable_System_Boolean__"></a> True\(bool?\)
+### <a href="#Xunit_Assert_True_System_Nullable_System_Boolean__"></a> True\(bool?\)
 
 Verifies that an expression is true.
 
@@ -7470,7 +7470,7 @@ The condition to be inspected
 
 Thrown when the condition is false
 
-### <a id="Xunit_Assert_True_System_Boolean_System_String_"></a> True\(bool, string?\)
+### <a href="#Xunit_Assert_True_System_Boolean_System_String_"></a> True\(bool, string?\)
 
 Verifies that an expression is true.
 
@@ -7494,7 +7494,7 @@ The message to be shown when the condition is false
 
 Thrown when the condition is false
 
-### <a id="Xunit_Assert_True_System_Nullable_System_Boolean__System_String_"></a> True\(bool?, string?\)
+### <a href="#Xunit_Assert_True_System_Nullable_System_Boolean__System_String_"></a> True\(bool?, string?\)
 
 Verifies that an expression is true.
 
