@@ -1702,7 +1702,7 @@ public class EquivalenceAssertsTests
 
 		// Uri
 
-		public static IEnumerable<TheoryDataRow<Uri>> UriData =
+		public static TheoryData<Uri> UriData =
 		[
 			new Uri("https://xunit.net/"),
 			new Uri("a/b#c", UriKind.RelativeOrAbsolute),
