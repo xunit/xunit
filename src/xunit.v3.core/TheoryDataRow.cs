@@ -6,17 +6,11 @@ using Xunit.Internal;
 namespace Xunit;
 
 /// <summary>
-/// Implementation of <see cref="ITheoryDataRow"/> which accepts untyped pre-enumerated data.
+/// Provide a base implemention of <see cref="ITheoryDataRow"/> with settable properties and
+/// deferred data storage.
 /// </summary>
-/// <remarks>
-/// It is strongly recommended that you use one of the generic typed variations when possible,
-/// as this provides type-safety from the compiler and allows the analyzers to flag instances
-/// where data types from theory data don't match the data types in theory parameters.
-/// </remarks>
-/// <param name="data">The data for the theory row</param>
-public class TheoryDataRow(params object?[] data) : ITheoryDataRow
+public abstract class TheoryDataRowBase : ITheoryDataRow
 {
-	readonly object?[] data = Guard.ArgumentNotNull(data);
 	Dictionary<string, HashSet<string>> traits = [];
 
 	/// <inheritdoc/>
@@ -40,8 +34,35 @@ public class TheoryDataRow(params object?[] data) : ITheoryDataRow
 		set => traits = Guard.ArgumentNotNull(value, nameof(Traits));
 	}
 
+	/// <summary>
+	/// Override to implement <see cref="ITheoryDataRow.GetData()"/>.
+	/// </summary>
+	protected abstract object?[] GetData();
+
+	object?[] ITheoryDataRow.GetData() => GetData();
+}
+
+/// <summary>
+/// Implementation of <see cref="ITheoryDataRow"/> which accepts untyped pre-enumerated data.
+/// </summary>
+/// <remarks>
+/// It is strongly recommended that you use one of the generic typed variations when possible,
+/// as this provides type-safety from the compiler and allows the analyzers to flag instances
+/// where data types from theory data don't match the data types in theory parameters.
+/// </remarks>
+/// <param name="data">The data for the theory row</param>
+public class TheoryDataRow(params object?[] data) :
+	TheoryDataRowBase
+{
+	/// <summary>
+	/// Gets the row of data.
+	/// </summary>
+	public object?[] Data =>
+		data;
+
 	/// <inheritdoc/>
-	public object?[] GetData() => data;
+	protected override object?[] GetData() =>
+		data;
 }
 
 /// <summary>
@@ -54,11 +75,25 @@ public class TheoryDataRow(params object?[] data) : ITheoryDataRow
 /// </remarks>
 /// <param name="p1">The first data value.</param>
 public sealed class TheoryDataRow<T1>(T1 p1) :
-	TheoryDataRow(p1)
+	TheoryDataRowBase
 {
+	/// <summary>
+	/// Gets the row of data.
+	/// </summary>
+	public T1 Data =>
+		p1;
+
+	/// <inheritdoc/>
+	protected override object?[] GetData() =>
+		[p1];
+
 	/// <summary/>
 	public static implicit operator TheoryDataRow<T1>(T1 p1) =>
 		new(p1);
+
+	/// <summary/>
+	public static implicit operator T1(TheoryDataRow<T1> p1) =>
+		Guard.ArgumentNotNull(p1).Data;
 }
 
 /// <summary>
@@ -73,8 +108,18 @@ public sealed class TheoryDataRow<T1>(T1 p1) :
 /// <param name="p1">The first data value.</param>
 /// <param name="p2">The second data value.</param>
 public sealed class TheoryDataRow<T1, T2>(T1 p1, T2 p2) :
-	TheoryDataRow(p1, p2)
+	TheoryDataRowBase
 {
+	/// <summary>
+	/// Gets the row of data.
+	/// </summary>
+	public (T1, T2) Data =>
+		(p1, p2);
+
+	/// <inheritdoc/>
+	protected override object?[] GetData() =>
+		[p1, p2];
+
 	/// <summary/>
 	public static implicit operator TheoryDataRow<T1, T2>((T1, T2) row) =>
 		new(row.Item1, row.Item2);
@@ -94,8 +139,18 @@ public sealed class TheoryDataRow<T1, T2>(T1 p1, T2 p2) :
 /// <param name="p2">The second data value.</param>
 /// <param name="p3">The third data value.</param>
 public sealed class TheoryDataRow<T1, T2, T3>(T1 p1, T2 p2, T3 p3) :
-	TheoryDataRow(p1, p2, p3)
+	TheoryDataRowBase
 {
+	/// <summary>
+	/// Gets the row of data.
+	/// </summary>
+	public (T1, T2, T3) Data =>
+		(p1, p2, p3);
+
+	/// <inheritdoc/>
+	protected override object?[] GetData() =>
+		[p1, p2, p3];
+
 	/// <summary/>
 	public static implicit operator TheoryDataRow<T1, T2, T3>((T1, T2, T3) row) =>
 		new(row.Item1, row.Item2, row.Item3);
@@ -117,8 +172,18 @@ public sealed class TheoryDataRow<T1, T2, T3>(T1 p1, T2 p2, T3 p3) :
 /// <param name="p3">The third data value.</param>
 /// <param name="p4">The fourth data value.</param>
 public sealed class TheoryDataRow<T1, T2, T3, T4>(T1 p1, T2 p2, T3 p3, T4 p4) :
-	TheoryDataRow(p1, p2, p3, p4)
+	TheoryDataRowBase
 {
+	/// <summary>
+	/// Gets the row of data.
+	/// </summary>
+	public (T1, T2, T3, T4) Data =>
+		(p1, p2, p3, p4);
+
+	/// <inheritdoc/>
+	protected override object?[] GetData() =>
+		[p1, p2, p3, p4];
+
 	/// <summary/>
 	public static implicit operator TheoryDataRow<T1, T2, T3, T4>((T1, T2, T3, T4) row) =>
 		new(row.Item1, row.Item2, row.Item3, row.Item4);
@@ -142,8 +207,18 @@ public sealed class TheoryDataRow<T1, T2, T3, T4>(T1 p1, T2 p2, T3 p3, T4 p4) :
 /// <param name="p4">The fourth data value.</param>
 /// <param name="p5">The fifth data value.</param>
 public sealed class TheoryDataRow<T1, T2, T3, T4, T5>(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5) :
-	TheoryDataRow(p1, p2, p3, p4, p5)
+	TheoryDataRowBase
 {
+	/// <summary>
+	/// Gets the row of data.
+	/// </summary>
+	public (T1, T2, T3, T4, T5) Data =>
+		(p1, p2, p3, p4, p5);
+
+	/// <inheritdoc/>
+	protected override object?[] GetData() =>
+		[p1, p2, p3, p4, p5];
+
 	/// <summary/>
 	public static implicit operator TheoryDataRow<T1, T2, T3, T4, T5>((T1, T2, T3, T4, T5) row) =>
 		new(row.Item1, row.Item2, row.Item3, row.Item4, row.Item5);
@@ -169,8 +244,18 @@ public sealed class TheoryDataRow<T1, T2, T3, T4, T5>(T1 p1, T2 p2, T3 p3, T4 p4
 /// <param name="p5">The fifth data value.</param>
 /// <param name="p6">The sixth data value.</param>
 public sealed class TheoryDataRow<T1, T2, T3, T4, T5, T6>(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6) :
-	TheoryDataRow(p1, p2, p3, p4, p5, p6)
+	TheoryDataRowBase
 {
+	/// <summary>
+	/// Gets the row of data.
+	/// </summary>
+	public (T1, T2, T3, T4, T5, T6) Data =>
+		(p1, p2, p3, p4, p5, p6);
+
+	/// <inheritdoc/>
+	protected override object?[] GetData() =>
+		[p1, p2, p3, p4, p5, p6];
+
 	/// <summary/>
 	public static implicit operator TheoryDataRow<T1, T2, T3, T4, T5, T6>((T1, T2, T3, T4, T5, T6) row) =>
 		new(row.Item1, row.Item2, row.Item3, row.Item4, row.Item5, row.Item6);
@@ -198,8 +283,18 @@ public sealed class TheoryDataRow<T1, T2, T3, T4, T5, T6>(T1 p1, T2 p2, T3 p3, T
 /// <param name="p6">The sixth data value.</param>
 /// <param name="p7">The seventh data value.</param>
 public sealed class TheoryDataRow<T1, T2, T3, T4, T5, T6, T7>(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7) :
-	TheoryDataRow(p1, p2, p3, p4, p5, p6, p7)
+	TheoryDataRowBase
 {
+	/// <summary>
+	/// Gets the row of data.
+	/// </summary>
+	public (T1, T2, T3, T4, T5, T6, T7) Data =>
+		(p1, p2, p3, p4, p5, p6, p7);
+
+	/// <inheritdoc/>
+	protected override object?[] GetData() =>
+		[p1, p2, p3, p4, p5, p6, p7];
+
 	/// <summary/>
 	public static implicit operator TheoryDataRow<T1, T2, T3, T4, T5, T6, T7>((T1, T2, T3, T4, T5, T6, T7) row) =>
 		new(row.Item1, row.Item2, row.Item3, row.Item4, row.Item5, row.Item6, row.Item7);
@@ -229,8 +324,18 @@ public sealed class TheoryDataRow<T1, T2, T3, T4, T5, T6, T7>(T1 p1, T2 p2, T3 p
 /// <param name="p7">The seventh data value.</param>
 /// <param name="p8">The eighth data value.</param>
 public sealed class TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8>(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8) :
-	TheoryDataRow(p1, p2, p3, p4, p5, p6, p7, p8)
+	TheoryDataRowBase
 {
+	/// <summary>
+	/// Gets the row of data.
+	/// </summary>
+	public (T1, T2, T3, T4, T5, T6, T7, T8) Data =>
+		(p1, p2, p3, p4, p5, p6, p7, p8);
+
+	/// <inheritdoc/>
+	protected override object?[] GetData() =>
+		[p1, p2, p3, p4, p5, p6, p7, p8];
+
 	/// <summary/>
 	public static implicit operator TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8>((T1, T2, T3, T4, T5, T6, T7, T8) row) =>
 		new(row.Item1, row.Item2, row.Item3, row.Item4, row.Item5, row.Item6, row.Item7, row.Item8);
@@ -262,8 +367,18 @@ public sealed class TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8>(T1 p1, T2 p2, 
 /// <param name="p8">The eighth data value.</param>
 /// <param name="p9">The ninth data value.</param>
 public sealed class TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9) :
-	TheoryDataRow(p1, p2, p3, p4, p5, p6, p7, p8, p9)
+	TheoryDataRowBase
 {
+	/// <summary>
+	/// Gets the row of data.
+	/// </summary>
+	public (T1, T2, T3, T4, T5, T6, T7, T8, T9) Data =>
+		(p1, p2, p3, p4, p5, p6, p7, p8, p9);
+
+	/// <inheritdoc/>
+	protected override object?[] GetData() =>
+		[p1, p2, p3, p4, p5, p6, p7, p8, p9];
+
 	/// <summary/>
 	public static implicit operator TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>((T1, T2, T3, T4, T5, T6, T7, T8, T9) row) =>
 		new(row.Item1, row.Item2, row.Item3, row.Item4, row.Item5, row.Item6, row.Item7, row.Item8, row.Item9);
@@ -297,8 +412,18 @@ public sealed class TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8, T9>(T1 p1, T2 
 /// <param name="p9">The ninth data value.</param>
 /// <param name="p10">The tenth data value.</param>
 public sealed class TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10) :
-	TheoryDataRow(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10)
+	TheoryDataRowBase
 {
+	/// <summary>
+	/// Gets the row of data.
+	/// </summary>
+	public (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) Data =>
+		(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10);
+
+	/// <inheritdoc/>
+	protected override object?[] GetData() =>
+		[p1, p2, p3, p4, p5, p6, p7, p8, p9, p10];
+
 	/// <summary/>
 	public static implicit operator TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>((T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) row) =>
 		new(row.Item1, row.Item2, row.Item3, row.Item4, row.Item5, row.Item6, row.Item7, row.Item8, row.Item9, row.Item10);
