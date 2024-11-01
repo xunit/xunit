@@ -309,6 +309,71 @@ public class TypeAssertsTests
 		}
 	}
 
+	public class IsNotType_Generic_InexactMatch
+	{
+		[Fact]
+		public void NullObject()
+		{
+			Assert.IsNotType<object>(null, exactMatch: false);
+		}
+
+		[Fact]
+		public void SameType()
+		{
+			var ex = new InvalidCastException();
+
+			var result = Record.Exception(() => Assert.IsNotType<InvalidCastException>(ex, exactMatch: false));
+
+			Assert.IsType<IsNotTypeException>(result);
+			Assert.Equal<object>(
+				"Assert.IsNotType() Failure: Value is a compatible type" + Environment.NewLine +
+				"Expected: typeof(System.InvalidCastException)" + Environment.NewLine +
+				"Actual:   typeof(System.InvalidCastException)",
+				result.Message
+			);
+		}
+
+		[Fact]
+		public void BaseType()
+		{
+			var ex = new InvalidCastException();
+
+			var result = Record.Exception(() => Assert.IsNotType<Exception>(ex, exactMatch: false));
+
+			Assert.IsType<IsNotTypeException>(result);
+			Assert.Equal<object>(
+				"Assert.IsNotType() Failure: Value is a compatible type" + Environment.NewLine +
+				"Expected: typeof(System.Exception)" + Environment.NewLine +
+				"Actual:   typeof(System.InvalidCastException)",
+				result.Message
+			);
+		}
+
+		[Fact]
+		public void Interface()
+		{
+			var ex = new DisposableClass();
+
+#pragma warning disable xUnit2018  // TODO: Temporary until xUnit2018 is updated for the new signatures
+			var result = Record.Exception(() => Assert.IsNotType<IDisposable>(ex, exactMatch: false));
+#pragma warning restore xUnit2018
+
+			Assert.IsType<IsNotTypeException>(result);
+			Assert.Equal<object>(
+				"Assert.IsNotType() Failure: Value is a compatible type" + Environment.NewLine +
+				"Expected: typeof(System.IDisposable)" + Environment.NewLine +
+				"Actual:   typeof(TypeAssertsTests+DisposableClass)",
+				result.Message
+			);
+		}
+
+		[Fact]
+		public void IncompatibleType()
+		{
+			Assert.IsNotType<InvalidCastException>(new InvalidOperationException(), exactMatch: false);
+		}
+	}
+
 #pragma warning disable xUnit2007 // Do not use typeof expression to check the type
 
 	public class IsNotType_NonGeneric
@@ -339,6 +404,69 @@ public class TypeAssertsTests
 		public void NullObject()
 		{
 			Assert.IsNotType(typeof(object), null);
+		}
+	}
+
+	public class IsNotType_NonGeneric_InexactMatch
+	{
+		[Fact]
+		public void NullObject()
+		{
+			Assert.IsNotType(typeof(object), null, exactMatch: false);
+		}
+
+		[Fact]
+		public void SameType()
+		{
+			var ex = new InvalidCastException();
+
+			var result = Record.Exception(() => Assert.IsNotType(typeof(InvalidCastException), ex, exactMatch: false));
+
+			Assert.IsType<IsNotTypeException>(result);
+			Assert.Equal(
+				"Assert.IsNotType() Failure: Value is a compatible type" + Environment.NewLine +
+				"Expected: typeof(System.InvalidCastException)" + Environment.NewLine +
+				"Actual:   typeof(System.InvalidCastException)",
+				result.Message
+			);
+		}
+
+		[Fact]
+		public void BaseType()
+		{
+			var ex = new InvalidCastException();
+
+			var result = Record.Exception(() => Assert.IsNotType(typeof(Exception), ex, exactMatch: false));
+
+			Assert.IsType<IsNotTypeException>(result);
+			Assert.Equal(
+				"Assert.IsNotType() Failure: Value is a compatible type" + Environment.NewLine +
+				"Expected: typeof(System.Exception)" + Environment.NewLine +
+				"Actual:   typeof(System.InvalidCastException)",
+				result.Message
+			);
+		}
+
+		[Fact]
+		public void Interface()
+		{
+			var ex = new DisposableClass();
+
+			var result = Record.Exception(() => Assert.IsNotType(typeof(IDisposable), ex, exactMatch: false));
+
+			Assert.IsType<IsNotTypeException>(result);
+			Assert.Equal(
+				"Assert.IsNotType() Failure: Value is a compatible type" + Environment.NewLine +
+				"Expected: typeof(System.IDisposable)" + Environment.NewLine +
+				"Actual:   typeof(TypeAssertsTests+DisposableClass)",
+				result.Message
+			);
+		}
+
+		[Fact]
+		public void IncompatibleType()
+		{
+			Assert.IsNotType(typeof(InvalidCastException), new InvalidOperationException(), exactMatch: false);
 		}
 	}
 
@@ -415,6 +543,76 @@ public class TypeAssertsTests
 		}
 	}
 
+	public class IsType_Generic_InexactMatch
+	{
+		[Fact]
+		public void NullObject()
+		{
+			var result = Record.Exception(() => Assert.IsType<object>(null, exactMatch: false));
+
+			Assert.IsType<IsTypeException>(result);
+			Assert.Equal(
+				"Assert.IsType() Failure: Value is null" + Environment.NewLine +
+				"Expected: typeof(object)" + Environment.NewLine +
+				"Actual:   null",
+				result.Message
+			);
+		}
+
+		[Fact]
+		public void SameType()
+		{
+			var ex = new InvalidCastException();
+
+			Assert.IsType<InvalidCastException>(ex, exactMatch: false);
+		}
+
+		[Fact]
+		public void BaseType()
+		{
+			var ex = new InvalidCastException();
+
+			Assert.IsType<Exception>(ex, exactMatch: false);
+		}
+
+		[Fact]
+		public void Interface()
+		{
+			var ex = new DisposableClass();
+
+#pragma warning disable xUnit2018  // TODO: Temporary until xUnit2018 is updated for the new signatures
+			Assert.IsType<IDisposable>(ex, exactMatch: false);
+#pragma warning restore xUnit2018
+		}
+
+		[Fact]
+		public void ReturnsCastObject()
+		{
+			var ex = new InvalidCastException();
+
+			var result = Assert.IsType<InvalidCastException>(ex, exactMatch: false);
+
+			Assert.Same(ex, result);
+		}
+
+		[Fact]
+		public void IncompatibleType()
+		{
+			var result =
+				Record.Exception(
+					() => Assert.IsType<InvalidCastException>(new InvalidOperationException(), exactMatch: false)
+				);
+
+			Assert.IsType<IsTypeException>(result);
+			Assert.Equal(
+				"Assert.IsType() Failure: Value is an incompatible type" + Environment.NewLine +
+				"Expected: typeof(System.InvalidCastException)" + Environment.NewLine +
+				"Actual:   typeof(System.InvalidOperationException)",
+				result.Message
+			);
+		}
+	}
+
 #pragma warning disable xUnit2007 // Do not use typeof expression to check the type
 
 	public class IsType_NonGeneric : TypeAssertsTests
@@ -475,6 +673,74 @@ public class TypeAssertsTests
 				"Assert.IsType() Failure: Value is null" + Environment.NewLine +
 				"Expected: typeof(object)" + Environment.NewLine +
 				"Actual:   null",
+				result.Message
+			);
+		}
+	}
+
+	public class IsType_NonGeneric_InexactMatch
+	{
+		[Fact]
+		public void NullObject()
+		{
+			var result = Record.Exception(() => Assert.IsType(typeof(object), null, exactMatch: false));
+
+			Assert.IsType<IsTypeException>(result);
+			Assert.Equal(
+				"Assert.IsType() Failure: Value is null" + Environment.NewLine +
+				"Expected: typeof(object)" + Environment.NewLine +
+				"Actual:   null",
+				result.Message
+			);
+		}
+
+		[Fact]
+		public void SameType()
+		{
+			var ex = new InvalidCastException();
+
+			Assert.IsType(typeof(InvalidCastException), ex, exactMatch: false);
+		}
+
+		[Fact]
+		public void BaseType()
+		{
+			var ex = new InvalidCastException();
+
+			Assert.IsType(typeof(Exception), ex, exactMatch: false);
+		}
+
+		[Fact]
+		public void Interface()
+		{
+			var ex = new DisposableClass();
+
+			Assert.IsType(typeof(IDisposable), ex, exactMatch: false);
+		}
+
+		[Fact]
+		public void ReturnsCastObject()
+		{
+			var ex = new InvalidCastException();
+
+			var result = Assert.IsType<InvalidCastException>(ex, exactMatch: false);
+
+			Assert.Same(ex, result);
+		}
+
+		[Fact]
+		public void IncompatibleType()
+		{
+			var result =
+				Record.Exception(
+					() => Assert.IsType(typeof(InvalidCastException), new InvalidOperationException(), exactMatch: false)
+				);
+
+			Assert.IsType<IsTypeException>(result);
+			Assert.Equal(
+				"Assert.IsType() Failure: Value is an incompatible type" + Environment.NewLine +
+				"Expected: typeof(System.InvalidCastException)" + Environment.NewLine +
+				"Actual:   typeof(System.InvalidOperationException)",
 				result.Message
 			);
 		}

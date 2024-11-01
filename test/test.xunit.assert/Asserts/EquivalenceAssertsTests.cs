@@ -1700,6 +1700,36 @@ public class EquivalenceAssertsTests
 			);
 		}
 
+		// Uri
+
+		public static TheoryData<Uri> UriData =
+		[
+			new Uri("https://xunit.net/"),
+			new Uri("a/b#c", UriKind.RelativeOrAbsolute),
+		];
+
+		[Theory]
+		[MemberData(nameof(UriData))]
+		public void Uri_Success(Uri uri)
+		{
+			Assert.Equivalent(uri, new Uri(uri.OriginalString, UriKind.RelativeOrAbsolute));
+		}
+
+		[Theory]
+		[MemberData(nameof(UriData))]
+		public void Uri_Failure(Uri uri)
+		{
+			var ex = Record.Exception(() => Assert.Equivalent(uri, new Uri("hello/world", UriKind.RelativeOrAbsolute)));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				"Assert.Equivalent() Failure" + Environment.NewLine +
+				"Expected: " + uri.OriginalString + Environment.NewLine +
+				"Actual:   hello/world",
+				ex.Message
+			);
+		}
+
 		// Ensuring we use reference equality for the circular reference hash sets
 
 		[Theory]
