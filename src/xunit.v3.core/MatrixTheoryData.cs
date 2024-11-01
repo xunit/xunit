@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Xunit.Internal;
 
 namespace Xunit;
@@ -40,6 +41,48 @@ public class MatrixTheoryData<T1, T2> : TheoryData<T1, T2>
 		Guard.ArgumentValid("Data dimension cannot be empty", !data1Empty, nameof(dimension1));
 		Guard.ArgumentValid("Data dimension cannot be empty", !data2Empty, nameof(dimension2));
 	}
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="MatrixTheoryData{T1, T2}"/> class.
+	/// </summary>
+	/// <param name="dimension1">Data for the first dimension</param>
+	/// <param name="dimension2">Data for the second dimension</param>
+	public MatrixTheoryData(
+		IEnumerable<T1> dimension1,
+		IEnumerable<TheoryDataRow<T2>> dimension2) :
+			this(
+				dimension1,
+				Guard.ArgumentNotNull(dimension2).Select(d => d.Data)
+			)
+	{ }
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="MatrixTheoryData{T1, T2}"/> class.
+	/// </summary>
+	/// <param name="dimension1">Data for the first dimension</param>
+	/// <param name="dimension2">Data for the second dimension</param>
+	public MatrixTheoryData(
+		IEnumerable<TheoryDataRow<T1>> dimension1,
+		IEnumerable<T2> dimension2) :
+			this(
+				Guard.ArgumentNotNull(dimension1).Select(d => d.Data),
+				dimension2
+			)
+	{ }
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="MatrixTheoryData{T1, T2}"/> class.
+	/// </summary>
+	/// <param name="dimension1">Data for the first dimension</param>
+	/// <param name="dimension2">Data for the second dimension</param>
+	public MatrixTheoryData(
+		IEnumerable<TheoryDataRow<T1>> dimension1,
+		IEnumerable<TheoryDataRow<T2>> dimension2) :
+			this(
+				Guard.ArgumentNotNull(dimension1).Select(d => d.Data),
+				Guard.ArgumentNotNull(dimension2).Select(d => d.Data)
+			)
+	{ }
 }
 
 /// <summary>
@@ -90,6 +133,125 @@ public class MatrixTheoryData<T1, T2, T3> : TheoryData<T1, T2, T3>
 		Guard.ArgumentValid("Data dimension cannot be empty", !data2Empty, nameof(dimension2));
 		Guard.ArgumentValid("Data dimension cannot be empty", !data3Empty, nameof(dimension3));
 	}
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="MatrixTheoryData{T1, T2, T3}"/> class.
+	/// </summary>
+	/// <param name="dimension1">Data for the first dimension</param>
+	/// <param name="dimension2">Data for the second dimension</param>
+	/// <param name="dimension3">Data for the third dimension</param>
+	public MatrixTheoryData(
+		IEnumerable<T1> dimension1,
+		IEnumerable<T2> dimension2,
+		IEnumerable<TheoryDataRow<T3>> dimension3) :
+			this(
+				dimension1,
+				dimension2,
+				Guard.ArgumentNotNull(dimension3).Select(d => d.Data)
+			)
+	{ }
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="MatrixTheoryData{T1, T2, T3}"/> class.
+	/// </summary>
+	/// <param name="dimension1">Data for the first dimension</param>
+	/// <param name="dimension2">Data for the second dimension</param>
+	/// <param name="dimension3">Data for the third dimension</param>
+	public MatrixTheoryData(
+		IEnumerable<T1> dimension1,
+		IEnumerable<TheoryDataRow<T2>> dimension2,
+		IEnumerable<T3> dimension3) :
+			this(
+				dimension1,
+				Guard.ArgumentNotNull(dimension2).Select(d => d.Data),
+				dimension3
+			)
+	{ }
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="MatrixTheoryData{T1, T2, T3}"/> class.
+	/// </summary>
+	/// <param name="dimension1">Data for the first dimension</param>
+	/// <param name="dimension2">Data for the second dimension</param>
+	/// <param name="dimension3">Data for the third dimension</param>
+	public MatrixTheoryData(
+		IEnumerable<T1> dimension1,
+		IEnumerable<TheoryDataRow<T2>> dimension2,
+		IEnumerable<TheoryDataRow<T3>> dimension3) :
+			this(
+				dimension1,
+				Guard.ArgumentNotNull(dimension2).Select(d => d.Data),
+				Guard.ArgumentNotNull(dimension3).Select(d => d.Data)
+			)
+	{ }
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="MatrixTheoryData{T1, T2, T3}"/> class.
+	/// </summary>
+	/// <param name="dimension1">Data for the first dimension</param>
+	/// <param name="dimension2">Data for the second dimension</param>
+	/// <param name="dimension3">Data for the third dimension</param>
+	public MatrixTheoryData(
+		IEnumerable<TheoryDataRow<T1>> dimension1,
+		IEnumerable<T2> dimension2,
+		IEnumerable<T3> dimension3) :
+			this(
+				Guard.ArgumentNotNull(dimension1).Select(d => d.Data),
+				dimension2,
+				dimension3
+			)
+	{ }
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="MatrixTheoryData{T1, T2, T3}"/> class.
+	/// </summary>
+	/// <param name="dimension1">Data for the first dimension</param>
+	/// <param name="dimension2">Data for the second dimension</param>
+	/// <param name="dimension3">Data for the third dimension</param>
+	public MatrixTheoryData(
+		IEnumerable<TheoryDataRow<T1>> dimension1,
+		IEnumerable<T2> dimension2,
+		IEnumerable<TheoryDataRow<T3>> dimension3) :
+			this(
+				Guard.ArgumentNotNull(dimension1).Select(d => d.Data),
+				dimension2,
+				Guard.ArgumentNotNull(dimension3).Select(d => d.Data)
+			)
+	{ }
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="MatrixTheoryData{T1, T2, T3}"/> class.
+	/// </summary>
+	/// <param name="dimension1">Data for the first dimension</param>
+	/// <param name="dimension2">Data for the second dimension</param>
+	/// <param name="dimension3">Data for the third dimension</param>
+	public MatrixTheoryData(
+		IEnumerable<TheoryDataRow<T1>> dimension1,
+		IEnumerable<TheoryDataRow<T2>> dimension2,
+		IEnumerable<T3> dimension3) :
+			this(
+				Guard.ArgumentNotNull(dimension1).Select(d => d.Data),
+				Guard.ArgumentNotNull(dimension2).Select(d => d.Data),
+				dimension3
+			)
+	{ }
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="MatrixTheoryData{T1, T2, T3}"/> class.
+	/// </summary>
+	/// <param name="dimension1">Data for the first dimension</param>
+	/// <param name="dimension2">Data for the second dimension</param>
+	/// <param name="dimension3">Data for the third dimension</param>
+	public MatrixTheoryData(
+		IEnumerable<TheoryDataRow<T1>> dimension1,
+		IEnumerable<TheoryDataRow<T2>> dimension2,
+		IEnumerable<TheoryDataRow<T3>> dimension3) :
+			this(
+				Guard.ArgumentNotNull(dimension1).Select(d => d.Data),
+				Guard.ArgumentNotNull(dimension2).Select(d => d.Data),
+				Guard.ArgumentNotNull(dimension3).Select(d => d.Data)
+			)
+	{ }
 }
 
 /// <summary>
