@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -42,8 +41,8 @@ public class MatrixTheoryDataTests : AcceptanceTestV3
 
 	class SampleUsage
 	{
-		public static int[] Numbers = [42, 5, 6];
-		public static IEnumerable<TheoryDataRow<string>> Strings = ["Hello", "world!"];
+		public static int[] Numbers = { 42, 5, 6 };
+		public static string[] Strings = { "Hello", "world!" };
 		public static MatrixTheoryData<string, int> MatrixData = new(Strings, Numbers);
 
 		[Theory]
