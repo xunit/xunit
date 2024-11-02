@@ -342,7 +342,7 @@ public sealed class TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8>(T1 p1, T2 p2, 
 }
 
 /// <summary>
-/// Implementation of <see cref="ITheoryDataRow"/> which accepts nne typed values.
+/// Implementation of <see cref="ITheoryDataRow"/> which accepts nine typed values.
 /// </summary>
 /// <typeparam name="T1">The first parameter type.</typeparam>
 /// <typeparam name="T2">The second parameter type.</typeparam>
@@ -427,4 +427,259 @@ public sealed class TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(T1 p1
 	/// <summary/>
 	public static implicit operator TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>((T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) row) =>
 		new(row.Item1, row.Item2, row.Item3, row.Item4, row.Item5, row.Item6, row.Item7, row.Item8, row.Item9, row.Item10);
+}
+
+/// <summary>
+/// Implementation of <see cref="ITheoryDataRow"/> which accepts eleven typed values.
+/// </summary>
+/// <typeparam name="T1">The first parameter type.</typeparam>
+/// <typeparam name="T2">The second parameter type.</typeparam>
+/// <typeparam name="T3">The third parameter type.</typeparam>
+/// <typeparam name="T4">The fourth parameter type.</typeparam>
+/// <typeparam name="T5">The fifth parameter type.</typeparam>
+/// <typeparam name="T6">The sixth parameter type.</typeparam>
+/// <typeparam name="T7">The seventh parameter type.</typeparam>
+/// <typeparam name="T8">The eighth parameter type.</typeparam>
+/// <typeparam name="T9">The ninth parameter type.</typeparam>
+/// <typeparam name="T10">The tenth parameter type.</typeparam>
+/// <typeparam name="T11">The eleventh parameter type.</typeparam>
+/// <remarks>
+/// Initializes a new instance of the <see cref="TheoryDataRow{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11}"/> class,
+/// encapsulating the eleven items of typed data.
+/// </remarks>
+/// <param name="p1">The first data value.</param>
+/// <param name="p2">The second data value.</param>
+/// <param name="p3">The third data value.</param>
+/// <param name="p4">The fourth data value.</param>
+/// <param name="p5">The fifth data value.</param>
+/// <param name="p6">The sixth data value.</param>
+/// <param name="p7">The seventh data value.</param>
+/// <param name="p8">The eighth data value.</param>
+/// <param name="p9">The ninth data value.</param>
+/// <param name="p10">The tenth data value.</param>
+/// <param name="p11">The eleventh data value.</param>
+public sealed class TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11) :
+	TheoryDataRowBase
+{
+	/// <summary>
+	/// Gets the row of data.
+	/// </summary>
+	public (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) Data =>
+		(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11);
+
+	/// <inheritdoc/>
+	protected override object?[] GetData() =>
+		[p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11];
+
+	/// <summary/>
+	public static implicit operator TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>((T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) row) =>
+		new(row.Item1, row.Item2, row.Item3, row.Item4, row.Item5, row.Item6, row.Item7, row.Item8, row.Item9, row.Item10, row.Item11);
+}
+
+/// <summary>
+/// Implementation of <see cref="ITheoryDataRow"/> which accepts twelve typed values.
+/// </summary>
+/// <typeparam name="T1">The first parameter type.</typeparam>
+/// <typeparam name="T2">The second parameter type.</typeparam>
+/// <typeparam name="T3">The third parameter type.</typeparam>
+/// <typeparam name="T4">The fourth parameter type.</typeparam>
+/// <typeparam name="T5">The fifth parameter type.</typeparam>
+/// <typeparam name="T6">The sixth parameter type.</typeparam>
+/// <typeparam name="T7">The seventh parameter type.</typeparam>
+/// <typeparam name="T8">The eighth parameter type.</typeparam>
+/// <typeparam name="T9">The ninth parameter type.</typeparam>
+/// <typeparam name="T10">The tenth parameter type.</typeparam>
+/// <typeparam name="T11">The eleventh parameter type.</typeparam>
+/// <typeparam name="T12">The twelfth parameter type.</typeparam>
+/// <remarks>
+/// Initializes a new instance of the <see cref="TheoryDataRow{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12}"/> class,
+/// encapsulating the twelve items of typed data.
+/// </remarks>
+/// <param name="p1">The first data value.</param>
+/// <param name="p2">The second data value.</param>
+/// <param name="p3">The third data value.</param>
+/// <param name="p4">The fourth data value.</param>
+/// <param name="p5">The fifth data value.</param>
+/// <param name="p6">The sixth data value.</param>
+/// <param name="p7">The seventh data value.</param>
+/// <param name="p8">The eighth data value.</param>
+/// <param name="p9">The ninth data value.</param>
+/// <param name="p10">The tenth data value.</param>
+/// <param name="p11">The eleventh data value.</param>
+/// <param name="p12">The twelfth data value.</param>
+public sealed class TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12) :
+	TheoryDataRowBase
+{
+	/// <summary>
+	/// Gets the row of data.
+	/// </summary>
+	public (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) Data =>
+		(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12);
+
+	/// <inheritdoc/>
+	protected override object?[] GetData() =>
+		[p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12];
+
+	/// <summary/>
+	public static implicit operator TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12>((T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) row) =>
+		new(row.Item1, row.Item2, row.Item3, row.Item4, row.Item5, row.Item6, row.Item7, row.Item8, row.Item9, row.Item10, row.Item11, row.Item12);
+}
+
+/// <summary>
+/// Implementation of <see cref="ITheoryDataRow"/> which accepts thirteen typed values.
+/// </summary>
+/// <typeparam name="T1">The first parameter type.</typeparam>
+/// <typeparam name="T2">The second parameter type.</typeparam>
+/// <typeparam name="T3">The third parameter type.</typeparam>
+/// <typeparam name="T4">The fourth parameter type.</typeparam>
+/// <typeparam name="T5">The fifth parameter type.</typeparam>
+/// <typeparam name="T6">The sixth parameter type.</typeparam>
+/// <typeparam name="T7">The seventh parameter type.</typeparam>
+/// <typeparam name="T8">The eighth parameter type.</typeparam>
+/// <typeparam name="T9">The ninth parameter type.</typeparam>
+/// <typeparam name="T10">The tenth parameter type.</typeparam>
+/// <typeparam name="T11">The eleventh parameter type.</typeparam>
+/// <typeparam name="T12">The twelfth parameter type.</typeparam>
+/// <typeparam name="T13">The thirteenth parameter type.</typeparam>
+/// <remarks>
+/// Initializes a new instance of the <see cref="TheoryDataRow{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13}"/> class,
+/// encapsulating the thirteen items of typed data.
+/// </remarks>
+/// <param name="p1">The first data value.</param>
+/// <param name="p2">The second data value.</param>
+/// <param name="p3">The third data value.</param>
+/// <param name="p4">The fourth data value.</param>
+/// <param name="p5">The fifth data value.</param>
+/// <param name="p6">The sixth data value.</param>
+/// <param name="p7">The seventh data value.</param>
+/// <param name="p8">The eighth data value.</param>
+/// <param name="p9">The ninth data value.</param>
+/// <param name="p10">The tenth data value.</param>
+/// <param name="p11">The eleventh data value.</param>
+/// <param name="p12">The twelfth data value.</param>
+/// <param name="p13">The thirteenth data value.</param>
+public sealed class TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13) :
+	TheoryDataRowBase
+{
+	/// <summary>
+	/// Gets the row of data.
+	/// </summary>
+	public (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) Data =>
+		(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13);
+
+	/// <inheritdoc/>
+	protected override object?[] GetData() =>
+		[p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13];
+
+	/// <summary/>
+	public static implicit operator TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13>((T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) row) =>
+		new(row.Item1, row.Item2, row.Item3, row.Item4, row.Item5, row.Item6, row.Item7, row.Item8, row.Item9, row.Item10, row.Item11, row.Item12, row.Item13);
+}
+
+/// <summary>
+/// Implementation of <see cref="ITheoryDataRow"/> which accepts fourteen typed values.
+/// </summary>
+/// <typeparam name="T1">The first parameter type.</typeparam>
+/// <typeparam name="T2">The second parameter type.</typeparam>
+/// <typeparam name="T3">The third parameter type.</typeparam>
+/// <typeparam name="T4">The fourth parameter type.</typeparam>
+/// <typeparam name="T5">The fifth parameter type.</typeparam>
+/// <typeparam name="T6">The sixth parameter type.</typeparam>
+/// <typeparam name="T7">The seventh parameter type.</typeparam>
+/// <typeparam name="T8">The eighth parameter type.</typeparam>
+/// <typeparam name="T9">The ninth parameter type.</typeparam>
+/// <typeparam name="T10">The tenth parameter type.</typeparam>
+/// <typeparam name="T11">The eleventh parameter type.</typeparam>
+/// <typeparam name="T12">The twelfth parameter type.</typeparam>
+/// <typeparam name="T13">The thirteenth parameter type.</typeparam>
+/// <typeparam name="T14">The fourteenth parameter type.</typeparam>
+/// <remarks>
+/// Initializes a new instance of the <see cref="TheoryDataRow{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14}"/> class,
+/// encapsulating the fourteen items of typed data.
+/// </remarks>
+/// <param name="p1">The first data value.</param>
+/// <param name="p2">The second data value.</param>
+/// <param name="p3">The third data value.</param>
+/// <param name="p4">The fourth data value.</param>
+/// <param name="p5">The fifth data value.</param>
+/// <param name="p6">The sixth data value.</param>
+/// <param name="p7">The seventh data value.</param>
+/// <param name="p8">The eighth data value.</param>
+/// <param name="p9">The ninth data value.</param>
+/// <param name="p10">The tenth data value.</param>
+/// <param name="p11">The eleventh data value.</param>
+/// <param name="p12">The twelfth data value.</param>
+/// <param name="p13">The thirteenth data value.</param>
+/// <param name="p14">The fourteenth data value.</param>
+public sealed class TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14) :
+	TheoryDataRowBase
+{
+	/// <summary>
+	/// Gets the row of data.
+	/// </summary>
+	public (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) Data =>
+		(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14);
+
+	/// <inheritdoc/>
+	protected override object?[] GetData() =>
+		[p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14];
+
+	/// <summary/>
+	public static implicit operator TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14>((T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) row) =>
+		new(row.Item1, row.Item2, row.Item3, row.Item4, row.Item5, row.Item6, row.Item7, row.Item8, row.Item9, row.Item10, row.Item11, row.Item12, row.Item13, row.Item14);
+}
+
+/// <summary>
+/// Implementation of <see cref="ITheoryDataRow"/> which accepts fifteen typed values.
+/// </summary>
+/// <typeparam name="T1">The first parameter type.</typeparam>
+/// <typeparam name="T2">The second parameter type.</typeparam>
+/// <typeparam name="T3">The third parameter type.</typeparam>
+/// <typeparam name="T4">The fourth parameter type.</typeparam>
+/// <typeparam name="T5">The fifth parameter type.</typeparam>
+/// <typeparam name="T6">The sixth parameter type.</typeparam>
+/// <typeparam name="T7">The seventh parameter type.</typeparam>
+/// <typeparam name="T8">The eighth parameter type.</typeparam>
+/// <typeparam name="T9">The ninth parameter type.</typeparam>
+/// <typeparam name="T10">The tenth parameter type.</typeparam>
+/// <typeparam name="T11">The eleventh parameter type.</typeparam>
+/// <typeparam name="T12">The twelfth parameter type.</typeparam>
+/// <typeparam name="T13">The thirteenth parameter type.</typeparam>
+/// <typeparam name="T14">The fourteenth parameter type.</typeparam>
+/// <typeparam name="T15">The fifteenth parameter type.</typeparam>
+/// <remarks>
+/// Initializes a new instance of the <see cref="TheoryDataRow{T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15}"/> class,
+/// encapsulating the fifteen items of typed data.
+/// </remarks>
+/// <param name="p1">The first data value.</param>
+/// <param name="p2">The second data value.</param>
+/// <param name="p3">The third data value.</param>
+/// <param name="p4">The fourth data value.</param>
+/// <param name="p5">The fifth data value.</param>
+/// <param name="p6">The sixth data value.</param>
+/// <param name="p7">The seventh data value.</param>
+/// <param name="p8">The eighth data value.</param>
+/// <param name="p9">The ninth data value.</param>
+/// <param name="p10">The tenth data value.</param>
+/// <param name="p11">The eleventh data value.</param>
+/// <param name="p12">The twelfth data value.</param>
+/// <param name="p13">The thirteenth data value.</param>
+/// <param name="p14">The fourteenth data value.</param>
+/// <param name="p15">The fifteenth data value.</param>
+public sealed class TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>(T1 p1, T2 p2, T3 p3, T4 p4, T5 p5, T6 p6, T7 p7, T8 p8, T9 p9, T10 p10, T11 p11, T12 p12, T13 p13, T14 p14, T15 p15) :
+	TheoryDataRowBase
+{
+	/// <summary>
+	/// Gets the row of data.
+	/// </summary>
+	public (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) Data =>
+		(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15);
+
+	/// <inheritdoc/>
+	protected override object?[] GetData() =>
+		[p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15];
+
+	/// <summary/>
+	public static implicit operator TheoryDataRow<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15>((T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) row) =>
+		new(row.Item1, row.Item2, row.Item3, row.Item4, row.Item5, row.Item6, row.Item7, row.Item8, row.Item9, row.Item10, row.Item11, row.Item12, row.Item13, row.Item14, row.Item15);
 }

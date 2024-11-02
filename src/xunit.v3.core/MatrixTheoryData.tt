@@ -1,0 +1,95 @@
+<#@ template language="C#" debug="false" hostspecific="false" compilerOptions="/langversion:5" #>
+<#@ output extension=".cs" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ include file="build\Numbers.ttinclude" #>
+using System.Collections.Generic;
+using Xunit.Internal;
+
+namespace Xunit;
+<#
+for (var pCount = 2; pCount < Ordinals.Length; pCount++)
+{
+	var tDeclaration = string.Join(", ", Enumerable.Range(1, pCount).Select(p => "T" + p));
+#>
+
+/// <summary>
+/// Represents theory data which is created from the merging of <#= Cardinals[pCount] #> data streams by
+/// creating a matrix of the data.
+/// </summary>
+<#
+	for (var i = 1; i <= pCount; i++)
+	{
+#>
+/// <typeparam name="T<#= i #>">Type of the <#= Ordinals[i] #> data dimension</typeparam>
+<#
+	}
+#>
+public class MatrixTheoryData<<#= tDeclaration #>> : TheoryData<<#= tDeclaration #>>
+{
+	/// <summary>
+	/// Initializes a new instance of the <see cref="MatrixTheoryData{<#= tDeclaration #>}"/> class.
+	/// </summary>
+<#
+	for (var i = 1; i <= pCount; i++)
+	{
+#>
+	/// <param name="dimension<#= i #>">Data for the <#= Ordinals[i] #> dimension</param>
+<#
+	}
+#>
+	public MatrixTheoryData(<#= string.Join(",", Enumerable.Range(1, pCount).Select(p => @"
+		IEnumerable<T" + p + "> dimension" + p)) #>)
+	{
+<#
+	for (var i = 1; i <= pCount; i++)
+	{
+#>
+		Guard.ArgumentNotNull(dimension<#= i #>);
+<#
+	}
+#>
+
+<#
+	for (var i = 1; i <= pCount; i++)
+	{
+#>
+		var data<#= i #>Empty = true;
+<#
+	}
+#>
+
+<#
+	for (var i = 1; i <= pCount; i++)
+	{
+#>
+<#= new string('\t', i + 1) #>foreach (var t<#= i #> in dimension<#= i #>)
+<#= new string('\t', i + 1) #>{
+<#= new string('\t', i + 2) #>data<#= i #>Empty = false;
+
+<#
+	}
+#>
+<#= new string('\t', pCount + 2) #>Add(<#= string.Join(", ", Enumerable.Range(1, pCount).Select(p => "t" + p)) #>);
+<#
+	for (var i = pCount; i >= 1; i--)
+	{
+#>
+<#= new string('\t', i + 1) #>}
+<#
+	}
+#>
+
+<#
+	for (var i = 1; i <= pCount; i++)
+	{
+#>
+		Guard.ArgumentValid("Data dimension cannot be empty", !data<#= i #>Empty, nameof(dimension<#= i #>));
+<#
+	}
+#>
+	}
+}
+<#
+}
+#>
