@@ -1,0 +1,23 @@
+<#
+// This contains the cardinal and ordinal representation of the number at the respective index.
+// It continues up until 15, just like Func<>
+IReadOnlyList<(string cardinal, string ordinal)> numbers =
+	[
+		("zero", "zeroth"),
+		("one", "first"),
+		("two", "second"),
+		("three", "third"),
+		("four", "fourth"),
+		("five", "fifth"),
+		("six", "sixth"),
+		("seven", "seventh"),
+		("eight", "eighth"),
+		("nine", "ninth"),
+		("ten", "tenth"),
+		("eleven", "eleventh"),
+		("twelve", "twelfth"),
+		("thirteen", "thirteenth"),
+		("fourteen", "fourteenth"),
+		("fifteen", "fifteenth"),
+	];
+#>

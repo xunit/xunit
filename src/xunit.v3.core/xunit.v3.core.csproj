@@ -6,6 +6,7 @@
     <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
     <RootNamespace>Xunit.v3</RootNamespace>
     <TargetFrameworks>net472;netstandard2.0</TargetFrameworks>
+    <TransformOnBuild>true</TransformOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,6 +14,9 @@
     <None Include="Package\**\*" />
     <Compile Include="..\xunit.v3.assert\Asserts\Sdk\DynamicSkipToken.cs" LinkBase="Common\Asserts" />
     <Compile Include="..\common\MessagePartials\**\*.cs" LinkBase="Common\MessagePartials" />
+    <T4Transform Include="TheoryDataRow.n.tt"/>
+    <T4Transform Include="TheoryData.n.tt"/>
+    <T4Transform Include="MatrixTheoryData.n.tt"/>
   </ItemGroup>
 
   <ItemGroup>
@@ -23,6 +27,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\xunit.v3.common\xunit.v3.common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="T4.BuildTools" Version="3.0.0" PrivateAssets="All" />
   </ItemGroup>
 
 </Project>

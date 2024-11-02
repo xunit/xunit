@@ -29,7 +29,6 @@ public class MatrixTheoryData<T1, T2> : TheoryData<T1, T2>
 		foreach (var t1 in dimension1)
 		{
 			data1Empty = false;
-
 			foreach (var t2 in dimension2)
 			{
 				data2Empty = false;
@@ -73,11 +72,9 @@ public class MatrixTheoryData<T1, T2, T3> : TheoryData<T1, T2, T3>
 		foreach (var t1 in dimension1)
 		{
 			data1Empty = false;
-
 			foreach (var t2 in dimension2)
 			{
 				data2Empty = false;
-
 				foreach (var t3 in dimension3)
 				{
 					data3Empty = false;
@@ -128,15 +125,12 @@ public class MatrixTheoryData<T1, T2, T3, T4> : TheoryData<T1, T2, T3, T4>
 		foreach (var t1 in dimension1)
 		{
 			data1Empty = false;
-
 			foreach (var t2 in dimension2)
 			{
 				data2Empty = false;
-
 				foreach (var t3 in dimension3)
 				{
 					data3Empty = false;
-
 					foreach (var t4 in dimension4)
 					{
 						data4Empty = false;
@@ -194,19 +188,15 @@ public class MatrixTheoryData<T1, T2, T3, T4, T5> : TheoryData<T1, T2, T3, T4, T
 		foreach (var t1 in dimension1)
 		{
 			data1Empty = false;
-
 			foreach (var t2 in dimension2)
 			{
 				data2Empty = false;
-
 				foreach (var t3 in dimension3)
 				{
 					data3Empty = false;
-
 					foreach (var t4 in dimension4)
 					{
 						data4Empty = false;
-
 						foreach (var t5 in dimension5)
 						{
 							data5Empty = false;

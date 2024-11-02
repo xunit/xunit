@@ -1,0 +1,59 @@
+<#@ template language="C#" debug="false" hostspecific="false" #>
+<#@ output extension=".cs" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ include file="helper.ttinclude" #>
+#pragma warning disable CA2225  // We don't want to add implicit operator overloads, this is just to support TheoryData changes
+
+namespace Xunit;
+<#
+for (var pCount = 2; pCount < numbers.Count; pCount++)
+{
+	var tDeclaration = string.Join(", ", Enumerable.Range(1, pCount).Select(p => $"T{p}"));
+	var pDeclaration = string.Join(", ", Enumerable.Range(1, pCount).Select(p => $"T{p} p{p}"));
+	var pUsage = string.Join(", ", Enumerable.Range(1, pCount).Select(p => $"p{p}"));
+#>
+
+/// <summary>
+/// Implementation of <see cref="ITheoryDataRow"/> which accepts <#= numbers[pCount].cardinal #> typed values.
+/// </summary>
+<#
+	for (var i = 1; i <= pCount; i++)
+	{
+#>
+/// <typeparam name="T<#= i #>">The <#= numbers[i].ordinal #> parameter type.</typeparam>
+<#
+	}
+#>
+/// <remarks>
+/// Initializes a new instance of the <see cref="TheoryDataRow{<#= tDeclaration #>}"/> class,
+/// encapsulating the <#= numbers[pCount].cardinal #> items of typed data.
+/// </remarks>
+<#
+	for (var i = 1; i <= pCount; i++)
+	{
+#>
+/// <param name="p<#= i #>">The <#= numbers[i].ordinal #> data value.</param>
+<#
+	}
+#>
+public sealed class TheoryDataRow<<#= tDeclaration #>>(<#= pDeclaration #>) :
+	TheoryDataRowBase
+{
+	/// <summary>
+	/// Gets the row of data.
+	/// </summary>
+	public (<#= tDeclaration #>) Data =>
+		(<#= pUsage #>);
+
+	/// <inheritdoc/>
+	protected override object?[] GetData() =>
+		[<#= pUsage #>];
+
+	/// <summary/>
+	public static implicit operator TheoryDataRow<<#= tDeclaration #>>((<#= tDeclaration #>) row) =>
+		new(<#= string.Join(", ", Enumerable.Range(1, pCount).Select(p => $"row.Item{p}")) #>);
+}
+<#
+}
+#>

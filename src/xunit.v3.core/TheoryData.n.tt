@@ -1,0 +1,86 @@
+<#@ template language="C#" debug="false" hostspecific="false" #>
+<#@ output extension=".cs" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ include file="helper.ttinclude" #>
+using System.Collections.Generic;
+
+namespace Xunit;
+<#
+for (var pCount = 2; pCount < numbers.Count; pCount++)
+{
+	var tDeclaration = string.Join(", ", Enumerable.Range(1, pCount).Select(p => $"T{p}"));
+	var pDeclaration = string.Join(", ", Enumerable.Range(1, pCount).Select(p => $"T{p} p{p}"));
+	var pUsage = string.Join(", ", Enumerable.Range(1, pCount).Select(p => $"p{p}"));
+#>
+
+/// <summary>
+/// Represents a set of data for a theory with <#= pCount #> parameters. Data can
+/// be added to the data set using the collection initializer syntax.
+/// </summary>
+<#
+	for (var i = 1; i <= pCount; i++)
+	{
+#>
+/// <typeparam name="T<#= i #>">The <#= numbers[i].ordinal #> parameter type.</typeparam>
+<#
+	}
+#>
+public class TheoryData<<#= tDeclaration #>> :
+	TheoryDataBase<TheoryDataRow<<#= tDeclaration #>>, (<#= tDeclaration #>)>
+{
+	/// <summary>
+	/// Initializes a new instance of the <see cref="TheoryData{<#= tDeclaration #>}"/> class.
+	/// </summary>
+	public TheoryData()
+	{ }
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="TheoryData{<#= tDeclaration #>}"/> class.
+	/// </summary>
+	/// <param name="values">The initial set of values</param>
+	public TheoryData(IEnumerable<(<#= tDeclaration #>)> values) =>
+		AddRange(values);
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="TheoryData{<#= tDeclaration #>}"/> class.
+	/// </summary>
+	/// <param name="values">The initial set of values</param>
+	public TheoryData(params (<#= tDeclaration #>)[] values) =>
+		AddRange(values);
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="TheoryData{<#= tDeclaration #>}"/> class.
+	/// </summary>
+	/// <param name="values">The initial set of values</param>
+	public TheoryData(IEnumerable<TheoryDataRow<<#= tDeclaration #>>> values) =>
+		AddRange(values);
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="TheoryData{<#= tDeclaration #>}"/> class.
+	/// </summary>
+	/// <param name="values">The initial set of values</param>
+	public TheoryData(params TheoryDataRow<<#= tDeclaration #>>[] values) =>
+		AddRange(values);
+
+	/// <summary>
+	/// Adds data to the theory data set.
+	/// </summary>
+<#
+	for (var i = 1; i <= pCount; i++)
+	{
+#>
+	/// <param name="p<#= i #>">The <#= numbers[i].ordinal #> data value.</param>
+<#
+	}
+#>
+	public void Add(<#= pDeclaration #>) =>
+		Add(new TheoryDataRow<<#= tDeclaration #>>(<#= pUsage #>));
+
+	/// <inheritdoc />
+	protected override TheoryDataRow<<#= tDeclaration #>> Convert((<#= tDeclaration #>) row) =>
+		new(<#= string.Join(", ", Enumerable.Range(1, pCount).Select(p => $"row.Item{p}")) #>);
+}
+<#
+}
+#>
