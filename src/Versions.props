@@ -8,11 +8,11 @@
     <MicrosoftNetCoreAppRefVersion>8.0.8</MicrosoftNetCoreAppRefVersion>
     <MicrosoftNetFrameworkReferenceAssembliesVersion>1.0.3</MicrosoftNetFrameworkReferenceAssembliesVersion>
     <MicrosoftSourceLinkGitHubVersion>8.0.0</MicrosoftSourceLinkGitHubVersion>
-    <NerdbankGitVersioningVersion>3.6.143</NerdbankGitVersioningVersion>
+    <NerdbankGitVersioningVersion>3.6.146</NerdbankGitVersioningVersion>
     <TunnelVisionLabsReferenceAssemblyAnnotatorVersion>1.0.0-alpha.160</TunnelVisionLabsReferenceAssemblyAnnotatorVersion>
 
     <!-- Used by xunit.v3 (NuGet package) -->
-    <XunitAnalyzersVersion>1.16.0</XunitAnalyzersVersion>
+    <XunitAnalyzersVersion>1.17.0-pre.17</XunitAnalyzersVersion>
 
     <!-- Used by xunit.v3.assert for immutable collection support (for netstandard2.0 only) -->
     <SystemCollectionsImmutableVersion>6.0.0</SystemCollectionsImmutableVersion>
@@ -21,7 +21,7 @@
     <MicrosoftBclAsyncInterfacesVersion>6.0.0</MicrosoftBclAsyncInterfacesVersion>
 
     <!-- Used by xunit.v3.runner.inproc.console to support Microsoft.Testing.Platform -->
-    <MicrosoftTestingPlatformVersion>1.4.1</MicrosoftTestingPlatformVersion>
+    <MicrosoftTestingPlatformVersion>1.4.2</MicrosoftTestingPlatformVersion>
 
     <!-- Used by xunit.v3.runner.msbuild to reference MSBuild types -->
     <MicrosoftBuildVersion>15.1.548</MicrosoftBuildVersion>
@@ -34,17 +34,17 @@
 
     <!-- Used by xunit.v3.templates (NuGet package) -->
     <MicrosoftNetTestSdkVersion>17.11.1</MicrosoftNetTestSdkVersion>
-    <XunitVisualStudioRunnerVersion>3.0.0-pre.42</XunitVisualStudioRunnerVersion>
+    <XunitVisualStudioRunnerVersion>3.0.0-pre.48</XunitVisualStudioRunnerVersion>
     <!-- Uncomment this line when building RTW packages -->
     <!--<VisualStudioRunnerTemplateVersion>3.0.0</VisualStudioRunnerTemplateVersion>-->
 
     <!-- Used in non-product (test or back-compat) projects -->
     <FSharpCompilerServiceVersion>43.7.200</FSharpCompilerServiceVersion>
     <MoqVersion>4.17.2</MoqVersion>
-    <NSubstituteVersion>5.1.0</NSubstituteVersion>
+    <NSubstituteVersion>5.3.0</NSubstituteVersion>
     <SystemMemoryVersion>4.5.5</SystemMemoryVersion>
     <XunitV1Version>1.9.2</XunitV1Version>
-    <XunitV2Version>2.9.2</XunitV2Version>
+    <XunitV2Version>2.9.3-pre.4</XunitV2Version>
 
   </PropertyGroup>
 
