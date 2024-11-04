@@ -26,8 +26,8 @@ public class SerializationHelperTests
 		{ 7L, "8:7" },
 		{ 8UL, "9:8" },
 		// Floats and doubles are converted to byte[] and then serialized
-		{ 21.12f, $"10:2[]:{ToBase64("r:6:1\ntl:6:4\nl0:6:4\nlb0:6:0\ni0:2:195\ni1:2:245\ni2:2:168\ni3:2:65")}" },
-		{ 21.12d, $"11:2[]:{ToBase64("r:6:1\ntl:6:8\nl0:6:8\nlb0:6:0\ni0:2:31\ni1:2:133\ni2:2:235\ni3:2:81\ni4:2:184\ni5:2:30\ni6:2:53\ni7:2:64")}" },
+		{ 21.12f, $"10:{ToBase64("t:-4:System.Byte\nr:6:1\ntl:6:4\nl0:6:4\nlb0:6:0\ni0:2:195\ni1:2:245\ni2:2:168\ni3:2:65")}" },
+		{ 21.12d, $"11:{ToBase64("t:-4:System.Byte\nr:6:1\ntl:6:8\nl0:6:8\nlb0:6:0\ni0:2:31\ni1:2:133\ni2:2:235\ni3:2:81\ni4:2:184\ni5:2:30\ni6:2:53\ni7:2:64")}" },
 		{ 21.12m, "12:21.12" },
 		{ true, "13:True" },
 		{ new DateTime(2022, 4, 21, 23, 18, 19, 20, DateTimeKind.Utc), "14:2022-04-21T23:18:19.0200000Z" },
@@ -46,11 +46,6 @@ public class SerializationHelperTests
 		{ new Guid("cbe55b7a-51ad-4e97-a3d9-e41e1db75364"), "23:cbe55b7a51ad4e97a3d9e41e1db75364" },
 		{ new Uri("https://xunit.net/"), $"24:{ToBase64("https://xunit.net/")}" },  // Absolute
 		{ new Uri("a/b#c", UriKind.Relative), $"24:{ToBase64("a/b#c")}" },          // Relative
-
-		// Arrays use array notation for embedded types, plus this serialization format:
-		//   r = ranks, tl = total length, l[n] = length of rank n, lb[n] = lower bound of rank n, i[n] = item[n]
-		{ new[] { 1, 2, 3 }, $"6[]:{ToBase64("r:6:1\ntl:6:3\nl0:6:3\nlb0:6:0\ni0:6:1\ni1:6:2\ni2:6:3")}" },
-		{ new int?[] { 1, null, 3 }, $"6?[]:{ToBase64("r:6:1\ntl:6:3\nl0:6:3\nlb0:6:0\ni0:6:1\ni1:6?\ni2:6:3")}" },
 
 		// Types are serialized as their type name
 		{ typeof(string), "-4:System.String" },
@@ -79,8 +74,15 @@ public class SerializationHelperTests
 			)
 		},
 
+		// Arrays use array notation for embedded types, plus this serialization format:
+		//   t = array type, r = ranks, tl = total length, l[n] = length of rank n, lb[n] = lower bound of rank n, i[n] = item[n]
+		{ new[] { 1, 2, 3 }, $"[]:{ToBase64("t:-4:System.Int32\nr:6:1\ntl:6:3\nl0:6:3\nlb0:6:0\ni0:6:1\ni1:6:2\ni2:6:3")}" },
+		{ new int?[] { 1, null, 3 }, $"[]:{ToBase64("t:-4:System.Nullable`1[[System.Int32]]\nr:6:1\ntl:6:3\nl0:6:3\nlb0:6:0\ni0:6:1\ni1:6\ni2:6:3")}" },
+		{ new[] { MyEnum.MyValue }, $"[]:{ToBase64($"t:-4:{SerializationHelper.TypeToSerializedTypeName(typeof(MyEnum))}\nr:6:1\ntl:6:1\nl0:6:1\nlb0:6:0\ni0:-3:{ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof(MyEnum)))}:{ToBase64("123")}")}" },
+		{ new[] { new MyCustomType { Age = 42, Name = "Someone" } }, $"[]:{ToBase64($"t:-4:{SerializationHelper.TypeToSerializedTypeName(typeof(MyCustomType))}\nr:6:1\ntl:6:1\nl0:6:1\nlb0:6:0\ni0:-3:{ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof(MyCustomType)))}:{ToBase64("42:Someone")}")}" },
+
 		// Object arrays are allowed to hold any serializable data
-		{ new object?[] { 1, "2", 3.4m, null }, $"-1[]:{ToBase64($"r:6:1\ntl:6:4\nl0:6:4\nlb0:6:0\ni0:6:1\ni1:0:{ToBase64("2")}\ni2:12:3.4\ni3:-1")}" },
+		{ new object?[] { 1, "2", 3.4m, null }, $"[]:{ToBase64($"t:-4:System.Object\nr:6:1\ntl:6:4\nl0:6:4\nlb0:6:0\ni0:6:1\ni1:0:{ToBase64("2")}\ni2:12:3.4\ni3:-1")}" },
 	};
 
 	public static TheoryData<Type, string> NullSuccessData = new()
@@ -88,37 +90,37 @@ public class SerializationHelperTests
 		{ typeof(Type), "-4" },
 		{ typeof(MyCustomType), "-3" },
 		{ typeof(MySerializable), "-3" },
-		{ typeof(MyEnum?), "-3?" },
+		{ typeof(MyEnum?), "-3" },
 		{ typeof(Dictionary<string, HashSet<string>>), "-2" },
 		{ typeof(object), "-1" },
 		{ typeof(string), "0" },
-		{ typeof(char?), "1?" },
-		{ typeof(byte?), "2?" },
-		{ typeof(sbyte?), "3?" },
-		{ typeof(short?), "4?" },
-		{ typeof(ushort?), "5?" },
-		{ typeof(int?), "6?" },
-		{ typeof(uint?), "7?" },
-		{ typeof(long?), "8?" },
-		{ typeof(ulong?), "9?" },
-		{ typeof(float?), "10?" },
-		{ typeof(double?), "11?" },
-		{ typeof(decimal?), "12?" },
-		{ typeof(bool?), "13?" },
-		{ typeof(DateTime?), "14?" },
-		{ typeof(DateTimeOffset?), "15?" },
-		{ typeof(TimeSpan?), "16?" },
-		{ typeof(BigInteger?), "17?" },
+		{ typeof(char?), "1" },
+		{ typeof(byte?), "2" },
+		{ typeof(sbyte?), "3" },
+		{ typeof(short?), "4" },
+		{ typeof(ushort?), "5" },
+		{ typeof(int?), "6" },
+		{ typeof(uint?), "7" },
+		{ typeof(long?), "8" },
+		{ typeof(ulong?), "9" },
+		{ typeof(float?), "10" },
+		{ typeof(double?), "11" },
+		{ typeof(decimal?), "12" },
+		{ typeof(bool?), "13" },
+		{ typeof(DateTime?), "14" },
+		{ typeof(DateTimeOffset?), "15" },
+		{ typeof(TimeSpan?), "16" },
+		{ typeof(BigInteger?), "17" },
 #if NET6_0_OR_GREATER
-		{ typeof(DateOnly?), "18?" },
-		{ typeof(TimeOnly?), "19?" },
+		{ typeof(DateOnly?), "18" },
+		{ typeof(TimeOnly?), "19" },
 #endif
 		{ typeof(Version), "20" },
 #if NET6_0_OR_GREATER
-		{ typeof(Index?), "21?" },
-		{ typeof(Range?), "22?" },
+		{ typeof(Index?), "21" },
+		{ typeof(Range?), "22" },
 #endif
-		{ typeof(Guid?), "23?" },
+		{ typeof(Guid?), "23" },
 		{ typeof(Uri), "24" },
 	};
 
@@ -134,9 +136,8 @@ public class SerializationHelperTests
 		}
 
 		[Theory]
-		[InlineData("abc?")]
+		[InlineData("abc")]
 		[InlineData("abc:123")]
-		[InlineData("abc[]:def")]
 		public void GuardClauseForUnknownTypeIndex(string value)
 		{
 			var ex = Record.Exception(() => TestableSerializationHelper.Instance.Deserialize(value));
@@ -157,13 +158,10 @@ public class SerializationHelperTests
 			Assert.Null(result);
 		}
 
-		[CulturedTheory("en-US", "fo-FO")]
-		[MemberData(nameof(NullSuccessData), MemberType = typeof(SerializationHelperTests), DisableDiscoveryEnumeration = true)]
-		public void NullSuccessCasesAsArrays(
-			Type _,
-			string serialization)
+		[Fact]
+		public void ArraysCanBeNull()
 		{
-			var result = TestableSerializationHelper.Instance.Deserialize(serialization + "[]");
+			var result = TestableSerializationHelper.Instance.Deserialize("[]");
 
 			Assert.Null(result);
 		}
@@ -182,9 +180,9 @@ public class SerializationHelperTests
 #if NETFRAMEWORK
 		[Theory]
 		[InlineData("18:738526", "DateOnly")]
-		[InlineData("18?", "DateOnly")]
+		[InlineData("18", "DateOnly")]
 		[InlineData("19:326550000000", "TimeOnly")]
-		[InlineData("19?", "TimeOnly")]
+		[InlineData("19", "TimeOnly")]
 		public void UnsupportedPlatform(
 			string value,
 			string typeName)
@@ -201,9 +199,9 @@ public class SerializationHelperTests
 		// Index and Range are available on Mono, but not on .NET Framework on Windows
 		[Theory(Skip = "This test is only supported on Windows", SkipUnless = nameof(IsWindows))]
 		[InlineData("21:123", "Index")]
-		[InlineData("21?", "Index")]
+		[InlineData("21", "Index")]
 		[InlineData("22:1..2", "Range")]
-		[InlineData("22?", "Range")]
+		[InlineData("22", "Range")]
 		public void UnsupportedPlatform_Windows(
 			string value,
 			string typeName)
@@ -221,7 +219,7 @@ public class SerializationHelperTests
 	{
 		public static TheoryData<Type> SupportedTypes =
 		[
-			typeof(MyEnum),
+			typeof(Type),
 			typeof(IXunitSerializable),
 			typeof(Dictionary<string, HashSet<string>>),
 			typeof(object),
@@ -255,6 +253,7 @@ public class SerializationHelperTests
 			typeof(Guid),
 			typeof(Uri),
 			// Registered into TestableSerializationHelper by default
+			typeof(MyEnum),
 			typeof(MyCustomType),
 		];
 
@@ -325,15 +324,14 @@ public class SerializationHelperTests
 			Assert.Equal(expectedSerialization, result);
 		}
 
-		[CulturedTheory("en-US", "fo-FO")]
-		[MemberData(nameof(NullSuccessData), MemberType = typeof(SerializationHelperTests), DisableDiscoveryEnumeration = true)]
-		public void NullSuccessCasesAsArrays(
-			Type nullableType,
-			string? expectedSerialization)
+		[Theory]
+		[InlineData(typeof(object[]))]
+		[InlineData(typeof(int?[]))]
+		public void ArraysCanBeNull(Type arrayType)
 		{
-			var result = TestableSerializationHelper.Instance.Serialize(null, nullableType.MakeArrayType());
+			var result = TestableSerializationHelper.Instance.Serialize(null, arrayType);
 
-			Assert.Equal(expectedSerialization + "[]", result);
+			Assert.Equal("[]", result);
 		}
 
 		[CulturedTheory("en-US", "fo-FO", DisableDiscoveryEnumeration = true)]

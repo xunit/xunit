@@ -40,6 +40,7 @@ public class SerializationHelper
 		typesByTypeIdx = new()
 		{
 			{ TypeIndex.Type, typeof(Type) },
+			{ TypeIndex.IXunitSerializer, typeof(object) },
 			{ TypeIndex.TraitDictionary, typeof(Dictionary<string, HashSet<string>>) },
 			{ TypeIndex.Object, typeof(object) },
 
@@ -87,9 +88,6 @@ public class SerializationHelper
 	/// </summary>
 	protected SerializationHelper()
 	{
-		static string extractValue(string v) =>
-			v.Split(colonSeparator, 2).Last();
-
 		static DateTimeStyles getDateStyle(string v) =>
 			v.EndsWith("Z", StringComparison.Ordinal) ? DateTimeStyles.AdjustToUniversal : DateTimeStyles.None;
 
@@ -110,8 +108,8 @@ public class SerializationHelper
 			{ TypeIndex.UInt32, v => uint.Parse(v, CultureInfo.InvariantCulture) },
 			{ TypeIndex.Int64, v => long.Parse(v, CultureInfo.InvariantCulture) },
 			{ TypeIndex.UInt64, v => ulong.Parse(v, CultureInfo.InvariantCulture) },
-			{ TypeIndex.Single, v => BitConverter.ToSingle((byte[])DeserializeArray(typeof(byte), extractValue(v)), 0) },
-			{ TypeIndex.Double, v => BitConverter.ToDouble((byte[])DeserializeArray(typeof(byte), extractValue(v)), 0) },
+			{ TypeIndex.Single, v => BitConverter.ToSingle((byte[])DeserializeArray(v), 0) },
+			{ TypeIndex.Double, v => BitConverter.ToDouble((byte[])DeserializeArray(v), 0) },
 			{ TypeIndex.Decimal, v => decimal.Parse(v, CultureInfo.InvariantCulture) },
 			{ TypeIndex.Boolean, v => bool.Parse(v) },
 			{ TypeIndex.DateTime, v => DateTime.Parse(v, CultureInfo.InvariantCulture, getDateStyle(v)) },
@@ -150,8 +148,8 @@ public class SerializationHelper
 			{ TypeIndex.UInt32, (v, _) => ((uint)v).ToString(CultureInfo.InvariantCulture) },
 			{ TypeIndex.Int64, (v, _) => ((long)v).ToString(CultureInfo.InvariantCulture) },
 			{ TypeIndex.UInt64, (v, _) => ((ulong)v).ToString(CultureInfo.InvariantCulture) },
-			{ TypeIndex.Single, (v, _) => "2[]:" + SerializeArray(BitConverter.GetBytes((float)v)) },
-			{ TypeIndex.Double, (v, _) => "2[]:" + SerializeArray(BitConverter.GetBytes((double)v)) },
+			{ TypeIndex.Single, (v, _) => SerializeArray(BitConverter.GetBytes((float)v)) },
+			{ TypeIndex.Double, (v, _) => SerializeArray(BitConverter.GetBytes((double)v)) },
 			{ TypeIndex.Decimal, (v, _) => ((decimal)v).ToString(CultureInfo.InvariantCulture) },
 			{ TypeIndex.Boolean, (v, _) => v.ToString() ?? throw new InvalidOperationException("Boolean value returned null from ToString()") },
 			{ TypeIndex.DateTime, (v, _) => ((DateTime)v).ToString("O", CultureInfo.InvariantCulture) },
@@ -309,20 +307,12 @@ public class SerializationHelper
 
 		var pieces = serializedValue.Split(colonSeparator, 2);
 		var typeIdxText = pieces[0];
-		var isArray = false;
-		var isNullable = false;
 
-		if (typeIdxText.EndsWith("[]", StringComparison.Ordinal))
-		{
-			isArray = true;
-			typeIdxText = typeIdxText.Substring(0, typeIdxText.Length - 2);
-		}
-
-		if (typeIdxText.EndsWith("?", StringComparison.Ordinal))
-		{
-			isNullable = true;
-			typeIdxText = typeIdxText.Substring(0, typeIdxText.Length - 1);
-		}
+		if (typeIdxText.Equals("[]", StringComparison.Ordinal))
+			return
+				pieces.Length == 1
+					? null
+					: ArraySerializer.Deserialize(this, FromBase64(pieces[1]));
 
 		if (!Enum.TryParse<TypeIndex>(typeIdxText, out var typeIdx) || typeIdx < TypeIndex_MinValue || typeIdx > TypeIndex_MaxValue)
 			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Tried to deserialize unknown type index '{0}'", typeIdxText), nameof(serializedValue));
@@ -337,25 +327,14 @@ public class SerializationHelper
 				nameof(serializedValue)
 			);
 
-		if (pieces.Length != 2)
-			return null;
-
-		if (isArray)
-		{
-			var elementType = typesByTypeIdx[typeIdx];
-			if (isNullable)
-				elementType = typeof(Nullable<>).MakeGenericType(elementType);
-
-			return ArraySerializer.Deserialize(this, elementType, FromBase64(pieces[1]));
-		}
-
-		return deserializer(pieces[1]);
+		return
+			pieces.Length == 1
+				? null
+				: deserializer(pieces[1]);
 	}
 
-	object DeserializeArray(
-		Type elementType,
-		string serializedValue) =>
-			ArraySerializer.Deserialize(this, elementType, FromBase64(serializedValue));
+	object DeserializeArray(string serializedValue) =>
+		ArraySerializer.Deserialize(this, FromBase64(serializedValue));
 
 	static object? DeserializeIndex(
 		ConstructorInfo indexCtor,
@@ -577,7 +556,10 @@ public class SerializationHelper
 		if (serializer is null && !serializersByTypeIdx.TryGetValue(typeIdx, out serializer))
 			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Cannot serialize a value of type '{0}': unsupported platform", typeIdx), nameof(value));
 
-		var typeIdxText = string.Format(CultureInfo.InvariantCulture, "{0}{1}{2}", (int)typeIdx, coreValueType != nonNullableCoreValueType ? "?" : "", isArray ? "[]" : "");
+		var typeIdxText =
+			isArray
+				? "[]"
+				: ((int)typeIdx).ToString(CultureInfo.InvariantCulture);
 
 		return
 			value is null

@@ -8,14 +8,14 @@ internal static class ArraySerializer
 	public static T[] Deserialize<T>(
 		SerializationHelper serializationHelper,
 		string serializedValue) =>
-			(T[])Deserialize(serializationHelper, typeof(T), serializedValue);
+			(T[])Deserialize(serializationHelper, serializedValue);
 
 	public static object Deserialize(
 		SerializationHelper serializationHelper,
-		Type elementType,
 		string serializedValue)
 	{
 		var info = new XunitSerializationInfo(serializationHelper, serializedValue);
+		var elementType = info.GetValue<Type>("t") ?? throw new ArgumentException("Missing array element type in serialization:" + Environment.NewLine + serializedValue, nameof(serializedValue));
 		var rank = info.GetValue<int>("r");
 		var totalLength = info.GetValue<int>("tl");
 
@@ -77,6 +77,7 @@ internal static class ArraySerializer
 			throw new ArgumentException("Data must be an array", nameof(data));
 
 		var info = new XunitSerializationInfo(serializationHelper);
+		info.AddValue("t", elementType);
 		info.AddValue("r", array.Rank);
 		info.AddValue("tl", array.Length);
 
