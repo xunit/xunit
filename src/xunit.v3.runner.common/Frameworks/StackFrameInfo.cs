@@ -50,7 +50,7 @@ public readonly partial struct StackFrameInfo(
 		var stackTraces = ExceptionUtility.CombineStackTraces(errorMetadata);
 		if (stackTraces is not null)
 		{
-			foreach (var frame in stackTraces.Split(new[] { Environment.NewLine }, 2, StringSplitOptions.RemoveEmptyEntries))
+			foreach (var frame in stackTraces.Split([Environment.NewLine], 2, StringSplitOptions.RemoveEmptyEntries))
 			{
 				var match = stackFrameRegex.Match(frame);
 				if (match.Success)

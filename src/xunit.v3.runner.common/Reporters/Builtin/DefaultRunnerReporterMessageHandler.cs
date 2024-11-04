@@ -163,7 +163,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 		{
 			Logger.LogError(frameInfo, "    [{0}] {1}", failureType, Escape(errorMetadata.ExceptionTypes.FirstOrDefault() ?? "(Unknown Exception Type)"));
 
-			foreach (var messageLine in ExceptionUtility.CombineMessages(errorMetadata).Split(new[] { Environment.NewLine }, StringSplitOptions.None))
+			foreach (var messageLine in ExceptionUtility.CombineMessages(errorMetadata).Split([Environment.NewLine], StringSplitOptions.None))
 				Logger.LogImportantMessage(frameInfo, "      " + messageLine);
 
 			LogStackTrace(frameInfo, ExceptionUtility.CombineStackTraces(errorMetadata));
@@ -195,7 +195,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 
 		Logger.LogMessage(frameInfo, "      Stack Trace:");
 
-		foreach (var stackFrame in stackTrace.Split(new[] { Environment.NewLine }, StringSplitOptions.None))
+		foreach (var stackFrame in stackTrace.Split([Environment.NewLine], StringSplitOptions.None))
 			Logger.LogImportantMessage(frameInfo, "        " + StackFrameTransformer.TransformFrame(stackFrame, defaultDirectory));
 	}
 
@@ -216,7 +216,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 
 		Logger.LogMessage(frameInfo, "      Output:");
 
-		foreach (var line in output.Split(new[] { Environment.NewLine }, StringSplitOptions.None))
+		foreach (var line in output.Split([Environment.NewLine], StringSplitOptions.None))
 			Logger.LogImportantMessage(frameInfo, "        " + line);
 	}
 
@@ -234,7 +234,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 
 		foreach (var warning in warnings)
 		{
-			var lines = warning.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+			var lines = warning.Split([Environment.NewLine], StringSplitOptions.None);
 			for (var idx = 0; idx < lines.Length; ++idx)
 				Logger.LogWarning(frameInfo, "        {0} {1}", idx == 0 ? '\u2022' : ' ', lines[idx]);
 		}
@@ -547,7 +547,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 		{
 			Logger.LogError(frameInfo, "    {0} [FAIL]", Escape(metadata?.TestDisplayName ?? "<unknown test>"));
 
-			foreach (var messageLine in ExceptionUtility.CombineMessages(testFailed).Split(new[] { Environment.NewLine }, StringSplitOptions.None))
+			foreach (var messageLine in ExceptionUtility.CombineMessages(testFailed).Split([Environment.NewLine], StringSplitOptions.None))
 				Logger.LogImportantMessage(frameInfo, "      {0}", messageLine);
 
 			LogStackTrace(frameInfo, ExceptionUtility.CombineStackTraces(testFailed));

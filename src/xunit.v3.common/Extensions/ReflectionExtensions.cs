@@ -695,7 +695,7 @@ public static class ReflectionExtensions
 			if (testMethod is not null)
 			{
 				var methodGenericArgs = testMethod.GetGenericArguments();
-				for (int i = 0; i < methodGenericArgs.Length; ++i)
+				for (var i = 0; i < methodGenericArgs.Length; ++i)
 					if (methodGenericArgs[i] == type)
 						return "!!" + i;
 			}
@@ -703,7 +703,7 @@ public static class ReflectionExtensions
 			if (testClass is not null)
 			{
 				var testClassGenericArgs = testClass.GetGenericArguments();
-				for (int i = 0; i < testClassGenericArgs.Length; ++i)
+				for (var i = 0; i < testClassGenericArgs.Length; ++i)
 					if (testClassGenericArgs[i] == type)
 						return "!" + i;
 			}

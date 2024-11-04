@@ -86,21 +86,20 @@ internal sealed class EnumSerializer : IXunitSerializer
 			);
 		}
 
-		if (!enumSignsByType.TryGetValue(underlyingType, out var signed))
-			throw new ArgumentException(
-				string.Format(
-					CultureInfo.CurrentCulture,
-					"Cannot serialize enum '{0}.{1}' because the underlying type '{2}' is not supported",
-					type.SafeName(),
-					value,
-					underlyingType.SafeName()
-				),
-				nameof(value)
-			);
-
 		return
-			signed
-				? Convert.ToInt64(value, CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture)
-				: Convert.ToUInt64(value, CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture);
+			!enumSignsByType.TryGetValue(underlyingType, out var signed)
+				? throw new ArgumentException(
+					string.Format(
+						CultureInfo.CurrentCulture,
+						"Cannot serialize enum '{0}.{1}' because the underlying type '{2}' is not supported",
+						type.SafeName(),
+						value,
+						underlyingType.SafeName()
+					),
+					nameof(value)
+				)
+				: signed
+					? Convert.ToInt64(value, CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture)
+					: Convert.ToUInt64(value, CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture);
 	}
 }

@@ -148,7 +148,7 @@ public static class ExceptionUtility
 
 		var results = new List<string>();
 
-		foreach (var line in stack.Split(new[] { Environment.NewLine }, StringSplitOptions.None))
+		foreach (var line in stack.Split([Environment.NewLine], StringSplitOptions.None))
 		{
 			var trimmedLine = line.TrimStart();
 			if (!FilterStackFrame(trimmedLine))

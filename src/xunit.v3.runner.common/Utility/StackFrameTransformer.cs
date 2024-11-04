@@ -57,7 +57,7 @@ public static class StackFrameTransformer
 				: string.Join(
 					Environment.NewLine,
 					stack
-						.Split(new[] { Environment.NewLine }, StringSplitOptions.None)
+						.Split([Environment.NewLine], StringSplitOptions.None)
 						.Select(frame => TransformFrame(frame, defaultDirectory))
 						.ToArray()
 				);

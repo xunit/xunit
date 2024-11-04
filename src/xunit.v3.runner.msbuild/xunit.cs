@@ -506,7 +506,7 @@ public class xunit : MSBuildTask, ICancelableTask
 					Log.LogError("{0}: {1}", e.GetType().SafeName(), e.Message);
 
 					if (e.StackTrace is not null)
-						foreach (var stackLine in e.StackTrace.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries))
+						foreach (var stackLine in e.StackTrace.Split([Environment.NewLine], StringSplitOptions.RemoveEmptyEntries))
 							Log.LogError(stackLine);
 
 					e = e.InnerException;
