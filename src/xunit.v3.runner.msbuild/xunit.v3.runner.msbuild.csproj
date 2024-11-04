@@ -12,7 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\xunit.v3.core\Package\Content\DefaultRunnerReporters.cs" LinkBase="Common" />
+    <Compile Include="..\xunit.v3.core\Package\content\DefaultRunnerReporters.cs" LinkBase="Common" />
   </ItemGroup>
 
   <ItemGroup>
