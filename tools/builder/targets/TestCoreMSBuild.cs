@@ -1,8 +1,4 @@
-using System;
-using System.ComponentModel;
-using System.IO;
 using System.Threading.Tasks;
-using SimpleExec;
 using Xunit.BuildTools.Models;
 
 namespace Xunit.BuildTools.Targets;
@@ -32,17 +28,11 @@ public static class TestCoreMSBuild
 
 		// ------------- Forced x86 -------------
 
-		// Only run 32-bit .NET Core tests on Windows
-		if (context.NeedMono || context.NoX86)
+		if (context.NoX86)
 			return;
 
-		// Only run 32-bit .NET Core tests if 32-bit .NET Core is installed
-		var programFilesX86 = Environment.GetEnvironmentVariable("ProgramFiles(x86)");
-		if (programFilesX86 == null)
-			return;
-
-		var x86Dotnet = Path.Combine(programFilesX86, "dotnet", "dotnet.exe");
-		if (!File.Exists(x86Dotnet))
+		var x86Dotnet = context.GetDotnetX86Path(requireSdk: false);
+		if (x86Dotnet is null)
 			return;
 
 		context.BuildStep($"Running .NET tests ({framework}, x86, via MSBuild runner)");

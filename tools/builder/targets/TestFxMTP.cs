@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -24,20 +23,14 @@ public static class TestFxMTP
 
 		// ------------- Forced x86 -------------
 
-		// Only Windows supports side-by-side 64- and 32-bit installs of .NET SDK
-		if (!context.NeedMono && !context.NoX86)
+		if (!context.NoX86)
 		{
-			// Only run 32-bit .NET Core tests if 32-bit .NET Core is installed
-			var programFilesX86 = Environment.GetEnvironmentVariable("ProgramFiles(x86)");
-			if (programFilesX86 is not null)
+			var x86Dotnet = context.GetDotnetX86Path(requireSdk: true);
+			if (x86Dotnet is not null)
 			{
-				var x86Dotnet = Path.Combine(programFilesX86, "dotnet", "dotnet.exe");
-				if (File.Exists(x86Dotnet))
-				{
-					context.BuildStep($"Running .NET Framework tests (x86, via 'dotnet test' with Microsoft.Testing.Platform)");
+				context.BuildStep($"Running .NET Framework tests (x86, via 'dotnet test' with Microsoft.Testing.Platform)");
 
-					await RunTestAssemblies(context, x86Dotnet, "xunit.v3.*.tests.exe", x86: true);
-				}
+				await RunTestAssemblies(context, x86Dotnet, "xunit.v3.*.tests.exe", x86: true);
 			}
 		}
 

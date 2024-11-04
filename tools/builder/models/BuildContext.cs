@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using McMaster.Extensions.CommandLineUtils;
 
 namespace Xunit.BuildTools.Models;
@@ -9,6 +11,8 @@ public partial class BuildContext
 {
 	string? consoleRunnerExe;
 	string? consoleRunner32Exe;
+	string? dotnet32Path;
+	bool dotnet32SdkInstalled;
 	string? testFlagsNonParallel;
 	string? testFlagsParallel;
 	string? testFlagsParallelMTP;
@@ -53,6 +57,14 @@ public partial class BuildContext
 	[Option("-3|--v3only", Description = "Only run tests for v3 projects (skip tests for v1 and v2)")]
 	public bool V3Only { get; }
 
+	public string? GetDotnetX86Path(bool requireSdk)
+	{
+		if (!requireSdk || dotnet32SdkInstalled)
+			return dotnet32Path;
+
+		return null;
+	}
+
 	public partial IReadOnlyList<string> GetSkippedAnalysisFolders() =>
 		["artifacts", "src/xunit.v3.templates/templates"];
 
@@ -70,6 +82,29 @@ public partial class BuildContext
 		{
 			TestFlagsParallel = "-maxthreads 1 ";
 			TestFlagsParallelMTP = "--max-threads 1 ";
+		}
+
+		// Get the path to the 32-bit dotnet.exe, for Windows only
+		if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+		{
+			var programFilesX86 = Environment.GetEnvironmentVariable("ProgramFiles(x86)");
+			if (programFilesX86 is not null)
+			{
+				var x86Dotnet = Path.Combine(programFilesX86, "dotnet", "dotnet.exe");
+				if (File.Exists(x86Dotnet))
+				{
+					dotnet32Path = x86Dotnet;
+
+					var dotnetProcessInfo = new ProcessStartInfo(x86Dotnet, "sdk check") { RedirectStandardOutput = true, RedirectStandardError = true };
+					var dotnetProcess = Process.Start(dotnetProcessInfo);
+					if (dotnetProcess is not null)
+					{
+						dotnetProcess.WaitForExit();
+
+						dotnet32SdkInstalled = dotnetProcess.ExitCode == 0;
+					}
+				}
+			}
 		}
 	}
 }
