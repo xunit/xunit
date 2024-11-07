@@ -678,6 +678,41 @@ public class Xunit2TheoryAcceptanceTests
         }
 
         [Fact]
+        public void ClassDataFromArray()
+        {
+            var testMessages = Run<ITestResultMessage>(typeof(ClassWithArrayData));
+
+            Assert.Collection(
+                testMessages.OfType<ITestPassed>().Select(p => p.Test.DisplayName).OrderBy(x => x),
+                name => Assert.Equal("Xunit2TheoryAcceptanceTests+ClassDataTests+ClassWithArrayData.ExampleParameterizedTestMethod(values: [\"0\", \"2\", \"4\"])", name),
+                name => Assert.Equal("Xunit2TheoryAcceptanceTests+ClassDataTests+ClassWithArrayData.ExampleParameterizedTestMethod(values: [\"0\", \"2\"])", name),
+                name => Assert.Equal("Xunit2TheoryAcceptanceTests+ClassDataTests+ClassWithArrayData.ExampleParameterizedTestMethod(values: [\"0\"])", name)
+            );
+            Assert.Empty(testMessages.OfType<ITestFailed>());
+            Assert.Empty(testMessages.OfType<ITestSkipped>());
+        }
+
+        class ClassWithArrayData
+        {
+            [Theory]
+            [ClassData(typeof(ClassDataFromArrayDataSource))]
+            public void ExampleParameterizedTestMethod(string[] values)
+            {
+                Assert.All(values, s => Assert.True(s.Length < 10));
+            }
+        }
+
+        class ClassDataFromArrayDataSource : TheoryData<string[]>
+        {
+            public ClassDataFromArrayDataSource()
+            {
+                Add(["0"]);
+                Add(["0", "2"]);
+                Add(["0", "2", "4"]);
+            }
+        }
+
+        [Fact]
         public void NoDefaultConstructor_Fails()
         {
             var testMessages = Run<ITestResultMessage>(typeof(ClassNotImplementingIEnumerable));

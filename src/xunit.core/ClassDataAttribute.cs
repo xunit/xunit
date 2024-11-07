@@ -31,19 +31,21 @@ namespace Xunit
         /// <inheritdoc/>
         public override IEnumerable<object[]> GetData(MethodInfo testMethod)
         {
-            IEnumerable<object[]> data = Activator.CreateInstance(Class) as IEnumerable<object[]>;
-            if (data == null)
-                throw new ArgumentException(
-                    string.Format(
-                        CultureInfo.CurrentCulture,
-                        "{0} must implement IEnumerable<object[]> to be used as ClassData for the test method named '{1}' on {2}",
-                        Class.FullName,
-                        testMethod.Name,
-                        testMethod.DeclaringType.FullName
-                    )
-                );
+            var dataObj = Activator.CreateInstance(Class);
+            if (dataObj is ITheoryData theoryData)
+                return theoryData.GetData();
+            if (dataObj is IEnumerable<object[]> enumerable)
+                return enumerable;
 
-            return data;
+            throw new ArgumentException(
+                string.Format(
+                    CultureInfo.CurrentCulture,
+                    "{0} must implement IEnumerable<object[]> to be used as ClassData for the test method named '{1}' on {2}",
+                    Class.FullName,
+                    testMethod.Name,
+                    testMethod.DeclaringType.FullName
+                )
+            );
         }
     }
 }
