@@ -37,7 +37,7 @@ public class TeamCityReporterMessageHandlerTests
                 var collectionCleanupFailure = MakeFailureInformationSubstitute<ITestCollectionCleanupFailure>();
                 var testCollection = Mocks.TestCollection(displayName: "FooBar\t\r\n", uniqueID: Guid.Empty);
                 collectionCleanupFailure.TestCollection.Returns(testCollection);
-                yield return new object[] { collectionCleanupFailure, "Test Collection Cleanup Failure (FooBar\t|r|n (00000000000000000000000000000000))", "00000000000000000000000000000000" };
+                yield return new object[] { collectionCleanupFailure, "Test Collection Cleanup Failure (FooBar\t|r|n)", "00000000000000000000000000000000" };
 
                 // ITestClassCleanupFailure
                 var classCleanupFailure = MakeFailureInformationSubstitute<ITestClassCleanupFailure>();
@@ -148,8 +148,8 @@ public class TeamCityReporterMessageHandlerTests
             Assert.Collection(
                 handler.Messages.Where(msg => msg.Contains("##teamcity")),
                 msg => Assert.Equal("[Raw] => ##teamcity[flowStarted timestamp='2023-05-03T21:12:00.000+0000' flowId='00000000000000000000000000000000' parent='test|[assembly|].dll']", msg),
-                msg => Assert.Equal("[Raw] => ##teamcity[testSuiteStarted timestamp='2023-05-03T21:12:00.000+0000' flowId='00000000000000000000000000000000' name='my-test-collection\t|r|n (00000000000000000000000000000000)']", msg),
-                msg => Assert.Equal("[Raw] => ##teamcity[testSuiteFinished timestamp='2023-05-03T21:12:00.000+0000' flowId='00000000000000000000000000000000' name='my-test-collection\t|r|n (00000000000000000000000000000000)']", msg),
+                msg => Assert.Equal("[Raw] => ##teamcity[testSuiteStarted timestamp='2023-05-03T21:12:00.000+0000' flowId='00000000000000000000000000000000' name='my-test-collection\t|r|n']", msg),
+                msg => Assert.Equal("[Raw] => ##teamcity[testSuiteFinished timestamp='2023-05-03T21:12:00.000+0000' flowId='00000000000000000000000000000000' name='my-test-collection\t|r|n']", msg),
                 msg => Assert.Equal("[Raw] => ##teamcity[flowFinished timestamp='2023-05-03T21:12:00.000+0000' flowId='00000000000000000000000000000000']", msg)
             );
         }
