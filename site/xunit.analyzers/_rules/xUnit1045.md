@@ -25,7 +25,11 @@ arrays of any supported type and nullable versions of any supported value type. 
 might not be serializable if it's an interface (that does not derive from `IXunitSerializable`)
 or an unsealed class or struct (that does not implement `IXunitSerializable`).
 
-Supported built-in types (as of v2 `2.7.1` and v3 `0.1.1-pre.392`) include:
+Developers using xUnit.net v3 `0.6.0` or later can also implement an external serializer by implementing
+`IXunitSerializer` and registering it in their test assembly. For more information, see
+[the v3 documentation on custom serialization](/docs/getting-started/v3/custom-serialization).
+
+Supported built-in types for v2 (as of `2.7.1`) and v3 include:
 
 - `BigInteger`
 - `bool`
@@ -41,6 +45,13 @@ Supported built-in types (as of v2 `2.7.1` and v3 `0.1.1-pre.392`) include:
 - `short` and `ushort`
 - `string`
 - `Type`
+
+Additional built-in types supported for v3 (as of `0.5.0`) include:
+
+- `Guid`
+- `Index` and `Range` (.NET 6+ only)
+- `Uri`
+- `Version`
 
 ## Examples
 

@@ -43,10 +43,10 @@ xUnit.net is a free, open source, community-focused unit testing tool for the .N
 {: .table .latest }
 |                           | Stable                                             | Prerelease                                                          |
 | ------------------------- | -------------------------------------------------- | ------------------------------------------------------------------- | ----------------------------------------
-| v3 core framework         |                                                    | [0.5.0-pre.27](/releases/v3/0.5.0-pre.27){: .prerelease }           | ([all releases](/releases/v3/))
+| v3 core framework         |                                                    | [0.6.0-pre.7](/releases/v3/0.6.0-pre.7){: .prerelease }             | ([all releases](/releases/v3/))
 | v2 core framework         | [2.9.2](/releases/v2/2.9.2){: .release }           |                                                                     | ([all releases](/releases/v2/))
-| xunit.analyzers           | [1.16.0](/releases/analyzers/1.16.0){: .release }  |                                                                     | ([all releases](/releases/analyzers/))
-| xunit.runner.visualstudio | [2.8.2](/releases/visualstudio/2.8.2){: .release } | [3.0.0-pre.42](/releases/visualstudio/3.0.0-pre.42){: .prerelease } | ([all releases](/releases/visualstudio/))
+| xunit.analyzers           | [1.17.0](/releases/analyzers/1.17.0){: .release }  |                                                                     | ([all releases](/releases/analyzers/))
+| xunit.runner.visualstudio | [2.8.2](/releases/visualstudio/2.8.2){: .release } | [3.0.0-pre.49](/releases/visualstudio/3.0.0-pre.49){: .prerelease } | ([all releases](/releases/visualstudio/))
 
 
 ## Documentation
