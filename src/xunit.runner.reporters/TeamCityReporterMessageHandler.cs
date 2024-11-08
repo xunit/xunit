@@ -274,7 +274,7 @@ namespace Xunit.Runner.Reporters
             message.TestCollection.UniqueID.ToString("N");
 
         string ToTestCollectionName(ITestCollectionMessage message) =>
-            string.Format(CultureInfo.InvariantCulture, "{0} ({1})", message.TestCollection.DisplayName, ToCollectionFlowId(message));
+            string.Format(CultureInfo.InvariantCulture, "{0}", message.TestCollection.DisplayName);
 
         string ToTestMethodName(ITestMethodMessage message) =>
             string.Format(CultureInfo.InvariantCulture, "{0}.{1}", message.TestMethod.Method.Type.Name, message.TestMethod.Method.Name);
