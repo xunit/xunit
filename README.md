@@ -11,7 +11,7 @@ For project documentation, please visit the [xUnit.net project home](https://xun
 * _Want to contribute to the project? See [CONTRIBUTING.md](https://github.com/xunit/.github/tree/main/CONTRIBUTING.md)._
 * _Want to contribute to the assertion library? See the [suggested contribution workflow](https://github.com/xunit/assert.xunit/tree/main/README.md#suggested-contribution-workflow) in the assertion library project, as it is slightly more complex due to code being spread across two GitHub repositories._
 
-[![Powered by NDepend](https://raw.github.com/xunit/media/main/powered-by-ndepend-transparent.png)](http://www.ndepend.com/)
+[![Powered by NDepend](https://raw.github.com/xunit/media/main/powered-by-ndepend-transparent.png)](http://www.ndepend.com/) [![Gurubase](https://img.shields.io/badge/Gurubase-Ask%20xUnit.net%20Guru-006BFF)](https://gurubase.io/g/xunit-net)
 
 ## Latest Builds
 
