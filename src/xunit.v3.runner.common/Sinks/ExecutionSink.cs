@@ -152,7 +152,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 
 		var message = ExceptionUtility.CombineMessages(errorMetadata);
 		if (!string.IsNullOrWhiteSpace(message))
-			result.Add(new XElement("message", new XCData(XmlEscape(message))));
+			result.Add(new XElement("message", new XCData(XmlEscape(message, escapeNewlines: false))));
 
 		var stackTrace = ExceptionUtility.CombineStackTraces(errorMetadata);
 		if (stackTrace is not null)
@@ -522,7 +522,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 			var testSkipped = args.Message;
 			var testElement = CreateTestResultElement(testSkipped, "Skip");
 
-			testElement.Add(new XElement("reason", new XCData(XmlEscape(testSkipped.Reason))));
+			testElement.Add(new XElement("reason", new XCData(XmlEscape(testSkipped.Reason, escapeNewlines: false))));
 		}
 	}
 
@@ -819,7 +819,6 @@ public class ExecutionSink : IMessageSink, IDisposable
 		return result;
 	}
 
-
 	void SendLongRunningMessage()
 	{
 		if (executingTestCases is null)
@@ -882,30 +881,34 @@ public class ExecutionSink : IMessageSink, IDisposable
 	protected virtual bool WaitForStopEvent(int millionsecondsDelay)
 		=> stopEvent?.WaitOne(millionsecondsDelay) ?? true;
 
-	static string XmlEscape(string? value)
+	static string XmlEscape(
+		string? value,
+		bool escapeNewlines = true)
 	{
 		if (value == null)
 			return string.Empty;
 
-		value =
-			value
-				.Replace("\\", "\\\\")
-				.Replace("\r", "\\r")
-				.Replace("\n", "\\n")
-				.Replace("\t", "\\t")
-				.Replace("\0", "\\0")
-				.Replace("\a", "\\a")
-				.Replace("\b", "\\b")
-				.Replace("\v", "\\v")
-				.Replace("\"", "\\\"")
-				.Replace("\f", "\\f");
-
-		var escapedValue = new StringBuilder(value.Length);
+		var escapedValue = new StringBuilder(value.Length + 20);
 		for (var idx = 0; idx < value.Length; ++idx)
 		{
 			var ch = value[idx];
 			if (ch < 32)
-				escapedValue.Append(string.Format(CultureInfo.InvariantCulture, @"\x{0:x2}", +ch));
+				escapedValue.Append(ch switch
+				{
+					'\0' => "\\0",
+					'\a' => "\\a",
+					'\b' => "\\b",
+					'\f' => "\\f",
+					'\n' => escapeNewlines ? "\\n" : "\n",
+					'\r' => escapeNewlines ? "\\r" : "\r",
+					'\t' => "\\t",
+					'\v' => "\\v",
+					_ => string.Format(CultureInfo.InvariantCulture, @"\x{0:x2}", +ch),
+				});
+			else if (ch == '"')
+				escapedValue.Append("\\\"");
+			else if (ch == '\\')
+				escapedValue.Append("\\\\");
 			else if (char.IsSurrogatePair(value, idx)) // Takes care of the case when idx + 1 == value.Length
 			{
 				escapedValue.Append(ch); // Append valid surrogate chars like normal

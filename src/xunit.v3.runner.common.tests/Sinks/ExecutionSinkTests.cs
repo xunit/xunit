@@ -833,7 +833,7 @@ public class ExecutionSinkTests
 			Assert.Equal(outputName, testElement.Attribute("name")?.Value);
 			var reasonElement = testElement.XPathSelectElement("reason");
 			Assert.NotNull(reasonElement);
-			Assert.Equal("Bad\\0\\r\\nString", reasonElement.Value);
+			Assert.Equal("Bad\\0\nString", reasonElement.Value);
 		}
 
 		class ClassUnderTest
@@ -847,7 +847,7 @@ public class ExecutionSinkTests
 		readonly string collectionID = "test-collection-id";
 		readonly int[] exceptionParentIndices = [-1];
 		readonly string[] exceptionTypes = ["ExceptionType"];
-		readonly string[] messages = ["This is my message \t\r\n"];
+		readonly string[] messages = ["This is\t\r\nmy message"];
 		readonly string methodID = "test-method-id";
 		readonly string[] stackTraces = ["Line 1\r\nLine 2\r\nLine 3"];
 		readonly string testCaseID = "test-case-id";
@@ -1059,7 +1059,7 @@ public class ExecutionSinkTests
 
 			var failureElement = Assert.Single(errorElement.Elements("failure"));
 			Assert.Equal("ExceptionType", failureElement.Attribute("exception-type")!.Value);
-			Assert.Equal("ExceptionType : This is my message \\t\\r\\n", failureElement.Elements("message").Single().Value);
+			Assert.Equal("ExceptionType : This is\\t\r\nmy message", failureElement.Elements("message").Single().Value);
 			Assert.Equal("Line 1\r\nLine 2\r\nLine 3", failureElement.Elements("stack-trace").Single().Value);
 		}
 	}
