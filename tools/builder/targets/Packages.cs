@@ -23,8 +23,14 @@ public static partial class Packages
 				.GetFiles(srcFolder, "*.nuspec", SearchOption.AllDirectories)
 				.ToList();
 
+		// You can't see the created package name in .NET 9+ SDK without doing detailed verbosity
+		var verbosity =
+			context.DotNetSdkVersion.Major <= 8
+				? context.Verbosity.ToString()
+				: "detailed";
+
 		// Pack the .nuspec file(s)
 		foreach (var nuspecFile in nuspecFiles.OrderBy(x => x))
-			await context.Exec("dotnet", $"pack --nologo --no-build --configuration {context.ConfigurationText} --output {context.PackageOutputFolder} --verbosity {context.Verbosity} \"{Path.GetDirectoryName(nuspecFile)}\" -p:NuspecFile={Path.GetFileName(nuspecFile)}");
+			await context.Exec("dotnet", $"pack --nologo --no-build --configuration {context.ConfigurationText} --output {context.PackageOutputFolder} --verbosity {verbosity} \"{Path.GetDirectoryName(nuspecFile)}\" -p:NuspecFile={Path.GetFileName(nuspecFile)}");
 	}
 }
