@@ -191,7 +191,7 @@ public class FixtureAcceptanceTests
 		}
 
 		[Fact]
-		public async ValueTask FixtureDataIsPassedToConstructor()
+		public async ValueTask FixtureDataIsPassedToConstructorAndAvailableViaContext()
 		{
 			var messages = await RunAsync<ITestPassed>(typeof(FixtureSpy));
 
@@ -200,13 +200,21 @@ public class FixtureAcceptanceTests
 
 		class FixtureSpy : IClassFixture<EmptyFixtureData>
 		{
+			readonly EmptyFixtureData data;
+
 			public FixtureSpy(EmptyFixtureData data)
 			{
 				Assert.NotNull(data);
+
+				this.data = data;
 			}
 
 			[Fact]
-			public void TheTest() { }
+			public async ValueTask TheTest()
+			{
+				Assert.Same(data, await TestContext.Current.GetFixture(typeof(EmptyFixtureData)));
+				Assert.Same(data, await TestContext.Current.GetFixture<EmptyFixtureData>());
+			}
 		}
 
 		[Fact]
@@ -514,7 +522,7 @@ public class FixtureAcceptanceTests
 		}
 
 		[Fact]
-		public async ValueTask FixtureDataIsPassedToConstructor()
+		public async ValueTask FixtureDataIsPassedToConstructorAndAvailableViaContext()
 		{
 			var messages = await RunAsync<ITestPassed>(typeof(FixtureSpy));
 
@@ -524,13 +532,21 @@ public class FixtureAcceptanceTests
 		[Collection("Collection with empty fixture data")]
 		class FixtureSpy
 		{
+			readonly EmptyFixtureData data;
+
 			public FixtureSpy(EmptyFixtureData data)
 			{
 				Assert.NotNull(data);
+
+				this.data = data;
 			}
 
 			[Fact]
-			public void TheTest() { }
+			public async ValueTask TheTest()
+			{
+				Assert.Same(data, await TestContext.Current.GetFixture(typeof(EmptyFixtureData)));
+				Assert.Same(data, await TestContext.Current.GetFixture<EmptyFixtureData>());
+			}
 		}
 
 		[Fact]
@@ -798,7 +814,7 @@ public class FixtureAcceptanceTests
 		}
 
 		[Fact]
-		public async ValueTask FixtureDataIsPassedToConstructor()
+		public async ValueTask FixtureDataIsPassedToConstructorAndAvailableViaContext()
 		{
 			var messages = await RunAsync<ITestPassed>(typeof(FixtureSpy));
 
@@ -808,13 +824,21 @@ public class FixtureAcceptanceTests
 		[Collection(typeof(CollectionWithEmptyFixtureData))]
 		class FixtureSpy
 		{
+			readonly EmptyFixtureData data;
+
 			public FixtureSpy(EmptyFixtureData data)
 			{
 				Assert.NotNull(data);
+
+				this.data = data;
 			}
 
 			[Fact]
-			public void TheTest() { }
+			public async ValueTask TheTest()
+			{
+				Assert.Same(data, await TestContext.Current.GetFixture(typeof(EmptyFixtureData)));
+				Assert.Same(data, await TestContext.Current.GetFixture<EmptyFixtureData>());
+			}
 		}
 
 		[Fact]

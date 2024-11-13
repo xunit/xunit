@@ -299,4 +299,14 @@ public class XunitTestClassRunner :
 			_ => throw new InvalidOperationException("Multiple constructors found; expected the context to have caught this earlier")
 		};
 	}
+
+	/// <inheritdoc/>
+	protected override void SetTestContext(
+		XunitTestClassRunnerContext ctxt,
+		TestEngineStatus testClassStatus)
+	{
+		Guard.ArgumentNotNull(ctxt);
+
+		TestContext.SetForTestClass(ctxt.TestClass, testClassStatus, ctxt.CancellationTokenSource.Token, ctxt.ClassFixtureMappings);
+	}
 }

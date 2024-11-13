@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
+using System.Threading.Tasks;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -222,6 +224,19 @@ public interface ITestContext
 	/// signal the <see cref="CancellationToken"/> for cancellation.
 	/// </summary>
 	void CancelCurrentTest();
+
+	/// <summary>
+	/// Gets a fixture that was attached to the test class. Will return <c>null</c> if there is
+	/// no exact match for the requested fixture type, or if there is no test class (that is,
+	/// if <see cref="TestClass"/> returns <c>null</c>).
+	/// </summary>
+	/// <remarks>
+	/// This may be a fixture attached via <see cref="IClassFixture{TFixture}"/>, <see cref="ICollectionFixture{TFixture}"/>,
+	/// or <see cref="AssemblyFixtureAttribute"/>.
+	/// </remarks>
+	/// <param name="fixtureType">The exact type of the fixture</param>
+	/// <returns>The fixture, if available; <c>null</c>, otherwise</returns>
+	ValueTask<object?> GetFixture(Type fixtureType);
 
 	/// <summary>
 	/// Sends a diagnostic message. Will only be visible if the end user has enabled diagnostic messages.

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
+using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Sdk;
 using Xunit.v3;
@@ -21,6 +22,7 @@ public sealed class TestContext : ITestContext, IDisposable
 
 	readonly Dictionary<string, TestAttachment>? attachments;
 	IMessageSink? diagnosticMessageSink;
+	readonly FixtureMappingManager? fixtures;
 	IMessageSink? internalDiagnosticMessageSink;
 	readonly Dictionary<string, object?>? keyValueStorage;
 	readonly CancellationTokenSource testCancellationTokenSource = new();
@@ -33,6 +35,7 @@ public sealed class TestContext : ITestContext, IDisposable
 		TestPipelineStage pipelineStage,
 		CancellationToken cancellationToken,
 		Dictionary<string, TestAttachment>? attachments = null,
+		FixtureMappingManager? fixtures = null,
 		List<string>? warnings = null)
 	{
 		DiagnosticMessageSink = diagnosticMessageSink;
@@ -41,6 +44,7 @@ public sealed class TestContext : ITestContext, IDisposable
 		PipelineStage = pipelineStage;
 		CancellationToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, testCancellationTokenSource.Token).Token;
 		this.attachments = attachments;
+		this.fixtures = fixtures;
 		this.warnings = warnings;
 	}
 
@@ -202,6 +206,15 @@ public sealed class TestContext : ITestContext, IDisposable
 		testCancellationTokenSource.Dispose();
 
 	/// <inheritdoc/>
+	public ValueTask<object?> GetFixture(Type fixtureType)
+	{
+		if (fixtures is null)
+			return new(null);
+
+		return fixtures.GetFixture(fixtureType);
+	}
+
+	/// <inheritdoc/>
 	public void SendDiagnosticMessage(string message)
 		=> DiagnosticMessageSink?.OnMessage(new DiagnosticMessage(message));
 
@@ -305,7 +318,7 @@ public sealed class TestContext : ITestContext, IDisposable
 		if (CurrentInternal.TestOutputHelper is null)
 			Guard.ArgumentNotNull(testOutputHelper);
 
-		local.Value = new TestContext(CurrentInternal.DiagnosticMessageSink, CurrentInternal.InternalDiagnosticMessageSink, CurrentInternal.KeyValueStorage, TestPipelineStage.TestExecution, cancellationToken, CurrentInternal.attachments ?? [], CurrentInternal.warnings ?? [])
+		local.Value = new TestContext(CurrentInternal.DiagnosticMessageSink, CurrentInternal.InternalDiagnosticMessageSink, CurrentInternal.KeyValueStorage, TestPipelineStage.TestExecution, cancellationToken, CurrentInternal.attachments ?? [], CurrentInternal.fixtures, CurrentInternal.warnings ?? [])
 		{
 			Test = test,
 			TestClassInstance = testClassInstance,
@@ -372,7 +385,7 @@ public sealed class TestContext : ITestContext, IDisposable
 		Guard.ArgumentNotNull(testCase);
 		Guard.ArgumentEnumValid(testCaseStatus, validExecutionStatuses);
 
-		local.Value = new TestContext(CurrentInternal.DiagnosticMessageSink, CurrentInternal.InternalDiagnosticMessageSink, CurrentInternal.KeyValueStorage, TestPipelineStage.TestCaseExecution, cancellationToken)
+		local.Value = new TestContext(CurrentInternal.DiagnosticMessageSink, CurrentInternal.InternalDiagnosticMessageSink, CurrentInternal.KeyValueStorage, TestPipelineStage.TestCaseExecution, cancellationToken, fixtures: CurrentInternal.fixtures)
 		{
 			TestCase = testCase,
 			TestCaseStatus = testCaseStatus,
@@ -399,15 +412,17 @@ public sealed class TestContext : ITestContext, IDisposable
 	/// <param name="testClassStatus">The test class status (valid values: <see cref="TestEngineStatus.Initializing"/>,
 	/// <see cref="TestEngineStatus.Running"/>, and <see cref="TestEngineStatus.CleaningUp"/>)</param>
 	/// <param name="cancellationToken">The cancellation token used to cancel execution</param>
+	/// <param name="fixtures">The fixtures that are available to the test class</param>
 	public static void SetForTestClass(
 		ITestClass testClass,
 		TestEngineStatus testClassStatus,
-		CancellationToken cancellationToken)
+		CancellationToken cancellationToken,
+		FixtureMappingManager? fixtures = null)
 	{
 		Guard.ArgumentNotNull(testClass);
 		Guard.ArgumentEnumValid(testClassStatus, validExecutionStatuses);
 
-		local.Value = new TestContext(CurrentInternal.DiagnosticMessageSink, CurrentInternal.InternalDiagnosticMessageSink, CurrentInternal.KeyValueStorage, TestPipelineStage.TestClassExecution, cancellationToken)
+		local.Value = new TestContext(CurrentInternal.DiagnosticMessageSink, CurrentInternal.InternalDiagnosticMessageSink, CurrentInternal.KeyValueStorage, TestPipelineStage.TestClassExecution, cancellationToken, fixtures: fixtures)
 		{
 			TestClass = testClass,
 			TestClassStatus = testClassStatus,
@@ -462,7 +477,7 @@ public sealed class TestContext : ITestContext, IDisposable
 		Guard.ArgumentNotNull(testMethod);
 		Guard.ArgumentEnumValid(testMethodStatus, validExecutionStatuses);
 
-		local.Value = new TestContext(CurrentInternal.DiagnosticMessageSink, CurrentInternal.InternalDiagnosticMessageSink, CurrentInternal.KeyValueStorage, TestPipelineStage.TestMethodExecution, cancellationToken)
+		local.Value = new TestContext(CurrentInternal.DiagnosticMessageSink, CurrentInternal.InternalDiagnosticMessageSink, CurrentInternal.KeyValueStorage, TestPipelineStage.TestMethodExecution, cancellationToken, fixtures: CurrentInternal.fixtures)
 		{
 			TestMethod = testMethod,
 			TestMethodStatus = testMethodStatus,
