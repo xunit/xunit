@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <NoWarn>$(NoWarn);NETSDK1215</NoWarn>
     <TargetFrameworks>net462;netstandard1.5;netcoreapp2.0</TargetFrameworks>
   </PropertyGroup>
 
