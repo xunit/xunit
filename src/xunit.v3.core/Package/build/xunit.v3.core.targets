@@ -41,4 +41,12 @@
     </ItemGroup>
   </Target>
 
+  <Target Name="_XunitCopyRunnerDependencies" AfterTargets="Build">
+    <ItemGroup>
+      <XunitRunnerDependencies Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' " Include="$(MSBuildThisFileDirectory)..\_content\runners\netfx\*" />
+      <XunitRunnerDependencies Condition=" '$(TargetFrameworkIdentifier)' == '.NETCoreApp' "   Include="$(MSBuildThisFileDirectory)..\_content\runners\netcore\*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(XunitRunnerDependencies)" DestinationFolder="$(MSBuildProjectDirectory)\$(OutputPath)" SkipUnchangedFiles="true" />
+  </Target>
+
 </Project>
