@@ -266,3 +266,4 @@ dotnet_diagnostic.IDE1006.severity   = none  # Naming rule violation
 dotnet_diagnostic.xUnit1004.severity = none  # Test methods should not be skipped
 dotnet_diagnostic.xUnit1045.severity = none  # Avoid using TheoryData type arguments that might not be serializable
 dotnet_diagnostic.xUnit1046.severity = none  # Avoid using TheoryDataRow arguments that are not serializable
+dotnet_diagnostic.xUnit2032.severity = none  # Type assertions based on 'assignable from' are confusingly named
