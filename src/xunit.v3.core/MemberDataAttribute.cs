@@ -17,7 +17,10 @@ namespace Xunit;
 /// <see cref="IAsyncEnumerable{T}"/>, and those collections may optionally be wrapped in either
 /// <see cref="Task{TResult}"/> or <see cref="ValueTask{TResult}"/>.
 /// </remarks>
-/// <param name="memberName">The name of the public static member on the test class that will provide the test data</param>
+/// <param name="memberName">
+/// The name of the public static member on the test class that will provide the test data
+/// It is recommended to use the <c>nameof</c> operator to ensure compile-time safety, e.g., <c>nameof(SomeMemberName)</c>.
+/// </param>
 /// <param name="arguments">The arguments to be passed to the member (only supported for methods; ignored for everything else)</param>
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
 public sealed class MemberDataAttribute(
