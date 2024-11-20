@@ -10,7 +10,7 @@ namespace Xunit.v3;
 /// Represents a test case which runs multiple tests for theory data, either because the
 /// data was not enumerable or because the data was not serializable.
 /// </summary>
-public class XunitDelayEnumeratedTheoryTestCase : XunitTestCase
+public class XunitDelayEnumeratedTheoryTestCase : XunitTestCase, IXunitDelayEnumeratedTestCase
 {
 	/// <summary>
 	/// Called by the de-serializer; should only be called by deriving classes for de-serialization purposes
@@ -94,8 +94,7 @@ public class XunitDelayEnumeratedTheoryTestCase : XunitTestCase
 				TestCaseDisplayName,
 				SkipReason,
 				explicitOption,
-				constructorArguments,
-				TestMethodArguments
+				constructorArguments
 			);
 
 	/// <inheritdoc/>

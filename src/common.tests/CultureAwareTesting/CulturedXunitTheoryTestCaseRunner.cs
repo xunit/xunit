@@ -11,7 +11,7 @@ public class CulturedXunitTheoryTestCaseRunner(string culture) :
 	CultureInfo? originalUICulture;
 
 	protected override ValueTask<bool> OnTestCaseFinished(
-		XunitDelayEnumeratedTheoryTestCaseRunnerContext ctxt,
+		XunitDelayEnumeratedTestCaseRunnerContext<IXunitDelayEnumeratedTestCase> ctxt,
 		RunSummary summary)
 	{
 		ctxt.Aggregator.Run(() =>
@@ -25,7 +25,7 @@ public class CulturedXunitTheoryTestCaseRunner(string culture) :
 		return base.OnTestCaseFinished(ctxt, summary);
 	}
 
-	protected override async ValueTask<bool> OnTestCaseStarting(XunitDelayEnumeratedTheoryTestCaseRunnerContext ctxt)
+	protected override async ValueTask<bool> OnTestCaseStarting(XunitDelayEnumeratedTestCaseRunnerContext<IXunitDelayEnumeratedTestCase> ctxt)
 	{
 		var result = await base.OnTestCaseStarting(ctxt);
 

@@ -15,7 +15,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerTests
 	[Fact]
 	public static async ValueTask EnumeratesDataAtRuntimeAndExecutesOneTestForEachDataRow()
 	{
-		var testCase = TestData.XunitTestCase<ClassUnderTest>(nameof(ClassUnderTest.TestWithData));
+		var testCase = TestData.XunitDelayEnumeratedTheoryTestCase<ClassUnderTest>(nameof(ClassUnderTest.TestWithData));
 		var runner = new TestableXunitDelayEnumeratedTheoryTestCaseRunner(testCase) { DisplayName = "Display Name" };
 
 		var summary = await runner.RunAsync();
@@ -35,7 +35,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerTests
 	[Fact]
 	public static async ValueTask DiscovererWhichThrowsReturnsASingleFailedTest()
 	{
-		var testCase = TestData.XunitTestCase<ClassUnderTest>(nameof(ClassUnderTest.TestWithThrowingData));
+		var testCase = TestData.XunitDelayEnumeratedTheoryTestCase<ClassUnderTest>(nameof(ClassUnderTest.TestWithThrowingData));
 		var runner = new TestableXunitDelayEnumeratedTheoryTestCaseRunner(testCase) { DisplayName = "Display Name" };
 
 		var summary = await runner.RunAsync();
@@ -56,7 +56,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerTests
 	public static async ValueTask DisposesArguments()
 	{
 		ClassUnderTest.DataWasDisposed = false;
-		var testCase = TestData.XunitTestCase<ClassUnderTest>(nameof(ClassUnderTest.TestWithDisposableData));
+		var testCase = TestData.XunitDelayEnumeratedTheoryTestCase<ClassUnderTest>(nameof(ClassUnderTest.TestWithDisposableData));
 		var runner = new TestableXunitDelayEnumeratedTheoryTestCaseRunner(testCase);
 
 		await runner.RunAsync();
@@ -67,7 +67,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerTests
 	[Fact]
 	public static async ValueTask SkipsDataAttributesWithSkipReason()
 	{
-		var testCase = TestData.XunitTestCase<ClassUnderTest>(nameof(ClassUnderTest.TestWithSomeDataSkipped));
+		var testCase = TestData.XunitDelayEnumeratedTheoryTestCase<ClassUnderTest>(nameof(ClassUnderTest.TestWithSomeDataSkipped));
 		var runner = new TestableXunitDelayEnumeratedTheoryTestCaseRunner(testCase) { DisplayName = "Display Name" };
 
 		var summary = await runner.RunAsync();
@@ -97,7 +97,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerTests
 	[Fact]
 	public async ValueTask ThrowingToString()
 	{
-		var testCase = TestData.XunitTestCase<ClassWithThrowingToString>(nameof(ClassWithThrowingToString.Test));
+		var testCase = TestData.XunitDelayEnumeratedTheoryTestCase<ClassWithThrowingToString>(nameof(ClassWithThrowingToString.Test));
 		var runner = new TestableXunitDelayEnumeratedTheoryTestCaseRunner(testCase) { DisplayName = "Display Name" };
 
 		await runner.RunAsync();
@@ -130,7 +130,7 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerTests
 	[Fact]
 	public async ValueTask ThrowingEnumerator()
 	{
-		var testCase = TestData.XunitTestCase<ClassWithThrowingEnumerator>(nameof(ClassWithThrowingEnumerator.Test));
+		var testCase = TestData.XunitDelayEnumeratedTheoryTestCase<ClassWithThrowingEnumerator>(nameof(ClassWithThrowingEnumerator.Test));
 		var runner = new TestableXunitDelayEnumeratedTheoryTestCaseRunner(testCase) { DisplayName = "Display Name" };
 
 		var summary = await runner.RunAsync();
@@ -226,14 +226,14 @@ public class XunitDelayEnumeratedTheoryTestCaseRunnerTests
 		public void TestWithThrowingData(int _) { }
 	}
 
-	class TestableXunitDelayEnumeratedTheoryTestCaseRunner(IXunitTestCase testCase) :
+	class TestableXunitDelayEnumeratedTheoryTestCaseRunner(IXunitDelayEnumeratedTestCase testCase) :
 		XunitDelayEnumeratedTheoryTestCaseRunner
 	{
 		public string? DisplayName = null;
 		public readonly SpyMessageBus MessageBus = new();
-		public readonly IXunitTestCase TestCase = Guard.ArgumentNotNull(testCase);
+		public readonly IXunitDelayEnumeratedTestCase TestCase = Guard.ArgumentNotNull(testCase);
 
 		public ValueTask<RunSummary> RunAsync() =>
-			RunAsync(TestCase, MessageBus, new ExceptionAggregator(), new CancellationTokenSource(), DisplayName ?? TestCase.TestCaseDisplayName, TestCase.SkipReason, ExplicitOption.Off, [], []);
+			RunAsync(TestCase, MessageBus, new ExceptionAggregator(), new CancellationTokenSource(), DisplayName ?? TestCase.TestCaseDisplayName, TestCase.SkipReason, ExplicitOption.Off, []);
 	}
 }

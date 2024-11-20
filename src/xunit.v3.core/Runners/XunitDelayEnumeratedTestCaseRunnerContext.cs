@@ -6,8 +6,9 @@ using Xunit.Sdk;
 namespace Xunit.v3;
 
 /// <summary>
-/// Context class for <see cref="XunitDelayEnumeratedTheoryTestCaseRunner"/>.
+/// Base context type for <see cref="XunitDelayEnumeratedTestCaseRunnerBase{TContext, TTestCase}"/>.
 /// </summary>
+/// <typeparam name="TTestCase">The test case type</typeparam>
 /// <param name="testCase">The test case</param>
 /// <param name="messageBus">The message bus to send execution messages to</param>
 /// <param name="aggregator">The exception aggregator</param>
@@ -16,18 +17,17 @@ namespace Xunit.v3;
 /// <param name="skipReason">The skip reason, if the test case is being skipped</param>
 /// <param name="explicitOption">The user's choice on how to treat explicit tests</param>
 /// <param name="constructorArguments">The constructor arguments for the test class</param>
-/// <param name="testMethodArguments">The method arguments for the test method</param>
-public class XunitDelayEnumeratedTheoryTestCaseRunnerContext(
-	IXunitTestCase testCase,
+public class XunitDelayEnumeratedTestCaseRunnerContext<TTestCase>(
+	TTestCase testCase,
 	IMessageBus messageBus,
 	ExceptionAggregator aggregator,
 	CancellationTokenSource cancellationTokenSource,
 	string displayName,
 	string? skipReason,
 	ExplicitOption explicitOption,
-	object?[] constructorArguments,
-	object?[] testMethodArguments) :
-		XunitTestCaseRunnerContext<IXunitTestCase>(testCase, messageBus, aggregator, cancellationTokenSource, displayName, skipReason, explicitOption, constructorArguments, testMethodArguments)
+	object?[] constructorArguments) :
+		XunitTestCaseRunnerContext<TTestCase>(testCase, messageBus, aggregator, cancellationTokenSource, displayName, skipReason, explicitOption, constructorArguments, [])
+			where TTestCase : class, IXunitDelayEnumeratedTestCase
 {
 	/// <summary>
 	/// Gets a container to place tests found during discovery.

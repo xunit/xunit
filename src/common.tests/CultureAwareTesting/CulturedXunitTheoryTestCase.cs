@@ -81,8 +81,7 @@ public class CulturedXunitTheoryTestCase : XunitDelayEnumeratedTheoryTestCase
 				TestCaseDisplayName,
 				SkipReason,
 				explicitOption,
-				constructorArguments,
-				TestMethodArguments
+				constructorArguments
 			);
 
 	protected override void Serialize(IXunitSerializationInfo info)
