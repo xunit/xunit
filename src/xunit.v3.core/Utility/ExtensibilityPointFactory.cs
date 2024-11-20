@@ -7,7 +7,7 @@ using Xunit.Sdk;
 
 namespace Xunit.v3;
 
-// Extensibility point factory helper methods, and facorites that don't fit in any other categorization
+// Extensibility point factory helper methods, and factories that don't fit in any other categorization
 
 /// <summary>
 /// Represents a factory for the types used for extensibility throughout the system.
