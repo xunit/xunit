@@ -43,6 +43,7 @@ public class CSharpAcceptanceTestV3Assembly(string? basePath = null) :
 			.GetStandardReferences()
 			.Concat([
 				"Microsoft.Testing.Platform.dll",
+				"netstandard.dll",
 				"System.Threading.Tasks.Extensions.dll",
 				"xunit.v3.assert.dll",
 				"xunit.v3.common.dll",

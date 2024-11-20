@@ -22,20 +22,12 @@ public sealed class CollectionAttribute : Attribute, ICollectionAttribute
 
 #pragma warning disable CA1019  // The type value is converted to exposed via the Name property
 
-#if NETFRAMEWORK
-	/// <summary>
-	/// Initializes a new instance of the <see cref="CollectionAttribute" /> class based on
-	/// a collection definition type, with an auto-generated name based on that type.
-	/// </summary>
-	/// <param name="type">The type representing the collection fixture.</param>
-#else
 	/// <summary>
 	/// Initializes a new instance of the <see cref="CollectionAttribute" /> class based on
 	/// a collection definition type, with an auto-generated name based on that type. Equivalent
 	/// to using <see cref="CollectionAttribute{TCollectionDefinition}"/>.
 	/// </summary>
 	/// <param name="type">The type representing the collection fixture.</param>
-#endif
 	public CollectionAttribute(Type type)
 	{
 		Name = GetCollectionNameForType(type);
@@ -62,12 +54,14 @@ public sealed class CollectionAttribute : Attribute, ICollectionAttribute
 		string.Format(CultureInfo.InvariantCulture, "Test collection for {0} (id: {1})", Guard.ArgumentNotNull(type).SafeName(), UniqueIDGenerator.ForType(type));
 }
 
-#if !NETFRAMEWORK
-
 /// <summary>
 /// Used to declare a specific test collection for a test class. Equivalent to using <see cref="CollectionAttribute"/>
 /// with the <see cref="CollectionAttribute(Type)">type-based constructor</see>.
 /// </summary>
+/// <remarks>
+/// .NET Framework does not support generic attributes. Please use the non-generic <see cref="CollectionAttribute"/>
+/// when targeting .NET Framework.
+/// </remarks>
 /// <typeparam name="TCollectionDefinition">The type for the collection definition.</typeparam>
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
 public sealed class CollectionAttribute<TCollectionDefinition> : Attribute, ICollectionAttribute
@@ -78,5 +72,3 @@ public sealed class CollectionAttribute<TCollectionDefinition> : Attribute, ICol
 	/// <inheritdoc/>
 	public Type? Type { get; } = typeof(TCollectionDefinition);
 }
-
-#endif

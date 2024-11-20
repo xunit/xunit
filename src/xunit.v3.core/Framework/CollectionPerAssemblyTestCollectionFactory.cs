@@ -2,20 +2,12 @@ using System;
 
 namespace Xunit.v3;
 
-#if NETFRAMEWORK
-/// <summary>
-/// Implementation of <see cref="IXunitTestCollectionFactory"/> that creates a single
-/// default test collection for the assembly, and places any tests classes which are not
-/// decorated by <see cref="CollectionAttribute"/> into the default test collection.
-/// </summary>
-#else
 /// <summary>
 /// Implementation of <see cref="IXunitTestCollectionFactory"/> that creates a single
 /// default test collection for the assembly, and places any tests classes which are not
 /// decorated by <see cref="CollectionAttribute"/> or <see cref="CollectionAttribute{TCollectionDefinition}"/>
 /// into the default test collection.
 /// </summary>
-#endif
 public class CollectionPerAssemblyTestCollectionFactory : TestCollectionFactoryBase
 {
 	readonly XunitTestCollection defaultCollection;

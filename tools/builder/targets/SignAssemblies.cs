@@ -24,8 +24,6 @@ public static partial class SignAssemblies
 				Path.Combine(context.BaseFolder, "src", "xunit.v3.assert",                "bin", context.ConfigurationText, "net6.0",                   "xunit.v3.assert.dll"),
 				Path.Combine(context.BaseFolder, "src", "xunit.v3.common",                "bin", context.ConfigurationText, "netstandard2.0",           "xunit.v3.common.dll"),
 				Path.Combine(context.BaseFolder, "src", "xunit.v3.core",                  "bin", context.ConfigurationText, "netstandard2.0",           "xunit.v3.core.dll"),
-				Path.Combine(context.BaseFolder, "src", "xunit.v3.core",                  "obj", context.ConfigurationText, "net472",         "ref",    "xunit.v3.core.dll"),
-				Path.Combine(context.BaseFolder, "src", "xunit.v3.core",                  "obj", context.ConfigurationText, "netstandard2.0", "ref",    "xunit.v3.core.dll"),
 				Path.Combine(context.BaseFolder, "src", "xunit.v3.runner.common",         "bin", context.ConfigurationText, "netstandard2.0",           "xunit.v3.runner.common.dll"),
 				Path.Combine(context.BaseFolder, "src", "xunit.v3.runner.console",        "bin", context.ConfigurationText, "net472",         "merged", "xunit.v3.runner.console.exe"),
 				Path.Combine(context.BaseFolder, "src", "xunit.v3.runner.console",        "bin", context.ConfigurationText, "net48",          "merged", "xunit.v3.runner.console.exe"),
