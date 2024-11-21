@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Runtime.InteropServices;
 using System.Security;
 using System.Threading;
 using System.Threading.Tasks;
@@ -71,7 +70,11 @@ public class XunitTestAssemblyRunnerContext(
 	public new IXunitTestAssembly TestAssembly { get; } = Guard.ArgumentNotNull(testAssembly);
 
 	/// <inheritdoc/>
-	public string TestFrameworkEnvironment
+	public override string TargetFramework =>
+		TestAssembly.TargetFramework;
+
+	/// <inheritdoc/>
+	public override string TestEnvironment
 	{
 		get
 		{
@@ -88,9 +91,8 @@ public class XunitTestAssemblyRunnerContext(
 
 			return string.Format(
 				CultureInfo.CurrentCulture,
-				"{0}-bit {1} [{2}, {3}]",
-				IntPtr.Size * 8,
-				RuntimeInformation.FrameworkDescription,
+				"{0} [{1}, {2}]",
+				base.TestEnvironment,
 				testCollectionFactory.DisplayName,
 				DisableParallelization
 					? "non-parallel"

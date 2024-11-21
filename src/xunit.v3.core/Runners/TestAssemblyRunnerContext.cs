@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
+using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Internal;
@@ -59,6 +62,14 @@ public class TestAssemblyRunnerContext<TTestAssembly, TTestCase>(
 		this.ValidateNullablePropertyValue(messageBus, nameof(MessageBus));
 
 	/// <summary>
+	/// Gets the target framework that the test assembly is targeting. By default, this returns <c>null</c>.
+	/// Test frameworks that are based on .NET runtime assemblies can look for <see cref="TargetFrameworkAttribute"/>
+	/// decorated at the assembly level, which is added automatically by the compiler.
+	/// </summary>
+	public virtual string? TargetFramework =>
+		null;
+
+	/// <summary>
 	/// Gets the assembly that is being executed.
 	/// </summary>
 	public TTestAssembly TestAssembly { get; } = Guard.ArgumentNotNull(testAssembly);
@@ -67,6 +78,23 @@ public class TestAssemblyRunnerContext<TTestAssembly, TTestCase>(
 	/// Gets the test cases associated with this test assembly.
 	/// </summary>
 	public IReadOnlyCollection<TTestCase> TestCases { get; protected set; } = Guard.ArgumentNotNull(testCases);
+
+	/// <summary>
+	/// Gets the environment that the test are running in. By default, returns a string which
+	/// indicates process bitness, processor architecture (when known), and the description of
+	/// the runtime environment (from <see cref="RuntimeInformation.FrameworkDescription"/>).
+	/// </summary>
+	/// <remarks>
+	/// Example: "64-bit (x64) .NET 8.0.11"
+	/// </remarks>
+	public virtual string TestEnvironment =>
+		string.Format(
+			CultureInfo.CurrentCulture,
+			"{0}-bit ({1}) {2}",
+			IntPtr.Size * 8,
+			RuntimeInformation.ProcessArchitecture.ToDisplayName(),
+			RuntimeInformation.FrameworkDescription
+		);
 
 	/// <summary>
 	/// Creates the message bus to be used for test execution. By default, it inspects

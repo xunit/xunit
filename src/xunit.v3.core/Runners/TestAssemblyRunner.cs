@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit.Internal;
@@ -32,9 +33,41 @@ public abstract class TestAssemblyRunner<TContext, TTestAssembly, TTestCollectio
 	{ }
 
 	/// <summary>
+	/// Fails the tests from a test collection due to an exception.
+	/// </summary>
+	/// <remarks>
+	/// By default, using <see cref="XunitRunnerHelper"/> to fail the test cases.
+	/// </remarks>
+	/// <param name="ctxt">The context that describes the current test assembly</param>
+	/// <param name="testCollection">The test collection that is being failed.</param>
+	/// <param name="testCases">The test cases that belong to the test collection.</param>
+	/// <param name="exception">The exception that was caused during startup.</param>
+	/// <returns>Returns summary information about the tests that were failed.</returns>
+	protected virtual ValueTask<RunSummary> FailTestCollection(
+		TContext ctxt,
+		TTestCollection testCollection,
+		IReadOnlyCollection<TTestCase> testCases,
+		Exception exception) =>
+			new(XunitRunnerHelper.FailTestCases(
+				Guard.ArgumentNotNull(ctxt).MessageBus,
+				ctxt.CancellationTokenSource,
+				testCases,
+				exception,
+				sendTestCollectionMessages: true,
+				sendTestClassMessages: true,
+				sendTestMethodMessages: true
+			));
+
+	/// <summary>
+	/// Gets the display name for the test framework. Used to populate <see cref="TestAssemblyStarting"/>
+	/// during <see cref="OnTestAssemblyStarting"/>.
+	/// </summary>
+	/// <param name="ctxt">The context that describes the current test assembly</param>
+	protected abstract string GetTestFrameworkDisplayName(TContext ctxt);
+
+	/// <summary>
 	/// This method is called when an exception was thrown while cleaning up, after the test assembly
-	/// has run. This will typically send a "test assembly cleanup failure" message (like
-	/// <see cref="ITestAssemblyCleanupFailure"/>).
+	/// has run. By default this sends <see cref="TestAssemblyCleanupFailure"/>.
 	/// </summary>
 	/// <remarks>
 	/// This method runs during <see cref="TestEngineStatus.CleaningUp"/> and any exceptions thrown are
@@ -45,14 +78,28 @@ public abstract class TestAssemblyRunner<TContext, TTestAssembly, TTestCollectio
 	/// <param name="exception">The exception that caused the cleanup failure (may be an instance
 	/// of <see cref="AggregateException"/> if more than one exception occurred).</param>
 	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
-	protected abstract ValueTask<bool> OnTestAssemblyCleanupFailure(
+	protected virtual ValueTask<bool> OnTestAssemblyCleanupFailure(
 		TContext ctxt,
-		Exception exception);
+		Exception exception)
+	{
+		Guard.ArgumentNotNull(ctxt);
+
+		var (types, messages, stackTraces, indices, _) = ExceptionUtility.ExtractMetadata(exception);
+
+		return new(ctxt.MessageBus.QueueMessage(new TestAssemblyCleanupFailure
+		{
+			AssemblyUniqueID = ctxt.TestAssembly.UniqueID,
+			ExceptionParentIndices = indices,
+			ExceptionTypes = types,
+			Messages = messages,
+			StackTraces = stackTraces,
+		}));
+	}
 
 	/// <summary>
-	/// This method will be called when the test assembly has finished running. This will typically send
-	/// a "test assembly finished" message (like <see cref="ITestAssemblyFinished"/>) as well as enabling
-	/// any extensibility related to test assembly finish.
+	/// This method will be called when the test assembly has finished running. By default this sends
+	/// <see cref="TestAssemblyFinished"/>. Override this to enable any extensibility related to test
+	/// assembly finish.
 	/// </summary>
 	/// <remarks>
 	/// This method runs during <see cref="TestEngineStatus.CleaningUp"/> and any exceptions thrown will
@@ -61,14 +108,28 @@ public abstract class TestAssemblyRunner<TContext, TTestAssembly, TTestCollectio
 	/// <param name="ctxt">The context that describes the current test assembly</param>
 	/// <param name="summary">The execution summary for the test assembly</param>
 	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
-	protected abstract ValueTask<bool> OnTestAssemblyFinished(
+	protected virtual ValueTask<bool> OnTestAssemblyFinished(
 		TContext ctxt,
-		RunSummary summary);
+		RunSummary summary)
+	{
+		Guard.ArgumentNotNull(ctxt);
+
+		return new(ctxt.MessageBus.QueueMessage(new TestAssemblyFinished
+		{
+			AssemblyUniqueID = ctxt.TestAssembly.UniqueID,
+			FinishTime = DateTimeOffset.Now,
+			ExecutionTime = summary.Time,
+			TestsFailed = summary.Failed,
+			TestsNotRun = summary.NotRun,
+			TestsSkipped = summary.Skipped,
+			TestsTotal = summary.Total,
+		}));
+	}
 
 	/// <summary>
-	/// This method will be called before the test assembly has started running. This will typically send
-	/// a "test assembly starting" message (like <see cref="ITestAssemblyStarting"/>) as well as enabling
-	/// any extensibility related to test assembly start.
+	/// This method will be called before the test assembly has started running. TBy default this sends
+	/// <see cref="TestAssemblyStarting"/>. Override this to enable any extensibility related to test
+	/// assembly start.
 	/// </summary>
 	/// <remarks>
 	/// This method runs during <see cref="TestEngineStatus.Initializing"/> and any exceptions thrown will
@@ -77,7 +138,24 @@ public abstract class TestAssemblyRunner<TContext, TTestAssembly, TTestCollectio
 	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test assembly</param>
 	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
-	protected abstract ValueTask<bool> OnTestAssemblyStarting(TContext ctxt);
+	protected virtual ValueTask<bool> OnTestAssemblyStarting(TContext ctxt)
+	{
+		Guard.ArgumentNotNull(ctxt);
+
+		return new(ctxt.MessageBus.QueueMessage(new TestAssemblyStarting
+		{
+			AssemblyName = Path.GetFileNameWithoutExtension(ctxt.TestAssembly.AssemblyPath),
+			AssemblyPath = ctxt.TestAssembly.AssemblyPath,
+			AssemblyUniqueID = ctxt.TestAssembly.UniqueID,
+			ConfigFilePath = ctxt.TestAssembly.ConfigFilePath,
+			Seed = Randomizer.Seed,
+			StartTime = DateTimeOffset.Now,
+			TargetFramework = ctxt.TargetFramework,
+			TestEnvironment = ctxt.TestEnvironment,
+			TestFrameworkDisplayName = GetTestFrameworkDisplayName(ctxt),
+			Traits = ctxt.TestAssembly.Traits,
+		}));
+	}
 
 	/// <summary>
 	/// Orders the test collections in the assembly. By default does not re-order the test collections.
@@ -163,7 +241,11 @@ public abstract class TestAssemblyRunner<TContext, TTestAssembly, TTestCollectio
 
 		foreach (var collection in orderedCollections)
 		{
-			summary.Aggregate(await RunTestCollectionAsync(ctxt, collection.Collection, collection.TestCases, exception));
+			if (exception is not null)
+				summary.Aggregate(await FailTestCollection(ctxt, collection.Collection, collection.TestCases, exception));
+			else
+				summary.Aggregate(await RunTestCollectionAsync(ctxt, collection.Collection, collection.TestCases));
+
 			if (ctxt.CancellationTokenSource.IsCancellationRequested)
 				break;
 		}
@@ -177,14 +259,11 @@ public abstract class TestAssemblyRunner<TContext, TTestAssembly, TTestCollectio
 	/// <param name="ctxt">The context that describes the current test assembly</param>
 	/// <param name="testCollection">The test collection that is being run.</param>
 	/// <param name="testCases">The test cases that belong to the test collection.</param>
-	/// <param name="exception">The exception that was caused during startup; should be used as an indicator that the
-	/// downstream tests should fail with the provided exception rather than going through standard execution</param>
 	/// <returns>Returns summary information about the tests that were run.</returns>
 	protected abstract ValueTask<RunSummary> RunTestCollectionAsync(
 		TContext ctxt,
 		TTestCollection testCollection,
-		IReadOnlyCollection<TTestCase> testCases,
-		Exception? exception
+		IReadOnlyCollection<TTestCase> testCases
 	);
 
 	/// <summary>

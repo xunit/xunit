@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -28,23 +27,8 @@ public class XunitTestAssemblyRunner :
 	public static XunitTestAssemblyRunner Instance { get; } = new();
 
 	/// <inheritdoc/>
-	protected override ValueTask<bool> OnTestAssemblyCleanupFailure(
-		XunitTestAssemblyRunnerContext ctxt,
-		Exception exception)
-	{
-		Guard.ArgumentNotNull(ctxt);
-
-		var (types, messages, stackTraces, indices, _) = ExceptionUtility.ExtractMetadata(exception);
-
-		return new(ctxt.MessageBus.QueueMessage(new TestAssemblyCleanupFailure
-		{
-			AssemblyUniqueID = ctxt.TestAssembly.UniqueID,
-			ExceptionParentIndices = indices,
-			ExceptionTypes = types,
-			Messages = messages,
-			StackTraces = stackTraces,
-		}));
-	}
+	protected override string GetTestFrameworkDisplayName(XunitTestAssemblyRunnerContext ctxt) =>
+		XunitTestFramework.DisplayName;
 
 	/// <inheritdoc/>
 	protected override async ValueTask<bool> OnTestAssemblyFinished(
@@ -54,17 +38,7 @@ public class XunitTestAssemblyRunner :
 		Guard.ArgumentNotNull(ctxt);
 
 		await ctxt.Aggregator.RunAsync(ctxt.AssemblyFixtureMappings.DisposeAsync);
-
-		return ctxt.MessageBus.QueueMessage(new TestAssemblyFinished
-		{
-			AssemblyUniqueID = ctxt.TestAssembly.UniqueID,
-			FinishTime = DateTimeOffset.Now,
-			ExecutionTime = summary.Time,
-			TestsFailed = summary.Failed,
-			TestsNotRun = summary.NotRun,
-			TestsSkipped = summary.Skipped,
-			TestsTotal = summary.Total,
-		});
+		return await base.OnTestAssemblyFinished(ctxt, summary);
 	}
 
 	/// <inheritdoc/>
@@ -72,20 +46,7 @@ public class XunitTestAssemblyRunner :
 	{
 		Guard.ArgumentNotNull(ctxt);
 
-		var result = ctxt.MessageBus.QueueMessage(new TestAssemblyStarting
-		{
-			AssemblyName = Path.GetFileNameWithoutExtension(ctxt.TestAssembly.AssemblyPath),
-			AssemblyPath = ctxt.TestAssembly.AssemblyPath,
-			AssemblyUniqueID = ctxt.TestAssembly.UniqueID,
-			ConfigFilePath = ctxt.TestAssembly.ConfigFilePath,
-			Seed = Randomizer.Seed,
-			StartTime = DateTimeOffset.Now,
-			TargetFramework = ctxt.TestAssembly.TargetFramework,
-			TestEnvironment = ctxt.TestFrameworkEnvironment,
-			TestFrameworkDisplayName = XunitTestFramework.DisplayName,
-			Traits = ctxt.TestAssembly.Traits,
-		});
-
+		var result = await base.OnTestAssemblyStarting(ctxt);
 		await ctxt.Aggregator.RunAsync(() => ctxt.AssemblyFixtureMappings.InitializeAsync(ctxt.TestAssembly.AssemblyFixtureTypes));
 		return result;
 	}
@@ -189,7 +150,7 @@ public class XunitTestAssemblyRunner :
 
 		foreach (var (collection, testCases) in OrderTestCollections(ctxt))
 		{
-			ValueTask<RunSummary> task() => RunTestCollectionAsync(ctxt, collection, testCases, null);
+			ValueTask<RunSummary> task() => RunTestCollectionAsync(ctxt, collection, testCases);
 			if (collection.DisableParallelization)
 				(nonParallel ??= []).Add(task);
 			else
@@ -229,15 +190,11 @@ public class XunitTestAssemblyRunner :
 	protected override ValueTask<RunSummary> RunTestCollectionAsync(
 		XunitTestAssemblyRunnerContext ctxt,
 		IXunitTestCollection testCollection,
-		IReadOnlyCollection<IXunitTestCase> testCases,
-		Exception? exception)
+		IReadOnlyCollection<IXunitTestCase> testCases)
 	{
 		Guard.ArgumentNotNull(ctxt);
 		Guard.ArgumentNotNull(testCollection);
 		Guard.ArgumentNotNull(testCases);
-
-		if (exception is not null)
-			return new(XunitRunnerHelper.FailTestCases(ctxt.MessageBus, ctxt.CancellationTokenSource, testCases, exception, sendTestCollectionMessages: true, sendTestClassMessages: true, sendTestMethodMessages: true));
 
 		var testCaseOrderer = ctxt.AssemblyTestCaseOrderer ?? DefaultTestCaseOrderer.Instance;
 
