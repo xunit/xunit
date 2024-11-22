@@ -172,6 +172,10 @@ public static partial class Mocks
 		result.Timeout.Returns(timeout);
 		result.Traits.Returns(traits);
 		result.UniqueID.Returns(uniqueID);
+
+		var resultBase = (ITest)result;
+		resultBase.TestCase.Returns(testCase);
+
 		return result;
 	}
 
@@ -303,6 +307,19 @@ public static partial class Mocks
 		result.Timeout.Returns(timeout);
 		result.Traits.Returns(traits);
 		result.UniqueID.Returns(uniqueID);
+
+		var resultBase = (ITestCase)result;
+		resultBase.TestClass.Returns(testClass);
+		resultBase.TestClassMetadataToken.Returns(testClassMetadataToken);
+		resultBase.TestClassName.Returns(testClassName);
+		resultBase.TestClassSimpleName.Returns(testClassSimpleName);
+		resultBase.TestCollection.Returns(testCollection);
+		resultBase.TestMethod.Returns(testMethod);
+		resultBase.TestMethodMetadataToken.Returns(testMethodMetadataToken);
+		resultBase.TestMethodName.Returns(testMethodName);
+		resultBase.TestMethodParameterTypesVSTest.Returns(testMethodParameterTypesVSTest ?? []);
+		resultBase.TestMethodReturnTypeVSTest.Returns(testMethodReturnTypeVSTest);
+
 		return result;
 	}
 
@@ -375,6 +392,10 @@ public static partial class Mocks
 		result.TestCollection.Returns(testCollection);
 		result.Traits.Returns(traits);
 		result.UniqueID.Returns(uniqueID);
+
+		var resultBase = (ITestClass)result;
+		resultBase.TestCollection.Returns(testCollection);
+
 		return result;
 	}
 
@@ -429,6 +450,10 @@ public static partial class Mocks
 		result.TestCollectionDisplayName.Returns(testCollectionDisplayName);
 		result.Traits.Returns(traits ?? TestData.DefaultTraits);
 		result.UniqueID.Returns(uniqueID);
+
+		var resultBase = (ITestCollection)result;
+		resultBase.TestAssembly.Returns(testAssembly);
+
 		return result;
 	}
 
@@ -491,6 +516,10 @@ public static partial class Mocks
 		result.MakeGenericMethod([]).ThrowsForAnyArgs(new InvalidOperationException("Using IXunitTestMethod.MakeGenericMethod while testing is prohibited"));
 		result.ResolveGenericTypes([]).ThrowsForAnyArgs(new InvalidOperationException("Using IXunitTestMethod.ResolveGenericTypes while testing is prohibited"));
 		result.ResolveMethodArguments([]).ThrowsForAnyArgs(new InvalidOperationException("Using IXunitTestMethod.ResolveMethodArguments while testing is prohibited"));
+
+		var resultBase = (ITestMethod)result;
+		resultBase.TestClass.Returns(testClass);
+
 		return result;
 	}
 
