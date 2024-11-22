@@ -116,27 +116,6 @@ public class XunitTestClassRunner :
 	}
 
 	/// <inheritdoc/>
-	protected override ValueTask<bool> OnTestClassCleanupFailure(
-		XunitTestClassRunnerContext ctxt,
-		Exception exception)
-	{
-		Guard.ArgumentNotNull(ctxt);
-
-		var (types, messages, stackTraces, indices, _) = ExceptionUtility.ExtractMetadata(exception);
-
-		return new(ctxt.MessageBus.QueueMessage(new TestClassCleanupFailure
-		{
-			AssemblyUniqueID = ctxt.TestClass.TestCollection.TestAssembly.UniqueID,
-			ExceptionParentIndices = indices,
-			ExceptionTypes = types,
-			Messages = messages,
-			StackTraces = stackTraces,
-			TestClassUniqueID = ctxt.TestClass.UniqueID,
-			TestCollectionUniqueID = ctxt.TestClass.TestCollection.UniqueID,
-		}));
-	}
-
-	/// <inheritdoc/>
 	protected override async ValueTask<bool> OnTestClassFinished(
 		XunitTestClassRunnerContext ctxt,
 		RunSummary summary)
@@ -144,18 +123,7 @@ public class XunitTestClassRunner :
 		Guard.ArgumentNotNull(ctxt);
 
 		await ctxt.Aggregator.RunAsync(ctxt.ClassFixtureMappings.DisposeAsync);
-
-		return ctxt.MessageBus.QueueMessage(new TestClassFinished
-		{
-			AssemblyUniqueID = ctxt.TestClass.TestCollection.TestAssembly.UniqueID,
-			ExecutionTime = summary.Time,
-			TestClassUniqueID = ctxt.TestClass.UniqueID,
-			TestCollectionUniqueID = ctxt.TestClass.TestCollection.UniqueID,
-			TestsFailed = summary.Failed,
-			TestsNotRun = summary.NotRun,
-			TestsSkipped = summary.Skipped,
-			TestsTotal = summary.Total,
-		});
+		return await base.OnTestClassFinished(ctxt, summary);
 	}
 
 	/// <inheritdoc/>
@@ -163,17 +131,7 @@ public class XunitTestClassRunner :
 	{
 		Guard.ArgumentNotNull(ctxt);
 
-		var result = ctxt.MessageBus.QueueMessage(new TestClassStarting
-		{
-			AssemblyUniqueID = ctxt.TestClass.TestCollection.TestAssembly.UniqueID,
-			TestClassName = Guard.ArgumentNotNull(ctxt).TestClass.TestClassName,
-			TestClassNamespace = ctxt.TestClass.TestClassNamespace,
-			TestClassSimpleName = ctxt.TestClass.TestClassSimpleName,
-			TestClassUniqueID = ctxt.TestClass.UniqueID,
-			TestCollectionUniqueID = ctxt.TestClass.TestCollection.UniqueID,
-			Traits = ctxt.TestClass.Traits,
-		});
-
+		var result = await base.OnTestClassStarting(ctxt);
 		await ctxt.Aggregator.RunAsync(() =>
 			ctxt.TestClass.Class.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollectionFixture<>))
 				? throw new TestPipelineException("A test class may not be decorated with ICollectionFixture<> (decorate the test collection class instead).")
@@ -181,7 +139,6 @@ public class XunitTestClassRunner :
 					? throw new TestPipelineException("A test class may only define a single public constructor.")
 					: ctxt.ClassFixtureMappings.InitializeAsync(ctxt.TestClass.ClassFixtureTypes)
 		);
-
 		return result;
 	}
 
@@ -258,13 +215,9 @@ public class XunitTestClassRunner :
 		XunitTestClassRunnerContext ctxt,
 		IXunitTestMethod? testMethod,
 		IReadOnlyCollection<IXunitTestCase> testCases,
-		object?[] constructorArguments,
-		Exception? exception)
+		object?[] constructorArguments)
 	{
 		Guard.ArgumentNotNull(ctxt);
-
-		if (exception is not null)
-			return new(XunitRunnerHelper.FailTestCases(ctxt.MessageBus, ctxt.CancellationTokenSource, testCases, exception, sendTestMethodMessages: true));
 
 		// Technically not possible because of the design of IXunitTestClass, but this signature is imposed
 		// by the base class, which allows method-less tests
