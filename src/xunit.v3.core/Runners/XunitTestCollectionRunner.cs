@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,26 +33,6 @@ public class XunitTestCollectionRunner :
 		Guard.ArgumentNotNull(ctxt).TestCollection.TestCaseOrderer;
 
 	/// <inheritdoc/>
-	protected override ValueTask<bool> OnTestCollectionCleanupFailure(
-		XunitTestCollectionRunnerContext ctxt,
-		Exception exception)
-	{
-		Guard.ArgumentNotNull(ctxt);
-
-		var (types, messages, stackTraces, indices, _) = ExceptionUtility.ExtractMetadata(exception);
-
-		return new(ctxt.MessageBus.QueueMessage(new TestCollectionCleanupFailure
-		{
-			AssemblyUniqueID = ctxt.TestCollection.TestAssembly.UniqueID,
-			ExceptionParentIndices = indices,
-			ExceptionTypes = types,
-			Messages = messages,
-			StackTraces = stackTraces,
-			TestCollectionUniqueID = ctxt.TestCollection.UniqueID,
-		}));
-	}
-
-	/// <inheritdoc/>
 	protected override async ValueTask<bool> OnTestCollectionFinished(
 		XunitTestCollectionRunnerContext ctxt,
 		RunSummary summary)
@@ -61,17 +40,7 @@ public class XunitTestCollectionRunner :
 		Guard.ArgumentNotNull(ctxt);
 
 		await ctxt.Aggregator.RunAsync(ctxt.CollectionFixtureMappings.DisposeAsync);
-
-		return ctxt.MessageBus.QueueMessage(new TestCollectionFinished
-		{
-			AssemblyUniqueID = ctxt.TestCollection.TestAssembly.UniqueID,
-			ExecutionTime = summary.Time,
-			TestCollectionUniqueID = ctxt.TestCollection.UniqueID,
-			TestsFailed = summary.Failed,
-			TestsNotRun = summary.NotRun,
-			TestsSkipped = summary.Skipped,
-			TestsTotal = summary.Total,
-		});
+		return await base.OnTestCollectionFinished(ctxt, summary);
 	}
 
 	/// <inheritdoc/>
@@ -79,17 +48,8 @@ public class XunitTestCollectionRunner :
 	{
 		Guard.ArgumentNotNull(ctxt);
 
-		var result = ctxt.MessageBus.QueueMessage(new TestCollectionStarting
-		{
-			AssemblyUniqueID = ctxt.TestCollection.TestAssembly.UniqueID,
-			TestCollectionClassName = Guard.ArgumentNotNull(ctxt).TestCollection.TestCollectionClassName,
-			TestCollectionDisplayName = ctxt.TestCollection.TestCollectionDisplayName,
-			TestCollectionUniqueID = ctxt.TestCollection.UniqueID,
-			Traits = ctxt.TestCollection.Traits,
-		});
-
+		var result = await base.OnTestCollectionStarting(ctxt);
 		await ctxt.Aggregator.RunAsync(() => ctxt.CollectionFixtureMappings.InitializeAsync(ctxt.TestCollection.CollectionFixtureTypes));
-
 		return result;
 	}
 
@@ -131,26 +91,31 @@ public class XunitTestCollectionRunner :
 	protected override ValueTask<RunSummary> RunTestClassAsync(
 		XunitTestCollectionRunnerContext ctxt,
 		IXunitTestClass? testClass,
-		IReadOnlyCollection<IXunitTestCase> testCases,
-		Exception? exception)
+		IReadOnlyCollection<IXunitTestCase> testCases)
 	{
 		Guard.ArgumentNotNull(ctxt);
 		Guard.ArgumentNotNull(testCases);
 
+		if (testClass is null)
+			return new(XunitRunnerHelper.FailTestCases(
+				ctxt.MessageBus,
+				ctxt.CancellationTokenSource,
+				testCases,
+				"Test case {0} does not have an associated class and cannot be run by XunitTestClassRunner",
+				sendTestClassMessages: true,
+				sendTestMethodMessages: true
+			));
+
 		return
-			exception is not null
-				? new(XunitRunnerHelper.FailTestCases(ctxt.MessageBus, ctxt.CancellationTokenSource, testCases, exception, sendTestClassMessages: true, sendTestMethodMessages: true))
-				: testClass is null
-					? new(XunitRunnerHelper.FailTestCases(ctxt.MessageBus, ctxt.CancellationTokenSource, testCases, "Test case {0} does not have an associated class and cannot be run by XunitTestClassRunner", sendTestClassMessages: true, sendTestMethodMessages: true))
-					: XunitTestClassRunner.Instance.RunAsync(
-						testClass,
-						testCases,
-						ctxt.ExplicitOption,
-						ctxt.MessageBus,
-						ctxt.TestCaseOrderer,
-						ctxt.Aggregator.Clone(),
-						ctxt.CancellationTokenSource,
-						ctxt.CollectionFixtureMappings
-					);
+			XunitTestClassRunner.Instance.RunAsync(
+				testClass,
+				testCases,
+				ctxt.ExplicitOption,
+				ctxt.MessageBus,
+				ctxt.TestCaseOrderer,
+				ctxt.Aggregator.Clone(),
+				ctxt.CancellationTokenSource,
+				ctxt.CollectionFixtureMappings
+			);
 	}
 }
