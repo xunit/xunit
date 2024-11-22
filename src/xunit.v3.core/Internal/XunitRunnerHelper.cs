@@ -13,7 +13,7 @@ namespace Xunit.v3;
 public static class XunitRunnerHelper
 {
 	/// <summary>
-	/// Fail a set of test cases with the given exception.
+	/// Fail a set of test cases with the given message.
 	/// </summary>
 	/// <param name="messageBus">The message bus to send the messages to</param>
 	/// <param name="cancellationTokenSource">The cancellation token source to cancel if requested</param>
@@ -33,7 +33,7 @@ public static class XunitRunnerHelper
 	public static RunSummary FailTestCases(
 		IMessageBus messageBus,
 		CancellationTokenSource cancellationTokenSource,
-		IReadOnlyCollection<IXunitTestCase> testCases,
+		IReadOnlyCollection<ITestCase> testCases,
 		string messageFormat,
 		bool sendTestCollectionMessages = false,
 		bool sendTestClassMessages = false,
@@ -83,7 +83,7 @@ public static class XunitRunnerHelper
 	public static RunSummary FailTestCases(
 		IMessageBus messageBus,
 		CancellationTokenSource cancellationTokenSource,
-		IReadOnlyCollection<IXunitTestCase> testCases,
+		IReadOnlyCollection<ITestCase> testCases,
 		Exception exception,
 		bool sendTestCollectionMessages = false,
 		bool sendTestClassMessages = false,
@@ -116,7 +116,7 @@ public static class XunitRunnerHelper
 	}
 
 	/// <summary>
-	/// Skips a set of test cases with the given exception.
+	/// Skips a set of test cases with the given skip reason.
 	/// </summary>
 	/// <param name="messageBus">The message bus to send the messages to</param>
 	/// <param name="cancellationTokenSource">The cancellation token source to cancel if requested</param>
@@ -135,7 +135,7 @@ public static class XunitRunnerHelper
 	public static RunSummary SkipTestCases(
 		IMessageBus messageBus,
 		CancellationTokenSource cancellationTokenSource,
-		IReadOnlyCollection<IXunitTestCase> testCases,
+		IReadOnlyCollection<ITestCase> testCases,
 		string skipReason,
 		bool sendTestCollectionMessages = false,
 		bool sendTestClassMessages = false,
@@ -167,7 +167,7 @@ public static class XunitRunnerHelper
 	static void ExecuteTestCase(
 		IMessageBus messageBus,
 		CancellationTokenSource cancellationTokenSource,
-		IXunitTestCase testCase,
+		ITestCase testCase,
 		int testIndex,
 		TestResultMessage testResultMessage,
 		bool sendTestCollectionMessages,
@@ -179,8 +179,8 @@ public static class XunitRunnerHelper
 		var assemblyUniqueID = testCase.TestCollection.TestAssembly.UniqueID;
 		var testCollectionUniqueID = testCase.TestCollection.UniqueID;
 		var testCaseUniqueID = testCase.UniqueID;
-		var testClassUniqueID = testCase.TestClass.UniqueID;
-		var testMethodUniqueID = testCase.TestMethod.UniqueID;
+		var testClassUniqueID = testCase.TestClass?.UniqueID;
+		var testMethodUniqueID = testCase.TestMethod?.UniqueID;
 		var testUniqueID = UniqueIDGenerator.ForTest(testCaseUniqueID, testIndex);
 		var now = DateTimeOffset.UtcNow;
 
@@ -195,24 +195,24 @@ public static class XunitRunnerHelper
 			}))
 				cancellationTokenSource.Cancel();
 
-		if (sendTestClassMessages)
+		if (sendTestClassMessages && testCase.TestClass is not null)
 			if (!messageBus.QueueMessage(new TestClassStarting
 			{
 				AssemblyUniqueID = assemblyUniqueID,
-				TestClassName = testCase.TestClassName,
-				TestClassNamespace = testCase.TestClassNamespace,
-				TestClassSimpleName = testCase.TestClassSimpleName,
+				TestClassName = testCase.TestClass.TestClassName,
+				TestClassNamespace = testCase.TestClass.TestClassNamespace,
+				TestClassSimpleName = testCase.TestClass.TestClassSimpleName,
 				TestClassUniqueID = testClassUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID,
 				Traits = testCase.TestClass.Traits,
 			}))
 				cancellationTokenSource.Cancel();
 
-		if (sendTestMethodMessages)
+		if (sendTestMethodMessages && testCase.TestMethod is not null)
 			if (!messageBus.QueueMessage(new TestMethodStarting
 			{
 				AssemblyUniqueID = assemblyUniqueID,
-				MethodName = testCase.TestMethodName,
+				MethodName = testCase.TestMethod.MethodName,
 				TestClassUniqueID = testClassUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestMethodUniqueID = testMethodUniqueID,
@@ -346,7 +346,7 @@ public static class XunitRunnerHelper
 	static void FailTestCase(
 		IMessageBus messageBus,
 		CancellationTokenSource cancellationTokenSource,
-		IXunitTestCase testCase,
+		ITestCase testCase,
 		int testIndex,
 		FailureCause cause,
 		int[] parentIndices,
@@ -375,9 +375,9 @@ public static class XunitRunnerHelper
 					Output = string.Empty,
 					StackTraces = stackTraces,
 					TestCaseUniqueID = testCase.UniqueID,
-					TestClassUniqueID = testCase.TestClass.UniqueID,
+					TestClassUniqueID = testCase.TestClass?.UniqueID,
 					TestCollectionUniqueID = testCase.TestCollection.UniqueID,
-					TestMethodUniqueID = testCase.TestMethod.UniqueID,
+					TestMethodUniqueID = testCase.TestMethod?.UniqueID,
 					TestUniqueID = UniqueIDGenerator.ForTest(testCase.UniqueID, testIndex),
 					Warnings = null,
 				},
@@ -391,7 +391,7 @@ public static class XunitRunnerHelper
 	static void SkipTestCase(
 		IMessageBus messageBus,
 		CancellationTokenSource cancellationTokenSource,
-		IXunitTestCase testCase,
+		ITestCase testCase,
 		int testIndex,
 		string skipReason,
 		bool sendTestCollectionMessages,
@@ -412,9 +412,9 @@ public static class XunitRunnerHelper
 					Output = string.Empty,
 					Reason = skipReason,
 					TestCaseUniqueID = testCase.UniqueID,
-					TestClassUniqueID = testCase.TestClass.UniqueID,
+					TestClassUniqueID = testCase.TestClass?.UniqueID,
 					TestCollectionUniqueID = testCase.TestCollection.UniqueID,
-					TestMethodUniqueID = testCase.TestMethod.UniqueID,
+					TestMethodUniqueID = testCase.TestMethod?.UniqueID,
 					TestUniqueID = UniqueIDGenerator.ForTest(testCase.UniqueID, testIndex),
 					Warnings = null,
 				},
