@@ -25,9 +25,29 @@ public abstract class TestMethodRunner<TContext, TTestMethod, TTestCase>
 	{ }
 
 	/// <summary>
+	/// Override this method to fail an individual test case.
+	/// </summary>
+	/// <remarks>
+	/// By default, uses <see cref="XunitRunnerHelper"/> to fail the test cases.
+	/// </remarks>
+	/// <param name="ctxt">The context that describes the current test method</param>
+	/// <param name="testCase">The test case to be failed.</param>
+	/// <param name="exception">The exception that was caused during startup.</param>
+	/// <returns>Returns summary information about the test case run.</returns>
+	protected virtual ValueTask<RunSummary> FailTestCase(
+		TContext ctxt,
+		TTestCase testCase,
+		Exception exception) =>
+			new(XunitRunnerHelper.FailTestCases(
+				Guard.ArgumentNotNull(ctxt).MessageBus,
+				ctxt.CancellationTokenSource,
+				[testCase],
+				exception
+			));
+
+	/// <summary>
 	/// This method is called when an exception was thrown while cleaning up, after the test method
-	/// has run. This will typically send a "test method cleanup failure" message (like
-	/// <see cref="ITestMethodCleanupFailure"/>).
+	/// has run. By default, this sends <see cref="TestMethodCleanupFailure"/>.
 	/// </summary>
 	/// <remarks>
 	/// This method runs during <see cref="TestEngineStatus.CleaningUp"/> and any exceptions thrown are
@@ -38,14 +58,31 @@ public abstract class TestMethodRunner<TContext, TTestMethod, TTestCase>
 	/// <param name="exception">The exception that caused the cleanup failure (may be an instance
 	/// of <see cref="AggregateException"/> if more than one exception occurred).</param>
 	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
-	protected abstract ValueTask<bool> OnTestMethodCleanupFailure(
+	protected virtual ValueTask<bool> OnTestMethodCleanupFailure(
 		TContext ctxt,
-		Exception exception);
+		Exception exception)
+	{
+		Guard.ArgumentNotNull(ctxt);
+
+		var (types, messages, stackTraces, indices, _) = ExceptionUtility.ExtractMetadata(exception);
+
+		return new(ctxt.MessageBus.QueueMessage(new TestMethodCleanupFailure
+		{
+			AssemblyUniqueID = ctxt.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID,
+			ExceptionParentIndices = indices,
+			ExceptionTypes = types,
+			Messages = messages,
+			StackTraces = stackTraces,
+			TestClassUniqueID = ctxt.TestMethod.TestClass.UniqueID,
+			TestCollectionUniqueID = ctxt.TestMethod.TestClass.TestCollection.UniqueID,
+			TestMethodUniqueID = ctxt.TestMethod.UniqueID,
+		}));
+	}
 
 	/// <summary>
-	/// This method will be called when the test method has finished running. This will typically send
-	/// a "test method finished" message (like <see cref="ITestMethodFinished"/>) as well as enabling any
-	/// extensibility related to test method finish.
+	/// This method will be called when the test method has finished running. By default, this sends
+	/// <see cref="TestMethodFinished"/>. Override this to enable any extensibility related to test
+	/// method finish.
 	/// </summary>
 	/// <remarks>
 	/// This method runs during <see cref="TestEngineStatus.CleaningUp"/> and any exceptions thrown will
@@ -54,14 +91,30 @@ public abstract class TestMethodRunner<TContext, TTestMethod, TTestCase>
 	/// <param name="ctxt">The context that describes the current test method</param>
 	/// <param name="summary">The execution summary for the test method</param>
 	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
-	protected abstract ValueTask<bool> OnTestMethodFinished(
+	protected virtual ValueTask<bool> OnTestMethodFinished(
 		TContext ctxt,
-		RunSummary summary);
+		RunSummary summary)
+	{
+		Guard.ArgumentNotNull(ctxt);
+
+		return new(ctxt.MessageBus.QueueMessage(new TestMethodFinished
+		{
+			AssemblyUniqueID = ctxt.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID,
+			ExecutionTime = summary.Time,
+			TestClassUniqueID = ctxt.TestMethod.TestClass.UniqueID,
+			TestCollectionUniqueID = ctxt.TestMethod.TestClass.TestCollection.UniqueID,
+			TestMethodUniqueID = ctxt.TestMethod.UniqueID,
+			TestsFailed = summary.Failed,
+			TestsNotRun = summary.NotRun,
+			TestsSkipped = summary.Skipped,
+			TestsTotal = summary.Total,
+		}));
+	}
 
 	/// <summary>
-	/// This method will be called before the test method has started running. This will typically send
-	/// a "test method starting" message (like <see cref="ITestMethodStarting"/>) as well as enabling any
-	/// extensibility related to test method start.
+	/// This method will be called before the test method has started running. By default, this sends
+	/// <see cref="TestMethodStarting"/>. Override this to enable any extensibility related to test
+	/// method start.
 	/// </summary>
 	/// <remarks>
 	/// This method runs during <see cref="TestEngineStatus.Initializing"/> and any exceptions thrown will
@@ -70,7 +123,20 @@ public abstract class TestMethodRunner<TContext, TTestMethod, TTestCase>
 	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test method</param>
 	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
-	protected abstract ValueTask<bool> OnTestMethodStarting(TContext ctxt);
+	protected virtual ValueTask<bool> OnTestMethodStarting(TContext ctxt)
+	{
+		Guard.ArgumentNotNull(ctxt);
+
+		return new(ctxt.MessageBus.QueueMessage(new TestMethodStarting
+		{
+			AssemblyUniqueID = ctxt.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID,
+			MethodName = Guard.ArgumentNotNull(ctxt).TestMethod.MethodName,
+			TestClassUniqueID = ctxt.TestMethod.TestClass.UniqueID,
+			TestCollectionUniqueID = ctxt.TestMethod.TestClass.TestCollection.UniqueID,
+			TestMethodUniqueID = ctxt.TestMethod.UniqueID,
+			Traits = ctxt.TestMethod.Traits,
+		}));
+	}
 
 	/// <summary>
 	/// Runs the tests in the test method.
@@ -135,7 +201,11 @@ public abstract class TestMethodRunner<TContext, TTestMethod, TTestCase>
 
 		foreach (var testCase in ctxt.TestCases)
 		{
-			summary.Aggregate(await RunTestCaseAsync(ctxt, testCase, exception));
+			if (exception is not null)
+				summary.Aggregate(await FailTestCase(ctxt, testCase, exception));
+			else
+				summary.Aggregate(await RunTestCaseAsync(ctxt, testCase));
+
 			if (ctxt.CancellationTokenSource.IsCancellationRequested)
 				break;
 		}
@@ -148,13 +218,10 @@ public abstract class TestMethodRunner<TContext, TTestMethod, TTestCase>
 	/// </summary>
 	/// <param name="ctxt">The context that describes the current test method</param>
 	/// <param name="testCase">The test case to be run.</param>
-	/// <param name="exception">The exception that was caused during startup; should be used as an indicator that the
-	/// downstream tests should fail with the provided exception rather than going through standard execution</param>
 	/// <returns>Returns summary information about the test case run.</returns>
 	protected abstract ValueTask<RunSummary> RunTestCaseAsync(
 		TContext ctxt,
-		TTestCase testCase,
-		Exception? exception);
+		TTestCase testCase);
 
 	/// <summary>
 	/// Sets the current <see cref="TestContext"/> for the current test method and the given test method status.

@@ -10,6 +10,72 @@ using Xunit.v3;
 
 public class TestMethodRunnerTests
 {
+	public class Messages
+	{
+		[Fact]
+		public async ValueTask OnTestMethodCleanupFailure()
+		{
+			var runner = new TestableTestMethodRunner();
+			var ex = Record.Exception(ThrowException);
+
+			await runner.OnTestMethodCleanupFailure(ex!);
+
+			var message = Assert.Single(runner.MessageBus.Messages);
+			var failure = Assert.IsAssignableFrom<ITestMethodCleanupFailure>(message);
+
+			VerifyTestMethodMessage(failure);
+			Assert.Equal(-1, failure.ExceptionParentIndices.Single());
+			Assert.Equal(typeof(DivideByZeroException).FullName, failure.ExceptionTypes.Single());
+			Assert.Equal("Attempted to divide by zero.", failure.Messages.Single());
+			Assert.NotEmpty(failure.StackTraces.Single()!);
+		}
+
+		[Fact]
+		public async ValueTask OnTestMethodFinished()
+		{
+			var runner = new TestableTestMethodRunner();
+			var summary = new RunSummary { Total = 2112, Failed = 42, Skipped = 21, NotRun = 9, Time = 123.45m };
+
+			await runner.OnTestMethodFinished(summary);
+
+			var message = Assert.Single(runner.MessageBus.Messages);
+			var finished = Assert.IsAssignableFrom<ITestMethodFinished>(message);
+
+			VerifyTestMethodMessage(finished);
+			Assert.Equal(123.45m, finished.ExecutionTime);
+			Assert.Equal(42, finished.TestsFailed);
+			Assert.Equal(9, finished.TestsNotRun);
+			Assert.Equal(21, finished.TestsSkipped);
+			Assert.Equal(2112, finished.TestsTotal);
+		}
+
+		[Fact]
+		public async ValueTask OnTestMethodStarting()
+		{
+			var runner = new TestableTestMethodRunner();
+
+			await runner.OnTestMethodStarting();
+
+			var message = Assert.Single(runner.MessageBus.Messages);
+			var starting = Assert.IsAssignableFrom<ITestMethodStarting>(message);
+
+			VerifyTestMethodMessage(starting);
+			Assert.Equal("test-method", starting.MethodName);
+			Assert.Equivalent(TestData.DefaultTraits, starting.Traits);
+		}
+
+		static void ThrowException() =>
+			throw new DivideByZeroException();
+
+		static void VerifyTestMethodMessage(ITestMethodMessage message)
+		{
+			Assert.Equal("assembly-id", message.AssemblyUniqueID);
+			Assert.Equal("test-collection-id", message.TestCollectionUniqueID);
+			Assert.Equal("test-class-id", message.TestClassUniqueID);
+			Assert.Equal("test-method-id", message.TestMethodUniqueID);
+		}
+	}
+
 	public class Cancellation
 	{
 		[Fact]
@@ -32,7 +98,6 @@ public class TestMethodRunnerTests
 				"OnTestMethodFinished(summary: { Total = 0 })",
 				// OnTestMethodCleanupFailure
 			}, runner.Invocations);
-			Assert.Empty(runner.MessageBus.Messages);
 		}
 
 		[Fact]
@@ -46,11 +111,10 @@ public class TestMethodRunnerTests
 			Assert.Equal(new[]
 			{
 				"OnTestMethodStarting",
-				"RunTestCaseAsync(exception: null)",
+				"RunTestCaseAsync(testCase: \"test-case-display-name\")",
 				"OnTestMethodFinished(summary: { Total = 0 })",
 				// OnTestMethodCleanupFailure
 			}, runner.Invocations);
-			Assert.Empty(runner.MessageBus.Messages);
 		}
 
 		[Fact]
@@ -69,11 +133,10 @@ public class TestMethodRunnerTests
 			Assert.Equal(new[]
 			{
 				"OnTestMethodStarting",
-				"RunTestCaseAsync(exception: null)",
+				"RunTestCaseAsync(testCase: \"test-case-display-name\")",
 				"OnTestMethodFinished(summary: { Total = 0 })",
 				"OnTestMethodCleanupFailure(exception: typeof(DivideByZeroException))",
 			}, runner.Invocations);
-			Assert.Empty(runner.MessageBus.Messages);
 		}
 	}
 
@@ -92,11 +155,10 @@ public class TestMethodRunnerTests
 			Assert.Equal(new[]
 			{
 				"OnTestMethodStarting",
-				"RunTestCaseAsync(exception: null)",
+				"RunTestCaseAsync(testCase: \"test-case-display-name\")",
 				"OnTestMethodFinished(summary: { Total = 9, Failed = 2, Skipped = 1, NotRun = 3, Time = 21.12 })",
 				// OnTestMethodCleanupFailure
 			}, runner.Invocations);
-			Assert.Empty(runner.MessageBus.Messages);
 		}
 
 		[Fact]
@@ -110,11 +172,10 @@ public class TestMethodRunnerTests
 			Assert.Equal(new[]
 			{
 				"OnTestMethodStarting",
-				"RunTestCaseAsync(exception: typeof(DivideByZeroException))",
+				"FailTestCase(testCase: \"test-case-display-name\", exception: typeof(DivideByZeroException))",
 				"OnTestMethodFinished(summary: { Total = 0 })",
 				// OnTestMethodCleanupFailure
 			}, runner.Invocations);
-			Assert.Empty(runner.MessageBus.Messages);
 		}
 
 		[Fact]
@@ -128,11 +189,10 @@ public class TestMethodRunnerTests
 			Assert.Equal(new[]
 			{
 				"OnTestMethodStarting",
-				"RunTestCaseAsync(exception: null)",
+				"RunTestCaseAsync(testCase: \"test-case-display-name\")",
 				"OnTestMethodFinished(summary: { Total = 0 })",
 				"OnTestMethodCleanupFailure(exception: typeof(DivideByZeroException))",
 			}, runner.Invocations);
-			Assert.Empty(runner.MessageBus.Messages);
 		}
 
 		[Fact]
@@ -151,16 +211,22 @@ public class TestMethodRunnerTests
 			Assert.Equal(new[]
 			{
 				"OnTestMethodStarting",
-				"RunTestCaseAsync(exception: null)",
+				"RunTestCaseAsync(testCase: \"test-case-display-name\")",
 				"OnTestMethodFinished(summary: { Total = 0 })",
 				"OnTestMethodCleanupFailure(exception: typeof(ArgumentException))",
 			}, runner.Invocations);
-			var message = Assert.Single(runner.MessageBus.Messages);
-			var errorMessage = Assert.IsAssignableFrom<IErrorMessage>(message);
-			Assert.Equal(new[] { -1 }, errorMessage.ExceptionParentIndices);
-			Assert.Equal(new[] { "System.DivideByZeroException" }, errorMessage.ExceptionTypes);
-			Assert.Equal(new[] { "Attempted to divide by zero." }, errorMessage.Messages);
-			Assert.NotEmpty(errorMessage.StackTraces.Single()!);
+			Assert.Collection(
+				runner.MessageBus.Messages,
+				message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
+				message =>
+				{
+					var errorMessage = Assert.IsAssignableFrom<IErrorMessage>(message);
+					Assert.Equal(new[] { -1 }, errorMessage.ExceptionParentIndices);
+					Assert.Equal(new[] { "System.DivideByZeroException" }, errorMessage.ExceptionTypes);
+					Assert.Equal(new[] { "Attempted to divide by zero." }, errorMessage.Messages);
+					Assert.NotEmpty(errorMessage.StackTraces.Single()!);
+				}
+			);
 		}
 	}
 
@@ -175,10 +241,30 @@ public class TestMethodRunnerTests
 		public readonly SpyMessageBus MessageBus = new();
 		ITestMethod TestMethod => Guard.ArgumentNotNull(testCase.TestMethod);
 
+		public RunSummary FailTestCase__Result = new();
+
+		protected override ValueTask<RunSummary> FailTestCase(
+			TestMethodRunnerContext<ITestMethod, ITestCase> ctxt,
+			ITestCase testCase,
+			Exception? exception)
+		{
+			Invocations.Add($"FailTestCase(testCase: \"{testCase.TestCaseDisplayName}\", exception: {TypeName(exception)})");
+
+			return new(FailTestCase__Result);
+		}
+
+		public async ValueTask<bool> OnTestMethodCleanupFailure(Exception exception)
+		{
+			await using var ctxt = new TestMethodRunnerContext<ITestMethod, ITestCase>(TestMethod, [testCase], ExplicitOption.Off, MessageBus, Aggregator, CancellationTokenSource);
+			await ctxt.InitializeAsync();
+
+			return await OnTestMethodCleanupFailure(ctxt, exception);
+		}
+
 		public Action? OnTestMethodCleanupFailure__Lambda = null;
 		public bool OnTestMethodCleanupFailure__Result = true;
 
-		protected override ValueTask<bool> OnTestMethodCleanupFailure(
+		protected override async ValueTask<bool> OnTestMethodCleanupFailure(
 			TestMethodRunnerContext<ITestMethod, ITestCase> ctxt,
 			Exception exception)
 		{
@@ -186,13 +272,23 @@ public class TestMethodRunnerTests
 
 			OnTestMethodCleanupFailure__Lambda?.Invoke();
 
-			return new(OnTestMethodCleanupFailure__Result);
+			await base.OnTestMethodCleanupFailure(ctxt, exception);
+
+			return OnTestMethodCleanupFailure__Result;
+		}
+
+		public async ValueTask<bool> OnTestMethodFinished(RunSummary summary)
+		{
+			await using var ctxt = new TestMethodRunnerContext<ITestMethod, ITestCase>(TestMethod, [testCase], ExplicitOption.Off, MessageBus, Aggregator, CancellationTokenSource);
+			await ctxt.InitializeAsync();
+
+			return await OnTestMethodFinished(ctxt, summary);
 		}
 
 		public Action? OnTestMethodFinished__Lambda = null;
 		public bool OnTestMethodFinished__Result = true;
 
-		protected override ValueTask<bool> OnTestMethodFinished(
+		protected override async ValueTask<bool> OnTestMethodFinished(
 			TestMethodRunnerContext<ITestMethod, ITestCase> ctxt,
 			RunSummary summary)
 		{
@@ -200,19 +296,31 @@ public class TestMethodRunnerTests
 
 			OnTestMethodFinished__Lambda?.Invoke();
 
-			return new(OnTestMethodFinished__Result);
+			await base.OnTestMethodFinished(ctxt, summary);
+
+			return OnTestMethodFinished__Result;
+		}
+
+		public async ValueTask<bool> OnTestMethodStarting()
+		{
+			await using var ctxt = new TestMethodRunnerContext<ITestMethod, ITestCase>(TestMethod, [testCase], ExplicitOption.Off, MessageBus, Aggregator, CancellationTokenSource);
+			await ctxt.InitializeAsync();
+
+			return await OnTestMethodStarting(ctxt);
 		}
 
 		public Action? OnTestMethodStarting__Lambda = null;
 		public bool OnTestMethodStarting__Result = true;
 
-		protected override ValueTask<bool> OnTestMethodStarting(TestMethodRunnerContext<ITestMethod, ITestCase> ctxt)
+		protected override async ValueTask<bool> OnTestMethodStarting(TestMethodRunnerContext<ITestMethod, ITestCase> ctxt)
 		{
 			Invocations.Add("OnTestMethodStarting");
 
 			OnTestMethodStarting__Lambda?.Invoke();
 
-			return new(OnTestMethodStarting__Result);
+			await base.OnTestMethodStarting(ctxt);
+
+			return OnTestMethodStarting__Result;
 		}
 
 		public async ValueTask<RunSummary> RunAsync()
@@ -227,10 +335,9 @@ public class TestMethodRunnerTests
 
 		protected override ValueTask<RunSummary> RunTestCaseAsync(
 			TestMethodRunnerContext<ITestMethod, ITestCase> ctxt,
-			ITestCase testCase,
-			Exception? exception)
+			ITestCase testCase)
 		{
-			Invocations.Add($"RunTestCaseAsync(exception: {TypeName(exception)})");
+			Invocations.Add($"RunTestCaseAsync(testCase: \"{testCase.TestCaseDisplayName}\")");
 
 			return new(RunTestCaseAsync__Result);
 		}
