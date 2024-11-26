@@ -43,6 +43,12 @@ public class AcceptanceTestV3
 				var executor = testFramework.GetExecutor(testAssembly);
 				await executor.RunTestCases(testCases, runSink, TestData.TestFrameworkExecutionOptions(explicitOption: explicitOption));
 
+				foreach (var testCase in testCases)
+					if (testCase is IAsyncDisposable asyncDisposable)
+						await asyncDisposable.DisposeAsync();
+					else if (testCase is IDisposable disposable)
+						disposable.Dispose();
+
 				tcs.TrySetResult(runSink.Messages.ToList());
 			}
 			catch (Exception ex)

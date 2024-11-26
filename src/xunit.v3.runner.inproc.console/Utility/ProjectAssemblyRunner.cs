@@ -226,7 +226,15 @@ public sealed class ProjectAssemblyRunner(
 					.ToArray();
 
 			if (testCases.Length != 0)
+			{
 				await frontController.Run(resultsSink, executionOptions, testCases);
+
+				foreach (var testCase in testCases)
+					if (testCase is IAsyncDisposable asyncDisposable)
+						await asyncDisposable.DisposeAsync();
+					else if (testCase is IDisposable disposable)
+						disposable.Dispose();
+			}
 			else
 			{
 				// If we were given test case IDs to filter by, we need to see if they asked for
@@ -258,6 +266,12 @@ public sealed class ProjectAssemblyRunner(
 						executionOptions.SetExplicitOption(ExplicitOption.Only);
 
 					await frontController.Run(resultsSink, executionOptions, testCasesToRun);
+
+					foreach (var testCase in testCasesToRun)
+						if (testCase is IAsyncDisposable asyncDisposable)
+							await asyncDisposable.DisposeAsync();
+						else if (testCase is IDisposable disposable)
+							disposable.Dispose();
 				}
 				else
 					await frontController.FindAndRun(

@@ -161,6 +161,7 @@ public class InProcessFrontController
 		Guard.ArgumentNotNull(executionOptions);
 		Guard.ArgumentNotNull(filter);
 
+		List<ITestCase> testCases = [];
 		List<ITestCase> testCasesToRun = [];
 
 		await Find(
@@ -170,6 +171,7 @@ public class InProcessFrontController
 			types,
 			(testCase, passedFilter) =>
 			{
+				testCases.Add(testCase);
 				if (passedFilter)
 					testCasesToRun.Add(testCase);
 
@@ -178,6 +180,12 @@ public class InProcessFrontController
 		);
 
 		await Run(messageSink, executionOptions, testCasesToRun);
+
+		foreach (var testCase in testCases)
+			if (testCase is IAsyncDisposable asyncDisposable)
+				await asyncDisposable.DisposeAsync();
+			else if (testCase is IDisposable disposable)
+				disposable.Dispose();
 	}
 
 	/// <summary>

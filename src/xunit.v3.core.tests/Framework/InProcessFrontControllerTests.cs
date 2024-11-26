@@ -179,6 +179,40 @@ public class InProcessFrontControllerTests
 			var runTestCase = Assert.Single(executedTestCases);
 			Assert.Same(validTestCase, runTestCase);
 		}
+
+		[Fact]
+		public async ValueTask DisposesOfTestCases()
+		{
+			var asyncDisposeCalled = false;
+			var disposeCalled = false;
+			var frontController = TestableInProcessFrontController.Create();
+			var messageSink = SpyMessageSink.Capture();
+			var discoveryOptions = TestData.TestFrameworkDiscoveryOptions();
+			var executionOptions = TestData.TestFrameworkExecutionOptions();
+			var asyncDisposableTestCase = Mocks.XunitTestCase<FindAndRun>(nameof(RunsTestCasesWhichPassFilter), asyncDisposeCallback: () => asyncDisposeCalled = true);
+			var disposableTestCase = Mocks.XunitTestCase<Find>(nameof(GuardClauses), disposeCallback: () => disposeCalled = true);
+			frontController
+				.Discoverer
+				.WhenForAnyArgs(d => d.Find(null!, null!))
+				.Do(callInfo =>
+				{
+					var callback = callInfo.Arg<Func<ITestCase, ValueTask<bool>>>();
+#pragma warning disable xUnit1031  // Test methods must not use blocking task operations
+					callback(asyncDisposableTestCase).GetAwaiter().GetResult();
+					callback(disposableTestCase).GetAwaiter().GetResult();
+#pragma warning restore xUnit1031  // Test methods must not use blocking task operations
+				});
+			frontController
+				.Executor
+				.WhenForAnyArgs(e => e.RunTestCases(null!, null!, null!))
+				.Do(callInfo => { });
+
+			// Use a false filter to ensure that test cases to disposed even if they weren't run
+			await frontController.FindAndRun(messageSink, discoveryOptions, executionOptions, filter: testCase => false);
+
+			Assert.True(asyncDisposeCalled);
+			Assert.True(disposeCalled);
+		}
 	}
 
 	class TestableInProcessFrontController : InProcessFrontController

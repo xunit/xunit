@@ -81,7 +81,9 @@ public class XunitTestFrameworkDiscoverer : TestFrameworkDiscoverer<IXunitTestCa
 		{
 			var message = string.Format(CultureInfo.CurrentCulture, "Test method '{0}.{1}' has multiple [Fact]-derived attributes", testMethod.TestClass.TestClassName, testMethod.MethodName);
 			var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, factAttribute!);
-			await using var testCase = new ExecutionErrorTestCase(details.ResolvedTestMethod, details.TestCaseDisplayName, details.UniqueID, message);
+#pragma warning disable CA2000  // Ownership of this object is handed off to the callback
+			var testCase = new ExecutionErrorTestCase(details.ResolvedTestMethod, details.TestCaseDisplayName, details.UniqueID, message);
+#pragma warning restore CA2000
 			return await discoveryCallback(testCase);
 		}
 
@@ -132,12 +134,14 @@ public class XunitTestFrameworkDiscoverer : TestFrameworkDiscoverer<IXunitTestCa
 			catch (Exception ex)
 			{
 				var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, defaultFactAttribute);
-				await using var errorTestCase = new ExecutionErrorTestCase(
+#pragma warning disable CA2000  // Ownership of this object is handed off to the callback
+				var errorTestCase = new ExecutionErrorTestCase(
 					testMethod,
 					details.TestCaseDisplayName,
 					details.UniqueID,
 					string.Format(CultureInfo.CurrentCulture, "Exception during discovery:{0}{1}", Environment.NewLine, ex.Unwrap())
 				);
+#pragma warning restore CA2000
 				await discoveryCallback(errorTestCase);
 			}
 		}

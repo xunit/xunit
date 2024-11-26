@@ -4,6 +4,7 @@ using System.Reflection;
 using NSubstitute;
 using NSubstitute.ExceptionExtensions;
 using Xunit;
+using Xunit.Internal;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -230,6 +231,8 @@ public static partial class Mocks
 	}
 
 	public static IXunitTestCase XunitTestCase(
+		Action? asyncDisposeCallback = null,
+		Action? disposeCallback = null,
 		bool @explicit = false,
 		string? skipReason = null,
 		Type? skipType = null,
@@ -257,7 +260,27 @@ public static partial class Mocks
 		var testClassSimpleName = testClass.TestClassSimpleName;
 		var testMethodName = testMethod.MethodName;
 
-		var result = Substitute.For<IXunitTestCase, InterfaceProxy<IXunitTestCase>>();
+		Guard.ArgumentValid("Can only define one disposal callback", asyncDisposeCallback is null || disposeCallback is null);
+
+		IXunitTestCase result;
+
+		if (asyncDisposeCallback is not null)
+		{
+			result = Substitute.For<IXunitTestCase, IAsyncDisposable, InterfaceProxy<IXunitTestCase>>();
+#pragma warning disable CA2012  // This is a mock, not a real object
+			((IAsyncDisposable)result).DisposeAsync().Returns(_ => { asyncDisposeCallback(); return default; });
+#pragma warning restore CA2012
+		}
+		else if (disposeCallback is not null)
+		{
+			result = Substitute.For<IXunitTestCase, IDisposable, InterfaceProxy<IXunitTestCase>>();
+			((IDisposable)result).When(x => x.Dispose()).Do(_ => disposeCallback());
+		}
+		else
+		{
+			result = Substitute.For<IXunitTestCase, InterfaceProxy<IXunitTestCase>>();
+		}
+
 		result.Explicit.Returns(@explicit);
 		result.SkipReason.Returns(skipReason);
 		result.SkipType.Returns(skipType);
@@ -285,6 +308,8 @@ public static partial class Mocks
 
 	public static IXunitTestCase XunitTestCase<TClassUnderTest>(
 		string methodName,
+		Action? asyncDisposeCallback = null,
+		Action? disposeCallback = null,
 		bool @explicit = false,
 		string? skipReason = null,
 		Type? skipType = null,
@@ -301,6 +326,8 @@ public static partial class Mocks
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
 		string uniqueID = TestData.DefaultTestCaseUniqueID) =>
 			XunitTestCase(
+				asyncDisposeCallback,
+				disposeCallback,
 				@explicit,
 				skipReason,
 				skipType,
