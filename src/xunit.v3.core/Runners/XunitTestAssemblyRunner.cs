@@ -27,8 +27,8 @@ public class XunitTestAssemblyRunner :
 	public static XunitTestAssemblyRunner Instance { get; } = new();
 
 	/// <inheritdoc/>
-	protected override string GetTestFrameworkDisplayName(XunitTestAssemblyRunnerContext ctxt) =>
-		XunitTestFramework.DisplayName;
+	protected override ValueTask<string> GetTestFrameworkDisplayName(XunitTestAssemblyRunnerContext ctxt) =>
+		new(XunitTestFramework.DisplayName);
 
 	/// <inheritdoc/>
 	protected override async ValueTask<bool> OnTestAssemblyFinished(
@@ -104,7 +104,7 @@ public class XunitTestAssemblyRunner :
 	/// <param name="testCases">The test cases associated with the test assembly.</param>
 	/// <param name="executionMessageSink">The message sink to send execution messages to.</param>
 	/// <param name="executionOptions">The execution options to use when running tests.</param>
-	public async ValueTask<RunSummary> RunAsync(
+	public async ValueTask<RunSummary> Run(
 		IXunitTestAssembly testAssembly,
 		IReadOnlyCollection<IXunitTestCase> testCases,
 		IMessageSink executionMessageSink,
@@ -118,20 +118,20 @@ public class XunitTestAssemblyRunner :
 		await using var ctxt = new XunitTestAssemblyRunnerContext(testAssembly, testCases, executionMessageSink, executionOptions);
 		await ctxt.InitializeAsync();
 
-		return await RunAsync(ctxt);
+		return await Run(ctxt);
 	}
 
 #pragma warning disable CA2012 // We guarantee that parallel ValueTasks are only awaited once
 
 	/// <inheritdoc/>
-	protected override async ValueTask<RunSummary> RunTestCollectionsAsync(
+	protected override async ValueTask<RunSummary> RunTestCollections(
 		XunitTestAssemblyRunnerContext ctxt,
 		Exception? exception)
 	{
 		Guard.ArgumentNotNull(ctxt);
 
 		if (ctxt.DisableParallelization || exception is not null)
-			return await base.RunTestCollectionsAsync(ctxt, exception);
+			return await base.RunTestCollections(ctxt, exception);
 
 		ctxt.SetupParallelism();
 
@@ -150,7 +150,7 @@ public class XunitTestAssemblyRunner :
 
 		foreach (var (collection, testCases) in OrderTestCollections(ctxt))
 		{
-			ValueTask<RunSummary> task() => RunTestCollectionAsync(ctxt, collection, testCases);
+			ValueTask<RunSummary> task() => RunTestCollection(ctxt, collection, testCases);
 			if (collection.DisableParallelization)
 				(nonParallel ??= []).Add(task);
 			else
@@ -187,7 +187,7 @@ public class XunitTestAssemblyRunner :
 #pragma warning restore CA2012
 
 	/// <inheritdoc/>
-	protected override ValueTask<RunSummary> RunTestCollectionAsync(
+	protected override ValueTask<RunSummary> RunTestCollection(
 		XunitTestAssemblyRunnerContext ctxt,
 		IXunitTestCollection testCollection,
 		IReadOnlyCollection<IXunitTestCase> testCases)
@@ -198,6 +198,6 @@ public class XunitTestAssemblyRunner :
 
 		var testCaseOrderer = ctxt.AssemblyTestCaseOrderer ?? DefaultTestCaseOrderer.Instance;
 
-		return ctxt.RunTestCollectionAsync(testCollection, testCases, testCaseOrderer);
+		return ctxt.RunTestCollection(testCollection, testCases, testCaseOrderer);
 	}
 }

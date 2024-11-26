@@ -6,7 +6,7 @@ using Xunit;
 using Xunit.Sdk;
 using Xunit.v3;
 
-public sealed class ExecutionErrorTestCaseRunnerTests : IDisposable
+public sealed class ExecutionErrorTestCaseTests : IDisposable
 {
 	readonly ExceptionAggregator aggregator = new();
 	readonly SpyMessageBus messageBus = new();
@@ -23,7 +23,7 @@ public sealed class ExecutionErrorTestCaseRunnerTests : IDisposable
 	{
 		var testCase = ExecutionErrorTestCase("This is my error message");
 
-		var result = await ExecutionErrorTestCaseRunner.Instance.RunAsync(testCase, messageBus, aggregator, tokenSource);
+		var result = await testCase.Run(ExplicitOption.Off, messageBus, [], aggregator, tokenSource);
 
 		Assert.Equal(1, result.Total);
 		Assert.Equal(0m, result.Time);
@@ -65,7 +65,7 @@ public sealed class ExecutionErrorTestCaseRunnerTests : IDisposable
 		var testCase = ExecutionErrorTestCase("This is my error message");
 		aggregator.Add(new DivideByZeroException());
 
-		var result = await ExecutionErrorTestCaseRunner.Instance.RunAsync(testCase, messageBus, aggregator, tokenSource);
+		var result = await testCase.Run(ExplicitOption.Off, messageBus, [], aggregator, tokenSource);
 
 		Assert.Equal(1, result.Total);
 		Assert.Equal(0m, result.Time);
@@ -78,9 +78,9 @@ public sealed class ExecutionErrorTestCaseRunnerTests : IDisposable
 				var failed = Assert.IsAssignableFrom<ITestFailed>(msg);
 				Assert.Equal(0m, failed.ExecutionTime);
 				Assert.Empty(failed.Output);
-				Assert.Equal(new[] { -1, 0, 0 }, failed.ExceptionParentIndices);
-				Assert.Equal(new[] { typeof(AggregateException).SafeName(), typeof(TestPipelineException).SafeName(), typeof(DivideByZeroException).SafeName() }, failed.ExceptionTypes);
-				Assert.Equal(["This is my error message", "Attempted to divide by zero."], failed.Messages.Skip(1));  // We skip the AggregateException message because it changes between NetFx and NetCore
+				Assert.Equal([-1, 0, 0], failed.ExceptionParentIndices);
+				Assert.Equal(new[] { typeof(AggregateException).SafeName(), typeof(DivideByZeroException).SafeName(), typeof(TestPipelineException).SafeName() }, failed.ExceptionTypes);
+				Assert.Equal(["Attempted to divide by zero.", "This is my error message"], failed.Messages.Skip(1));  // We skip the AggregateException message because it changes between NetFx and NetCore
 			},
 			msg =>
 			{
@@ -109,14 +109,14 @@ public sealed class ExecutionErrorTestCaseRunnerTests : IDisposable
 		var testCase = ExecutionErrorTestCase("This is my error message");
 		var messageBus = new SpyMessageBus(msg => !messageTypeToCancelOn.IsAssignableFrom(msg.GetType()));
 
-		await ExecutionErrorTestCaseRunner.Instance.RunAsync(testCase, messageBus, aggregator, tokenSource);
+		await testCase.Run(ExplicitOption.Off, messageBus, [], aggregator, tokenSource);
 
 		Assert.True(tokenSource.IsCancellationRequested);
 	}
 
 	public static ExecutionErrorTestCase ExecutionErrorTestCase(string message)
 	{
-		var testMethod = TestData.XunitTestMethod<ExecutionErrorTestCaseRunnerTests>(methodName: nameof(Messages_WithoutAggregatedError));
+		var testMethod = TestData.XunitTestMethod<ExecutionErrorTestCaseTests>(methodName: nameof(Messages_WithoutAggregatedError));
 
 		return new(
 			testMethod,

@@ -13,6 +13,15 @@ public interface IXunitTest : ITest
 	bool Explicit { get; }
 
 	/// <summary>
+	/// Gets a skip reason for this test.
+	/// </summary>
+	/// <remarks>
+	/// This value may not line up the with <see cref="IXunitTestCase.SkipReason"/>, as you can skip
+	/// individual data rows during delay enumeration.
+	/// </remarks>
+	string? SkipReason { get; }
+
+	/// <summary>
 	/// Gets the test case this test belongs to.
 	/// </summary>
 	new IXunitTestCase TestCase { get; }

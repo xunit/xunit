@@ -328,12 +328,12 @@ public class TestMethodRunnerTests
 			await using var ctxt = new TestMethodRunnerContext<ITestMethod, ITestCase>(TestMethod, [testCase], ExplicitOption.Off, MessageBus, Aggregator, CancellationTokenSource);
 			await ctxt.InitializeAsync();
 
-			return await RunAsync(ctxt);
+			return await Run(ctxt);
 		}
 
 		public RunSummary RunTestCaseAsync__Result = new();
 
-		protected override ValueTask<RunSummary> RunTestCaseAsync(
+		protected override ValueTask<RunSummary> RunTestCase(
 			TestMethodRunnerContext<ITestMethod, ITestCase> ctxt,
 			ITestCase testCase)
 		{

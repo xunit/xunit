@@ -6,17 +6,17 @@ using Xunit;
 using Xunit.Sdk;
 using Xunit.v3;
 
-public class XunitTestCaseRunnerBaseTests
+public class XunitTestCaseRunnerTests
 {
 	public class Messages
 	{
 		[Fact]
 		public static async ValueTask Passing()
 		{
-			var testCase = TestData.XunitTestCase<ClassUnderTest>(nameof(ClassUnderTest.Passing));
-			var runner = new TestableXunitTestCaseRunnerBase(testCase);
+			var test = TestData.XunitTest<ClassUnderTest>(nameof(ClassUnderTest.Passing));
+			var runner = new TestableXunitTestCaseRunner(test);
 
-			await runner.RunAsync();
+			await runner.Run();
 
 			Assert.Null(runner.Aggregator.ToException());
 			Assert.Collection(
@@ -55,10 +55,10 @@ public class XunitTestCaseRunnerBaseTests
 		[Fact]
 		public static async ValueTask StaticPassing()
 		{
-			var testCase = TestData.XunitTestCase<ClassUnderTest>(nameof(ClassUnderTest.StaticPassing));
-			var runner = new TestableXunitTestCaseRunnerBase(testCase);
+			var test = TestData.XunitTest<ClassUnderTest>(nameof(ClassUnderTest.StaticPassing));
+			var runner = new TestableXunitTestCaseRunner(test);
 
-			await runner.RunAsync();
+			await runner.Run();
 
 			Assert.Collection(
 				runner.MessageBus.Messages,
@@ -74,10 +74,10 @@ public class XunitTestCaseRunnerBaseTests
 		[Fact]
 		public static async ValueTask Failed()
 		{
-			var testCase = TestData.XunitTestCase<ClassUnderTest>(nameof(ClassUnderTest.Failing));
-			var runner = new TestableXunitTestCaseRunnerBase(testCase);
+			var test = TestData.XunitTest<ClassUnderTest>(nameof(ClassUnderTest.Failing));
+			var runner = new TestableXunitTestCaseRunner(test);
 
-			await runner.RunAsync();
+			await runner.Run();
 
 			Assert.Collection(
 				runner.MessageBus.Messages,
@@ -102,10 +102,10 @@ public class XunitTestCaseRunnerBaseTests
 		[Fact]
 		public static async ValueTask SkippedViaAttribute()
 		{
-			var testCase = TestData.XunitTestCase<ClassUnderTest>(nameof(ClassUnderTest.SkippedViaAttribute));
-			var runner = new TestableXunitTestCaseRunnerBase(testCase);
+			var test = TestData.XunitTest<ClassUnderTest>(nameof(ClassUnderTest.SkippedViaAttribute));
+			var runner = new TestableXunitTestCaseRunner(test);
 
-			await runner.RunAsync();
+			await runner.Run();
 
 			Assert.Collection(
 				runner.MessageBus.Messages,
@@ -124,10 +124,10 @@ public class XunitTestCaseRunnerBaseTests
 		[Fact]
 		public static async ValueTask SkippedViaException()
 		{
-			var testCase = TestData.XunitTestCase<ClassUnderTest>(nameof(ClassUnderTest.SkippedViaException));
-			var runner = new TestableXunitTestCaseRunnerBase(testCase);
+			var test = TestData.XunitTest<ClassUnderTest>(nameof(ClassUnderTest.SkippedViaException));
+			var runner = new TestableXunitTestCaseRunner(test);
 
-			await runner.RunAsync();
+			await runner.Run();
 
 			Assert.Collection(
 				runner.MessageBus.Messages,
@@ -151,10 +151,10 @@ public class XunitTestCaseRunnerBaseTests
 		[Fact]
 		public static async ValueTask NotRun()
 		{
-			var testCase = TestData.XunitTestCase<ClassUnderTest>(nameof(ClassUnderTest.ExplicitTest));
-			var runner = new TestableXunitTestCaseRunnerBase(testCase);
+			var test = TestData.XunitTest<ClassUnderTest>(nameof(ClassUnderTest.ExplicitTest));
+			var runner = new TestableXunitTestCaseRunner(test);
 
-			await runner.RunAsync();
+			await runner.Run();
 
 			Assert.Collection(
 				runner.MessageBus.Messages,
@@ -190,15 +190,29 @@ public class XunitTestCaseRunnerBaseTests
 		}
 	}
 
-	class TestableXunitTestCaseRunnerBase(IXunitTestCase? testCase = null) :
-		XunitTestCaseRunnerBase<XunitTestCaseRunnerContext<IXunitTestCase>, IXunitTestCase>
+	class TestableXunitTestCaseRunner(IXunitTest test) :
+		XunitTestCaseRunner
 	{
 		public ExceptionAggregator Aggregator = new();
 		public CancellationTokenSource CancellationTokenSource = new();
 		public SpyMessageBus MessageBus = new();
-		public IXunitTestCase TestCase = testCase ?? Mocks.XunitTestCase();
 
-		public ValueTask<RunSummary> RunAsync() =>
-			RunAsync(new(TestCase, MessageBus, Aggregator, CancellationTokenSource, TestCase.TestCaseDisplayName, TestCase.SkipReason, ExplicitOption.Off, [], []));
+		public async ValueTask<RunSummary> Run()
+		{
+			await using var ctxt = new XunitTestCaseRunnerContext(
+				test.TestCase,
+				[test],
+				MessageBus,
+				Aggregator,
+				CancellationTokenSource,
+				test.TestCase.TestCaseDisplayName,
+				test.TestCase.SkipReason,
+				ExplicitOption.Off,
+				[]
+			);
+			await ctxt.InitializeAsync();
+
+			return await Run(ctxt);
+		}
 	}
 }

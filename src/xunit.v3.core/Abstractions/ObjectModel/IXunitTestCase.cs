@@ -122,7 +122,7 @@ public interface IXunitTestCase : ITestCase
 	/// <param name="aggregator">The error aggregator to use for catching exception.</param>
 	/// <param name="cancellationTokenSource">The cancellation token source that indicates whether cancellation has been requested.</param>
 	/// <returns>Returns the summary of the test case run.</returns>
-	ValueTask<RunSummary> RunAsync(
+	ValueTask<RunSummary> Run(
 		ExplicitOption explicitOption,
 		IMessageBus messageBus,
 		object?[] constructorArguments,

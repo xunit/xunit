@@ -19,6 +19,7 @@ public class XunitTest : IXunitTest
 	/// <param name="testCase">The test case this test belongs to.</param>
 	/// <param name="testMethod">The test method to be run; may differ from the test method embedded into the test case</param>
 	/// <param name="explicit">A flag to indicate the test was marked as explicit; if not set, will fall back to the test case</param>
+	/// <param name="skipReason">The skip reason for this test.</param>
 	/// <param name="testDisplayName">The display name for this test.</param>
 	/// <param name="testIndex">The index of this test inside the test case. Used for computing <see cref="UniqueID"/>.</param>
 	/// <param name="traits">The traits for the given test.</param>
@@ -28,6 +29,7 @@ public class XunitTest : IXunitTest
 		IXunitTestCase testCase,
 		IXunitTestMethod testMethod,
 		bool? @explicit,
+		string? skipReason,
 		string testDisplayName,
 		int testIndex,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>> traits,
@@ -37,6 +39,7 @@ public class XunitTest : IXunitTest
 		TestCase = Guard.ArgumentNotNull(testCase);
 		TestMethod = Guard.ArgumentNotNull(testMethod);
 		Explicit = @explicit ?? TestCase.Explicit;
+		SkipReason = skipReason;
 		TestDisplayName = Guard.ArgumentNotNull(testDisplayName);
 		UniqueID = UniqueIDGenerator.ForTest(testCase.UniqueID, testIndex);
 		Timeout = timeout ?? TestCase.Timeout;
@@ -57,6 +60,7 @@ public class XunitTest : IXunitTest
 		IXunitTestCase testCase,
 		IXunitTestMethod testMethod,
 		bool? @explicit,
+		string? skipReason,
 		string testDisplayName,
 		string uniqueID,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
@@ -66,6 +70,7 @@ public class XunitTest : IXunitTest
 		TestCase = Guard.ArgumentNotNull(testCase);
 		TestMethod = Guard.ArgumentNotNull(testMethod);
 		Explicit = @explicit ?? TestCase.Explicit;
+		SkipReason = skipReason;
 		TestDisplayName = Guard.ArgumentNotNull(testDisplayName);
 		UniqueID = Guard.ArgumentNotNull(uniqueID);
 		Timeout = timeout ?? TestCase.Timeout;
@@ -84,6 +89,9 @@ public class XunitTest : IXunitTest
 
 	/// <inheritdoc/>
 	public bool Explicit { get; }
+
+	/// <inheritdoc/>
+	public string? SkipReason { get; }
 
 	/// <summary>
 	/// Gets the xUnit v3 test case.

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -9,166 +10,260 @@ using Xunit.v3;
 
 public class TestRunnerTests
 {
-	public class Invocations
+	public class Run
 	{
-		[Theory]
-		[InlineData(false)]
-		[InlineData(true)]
-		public static async ValueTask Passed(bool cancel)
+		[Fact]
+		public static async ValueTask Passing()
+		{
+			var test = TestData.XunitTest<ClassUnderTest>(nameof(ClassUnderTest.Passing));
+			var runner = new SimpleXunitTestRunner(test);
+
+			await runner.Run();
+
+			Assert.Single(runner.MessageBus.Messages.OfType<ITestPassed>());
+			var starting = Assert.Single(runner.MessageBus.Messages.OfType<ITestStarting>());
+			Assert.Equal($"{typeof(ClassUnderTest).FullName}.Passing", starting.TestDisplayName);
+		}
+
+		[Fact]
+		public static async ValueTask Failing()
+		{
+			var test = TestData.XunitTest<ClassUnderTest>(nameof(ClassUnderTest.Failing));
+			var runner = new SimpleXunitTestRunner(test);
+
+			await runner.Run();
+
+			Assert.Single(runner.MessageBus.Messages.OfType<ITestFailed>());
+			var starting = Assert.Single(runner.MessageBus.Messages.OfType<ITestStarting>());
+			Assert.Equal($"{typeof(ClassUnderTest).FullName}.Failing", starting.TestDisplayName);
+		}
+
+		[Fact]
+		public static async ValueTask TooManyParameterValues()
+		{
+			var test = TestData.XunitTest<ClassUnderTest>(nameof(ClassUnderTest.Passing), testMethodArguments: [42]);
+			var runner = new SimpleXunitTestRunner(test);
+
+			await runner.Run();
+
+			var failed = Assert.Single(runner.MessageBus.Messages.OfType<ITestFailed>());
+			Assert.Equal("The test method expected 0 parameter values, but 1 parameter value was provided.", failed.Messages.Single());
+		}
+
+		[Fact]
+		public static async ValueTask NotEnoughParameterValues()
+		{
+			var test = TestData.XunitTest<ClassUnderTest>(nameof(ClassUnderTest.FactWithParameter));
+			var runner = new SimpleXunitTestRunner(test);
+
+			await runner.Run();
+
+			var failed = Assert.Single(runner.MessageBus.Messages.OfType<ITestFailed>());
+			Assert.Equal("The test method expected 1 parameter value, but 0 parameter values were provided.", failed.Messages.Single());
+		}
+
+		[Fact]
+		public static async ValueTask CancelledTestDoesNotRun()
+		{
+			var test = TestData.XunitTest<ClassUnderTest>(nameof(ClassUnderTest.Failing));
+			var runner = new SimpleXunitTestRunner(test);
+			runner.TokenSource.Cancel();
+
+			await runner.Run();
+
+			Assert.Collection(
+				runner.MessageBus.Messages,
+				message => Assert.IsAssignableFrom<ITestStarting>(message),
+				// No result message
+				message => Assert.IsAssignableFrom<ITestFinished>(message)
+			);
+		}
+
+		[Fact]
+		public static async ValueTask TestWithPreExistingErrorsFailsWithPreExistingError()
+		{
+			var test = TestData.XunitTest<ClassUnderTest>(nameof(ClassUnderTest.Failing));
+			var runner = new SimpleXunitTestRunner(test);
+			runner.Aggregator.Add(new DivideByZeroException());
+
+			await runner.Run();
+
+			var failed = Assert.Single(runner.MessageBus.Messages.OfType<ITestFailed>());
+			Assert.Equal(typeof(DivideByZeroException).FullName, failed.ExceptionTypes.Single());
+		}
+
+		class ClassUnderTest
+		{
+			[Fact]
+			public static void StaticPassing() { }
+
+			[Fact]
+			public void Passing() { }
+
+			[Fact]
+			public void Failing()
+			{
+				Assert.True(false);
+			}
+
+#pragma warning disable xUnit1001 // Fact methods cannot have parameters
+
+			[Fact]
+			public void FactWithParameter(int _) { }
+
+#pragma warning restore xUnit1001 // Fact methods cannot have parameters
+		}
+	}
+
+	public class InvocationsAndMessages
+	{
+		[Fact]
+		public static async ValueTask Passed()
 		{
 			var testClassInstance = new object();
 
 			var runner = new TestableTestRunner
 			{
 				CreateTestClassInstance__Result = testClassInstance,
-				GetTestOutput__Result = "the output",
-				InvokeTestAsync__Lambda = () => Assert.Same(testClassInstance, TestContext.Current.TestClassInstance),
-				OnTestPassed__Result = !cancel,
+				InvokeTest__Lambda = () => Assert.Same(testClassInstance, TestContext.Current.TestClassInstance),
 				PostInvoke__Lambda = () => Assert.Same(testClassInstance, TestContext.Current.TestClassInstance),
 				PreInvoke__Lambda = () => Assert.Same(testClassInstance, TestContext.Current.TestClassInstance),
 			};
 
-			var summary = await runner.RunAsync();
+			var summary = await runner.Run();
 
 			VerifyRunSummary(summary);
-			Assert.Equal(cancel, runner.TokenSource.IsCancellationRequested);
 			Assert.False(runner.Aggregator.HasExceptions);
 			Assert.Equal(new[]
 			{
-				"OnTestStarting",
-				"ShouldTestRun",
 				"IsTestClassCreatable",
 				"OnTestClassConstructionStarting",
 				"CreateTestClassInstance",
 				"OnTestClassConstructionFinished",
 				"PreInvoke",
-				"InvokeTestAsync(testClassInstance: typeof(object))",
+				"InvokeTest(testClassInstance: typeof(object))",
 				"PostInvoke",
 				"IsTestClassDisposable",
 				"OnTestClassDisposeStarting",
 				"DisposeTestClassInstance",
 				"OnTestClassDisposeFinished",
-				"GetTestOutput",
-				"OnTestPassed(output: \"the output\")",
-				"OnTestFinished(output: \"the output\")",
-				// OnTestCleanupFailure
 			}, runner.Invocations);
-			Assert.Empty(runner.MessageBus.Messages);
+			Assert.Collection(
+				runner.MessageBus.Messages,
+				msg => Assert.IsAssignableFrom<ITestStarting>(msg),
+				msg => Assert.IsAssignableFrom<ITestClassConstructionStarting>(msg),
+				msg => Assert.IsAssignableFrom<ITestClassConstructionFinished>(msg),
+				// InvokeTest
+				msg => Assert.IsAssignableFrom<ITestClassDisposeStarting>(msg),
+				msg => Assert.IsAssignableFrom<ITestClassDisposeFinished>(msg),
+				msg => Assert.IsAssignableFrom<ITestPassed>(msg),
+				msg => Assert.IsAssignableFrom<ITestFinished>(msg)
+			);
 		}
 
-		[Theory]
-		[InlineData(false)]
-		[InlineData(true)]
-		public static async ValueTask Failed(bool cancel)
+		[Fact]
+		public static async ValueTask Failed()
 		{
 			var runner = new TestableTestRunner
 			{
-				GetTestOutput__Result = "the output",
-				InvokeTestAsync__Lambda = () => Assert.True(false),
+				InvokeTest__Lambda = () => Assert.True(false),
 				IsTestClassCreatable__Result = false,  // Turning off creation just to make sure we don't call things we don't need to
-				OnTestFailed__Result = !cancel,
 			};
 
-			var summary = await runner.RunAsync();
+			var summary = await runner.Run();
 
 			VerifyRunSummary(summary, failed: 1);
-			Assert.Equal(cancel, runner.TokenSource.IsCancellationRequested);
 			Assert.False(runner.Aggregator.HasExceptions);
 			Assert.Equal(new[]
 			{
-				"OnTestStarting",
-				"ShouldTestRun",
 				"IsTestClassCreatable",
 				// OnTestClassConstructionStarting
 				// CreateTestClassInstance
 				// OnTestClassConstructionFinished
 				"PreInvoke",
-				"InvokeTestAsync(testClassInstance: null)",
+				"InvokeTest(testClassInstance: null)",
 				"PostInvoke",
 				// IsTestClassDisposable
 				// OnTestClassDisposeStarting
 				// DisposeTestClassInstance
 				// OnTestClassDisposeFinished
-				"GetTestOutput",
-				"OnTestFailed(exception: typeof(TrueException), output: \"the output\")",
-				"OnTestFinished(output: \"the output\")",
-				// OnTestCleanupFailure
 			}, runner.Invocations);
-			Assert.Empty(runner.MessageBus.Messages);
+			Assert.Collection(
+				runner.MessageBus.Messages,
+				msg => Assert.IsAssignableFrom<ITestStarting>(msg),
+				//msg => Assert.IsAssignableFrom<ITestClassConstructionStarting>(msg),
+				//msg => Assert.IsAssignableFrom<ITestClassConstructionFinished>(msg),
+				//msg => Assert.IsAssignableFrom<ITestClassDisposeStarting>(msg),
+				//msg => Assert.IsAssignableFrom<ITestClassDisposeFinished>(msg),
+				msg => Assert.IsAssignableFrom<ITestFailed>(msg),
+				msg => Assert.IsAssignableFrom<ITestFinished>(msg)
+			);
 		}
 
-		[Theory]
-		[InlineData(false)]
-		[InlineData(true)]
-		public static async ValueTask Skipped_Static(bool cancel)
+		[Fact]
+		public static async ValueTask Skipped()
 		{
-			var runner = new TestableTestRunner
-			{
-				OnTestSkipped__Result = !cancel,
-				RunAsync__SkipReason = "Don't run me",
-			};
+			var runner = new TestableTestRunner();
 
-			var summary = await runner.RunAsync();
+			var summary = await runner.Run("Don't run me");
 
 			VerifyRunSummary(summary, skipped: 1);
-			Assert.Equal(cancel, runner.TokenSource.IsCancellationRequested);
 			Assert.False(runner.Aggregator.HasExceptions);
-			Assert.Equal(new[]
+			Assert.Equal(new string[]
 			{
-				"OnTestStarting",
-				"ShouldTestRun",
 				// IsTestClassCreatable
 				// OnTestClassConstructionStarting
 				// CreateTestClassInstance
 				// OnTestClassConstructionFinished
-				// InvokeTestAsync
+				// InvokeTest
 				// IsTestClassDisposable
 				// OnTestClassDisposeStarting
 				// DisposeTestClassInstance
 				// OnTestClassDisposeFinished
-				"GetTestOutput",
-				"OnTestSkipped(reason: \"Don't run me\", output: \"\")",
-				"OnTestFinished(output: \"\")",
-				// OnTestCleanupFailure
 			}, runner.Invocations);
-			Assert.Empty(runner.MessageBus.Messages);
+			Assert.Collection(
+				runner.MessageBus.Messages,
+				msg => Assert.IsAssignableFrom<ITestStarting>(msg),
+				//msg => Assert.IsAssignableFrom<ITestClassConstructionStarting>(msg),
+				//msg => Assert.IsAssignableFrom<ITestClassConstructionFinished>(msg),
+				//msg => Assert.IsAssignableFrom<ITestClassDisposeStarting>(msg),
+				//msg => Assert.IsAssignableFrom<ITestClassDisposeFinished>(msg),
+				msg => Assert.IsAssignableFrom<ITestSkipped>(msg),
+				msg => Assert.IsAssignableFrom<ITestFinished>(msg)
+			);
 		}
 
-		[Theory]
-		[InlineData(false)]
-		[InlineData(true)]
-		public static async ValueTask NotRun(bool cancel)
+		[Fact]
+		public static async ValueTask NotRun()
 		{
-			var runner = new TestableTestRunner
-			{
-				OnTestNotRun__Result = !cancel,
-				ShouldTestRun__Result = false,
-			};
+			var runner = new TestableTestRunner { ShouldTestRun__Result = false };
 
-			var summary = await runner.RunAsync();
+			var summary = await runner.Run();
 
 			VerifyRunSummary(summary, notRun: 1);
-			Assert.Equal(cancel, runner.TokenSource.IsCancellationRequested);
 			Assert.False(runner.Aggregator.HasExceptions);
-			Assert.Equal(new[]
+			Assert.Equal(new string[]
 			{
-				"OnTestStarting",
-				"ShouldTestRun",
 				// IsTestClassCreatable
 				// OnTestClassConstructionStarting
 				// CreateTestClassInstance
 				// OnTestClassConstructionFinished
-				// InvokeTestAsync
+				// InvokeTest
 				// IsTestClassDisposable
 				// OnTestClassDisposeStarting
 				// DisposeTestClassInstance
 				// OnTestClassDisposeFinished
-				"GetTestOutput",
-				"OnTestNotRun(output: \"\")",
-				"OnTestFinished(output: \"\")",
-				// OnTestCleanupFailure
 			}, runner.Invocations);
-			Assert.Empty(runner.MessageBus.Messages);
+			Assert.Collection(
+				runner.MessageBus.Messages,
+				msg => Assert.IsAssignableFrom<ITestStarting>(msg),
+				//msg => Assert.IsAssignableFrom<ITestClassConstructionStarting>(msg),
+				//msg => Assert.IsAssignableFrom<ITestClassConstructionFinished>(msg),
+				//msg => Assert.IsAssignableFrom<ITestClassDisposeStarting>(msg),
+				//msg => Assert.IsAssignableFrom<ITestClassDisposeFinished>(msg),
+				msg => Assert.IsAssignableFrom<ITestNotRun>(msg),
+				msg => Assert.IsAssignableFrom<ITestFinished>(msg)
+			);
 		}
 	}
 
@@ -179,30 +274,23 @@ public class TestRunnerTests
 		{
 			var runner = new TestableTestRunner { CreateTestClassInstance__Lambda = () => throw new DivideByZeroException() };
 
-			var summary = await runner.RunAsync();
+			var summary = await runner.Run();
 
 			VerifyRunSummary(summary, failed: 1);
-			Assert.False(runner.TokenSource.IsCancellationRequested);
 			Assert.False(runner.Aggregator.HasExceptions);
 			Assert.Equal(new[]
 			{
-				"OnTestStarting",
-				"ShouldTestRun",
 				"IsTestClassCreatable",
 				"OnTestClassConstructionStarting",
 				"CreateTestClassInstance",
 				"OnTestClassConstructionFinished",
-				// InvokeTestAsync
+				// InvokeTest
 				// IsTestClassDisposable
 				// OnTestClassDisposeStarting
 				// DisposeTestClassInstance
 				// OnTestClassDisposeFinished
-				"GetTestOutput",
-				"OnTestFailed(exception: typeof(DivideByZeroException), output: \"\")",
-				"OnTestFinished(output: \"\")",
-				// OnTestCleanupFailure
 			}, runner.Invocations);
-			Assert.Empty(runner.MessageBus.Messages);
+			Assert.Contains(runner.MessageBus.Messages, msg => msg is ITestFailed);
 		}
 
 		[Fact]
@@ -214,65 +302,26 @@ public class TestRunnerTests
 				DisposeTestClassInstance__Lambda = () => throw new DivideByZeroException(),
 			};
 
-			var summary = await runner.RunAsync();
+			var summary = await runner.Run();
 
 			VerifyRunSummary(summary, failed: 1);
 			Assert.False(runner.TokenSource.IsCancellationRequested);
 			Assert.False(runner.Aggregator.HasExceptions);
 			Assert.Equal(new[]
 			{
-				"OnTestStarting",
-				"ShouldTestRun",
 				"IsTestClassCreatable",
 				"OnTestClassConstructionStarting",
 				"CreateTestClassInstance",
 				"OnTestClassConstructionFinished",
 				"PreInvoke",
-				"InvokeTestAsync(testClassInstance: typeof(object))",
+				"InvokeTest(testClassInstance: typeof(object))",
 				"PostInvoke",
 				"IsTestClassDisposable",
 				"OnTestClassDisposeStarting",
 				"DisposeTestClassInstance",
 				"OnTestClassDisposeFinished",
-				"GetTestOutput",
-				"OnTestFailed(exception: typeof(DivideByZeroException), output: \"\")",
-				"OnTestFinished(output: \"\")",
-				// OnTestCleanupFailure
 			}, runner.Invocations);
-			Assert.Empty(runner.MessageBus.Messages);
-		}
-
-		[Fact]
-		public static async ValueTask GetTestOutput()
-		{
-			var runner = new TestableTestRunner { GetTestOutput__Lambda = () => throw new DivideByZeroException() };
-
-			var summary = await runner.RunAsync();
-
-			VerifyRunSummary(summary, failed: 1);
-			Assert.False(runner.TokenSource.IsCancellationRequested);
-			Assert.False(runner.Aggregator.HasExceptions);
-			Assert.Equal(new[]
-			{
-				"OnTestStarting",
-				"ShouldTestRun",
-				"IsTestClassCreatable",
-				"OnTestClassConstructionStarting",
-				"CreateTestClassInstance",
-				"OnTestClassConstructionFinished",
-				"PreInvoke",
-				"InvokeTestAsync(testClassInstance: null)",
-				"PostInvoke",
-				"GetTestOutput",
-				// IsTestClassDisposable
-				// OnTestClassDisposeStarting
-				// DisposeTestClassInstance
-				// OnTestClassDisposeFinished
-				"OnTestFailed(exception: typeof(DivideByZeroException), output: \"\")",
-				"OnTestFinished(output: \"\")",
-				// OnTestCleanupFailure
-			}, runner.Invocations);
-			Assert.Empty(runner.MessageBus.Messages);
+			Assert.Contains(runner.MessageBus.Messages, msg => msg is ITestFailed);
 		}
 
 		[Fact]
@@ -280,30 +329,23 @@ public class TestRunnerTests
 		{
 			var runner = new TestableTestRunner { IsTestClassCreatable__Lambda = () => throw new DivideByZeroException() };
 
-			var summary = await runner.RunAsync();
+			var summary = await runner.Run();
 
 			VerifyRunSummary(summary, failed: 1);
-			Assert.False(runner.TokenSource.IsCancellationRequested);
 			Assert.False(runner.Aggregator.HasExceptions);
 			Assert.Equal(new[]
 			{
-				"OnTestStarting",
-				"ShouldTestRun",
 				"IsTestClassCreatable",
 				// OnTestClassConstructionStarting
 				// CreateTestClassInstance
 				// OnTestClassConstructionFinished
-				// InvokeTestAsync
+				// InvokeTest
 				// IsTestClassDisposable
 				// OnTestClassDisposeStarting
 				// DisposeTestClassInstance
 				// OnTestClassDisposeFinished
-				"GetTestOutput",
-				"OnTestFailed(exception: typeof(DivideByZeroException), output: \"\")",
-				"OnTestFinished(output: \"\")",
-				// OnTestCleanupFailure
 			}, runner.Invocations);
-			Assert.Empty(runner.MessageBus.Messages);
+			Assert.Contains(runner.MessageBus.Messages, msg => msg is ITestFailed);
 		}
 
 		[Fact]
@@ -315,32 +357,25 @@ public class TestRunnerTests
 				IsTestClassDisposable__Lambda = () => throw new DivideByZeroException(),
 			};
 
-			var summary = await runner.RunAsync();
+			var summary = await runner.Run();
 
 			VerifyRunSummary(summary, failed: 1);
-			Assert.False(runner.TokenSource.IsCancellationRequested);
 			Assert.False(runner.Aggregator.HasExceptions);
 			Assert.Equal(new[]
 			{
-				"OnTestStarting",
-				"ShouldTestRun",
 				"IsTestClassCreatable",
 				"OnTestClassConstructionStarting",
 				"CreateTestClassInstance",
 				"OnTestClassConstructionFinished",
 				"PreInvoke",
-				"InvokeTestAsync(testClassInstance: typeof(object))",
+				"InvokeTest(testClassInstance: typeof(object))",
 				"PostInvoke",
 				"IsTestClassDisposable",
 				// OnTestClassDisposeStarting
 				// DisposeTestClassInstance
 				// OnTestClassDisposeFinished
-				"GetTestOutput",
-				"OnTestFailed(exception: typeof(DivideByZeroException), output: \"\")",
-				"OnTestFinished(output: \"\")",
-				// OnTestCleanupFailure
 			}, runner.Invocations);
-			Assert.Empty(runner.MessageBus.Messages);
+			Assert.Contains(runner.MessageBus.Messages, msg => msg is ITestFailed);
 		}
 
 		[Fact]
@@ -348,30 +383,23 @@ public class TestRunnerTests
 		{
 			var runner = new TestableTestRunner { OnTestClassConstructionFinished__Lambda = () => throw new DivideByZeroException() };
 
-			var summary = await runner.RunAsync();
+			var summary = await runner.Run();
 
 			VerifyRunSummary(summary, failed: 1);
-			Assert.False(runner.TokenSource.IsCancellationRequested);
 			Assert.False(runner.Aggregator.HasExceptions);
 			Assert.Equal(new[]
 			{
-				"OnTestStarting",
-				"ShouldTestRun",
 				"IsTestClassCreatable",
 				"OnTestClassConstructionStarting",
 				"CreateTestClassInstance",
 				"OnTestClassConstructionFinished",
-				// InvokeTestAsync
+				// InvokeTest
 				// IsTestClassDisposable
 				// OnTestClassDisposeStarting
 				// DisposeTestClassInstance
 				// OnTestClassDisposeFinished
-				"GetTestOutput",
-				"OnTestFailed(exception: typeof(DivideByZeroException), output: \"\")",
-				"OnTestFinished(output: \"\")",
-				// OnTestCleanupFailure
 			}, runner.Invocations);
-			Assert.Empty(runner.MessageBus.Messages);
+			Assert.Contains(runner.MessageBus.Messages, msg => msg is ITestFailed);
 		}
 
 		[Fact]
@@ -379,30 +407,23 @@ public class TestRunnerTests
 		{
 			var runner = new TestableTestRunner { OnTestClassConstructionStarting__Lambda = () => throw new DivideByZeroException() };
 
-			var summary = await runner.RunAsync();
+			var summary = await runner.Run();
 
 			VerifyRunSummary(summary, failed: 1);
-			Assert.False(runner.TokenSource.IsCancellationRequested);
 			Assert.False(runner.Aggregator.HasExceptions);
 			Assert.Equal(new[]
 			{
-				"OnTestStarting",
-				"ShouldTestRun",
 				"IsTestClassCreatable",
 				"OnTestClassConstructionStarting",
 				// CreateTestClassInstance
 				// OnTestClassConstructionFinished
-				// InvokeTestAsync
+				// InvokeTest
 				// IsTestClassDisposable
 				// OnTestClassDisposeStarting
 				// DisposeTestClassInstance
 				// OnTestClassDisposeFinished
-				"GetTestOutput",
-				"OnTestFailed(exception: typeof(DivideByZeroException), output: \"\")",
-				"OnTestFinished(output: \"\")",
-				// OnTestCleanupFailure
 			}, runner.Invocations);
-			Assert.Empty(runner.MessageBus.Messages);
+			Assert.Contains(runner.MessageBus.Messages, msg => msg is ITestFailed);
 		}
 
 		[Fact]
@@ -414,32 +435,25 @@ public class TestRunnerTests
 				OnTestClassDisposeFinished__Lambda = () => throw new DivideByZeroException(),
 			};
 
-			var summary = await runner.RunAsync();
+			var summary = await runner.Run();
 
 			VerifyRunSummary(summary, failed: 1);
-			Assert.False(runner.TokenSource.IsCancellationRequested);
 			Assert.False(runner.Aggregator.HasExceptions);
 			Assert.Equal(new[]
 			{
-				"OnTestStarting",
-				"ShouldTestRun",
 				"IsTestClassCreatable",
 				"OnTestClassConstructionStarting",
 				"CreateTestClassInstance",
 				"OnTestClassConstructionFinished",
 				"PreInvoke",
-				"InvokeTestAsync(testClassInstance: typeof(object))",
+				"InvokeTest(testClassInstance: typeof(object))",
 				"PostInvoke",
 				"IsTestClassDisposable",
 				"OnTestClassDisposeStarting",
 				"DisposeTestClassInstance",
 				"OnTestClassDisposeFinished",
-				"GetTestOutput",
-				"OnTestFailed(exception: typeof(DivideByZeroException), output: \"\")",
-				"OnTestFinished(output: \"\")",
-				// OnTestCleanupFailure
 			}, runner.Invocations);
-			Assert.Empty(runner.MessageBus.Messages);
+			Assert.Contains(runner.MessageBus.Messages, msg => msg is ITestFailed);
 		}
 
 		[Fact]
@@ -451,418 +465,25 @@ public class TestRunnerTests
 				OnTestClassDisposeStarting__Lambda = () => throw new DivideByZeroException(),
 			};
 
-			var summary = await runner.RunAsync();
+			var summary = await runner.Run();
 
 			VerifyRunSummary(summary, failed: 1);
-			Assert.False(runner.TokenSource.IsCancellationRequested);
 			Assert.False(runner.Aggregator.HasExceptions);
 			Assert.Equal(new[]
 			{
-				"OnTestStarting",
-				"ShouldTestRun",
 				"IsTestClassCreatable",
 				"OnTestClassConstructionStarting",
 				"CreateTestClassInstance",
 				"OnTestClassConstructionFinished",
 				"PreInvoke",
-				"InvokeTestAsync(testClassInstance: typeof(object))",
+				"InvokeTest(testClassInstance: typeof(object))",
 				"PostInvoke",
 				"IsTestClassDisposable",
 				"OnTestClassDisposeStarting",
 				"DisposeTestClassInstance",
 				"OnTestClassDisposeFinished",
-				"GetTestOutput",
-				"OnTestFailed(exception: typeof(DivideByZeroException), output: \"\")",
-				"OnTestFinished(output: \"\")",
-				// OnTestCleanupFailure
 			}, runner.Invocations);
-			Assert.Empty(runner.MessageBus.Messages);
-		}
-
-		[Fact]
-		public static async ValueTask OnTestCleanupFailure()
-		{
-			var runner = new TestableTestRunner
-			{
-				// Need to throw in OnTestFinished to get OnTestCleanupFailure to trigger
-				OnTestFinished__Lambda = () => throw new ArgumentException(),
-				OnTestCleanupFailure__Lambda = () => throw new DivideByZeroException(),
-			};
-
-			var summary = await runner.RunAsync();
-
-			VerifyRunSummary(summary);
-			Assert.False(runner.TokenSource.IsCancellationRequested);
-			Assert.False(runner.Aggregator.HasExceptions);
-			Assert.Equal(new[]
-			{
-				"OnTestStarting",
-				"ShouldTestRun",
-				"IsTestClassCreatable",
-				"OnTestClassConstructionStarting",
-				"CreateTestClassInstance",
-				"OnTestClassConstructionFinished",
-				"PreInvoke",
-				"InvokeTestAsync(testClassInstance: null)",
-				"PostInvoke",
-				// IsTestClassDisposable
-				// OnTestClassDisposeStarting
-				// DisposeTestClassInstance
-				// OnTestClassDisposeFinished
-				"GetTestOutput",
-				"OnTestPassed(output: \"\")",
-				"OnTestFinished(output: \"\")",
-				"OnTestCleanupFailure(exception: typeof(ArgumentException))",
-			}, runner.Invocations);
-			var message = Assert.Single(runner.MessageBus.Messages);
-			var errorMessage = Assert.IsAssignableFrom<IErrorMessage>(message);
-			Assert.Equal(new[] { -1 }, errorMessage.ExceptionParentIndices);
-			Assert.Equal(new[] { "System.DivideByZeroException" }, errorMessage.ExceptionTypes);
-			Assert.Equal(new[] { "Attempted to divide by zero." }, errorMessage.Messages);
-			Assert.NotEmpty(errorMessage.StackTraces.Single()!);
-		}
-
-		[Fact]
-		public static async ValueTask OnTestFailed()
-		{
-			var runner = new TestableTestRunner
-			{
-				InvokeTestAsync__Lambda = () => Assert.True(false),
-				OnTestFailed__Lambda = () => throw new DivideByZeroException(),
-			};
-
-			var summary = await runner.RunAsync();
-
-			VerifyRunSummary(summary, failed: 1);
-			Assert.False(runner.TokenSource.IsCancellationRequested);
-			Assert.False(runner.Aggregator.HasExceptions);
-			Assert.Equal(new[]
-			{
-				"OnTestStarting",
-				"ShouldTestRun",
-				"IsTestClassCreatable",
-				"OnTestClassConstructionStarting",
-				"CreateTestClassInstance",
-				"OnTestClassConstructionFinished",
-				"PreInvoke",
-				"InvokeTestAsync(testClassInstance: null)",
-				"PostInvoke",
-				// IsTestClassDisposable
-				// OnTestClassDisposeStarting
-				// DisposeTestClassInstance
-				// OnTestClassDisposeFinished
-				"GetTestOutput",
-				"OnTestFailed(exception: typeof(TrueException), output: \"\")",
-				"OnTestFinished(output: \"\")",
-				"OnTestCleanupFailure(exception: typeof(DivideByZeroException))",
-			}, runner.Invocations);
-			Assert.Empty(runner.MessageBus.Messages);
-		}
-
-		[Fact]
-		public static async ValueTask OnTestFinished()
-		{
-			var runner = new TestableTestRunner { OnTestFinished__Lambda = () => throw new DivideByZeroException() };
-
-			var summary = await runner.RunAsync();
-
-			VerifyRunSummary(summary);
-			Assert.False(runner.TokenSource.IsCancellationRequested);
-			Assert.False(runner.Aggregator.HasExceptions);
-			Assert.Equal(new[]
-			{
-				"OnTestStarting",
-				"ShouldTestRun",
-				"IsTestClassCreatable",
-				"OnTestClassConstructionStarting",
-				"CreateTestClassInstance",
-				"OnTestClassConstructionFinished",
-				"PreInvoke",
-				"InvokeTestAsync(testClassInstance: null)",
-				"PostInvoke",
-				// IsTestClassDisposable
-				// OnTestClassDisposeStarting
-				// DisposeTestClassInstance
-				// OnTestClassDisposeFinished
-				"GetTestOutput",
-				"OnTestPassed(output: \"\")",
-				"OnTestFinished(output: \"\")",
-				"OnTestCleanupFailure(exception: typeof(DivideByZeroException))",
-			}, runner.Invocations);
-			Assert.Empty(runner.MessageBus.Messages);
-		}
-
-		[Fact]
-		public static async ValueTask OnTestNotRun()
-		{
-			var runner = new TestableTestRunner
-			{
-				OnTestNotRun__Lambda = () => throw new DivideByZeroException(),
-				ShouldTestRun__Result = false,
-			};
-
-			var summary = await runner.RunAsync();
-
-			VerifyRunSummary(summary, notRun: 1);
-			Assert.False(runner.TokenSource.IsCancellationRequested);
-			Assert.False(runner.Aggregator.HasExceptions);
-			Assert.Equal(new[]
-			{
-				"OnTestStarting",
-				"ShouldTestRun",
-				// IsTestClassCreatable
-				// OnTestClassConstructionStarting
-				// CreateTestClassInstance
-				// OnTestClassConstructionFinished
-				// InvokeTestAsync
-				// IsTestClassDisposable
-				// OnTestClassDisposeStarting
-				// DisposeTestClassInstance
-				// OnTestClassDisposeFinished
-				"GetTestOutput",
-				"OnTestNotRun(output: \"\")",
-				"OnTestFinished(output: \"\")",
-				"OnTestCleanupFailure(exception: typeof(DivideByZeroException))",
-			}, runner.Invocations);
-			Assert.Empty(runner.MessageBus.Messages);
-		}
-
-		[Fact]
-		public static async ValueTask OnTestPassed()
-		{
-			var runner = new TestableTestRunner { OnTestPassed__Lambda = () => throw new DivideByZeroException() };
-
-			var summary = await runner.RunAsync();
-
-			VerifyRunSummary(summary);
-			Assert.False(runner.TokenSource.IsCancellationRequested);
-			Assert.False(runner.Aggregator.HasExceptions);
-			Assert.Equal(new[]
-			{
-				"OnTestStarting",
-				"ShouldTestRun",
-				"IsTestClassCreatable",
-				"OnTestClassConstructionStarting",
-				"CreateTestClassInstance",
-				"OnTestClassConstructionFinished",
-				"PreInvoke",
-				"InvokeTestAsync(testClassInstance: null)",
-				"PostInvoke",
-				// IsTestClassDisposable
-				// OnTestClassDisposeStarting
-				// DisposeTestClassInstance
-				// OnTestClassDisposeFinished
-				"GetTestOutput",
-				"OnTestPassed(output: \"\")",
-				"OnTestFinished(output: \"\")",
-				"OnTestCleanupFailure(exception: typeof(DivideByZeroException))",
-			}, runner.Invocations);
-			Assert.Empty(runner.MessageBus.Messages);
-		}
-
-		[Fact]
-		public static async ValueTask OnTestSkipped()
-		{
-			var runner = new TestableTestRunner
-			{
-				OnTestSkipped__Lambda = () => throw new DivideByZeroException(),
-				RunAsync__SkipReason = "Don't run me",
-			};
-
-			var summary = await runner.RunAsync();
-
-			VerifyRunSummary(summary, skipped: 1);
-			Assert.False(runner.TokenSource.IsCancellationRequested);
-			Assert.False(runner.Aggregator.HasExceptions);
-			Assert.Equal(new[]
-			{
-				"OnTestStarting",
-				"ShouldTestRun",
-				// IsTestClassCreatable
-				// OnTestClassConstructionStarting
-				// CreateTestClassInstance
-				// OnTestClassConstructionFinished
-				// InvokeTestAsync
-				// IsTestClassDisposable
-				// OnTestClassDisposeStarting
-				// DisposeTestClassInstance
-				// OnTestClassDisposeFinished
-				"GetTestOutput",
-				"OnTestSkipped(reason: \"Don't run me\", output: \"\")",
-				"OnTestFinished(output: \"\")",
-				"OnTestCleanupFailure(exception: typeof(DivideByZeroException))",
-			}, runner.Invocations);
-			Assert.Empty(runner.MessageBus.Messages);
-		}
-
-		[Fact]
-		public static async ValueTask OnTestStarting()
-		{
-			var runner = new TestableTestRunner { OnTestStarting__Lambda = () => throw new DivideByZeroException() };
-
-			var summary = await runner.RunAsync();
-
-			VerifyRunSummary(summary, total: 1, failed: 1);
-			Assert.False(runner.TokenSource.IsCancellationRequested);
-			Assert.False(runner.Aggregator.HasExceptions);
-			Assert.Equal(new[]
-			{
-				"OnTestStarting",
-				// ShouldTestRun
-				// IsTestClassCreatable
-				// OnTestClassConstructionStarting
-				// CreateTestClassInstance
-				// OnTestClassConstructionFinished
-				// InvokeTestAsync
-				// IsTestClassDisposable
-				// OnTestClassDisposeStarting
-				// DisposeTestClassInstance
-				// OnTestClassDisposeFinished
-				"GetTestOutput",
-				"OnTestFailed(exception: typeof(DivideByZeroException), output: \"\")",
-				"OnTestFinished(output: \"\")",
-				// OnTestCleanupFailure
-			}, runner.Invocations);
-			Assert.Empty(runner.MessageBus.Messages);
-		}
-
-		[Fact]
-		public static async ValueTask ShouldTestRun()
-		{
-			var runner = new TestableTestRunner { ShouldTestRun__Lambda = () => throw new DivideByZeroException() };
-
-			var summary = await runner.RunAsync();
-
-			VerifyRunSummary(summary, failed: 1);
-			Assert.False(runner.TokenSource.IsCancellationRequested);
-			Assert.False(runner.Aggregator.HasExceptions);
-			Assert.Equal(new[]
-			{
-				"OnTestStarting",
-				"ShouldTestRun",
-				// IsTestClassCreatable
-				// OnTestClassConstructionStarting
-				// CreateTestClassInstance
-				// OnTestClassConstructionFinished
-				// InvokeTestAsync
-				// IsTestClassDisposable
-				// OnTestClassDisposeStarting
-				// DisposeTestClassInstance
-				// OnTestClassDisposeFinished
-				"GetTestOutput",
-				"OnTestFailed(exception: typeof(DivideByZeroException), output: \"\")",
-				"OnTestFinished(output: \"\")",
-				// OnTestCleanupFailure
-			}, runner.Invocations);
-			Assert.Empty(runner.MessageBus.Messages);
-		}
-
-	}
-
-	// We test the standard handlers (OnTestPassed, OnTestFailed, etc.) via theory in Invocations above
-	// so these tests are the ancillary cancellable handlers (starting, finished, and cleanup failure).
-	public class Cancellation
-	{
-		[Fact]
-		public static async ValueTask OnTestCleanupFailure()
-		{
-			var runner = new TestableTestRunner
-			{
-				// Need to throw in OnTestFinished to get OnTestCleanupFailure to trigger
-				OnTestCleanupFailure__Result = false,
-				OnTestFinished__Lambda = () => throw new ArgumentException(),
-			};
-
-			var summary = await runner.RunAsync();
-
-			VerifyRunSummary(summary, total: 1);
-			Assert.True(runner.TokenSource.IsCancellationRequested);
-			Assert.False(runner.Aggregator.HasExceptions);
-			Assert.Equal(new[]
-			{
-				"OnTestStarting",
-				"ShouldTestRun",
-				"IsTestClassCreatable",
-				"OnTestClassConstructionStarting",
-				"CreateTestClassInstance",
-				"OnTestClassConstructionFinished",
-				"PreInvoke",
-				"InvokeTestAsync(testClassInstance: null)",
-				"PostInvoke",
-				// IsTestClassDisposable
-				// OnTestClassDisposeStarting
-				// DisposeTestClassInstance
-				// OnTestClassDisposeFinished
-				"GetTestOutput",
-				"OnTestPassed(output: \"\")",
-				"OnTestFinished(output: \"\")",
-				"OnTestCleanupFailure(exception: typeof(ArgumentException))",
-			}, runner.Invocations);
-			Assert.Empty(runner.MessageBus.Messages);
-		}
-
-		[Fact]
-		public static async ValueTask OnTestFinished()
-		{
-			var runner = new TestableTestRunner { OnTestFinished__Result = false };
-
-			var summary = await runner.RunAsync();
-
-			VerifyRunSummary(summary);
-			Assert.True(runner.TokenSource.IsCancellationRequested);
-			Assert.False(runner.Aggregator.HasExceptions);
-			Assert.Equal(new[]
-			{
-				"OnTestStarting",
-				"ShouldTestRun",
-				"IsTestClassCreatable",
-				"OnTestClassConstructionStarting",
-				"CreateTestClassInstance",
-				"OnTestClassConstructionFinished",
-				"PreInvoke",
-				"InvokeTestAsync(testClassInstance: null)",
-				"PostInvoke",
-				// IsTestClassDisposable
-				// OnTestClassDisposeStarting
-				// DisposeTestClassInstance
-				// OnTestClassDisposeFinished
-				"GetTestOutput",
-				"OnTestPassed(output: \"\")",
-				"OnTestFinished(output: \"\")",
-				// OnTestCleanupFailure
-			}, runner.Invocations);
-			Assert.Empty(runner.MessageBus.Messages);
-		}
-
-		[Fact]
-		public static async ValueTask OnTestStarting()
-		{
-			var runner = new TestableTestRunner { OnTestStarting__Result = false };
-
-			var summary = await runner.RunAsync();
-
-			VerifyRunSummary(summary, total: 0);
-			Assert.True(runner.TokenSource.IsCancellationRequested);
-			Assert.False(runner.Aggregator.HasExceptions);
-			Assert.Equal(new[]
-			{
-				"OnTestStarting",
-				// ShouldTestRun
-				// IsTestClassCreatable
-				// OnTestClassConstructionStarting
-				// CreateTestClassInstance
-				// OnTestClassConstructionFinished
-				// InvokeTestAsync
-				// IsTestClassDisposable
-				// OnTestClassDisposeStarting
-				// DisposeTestClassInstance
-				// OnTestClassDisposeFinished
-				// GetTestOutput
-				// OnTestXxx
-				"OnTestFinished(output: \"\")",
-				// OnTestCleanupFailure
-			}, runner.Invocations);
-			Assert.Empty(runner.MessageBus.Messages);
+			Assert.Contains(runner.MessageBus.Messages, msg => msg is ITestFailed);
 		}
 	}
 
@@ -874,6 +495,41 @@ public class TestRunnerTests
 		int skipped = 0) =>
 			Assert.Equivalent(new { Total = total, Failed = failed, NotRun = notRun, Skipped = skipped }, summary);
 
+	// This is a lightweight version of XunitTestRunner, with just enough implementation to allow it to
+	// create instances of test classes (without concern for things like ctor arguments or IAsyncLifetime).
+	class SimpleXunitTestRunner(IXunitTest test) :
+		TestRunner<TestRunnerContext<IXunitTest>, IXunitTest>
+	{
+		public readonly ExceptionAggregator Aggregator = new();
+		public readonly SpyMessageBus MessageBus = new();
+		public readonly CancellationTokenSource TokenSource = new();
+
+		protected override ValueTask<(object? Instance, SynchronizationContext? SyncContext, ExecutionContext? ExecutionContext)> CreateTestClassInstance(TestRunnerContext<IXunitTest> ctxt) =>
+			new((Activator.CreateInstance(ctxt.Test.TestCase.TestClass.Class, []), SynchronizationContext.Current, ExecutionContext.Capture()));
+
+		protected override bool IsTestClassCreatable(TestRunnerContext<IXunitTest> ctxt) =>
+			!ctxt.Test.TestCase.TestMethod.Method.IsStatic;
+
+		public async ValueTask<RunSummary> Run()
+		{
+			await using var ctxt = new TestRunnerContext<IXunitTest>(
+				test,
+				MessageBus,
+				test.TestCase.SkipReason,
+				ExplicitOption.Off,
+				Aggregator,
+				TokenSource,
+				test.TestMethod.Method,
+				test.TestMethodArguments
+			);
+			await ctxt.InitializeAsync();
+
+			return await Run(ctxt);
+		}
+	}
+
+	// This is an inspectable version of TestRunner, which logs extensibility method calls and assumes that the provided test is
+	// a mock, so it points to a NOOP method for its test method to be invoked.
 	class TestableTestRunner(ITest? test = null) :
 		TestRunner<TestRunnerContext<ITest>, ITest>
 	{
@@ -881,6 +537,7 @@ public class TestRunnerTests
 		public readonly List<string> Invocations = [];
 		public readonly SpyMessageBus MessageBus = new();
 		public readonly ITest Test = test ?? Mocks.Test();
+		public readonly MethodInfo TestMethod = typeof(TestableTestRunner).GetMethod(nameof(_TestMethod), BindingFlags.NonPublic | BindingFlags.Static) ?? throw new InvalidOperationException("Could not find TestableTestRunner._TestMethod");
 		public readonly CancellationTokenSource TokenSource = new();
 
 		public Action? CreateTestClassInstance__Lambda;
@@ -908,32 +565,20 @@ public class TestRunnerTests
 			return default;
 		}
 
-		public string GetTestOutput__Result = string.Empty;
-		public Action? GetTestOutput__Lambda;
+		public Action? InvokeTest__Lambda;
+		public TimeSpan InvokeTest__Result = TimeSpan.Zero;
 
-		protected override ValueTask<string> GetTestOutput(TestRunnerContext<ITest> ctxt)
-		{
-			Invocations.Add("GetTestOutput");
-
-			GetTestOutput__Lambda?.Invoke();
-
-			return new(GetTestOutput__Result);
-		}
-
-		public Action? InvokeTestAsync__Lambda;
-		public TimeSpan InvokeTestAsync__Result = TimeSpan.Zero;
-
-		protected override ValueTask<TimeSpan> InvokeTestAsync(
+		protected override ValueTask<TimeSpan> InvokeTest(
 			TestRunnerContext<ITest> ctxt,
 			object? testClassInstance)
 		{
 			Assert.Same(CreateTestClassInstance__Result, testClassInstance);
 
-			Invocations.Add($"InvokeTestAsync(testClassInstance: {TypeName(testClassInstance)})");
+			Invocations.Add($"InvokeTest(testClassInstance: {TypeName(testClassInstance)})");
 
-			InvokeTestAsync__Lambda?.Invoke();
+			InvokeTest__Lambda?.Invoke();
 
-			return new(InvokeTestAsync__Result);
+			return new(InvokeTest__Result);
 		}
 
 		public Action? IsTestClassCreatable__Lambda;
@@ -965,151 +610,57 @@ public class TestRunnerTests
 		public Action? OnTestClassConstructionFinished__Lambda;
 		public bool OnTestClassConstructionFinished__Result = true;
 
-		protected override ValueTask<bool> OnTestClassConstructionFinished(TestRunnerContext<ITest> ctxt)
+		protected override async ValueTask<bool> OnTestClassConstructionFinished(TestRunnerContext<ITest> ctxt)
 		{
 			Invocations.Add("OnTestClassConstructionFinished");
 
 			OnTestClassConstructionFinished__Lambda?.Invoke();
 
-			return new(OnTestClassConstructionFinished__Result);
+			await base.OnTestClassConstructionFinished(ctxt);
+
+			return OnTestClassConstructionFinished__Result;
 		}
 
 		public Action? OnTestClassConstructionStarting__Lambda;
 		public bool OnTestClassConstructionStarting__Result = true;
 
-		protected override ValueTask<bool> OnTestClassConstructionStarting(TestRunnerContext<ITest> ctxt)
+		protected override async ValueTask<bool> OnTestClassConstructionStarting(TestRunnerContext<ITest> ctxt)
 		{
 			Invocations.Add("OnTestClassConstructionStarting");
 
 			OnTestClassConstructionStarting__Lambda?.Invoke();
 
-			return new(OnTestClassConstructionStarting__Result);
+			await base.OnTestClassConstructionStarting(ctxt);
+
+			return OnTestClassConstructionStarting__Result;
 		}
 
 		public Action? OnTestClassDisposeFinished__Lambda;
 		public bool OnTestClassDisposeFinished__Result = true;
 
-		protected override ValueTask<bool> OnTestClassDisposeFinished(TestRunnerContext<ITest> ctxt)
+		protected override async ValueTask<bool> OnTestClassDisposeFinished(TestRunnerContext<ITest> ctxt)
 		{
 			Invocations.Add("OnTestClassDisposeFinished");
 
 			OnTestClassDisposeFinished__Lambda?.Invoke();
 
-			return new(OnTestClassDisposeFinished__Result);
+			await base.OnTestClassDisposeFinished(ctxt);
+
+			return OnTestClassDisposeFinished__Result;
 		}
 
 		public Action? OnTestClassDisposeStarting__Lambda;
 		public bool OnTestClassDisposeStarting__Result = true;
 
-		protected override ValueTask<bool> OnTestClassDisposeStarting(TestRunnerContext<ITest> ctxt)
+		protected override async ValueTask<bool> OnTestClassDisposeStarting(TestRunnerContext<ITest> ctxt)
 		{
 			Invocations.Add("OnTestClassDisposeStarting");
 
 			OnTestClassDisposeStarting__Lambda?.Invoke();
 
-			return new(OnTestClassDisposeStarting__Result);
-		}
+			await base.OnTestClassDisposeStarting(ctxt);
 
-		public Action? OnTestCleanupFailure__Lambda;
-		public bool OnTestCleanupFailure__Result = true;
-
-		protected override ValueTask<bool> OnTestCleanupFailure(
-			TestRunnerContext<ITest> ctxt,
-			Exception exception)
-		{
-			Invocations.Add($"OnTestCleanupFailure(exception: {TypeName(exception)})");
-
-			OnTestCleanupFailure__Lambda?.Invoke();
-
-			return new(OnTestCleanupFailure__Result);
-		}
-
-		public Action? OnTestFailed__Lambda;
-		public bool OnTestFailed__Result = true;
-
-		protected override ValueTask<(bool Continue, TestResultState ResultState)> OnTestFailed(
-			TestRunnerContext<ITest> ctxt,
-			Exception exception,
-			decimal executionTime,
-			string output)
-		{
-			Invocations.Add($"OnTestFailed(exception: {TypeName(exception)}, output: {ArgumentFormatter.Format(output)})");
-
-			OnTestFailed__Lambda?.Invoke();
-
-			return new((OnTestFailed__Result, TestResultState.FromException(0m, exception)));
-		}
-
-		public Action? OnTestFinished__Lambda;
-		public bool OnTestFinished__Result = true;
-
-		protected override ValueTask<bool> OnTestFinished(
-			TestRunnerContext<ITest> ctxt,
-			decimal executionTime,
-			string output)
-		{
-			Invocations.Add($"OnTestFinished(output: {ArgumentFormatter.Format(output)})");
-
-			OnTestFinished__Lambda?.Invoke();
-
-			return new(OnTestFinished__Result);
-		}
-
-		public Action? OnTestNotRun__Lambda;
-		public bool OnTestNotRun__Result = true;
-
-		protected override ValueTask<(bool Continue, TestResultState ResultState)> OnTestNotRun(
-			TestRunnerContext<ITest> ctxt,
-			string output)
-		{
-			Invocations.Add($"OnTestNotRun(output: {ArgumentFormatter.Format(output)})");
-
-			OnTestNotRun__Lambda?.Invoke();
-
-			return new((OnTestNotRun__Result, TestResultState.FromTestResult(TestData.TestNotRun())));
-		}
-
-		public Action? OnTestPassed__Lambda;
-		public bool OnTestPassed__Result = true;
-
-		protected override ValueTask<(bool Continue, TestResultState ResultState)> OnTestPassed(
-			TestRunnerContext<ITest> ctxt,
-			decimal executionTime,
-			string output)
-		{
-			Invocations.Add($"OnTestPassed(output: {ArgumentFormatter.Format(output)})");
-
-			OnTestPassed__Lambda?.Invoke();
-
-			return new((OnTestPassed__Result, TestResultState.FromTestResult(TestData.TestPassed())));
-		}
-
-		public Action? OnTestSkipped__Lambda;
-		public bool OnTestSkipped__Result = true;
-
-		protected override ValueTask<(bool Continue, TestResultState ResultState)> OnTestSkipped(
-			TestRunnerContext<ITest> ctxt,
-			string skipReason,
-			decimal executionTime,
-			string output)
-		{
-			Invocations.Add($"OnTestSkipped(reason: {ArgumentFormatter.Format(skipReason)}, output: {ArgumentFormatter.Format(output)})");
-
-			OnTestSkipped__Lambda?.Invoke();
-
-			return new((OnTestSkipped__Result, TestResultState.FromTestResult(TestData.TestSkipped())));
-		}
-
-		public Action? OnTestStarting__Lambda;
-		public bool OnTestStarting__Result = true;
-
-		protected override ValueTask<bool> OnTestStarting(TestRunnerContext<ITest> ctxt)
-		{
-			Invocations.Add("OnTestStarting");
-
-			OnTestStarting__Lambda?.Invoke();
-
-			return new(OnTestStarting__Result);
+			return OnTestClassDisposeStarting__Result;
 		}
 
 		public Action? PostInvoke__Lambda;
@@ -1134,29 +685,22 @@ public class TestRunnerTests
 			return default;
 		}
 
-		public string? RunAsync__SkipReason = null;
-
-		public async ValueTask<RunSummary> RunAsync()
+		public async ValueTask<RunSummary> Run(string? skipReason = null)
 		{
-			await using var ctxt = new TestRunnerContext<ITest>(Test, MessageBus, RunAsync__SkipReason, ExplicitOption.Off, Aggregator, TokenSource);
+			await using var ctxt = new TestRunnerContext<ITest>(Test, MessageBus, skipReason, ExplicitOption.Off, Aggregator, TokenSource, TestMethod, []);
 			await ctxt.InitializeAsync();
 
-			return await RunAsync(ctxt);
+			return await Run(ctxt);
 		}
 
-		public Action? ShouldTestRun__Lambda;
 		public bool ShouldTestRun__Result = true;
 
-		protected override bool ShouldTestRun(TestRunnerContext<ITest> ctxt)
-		{
-			Invocations.Add("ShouldTestRun");
-
-			ShouldTestRun__Lambda?.Invoke();
-
-			return ShouldTestRun__Result;
-		}
+		protected override bool ShouldTestRun(TestRunnerContext<ITest> ctxt) =>
+			ShouldTestRun__Result;
 
 		static string TypeName(object? value) =>
 			value is null ? "null" : $"typeof({ArgumentFormatter.FormatTypeName(value.GetType())})";
+
+		static void _TestMethod() { }
 	}
 }

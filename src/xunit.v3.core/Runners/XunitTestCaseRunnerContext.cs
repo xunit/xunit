@@ -9,6 +9,7 @@ namespace Xunit.v3;
 /// Context class for <see cref="XunitTestCaseRunner"/>.
 /// </summary>
 /// <param name="testCase">The test case</param>
+/// <param name="tests">The tests for the test case</param>
 /// <param name="messageBus">The message bus to send execution messages to</param>
 /// <param name="aggregator">The exception aggregator</param>
 /// <param name="cancellationTokenSource">The cancellation token source</param>
@@ -16,19 +17,17 @@ namespace Xunit.v3;
 /// <param name="skipReason">The skip reason, if the test case is being skipped</param>
 /// <param name="explicitOption">The user's choice on how to treat explicit tests</param>
 /// <param name="constructorArguments">The constructor arguments for the test class</param>
-/// <param name="testMethodArguments">The method arguments for the test method</param>
-public class XunitTestCaseRunnerContext<TTestCase>(
-	TTestCase testCase,
+public class XunitTestCaseRunnerContext(
+	IXunitTestCase testCase,
+	IReadOnlyCollection<IXunitTest> tests,
 	IMessageBus messageBus,
 	ExceptionAggregator aggregator,
 	CancellationTokenSource cancellationTokenSource,
 	string displayName,
 	string? skipReason,
 	ExplicitOption explicitOption,
-	object?[] constructorArguments,
-	object?[] testMethodArguments) :
-		TestCaseRunnerContext<TTestCase>(testCase, explicitOption, messageBus, aggregator, cancellationTokenSource)
-			where TTestCase : class, IXunitTestCase
+	object?[] constructorArguments) :
+		TestCaseRunnerContext<IXunitTestCase, IXunitTest>(testCase, explicitOption, messageBus, aggregator, cancellationTokenSource)
 {
 	/// <summary>
 	/// Gets the list of <see cref="IBeforeAfterTestAttribute"/> instances for this test case.
@@ -52,8 +51,6 @@ public class XunitTestCaseRunnerContext<TTestCase>(
 	/// </summary>
 	public string? SkipReason { get; } = skipReason;
 
-	/// <summary>
-	/// Gets the arguments to pass to the test method of the test case.
-	/// </summary>
-	public object?[] TestMethodArguments { get; } = Guard.ArgumentNotNull(testMethodArguments);
+	/// <inheritdoc/>
+	public override IReadOnlyCollection<IXunitTest> Tests { get; } = Guard.ArgumentNotNull(tests);
 }

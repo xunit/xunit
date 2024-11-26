@@ -649,20 +649,20 @@ public class XunitTestCollectionRunnerTests
 		public ITestCaseOrderer TestCaseOrderer = DefaultTestCaseOrderer.Instance;
 
 		public ValueTask<RunSummary> RunAsync() =>
-			RunAsync(testCase.TestCollection, [testCase], ExplicitOption.Off, MessageBus, TestCaseOrderer, Aggregator, CancellationTokenSource, AssemblyFixtureMappingManager);
+			Run(testCase.TestCollection, [testCase], ExplicitOption.Off, MessageBus, TestCaseOrderer, Aggregator, CancellationTokenSource, AssemblyFixtureMappingManager);
 
 		public Exception? RunTestClassAsync_AggregatorResult = null;
 		public IReadOnlyDictionary<Type, object>? RunTestClassesAsync_CollectionFixtures = null;
 		public ITestCaseOrderer? RunTestClassesAsync_TestCaseOrderer = null;
 
-		protected override ValueTask<RunSummary> RunTestClassesAsync(
+		protected override ValueTask<RunSummary> RunTestClasses(
 			XunitTestCollectionRunnerContext ctxt,
 			Exception? exception)
 		{
 			RunTestClassesAsync_CollectionFixtures = ctxt.CollectionFixtureMappings.FixtureCache;
 			RunTestClassesAsync_TestCaseOrderer = ctxt.TestCaseOrderer;
 
-			return base.RunTestClassesAsync(ctxt, exception);
+			return base.RunTestClasses(ctxt, exception);
 		}
 	}
 }

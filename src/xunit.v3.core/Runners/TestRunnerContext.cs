@@ -1,4 +1,4 @@
-using System;
+using System.Reflection;
 using System.Threading;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -6,7 +6,8 @@ using Xunit.Sdk;
 namespace Xunit.v3;
 
 /// <summary>
-/// Base context class for <see cref="TestRunner{TContext, TTest}"/>.
+/// Base context class for <see cref="TestRunner{TContext, TTest}"/>. This includes an assumption
+/// that a test means invoking a method on a class.
 /// </summary>
 /// <param name="test">The test</param>
 /// <param name="messageBus">The message bus to send execution messages to</param>
@@ -14,32 +15,27 @@ namespace Xunit.v3;
 /// <param name="explicitOption">The user's choice on how to treat explicit tests</param>
 /// <param name="aggregator">The exception aggregator</param>
 /// <param name="cancellationTokenSource">The cancellation token source</param>
+/// <param name="testMethod">The test method</param>
+/// <param name="testMethodArguments">The method arguments for the test method</param>
 public class TestRunnerContext<TTest>(
 	TTest test,
 	IMessageBus messageBus,
 	string? skipReason,
 	ExplicitOption explicitOption,
 	ExceptionAggregator aggregator,
-	CancellationTokenSource cancellationTokenSource) :
-		ContextBase(explicitOption, messageBus, aggregator, cancellationTokenSource)
+	CancellationTokenSource cancellationTokenSource,
+	MethodInfo testMethod,
+	object?[] testMethodArguments) :
+		TestRunnerBaseContext<TTest>(test, messageBus, skipReason, explicitOption, aggregator, cancellationTokenSource)
 			where TTest : class, ITest
 {
 	/// <summary>
-	/// Gets the skip reason given for the test; will be <c>null</c> if the test is not
-	/// statically skipped. (It may still be dynamically skipped at a later time.)
+	/// Gets the method that this test originated in.
 	/// </summary>
-	public string? SkipReason { get; } = skipReason;
+	public MethodInfo TestMethod { get; } = Guard.ArgumentNotNull(testMethod);
 
 	/// <summary>
-	/// Gets the test that's being invoked.
+	/// Gets the arguments to be passed to the test method during invocation.
 	/// </summary>
-	public TTest Test { get; } = Guard.ArgumentNotNull(test);
-
-	/// <summary>
-	/// Gets the runtime skip reason for the test.
-	/// </summary>
-	/// <param name="exception">The exception that was thrown during test invocation</param>
-	/// <returns>The skip reason, if the test is skipped; <c>null</c>, otherwise</returns>
-	public virtual string? GetSkipReason(Exception? exception = null) =>
-		SkipReason;
+	public object?[] TestMethodArguments { get; } = Guard.ArgumentNotNull(testMethodArguments);
 }

@@ -613,7 +613,7 @@ public class XunitTestClassRunnerTests
 		public readonly SpyMessageBus MessageBus = new();
 
 		public ValueTask<RunSummary> RunAsync() =>
-			RunAsync(testCase.TestClass, [testCase], ExplicitOption.Off, MessageBus, DefaultTestCaseOrderer.Instance, Aggregator, CancellationTokenSource, CollectionFixtureMappingManager);
+			Run(testCase.TestClass, [testCase], ExplicitOption.Off, MessageBus, DefaultTestCaseOrderer.Instance, Aggregator, CancellationTokenSource, CollectionFixtureMappingManager);
 
 		public object?[]? CreateTestClassConstructorArguments_ConstructorArguments;
 
@@ -626,14 +626,14 @@ public class XunitTestClassRunnerTests
 		public IReadOnlyDictionary<Type, object>? RunTestMethodsAsync_ClassFixtures;
 		public ITestCaseOrderer? RunTestMethodsAsync_TestCaseOrderer;
 
-		protected override ValueTask<RunSummary> RunTestMethodsAsync(
+		protected override ValueTask<RunSummary> RunTestMethods(
 			XunitTestClassRunnerContext ctxt,
 			Exception? exception)
 		{
 			RunTestMethodsAsync_ClassFixtures = ctxt.ClassFixtureMappings.FixtureCache;
 			RunTestMethodsAsync_TestCaseOrderer = ctxt.TestCaseOrderer;
 
-			return base.RunTestMethodsAsync(ctxt, exception);
+			return base.RunTestMethods(ctxt, exception);
 		}
 	}
 }

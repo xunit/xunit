@@ -106,7 +106,7 @@ public class XunitTestClassRunner :
 		if (parameter.ParameterType == typeof(ITestContextAccessor))
 			return TestContextAccessor.Instance;
 
-		// Logic to support passing Func<T> instead of T lives in XunitTestInvoker.CreateTestClassInstance
+		// Logic to support passing Func<T> instead of T lives in XunitTestRunner.CreateTestClassInstance.
 		// The actual TestOutputHelper instance is created in XunitTestRunner.SetTestContext when creating
 		// the test context object.
 		return
@@ -187,7 +187,7 @@ public class XunitTestClassRunner :
 	/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 	/// <param name="collectionFixtureMappings">The mapping of collection fixture types to fixtures.</param>
 	/// <returns></returns>
-	public async ValueTask<RunSummary> RunAsync(
+	public async ValueTask<RunSummary> Run(
 		IXunitTestClass testClass,
 		IReadOnlyCollection<IXunitTestCase> testCases,
 		ExplicitOption explicitOption,
@@ -207,11 +207,11 @@ public class XunitTestClassRunner :
 		await using var ctxt = new XunitTestClassRunnerContext(testClass, @testCases, explicitOption, messageBus, testCaseOrderer, aggregator, cancellationTokenSource, collectionFixtureMappings);
 		await ctxt.InitializeAsync();
 
-		return await ctxt.Aggregator.RunAsync(() => RunAsync(ctxt), default);
+		return await ctxt.Aggregator.RunAsync(() => Run(ctxt), default);
 	}
 
 	/// <inheritdoc/>
-	protected override ValueTask<RunSummary> RunTestMethodAsync(
+	protected override ValueTask<RunSummary> RunTestMethod(
 		XunitTestClassRunnerContext ctxt,
 		IXunitTestMethod? testMethod,
 		IReadOnlyCollection<IXunitTestCase> testCases,
@@ -224,7 +224,7 @@ public class XunitTestClassRunner :
 		return
 			testMethod is null
 				? new(XunitRunnerHelper.FailTestCases(ctxt.MessageBus, ctxt.CancellationTokenSource, testCases, "Test case '{0}' does not have an associated method and cannot be run by XunitTestMethodRunner", sendTestMethodMessages: true))
-				: XunitTestMethodRunner.Instance.RunAsync(
+				: XunitTestMethodRunner.Instance.Run(
 					testMethod,
 					testCases,
 					ctxt.ExplicitOption,

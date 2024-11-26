@@ -64,7 +64,7 @@ public class XunitTestCollectionRunner :
 	/// <param name="aggregator">The exception aggregator used to run code and collection exceptions.</param>
 	/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 	/// <param name="assemblyFixtureMappings">The mapping manager for assembly fixtures.</param>
-	public async ValueTask<RunSummary> RunAsync(
+	public async ValueTask<RunSummary> Run(
 		IXunitTestCollection testCollection,
 		IReadOnlyCollection<IXunitTestCase> testCases,
 		ExplicitOption explicitOption,
@@ -84,11 +84,11 @@ public class XunitTestCollectionRunner :
 		await using var ctxt = new XunitTestCollectionRunnerContext(testCollection, testCases, explicitOption, messageBus, testCaseOrderer, aggregator, cancellationTokenSource, assemblyFixtureMappings);
 		await ctxt.InitializeAsync();
 
-		return await RunAsync(ctxt);
+		return await Run(ctxt);
 	}
 
 	/// <inheritdoc/>
-	protected override ValueTask<RunSummary> RunTestClassAsync(
+	protected override ValueTask<RunSummary> RunTestClass(
 		XunitTestCollectionRunnerContext ctxt,
 		IXunitTestClass? testClass,
 		IReadOnlyCollection<IXunitTestCase> testCases)
@@ -101,13 +101,13 @@ public class XunitTestCollectionRunner :
 				ctxt.MessageBus,
 				ctxt.CancellationTokenSource,
 				testCases,
-				"Test case {0} does not have an associated class and cannot be run by XunitTestClassRunner",
+				"Test case '{0}' does not have an associated class and cannot be run by XunitTestClassRunner",
 				sendTestClassMessages: true,
 				sendTestMethodMessages: true
 			));
 
 		return
-			XunitTestClassRunner.Instance.RunAsync(
+			XunitTestClassRunner.Instance.Run(
 				testClass,
 				testCases,
 				ctxt.ExplicitOption,

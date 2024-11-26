@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Internal;
@@ -9,11 +10,20 @@ using Xunit.Sdk;
 
 namespace Xunit.v3;
 
+// TODO: Who disposes of this, since IAsyncDisposable is not part of the contract of ITestCase
+// or IXunitTestCase? (Should it be part of IXunitTestCase?) Should it be the runner or the code
+// that creates XunitTestCase and as such owns its lifetime?
+
 /// <summary>
 /// Default implementation of <see cref="IXunitTestCase"/> for xUnit.net v3 that supports test methods decorated with
 /// <see cref="FactAttribute"/>. Test methods decorated with derived attributes may use this as a base class
 /// to build from.
 /// </summary>
+/// <remarks>
+/// By default, this class represents a single invocation of a test method, resulting in a single test
+/// for the test case. Overriding <see cref="Run"/> allows derived classes to change the way
+/// test(s) are associated with the test case.
+/// </remarks>
 [DebuggerDisplay(@"\{ class = {TestMethod.TestClass.Class.Name}, method = {TestMethod.Method.Name}, display = {TestCaseDisplayName}, skip = {SkipReason} \}")]
 public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposable
 {
@@ -23,9 +33,6 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 	object?[]? testMethodArguments;
 	Dictionary<string, HashSet<string>>? traits;
 	string? uniqueID;
-
-	// Used to dispose of all the test method arguments
-	readonly DisposalTracker disposalTracker = new();
 
 	/// <summary>
 	/// Called by the de-serializer; should only be called by deriving classes for de-serialization purposes
@@ -84,8 +91,13 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 
 		this.testMethodArguments = testMethodArguments ?? [];
 		foreach (var testMethodArgument in TestMethodArguments)
-			disposalTracker.Add(testMethodArgument);
+			DisposalTracker.Add(testMethodArgument);
 	}
+
+	/// <summary>
+	/// Used to dispose of test method arguments when the test case is disposed.
+	/// </summary>
+	public DisposalTracker DisposalTracker { get; } = new();
 
 	/// <inheritdoc/>
 	public bool Explicit { get; private set; }
@@ -194,6 +206,30 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 		this.ValidateNullablePropertyValue(uniqueID, nameof(UniqueID));
 
 	/// <summary>
+	/// Creates the tests that are emitted from this test case. Exceptions thrown here
+	/// will be caught and converted into a test case failure.
+	/// </summary>
+	/// <remarks>
+	/// By default, this method returns a single <see cref="XunitTest"/> that is appropriate
+	/// for a one-to-one mapping between test and test case. Override this method to change the
+	/// tests that are associated with this test case.
+	/// </remarks>
+	protected virtual ValueTask<IReadOnlyCollection<IXunitTest>> CreateTests() =>
+		new([
+			new XunitTest(
+				this,
+				TestMethod,
+				Explicit,
+				SkipReason,
+				TestCaseDisplayName,
+				testIndex: 0,
+				Traits.ToReadOnly(),
+				Timeout,
+				ResolveTestMethodArguments(TestMethod.Parameters.CastOrToArray(), TestMethodArguments)
+			)
+		]);
+
+	/// <summary>
 	/// Called when the test case should populate itself with data from the serialization info.
 	/// </summary>
 	/// <param name="info">The info to get the object data from</param>
@@ -213,7 +249,7 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 		traits = info.GetValue<Dictionary<string, HashSet<string>>>("tr") ?? new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
 		foreach (var testMethodArgument in TestMethodArguments)
-			disposalTracker.Add(testMethodArgument);
+			DisposalTracker.Add(testMethodArgument);
 
 		Explicit = info.GetValue<bool>("ex");
 		Timeout = info.GetValue<int>("to");
@@ -227,11 +263,32 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 	{
 		GC.SuppressFinalize(this);
 
-		return disposalTracker.DisposeAsync();
+		return DisposalTracker.DisposeAsync();
 	}
 
-	/// <inheritdoc/>
-	public virtual ValueTask<RunSummary> RunAsync(
+	/// <summary>
+	/// Computes values from the test case and resolves the test method arguments just before execution.
+	/// Typically used from <see cref="CreateTests"/> so that the executed test has an appropriately
+	/// typed argument, regardless of the type that was used to serialize the argument.
+	/// </summary>
+	protected static object?[] ResolveTestMethodArguments(
+		ParameterInfo[] parameters,
+		object?[] arguments)
+	{
+		Guard.ArgumentNotNull(parameters);
+		Guard.ArgumentNotNull(arguments);
+
+		var parameterTypes = new Type[parameters.Length];
+		for (var i = 0; i < parameters.Length; i++)
+			parameterTypes[i] = parameters[i].ParameterType;
+
+		return TypeHelper.ConvertArguments(arguments, parameterTypes);
+	}
+
+	/// <summary>
+	/// Runs the test case, which represents a single test.
+	/// </summary>
+	public virtual async ValueTask<RunSummary> Run(
 		ExplicitOption explicitOption,
 		IMessageBus messageBus,
 		object?[] constructorArguments,
@@ -242,16 +299,33 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 		Guard.ArgumentNotNull(constructorArguments);
 		Guard.ArgumentNotNull(cancellationTokenSource);
 
-		return XunitTestCaseRunner.Instance.RunAsync(
+		IReadOnlyCollection<IXunitTest> tests;
+
+		try
+		{
+			tests = await CreateTests();
+		}
+		catch (Exception ex)
+		{
+			return XunitRunnerHelper.FailTestCases(
+				messageBus,
+				cancellationTokenSource,
+				[this],
+				ex,
+				sendTestCaseMessages: false
+			);
+		}
+
+		return await XunitTestCaseRunner.Instance.Run(
 			this,
+			tests,
 			messageBus,
 			aggregator.Clone(),
 			cancellationTokenSource,
 			TestCaseDisplayName,
 			SkipReason,
 			explicitOption,
-			constructorArguments,
-			TestMethodArguments
+			constructorArguments
 		);
 	}
 

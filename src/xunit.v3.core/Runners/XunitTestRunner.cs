@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -73,39 +74,27 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext, IXunitTest>
 	}
 
 	/// <inheritdoc/>
-	protected override async ValueTask DisposeTestClassInstance(
-		XunitTestRunnerContext ctxt,
-		object testClassInstance)
-	{
-		Guard.ArgumentNotNull(ctxt);
-
-		if (testClassInstance is IAsyncDisposable asyncDisposable)
-			await asyncDisposable.DisposeAsync();
-		else if (testClassInstance is IDisposable disposable)
-			disposable.Dispose();
-	}
-
-	/// <inheritdoc/>
 	protected override ValueTask<string> GetTestOutput(XunitTestRunnerContext ctxt) =>
 		new(TestContext.Current.TestOutputHelper?.Output ?? string.Empty);
 
 	/// <inheritdoc/>
-	protected override ValueTask<TimeSpan> InvokeTestAsync(
+	protected override ValueTask<string[]?> GetWarnings(XunitTestRunnerContext ctxt) =>
+		new(TestContext.Current.Warnings?.ToArray());
+
+	/// <inheritdoc/>
+	protected override ValueTask<TimeSpan> InvokeTest(
 		XunitTestRunnerContext ctxt,
 		object? testClassInstance)
 	{
 		Guard.ArgumentNotNull(ctxt);
 
-		return XunitTestInvoker.Instance.RunAsync(
-			ctxt.Test,
-			testClassInstance,
-			ctxt.ExplicitOption,
-			ctxt.MessageBus,
-			// We don't clone the aggregator because invoker is an implementation detail in terms of
-			// exceptions during execution; they should be bubbled up from the invoker to us
-			ctxt.Aggregator,
-			ctxt.CancellationTokenSource
-		);
+		if (AsyncUtility.IsAsyncVoid(ctxt.TestMethod))
+		{
+			ctxt.Aggregator.Add(new TestPipelineException("Tests marked as 'async void' are no longer supported. Please convert to 'async Task' or 'async ValueTask'."));
+			return new(TimeSpan.Zero);
+		}
+
+		return base.InvokeTest(ctxt, testClassInstance);
 	}
 
 	/// <inheritdoc/>
@@ -113,234 +102,17 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext, IXunitTest>
 		!Guard.ArgumentNotNull(ctxt).Test.TestMethod.Method.IsStatic;
 
 	/// <inheritdoc/>
-	protected override bool IsTestClassDisposable(
-		XunitTestRunnerContext ctxt,
-		object testClassInstance) =>
-			testClassInstance is IDisposable or IAsyncDisposable;
-
-	/// <inheritdoc/>
-	protected override ValueTask<bool> OnTestClassConstructionFinished(XunitTestRunnerContext ctxt)
-	{
-		Guard.ArgumentNotNull(ctxt);
-
-		return new(ctxt.MessageBus.QueueMessage(new TestClassConstructionFinished
-		{
-			AssemblyUniqueID = ctxt.Test.TestCase.TestCollection.TestAssembly.UniqueID,
-			TestCaseUniqueID = ctxt.Test.TestCase.UniqueID,
-			TestClassUniqueID = ctxt.Test.TestCase.TestClass.UniqueID,
-			TestCollectionUniqueID = ctxt.Test.TestCase.TestCollection.UniqueID,
-			TestMethodUniqueID = ctxt.Test.TestCase.TestMethod?.UniqueID,
-			TestUniqueID = ctxt.Test.UniqueID,
-		}));
-	}
-
-	/// <inheritdoc/>
-	protected override ValueTask<bool> OnTestClassConstructionStarting(XunitTestRunnerContext ctxt)
-	{
-		Guard.ArgumentNotNull(ctxt);
-
-		return new(ctxt.MessageBus.QueueMessage(new TestClassConstructionStarting
-		{
-			AssemblyUniqueID = ctxt.Test.TestCase.TestCollection.TestAssembly.UniqueID,
-			TestCaseUniqueID = ctxt.Test.TestCase.UniqueID,
-			TestClassUniqueID = ctxt.Test.TestCase.TestClass.UniqueID,
-			TestCollectionUniqueID = ctxt.Test.TestCase.TestCollection.UniqueID,
-			TestMethodUniqueID = ctxt.Test.TestCase.TestMethod?.UniqueID,
-			TestUniqueID = ctxt.Test.UniqueID,
-		}));
-	}
-
-	/// <inheritdoc/>
-	protected override ValueTask<bool> OnTestClassDisposeFinished(XunitTestRunnerContext ctxt)
-	{
-		Guard.ArgumentNotNull(ctxt);
-
-		return new(ctxt.MessageBus.QueueMessage(new TestClassDisposeFinished
-		{
-			AssemblyUniqueID = ctxt.Test.TestCase.TestCollection.TestAssembly.UniqueID,
-			TestCaseUniqueID = ctxt.Test.TestCase.UniqueID,
-			TestClassUniqueID = ctxt.Test.TestCase.TestClass.UniqueID,
-			TestCollectionUniqueID = ctxt.Test.TestCase.TestCollection.UniqueID,
-			TestMethodUniqueID = ctxt.Test.TestCase.TestMethod?.UniqueID,
-			TestUniqueID = ctxt.Test.UniqueID,
-		}));
-	}
-
-	/// <inheritdoc/>
-	protected override ValueTask<bool> OnTestClassDisposeStarting(XunitTestRunnerContext ctxt)
-	{
-		Guard.ArgumentNotNull(ctxt);
-
-		return new(ctxt.MessageBus.QueueMessage(new TestClassDisposeStarting
-		{
-			AssemblyUniqueID = ctxt.Test.TestCase.TestCollection.TestAssembly.UniqueID,
-			TestCaseUniqueID = ctxt.Test.TestCase.UniqueID,
-			TestClassUniqueID = ctxt.Test.TestCase.TestClass.UniqueID,
-			TestCollectionUniqueID = ctxt.Test.TestCase.TestCollection.UniqueID,
-			TestMethodUniqueID = ctxt.Test.TestCase.TestMethod?.UniqueID,
-			TestUniqueID = ctxt.Test.UniqueID,
-		}));
-	}
-
-	/// <inheritdoc/>
-	protected override ValueTask<bool> OnTestCleanupFailure(
-		XunitTestRunnerContext ctxt,
-		Exception exception)
-	{
-		Guard.ArgumentNotNull(ctxt);
-
-		var (types, messages, stackTraces, indices, _) = ExceptionUtility.ExtractMetadata(exception);
-
-		return new(ctxt.MessageBus.QueueMessage(new TestCleanupFailure
-		{
-			AssemblyUniqueID = ctxt.Test.TestCase.TestCollection.TestAssembly.UniqueID,
-			ExceptionParentIndices = indices,
-			ExceptionTypes = types,
-			Messages = messages,
-			StackTraces = stackTraces,
-			TestCaseUniqueID = ctxt.Test.TestCase.UniqueID,
-			TestClassUniqueID = ctxt.Test.TestCase.TestClass.UniqueID,
-			TestCollectionUniqueID = ctxt.Test.TestCase.TestCollection.UniqueID,
-			TestMethodUniqueID = ctxt.Test.TestCase.TestMethod?.UniqueID,
-			TestUniqueID = ctxt.Test.UniqueID,
-		}));
-	}
-
-	/// <inheritdoc/>
-	protected override ValueTask<(bool Continue, TestResultState ResultState)> OnTestFailed(
-		XunitTestRunnerContext ctxt,
-		Exception exception,
-		decimal executionTime,
-		string output)
-	{
-		Guard.ArgumentNotNull(ctxt);
-
-		var (types, messages, stackTraces, indices, cause) = ExceptionUtility.ExtractMetadata(exception);
-
-		var message = new TestFailed
-		{
-			AssemblyUniqueID = ctxt.Test.TestCase.TestCollection.TestAssembly.UniqueID,
-			Cause = cause,
-			ExceptionParentIndices = indices,
-			ExceptionTypes = types,
-			ExecutionTime = executionTime,
-			FinishTime = DateTimeOffset.UtcNow,
-			Messages = messages,
-			Output = output,
-			StackTraces = stackTraces,
-			TestCaseUniqueID = ctxt.Test.TestCase.UniqueID,
-			TestClassUniqueID = ctxt.Test.TestCase.TestClass.UniqueID,
-			TestCollectionUniqueID = ctxt.Test.TestCase.TestCollection.UniqueID,
-			TestMethodUniqueID = ctxt.Test.TestCase.TestMethod?.UniqueID,
-			TestUniqueID = ctxt.Test.UniqueID,
-			Warnings = TestContext.Current.Warnings?.ToArray(),
-		};
-
-		return new((ctxt.MessageBus.QueueMessage(message), TestResultState.FromTestResult(message)));
-	}
-
-	/// <inheritdoc/>
-	protected override ValueTask<bool> OnTestFinished(
+	protected override async ValueTask<bool> OnTestFinished(
 		XunitTestRunnerContext ctxt,
 		decimal executionTime,
-		string output)
+		string output,
+		string[]? warnings)
 	{
 		Guard.ArgumentNotNull(ctxt);
 
-		var result = ctxt.MessageBus.QueueMessage(new TestFinished
-		{
-			AssemblyUniqueID = ctxt.Test.TestCase.TestCollection.TestAssembly.UniqueID,
-			Attachments = TestContext.Current.Attachments ?? TestFinished.EmptyAttachments,
-			ExecutionTime = executionTime,
-			FinishTime = DateTimeOffset.UtcNow,
-			Output = output,
-			TestCaseUniqueID = ctxt.Test.TestCase.UniqueID,
-			TestClassUniqueID = ctxt.Test.TestCase.TestClass.UniqueID,
-			TestCollectionUniqueID = ctxt.Test.TestCase.TestCollection.UniqueID,
-			TestMethodUniqueID = ctxt.Test.TestCase.TestMethod?.UniqueID,
-			TestUniqueID = ctxt.Test.UniqueID,
-			Warnings = TestContext.Current.Warnings?.ToArray(),
-		});
-
+		var result = await base.OnTestFinished(ctxt, executionTime, output, warnings);
 		(TestContext.Current.TestOutputHelper as TestOutputHelper)?.Uninitialize();
-
-		return new(result);
-	}
-
-	/// <inheritdoc/>
-	protected override ValueTask<(bool Continue, TestResultState ResultState)> OnTestNotRun(
-		XunitTestRunnerContext ctxt,
-		string output)
-	{
-		Guard.ArgumentNotNull(ctxt);
-
-		var message = new TestNotRun
-		{
-			AssemblyUniqueID = ctxt.Test.TestCase.TestCollection.TestAssembly.UniqueID,
-			ExecutionTime = 0m,
-			FinishTime = DateTimeOffset.UtcNow,
-			Output = output,
-			TestCaseUniqueID = ctxt.Test.TestCase.UniqueID,
-			TestClassUniqueID = ctxt.Test.TestCase.TestClass.UniqueID,
-			TestCollectionUniqueID = ctxt.Test.TestCase.TestCollection.UniqueID,
-			TestMethodUniqueID = ctxt.Test.TestCase.TestMethod?.UniqueID,
-			TestUniqueID = ctxt.Test.UniqueID,
-			Warnings = TestContext.Current.Warnings?.ToArray(),
-		};
-
-		return new((ctxt.MessageBus.QueueMessage(message), TestResultState.FromTestResult(message)));
-	}
-
-	/// <inheritdoc/>
-	protected override ValueTask<(bool Continue, TestResultState ResultState)> OnTestPassed(
-		XunitTestRunnerContext ctxt,
-		decimal executionTime,
-		string output)
-	{
-		Guard.ArgumentNotNull(ctxt);
-
-		var message = new TestPassed
-		{
-			AssemblyUniqueID = ctxt.Test.TestCase.TestCollection.TestAssembly.UniqueID,
-			ExecutionTime = executionTime,
-			FinishTime = DateTimeOffset.UtcNow,
-			Output = output,
-			TestCaseUniqueID = ctxt.Test.TestCase.UniqueID,
-			TestClassUniqueID = ctxt.Test.TestCase.TestClass.UniqueID,
-			TestCollectionUniqueID = ctxt.Test.TestCase.TestCollection.UniqueID,
-			TestMethodUniqueID = ctxt.Test.TestCase.TestMethod?.UniqueID,
-			TestUniqueID = ctxt.Test.UniqueID,
-			Warnings = TestContext.Current.Warnings?.ToArray(),
-		};
-
-		return new((ctxt.MessageBus.QueueMessage(message), TestResultState.FromTestResult(message)));
-	}
-
-	/// <inheritdoc/>
-	protected override ValueTask<(bool Continue, TestResultState ResultState)> OnTestSkipped(
-		XunitTestRunnerContext ctxt,
-		string skipReason,
-		decimal executionTime,
-		string output)
-	{
-		Guard.ArgumentNotNull(ctxt);
-
-		var message = new TestSkipped
-		{
-			AssemblyUniqueID = ctxt.Test.TestCase.TestCollection.TestAssembly.UniqueID,
-			ExecutionTime = executionTime,
-			FinishTime = DateTimeOffset.UtcNow,
-			Output = output,
-			Reason = skipReason,
-			TestCaseUniqueID = ctxt.Test.TestCase.UniqueID,
-			TestClassUniqueID = ctxt.Test.TestCase.TestClass.UniqueID,
-			TestCollectionUniqueID = ctxt.Test.TestCase.TestCollection.UniqueID,
-			TestMethodUniqueID = ctxt.Test.TestCase.TestMethod?.UniqueID,
-			TestUniqueID = ctxt.Test.UniqueID,
-			Warnings = TestContext.Current.Warnings?.ToArray(),
-		};
-
-		return new((ctxt.MessageBus.QueueMessage(message), TestResultState.FromTestResult(message)));
+		return result;
 	}
 
 	/// <inheritdoc/>
@@ -349,21 +121,7 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext, IXunitTest>
 		Guard.ArgumentNotNull(ctxt);
 
 		(TestContext.Current.TestOutputHelper as TestOutputHelper)?.Initialize(ctxt.MessageBus, ctxt.Test);
-
-		return new(ctxt.MessageBus.QueueMessage(new TestStarting
-		{
-			AssemblyUniqueID = ctxt.Test.TestCase.TestCollection.TestAssembly.UniqueID,
-			Explicit = ctxt.Test.Explicit,
-			StartTime = DateTimeOffset.UtcNow,
-			TestCaseUniqueID = ctxt.Test.TestCase.UniqueID,
-			TestClassUniqueID = ctxt.Test.TestCase.TestClass.UniqueID,
-			TestCollectionUniqueID = ctxt.Test.TestCase.TestCollection.UniqueID,
-			TestDisplayName = ctxt.Test.TestDisplayName,
-			TestMethodUniqueID = ctxt.Test.TestCase.TestMethod?.UniqueID,
-			TestUniqueID = ctxt.Test.UniqueID,
-			Timeout = ctxt.Test.Timeout,
-			Traits = ctxt.Test.Traits,
-		}));
+		return OnTestStarting(ctxt, ctxt.Test.Explicit, ctxt.Test.Timeout);
 	}
 
 	/// <inheritdoc/>
@@ -380,26 +138,85 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext, IXunitTest>
 	/// <param name="test">The test that this invocation belongs to.</param>
 	/// <param name="messageBus">The message bus to report run status to.</param>
 	/// <param name="constructorArguments">The arguments to be passed to the test class constructor.</param>
-	/// <param name="skipReason">The skip reason, if the test is to be skipped.</param>
 	/// <param name="explicitOption">A flag to indicate how explicit tests should be treated.</param>
 	/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 	/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 	/// <param name="beforeAfterAttributes">The list of <see cref="IBeforeAfterTestAttribute"/>s for this test.</param>
 	/// <returns>Returns summary information about the test that was run.</returns>
-	public async ValueTask<RunSummary> RunAsync(
+	public async ValueTask<RunSummary> Run(
 		IXunitTest test,
 		IMessageBus messageBus,
 		object?[] constructorArguments,
-		string? skipReason,
 		ExplicitOption explicitOption,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource,
 		IReadOnlyCollection<IBeforeAfterTestAttribute> beforeAfterAttributes)
 	{
-		await using var ctxt = new XunitTestRunnerContext(test, messageBus, skipReason, explicitOption, aggregator, cancellationTokenSource, beforeAfterAttributes, constructorArguments);
+		await using var ctxt = new XunitTestRunnerContext(
+			test,
+			messageBus,
+			explicitOption,
+			aggregator,
+			cancellationTokenSource,
+			beforeAfterAttributes,
+			constructorArguments
+		);
 		await ctxt.InitializeAsync();
 
-		return await RunAsync(ctxt);
+		return await Run(ctxt);
+	}
+
+	/// <inheritdoc/>
+	protected override ValueTask<TimeSpan> RunTest(XunitTestRunnerContext ctxt)
+	{
+		Guard.ArgumentNotNull(ctxt);
+
+		return
+			ctxt.Test.Timeout > 0
+				? RunTestWithTimeout(ctxt, ctxt.Test.Timeout)
+				: base.RunTest(ctxt);
+	}
+
+	async ValueTask<TimeSpan> RunTestWithTimeout(
+		XunitTestRunnerContext ctxt,
+		int timeout)
+	{
+		// We keep our own notion of execution time, since the time recorded by
+		// calling the base RunTest isn't sufficient
+		var stopwatch = Stopwatch.StartNew();
+
+		await ctxt.Aggregator.RunAsync(async () =>
+		{
+			var syncContext = SynchronizationContext.Current;
+
+			Task baseTask =
+				syncContext is null
+					? Task.Run(async () => await base.RunTest(ctxt))
+					: Task.Run(() =>
+					{
+						var tcs = new TaskCompletionSource<object?>();
+
+						syncContext.Post(async _ =>
+						{
+							// base.RunTest is guarded against throwing, so no need to
+							// try/catch and report exceptions via the TCS
+							await base.RunTest(ctxt);
+							tcs.TrySetResult(null);
+						}, null);
+
+						return tcs.Task;
+					});
+
+			var resultTask = await Task.WhenAny(baseTask, Task.Delay(timeout));
+
+			if (resultTask != baseTask)
+			{
+				TestContext.Current.CancelCurrentTest();
+				throw TestTimeoutException.ForTimedOutTest(timeout);
+			}
+		});
+
+		return stopwatch.Elapsed;
 	}
 
 	/// <inheritdoc/>

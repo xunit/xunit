@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Internal;
@@ -10,12 +11,18 @@ namespace Xunit.v3;
 /// A base class that provides default behavior when running a test. This includes support
 /// for skipping tests.
 /// </summary>
+/// <remarks>
+/// This class does not make any assumptions about what it means to run an individual test,
+/// just that at some point, the test will be run. The intention with this base class is that
+/// it can serve as a base for non-traditional tests.
+/// </remarks>
 /// <typeparam name="TContext">The context type used by the runner</typeparam>
 /// <typeparam name="TTest">The test type used by the test framework. Must derive from
 /// <see cref="ITest"/>.</typeparam>
-public abstract class TestRunner<TContext, TTest>
-	where TContext : TestRunnerContext<TTest>
-	where TTest : class, ITest
+public abstract class TestRunner<TContext, TTest> :
+	TestRunnerBase<TContext, TTest>
+		where TContext : TestRunnerContext<TTest>
+		where TTest : class, ITest
 {
 	/// <summary>
 	/// Initializes a new instance of the <see cref="TestRunner{TContext, TTest}"/> class.
@@ -23,6 +30,7 @@ public abstract class TestRunner<TContext, TTest>
 	protected TestRunner()
 	{ }
 
+	/// <inheritdoc/>
 	async ValueTask<(object?, SynchronizationContext?, ExecutionContext?)> CreateTestClass(TContext ctxt)
 	{
 		Guard.ArgumentNotNull(ctxt);
@@ -51,7 +59,8 @@ public abstract class TestRunner<TContext, TTest>
 	/// Override to creates and initialize the instance of the test class.
 	/// </summary>
 	/// <param name="ctxt">The context that describes the current test</param>
-	/// <returns>Returns the test class instance, and the sync context that is current after the creation</returns>
+	/// <returns>Returns the test class instance, the sync context that is current after the creation,
+	/// and a capture of the execution context so that it can be restored later.</returns>
 	/// <remarks>
 	/// This method runs during <see cref="TestEngineStatus.Running"/> and any exceptions thrown will
 	/// contribute to test failure. Since the method is potentially async, we depend on it to capture and
@@ -78,7 +87,8 @@ public abstract class TestRunner<TContext, TTest>
 	}
 
 	/// <summary>
-	/// Override to dispose of the test class instance.
+	/// Disposes the test class instance. By default, will call <see cref="IAsyncDisposable.DisposeAsync"/> if
+	/// it's implemented, falling back to <see cref="IDisposable.Dispose"/> if not.
 	/// </summary>
 	/// <remarks>
 	/// This method runs during <see cref="TestEngineStatus.CleaningUp"/> and any exceptions thrown will
@@ -86,24 +96,20 @@ public abstract class TestRunner<TContext, TTest>
 	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test</param>
 	/// <param name="testClassInstance">The test class instance</param>
-	protected abstract ValueTask DisposeTestClassInstance(
+	protected virtual async ValueTask DisposeTestClassInstance(
 		TContext ctxt,
-		object testClassInstance);
+		object testClassInstance)
+	{
+		Guard.ArgumentNotNull(ctxt);
+
+		if (testClassInstance is IAsyncDisposable asyncDisposable)
+			await asyncDisposable.DisposeAsync();
+		else if (testClassInstance is IDisposable disposable)
+			disposable.Dispose();
+	}
 
 	/// <summary>
-	/// Gets any output collected from the test after execution is complete. If the test framework
-	/// did not collect any output, or does not support collecting output, then it should
-	/// return <see cref="string.Empty"/>.
-	/// </summary>
-	/// <remarks>
-	/// This method runs during <see cref="TestEngineStatus.CleaningUp"/> and any exceptions thrown will
-	/// contribute to test cleanup failure.
-	/// </remarks>
-	/// <param name="ctxt">The context that describes the current test</param>
-	protected abstract ValueTask<string> GetTestOutput(TContext ctxt);
-
-	/// <summary>
-	/// Override this method to invoke the test.
+	/// Invokes the test method and returns the amount of time spent executing.
 	/// </summary>
 	/// <remarks>
 	/// This method runs during <see cref="TestEngineStatus.Running"/> and any exceptions thrown will
@@ -113,9 +119,74 @@ public abstract class TestRunner<TContext, TTest>
 	/// <param name="testClassInstance">The instance of the test class (may be <c>null</c> when
 	/// running a static test method)</param>
 	/// <returns>Returns the execution time (in seconds) spent running the test method.</returns>
-	protected abstract ValueTask<TimeSpan> InvokeTestAsync(
+	protected virtual ValueTask<TimeSpan> InvokeTest(
 		TContext ctxt,
-		object? testClassInstance);
+		object? testClassInstance)
+	{
+		Guard.ArgumentNotNull(ctxt);
+
+		if (ctxt.Test.TestCase.TestMethod is null)
+		{
+			ctxt.Aggregator.Add(
+				new TestPipelineException(
+					string.Format(
+						CultureInfo.CurrentCulture,
+						"Test '{0}' does not have an associated method and cannot be run by TestRunner",
+						ctxt.Test.TestDisplayName
+					)
+				)
+			);
+
+			return new(TimeSpan.Zero);
+		}
+
+		return ExecutionTimer.MeasureAsync(
+			() => ctxt.Aggregator.RunAsync(
+				async () =>
+				{
+					var parameterCount = ctxt.TestMethod.GetParameters().Length;
+					var valueCount = ctxt.TestMethodArguments is null ? 0 : ctxt.TestMethodArguments.Length;
+					if (parameterCount != valueCount)
+					{
+						ctxt.Aggregator.Add(
+							new InvalidOperationException(
+								string.Format(
+									CultureInfo.CurrentCulture,
+									"The test method expected {0} parameter value{1}, but {2} parameter value{3} {4} provided.",
+									parameterCount,
+									parameterCount == 1 ? "" : "s",
+									valueCount,
+									valueCount == 1 ? "" : "s",
+									valueCount == 1 ? "was" : "were"
+								)
+							)
+						);
+					}
+					else
+					{
+						var logEnabled = TestEventSource.Log.IsEnabled();
+
+						if (logEnabled)
+							TestEventSource.Log.TestStart(ctxt.Test.TestDisplayName);
+
+						try
+						{
+							var result = ctxt.TestMethod.Invoke(testClassInstance, ctxt.TestMethodArguments);
+							var valueTask = AsyncUtility.TryConvertToValueTask(result);
+							if (valueTask.HasValue)
+								await valueTask.Value;
+						}
+						catch (TaskCanceledException) { }
+						finally
+						{
+							if (logEnabled)
+								TestEventSource.Log.TestStop(ctxt.Test.TestDisplayName);
+						}
+					}
+				}
+			)
+		);
+	}
 
 	/// <summary>
 	/// Override to determine whether a test class should be created.
@@ -128,7 +199,9 @@ public abstract class TestRunner<TContext, TTest>
 	protected abstract bool IsTestClassCreatable(TContext ctxt);
 
 	/// <summary>
-	/// Override to determine whether a test class instance should be disposed.
+	/// Determine whether a test class instance should be disposed. The pipeline will only call
+	/// <see cref="DisposeTestClassInstance"/> if this returns <c>true</c>. By default, looks to
+	/// see if the class implements <see cref="IAsyncDisposable"/> or <see cref="IDisposable"/>.
 	/// </summary>
 	/// <remarks>
 	/// This method runs during <see cref="TestEngineStatus.Running"/> and any exceptions thrown will
@@ -136,13 +209,14 @@ public abstract class TestRunner<TContext, TTest>
 	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test</param>
 	/// <param name="testClassInstance">The test class instance</param>
-	protected abstract bool IsTestClassDisposable(
+	protected virtual bool IsTestClassDisposable(
 		TContext ctxt,
-		object testClassInstance);
+		object testClassInstance) =>
+			testClassInstance is IDisposable or IAsyncDisposable;
 
 	/// <summary>
-	/// This method will be called when a test class instance has finished being constructed. This
-	/// will typically send a message like <see cref="ITestClassConstructionFinished"/>.
+	/// This method will be called when a test class instance has finished being constructed. By
+	/// default, this sends <see cref="TestClassConstructionFinished"/>.
 	/// </summary>
 	/// <remarks>
 	/// This method runs during <see cref="TestEngineStatus.Running"/> and any exceptions thrown will
@@ -150,11 +224,24 @@ public abstract class TestRunner<TContext, TTest>
 	/// </remarks>
 	/// <param name="ctxt">The invoker context</param>
 	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
-	protected abstract ValueTask<bool> OnTestClassConstructionFinished(TContext ctxt);
+	protected virtual ValueTask<bool> OnTestClassConstructionFinished(TContext ctxt)
+	{
+		Guard.ArgumentNotNull(ctxt);
+
+		return new(ctxt.MessageBus.QueueMessage(new TestClassConstructionFinished
+		{
+			AssemblyUniqueID = ctxt.Test.TestCase.TestCollection.TestAssembly.UniqueID,
+			TestCaseUniqueID = ctxt.Test.TestCase.UniqueID,
+			TestClassUniqueID = ctxt.Test.TestCase.TestClass?.UniqueID,
+			TestCollectionUniqueID = ctxt.Test.TestCase.TestCollection.UniqueID,
+			TestMethodUniqueID = ctxt.Test.TestCase.TestMethod?.UniqueID,
+			TestUniqueID = ctxt.Test.UniqueID,
+		}));
+	}
 
 	/// <summary>
-	/// This method will be called when a test class instance is about to be constructed. This
-	/// will typically send a message like <see cref="ITestClassConstructionStarting"/>.
+	/// This method will be called when a test class instance is about to be constructed. By
+	/// default, this sends <see cref="TestClassConstructionStarting"/>.
 	/// </summary>
 	/// <remarks>
 	/// This method runs during <see cref="TestEngineStatus.Running"/> and any exceptions thrown will
@@ -162,11 +249,24 @@ public abstract class TestRunner<TContext, TTest>
 	/// </remarks>
 	/// <param name="ctxt">The invoker context</param>
 	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
-	protected abstract ValueTask<bool> OnTestClassConstructionStarting(TContext ctxt);
+	protected virtual ValueTask<bool> OnTestClassConstructionStarting(TContext ctxt)
+	{
+		Guard.ArgumentNotNull(ctxt);
+
+		return new(ctxt.MessageBus.QueueMessage(new TestClassConstructionStarting
+		{
+			AssemblyUniqueID = ctxt.Test.TestCase.TestCollection.TestAssembly.UniqueID,
+			TestCaseUniqueID = ctxt.Test.TestCase.UniqueID,
+			TestClassUniqueID = ctxt.Test.TestCase.TestClass?.UniqueID,
+			TestCollectionUniqueID = ctxt.Test.TestCase.TestCollection.UniqueID,
+			TestMethodUniqueID = ctxt.Test.TestCase.TestMethod?.UniqueID,
+			TestUniqueID = ctxt.Test.UniqueID,
+		}));
+	}
 
 	/// <summary>
-	/// This method will be called when a test class instance has finished being disposed. This
-	/// will typically send a message like <see cref="ITestClassDisposeFinished"/>.
+	/// This method will be called when a test class instance has finished being disposed. By
+	/// default, this sends <see cref="TestClassDisposeFinished"/>.
 	/// </summary>
 	/// <remarks>
 	/// This method runs during <see cref="TestEngineStatus.Running"/> and any exceptions thrown will
@@ -174,11 +274,24 @@ public abstract class TestRunner<TContext, TTest>
 	/// </remarks>
 	/// <param name="ctxt">The invoker context</param>
 	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
-	protected abstract ValueTask<bool> OnTestClassDisposeFinished(TContext ctxt);
+	protected virtual ValueTask<bool> OnTestClassDisposeFinished(TContext ctxt)
+	{
+		Guard.ArgumentNotNull(ctxt);
+
+		return new(ctxt.MessageBus.QueueMessage(new TestClassDisposeFinished
+		{
+			AssemblyUniqueID = ctxt.Test.TestCase.TestCollection.TestAssembly.UniqueID,
+			TestCaseUniqueID = ctxt.Test.TestCase.UniqueID,
+			TestClassUniqueID = ctxt.Test.TestCase.TestClass?.UniqueID,
+			TestCollectionUniqueID = ctxt.Test.TestCase.TestCollection.UniqueID,
+			TestMethodUniqueID = ctxt.Test.TestCase.TestMethod?.UniqueID,
+			TestUniqueID = ctxt.Test.UniqueID,
+		}));
+	}
 
 	/// <summary>
-	/// This method will be called when a test class instance is about to be disposed. This
-	/// will typically send a message like <see cref="ITestClassDisposeStarting"/>.
+	/// This method will be called when a test class instance is about to be disposed. By
+	/// default, this sends <see cref="TestClassDisposeStarting"/>.
 	/// </summary>
 	/// <remarks>
 	/// This method runs during <see cref="TestEngineStatus.Running"/> and any exceptions thrown will
@@ -186,122 +299,20 @@ public abstract class TestRunner<TContext, TTest>
 	/// </remarks>
 	/// <param name="ctxt">The invoker context</param>
 	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
-	protected abstract ValueTask<bool> OnTestClassDisposeStarting(TContext ctxt);
+	protected virtual ValueTask<bool> OnTestClassDisposeStarting(TContext ctxt)
+	{
+		Guard.ArgumentNotNull(ctxt);
 
-	/// <summary>
-	/// This method is called when an exception was thrown while cleaning up, after the test has run.
-	/// This will typically send a "test cleanup failure" message (like <see cref="ITestCleanupFailure"/>).
-	/// </summary>
-	/// <remarks>
-	/// This method runs during <see cref="TestEngineStatus.CleaningUp"/> and any exceptions thrown are
-	/// converted into fatal exception messages (via <see cref="IErrorMessage"/>) and sent to the message
-	/// bus in <paramref name="ctxt"/>.
-	/// </remarks>
-	/// <param name="ctxt">The context that describes the current test</param>
-	/// <param name="exception">The exception that caused the cleanup failure (may be an instance
-	/// of <see cref="AggregateException"/> if more than one exception occurred).</param>
-	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
-	protected abstract ValueTask<bool> OnTestCleanupFailure(TContext ctxt, Exception exception);
-
-	/// <summary>
-	/// This method is called when a test has failed. This will typically send a test failed message
-	/// (i.e., <see cref="ITestFailed"/>).
-	/// </summary>
-	/// <remarks>
-	/// This method runs during <see cref="TestEngineStatus.CleaningUp"/> and any exceptions thrown will
-	/// contribute to test cleanup failure.
-	/// </remarks>
-	/// <param name="ctxt">The context that describes the current test</param>
-	/// <param name="exception">The exception that caused the test failure</param>
-	/// <param name="executionTime">The time spent running the test</param>
-	/// <param name="output">The output from the test</param>
-	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
-	protected abstract ValueTask<(bool Continue, TestResultState ResultState)> OnTestFailed(
-		TContext ctxt,
-		Exception exception,
-		decimal executionTime,
-		string output);
-
-	/// <summary>
-	/// This method is called just after the test has finished running. This will typically send a test finished
-	/// message (i.e., <see cref="ITestFinished"/>) as well as enabling any extensibility related to test finish.
-	/// </summary>
-	/// <remarks>
-	/// This method runs during <see cref="TestEngineStatus.CleaningUp"/> and any exceptions thrown will
-	/// contribute to test cleanup failure.
-	/// </remarks>
-	/// <param name="ctxt">The context that describes the current test</param>
-	/// <param name="executionTime">The time spent running the test</param>
-	/// <param name="output">The output from the test</param>
-	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
-	protected abstract ValueTask<bool> OnTestFinished(
-		TContext ctxt,
-		decimal executionTime,
-		string output);
-
-	/// <summary>
-	/// This method is called when a test was not run. This will typically send a "test not run" message
-	/// (like <see cref="ITestNotRun"/>).
-	/// </summary>
-	/// <remarks>
-	/// This method runs during <see cref="TestEngineStatus.CleaningUp"/> and any exceptions thrown will
-	/// contribute to test cleanup failure.
-	/// </remarks>
-	/// <param name="ctxt">The context that describes the current test</param>
-	/// <param name="output">The output from the test</param>
-	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
-	protected abstract ValueTask<(bool Continue, TestResultState ResultState)> OnTestNotRun(
-		TContext ctxt,
-		string output);
-
-	/// <summary>
-	/// This method is called when a test has passed. This will typically send a "test passed" message
-	/// (like <see cref="ITestPassed"/>).
-	/// </summary>
-	/// <remarks>
-	/// This method runs during <see cref="TestEngineStatus.CleaningUp"/> and any exceptions thrown will
-	/// contribute to test cleanup failure.
-	/// </remarks>
-	/// <param name="ctxt">The context that describes the current test</param>
-	/// <param name="executionTime">The time spent running the test</param>
-	/// <param name="output">The output from the test</param>
-	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
-	protected abstract ValueTask<(bool Continue, TestResultState ResultState)> OnTestPassed(
-		TContext ctxt,
-		decimal executionTime,
-		string output);
-
-	/// <summary>
-	/// This method is called when a test is skipped. This will typically send a "test not run" message
-	/// (like <see cref="ITestNotRun"/>).
-	/// </summary>
-	/// <remarks>
-	/// This method runs during <see cref="TestEngineStatus.CleaningUp"/> and any exceptions thrown will
-	/// contribute to test cleanup failure.
-	/// </remarks>
-	/// <param name="ctxt">The context that describes the current test</param>
-	/// <param name="skipReason">The reason given for skipping the test</param>
-	/// <param name="executionTime">The time spent running the test</param>
-	/// <param name="output">The output from the test</param>
-	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
-	protected abstract ValueTask<(bool Continue, TestResultState ResultState)> OnTestSkipped(
-		TContext ctxt,
-		string skipReason,
-		decimal executionTime,
-		string output);
-
-	/// <summary>
-	/// This method is called just before the test is run. This will typically send a "test starting" message
-	/// (like <see cref="ITestStarting"/>) as well as enabling any extensibility related to test start.
-	/// </summary>
-	/// <remarks>
-	/// This method runs during <see cref="TestEngineStatus.Initializing"/> and any exceptions thrown will
-	/// contribute to test failure (and will prevent the test from running).  Even if this method records
-	/// exceptions, <see cref="OnTestFinished"/> will be called.
-	/// </remarks>
-	/// <param name="ctxt">The context that describes the current test</param>
-	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
-	protected abstract ValueTask<bool> OnTestStarting(TContext ctxt);
+		return new(ctxt.MessageBus.QueueMessage(new TestClassDisposeStarting
+		{
+			AssemblyUniqueID = ctxt.Test.TestCase.TestCollection.TestAssembly.UniqueID,
+			TestCaseUniqueID = ctxt.Test.TestCase.UniqueID,
+			TestClassUniqueID = ctxt.Test.TestCase.TestClass?.UniqueID,
+			TestCollectionUniqueID = ctxt.Test.TestCase.TestCollection.UniqueID,
+			TestMethodUniqueID = ctxt.Test.TestCase.TestMethod?.UniqueID,
+			TestUniqueID = ctxt.Test.UniqueID,
+		}));
+	}
 
 	/// <summary>
 	/// Override this method to call code just after the test invocation has completed, but before
@@ -319,190 +330,74 @@ public abstract class TestRunner<TContext, TTest>
 	protected virtual ValueTask PreInvoke(TContext ctxt) =>
 		default;
 
-	/// <summary>
-	/// Runs the test.
-	/// </summary>
-	/// <remarks>
-	/// This function is the primary orchestrator of test execution.
-	/// </remarks>
-	/// <param name="ctxt">The context that describes the current test</param>
-	/// <returns>Returns summary information about the test that was run.</returns>
-	protected async ValueTask<RunSummary> RunAsync(TContext ctxt)
+	/// <inheritdoc/>
+	protected override async ValueTask<TimeSpan> RunTest(TContext ctxt)
 	{
 		Guard.ArgumentNotNull(ctxt);
 
-		SetTestContext(ctxt, TestEngineStatus.Initializing);
-
-		var summary = new RunSummary();
-		var output = string.Empty;
+		object? testClassInstance = null;
 		var elapsedTime = TimeSpan.Zero;
 
-		if (!await ctxt.Aggregator.RunAsync(() => OnTestStarting(ctxt), true))
-			ctxt.CancellationTokenSource.Cancel();
-
-		var @continue = true;
-		TestResultState? resultState = null;
-
-		SetTestContext(ctxt, TestEngineStatus.Running);
-
-		if (!ctxt.CancellationTokenSource.IsCancellationRequested)
+		if (!ctxt.Aggregator.HasExceptions)
 		{
-			object? testClassInstance = null;
-			var shouldRun = true;
+			SynchronizationContext? syncContext = null;
+			ExecutionContext? executionContext = null;
 
-			summary.Total = 1;
+			elapsedTime += await ExecutionTimer.MeasureAsync(() => ctxt.Aggregator.RunAsync(async () => { (testClassInstance, syncContext, executionContext) = await CreateTestClass(ctxt); }));
 
-			if (!ctxt.Aggregator.HasExceptions)
+			TaskCompletionSource<object?> finished = new();
+
+			if (executionContext is not null)
+				ExecutionContext.Run(executionContext, runTest, null);
+			else
+				runTest(null);
+
+			await finished.Task;
+
+			async void runTest(object? _)
 			{
-				shouldRun = ctxt.Aggregator.Run(() => ShouldTestRun(ctxt), true);
+				SynchronizationContext.SetSynchronizationContext(syncContext);
+				UpdateTestContext(testClassInstance);
 
-				if (shouldRun && ctxt.GetSkipReason() is null && !ctxt.Aggregator.HasExceptions)
+				try
 				{
-					SynchronizationContext? syncContext = null;
-					ExecutionContext? executionContext = null;
-
-					elapsedTime += await ExecutionTimer.MeasureAsync(() => ctxt.Aggregator.RunAsync(async () => { (testClassInstance, syncContext, executionContext) = await CreateTestClass(ctxt); }));
-
-					TaskCompletionSource<object?> finished = new();
-
-					if (executionContext is not null)
-						ExecutionContext.Run(executionContext, runTest, null);
-					else
-						runTest(null);
-
-					await finished.Task;
-
-					async void runTest(object? _)
+					if (!ctxt.Aggregator.HasExceptions)
 					{
-						SynchronizationContext.SetSynchronizationContext(syncContext);
-						SetTestContext(ctxt, TestEngineStatus.Running, testClassInstance: testClassInstance);
+						elapsedTime += await ExecutionTimer.MeasureAsync(() => ctxt.Aggregator.RunAsync(() => PreInvoke(ctxt)));
 
-						try
+						if (!ctxt.Aggregator.HasExceptions)
 						{
-							if (!ctxt.Aggregator.HasExceptions)
-							{
-								elapsedTime += await ExecutionTimer.MeasureAsync(() => ctxt.Aggregator.RunAsync(() => PreInvoke(ctxt)));
+							elapsedTime += await ctxt.Aggregator.RunAsync(() => InvokeTest(ctxt, testClassInstance), TimeSpan.Zero);
 
-								if (!ctxt.Aggregator.HasExceptions)
-								{
-									elapsedTime += await ctxt.Aggregator.RunAsync(() => InvokeTestAsync(ctxt, testClassInstance), TimeSpan.Zero);
+							// Set an early version of TestResultState so anything done in PostInvoke can understand whether
+							// it looks like the test is passing, failing, or dynamically skipped
+							var currentException = ctxt.Aggregator.ToException();
+							var currentSkipReason = ctxt.GetSkipReason(currentException);
+							var currentExecutionTime = (decimal)elapsedTime.TotalMilliseconds;
+							var testResultState =
+								currentSkipReason is not null
+									? TestResultState.ForSkipped(currentExecutionTime)
+									: TestResultState.FromException(currentExecutionTime, currentException);
 
-									// Set an early version of TestResultState so anything done in PostInvoke can understand whether
-									// it looks like the test is passing, failing, or dynamically skipped
-									var currentException = ctxt.Aggregator.ToException();
-									var currentSkipReason = ctxt.GetSkipReason(currentException);
-									var currentExecutionTime = (decimal)elapsedTime.TotalMilliseconds;
-									var testResultState =
-										currentSkipReason is not null
-											? TestResultState.ForSkipped(currentExecutionTime)
-											: TestResultState.FromException(currentExecutionTime, currentException);
+							UpdateTestContext(testClassInstance, testResultState);
 
-									SetTestContext(ctxt, TestEngineStatus.Running, testResultState, testClassInstance: testClassInstance);
-
-									elapsedTime += await ExecutionTimer.MeasureAsync(() => ctxt.Aggregator.RunAsync(() => PostInvoke(ctxt)));
-								}
-
-								elapsedTime += await ExecutionTimer.MeasureAsync(() => ctxt.Aggregator.RunAsync(() => DisposeTestClass(ctxt, testClassInstance)));
-
-								SetTestContext(ctxt, TestEngineStatus.Running, TestContext.Current.TestState, testClassInstance: null);
-							}
-
-							finished.TrySetResult(null);
+							elapsedTime += await ExecutionTimer.MeasureAsync(() => ctxt.Aggregator.RunAsync(() => PostInvoke(ctxt)));
 						}
-						catch (Exception ex)
-						{
-							finished.TrySetException(ex);
-						}
+
+						elapsedTime += await ExecutionTimer.MeasureAsync(() => ctxt.Aggregator.RunAsync(() => DisposeTestClass(ctxt, testClassInstance)));
+
+						UpdateTestContext(null, TestContext.Current.TestState);
 					}
+
+					finished.TrySetResult(null);
+				}
+				catch (Exception ex)
+				{
+					finished.TrySetException(ex);
 				}
 			}
-
-			output = await ctxt.Aggregator.RunAsync(() => GetTestOutput(ctxt), string.Empty);
-			summary.Time = (decimal)elapsedTime.TotalSeconds;
-
-			var exception = ctxt.Aggregator.ToException();
-			var skipReason = ctxt.GetSkipReason(exception);
-
-			ctxt.Aggregator.Clear();
-
-			if (!shouldRun)
-			{
-				summary.NotRun++;
-				(@continue, resultState) = await ctxt.Aggregator.RunAsync(() => OnTestNotRun(ctxt, output), (true, TestResultState.ForNotRun()));
-			}
-			else if (skipReason is not null)
-			{
-				summary.Skipped++;
-				(@continue, resultState) = await ctxt.Aggregator.RunAsync(() => OnTestSkipped(ctxt, skipReason, 0m, output), (true, TestResultState.ForNotRun()));
-			}
-			else if (exception is not null)
-			{
-				summary.Failed++;
-				(@continue, resultState) = await ctxt.Aggregator.RunAsync(() => OnTestFailed(ctxt, exception, summary.Time, output), (true, TestResultState.ForNotRun()));
-			}
-			else
-				(@continue, resultState) = await ctxt.Aggregator.RunAsync(() => OnTestPassed(ctxt, summary.Time, output), (true, TestResultState.ForNotRun()));
 		}
 
-		if (!@continue)
-			ctxt.CancellationTokenSource.Cancel();
-
-		SetTestContext(ctxt, TestEngineStatus.CleaningUp, resultState ?? TestResultState.ForNotRun());
-
-		if (!await ctxt.Aggregator.RunAsync(() => OnTestFinished(ctxt, summary.Time, output), true))
-			ctxt.CancellationTokenSource.Cancel();
-
-		if (ctxt.Aggregator.HasExceptions)
-		{
-			var exception = ctxt.Aggregator.ToException()!;
-			ctxt.Aggregator.Clear();
-
-			if (!await ctxt.Aggregator.RunAsync(() => OnTestCleanupFailure(ctxt, exception), true))
-				ctxt.CancellationTokenSource.Cancel();
-
-			if (ctxt.Aggregator.HasExceptions)
-				ctxt.MessageBus.QueueMessage(ErrorMessage.FromException(ctxt.Aggregator.ToException()!));
-
-			ctxt.Aggregator.Clear();
-		}
-
-		return summary;
+		return elapsedTime;
 	}
-
-	/// <summary>
-	/// Sets the test context for the given test state and engine status.
-	/// </summary>
-	/// <remarks>
-	/// This method must never throw. Behavior is undefined if it does. Instead, exceptions that
-	/// occur should be recorded in the aggregator in <paramref name="ctxt"/> and will be reflected
-	/// in a way that's appropriate based on when this method is called.
-	/// </remarks>
-	/// <param name="ctxt">The context that describes the current test</param>
-	/// <param name="testStatus">The current engine status for the test</param>
-	/// <param name="testState">The current test state</param>
-	/// <param name="testClassInstance">The instance of the test class</param>
-	protected virtual void SetTestContext(
-		TContext ctxt,
-		TestEngineStatus testStatus,
-		TestResultState? testState = null,
-		object? testClassInstance = null)
-	{
-		Guard.ArgumentNotNull(ctxt);
-
-		TestContext.SetForTest(ctxt.Test, testStatus, ctxt.CancellationTokenSource.Token, testState, testClassInstance: testClassInstance);
-	}
-
-	/// <summary>
-	/// Override this to determine whether a test should be run or not (meaning, if you return <c>false</c>,
-	/// it will be reported with a status of <see cref="TestResult.NotRun"/>). By default, this method will
-	/// return <c>true</c>. This is typically used to implement the ability to exclude specific tests
-	/// unless they've been explicitly asked to be run.
-	/// </summary>
-	/// <remarks>
-	/// This method runs during <see cref="TestEngineStatus.Running"/> and any exceptions thrown will
-	/// contribute to test failure.
-	/// </remarks>
-	/// <param name="ctxt">The context that describes the current test</param>
-	protected virtual bool ShouldTestRun(TContext ctxt) =>
-		true;
 }

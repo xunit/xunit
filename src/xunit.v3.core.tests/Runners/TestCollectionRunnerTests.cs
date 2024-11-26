@@ -326,7 +326,7 @@ public static class TestCollectionRunnerTests
 
 		public RunSummary RunTestClassAsync__Result = new();
 
-		protected override ValueTask<RunSummary> RunTestClassAsync(
+		protected override ValueTask<RunSummary> RunTestClass(
 			TestCollectionRunnerContext<ITestCollection, ITestCase> ctxt,
 			ITestClass? testClass,
 			IReadOnlyCollection<ITestCase> testCases)
@@ -341,7 +341,7 @@ public static class TestCollectionRunnerTests
 			await using var ctxt = new TestCollectionRunnerContext<ITestCollection, ITestCase>(testCollection, testCases, ExplicitOption.Off, MessageBus, Aggregator, CancellationTokenSource);
 			await ctxt.InitializeAsync();
 
-			return await RunAsync(ctxt);
+			return await Run(ctxt);
 		}
 
 		static string TypeName(object? obj) =>

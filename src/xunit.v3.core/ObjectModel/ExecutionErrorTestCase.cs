@@ -51,13 +51,18 @@ public class ExecutionErrorTestCase : XunitTestCase
 	}
 
 	/// <inheritdoc/>
-	public override ValueTask<RunSummary> RunAsync(
+	public override ValueTask<RunSummary> Run(
 		ExplicitOption explicitOption,
 		IMessageBus messageBus,
 		object?[] constructorArguments,
 		ExceptionAggregator aggregator,
-		CancellationTokenSource cancellationTokenSource) =>
-			ExecutionErrorTestCaseRunner.Instance.RunAsync(this, messageBus, aggregator.Clone(), cancellationTokenSource);
+		CancellationTokenSource cancellationTokenSource)
+	{
+		var exception = new TestPipelineException(ErrorMessage);
+		aggregator.Add(exception);
+
+		return new(XunitRunnerHelper.FailTestCases(messageBus, cancellationTokenSource, [this], aggregator.ToException()!));
+	}
 
 	/// <inheritdoc/>
 	protected override void Serialize(IXunitSerializationInfo info)

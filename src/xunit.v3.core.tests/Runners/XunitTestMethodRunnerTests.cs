@@ -212,6 +212,6 @@ public class XunitTestMethodRunnerTests
 		public readonly SpyMessageBus MessageBus = new();
 
 		public ValueTask<RunSummary> RunAsync() =>
-			RunAsync(testCase.TestMethod, [testCase], ExplicitOption.Off, MessageBus, Aggregator, CancellationTokenSource, []);
+			Run(testCase.TestMethod, [testCase], ExplicitOption.Off, MessageBus, Aggregator, CancellationTokenSource, []);
 	}
 }

@@ -117,7 +117,7 @@ public sealed class TestContext : ITestContext, IDisposable
 	public ITestClass? TestClass { get; private set; }
 
 	/// <inheritdoc/>
-	public object? TestClassInstance { get; private set; }
+	public object? TestClassInstance { get; internal set; }
 
 	/// <inheritdoc/>
 	public TestEngineStatus? TestClassStatus { get; private set; }
@@ -138,7 +138,7 @@ public sealed class TestContext : ITestContext, IDisposable
 	public ITestOutputHelper? TestOutputHelper { get; private set; }
 
 	/// <inheritdoc/>
-	public TestResultState? TestState { get; private set; }
+	public TestResultState? TestState { get; internal set; }
 
 	/// <inheritdoc/>
 	public TestEngineStatus? TestStatus { get; private set; }

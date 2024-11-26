@@ -35,5 +35,5 @@ public class XunitTestFrameworkExecutor(IXunitTestAssembly testAssembly) :
 		IReadOnlyCollection<IXunitTestCase> testCases,
 		IMessageSink executionMessageSink,
 		ITestFrameworkExecutionOptions executionOptions) =>
-			await XunitTestAssemblyRunner.Instance.RunAsync(TestAssembly, testCases, executionMessageSink, executionOptions);
+			await XunitTestAssemblyRunner.Instance.Run(TestAssembly, testCases, executionMessageSink, executionOptions);
 }

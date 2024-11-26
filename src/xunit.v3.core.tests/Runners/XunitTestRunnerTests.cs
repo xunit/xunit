@@ -10,6 +10,31 @@ using Xunit.v3;
 
 public class XunitTestRunnerTests
 {
+	public class Guards
+	{
+		[Fact]
+		public static async ValueTask AsyncVoidProhibited()
+		{
+			var test = TestData.XunitTest<ClassUnderTest>(nameof(ClassUnderTest.AsyncVoidFact));
+			var messageBus = new SpyMessageBus();
+			var runner = new TestableXunitTestRunner(test, messageBus: messageBus);
+
+			await runner.Run();
+
+			var failed = Assert.Single(messageBus.Messages.OfType<ITestFailed>());
+			Assert.Equal(typeof(TestPipelineException).FullName, failed.ExceptionTypes.Single());
+			Assert.Equal("Tests marked as 'async void' are no longer supported. Please convert to 'async Task' or 'async ValueTask'.", failed.Messages.Single());
+		}
+
+#pragma warning disable xUnit1049 // Do not use 'async void' for test methods as it is no longer supported
+		class ClassUnderTest
+		{
+			[Fact]
+			public async void AsyncVoidFact() => await Task.Yield();
+		}
+#pragma warning restore xUnit1049 // Do not use 'async void' for test methods as it is no longer supported
+	}
+
 	public class Messages
 	{
 		[Fact]
@@ -20,7 +45,7 @@ public class XunitTestRunnerTests
 			var test = TestData.XunitTest<ClassUnderTest>(nameof(ClassUnderTest.Passing), @explicit: true, timeout: 12345678);
 			var runner = new TestableXunitTestRunner(test, beforeAfterTestAttributes: [attribute], messageBus: messageBus, explicitOption: ExplicitOption.On);
 
-			await runner.RunAsync();
+			await runner.Run();
 
 			Assert.Null(runner.Aggregator.ToException());
 			Assert.Collection(
@@ -30,7 +55,7 @@ public class XunitTestRunnerTests
 					var starting = Assert.IsAssignableFrom<ITestStarting>(msg);
 					verifyTestMessage(starting);
 					Assert.True(starting.Explicit);
-					Assert.Equal("test-display-name", starting.TestDisplayName);
+					Assert.Equal($"{typeof(ClassUnderTest).FullName}.{nameof(ClassUnderTest.Passing)}", starting.TestDisplayName);
 					Assert.Equal(12345678, starting.Timeout);
 					// Trait comes from an assembly-level trait attribute on this test assembly
 					var trait = Assert.Single(starting.Traits);
@@ -89,7 +114,7 @@ public class XunitTestRunnerTests
 			var test = TestData.XunitTest<ClassUnderTest>(nameof(ClassUnderTest.StaticPassing));
 			var runner = new TestableXunitTestRunner(test, messageBus: messageBus);
 
-			await runner.RunAsync();
+			await runner.Run();
 
 			Assert.Collection(
 				messageBus.Messages,
@@ -107,7 +132,7 @@ public class XunitTestRunnerTests
 			var test = TestData.XunitTest<ClassUnderTest>(nameof(ClassUnderTest.Failing));
 			var runner = new TestableXunitTestRunner(test, messageBus: messageBus);
 
-			await runner.RunAsync();
+			await runner.Run();
 
 			Assert.Collection(
 				messageBus.Messages,
@@ -134,7 +159,7 @@ public class XunitTestRunnerTests
 			var test = TestData.XunitTest<ClassUnderTest>(nameof(ClassUnderTest.SkippedViaAttribute));
 			var runner = new TestableXunitTestRunner(test, messageBus: messageBus);
 
-			await runner.RunAsync();
+			await runner.Run();
 
 			Assert.Collection(
 				messageBus.Messages,
@@ -155,7 +180,7 @@ public class XunitTestRunnerTests
 			var test = TestData.XunitTest<ClassUnderTest>(nameof(ClassUnderTest.SkippedViaSkipUnless));
 			var runner = new TestableXunitTestRunner(test, messageBus: messageBus);
 
-			await runner.RunAsync();
+			await runner.Run();
 
 			Assert.Collection(
 				messageBus.Messages,
@@ -176,7 +201,7 @@ public class XunitTestRunnerTests
 			var test = TestData.XunitTest<ClassUnderTest>(nameof(ClassUnderTest.SkippedViaSkipWhen));
 			var runner = new TestableXunitTestRunner(test, messageBus: messageBus);
 
-			await runner.RunAsync();
+			await runner.Run();
 
 			Assert.Collection(
 				messageBus.Messages,
@@ -197,7 +222,7 @@ public class XunitTestRunnerTests
 			var test = TestData.XunitTest<ClassUnderTest>(nameof(ClassUnderTest.NotSkippedViaSkipUnless));
 			var runner = new TestableXunitTestRunner(test, messageBus: messageBus);
 
-			await runner.RunAsync();
+			await runner.Run();
 
 			Assert.Collection(
 				messageBus.Messages,
@@ -219,7 +244,7 @@ public class XunitTestRunnerTests
 			var test = TestData.XunitTest<ClassUnderTest>(nameof(ClassUnderTest.NotSkippedViaSkipWhen));
 			var runner = new TestableXunitTestRunner(test, messageBus: messageBus);
 
-			await runner.RunAsync();
+			await runner.Run();
 
 			Assert.Collection(
 				messageBus.Messages,
@@ -241,7 +266,7 @@ public class XunitTestRunnerTests
 			var test = TestData.XunitTest<ClassUnderTest>(nameof(ClassUnderTest.SkippedViaException));
 			var runner = new TestableXunitTestRunner(test, messageBus: messageBus);
 
-			await runner.RunAsync();
+			await runner.Run();
 
 			Assert.Collection(
 				messageBus.Messages,
@@ -267,7 +292,7 @@ public class XunitTestRunnerTests
 			var test = TestData.XunitTest<ClassUnderTest>(nameof(ClassUnderTest.ExplicitTest));
 			var runner = new TestableXunitTestRunner(test, messageBus: messageBus);
 
-			await runner.RunAsync();
+			await runner.Run();
 
 			Assert.Collection(
 				messageBus.Messages,
@@ -285,7 +310,7 @@ public class XunitTestRunnerTests
 			var test = TestData.XunitTest<ClassUnderTest>(nameof(ClassUnderTest.Failing));
 			var runner = new TestableXunitTestRunner(test, beforeAfterTestAttributes: [attribute], messageBus: messageBus);
 
-			await runner.RunAsync();
+			await runner.Run();
 
 			Assert.Collection(
 				messageBus.Messages,
@@ -315,7 +340,7 @@ public class XunitTestRunnerTests
 			var test = TestData.XunitTest<ClassUnderTest>(nameof(ClassUnderTest.Failing));
 			var runner = new TestableXunitTestRunner(test, beforeAfterTestAttributes: [attribute], messageBus: messageBus);
 
-			await runner.RunAsync();
+			await runner.Run();
 
 			Assert.Collection(
 				messageBus.Messages,
@@ -353,7 +378,7 @@ public class XunitTestRunnerTests
 			var test = TestData.XunitTest<RecordingTestClass>(nameof(RecordingTestClass.ExecutionRecorder));
 			var invoker = new TestableXunitTestRunner(test, beforeAfterTestAttributes: [attribute1, attribute2], constructorArguments: [messages]);
 
-			await invoker.RunAsync();
+			await invoker.Run();
 
 			Assert.Collection(messages,
 				msg => Assert.Equal("Before #1", msg),
@@ -427,6 +452,57 @@ public class XunitTestRunnerTests
 		}
 	}
 
+	[Collection(typeof(XunitTestRunnerTestsCollection))]
+	public class Timeout
+	{
+		[Fact]
+		public async ValueTask WithoutTimeout()
+		{
+			var test = TestData.XunitTest<ClassUnderTest>(nameof(ClassUnderTest.WithoutTimeout));
+			var runner = new TestableXunitTestRunner(test);
+
+			await runner.Run();
+
+			Assert.Null(runner.Aggregator.ToException());
+			var classUnderTest = Assert.IsType<ClassUnderTest>(runner.TestClassInstance);
+			Assert.True(classUnderTest.WithoutTimeout_Called);
+			Assert.False(runner.TokenSource.IsCancellationRequested);
+		}
+
+		[Fact]
+		public async ValueTask WithTimeout()
+		{
+			var test = TestData.XunitTest<ClassUnderTest>(nameof(ClassUnderTest.WithTimeout), timeout: 10);
+			var messageBus = new SpyMessageBus();
+			var runner = new TestableXunitTestRunner(test, messageBus: messageBus);
+
+			await runner.Run();
+
+			var failed = Assert.Single(messageBus.Messages.OfType<ITestFailed>());
+			Assert.Equal(typeof(TestTimeoutException).FullName, failed.ExceptionTypes.Single());
+			Assert.Equal("Test execution timed out after 10 milliseconds", failed.Messages.Single());
+			var classUnderTest = Assert.IsType<ClassUnderTest>(runner.TestClassInstance);
+			Assert.True(classUnderTest.WithTimeout_CancellationToken.IsCancellationRequested);
+		}
+
+		class ClassUnderTest
+		{
+			public CancellationToken WithTimeout_CancellationToken;
+			public bool WithoutTimeout_Called;
+
+			[Fact]
+			public void WithoutTimeout() => WithoutTimeout_Called = true;
+
+			[Fact]
+			public async Task WithTimeout()
+			{
+				WithTimeout_CancellationToken = TestContext.Current.CancellationToken;
+
+				await Task.Delay(10_000, TestContext.Current.CancellationToken);
+			}
+		}
+	}
+
 	class TestableXunitTestRunner(
 		IXunitTest test,
 		IReadOnlyCollection<IBeforeAfterTestAttribute>? beforeAfterTestAttributes = null,
@@ -442,9 +518,22 @@ public class XunitTestRunnerTests
 		readonly IXunitTest test = test;
 
 		public readonly ExceptionAggregator Aggregator = new();
+		public object? TestClassInstance;
 		public readonly CancellationTokenSource TokenSource = new();
 
-		public ValueTask<RunSummary> RunAsync() =>
-			RunAsync(test, messageBus, constructorArguments, test.TestCase.SkipReason, explicitOption, Aggregator, TokenSource, beforeAfterTestAttributes);
+		protected override async ValueTask<(object? Instance, SynchronizationContext? SyncContext, ExecutionContext? ExecutionContext)> CreateTestClassInstance(XunitTestRunnerContext ctxt)
+		{
+			var result = await base.CreateTestClassInstance(ctxt);
+
+			TestClassInstance = result.Instance;
+
+			return result;
+		}
+
+		public ValueTask<RunSummary> Run() =>
+			Run(test, messageBus, constructorArguments, explicitOption, Aggregator, TokenSource, beforeAfterTestAttributes);
 	}
 }
+
+[CollectionDefinition(DisableParallelization = true)]
+public class XunitTestRunnerTestsCollection { }

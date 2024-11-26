@@ -27,7 +27,7 @@ public class XunitTestMethodRunner :
 	/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 	/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 	/// <param name="constructorArguments">The constructor arguments for the test class.</param>
-	public async ValueTask<RunSummary> RunAsync(
+	public async ValueTask<RunSummary> Run(
 		IXunitTestMethod testMethod,
 		IReadOnlyCollection<IXunitTestCase> testCases,
 		ExplicitOption explicitOption,
@@ -43,11 +43,11 @@ public class XunitTestMethodRunner :
 		await using var ctxt = new XunitTestMethodRunnerContext(testMethod, testCases, explicitOption, messageBus, aggregator, cancellationTokenSource, constructorArguments);
 		await ctxt.InitializeAsync();
 
-		return await RunAsync(ctxt);
+		return await Run(ctxt);
 	}
 
 	/// <inheritdoc/>
-	protected override ValueTask<RunSummary> RunTestCaseAsync(
+	protected override ValueTask<RunSummary> RunTestCase(
 		XunitTestMethodRunnerContext ctxt,
 		IXunitTestCase testCase)
 	{
@@ -55,7 +55,7 @@ public class XunitTestMethodRunner :
 		Guard.ArgumentNotNull(testCase);
 
 		return
-			testCase.RunAsync(
+			testCase.Run(
 				ctxt.ExplicitOption,
 				ctxt.MessageBus,
 				ctxt.ConstructorArguments,

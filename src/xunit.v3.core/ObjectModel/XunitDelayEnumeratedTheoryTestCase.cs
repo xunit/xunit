@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Threading;
+using System.Globalization;
+using System.Linq;
 using System.Threading.Tasks;
+using Xunit.Internal;
 using Xunit.Sdk;
 
 namespace Xunit.v3;
@@ -71,6 +73,72 @@ public class XunitDelayEnumeratedTheoryTestCase : XunitTestCase, IXunitDelayEnum
 			) =>
 				SkipTestWithoutData = skipTestWithoutData;
 
+	/// <summary>
+	/// Enumerates the theory data and creates tests to be run.
+	/// </summary>
+	protected override async ValueTask<IReadOnlyCollection<IXunitTest>> CreateTests()
+	{
+		var testIndex = 0;
+		var result = new List<IXunitTest>();
+
+		foreach (var dataAttribute in TestMethod.DataAttributes)
+		{
+			var data =
+				await dataAttribute.GetData(TestMethod.Method, DisposalTracker)
+					?? throw new TestPipelineException(
+						string.Format(
+							CultureInfo.CurrentCulture,
+							"Test data returned null for {0}.{1}. Make sure it is statically initialized before this test method is called.",
+							TestMethod.TestClass.TestClassName,
+							TestMethod.MethodName
+						)
+					);
+
+			foreach (var dataRow in data)
+			{
+				var dataRowData = dataRow.GetData();
+				DisposalTracker.AddRange(dataRowData);
+
+				var testMethod = TestMethod;
+				var resolvedTypes = testMethod.ResolveGenericTypes(dataRowData);
+				if (resolvedTypes is not null)
+					testMethod = new XunitTestMethod(testMethod.TestClass, testMethod.MakeGenericMethod(resolvedTypes), dataRowData);
+
+				var convertedDataRow = testMethod.ResolveMethodArguments(dataRowData);
+
+				var parameterTypes = testMethod.Parameters.Select(p => p.ParameterType).ToArray();
+				convertedDataRow = TypeHelper.ConvertArguments(convertedDataRow, parameterTypes);
+
+				var baseDisplayName = dataRow.TestDisplayName ?? dataAttribute.TestDisplayName ?? TestCaseDisplayName;
+				var theoryDisplayName = testMethod.GetDisplayName(baseDisplayName, convertedDataRow, resolvedTypes);
+				var traits = TestIntrospectionHelper.GetTraits(testMethod, dataRow);
+				var timeout = dataRow.Timeout ?? dataAttribute.Timeout ?? Timeout;
+				var skipReason = dataRow.Skip ?? dataAttribute.Skip ?? SkipReason;
+				var test = new XunitTest(
+					this,
+					testMethod,
+					dataRow.Explicit,
+					skipReason,
+					theoryDisplayName,
+					testIndex++,
+					traits.ToReadOnly(),
+					timeout,
+					convertedDataRow
+				);
+
+				result.Add(test);
+			}
+
+			if (result.Count == 0)
+			{
+				var message = string.Format(CultureInfo.CurrentCulture, "No data found for {0}.{1}", TestMethod.TestClass.TestClassName, TestMethod.MethodName);
+				throw new TestPipelineException(SkipTestWithoutData ? DynamicSkipToken.Value + message : message);
+			}
+		}
+
+		return result;
+	}
+
 	/// <inheritdoc/>
 	protected override void Deserialize(IXunitSerializationInfo info)
 	{
@@ -78,24 +146,6 @@ public class XunitDelayEnumeratedTheoryTestCase : XunitTestCase, IXunitDelayEnum
 
 		SkipTestWithoutData = info.GetValue<bool>("swd");
 	}
-
-	/// <inheritdoc/>
-	public override ValueTask<RunSummary> RunAsync(
-		ExplicitOption explicitOption,
-		IMessageBus messageBus,
-		object?[] constructorArguments,
-		ExceptionAggregator aggregator,
-		CancellationTokenSource cancellationTokenSource) =>
-			XunitDelayEnumeratedTheoryTestCaseRunner.Instance.RunAsync(
-				this,
-				messageBus,
-				aggregator.Clone(),
-				cancellationTokenSource,
-				TestCaseDisplayName,
-				SkipReason,
-				explicitOption,
-				constructorArguments
-			);
 
 	/// <inheritdoc/>
 	protected override void Serialize(IXunitSerializationInfo info)

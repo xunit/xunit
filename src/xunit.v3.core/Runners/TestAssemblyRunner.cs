@@ -63,7 +63,7 @@ public abstract class TestAssemblyRunner<TContext, TTestAssembly, TTestCollectio
 	/// during <see cref="OnTestAssemblyStarting"/>.
 	/// </summary>
 	/// <param name="ctxt">The context that describes the current test assembly</param>
-	protected abstract string GetTestFrameworkDisplayName(TContext ctxt);
+	protected abstract ValueTask<string> GetTestFrameworkDisplayName(TContext ctxt);
 
 	/// <summary>
 	/// This method is called when an exception was thrown while cleaning up, after the test assembly
@@ -138,11 +138,11 @@ public abstract class TestAssemblyRunner<TContext, TTestAssembly, TTestCollectio
 	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test assembly</param>
 	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
-	protected virtual ValueTask<bool> OnTestAssemblyStarting(TContext ctxt)
+	protected virtual async ValueTask<bool> OnTestAssemblyStarting(TContext ctxt)
 	{
 		Guard.ArgumentNotNull(ctxt);
 
-		return new(ctxt.MessageBus.QueueMessage(new TestAssemblyStarting
+		return ctxt.MessageBus.QueueMessage(new TestAssemblyStarting
 		{
 			AssemblyName = Path.GetFileNameWithoutExtension(ctxt.TestAssembly.AssemblyPath),
 			AssemblyPath = ctxt.TestAssembly.AssemblyPath,
@@ -152,9 +152,9 @@ public abstract class TestAssemblyRunner<TContext, TTestAssembly, TTestCollectio
 			StartTime = DateTimeOffset.Now,
 			TargetFramework = ctxt.TargetFramework,
 			TestEnvironment = ctxt.TestEnvironment,
-			TestFrameworkDisplayName = GetTestFrameworkDisplayName(ctxt),
+			TestFrameworkDisplayName = await GetTestFrameworkDisplayName(ctxt),
 			Traits = ctxt.TestAssembly.Traits,
-		}));
+		});
 	}
 
 	/// <summary>
@@ -178,7 +178,7 @@ public abstract class TestAssemblyRunner<TContext, TTestAssembly, TTestCollectio
 	/// </summary>
 	/// <param name="ctxt">The context that describes the current test assembly</param>
 	/// <returns>Returns summary information about the tests that were run.</returns>
-	protected async ValueTask<RunSummary> RunAsync(TContext ctxt)
+	protected async ValueTask<RunSummary> Run(TContext ctxt)
 	{
 		Guard.ArgumentNotNull(ctxt);
 
@@ -197,7 +197,7 @@ public abstract class TestAssemblyRunner<TContext, TTestAssembly, TTestCollectio
 		ctxt.Aggregator.Clear();
 
 		if (!ctxt.CancellationTokenSource.IsCancellationRequested)
-			summary = await ctxt.Aggregator.RunAsync(() => RunTestCollectionsAsync(ctxt, startingException), default);
+			summary = await ctxt.Aggregator.RunAsync(() => RunTestCollections(ctxt, startingException), default);
 
 		SetTestContext(ctxt, TestEngineStatus.CleaningUp);
 
@@ -230,7 +230,7 @@ public abstract class TestAssemblyRunner<TContext, TTestAssembly, TTestCollectio
 	/// <param name="exception">The exception that was caused during startup; should be used as an indicator that the
 	/// downstream tests should fail with the provided exception rather than going through standard execution</param>
 	/// <returns>Returns summary information about the tests that were run.</returns>
-	protected virtual async ValueTask<RunSummary> RunTestCollectionsAsync(
+	protected virtual async ValueTask<RunSummary> RunTestCollections(
 		TContext ctxt,
 		Exception? exception)
 	{
@@ -244,7 +244,7 @@ public abstract class TestAssemblyRunner<TContext, TTestAssembly, TTestCollectio
 			if (exception is not null)
 				summary.Aggregate(await FailTestCollection(ctxt, collection.Collection, collection.TestCases, exception));
 			else
-				summary.Aggregate(await RunTestCollectionAsync(ctxt, collection.Collection, collection.TestCases));
+				summary.Aggregate(await RunTestCollection(ctxt, collection.Collection, collection.TestCases));
 
 			if (ctxt.CancellationTokenSource.IsCancellationRequested)
 				break;
@@ -260,7 +260,7 @@ public abstract class TestAssemblyRunner<TContext, TTestAssembly, TTestCollectio
 	/// <param name="testCollection">The test collection that is being run.</param>
 	/// <param name="testCases">The test cases that belong to the test collection.</param>
 	/// <returns>Returns summary information about the tests that were run.</returns>
-	protected abstract ValueTask<RunSummary> RunTestCollectionAsync(
+	protected abstract ValueTask<RunSummary> RunTestCollection(
 		TContext ctxt,
 		TTestCollection testCollection,
 		IReadOnlyCollection<TTestCase> testCases

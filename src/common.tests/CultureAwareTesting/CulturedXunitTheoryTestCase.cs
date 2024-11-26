@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Internal;
@@ -67,22 +68,30 @@ public class CulturedXunitTheoryTestCase : XunitDelayEnumeratedTheoryTestCase
 		culture = Guard.NotNull("Could not retrieve Culture from serialization", info.GetValue<string>("cul"));
 	}
 
-	public override ValueTask<RunSummary> RunAsync(
+	public override async ValueTask<RunSummary> Run(
 		ExplicitOption explicitOption,
 		IMessageBus messageBus,
 		object?[] constructorArguments,
 		ExceptionAggregator aggregator,
-		CancellationTokenSource cancellationTokenSource) =>
-			new CulturedXunitTheoryTestCaseRunner(Culture).RunAsync(
-				this,
-				messageBus,
-				aggregator,
-				cancellationTokenSource,
-				TestCaseDisplayName,
-				SkipReason,
-				explicitOption,
-				constructorArguments
-			);
+		CancellationTokenSource cancellationTokenSource)
+	{
+		var originalCulture = CultureInfo.CurrentCulture;
+		var originalUICulture = CultureInfo.CurrentUICulture;
+
+		try
+		{
+			var cultureInfo = new CultureInfo(Culture, useUserOverride: false);
+			CultureInfo.CurrentCulture = cultureInfo;
+			CultureInfo.CurrentUICulture = cultureInfo;
+
+			return await base.Run(explicitOption, messageBus, constructorArguments, aggregator, cancellationTokenSource);
+		}
+		finally
+		{
+			CultureInfo.CurrentCulture = originalCulture;
+			CultureInfo.CurrentUICulture = originalUICulture;
+		}
+	}
 
 	protected override void Serialize(IXunitSerializationInfo info)
 	{

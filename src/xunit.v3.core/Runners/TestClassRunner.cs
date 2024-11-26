@@ -179,7 +179,7 @@ public abstract class TestClassRunner<TContext, TTestClass, TTestMethod, TTestCa
 	/// </summary>
 	/// <param name="ctxt">The context that describes the current test class</param>
 	/// <returns>Returns summary information about the tests that were run.</returns>
-	protected async ValueTask<RunSummary> RunAsync(TContext ctxt)
+	protected async ValueTask<RunSummary> Run(TContext ctxt)
 	{
 		Guard.ArgumentNotNull(ctxt);
 
@@ -196,7 +196,7 @@ public abstract class TestClassRunner<TContext, TTestClass, TTestMethod, TTestCa
 		ctxt.Aggregator.Clear();
 
 		if (!ctxt.CancellationTokenSource.IsCancellationRequested)
-			summary = await ctxt.Aggregator.RunAsync(() => RunTestMethodsAsync(ctxt, startingException), default);
+			summary = await ctxt.Aggregator.RunAsync(() => RunTestMethods(ctxt, startingException), default);
 
 		SetTestContext(ctxt, TestEngineStatus.CleaningUp);
 
@@ -228,7 +228,7 @@ public abstract class TestClassRunner<TContext, TTestClass, TTestMethod, TTestCa
 	/// <param name="exception">The exception that was caused during startup; should be used as an indicator that the
 	/// downstream tests should fail with the provided exception rather than going through standard execution</param>
 	/// <returns>Returns summary information about the tests that were run</returns>
-	protected virtual async ValueTask<RunSummary> RunTestMethodsAsync(
+	protected virtual async ValueTask<RunSummary> RunTestMethods(
 		TContext ctxt,
 		Exception? exception)
 	{
@@ -259,7 +259,7 @@ public abstract class TestClassRunner<TContext, TTestClass, TTestMethod, TTestCa
 			if (exception is not null)
 				summary.Aggregate(await FailTestMethod(ctxt, testMethod, testCases, constructorArguments, exception));
 			else
-				summary.Aggregate(await RunTestMethodAsync(ctxt, testMethod, testCases, constructorArguments));
+				summary.Aggregate(await RunTestMethod(ctxt, testMethod, testCases, constructorArguments));
 
 			if (ctxt.CancellationTokenSource.IsCancellationRequested)
 				break;
@@ -277,7 +277,7 @@ public abstract class TestClassRunner<TContext, TTestClass, TTestMethod, TTestCa
 	/// <param name="testCases">The test cases to be run.</param>
 	/// <param name="constructorArguments">The constructor arguments that will be used to create the test class.</param>
 	/// <returns>Returns summary information about the tests that were run.</returns>
-	protected abstract ValueTask<RunSummary> RunTestMethodAsync(
+	protected abstract ValueTask<RunSummary> RunTestMethod(
 		TContext ctxt,
 		TTestMethod? testMethod,
 		IReadOnlyCollection<TTestCase> testCases,

@@ -65,7 +65,7 @@ public class CulturedXunitTestCase : XunitTestCase
 		culture = Guard.NotNull("Could not retrieve Culture from serialization", info.GetValue<string>("cul"));
 	}
 
-	public override async ValueTask<RunSummary> RunAsync(
+	public override async ValueTask<RunSummary> Run(
 		ExplicitOption explicitOption,
 		IMessageBus messageBus,
 		object?[] constructorArguments,
@@ -81,7 +81,7 @@ public class CulturedXunitTestCase : XunitTestCase
 			CultureInfo.CurrentCulture = cultureInfo;
 			CultureInfo.CurrentUICulture = cultureInfo;
 
-			return await base.RunAsync(explicitOption, messageBus, constructorArguments, aggregator, cancellationTokenSource);
+			return await base.Run(explicitOption, messageBus, constructorArguments, aggregator, cancellationTokenSource);
 		}
 		finally
 		{

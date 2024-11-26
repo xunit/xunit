@@ -546,11 +546,11 @@ public class XunitTestAssemblyRunnerTests
 		}
 
 		public ValueTask<RunSummary> RunAsync() =>
-			RunAsync(TestCases.First().TestCollection.TestAssembly, TestCases, MessageSink, ExecutionOptions);
+			Run(TestCases.First().TestCollection.TestAssembly, TestCases, MessageSink, ExecutionOptions);
 
 		public SynchronizationContext? RunTestCollectionAsync_SyncContext;
 
-		protected override ValueTask<RunSummary> RunTestCollectionAsync(
+		protected override ValueTask<RunSummary> RunTestCollection(
 			XunitTestAssemblyRunnerContext ctxt,
 			IXunitTestCollection testCollection,
 			IReadOnlyCollection<IXunitTestCase> testCases)
@@ -562,18 +562,18 @@ public class XunitTestAssemblyRunnerTests
 			var testCaseOrderer = ctxt.AssemblyTestCaseOrderer ?? DefaultTestCaseOrderer.Instance;
 			TestCollectionsRun.Add((testCollection, testCaseOrderer.OrderTestCases(testCases), null));
 
-			return base.RunTestCollectionAsync(ctxt, testCollection, testCases);
+			return base.RunTestCollection(ctxt, testCollection, testCases);
 		}
 
 		public ITestCollectionOrderer? RunTestCollectionsAsync_TestCollectionOrderer;
 
-		protected override ValueTask<RunSummary> RunTestCollectionsAsync(
+		protected override ValueTask<RunSummary> RunTestCollections(
 			XunitTestAssemblyRunnerContext ctxt,
 			Exception? exception)
 		{
 			RunTestCollectionsAsync_TestCollectionOrderer = ctxt.TestAssembly.TestCollectionOrderer;
 
-			return base.RunTestCollectionsAsync(ctxt, exception);
+			return base.RunTestCollections(ctxt, exception);
 		}
 	}
 }

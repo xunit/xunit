@@ -144,10 +144,10 @@ public class XunitTestAssemblyRunnerContext(
 	}
 
 	/// <summary>
-	/// Delegation of <see cref="XunitTestAssemblyRunner.RunTestCollectionAsync"/> that properly obeys the parallel
+	/// Delegation of <see cref="XunitTestAssemblyRunner.RunTestCollection"/> that properly obeys the parallel
 	/// algorithm requirements.
 	/// </summary>
-	public async ValueTask<RunSummary> RunTestCollectionAsync(
+	public async ValueTask<RunSummary> RunTestCollection(
 		IXunitTestCollection testCollection,
 		IReadOnlyCollection<IXunitTestCase> testCases,
 		ITestCaseOrderer testCaseOrderer)
@@ -157,7 +157,7 @@ public class XunitTestAssemblyRunnerContext(
 
 		try
 		{
-			return await XunitTestCollectionRunner.Instance.RunAsync(
+			return await XunitTestCollectionRunner.Instance.Run(
 				testCollection,
 				testCases,
 				ExplicitOption,

@@ -143,7 +143,7 @@ public abstract class TestMethodRunner<TContext, TTestMethod, TTestCase>
 	/// </summary>
 	/// <param name="ctxt">The context that describes the current test method</param>
 	/// <returns>Returns summary information about the tests that were run.</returns>
-	protected async ValueTask<RunSummary> RunAsync(TContext ctxt)
+	protected async ValueTask<RunSummary> Run(TContext ctxt)
 	{
 		Guard.ArgumentNotNull(ctxt);
 
@@ -160,7 +160,7 @@ public abstract class TestMethodRunner<TContext, TTestMethod, TTestCase>
 		ctxt.Aggregator.Clear();
 
 		if (!ctxt.CancellationTokenSource.IsCancellationRequested)
-			summary = await ctxt.Aggregator.RunAsync(() => RunTestCasesAsync(ctxt, startingException), default);
+			summary = await ctxt.Aggregator.RunAsync(() => RunTestCases(ctxt, startingException), default);
 
 		SetTestContext(ctxt, TestEngineStatus.CleaningUp);
 
@@ -191,7 +191,7 @@ public abstract class TestMethodRunner<TContext, TTestMethod, TTestCase>
 	/// <param name="exception">The exception that was caused during startup; should be used as an indicator that the
 	/// downstream tests should fail with the provided exception rather than going through standard execution</param>
 	/// <returns>Returns summary information about the tests that were run.</returns>
-	protected virtual async ValueTask<RunSummary> RunTestCasesAsync(
+	protected virtual async ValueTask<RunSummary> RunTestCases(
 		TContext ctxt,
 		Exception? exception)
 	{
@@ -204,7 +204,7 @@ public abstract class TestMethodRunner<TContext, TTestMethod, TTestCase>
 			if (exception is not null)
 				summary.Aggregate(await FailTestCase(ctxt, testCase, exception));
 			else
-				summary.Aggregate(await RunTestCaseAsync(ctxt, testCase));
+				summary.Aggregate(await RunTestCase(ctxt, testCase));
 
 			if (ctxt.CancellationTokenSource.IsCancellationRequested)
 				break;
@@ -219,7 +219,7 @@ public abstract class TestMethodRunner<TContext, TTestMethod, TTestCase>
 	/// <param name="ctxt">The context that describes the current test method</param>
 	/// <param name="testCase">The test case to be run.</param>
 	/// <returns>Returns summary information about the test case run.</returns>
-	protected abstract ValueTask<RunSummary> RunTestCaseAsync(
+	protected abstract ValueTask<RunSummary> RunTestCase(
 		TContext ctxt,
 		TTestCase testCase);
 

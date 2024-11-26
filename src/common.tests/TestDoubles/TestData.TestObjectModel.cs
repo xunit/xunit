@@ -53,7 +53,8 @@ public static partial class TestData
 		IXunitTestCase testCase,
 		IXunitTestMethod? testMethod = null,
 		bool? @explicit = null,
-		string testDisplayName = DefaultTestDisplayName,
+		string? skipReason = null,
+		string? testDisplayName = null,
 		object?[]? testMethodArguments = null,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
 		int? timeout = null,
@@ -61,18 +62,23 @@ public static partial class TestData
 	{
 		testMethod ??= testCase.TestMethod;
 
-		return new(testCase, testMethod, @explicit, testDisplayName, uniqueID, traits ?? testMethod.Traits, timeout, testMethodArguments);
+		return new(testCase, testMethod, @explicit, skipReason, testDisplayName ?? $"{testMethod.TestClass.Class.FullName}.{testMethod.MethodName}", uniqueID, traits ?? testMethod.Traits, timeout, testMethodArguments);
 	}
 
 	public static XunitTest XunitTest<TClassUnderTest>(
 		string methodName,
 		bool? @explicit = null,
-		string testDisplayName = DefaultTestDisplayName,
+		string? skipReason = null,
+		string? testDisplayName = null,
 		object?[]? testMethodArguments = null,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
 		int? timeout = null,
-		string uniqueID = DefaultTestUniqueID) =>
-			XunitTest(XunitTestCase<TClassUnderTest>(methodName), null, @explicit, testDisplayName, testMethodArguments, traits, timeout, uniqueID);
+		string uniqueID = DefaultTestUniqueID)
+	{
+		var testCase = XunitTestCase<TClassUnderTest>(methodName);
+
+		return XunitTest(testCase, null, @explicit, skipReason ?? testCase.SkipReason, testDisplayName, testMethodArguments, traits, timeout, uniqueID);
+	}
 
 	public static XunitTestAssembly XunitTestAssembly(
 		Assembly assembly,

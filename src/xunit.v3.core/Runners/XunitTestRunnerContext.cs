@@ -23,7 +23,6 @@ public class XunitTestRunnerContext : TestRunnerContext<IXunitTest>
 	/// </summary>
 	/// <param name="test">The test</param>
 	/// <param name="messageBus">The message bus to send execution messages to</param>
-	/// <param name="skipReason">The skip reason for the test, if it's being skipped</param>
 	/// <param name="explicitOption">The user's choice on how to treat explicit tests</param>
 	/// <param name="aggregator">The exception aggregator</param>
 	/// <param name="cancellationTokenSource">The cancellation token source</param>
@@ -32,12 +31,21 @@ public class XunitTestRunnerContext : TestRunnerContext<IXunitTest>
 	public XunitTestRunnerContext(
 		IXunitTest test,
 		IMessageBus messageBus,
-		string? skipReason,
 		ExplicitOption explicitOption,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource,
 		IReadOnlyCollection<IBeforeAfterTestAttribute> beforeAfterTestAttributes,
-		object?[] constructorArguments) : base(test, messageBus, skipReason, explicitOption, aggregator, cancellationTokenSource)
+		object?[] constructorArguments) :
+			base(
+				Guard.ArgumentNotNull(test),
+				messageBus,
+				test.SkipReason,
+				explicitOption,
+				aggregator,
+				cancellationTokenSource,
+				Guard.ArgumentNotNull(test).TestMethod.Method,
+				test.TestMethodArguments
+			)
 	{
 		BeforeAfterTestAttributes = Guard.ArgumentNotNull(beforeAfterTestAttributes);
 		ConstructorArguments = Guard.ArgumentNotNull(constructorArguments);
@@ -61,16 +69,28 @@ public class XunitTestRunnerContext : TestRunnerContext<IXunitTest>
 		// invocation, so recording the exception will result in a test failure.
 		Aggregator.Run(() =>
 		{
+			// TODO: Tests should have SkipUnless, SkipWhen, and SkipType as well, so that we can allow
+			// data rows to not just temporarily skip, but conditionally skip, just like whole tests.
+			var skipReason = Test.SkipReason;
 			var skipUnless = Test.TestCase.SkipUnless;
 			var skipWhen = Test.TestCase.SkipWhen;
 
 			if (skipUnless is null && skipWhen is null)
-				return SkipReason;
+				return skipReason;
 			if (skipUnless is not null && skipWhen is not null)
 				throw new TestPipelineException(
 					string.Format(
 						CultureInfo.CurrentCulture,
 						"Both 'SkipUnless' and 'SkipWhen' are set on test method '{0}.{1}'; they are mutually exclusive",
+						Test.TestCase.TestClassName,
+						Test.TestCase.TestMethodName
+					)
+				);
+			if (skipReason is null)
+				throw new TestPipelineException(
+					string.Format(
+						CultureInfo.CurrentCulture,
+						"You must set 'Skip' when you set 'SkipUnless' or 'SkipWhen' on test method '{0}.{1}' to set the message for conditional skips",
 						Test.TestCase.TestClassName,
 						Test.TestCase.TestMethodName
 					)
@@ -121,21 +141,21 @@ public class XunitTestRunnerContext : TestRunnerContext<IXunitTest>
 				_ => false,
 			};
 
-			return shouldSkip ? SkipReason : null;
+			return shouldSkip ? skipReason : null;
 		}, null);
 
 	/// <summary>
 	/// Gets the runtime skip reason for the test, inspecting the provided exception to see
 	/// if it contractually matches a "dynamically skipped" exception (that is, any
 	/// exception message that starts with <see cref="DynamicSkipToken.Value"/>).
-	/// If the exception does not match the pattern, consults the
-	/// <see cref="TestRunnerContext{TTest}.SkipReason"/> as well as the
-	/// <see cref="IXunitTestCase.SkipUnless"/> and <see cref="IXunitTestCase.SkipWhen"/>
-	/// to determine if the test should be dynamically skipped.
+	/// If the exception does not match the pattern, consults the base skip reason
+	/// (from <see cref="IFactAttribute.Skip"/>), as well as <see cref="IFactAttribute.SkipUnless"/>
+	/// and <see cref="IFactAttribute.SkipWhen"/> to determine if the test should be
+	/// dynamically skipped.
 	/// </summary>
 	/// <param name="exception">The exception to inspect</param>
 	/// <returns>The skip reason, if the test is skipped; <c>null</c>, otherwise</returns>
-	public override string? GetSkipReason(Exception? exception = null) =>
+	public override string? GetSkipReason(Exception? exception) =>
 		// We don't want a strongly typed contract here; any exception can be a "dynamically
 		// skipped" exception so long as its message starts with the special token.
 		exception?.Message.StartsWith(DynamicSkipToken.Value, StringComparison.Ordinal) == true

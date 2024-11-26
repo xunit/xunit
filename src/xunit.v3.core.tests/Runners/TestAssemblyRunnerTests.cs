@@ -298,8 +298,8 @@ public static class TestAssemblyRunnerTests
 			return new(FailTestCollection__Result);
 		}
 
-		protected override string GetTestFrameworkDisplayName(TestAssemblyRunnerContext<ITestAssembly, ITestCase> ctxt) =>
-			"Stub Testing Framework";
+		protected override ValueTask<string> GetTestFrameworkDisplayName(TestAssemblyRunnerContext<ITestAssembly, ITestCase> ctxt) =>
+			new("Stub Testing Framework");
 
 		public async ValueTask<bool> OnTestAssemblyCleanupFailure(Exception exception)
 		{
@@ -379,7 +379,7 @@ public static class TestAssemblyRunnerTests
 
 		public RunSummary RunTestCollectionAsync__Result = new();
 
-		protected override ValueTask<RunSummary> RunTestCollectionAsync(
+		protected override ValueTask<RunSummary> RunTestCollection(
 			TestAssemblyRunnerContext<ITestAssembly, ITestCase> ctxt,
 			ITestCollection testCollection,
 			IReadOnlyCollection<ITestCase> testCases)
@@ -394,7 +394,7 @@ public static class TestAssemblyRunnerTests
 			await using var ctxt = new TestAssemblyRunnerContext<ITestAssembly, ITestCase>(TestAssembly, testCases, MessageSink, ExecutionOptions);
 			await ctxt.InitializeAsync();
 
-			return await RunAsync(ctxt);
+			return await Run(ctxt);
 		}
 
 		static string TypeName(object? obj) =>

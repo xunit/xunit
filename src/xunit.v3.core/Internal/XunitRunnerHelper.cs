@@ -13,6 +13,89 @@ namespace Xunit.v3;
 public static class XunitRunnerHelper
 {
 	/// <summary>
+	/// Fail a test with the given exception.
+	/// </summary>
+	/// <param name="messageBus">The message bus to send the messages to</param>
+	/// <param name="cancellationTokenSource">The cancellation token source to cancel if requested</param>
+	/// <param name="test">The test to fail</param>
+	/// <param name="exception">The exception to fail the test cases with</param>
+	public static RunSummary FailTest(
+		IMessageBus messageBus,
+		CancellationTokenSource cancellationTokenSource,
+		ITest test,
+		Exception exception)
+	{
+		Guard.ArgumentNotNull(messageBus);
+		Guard.ArgumentNotNull(cancellationTokenSource);
+		Guard.ArgumentNotNull(test);
+		Guard.ArgumentNotNull(exception);
+
+		var assemblyUniqueID = test.TestCase.TestCollection.TestAssembly.UniqueID;
+		var testCollectionUniqueID = test.TestCase.TestCollection.UniqueID;
+		var testCaseUniqueID = test.TestCase.UniqueID;
+		var testClassUniqueID = test.TestCase.TestClass?.UniqueID;
+		var testMethodUniqueID = test.TestCase.TestMethod?.UniqueID;
+		var testUniqueID = test.UniqueID;
+		var now = DateTimeOffset.UtcNow;
+
+		if (!messageBus.QueueMessage(new TestStarting
+		{
+			AssemblyUniqueID = assemblyUniqueID,
+			Explicit = false,
+			StartTime = now,
+			TestCaseUniqueID = testCaseUniqueID,
+			TestClassUniqueID = testClassUniqueID,
+			TestCollectionUniqueID = testCollectionUniqueID,
+			TestDisplayName = test.TestDisplayName,
+			TestMethodUniqueID = testMethodUniqueID,
+			TestUniqueID = testUniqueID,
+			Timeout = 0,
+			Traits = test.Traits,
+		}))
+			cancellationTokenSource.Cancel();
+
+		var (types, messages, stackTraces, indices, cause) = ExceptionUtility.ExtractMetadata(exception);
+
+		if (!messageBus.QueueMessage(new TestFailed
+		{
+			AssemblyUniqueID = assemblyUniqueID,
+			Cause = cause,
+			ExceptionParentIndices = indices,
+			ExceptionTypes = types,
+			ExecutionTime = 0m,
+			FinishTime = now,
+			Messages = messages,
+			Output = string.Empty,
+			StackTraces = stackTraces,
+			TestCaseUniqueID = testCaseUniqueID,
+			TestClassUniqueID = testClassUniqueID,
+			TestCollectionUniqueID = testCollectionUniqueID,
+			TestMethodUniqueID = testMethodUniqueID,
+			TestUniqueID = testUniqueID,
+			Warnings = null,
+		}))
+			cancellationTokenSource.Cancel();
+
+		if (!messageBus.QueueMessage(new TestFinished
+		{
+			AssemblyUniqueID = assemblyUniqueID,
+			Attachments = TestFinished.EmptyAttachments,
+			ExecutionTime = 0m,
+			FinishTime = now,
+			Output = string.Empty,
+			TestCaseUniqueID = testCaseUniqueID,
+			TestClassUniqueID = testClassUniqueID,
+			TestCollectionUniqueID = testCollectionUniqueID,
+			TestMethodUniqueID = testMethodUniqueID,
+			TestUniqueID = testUniqueID,
+			Warnings = null,
+		}))
+			cancellationTokenSource.Cancel();
+
+		return new RunSummary { Total = 1, Failed = 1 };
+	}
+
+	/// <summary>
 	/// Fail a set of test cases with the given message.
 	/// </summary>
 	/// <param name="messageBus">The message bus to send the messages to</param>
