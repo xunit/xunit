@@ -429,7 +429,8 @@ public abstract class TestRunnerBase<TContext, TTest>
 	/// <summary>
 	/// Override this method to run the test.
 	/// </summary>
-	protected abstract ValueTask<TimeSpan> RunTest(TContext context);
+	/// <param name="ctxt">The context that describes the current test</param>
+	protected abstract ValueTask<TimeSpan> RunTest(TContext ctxt);
 
 	/// <summary>
 	/// Sets the test context for the given test state and engine status.
