@@ -13,7 +13,7 @@ namespace Xunit.v3;
 /// The implementation of <see cref="ITestFrameworkDiscoverer"/> that supports discovery
 /// of unit tests linked against xunit.v3.core.dll.
 /// </summary>
-public class XunitTestFrameworkDiscoverer : TestFrameworkDiscoverer<IXunitTestCase, IXunitTestClass>
+public class XunitTestFrameworkDiscoverer : TestFrameworkDiscoverer<IXunitTestClass>
 {
 	static readonly FactAttribute defaultFactAttribute = new();
 
@@ -66,7 +66,7 @@ public class XunitTestFrameworkDiscoverer : TestFrameworkDiscoverer<IXunitTestCa
 	protected virtual async ValueTask<bool> FindTestsForMethod(
 		IXunitTestMethod testMethod,
 		ITestFrameworkDiscoveryOptions discoveryOptions,
-		Func<IXunitTestCase, ValueTask<bool>> discoveryCallback)
+		Func<ITestCase, ValueTask<bool>> discoveryCallback)
 	{
 		Guard.ArgumentNotNull(testMethod);
 		Guard.ArgumentNotNull(discoveryOptions);
@@ -116,7 +116,7 @@ public class XunitTestFrameworkDiscoverer : TestFrameworkDiscoverer<IXunitTestCa
 	protected override async ValueTask<bool> FindTestsForType(
 		IXunitTestClass testClass,
 		ITestFrameworkDiscoveryOptions discoveryOptions,
-		Func<IXunitTestCase, ValueTask<bool>> discoveryCallback)
+		Func<ITestCase, ValueTask<bool>> discoveryCallback)
 	{
 		Guard.ArgumentNotNull(testClass);
 		Guard.ArgumentNotNull(discoveryOptions);

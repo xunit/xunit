@@ -148,7 +148,7 @@ public class TestFrameworkDiscovererTests
 		}
 	}
 
-	class TestableTestFrameworkDiscoverer : TestFrameworkDiscoverer<ITestCase, ITestClass>
+	class TestableTestFrameworkDiscoverer : TestFrameworkDiscoverer<ITestClass>
 	{
 		readonly Type[] exportedTypes;
 		public ITestContext? FindTestsForType_Context;

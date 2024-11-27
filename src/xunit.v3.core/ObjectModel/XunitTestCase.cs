@@ -10,10 +10,6 @@ using Xunit.Sdk;
 
 namespace Xunit.v3;
 
-// TODO: Who disposes of this, since IAsyncDisposable is not part of the contract of ITestCase
-// or IXunitTestCase? (Should it be part of IXunitTestCase?) Should it be the runner or the code
-// that creates XunitTestCase and as such owns its lifetime?
-
 /// <summary>
 /// Default implementation of <see cref="IXunitTestCase"/> for xUnit.net v3 that supports test methods decorated with
 /// <see cref="FactAttribute"/>. Test methods decorated with derived attributes may use this as a base class

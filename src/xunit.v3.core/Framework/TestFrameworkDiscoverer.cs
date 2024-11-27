@@ -11,13 +11,10 @@ namespace Xunit.v3;
 /// A base implementation of <see cref="ITestFrameworkDiscoverer"/> that supports test filtering
 /// and runs the discovery process on a thread pool thread.
 /// </summary>
-/// <typeparam name="TTestCase">The type of the test case used by the test framework. Must
-/// derive from <see cref="ITestCase"/>.</typeparam>
 /// <typeparam name="TTestClass">The test class object model type. Must derive from
 /// <see cref="ITestClass"/>.</typeparam>
-public abstract class TestFrameworkDiscoverer<TTestCase, TTestClass>(ITestAssembly testAssembly) :
+public abstract class TestFrameworkDiscoverer<TTestClass>(ITestAssembly testAssembly) :
 	ITestFrameworkDiscoverer, IAsyncDisposable
-		where TTestCase : class, ITestCase
 		where TTestClass : class, ITestClass
 {
 	bool disposed;
@@ -108,7 +105,7 @@ public abstract class TestFrameworkDiscoverer<TTestCase, TTestClass>(ITestAssemb
 	protected abstract ValueTask<bool> FindTestsForType(
 		TTestClass testClass,
 		ITestFrameworkDiscoveryOptions discoveryOptions,
-		Func<TTestCase, ValueTask<bool>> discoveryCallback
+		Func<ITestCase, ValueTask<bool>> discoveryCallback
 	);
 
 	/// <summary>
