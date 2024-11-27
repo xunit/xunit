@@ -154,7 +154,7 @@ public abstract class TestRunnerBase<TContext, TTest>
 	{
 		Guard.ArgumentNotNull(ctxt);
 
-		return new(ctxt.MessageBus.QueueMessage(new TestFinished
+		var result = ctxt.MessageBus.QueueMessage(new TestFinished
 		{
 			AssemblyUniqueID = ctxt.Test.TestCase.TestCollection.TestAssembly.UniqueID,
 			Attachments = TestContext.Current.Attachments ?? TestFinished.EmptyAttachments,
@@ -167,7 +167,11 @@ public abstract class TestRunnerBase<TContext, TTest>
 			TestMethodUniqueID = ctxt.Test.TestCase.TestMethod?.UniqueID,
 			TestUniqueID = ctxt.Test.UniqueID,
 			Warnings = warnings,
-		}));
+		});
+
+		(TestContext.Current.TestOutputHelper as TestOutputHelper)?.Uninitialize();
+
+		return new(result);
 	}
 
 	/// <summary>
@@ -310,6 +314,8 @@ public abstract class TestRunnerBase<TContext, TTest>
 		int timeout)
 	{
 		Guard.ArgumentNotNull(ctxt);
+
+		(TestContext.Current.TestOutputHelper as TestOutputHelper)?.Initialize(ctxt.MessageBus, ctxt.Test);
 
 		return new(ctxt.MessageBus.QueueMessage(new TestStarting
 		{
@@ -457,6 +463,7 @@ public abstract class TestRunnerBase<TContext, TTest>
 			testStatus,
 			ctxt.CancellationTokenSource.Token,
 			testState,
+			testStatus == TestEngineStatus.Initializing ? new TestOutputHelper() : TestContext.Current.TestOutputHelper,
 			testClassInstance: testClassInstance
 		);
 	}

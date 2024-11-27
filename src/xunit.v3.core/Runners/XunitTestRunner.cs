@@ -102,35 +102,20 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext, IXunitTest>
 		!Guard.ArgumentNotNull(ctxt).Test.TestMethod.Method.IsStatic;
 
 	/// <inheritdoc/>
-	protected override async ValueTask<bool> OnTestFinished(
-		XunitTestRunnerContext ctxt,
-		decimal executionTime,
-		string output,
-		string[]? warnings)
-	{
-		Guard.ArgumentNotNull(ctxt);
-
-		var result = await base.OnTestFinished(ctxt, executionTime, output, warnings);
-		(TestContext.Current.TestOutputHelper as TestOutputHelper)?.Uninitialize();
-		return result;
-	}
-
-	/// <inheritdoc/>
-	protected override ValueTask<bool> OnTestStarting(XunitTestRunnerContext ctxt)
-	{
-		Guard.ArgumentNotNull(ctxt);
-
-		(TestContext.Current.TestOutputHelper as TestOutputHelper)?.Initialize(ctxt.MessageBus, ctxt.Test);
-		return OnTestStarting(ctxt, ctxt.Test.Explicit, ctxt.Test.Timeout);
-	}
-
-	/// <inheritdoc/>
 	protected override ValueTask PostInvoke(XunitTestRunnerContext ctxt) =>
 		Guard.ArgumentNotNull(ctxt).RunAfterAttributes();
 
 	/// <inheritdoc/>
 	protected override ValueTask PreInvoke(XunitTestRunnerContext ctxt) =>
 		Guard.ArgumentNotNull(ctxt).RunBeforeAttributes();
+
+	/// <inheritdoc/>
+	protected override ValueTask<bool> OnTestStarting(XunitTestRunnerContext ctxt)
+	{
+		Guard.ArgumentNotNull(ctxt);
+
+		return OnTestStarting(ctxt, ctxt.Test.Explicit, ctxt.Test.Timeout);
+	}
 
 	/// <summary>
 	/// Runs the test.
@@ -217,25 +202,6 @@ public class XunitTestRunner : TestRunner<XunitTestRunnerContext, IXunitTest>
 		});
 
 		return stopwatch.Elapsed;
-	}
-
-	/// <inheritdoc/>
-	protected override void SetTestContext(
-		XunitTestRunnerContext ctxt,
-		TestEngineStatus testStatus,
-		TestResultState? testState = null,
-		object? testClassInstance = null)
-	{
-		Guard.ArgumentNotNull(ctxt);
-
-		TestContext.SetForTest(
-			ctxt.Test,
-			testStatus,
-			ctxt.CancellationTokenSource.Token,
-			testState,
-			testStatus == TestEngineStatus.Initializing ? new TestOutputHelper() : TestContext.Current.TestOutputHelper,
-			testClassInstance: testClassInstance
-		);
 	}
 
 	/// <inheritdoc/>
