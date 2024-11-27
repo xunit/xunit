@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Threading;
-using Xunit.Internal;
 using Xunit.Sdk;
 
 namespace Xunit.v3;
@@ -27,30 +26,5 @@ public class XunitTestCaseRunnerContext(
 	string? skipReason,
 	ExplicitOption explicitOption,
 	object?[] constructorArguments) :
-		TestCaseRunnerContext<IXunitTestCase, IXunitTest>(testCase, explicitOption, messageBus, aggregator, cancellationTokenSource)
-{
-	/// <summary>
-	/// Gets the list of <see cref="IBeforeAfterTestAttribute"/> instances for this test case.
-	/// </summary>
-	public IReadOnlyCollection<IBeforeAfterTestAttribute> BeforeAfterTestAttributes =>
-		TestCase.TestMethod.BeforeAfterTestAttributes;
-
-	/// <summary>
-	/// Gets the arguments to pass to the constructor of the test class when creating it.
-	/// </summary>
-	public object?[] ConstructorArguments { get; } = Guard.ArgumentNotNull(constructorArguments);
-
-	/// <summary>
-	/// Gets the display name of the test case.
-	/// </summary>
-	public string DisplayName { get; } = Guard.ArgumentNotNullOrEmpty(displayName);
-
-	/// <summary>
-	/// Gets the statically specified skip reason for the test. Note that this only covers values
-	/// passed via <see cref="IFactAttribute.Skip"/>, and not dynamically skipped tests.
-	/// </summary>
-	public string? SkipReason { get; } = skipReason;
-
-	/// <inheritdoc/>
-	public override IReadOnlyCollection<IXunitTest> Tests { get; } = Guard.ArgumentNotNull(tests);
-}
+		XunitTestCaseRunnerBaseContext<IXunitTestCase, IXunitTest>(testCase, tests, messageBus, aggregator, cancellationTokenSource, displayName, skipReason, explicitOption, constructorArguments)
+{ }

@@ -10,7 +10,7 @@ namespace Xunit.v3;
 /// The test collection runner for xUnit.net v3 tests.
 /// </summary>
 public class XunitTestCollectionRunner :
-	TestCollectionRunner<XunitTestCollectionRunnerContext, IXunitTestCollection, IXunitTestClass, IXunitTestCase>
+	XunitTestCollectionRunnerBase<XunitTestCollectionRunnerContext, IXunitTestCollection, IXunitTestClass, IXunitTestCase>
 {
 	/// <summary>
 	/// Initializes a new instance of the <see cref="XunitTestCollectionRunner"/> class.
@@ -22,36 +22,6 @@ public class XunitTestCollectionRunner :
 	/// Gets the singleton instance of <see cref="XunitTestCollectionRunner"/>.
 	/// </summary>
 	public static XunitTestCollectionRunner Instance { get; } = new();
-
-	/// <summary>
-	/// Gives an opportunity to override test case orderer. By default, this method gets the
-	/// orderer from the collection definition. If this function returns <c>null</c>, the
-	/// test case orderer passed into the constructor will be used.
-	/// </summary>
-	/// <param name="ctxt">The context that describes the current test collection</param>
-	protected virtual ITestCaseOrderer? GetTestCaseOrderer(XunitTestCollectionRunnerContext ctxt) =>
-		Guard.ArgumentNotNull(ctxt).TestCollection.TestCaseOrderer;
-
-	/// <inheritdoc/>
-	protected override async ValueTask<bool> OnTestCollectionFinished(
-		XunitTestCollectionRunnerContext ctxt,
-		RunSummary summary)
-	{
-		Guard.ArgumentNotNull(ctxt);
-
-		await ctxt.Aggregator.RunAsync(ctxt.CollectionFixtureMappings.DisposeAsync);
-		return await base.OnTestCollectionFinished(ctxt, summary);
-	}
-
-	/// <inheritdoc/>
-	protected override async ValueTask<bool> OnTestCollectionStarting(XunitTestCollectionRunnerContext ctxt)
-	{
-		Guard.ArgumentNotNull(ctxt);
-
-		var result = await base.OnTestCollectionStarting(ctxt);
-		await ctxt.Aggregator.RunAsync(() => ctxt.CollectionFixtureMappings.InitializeAsync(ctxt.TestCollection.CollectionFixtureTypes));
-		return result;
-	}
 
 	/// <summary>
 	/// Runs the test collection.

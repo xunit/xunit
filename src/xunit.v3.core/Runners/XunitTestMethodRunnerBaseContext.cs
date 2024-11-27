@@ -1,11 +1,12 @@
 using System.Collections.Generic;
 using System.Threading;
+using Xunit.Internal;
 using Xunit.Sdk;
 
 namespace Xunit.v3;
 
 /// <summary>
-/// Context class for <see cref="XunitTestMethodRunner"/>.
+/// Context class for <see cref="XunitTestMethodRunnerBase{TContext, TTestMethod, TTestCase}"/>.
 /// </summary>
 /// <param name="testMethod">The test method</param>
 /// <param name="testCases">The test cases from the test method</param>
@@ -14,13 +15,20 @@ namespace Xunit.v3;
 /// <param name="aggregator">The exception aggregator</param>
 /// <param name="cancellationTokenSource">The cancellation token source</param>
 /// <param name="constructorArguments">The constructor arguments for the test class</param>
-public class XunitTestMethodRunnerContext(
-	IXunitTestMethod testMethod,
-	IReadOnlyCollection<IXunitTestCase> testCases,
+public class XunitTestMethodRunnerBaseContext<TTestMethod, TTestCase>(
+	TTestMethod testMethod,
+	IReadOnlyCollection<TTestCase> testCases,
 	ExplicitOption explicitOption,
 	IMessageBus messageBus,
 	ExceptionAggregator aggregator,
 	CancellationTokenSource cancellationTokenSource,
 	object?[] constructorArguments) :
-		XunitTestMethodRunnerBaseContext<IXunitTestMethod, IXunitTestCase>(testMethod, testCases, explicitOption, messageBus, aggregator, cancellationTokenSource, constructorArguments)
-{ }
+		TestMethodRunnerContext<TTestMethod, TTestCase>(testMethod, testCases, explicitOption, messageBus, aggregator, cancellationTokenSource)
+			where TTestMethod : class, IXunitTestMethod
+			where TTestCase : class, IXunitTestCase
+{
+	/// <summary>
+	/// Gets the arguments to send to the test class constructor.
+	/// </summary>
+	public object?[] ConstructorArguments { get; } = Guard.ArgumentNotNull(constructorArguments);
+}

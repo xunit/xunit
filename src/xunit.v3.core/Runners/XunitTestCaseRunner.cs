@@ -10,7 +10,7 @@ namespace Xunit.v3;
 /// The test case runner for xUnit.net v3 tests.
 /// </summary>
 public class XunitTestCaseRunner :
-	TestCaseRunner<XunitTestCaseRunnerContext, IXunitTestCase, IXunitTest>
+	XunitTestCaseRunnerBase<XunitTestCaseRunnerContext, IXunitTestCase, IXunitTest>
 {
 	/// <summary>
 	/// Initializes a new instance of the <see cref="XunitTestCaseRunner"/> class.

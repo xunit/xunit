@@ -9,9 +9,14 @@ namespace Xunit.v3;
 /// <summary>
 /// The test method runner for xUnit.net v3 tests.
 /// </summary>
-public class XunitTestMethodRunner :
-	TestMethodRunner<XunitTestMethodRunnerContext, IXunitTestMethod, IXunitTestCase>
+public class XunitTestMethodRunner : XunitTestMethodRunnerBase<XunitTestMethodRunnerContext, IXunitTestMethod, IXunitTestCase>
 {
+	/// <summary>
+	/// Initializes a new instance of the <see cref="XunitTestMethodRunner"/> class.
+	/// </summary>
+	protected XunitTestMethodRunner()
+	{ }
+
 	/// <summary>
 	/// Gets the singleton instance of the <see cref="XunitTestMethodRunner"/> class.
 	/// </summary>
@@ -44,23 +49,5 @@ public class XunitTestMethodRunner :
 		await ctxt.InitializeAsync();
 
 		return await Run(ctxt);
-	}
-
-	/// <inheritdoc/>
-	protected override ValueTask<RunSummary> RunTestCase(
-		XunitTestMethodRunnerContext ctxt,
-		IXunitTestCase testCase)
-	{
-		Guard.ArgumentNotNull(ctxt);
-		Guard.ArgumentNotNull(testCase);
-
-		return
-			testCase.Run(
-				ctxt.ExplicitOption,
-				ctxt.MessageBus,
-				ctxt.ConstructorArguments,
-				ctxt.Aggregator,
-				ctxt.CancellationTokenSource
-			);
 	}
 }

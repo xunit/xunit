@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
-using Xunit.Internal;
 using Xunit.Sdk;
 
 namespace Xunit.v3;
@@ -26,30 +24,5 @@ public class XunitTestCollectionRunnerContext(
 	ExceptionAggregator aggregator,
 	CancellationTokenSource cancellationTokenSource,
 	FixtureMappingManager assemblyFixtureMappings) :
-		TestCollectionRunnerContext<IXunitTestCollection, IXunitTestCase>(testCollection, testCases, explicitOption, messageBus, aggregator, cancellationTokenSource)
-{
-	ITestCaseOrderer testCaseOrderer = Guard.ArgumentNotNull(testCaseOrderer);
-
-	/// <summary>
-	/// Gets the mapping manager for collection-level fixtures.
-	/// </summary>
-	public FixtureMappingManager CollectionFixtureMappings { get; } = new("Collection", Guard.ArgumentNotNull(assemblyFixtureMappings));
-
-	/// <summary>
-	/// Gets or sets the orderer used to order test cases within the test collection.
-	/// </summary>
-	public ITestCaseOrderer TestCaseOrderer
-	{
-		get => testCaseOrderer;
-		set => testCaseOrderer = Guard.ArgumentNotNull(value, nameof(TestCaseOrderer));
-	}
-
-	/// <inheritdoc/>
-	public override async ValueTask InitializeAsync()
-	{
-		await base.InitializeAsync();
-
-		if (TestCollection.TestCaseOrderer is not null)
-			TestCaseOrderer = TestCollection.TestCaseOrderer;
-	}
-}
+		XunitTestCollectionRunnerBaseContext<IXunitTestCollection, IXunitTestCase>(testCollection, testCases, explicitOption, messageBus, testCaseOrderer, aggregator, cancellationTokenSource, assemblyFixtureMappings)
+{ }
