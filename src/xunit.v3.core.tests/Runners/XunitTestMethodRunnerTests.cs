@@ -203,6 +203,47 @@ public class XunitTestMethodRunnerTests
 		}
 	}
 
+	public class SelfExecution
+	{
+		[Fact]
+		public async ValueTask SupportsSelfExecutingTestCases()
+		{
+			var testMethod = TestData.XunitTestMethod<ClassUnderTest>(nameof(ClassUnderTest.Passing));
+			var testCase = new SelfExecutingTestCase(testMethod);
+			var runner = new TestableXunitTestMethodRunner(testCase);
+
+			await runner.RunAsync();
+
+			var skipped = Assert.Single(runner.MessageBus.Messages.OfType<ITestSkipped>());
+			Assert.Equal("This is skipped via self-execution", skipped.Reason);
+		}
+
+		class ClassUnderTest
+		{
+			[Fact]
+			public void Passing() { }
+		}
+
+		class SelfExecutingTestCase : XunitTestCase, ISelfExecutingXunitTestCase
+		{
+			[Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
+			public SelfExecutingTestCase()
+			{ }
+
+			public SelfExecutingTestCase(IXunitTestMethod testMethod) :
+					base(testMethod, "Display Name", "Unique ID", @explicit: false)
+			{ }
+
+			public ValueTask<RunSummary> Run(
+				ExplicitOption explicitOption,
+				IMessageBus messageBus,
+				object?[] constructorArguments,
+				ExceptionAggregator aggregator,
+				CancellationTokenSource cancellationTokenSource) =>
+					new(XunitRunnerHelper.SkipTestCases(messageBus, cancellationTokenSource, [this], "This is skipped via self-execution"));
+		}
+	}
+
 	class TestableXunitTestMethodRunner(IXunitTestCase testCase) :
 		XunitTestMethodRunner
 	{

@@ -23,6 +23,9 @@ public class XunitTestMethodRunnerBase<TContext, TTestMethod, TTestCase> :
 		Guard.ArgumentNotNull(ctxt);
 		Guard.ArgumentNotNull(testCase);
 
+		if (testCase is ISelfExecutingXunitTestCase selfExecutingTestCase)
+			return selfExecutingTestCase.Run(ctxt.ExplicitOption, ctxt.MessageBus, ctxt.ConstructorArguments, ctxt.Aggregator.Clone(), ctxt.CancellationTokenSource);
+
 		return XunitRunnerHelper.RunXunitTestCase(
 			testCase,
 			ctxt.MessageBus,
