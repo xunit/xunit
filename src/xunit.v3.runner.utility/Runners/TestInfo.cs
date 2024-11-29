@@ -13,7 +13,7 @@ public abstract class TestInfo
 	protected TestInfo(
 		string typeName,
 		string methodName,
-		Dictionary<string, HashSet<string>>? traits,
+		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits,
 		string testDisplayName,
 		string testCollectionDisplayName)
 	{
@@ -24,7 +24,7 @@ public abstract class TestInfo
 
 		TypeName = typeName;
 		MethodName = methodName;
-		Traits = traits ?? new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
+		Traits = traits ?? new Dictionary<string, IReadOnlyCollection<string>>(StringComparer.OrdinalIgnoreCase);
 		TestDisplayName = testDisplayName;
 		TestCollectionDisplayName = testCollectionDisplayName;
 	}
@@ -42,7 +42,7 @@ public abstract class TestInfo
 	/// <summary>
 	/// The traits associated with the test.
 	/// </summary>
-	public Dictionary<string, HashSet<string>> Traits { get; }
+	public IReadOnlyDictionary<string, IReadOnlyCollection<string>> Traits { get; }
 
 	/// <summary>
 	/// The display name for the test.

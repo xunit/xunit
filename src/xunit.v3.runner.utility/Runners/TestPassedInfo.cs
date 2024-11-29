@@ -8,7 +8,7 @@ namespace Xunit.Runners;
 public class TestPassedInfo(
 	string typeName,
 	string methodName,
-	Dictionary<string, HashSet<string>>? traits,
+	IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits,
 	string testDisplayName,
 	string testCollectionDisplayName,
 	decimal executionTime,

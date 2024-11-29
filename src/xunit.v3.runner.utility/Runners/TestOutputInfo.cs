@@ -8,7 +8,7 @@ namespace Xunit.Runners;
 public class TestOutputInfo(
 	string typeName,
 	string methodName,
-	Dictionary<string, HashSet<string>>? traits,
+	IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits,
 	string testDisplayName,
 	string testCollectionDisplayName,
 	string? output) :

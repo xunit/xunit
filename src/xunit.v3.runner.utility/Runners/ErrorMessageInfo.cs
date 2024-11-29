@@ -7,7 +7,7 @@ namespace Xunit.Runners;
 public class ErrorMessageInfo(
 	ErrorMessageType messageType,
 	string? exceptionType,
-	string? exceptionMessage,
+	string exceptionMessage,
 	string? exceptionStackTrace)
 {
 	/// <summary>
@@ -23,7 +23,7 @@ public class ErrorMessageInfo(
 	/// <summary>
 	/// The message from the exception that caused the test failure.
 	/// </summary>
-	public string? ExceptionMessage { get; } = exceptionMessage;
+	public string ExceptionMessage { get; } = exceptionMessage;
 
 	/// <summary>
 	/// The stack trace from the exception that caused the test failure.
