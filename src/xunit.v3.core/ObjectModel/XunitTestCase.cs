@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -15,11 +14,6 @@ namespace Xunit.v3;
 /// <see cref="FactAttribute"/>. Test methods decorated with derived attributes may use this as a base class
 /// to build from.
 /// </summary>
-/// <remarks>
-/// By default, this class represents a single invocation of a test method, resulting in a single test
-/// for the test case. Overriding <see cref="Run"/> allows derived classes to change the way
-/// test(s) are associated with the test case.
-/// </remarks>
 [DebuggerDisplay(@"\{ class = {TestMethod.TestClass.Class.Name}, method = {TestMethod.Method.Name}, display = {TestCaseDisplayName}, skip = {SkipReason} \}")]
 public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposable
 {
@@ -201,16 +195,13 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 	public virtual string UniqueID =>
 		this.ValidateNullablePropertyValue(uniqueID, nameof(UniqueID));
 
-	/// <summary>
-	/// Creates the tests that are emitted from this test case. Exceptions thrown here
-	/// will be caught and converted into a test case failure.
-	/// </summary>
 	/// <remarks>
 	/// By default, this method returns a single <see cref="XunitTest"/> that is appropriate
 	/// for a one-to-one mapping between test and test case. Override this method to change the
 	/// tests that are associated with this test case.
 	/// </remarks>
-	protected virtual ValueTask<IReadOnlyCollection<IXunitTest>> CreateTests() =>
+	/// <inheritdoc/>
+	public virtual ValueTask<IReadOnlyCollection<IXunitTest>> CreateTests() =>
 		new([
 			new XunitTest(
 				this,
@@ -262,6 +253,14 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 		return DisposalTracker.DisposeAsync();
 	}
 
+	/// <inheritdoc/>
+	public virtual void PostInvoke()
+	{ }
+
+	/// <inheritdoc/>
+	public virtual void PreInvoke()
+	{ }
+
 	/// <summary>
 	/// Computes values from the test case and resolves the test method arguments just before execution.
 	/// Typically used from <see cref="CreateTests"/> so that the executed test has an appropriately
@@ -279,50 +278,6 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 			parameterTypes[i] = parameters[i].ParameterType;
 
 		return TypeHelper.ConvertArguments(arguments, parameterTypes);
-	}
-
-	/// <summary>
-	/// Runs the test case, which represents a single test.
-	/// </summary>
-	public virtual async ValueTask<RunSummary> Run(
-		ExplicitOption explicitOption,
-		IMessageBus messageBus,
-		object?[] constructorArguments,
-		ExceptionAggregator aggregator,
-		CancellationTokenSource cancellationTokenSource)
-	{
-		Guard.ArgumentNotNull(messageBus);
-		Guard.ArgumentNotNull(constructorArguments);
-		Guard.ArgumentNotNull(cancellationTokenSource);
-
-		IReadOnlyCollection<IXunitTest> tests;
-
-		try
-		{
-			tests = await CreateTests();
-		}
-		catch (Exception ex)
-		{
-			return XunitRunnerHelper.FailTestCases(
-				messageBus,
-				cancellationTokenSource,
-				[this],
-				ex,
-				sendTestCaseMessages: false
-			);
-		}
-
-		return await XunitTestCaseRunner.Instance.Run(
-			this,
-			tests,
-			messageBus,
-			aggregator.Clone(),
-			cancellationTokenSource,
-			TestCaseDisplayName,
-			SkipReason,
-			explicitOption,
-			constructorArguments
-		);
 	}
 
 	/// <summary>

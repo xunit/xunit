@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
+using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Sdk;
 
@@ -199,6 +200,51 @@ public static class XunitRunnerHelper
 	}
 
 	/// <summary>
+	/// Runs a single test case (which implements <see cref="IXunitTestCase"/>) using
+	/// the <see cref="XunitTestCaseRunner"/> after enumerating all tests.
+	/// </summary>
+	/// <param name="testCase"></param>
+	/// <param name="messageBus"></param>
+	/// <param name="cancellationTokenSource"></param>
+	/// <param name="aggregator"></param>
+	/// <param name="explicitOption"></param>
+	/// <param name="constructorArguments"></param>
+	/// <returns></returns>
+	public static async ValueTask<RunSummary> RunXunitTestCase(
+		IXunitTestCase testCase,
+		IMessageBus messageBus,
+		CancellationTokenSource cancellationTokenSource,
+		ExceptionAggregator aggregator,
+		ExplicitOption explicitOption,
+		object?[] constructorArguments)
+	{
+		Guard.ArgumentNotNull(testCase);
+
+		var tests = await aggregator.RunAsync(testCase.CreateTests, []);
+
+		if (aggregator.ToException() is Exception ex)
+			return FailTestCases(
+				messageBus,
+				cancellationTokenSource,
+				[testCase],
+				ex,
+				sendTestCaseMessages: false
+			);
+
+		return await XunitTestCaseRunner.Instance.Run(
+			testCase,
+			tests,
+			messageBus,
+			aggregator,
+			cancellationTokenSource,
+			testCase.TestCaseDisplayName,
+			testCase.SkipReason,
+			explicitOption,
+			constructorArguments
+		);
+	}
+
+	/// <summary>
 	/// Skips a set of test cases with the given skip reason.
 	/// </summary>
 	/// <param name="messageBus">The message bus to send the messages to</param>
@@ -246,6 +292,8 @@ public static class XunitRunnerHelper
 
 		return result;
 	}
+
+	// Helpers
 
 	static void ExecuteTestCase(
 		IMessageBus messageBus,

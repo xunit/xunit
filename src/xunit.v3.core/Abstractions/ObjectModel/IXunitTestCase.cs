@@ -1,6 +1,6 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Sdk;
 
@@ -114,19 +114,18 @@ public interface IXunitTestCase : ITestCase
 	int Timeout { get; }
 
 	/// <summary>
-	/// Executes the test case, returning 0 or more result messages through the message sink.
+	/// Creates the tests that are emitted from this test case. Exceptions thrown here
+	/// will be caught and converted into a test case failure.
 	/// </summary>
-	/// <param name="explicitOption">A flag to indicate how explicit tests should be treated.</param>
-	/// <param name="messageBus">The message bus to report results to.</param>
-	/// <param name="constructorArguments">The arguments to pass to the constructor.</param>
-	/// <param name="aggregator">The error aggregator to use for catching exception.</param>
-	/// <param name="cancellationTokenSource">The cancellation token source that indicates whether cancellation has been requested.</param>
-	/// <returns>Returns the summary of the test case run.</returns>
-	ValueTask<RunSummary> Run(
-		ExplicitOption explicitOption,
-		IMessageBus messageBus,
-		object?[] constructorArguments,
-		ExceptionAggregator aggregator,
-		CancellationTokenSource cancellationTokenSource
-	);
+	ValueTask<IReadOnlyCollection<IXunitTest>> CreateTests();
+
+	/// <summary>
+	/// Allows the test case to run some code just after the test case is finished running.
+	/// </summary>
+	void PostInvoke();
+
+	/// <summary>
+	/// Allows the test case to run some code just before the test case is run.
+	/// </summary>
+	void PreInvoke();
 }

@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Threading;
-using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Sdk;
 
@@ -11,6 +9,8 @@ namespace Xunit.v3;
 public class CulturedXunitTheoryTestCase : XunitDelayEnumeratedTheoryTestCase
 {
 	string? culture;
+	CultureInfo? originalCulture;
+	CultureInfo? originalUICulture;
 
 	/// <summary>
 	/// Called by the de-serializer; should only be called by deriving classes for de-serialization purposes
@@ -68,29 +68,26 @@ public class CulturedXunitTheoryTestCase : XunitDelayEnumeratedTheoryTestCase
 		culture = Guard.NotNull("Could not retrieve Culture from serialization", info.GetValue<string>("cul"));
 	}
 
-	public override async ValueTask<RunSummary> Run(
-		ExplicitOption explicitOption,
-		IMessageBus messageBus,
-		object?[] constructorArguments,
-		ExceptionAggregator aggregator,
-		CancellationTokenSource cancellationTokenSource)
+	public override void PostInvoke()
 	{
-		var originalCulture = CultureInfo.CurrentCulture;
-		var originalUICulture = CultureInfo.CurrentUICulture;
-
-		try
-		{
-			var cultureInfo = new CultureInfo(Culture, useUserOverride: false);
-			CultureInfo.CurrentCulture = cultureInfo;
-			CultureInfo.CurrentUICulture = cultureInfo;
-
-			return await base.Run(explicitOption, messageBus, constructorArguments, aggregator, cancellationTokenSource);
-		}
-		finally
-		{
+		if (originalCulture is not null)
 			CultureInfo.CurrentCulture = originalCulture;
+		if (originalUICulture is not null)
 			CultureInfo.CurrentUICulture = originalUICulture;
-		}
+
+		base.PostInvoke();
+	}
+
+	public override void PreInvoke()
+	{
+		base.PreInvoke();
+
+		originalCulture = CultureInfo.CurrentCulture;
+		originalUICulture = CultureInfo.CurrentUICulture;
+
+		var cultureInfo = new CultureInfo(Culture, useUserOverride: false);
+		CultureInfo.CurrentCulture = cultureInfo;
+		CultureInfo.CurrentUICulture = cultureInfo;
 	}
 
 	protected override void Serialize(IXunitSerializationInfo info)

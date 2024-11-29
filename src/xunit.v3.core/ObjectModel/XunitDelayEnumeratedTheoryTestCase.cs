@@ -9,8 +9,8 @@ using Xunit.Sdk;
 namespace Xunit.v3;
 
 /// <summary>
-/// Represents a test case which runs multiple tests for theory data, either because the
-/// data was not enumerable or because the data was not serializable.
+/// Represents a test case which runs multiple tests for theory data, either because theory
+/// data pre-enumeration was disabled or because the data was not serializable.
 /// </summary>
 public class XunitDelayEnumeratedTheoryTestCase : XunitTestCase, IXunitDelayEnumeratedTestCase
 {
@@ -76,7 +76,7 @@ public class XunitDelayEnumeratedTheoryTestCase : XunitTestCase, IXunitDelayEnum
 	/// <summary>
 	/// Enumerates the theory data and creates tests to be run.
 	/// </summary>
-	protected override async ValueTask<IReadOnlyCollection<IXunitTest>> CreateTests()
+	public override async ValueTask<IReadOnlyCollection<IXunitTest>> CreateTests()
 	{
 		var testIndex = 0;
 		var result = new List<IXunitTest>();

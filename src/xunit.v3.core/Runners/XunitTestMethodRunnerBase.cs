@@ -23,13 +23,13 @@ public class XunitTestMethodRunnerBase<TContext, TTestMethod, TTestCase> :
 		Guard.ArgumentNotNull(ctxt);
 		Guard.ArgumentNotNull(testCase);
 
-		return
-			testCase.Run(
-				ctxt.ExplicitOption,
-				ctxt.MessageBus,
-				ctxt.ConstructorArguments,
-				ctxt.Aggregator,
-				ctxt.CancellationTokenSource
-			);
+		return XunitRunnerHelper.RunXunitTestCase(
+			testCase,
+			ctxt.MessageBus,
+			ctxt.CancellationTokenSource,
+			ctxt.Aggregator.Clone(),
+			ctxt.ExplicitOption,
+			ctxt.ConstructorArguments
+		);
 	}
 }

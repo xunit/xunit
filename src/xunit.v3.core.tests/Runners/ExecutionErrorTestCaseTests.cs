@@ -23,13 +23,12 @@ public sealed class ExecutionErrorTestCaseTests : IDisposable
 	{
 		var testCase = ExecutionErrorTestCase("This is my error message");
 
-		var result = await testCase.Run(ExplicitOption.Off, messageBus, [], aggregator, tokenSource);
+		var result = await XunitRunnerHelper.RunXunitTestCase(testCase, messageBus, tokenSource, aggregator, ExplicitOption.Off, []);
 
 		Assert.Equal(1, result.Total);
 		Assert.Equal(0m, result.Time);
 		Assert.Collection(
 			messageBus.Messages,
-			msg => Assert.IsAssignableFrom<ITestCaseStarting>(msg),
 			msg => Assert.IsAssignableFrom<ITestStarting>(msg),
 			msg =>
 			{
@@ -46,15 +45,6 @@ public sealed class ExecutionErrorTestCaseTests : IDisposable
 				var testFinished = Assert.IsAssignableFrom<ITestFinished>(msg);
 				Assert.Equal(0m, testFinished.ExecutionTime);
 				Assert.Empty(testFinished.Output);
-			},
-			msg =>
-			{
-				var testCaseFinished = Assert.IsAssignableFrom<ITestCaseFinished>(msg);
-				Assert.Equal(0m, testCaseFinished.ExecutionTime);
-				Assert.Equal(1, testCaseFinished.TestsFailed);
-				Assert.Equal(0, testCaseFinished.TestsNotRun);
-				Assert.Equal(0, testCaseFinished.TestsSkipped);
-				Assert.Equal(1, testCaseFinished.TestsTotal);
 			}
 		);
 	}
@@ -65,13 +55,12 @@ public sealed class ExecutionErrorTestCaseTests : IDisposable
 		var testCase = ExecutionErrorTestCase("This is my error message");
 		aggregator.Add(new DivideByZeroException());
 
-		var result = await testCase.Run(ExplicitOption.Off, messageBus, [], aggregator, tokenSource);
+		var result = await XunitRunnerHelper.RunXunitTestCase(testCase, messageBus, tokenSource, aggregator, ExplicitOption.Off, []);
 
 		Assert.Equal(1, result.Total);
 		Assert.Equal(0m, result.Time);
 		Assert.Collection(
 			messageBus.Messages,
-			msg => Assert.IsAssignableFrom<ITestCaseStarting>(msg),
 			msg => Assert.IsAssignableFrom<ITestStarting>(msg),
 			msg =>
 			{
@@ -87,15 +76,6 @@ public sealed class ExecutionErrorTestCaseTests : IDisposable
 				var testFinished = Assert.IsAssignableFrom<ITestFinished>(msg);
 				Assert.Equal(0m, testFinished.ExecutionTime);
 				Assert.Empty(testFinished.Output);
-			},
-			msg =>
-			{
-				var testCaseFinished = Assert.IsAssignableFrom<ITestCaseFinished>(msg);
-				Assert.Equal(0m, testCaseFinished.ExecutionTime);
-				Assert.Equal(1, testCaseFinished.TestsFailed);
-				Assert.Equal(0, testCaseFinished.TestsNotRun);
-				Assert.Equal(0, testCaseFinished.TestsSkipped);
-				Assert.Equal(1, testCaseFinished.TestsTotal);
 			}
 		);
 	}
@@ -109,7 +89,7 @@ public sealed class ExecutionErrorTestCaseTests : IDisposable
 		var testCase = ExecutionErrorTestCase("This is my error message");
 		var messageBus = new SpyMessageBus(msg => !messageTypeToCancelOn.IsAssignableFrom(msg.GetType()));
 
-		await testCase.Run(ExplicitOption.Off, messageBus, [], aggregator, tokenSource);
+		await XunitRunnerHelper.RunXunitTestCase(testCase, messageBus, tokenSource, aggregator, ExplicitOption.Off, []);
 
 		Assert.True(tokenSource.IsCancellationRequested);
 	}

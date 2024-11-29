@@ -1,5 +1,5 @@
 using System;
-using System.Threading;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -42,26 +42,18 @@ public class ExecutionErrorTestCase : XunitTestCase
 	public string ErrorMessage =>
 		this.ValidateNullablePropertyValue(errorMessage, nameof(ErrorMessage));
 
+	/// <summary>
+	/// Throws the expected error mesage rather than creating tests.
+	/// </summary>
+	public override ValueTask<IReadOnlyCollection<IXunitTest>> CreateTests() =>
+		throw new TestPipelineException(ErrorMessage);
+
 	/// <inheritdoc/>
 	protected override void Deserialize(IXunitSerializationInfo info)
 	{
 		base.Deserialize(info);
 
 		errorMessage = Guard.NotNull("Could not retrieve ErrorMessage from serialization", info.GetValue<string>("em"));
-	}
-
-	/// <inheritdoc/>
-	public override ValueTask<RunSummary> Run(
-		ExplicitOption explicitOption,
-		IMessageBus messageBus,
-		object?[] constructorArguments,
-		ExceptionAggregator aggregator,
-		CancellationTokenSource cancellationTokenSource)
-	{
-		var exception = new TestPipelineException(ErrorMessage);
-		aggregator.Add(exception);
-
-		return new(XunitRunnerHelper.FailTestCases(messageBus, cancellationTokenSource, [this], aggregator.ToException()!));
 	}
 
 	/// <inheritdoc/>
