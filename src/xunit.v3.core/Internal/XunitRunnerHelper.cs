@@ -223,13 +223,24 @@ public static class XunitRunnerHelper
 		var tests = await aggregator.RunAsync(testCase.CreateTests, []);
 
 		if (aggregator.ToException() is Exception ex)
-			return FailTestCases(
-				messageBus,
-				cancellationTokenSource,
-				[testCase],
-				ex,
-				sendTestCaseMessages: false
-			);
+		{
+			if (ex.Message.StartsWith(DynamicSkipToken.Value, StringComparison.Ordinal))
+				return SkipTestCases(
+					messageBus,
+					cancellationTokenSource,
+					[testCase],
+					ex.Message.Substring(DynamicSkipToken.Value.Length),
+					sendTestCaseMessages: false
+				);
+			else
+				return FailTestCases(
+					messageBus,
+					cancellationTokenSource,
+					[testCase],
+					ex,
+					sendTestCaseMessages: false
+				);
+		}
 
 		return await XunitTestCaseRunner.Instance.Run(
 			testCase,
