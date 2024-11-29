@@ -11,7 +11,6 @@
   <ItemGroup>
     <Compile Remove="Package\**\*" />
     <None Include="Package\**\*" />
-    <Compile Include="..\xunit.v3.assert\Asserts\Sdk\DynamicSkipToken.cs" LinkBase="Common\Asserts" />
     <Compile Include="..\common\MessagePartials\**\*.cs" LinkBase="Common\MessagePartials" />
   </ItemGroup>
 
