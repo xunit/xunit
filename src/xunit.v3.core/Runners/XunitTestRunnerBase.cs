@@ -92,11 +92,11 @@ public class XunitTestRunnerBase<TContext, TTest> : TestRunner<TContext, TTest>
 		!Guard.ArgumentNotNull(ctxt).Test.TestMethod.Method.IsStatic;
 
 	/// <inheritdoc/>
-	protected override ValueTask PostInvoke(TContext ctxt) =>
+	protected override void PostInvoke(TContext ctxt) =>
 		Guard.ArgumentNotNull(ctxt).RunAfterAttributes();
 
 	/// <inheritdoc/>
-	protected override ValueTask PreInvoke(TContext ctxt) =>
+	protected override void PreInvoke(TContext ctxt) =>
 		Guard.ArgumentNotNull(ctxt).RunBeforeAttributes();
 
 	/// <inheritdoc/>

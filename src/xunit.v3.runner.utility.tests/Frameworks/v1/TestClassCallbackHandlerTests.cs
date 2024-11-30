@@ -125,15 +125,13 @@ public class TestClassCallbackHandlerTests
 		/// </summary>
 		/// <param name="methodUnderTest">The method under test</param>
 		/// <param name="test">The current <see cref="IXunitTest"/></param>
-		public override ValueTask Before(MethodInfo methodUnderTest, IXunitTest test)
+		public override void Before(MethodInfo methodUnderTest, IXunitTest test)
 		{
 			originalCulture = CultureInfo.CurrentCulture;
 			originalUICulture = CultureInfo.CurrentUICulture;
 
 			CultureInfo.CurrentCulture = Culture;
 			CultureInfo.CurrentUICulture = UICulture;
-
-			return default;
 		}
 
 		/// <summary>
@@ -142,14 +140,12 @@ public class TestClassCallbackHandlerTests
 		/// </summary>
 		/// <param name="methodUnderTest">The method under test</param>
 		/// <param name="test">The current <see cref="IXunitTest"/></param>
-		public override ValueTask After(MethodInfo methodUnderTest, IXunitTest test)
+		public override void After(MethodInfo methodUnderTest, IXunitTest test)
 		{
 			if (originalCulture is not null)
 				CultureInfo.CurrentCulture = originalCulture;
 			if (originalUICulture is not null)
 				CultureInfo.CurrentUICulture = originalUICulture;
-
-			return default;
 		}
 	}
 

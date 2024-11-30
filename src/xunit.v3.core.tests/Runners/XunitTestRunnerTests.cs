@@ -438,16 +438,14 @@ public class XunitTestRunnerTests
 
 		class RecordingBeforeAfter(List<string> messages, int identifier) : BeforeAfterTestAttribute
 		{
-			public override ValueTask After(MethodInfo methodUnderTest, IXunitTest test)
+			public override void After(MethodInfo methodUnderTest, IXunitTest test)
 			{
 				messages.Add("After #" + identifier);
-				return default;
 			}
 
-			public override ValueTask Before(MethodInfo methodUnderTest, IXunitTest test)
+			public override void Before(MethodInfo methodUnderTest, IXunitTest test)
 			{
 				messages.Add("Before #" + identifier);
-				return default;
 			}
 		}
 	}

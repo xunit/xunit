@@ -1,5 +1,4 @@
 using System.Reflection;
-using System.Threading.Tasks;
 using Xunit.Sdk;
 
 namespace Xunit.v3;
@@ -15,7 +14,7 @@ public interface IBeforeAfterTestAttribute
 	/// </summary>
 	/// <param name="methodUnderTest">The method under test</param>
 	/// <param name="test">The current <see cref="ITest"/></param>
-	ValueTask After(
+	void After(
 		MethodInfo methodUnderTest,
 		IXunitTest test);
 
@@ -24,7 +23,7 @@ public interface IBeforeAfterTestAttribute
 	/// </summary>
 	/// <param name="methodUnderTest">The method under test</param>
 	/// <param name="test">The current <see cref="ITest"/></param>
-	ValueTask Before(
+	void Before(
 		MethodInfo methodUnderTest,
 		IXunitTest test);
 }

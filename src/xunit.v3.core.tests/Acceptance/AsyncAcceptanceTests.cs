@@ -1,9 +1,12 @@
 using System;
 using System.Linq;
+using System.Reflection;
+using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Sdk;
+using Xunit.v3;
 
 public class AsyncAcceptanceTests : AcceptanceTestV3
 {
@@ -74,5 +77,33 @@ public class AsyncAcceptanceTests : AcceptanceTestV3
 		[Fact]
 		public void Test() =>
 			Assert.Equal(42, asyncLocal.Value);
+	}
+
+	[PrincipalBeforeAfter]
+	public class PrincipalUsage
+	{
+		[Fact]
+		public void Test() =>
+			Assert.Equal("xUnit", Thread.CurrentPrincipal?.Identity?.Name);
+	}
+
+	public class PrincipalBeforeAfterAttribute : BeforeAfterTestAttribute
+	{
+		IPrincipal? originalPrincipal;
+
+		public override void After(MethodInfo methodUnderTest, IXunitTest test)
+		{
+			if (originalPrincipal is not null)
+				Thread.CurrentPrincipal = originalPrincipal;
+		}
+
+		public override void Before(MethodInfo methodUnderTest, IXunitTest test)
+		{
+			originalPrincipal = Thread.CurrentPrincipal;
+
+			var identity = new GenericIdentity("xUnit");
+			var principal = new GenericPrincipal(identity, ["role1"]);
+			Thread.CurrentPrincipal = principal;
+		}
 	}
 }

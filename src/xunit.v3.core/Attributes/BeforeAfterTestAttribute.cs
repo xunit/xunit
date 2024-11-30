@@ -1,6 +1,5 @@
 using System;
 using System.Reflection;
-using System.Threading.Tasks;
 
 namespace Xunit.v3;
 
@@ -11,14 +10,14 @@ namespace Xunit.v3;
 public abstract class BeforeAfterTestAttribute : Attribute, IBeforeAfterTestAttribute
 {
 	/// <inheritdoc/>
-	public virtual ValueTask After(
+	public virtual void After(
 		MethodInfo methodUnderTest,
-		IXunitTest test) =>
-			default;
+		IXunitTest test)
+	{ }
 
 	/// <inheritdoc/>
-	public virtual ValueTask Before(
+	public virtual void Before(
 		MethodInfo methodUnderTest,
-		IXunitTest test) =>
-			default;
+		IXunitTest test)
+	{ }
 }

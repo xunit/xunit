@@ -665,24 +665,20 @@ public class TestRunnerTests
 
 		public Action? PostInvoke__Lambda;
 
-		protected override ValueTask PostInvoke(TestRunnerContext<ITest> ctxt)
+		protected override void PostInvoke(TestRunnerContext<ITest> ctxt)
 		{
 			Invocations.Add("PostInvoke");
 
 			PostInvoke__Lambda?.Invoke();
-
-			return default;
 		}
 
 		public Action? PreInvoke__Lambda;
 
-		protected override ValueTask PreInvoke(TestRunnerContext<ITest> ctxt)
+		protected override void PreInvoke(TestRunnerContext<ITest> ctxt)
 		{
 			Invocations.Add("PreInvoke");
 
 			PreInvoke__Lambda?.Invoke();
-
-			return default;
 		}
 
 		public async ValueTask<RunSummary> Run(string? skipReason = null)

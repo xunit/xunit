@@ -2,7 +2,6 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 using System.Threading;
-using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.v3;
 
@@ -19,7 +18,7 @@ public sealed class CaptureTraceAttribute : BeforeAfterTestAttribute
 	static readonly ManualResetEventSlim initializedEvent = new(initialState: false);
 
 	/// <inheritdoc/>
-	public override ValueTask Before(
+	public override void Before(
 		MethodInfo methodUnderTest,
 		IXunitTest test)
 	{
@@ -42,7 +41,5 @@ public sealed class CaptureTraceAttribute : BeforeAfterTestAttribute
 		}
 		else
 			initializedEvent.Wait();
-
-		return default;
 	}
 }

@@ -1,7 +1,6 @@
 using System;
 using System.Reflection;
 using System.Threading;
-using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.v3;
 
@@ -29,7 +28,7 @@ public sealed class CaptureConsoleAttribute : BeforeAfterTestAttribute
 	public bool CaptureOut { get; set; } = true;
 
 	/// <inheritdoc/>
-	public override ValueTask Before(
+	public override void Before(
 		MethodInfo methodUnderTest,
 		IXunitTest test)
 	{
@@ -52,7 +51,5 @@ public sealed class CaptureConsoleAttribute : BeforeAfterTestAttribute
 		}
 		else
 			initializedEvent.Wait();
-
-		return default;
 	}
 }

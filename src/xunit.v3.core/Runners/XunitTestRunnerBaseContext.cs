@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
 using System.Threading;
-using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Sdk;
 
@@ -166,7 +165,7 @@ public class XunitTestRunnerBaseContext<TTest> : TestRunnerContext<TTest>
 	/// <summary>
 	/// Runs the <see cref="IBeforeAfterTestAttribute.After"/> side of the before after attributes.
 	/// </summary>
-	public async ValueTask RunAfterAttributes()
+	public void RunAfterAttributes()
 	{
 		var testUniqueID = Test.UniqueID;
 
@@ -197,7 +196,7 @@ public class XunitTestRunnerBaseContext<TTest> : TestRunnerContext<TTest>
 				if (!MessageBus.QueueMessage(afterTestStarting))
 					CancellationTokenSource.Cancel();
 
-				await Aggregator.RunAsync(() => beforeAfterAttribute.After(Test.TestMethod.Method, Test));
+				Aggregator.Run(() => beforeAfterAttribute.After(Test.TestMethod.Method, Test));
 
 				var afterTestFinished = new AfterTestFinished
 				{
@@ -219,7 +218,7 @@ public class XunitTestRunnerBaseContext<TTest> : TestRunnerContext<TTest>
 	/// <summary>
 	/// Runs the <see cref="IBeforeAfterTestAttribute.Before"/> side of the before after attributes.
 	/// </summary>
-	public async ValueTask RunBeforeAttributes()
+	public void RunBeforeAttributes()
 	{
 		var testUniqueID = Test.UniqueID;
 
@@ -258,7 +257,7 @@ public class XunitTestRunnerBaseContext<TTest> : TestRunnerContext<TTest>
 				{
 					try
 					{
-						await beforeAfterAttribute.Before(Test.TestMethod.Method, Test);
+						beforeAfterAttribute.Before(Test.TestMethod.Method, Test);
 						beforeAfterAttributesRun.Push(beforeAfterAttribute);
 					}
 					catch (Exception ex)

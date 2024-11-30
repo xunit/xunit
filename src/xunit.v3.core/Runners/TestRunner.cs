@@ -319,16 +319,16 @@ public abstract class TestRunner<TContext, TTest> :
 	/// the test class instance has been disposed.
 	/// </summary>
 	/// <param name="ctxt">The context that describes the current test</param>
-	protected virtual ValueTask PostInvoke(TContext ctxt) =>
-		default;
+	protected virtual void PostInvoke(TContext ctxt)
+	{ }
 
 	/// <summary>
 	/// Override this method to call code just after the test class instance has been created, but
 	/// before the test has been invoked.
 	/// </summary>
 	/// <param name="ctxt">The context that describes the current test</param>
-	protected virtual ValueTask PreInvoke(TContext ctxt) =>
-		default;
+	protected virtual void PreInvoke(TContext ctxt)
+	{ }
 
 	/// <inheritdoc/>
 	protected override async ValueTask<TimeSpan> RunTest(TContext ctxt)
@@ -363,7 +363,7 @@ public abstract class TestRunner<TContext, TTest> :
 				{
 					if (!ctxt.Aggregator.HasExceptions)
 					{
-						elapsedTime += await ExecutionTimer.MeasureAsync(() => ctxt.Aggregator.RunAsync(() => PreInvoke(ctxt)));
+						elapsedTime += ExecutionTimer.Measure(() => ctxt.Aggregator.Run(() => PreInvoke(ctxt)));
 
 						if (!ctxt.Aggregator.HasExceptions)
 						{
@@ -381,7 +381,7 @@ public abstract class TestRunner<TContext, TTest> :
 
 							UpdateTestContext(testClassInstance, testResultState);
 
-							elapsedTime += await ExecutionTimer.MeasureAsync(() => ctxt.Aggregator.RunAsync(() => PostInvoke(ctxt)));
+							elapsedTime += ExecutionTimer.Measure(() => ctxt.Aggregator.Run(() => PostInvoke(ctxt)));
 						}
 
 						elapsedTime += await ExecutionTimer.MeasureAsync(() => ctxt.Aggregator.RunAsync(() => DisposeTestClass(ctxt, testClassInstance)));
