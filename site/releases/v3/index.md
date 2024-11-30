@@ -9,6 +9,7 @@ breadcrumb: Release Notes
 {: .table .releases }
 Version | Releases
 ------- | --------
+0.7.0   | [Build 15](0.7.0-pre.15){: .prerelease }
 0.6.0   | [Build 7](0.6.0-pre.7){: .prerelease }
 0.5.0   | [Build 27](0.5.0-pre.27){: .prerelease }
 0.4.0   | [Build 20](0.4.0-pre.20){: .prerelease }
