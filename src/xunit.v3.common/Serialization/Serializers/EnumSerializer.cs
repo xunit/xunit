@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using Xunit.Internal;
 
@@ -31,7 +32,7 @@ internal sealed class EnumSerializer : IXunitSerializer
 				: throw new ArgumentException(
 					string.Format(
 						CultureInfo.CurrentCulture,
-						"Attempted to deserialize type '{0}' which was not an enum",
+						"Cannot deserialize type '{0}' because it is not Enum",
 						type.SafeName()
 					),
 					nameof(type)
@@ -40,11 +41,19 @@ internal sealed class EnumSerializer : IXunitSerializer
 	/// <inheritdoc/>
 	public bool IsSerializable(
 		Type type,
-		object? value)
+		object? value,
+		[NotNullWhen(false)] out string? failureReason)
 	{
 		Guard.ArgumentNotNull(type);
 
-		return (type.IsEnum || type.IsNullableEnum()) && type.IsFromLocalAssembly();
+		if (TryGetEnumSign(type, value, out _) is string guardMessage)
+		{
+			failureReason = guardMessage;
+			return false;
+		}
+
+		failureReason = null;
+		return true;
 	}
 
 	/// <inheritdoc/>
@@ -52,19 +61,41 @@ internal sealed class EnumSerializer : IXunitSerializer
 	{
 		Guard.ArgumentNotNull(value);
 
-		var type = value.GetType();
+		if (TryGetEnumSign(value.GetType(), value, out var signed) is string guardMessage)
+			throw new ArgumentException(guardMessage, nameof(value));
 
-		Guard.ArgumentValid(() => $"Attempted to serialize value of type '{type.SafeName()}' which is not Enum", value is Enum);
+		return
+			signed
+				? Convert.ToInt64(value, CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture)
+				: Convert.ToUInt64(value, CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture);
+	}
+
+	static string? TryGetEnumSign(
+		Type type,
+		object? value,
+		out bool signed)
+	{
+		signed = true;
+
+		if (!type.IsEnum || type.IsNullableEnum())
+			return string.Format(
+				CultureInfo.CurrentCulture,
+				"Cannot serialize type '{0}' because it is not Enum",
+				type.SafeName()
+			);
+
+		if (value is not null && value is not Enum)
+			return string.Format(
+				CultureInfo.CurrentCulture,
+				"Cannot serialize type '{0}' because it is not Enum",
+				value.GetType().SafeName()
+			);
 
 		if (!type.IsFromLocalAssembly())
-			throw new ArgumentException(
-				string.Format(
-					CultureInfo.CurrentCulture,
-					"Cannot serialize enum '{0}.{1}' because it lives in the GAC",
-					type.SafeName(),
-					value
-				),
-				nameof(value)
+			return string.Format(
+				CultureInfo.CurrentCulture,
+				"Cannot serialize enum of type '{0}' because it lives in the GAC",
+				type.SafeName()
 			);
 
 		Type underlyingType;
@@ -75,31 +106,22 @@ internal sealed class EnumSerializer : IXunitSerializer
 		}
 		catch (Exception ex)
 		{
-			throw new ArgumentException(
-				string.Format(
-					CultureInfo.CurrentCulture,
-					"Cannot serialize enum '{0}.{1}' because an exception was thrown getting its underlying type",
-					type.SafeName(),
-					value
-				),
+			return string.Format(
+				CultureInfo.CurrentCulture,
+				"Cannot serialize enum of type '{0}' because an exception was thrown getting its underlying type: {1}",
+				type.SafeName(),
 				ex
 			);
 		}
 
-		return
-			!enumSignsByType.TryGetValue(underlyingType, out var signed)
-				? throw new ArgumentException(
-					string.Format(
-						CultureInfo.CurrentCulture,
-						"Cannot serialize enum '{0}.{1}' because the underlying type '{2}' is not supported",
-						type.SafeName(),
-						value,
-						underlyingType.SafeName()
-					),
-					nameof(value)
-				)
-				: signed
-					? Convert.ToInt64(value, CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture)
-					: Convert.ToUInt64(value, CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture);
+		if (!enumSignsByType.TryGetValue(underlyingType, out signed))
+			return string.Format(
+				CultureInfo.CurrentCulture,
+				"Cannot serialize enum of type '{0}' because the underlying type '{1}' is not supported",
+				type.SafeName(),
+				underlyingType.SafeName()
+			);
+
+		return null;
 	}
 }

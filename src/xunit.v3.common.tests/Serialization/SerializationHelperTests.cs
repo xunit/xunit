@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Numerics;
 using System.Text;
 using Xunit;
@@ -513,8 +515,24 @@ public class SerializationHelperTests
 
 		public bool IsSerializable(
 			Type type,
-			object? value) =>
-				type == typeof(MyCustomType);
+			object? value,
+			[NotNullWhen(false)] out string? failureReason)
+		{
+			if (type != typeof(MyCustomType))
+			{
+				failureReason = string.Format(
+					CultureInfo.CurrentCulture,
+					"Serializer '{0}' cannot serialize type '{1}' because it is not '{2}'",
+					GetType().SafeName(),
+					type.SafeName(),
+					typeof(MyCustomType).SafeName()
+				);
+				return false;
+			}
+
+			failureReason = null;
+			return true;
+		}
 
 		public string Serialize(object value)
 		{

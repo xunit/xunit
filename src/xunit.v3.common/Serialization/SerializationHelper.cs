@@ -506,7 +506,7 @@ public class SerializationHelper
 		type = type.UnwrapNullable();
 		return
 			typeIndicesByType.ContainsKey(type) ||
-			FindXunitSerializer(type)?.IsSerializable(type, value) == true;
+			FindXunitSerializer(type)?.IsSerializable(type, value, out _) == true;
 	}
 
 	/// <summary>

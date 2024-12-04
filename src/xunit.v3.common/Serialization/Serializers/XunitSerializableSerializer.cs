@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using Xunit.Internal;
 
@@ -19,7 +20,7 @@ internal sealed class XunitSerializableSerializer(SerializationHelper serializat
 			throw new ArgumentException(
 				string.Format(
 					CultureInfo.CurrentCulture,
-					"Attempted to deserialize type '{0}' which does not implement '{1}'.",
+					"Cannot deserialize type '{0}' because it does not implement '{1}'.",
 					type.SafeName(),
 					typeof(IXunitSerializable).SafeName()
 				),
@@ -34,7 +35,7 @@ internal sealed class XunitSerializableSerializer(SerializationHelper serializat
 				throw new ArgumentException(
 					string.Format(
 						CultureInfo.CurrentCulture,
-						"Attempted to deserialize type '{0}' which does not implement '{1}'.",
+						"Cannot deserialize type '{0}' because it does not implement '{1}'.",
 						type.SafeName(),
 						typeof(IXunitSerializable).SafeName()
 					),
@@ -49,7 +50,7 @@ internal sealed class XunitSerializableSerializer(SerializationHelper serializat
 			throw new ArgumentException(
 				string.Format(
 					CultureInfo.CurrentCulture,
-					"Could not de-serialize type '{0}' because it lacks a parameterless constructor.",
+					"Cannot deserialize type '{0}' because it lacks a parameterless constructor.",
 					type.SafeName()
 				),
 				nameof(type)
@@ -60,8 +61,23 @@ internal sealed class XunitSerializableSerializer(SerializationHelper serializat
 	/// <inheritdoc/>
 	public bool IsSerializable(
 		Type type,
-		object? value) =>
-			typeof(IXunitSerializable).IsAssignableFrom(type);
+		object? value,
+		[NotNullWhen(false)] out string? failureReason)
+	{
+		if (!typeof(IXunitSerializable).IsAssignableFrom(type))
+		{
+			failureReason = string.Format(
+				CultureInfo.CurrentCulture,
+				"Cannot serialize type '{0}' because it does not implement '{1}'",
+				type.SafeName(),
+				typeof(IXunitSerializable).SafeName()
+			);
+			return false;
+		}
+
+		failureReason = null;
+		return true;
+	}
 
 	/// <inheritdoc/>
 	public string Serialize(object value)
@@ -72,7 +88,7 @@ internal sealed class XunitSerializableSerializer(SerializationHelper serializat
 			throw new ArgumentException(
 				string.Format(
 					CultureInfo.CurrentCulture,
-					"Attempted to serialize value of type '{0}' which does not implement '{1}'.",
+					"Cannot serialize type '{0}' because it does not implement '{1}'.",
 					value.GetType().SafeName(),
 					typeof(IXunitSerializable).SafeName()
 				),

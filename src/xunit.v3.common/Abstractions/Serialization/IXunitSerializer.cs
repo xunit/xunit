@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Xunit.Sdk;
 
@@ -24,10 +25,12 @@ public interface IXunitSerializer
 	/// </summary>
 	/// <param name="type">The type of the value</param>
 	/// <param name="value">The value to test</param>
+	/// <param name="failureReason">Returns a failure reason when the value isn't serializable</param>
 	/// <returns>Return <c>true</c> if the value is serializable; <c>false</c>, otherwise</returns>
 	bool IsSerializable(
 		Type type,
-		object? value);
+		object? value,
+		[NotNullWhen(false)] out string? failureReason);
 
 	/// <summary>
 	/// Serializes a value into a string to be later deserialized with <see cref="Deserialize"/>.
