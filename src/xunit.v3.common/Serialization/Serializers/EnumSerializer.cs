@@ -84,13 +84,6 @@ internal sealed class EnumSerializer : IXunitSerializer
 				type.SafeName()
 			);
 
-		if (value is not null && value is not Enum)
-			return string.Format(
-				CultureInfo.CurrentCulture,
-				"Cannot serialize type '{0}' because it is not Enum",
-				value.GetType().SafeName()
-			);
-
 		if (!type.IsFromLocalAssembly())
 			return string.Format(
 				CultureInfo.CurrentCulture,

@@ -84,19 +84,8 @@ internal sealed class XunitSerializableSerializer(SerializationHelper serializat
 	{
 		Guard.ArgumentNotNull(value);
 
-		if (value is not IXunitSerializable serializable)
-			throw new ArgumentException(
-				string.Format(
-					CultureInfo.CurrentCulture,
-					"Cannot serialize type '{0}' because it does not implement '{1}'.",
-					value.GetType().SafeName(),
-					typeof(IXunitSerializable).SafeName()
-				),
-				nameof(value)
-			);
-
 		var info = new XunitSerializationInfo(serializationHelper);
-		serializable.Serialize(info);
+		((IXunitSerializable)value).Serialize(info);
 		return info.ToSerializedString();
 	}
 }

@@ -27,6 +27,17 @@ public interface IXunitSerializer
 	/// <param name="value">The value to test</param>
 	/// <param name="failureReason">Returns a failure reason when the value isn't serializable</param>
 	/// <returns>Return <c>true</c> if the value is serializable; <c>false</c>, otherwise</returns>
+	/// <remarks>
+	/// This will be called by <see cref="SerializationHelper.IsSerializable(object?)"/>,
+	/// <see cref="SerializationHelper.IsSerializable(object?, Type?)"/>, and
+	/// <see cref="SerializationHelper.Serialize"/>. The failure reason is used when
+	/// called from <c>Serialize</c> to format an error exception, but is otherwise ignored
+	/// from the calls from <c>IsSerializable</c>.<br />
+	/// <br />
+	/// The type of <paramref name="value"/> may not directly match <paramref name="type"/>, as the type
+	/// is derived from unwrapping nullability and array element types, so use care when looking
+	/// at the value to determine serializability.
+	/// </remarks>
 	bool IsSerializable(
 		Type type,
 		object? value,
@@ -39,7 +50,8 @@ public interface IXunitSerializer
 	/// <returns>The serialized value</returns>
 	/// <remarks>
 	/// This method will never be called with <c>null</c> values, because those are already
-	/// special cased by the serialization system.
+	/// special cased by the serialization system. You may assume that <see cref="IsSerializable"/>
+	/// is called before this, so any validation done there need not be repeated here.
 	/// </remarks>
 	string Serialize(object value);
 }

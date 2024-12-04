@@ -354,7 +354,7 @@ public class SerializationHelperTests
 #if NETFRAMEWORK
 			// GAC'd enums can't be serialized (Mono doesn't have a GAC, so skip it there)
 			if (!EnvironmentHelper.IsMono)
-				yield return new(ConformanceLevel.Auto, typeof(ConformanceLevel), "Cannot serialize type 'System.Xml.ConformanceLevel' because it lives in the GAC");
+				yield return new(ConformanceLevel.Auto, typeof(ConformanceLevel), "Cannot serialize enum of type 'System.Xml.ConformanceLevel' because it lives in the GAC");
 #endif
 
 			// Unsupported built-in types can't be serialized
@@ -362,6 +362,9 @@ public class SerializationHelperTests
 
 			// Custom types which aren't IXunitSerializable can't be serialized
 			yield return new(new SerializationHelperTests(), typeof(SerializationHelperTests), "Cannot serialize a value of type 'SerializationHelperTests': unsupported type for serialization");
+
+			// If IXunitSerializable return false, the value can't be serialized
+			yield return new(new Unserializable(), typeof(Unserializable), $"I always fail");
 
 			// Non-null value, incompatible type)
 			yield return new(new object(), typeof(MyEnum), "Cannot serialize a value of type 'System.Object' as type 'SerializationHelperTests+MyEnum' because it's type-incompatible");
@@ -543,6 +546,19 @@ public class SerializationHelperTests
 		}
 	}
 
+	class MyUnserializableSerializer : IXunitSerializer
+	{
+		public object Deserialize(Type type, string serializedValue) => throw new NotSupportedException();
+		public bool IsSerializable(Type type, object? value, [NotNullWhen(false)] out string? failureReason)
+		{
+			failureReason = "I always fail";
+			return false;
+		}
+		public string Serialize(object value) => "unused";
+	}
+
+	class Unserializable { }
+
 	class TestableSerializationHelper : SerializationHelper
 	{
 		public TestableSerializationHelper(params IRegisterXunitSerializerAttribute[] serializers) =>
@@ -550,6 +566,9 @@ public class SerializationHelperTests
 
 		public List<string> Warnings { get; } = [];
 
-		public new static TestableSerializationHelper Instance { get; } = new(new RegisterXunitSerializerAttribute(typeof(MyCustomTypeSerializer), typeof(MyCustomType)));
+		public new static TestableSerializationHelper Instance { get; } = new(
+			new RegisterXunitSerializerAttribute(typeof(MyCustomTypeSerializer), typeof(MyCustomType)),
+			new RegisterXunitSerializerAttribute(typeof(MyUnserializableSerializer), typeof(Unserializable))
+		);
 	}
 }

@@ -546,7 +546,17 @@ public class SerializationHelper
 			{
 				var xunitSerializer =
 					FindXunitSerializer(nonNullableCoreValueType)
-						?? throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Cannot serialize a value of type '{0}': unsupported type for serialization", type.SafeName()), nameof(value));
+						?? throw new ArgumentException(
+							string.Format(
+								CultureInfo.CurrentCulture,
+								"Cannot serialize a value of type '{0}': unsupported type for serialization",
+								type.SafeName()
+							),
+							nameof(value)
+						);
+
+				if (!xunitSerializer.IsSerializable(nonNullableCoreValueType, value, out var failureReason))
+					throw new ArgumentException(failureReason, nameof(value));
 
 				typeIdx = TypeIndex.IXunitSerializer;
 				serializer = (v, t) => string.Format(CultureInfo.InvariantCulture, "{0}:{1}", ToBase64(TypeToSerializedTypeName(t)), ToBase64(xunitSerializer.Serialize(v)));
