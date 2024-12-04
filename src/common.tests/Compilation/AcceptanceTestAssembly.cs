@@ -7,7 +7,7 @@ using Xunit.Internal;
 public abstract class AcceptanceTestAssembly :
 	IDisposable
 {
-	string? targetFrameworkReferencePath;
+	string[]? targetFrameworkReferencePaths;
 
 	protected AcceptanceTestAssembly(string? basePath = null)
 	{
@@ -24,20 +24,20 @@ public abstract class AcceptanceTestAssembly :
 
 	public string PdbName { get; protected set; }
 
-	public string TargetFrameworkReferencePath
+	public string[] TargetFrameworkReferencePaths
 	{
 		get
 		{
-			if (targetFrameworkReferencePath is null)
+			if (targetFrameworkReferencePaths is null)
 			{
 				var nuGetPackageCachePath =
 					Environment.GetEnvironmentVariable("NUGET_PACKAGES") ??
 					Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".nuget", "packages");
 
-				targetFrameworkReferencePath = GetTargetFrameworkReferencePath(nuGetPackageCachePath);
+				targetFrameworkReferencePaths = GetTargetFrameworkReferencePaths(nuGetPackageCachePath);
 			}
 
-			return targetFrameworkReferencePath;
+			return targetFrameworkReferencePaths;
 		}
 	}
 
@@ -76,19 +76,25 @@ public abstract class AcceptanceTestAssembly :
 	];
 
 	// The version here must match the PackageDownload in $/src/Directory.Build.props
-	protected virtual string GetTargetFrameworkReferencePath(string nuGetPackageCachePath) =>
-		Path.Combine(nuGetPackageCachePath, "netstandard.library", "2.0.0", "build", "netstandard2.0", "ref");
+	protected virtual string[] GetTargetFrameworkReferencePaths(string nuGetPackageCachePath) =>
+		[Path.Combine(nuGetPackageCachePath, "netstandard.library", "2.0.0", "build", "netstandard2.0", "ref")];
 
 	protected string ResolveReference(string reference) =>
 		ResolveReferenceFrom(reference, BasePath) ??
-		ResolveReferenceFrom(reference, TargetFrameworkReferencePath) ??
+		ResolveReferenceFrom(reference, TargetFrameworkReferencePaths) ??
 		reference;
 
 	protected string? ResolveReferenceFrom(
 		string reference,
-		string path)
+		params string[] paths)
 	{
-		var result = Path.Combine(path, reference);
-		return File.Exists(result) ? result : null;
+		foreach (var path in paths)
+		{
+			var result = Path.Combine(path, reference);
+			if (File.Exists(result))
+				return result;
+		}
+
+		return null;
 	}
 }

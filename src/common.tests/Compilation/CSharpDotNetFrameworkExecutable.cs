@@ -25,8 +25,11 @@ public class CSharpDotNetFrameworkExecutable(string? basePath = null) :
 	}
 
 	// The version here must match the PackageDownload in $/src/Directory.Build.props
-	protected override string GetTargetFrameworkReferencePath(string nuGetPackageCachePath) =>
-		Path.Combine(nuGetPackageCachePath, "microsoft.netframework.referenceassemblies.net472", "1.0.3", "build", ".NETFramework", "v4.7.2");
+	protected override string[] GetTargetFrameworkReferencePaths(string nuGetPackageCachePath) =>
+		[
+			Path.Combine(nuGetPackageCachePath, "microsoft.netframework.referenceassemblies.net472", "1.0.3", "build", ".NETFramework", "v4.7.2"),
+			Path.Combine(nuGetPackageCachePath, "microsoft.netframework.referenceassemblies.net472", "1.0.3", "build", ".NETFramework", "v4.7.2", "Facades"),
+		];
 
 	public static ValueTask<CSharpDotNetFrameworkExecutable> Create(
 		string code,

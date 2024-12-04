@@ -67,7 +67,7 @@ public abstract class FSharpAcceptanceTestAssembly(string? basePath = null) :
 					.Item1
 					.Select(e => $"{e.FileName}({e.StartLine},{e.StartColumn}): {(e.Severity.IsError ? "error" : "warning")} {e.ErrorNumber}: {e.Message}");
 
-			throw new InvalidOperationException($"Compilation Failed: (BasePath = '{BasePath}', TargetFrameworkReferencePath = '{TargetFrameworkReferencePath}'){Environment.NewLine}{string.Join(Environment.NewLine, errors)}");
+			throw new InvalidOperationException($"Compilation Failed: (BasePath = '{BasePath}', TargetFrameworkReferencePaths = [{string.Join(", ", TargetFrameworkReferencePaths.Select(p => "'" + p + "'"))}]{Environment.NewLine}{string.Join(Environment.NewLine, errors)}");
 		}
 	}
 }

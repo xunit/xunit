@@ -36,7 +36,7 @@ public abstract class CSharpAcceptanceTestAssembly(string? basePath = null) :
 					.Where(e => e != null)
 					.Select(e => $"{e.FileName}({e.Line},{e.Column}): error {e.ErrorNumber}: {e.ErrorText}");
 
-			throw new InvalidOperationException($"Compilation Failed: (BasePath = '{BasePath}', TargetFrameworkReferencePath = '{TargetFrameworkReferencePath}'){Environment.NewLine}{string.Join(Environment.NewLine, errors)}");
+			throw new InvalidOperationException($"Compilation Failed: (BasePath = '{BasePath}', TargetFrameworkReferencePaths = [{string.Join(", ", TargetFrameworkReferencePaths.Select(p => "'" + p + "'"))}]){Environment.NewLine}{string.Join(Environment.NewLine, errors)}");
 		}
 
 		return default;
