@@ -61,6 +61,11 @@ public class SerializationHelperTests
 		{ (MyUnsignedEnum)ulong.MaxValue, $"-3:{ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof(MyUnsignedEnum)))}:{ToBase64("18446744073709551615")}" },
 		{ new MyCustomType { Age = 42, Name = "Someone" }, $"-3:{ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof(MyCustomType)))}:{ToBase64("42:Someone")}" },
 
+		// Types which implement both IFormattable and IParsable<T>
+#if NET7_0_OR_GREATER
+		{ new FormattableAndParsableStringWrapper("Hello world"), $"-3:{ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof(FormattableAndParsableStringWrapper)))}:{ToBase64("Hello world")}" },
+#endif
+
 		// Trait dictionaries are serialized as a keys list and values arrays
 		{
 			new Dictionary<string, HashSet<string>>
@@ -559,6 +564,31 @@ public class SerializationHelperTests
 
 	class Unserializable { }
 
+#if NET7_0_OR_GREATER
+	class FormattableAndParsableStringWrapper(string value) : IFormattable, IParsable<FormattableAndParsableStringWrapper>
+	{
+		public string Value => value;
+
+		public static FormattableAndParsableStringWrapper Parse(string s, IFormatProvider? provider) =>
+			new(s);
+
+		public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out FormattableAndParsableStringWrapper result)
+		{
+			if (s is null)
+			{
+				result = null;
+				return false;
+			}
+
+			result = new(s);
+			return true;
+		}
+
+		public string ToString(string? format, IFormatProvider? formatProvider) =>
+			Value;
+	}
+#endif
+
 	class TestableSerializationHelper : SerializationHelper
 	{
 		public TestableSerializationHelper(params IRegisterXunitSerializerAttribute[] serializers) =>
@@ -571,4 +601,5 @@ public class SerializationHelperTests
 			new RegisterXunitSerializerAttribute(typeof(MyUnserializableSerializer), typeof(Unserializable))
 		);
 	}
+
 }

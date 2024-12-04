@@ -175,6 +175,9 @@ public class SerializationHelper
 			{ typeof(IXunitSerializable), new XunitSerializableSerializer(this) },
 			{ typeof(Enum), new EnumSerializer() },
 		};
+
+		if (FormattableAndParsableSerializer.IsSupported)
+			xunitSeralizersByType.Add(typeof(IFormattable), new FormattableAndParsableSerializer());
 	}
 
 	/// <summary>
