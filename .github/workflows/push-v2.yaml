@@ -21,10 +21,6 @@ jobs:
       - name: Add MSBuild to PATH
         uses: microsoft/setup-msbuild@v2
 
-      - name: Replace global.json
-        run: cp .github/workflows/.global.json global.json
-        shell: bash
-
       - name: Install .NET SDK
         uses: actions/setup-dotnet@v4
         with:
