@@ -25,7 +25,7 @@ Public Class SupportedOSAttribute
         Me.supportedOSes = supportedOSes
     End Sub
 
-    Public Overrides Function Before(methodUnderTest As MethodInfo, test As IXunitTest) As ValueTask
+    Public Overrides Sub Before(methodUnderTest As MethodInfo, test As IXunitTest)
         Static osMappings As New Dictionary(Of SupportedOS, OSPlatform) From
         {
             {SupportedOS.FreeBSD, OSPlatform.Create("FreeBSD")},
@@ -54,7 +54,5 @@ Public Class SupportedOSAttribute
         If Not match Then
             Throw New Exception($"$XunitDynamicSkip$This test is not supported on {RuntimeInformation.OSDescription}")
         End If
-
-        Return Nothing
-    End Function
+    End Sub
 End Class

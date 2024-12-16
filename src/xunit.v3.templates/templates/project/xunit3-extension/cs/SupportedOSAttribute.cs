@@ -31,7 +31,7 @@ public sealed class SupportedOSAttribute(params SupportedOS[] supportedOSes) :
         { SupportedOS.Windows, OSPlatform.Windows },
     };
 
-    public override ValueTask Before(MethodInfo methodUnderTest, IXunitTest test)
+    public override void Before(MethodInfo methodUnderTest, IXunitTest test)
     {
         var match = false;
 
@@ -51,7 +51,5 @@ public sealed class SupportedOSAttribute(params SupportedOS[] supportedOSes) :
         // when it's not running on one of the targeted OSes
         if (!match)
             throw new Exception($"$XunitDynamicSkip$This test is not supported on {RuntimeInformation.OSDescription}");
-
-        return default;
     }
 }

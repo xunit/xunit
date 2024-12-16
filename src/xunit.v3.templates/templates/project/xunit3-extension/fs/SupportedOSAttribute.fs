@@ -43,5 +43,3 @@ type SupportedOSAttribute([<ParamArray>]supportedOSes: SupportedOS[]) =
            // We use the dynamic skip exception message pattern to turn this into a skipped test
            // when it's not running on one of the targeted OSes
            failwith $"$XunitDynamicSkip$This test is not supported on {RuntimeInformation.OSDescription}"
-
-        Unchecked.defaultof<ValueTask>
