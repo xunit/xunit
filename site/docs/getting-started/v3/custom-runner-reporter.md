@@ -6,7 +6,7 @@ breadcrumb: Documentation
 
 # Writing a custom runner reporter for xUnit.net v3
 
-_Last updated: 2024 October 17_
+_Last updated: 2024 December 16_
 
 As of version `0.5.0-pre.27`, we are now supporting custom runner reporters with xUnit.net v3. Before discussing the design of the feature in v3 Core Framework, we will review what custom runner reporters are for, and the problems with the feature as implemented in the v2 Core Framework.
 
@@ -95,6 +95,8 @@ Runner reporters (optional, choose only one)
     * Azure DevOps/VSTS CI support
     * TeamCity CI support
 ```
+
+_**Note:** For backward compatibility reasons, the older switches will continue to be supported, although they will not be listed in the help. It's strongly encouraged that you update to the new switches to avoid future confusion from people looking at your build scripts that aren't aware of the older switches._
 
 ## Custom runner reporters in v2
 

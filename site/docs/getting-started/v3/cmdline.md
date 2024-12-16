@@ -6,6 +6,8 @@ breadcrumb: Documentation
 
 # Getting Started with xUnit.net v3
 
+_Last updated: 2024 December 16_
+
 ## Using .NET or .NET Framework with the .NET SDK command line
 
 In this document, we will demonstrate getting started with xUnit.net v3 when targeting .NET 6 (or later) and/or .NET Framework 4.7.2 (or later), showing you how to write and run your first set of unit tests. We will be using the .NET SDK command line.
@@ -20,7 +22,7 @@ In this document, we will demonstrate getting started with xUnit.net v3 when tar
 * [Running tests with JetBrains Rider](#running-tests-with-jetbrains-rider)
 * [Running tests with `dotnet test`](#running-tests-with-dotnet-test)
 
-_Note: The examples were done with C#, xUnit.net v3 0.3.0-pre.18, .NET SDK 8.0.401, and .NET 8. The version numbers, paths, and generated templates may differ for you, depending on the versions you're using. The instructions for .NET vs. .NET Framework are identical other than picking the appropriate target framework; however, being able to build and run .NET Framework tests on Linux or macOS requires installing [Mono](https://www.mono-project.com/download/stable/) first._
+_Note: The examples were done with C#, xUnit.net v3 1.0.0, .NET SDK 8.0.404, and .NET 8. The version numbers, paths, and generated templates may differ for you, depending on the versions you're using. The instructions for .NET vs. .NET Framework are identical other than picking the appropriate target framework; however, being able to build and run .NET Framework tests on Linux or macOS requires installing [Mono](https://www.mono-project.com/download/stable/) first._
 
 
 ## Download the .NET SDK
@@ -31,7 +33,7 @@ Once you've downloaded and installed the SDK, open a fresh command prompt of you
 
 ```
 $ dotnet --version
-8.0.401
+8.0.404
 ```
 
 _Note: the first time you run the `dotnet` command, it may perform some post-installation steps. Once these one-time actions are done, it will execute your command._
@@ -50,7 +52,7 @@ $ dotnet new install xunit.v3.templates
 The following template packages will be installed:
    xunit.v3.templates
 
-Success: xunit.v3.templates::0.3.0-pre.18 installed the following templates:
+Success: xunit.v3.templates::1.0.0 installed the following templates:
 Template Name                   Short Name        Language    Tags
 ------------------------------  ----------------  ----------  ----------
 xUnit.net v3 Extension Project  xunit3-extension  [C#],F#,VB  Test/xUnit
@@ -88,6 +90,16 @@ The generated project file should look something like this:
     <OutputType>Exe</OutputType>
     <RootNamespace>MyFirstUnitTests</RootNamespace>
     <TargetFramework>net8.0</TargetFramework>
+    <!--
+    To enable the Microsoft Testing Platform 'dotnet test' experience, add property:
+      <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
+
+    To enable the Microsoft Testing Platform native command line experience, add property:
+      <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
+
+    For more information on Microsoft Testing Platform support in xUnit.net, please visit:
+      https://xunit.net/docs/getting-started/v3/microsoft-testing-platform
+    -->
   </PropertyGroup>
 
   <ItemGroup>
@@ -99,9 +111,9 @@ The generated project file should look something like this:
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.0" />
-    <PackageReference Include="xunit.v3" Version="0.3.0-pre.18" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="3.0.0-pre.30" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="xunit.v3" Version="1.0.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.0.0" />
   </ItemGroup>
 
 </Project>
@@ -118,7 +130,7 @@ Let's quickly review what's in this project file:
 * `OutputType` is set to `Exe`, because unit test projects in xUnit.net v3 are stand-alone executables that can be directly run. We will see examples of this later in this document.
   _[More information about xUnit.net v3 and stand-alone executables](https://xunit.net/docs/getting-started/v3/migration#stand-alone-executables)_{: .newline-indent }
 
-* `TargetFramework` is set to `net8.0` (or whatever is current for your installed version of the .NET SDK).
+* `TargetFramework` is set to `net8.0` (which is the latest LTS build as of the writing of this document).
   _[More information about target frameworks](https://learn.microsoft.com/dotnet/standard/frameworks)_{: .newline-indent }
 
 * We have included an `xunit.runner.json` file in your project by default. You can edit this file and place configuration values into it.
@@ -147,7 +159,7 @@ Now let's verify that everything is working by running our tests with `dotnet ru
 
 ```
 $ dotnet run
-xUnit.net v3 In-Process Runner v0.3.0-pre.18+fd19795321 (64-bit .NET 8.0.8)
+xUnit.net v3 In-Process Runner v1.0.0+fd19795321 (64-bit .NET 8.0.8)
   Discovering: MyFirstUnitTests
   Discovered:  MyFirstUnitTests
   Starting:    MyFirstUnitTests
@@ -193,7 +205,7 @@ If we run the tests again, we should see something like this:
 
 ```
 $ dotnet run
-xUnit.net v3 In-Process Runner v0.3.0-pre.18+fd19795321 (64-bit .NET 8.0.8)
+xUnit.net v3 In-Process Runner v1.0.0+fd19795321 (64-bit .NET 8.0.8)
   Discovering: MyFirstUnitTests
   Discovered:  MyFirstUnitTests
   Starting:    MyFirstUnitTests
@@ -245,7 +257,7 @@ This time when we run our tests, we see a second failure, for our theory that wa
 
 ```
 $ dotnet run
-xUnit.net v3 In-Process Runner v0.3.0-pre.18+fd19795321 (64-bit .NET 8.0.8)
+xUnit.net v3 In-Process Runner v1.0.0+fd19795321 (64-bit .NET 8.0.8)
   Discovering: MyFirstUnitTests
   Discovered:  MyFirstUnitTests
   Starting:    MyFirstUnitTests
@@ -396,7 +408,7 @@ $ dotnet test
   All projects are up-to-date for restore.
   MyFirstUnitTests -> /.../MyFirstUnitTests/bin/Debug/net8.0/MyFirstUnitTests.dll
 Test run for /.../MyFirstUnitTests/bin/Debug/net8.0/MyFirstUnitTests.dll (.NETCoreApp,Version=v8.0)
-VSTest version 17.11.0 (x64)
+VSTest version 17.11.1 (x64)
 
 Starting test execution, please wait...
 A total of 1 test files matched the specified pattern.

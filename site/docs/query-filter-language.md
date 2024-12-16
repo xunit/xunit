@@ -6,6 +6,8 @@ breadcrumb: Documentation
 
 # Query Filter Language
 
+_Last updated: 2024 December 16_
+
 New in v3 is support for an advanced query filter language. It is inspired by the [MSTest Graph Query Filter](https://github.com/microsoft/testfx/blob/main/docs/mstest-runner-graphqueryfiltering/graph-query-filtering.md), but with several differences in final implementation.
 
 The intention of the query filter language is to allow a more powerful and flexible way to filter tests than the existing simple filters (which allow filtering based on namespace, fully qualified class names, fully qualified method names, and traits).

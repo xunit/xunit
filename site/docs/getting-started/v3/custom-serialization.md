@@ -6,7 +6,7 @@ breadcrumb: Documentation
 
 # Custom theory data serialization for xUnit.net v3
 
-_Last updated: 2024 October 17_
+_Last updated: 2024 December 16_
 
 As of version `0.5.0-pre.27`, we are now supporting a second way to implement custom theory data serialization for xUnit.net v3. Before discussing the new feature in v3 Core Framework, we will review why custom theory data serialization exists, and how it is implemented today in the v2 Core Framework.
 
@@ -57,6 +57,7 @@ Additional supported values:
 
 * Arrays of serializable values
 * Enum values
+* Values which implement both [`IFormattable`](https://learn.microsoft.com/dotnet/api/system.iformattable) and [`IParsable<TSelf>`](https://learn.microsoft.com/dotnet/api/system.iparsable-1)
 * `null` values
 
 In order to support developers wanting to be able to run individual theory data rows, we also added the ability to provide your own custom serialization for your own custom data types.
@@ -79,7 +80,7 @@ For v3 Core Framework, we continue to support `IXunitSerializable`.
 
 We have also added a new interface, `IXunitSerializer`, that can be separately implemented to provide serialization support for any type, regardless of whether you control it or not. The implementation of `IXunitSerializer` is relatively straight forward:
 
-* Implement `bool IsSerializable(Type, object?)` to determine if the value is serializable
+* Implement `bool IsSerializable(Type, object?, out string?)` to determine if the value is serializable (including a reason message if it's not)
 * Implement `string Serialize(object)` to serialize a value
 * Implement `object Deserialize(Type, string)` to deserialize a previously serialized value
 * Provide a public parameterless constructor so the serializer can be created (and cached)

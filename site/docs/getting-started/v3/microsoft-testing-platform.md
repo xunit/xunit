@@ -6,7 +6,7 @@ breadcrumb: Documentation
 
 # Microsoft Testing Platform support in xUnit.net v3
 
-_Last updated: 2024 September 12_
+_Last updated: 2024 December 16_
 
 Starting with build `0.4.0-pre.10`, we have added support for the new [Microsoft Testing Platform](https://learn.microsoft.com/dotnet/core/testing/unit-testing-platform-intro) natively into xUnit.net v3.
 
@@ -33,7 +33,7 @@ If you `dotnet run` your test project, you should see something like this (examp
 
 ```
 $ dotnet run
-xUnit.net v3 In-Process Runner v0.4.0-pre.10+cb346dccba (64-bit .NET 8.0.8)
+xUnit.net v3 In-Process Runner v1.0.0+5b41c61aa1 (64-bit .NET 8.0.11)
   Discovering: MyFirstUnitTests
   Discovered:  MyFirstUnitTests
   Starting:    MyFirstUnitTests
@@ -51,7 +51,7 @@ xUnit.net v3 In-Process Runner v0.4.0-pre.10+cb346dccba (64-bit .NET 8.0.8)
         UnitTest1.cs(28,0): at MyFirstUnitTests.UnitTest1.MyFirstTheory(Int32 value)
   Finished:    MyFirstUnitTests
 === TEST EXECUTION SUMMARY ===
-   MyFirstUnitTests  Total: 5, Errors: 0, Failed: 2, Skipped: 0, Not Run: 0, Time: 0.070s
+   MyFirstUnitTests  Total: 5, Errors: 0, Failed: 2, Skipped: 0, Not Run: 0, Time: 0.076s
 ```
 
 If you want to replace the xUnit.net native command line experience with the Microsoft Testing Platform command line experience, add the following property to your project file (.csproj/.fsproj/.vbproj):
@@ -66,19 +66,17 @@ Now, using `dotnet run`, you should see:
 
 ```
 $ dotnet run
-xUnit.net v3 Microsoft.Testing.Platform Runner v0.4.0-pre.10+cb346dccba (64-bit .NET 8.0.8)
+xUnit.net v3 Microsoft.Testing.Platform Runner v1.0.0+5b41c61aa1 (64-bit .NET 8.0.11)
 
 failed MyFirstUnitTests.UnitTest1.MyFirstTheory(value: 6) (0ms)
   Assert.True() Failure
   Expected: True
   Actual:   False
-  Stack Trace:
     at MyFirstUnitTests.UnitTest1.MyFirstTheory(Int32 value) in UnitTest1.cs:28
 failed MyFirstUnitTests.UnitTest1.FailingTest (2ms)
   Assert.Equal() Failure: Values differ
   Expected: 5
   Actual:   4
-  Stack Trace:
     at MyFirstUnitTests.UnitTest1.FailingTest() in UnitTest1.cs:14
 
 Test run summary: Failed! - bin\Debug\net8.0\MyFirstUnitTests.dll (net8.0|x64)
@@ -86,7 +84,7 @@ Test run summary: Failed! - bin\Debug\net8.0\MyFirstUnitTests.dll (net8.0|x64)
   failed: 2
   succeeded: 3
   skipped: 0
-  duration: 134ms
+  duration: 142ms
 ```
 
 Using the Microsoft Testing Platform command line experience will give you a familiar UX if you frequently use other Microsoft Testing Platform integrated test frameworks, like [MSTest 3.6](https://github.com/microsoft/testfx/blob/main/docs/Changelog.md#3.6.0) or [TUnit](https://thomhurst.github.io/TUnit/).
@@ -147,9 +145,9 @@ We have added one new switch (`--xunit-info`) which allows you to see the output
 
 ```
 $ dotnet run -- --xunit-info
-xUnit.net v3 Microsoft.Testing.Platform Runner v0.4.0-pre.10+cb346dccba (64-bit .NET 8.0.8)
+xUnit.net v3 Microsoft.Testing.Platform Runner v1.0.0+5b41c61aa1 (64-bit .NET 8.0.11)
 
-xUnit.net v3 In-Process Runner v0.4.0-pre.10+cb346dccba (64-bit .NET 8.0.8)
+xUnit.net v3 In-Process Runner v1.0.0+5b41c61aa1 (64-bit .NET 8.0.11)
   Discovering: MyFirstUnitTests
   Discovered:  MyFirstUnitTests
   Starting:    MyFirstUnitTests
@@ -163,7 +161,6 @@ failed MyFirstUnitTests.UnitTest1.MyFirstTheory(value: 6) (0ms)
   Assert.True() Failure
   Expected: True
   Actual:   False
-  Stack Trace:
     at MyFirstUnitTests.UnitTest1.MyFirstTheory(Int32 value) in UnitTest1.cs:28
     MyFirstUnitTests.UnitTest1.FailingTest [FAIL]
       Assert.Equal() Failure: Values differ
@@ -175,18 +172,17 @@ failed MyFirstUnitTests.UnitTest1.FailingTest (2ms)
   Assert.Equal() Failure: Values differ
   Expected: 5
   Actual:   4
-  Stack Trace:
     at MyFirstUnitTests.UnitTest1.FailingTest() in UnitTest1.cs:14
   Finished:    MyFirstUnitTests
 === TEST EXECUTION SUMMARY ===
-   MyFirstUnitTests  Total: 5, Errors: 0, Failed: 2, Skipped: 0, Not Run: 0, Time: 0.062s
+   MyFirstUnitTests  Total: 5, Errors: 0, Failed: 2, Skipped: 0, Not Run: 0, Time: 0.070s
 
 Test run summary: Failed! - bin\Debug\net8.0\MyFirstUnitTests.dll (net8.0|x64)
   total: 5
   failed: 2
   succeeded: 3
   skipped: 0
-  duration: 162ms
+  duration: 142ms
 ```
 
 ### Additional Microsoft Testing Platform features
@@ -206,9 +202,9 @@ This is what the VSTest `dotnet test` output looks like (examples using our test
 $ dotnet test
   Determining projects to restore...
   All projects are up-to-date for restore.
-  MyFirstUnitTests -> C:\Dev\repro\MyFirstUnitTests\bin\Debug\net8.0\MyFirstUnitTests.dll
-Test run for C:\Dev\repro\MyFirstUnitTests\bin\Debug\net8.0\MyFirstUnitTests.dll (.NETCoreApp,Version=v8.0)
-VSTest version 17.11.0 (x64)
+  MyFirstUnitTests -> bin\Debug\net8.0\MyFirstUnitTests.dll
+Test run for bin\Debug\net8.0\MyFirstUnitTests.dll (.NETCoreApp,Version=v8.0)
+VSTest version 17.11.1 (x64)
 
 Starting test execution, please wait...
 A total of 1 test files matched the specified pattern.
@@ -220,14 +216,14 @@ A total of 1 test files matched the specified pattern.
 Expected: 5
 Actual:   4
   Stack Trace:
-     at MyFirstUnitTests.UnitTest1.FailingTest() in C:\Dev\repro\MyFirstUnitTests\UnitTest1.cs:line 14
+     at MyFirstUnitTests.UnitTest1.FailingTest() in UnitTest1.cs:line 14
   Failed MyFirstUnitTests.UnitTest1.MyFirstTheory(value: 6) [< 1 ms]
   Error Message:
    Assert.True() Failure
 Expected: True
 Actual:   False
   Stack Trace:
-     at MyFirstUnitTests.UnitTest1.MyFirstTheory(Int32 value) in C:\Dev\repro\MyFirstUnitTests\UnitTest1.cs:line 28
+     at MyFirstUnitTests.UnitTest1.MyFirstTheory(Int32 value) in UnitTest1.cs:line 28
 
 Failed!  - Failed:     2, Passed:     3, Skipped:     0, Total:     5, Duration: 33 ms - MyFirstUnitTests.dll (net8.0)
 ```
@@ -246,43 +242,37 @@ This is what the Microsoft Testing Platform `dotnet test` output looks like:
 $ dotnet test
   Determining projects to restore...
   All projects are up-to-date for restore.
-  MyFirstUnitTests -> C:\Dev\repro\MyFirstUnitTests\bin\Debug\net8.0\MyFirstUnitTests.dll
-  Run tests: 'C:\Dev\repro\MyFirstUnitTests\bin\Debug\net8.0\MyFirstUnitTests.dll' [net8.0|x64]
+  MyFirstUnitTests -> bin\Debug\net8.0\MyFirstUnitTests.dll
+  Run tests: 'bin\Debug\net8.0\MyFirstUnitTests.dll' [net8.0|x64]
   Failed! - Failed: 2, Passed: 3, Skipped: 0, Total: 5, Duration: 128ms
-C:\Dev\repro\MyFirstUnitTests\bin\Debug\net8.0\MyFirstUnitTests.dll : error run failed: Tests failed: 'C:\Dev\repro\MyFirstUnitTests\bin\Debug\net8.0\TestResults\MyFirstUnitTests_net8.0_x64.log' [net8.0|x64] [C:\Dev\repro\MyFirstUnitTests\MyFirstUnitTests.csproj]
+bin\Debug\net8.0\MyFirstUnitTests.dll : error run failed: Tests failed: 'bin\Debug\net8.0\TestResults\MyFirstUnitTests_net8.0_x64.log' [net8.0|x64] [MyFirstUnitTests.csproj]
 ```
 
 A log file is always generated from `dotnet test` runs, but is usually only shown when the test run failed. The failure log in this case looks like:
 
 ```
-xUnit.net v3 Microsoft.Testing.Platform Runner v0.4.0-pre.10+cb346dccba (64-bit .NET 8.0.8)
+xUnit.net v3 Microsoft.Testing.Platform Runner v1.0.0+5b41c61aa1 (64-bit .NET 8.0.11)
 
 failed MyFirstUnitTests.UnitTest1.MyFirstTheory(value: 6) (0ms)
   Assert.True() Failure
   Expected: True
   Actual:   False
-  Stack Trace:
-    at MyFirstUnitTests.UnitTest1.MyFirstTheory(Int32 value) in C:\Dev\repro\MyFirstUnitTests\UnitTest1.cs:28
-    at InvokeStub_UnitTest1.MyFirstTheory(Object, Span`1)
-    at System.Reflection.MethodBaseInvoker.InvokeWithOneArg(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
-failed MyFirstUnitTests.UnitTest1.FailingTest (3ms)
+    at MyFirstUnitTests.UnitTest1.MyFirstTheory(Int32 value) in UnitTest1.cs:28
+failed MyFirstUnitTests.UnitTest1.FailingTest (2ms)
   Assert.Equal() Failure: Values differ
   Expected: 5
   Actual:   4
-  Stack Trace:
-    at MyFirstUnitTests.UnitTest1.FailingTest() in C:\Dev\repro\MyFirstUnitTests\UnitTest1.cs:14
-    at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
-    at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+    at MyFirstUnitTests.UnitTest1.FailingTest() in UnitTest1.cs:14
 
-Test run summary: Failed! - C:\Dev\repro\MyFirstUnitTests\bin\Debug\net8.0\MyFirstUnitTests.dll (net8.0|x64)
+Test run summary: Failed! - bin\Debug\net8.0\MyFirstUnitTests.dll (net8.0|x64)
   total: 5
   failed: 2
   succeeded: 3
   skipped: 0
-  duration: 170ms
+  duration: 169ms
 
 === COMMAND LINE ===
-C:\Program Files\dotnet\dotnet.exe exec C:\Dev\repro\MyFirstUnitTests\bin\Debug\net8.0\MyFirstUnitTests.dll --internal-msbuild-node testingplatform.pipe.71a8e77a3cb04502a975f9644aabf8cd
+C:\Program Files\dotnet\dotnet.exe exec bin\Debug\net8.0\MyFirstUnitTests.dll --internal-msbuild-node testingplatform.pipe.f168a78a9c774ad083ef24761b77d00f
 ```
 
 The same command line options available in the Microsoft Testing Platform command line experience (described in the table above) are also available for `dotnet test`. The command line options are passed after `--`. For example, to filter tests to a single class with the Microsoft Testing Platform `dotnet test` experience, you could run: `dotnet test -- --filter-class ClassName`. This includes command line options from any [Microsoft Testing Platform features](#additional-microsoft-testing-platform-features) you may add. _**Note:** These command line options are available for `dotnet test` regardless of whether you enable the Microsoft Testing Platform command line experience._
