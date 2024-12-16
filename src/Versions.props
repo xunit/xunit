@@ -34,9 +34,9 @@
 
     <!-- Used by xunit.v3.templates (NuGet package) -->
     <MicrosoftNetTestSdkVersion>17.12.0</MicrosoftNetTestSdkVersion>
-    <XunitVisualStudioRunnerVersion>3.0.0-pre.54</XunitVisualStudioRunnerVersion>
+    <XunitVisualStudioRunnerVersion>3.0.0</XunitVisualStudioRunnerVersion>
     <!-- Uncomment this line when building RTW packages -->
-    <VisualStudioRunnerTemplateVersion>3.0.0</VisualStudioRunnerTemplateVersion>
+    <!--<VisualStudioRunnerTemplateVersion>3.0.0</VisualStudioRunnerTemplateVersion>-->
 
     <!-- Used in non-product (test or back-compat) projects -->
     <FSharpCompilerServiceVersion>43.7.200</FSharpCompilerServiceVersion>
