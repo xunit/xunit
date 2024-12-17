@@ -134,7 +134,7 @@ A test is marked as explicit through the new `Explicit` property on the `[Fact]`
 
 In addition to supporting our standard command line "simple" filters (like `-class` or `-method`), for v3 runners we have added a new "query filter language" that can be invoked via `-filter`. This query filter language allows more complex filtering operations than were previously possible with the simple filters. These complex filters also work via `xunit.v3.runner.console` when running older tests linked against v1 or v2, as the filtering is performed inside the runner.
 
-For more information, see the [documentation page](/docs/query-filter-language.md).
+For more information, see the [documentation page](/docs/query-filter-language).
 
 ### Test context
 
@@ -256,7 +256,7 @@ The randomization of test cases in v3 is stable until you rebuild, and then the 
 >
 > In v3, we have added a way to create external serializers for theory data. To support this, developers create a class which implements `IXunitSerializer`, and then register the serializer the serializer with an assembly-level attribute.
 >
-> For more information, see the [documentation page](/docs/getting-started/v3/custom-serialization.md).
+> For more information, see the [documentation page](/docs/getting-started/v3/custom-serialization).
 
 #### Updated built-in serialization support
 
