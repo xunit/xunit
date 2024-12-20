@@ -171,7 +171,7 @@ The `xunit.abstractions` package in v2 was used to communicate across the Applic
 
 There are several abstraction interfaces that were previously in the `Xunit.Abstractions` namespace that have been moved to new namespaces. Because `xunit.v3.runner.utility` still needs to link against `xunit.abstractions` to be able to run v2 tests, these types all needed to move into new namespaces to prevent naming collisions with the v2 types.
 
-The follow types have been moved to `Xunit` (in `xunit.v3.core`):
+The follow types have been moved to `Xunit` (in `xunit.v3.extensibility.core`):
 
 * `ITestOutputHelper`
 
@@ -238,7 +238,7 @@ The following types have been moved to `Xunit.Sdk` (in `xunit.v3.common`):
 * `IXunitSerializable`
 * `IXunitSerializationInfo`
 
-The following types have been moved to `Xunit.v3` (in `xunit.v3.core`):
+The following types have been moved to `Xunit.v3` (in `xunit.v3.extensibility.core`):
 
 * `ITestFramework`
 * `ITestFrameworkDiscoverer`
@@ -306,7 +306,7 @@ If you're looking for a type that has disappeared and it's a discoverer, chances
 
 ### Namespace changes
 
-Many of the namespace changes here have been done in the name of consistency. Generally speaking, when you see a type that now lives in the `Xunit.Sdk` namespace, it comes from `xunit.v3.common`, and when you see it in the `Xunit.v3` namespace, it comes from `xunit.v3.core`.
+Many of the namespace changes here have been done in the name of consistency. Generally speaking, when you see a type that now lives in the `Xunit.Sdk` namespace, it comes from `xunit.v3.common`, and when you see it in the `Xunit.v3` namespace, it comes from `xunit.v3.extensibility.core`.
 
 * The concrete test messages in the `Xunit.Sdk` namespace (for example, `DiagnosticMessage`) have moved to the `Xunit.v3` namespace. In the case where messages had non-empty constructors (for example, `ErrorMessage`) they have been converted to a single parameterless constructor (for serialization/deserialization purposes), and helper static creation methods like `FromException` have been added to replace the previous constructor usage.
 
@@ -348,7 +348,7 @@ Many of the namespace changes here have been done in the name of consistency. Ge
 
 * `LongLivedMarshalByRefObject` (in the `Xunit` namespace) has been removed from the core framework, since v3 does not support running in Application Domains.
 
-* `PlatformSpecificAssemblyAttribute` has been removed, as `xunit.v3.core` is based purely on `netstandard2.0` now rather than the previous multi-targeted `xunit.execution.*` libraries.
+* `PlatformSpecificAssemblyAttribute` has been removed, as `xunit.v3.extensibility.core` is based purely on `netstandard2.0` now rather than the previous multi-targeted `xunit.execution.*` libraries.
 
 * `PropertyDataAttribute`, which had been obsoleted in favor of `MemberDataAttribute`, has been removed.
 
@@ -387,7 +387,7 @@ A second new library (`xunit.v3.runner.common`) was introduced. Types in this li
 
 The split between these two libraries comes from the fact that we now have an in-process console runner (that is the runner that is linked into your unit test projects, from the `xunit.v3.runner.inproc.console` package) and an out-of-process console runner (the one in `xunit.v3.runner.console`). The former only has to be able to run v3 test projects, whereas the latter has to be able to run projects from v1, v2, and v3.
 
-The in-process console runner takes dependencies on `xunit.v3.core` and `xunit.v3.runner.common` to be able to perform its runner duties, whereas `xunit.v3.runner.utility` takes dependencies only on `xunit.abstractions` to be able run v2 tests (and `Mono.Cecil` to be able to read assembly metadata without loading the assembly into memory).
+The in-process console runner takes dependencies on `xunit.v3.extensibility.core` and `xunit.v3.runner.common` to be able to perform its runner duties, whereas `xunit.v3.runner.utility` takes dependencies only on `xunit.abstractions` to be able run v2 tests (and `Mono.Cecil` to be able to read assembly metadata without loading the assembly into memory).
 
 At the moment, third party reporters are not supported. We have an [open issue](https://github.com/xunit/xunit/issues/1874) to solve the problem of how to enable third party reporters without creating the strong dependency on `xunit.v3.runner.utility`, as the strong dependency in v2 on `xunit.runner.utility` made writing third party reporters exceptionally fragile.
 
