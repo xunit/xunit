@@ -1,13 +1,13 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "id": "https://xunit.net/schema/current/xunit.runner.schema.json",
+  "id": "https://xunit.net/schema/v3.0/xunit.runner.schema.json",
   "title": "xUnit.net Runner Configuration",
   "description": "Configuration file for unit test projects using xUnit.net",
   "type": "object",
   "properties": {
     "$schema": {
       "description": "The document schema",
-      "default": "https://xunit.net/schema/current/xunit.runner.schema.json",
+      "default": "https://xunit.net/schema/v3.0/xunit.runner.schema.json",
       "type": "string"
     },
     "appDomain": {
