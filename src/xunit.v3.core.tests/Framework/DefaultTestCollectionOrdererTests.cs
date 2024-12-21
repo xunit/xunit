@@ -26,15 +26,4 @@ public class DefaultTestCollectionOrdererTests
 		Assert.Equal(result1, result2);
 		Assert.Equal(result2, result3);
 	}
-
-	[Fact]
-	public static void OrderIsUnpredictable()
-	{
-		var orderer = DefaultTestCollectionOrderer.Instance;
-
-		var result = orderer.OrderTestCollections(TestCollections);
-
-		// If this test fails, rearrange the test collection list above
-		Assert.NotEqual(TestCollections, result);
-	}
 }

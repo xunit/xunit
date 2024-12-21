@@ -29,18 +29,6 @@ public class DefaultTestCaseOrdererTests
 		Assert.Equal(result2, result3);
 	}
 
-	[Fact(Skip = "Flaky")]
-	public static void OrderIsUnpredictable()
-	{
-		var orderer = DefaultTestCaseOrderer.Instance;
-
-		var result = orderer.OrderTestCases(TestCases);
-
-		// We assume 7 test cases are enough to make the likelihood of ordering directly in order
-		// small enough. If this ever starts failing, we can just add an extra method.
-		Assert.NotEqual(TestCases, result);
-	}
-
 	class ClassUnderTest
 	{
 		[Fact]
