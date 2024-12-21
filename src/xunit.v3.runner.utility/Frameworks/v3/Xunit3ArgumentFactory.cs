@@ -205,7 +205,7 @@ public static class Xunit3ArgumentFactory
 			result.AddRange(["-list", listOption.Value.ToString()]);
 
 		if (maxParallelThreads.HasValue)
-			result.AddRange(["-maxThreads", maxParallelThreads.Value.ToString(CultureInfo.InvariantCulture)]);
+			result.AddRange(["-maxThreads", ToMaxParallelThreadsValue(maxParallelThreads.Value)]);
 
 		if (methodDisplay.HasValue)
 			result.AddRange(["-methodDisplay", methodDisplay.Value.ToString()]);
@@ -247,4 +247,12 @@ public static class Xunit3ArgumentFactory
 
 		return result;
 	}
+
+	static string ToMaxParallelThreadsValue(int maxParallelThreadsValue) =>
+		maxParallelThreadsValue switch
+		{
+			0 => "default",
+			< 0 => "unlimited",
+			> 0 => maxParallelThreadsValue.ToString(CultureInfo.InvariantCulture),
+		};
 }

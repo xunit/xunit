@@ -472,6 +472,30 @@ public class Xunit3ArgumentFactoryTests
 			);
 		}
 
+		[Theory]
+		[InlineData(42, "42")]
+		[InlineData(1, "1")]
+		[InlineData(0, "default")]
+		[InlineData(-1, "unlimited")]
+		[InlineData(-42, "unlimited")]
+		public void MaxParallelThreads(
+			int maxParallelThreadsValue,
+			string expectedArgumentValue)
+		{
+			var options = TestData.TestFrameworkExecutionOptions(maxParallelThreads: maxParallelThreadsValue);
+
+			var arguments = Xunit3ArgumentFactory.ForRun(Version_0_3_0, options, ["abc"]);
+
+			Assert.Collection(
+				arguments,
+				arg => Assert.Equal("-automated", arg),
+				arg => Assert.Equal("-maxThreads", arg),
+				arg => Assert.Equal(expectedArgumentValue, arg),
+				arg => Assert.Equal("-run", arg),
+				arg => Assert.Equal("abc", arg)
+			);
+		}
+
 		[Fact]
 		public void DoesNotSendSyncParameterToAutomatedForOlderTestProjects()
 		{
