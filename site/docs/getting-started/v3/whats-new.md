@@ -254,7 +254,7 @@ The randomization of test cases in v3 is stable until you rebuild, and then the 
 
 > In v2, users who wanted to support serializable theory data items were forced to implement `IXunitSerializable` on their custom data types. Users who wanted to serialize data which they did not control, or which they did not want to add `IXunitSerializable` to, were out of luck, and forced to mark their data as non-serializable (and therefore unable to run the individual data rows in Test Explorer).
 >
-> In v3, we have added a way to create external serializers for theory data. To support this, developers create a class which implements `IXunitSerializer`, and then register the serializer the serializer with an assembly-level attribute.
+> In v3, we have added a way to create external serializers for theory data. To support this, developers create a class which implements `IXunitSerializer`, and then register the serializer with an assembly-level attribute.
 >
 > For more information, see the [documentation page](/docs/getting-started/v3/custom-serialization).
 
