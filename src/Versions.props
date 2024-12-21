@@ -12,7 +12,7 @@
     <TunnelVisionLabsReferenceAssemblyAnnotatorVersion>1.0.0-alpha.160</TunnelVisionLabsReferenceAssemblyAnnotatorVersion>
 
     <!-- Used by xunit.v3 (NuGet package) -->
-    <XunitAnalyzersVersion>1.18.0</XunitAnalyzersVersion>
+    <XunitAnalyzersVersion>1.19.0-pre.3</XunitAnalyzersVersion>
 
     <!-- Used by xunit.v3.assert for immutable collection support (for netstandard2.0 only) -->
     <SystemCollectionsImmutableVersion>6.0.0</SystemCollectionsImmutableVersion>
@@ -21,7 +21,7 @@
     <MicrosoftBclAsyncInterfacesVersion>6.0.0</MicrosoftBclAsyncInterfacesVersion>
 
     <!-- Used by xunit.v3.runner.inproc.console to support Microsoft.Testing.Platform -->
-    <MicrosoftTestingPlatformVersion>1.4.3</MicrosoftTestingPlatformVersion>
+    <MicrosoftTestingPlatformVersion>1.5.0</MicrosoftTestingPlatformVersion>
 
     <!-- Used by xunit.v3.runner.msbuild to reference MSBuild types -->
     <MicrosoftBuildVersion>15.1.548</MicrosoftBuildVersion>
@@ -34,7 +34,7 @@
 
     <!-- Used by xunit.v3.templates (NuGet package) -->
     <MicrosoftNetTestSdkVersion>17.12.0</MicrosoftNetTestSdkVersion>
-    <XunitVisualStudioRunnerVersion>3.0.0</XunitVisualStudioRunnerVersion>
+    <XunitVisualStudioRunnerVersion>3.0.1-pre.3</XunitVisualStudioRunnerVersion>
     <!-- Uncomment this line when building RTW packages -->
     <!--<VisualStudioRunnerTemplateVersion>3.0.0</VisualStudioRunnerTemplateVersion>-->
 
