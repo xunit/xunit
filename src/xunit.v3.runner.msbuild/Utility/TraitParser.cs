@@ -5,7 +5,7 @@ using Xunit.Internal;
 namespace Xunit.Runner.MSBuild;
 
 /// <summary/>
-public class TraitParser(Action<string>? warningHandler = null)
+internal class TraitParser(Action<string>? warningHandler = null)
 {
 	static readonly char[] TraitSeparator = [';'];
 	static readonly char[] KeyValueSeparator = ['='];

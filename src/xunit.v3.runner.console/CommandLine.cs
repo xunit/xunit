@@ -1,4 +1,4 @@
-#pragma warning disable CA1515  // This type is public for testing purposes
+#pragma warning disable CA1852  // This type is not sealed because it's derived from in unit tests
 
 using System;
 using System.Collections.Generic;
@@ -12,7 +12,7 @@ namespace Xunit.Runner.SystemConsole;
 /// <summary>
 /// INTERNAL CLASS. DO NOT USE.
 /// </summary>
-public class CommandLine : CommandLineParserBase
+internal class CommandLine : CommandLineParserBase
 {
 	/// <summary/>
 	protected CommandLine(
