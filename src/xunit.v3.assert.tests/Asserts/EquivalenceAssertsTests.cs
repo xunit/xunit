@@ -1968,6 +1968,53 @@ public class EquivalenceAssertsTests
 		}
 	}
 
+#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+
+	// https://github.com/xunit/xunit/issues/3088
+	public sealed class ByRefLikeParameters
+	{
+		[Fact]
+		public void Equivalent()
+		{
+			var expected = new RefParameterClass(42.ToString());
+			var actual = new RefParameterClass(42.ToString());
+
+			Assert.Equivalent(expected, actual);
+		}
+
+		[Fact]
+		public void NotEquivalent()
+		{
+			var expected = new RefParameterClass2(42.ToString());
+			var actual = new RefParameterClass2(2112.ToString());
+
+			var ex = Record.Exception(() => Assert.Equivalent(expected, actual));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				"Assert.Equivalent() Failure: Mismatched value on member 'Value'" + Environment.NewLine +
+				"Expected: \"42\"" + Environment.NewLine +
+				"Actual:   \"2112\"",
+				ex.Message
+			);
+		}
+
+		public sealed class RefParameterClass(string value)
+		{
+			public ReadOnlySpan<char> Value => value.AsSpan();
+		}
+
+		public sealed class RefParameterClass2(string value)
+		{
+			public ReadOnlySpan<char> ValueSpan => value.AsSpan();
+
+			// Added so `NotEquivalent` has a getter to check.
+			public string Value => value;
+		}
+	}
+
+#endif
+
 	class ShallowClass
 	{
 		public static int StaticValue { get; set; }
