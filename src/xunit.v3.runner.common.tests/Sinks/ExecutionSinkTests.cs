@@ -561,6 +561,44 @@ public class ExecutionSinkTests
 		}
 
 		[CulturedFact]
+		public void OutputStringStripsANSIInResultingXml()
+		{
+			var assemblyFinished = TestData.TestAssemblyFinished();
+			var assemblyStarting = TestData.TestAssemblyStarting();
+			var collectionStarting = TestData.TestCollectionStarting();
+			var classStarting = TestData.TestClassStarting(testClassName: typeof(ClassUnderTest).FullName!);
+			var methodStarting = TestData.TestMethodStarting(methodName: nameof(ClassUnderTest.TestMethod));
+			var caseStarting = TestData.TestCaseStarting(traits: TestData.EmptyTraits);
+			var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
+			var testPassed = TestData.TestPassed(executionTime: 123.4567809m, output: "\u001B[31mtest output");
+
+			var assemblyElement = new XElement("assembly");
+			using var sink = TestableExecutionSink.Create(assemblyElement: assemblyElement);
+
+			sink.OnMessage(assemblyStarting);
+			sink.OnMessage(collectionStarting);
+			sink.OnMessage(classStarting);
+			sink.OnMessage(methodStarting);
+			sink.OnMessage(caseStarting);
+			sink.OnMessage(testStarting);
+			sink.OnMessage(testPassed);
+			sink.OnMessage(assemblyFinished);
+
+			var testElement = Assert.Single(assemblyElement.Elements("collection").Single().Elements("test"));
+			Assert.Equal("Test Display Name", testElement.Attribute("name")!.Value);
+			Assert.Equal("ExecutionSinkTests+XmlCreation+ClassUnderTest", testElement.Attribute("type")!.Value);
+			Assert.Equal("TestMethod", testElement.Attribute("method")!.Value);
+			Assert.Equal("Pass", testElement.Attribute("result")!.Value);
+			Assert.Equal(123.4567809M.ToString(CultureInfo.InvariantCulture), testElement.Attribute("time")!.Value);
+			Assert.Equal("test output", testElement.Element("output")!.Value);
+			Assert.Null(testElement.Attribute("source-file"));
+			Assert.Null(testElement.Attribute("source-line"));
+			Assert.Empty(testElement.Elements("traits"));
+			Assert.Empty(testElement.Elements("failure"));
+			Assert.Empty(testElement.Elements("reason"));
+		}
+
+		[CulturedFact]
 		public void AddsFailingTestElementToXml()
 		{
 			var assemblyFinished = TestData.TestAssemblyFinished();

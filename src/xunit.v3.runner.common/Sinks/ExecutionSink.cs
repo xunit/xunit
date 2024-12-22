@@ -193,7 +193,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 
 		var testOutput = testResult.Output;
 		if (!string.IsNullOrWhiteSpace(testOutput))
-			testResultElement.Add(new XElement("output", new XCData(testOutput)));
+			testResultElement.Add(new XElement("output", new XCData(AnsiUtility.RemoveAnsiEscapeCodes(testOutput))));
 
 		if (testResult.Warnings is not null && testResult.Warnings.Length > 0)
 		{

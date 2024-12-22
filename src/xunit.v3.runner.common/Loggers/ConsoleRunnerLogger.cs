@@ -1,7 +1,7 @@
 using System;
 using System.IO;
-using System.Text.RegularExpressions;
 using Xunit.Internal;
+using Xunit.Sdk;
 
 namespace Xunit.Runner.Common;
 
@@ -11,7 +11,6 @@ namespace Xunit.Runner.Common;
 /// </summary>
 public class ConsoleRunnerLogger : IRunnerLogger
 {
-	static readonly Regex ansiSgrRegex = new("\\e\\[\\d*(;\\d*)*m");
 	readonly ConsoleHelper consoleHelper;
 	readonly bool useColors;
 	readonly bool waitForAcknowledgment;
@@ -100,7 +99,6 @@ public class ConsoleRunnerLogger : IRunnerLogger
 				WriteLine(message);
 	}
 
-
 	/// <inheritdoc/>
 	public void WaitForAcknowledgment()
 	{
@@ -118,12 +116,9 @@ public class ConsoleRunnerLogger : IRunnerLogger
 	{
 		Guard.ArgumentNotNull(message);
 
-		var text = useColors ? message : RemoveAnsiSgr(message);
+		var text = useColors ? message : AnsiUtility.RemoveAnsiEscapeCodes(message);
 		consoleHelper.WriteLine(text);
 	}
-
-	static string RemoveAnsiSgr(string message) =>
-		ansiSgrRegex.Replace(message, "");
 
 	IDisposable? SetColor(ConsoleColor color) =>
 		useColors ? new ColorRestorer(consoleHelper, color) : null;

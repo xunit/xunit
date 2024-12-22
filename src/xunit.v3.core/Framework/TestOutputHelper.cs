@@ -2,7 +2,6 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using Xunit.Internal;
 using Xunit.Sdk;
 
@@ -96,7 +95,6 @@ public class TestOutputHelper : ITestOutputHelper
 
 	sealed class TestState
 	{
-		static readonly Regex ansiSgrRegex = new("^\\e\\[\\d*(;\\d*)*m");
 		readonly StringBuilder buffer = new();
 		readonly object lockObject = new();
 		readonly IMessageBus messageBus;
@@ -228,7 +226,7 @@ public class TestOutputHelper : ITestOutputHelper
 			int i)
 		{
 			var remaining = message.Substring(i);
-			if (ansiSgrRegex.IsMatch(remaining))
+			if (AnsiUtility.AnsiEscapeCodeRegex.IsMatch(remaining))
 				builder.Append(message[i]);
 			else
 				builder.Append("\\x1b");
