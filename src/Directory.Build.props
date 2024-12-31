@@ -42,6 +42,7 @@
         <AnalysisLevel>latest-All</AnalysisLevel>
         <Authors>jnewkirk;bradwilson</Authors>
         <Company>.NET Foundation</Company>
+        <ContinuousIntegrationBuild Condition=" '$(GITHUB_ACTIONS)' == 'true' ">true</ContinuousIntegrationBuild>
         <Copyright>Copyright (C) .NET Foundation</Copyright>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>

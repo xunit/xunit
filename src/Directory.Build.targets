@@ -78,15 +78,6 @@
     <Exec Command="chmod +x '$(OutputAssembly)'" Condition=" '$(OS)' != 'Windows_NT' AND $(OutputAssembly.EndsWith('.exe')) " />
   </Target>
 
-  <!-- Support deterministic builds (via https://github.com/clairernovotny/DeterministicBuilds) -->
-  <PropertyGroup>
-    <ContinuousIntegrationBuild Condition=" '$(GITHUB_ACTIONS)' == 'true' ">true</ContinuousIntegrationBuild>
-    <TargetFrameworkMonikerAssemblyAttributesPath>$([System.IO.Path]::Combine('$(IntermediateOutputPath)','$(TargetFrameworkMoniker).AssemblyAttributes$(DefaultLanguageSourceExtension)'))</TargetFrameworkMonikerAssemblyAttributesPath>
-  </PropertyGroup>
-  <ItemGroup>
-    <EmbeddedFiles Include="$(GeneratedAssemblyInfoFile)"/>
-  </ItemGroup>
-
   <!-- Supplement Nerdbank.GitVersioning version calculations -->
   <Target Name="UpdateAssemblyVersionInfo" BeforeTargets="GenerateAssemblyNBGVVersionInfo" DependsOnTargets="GetBuildVersion">
     <PropertyGroup>
