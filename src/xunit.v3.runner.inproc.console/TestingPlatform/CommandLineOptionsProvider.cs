@@ -209,7 +209,8 @@ public sealed class CommandLineOptionsProvider() :
 			""", ArgumentArity.ExactlyOne, OnAutoReporters) },
 		{ "xunit-config-filename", (
 			"""
-			Sets the configuration file. By default, this is 'xunit.runner.json' in the bin directory alongside the compiled output.
+			Sets the configuration file. By default, this is 'xunit.runner.json' in the bin directory
+			alongside the compiled output.
 			""", ArgumentArity.ExactlyOne, OnConfigFilename) },
 		{ "xunit-info", ("Show xUnit.net headers and information", ArgumentArity.Zero, NoOp) },
 	};
