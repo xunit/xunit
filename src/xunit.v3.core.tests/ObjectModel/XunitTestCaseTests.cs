@@ -43,6 +43,7 @@ public class XunitTestCaseTests
 			"display-name",
 			"unique-id",
 			@explicit: false,
+			[typeof(NotImplementedException), typeof(NotSupportedException)],
 			"skipReason",
 			typeof(XunitTestCaseTests),
 			skipUnless,

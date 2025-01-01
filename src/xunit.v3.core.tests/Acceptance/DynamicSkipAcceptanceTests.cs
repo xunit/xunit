@@ -108,4 +108,71 @@ public class DynamicSkipAcceptanceTests
 			}
 		}
 	}
+
+	public class SkipExceptions : AcceptanceTestV3
+	{
+		[Theory]
+		[InlineData(typeof(NotImplementedException))]
+		[InlineData(typeof(NotSupportedException))]
+		public async ValueTask WithMessage(Type exceptionType)
+		{
+			ClassUnderTest.ExceptionToThrow = Activator.CreateInstance(exceptionType, ["The exception message"]) as Exception;
+
+			var results = await RunForResultsAsync(typeof(ClassUnderTest));
+
+			Assert.Empty(results.OfType<TestPassedWithDisplayName>());
+			Assert.Empty(results.OfType<TestFailedWithDisplayName>());
+			Assert.Empty(results.OfType<TestNotRunWithDisplayName>());
+			var skipResult = Assert.Single(results.OfType<TestSkippedWithDisplayName>());
+			Assert.Equal($"{typeof(ClassUnderTest).FullName}.{nameof(ClassUnderTest.TestMethod)}", skipResult.TestDisplayName);
+			Assert.Equal("The exception message", skipResult.Reason);
+		}
+
+		[Fact]
+		public async ValueTask WithoutMessage()
+		{
+			ClassUnderTest.ExceptionToThrow = new MessagelessException();
+
+			var results = await RunForResultsAsync(typeof(ClassUnderTest));
+
+			Assert.Empty(results.OfType<TestPassedWithDisplayName>());
+			Assert.Empty(results.OfType<TestFailedWithDisplayName>());
+			Assert.Empty(results.OfType<TestNotRunWithDisplayName>());
+			var skipResult = Assert.Single(results.OfType<TestSkippedWithDisplayName>());
+			Assert.Equal($"{typeof(ClassUnderTest).FullName}.{nameof(ClassUnderTest.TestMethod)}", skipResult.TestDisplayName);
+			Assert.Equal($"Exception of type '{typeof(MessagelessException).FullName}' was thrown", skipResult.Reason);
+		}
+
+		[Fact]
+		public async ValueTask NonSkippedException()
+		{
+			ClassUnderTest.ExceptionToThrow = new DivideByZeroException();
+
+			var results = await RunForResultsAsync(typeof(ClassUnderTest));
+
+			Assert.Empty(results.OfType<TestPassedWithDisplayName>());
+			Assert.Empty(results.OfType<TestSkippedWithDisplayName>());
+			Assert.Empty(results.OfType<TestNotRunWithDisplayName>());
+			var failedResult = Assert.Single(results.OfType<TestFailedWithDisplayName>());
+			Assert.Equal($"{typeof(ClassUnderTest).FullName}.{nameof(ClassUnderTest.TestMethod)}", failedResult.TestDisplayName);
+			Assert.Equal(typeof(DivideByZeroException).FullName, failedResult.ExceptionTypes.Single());
+		}
+
+		class MessagelessException : Exception
+		{
+			public override string Message => string.Empty;
+		}
+
+		class ClassUnderTest
+		{
+			public static Exception? ExceptionToThrow;
+
+			[Fact(SkipExceptions = [typeof(NotImplementedException), typeof(NotSupportedException), typeof(MessagelessException)])]
+			public static void TestMethod()
+			{
+				if (ExceptionToThrow is not null)
+					throw ExceptionToThrow;
+			}
+		}
+	}
 }
