@@ -10,6 +10,7 @@ public class TestIntrospectionHelperTests
 	static (
 		string TestCaseDisplayName,
 		bool Explicit,
+		Type[]? SkipExceptions,
 		string? SkipReason,
 		Type? SkipType,
 		string? SkipUnless,
@@ -186,6 +187,17 @@ public class TestIntrospectionHelperTests
 			var details = _GetTestCaseDetails(discoveryOptions, testMethod);
 
 			Assert.Equal("Skip Reason", details.SkipReason);
+		}
+
+		[Fact]
+		public void SkipExceptions()
+		{
+			var factAttribute = Mocks.FactAttribute(skipExceptions: [typeof(NotImplementedException)]);
+			var testMethod = Mocks.XunitTestMethod(factAttributes: [factAttribute]);
+
+			var details = _GetTestCaseDetails(discoveryOptions, testMethod);
+
+			Assert.Equal([typeof(NotImplementedException)], details.SkipExceptions);
 		}
 
 		[Fact]

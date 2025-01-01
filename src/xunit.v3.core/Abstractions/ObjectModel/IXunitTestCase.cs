@@ -12,6 +12,11 @@ namespace Xunit.v3;
 public interface IXunitTestCase : ITestCase
 {
 	/// <summary>
+	/// Gets the exception types that, when thrown, will cause a
+	/// </summary>
+	Type[]? SkipExceptions { get; }
+
+	/// <summary>
 	/// Gets the display text for the reason a test that might being skipped.
 	/// </summary>
 	/// <remarks>

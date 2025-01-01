@@ -33,6 +33,7 @@ public class CulturedFactAttributeDiscoverer : IXunitTestCaseDiscoverer
 						details.TestCaseDisplayName,
 						details.UniqueID,
 						details.Explicit,
+						details.SkipExceptions,
 						details.SkipReason,
 						details.SkipType,
 						details.SkipUnless,

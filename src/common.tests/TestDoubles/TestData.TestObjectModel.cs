@@ -16,6 +16,7 @@ public static partial class TestData
 		TestMethodDisplay methodDisplay = TestMethodDisplay.ClassAndMethod,
 		TestMethodDisplayOptions methodDisplayOptions = TestMethodDisplayOptions.None,
 		bool @explicit = false,
+		Type[]? skipExceptions = null,
 		string? skipReason = null,
 		bool skipTestWithoutData = false,
 		Type? skipType = null,
@@ -40,6 +41,7 @@ public static partial class TestData
 			uniqueID ?? details.UniqueID,
 			@explicit,
 			skipTestWithoutData,
+			skipExceptions,
 			skipReason,
 			skipType,
 			skipUnless,
@@ -98,6 +100,7 @@ public static partial class TestData
 		bool? @explicit = null,
 		TestMethodDisplay methodDisplay = TestMethodDisplay.ClassAndMethod,
 		TestMethodDisplayOptions methodDisplayOptions = TestMethodDisplayOptions.None,
+		Type[]? skipExceptions = null,
 		string? skipReason = null,
 		Type? skipType = null,
 		string? skipUnless = null,
@@ -118,6 +121,7 @@ public static partial class TestData
 			details.TestCaseDisplayName,
 			uniqueID ?? details.UniqueID,
 			@explicit ?? details.Explicit,
+			skipExceptions ?? details.SkipExceptions,
 			skipReason ?? details.SkipReason,
 			skipType ?? details.SkipType,
 			skipUnless ?? details.SkipUnless,
@@ -133,6 +137,7 @@ public static partial class TestData
 		bool? @explicit = null,
 		TestMethodDisplay methodDisplay = TestMethodDisplay.ClassAndMethod,
 		TestMethodDisplayOptions methodDisplayOptions = TestMethodDisplayOptions.None,
+		Type[]? skipExceptions = null,
 		string? skipReason = null,
 		Type? skipType = null,
 		string? skipUnless = null,
@@ -148,7 +153,7 @@ public static partial class TestData
 
 		var testClass = XunitTestClass<TClassUnderTest>(testCollection);
 		var testMethod = XunitTestMethod(testClass, methodInfo, testMethodArguments);
-		return XunitTestCase(testMethod, @explicit, methodDisplay, methodDisplayOptions, skipReason, skipType, skipUnless, skipWhen, testMethodArguments, timeout, traits, uniqueID);
+		return XunitTestCase(testMethod, @explicit, methodDisplay, methodDisplayOptions, skipExceptions, skipReason, skipType, skipUnless, skipWhen, testMethodArguments, timeout, traits, uniqueID);
 	}
 
 	public static XunitTestClass XunitTestClass(

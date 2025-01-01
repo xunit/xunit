@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Internal;
@@ -230,6 +231,14 @@ public static class XunitRunnerHelper
 					cancellationTokenSource,
 					[testCase],
 					ex.Message.Substring(DynamicSkipToken.Value.Length),
+					sendTestCaseMessages: false
+				);
+			else if (testCase.SkipExceptions?.Contains(ex.GetType()) == true)
+				return SkipTestCases(
+					messageBus,
+					cancellationTokenSource,
+					[testCase],
+					ex.Message.Length != 0 ? ex.Message : string.Format(CultureInfo.CurrentCulture, "Exception of type '{0}' was thrown", ex.GetType().SafeName()),
 					sendTestCaseMessages: false
 				);
 			else

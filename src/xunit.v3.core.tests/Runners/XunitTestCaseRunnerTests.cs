@@ -149,6 +149,33 @@ public class XunitTestCaseRunnerTests
 		}
 
 		[Fact]
+		public static async ValueTask SkippedViaRegisteredException()
+		{
+			var test = TestData.XunitTest<ClassUnderTest>(nameof(ClassUnderTest.SkippedViaRegisteredException));
+			var runner = new TestableXunitTestCaseRunner(test);
+
+			await runner.Run();
+
+			Assert.Collection(
+				runner.MessageBus.Messages,
+				msg => Assert.IsAssignableFrom<ITestCaseStarting>(msg),
+				msg => Assert.IsAssignableFrom<ITestStarting>(msg),
+				msg => Assert.IsAssignableFrom<ITestClassConstructionStarting>(msg),
+				msg => Assert.IsAssignableFrom<ITestClassConstructionFinished>(msg),
+				// Test method is invoked here
+				msg => Assert.IsAssignableFrom<ITestClassDisposeStarting>(msg),
+				msg => Assert.IsAssignableFrom<ITestClassDisposeFinished>(msg),
+				msg =>
+				{
+					var skipped = Assert.IsAssignableFrom<ITestSkipped>(msg);
+					Assert.Equal("Dividing by zero is really tough", skipped.Reason);
+				},
+				msg => Assert.IsAssignableFrom<ITestFinished>(msg),
+				msg => Assert.IsAssignableFrom<ITestCaseFinished>(msg)
+			);
+		}
+
+		[Fact]
 		public static async ValueTask NotRun()
 		{
 			var test = TestData.XunitTest<ClassUnderTest>(nameof(ClassUnderTest.ExplicitTest));
@@ -184,6 +211,9 @@ public class XunitTestCaseRunnerTests
 
 			[Fact]
 			public void SkippedViaException() => Assert.Skip("This isn't a good time");
+
+			[Fact(SkipExceptions = [typeof(DivideByZeroException)])]
+			public void SkippedViaRegisteredException() => throw new DivideByZeroException("Dividing by zero is really tough");
 
 			[Fact(Explicit = true)]
 			public void ExplicitTest() => Assert.Fail("Should not run");

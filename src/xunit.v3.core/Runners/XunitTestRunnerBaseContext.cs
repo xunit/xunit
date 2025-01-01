@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using Xunit.Internal;
@@ -155,12 +156,21 @@ public class XunitTestRunnerBaseContext<TTest> : TestRunnerContext<TTest>
 	/// </summary>
 	/// <param name="exception">The exception to inspect</param>
 	/// <returns>The skip reason, if the test is skipped; <c>null</c>, otherwise</returns>
-	public override string? GetSkipReason(Exception? exception) =>
-		// We don't want a strongly typed contract here; any exception can be a "dynamically
-		// skipped" exception so long as its message starts with the special token.
-		exception?.Message.StartsWith(DynamicSkipToken.Value, StringComparison.Ordinal) == true
-			? exception.Message.Substring(DynamicSkipToken.Value.Length)
-			: getRuntimeSkipReason.Value;
+	public override string? GetSkipReason(Exception? exception)
+	{
+		if (exception is not null)
+		{
+			if (Test.TestCase.SkipExceptions?.Contains(exception.GetType()) == true)
+				return exception.Message.Length != 0 ? exception.Message : string.Format(CultureInfo.CurrentCulture, "Exception of type '{0}' was thrown", exception.GetType().SafeName());
+
+			// We don't want a strongly typed contract here; any exception can be a "dynamically
+			// skipped" exception so long as its message starts with the special token.
+			if (exception.Message.StartsWith(DynamicSkipToken.Value, StringComparison.Ordinal))
+				return exception.Message.Substring(DynamicSkipToken.Value.Length);
+		}
+
+		return getRuntimeSkipReason.Value;
+	}
 
 	/// <summary>
 	/// Runs the <see cref="IBeforeAfterTestAttribute.After"/> side of the before after attributes.

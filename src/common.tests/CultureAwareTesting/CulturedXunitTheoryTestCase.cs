@@ -28,6 +28,7 @@ public class CulturedXunitTheoryTestCase : XunitDelayEnumeratedTheoryTestCase
 	/// <param name="uniqueID">The optional unique ID for the test case; if not provided, will be calculated.</param>
 	/// <param name="explicit">Indicates whether the test case was marked as explicit.</param>
 	/// <param name="skipTestWithoutData">Set to <c>true</c> to skip if the test has no data, rather than fail.</param>
+	/// <param name="skipExceptions">The value from <see cref="IFactAttribute.SkipExceptions"/>.</param>
 	/// <param name="skipReason">The value from <see cref="IFactAttribute.Skip"/></param>
 	/// <param name="skipType">The value from <see cref="IFactAttribute.SkipType"/> </param>
 	/// <param name="skipUnless">The value from <see cref="IFactAttribute.SkipUnless"/></param>
@@ -43,6 +44,7 @@ public class CulturedXunitTheoryTestCase : XunitDelayEnumeratedTheoryTestCase
 		string uniqueID,
 		bool @explicit,
 		bool skipTestWithoutData,
+		Type[]? skipExceptions = null,
 		string? skipReason = null,
 		Type? skipType = null,
 		string? skipUnless = null,
@@ -51,7 +53,7 @@ public class CulturedXunitTheoryTestCase : XunitDelayEnumeratedTheoryTestCase
 		string? sourceFilePath = null,
 		int? sourceLineNumber = null,
 		int? timeout = null)
-			: base(testMethod, $"{testCaseDisplayName}[{culture}]", $"{uniqueID}[{culture}]", @explicit, skipTestWithoutData, skipReason, skipType, skipUnless, skipWhen, traits, sourceFilePath, sourceLineNumber, timeout)
+			: base(testMethod, $"{testCaseDisplayName}[{culture}]", $"{uniqueID}[{culture}]", @explicit, skipTestWithoutData, skipExceptions, skipReason, skipType, skipUnless, skipWhen, traits, sourceFilePath, sourceLineNumber, timeout)
 	{
 		this.culture = Guard.ArgumentNotNull(culture);
 
