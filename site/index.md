@@ -61,7 +61,7 @@ _New to xUnit.net? These guides will help you get started._
 {: .indent }
 * [Getting started with the .NET SDK command line](/docs/getting-started/v3/cmdline)<br />
   _Includes running tests from the command line, Visual Studio, Visual Studio Code, and JetBrains Rider_
-* [Migrating from xUnit.net v2](/docs/getting-started/v3/migration)
+* Migrating from xUnit.net v2 [for unit test authors](/docs/getting-started/v3/migration) and [extensibility authors](/docs/getting-started/v3/migration-extensibility)
 * [What's new in xUnit.net v3](/docs/getting-started/v3/whats-new)
 * [Microsoft Testing Platform support in v3](/docs/getting-started/v3/microsoft-testing-platform)
 * [Query Filter Language](/docs/query-filter-language)

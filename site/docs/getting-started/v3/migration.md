@@ -1,14 +1,14 @@
 ---
 layout: default
-title: Migrating from v2 to v3
+title: Migrating from v2 to v3 [Unit test authors]
 breadcrumb: Documentation
 ---
 
-# Migrating from v2 to v3
+# Migrating from v2 to v3 [Unit test authors]
 
-## As of: 2024 October 27 (`0.5.0-pre.27`)
+## As of: 2025 January 1 (`1.0.0`)
 
-This migration guide aims to be a comprehensive list helping developers migrate from xUnit.net v2 to v3. It includes information on how to upgrade your v2 projects to v3, what to expect for unit test authors, and what to expect for extensibility authors.
+This migration guide aims to be a comprehensive list helping developers migrate from xUnit.net v2 to v3. This guide is focused on what to expect for unit test authors. Extensibility authors will want to review this document, and then read the [migration guide specifically for extensibility authors](migration-extensibility).
 
 Because this is a comprehensive guide, you may wish to only skim parts of it, and use search functionality to find information on specific issues that arise, rather than trying to read the guide entirely. You should read the first informational section titled "Architectural Changes", then follow the next three sections related to (a) updating NuGet packages, (b) updating to create an executable instead of a library, and (c) updating your target framework. All sections after that should be consider reference material.
 
@@ -17,7 +17,7 @@ In addition to this migration document (which only covers the differences betwee
 The current builds are:
 
 {: .table .latest }
-Package                     | NuGet Version                                                                                                                               | [CI Version]((using-ci-builds))
+Package                     | NuGet Version                                                                                                                               | [CI Version](/docs/using-ci-builds)
 --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------
 `xunit.v3.*`                | [![](https://img.shields.io/nuget/vpre/xunit.v3.svg?logo=nuget)](https://www.nuget.org/packages/xunit.v3)                                   | [![](https://img.shields.io/badge/endpoint.svg?url=https%3A%2F%2Ff.feedz.io%2Fxunit%2Fxunit%2Fshield%2Fxunit.v3%2Flatest)](https://feedz.io/org/xunit/repository/xunit/packages/xunit.v3)
 `xunit.analyzers`           | [![](https://img.shields.io/nuget/vpre/xunit.analyzers.svg?logo=nuget)](https://www.nuget.org/packages/xunit.analyzers)                     | [![](https://img.shields.io/badge/endpoint.svg?url=https%3A%2F%2Ff.feedz.io%2Fxunit%2Fxunit%2Fshield%2Fxunit.analyzers%2Flatest)](https://feedz.io/org/xunit/repository/xunit/packages/xunit.analyzers)
@@ -132,17 +132,6 @@ We changed the package naming scheme from `xunit.*` to `xunit.v3.*` for two prim
 The secondary reason was:
 
 * As shown above, some packages have been merged (and new intermediate packages have been introduced). We previously tried the "upgrade an obsoleted package" strategy from v1 -> v2 with the `xunit.extensions` package and found that process less than ideal for most users. This is not an area where NuGet is particularly helpful. We would've preferred that we could have automatically removed `xunit.extensions` rather than having a v2 version in place with no code inside as a dead reference. By having users follow this migration guide, we can clearly tell them which packages changed and which should be removed.
-
-### Should extension authors follow this same strategy?
-
-For extension authors, you have (at least) two choices for how to evolve your dependencies and package names:
-
-* You can use your existing package name and just pick a new version that takes a dependency on `xunit.v3.extensibilty.core` rather than `xunit.extensibility.core` and/or `xunit.extensibility.execution`. This means as users pick up new versions of your existing packages, you'll _**also**_ be expecting them to upgrade to xUnit.net v3.
-* You can use a new package name that indicates an updated extension for v3, while leaving the old name in place to support v2. This means as users upgrade up xUnit.net v3, they'll also need to find your new matching package.
-
-The first option probably isn't ideal, for the same reasons we've listed above. We suspect that following our strategy of new package names is probably the one that will lead users to the most success, because as they're consciously choosing to upgrade xUnit.net from v2 to v3, they can also be consciously thinking about what that means for upgrading their extensions.
-
-However, you know your users best, and there's no one right answer here. It's your decision which strategy makes the best sense for you and your users.
 
 
 ## Convert to Executable Project
