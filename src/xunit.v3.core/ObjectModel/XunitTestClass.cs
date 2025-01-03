@@ -37,7 +37,7 @@ public class XunitTestClass : IXunitTestClass, IXunitSerializable
 		beforeAfterTestAttributes = new(() => ExtensibilityPointFactory.GetClassBeforeAfterTestAttributes(Class, TestCollection.BeforeAfterTestAttributes));
 		classFixtureTypes = new(() => ExtensibilityPointFactory.GetClassClassFixtureTypes(Class, TestCollection.ClassFixtureTypes));
 		constructors = new(() => Class.IsAbstract && Class.IsSealed ? null : Class.GetConstructors().Where(ci => !ci.IsStatic && ci.IsPublic).CastOrToReadOnlyCollection());
-		methods = new(() => Class.GetMethods(MethodBindingFlags).CastOrToReadOnlyCollection());
+		methods = new(() => Class.GetMethods(MethodBindingFlags).Concat(Class.GetInterfaces().SelectMany(i => i.GetMethods(MethodBindingFlags))).CastOrToReadOnlyCollection());
 		testCaseOrderer = new(() => ExtensibilityPointFactory.GetClassTestCaseOrderer(Class));
 		traits = new(() => ExtensibilityPointFactory.GetClassTraits(Class, TestCollection.Traits));
 	}

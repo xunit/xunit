@@ -86,6 +86,9 @@ public class XunitTestClassTests
 			method => Assert.Equal("SomeNamespace.ClassUnderTest.PrivateMethod()", method),
 			method => Assert.Equal("SomeNamespace.ClassUnderTest.ProtectedMethod()", method),
 			method => Assert.Equal("SomeNamespace.ClassUnderTest.PublicMethod()", method)
+#if NETCOREAPP
+			, method => Assert.Equal("SomeNamespace.IMyInterface.InterfaceMethod()", method)
+#endif
 		);
 	}
 
@@ -149,11 +152,18 @@ namespace SomeNamespace
 	[BeforeAfterOnCollection]
 	class BeforeAfterCollection { }
 
+	interface IMyInterface
+	{
+#if NETCOREAPP
+		public void InterfaceMethod() { }
+#endif
+	}
+
 	[BeforeAfterOnClass]
 	[Collection("foo")]
 	[TestCaseOrderer(typeof(MyTestCaseOrderer))]
 	[Trait("Hello", "World")]
-	class ClassUnderTest : BaseClass, IClassFixture<MyClassFixture>
+	class ClassUnderTest : BaseClass, IClassFixture<MyClassFixture>, IMyInterface
 	{
 		public ClassUnderTest() { }
 
