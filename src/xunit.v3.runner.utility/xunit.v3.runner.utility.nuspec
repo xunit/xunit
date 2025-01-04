@@ -34,7 +34,7 @@
 	<!-- Remember to update tools\builder\targets\SignAssemblies.cs when assemblies are added or removed -->
 	<files>
 		<file target="_content\" src="..\..\tools\media\logo-128-transparent.png" />
-		<file target="_content\" src="..\..\README.md" />
+		<file target="_content\README.md" src="obj\xunit.v3.runner.utility.README.md" />
 
 		<file target="lib\net472\" src="bin\$Configuration$\net472\$SignedPath$xunit.v3.runner.utility.netfx.dll" />
 		<file target="lib\net472\" src="bin\$Configuration$\net472\xunit.v3.runner.utility.netfx.xml" />

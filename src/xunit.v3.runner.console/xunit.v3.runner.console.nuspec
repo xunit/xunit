@@ -19,7 +19,7 @@
 	<!-- Remember to update tools\builder\targets\SignAssemblies.cs when assemblies are added or removed -->
 	<files>
 		<file target="_content\" src="..\..\tools\media\logo-128-transparent.png" />
-		<file target="_content\" src="..\..\README.md" />
+		<file target="_content\README.md" src="obj\xunit.v3.runner.console.README.md" />
 
 		<file target="build\" src="Package\build\*" />
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+<package>
 	<metadata>
 		<id>xunit.v3.runner.common</id>
 		<version>$PackageVersion$</version>
@@ -22,7 +22,7 @@
 	<!-- Remember to update tools\builder\targets\SignAssemblies.cs when assemblies are added or removed -->
 	<files>
 		<file target="_content\" src="..\..\tools\media\logo-128-transparent.png" />
-		<file target="_content\" src="..\..\README.md" />
+		<file target="_content\README.md" src="obj\xunit.v3.runner.common.README.md" />
 
 		<file target="lib\netstandard2.0\" src="bin\$Configuration$\netstandard2.0\$SignedPath$xunit.v3.runner.common.dll" />
 		<file target="lib\netstandard2.0\" src="bin\$Configuration$\netstandard2.0\xunit.v3.runner.common.xml" />

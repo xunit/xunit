@@ -11,7 +11,7 @@
 		<icon>_content/logo-128-transparent.png</icon>
 		<readme>_content/README.md</readme>
 		<releaseNotes>https://xunit.net/releases/v3/$PackageVersion$</releaseNotes>
-		<description>Includes the current assertion library from xUnit.net, as source into your project. Supports any platform(s) compatible with .NET Standard 1.1. For more information on consumption, please see https://github.com/xunit/assert.xunit/blob/$GitAssertModuleCommitId$/README.md</description>
+		<description>Includes the current assertion library from xUnit.net, as source into your project. Supports any platform(s) compatible with .NET Standard 1.1 and C# 6. For more information on consumption, please see https://github.com/xunit/assert.xunit/blob/$GitAssertModuleCommitId$/README.md</description>
 		<copyright>Copyright (C) .NET Foundation</copyright>
 		<repository type="git" url="https://github.com/xunit/assert.xunit" commit="$GitAssertModuleCommitId$" />
 		<contentFiles>
@@ -20,7 +20,7 @@
 	</metadata>
 	<files>
 		<file target="_content\" src="..\..\tools\media\logo-128-transparent.png" />
-		<file target="_content\" src="..\..\README.md" />
+		<file target="_content\README.md" src="obj\xunit.v3.assert.source.README.md" />
 
 		<file src="..\build\.nuget.editorconfig" target="contentFiles\.editorconfig" />
 		<file target="contentFiles\cs\netstandard1.1\Asserts" src="Asserts\**\*.cs" />

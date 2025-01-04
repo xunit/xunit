@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+<package>
 	<metadata>
 		<id>xunit.v3.templates</id>
 		<version>$PackageVersion$</version>
@@ -11,7 +11,7 @@
 		<icon>_content/logo-128-transparent.png</icon>
 		<readme>_content/README.md</readme>
 		<releaseNotes>https://xunit.net/releases/v3/$PackageVersion$</releaseNotes>
-		<description>Includes templates for use with 'dotnet new' for creating xUnit.net v3 projects</description>
+		<description>Includes templates for use with 'dotnet new' for creating xUnit.net v3 unit test projects and extension projects.</description>
 		<copyright>Copyright (C) .NET Foundation</copyright>
 		<repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
 		<tags>dotnet-new templates xunit</tags>
@@ -24,7 +24,7 @@
 	</metadata>
 	<files>
 		<file target="_content\" src="..\..\tools\media\logo-128-transparent.png" />
-		<file target="_content\" src="..\..\README.md" />
+		<file target="_content\README.md" src="obj\xunit.v3.templates.README.md" />
 
 		<file target="content\" src="..\..\artifacts\xunit.v3.templates\templates\**\*" />
 	</files>

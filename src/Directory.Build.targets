@@ -78,6 +78,33 @@
     <Exec Command="chmod +x '$(OutputAssembly)'" Condition=" '$(OS)' != 'Windows_NT' AND $(OutputAssembly.EndsWith('.exe')) " />
   </Target>
 
+  <Target Name="CreateCustomReadmeForNuGet" BeforeTargets="GenerateNuspec">
+    <ReadLinesFromFile File="$(MSBuildThisFileDirectory)..\.git\modules\src\xunit.v3.assert\Asserts\HEAD">
+      <Output TaskParameter="Lines" PropertyName="GitAssertModuleCommitId"/>
+    </ReadLinesFromFile>
+    <ConvertToAbsolutePath Paths="$(NuspecFile)">
+      <Output TaskParameter="AbsolutePaths" PropertyName="_XunitNuspecFile" />
+    </ConvertToAbsolutePath>
+    <XmlPeek XmlInputPath="$(_XunitNuspecFile)" Query="//package/metadata/description/text()">
+      <Output TaskParameter="Result" PropertyName="_XunitNuspecDescription" />
+    </XmlPeek>
+    <XmlPeek XmlInputPath="$(_XunitNuspecFile)" Query="//package/metadata/title/text()">
+      <Output TaskParameter="Result" PropertyName="_XunitNuspecTitle" />
+    </XmlPeek>
+    <PropertyGroup>
+      <_XunitNuspecDescription>$(_XunitNuspecDescription.Replace('https://github.com/xunit/assert.xunit/blob/$GitAssertModuleCommitId$/README.md', "[the `xunit/assert.xunit` README](https://github.com/xunit/assert.xunit/blob/$(GitAssertModuleCommitId)/README.md)."))</_XunitNuspecDescription>
+      <_XunitNewReadmeFile>$([System.IO.Path]::GetDirectoryName($(_XunitNuspecFile)))\obj\$([System.IO.Path]::GetFileNameWithoutExtension($(_XunitNuspecFile))).README.md</_XunitNewReadmeFile>
+      <_XunitNewReadmeText>
+# $(_XunitNuspecTitle)
+
+$(_XunitNuspecDescription)
+
+$([System.IO.File]::ReadAllText($(MSBuildThisFileDirectory)..\README.md))
+      </_XunitNewReadmeText>
+    </PropertyGroup>
+    <WriteLinesToFile File="$(_XunitNewReadmeFile)" Lines="$(_XunitNewReadmeText)" Overwrite="true" WriteOnlyWhenDifferent="true" />
+  </Target>
+
   <!-- Supplement Nerdbank.GitVersioning version calculations -->
   <Target Name="UpdateAssemblyVersionInfo" BeforeTargets="GenerateAssemblyNBGVVersionInfo" DependsOnTargets="GetBuildVersion">
     <PropertyGroup>

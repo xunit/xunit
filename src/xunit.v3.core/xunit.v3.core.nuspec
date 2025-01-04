@@ -29,7 +29,7 @@
 	</metadata>
 	<files>
 		<file target="_content\" src="..\..\tools\media\logo-128-transparent.png" />
-		<file target="_content\" src="..\..\README.md" />
+		<file target="_content\README.md" src="obj\xunit.v3.core.README.md" />
 		<file target="_content\" src="Package\content\*" />
 		<file target="_content\runners\netcore\" src="..\xunit.v3.runner.utility\bin\$Configuration$\net6.0\Mono.Cecil*.dll" />
 		<file target="_content\runners\netcore\" src="..\xunit.v3.runner.utility\bin\$Configuration$\net6.0\xunit.abstractions.dll" />

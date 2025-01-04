@@ -31,7 +31,7 @@ Installing this package installs xunit.v3.core, xunit.v3.assert, and xunit.analy
 	</metadata>
 	<files>
 		<file target="_content\" src="..\..\tools\media\logo-128-transparent.png" />
-		<file target="_content\" src="..\..\README.md" />
+		<file target="_content\README.md" src="obj\xunit.v3.README.md" />
 
 		<file target="lib\net472\_._" src="..\build\_._" />
 
