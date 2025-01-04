@@ -67,15 +67,49 @@ public static class ConfigReader_Json
 				return false;
 
 			var jsonText = File.ReadAllText(configFileName);
+			return LoadFromJson(configuration, jsonText, string.Format(CultureInfo.CurrentCulture, "config file '{0}'", configFileName), warnings);
+		}
+		catch (Exception ex)
+		{
+			warnings?.Add(string.Format(CultureInfo.CurrentCulture, "Exception loading config file '{0}': {1}", configFileName, ex.Message));
+			return false;
+		}
+	}
+
+	/// <summary>
+	/// Loads the test assembly configuration for the given test assembly.
+	/// </summary>
+	/// <param name="configuration">The configuration object to write the values to.</param>
+	/// <param name="jsonText">The configuration JSON, as a string</param>
+	/// <param name="warnings">A container to receive loading warnings, if desired.</param>
+	/// <returns>A flag which indicates whether configuration values were read.</returns>
+	/// <returns>A flag which indicates whether configuration values were read.</returns>
+	public static bool LoadFromJson(
+		TestAssemblyConfiguration configuration,
+		string jsonText,
+		List<string>? warnings = null) =>
+			LoadFromJson(configuration, jsonText, "JSON text", warnings);
+
+	static bool LoadFromJson(
+		TestAssemblyConfiguration configuration,
+		string jsonText,
+		string sourceName,
+		List<string>? warnings)
+	{
+		Guard.ArgumentNotNull(configuration);
+		Guard.ArgumentNotNull(jsonText);
+
+		try
+		{
 			if (!JsonDeserializer.TryDeserialize(jsonText, out var json))
 			{
-				warnings?.Add(string.Format(CultureInfo.CurrentCulture, "Couldn't parse config file '{0}': the JSON appears to be malformed", configFileName));
+				warnings?.Add(string.Format(CultureInfo.CurrentCulture, "Couldn't parse {0}: the JSON appears to be malformed", sourceName));
 				return false;
 			}
 
 			if (json is not IReadOnlyDictionary<string, object> root)
 			{
-				warnings?.Add(string.Format(CultureInfo.CurrentCulture, "Couldn't parse config file '{0}': the root must be a JSON object", configFileName));
+				warnings?.Add(string.Format(CultureInfo.CurrentCulture, "Couldn't parse {0}: the root must be a JSON object", sourceName));
 				return false;
 			}
 
@@ -180,7 +214,7 @@ public static class ConfigReader_Json
 		}
 		catch (Exception ex)
 		{
-			warnings?.Add(string.Format(CultureInfo.CurrentCulture, "Exception loading config file '{0}': {1}", configFileName, ex.Message));
+			warnings?.Add(string.Format(CultureInfo.CurrentCulture, "Exception parsing {0}: {1}", sourceName, ex.Message));
 		}
 
 		return false;
