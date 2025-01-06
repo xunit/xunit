@@ -1,0 +1,432 @@
+---
+layout: default
+title: What NuGet Packages Should I Use? [xUnit.net v3]
+breadcrumb: Documentation
+---
+
+<h1>{{ page.title }}</h1>
+
+<p>
+  xUnit.net v3 ships with many NuGet packages. This guide helps you understand which
+  NuGet packages you should use in your projects.
+</p>
+<p>
+  If you don't know where to start, try starting with a reference to <a href="#xunit.v3">xunit.v3</a>.
+</p>
+<p class="note">
+  Because xUnit.net v3 injects code into your test projects to make them executable, you cannot use
+  a transitive reference to the <code>xunit.v3</code> (or <code>xunit.v3.core</code>) package. Every unit
+  test project must contain a direct package reference to ensure the MSBuild tasks are triggered to
+  inject the entry point. Similarly, non-unit test projects must not reference <code>xunit.v3</code>
+  (or <code>xunit.v3.core</code>) and should instead reference <code>xunit.v3.extensibility.core</code>
+  to be able to provide extensions to xUnit.net v3.
+</p>
+
+<div class="radio-selector">
+  <strong>Version selector:</strong>
+  <input type="radio" name="version" data-selector=".version-stable" checked="checked" /> Stable (NuGet)
+  <input type="radio" name="version" data-selector=".version-ci" /> Latest CI (feedz.io)
+</div>
+
+<table class="table">
+
+  <tr>
+    <th id="testers" colspan="2" class="title"><a href="#testers" class="paperclip">&#x1F4CE;</a>Packages for writing tests</th>
+  </tr>
+
+  <tr>
+    <td colspan="2" class="left">
+      <em>Packages used by developers who are writing unit tests.</em>
+    </td>
+  </tr>
+
+  <tr>
+    <th id="xunit.v3">
+      xunit.v3<br />
+      <a href="https://www.nuget.org/packages/xunit.v3" class="version-stable"><img src="https://img.shields.io/nuget/v/xunit.v3.svg?style=flat"></a>
+      <a href="https://feedz.io/org/xunit/repository/xunit/packages/xunit.v3" class="version-ci hidden"><img src="https://img.shields.io/badge/endpoint.svg?url=https%3A%2F%2Ff.feedz.io%2Fxunit%2Fxunit%2Fshield%2Fxunit.v3%2Flatest&amp;color=f58142"></a>
+    </th>
+    <td class="wrapped-wide">
+      <p>
+        This is the package that will most typically be used by unit test authors. It brings in
+        references to <a href="#xunit.v3.core">xunit.v3.core</a> (which contains the unit testing
+        framework), <a href="#xunit.analyzers">xunit.analyzers</a> (which contains source code
+        analyzers), and <a href="#xunit.v3.assert">xunit.v3.assert</a> (which contains the class you
+        use to write assertions).
+      </p>
+      <h5>
+        Supports: .NET Framework 4.7.2+, .NET 6+<br />
+        Depends on:
+        <a href="#xunit.v3.assert">xunit.v3.assert</a>,
+        <a href="#xunit.v3.core">xunit.v3.core</a>,
+        <a href="#xunit.analyzers">xunit.analyzers</a>
+      </h5>
+    </td>
+  </tr>
+
+  <tr>
+    <th id="xunit.v3.assert">
+      xunit.v3.assert<br />
+      <a href="https://www.nuget.org/packages/xunit.v3.assert" class="version-stable"><img src="https://img.shields.io/nuget/v/xunit.v3.assert.svg?style=flat"></a>
+      <a href="https://feedz.io/org/xunit/repository/xunit/packages/xunit.v3.assert" class="version-ci hidden"><img src="https://img.shields.io/badge/endpoint.svg?url=https%3A%2F%2Ff.feedz.io%2Fxunit%2Fxunit%2Fshield%2Fxunit.v3.assert%2Flatest&amp;color=f58142"></a>
+    </th>
+    <td class="wrapped-wide">
+      <p>
+        This package contains the xUnit.net assertion library (i.e., the <code>Assert</code> class).
+      </p>
+      <p>
+        This is a separate NuGet package, because some developers wish to use the xUnit.net
+        framework and test runners, but with a different assertion library.
+      </p>
+      <p>
+        If you want to extend the <code>Assert</code> class, you should consider using the
+        <a href="#xunit.v3.assert.source">xunit.v3.assert.source</a> package instead.
+      </p>
+      <h5>
+        Supports: .NET Standard 2.0+, .NET 6+<br />
+        Depends on: <em>None</em>
+      </h5>
+    </td>
+  </tr>
+
+  <tr>
+    <th id="xunit.v3.core">
+      xunit.v3.core<br />
+      <a href="https://www.nuget.org/packages/xunit.v3.core" class="version-stable"><img src="https://img.shields.io/nuget/v/xunit.v3.core.svg?style=flat"></a>
+      <a href="https://feedz.io/org/xunit/repository/xunit/packages/xunit.v3.core" class="version-ci hidden"><img src="https://img.shields.io/badge/endpoint.svg?url=https%3A%2F%2Ff.feedz.io%2Fxunit%2Fxunit%2Fshield%2Fxunit.v3.core%2Flatest&amp;color=f58142"></a>
+    </th>
+    <td class="wrapped-wide">
+      <p>
+        This package contains the core types for the test framework (f.e., <code>FactAttribute</code>).
+      </p>
+      <p>
+        Referencing this package provides the required infrastructure to be able to write unit tests,
+        including the injection of the entry point that is required to make all v3 test projects
+        stand-alone executables.
+      </p>
+      <p>
+        This package should only be used by unit test authors. If you wish to extend xUnit.net, then you
+        should reference <a href="#xunit.v3.extensibility.core">xunit.v3.extensibility.core</a> instead.
+      </p>
+      <h5>
+        Supports: .NET Framework 4.7.2+, .NET 6+<br />
+        Depends on:
+        <a href="#xunit.v3.extensibility.core">xunit.v3.extensibility.core</a>,
+        <a href="#xunit.v3.runner.inproc.console">xunit.v3.runner.inproc.console</a>
+      </h5>
+    </td>
+  </tr>
+
+  <tr>
+    <th id="xunit.v3.templates">
+      xunit.v3.templates<br />
+      <a href="https://www.nuget.org/packages/xunit.v3.templates" class="version-stable"><img src="https://img.shields.io/nuget/v/xunit.v3.templates.svg?style=flat"></a>
+      <a href="https://feedz.io/org/xunit/repository/xunit/packages/xunit.v3.templates" class="version-ci hidden"><img src="https://img.shields.io/badge/endpoint.svg?url=https%3A%2F%2Ff.feedz.io%2Fxunit%2Fxunit%2Fshield%2Fxunit.v3.templates%2Flatest&amp;color=f58142"></a>
+    </th>
+    <td class="wrapped-wide">
+      <p>
+        This package provides templates for <code>dotnet new</code> to support xUnit.net v3 test projects
+        and xUnit.net v3 extensibility projects.
+      </p>
+      <p>
+        To install this package, run: <code>dotnet new install xunit.v3.templates</code>. This will add two
+        new templates (<code>xunit3</code> and <code>xunit3-extension</code>) for C#, F#, and VB.NET.
+      </p>
+      <h5>
+        Supports: .NET SDK 6+<br />
+        Depends on: <em>None</em>
+      </h5>
+    </td>
+  </tr>
+
+  <tr>
+    <th id="xunit.analyzers">
+      xunit.analyzers<br />
+      <a href="https://www.nuget.org/packages/xunit.analyzers" class="version-stable"><img src="https://img.shields.io/nuget/v/xunit.analyzers.svg?style=flat"></a>
+      <a href="https://feedz.io/org/xunit/repository/xunit/packages/xunit.analyzers" class="version-ci hidden"><img src="https://img.shields.io/badge/endpoint.svg?url=https%3A%2F%2Ff.feedz.io%2Fxunit%2Fxunit%2Fshield%2Fxunit.analyzers%2Flatest&amp;color=f58142"></a>
+    </th>
+    <td class="wrapped-wide">
+      <p>
+        This package contains the xUnit.net source code analyzers.
+      </p>
+      <p>
+        This library provides code analysis and code fixers for common issues that are encountered both
+        by test authors and extensibility authors. It's based on the
+        <a href="https://docs.microsoft.com/visualstudio/code-quality/roslyn-analyzers-overview">.NET Compiler Platform ("Roslyn") analyzers</a>
+        which can provide real-time source code analysis inside IDEs (including Visual Studio and Visual
+        Studio Code), as well as compile-time source code analysis.
+      </p>
+      <h5>
+        Supports: Roslyn 3.11+ (Visual Studio 2019 16.11+)<br />
+        Depends on: <em>None</em>
+      </h5>
+    </td>
+  </tr>
+
+  <tr>
+    <th id="runners" colspan="2" class="title"><a href="#runners" class="paperclip">&#x1F4CE;</a>Packages for running tests</th>
+  </tr>
+  <tr>
+    <td colspan="2" class="left">
+      <em>Packages used by developers who are running unit tests.</em>
+    </td>
+  </tr>
+
+  <tr>
+    <th id="xunit.v3.runner.console">
+      xunit.v3.runner.console<br />
+      <a href="https://www.nuget.org/packages/xunit.v3.runner.console" class="version-stable"><img src="https://img.shields.io/nuget/v/xunit.v3.runner.console.svg?style=flat"></a>
+      <a href="https://feedz.io/org/xunit/repository/xunit/packages/xunit.runner.console" class="version-ci hidden"><img src="https://img.shields.io/badge/endpoint.svg?url=https%3A%2F%2Ff.feedz.io%2Fxunit%2Fxunit%2Fshield%2Fxunit.v3.runner.console%2Flatest&amp;color=f58142"></a>
+    </th>
+    <td class="wrapped-wide">
+      <p>
+        This package contains the console test runner. This runner is capable of running
+        .NET Framework and .NET projects from xUnit.net v3, as well as .NET Framework
+        projects from xUnit.net v1 and v2. It can run multiple test projects in parallel.
+      </p>
+      <p><em>
+        Note: we ship runners targeting multiple versions of .NET Framework, because xUnit.net
+        v1 and v2 projects are loaded into runner process, so the version of .NET Framework that
+        the runner is built against determines the version of .NET Framework that the tests will
+        run against (and more importantly, the features available). We also ship AnyCPU versions
+        as well as versions which are built for 32-bit x86. Since xUnit.net v3 projects are
+        stand-alone executables, they will run with whatever version (and bitness) of .NET or
+        .NET Framework that they were built against regardless of the runner's version.
+      </em></p>
+      <h5>
+        Supports: .NET Framework 4.7.2+ (v1/v2/v3), .NET 6+ (v3)<br />
+        Depends on: <em>None</em>
+      </h5>
+    </td>
+  </tr>
+
+  <tr>
+    <th id="xunit.v3.runner.msbuild">
+      xunit.v3.runner.msbuild<br />
+      <a href="https://www.nuget.org/packages/xunit.v3.runner.msbuild" class="version-stable"><img src="https://img.shields.io/nuget/v/xunit.v3.runner.msbuild.svg?style=flat"></a>
+      <a href="https://feedz.io/org/xunit/repository/xunit/packages/xunit.v3.runner.msbuild" class="version-ci hidden"><img src="https://img.shields.io/badge/endpoint.svg?url=https%3A%2F%2Ff.feedz.io%2Fxunit%2Fxunit%2Fshield%2Fxunit.v3.runner.msbuild%2Flatest&amp;color=f58142"></a>
+    </th>
+    <td class="wrapped-wide">
+      <p>
+        This package contains the MSBuild test runner. This runner is capable of running
+        .NET Framework and .NET projects from xUnit.net v3, as well as .NET Framework
+        projects from xUnit.net v1 and v2. It can run multiple test projects in parallel.
+      </p>
+      <p>
+        For xUnit.net v3 projects, this runner can be used from both <code>msbuild.exe</code> as
+        well as <code>dotnet msbuild</code>. For xUnit.net v1/v2 projects, this runner only supports
+        being run from <code>msbuild.exe</code>.
+      </p>
+      <h5>
+        Supports: .NET Framework 4.7.2+ (v1/v2/v3), .NET 6+ (v3)<br />
+        Depends on: <em>None</em>
+      </h5>
+    </td>
+  </tr>
+
+  <tr>
+    <th id="xunit.runner.visualstudio">
+      xunit.runner.visualstudio<br />
+      <a href="https://www.nuget.org/packages/xunit.runner.visualstudio" class="version-stable"><img src="https://img.shields.io/nuget/v/xunit.runner.visualstudio.svg?style=flat"></a>
+      <a href="https://feedz.io/org/xunit/repository/xunit/packages/xunit.runner.visualstudio" class="version-ci hidden"><img src="https://img.shields.io/badge/endpoint.svg?url=https%3A%2F%2Ff.feedz.io%2Fxunit%2Fxunit%2Fshield%2Fxunit.runner.visualstudio%2Flatest&amp;color=f58142"></a>
+    </th>
+    <td class="wrapped-wide">
+      <p>
+        This package contains the VSTest test runner. This runner is capable of running
+        .NET Framework and .NET projects from xUnit.net v2/v3, as well as .NET Framework
+        projects from xUnit.net v1.
+      </p>
+      <p>
+        The VSTest framework is used by several 3rd party runner UIs, including:
+      </p>
+      <p>
+        <ul>
+          <li>Visual Studio (via Test Explorer)</li>
+          <li>Visual Studio Code (via the Testing panel)</li>
+          <li><code>dotnet test</code> and <code>dotnet vstest</code></li>
+          <li>Resharper/Rider</li>
+          <li>CodeRush</li>
+          <li><em>...and others...</em></li>
+        </ul>
+      </p>
+      <h5>
+        Supports: .NET Framework 4.7.2+ (v1/v2/v3), .NET 6.0+ (v2/v3)<br />
+        Depends on: <em>None</em>
+      </h5>
+    </td>
+  </tr>
+
+  <tr>
+    <th id="extenders" colspan="2" class="title"><a href="#extenders" class="paperclip">&#x1F4CE;</a>Packages for developers extending xUnit.net</th>
+  </tr>
+  <tr>
+    <td colspan="2" class="left">
+      <em>Packages used by developers who are extending xUnit.net and/or creating unit test runners.</em>
+    </td>
+  </tr>
+
+  <tr>
+    <th id="xunit.v3.assert.source">
+      xunit.v3.assert.source<br />
+      <a href="https://www.nuget.org/packages/xunit.v3.assert.source" class="version-stable"><img src="https://img.shields.io/nuget/v/xunit.v3.assert.source.svg?style=flat"></a>
+      <a href="https://feedz.io/org/xunit/repository/xunit/packages/xunit.v3.assert.source" class="version-ci hidden"><img src="https://img.shields.io/badge/endpoint.svg?url=https%3A%2F%2Ff.feedz.io%2Fxunit%2Fxunit%2Fshield%2Fxunit.v3.assert.source%2Flatest&amp;color=f58142"></a>
+    </th>
+    <td class="wrapped-wide">
+      <p>
+        This package contains the xUnit.net assertion library (i.e., the <code>Assert</code> class)
+        in source form. The <code>Assert</code> class is a partial class, which allows developers to
+        write additional methods available directly from <code>Assert</code>.
+      </p>
+      <p>
+        When you have multiple unit test libraries in your project, it is common practice to import
+        this package into a "test utility" library where you write all your custom assertions, and
+        then reference that "test utility" library from your unit test projects.
+      </p>
+      <p>
+        For more information on consuming this source-based library, please check the assertion
+        project <a href="https://github.com/xunit/assert.xunit/blob/main/README.md">README</a>.
+      </p>
+      <h5>
+        Supports: .NET Standard 1.1+, C# 6+<br />
+        Depends on: <em>None</em>
+      </h5>
+    </td>
+  </tr>
+
+  <tr>
+    <th id="xunit.v3.extensibility.core">
+      xunit.v3.extensibility.core<br />
+      <a href="https://www.nuget.org/packages/xunit.v3.extensibility.core" class="version-stable"><img src="https://img.shields.io/nuget/v/xunit.v3.extensibility.core.svg?style=flat"></a>
+      <a href="https://feedz.io/org/xunit/repository/xunit/packages/xunit.v3.extensibility.core" class="version-ci hidden"><img src="https://img.shields.io/badge/endpoint.svg?url=https%3A%2F%2Ff.feedz.io%2Fxunit%2Fxunit%2Fshield%2Fxunit.v3.extensibility.core%2Flatest&amp;color=f58142"></a>
+    </th>
+    <td class="wrapped-wide">
+      <p>
+        This package contains <code>xunit.v3.core.dll</code>. It is intended to be used by developers
+        who wish to reference this DLL for extensibility purposes, such as writing your own theory
+        data provider.
+      </p>
+      <p>
+        This package is referenced by <a href="#xunit.v3.core">xunit.v3.core</a>. It differs in that it does
+        not include the MSBuild steps required to make the project an executable test project.
+      </p>
+      <h5>
+        Supports: .NET Standard 2.0+<br />
+        Depends on:
+        <a href="#xunit.v3.common">xunit.v3.common</a>
+      </h5>
+    </td>
+  </tr>
+
+  <tr>
+    <th id="xunit.v3.runner.inproc.console">
+      xunit.v3.runner.inproc.console<br />
+      <a href="https://www.nuget.org/packages/xunit.v3.runner.inproc.console" class="version-stable"><img src="https://img.shields.io/nuget/v/xunit.v3.runner.inproc.console.svg?style=flat"></a>
+      <a href="https://feedz.io/org/xunit/repository/xunit/packages/xunit.v3.runner.inproc.console" class="version-ci hidden"><img src="https://img.shields.io/badge/endpoint.svg?url=https%3A%2F%2Ff.feedz.io%2Fxunit%2Fxunit%2Fshield%2Fxunit.v3.runner.inproc.console%2Flatest&amp;color=f58142"></a>
+    </th>
+    <td class="wrapped-wide">
+      <p>
+        This package contains the code that provides the command line UI for running xUnit.net v3 projects
+        as stand-alone executables. This includes both the native xUnit.net command line UX as well as the
+        Microsoft Testing Platform command line UX.
+      </p>
+      <h5>
+        Supports: .NET Framework 4.7.2+, .NET 6+<br />
+        Depends on:
+        <a href="#xunit.v3.extensibility.core">xunit.v3.extensibility.core</a>,
+        <a href="#xunit.v3.runner.common">xunit.v3.runner.common</a>
+      </h5>
+    </td>
+  </tr>
+
+  <tr>
+    <th id="xunit.v3.runner.utility">
+      xunit.v3.runner.utility<br />
+      <a href="https://www.nuget.org/packages/xunit.v3.runner.utility" class="version-stable"><img src="https://img.shields.io/nuget/v/xunit.v3.runner.utility.svg?style=flat"></a>
+      <a href="https://feedz.io/org/xunit/repository/xunit/packages/xunit.v3.runner.utility" class="version-ci hidden"><img src="https://img.shields.io/badge/endpoint.svg?url=https%3A%2F%2Ff.feedz.io%2Fxunit%2Fxunit%2Fshield%2Fxunit.v3.runner.utility%2Flatest&amp;color=f58142"></a>
+    </th>
+    <td class="wrapped-wide">
+      <p>
+        This package contains <code>xunit.v3.runner.utility.*.dll</code>. It is intended to be used by
+        developers who are writing their own test runners.
+      </p>
+      <p>
+        The libraries contained here are both backward and forward compatible for all v1, v2, and v3
+        xUnit.net tests.
+      </p>
+      <h5>
+        Supports: .NET Framework 4.7.2+ (v1/v2/v3), .NET 6+ (v2/v3)<br />
+        Depends on:
+        <a href="#xunit.abstractions">xunit.abstractions</a>,
+        <a href="#xunit.v3.runner.common">xunit.v3.runner.common</a>
+      </h5>
+    </td>
+  </tr>
+
+  <tr>
+    <th id="shared" colspan="2" class="title"><a href="#shared" class="paperclip">&#x1F4CE;</a>Packages for shared code</th>
+  </tr>
+  <tr>
+    <td colspan="2" class="left">
+      <em>Packages that contain types that are shared among packages in other categories. Not typically directly referenced.</em>
+    </td>
+  </tr>
+
+  <tr>
+    <th id="xunit.v3.common">
+      xunit.v3.common<br />
+      <a href="https://www.nuget.org/packages/xunit.v3.common" class="version-stable"><img src="https://img.shields.io/nuget/v/xunit.v3.common.svg?style=flat"></a>
+      <a href="https://feedz.io/org/xunit/repository/xunit/packages/xunit.v3.common" class="version-ci hidden"><img src="https://img.shields.io/badge/endpoint.svg?url=https%3A%2F%2Ff.feedz.io%2Fxunit%2Fxunit%2Fshield%2Fxunit.v3.common%2Flatest&amp;color=f58142"></a>
+    </th>
+    <td class="wrapped-wide">
+      <p>
+        This package contains types that are shared between <a href="#xunit.v3.core">xunit.v3.core</a> and
+        <a href="#xunit.v3.runner.common">xunit.v3.runner.common</a>.
+      </p>
+      <h5>
+        Supports: .NET Standard 2.0+<br />
+        Depends on: <em>None</em>
+      </h5>
+    </td>
+  </tr>
+
+  <tr>
+    <th id="xunit.v3.runner.common">
+      xunit.v3.runner.common<br />
+      <a href="https://www.nuget.org/packages/xunit.v3.runner.common" class="version-stable"><img src="https://img.shields.io/nuget/v/xunit.v3.runner.common.svg?style=flat"></a>
+      <a href="https://feedz.io/org/xunit/repository/xunit/packages/xunit.v3.runner.common" class="version-ci hidden"><img src="https://img.shields.io/badge/endpoint.svg?url=https%3A%2F%2Ff.feedz.io%2Fxunit%2Fxunit%2Fshield%2Fxunit.v3.runner.common%2Flatest&amp;color=f58142"></a>
+    </th>
+    <td class="wrapped-wide">
+      <p>
+        This package contains types that are shared between <a href="#xunit.v3.runner.inproc.console">xunit.v3.runner.inproc.console</a> and
+        <a href="#xunit.v3.runner.utility">xunit.v3.runner.utility</a>.
+      </p>
+      <h5>
+        Supports: .NET Standard 2.0+<br />
+        Depends on:
+        <a href="#xunit.v3.common">xunit.v3.common</a>
+      </h5>
+    </td>
+  </tr>
+
+  <tr>
+    <th id="xunit.abstractions">
+      xunit.abstractions<br />
+      <a href="https://www.nuget.org/packages/xunit.abstractions" class="version-stable"><img src="https://img.shields.io/nuget/v/xunit.abstractions.svg?style=flat"></a>
+      <a href="https://feedz.io/org/xunit/repository/xunit/packages/xunit.abstractions" class="version-ci hidden"><img src="https://img.shields.io/badge/endpoint.svg?url=https%3A%2F%2Ff.feedz.io%2Fxunit%2Fxunit%2Fshield%2Fxunit.abstractions%2Flatest&amp;color=f58142"></a>
+    </th>
+    <td class="wrapped-wide">
+      <p>
+        This package contains common interfaces used by various parts of xUnit.net v2. It is used by
+        <a href="#xunit.v3.runner.utility">xunit.v3.runner.utility</a> to be able to run xUnit.net v2
+        test projects.
+      </p>
+      <h5>
+        Supports: .NET Framework 3.5+, .NET Standard 1.0+<br />
+        Depends on: <em>None</em>
+      </h5>
+    </td>
+  </tr>
+
+</table>
+
+<script defer src="nuget-packages.js"></script>
