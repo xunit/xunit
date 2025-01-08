@@ -44,7 +44,7 @@ xUnit.net is a free, open source, community-focused unit testing tool for the .N
 |                           | Stable                                             |
 | ------------------------- | -------------------------------------------------- | ----------------------------------------
 | v3 core framework         | [1.0.0](/releases/v3/1.0.0){: .release }           | ([all releases](/releases/v3/))
-| v2 core framework         | [2.9.2](/releases/v2/2.9.2){: .release }           | ([all releases](/releases/v2/))
+| v2 core framework         | [2.9.3](/releases/v2/2.9.3){: .release }           | ([all releases](/releases/v2/))
 | xunit.analyzers           | [1.18.0](/releases/analyzers/1.18.0){: .release }  | ([all releases](/releases/analyzers/))
 | xunit.runner.visualstudio | [3.0.0](/releases/visualstudio/3.0.0){: .release } | ([all releases](/releases/visualstudio/))
 

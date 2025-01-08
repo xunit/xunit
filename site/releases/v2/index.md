@@ -9,6 +9,7 @@ breadcrumb: Release Notes
 {: .table .releases }
 Version | Releases
 ------- | --------
+2.9.3   | [RTM](2.9.3){: .release }
 2.9.2   | [RTM](2.9.2){: .release }
 2.9.1   | [RTM](2.9.1){: .release }
 2.9.0   | [RTM](2.9.0){: .release }
