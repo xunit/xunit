@@ -112,6 +112,21 @@ redirect_from:
 <TargetFramework>net48</TargetFramework>
 {% endhighlight %}
 
+<p>
+  Also, if your your project file includes either of these lines:
+</p>
+  {% highlight xml %}
+  <ImplicitUsings>enable</ImplicitUsings>
+  <!-- and / or -->
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+  {% endhighlight %}
+<p>
+  you might get the build error "Feature 'global using directive' is not available in C# 7.3. Please use language version 10.0 or greater."
+  If this is the case, you need to remove either line, so it looks like the project file above.
+</p>
+      
 <p>Let's quickly review what's in this project file:</p>
 
 <ul>
