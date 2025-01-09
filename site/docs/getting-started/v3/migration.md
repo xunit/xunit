@@ -6,7 +6,7 @@ breadcrumb: Documentation
 
 # Migrating from v2 to v3 [Unit test authors]
 
-## As of: 2025 January 1 (`1.0.0`)
+## As of: 2025 January 9 (`1.0.0`)
 
 This migration guide aims to be a comprehensive list helping developers migrate from xUnit.net v2 to v3. This guide is focused on what to expect for unit test authors. Extensibility authors will want to review this document, and then read the [migration guide specifically for extensibility authors](migration-extensibility).
 
@@ -94,6 +94,14 @@ While we are aware that you may be able to make xUnit.net v3 work with older, pr
 ### async void tests are no longer supported
 
 Tests which are `async void` will be fast-failed at runtime to indicate that their signatures need to be updated from `void` to either `Task` or `ValueTask`.
+
+### `IAsyncLifetime` now inherits from `IAsyncDisposable` and disposal guidelines have been updated
+
+In v2, `IAsyncLifetime` defined its own `DisposeAsync` method, and if you implements both `IAsyncLifetime` and `IDisposable`, we would call both `DisposeAsync` and `Dispose`.
+
+In v3, `IAsyncLifetime` now inherits `IAsyncDisposable`, so the `DisposeAsync` method comes from there. We are also now following framework guidance which says that when an object implements both `IAsyncDisposable` and `IDisposable`, you should only call one or the other, and not both. For us, that means we will call `DisposeAsync` but not `Dispose`. This is true even for objects which implement both `IAsyncDisposable` and `IDisposable`, regardless of whether they also implement `IAsyncLifetime` or not.
+
+This could be a breaking change if you were previously relying on us calling both.
 
 
 ## Migrating to v3 Packages
