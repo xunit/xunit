@@ -97,9 +97,9 @@ Tests which are `async void` will be fast-failed at runtime to indicate that the
 
 ### `IAsyncLifetime` now inherits from `IAsyncDisposable` and disposal guidelines have been updated
 
-In v2, `IAsyncLifetime` defined its own `DisposeAsync` method, and if you implements both `IAsyncLifetime` and `IDisposable`, we would call both `DisposeAsync` and `Dispose`.
+In v2, `IAsyncLifetime` defined its own `DisposeAsync` method, and if you implemented both `IAsyncLifetime` and `IDisposable`, we would call both `DisposeAsync` and `Dispose`.
 
-In v3, `IAsyncLifetime` now inherits `IAsyncDisposable`, so the `DisposeAsync` method comes from there. We are also now following framework guidance which says that when an object implements both `IAsyncDisposable` and `IDisposable`, you should only call one or the other, and not both. For us, that means we will call `DisposeAsync` but not `Dispose`. This is true even for objects which implement both `IAsyncDisposable` and `IDisposable`, regardless of whether they also implement `IAsyncLifetime` or not.
+In v3, `IAsyncLifetime` now inherits `IAsyncDisposable`, so the `DisposeAsync` method comes from there. We are also now following framework guidance which says that when an object implements both `IAsyncDisposable` and `IDisposable`, you should only call one or the other, and not both. For xUnit.net, that means it will call `DisposeAsync` but not `Dispose`. This is true even for objects which implement both `IAsyncDisposable` and `IDisposable`, regardless of whether they implement `IAsyncLifetime` or not.
 
 This could be a breaking change if you were previously relying on us calling both.
 
