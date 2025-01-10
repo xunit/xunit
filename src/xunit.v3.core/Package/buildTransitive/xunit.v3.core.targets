@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
+  <!-- Ensure that the output type is executable (and includes the .NET app host) -->
+  <Target Name="_XunitValidateBuild" BeforeTargets="BeforeBuild" Condition=" '$(TargetFramework)' != '' ">
+    <Error Text="xUnit.net v3 test projects must be executable (set project property '&lt;OutputType&gt;Exe&lt;/OutputType&gt;')" Condition=" '$(OutputType)' != 'Exe' " />
+    <Error Text="xUnit.net v3 test projects must build an app host (set project property '&lt;UseAppHost&gt;true&lt;/UseAppHost&gt;')" Condition=" '$(UseAppHost)' != 'true' AND '$(TargetFrameworkIdentifier)' == '.NETCoreApp' " />
+  </Target>
+
+  <!-- Make sure we generate the PDB type that TPv1 and TPv2/MTP expect -->
   <PropertyGroup>
     <DebugSymbols Condition=" '$(DebugSymbols)' == '' ">true</DebugSymbols>
-    <OutputType>Exe</OutputType>
   </PropertyGroup>
 
-  <!-- Make sure we generate the PDB type that TPv1 and TPv2 expect -->
   <Choose>
     <When Condition=" '$(TargetFramworkIdentifier)' == '.NETFramework' ">
       <PropertyGroup>
