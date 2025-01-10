@@ -5,7 +5,7 @@
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <!-- We link against Microsoft.Build.Tasks.Core but don't ship it, so the security issues aren't applicable -->
-    <NoWarn>$(NoWarn);NU1903</NoWarn>
+    <NoWarn>$(NoWarn);NU1903;NU5100</NoWarn>
     <RootNamespace>Xunit.Runner.MSBuild</RootNamespace>
     <RunILRepack>true</RunILRepack>
     <TargetFrameworks>net472;net6.0</TargetFrameworks>

@@ -38,7 +38,7 @@
 		<file target="_content\runners\netfx\" src="..\xunit.v3.runner.utility\bin\$Configuration$\net472\xunit.abstractions.dll" />
 		<file target="_content\runners\netfx\" src="..\xunit.v3.runner.utility\bin\$Configuration$\net472\xunit.v3.runner.utility.netfx.dll" />
 
-		<file target="build\" src="Package\build\*" />
+		<file target="buildTransitive\" src="Package\buildTransitive\*" />
 
 		<file target="lib\net472\_._" src="..\build\_._" />
 

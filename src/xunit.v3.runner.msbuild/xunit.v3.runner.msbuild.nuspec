@@ -25,13 +25,13 @@
 		<file target="_content\" src="..\..\tools\media\logo-128-transparent.png" />
 		<file target="_content\README.md" src="obj\xunit.v3.runner.msbuild.README.md" />
 
-		<file target="build\net472\" src="bin\$Configuration$\net472\merged\xunit.abstractions.dll" />
-		<file target="build\net472\" src="bin\$Configuration$\net472\merged\$SignedPath$xunit.v3.runner.msbuild.dll" />
-		<file target="build\net472\" src="Package\build\*" />
+		<file target="buildTransitive\net472\" src="bin\$Configuration$\net472\merged\xunit.abstractions.dll" />
+		<file target="buildTransitive\net472\" src="bin\$Configuration$\net472\merged\$SignedPath$xunit.v3.runner.msbuild.dll" />
+		<file target="buildTransitive\net472\" src="Package\buildTransitive\*" />
 
-		<file target="build\net6.0\" src="bin\$Configuration$\net6.0\merged\xunit.abstractions.dll" />
-		<file target="build\net6.0\" src="bin\$Configuration$\net6.0\merged\$SignedPath$xunit.v3.runner.msbuild.dll" />
-		<file target="build\net6.0\" src="Package\build\*" />
+		<file target="buildTransitive\net6.0\" src="bin\$Configuration$\net6.0\merged\xunit.abstractions.dll" />
+		<file target="buildTransitive\net6.0\" src="bin\$Configuration$\net6.0\merged\$SignedPath$xunit.v3.runner.msbuild.dll" />
+		<file target="buildTransitive\net6.0\" src="Package\buildTransitive\*" />
 
 		<file target="lib\net472\_._" src="..\build\_._" />
 
