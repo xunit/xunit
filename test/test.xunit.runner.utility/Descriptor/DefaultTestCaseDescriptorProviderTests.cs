@@ -1,8 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 using Xunit;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 
 public class DefaultTestCaseDescriptorProviderTests
 {
@@ -14,7 +17,7 @@ public class DefaultTestCaseDescriptorProviderTests
         discoverer = Substitute.For<ITestFrameworkDiscoverer>();
         discoverer.Serialize(null).ReturnsForAnyArgs(callInfo => $"Serialization of test case ID '{callInfo.Arg<ITestCase>().UniqueID}'");
 
-        provider = new DefaultTestCaseDescriptorProvider(discoverer);
+        provider = new DefaultTestCaseDescriptorProvider(discoverer, new Xunit.NullMessageSink());
     }
 
     [Fact]
@@ -81,5 +84,16 @@ public class DefaultTestCaseDescriptorProviderTests
                 Assert.Equal("Value 2", value);
             }
         );
+    }
+
+    [Fact]
+    public void ThrowingTestCase()
+    {
+        var testCase = Substitute.For<ITestCase>();
+        testCase.UniqueID.Throws(new ArgumentException("test exception"));
+        var results = provider.GetTestCaseDescriptors(new List<ITestCase> { testCase }, false);
+        var result = Assert.Single(results);
+
+        Assert.Equal("test exception", result.SkipReason);
     }
 }

@@ -151,7 +151,7 @@ namespace Xunit
             if (innerController == null)
             {
                 innerController = CreateInnerController();
-                descriptorProvider = (innerController as ITestCaseDescriptorProvider) ?? new DefaultTestCaseDescriptorProvider(innerController);
+                descriptorProvider = (innerController as ITestCaseDescriptorProvider) ?? new DefaultTestCaseDescriptorProvider(innerController, diagnosticMessageSink);
                 bulkDeserializer = (innerController as ITestCaseBulkDeserializer) ?? new DefaultTestCaseBulkDeserializer(innerController);
                 toDispose.Push(innerController);
             }
