@@ -51,10 +51,7 @@ public static class ConfigReader_Configuration
 			if (string.IsNullOrWhiteSpace(assemblyFileName))
 				return false;
 
-			var assemblyName = Path.GetFileNameWithoutExtension(assemblyFileName);
-			var directoryName = Path.GetDirectoryName(assemblyFileName)!;
-
-			configFileName = Path.Combine(directoryName, assemblyName + ".config");
+			configFileName = assemblyFileName + ".config";
 			if (!File.Exists(configFileName))
 				return false;
 		}
