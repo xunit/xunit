@@ -1,6 +1,6 @@
 ---
 layout: default
-title: "Code Coverage with MTP"
+title: "Code Coverage with Microsoft Testing Platform"
 breadcrumb: Documentation
 ---
 
