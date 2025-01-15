@@ -189,6 +189,8 @@ Test run summary: Failed! - bin\Debug\net8.0\MyFirstUnitTests.dll (net8.0|x64)
 
 If you enable the Microsoft Testing Platform command line experience, you will also be able to take advantage of their extension system to add new features to your test project. These include reporting extensions, code coverage extensions, and more. For more information, visit: [https://learn.microsoft.com/dotnet/core/testing/unit-testing-platform-extensions](https://learn.microsoft.com/dotnet/core/testing/unit-testing-platform-extensions).
 
+We have created documentation describing how to get [code coverage with Microsoft Testing Platform](code-coverage-with-mtp), since the standard Coverlet experience is not supported.
+
 
 ## Enabling the `dotnet test` experience
 

@@ -356,6 +356,9 @@ blockquote.padded {
 .aws-logo img {
   width: 200px;
 }
+img.full-width {
+  width: 95%;
+}
 .glyphicon-ok-sign {
   color: #0c0;
 }
