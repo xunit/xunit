@@ -8,7 +8,7 @@ breadcrumb: Documentation
 
 _Last updated: 2025 January 14_
 
-With the new [Microsoft Testing Platform support](microsoft-testing-platform)(MTP) in xUnit.net v3, getting code coverage has changed when running with MTP. This document discusses how to enable code coverage for both the MTP native command line via `dotnet run` as well as when using `dotnet test`.
+With the new [Microsoft Testing Platform support](microsoft-testing-platform) (MTP) in xUnit.net v3, getting code coverage has changed when running with MTP. This document discusses how to enable code coverage for both the MTP native command line via `dotnet run` as well as when using `dotnet test`.
 
 _The samples here are done with xUnit.net v3 `1.0.1` and .NET SDK `9.0.101`. Your output text or version numbers may look slightly different from the examples given here._
 
