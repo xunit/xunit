@@ -8,6 +8,10 @@ using System.Linq;
 using Xunit;
 using Xunit.Sdk;
 
+#if XUNIT_IMMUTABLE_COLLECTIONS
+using System.Collections.Immutable;
+#endif
+
 public class EqualityAssertsTests
 {
 	public class Equal
@@ -1564,6 +1568,42 @@ public class EqualityAssertsTests
 				);
 			}
 		}
+
+#if XUNIT_IMMUTABLE_COLLECTIONS
+
+		// https://github.com/xunit/xunit/issues/3137
+		public class ImmutableArrays
+		{
+			[Fact]
+			public void Equal()
+			{
+				var expected = new[] { 1, 2, 3 }.ToImmutableArray();
+				var actual = new[] { 1, 2, 3 }.ToImmutableArray();
+
+				Assert.Equal(expected, actual);
+			}
+
+			[Fact]
+			public void NotEqual()
+			{
+				var expected = new[] { 1, 2, 3 }.ToImmutableArray();
+				var actual = new[] { 1, 2, 4 }.ToImmutableArray();
+
+				var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
+					"                 ↓ (pos 2)" + Environment.NewLine +
+					"Expected: [1, 2, 3]" + Environment.NewLine +
+					"Actual:   [1, 2, 4]" + Environment.NewLine +
+					"                 ↑ (pos 2)",
+					ex.Message
+				);
+			}
+		}
+
+#endif
 
 		public class KeyValuePair
 		{
@@ -3650,6 +3690,40 @@ public class EqualityAssertsTests
 				);
 			}
 		}
+
+#if XUNIT_IMMUTABLE_COLLECTIONS
+
+		// https://github.com/xunit/xunit/issues/3137
+		public class ImmutableArrays
+		{
+			[Fact]
+			public void Equal()
+			{
+				var expected = new[] { 1, 2, 3 }.ToImmutableArray();
+				var actual = new[] { 1, 2, 3 }.ToImmutableArray();
+
+				var ex = Record.Exception(() => Assert.NotEqual(expected, actual));
+
+				Assert.IsType<NotEqualException>(ex);
+				Assert.Equal(
+					"Assert.NotEqual() Failure: Collections are equal" + Environment.NewLine +
+					"Expected: Not [1, 2, 3]" + Environment.NewLine +
+					"Actual:       [1, 2, 3]",
+					ex.Message
+				);
+			}
+
+			[Fact]
+			public void NotEqual()
+			{
+				var expected = new[] { 1, 2, 3 }.ToImmutableArray();
+				var actual = new[] { 1, 2, 4 }.ToImmutableArray();
+
+				Assert.NotEqual(expected, actual);
+			}
+		}
+
+#endif
 
 		public class Strings
 		{
