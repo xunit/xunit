@@ -31,8 +31,8 @@ jobs:
             6.0.x
             8.0.x
 
-      - name: Get .NET information
-        run: dotnet --info
+      # - name: Get .NET information
+      #   run: dotnet --info
 
       - name: Get Mono information (non-Windows)
         run: mono --version
