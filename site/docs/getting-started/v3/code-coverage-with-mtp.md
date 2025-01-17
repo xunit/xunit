@@ -281,7 +281,7 @@ If you open the `index.html` file in your browser you should see a report that l
 
 [![Code Coverage Report, Main Page](/images/getting-started/v3/code-coverage-report-1.png){: .border .full-width }](/images/getting-started/v3/code-coverage-report-1.png)
 
-You can click on the `ClassLibrary1.Class1` to dive into the coverage details:
+You can click on the `ClassLibrary.Class1` to dive into the coverage details:
 
 [![Code Coverage Report, Detail Page](/images/getting-started/v3/code-coverage-report-2.png){: .border .full-width }](/images/getting-started/v3/code-coverage-report-2.png)
 
