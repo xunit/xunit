@@ -103,6 +103,10 @@ In v3, `IAsyncLifetime` now inherits `IAsyncDisposable`, so the `DisposeAsync` m
 
 This could be a breaking change if you were previously relying on us calling both.
 
+### Attribute instance lifetime may differ
+
+Due to differences in the way v2 and v3 acquire attribute instances, it may appear that we are now caching attribute instances where we previously did not. The truth is that the previous behavior (of over-creating attribute instances) was actually the bug in this scenario, as it differs from the normal .NET behavior (where attribute instances are cached when they're first created).
+
 
 ## Migrating to v3 Packages
 
