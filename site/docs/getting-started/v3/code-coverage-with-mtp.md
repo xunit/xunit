@@ -48,7 +48,7 @@ _**If you want to skip these steps and just download the sample project, it's [a
 1. Create a class library and add it to the solution:
 
    ```
-   $ dotnet new classlib -f net8.0 -o ClassLibrary2
+   $ dotnet new classlib -f net8.0 -o ClassLibrary
 
    The template "Class Library" was created successfully.
 
