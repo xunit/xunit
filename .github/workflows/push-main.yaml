@@ -29,8 +29,9 @@ jobs:
             6.0.x
             8.0.x
 
-      # - name: Get .NET information
-      #   run: dotnet --info
+      - name: Get .NET information
+        run: dotnet --info
+        continue-on-error: true
 
       - name: "Build target: BuildAll & PublishPackages"
         env:
