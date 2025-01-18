@@ -11,6 +11,7 @@ jobs:
     name: "Build"
     runs-on: windows-2022
     env:
+      DOTNET_CLI_WORKLOAD_UPDATE_NOTIFY_DISABLE: true
       DOTNET_NOLOGO: true
     steps:
       - name: Clone source
