@@ -24,13 +24,13 @@ public static partial class Packages
 				.ToList();
 
 		// You can't see the created package name in .NET 9+ SDK without doing detailed verbosity
-		var verbosity =
+		var extraArgs =
 			context.DotNetSdkVersion.Major <= 8
-				? context.Verbosity.ToString()
-				: "detailed";
+				? string.Empty
+				: " --tl:off";
 
 		// Pack the .nuspec file(s)
 		foreach (var nuspecFile in nuspecFiles.OrderBy(x => x))
-			await context.Exec("dotnet", $"pack --nologo --no-build --configuration {context.ConfigurationText} --output {context.PackageOutputFolder} --verbosity {verbosity} \"{Path.GetDirectoryName(nuspecFile)}\" -p:NuspecFile={Path.GetFileName(nuspecFile)}");
+			await context.Exec("dotnet", $"pack --nologo --no-build --configuration {context.ConfigurationText} --output {context.PackageOutputFolder} --verbosity {context.Verbosity} \"{Path.GetDirectoryName(nuspecFile)}\" -p:NuspecFile={Path.GetFileName(nuspecFile)}{extraArgs}");
 	}
 }
