@@ -7,7 +7,8 @@ running macOS can generally follow the Linux instructions (while installing the 
 
 You will need the following software installed (regardless of OS):
 
-* [.NET SDK 8.0](https://dotnet.microsoft.com/download/dotnet/8.0)
+* [.NET SDK 9.0](https://dotnet.microsoft.com/download/dotnet/9.0)
+* [.NET Runtime 8.0](https://dotnet.microsoft.com/download/dotnet/8.0)
 * [.NET Runtime 6.0](https://dotnet.microsoft.com/download/dotnet/6.0)
 * [git](https://git-scm.com/downloads)
 
@@ -16,7 +17,7 @@ You will need the following software installed (regardless of OS):
 Linux users will additionally need:
 
 * [Mono](https://www.mono-project.com/download/stable/) 6.12+ w/ MSBuild 16.6+
-* [bash](https://www.gnu.org/software/bash/)
+* [bash](https://www.gnu.org/software/bash/) for the build script (does not need to be your default shell)
 
 ## Windows Pre-Requisites
 
