@@ -1,5 +1,3 @@
-#pragma warning disable CA1812  // Temporary until it's instantiated
-
 using Xunit.Sdk;
 
 namespace Xunit.Runner.Common;

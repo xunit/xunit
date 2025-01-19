@@ -329,7 +329,7 @@ public class CollectionAssertsTests
 			Assert.Contains("HI THERE", set);
 		}
 
-#if NET5_0_OR_GREATER
+#if NET6_0_OR_GREATER
 		[Fact]
 		public static void ReadOnlySetsAreTreatedSpecially()
 		{
@@ -557,7 +557,7 @@ public class CollectionAssertsTests
 			);
 		}
 
-#if NET5_0_OR_GREATER
+#if NET6_0_OR_GREATER
 		[Fact]
 		public static void ReadOnlySetsAreTreatedSpecially()
 		{

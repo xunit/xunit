@@ -62,7 +62,7 @@ public class SerializationHelperTests
 		{ new MyCustomType { Age = 42, Name = "Someone" }, $"-3:{ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof(MyCustomType)))}:{ToBase64("42:Someone")}" },
 
 		// Types which implement both IFormattable and IParsable<T>
-#if NET7_0_OR_GREATER
+#if NET8_0_OR_GREATER
 		{ new FormattableAndParsableStringWrapper("Hello world"), $"-3:{ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof(FormattableAndParsableStringWrapper)))}:{ToBase64("Hello world")}" },
 #endif
 
@@ -564,7 +564,7 @@ public class SerializationHelperTests
 
 	class Unserializable { }
 
-#if NET7_0_OR_GREATER
+#if NET8_0_OR_GREATER
 	class FormattableAndParsableStringWrapper(string value) : IFormattable, IParsable<FormattableAndParsableStringWrapper>
 	{
 		public string Value => value;

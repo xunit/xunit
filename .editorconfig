@@ -67,7 +67,7 @@ dotnet_style_readonly_field = true
 dotnet_code_quality_unused_parameters = all
 
 # Suppression preferences
-dotnet_remove_unnecessary_suppression_exclusions = none
+dotnet_remove_unnecessary_suppression_exclusions = all
 
 # New line preferences
 dotnet_style_allow_multiple_blank_lines_experimental = true

@@ -1916,7 +1916,7 @@ public class Xunit3TheoryAcceptanceTests
 			}
 		}
 
-#if NET7_0_OR_GREATER
+#if NET8_0_OR_GREATER
 
 		public abstract class Repro<TSelf> where TSelf : IInterfaceWithStaticVirtualMember
 		{
