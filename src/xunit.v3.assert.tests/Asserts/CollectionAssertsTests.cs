@@ -160,7 +160,6 @@ public class CollectionAssertsTests
 			);
 		}
 
-#if !NETCOREAPP2_0  // Unclear why this is failing only on .NET Core 2.0, but it passes with .NET 6 and .NET Framework 4.x
 		[Fact]
 		public static void MismatchedElement()
 		{
@@ -185,7 +184,6 @@ public class CollectionAssertsTests
 				ex.Message
 			);
 		}
-#endif
 	}
 
 	public class CollectionAsync

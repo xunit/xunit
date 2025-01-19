@@ -4,11 +4,8 @@
   <!-- This file prevents the auto-import of the .targets file from the parent folder. -->
 
   <PropertyGroup>
-    <!-- LangVersion 6 aligns with C# as it existed in VS 2015. -->
-    <LangVersion>6</LangVersion>
-
-    <!-- We don't care about security vulnerabilities, because we're just building and not shipping -->
-    <NoWarn>$(NoWarn);NETSDK1215;NU1901;NU1902;NU1903;NU1904</NoWarn>
+    <!-- LangVersion 7.3 aligns with the default C# for net472. -->
+    <LangVersion>7.3</LangVersion>
 
     <!-- Sign assemblies so they can used if needed -->
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)..\signing.snk</AssemblyOriginatorKeyFile>

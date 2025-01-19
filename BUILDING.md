@@ -23,7 +23,7 @@ Linux users will additionally need:
 
 Windows users will additionally need:
 
-* .NET Framework 4.7.2 or later (part of the Windows OS)
+* .NET Framework 4.8.1 or later (part of the Windows OS)
 * PowerShell (or [PowerShell Core](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-windows))
 
 Ensure that you have configured PowerShell to be able to run local unsigned scripts (either by running

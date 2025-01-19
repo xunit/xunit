@@ -1,4 +1,4 @@
-#if !NETCOREAPP3_0_OR_GREATER
+#if !NET6_0_OR_GREATER
 
 namespace System.Runtime.CompilerServices;
 
