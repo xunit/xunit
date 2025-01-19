@@ -352,14 +352,14 @@ public static partial class TestData
 		string testMethod,
 		string? testCaseDisplayName = null)
 	{
-		var typeInfo = typeof(TClass);
-		var methodInfo = Guard.NotNull($"Could not find method '{testMethod}' in type '{typeInfo.FullName}'", typeInfo.GetMethod(testMethod));
+		var type = typeof(TClass);
+		var methodInfo = Guard.NotNull($"Could not find method '{testMethod}' in type '{type.FullName}'", type.GetMethod(testMethod));
 		var factAttribute = methodInfo.GetMatchingCustomAttributes(typeof(IFactAttribute)).FirstOrDefault() as IFactAttribute;
 		var @explicit = factAttribute?.Explicit ?? false;
 		var skipReason = factAttribute?.Skip;
 		var traits = ExtensibilityPointFactory.GetMethodTraits(methodInfo, testClassTraits: null);
 
-		var testClassUniqueID = UniqueIDGenerator.ForTestClass(DefaultTestCollectionUniqueID, typeInfo.FullName);
+		var testClassUniqueID = UniqueIDGenerator.ForTestClass(DefaultTestCollectionUniqueID, type.FullName);
 		var testMethodUniqueID = UniqueIDGenerator.ForTestMethod(testClassUniqueID, testMethod);
 		var testCaseUniqueID = UniqueIDGenerator.ForTestCase(testMethodUniqueID, null, null);
 
@@ -370,12 +370,12 @@ public static partial class TestData
 			skipReason,
 			sourceFilePath: null,
 			sourceLineNumber: null,
-			testCaseDisplayName ?? $"{typeInfo.FullName}.{testMethod}",
+			testCaseDisplayName ?? $"{type.FullName}.{testMethod}",
 			testCaseUniqueID,
-			typeInfo.MetadataToken,
-			typeInfo.FullName,
-			typeInfo.Namespace,
-			typeInfo.Name,
+			type.MetadataToken,
+			type.FullName,
+			type.Namespace,
+			type.Name,
 			testClassUniqueID,
 			DefaultTestCollectionUniqueID,
 			methodInfo.MetadataToken,

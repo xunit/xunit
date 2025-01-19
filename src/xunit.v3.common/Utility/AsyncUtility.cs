@@ -37,7 +37,7 @@ public static class AsyncUtility
 		return
 			methodReturnType == typeof(Task) ||
 			methodReturnType == typeof(ValueTask) ||
-			(methodReturnType.GetTypeInfo().IsGenericType && taskGenericTypes.Contains(methodReturnType.GetGenericTypeDefinition().SafeName()));
+			(methodReturnType.IsGenericType && taskGenericTypes.Contains(methodReturnType.GetGenericTypeDefinition().SafeName()));
 	}
 
 	/// <summary>
