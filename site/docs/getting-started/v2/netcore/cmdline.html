@@ -48,7 +48,7 @@ redirect_from:
 </p>
 
 <pre>
-$ <span style="background-color: #ff0">dotnet --version</span>
+$ dotnet --version
 5.0.102
 </pre>
 
@@ -66,9 +66,9 @@ $ <span style="background-color: #ff0">dotnet --version</span>
 </p>
 
 <pre>
-$ <span style="background-color: #ff0">mkdir MyFirstUnitTests</span>
-$ <span style="background-color: #ff0">cd MyFirstUnitTests</span>
-$ <span style="background-color: #ff0">dotnet new xunit</span>
+$ mkdir MyFirstUnitTests
+$ cd MyFirstUnitTests
+$ dotnet new xunit
 The template "xUnit Test Project" was created successfully.
 
 Processing post-creation actions...
@@ -161,7 +161,7 @@ namespace MyFirstUnitTests
 <p>Now let's verify that everything is working:</p>
 
 <pre>
-$ <span style="background-color: #ff0">dotnet test</span>
+$ dotnet test
   Determining projects to restore...
   All projects are up-to-date for restore.
   MyFirstUnitTests -> ~/dev/MyFirstUnitTests/bin/Debug/net5.0/MyFirstUnitTests.dll
@@ -172,7 +172,7 @@ Copyright (c) Microsoft Corporation.  All rights reserved.
 Starting test execution, please wait...
 A total of 1 test files matched the specified pattern.
 
-<span style="color: #080">Passed! - Failed: 0, Passed: 1, Skipped: 0, Total: 1, Duration: 1 ms</span> - MyFirstUnitTests.dll (net5.0)
+Passed! - Failed: 0, Passed: 1, Skipped: 0, Total: 1, Duration: 1 ms - MyFirstUnitTests.dll (net5.0)
 </pre>
 
 <p>Excellent! Let's go replace that empty unit test with our first real tests.</p>
@@ -214,7 +214,7 @@ namespace MyFirstUnitTests
 <p>Now let's go run the tests again and see what happens:</p>
 
 <pre>
-$ <span style="background-color: #ff0">dotnet test</span>
+$ dotnet test
   Determining projects to restore...
   All projects are up-to-date for restore.
   MyFirstUnitTests -> ~/dev/MyFirstUnitTests/bin/Debug/net5.0/MyFirstUnitTests.dll
@@ -224,16 +224,16 @@ Copyright (c) Microsoft Corporation.  All rights reserved.
 
 Starting test execution, please wait...
 A total of 1 test files matched the specified pattern.
-<span style="color: #e03030">[xUnit.net 00:00:00.33]     MyFirstUnitTests.UnitTest1.FailingTest [FAIL]</span>
-  <span style="color: #e03030">Failed</span> MyFirstUnitTests.UnitTest1.FailingTest [1 ms]
-<span style="color: #e03030">  Error Message:
+[xUnit.net 00:00:00.33]     MyFirstUnitTests.UnitTest1.FailingTest [FAIL]
+  Failed MyFirstUnitTests.UnitTest1.FailingTest [1 ms]
+  Error Message:
    Assert.Equal() Failure
 Expected: 5
 Actual:   4
   Stack Trace:
      at MyFirstUnitTests.UnitTest1.FailingTest() in ~/dev/MyFirstUnitTests/UnitTest1.cs:line 16
 
-Failed! - Failed: 1, Passed: 1, Skipped: 0, Total: 2, Duration: 4 ms</span> - MyFirstUnitTests.dll (net5.0)
+Failed! - Failed: 1, Passed: 1, Skipped: 0, Total: 2, Duration: 4 ms - MyFirstUnitTests.dll (net5.0)
 </pre>
 
 <p>
@@ -293,24 +293,24 @@ Copyright (c) Microsoft Corporation.  All rights reserved.
 
 Starting test execution, please wait...
 A total of 1 test files matched the specified pattern.
-<span style="color: #e03030">[xUnit.net 00:00:00.35]     MyFirstUnitTests.UnitTest1.MyFirstTheory(value: 6) [FAIL]
+[xUnit.net 00:00:00.35]     MyFirstUnitTests.UnitTest1.MyFirstTheory(value: 6) [FAIL]
 [xUnit.net 00:00:00.35]     MyFirstUnitTests.UnitTest1.FailingTest [FAIL]
-  Failed</span> MyFirstUnitTests.UnitTest1.MyFirstTheory(value: 6) [1 ms]
-<span style="color: #e03030">  Error Message:
+  Failed MyFirstUnitTests.UnitTest1.MyFirstTheory(value: 6) [1 ms]
+  Error Message:
    Assert.True() Failure
 Expected: True
 Actual:   False
   Stack Trace:
      at MyFirstUnitTests.UnitTest1.MyFirstTheory(Int32 value) in ~/dev/MyFirstUnitTests/UnitTest1.cs:line 30
-  Failed</span> MyFirstUnitTests.UnitTest1.FailingTest [< 1 ms]
-<span style="color: #e03030">  Error Message:
+  Failed MyFirstUnitTests.UnitTest1.FailingTest [< 1 ms]
+  Error Message:
    Assert.Equal() Failure
 Expected: 5
 Actual:   4
   Stack Trace:
      at MyFirstUnitTests.UnitTest1.FailingTest() in ~/dev/MyFirstUnitTests/UnitTest1.cs:line 16
 
-Failed! - Failed: 2, Passed: 3, Skipped: 0, Total: 5, Duration: 4 ms</span> - MyFirstUnitTests.dll (net5.0)
+Failed! - Failed: 2, Passed: 3, Skipped: 0, Total: 5, Duration: 4 ms< - MyFirstUnitTests.dll (net5.0)
 </pre>
 
 <p>
@@ -372,7 +372,7 @@ Failed! - Failed: 2, Passed: 3, Skipped: 0, Total: 5, Duration: 4 ms</span> - My
 </p>
 
 <pre>
-$ <span style="background-color: #ff0">dotnet test</span>
+$ dotnet test
   Determining projects to restore...
   Restored ~/dev/MyFirstUnitTests/MyFirstUnitTests.csproj (in 238 ms).
   MyFirstUnitTests -> ~/dev/MyFirstUnitTests/bin/Debug/net48/MyFirstUnitTests.dll
@@ -383,24 +383,24 @@ Copyright (c) Microsoft Corporation.  All rights reserved.
 
 Starting test execution, please wait...
 A total of 1 test files matched the specified pattern.
-<span style="color: #e03030">[xUnit.net 00:00:00.31]     MyFirstUnitTests.UnitTest1.MyFirstTheory(value: 6) [FAIL]
+[xUnit.net 00:00:00.31]     MyFirstUnitTests.UnitTest1.MyFirstTheory(value: 6) [FAIL]
 [xUnit.net 00:00:00.32]     MyFirstUnitTests.UnitTest1.FailingTest [FAIL]
-  Failed</span> MyFirstUnitTests.UnitTest1.MyFirstTheory(value: 6) [2 ms]
-<span style="color: #e03030">  Error Message:
+  Failed MyFirstUnitTests.UnitTest1.MyFirstTheory(value: 6) [2 ms]
+  Error Message:
    Assert.True() Failure
 Expected: True
 Actual:   False
   Stack Trace:
      at MyFirstUnitTests.UnitTest1.MyFirstTheory(Int32 value) in ~/dev/MyFirstUnitTests/UnitTest1.cs:line 30
-  Failed</span> MyFirstUnitTests.UnitTest1.FailingTest [3 ms]
-<span style="color: #e03030">  Error Message:
+  Failed MyFirstUnitTests.UnitTest1.FailingTest [3 ms]
+  Error Message:
    Assert.Equal() Failure
 Expected: 5
 Actual:   4
   Stack Trace:
      at MyFirstUnitTests.UnitTest1.FailingTest() in ~/dev/MyFirstUnitTests/UnitTest1.cs:line 16
 
-Failed! - Failed: 2, Passed: 3, Skipped: 0, Total: 5, Duration: 16 ms</span> - MyFirstUnitTests.dll (net48)
+Failed! - Failed: 2, Passed: 3, Skipped: 0, Total: 5, Duration: 16 ms - MyFirstUnitTests.dll (net48)
 
 Test run for ~/dev/MyFirstUnitTests/bin/Debug/net5.0/MyFirstUnitTests.dll (.NETCoreApp,Version=v5.0)
 Microsoft (R) Test Execution Command Line Tool Version 16.8.3
@@ -408,24 +408,24 @@ Copyright (c) Microsoft Corporation.  All rights reserved.
 
 Starting test execution, please wait...
 A total of 1 test files matched the specified pattern.
-<span style="color: #e03030">[xUnit.net 00:00:00.38]     MyFirstUnitTests.UnitTest1.MyFirstTheory(value: 6) [FAIL]
+[xUnit.net 00:00:00.38]     MyFirstUnitTests.UnitTest1.MyFirstTheory(value: 6) [FAIL]
 [xUnit.net 00:00:00.38]     MyFirstUnitTests.UnitTest1.FailingTest [FAIL]
-  Failed</span> MyFirstUnitTests.UnitTest1.MyFirstTheory(value: 6) [3 ms]
-<span style="color: #e03030">  Error Message:
+  Failed MyFirstUnitTests.UnitTest1.MyFirstTheory(value: 6) [3 ms]
+  Error Message:
    Assert.True() Failure
 Expected: True
 Actual:   False
   Stack Trace:
      at MyFirstUnitTests.UnitTest1.MyFirstTheory(Int32 value) in ~/dev/MyFirstUnitTests/UnitTest1.cs:line 30
-  Failed</span> MyFirstUnitTests.UnitTest1.FailingTest [< 1 ms]
-<span style="color: #e03030">  Error Message:
+  Failed MyFirstUnitTests.UnitTest1.FailingTest [< 1 ms]
+  Error Message:
    Assert.Equal() Failure
 Expected: 5
 Actual:   4
   Stack Trace:
      at MyFirstUnitTests.UnitTest1.FailingTest() in ~/dev/MyFirstUnitTests/UnitTest1.cs:line 16
 
-Failed! - Failed: 2, Passed: 3, Skipped: 0, Total: 5, Duration: 6 ms</span> - MyFirstUnitTests.dll (net5.0)
+Failed! - Failed: 2, Passed: 3, Skipped: 0, Total: 5, Duration: 6 ms - MyFirstUnitTests.dll (net5.0)
 </pre>
 
 <h2 id="run-tests-visualstudio">Running tests with Visual Studio</h2>
@@ -451,10 +451,10 @@ Failed! - Failed: 2, Passed: 3, Skipped: 0, Total: 5, Duration: 6 ms</span> - My
 </p>
 
 <pre>
-$ <span style="background-color: #ff0">dotnet new sln</span>
+$ dotnet new sln
 The template "Solution File" was created successfully.
 
-$ <span style="background-color: #ff0">dotnet sln add .</span>
+$ dotnet sln add .
 Project `MyFirstUnitTests.csproj` added to the solution.
 </pre>
 

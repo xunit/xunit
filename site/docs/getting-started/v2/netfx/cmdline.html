@@ -51,7 +51,7 @@ redirect_from:
 </p>
 
 <pre>
-$ <span style="background-color: #ff0">dotnet --version</span>
+$ dotnet --version
 5.0.102
 </pre>
 
@@ -78,9 +78,9 @@ $ <span style="background-color: #ff0">dotnet --version</span>
 </p>
 
 <pre>
-$ <span style="background-color: #ff0">mkdir MyFirstUnitTests</span>
-$ <span style="background-color: #ff0">cd MyFirstUnitTests</span>
-$ <span style="background-color: #ff0">dotnet new sln</span>
+$ mkdir MyFirstUnitTests
+$ cd MyFirstUnitTests
+$ dotnet new sln
 The template "Solution File" was created successfully.
 </pre>
 
@@ -90,7 +90,7 @@ The template "Solution File" was created successfully.
 </p>
 
 <pre>
-$ <span style="background-color: #ff0">dotnet new xunit</span>
+$ dotnet new xunit
 The template "xUnit Test Project" was created successfully.
 
 Processing post-creation actions...
@@ -99,7 +99,7 @@ Running 'dotnet restore' on ~/dev/MyFirstUnitTests/MyFirstUnitTests.csproj...
   Restored ~/dev/MyFirstUnitTests/MyFirstUnitTests.csproj (in 217 ms).
 Restore succeeded.
 
-$ <span style="background-color: #ff0">dotnet sln add .</span>
+$ dotnet sln add .
 Project `MyFirstUnitTests.csproj` added to the solution.
 </pre>
 
@@ -187,7 +187,7 @@ namespace MyFirstUnitTests
 <p>Let's build everything and take a look at our output folder:</p>
 
 <pre>
-$ <span style="background-color: #ff0">dotnet build</span>
+$ dotnet build
 Microsoft (R) Build Engine version 16.8.3+39993bd9d for .NET
 Copyright (C) Microsoft Corporation. All rights reserved.
 
@@ -201,7 +201,7 @@ Build succeeded.
 
 Time Elapsed 00:00:00.82
 
-$ <span style="background-color: #ff0">dir bin/Debug/net48</span>
+$ dir bin/Debug/net48
 MyFirstUnitTests.dll
 MyFirstUnitTests.pdb
 xunit.abstractions.dll
@@ -219,7 +219,7 @@ xunit.execution.desktop.dll
 <p>We can see those binaries by peeking into our NuGet package cache:</p>
 
 <pre>
-$ <span style="background-color: #ff0">find ~/.nuget/packages/xunit.runner.console/2.4.1 -name "*.exe"</span>
+$ find ~/.nuget/packages/xunit.runner.console/2.4.1 -name "*.exe"
 ~/.nuget/packages/xunit.runner.console/2.4.1/tools/net452/xunit.console.exe
 ~/.nuget/packages/xunit.runner.console/2.4.1/tools/net452/xunit.console.x86.exe
 ~/.nuget/packages/xunit.runner.console/2.4.1/tools/net46/xunit.console.exe
@@ -261,7 +261,7 @@ $ <span style="background-color: #ff0">find ~/.nuget/packages/xunit.runner.conso
 <h3>Windows</h3>
 
 <pre>
-$ <span style="background-color: #ff0">~/.nuget/packages/xunit.runner.console/2.4.1/tools/net472/xunit.console.exe bin/Debug/net48/MyFirstUnitTests.dll</span>
+$ ~/.nuget/packages/xunit.runner.console/2.4.1/tools/net472/xunit.console.exe bin/Debug/net48/MyFirstUnitTests.dll
 xUnit.net Console Runner v2.4.1 (64-bit Desktop .NET 4.7.2, runtime: 4.0.30319.42000)
   Discovering: MyFirstUnitTests
   Discovered:  MyFirstUnitTests
@@ -274,7 +274,7 @@ xUnit.net Console Runner v2.4.1 (64-bit Desktop .NET 4.7.2, runtime: 4.0.30319.4
 <h3>Non-Windows</h3>
 
 <pre>
-$ <span style="background-color: #ff0">mono ~/.nuget/packages/xunit.runner.console/2.4.1/tools/net472/xunit.console.exe bin/Debug/net48/MyFirstUnitTests.dll</span>
+$ mono ~/.nuget/packages/xunit.runner.console/2.4.1/tools/net472/xunit.console.exe bin/Debug/net48/MyFirstUnitTests.dll
 xUnit.net Console Runner v2.4.1 (64-bit Desktop .NET 4.7.2, runtime: 4.0.30319.42000)
   Discovering: MyFirstUnitTests
   Discovered:  MyFirstUnitTests
@@ -381,7 +381,7 @@ xUnit.net Console Runner v2.4.1 (64-bit Desktop .NET 4.7.2, runtime: 4.0.30319.4
 <p>Now we can use <code>dotnet build</code> to run our tests:</p>
 
 <pre>
-$ <span style="background-color: #ff0">dotnet build -t:Test</span>
+$ dotnet build -t:Test
 Microsoft (R) Build Engine version 16.8.3+39993bd9d for .NET
 Copyright (C) Microsoft Corporation. All rights reserved.
 
@@ -396,7 +396,7 @@ Copyright (C) Microsoft Corporation. All rights reserved.
   === TEST EXECUTION SUMMARY ===
      MyFirstUnitTests  Total: 1, Errors: 0, Failed: 0, Skipped: 0, Time: 0.063s
 
-<span style="color: #080">Build succeeded.</span>
+Build succeeded.
     0 Warning(s)
     0 Error(s)
 
@@ -447,7 +447,7 @@ namespace MyFirstUnitTests
 <p>Now let's go run the tests again and see what happens:</p>
 
 <pre>
-$ <span style="background-color: #ff0">dotnet build -t:Test</span>
+$ dotnet build -t:Test
 Microsoft (R) Build Engine version 16.8.3+39993bd9d for .NET
 Copyright (C) Microsoft Corporation. All rights reserved.
 
@@ -467,13 +467,13 @@ Copyright (C) Microsoft Corporation. All rights reserved.
     Finished:    MyFirstUnitTests
   === TEST EXECUTION SUMMARY ===
      MyFirstUnitTests  Total: 2, Errors: 0, Failed: 1, Skipped: 0, Time: 0.150s
-<span style="color: #e03030">MyFirstUnitTests.csproj(25,5): error MSB3073: The command "xunit.console.exe MyFirstUnitTests.dll" exited with code 1.</span>
+MyFirstUnitTests.csproj(25,5): error MSB3073: The command "xunit.console.exe MyFirstUnitTests.dll" exited with code 1.
 
 Build FAILED.
 
-<span style="color: #e03030">MyFirstUnitTests.csproj(25,5): error MSB3073: The command "xunit.console.exe MyFirstUnitTests.dll" exited with code 1.</span>
+MyFirstUnitTests.csproj(25,5): error MSB3073: The command "xunit.console.exe MyFirstUnitTests.dll" exited with code 1.
     0 Warning(s)
-<span style="color: #e03030">    1 Error(s)</span>
+    1 Error(s)
 
 Time Elapsed 00:00:01.60
 </pre>
@@ -552,13 +552,13 @@ bool IsOdd(int value)
     Finished:    MyFirstUnitTests
   === TEST EXECUTION SUMMARY ===
      MyFirstUnitTests  Total: 5, Errors: 0, Failed: 2, Skipped: 0, Time: 0.171s
-<span style="color: #e03030">MyFirstUnitTests.csproj(25,5): error MSB3073: The command "xunit.console.exe MyFirstUnitTests.dll" exited with code 1.</span>
+MyFirstUnitTests.csproj(25,5): error MSB3073: The command "xunit.console.exe MyFirstUnitTests.dll" exited with code 1.
 
 Build FAILED.
 
-<span style="color: #e03030">MyFirstUnitTests.csproj(25,5): error MSB3073: The command "xunit.console.exe MyFirstUnitTests.dll" exited with code 1.</span>
+MyFirstUnitTests.csproj(25,5): error MSB3073: The command "xunit.console.exe MyFirstUnitTests.dll" exited with code 1.
     0 Warning(s)
-<span style="color: #e03030">    1 Error(s)</span>
+    1 Error(s)
 
 Time Elapsed 00:00:01.14
 </pre>

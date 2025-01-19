@@ -23,9 +23,6 @@ pre.lineno {
   border-radius: 0%;
   border-right: solid 1px #ccc;
 }
-.note p {
-  margin-left: 0;
-}
 h1, .h1, h2, .h2, h3, .h3 {
   margin: 20px 0 10px 0;
   font-weight: 600;
@@ -124,6 +121,31 @@ table, .table {
 }
 .table p+p {
   margin-top: 15px;
+}
+.note {
+  background-color: #dfd;
+  border-radius: 0 0 5px 5px;
+  box-shadow: 5px 5px 3px #888;
+  padding: 0 10px 5px 10px;
+}
+.note:before {
+  background-color: #cec;
+  content: "N O T E";
+  font-weight: bold;
+  font-size: 120%;
+  display: block;
+  font-style: italic;
+  color: #060;
+  padding: 2px 10px;
+  margin: 0 -10px 5px -10px;
+  border-bottom: solid 1px #bdb;
+}
+.note code {
+  background-color: #cec;
+  color: #363;
+}
+.note p {
+  margin-left: 0;
 }
 .note .table>thead>tr>th {
   border-bottom: 2px solid #9c9;
@@ -261,28 +283,6 @@ blockquote.padded {
   background-color: #ebb;
   color: #633;
 }
-.note {
-  background-color: #dfd;
-  border-radius: 0 0 5px 5px;
-  box-shadow: 5px 5px 3px #888;
-  padding: 0 10px 5px 10px;
-}
-.note:before {
-  background-color: #cec;
-  content: "N O T E";
-  font-weight: bold;
-  font-size: 120%;
-  display: block;
-  font-style: italic;
-  color: #060;
-  padding: 2px 10px;
-  margin: 0 -10px 5px -10px;
-  border-bottom: solid 1px #bdb;
-}
-.note code {
-  background-color: #cec;
-  color: #363;
-}
 .radio-selector {
   color: #666;
   font-size: 95%;
@@ -395,4 +395,139 @@ ul.indent {
 .newline-indent {
   display: block;
   margin-left: 1em;
+}
+
+@media (prefers-color-scheme: dark) {
+  a {
+    color: #729FCF;
+  }
+  a:hover {
+    color: #729FCF;
+  }
+  body {
+    background-color: #2E3436;
+    color: #EEEEEE;
+  }
+  blockquote {
+    border-left-color: #444;
+  }
+  pre.lineno {
+    border-right: solid 1px #2E3436;
+  }
+  h2.banner {
+    background-color: #333;
+    border-left: solid 6px #303030;
+  }
+  h3, .h3 {
+    border-bottom: 1px dotted #669;
+    border-top: 1px dotted #669;
+    color: #ccf;
+  }
+  h4 {
+    color: #ccf;
+  }
+  h5 {
+    color: #777;
+  }
+  h6 {
+    border-top: 1px solid #333;
+  }
+  .table .title {
+    background-color: #1d395e;
+  }
+  .note {
+    background-color: #232;
+    box-shadow: 5px 5px 3px #121;
+  }
+  .note:before {
+    background-color: #454;
+    color: #79C32E;
+    border-bottom: solid 1px #464;
+  }
+  .note .table>thead>tr>th {
+    border-bottom: 2px solid #363;
+  }
+  .note .table>tbody>tr>td {
+    border-top: 1px solid #363;
+  }
+  .note .table td.tall {
+    border-left: 1px solid #363;
+  }
+  .note code {
+    background-color: #353;
+    color: #79C32E;
+  }
+  .border {
+    background-color: #2e3436;
+    box-shadow: 3px 3px 20px #888;
+  }
+  pre, code {
+    background-color: #3b4346;
+  }
+  pre {
+    color: #eee;
+  }
+  code {
+    color: #ff9db5;
+  }
+  .navbar-inverse {
+    background-color: #546063;
+  }
+  .navbar-inverse .navbar-brand {
+    color: #181818 !important;
+  }
+  .related-topics {
+    color: #f99;
+  }
+  .important {
+    background-color: #533;
+    box-shadow: 5px 5px 3px #311;
+  }
+  .important code {
+    background-color: #644;
+    color: #b99;
+  }
+  .radio-selector {
+    color: #999;
+  }
+  .paperclip {
+    float: right;
+    color: #eee;
+    background-color: #2e3436;
+  }
+  .glyphicon-ok-sign {
+    color: #070;
+  }
+  .glyphicon-question-sign {
+    color: #aa0;
+  }
+  .glyphicon-remove-sign {
+    color: #a20;
+  }
+  .label-version-false {
+    background-color: #AD7FA8;
+    color: #2e3436;
+  }
+  .label-version-true {
+    background-color: #75507B;
+    color: #eee;
+  }
+  .label-danger {
+    background-color: #AE5E5E;
+  }
+  .label-warning {
+    background-color: #8A7000;
+  }
+  .label-info {
+    background-color: #06989A;
+  }
+  .ndepend-logo img {
+    background-color: #eee;
+    box-shadow: 3px 3px 20px #666;
+  }
+  .aws-logo img {
+    background-color: #eee;
+    box-shadow: 3px 3px 20px #666;
+    padding: 8px;
+  }
 }

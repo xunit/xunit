@@ -171,10 +171,9 @@ _For information on contributing to xUnit.net, please read the [governance](/gov
 ## Links to Resources
 
 * [Visual Studio Community](https://visualstudio.microsoft.com/vs/community/)
-* [.NET Framework 4.5.2](https://www.microsoft.com/en-us/download/details.aspx?id=42642)
-* [TestDriven.NET](https://www.testdriven.net/)
-* [MSBuild Reference](https://docs.microsoft.com/en-us/visualstudio/msbuild/msbuild-reference)
+* [MSBuild Reference](https://docs.microsoft.com/visualstudio/msbuild/msbuild-reference)
 
+{: .ndepend-logo }
 [![Powered by NDepend](https://raw.github.com/xunit/media/main/powered-by-ndepend-transparent.png){: width="142" }](https://www.NDepend.com)
 
 

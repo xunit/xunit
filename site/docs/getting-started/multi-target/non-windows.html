@@ -96,15 +96,15 @@ breadcrumb: Documentation
 </p>
 
 <pre>
-$ <span style="background-color: #ff0">dotnet build</span>
+$ dotnet build
 Microsoft (R) Build Engine version 15.9.20+g88f5fadfbe for .NET Core
 Copyright (C) Microsoft Corporation. All rights reserved.
 
   Restore completed in 30.82 ms for ~/src/MyFirstUnitTests/MyFirstUnitTests.csproj.
   MyFirstUnitTests -> ~/src/MyFirstUnitTests/bin/Debug/netcoreapp2.1/MyFirstUnitTests.dll
-<span style="color: #e03030">Class1.cs(7,10): error CS0012: The type 'Attribute' is defined in an assembly that is not referenced.
+Class1.cs(7,10): error CS0012: The type 'Attribute' is defined in an assembly that is not referenced.
 You must add a reference to assembly 'System.Runtime, Version=4.0.0.0, Culture=neutral,
-PublicKeyToken=b03f5f7f11d50a3a'. [~/src/MyFirstUnitTests/MyFirstUnitTests.csproj]</span>
+PublicKeyToken=b03f5f7f11d50a3a'. [~/src/MyFirstUnitTests/MyFirstUnitTests.csproj]
 </pre>
 
 <p>
@@ -129,7 +129,7 @@ PublicKeyToken=b03f5f7f11d50a3a'. [~/src/MyFirstUnitTests/MyFirstUnitTests.cspro
 </p>
 
 <pre>
-$ <span style="background-color: #ff0">ls ~/.nuget/packages/microsoft.netframework.referenceassemblies.net452/1.0.0/build/.NETFramework/v4.5.2</span>
+$ ls ~/.nuget/packages/microsoft.netframework.referenceassemblies.net452/1.0.0/build/.NETFramework/v4.5.2
 Accessibility.dll				    System.Net.NetworkInformation.dll
 CustomMarshalers.dll				    System.Net.Primitives.dll
 ISymWrapper.dll					    System.Net.Requests.dll

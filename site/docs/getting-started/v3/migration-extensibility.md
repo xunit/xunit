@@ -20,8 +20,8 @@ The current builds are:
 {: .table .latest }
 Package                     | NuGet Version                                                                                                                               | [CI Version](/docs/using-ci-builds)
 --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------
-`xunit.v3.*`                | [![](https://img.shields.io/nuget/vpre/xunit.v3.svg?logo=nuget)](https://www.nuget.org/packages/xunit.v3)                                   | [![](https://img.shields.io/badge/endpoint.svg?url=https%3A%2F%2Ff.feedz.io%2Fxunit%2Fxunit%2Fshield%2Fxunit.v3%2Flatest)](https://feedz.io/org/xunit/repository/xunit/packages/xunit.v3)
-`xunit.analyzers`           | [![](https://img.shields.io/nuget/vpre/xunit.analyzers.svg?logo=nuget)](https://www.nuget.org/packages/xunit.analyzers)                     | [![](https://img.shields.io/badge/endpoint.svg?url=https%3A%2F%2Ff.feedz.io%2Fxunit%2Fxunit%2Fshield%2Fxunit.analyzers%2Flatest)](https://feedz.io/org/xunit/repository/xunit/packages/xunit.analyzers)
+`xunit.v3.*`                | [![](https://img.shields.io/nuget/vpre/xunit.v3.svg?logo=nuget)](https://www.nuget.org/packages/xunit.v3)                                   | [![](https://img.shields.io/badge/endpoint.svg?url=https%3A%2F%2Ff.feedz.io%2Fxunit%2Fxunit%2Fshield%2Fxunit.v3%2Flatest&color=f58142)](https://feedz.io/org/xunit/repository/xunit/packages/xunit.v3)
+`xunit.analyzers`           | [![](https://img.shields.io/nuget/vpre/xunit.analyzers.svg?logo=nuget)](https://www.nuget.org/packages/xunit.analyzers)                     | [![](https://img.shields.io/badge/endpoint.svg?url=https%3A%2F%2Ff.feedz.io%2Fxunit%2Fxunit%2Fshield%2Fxunit.analyzers%2Flatest&color=f58142)](https://feedz.io/org/xunit/repository/xunit/packages/xunit.analyzers)
 
 Note that while we attempt to ensure that CI builds are always usable, we cannot make guarantees. If you come across issues using a CI build, please [let us know](https://github.com/xunit/xunit/issues)!
 
