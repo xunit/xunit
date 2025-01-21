@@ -64,6 +64,7 @@ public class SerializationHelperTests
 		// Types which implement both IFormattable and IParsable<T>
 #if NET8_0_OR_GREATER
 		{ new FormattableAndParsableStringWrapper("Hello world"), $"-3:{ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof(FormattableAndParsableStringWrapper)))}:{ToBase64("Hello world")}" },
+		{ new FormattableAndParsableStringWrapper2("Hello world"), $"-3:{ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof(FormattableAndParsableStringWrapper2)))}:{ToBase64("Hello world")}" },
 #endif
 
 		// Trait dictionaries are serialized as a keys list and values arrays
@@ -586,6 +587,37 @@ public class SerializationHelperTests
 
 		public string ToString(string? format, IFormatProvider? formatProvider) =>
 			Value;
+	}
+
+	interface IParsableWrapper<T> : IFormattable, IParsable<T> where T : IParsable<T>
+	{
+		public string Value { get; }
+
+		static T IParsable<T>.Parse(string s, IFormatProvider? provider)
+		{
+			if (!T.TryParse(s, provider, out var result))
+				throw new InvalidOperationException();
+			return result;
+		}
+
+		string IFormattable.ToString(string? format, IFormatProvider? formatProvider) =>
+			Value;
+	}
+	class FormattableAndParsableStringWrapper2(string value) : IFormattable, IParsableWrapper<FormattableAndParsableStringWrapper2>
+	{
+		public string Value => value;
+
+		public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out FormattableAndParsableStringWrapper2 result)
+		{
+			if (s is null)
+			{
+				result = null;
+				return false;
+			}
+
+			result = new(s);
+			return true;
+		}
 	}
 #endif
 

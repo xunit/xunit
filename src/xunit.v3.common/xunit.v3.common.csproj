@@ -5,8 +5,9 @@
     <Description>Includes common code shared between xunit.v3.core and xunit.v3.runner.common (xunit.v3.common.dll). Supports .NET Standard 2.0.</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <RootNamespace>Xunit.Sdk</RootNamespace>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;net7.0</TargetFrameworks>
     <Title>xUnit.net v3 [Common Library]</Title>
+    <NoWarn>$(NoWarn);CA1307;CA1513;CA1845;CA1846;CA1865;SYSLIB0012</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
