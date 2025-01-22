@@ -185,6 +185,7 @@ public class SerializationHelperTests
 		}
 
 #if NETFRAMEWORK
+
 		[Theory]
 		[InlineData("18:738526", "DateOnly")]
 		[InlineData("18", "DateOnly")]
@@ -219,6 +220,7 @@ public class SerializationHelperTests
 			Assert.Equal("serializedValue", argEx.ParamName);
 			Assert.StartsWith($"Cannot deserialize value of '{typeName}': unsupported platform", argEx.Message);
 		}
+
 #endif
 	}
 
@@ -357,9 +359,11 @@ public class SerializationHelperTests
 		public static IEnumerable<TheoryDataRow<object?, Type, string>> FailureData()
 		{
 #if NETFRAMEWORK
+
 			// GAC'd enums can't be serialized (Mono doesn't have a GAC, so skip it there)
 			if (!EnvironmentHelper.IsMono)
 				yield return new(ConformanceLevel.Auto, typeof(ConformanceLevel), "Cannot serialize enum of type 'System.Xml.ConformanceLevel' because it lives in the GAC");
+
 #endif
 
 			// Unsupported built-in types can't be serialized
@@ -565,14 +569,20 @@ public class SerializationHelperTests
 	class Unserializable { }
 
 #if NET8_0_OR_GREATER
-	class FormattableAndParsableStringWrapper(string value) : IFormattable, IParsable<FormattableAndParsableStringWrapper>
+
+	class FormattableAndParsableStringWrapper(string value) :
+		IFormattable, IParsable<FormattableAndParsableStringWrapper>
 	{
-		public string Value => value;
+		public string Value =>
+			value;
 
 		public static FormattableAndParsableStringWrapper Parse(string s, IFormatProvider? provider) =>
 			new(s);
 
-		public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out FormattableAndParsableStringWrapper result)
+		public static bool TryParse(
+			[NotNullWhen(true)] string? s,
+			IFormatProvider? provider,
+			[MaybeNullWhen(false)] out FormattableAndParsableStringWrapper result)
 		{
 			if (s is null)
 			{
@@ -584,8 +594,10 @@ public class SerializationHelperTests
 			return true;
 		}
 
-		public string ToString(string? format, IFormatProvider? formatProvider) =>
-			Value;
+		public string ToString(
+			string? format,
+			IFormatProvider? formatProvider) =>
+				Value;
 	}
 #endif
 
@@ -601,5 +613,4 @@ public class SerializationHelperTests
 			new RegisterXunitSerializerAttribute(typeof(MyUnserializableSerializer), typeof(Unserializable))
 		);
 	}
-
 }
