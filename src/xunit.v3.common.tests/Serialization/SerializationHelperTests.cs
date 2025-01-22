@@ -64,6 +64,7 @@ public class SerializationHelperTests
 		// Types which implement both IFormattable and IParsable<T>
 #if NET8_0_OR_GREATER
 		{ new FormattableAndParsableStringWrapper("Hello world"), $"-3:{ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof(FormattableAndParsableStringWrapper)))}:{ToBase64("Hello world")}" },
+		{ new FormattableAndParsableViaWrapperInterface("Hello world"), $"-3:{ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof(FormattableAndParsableViaWrapperInterface)))}:{ToBase64("Hello world")}" },
 #endif
 
 		// Trait dictionaries are serialized as a keys list and values arrays
@@ -219,6 +220,153 @@ public class SerializationHelperTests
 			var argEx = Assert.IsType<ArgumentException>(ex);
 			Assert.Equal("serializedValue", argEx.ParamName);
 			Assert.StartsWith($"Cannot deserialize value of '{typeName}': unsupported platform", argEx.Message);
+		}
+
+#endif
+
+#if NET8_0_OR_GREATER
+
+		[Fact]
+		public void TryParseReturningFalseFails()
+		{
+			var value = new FormattableClassReturningFalse();
+			var serialized = TestableSerializationHelper.Instance.Serialize(value);
+
+			var ex = Record.Exception(() => TestableSerializationHelper.Instance.Deserialize(serialized));
+
+			Assert.NotNull(ex);
+			Assert.IsType<InvalidOperationException>(ex);
+			Assert.Equal($"Call to IParsable<{typeof(FormattableClassReturningFalse).FullName}>.TryParse(\"Hello world\") returned false", ex.Message);
+		}
+
+		class FormattableClassReturningFalse : IFormattable, IParsable<FormattableClassReturningFalse>
+		{
+			public static FormattableClassReturningFalse Parse(
+				string s,
+				IFormatProvider? provider) =>
+					throw new NotImplementedException();
+
+			public static bool TryParse(
+				[NotNullWhen(true)] string? s,
+				IFormatProvider? provider,
+				[MaybeNullWhen(false)] out FormattableClassReturningFalse result)
+			{
+				result = null;
+				return false;
+			}
+
+			public string ToString(
+				string? format,
+				IFormatProvider? formatProvider) =>
+					"Hello world";
+		}
+
+		[Fact]
+		public void TryParseReturningNullValueFails()
+		{
+			var value = new FormattableClassReturningNullValue();
+			var serialized = TestableSerializationHelper.Instance.Serialize(value);
+
+			var ex = Record.Exception(() => TestableSerializationHelper.Instance.Deserialize(serialized));
+
+			Assert.NotNull(ex);
+			Assert.IsType<InvalidOperationException>(ex);
+			Assert.Equal($"Call to IParsable<{typeof(FormattableClassReturningNullValue).FullName}>.TryParse(\"Hello world\") returned a null value", ex.Message);
+		}
+
+		class FormattableClassReturningNullValue : IFormattable, IParsable<FormattableClassReturningNullValue>
+		{
+			public static FormattableClassReturningNullValue Parse(
+				string s,
+				IFormatProvider? provider) =>
+					throw new NotImplementedException();
+
+			public static bool TryParse(
+				[NotNullWhen(true)] string? s,
+				IFormatProvider? provider,
+				[MaybeNullWhen(false)] out FormattableClassReturningNullValue result)
+			{
+				result = null!;
+				return true;
+			}
+
+			public string ToString(
+				string? format,
+				IFormatProvider? formatProvider) =>
+					"Hello world";
+		}
+
+		[Fact]
+		public void ParseReturningNullValueFails()
+		{
+			var value = new FormattableClassWithHiddenTryParseReturningNullValue();
+			var serialized = TestableSerializationHelper.Instance.Serialize(value);
+
+			var ex = Record.Exception(() => TestableSerializationHelper.Instance.Deserialize(serialized));
+
+			Assert.NotNull(ex);
+			Assert.IsType<InvalidOperationException>(ex);
+			Assert.Equal($"Call to IParsable<{typeof(FormattableClassWithHiddenTryParseReturningNullValue).FullName}>.Parse(\"Hello world\") returned null", ex.Message);
+		}
+
+		interface IParsableWithHiddenTryParse<T> : IParsable<T>
+			where T : IParsable<T>
+		{
+			static bool IParsable<T>.TryParse(
+				[NotNullWhen(true)] string? s,
+				IFormatProvider? provider,
+				[MaybeNullWhen(false)] out T result) =>
+					throw new NotImplementedException();
+		}
+
+		class FormattableClassWithHiddenTryParseReturningNullValue : IFormattable, IParsableWithHiddenTryParse<FormattableClassWithHiddenTryParseReturningNullValue>
+		{
+			public static FormattableClassWithHiddenTryParseReturningNullValue Parse(
+				string s,
+				IFormatProvider? provider) =>
+					null!;
+
+			public string ToString(
+				string? format,
+				IFormatProvider? formatProvider) =>
+					"Hello world";
+		}
+
+		// Since we invoke this via reflection, hiding the implementation entirely will fail
+		[Fact]
+		public void HidingBothParseAndTryParseFails()
+		{
+			var value = new FormattableClassWithEverythingHidden();
+			var serialized = TestableSerializationHelper.Instance.Serialize(value);
+
+			var ex = Record.Exception(() => TestableSerializationHelper.Instance.Deserialize(serialized));
+
+			Assert.NotNull(ex);
+			Assert.IsType<InvalidOperationException>(ex);
+			Assert.Equal($"Could not find Parse or TryParse method for IParsable<{typeof(FormattableClassWithEverythingHidden).FullName}>", ex.Message);
+		}
+
+		interface IParsableWithEverythingHidden<T> : IParsable<T>
+			where T : IParsable<T>
+		{
+			static T IParsable<T>.Parse(
+				string s,
+				IFormatProvider? provider) =>
+					throw new NotImplementedException();
+
+			static bool IParsable<T>.TryParse(
+				[NotNullWhen(true)] string? s,
+				IFormatProvider? provider,
+				[MaybeNullWhen(false)] out T result) =>
+					throw new NotImplementedException();
+		}
+
+		class FormattableClassWithEverythingHidden : IFormattable, IParsableWithEverythingHidden<FormattableClassWithEverythingHidden>
+		{
+			public string ToString(
+				string? format,
+				IFormatProvider? formatProvider) =>
+					"Hello world";
 		}
 
 #endif
@@ -409,6 +557,29 @@ public class SerializationHelperTests
 			Assert.Equal("value", argEx.ParamName);
 			Assert.StartsWith(expectedExceptionMessage, ex.Message);
 		}
+
+#if NET8_0_OR_GREATER
+
+		[Fact]
+		public void FormattableWithoutParsableFails()
+		{
+			var value = new FormattableClass();
+
+			var ex = Record.Exception(() => TestableSerializationHelper.Instance.Serialize(value));
+
+			Assert.NotNull(ex);
+			var argEx = Assert.IsType<ArgumentException>(ex);
+			Assert.Equal("value", argEx.ParamName);
+			Assert.StartsWith($"Type '{typeof(FormattableClass).FullName}' must implement both IFormattable and IParsable<> to be serialized", ex.Message);
+		}
+
+		class FormattableClass : IFormattable
+		{
+			public string ToString(string? format, IFormatProvider? formatProvider) =>
+				throw new NotImplementedException();
+		}
+
+#endif
 	}
 
 	public class TypeNameSerialization
@@ -599,6 +770,50 @@ public class SerializationHelperTests
 			IFormatProvider? formatProvider) =>
 				Value;
 	}
+
+	interface IParsableWrapper<T> : IFormattable, IParsable<T>
+		where T : IParsable<T>
+	{
+		public string Value { get; }
+
+		static T IParsable<T>.Parse(
+			string s,
+			IFormatProvider? provider)
+		{
+			if (!T.TryParse(s, provider, out var result))
+				throw new InvalidOperationException();
+
+			return result;
+		}
+
+		string IFormattable.ToString(
+			string? format,
+			IFormatProvider? formatProvider) =>
+				Value;
+	}
+
+	class FormattableAndParsableViaWrapperInterface(string value) :
+		IFormattable, IParsableWrapper<FormattableAndParsableViaWrapperInterface>
+	{
+		public string Value =>
+			value;
+
+		static bool IParsable<FormattableAndParsableViaWrapperInterface>.TryParse(
+			[NotNullWhen(true)] string? s,
+			IFormatProvider? provider,
+			[MaybeNullWhen(false)] out FormattableAndParsableViaWrapperInterface result)
+		{
+			if (s is null)
+			{
+				result = null;
+				return false;
+			}
+
+			result = new(s);
+			return true;
+		}
+	}
+
 #endif
 
 	class TestableSerializationHelper : SerializationHelper
