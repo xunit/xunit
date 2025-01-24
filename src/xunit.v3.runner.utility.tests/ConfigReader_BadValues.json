@@ -1,5 +1,6 @@
 {
   "appDomain": "blarch",
+  "assertEquivalentMaxDepth": 0,
   "diagnosticMessages": "blarch",
   "internalDiagnosticMessages": "blarch",
   "longRunningTestSeconds": "blarch",
@@ -10,6 +11,10 @@
   "parallelizeAssembly": true,
   "parallelizetestcollections": "biff",
   "preEnumerateTheories": "baz",
+  "printMaxEnumerableLength": -1,
+  "printMaxObjectDepth": -1,
+  "printMaxObjectMemberCount": -1,
+  "printMaxStringLength": -1,
   "shadowCopy": "blarch",
   "showLiveOutput": "blarch",
   "stopOnFail": "blarch"

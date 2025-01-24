@@ -69,6 +69,7 @@ public class ConfigReaderTests
 		Assert.True(result);
 		Assert.Empty(warnings);
 		Assert.Equal(AppDomainSupport.IfAvailable, configuration.AppDomainOrDefault);
+		Assert.Null(configuration.AssertEquivalentMaxDepth);
 		Assert.Null(configuration.Culture);
 		Assert.False(configuration.DiagnosticMessagesOrDefault);
 		Assert.False(configuration.FailSkipsOrDefault);
@@ -81,6 +82,10 @@ public class ConfigReaderTests
 		Assert.False(configuration.ParallelizeAssemblyOrDefault);
 		Assert.True(configuration.ParallelizeTestCollectionsOrDefault);
 		Assert.Null(configuration.PreEnumerateTheories);
+		Assert.Null(configuration.PrintMaxEnumerableLength);
+		Assert.Null(configuration.PrintMaxObjectDepth);
+		Assert.Null(configuration.PrintMaxObjectMemberCount);
+		Assert.Null(configuration.PrintMaxStringLength);
 		Assert.True(configuration.ShadowCopyOrDefault);
 		Assert.False(configuration.ShowLiveOutputOrDefault);
 		Assert.False(configuration.StopOnFailOrDefault);
@@ -114,8 +119,13 @@ public class ConfigReaderTests
 
 		if (configFileName.EndsWith(".json"))
 		{
+			Assert.Equal(100, configuration.AssertEquivalentMaxDepth);
 			Assert.Equal("en-GB", configuration.Culture);
 			Assert.True(configuration.FailSkipsOrDefault);
+			Assert.Equal(200, configuration.PrintMaxEnumerableLength);
+			Assert.Equal(300, configuration.PrintMaxObjectDepth);
+			Assert.Equal(400, configuration.PrintMaxObjectMemberCount);
+			Assert.Equal(500, configuration.PrintMaxStringLength);
 			Assert.True(configuration.ShowLiveOutputOrDefault);
 		}
 	}
@@ -135,6 +145,7 @@ public class ConfigReaderTests
 		Assert.True(result);
 		Assert.Empty(warnings);
 		Assert.Equal(AppDomainSupport.IfAvailable, configuration.AppDomainOrDefault);
+		Assert.Null(configuration.AssertEquivalentMaxDepth);
 		Assert.False(configuration.DiagnosticMessagesOrDefault);
 		Assert.False(configuration.FailSkipsOrDefault);
 		Assert.False(configuration.InternalDiagnosticMessagesOrDefault);
@@ -147,6 +158,10 @@ public class ConfigReaderTests
 		Assert.True(configuration.ParallelizeAssemblyOrDefault);
 		Assert.True(configuration.ParallelizeTestCollectionsOrDefault);
 		Assert.Null(configuration.PreEnumerateTheories);
+		Assert.Null(configuration.PrintMaxEnumerableLength);
+		Assert.Null(configuration.PrintMaxObjectDepth);
+		Assert.Null(configuration.PrintMaxObjectMemberCount);
+		Assert.Null(configuration.PrintMaxStringLength);
 		Assert.True(configuration.ShadowCopyOrDefault);
 		Assert.False(configuration.ShowLiveOutputOrDefault);
 		Assert.False(configuration.StopOnFailOrDefault);

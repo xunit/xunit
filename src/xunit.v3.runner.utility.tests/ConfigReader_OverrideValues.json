@@ -1,5 +1,6 @@
 {
   "appDomain": "denied",
+  "assertEquivalentMaxDepth": 100,
   "culture": "en-GB",
   "diagnosticMessages": true,
   "failSkips": true,
@@ -12,6 +13,10 @@
   "parallelizeAssembly": true,
   "parallelizetestcollections": false,
   "preEnumerateTheories": false,
+  "printMaxEnumerableLength": 200,
+  "printMaxObjectDepth": 300,
+  "printMaxObjectMemberCount": 400,
+  "printMaxStringLength": 500,
   "shadowCopy": false,
   "showLiveOutput": true,
   "stopOnFail": true

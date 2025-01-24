@@ -144,6 +144,11 @@ public static class ConfigReader_Json
 				{
 					var intValue = (int)decimalValue;
 
+					if (string.Equals(kvp.Key, Configuration.AssertEquivalentMaxDepth, StringComparison.OrdinalIgnoreCase))
+					{
+						if (intValue >= 1)
+							configuration.AssertEquivalentMaxDepth = intValue;
+					}
 					if (string.Equals(kvp.Key, Configuration.MaxParallelThreads, StringComparison.OrdinalIgnoreCase))
 					{
 						if (intValue >= -1)
@@ -153,6 +158,26 @@ public static class ConfigReader_Json
 					{
 						if (intValue > 0)
 							configuration.LongRunningTestSeconds = intValue;
+					}
+					if (string.Equals(kvp.Key, Configuration.PrintMaxEnumerableLength, StringComparison.OrdinalIgnoreCase))
+					{
+						if (intValue >= 0)
+							configuration.PrintMaxEnumerableLength = intValue;
+					}
+					if (string.Equals(kvp.Key, Configuration.PrintMaxObjectDepth, StringComparison.OrdinalIgnoreCase))
+					{
+						if (intValue >= 0)
+							configuration.PrintMaxObjectDepth = intValue;
+					}
+					if (string.Equals(kvp.Key, Configuration.PrintMaxObjectMemberCount, StringComparison.OrdinalIgnoreCase))
+					{
+						if (intValue >= 0)
+							configuration.PrintMaxObjectMemberCount = intValue;
+					}
+					if (string.Equals(kvp.Key, Configuration.PrintMaxStringLength, StringComparison.OrdinalIgnoreCase))
+					{
+						if (intValue >= 0)
+							configuration.PrintMaxStringLength = intValue;
 					}
 					else if (string.Equals(kvp.Key, Configuration.Seed, StringComparison.OrdinalIgnoreCase))
 					{
@@ -223,6 +248,7 @@ public static class ConfigReader_Json
 	static class Configuration
 	{
 		public const string AppDomain = "appDomain";
+		public const string AssertEquivalentMaxDepth = "assertEquivalentMaxDepth";
 		public const string Culture = "culture";
 		public const string DiagnosticMessages = "diagnosticMessages";
 		public const string FailSkips = "failSkips";
@@ -236,6 +262,10 @@ public static class ConfigReader_Json
 		public const string ParallelizeAssembly = "parallelizeAssembly";
 		public const string ParallelizeTestCollections = "parallelizeTestCollections";
 		public const string PreEnumerateTheories = "preEnumerateTheories";
+		public const string PrintMaxEnumerableLength = "printMaxEnumerableLength";
+		public const string PrintMaxObjectDepth = "printMaxObjectDepth";
+		public const string PrintMaxObjectMemberCount = "printMaxObjectMemberCount";
+		public const string PrintMaxStringLength = "printMaxStringLength";
 		public const string Seed = "seed";
 		public const string ShadowCopy = "shadowCopy";
 		public const string ShowLiveOutput = "showLiveOutput";
