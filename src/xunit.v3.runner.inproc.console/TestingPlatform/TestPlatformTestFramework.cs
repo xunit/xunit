@@ -99,7 +99,7 @@ public class TestPlatformTestFramework :
 
 	Task<CreateTestSessionResult> ITestPlatformTestFramework.CreateTestSessionAsync(CreateTestSessionContext context)
 	{
-		if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("XUNIT_TESTINGPLATFORM_DEBUG")))
+		if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(EnvironmentVariables.TestingPlatformDebug)))
 			Debugger.Launch();
 
 		return Task.FromResult(CreateTestSession(Guard.ArgumentNotNull(context).SessionUid));

@@ -23,6 +23,10 @@ public sealed class CommandLineOptionsProvider() :
 	static readonly Dictionary<string, (string Description, ArgumentArity Arity, Action<ParseOptions> Parse)> options = new(StringComparer.OrdinalIgnoreCase)
 	{
 		// General options
+		{ "assert-equivalent-max-depth", ($"""
+			Set the maximum recursive depth when comparing objects with Assert.Equivalent. Default value is {EnvironmentVariables.Defaults.AssertEquivalentMaxDepth}.
+			    (integer) - maximum depth to compare; exceeding this fails the assertion
+			""", ArgumentArity.ExactlyOne, options => OnIntValueWithMinimum(options, 1, value => options.AssemblyConfig.AssertEquivalentMaxDepth = value)) },
 		{ "culture", ("""
 			Run tests under the given culture.
 			    default   - run with the default operating system culture [default]
@@ -48,7 +52,7 @@ public sealed class CommandLineOptionsProvider() :
 		{ "long-running", ("""
 			Enable long running (hung) test detection.
 			    (integer) - number of seconds a test runs to be considered 'long running'
-			""", ArgumentArity.ExactlyOne, OnLongRunning) },
+			""", ArgumentArity.ExactlyOne, options => OnIntValueWithMinimum(options, 0, value => options.AssemblyConfig.LongRunningTestSeconds = value)) },
 		{ "max-threads", ("""
 			Set maximum thread count for collection parallelization.
 			    default   - run with default (1 thread per CPU thread)
@@ -97,7 +101,7 @@ public sealed class CommandLineOptionsProvider() :
 		{ "seed", ("""
 			Set the randomization seed.
 			    (integer) - use this as the randomization seed
-			""", ArgumentArity.ExactlyOne, OnSeed) },
+			""", ArgumentArity.ExactlyOne, options => OnIntValueWithMinimum(options, 0, value => options.AssemblyConfig.Seed = value)) },
 		{ "show-live-output", ("""
 			Determine whether to show test output (from ITestOutputHelper) live during test execution.
 			    on  - turn on live reporting of test output
@@ -185,6 +189,29 @@ public sealed class CommandLineOptionsProvider() :
 			    Note: Specifying more than one is an AND operation.
 			          This is categorized as a simple filter. You cannot use both simple filters and query filters.
 			""", ArgumentArity.OneOrMore, options => OnFilterTrait(options.Arguments, options.AssemblyConfig.Filters.AddExcludedTraitFilter)) },
+
+		// Argument display options
+		{ "print-max-enumerable-length", ($"""
+			Set the maximum number of values to show when printing a collection. Default value is {EnvironmentVariables.Defaults.PrintMaxEnumerableLength}.
+			    0         - always print the full collection
+			    (integer) - maximum values to print, followed by an ellipsis
+			""", ArgumentArity.ExactlyOne, options => OnIntValueWithMinimum(options, 0, value => options.AssemblyConfig.PrintMaxEnumerableLength = value)) },
+		{ "print-max-object-depth", ($"""
+			Set the maximum recursive depth when printing object values. Default value is {EnvironmentVariables.Defaults.PrintMaxObjectDepth}.
+			    0         - print objects at all depths
+			    (integer) - maximum depth to print, followed by an ellipsis
+			Warning: Setting '0' or a very large value can cause stack overflows that may crash the test process
+			""", ArgumentArity.ExactlyOne, options => OnIntValueWithMinimum(options, 0, value => options.AssemblyConfig.PrintMaxObjectDepth = value)) },
+		{ "print-max-object-member-count", ($"""
+			Set the maximum number of fields and properties to show when printing an object. Default value is {EnvironmentVariables.Defaults.PrintMaxObjectMemberCount}.
+			    0         - always print the full collection
+			    (integer) - maximum members to print, followed by an ellipsis
+			""", ArgumentArity.ExactlyOne, options => OnIntValueWithMinimum(options, 0, value => options.AssemblyConfig.PrintMaxObjectMemberCount = value)) },
+		{ "print-max-string-length", ($"""
+			Set the maximum length when printing a string. Default value is {EnvironmentVariables.Defaults.PrintMaxStringLength}.
+			    0         - always print the full collection
+			    (integer) - maximum string length to print, followed by an ellipsis
+			""", ArgumentArity.ExactlyOne, options => OnIntValueWithMinimum(options, 0, value => options.AssemblyConfig.PrintMaxStringLength = value)) },
 
 		// Reports
 		{ "report-ctrf", ("Enable generating CTRF (JSON) report", ArgumentArity.Zero, options => OnReport(options.Configuration, options.CommandLineOptions, "ctrf", "report-ctrf-filename", "ctrf", options.ProjectConfig)) },
@@ -307,14 +334,17 @@ public sealed class CommandLineOptionsProvider() :
 	static void OnInternalDiagnostics(ParseOptions options) =>
 		options.AssemblyConfig.InternalDiagnosticMessages = ParseOnOff(options.Arguments[0]);
 
-	static void OnLongRunning(ParseOptions options)
+	static void OnIntValueWithMinimum(
+		ParseOptions options,
+		int minValue,
+		Action<int> setter)
 	{
-		var longRunningString = options.Arguments[0];
+		var stringValue = options.Arguments[0];
 
-		if (!int.TryParse(longRunningString, NumberStyles.None, NumberFormatInfo.CurrentInfo, out var longRunning))
-			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Invalid value '{0}' (must be a positive integer)", longRunningString));
+		if (!int.TryParse(options.Arguments[0], NumberStyles.None, NumberFormatInfo.CurrentInfo, out var intValue) || intValue < minValue)
+			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Invalid value '{0}' (must be an integer between {1} and {2})", stringValue, minValue, int.MaxValue));
 
-		options.AssemblyConfig.LongRunningTestSeconds = longRunning;
+		setter(intValue);
 	}
 
 	static void OnMaxThreads(ParseOptions options) =>
@@ -395,14 +425,6 @@ public sealed class CommandLineOptionsProvider() :
 		// Pure validation only, actual setting of configuration value is done in OnReport
 		if (!string.IsNullOrWhiteSpace(Path.GetDirectoryName(options.Arguments[0])))
 			throw new ArgumentException("Report file name may not contain a path (use --results-directory to set the report output path)");
-	}
-
-	static void OnSeed(ParseOptions options)
-	{
-		if (!int.TryParse(options.Arguments[0], NumberStyles.None, NumberFormatInfo.CurrentInfo, out var seed) || seed < 0)
-			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Invalid value '{0}' (must be an integer in the range of 0 - 2147483647)", options.Arguments[0]));
-
-		options.AssemblyConfig.Seed = seed;
 	}
 
 	static void OnShowLiveOutput(ParseOptions options) =>

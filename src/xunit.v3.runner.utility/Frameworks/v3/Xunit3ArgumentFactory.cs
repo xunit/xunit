@@ -29,6 +29,7 @@ public static class Xunit3ArgumentFactory
 		Guard.ArgumentNotNull(options);
 
 		return ToArguments(
+			assertEquivalentMaxDepth: null,
 			coreFrameworkVersion,
 			configFileName,
 			options.GetCulture(),
@@ -45,6 +46,10 @@ public static class Xunit3ArgumentFactory
 			options.GetMethodDisplayOptions(),
 			parallelAlgorithm: null,
 			options.GetPreEnumerateTheories(),
+			options.GetPrintMaxEnumerableLength(),
+			options.GetPrintMaxObjectDepth(),
+			options.GetPrintMaxObjectMemberCount(),
+			options.GetPrintMaxStringLength(),
 			seed: null,
 			serializedTestCases: null,
 			stopOnTestFail: null,
@@ -68,6 +73,7 @@ public static class Xunit3ArgumentFactory
 		Guard.ArgumentNotNull(executionOptions);
 
 		return ToArguments(
+			executionOptions.GetAssertEquivalentMaxDepth(),
 			coreFrameworkVersion,
 			configFileName,
 			executionOptions.GetCulture() ?? discoveryOptions.GetCulture(),
@@ -84,6 +90,10 @@ public static class Xunit3ArgumentFactory
 			discoveryOptions.GetMethodDisplayOptions(),
 			executionOptions.GetParallelAlgorithm(),
 			discoveryOptions.GetPreEnumerateTheories(),
+			executionOptions.GetPrintMaxEnumerableLength() ?? discoveryOptions.GetPrintMaxEnumerableLength(),
+			executionOptions.GetPrintMaxObjectDepth() ?? discoveryOptions.GetPrintMaxObjectDepth(),
+			executionOptions.GetPrintMaxObjectMemberCount() ?? discoveryOptions.GetPrintMaxObjectMemberCount(),
+			executionOptions.GetPrintMaxStringLength() ?? discoveryOptions.GetPrintMaxStringLength(),
 			executionOptions.GetSeed(),
 			serializedTestCases: null,
 			executionOptions.GetStopOnTestFail(),
@@ -107,6 +117,7 @@ public static class Xunit3ArgumentFactory
 		Guard.ArgumentNotNullOrEmpty(serializedTestCases);
 
 		return ToArguments(
+			options.GetAssertEquivalentMaxDepth(),
 			coreFrameworkVersion,
 			configFileName,
 			options.GetCulture(),
@@ -123,6 +134,10 @@ public static class Xunit3ArgumentFactory
 			methodDisplayOptions: null,
 			options.GetParallelAlgorithm(),
 			preEnumerateTheories: null,
+			options.GetPrintMaxEnumerableLength(),
+			options.GetPrintMaxObjectDepth(),
+			options.GetPrintMaxObjectMemberCount(),
+			options.GetPrintMaxStringLength(),
 			options.GetSeed(),
 			serializedTestCases,
 			options.GetStopOnTestFail(),
@@ -132,6 +147,7 @@ public static class Xunit3ArgumentFactory
 	}
 
 	static List<string> ToArguments(
+		int? assertEquivalentMaxDepth,
 		Version coreFrameworkVersion,
 		string? configFileName,
 		string? culture,
@@ -148,6 +164,10 @@ public static class Xunit3ArgumentFactory
 		TestMethodDisplayOptions? methodDisplayOptions,
 		ParallelAlgorithm? parallelAlgorithm,
 		bool? preEnumerateTheories,
+		int? printMaxEnumerableLength,
+		int? printMaxObjectDepth,
+		int? printMaxObjectMemberCount,
+		int? printMaxStringLength,
 		int? seed,
 		IReadOnlyCollection<string>? serializedTestCases,
 		bool? stopOnTestFail,
@@ -170,6 +190,12 @@ public static class Xunit3ArgumentFactory
 
 		if (coreFrameworkVersion >= Version_0_3_0 && synchronousMessages == true)
 			result.Add("sync");
+
+		result.AddRange(assertEquivalentMaxDepth switch
+		{
+			null or < 1 => [],
+			_ => ["-assertEquivalentMaxDepth", assertEquivalentMaxDepth.Value.ToString(CultureInfo.InvariantCulture)],
+		});
 
 		result.AddRange(culture switch
 		{
@@ -229,6 +255,30 @@ public static class Xunit3ArgumentFactory
 
 		if (preEnumerateTheories == true)
 			result.Add("-preEnumerateTheories");
+
+		result.AddRange(printMaxEnumerableLength switch
+		{
+			null or < 0 => [],
+			_ => ["-printMaxEnumerableLength", printMaxEnumerableLength.Value.ToString(CultureInfo.InvariantCulture)],
+		});
+
+		result.AddRange(printMaxObjectDepth switch
+		{
+			null or < 0 => [],
+			_ => ["-printMaxObjectDepth", printMaxObjectDepth.Value.ToString(CultureInfo.InvariantCulture)],
+		});
+
+		result.AddRange(printMaxObjectMemberCount switch
+		{
+			null or < 0 => [],
+			_ => ["-printMaxObjectMemberCount", printMaxObjectMemberCount.Value.ToString(CultureInfo.InvariantCulture)],
+		});
+
+		result.AddRange(printMaxStringLength switch
+		{
+			null or < 0 => [],
+			_ => ["-printMaxStringLength", printMaxStringLength.Value.ToString(CultureInfo.InvariantCulture)],
+		});
 
 		if (serializedTestCases?.Count > 0)
 			foreach (var testCase in serializedTestCases)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -55,6 +56,22 @@ public class XunitTestFrameworkDiscoverer : TestFrameworkDiscoverer<IXunitTestCl
 	/// <inheritdoc/>
 	protected override ValueTask<IXunitTestClass> CreateTestClass(Type @class) =>
 		new(new XunitTestClass(@class, TestCollectionFactory.Get(@class)));
+
+	/// <inheritdoc/>
+	public override ValueTask Find(
+		Func<ITestCase, ValueTask<bool>> callback,
+		ITestFrameworkDiscoveryOptions discoveryOptions,
+		Type[]? types = null, CancellationToken? cancellationToken = null)
+	{
+		Guard.ArgumentNotNull(discoveryOptions);
+
+		SetEnvironment(EnvironmentVariables.PrintMaxEnumerableLength, discoveryOptions.PrintMaxEnumerableLength());
+		SetEnvironment(EnvironmentVariables.PrintMaxObjectDepth, discoveryOptions.PrintMaxObjectDepth());
+		SetEnvironment(EnvironmentVariables.PrintMaxObjectMemberCount, discoveryOptions.PrintMaxObjectMemberCount());
+		SetEnvironment(EnvironmentVariables.PrintMaxStringLength, discoveryOptions.PrintMaxStringLength());
+
+		return base.Find(callback, discoveryOptions, types, cancellationToken);
+	}
 
 	/// <summary>
 	/// Finds the tests on a test method.
@@ -174,4 +191,12 @@ public class XunitTestFrameworkDiscoverer : TestFrameworkDiscoverer<IXunitTestCl
 	/// <inheritdoc/>
 	protected override Type[] GetExportedTypes() =>
 		TestAssembly.Assembly.GetExportedTypes();
+
+	static void SetEnvironment(
+		string environmentVariableName,
+		int? value)
+	{
+		if (value.HasValue)
+			Environment.SetEnvironmentVariable(environmentVariableName, value.Value.ToString(CultureInfo.InvariantCulture));
+	}
 }

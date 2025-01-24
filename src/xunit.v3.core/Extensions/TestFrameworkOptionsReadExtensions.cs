@@ -123,6 +123,46 @@ public static class TestFrameworkOptionsReadExtensions
 		PreEnumerateTheories(discoveryOptions) ?? false;
 
 	/// <summary>
+	/// Gets the maximum length for printing collections.
+	/// </summary>
+	public static int? PrintMaxEnumerableLength(this ITestFrameworkDiscoveryOptions discoveryOptions)
+	{
+		Guard.ArgumentNotNull(discoveryOptions);
+
+		return discoveryOptions.GetValue<int?>(TestOptionsNames.Discovery.PrintMaxEnumerableLength);
+	}
+
+	/// <summary>
+	/// Gets the maximum recursive depth for printing objects.
+	/// </summary>
+	public static int? PrintMaxObjectDepth(this ITestFrameworkDiscoveryOptions discoveryOptions)
+	{
+		Guard.ArgumentNotNull(discoveryOptions);
+
+		return discoveryOptions.GetValue<int?>(TestOptionsNames.Discovery.PrintMaxObjectDepth);
+	}
+
+	/// <summary>
+	/// Gets the maximum numbers of members to show for printing objects.
+	/// </summary>
+	public static int? PrintMaxObjectMemberCount(this ITestFrameworkDiscoveryOptions discoveryOptions)
+	{
+		Guard.ArgumentNotNull(discoveryOptions);
+
+		return discoveryOptions.GetValue<int?>(TestOptionsNames.Discovery.PrintMaxObjectMemberCount);
+	}
+
+	/// <summary>
+	/// Gets the maximum length for printing strings.
+	/// </summary>
+	public static int? PrintMaxStringLength(this ITestFrameworkDiscoveryOptions discoveryOptions)
+	{
+		Guard.ArgumentNotNull(discoveryOptions);
+
+		return discoveryOptions.GetValue<int?>(TestOptionsNames.Discovery.PrintMaxStringLength);
+	}
+
+	/// <summary>
 	/// Gets a flag that determines whether xUnit.net should report test results synchronously.
 	/// </summary>
 	public static bool? SynchronousMessageReporting(this ITestFrameworkDiscoveryOptions discoveryOptions)
@@ -142,6 +182,16 @@ public static class TestFrameworkOptionsReadExtensions
 	// ======================================
 	//   Read methods for execution options
 	// ======================================
+
+	/// <summary>
+	/// Gets a max recursive object depth for comparisons done with <c>Assert.Equivalent</c>.
+	/// </summary>
+	public static int? AssertEquivalentMaxDepth(this ITestFrameworkExecutionOptions executionOptions)
+	{
+		Guard.ArgumentNotNull(executionOptions);
+
+		return executionOptions.GetValue<int?>(TestOptionsNames.Execution.AssertEquivalentMaxDepth);
+	}
 
 	/// <summary>
 	/// Gets the culture to use for running tests. <c>null</c> uses the default OS culture;
@@ -283,6 +333,46 @@ public static class TestFrameworkOptionsReadExtensions
 	/// </summary>
 	public static ParallelAlgorithm ParallelAlgorithmOrDefault(this ITestFrameworkExecutionOptions executionOptions) =>
 		ParallelAlgorithm(executionOptions) ?? Sdk.ParallelAlgorithm.Conservative;
+
+	/// <summary>
+	/// Gets the maximum length for printing collections.
+	/// </summary>
+	public static int? PrintMaxEnumerableLength(this ITestFrameworkExecutionOptions executionOptions)
+	{
+		Guard.ArgumentNotNull(executionOptions);
+
+		return executionOptions.GetValue<int?>(TestOptionsNames.Execution.PrintMaxEnumerableLength);
+	}
+
+	/// <summary>
+	/// Gets the maximum recursive depth for printing objects.
+	/// </summary>
+	public static int? PrintMaxObjectDepth(this ITestFrameworkExecutionOptions executionOptions)
+	{
+		Guard.ArgumentNotNull(executionOptions);
+
+		return executionOptions.GetValue<int?>(TestOptionsNames.Execution.PrintMaxObjectDepth);
+	}
+
+	/// <summary>
+	/// Gets the maximum numbers of members to show for printing objects.
+	/// </summary>
+	public static int? PrintMaxObjectMemberCount(this ITestFrameworkExecutionOptions executionOptions)
+	{
+		Guard.ArgumentNotNull(executionOptions);
+
+		return executionOptions.GetValue<int?>(TestOptionsNames.Execution.PrintMaxObjectMemberCount);
+	}
+
+	/// <summary>
+	/// Gets the maximum length for printing strings.
+	/// </summary>
+	public static int? PrintMaxStringLength(this ITestFrameworkExecutionOptions executionOptions)
+	{
+		Guard.ArgumentNotNull(executionOptions);
+
+		return executionOptions.GetValue<int?>(TestOptionsNames.Execution.PrintMaxStringLength);
+	}
 
 	/// <summary>
 	/// Gets the value that should be used to seed randomness.

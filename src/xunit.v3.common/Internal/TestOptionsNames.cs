@@ -83,6 +83,42 @@ public static class TestOptionsNames
 		public static readonly string PreEnumerateTheories = "xunit.discovery.PreEnumerateTheories";
 
 		/// <summary>
+		/// Sets the maximum number of items to print in a collection.
+		/// </summary>
+		/// <remarks>
+		/// Value type: <see cref="int"/><br />
+		/// Consumed by: v3 1.1.0+
+		/// </remarks>
+		public static readonly string PrintMaxEnumerableLength = "xunit.discovery.PrintMaxEnumerableLength";
+
+		/// <summary>
+		/// Sets the maximum recursive depth when printing object values.
+		/// </summary>
+		/// <remarks>
+		/// Value type: <see cref="int"/><br />
+		/// Consumed by: v3 1.1.0+
+		/// </remarks>
+		public static readonly string PrintMaxObjectDepth = "xunit.discovery.PrintMaxObjectDepth";
+
+		/// <summary>
+		/// Sets the maximum number of members to show when printing object values.
+		/// </summary>
+		/// <remarks>
+		/// Value type: <see cref="int"/><br />
+		/// Consumed by: v3 1.1.0+
+		/// </remarks>
+		public static readonly string PrintMaxObjectMemberCount = "xunit.discovery.PrintMaxObjectMemberCount";
+
+		/// <summary>
+		/// Sets the maximum length when printing a string value.
+		/// </summary>
+		/// <remarks>
+		/// Value type: <see cref="int"/><br />
+		/// Consumed by: v3 1.1.0+
+		/// </remarks>
+		public static readonly string PrintMaxStringLength = "xunit.discovery.PrintMaxStringLength";
+
+		/// <summary>
 		/// Set to <c>true</c> to enable synchronous message reporting; set to <c>false</c> to enable
 		/// asynchronous message reporting. Synchronous in this case means the system will wait for the
 		/// runner to process a message before delivering the next one.
@@ -99,6 +135,15 @@ public static class TestOptionsNames
 	/// </summary>
 	public static class Execution
 	{
+		/// <summary>
+		/// The maximum recursive depth for object comparisons with <c>Assert.Equivalent</c>.
+		/// </summary>
+		/// <remarks>
+		/// Value type: <see cref="int"/><br />
+		/// Consumed by: v3 1.1.0+
+		/// </remarks>
+		public static readonly string AssertEquivalentMaxDepth = "xunit.execution.AssertEquivalentMaxDepth";
+
 		/// <summary>
 		/// The culture to be used for execution. <c>null</c> means the default system culture,
 		/// <see cref="string.Empty"/> means the invariant culture, and any other value is assumed
@@ -184,6 +229,42 @@ public static class TestOptionsNames
 		/// Consumed by: v2, v3
 		/// </remarks>
 		public static readonly string ParallelAlgorithm = "xunit.execution.ParallelAlgorithm";
+
+		/// <summary>
+		/// Sets the maximum number of items to print in a collection.
+		/// </summary>
+		/// <remarks>
+		/// Value type: <see cref="int"/><br />
+		/// Consumed by: v3 1.1.0+
+		/// </remarks>
+		public static readonly string PrintMaxEnumerableLength = "xunit.execution.PrintMaxEnumerableLength";
+
+		/// <summary>
+		/// Sets the maximum recursive depth when printing object values.
+		/// </summary>
+		/// <remarks>
+		/// Value type: <see cref="int"/><br />
+		/// Consumed by: v3 1.1.0+
+		/// </remarks>
+		public static readonly string PrintMaxObjectDepth = "xunit.execution.PrintMaxObjectDepth";
+
+		/// <summary>
+		/// Sets the maximum number of members to show when printing object values.
+		/// </summary>
+		/// <remarks>
+		/// Value type: <see cref="int"/><br />
+		/// Consumed by: v3 1.1.0+
+		/// </remarks>
+		public static readonly string PrintMaxObjectMemberCount = "xunit.execution.PrintMaxObjectMemberCount";
+
+		/// <summary>
+		/// Sets the maximum length when printing a string value.
+		/// </summary>
+		/// <remarks>
+		/// Value type: <see cref="int"/><br />
+		/// Consumed by: v3 1.1.0+
+		/// </remarks>
+		public static readonly string PrintMaxStringLength = "xunit.execution.PrintMaxStringLength";
 
 		/// <summary>
 		/// Set the seed to use for randomization. When unset (or set to <c>null</c>), will use the default

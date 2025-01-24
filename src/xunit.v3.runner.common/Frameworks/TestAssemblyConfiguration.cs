@@ -22,6 +22,11 @@ public class TestAssemblyConfiguration
 	public AppDomainSupport AppDomainOrDefault => AppDomain ?? AppDomainSupport.IfAvailable;
 
 	/// <summary>
+	/// Gets a value which indicates the maximum object depth to compare when using <c>Assert.Equivalent</c>.
+	/// </summary>
+	public int? AssertEquivalentMaxDepth { get; set; }
+
+	/// <summary>
 	/// Gets or sets the desired culture to run the tests under. Use <c>null</c> (default) to
 	/// indicate that we should use the default OS culture; use an empty string to indicate that
 	/// we should use the invariant culture; or use any culture value that is valid for
@@ -198,6 +203,26 @@ public class TestAssemblyConfiguration
 	/// test discovery.
 	/// </summary>
 	public bool? PreEnumerateTheories { get; set; }
+
+	/// <summary>
+	/// Gets a value indicating the maximum length for printing collections.
+	/// </summary>
+	public int? PrintMaxEnumerableLength { get; set; }
+
+	/// <summary>
+	/// Gets a value indicating the maximum recursive depth when printing objects.
+	/// </summary>
+	public int? PrintMaxObjectDepth { get; set; }
+
+	/// <summary>
+	/// Gets a value indicating the maximum members to show when printing objects.
+	/// </summary>
+	public int? PrintMaxObjectMemberCount { get; set; }
+
+	/// <summary>
+	/// Gets a value indicating the maximum length for printing string values.
+	/// </summary>
+	public int? PrintMaxStringLength { get; set; }
 
 	/// <summary>
 	/// Gets or sets the seed value used for randomization. Only supported for v3 or later test assemblies.

@@ -36,6 +36,10 @@ public class CommandLine : CommandLineParserBase
 
 		// General options
 		AddParser("assemblyInfo", OnAssemblyInfo, CommandLineGroup.General, null, "return test assembly information; does not find or run tests (implies -noColor and -noLogo)");
+		AddParser("assertEquivalentMaxDepth", OnAssertEquivalentMaxDepth, CommandLineGroup.General, "<option>",
+			"override the maximum recursive depth when comparing objects with Assert.Equivalent",
+			$"  any integer value >= 1 is valid (default value is {EnvironmentVariables.Defaults.AssertEquivalentMaxDepth})"
+		);
 		AddParser(
 			"automated", OnAutomated, CommandLineGroup.General, "[option]",
 			"enables automated mode (ensures all output is machine parseable)",

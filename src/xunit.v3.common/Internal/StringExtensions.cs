@@ -14,10 +14,15 @@ public static class StringExtensions
 	/// <summary/>
 	public static string QuotedWithTrim(
 		this string? value,
-		int maxLength = ArgumentFormatter.MAX_STRING_LENGTH) =>
-			value is null
-				? "null"
-				: '"' + (value.Length > maxLength ? value.Substring(0, maxLength) + ArgumentFormatter.Ellipsis : value) + '"';
+		int? maxLength = null)
+	{
+		if (value is null)
+			return "null";
+
+		maxLength ??= ArgumentFormatter.MaxStringLength;
+
+		return '"' + (value.Length > maxLength ? value.Substring(0, maxLength.Value) + ArgumentFormatter.Ellipsis : value) + '"';
+	}
 
 	/// <summary/>
 	public static IList<string> SplitAtOuterCommas(

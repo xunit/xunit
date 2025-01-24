@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Sdk;
-
-// TODO: Need to acceptance test this via Xunit3. See Xunit2AcceptanceTests.cs for examples.
 
 namespace Xunit.v3;
 
@@ -34,6 +33,22 @@ public class XunitTestFrameworkExecutor(IXunitTestAssembly testAssembly) :
 	public override async ValueTask RunTestCases(
 		IReadOnlyCollection<IXunitTestCase> testCases,
 		IMessageSink executionMessageSink,
-		ITestFrameworkExecutionOptions executionOptions) =>
-			await XunitTestAssemblyRunner.Instance.Run(TestAssembly, testCases, executionMessageSink, executionOptions);
+		ITestFrameworkExecutionOptions executionOptions)
+	{
+		SetEnvironment(EnvironmentVariables.AssertEquivalentMaxDepth, executionOptions.AssertEquivalentMaxDepth());
+		SetEnvironment(EnvironmentVariables.PrintMaxEnumerableLength, executionOptions.PrintMaxEnumerableLength());
+		SetEnvironment(EnvironmentVariables.PrintMaxObjectDepth, executionOptions.PrintMaxObjectDepth());
+		SetEnvironment(EnvironmentVariables.PrintMaxObjectMemberCount, executionOptions.PrintMaxObjectMemberCount());
+		SetEnvironment(EnvironmentVariables.PrintMaxStringLength, executionOptions.PrintMaxStringLength());
+
+		await XunitTestAssemblyRunner.Instance.Run(TestAssembly, testCases, executionMessageSink, executionOptions);
+	}
+
+	static void SetEnvironment(
+		string environmentVariableName,
+		int? value)
+	{
+		if (value.HasValue)
+			Environment.SetEnvironmentVariable(environmentVariableName, value.Value.ToString(CultureInfo.InvariantCulture));
+	}
 }

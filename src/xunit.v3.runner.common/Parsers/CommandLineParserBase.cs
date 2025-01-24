@@ -188,6 +188,29 @@ public abstract class CommandLineParserBase
 			"  if specified more than once, acts as an AND operation"
 		);
 
+		// Argument display options
+		AddParser("printMaxEnumerableLength", OnPrintMaxEnumerableLength, CommandLineGroup.ArgumentDisplay, "<option>",
+			"override the maximum number of values to show when printing a collection",
+			"set to 0 to always print the full collection",
+			$"  any integer value >= 0 is valid (default value is {EnvironmentVariables.Defaults.PrintMaxEnumerableLength})"
+		);
+		AddParser("printMaxObjectDepth", OnPrintMaxObjectDepth, CommandLineGroup.ArgumentDisplay, "<option>",
+			"override the maximum recursive depth when printing object values",
+			"set to 0 to always print objects at all depths",
+			"(warning: setting 0 or a very large value can cause stack overflows that may crash the test process)",
+			$"  any integer value >= 0 is valid (default value is {EnvironmentVariables.Defaults.PrintMaxObjectDepth})"
+		);
+		AddParser("printMaxObjectMemberCount", OnPrintMaxObjectMemberCount, CommandLineGroup.ArgumentDisplay, "<option>",
+			"override the maximum number of fields and properties to show when printing an object",
+			"set to 0 to always print all members",
+			$"  any integer value >= 0 is valid (default value is {EnvironmentVariables.Defaults.PrintMaxObjectMemberCount})"
+		);
+		AddParser("printMaxStringLength", OnPrintMaxStringLength, CommandLineGroup.ArgumentDisplay, "<option>",
+			"override the maximum length to show when printing a string value",
+			"set to 0 to always print the entire string",
+			$"  any integer value >= 0 is valid (default value is {EnvironmentVariables.Defaults.PrintMaxStringLength})"
+		);
+
 		// Reporter is hidden because the available list is dynamic
 		AddHiddenParser("reporter", OnReporter);
 
@@ -309,6 +332,19 @@ public abstract class CommandLineParserBase
 
 	/// <summary/>
 	protected abstract Assembly LoadAssembly(string dllFile);
+
+	/// <summary/>
+	protected void OnAssertEquivalentMaxDepth(KeyValuePair<string, string?> option)
+	{
+		if (option.Value is null)
+			throw new ArgumentException("missing argument for -assertEquivalentMaxDepth");
+
+		if (!int.TryParse(option.Value, out var maxDepth) || maxDepth < 1)
+			throw new ArgumentException("invalid argument for -assertEquivalentMaxDepth");
+
+		foreach (var projectAssembly in Project.Assemblies)
+			projectAssembly.Configuration.AssertEquivalentMaxDepth = maxDepth;
+	}
 
 	void OnClass(KeyValuePair<string, string?> option)
 	{
@@ -634,6 +670,54 @@ public abstract class CommandLineParserBase
 			projectAssembly.Configuration.PreEnumerateTheories = true;
 	}
 
+	void OnPrintMaxEnumerableLength(KeyValuePair<string, string?> option)
+	{
+		if (option.Value is null)
+			throw new ArgumentException("missing argument for -printMaxEnumerableLength");
+
+		if (!int.TryParse(option.Value, out var maxValue) || maxValue < 0)
+			throw new ArgumentException("incorrect argument value for -printMaxEnumerableLength");
+
+		foreach (var projectAssembly in Project.Assemblies)
+			projectAssembly.Configuration.PrintMaxEnumerableLength = maxValue;
+	}
+
+	void OnPrintMaxObjectDepth(KeyValuePair<string, string?> option)
+	{
+		if (option.Value is null)
+			throw new ArgumentException("missing argument for -printMaxObjectDepth");
+
+		if (!int.TryParse(option.Value, out var maxValue) || maxValue < 0)
+			throw new ArgumentException("incorrect argument value for -printMaxObjectDepth");
+
+		foreach (var projectAssembly in Project.Assemblies)
+			projectAssembly.Configuration.PrintMaxObjectDepth = maxValue;
+	}
+
+	void OnPrintMaxObjectMemberCount(KeyValuePair<string, string?> option)
+	{
+		if (option.Value is null)
+			throw new ArgumentException("missing argument for -printMaxObjectMemberCount");
+
+		if (!int.TryParse(option.Value, out var maxValue) || maxValue < 0)
+			throw new ArgumentException("incorrect argument value for -printMaxObjectMemberCount");
+
+		foreach (var projectAssembly in Project.Assemblies)
+			projectAssembly.Configuration.PrintMaxObjectMemberCount = maxValue;
+	}
+
+	void OnPrintMaxStringLength(KeyValuePair<string, string?> option)
+	{
+		if (option.Value is null)
+			throw new ArgumentException("missing argument for -printMaxStringLength");
+
+		if (!int.TryParse(option.Value, out var maxValue) || maxValue < 0)
+			throw new ArgumentException("incorrect argument value for -printMaxStringLength");
+
+		foreach (var projectAssembly in Project.Assemblies)
+			projectAssembly.Configuration.PrintMaxStringLength = maxValue;
+	}
+
 	void OnReporter(KeyValuePair<string, string?> option)
 	{
 		if (option.Value is null)
@@ -792,10 +876,13 @@ public abstract class CommandLineParserBase
 	/// <summary/>
 	public void PrintUsage()
 	{
+		var isInProcessRunner = GetType().Namespace == "Xunit.Runner.InProc.SystemConsole";
+
 		PrintUsageGroup(CommandLineGroup.General, "General options");
 		PrintUsageGroup(CommandLineGroup.NetFramework, "Options for .NET Framework projects (v1 or v2 only)");
 		PrintUsageGroup(CommandLineGroup.FilterQuery, "Query filtering (optional, choose one or more)", "If more than one query filter is specified, the filters act as an OR operation", "  Note: You cannot mix simple filtering and query filtering.");
 		PrintUsageGroup(CommandLineGroup.FilterSimple, "Simple filtering (optional, choose one or more)", "If more than one simple filter type is specified, cross-filter type filters act as an AND operation", "  Note: You cannot mix simple filtering and query filtering.");
+		PrintUsageGroup(CommandLineGroup.ArgumentDisplay, "Argument display overrides" + (isInProcessRunner ? string.Empty : " (v3 1.1.0+ only)"));
 
 		if (RunnerReporters.Count > 0)
 		{

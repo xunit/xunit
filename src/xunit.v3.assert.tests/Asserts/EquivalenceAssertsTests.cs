@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Xunit;
+using Xunit.Internal;
 using Xunit.Sdk;
 
 #if XUNIT_IMMUTABLE_COLLECTIONS
@@ -1854,7 +1855,7 @@ public class EquivalenceAssertsTests
 
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
-				"Assert.Equivalent() Failure: Exceeded the maximum depth 50 with 'Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent.Parent'; check for infinite recursion or circular references",
+				$"Assert.Equivalent() Failure: Exceeded the maximum depth {EnvironmentVariables.Defaults.AssertEquivalentMaxDepth} with '{string.Join(".", Enumerable.Repeat("Parent", EnvironmentVariables.Defaults.AssertEquivalentMaxDepth))}'; check for infinite recursion or circular references",
 				ex.Message
 			);
 		}

@@ -105,8 +105,8 @@ public class SpanAssertsTests
 				Assert.IsType<ContainsException>(ex);
 				Assert.Equal(
 					"Assert.Contains() Failure: Sub-string not found" + Environment.NewLine +
-					$"String:    \"This is a relatively long string so that \"{ArgumentFormatter.Ellipsis}" + Environment.NewLine +
-					$"Not found: \"We are looking for something very long as\"{ArgumentFormatter.Ellipsis}",
+					$"String:    \"This is a relatively long string so that we can se\"{ArgumentFormatter.Ellipsis}" + Environment.NewLine +
+					"Not found: \"We are looking for something very long as well\"",
 					ex.Message
 				);
 			}
@@ -298,7 +298,7 @@ public class SpanAssertsTests
 				Assert.Equal(
 					"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
 					"                ↓ (pos 7)" + Environment.NewLine +
-					$"String: \"Hello, world from a very long string that\"{ArgumentFormatter.Ellipsis}" + Environment.NewLine +
+					$"String: \"Hello, world from a very long string that will end\"{ArgumentFormatter.Ellipsis}" + Environment.NewLine +
 					"Found:  \"world\"",
 					ex.Message
 				);
@@ -312,8 +312,8 @@ public class SpanAssertsTests
 				Assert.IsType<DoesNotContainException>(ex);
 				Assert.Equal(
 					"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
-					"                                ↓ (pos 50)" + Environment.NewLine +
-					$"String: {ArgumentFormatter.Ellipsis}\"ng that has 'Hello, world' placed in the \"{ArgumentFormatter.Ellipsis}" + Environment.NewLine +
+					"                                     ↓ (pos 50)" + Environment.NewLine +
+					$"String: {ArgumentFormatter.Ellipsis}\" string that has 'Hello, world' placed in the midd\"{ArgumentFormatter.Ellipsis}" + Environment.NewLine +
 					"Found:  \"world\"",
 					ex.Message
 				);
@@ -327,8 +327,8 @@ public class SpanAssertsTests
 				Assert.IsType<DoesNotContainException>(ex);
 				Assert.Equal(
 					"Assert.DoesNotContain() Failure: Sub-string found" + Environment.NewLine +
-					"                                               ↓ (pos 89)" + Environment.NewLine +
-					$"String: {ArgumentFormatter.Ellipsis}\"ont truncated, just to say 'Hello, world'\"" + Environment.NewLine +
+					"                                                        ↓ (pos 89)" + Environment.NewLine +
+					$"String: {ArgumentFormatter.Ellipsis}\"om the front truncated, just to say 'Hello, world'\"" + Environment.NewLine +
 					"Found:  \"world\"",
 					ex.Message
 				);
@@ -513,8 +513,8 @@ public class SpanAssertsTests
 				Assert.IsType<EndsWithException>(ex);
 				Assert.Equal(
 					"Assert.EndsWith() Failure: String end does not match" + Environment.NewLine +
-					"String:       " + ArgumentFormatter.Ellipsis + "\"at we expected to find this ending inside\"" + Environment.NewLine +
-					"Expected end: \"This is a long string that we're looking \"" + ArgumentFormatter.Ellipsis,
+					"String:       " + ArgumentFormatter.Ellipsis + "\"string that we expected to find this ending inside\"" + Environment.NewLine +
+					"Expected end: \"This is a long string that we're looking for at th\"" + ArgumentFormatter.Ellipsis,
 					ex.Message
 				);
 			}
@@ -661,10 +661,10 @@ public class SpanAssertsTests
 					Assert.IsType<EqualException>(ex);
 					Assert.Equal(
 						"Assert.Equal() Failure: Strings differ" + Environment.NewLine +
-						"                                  ↓ (pos 21)" + Environment.NewLine +
-						$"Expected: {ArgumentFormatter.Ellipsis}\"hy hello there world, you're a long strin\"{ArgumentFormatter.Ellipsis}" + Environment.NewLine +
-						$"Actual:   {ArgumentFormatter.Ellipsis}\"hy hello there world! You're a long strin\"{ArgumentFormatter.Ellipsis}" + Environment.NewLine +
-						"                                  ↑ (pos 21)",
+						"                                ↓ (pos 21)" + Environment.NewLine +
+						$"Expected: \"Why hello there world, you're a long string with s\"{ArgumentFormatter.Ellipsis}" + Environment.NewLine +
+						"Actual:   \"Why hello there world! You're a long string!\"" + Environment.NewLine +
+						"                                ↑ (pos 21)",
 						ex.Message
 					);
 				}
@@ -938,8 +938,8 @@ public class SpanAssertsTests
 				Assert.IsType<StartsWithException>(ex);
 				Assert.Equal(
 					"Assert.StartsWith() Failure: String start does not match" + Environment.NewLine +
-					"String:         \"This is the long string that we expected \"" + ArgumentFormatter.Ellipsis + Environment.NewLine +
-					"Expected start: \"This is a long string that we're looking \"" + ArgumentFormatter.Ellipsis,
+					"String:         \"This is the long string that we expected to find t\"" + ArgumentFormatter.Ellipsis + Environment.NewLine +
+					"Expected start: \"This is a long string that we're looking for at th\"" + ArgumentFormatter.Ellipsis,
 					ex.Message
 				);
 			}

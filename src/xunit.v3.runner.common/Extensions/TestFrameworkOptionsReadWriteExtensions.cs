@@ -141,6 +141,46 @@ public static class TestFrameworkOptionsReadWriteExtensions
 		GetPreEnumerateTheories(discoveryOptions) ?? false;
 
 	/// <summary>
+	/// Gets the maximum length for printing collections.
+	/// </summary>
+	public static int? GetPrintMaxEnumerableLength(this ITestFrameworkDiscoveryOptions discoveryOptions)
+	{
+		Guard.ArgumentNotNull(discoveryOptions);
+
+		return discoveryOptions.GetValue<int?>(TestOptionsNames.Discovery.PrintMaxEnumerableLength);
+	}
+
+	/// <summary>
+	/// Gets the maximum recursive depth for printing objects.
+	/// </summary>
+	public static int? GetPrintMaxObjectDepth(this ITestFrameworkDiscoveryOptions discoveryOptions)
+	{
+		Guard.ArgumentNotNull(discoveryOptions);
+
+		return discoveryOptions.GetValue<int?>(TestOptionsNames.Discovery.PrintMaxObjectDepth);
+	}
+
+	/// <summary>
+	/// Gets the maximum numbers of members to show for printing objects.
+	/// </summary>
+	public static int? GetPrintMaxObjectMemberCount(this ITestFrameworkDiscoveryOptions discoveryOptions)
+	{
+		Guard.ArgumentNotNull(discoveryOptions);
+
+		return discoveryOptions.GetValue<int?>(TestOptionsNames.Discovery.PrintMaxObjectMemberCount);
+	}
+
+	/// <summary>
+	/// Gets the maximum length for printing strings.
+	/// </summary>
+	public static int? GetPrintMaxStringLength(this ITestFrameworkDiscoveryOptions discoveryOptions)
+	{
+		Guard.ArgumentNotNull(discoveryOptions);
+
+		return discoveryOptions.GetValue<int?>(TestOptionsNames.Discovery.PrintMaxStringLength);
+	}
+
+	/// <summary>
 	/// Gets a flag that determines whether xUnit.net should report test results synchronously.
 	/// </summary>
 	public static bool? GetSynchronousMessageReporting(this ITestFrameworkDiscoveryOptions discoveryOptions)
@@ -254,6 +294,54 @@ public static class TestFrameworkOptionsReadWriteExtensions
 	}
 
 	/// <summary>
+	/// Sets the maximum length for printing collections.
+	/// </summary>
+	public static void SetPrintMaxEnumerableLength(
+		this ITestFrameworkDiscoveryOptions discoveryOptions,
+		int? value)
+	{
+		Guard.ArgumentNotNull(discoveryOptions);
+
+		discoveryOptions.SetValue(TestOptionsNames.Discovery.PrintMaxEnumerableLength, value);
+	}
+
+	/// <summary>
+	/// Sets the maximum recursive depth for printing objects.
+	/// </summary>
+	public static void SetPrintMaxObjectDepth(
+		this ITestFrameworkDiscoveryOptions discoveryOptions,
+		int? value)
+	{
+		Guard.ArgumentNotNull(discoveryOptions);
+
+		discoveryOptions.SetValue(TestOptionsNames.Discovery.PrintMaxObjectDepth, value);
+	}
+
+	/// <summary>
+	/// Sets the maximum numbers of members to show for printing objects.
+	/// </summary>
+	public static void SetPrintMaxObjectMemberCount(
+		this ITestFrameworkDiscoveryOptions discoveryOptions,
+		int? value)
+	{
+		Guard.ArgumentNotNull(discoveryOptions);
+
+		discoveryOptions.SetValue(TestOptionsNames.Discovery.PrintMaxObjectMemberCount, value);
+	}
+
+	/// <summary>
+	/// Sets the maximum length for printing strings.
+	/// </summary>
+	public static void SetPrintMaxStringLength(
+		this ITestFrameworkDiscoveryOptions discoveryOptions,
+		int? value)
+	{
+		Guard.ArgumentNotNull(discoveryOptions);
+
+		discoveryOptions.SetValue(TestOptionsNames.Discovery.PrintMaxStringLength, value);
+	}
+
+	/// <summary>
 	/// Sets a flag that determines whether xUnit.net should report test results synchronously.
 	/// </summary>
 	public static void SetSynchronousMessageReporting(
@@ -268,6 +356,16 @@ public static class TestFrameworkOptionsReadWriteExtensions
 	// ======================================
 	//   Read methods for execution options
 	// ======================================
+
+	/// <summary>
+	/// Gets a max recursive object depth for comparisons done with <c>Assert.Equivalent</c>.
+	/// </summary>
+	public static int? GetAssertEquivalentMaxDepth(this ITestFrameworkExecutionOptions executionOptions)
+	{
+		Guard.ArgumentNotNull(executionOptions);
+
+		return executionOptions.GetValue<int?>(TestOptionsNames.Execution.AssertEquivalentMaxDepth);
+	}
 
 	/// <summary>
 	/// Gets the culture to use for running tests. <c>null</c> uses the default OS culture;
@@ -432,6 +530,46 @@ public static class TestFrameworkOptionsReadWriteExtensions
 		GetParallelAlgorithm(executionOptions) ?? ParallelAlgorithm.Conservative;
 
 	/// <summary>
+	/// Gets the maximum length for printing collections.
+	/// </summary>
+	public static int? GetPrintMaxEnumerableLength(this ITestFrameworkExecutionOptions executionOptions)
+	{
+		Guard.ArgumentNotNull(executionOptions);
+
+		return executionOptions.GetValue<int?>(TestOptionsNames.Execution.PrintMaxEnumerableLength);
+	}
+
+	/// <summary>
+	/// Gets the maximum recursive depth for printing objects.
+	/// </summary>
+	public static int? GetPrintMaxObjectDepth(this ITestFrameworkExecutionOptions executionOptions)
+	{
+		Guard.ArgumentNotNull(executionOptions);
+
+		return executionOptions.GetValue<int?>(TestOptionsNames.Execution.PrintMaxObjectDepth);
+	}
+
+	/// <summary>
+	/// Gets the maximum numbers of members to show for printing objects.
+	/// </summary>
+	public static int? GetPrintMaxObjectMemberCount(this ITestFrameworkExecutionOptions executionOptions)
+	{
+		Guard.ArgumentNotNull(executionOptions);
+
+		return executionOptions.GetValue<int?>(TestOptionsNames.Execution.PrintMaxObjectMemberCount);
+	}
+
+	/// <summary>
+	/// Gets the maximum length for printing strings.
+	/// </summary>
+	public static int? GetPrintMaxStringLength(this ITestFrameworkExecutionOptions executionOptions)
+	{
+		Guard.ArgumentNotNull(executionOptions);
+
+		return executionOptions.GetValue<int?>(TestOptionsNames.Execution.PrintMaxStringLength);
+	}
+
+	/// <summary>
 	/// Gets the value that should be used to seed randomness.
 	/// </summary>
 	public static int? GetSeed(this ITestFrameworkExecutionOptions executionOptions)
@@ -497,6 +635,18 @@ public static class TestFrameworkOptionsReadWriteExtensions
 	// =======================================
 	//   Write methods for execution options
 	// =======================================
+
+	/// <summary>
+	/// Gets a max recursive object depth for comparisons done with <c>Assert.Equivalent</c>.
+	/// </summary>
+	public static void SetAssertEquivalentMaxDepth(
+		this ITestFrameworkExecutionOptions executionOptions,
+		int? maxDepth)
+	{
+		Guard.ArgumentNotNull(executionOptions);
+
+		executionOptions.SetValue(TestOptionsNames.Execution.AssertEquivalentMaxDepth, maxDepth);
+	}
 
 	/// <summary>
 	/// Sets the culture to use for running tests. <c>null</c> uses the default OS culture;
@@ -609,6 +759,54 @@ public static class TestFrameworkOptionsReadWriteExtensions
 		Guard.ArgumentNotNull(executionOptions);
 
 		executionOptions.SetValue(TestOptionsNames.Execution.ParallelAlgorithm, value.HasValue ? value.GetValueOrDefault().ToString() : null);
+	}
+
+	/// <summary>
+	/// Sets the maximum length for printing collections.
+	/// </summary>
+	public static void SetPrintMaxEnumerableLength(
+		this ITestFrameworkExecutionOptions executionOptions,
+		int? value)
+	{
+		Guard.ArgumentNotNull(executionOptions);
+
+		executionOptions.SetValue(TestOptionsNames.Execution.PrintMaxEnumerableLength, value);
+	}
+
+	/// <summary>
+	/// Sets the maximum recursive depth for printing objects.
+	/// </summary>
+	public static void SetPrintMaxObjectDepth(
+		this ITestFrameworkExecutionOptions executionOptions,
+		int? value)
+	{
+		Guard.ArgumentNotNull(executionOptions);
+
+		executionOptions.SetValue(TestOptionsNames.Execution.PrintMaxObjectDepth, value);
+	}
+
+	/// <summary>
+	/// Sets the maximum numbers of members to show for printing objects.
+	/// </summary>
+	public static void SetPrintMaxObjectMemberCount(
+		this ITestFrameworkExecutionOptions executionOptions,
+		int? value)
+	{
+		Guard.ArgumentNotNull(executionOptions);
+
+		executionOptions.SetValue(TestOptionsNames.Execution.PrintMaxObjectMemberCount, value);
+	}
+
+	/// <summary>
+	/// Sets the maximum length for printing strings.
+	/// </summary>
+	public static void SetPrintMaxStringLength(
+		this ITestFrameworkExecutionOptions executionOptions,
+		int? value)
+	{
+		Guard.ArgumentNotNull(executionOptions);
+
+		executionOptions.SetValue(TestOptionsNames.Execution.PrintMaxStringLength, value);
 	}
 
 	/// <summary>

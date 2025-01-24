@@ -64,6 +64,10 @@ public static partial class TestData
 		TestMethodDisplay? methodDisplay = null,
 		TestMethodDisplayOptions? methodDisplayOptions = null,
 		bool? preEnumerateTheories = null,
+		int? printMaxEnumerableLength = null,
+		int? printMaxObjectDepth = null,
+		int? printMaxObjectMemberCount = null,
+		int? printMaxStringLength = null,
 		bool? synchronousMessageReporting = null)
 	{
 		ITestFrameworkDiscoveryOptions result = TestFrameworkOptions.Empty();
@@ -75,12 +79,17 @@ public static partial class TestData
 		result.SetMethodDisplay(methodDisplay);
 		result.SetMethodDisplayOptions(methodDisplayOptions);
 		result.SetPreEnumerateTheories(preEnumerateTheories);
+		result.SetPrintMaxEnumerableLength(printMaxEnumerableLength);
+		result.SetPrintMaxObjectDepth(printMaxObjectDepth);
+		result.SetPrintMaxObjectMemberCount(printMaxObjectMemberCount);
+		result.SetPrintMaxStringLength(printMaxStringLength);
 		result.SetSynchronousMessageReporting(synchronousMessageReporting);
 
 		return result;
 	}
 
 	public static ITestFrameworkExecutionOptions TestFrameworkExecutionOptions(
+		int? assertEquivalentMaxDepth = null,
 		string? culture = null,
 		bool? diagnosticMessages = null,
 		bool? disableParallelization = null,
@@ -90,6 +99,10 @@ public static partial class TestData
 		bool? internalDiagnosticMessages = null,
 		int? maxParallelThreads = null,
 		ParallelAlgorithm? parallelAlgorithm = null,
+		int? printMaxEnumerableLength = null,
+		int? printMaxObjectDepth = null,
+		int? printMaxObjectMemberCount = null,
+		int? printMaxStringLength = null,
 		int? seed = null,
 		bool? showLiveOutput = null,
 		bool? stopOnFail = null,
@@ -97,6 +110,7 @@ public static partial class TestData
 	{
 		ITestFrameworkExecutionOptions result = TestFrameworkOptions.Empty();
 
+		result.SetAssertEquivalentMaxDepth(assertEquivalentMaxDepth);
 		result.SetCulture(culture);
 		result.SetDiagnosticMessages(diagnosticMessages);
 		result.SetDisableParallelization(disableParallelization);
@@ -106,6 +120,10 @@ public static partial class TestData
 		result.SetInternalDiagnosticMessages(internalDiagnosticMessages);
 		result.SetMaxParallelThreads(maxParallelThreads);
 		result.SetParallelAlgorithm(parallelAlgorithm);
+		result.SetPrintMaxEnumerableLength(printMaxEnumerableLength);
+		result.SetPrintMaxObjectDepth(printMaxObjectDepth);
+		result.SetPrintMaxObjectMemberCount(printMaxObjectMemberCount);
+		result.SetPrintMaxStringLength(printMaxStringLength);
 		result.SetSeed(seed);
 		result.SetShowLiveOutput(showLiveOutput);
 		result.SetStopOnTestFail(stopOnFail);

@@ -332,7 +332,7 @@ public class ArgumentFormatterTests
 			looping[0] = 42;
 			looping[1] = looping;
 
-			Assert.Equal($"[42, [42, [{ArgumentFormatter.Ellipsis}]]]", ArgumentFormatter.Format(looping));
+			Assert.Equal($"[42, [42, [42, [{ArgumentFormatter.Ellipsis}]]]]", ArgumentFormatter.Format(looping));
 		}
 
 		[Fact]
@@ -359,7 +359,9 @@ public class ArgumentFormatterTests
 		{
 			var expected = $"MyComplexType {{ MyPublicField = 42, MyPublicProperty = {21.12M} }}";
 
-			Assert.Equal(expected, ArgumentFormatter.Format(new MyComplexType()));
+			var result = ArgumentFormatter.Format(new MyComplexType());
+
+			Assert.Equal(expected, result);
 		}
 
 		public class MyComplexType
@@ -385,7 +387,9 @@ public class ArgumentFormatterTests
 		{
 			var expected = $"MyComplexTypeWrapper {{ c = 'A', s = \"Hello, world!\", t = MyComplexType {{ MyPublicField = 42, MyPublicProperty = {21.12M} }} }}";
 
-			Assert.Equal(expected, ArgumentFormatter.Format(new MyComplexTypeWrapper()));
+			var result = ArgumentFormatter.Format(new MyComplexTypeWrapper());
+
+			Assert.Equal(expected, result);
 		}
 
 		public class MyComplexTypeWrapper
@@ -398,13 +402,17 @@ public class ArgumentFormatterTests
 		[CulturedFact]
 		public static void Empty()
 		{
-			Assert.Equal("Object { }", ArgumentFormatter.Format(new object()));
+			var result = ArgumentFormatter.Format(new object());
+
+			Assert.Equal("Object { }", result);
 		}
 
 		[CulturedFact]
 		public static void WithThrowingPropertyGetter()
 		{
-			Assert.Equal("ThrowingGetter { MyThrowingProperty = (throws NotImplementedException) }", ArgumentFormatter.Format(new ThrowingGetter()));
+			var result = ArgumentFormatter.Format(new ThrowingGetter());
+
+			Assert.Equal("ThrowingGetter { MyThrowingProperty = (throws NotImplementedException) }", result);
 		}
 
 		public class ThrowingGetter
@@ -415,9 +423,11 @@ public class ArgumentFormatterTests
 		[CulturedFact]
 		public static void LimitsOutputToFirstFewValues()
 		{
-			var expected = $@"Big {{ MyField1 = 42, MyField2 = ""Hello, world!"", MyProp1 = {21.12}, MyProp2 = typeof(ArgumentFormatterTests+ComplexTypes+Big), MyProp3 = 2014-04-17T07:45:23.0000000+00:00, {ArgumentFormatter.Ellipsis} }}";
+			var expected = $@"Big {{ MyField1 = 42, MyField2 = ""Hello, world!"", MyProp1 = {21.12}, MyProp2 = typeof({typeof(Big).FullName}), MyProp3 = 2014-04-17T07:45:23.0000000+00:00, {ArgumentFormatter.Ellipsis} }}";
 
-			Assert.Equal(expected, ArgumentFormatter.Format(new Big()));
+			var result = ArgumentFormatter.Format(new Big());
+
+			Assert.Equal(expected, result);
 		}
 
 		public class Big
@@ -446,7 +456,11 @@ public class ArgumentFormatterTests
 		[CulturedFact]
 		public static void TypesAreRenderedWithMaximumDepthToPreventInfiniteRecursion()
 		{
-			Assert.Equal($"Looping {{ Me = Looping {{ Me = Looping {{ {ArgumentFormatter.Ellipsis} }} }} }}", ArgumentFormatter.Format(new Looping()));
+			var expected = $"Looping {{ Me = Looping {{ Me = Looping {{ Me = Looping {{ {ArgumentFormatter.Ellipsis} }} }} }} }}";
+
+			var result = ArgumentFormatter.Format(new Looping());
+
+			Assert.Equal(expected, result);
 		}
 
 		public class Looping
@@ -459,7 +473,9 @@ public class ArgumentFormatterTests
 		[Fact]
 		public static void WhenCustomTypeImplementsToString_UsesToString()
 		{
-			Assert.Equal("This is what you should show", ArgumentFormatter.Format(new TypeWithToString()));
+			var result = ArgumentFormatter.Format(new TypeWithToString());
+
+			Assert.Equal("This is what you should show", result);
 		}
 
 		public class TypeWithToString

@@ -33,10 +33,14 @@ public class Xunit3ArgumentFactoryTests
 			var options = TestData.TestFrameworkDiscoveryOptions(
 				culture: culture,
 				diagnosticMessages: true,
-				internalDiagnosticMessages: true,
 				includeSourceInformation: true,
+				internalDiagnosticMessages: true,
 				methodDisplay: TestMethodDisplay.Method,
 				methodDisplayOptions: TestMethodDisplayOptions.ReplacePeriodWithComma | TestMethodDisplayOptions.UseOperatorMonikers,
+				printMaxEnumerableLength: 1,
+				printMaxObjectDepth: 2,
+				printMaxObjectMemberCount: 3,
+				printMaxStringLength: 4,
 				preEnumerateTheories: true,
 				synchronousMessageReporting: true
 			);
@@ -55,8 +59,32 @@ public class Xunit3ArgumentFactoryTests
 				arg => Assert.Equal("Method", arg),
 				arg => Assert.Equal("-methodDisplayOptions", arg),
 				arg => Assert.Equal("UseOperatorMonikers,ReplacePeriodWithComma", arg),
-				arg => Assert.Equal("-preEnumerateTheories", arg)
+				arg => Assert.Equal("-preEnumerateTheories", arg),
+				arg => Assert.Equal("-printMaxEnumerableLength", arg),
+				arg => Assert.Equal("1", arg),
+				arg => Assert.Equal("-printMaxObjectDepth", arg),
+				arg => Assert.Equal("2", arg),
+				arg => Assert.Equal("-printMaxObjectMemberCount", arg),
+				arg => Assert.Equal("3", arg),
+				arg => Assert.Equal("-printMaxStringLength", arg),
+				arg => Assert.Equal("4", arg)
 			);
+		}
+
+		[Fact]
+		public void IntValuesOutOfRange()
+		{
+			var options = TestData.TestFrameworkDiscoveryOptions(
+				printMaxEnumerableLength: -1,
+				printMaxObjectDepth: -1,
+				printMaxObjectMemberCount: -1,
+				printMaxStringLength: -1
+			);
+
+			var arguments = Xunit3ArgumentFactory.ForFind(Version_0_3_0, options);
+
+			var arg = Assert.Single(arguments);
+			Assert.Equal("-automated", arg);
 		}
 
 		[Fact]
@@ -230,6 +258,7 @@ public class Xunit3ArgumentFactoryTests
 			);
 			// We ignore synchronousMessageReporting because it's processed locally, not remotely
 			var executionOptions = TestData.TestFrameworkExecutionOptions(
+				assertEquivalentMaxDepth: 5,
 				culture: culture,
 				diagnosticMessages: true,
 				disableParallelization: true,
@@ -239,6 +268,10 @@ public class Xunit3ArgumentFactoryTests
 				internalDiagnosticMessages: true,
 				maxParallelThreads: 42,
 				parallelAlgorithm: ParallelAlgorithm.Conservative,
+				printMaxEnumerableLength: 1,
+				printMaxObjectDepth: 2,
+				printMaxObjectMemberCount: 3,
+				printMaxStringLength: 4,
 				seed: 2112,
 				stopOnFail: true,
 				synchronousMessageReporting: true
@@ -251,6 +284,8 @@ public class Xunit3ArgumentFactoryTests
 				arg => Assert.Equal(":2112", arg),
 				arg => Assert.Equal("-automated", arg),
 				arg => Assert.Equal("sync", arg),
+				arg => Assert.Equal("-assertEquivalentMaxDepth", arg),
+				arg => Assert.Equal("5", arg),
 				arg => Assert.Equal("-culture", arg),
 				arg => Assert.Equal(expectedCulture, arg),
 				arg => Assert.Equal("-diagnostics", arg),
@@ -270,8 +305,34 @@ public class Xunit3ArgumentFactoryTests
 				arg => Assert.Equal("-parallelAlgorithm", arg),
 				arg => Assert.Equal("Conservative", arg),
 				arg => Assert.Equal("-preEnumerateTheories", arg),
+				arg => Assert.Equal("-printMaxEnumerableLength", arg),
+				arg => Assert.Equal("1", arg),
+				arg => Assert.Equal("-printMaxObjectDepth", arg),
+				arg => Assert.Equal("2", arg),
+				arg => Assert.Equal("-printMaxObjectMemberCount", arg),
+				arg => Assert.Equal("3", arg),
+				arg => Assert.Equal("-printMaxStringLength", arg),
+				arg => Assert.Equal("4", arg),
 				arg => Assert.Equal("-stopOnFail", arg)
 			);
+		}
+
+		[Fact]
+		public void IntValuesOutOfRange()
+		{
+			var discoveryOptions = TestData.TestFrameworkDiscoveryOptions();
+			var executionOptions = TestData.TestFrameworkExecutionOptions(
+				assertEquivalentMaxDepth: 0,
+				printMaxEnumerableLength: -1,
+				printMaxObjectDepth: -1,
+				printMaxObjectMemberCount: -1,
+				printMaxStringLength: -1
+			);
+
+			var arguments = Xunit3ArgumentFactory.ForFindAndRun(Version_0_3_0, discoveryOptions, executionOptions);
+
+			var arg = Assert.Single(arguments);
+			Assert.Equal("-automated", arg);
 		}
 
 		[Theory]
@@ -431,6 +492,7 @@ public class Xunit3ArgumentFactoryTests
 		{
 			// We ignore synchronousMessageReporting because it's processed locally, not remotely
 			var options = TestData.TestFrameworkExecutionOptions(
+				assertEquivalentMaxDepth: 5,
 				culture: culture,
 				diagnosticMessages: true,
 				disableParallelization: true,
@@ -440,6 +502,10 @@ public class Xunit3ArgumentFactoryTests
 				internalDiagnosticMessages: true,
 				maxParallelThreads: 42,
 				parallelAlgorithm: ParallelAlgorithm.Conservative,
+				printMaxEnumerableLength: 1,
+				printMaxObjectDepth: 2,
+				printMaxObjectMemberCount: 3,
+				printMaxStringLength: 4,
 				seed: 2112,
 				stopOnFail: true,
 				synchronousMessageReporting: true
@@ -452,6 +518,8 @@ public class Xunit3ArgumentFactoryTests
 				arg => Assert.Equal(":2112", arg),
 				arg => Assert.Equal("-automated", arg),
 				arg => Assert.Equal("sync", arg),
+				arg => Assert.Equal("-assertEquivalentMaxDepth", arg),
+				arg => Assert.Equal("5", arg),
 				arg => Assert.Equal("-culture", arg),
 				arg => Assert.Equal(expectedCulture, arg),
 				arg => Assert.Equal("-diagnostics", arg),
@@ -466,9 +534,38 @@ public class Xunit3ArgumentFactoryTests
 				arg => Assert.Equal("none", arg),
 				arg => Assert.Equal("-parallelAlgorithm", arg),
 				arg => Assert.Equal("Conservative", arg),
+				arg => Assert.Equal("-printMaxEnumerableLength", arg),
+				arg => Assert.Equal("1", arg),
+				arg => Assert.Equal("-printMaxObjectDepth", arg),
+				arg => Assert.Equal("2", arg),
+				arg => Assert.Equal("-printMaxObjectMemberCount", arg),
+				arg => Assert.Equal("3", arg),
+				arg => Assert.Equal("-printMaxStringLength", arg),
+				arg => Assert.Equal("4", arg),
 				arg => Assert.Equal("-run", arg),
 				arg => Assert.Equal("abc", arg),
 				arg => Assert.Equal("-stopOnFail", arg)
+			);
+		}
+
+		[Fact]
+		public void IntValuesOutOfRange()
+		{
+			var options = TestData.TestFrameworkExecutionOptions(
+				assertEquivalentMaxDepth: 0,
+				printMaxEnumerableLength: -1,
+				printMaxObjectDepth: -1,
+				printMaxObjectMemberCount: -1,
+				printMaxStringLength: -1
+			);
+
+			var arguments = Xunit3ArgumentFactory.ForRun(Version_0_3_0, options, ["abc"]);
+
+			Assert.Collection(
+				arguments,
+				arg => Assert.Equal("-automated", arg),
+				arg => Assert.Equal("-run", arg),
+				arg => Assert.Equal("abc", arg)
 			);
 		}
 

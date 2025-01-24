@@ -55,6 +55,10 @@ public class TestFrameworkOptions : ITestFrameworkDiscoveryOptions, ITestFramewo
 		result.SetMethodDisplay(configuration.MethodDisplay);
 		result.SetMethodDisplayOptions(configuration.MethodDisplayOptions);
 		result.SetPreEnumerateTheories(configuration.PreEnumerateTheories);
+		result.SetPrintMaxEnumerableLength(configuration.PrintMaxEnumerableLength);
+		result.SetPrintMaxObjectDepth(configuration.PrintMaxObjectDepth);
+		result.SetPrintMaxObjectMemberCount(configuration.PrintMaxObjectMemberCount);
+		result.SetPrintMaxStringLength(configuration.PrintMaxStringLength);
 		result.SetSynchronousMessageReporting(configuration.SynchronousMessageReporting);
 
 		return result;
@@ -77,6 +81,7 @@ public class TestFrameworkOptions : ITestFrameworkDiscoveryOptions, ITestFramewo
 
 		ITestFrameworkExecutionOptions result = new TestFrameworkOptions();
 
+		result.SetAssertEquivalentMaxDepth(configuration.AssertEquivalentMaxDepth);
 		result.SetCulture(configuration.Culture);
 		result.SetDiagnosticMessages(configuration.DiagnosticMessages);
 		result.SetDisableParallelization(!configuration.ParallelizeTestCollections);
@@ -86,6 +91,10 @@ public class TestFrameworkOptions : ITestFrameworkDiscoveryOptions, ITestFramewo
 		result.SetInternalDiagnosticMessages(configuration.InternalDiagnosticMessages);
 		result.SetMaxParallelThreads(configuration.MaxParallelThreads);
 		result.SetParallelAlgorithm(configuration.ParallelAlgorithm);
+		result.SetPrintMaxEnumerableLength(configuration.PrintMaxEnumerableLength);
+		result.SetPrintMaxObjectDepth(configuration.PrintMaxObjectDepth);
+		result.SetPrintMaxObjectMemberCount(configuration.PrintMaxObjectMemberCount);
+		result.SetPrintMaxStringLength(configuration.PrintMaxStringLength);
 		result.SetSeed(configuration.Seed);
 		result.SetShowLiveOutput(configuration.ShowLiveOutput);
 		result.SetStopOnTestFail(configuration.StopOnFail);

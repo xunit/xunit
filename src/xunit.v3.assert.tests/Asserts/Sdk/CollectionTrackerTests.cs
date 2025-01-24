@@ -15,7 +15,7 @@ public class CollectionTrackerTests
 		{
 			var tracker = new[] { 42, 2112 }.AsTracker();
 
-			var result = tracker.FormatIndexedMismatch(2600, out var pointerIndent, ArgumentFormatter.MAX_DEPTH);
+			var result = tracker.FormatIndexedMismatch(2600, out var pointerIndent, ArgumentFormatter.MaxEnumerableLength + 1);
 
 			Assert.Equal($"[{ArgumentFormatter.Ellipsis}]", result);
 			//             - ^
@@ -79,7 +79,7 @@ public class CollectionTrackerTests
 		{
 			var span = new[] { 42, 2112 }.AsSpan();
 
-			var result = CollectionTracker<int>.FormatIndexedMismatch(span, 2600, out var pointerIndent, ArgumentFormatter.MAX_DEPTH);
+			var result = CollectionTracker<int>.FormatIndexedMismatch(span, 2600, out var pointerIndent, ArgumentFormatter.MaxEnumerableLength + 1);
 
 			Assert.Equal($"[{ArgumentFormatter.Ellipsis}]", result);
 			//             - ^
@@ -151,7 +151,7 @@ public class CollectionTrackerTests
 		{
 			var tracker = new object[0].AsTracker();
 
-			Assert.Equal($"[{ArgumentFormatter.Ellipsis}]", tracker.FormatStart(ArgumentFormatter.MAX_DEPTH));
+			Assert.Equal($"[{ArgumentFormatter.Ellipsis}]", tracker.FormatStart(ArgumentFormatter.MaxEnumerableLength + 1));
 		}
 
 		[CulturedFact]
@@ -186,7 +186,7 @@ public class CollectionTrackerTests
 		{
 			IEnumerable<object> collection = new object[0];
 
-			Assert.Equal($"[{ArgumentFormatter.Ellipsis}]", CollectionTracker<object>.FormatStart(collection, ArgumentFormatter.MAX_DEPTH));
+			Assert.Equal($"[{ArgumentFormatter.Ellipsis}]", CollectionTracker<object>.FormatStart(collection, ArgumentFormatter.MaxEnumerableLength + 1));
 		}
 
 		[CulturedFact]
@@ -222,7 +222,7 @@ public class CollectionTrackerTests
 		{
 			var span = new object[0].AsSpan();
 
-			Assert.Equal($"[{ArgumentFormatter.Ellipsis}]", CollectionTracker<object>.FormatStart(span, ArgumentFormatter.MAX_DEPTH));
+			Assert.Equal($"[{ArgumentFormatter.Ellipsis}]", CollectionTracker<object>.FormatStart(span, ArgumentFormatter.MaxEnumerableLength + 1));
 		}
 
 		[CulturedFact]

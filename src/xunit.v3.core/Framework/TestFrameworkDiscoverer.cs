@@ -51,7 +51,7 @@ public abstract class TestFrameworkDiscoverer<TTestClass>(ITestAssembly testAsse
 	}
 
 	/// <inheritdoc/>
-	public ValueTask Find(
+	public virtual ValueTask Find(
 		Func<ITestCase, ValueTask<bool>> callback,
 		ITestFrameworkDiscoveryOptions discoveryOptions,
 		Type[]? types = null,

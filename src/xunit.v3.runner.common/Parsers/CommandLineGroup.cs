@@ -19,4 +19,7 @@ public enum CommandLineGroup
 
 	/// <summary/>
 	FilterQuery,
+
+	/// <summary/>
+	ArgumentDisplay,
 }

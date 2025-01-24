@@ -130,9 +130,11 @@ public class CommandLineOptionsProviderTests
 	public class ArgumentSwitches : CommandLineOptionsProviderTests
 	{
 		[Theory]
+		[InlineData("Invalid value '0' (must be an integer between 1 and 2147483647)", "assert-equivalent-max-depth", "0")]
+		[InlineData("Invalid value 'abc' (must be an integer between 1 and 2147483647)", "assert-equivalent-max-depth", "abc")]
 		[InlineData("Invalid value '123'", "culture", "123")]
 		[InlineData("Invalid value 'abc' (must be one of: 'off', 'on', 'only')", "explicit", "abc")]
-		[InlineData("Invalid value 'abc' (must be a positive integer)", "long-running", "abc")]
+		[InlineData("Invalid value 'abc' (must be an integer between 0 and 2147483647)", "long-running", "abc")]
 		[InlineData("Invalid value 'abc' (must be one of: 'default', 'unlimited', a positive number, a multiplier in the form of '0.0x')", "max-threads", "abc")]
 		[InlineData("Invalid value 'abc' (must be one of: 'classAndMethod', 'method')", "method-display", "abc")]
 		[InlineData("Invalid value 'abc' (must be one of: 'none', 'replaceUnderscoreWithSpace', 'useOperatorMonikers', 'useEscapeSequences', 'replacePeriodWithComma', 'all')", "method-display-options", "abc")]
@@ -140,7 +142,11 @@ public class CommandLineOptionsProviderTests
 		[InlineData("Cannot specify 'none' with any other values", "method-display-options", "replacePeriodWithComma", "none")]
 		[InlineData("Invalid value 'abc' (must be one of: 'none', 'collections')", "parallel", "abc")]
 		[InlineData("Invalid value 'abc' (must be one of: 'conservative', 'aggressive')", "parallel-algorithm", "abc")]
-		[InlineData("Invalid value 'abc' (must be an integer in the range of 0 - 2147483647)", "seed", "abc")]
+		[InlineData("Invalid value 'abc' (must be an integer between 0 and 2147483647)", "print-max-enumerable-length", "abc")]
+		[InlineData("Invalid value 'abc' (must be an integer between 0 and 2147483647)", "print-max-object-depth", "abc")]
+		[InlineData("Invalid value 'abc' (must be an integer between 0 and 2147483647)", "print-max-object-member-count", "abc")]
+		[InlineData("Invalid value 'abc' (must be an integer between 0 and 2147483647)", "print-max-string-length", "abc")]
+		[InlineData("Invalid value 'abc' (must be an integer between 0 and 2147483647)", "seed", "abc")]
 		public void Validation(
 			string expectedMessage,
 			string @switch,
@@ -166,6 +172,16 @@ public class CommandLineOptionsProviderTests
 
 			Assert.IsType<ArgumentException>(ex);
 			Assert.Equal($"Config file '{Path.GetFullPath("foo-bar-baz.json")}' was not found", ex.Message);
+		}
+
+		[Fact]
+		public void AssertEquivalentMaxDepth()
+		{
+			commandLineOptions.Set("assert-equivalent-max-depth", ["123"]);
+
+			CommandLineOptionsProvider.Parse(configuration, commandLineOptions, projectAssembly);
+
+			Assert.Equal(123, projectAssembly.Configuration.AssertEquivalentMaxDepth);
 		}
 
 		[Theory]
@@ -288,6 +304,46 @@ public class CommandLineOptionsProviderTests
 			CommandLineOptionsProvider.Parse(configuration, commandLineOptions, projectAssembly);
 
 			Assert.Equal(expected, projectAssembly.Configuration.ParallelAlgorithm);
+		}
+
+		[Fact]
+		public void PrintMaxEnumerableLength()
+		{
+			commandLineOptions.Set("print-max-enumerable-length", ["123"]);
+
+			CommandLineOptionsProvider.Parse(configuration, commandLineOptions, projectAssembly);
+
+			Assert.Equal(123, projectAssembly.Configuration.PrintMaxEnumerableLength);
+		}
+
+		[Fact]
+		public void PrintMaxObjectDepth()
+		{
+			commandLineOptions.Set("print-max-object-depth", ["123"]);
+
+			CommandLineOptionsProvider.Parse(configuration, commandLineOptions, projectAssembly);
+
+			Assert.Equal(123, projectAssembly.Configuration.PrintMaxObjectDepth);
+		}
+
+		[Fact]
+		public void PrintMaxObjectMemberCount()
+		{
+			commandLineOptions.Set("print-max-object-member-count", ["123"]);
+
+			CommandLineOptionsProvider.Parse(configuration, commandLineOptions, projectAssembly);
+
+			Assert.Equal(123, projectAssembly.Configuration.PrintMaxObjectMemberCount);
+		}
+
+		[Fact]
+		public void PrintMaxStringLength()
+		{
+			commandLineOptions.Set("print-max-string-length", ["123"]);
+
+			CommandLineOptionsProvider.Parse(configuration, commandLineOptions, projectAssembly);
+
+			Assert.Equal(123, projectAssembly.Configuration.PrintMaxStringLength);
 		}
 
 		[Fact]

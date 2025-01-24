@@ -207,6 +207,29 @@ public class CommandLineTests
 			}
 		}
 
+		public class AssertEquivalentMaxDepth
+		{
+			[Fact]
+			public static void DefaultValueIsNull()
+			{
+				var commandLine = new TestableCommandLine("no-config.json");
+
+				var assembly = commandLine.Parse();
+
+				Assert.Null(assembly.Configuration.AssertEquivalentMaxDepth);
+			}
+
+			[Fact]
+			public static void ValueIsPreserved()
+			{
+				var commandLine = new TestableCommandLine("no-config.json", "-assertEquivalentMaxDepth", "42");
+
+				var assembly = commandLine.Parse();
+
+				Assert.Equal(42, assembly.Configuration.AssertEquivalentMaxDepth);
+			}
+		}
+
 		public class Culture
 		{
 			[Fact]
@@ -407,6 +430,98 @@ public class CommandLineTests
 				var assembly = commandLine.Parse();
 
 				Assert.Equal(expectedCollectionsParallelization, assembly.Configuration.ParallelizeTestCollections);
+			}
+		}
+
+		public class PrintMaxEnumerableLength
+		{
+			[Fact]
+			public static void DefaultValueIsNull()
+			{
+				var commandLine = new TestableCommandLine("no-config.json");
+
+				var assembly = commandLine.Parse();
+
+				Assert.Null(assembly.Configuration.PrintMaxEnumerableLength);
+			}
+
+			[Fact]
+			public static void ValueIsPreserved()
+			{
+				var commandLine = new TestableCommandLine("no-config.json", "-printMaxEnumerableLength", "42");
+
+				var assembly = commandLine.Parse();
+
+				Assert.Equal(42, assembly.Configuration.PrintMaxEnumerableLength);
+			}
+		}
+
+		public class PrintMaxObjectDepth
+		{
+			[Fact]
+			public static void DefaultValueIsNull()
+			{
+				var commandLine = new TestableCommandLine("no-config.json");
+
+				var assembly = commandLine.Parse();
+
+				Assert.Null(assembly.Configuration.PrintMaxObjectDepth);
+			}
+
+			[Fact]
+			public static void ValueIsPreserved()
+			{
+				var commandLine = new TestableCommandLine("no-config.json", "-printMaxObjectDepth", "42");
+
+				var assembly = commandLine.Parse();
+
+				Assert.Equal(42, assembly.Configuration.PrintMaxObjectDepth);
+			}
+		}
+
+		public class PrintMaxObjectMemberCount()
+		{
+			[Fact]
+			public static void DefaultValueIsNull()
+			{
+				var commandLine = new TestableCommandLine("no-config.json");
+
+				var assembly = commandLine.Parse();
+
+				Assert.Null(assembly.Configuration.PrintMaxObjectMemberCount);
+			}
+
+			[Fact]
+			public static void ValueIsPreserved()
+			{
+				var commandLine = new TestableCommandLine("no-config.json", "-printMaxObjectMemberCount", "42");
+
+				var assembly = commandLine.Parse();
+
+				Assert.Equal(42, assembly.Configuration.PrintMaxObjectMemberCount);
+			}
+		}
+
+		public class PrintMaxStringLength
+		{
+			[Fact]
+			public static void DefaultValueIsNull()
+			{
+				var commandLine = new TestableCommandLine("no-config.json");
+
+				var assembly = commandLine.Parse();
+
+				Assert.Null(assembly.Configuration.PrintMaxStringLength);
+			}
+
+			[Fact]
+			public static void ValueIsPreserved()
+			{
+				var commandLine = new TestableCommandLine("no-config.json", "-printMaxStringLength", "42");
+
+				var assembly = commandLine.Parse();
+
+				Assert.Equal(42, assembly.Configuration.PrintMaxStringLength);
 			}
 		}
 	}

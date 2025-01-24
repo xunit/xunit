@@ -33,6 +33,10 @@ internal class CommandLine : CommandLineParserBase
 	private void AddParsers()
 	{
 		// General options
+		AddParser("assertEquivalentMaxDepth", OnAssertEquivalentMaxDepth, CommandLineGroup.General, "<option>",
+			"override the maximum recursive depth when comparing objects with Assert.Equivalent",
+			$"  any integer value >= 1 is valid (default value is {EnvironmentVariables.Defaults.AssertEquivalentMaxDepth})"
+		);
 		AddParser(
 			"parallel", OnParallel, CommandLineGroup.General, "<option>",
 			"set parallelization based on option",

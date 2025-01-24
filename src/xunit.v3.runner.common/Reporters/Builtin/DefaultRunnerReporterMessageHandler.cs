@@ -18,7 +18,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 	/// Gets the environment variable that's used to hide passing tests with output
 	/// when diagnostics messages are enabled.
 	/// </summary>
-	public const string EnvVar_HidePassingOutput = "XUNIT_HIDE_PASSING_OUTPUT_DIAGNOSTICS";
+	public const string EnvVar_HidePassingOutput = EnvironmentVariables.HidePassingOutputDiagnostics;
 
 	readonly string? defaultDirectory;
 	readonly ITestFrameworkExecutionOptions defaultExecutionOptions = TestFrameworkOptions.Empty();

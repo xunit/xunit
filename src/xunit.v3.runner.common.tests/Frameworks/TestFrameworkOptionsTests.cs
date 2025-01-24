@@ -30,6 +30,10 @@ public class TestFrameworkOptionsTests
 				Assert.Null(result.GetMethodDisplay());
 				Assert.Null(result.GetMethodDisplayOptions());
 				Assert.Null(result.GetPreEnumerateTheories());
+				Assert.Null(result.GetPrintMaxEnumerableLength());
+				Assert.Null(result.GetPrintMaxObjectDepth());
+				Assert.Null(result.GetPrintMaxObjectMemberCount());
+				Assert.Null(result.GetPrintMaxStringLength());
 				Assert.Null(result.GetSynchronousMessageReporting());
 			}
 
@@ -42,6 +46,7 @@ public class TestFrameworkOptionsTests
 				options.SetCulture("foo");
 				options.SetDiagnosticMessages(true);
 				options.SetMethodDisplayOptions(overrideEnumValue);
+				options.SetPrintMaxEnumerableLength(2112);
 				var serialized = options.ToJson();
 
 				var deserialized = TestFrameworkOptions.ForDiscoveryFromSerialization(serialized);
@@ -49,6 +54,7 @@ public class TestFrameworkOptionsTests
 				Assert.Equal("foo", deserialized.GetCulture());
 				Assert.True(deserialized.GetDiagnosticMessages());
 				Assert.Equal(overrideEnumValue, deserialized.GetMethodDisplayOptions());
+				Assert.Equal(2112, deserialized.GetPrintMaxEnumerableLength());
 			}
 		}
 	}
@@ -72,11 +78,16 @@ public class TestFrameworkOptionsTests
 			{
 				var result = TestFrameworkOptions.ForExecutionFromSerialization("{}");
 
+				Assert.Null(result.GetAssertEquivalentMaxDepth());
 				Assert.Null(result.GetCulture());
 				Assert.Null(result.GetDiagnosticMessages());
 				Assert.Null(result.GetDisableParallelization());
 				Assert.Null(result.GetInternalDiagnosticMessages());
 				Assert.Null(result.GetMaxParallelThreads());
+				Assert.Null(result.GetPrintMaxEnumerableLength());
+				Assert.Null(result.GetPrintMaxObjectDepth());
+				Assert.Null(result.GetPrintMaxObjectMemberCount());
+				Assert.Null(result.GetPrintMaxStringLength());
 				Assert.Null(result.GetSynchronousMessageReporting());
 			}
 
@@ -88,6 +99,7 @@ public class TestFrameworkOptionsTests
 				options.SetCulture("foo");
 				options.SetDiagnosticMessages(true);
 				options.SetMaxParallelThreads(42);
+				options.SetPrintMaxEnumerableLength(2112);
 				var serialized = options.ToJson();
 
 				var deserialized = TestFrameworkOptions.ForExecutionFromSerialization(serialized);
@@ -95,6 +107,7 @@ public class TestFrameworkOptionsTests
 				Assert.Equal("foo", deserialized.GetCulture());
 				Assert.True(deserialized.GetDiagnosticMessages());
 				Assert.Equal(42, deserialized.GetMaxParallelThreads());
+				Assert.Equal(2112, deserialized.GetPrintMaxEnumerableLength());
 			}
 		}
 	}
