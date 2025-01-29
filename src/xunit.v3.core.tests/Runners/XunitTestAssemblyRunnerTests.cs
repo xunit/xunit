@@ -39,8 +39,6 @@ public class XunitTestAssemblyRunnerTests
 					Assert.NotNull(starting.Seed);  // We don't know what the seed will be, we just know it will have one
 #if NET472
 					Assert.Equal(".NETFramework,Version=v4.7.2", starting.TargetFramework);
-#elif NET6_0
-					Assert.Equal(".NETCoreApp,Version=v6.0", starting.TargetFramework);
 #elif NET8_0
 					Assert.Equal(".NETCoreApp,Version=v8.0", starting.TargetFramework);
 #else

@@ -15,7 +15,6 @@ public static class TestCoreConsole
 
 	public static async Task OnExecute(BuildContext context)
 	{
-		await RunTests(context, "net6.0");
 		await RunTests(context, "net8.0");
 	}
 

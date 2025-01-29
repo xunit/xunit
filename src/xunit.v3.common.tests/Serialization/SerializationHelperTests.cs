@@ -36,12 +36,12 @@ public class SerializationHelperTests
 		{ new DateTimeOffset(2022, 4, 21, 23, 19, 20, 21, TimeSpan.Zero), "15:2022-04-21T23:19:20.0210000+00:00" },
 		{ new TimeSpan(1, 2, 3, 4, 5), "16:1.02:03:04.0050000" },
 		{ BigInteger.Parse("123456789009876543210123456789"), "17:123456789009876543210123456789" },
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
 		{ new DateOnly(2023, 1, 7), "18:738526" },
 		{ new TimeOnly(9, 4, 15), "19:326550000000" },
 #endif
 		{ new Version(1, 2, 3, 4), "20:1.2.3.4" },
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
 		{ new Index(42, fromEnd: true), "21:^42" },
 		{ new Range(10, new Index(10, fromEnd: true)), "22:10..^10" },
 #endif
@@ -119,12 +119,12 @@ public class SerializationHelperTests
 		{ typeof(DateTimeOffset?), "15" },
 		{ typeof(TimeSpan?), "16" },
 		{ typeof(BigInteger?), "17" },
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
 		{ typeof(DateOnly?), "18" },
 		{ typeof(TimeOnly?), "19" },
 #endif
 		{ typeof(Version), "20" },
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
 		{ typeof(Index?), "21" },
 		{ typeof(Range?), "22" },
 #endif
@@ -398,12 +398,12 @@ public class SerializationHelperTests
 			typeof(DateTimeOffset),
 			typeof(TimeSpan),
 			typeof(BigInteger),
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
 			typeof(DateOnly),
 			typeof(TimeOnly),
 #endif
 			typeof(Version),
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
 			typeof(Index),
 			typeof(Range),
 #endif

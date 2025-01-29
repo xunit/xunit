@@ -14,9 +14,9 @@ public class AssemblyUtilityTests
 #if NET472
 		Assert.Equal(TargetFrameworkIdentifier.DotNetFramework, metadata.TargetFrameworkIdentifier);
 		Assert.Equal(new Version(4, 7, 2), metadata.TargetFrameworkVersion);
-#elif NET6_0
+#elif NET8_0
 		Assert.Equal(TargetFrameworkIdentifier.DotNetCore, metadata.TargetFrameworkIdentifier);
-		Assert.Equal(new Version(6, 0), metadata.TargetFrameworkVersion);
+		Assert.Equal(new Version(8, 0), metadata.TargetFrameworkVersion);
 #else
 #error Unknown target framework
 #endif

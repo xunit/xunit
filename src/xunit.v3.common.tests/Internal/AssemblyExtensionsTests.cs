@@ -82,8 +82,6 @@ public class AssemblyExtensionsTests
 	{
 #if NET472
 		var expected = ".NETFramework,Version=v4.7.2";
-#elif NET6_0
-		var expected = ".NETCoreApp,Version=v6.0";
 #elif NET8_0
 		var expected = ".NETCoreApp,Version=v8.0";
 #else

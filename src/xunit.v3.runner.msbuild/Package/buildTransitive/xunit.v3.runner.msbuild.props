@@ -4,7 +4,7 @@
     Condition=" '$(MSBuildRuntimeType)' != 'Core' "
     TaskName="Xunit.Runner.MSBuild.xunit"/>
   <UsingTask
-    AssemblyFile="$(MSBuildThisFileDirectory)..\net6.0\xunit.v3.runner.msbuild.dll"
+    AssemblyFile="$(MSBuildThisFileDirectory)..\net8.0\xunit.v3.runner.msbuild.dll"
     Condition=" '$(MSBuildRuntimeType)' == 'Core' "
     TaskName="Xunit.Runner.MSBuild.xunit"/>
 </Project>

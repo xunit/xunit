@@ -11,7 +11,7 @@
 		<icon>_content/logo-128-transparent.png</icon>
 		<readme>_content/README.md</readme>
 		<releaseNotes>https://xunit.net/releases/v3/$PackageVersion$</releaseNotes>
-		<description>In-process console runner for xUnit.net framework, providing the entrypoint for self-executing unit tests. Supports .NET Framework 4.7.2 or later and .NET 6.0 or later.</description>
+		<description>In-process console runner for xUnit.net framework, providing the entrypoint for self-executing unit tests. Supports .NET Framework 4.7.2 or later and .NET 8 or later.</description>
 		<copyright>Copyright (C) .NET Foundation</copyright>
 		<repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
 		<dependencies>
@@ -21,7 +21,7 @@
 				<dependency id="xunit.v3.extensibility.core" version="[$PackageVersion$]" />
 				<dependency id="xunit.v3.runner.common" version="[$PackageVersion$]" />
 			</group>
-			<group targetFramework="net6.0">
+			<group targetFramework="net8.0">
 				<dependency id="Microsoft.Testing.Extensions.TrxReport.Abstractions" version="$MicrosoftTestingPlatformVersion$" />
 				<dependency id="Microsoft.Testing.Platform" version="$MicrosoftTestingPlatformVersion$" />
 				<dependency id="xunit.v3.extensibility.core" version="[$PackageVersion$]" />
@@ -37,7 +37,7 @@
 		<file target="lib\net472\" src="bin\$Configuration$\net472\$SignedPath$xunit.v3.runner.inproc.console.dll" />
 		<file target="lib\net472\" src="bin\$Configuration$\net472\xunit.v3.runner.inproc.console.xml" />
 
-		<file target="lib\net6.0\" src="bin\$Configuration$\net6.0\$SignedPath$xunit.v3.runner.inproc.console.dll" />
-		<file target="lib\net6.0\" src="bin\$Configuration$\net6.0\xunit.v3.runner.inproc.console.xml" />
+		<file target="lib\net8.0\" src="bin\$Configuration$\net8.0\$SignedPath$xunit.v3.runner.inproc.console.dll" />
+		<file target="lib\net8.0\" src="bin\$Configuration$\net8.0\xunit.v3.runner.inproc.console.xml" />
 	</files>
 </package>

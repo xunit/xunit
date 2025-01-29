@@ -11,7 +11,7 @@
 		<icon>_content/logo-128-transparent.png</icon>
 		<readme>_content/README.md</readme>
 		<releaseNotes>https://xunit.net/releases/v3/$PackageVersion$</releaseNotes>
-		<description>Includes the core library (xunit.v3.core.dll), to be used for writing tests; extensibility authors should include xunit.v3.extensibility.core instead. Supports .NET Framework 4.7.2 or later and .NET 6.0 or later.</description>
+		<description>Includes the core library (xunit.v3.core.dll), to be used for writing tests; extensibility authors should include xunit.v3.extensibility.core instead. Supports .NET Framework 4.7.2 or later and .NET 8 or later.</description>
 		<copyright>Copyright (C) .NET Foundation</copyright>
 		<repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
 		<dependencies>
@@ -20,7 +20,7 @@
 				<dependency id="xunit.v3.extensibility.core" version="[$PackageVersion$]" />
 				<dependency id="xunit.v3.runner.inproc.console" version="[$PackageVersion$]" />
 			</group>
-			<group targetFramework="net6.0">
+			<group targetFramework="net8.0">
 				<dependency id="Microsoft.Testing.Platform.MSBuild" version="$MicrosoftTestingPlatformVersion$" />
 				<dependency id="xunit.v3.extensibility.core" version="[$PackageVersion$]" />
 				<dependency id="xunit.v3.runner.inproc.console" version="[$PackageVersion$]" />
@@ -31,9 +31,9 @@
 		<file target="_content\" src="..\..\tools\media\logo-128-transparent.png" />
 		<file target="_content\README.md" src="obj\xunit.v3.core.README.md" />
 		<file target="_content\" src="Package\content\*" />
-		<file target="_content\runners\netcore\" src="..\xunit.v3.runner.utility\bin\$Configuration$\net6.0\Mono.Cecil*.dll" />
-		<file target="_content\runners\netcore\" src="..\xunit.v3.runner.utility\bin\$Configuration$\net6.0\xunit.abstractions.dll" />
-		<file target="_content\runners\netcore\" src="..\xunit.v3.runner.utility\bin\$Configuration$\net6.0\xunit.v3.runner.utility.netcore.dll" />
+		<file target="_content\runners\netcore\" src="..\xunit.v3.runner.utility\bin\$Configuration$\net8.0\Mono.Cecil*.dll" />
+		<file target="_content\runners\netcore\" src="..\xunit.v3.runner.utility\bin\$Configuration$\net8.0\xunit.abstractions.dll" />
+		<file target="_content\runners\netcore\" src="..\xunit.v3.runner.utility\bin\$Configuration$\net8.0\xunit.v3.runner.utility.netcore.dll" />
 		<file target="_content\runners\netfx\" src="..\xunit.v3.runner.utility\bin\$Configuration$\net472\Mono.Cecil*.dll" />
 		<file target="_content\runners\netfx\" src="..\xunit.v3.runner.utility\bin\$Configuration$\net472\xunit.abstractions.dll" />
 		<file target="_content\runners\netfx\" src="..\xunit.v3.runner.utility\bin\$Configuration$\net472\xunit.v3.runner.utility.netfx.dll" />
@@ -42,6 +42,6 @@
 
 		<file target="lib\net472\_._" src="..\build\_._" />
 
-		<file target="lib\net6.0\_._" src="..\build\_._" />
+		<file target="lib\net8.0\_._" src="..\build\_._" />
 	</files>
 </package>

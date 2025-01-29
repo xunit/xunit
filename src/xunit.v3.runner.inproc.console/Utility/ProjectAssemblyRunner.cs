@@ -294,7 +294,11 @@ public sealed class ProjectAssemblyRunner(
 				else
 					runnerLogger.LogMessage("Cancelling due to test failure...");
 
+#if NET8_0_OR_GREATER
+				await cancellationTokenSource.CancelAsync();
+#else
 				cancellationTokenSource.Cancel();
+#endif
 			}
 		}
 		catch (Exception ex)

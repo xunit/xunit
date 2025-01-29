@@ -11,7 +11,7 @@
 		<icon>_content/logo-128-transparent.png</icon>
 		<readme>_content/README.md</readme>
 		<releaseNotes>https://xunit.net/releases/v3/$PackageVersion$</releaseNotes>
-		<description>xUnit.net is a developer testing framework, built to support Test Driven Development, with a design goal of extreme simplicity and alignment with framework features. Supports .NET Framework 4.7.2 or later and .NET 6.0 or later.
+		<description>xUnit.net is a developer testing framework, built to support Test Driven Development, with a design goal of extreme simplicity and alignment with framework features. Supports .NET Framework 4.7.2 or later and .NET 8 or later.
 
 Installing this package installs xunit.v3.core, xunit.v3.assert, and xunit.analyzers.</description>
 		<copyright>Copyright (C) .NET Foundation</copyright>
@@ -22,7 +22,7 @@ Installing this package installs xunit.v3.core, xunit.v3.assert, and xunit.analy
 				<dependency id="xunit.v3.assert" version="[$PackageVersion$]" />
 				<dependency id="xunit.analyzers" version="$XunitAnalyzersVersion$" />
 			</group>
-			<group targetFramework="net6.0">
+			<group targetFramework="net8.0">
 				<dependency id="xunit.v3.core" version="[$PackageVersion$]" />
 				<dependency id="xunit.v3.assert" version="[$PackageVersion$]" />
 				<dependency id="xunit.analyzers" version="$XunitAnalyzersVersion$" />
@@ -35,6 +35,6 @@ Installing this package installs xunit.v3.core, xunit.v3.assert, and xunit.analy
 
 		<file target="lib\net472\_._" src="..\build\_._" />
 
-		<file target="lib\net6.0\_._" src="..\build\_._" />
+		<file target="lib\net8.0\_._" src="..\build\_._" />
 	</files>
 </package>

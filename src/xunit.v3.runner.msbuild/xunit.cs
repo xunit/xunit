@@ -1,6 +1,7 @@
 #pragma warning disable CA1044 // The write-only properties in this class cannot be converted to methods becuase of MSBuild task requirements
 #pragma warning disable CA1721 // Properties with names that are confusing is okay because of MSBuild task requirements
 #pragma warning disable CA1724 // The name of this type is a shipped contract (and part of the MSBuild UX)
+#pragma warning disable CS8981 // The name of this type is a shipped contract (and part of the MSBuild UX)
 
 using System;
 using System.Collections.Concurrent;

@@ -16,7 +16,7 @@ public class SetAssertsTests
 			Assert.Contains("FORTY-two", set);
 			Assert.Contains("FORTY-two", (ISet<string>)set);
 			Assert.Contains("FORTY-two", set.ToSortedSet(StringComparer.OrdinalIgnoreCase));
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
 			Assert.Contains("FORTY-two", (IReadOnlySet<string>)set);
 #endif
 			Assert.Contains("FORTY-two", set.ToImmutableHashSet(StringComparer.OrdinalIgnoreCase));
@@ -44,7 +44,7 @@ public class SetAssertsTests
 			assertFailure(() => Assert.Contains("FORTY-two", set));
 			assertFailure(() => Assert.Contains("FORTY-two", (ISet<string>)set));
 			assertFailure(() => Assert.Contains("FORTY-two", set.ToSortedSet()));
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
 			assertFailure(() => Assert.Contains("FORTY-two", (IReadOnlySet<string>)set));
 #endif
 			assertFailure(() => Assert.Contains("FORTY-two", set.ToImmutableHashSet()));
@@ -62,7 +62,7 @@ public class SetAssertsTests
 			Assert.DoesNotContain("FORTY-two", set);
 			Assert.DoesNotContain("FORTY-two", (ISet<string>)set);
 			Assert.DoesNotContain("FORTY-two", set.ToSortedSet());
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
 			Assert.DoesNotContain("FORTY-two", (IReadOnlySet<string>)set);
 #endif
 			Assert.DoesNotContain("FORTY-two", set.ToImmutableHashSet());
@@ -90,7 +90,7 @@ public class SetAssertsTests
 			assertFailure(() => Assert.DoesNotContain("FORTY-two", set));
 			assertFailure(() => Assert.DoesNotContain("FORTY-two", (ISet<string>)set));
 			assertFailure(() => Assert.DoesNotContain("FORTY-two", set.ToSortedSet(StringComparer.OrdinalIgnoreCase)));
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
 			assertFailure(() => Assert.DoesNotContain("FORTY-two", (IReadOnlySet<string>)set));
 #endif
 			assertFailure(() => Assert.DoesNotContain("FORTY-two", set.ToImmutableHashSet(StringComparer.OrdinalIgnoreCase)));
