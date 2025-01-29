@@ -25,6 +25,6 @@ public static partial class Packages
 
         // Pack the .nuspec file(s)
         foreach (var nuspecFile in nuspecFiles.OrderBy(x => x))
-            await context.Exec("dotnet", $"pack --nologo --no-build --configuration {context.ConfigurationText} --output {context.PackageOutputFolder} --verbosity {context.Verbosity} src/xunit.core -p:NuspecFile=\"{nuspecFile}\"");
+            await context.Exec("dotnet", $"pack --nologo --no-build --configuration {context.ConfigurationText} --output {context.PackageOutputFolder} --verbosity {context.Verbosity} src/xunit.core -p:NuspecFile=\"{nuspecFile}\" -tl:off");
     }
 }
