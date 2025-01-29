@@ -16,12 +16,14 @@ namespace Xunit.v3;
 /// <param name="testCases">The test cases from the assembly</param>
 /// <param name="executionMessageSink">The message sink to send execution messages to</param>
 /// <param name="executionOptions">The options used during test execution</param>
+/// <param name="cancellationToken">The cancellation token used to cancel execution</param>
 public class XunitTestAssemblyRunnerBaseContext<TTestAssembly, TTestCase>(
 	TTestAssembly testAssembly,
 	IReadOnlyCollection<TTestCase> testCases,
 	IMessageSink executionMessageSink,
-	ITestFrameworkExecutionOptions executionOptions) :
-		TestAssemblyRunnerContext<TTestAssembly, TTestCase>(testAssembly, testCases, executionMessageSink, executionOptions)
+	ITestFrameworkExecutionOptions executionOptions,
+	CancellationToken cancellationToken) :
+		TestAssemblyRunnerContext<TTestAssembly, TTestCase>(testAssembly, testCases, executionMessageSink, executionOptions, cancellationToken)
 			where TTestAssembly : class, IXunitTestAssembly
 			where TTestCase : class, IXunitTestCase
 {

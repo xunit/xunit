@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Xunit.Internal;
@@ -21,16 +22,15 @@ namespace Xunit.Runner.InProc.SystemConsole;
 /// The project assembly runner class, used by <see cref="ConsoleRunner"/>.
 /// </summary>
 /// <param name="testAssembly">The assembly under test</param>
-/// <param name="cancelThunk">The thunk to determine if we should cancel</param>
 /// <param name="automatedMode">The automated mode we're running in</param>
+/// <param name="cancellationTokenSource">The cancellation token source used to indicate cancellation</param>
 public sealed class ProjectAssemblyRunner(
 	Assembly testAssembly,
-	Func<bool> cancelThunk,
-	AutomatedMode automatedMode)
+	AutomatedMode automatedMode,
+	CancellationTokenSource cancellationTokenSource)
 {
 	readonly AutomatedMode automatedMode = automatedMode;
-	volatile bool cancel;
-	readonly Func<bool> cancelThunk = cancelThunk;
+	readonly CancellationTokenSource cancellationTokenSource = Guard.ArgumentNotNull(cancellationTokenSource);
 	bool failed;
 	readonly Assembly testAssembly = testAssembly;
 
@@ -88,6 +88,7 @@ public sealed class ProjectAssemblyRunner(
 			messageSink,
 			discoveryOptions,
 			testCase => assembly.Configuration.Filters.Filter(Path.GetFileNameWithoutExtension(assembly.AssemblyFileName), testCase),
+			cancellationTokenSource,
 			discoveryCallback: (testCase, passedFilter) =>
 			{
 				testCases?.Add((testCase, passedFilter));
@@ -95,7 +96,7 @@ public sealed class ProjectAssemblyRunner(
 				return
 					passedFilter && (messageSink?.OnMessage(testCase.ToTestCaseDiscovered())) == false
 						? new(false)
-						: new(!cancelThunk());
+						: new(!cancellationTokenSource.IsCancellationRequested);
 			}
 		);
 	}
@@ -210,7 +211,7 @@ public sealed class ProjectAssemblyRunner(
 			var sinkOptions = new ExecutionSinkOptions
 			{
 				AssemblyElement = assemblyElement,
-				CancelThunk = () => cancel || cancelThunk(),
+				CancelThunk = () => cancellationTokenSource.IsCancellationRequested,
 				DiagnosticMessageSink = diagnosticMessageSink,
 				FailSkips = assembly.Configuration.FailSkipsOrDefault,
 				FailWarn = assembly.Configuration.FailTestsWithWarningsOrDefault,
@@ -227,7 +228,7 @@ public sealed class ProjectAssemblyRunner(
 
 			if (testCases.Length != 0)
 			{
-				await frontController.Run(resultsSink, executionOptions, testCases);
+				await frontController.Run(resultsSink, executionOptions, testCases, cancellationTokenSource);
 
 				foreach (var testCase in testCases)
 					if (testCase is IAsyncDisposable asyncDisposable)
@@ -249,6 +250,7 @@ public sealed class ProjectAssemblyRunner(
 						resultsSink,
 						discoveryOptions,
 						testCase => assembly.Configuration.Filters.Filter(Path.GetFileNameWithoutExtension(assembly.AssemblyFileName), testCase),
+						cancellationTokenSource,
 						discoveryCallback: (testCase, passedFilter) =>
 						{
 							if (passedFilter && testCaseIDsToRun.Contains(testCase.UniqueID))
@@ -265,7 +267,7 @@ public sealed class ProjectAssemblyRunner(
 					if (allExplicit)
 						executionOptions.SetExplicitOption(ExplicitOption.Only);
 
-					await frontController.Run(resultsSink, executionOptions, testCasesToRun);
+					await frontController.Run(resultsSink, executionOptions, testCasesToRun, cancellationTokenSource);
 
 					foreach (var testCase in testCasesToRun)
 						if (testCase is IAsyncDisposable asyncDisposable)
@@ -278,7 +280,8 @@ public sealed class ProjectAssemblyRunner(
 						resultsSink,
 						discoveryOptions,
 						executionOptions,
-						testCase => assembly.Configuration.Filters.Filter(Path.GetFileNameWithoutExtension(assembly.AssemblyFileName), testCase)
+						testCase => assembly.Configuration.Filters.Filter(Path.GetFileNameWithoutExtension(assembly.AssemblyFileName), testCase),
+						cancellationTokenSource
 					);
 			}
 
@@ -291,7 +294,7 @@ public sealed class ProjectAssemblyRunner(
 				else
 					runnerLogger.LogMessage("Cancelling due to test failure...");
 
-				cancel = true;
+				cancellationTokenSource.Cancel();
 			}
 		}
 		catch (Exception ex)

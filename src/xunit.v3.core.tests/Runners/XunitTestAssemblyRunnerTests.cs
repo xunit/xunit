@@ -584,7 +584,7 @@ public class XunitTestAssemblyRunnerTests
 		}
 
 		public ValueTask<RunSummary> RunAsync() =>
-			Run(TestCases.First().TestCollection.TestAssembly, TestCases, MessageSink, ExecutionOptions);
+			Run(TestCases.First().TestCollection.TestAssembly, TestCases, MessageSink, ExecutionOptions, default);
 
 		public SynchronizationContext? RunTestCollectionAsync_SyncContext;
 

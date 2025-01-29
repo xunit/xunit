@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Xunit.Internal;
@@ -16,14 +17,19 @@ using Xunit.Sdk;
 
 namespace Xunit.Runner.SystemConsole;
 
-sealed class ConsoleRunner(string[] args)
+sealed class ConsoleRunner(string[] args) :
+	IDisposable
 {
 	readonly string[] args = Guard.ArgumentNotNull(args);
-	volatile bool cancel;
+	readonly CancellationTokenSource cancellationTokenSource = new();
 	readonly ConcurrentDictionary<string, ExecutionSummary> completionMessages = new();
 	ConsoleHelper consoleHelper = default!;
 	bool failed;
 	IRunnerLogger? logger;
+
+	/// <inheritdoc/>
+	public void Dispose() =>
+		cancellationTokenSource.Dispose();
 
 	public async ValueTask<int> EntryPoint()
 	{
@@ -80,11 +86,12 @@ sealed class ConsoleRunner(string[] args)
 
 			Console.CancelKeyPress += (sender, e) =>
 			{
-				if (!cancel)
+				if (!cancellationTokenSource.IsCancellationRequested)
 				{
 					consoleHelper.WriteLine("Cancelling... (Press Ctrl+C again to terminate)");
-					cancel = true;
+
 					e.Cancel = true;
+					cancellationTokenSource.Cancel();
 				}
 			};
 
@@ -119,7 +126,7 @@ sealed class ConsoleRunner(string[] args)
 			else
 				failCount = await RunProject(project, reporterMessageHandler);
 
-			if (cancel)
+			if (cancellationTokenSource.IsCancellationRequested)
 				return -1073741510;    // 0xC000013A: The application terminated as a result of a CTRL+C
 
 			if (project.Configuration.WaitOrDefault)
@@ -181,7 +188,7 @@ sealed class ConsoleRunner(string[] args)
 				XunitFrontController.Create(assembly)
 					?? throw new ArgumentException("not an xUnit.net test assembly: {0}", assemblyFileName);
 
-			using var discoverySink = new TestDiscoverySink(() => cancel);
+			using var discoverySink = new TestDiscoverySink(() => cancellationTokenSource.IsCancellationRequested);
 
 			var settings = new FrontControllerFindSettings(discoveryOptions, assembly.Configuration.Filters);
 			controller.Find(discoverySink, settings);
@@ -305,7 +312,7 @@ sealed class ConsoleRunner(string[] args)
 		bool needsXml,
 		IMessageSink reporterMessageHandler)
 	{
-		if (cancel)
+		if (cancellationTokenSource.IsCancellationRequested)
 			return null;
 
 		var assemblyElement = needsXml ? new XElement("assembly") : null;
@@ -346,7 +353,7 @@ sealed class ConsoleRunner(string[] args)
 			var sinkOptions = new ExecutionSinkOptions
 			{
 				AssemblyElement = assemblyElement,
-				CancelThunk = () => cancel,
+				CancelThunk = () => cancellationTokenSource.IsCancellationRequested,
 				DiagnosticMessageSink = diagnosticMessageSink,
 				FailSkips = assembly.Configuration.FailSkipsOrDefault,
 				FailWarn = assembly.Configuration.FailTestsWithWarningsOrDefault,
@@ -362,7 +369,8 @@ sealed class ConsoleRunner(string[] args)
 			if (resultsSink.ExecutionSummary.Failed != 0 && executionOptions.GetStopOnTestFailOrDefault())
 			{
 				consoleHelper.WriteLine("Cancelling due to test failure...");
-				cancel = true;
+
+				cancellationTokenSource.Cancel();
 			}
 		}
 		catch (Exception ex)

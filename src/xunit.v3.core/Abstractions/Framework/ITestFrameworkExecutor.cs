@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Sdk;
 
@@ -18,9 +19,12 @@ public interface ITestFrameworkExecutor
 	/// <param name="testCases">The test cases to run.</param>
 	/// <param name="executionMessageSink">The message sink to report results back to.</param>
 	/// <param name="executionOptions">The options to be used during test execution.</param>
+	/// <param name="cancellationToken">The optional cancellation token which can be used to cancel the test
+	/// execution process.</param>
 	ValueTask RunTestCases(
 		IReadOnlyCollection<ITestCase> testCases,
 		IMessageSink executionMessageSink,
-		ITestFrameworkExecutionOptions executionOptions
+		ITestFrameworkExecutionOptions executionOptions,
+		CancellationToken? cancellationToken = null
 	);
 }

@@ -53,7 +53,7 @@ public class TestAssemblyRunnerContextTests
 			IReadOnlyCollection<ITestCase> testCases,
 			IMessageSink executionMessageSink,
 			ITestFrameworkExecutionOptions executionOptions) :
-				base(testAssembly, testCases, executionMessageSink, executionOptions)
+				base(testAssembly, testCases, executionMessageSink, executionOptions, default)
 		{ }
 
 		public static TestableTestAssemblyRunnerContext Create(ITestFrameworkExecutionOptions? executionOptions = null) =>

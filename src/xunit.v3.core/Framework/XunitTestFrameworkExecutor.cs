@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -33,7 +34,8 @@ public class XunitTestFrameworkExecutor(IXunitTestAssembly testAssembly) :
 	public override async ValueTask RunTestCases(
 		IReadOnlyCollection<IXunitTestCase> testCases,
 		IMessageSink executionMessageSink,
-		ITestFrameworkExecutionOptions executionOptions)
+		ITestFrameworkExecutionOptions executionOptions,
+		CancellationToken cancellationToken)
 	{
 		SetEnvironment(EnvironmentVariables.AssertEquivalentMaxDepth, executionOptions.AssertEquivalentMaxDepth());
 		SetEnvironment(EnvironmentVariables.PrintMaxEnumerableLength, executionOptions.PrintMaxEnumerableLength());
@@ -41,7 +43,7 @@ public class XunitTestFrameworkExecutor(IXunitTestAssembly testAssembly) :
 		SetEnvironment(EnvironmentVariables.PrintMaxObjectMemberCount, executionOptions.PrintMaxObjectMemberCount());
 		SetEnvironment(EnvironmentVariables.PrintMaxStringLength, executionOptions.PrintMaxStringLength());
 
-		await XunitTestAssemblyRunner.Instance.Run(TestAssembly, testCases, executionMessageSink, executionOptions);
+		await XunitTestAssemblyRunner.Instance.Run(TestAssembly, testCases, executionMessageSink, executionOptions, cancellationToken);
 	}
 
 	static void SetEnvironment(

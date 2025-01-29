@@ -51,17 +51,26 @@ public abstract class TestFrameworkExecutor<TTestCase>(ITestAssembly testAssembl
 		return DisposalTracker.DisposeAsync();
 	}
 
-	/// <inheritdoc/>
+	/// <summary>
+	/// Runs selected test cases in the assembly.
+	/// </summary>
+	/// <param name="testCases">The test cases to run.</param>
+	/// <param name="executionMessageSink">The message sink to report results back to.</param>
+	/// <param name="executionOptions">The options to be used during test execution.</param>
+	/// <param name="cancellationToken">The cancellation token which can be used to cancel the test
+	/// execution process.</param>
 	public abstract ValueTask RunTestCases(
 		IReadOnlyCollection<TTestCase> testCases,
 		IMessageSink executionMessageSink,
-		ITestFrameworkExecutionOptions executionOptions
+		ITestFrameworkExecutionOptions executionOptions,
+		CancellationToken cancellationToken
 	);
 
 	ValueTask ITestFrameworkExecutor.RunTestCases(
 		IReadOnlyCollection<ITestCase> testCases,
 		IMessageSink executionMessageSink,
-		ITestFrameworkExecutionOptions executionOptions)
+		ITestFrameworkExecutionOptions executionOptions,
+		CancellationToken? cancellationToken)
 	{
 		Guard.ArgumentNotNull(testCases);
 		Guard.ArgumentNotNull(executionMessageSink);
@@ -78,7 +87,7 @@ public abstract class TestFrameworkExecutor<TTestCase>(ITestAssembly testAssembl
 			{
 				using (new PreserveWorkingFolder(TestAssembly))
 				using (new CultureOverride(executionOptions.Culture()))
-					await RunTestCases(testCases.Cast<TTestCase>().CastOrToReadOnlyCollection(), executionMessageSink, executionOptions);
+					await RunTestCases(testCases.Cast<TTestCase>().CastOrToReadOnlyCollection(), executionMessageSink, executionOptions, cancellationToken.GetValueOrDefault());
 
 				tcs.SetResult(null);
 			}

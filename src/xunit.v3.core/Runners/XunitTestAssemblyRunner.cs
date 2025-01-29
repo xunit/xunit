@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -29,18 +30,20 @@ public class XunitTestAssemblyRunner :
 	/// <param name="testCases">The test cases associated with the test assembly.</param>
 	/// <param name="executionMessageSink">The message sink to send execution messages to.</param>
 	/// <param name="executionOptions">The execution options to use when running tests.</param>
+	/// <param name="cancellationToken">The cancellation token used to cancel test execution.</param>
 	public async ValueTask<RunSummary> Run(
 		IXunitTestAssembly testAssembly,
 		IReadOnlyCollection<IXunitTestCase> testCases,
 		IMessageSink executionMessageSink,
-		ITestFrameworkExecutionOptions executionOptions)
+		ITestFrameworkExecutionOptions executionOptions,
+		CancellationToken cancellationToken)
 	{
 		Guard.ArgumentNotNull(testAssembly);
 		Guard.ArgumentNotNull(testCases);
 		Guard.ArgumentNotNull(executionMessageSink);
 		Guard.ArgumentNotNull(executionOptions);
 
-		await using var ctxt = new XunitTestAssemblyRunnerContext(testAssembly, testCases, executionMessageSink, executionOptions);
+		await using var ctxt = new XunitTestAssemblyRunnerContext(testAssembly, testCases, executionMessageSink, executionOptions, cancellationToken);
 		await ctxt.InitializeAsync();
 
 		return await Run(ctxt);

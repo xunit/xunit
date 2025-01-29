@@ -1,3 +1,5 @@
+#pragma warning disable xUnit1051  // The TestableExecutionSink factory function does not always need a cancellation token
+
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -16,9 +18,11 @@ public class ExecutionSinkTests
 	public class Cancellation
 	{
 		[Fact]
-		public void ReturnsFalseWhenCancellationThunkIsTrue()
+		public void ReturnsFalseWhenCancellationTokenCancellationRequested()
 		{
-			using var sink = TestableExecutionSink.Create(cancelThunk: () => true);
+			var cancellationTokenSource = new CancellationTokenSource();
+			cancellationTokenSource.Cancel();
+			using var sink = TestableExecutionSink.Create(cancellationToken: cancellationTokenSource.Token);
 
 			var result = sink.OnMessage(TestData.DiagnosticMessage());
 
@@ -26,9 +30,10 @@ public class ExecutionSinkTests
 		}
 
 		[Fact]
-		public void ReturnsTrueWhenCancellationThunkIsFalse()
+		public void ReturnsTrueWhenCancellationTokenCancellationHasNotBeenRequested()
 		{
-			using var sink = TestableExecutionSink.Create(cancelThunk: () => false);
+			var cancellationTokenSource = new CancellationTokenSource();
+			using var sink = TestableExecutionSink.Create(cancellationToken: cancellationTokenSource.Token);
 
 			var result = sink.OnMessage(TestData.DiagnosticMessage());
 
@@ -1205,7 +1210,7 @@ public class ExecutionSinkTests
 			AppDomainOption? appDomainOption = null,
 			bool shadowCopy = false,
 			XElement? assemblyElement = null,
-			Func<bool>? cancelThunk = null,
+			CancellationToken cancellationToken = default,
 			Action<ExecutionSummary>? finishedCallback = null,
 			bool failSkips = false,
 			bool failWarn = false,
@@ -1226,7 +1231,7 @@ public class ExecutionSinkTests
 				new ExecutionSinkOptions
 				{
 					AssemblyElement = assemblyElement,
-					CancelThunk = cancelThunk,
+					CancelThunk = () => cancellationToken.IsCancellationRequested,
 					DiagnosticMessageSink = diagnosticMessageSink,
 					FinishedCallback = finishedCallback,
 					FailSkips = failSkips,
