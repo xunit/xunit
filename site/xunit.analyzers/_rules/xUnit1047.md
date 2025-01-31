@@ -50,6 +50,13 @@ Supported built-in types (as of v3 `0.5.0`) include:
 - `Uri`
 - `Version`
 
+Additional built-in types supported for v3 (as of `0.5.0`) include:
+
+- `Guid`
+- `Index` and `Range` (.NET 6+ only)
+- `Uri`
+- `Version`
+
 ## Examples
 
 ### Violates
