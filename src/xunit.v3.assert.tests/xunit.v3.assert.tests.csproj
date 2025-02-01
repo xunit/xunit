@@ -1,23 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!-- This is a test project, vulnerabilities here aren't shipped -->
-    <NoWarn>$(NoWarn);NU1903</NoWarn>
     <TargetFrameworks>net472;net6.0</TargetFrameworks>
   </PropertyGroup>
 
-  <!-- Reduce to minimal feature set for .NET Framework tests so we know all paths get covered -->
-  <Choose>
-    <When Condition=" '$(TargetFramework)' == 'net472' ">
-      <PropertyGroup>
-        <DefineConstants>XUNIT_NULLABLE</DefineConstants>
-      </PropertyGroup>
-
-      <ItemGroup>
-        <ProjectReference Remove="..\xunit.v3.assert\xunit.v3.assert.csproj" />
-        <ProjectReference Include="..\xunit.v3.assert.compat\xunit.v3.assert.nullable\xunit.v3.assert.nullable.csproj" />
-      </ItemGroup>
-    </When>
-  </Choose>
+  <ItemGroup>
+    <PackageReference Include="System.Collections.Immutable" Version="[$(SystemCollectionsImmutableVersion)]" />
+    <PackageReference Include="System.Memory" Version="[$(SystemMemoryVersion)]" />
+  </ItemGroup>
 
 </Project>

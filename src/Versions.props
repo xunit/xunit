@@ -14,8 +14,9 @@
     <!-- Used by xunit.v3 (NuGet package) -->
     <XunitAnalyzersVersion>1.19.0</XunitAnalyzersVersion>
 
-    <!-- Used by xunit.v3.assert for immutable collection support (for netstandard2.0 only) -->
-    <SystemCollectionsImmutableVersion>6.0.0</SystemCollectionsImmutableVersion>
+    <!-- Used by xunit.v3.assert for immutable collection and memory/span support -->
+    <SystemCollectionsImmutableVersion>8.0.0</SystemCollectionsImmutableVersion>
+    <SystemMemoryVersion>4.6.0</SystemMemoryVersion>
 
     <!-- Used by xunit.v3.core for IAsyncDisposable -->
     <MicrosoftBclAsyncInterfacesVersion>6.0.0</MicrosoftBclAsyncInterfacesVersion>
@@ -42,7 +43,6 @@
     <FSharpCompilerServiceVersion>43.7.200</FSharpCompilerServiceVersion>
     <MoqVersion>4.17.2</MoqVersion>
     <NSubstituteVersion>5.3.0</NSubstituteVersion>
-    <SystemMemoryVersion>4.5.5</SystemMemoryVersion>
     <XunitV1Version>1.9.2</XunitV1Version>
     <XunitV2Version>2.9.3</XunitV2Version>
 

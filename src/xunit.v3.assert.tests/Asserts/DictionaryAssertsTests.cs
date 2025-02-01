@@ -1,12 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using Xunit;
 using Xunit.Sdk;
-
-#if XUNIT_IMMUTABLE_COLLECTIONS
-using System.Collections.Immutable;
-#endif
 
 public class DictionaryAssertsTests
 {
@@ -24,10 +21,8 @@ public class DictionaryAssertsTests
 			Assert.Equal(42, Assert.Contains("FORTY-two", new ReadOnlyDictionary<string, int>(dictionary)));
 			Assert.Equal(42, Assert.Contains("FORTY-two", (IDictionary<string, int>)dictionary));
 			Assert.Equal(42, Assert.Contains("FORTY-two", (IReadOnlyDictionary<string, int>)dictionary));
-#if XUNIT_IMMUTABLE_COLLECTIONS
 			Assert.Equal(42, Assert.Contains("FORTY-two", dictionary.ToImmutableDictionary(StringComparer.InvariantCultureIgnoreCase)));
 			Assert.Equal(42, Assert.Contains("FORTY-two", (IImmutableDictionary<string, int>)dictionary.ToImmutableDictionary(StringComparer.InvariantCultureIgnoreCase)));
-#endif
 		}
 
 		[Fact]
@@ -55,10 +50,8 @@ public class DictionaryAssertsTests
 			assertFailure(() => Assert.Contains("FORTY-two", new ReadOnlyDictionary<string, int>(dictionary)));
 			assertFailure(() => Assert.Contains("FORTY-two", (IDictionary<string, int>)dictionary));
 			assertFailure(() => Assert.Contains("FORTY-two", (IReadOnlyDictionary<string, int>)dictionary));
-#if XUNIT_IMMUTABLE_COLLECTIONS
 			assertFailure(() => Assert.Contains("FORTY-two", dictionary.ToImmutableDictionary()));
 			assertFailure(() => Assert.Contains("FORTY-two", (IImmutableDictionary<string, int>)dictionary.ToImmutableDictionary()));
-#endif
 		}
 	}
 
@@ -76,10 +69,8 @@ public class DictionaryAssertsTests
 			Assert.DoesNotContain("FORTY-two", new ReadOnlyDictionary<string, int>(dictionary));
 			Assert.DoesNotContain("FORTY-two", (IDictionary<string, int>)dictionary);
 			Assert.DoesNotContain("FORTY-two", (IReadOnlyDictionary<string, int>)dictionary);
-#if XUNIT_IMMUTABLE_COLLECTIONS
 			Assert.DoesNotContain("FORTY-two", dictionary.ToImmutableDictionary());
 			Assert.DoesNotContain("FORTY-two", (IImmutableDictionary<string, int>)dictionary.ToImmutableDictionary());
-#endif
 		}
 
 		[Fact]
@@ -107,10 +98,8 @@ public class DictionaryAssertsTests
 			assertFailure(() => Assert.DoesNotContain("FORTY-two", new ReadOnlyDictionary<string, int>(dictionary)));
 			assertFailure(() => Assert.DoesNotContain("FORTY-two", (IDictionary<string, int>)dictionary));
 			assertFailure(() => Assert.DoesNotContain("FORTY-two", (IReadOnlyDictionary<string, int>)dictionary));
-#if XUNIT_IMMUTABLE_COLLECTIONS
 			assertFailure(() => Assert.DoesNotContain("FORTY-two", dictionary.ToImmutableDictionary(StringComparer.InvariantCultureIgnoreCase)));
 			assertFailure(() => Assert.DoesNotContain("FORTY-two", (IImmutableDictionary<string, int>)dictionary.ToImmutableDictionary(StringComparer.InvariantCultureIgnoreCase)));
-#endif
 		}
 	}
 }

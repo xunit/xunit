@@ -11,7 +11,6 @@ public class StringAssertsTests
 		public void CanSearchForSubstrings()
 		{
 			Assert.Contains("wor", "Hello, world!");
-#if XUNIT_SPAN
 			Assert.Contains("wor".Memoryify(), "Hello, world!".Memoryify());
 			Assert.Contains("wor".AsMemory(), "Hello, world!".Memoryify());
 			Assert.Contains("wor".Memoryify(), "Hello, world!".AsMemory());
@@ -20,7 +19,6 @@ public class StringAssertsTests
 			Assert.Contains("wor".AsSpan(), "Hello, world!".Spanify());
 			Assert.Contains("wor".Spanify(), "Hello, world!".AsSpan());
 			Assert.Contains("wor".AsSpan(), "Hello, world!".AsSpan());
-#endif
 		}
 
 		[Fact]
@@ -40,7 +38,6 @@ public class StringAssertsTests
 			}
 
 			verify(() => Assert.Contains("WORLD", "Hello, world!"));
-#if XUNIT_SPAN
 			verify(() => Assert.Contains("WORLD".Memoryify(), "Hello, world!".Memoryify()));
 			verify(() => Assert.Contains("WORLD".AsMemory(), "Hello, world!".Memoryify()));
 			verify(() => Assert.Contains("WORLD".Memoryify(), "Hello, world!".AsMemory()));
@@ -49,7 +46,6 @@ public class StringAssertsTests
 			verify(() => Assert.Contains("WORLD".AsSpan(), "Hello, world!".Spanify()));
 			verify(() => Assert.Contains("WORLD".Spanify(), "Hello, world!".AsSpan()));
 			verify(() => Assert.Contains("WORLD".AsSpan(), "Hello, world!".AsSpan()));
-#endif
 		}
 
 		[Fact]
@@ -69,7 +65,6 @@ public class StringAssertsTests
 			}
 
 			verify(() => Assert.Contains("hey", "Hello, world!"));
-#if XUNIT_SPAN
 			verify(() => Assert.Contains("hey".Memoryify(), "Hello, world!".Memoryify()));
 			verify(() => Assert.Contains("hey".AsMemory(), "Hello, world!".Memoryify()));
 			verify(() => Assert.Contains("hey".Memoryify(), "Hello, world!".AsMemory()));
@@ -78,7 +73,6 @@ public class StringAssertsTests
 			verify(() => Assert.Contains("hey".AsSpan(), "Hello, world!".Spanify()));
 			verify(() => Assert.Contains("hey".Spanify(), "Hello, world!".AsSpan()));
 			verify(() => Assert.Contains("hey".AsSpan(), "Hello, world!".AsSpan()));
-#endif
 		}
 
 		[Fact]
@@ -115,7 +109,6 @@ public class StringAssertsTests
 			}
 
 			verify(() => Assert.Contains(expected, actual));
-#if XUNIT_SPAN
 			verify(() => Assert.Contains(expected.Memoryify(), actual.Memoryify()));
 			verify(() => Assert.Contains(expected.AsMemory(), actual.Memoryify()));
 			verify(() => Assert.Contains(expected.Memoryify(), actual.AsMemory()));
@@ -124,14 +117,12 @@ public class StringAssertsTests
 			verify(() => Assert.Contains(expected.AsSpan(), actual.Spanify()));
 			verify(() => Assert.Contains(expected.Spanify(), actual.AsSpan()));
 			verify(() => Assert.Contains(expected.AsSpan(), actual.AsSpan()));
-#endif
 		}
 
 		[Fact]
 		public void CanSearchForSubstringsCaseInsensitive()
 		{
 			Assert.Contains("WORLD", "Hello, world!", StringComparison.OrdinalIgnoreCase);
-#if XUNIT_SPAN
 			Assert.Contains("WORLD".Memoryify(), "Hello, world!".Memoryify(), StringComparison.OrdinalIgnoreCase);
 			Assert.Contains("WORLD".AsMemory(), "Hello, world!".Memoryify(), StringComparison.OrdinalIgnoreCase);
 			Assert.Contains("WORLD".Memoryify(), "Hello, world!".AsMemory(), StringComparison.OrdinalIgnoreCase);
@@ -140,7 +131,6 @@ public class StringAssertsTests
 			Assert.Contains("WORLD".AsSpan(), "Hello, world!".Spanify(), StringComparison.OrdinalIgnoreCase);
 			Assert.Contains("WORLD".Spanify(), "Hello, world!".AsSpan(), StringComparison.OrdinalIgnoreCase);
 			Assert.Contains("WORLD".AsSpan(), "Hello, world!".AsSpan(), StringComparison.OrdinalIgnoreCase);
-#endif
 		}
 	}
 
@@ -150,7 +140,6 @@ public class StringAssertsTests
 		public void CanSearchForSubstrings()
 		{
 			Assert.DoesNotContain("hey", "Hello, world!");
-#if XUNIT_SPAN
 			Assert.DoesNotContain("hey".Memoryify(), "Hello, world!".Memoryify());
 			Assert.DoesNotContain("hey".AsMemory(), "Hello, world!".Memoryify());
 			Assert.DoesNotContain("hey".Memoryify(), "Hello, world!".AsMemory());
@@ -159,14 +148,12 @@ public class StringAssertsTests
 			Assert.DoesNotContain("hey".AsSpan(), "Hello, world!".Spanify());
 			Assert.DoesNotContain("hey".Spanify(), "Hello, world!".AsSpan());
 			Assert.DoesNotContain("hey".AsSpan(), "Hello, world!".AsSpan());
-#endif
 		}
 
 		[Fact]
 		public void SubstringDoesNotContainIsCaseSensitiveByDefault()
 		{
 			Assert.DoesNotContain("WORLD", "Hello, world!");
-#if XUNIT_SPAN
 			Assert.DoesNotContain("WORLD".Memoryify(), "Hello, world!".Memoryify());
 			Assert.DoesNotContain("WORLD".AsMemory(), "Hello, world!".Memoryify());
 			Assert.DoesNotContain("WORLD".Memoryify(), "Hello, world!".AsMemory());
@@ -175,7 +162,6 @@ public class StringAssertsTests
 			Assert.DoesNotContain("WORLD".AsSpan(), "Hello, world!".Spanify());
 			Assert.DoesNotContain("WORLD".Spanify(), "Hello, world!".AsSpan());
 			Assert.DoesNotContain("WORLD".AsSpan(), "Hello, world!".AsSpan());
-#endif
 		}
 
 		[Fact]
@@ -196,7 +182,6 @@ public class StringAssertsTests
 			}
 
 			verify(() => Assert.DoesNotContain("world", "Hello, world!"));
-#if XUNIT_SPAN
 			verify(() => Assert.DoesNotContain("world".Memoryify(), "Hello, world!".Memoryify()));
 			verify(() => Assert.DoesNotContain("world".AsMemory(), "Hello, world!".Memoryify()));
 			verify(() => Assert.DoesNotContain("world".Memoryify(), "Hello, world!".AsMemory()));
@@ -205,7 +190,6 @@ public class StringAssertsTests
 			verify(() => Assert.DoesNotContain("world".AsSpan(), "Hello, world!".Spanify()));
 			verify(() => Assert.DoesNotContain("world".Spanify(), "Hello, world!".AsSpan()));
 			verify(() => Assert.DoesNotContain("world".AsSpan(), "Hello, world!".AsSpan()));
-#endif
 		}
 
 		[Fact]
@@ -232,7 +216,6 @@ public class StringAssertsTests
 			}
 
 			verify(() => Assert.DoesNotContain("world", "Hello, world from a very long string that will end up being truncated"));
-#if XUNIT_SPAN
 			verify(() => Assert.DoesNotContain("world".Memoryify(), "Hello, world from a very long string that will end up being truncated".Memoryify()));
 			verify(() => Assert.DoesNotContain("world".AsMemory(), "Hello, world from a very long string that will end up being truncated".Memoryify()));
 			verify(() => Assert.DoesNotContain("world".Memoryify(), "Hello, world from a very long string that will end up being truncated".AsMemory()));
@@ -241,7 +224,6 @@ public class StringAssertsTests
 			verify(() => Assert.DoesNotContain("world".AsSpan(), "Hello, world from a very long string that will end up being truncated".Spanify()));
 			verify(() => Assert.DoesNotContain("world".Spanify(), "Hello, world from a very long string that will end up being truncated".AsSpan()));
 			verify(() => Assert.DoesNotContain("world".AsSpan(), "Hello, world from a very long string that will end up being truncated".AsSpan()));
-#endif
 		}
 
 		[Fact]
@@ -262,7 +244,6 @@ public class StringAssertsTests
 			}
 
 			verify(() => Assert.DoesNotContain("world", "This is a relatively long string that has 'Hello, world' placed in the middle so that we can dual trunaction"));
-#if XUNIT_SPAN
 			verify(() => Assert.DoesNotContain("world".Memoryify(), "This is a relatively long string that has 'Hello, world' placed in the middle so that we can dual trunaction".Memoryify()));
 			verify(() => Assert.DoesNotContain("world".AsMemory(), "This is a relatively long string that has 'Hello, world' placed in the middle so that we can dual trunaction".Memoryify()));
 			verify(() => Assert.DoesNotContain("world".Memoryify(), "This is a relatively long string that has 'Hello, world' placed in the middle so that we can dual trunaction".AsMemory()));
@@ -271,7 +252,6 @@ public class StringAssertsTests
 			verify(() => Assert.DoesNotContain("world".AsSpan(), "This is a relatively long string that has 'Hello, world' placed in the middle so that we can dual trunaction".Spanify()));
 			verify(() => Assert.DoesNotContain("world".Spanify(), "This is a relatively long string that has 'Hello, world' placed in the middle so that we can dual trunaction".AsSpan()));
 			verify(() => Assert.DoesNotContain("world".AsSpan(), "This is a relatively long string that has 'Hello, world' placed in the middle so that we can dual trunaction".AsSpan()));
-#endif
 		}
 
 		[Fact]
@@ -292,7 +272,6 @@ public class StringAssertsTests
 			}
 
 			verify(() => Assert.DoesNotContain("world", "This is a relatively long string that will from the front truncated, just to say 'Hello, world'"));
-#if XUNIT_SPAN
 			verify(() => Assert.DoesNotContain("world".Memoryify(), "This is a relatively long string that will from the front truncated, just to say 'Hello, world'".Memoryify()));
 			verify(() => Assert.DoesNotContain("world".AsMemory(), "This is a relatively long string that will from the front truncated, just to say 'Hello, world'".Memoryify()));
 			verify(() => Assert.DoesNotContain("world".Memoryify(), "This is a relatively long string that will from the front truncated, just to say 'Hello, world'".AsMemory()));
@@ -301,7 +280,6 @@ public class StringAssertsTests
 			verify(() => Assert.DoesNotContain("world".AsSpan(), "This is a relatively long string that will from the front truncated, just to say 'Hello, world'".Spanify()));
 			verify(() => Assert.DoesNotContain("world".Spanify(), "This is a relatively long string that will from the front truncated, just to say 'Hello, world'".AsSpan()));
 			verify(() => Assert.DoesNotContain("world".AsSpan(), "This is a relatively long string that will from the front truncated, just to say 'Hello, world'".AsSpan()));
-#endif
 		}
 
 		[Fact]
@@ -322,7 +300,6 @@ public class StringAssertsTests
 			}
 
 			verify(() => Assert.DoesNotContain("WORLD", "Hello, world!", StringComparison.OrdinalIgnoreCase));
-#if XUNIT_SPAN
 			verify(() => Assert.DoesNotContain("WORLD".Memoryify(), "Hello, world!".Memoryify(), StringComparison.OrdinalIgnoreCase));
 			verify(() => Assert.DoesNotContain("WORLD".AsMemory(), "Hello, world!".Memoryify(), StringComparison.OrdinalIgnoreCase));
 			verify(() => Assert.DoesNotContain("WORLD".Memoryify(), "Hello, world!".AsMemory(), StringComparison.OrdinalIgnoreCase));
@@ -331,7 +308,6 @@ public class StringAssertsTests
 			verify(() => Assert.DoesNotContain("WORLD".AsSpan(), "Hello, world!".Spanify(), StringComparison.OrdinalIgnoreCase));
 			verify(() => Assert.DoesNotContain("WORLD".Spanify(), "Hello, world!".AsSpan(), StringComparison.OrdinalIgnoreCase));
 			verify(() => Assert.DoesNotContain("WORLD".AsSpan(), "Hello, world!".AsSpan(), StringComparison.OrdinalIgnoreCase));
-#endif
 		}
 	}
 
@@ -429,7 +405,6 @@ public class StringAssertsTests
 		public void Success()
 		{
 			Assert.EndsWith("world!", "Hello, world!");
-#if XUNIT_SPAN
 			Assert.EndsWith("world!".Memoryify(), "Hello, world!".Memoryify());
 			Assert.EndsWith("world!".AsMemory(), "Hello, world!".Memoryify());
 			Assert.EndsWith("world!".Memoryify(), "Hello, world!".AsMemory());
@@ -438,7 +413,6 @@ public class StringAssertsTests
 			Assert.EndsWith("world!".AsSpan(), "Hello, world!".Spanify());
 			Assert.EndsWith("world!".Spanify(), "Hello, world!".AsSpan());
 			Assert.EndsWith("world!".AsSpan(), "Hello, world!".AsSpan());
-#endif
 		}
 
 		[Fact]
@@ -458,7 +432,6 @@ public class StringAssertsTests
 			}
 
 			verify(() => Assert.EndsWith("hey", "Hello, world!"));
-#if XUNIT_SPAN
 			verify(() => Assert.EndsWith("hey".Memoryify(), "Hello, world!".Memoryify()));
 			verify(() => Assert.EndsWith("hey".AsMemory(), "Hello, world!".Memoryify()));
 			verify(() => Assert.EndsWith("hey".Memoryify(), "Hello, world!".AsMemory()));
@@ -467,7 +440,6 @@ public class StringAssertsTests
 			verify(() => Assert.EndsWith("hey".AsSpan(), "Hello, world!".Spanify()));
 			verify(() => Assert.EndsWith("hey".Spanify(), "Hello, world!".AsSpan()));
 			verify(() => Assert.EndsWith("hey".AsSpan(), "Hello, world!".AsSpan()));
-#endif
 		}
 
 		[Fact]
@@ -487,7 +459,6 @@ public class StringAssertsTests
 			}
 
 			verify(() => Assert.EndsWith("WORLD!", "world!"));
-#if XUNIT_SPAN
 			verify(() => Assert.EndsWith("WORLD!".Memoryify(), "world!".Memoryify()));
 			verify(() => Assert.EndsWith("WORLD!".AsMemory(), "world!".Memoryify()));
 			verify(() => Assert.EndsWith("WORLD!".Memoryify(), "world!".AsMemory()));
@@ -496,14 +467,12 @@ public class StringAssertsTests
 			verify(() => Assert.EndsWith("WORLD!".AsSpan(), "world!".Spanify()));
 			verify(() => Assert.EndsWith("WORLD!".Spanify(), "world!".AsSpan()));
 			verify(() => Assert.EndsWith("WORLD!".AsSpan(), "world!".AsSpan()));
-#endif
 		}
 
 		[Fact]
 		public void CanSpecifyComparisonType()
 		{
 			Assert.EndsWith("WORLD!", "Hello, world!", StringComparison.OrdinalIgnoreCase);
-#if XUNIT_SPAN
 			Assert.EndsWith("WORLD!".Memoryify(), "Hello, world!".Memoryify(), StringComparison.OrdinalIgnoreCase);
 			Assert.EndsWith("WORLD!".AsMemory(), "Hello, world!".Memoryify(), StringComparison.OrdinalIgnoreCase);
 			Assert.EndsWith("WORLD!".Memoryify(), "Hello, world!".AsMemory(), StringComparison.OrdinalIgnoreCase);
@@ -512,7 +481,6 @@ public class StringAssertsTests
 			Assert.EndsWith("WORLD!".AsSpan(), "Hello, world!".Spanify(), StringComparison.OrdinalIgnoreCase);
 			Assert.EndsWith("WORLD!".Spanify(), "Hello, world!".AsSpan(), StringComparison.OrdinalIgnoreCase);
 			Assert.EndsWith("WORLD!".AsSpan(), "Hello, world!".AsSpan(), StringComparison.OrdinalIgnoreCase);
-#endif
 		}
 
 		[Fact]
@@ -549,7 +517,6 @@ public class StringAssertsTests
 			}
 
 			verify(() => Assert.EndsWith(expected, actual));
-#if XUNIT_SPAN
 			verify(() => Assert.EndsWith(expected.Memoryify(), actual.Memoryify()));
 			verify(() => Assert.EndsWith(expected.AsMemory(), actual.Memoryify()));
 			verify(() => Assert.EndsWith(expected.Memoryify(), actual.AsMemory()));
@@ -558,7 +525,6 @@ public class StringAssertsTests
 			verify(() => Assert.EndsWith(expected.AsSpan(), actual.Spanify()));
 			verify(() => Assert.EndsWith(expected.Spanify(), actual.AsSpan()));
 			verify(() => Assert.EndsWith(expected.AsSpan(), actual.AsSpan()));
-#endif
 		}
 	}
 
@@ -612,7 +578,6 @@ public class StringAssertsTests
 			// Run them in both directions, as the values should be interchangeable when they're equal
 			Assert.Equal(value1, value2, ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
 			Assert.Equal(value2, value1, ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
-#if XUNIT_SPAN
 			Assert.Equal(value1.Memoryify(), value2.Memoryify(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
 			Assert.Equal(value2.Memoryify(), value1.Memoryify(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
 			Assert.Equal(value1.AsMemory(), value2.Memoryify(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
@@ -629,7 +594,6 @@ public class StringAssertsTests
 			Assert.Equal(value2.Spanify(), value1.AsSpan(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
 			Assert.Equal(value1.AsSpan(), value2.AsSpan(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
 			Assert.Equal(value2.AsSpan(), value1.AsSpan(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace);
-#endif
 		}
 
 		[Theory]
@@ -681,7 +645,6 @@ public class StringAssertsTests
 			}
 
 			verify(() => Assert.Equal(expected, actual, ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace));
-#if XUNIT_SPAN
 			if (expected is not null && actual is not null)
 			{
 				verify(() => Assert.Equal(expected.Memoryify(), actual.Memoryify(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace));
@@ -693,7 +656,6 @@ public class StringAssertsTests
 				verify(() => Assert.Equal(expected.Spanify(), actual.AsSpan(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace));
 				verify(() => Assert.Equal(expected.AsSpan(), actual.AsSpan(), ignoreCase, ignoreLineEndingDifferences, ignoreWhiteSpaceDifferences, ignoreAllWhiteSpace));
 			}
-#endif
 		}
 
 		[Fact]
@@ -718,7 +680,6 @@ public class StringAssertsTests
 			}
 
 			verify(() => Assert.Equal(expected, actual));
-#if XUNIT_SPAN
 			verify(() => Assert.Equal(expected.Memoryify(), actual.Memoryify()));
 			verify(() => Assert.Equal(expected.AsMemory(), actual.Memoryify()));
 			verify(() => Assert.Equal(expected.Memoryify(), actual.AsMemory()));
@@ -727,7 +688,6 @@ public class StringAssertsTests
 			verify(() => Assert.Equal(expected.AsSpan(), actual.Spanify()));
 			verify(() => Assert.Equal(expected.Spanify(), actual.AsSpan()));
 			verify(() => Assert.Equal(expected.AsSpan(), actual.AsSpan()));
-#endif
 		}
 	}
 
@@ -829,7 +789,6 @@ public class StringAssertsTests
 		public void Success()
 		{
 			Assert.StartsWith("Hello", "Hello, world!");
-#if XUNIT_SPAN
 			Assert.StartsWith("Hello".Memoryify(), "Hello, world!".Memoryify());
 			Assert.StartsWith("Hello".AsMemory(), "Hello, world!".Memoryify());
 			Assert.StartsWith("Hello".Memoryify(), "Hello, world!".AsMemory());
@@ -838,7 +797,6 @@ public class StringAssertsTests
 			Assert.StartsWith("Hello".AsSpan(), "Hello, world!".Spanify());
 			Assert.StartsWith("Hello".Spanify(), "Hello, world!".AsSpan());
 			Assert.StartsWith("Hello".AsSpan(), "Hello, world!".AsSpan());
-#endif
 		}
 
 		[Fact]
@@ -858,7 +816,6 @@ public class StringAssertsTests
 			}
 
 			verify(() => Assert.StartsWith("hey", "Hello, world!"));
-#if XUNIT_SPAN
 			verify(() => Assert.StartsWith("hey".Memoryify(), "Hello, world!".Memoryify()));
 			verify(() => Assert.StartsWith("hey".AsMemory(), "Hello, world!".Memoryify()));
 			verify(() => Assert.StartsWith("hey".Memoryify(), "Hello, world!".AsMemory()));
@@ -867,7 +824,6 @@ public class StringAssertsTests
 			verify(() => Assert.StartsWith("hey".AsSpan(), "Hello, world!".Spanify()));
 			verify(() => Assert.StartsWith("hey".Spanify(), "Hello, world!".AsSpan()));
 			verify(() => Assert.StartsWith("hey".AsSpan(), "Hello, world!".AsSpan()));
-#endif
 		}
 
 		[Fact]
@@ -887,7 +843,6 @@ public class StringAssertsTests
 			}
 
 			verify(() => Assert.StartsWith("WORLD!", "world!"));
-#if XUNIT_SPAN
 			verify(() => Assert.StartsWith("WORLD!".Memoryify(), "world!".Memoryify()));
 			verify(() => Assert.StartsWith("WORLD!".AsMemory(), "world!".Memoryify()));
 			verify(() => Assert.StartsWith("WORLD!".Memoryify(), "world!".AsMemory()));
@@ -896,14 +851,12 @@ public class StringAssertsTests
 			verify(() => Assert.StartsWith("WORLD!".AsSpan(), "world!".Spanify()));
 			verify(() => Assert.StartsWith("WORLD!".Spanify(), "world!".AsSpan()));
 			verify(() => Assert.StartsWith("WORLD!".AsSpan(), "world!".AsSpan()));
-#endif
 		}
 
 		[Fact]
 		public void CanSpecifyComparisonType()
 		{
 			Assert.StartsWith("HELLO", "Hello, world!", StringComparison.OrdinalIgnoreCase);
-#if XUNIT_SPAN
 			Assert.StartsWith("HELLO".Memoryify(), "Hello, world!".Memoryify(), StringComparison.OrdinalIgnoreCase);
 			Assert.StartsWith("HELLO".AsMemory(), "Hello, world!".Memoryify(), StringComparison.OrdinalIgnoreCase);
 			Assert.StartsWith("HELLO".Memoryify(), "Hello, world!".AsMemory(), StringComparison.OrdinalIgnoreCase);
@@ -912,7 +865,6 @@ public class StringAssertsTests
 			Assert.StartsWith("HELLO".AsSpan(), "Hello, world!".Spanify(), StringComparison.OrdinalIgnoreCase);
 			Assert.StartsWith("HELLO".Spanify(), "Hello, world!".AsSpan(), StringComparison.OrdinalIgnoreCase);
 			Assert.StartsWith("HELLO".AsSpan(), "Hello, world!".AsSpan(), StringComparison.OrdinalIgnoreCase);
-#endif
 		}
 
 		[Fact]
@@ -949,7 +901,6 @@ public class StringAssertsTests
 			}
 
 			verify(() => Assert.StartsWith(expected, actual));
-#if XUNIT_SPAN
 			verify(() => Assert.StartsWith(expected.Memoryify(), actual.Memoryify()));
 			verify(() => Assert.StartsWith(expected.AsMemory(), actual.Memoryify()));
 			verify(() => Assert.StartsWith(expected.Memoryify(), actual.AsMemory()));
@@ -958,7 +909,6 @@ public class StringAssertsTests
 			verify(() => Assert.StartsWith(expected.AsSpan(), actual.Spanify()));
 			verify(() => Assert.StartsWith(expected.Spanify(), actual.AsSpan()));
 			verify(() => Assert.StartsWith(expected.AsSpan(), actual.AsSpan()));
-#endif
 		}
 	}
 }

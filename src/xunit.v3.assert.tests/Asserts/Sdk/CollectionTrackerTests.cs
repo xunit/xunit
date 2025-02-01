@@ -1,10 +1,7 @@
+using System;
 using System.Collections.Generic;
 using Xunit;
 using Xunit.Sdk;
-
-#if XUNIT_SPAN
-using System;
-#endif
 
 public class CollectionTrackerTests
 {
@@ -71,7 +68,6 @@ public class CollectionTrackerTests
 		}
 	}
 
-#if XUNIT_SPAN
 	public class FormatIndexedMismatch_Span
 	{
 		[Fact]
@@ -134,7 +130,6 @@ public class CollectionTrackerTests
 			Assert.Equal(18, pointerIndent);
 		}
 	}
-#endif
 
 	public class FormatStart_IEnumerable_Tracked
 	{
@@ -206,7 +201,6 @@ public class CollectionTrackerTests
 		}
 	}
 
-#if XUNIT_SPAN
 	public class FormatStart_Span
 	{
 		[Fact]
@@ -241,5 +235,4 @@ public class CollectionTrackerTests
 			Assert.Equal($"[1, {2.3M}, \"Hello, world!\", 42, 2112, {ArgumentFormatter.Ellipsis}]", CollectionTracker<object>.FormatStart(span));
 		}
 	}
-#endif
 }

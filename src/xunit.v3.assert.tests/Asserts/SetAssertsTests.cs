@@ -1,11 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using Xunit;
 using Xunit.Sdk;
-
-#if XUNIT_IMMUTABLE_COLLECTIONS
-using System.Collections.Immutable;
-#endif
 
 public class SetAssertsTests
 {
@@ -22,10 +19,8 @@ public class SetAssertsTests
 #if NET6_0_OR_GREATER
 			Assert.Contains("FORTY-two", (IReadOnlySet<string>)set);
 #endif
-#if XUNIT_IMMUTABLE_COLLECTIONS
 			Assert.Contains("FORTY-two", set.ToImmutableHashSet(StringComparer.OrdinalIgnoreCase));
 			Assert.Contains("FORTY-two", set.ToImmutableSortedSet(StringComparer.OrdinalIgnoreCase));
-#endif
 		}
 
 		[Fact]
@@ -52,10 +47,8 @@ public class SetAssertsTests
 #if NET6_0_OR_GREATER
 			assertFailure(() => Assert.Contains("FORTY-two", (IReadOnlySet<string>)set));
 #endif
-#if XUNIT_IMMUTABLE_COLLECTIONS
 			assertFailure(() => Assert.Contains("FORTY-two", set.ToImmutableHashSet()));
 			assertFailure(() => Assert.Contains("FORTY-two", set.ToImmutableSortedSet()));
-#endif
 		}
 	}
 
@@ -72,10 +65,8 @@ public class SetAssertsTests
 #if NET6_0_OR_GREATER
 			Assert.DoesNotContain("FORTY-two", (IReadOnlySet<string>)set);
 #endif
-#if XUNIT_IMMUTABLE_COLLECTIONS
 			Assert.DoesNotContain("FORTY-two", set.ToImmutableHashSet());
 			Assert.DoesNotContain("FORTY-two", set.ToImmutableSortedSet());
-#endif
 		}
 
 		[Fact]
@@ -102,10 +93,8 @@ public class SetAssertsTests
 #if NET6_0_OR_GREATER
 			assertFailure(() => Assert.DoesNotContain("FORTY-two", (IReadOnlySet<string>)set));
 #endif
-#if XUNIT_IMMUTABLE_COLLECTIONS
 			assertFailure(() => Assert.DoesNotContain("FORTY-two", set.ToImmutableHashSet(StringComparer.OrdinalIgnoreCase)));
 			assertFailure(() => Assert.DoesNotContain("FORTY-two", set.ToImmutableSortedSet(StringComparer.OrdinalIgnoreCase)));
-#endif
 		}
 	}
 

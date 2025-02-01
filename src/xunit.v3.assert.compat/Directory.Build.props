@@ -20,4 +20,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)\..\xunit.v3.assert\Asserts\**\*.cs" LinkBase="Asserts" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="System.Collections.Immutable" Version="[$(SystemCollectionsImmutableVersion)]" />
+    <PackageReference Include="System.Memory" Version="[$(SystemMemoryVersion)]" />
+  </ItemGroup>
+
 </Project>

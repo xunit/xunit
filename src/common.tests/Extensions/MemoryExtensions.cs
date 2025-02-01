@@ -1,5 +1,3 @@
-#if XUNIT_SPAN
-
 using System;
 
 internal static class MemoryExtensions
@@ -14,5 +12,3 @@ internal static class MemoryExtensions
 		return new Memory<char>((value ?? string.Empty).ToCharArray());
 	}
 }
-
-#endif

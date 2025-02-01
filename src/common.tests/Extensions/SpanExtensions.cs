@@ -1,5 +1,3 @@
-#if XUNIT_SPAN
-
 using System;
 
 internal static class SpanExtensions
@@ -14,5 +12,3 @@ internal static class SpanExtensions
 		return new Span<char>((value ?? string.Empty).ToCharArray());
 	}
 }
-
-#endif

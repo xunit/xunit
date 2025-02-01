@@ -2,15 +2,12 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Xunit;
 using Xunit.Sdk;
-
-#if XUNIT_IMMUTABLE_COLLECTIONS
-using System.Collections.Immutable;
-#endif
 
 public class EqualityAssertsTests
 {
@@ -1569,8 +1566,6 @@ public class EqualityAssertsTests
 			}
 		}
 
-#if XUNIT_IMMUTABLE_COLLECTIONS
-
 		// https://github.com/xunit/xunit/issues/3137
 		public class ImmutableArrays
 		{
@@ -1602,8 +1597,6 @@ public class EqualityAssertsTests
 				);
 			}
 		}
-
-#endif
 
 		public class KeyValuePair
 		{
@@ -3691,8 +3684,6 @@ public class EqualityAssertsTests
 			}
 		}
 
-#if XUNIT_IMMUTABLE_COLLECTIONS
-
 		// https://github.com/xunit/xunit/issues/3137
 		public class ImmutableArrays
 		{
@@ -3722,8 +3713,6 @@ public class EqualityAssertsTests
 				Assert.NotEqual(expected, actual);
 			}
 		}
-
-#endif
 
 		public class Strings
 		{

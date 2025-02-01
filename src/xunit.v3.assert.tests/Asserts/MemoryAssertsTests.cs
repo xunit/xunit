@@ -1,5 +1,3 @@
-#if XUNIT_SPAN
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -943,5 +941,3 @@ public class MemoryAssertsTests
 		}
 	}
 }
-
-#endif

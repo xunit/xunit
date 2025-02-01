@@ -8,7 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Collections.Immutable" Version="[$(SystemCollectionsImmutableVersion)]" Condition=" '$(TargetFramework)' == 'netstandard2.0' " />
+    <PackageReference Include="System.Collections.Immutable" Version="[$(SystemCollectionsImmutableVersion)]" />
+    <PackageReference Include="System.Memory" Version="[$(SystemMemoryVersion)]" />
   </ItemGroup>
 
 </Project>

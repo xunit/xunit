@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <AnalysisLevel>latest-All</AnalysisLevel>
-    <DefineConstants>$(DefineConstants);XUNIT_IMMUTABLE_COLLECTIONS;XUNIT_NULLABLE;XUNIT_SPAN</DefineConstants>
+    <DefineConstants>$(DefineConstants);XUNIT_NULLABLE</DefineConstants>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -15,10 +15,5 @@
     -->
     <TargetFrameworks>netstandard2.1;net472;net48;net481;net8.0;net9.0</TargetFrameworks>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="System.Collections.Immutable" Version="[$(SystemCollectionsImmutableVersion)]" />
-    <PackageReference Include="System.Memory" Version="[$(SystemMemoryVersion)]" />
-  </ItemGroup>
 
 </Project>
