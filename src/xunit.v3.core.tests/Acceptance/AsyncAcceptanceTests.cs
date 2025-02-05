@@ -43,6 +43,28 @@ public class AsyncAcceptanceTests : AcceptanceTestV3
 		}
 	}
 
+	// https://github.com/xunit/xunit/issues/3153
+	[Fact]
+	public async ValueTask AsyncMethodWhichThrowsTaskCancelledException()
+	{
+		var results = await RunForResultsAsync(typeof(ClassWithTaskCancelledException));
+
+		var failed = Assert.Single(results.OfType<TestFailedWithDisplayName>());
+		Assert.Equal($"{typeof(ClassWithTaskCancelledException).FullName}.{nameof(ClassWithTaskCancelledException.TestMethod)}", failed.TestDisplayName);
+		var exception = Assert.Single(failed.ExceptionTypes);
+		Assert.Equal(typeof(TaskCanceledException).FullName, exception);
+	}
+
+	class ClassWithTaskCancelledException
+	{
+		[Fact]
+		public async Task TestMethod()
+		{
+			await Task.Yield();
+			throw new TaskCanceledException("manually throwing");
+		}
+	}
+
 	public sealed class CustomSynchronizationContext : IDisposable
 	{
 		public CustomSynchronizationContext() =>

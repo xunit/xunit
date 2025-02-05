@@ -152,8 +152,14 @@ public class XunitTestRunnerBase<TContext, TTest> : TestRunner<TContext, TTest>
 
 			if (resultTask != baseTask)
 			{
-				TestContext.Current.CancelCurrentTest();
-				throw TestTimeoutException.ForTimedOutTest(timeout);
+				try
+				{
+					throw TestTimeoutException.ForTimedOutTest(timeout);
+				}
+				finally
+				{
+					TestContext.Current.CancelCurrentTest();
+				}
 			}
 		});
 

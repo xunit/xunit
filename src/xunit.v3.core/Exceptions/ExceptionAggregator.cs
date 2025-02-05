@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using Xunit.Internal;
@@ -159,14 +160,11 @@ public struct ExceptionAggregator
 	/// </summary>
 	public void ThrowIfFaulted()
 	{
-		var exceptions = GetExceptions();
-
-		if (exceptions.Count == 0)
+		var exception = ToException();
+		if (exception is null)
 			return;
-		if (exceptions.Count != 1)
-			throw new AggregateException(exceptions);
 
-		ExceptionDispatchInfo.Capture(exceptions[0]).Throw();
+		ExceptionDispatchInfo.Capture(exception).Throw();
 	}
 
 	/// <summary>
@@ -184,7 +182,22 @@ public struct ExceptionAggregator
 		{
 			0 => null,
 			1 => exceptions[0],
-			_ => new AggregateException(exceptions)
+			_ => toAggregateException(exceptions)
 		};
+
+		static Exception toAggregateException(List<Exception> exceptions)
+		{
+			// A special case for tests which time out: we might have both the test timeout and the cancellation token being
+			// cancelled in the aggregator, and we don't care about the cancellation in this case, so we just return the
+			// timeout exception.
+			if (exceptions.Count == 2)
+			{
+				var orderedExceptions = exceptions.Select(x => (ex: x, name: x.GetType().FullName)).OrderBy(x => x.name).ToArray();
+				if (orderedExceptions[0].name == "System.Threading.Tasks.TaskCanceledException" && orderedExceptions[1].name == "Xunit.Sdk.TestTimeoutException")
+					return orderedExceptions[1].ex;
+			}
+
+			return new AggregateException(exceptions);
+		}
 	}
 }
