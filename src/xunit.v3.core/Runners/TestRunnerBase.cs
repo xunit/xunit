@@ -34,8 +34,8 @@ public abstract class TestRunnerBase<TContext, TTest>
 	/// return <see cref="string.Empty"/>.
 	/// </summary>
 	/// <remarks>
-	/// This method runs during <see cref="TestEngineStatus.CleaningUp"/> and any exceptions thrown will
-	/// contribute to test cleanup failure.
+	/// This method runs during <see cref="TestEngineStatus.Running"/> and any exceptions thrown will
+	/// contribute to test failure.
 	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test</param>
 	protected virtual ValueTask<string> GetTestOutput(TContext ctxt) =>
@@ -45,6 +45,10 @@ public abstract class TestRunnerBase<TContext, TTest>
 	/// Gets the warnings that will be reported during test results. By default, returns <c>null</c>,
 	/// indicating that there were no warnings
 	/// </summary>
+	/// <remarks>
+	/// This method runs during <see cref="TestEngineStatus.Running"/> and any exceptions thrown will
+	/// contribute to test failure.
+	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test</param>
 	protected virtual ValueTask<string[]?> GetWarnings(TContext ctxt) =>
 		new(default(string[]));
