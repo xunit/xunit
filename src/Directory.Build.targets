@@ -141,6 +141,7 @@ $([System.IO.File]::ReadAllText($(MSBuildThisFileDirectory)..\README.md))
         PackageVersion=$(PackageVersion);
         SignedPath=$(SignedPath);
         SystemCollectionsImmutableVersion=$(SystemCollectionsImmutableVersion);
+        SystemMemoryVersion=$(SystemMemoryVersion);
         XunitAbstractionsVersion=$(XunitAbstractionsVersion);
         XunitAnalyzersVersion=$(XunitAnalyzersVersion);
       </NuspecProperties>

@@ -17,8 +17,12 @@
 		<dependencies>
 			<group targetFramework="netstandard2.0">
 				<dependency id="System.Collections.Immutable" version="$SystemCollectionsImmutableVersion$" />
+				<dependency id="System.Memory" version="$SystemMemoryVersion$" />
+ 			</group>
+			<group targetFramework="net6.0">
+				<dependency id="System.Collections.Immutable" version="$SystemCollectionsImmutableVersion$" />
+				<dependency id="System.Memory" version="$SystemMemoryVersion$" />
 			</group>
-			<group targetFramework="net6.0" />
 		</dependencies>
 	</metadata>
 	<!-- Remember to update tools\builder\targets\SignAssemblies.cs when assemblies are added or removed -->
