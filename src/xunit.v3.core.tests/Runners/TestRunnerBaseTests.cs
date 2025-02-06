@@ -21,6 +21,7 @@ public class TestRunnerBaseTests
 
 			var runner = new TestableTestRunnerBase
 			{
+				GetAttachments__Result = new Dictionary<string, TestAttachment> { ["foo"] = TestAttachment.Create("bar") },
 				GetTestOutput__Result = "the output",
 				GetWarnings__Result = ["warning1", "warning2"],
 				OnTestPassed__Result = !cancel,
@@ -38,8 +39,9 @@ public class TestRunnerBaseTests
 				"RunTest",
 				"GetTestOutput",
 				"GetWarnings",
+				"GetAttachments",
 				"OnTestPassed(output: \"the output\")",
-				"OnTestFinished(output: \"the output\")",
+				"OnTestFinished(output: \"the output\", attachments: [[\"foo\"] = s:bar])",
 				// OnTestCleanupFailure
 			}, runner.Invocations);
 
@@ -78,7 +80,10 @@ public class TestRunnerBaseTests
 					var finished = Assert.IsAssignableFrom<ITestFinished>(message);
 					verifyTestMessage(finished);
 
-					Assert.Empty(finished.Attachments);
+					var attachment = Assert.Single(finished.Attachments);
+					Assert.Equal("foo", attachment.Key);
+					Assert.Equal(TestAttachmentType.String, attachment.Value.AttachmentType);
+					Assert.Equal("bar", attachment.Value.AsString());
 					Assert.Equal(passed_ExecutionTime, finished.ExecutionTime);
 					Assert.True(finished.FinishTime >= passed_FinishTime, $"Expected {finished.FinishTime} >= {passed_FinishTime}");
 					Assert.Equal("the output", finished.Output);
@@ -122,6 +127,7 @@ public class TestRunnerBaseTests
 				"RunTest",
 				"GetTestOutput",
 				"GetWarnings",
+				"GetAttachments",
 				"OnTestFailed(exception: typeof(TrueException), output: \"the output\")",
 				"OnTestFinished(output: \"the output\")",
 				// OnTestCleanupFailure
@@ -162,6 +168,7 @@ public class TestRunnerBaseTests
 				// RunTest
 				"GetTestOutput",
 				"GetWarnings",
+				"GetAttachments",
 				"OnTestSkipped(reason: \"Don't run me\", output: \"\")",
 				"OnTestFinished(output: \"\")",
 				// OnTestCleanupFailure
@@ -201,6 +208,7 @@ public class TestRunnerBaseTests
 				// RunTest
 				"GetTestOutput",
 				"GetWarnings",
+				"GetAttachments",
 				"OnTestNotRun(output: \"\")",
 				"OnTestFinished(output: \"\")",
 				// OnTestCleanupFailure
@@ -233,6 +241,7 @@ public class TestRunnerBaseTests
 				"RunTest",
 				"GetTestOutput",
 				"GetWarnings",
+				"GetAttachments",
 				"OnTestFailed(exception: typeof(DivideByZeroException), output: \"\")",
 				"OnTestFinished(output: \"\")",
 				// OnTestCleanupFailure
@@ -256,6 +265,31 @@ public class TestRunnerBaseTests
 				"RunTest",
 				"GetTestOutput",
 				"GetWarnings",
+				"GetAttachments",
+				"OnTestFailed(exception: typeof(DivideByZeroException), output: \"\")",
+				"OnTestFinished(output: \"\")",
+				// OnTestCleanupFailure
+			}, runner.Invocations);
+		}
+
+		[Fact]
+		public static async ValueTask GetAttachments()
+		{
+			var runner = new TestableTestRunnerBase { GetAttachments__Lambda = () => throw new DivideByZeroException() };
+
+			var summary = await runner.Run();
+
+			VerifyRunSummary(summary, failed: 1);
+			Assert.False(runner.TokenSource.IsCancellationRequested);
+			Assert.False(runner.Aggregator.HasExceptions);
+			Assert.Equal(new[]
+			{
+				"OnTestStarting",
+				"ShouldTestRun",
+				"RunTest",
+				"GetTestOutput",
+				"GetWarnings",
+				"GetAttachments",
 				"OnTestFailed(exception: typeof(DivideByZeroException), output: \"\")",
 				"OnTestFinished(output: \"\")",
 				// OnTestCleanupFailure
@@ -284,6 +318,7 @@ public class TestRunnerBaseTests
 				"RunTest",
 				"GetTestOutput",
 				"GetWarnings",
+				"GetAttachments",
 				"OnTestPassed(output: \"\")",
 				"OnTestFinished(output: \"\")",
 				"OnTestCleanupFailure(exception: typeof(ArgumentException))",
@@ -316,6 +351,7 @@ public class TestRunnerBaseTests
 				"RunTest",
 				"GetTestOutput",
 				"GetWarnings",
+				"GetAttachments",
 				"OnTestFailed(exception: typeof(TrueException), output: \"\")",
 				"OnTestFinished(output: \"\")",
 				"OnTestCleanupFailure(exception: typeof(DivideByZeroException))",
@@ -339,6 +375,7 @@ public class TestRunnerBaseTests
 				"RunTest",
 				"GetTestOutput",
 				"GetWarnings",
+				"GetAttachments",
 				"OnTestPassed(output: \"\")",
 				"OnTestFinished(output: \"\")",
 				"OnTestCleanupFailure(exception: typeof(DivideByZeroException))",
@@ -366,6 +403,7 @@ public class TestRunnerBaseTests
 				// RunTest
 				"GetTestOutput",
 				"GetWarnings",
+				"GetAttachments",
 				"OnTestNotRun(output: \"\")",
 				"OnTestFinished(output: \"\")",
 				"OnTestCleanupFailure(exception: typeof(DivideByZeroException))",
@@ -389,6 +427,7 @@ public class TestRunnerBaseTests
 				"RunTest",
 				"GetTestOutput",
 				"GetWarnings",
+				"GetAttachments",
 				"OnTestPassed(output: \"\")",
 				"OnTestFinished(output: \"\")",
 				"OnTestCleanupFailure(exception: typeof(DivideByZeroException))",
@@ -412,6 +451,7 @@ public class TestRunnerBaseTests
 				// RunTest
 				"GetTestOutput",
 				"GetWarnings",
+				"GetAttachments",
 				"OnTestSkipped(reason: \"Don't run me\", output: \"\")",
 				"OnTestFinished(output: \"\")",
 				"OnTestCleanupFailure(exception: typeof(DivideByZeroException))",
@@ -435,6 +475,7 @@ public class TestRunnerBaseTests
 				// RunTest
 				"GetTestOutput",
 				"GetWarnings",
+				"GetAttachments",
 				"OnTestFailed(exception: typeof(DivideByZeroException), output: \"\")",
 				"OnTestFinished(output: \"\")",
 				// OnTestCleanupFailure
@@ -458,6 +499,7 @@ public class TestRunnerBaseTests
 				// RunTest
 				"GetTestOutput",
 				"GetWarnings",
+				"GetAttachments",
 				"OnTestFailed(exception: typeof(DivideByZeroException), output: \"\")",
 				"OnTestFinished(output: \"\")",
 				// OnTestCleanupFailure
@@ -491,6 +533,7 @@ public class TestRunnerBaseTests
 				"RunTest",
 				"GetTestOutput",
 				"GetWarnings",
+				"GetAttachments",
 				"OnTestPassed(output: \"\")",
 				"OnTestFinished(output: \"\")",
 				"OnTestCleanupFailure(exception: typeof(ArgumentException))",
@@ -514,6 +557,7 @@ public class TestRunnerBaseTests
 				"RunTest",
 				"GetTestOutput",
 				"GetWarnings",
+				"GetAttachments",
 				"OnTestPassed(output: \"\")",
 				"OnTestFinished(output: \"\")",
 				// OnTestCleanupFailure
@@ -537,6 +581,7 @@ public class TestRunnerBaseTests
 				// RunTest
 				// GetTestOutput
 				// GetWarnings
+				// GetAttachments
 				// OnTestXxx
 				"OnTestFinished(output: \"\")",
 				// OnTestCleanupFailure
@@ -560,6 +605,18 @@ public class TestRunnerBaseTests
 		public readonly SpyMessageBus MessageBus = new();
 		public readonly ITest Test = test ?? Mocks.Test();
 		public readonly CancellationTokenSource TokenSource = new();
+
+		public IReadOnlyDictionary<string, TestAttachment>? GetAttachments__Result = null;
+		public Action? GetAttachments__Lambda;
+
+		protected override ValueTask<IReadOnlyDictionary<string, TestAttachment>?> GetAttachments(TestRunnerBaseContext<ITest> ctxt)
+		{
+			Invocations.Add("GetAttachments");
+
+			GetAttachments__Lambda?.Invoke();
+
+			return new(GetAttachments__Result);
+		}
 
 		public string GetTestOutput__Result = string.Empty;
 		public Action? GetTestOutput__Lambda;
@@ -627,13 +684,19 @@ public class TestRunnerBaseTests
 			TestRunnerBaseContext<ITest> ctxt,
 			decimal executionTime,
 			string output,
-			string[]? warnings)
+			string[]? warnings,
+			IReadOnlyDictionary<string, TestAttachment>? attachments)
 		{
-			Invocations.Add($"OnTestFinished(output: {ArgumentFormatter.Format(output)})");
+			var attachmentsDisplay =
+				attachments is null
+					? string.Empty
+					: $", attachments: {ArgumentFormatter.Format(attachments)}";
+
+			Invocations.Add($"OnTestFinished(output: {ArgumentFormatter.Format(output)}{attachmentsDisplay})");
 
 			OnTestFinished__Lambda?.Invoke();
 
-			await base.OnTestFinished(ctxt, executionTime, output, warnings);
+			await base.OnTestFinished(ctxt, executionTime, output, warnings, attachments);
 
 			return OnTestFinished__Result;
 		}
