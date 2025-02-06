@@ -1,6 +1,11 @@
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.IO;
+using System.Linq;
+using System.Text;
 using System.Threading;
 using Microsoft.Testing.Platform.Extensions.Messages;
 using Microsoft.Testing.Platform.Messages;
@@ -33,11 +38,14 @@ public class TestPlatformExecutionMessageSink(
 	CancellationToken cancellationToken) :
 		OutputDeviceDataProducerBase("execution message sink", "fa7e6681-c892-4741-9980-724bd818f1f1"), IMessageSink, IDataProducer
 {
+	static readonly HashSet<char> InvalidFileNameChars = Path.GetInvalidFileNameChars().ToHashSet();
+
 	readonly MessageMetadataCache metadataCache = new();
+	readonly ConcurrentDictionary<string, TestNode> testNodesByTestID = [];
 
 	/// <inheritdoc/>
 	public Type[] DataTypesProduced =>
-		[typeof(TestNodeUpdateMessage)];
+		[typeof(TestNodeUpdateMessage), typeof(TestNodeFileArtifact)];
 
 	/// <inheritdoc/>
 	public bool OnMessage(IMessageSinkMessage message)
@@ -50,7 +58,7 @@ public class TestPlatformExecutionMessageSink(
 			message.DispatchWhen<ITestCaseFinished>(args => metadataCache.TryRemove(args.Message)) &&
 			message.DispatchWhen<ITestCaseStarting>(args => metadataCache.Set(args.Message)) &&
 			message.DispatchWhen<ITestFailed>(args => SendTestResult(args.Message)) &&
-			message.DispatchWhen<ITestFinished>(args => metadataCache.TryRemove(args.Message)) &&
+			message.DispatchWhen<ITestFinished>(args => OnTestFinished(args.Message)) &&
 			// We don't report anything for ITestNotRun, because we don't want to alter the user's expectations
 			// of what happens for not run tests in Test Explorer. We want them to stay marked as "not run" (or
 			// show their previous run value but not be highlighted as "run this time").
@@ -71,6 +79,73 @@ public class TestPlatformExecutionMessageSink(
 		var testMetadata = metadataCache.TryGetTestMetadata(testOutput);
 
 		outputDevice.DisplayAsync(this, ToMessageWithColor(string.Format(CultureInfo.CurrentCulture, "OUTPUT: [{0}] {1}", testMetadata?.TestDisplayName ?? "<unknown test>", testOutput.Output.TrimEnd()), ConsoleColor.DarkGray)).SpinWait();
+	}
+
+	void OnTestFinished(ITestFinished testFinished)
+	{
+		var testUniqueID = testFinished.TestUniqueID;
+
+		if (testNodesByTestID.TryRemove(testUniqueID, out var testNode) && testFinished.Attachments.Count != 0)
+		{
+			try
+			{
+				var basePath = Path.Combine(Path.GetTempPath(), testUniqueID);
+				Directory.CreateDirectory(basePath);
+
+				foreach (var kvp in testFinished.Attachments)
+				{
+					var localFilePath = Path.Combine(basePath, SanitizeFileName(kvp.Key));
+
+					try
+					{
+						var attachmentType = kvp.Value.AttachmentType;
+
+						if (attachmentType == TestAttachmentType.String)
+						{
+							localFilePath += ".txt";
+							File.WriteAllText(localFilePath, kvp.Value.AsString());
+						}
+						else if (attachmentType == TestAttachmentType.ByteArray)
+						{
+							var (byteArray, mediaType) = kvp.Value.AsByteArray();
+							localFilePath += MediaTypeUtility.GetFileExtension(mediaType);
+							File.WriteAllBytes(localFilePath, byteArray);
+						}
+						else
+						{
+							outputDevice.DisplayAsync(this, ToMessageWithColor(string.Format(CultureInfo.CurrentCulture, "[{0}] Unknown test attachment type '{1}' for attachment '{2}'", testNode.DisplayName, attachmentType, kvp.Key), ConsoleColor.Yellow)).SpinWait();
+							localFilePath = null;
+						}
+
+						if (localFilePath is not null)
+							new TestNodeFileArtifact(sessionUid, testNode, new FileInfo(localFilePath), kvp.Key).SendArtifact(this, testNodeMessageBus);
+					}
+					catch (Exception ex)
+					{
+						outputDevice.DisplayAsync(this, ToMessageWithColor(string.Format(CultureInfo.CurrentCulture, "[{0}] Exception while adding attachment '{1}' in '{2}': {3}", testNode.DisplayName, kvp.Key, localFilePath, ex), ConsoleColor.Yellow)).SpinWait();
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				outputDevice.DisplayAsync(this, ToMessageWithColor(string.Format(CultureInfo.CurrentCulture, "[{0}] Exception while adding attachments: {1}", testNode.DisplayName, ex), ConsoleColor.Yellow)).SpinWait();
+			}
+		}
+
+		metadataCache.TryRemove(testFinished);
+	}
+
+	static string SanitizeFileName(string fileName)
+	{
+		var result = new StringBuilder(fileName.Length);
+
+		foreach (var c in fileName)
+			if (InvalidFileNameChars.Contains(c))
+				result.Append('_');
+			else
+				result.Append(c);
+
+		return result.ToString();
 	}
 
 	void SendTestResult(ITestMessage testMessage)
@@ -124,5 +199,8 @@ public class TestPlatformExecutionMessageSink(
 		}
 
 		result.SendUpdate(this, sessionUid, testNodeMessageBus);
+
+		if (testMessage is not ITestStarting)
+			testNodesByTestID.TryAdd(testMessage.TestUniqueID, result);
 	}
 }

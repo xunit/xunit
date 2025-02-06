@@ -9,7 +9,12 @@ namespace Xunit;
 /// This class provides mappings from media types (stored in attachments) to the intended file system extension
 /// when storing the attachment on disk.
 /// </summary>
-public static class MediaTypeUtility
+#if XUNIT_RUNNER_UTILITY
+public
+#else
+internal
+#endif
+static class MediaTypeUtility
 {
 	const string DefaultExtension = ".bin";
 

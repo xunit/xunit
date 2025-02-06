@@ -79,6 +79,12 @@ internal static class TestNodeExtensions
 			result.Properties.Add(new TrxExceptionProperty(ExceptionUtility.CombineMessages(testFailed), ExceptionUtility.CombineStackTraces(testFailed)));
 	}
 
+	public static void SendArtifact(
+		this TestNodeFileArtifact testNodeFileArtifact,
+		IDataProducer producer,
+		IMessageBus messageBus) =>
+			messageBus.PublishAsync(producer, testNodeFileArtifact).SpinWait();
+
 	public static void SendUpdate(
 		this TestNode testNode,
 		IDataProducer producer,
