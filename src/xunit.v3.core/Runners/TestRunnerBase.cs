@@ -40,7 +40,7 @@ public abstract class TestRunnerBase<TContext, TTest>
 	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test</param>
 	protected virtual ValueTask<IReadOnlyDictionary<string, TestAttachment>?> GetAttachments(TContext ctxt) =>
-		new(TestContext.Current.Attachments);
+		new(default(IReadOnlyDictionary<string, TestAttachment>));
 
 	/// <summary>
 	/// Gets any output collected from the test after execution is complete. If the test framework
