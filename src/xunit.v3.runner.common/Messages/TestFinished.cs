@@ -20,7 +20,7 @@ public partial class TestFinished
 		base.Deserialize(root);
 
 		var attachments = new Dictionary<string, TestAttachment>();
-		var attachmentsObj = JsonDeserializer.TryGetObject(nameof(Attachments));
+		var attachmentsObj = JsonDeserializer.TryGetObject(root, nameof(Attachments));
 		if (attachmentsObj is not null)
 			foreach (var kvp in attachmentsObj)
 				if (kvp.Value is string stringValue)
