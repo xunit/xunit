@@ -12,7 +12,7 @@
     <TunnelVisionLabsReferenceAssemblyAnnotatorVersion>1.0.0-alpha.160</TunnelVisionLabsReferenceAssemblyAnnotatorVersion>
 
     <!-- Used by xunit.v3 (NuGet package) -->
-    <XunitAnalyzersVersion>1.19.0</XunitAnalyzersVersion>
+    <XunitAnalyzersVersion>1.20.0</XunitAnalyzersVersion>
 
     <!-- Used by xunit.v3.assert for immutable collection and memory/span support -->
     <SystemCollectionsImmutableVersion>8.0.0</SystemCollectionsImmutableVersion>
@@ -35,7 +35,7 @@
 
     <!-- Used by xunit.v3.templates (NuGet package) -->
     <MicrosoftNetTestSdkVersion>17.12.0</MicrosoftNetTestSdkVersion>
-    <XunitVisualStudioRunnerVersion>3.0.2-pre.6</XunitVisualStudioRunnerVersion>
+    <XunitVisualStudioRunnerVersion>3.0.2-pre.7</XunitVisualStudioRunnerVersion>
     <!-- Uncomment this line when building RTW packages -->
     <VisualStudioRunnerTemplateVersion>3.0.2</VisualStudioRunnerTemplateVersion>
 
