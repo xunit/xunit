@@ -17,6 +17,7 @@ redirect_from:
   <li><a href="#items">Supported configuration items</a></li>
   <ul>
     <li><a href="#appDomain"><code>appDomain</code></a></li>
+    <li><a href="#assertEquivalentMaxDepth"><code>assertEquivalentMaxDepth</code></a></li>
     <li><a href="#culture"><code>culture</code></a></li>
     <li><a href="#diagnosticMessages"><code>diagnosticMessages</code></a></li>
     <li><a href="#failSkips"><code>failSkips</code></a></li>
@@ -30,6 +31,10 @@ redirect_from:
     <li><a href="#parallelizeAssembly"><code>parallelizeAssembly</code></a></li>
     <li><a href="#parallelizeTestCollections"><code>parallelizeTestCollections</code></a></li>
     <li><a href="#preEnumerateTheories"><code>preEnumerateTheories</code></a></li>
+    <li><a href="#printMaxEnumerableLength"><code>printMaxEnumerableLength</code></a></li>
+    <li><a href="#printMaxObjectDepth"><code>printMaxObjectDepth</code></a></li>
+    <li><a href="#printMaxObjectMemberCount"><code>printMaxObjectMemberCount</code></a></li>
+    <li><a href="#printMaxStringLength"><code>printMaxStringLength</code></a></li>
     <li><a href="#seed"><code>seed</code></a></li>
     <li><a href="#shadowCopy"><code>shadowCopy</code></a></li>
     <li><a href="#showLiveOutput"><code>showLiveOutput</code></a></li>
@@ -132,6 +137,24 @@ redirect_from:
     </td>
   </tr>
   <tr>
+    <th id="assertEquivalentMaxDepth"><code>assertEquivalentMaxDepth</code><br />Runners v3 1.1.0+<br />Test Framework v3 1.1.0+</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this value to limit the recursive depth <code>Assert.Equivalent</code>
+        will use when comparing objects for equivalence.
+      </p>
+      <p>
+        This can also be set by environment variable <code>XUNIT_ASSERT_EQUIVALENT_MAX_DEPTH</code>.
+        A value in the configuration file will take precedence over the environment variable.
+      </p>
+      <p>
+        <em>JSON schema type: <strong>32-bit integer</strong><br />
+        Minimum value: <code>1</code><br />
+        Default value: <code>50</code></em>
+      </p>
+    </td>
+  </tr>
+  <tr>
     <th id="culture"><code>culture</code><br />Runners v3+<br />Test Framework v3+</th>
     <td class="wrapped-wide">
       <p>
@@ -217,7 +240,8 @@ redirect_from:
         must enable diagnostic messages in order to see the long running test warnings.
       </p>
       <p>
-        <em>JSON schema type: <strong>integer</strong><br />
+        <em>JSON schema type: <strong>32-bit integer</strong><br />
+        Minimum value: <code>0</code><br />
         Default value: <code>0</code> (disabled)</em>
       </p>
     </td>
@@ -238,10 +262,10 @@ redirect_from:
       <p>
         <strong><sup>1</sup> NOTE:</strong> While this configuration value has been present since v2 2.1,
         the newer values (<code>default</code>, <code>unlimited</code>, and the multiplier
-        syntax) are only supported with Runners v2 2.8 and later.
+        syntax) are only supported with Runners v2 2.8 and later (and all Runners v3).
       </p>
       <p>
-        <em>JSON schema type: <strong>integer</strong> (schema v2.1+), <strong>integer/string</strong> (schema v2.8+)<br />
+        <em>JSON schema type: <strong>32-bit integer</strong> (schema v2.1+), <strong>32-bit integer/string</strong> (schema v2.8+)<br />
         Default value: the number of CPU threads available to your PC</em>
       </p>
     </td>
@@ -375,6 +399,99 @@ redirect_from:
     </td>
   </tr>
   <tr>
+    <th id="printMaxEnumerableLength"><code>printMaxEnumerableLength</code><br />Runners v3 1.1.0+<br />Test Framework v3 1.1.0+</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this value to limit the number of items to print in a collection (followed by an
+        ellipsis when the collection is longer). This is also used when printing into the
+        middle of a collection with a mismatch index, which means the printing may also
+        start with an ellipsis.
+      </p>
+      <p>
+        Set this to <code>0</code> to always print the full collection.
+      </p>
+      <p>
+        This can also be set by environment variable <code>XUNIT_PRINT_MAX_ENUMERABLE_LENGTH</code>.
+        A value in the configuration file will take precedence over the environment variable.
+      </p>
+      <p>
+        <em>JSON schema type: <strong>32-bit integer</strong><br />
+        Minimum value: <code>0</code><br />
+        Default value: <code>5</code></em>
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <th id="printMaxObjectDepth"><code>printMaxObjectDepth</code><br />Runners v3 1.1.0+<br />Test Framework v3 1.1.0+</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this value to limit the recursive depth when printing objects (followed by an
+        ellipsis when the object depth is too deep).
+      </p>
+      <p>
+        Set this to <code>0</code> to always print objects at all depths.
+      </p>
+      <p>
+        <strong><em>Important warning: disabling this when printing objects with circular references
+        could result in an infinite loop that will cause an <code>OutOfMemoryException</code> and crash
+        the test runner process.</em></strong>
+      </p>
+      <p>
+        This can also be set by environment variable <code>XUNIT_PRINT_MAX_OBJECT_DEPTH</code>.
+        A value in the configuration file will take precedence over the environment variable.
+      </p>
+      <p>
+        <em>JSON schema type: <strong>32-bit integer</strong><br />
+        Minimum value: <code>0</code><br />
+        Default value: <code>3</code></em>
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <th id="printMaxObjectMemberCount"><code>printMaxObjectMemberCount</code><br />Runners v3 1.1.0+<br />Test Framework v3 1.1.0+</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this value to limit the the number of members (fields and properties) to include
+        when printing objects (followed by an ellipsis when there are more members).
+      </p>
+      <p>
+        Set this to <code>0</code> to always print all members.
+      </p>
+      <p>
+        This can also be set by environment variable <code>XUNIT_PRINT_MAX_OBJECT_MEMBER_COUNT</code>.
+        A value in the configuration file will take precedence over the environment variable.
+      </p>
+      <p>
+        <em>JSON schema type: <strong>32-bit integer</strong><br />
+        Minimum value: <code>0</code><br />
+        Default value: <code>5</code></em>
+      </p>
+    </td>
+  </tr>
+  <tr>
+    <th id="printMaxStringLength"><code>printMaxStringLength</code><br />Runners v3 1.1.0+<br />Test Framework v3 1.1.0+</th>
+    <td class="wrapped-wide">
+      <p>
+        Set this value to limit the number of characters to print in a string (followed by an
+        ellipsis when the collection is longer). This is also used when printing into the
+        middle of a string with a mismatch index, which means the printing may also
+        start with an ellipsis.
+      </p>
+      <p>
+        Set this to <code>0</code> to always print full strings.
+      </p>
+      <p>
+        This can also be set by environment variable <code>XUNIT_PRINT_MAX_STRING_LENGTH</code>.
+        A value in the configuration file will take precedence over the environment variable.
+      </p>
+      <p>
+        <em>JSON schema type: <strong>32-bit integer</strong><br />
+        Minimum value: <code>0</code><br />
+        Default value: <code>50</code></em>
+      </p>
+    </td>
+  </tr>
+  <tr>
     <th id="seed"><code>seed</code><br />Runners v3+<br />Test Framework v3+</th>
     <td class="wrapped-wide">
       <p>
@@ -385,8 +502,8 @@ redirect_from:
         failures).
       </p>
       <p>
-        <em>JSON schema type: <strong>integer</strong><br />
-        Valid values: between <code>0</code> and <code>2147483647</code><br />
+        <em>JSON schema type: <strong>32-bit integer</strong><br />
+        Minimum value: <code>0</code><br />
         Default value: unset</em>
       </p>
     </td>
@@ -446,8 +563,16 @@ redirect_from:
 <table class="table">
   <tbody>
     <tr>
-      <th>2.8.1<br />(current)</td>
-      <td class="wrapped-wide"><a href="/schema/v2.8.1/xunit.runner.schema.json">https://xunit.net/schema/v2.8.1/xunit.runner.schema.json</a><br /><a href="/schema/current/xunit.runner.schema.json">https://xunit.net/schema/current/xunit.runner.schema.json</a></td>
+      <th>3.1<br />(current)</td>
+      <td class="wrapped-wide"><a href="/schema/v3.1/xunit.runner.schema.json">https://xunit.net/schema/v3.1/xunit.runner.schema.json</a><br /><a href="/schema/current/xunit.runner.schema.json">https://xunit.net/schema/current/xunit.runner.schema.json</a></td>
+    </tr>
+    <tr>
+      <th>3.0</td>
+      <td class="wrapped-wide"><a href="/schema/v3.0/xunit.runner.schema.json">https://xunit.net/schema/v3.0/xunit.runner.schema.json</a></td>
+    </tr>
+    <tr>
+      <th>2.8.1</td>
+      <td class="wrapped-wide"><a href="/schema/v2.8.1/xunit.runner.schema.json">https://xunit.net/schema/v2.8.1/xunit.runner.schema.json</a></td>
     </tr>
     <tr>
       <th>2.8</td>

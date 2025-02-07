@@ -92,42 +92,47 @@ Using the Microsoft Testing Platform command line experience will give you a fam
 The command line switches are different between the two platforms; type `dotnet run -- -?` to see them. The table below offers a rough mapping between the xUnit.net native command line option and the equivalent Microsoft Testing Platform command line option:
 
 {: .table .left .smaller }
-xUnit.net                        | Microsoft Testing Platform                                                | Activity
--------------------------------- | ------------------------------------------------------------------------- | --------
-`:<seed>`                        | `--seed <seed>`                                                           | Set the randomization seed
-`path/to/configFile.json`        | `--xunit-config-filename path/to/configFile.json`                         | Set the configuration file (defaults to `xunit.runner.json`)
-`-class "name"`                  | `--filter-class "name"`<sup>1</sup>                                       | Run all methods in a given test class
-`-class- "name`                  | `--filter-not-class "name"`<sup>1</sup>                                   | Do not run any methods in the given test class
-`-ctrf <filename>`               | `--report-ctrf --report-ctrf-filename <filename>`<sup>2</sup>             | Enable generating CTRF (JSON) report
-`-culture <option>`              | `--culture <option>`                                                      | Set the execution culture
-`-diagnostics`                   | `--xunit-diagnostics on`<sup>3</sup>                                      | Display diagnostic messages
-`-explicit <option>`             | `--explicit <option>`                                                     | Change the way explicit tests are handled
-`-failSkips`                     | `--fail-skips on`                                                         | Treat skipped tests as failed
-`-failSkips-`                    | `--fail-skips off`                                                        | Treat skipped tests as skipped
-`-failWarns`                     | `--fail-warns on`                                                         | Treat passing tests with warnings as failed
-`-failWarns-`                    | `--fail-warns off`                                                        | Treat passing tests with warnings as passed
-`-internalDiagnostics`           | `--xunit-internal-diagnostics on`<sup>3</sup>                             | Display internal diagnostic messages
-`-html <filename>`               | `--report-xunit-html --report-xunit-html-filename <filename>`<sup>2</sup> | Enable generating xUnit.net HTML report
-`-jUnit <filename>`              | `--report-junit --report-junit-filename <filename>`<sup>2</sup>           | Enable generating JUnit (XML) report
-`-longRunning <seconds>`         | `--long-running <seconds>`                                                | Enable long running (hung) test detection
-`-maxThreads <option>`           | `--max-threads <option>`                                                  | Set maximum thread count for collection parallelization
-`-method "name"`                 | `--filter-method "name"`<sup>1</sup>                                      | Run a given test method
-`-method- "name"`                | `--filter-not-method "name"`<sup>1</sup>                                  | Do not run a given test method
-`-methodDisplay <option>`        | `--method-display <option>`                                               | Set default test display name
-`-methodDisplayOptions <option>` | `--method-display-options <option>`<sup>4</sup>                           | Alters the default test display name
-`-namespace "name"`              | `--filter-namespace "name"`<sup>1</sup>                                   | Run all methods in the given namespace
-`-namespace- "name"`             | `--filter-not-namespace "name"`<sup>1</sup>                               | Do not run any methods in the given namespace
-`-noAutoReporters`               | `--auto-reporters off`<sup>3</sup>                                        | Do not allow reporters to be auto-enabled by environment
-`-nUnit <filename>`              | `--report-nunit --report-nunit-filename <filename>`<sup>2</sup>           | Enable generating NUnit (v2.5 XML) report
-`-parallel <option>`             | `--parallel <option>`                                                     | Change test parallelization
-`-parallelAlgorithm <option>`    | `--parallel-algorithm <option>`                                           | Change the parallelization algorithm
-`-preEnumerateTheories`          | `--pre-enumerate-theories on`<sup>3</sup>                                 | Turns on theory pre-enumeration
-`-showLiveOutput`                | `--show-live-output on`<sup>3</sup>                                       | Turns on live reporting of test output (from ITestOutputHelper)
-`-stopOnFail`                    | `--stop-on-fail on`<sup>3</sup>                                           | Stop running tests after the first test failure
-`-trait "name=value"`            | `--filter-trait "name=value"`<sup>1</sup>                                 | Run all methods with a given trait value
-`-trait- "name=value"`           | `--filter-not-trait "name=value"`<sup>1</sup>                             | Do not run any methods with a given trait value
-`-trx <filename>`                | `--report-xunit-trx --report-xunit-trx-filename <filename>`<sup>2</sup>   | Enable generating xUnit.net TRX report
-`-xml <filename>`                | `--report-xunit --report-xunit-filename <filename>`<sup>2</sup>           | Enable generating xUnit.net (v2+ XML) report
+xUnit.net                             | Microsoft Testing Platform                                                | Activity
+------------------------------------- | ------------------------------------------------------------------------- | --------
+`:<seed>`                             | `--seed <seed>`                                                           | Set the randomization seed
+`path/to/configFile.json`             | `--xunit-config-filename path/to/configFile.json`                         | Set the configuration file (defaults to `xunit.runner.json`)
+`-assertEquivalentMaxDepth <option>`  | `--assert-equivalent-max-depth <option>`                                  |
+`-class "name"`                       | `--filter-class "name"`<sup>1</sup>                                       | Run all methods in a given test class
+`-class- "name`                       | `--filter-not-class "name"`<sup>1</sup>                                   | Do not run any methods in the given test class
+`-ctrf <filename>`                    | `--report-ctrf --report-ctrf-filename <filename>`<sup>2</sup>             | Enable generating CTRF (JSON) report
+`-culture <option>`                   | `--culture <option>`                                                      | Set the execution culture
+`-diagnostics`                        | `--xunit-diagnostics on`<sup>3</sup>                                      | Display diagnostic messages
+`-explicit <option>`                  | `--explicit <option>`                                                     | Change the way explicit tests are handled
+`-failSkips`                          | `--fail-skips on`                                                         | Treat skipped tests as failed
+`-failSkips-`                         | `--fail-skips off`                                                        | Treat skipped tests as skipped
+`-failWarns`                          | `--fail-warns on`                                                         | Treat passing tests with warnings as failed
+`-failWarns-`                         | `--fail-warns off`                                                        | Treat passing tests with warnings as passed
+`-internalDiagnostics`                | `--xunit-internal-diagnostics on`<sup>3</sup>                             | Display internal diagnostic messages
+`-html <filename>`                    | `--report-xunit-html --report-xunit-html-filename <filename>`<sup>2</sup> | Enable generating xUnit.net HTML report
+`-jUnit <filename>`                   | `--report-junit --report-junit-filename <filename>`<sup>2</sup>           | Enable generating JUnit (XML) report
+`-longRunning <seconds>`              | `--long-running <seconds>`                                                | Enable long running (hung) test detection
+`-maxThreads <option>`                | `--max-threads <option>`                                                  | Set maximum thread count for collection parallelization
+`-method "name"`                      | `--filter-method "name"`<sup>1</sup>                                      | Run a given test method
+`-method- "name"`                     | `--filter-not-method "name"`<sup>1</sup>                                  | Do not run a given test method
+`-methodDisplay <option>`             | `--method-display <option>`                                               | Set default test display name
+`-methodDisplayOptions <option>`      | `--method-display-options <option>`<sup>4</sup>                           | Alters the default test display name
+`-namespace "name"`                   | `--filter-namespace "name"`<sup>1</sup>                                   | Run all methods in the given namespace
+`-namespace- "name"`                  | `--filter-not-namespace "name"`<sup>1</sup>                               | Do not run any methods in the given namespace
+`-noAutoReporters`                    | `--auto-reporters off`<sup>3</sup>                                        | Do not allow reporters to be auto-enabled by environment
+`-nUnit <filename>`                   | `--report-nunit --report-nunit-filename <filename>`<sup>2</sup>           | Enable generating NUnit (v2.5 XML) report
+`-parallel <option>`                  | `--parallel <option>`                                                     | Change test parallelization
+`-parallelAlgorithm <option>`         | `--parallel-algorithm <option>`                                           | Change the parallelization algorithm
+`-preEnumerateTheories`               | `--pre-enumerate-theories on`<sup>3</sup>                                 | Turns on theory pre-enumeration
+`-printMaxEnumerableLength <option>`  | `--print-max-enumerable-length <option>`                                  |
+`-printMaxObjectDepth <option>`       | `--print-max-object-depth <option>`                                       |
+`-printMaxObjectMemberCount <option>` | `--print-max-object-member-count <option>`                                |
+`-printMaxStringLength <option>`      | `--print-max-string-length <option>`                                      |
+`-showLiveOutput`                     | `--show-live-output on`<sup>3</sup>                                       | Turns on live reporting of test output (from ITestOutputHelper)
+`-stopOnFail`                         | `--stop-on-fail on`<sup>3</sup>                                           | Stop running tests after the first test failure
+`-trait "name=value"`                 | `--filter-trait "name=value"`<sup>1</sup>                                 | Run all methods with a given trait value
+`-trait- "name=value"`                | `--filter-not-trait "name=value"`<sup>1</sup>                             | Do not run any methods with a given trait value
+`-trx <filename>`                     | `--report-xunit-trx --report-xunit-trx-filename <filename>`<sup>2</sup>   | Enable generating xUnit.net TRX report
+`-xml <filename>`                     | `--report-xunit --report-xunit-filename <filename>`<sup>2</sup>           | Enable generating xUnit.net (v2+ XML) report
 
 _**Notes:**_
 
