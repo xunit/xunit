@@ -7,7 +7,7 @@ using Xunit.Sdk;
 public class Serialization
 {
 	[Theory]
-	[MemberData(nameof(Messages))]
+	[MemberData(nameof(Messages), DisableDiscoveryEnumeration = true)]
 	public void MessageCanSerializeAndDeserialize(IMessageSinkMessage original)
 	{
 		// Serialize
