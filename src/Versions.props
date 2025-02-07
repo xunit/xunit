@@ -15,8 +15,8 @@
     <XunitAnalyzersVersion>1.20.0</XunitAnalyzersVersion>
 
     <!-- Used by xunit.v3.assert for immutable collection and memory/span support -->
-    <SystemCollectionsImmutableVersion>8.0.0</SystemCollectionsImmutableVersion>
-    <SystemMemoryVersion>4.6.0</SystemMemoryVersion>
+    <SystemCollectionsImmutableVersion>6.0.0</SystemCollectionsImmutableVersion>
+    <SystemMemoryVersion>4.5.5</SystemMemoryVersion>
 
     <!-- Used by xunit.v3.core for IAsyncDisposable -->
     <MicrosoftBclAsyncInterfacesVersion>6.0.0</MicrosoftBclAsyncInterfacesVersion>
