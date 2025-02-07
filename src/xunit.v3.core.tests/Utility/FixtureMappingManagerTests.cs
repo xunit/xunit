@@ -53,7 +53,7 @@ public class FixtureMappingManagerTests
 	{
 		var manager = new TestableFixtureMappingManager();
 
-		var ex = await Record.ExceptionAsync(() => manager.InitializeAsync(typeof(FixtureWithThrowingCtor)));
+		var ex = await Record.ExceptionAsync(async () => await manager.InitializeAsync(typeof(FixtureWithThrowingCtor)));
 
 		Assert.IsType<TestPipelineException>(ex);
 		Assert.Equal("Testable fixture type 'FixtureMappingManagerTests+FixtureWithThrowingCtor' threw in its constructor", ex.Message);
@@ -70,7 +70,7 @@ public class FixtureMappingManagerTests
 	{
 		var manager = new TestableFixtureMappingManager();
 
-		var ex = await Record.ExceptionAsync(() => manager.InitializeAsync(typeof(FixtureWithThrowingInitializeAsync)));
+		var ex = await Record.ExceptionAsync(async () => await manager.InitializeAsync(typeof(FixtureWithThrowingInitializeAsync)));
 
 		Assert.IsType<TestPipelineException>(ex);
 		Assert.Equal("Testable fixture type 'FixtureMappingManagerTests+FixtureWithThrowingInitializeAsync' threw in InitializeAsync", ex.Message);
@@ -88,7 +88,7 @@ public class FixtureMappingManagerTests
 	{
 		var manager = new TestableFixtureMappingManager();
 
-		var ex = await Record.ExceptionAsync(() => manager.InitializeAsync(typeof(FixtureWithDependency)));
+		var ex = await Record.ExceptionAsync(async () => await manager.InitializeAsync(typeof(FixtureWithDependency)));
 
 		Assert.IsType<TestPipelineException>(ex);
 		Assert.Equal("Testable fixture type 'FixtureMappingManagerTests+FixtureWithDependency' had one or more unresolved constructor arguments: Object dependency", ex.Message);
@@ -165,7 +165,7 @@ public class FixtureMappingManagerTests
 		await manager.InitializeAsync(typeof(FixtureWithThrowingDispose));
 
 		await manager.GetFixture(typeof(FixtureWithThrowingDispose));
-		var ex = await Record.ExceptionAsync(manager.DisposeAsync);
+		var ex = await Record.ExceptionAsync(async () => await manager.DisposeAsync());
 
 		Assert.IsType<TestPipelineException>(ex);
 		Assert.Equal($"Testable fixture type '{typeof(FixtureWithThrowingDispose).SafeName()}' threw in Dispose", ex.Message);
@@ -211,7 +211,7 @@ public class FixtureMappingManagerTests
 		await manager.InitializeAsync(typeof(FixtureWithThrowingDisposeAsync));
 
 		await manager.GetFixture(typeof(FixtureWithThrowingDisposeAsync));
-		var ex = await Record.ExceptionAsync(manager.DisposeAsync);
+		var ex = await Record.ExceptionAsync(async () => await manager.DisposeAsync());
 
 		Assert.IsType<TestPipelineException>(ex);
 		Assert.Equal($"Testable fixture type '{typeof(FixtureWithThrowingDisposeAsync).SafeName()}' threw in DisposeAsync", ex.Message);
@@ -228,7 +228,7 @@ public class FixtureMappingManagerTests
 	{
 		var manager = new TestableFixtureMappingManager();
 
-		var ex = await Record.ExceptionAsync(() => manager.InitializeAsync(typeof(int)));
+		var ex = await Record.ExceptionAsync(async () => await manager.InitializeAsync(typeof(int)));
 
 		Assert.IsType<TestPipelineException>(ex);
 		Assert.Equal("Testable fixture type 'System.Int32' may only define a single public constructor.", ex.Message);

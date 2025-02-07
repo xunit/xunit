@@ -58,7 +58,7 @@ public class DisposalTrackerTests
 			var obj = Substitute.For<IDisposable, InterfaceProxy<IDisposable>>();
 			classUnderTest.Add(obj);
 
-			var ex = await Record.ExceptionAsync(() => classUnderTest.DisposeAsync());
+			var ex = await Record.ExceptionAsync(async () => await classUnderTest.DisposeAsync());
 
 			Assert.Null(ex);
 			obj.Received().Dispose();
@@ -77,7 +77,7 @@ public class DisposalTrackerTests
 			var obj3 = Substitute.For<IDisposable, InterfaceProxy<IDisposable>>();
 			classUnderTest.Add(obj3);
 
-			var ex = await Record.ExceptionAsync(() => classUnderTest.DisposeAsync());
+			var ex = await Record.ExceptionAsync(async () => await classUnderTest.DisposeAsync());
 
 			Assert.Same(thrown, ex);
 			obj1.Received().Dispose();
@@ -96,7 +96,7 @@ public class DisposalTrackerTests
 			obj2.When(x => x.Dispose()).Throw<InvalidOperationException>();
 			classUnderTest.Add(obj2);
 
-			var ex = await Record.ExceptionAsync(() => classUnderTest.DisposeAsync());
+			var ex = await Record.ExceptionAsync(async () => await classUnderTest.DisposeAsync());
 
 			var aggEx = Assert.IsType<AggregateException>(ex);
 			Assert.Collection(

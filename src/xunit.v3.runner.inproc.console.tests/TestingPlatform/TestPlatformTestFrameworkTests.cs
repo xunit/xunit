@@ -115,7 +115,7 @@ public class TestPlatformTestFrameworkTests
 			var messageBus = new SpyTestPlatformMessageBus();
 			var framework = TestableTestPlatformTestFramework.Create();
 
-			var ex = await Record.ExceptionAsync(() => framework.OnDiscover(uid, messageBus, () => completionCalled = true, CancellationToken.None));
+			var ex = await Record.ExceptionAsync(async () => await framework.OnDiscover(uid, messageBus, () => completionCalled = true, CancellationToken.None));
 
 			Assert.False(completionCalled);
 			Assert.IsType<ArgumentException>(ex);
@@ -130,7 +130,7 @@ public class TestPlatformTestFrameworkTests
 			var messageBus = new SpyTestPlatformMessageBus();
 			var framework = TestableTestPlatformTestFramework.Create();
 
-			var ex = await Record.ExceptionAsync(() => framework.OnExecute(uid, filter: null, messageBus, () => completionCalled = true, CancellationToken.None));
+			var ex = await Record.ExceptionAsync(async () => await framework.OnExecute(uid, filter: null, messageBus, () => completionCalled = true, CancellationToken.None));
 
 			Assert.False(completionCalled);
 			Assert.IsType<ArgumentException>(ex);
