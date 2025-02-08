@@ -5,7 +5,7 @@
 
     <!-- Used for building -->
     <ILRepackVersion>2.0.37</ILRepackVersion>
-    <MicrosoftNetCoreAppRefVersion>8.0.8</MicrosoftNetCoreAppRefVersion>
+    <MicrosoftNetCoreAppRefVersion>9.0.1</MicrosoftNetCoreAppRefVersion>
     <MicrosoftNetFrameworkReferenceAssembliesVersion>1.0.3</MicrosoftNetFrameworkReferenceAssembliesVersion>
     <MicrosoftSourceLinkGitHubVersion>8.0.0</MicrosoftSourceLinkGitHubVersion>
     <NerdbankGitVersioningVersion>3.7.115</NerdbankGitVersioningVersion>
@@ -25,7 +25,7 @@
     <MicrosoftTestingPlatformVersion>1.5.3</MicrosoftTestingPlatformVersion>
 
     <!-- Used by xunit.v3.runner.msbuild to reference MSBuild types -->
-    <MicrosoftBuildVersion>15.1.548</MicrosoftBuildVersion>
+    <MicrosoftBuildVersion>16.11.0</MicrosoftBuildVersion>
 
     <!-- Used by xunit.v3.runner.utility to determine the target framework of an assembly without load-locking it -->
     <MonoCecilVersion>0.11.6</MonoCecilVersion>
