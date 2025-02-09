@@ -866,8 +866,8 @@ public class EqualityAssertsTests
 			[Fact]
 			public void IReadOnlyCollection_IEnumerable_NotEqual()
 			{
-				var expected = new string[] { "foo", "bar" };
-				var actual = new ReadOnlyCollection<string>(["bar", "foo"]);
+				var expected = new string[] { @"C:\Program Files (x86)\Common Files\Extremely Long Path Name\VST2" };
+				var actual = new ReadOnlyCollection<string>([@"C:\Program Files (x86)\Common Files\Extremely Long Path Name\VST3"]);
 
 				static void assertFailure(Action action)
 				{
@@ -875,11 +875,11 @@ public class EqualityAssertsTests
 
 					Assert.IsType<EqualException>(ex);
 					Assert.Equal(
-						"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
-						"                                      ↓ (pos 0)" + Environment.NewLine +
-						"Expected: string[]                   [\"foo\", \"bar\"]" + Environment.NewLine +
-						"Actual:   ReadOnlyCollection<string> [\"bar\", \"foo\"]" + Environment.NewLine +
-						"                                      ↑ (pos 0)",
+						"Assert.Equal() Failure: Collections differ at index 0" + Environment.NewLine +
+						"                                                                  ↓ (pos 64)" + Environment.NewLine +
+						"Expected: ···\"s (x86)\\\\Common Files\\\\Extremely Long Path Name\\\\VST2\"" + Environment.NewLine +
+						"Actual:   ···\"s (x86)\\\\Common Files\\\\Extremely Long Path Name\\\\VST3\"" + Environment.NewLine +
+						"                                                                  ↑ (pos 64)",
 						ex.Message
 					);
 				}
@@ -938,11 +938,11 @@ public class EqualityAssertsTests
 
 					Assert.IsType<EqualException>(ex);
 					Assert.Equal(
-						"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
-						"                           ↓ (pos 1)" + Environment.NewLine +
-						"Expected: string[] [\"foo\", \"bar\"]" + Environment.NewLine +
-						"Actual:   object[] [\"foo\", \"baz\"]" + Environment.NewLine +
-						"                           ↑ (pos 1)",
+						"Assert.Equal() Failure: Collections differ at index 1" + Environment.NewLine +
+						"             ↓ (pos 2)" + Environment.NewLine +
+						"Expected: \"bar\"" + Environment.NewLine +
+						"Actual:   \"baz\"" + Environment.NewLine +
+						"             ↑ (pos 2)",
 						ex.Message
 					);
 				}
