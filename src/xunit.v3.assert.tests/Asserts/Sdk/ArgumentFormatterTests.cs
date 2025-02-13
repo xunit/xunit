@@ -159,11 +159,7 @@ public class ArgumentFormatterTests
 		[Fact]
 		public static async Task TaskValue()
 		{
-#if XUNIT_V2
-			var task = Task.Run(() => { });
-#else
 			var task = Task.Run(() => { }, TestContext.Current.CancellationToken);
-#endif
 			await task;
 
 			Assert.Equal("Task { Status = RanToCompletion }", ArgumentFormatter.Format(task));
@@ -268,19 +264,11 @@ public class ArgumentFormatterTests
 	public class Enumerables
 	{
 		// Both tracked and untracked should be the same
-#if XUNIT_V2
-		public static TheoryData<IEnumerable> Collections = new()
-		{
-			new object[] { 1, 2.3M, "Hello, world!" },
-			new object[] { 1, 2.3M, "Hello, world!" }.AsTracker(),
-		};
-#else
 		public static TheoryData<IEnumerable<object>> Collections =
 		[
 			new TheoryDataRow<IEnumerable<object>>([1, 2.3M, "Hello, world!"]),
 			new TheoryDataRow<IEnumerable<object>>(CollectionTracker<object>.Wrap([1, 2.3M, "Hello, world!"])),
 		];
-#endif
 
 		[CulturedTheory]
 		[MemberData(nameof(Collections), DisableDiscoveryEnumeration = true)]
@@ -304,19 +292,11 @@ public class ArgumentFormatterTests
 			Assert.Equal(expected, ArgumentFormatter.Format(value));
 		}
 
-#if XUNIT_V2
-		public static TheoryData<IEnumerable> LongCollections = new()
-		{
-			new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 },
-			new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }.AsTracker(),
-		};
-#else
 		public static TheoryData<IEnumerable<object>> LongCollections =
 		[
 			new TheoryDataRow<IEnumerable<object>>([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
 			new TheoryDataRow<IEnumerable<object>>(CollectionTracker<object>.Wrap([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])),
 		];
-#endif
 
 		[CulturedTheory]
 		[MemberData(nameof(LongCollections), DisableDiscoveryEnumeration = true)]
