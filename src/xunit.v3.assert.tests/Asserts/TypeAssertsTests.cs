@@ -325,7 +325,7 @@ public class TypeAssertsTests
 			var result = Record.Exception(() => Assert.IsNotType<InvalidCastException>(ex, exactMatch: false));
 
 			Assert.IsType<IsNotTypeException>(result);
-			Assert.Equal<object>(
+			Assert.Equal(
 				"Assert.IsNotType() Failure: Value is a compatible type" + Environment.NewLine +
 				"Expected: typeof(System.InvalidCastException)" + Environment.NewLine +
 				"Actual:   typeof(System.InvalidCastException)",
@@ -341,7 +341,7 @@ public class TypeAssertsTests
 			var result = Record.Exception(() => Assert.IsNotType<Exception>(ex, exactMatch: false));
 
 			Assert.IsType<IsNotTypeException>(result);
-			Assert.Equal<object>(
+			Assert.Equal(
 				"Assert.IsNotType() Failure: Value is a compatible type" + Environment.NewLine +
 				"Expected: typeof(System.Exception)" + Environment.NewLine +
 				"Actual:   typeof(System.InvalidCastException)",
@@ -359,7 +359,7 @@ public class TypeAssertsTests
 #pragma warning restore xUnit2018
 
 			Assert.IsType<IsNotTypeException>(result);
-			Assert.Equal<object>(
+			Assert.Equal(
 				"Assert.IsNotType() Failure: Value is a compatible type" + Environment.NewLine +
 				"Expected: typeof(System.IDisposable)" + Environment.NewLine +
 				"Actual:   typeof(TypeAssertsTests+DisposableClass)",
