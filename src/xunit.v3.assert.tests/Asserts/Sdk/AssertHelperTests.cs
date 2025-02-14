@@ -1,3 +1,5 @@
+#if !XUNIT_AOT
+
 using System;
 using System.Linq.Expressions;
 using Xunit;
@@ -168,3 +170,5 @@ public class AssertHelperTests
 		public Parent? GrandparentProperty { get; set; }
 	}
 }
+
+#endif  // !XUNIT_AOT
