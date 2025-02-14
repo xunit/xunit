@@ -79,8 +79,8 @@ public class EqualityAssertsTests
 			public void StringsPassViaObjectEqualAreNotFormattedOrTruncated()
 			{
 				var ex = Record.Exception(
-					() => Assert.Equal<object>(
-						$"This is a long{Environment.NewLine}string with{Environment.NewLine}new lines",
+					() => Assert.Equal(
+						$"This is a long{Environment.NewLine}string with{Environment.NewLine}new lines" as object,
 						$"This is a long{Environment.NewLine}string with embedded{Environment.NewLine}new lines"
 					)
 				);
@@ -272,8 +272,13 @@ public class EqualityAssertsTests
 				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
 					"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+#if XUNIT_AOT
+					$"Expected: SpyComparable {{ {ArgumentFormatter.Ellipsis} }}" + Environment.NewLine +
+					$"Actual:   SpyComparable {{ {ArgumentFormatter.Ellipsis} }}",
+#else
 					"Expected: SpyComparable { CompareCalled = True }" + Environment.NewLine +
 					"Actual:   SpyComparable { CompareCalled = False }",
+#endif
 					ex.Message
 				);
 			}
@@ -302,8 +307,13 @@ public class EqualityAssertsTests
 					Assert.IsType<EqualException>(ex);
 					Assert.Equal(
 						"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+#if XUNIT_AOT
+						$"Expected: MultiComparable {{ {ArgumentFormatter.Ellipsis} }}" + Environment.NewLine +
+						$"Actual:   MultiComparable {{ {ArgumentFormatter.Ellipsis} }}",
+#else
 						"Expected: MultiComparable { Value = 1 }" + Environment.NewLine +
 						"Actual:   MultiComparable { Value = 2 }",
+#endif
 						ex.Message
 					);
 				}
@@ -336,7 +346,11 @@ public class EqualityAssertsTests
 					Assert.IsType<EqualException>(ex);
 					Assert.Equal(
 						"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+#if XUNIT_AOT
+						$"Expected: MultiComparable {{ {ArgumentFormatter.Ellipsis} }}" + Environment.NewLine +
+#else
 						"Expected: MultiComparable { Value = 1 }" + Environment.NewLine +
+#endif
 						"Actual:   2",
 						ex.Message
 					);
@@ -367,8 +381,13 @@ public class EqualityAssertsTests
 				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
 					"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+#if XUNIT_AOT
+					$"Expected: SpyComparable_Generic {{ {ArgumentFormatter.Ellipsis} }}" + Environment.NewLine +
+					$"Actual:   SpyComparable_Generic {{ {ArgumentFormatter.Ellipsis} }}",
+#else
 					"Expected: SpyComparable_Generic { CompareCalled = True }" + Environment.NewLine +
 					"Actual:   SpyComparable_Generic { CompareCalled = False }",
+#endif
 					ex.Message
 				);
 			}
@@ -379,7 +398,7 @@ public class EqualityAssertsTests
 				var expected = new ComparableSubClassA(1);
 				var actual = new ComparableSubClassB(1);
 
-				Assert.Equal<ComparableBaseClass>(expected, actual);
+				Assert.Equal(expected as object, actual);
 			}
 
 			[Fact]
@@ -388,13 +407,18 @@ public class EqualityAssertsTests
 				var expected = new ComparableSubClassA(1);
 				var actual = new ComparableSubClassB(2);
 
-				var ex = Record.Exception(() => Assert.Equal<ComparableBaseClass>(expected, actual));
+				var ex = Record.Exception(() => Assert.Equal(expected as object, actual));
 
 				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
 					"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+#if XUNIT_AOT
+					$"Expected: ComparableSubClassA {{ {ArgumentFormatter.Ellipsis} }}" + Environment.NewLine +
+					$"Actual:   ComparableSubClassB {{ {ArgumentFormatter.Ellipsis} }}",
+#else
 					"Expected: ComparableSubClassA { Value = 1 }" + Environment.NewLine +
 					"Actual:   ComparableSubClassB { Value = 2 }",
+#endif
 					ex.Message
 				);
 			}
@@ -419,8 +443,13 @@ public class EqualityAssertsTests
 				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
 					"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+#if XUNIT_AOT
+					$"Expected: ComparableBaseClass {{ {ArgumentFormatter.Ellipsis} }}" + Environment.NewLine +
+					$"Actual:   ComparableSubClassA {{ {ArgumentFormatter.Ellipsis} }}",
+#else
 					"Expected: ComparableBaseClass { Value = 1 }" + Environment.NewLine +
 					"Actual:   ComparableSubClassA { Value = 2 }",
+#endif
 					ex.Message
 				);
 			}
@@ -445,8 +474,13 @@ public class EqualityAssertsTests
 				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
 					"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+#if XUNIT_AOT
+					$"Expected: ComparableSubClassA {{ {ArgumentFormatter.Ellipsis} }}" + Environment.NewLine +
+					$"Actual:   ComparableBaseClass {{ {ArgumentFormatter.Ellipsis} }}",
+#else
 					"Expected: ComparableSubClassA { Value = 1 }" + Environment.NewLine +
 					"Actual:   ComparableBaseClass { Value = 2 }",
+#endif
 					ex.Message
 				);
 			}
@@ -475,8 +509,13 @@ public class EqualityAssertsTests
 					Assert.IsType<EqualException>(ex);
 					Assert.Equal(
 						"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+#if XUNIT_AOT
+						$"Expected: ComparableThrower {{ {ArgumentFormatter.Ellipsis} }}" + Environment.NewLine +
+						$"Actual:   ComparableThrower {{ {ArgumentFormatter.Ellipsis} }}",
+#else
 						"Expected: ComparableThrower { Value = 1 }" + Environment.NewLine +
 						"Actual:   ComparableThrower { Value = 2 }",
+#endif
 						ex.Message
 					);
 				}
@@ -485,6 +524,8 @@ public class EqualityAssertsTests
 				assertFailure(() => Assert.Equal(expected, (IComparable<ComparableThrower>)actual));
 				assertFailure(() => Assert.Equal(expected, (object)actual));
 			}
+
+#if !XUNIT_AOT  // IComparable<Expected> vs. IComparable<Actual> cannot be done in Native AOT because of the reflection restrictions
 
 			[Fact]
 			public void DifferentTypes_ImplicitImplementation_Equal()
@@ -563,6 +604,8 @@ public class EqualityAssertsTests
 					ex.Message
 				);
 			}
+
+#endif  // !XUNIT_AOT
 		}
 
 		public class NotComparable
@@ -587,8 +630,13 @@ public class EqualityAssertsTests
 				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
 					"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+#if XUNIT_AOT
+					$"Expected: NonComparableObject {{ {ArgumentFormatter.Ellipsis} }}" + Environment.NewLine +
+					$"Actual:   NonComparableObject {{ {ArgumentFormatter.Ellipsis} }}",
+#else
 					"Expected: NonComparableObject { }" + Environment.NewLine +
 					"Actual:   NonComparableObject { }",
+#endif
 					ex.Message
 				);
 			}
@@ -619,8 +667,13 @@ public class EqualityAssertsTests
 				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
 					"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+#if XUNIT_AOT
+					$"Expected: SpyEquatable {{ {ArgumentFormatter.Ellipsis} }}" + Environment.NewLine +
+					$"Actual:   SpyEquatable {{ {ArgumentFormatter.Ellipsis} }}",
+#else
 					"Expected: SpyEquatable { Equals__Called = True, Equals_Other = SpyEquatable { Equals__Called = False, Equals_Other = null } }" + Environment.NewLine +
 					"Actual:   SpyEquatable { Equals__Called = False, Equals_Other = null }",
+#endif
 					ex.Message
 				);
 			}
@@ -631,7 +684,7 @@ public class EqualityAssertsTests
 				var expected = new EquatableSubClassA(1);
 				var actual = new EquatableSubClassB(1);
 
-				Assert.Equal<EquatableBaseClass>(expected, actual);
+				Assert.Equal(expected as object, actual);
 			}
 
 			[Fact]
@@ -640,13 +693,18 @@ public class EqualityAssertsTests
 				var expected = new EquatableSubClassA(1);
 				var actual = new EquatableSubClassB(2);
 
-				var ex = Record.Exception(() => Assert.Equal<EquatableBaseClass>(expected, actual));
+				var ex = Record.Exception(() => Assert.Equal(expected as object, actual));
 
 				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
 					"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+#if XUNIT_AOT
+					$"Expected: EquatableSubClassA {{ {ArgumentFormatter.Ellipsis} }}" + Environment.NewLine +
+					$"Actual:   EquatableSubClassB {{ {ArgumentFormatter.Ellipsis} }}",
+#else
 					"Expected: EquatableSubClassA { Value = 1 }" + Environment.NewLine +
 					"Actual:   EquatableSubClassB { Value = 2 }",
+#endif
 					ex.Message
 				);
 			}
@@ -671,8 +729,13 @@ public class EqualityAssertsTests
 				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
 					"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+#if XUNIT_AOT
+					$"Expected: EquatableBaseClass {{ {ArgumentFormatter.Ellipsis} }}" + Environment.NewLine +
+					$"Actual:   EquatableSubClassA {{ {ArgumentFormatter.Ellipsis} }}",
+#else
 					"Expected: EquatableBaseClass { Value = 1 }" + Environment.NewLine +
 					"Actual:   EquatableSubClassA { Value = 2 }",
+#endif
 					ex.Message
 				);
 			}
@@ -697,11 +760,18 @@ public class EqualityAssertsTests
 				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
 					"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+#if XUNIT_AOT
+					$"Expected: EquatableSubClassA {{ {ArgumentFormatter.Ellipsis} }}" + Environment.NewLine +
+					$"Actual:   EquatableBaseClass {{ {ArgumentFormatter.Ellipsis} }}",
+#else
 					"Expected: EquatableSubClassA { Value = 1 }" + Environment.NewLine +
 					"Actual:   EquatableBaseClass { Value = 2 }",
+#endif
 					ex.Message
 				);
 			}
+
+#if !XUNIT_AOT  // Support for IEquatable<Expected> vs. IEquatable<Actual> cannot be done in Native AOT because of the reflection restrictions
 
 			[Fact]
 			public void DifferentTypes_ImplicitImplementation_Equal()
@@ -754,6 +824,8 @@ public class EqualityAssertsTests
 					ex.Message
 				);
 			}
+
+#endif  // !XUNIT_AOT
 		}
 
 		public class StructuralEquatable
@@ -761,8 +833,8 @@ public class EqualityAssertsTests
 			[Fact]
 			public void Equal()
 			{
-				var expected = new Tuple<StringWrapper>(new StringWrapper("a"));
-				var actual = new Tuple<StringWrapper>(new StringWrapper("a"));
+				var expected = new StructuralStringWrapper("a");
+				var actual = new StructuralStringWrapper("a");
 
 				Assert.Equal(expected, actual);
 				Assert.Equal(expected, (IStructuralEquatable)actual);
@@ -772,8 +844,8 @@ public class EqualityAssertsTests
 			[Fact]
 			public void NotEqual()
 			{
-				var expected = new Tuple<StringWrapper>(new StringWrapper("a"));
-				var actual = new Tuple<StringWrapper>(new StringWrapper("b"));
+				var expected = new StructuralStringWrapper("a");
+				var actual = new StructuralStringWrapper("b");
 
 				static void assertFailure(Action action)
 				{
@@ -782,8 +854,13 @@ public class EqualityAssertsTests
 					Assert.IsType<EqualException>(ex);
 					Assert.Equal(
 						"Assert.Equal() Failure: Values differ" + Environment.NewLine +
-						"Expected: Tuple (StringWrapper { Value = \"a\" })" + Environment.NewLine +
-						"Actual:   Tuple (StringWrapper { Value = \"b\" })",
+#if XUNIT_AOT
+						$"Expected: StructuralStringWrapper {{ {ArgumentFormatter.Ellipsis} }}" + Environment.NewLine +
+						$"Actual:   StructuralStringWrapper {{ {ArgumentFormatter.Ellipsis} }}",
+#else
+						"Expected: StructuralStringWrapper { Value = \"a\" }" + Environment.NewLine +
+						"Actual:   StructuralStringWrapper { Value = \"b\" }",
+#endif
 						ex.Message
 					);
 				}
@@ -818,7 +895,11 @@ public class EqualityAssertsTests
 					Assert.Equal(
 						"Assert.Equal() Failure: Values differ" + Environment.NewLine +
 						"Expected: Tuple (null)" + Environment.NewLine +
+#if XUNIT_AOT
+						$"Actual:   Tuple (StringWrapper {{ {ArgumentFormatter.Ellipsis} }})",
+#else
 						"Actual:   Tuple (StringWrapper { Value = \"a\" })",
+#endif
 						ex.Message
 					);
 				}
@@ -829,7 +910,7 @@ public class EqualityAssertsTests
 			}
 
 			[Fact]
-			public void _ExpectedNonNull_ActualNull()
+			public void ExpectedNonNull_ActualNull()
 			{
 				var expected = new Tuple<StringWrapper?>(new StringWrapper("a"));
 				var actual = new Tuple<StringWrapper?>(null);
@@ -841,7 +922,11 @@ public class EqualityAssertsTests
 					Assert.IsType<EqualException>(ex);
 					Assert.Equal(
 						"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+#if XUNIT_AOT
+						$"Expected: Tuple (StringWrapper {{ {ArgumentFormatter.Ellipsis} }})" + Environment.NewLine +
+#else
 						"Expected: Tuple (StringWrapper { Value = \"a\" })" + Environment.NewLine +
+#endif
 						"Actual:   Tuple (null)",
 						ex.Message
 					);
@@ -877,11 +962,19 @@ public class EqualityAssertsTests
 
 					Assert.IsType<EqualException>(ex);
 					Assert.Equal(
+#if XUNIT_AOT
+						"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
+						"                                      ↓ (pos 0)" + Environment.NewLine +
+						"Expected: string[]                   [\"C:\\\\Program Files (x86)\\\\Common Files\\\\Extremely L\"···]" + Environment.NewLine +
+						"Actual:   ReadOnlyCollection<string> [\"C:\\\\Program Files (x86)\\\\Common Files\\\\Extremely L\"···]" + Environment.NewLine +
+						"                                      ↑ (pos 0)",
+#else
 						"Assert.Equal() Failure: Collections differ at index 0" + Environment.NewLine +
 						"                                                                  ↓ (pos 64)" + Environment.NewLine +
 						"Expected: ···\"s (x86)\\\\Common Files\\\\Extremely Long Path Name\\\\VST2\"" + Environment.NewLine +
 						"Actual:   ···\"s (x86)\\\\Common Files\\\\Extremely Long Path Name\\\\VST3\"" + Environment.NewLine +
 						"                                                                  ↑ (pos 64)",
+#endif
 						ex.Message
 					);
 				}
@@ -940,11 +1033,19 @@ public class EqualityAssertsTests
 
 					Assert.IsType<EqualException>(ex);
 					Assert.Equal(
+#if XUNIT_AOT
+						"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
+						"                           ↓ (pos 1)" + Environment.NewLine +
+						"Expected: string[] [\"foo\", \"bar\"]" + Environment.NewLine +
+						"Actual:   object[] [\"foo\", \"baz\"]" + Environment.NewLine +
+						"                           ↑ (pos 1)",
+#else
 						"Assert.Equal() Failure: Collections differ at index 1" + Environment.NewLine +
 						"             ↓ (pos 2)" + Environment.NewLine +
 						"Expected: \"bar\"" + Environment.NewLine +
 						"Actual:   \"baz\"" + Environment.NewLine +
 						"             ↑ (pos 2)",
+#endif
 						ex.Message
 					);
 				}
@@ -981,6 +1082,8 @@ public class EqualityAssertsTests
 				);
 			}
 
+#if !XUNIT_AOT  // Array.CreateInstance is not available in Native AOT
+
 			[Fact]
 			public void NonZeroBoundedArrays_Equal()
 			{
@@ -1010,6 +1113,8 @@ public class EqualityAssertsTests
 					ex.Message
 				);
 			}
+
+#endif  // !XUNIT_AOT
 
 			[Fact]
 			public void PrintPointersWithCompatibleComparers()
@@ -1168,8 +1273,13 @@ public class EqualityAssertsTests
 					Assert.IsType<EqualException>(ex);
 					Assert.Equal(
 						"Assert.Equal() Failure: Dictionaries differ" + Environment.NewLine +
+#if XUNIT_AOT
+						"Expected: [[foo, bar]]" + Environment.NewLine +
+						"Actual:   [[foo, baz]]",
+#else
 						"Expected: [[\"foo\"] = \"bar\"]" + Environment.NewLine +
 						"Actual:   [[\"foo\"] = \"baz\"]",
+#endif
 						ex.Message
 					);
 				}
@@ -1202,8 +1312,13 @@ public class EqualityAssertsTests
 					Assert.IsType<EqualException>(ex);
 					Assert.Equal(
 						"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
+#if XUNIT_AOT
+						"Expected: Dictionary<string, string>           [[foo, bar]]" + Environment.NewLine +
+						"Actual:   ConcurrentDictionary<string, string> [[foo, baz]]",
+#else
 						"Expected: Dictionary<string, string>           [[\"foo\"] = \"bar\"]" + Environment.NewLine +
 						"Actual:   ConcurrentDictionary<string, string> [[\"foo\"] = \"baz\"]",
+#endif
 						ex.Message
 					);
 				}
@@ -1232,8 +1347,13 @@ public class EqualityAssertsTests
 				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
 					"Assert.Equal() Failure: Dictionaries differ" + Environment.NewLine +
+#if XUNIT_AOT
+					"Expected: [[two, ]]" + Environment.NewLine +
+					"Actual:   [[two, 1]]",
+#else
 					"Expected: [[\"two\"] = null]" + Environment.NewLine +
 					"Actual:   [[\"two\"] = 1]",
+#endif
 					ex.Message
 				);
 			}
@@ -1335,10 +1455,14 @@ public class EqualityAssertsTests
 
 				Assert.Equal(expected, actual);
 				Assert.Equal(expected, (ISet<string>)actual);
+#if !XUNIT_AOT
 #pragma warning disable xUnit2027 // Comparison of sets to linear containers have undefined results
 				Assert.Equal(expected, (object)actual);
 #pragma warning restore xUnit2027 // Comparison of sets to linear containers have undefined results
+#endif
 			}
+
+#if !XUNIT_AOT  // Cannot support HashSet<T1> vs. HashSet<T2> in Native AOT when T1 != T2
 
 			[Fact]
 			public void DifferentTypes_NotEqual()
@@ -1357,6 +1481,10 @@ public class EqualityAssertsTests
 				);
 			}
 
+#endif  // !XUNIT_AOT
+
+#if !XUNIT_AOT  // Comparer func overload is disabled in AOT via compiler
+
 			[Fact]
 			public void ComparerFunc_Throws()
 			{
@@ -1373,6 +1501,8 @@ public class EqualityAssertsTests
 					ex.Message
 				);
 			}
+
+#endif  // !XUNIT_AOT
 		}
 
 		public class Sets
@@ -1385,9 +1515,11 @@ public class EqualityAssertsTests
 
 				Assert.Equal(expected, actual);
 				Assert.Equal(expected, (ISet<string>)actual);
+#if !XUNIT_AOT
 #pragma warning disable xUnit2027 // Comparison of sets to linear containers have undefined results
 				Assert.Equal(expected, (object)actual);
 #pragma warning restore xUnit2027 // Comparison of sets to linear containers have undefined results
+#endif
 			}
 
 			[Fact]
@@ -1411,9 +1543,11 @@ public class EqualityAssertsTests
 
 				assertFailure(() => Assert.Equal(expected, actual));
 				assertFailure(() => Assert.Equal(expected, (ISet<string>)actual));
+#if !XUNIT_AOT
 #pragma warning disable xUnit2027 // Comparison of sets to linear containers have undefined results
 				assertFailure(() => Assert.Equal(expected, (object)actual));
 #pragma warning restore xUnit2027 // Comparison of sets to linear containers have undefined results
+#endif
 			}
 
 			[Fact]
@@ -1424,9 +1558,11 @@ public class EqualityAssertsTests
 
 				Assert.Equal(expected, actual);
 				Assert.Equal(expected, (ISet<string>)actual);
+#if !XUNIT_AOT
 #pragma warning disable xUnit2027 // Comparison of sets to linear containers have undefined results
 				Assert.Equal(expected, (object)actual);
 #pragma warning restore xUnit2027 // Comparison of sets to linear containers have undefined results
+#endif
 			}
 
 			[Fact]
@@ -1450,9 +1586,11 @@ public class EqualityAssertsTests
 
 				assertFailure(() => Assert.Equal(expected, actual));
 				assertFailure(() => Assert.Equal(expected, (ISet<string>)actual));
+#if !XUNIT_AOT
 #pragma warning disable xUnit2027 // Comparison of sets to linear containers have undefined results
 				assertFailure(() => Assert.Equal(expected, (object)actual));
 #pragma warning restore xUnit2027 // Comparison of sets to linear containers have undefined results
+#endif
 			}
 
 			[Fact]
@@ -1476,9 +1614,11 @@ public class EqualityAssertsTests
 
 				assertFailure(() => Assert.Equal(expected, actual));
 				assertFailure(() => Assert.Equal(expected, (ISet<string>)actual));
+#if !XUNIT_AOT
 #pragma warning disable xUnit2027 // Comparison of sets to linear containers have undefined results
 				assertFailure(() => Assert.Equal(expected, (object)actual));
 #pragma warning restore xUnit2027 // Comparison of sets to linear containers have undefined results
+#endif
 			}
 
 			[Fact]
@@ -1489,9 +1629,11 @@ public class EqualityAssertsTests
 
 				Assert.Equal(expected, actual);
 				Assert.Equal(expected, (ISet<string>)actual);
+#if !XUNIT_AOT
 #pragma warning disable xUnit2027 // Comparison of sets to linear containers have undefined results
 				Assert.Equal(expected, (object)actual);
 #pragma warning restore xUnit2027 // Comparison of sets to linear containers have undefined results
+#endif
 			}
 
 			[Fact]
@@ -1515,9 +1657,11 @@ public class EqualityAssertsTests
 
 				assertFailure(() => Assert.Equal(expected, actual));
 				assertFailure(() => Assert.Equal(expected, (ISet<string>)actual));
+#if !XUNIT_AOT
 #pragma warning disable xUnit2027 // Comparison of sets to linear containers have undefined results
 				assertFailure(() => Assert.Equal(expected, (object)actual));
 #pragma warning restore xUnit2027 // Comparison of sets to linear containers have undefined results
+#endif
 			}
 
 			[Fact]
@@ -1528,9 +1672,11 @@ public class EqualityAssertsTests
 
 				Assert.Equal(expected, actual);
 				Assert.Equal(expected, (ISet<string>)actual);
+#if !XUNIT_AOT
 #pragma warning disable xUnit2027 // Comparison of sets to linear containers have undefined results
 				Assert.Equal(expected, (object)actual);
 #pragma warning restore xUnit2027 // Comparison of sets to linear containers have undefined results
+#endif
 			}
 
 			[Fact]
@@ -1554,10 +1700,14 @@ public class EqualityAssertsTests
 
 				assertFailure(() => Assert.Equal(expected, actual));
 				assertFailure(() => Assert.Equal(expected, (ISet<string>)actual));
+#if !XUNIT_AOT
 #pragma warning disable xUnit2027 // Comparison of sets to linear containers have undefined results
 				assertFailure(() => Assert.Equal(expected, (object)actual));
 #pragma warning restore xUnit2027 // Comparison of sets to linear containers have undefined results
+#endif
 			}
+
+#if !XUNIT_AOT  // Comparer func overload is disabled in AOT via compiler
 
 			[Fact]
 			public void ComparerFunc_Throws()
@@ -1575,6 +1725,8 @@ public class EqualityAssertsTests
 					ex.Message
 				);
 			}
+
+#endif
 		}
 
 		// https://github.com/xunit/xunit/issues/3137
@@ -1609,6 +1761,8 @@ public class EqualityAssertsTests
 			}
 		}
 
+#if !XUNIT_AOT  // KeyValuePair<TKey,TValue> cannot be supported in Native AOT because of the reflection restrictions
+
 		public class KeyValuePair
 		{
 			[Fact]
@@ -1641,8 +1795,13 @@ public class EqualityAssertsTests
 				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
 					"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+#if XUNIT_AOT
+					"Expected: [System.Collections.Generic.List`1[System.String], 42]" + Environment.NewLine +
+					"Actual:   [System.String[], 42]",
+#else
 					"Expected: [[\"Key1\", \"Key2\"]] = 42" + Environment.NewLine +
 					"Actual:   [[\"Key1\", \"Key3\"]] = 42",
+#endif
 					ex.Message
 				);
 			}
@@ -1677,8 +1836,13 @@ public class EqualityAssertsTests
 				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
 					"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+#if XUNIT_AOT
+					"Expected: [Key1, System.Collections.Generic.List`1[System.String]]" + Environment.NewLine +
+					"Actual:   [Key1, System.String[]]",
+#else
 					"Expected: [\"Key1\"] = [\"Value1a\", \"Value1b\"]" + Environment.NewLine +
 					"Actual:   [\"Key1\"] = [\"Value1a\", \"Value2a\"]",
+#endif
 					ex.Message
 				);
 			}
@@ -1749,6 +1913,8 @@ public class EqualityAssertsTests
 					Char.GetHashCode();
 			}
 		}
+
+#endif  // !XUNIT_AOT
 
 		public class DoubleEnumerationPrevention
 		{
@@ -2531,8 +2697,13 @@ public class EqualityAssertsTests
 				Assert.IsType<NotEqualException>(ex);
 				Assert.Equal(
 					"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+#if XUNIT_AOT
+					$"Expected: Not SpyComparable {{ {ArgumentFormatter.Ellipsis} }}" + Environment.NewLine +
+					$"Actual:       SpyComparable {{ {ArgumentFormatter.Ellipsis} }}",
+#else
 					"Expected: Not SpyComparable { CompareCalled = True }" + Environment.NewLine +
 					"Actual:       SpyComparable { CompareCalled = False }",
+#endif
 					ex.Message
 				);
 			}
@@ -2560,8 +2731,13 @@ public class EqualityAssertsTests
 					Assert.IsType<NotEqualException>(ex);
 					Assert.Equal(
 						"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+#if XUNIT_AOT
+						$"Expected: Not MultiComparable {{ {ArgumentFormatter.Ellipsis} }}" + Environment.NewLine +
+						$"Actual:       MultiComparable {{ {ArgumentFormatter.Ellipsis} }}",
+#else
 						"Expected: Not MultiComparable { Value = 1 }" + Environment.NewLine +
 						"Actual:       MultiComparable { Value = 1 }",
+#endif
 						ex.Message
 					);
 				}
@@ -2595,7 +2771,11 @@ public class EqualityAssertsTests
 					Assert.IsType<NotEqualException>(ex);
 					Assert.Equal(
 						"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+#if XUNIT_AOT
+						$"Expected: Not MultiComparable {{ {ArgumentFormatter.Ellipsis} }}" + Environment.NewLine +
+#else
 						"Expected: Not MultiComparable { Value = 1 }" + Environment.NewLine +
+#endif
 						"Actual:       1",
 						ex.Message
 					);
@@ -2626,8 +2806,13 @@ public class EqualityAssertsTests
 				Assert.IsType<NotEqualException>(ex);
 				Assert.Equal(
 					"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+#if XUNIT_AOT
+					$"Expected: Not SpyComparable_Generic {{ {ArgumentFormatter.Ellipsis} }}" + Environment.NewLine +
+					$"Actual:       SpyComparable_Generic {{ {ArgumentFormatter.Ellipsis} }}",
+#else
 					"Expected: Not SpyComparable_Generic { CompareCalled = True }" + Environment.NewLine +
 					"Actual:       SpyComparable_Generic { CompareCalled = False }",
+#endif
 					ex.Message
 				);
 			}
@@ -2653,8 +2838,13 @@ public class EqualityAssertsTests
 				Assert.IsType<NotEqualException>(ex);
 				Assert.Equal(
 					"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+#if XUNIT_AOT
+					$"Expected: Not ComparableSubClassA {{ {ArgumentFormatter.Ellipsis} }}" + Environment.NewLine +
+					$"Actual:       ComparableSubClassB {{ {ArgumentFormatter.Ellipsis} }}",
+#else
 					"Expected: Not ComparableSubClassA { Value = 1 }" + Environment.NewLine +
 					"Actual:       ComparableSubClassB { Value = 1 }",
+#endif
 					ex.Message
 				);
 			}
@@ -2679,8 +2869,13 @@ public class EqualityAssertsTests
 				Assert.IsType<NotEqualException>(ex);
 				Assert.Equal(
 					"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+#if XUNIT_AOT
+					$"Expected: Not ComparableBaseClass {{ {ArgumentFormatter.Ellipsis} }}" + Environment.NewLine +
+					$"Actual:       ComparableSubClassA {{ {ArgumentFormatter.Ellipsis} }}",
+#else
 					"Expected: Not ComparableBaseClass { Value = 1 }" + Environment.NewLine +
 					"Actual:       ComparableSubClassA { Value = 1 }",
+#endif
 					ex.Message
 				);
 			}
@@ -2705,8 +2900,13 @@ public class EqualityAssertsTests
 				Assert.IsType<NotEqualException>(ex);
 				Assert.Equal(
 					"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+#if XUNIT_AOT
+					$"Expected: Not ComparableSubClassA {{ {ArgumentFormatter.Ellipsis} }}" + Environment.NewLine +
+					$"Actual:       ComparableBaseClass {{ {ArgumentFormatter.Ellipsis} }}",
+#else
 					"Expected: Not ComparableSubClassA { Value = 1 }" + Environment.NewLine +
 					"Actual:       ComparableBaseClass { Value = 1 }",
+#endif
 					ex.Message
 				);
 			}
@@ -2733,8 +2933,13 @@ public class EqualityAssertsTests
 					Assert.IsType<NotEqualException>(ex);
 					Assert.Equal(
 						"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+#if XUNIT_AOT
+						$"Expected: Not ComparableThrower {{ {ArgumentFormatter.Ellipsis} }}" + Environment.NewLine +
+						$"Actual:       ComparableThrower {{ {ArgumentFormatter.Ellipsis} }}",
+#else
 						"Expected: Not ComparableThrower { Value = 1 }" + Environment.NewLine +
 						"Actual:       ComparableThrower { Value = 1 }",
+#endif
 						ex.Message
 					);
 				}
@@ -2754,6 +2959,8 @@ public class EqualityAssertsTests
 				Assert.NotEqual(expected, (IComparable<ComparableThrower>)actual);
 				Assert.NotEqual(expected, (object)actual);
 			}
+
+#if !XUNIT_AOT  // IComparable<Expected> vs. IComparable<Actual> cannot be done in Native AOT because of the reflection restrictions
 
 			[Fact]
 			public void DifferentTypes_ImplicitImplementation_Equal()
@@ -2832,6 +3039,8 @@ public class EqualityAssertsTests
 
 				Assert.NotEqual(expected, actual);
 			}
+
+#endif  // !XUNIT_AOT
 		}
 
 		public class NotComparable
@@ -2847,8 +3056,13 @@ public class EqualityAssertsTests
 				Assert.IsType<NotEqualException>(ex);
 				Assert.Equal(
 					"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+#if XUNIT_AOT
+					$"Expected: Not NonComparableObject {{ {ArgumentFormatter.Ellipsis} }}" + Environment.NewLine +
+					$"Actual:       NonComparableObject {{ {ArgumentFormatter.Ellipsis} }}",
+#else
 					"Expected: Not NonComparableObject { }" + Environment.NewLine +
 					"Actual:       NonComparableObject { }",
+#endif
 					ex.Message
 				);
 			}
@@ -2876,8 +3090,13 @@ public class EqualityAssertsTests
 				Assert.IsType<NotEqualException>(ex);
 				Assert.Equal(
 					"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+#if XUNIT_AOT
+					$"Expected: Not SpyEquatable {{ {ArgumentFormatter.Ellipsis} }}" + Environment.NewLine +
+					$"Actual:       SpyEquatable {{ {ArgumentFormatter.Ellipsis} }}",
+#else
 					"Expected: Not SpyEquatable { Equals__Called = True, Equals_Other = SpyEquatable { Equals__Called = False, Equals_Other = null } }" + Environment.NewLine +
 					"Actual:       SpyEquatable { Equals__Called = False, Equals_Other = null }",
+#endif
 					ex.Message
 				);
 			}
@@ -2905,8 +3124,13 @@ public class EqualityAssertsTests
 				Assert.IsType<NotEqualException>(ex);
 				Assert.Equal(
 					"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+#if XUNIT_AOT
+					$"Expected: Not EquatableSubClassA {{ {ArgumentFormatter.Ellipsis} }}" + Environment.NewLine +
+					$"Actual:       EquatableSubClassB {{ {ArgumentFormatter.Ellipsis} }}",
+#else
 					"Expected: Not EquatableSubClassA { Value = 1 }" + Environment.NewLine +
 					"Actual:       EquatableSubClassB { Value = 1 }",
+#endif
 					ex.Message
 				);
 			}
@@ -2931,8 +3155,13 @@ public class EqualityAssertsTests
 				Assert.IsType<NotEqualException>(ex);
 				Assert.Equal(
 					"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+#if XUNIT_AOT
+					$"Expected: Not EquatableBaseClass {{ {ArgumentFormatter.Ellipsis} }}" + Environment.NewLine +
+					$"Actual:       EquatableSubClassA {{ {ArgumentFormatter.Ellipsis} }}",
+#else
 					"Expected: Not EquatableBaseClass { Value = 1 }" + Environment.NewLine +
 					"Actual:       EquatableSubClassA { Value = 1 }",
+#endif
 					ex.Message
 				);
 			}
@@ -2957,8 +3186,13 @@ public class EqualityAssertsTests
 				Assert.IsType<NotEqualException>(ex);
 				Assert.Equal(
 					"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+#if XUNIT_AOT
+					$"Expected: Not EquatableSubClassA {{ {ArgumentFormatter.Ellipsis} }}" + Environment.NewLine +
+					$"Actual:       EquatableBaseClass {{ {ArgumentFormatter.Ellipsis} }}",
+#else
 					"Expected: Not EquatableSubClassA { Value = 1 }" + Environment.NewLine +
 					"Actual:       EquatableBaseClass { Value = 1 }",
+#endif
 					ex.Message
 				);
 			}
@@ -2971,6 +3205,8 @@ public class EqualityAssertsTests
 
 				Assert.NotEqual(expected, actual);
 			}
+
+#if !XUNIT_AOT  // Support for IEquatable<Expected> vs. IEquatable<Actual> cannot be done in Native AOT because of the reflection restrictions
 
 			[Fact]
 			public void DifferentTypes_ImplicitImplementation_Equal()
@@ -3023,6 +3259,8 @@ public class EqualityAssertsTests
 
 				Assert.NotEqual(expected, actual);
 			}
+
+#endif  // !XUNIT_AOT
 		}
 
 		public class StructuralEquatable
@@ -3030,8 +3268,8 @@ public class EqualityAssertsTests
 			[Fact]
 			public void Equal()
 			{
-				var expected = new Tuple<StringWrapper>(new StringWrapper("a"));
-				var actual = new Tuple<StringWrapper>(new StringWrapper("a"));
+				var expected = new StructuralStringWrapper("a");
+				var actual = new StructuralStringWrapper("a");
 
 				static void assertFailure(Action action)
 				{
@@ -3040,8 +3278,13 @@ public class EqualityAssertsTests
 					Assert.IsType<NotEqualException>(ex);
 					Assert.Equal(
 						"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
-						"Expected: Not Tuple (StringWrapper { Value = \"a\" })" + Environment.NewLine +
-						"Actual:       Tuple (StringWrapper { Value = \"a\" })",
+#if XUNIT_AOT
+						$"Expected: Not StructuralStringWrapper {{ {ArgumentFormatter.Ellipsis} }}" + Environment.NewLine +
+						$"Actual:       StructuralStringWrapper {{ {ArgumentFormatter.Ellipsis} }}",
+#else
+						"Expected: Not StructuralStringWrapper { Value = \"a\" }" + Environment.NewLine +
+						"Actual:       StructuralStringWrapper { Value = \"a\" }",
+#endif
 						ex.Message
 					);
 				}
@@ -3054,8 +3297,8 @@ public class EqualityAssertsTests
 			[Fact]
 			public void NotEqual()
 			{
-				var expected = new Tuple<StringWrapper>(new StringWrapper("a"));
-				var actual = new Tuple<StringWrapper>(new StringWrapper("b"));
+				var expected = new StructuralStringWrapper("a");
+				var actual = new StructuralStringWrapper("b");
 
 				Assert.NotEqual(expected, actual);
 				Assert.NotEqual(expected, (IStructuralEquatable)actual);
@@ -3231,6 +3474,8 @@ public class EqualityAssertsTests
 				Assert.NotEqual(expected, actual);
 			}
 
+#if !XUNIT_AOT
+
 			[Fact]
 			public void NonZeroBoundedArrays_Equal()
 			{
@@ -3261,6 +3506,8 @@ public class EqualityAssertsTests
 
 				Assert.NotEqual(expected, actual);
 			}
+
+#endif
 
 			[Fact]
 			public void CollectionWithIEquatable_Equal()
@@ -3332,8 +3579,13 @@ public class EqualityAssertsTests
 					Assert.IsType<NotEqualException>(ex);
 					Assert.Equal(
 						"Assert.NotEqual() Failure: Dictionaries are equal" + Environment.NewLine +
+#if XUNIT_AOT
+						"Expected: Not [[foo, bar]]" + Environment.NewLine +
+						"Actual:       [[foo, bar]]",
+#else
 						"Expected: Not [[\"foo\"] = \"bar\"]" + Environment.NewLine +
 						"Actual:       [[\"foo\"] = \"bar\"]",
+#endif
 						ex.Message
 					);
 				}
@@ -3367,8 +3619,13 @@ public class EqualityAssertsTests
 					Assert.IsType<NotEqualException>(ex);
 					Assert.Equal(
 						"Assert.NotEqual() Failure: Collections are equal" + Environment.NewLine +
+#if XUNIT_AOT
+						"Expected: Not Dictionary<string, string>           [[foo, bar]]" + Environment.NewLine +
+						"Actual:       ConcurrentDictionary<string, string> [[foo, bar]]",
+#else
 						"Expected: Not Dictionary<string, string>           [[\"foo\"] = \"bar\"]" + Environment.NewLine +
 						"Actual:       ConcurrentDictionary<string, string> [[\"foo\"] = \"bar\"]",
+#endif
 						ex.Message
 					);
 				}
@@ -3398,8 +3655,13 @@ public class EqualityAssertsTests
 				Assert.IsType<NotEqualException>(ex);
 				Assert.Equal(
 					"Assert.NotEqual() Failure: Dictionaries are equal" + Environment.NewLine +
+#if XUNIT_AOT
+					"Expected: Not [[two, ]]" + Environment.NewLine +
+					"Actual:       [[two, ]]",
+#else
 					"Expected: Not [[\"two\"] = null]" + Environment.NewLine +
 					"Actual:       [[\"two\"] = null]",
+#endif
 					ex.Message
 				);
 			}
@@ -3487,10 +3749,13 @@ public class EqualityAssertsTests
 					);
 				}
 
+				assertFailure(() => Assert.NotEqual(expected, actual));
 				assertFailure(() => Assert.NotEqual(expected, (ISet<string>)actual));
+#if !XUNIT_AOT
 #pragma warning disable xUnit2027 // Comparison of sets to linear containers have undefined results
 				assertFailure(() => Assert.NotEqual(expected, (object)actual));
 #pragma warning restore xUnit2027 // Comparison of sets to linear containers have undefined results
+#endif
 			}
 
 			[Fact]
@@ -3501,6 +3766,8 @@ public class EqualityAssertsTests
 
 				Assert.NotEqual(expected, actual);
 			}
+
+#if !XUNIT_AOT  // Comparer func overload is disabled in AOT via compiler
 
 			[Fact]
 			public void ComparerFunc_Throws()
@@ -3518,6 +3785,8 @@ public class EqualityAssertsTests
 					ex.Message
 				);
 			}
+
+#endif  // !XUNIT_AOT
 		}
 
 		public class Sets
@@ -3543,9 +3812,11 @@ public class EqualityAssertsTests
 
 				assertFailure(() => Assert.NotEqual(expected, actual));
 				assertFailure(() => Assert.NotEqual(expected, (ISet<string>)actual));
+#if !XUNIT_AOT
 #pragma warning disable xUnit2027 // Comparison of sets to linear containers have undefined results
 				assertFailure(() => Assert.NotEqual(expected, (object)actual));
 #pragma warning restore xUnit2027 // Comparison of sets to linear containers have undefined results
+#endif
 			}
 
 			[Fact]
@@ -3556,9 +3827,11 @@ public class EqualityAssertsTests
 
 				Assert.NotEqual(expected, actual);
 				Assert.NotEqual(expected, (ISet<string>)actual);
+#if !XUNIT_AOT
 #pragma warning disable xUnit2027 // Comparison of sets to linear containers have undefined results
 				Assert.NotEqual(expected, (object)actual);
 #pragma warning restore xUnit2027 // Comparison of sets to linear containers have undefined results
+#endif
 			}
 
 			[Fact]
@@ -3582,9 +3855,11 @@ public class EqualityAssertsTests
 
 				assertFailure(() => Assert.NotEqual(expected, actual));
 				assertFailure(() => Assert.NotEqual(expected, (ISet<string>)actual));
+#if !XUNIT_AOT
 #pragma warning disable xUnit2027 // Comparison of sets to linear containers have undefined results
 				assertFailure(() => Assert.NotEqual(expected, (object)actual));
 #pragma warning restore xUnit2027 // Comparison of sets to linear containers have undefined results
+#endif
 			}
 
 			[Fact]
@@ -3595,9 +3870,11 @@ public class EqualityAssertsTests
 
 				Assert.NotEqual(expected, actual);
 				Assert.NotEqual(expected, (ISet<string>)actual);
+#if !XUNIT_AOT
 #pragma warning disable xUnit2027 // Comparison of sets to linear containers have undefined results
 				Assert.NotEqual(expected, (object)actual);
 #pragma warning restore xUnit2027 // Comparison of sets to linear containers have undefined results
+#endif
 			}
 
 			[Fact]
@@ -3608,9 +3885,11 @@ public class EqualityAssertsTests
 
 				Assert.NotEqual(expected, actual);
 				Assert.NotEqual(expected, (ISet<string>)actual);
+#if !XUNIT_AOT
 #pragma warning disable xUnit2027 // Comparison of sets to linear containers have undefined results
 				Assert.NotEqual(expected, (object)actual);
 #pragma warning restore xUnit2027 // Comparison of sets to linear containers have undefined results
+#endif
 			}
 
 			[Fact]
@@ -3634,9 +3913,11 @@ public class EqualityAssertsTests
 
 				assertFailure(() => Assert.NotEqual(expected, actual));
 				assertFailure(() => Assert.NotEqual(expected, (ISet<string>)actual));
+#if !XUNIT_AOT
 #pragma warning disable xUnit2027 // Comparison of sets to linear containers have undefined results
 				assertFailure(() => Assert.NotEqual(expected, (object)actual));
 #pragma warning restore xUnit2027 // Comparison of sets to linear containers have undefined results
+#endif
 			}
 
 			[Fact]
@@ -3647,9 +3928,11 @@ public class EqualityAssertsTests
 
 				Assert.NotEqual(expected, actual);
 				Assert.NotEqual(expected, (ISet<string>)actual);
+#if !XUNIT_AOT
 #pragma warning disable xUnit2027 // Comparison of sets to linear containers have undefined results
 				Assert.NotEqual(expected, (object)actual);
 #pragma warning restore xUnit2027 // Comparison of sets to linear containers have undefined results
+#endif
 			}
 
 			[Fact]
@@ -3673,9 +3956,11 @@ public class EqualityAssertsTests
 
 				assertFailure(() => Assert.NotEqual(expected, actual));
 				assertFailure(() => Assert.NotEqual(expected, (ISet<string>)actual));
+#if !XUNIT_AOT
 #pragma warning disable xUnit2027 // Comparison of sets to linear containers have undefined results
 				assertFailure(() => Assert.NotEqual(expected, (object)actual));
 #pragma warning restore xUnit2027 // Comparison of sets to linear containers have undefined results
+#endif
 			}
 
 			[Fact]
@@ -3686,10 +3971,14 @@ public class EqualityAssertsTests
 
 				Assert.NotEqual(expected, actual);
 				Assert.NotEqual(expected, (ISet<string>)actual);
+#if !XUNIT_AOT
 #pragma warning disable xUnit2027 // Comparison of sets to linear containers have undefined results
 				Assert.NotEqual(expected, (object)actual);
 #pragma warning restore xUnit2027 // Comparison of sets to linear containers have undefined results
+#endif
 			}
+
+#if !XUNIT_AOT  // Comparer func overload is disabled in AOT via compiler
 
 			[Fact]
 			public void ComparerFunc_Throws()
@@ -3707,6 +3996,8 @@ public class EqualityAssertsTests
 					ex.Message
 				);
 			}
+
+#endif  // !XUNIT_AOT
 		}
 
 		// https://github.com/xunit/xunit/issues/3137
@@ -3781,6 +4072,8 @@ public class EqualityAssertsTests
 			}
 		}
 
+#if !XUNIT_AOT  // KeyValuePair<K,V> cannot be supported in Native AOT because of the reflection restrictions
+
 		public class KeyValuePair
 		{
 			[Fact]
@@ -3799,8 +4092,13 @@ public class EqualityAssertsTests
 				Assert.IsType<NotEqualException>(ex);
 				Assert.Equal(
 					"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+#if XUNIT_AOT
+					"Expected: Not [System.Collections.Generic.List`1[System.String], 42]" + Environment.NewLine +
+					"Actual:       [System.String[], 42]",
+#else
 					"Expected: Not [[\"Key1\", \"Key2\"]] = 42" + Environment.NewLine +
 					"Actual:       [[\"Key1\", \"Key2\"]] = 42",
+#endif
 					ex.Message
 				);
 			}
@@ -3835,8 +4133,13 @@ public class EqualityAssertsTests
 				Assert.IsType<NotEqualException>(ex);
 				Assert.Equal(
 					"Assert.NotEqual() Failure: Values are equal" + Environment.NewLine +
+#if XUNIT_AOT
+					"Expected: Not [Key1, System.Collections.Generic.List`1[System.String]]" + Environment.NewLine +
+					"Actual:       [Key1, System.String[]]",
+#else
 					"Expected: Not [\"Key1\"] = [\"Value1a\", \"Value1b\"]" + Environment.NewLine +
 					"Actual:       [\"Key1\"] = [\"Value1a\", \"Value1b\"]",
+#endif
 					ex.Message
 				);
 			}
@@ -3921,6 +4224,8 @@ public class EqualityAssertsTests
 					Char.GetHashCode();
 			}
 		}
+
+#endif  // !XUNIT_AOT
 
 		public class DoubleEnumerationPrevention
 		{
@@ -4267,8 +4572,13 @@ public class EqualityAssertsTests
 			Assert.IsType<NotStrictEqualException>(ex);
 			Assert.Equal(
 				"Assert.NotStrictEqual() Failure: Values are equal" + Environment.NewLine +
+#if XUNIT_AOT
+				$"Expected: Not DerivedClass {{ {ArgumentFormatter.Ellipsis} }}" + Environment.NewLine +
+				$"Actual:       BaseClass {{ {ArgumentFormatter.Ellipsis} }}",
+#else
 				"Expected: Not DerivedClass { }" + Environment.NewLine +
 				"Actual:       BaseClass { }",
+#endif
 				ex.Message
 			);
 		}
@@ -4424,6 +4734,25 @@ public class EqualityAssertsTests
 	}
 
 #pragma warning restore CA1067 // Override Object.Equals(object) when implementing IEquatable<T>
+
+	class StructuralStringWrapper(string value) :
+		IStructuralEquatable
+	{
+		public string Value { get; } = value;
+
+		public bool Equals(
+			object? other,
+			IEqualityComparer comparer)
+		{
+			if (other is not StructuralStringWrapper otherWrapper)
+				return false;
+
+			return comparer.Equals(Value, otherWrapper.Value);
+		}
+
+		public int GetHashCode(IEqualityComparer comparer) =>
+			Value.GetHashCode();
+	}
 
 	class NonGenericSet : HashSet<string> { }
 

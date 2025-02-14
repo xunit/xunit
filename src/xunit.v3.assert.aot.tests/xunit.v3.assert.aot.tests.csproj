@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PublishAot>true</PublishAot>
+    <!-- Currently at net9.0 for guaranteed support of OverloadResolutionPriority, should move to net10.0 upon release -->
+    <TargetFramework>net9.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)\..\xunit.v3.assert.tests\**\*.cs" Exclude="**\obj\**;**\bin\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Collections.Immutable" Version="[$(System_Collections_Immutable_Version)]" />
+    <PackageReference Include="System.Memory" Version="[$(System_Memory_Version)]" />
+  </ItemGroup>
+
+</Project>

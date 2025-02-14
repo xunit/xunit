@@ -1,3 +1,5 @@
+#if !XUNIT_AOT
+
 using System;
 using System.Linq.Expressions;
 using Xunit;
@@ -216,3 +218,5 @@ public class AssertHelperTests
 		}
 	}
 }
+
+#endif  // !XUNIT_AOT

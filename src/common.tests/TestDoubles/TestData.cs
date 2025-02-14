@@ -1,11 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Runtime.Versioning;
 using Xunit;
 using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
+
+#if XUNIT_AOT
+using System.IO;
+#else
+using System.Runtime.Versioning;
+#endif
 
 // This file contains test data that doesn't fit it any other categorization
 public static partial class TestData
@@ -136,12 +141,24 @@ public static partial class TestData
 		XunitProject? project = null,
 		int xUnitVersion = 3)
 	{
+#if XUNIT_AOT
+		var assemblySimpleName = Guard.NotNull("Assembly.GetEntryAssembly().GetName().Name returned null", Assembly.GetEntryAssembly()?.GetName().Name) + ".dll";
+		var assemblyFileName = Path.Combine(AppContext.BaseDirectory, assemblySimpleName);
+#if NET8_0
+		var targetFramework = ".NETCoreApp,Version=v8.0";
+#elif NET9_0
+		var targetFramework = ".NETCoreApp,Version=v9.0";
+#else
+#error Unknown target framework
+#endif
+#else
 		var assemblyFileName = typeof(TTestClass).Assembly.Location;
-		var targetFrameworkAttribute =
-			typeof(TTestClass).Assembly.GetCustomAttribute<TargetFrameworkAttribute>()
+		var targetFramework =
+			typeof(TTestClass).Assembly.GetCustomAttribute<TargetFrameworkAttribute>()?.FrameworkName
 				?? throw new InvalidOperationException($"Assembly '{assemblyFileName}' does not have an assembly-level TargetFrameworkAttribute");
+#endif
 
-		var assemblyMetadata = new AssemblyMetadata(xUnitVersion, targetFrameworkAttribute.FrameworkName);
+		var assemblyMetadata = new AssemblyMetadata(xUnitVersion, targetFramework);
 		return new(project ?? new XunitProject(), assemblyFileName, assemblyMetadata);
 	}
 }

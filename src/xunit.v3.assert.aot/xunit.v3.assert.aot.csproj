@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- Currently at net9.0 for guaranteed support of OverloadResolutionPriority, should move to net10.0 upon release -->
+    <TargetFramework>net9.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)\..\xunit.v3.assert\Asserts\**\*.cs" LinkBase="Asserts" />
+  </ItemGroup>
+
+</Project>

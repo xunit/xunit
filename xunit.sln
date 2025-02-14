@@ -1,3 +1,4 @@
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31612.314
@@ -31,6 +32,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{DD6C7641-EDB
 		src\Versions.props = src\Versions.props
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "aot", "aot", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "back-compat", "back-compat", "{E1286501-8361-4D28-B2B7-69DEF241AAB1}"
 	ProjectSection(SolutionItems) = preProject
 		src\xunit.v3.assert.compat\Directory.Build.props = src\xunit.v3.assert.compat\Directory.Build.props
@@ -49,6 +52,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.v3.assert.all-off", "src\xunit.v3.assert.compat\xunit.v3.assert.all-off\xunit.v3.assert.all-off.csproj", "{916DC5CE-D60E-44BE-B71D-E6A667BE838F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.v3.assert.all-on", "src\xunit.v3.assert.compat\xunit.v3.assert.all-on\xunit.v3.assert.all-on.csproj", "{4B00223A-2040-4409-968E-11035C3966E0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.v3.assert.aot", "src\xunit.v3.assert.aot\xunit.v3.assert.aot.csproj", "{B74E6B07-7C18-43BE-B750-EE6B010C2AD8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.v3.assert.aot.tests", "src\xunit.v3.assert.aot.tests\xunit.v3.assert.aot.tests.csproj", "{D93DC6BA-85D2-4FA1-A189-206F93008BEF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "xunit.v3.assert.nullable-mixed", "src\xunit.v3.assert.compat\xunit.v3.assert.nullable-mixed\xunit.v3.assert.nullable-mixed.csproj", "{A583F77B-ECDC-4E8C-87F3-23A6CEB5F898}"
 EndProject
@@ -136,6 +143,14 @@ Global
 		{4B00223A-2040-4409-968E-11035C3966E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4B00223A-2040-4409-968E-11035C3966E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4B00223A-2040-4409-968E-11035C3966E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B74E6B07-7C18-43BE-B750-EE6B010C2AD8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B74E6B07-7C18-43BE-B750-EE6B010C2AD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B74E6B07-7C18-43BE-B750-EE6B010C2AD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B74E6B07-7C18-43BE-B750-EE6B010C2AD8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D93DC6BA-85D2-4FA1-A189-206F93008BEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D93DC6BA-85D2-4FA1-A189-206F93008BEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D93DC6BA-85D2-4FA1-A189-206F93008BEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D93DC6BA-85D2-4FA1-A189-206F93008BEF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A583F77B-ECDC-4E8C-87F3-23A6CEB5F898}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A583F77B-ECDC-4E8C-87F3-23A6CEB5F898}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A583F77B-ECDC-4E8C-87F3-23A6CEB5F898}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -250,6 +265,7 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{3519D969-1A2E-4F06-9710-D2CB45BA908C} = {0AC3A933-2868-4ABD-BAAE-1BAF7F499E9A}
+		{02EA681E-C7D8-13C7-8484-4AC65E1B71E8} = {DD6C7641-EDB5-445C-8563-15068910979E}
 		{E1286501-8361-4D28-B2B7-69DEF241AAB1} = {DD6C7641-EDB5-445C-8563-15068910979E}
 		{E855BC6B-EA31-40E4-858E-A0D4C1100184} = {DD6C7641-EDB5-445C-8563-15068910979E}
 		{2836B5D6-28DC-4617-B4D5-A0F2B38A4686} = {E1286501-8361-4D28-B2B7-69DEF241AAB1}
@@ -257,6 +273,8 @@ Global
 		{151947F7-DB4A-408B-A42A-F66A7D7F5DFB} = {DD6C7641-EDB5-445C-8563-15068910979E}
 		{916DC5CE-D60E-44BE-B71D-E6A667BE838F} = {E1286501-8361-4D28-B2B7-69DEF241AAB1}
 		{4B00223A-2040-4409-968E-11035C3966E0} = {E1286501-8361-4D28-B2B7-69DEF241AAB1}
+		{B74E6B07-7C18-43BE-B750-EE6B010C2AD8} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{D93DC6BA-85D2-4FA1-A189-206F93008BEF} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{A583F77B-ECDC-4E8C-87F3-23A6CEB5F898} = {E1286501-8361-4D28-B2B7-69DEF241AAB1}
 		{9A2DE0A2-7F0A-4ADF-B37B-B282800BC35B} = {DD6C7641-EDB5-445C-8563-15068910979E}
 		{40C9D580-6158-4B11-B4B5-76C3ACD77B53} = {E855BC6B-EA31-40E4-858E-A0D4C1100184}
