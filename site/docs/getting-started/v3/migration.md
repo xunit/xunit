@@ -363,7 +363,7 @@ Many of the namespace changes here have been done in the name of consistency. Ge
 
 * In an effort to track down and eliminate cases of double enumeration, many method signatures may have changed from `IEnumerable<T>` to `IReadOnlyCollection<T>` when it's known that the data is safe to double enumerate.
 
-* `BeforeAfterTestAttribute` is now given the instance of `IXunitTest` for the currently running test, and the return type of the methods have changed from `void` to `ValueTask`.
+* `BeforeAfterTestAttribute` is now given the instance of `IXunitTest` for the currently running test.
 
 * `DisposalTracker` has been switched from `IDisposable` to `IAsyncDisposable`, and is capable of disposing of objects which implement either interface. Note that if an object implements both interfaces, only `IAsyncDisposable` will be called.
 
