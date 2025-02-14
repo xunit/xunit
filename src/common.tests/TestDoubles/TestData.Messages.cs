@@ -6,6 +6,10 @@ using Xunit.Runner.Common;
 using Xunit.Sdk;
 using Xunit.v3;
 
+#if XUNIT_AOT
+using System.Diagnostics.CodeAnalysis;
+#endif
+
 // This file manufactures instances of the test messages
 public static partial class TestData
 {
@@ -348,7 +352,11 @@ public static partial class TestData
 				TestMethodUniqueID = testMethodUniqueID,
 			};
 
+#if XUNIT_AOT
+	public static ITestCaseDiscovered TestCaseDiscovered<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods)] TClass>(
+#else
 	public static ITestCaseDiscovered TestCaseDiscovered<TClass>(
+#endif
 		string testMethod,
 		string? testCaseDisplayName = null)
 	{

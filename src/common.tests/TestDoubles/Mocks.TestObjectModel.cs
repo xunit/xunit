@@ -1,3 +1,5 @@
+#if !XUNIT_AOT
+
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -7,6 +9,10 @@ using Xunit;
 using Xunit.Internal;
 using Xunit.Sdk;
 using Xunit.v3;
+
+#if XUNIT_AOT
+using System.Diagnostics.CodeAnalysis;
+#endif
 
 // This file manufactures mocks of the test object model interfaces. The generic version based on a
 // real test class will use live objects from TestData for the parents.
@@ -179,6 +185,9 @@ public static partial class Mocks
 		return result;
 	}
 
+#if XUNIT_AOT
+	[RequiresDynamicCode("This requires reflection, which is not available in Native AOT")]
+#endif
 	public static IXunitTest XunitTest<TClassUnderTest>(
 		string methodName,
 		bool @explicit = false,
@@ -323,6 +332,9 @@ public static partial class Mocks
 		return result;
 	}
 
+#if XUNIT_AOT
+	[RequiresDynamicCode("This requires reflection, which is not available in Native AOT")]
+#endif
 	public static IXunitTestCase XunitTestCase<TClassUnderTest>(
 		string methodName,
 		Action? asyncDisposeCallback = null,
@@ -550,3 +562,5 @@ public static partial class Mocks
 				uniqueID
 			);
 }
+
+#endif

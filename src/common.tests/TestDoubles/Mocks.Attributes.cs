@@ -1,3 +1,5 @@
+#if !XUNIT_AOT
+
 using System;
 using NSubstitute;
 using Xunit;
@@ -55,3 +57,5 @@ public static partial class Mocks
 		return result;
 	}
 }
+
+#endif

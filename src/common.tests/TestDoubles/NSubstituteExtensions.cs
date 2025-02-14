@@ -1,3 +1,5 @@
+#if !XUNIT_AOT
+
 using System;
 using System.Linq;
 using System.Linq.Expressions;
@@ -109,3 +111,5 @@ public static class NSubstituteExtensions
 		}
 	}
 }
+
+#endif

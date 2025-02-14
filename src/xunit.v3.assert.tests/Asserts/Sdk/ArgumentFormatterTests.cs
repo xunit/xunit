@@ -178,9 +178,11 @@ public class ArgumentFormatterTests
 		{
 			{ typeof(string), "typeof(string)" },
 			{ typeof(int[]), "typeof(int[])" },
+#if !XUNIT_AOT
 			{ typeof(int).MakeArrayType(1), "typeof(int[*])" },
 			{ typeof(int).MakeArrayType(2), "typeof(int[,])" },
 			{ typeof(int).MakeArrayType(3), "typeof(int[,,])" },
+#endif
 			{ typeof(DateTime[,]), "typeof(System.DateTime[,])" },
 			{ typeof(decimal[][,]), "typeof(decimal[][,])" },
 			{ typeof(IEnumerable<>), "typeof(System.Collections.Generic.IEnumerable<>)" },
@@ -255,7 +257,11 @@ public class ArgumentFormatterTests
 		public static void KeyValuePairValue()
 		{
 			var kvp = new KeyValuePair<object, List<object>>(42, new() { 21.12M, "2600" });
+#if XUNIT_AOT
+			var expected = "[42, System.Collections.Generic.List`1[System.Object]]";
+#else
 			var expected = $"[42] = [{21.12M}, \"2600\"]";
+#endif
 
 			Assert.Equal(expected, ArgumentFormatter.Format(kvp));
 		}
@@ -287,7 +293,11 @@ public class ArgumentFormatterTests
 				{ 42, new() { 21.12M, "2600" } },
 				{ "123", new() { } },
 			};
+#if XUNIT_AOT
+			var expected = "[[42, System.Collections.Generic.List`1[System.Object]], [123, System.Collections.Generic.List`1[System.Object]]]";
+#else
 			var expected = $"[[42] = [{21.12M}, \"2600\"], [\"123\"] = []]";
+#endif
 
 			Assert.Equal(expected, ArgumentFormatter.Format(value));
 		}
@@ -318,22 +328,50 @@ public class ArgumentFormatterTests
 		[Fact]
 		public static void GroupingIsRenderedAsCollectionsOfKeysLinkedToCollectionsOfValues()
 		{
+#if XUNIT_AOT
+			var expected = $"[{ArgumentFormatter.Ellipsis}]";
+#else
+			var expected = "[True] = [0, 2, 4, 6, 8]";
+#endif
+
 			var grouping = Enumerable.Range(0, 10).GroupBy(i => i % 2 == 0).FirstOrDefault(g => g.Key == true);
 
-			Assert.Equal("[True] = [0, 2, 4, 6, 8]", ArgumentFormatter.Format(grouping));
+			Assert.Equal(expected, ArgumentFormatter.Format(grouping));
 		}
 
 		[Fact]
 		public static void GroupingsAreRenderedAsCollectionsOfKeysLinkedToCollectionsOfValues()
 		{
+#if XUNIT_AOT
+			var expected = $"[{ArgumentFormatter.Ellipsis}]";
+#else
+			var expected = "[[True] = [0, 2, 4, 6, 8], [False] = [1, 3, 5, 7, 9]]";
+#endif
+
 			var grouping = Enumerable.Range(0, 10).GroupBy(i => i % 2 == 0);
 
-			Assert.Equal("[[True] = [0, 2, 4, 6, 8], [False] = [1, 3, 5, 7, 9]]", ArgumentFormatter.Format(grouping));
+			Assert.Equal(expected, ArgumentFormatter.Format(grouping));
 		}
 	}
 
 	public class ComplexTypes
 	{
+		[CulturedFact]
+		public static void Empty()
+		{
+#if XUNIT_AOT
+			var expected = $"Object {{ {ArgumentFormatter.Ellipsis} }}";
+#else
+			var expected = "Object { }";
+#endif
+
+			var result = ArgumentFormatter.Format(new object());
+
+			Assert.Equal(expected, result);
+		}
+
+#if !XUNIT_AOT
+
 		[CulturedFact]
 		public static void ReturnsValuesInAlphabeticalOrder()
 		{
@@ -377,14 +415,6 @@ public class ArgumentFormatterTests
 			public MyComplexType t = new();
 			public char c = 'A';
 			public string s = "Hello, world!";
-		}
-
-		[CulturedFact]
-		public static void Empty()
-		{
-			var result = ArgumentFormatter.Format(new object());
-
-			Assert.Equal("Object { }", result);
 		}
 
 		[CulturedFact]
@@ -449,6 +479,8 @@ public class ArgumentFormatterTests
 
 			public Looping() => Me = this;
 		}
+
+#endif  // !XUNIT_AOT
 
 		[Fact]
 		public static void WhenCustomTypeImplementsToString_UsesToString()

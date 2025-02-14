@@ -1,3 +1,5 @@
+#if !XUNIT_AOT
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -2077,3 +2079,5 @@ public class EquivalenceAssertsTests
 		public string this[int idx] => idx.ToString();
 	}
 }
+
+#endif
