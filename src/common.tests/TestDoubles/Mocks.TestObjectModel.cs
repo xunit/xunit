@@ -1,3 +1,5 @@
+#if !XUNIT_AOT
+
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -550,3 +552,5 @@ public static partial class Mocks
 				uniqueID
 			);
 }
+
+#endif

@@ -7,9 +7,16 @@ using Xunit.Internal;
 using Xunit.Sdk;
 using Xunit.v3;
 
+#if XUNIT_AOT
+using System.Diagnostics.CodeAnalysis;
+#endif
+
 // This file manufactures instances of the test object model
 public static partial class TestData
 {
+#if XUNIT_AOT
+	[RequiresDynamicCode("This requires reflection, which is not available in Native AOT")]
+#endif
 	public static XunitDelayEnumeratedTheoryTestCase XunitDelayEnumeratedTheoryTestCase<TClassUnderTest>(
 		string methodName,
 		IXunitTestCollection? collection = null,
@@ -26,6 +33,9 @@ public static partial class TestData
 		int timeout = 0,
 		string uniqueID = DefaultTestCaseUniqueID)
 	{
+#if XUNIT_AOT
+		throw new PlatformNotSupportedException("This requires reflection, which is not available in Native AOT");
+#else
 		var methodInfo = typeof(TClassUnderTest).GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.FlattenHierarchy);
 		Guard.ArgumentNotNull($"Could not find method '{methodName}' on type '{typeof(TClassUnderTest).FullName}'", methodInfo, nameof(methodName));
 
@@ -49,6 +59,7 @@ public static partial class TestData
 			traits ?? testMethod.Traits.ToReadWrite(StringComparer.OrdinalIgnoreCase),
 			timeout: timeout
 		);
+#endif
 	}
 
 	public static XunitTest XunitTest(
@@ -83,6 +94,9 @@ public static partial class TestData
 		);
 	}
 
+#if XUNIT_AOT
+	[RequiresDynamicCode("This requires reflection, which is not available in Native AOT")]
+#endif
 	public static XunitTest XunitTest<TClassUnderTest>(
 		string methodName,
 		bool? @explicit = null,
@@ -164,6 +178,9 @@ public static partial class TestData
 		);
 	}
 
+#if XUNIT_AOT
+	[RequiresDynamicCode("This requires reflection, which is not available in Native AOT")]
+#endif
 	public static XunitTestCase XunitTestCase<TClassUnderTest>(
 		string methodName,
 		bool? @explicit = null,
@@ -180,12 +197,16 @@ public static partial class TestData
 		Dictionary<string, HashSet<string>>? traits = null,
 		string uniqueID = DefaultTestCaseUniqueID)
 	{
+#if XUNIT_AOT
+		throw new PlatformNotSupportedException("This requires reflection, which is not available in Native AOT");
+#else
 		var methodInfo = typeof(TClassUnderTest).GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.FlattenHierarchy);
 		Guard.ArgumentNotNull($"Could not find method '{methodName}' on type '{typeof(TClassUnderTest).FullName}'", methodInfo, nameof(methodName));
 
 		var testClass = XunitTestClass<TClassUnderTest>(testCollection);
 		var testMethod = XunitTestMethod(testClass, methodInfo, testMethodArguments);
 		return XunitTestCase(testMethod, @explicit, methodDisplay, methodDisplayOptions, skipExceptions, skipReason, skipType, skipUnless, skipWhen, testMethodArguments, timeout, traits, uniqueID);
+#endif
 	}
 
 	public static XunitTestClass XunitTestClass(
@@ -229,15 +250,22 @@ public static partial class TestData
 		string uniqueID = DefaultTestMethodUniqueID) =>
 			new(testClass, methodInfo, testMethodArguments ?? [], uniqueID);
 
+#if XUNIT_AOT
+	[RequiresDynamicCode("This requires reflection, which is not available in Native AOT")]
+#endif
 	public static XunitTestMethod XunitTestMethod<TClassUnderTest>(
 		string methodName,
 		object?[]? testMethodArguments = null,
 		string uniqueID = DefaultTestMethodUniqueID)
 	{
+#if XUNIT_AOT
+		throw new PlatformNotSupportedException("This requires reflection, which is not available in Native AOT");
+#else
 		var methodInfo = typeof(TClassUnderTest).GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.FlattenHierarchy);
 		Guard.ArgumentNotNull($"Could not find method '{methodName}' on type '{typeof(TClassUnderTest).FullName}'", methodInfo, nameof(methodName));
 
 		var testClass = XunitTestClass<TClassUnderTest>();
 		return XunitTestMethod(testClass, methodInfo, testMethodArguments, uniqueID);
+#endif
 	}
 }
