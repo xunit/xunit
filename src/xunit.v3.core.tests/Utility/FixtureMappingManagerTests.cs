@@ -234,6 +234,68 @@ public class FixtureMappingManagerTests
 		Assert.Equal("Testable fixture type 'System.Int32' may only define a single public constructor.", ex.Message);
 	}
 
+	class FixtureWithCircularDependencyA : IClassFixture<FixtureWithCircularDependencyB>
+	{
+		public FixtureWithCircularDependencyA(FixtureWithCircularDependencyB fixture)
+		{
+		}
+	}
+	
+	class FixtureWithCircularDependencyB : IClassFixture<FixtureWithCircularDependencyA>
+	{
+		public FixtureWithCircularDependencyB(FixtureWithCircularDependencyA fixture)
+		{
+		}
+	}
+
+	[Fact]
+	public async ValueTask FixtureWithCircularDependencyThrows()
+	{
+		var manager = new TestableFixtureMappingManager();
+
+		var ex = await Record.ExceptionAsync(() => manager.InitializeAsync(typeof(FixtureWithCircularDependencyA)));
+		Assert.IsType<TestPipelineException>(ex);
+		Assert.Equal($"Testable fixture type '{typeof(FixtureWithCircularDependencyB).SafeName()}' has circular dependence on: '{typeof(FixtureWithCircularDependencyA).SafeName()}'", ex.Message);
+	}
+
+	class ComposableFixtureA;
+
+	class ComposableFixtureB : IClassFixture<ComposableFixtureA>
+	{
+		public ComposableFixtureB(ComposableFixtureA fixture)
+		{
+		}
+	}
+
+	class ComposableFixtureC : IClassFixture<ComposableFixtureA>, IClassFixture<ComposableFixtureB>
+	{
+		public readonly ComposableFixtureA FixtureA;
+		public readonly ComposableFixtureB FixtureB;
+
+		public ComposableFixtureC(ComposableFixtureA fixtureA, ComposableFixtureB fixtureB)
+		{
+			FixtureA = fixtureA;
+			FixtureB = fixtureB;
+		}
+	}
+
+	[Fact]
+	public async ValueTask CanComposeFixtures()
+	{
+		var parentManager = new TestableFixtureMappingManager();
+		var manager = new TestableFixtureMappingManager(parentManager);
+
+		await manager.InitializeAsync(typeof(ComposableFixtureC));
+
+		var result = await manager.GetFixture(typeof(ComposableFixtureC));
+
+		Assert.NotNull(result);
+		var fixture = Assert.IsType<ComposableFixtureC>(result);
+
+		Assert.NotNull(fixture.FixtureA);
+		Assert.NotNull(fixture.FixtureB);
+	}
+
 	class TestableFixtureMappingManager : FixtureMappingManager
 	{
 		public TestableFixtureMappingManager(FixtureMappingManager parent) :
