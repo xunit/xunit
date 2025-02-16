@@ -37,5 +37,36 @@
         ]
       }
     }
-  ]
+  ],
+  "symbols": {
+    "Framework": {
+      "type": "parameter",
+      "dataType": "choice",
+      "defaultValue": "net8.0",
+      "description": "Target framework",
+      "replaces": "net8.0",
+      "choices": [
+        {
+          "choice": "net472",
+          "description": ".NET Framework 4.7.2"
+        },
+        {
+          "choice": "net48",
+          "description": ".NET Framework 4.8"
+        },
+        {
+          "choice": "net481",
+          "description": ".NET Framework 4.8.1"
+        },
+        {
+          "choice": "net8.0",
+          "description": ".NET 8"
+        },
+        {
+          "choice": "net9.0",
+          "description": ".NET 9"
+        }
+      ]
+    }
+  }
 }
