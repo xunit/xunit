@@ -253,12 +253,12 @@ public class FixtureMappingManager(
 			while (stack.Count > 0)
 			{
 				var type = stack.Pop();
-				
+
 				// We've already processed this dependency, skip it.
 				// We'll do circular reference check during fixture creation.
-				if(!visitedTypes.Add(type))
+				if (!visitedTypes.Add(type))
 					continue;
-				
+
 				var dependencies = type.GetInterfaces()
 					.Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IClassFixture<>))
 					.Select(x => x.GetGenericArguments()[0]);
@@ -266,11 +266,11 @@ public class FixtureMappingManager(
 				{
 					stack.Push(dependency);
 				}
-				
+
 				knownTypes.Add(type);
 			}
 		}
-		
+
 		// Pre-create the fixture type, because we want to make sure all concrete fixtures are
 		// instantiated even if nobody comes along later to get the instance.
 		foreach (var fixtureType in fixturesToInstantiate)

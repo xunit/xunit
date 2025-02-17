@@ -240,7 +240,7 @@ public class FixtureMappingManagerTests
 		{
 		}
 	}
-	
+
 	class FixtureWithCircularDependencyB : IClassFixture<FixtureWithCircularDependencyA>
 	{
 		public FixtureWithCircularDependencyB(FixtureWithCircularDependencyA fixture)
