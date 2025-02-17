@@ -13,7 +13,7 @@
   </PropertyGroup>
 
   <Choose>
-    <When Condition=" '$(TargetFramworkIdentifier)' == '.NETFramework' ">
+    <When Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
       <PropertyGroup>
         <AutoGenerateBindingRedirects Condition=" '$(AutoGenerateBindingRedirects)' == '' ">true</AutoGenerateBindingRedirects>
         <DebugType Condition=" '$(DebugType)' == '' ">full</DebugType>
