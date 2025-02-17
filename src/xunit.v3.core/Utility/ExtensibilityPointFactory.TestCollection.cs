@@ -27,10 +27,8 @@ public static partial class ExtensibilityPointFactory
 		return
 			collectionDefinition is null
 				? assemblyBeforeAfterTestAttributes
-				: collectionDefinition
-					.GetMatchingCustomAttributes(typeof(IBeforeAfterTestAttribute))
-					.Cast<IBeforeAfterTestAttribute>()
-					.Concat(assemblyBeforeAfterTestAttributes)
+				: assemblyBeforeAfterTestAttributes
+					.Concat(collectionDefinition.GetMatchingCustomAttributes(typeof(IBeforeAfterTestAttribute)).Cast<IBeforeAfterTestAttribute>())
 					.CastOrToReadOnlyCollection();
 	}
 
