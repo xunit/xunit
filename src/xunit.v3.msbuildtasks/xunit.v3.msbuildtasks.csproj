@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Xunit.v3.MSBuildTasks</RootNamespace>
+    <TargetFrameworks>net472;net8.0</TargetFrameworks>
+    <_XunitIncludeCommonItems>false</_XunitIncludeCommonItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Build.Tasks.Core" Version="[$(MicrosoftBuildVersion)]" />
+  </ItemGroup>
+
+</Project>

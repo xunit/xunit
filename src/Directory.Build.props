@@ -22,12 +22,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)common\EnvironmentVariables.cs" LinkBase="Common" />
-    <Compile Include="$(MSBuildThisFileDirectory)common\ExcludeFromCodeCoverageAttribute.cs" LinkBase="Common" />
-    <Compile Include="$(MSBuildThisFileDirectory)common\RequiredMemberAttribute.cs" LinkBase="Common" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Nerdbank.GitVersioning" Version="$(NerdbankGitVersioningVersion)">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
@@ -60,10 +54,6 @@
       <ItemGroup>
         <None Include="$(MSBuildThisFileDirectory)../tools/media/logo-128-transparent.png" Visible="false" Pack="true" PackagePath="_content" />
         <None Include="$(MSBuildThisFileDirectory)../README.md" Visible="false" Pack="true" PackagePath="_content" />
-      </ItemGroup>
-
-      <ItemGroup Condition=" !$(MSBuildProjectName.Contains('.assert')) ">
-        <Compile Include="$(MSBuildThisFileDirectory)xunit.v3.assert/Asserts/Sdk/StringSyntaxAttribute.cs" LinkBase="Common" />
       </ItemGroup>
 
       <ItemGroup>
@@ -109,7 +99,7 @@
         <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
         <TestProject>true</TestProject>
         <!-- To convert to Microsoft Testing Platform command line experience, uncomment this line: -->
-        <!--<UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>-->
+        <!--<DefineConstants>$(DefineConstants);USE_MICROSOFT_TESTING_PLATFORM_RUNNER</DefineConstants>-->
       </PropertyGroup>
 
       <ItemGroup>
@@ -119,6 +109,7 @@
 
       <ItemGroup>
         <Compile Include="..\common.tests\**\*.cs" LinkBase="Common.Tests" />
+        <Compile Include="..\xunit.v3.msbuildtasks\XunitEntryPointGenerator.cs" LinkBase="Common.Tests\MSBuildTasks" />
       </ItemGroup>
 
       <!-- TODO: Remove these once Test Explorer for M.T.P has officially shipped -->
