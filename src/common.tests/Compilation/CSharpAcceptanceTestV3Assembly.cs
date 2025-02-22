@@ -17,11 +17,6 @@ public class CSharpAcceptanceTestV3Assembly(string? basePath = null) :
 		var testFolder = Path.GetDirectoryName(typeof(CSharpAcceptanceTestV3Assembly).Assembly.GetLocalCodeBase());
 		Guard.NotNull(() => $"Path.GetDirectoryName(\"{typeof(CSharpAcceptanceTestV3Assembly).Assembly.GetLocalCodeBase()}\") returned null", testFolder);
 
-		var excludeFromCodeCoveragePath = Path.Combine(testFolder, "..", "..", "..", "..", "common", "ExcludeFromCodeCoverageAttribute.cs");
-		excludeFromCodeCoveragePath = Path.GetFullPath(excludeFromCodeCoveragePath);
-		Guard.ArgumentValid(() => $"Cannot find '{excludeFromCodeCoveragePath}' to include into compilation", File.Exists(excludeFromCodeCoveragePath));
-		yield return File.ReadAllText(excludeFromCodeCoveragePath);
-
 		// Simulate the self-registered extensions, since we can't use Microsoft.Testing.Platform.MSBuild to generate one
 		yield return /* lang=c#-test */ """
 			namespace Xunit
