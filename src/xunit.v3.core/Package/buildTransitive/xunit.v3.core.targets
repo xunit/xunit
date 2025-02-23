@@ -74,7 +74,7 @@
   </Target>
 
   <!-- Attach the auto-injected source to the build process -->
-  <Target Name="_XunitAttachSourceFiles" BeforeTargets="BeforeCompile" DependsOnTargets="_IncludeGenerateAutoRegisteredExtensionsIntoCompilation;_XunitGenerateEntryPoint">
+  <Target Name="_XunitAttachSourceFiles" BeforeTargets="BeforeCompile;CoreCompile;XamlPreCompile" DependsOnTargets="_XunitGenerateEntryPoint">
     <!-- Register the built-in runner reporters -->
     <ItemGroup Condition=" '$(XunitRegisterBuiltInRunnerReporters)' != 'false' ">
       <Compile Include="$(MSBuildThisFileDirectory)..\_content\DefaultRunnerReporters$(DefaultLanguageSourceExtension)" />
