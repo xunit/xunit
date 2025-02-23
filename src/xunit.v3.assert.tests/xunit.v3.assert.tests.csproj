@@ -2,6 +2,9 @@
 
   <PropertyGroup>
     <TargetFrameworks>net472;net6.0</TargetFrameworks>
+    <!-- This is a test project, vulnerabilities here aren't shipped -->
+    <NoWarn>$(NoWarn);NU1903</NoWarn>
+    <TargetFrameworks>net472;net8.0</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>

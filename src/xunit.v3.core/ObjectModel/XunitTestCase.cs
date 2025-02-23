@@ -38,6 +38,7 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 	/// <param name="testCaseDisplayName">The display name for the test case.</param>
 	/// <param name="uniqueID">The unique ID for the test case.</param>
 	/// <param name="explicit">Indicates whether the test case was marked as explicit.</param>
+	/// <param name="skipExceptions">The value obtained from <see cref="IFactAttribute.SkipExceptions"/>.</param>
 	/// <param name="skipReason">The value obtained from <see cref="IFactAttribute.Skip"/>.</param>
 	/// <param name="skipType">The value obtained from <see cref="IFactAttribute.SkipType"/>.</param>
 	/// <param name="skipUnless">The value obtained from <see cref="IFactAttribute.SkipUnless"/>.</param>
@@ -52,6 +53,7 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 		string testCaseDisplayName,
 		string uniqueID,
 		bool @explicit,
+		Type[]? skipExceptions = null,
 		string? skipReason = null,
 		Type? skipType = null,
 		string? skipUnless = null,
@@ -66,6 +68,7 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 		this.testCaseDisplayName = Guard.ArgumentNotNull(testCaseDisplayName);
 		this.uniqueID = Guard.ArgumentNotNull(uniqueID);
 		Explicit = @explicit;
+		SkipExceptions = skipExceptions;
 		SkipReason = skipReason;
 		SkipType = skipType;
 		SkipUnless = skipUnless;
@@ -91,6 +94,9 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 
 	/// <inheritdoc/>
 	public bool Explicit { get; private set; }
+
+	/// <inheritdoc/>
+	public Type[]? SkipExceptions { get; private set; }
 
 	/// <inheritdoc/>
 	public string? SkipReason { get; protected set; }
@@ -226,6 +232,7 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 		testMethod = Guard.NotNull("Could not retrieve TestMethod from serialization", info.GetValue<IXunitTestMethod>("tm"));
 		uniqueID = Guard.NotNull("Could not retrieve UniqueID from serialization", info.GetValue<string>("id"));
 
+		SkipExceptions = info.GetValue<Type[]>("se");
 		SkipReason = info.GetValue<string>("sr");
 		SkipType = info.GetValue<Type>("st");
 		SkipUnless = info.GetValue<string>("su");
@@ -290,6 +297,8 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 		info.AddValue("tm", TestMethod);
 		info.AddValue("id", UniqueID);
 
+		if (SkipExceptions is not null)
+			info.AddValue("se", SkipExceptions);
 		if (SkipReason is not null)
 			info.AddValue("sr", SkipReason);
 		if (SkipType is not null)

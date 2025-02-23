@@ -182,7 +182,8 @@ public class TestPlatformTestFramework :
 
 			try
 			{
-				var projectRunner = new ProjectAssemblyRunner(testAssembly, () => cancellationToken.IsCancellationRequested, automatedMode: AutomatedMode.Off);
+				using var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+				var projectRunner = new ProjectAssemblyRunner(testAssembly, AutomatedMode.Off, cancellationTokenSource);
 				await callback(projectRunner, pipelineStartup);
 				operationComplete();
 			}

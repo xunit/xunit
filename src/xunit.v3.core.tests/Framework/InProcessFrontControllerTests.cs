@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using NSubstitute;
 using Xunit;
@@ -41,9 +42,11 @@ public class InProcessFrontControllerTests
 			var frontController = TestableInProcessFrontController.Create();
 			var options = TestData.TestFrameworkDiscoveryOptions();
 			var filter = (ITestCase testCase) => true;
+			using var cts = new CancellationTokenSource();
 
-			await Assert.ThrowsAsync<ArgumentNullException>("options", () => frontController.Find(null, null!, filter).AsTask());
-			await Assert.ThrowsAsync<ArgumentNullException>("filter", () => frontController.Find(null, options, null!).AsTask());
+			await Assert.ThrowsAsync<ArgumentNullException>("options", () => frontController.Find(null, null!, filter, cts).AsTask());
+			await Assert.ThrowsAsync<ArgumentNullException>("filter", () => frontController.Find(null, options, null!, cts).AsTask());
+			await Assert.ThrowsAsync<ArgumentNullException>("cancellationTokenSource", () => frontController.Find(null, options, filter, null!).AsTask());
 		}
 
 		[Fact]
@@ -53,8 +56,9 @@ public class InProcessFrontControllerTests
 			var messageSink = SpyMessageSink.Capture();
 			var options = TestData.TestFrameworkDiscoveryOptions();
 			var filter = (ITestCase testCase) => true;
+			using var cts = new CancellationTokenSource();
 
-			await frontController.Find(messageSink, options, filter);
+			await frontController.Find(messageSink, options, filter, cts);
 
 			Assert.Collection(
 				messageSink.Messages,
@@ -89,6 +93,7 @@ public class InProcessFrontControllerTests
 			var validTestCase = Mocks.XunitTestCase<Find>(nameof(ReportsDiscoveredTestCasesAndCountsTestCasesWhichPassFilter));
 			var invalidTestCase = Mocks.XunitTestCase<Find>(nameof(SendsStartingAndCompleteMessages));
 			var filter = (ITestCase testCase) => testCase == validTestCase;
+			using var cts = new CancellationTokenSource();
 			var callbackCalls = new List<(ITestCase testCase, bool passedFilter)>();
 			frontController
 				.Discoverer
@@ -109,7 +114,7 @@ public class InProcessFrontControllerTests
 				return new(true);
 			}
 
-			await frontController.Find(messageSink, options, filter, discoveryCallback: frontControllerCallback);
+			await frontController.Find(messageSink, options, filter, cts, discoveryCallback: frontControllerCallback);
 
 			var complete = Assert.Single(messageSink.Messages.OfType<IDiscoveryComplete>());
 			Assert.Equal(1, complete.TestCasesToRun);
@@ -139,11 +144,13 @@ public class InProcessFrontControllerTests
 			var discoveryOptions = TestData.TestFrameworkDiscoveryOptions();
 			var executionOptions = TestData.TestFrameworkExecutionOptions();
 			var filter = (ITestCase testCase) => true;
+			using var cts = new CancellationTokenSource();
 
-			await Assert.ThrowsAsync<ArgumentNullException>("messageSink", () => frontController.FindAndRun(null!, discoveryOptions, executionOptions, filter).AsTask());
-			await Assert.ThrowsAsync<ArgumentNullException>("discoveryOptions", () => frontController.FindAndRun(messageSink, null!, executionOptions, filter).AsTask());
-			await Assert.ThrowsAsync<ArgumentNullException>("executionOptions", () => frontController.FindAndRun(messageSink, discoveryOptions, null!, filter).AsTask());
-			await Assert.ThrowsAsync<ArgumentNullException>("filter", () => frontController.FindAndRun(messageSink, discoveryOptions, executionOptions, null!).AsTask());
+			await Assert.ThrowsAsync<ArgumentNullException>("messageSink", () => frontController.FindAndRun(null!, discoveryOptions, executionOptions, filter, cts).AsTask());
+			await Assert.ThrowsAsync<ArgumentNullException>("discoveryOptions", () => frontController.FindAndRun(messageSink, null!, executionOptions, filter, cts).AsTask());
+			await Assert.ThrowsAsync<ArgumentNullException>("executionOptions", () => frontController.FindAndRun(messageSink, discoveryOptions, null!, filter, cts).AsTask());
+			await Assert.ThrowsAsync<ArgumentNullException>("filter", () => frontController.FindAndRun(messageSink, discoveryOptions, executionOptions, null!, cts).AsTask());
+			await Assert.ThrowsAsync<ArgumentNullException>("cancellationTokenSource", () => frontController.FindAndRun(messageSink, discoveryOptions, executionOptions, filter, null!).AsTask());
 		}
 
 		[Fact]
@@ -156,6 +163,7 @@ public class InProcessFrontControllerTests
 			var validTestCase = Mocks.XunitTestCase<FindAndRun>(nameof(RunsTestCasesWhichPassFilter));
 			var invalidTestCase = Mocks.XunitTestCase<Find>(nameof(GuardClauses));
 			var filter = (ITestCase testCase) => testCase == validTestCase;
+			using var cts = new CancellationTokenSource();
 			var executedTestCases = default(IReadOnlyCollection<ITestCase>?);
 			frontController
 				.Discoverer
@@ -173,7 +181,7 @@ public class InProcessFrontControllerTests
 				.WhenForAnyArgs(e => e.RunTestCases(null!, null!, null!))
 				.Do(callInfo => executedTestCases = callInfo.Arg<IReadOnlyCollection<ITestCase>>());
 
-			await frontController.FindAndRun(messageSink, discoveryOptions, executionOptions, filter);
+			await frontController.FindAndRun(messageSink, discoveryOptions, executionOptions, filter, cts);
 
 			Assert.NotNull(executedTestCases);
 			var runTestCase = Assert.Single(executedTestCases);
@@ -189,6 +197,7 @@ public class InProcessFrontControllerTests
 			var messageSink = SpyMessageSink.Capture();
 			var discoveryOptions = TestData.TestFrameworkDiscoveryOptions();
 			var executionOptions = TestData.TestFrameworkExecutionOptions();
+			using var cts = new CancellationTokenSource();
 			var asyncDisposableTestCase = Mocks.XunitTestCase<FindAndRun>(nameof(RunsTestCasesWhichPassFilter), asyncDisposeCallback: () => asyncDisposeCalled = true);
 			var disposableTestCase = Mocks.XunitTestCase<Find>(nameof(GuardClauses), disposeCallback: () => disposeCalled = true);
 			frontController
@@ -208,7 +217,7 @@ public class InProcessFrontControllerTests
 				.Do(callInfo => { });
 
 			// Use a false filter to ensure that test cases to disposed even if they weren't run
-			await frontController.FindAndRun(messageSink, discoveryOptions, executionOptions, filter: testCase => false);
+			await frontController.FindAndRun(messageSink, discoveryOptions, executionOptions, filter: testCase => false, cts);
 
 			Assert.True(asyncDisposeCalled);
 			Assert.True(disposeCalled);

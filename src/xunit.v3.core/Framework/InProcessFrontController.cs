@@ -74,6 +74,7 @@ public class InProcessFrontController
 	/// discovered tests if needed.</param>
 	/// <param name="options">The options to be used for discovery.</param>
 	/// <param name="filter">The filter function for filtering test cases.</param>
+	/// <param name="cancellationTokenSource">The cancellation token source used to cancel discovery.</param>
 	/// <param name="types">When passed a non-<c>null</c> collection, only returns tests found
 	/// from one of the provided types; when passed a <c>null</c> collection, discovers all
 	/// tests in the assembly.</param>
@@ -83,11 +84,13 @@ public class InProcessFrontController
 		IMessageSink? messageSink,
 		ITestFrameworkDiscoveryOptions options,
 		Func<ITestCase, bool> filter,
+		CancellationTokenSource cancellationTokenSource,
 		Type[]? types = null,
 		Func<ITestCase, bool, ValueTask<bool>>? discoveryCallback = null)
 	{
 		Guard.ArgumentNotNull(options);
 		Guard.ArgumentNotNull(filter);
+		Guard.ArgumentNotNull(cancellationTokenSource);
 
 		var testCasesToRun = 0;
 
@@ -101,8 +104,6 @@ public class InProcessFrontController
 
 		try
 		{
-			using var cts = new CancellationTokenSource();
-
 			await discoverer.Value.Find(
 				async testCase =>
 				{
@@ -116,14 +117,14 @@ public class InProcessFrontController
 						result = await discoveryCallback(testCase, willRun);
 
 						if (!result)
-							cts.Cancel();
+							cancellationTokenSource.Cancel();
 					}
 
 					return result;
 				},
 				options,
 				types,
-				cancellationToken: cts.Token
+				cancellationTokenSource.Token
 			);
 		}
 		finally
@@ -146,6 +147,7 @@ public class InProcessFrontController
 	/// <param name="discoveryOptions">The options to be used for discovery.</param>
 	/// <param name="executionOptions">The options to be used for execution.</param>
 	/// <param name="filter">The filter function for filtering test cases.</param>
+	/// <param name="cancellationTokenSource">The cancellation token sourced used to cancel discovery/execution.</param>
 	/// <param name="types">When passed a non-<c>null</c> collection, discovery/filtering/execution
 	/// only looks for tests from one of the provided types; when passed a <c>null</c> collection,
 	/// discovery/filtering/execution looks at all types in the assembly.</param>
@@ -154,12 +156,14 @@ public class InProcessFrontController
 		ITestFrameworkDiscoveryOptions discoveryOptions,
 		ITestFrameworkExecutionOptions executionOptions,
 		Func<ITestCase, bool> filter,
+		CancellationTokenSource cancellationTokenSource,
 		Type[]? types = null)
 	{
 		Guard.ArgumentNotNull(messageSink);
 		Guard.ArgumentNotNull(discoveryOptions);
 		Guard.ArgumentNotNull(executionOptions);
 		Guard.ArgumentNotNull(filter);
+		Guard.ArgumentNotNull(cancellationTokenSource);
 
 		List<ITestCase> testCases = [];
 		List<ITestCase> testCasesToRun = [];
@@ -168,6 +172,7 @@ public class InProcessFrontController
 			messageSink,
 			discoveryOptions,
 			filter,
+			cancellationTokenSource,
 			types,
 			(testCase, passedFilter) =>
 			{
@@ -179,7 +184,7 @@ public class InProcessFrontController
 			}
 		);
 
-		await Run(messageSink, executionOptions, testCasesToRun);
+		await Run(messageSink, executionOptions, testCasesToRun, cancellationTokenSource);
 
 		foreach (var testCase in testCases)
 			if (testCase is IAsyncDisposable asyncDisposable)
@@ -192,15 +197,21 @@ public class InProcessFrontController
 	/// Starts the process of running selected tests in the assembly. The test cases to run come from
 	/// calling <see cref="Find"/> and collecting the test cases that were returned via the callback.
 	/// </summary>
+	/// <param name="messageSink">The message sink to report messages to.</param>
+	/// <param name="executionOptions">The options to be used for execution.</param>
+	/// <param name="testCases">The test cases to execute.</param>
+	/// <param name="cancellationTokenSource">The cancellation token source used to cancel discovery.</param>
 	public ValueTask Run(
 		IMessageSink messageSink,
 		ITestFrameworkExecutionOptions executionOptions,
-		IReadOnlyCollection<ITestCase> testCases)
+		IReadOnlyCollection<ITestCase> testCases,
+		CancellationTokenSource cancellationTokenSource)
 	{
 		Guard.ArgumentNotNull(messageSink);
 		Guard.ArgumentNotNull(executionOptions);
 		Guard.ArgumentNotNull(testCases);
+		Guard.ArgumentNotNull(cancellationTokenSource);
 
-		return executor.Value.RunTestCases(testCases, messageSink, executionOptions);
+		return executor.Value.RunTestCases(testCases, messageSink, executionOptions, cancellationTokenSource.Token);
 	}
 }

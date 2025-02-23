@@ -7,7 +7,7 @@
     <NoWarn>$(NoWarn);NU5100</NoWarn>
     <RootNamespace>Xunit.Runner.MSBuild</RootNamespace>
     <RunILRepack>true</RunILRepack>
-    <TargetFrameworks>net472;net6.0</TargetFrameworks>
+    <TargetFrameworks>net472;net8.0</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>

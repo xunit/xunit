@@ -303,7 +303,7 @@ public static class TestAssemblyRunnerTests
 
 		public async ValueTask<bool> OnTestAssemblyCleanupFailure(Exception exception)
 		{
-			await using var ctxt = new TestAssemblyRunnerContext<ITestAssembly, ITestCase>(TestAssembly, testCases, MessageSink, ExecutionOptions);
+			await using var ctxt = new TestAssemblyRunnerContext<ITestAssembly, ITestCase>(TestAssembly, testCases, MessageSink, ExecutionOptions, default);
 			await ctxt.InitializeAsync();
 
 			return await OnTestAssemblyCleanupFailure(ctxt, exception);
@@ -327,7 +327,7 @@ public static class TestAssemblyRunnerTests
 
 		public async ValueTask<bool> OnTestAssemblyFinished(RunSummary summary)
 		{
-			await using var ctxt = new TestAssemblyRunnerContext<ITestAssembly, ITestCase>(TestAssembly, testCases, MessageSink, ExecutionOptions);
+			await using var ctxt = new TestAssemblyRunnerContext<ITestAssembly, ITestCase>(TestAssembly, testCases, MessageSink, ExecutionOptions, default);
 			await ctxt.InitializeAsync();
 
 			return await OnTestAssemblyFinished(ctxt, summary);
@@ -355,7 +355,7 @@ public static class TestAssemblyRunnerTests
 
 		public async ValueTask<bool> OnTestAssemblyStarting()
 		{
-			await using var ctxt = new TestAssemblyRunnerContext<ITestAssembly, ITestCase>(TestAssembly, testCases, MessageSink, ExecutionOptions);
+			await using var ctxt = new TestAssemblyRunnerContext<ITestAssembly, ITestCase>(TestAssembly, testCases, MessageSink, ExecutionOptions, default);
 			await ctxt.InitializeAsync();
 
 			return await OnTestAssemblyStarting(ctxt);
@@ -391,7 +391,7 @@ public static class TestAssemblyRunnerTests
 
 		public async ValueTask<RunSummary> RunAsync()
 		{
-			await using var ctxt = new TestAssemblyRunnerContext<ITestAssembly, ITestCase>(TestAssembly, testCases, MessageSink, ExecutionOptions);
+			await using var ctxt = new TestAssemblyRunnerContext<ITestAssembly, ITestCase>(TestAssembly, testCases, MessageSink, ExecutionOptions, default);
 			await ctxt.InitializeAsync();
 
 			return await Run(ctxt);

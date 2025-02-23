@@ -22,11 +22,13 @@ namespace Xunit.v3;
 /// <param name="testCases">The test cases from the assembly</param>
 /// <param name="executionMessageSink">The message sink to send execution messages to</param>
 /// <param name="executionOptions">The options used during test execution</param>
+/// <param name="cancellationToken">The cancellation token used to cancel execution</param>
 public class TestAssemblyRunnerContext<TTestAssembly, TTestCase>(
 	TTestAssembly testAssembly,
 	IReadOnlyCollection<TTestCase> testCases,
 	IMessageSink executionMessageSink,
-	ITestFrameworkExecutionOptions executionOptions) :
+	ITestFrameworkExecutionOptions executionOptions,
+	CancellationToken cancellationToken) :
 		IAsyncLifetime
 		where TTestCase : class, ITestCase
 		where TTestAssembly : class, ITestAssembly
@@ -42,7 +44,7 @@ public class TestAssemblyRunnerContext<TTestAssembly, TTestCase>(
 	/// <summary>
 	/// Gets the cancellation token source used for cancelling test execution.
 	/// </summary>
-	public virtual CancellationTokenSource CancellationTokenSource { get; } = new();
+	public virtual CancellationTokenSource CancellationTokenSource { get; } = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
 	/// <summary>
 	/// Gets the execution message sink provided by the runner. This is typically wrapped into

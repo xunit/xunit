@@ -6,8 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Stick to an older version of the package, so we can still target netstandard1.1 -->
-    <PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
+    <PackageReference Include="System.Collections.Immutable" Version="9.0.1" />
   </ItemGroup>
 
 </Project>

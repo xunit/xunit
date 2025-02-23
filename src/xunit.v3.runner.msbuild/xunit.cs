@@ -1,6 +1,7 @@
 #pragma warning disable CA1044 // The write-only properties in this class cannot be converted to methods becuase of MSBuild task requirements
 #pragma warning disable CA1721 // Properties with names that are confusing is okay because of MSBuild task requirements
 #pragma warning disable CA1724 // The name of this type is a shipped contract (and part of the MSBuild UX)
+#pragma warning disable CS8981 // The name of this type is a shipped contract (and part of the MSBuild UX)
 
 using System;
 using System.Collections.Concurrent;
@@ -10,6 +11,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.Build.Framework;
@@ -21,9 +23,9 @@ using MSBuildTask = Microsoft.Build.Utilities.Task;
 namespace Xunit.Runner.MSBuild;
 
 /// <summary/>
-public class xunit : MSBuildTask, ICancelableTask
+public class xunit : MSBuildTask, ICancelableTask, IDisposable
 {
-	volatile bool cancel;
+	readonly CancellationTokenSource cancellationTokenSource = new();
 	readonly ConcurrentDictionary<string, ExecutionSummary> completionMessages = new();
 	bool? diagnosticMessages;
 	bool? failSkips;
@@ -169,7 +171,15 @@ public class xunit : MSBuildTask, ICancelableTask
 
 	/// <summary/>
 	public void Cancel() =>
-		cancel = true;
+		cancellationTokenSource.Cancel();
+
+	/// <inheritdoc/>
+	public void Dispose()
+	{
+		GC.SuppressFinalize(this);
+
+		cancellationTokenSource.Dispose();
+	}
 
 	/// <summary/>
 	public override bool Execute() =>
@@ -438,7 +448,7 @@ public class xunit : MSBuildTask, ICancelableTask
 	{
 		Guard.ArgumentNotNull(assembly);
 
-		if (cancel)
+		if (cancellationTokenSource.IsCancellationRequested)
 			return null;
 
 		Guard.NotNull("Runner is misconfigured ('reporterMessageHandler' is null)", reporterMessageHandler);
@@ -471,7 +481,7 @@ public class xunit : MSBuildTask, ICancelableTask
 			var sinkOptions = new ExecutionSinkOptions
 			{
 				AssemblyElement = assemblyElement,
-				CancelThunk = () => cancel,
+				CancelThunk = () => cancellationTokenSource.IsCancellationRequested,
 				DiagnosticMessageSink = diagnosticMessageSink,
 				FailSkips = assembly.Configuration.FailSkipsOrDefault,
 				FailWarn = assembly.Configuration.FailTestsWithWarningsOrDefault,

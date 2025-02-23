@@ -2,6 +2,10 @@
 
   <PropertyGroup>
     <ImplicitUsings>enable</ImplicitUsings>
+    <!--#if (Framework == "net472" || Framework == "net48" || Framework == "net481") -->
+    <!-- Need C# version 10+ for nullable reference types and implicit usings -->
+    <LangVersion>10.0</LangVersion>
+    <!--#endif -->
     <Nullable>enable</Nullable>
     <OutputType>Exe</OutputType>
     <RootNamespace>TestProject</RootNamespace>

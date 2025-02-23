@@ -784,6 +784,7 @@ public class Xunit3AcceptanceTests
 			public string? DisplayName => null;
 			public bool Explicit => false;
 			public string? Skip => throw new DivideByZeroException();
+			public Type[]? SkipExceptions => null;
 			public Type? SkipType => null;
 			public string? SkipUnless => null;
 			public string? SkipWhen => null;

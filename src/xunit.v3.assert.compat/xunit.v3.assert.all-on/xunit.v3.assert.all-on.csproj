@@ -10,10 +10,10 @@
     <Nullable>enable</Nullable>
     <!--
     The target list here should be comprehensive: all supporting .NET Standard, .NET Framework,
-    and .NET versions (LTS & latest). We don't need netstandard2.0 or net6.0 since those are
+    and .NET versions (LTS & latest). We don't need netstandard2.0 or net8.0 since those are
     already covered by 'xunit.v3.assert'.
     -->
-    <TargetFrameworks>netstandard2.1;net472;net48;net481;net8.0;net9.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1;net472;net48;net481;net9.0</TargetFrameworks>
   </PropertyGroup>
 
 </Project>

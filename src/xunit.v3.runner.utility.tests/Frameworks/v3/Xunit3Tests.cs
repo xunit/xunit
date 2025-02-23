@@ -83,8 +83,8 @@ public class Xunit3Tests
 		Assert.False(xunit3.CanUseAppDomains);
 #if NET472
 		Assert.Equal(".NETFramework,Version=v4.7.2", xunit3.TargetFramework);
-#elif NET6_0
-		Assert.Equal(".NETCoreApp,Version=v6.0", xunit3.TargetFramework);
+#elif NET8_0
+		Assert.Equal(".NETCoreApp,Version=v8.0", xunit3.TargetFramework);
 #else
 #error Unknown target framework
 #endif

@@ -44,6 +44,7 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 			details.TestCaseDisplayName,
 			details.UniqueID,
 			details.Explicit,
+			details.SkipExceptions,
 			details.SkipReason,
 			details.SkipType,
 			details.SkipUnless,
@@ -87,6 +88,7 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 					details.TestCaseDisplayName,
 					details.UniqueID,
 					details.Explicit,
+					details.SkipExceptions,
 					details.SkipReason,
 					details.SkipType,
 					details.SkipUnless,
@@ -100,6 +102,7 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 					details.UniqueID,
 					details.Explicit,
 					theoryAttribute.SkipTestWithoutData,
+					details.SkipExceptions,
 					details.SkipReason,
 					details.SkipType,
 					details.SkipUnless,
@@ -240,9 +243,9 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 					var message = string.Format(CultureInfo.CurrentCulture, "No data found for {0}.{1}", testMethod.TestClass.TestClassName, testMethod.MethodName);
 
 					if (theoryAttribute.SkipTestWithoutData)
-						results.Add(new XunitTestCase(details.ResolvedTestMethod, details.TestCaseDisplayName, details.UniqueID, details.Explicit, message));
+						results.Add(new XunitTestCase(details.ResolvedTestMethod, details.TestCaseDisplayName, details.UniqueID, details.Explicit, skipReason: message));
 					else
-						results.Add(new ExecutionErrorTestCase(details.ResolvedTestMethod, details.TestCaseDisplayName, details.UniqueID, message));
+						results.Add(new ExecutionErrorTestCase(details.ResolvedTestMethod, details.TestCaseDisplayName, details.UniqueID, errorMessage: message));
 				}
 
 				return results;

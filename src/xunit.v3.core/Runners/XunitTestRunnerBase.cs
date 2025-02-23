@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -62,6 +63,10 @@ public class XunitTestRunnerBase<TContext, TTest> : TestRunner<TContext, TTest>
 
 		return (instance, SynchronizationContext.Current, ExecutionContext.Capture());
 	}
+
+	/// <inheritdoc/>
+	protected override ValueTask<IReadOnlyDictionary<string, TestAttachment>?> GetAttachments(TContext ctxt) =>
+		new(TestContext.Current.Attachments);
 
 	/// <inheritdoc/>
 	protected override ValueTask<string> GetTestOutput(TContext ctxt) =>

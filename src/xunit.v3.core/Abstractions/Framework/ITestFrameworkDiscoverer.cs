@@ -26,7 +26,7 @@ public interface ITestFrameworkDiscoverer
 	/// <param name="types">When passed a non-<c>null</c> collection, only returns tests found
 	/// from one of the provided types; when passed a <c>null</c> collection, discovers all
 	/// tests in the assembly.</param>
-	/// <param name="cancellationToken">The cancellation token which can be used to cancel the test
+	/// <param name="cancellationToken">The optional cancellation token which can be used to cancel the test
 	/// discovery process.</param>
 	ValueTask Find(
 		Func<ITestCase, ValueTask<bool>> callback,

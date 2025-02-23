@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Runner.Common;
@@ -27,11 +28,12 @@ namespace Xunit.Runner.InProc.SystemConsole;
 // the code that invokes it dynamically.
 public class ConsoleRunner(
 	string[] args,
-	Assembly? testAssembly = null)
+	Assembly? testAssembly = null) :
+		IDisposable
 {
 	readonly string[] args = Guard.ArgumentNotNull(args);
 	AutomatedMode automatedMode;
-	volatile bool cancel;
+	readonly CancellationTokenSource cancellationTokenSource = new();
 	ConsoleHelper consoleHelper = default!;
 	bool executed;
 	IRunnerLogger? logger;
@@ -45,7 +47,15 @@ public class ConsoleRunner(
 	// The signature of this method is known to Xunit3, so do not change it without also changing
 	// the code that invokes it dynamically.
 	public void Cancel() =>
-		cancel = true;
+		cancellationTokenSource.Cancel();
+
+	/// <inheritdoc/>
+	public void Dispose()
+	{
+		GC.SuppressFinalize(this);
+
+		cancellationTokenSource.Dispose();
+	}
 
 	/// <summary>
 	/// The entry point to begin running tests.
@@ -171,15 +181,15 @@ public class ConsoleRunner(
 
 			Console.CancelKeyPress += (sender, e) =>
 			{
-				if (started && !cancel)
+				if (started && !cancellationTokenSource.IsCancellationRequested)
 				{
 					if (automatedMode != AutomatedMode.Off)
 						logger.WriteMessage(new DiagnosticMessage("Cancellation request received"));
 					else
 						consoleHelper.WriteLine("Cancelling... (Press Ctrl+C again to terminate)");
 
-					cancel = true;
 					e.Cancel = true;
+					cancellationTokenSource.Cancel();
 				}
 			};
 
@@ -206,7 +216,7 @@ public class ConsoleRunner(
 					else
 						logger.LogWarning(warning);
 
-				var projectRunner = new ProjectAssemblyRunner(testAssembly, () => cancel, automatedMode);
+				var projectRunner = new ProjectAssemblyRunner(testAssembly, automatedMode, cancellationTokenSource);
 				if (project.Configuration.WaitForDebuggerOrDefault)
 				{
 					if (automatedMode == AutomatedMode.Off)
@@ -224,7 +234,7 @@ public class ConsoleRunner(
 				started = true;
 
 				if (project.Configuration.List is not null)
-					await ListAssembly(projectAssembly, logger);
+					await ListAssembly(projectAssembly, logger, cancellationTokenSource);
 				else
 				{
 					// Default to false for console runners
@@ -233,7 +243,7 @@ public class ConsoleRunner(
 					failCount = await projectRunner.Run(projectAssembly, reporterMessageHandler, diagnosticMessageSink, logger, pipelineStartup);
 				}
 
-				if (cancel)
+				if (cancellationTokenSource.IsCancellationRequested)
 					return -1073741510;    // 0xC000013A: The application terminated as a result of a CTRL+C
 			}
 			finally
@@ -285,7 +295,8 @@ public class ConsoleRunner(
 
 	async ValueTask ListAssembly(
 		XunitProjectAssembly assembly,
-		IRunnerLogger logger)
+		IRunnerLogger logger,
+		CancellationTokenSource cancellationTokenSource)
 	{
 		var (listOption, listFormat) = assembly.Project.Configuration.List!.Value;
 		if (automatedMode != AutomatedMode.Off)
@@ -295,7 +306,7 @@ public class ConsoleRunner(
 		assembly.Configuration.PreEnumerateTheories ??= false;
 
 		var assemblyFileName = Guard.ArgumentNotNull(assembly.AssemblyFileName);
-		var projectRunner = new ProjectAssemblyRunner(testAssembly, () => cancel, automatedMode);
+		var projectRunner = new ProjectAssemblyRunner(testAssembly, automatedMode, cancellationTokenSource);
 		var testCases = new List<(ITestCase TestCase, bool PassedFilter)>();
 		await projectRunner.Discover(assembly, pipelineStartup, testCases: testCases);
 
@@ -341,8 +352,12 @@ public class ConsoleRunner(
 	/// <returns>The return value intended to be returned by the Main method.</returns>
 	// Note: This returns Task instead of ValueTask, because it's called from the injected entry point, and we don't want to
 	// assume that the global entry point can use an async Main method (for acceptance testing purposes).
-	public static Task<int> Run(string[] args) =>
-		new ConsoleRunner(args).EntryPoint();
+	public static async Task<int> Run(string[] args)
+	{
+		using var runner = new ConsoleRunner(args);
+
+		return await runner.EntryPoint();
+	}
 
 	/// <summary>
 	/// Override this function to change the default output encoding for the system console.

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -27,6 +28,19 @@ public abstract class TestRunnerBase<TContext, TTest>
 	/// </summary>
 	protected TestRunnerBase()
 	{ }
+
+	/// <summary>
+	/// Gets the attachments for the test. If the test framework did not collect attachments
+	/// (or does not support attachments), then it should return <c>null</c>.
+	/// </summary>
+	/// <remarks>
+	/// By default, this method returns <see cref="ITestContext.Attachments"/> from the current context.
+	/// This method runs during <see cref="TestEngineStatus.Running"/> and any exceptions thrown will
+	/// contribute to test failure.
+	/// </remarks>
+	/// <param name="ctxt">The context that describes the current test</param>
+	protected virtual ValueTask<IReadOnlyDictionary<string, TestAttachment>?> GetAttachments(TContext ctxt) =>
+		new(default(IReadOnlyDictionary<string, TestAttachment>));
 
 	/// <summary>
 	/// Gets any output collected from the test after execution is complete. If the test framework
@@ -149,19 +163,21 @@ public abstract class TestRunnerBase<TContext, TTest>
 	/// <param name="executionTime">The time spent running the test</param>
 	/// <param name="output">The output from the test</param>
 	/// <param name="warnings">The warnings that were generated during the test</param>
+	/// <param name="attachments">The attachments that were assocated with the test</param>
 	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
 	protected virtual ValueTask<bool> OnTestFinished(
 		TContext ctxt,
 		decimal executionTime,
 		string output,
-		string[]? warnings)
+		string[]? warnings,
+		IReadOnlyDictionary<string, TestAttachment>? attachments)
 	{
 		Guard.ArgumentNotNull(ctxt);
 
 		var result = ctxt.MessageBus.QueueMessage(new TestFinished
 		{
 			AssemblyUniqueID = ctxt.Test.TestCase.TestCollection.TestAssembly.UniqueID,
-			Attachments = TestContext.Current.Attachments ?? TestFinished.EmptyAttachments,
+			Attachments = attachments ?? TestFinished.EmptyAttachments,
 			ExecutionTime = executionTime,
 			FinishTime = DateTimeOffset.UtcNow,
 			Output = output,
@@ -354,6 +370,7 @@ public abstract class TestRunnerBase<TContext, TTest>
 		var summary = new RunSummary();
 		var output = string.Empty;
 		var warnings = default(string[]);
+		var attachments = default(IReadOnlyDictionary<string, TestAttachment>);
 		var elapsedTime = TimeSpan.Zero;
 
 		if (!await ctxt.Aggregator.RunAsync(() => OnTestStarting(ctxt), true))
@@ -379,6 +396,7 @@ public abstract class TestRunnerBase<TContext, TTest>
 
 			output = await ctxt.Aggregator.RunAsync(() => GetTestOutput(ctxt), string.Empty);
 			warnings = await ctxt.Aggregator.RunAsync(() => GetWarnings(ctxt), null);
+			attachments = await ctxt.Aggregator.RunAsync(() => GetAttachments(ctxt), null);
 
 			summary.Total = 1;
 			summary.Time = (decimal)elapsedTime.TotalSeconds;
@@ -416,7 +434,7 @@ public abstract class TestRunnerBase<TContext, TTest>
 
 		SetTestContext(ctxt, TestEngineStatus.CleaningUp, resultState ?? TestResultState.ForNotRun());
 
-		if (!await ctxt.Aggregator.RunAsync(() => OnTestFinished(ctxt, summary.Time, output, warnings), true))
+		if (!await ctxt.Aggregator.RunAsync(() => OnTestFinished(ctxt, summary.Time, output, warnings, attachments), true))
 			ctxt.CancellationTokenSource.Cancel();
 
 		if (ctxt.Aggregator.HasExceptions)

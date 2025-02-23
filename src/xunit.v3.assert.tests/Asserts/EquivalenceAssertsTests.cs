@@ -1960,7 +1960,7 @@ public class EquivalenceAssertsTests
 		}
 	}
 
-#if NET6_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NET8_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
 
 	// https://github.com/xunit/xunit/issues/3088
 	public sealed class ByRefLikeParameters

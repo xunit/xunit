@@ -33,7 +33,7 @@ internal class MSBuildDiagnosticMessageSink : TestMessageSink
 			return null;
 
 		var result = new MSBuildDiagnosticMessageSink();
-		var prefix = assemblyDisplayName is null ? "" : string.Format(CultureInfo.CurrentCulture, "[{0}]", assemblyDisplayName);
+		var prefix = assemblyDisplayName is null ? "" : string.Format(CultureInfo.CurrentCulture, "[{0}] ", assemblyDisplayName);
 		var indent = new string(' ', prefix.Length);
 
 		if (showDiagnosticMessages)

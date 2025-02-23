@@ -11,7 +11,7 @@
 		<icon>_content/logo-128-transparent.png</icon>
 		<readme>_content/README.md</readme>
 		<releaseNotes>https://xunit.net/releases/v3/$PackageVersion$</releaseNotes>
-		<description>Includes the version-independent runner for xUnit.net to run all of v1, v2, and v3 tests (xunit.v3.runner.utility.*.dll). Supports .NET Framework 4.7.2 or later, and .NET 6 or later.</description>
+		<description>Includes the version-independent runner for xUnit.net to run all of v1, v2, and v3 tests (xunit.v3.runner.utility.*.dll). Supports .NET Framework 4.7.2 or later, and .NET 8 or later.</description>
 		<copyright>Copyright (C) .NET Foundation</copyright>
 		<repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
 		<dependencies>
@@ -20,7 +20,7 @@
 				<dependency id="xunit.abstractions" version="$XunitAbstractionsVersion$" />
 				<dependency id="xunit.v3.runner.common" version="[$PackageVersion$]" />
 			</group>
-			<group targetFramework="net6.0">
+			<group targetFramework="net8.0">
 				<dependency id="Mono.Cecil" version="$MonoCecilVersion$" />
 				<dependency id="xunit.abstractions" version="$XunitAbstractionsVersion$" />
 				<dependency id="xunit.v3.runner.common" version="[$PackageVersion$]" />
@@ -39,7 +39,7 @@
 		<file target="lib\net472\" src="bin\$Configuration$\net472\$SignedPath$xunit.v3.runner.utility.netfx.dll" />
 		<file target="lib\net472\" src="bin\$Configuration$\net472\xunit.v3.runner.utility.netfx.xml" />
 
-		<file target="lib\net6.0\" src="bin\$Configuration$\net6.0\$SignedPath$xunit.v3.runner.utility.netcore.dll" />
-		<file target="lib\net6.0\" src="bin\$Configuration$\net6.0\xunit.v3.runner.utility.netcore.xml" />
+		<file target="lib\net8.0\" src="bin\$Configuration$\net8.0\$SignedPath$xunit.v3.runner.utility.netcore.dll" />
+		<file target="lib\net8.0\" src="bin\$Configuration$\net8.0\xunit.v3.runner.utility.netcore.xml" />
 	</files>
 </package>

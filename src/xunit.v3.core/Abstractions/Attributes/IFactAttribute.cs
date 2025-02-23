@@ -36,6 +36,14 @@ public interface IFactAttribute
 	string? Skip { get; }
 
 	/// <summary>
+	/// Gets exceptions that, when thrown, will cause the test to be skipped rather than failed.
+	/// </summary>
+	/// <remarks>
+	/// The skip reason will be the exception's mesage.
+	/// </remarks>
+	Type[]? SkipExceptions { get; }
+
+	/// <summary>
 	/// Gets the type to retrieve <see cref="SkipUnless"/> or <see cref="SkipWhen"/> from. If not set,
 	/// then the property will be retrieved from the unit test class.
 	/// </summary>

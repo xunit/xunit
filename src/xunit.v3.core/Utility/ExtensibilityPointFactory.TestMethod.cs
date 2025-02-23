@@ -20,10 +20,8 @@ public static partial class ExtensibilityPointFactory
 	public static IReadOnlyCollection<IBeforeAfterTestAttribute> GetMethodBeforeAfterTestAttributes(
 		MethodInfo testMethod,
 		IReadOnlyCollection<IBeforeAfterTestAttribute> classBeforeAfterAttributes) =>
-			Guard.ArgumentNotNull(testMethod)
-				.GetMatchingCustomAttributes(typeof(IBeforeAfterTestAttribute))
-				.Cast<IBeforeAfterTestAttribute>()
-				.Concat(Guard.ArgumentNotNull(classBeforeAfterAttributes))
+			Guard.ArgumentNotNull(classBeforeAfterAttributes)
+				.Concat(Guard.ArgumentNotNull(testMethod).GetMatchingCustomAttributes(typeof(IBeforeAfterTestAttribute)).Cast<IBeforeAfterTestAttribute>())
 				.CastOrToReadOnlyCollection();
 
 	/// <summary>

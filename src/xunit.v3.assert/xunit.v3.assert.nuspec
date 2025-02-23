@@ -10,7 +10,7 @@
 		<licenseUrl>https://licenses.nuget.org/Apache-2.0</licenseUrl>
 		<icon>_content/logo-128-transparent.png</icon>
 		<readme>_content/README.md</readme>
-		<description>Includes the assertion library from xUnit.net (xunit.v3.assert.dll). Supports .NET Standard 2.0 and .NET 6.</description>
+		<description>Includes the assertion library from xUnit.net (xunit.v3.assert.dll). Supports .NET Standard 2.0 and .NET 8.</description>
 		<releaseNotes>https://xunit.net/releases/v3/$PackageVersion$</releaseNotes>
 		<copyright>Copyright (C) .NET Foundation</copyright>
 		<repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
@@ -18,8 +18,8 @@
 			<group targetFramework="netstandard2.0">
 				<dependency id="System.Collections.Immutable" version="$SystemCollectionsImmutableVersion$" />
 				<dependency id="System.Memory" version="$SystemMemoryVersion$" />
- 			</group>
-			<group targetFramework="net6.0">
+			</group>
+			<group targetFramework="net8.0">
 				<dependency id="System.Collections.Immutable" version="$SystemCollectionsImmutableVersion$" />
 				<dependency id="System.Memory" version="$SystemMemoryVersion$" />
 			</group>
@@ -33,7 +33,7 @@
 		<file target="lib\netstandard2.0\" src="bin\$Configuration$\netstandard2.0\$SignedPath$xunit.v3.assert.dll" />
 		<file target="lib\netstandard2.0\" src="bin\$Configuration$\netstandard2.0\xunit.v3.assert.xml" />
 
-		<file target="lib\net6.0\" src="bin\$Configuration$\net6.0\$SignedPath$xunit.v3.assert.dll" />
-		<file target="lib\net6.0\" src="bin\$Configuration$\net6.0\xunit.v3.assert.xml" />
+		<file target="lib\net8.0\" src="bin\$Configuration$\net8.0\$SignedPath$xunit.v3.assert.dll" />
+		<file target="lib\net8.0\" src="bin\$Configuration$\net8.0\xunit.v3.assert.xml" />
 	</files>
 </package>

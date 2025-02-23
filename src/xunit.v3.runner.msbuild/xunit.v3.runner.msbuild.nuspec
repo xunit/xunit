@@ -11,13 +11,13 @@
 		<icon>_content/logo-128-transparent.png</icon>
 		<readme>_content/README.md</readme>
 		<releaseNotes>https://xunit.net/releases/v3/$PackageVersion$</releaseNotes>
-		<description>MSBuild runner for the xUnit.net framework. Capable of running xUnit.net v1, v2, and v3 tests; when using dotnet msbuild, only v3 tests are supported. Supports .NET Framework 4.7.2 or later and .NET 6.0 or later.</description>
+		<description>MSBuild runner for the xUnit.net framework. Capable of running xUnit.net v1, v2, and v3 tests; when using dotnet msbuild, only v3 tests are supported. Supports .NET Framework 4.7.2 or later and .NET 8 or later.</description>
 		<copyright>Copyright (C) .NET Foundation</copyright>
 		<repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
 		<developmentDependency>true</developmentDependency>
 		<dependencies>
 			<group targetFramework="net472" />
-			<group targetFramework="net6.0" />
+			<group targetFramework="net8.0" />
 		</dependencies>
 	</metadata>
 	<!-- Remember to update tools\builder\targets\SignAssemblies.cs when assemblies are added or removed -->
@@ -29,12 +29,12 @@
 		<file target="buildTransitive\net472\" src="bin\$Configuration$\net472\merged\$SignedPath$xunit.v3.runner.msbuild.dll" />
 		<file target="buildTransitive\net472\" src="Package\buildTransitive\*" />
 
-		<file target="buildTransitive\net6.0\" src="bin\$Configuration$\net6.0\merged\xunit.abstractions.dll" />
-		<file target="buildTransitive\net6.0\" src="bin\$Configuration$\net6.0\merged\$SignedPath$xunit.v3.runner.msbuild.dll" />
-		<file target="buildTransitive\net6.0\" src="Package\buildTransitive\*" />
+		<file target="buildTransitive\net8.0\" src="bin\$Configuration$\net8.0\merged\xunit.abstractions.dll" />
+		<file target="buildTransitive\net8.0\" src="bin\$Configuration$\net8.0\merged\$SignedPath$xunit.v3.runner.msbuild.dll" />
+		<file target="buildTransitive\net8.0\" src="Package\buildTransitive\*" />
 
 		<file target="lib\net472\_._" src="..\build\_._" />
 
-		<file target="lib\net6.0\_._" src="..\build\_._" />
+		<file target="lib\net8.0\_._" src="..\build\_._" />
 	</files>
 </package>

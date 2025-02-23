@@ -21,9 +21,11 @@ public static partial class SignAssemblies
 		var binaries =
 			new[] {
 				Path.Combine(context.BaseFolder, "src", "xunit.v3.assert",                "bin", context.ConfigurationText, "netstandard2.0",           "xunit.v3.assert.dll"),
-				Path.Combine(context.BaseFolder, "src", "xunit.v3.assert",                "bin", context.ConfigurationText, "net6.0",                   "xunit.v3.assert.dll"),
+				Path.Combine(context.BaseFolder, "src", "xunit.v3.assert",                "bin", context.ConfigurationText, "net8.0",                   "xunit.v3.assert.dll"),
 				Path.Combine(context.BaseFolder, "src", "xunit.v3.common",                "bin", context.ConfigurationText, "netstandard2.0",           "xunit.v3.common.dll"),
 				Path.Combine(context.BaseFolder, "src", "xunit.v3.core",                  "bin", context.ConfigurationText, "netstandard2.0",           "xunit.v3.core.dll"),
+				Path.Combine(context.BaseFolder, "src", "xunit.v3.msbuildtasks",          "bin", context.ConfigurationText, "net472",                   "xunit.v3.msbuildtasks.dll"),
+				Path.Combine(context.BaseFolder, "src", "xunit.v3.msbuildtasks",          "bin", context.ConfigurationText, "net8.0",                   "xunit.v3.msbuildtasks.dll"),
 				Path.Combine(context.BaseFolder, "src", "xunit.v3.runner.common",         "bin", context.ConfigurationText, "netstandard2.0",           "xunit.v3.runner.common.dll"),
 				Path.Combine(context.BaseFolder, "src", "xunit.v3.runner.console",        "bin", context.ConfigurationText, "net472",         "merged", "xunit.v3.runner.console.exe"),
 				Path.Combine(context.BaseFolder, "src", "xunit.v3.runner.console",        "bin", context.ConfigurationText, "net48",          "merged", "xunit.v3.runner.console.exe"),
@@ -32,11 +34,11 @@ public static partial class SignAssemblies
 				Path.Combine(context.BaseFolder, "src", "xunit.v3.runner.console.x86",    "bin", context.ConfigurationText, "net48",          "merged", "xunit.v3.runner.console.x86.exe"),
 				Path.Combine(context.BaseFolder, "src", "xunit.v3.runner.console.x86",    "bin", context.ConfigurationText, "net481",         "merged", "xunit.v3.runner.console.x86.exe"),
 				Path.Combine(context.BaseFolder, "src", "xunit.v3.runner.inproc.console", "bin", context.ConfigurationText, "net472",                   "xunit.v3.runner.inproc.console.dll"),
-				Path.Combine(context.BaseFolder, "src", "xunit.v3.runner.inproc.console", "bin", context.ConfigurationText, "net6.0",                   "xunit.v3.runner.inproc.console.dll"),
+				Path.Combine(context.BaseFolder, "src", "xunit.v3.runner.inproc.console", "bin", context.ConfigurationText, "net8.0",                   "xunit.v3.runner.inproc.console.dll"),
 				Path.Combine(context.BaseFolder, "src", "xunit.v3.runner.msbuild",        "bin", context.ConfigurationText, "net472",         "merged", "xunit.v3.runner.msbuild.dll"),
-				Path.Combine(context.BaseFolder, "src", "xunit.v3.runner.msbuild",        "bin", context.ConfigurationText, "net6.0",         "merged", "xunit.v3.runner.msbuild.dll"),
+				Path.Combine(context.BaseFolder, "src", "xunit.v3.runner.msbuild",        "bin", context.ConfigurationText, "net8.0",         "merged", "xunit.v3.runner.msbuild.dll"),
 				Path.Combine(context.BaseFolder, "src", "xunit.v3.runner.utility",        "bin", context.ConfigurationText, "net472",                   "xunit.v3.runner.utility.netfx.dll"),
-				Path.Combine(context.BaseFolder, "src", "xunit.v3.runner.utility",        "bin", context.ConfigurationText, "net6.0",                   "xunit.v3.runner.utility.netcore.dll"),
+				Path.Combine(context.BaseFolder, "src", "xunit.v3.runner.utility",        "bin", context.ConfigurationText, "net8.0",                   "xunit.v3.runner.utility.netcore.dll"),
 			}.Select(unsignedPath =>
 			{
 				var unsignedFolder = Path.GetDirectoryName(unsignedPath) ?? throw new InvalidOperationException($"Path '{unsignedPath}' did not have a folder");

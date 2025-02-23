@@ -58,7 +58,7 @@ public class RecordTests
 		[Fact]
 		public async ValueTask Exception()
 		{
-			static ValueTask testCode() => throw new InvalidOperationException();
+			static Task testCode() => throw new InvalidOperationException();
 
 			var ex = await Record.ExceptionAsync(testCode);
 
@@ -69,7 +69,7 @@ public class RecordTests
 		[Fact]
 		public async ValueTask NoException()
 		{
-			static ValueTask testCode() => default;
+			static Task testCode() => Task.CompletedTask;
 
 			var ex = await Record.ExceptionAsync(testCode);
 
