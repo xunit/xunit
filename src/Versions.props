@@ -4,7 +4,7 @@
   <PropertyGroup>
 
     <!-- Used for building -->
-    <ILRepackVersion>2.0.38</ILRepackVersion>
+    <ILRepackVersion>2.0.39</ILRepackVersion>
     <MicrosoftNetCoreAppRefVersion>9.0.1</MicrosoftNetCoreAppRefVersion>
     <MicrosoftNetFrameworkReferenceAssembliesVersion>1.0.3</MicrosoftNetFrameworkReferenceAssembliesVersion>
     <MicrosoftSourceLinkGitHubVersion>8.0.0</MicrosoftSourceLinkGitHubVersion>
@@ -22,7 +22,7 @@
     <MicrosoftBclAsyncInterfacesVersion>6.0.0</MicrosoftBclAsyncInterfacesVersion>
 
     <!-- Used by xunit.v3.runner.inproc.console to support Microsoft.Testing.Platform -->
-    <MicrosoftTestingPlatformVersion>1.6.1</MicrosoftTestingPlatformVersion>
+    <MicrosoftTestingPlatformVersion>1.6.2</MicrosoftTestingPlatformVersion>
 
     <!-- Used by xunit.v3.runner.msbuild to reference MSBuild types -->
     <MicrosoftBuildVersion>16.11.0</MicrosoftBuildVersion>
