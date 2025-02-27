@@ -316,6 +316,83 @@ public class FixtureAcceptanceTests
 
 			public IMessageSink MessageSink { get; }
 		}
+
+		[Fact]
+		public async ValueTask ClassFixtureCanAcceptComposableFixture()
+		{
+			var messages = await RunAsync(typeof(ClassWithComposableFixtures));
+
+			Assert.Single(messages.OfType<ITestPassed>());
+		}
+
+		class ClassWithComposableFixtures : IClassFixture<ComposableFixtureC>
+		{
+			readonly ComposableFixtureC fixtureC;
+
+			public ClassWithComposableFixtures(ComposableFixtureC fixtureC)
+			{
+				this.fixtureC = fixtureC;
+			}
+
+			[Fact]
+			public void ComposableFixtureWasInjected() => Assert.NotNull(fixtureC);
+		}
+
+		class ComposableFixtureA;
+
+		class ComposableFixtureB : IClassFixture<ComposableFixtureA>
+		{
+			public ComposableFixtureB(ComposableFixtureA fixture)
+			{
+			}
+		}
+
+		class ComposableFixtureC : IClassFixture<ComposableFixtureB>
+		{
+			public ComposableFixtureC(ComposableFixtureA a, ComposableFixtureB b)
+			{
+			}
+		}
+
+		[Fact]
+		public async ValueTask ClassFixtureWithCircularComposableFixturesThrows()
+		{
+			var messages = await RunAsync(typeof(ClassWithWithCircularComposableFixtures));
+
+			var testFailed = Assert.Single(messages.OfType<ITestFailed>());
+
+			var exceptionType = Assert.Single(testFailed.ExceptionTypes);
+			Assert.Equal(typeof(TestPipelineException).SafeName(), exceptionType);
+
+			var exceptionMessage = Assert.Single(testFailed.Messages);
+			Assert.Equal(
+				"Class fixture type 'FixtureAcceptanceTests+ClassFixture+CircularComposableFixtureB' has circular dependence on: 'FixtureAcceptanceTests+ClassFixture+CircularComposableFixtureA'",
+				exceptionMessage);
+		}
+
+		class ClassWithWithCircularComposableFixtures : IClassFixture<CircularComposableFixtureA>
+		{
+			public ClassWithWithCircularComposableFixtures(CircularComposableFixtureA _)
+			{
+			}
+
+			[Fact]
+			public void ComposableFixtureWasInjected() => Assert.Fail("Unreachable code");
+		}
+
+		class CircularComposableFixtureA : IClassFixture<CircularComposableFixtureB>
+		{
+			public CircularComposableFixtureA(CircularComposableFixtureB fixture)
+			{
+			}
+		}
+
+		class CircularComposableFixtureB : IClassFixture<CircularComposableFixtureA>
+		{
+			public CircularComposableFixtureB(CircularComposableFixtureA fixture)
+			{
+			}
+		}
 	}
 
 	public class AsyncClassFixture : AcceptanceTestV3
