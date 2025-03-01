@@ -39,7 +39,7 @@ public interface IFactAttribute
 	/// Gets exceptions that, when thrown, will cause the test to be skipped rather than failed.
 	/// </summary>
 	/// <remarks>
-	/// The skip reason will be the exception's mesage.
+	/// The skip reason will be the exception's message.
 	/// </remarks>
 	Type[]? SkipExceptions { get; }
 
