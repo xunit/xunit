@@ -23,7 +23,7 @@ public sealed class XunitGenerateEntryPoint : Task
 	public ITaskItem Language { get; set; }
 
 	[Required]
-	public string RootNamespace { get; set; }
+	public string? RootNamespace { get; set; }
 
 	[Required]
 	public ITaskItem SourcePath { get; set; }
@@ -50,7 +50,7 @@ public sealed class XunitGenerateEntryPoint : Task
 
 	static void GenerateEntryPoint(
 		string language,
-		string rootNamespace,
+		string? rootNamespace,
 		bool useMicrosoftTestingPlatformRunner,
 		ITaskItem sourcePath,
 		TaskLoggingHelper log)
