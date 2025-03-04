@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Xunit.Internal;
 
 namespace Xunit;
@@ -28,6 +29,7 @@ public abstract class TheoryDataBase<TTheoryDataRow, TRawDataRow> : IReadOnlyCol
 	/// Adds a row to the theory.
 	/// </summary>
 	/// <param name="row">The row of data to be added.</param>
+	[OverloadResolutionPriority(1)]
 	public void Add(TTheoryDataRow row) =>
 		data.Add(Guard.ArgumentNotNull(row));
 
