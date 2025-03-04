@@ -22,7 +22,6 @@ public sealed class XunitGenerateEntryPoint : Task
 	[Required]
 	public ITaskItem Language { get; set; }
 
-	[Required]
 	public string? RootNamespace { get; set; }
 
 	[Required]
