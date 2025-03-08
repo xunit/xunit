@@ -10,6 +10,6 @@ public static partial class RestoreTools
 	{
 		context.BuildStep("Restoring build environment");
 
-		await context.ExecBundle("install --quiet");
+		await context.Exec("dotnet", "tool restore");
 	}
 }

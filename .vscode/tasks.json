@@ -50,7 +50,7 @@
           "base": "$msCompile",
           "background": {
             "beginsPattern": "Restoring build environment",
-            "endsPattern": "Server running..."
+            "endsPattern": "Press Ctrl+C to shut down"
           },
         }
       ],

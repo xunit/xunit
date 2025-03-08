@@ -13,6 +13,6 @@ public static class Build
 	{
 		context.BuildStep("Building web site");
 
-		await context.ExecBundle($"exec jekyll build -s {context.SiteSourceFolder} -d {context.SiteDestFolder}");
+		await context.Exec("dotnet", "docfx site/docfx.json");
 	}
 }

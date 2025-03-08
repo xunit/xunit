@@ -113,21 +113,6 @@ public partial class BuildContext
 		Console.WriteLine();
 	}
 
-	// We run 'bundle' via cmd.exe on Windows, because it ends up being a batch file, so trying
-	// to directly execute it fails (and if we tell Process.Start to use shell execute, it ends
-	// up popping it into a new/temporary window rather than giving the output inline).
-	public Task ExecBundle(
-		string args,
-		string? redactedArgs = null,
-		string? workingDirectory = null,
-		bool throwOnNonZeroExitCode = true)
-	{
-		if (OperatingSystem.IsWindows())
-			return Exec("cmd", $"/c bundle " + args, redactedArgs is null ? null : "/c bundle " + redactedArgs, workingDirectory, throwOnNonZeroExitCode);
-		else
-			return Exec("bundle", args, redactedArgs, workingDirectory, throwOnNonZeroExitCode);
-	}
-
 	async Task<int> OnExecuteAsync()
 	{
 		var swTotal = Stopwatch.StartNew();

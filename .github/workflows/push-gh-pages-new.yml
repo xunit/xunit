@@ -1,8 +1,8 @@
-name: xUnit.net CI Build (gh-pages)
+name: xUnit.net CI Build (gh-pages-new)
 
 on:
   push:
-    branches: ["gh-pages"]
+    branches: ["gh-pages-new"]
   workflow_dispatch:
 
 permissions:
@@ -25,18 +25,10 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
-            8.0.x
+            9.0.x
 
       - name: Get .NET information
         run: dotnet --info
-
-      - name: Install Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 3.3.0
-
-      - name: Get Ruby information
-        run: ruby --version && bundle --version
 
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v5

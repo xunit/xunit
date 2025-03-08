@@ -13,8 +13,6 @@ public static class Serve
 	{
 		context.BuildStep("Building web site");
 
-		// Don't want it to throw on a non-zero exit code, since we assume Ctrl+C will generate an exit code, and this process
-		// is intended to live forever until the user pressed Ctrl+C
-		await context.ExecBundle($"exec jekyll serve -s {context.SiteSourceFolder} -d {context.SiteDestFolder}", throwOnNonZeroExitCode: false);
+		await context.Exec("dotnet", "docfx site/docfx.json --serve");
 	}
 }
