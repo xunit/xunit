@@ -255,9 +255,6 @@ public static class TypeHelper
 		if (typeof(Type).IsAssignableFrom(value))
 			value = typeof(Type);
 
-		if (!value.IsFromLocalAssembly())
-			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Cannot serialize type '{0}' because it lives in the GAC", value.SafeName()), nameof(value));
-
 		var typeToMap = value;
 		if (typeToMap.Assembly.FullName is null)
 			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Cannot serialize type '{0}' because its assembly does not have a full name", value.SafeName()), nameof(value));

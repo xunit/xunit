@@ -8,6 +8,7 @@ using Xunit;
 using Xunit.Sdk;
 
 #if NETFRAMEWORK
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Xml;
 #endif
@@ -59,6 +60,9 @@ public class SerializationHelperTests
 		{ (MyEnum)int.MaxValue, $"-3:{ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof(MyEnum)))}:{ToBase64("2147483647")}" },
 		{ (MyUnsignedEnum)ulong.MinValue, $"-3:{ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof(MyUnsignedEnum)))}:{ToBase64("0")}" },
 		{ (MyUnsignedEnum)ulong.MaxValue, $"-3:{ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof(MyUnsignedEnum)))}:{ToBase64("18446744073709551615")}" },
+#if NETFRAMEWORK
+		{ PerformanceCounterType.AverageCount64, $"-3:{ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof(PerformanceCounterType)))}:{ToBase64("AverageCount64")}" },
+#endif
 		{ new MyCustomType { Age = 42, Name = "Someone" }, $"-3:{ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof(MyCustomType)))}:{ToBase64("42:Someone")}" },
 
 		// Types which implement both IFormattable and IParsable<T>
@@ -410,6 +414,9 @@ public class SerializationHelperTests
 			typeof(Guid),
 			typeof(Uri),
 			// Registered into TestableSerializationHelper by default
+#if NETFRAMEWORK
+			typeof(PerformanceCounterType),
+#endif
 			typeof(MyEnum),
 			typeof(MyCustomType),
 		];
@@ -511,7 +518,6 @@ public class SerializationHelperTests
 			// GAC'd enums can't be serialized (Mono doesn't have a GAC, so skip it there)
 			if (!EnvironmentHelper.IsMono)
 				yield return new(ConformanceLevel.Auto, typeof(ConformanceLevel), "Cannot serialize enum of type 'System.Xml.ConformanceLevel' because it lives in the GAC");
-
 #endif
 
 			// Unsupported built-in types can't be serialized
@@ -739,6 +745,42 @@ public class SerializationHelperTests
 
 	class Unserializable { }
 
+#if NETFRAMEWORK
+	class CustomGACEnumSerializer : IXunitSerializer
+	{
+		public object Deserialize(Type type, string serializedValue)
+		{
+			if (type == typeof(PerformanceCounterType))
+				return (PerformanceCounterType)Enum.Parse(typeof(PerformanceCounterType), serializedValue);
+
+			throw new NotSupportedException($"Custom deserialization (of type {type.FullName}) is not currently supported");
+		}
+
+		public bool IsSerializable(
+			Type type,
+			object? value,
+			[NotNullWhen(false)] out string? failureReason)
+		{
+			if (type == typeof(PerformanceCounterType))
+			{
+				failureReason = null;
+				return true;
+			}
+
+			failureReason = $"Theory data of type {type.FullName} is not currently supported.";
+			return false;
+		}
+
+		public string Serialize(object value)
+		{
+			if (value is PerformanceCounterType performanceCounterType)
+				return performanceCounterType.ToString();
+
+			throw new NotSupportedException($"Custom serialization (of type {value.GetType().FullName}) is not currently supported.");
+		}
+	}
+#endif
+
 #if NET8_0_OR_GREATER
 
 	class FormattableAndParsableStringWrapper(string value) :
@@ -824,6 +866,9 @@ public class SerializationHelperTests
 		public List<string> Warnings { get; } = [];
 
 		public new static TestableSerializationHelper Instance { get; } = new(
+#if NETFRAMEWORK
+			new RegisterXunitSerializerAttribute(typeof(CustomGACEnumSerializer), typeof(PerformanceCounterType)),
+#endif
 			new RegisterXunitSerializerAttribute(typeof(MyCustomTypeSerializer), typeof(MyCustomType)),
 			new RegisterXunitSerializerAttribute(typeof(MyUnserializableSerializer), typeof(Unserializable))
 		);
