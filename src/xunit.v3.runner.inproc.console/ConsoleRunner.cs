@@ -72,6 +72,8 @@ public class ConsoleRunner(
 
 		executed = true;
 
+		using var _ = new TraceAssertOverrideListener();
+
 		if (consoleWriter is null)
 			SetOutputEncoding();
 

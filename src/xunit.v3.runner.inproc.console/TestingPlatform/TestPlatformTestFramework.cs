@@ -212,6 +212,8 @@ public class TestPlatformTestFramework :
 		Guard.ArgumentNotNull(args);
 		Guard.ArgumentNotNull(extensionRegistration);
 
+		using var _ = new TraceAssertOverrideListener();
+
 		var builder = await TestApplication.CreateBuilderAsync(args);
 		extensionRegistration(builder, args);
 
@@ -258,7 +260,7 @@ public class TestPlatformTestFramework :
 				if (commandLineOptions.TryGetOptionArgumentList("auto-reporters", out var autoReportersArguments))
 					supportAutoReporters = string.Equals(autoReportersArguments[0], "on", StringComparison.OrdinalIgnoreCase);
 
-				var reporters = RegisteredRunnerReporters.Get(testAssembly, out _);
+				var reporters = RegisteredRunnerReporters.Get(testAssembly, out var _1);
 				var autoReporter = supportAutoReporters ? reporters.FirstOrDefault(r => r.IsEnvironmentallyEnabled) : default;
 				var reporter = autoReporter ?? reporters.FirstOrDefault(r => "default".Equals(r.RunnerSwitch, StringComparison.OrdinalIgnoreCase)) ?? new DefaultRunnerReporter();
 				var reporterMessageHandler = reporter.CreateMessageHandler(runnerLogger, diagnosticMessageSink).SpinWait();
