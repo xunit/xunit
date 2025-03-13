@@ -1,3 +1,5 @@
+#pragma warning disable CA5394  // Cryptographically secure randomness is not needed here
+
 using System;
 
 namespace Xunit.Sdk;
@@ -13,7 +15,7 @@ public static class Randomizer
 	static Randomizer()
 	{
 		seed = Environment.TickCount;
-		Current = new(seed);
+		Current = new ThreadSafeRandom(seed);
 	}
 
 	/// <summary>
@@ -31,7 +33,49 @@ public static class Randomizer
 		set
 		{
 			seed = value;
-			Current = new(seed);
+			Current = new ThreadSafeRandom(seed);
+		}
+	}
+
+	sealed class ThreadSafeRandom(int seed) :
+		Random(seed)
+	{
+		readonly object lockObject = new();
+
+		public override int Next()
+		{
+			lock (lockObject)
+				return base.Next();
+		}
+
+		public override int Next(int maxValue)
+		{
+			lock (lockObject)
+				return base.Next(maxValue);
+		}
+
+		public override int Next(int minValue, int maxValue)
+		{
+			lock (lockObject)
+				return base.Next(minValue, maxValue);
+		}
+
+		public override void NextBytes(byte[] buffer)
+		{
+			lock (lockObject)
+				base.NextBytes(buffer);
+		}
+
+		public override double NextDouble()
+		{
+			lock (lockObject)
+				return base.NextDouble();
+		}
+
+		protected override double Sample()
+		{
+			lock (lockObject)
+				return base.Sample();
 		}
 	}
 }
