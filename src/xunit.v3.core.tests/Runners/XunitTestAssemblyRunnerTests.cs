@@ -364,14 +364,14 @@ public class XunitTestAssemblyRunnerTests
 				msg => Assert.IsAssignableFrom<ITestMethodFinished>(msg),
 				msg => Assert.IsAssignableFrom<ITestClassFinished>(msg),
 				msg => Assert.IsAssignableFrom<ITestCollectionFinished>(msg),
-				msg => Assert.IsAssignableFrom<ITestAssemblyFinished>(msg),
 				msg =>
 				{
 					var failure = Assert.IsAssignableFrom<ITestAssemblyCleanupFailure>(msg);
 					Assert.Equal(new int[] { -1, 0 }, failure.ExceptionParentIndices);
 					Assert.Equal(new string[] { typeof(TestPipelineException).SafeName(), typeof(DivideByZeroException).SafeName() }, failure.ExceptionTypes);
 					Assert.Equal(new string[] { $"Assembly fixture type '{typeof(ThrowingDisposeFixture).SafeName()}' threw in Dispose", "Attempted to divide by zero." }, failure.Messages);
-				}
+				},
+				msg => Assert.IsAssignableFrom<ITestAssemblyFinished>(msg)
 			);
 		}
 

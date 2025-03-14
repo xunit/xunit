@@ -41,8 +41,9 @@ public class TestRunnerBaseTests
 				"GetWarnings",
 				"GetAttachments",
 				"OnTestPassed(output: \"the output\")",
-				"OnTestFinished(output: \"the output\", attachments: [[\"foo\"] = s:bar])",
 				// OnTestCleanupFailure
+				"OnTestFinished(output: \"the output\", attachments: [[\"foo\"] = s:bar])",
+				// OnError
 			}, runner.Invocations);
 
 			var starting_StartTime = DateTimeOffset.MaxValue;
@@ -129,8 +130,9 @@ public class TestRunnerBaseTests
 				"GetWarnings",
 				"GetAttachments",
 				"OnTestFailed(exception: typeof(TrueException), output: \"the output\")",
-				"OnTestFinished(output: \"the output\")",
 				// OnTestCleanupFailure
+				"OnTestFinished(output: \"the output\")",
+				// OnError
 			}, runner.Invocations);
 			Assert.Collection(
 				runner.MessageBus.Messages,
@@ -170,8 +172,9 @@ public class TestRunnerBaseTests
 				"GetWarnings",
 				"GetAttachments",
 				"OnTestSkipped(reason: \"Don't run me\", output: \"\")",
-				"OnTestFinished(output: \"\")",
 				// OnTestCleanupFailure
+				"OnTestFinished(output: \"\")",
+				// OnError
 			}, runner.Invocations);
 			Assert.Collection(
 				runner.MessageBus.Messages,
@@ -210,8 +213,9 @@ public class TestRunnerBaseTests
 				"GetWarnings",
 				"GetAttachments",
 				"OnTestNotRun(output: \"\")",
-				"OnTestFinished(output: \"\")",
 				// OnTestCleanupFailure
+				"OnTestFinished(output: \"\")",
+				// OnError
 			}, runner.Invocations);
 			Assert.Collection(
 				runner.MessageBus.Messages,
@@ -222,8 +226,33 @@ public class TestRunnerBaseTests
 		}
 	}
 
-	public class HandlerExceptions
+	public class ExceptionHandling
 	{
+		[Fact]
+		public static async ValueTask GetAttachments()
+		{
+			var runner = new TestableTestRunnerBase { GetAttachments__Lambda = () => throw new DivideByZeroException() };
+
+			var summary = await runner.Run();
+
+			VerifyRunSummary(summary, failed: 1);
+			Assert.False(runner.TokenSource.IsCancellationRequested);
+			Assert.False(runner.Aggregator.HasExceptions);
+			Assert.Equal(new[]
+			{
+				"OnTestStarting",
+				"ShouldTestRun",
+				"RunTest",
+				"GetTestOutput",
+				"GetWarnings",
+				"GetAttachments",
+				"OnTestFailed(exception: typeof(DivideByZeroException), output: \"\")",
+				// OnTestCleanupFailure
+				"OnTestFinished(output: \"\")",
+				// OnError
+			}, runner.Invocations);
+		}
+
 		[Fact]
 		public static async ValueTask GetTestOutput()
 		{
@@ -243,8 +272,9 @@ public class TestRunnerBaseTests
 				"GetWarnings",
 				"GetAttachments",
 				"OnTestFailed(exception: typeof(DivideByZeroException), output: \"\")",
-				"OnTestFinished(output: \"\")",
 				// OnTestCleanupFailure
+				"OnTestFinished(output: \"\")",
+				// OnError
 			}, runner.Invocations);
 		}
 
@@ -267,44 +297,18 @@ public class TestRunnerBaseTests
 				"GetWarnings",
 				"GetAttachments",
 				"OnTestFailed(exception: typeof(DivideByZeroException), output: \"\")",
-				"OnTestFinished(output: \"\")",
 				// OnTestCleanupFailure
-			}, runner.Invocations);
-		}
-
-		[Fact]
-		public static async ValueTask GetAttachments()
-		{
-			var runner = new TestableTestRunnerBase { GetAttachments__Lambda = () => throw new DivideByZeroException() };
-
-			var summary = await runner.Run();
-
-			VerifyRunSummary(summary, failed: 1);
-			Assert.False(runner.TokenSource.IsCancellationRequested);
-			Assert.False(runner.Aggregator.HasExceptions);
-			Assert.Equal(new[]
-			{
-				"OnTestStarting",
-				"ShouldTestRun",
-				"RunTest",
-				"GetTestOutput",
-				"GetWarnings",
-				"GetAttachments",
-				"OnTestFailed(exception: typeof(DivideByZeroException), output: \"\")",
 				"OnTestFinished(output: \"\")",
-				// OnTestCleanupFailure
+				// OnError
 			}, runner.Invocations);
 		}
 
 		[Fact]
 		public static async ValueTask OnTestCleanupFailure()
 		{
-			var runner = new TestableTestRunnerBase
-			{
-				// Need to throw in OnTestFinished to get OnTestCleanupFailure to trigger
-				OnTestFinished__Lambda = () => throw new ArgumentException(),
-				OnTestCleanupFailure__Lambda = () => throw new DivideByZeroException(),
-			};
+			// Need to record an exception into the aggregator for OnTestFinished to trigger OnTestCleanupFailure
+			var runner = new TestableTestRunnerBase { OnTestCleanupFailure__Lambda = () => throw new DivideByZeroException() };
+			runner.OnTestFinished__Lambda = () => runner.Aggregator.Add(new ArgumentException());
 
 			var summary = await runner.Run();
 
@@ -320,8 +324,9 @@ public class TestRunnerBaseTests
 				"GetWarnings",
 				"GetAttachments",
 				"OnTestPassed(output: \"\")",
-				"OnTestFinished(output: \"\")",
 				"OnTestCleanupFailure(exception: typeof(ArgumentException))",
+				"OnTestFinished(output: \"\")",
+				"OnError(exception: typeof(DivideByZeroException))",
 			}, runner.Invocations);
 			var errorMessage = Assert.Single(runner.MessageBus.Messages.OfType<IErrorMessage>());
 			Assert.Equal(-1, errorMessage.ExceptionParentIndices.Single());
@@ -353,15 +358,17 @@ public class TestRunnerBaseTests
 				"GetWarnings",
 				"GetAttachments",
 				"OnTestFailed(exception: typeof(TrueException), output: \"\")",
-				"OnTestFinished(output: \"\")",
 				"OnTestCleanupFailure(exception: typeof(DivideByZeroException))",
+				"OnTestFinished(output: \"\")",
+				// OnError
 			}, runner.Invocations);
 		}
 
 		[Fact]
 		public static async ValueTask OnTestFinished()
 		{
-			var runner = new TestableTestRunnerBase { OnTestFinished__Lambda = () => throw new DivideByZeroException() };
+			var runner = new TestableTestRunnerBase();
+			runner.OnTestFinished__Lambda = () => runner.Aggregator.Add(new DivideByZeroException());
 
 			var summary = await runner.Run();
 
@@ -377,8 +384,9 @@ public class TestRunnerBaseTests
 				"GetWarnings",
 				"GetAttachments",
 				"OnTestPassed(output: \"\")",
-				"OnTestFinished(output: \"\")",
 				"OnTestCleanupFailure(exception: typeof(DivideByZeroException))",
+				"OnTestFinished(output: \"\")",
+				// OnError
 			}, runner.Invocations);
 		}
 
@@ -405,8 +413,9 @@ public class TestRunnerBaseTests
 				"GetWarnings",
 				"GetAttachments",
 				"OnTestNotRun(output: \"\")",
-				"OnTestFinished(output: \"\")",
 				"OnTestCleanupFailure(exception: typeof(DivideByZeroException))",
+				"OnTestFinished(output: \"\")",
+				// OnError
 			}, runner.Invocations);
 		}
 
@@ -429,8 +438,9 @@ public class TestRunnerBaseTests
 				"GetWarnings",
 				"GetAttachments",
 				"OnTestPassed(output: \"\")",
-				"OnTestFinished(output: \"\")",
 				"OnTestCleanupFailure(exception: typeof(DivideByZeroException))",
+				"OnTestFinished(output: \"\")",
+				// OnError
 			}, runner.Invocations);
 		}
 
@@ -453,8 +463,9 @@ public class TestRunnerBaseTests
 				"GetWarnings",
 				"GetAttachments",
 				"OnTestSkipped(reason: \"Don't run me\", output: \"\")",
-				"OnTestFinished(output: \"\")",
 				"OnTestCleanupFailure(exception: typeof(DivideByZeroException))",
+				"OnTestFinished(output: \"\")",
+				// OnError
 			}, runner.Invocations);
 		}
 
@@ -477,8 +488,9 @@ public class TestRunnerBaseTests
 				"GetWarnings",
 				"GetAttachments",
 				"OnTestFailed(exception: typeof(DivideByZeroException), output: \"\")",
-				"OnTestFinished(output: \"\")",
 				// OnTestCleanupFailure
+				"OnTestFinished(output: \"\")",
+				// OnError
 			}, runner.Invocations);
 		}
 
@@ -501,8 +513,9 @@ public class TestRunnerBaseTests
 				"GetWarnings",
 				"GetAttachments",
 				"OnTestFailed(exception: typeof(DivideByZeroException), output: \"\")",
-				"OnTestFinished(output: \"\")",
 				// OnTestCleanupFailure
+				"OnTestFinished(output: \"\")",
+				// OnError
 			}, runner.Invocations);
 		}
 	}
@@ -512,14 +525,15 @@ public class TestRunnerBaseTests
 	public class Cancellation
 	{
 		[Fact]
-		public static async ValueTask OnTestCleanupFailure()
+		public static async ValueTask OnError()
 		{
+			// Need to record an exception into the aggregator for OnTestFinished to trigger OnTestCleanupFailure
 			var runner = new TestableTestRunnerBase
 			{
-				// Need to throw in OnTestFinished to get OnTestCleanupFailure to trigger
-				OnTestCleanupFailure__Result = false,
-				OnTestFinished__Lambda = () => throw new ArgumentException(),
+				OnError__Result = false,
+				OnTestCleanupFailure__Lambda = () => throw new DivideByZeroException(),
 			};
+			runner.OnTestFinished__Lambda = () => runner.Aggregator.Add(new ArgumentException());
 
 			var summary = await runner.Run();
 
@@ -535,8 +549,37 @@ public class TestRunnerBaseTests
 				"GetWarnings",
 				"GetAttachments",
 				"OnTestPassed(output: \"\")",
-				"OnTestFinished(output: \"\")",
 				"OnTestCleanupFailure(exception: typeof(ArgumentException))",
+				"OnTestFinished(output: \"\")",
+				"OnError(exception: typeof(DivideByZeroException))",
+			}, runner.Invocations);
+		}
+
+
+		[Fact]
+		public static async ValueTask OnTestCleanupFailure()
+		{
+			// Need to record an exception into the aggregator for OnTestFinished to trigger OnTestCleanupFailure
+			var runner = new TestableTestRunnerBase { OnTestCleanupFailure__Result = false };
+			runner.OnTestFinished__Lambda = () => runner.Aggregator.Add(new ArgumentException());
+
+			var summary = await runner.Run();
+
+			VerifyRunSummary(summary, total: 1);
+			Assert.True(runner.TokenSource.IsCancellationRequested);
+			Assert.False(runner.Aggregator.HasExceptions);
+			Assert.Equal(new[]
+			{
+				"OnTestStarting",
+				"ShouldTestRun",
+				"RunTest",
+				"GetTestOutput",
+				"GetWarnings",
+				"GetAttachments",
+				"OnTestPassed(output: \"\")",
+				"OnTestCleanupFailure(exception: typeof(ArgumentException))",
+				"OnTestFinished(output: \"\")",
+				// OnError
 			}, runner.Invocations);
 		}
 
@@ -559,8 +602,8 @@ public class TestRunnerBaseTests
 				"GetWarnings",
 				"GetAttachments",
 				"OnTestPassed(output: \"\")",
-				"OnTestFinished(output: \"\")",
 				// OnTestCleanupFailure
+				"OnTestFinished(output: \"\")",
 			}, runner.Invocations);
 		}
 
@@ -583,8 +626,8 @@ public class TestRunnerBaseTests
 				// GetWarnings
 				// GetAttachments
 				// OnTestXxx
-				"OnTestFinished(output: \"\")",
 				// OnTestCleanupFailure
+				"OnTestFinished(output: \"\")",
 			}, runner.Invocations);
 		}
 	}
@@ -623,11 +666,16 @@ public class TestRunnerBaseTests
 
 		protected override ValueTask<string> GetTestOutput(TestRunnerBaseContext<ITest> ctxt)
 		{
-			Invocations.Add("GetTestOutput");
+			try
+			{
+				GetTestOutput__Lambda?.Invoke();
 
-			GetTestOutput__Lambda?.Invoke();
-
-			return new(GetTestOutput__Result);
+				return new(GetTestOutput__Result);
+			}
+			finally
+			{
+				Invocations.Add("GetTestOutput");
+			}
 		}
 
 		public string[]? GetWarnings__Result;
@@ -635,11 +683,34 @@ public class TestRunnerBaseTests
 
 		protected override ValueTask<string[]?> GetWarnings(TestRunnerBaseContext<ITest> ctxt)
 		{
-			Invocations.Add("GetWarnings");
+			try
+			{
+				GetWarnings__Lambda?.Invoke();
 
-			GetWarnings__Lambda?.Invoke();
+				return new(GetWarnings__Result);
+			}
+			finally
+			{
+				Invocations.Add("GetWarnings");
+			}
+		}
 
-			return new(GetWarnings__Result);
+		public bool OnError__Result = true;
+
+		protected override async ValueTask<bool> OnError(
+			TestRunnerBaseContext<ITest> ctxt,
+			Exception exception)
+		{
+			try
+			{
+				await base.OnError(ctxt, exception);
+
+				return OnError__Result;
+			}
+			finally
+			{
+				Invocations.Add($"OnError(exception: {TypeName(exception)})");
+			}
 		}
 
 		public Action? OnTestCleanupFailure__Lambda;
@@ -649,13 +720,18 @@ public class TestRunnerBaseTests
 			TestRunnerBaseContext<ITest> ctxt,
 			Exception exception)
 		{
-			Invocations.Add($"OnTestCleanupFailure(exception: {TypeName(exception)})");
+			try
+			{
+				OnTestCleanupFailure__Lambda?.Invoke();
 
-			OnTestCleanupFailure__Lambda?.Invoke();
+				await base.OnTestCleanupFailure(ctxt, exception);
 
-			await base.OnTestCleanupFailure(ctxt, exception);
-
-			return OnTestCleanupFailure__Result;
+				return OnTestCleanupFailure__Result;
+			}
+			finally
+			{
+				Invocations.Add($"OnTestCleanupFailure(exception: {TypeName(exception)})");
+			}
 		}
 
 		public Action? OnTestFailed__Lambda;
@@ -668,13 +744,18 @@ public class TestRunnerBaseTests
 			string output,
 			string[]? warnings)
 		{
-			Invocations.Add($"OnTestFailed(exception: {TypeName(exception)}, output: {ArgumentFormatter.Format(output)})");
+			try
+			{
+				OnTestFailed__Lambda?.Invoke();
 
-			OnTestFailed__Lambda?.Invoke();
+				await base.OnTestFailed(ctxt, exception, executionTime, output, warnings);
 
-			await base.OnTestFailed(ctxt, exception, executionTime, output, warnings);
-
-			return (OnTestFailed__Result, TestResultState.FromException(0m, exception));
+				return (OnTestFailed__Result, TestResultState.FromException(0m, exception));
+			}
+			finally
+			{
+				Invocations.Add($"OnTestFailed(exception: {TypeName(exception)}, output: {ArgumentFormatter.Format(output)})");
+			}
 		}
 
 		public Action? OnTestFinished__Lambda;
@@ -692,13 +773,18 @@ public class TestRunnerBaseTests
 					? string.Empty
 					: $", attachments: {ArgumentFormatter.Format(attachments)}";
 
-			Invocations.Add($"OnTestFinished(output: {ArgumentFormatter.Format(output)}{attachmentsDisplay})");
+			try
+			{
+				OnTestFinished__Lambda?.Invoke();
 
-			OnTestFinished__Lambda?.Invoke();
+				await base.OnTestFinished(ctxt, executionTime, output, warnings, attachments);
 
-			await base.OnTestFinished(ctxt, executionTime, output, warnings, attachments);
-
-			return OnTestFinished__Result;
+				return OnTestFinished__Result;
+			}
+			finally
+			{
+				Invocations.Add($"OnTestFinished(output: {ArgumentFormatter.Format(output)}{attachmentsDisplay})");
+			}
 		}
 
 		public Action? OnTestNotRun__Lambda;
@@ -709,13 +795,18 @@ public class TestRunnerBaseTests
 			string output,
 			string[]? warnings)
 		{
-			Invocations.Add($"OnTestNotRun(output: {ArgumentFormatter.Format(output)})");
+			try
+			{
+				OnTestNotRun__Lambda?.Invoke();
 
-			OnTestNotRun__Lambda?.Invoke();
+				await base.OnTestNotRun(ctxt, output, warnings);
 
-			await base.OnTestNotRun(ctxt, output, warnings);
-
-			return (OnTestNotRun__Result, TestResultState.FromTestResult(TestData.TestNotRun()));
+				return (OnTestNotRun__Result, TestResultState.FromTestResult(TestData.TestNotRun()));
+			}
+			finally
+			{
+				Invocations.Add($"OnTestNotRun(output: {ArgumentFormatter.Format(output)})");
+			}
 		}
 
 		public Action? OnTestPassed__Lambda;
@@ -727,13 +818,18 @@ public class TestRunnerBaseTests
 			string output,
 			string[]? warnings)
 		{
-			Invocations.Add($"OnTestPassed(output: {ArgumentFormatter.Format(output)})");
+			try
+			{
+				OnTestPassed__Lambda?.Invoke();
 
-			OnTestPassed__Lambda?.Invoke();
+				await base.OnTestPassed(ctxt, executionTime, output, warnings);
 
-			await base.OnTestPassed(ctxt, executionTime, output, warnings);
-
-			return (OnTestPassed__Result, TestResultState.FromTestResult(TestData.TestPassed()));
+				return (OnTestPassed__Result, TestResultState.FromTestResult(TestData.TestPassed()));
+			}
+			finally
+			{
+				Invocations.Add($"OnTestPassed(output: {ArgumentFormatter.Format(output)})");
+			}
 		}
 
 		public Action? OnTestSkipped__Lambda;
@@ -746,13 +842,18 @@ public class TestRunnerBaseTests
 			string output,
 			string[]? warnings)
 		{
-			Invocations.Add($"OnTestSkipped(reason: {ArgumentFormatter.Format(skipReason)}, output: {ArgumentFormatter.Format(output)})");
+			try
+			{
+				OnTestSkipped__Lambda?.Invoke();
 
-			OnTestSkipped__Lambda?.Invoke();
+				await base.OnTestSkipped(ctxt, skipReason, executionTime, output, warnings);
 
-			await base.OnTestSkipped(ctxt, skipReason, executionTime, output, warnings);
-
-			return (OnTestSkipped__Result, TestResultState.FromTestResult(TestData.TestSkipped()));
+				return (OnTestSkipped__Result, TestResultState.FromTestResult(TestData.TestSkipped()));
+			}
+			finally
+			{
+				Invocations.Add($"OnTestSkipped(reason: {ArgumentFormatter.Format(skipReason)}, output: {ArgumentFormatter.Format(output)})");
+			}
 		}
 
 		public Action? OnTestStarting__Lambda;
@@ -760,13 +861,18 @@ public class TestRunnerBaseTests
 
 		protected override async ValueTask<bool> OnTestStarting(TestRunnerBaseContext<ITest> ctxt)
 		{
-			Invocations.Add("OnTestStarting");
+			try
+			{
+				OnTestStarting__Lambda?.Invoke();
 
-			OnTestStarting__Lambda?.Invoke();
+				await base.OnTestStarting(ctxt);
 
-			await base.OnTestStarting(ctxt);
-
-			return OnTestStarting__Result;
+				return OnTestStarting__Result;
+			}
+			finally
+			{
+				Invocations.Add("OnTestStarting");
+			}
 		}
 
 		public async ValueTask<RunSummary> Run(string? skipReason = null)
@@ -782,11 +888,16 @@ public class TestRunnerBaseTests
 
 		protected override ValueTask<TimeSpan> RunTest(TestRunnerBaseContext<ITest> context)
 		{
-			Invocations.Add("RunTest");
+			try
+			{
+				RunTest__Lambda?.Invoke();
 
-			RunTest__Lambda?.Invoke();
-
-			return new(RunTest__Result);
+				return new(RunTest__Result);
+			}
+			finally
+			{
+				Invocations.Add("RunTest");
+			}
 		}
 
 		public Action? ShouldTestRun__Lambda;
@@ -794,14 +905,19 @@ public class TestRunnerBaseTests
 
 		protected override bool ShouldTestRun(TestRunnerBaseContext<ITest> ctxt)
 		{
-			Invocations.Add("ShouldTestRun");
+			try
+			{
+				ShouldTestRun__Lambda?.Invoke();
 
-			ShouldTestRun__Lambda?.Invoke();
-
-			return ShouldTestRun__Result;
+				return ShouldTestRun__Result;
+			}
+			finally
+			{
+				Invocations.Add("ShouldTestRun");
+			}
 		}
 
 		static string TypeName(object? value) =>
-			value is null ? "null" : $"typeof({ArgumentFormatter.FormatTypeName(value.GetType())})";
+		value is null ? "null" : $"typeof({ArgumentFormatter.FormatTypeName(value.GetType())})";
 	}
 }

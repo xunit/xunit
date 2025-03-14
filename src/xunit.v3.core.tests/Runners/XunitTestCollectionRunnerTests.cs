@@ -338,14 +338,14 @@ public class XunitTestCollectionRunnerTests
 				msg => Assert.IsAssignableFrom<ITestCaseFinished>(msg),
 				msg => Assert.IsAssignableFrom<ITestMethodFinished>(msg),
 				msg => Assert.IsAssignableFrom<ITestClassFinished>(msg),
-				msg => Assert.IsAssignableFrom<ITestCollectionFinished>(msg),
 				msg =>
 				{
 					var failure = Assert.IsAssignableFrom<ITestCollectionCleanupFailure>(msg);
 					Assert.Equal(new[] { -1, 0 }, failure.ExceptionParentIndices);
 					Assert.Equal(new[] { typeof(TestPipelineException).SafeName(), typeof(DivideByZeroException).SafeName() }, failure.ExceptionTypes);
 					Assert.Equal(new[] { $"Collection fixture type '{typeof(FixtureWithThrowingDispose).SafeName()}' threw in Dispose", "Attempted to divide by zero." }, failure.Messages);
-				}
+				},
+				msg => Assert.IsAssignableFrom<ITestCollectionFinished>(msg)
 			);
 		}
 

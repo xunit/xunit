@@ -12,6 +12,23 @@ public class TestCaseRunnerBaseTests
 	public class Messages
 	{
 		[Fact]
+		public async ValueTask OnError()
+		{
+			var runner = new TestableTestCaseRunnerBase();
+			var ex = Record.Exception(ThrowException);
+
+			await runner.OnError(ex!);
+
+			var message = Assert.Single(runner.MessageBus.Messages);
+			var error = Assert.IsAssignableFrom<IErrorMessage>(message);
+
+			Assert.Equal(-1, error.ExceptionParentIndices.Single());
+			Assert.Equal(typeof(DivideByZeroException).FullName, error.ExceptionTypes.Single());
+			Assert.Equal("Attempted to divide by zero.", error.Messages.Single());
+			Assert.NotEmpty(error.StackTraces.Single()!);
+		}
+
+		[Fact]
 		public async ValueTask OnTestCaseCleanupFailure()
 		{
 			var runner = new TestableTestCaseRunnerBase();
@@ -93,6 +110,30 @@ public class TestCaseRunnerBaseTests
 	public class Cancellation
 	{
 		[Fact]
+		public static async ValueTask OnError()
+		{
+			// Need to record an exception into the aggregator for OnTestCaseFinished to trigger OnTestCaseCleanupFailure
+			var runner = new TestableTestCaseRunnerBase
+			{
+				OnError__Result = false,
+				OnTestCaseFinished__Lambda = _ => throw new DivideByZeroException(),
+			};
+
+			await runner.Run();
+
+			Assert.True(runner.TokenSource.IsCancellationRequested);
+			Assert.False(runner.Aggregator.HasExceptions);
+			Assert.Equal(new[]
+			{
+				"OnTestCaseStarting",
+				"RunTestCase(testCase: 'test-case-display-name', exception: null)",
+				// OnTestCaseCleanupFailure
+				"OnTestCaseFinished(summary: { Total = 0 })",
+				"OnError(exception: typeof(DivideByZeroException))",
+			}, runner.Invocations);
+		}
+
+		[Fact]
 		public static async ValueTask OnTestCaseStarting()
 		{
 			var runner = new TestableTestCaseRunnerBase { OnTestCaseStarting__Result = false };
@@ -100,12 +141,14 @@ public class TestCaseRunnerBaseTests
 			await runner.Run();
 
 			Assert.True(runner.TokenSource.IsCancellationRequested);
+			Assert.False(runner.Aggregator.HasExceptions);
 			Assert.Equal(new[]
 			{
 				"OnTestCaseStarting",
 				// RunTestCase
-				"OnTestCaseFinished(summary: { Total = 0 })",
 				// OnTestCaseCleanupFailure
+				"OnTestCaseFinished(summary: { Total = 0 })",
+				// OnError
 			}, runner.Invocations);
 		}
 
@@ -117,34 +160,35 @@ public class TestCaseRunnerBaseTests
 			await runner.Run();
 
 			Assert.True(runner.TokenSource.IsCancellationRequested);
+			Assert.False(runner.Aggregator.HasExceptions);
 			Assert.Equal(new[]
 			{
 				"OnTestCaseStarting",
 				"RunTestCase(testCase: 'test-case-display-name', exception: null)",
-				"OnTestCaseFinished(summary: { Total = 0 })",
 				// OnTestCaseCleanupFailure
+				"OnTestCaseFinished(summary: { Total = 0 })",
+				// OnError
 			}, runner.Invocations);
 		}
 
 		[Fact]
 		public static async ValueTask OnTestCaseCleanupFailure()
 		{
-			// Need to throw in OnTestCaseFinished to get OnTestCaseCleanupFailure to trigger
-			var runner = new TestableTestCaseRunnerBase
-			{
-				OnTestCaseCleanupFailure__Result = false,
-				OnTestCaseFinished__Lambda = _ => throw new DivideByZeroException(),
-			};
+			// Need to record an exception into the aggregator for OnTestCaseFinished to trigger OnTestCaseCleanupFailure
+			var runner = new TestableTestCaseRunnerBase { OnTestCaseCleanupFailure__Result = false };
+			runner.OnTestCaseFinished__Lambda = _ => runner.Aggregator.Add(new DivideByZeroException());
 
 			await runner.Run();
 
 			Assert.True(runner.TokenSource.IsCancellationRequested);
+			Assert.False(runner.Aggregator.HasExceptions);
 			Assert.Equal(new[]
 			{
 				"OnTestCaseStarting",
 				"RunTestCase(testCase: 'test-case-display-name', exception: null)",
-				"OnTestCaseFinished(summary: { Total = 0 })",
 				"OnTestCaseCleanupFailure(exception: typeof(DivideByZeroException))",
+				"OnTestCaseFinished(summary: { Total = 0 })",
+				// OnError
 			}, runner.Invocations);
 		}
 	}
@@ -161,12 +205,14 @@ public class TestCaseRunnerBaseTests
 
 			Assert.Equal(result, summary);
 			Assert.False(runner.TokenSource.IsCancellationRequested);
+			Assert.False(runner.Aggregator.HasExceptions);
 			Assert.Equal(new[]
 			{
 				"OnTestCaseStarting",
 				"RunTestCase(testCase: 'test-case-display-name', exception: null)",
-				"OnTestCaseFinished(summary: { Total = 9, Failed = 2, Skipped = 1, NotRun = 3, Time = 21.12 })",
 				// OnTestCaseCleanupFailure
+				"OnTestCaseFinished(summary: { Total = 9, Failed = 2, Skipped = 1, NotRun = 3, Time = 21.12 })",
+				// OnError
 			}, runner.Invocations);
 		}
 
@@ -178,12 +224,14 @@ public class TestCaseRunnerBaseTests
 			await runner.Run();
 
 			Assert.False(runner.TokenSource.IsCancellationRequested);
+			Assert.False(runner.Aggregator.HasExceptions);
 			Assert.Equal(new[]
 			{
 				"OnTestCaseStarting",
 				"RunTestCase(testCase: 'test-case-display-name', exception: typeof(DivideByZeroException))",
-				"OnTestCaseFinished(summary: { Total = 0 })",
 				// OnTestCaseCleanupFailure
+				"OnTestCaseFinished(summary: { Total = 0 })",
+				// OnError
 			}, runner.Invocations);
 		}
 
@@ -195,47 +243,36 @@ public class TestCaseRunnerBaseTests
 			await runner.Run();
 
 			Assert.False(runner.TokenSource.IsCancellationRequested);
+			Assert.False(runner.Aggregator.HasExceptions);
 			Assert.Equal(new[]
 			{
 				"OnTestCaseStarting",
 				"RunTestCase(testCase: 'test-case-display-name', exception: null)",
+				// OnTestCaseCleanupFailure
 				"OnTestCaseFinished(summary: { Total = 0 })",
-				"OnTestCaseCleanupFailure(exception: typeof(DivideByZeroException))",
+				"OnError(exception: typeof(DivideByZeroException))",
 			}, runner.Invocations);
 		}
 
 		[Fact]
 		public static async ValueTask OnTestCaseCleanupFailure()
 		{
-			// Need to throw in OnTestCaseFinished to get OnTestCaseCleanupFailure to trigger
-			var runner = new TestableTestCaseRunnerBase
-			{
-				OnTestCaseFinished__Lambda = _ => throw new ArgumentException(),
-				OnTestCaseCleanupFailure__Lambda = _ => throw new DivideByZeroException(),
-			};
+			// Need to record an exception into the aggregator for OnTestCaseFinished to trigger OnTestCaseCleanupFailure
+			var runner = new TestableTestCaseRunnerBase { OnTestCaseCleanupFailure__Lambda = _ => throw new DivideByZeroException() };
+			runner.OnTestCaseFinished__Lambda = _ => runner.Aggregator.Add(new ArgumentException());
 
 			await runner.Run();
 
 			Assert.False(runner.TokenSource.IsCancellationRequested);
+			Assert.False(runner.Aggregator.HasExceptions);
 			Assert.Equal(new[]
 			{
 				"OnTestCaseStarting",
 				"RunTestCase(testCase: 'test-case-display-name', exception: null)",
-				"OnTestCaseFinished(summary: { Total = 0 })",
 				"OnTestCaseCleanupFailure(exception: typeof(ArgumentException))",
+				"OnTestCaseFinished(summary: { Total = 0 })",
+				"OnError(exception: typeof(DivideByZeroException))",
 			}, runner.Invocations);
-			Assert.Collection(
-				runner.MessageBus.Messages,
-				message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
-				message =>
-				{
-					var errorMessage = Assert.IsAssignableFrom<IErrorMessage>(message);
-					Assert.Equal(new[] { -1 }, errorMessage.ExceptionParentIndices);
-					Assert.Equal(new[] { "System.DivideByZeroException" }, errorMessage.ExceptionTypes);
-					Assert.Equal(new[] { "Attempted to divide by zero." }, errorMessage.Messages);
-					Assert.NotEmpty(errorMessage.StackTraces.Single()!);
-				}
-			);
 		}
 	}
 
@@ -247,6 +284,32 @@ public class TestCaseRunnerBaseTests
 		public readonly SpyMessageBus MessageBus = new();
 		public readonly ITestCase TestCase = testCase ?? Mocks.TestCase();
 		public readonly CancellationTokenSource TokenSource = new();
+
+		public async ValueTask<bool> OnError(Exception exception)
+		{
+			await using var ctxt = new TestCaseRunnerBaseContext<ITestCase>(TestCase, ExplicitOption.Off, MessageBus, Aggregator, TokenSource);
+			await ctxt.InitializeAsync();
+
+			return await OnError(ctxt, exception);
+		}
+
+		public bool OnError__Result = true;
+
+		protected override async ValueTask<bool> OnError(
+			TestCaseRunnerBaseContext<ITestCase> ctxt,
+			Exception exception)
+		{
+			try
+			{
+				await base.OnError(ctxt, exception);
+
+				return OnError__Result;
+			}
+			finally
+			{
+				Invocations.Add($"OnError(exception: {TypeName(exception)})");
+			}
+		}
 
 		public async ValueTask<bool> OnTestCaseCleanupFailure(Exception exception)
 		{
@@ -263,13 +326,18 @@ public class TestCaseRunnerBaseTests
 			TestCaseRunnerBaseContext<ITestCase> ctxt,
 			Exception exception)
 		{
-			Invocations.Add($"OnTestCaseCleanupFailure(exception: typeof({ArgumentFormatter.FormatTypeName(exception.GetType())}))");
+			try
+			{
+				OnTestCaseCleanupFailure__Lambda?.Invoke(ctxt);
 
-			OnTestCaseCleanupFailure__Lambda?.Invoke(ctxt);
+				await base.OnTestCaseCleanupFailure(ctxt, exception);
 
-			await base.OnTestCaseCleanupFailure(ctxt, exception);
-
-			return OnTestCaseCleanupFailure__Result;
+				return OnTestCaseCleanupFailure__Result;
+			}
+			finally
+			{
+				Invocations.Add($"OnTestCaseCleanupFailure(exception: typeof({ArgumentFormatter.FormatTypeName(exception.GetType())}))");
+			}
 		}
 
 		public async ValueTask<bool> OnTestCaseFinished(RunSummary summary)
@@ -288,14 +356,19 @@ public class TestCaseRunnerBaseTests
 			TestCaseRunnerBaseContext<ITestCase> ctxt,
 			RunSummary summary)
 		{
-			Invocations.Add($"OnTestCaseFinished(summary: {ArgumentFormatter.Format(summary)})");
+			try
+			{
+				OnTestCaseFinished_Summary = summary;
+				OnTestCaseFinished__Lambda?.Invoke(ctxt);
 
-			OnTestCaseFinished_Summary = summary;
-			OnTestCaseFinished__Lambda?.Invoke(ctxt);
+				await base.OnTestCaseFinished(ctxt, summary);
 
-			await base.OnTestCaseFinished(ctxt, summary);
-
-			return OnTestCaseFinished__Result;
+				return OnTestCaseFinished__Result;
+			}
+			finally
+			{
+				Invocations.Add($"OnTestCaseFinished(summary: {ArgumentFormatter.Format(summary)})");
+			}
 		}
 
 		public async ValueTask<bool> OnTestCaseStarting()
@@ -311,13 +384,18 @@ public class TestCaseRunnerBaseTests
 
 		protected override async ValueTask<bool> OnTestCaseStarting(TestCaseRunnerBaseContext<ITestCase> ctxt)
 		{
-			Invocations.Add("OnTestCaseStarting");
+			try
+			{
+				OnTestCaseStarting__Lambda?.Invoke(ctxt);
 
-			OnTestCaseStarting__Lambda?.Invoke(ctxt);
+				await base.OnTestCaseStarting(ctxt);
 
-			await base.OnTestCaseStarting(ctxt);
-
-			return OnTestCaseStarting__Result;
+				return OnTestCaseStarting__Result;
+			}
+			finally
+			{
+				Invocations.Add("OnTestCaseStarting");
+			}
 		}
 
 		public async ValueTask<RunSummary> Run()
@@ -334,9 +412,14 @@ public class TestCaseRunnerBaseTests
 			TestCaseRunnerBaseContext<ITestCase> ctxt,
 			Exception? exception)
 		{
-			Invocations.Add($"RunTestCase(testCase: '{ctxt.TestCase.TestCaseDisplayName}', exception: {TypeName(exception)})");
-
-			return new(RunTestCase__Result);
+			try
+			{
+				return new(RunTestCase__Result);
+			}
+			finally
+			{
+				Invocations.Add($"RunTestCase(testCase: '{ctxt.TestCase.TestCaseDisplayName}', exception: {TypeName(exception)})");
+			}
 		}
 
 		static string TypeName(object? obj) =>

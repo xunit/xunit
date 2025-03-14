@@ -15,6 +15,23 @@ public static class TestAssemblyRunnerTests
 	public class Messages
 	{
 		[Fact]
+		public async ValueTask OnError()
+		{
+			var runner = new TestableTestAssemblyRunner();
+			var ex = Record.Exception(ThrowException);
+
+			await runner.OnError(ex!);
+
+			var message = Assert.Single(runner.MessageSink.Messages);
+			var error = Assert.IsAssignableFrom<IErrorMessage>(message);
+
+			Assert.Equal(-1, error.ExceptionParentIndices.Single());
+			Assert.Equal(typeof(DivideByZeroException).FullName, error.ExceptionTypes.Single());
+			Assert.Equal("Attempted to divide by zero.", error.Messages.Single());
+			Assert.NotEmpty(error.StackTraces.Single()!);
+		}
+
+		[Fact]
 		public async ValueTask OnTestAssemblyCleanupFailure()
 		{
 			var runner = new TestableTestAssemblyRunner();
@@ -84,6 +101,73 @@ public static class TestAssemblyRunnerTests
 	public class Cancellation
 	{
 		[Fact]
+		public static async ValueTask OnError()
+		{
+			var runner = new TestableTestAssemblyRunner
+			{
+				OnError__Result = false,
+				OnTestAssemblyFinished__Lambda = () => throw new DivideByZeroException(),
+			};
+
+			await runner.RunAsync();
+
+			Assert.NotNull(runner.CancellationTokenSource);
+			Assert.True(runner.CancellationTokenSource.IsCancellationRequested);
+			Assert.False(runner.Aggregator.HasExceptions);
+			Assert.Equal(new[]
+			{
+				"OnTestAssemblyStarting",
+				"RunTestCollectionAsync(testCollection: 'test-collection-display-name', testCases: ['test-case-display-name'])",
+				// OnTestAssemblyCleanupFailure
+				"OnTestAssemblyFinished(summary: { Total = 0 })",
+				"OnError(exception: typeof(DivideByZeroException))",
+			}, runner.Invocations);
+		}
+
+
+		[Fact]
+		public static async ValueTask OnTestAssemblyCleanupFailure()
+		{
+			// Need to record an exception into the aggregator for OnTestAssemblyFinished to trigger OnTestAssemblyCleanupFailure
+			var runner = new TestableTestAssemblyRunner { OnTestAssemblyCleanupFailure__Result = false };
+			runner.OnTestAssemblyFinished__Lambda = () => runner.Aggregator.Add(new DivideByZeroException());
+
+			await runner.RunAsync();
+
+			Assert.NotNull(runner.CancellationTokenSource);
+			Assert.True(runner.CancellationTokenSource.IsCancellationRequested);
+			Assert.False(runner.Aggregator.HasExceptions);
+			Assert.Equal(new[]
+			{
+				"OnTestAssemblyStarting",
+				"RunTestCollectionAsync(testCollection: 'test-collection-display-name', testCases: ['test-case-display-name'])",
+				"OnTestAssemblyCleanupFailure(exception: typeof(DivideByZeroException))",
+				"OnTestAssemblyFinished(summary: { Total = 0 })",
+				// OnError
+			}, runner.Invocations);
+		}
+
+		[Fact]
+		public static async ValueTask OnTestAssemblyFinished()
+		{
+			var runner = new TestableTestAssemblyRunner { OnTestAssemblyFinished__Result = false };
+
+			await runner.RunAsync();
+
+			Assert.NotNull(runner.CancellationTokenSource);
+			Assert.True(runner.CancellationTokenSource.IsCancellationRequested);
+			Assert.False(runner.Aggregator.HasExceptions);
+			Assert.Equal(new[]
+			{
+				"OnTestAssemblyStarting",
+				"RunTestCollectionAsync(testCollection: 'test-collection-display-name', testCases: ['test-case-display-name'])",
+				// OnTestAssemblyCleanupFailure
+				"OnTestAssemblyFinished(summary: { Total = 0 })",
+				// OnError
+			}, runner.Invocations);
+		}
+
+		[Fact]
 		public static async ValueTask OnTestAssemblyStarting()
 		{
 			var summary = new RunSummary { Total = 9, Failed = 2, Skipped = 1, NotRun = 3, Time = 21.12m };
@@ -97,53 +181,14 @@ public static class TestAssemblyRunnerTests
 
 			Assert.NotNull(runner.CancellationTokenSource);
 			Assert.True(runner.CancellationTokenSource.IsCancellationRequested);
+			Assert.False(runner.Aggregator.HasExceptions);
 			Assert.Equal(new[]
 			{
 				"OnTestAssemblyStarting",
 				// RunTestCollectionAsync
-				"OnTestAssemblyFinished(summary: { Total = 0 })",
 				// OnTestAssemblyCleanupFailure
-			}, runner.Invocations);
-		}
-
-		[Fact]
-		public static async ValueTask OnTestAssemblyFinished()
-		{
-			var runner = new TestableTestAssemblyRunner { OnTestAssemblyFinished__Result = false };
-
-			await runner.RunAsync();
-
-			Assert.NotNull(runner.CancellationTokenSource);
-			Assert.True(runner.CancellationTokenSource.IsCancellationRequested);
-			Assert.Equal(new[]
-			{
-				"OnTestAssemblyStarting",
-				"RunTestCollectionAsync(testCollection: 'test-collection-display-name', testCases: ['test-case-display-name'])",
 				"OnTestAssemblyFinished(summary: { Total = 0 })",
-				// OnTestAssemblyCleanupFailure
-			}, runner.Invocations);
-		}
-
-		[Fact]
-		public static async ValueTask OnTestAssemblyCleanupFailure()
-		{
-			// Need to throw in OnTestAssemblyFinished to get OnTestAssemblyCleanupFailure to trigger
-			var runner = new TestableTestAssemblyRunner
-			{
-				OnTestAssemblyFinished__Lambda = () => throw new DivideByZeroException(),
-				OnTestAssemblyCleanupFailure__Result = false,
-			};
-
-			await runner.RunAsync();
-
-			Assert.NotNull(runner.CancellationTokenSource);
-			Assert.True(runner.CancellationTokenSource.IsCancellationRequested);
-			Assert.Equal(new[]
-			{
-				"OnTestAssemblyStarting",
-				"RunTestCollectionAsync(testCollection: 'test-collection-display-name', testCases: ['test-case-display-name'])",
-				"OnTestAssemblyFinished(summary: { Total = 0 })",
-				"OnTestAssemblyCleanupFailure(exception: typeof(DivideByZeroException))",
+				// OnError
 			}, runner.Invocations);
 		}
 	}
@@ -162,12 +207,14 @@ public static class TestAssemblyRunnerTests
 			Assert.Equivalent(new { Total = 9, Failed = 2, Skipped = 1, NotRun = 3 }, result);
 			Assert.NotNull(runner.CancellationTokenSource);
 			Assert.False(runner.CancellationTokenSource.IsCancellationRequested);
+			Assert.False(runner.Aggregator.HasExceptions);
 			Assert.Equal(new[]
 			{
 				"OnTestAssemblyStarting",
 				"RunTestCollectionAsync(testCollection: 'test-collection-display-name', testCases: ['test-case-display-name'])",
-				"OnTestAssemblyFinished(summary: { Total = 9, Failed = 2, Skipped = 1, NotRun = 3 })",
 				// OnTestAssemblyCleanupFailure
+				"OnTestAssemblyFinished(summary: { Total = 9, Failed = 2, Skipped = 1, NotRun = 3 })",
+				// OnError
 			}, runner.Invocations);
 		}
 
@@ -180,12 +227,14 @@ public static class TestAssemblyRunnerTests
 
 			Assert.NotNull(runner.CancellationTokenSource);
 			Assert.False(runner.CancellationTokenSource.IsCancellationRequested);
+			Assert.False(runner.Aggregator.HasExceptions);
 			Assert.Equal(new[]
 			{
 				"OnTestAssemblyStarting",
 				"FailTestCollection(testCollection: 'test-collection-display-name', testCases: ['test-case-display-name'], exception: typeof(DivideByZeroException))",
-				"OnTestAssemblyFinished(summary: { Total = 0 })",
 				// OnTestAssemblyCleanupFailure
+				"OnTestAssemblyFinished(summary: { Total = 0 })",
+				// OnError
 			}, runner.Invocations);
 		}
 
@@ -198,48 +247,37 @@ public static class TestAssemblyRunnerTests
 
 			Assert.NotNull(runner.CancellationTokenSource);
 			Assert.False(runner.CancellationTokenSource.IsCancellationRequested);
+			Assert.False(runner.Aggregator.HasExceptions);
 			Assert.Equal(new[]
 			{
 				"OnTestAssemblyStarting",
 				"RunTestCollectionAsync(testCollection: 'test-collection-display-name', testCases: ['test-case-display-name'])",
+				// OnTestAssemblyCleanupFailure
 				"OnTestAssemblyFinished(summary: { Total = 0 })",
-				"OnTestAssemblyCleanupFailure(exception: typeof(DivideByZeroException))",
+				"OnError(exception: typeof(DivideByZeroException))",
 			}, runner.Invocations);
 		}
 
 		[Fact]
 		public static async ValueTask OnTestAssemblyCleanupFailure()
 		{
-			// Need to throw in OnTestAssemblyFinished to get OnTestAssemblyCleanupFailure to trigger
-			var runner = new TestableTestAssemblyRunner
-			{
-				OnTestAssemblyCleanupFailure__Lambda = () => throw new DivideByZeroException(),
-				OnTestAssemblyFinished__Lambda = () => throw new ArgumentException(),
-			};
+			// Need to record an exception into the aggregator for OnTestAssemblyFinished to trigger OnTestAssemblyCleanupFailure
+			var runner = new TestableTestAssemblyRunner { OnTestAssemblyCleanupFailure__Lambda = () => throw new DivideByZeroException() };
+			runner.OnTestAssemblyFinished__Lambda = () => runner.Aggregator.Add(new ArgumentException());
 
 			await runner.RunAsync();
 
 			Assert.NotNull(runner.CancellationTokenSource);
 			Assert.False(runner.CancellationTokenSource.IsCancellationRequested);
+			Assert.False(runner.Aggregator.HasExceptions);
 			Assert.Equal(new[]
 			{
 				"OnTestAssemblyStarting",
 				"RunTestCollectionAsync(testCollection: 'test-collection-display-name', testCases: ['test-case-display-name'])",
-				"OnTestAssemblyFinished(summary: { Total = 0 })",
 				"OnTestAssemblyCleanupFailure(exception: typeof(ArgumentException))",
+				"OnTestAssemblyFinished(summary: { Total = 0 })",
+				"OnError(exception: typeof(DivideByZeroException))",
 			}, runner.Invocations);
-			Assert.Collection(
-				runner.MessageSink.Messages,
-				message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
-				message =>
-				{
-					var errorMessage = Assert.IsAssignableFrom<IErrorMessage>(message);
-					Assert.Equal(new[] { -1 }, errorMessage.ExceptionParentIndices);
-					Assert.Equal(new[] { "System.DivideByZeroException" }, errorMessage.ExceptionTypes);
-					Assert.Equal(new[] { "Attempted to divide by zero." }, errorMessage.Messages);
-					Assert.NotEmpty(errorMessage.StackTraces.Single()!);
-				}
-			);
 		}
 	}
 
@@ -272,14 +310,26 @@ public static class TestAssemblyRunnerTests
 		}
 	}
 
+	class TestableTestAssemblyRunnerContext(
+		ITestAssembly testAssembly,
+		IReadOnlyCollection<ITestCase> testCases,
+		IMessageSink executionMessageSink,
+		ITestFrameworkExecutionOptions executionOptions,
+		ExceptionAggregator aggregator) :
+			TestAssemblyRunnerContext<ITestAssembly, ITestCase>(testAssembly, testCases, executionMessageSink, executionOptions, default)
+	{
+		public override ExceptionAggregator Aggregator => aggregator;
+	}
+
 	class TestableTestAssemblyRunner(
 		IReadOnlyCollection<ITestCase>? testCases = null,
 		ITestAssembly? TestAssembly = null) :
-			TestAssemblyRunner<TestAssemblyRunnerContext<ITestAssembly, ITestCase>, ITestAssembly, ITestCollection, ITestCase>
+			TestAssemblyRunner<TestableTestAssemblyRunnerContext, ITestAssembly, ITestCollection, ITestCase>
 	{
 		readonly IReadOnlyCollection<ITestCase> testCases = testCases ?? [Mocks.TestCase()];
 		readonly ITestAssembly TestAssembly = TestAssembly ?? Mocks.TestAssembly();
 
+		public readonly ExceptionAggregator Aggregator = new();
 		public CancellationTokenSource? CancellationTokenSource;  // Gets set by OnTestAssemblyStarting
 		public readonly ITestFrameworkExecutionOptions ExecutionOptions = TestData.TestFrameworkExecutionOptions();
 		public readonly List<string> Invocations = [];
@@ -288,7 +338,7 @@ public static class TestAssemblyRunnerTests
 		public RunSummary FailTestCollection__Result = new();
 
 		protected override ValueTask<RunSummary> FailTestCollection(
-			TestAssemblyRunnerContext<ITestAssembly, ITestCase> ctxt,
+			TestableTestAssemblyRunnerContext ctxt,
 			ITestCollection testCollection,
 			IReadOnlyCollection<ITestCase> testCases,
 			Exception? exception)
@@ -298,12 +348,38 @@ public static class TestAssemblyRunnerTests
 			return new(FailTestCollection__Result);
 		}
 
-		protected override ValueTask<string> GetTestFrameworkDisplayName(TestAssemblyRunnerContext<ITestAssembly, ITestCase> ctxt) =>
+		protected override ValueTask<string> GetTestFrameworkDisplayName(TestableTestAssemblyRunnerContext ctxt) =>
 			new("Stub Testing Framework");
+
+		public async ValueTask<bool> OnError(Exception exception)
+		{
+			await using var ctxt = new TestableTestAssemblyRunnerContext(TestAssembly, testCases, MessageSink, ExecutionOptions, Aggregator);
+			await ctxt.InitializeAsync();
+
+			return await OnError(ctxt, exception);
+		}
+
+		public bool OnError__Result = true;
+
+		protected override async ValueTask<bool> OnError(
+			TestableTestAssemblyRunnerContext ctxt,
+			Exception exception)
+		{
+			try
+			{
+				await base.OnError(ctxt, exception);
+
+				return OnError__Result;
+			}
+			finally
+			{
+				Invocations.Add($"OnError(exception: {TypeName(exception)})");
+			}
+		}
 
 		public async ValueTask<bool> OnTestAssemblyCleanupFailure(Exception exception)
 		{
-			await using var ctxt = new TestAssemblyRunnerContext<ITestAssembly, ITestCase>(TestAssembly, testCases, MessageSink, ExecutionOptions, default);
+			await using var ctxt = new TestableTestAssemblyRunnerContext(TestAssembly, testCases, MessageSink, ExecutionOptions, Aggregator);
 			await ctxt.InitializeAsync();
 
 			return await OnTestAssemblyCleanupFailure(ctxt, exception);
@@ -313,21 +389,26 @@ public static class TestAssemblyRunnerTests
 		public bool OnTestAssemblyCleanupFailure__Result = true;
 
 		protected override async ValueTask<bool> OnTestAssemblyCleanupFailure(
-			TestAssemblyRunnerContext<ITestAssembly, ITestCase> ctxt,
+			TestableTestAssemblyRunnerContext ctxt,
 			Exception exception)
 		{
-			Invocations.Add($"OnTestAssemblyCleanupFailure(exception: typeof({ArgumentFormatter.FormatTypeName(exception.GetType())}))");
+			try
+			{
+				OnTestAssemblyCleanupFailure__Lambda?.Invoke();
 
-			OnTestAssemblyCleanupFailure__Lambda?.Invoke();
+				await base.OnTestAssemblyCleanupFailure(ctxt, exception);
 
-			await base.OnTestAssemblyCleanupFailure(ctxt, exception);
-
-			return OnTestAssemblyCleanupFailure__Result;
+				return OnTestAssemblyCleanupFailure__Result;
+			}
+			finally
+			{
+				Invocations.Add($"OnTestAssemblyCleanupFailure(exception: typeof({ArgumentFormatter.FormatTypeName(exception.GetType())}))");
+			}
 		}
 
 		public async ValueTask<bool> OnTestAssemblyFinished(RunSummary summary)
 		{
-			await using var ctxt = new TestAssemblyRunnerContext<ITestAssembly, ITestCase>(TestAssembly, testCases, MessageSink, ExecutionOptions, default);
+			await using var ctxt = new TestableTestAssemblyRunnerContext(TestAssembly, testCases, MessageSink, ExecutionOptions, Aggregator);
 			await ctxt.InitializeAsync();
 
 			return await OnTestAssemblyFinished(ctxt, summary);
@@ -337,25 +418,30 @@ public static class TestAssemblyRunnerTests
 		public bool OnTestAssemblyFinished__Result = true;
 
 		protected override async ValueTask<bool> OnTestAssemblyFinished(
-			TestAssemblyRunnerContext<ITestAssembly, ITestCase> ctxt,
+			TestableTestAssemblyRunnerContext ctxt,
 			RunSummary summary)
 		{
-			// Temporarily replace time with 0 so we don't have to worry about clock time from RunAsync in the argument format
-			var time = summary.Time;
-			summary.Time = 0;
-			Invocations.Add($"OnTestAssemblyFinished(summary: {ArgumentFormatter.Format(summary)})");
-			summary.Time = time;
+			try
+			{
+				OnTestAssemblyFinished__Lambda?.Invoke();
 
-			OnTestAssemblyFinished__Lambda?.Invoke();
+				await base.OnTestAssemblyFinished(ctxt, summary);
 
-			await base.OnTestAssemblyFinished(ctxt, summary);
-
-			return OnTestAssemblyFinished__Result;
+				return OnTestAssemblyFinished__Result;
+			}
+			finally
+			{
+				// Temporarily replace time with 0 so we don't have to worry about clock time from RunAsync in the argument format
+				var time = summary.Time;
+				summary.Time = 0;
+				Invocations.Add($"OnTestAssemblyFinished(summary: {ArgumentFormatter.Format(summary)})");
+				summary.Time = time;
+			}
 		}
 
 		public async ValueTask<bool> OnTestAssemblyStarting()
 		{
-			await using var ctxt = new TestAssemblyRunnerContext<ITestAssembly, ITestCase>(TestAssembly, testCases, MessageSink, ExecutionOptions, default);
+			await using var ctxt = new TestableTestAssemblyRunnerContext(TestAssembly, testCases, MessageSink, ExecutionOptions, Aggregator);
 			await ctxt.InitializeAsync();
 
 			return await OnTestAssemblyStarting(ctxt);
@@ -364,23 +450,28 @@ public static class TestAssemblyRunnerTests
 		public Action? OnTestAssemblyStarting__Lambda = null;
 		public bool OnTestAssemblyStarting__Result = true;
 
-		protected override async ValueTask<bool> OnTestAssemblyStarting(TestAssemblyRunnerContext<ITestAssembly, ITestCase> ctxt)
+		protected override async ValueTask<bool> OnTestAssemblyStarting(TestableTestAssemblyRunnerContext ctxt)
 		{
-			CancellationTokenSource = ctxt.CancellationTokenSource;
+			try
+			{
+				CancellationTokenSource = ctxt.CancellationTokenSource;
 
-			Invocations.Add("OnTestAssemblyStarting");
+				OnTestAssemblyStarting__Lambda?.Invoke();
 
-			OnTestAssemblyStarting__Lambda?.Invoke();
+				await base.OnTestAssemblyStarting(ctxt);
 
-			await base.OnTestAssemblyStarting(ctxt);
-
-			return OnTestAssemblyStarting__Result;
+				return OnTestAssemblyStarting__Result;
+			}
+			finally
+			{
+				Invocations.Add("OnTestAssemblyStarting");
+			}
 		}
 
 		public RunSummary RunTestCollectionAsync__Result = new();
 
 		protected override ValueTask<RunSummary> RunTestCollection(
-			TestAssemblyRunnerContext<ITestAssembly, ITestCase> ctxt,
+			TestableTestAssemblyRunnerContext ctxt,
 			ITestCollection testCollection,
 			IReadOnlyCollection<ITestCase> testCases)
 		{
@@ -391,7 +482,7 @@ public static class TestAssemblyRunnerTests
 
 		public async ValueTask<RunSummary> RunAsync()
 		{
-			await using var ctxt = new TestAssemblyRunnerContext<ITestAssembly, ITestCase>(TestAssembly, testCases, MessageSink, ExecutionOptions, default);
+			await using var ctxt = new TestableTestAssemblyRunnerContext(TestAssembly, testCases, MessageSink, ExecutionOptions, Aggregator);
 			await ctxt.InitializeAsync();
 
 			return await Run(ctxt);

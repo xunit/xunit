@@ -30,6 +30,20 @@ public abstract class TestCaseRunnerBase<TContext, TTestCase>
 	{ }
 
 	/// <summary>
+	/// This method is called when an exception was thrown by <see cref="OnTestCaseFinished"/>. By default, this
+	/// sends <see cref="ErrorMessage"/>.
+	/// </summary>
+	/// <remarks>
+	/// This method runs during <see cref="TestEngineStatus.CleaningUp"/>. It must never throw an exception.
+	/// </remarks>
+	/// <param name="ctxt">The context that describes the current test class</param>
+	/// <param name="exception">The exception that was thrown by <see cref="OnTestCaseFinished"/>.</param>
+	protected virtual ValueTask<bool> OnError(
+		TContext ctxt,
+		Exception exception) =>
+			new(Guard.ArgumentNotNull(ctxt).MessageBus.QueueMessage(ErrorMessage.FromException(exception)));
+
+	/// <summary>
 	/// This method is called when an exception was thrown while cleaning up, after the test
 	/// case has run. By default, this sends <see cref="TestCaseCleanupFailure"/>.
 	/// </summary>
@@ -71,18 +85,29 @@ public abstract class TestCaseRunnerBase<TContext, TTestCase>
 	/// </summary>
 	/// <remarks>
 	/// This method runs during <see cref="TestEngineStatus.CleaningUp"/> and any exceptions thrown will
-	/// contribute to test case cleanup failure.
+	/// be reported as top-level exceptions. Any exceptions that are present in the aggregator (presumably
+	/// from derived implementations of this method or <see cref="RunTestCase"/>) will invoke
+	/// <see cref="OnTestCaseCleanupFailure"/>.
 	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test case</param>
 	/// <param name="summary">The execution summary for the test case.</param>
 	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
-	protected virtual ValueTask<bool> OnTestCaseFinished(
+	protected virtual async ValueTask<bool> OnTestCaseFinished(
 		TContext ctxt,
 		RunSummary summary)
 	{
 		Guard.ArgumentNotNull(ctxt);
 
-		return new(ctxt.MessageBus.QueueMessage(new TestCaseFinished
+		if (ctxt.Aggregator.HasExceptions)
+		{
+			var exception = ctxt.Aggregator.ToException()!;
+			ctxt.Aggregator.Clear();
+
+			if (!await ctxt.Aggregator.RunAsync(() => OnTestCaseCleanupFailure(ctxt, exception), true))
+				ctxt.CancellationTokenSource.Cancel();
+		}
+
+		return ctxt.MessageBus.QueueMessage(new TestCaseFinished
 		{
 			AssemblyUniqueID = ctxt.TestCase.TestCollection.TestAssembly.UniqueID,
 			ExecutionTime = summary.Time,
@@ -94,7 +119,7 @@ public abstract class TestCaseRunnerBase<TContext, TTestCase>
 			TestsNotRun = summary.NotRun,
 			TestsSkipped = summary.Skipped,
 			TestsTotal = summary.Total,
-		}));
+		});
 	}
 
 	/// <summary>
@@ -167,18 +192,10 @@ public abstract class TestCaseRunnerBase<TContext, TTestCase>
 			ctxt.CancellationTokenSource.Cancel();
 
 		if (ctxt.Aggregator.HasExceptions)
-		{
-			var exception = ctxt.Aggregator.ToException()!;
-			ctxt.Aggregator.Clear();
-
-			if (!await ctxt.Aggregator.RunAsync(() => OnTestCaseCleanupFailure(ctxt, exception), true))
+			if (!await ctxt.Aggregator.RunAsync(() => OnError(ctxt, ctxt.Aggregator.ToException()!), true))
 				ctxt.CancellationTokenSource.Cancel();
 
-			if (ctxt.Aggregator.HasExceptions)
-				ctxt.MessageBus.QueueMessage(ErrorMessage.FromException(ctxt.Aggregator.ToException()!));
-
-			ctxt.Aggregator.Clear();
-		}
+		ctxt.Aggregator.Clear();
 
 		return summary;
 	}
@@ -186,6 +203,10 @@ public abstract class TestCaseRunnerBase<TContext, TTestCase>
 	/// <summary>
 	/// Override this to run the test case.
 	/// </summary>
+	/// <remarks>
+	/// This method runs during <see cref="TestEngineStatus.Running"/> and any exceptions thrown will
+	/// contribute to test case cleanup failure.
+	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test case</param>
 	/// <param name="exception">The exception that was caused during startup; should be used as an indicator that the
 	/// downstream tests should fail with the provided exception rather than going through standard execution</param>

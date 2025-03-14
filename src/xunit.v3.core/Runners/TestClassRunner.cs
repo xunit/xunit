@@ -71,6 +71,20 @@ public abstract class TestClassRunner<TContext, TTestClass, TTestMethod, TTestCa
 			));
 
 	/// <summary>
+	/// This method is called when an exception was thrown by <see cref="OnTestClassFinished"/>. By default, this
+	/// sends <see cref="ErrorMessage"/>.
+	/// </summary>
+	/// <remarks>
+	/// This method runs during <see cref="TestEngineStatus.CleaningUp"/>. It must never throw an exception.
+	/// </remarks>
+	/// <param name="ctxt">The context that describes the current test class</param>
+	/// <param name="exception">The exception that was thrown by <see cref="OnTestClassFinished"/>.</param>
+	protected virtual ValueTask<bool> OnError(
+		TContext ctxt,
+		Exception exception) =>
+			new(Guard.ArgumentNotNull(ctxt).MessageBus.QueueMessage(ErrorMessage.FromException(exception)));
+
+	/// <summary>
 	/// This method is called when an exception was thrown while cleaning up, after the test class
 	/// has run. By default, this sends <see cref="TestClassCleanupFailure"/>.
 	/// </summary>
@@ -110,18 +124,29 @@ public abstract class TestClassRunner<TContext, TTestClass, TTestMethod, TTestCa
 	/// </summary>
 	/// <remarks>
 	/// This method runs during <see cref="TestEngineStatus.CleaningUp"/> and any exceptions thrown will
-	/// contribute to test class cleanup failure.
+	/// be reported as top-level exceptions. Any exceptions that are present in the aggregator (presumably
+	/// from derived implementations of this method, <see cref="RunTestMethods"/>, or <see cref="RunTestMethod"/>)
+	/// will invoke <see cref="OnTestClassCleanupFailure"/>.
 	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test class</param>
 	/// <param name="summary">The execution summary for the test class</param>
 	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
-	protected virtual ValueTask<bool> OnTestClassFinished(
+	protected virtual async ValueTask<bool> OnTestClassFinished(
 		TContext ctxt,
 		RunSummary summary)
 	{
 		Guard.ArgumentNotNull(ctxt);
 
-		return new(ctxt.MessageBus.QueueMessage(new TestClassFinished
+		if (ctxt.Aggregator.HasExceptions)
+		{
+			var exception = ctxt.Aggregator.ToException()!;
+			ctxt.Aggregator.Clear();
+
+			if (!await ctxt.Aggregator.RunAsync(() => OnTestClassCleanupFailure(ctxt, exception), true))
+				ctxt.CancellationTokenSource.Cancel();
+		}
+
+		return ctxt.MessageBus.QueueMessage(new TestClassFinished
 		{
 			AssemblyUniqueID = ctxt.TestClass.TestCollection.TestAssembly.UniqueID,
 			ExecutionTime = summary.Time,
@@ -131,7 +156,7 @@ public abstract class TestClassRunner<TContext, TTestClass, TTestMethod, TTestCa
 			TestsNotRun = summary.NotRun,
 			TestsSkipped = summary.Skipped,
 			TestsTotal = summary.Total,
-		}));
+		});
 	}
 
 	/// <summary>
@@ -204,18 +229,10 @@ public abstract class TestClassRunner<TContext, TTestClass, TTestMethod, TTestCa
 			ctxt.CancellationTokenSource.Cancel();
 
 		if (ctxt.Aggregator.HasExceptions)
-		{
-			var exception = ctxt.Aggregator.ToException()!;
-			ctxt.Aggregator.Clear();
-
-			if (!await ctxt.Aggregator.RunAsync(() => OnTestClassCleanupFailure(ctxt, exception), true))
+			if (!await ctxt.Aggregator.RunAsync(() => OnError(ctxt, ctxt.Aggregator.ToException()!), true))
 				ctxt.CancellationTokenSource.Cancel();
 
-			if (ctxt.Aggregator.HasExceptions)
-				ctxt.MessageBus.QueueMessage(ErrorMessage.FromException(ctxt.Aggregator.ToException()!));
-
-			ctxt.Aggregator.Clear();
-		}
+		ctxt.Aggregator.Clear();
 
 		return summary;
 	}
@@ -224,6 +241,10 @@ public abstract class TestClassRunner<TContext, TTestClass, TTestMethod, TTestCa
 	/// Runs the list of test methods. By default, orders the tests, groups them by method
 	/// and runs them synchronously.
 	/// </summary>
+	/// <remarks>
+	/// This method runs during <see cref="TestEngineStatus.Running"/> and any exceptions thrown will
+	/// contribute to test class cleanup failure.
+	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test class</param>
 	/// <param name="exception">The exception that was caused during startup; should be used as an indicator that the
 	/// downstream tests should fail with the provided exception rather than going through standard execution</param>
@@ -271,6 +292,10 @@ public abstract class TestClassRunner<TContext, TTestClass, TTestMethod, TTestCa
 	/// <summary>
 	/// Override this method to run the tests in an individual test method.
 	/// </summary>
+	/// <remarks>
+	/// This method runs during <see cref="TestEngineStatus.Running"/> and any exceptions thrown will
+	/// contribute to test class cleanup failure.
+	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test class</param>
 	/// <param name="testMethod">The test method that contains the test cases. May be <c>null</c> for test cases that do not
 	/// support classes and methods.</param>

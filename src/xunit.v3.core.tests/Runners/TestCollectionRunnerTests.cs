@@ -12,6 +12,23 @@ public static class TestCollectionRunnerTests
 	public class Messages
 	{
 		[Fact]
+		public async ValueTask OnError()
+		{
+			var runner = new TestableTestCollectionRunner();
+			var ex = Record.Exception(ThrowException);
+
+			await runner.OnError(ex!);
+
+			var message = Assert.Single(runner.MessageBus.Messages);
+			var error = Assert.IsAssignableFrom<IErrorMessage>(message);
+
+			Assert.Equal(-1, error.ExceptionParentIndices.Single());
+			Assert.Equal(typeof(DivideByZeroException).FullName, error.ExceptionTypes.Single());
+			Assert.Equal("Attempted to divide by zero.", error.Messages.Single());
+			Assert.NotEmpty(error.StackTraces.Single()!);
+		}
+
+		[Fact]
 		public async ValueTask OnTestCollectionCleanupFailure()
 		{
 			var runner = new TestableTestCollectionRunner();
@@ -77,6 +94,69 @@ public static class TestCollectionRunnerTests
 	public class Cancellation
 	{
 		[Fact]
+		public static async ValueTask OnError()
+		{
+			var runner = new TestableTestCollectionRunner
+			{
+				OnError__Result = false,
+				OnTestCollectionFinished__Lambda = () => throw new DivideByZeroException(),
+			};
+
+			await runner.RunAsync();
+
+			Assert.True(runner.CancellationTokenSource.IsCancellationRequested);
+			Assert.False(runner.Aggregator.HasExceptions);
+			Assert.Equal(new[]
+			{
+				"OnTestCollectionStarting",
+				"RunTestClassAsync(testClass: 'test-class-name', testCases: ['test-case-display-name'])",
+				// OnTestCollectionCleanupFailure,
+				"OnTestCollectionFinished(summary: { Total = 0 })",
+				"OnError(exception: typeof(DivideByZeroException))",
+			}, runner.Invocations);
+		}
+
+		[Fact]
+		public static async ValueTask OnTestCollectionCleanupFailure()
+		{
+			// Need to record an exception into the aggregator for OnTestCollectionFinished to trigger OnTestCollectionCleanupFailure
+			var runner = new TestableTestCollectionRunner { OnTestCollectionCleanupFailure__Result = false };
+			runner.OnTestCollectionFinished__Lambda = () => runner.Aggregator.Add(new DivideByZeroException());
+
+			await runner.RunAsync();
+
+			Assert.True(runner.CancellationTokenSource.IsCancellationRequested);
+			Assert.False(runner.Aggregator.HasExceptions);
+			Assert.Equal(new[]
+			{
+				"OnTestCollectionStarting",
+				"RunTestClassAsync(testClass: 'test-class-name', testCases: ['test-case-display-name'])",
+				"OnTestCollectionCleanupFailure(exception: typeof(DivideByZeroException))",
+				"OnTestCollectionFinished(summary: { Total = 0 })",
+				// OnError
+			}, runner.Invocations);
+		}
+
+		[Fact]
+		public static async ValueTask OnTestCollectionFinished()
+		{
+			var runner = new TestableTestCollectionRunner { OnTestCollectionFinished__Result = false };
+
+			await runner.RunAsync();
+
+			Assert.True(runner.CancellationTokenSource.IsCancellationRequested);
+			Assert.False(runner.Aggregator.HasExceptions);
+			Assert.Equal(new[]
+			{
+				"OnTestCollectionStarting",
+				"RunTestClassAsync(testClass: 'test-class-name', testCases: ['test-case-display-name'])",
+				// OnTestCollectionCleanupFailure
+				"OnTestCollectionFinished(summary: { Total = 0 })",
+				// OnError
+			}, runner.Invocations);
+		}
+
+		[Fact]
 		public static async ValueTask OnTestCollectionStarting()
 		{
 			var summary = new RunSummary { Total = 9, Failed = 2, Skipped = 1, NotRun = 3, Time = 21.12m };
@@ -89,51 +169,14 @@ public static class TestCollectionRunnerTests
 			await runner.RunAsync();
 
 			Assert.True(runner.CancellationTokenSource.IsCancellationRequested);
+			Assert.False(runner.Aggregator.HasExceptions);
 			Assert.Equal(new[]
 			{
 				"OnTestCollectionStarting",
 				// RunTestClassAsync
-				"OnTestCollectionFinished(summary: { Total = 0 })",
 				// OnTestCollectionCleanupFailure
-			}, runner.Invocations);
-		}
-
-		[Fact]
-		public static async ValueTask OnTestCollectionFinished()
-		{
-			var runner = new TestableTestCollectionRunner { OnTestCollectionFinished__Result = false };
-
-			await runner.RunAsync();
-
-			Assert.True(runner.CancellationTokenSource.IsCancellationRequested);
-			Assert.Equal(new[]
-			{
-				"OnTestCollectionStarting",
-				"RunTestClassAsync(testClass: 'test-class-name', testCases: ['test-case-display-name'])",
 				"OnTestCollectionFinished(summary: { Total = 0 })",
-				// OnTestCollectionCleanupFailure
-			}, runner.Invocations);
-		}
-
-		[Fact]
-		public static async ValueTask OnTestCollectionCleanupFailure()
-		{
-			// Need to throw in OnTestCollectionFinished to get OnTestCollectionCleanupFailure to trigger
-			var runner = new TestableTestCollectionRunner
-			{
-				OnTestCollectionCleanupFailure__Result = false,
-				OnTestCollectionFinished__Lambda = () => throw new DivideByZeroException(),
-			};
-
-			await runner.RunAsync();
-
-			Assert.True(runner.CancellationTokenSource.IsCancellationRequested);
-			Assert.Equal(new[]
-			{
-				"OnTestCollectionStarting",
-				"RunTestClassAsync(testClass: 'test-class-name', testCases: ['test-case-display-name'])",
-				"OnTestCollectionFinished(summary: { Total = 0 })",
-				"OnTestCollectionCleanupFailure(exception: typeof(DivideByZeroException))",
+				// OnError
 			}, runner.Invocations);
 		}
 	}
@@ -150,12 +193,14 @@ public static class TestCollectionRunnerTests
 
 			Assert.Equal(summary, result);
 			Assert.False(runner.CancellationTokenSource.IsCancellationRequested);
+			Assert.False(runner.Aggregator.HasExceptions);
 			Assert.Equal(new[]
 			{
 				"OnTestCollectionStarting",
 				"RunTestClassAsync(testClass: 'test-class-name', testCases: ['test-case-display-name'])",
-				"OnTestCollectionFinished(summary: { Total = 9, Failed = 2, Skipped = 1, NotRun = 3, Time = 21.12 })",
 				// OnTestCollectionCleanupFailure
+				"OnTestCollectionFinished(summary: { Total = 9, Failed = 2, Skipped = 1, NotRun = 3, Time = 21.12 })",
+				// OnError
 			}, runner.Invocations);
 		}
 
@@ -167,12 +212,14 @@ public static class TestCollectionRunnerTests
 			await runner.RunAsync();
 
 			Assert.False(runner.CancellationTokenSource.IsCancellationRequested);
+			Assert.False(runner.Aggregator.HasExceptions);
 			Assert.Equal(new[]
 			{
 				"OnTestCollectionStarting",
 				"FailTestClass(testClass: 'test-class-name', testCases: ['test-case-display-name'], exception: typeof(DivideByZeroException))",
-				"OnTestCollectionFinished(summary: { Total = 0 })",
 				// OnTestCollectionCleanupFailure
+				"OnTestCollectionFinished(summary: { Total = 0 })",
+				// OnError
 			}, runner.Invocations);
 		}
 
@@ -184,47 +231,36 @@ public static class TestCollectionRunnerTests
 			await runner.RunAsync();
 
 			Assert.False(runner.CancellationTokenSource.IsCancellationRequested);
+			Assert.False(runner.Aggregator.HasExceptions);
 			Assert.Equal(new[]
 			{
 				"OnTestCollectionStarting",
 				"RunTestClassAsync(testClass: 'test-class-name', testCases: ['test-case-display-name'])",
+				// OnTestCollectionCleanupFailure
 				"OnTestCollectionFinished(summary: { Total = 0 })",
-				"OnTestCollectionCleanupFailure(exception: typeof(DivideByZeroException))",
+				"OnError(exception: typeof(DivideByZeroException))",
 			}, runner.Invocations);
 		}
 
 		[Fact]
 		public static async ValueTask OnTestCollectionCleanupFailure()
 		{
-			// Need to throw in OnTestCollectionFinished to get OnTestCollectionCleanupFailure to trigger
-			var runner = new TestableTestCollectionRunner
-			{
-				OnTestCollectionCleanupFailure__Lambda = () => throw new DivideByZeroException(),
-				OnTestCollectionFinished__Lambda = () => throw new ArgumentException(),
-			};
+			// Need to record an exception into the aggregator for OnTestCollectionFinished to trigger OnTestCollectionCleanupFailure
+			var runner = new TestableTestCollectionRunner { OnTestCollectionCleanupFailure__Lambda = () => throw new DivideByZeroException() };
+			runner.OnTestCollectionFinished__Lambda = () => runner.Aggregator.Add(new ArgumentException());
 
 			await runner.RunAsync();
 
 			Assert.False(runner.CancellationTokenSource.IsCancellationRequested);
+			Assert.False(runner.Aggregator.HasExceptions);
 			Assert.Equal(new[]
 			{
 				"OnTestCollectionStarting",
 				"RunTestClassAsync(testClass: 'test-class-name', testCases: ['test-case-display-name'])",
-				"OnTestCollectionFinished(summary: { Total = 0 })",
 				"OnTestCollectionCleanupFailure(exception: typeof(ArgumentException))",
+				"OnTestCollectionFinished(summary: { Total = 0 })",
+				"OnError(exception: typeof(DivideByZeroException))",
 			}, runner.Invocations);
-			Assert.Collection(
-				runner.MessageBus.Messages,
-				message => Assert.IsAssignableFrom<ITestCollectionStarting>(message),
-				message =>
-				{
-					var errorMessage = Assert.IsAssignableFrom<IErrorMessage>(message);
-					Assert.Equal(new[] { -1 }, errorMessage.ExceptionParentIndices);
-					Assert.Equal(new[] { "System.DivideByZeroException" }, errorMessage.ExceptionTypes);
-					Assert.Equal(new[] { "Attempted to divide by zero." }, errorMessage.Messages);
-					Assert.NotEmpty(errorMessage.StackTraces.Single()!);
-				}
-			);
 		}
 	}
 
@@ -254,6 +290,32 @@ public static class TestCollectionRunnerTests
 			return new(FailTestClass__Result);
 		}
 
+		public async ValueTask<bool> OnError(Exception exception)
+		{
+			await using var ctxt = new TestCollectionRunnerContext<ITestCollection, ITestCase>(testCollection, testCases, ExplicitOption.Off, MessageBus, Aggregator, CancellationTokenSource);
+			await ctxt.InitializeAsync();
+
+			return await OnError(ctxt, exception);
+		}
+
+		public bool OnError__Result = true;
+
+		protected override async ValueTask<bool> OnError(
+			TestCollectionRunnerContext<ITestCollection, ITestCase> ctxt,
+			Exception exception)
+		{
+			try
+			{
+				await base.OnError(ctxt, exception);
+
+				return OnError__Result;
+			}
+			finally
+			{
+				Invocations.Add($"OnError(exception: {TypeName(exception)})");
+			}
+		}
+
 		public Action? OnTestCollectionCleanupFailure__Lambda = null;
 		public bool OnTestCollectionCleanupFailure__Result = true;
 
@@ -269,13 +331,18 @@ public static class TestCollectionRunnerTests
 			TestCollectionRunnerContext<ITestCollection, ITestCase> ctxt,
 			Exception exception)
 		{
-			Invocations.Add($"OnTestCollectionCleanupFailure(exception: typeof({ArgumentFormatter.FormatTypeName(exception.GetType())}))");
+			try
+			{
+				OnTestCollectionCleanupFailure__Lambda?.Invoke();
 
-			OnTestCollectionCleanupFailure__Lambda?.Invoke();
+				await base.OnTestCollectionCleanupFailure(ctxt, exception);
 
-			await base.OnTestCollectionCleanupFailure(ctxt, exception);
-
-			return OnTestCollectionCleanupFailure__Result;
+				return OnTestCollectionCleanupFailure__Result;
+			}
+			finally
+			{
+				Invocations.Add($"OnTestCollectionCleanupFailure(exception: typeof({ArgumentFormatter.FormatTypeName(exception.GetType())}))");
+			}
 		}
 
 		public async ValueTask<bool> OnTestCollectionFinished(RunSummary summary)
@@ -293,13 +360,18 @@ public static class TestCollectionRunnerTests
 			TestCollectionRunnerContext<ITestCollection, ITestCase> ctxt,
 			RunSummary summary)
 		{
-			Invocations.Add($"OnTestCollectionFinished(summary: {ArgumentFormatter.Format(summary)})");
+			try
+			{
+				OnTestCollectionFinished__Lambda?.Invoke();
 
-			OnTestCollectionFinished__Lambda?.Invoke();
+				await base.OnTestCollectionFinished(ctxt, summary);
 
-			await base.OnTestCollectionFinished(ctxt, summary);
-
-			return OnTestCollectionFinished__Result;
+				return OnTestCollectionFinished__Result;
+			}
+			finally
+			{
+				Invocations.Add($"OnTestCollectionFinished(summary: {ArgumentFormatter.Format(summary)})");
+			}
 		}
 
 		public async ValueTask<bool> OnTestCollectionStarting()
@@ -315,13 +387,18 @@ public static class TestCollectionRunnerTests
 
 		protected override async ValueTask<bool> OnTestCollectionStarting(TestCollectionRunnerContext<ITestCollection, ITestCase> ctxt)
 		{
-			Invocations.Add("OnTestCollectionStarting");
+			try
+			{
+				OnTestCollectionStarting__Lambda?.Invoke();
 
-			OnTestCollectionStarting__Lambda?.Invoke();
+				await base.OnTestCollectionStarting(ctxt);
 
-			await base.OnTestCollectionStarting(ctxt);
-
-			return OnTestCollectionStarting__Result;
+				return OnTestCollectionStarting__Result;
+			}
+			finally
+			{
+				Invocations.Add("OnTestCollectionStarting");
+			}
 		}
 
 		public RunSummary RunTestClassAsync__Result = new();

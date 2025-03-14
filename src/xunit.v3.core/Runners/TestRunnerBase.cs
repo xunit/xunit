@@ -68,8 +68,22 @@ public abstract class TestRunnerBase<TContext, TTest>
 		new(default(string[]));
 
 	/// <summary>
+	/// This method is called when an exception was thrown by <see cref="OnTestFinished"/>. By default, this
+	/// sends <see cref="ErrorMessage"/>.
+	/// </summary>
+	/// <remarks>
+	/// This method runs during <see cref="TestEngineStatus.CleaningUp"/>. It must never throw an exception.
+	/// </remarks>
+	/// <param name="ctxt">The context that describes the current test class</param>
+	/// <param name="exception">The exception that was thrown by <see cref="OnTestFinished"/>.</param>
+	protected virtual ValueTask<bool> OnError(
+		TContext ctxt,
+		Exception exception) =>
+			new(Guard.ArgumentNotNull(ctxt).MessageBus.QueueMessage(ErrorMessage.FromException(exception)));
+
+	/// <summary>
 	/// This method is called when an exception was thrown while cleaning up, after the test has run.
-	/// By default, this sends (like <see cref="TestCleanupFailure"/>).
+	/// By default, this sends <see cref="TestCleanupFailure"/>.
 	/// </summary>
 	/// <remarks>
 	/// This method runs during <see cref="TestEngineStatus.CleaningUp"/> and any exceptions thrown are
@@ -108,7 +122,7 @@ public abstract class TestRunnerBase<TContext, TTest>
 	/// This method is called when a test has failed. By default, this sends <see cref="TestFailed"/>.
 	/// </summary>
 	/// <remarks>
-	/// This method runs during <see cref="TestEngineStatus.CleaningUp"/> and any exceptions thrown will
+	/// This method runs during <see cref="TestEngineStatus.Running"/> and any exceptions thrown will
 	/// contribute to test cleanup failure.
 	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test</param>
@@ -156,8 +170,10 @@ public abstract class TestRunnerBase<TContext, TTest>
 	/// finish.
 	/// </summary>
 	/// <remarks>
-	/// This method runs during <see cref="TestEngineStatus.CleaningUp"/> and any exceptions thrown will
-	/// contribute to test cleanup failure.
+	/// This method runs during <see cref="TestEngineStatus.Running"/> and any exceptions thrown will
+	/// be reported as top-level exceptions. Any exceptions that are present in the aggregator (presumably
+	/// from derived implementations of this method, <see cref="GetAttachments"/>, <see cref="GetTestOutput"/>,
+	/// <see cref="GetWarnings"/>, or <see cref="RunTest"/>) will invoke <see cref="OnTestCleanupFailure"/>.
 	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test</param>
 	/// <param name="executionTime">The time spent running the test</param>
@@ -165,7 +181,7 @@ public abstract class TestRunnerBase<TContext, TTest>
 	/// <param name="warnings">The warnings that were generated during the test</param>
 	/// <param name="attachments">The attachments that were assocated with the test</param>
 	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
-	protected virtual ValueTask<bool> OnTestFinished(
+	protected virtual async ValueTask<bool> OnTestFinished(
 		TContext ctxt,
 		decimal executionTime,
 		string output,
@@ -173,6 +189,15 @@ public abstract class TestRunnerBase<TContext, TTest>
 		IReadOnlyDictionary<string, TestAttachment>? attachments)
 	{
 		Guard.ArgumentNotNull(ctxt);
+
+		if (ctxt.Aggregator.HasExceptions)
+		{
+			var exception = ctxt.Aggregator.ToException()!;
+			ctxt.Aggregator.Clear();
+
+			if (!await ctxt.Aggregator.RunAsync(() => OnTestCleanupFailure(ctxt, exception), true))
+				ctxt.CancellationTokenSource.Cancel();
+		}
 
 		var result = ctxt.MessageBus.QueueMessage(new TestFinished
 		{
@@ -189,16 +214,16 @@ public abstract class TestRunnerBase<TContext, TTest>
 			Warnings = warnings,
 		});
 
-		(TestContext.Current.TestOutputHelper as TestOutputHelper)?.Uninitialize();
+		ctxt.Aggregator.Run(() => (TestContext.Current.TestOutputHelper as TestOutputHelper)?.Uninitialize());
 
-		return new(result);
+		return result;
 	}
 
 	/// <summary>
 	/// This method is called when a test was not run. By default, this sends <see cref="TestNotRun"/>.
 	/// </summary>
 	/// <remarks>
-	/// This method runs during <see cref="TestEngineStatus.CleaningUp"/> and any exceptions thrown will
+	/// This method runs during <see cref="TestEngineStatus.Running"/> and any exceptions thrown will
 	/// contribute to test cleanup failure.
 	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test</param>
@@ -233,7 +258,7 @@ public abstract class TestRunnerBase<TContext, TTest>
 	/// This method is called when a test has passed. By default, this sends <see cref="TestPassed"/>.
 	/// </summary>
 	/// <remarks>
-	/// This method runs during <see cref="TestEngineStatus.CleaningUp"/> and any exceptions thrown will
+	/// This method runs during <see cref="TestEngineStatus.Running"/> and any exceptions thrown will
 	/// contribute to test cleanup failure.
 	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test</param>
@@ -270,7 +295,7 @@ public abstract class TestRunnerBase<TContext, TTest>
 	/// This method is called when a test is skipped. By default, this sends <see cref="TestSkipped"/>.
 	/// </summary>
 	/// <remarks>
-	/// This method runs during <see cref="TestEngineStatus.CleaningUp"/> and any exceptions thrown will
+	/// This method runs during <see cref="TestEngineStatus.Running"/> and any exceptions thrown will
 	/// contribute to test cleanup failure.
 	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test</param>
@@ -335,7 +360,7 @@ public abstract class TestRunnerBase<TContext, TTest>
 	{
 		Guard.ArgumentNotNull(ctxt);
 
-		(TestContext.Current.TestOutputHelper as TestOutputHelper)?.Initialize(ctxt.MessageBus, ctxt.Test);
+		ctxt.Aggregator.Run(() => (TestContext.Current.TestOutputHelper as TestOutputHelper)?.Initialize(ctxt.MessageBus, ctxt.Test));
 
 		return new(ctxt.MessageBus.QueueMessage(new TestStarting
 		{
@@ -438,18 +463,10 @@ public abstract class TestRunnerBase<TContext, TTest>
 			ctxt.CancellationTokenSource.Cancel();
 
 		if (ctxt.Aggregator.HasExceptions)
-		{
-			var exception = ctxt.Aggregator.ToException()!;
-			ctxt.Aggregator.Clear();
-
-			if (!await ctxt.Aggregator.RunAsync(() => OnTestCleanupFailure(ctxt, exception), true))
+			if (!await ctxt.Aggregator.RunAsync(() => OnError(ctxt, ctxt.Aggregator.ToException()!), true))
 				ctxt.CancellationTokenSource.Cancel();
 
-			if (ctxt.Aggregator.HasExceptions)
-				ctxt.MessageBus.QueueMessage(ErrorMessage.FromException(ctxt.Aggregator.ToException()!));
-
-			ctxt.Aggregator.Clear();
-		}
+		ctxt.Aggregator.Clear();
 
 		return summary;
 	}
@@ -457,6 +474,10 @@ public abstract class TestRunnerBase<TContext, TTest>
 	/// <summary>
 	/// Override this method to run the test.
 	/// </summary>
+	/// <remarks>
+	/// This method runs during <see cref="TestEngineStatus.Running"/> and any exceptions thrown will
+	/// contribute to test failure.
+	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test</param>
 	protected abstract ValueTask<TimeSpan> RunTest(TContext ctxt);
 
