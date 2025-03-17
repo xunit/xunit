@@ -11,6 +11,7 @@ using Microsoft.Testing.Platform.Extensions.Messages;
 using Microsoft.Testing.Platform.Messages;
 using Microsoft.Testing.Platform.OutputDevice;
 using Microsoft.Testing.Platform.TestHost;
+using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
 
@@ -42,6 +43,12 @@ public class TestPlatformExecutionMessageSink(
 
 	readonly MessageMetadataCache metadataCache = new();
 	readonly ConcurrentDictionary<string, TestNode> testNodesByTestID = [];
+	readonly ConcurrentDictionary<string, ConcurrentBag<ITestStarting>> testsByAssemblyID = [];
+	readonly ConcurrentDictionary<string, ConcurrentBag<ITestStarting>> testsByCaseID = [];
+	readonly ConcurrentDictionary<string, ConcurrentBag<ITestStarting>> testsByClassID = [];
+	readonly ConcurrentDictionary<string, ConcurrentBag<ITestStarting>> testsByCollectionID = [];
+	readonly ConcurrentDictionary<string, ConcurrentBag<ITestStarting>> testsByMethodID = [];
+	readonly ConcurrentDictionary<string, ITestStarting> testsByTestID = [];
 
 	/// <inheritdoc/>
 	public Type[] DataTypesProduced =>
@@ -53,32 +60,74 @@ public class TestPlatformExecutionMessageSink(
 		var result = innerSink.OnMessage(message);
 
 		return
+			message.DispatchWhen<ITestAssemblyCleanupFailure>(args => OnTestAssemblyCleanupFailure(args.Message)) &&
 			message.DispatchWhen<ITestAssemblyFinished>(args => metadataCache.TryRemove(args.Message)) &&
 			message.DispatchWhen<ITestAssemblyStarting>(args => metadataCache.Set(args.Message)) &&
+			message.DispatchWhen<ITestCaseCleanupFailure>(args => OnTestCaseCleanupFailure(args.Message)) &&
 			message.DispatchWhen<ITestCaseFinished>(args => metadataCache.TryRemove(args.Message)) &&
 			message.DispatchWhen<ITestCaseStarting>(args => metadataCache.Set(args.Message)) &&
+			message.DispatchWhen<ITestClassCleanupFailure>(args => OnTestClassCleanupFailure(args.Message)) &&
+			message.DispatchWhen<ITestClassFinished>(args => metadataCache.TryRemove(args.Message)) &&
+			message.DispatchWhen<ITestClassStarting>(args => metadataCache.Set(args.Message)) &&
+			message.DispatchWhen<ITestCleanupFailure>(args => OnTestCleanupFailure(args.Message)) &&
+			message.DispatchWhen<ITestCollectionCleanupFailure>(args => OnTestCollectionCleanupFailure(args.Message)) &&
+			message.DispatchWhen<ITestCollectionFinished>(args => metadataCache.TryRemove(args.Message)) &&
+			message.DispatchWhen<ITestCollectionStarting>(args => metadataCache.Set(args.Message)) &&
 			message.DispatchWhen<ITestFailed>(args => SendTestResult(args.Message)) &&
 			message.DispatchWhen<ITestFinished>(args => OnTestFinished(args.Message)) &&
+			message.DispatchWhen<ITestMethodCleanupFailure>(args => OnTestMethodCleanupFailure(args.Message)) &&
+			message.DispatchWhen<ITestMethodFinished>(args => metadataCache.TryRemove(args.Message)) &&
+			message.DispatchWhen<ITestMethodStarting>(args => metadataCache.Set(args.Message)) &&
 			// We don't report anything for ITestNotRun, because we don't want to alter the user's expectations
 			// of what happens for not run tests in Test Explorer. We want them to stay marked as "not run" (or
 			// show their previous run value but not be highlighted as "run this time").
 			message.DispatchWhen<ITestPassed>(args => SendTestResult(args.Message)) &&
 			message.DispatchWhen<ITestSkipped>(args => SendTestResult(args.Message)) &&
-			message.DispatchWhen<ITestStarting>(args => SendTestResult(args.Message)) &&
-			message.DispatchWhen<ITestOutput>(OnLiveOutput) &&
+			message.DispatchWhen<ITestStarting>(args => OnTestStarting(args.Message)) &&
+			message.DispatchWhen<ITestOutput>(args => OnLiveOutput(args.Message)) &&
 			result &&
 			!cancellationToken.IsCancellationRequested;
 	}
 
-	void OnLiveOutput(MessageHandlerArgs<ITestOutput> args)
+	void OnLiveOutput(ITestOutput testOutput)
 	{
 		if (!showLiveOutput)
 			return;
 
-		var testOutput = args.Message;
 		var testMetadata = metadataCache.TryGetTestMetadata(testOutput);
 
 		outputDevice.DisplayAsync(this, ToMessageWithColor(string.Format(CultureInfo.CurrentCulture, "OUTPUT: [{0}] {1}", testMetadata?.TestDisplayName ?? "<unknown test>", testOutput.Output.TrimEnd()), ConsoleColor.DarkGray)).SpinWait();
+	}
+
+	void OnTestAssemblyCleanupFailure(ITestAssemblyCleanupFailure failure)
+	{
+		if (testsByAssemblyID.TryGetValue(failure.AssemblyUniqueID, out var tests))
+			SendError("Test Assembly Cleanup Failure", tests, failure);
+	}
+
+	void OnTestCaseCleanupFailure(ITestCaseCleanupFailure failure)
+	{
+		if (testsByCaseID.TryGetValue(failure.TestCaseUniqueID, out var tests))
+			SendError("Test Case Cleanup Failure", tests, failure);
+	}
+
+	void OnTestClassCleanupFailure(ITestClassCleanupFailure failure)
+	{
+		if (failure.TestClassUniqueID is not null)
+			if (testsByClassID.TryGetValue(failure.TestClassUniqueID, out var tests))
+				SendError("Test Class Cleanup Failure", tests, failure);
+	}
+
+	void OnTestCleanupFailure(ITestCleanupFailure failure)
+	{
+		if (testsByTestID.TryGetValue(failure.TestUniqueID, out var test))
+			SendError("Test Cleanup Failure", [test], failure);
+	}
+
+	void OnTestCollectionCleanupFailure(ITestCollectionCleanupFailure failure)
+	{
+		if (testsByCollectionID.TryGetValue(failure.TestCollectionUniqueID, out var tests))
+			SendError("Test Collection Cleanup Failure", tests, failure);
 	}
 
 	void OnTestFinished(ITestFinished testFinished)
@@ -135,6 +184,27 @@ public class TestPlatformExecutionMessageSink(
 		metadataCache.TryRemove(testFinished);
 	}
 
+	void OnTestMethodCleanupFailure(ITestMethodCleanupFailure failure)
+	{
+		if (failure.TestMethodUniqueID is not null)
+			if (testsByMethodID.TryGetValue(failure.TestMethodUniqueID, out var tests))
+				SendError("Test Method Cleanup Failure", tests, failure);
+	}
+
+	void OnTestStarting(ITestStarting testStarting)
+	{
+		testsByAssemblyID.TryAdd(testStarting.AssemblyUniqueID, testStarting);
+		testsByCaseID.TryAdd(testStarting.TestCaseUniqueID, testStarting);
+		if (testStarting.TestClassUniqueID is not null)
+			testsByClassID.TryAdd(testStarting.TestClassUniqueID, testStarting);
+		testsByCollectionID.TryAdd(testStarting.TestCollectionUniqueID, testStarting);
+		if (testStarting.TestMethodUniqueID is not null)
+			testsByMethodID.TryAdd(testStarting.TestMethodUniqueID, testStarting);
+		testsByTestID.TryAdd(testStarting.TestUniqueID, testStarting);
+
+		SendTestResult(testStarting);
+	}
+
 	static string SanitizeFileName(string fileName)
 	{
 		var result = new StringBuilder(fileName.Length);
@@ -146,6 +216,21 @@ public class TestPlatformExecutionMessageSink(
 				result.Append(c);
 
 		return result.ToString();
+	}
+
+	void SendError(
+		string errorType,
+		IReadOnlyCollection<ITestStarting> tests,
+		IErrorMetadata errorMetadata)
+	{
+		var exception = new XunitException(errorMetadata);
+
+		foreach (var test in tests)
+		{
+			var errorNode = new TestNode { Uid = test.TestCaseUniqueID, DisplayName = $"[{errorType} ({test.TestDisplayName})]" };
+			errorNode.Properties.Add(new ErrorTestNodeStateProperty(exception));
+			errorNode.SendUpdate(this, sessionUid, testNodeMessageBus);
+		}
 	}
 
 	void SendTestResult(ITestMessage testMessage)

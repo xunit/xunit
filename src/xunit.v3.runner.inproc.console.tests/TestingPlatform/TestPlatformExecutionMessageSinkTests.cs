@@ -43,6 +43,61 @@ public class TestPlatformExecutionMessageSinkTests
 
 	public class MessageMapping
 	{
+		[Fact]
+		public void ITestAssemblyCleanupFailure()
+		{
+			var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+			SendStartingMessages(classUnderTest);
+
+			classUnderTest.OnMessage(TestData.TestAssemblyCleanupFailure());
+
+			AssertCleanupFailure(classUnderTest, "Test Assembly");
+		}
+
+		[Fact]
+		public void ITestCaseCleanupFailure()
+		{
+			var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+			SendStartingMessages(classUnderTest);
+
+			classUnderTest.OnMessage(TestData.TestCaseCleanupFailure());
+
+			AssertCleanupFailure(classUnderTest, "Test Case");
+		}
+
+		[Fact]
+		public void ITestClassCleanupFailure()
+		{
+			var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+			SendStartingMessages(classUnderTest);
+
+			classUnderTest.OnMessage(TestData.TestClassCleanupFailure());
+
+			AssertCleanupFailure(classUnderTest, "Test Class");
+		}
+
+		[Fact]
+		public void ITestCleanupFailure()
+		{
+			var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+			SendStartingMessages(classUnderTest);
+
+			classUnderTest.OnMessage(TestData.TestCleanupFailure());
+
+			AssertCleanupFailure(classUnderTest, "Test");
+		}
+
+		[Fact]
+		public void ITestCollectionCleanupFailure()
+		{
+			var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+			SendStartingMessages(classUnderTest);
+
+			classUnderTest.OnMessage(TestData.TestCollectionCleanupFailure());
+
+			AssertCleanupFailure(classUnderTest, "Test Collection");
+		}
+
 		[Theory]
 		[InlineData(false)]
 		[InlineData(true)]
@@ -94,6 +149,17 @@ public class TestPlatformExecutionMessageSinkTests
 			Assert.NotNull(error.Exception);
 			Assert.Equal($"exception 1 : message 1{Environment.NewLine}---- exception 2 : message 2", error.Exception.Message);
 			Assert.Equal($"stack trace 1{Environment.NewLine}----- Inner Stack Trace -----{Environment.NewLine}stack trace 2", error.Exception.StackTrace);
+		}
+
+		[Fact]
+		public void ITestMethodCleanupFailure()
+		{
+			var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+			SendStartingMessages(classUnderTest);
+
+			classUnderTest.OnMessage(TestData.TestMethodCleanupFailure());
+
+			AssertCleanupFailure(classUnderTest, "Test Method");
 		}
 
 		[Fact]
@@ -181,6 +247,19 @@ public class TestPlatformExecutionMessageSinkTests
 			AssertStandardMetadata(classUnderTest, expectWarnings: true);
 		}
 
+		static void AssertCleanupFailure(
+			TestableTestPlatformExecutionMessageSink classUnderTest,
+			string cleanupType)
+		{
+			var testNode = GetTestNode(classUnderTest);
+			Assert.Equal($"[{cleanupType} Cleanup Failure (test-display-name)]", testNode.DisplayName);
+			var error = testNode.Properties.Single<ErrorTestNodeStateProperty>();
+			Assert.Equal($"{TestData.DefaultExceptionTypes[0]} : {TestData.DefaultExceptionMessages[0]}", error.Explanation);
+			Assert.NotNull(error.Exception);
+			Assert.Equal($"{TestData.DefaultExceptionTypes[0]} : {TestData.DefaultExceptionMessages[0]}", error.Exception.Message);
+			Assert.Equal(TestData.DefaultStackTraces[0], error.Exception.StackTrace);
+		}
+
 		static void AssertColorOutput(
 			IOutputDeviceData data,
 			string expectedMessage,
@@ -199,10 +278,7 @@ public class TestPlatformExecutionMessageSinkTests
 			bool expectTrx = false,
 			bool failure = false)
 		{
-			var message = Assert.Single(classUnderTest.TestNodeMessageBus.PublishedData);
-			var updateMessage = Assert.IsType<TestNodeUpdateMessage>(message);
-
-			var testNode = updateMessage.TestNode;
+			var testNode = GetTestNode(classUnderTest);
 			Assert.Equal(TestData.DefaultTestDisplayName, testNode.DisplayName);
 			Assert.Equal(TestData.DefaultTestCaseUniqueID, testNode.Uid.Value);
 
@@ -280,6 +356,14 @@ public class TestPlatformExecutionMessageSinkTests
 			}
 
 			return testNode;
+		}
+
+		static TestNode GetTestNode(TestableTestPlatformExecutionMessageSink classUnderTest)
+		{
+			var message = Assert.Single(classUnderTest.TestNodeMessageBus.PublishedData);
+			var updateMessage = Assert.IsType<TestNodeUpdateMessage>(message);
+
+			return updateMessage.TestNode;
 		}
 
 		static void SendStartingMessages(

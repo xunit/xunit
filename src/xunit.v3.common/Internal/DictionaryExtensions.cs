@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -106,4 +107,17 @@ public static class DictionaryExtensions
 					kvp => new HashSet<TValue>(kvp.Value),
 					comparer
 				);
+
+	/// <summary/>
+	public static void TryAdd<TKey, TValue>(
+		this ConcurrentDictionary<TKey, ConcurrentBag<TValue>> dictionary,
+		TKey key,
+		TValue value)
+			where TKey : notnull
+	{
+		Guard.ArgumentNotNull(dictionary);
+
+		var bag = dictionary.GetOrAdd(key, _ => []);
+		bag.Add(value);
+	}
 }
