@@ -7,7 +7,7 @@
     <Title>xUnit.net v3 [Assertion Library]</Title>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' != '.NETCoreApp' ">
     <PackageReference Include="System.Collections.Immutable" Version="[$(SystemCollectionsImmutableVersion)]" />
     <PackageReference Include="System.Memory" Version="[$(SystemMemoryVersion)]" />
   </ItemGroup>
