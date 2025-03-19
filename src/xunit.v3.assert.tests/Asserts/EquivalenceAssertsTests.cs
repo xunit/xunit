@@ -2007,6 +2007,46 @@ public class EquivalenceAssertsTests
 
 #endif
 
+	public sealed class ClassWithNewOverrides
+	{
+		[Fact]
+		public void ExpectedOverridden()
+		{
+			var expected = new DerivedClass { ID = "123" };
+			var actual = new BaseClass { ID = "123" };
+
+			Assert.Equivalent(expected, actual);
+		}
+
+		[Fact]
+		public void ActualOverridden()
+		{
+			var expected = new BaseClass { ID = "123" };
+			var actual = new DerivedClass { ID = "123" };
+
+			Assert.Equivalent(expected, actual);
+		}
+
+		[Fact]
+		public void BothPropertiesOverridden()
+		{
+			var expected = new DerivedClass { ID = "123" };
+			var actual = new DerivedClass { ID = "123" };
+
+			Assert.Equivalent(expected, actual);
+		}
+
+		public class BaseClass
+		{
+			public object? ID { get; set; }
+		}
+
+		public class DerivedClass : BaseClass
+		{
+			public new string? ID { get; set; }
+		}
+	}
+
 	class ShallowClass
 	{
 		public static int StaticValue { get; set; }
