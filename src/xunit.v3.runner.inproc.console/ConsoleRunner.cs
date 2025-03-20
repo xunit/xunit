@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -328,23 +327,16 @@ public class ConsoleRunner(
 	void PrintAssemblyInfo()
 	{
 		var testFramework = ExtensibilityPointFactory.GetTestFramework(testAssembly);
-
-		var buffer = new StringBuilder();
-		using (var serializer = new JsonObjectSerializer(buffer))
-		{
-			serializer.Serialize("arch-os", RuntimeInformation.OSArchitecture);
-			serializer.Serialize("arch-process", RuntimeInformation.ProcessArchitecture);
+		var assemblyInfo = new TestAssemblyInfo(
 			// Technically these next two are the versions of xunit.v3.runner.inproc.console and not xunit.v3.core; however,
 			// since they're all compiled and versioned together, we'll take the path of least resistance.
-			serializer.Serialize("core-framework", ThisAssembly.AssemblyVersion);
-			serializer.Serialize("core-framework-informational", ThisAssembly.AssemblyInformationalVersion);
-			serializer.Serialize("pointer-size", IntPtr.Size * 8);
-			serializer.Serialize("runtime-framework", RuntimeInformation.FrameworkDescription);
-			serializer.Serialize("target-framework", testAssembly.GetTargetFramework());
-			serializer.Serialize("test-framework", testFramework.TestFrameworkDisplayName);
-		}
+			coreFramework: new Version(ThisAssembly.AssemblyVersion),
+			coreFrameworkInformational: ThisAssembly.AssemblyInformationalVersion,
+			targetFramework: testAssembly.GetTargetFramework(),
+			testFramework: testFramework.TestFrameworkDisplayName
+		);
 
-		consoleHelper.WriteLine(buffer.ToString());
+		consoleHelper.WriteLine(assemblyInfo.ToJson());
 	}
 
 	/// <summary>

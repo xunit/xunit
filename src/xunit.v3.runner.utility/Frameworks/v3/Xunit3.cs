@@ -22,6 +22,7 @@ public class Xunit3 : IFrontController
 	readonly IMessageSink? diagnosticMessageSink;
 	readonly XunitProjectAssembly projectAssembly;
 	readonly ISourceInformationProvider? sourceInformationProvider;
+	readonly TestAssemblyInfo testAssemblyInfo;
 	readonly ITestProcessLauncher testProcessLauncher;
 
 	Xunit3(
@@ -40,23 +41,15 @@ public class Xunit3 : IFrontController
 			throw new InvalidOperationException("Test process did not respond within 60 seconds");
 
 		var output = process.StandardOutput.ReadToEnd().Trim(' ', '\r', '\n');
-		if (!JsonDeserializer.TryDeserialize(output, out var json))
-			throw new InvalidOperationException("Test process terminated unexpectedly." + (output.Length > 0 ? (" Output:" + Environment.NewLine + output) : string.Empty));
-		if (json is not Dictionary<string, object?> root)
-			throw new InvalidOperationException("Test process did not return valid JSON (non-object). Output:" + Environment.NewLine + output);
-		if (!root.TryGetValue("core-framework", out var coreFrameworkObject) || coreFrameworkObject is not string coreFrameworkString || !Version.TryParse(coreFrameworkString, out var coreFramework))
-			throw new InvalidOperationException("Test process did not return valid JSON ('core-framework' is missing or malformed). Output:" + Environment.NewLine + output);
-		if (!root.TryGetValue("core-framework-informational", out var coreFrameworkInformationalObject) || coreFrameworkInformationalObject is not string coreFrameworkInformational)
-			throw new InvalidOperationException("Test process did not return valid JSON ('core-framework-informational' is missing). Output:" + Environment.NewLine + output);
-		if (!root.TryGetValue("target-framework", out var targetFrameworkObject) || targetFrameworkObject is not string targetFramework)
-			throw new InvalidOperationException("Test process did not return valid JSON ('target-framework' is missing). Output:" + Environment.NewLine + output);
-		if (!root.TryGetValue("test-framework", out var testFrameworkObject) || testFrameworkObject is not string testFramework)
-			throw new InvalidOperationException("Test process did not return valid JSON ('test-framework' is missing). Output:" + Environment.NewLine + output);
+		try
+		{
+			testAssemblyInfo = TestAssemblyInfo.FromJson(output);
+		}
+		catch (ArgumentException ex)
+		{
+			throw new InvalidOperationException("Test process did not return valid JSON (" + ex.Message + ")." + (output.Length > 0 ? (" Output:" + Environment.NewLine + output) : string.Empty));
+		}
 
-		CoreFrameworkVersion = coreFramework;
-		CoreFrameworkVersionInformational = coreFrameworkInformational;
-		TargetFramework = targetFramework;
-		TestFrameworkDisplayName = testFramework;
 		TestAssemblyUniqueID = UniqueIDGenerator.ForAssembly(projectAssembly.AssemblyFileName, projectAssembly.ConfigFileName);
 	}
 
@@ -66,22 +59,22 @@ public class Xunit3 : IFrontController
 	/// <summary>
 	/// Gets the version of <c>xunit.v3.core.dll</c> the test assembly is linked against.
 	/// </summary>
-	public Version CoreFrameworkVersion { get; }
+	public Version CoreFrameworkVersion => testAssemblyInfo.CoreFramework;
 
 	/// <summary>
 	/// Gets the informational version of <c>xunit.v3.core.dll</c> the test assembly
 	/// is linked against.
 	/// </summary>
-	public string CoreFrameworkVersionInformational { get; }
+	public string CoreFrameworkVersionInformational => testAssemblyInfo.CoreFrameworkInformational;
 
 	/// <inheritdoc/>
-	public string TargetFramework { get; }
+	public string TargetFramework => testAssemblyInfo.TargetFramework;
 
 	/// <inheritdoc/>
 	public string TestAssemblyUniqueID { get; }
 
 	/// <inheritdoc/>
-	public string TestFrameworkDisplayName { get; }
+	public string TestFrameworkDisplayName => testAssemblyInfo.TestFramework;
 
 	/// <inheritdoc/>
 	public ValueTask DisposeAsync()
