@@ -61,7 +61,7 @@ public class SerializationHelperTests
 		{ (MyUnsignedEnum)ulong.MinValue, $"-3:{ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof(MyUnsignedEnum)))}:{ToBase64("0")}" },
 		{ (MyUnsignedEnum)ulong.MaxValue, $"-3:{ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof(MyUnsignedEnum)))}:{ToBase64("18446744073709551615")}" },
 #if NETFRAMEWORK
-		{ PerformanceCounterType.AverageCount64, $"-3:{ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof(PerformanceCounterType)))}:{ToBase64("AverageCount64")}" },
+		{ PerformanceCounterType.AverageCount64, $"-3:{ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof(PerformanceCounterType)))}:{ToBase64(((int)PerformanceCounterType.AverageCount64).ToString())}" },
 #endif
 		{ new MyCustomType { Age = 42, Name = "Someone" }, $"-3:{ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof(MyCustomType)))}:{ToBase64("42:Someone")}" },
 
@@ -506,7 +506,7 @@ public class SerializationHelperTests
 		{
 			var result = TestableSerializationHelper.Instance.Serialize(value);
 
-			Assert.Equal(expectedSerialization, result);
+			Assert.Equal<object>(expectedSerialization, result);
 		}
 
 #pragma warning disable xUnit1047
@@ -774,7 +774,7 @@ public class SerializationHelperTests
 		public string Serialize(object value)
 		{
 			if (value is PerformanceCounterType performanceCounterType)
-				return performanceCounterType.ToString();
+				return ((int)performanceCounterType).ToString();
 
 			throw new NotSupportedException($"Custom serialization (of type {value.GetType().FullName}) is not currently supported.");
 		}
