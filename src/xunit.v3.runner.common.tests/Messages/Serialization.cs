@@ -33,6 +33,8 @@ public class Serialization
 		["foo"] = ["bar"],
 		["baz"] = ["biff", "bang"],
 	};
+
+	// Make sure this list always includes every message we serialize
 	public static IEnumerable<TheoryDataRow<IMessageSinkMessage>> Messages =
 	[
 		new AfterTestFinished
