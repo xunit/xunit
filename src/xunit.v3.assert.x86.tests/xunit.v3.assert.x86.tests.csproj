@@ -11,7 +11,7 @@
     <Compile Include="..\xunit.v3.assert.tests\**\*.cs" Exclude="**\obj\**\*.cs" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' != '.NETCoreApp' ">
     <PackageReference Include="System.Collections.Immutable" Version="[$(SystemCollectionsImmutableVersion)]" />
     <PackageReference Include="System.Memory" Version="[$(SystemMemoryVersion)]" />
   </ItemGroup>
