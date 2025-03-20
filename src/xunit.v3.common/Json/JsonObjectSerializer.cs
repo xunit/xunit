@@ -177,6 +177,26 @@ public sealed class JsonObjectSerializer(
 	}
 
 	/// <summary>
+	/// Serialize a <see cref="Version"/> value into the object.
+	/// </summary>
+	/// <param name="key">The name of the value</param>
+	/// <param name="value">The value</param>
+	/// <param name="includeNullValues">Set to <c>true</c> to serialize a <c>null</c> value, or <c>false</c> to skip it</param>
+	public void Serialize(
+		string key,
+		Version? value,
+		bool includeNullValues = false)
+	{
+		GuardNoOpenChild();
+
+		if (includeNullValues || value is not null)
+		{
+			WriteKey(key);
+			WriteValue(value);
+		}
+	}
+
+	/// <summary>
 	/// Start serializing an array into the object.
 	/// </summary>
 	/// <param name="key">The name of the array</param>

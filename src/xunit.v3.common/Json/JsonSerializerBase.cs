@@ -117,4 +117,8 @@ public abstract class JsonSerializerBase : IDisposable
 
 		Buffer.Append('"');
 	}
+
+	/// <summary/>
+	protected void WriteValue(Version? value) =>
+		WriteValue(value?.ToString());
 }

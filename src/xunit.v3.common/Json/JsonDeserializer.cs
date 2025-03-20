@@ -628,6 +628,23 @@ public static class JsonDeserializer
 			Guard.ArgumentNotNull(obj).TryGetValue(key, out var value) ? TryGetTraits(value) : (defaultEmptyDictionary ? emptyTraits : null);
 
 	/// <summary>
+	/// Tries to get a <see cref="Version"/> value from a deserialized JSON object.
+	/// </summary>
+	/// <param name="obj">The deserialized JSON object</param>
+	/// <param name="key">The key for the value</param>
+	public static Version? TryGetVersion(
+		IReadOnlyDictionary<string, object?> obj,
+		string key) =>
+			Guard.ArgumentNotNull(obj).TryGetValue(key, out var value) ? TryGetVersion(value) : null;
+
+	/// <summary>
+	/// Tries to get a <see cref="Version"/> value from a deserialized JSON value.
+	/// </summary>
+	/// <param name="value">The deserialized JSON value</param>
+	public static Version? TryGetVersion(object? value) =>
+		value is string stringValue && Version.TryParse(stringValue, out var version) ? version : null;
+
+	/// <summary>
 	/// Tries to get a <see cref="string"/> value from a deserialized JSON value.
 	/// </summary>
 	/// <param name="value">The deserialized JSON value</param>
