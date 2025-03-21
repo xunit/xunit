@@ -403,7 +403,7 @@ public class TransformFactory
 			}
 		}
 
-		File.WriteAllText(outputFileName, buffer.ToString(), Encoding.UTF8);
+		File.WriteAllText(outputFileName, buffer.ToString(), new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
 	}
 
 	static void Handler_DirectWrite(
@@ -413,8 +413,8 @@ public class TransformFactory
 		Guard.ArgumentNotNull(xml);
 		Guard.ArgumentNotNull(outputFileName);
 
-		using var stream = File.Create(outputFileName);
-		xml.Save(stream);
+		using var textWriter = new XmlTextWriter(outputFileName, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+		xml.Save(textWriter);
 	}
 
 	static void Handler_XslTransform(
@@ -428,7 +428,8 @@ public class TransformFactory
 		var xmlTransform = new XslCompiledTransform();
 		var fqResourceName = string.Format(CultureInfo.InvariantCulture, "Xunit.Runner.Common.Transforms.templates.{0}", resourceName);
 
-		using var writer = XmlWriter.Create(outputFileName, new XmlWriterSettings { Indent = true });
+		using var textWriter = new XmlTextWriter(outputFileName, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+		using var writer = XmlWriter.Create(textWriter, new XmlWriterSettings { Indent = true });
 		using var xsltStream =
 			typeof(TransformFactory).Assembly.GetManifestResourceStream(fqResourceName)
 				?? throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Could not load resource '{0}' from assembly '{1}'", fqResourceName, typeof(TransformFactory).Assembly.Location));
