@@ -6,7 +6,7 @@ breadcrumb: Documentation
 
 # Query Filter Language
 
-_Last updated: 2024 December 16_
+_Last updated: 2025 March 21_
 
 New in v3 is support for an advanced query filter language. It is inspired by the [MSTest Graph Query Filter](https://github.com/microsoft/testfx/blob/main/docs/mstest-runner-graphqueryfiltering/graph-query-filtering.md), but with several differences in final implementation.
 
@@ -160,9 +160,9 @@ If you're using `xunit.v3.console.exe` and you're running multiple test projects
 
 ### Running a test project directly (Microsoft Testing Platform CLI mode) or via `dotnet test`
 
-You can specify a query filter using `--query-filter expression` (note that if the expression contains spaces, you should quote the whole expression, like `--query-filter "expression"` so that the parser knows where your expression starts and ends).
+You can specify a query filter using `--filter-query expression` (note that if the expression contains spaces, you should quote the whole expression, like `--filter-query "expression"` so that the parser knows where your expression starts and ends).
 
 > Examples:
 >
-> * `bin/Debug/net8.0/MyTests.exe --query-filter /[category=fast]` (Microsoft Testing Platform CLI mode)
-> * `dotnet test -- --query-filter /[category=fast]`
+> * `bin/Debug/net8.0/MyTests.exe --filter-query /[category=fast]` (Microsoft Testing Platform CLI mode)
+> * `dotnet test -- --filter-query /[category=fast]`
