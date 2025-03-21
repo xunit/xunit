@@ -160,7 +160,7 @@ If you're using `xunit.v3.console.exe` and you're running multiple test projects
 
 ### Running a test project directly (Microsoft Testing Platform CLI mode) or via `dotnet test`
 
-You can specify a filter query using `--filter-query expression` (note that if the expression contains spaces, you should quote the whole expression, like `--filter-query "expression"` so that the parser knows where your expression starts and ends).
+You can specify a query filter using `--filter-query expression` (note that if the expression contains spaces, you should quote the whole expression, like `--filter-query "expression"` so that the parser knows where your expression starts and ends).
 
 > Examples:
 >
