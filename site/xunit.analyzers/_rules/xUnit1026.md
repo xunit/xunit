@@ -65,7 +65,7 @@ static class MyGreetingService
 public class xUnit1026
 {
     [Theory]
-    [InlineData("Joe", 42)]
+    [InlineData("Joe")]
     public void ValidateGreeting(string name)
     {
         var result = MyGreetingService.Greet(name);
