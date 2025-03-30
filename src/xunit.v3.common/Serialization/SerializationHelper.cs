@@ -183,7 +183,7 @@ public class SerializationHelper
 	/// <summary>
 	/// Gets the singleton instance of <see cref="SerializationHelper"/>.
 	/// </summary>
-	public static SerializationHelper Instance { get; } = new();
+	public static SerializationHelper Instance { get; private set; } = new();
 
 	/// <summary>
 	/// Add serializers that have been registered in the given assembly.
@@ -511,6 +511,12 @@ public class SerializationHelper
 			typeIndicesByType.ContainsKey(type) ||
 			FindXunitSerializer(type)?.IsSerializable(type, value, out _) == true;
 	}
+
+	/// <summary>
+	/// THIS METHOD IS FOR INTERNAL PURPOSES ONLY. DO NOT CALL.
+	/// </summary>
+	public static void ResetInstance() =>
+		Instance = new();
 
 	/// <summary>
 	/// Serializes an object.
