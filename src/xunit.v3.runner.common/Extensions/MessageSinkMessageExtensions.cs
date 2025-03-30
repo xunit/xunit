@@ -99,4 +99,74 @@ public static partial class MessageSinkMessageExtensions
 				TestMethodUniqueID = discovered.TestMethodUniqueID,
 				Traits = discovered.Traits,
 			};
+
+	/// <summary>
+	/// Creates a new <see cref="ITestCaseDiscovered"/>, replacing the source file and line number information
+	/// with values from the source information provider.
+	/// </summary>
+	/// <param name="discovered"/>
+	/// <param name="sourceInformationProvider">The source information provider</param>
+	public static ITestCaseDiscovered WithSourceInfo(
+		this ITestCaseDiscovered discovered,
+		ISourceInformationProvider sourceInformationProvider)
+	{
+		Guard.ArgumentNotNull(discovered);
+		Guard.ArgumentNotNull(sourceInformationProvider);
+
+		var sourceInfo = sourceInformationProvider.GetSourceInformation(discovered.TestClassName, discovered.TestMethodName);
+
+		return WithSourceInfo(discovered, sourceInfo.SourceFile, sourceInfo.SourceLine);
+	}
+
+	/// <summary>
+	/// Creates a new <see cref="ITestCaseDiscovered"/>, replacing the source file and line number information
+	/// with the provided values.
+	/// </summary>
+	/// <param name="starting"/>
+	/// <param name="sourceFilePath">The source file</param>
+	/// <param name="sourceLineNumber">The line number</param>
+	public static ITestCaseStarting WithSourceInfo(
+		this ITestCaseStarting starting,
+		string? sourceFilePath,
+		int? sourceLineNumber) =>
+			new TestCaseStarting
+			{
+				AssemblyUniqueID = Guard.ArgumentNotNull(starting).AssemblyUniqueID,
+				Explicit = starting.Explicit,
+				SkipReason = starting.SkipReason,
+				SourceFilePath = sourceFilePath,
+				SourceLineNumber = sourceLineNumber,
+				TestCaseDisplayName = starting.TestCaseDisplayName,
+				TestCaseUniqueID = starting.TestCaseUniqueID,
+				TestClassMetadataToken = starting.TestClassMetadataToken,
+				TestClassName = starting.TestClassName,
+				TestClassNamespace = starting.TestClassNamespace,
+				TestClassSimpleName = starting.TestClassSimpleName,
+				TestClassUniqueID = starting.TestClassUniqueID,
+				TestCollectionUniqueID = starting.TestCollectionUniqueID,
+				TestMethodMetadataToken = starting.TestMethodMetadataToken,
+				TestMethodName = starting.TestMethodName,
+				TestMethodParameterTypesVSTest = starting.TestMethodParameterTypesVSTest,
+				TestMethodReturnTypeVSTest = starting.TestMethodReturnTypeVSTest,
+				TestMethodUniqueID = starting.TestMethodUniqueID,
+				Traits = starting.Traits,
+			};
+
+	/// <summary>
+	/// Creates a new <see cref="ITestCaseDiscovered"/>, replacing the source file and line number information
+	/// with values from the source information provider.
+	/// </summary>
+	/// <param name="starting"/>
+	/// <param name="sourceInformationProvider">The source information provider</param>
+	public static ITestCaseStarting WithSourceInfo(
+		this ITestCaseStarting starting,
+		ISourceInformationProvider sourceInformationProvider)
+	{
+		Guard.ArgumentNotNull(starting);
+		Guard.ArgumentNotNull(sourceInformationProvider);
+
+		var sourceInfo = sourceInformationProvider.GetSourceInformation(starting.TestClassName, starting.TestMethodName);
+
+		return WithSourceInfo(starting, sourceInfo.SourceFile, sourceInfo.SourceLine);
+	}
 }
