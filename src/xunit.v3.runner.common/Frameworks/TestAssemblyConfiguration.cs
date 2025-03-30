@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using Xunit.Internal;
 using Xunit.Sdk;
 
 namespace Xunit.Runner.Common;
@@ -10,6 +11,72 @@ namespace Xunit.Runner.Common;
 /// </summary>
 public class TestAssemblyConfiguration
 {
+	/// <summary>
+	/// Initalizes a new instance of the <see cref="TestAssemblyConfiguration"/> class.
+	/// </summary>
+	public TestAssemblyConfiguration() =>
+		Filters = new();
+
+	internal TestAssemblyConfiguration(
+		AppDomainSupport? appDomain,
+		int? assertEquivalentMaxDepth,
+		string? culture,
+		bool? diagnosticMessages,
+		ExplicitOption? explicitOption,
+		bool? failSkips,
+		bool? failTestsWithWarnings,
+		XunitFilters filters,
+		bool? includeSourceInformation,
+		bool? internalDiagnosticMessages,
+		int? longRunningTestSeconds,
+		int? maxParallelThreads,
+		TestMethodDisplay? methodDisplay,
+		TestMethodDisplayOptions? methodDisplayOptions,
+		ParallelAlgorithm? parallelAlgorithm,
+		bool? parallelizeAssembly,
+		bool? parallelizeTestCollections,
+		bool? preEnumerateTheories,
+		int? printMaxEnumerableLength,
+		int? printMaxObjectDepth,
+		int? printMaxObjectMemberCount,
+		int? printMaxStringLength,
+		int? seed,
+		bool? shadowCopy,
+		string? shadowCopyFolder,
+		bool? showLiveOutput,
+		bool? stopOnFail,
+		bool? synchronousMessageReporting)
+	{
+		AppDomain = appDomain;
+		AssertEquivalentMaxDepth = assertEquivalentMaxDepth;
+		Culture = culture;
+		DiagnosticMessages = diagnosticMessages;
+		ExplicitOption = explicitOption;
+		FailSkips = failSkips;
+		FailTestsWithWarnings = failTestsWithWarnings;
+		Filters = Guard.ArgumentNotNull(filters);
+		IncludeSourceInformation = includeSourceInformation;
+		InternalDiagnosticMessages = internalDiagnosticMessages;
+		LongRunningTestSeconds = longRunningTestSeconds;
+		MaxParallelThreads = maxParallelThreads;
+		MethodDisplay = methodDisplay;
+		MethodDisplayOptions = methodDisplayOptions;
+		ParallelAlgorithm = parallelAlgorithm;
+		ParallelizeAssembly = parallelizeAssembly;
+		ParallelizeTestCollections = parallelizeTestCollections;
+		PreEnumerateTheories = preEnumerateTheories;
+		PrintMaxEnumerableLength = printMaxEnumerableLength;
+		PrintMaxObjectDepth = printMaxObjectDepth;
+		PrintMaxObjectMemberCount = printMaxObjectMemberCount;
+		PrintMaxStringLength = printMaxStringLength;
+		Seed = seed;
+		ShadowCopy = shadowCopy;
+		ShadowCopyFolder = shadowCopyFolder;
+		ShowLiveOutput = showLiveOutput;
+		StopOnFail = stopOnFail;
+		SynchronousMessageReporting = synchronousMessageReporting;
+	}
+
 	/// <summary>
 	/// Gets or sets a flag indicating whether an app domain should be used to discover and run tests.
 	/// </summary>
@@ -86,7 +153,7 @@ public class TestAssemblyConfiguration
 	/// <summary>
 	/// Gets the list of filters used during test discovery.
 	/// </summary>
-	public XunitFilters Filters { get; } = new();
+	public XunitFilters Filters { get; }
 
 	/// <summary>
 	/// Gets or sets a flag indicating that discovery should include source information

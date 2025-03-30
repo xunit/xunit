@@ -11,6 +11,42 @@ namespace Xunit.Runner.Common;
 public class TestProjectConfiguration
 {
 	/// <summary>
+	/// Initializes a new instance of the <see cref="TestProjectConfiguration"/> class.
+	/// </summary>
+	public TestProjectConfiguration()
+	{
+		Output = [];
+	}
+
+	internal TestProjectConfiguration(
+		bool? assemblyInfo,
+		bool? debug,
+		bool? ignoreFailures,
+		(ListOption Option, ListFormat Format)? list,
+		Dictionary<string, string> output,
+		bool? noAutoReporters,
+		bool? noColor,
+		bool? noLogo,
+		bool? pause,
+		bool? useAnsiColor,
+		bool? wait,
+		bool? waitForDebugger)
+	{
+		AssemblyInfo = assemblyInfo;
+		Debug = debug;
+		IgnoreFailures = ignoreFailures;
+		List = list;
+		Output = output;
+		NoAutoReporters = noAutoReporters;
+		NoColor = noColor;
+		NoLogo = noLogo;
+		Pause = pause;
+		UseAnsiColor = useAnsiColor;
+		Wait = wait;
+		WaitForDebugger = waitForDebugger;
+	}
+
+	/// <summary>
 	/// Gets or sets a flag which indicates whether the runner should return assembly
 	/// information rather than listing or executing tests.
 	/// </summary>
@@ -64,7 +100,7 @@ public class TestProjectConfiguration
 	/// the <see cref="Transform.ID"/> property on the transforms available in
 	/// <see cref="TransformFactory"/>.<see cref="TransformFactory.AvailableTransforms"/>.
 	/// </summary>
-	public Dictionary<string, string> Output { get; } = [];
+	public Dictionary<string, string> Output { get; }
 
 	/// <summary>
 	/// Gets or sets a flag indicating that the test runner should not attempt to use any
