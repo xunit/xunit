@@ -23,8 +23,8 @@ namespace Xunit.Runner.InProc.SystemConsole;
 /// <param name="args">The arguments passed to the application; typically pulled from the Main method.</param>
 /// <param name="testAssembly">The optional test assembly; if <c>null</c>, <see cref="Assembly.GetEntryAssembly"/> is used
 /// to find the current assembly as the test assembly</param>
-// The signature of the constructor is known to Xunit3, so do not change it without also changing
-// the code that invokes it dynamically.
+// The signature of this constructor is used at runtime via reflection, and as such must not
+// be modified without creating forks inside InProcessTestProcessLauncher.
 public class ConsoleRunner(
 	string[] args,
 	Assembly? testAssembly = null) :
@@ -43,8 +43,8 @@ public class ConsoleRunner(
 	/// <summary>
 	/// Attempt to cancel the console runner execution.
 	/// </summary>
-	// The signature of this method is known to Xunit3, so do not change it without also changing
-	// the code that invokes it dynamically.
+	// The signature of this method is used at runtime via reflection, and as such must not
+	// be modified without creating forks inside InProcessTestProcessLauncher.
 	public void Cancel() =>
 		cancellationTokenSource.Cancel();
 
@@ -60,8 +60,8 @@ public class ConsoleRunner(
 	/// The entry point to begin running tests.
 	/// </summary>
 	/// <returns>The return value intended to be returned by the Main method.</returns>
-	// The signature of this method is known to Xunit3, so do not change it without also changing
-	// the code that invokes it dynamically.
+	// The signature of this method is used at runtime via reflection, and as such must not
+	// be modified without creating forks inside InProcessTestProcessLauncher.
 	public async Task<int> EntryPoint(
 		TextReader? consoleReader = null,
 		TextWriter? consoleWriter = null)
