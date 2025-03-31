@@ -350,6 +350,8 @@ public static partial class TestData
 
 	public static ITestCaseDiscovered TestCaseDiscovered<TClass>(
 		string testMethod,
+		string? sourceFilePath = null,
+		int? sourceLineNumber = null,
 		string? testCaseDisplayName = null)
 	{
 		var type = typeof(TClass);
@@ -368,8 +370,8 @@ public static partial class TestData
 			@explicit,
 			DefaultTestCaseSerialization,
 			skipReason,
-			sourceFilePath: null,
-			sourceLineNumber: null,
+			sourceFilePath,
+			sourceLineNumber,
 			testCaseDisplayName ?? $"{type.FullName}.{testMethod}",
 			testCaseUniqueID,
 			type.MetadataToken,
@@ -457,6 +459,46 @@ public static partial class TestData
 				TestsTotal = testsTotal,
 			};
 
+	public static ITestCaseStarting TestCaseStarting<TClass>(
+		string testMethod,
+		string? sourceFilePath = null,
+		int? sourceLineNumber = null,
+		string? testCaseDisplayName = null)
+	{
+		var type = typeof(TClass);
+		var methodInfo = Guard.NotNull($"Could not find method '{testMethod}' in type '{type.FullName}'", type.GetMethod(testMethod));
+		var factAttribute = methodInfo.GetMatchingCustomAttributes(typeof(IFactAttribute)).FirstOrDefault() as IFactAttribute;
+		var @explicit = factAttribute?.Explicit ?? false;
+		var skipReason = factAttribute?.Skip;
+		var traits = ExtensibilityPointFactory.GetMethodTraits(methodInfo, testClassTraits: null);
+
+		var testClassUniqueID = UniqueIDGenerator.ForTestClass(DefaultTestCollectionUniqueID, type.FullName);
+		var testMethodUniqueID = UniqueIDGenerator.ForTestMethod(testClassUniqueID, testMethod);
+		var testCaseUniqueID = UniqueIDGenerator.ForTestCase(testMethodUniqueID, null, null);
+
+		return TestCaseStarting(
+			DefaultAssemblyUniqueID,
+			@explicit,
+			skipReason,
+			sourceFilePath,
+			sourceLineNumber,
+			testCaseDisplayName ?? $"{type.FullName}.{testMethod}",
+			testCaseUniqueID,
+			type.MetadataToken,
+			type.FullName,
+			type.Namespace,
+			type.Name,
+			testClassUniqueID,
+			DefaultTestCollectionUniqueID,
+			methodInfo.MetadataToken,
+			testMethod,
+			methodInfo.GetParameters().Select(p => p.ParameterType.ToVSTestTypeName()).ToArray(),
+			methodInfo.ReturnType.ToVSTestTypeName(),
+			testMethodUniqueID,
+			traits
+		);
+	}
+
 	public static ITestCaseStarting TestCaseStarting(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		bool @explicit = false,
@@ -466,13 +508,13 @@ public static partial class TestData
 		string testCaseDisplayName = DefaultTestCaseDisplayName,
 		string testCaseUniqueID = DefaultTestCaseUniqueID,
 		int? testClassMetadataToken = 42,
-		string testClassName = DefaultTestClassName,
-		string testClassNamespace = DefaultTestClassNamespace,
-		string testClassSimpleName = DefaultTestClassSimpleName,
+		string? testClassName = DefaultTestClassName,
+		string? testClassNamespace = DefaultTestClassNamespace,
+		string? testClassSimpleName = DefaultTestClassSimpleName,
 		string? testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 		int? testMethodMetadataToken = 2112,
-		string testMethodName = DefaultMethodName,
+		string? testMethodName = DefaultMethodName,
 		string[]? testMethodParameterTypesVSTest = null,
 		string? testMethodReturnTypeVSTest = null,
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
