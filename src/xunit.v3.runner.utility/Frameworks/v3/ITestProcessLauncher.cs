@@ -6,6 +6,10 @@ namespace Xunit.v3;
 /// <summary>
 /// Implement this to control the launch of an xUnit.net v3 test process.
 /// </summary>
+/// <remarks>
+/// A higher level API via <see cref="ITestProcessDirectLauncher"/> is available. For launchers that can
+/// directly invoke the required entry points, they should also implement that interface.
+/// </remarks>
 public interface ITestProcessLauncher
 {
 	/// <summary>

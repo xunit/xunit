@@ -4,6 +4,7 @@ using System.Globalization;
 using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
+using Xunit.v3;
 
 namespace Xunit.Runner.v3;
 
@@ -16,7 +17,7 @@ public static class Xunit3ArgumentFactory
 	static readonly Version Version_0_3_0 = new(0, 3, 0);
 
 	/// <summary>
-	/// Gets command line switches based on a call to <see cref="Xunit3.Find"/>.
+	/// Gets command line switches based on a call to <c>Find</c> on <see cref="Xunit3"/>.
 	/// </summary>
 	public static List<string> ForFind(
 		Version coreFrameworkVersion,
@@ -26,6 +27,7 @@ public static class Xunit3ArgumentFactory
 		ListOption? listOption = null,
 		bool waitForDebugger = false)
 	{
+		Guard.ArgumentNotNull(coreFrameworkVersion);
 		Guard.ArgumentNotNull(options);
 
 		return ToArguments(
@@ -59,7 +61,7 @@ public static class Xunit3ArgumentFactory
 	}
 
 	/// <summary>
-	/// Gets command line switches based on a call to <see cref="Xunit3.FindAndRun"/>.
+	/// Gets command line switches based on a call to <c>FindAndRun</c> <see cref="Xunit3"/>.
 	/// </summary>
 	public static List<string> ForFindAndRun(
 		Version coreFrameworkVersion,
@@ -69,6 +71,7 @@ public static class Xunit3ArgumentFactory
 		string? configFileName = null,
 		bool waitForDebugger = false)
 	{
+		Guard.ArgumentNotNull(coreFrameworkVersion);
 		Guard.ArgumentNotNull(discoveryOptions);
 		Guard.ArgumentNotNull(executionOptions);
 
@@ -102,9 +105,24 @@ public static class Xunit3ArgumentFactory
 		);
 	}
 
+	/// <summary>
+	/// Gets command line switches based on a call to <c>Find</c> on <see cref="TestProcessLauncherAdapter"/>.
+	/// </summary>
+	public static List<string> ForFindInProcess(
+		Version coreFrameworkVersion,
+		XunitProjectAssembly projectAssembly,
+		ListOption? listOption = null) =>
+			ForFind(
+				coreFrameworkVersion,
+				TestFrameworkOptions.ForDiscovery(Guard.ArgumentNotNull(projectAssembly).Configuration),
+				projectAssembly.Configuration.Filters,
+				projectAssembly.ConfigFileName,
+				listOption,
+				projectAssembly.Project.Configuration.WaitForDebuggerOrDefault
+			);
 
 	/// <summary>
-	/// Gets command line switches based on a call to <see cref="Xunit3.Run"/>.
+	/// Gets command line switches based on a call to <c>Run</c> on <see cref="Xunit3"/>.
 	/// </summary>
 	public static List<string> ForRun(
 		Version coreFrameworkVersion,
@@ -113,6 +131,7 @@ public static class Xunit3ArgumentFactory
 		string? configFileName = null,
 		bool waitForDebugger = false)
 	{
+		Guard.ArgumentNotNull(coreFrameworkVersion);
 		Guard.ArgumentNotNull(options);
 		Guard.ArgumentNotNullOrEmpty(serializedTestCases);
 
@@ -296,6 +315,37 @@ public static class Xunit3ArgumentFactory
 			result.AddRange(filters.ToXunit3Arguments());
 
 		return result;
+	}
+
+	/// <summary>
+	/// Gets command line switches based on a call to <c>Run</c> on <see cref="TestProcessLauncherAdapter"/>.
+	/// </summary>
+	public static List<string> ForRunInProcess(
+		Version coreFrameworkVersion,
+		XunitProjectAssembly projectAssembly)
+	{
+		Guard.ArgumentNotNull(coreFrameworkVersion);
+		Guard.ArgumentNotNull(projectAssembly);
+
+		var executionOptions = TestFrameworkOptions.ForExecution(projectAssembly.Configuration);
+
+		return
+			projectAssembly.TestCasesToRun.Count != 0
+				? ForRun(
+					coreFrameworkVersion,
+					executionOptions,
+					projectAssembly.TestCasesToRun,
+					projectAssembly.ConfigFileName,
+					projectAssembly.Project.Configuration.WaitForDebuggerOrDefault
+				)
+				: ForFindAndRun(
+					coreFrameworkVersion,
+					TestFrameworkOptions.ForDiscovery(projectAssembly.Configuration),
+					executionOptions,
+					projectAssembly.Configuration.Filters,
+					projectAssembly.ConfigFileName,
+					projectAssembly.Project.Configuration.WaitForDebuggerOrDefault
+				);
 	}
 
 	static string ToMaxParallelThreadsValue(int maxParallelThreadsValue) =>
