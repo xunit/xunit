@@ -129,7 +129,7 @@ public class Xunit3Tests
 		xunit3.Find(findMessageSink, new FrontControllerFindSettings(DiscoveryOptions, filters));
 
 		var findFinished = findMessageSink.Finished.WaitOne(60_000);
-		Assert.True(findFinished, "Message sink did not see _DiscoveryComplete within 60 seconds");
+		Assert.True(findFinished, "Message sink did not see IDiscoveryComplete within 60 seconds");
 
 		var testCases = findMessageSink.Messages.OfType<ITestCaseDiscovered>();
 		var testCase = Assert.Single(testCases);
@@ -142,7 +142,7 @@ public class Xunit3Tests
 		xunit3.Run(runMessageSink, new FrontControllerRunSettings(ExecutionOptions, [testCase.Serialization]));
 
 		var runFinished = runMessageSink.Finished.WaitOne(60_000);
-		Assert.True(runFinished, "Message sink did not see _TestAssemblyFinished within 60 seconds");
+		Assert.True(runFinished, "Message sink did not see ITestAssemblyFinished within 60 seconds");
 
 		var results = runMessageSink.Messages.OfType<ITestResultMessage>().ToList();
 		var passed = Assert.Single(runMessageSink.Messages.OfType<ITestPassed>());
@@ -193,7 +193,7 @@ public class Xunit3Tests
 		xunit3.FindAndRun(messageSink, new FrontControllerFindAndRunSettings(DiscoveryOptions, ExecutionOptions, filters));
 
 		var finished = messageSink.Finished.WaitOne(60_000);
-		Assert.True(finished, "Message sink did not see _DiscoveryComplete within 60 seconds");
+		Assert.True(finished, "Message sink did not see IDiscoveryComplete within 60 seconds");
 
 		var starting = Assert.Single(messageSink.Messages.OfType<ITestStarting>());
 		Assert.Equal(fullyQualifiedMethodName, starting.TestDisplayName);
