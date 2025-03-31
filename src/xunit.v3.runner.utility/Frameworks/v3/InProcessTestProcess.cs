@@ -17,8 +17,7 @@ namespace Xunit.v3;
 /// a load to succeed. We dynamically create the instance of <c>Xunit.Runner.InProc.SystemConsole.ConsoleRunner</c> and
 /// call its <c>EntryPoint</c> and <c>Cancel</c> methods as appropriate.
 /// </remarks>
-internal sealed class InProcessTestProcess :
-	ITestProcess
+internal sealed class InProcessTestProcess : ITestProcess
 {
 	readonly Action cancelMethod;
 	readonly string? responseFile;
