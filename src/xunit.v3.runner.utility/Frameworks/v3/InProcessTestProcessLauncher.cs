@@ -91,7 +91,7 @@ public sealed class InProcessTestProcessLauncher : ITestProcessLauncher, ITestPr
 			findMethod ??= GetPublicStaticMethod(
 				consoleRunnerInProcessType,
 				"Find",
-				typeof(IMessageSink), typeof(IMessageSink), typeof(XunitProjectAssembly), typeof(ISourceInformationProvider), typeof(CancellationTokenSource)
+				typeof(IMessageSink), typeof(IMessageSink), typeof(XunitProjectAssembly), typeof(CancellationTokenSource)
 			);
 			getTestAssemblyInfoMethod ??= GetPublicStaticMethod(
 				consoleRunnerInProcessType,
@@ -101,7 +101,7 @@ public sealed class InProcessTestProcessLauncher : ITestProcessLauncher, ITestPr
 			runMethod ??= GetPublicStaticMethod(
 				consoleRunnerInProcessType,
 				"Run",
-				typeof(IMessageSink), typeof(IMessageSink), typeof(XunitProjectAssembly), typeof(ISourceInformationProvider), typeof(CancellationTokenSource)
+				typeof(IMessageSink), typeof(IMessageSink), typeof(XunitProjectAssembly), typeof(CancellationTokenSource)
 			);
 		}
 

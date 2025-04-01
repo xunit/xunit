@@ -1,3 +1,4 @@
+using System;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,20 +11,18 @@ namespace Xunit.v3;
 internal sealed class InProcessDirectLauncherProcess : ITestProcessBase
 {
 	readonly CancellationTokenSource cancellationTokenSource;
-	readonly Thread workerThread;
+	readonly Task workerTask;
 
 	InProcessDirectLauncherProcess(
 		CancellationTokenSource cancellationTokenSource,
-		Thread workerThread)
+		Task workerTask)
 	{
 		this.cancellationTokenSource = cancellationTokenSource;
-		this.workerThread = workerThread;
-
-		workerThread.Start();
+		this.workerTask = workerTask;
 	}
 
 	public bool HasExited =>
-		(workerThread.ThreadState & ThreadState.Stopped) == ThreadState.Stopped;
+		workerTask.Status is TaskStatus.Faulted or TaskStatus.RanToCompletion;
 
 	public void Cancel(bool forceCancellation)
 	{
@@ -48,7 +47,7 @@ internal sealed class InProcessDirectLauncherProcess : ITestProcessBase
 	}
 
 	public bool WaitForExit(int milliseconds) =>
-		workerThread.Join(milliseconds);
+		workerTask.SpinWait(milliseconds);
 
 	// Factory method
 
@@ -59,19 +58,18 @@ internal sealed class InProcessDirectLauncherProcess : ITestProcessBase
 		ISourceInformationProvider? sourceInformationProvider,
 		MethodInfo method)
 	{
-		using var cancellationTokenSource = new CancellationTokenSource();
-
-		var thread = new Thread(async () =>
+		var cancellationTokenSource = new CancellationTokenSource();
+		var task = Task.Run(async () =>
 		{
 			IMessageSink delegatingMessageSink = new TokenSourceCancellationMessageSink(messageSink, cancellationTokenSource);
 			if (projectAssembly.Configuration.IncludeSourceInformationOrDefault && sourceInformationProvider is not null)
 				delegatingMessageSink = new SourceInformationMessageSink(delegatingMessageSink, sourceInformationProvider);
 
-			var task = method.Invoke(obj: null, [delegatingMessageSink, diagnosticMessageSink, projectAssembly, sourceInformationProvider, cancellationTokenSource]) as Task;
+			var task = method.Invoke(obj: null, [delegatingMessageSink, diagnosticMessageSink, projectAssembly, cancellationTokenSource]) as Task;
 			if (task is not null)
 				await task;
 		});
 
-		return new InProcessDirectLauncherProcess(cancellationTokenSource, thread);
+		return new InProcessDirectLauncherProcess(cancellationTokenSource, task);
 	}
 }
