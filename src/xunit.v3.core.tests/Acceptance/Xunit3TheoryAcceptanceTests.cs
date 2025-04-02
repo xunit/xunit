@@ -36,7 +36,7 @@ public class Xunit3TheoryAcceptanceTests
 			);
 		}
 
-		public class ClassWithOptionalParameters
+		class ClassWithOptionalParameters
 		{
 			[Theory]
 			[InlineData]
@@ -146,7 +146,7 @@ public class Xunit3TheoryAcceptanceTests
 			);
 		}
 
-		public class ClassWithParamsParameters
+		class ClassWithParamsParameters
 		{
 			[Theory]
 			[InlineData]
@@ -402,7 +402,7 @@ public class Xunit3TheoryAcceptanceTests
 			);
 		}
 
-		internal class ClassWithFuncMethod
+		class ClassWithFuncMethod
 		{
 			public static IEnumerable<object?[]> TestData()
 			{
