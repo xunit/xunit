@@ -6,7 +6,7 @@ breadcrumb: Documentation
 
 # Microsoft Testing Platform support in xUnit.net v3
 
-_Last updated: 2024 December 16_
+_Last updated: 2025 April 2_
 
 Starting with build `0.4.0-pre.10`, we have added support for the new [Microsoft Testing Platform](https://learn.microsoft.com/dotnet/core/testing/unit-testing-platform-intro) natively into xUnit.net v3.
 
@@ -22,8 +22,7 @@ The xUnit.net integration with Microsoft Testing Platform comes at three levels:
 2. You can run tests with the new Microsoft Testing Platform integrated `dotnet test` ([&#x1F517;](#enabling-the-dotnet-test-experience))
 3. You can run tests with the new Microsoft Testing Platform integrated Test Explorer ([&#x1F517;](#enabling-the-test-explorer-experience))
 
-Unlike our support for VSTest, our support for Microsoft Testing Platform is built natively into xUnit.net v3. If you want to rely solely on Microsoft Testing Platform support, you can remove the package references to `xunit.runner.visualstudio` and `Microsoft.NET.Test.Sdk`. However, for backward compatibility reasons, we recommend you leave these in place, because as of the writing of this document, third party runners (like Resharper/Rider, CodeRush, and Visual Studio Code) still rely on VSTest to be able to run xUnit.net tests. Once all runners can support Microsoft Testing Platform, then we'll be able to deprecate `xunit.runner.visualstudio`. Supporting VSTest is separate from (and does not interfere with) our support for Microsoft Testing Platform.
-
+Unlike our support for VSTest, our support for Microsoft Testing Platform is built natively into xUnit.net v3. If you want to rely solely on Microsoft Testing Platform support, you can remove the package references to `xunit.runner.visualstudio` and `Microsoft.NET.Test.Sdk`. However, for backward compatibility reasons, we recommend you leave these in place, because as of the writing of this document, third party runners (like Resharper and CodeRush) still rely on VSTest to be able to run xUnit.net tests. Once all runners can support Microsoft Testing Platform, then we'll be able to deprecate `xunit.runner.visualstudio`. Supporting VSTest is separate from (and does not interfere with) our support for Microsoft Testing Platform.
 
 ## Enabling the command line experience
 
@@ -199,8 +198,6 @@ We have created documentation describing how to get [code coverage with Microsof
 
 ## Enabling the `dotnet test` experience
 
-_**Note:** As of the writing of this document, the Microsoft Testing Platform `dotnet test` experience is still experimental._
-
 By default, xUnit.net v3 projects use VSTest when run via `dotnet test`, which comes from the `xunit.runner.visualstudio` package reference.
 
 This is what the VSTest `dotnet test` output looks like (examples using our test project from the [Getting Started with the command line](cmdline) documentation):
@@ -235,7 +232,7 @@ Actual:   False
 Failed!  - Failed:     2, Passed:     3, Skipped:     0, Total:     5, Duration: 33 ms - MyFirstUnitTests.dll (net8.0)
 ```
 
-To enable the new `dotnet test` experience, add the following property to your project file (.csproj/.fsproj/.vbproj):
+To enable MTP compatibility with the VSTest mode of `dotnet test`, add the following property to your project file (.csproj/.fsproj/.vbproj):
 
 ```xml
 <PropertyGroup>
@@ -286,6 +283,7 @@ The same command line options available in the Microsoft Testing Platform comman
 
 You can find additional configuration options for the Microsoft Testing Platform `dotnet test` integration here: [https://learn.microsoft.com/dotnet/core/testing/unit-testing-platform-integration-dotnet-test#additional-msbuild-options](https://learn.microsoft.com/dotnet/core/testing/unit-testing-platform-integration-dotnet-test#additional-msbuild-options)
 
+Note that starting with .NET 10 SDK, it's not recommended to use the MTP compatibility for VSTest mode of `dotnet test`. Instead, a new `dotnet test` mode will be available specifically for MTP. So, `TestingPlatformDotnetTestSupport` will no longer be required. For more information, see [Testing with `dotnet test`](https://learn.microsoft.com/dotnet/core/testing/unit-testing-with-dotnet-test).
 
 ## Enabling the Test Explorer experience
 
