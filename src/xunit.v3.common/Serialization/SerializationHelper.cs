@@ -498,7 +498,7 @@ public class SerializationHelper
 		if (type.IsArray)
 		{
 			// Start by making sure we're comfortable with the array type itself
-			if (!IsSerializable(null, type.GetElementType()))
+			if (!IsSerializable(value, type.GetElementType()))
 				return false;
 
 			// Then if we can, we want to verify every value in the array is okay

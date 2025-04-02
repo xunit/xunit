@@ -49,21 +49,6 @@ public class XunitSerializationInfoTests
 		}
 	}
 
-	public class AddValue
-	{
-		[Fact]
-		public void GuardClauseForNonSerializableData()
-		{
-			var info = new XunitSerializationInfo(SerializationHelper.Instance);
-
-			var ex = Record.Exception(() => info.AddValue("v", new MyClass()));
-
-			var argEx = Assert.IsType<ArgumentException>(ex);
-			Assert.Equal("value", argEx.ParamName);
-			Assert.StartsWith("Cannot serialize a value of type 'XunitSerializationInfoTests+MyClass': unsupported type for serialization", argEx.Message);
-		}
-	}
-
 	public class ToSerializedString
 	{
 		[Fact]

@@ -71,15 +71,8 @@ public class XunitSerializationInfo : IXunitSerializationInfo
 	public void AddValue(
 		string key,
 		object? value,
-		Type? valueType = null)
-	{
-		valueType ??= value?.GetType() ?? typeof(object);
-
-		if (!serializationHelper.IsSerializable(value, valueType))
-			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Cannot serialize a value of type '{0}': unsupported type for serialization", valueType.SafeName()), nameof(value));
-
-		data.Add(key, serializationHelper.Serialize(value, valueType));
-	}
+		Type? valueType = null) =>
+			data.Add(key, serializationHelper.Serialize(value, valueType ?? value?.GetType() ?? typeof(object)));
 
 	/// <inheritdoc/>
 	public object? GetValue(string key) =>
