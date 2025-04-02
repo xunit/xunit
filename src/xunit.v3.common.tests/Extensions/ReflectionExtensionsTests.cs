@@ -20,7 +20,7 @@ public class ReflectionExtensionsTests
 		Assert.Equal(0, typeof(int).GetDefaultValue());
 	}
 
-	[Theory]
+	[Theory(DisableDiscoveryEnumeration = true)]
 	// No parameter
 	[InlineData(nameof(DisplayNameClass.Parameterless), null, null, "Parameterless")]                           // match (no args)
 	[InlineData(nameof(DisplayNameClass.Parameterless), new object?[0], null, "Parameterless()")]               // match (empty args)
