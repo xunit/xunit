@@ -12,7 +12,7 @@
     <TunnelVisionLabsReferenceAssemblyAnnotatorVersion>1.0.0-alpha.160</TunnelVisionLabsReferenceAssemblyAnnotatorVersion>
 
     <!-- Used by xunit.v3 (NuGet package) -->
-    <XunitAnalyzersVersion>1.20.0</XunitAnalyzersVersion>
+    <XunitAnalyzersVersion>1.21.0</XunitAnalyzersVersion>
 
     <!-- Used by xunit.v3.assert for immutable collection and memory/span support -->
     <SystemCollectionsImmutableVersion>6.0.0</SystemCollectionsImmutableVersion>
