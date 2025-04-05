@@ -498,7 +498,7 @@ public class SerializationHelper
 		if (type.IsArray)
 		{
 			// Start by making sure we're comfortable with the array type itself
-			if (!IsSerializable(value, type.GetElementType()))
+			if (!IsSerializable(null, type.GetElementType()))
 				return false;
 
 			// Then if we can, we want to verify every value in the array is okay
@@ -564,7 +564,7 @@ public class SerializationHelper
 							nameof(value)
 						);
 
-				if (!xunitSerializer.IsSerializable(nonNullableCoreValueType, value, out var failureReason))
+				if (!xunitSerializer.IsSerializable(nonNullableCoreValueType, isArray ? null : value, out var failureReason))
 					throw new ArgumentException(failureReason, nameof(value));
 
 				typeIdx = TypeIndex.IXunitSerializer;
