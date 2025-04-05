@@ -667,6 +667,239 @@ public class EventAssertsTests
 		}
 	}
 
+	public class NotRaisedAny_Action
+	{
+		[Fact]
+		public static void NoEventRaised()
+		{
+			var obj = new RaisingClass_ActionOfT();
+
+			var ex = Record.Exception(
+				() => Assert.NotRaisedAny<object>(
+					h => obj.Completed += h,
+					h => obj.Completed -= h,
+					() => { }
+				)
+			);
+
+			Assert.Null(ex);
+		}
+
+		[Fact]
+		public static void EventRaised()
+		{
+			var obj = new RaisingClass_ActionOfT();
+			var eventObj = new object();
+
+			var ex = Record.Exception(
+				() => Assert.NotRaisedAny<object>(
+					h => obj.Completed += h,
+					h => obj.Completed -= h,
+					() => obj.RaiseWithArgs(eventObj)
+				)
+			);
+
+			Assert.IsType<NotRaisesException>(ex);
+			Assert.Equal(
+				$"Assert.NotRaisedAny() Failure: An unexpected event was raised{Environment.NewLine}Unexpected: typeof(object){Environment.NewLine}Actual:   An event was raised",
+				ex.Message
+			);
+		}
+
+	}
+
+	public class NotRaisedAny_EventHandler
+	{
+		[Fact]
+		public static void NoEventRaised()
+		{
+			var obj = new RaisingClass_EventHandlerOfT();
+
+			var ex = Record.Exception(
+				() => Assert.NotRaisedAny<object>(
+					h => obj.Completed += h,
+					h => obj.Completed -= h,
+					() => { }
+				)
+			);
+
+			Assert.Null(ex);
+		}
+
+		[Fact]
+		public static void EventRaised()
+		{
+			var obj = new RaisingClass_EventHandlerOfT();
+			var eventObj = new object();
+
+			var ex = Record.Exception(
+				() => Assert.NotRaisedAny<object>(
+					h => obj.Completed += h,
+					h => obj.Completed -= h,
+					() => obj.RaiseWithArgs(eventObj)
+				)
+			);
+
+			Assert.IsType<NotRaisesException>(ex);
+			Assert.Equal(
+				$"Assert.NotRaisedAny() Failure: An unexpected event was raised{Environment.NewLine}Unexpected: typeof(object){Environment.NewLine}Actual:   An event was raised",
+				ex.Message
+			);
+		}
+	}
+
+	public class NotRaisedAnyAsync_Action
+	{
+		[Fact]
+		public static async Task NoEventRaised()
+		{
+			var obj = new RaisingClass_ActionOfT();
+
+			var ex = await Record.ExceptionAsync(
+				() => Assert.NotRaisedAnyAsync<object>(
+					h => obj.Completed += h,
+					h => obj.Completed -= h,
+					() => Task.FromResult(0)
+				)
+			);
+
+			Assert.Null(ex);
+		}
+
+		[Fact]
+		public static async Task EventRaised()
+		{
+			var obj = new RaisingClass_ActionOfT();
+			var eventObj = new object();
+
+			var ex = await Record.ExceptionAsync(
+				() => Assert.NotRaisedAnyAsync<object>(
+					h => obj.Completed += h,
+					h => obj.Completed -= h,
+					() => Task.Run(() => obj.RaiseWithArgs(eventObj), TestContext.Current.CancellationToken)
+				)
+			);
+
+			Assert.IsType<NotRaisesException>(ex);
+			Assert.Equal(
+				$"Assert.NotRaisedAny() Failure: An unexpected event was raised{Environment.NewLine}Unexpected: typeof(object){Environment.NewLine}Actual:   An event was raised",
+				ex.Message
+			);
+		}
+	}
+
+	public class NotRaisedAnyAsync_EventHandler
+	{
+		[Fact]
+		public static async Task NoEventRaised()
+		{
+			var obj = new RaisingClass_EventHandlerOfT();
+
+			var ex = await Record.ExceptionAsync(
+				() => Assert.NotRaisedAnyAsync<object>(
+					h => obj.Completed += h,
+					h => obj.Completed -= h,
+					() => Task.FromResult(0)
+				)
+			);
+
+			Assert.Null(ex);
+		}
+
+		[Fact]
+		public static async Task EventRaised()
+		{
+			var obj = new RaisingClass_EventHandlerOfT();
+			var eventObj = new object();
+
+			var ex = await Record.ExceptionAsync(
+				() => Assert.NotRaisedAnyAsync<object>(
+					h => obj.Completed += h,
+					h => obj.Completed -= h,
+					() => Task.Run(() => obj.RaiseWithArgs(eventObj), TestContext.Current.CancellationToken)
+				)
+			);
+
+			Assert.IsType<NotRaisesException>(ex);
+			Assert.Equal(
+				$"Assert.NotRaisedAny() Failure: An unexpected event was raised{Environment.NewLine}Unexpected: typeof(object){Environment.NewLine}Actual:   An event was raised",
+				ex.Message
+			);
+		}
+	}
+
+	public class NotRaisedAny_NoArgs
+	{
+		[Fact]
+		public static void NoEventRaised()
+		{
+			var obj = new RaisingClass_Action();
+
+			var ex = Record.Exception(
+				() => Assert.NotRaisedAny(
+					h => obj.Completed += h,
+					h => obj.Completed -= h,
+					() => { }
+				)
+			);
+
+			Assert.Null(ex);
+		}
+
+		[Fact]
+		public static void EventRaised()
+		{
+			var obj = new RaisingClass_Action();
+
+			var ex = Record.Exception(
+				() => Assert.NotRaisedAny(
+					h => obj.Completed += h,
+					h => obj.Completed -= h,
+					() => obj.Raise()
+				)
+			);
+
+			Assert.IsType<NotRaisesException>(ex);
+			Assert.Equal("Assert.NotRaisedAny() Failure: An unexpected event was raised", ex.Message);
+		}
+	}
+
+	public class NotRaisedAnyAsync_NoArgs
+	{
+		[Fact]
+		public static async Task NoEventRaised()
+		{
+			var obj = new RaisingClass_Action();
+
+			var ex = await Record.ExceptionAsync(
+				() => Assert.NotRaisedAnyAsync(
+					h => obj.Completed += h,
+					h => obj.Completed -= h,
+					() => Task.CompletedTask
+				)
+			);
+
+			Assert.Null(ex);
+		}
+
+		[Fact]
+		public static async Task EventRaised()
+		{
+			var obj = new RaisingClass_Action();
+
+			var ex = await Record.ExceptionAsync(
+				() => Assert.NotRaisedAnyAsync(
+					h => obj.Completed += h,
+					h => obj.Completed -= h,
+					() => Task.Run(() => obj.Raise(), TestContext.Current.CancellationToken)
+				)
+			);
+
+			Assert.IsType<NotRaisesException>(ex);
+			Assert.Equal("Assert.NotRaisedAny() Failure: An unexpected event was raised", ex.Message);
+		}
+	}
+
 	class RaisingClass_Action
 	{
 		public void Raise()
