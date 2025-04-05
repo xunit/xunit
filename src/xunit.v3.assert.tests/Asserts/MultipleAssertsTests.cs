@@ -85,7 +85,7 @@ public class MultipleAssertsTests
 	{
 		var task = (bool isTrue) => Task.FromResult(isTrue);
 
-        await Assert.MultipleAsync(
+		await Assert.MultipleAsync(
 			async () => Assert.True(await task(true))
 		);
 	}
@@ -95,7 +95,7 @@ public class MultipleAssertsTests
 	{
 		var task = (bool isTrue) => Task.FromResult(isTrue);
 
-        await Assert.MultipleAsync(
+		await Assert.MultipleAsync(
 			async () => Assert.True(await task(true)),
 			async () => Assert.True(await task(true)),
 			async () => Assert.True(await task(true))
