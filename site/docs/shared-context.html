@@ -54,9 +54,13 @@ breadcrumb: Documentation
 </p>
 
 <p>
-  Note: you cannot call asynchronous methods in a constructor.
-  Also xUnit v2 does not call <code>IAsyncDisposable</code> (it is planned for xUnit v3).
-  To perform async setup and cleanup you need to implement <code>IAsyncLifetime</code>.
+  Note: you cannot call asynchronous methods in a constructor. You can implement
+  <code>IAsyncLifetime</code> to get both an async startup and cleanup method
+  (<code>InitializeAsync</code> and <code>DisposeAsync</code>). For xUnit.net v3,
+  the <code>DisposeAsync</code> comes from <code>IAsyncDisposable</code>, which you
+  can implement independently just for async cleanup (note: xUnit.net v2 does not
+  support <code>IAsyncDisposable</code>, only v3; to get async cleanup in v2,
+  you must implement the full <code>IAsyncLifetime</code> interface).
 </p>
 
 <p>Here is a simple example:</p>
