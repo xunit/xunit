@@ -11,6 +11,7 @@ public partial class BuildContext
 {
 	string? consoleRunnerExe;
 	string? consoleRunner32Exe;
+	string? docFXOutputFolder;
 	string? dotnet32Path;
 	bool dotnet32SdkInstalled;
 	string? testFlagsNonParallel;
@@ -29,6 +30,12 @@ public partial class BuildContext
 	{
 		get => consoleRunner32Exe ?? throw new InvalidOperationException($"Tried to retrieve unset {nameof(BuildContext)}.{nameof(ConsoleRunner32Exe)}");
 		private set => consoleRunner32Exe = value ?? throw new ArgumentNullException(nameof(ConsoleRunner32Exe));
+	}
+
+	public string DocFXOutputFolder
+	{
+		get => docFXOutputFolder ?? throw new InvalidOperationException($"Tried to retrieve unset {nameof(BuildContext)}.{nameof(DocFXOutputFolder)}");
+		private set => docFXOutputFolder = value ?? throw new ArgumentNullException(nameof(DocFXOutputFolder));
 	}
 
 	public string TestFlagsNonParallel
@@ -76,6 +83,8 @@ public partial class BuildContext
 		TestFlagsNonParallel = "-parallel none ";
 		TestFlagsParallel = "";
 		TestFlagsParallelMTP = "";
+
+		DocFXOutputFolder = Path.Combine(ArtifactsFolder, "docfx");
 
 		// Run parallelizable tests with a single thread in CI to help catch Task-related deadlocks
 		if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("CI")))

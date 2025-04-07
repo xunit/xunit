@@ -2,6 +2,7 @@ namespace Xunit.BuildTools.Models;
 
 public partial class BuildTarget
 {
+	public const string DocFX = nameof(DocFX);
 	public const string TestConsole = nameof(TestConsole);
 	public const string TestCore = nameof(TestCore);
 	public const string TestCoreConsole = nameof(TestCoreConsole);
