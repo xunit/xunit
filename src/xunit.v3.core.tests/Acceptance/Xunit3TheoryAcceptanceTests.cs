@@ -872,7 +872,7 @@ public class Xunit3TheoryAcceptanceTests
 	[Collection("Timeout Tests")]
 	public class DataAttributeTimeoutTests : AcceptanceTestV3
 	{
-		[Theory]
+		[Theory(Skip = "Cannot run under a debugger", SkipWhen = nameof(Debugger.IsAttached), SkipType = typeof(Debugger))]
 		[InlineData(true)]
 		[InlineData(false)]
 		public async ValueTask TimeoutAcceptanceTest(bool preEnumerateTheories)

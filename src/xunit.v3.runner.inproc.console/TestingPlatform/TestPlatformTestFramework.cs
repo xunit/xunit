@@ -32,7 +32,7 @@ namespace Xunit.Runner.InProc.SystemConsole.TestingPlatform;
 /// </summary>
 [ExcludeFromCodeCoverage]
 public class TestPlatformTestFramework :
-	ExtensionBase, ITestPlatformTestFramework, IDataProducer
+	OutputDeviceDataProducerBase, ITestPlatformTestFramework, IDataProducer
 {
 	readonly IMessageSink? diagnosticMessageSink;
 	readonly IMessageSink innerSink;
@@ -140,6 +140,9 @@ public class TestPlatformTestFramework :
 		CancellationToken cancellationToken) =>
 			OnRequest(sessionUid, operationComplete, async (projectRunner, pipelineStartup) =>
 			{
+				if (Debugger.IsAttached)
+					await outputDevice.DisplayAsync(this, ToMessageWithColor("* Note: Long running test detection and test timeouts are disabled due to an attached debugger *" + Environment.NewLine, ConsoleColor.Yellow));
+
 				var testCaseIDsToRun = filter switch
 				{
 					TestNodeUidListFilter filter => filter.TestNodeUids.Select(u => u.Value).ToHashSet(StringComparer.OrdinalIgnoreCase),

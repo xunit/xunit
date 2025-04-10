@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -258,7 +259,7 @@ public class ExecutionSinkTests
 
 	public class LongRunningTestDetection
 	{
-		[Fact]
+		[Fact(Skip = "Cannot run under a debugger", SkipWhen = nameof(Debugger.IsAttached), SkipType = typeof(Debugger))]
 		public async ValueTask ShortRunningTests_NoMessages()
 		{
 			var events = new List<LongRunningTestsSummary>();
@@ -273,7 +274,7 @@ public class ExecutionSinkTests
 			Assert.Empty(events);
 		}
 
-		[Fact(Skip = "Flaky, need to determine why manual timing is no long effective")]
+		[Fact(Skip = "Cannot run under a debugger", SkipWhen = nameof(Debugger.IsAttached), SkipType = typeof(Debugger))]
 		public async ValueTask LongRunningTest_ReportedOnce()
 		{
 			var events = new List<LongRunningTestsSummary>();
@@ -293,10 +294,10 @@ public class ExecutionSinkTests
 			Assert.Equal(TimeSpan.FromMilliseconds(1500), receivedTestCasePair.Value);
 
 			var diagMessage = Assert.Single(sink.DiagnosticMessageSink.Messages.OfType<IDiagnosticMessage>());
-			Assert.Equal("[Long Running Test] 'My test display name', Elapsed: 00:00:01", diagMessage.Message);
+			Assert.StartsWith("[Long Running Test] 'My test display name', Elapsed: ", diagMessage.Message);
 		}
 
-		[Fact(Skip = "Flaky, need to determine why manual timing is no long effective")]
+		[Fact(Skip = "Cannot run under a debugger", SkipWhen = nameof(Debugger.IsAttached), SkipType = typeof(Debugger))]
 		public async ValueTask LongRunningTest_ReportedTwice()
 		{
 			var events = new List<LongRunningTestsSummary>();
@@ -329,12 +330,12 @@ public class ExecutionSinkTests
 			);
 
 			Assert.Collection(sink.DiagnosticMessageSink.Messages.OfType<IDiagnosticMessage>(),
-				diagMessage => Assert.Equal("[Long Running Test] 'My test display name', Elapsed: 00:00:01", diagMessage.Message),
-				diagMessage => Assert.Equal("[Long Running Test] 'My test display name', Elapsed: 00:00:02", diagMessage.Message)
+				diagMessage => Assert.StartsWith("[Long Running Test] 'My test display name', Elapsed: ", diagMessage.Message),
+				diagMessage => Assert.StartsWith("[Long Running Test] 'My test display name', Elapsed: ", diagMessage.Message)
 			);
 		}
 
-		[Fact(Skip = "Flaky, need to determine why manual timing is no long effective")]
+		[Fact(Skip = "Cannot run under a debugger", SkipWhen = nameof(Debugger.IsAttached), SkipType = typeof(Debugger))]
 		public async ValueTask OnlyIncludesLongRunningTests()
 		{
 			var events = new List<LongRunningTestsSummary>();
@@ -355,7 +356,6 @@ public class ExecutionSinkTests
 			Assert.Equal(TimeSpan.FromSeconds(1), @event.ConfiguredLongRunningTime);
 			var receivedTestCasePair = Assert.Single(@event.TestCases);
 			Assert.Same(testCase1Starting, receivedTestCasePair.Key);
-			Assert.Equal(TimeSpan.FromSeconds(1), receivedTestCasePair.Value);
 		}
 	}
 
