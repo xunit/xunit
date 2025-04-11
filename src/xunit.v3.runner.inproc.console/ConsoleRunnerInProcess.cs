@@ -41,7 +41,7 @@ public static class ConsoleRunnerInProcess
 		}
 		finally
 		{
-			await startStop.DisposeAsync();
+			await startStop.SafeDisposeAsync();
 		}
 	}
 
@@ -84,7 +84,7 @@ public static class ConsoleRunnerInProcess
 		}
 		finally
 		{
-			await startStop.DisposeAsync();
+			await startStop.SafeDisposeAsync();
 		}
 	}
 

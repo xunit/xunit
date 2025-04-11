@@ -31,7 +31,7 @@ public class DelegatingMessageBus(
 	{
 		GC.SuppressFinalize(this);
 
-		innerMessageBus.Dispose();
+		innerMessageBus.SafeDispose();
 	}
 }
 

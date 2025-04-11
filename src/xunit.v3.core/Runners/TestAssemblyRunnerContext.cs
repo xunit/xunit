@@ -115,7 +115,7 @@ public class TestAssemblyRunnerContext<TTestAssembly, TTestCase>(
 	{
 		GC.SuppressFinalize(this);
 
-		messageBus?.Dispose();
+		messageBus?.SafeDispose();
 
 		try
 		{

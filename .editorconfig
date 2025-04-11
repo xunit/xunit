@@ -222,6 +222,10 @@ dotnet_naming_style.begins_with_i.capitalization = pascal_case
 
 #### Code quality rules ####
 
+# Tracking for SafeDispose and SafeDisposeAsync
+
+dotnet_code_quality.dispose_ownership_transfer_at_method_call = true
+
 # Analyzer configuration
 
 dotnet_code_quality.CA1062.null_check_validation_methods = Xunit.Internal.Guard.ArgumentNotNull``1(``0,System.String)|Xunit.Internal.Guard.ArgumentNotNull``1(System.Nullable{``0},System.String)|Xunit.Internal.Guard.ArgumentNotNull``1(System.String,``0,System.String)|Xunit.Internal.Guard.ArgumentNotNullOrEmpty``1(``0,System.String)|Xunit.Internal.Guard.ArgumentNotNullOrEmpty``1(System.String,``0,System.String)

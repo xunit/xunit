@@ -9,6 +9,7 @@
       </ItemGroup>
 
       <ItemGroup Condition=" !$(MSBuildProjectName.EndsWith('.tests')) AND !$(MSBuildProjectName.Contains('.assert')) ">
+        <Compile Include="$(MSBuildThisFileDirectory)common\DisposableExtensions.cs" LinkBase="Common" />
         <Compile Include="$(MSBuildThisFileDirectory)xunit.v3.assert/Asserts/Sdk/StringSyntaxAttribute.cs" LinkBase="Common" />
       </ItemGroup>
     </When>

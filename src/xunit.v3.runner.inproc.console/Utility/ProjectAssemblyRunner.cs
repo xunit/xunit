@@ -232,9 +232,9 @@ public sealed class ProjectAssemblyRunner(
 
 				foreach (var testCase in testCases)
 					if (testCase is IAsyncDisposable asyncDisposable)
-						await asyncDisposable.DisposeAsync();
+						await asyncDisposable.SafeDisposeAsync();
 					else if (testCase is IDisposable disposable)
-						disposable.Dispose();
+						disposable.SafeDispose();
 			}
 			else
 			{
@@ -271,9 +271,9 @@ public sealed class ProjectAssemblyRunner(
 
 					foreach (var testCase in testCasesToRun)
 						if (testCase is IAsyncDisposable asyncDisposable)
-							await asyncDisposable.DisposeAsync();
+							await asyncDisposable.SafeDisposeAsync();
 						else if (testCase is IDisposable disposable)
-							disposable.Dispose();
+							disposable.SafeDispose();
 				}
 				else
 					await frontController.FindAndRun(

@@ -90,7 +90,7 @@ public class Xunit3 : IFrontController
 		}
 		finally
 		{
-			process.Dispose();
+			process.SafeDispose();
 		}
 	}
 
@@ -111,7 +111,7 @@ public class Xunit3 : IFrontController
 		}
 		finally
 		{
-			process.Dispose();
+			process.SafeDispose();
 		}
 	}
 
@@ -133,7 +133,7 @@ public class Xunit3 : IFrontController
 		}
 		finally
 		{
-			process.Dispose();
+			process.SafeDispose();
 		}
 	}
 

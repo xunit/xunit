@@ -33,7 +33,7 @@ public class AggregateMessageSink : IMessageSink, IAsyncDisposable
 			AggregatedSinks.Clear();
 		}
 
-		return tracker.DisposeAsync();
+		return tracker.SafeDisposeAsync();
 	}
 
 	/// <summary>

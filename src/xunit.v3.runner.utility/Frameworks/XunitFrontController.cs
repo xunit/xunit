@@ -89,7 +89,7 @@ public class XunitFrontController : IFrontController
 
 		GC.SuppressFinalize(this);
 
-		await innerController.DisposeAsync();
+		await innerController.SafeDisposeAsync();
 	}
 
 	/// <inheritdoc/>

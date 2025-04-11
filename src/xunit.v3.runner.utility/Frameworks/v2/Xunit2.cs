@@ -217,7 +217,7 @@ public class Xunit2 : IFrontController
 
 		GC.SuppressFinalize(this);
 
-		return DisposalTracker.DisposeAsync();
+		return DisposalTracker.SafeDisposeAsync();
 	}
 
 	/// <inheritdoc/>

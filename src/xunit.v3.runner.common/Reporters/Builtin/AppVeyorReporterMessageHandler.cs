@@ -57,7 +57,7 @@ public class AppVeyorReporterMessageHandler : DefaultRunnerReporterMessageHandle
 
 		lock (clientLock)
 		{
-			client?.Dispose();
+			client?.SafeDispose();
 			client = null;
 
 			if (assembliesInFlight != 0)
@@ -85,7 +85,7 @@ public class AppVeyorReporterMessageHandler : DefaultRunnerReporterMessageHandle
 
 			if (assembliesInFlight == 0)
 			{
-				client?.Dispose();
+				client?.SafeDispose();
 				client = null;
 			}
 		}

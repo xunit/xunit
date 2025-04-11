@@ -90,7 +90,7 @@ public class TestProcessLauncherAdapter(ITestProcessLauncher launcher) :
 			}
 			finally
 			{
-				process.Dispose();
+				process.SafeDispose();
 				discoverySink.Finish();
 			}
 		});
@@ -192,7 +192,7 @@ public class TestProcessLauncherAdapter(ITestProcessLauncher launcher) :
 			}
 			finally
 			{
-				process.Dispose();
+				process.SafeDispose();
 			}
 		});
 

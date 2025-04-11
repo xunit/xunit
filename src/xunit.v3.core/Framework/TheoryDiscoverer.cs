@@ -262,7 +262,7 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 			}
 			finally
 			{
-				await disposalTracker.DisposeAsync();
+				await disposalTracker.SafeDisposeAsync();
 			}
 		}
 
