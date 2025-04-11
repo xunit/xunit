@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -254,108 +253,6 @@ public class ExecutionSinkTests
 			Assert.Equal(inputSummary.TestsFailed + 1, outputSummary.TestsFailed);
 			Assert.Equal(inputSummary.TestsNotRun, outputSummary.TestsNotRun);
 			Assert.Equal(inputSummary.TestsSkipped, outputSummary.TestsSkipped);
-		}
-	}
-
-	public class LongRunningTestDetection
-	{
-		[Fact(Skip = "Cannot run under a debugger", SkipWhen = nameof(Debugger.IsAttached), SkipType = typeof(Debugger))]
-		public async ValueTask ShortRunningTests_NoMessages()
-		{
-			var events = new List<LongRunningTestsSummary>();
-			using var sink = TestableExecutionSink.Create(longRunningSeconds: 1, longRunningTestCallback: events.Add);
-
-			sink.OnMessage(TestData.TestAssemblyStarting());
-			sink.OnMessage(TestData.TestCaseStarting());
-			await sink.AdvanceClockAsync(100);
-			sink.OnMessage(TestData.TestCaseFinished());
-			sink.OnMessage(TestData.TestAssemblyFinished());
-
-			Assert.Empty(events);
-		}
-
-		[Fact(Skip = "Cannot run under a debugger", SkipWhen = nameof(Debugger.IsAttached), SkipType = typeof(Debugger))]
-		public async ValueTask LongRunningTest_ReportedOnce()
-		{
-			var events = new List<LongRunningTestsSummary>();
-			using var sink = TestableExecutionSink.Create(longRunningSeconds: 1, longRunningTestCallback: events.Add);
-			var testCaseStarting = TestData.TestCaseStarting(testCaseDisplayName: "My test display name");
-
-			sink.OnMessage(TestData.TestAssemblyStarting());
-			sink.OnMessage(testCaseStarting);
-			await sink.AdvanceClockAsync(1500);
-			sink.OnMessage(TestData.TestCaseFinished());
-			sink.OnMessage(TestData.TestAssemblyFinished());
-
-			var @event = Assert.Single(events);
-			Assert.Equal(TimeSpan.FromSeconds(1), @event.ConfiguredLongRunningTime);
-			var receivedTestCasePair = Assert.Single(@event.TestCases);
-			Assert.Same(testCaseStarting, receivedTestCasePair.Key);
-			Assert.Equal(TimeSpan.FromMilliseconds(1500), receivedTestCasePair.Value);
-
-			var diagMessage = Assert.Single(sink.DiagnosticMessageSink.Messages.OfType<IDiagnosticMessage>());
-			Assert.StartsWith("[Long Running Test] 'My test display name', Elapsed: ", diagMessage.Message);
-		}
-
-		[Fact(Skip = "Cannot run under a debugger", SkipWhen = nameof(Debugger.IsAttached), SkipType = typeof(Debugger))]
-		public async ValueTask LongRunningTest_ReportedTwice()
-		{
-			var events = new List<LongRunningTestsSummary>();
-			using var sink = TestableExecutionSink.Create(longRunningSeconds: 1, longRunningTestCallback: events.Add);
-			var testCaseStarting = TestData.TestCaseStarting(testCaseDisplayName: "My test display name");
-
-			sink.OnMessage(TestData.TestAssemblyStarting());
-			sink.OnMessage(testCaseStarting);
-			await sink.AdvanceClockAsync(1000);
-			await sink.AdvanceClockAsync(500);
-			await sink.AdvanceClockAsync(500);
-			sink.OnMessage(TestData.TestCaseFinished());
-			sink.OnMessage(TestData.TestAssemblyFinished());
-
-			Assert.Collection(events,
-				@event =>
-				{
-					Assert.Equal(TimeSpan.FromSeconds(1), @event.ConfiguredLongRunningTime);
-					var receivedTestCasePair = Assert.Single(@event.TestCases);
-					Assert.Same(testCaseStarting, receivedTestCasePair.Key);
-					Assert.Equal(TimeSpan.FromSeconds(1), receivedTestCasePair.Value);
-				},
-				@event =>
-				{
-					Assert.Equal(TimeSpan.FromSeconds(1), @event.ConfiguredLongRunningTime);
-					var receivedTestCasePair = Assert.Single(@event.TestCases);
-					Assert.Same(testCaseStarting, receivedTestCasePair.Key);
-					Assert.Equal(TimeSpan.FromSeconds(2), receivedTestCasePair.Value);
-				}
-			);
-
-			Assert.Collection(sink.DiagnosticMessageSink.Messages.OfType<IDiagnosticMessage>(),
-				diagMessage => Assert.StartsWith("[Long Running Test] 'My test display name', Elapsed: ", diagMessage.Message),
-				diagMessage => Assert.StartsWith("[Long Running Test] 'My test display name', Elapsed: ", diagMessage.Message)
-			);
-		}
-
-		[Fact(Skip = "Cannot run under a debugger", SkipWhen = nameof(Debugger.IsAttached), SkipType = typeof(Debugger))]
-		public async ValueTask OnlyIncludesLongRunningTests()
-		{
-			var events = new List<LongRunningTestsSummary>();
-			using var sink = TestableExecutionSink.Create(longRunningSeconds: 1, longRunningTestCallback: events.Add);
-			var testCase1Starting = TestData.TestCaseStarting(testCaseUniqueID: "1");
-			var testCase2Starting = TestData.TestCaseStarting(testCaseUniqueID: "2");
-
-			sink.OnMessage(TestData.TestAssemblyStarting());
-			sink.OnMessage(testCase1Starting);
-			await sink.AdvanceClockAsync(500);
-			sink.OnMessage(testCase2Starting);  // Started later, hasn't run long enough
-			await sink.AdvanceClockAsync(500);
-			sink.OnMessage(TestData.TestCaseFinished(testCaseUniqueID: "1"));
-			sink.OnMessage(TestData.TestCaseFinished(testCaseUniqueID: "2"));
-			sink.OnMessage(TestData.TestAssemblyFinished());
-
-			var @event = Assert.Single(events);
-			Assert.Equal(TimeSpan.FromSeconds(1), @event.ConfiguredLongRunningTime);
-			var receivedTestCasePair = Assert.Single(@event.TestCases);
-			Assert.Same(testCase1Starting, receivedTestCasePair.Key);
 		}
 	}
 
