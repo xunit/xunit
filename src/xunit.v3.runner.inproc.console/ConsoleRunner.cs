@@ -211,6 +211,19 @@ public class ConsoleRunner(
 				if (!reporter.ForceNoLogo && !project.Configuration.NoLogoOrDefault)
 					consoleHelper.WriteLine(ProjectAssemblyRunner.Banner);
 
+				if (Debugger.IsAttached)
+				{
+					if (!noColor)
+						consoleHelper.SetForegroundColor(ConsoleColor.Yellow);
+
+					consoleHelper.WriteLine();
+					consoleHelper.WriteLine("* Note: Long running test detection and test timeouts are disabled due to an attached debugger *");
+					consoleHelper.WriteLine();
+
+					if (!noColor)
+						consoleHelper.ResetColor();
+				}
+
 				foreach (var warning in warnings)
 					if (automatedMode != AutomatedMode.Off)
 						logger.WriteMessage(new DiagnosticMessage("warning: " + warning));

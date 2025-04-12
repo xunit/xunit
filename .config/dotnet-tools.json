@@ -6,7 +6,15 @@
       "version": "0.9.1-beta.23203.3",
       "commands": [
         "sign"
-      ]
+      ],
+      "rollForward": false
+    },
+    "docfx": {
+      "version": "2.78.3",
+      "commands": [
+        "docfx"
+      ],
+      "rollForward": false
     }
   }
 }

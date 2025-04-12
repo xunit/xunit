@@ -1,0 +1,4 @@
+apiRules:
+  - exclude:
+      uidRegex: ^Xunit\.Internal$
+      type: Namespace

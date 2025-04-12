@@ -48,7 +48,7 @@ public abstract class TestFrameworkExecutor<TTestCase>(ITestAssembly testAssembl
 
 		GC.SuppressFinalize(this);
 
-		return DisposalTracker.DisposeAsync();
+		return DisposalTracker.SafeDisposeAsync();
 	}
 
 	/// <summary>

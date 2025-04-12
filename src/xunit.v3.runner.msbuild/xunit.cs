@@ -286,6 +286,10 @@ public class xunit : MSBuildTask, ICancelableTask, IDisposable
 				lock (logLock)
 					Log.LogMessage(MessageImportance.High, "xUnit.net v3 MSBuild Runner v{0} ({1}-bit {2})", ThisAssembly.AssemblyInformationalVersion, IntPtr.Size * 8, RuntimeInformation.FrameworkDescription);
 
+			if (Debugger.IsAttached)
+				lock (logLock)
+					Log.LogWarning("Long running test detection is disabled due to an attached debugger");
+
 			var project = new XunitProject();
 			foreach (var assembly in Assemblies)
 			{

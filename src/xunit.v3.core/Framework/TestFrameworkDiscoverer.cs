@@ -47,7 +47,7 @@ public abstract class TestFrameworkDiscoverer<TTestClass>(ITestAssembly testAsse
 
 		disposed = true;
 
-		return DisposalTracker.DisposeAsync();
+		return DisposalTracker.SafeDisposeAsync();
 	}
 
 	/// <inheritdoc/>

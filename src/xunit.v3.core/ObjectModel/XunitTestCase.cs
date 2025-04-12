@@ -257,7 +257,7 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 	{
 		GC.SuppressFinalize(this);
 
-		return DisposalTracker.DisposeAsync();
+		return DisposalTracker.SafeDisposeAsync();
 	}
 
 	/// <inheritdoc/>

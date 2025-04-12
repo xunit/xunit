@@ -111,9 +111,9 @@ public class XunitTestAssemblyRunnerBaseContext<TTestAssembly, TTestCase>(
 		GC.SuppressFinalize(this);
 
 		if (syncContext is IAsyncDisposable asyncDisposable)
-			await asyncDisposable.DisposeAsync();
+			await asyncDisposable.SafeDisposeAsync();
 		else if (syncContext is IDisposable disposable)
-			disposable.Dispose();
+			disposable.SafeDispose();
 
 		parallelSemaphore?.Dispose();
 

@@ -188,9 +188,9 @@ public class InProcessFrontController
 
 		foreach (var testCase in testCases)
 			if (testCase is IAsyncDisposable asyncDisposable)
-				await asyncDisposable.DisposeAsync();
+				await asyncDisposable.SafeDisposeAsync();
 			else if (testCase is IDisposable disposable)
-				disposable.Dispose();
+				disposable.SafeDispose();
 	}
 
 	/// <summary>

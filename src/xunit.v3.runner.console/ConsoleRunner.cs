@@ -116,6 +116,19 @@ sealed class ConsoleRunner(string[] args) :
 			if (!reporter.ForceNoLogo && !project.Configuration.NoLogoOrDefault)
 				PrintHeader();
 
+			if (Debugger.IsAttached)
+			{
+				if (!noColor)
+					consoleHelper.SetForegroundColor(ConsoleColor.Yellow);
+
+				consoleHelper.WriteLine();
+				consoleHelper.WriteLine("* Note: Long running test detection is disabled due to an attached debugger *");
+				consoleHelper.WriteLine();
+
+				if (!noColor)
+					consoleHelper.ResetColor();
+			}
+
 			foreach (var warning in commandLine.ParseWarnings)
 				logger.LogWarning(warning);
 

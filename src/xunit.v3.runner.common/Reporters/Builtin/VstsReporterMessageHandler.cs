@@ -53,7 +53,7 @@ public class VstsReporterMessageHandler(
 
 		lock (clientLock)
 		{
-			client?.Dispose();
+			client?.SafeDispose();
 			client = null;
 
 			if (assembliesInFlight != 0)
@@ -73,7 +73,7 @@ public class VstsReporterMessageHandler(
 			if (assembliesInFlight == 0)
 			{
 				// Drain the queue
-				client?.Dispose();
+				client?.SafeDispose();
 				client = null;
 			}
 		}

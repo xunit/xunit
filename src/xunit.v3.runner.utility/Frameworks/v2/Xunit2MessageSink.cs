@@ -30,7 +30,7 @@ public class Xunit2MessageSink(
 	{
 		GC.SuppressFinalize(this);
 
-		(v3MessageSink as IDisposable)?.Dispose();
+		(v3MessageSink as IDisposable)?.SafeDispose();
 	}
 
 	static HashSet<string>? GetImplementedInterfaces(IMessageSinkMessage message)

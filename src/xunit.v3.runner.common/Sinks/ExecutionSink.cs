@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -67,7 +68,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 		this.innerSink = Guard.ArgumentNotNull(innerSink);
 		this.options = Guard.ArgumentNotNull(options);
 
-		if (options.LongRunningTestTime > TimeSpan.Zero)
+		if (options.LongRunningTestTime > TimeSpan.Zero && !Debugger.IsAttached)
 			executingTestCases = [];
 
 		errorsElement =

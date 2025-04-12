@@ -1,0 +1,22 @@
+{
+  "metadata": [
+    {
+      "src": [
+        {
+          "src": "../",
+          "files": [
+            "src/xunit.v3.assert/xunit.v3.assert.csproj",
+            "src/xunit.v3.common/xunit.v3.common.csproj",
+            "src/xunit.v3.core/xunit.v3.core.csproj",
+            "src/xunit.v3.runner.common/xunit.v3.runner.common.csproj",
+            "src/xunit.v3.runner.utility/xunit.v3.runner.utility.csproj"
+          ]
+        }
+      ],
+      "dest": "../artifacts/docfx",
+      "namespaceLayout": "flattened",
+      "memberLayout": "separatePages",
+      "filter": "filterConfig.yml"
+    }
+  ]
+}

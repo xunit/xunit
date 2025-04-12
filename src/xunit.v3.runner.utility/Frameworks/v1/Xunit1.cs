@@ -96,8 +96,8 @@ public class Xunit1 : IFrontController
 
 		GC.SuppressFinalize(this);
 
-		await disposalTracker.DisposeAsync();
-		executor?.Dispose();
+		await disposalTracker.SafeDisposeAsync();
+		executor?.SafeDispose();
 	}
 
 	/// <summary>

@@ -183,7 +183,7 @@ public class AssemblyRunner : IAsyncDisposable, IMessageSink
 
 		GC.SuppressFinalize(this);
 
-		await disposalTracker.DisposeAsync();
+		await disposalTracker.SafeDisposeAsync();
 		discoveryCompleteEvent?.Dispose();
 		executionCompleteEvent?.Dispose();
 	}

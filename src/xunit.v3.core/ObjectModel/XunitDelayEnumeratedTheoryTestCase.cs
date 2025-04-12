@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -125,7 +126,7 @@ public class XunitDelayEnumeratedTheoryTestCase : XunitTestCase, IXunitDelayEnum
 					theoryDisplayName,
 					testIndex++,
 					traits.ToReadOnly(),
-					timeout,
+					Debugger.IsAttached ? 0 : timeout,
 					convertedDataRow
 				);
 

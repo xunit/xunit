@@ -39,7 +39,7 @@ public class Xunit2SourceInformationProvider : MarshalByRefObject, Abstractions.
 
 		// Have to do disposal on a background thread, since we can't guarantee that disposal
 		// will be synchronous (and we can't change the contract of ISourceInformationProvider).
-		Task.Run(async () => await disposalTracker.DisposeAsync());
+		Task.Run(async () => await disposalTracker.SafeDisposeAsync());
 	}
 
 	/// <inheritdoc/>
