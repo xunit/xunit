@@ -10,7 +10,7 @@ _Last updated: 2024 December 16_
 
 ## Using .NET or .NET Framework with the .NET SDK command line
 
-In this document, we will demonstrate getting started with xUnit.net v3 when targeting .NET 6 (or later) and/or .NET Framework 4.7.2 (or later), showing you how to write and run your first set of unit tests. We will be using the .NET SDK command line.
+In this document, we will demonstrate getting started with xUnit.net v3 when targeting .NET 8 (or later) and/or .NET Framework 4.7.2 (or later), showing you how to write and run your first set of unit tests. We will be using the .NET SDK command line.
 
 * [Download the .NET SDK](#download-the-net-sdk)
 * [Install the .NET SDK templates](#install-the-net-sdk-templates)

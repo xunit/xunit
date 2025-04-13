@@ -30,7 +30,7 @@ Supported built-in types (as of v3 `0.1.1-pre.392`) include:
 - `byte` and `sbyte`
 - `char`
 - `DateTime`, `DateTimeOffset`, and `TimeSpan`
-- `DateOnly` and `TimeOnly` (.NET 6+ only)
+- `DateOnly` and `TimeOnly` (.NET 8+ only)
 - Enum values (unless you're using .NET Framework and they live in the GAC)
 - `decimal`
 - `float` and `double`
@@ -43,7 +43,7 @@ Supported built-in types (as of v3 `0.1.1-pre.392`) include:
 Additional built-in types supported for v3 (as of `0.5.0`) include:
 
 - `Guid`
-- `Index` and `Range` (.NET 6+ only)
+- `Index` and `Range` (.NET 8+ only)
 - `Uri`
 - `Version`
 

@@ -6,7 +6,7 @@ breadcrumb: Documentation
 
 # What's New in v3
 
-## As of: 2024 October 27 (`0.5.0-pre.27`)
+## As of: 2025 April 12 (`2.0.1`)
 
 This guide aims to be a comprehensive list of the new features added to v3, written for existing developers who are using v2.
 
@@ -318,7 +318,7 @@ For more information, see the [documentation page](/docs/getting-started/v3/micr
 
 * `CollectionAttribute` has a new constructor that can accept a `Type`, which intended to point directly to the collection definition type. `CollectionDefinitionAttribute` has a new parameterless constructor to support this scenario.
 
-* For .NET 6+ projects, there is a generic version of `CollectionAttribute`, where `[Collection<MyCollection>]` is equivalent to `[Collection(typeof(MyCollection))]`. _(Generic attributes are not supported in .NET Framework.)_
+* For .NET 8+ projects, there is a generic version of `CollectionAttribute`, where `[Collection<MyCollection>]` is equivalent to `[Collection(typeof(MyCollection))]`. _(Generic attributes are not supported in .NET Framework.)_
 
 * `CollectionBehaviorAttribute` has a new property (`ParallelAlgorithm`) that can be used to set the parallel algorithm for the test assembly. This value can be overridden by a configuration file or a command line switch to the runner. If the value is not set, the default (`ParallelAlgorithm.Conservative`) is used.
 

@@ -6,7 +6,7 @@ breadcrumb: Documentation
 
 # Migrating from v2 to v3 [Unit test authors]
 
-## As of: 2025 January 9 (`1.0.0`)
+## As of: 2025 April 12 (`2.0.1`)
 
 This migration guide aims to be a comprehensive list helping developers migrate from xUnit.net v2 to v3. This guide is focused on what to expect for unit test authors. Extensibility authors will want to review this document, and then read the [migration guide specifically for extensibility authors](migration-extensibility).
 
@@ -46,13 +46,13 @@ Before we talk about the migration process, we need to provide information about
 We have set new minimum runtime requirements for xUnit.net v3:
 
 * .NET Framework 4.7.2 (or later)
-* .NET 6 (or later)
+* .NET 8 (or later)
 
 Our target frameworks for v3 currently are:
 
 * .NET Standard 2.0 (`netstandard2.0`)
 * .NET Framework 4.7.2 (`net472`)
-* .NET 6 (`net6.0`)
+* .NET 8 (`net8.0`)
 
 Also new for v3: Mono is officially supported on Linux and macOS for .NET Framework test projects. While it did often work with v1 and v2, we do officially test and verify with it now.
 

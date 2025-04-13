@@ -56,7 +56,7 @@ xUnit.net is a free, open source, community-focused unit testing tool for the .N
 _New to xUnit.net? These guides will help you get started._
 
 {: .indent }
-**<u>v3 Core Framework</u>** (.NET 6+ and .NET Framework 4.7.2+, cross-platform)
+**<u>v3 Core Framework</u>** (.NET 8+ and .NET Framework 4.7.2+, cross-platform)
 
 {: .indent }
 * [Getting started with the .NET SDK command line](/docs/getting-started/v3/cmdline)<br />
@@ -150,7 +150,7 @@ _The following target frameworks have been deprecated and are no longer supporte
 {: .indent }
 1. Requires Xamarin for Visual Studio or Xamarin Studio.
 2. TestDriven.NET is no longer officially supported in v3 Core Framework, and is only available in Visual Studio 2019 and earlier.
-3. Visual Studio support includes the Visual Studio Test Explorer, Visual Studio Code, <code>vstest.console.exe</code>, and <code>dotnet test</code>. Express editions of Visual Studio are not supported. Minimum target frameworks for are higher for v2 Core Framework users: NET Framework 4.6.2+ and .NET 6+.
+3. Visual Studio support includes the Visual Studio Test Explorer, Visual Studio Code, <code>vstest.console.exe</code>, and <code>dotnet test</code>. Express editions of Visual Studio are not supported. Minimum target frameworks for are higher for v2 Core Framework users: NET Framework 4.6.2+ and .NET 8+.
 4. Test runner source code availability:<br />
   a. [https://github.com/xunit/xunit](https://github.com/xunit/xunit)<br />
   b. [https://github.com/xunit/visualstudio.xunit](https://github.com/xunit/visualstudio.xunit)<br />
