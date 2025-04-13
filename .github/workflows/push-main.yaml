@@ -10,6 +10,8 @@ jobs:
   build:
     name: "Build"
     runs-on: windows-2022
+    permissions:
+      id-token: write  # Required for Azure CLI Login
     env:
       DOTNET_CLI_WORKLOAD_UPDATE_NOTIFY_DISABLE: true
       DOTNET_NOLOGO: true
