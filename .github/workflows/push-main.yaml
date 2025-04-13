@@ -42,14 +42,14 @@ jobs:
           tenant-id: ${{ secrets.SIGN_TENANT }}
           subscription-id: ${{ secrets.SIGN_SUBSCRIPTION }}
 
-      - name: "Build target: BuildAll & DocFX & PublishPackages"
+      - name: "Build target: BuildAll & DocFX"
         env:
           PUSH_APIKEY: ${{ secrets.PUSH_APIKEY }}
           PUSH_URI: ${{ secrets.PUSH_URI }}
           SIGN_CERT_NAME: ${{ secrets.SIGN_CERT_NAME }}
           SIGN_TIMESTAMP_URI: ${{ secrets.SIGN_TIMESTAMP_URI }}
           SIGN_VAULT_URI: ${{ secrets.SIGN_VAULT_URI }}
-        run: dotnet run --project tools/builder --no-launch-profile -- BuildAll DocFX PublishPackages --timing --no-x86
+        run: dotnet run --project tools/builder --no-launch-profile -- BuildAll DocFX --timing --no-x86
 
       - name: "Upload artifact: docfx"
         uses: actions/upload-artifact@v4
