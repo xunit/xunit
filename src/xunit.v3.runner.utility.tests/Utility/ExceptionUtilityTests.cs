@@ -154,12 +154,13 @@ public class ExceptionUtilityTests
 
 	public class CombineStackTraces
 	{
+#if DEBUG
+		[Fact(Skip = "Stack trace filtering is disabled in DEBUG builds")]
+#else
 		[Fact]
+#endif
 		public void XunitException()
 		{
-#if DEBUG
-			Assert.Skip("Stack trace filtering is disabled in DEBUG builds");
-#else
 			static void testCode()
 			{
 				throw new XunitException("Hello world");
@@ -172,15 +173,15 @@ public class ExceptionUtilityTests
 			Assert.DoesNotContain(typeof(Record).FullName!, result);
 			Assert.DoesNotContain(typeof(XunitException).FullName!, result);
 			Assert.Contains("XunitException", result);
-#endif
 		}
 
+#if DEBUG
+		[Fact(Skip = "Stack trace filtering is disabled in DEBUG builds")]
+#else
 		[Fact]
+#endif
 		public void NonXunitException()
 		{
-#if DEBUG
-			Assert.Skip("Stack trace filtering is disabled in DEBUG builds");
-#else
 			static void testCode()
 			{
 				throw new Exception();
@@ -193,15 +194,15 @@ public class ExceptionUtilityTests
 			Assert.DoesNotContain(typeof(Record).FullName!, result);
 			Assert.DoesNotContain(typeof(XunitException).FullName!, result);
 			Assert.Contains("NonXunitException", result);
-#endif
 		}
 
+#if DEBUG
+		[Fact(Skip = "Stack trace filtering is disabled in DEBUG builds")]
+#else
 		[Fact]
+#endif
 		public void NonXunitExceptionWithInnerExceptions()
 		{
-#if DEBUG
-			Assert.Skip("Stack trace filtering is disabled in DEBUG builds");
-#else
 			static void innerTestCode()
 			{
 				throw new DivideByZeroException();
@@ -218,20 +219,20 @@ public class ExceptionUtilityTests
 
 			Assert.NotNull(result);
 			Assert.Collection(
-				result.Split(new[] { Environment.NewLine }, StringSplitOptions.None),
+				result.Split([Environment.NewLine], StringSplitOptions.None),
 				line => Assert.Contains("NonXunitExceptionWithInnerExceptions", line),
 				line => Assert.Equal("----- Inner Stack Trace -----", line),
 				line => Assert.Contains("NonXunitExceptionWithInnerExceptions", line)
 			);
-#endif
 		}
 
+#if DEBUG
+		[Fact(Skip = "Stack trace filtering is disabled in DEBUG builds")]
+#else
 		[Fact]
+#endif
 		public void HandlesAggregateException()
 		{
-#if DEBUG
-			Assert.Skip("Stack trace filtering is disabled in DEBUG builds");
-#else
 			static void inner1TestCode()
 			{
 				throw new DivideByZeroException();
@@ -258,7 +259,7 @@ public class ExceptionUtilityTests
 
 			Assert.NotNull(result);
 			Assert.Collection(
-				result.Split(new[] { Environment.NewLine }, StringSplitOptions.None),
+				result.Split([Environment.NewLine], StringSplitOptions.None),
 				line => Assert.Contains("HandlesAggregateException", line),
 				line => Assert.Equal("----- Inner Stack Trace #1 (System.DivideByZeroException) -----", line),
 				line => Assert.Contains("HandlesAggregateException", line),
@@ -267,7 +268,6 @@ public class ExceptionUtilityTests
 				line => Assert.Equal("----- Inner Stack Trace #3 (Xunit.Sdk.XunitException) -----", line),
 				line => Assert.Contains("HandlesAggregateException", line)
 			);
-#endif
 		}
 
 		[Fact]
