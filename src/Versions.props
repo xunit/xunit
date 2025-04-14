@@ -11,8 +11,10 @@
     <NerdbankGitVersioningVersion>3.7.115</NerdbankGitVersioningVersion>
     <TunnelVisionLabsReferenceAssemblyAnnotatorVersion>1.0.0-alpha.160</TunnelVisionLabsReferenceAssemblyAnnotatorVersion>
 
-    <!-- Used by xunit.v3 (NuGet package) -->
+    <!-- Used by NuGet packages (xunit.v3 and xunit.v3.templates) -->
+    <MicrosoftNetTestSdkVersion>17.13.0</MicrosoftNetTestSdkVersion>
     <XunitAnalyzersVersion>1.21.0</XunitAnalyzersVersion>
+    <XunitRunnerVisualStudioVersion>3.0.2</XunitRunnerVisualStudioVersion>
 
     <!-- Used by xunit.v3.assert for immutable collection and memory/span support -->
     <SystemCollectionsImmutableVersion>6.0.0</SystemCollectionsImmutableVersion>
@@ -32,12 +34,6 @@
 
     <!-- Used by xunit.v3.runner.utility to support running v2 test projects -->
     <XunitAbstractionsVersion>2.0.3</XunitAbstractionsVersion>
-
-    <!-- Used by xunit.v3.templates (NuGet package) -->
-    <MicrosoftNetTestSdkVersion>17.13.0</MicrosoftNetTestSdkVersion>
-    <XunitVisualStudioRunnerVersion>3.0.2</XunitVisualStudioRunnerVersion>
-    <!-- Uncomment this line when building RTW packages -->
-    <VisualStudioRunnerTemplateVersion>3.0.2</VisualStudioRunnerTemplateVersion>
 
     <!-- Used in non-product (test or back-compat) projects -->
     <FSharpCompilerServiceVersion>43.7.200</FSharpCompilerServiceVersion>

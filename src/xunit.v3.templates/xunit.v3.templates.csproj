@@ -5,8 +5,6 @@
     <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
     <NoWarn>$(NoWarn);NU5128</NoWarn>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <VisualStudioRunnerTemplateVersion Condition=" '$(VisualStudioRunnerTemplateVersion)' == '' ">$(XunitVisualStudioRunnerVersion)</VisualStudioRunnerTemplateVersion>
-    <XunitAnalyzersTemplateVersion Condition=" '$(XunitAnalyzersTemplateVersion)' == '' ">$(XunitAnalyzersVersion)</XunitAnalyzersTemplateVersion>
     <XunitArtifactsPath>$(MSBuildThisFileDirectory)..\..\artifacts\xunit.v3.templates\</XunitArtifactsPath>
     <_XunitIncludeCommonItems>false</_XunitIncludeCommonItems>
   </PropertyGroup>
@@ -27,8 +25,8 @@
     <Copy SourceFiles="%(TemplateInput.Fullpath)" DestinationFiles="%(TemplateInput.XunitArtifactLocation)" />
     <ReplaceFileText InputFilename="%(TemplateInput.XunitArtifactLocation)"
                      OutputFilename="%(TemplateInput.XunitArtifactLocation)"
-                     MatchExpression="MICROSOFT_NET_TEST_SDK_VERSION;PACKAGE_VERSION;XUNIT_ANALYZERS_VERSION;XUNIT_VISUAL_STUDIO_RUNNER_VERSION"
-                     ReplacementText="$(MicrosoftNetTestSdkVersion);$(PackageVersion);$(XunitAnalyzersTemplateVersion);$(VisualStudioRunnerTemplateVersion)" />
+                     MatchExpression="MICROSOFT_NET_TEST_SDK_VERSION;PACKAGE_VERSION;XUNIT_ANALYZERS_VERSION;XUNIT_RUNNER_VISUALSTUDIO_VERSION"
+                     ReplacementText="$(MicrosoftNetTestSdkVersion);$(PackageVersion);$(XunitAnalyzersVersion);$(XunitRunnerVisualStudioVersion)" />
     <ItemGroup>
       <FileWrites Include="%(TemplateInput.XunitArtifactLocation)" />
     </ItemGroup>

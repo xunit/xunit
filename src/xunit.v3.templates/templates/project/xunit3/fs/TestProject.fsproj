@@ -28,7 +28,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="MICROSOFT_NET_TEST_SDK_VERSION" />
     <PackageReference Include="xunit.v3" Version="PACKAGE_VERSION" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="XUNIT_VISUAL_STUDIO_RUNNER_VERSION" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="XUNIT_RUNNER_VISUALSTUDIO_VERSION" />
   </ItemGroup>
 
 </Project>
