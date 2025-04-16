@@ -436,7 +436,7 @@ public class ArgumentFormatterTests
 		[CulturedFact]
 		public static void TypesAreRenderedWithMaximumDepthToPreventInfiniteRecursion()
 		{
-			var expected = $"Looping {{ Me = Looping {{ Me = Looping {{ Me = Looping {{ {ArgumentFormatter.Ellipsis} }} }} }} }}";
+			var expected = $"Looping {{ Me = Looping {{ Me = Looping {{ {ArgumentFormatter.Ellipsis} }} }} }}";
 
 			var result = ArgumentFormatter.Format(new Looping());
 
@@ -448,6 +448,32 @@ public class ArgumentFormatterTests
 			public Looping Me;
 
 			public Looping() => Me = this;
+		}
+
+		[CulturedFact]
+		public static void RecursionViaCollectionsIsPreventedWithMaximumDepth()
+		{
+			var expected = $"LoopingChild {{ Parent = LoopingParent {{ ProjectsById = [{ArgumentFormatter.Ellipsis}] }} }}";
+
+			var result = ArgumentFormatter.Format(new LoopingChild(new LoopingParent()));
+
+			Assert.Equal(expected, result);
+		}
+
+		public class LoopingParent
+		{
+			public Dictionary<string, LoopingChild> ProjectsById { get; } = [];
+		}
+
+		public class LoopingChild
+		{
+			public LoopingParent Parent;
+
+			public LoopingChild(LoopingParent parent)
+			{
+				parent.ProjectsById[Guid.NewGuid().ToString()] = this;
+				Parent = parent;
+			}
 		}
 
 		[Fact]
