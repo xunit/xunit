@@ -30,7 +30,7 @@ public abstract class TheoryDataBase<TTheoryDataRow, TRawDataRow> : IReadOnlyCol
 	/// </summary>
 	/// <param name="row">The row of data to be added.</param>
 	[OverloadResolutionPriority(1)]
-	public void Add(TTheoryDataRow row) =>
+	public virtual void Add(TTheoryDataRow row) =>
 		data.Add(Guard.ArgumentNotNull(row));
 
 	/// <summary>
@@ -144,6 +144,10 @@ public class TheoryData<T> :
 	/// <param name="values">The initial set of values</param>
 	public TheoryData(params TheoryDataRow<T>[] values) =>
 		AddRange(values);
+
+	/// <inheritdoc/>
+	public override void Add(TheoryDataRow<T> row) =>
+		base.Add(row ?? Convert(default!));
 
 	/// <inheritdoc/>
 	protected override TheoryDataRow<T> Convert(T row) =>
