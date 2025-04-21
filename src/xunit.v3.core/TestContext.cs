@@ -57,8 +57,8 @@ public sealed class TestContext : ITestContext, IDisposable
 	/// <summary>
 	/// Gets the current test context. If called outside of the test discovery or execution path,
 	/// will return a test context that is in the <see cref="TestPipelineStage.Unknown"/> stage.
-	/// The current test context is a "snapshot in time" for when this/ property is called, so do
-	/// not cache the instance across a single method boundary (or else/ you run the risk of having
+	/// The current test context is a "snapshot in time" for when this property is called, so do
+	/// not cache the instance across a single method boundary (or else you run the risk of having
 	/// an out-of-date context).
 	/// </summary>
 	public static ITestContext Current =>
