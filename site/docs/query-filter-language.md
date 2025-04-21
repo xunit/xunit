@@ -166,3 +166,5 @@ You can specify a query filter using `--filter-query expression` (note that if t
 >
 > * `bin/Debug/net8.0/MyTests.exe --filter-query /[category=fast]` (Microsoft Testing Platform CLI mode)
 > * `dotnet test -- --filter-query /[category=fast]`
+
+_**Note:** If a query filter ends up filtering out all the tests in a test assembly, then Microsoft Testing Platform will fail that test assembly since it fails test assemblies without at least 1 test in them. You can tell it not return a failure code in this situation by adding `--ignore-exit-code 8` to your command line. For more information, see [`Microsoft.Testing.Platform exit codes`](https://learn.microsoft.com/dotnet/core/testing/microsoft-testing-platform-exit-codes) and [xUnit.net issue #3270](https://github.com/xunit/xunit/issues/3270#issuecomment-2817377109)._
