@@ -9,7 +9,7 @@ title: Home
 
 xUnit.net is a free, open source, community-focused unit testing tool for the .NET Framework. Written by the original inventor of NUnit v2, xUnit.net is the latest technology for unit testing C#, F#, VB.NET and other .NET languages. xUnit.net works with command line tools, Visual Studio, Visual Studio Code, ReSharper/Rider, CodeRush, and NCrunch. It is part of the [.NET Foundation](https://www.dotnetfoundation.org/), and operates under their [code of conduct](https://www.dotnetfoundation.org/code-of-conduct). It is licensed under [Apache 2](https://opensource.org/licenses/Apache-2.0) (an OSI approved license).
 
-> _Follow: [xUnit.net on Mastodon](https://dotnet.social/@xunit){: rel="me" }, [xUnit.net on BlueSky](https://bsky.app/@xunit.net), [James Newkirk](https://www.jamesnewkirk.com/), [Brad Wilson](https://bradwilson.dev/),  [Claire Novotny](https://github.com/clairernovotny)_\\
+> _Follow: [xUnit.net on Mastodon](https://dotnet.social/@xunit){: rel="me" }, [xUnit.net on BlueSky](https://bsky.app/profile/xunit.net), [James Newkirk](https://www.jamesnewkirk.com/), [Brad Wilson](https://bradwilson.dev/),  [Claire Novotny](https://github.com/clairernovotny)_\\
 > _Discussions are held on our [discussions site](https://github.com/xunit/xunit/discussions/)._\\
 > _Resharper/Rider support is provided and supported by [JetBrains](https://www.jetbrains.com/)._\\
 > _CodeRush support is provided and supported by [DevExpress](https://www.devexpress.com/)._\\
