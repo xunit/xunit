@@ -37,7 +37,7 @@ jobs:
         continue-on-error: true
 
       - name: Login to Azure CLI
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
           allow-no-subscriptions: true
           client-id: ${{ secrets.SIGN_APP_ID }}
