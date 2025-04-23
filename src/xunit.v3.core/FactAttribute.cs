@@ -1,6 +1,7 @@
 #pragma warning disable CA1813 // This attribute is unsealed because it's an extensibility point
 
 using System;
+using System.Runtime.CompilerServices;
 using Xunit.v3;
 
 namespace Xunit;
@@ -13,6 +14,15 @@ namespace Xunit;
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
 public class FactAttribute : Attribute, IFactAttribute
 {
+	/// <summary>
+	/// Createa a new instance of <see cref="FactAttribute"/> which provides source information.
+	/// </summary>
+	public FactAttribute([CallerFilePath] string? sourceFilePath = null, [CallerLineNumber] int sourceLineNumber = -1)
+	{
+		SourceFilePath = sourceFilePath;
+		SourceLineNumber = sourceLineNumber;
+	}
+
 	/// <inheritdoc/>
 	public string? DisplayName { get; set; }
 
@@ -36,4 +46,10 @@ public class FactAttribute : Attribute, IFactAttribute
 
 	/// <inheritdoc/>
 	public int Timeout { get; set; }
+
+	/// <inheritdoc/>
+	public string? SourceFilePath { get; }
+
+	/// <inheritdoc/>
+	public int SourceLineNumber { get; }
 }

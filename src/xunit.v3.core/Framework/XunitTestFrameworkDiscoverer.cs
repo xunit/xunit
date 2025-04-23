@@ -101,6 +101,13 @@ public class XunitTestFrameworkDiscoverer : TestFrameworkDiscoverer<IXunitTestCl
 #pragma warning disable CA2000  // Ownership of this object is handed off to the callback
 			var testCase = new ExecutionErrorTestCase(details.ResolvedTestMethod, details.TestCaseDisplayName, details.UniqueID, message);
 #pragma warning restore CA2000
+
+			if (factAttribute is FactAttribute { SourceFilePath: { } sourceFilePath, SourceLineNumber: { } sourceLineNumber })
+			{
+				testCase.SourceFilePath = sourceFilePath;
+				testCase.SourceLineNumber = sourceLineNumber;
+			}
+
 			return await discoveryCallback(testCase);
 		}
 

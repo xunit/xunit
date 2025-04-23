@@ -40,6 +40,8 @@ public class FactDiscoverer : IXunitTestCaseDiscoverer
 			details.SkipUnless,
 			details.SkipWhen,
 			testMethod.Traits.ToReadWrite(StringComparer.OrdinalIgnoreCase),
+			sourceFilePath: factAttribute.SourceFilePath,
+			sourceLineNumber: factAttribute.SourceLineNumber,
 			timeout: details.Timeout
 		);
 	}
@@ -84,11 +86,15 @@ public class FactDiscoverer : IXunitTestCaseDiscoverer
 
 		var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, factAttribute);
 
-		return new(
+		var errorTestCase = new ExecutionErrorTestCase(
 			details.ResolvedTestMethod,
 			details.TestCaseDisplayName,
 			details.UniqueID,
 			message
 		);
+
+		errorTestCase.SourceFilePath = factAttribute.SourceFilePath;
+		errorTestCase.SourceLineNumber = factAttribute.SourceLineNumber;
+		return errorTestCase;
 	}
 }

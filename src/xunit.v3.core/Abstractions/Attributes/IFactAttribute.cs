@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 using Xunit.Sdk;
 
 namespace Xunit.v3;
@@ -84,4 +85,14 @@ public interface IFactAttribute
 	/// completely).
 	/// </remarks>
 	int Timeout { get; }
+
+	/// <summary>
+	/// Gets the source file path declaring the attribute. Usually provided via <see cref="CallerFilePathAttribute"/>.
+	/// </summary>
+	string? SourceFilePath { get; }
+
+	/// <summary>
+	/// Gets the source file line number declaring the attribute. Usually provided via <see cref="CallerLineNumberAttribute"/>.
+	/// </summary>
+	int SourceLineNumber { get; }
 }

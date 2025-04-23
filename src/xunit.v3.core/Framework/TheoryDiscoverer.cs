@@ -94,6 +94,8 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 					details.SkipUnless,
 					details.SkipWhen,
 					testMethod.Traits.ToReadWrite(StringComparer.OrdinalIgnoreCase),
+					sourceFilePath: theoryAttribute.SourceFilePath,
+					sourceLineNumber: theoryAttribute.SourceLineNumber,
 					timeout: details.Timeout
 				)
 				: (IXunitTestCase)new XunitDelayEnumeratedTheoryTestCase(
@@ -108,6 +110,8 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 					details.SkipUnless,
 					details.SkipWhen,
 					testMethod.Traits.ToReadWrite(StringComparer.OrdinalIgnoreCase),
+					sourceFilePath: theoryAttribute.SourceFilePath,
+					sourceLineNumber: theoryAttribute.SourceLineNumber,
 					timeout: details.Timeout
 				);
 
@@ -183,6 +187,10 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 									testMethod.MethodName
 								)
 							)
+							{
+								SourceFilePath = theoryAttribute.SourceFilePath,
+								SourceLineNumber = theoryAttribute.SourceLineNumber,
+							}
 						);
 
 						continue;
@@ -243,9 +251,13 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 					var message = string.Format(CultureInfo.CurrentCulture, "No data found for {0}.{1}", testMethod.TestClass.TestClassName, testMethod.MethodName);
 
 					if (theoryAttribute.SkipTestWithoutData)
-						results.Add(new XunitTestCase(details.ResolvedTestMethod, details.TestCaseDisplayName, details.UniqueID, details.Explicit, skipReason: message));
+						results.Add(new XunitTestCase(details.ResolvedTestMethod, details.TestCaseDisplayName, details.UniqueID, details.Explicit, skipReason: message, sourceFilePath: theoryAttribute.SourceFilePath, sourceLineNumber: theoryAttribute.SourceLineNumber));
 					else
-						results.Add(new ExecutionErrorTestCase(details.ResolvedTestMethod, details.TestCaseDisplayName, details.UniqueID, errorMessage: message));
+						results.Add(new ExecutionErrorTestCase(details.ResolvedTestMethod, details.TestCaseDisplayName, details.UniqueID, errorMessage: message)
+						{
+							SourceFilePath = theoryAttribute.SourceFilePath,
+							SourceLineNumber = theoryAttribute.SourceLineNumber,
+						});
 				}
 
 				return results;

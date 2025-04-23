@@ -1,6 +1,7 @@
 #pragma warning disable CA1813 // This attribute is unsealed because it's an extensibility point
 
 using System;
+using System.Runtime.CompilerServices;
 using Xunit.v3;
 
 namespace Xunit;
@@ -17,6 +18,14 @@ namespace Xunit;
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
 public class TheoryAttribute : FactAttribute, ITheoryAttribute
 {
+	/// <summary>
+	/// Createa a new instance of <see cref="TheoryAttribute"/> which provides source information.
+	/// </summary>
+	public TheoryAttribute([CallerFilePath] string? sourceFilePath = null, [CallerLineNumber] int sourceLineNumber = -1)
+		: base(sourceFilePath, sourceLineNumber)
+	{
+	}
+
 	/// <inheritdoc/>
 	public bool DisableDiscoveryEnumeration { get; set; }
 
