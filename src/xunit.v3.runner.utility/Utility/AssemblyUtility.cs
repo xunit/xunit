@@ -25,7 +25,7 @@ public static class AssemblyUtility
 			{
 				assemblyFileName = Path.GetFullPath(assemblyFileName);
 
-				var moduleDefinition = ModuleDefinition.ReadModule(assemblyFileName);
+				using var moduleDefinition = ModuleDefinition.ReadModule(assemblyFileName);
 				var targetFrameworkAttribute =
 					moduleDefinition
 						.GetCustomAttributes()
