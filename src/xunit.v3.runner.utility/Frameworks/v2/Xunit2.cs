@@ -50,7 +50,7 @@ public class Xunit2 : IFrontController
 	Xunit2(
 		Sdk.IMessageSink diagnosticMessageSink,
 		AppDomainSupport appDomainSupport,
-		Common.ISourceInformationProvider sourceInformationProvider,
+		Common.ISourceInformationProvider? sourceInformationProvider,
 		IAssemblyInfo? assemblyInfo,
 		string? assemblyFileName,
 		string xunitExecutionAssemblyPath,
@@ -96,6 +96,12 @@ public class Xunit2 : IFrontController
 		this.configFileName = configFileName;
 		TestAssemblyUniqueID = UniqueIDGenerator.ForAssembly(this.assemblyInfo.AssemblyPath, configFileName);
 
+		if (sourceInformationProvider is null)
+		{
+			sourceInformationProvider = CecilSourceInformationProvider.Create(assemblyFileName);
+			DisposalTracker.Add(sourceInformationProvider);
+		}
+
 		var v2SourceInformationProvider = Xunit2SourceInformationProviderAdapter.Adapt(sourceInformationProvider);
 		var v2DiagnosticMessageSink = new Xunit2MessageSink(DiagnosticMessageSink);
 		remoteFramework = Guard.NotNull(
@@ -109,6 +115,7 @@ public class Xunit2 : IFrontController
 			)
 		);
 		DisposalTracker.Add(remoteFramework);
+		DisposalTracker.Add(v2SourceInformationProvider);
 
 		remoteDiscoverer = Guard.NotNull("Could not get discoverer from test framework for v2 unit test", remoteFramework.GetDiscoverer(assemblyInfo));
 		DisposalTracker.Add(remoteDiscoverer);
@@ -641,7 +648,7 @@ public class Xunit2 : IFrontController
 		return new Xunit2(
 			diagnosticMessageSink ?? NullMessageSink.Instance,
 			appDomainSupport,
-			sourceInformationProvider ?? NullSourceInformationProvider.Instance,
+			sourceInformationProvider,
 			assemblyInfo,
 			assemblyFileName: null,
 			GetXunitExecutionAssemblyPath(appDomainSupport, assemblyInfo),
@@ -675,7 +682,7 @@ public class Xunit2 : IFrontController
 		return new Xunit2(
 			diagnosticMessageSink ?? NullMessageSink.Instance,
 			appDomainSupport,
-			sourceInformationProvider ?? NullSourceInformationProvider.Instance,
+			sourceInformationProvider,
 			assemblyInfo: null,
 			assemblyFileName,
 			GetXunitExecutionAssemblyPath(appDomainSupport, assemblyFileName, verifyAssembliesOnDisk),

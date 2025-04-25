@@ -32,7 +32,9 @@ public class Xunit1 : IFrontController
 	IXunit1Executor? executor;
 	readonly bool shadowCopy;
 	readonly string? shadowCopyFolder;
+#pragma warning disable CA2213  // This is disposed by DisposalTracker when appropriate
 	readonly ISourceInformationProvider sourceInformationProvider;
+#pragma warning restore CA2213
 	readonly string testAssemblyName;
 
 	/// <summary>
@@ -41,14 +43,19 @@ public class Xunit1 : IFrontController
 	protected Xunit1(
 		IMessageSink diagnosticMessageSink,
 		AppDomainSupport appDomainSupport,
-		ISourceInformationProvider sourceInformationProvider,
+		ISourceInformationProvider? sourceInformationProvider,
 		string assemblyFileName,
 		string? configFileName = null,
 		bool shadowCopy = true,
 		string? shadowCopyFolder = null)
 	{
-		Guard.ArgumentNotNull(sourceInformationProvider);
 		Guard.ArgumentNotNullOrEmpty(assemblyFileName);
+
+		if (sourceInformationProvider is null)
+		{
+			sourceInformationProvider = CecilSourceInformationProvider.Create(assemblyFileName);
+			disposalTracker.Add(sourceInformationProvider);
+		}
 
 		this.diagnosticMessageSink = diagnosticMessageSink;
 		this.appDomainSupport = appDomainSupport;
@@ -525,7 +532,7 @@ public class Xunit1 : IFrontController
 		return new Xunit1(
 			diagnosticMessageSink ?? NullMessageSink.Instance,
 			projectAssembly.Configuration.AppDomainOrDefault,
-			sourceInformationProvider ?? NullSourceInformationProvider.Instance,
+			sourceInformationProvider,
 			assemblyFileName,
 			projectAssembly.ConfigFileName,
 			projectAssembly.Configuration.ShadowCopyOrDefault,

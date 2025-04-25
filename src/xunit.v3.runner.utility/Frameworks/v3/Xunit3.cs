@@ -15,8 +15,11 @@ namespace Xunit.Runner.v3;
 public class Xunit3 : IFrontController
 {
 	readonly IMessageSink? diagnosticMessageSink;
+	readonly DisposalTracker disposalTracker = new();
 	readonly XunitProjectAssembly projectAssembly;
-	readonly ISourceInformationProvider? sourceInformationProvider;
+#pragma warning disable CA2213  // This is disposed by DisposalTracker when appropriate
+	readonly ISourceInformationProvider sourceInformationProvider;
+#pragma warning restore CA2213
 	readonly TestAssemblyInfo testAssemblyInfo;
 	readonly ITestProcessDirectLauncher testProcessLauncher;
 
@@ -26,6 +29,12 @@ public class Xunit3 : IFrontController
 		IMessageSink? diagnosticMessageSink,
 		ITestProcessLauncher testProcessLauncher)
 	{
+		if (sourceInformationProvider is null)
+		{
+			sourceInformationProvider = CecilSourceInformationProvider.Create(projectAssembly.AssemblyFileName);
+			disposalTracker.Add(sourceInformationProvider);
+		}
+
 		this.projectAssembly = projectAssembly;
 		this.sourceInformationProvider = sourceInformationProvider;
 		this.diagnosticMessageSink = diagnosticMessageSink;
@@ -66,11 +75,11 @@ public class Xunit3 : IFrontController
 		launcher as ITestProcessDirectLauncher ?? new TestProcessLauncherAdapter(launcher);
 
 	/// <inheritdoc/>
-	public ValueTask DisposeAsync()
+	public async ValueTask DisposeAsync()
 	{
 		GC.SuppressFinalize(this);
 
-		return default;
+		await disposalTracker.SafeDisposeAsync();
 	}
 
 	/// <inheritdoc/>
@@ -158,6 +167,11 @@ public class Xunit3 : IFrontController
 		Guard.ArgumentNotNull(projectAssembly);
 		Guard.FileExists(projectAssembly.AssemblyFileName);
 
-		return new Xunit3(projectAssembly, sourceInformationProvider, diagnosticMessageSink, testProcessLauncher ?? LocalOutOfProcessTestProcessLauncher.Instance);
+		return new Xunit3(
+			projectAssembly,
+			sourceInformationProvider,
+			diagnosticMessageSink,
+			testProcessLauncher ?? LocalOutOfProcessTestProcessLauncher.Instance
+		);
 	}
 }
