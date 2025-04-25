@@ -24,6 +24,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{DD6C7641-EDB
 		BUILDING.md = BUILDING.md
 		src\Directory.Build.props = src\Directory.Build.props
 		src\Directory.Build.targets = src\Directory.Build.targets
+		LICENSE = LICENSE
 		README.md = README.md
 		version.json = version.json
 		src\Versions.props = src\Versions.props
