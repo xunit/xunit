@@ -8,8 +8,6 @@ namespace Xunit.Runner.Common;
 /// </summary>
 public sealed class NullSourceInformationProvider : ISourceInformationProvider
 {
-	static readonly SourceInformation nullSourceInformation = new(null, null);
-
 	NullSourceInformationProvider() { }
 
 	/// <summary>
@@ -25,5 +23,5 @@ public sealed class NullSourceInformationProvider : ISourceInformationProvider
 	public SourceInformation GetSourceInformation(
 		string? testClassName,
 		string? testMethodName) =>
-			nullSourceInformation;
+			SourceInformation.Null;
 }

@@ -8,6 +8,11 @@ namespace Xunit.Runner.Common;
 public readonly struct SourceInformation(string? sourceFile, int? sourceLine)
 {
 	/// <summary>
+	/// Gets a singleton instance of <see cref="SourceInformation"/> that represents no source information.
+	/// </summary>
+	public static SourceInformation Null { get; } = new(null, null);
+
+	/// <summary>
 	/// Gets the source file, if known; <c>null</c>, otherwise
 	/// </summary>
 	public string? SourceFile { get; } = sourceFile;
