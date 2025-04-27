@@ -76,29 +76,31 @@ public static partial class MessageSinkMessageExtensions
 		this ITestCaseDiscovered discovered,
 		string? sourceFilePath,
 		int? sourceLineNumber) =>
-			new TestCaseDiscovered
-			{
-				AssemblyUniqueID = Guard.ArgumentNotNull(discovered).AssemblyUniqueID,
-				Explicit = discovered.Explicit,
-				Serialization = discovered.Serialization,
-				SkipReason = discovered.SkipReason,
-				SourceFilePath = sourceFilePath,
-				SourceLineNumber = sourceLineNumber,
-				TestCaseDisplayName = discovered.TestCaseDisplayName,
-				TestCaseUniqueID = discovered.TestCaseUniqueID,
-				TestClassMetadataToken = discovered.TestClassMetadataToken,
-				TestClassName = discovered.TestClassName,
-				TestClassNamespace = discovered.TestClassNamespace,
-				TestClassSimpleName = discovered.TestClassSimpleName,
-				TestClassUniqueID = discovered.TestClassUniqueID,
-				TestCollectionUniqueID = discovered.TestCollectionUniqueID,
-				TestMethodMetadataToken = discovered.TestMethodMetadataToken,
-				TestMethodName = discovered.TestMethodName,
-				TestMethodParameterTypesVSTest = discovered.TestMethodParameterTypesVSTest,
-				TestMethodReturnTypeVSTest = discovered.TestMethodReturnTypeVSTest,
-				TestMethodUniqueID = discovered.TestMethodUniqueID,
-				Traits = discovered.Traits,
-			};
+			Guard.ArgumentNotNull(discovered).SourceFilePath is not null || discovered.SourceLineNumber is not null
+				? discovered
+				: new TestCaseDiscovered
+				{
+					AssemblyUniqueID = discovered.AssemblyUniqueID,
+					Explicit = discovered.Explicit,
+					Serialization = discovered.Serialization,
+					SkipReason = discovered.SkipReason,
+					SourceFilePath = sourceFilePath,
+					SourceLineNumber = sourceLineNumber,
+					TestCaseDisplayName = discovered.TestCaseDisplayName,
+					TestCaseUniqueID = discovered.TestCaseUniqueID,
+					TestClassMetadataToken = discovered.TestClassMetadataToken,
+					TestClassName = discovered.TestClassName,
+					TestClassNamespace = discovered.TestClassNamespace,
+					TestClassSimpleName = discovered.TestClassSimpleName,
+					TestClassUniqueID = discovered.TestClassUniqueID,
+					TestCollectionUniqueID = discovered.TestCollectionUniqueID,
+					TestMethodMetadataToken = discovered.TestMethodMetadataToken,
+					TestMethodName = discovered.TestMethodName,
+					TestMethodParameterTypesVSTest = discovered.TestMethodParameterTypesVSTest,
+					TestMethodReturnTypeVSTest = discovered.TestMethodReturnTypeVSTest,
+					TestMethodUniqueID = discovered.TestMethodUniqueID,
+					Traits = discovered.Traits,
+				};
 
 	/// <summary>
 	/// Creates a new <see cref="ITestCaseDiscovered"/>, replacing the source file and line number information
@@ -113,13 +115,16 @@ public static partial class MessageSinkMessageExtensions
 		Guard.ArgumentNotNull(discovered);
 		Guard.ArgumentNotNull(sourceInformationProvider);
 
+		if (discovered.SourceFilePath is not null || discovered.SourceLineNumber is not null)
+			return discovered;
+
 		var sourceInfo = sourceInformationProvider.GetSourceInformation(discovered.TestClassName, discovered.TestMethodName);
 
 		return WithSourceInfo(discovered, sourceInfo.SourceFile, sourceInfo.SourceLine);
 	}
 
 	/// <summary>
-	/// Creates a new <see cref="ITestCaseDiscovered"/>, replacing the source file and line number information
+	/// Creates a new <see cref="ITestCaseStarting"/>, replacing the source file and line number information
 	/// with the provided values.
 	/// </summary>
 	/// <param name="starting"/>
@@ -129,28 +134,30 @@ public static partial class MessageSinkMessageExtensions
 		this ITestCaseStarting starting,
 		string? sourceFilePath,
 		int? sourceLineNumber) =>
-			new TestCaseStarting
-			{
-				AssemblyUniqueID = Guard.ArgumentNotNull(starting).AssemblyUniqueID,
-				Explicit = starting.Explicit,
-				SkipReason = starting.SkipReason,
-				SourceFilePath = sourceFilePath,
-				SourceLineNumber = sourceLineNumber,
-				TestCaseDisplayName = starting.TestCaseDisplayName,
-				TestCaseUniqueID = starting.TestCaseUniqueID,
-				TestClassMetadataToken = starting.TestClassMetadataToken,
-				TestClassName = starting.TestClassName,
-				TestClassNamespace = starting.TestClassNamespace,
-				TestClassSimpleName = starting.TestClassSimpleName,
-				TestClassUniqueID = starting.TestClassUniqueID,
-				TestCollectionUniqueID = starting.TestCollectionUniqueID,
-				TestMethodMetadataToken = starting.TestMethodMetadataToken,
-				TestMethodName = starting.TestMethodName,
-				TestMethodParameterTypesVSTest = starting.TestMethodParameterTypesVSTest,
-				TestMethodReturnTypeVSTest = starting.TestMethodReturnTypeVSTest,
-				TestMethodUniqueID = starting.TestMethodUniqueID,
-				Traits = starting.Traits,
-			};
+			Guard.ArgumentNotNull(starting).SourceFilePath is not null || starting.SourceLineNumber is not null
+				? starting
+				: new TestCaseStarting
+				{
+					AssemblyUniqueID = starting.AssemblyUniqueID,
+					Explicit = starting.Explicit,
+					SkipReason = starting.SkipReason,
+					SourceFilePath = sourceFilePath,
+					SourceLineNumber = sourceLineNumber,
+					TestCaseDisplayName = starting.TestCaseDisplayName,
+					TestCaseUniqueID = starting.TestCaseUniqueID,
+					TestClassMetadataToken = starting.TestClassMetadataToken,
+					TestClassName = starting.TestClassName,
+					TestClassNamespace = starting.TestClassNamespace,
+					TestClassSimpleName = starting.TestClassSimpleName,
+					TestClassUniqueID = starting.TestClassUniqueID,
+					TestCollectionUniqueID = starting.TestCollectionUniqueID,
+					TestMethodMetadataToken = starting.TestMethodMetadataToken,
+					TestMethodName = starting.TestMethodName,
+					TestMethodParameterTypesVSTest = starting.TestMethodParameterTypesVSTest,
+					TestMethodReturnTypeVSTest = starting.TestMethodReturnTypeVSTest,
+					TestMethodUniqueID = starting.TestMethodUniqueID,
+					Traits = starting.Traits,
+				};
 
 	/// <summary>
 	/// Creates a new <see cref="ITestCaseDiscovered"/>, replacing the source file and line number information
@@ -164,6 +171,9 @@ public static partial class MessageSinkMessageExtensions
 	{
 		Guard.ArgumentNotNull(starting);
 		Guard.ArgumentNotNull(sourceInformationProvider);
+
+		if (starting.SourceFilePath is not null || starting.SourceLineNumber is not null)
+			return starting;
 
 		var sourceInfo = sourceInformationProvider.GetSourceInformation(starting.TestClassName, starting.TestMethodName);
 
