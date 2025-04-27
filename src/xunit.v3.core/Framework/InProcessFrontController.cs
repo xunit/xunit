@@ -18,7 +18,7 @@ namespace Xunit.v3;
 /// and <see cref="IDiscoveryComplete"/> messages that the test framework is not responsible for. When connected
 /// to remote meta-runners, the in-process runner can convert <see cref="ITestCase"/> instances into
 /// <see cref="T:Xunit.Runner.Common.TestCaseDiscovered"/> instances by using a converter like
-/// <see cref="M:Xunit.Runner.Common.TestCaseExtensions.ToTestCaseDiscovered"/> (which should be called from a
+/// <see cref="M:Xunit.Sdk.MessageSinkMessageExtensions.ToTestCaseDiscovered"/> (which should be called from a
 /// callback passed to <see cref="Find"/>).
 /// </summary>
 public class InProcessFrontController
