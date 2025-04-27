@@ -10,7 +10,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Mono.Cecil" Version="$(MonoCecilVersion)" />
     <PackageReference Include="xunit.abstractions" Version="$(XunitAbstractionsVersion)" />
   </ItemGroup>
 

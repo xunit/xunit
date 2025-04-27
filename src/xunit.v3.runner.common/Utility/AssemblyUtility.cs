@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Versioning;
@@ -37,7 +38,7 @@ public static class AssemblyUtility
 				// Trust for references is stronger than what's on disk, so try those first, and
 				// we always want to consider the "highest" reference most important, since we have
 				// test projects that might reference more than one for purposes of integration testing.
-				var references = moduleDefinition.AssemblyReferences.Select(r => r.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
+				var references = new HashSet<string>(moduleDefinition.AssemblyReferences.Select(r => r.Name), StringComparer.OrdinalIgnoreCase);
 				if (references.Contains("xunit.v3.core"))
 					xunitVersion = 3;
 				else if (references.Contains("xunit.core"))

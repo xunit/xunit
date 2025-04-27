@@ -1,10 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <DefineConstants>$(DefineConstants);XUNIT_ARGUMENTFORMATTER_PRIVATE;XUNIT_RUNNER_COMMON</DefineConstants>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Nullable>enable</Nullable>
     <RootNamespace>Xunit.Runner.Common</RootNamespace>
+    <RunILRepack>true</RunILRepack>
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
@@ -27,7 +29,17 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Mono.Cecil" Version="$(MonoCecilVersion)" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\xunit.v3.common\xunit.v3.common.csproj" />
   </ItemGroup>
+
+  <Target Name="PreILRepack" BeforeTargets="ILRepack" DependsOnTargets="Build">
+    <ItemGroup>
+      <ILRepackExclusions Include="$(OutputPath)xunit.*.dll;$(OutputPath)Microsoft.*.dll;$(OutputPath)System.*.dll" />
+    </ItemGroup>
+  </Target>
 
 </Project>

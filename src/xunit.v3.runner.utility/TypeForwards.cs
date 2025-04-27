@@ -1,6 +1,7 @@
 using System.Runtime.CompilerServices;
 using Xunit;
 
+[assembly: TypeForwardedTo(typeof(AssemblyUtility))]
 [assembly: TypeForwardedTo(typeof(FrontControllerFindAndRunSettings))]
 [assembly: TypeForwardedTo(typeof(FrontControllerFindSettings))]
 [assembly: TypeForwardedTo(typeof(FrontControllerLaunchOptions))]
