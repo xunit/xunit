@@ -152,9 +152,8 @@ public class TestPlatformExecutionMessageSink(
 						if (attachmentType == TestAttachmentType.String)
 						{
 							if (Path.GetExtension(localFilePath) != ".txt")
-							{
 								localFilePath += ".txt";
-							}
+
 							File.WriteAllText(localFilePath, kvp.Value.AsString());
 						}
 						else if (attachmentType == TestAttachmentType.ByteArray)
@@ -162,9 +161,8 @@ public class TestPlatformExecutionMessageSink(
 							var (byteArray, mediaType) = kvp.Value.AsByteArray();
 							var fileExtension = MediaTypeUtility.GetFileExtension(mediaType);
 							if (Path.GetExtension(localFilePath) != fileExtension)
-							{
 								localFilePath += fileExtension;
-							}
+
 							File.WriteAllBytes(localFilePath, byteArray);
 						}
 						else
