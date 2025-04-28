@@ -1,7 +1,7 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using NSubstitute;
 using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Runner.v3;
@@ -112,13 +112,13 @@ public class Xunit3Tests
 		bool runInProcess,
 		bool synchronousMessageReporting,
 		string typeName,
-		string methodName)
+		string methodName,
+		string expectedFileName,
+		int expectedLineNumber)
 	{
 		Assembly.Configuration.SynchronousMessageReporting = synchronousMessageReporting;
 
-		var sourceInformationProvider = Substitute.For<ISourceInformationProvider, InterfaceProxy<ISourceInformationProvider>>();
-		sourceInformationProvider.GetSourceInformation(typeName, methodName).Returns(new SourceInformation("/path/to/source/file.cs", 2112));
-		await using var xunit3 = Xunit3.ForDiscoveryAndExecution(Assembly, sourceInformationProvider, testProcessLauncher: runInProcess ? InProcessTestProcessLauncher.Instance : LocalOutOfProcessTestProcessLauncher.Instance);
+		await using var xunit3 = Xunit3.ForDiscoveryAndExecution(Assembly, sourceInformationProvider: null, testProcessLauncher: runInProcess ? InProcessTestProcessLauncher.Instance : LocalOutOfProcessTestProcessLauncher.Instance);
 
 		// Find
 		var fullyQualifiedMethodName = typeName + "." + methodName;
@@ -134,8 +134,13 @@ public class Xunit3Tests
 		var testCases = findMessageSink.Messages.OfType<ITestCaseDiscovered>();
 		var testCase = Assert.Single(testCases);
 		Assert.Equal(fullyQualifiedMethodName, testCase.TestCaseDisplayName);
-		Assert.Equal("/path/to/source/file.cs", testCase.SourceFilePath);
-		Assert.Equal(2112, testCase.SourceLineNumber);
+		Assert.Equal(expectedFileName, Path.GetFileName(testCase.SourceFilePath));
+#if DEBUG
+		Assert.Equal(expectedLineNumber, testCase.SourceLineNumber);
+#else
+		// We test for range here, because release PDBs can be slightly unpredictable, especially on Mono
+		Assert.InRange(testCase.SourceLineNumber ?? -1, 1, 0xFEEFED);
+#endif
 
 		// Run
 		var runMessageSink = SpyMessageSink<ITestAssemblyFinished>.Create();
@@ -160,7 +165,7 @@ public class Xunit3Tests
 	public ValueTask CanFindFilteredTestsAndRunThem_UsingFind_UsingRun_Self(
 		bool runInProcess,
 		bool synchronousMessageReporting) =>
-			CanFindFilteredTestsAndRunThem_UsingFind_UsingRun(runInProcess, synchronousMessageReporting, typeof(Xunit3Tests).SafeName(), nameof(GuardClauses_Ctor));
+			CanFindFilteredTestsAndRunThem_UsingFind_UsingRun(runInProcess, synchronousMessageReporting, typeof(Xunit3Tests).SafeName(), nameof(GuardClauses_Ctor), "Xunit3Tests.cs", 39);
 
 	[Theory]
 	[InlineData(false, false)]
@@ -173,7 +178,7 @@ public class Xunit3Tests
 	{
 		UseAssertTests();
 
-		return CanFindFilteredTestsAndRunThem_UsingFind_UsingRun(runInProcess, synchronousMessageReporting, "BooleanAssertsTests+True", "AssertTrue");
+		return CanFindFilteredTestsAndRunThem_UsingFind_UsingRun(runInProcess, synchronousMessageReporting, "BooleanAssertsTests+True", "AssertTrue", "BooleanAssertsTests.cs", 59);
 	}
 
 	async ValueTask CanFindFilteredTestsAndRunThem_UsingFindAndRun(

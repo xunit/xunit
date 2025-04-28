@@ -230,7 +230,8 @@ public class ConsoleRunner(
 					else
 						logger.LogWarning(warning);
 
-				var projectRunner = new ProjectAssemblyRunner(testAssembly, automatedMode, cancellationTokenSource);
+				await using var sourceInformationProvider = CecilSourceInformationProvider.Create(testAssembly.Location);
+				var projectRunner = new ProjectAssemblyRunner(testAssembly, automatedMode, sourceInformationProvider, cancellationTokenSource);
 				if (project.Configuration.WaitForDebuggerOrDefault)
 				{
 					if (automatedMode == AutomatedMode.Off)
@@ -333,8 +334,12 @@ public class ConsoleRunner(
 			ConsoleProjectLister.List(consoleHelper, testCasesByAssembly, listOption, listFormat);
 		}
 		else
+		{
+			await using var sourceInformationProvider = CecilSourceInformationProvider.Create(testAssembly.Location);
+
 			foreach (var testCase in filteredTestCases)
-				logger.WriteMessage(testCase.ToTestCaseDiscovered());
+				logger.WriteMessage(testCase.ToTestCaseDiscovered().WithSourceInfo(sourceInformationProvider));
+		}
 	}
 
 	void PrintAssemblyInfo()

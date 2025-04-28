@@ -33,6 +33,9 @@ public class ExecutionSink : IMessageSink, IDisposable
 	DateTimeOffset lastTestActivity;
 	readonly MessageMetadataCache metadataCache = new();
 	readonly bool shadowCopy;
+#pragma warning disable CA2213  // This object is owned by the creator, not this class
+	readonly ISourceInformationProvider sourceInformationProvider;
+#pragma warning restore CA2213
 	ManualResetEvent? stopEvent;
 	bool stopRequested;
 	readonly Dictionary<string, XElement> testCollectionElements = [];
@@ -58,7 +61,32 @@ public class ExecutionSink : IMessageSink, IDisposable
 		AppDomainOption appDomainOption,
 		bool shadowCopy,
 		IMessageSink innerSink,
-		ExecutionSinkOptions options)
+		ExecutionSinkOptions options) :
+			this(assembly, discoveryOptions, executionOptions, appDomainOption, shadowCopy, innerSink, options, NullSourceInformationProvider.Instance)
+	{ }
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="ExecutionSink"/> class.
+	/// </summary>
+	/// <param name="assembly">The assembly under test.</param>
+	/// <param name="discoveryOptions">The options used during test discovery.</param>
+	/// <param name="executionOptions">The options used during test execution.</param>
+	/// <param name="appDomainOption">A flag to indicate whether app domains are in use.</param>
+	/// <param name="shadowCopy">A flag to indicate whether shadow copying is in use.</param>
+	/// <param name="innerSink">The inner sink to forward messages to (typically the reporter
+	/// message handler, retrieved by calling <see cref="IRunnerReporter.CreateMessageHandler"/>
+	/// on the runner reporter)</param>
+	/// <param name="options">The options to use for the execution sink</param>
+	/// <param name="sourceInformationProvider">The source information provider</param>
+	public ExecutionSink(
+		XunitProjectAssembly assembly,
+		ITestFrameworkDiscoveryOptions discoveryOptions,
+		ITestFrameworkExecutionOptions executionOptions,
+		AppDomainOption appDomainOption,
+		bool shadowCopy,
+		IMessageSink innerSink,
+		ExecutionSinkOptions options,
+		ISourceInformationProvider sourceInformationProvider)
 	{
 		this.assembly = Guard.ArgumentNotNull(assembly);
 		this.discoveryOptions = Guard.ArgumentNotNull(discoveryOptions);
@@ -67,6 +95,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 		this.shadowCopy = shadowCopy;
 		this.innerSink = Guard.ArgumentNotNull(innerSink);
 		this.options = Guard.ArgumentNotNull(options);
+		this.sourceInformationProvider = Guard.ArgumentNotNull(sourceInformationProvider);
 
 		if (options.LongRunningTestTime > TimeSpan.Zero && !Debugger.IsAttached)
 			executingTestCases = [];
@@ -762,6 +791,10 @@ public class ExecutionSink : IMessageSink, IDisposable
 	/// <inheritdoc/>
 	public bool OnMessage(IMessageSinkMessage message)
 	{
+		// Mutate message for source information
+		if (message is ITestCaseStarting testCaseStarting && testCaseStarting.SourceFilePath is null && testCaseStarting.SourceLineNumber is null)
+			message = testCaseStarting.WithSourceInfo(sourceInformationProvider);
+
 		// Mutate messages based on user requirements
 		if (options.FailSkips)
 			message = MutateForFailSkips(message);

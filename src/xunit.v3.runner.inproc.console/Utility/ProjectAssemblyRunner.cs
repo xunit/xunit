@@ -23,16 +23,32 @@ namespace Xunit.Runner.InProc.SystemConsole;
 /// </summary>
 /// <param name="testAssembly">The assembly under test</param>
 /// <param name="automatedMode">The automated mode we're running in</param>
+/// <param name="sourceInformationProvider">The source information provider</param>
 /// <param name="cancellationTokenSource">The cancellation token source used to indicate cancellation</param>
 public sealed class ProjectAssemblyRunner(
 	Assembly testAssembly,
 	AutomatedMode automatedMode,
+	ISourceInformationProvider sourceInformationProvider,
 	CancellationTokenSource cancellationTokenSource)
 {
 	readonly AutomatedMode automatedMode = automatedMode;
 	readonly CancellationTokenSource cancellationTokenSource = Guard.ArgumentNotNull(cancellationTokenSource);
 	bool failed;
 	readonly Assembly testAssembly = testAssembly;
+
+	/// <summary>
+	/// Initializes an instance of the <see cref="ProjectAssemblyRunner"/> class, without support
+	/// for source information.
+	/// </summary>
+	/// <param name="testAssembly">The assembly under test</param>
+	/// <param name="automatedMode">The automated mode we're running in</param>
+	/// <param name="cancellationTokenSource">The cancellation token source used to indicate cancellation</param>
+	public ProjectAssemblyRunner(
+		Assembly testAssembly,
+		AutomatedMode automatedMode,
+		CancellationTokenSource cancellationTokenSource) :
+			this(testAssembly, automatedMode, NullSourceInformationProvider.Instance, cancellationTokenSource)
+	{ }
 
 	/// <summary>
 	/// Gets a one-line banner to be printed when the runner is executed.
@@ -94,7 +110,7 @@ public sealed class ProjectAssemblyRunner(
 				testCases?.Add((testCase, passedFilter));
 
 				return
-					passedFilter && (messageSink?.OnMessage(testCase.ToTestCaseDiscovered())) == false
+					passedFilter && (messageSink?.OnMessage(testCase.ToTestCaseDiscovered().WithSourceInfo(sourceInformationProvider))) == false
 						? new(false)
 						: new(!cancellationTokenSource.IsCancellationRequested);
 			}
@@ -218,7 +234,7 @@ public sealed class ProjectAssemblyRunner(
 				LongRunningTestTime = TimeSpan.FromSeconds(longRunningSeconds),
 			};
 
-			using var resultsSink = new ExecutionSink(assembly, discoveryOptions, executionOptions, AppDomainOption.NotAvailable, shadowCopy: false, messageSink, sinkOptions);
+			using var resultsSink = new ExecutionSink(assembly, discoveryOptions, executionOptions, AppDomainOption.NotAvailable, shadowCopy: false, messageSink, sinkOptions, sourceInformationProvider);
 			var testCases =
 				assembly
 					.TestCasesToRun
