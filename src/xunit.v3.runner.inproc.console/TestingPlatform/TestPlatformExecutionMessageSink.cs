@@ -151,13 +151,20 @@ public class TestPlatformExecutionMessageSink(
 
 						if (attachmentType == TestAttachmentType.String)
 						{
-							localFilePath += ".txt";
+							if (Path.GetExtension(localFilePath) != ".txt")
+							{
+								localFilePath += ".txt";
+							}
 							File.WriteAllText(localFilePath, kvp.Value.AsString());
 						}
 						else if (attachmentType == TestAttachmentType.ByteArray)
 						{
 							var (byteArray, mediaType) = kvp.Value.AsByteArray();
-							localFilePath += MediaTypeUtility.GetFileExtension(mediaType);
+							var fileExtension = MediaTypeUtility.GetFileExtension(mediaType);
+							if (Path.GetExtension(localFilePath) != fileExtension)
+							{
+								localFilePath += fileExtension;
+							}
 							File.WriteAllBytes(localFilePath, byteArray);
 						}
 						else
