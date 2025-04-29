@@ -210,8 +210,9 @@ public class TestPlatformTestFrameworkTests
 		XunitProjectAssembly projectAssembly,
 		Assembly testAssembly,
 		XunitTrxCapability trxCapability,
-		SpyTestPlatformOutputDevice outputDevice) :
-			TestPlatformTestFramework(runnerLogger, innerSink, diagnosticMessageSink, projectAssembly, testAssembly, trxCapability, outputDevice)
+		SpyTestPlatformOutputDevice outputDevice,
+		bool serverMode) :
+			TestPlatformTestFramework(runnerLogger, innerSink, diagnosticMessageSink, projectAssembly, testAssembly, trxCapability, outputDevice, serverMode)
 	{
 		public XunitProjectAssembly ProjectAssembly { get; } = projectAssembly;
 
@@ -231,7 +232,8 @@ public class TestPlatformTestFrameworkTests
 				projectAssembly,
 				testAssembly,
 				trxCapability,
-				new SpyTestPlatformOutputDevice()
+				new SpyTestPlatformOutputDevice(),
+				serverMode: false
 			);
 		}
 	}

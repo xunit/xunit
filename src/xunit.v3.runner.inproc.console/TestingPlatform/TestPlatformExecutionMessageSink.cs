@@ -27,6 +27,7 @@ namespace Xunit.Runner.InProc.SystemConsole.TestingPlatform;
 /// <param name="trxCapability">Information class that knows whether TRX reporting is enabled</param>
 /// <param name="outputDevice">The output device to write messages to</param>
 /// <param name="showLiveOutput">A flag to indicate whether live output should be shown</param>
+/// <param name="serverMode">A flag to indicate if we're running in server mode (inside Test Explorer)</param>
 /// <param name="cancellationToken">The cancellation token provided by MTP</param>
 /// <remarks>
 /// This class is an implementation detail for Microsoft.Testing.Platform that is public for testing purposes.
@@ -40,6 +41,7 @@ public class TestPlatformExecutionMessageSink(
 	XunitTrxCapability trxCapability,
 	IOutputDevice outputDevice,
 	bool showLiveOutput,
+	bool serverMode,
 	CancellationToken cancellationToken) :
 		OutputDeviceDataProducerBase("execution message sink", "fa7e6681-c892-4741-9980-724bd818f1f1"), IMessageSink, IDataProducer
 {
@@ -82,9 +84,7 @@ public class TestPlatformExecutionMessageSink(
 			message.DispatchWhen<ITestMethodCleanupFailure>(args => OnTestMethodCleanupFailure(args.Message)) &&
 			message.DispatchWhen<ITestMethodFinished>(args => metadataCache.TryRemove(args.Message)) &&
 			message.DispatchWhen<ITestMethodStarting>(args => metadataCache.Set(args.Message)) &&
-			// We don't report anything for ITestNotRun, because we don't want to alter the user's expectations
-			// of what happens for not run tests in Test Explorer. We want them to stay marked as "not run" (or
-			// show their previous run value but not be highlighted as "run this time").
+			message.DispatchWhen<ITestNotRun>(args => SendTestResult(args.Message)) &&
 			message.DispatchWhen<ITestPassed>(args => SendTestResult(args.Message)) &&
 			message.DispatchWhen<ITestSkipped>(args => SendTestResult(args.Message)) &&
 			message.DispatchWhen<ITestStarting>(args => OnTestStarting(args.Message)) &&
@@ -244,6 +244,12 @@ public class TestPlatformExecutionMessageSink(
 
 	void SendTestResult(ITestMessage testMessage)
 	{
+		// If we're running inside Visual Studio, we don't want to report the test as skipped,
+		// because we want their UI to continue to say "not run" (or report the last run status).
+		// We only way to report the test as skipped when running from non-server mode ("dotnet test").
+		if (serverMode && testMessage is ITestNotRun)
+			return;
+
 		var testStarting = testMessage as ITestStarting;
 		if (testStarting is null)
 			testStarting = metadataCache.TryGetTestMetadata(testMessage) as ITestStarting;
@@ -264,6 +270,7 @@ public class TestPlatformExecutionMessageSink(
 				FailureCause.Timeout => new TimeoutTestNodeStateProperty(new XunitException(failed)),
 				_ => new ErrorTestNodeStateProperty(new XunitException(failed)),
 			},
+			ITestNotRun => new SkippedTestNodeStateProperty("Not run (due to explicit test filtering)"),
 			ITestPassed => PassedTestNodeStateProperty.CachedInstance,
 			ITestSkipped skipped => new SkippedTestNodeStateProperty(skipped.Reason),
 			ITestStarting => InProgressTestNodeStateProperty.CachedInstance,

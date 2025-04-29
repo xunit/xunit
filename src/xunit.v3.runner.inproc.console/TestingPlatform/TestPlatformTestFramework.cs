@@ -40,6 +40,7 @@ public class TestPlatformTestFramework :
 	readonly XunitProjectAssembly projectAssembly;
 	readonly ConcurrentDictionary<SessionUid, CountdownEvent> operationCounterBySessionUid = new();
 	readonly IRunnerLogger runnerLogger;
+	readonly bool serverMode;
 	readonly Assembly testAssembly;
 	readonly XunitTrxCapability trxCapability;
 
@@ -51,7 +52,8 @@ public class TestPlatformTestFramework :
 		XunitProjectAssembly projectAssembly,
 		Assembly testAssembly,
 		XunitTrxCapability trxCapability,
-		IOutputDevice outputDevice) :
+		IOutputDevice outputDevice,
+		bool serverMode) :
 			base("test framework", "30ea7c6e-dd24-4152-a360-1387158cd41d")
 	{
 		this.runnerLogger = runnerLogger;
@@ -61,6 +63,7 @@ public class TestPlatformTestFramework :
 		this.testAssembly = testAssembly;
 		this.trxCapability = trxCapability;
 		this.outputDevice = outputDevice;
+		this.serverMode = serverMode;
 
 		SerializationHelper.Instance.AddRegisteredSerializers(testAssembly);
 	}
@@ -158,7 +161,7 @@ public class TestPlatformTestFramework :
 				var showLiveOutput = projectAssembly.Configuration.ShowLiveOutputOrDefault;
 				projectAssembly.Configuration.ShowLiveOutput = false;
 
-				var messageHandler = new TestPlatformExecutionMessageSink(innerSink, sessionUid, messageBus, trxCapability, outputDevice, showLiveOutput, cancellationToken);
+				var messageHandler = new TestPlatformExecutionMessageSink(innerSink, sessionUid, messageBus, trxCapability, outputDevice, showLiveOutput, serverMode, cancellationToken);
 				await projectRunner.Run(projectAssembly, messageHandler, diagnosticMessageSink, runnerLogger, pipelineStartup, testCaseIDsToRun);
 
 				foreach (var output in projectAssembly.Project.Configuration.Output)
@@ -231,6 +234,7 @@ public class TestPlatformTestFramework :
 			{
 				var logger = serviceProvider.GetLoggerFactory().CreateLogger("xUnit.net");
 				var commandLineOptions = serviceProvider.GetCommandLineOptions();
+				var serverMode = commandLineOptions.IsOptionSet("server");
 
 				// Create the XunitProject and XunitProjectAssembly
 				var project = new XunitProject();
@@ -269,7 +273,7 @@ public class TestPlatformTestFramework :
 				var reporter = autoReporter ?? reporters.FirstOrDefault(r => "default".Equals(r.RunnerSwitch, StringComparison.OrdinalIgnoreCase)) ?? new DefaultRunnerReporter();
 				var reporterMessageHandler = reporter.CreateMessageHandler(runnerLogger, diagnosticMessageSink).SpinWait();
 
-				return new TestPlatformTestFramework(runnerLogger, reporterMessageHandler, diagnosticMessageSink, projectAssembly, testAssembly, trxCapability, outputDevice);
+				return new TestPlatformTestFramework(runnerLogger, reporterMessageHandler, diagnosticMessageSink, projectAssembly, testAssembly, trxCapability, outputDevice, serverMode);
 			}
 		);
 

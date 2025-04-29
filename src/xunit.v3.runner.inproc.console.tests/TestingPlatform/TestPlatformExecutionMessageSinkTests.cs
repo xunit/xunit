@@ -163,14 +163,27 @@ public class TestPlatformExecutionMessageSinkTests
 		}
 
 		[Fact]
-		public void ITestNotRun()
+		public void ITestNotRun_ServerModeTrue()
 		{
-			var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+			var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: true);
 			SendStartingMessages(classUnderTest);
 
 			classUnderTest.OnMessage(TestData.TestNotRun());
 
 			Assert.Empty(classUnderTest.TestNodeMessageBus.PublishedData);
+		}
+
+		[Fact]
+		public void ITestNotRun_ServerModeFalse()
+		{
+			var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: false);
+			SendStartingMessages(classUnderTest);
+
+			classUnderTest.OnMessage(TestData.TestNotRun());
+
+			var testNode = AssertStandardMetadata(classUnderTest);
+			var skipped = testNode.Properties.Single<SkippedTestNodeStateProperty>();
+			Assert.Equal("Not run (due to explicit test filtering)", skipped.Explanation);
 		}
 
 		[Theory]
@@ -405,8 +418,9 @@ public class TestPlatformExecutionMessageSinkTests
 		XunitTrxCapability trxCapability,
 		SpyTestPlatformOutputDevice outputDevice,
 		bool showLiveOutput,
+		bool serverMode,
 		CancellationTokenSource cancellationTokenSource) :
-			TestPlatformExecutionMessageSink(innerSink, sessionUid, testNodeMessageBus, trxCapability, outputDevice, showLiveOutput, cancellationTokenSource.Token)
+			TestPlatformExecutionMessageSink(innerSink, sessionUid, testNodeMessageBus, trxCapability, outputDevice, showLiveOutput, serverMode, cancellationTokenSource.Token)
 	{
 		public CancellationTokenSource CancellationTokenSource { get; } = cancellationTokenSource;
 		public SpyMessageSink InnerSink { get; } = innerSink;
@@ -415,7 +429,8 @@ public class TestPlatformExecutionMessageSinkTests
 
 		public static TestableTestPlatformExecutionMessageSink Create(
 			bool trxEnabled = false,
-			bool showLiveOutput = false) =>
-				new(SpyMessageSink.Capture(), new(), new(), new(trxEnabled), new(), showLiveOutput, new());
+			bool showLiveOutput = false,
+			bool serverMode = false) =>
+				new(SpyMessageSink.Capture(), new(), new(), new(trxEnabled), new(), showLiveOutput, serverMode, new());
 	}
 }
