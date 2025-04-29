@@ -6,6 +6,10 @@ namespace Xunit.Runner.InProc.SystemConsole.TestingPlatform;
 /// <summary>
 /// Base class for all Microsoft.Testing.Platform classes which are extensions.
 /// </summary>
+/// <remarks>
+/// This class is an implementation detail for Microsoft.Testing.Platform that is public for testing purposes.
+/// Use this class at your own risk, as breaking changes may occur as needed.
+/// </remarks>
 public class ExtensionBase(
 	string componentName,
 	string uid) :

@@ -17,6 +17,10 @@ namespace Xunit.Runner.InProc.SystemConsole.TestingPlatform;
 /// <summary>
 /// Implementation of <see cref="ICommandLineOptionsProvider"/> for xUnit.net v3.
 /// </summary>
+/// <remarks>
+/// This class is an implementation detail for Microsoft.Testing.Platform that is public for testing purposes.
+/// Use this class at your own risk, as breaking changes may occur as needed.
+/// </remarks>
 public sealed class CommandLineOptionsProvider() :
 	ExtensionBase("command line options provider", "7e0a6fd0-3615-48b0-859c-6bb4f51c3095"), ICommandLineOptionsProvider
 {

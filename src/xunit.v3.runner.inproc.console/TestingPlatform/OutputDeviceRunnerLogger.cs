@@ -12,6 +12,10 @@ namespace Xunit.Runner.InProc.SystemConsole.TestingPlatform;
 /// flag is used to only output raw log messages (typically used by reporter message handlers that need
 /// to output text that is designed to be consumed programatically).
 /// </summary>
+/// <remarks>
+/// This class is an implementation detail for Microsoft.Testing.Platform that is public for testing purposes.
+/// Use this class at your own risk, as breaking changes may occur as needed.
+/// </remarks>
 public sealed class OutputDeviceRunnerLogger(
 	IOutputDevice outputDevice,
 	IRunnerLogger? innerLogger,

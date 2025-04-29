@@ -19,6 +19,10 @@ namespace Xunit.Runner.InProc.SystemConsole.TestingPlatform;
 /// <param name="sessionUid">The MTP session UID</param>
 /// <param name="testNodeMessageBus">The message bus for reporting MTP messages to</param>
 /// <param name="cancellationToken">The cancellation token provided by MTP</param>
+/// <remarks>
+/// This class is an implementation detail for Microsoft.Testing.Platform that is public for testing purposes.
+/// Use this class at your own risk, as breaking changes may occur as needed.
+/// </remarks>
 [ExcludeFromCodeCoverage]
 public class TestPlatformDiscoveryMessageSink(
 	IMessageSink innerSink,

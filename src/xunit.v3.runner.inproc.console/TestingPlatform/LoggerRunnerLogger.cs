@@ -7,6 +7,10 @@ namespace Xunit.Runner.InProc.SystemConsole.TestingPlatform;
 /// Implementation of <see cref="IRunnerLogger"/> which forwards the messages onto
 /// an implementation of <see cref="ILogger"/>.
 /// </summary>
+/// <remarks>
+/// This class is an implementation detail for Microsoft.Testing.Platform that is public for testing purposes.
+/// Use this class at your own risk, as breaking changes may occur as needed.
+/// </remarks>
 public sealed class LoggerRunnerLogger(ILogger logger) :
 	IRunnerLogger
 {

@@ -6,6 +6,10 @@ namespace Xunit.Runner.InProc.SystemConsole.TestingPlatform;
 /// Implementation of <see cref="ITrxReportCapability"/> to supplement TRX reporting
 /// with xUnit.net v3 information.
 /// </summary>
+/// <remarks>
+/// This class is an implementation detail for Microsoft.Testing.Platform that is public for testing purposes.
+/// Use this class at your own risk, as breaking changes may occur as needed.
+/// </remarks>
 public sealed class XunitTrxCapability(bool trxEnabled = false) :
 	ITrxReportCapability
 {

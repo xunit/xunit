@@ -12,6 +12,10 @@ namespace Xunit.Runner.InProc.SystemConsole.TestingPlatform;
 /// forwards diagnostic messages to the <see cref="IOutputDevice"/>. It wraps an existing implementation
 /// of <see cref="IMessageSink"/> to forward all messages to.
 /// </summary>
+/// <remarks>
+/// This class is an implementation detail for Microsoft.Testing.Platform that is public for testing purposes.
+/// Use this class at your own risk, as breaking changes may occur as needed.
+/// </remarks>
 public sealed class OutputDeviceDiagnosticMessageSink(
 	IOutputDevice outputDevice,
 	bool diagnosticMessages,

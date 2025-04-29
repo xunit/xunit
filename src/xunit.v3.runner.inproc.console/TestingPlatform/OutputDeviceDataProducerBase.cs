@@ -9,6 +9,10 @@ namespace Xunit.Runner.InProc.SystemConsole.TestingPlatform;
 /// </summary>
 /// <param name="componentName">The component name</param>
 /// <param name="uid">The component UID</param>
+/// <remarks>
+/// This class is an implementation detail for Microsoft.Testing.Platform that is public for testing purposes.
+/// Use this class at your own risk, as breaking changes may occur as needed.
+/// </remarks>
 public abstract class OutputDeviceDataProducerBase(
 	string componentName,
 	string uid) :

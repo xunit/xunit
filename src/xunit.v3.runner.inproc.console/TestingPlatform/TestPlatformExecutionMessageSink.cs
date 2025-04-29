@@ -28,6 +28,10 @@ namespace Xunit.Runner.InProc.SystemConsole.TestingPlatform;
 /// <param name="outputDevice">The output device to write messages to</param>
 /// <param name="showLiveOutput">A flag to indicate whether live output should be shown</param>
 /// <param name="cancellationToken">The cancellation token provided by MTP</param>
+/// <remarks>
+/// This class is an implementation detail for Microsoft.Testing.Platform that is public for testing purposes.
+/// Use this class at your own risk, as breaking changes may occur as needed.
+/// </remarks>
 [ExcludeFromCodeCoverage]
 public class TestPlatformExecutionMessageSink(
 	IMessageSink innerSink,
