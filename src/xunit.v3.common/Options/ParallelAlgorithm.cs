@@ -9,7 +9,7 @@ public enum ParallelAlgorithm
 	/// The conservative parallelization algorithm uses a semaphore to limit the number of started tests to be equal
 	/// to the desired parallel thread count. This has the effect of allowing tests that have started to finish faster,
 	/// since there are no extra tests competing for a chance to run, at the expense that CPU utilization will be lowered
-	/// if the test project spaws a lot of async tests that have significant wait times.
+	/// if the test project spawns a lot of async tests that have significant wait times.
 	/// </summary>
 	Conservative = 0,
 
