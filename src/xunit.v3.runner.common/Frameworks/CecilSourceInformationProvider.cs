@@ -39,6 +39,9 @@ public sealed class CecilSourceInformationProvider : ISourceInformationProvider
 	/// <param name="assemblyFileName">The test assembly filename</param>
 	public static ISourceInformationProvider Create(string? assemblyFileName)
 	{
+		if (!RunSettingsUtility.CollectSourceInformation)
+			return NullSourceInformationProvider.Instance;
+
 		var folder = Path.GetDirectoryName(assemblyFileName);
 		if (folder is null)
 			return NullSourceInformationProvider.Instance;
