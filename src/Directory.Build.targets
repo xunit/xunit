@@ -89,7 +89,7 @@
     <Exec
         StandardOutputImportance="low"
         IgnoreStandardErrorWarningFormat="true"
-        Command="dotnet &quot;$(ILRepack)&quot; -internalize -ndebug @(ILRepackLibPaths->'-lib:%(FullPath)', ' ') -out:$(OutputAssembly) $(MainAssembly) @(ILRepackDependencies, ' ')" />
+        Command="dotnet &quot;$(ILRepack)&quot; -internalize -ndebug -keyfile:$(AssemblyOriginatorKeyFile) @(ILRepackLibPaths->'-lib:%(FullPath)', ' ') -out:$(OutputAssembly) $(MainAssembly) @(ILRepackDependencies, ' ')" />
     <Exec Command="chmod +x '$(OutputAssembly)'" Condition=" '$(OS)' != 'Windows_NT' AND $(OutputAssembly.EndsWith('.exe')) " />
   </Target>
 
