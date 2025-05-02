@@ -29,7 +29,7 @@ internal static class RunSettingsUtility
 				}
 				catch { }
 
-				collectSourceInformation ??= true;
+				collectSourceInformation ??= false;
 			}
 
 			return collectSourceInformation.Value;
