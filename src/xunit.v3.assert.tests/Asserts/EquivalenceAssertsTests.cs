@@ -1960,6 +1960,57 @@ public class EquivalenceAssertsTests
 		}
 	}
 
+	public class WithExclusions
+	{
+		public class ByExpression
+		{
+			[Fact]
+			public void Shallow()
+			{
+				Assert.EquivalentWithExclusions(
+					new ShallowClass { Value1 = 42, Value2 = "Hello" },
+					new ShallowClass { Value1 = 42, Value2 = "World" },
+					s => s.Value2
+				);
+			}
+
+			[Fact]
+			public void MixedShallowAndDeep()
+			{
+				Assert.EquivalentWithExclusions(
+					new DeepClass { Value3 = 21.12m, Shallow = new ShallowClass { Value1 = 42, Value2 = "Hello" } },
+					new DeepClass { Value3 = 42.24m, Shallow = new ShallowClass { Value1 = 42, Value2 = "World" } },
+					d => d.Value3,
+					d => d.Shallow!.Value2
+				);
+			}
+		}
+
+		public class ByString
+		{
+			[Fact]
+			public void Shallow()
+			{
+				Assert.EquivalentWithExclusions(
+					new ShallowClass { Value1 = 42, Value2 = "Hello" },
+					new ShallowClass { Value1 = 42, Value2 = "World" },
+					"Value2"
+				);
+			}
+
+			[Fact]
+			public void MixedShallowAndDeep()
+			{
+				Assert.EquivalentWithExclusions(
+					new DeepClass { Value3 = 21.12m, Shallow = new ShallowClass { Value1 = 42, Value2 = "Hello" } },
+					new DeepClass { Value3 = 42.24m, Shallow = new ShallowClass { Value1 = 42, Value2 = "World" } },
+					"Value3",
+					"Shallow.Value2"
+				);
+			}
+		}
+	}
+
 #if NET8_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
 
 	// https://github.com/xunit/xunit/issues/3088
