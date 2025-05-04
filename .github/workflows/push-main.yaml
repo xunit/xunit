@@ -34,7 +34,10 @@ jobs:
         run: dotnet --info
         continue-on-error: true
 
-      - name: "Build target: BuildAll & PublishPackages"
+      - name: Switch to detached HEAD
+        run: "git switch --detach HEAD ; git submodule foreach 'git switch --detach HEAD'"
+
+      - name: "Build target: BuildAll & DocFX & PublishPackages"
         env:
           PUSH_APIKEY: ${{ secrets.PUSH_APIKEY }}
           PUSH_URI: ${{ secrets.PUSH_URI }}
@@ -45,10 +48,7 @@ jobs:
           SIGN_TENANT: ${{ secrets.SIGN_TENANT }}
           SIGN_TIMESTAMP_URI: ${{ secrets.SIGN_TIMESTAMP_URI }}
           SIGN_VAULT_URI: ${{ secrets.SIGN_VAULT_URI }}
-        run: dotnet run --project tools/builder --no-launch-profile -- BuildAll PublishPackages --timing --no-x86
-
-      - name: "Build target: DocFX"
-        run: "git switch --detach HEAD ; git submodule foreach 'git switch --detach HEAD' ; dotnet run --project tools/builder --no-launch-profile -- DocFX --timing"
+        run: dotnet run --project tools/builder --no-launch-profile -- BuildAll DocFX PublishPackages --timing --no-x86
 
       - name: "Upload artifact: docfx"
         uses: actions/upload-artifact@v4
