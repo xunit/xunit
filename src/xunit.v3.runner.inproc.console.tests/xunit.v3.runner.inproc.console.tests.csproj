@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Collections.Immutable" Version="[$(SystemCollectionsImmutableVersion)]" Condition=" '$(TargetFramework)' == 'net472' " />
+    <PackageReference Include="System.Collections.Immutable" Version="[$(System_Collections_Immutable_Version)]" Condition=" '$(TargetFramework)' == 'net472' " />
   </ItemGroup>
 
 </Project>

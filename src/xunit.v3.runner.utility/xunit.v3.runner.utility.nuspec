@@ -16,11 +16,11 @@
 		<repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
 		<dependencies>
 			<group targetFramework="net472">
-				<dependency id="xunit.abstractions" version="$XunitAbstractionsVersion$" />
+				<dependency id="xunit.abstractions" version="$xunit_abstractions_Version$" />
 				<dependency id="xunit.v3.runner.common" version="[$PackageVersion$]" />
 			</group>
 			<group targetFramework="net8.0">
-				<dependency id="xunit.abstractions" version="$XunitAbstractionsVersion$" />
+				<dependency id="xunit.abstractions" version="$xunit_abstractions_Version$" />
 				<dependency id="xunit.v3.runner.common" version="[$PackageVersion$]" />
 			</group>
 		</dependencies>

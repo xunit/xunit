@@ -28,7 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Build.Tasks.Core" Version="[$(MicrosoftBuildVersion)]" />
+    <PackageReference Include="Microsoft.Build.Tasks.Core" Version="[$(Microsoft_Build_Tasks_Core_Version)]" />
   </ItemGroup>
 
   <Target Name="PreILRepack" BeforeTargets="ILRepack" DependsOnTargets="Build">

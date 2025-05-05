@@ -29,7 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Mono.Cecil" Version="$(MonoCecilVersion)" PrivateAssets="all" />
+    <PackageReference Include="Mono.Cecil" Version="$(Mono_Cecil_Version)" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>

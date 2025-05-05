@@ -16,8 +16,8 @@
 		<repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
 		<dependencies>
 			<group targetFramework="netstandard2.0">
-				<dependency id="System.Collections.Immutable" version="$SystemCollectionsImmutableVersion$" />
-				<dependency id="System.Memory" version="$SystemMemoryVersion$" />
+				<dependency id="System.Collections.Immutable" version="$System_Collections_Immutable_Version$" />
+				<dependency id="System.Memory" version="$System_Memory_Version$" />
 			</group>
 			<group targetFramework="net8.0" />
 		</dependencies>

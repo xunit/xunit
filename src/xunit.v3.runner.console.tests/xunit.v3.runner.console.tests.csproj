@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Collections.Immutable" Version="[$(SystemCollectionsImmutableVersion)]" />
+    <PackageReference Include="System.Collections.Immutable" Version="[$(System_Collections_Immutable_Version)]" />
   </ItemGroup>
 
 </Project>

@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="xunit.abstractions" Version="$(XunitAbstractionsVersion)" />
+    <PackageReference Include="xunit.abstractions" Version="$(xunit_abstractions_Version)" />
   </ItemGroup>
 
   <ItemGroup>

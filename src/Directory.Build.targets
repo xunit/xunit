@@ -17,7 +17,7 @@
 
   <!-- Enable building .NET Framework on non-Windows machines -->
   <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="$(MicrosoftNetFrameworkReferenceAssembliesVersion)">
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="$(Microsoft_NETFramework_ReferenceAssemblies_Version)">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -25,15 +25,15 @@
 
   <!-- Enable nullable support for older targets -->
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
-    <PackageReference Include="TunnelVisionLabs.ReferenceAssemblyAnnotator" Version="$(TunnelVisionLabsReferenceAssemblyAnnotatorVersion)">
+    <PackageReference Include="TunnelVisionLabs.ReferenceAssemblyAnnotator" Version="$(TunnelVisionLabs_ReferenceAssemblyAnnotator_Version)">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageDownload Include="Microsoft.NETCore.App.Ref" Version="[$(MicrosoftNetCoreAppRefVersion)]" />
+    <PackageDownload Include="Microsoft.NETCore.App.Ref" Version="[$(Microsoft_NetCore_App_Ref_Version)]" />
   </ItemGroup>
 
   <PropertyGroup>
-    <AnnotatedReferenceAssemblyVersion>$(MicrosoftNetCoreAppRefVersion)</AnnotatedReferenceAssemblyVersion>
+    <AnnotatedReferenceAssemblyVersion>$(Microsoft_NetCore_App_Ref_Version)</AnnotatedReferenceAssemblyVersion>
   </PropertyGroup>
 
   <!-- Mono doesn't seem to find the System.Runtime facade with dynamic compilation, so copy it into our output for testing -->
@@ -150,15 +150,15 @@ $([System.IO.File]::ReadAllText($(MSBuildThisFileDirectory)..\README.md))
         Configuration=$(Configuration);
         GitAssertModuleCommitId=$(GitAssertModuleCommitId);
         GitCommitId=$(GitCommitId);
-        MicrosoftBclAsyncInterfacesVersion=$(MicrosoftBclAsyncInterfacesVersion);
-        MicrosoftTestingPlatformVersion=$(MicrosoftTestingPlatformVersion);
-        MonoCecilVersion=$(MonoCecilVersion);
+        Microsoft_Bcl_AsyncInterfaces_Version=$(Microsoft_Bcl_AsyncInterfaces_Version);
+        Microsoft_Testing_Version=$(Microsoft_Testing_Version);
+        Mono_Cecil_Version=$(Mono_Cecil_Version);
         PackageVersion=$(PackageVersion);
         SignedPath=$(SignedPath);
-        SystemCollectionsImmutableVersion=$(SystemCollectionsImmutableVersion);
-        SystemMemoryVersion=$(SystemMemoryVersion);
-        XunitAbstractionsVersion=$(XunitAbstractionsVersion);
-        XunitAnalyzersVersion=$(XunitAnalyzersVersion);
+        System_Collections_Immutable_Version=$(System_Collections_Immutable_Version);
+        System_Memory_Version=$(System_Memory_Version);
+        xunit_abstractions_Version=$(xunit_abstractions_Version);
+        xunit_analyzers_Version=$(xunit_analyzers_Version);
       </NuspecProperties>
     </PropertyGroup>
   </Target>

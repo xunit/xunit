@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="[$(MicrosoftBclAsyncInterfacesVersion)]" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="[$(Microsoft_Bcl_AsyncInterfaces_Version)]" />
   </ItemGroup>
 
 </Project>

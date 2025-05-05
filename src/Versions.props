@@ -4,43 +4,43 @@
   <PropertyGroup>
 
     <!-- Used for building -->
-    <ILRepackVersion>2.0.41</ILRepackVersion>
-    <MicrosoftNetCoreAppRefVersion>9.0.1</MicrosoftNetCoreAppRefVersion>
-    <MicrosoftNetFrameworkReferenceAssembliesVersion>1.0.3</MicrosoftNetFrameworkReferenceAssembliesVersion>
-    <MicrosoftSourceLinkGitHubVersion>8.0.0</MicrosoftSourceLinkGitHubVersion>
-    <NerdbankGitVersioningVersion>3.7.115</NerdbankGitVersioningVersion>
-    <TunnelVisionLabsReferenceAssemblyAnnotatorVersion>1.0.0-alpha.160</TunnelVisionLabsReferenceAssemblyAnnotatorVersion>
+    <ILRepack_Version>2.0.41</ILRepack_Version>
+    <Microsoft_NetCore_App_Ref_Version>9.0.4</Microsoft_NetCore_App_Ref_Version>
+    <Microsoft_NETFramework_ReferenceAssemblies_Version>1.0.3</Microsoft_NETFramework_ReferenceAssemblies_Version>
+    <Microsoft_SourceLink_GitHub_Version>8.0.0</Microsoft_SourceLink_GitHub_Version>
+    <Nerdbank_GitVersioning_Version>3.7.115</Nerdbank_GitVersioning_Version>
+    <TunnelVisionLabs_ReferenceAssemblyAnnotator_Version>1.0.0-alpha.160</TunnelVisionLabs_ReferenceAssemblyAnnotator_Version>
+
+    <!-- Used for Microsoft.Testing.* (xunit.v3.core NuGet package and xunit.v3.runner.inproc.console) -->
+    <Microsoft_Testing_Version>1.6.3</Microsoft_Testing_Version>
 
     <!-- Used by NuGet packages (xunit.v3 and xunit.v3.templates) -->
-    <MicrosoftNetTestSdkVersion>17.13.0</MicrosoftNetTestSdkVersion>
-    <XunitAnalyzersVersion>1.21.0</XunitAnalyzersVersion>
-    <XunitRunnerVisualStudioVersion>3.1.0</XunitRunnerVisualStudioVersion>
+    <Microsoft_NET_Test_Sdk_Version>17.13.0</Microsoft_NET_Test_Sdk_Version>
+    <xunit_analyzers_Version>1.21.0</xunit_analyzers_Version>
+    <xunit_runner_visualstudio_Version>3.1.0</xunit_runner_visualstudio_Version>
 
     <!-- Used by xunit.v3.assert for immutable collection and memory/span support -->
-    <SystemCollectionsImmutableVersion>6.0.0</SystemCollectionsImmutableVersion>
-    <SystemMemoryVersion>4.5.5</SystemMemoryVersion>
+    <System_Collections_Immutable_Version>6.0.0</System_Collections_Immutable_Version>
+    <System_Memory_Version>4.5.5</System_Memory_Version>
 
     <!-- Used by xunit.v3.core for IAsyncDisposable -->
-    <MicrosoftBclAsyncInterfacesVersion>6.0.0</MicrosoftBclAsyncInterfacesVersion>
-
-    <!-- Used by xunit.v3.runner.inproc.console to support Microsoft.Testing.Platform -->
-    <MicrosoftTestingPlatformVersion>1.6.3</MicrosoftTestingPlatformVersion>
+    <Microsoft_Bcl_AsyncInterfaces_Version>6.0.0</Microsoft_Bcl_AsyncInterfaces_Version>
 
     <!-- Used by xunit.v3.runner.msbuild to reference MSBuild types -->
-    <MicrosoftBuildVersion>16.11.0</MicrosoftBuildVersion>
+    <Microsoft_Build_Tasks_Core_Version>16.11.0</Microsoft_Build_Tasks_Core_Version>
 
     <!-- Used by xunit.v3.runner.utility to determine the target framework of an assembly without load-locking it -->
-    <MonoCecilVersion>0.11.6</MonoCecilVersion>
+    <Mono_Cecil_Version>0.11.6</Mono_Cecil_Version>
 
     <!-- Used by xunit.v3.runner.utility to support running v2 test projects -->
-    <XunitAbstractionsVersion>2.0.3</XunitAbstractionsVersion>
+    <xunit_abstractions_Version>2.0.3</xunit_abstractions_Version>
 
     <!-- Used in non-product (test or back-compat) projects -->
-    <FSharpCompilerServiceVersion>43.7.200</FSharpCompilerServiceVersion>
-    <MoqVersion>4.17.2</MoqVersion>
-    <NSubstituteVersion>5.3.0</NSubstituteVersion>
-    <XunitV1Version>1.9.2</XunitV1Version>
-    <XunitV2Version>2.9.3</XunitV2Version>
+    <FSharp_Compiler_Service_Version>43.7.200</FSharp_Compiler_Service_Version>
+    <Moq_Version>4.17.2</Moq_Version>
+    <NSubstitute_Version>5.3.0</NSubstitute_Version>
+    <xunit_Version_v1>1.9.2</xunit_Version_v1>
+    <xunit_Version_v2>2.9.3</xunit_Version_v2>
 
   </PropertyGroup>
 

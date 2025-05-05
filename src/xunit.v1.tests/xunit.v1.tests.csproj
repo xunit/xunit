@@ -12,8 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Moq" Version="$(MoqVersion)" />
-    <PackageReference Include="xunit.extensions" Version="[$(XunitV1Version)]" />
+    <PackageReference Include="Moq" Version="$(Moq_Version)" />
+    <PackageReference Include="xunit.extensions" Version="[$(xunit_Version_v1)]" />
   </ItemGroup>
 
   <ItemGroup>

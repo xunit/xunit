@@ -26,7 +26,7 @@
     <ReplaceFileText InputFilename="%(TemplateInput.XunitArtifactLocation)"
                      OutputFilename="%(TemplateInput.XunitArtifactLocation)"
                      MatchExpression="MICROSOFT_NET_TEST_SDK_VERSION;PACKAGE_VERSION;XUNIT_ANALYZERS_VERSION;XUNIT_RUNNER_VISUALSTUDIO_VERSION"
-                     ReplacementText="$(MicrosoftNetTestSdkVersion);$(PackageVersion);$(XunitAnalyzersVersion);$(XunitRunnerVisualStudioVersion)" />
+                     ReplacementText="$(Microsoft_NET_Test_Sdk_Version);$(PackageVersion);$(xunit_analyzers_Version);$(xunit_runner_visualstudio_Version)" />
     <ItemGroup>
       <FileWrites Include="%(TemplateInput.XunitArtifactLocation)" />
     </ItemGroup>

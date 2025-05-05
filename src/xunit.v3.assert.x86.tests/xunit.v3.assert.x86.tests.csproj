@@ -12,8 +12,8 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' != '.NETCoreApp' ">
-    <PackageReference Include="System.Collections.Immutable" Version="[$(SystemCollectionsImmutableVersion)]" />
-    <PackageReference Include="System.Memory" Version="[$(SystemMemoryVersion)]" />
+    <PackageReference Include="System.Collections.Immutable" Version="[$(System_Collections_Immutable_Version)]" />
+    <PackageReference Include="System.Memory" Version="[$(System_Memory_Version)]" />
   </ItemGroup>
 
 </Project>
