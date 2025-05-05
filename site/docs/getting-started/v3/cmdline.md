@@ -112,9 +112,9 @@ The generated project file should look something like this:
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
     <PackageReference Include="xunit.v3" Version="2.0.2" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="3.0.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.0" />
   </ItemGroup>
 
 </Project>
