@@ -6,7 +6,7 @@ breadcrumb: Documentation
 
 # Getting Started with xUnit.net v3
 
-_Last updated: 2024 December 16_
+_Last updated: 2025 May 5_
 
 ## Using .NET or .NET Framework with the .NET SDK command line
 
@@ -21,8 +21,9 @@ In this document, we will demonstrate getting started with xUnit.net v3 when tar
 * [Running tests with Visual Studio Code](#running-tests-with-visual-studio-code)
 * [Running tests with JetBrains Rider](#running-tests-with-jetbrains-rider)
 * [Running tests with `dotnet test`](#running-tests-with-dotnet-test)
+* [Running tests with `xunit.v3.runner.console`](#running-tests-with-xunitv3runnerconsole)
 
-_Note: The examples were done with C#, xUnit.net v3 1.0.0, .NET SDK 8.0.404, and .NET 8. The version numbers, paths, and generated templates may differ for you, depending on the versions you're using. The instructions for .NET vs. .NET Framework are identical other than picking the appropriate target framework; however, being able to build and run .NET Framework tests on Linux or macOS requires installing [Mono](https://www.mono-project.com/download/stable/) first._
+_Note: The examples were done with C#, xUnit.net v3 2.0.2, .NET SDK 9.0.203, and .NET 8. The version numbers, paths, and generated templates may differ for you, depending on the versions you're using. The instructions for .NET vs. .NET Framework are identical other than picking the appropriate target framework; however, being able to build and run .NET Framework tests on Linux or macOS requires installing [Mono](https://www.mono-project.com/download/stable/) first._
 
 
 ## Download the .NET SDK
@@ -33,7 +34,7 @@ Once you've downloaded and installed the SDK, open a fresh command prompt of you
 
 ```
 $ dotnet --version
-8.0.404
+9.0.203
 ```
 
 _Note: the first time you run the `dotnet` command, it may perform some post-installation steps. Once these one-time actions are done, it will execute your command._
@@ -52,7 +53,7 @@ $ dotnet new install xunit.v3.templates
 The following template packages will be installed:
    xunit.v3.templates
 
-Success: xunit.v3.templates::1.0.0 installed the following templates:
+Success: xunit.v3.templates::2.0.2 installed the following templates:
 Template Name                   Short Name        Language    Tags
 ------------------------------  ----------------  ----------  ----------
 xUnit.net v3 Extension Project  xunit3-extension  [C#],F#,VB  Test/xUnit
@@ -112,7 +113,7 @@ The generated project file should look something like this:
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
-    <PackageReference Include="xunit.v3" Version="1.0.0" />
+    <PackageReference Include="xunit.v3" Version="2.0.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.0.0" />
   </ItemGroup>
 
@@ -159,7 +160,7 @@ Now let's verify that everything is working by running our tests with `dotnet ru
 
 ```
 $ dotnet run
-xUnit.net v3 In-Process Runner v1.0.0+fd19795321 (64-bit .NET 8.0.8)
+xUnit.net v3 In-Process Runner v2.0.2+ccd27e9792 (64-bit .NET 8.0.8)
   Discovering: MyFirstUnitTests
   Discovered:  MyFirstUnitTests
   Starting:    MyFirstUnitTests
@@ -205,7 +206,7 @@ If we run the tests again, we should see something like this:
 
 ```
 $ dotnet run
-xUnit.net v3 In-Process Runner v1.0.0+fd19795321 (64-bit .NET 8.0.8)
+xUnit.net v3 In-Process Runner v2.0.2+ccd27e9792 (64-bit .NET 8.0.8)
   Discovering: MyFirstUnitTests
   Discovered:  MyFirstUnitTests
   Starting:    MyFirstUnitTests
@@ -257,7 +258,7 @@ This time when we run our tests, we see a second failure, for our theory that wa
 
 ```
 $ dotnet run
-xUnit.net v3 In-Process Runner v1.0.0+fd19795321 (64-bit .NET 8.0.8)
+xUnit.net v3 In-Process Runner v2.0.2+ccd27e9792 (64-bit .NET 8.0.8)
   Discovering: MyFirstUnitTests
   Discovered:  MyFirstUnitTests
   Starting:    MyFirstUnitTests
@@ -404,30 +405,89 @@ The output from this runner will look different than the built-in runner:
 
 ```
 $ dotnet test
-  Determining projects to restore...
-  All projects are up-to-date for restore.
-  MyFirstUnitTests -> /.../MyFirstUnitTests/bin/Debug/net8.0/MyFirstUnitTests.dll
-Test run for /.../MyFirstUnitTests/bin/Debug/net8.0/MyFirstUnitTests.dll (.NETCoreApp,Version=v8.0)
-VSTest version 17.11.1 (x64)
+Restore complete (0.2s)
+  MyFirstUnitTests succeeded (0.2s) → bin\Debug\net8.0\MyFirstUnitTests.dll
+[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.0+00ab0a9ec4 (64-bit .NET 8.0.15)
+[xUnit.net 00:00:00.09]   Discovering: MyFirstUnitTests
+[xUnit.net 00:00:00.23]   Discovered:  MyFirstUnitTests
+[xUnit.net 00:00:00.35]   Starting:    MyFirstUnitTests
+[xUnit.net 00:00:00.39]     MyFirstUnitTests.UnitTest1.MyFirstTheory(value: 6) [FAIL]
+[xUnit.net 00:00:00.39]       Assert.True() Failure
+[xUnit.net 00:00:00.39]       Expected: True
+[xUnit.net 00:00:00.39]       Actual:   False
+[xUnit.net 00:00:00.39]       Stack Trace:
+[xUnit.net 00:00:00.39]         UnitTest1.cs(28,0): at MyFirstUnitTests.UnitTest1.MyFirstTheory(Int32 value)
+[xUnit.net 00:00:00.39]     MyFirstUnitTests.UnitTest1.FailingTest [FAIL]
+[xUnit.net 00:00:00.39]       Assert.Equal() Failure: Values differ
+[xUnit.net 00:00:00.39]       Expected: 5
+[xUnit.net 00:00:00.39]       Actual:   4
+[xUnit.net 00:00:00.39]       Stack Trace:
+[xUnit.net 00:00:00.39]         UnitTest1.cs(14,0): at MyFirstUnitTests.UnitTest1.FailingTest()
+[xUnit.net 00:00:00.40]   Finished:    MyFirstUnitTests
+  MyFirstUnitTests test failed with 2 error(s) (0.8s)
+    UnitTest1.cs(28): error TESTERROR:
+      MyFirstUnitTests.UnitTest1.MyFirstTheory(value: 6) (< 1ms): Error Message: Assert.True() Failure
+      Expected: True
+      Actual:   False
+      Stack Trace:
+         at MyFirstUnitTests.UnitTest1.MyFirstTheory(Int32 value) in UnitTest1.cs:line 28
+    UnitTest1.cs(14): error TESTERROR:
+      MyFirstUnitTests.UnitTest1.FailingTest (2ms): Error Message: Assert.Equal() Failure: Values differ
+      Expected: 5
+      Actual:   4
+      Stack Trace:
+         at MyFirstUnitTests.UnitTest1.FailingTest() in UnitTest1.cs:line 14
 
-Starting test execution, please wait...
-A total of 1 test files matched the specified pattern.
-[xUnit.net 00:00:00.53]     MyFirstUnitTests.UnitTest1.FailingTest [FAIL]
-[xUnit.net 00:00:00.53]     MyFirstUnitTests.UnitTest1.MyFirstTheory(value: 6) [FAIL]
-  Failed MyFirstUnitTests.UnitTest1.FailingTest [11 ms]
-  Error Message:
-   Assert.Equal() Failure: Values differ
-Expected: 5
-Actual:   4
-  Stack Trace:
-     at MyFirstUnitTests.UnitTest1.FailingTest() in /.../MyFirstUnitTests/UnitTest1.cs:line 14
-  Failed MyFirstUnitTests.UnitTest1.MyFirstTheory(value: 6) [< 1 ms]
-  Error Message:
-   Assert.True() Failure
-Expected: True
-Actual:   False
-  Stack Trace:
-     at MyFirstUnitTests.UnitTest1.MyFirstTheory(Int32 value) in /.../MyFirstUnitTests/UnitTest1.cs:line 28
-
-Failed!  - Failed:     2, Passed:     3, Skipped:     0, Total:     5, Duration: 35 ms - MyFirstUnitTests.dll (net8.0)
+Test summary: total: 5, failed: 2, succeeded: 3, skipped: 0, duration: 0.8s
+Build failed with 2 error(s) in 1.4s
 ```
+
+
+## Running tests with `xunit.v3.runner.console`
+
+If you've used previous versions of xUnit.net, you may have used our first party runner: `xunit.console`.
+
+For v3, we now ship that console runner as `xunit.v3.runner.console`. Like previous versions, we ship it for multiple builds of .NET Framework as well as AnyCPU vs. x86 versions.
+
+Given that a v3 test project can run itself, do you need to use `xunit.v3.runner.console`? The short answer is: not if you running a single v3 test project. The longer answer is: you might, if you want to run multiple test projects in parallel, and/or you want to include xUnit.net v1 or v2 projects in addition to v3 projects.
+
+Using the v3 console runner is much like the v2 console runner: you pass it a list of test assemblies, and an optional list of command line options that influence the execution. In its simplest form, you can run it just like this:
+
+```
+$ /path/to/xunit.v3.runner.console.exe /path/to/test-assembly-1.dll /path/to/test-assembly-2.exe
+```
+
+For a complete list of command line options, pass `-?` to `xunit.v3.runner.console`. Here is an abbreviated example of that output:
+
+```
+$ ~\.nuget\packages\xunit.v3.runner.console\2.0.2\tools\net472\xunit.v3.runner.console.exe
+xUnit.net v3 Console Runner v2.0.2+ccd27e9792 [net472/AnyCPU] (64-bit .NET Framework 4.8.9300.0)
+Copyright (C) .NET Foundation.
+
+usage: xunit.v3.runner.console <assemblyFile>[:seed] [configFile] [assemblyFile[:seed] [configFile]...] [options] [reporter] [resultFormat filename [...]]
+
+Note: Configuration files must end in .json (for JSON) or .config (for XML)
+      XML is supported for v1 and v2 only, on .NET Framework only
+      JSON is supported for v2 and later, on all supported platforms
+
+General options
+
+  -assertEquivalentMaxDepth <option> : override the maximum recursive depth when comparing objects with Assert.Equivalent
+                                     :   any integer value >= 1 is valid (default value is 50)
+  -culture <option>                  : run tests under the given culture (v3 assemblies only)
+                                     : note: when running a v1/v2 assembly, the culture option will be ignored
+                                     :   default   - run with default operating system culture
+                                     :   invariant - run with the invariant culture
+                                     :   (string)  - run with the given culture (i.e., 'en-US')
+[...]
+```
+
+A few notable things about running with `xunit.v3.runner.console`:
+
+* The new v3 `xunit.v3.runner.console` can run both .NET Framework and .NET tests projects (although it can only run v3 versions of .NET projects). The v2 version of `xunit.console` can only run .NET Framework projects.
+
+* When running v3 test projects, they are run in a separate process. Like previous versions of `xunit.console`, it continues to run v1 and v2 test projects in the same process as the console runner (optionally in a separate AppDomain, if needed). Running them in a separate process does incur some overhead vs. running them directly, though in practice this should be fairly benign for most users.
+
+* Result files from `xunit.v3.runner.console` contain run information for all tests assemblies in a single report. If you were run each v3 project individually and ask for a result file, it would only include information for that single test assembly.
+
+* Custom reporters are not available through `xunit.v3.runner.console`, as they are installed into the v3 test assembly's runner directly. If you are using a custom reporter, then you must directly run the test project.
