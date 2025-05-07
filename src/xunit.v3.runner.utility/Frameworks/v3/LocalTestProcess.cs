@@ -65,8 +65,22 @@ public sealed class LocalTestProcess : ITestProcess, ITestProcessWithExitCode
 					// Make sure we sent the first Ctrl+C, then give it 15 seconds to finish up. If it doesn't
 					// finish at that point, then just terminate the process.
 					Cancel(false);
-					if (!process.WaitForExit(15_000))
-						process.Kill();
+
+					var stopwatch = Stopwatch.StartNew();
+					while (true)
+					{
+						if (stopwatch.ElapsedMilliseconds > 15_000)
+						{
+							if (!process.HasExited)
+								process.Kill();
+							break;
+						}
+
+						if (process.HasExited && StandardOutput.Peek() == -1)
+							break;
+
+						Thread.Yield();
+					}
 				}
 			}
 			else

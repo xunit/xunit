@@ -1,4 +1,6 @@
+using System;
 using System.Globalization;
+using System.Threading;
 using Xunit.Runner.Common;
 using Xunit.Runner.v3;
 using Xunit.Sdk;
@@ -20,10 +22,19 @@ public abstract class CrashDetectionSinkBase<TStart, TFinish>(
 			where TStart : IMessageSinkMessage, ITestAssemblyMessage
 			where TFinish : IMessageSinkMessage
 {
+	DateTimeOffset lastMessageReceived;
+	bool stopProcessing;
+
 	/// <summary>
 	/// Gets the finish message, if one was seen.
 	/// </summary>
 	protected TFinish? Finish { get; private set; }
+
+	/// <summary>
+	/// This override is for testing purposes.
+	/// </summary>
+	protected virtual int FinishWaitMilliseconds =>
+		5_000;
 
 	/// <summary>
 	/// Gets the inner sink for message delegation.
@@ -45,12 +56,17 @@ public abstract class CrashDetectionSinkBase<TStart, TFinish>(
 	/// <inheritdoc/>
 	public bool OnMessage(IMessageSinkMessage message)
 	{
+		if (stopProcessing)
+			return true;
+
+		lastMessageReceived = DateTimeOffset.UtcNow;
+
 		if (message is TStart start)
 			Start = start;
 		else if (message is TFinish finish)
 			Finish = finish;
 
-		return innerSink.OnMessage(message);
+		return InnerSink.OnMessage(message);
 	}
 
 	/// <summary>
@@ -58,12 +74,23 @@ public abstract class CrashDetectionSinkBase<TStart, TFinish>(
 	/// and also send an <see cref="IErrorMessage"/> if it appears that the test
 	/// process crashed rather than cleaning up appropriately.
 	/// </summary>
-	/// <param name="process">The test process</param>
-	public void OnProcessFinished(ITestProcessBase process)
+	/// <param name="exitCode">The exit code from the test process, if known</param>
+	public void OnProcessFinished(int? exitCode)
 	{
-		// If we saw the finish message, there's nothing to do
-		if (Finish is not null)
-			return;
+		// Give the finish message a little time to arrive
+		while (true)
+		{
+			// If we saw the finish message, there's nothing to do
+			if (Finish is not null)
+				return;
+
+			if ((DateTimeOffset.UtcNow - lastMessageReceived).TotalMilliseconds >= FinishWaitMilliseconds)
+				break;
+
+			Thread.Yield();
+		}
+
+		stopProcessing = true;
 
 		string? assemblyUniqueID;
 
@@ -77,13 +104,12 @@ public abstract class CrashDetectionSinkBase<TStart, TFinish>(
 		}
 
 		// Send the error message
-		var exitCode = (process as ITestProcessWithExitCode)?.ExitCode;
 		var message =
 			exitCode is not null
 				? string.Format(CultureInfo.CurrentCulture, "Test process crashed with exit code {0}.", exitCode)
 				: "Test process crashed or communication channel was lost.";
 
-		innerSink.OnMessage(new ErrorMessage
+		InnerSink.OnMessage(new ErrorMessage
 		{
 			ExceptionParentIndices = [-1],
 			ExceptionTypes = ["Xunit.Sdk.TestPipelineException"],

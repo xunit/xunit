@@ -306,6 +306,10 @@ public class ExecutionSink : IMessageSink, IDisposable
 
 	void HandleTestAssemblyFinished(MessageHandlerArgs<ITestAssemblyFinished> args)
 	{
+		// Avoid attempting to double-report test assembly finished (from crash detection)
+		if (stopRequested)
+			return;
+
 		ExecutionSummary.Errors = errors;
 		ExecutionSummary.Failed = args.Message.TestsFailed;
 		ExecutionSummary.NotRun = args.Message.TestsNotRun;

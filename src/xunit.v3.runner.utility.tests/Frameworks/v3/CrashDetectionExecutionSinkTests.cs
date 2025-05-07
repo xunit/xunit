@@ -37,7 +37,7 @@ public class CrashDetectionExecutionSinkTests
 		var sink = new CrashDetectionExecutionSinkWithFixedTime(projectAssembly, innerSink, now);
 		var assemblyUniqueID = UniqueIDGenerator.ForAssembly(assemblyFileName, null);
 
-		sink.OnProcessFinished(testProcess);
+		sink.OnProcessFinished(testProcess.TryGetExitCode());
 
 		Assert.Collection(
 			innerSink.Messages,
@@ -87,7 +87,7 @@ public class CrashDetectionExecutionSinkTests
 		var starting = TestData.TestAssemblyStarting();
 
 		sink.OnMessage(starting);
-		sink.OnProcessFinished(testProcessWithExitCode);
+		sink.OnProcessFinished(testProcessWithExitCode.TryGetExitCode());
 
 		Assert.Collection(
 			innerSink.Messages,
@@ -124,7 +124,7 @@ public class CrashDetectionExecutionSinkTests
 
 		sink.OnMessage(starting);
 		sink.OnMessage(finished);
-		sink.OnProcessFinished(testProcessWithExitCode);
+		sink.OnProcessFinished(testProcessWithExitCode.TryGetExitCode());
 
 		Assert.Collection(
 			innerSink.Messages,
@@ -140,5 +140,7 @@ public class CrashDetectionExecutionSinkTests
 			CrashDetectionExecutionSink(projectAssembly, innerSink)
 	{
 		protected override DateTimeOffset UtcNow => now;
+
+		protected override int FinishWaitMilliseconds => 10;
 	}
 }

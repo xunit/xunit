@@ -32,10 +32,10 @@ public class CrashDetectionDiscoverySinkTests
 	public static void WithoutStarting_WithoutComplete_SendsStarting_SendsError_SendsComplete()
 	{
 		var innerSink = SpyMessageSink.Capture();
-		var sink = new CrashDetectionDiscoverySink(projectAssembly, innerSink);
+		var sink = new CrashDetectionDiscoverySinkWithShortWait(projectAssembly, innerSink);
 		var assemblyUniqueID = UniqueIDGenerator.ForAssembly(assemblyFileName, null);
 
-		sink.OnProcessFinished(testProcess);
+		sink.OnProcessFinished(testProcess.TryGetExitCode());
 
 		Assert.Collection(
 			innerSink.Messages,
@@ -68,11 +68,11 @@ public class CrashDetectionDiscoverySinkTests
 	public static void WithStarting_WithoutComplete_SendsError_SendsComplete()
 	{
 		var innerSink = SpyMessageSink.Capture();
-		var sink = new CrashDetectionDiscoverySink(projectAssembly, innerSink);
+		var sink = new CrashDetectionDiscoverySinkWithShortWait(projectAssembly, innerSink);
 		var starting = TestData.DiscoveryStarting();
 
 		sink.OnMessage(starting);
-		sink.OnProcessFinished(testProcessWithExitCode);
+		sink.OnProcessFinished(testProcessWithExitCode.TryGetExitCode());
 
 		Assert.Collection(
 			innerSink.Messages,
@@ -104,12 +104,20 @@ public class CrashDetectionDiscoverySinkTests
 
 		sink.OnMessage(starting);
 		sink.OnMessage(complete);
-		sink.OnProcessFinished(testProcessWithExitCode);
+		sink.OnProcessFinished(testProcessWithExitCode.TryGetExitCode());
 
 		Assert.Collection(
 			innerSink.Messages,
 			msg => Assert.Same(starting, msg),
 			msg => Assert.Same(complete, msg)
 		);
+	}
+
+	class CrashDetectionDiscoverySinkWithShortWait(
+		XunitProjectAssembly projectAssembly,
+		IMessageSink innerSink) :
+			CrashDetectionDiscoverySink(projectAssembly, innerSink)
+	{
+		protected override int FinishWaitMilliseconds => 10;
 	}
 }

@@ -100,8 +100,8 @@ public class Xunit3 : IFrontController
 		}
 		finally
 		{
-			crashDetectionSink.OnProcessFinished(process);
 			process.SafeDispose();
+			crashDetectionSink.OnProcessFinished(process.TryGetExitCode());
 		}
 	}
 
@@ -123,8 +123,8 @@ public class Xunit3 : IFrontController
 		}
 		finally
 		{
-			crashDetectionSink.OnProcessFinished(process);
 			process.SafeDispose();
+			crashDetectionSink.OnProcessFinished(process.TryGetExitCode());
 		}
 	}
 
@@ -147,8 +147,8 @@ public class Xunit3 : IFrontController
 		}
 		finally
 		{
-			crashDetectionSink.OnProcessFinished(process);
 			process.SafeDispose();
+			crashDetectionSink.OnProcessFinished(process.TryGetExitCode());
 		}
 	}
 
