@@ -91,7 +91,8 @@ public class Xunit3 : IFrontController
 		Guard.ArgumentNotNull(settings);
 
 		var projectAssembly = this.projectAssembly.WithSettings(settings);
-		var process = testProcessLauncher.Find(projectAssembly, testAssemblyInfo, messageSink, diagnosticMessageSink, sourceInformationProvider);
+		var crashDetectionSink = new CrashDetectionDiscoverySink(projectAssembly, messageSink);
+		var process = testProcessLauncher.Find(projectAssembly, testAssemblyInfo, crashDetectionSink, diagnosticMessageSink, sourceInformationProvider);
 
 		try
 		{
@@ -99,6 +100,7 @@ public class Xunit3 : IFrontController
 		}
 		finally
 		{
+			crashDetectionSink.OnProcessFinished(process);
 			process.SafeDispose();
 		}
 	}
@@ -112,7 +114,8 @@ public class Xunit3 : IFrontController
 		Guard.ArgumentNotNull(settings);
 
 		var projectAssembly = this.projectAssembly.WithSettings(settings);
-		var process = testProcessLauncher.Run(projectAssembly, testAssemblyInfo, messageSink, diagnosticMessageSink, sourceInformationProvider);
+		var crashDetectionSink = new CrashDetectionExecutionSink(projectAssembly, messageSink);
+		var process = testProcessLauncher.Run(projectAssembly, testAssemblyInfo, crashDetectionSink, diagnosticMessageSink, sourceInformationProvider);
 
 		try
 		{
@@ -120,6 +123,7 @@ public class Xunit3 : IFrontController
 		}
 		finally
 		{
+			crashDetectionSink.OnProcessFinished(process);
 			process.SafeDispose();
 		}
 	}
@@ -134,7 +138,8 @@ public class Xunit3 : IFrontController
 		Guard.ArgumentNotNullOrEmpty(settings.SerializedTestCases);
 
 		var projectAssembly = this.projectAssembly.WithSettings(settings);
-		var process = testProcessLauncher.Run(projectAssembly, testAssemblyInfo, messageSink, diagnosticMessageSink, sourceInformationProvider);
+		var crashDetectionSink = new CrashDetectionExecutionSink(projectAssembly, messageSink);
+		var process = testProcessLauncher.Run(projectAssembly, testAssemblyInfo, crashDetectionSink, diagnosticMessageSink, sourceInformationProvider);
 
 		try
 		{
@@ -142,6 +147,7 @@ public class Xunit3 : IFrontController
 		}
 		finally
 		{
+			crashDetectionSink.OnProcessFinished(process);
 			process.SafeDispose();
 		}
 	}

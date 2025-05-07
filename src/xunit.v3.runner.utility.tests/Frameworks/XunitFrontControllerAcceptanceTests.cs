@@ -5,8 +5,70 @@ using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
 
+#if NETFRAMEWORK
+using System;
+using System.Threading.Tasks;
+#endif
+
 public class XunitFrontControllerAcceptanceTests
 {
+#if NETFRAMEWORK
+
+	[CollectionDefinition(DisableParallelization = true)]
+	public class CrashDetectionCollection { }
+
+	[Collection(typeof(CrashDetectionCollection))]
+	public class CrashDetection
+	{
+		[Fact]
+		public async ValueTask CrashingTestStillReportsCompletion()
+		{
+			var code = /* lang=c#-test */ """
+				using System;
+				using System.Threading;
+				using Xunit;
+
+				public static class TestClass
+				{
+				    [Fact]
+					public static void CrashingTest()
+					{
+						Environment.Exit(-1);
+					}
+				}
+				""";
+			using var testAssembly = await CSharpAcceptanceTestV3Assembly.Create(code);
+
+			var assemblyMetadata = AssemblyUtility.GetAssemblyMetadata(testAssembly.FileName);
+			Assert.NotNull(assemblyMetadata);
+
+			var projectAssembly = new XunitProjectAssembly(new XunitProject(), testAssembly.FileName, assemblyMetadata);
+			var frontController = XunitFrontController.Create(projectAssembly);
+			Assert.NotNull(frontController);
+
+			var messageSink = SpyMessageSink<ITestAssemblyFinished>.Create();
+			var settings = new FrontControllerFindAndRunSettings(TestData.TestFrameworkDiscoveryOptions(), TestData.TestFrameworkExecutionOptions());
+			frontController.FindAndRun(messageSink, settings);
+
+			if (!messageSink.Finished.WaitOne(30_000))
+				throw new InvalidOperationException("Execution did not complete in time");
+
+			// We don't look for an exact set of messages, because there's a race condition between the
+			// message bus delivering messages back to the runner vs. the test process crashing.
+			var assemblyStarting = Assert.Single(messageSink.Messages.OfType<ITestAssemblyStarting>());
+			var assemblyFinished = Assert.Single(messageSink.Messages.OfType<ITestAssemblyFinished>());
+			Assert.Equal(assemblyStarting.AssemblyUniqueID, assemblyFinished.AssemblyUniqueID);
+
+			var errorMessage = Assert.Single(messageSink.Messages.OfType<IErrorMessage>());
+			Assert.Equal(-1, errorMessage.ExceptionParentIndices.Single());
+			Assert.Equal(typeof(TestPipelineException).SafeName(), errorMessage.ExceptionTypes.Single());
+			Assert.Equal("Test process crashed with exit code -1.", errorMessage.Messages.Single());
+			Assert.Null(errorMessage.StackTraces.Single());
+		}
+	}
+
+#endif  // NETFRAMEWORK
+
 	public class SourceInformation
 	{
 #if NETFRAMEWORK

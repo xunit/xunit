@@ -1,0 +1,107 @@
+using System.Globalization;
+using Xunit.Runner.Common;
+using Xunit.Runner.v3;
+using Xunit.Sdk;
+
+namespace Xunit.v3;
+
+/// <summary>
+/// Base class for crash detection, to be used by <see cref="Xunit3"/> during discovery and execution
+/// so that we can always ensure runners get starting and finished messages.
+/// </summary>
+/// <typeparam name="TStart"></typeparam>
+/// <typeparam name="TFinish"></typeparam>
+/// <param name="projectAssembly"></param>
+/// <param name="innerSink"></param>
+public abstract class CrashDetectionSinkBase<TStart, TFinish>(
+	XunitProjectAssembly projectAssembly,
+	IMessageSink innerSink) :
+		LongLivedMarshalByRefObject, IMessageSink
+			where TStart : IMessageSinkMessage, ITestAssemblyMessage
+			where TFinish : IMessageSinkMessage
+{
+	/// <summary>
+	/// Gets the finish message, if one was seen.
+	/// </summary>
+	protected TFinish? Finish { get; private set; }
+
+	/// <summary>
+	/// Gets the inner sink for message delegation.
+	/// </summary>
+	protected IMessageSink InnerSink =>
+		innerSink;
+
+	/// <summary>
+	/// Gets the project assembly.
+	/// </summary>
+	protected XunitProjectAssembly ProjectAssembly =>
+		projectAssembly;
+
+	/// <summary>
+	/// Gets the start message, if one was seen.
+	/// </summary>
+	protected TStart? Start { get; private set; }
+
+	/// <inheritdoc/>
+	public bool OnMessage(IMessageSinkMessage message)
+	{
+		if (message is TStart start)
+			Start = start;
+		else if (message is TFinish finish)
+			Finish = finish;
+
+		return innerSink.OnMessage(message);
+	}
+
+	/// <summary>
+	/// Call this message to ensure the starting and finished messages were sent,
+	/// and also send an <see cref="IErrorMessage"/> if it appears that the test
+	/// process crashed rather than cleaning up appropriately.
+	/// </summary>
+	/// <param name="process">The test process</param>
+	public void OnProcessFinished(ITestProcessBase process)
+	{
+		// If we saw the finish message, there's nothing to do
+		if (Finish is not null)
+			return;
+
+		string? assemblyUniqueID;
+
+		// Did we see the start message? If not, then the process probably didn't even start properly
+		if (Start is not null)
+			assemblyUniqueID = Start.AssemblyUniqueID;
+		else
+		{
+			assemblyUniqueID = UniqueIDGenerator.ForAssembly(projectAssembly.AssemblyFileName, projectAssembly.ConfigFileName);
+			SendStart(assemblyUniqueID);
+		}
+
+		// Send the error message
+		var exitCode = (process as ITestProcessWithExitCode)?.ExitCode;
+		var message =
+			exitCode is not null
+				? string.Format(CultureInfo.CurrentCulture, "Test process crashed with exit code {0}.", exitCode)
+				: "Test process crashed or communication channel was lost.";
+
+		innerSink.OnMessage(new ErrorMessage
+		{
+			ExceptionParentIndices = [-1],
+			ExceptionTypes = ["Xunit.Sdk.TestPipelineException"],
+			Messages = [message],
+			StackTraces = [null],
+		});
+
+		// Send the discovery complete message
+		SendFinish(assemblyUniqueID);
+	}
+
+	/// <summary>
+	/// Implement this to send the finished message.
+	/// </summary>
+	protected abstract void SendFinish(string assemblyUniqueID);
+
+	/// <summary>
+	/// Implement this to send the starting message.
+	/// </summary>
+	protected abstract void SendStart(string assemblyUniqueID);
+}
