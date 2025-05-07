@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -16,6 +17,12 @@ namespace Xunit;
 /// </summary>
 public sealed class CecilSourceInformationProvider : ISourceInformationProvider
 {
+	readonly static HashSet<byte[]> PublicKeyTokensToSkip = new(
+	[
+		[0x50, 0xce, 0xbf, 0x1c, 0xce, 0xb9, 0xd0, 0x5e],  // Mono
+		[0x8d, 0x05, 0xb1, 0xbb, 0x7a, 0x6f, 0xdb, 0x6c],  // xUnit.net
+	], ByteArrayComparer.Instance);
+
 	readonly List<ModuleDefinition> moduleDefinitions;
 	readonly Dictionary<string, TypeDefinition> typeDefinitions = [];
 
@@ -44,7 +51,7 @@ public sealed class CecilSourceInformationProvider : ISourceInformationProvider
 			return NullSourceInformationProvider.Instance;
 
 		var folder = Path.GetDirectoryName(assemblyFileName);
-		if (folder is null)
+		if (assemblyFileName is null || folder is null || !Directory.Exists(folder))
 			return NullSourceInformationProvider.Instance;
 
 		try
@@ -66,6 +73,11 @@ public sealed class CecilSourceInformationProvider : ISourceInformationProvider
 
 							// Exclude non-.NET assemblies
 							if (moduleDefinition.Assembly is null)
+								return null;
+
+							// Exclude things with known public keys
+							var name = moduleDefinition.Assembly.Name;
+							if (name.HasPublicKey == true && PublicKeyTokensToSkip.Contains(name.PublicKeyToken))
 								return null;
 
 							using var symbolReader = symbolProvider.GetSymbolReader(moduleDefinition, moduleDefinition.FileName);
@@ -135,5 +147,25 @@ public sealed class CecilSourceInformationProvider : ISourceInformationProvider
 		catch { }
 
 		return SourceInformation.Null;
+	}
+
+	sealed class ByteArrayComparer : IEqualityComparer<byte[]>
+	{
+		public static ByteArrayComparer Instance { get; } = new();
+
+		public bool Equals(byte[]? x, byte[]? y)
+		{
+			if (x is null)
+				return y is null;
+			if (y is null)
+				return false;
+			if (x.Length != y.Length)
+				return false;
+
+			return ((IStructuralEquatable)x).Equals(y, EqualityComparer<byte>.Default);
+		}
+
+		public int GetHashCode(byte[] obj) =>
+			((IStructuralEquatable)obj).GetHashCode(EqualityComparer<byte>.Default);
 	}
 }
