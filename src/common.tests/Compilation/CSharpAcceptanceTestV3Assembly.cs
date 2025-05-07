@@ -1,14 +1,40 @@
 #if NETFRAMEWORK
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit.Internal;
 
-public class CSharpAcceptanceTestV3Assembly(string? basePath = null) :
-	CSharpDotNetFrameworkExecutable(basePath)
+public class CSharpAcceptanceTestV3Assembly :
+	CSharpDotNetFrameworkExecutable
 {
+	readonly string? configFile;
+
+	public CSharpAcceptanceTestV3Assembly(string? basePath = null) :
+		base(basePath)
+	{
+		var currentConfigFile = AppDomain.CurrentDomain.SetupInformation.ConfigurationFile;
+		if (currentConfigFile is not null)
+		{
+			configFile = FileName + ".config";
+			File.Copy(currentConfigFile, configFile);
+		}
+	}
+
+	public override void Dispose()
+	{
+		base.Dispose();
+
+		if (configFile is not null)
+			try
+			{
+				File.Delete(configFile);
+			}
+			catch { }
+	}
+
 	protected override IEnumerable<string> GetAdditionalCode()
 	{
 		foreach (var value in base.GetAdditionalCode())
