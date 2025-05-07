@@ -58,8 +58,6 @@ public sealed class CecilSourceInformationProvider : ISourceInformationProvider
 						try
 						{
 							var moduleDefinition = ModuleDefinition.ReadModule(file, new() { ReadSymbols = true });
-							moduleDefinition.ReadSymbols();
-
 							if (moduleDefinition.HasSymbols)
 								return moduleDefinition;
 						}

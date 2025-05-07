@@ -1,7 +1,10 @@
 using System.IO;
-using System.Runtime.InteropServices;
 using Xunit;
 using Xunit.Runner.Common;
+
+#if NETFRAMEWORK
+using System.Runtime.InteropServices;
+#endif
 
 public class CecilSourceInformationProviderTests
 {
@@ -14,7 +17,7 @@ public class CecilSourceInformationProviderTests
 
 		Assert.Equal("CecilSourceInformationProviderTests.cs", Path.GetFileName(sourceInformation.SourceFile));
 #if DEBUG
-		Assert.Equal(9, sourceInformation.SourceLine);
+		Assert.Equal(13, sourceInformation.SourceLine);
 #else
 		// We test for range here, because release PDBs can be slightly unpredictable, especially on Mono
 		Assert.InRange(sourceInformation.SourceLine ?? -1, 1, 0xFEEFED);
