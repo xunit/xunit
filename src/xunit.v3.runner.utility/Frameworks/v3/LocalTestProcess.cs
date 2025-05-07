@@ -7,7 +7,7 @@ namespace Xunit.v3;
 /// <summary>
 /// Implementation of <see cref="ITestProcess"/> for a process running on the local machine.
 /// </summary>
-public sealed class LocalTestProcess : ITestProcess
+public sealed class LocalTestProcess : ITestProcess, ITestProcessWithExitCode
 {
 	volatile int cancelSent;
 	readonly Process process;
@@ -20,6 +20,10 @@ public sealed class LocalTestProcess : ITestProcess
 		this.process = process;
 		this.responseFile = responseFile;
 	}
+
+	/// <inheritdoc/>
+	public int? ExitCode =>
+		process.HasExited ? process.ExitCode : null;
 
 	/// <inheritdoc/>
 	public bool HasExited =>
