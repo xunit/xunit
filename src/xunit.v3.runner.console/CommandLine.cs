@@ -4,15 +4,14 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
-using Xunit.Internal;
 using Xunit.Runner.Common;
 
-namespace Xunit.Runner.SystemConsole;
+namespace Xunit.Internal;
 
 /// <summary>
 /// INTERNAL CLASS. DO NOT USE.
 /// </summary>
-internal class CommandLine : CommandLineParserBase
+public class CommandLine : CommandLineParserBase
 {
 	/// <summary/>
 	protected CommandLine(
@@ -30,7 +29,7 @@ internal class CommandLine : CommandLineParserBase
 			: base(consoleHelper, null, reporterFolder, args) =>
 				AddParsers();
 
-	private void AddParsers()
+	void AddParsers()
 	{
 		// General options
 		AddParser("assertEquivalentMaxDepth", OnAssertEquivalentMaxDepth, CommandLineGroup.General, "<option>",

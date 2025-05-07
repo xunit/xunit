@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Internal;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -306,7 +307,7 @@ public class XunitTestFrameworkDiscovererTests
 		public static void InvalidCustomFactoryFallsBackToDefault()
 		{
 			var spyMessageSink = SpyMessageSink.Capture();
-			TestContext.CurrentInternal.DiagnosticMessageSink = spyMessageSink;
+			TestContextInternal.Current.DiagnosticMessageSink = spyMessageSink;
 			var behaviorAttribute = Mocks.CollectionBehaviorAttribute(typeof(object));
 			var testAssembly = Mocks.XunitTestAssembly(collectionBehavior: behaviorAttribute);
 

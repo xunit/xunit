@@ -6,7 +6,7 @@ using Xunit.Runner.Common;
 namespace Xunit.Runner.MSBuild;
 
 /// <summary/>
-internal class MSBuildLogger(TaskLoggingHelper log) :
+internal sealed class MSBuildLogger(TaskLoggingHelper log) :
 	IRunnerLogger
 {
 	/// <summary/>

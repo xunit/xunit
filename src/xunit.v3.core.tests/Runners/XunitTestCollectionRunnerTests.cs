@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Internal;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -560,7 +561,7 @@ public class XunitTestCollectionRunnerTests
 		public static async ValueTask CanInjectMessageSinkIntoCollectionFixture()
 		{
 			var spy = SpyMessageSink.Capture();
-			TestContext.CurrentInternal.DiagnosticMessageSink = spy;
+			TestContextInternal.Current.DiagnosticMessageSink = spy;
 			var testCase = TestData.XunitTestCase<TestClassWithCollectionFixtureWithMessageSinkDependency>(nameof(ClassUnderTest.Passing));
 			var runner = new TestableXunitTestCollectionRunner(testCase);
 
@@ -610,7 +611,7 @@ public class XunitTestCollectionRunnerTests
 		public static async ValueTask SettingTestCaseOrdererWithThrowingConstructorLogsDiagnosticMessage()
 		{
 			var spy = SpyMessageSink.Capture();
-			TestContext.CurrentInternal.DiagnosticMessageSink = spy;
+			TestContextInternal.Current.DiagnosticMessageSink = spy;
 			var testCase = TestData.XunitTestCase<TestClassWithCtorThrowingTestCaseOrderer>(nameof(ClassUnderTest.Passing));
 			var runner = new TestableXunitTestCollectionRunner(testCase);
 
@@ -695,7 +696,7 @@ public class XunitTestCollectionRunnerTests
 			XunitTestCollectionRunnerContext ctxt,
 			Exception? exception)
 		{
-			RunTestClassesAsync_CollectionFixtures = ctxt.CollectionFixtureMappings.FixtureCache;
+			RunTestClassesAsync_CollectionFixtures = ctxt.CollectionFixtureMappings.GetFixtureCache();
 			RunTestClassesAsync_TestCaseOrderer = ctxt.TestCaseOrderer;
 
 			return base.RunTestClasses(ctxt, exception);

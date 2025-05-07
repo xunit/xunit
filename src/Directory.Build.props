@@ -6,7 +6,6 @@
 
   <PropertyGroup>
     <AssemblyName Condition=" '$(AssemblyName)' == '' ">$(MSBuildProjectName)</AssemblyName>
-    <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)signing.snk</AssemblyOriginatorKeyFile>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <DebugType Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">full</DebugType>
     <DebugType Condition=" '$(TargetFrameworkIdentifier)' != '.NETFramework' ">embedded</DebugType>
@@ -15,7 +14,6 @@
     <MSBuildCopyContentTransitively>false</MSBuildCopyContentTransitively>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <RootNamespace>Xunit</RootNamespace>
-    <SignAssembly>true</SignAssembly>
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
@@ -34,6 +32,7 @@
     <When Condition=" !$(MSBuildProjectName.EndsWith('.tests')) ">
       <PropertyGroup>
         <AnalysisLevel>latest-All</AnalysisLevel>
+        <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)signing.snk</AssemblyOriginatorKeyFile>
         <Authors>jnewkirk;bradwilson</Authors>
         <Company>.NET Foundation</Company>
         <ContinuousIntegrationBuild Condition=" '$(GITHUB_ACTIONS)' == 'true' ">true</ContinuousIntegrationBuild>
@@ -48,6 +47,7 @@
         <PackageReadmeFile>_content/README.md</PackageReadmeFile>
         <Product>xUnit.net v3 Testing Framework</Product>
         <RepositoryUrl>https://github.com/xunit/xunit</RepositoryUrl>
+        <SignAssembly>true</SignAssembly>
       </PropertyGroup>
 
       <ItemGroup>

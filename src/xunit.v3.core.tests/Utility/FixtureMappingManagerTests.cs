@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Internal;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -124,7 +125,7 @@ public class FixtureMappingManagerTests
 		var typedResult = Assert.IsType<FixtureWithMessageSinkAndTestContext>(result);
 		Assert.NotNull(TestContext.Current);
 		Assert.Same(TestContext.Current, typedResult.ContextAccessor.Current);
-		Assert.Same(TestContext.CurrentInternal.DiagnosticMessageSink, typedResult.MessageSink);
+		Assert.Same(TestContextInternal.Current.DiagnosticMessageSink, typedResult.MessageSink);
 	}
 
 	class FixtureWithMessageSinkAndTestContext(

@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
+using Xunit.Internal;
 using Xunit.Sdk;
 
 namespace Xunit.Runner.Common;
 
-internal class XunitSimpleFilters : ITestCaseFilter
+internal sealed class XunitSimpleFilters : ITestCaseFilter
 {
 	readonly FilterLogicalAnd baseFilter = new();
 	readonly Lazy<FilterLogicalOr> excludedClassFilter;

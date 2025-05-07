@@ -460,7 +460,7 @@ public class XunitTestAssemblyRunnerTests
 		public static async ValueTask Parallel_Conversative()
 		{
 			var spyMessageSink = SpyMessageSink.Capture();
-			TestContext.CurrentInternal.DiagnosticMessageSink = spyMessageSink;
+			TestContextInternal.Current.DiagnosticMessageSink = spyMessageSink;
 			var testCollection1 = Mocks.XunitTestCollection(uniqueID: "1");
 			var test1 = TestData.XunitTestCase<ClassUnderTest>(nameof(ClassUnderTest.ParallelTest1), testCollection: testCollection1);
 			var testCollection2 = Mocks.XunitTestCollection(uniqueID: "2");
@@ -488,7 +488,7 @@ public class XunitTestAssemblyRunnerTests
 		public static async ValueTask Parallel_Aggressive()
 		{
 			var spyMessageSink = SpyMessageSink.Capture();
-			TestContext.CurrentInternal.DiagnosticMessageSink = spyMessageSink;
+			TestContextInternal.Current.DiagnosticMessageSink = spyMessageSink;
 			var testCollection1 = Mocks.XunitTestCollection(uniqueID: "1");
 			var test1 = TestData.XunitTestCase<ClassUnderTest>(nameof(ClassUnderTest.ParallelTest1), testCollection: testCollection1);
 			var testCollection2 = Mocks.XunitTestCollection(uniqueID: "2");
@@ -514,7 +514,7 @@ public class XunitTestAssemblyRunnerTests
 		public static async ValueTask NonParallel()
 		{
 			var spyMessageSink = SpyMessageSink.Capture();
-			TestContext.CurrentInternal.DiagnosticMessageSink = spyMessageSink;
+			TestContextInternal.Current.DiagnosticMessageSink = spyMessageSink;
 			var testCollection1 = Mocks.XunitTestCollection(uniqueID: "1");
 			var test1 = TestData.XunitTestCase<ClassUnderTest>(nameof(ClassUnderTest.ParallelTest1), testCollection: testCollection1);
 			var testCollection2 = Mocks.XunitTestCollection(uniqueID: "2");

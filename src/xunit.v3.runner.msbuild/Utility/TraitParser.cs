@@ -1,11 +1,12 @@
 using System;
 using System.Globalization;
-using Xunit.Internal;
 
-namespace Xunit.Runner.MSBuild;
+namespace Xunit.Internal;
 
-/// <summary/>
-internal class TraitParser(Action<string>? warningHandler = null)
+/// <summary>
+/// INTERNAL CLASS. DO NOT USE.
+/// </summary>
+public class TraitParser(Action<string>? warningHandler = null)
 {
 	static readonly char[] TraitSeparator = [';'];
 	static readonly char[] KeyValueSeparator = ['='];

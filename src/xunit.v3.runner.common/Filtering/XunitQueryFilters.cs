@@ -1,9 +1,10 @@
 using System.Collections.Generic;
+using Xunit.Internal;
 using Xunit.Sdk;
 
 namespace Xunit.Runner.Common;
 
-internal class XunitQueryFilters : ITestCaseFilter
+internal sealed class XunitQueryFilters : ITestCaseFilter
 {
 	readonly FilterLogicalOr baseFilter = new();
 	readonly List<string> xunit3Arguments = [];

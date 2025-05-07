@@ -6,7 +6,7 @@ using Xunit.Sdk;
 namespace Xunit.Runner.MSBuild;
 
 /// <summary/>
-internal class MSBuildDiagnosticMessageSink : TestMessageSink
+internal sealed class MSBuildDiagnosticMessageSink : TestMessageSink
 {
 	MSBuildDiagnosticMessageSink()
 	{ }

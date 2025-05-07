@@ -1,15 +1,20 @@
 using System;
+using Xunit.Runner.Common;
 using Xunit.Sdk;
 
-namespace Xunit.Runner.Common;
+namespace Xunit.Internal;
 
-internal sealed class FilterMethodSimpleName(string filter) :
+/// <summary>
+/// INTERNAL CLASS. DO NOT USE.
+/// </summary>
+public sealed class FilterMethodSimpleName(string filter) :
 	ITestCaseFilter
 {
 	readonly Func<string?, bool> evaluator = QueryFilterParser.ToEvaluator(filter);
 
+	/// <summary/>
 	public bool Filter(
 		string assemblyName,
 		ITestCaseMetadata testCase) =>
-			evaluator(testCase.TestMethodName);
+			evaluator(Guard.ArgumentNotNull(testCase).TestMethodName);
 }

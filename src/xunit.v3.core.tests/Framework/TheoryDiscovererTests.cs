@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Internal;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -183,7 +184,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	public async ValueTask ThrowingData()
 	{
 		var spy = SpyMessageSink.Capture();
-		TestContext.CurrentInternal.DiagnosticMessageSink = spy;
+		TestContextInternal.Current.DiagnosticMessageSink = spy;
 		var discoverer = new TheoryDiscoverer();
 		var testMethod = TestData.XunitTestMethod<ThrowingDataClass>(nameof(ThrowingDataClass.TheoryWithMisbehavingData));
 		var factAttribute = testMethod.FactAttributes.FirstOrDefault() ?? throw new InvalidOperationException("Could not find fact attribute");
@@ -217,7 +218,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	public async ValueTask DataDiscovererReturningNullGeneratesError()
 	{
 		var spy = SpyMessageSink.Capture();
-		TestContext.CurrentInternal.DiagnosticMessageSink = spy;
+		TestContextInternal.Current.DiagnosticMessageSink = spy;
 		var discoverer = new TheoryDiscoverer();
 		var testMethod = TestData.XunitTestMethod<ClassUnderTest>(nameof(ClassUnderTest.TestMethod));
 		var theoryAttribute = (ITheoryAttribute)testMethod.FactAttributes.Single();
@@ -250,7 +251,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	public async ValueTask NonSerializableDataYieldsSingleTheoryTestCase()
 	{
 		var spy = SpyMessageSink.Capture();
-		TestContext.CurrentInternal.DiagnosticMessageSink = spy;
+		TestContextInternal.Current.DiagnosticMessageSink = spy;
 		var discoverer = new TheoryDiscoverer();
 		var testMethod = TestData.XunitTestMethod<NonSerializableDataClass>(nameof(NonSerializableDataClass.TheoryMethod));
 		var factAttribute = testMethod.FactAttributes.FirstOrDefault() ?? throw new InvalidOperationException("Could not find fact attribute");
@@ -398,7 +399,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	[Fact]
 	public async ValueTask TheoryWithSerializableInputDataThatIsntSerializableAfterConversion_YieldsSingleTheoryTestCase()
 	{
-		TestContext.CurrentInternal.DiagnosticMessageSink = SpyMessageSink.Capture();
+		TestContextInternal.Current.DiagnosticMessageSink = SpyMessageSink.Capture();
 		var discoverer = new TheoryDiscoverer();
 		var testMethod = TestData.XunitTestMethod<ClassWithExplicitConvertedData>(nameof(ClassWithExplicitConvertedData.ParameterDeclaredExplicitConversion));
 		var factAttribute = testMethod.FactAttributes.FirstOrDefault() ?? throw new InvalidOperationException("Could not find fact attribute");

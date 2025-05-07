@@ -1,14 +1,20 @@
 using System.Collections.Generic;
 using System.Linq;
+using Xunit.Runner.Common;
 using Xunit.Sdk;
 
-namespace Xunit.Runner.Common;
+namespace Xunit.Internal;
 
-internal sealed class FilterLogicalOr(params ITestCaseFilter[] filters) :
+/// <summary>
+/// INTERNAL CLASS. DO NOT USE.
+/// </summary>
+public sealed class FilterLogicalOr(params ITestCaseFilter[] filters) :
 	ITestCaseFilter, ITestCaseFilterComposite
 {
+	/// <summary/>
 	public List<ITestCaseFilter> Filters { get; } = filters.ToList();
 
+	/// <summary/>
 	public bool Filter(
 		string assemblyName,
 		ITestCaseMetadata testCase) =>

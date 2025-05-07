@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Internal;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -24,7 +25,7 @@ public class TestFrameworkDiscovererTests
 		public async ValueTask ExceptionDuringFindTestsForType_ReportsExceptionAsDiagnosticMessage()
 		{
 			var spy = SpyMessageSink.Capture();
-			TestContext.CurrentInternal.DiagnosticMessageSink = spy;
+			TestContextInternal.Current.DiagnosticMessageSink = spy;
 
 			var discoverer = TestableTestFrameworkDiscoverer.Create();
 			discoverer.FindTestsForType_Exception = new DivideByZeroException();
