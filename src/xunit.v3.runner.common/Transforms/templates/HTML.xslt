@@ -3,7 +3,6 @@
   <xsl:output method="html"/>
   <xsl:key name="tests-by-class" match="collection/test" use="@type" />
   <xsl:template match="/">
-    <xsl:text disable-output-escaping="yes"><![CDATA[<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">]]></xsl:text>
     <html>
       <head>
         <title>xUnit.net Test Results</title>
@@ -23,7 +22,7 @@
           .row, .altrow { padding: 0.1em 0.3em; }
           .row { background-color: #f0f5fa; }
           .altrow { background-color: #e1ebf4; }
-          .success, .failure, .skipped { font-family: Arial Unicode MS; font-weight: normal; float: left; width: 1em; display: block; }
+          .success, .failure, .skipped { font-family: Arial Unicode MS; font-weight: normal; }
           .success { color: #0c0; }
           .failure { color: #c00; }
           .skipped { color: #cc0; }
