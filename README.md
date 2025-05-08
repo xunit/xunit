@@ -26,8 +26,4 @@ For project documentation, please visit the [xUnit.net project home](https://xun
 
 ## Sponsors
 
-Special thanks to the [.NET on AWS Open Source Software Fund](https://github.com/aws/dotnet-foss) for sponsoring the ongoing development of xUnit.net.
-
-[<img src="https://xunit.net/images/aws-logo.svg" style="padding: 10px 0; width: 200px" />](https://github.com/aws/dotnet-foss)
-
 Help support this project by becoming a sponsor through [GitHub Sponsors](https://github.com/sponsors/xunit).
