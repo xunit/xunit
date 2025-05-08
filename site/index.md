@@ -180,11 +180,6 @@ _For information on contributing to xUnit.net, please read the [governance](/gov
 
 ## Sponsors
 
-Special thanks to the [.NET on AWS Open Source Software Fund](https://github.com/aws/dotnet-foss) for sponsoring the ongoing development of xUnit.net.
-
-{: .aws-logo }
-[![Amazon Web Services logo](/images/aws-logo.svg)](https://github.com/aws/dotnet-foss)
-
 Help support this project by becoming a sponsor through [GitHub Sponsors](https://github.com/sponsors/xunit).
 
 
