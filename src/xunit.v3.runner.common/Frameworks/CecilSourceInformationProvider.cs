@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Mono.Cecil;
+using Mono.Cecil.Cil;
 using Mono.Cecil.Rocks;
 using Xunit.Internal;
 using Xunit.Runner.Common;
@@ -48,6 +49,7 @@ public sealed class CecilSourceInformationProvider : ISourceInformationProvider
 
 		try
 		{
+			var symbolProvider = new DefaultSymbolReaderProvider(throwIfNoSymbol: false);
 			var moduleDefinitions =
 				Directory
 					.GetFiles(folder, "*.dll")
@@ -57,7 +59,20 @@ public sealed class CecilSourceInformationProvider : ISourceInformationProvider
 					{
 						try
 						{
-							var moduleDefinition = ModuleDefinition.ReadModule(file, new() { ReadSymbols = true });
+							if (!File.Exists(file))
+								return null;
+
+							var moduleDefinition = ModuleDefinition.ReadModule(file);
+
+							// Exclude non-.NET assemblies
+							if (moduleDefinition.Assembly is null)
+								return null;
+
+							using var symbolReader = symbolProvider.GetSymbolReader(moduleDefinition, moduleDefinition.FileName);
+							if (symbolReader is null)
+								return null;
+
+							moduleDefinition.ReadSymbols(symbolReader, throwIfSymbolsAreNotMaching: false);
 							if (moduleDefinition.HasSymbols)
 								return moduleDefinition;
 						}
