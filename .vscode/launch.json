@@ -2,11 +2,11 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "xunit.v3.assert.tests (net6.0)",
+      "name": "xunit.v3.assert.tests (net8.0)",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "Build_AssertTests",
-      "program": "bin/Debug/net6.0/xunit.v3.assert.tests.dll",
+      "program": "bin/Debug/net8.0/xunit.v3.assert.tests.dll",
       "args": [],
       "cwd": "${workspaceFolder}/src/xunit.v3.assert.tests",
       "stopAtEntry": false,
@@ -33,11 +33,11 @@
       "console": "internalConsole"
     },
     {
-      "name": "xunit.v3.common.tests (net6.0)",
+      "name": "xunit.v3.common.tests (net8.0)",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "Build_CommonTests",
-      "program": "bin/Debug/net6.0/xunit.v3.common.tests.dll",
+      "program": "bin/Debug/net8.0/xunit.v3.common.tests.dll",
       "args": [],
       "cwd": "${workspaceFolder}/src/xunit.v3.common.tests",
       "stopAtEntry": false,
@@ -64,11 +64,11 @@
       "console": "internalConsole"
     },
     {
-      "name": "xunit.v3.core.tests (net6.0)",
+      "name": "xunit.v3.core.tests (net8.0)",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "Build_CoreTests",
-      "program": "bin/Debug/net6.0/xunit.v3.core.tests.dll",
+      "program": "bin/Debug/net8.0/xunit.v3.core.tests.dll",
       "args": [],
       "cwd": "${workspaceFolder}/src/xunit.v3.core.tests",
       "stopAtEntry": false,
@@ -95,11 +95,11 @@
       "console": "internalConsole"
     },
     {
-      "name": "xunit.v3.runner.common.tests (net6.0)",
+      "name": "xunit.v3.runner.common.tests (net8.0)",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "Build_RunnerCommonTests",
-      "program": "bin/Debug/net6.0/xunit.v3.runner.common.tests.dll",
+      "program": "bin/Debug/net8.0/xunit.v3.runner.common.tests.dll",
       "args": [],
       "cwd": "${workspaceFolder}/src/xunit.v3.runner.common.tests",
       "stopAtEntry": false,
@@ -146,11 +146,11 @@
       "console": "internalConsole"
     },
     {
-      "name": "xunit.v3.runner.inproc.console.tests (net6.0)",
+      "name": "xunit.v3.runner.inproc.console.tests (net8.0)",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "Build_RunnerInprocConsoleTests",
-      "program": "bin/Debug/net6.0/xunit.v3.runner.inproc.console.tests.dll",
+      "program": "bin/Debug/net8.0/xunit.v3.runner.inproc.console.tests.dll",
       "args": [],
       "cwd": "${workspaceFolder}/src/xunit.v3.runner.inproc.console.tests",
       "stopAtEntry": false,
@@ -197,11 +197,11 @@
       "console": "internalConsole"
     },
     {
-      "name": "xunit.v3.runner.tdnet.tests (net6.0)",
+      "name": "xunit.v3.runner.tdnet.tests (net8.0)",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "Build_RunnerTdnetTests",
-      "program": "bin/Debug/net6.0/xunit.v3.runner.tdnet.tests.dll",
+      "program": "bin/Debug/net8.0/xunit.v3.runner.tdnet.tests.dll",
       "args": [],
       "cwd": "${workspaceFolder}/src/xunit.v3.runner.tdnet.tests",
       "stopAtEntry": false,
@@ -228,11 +228,11 @@
       "console": "internalConsole"
     },
     {
-      "name": "xunit.v3.runner.utility.tests (net6.0)",
+      "name": "xunit.v3.runner.utility.tests (net8.0)",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "Build_RunnerUtilityTests",
-      "program": "bin/Debug/net6.0/xunit.v3.runner.utility.tests.dll",
+      "program": "bin/Debug/net8.0/xunit.v3.runner.utility.tests.dll",
       "args": [],
       "cwd": "${workspaceFolder}/src/xunit.v3.runner.utility.tests",
       "stopAtEntry": false,
