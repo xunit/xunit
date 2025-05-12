@@ -22,7 +22,7 @@ public abstract class CrashDetectionSinkBase<TStart, TFinish>(
 			where TStart : IMessageSinkMessage, ITestAssemblyMessage
 			where TFinish : IMessageSinkMessage
 {
-	DateTimeOffset lastMessageReceived;
+	DateTimeOffset lastMessageReceived = DateTimeOffset.MinValue;
 	bool stopProcessing;
 
 	/// <summary>
@@ -77,6 +77,9 @@ public abstract class CrashDetectionSinkBase<TStart, TFinish>(
 	/// <param name="exitCode">The exit code from the test process, if known</param>
 	public void OnProcessFinished(int? exitCode)
 	{
+		if (lastMessageReceived == DateTimeOffset.MinValue)
+			lastMessageReceived = DateTimeOffset.UtcNow;
+
 		// Give the finish message a little time to arrive
 		while (true)
 		{
