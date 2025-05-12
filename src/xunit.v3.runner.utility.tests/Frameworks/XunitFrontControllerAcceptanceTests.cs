@@ -33,7 +33,7 @@ public class XunitFrontControllerAcceptanceTests
 				    [Fact]
 					public static void CrashingTest()
 					{
-						Environment.Exit(-1);
+						Environment.Exit(42);
 					}
 				}
 				""";
@@ -62,7 +62,7 @@ public class XunitFrontControllerAcceptanceTests
 			var errorMessage = Assert.Single(messageSink.Messages.OfType<IErrorMessage>());
 			Assert.Equal(-1, errorMessage.ExceptionParentIndices.Single());
 			Assert.Equal(typeof(TestPipelineException).SafeName(), errorMessage.ExceptionTypes.Single());
-			Assert.Equal("Test process crashed with exit code -1.", errorMessage.Messages.Single());
+			Assert.Equal("Test process crashed with exit code 42.", errorMessage.Messages.Single());
 			Assert.Null(errorMessage.StackTraces.Single());
 		}
 	}
