@@ -4,7 +4,7 @@
   <PropertyGroup>
 
     <!-- Used for building -->
-    <ILRepack_Version>2.0.41</ILRepack_Version>
+    <ILRepack_Version>2.0.42</ILRepack_Version>
     <Microsoft_NetCore_App_Ref_Version>9.0.4</Microsoft_NetCore_App_Ref_Version>
     <Microsoft_NETFramework_ReferenceAssemblies_Version>1.0.3</Microsoft_NETFramework_ReferenceAssemblies_Version>
     <Microsoft_SourceLink_GitHub_Version>8.0.0</Microsoft_SourceLink_GitHub_Version>
@@ -27,7 +27,7 @@
     <Microsoft_Bcl_AsyncInterfaces_Version>6.0.0</Microsoft_Bcl_AsyncInterfaces_Version>
 
     <!-- Used by xunit.v3.runner.msbuild to reference MSBuild types -->
-    <Microsoft_Build_Tasks_Core_Version>16.11.0</Microsoft_Build_Tasks_Core_Version>
+    <Microsoft_Build_Tasks_Core_Version>16.11.6</Microsoft_Build_Tasks_Core_Version>
 
     <!-- Used by xunit.v3.runner.utility to determine the target framework of an assembly without load-locking it -->
     <Mono_Cecil_Version>0.11.6</Mono_Cecil_Version>
