@@ -2,10 +2,6 @@ using System.IO;
 using Xunit;
 using Xunit.Runner.Common;
 
-#if NETFRAMEWORK
-using System.Runtime.InteropServices;
-#endif
-
 public class CecilSourceInformationProviderTests
 {
 	[Fact]
@@ -28,19 +24,6 @@ public class CecilSourceInformationProviderTests
 	public void AssemblyNotFound_ReturnsNullProvider()
 	{
 		var provider = CecilSourceInformationProvider.Create("/foo/bar/baz.dll");
-
-		Assert.IsType<NullSourceInformationProvider>(provider);
-	}
-
-	[Fact]
-	public void AssemblyWithoutDebugSymbols_ReturnsNullProvider()
-	{
-#if NETFRAMEWORK
-		// Mono sometimes includes symbols for mscorlib.dll
-		Assert.SkipUnless(RuntimeInformation.IsOSPlatform(OSPlatform.Windows), "This test is only supported on .NET Framework in Windows");
-#endif
-
-		var provider = CecilSourceInformationProvider.Create(typeof(string).Assembly.Location);
 
 		Assert.IsType<NullSourceInformationProvider>(provider);
 	}

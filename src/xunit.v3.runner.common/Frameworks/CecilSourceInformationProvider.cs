@@ -1,13 +1,15 @@
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Rocks;
-using Xunit.Internal;
 using Xunit.Runner.Common;
 
 namespace Xunit;
@@ -17,22 +19,66 @@ namespace Xunit;
 /// </summary>
 public sealed class CecilSourceInformationProvider : ISourceInformationProvider
 {
+	// 0xFEEFEE marks a "hidden" line, per https://mono-cecil.narkive.com/gFuvydFp/trouble-with-sequencepoint
+	const int SEQUENCE_POINT_HIDDEN_LINE = 0xFEEFEE;
+
 	readonly static HashSet<byte[]> PublicKeyTokensToSkip = new(
 	[
 		[0x50, 0xce, 0xbf, 0x1c, 0xce, 0xb9, 0xd0, 0x5e],  // Mono
 		[0x8d, 0x05, 0xb1, 0xbb, 0x7a, 0x6f, 0xdb, 0x6c],  // xUnit.net
 	], ByteArrayComparer.Instance);
+	readonly static DefaultSymbolReaderProvider SymbolProvider = new(throwIfNoSymbol: false);
 
-	readonly List<ModuleDefinition> moduleDefinitions;
-	readonly Dictionary<string, TypeDefinition> typeDefinitions = [];
+	readonly ConcurrentBag<ModuleDefinition> moduleDefinitions = [];
+	readonly ConcurrentDictionary<string, TypeDefinition> typeDefinitions = [];
 
-	CecilSourceInformationProvider(List<ModuleDefinition> moduleDefinitions)
+	CecilSourceInformationProvider(string assemblyFileName)
 	{
-		this.moduleDefinitions = moduleDefinitions;
+		AppDomain.CurrentDomain.AssemblyLoad += OnAssemblyLoad;
 
-		foreach (var moduleDefinition in moduleDefinitions)
+		AddAssembly(assemblyFileName);
+
+		foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+			AddAssembly(assembly);
+	}
+
+	void AddAssembly(string assemblyFileName)
+	{
+		try
+		{
+			if (!File.Exists(assemblyFileName))
+				return;
+
+			var moduleDefinition = ModuleDefinition.ReadModule(assemblyFileName);
+
+			// Exclude non-.NET assemblies
+			if (moduleDefinition.Assembly is null)
+				return;
+
+			// Exclude things with known public keys
+			var name = moduleDefinition.Assembly.Name;
+			if (name.HasPublicKey && PublicKeyTokensToSkip.Contains(name.PublicKeyToken))
+				return;
+
+			using var symbolReader = SymbolProvider.GetSymbolReader(moduleDefinition, moduleDefinition.FileName);
+			if (symbolReader is null)
+				return;
+
+			moduleDefinition.ReadSymbols(symbolReader, throwIfSymbolsAreNotMaching: false);
+			if (!moduleDefinition.HasSymbols)
+				return;
+
+			moduleDefinitions.Add(moduleDefinition);
 			foreach (var typeDefinition in moduleDefinition.Types.Where(t => t.IsPublic))
-				typeDefinitions[typeDefinition.FullName] = typeDefinition;
+				typeDefinitions.TryAdd(typeDefinition.FullName, typeDefinition);
+		}
+		catch { }
+	}
+
+	void AddAssembly(Assembly assembly)
+	{
+		if (!assembly.IsDynamic)
+			AddAssembly(assembly.Location);
 	}
 
 	/// <summary>
@@ -50,63 +96,18 @@ public sealed class CecilSourceInformationProvider : ISourceInformationProvider
 		if (!RunSettingsUtility.CollectSourceInformation)
 			return NullSourceInformationProvider.Instance;
 
-		var folder = Path.GetDirectoryName(assemblyFileName);
-		if (assemblyFileName is null || folder is null || !Directory.Exists(folder))
+		if (!File.Exists(assemblyFileName))
 			return NullSourceInformationProvider.Instance;
 
-		try
-		{
-			var symbolProvider = new DefaultSymbolReaderProvider(throwIfNoSymbol: false);
-			var moduleDefinitions =
-				Directory
-					.GetFiles(folder, "*.dll")
-					.Concat([assemblyFileName])
-					.Distinct()
-					.Select(file =>
-					{
-						try
-						{
-							if (!File.Exists(file))
-								return null;
-
-							var moduleDefinition = ModuleDefinition.ReadModule(file);
-
-							// Exclude non-.NET assemblies
-							if (moduleDefinition.Assembly is null)
-								return null;
-
-							// Exclude things with known public keys
-							var name = moduleDefinition.Assembly.Name;
-							if (name.HasPublicKey == true && PublicKeyTokensToSkip.Contains(name.PublicKeyToken))
-								return null;
-
-							using var symbolReader = symbolProvider.GetSymbolReader(moduleDefinition, moduleDefinition.FileName);
-							if (symbolReader is null)
-								return null;
-
-							moduleDefinition.ReadSymbols(symbolReader, throwIfSymbolsAreNotMaching: false);
-							if (moduleDefinition.HasSymbols)
-								return moduleDefinition;
-						}
-						catch { }
-
-						return null;
-					})
-					.WhereNotNull()
-					.ToList();
-
-			if (moduleDefinitions.Count != 0)
-				return new CecilSourceInformationProvider(moduleDefinitions);
-		}
-		catch { }
-
-		return NullSourceInformationProvider.Instance;
+		return new CecilSourceInformationProvider(assemblyFileName);
 	}
 
 	/// <inheritdoc/>
 	public ValueTask DisposeAsync()
 	{
-		foreach (var moduleDefinition in moduleDefinitions)
+		AppDomain.CurrentDomain.AssemblyLoad -= OnAssemblyLoad;
+
+		foreach (var moduleDefinition in moduleDefinitions.Distinct())
 			moduleDefinition.SafeDispose();
 
 		return default;
@@ -137,8 +138,7 @@ public sealed class CecilSourceInformationProvider : ISourceInformationProvider
 				if (methodDefinitions.Count == 1)
 				{
 					var debugInformation = typeDefinition.Module.SymbolReader.Read(methodDefinitions[0]);
-					// 0xFEEFEE marks a "hidden" line, per https://mono-cecil.narkive.com/gFuvydFp/trouble-with-sequencepoint
-					var sequencePoint = debugInformation.SequencePoints.FirstOrDefault(sp => sp.StartLine != 0xFEEFEE);
+					var sequencePoint = debugInformation.SequencePoints.FirstOrDefault(sp => sp.StartLine != SEQUENCE_POINT_HIDDEN_LINE);
 					if (sequencePoint is not null)
 						return new(sequencePoint.Document.Url, sequencePoint.StartLine);
 				}
@@ -148,6 +148,11 @@ public sealed class CecilSourceInformationProvider : ISourceInformationProvider
 
 		return SourceInformation.Null;
 	}
+
+	void OnAssemblyLoad(
+		object? sender,
+		AssemblyLoadEventArgs args) =>
+			AddAssembly(args.LoadedAssembly);
 
 	sealed class ByteArrayComparer : IEqualityComparer<byte[]>
 	{
