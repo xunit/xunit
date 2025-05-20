@@ -171,7 +171,7 @@ public abstract class TestRunner<TContext, TTest> :
 
 						try
 						{
-							var result = ctxt.TestMethod.Invoke(testClassInstance, ctxt.TestMethodArguments);
+							var result = InvokeTestMethod(ctxt, testClassInstance);
 							var valueTask = AsyncUtility.TryConvertToValueTask(result);
 							if (valueTask.HasValue)
 								await valueTask.Value;
@@ -186,6 +186,25 @@ public abstract class TestRunner<TContext, TTest> :
 			)
 		);
 	}
+
+	/// <summary>
+	/// Called by <see cref="InvokeTest"/> to invoke the test method.
+	/// </summary>
+	/// <param name="ctxt">The context that describes the current test</param>
+	/// <param name="testClassInstance">The instance of the test class (may be <c>null</c> when
+	/// running a static test method)</param>
+	/// <returns>Returns the result of the test method invocation. This value is evaluated to determine
+	/// if it indicates asynchronous execution (by calling <see cref="AsyncUtility.TryConvertToValueTask"/>)
+	/// so that <see cref="InvokeTest"/> can wait on the resulting operation.</returns>
+	/// <remarks>
+	/// By default, this uses reflection to invoke the test method from the context. Developers can
+	/// override this method to replace the test method invocation and/or to add operations before/after
+	/// the test method is invoked.
+	/// </remarks>
+	protected virtual object? InvokeTestMethod(
+		TContext ctxt,
+		object? testClassInstance) =>
+			Guard.ArgumentNotNull(ctxt).TestMethod.Invoke(testClassInstance, ctxt.TestMethodArguments);
 
 	/// <summary>
 	/// Override to determine whether a test class should be created.
