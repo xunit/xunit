@@ -54,4 +54,14 @@ public static partial class Mocks
 		result.Timeout.Returns(timeout);
 		return result;
 	}
+
+	public static IRegisterXunitSerializerAttribute RegisterXunitSerializerAttribute(
+		Type serializerType,
+		params Type[] supportedTypesForSerialization)
+	{
+		var result = Substitute.For<IRegisterXunitSerializerAttribute, InterfaceProxy<IRegisterXunitSerializerAttribute>>();
+		result.SerializerType.Returns(serializerType);
+		result.SupportedTypesForSerialization.Returns(supportedTypesForSerialization);
+		return result;
+	}
 }

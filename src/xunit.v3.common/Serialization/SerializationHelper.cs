@@ -284,7 +284,7 @@ public class SerializationHelper
 					CultureInfo.CurrentCulture,
 					"Exception while creating serializer type '{0}': {1}",
 					registration.SerializerType.SafeName(),
-					ex
+					ex.Unwrap()
 				));
 			}
 		}

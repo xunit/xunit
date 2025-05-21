@@ -588,6 +588,65 @@ public class SerializationHelperTests
 #endif
 	}
 
+	public class SerializerRegistration
+	{
+		[Fact]
+		public void ExceptionThrownBySerializerConstruction()
+		{
+			var attr = Mocks.RegisterXunitSerializerAttribute(typeof(ThrowingCtor), typeof(object));
+
+			var helper = new TestableSerializationHelper(attr);
+
+			var warning = Assert.Single(helper.Warnings);
+			Assert.StartsWith($"Exception while creating serializer type '{typeof(ThrowingCtor).SafeName()}': {typeof(DivideByZeroException).SafeName()}", warning);
+		}
+
+		[Fact]
+		public void SerializerDoesNotImplementInterface()
+		{
+			var attr = Mocks.RegisterXunitSerializerAttribute(typeof(Unserializable), typeof(object));
+
+			var helper = new TestableSerializationHelper(attr);
+
+			var warning = Assert.Single(helper.Warnings);
+			Assert.Equal($"Serializer type '{typeof(Unserializable).SafeName()}' does not implement '{typeof(IXunitSerializer).SafeName()}'", warning);
+		}
+
+		[Fact]
+		public void NoSupportedTypes()
+		{
+			var attr = Mocks.RegisterXunitSerializerAttribute(typeof(MyCustomTypeSerializer));
+
+			var helper = new TestableSerializationHelper(attr);
+
+			var warning = Assert.Single(helper.Warnings);
+			Assert.Equal($"Serializer type '{typeof(MyCustomTypeSerializer).SafeName()}' does not have any supported types in the registration", warning);
+		}
+
+		[Fact]
+		public void CannotRegisterForBuiltInSupportedType()
+		{
+			var attr = Mocks.RegisterXunitSerializerAttribute(typeof(MyCustomTypeSerializer), typeof(object));
+
+			var helper = new TestableSerializationHelper(attr);
+
+			var warning = Assert.Single(helper.Warnings);
+			Assert.Equal($"Serializer type '{typeof(MyCustomTypeSerializer).SafeName()}' tried to register for type '{typeof(object).SafeName()}' which is supported by a built-in serializer", warning);
+		}
+
+		[Fact]
+		public void CannotRegisterForTypeThatsAlreadyRegistered()
+		{
+			var attr1 = Mocks.RegisterXunitSerializerAttribute(typeof(MyCustomTypeSerializer), typeof(MyCustomType));
+			var attr2 = Mocks.RegisterXunitSerializerAttribute(typeof(MyUnserializableSerializer), typeof(MyCustomType));
+
+			var helper = new TestableSerializationHelper(attr1, attr2);
+
+			var warning = Assert.Single(helper.Warnings);
+			Assert.Equal($"Serializer type '{typeof(MyUnserializableSerializer).SafeName()}' tried to register for type '{typeof(MyCustomType).SafeName()}' which is already supported by serializer type '{typeof(MyCustomTypeSerializer).SafeName()}'", warning);
+		}
+	}
+
 	public class TypeNameSerialization
 	{
 		public static TheoryData<Type, string> TypeSerializationData = new()
@@ -744,6 +803,12 @@ public class SerializationHelperTests
 	}
 
 	class Unserializable { }
+
+	class ThrowingCtor
+	{
+		public ThrowingCtor() =>
+			throw new DivideByZeroException();
+	}
 
 #if NETFRAMEWORK
 	class CustomGACEnumSerializer : IXunitSerializer
