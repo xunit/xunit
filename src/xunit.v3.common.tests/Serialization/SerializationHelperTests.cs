@@ -645,6 +645,17 @@ public class SerializationHelperTests
 			var warning = Assert.Single(helper.Warnings);
 			Assert.Equal($"Serializer type '{typeof(MyUnserializableSerializer).SafeName()}' tried to register for type '{typeof(MyCustomType).SafeName()}' which is already supported by serializer type '{typeof(MyCustomTypeSerializer).SafeName()}'", warning);
 		}
+
+		[Fact]
+		public void CannotRegisterForArray()
+		{
+			var attr = Mocks.RegisterXunitSerializerAttribute(typeof(MyCustomTypeSerializer), typeof(MyCustomType[]));
+
+			var helper = new TestableSerializationHelper(attr);
+
+			var warning = Assert.Single(helper.Warnings);
+			Assert.Equal($"Serializer type '{typeof(MyCustomTypeSerializer).SafeName()}' tried to register for an array type ('{typeof(MyCustomType[]).SafeName()}'); arrays for supported types are automatically supported (register for the base type instead)", warning);
+		}
 	}
 
 	public class TypeNameSerialization

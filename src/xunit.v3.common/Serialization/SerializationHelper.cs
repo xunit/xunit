@@ -274,6 +274,13 @@ public class SerializationHelper
 							registration.SerializerType.SafeName(),
 							supportedType.SafeName()
 						));
+					else if (supportedType.IsArray)
+						warnings?.Add(string.Format(
+							CultureInfo.CurrentCulture,
+							"Serializer type '{0}' tried to register for an array type ('{1}'); arrays for supported types are automatically supported (register for the base type instead)",
+							registration.SerializerType.SafeName(),
+							supportedType.SafeName()
+						));
 					else
 						xunitSeralizersByType[supportedType] = serializer;
 				}
