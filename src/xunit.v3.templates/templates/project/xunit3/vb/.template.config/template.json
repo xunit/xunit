@@ -24,6 +24,7 @@
   "postActions": [
     {
       "description": "Restore NuGet packages required by this project",
+      "condition": "(!skipRestore)",
       "manualInstructions": [
         {
           "text": "Run 'dotnet restore'"
@@ -67,6 +68,13 @@
           "description": ".NET 9"
         }
       ]
+    },
+    "skipRestore": {
+      "type": "parameter",
+      "datatype": "bool",
+      "description": "If specified, skips the automatic restore of the project on create.",
+      "defaultValue": "false",
+      "displayName": "Skip restore"
     }
   }
 }
