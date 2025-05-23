@@ -157,6 +157,13 @@ public class TestProcessLauncherAdapter(ITestProcessLauncher launcher) :
 			var internalDiagnosticMessages = projectAssembly.Configuration.InternalDiagnosticMessagesOrDefault;
 			var synchronousMessageReporting = SynchronousMessageReporting(assemblyInfo, projectAssembly);
 
+			var delegatingMessageSink = messageSink;
+			if (projectAssembly.Configuration.IncludeSourceInformationOrDefault && sourceInformationProvider is not null)
+				delegatingMessageSink = new SourceInformationMessageSink(delegatingMessageSink, sourceInformationProvider);
+
+			var processCancellationSink = new ProcessCancellationMessageSink(delegatingMessageSink, process);
+			var splitSink = new MessageSplitMessageSink(processCancellationSink, diagnosticMessageSink);
+
 			try
 			{
 				while (true)
@@ -168,17 +175,15 @@ public class TestProcessLauncherAdapter(ITestProcessLauncher launcher) :
 					try
 					{
 						var @continue = true;
-						var message = MessageSinkMessageDeserializer.Deserialize(line, diagnosticMessageSink);
+						var message = MessageSinkMessageDeserializer.Deserialize(line, splitSink);
 
 						if (message is null)
 						{
-							if (internalDiagnosticMessages && diagnosticMessageSink is not null)
-								@continue = diagnosticMessageSink.OnMessage(new InternalDiagnosticMessage("Received unparseable output from test process: " + line)) && @continue;
+							if (internalDiagnosticMessages)
+								@continue = splitSink.OnMessage(new InternalDiagnosticMessage("Received unparseable output from test process: " + line)) && @continue;
 						}
-						else if (message is IDiagnosticMessage or IInternalDiagnosticMessage)
-							@continue = (diagnosticMessageSink?.OnMessage(message) ?? true) && @continue;
 						else
-							@continue = messageSink.OnMessage(message) && @continue;
+							@continue = splitSink.OnMessage(message) && @continue;
 
 						if (message is ITestAssemblyFinished)
 							break;
