@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
@@ -24,14 +25,14 @@ public sealed class TestContext : ITestContext, IDisposable
 	IMessageSink? diagnosticMessageSink;
 	readonly FixtureMappingManager? fixtures;
 	IMessageSink? internalDiagnosticMessageSink;
-	readonly Dictionary<string, object?>? keyValueStorage;
+	readonly ConcurrentDictionary<string, object?>? keyValueStorage;
 	readonly CancellationTokenSource testCancellationTokenSource = new();
 	readonly List<string>? warnings;
 
 	TestContext(
 		IMessageSink? diagnosticMessageSink,
 		IMessageSink? internalDiagnosticMessageSink,
-		Dictionary<string, object?>? keyValueStorage,
+		ConcurrentDictionary<string, object?>? keyValueStorage,
 		TestPipelineStage pipelineStage,
 		CancellationToken cancellationToken,
 		Dictionary<string, TestAttachment>? attachments = null,
@@ -92,7 +93,7 @@ public sealed class TestContext : ITestContext, IDisposable
 	}
 
 	/// <inheritdoc/>
-	public Dictionary<string, object?> KeyValueStorage =>
+	public ConcurrentDictionary<string, object?> KeyValueStorage =>
 		keyValueStorage ?? throw new InvalidOperationException("Cannot get KeyValueStorage on the idle test context");
 
 	/// <inheritdoc/>
