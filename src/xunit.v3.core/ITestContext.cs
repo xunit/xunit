@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
@@ -38,7 +39,7 @@ public interface ITestContext
 	/// extensions either prefix their key names or use guaranteed unique IDs like GUIDs, to prevent
 	/// collisions with other extension authors.
 	/// </remarks>
-	Dictionary<string, object?> KeyValueStorage { get; }
+	ConcurrentDictionary<string, object?> KeyValueStorage { get; }
 
 	/// <summary>
 	/// Gets the current test pipeline stage.
