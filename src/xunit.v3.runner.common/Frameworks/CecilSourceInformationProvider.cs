@@ -32,7 +32,7 @@ public sealed class CecilSourceInformationProvider : ISourceInformationProvider
 	readonly ConcurrentBag<ModuleDefinition> moduleDefinitions = [];
 	readonly ConcurrentDictionary<string, TypeDefinition> typeDefinitions = [];
 
-	CecilSourceInformationProvider(string assemblyFileName)
+	internal CecilSourceInformationProvider(string assemblyFileName)
 	{
 		AppDomain.CurrentDomain.AssemblyLoad += OnAssemblyLoad;
 

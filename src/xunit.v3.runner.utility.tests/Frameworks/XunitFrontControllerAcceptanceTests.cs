@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Xunit;
+using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
 
@@ -100,7 +101,7 @@ public class XunitFrontControllerAcceptanceTests
 			var projectAssembly = new XunitProjectAssembly(new XunitProject(), assemblyFileName, assemblyMetadata);
 			projectAssembly.Configuration.IncludeSourceInformation = true;
 
-			var frontController = XunitFrontController.Create(projectAssembly);
+			var frontController = XunitFrontController.Create(projectAssembly, CecilSourceInformationProviderHelper.CreateForTesting(assemblyFileName));
 			Assert.NotNull(frontController);
 
 			// Discovery
@@ -168,7 +169,7 @@ public class XunitFrontControllerAcceptanceTests
 			var projectAssembly = new XunitProjectAssembly(new XunitProject(), assemblyFileName, assemblyMetadata);
 			projectAssembly.Configuration.IncludeSourceInformation = true;
 
-			var frontController = XunitFrontController.Create(projectAssembly);
+			var frontController = XunitFrontController.Create(projectAssembly, CecilSourceInformationProviderHelper.CreateForTesting(assemblyFileName));
 			Assert.NotNull(frontController);
 
 			// Discovery
@@ -222,7 +223,7 @@ public class XunitFrontControllerAcceptanceTests
 			var projectAssembly = new XunitProjectAssembly(new XunitProject(), assemblyFileName, assemblyMetadata);
 			projectAssembly.Configuration.IncludeSourceInformation = true;
 
-			var frontController = XunitFrontController.Create(projectAssembly);
+			var frontController = XunitFrontController.Create(projectAssembly, CecilSourceInformationProviderHelper.CreateForTesting(assemblyFileName));
 			Assert.NotNull(frontController);
 
 			// Discovery
