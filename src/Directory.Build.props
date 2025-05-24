@@ -12,6 +12,7 @@
     <DefineConstants>$(DefineConstants);XUNIT_NULLABLE</DefineConstants>
     <LangVersion>13.0</LangVersion>
     <MSBuildCopyContentTransitively>false</MSBuildCopyContentTransitively>
+    <PackageId>$(MSBuildProjectName)</PackageId>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <RootNamespace>Xunit</RootNamespace>
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
@@ -42,7 +43,6 @@
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <Nullable>enable</Nullable>
         <PackageIcon>_content/logo-128-transparent.png</PackageIcon>
-        <PackageId>$(MSBuildProjectName)</PackageId>
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
         <PackageReadmeFile>_content/README.md</PackageReadmeFile>
         <Product>xUnit.net v3 Testing Framework</Product>

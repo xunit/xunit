@@ -19,12 +19,18 @@ public class CollectionPerClassTestCollectionFactoryTests
 		Assert.Same(testAssembly, testCollection.TestAssembly);
 		Assert.Null(testCollection.TestCaseOrderer);
 		Assert.Null(testCollection.TestCollectionClassName);
-#if BUILD_X86
-		Assert.Equal("Test collection for CollectionPerClassTestCollectionFactoryTests+NoAttributes (id: 9ac2955700bba5c2c1f3339038d7b852f51df7caf9f0120872a5c8790269d0fd)", testCollection.TestCollectionDisplayName);
-		Assert.Equal("148a06e0297542c9f312f0283d430d1bba2b0a507c1d8a34d5922005ce91f096", testCollection.UniqueID);
+#if BUILD_X86 && NETFRAMEWORK
+		Assert.Equal("Test collection for CollectionPerClassTestCollectionFactoryTests+NoAttributes (id: cad8434edaa657e7f71258f4c968d14dc874d68ef9531d04f265430426d95d48)", testCollection.TestCollectionDisplayName);
+		Assert.Equal("00f615915ef801a49a09c8a5ad40a7e4172c284b992aa0f77247749a73e27968", testCollection.UniqueID);
+#elif BUILD_X86
+		Assert.Equal("Test collection for CollectionPerClassTestCollectionFactoryTests+NoAttributes (id: 7cfee15dbd8d60bf8c21dd09bd1ab74d56b948a12096c340642b9f39bef012f1)", testCollection.TestCollectionDisplayName);
+		Assert.Equal("44fd295dc6b0e5599b41a18d42adcfadcfed3941648f517724ca23b9377c0bb4", testCollection.UniqueID);
+#elif NETFRAMEWORK
+		Assert.Equal("Test collection for CollectionPerClassTestCollectionFactoryTests+NoAttributes (id: d15a5b77bdf919b59e06808ca61eb642e984118362c80ede328966fcf64e7b1f)", testCollection.TestCollectionDisplayName);
+		Assert.Equal("3bcc9cdbeda7675f5211ecacb601cf2b6bf787cc67d9196e7af9c1fd9c6ac5b2", testCollection.UniqueID);
 #else
-		Assert.Equal("Test collection for CollectionPerClassTestCollectionFactoryTests+NoAttributes (id: 15ba074ef867ff586a13be3833053c74a0cb38e99106e598cc5d99dcdfa8ecc7)", testCollection.TestCollectionDisplayName);
-		Assert.Equal("9bdf912a195340f6895be236979b92cfba48f86658a699c70304ba007c111163", testCollection.UniqueID);
+		Assert.Equal("Test collection for CollectionPerClassTestCollectionFactoryTests+NoAttributes (id: 69ffd2d539ea9ff61b47eee653580191b60aabac6c339de33d72f950f00f243f)", testCollection.TestCollectionDisplayName);
+		Assert.Equal("18ea3da232dfcf67f1ea4135bf65f869f64ae245c62d9f71b073c657c4d41685", testCollection.UniqueID);
 #endif
 	}
 

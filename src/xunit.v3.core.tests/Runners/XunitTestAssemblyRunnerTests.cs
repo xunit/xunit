@@ -29,10 +29,14 @@ public class XunitTestAssemblyRunnerTests
 				{
 					var starting = Assert.IsAssignableFrom<ITestAssemblyStarting>(msg);
 					verifyTestAssemblyMessage(starting);
-#if BUILD_X86
-					Assert.Equal("xunit.v3.core.x86.tests", starting.AssemblyName);
+#if BUILD_X86 && NETFRAMEWORK
+					Assert.Equal("xunit.v3.core.netfx.x86.tests", starting.AssemblyName);
+#elif BUILD_X86
+					Assert.Equal("xunit.v3.core.netcore.x86.tests", starting.AssemblyName);
+#elif NETFRAMEWORK
+					Assert.Equal("xunit.v3.core.netfx.tests", starting.AssemblyName);
 #else
-					Assert.Equal("xunit.v3.core.tests", starting.AssemblyName);
+					Assert.Equal("xunit.v3.core.netcore.tests", starting.AssemblyName);
 #endif
 					Assert.Equal(typeof(ClassUnderTest).Assembly.Location, starting.AssemblyPath);
 					Assert.Null(starting.ConfigFilePath);

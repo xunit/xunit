@@ -34,10 +34,14 @@ public class XunitTestFrameworkDiscovererTests
 			var testClass = await discoverer.CreateTestClass(typeof(ClassWithNoCollection));
 
 			Assert.NotNull(testClass.TestCollection);
-#if BUILD_X86  // Assembly name changes for x86 testing, so that changes the ID
-			Assert.Equal("Test collection for XunitTestFrameworkDiscovererTests+CreateTestClass+ClassWithNoCollection (id: 4653a9b0bd6b7d2f1bfb61e805d4c3cf1f14088c7038b1b37d116f53aa1ed1de)", testClass.TestCollection.TestCollectionDisplayName);
+#if BUILD_X86 && NETFRAMEWORK
+			Assert.Equal("Test collection for XunitTestFrameworkDiscovererTests+CreateTestClass+ClassWithNoCollection (id: c6b93139464209e6f292e5c9beef80dd927a4b15a9bc5c25c799dba723f446c2)", testClass.TestCollection.TestCollectionDisplayName);
+#elif BUILD_X86
+			Assert.Equal("Test collection for XunitTestFrameworkDiscovererTests+CreateTestClass+ClassWithNoCollection (id: 909128fb37fc94f8968895780ad64cc07b350be11b06686e0353f576df69cf04)", testClass.TestCollection.TestCollectionDisplayName);
+#elif NETFRAMEWORK
+			Assert.Equal("Test collection for XunitTestFrameworkDiscovererTests+CreateTestClass+ClassWithNoCollection (id: ecfe652d9ecdedba356c64ae79857c8a48d7ace73b61d81a1ffda867882d5003)", testClass.TestCollection.TestCollectionDisplayName);
 #else
-			Assert.Equal("Test collection for XunitTestFrameworkDiscovererTests+CreateTestClass+ClassWithNoCollection (id: 7be14f736e0a0af8d59cc61a320451b57131f8826d997a67c0e0445ac2d717c6)", testClass.TestCollection.TestCollectionDisplayName);
+			Assert.Equal("Test collection for XunitTestFrameworkDiscovererTests+CreateTestClass+ClassWithNoCollection (id: 908f91c64bf37155a8a298dc21327c01663c8f8936d324803da1f80b3029917f)", testClass.TestCollection.TestCollectionDisplayName);
 #endif
 			Assert.Null(testClass.TestCollection.CollectionDefinition);
 		}

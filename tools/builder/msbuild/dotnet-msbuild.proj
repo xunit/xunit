@@ -1,0 +1,38 @@
+<Project
+	xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+	<PropertyGroup>
+		<Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
+		<SolutionDir Condition=" '$(SolutionDir)' == '' ">$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)\..\..\..'))\</SolutionDir>
+	</PropertyGroup>
+
+	<UsingTask
+		AssemblyFile="$(SolutionDir)src\xunit.v3.runner.msbuild\bin\$(Configuration)\net8.0\merged\xunit.v3.runner.msbuild.dll"
+		TaskName="Xunit.Runner.MSBuild.xunit"/>
+
+	<Target Name="Default" DependsOnTargets="v3" />
+
+	<Target Name="v3">
+		<ItemGroup>
+			<!-- .NET -->
+			<V3Assemblies
+				Include="$(SolutionDir)src\**\bin\$(Configuration)\net8.0\xunit.v3.*.tests.dll"
+				Condition=" '$(TestFramework)' != 'NetFx' " />
+			<V3Assemblies
+				Remove="$(SolutionDir)src\**\bin\$(Configuration)\net8.0\xunit.v3.*.x86.tests.dll"
+				Condition=" '$(SkipX86)' == 'true' OR '$(SkipNetCoreX86)' == 'true' " />
+
+			<!-- .NET Framework -->
+			<V3Assemblies
+				Include="$(SolutionDir)src\**\bin\$(Configuration)\net472\xunit.v3.*.tests.exe"
+				Condition=" '$(TestFramework)' != 'Net' " />
+			<V3Assemblies
+				Remove="$(SolutionDir)src\**\bin\$(Configuration)\net472\xunit.v3.*.x86.tests.exe"
+				Condition=" '$(SkipX86)' == 'true' OR '$(SkipNetFxX86)' == 'true' " />
+		</ItemGroup>
+
+		<Message Text=" " Importance="High" />
+		<xunit Assemblies="@(V3Assemblies)" />
+	</Target>
+
+</Project>

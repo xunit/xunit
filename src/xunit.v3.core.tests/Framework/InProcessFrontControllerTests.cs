@@ -65,12 +65,18 @@ public class InProcessFrontControllerTests
 				msg =>
 				{
 					var starting = Assert.IsAssignableFrom<IDiscoveryStarting>(msg);
-#if BUILD_X86
-					Assert.StartsWith("xunit.v3.core.x86.tests", starting.AssemblyName);
-					Assert.Equal("xunit.v3.core.x86.tests", Path.GetFileNameWithoutExtension(starting.AssemblyPath));
+#if BUILD_X86 && NETFRAMEWORK
+					Assert.StartsWith("xunit.v3.core.netfx.x86.tests", starting.AssemblyName);
+					Assert.Equal("xunit.v3.core.netfx.x86.tests", Path.GetFileNameWithoutExtension(starting.AssemblyPath));
+#elif BUILD_X86
+					Assert.StartsWith("xunit.v3.core.netcore.x86.tests", starting.AssemblyName);
+					Assert.Equal("xunit.v3.core.netcore.x86.tests", Path.GetFileNameWithoutExtension(starting.AssemblyPath));
+#elif NETFRAMEWORK
+					Assert.StartsWith("xunit.v3.core.netfx.tests", starting.AssemblyName);
+					Assert.Equal("xunit.v3.core.netfx.tests", Path.GetFileNameWithoutExtension(starting.AssemblyPath));
 #else
-					Assert.StartsWith("xunit.v3.core.tests", starting.AssemblyName);
-					Assert.Equal("xunit.v3.core.tests", Path.GetFileNameWithoutExtension(starting.AssemblyPath));
+					Assert.StartsWith("xunit.v3.core.netcore.tests", starting.AssemblyName);
+					Assert.Equal("xunit.v3.core.netcore.tests", Path.GetFileNameWithoutExtension(starting.AssemblyPath));
 #endif
 					Assert.Equal(frontController.TestAssemblyUniqueID, starting.AssemblyUniqueID);
 					Assert.Equal("/path/to/config.json", starting.ConfigFilePath);

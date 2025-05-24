@@ -25,12 +25,7 @@ public class Xunit3Tests
 	void UseAssertTests()
 	{
 		// Make sure we're not relying on Assembly.GetEntryAssembly()
-#if BUILD_X86
-		var newAssemblyPath = Assembly.AssemblyFileName.Replace("xunit.v3.runner.utility.x86.tests", "xunit.v3.assert.x86.tests");
-#else
-		var newAssemblyPath = Assembly.AssemblyFileName.Replace("xunit.v3.runner.utility.tests", "xunit.v3.assert.tests");
-#endif
-
+		var newAssemblyPath = Assembly.AssemblyFileName.Replace("xunit.v3.runner.utility", "xunit.v3.assert");
 		Assert.NotEqual(newAssemblyPath, Assembly.AssemblyFileName);
 		Assembly.AssemblyFileName = newAssemblyPath;
 	}
@@ -166,7 +161,7 @@ public class Xunit3Tests
 	public ValueTask CanFindFilteredTestsAndRunThem_UsingFind_UsingRun_Self(
 		bool runInProcess,
 		bool synchronousMessageReporting) =>
-			CanFindFilteredTestsAndRunThem_UsingFind_UsingRun(runInProcess, synchronousMessageReporting, typeof(Xunit3Tests).SafeName(), nameof(GuardClauses_Ctor), "Xunit3Tests.cs", 40);
+			CanFindFilteredTestsAndRunThem_UsingFind_UsingRun(runInProcess, synchronousMessageReporting, typeof(Xunit3Tests).SafeName(), nameof(GuardClauses_Ctor), "Xunit3Tests.cs", 35);
 
 	[Theory]
 	[InlineData(false, false)]

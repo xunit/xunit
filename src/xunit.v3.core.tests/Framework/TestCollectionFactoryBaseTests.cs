@@ -12,12 +12,18 @@ public class TestCollectionFactoryBaseTests
 		typeof(TestClassForByType),
 		typeof(TestCollectionFactoryBaseTests),
 		"TestCollectionFactoryBaseTests",
-#if BUILD_X86
-		"Test collection for TestCollectionFactoryBaseTests (id: d6ad35df498d002650211247bf3ad438c14b529c58abcae9e19de92da2a3dd5e)",
-		"bf79509be2bd4938d1a29a27ff642508130cfd8d91e0f78831f45d35375ea4ab"
+#if BUILD_X86 && NETFRAMEWORK
+		"Test collection for TestCollectionFactoryBaseTests (id: 59fd624246292e3a2de338c200932449020495a4dacab77ee986ce56f8c2d01c)",
+		"a723fcc8303e835c13c2cd5724d4b1dc31bee77e4bd7d727947992a0d4cffe1a"
+#elif BUILD_X86
+		"Test collection for TestCollectionFactoryBaseTests (id: 16fe7e3476c5fc10b852512c4fc23ecba9a1b14225fa4b53f7dce49bce3ee0cc)",
+		"33eb7b31a5aa1851a9a542bfd17c19db99f445d7a5d43b3178676f73ff63894c"
+#elif NETFRAMEWORK
+		"Test collection for TestCollectionFactoryBaseTests (id: 31a1f441047127513b6e4ff093f4332fc4c0d0d0ee5d4957c81fb490aa083729)",
+		"0644374cbb9d1f1071ad468d280c4f6d86421896341a61b3a62b2878b45f8d58"
 #else
-		"Test collection for TestCollectionFactoryBaseTests (id: 477518a275c9dd2651ca8e44c34048e56a23ba41b493cb8f0fc781e836a58950)",
-		"744f0f118ef547151afb4bb11e4b0da6206e452610a070fe47772a10e5084607"
+		"Test collection for TestCollectionFactoryBaseTests (id: 2d86aaa8c37c91ffd7aa8351081dc9cc822d8930d4b9888058a71b9876e25183)",
+		"79e637cfea518b2fa38f43d3988bd7a1630308112c312f1ad357bcc0229c76bd"
 #endif
 	)]
 	public void Defaults(

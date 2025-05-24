@@ -1,6 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <AssemblyName Condition=" '$(TargetFramework)' == 'net472' ">xunit.v3.runner.utility.netfx.x86.tests</AssemblyName>
+    <AssemblyName Condition=" '$(TargetFramework)' == 'net8.0' ">xunit.v3.runner.utility.netcore.x86.tests</AssemblyName>
     <DefineConstants>$(DefineConstants);UNIT_TEST</DefineConstants>
     <TargetFrameworks>net472;net8.0</TargetFrameworks>
   </PropertyGroup>

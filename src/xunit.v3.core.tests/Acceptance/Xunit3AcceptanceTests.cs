@@ -56,10 +56,14 @@ public class Xunit3AcceptanceTests
 				{
 					var collectionStarting = Assert.IsAssignableFrom<ITestCollectionStarting>(message);
 					Assert.Null(collectionStarting.TestCollectionClassName);
-#if BUILD_X86  // Assembly name changes for x86 testing, so that changes the ID
-					Assert.Equal($"Test collection for {typeof(SinglePassingTestClass).SafeName()} (id: 54db054978cb9e2ff055289822aa7a3be7890e656e6369c93c5ac9437858b903)", collectionStarting.TestCollectionDisplayName);
+#if BUILD_X86 && NETFRAMEWORK
+					Assert.Equal($"Test collection for {typeof(SinglePassingTestClass).SafeName()} (id: baecc5d723250b796cb1837178bce452e7c9c835e44cd84afa6886c34e29bcf3)", collectionStarting.TestCollectionDisplayName);
+#elif BUILD_X86
+					Assert.Equal($"Test collection for {typeof(SinglePassingTestClass).SafeName()} (id: 34e1c9d5446707b84ac58a7a312fbe215b2165fc84e18b10f82da86012aa9d36)", collectionStarting.TestCollectionDisplayName);
+#elif NETFRAMEWORK
+					Assert.Equal($"Test collection for {typeof(SinglePassingTestClass).SafeName()} (id: c86ca6a0bc8fae00a67ce0ec2044024f53b2b138fff360c4e0c5823b2275f0fa)", collectionStarting.TestCollectionDisplayName);
 #else
-					Assert.Equal($"Test collection for {typeof(SinglePassingTestClass).SafeName()} (id: 685938d165702e64e5ba3c42e052172b50dc14d4e497683a69d48324c1935208)", collectionStarting.TestCollectionDisplayName);
+					Assert.Equal($"Test collection for {typeof(SinglePassingTestClass).SafeName()} (id: 7eff8c323e4b45e5317effcd5e3c1d5c4b9a2561083dc0529663e94fd32dc9d0)", collectionStarting.TestCollectionDisplayName);
 #endif
 					Assert.NotEmpty(collectionStarting.TestCollectionUniqueID);
 					Assert.Equal(observedAssemblyID, collectionStarting.AssemblyUniqueID);

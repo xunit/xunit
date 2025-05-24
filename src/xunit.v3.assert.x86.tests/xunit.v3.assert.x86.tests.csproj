@@ -1,7 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net472;net6.0</TargetFrameworks>
+    <AssemblyName Condition=" '$(TargetFramework)' == 'net472' ">xunit.v3.assert.netfx.x86.tests</AssemblyName>
+    <AssemblyName Condition=" '$(TargetFramework)' == 'net8.0' ">xunit.v3.assert.netcore.x86.tests</AssemblyName>
     <!-- This is a test project, vulnerabilities here aren't shipped -->
     <NoWarn>$(NoWarn);NU1903</NoWarn>
     <TargetFrameworks>net472;net8.0</TargetFrameworks>

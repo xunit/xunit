@@ -14,9 +14,6 @@ public partial class BuildContext
 	string? docFXOutputFolder;
 	string? dotnet32Path;
 	bool dotnet32SdkInstalled;
-	string? testFlagsNonParallel;
-	string? testFlagsParallel;
-	string? testFlagsParallelMTP;
 
 	// Calculated properties
 
@@ -38,28 +35,13 @@ public partial class BuildContext
 		private set => docFXOutputFolder = value ?? throw new ArgumentNullException(nameof(DocFXOutputFolder));
 	}
 
-	public string TestFlagsNonParallel
-	{
-		get => testFlagsNonParallel ?? throw new InvalidOperationException($"Tried to retrieve unset {nameof(BuildContext)}.{nameof(TestFlagsNonParallel)}");
-		private set => testFlagsNonParallel = value ?? throw new ArgumentNullException(nameof(TestFlagsNonParallel));
-	}
-
-	public string TestFlagsParallel
-	{
-		get => testFlagsParallel ?? throw new InvalidOperationException($"Tried to retrieve unset {nameof(BuildContext)}.{nameof(TestFlagsParallel)}");
-		private set => testFlagsParallel = value ?? throw new ArgumentNullException(nameof(TestFlagsParallel));
-	}
-
-	public string TestFlagsParallelMTP
-	{
-		get => testFlagsParallelMTP ?? throw new InvalidOperationException($"Tried to retrieve unset {nameof(BuildContext)}.{nameof(TestFlagsParallelMTP)}");
-		private set => testFlagsParallelMTP = value ?? throw new ArgumentNullException(nameof(TestFlagsParallelMTP));
-	}
-
 	// User-controllable command-line options
 
 	[Option("--no-x86", Description = "Do not try to run x86 tests")]
 	public bool NoX86 { get; }
+
+	[Option("-f|--framework", Description = "Target framework for tests ('Net' = .NET; 'NetFx' = .NET Framework)")]
+	public Framework TestFramework { get; }
 
 	[Option("-3|--v3only", Description = "Only run tests for v3 projects (skip tests for v1 and v2)")]
 	public bool V3Only { get; }
@@ -80,18 +62,7 @@ public partial class BuildContext
 		ConsoleRunnerExe = Path.Combine(BaseFolder, "src", "xunit.v3.runner.console", "bin", ConfigurationText, "net472", "merged", "xunit.v3.runner.console.exe");
 		ConsoleRunner32Exe = Path.Combine(BaseFolder, "src", "xunit.v3.runner.console.x86", "bin", ConfigurationText, "net472", "merged", "xunit.v3.runner.console.x86.exe");
 
-		TestFlagsNonParallel = "-parallel none ";
-		TestFlagsParallel = "";
-		TestFlagsParallelMTP = "";
-
 		DocFXOutputFolder = Path.Combine(ArtifactsFolder, "docfx");
-
-		// Run parallelizable tests with a single thread in CI to help catch Task-related deadlocks
-		if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("CI")))
-		{
-			TestFlagsParallel = "-maxthreads 1 ";
-			TestFlagsParallelMTP = "--max-threads 1 ";
-		}
 
 		// Get the path to the 32-bit dotnet.exe, for Windows only
 		if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
