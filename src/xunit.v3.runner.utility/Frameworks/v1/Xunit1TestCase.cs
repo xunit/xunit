@@ -204,6 +204,7 @@ public sealed class Xunit1TestCase : IXunitSerializable
 			TestClassSimpleName = simpleName,
 			TestClassUniqueID = TestClassUniqueID,
 			TestCollectionUniqueID = TestCollectionUniqueID,
+			TestMethodArity = null,
 			TestMethodMetadataToken = null,
 			TestMethodName = TestMethod,
 			TestMethodParameterTypesVSTest = null,
@@ -277,6 +278,7 @@ public sealed class Xunit1TestCase : IXunitSerializable
 			TestClassSimpleName = simpleName,
 			TestClassUniqueID = TestClassUniqueID,
 			TestCollectionUniqueID = TestCollectionUniqueID,
+			TestMethodArity = null,
 			TestMethodMetadataToken = null,
 			TestMethodName = TestMethod,
 			TestMethodParameterTypesVSTest = null,
@@ -403,6 +405,7 @@ public sealed class Xunit1TestCase : IXunitSerializable
 		new TestMethodStarting()
 		{
 			AssemblyUniqueID = AssemblyUniqueID,
+			MethodArity = null,
 			MethodName = TestMethod,
 			TestClassUniqueID = TestClassUniqueID,
 			TestCollectionUniqueID = TestCollectionUniqueID,

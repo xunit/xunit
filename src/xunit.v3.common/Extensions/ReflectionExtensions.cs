@@ -62,6 +62,14 @@ public static class ReflectionExtensions
 			FindCustomAttributes(attributes, TypeHelper.GetTypeStrict(assemblyQualifiedTypeName));
 
 	/// <summary>
+	/// Gets the arity (number of generic types) of the method.
+	/// </summary>
+	public static int GetArity(this MethodInfo method) =>
+		Guard.ArgumentNotNull(method).IsGenericMethod
+			? method.GetGenericArguments().Length
+			: 0;
+
+	/// <summary>
 	/// Returns the default value for the given type. For value types, this means a 0-initialized
 	/// instance of the type; for reference types, this means <c>null</c>.
 	/// </summary>

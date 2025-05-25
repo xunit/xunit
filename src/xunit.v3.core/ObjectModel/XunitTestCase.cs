@@ -167,6 +167,10 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 		this.ValidateNullablePropertyValue(testMethodArguments, nameof(TestMethodArguments));
 
 	/// <inheritdoc/>
+	public int? TestMethodArity =>
+		TestMethod.MethodArity;
+
+	/// <inheritdoc/>
 	public int TestMethodMetadataToken =>
 		TestMethod.Method.MetadataToken;
 

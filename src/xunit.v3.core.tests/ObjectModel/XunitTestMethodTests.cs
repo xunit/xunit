@@ -29,6 +29,28 @@ public class XunitTestMethodTests
 		Assert.Equal(nameof(ClassUnderTest.Passing), testMethod.MethodName);
 	}
 
+	[Theory]
+	[InlineData(nameof(ArityTestClass.ZeroArity), 0)]
+	[InlineData(nameof(ArityTestClass.OneArity), 1)]
+	public static void MethodArity(
+		string methodName,
+		int expectedArity)
+	{
+		var testMethod = TestData.XunitTestMethod<ArityTestClass>(methodName);
+
+		Assert.Equal(expectedArity, testMethod.MethodArity);
+	}
+
+	class ArityTestClass
+	{
+		[Fact]
+		public void ZeroArity() { }
+
+		[Theory]
+		[InlineData(42)]
+		public void OneArity<T>(T _) { }
+	}
+
 	[Fact]
 	public void BeforeAfterTestAttributes()
 	{

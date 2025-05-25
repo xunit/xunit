@@ -416,6 +416,7 @@ public class Xunit2 : IFrontController
 					messageSink.OnMessage(new TestMethodStarting
 					{
 						AssemblyUniqueID = TestAssemblyUniqueID,
+						MethodArity = null,
 						MethodName = testCasesByMethod.Key,
 						TestClassUniqueID = testClassUniqueID,
 						TestCollectionUniqueID = testCollectionUniqueID,
@@ -448,6 +449,7 @@ public class Xunit2 : IFrontController
 						TestClassSimpleName = simpleName,
 						TestClassUniqueID = testClassUniqueID,
 						TestCollectionUniqueID = testCollectionUniqueID,
+						TestMethodArity = null,
 						TestMethodMetadataToken = null,
 						TestMethodName = testCasesByMethod.Key,
 						TestMethodParameterTypesVSTest = null,

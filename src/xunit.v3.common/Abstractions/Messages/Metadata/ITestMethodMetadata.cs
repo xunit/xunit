@@ -8,6 +8,13 @@ namespace Xunit.Sdk;
 public interface ITestMethodMetadata
 {
 	/// <summary>
+	/// Gets the arity (number of generic types) of the test method. May return <c>null</c> if
+	/// the arity of the test method is unknown (for example, for v1 or v2 test methods where
+	/// arity information was not collected).
+	/// </summary>
+	int? MethodArity { get; }
+
+	/// <summary>
 	/// Gets the name of the test method that is associated with this message.
 	/// </summary>
 	string MethodName { get; }

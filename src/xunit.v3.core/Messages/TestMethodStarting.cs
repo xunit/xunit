@@ -9,6 +9,9 @@ public partial class TestMethodStarting
 	IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits;
 
 	/// <inheritdoc/>
+	public required int? MethodArity { get; set; }
+
+	/// <inheritdoc/>
 	public required string MethodName
 	{
 		get => this.ValidateNullablePropertyValue(methodName, nameof(MethodName));

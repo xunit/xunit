@@ -43,6 +43,9 @@ public partial class TestCaseStarting
 	public required string? TestClassSimpleName { get; set; }
 
 	/// <inheritdoc/>
+	public required int? TestMethodArity { get; set; }
+
+	/// <inheritdoc/>
 	public required int? TestMethodMetadataToken { get; set; }
 
 	/// <inheritdoc/>

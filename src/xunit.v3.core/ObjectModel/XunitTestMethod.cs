@@ -21,6 +21,7 @@ public class XunitTestMethod : IXunitTestMethod, IXunitSerializable
 	string? uniqueID;
 
 	// Lazy accessors based on serialized values
+	readonly Lazy<int> arity;
 	readonly Lazy<IReadOnlyCollection<IBeforeAfterTestAttribute>> beforeAfterTestAttributes;
 	readonly Lazy<IReadOnlyCollection<IDataAttribute>> dataAttributes;
 	readonly Lazy<IReadOnlyCollection<IFactAttribute>> factAttributes;
@@ -33,6 +34,7 @@ public class XunitTestMethod : IXunitTestMethod, IXunitSerializable
 	[Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
 	public XunitTestMethod()
 	{
+		arity = new(() => Method.GetArity());
 		beforeAfterTestAttributes = new(() => ExtensibilityPointFactory.GetMethodBeforeAfterTestAttributes(Method, TestClass.BeforeAfterTestAttributes));
 		dataAttributes = new(() => ExtensibilityPointFactory.GetMethodDataAttributes(Method));
 		factAttributes = new(() => ExtensibilityPointFactory.GetMethodFactAttributes(Method));
@@ -83,6 +85,14 @@ public class XunitTestMethod : IXunitTestMethod, IXunitSerializable
 	/// <inheritdoc/>
 	public MethodInfo Method =>
 		this.ValidateNullablePropertyValue(method, nameof(Method));
+
+	/// <summary>
+	/// Gets the arity (number of generic types) of the test method.
+	/// </summary>
+	public int MethodArity =>
+		arity.Value;
+
+	int? ITestMethodMetadata.MethodArity => MethodArity;
 
 	/// <inheritdoc/>
 	public string MethodName =>
