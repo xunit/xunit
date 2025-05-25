@@ -169,6 +169,7 @@ public class TestPlatformExecutionMessageSinkTests
 			SendStartingMessages(classUnderTest);
 
 			classUnderTest.OnMessage(TestData.TestNotRun());
+			classUnderTest.OnMessage(TestData.TestFinished());
 
 			Assert.Empty(classUnderTest.TestNodeMessageBus.PublishedData);
 		}
@@ -180,6 +181,7 @@ public class TestPlatformExecutionMessageSinkTests
 			SendStartingMessages(classUnderTest);
 
 			classUnderTest.OnMessage(TestData.TestNotRun());
+			classUnderTest.OnMessage(TestData.TestFinished());
 
 			var testNode = AssertStandardMetadata(classUnderTest);
 			var skipped = testNode.Properties.Single<SkippedTestNodeStateProperty>();
@@ -195,6 +197,7 @@ public class TestPlatformExecutionMessageSinkTests
 			SendStartingMessages(classUnderTest, traits: trxEnabled ? TestData.DefaultTraitsWithCategory : TestData.DefaultTraits);
 
 			classUnderTest.OnMessage(TestData.TestPassed());
+			classUnderTest.OnMessage(TestData.TestFinished());
 
 			var testNode = AssertStandardMetadata(classUnderTest, expectTrx: trxEnabled);
 			var passed = testNode.Properties.Single<PassedTestNodeStateProperty>();
@@ -208,6 +211,7 @@ public class TestPlatformExecutionMessageSinkTests
 			SendStartingMessages(classUnderTest);
 
 			classUnderTest.OnMessage(TestData.TestSkipped());
+			classUnderTest.OnMessage(TestData.TestFinished());
 
 			var testNode = AssertStandardMetadata(classUnderTest);
 			var skipped = testNode.Properties.Single<SkippedTestNodeStateProperty>();
@@ -256,6 +260,7 @@ public class TestPlatformExecutionMessageSinkTests
 			SendStartingMessages(classUnderTest);
 
 			classUnderTest.OnMessage(TestData.TestPassed(warnings: ["w1", "w2"]));
+			classUnderTest.OnMessage(TestData.TestFinished());
 
 			AssertStandardMetadata(classUnderTest, expectWarnings: true);
 		}
@@ -399,16 +404,19 @@ public class TestPlatformExecutionMessageSinkTests
 
 		static void SendTestFailed(
 			TestableTestPlatformExecutionMessageSink classUnderTest,
-			FailureCause failureCause) =>
-				classUnderTest.OnMessage(
-					TestData.TestFailed(
-						cause: failureCause,
-						exceptionParentIndices: [-1, 0],
-						exceptionTypes: ["exception 1", "exception 2"],
-						messages: ["message 1", "message 2"],
-						stackTraces: ["stack trace 1", "stack trace 2"]
-					)
-				);
+			FailureCause failureCause)
+		{
+			classUnderTest.OnMessage(
+				TestData.TestFailed(
+					cause: failureCause,
+					exceptionParentIndices: [-1, 0],
+					exceptionTypes: ["exception 1", "exception 2"],
+					messages: ["message 1", "message 2"],
+					stackTraces: ["stack trace 1", "stack trace 2"]
+				)
+			);
+			classUnderTest.OnMessage(TestData.TestFinished());
+		}
 	}
 
 	class TestableTestPlatformExecutionMessageSink(

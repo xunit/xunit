@@ -58,7 +58,7 @@ public class TestPlatformExecutionMessageSink(
 
 	/// <inheritdoc/>
 	public Type[] DataTypesProduced =>
-		[typeof(TestNodeUpdateMessage), typeof(TestNodeFileArtifact)];
+		[typeof(TestNodeUpdateMessage)];
 
 	/// <inheritdoc/>
 	public bool OnMessage(IMessageSinkMessage message)
@@ -79,14 +79,14 @@ public class TestPlatformExecutionMessageSink(
 			message.DispatchWhen<ITestCollectionCleanupFailure>(args => OnTestCollectionCleanupFailure(args.Message)) &&
 			message.DispatchWhen<ITestCollectionFinished>(args => metadataCache.TryRemove(args.Message)) &&
 			message.DispatchWhen<ITestCollectionStarting>(args => metadataCache.Set(args.Message)) &&
-			message.DispatchWhen<ITestFailed>(args => SendTestResult(args.Message)) &&
+			message.DispatchWhen<ITestFailed>(args => SendTestNodeUpdate(args.Message)) &&
 			message.DispatchWhen<ITestFinished>(args => OnTestFinished(args.Message)) &&
 			message.DispatchWhen<ITestMethodCleanupFailure>(args => OnTestMethodCleanupFailure(args.Message)) &&
 			message.DispatchWhen<ITestMethodFinished>(args => metadataCache.TryRemove(args.Message)) &&
 			message.DispatchWhen<ITestMethodStarting>(args => metadataCache.Set(args.Message)) &&
-			message.DispatchWhen<ITestNotRun>(args => SendTestResult(args.Message)) &&
-			message.DispatchWhen<ITestPassed>(args => SendTestResult(args.Message)) &&
-			message.DispatchWhen<ITestSkipped>(args => SendTestResult(args.Message)) &&
+			message.DispatchWhen<ITestNotRun>(args => SendTestNodeUpdate(args.Message)) &&
+			message.DispatchWhen<ITestPassed>(args => SendTestNodeUpdate(args.Message)) &&
+			message.DispatchWhen<ITestSkipped>(args => SendTestNodeUpdate(args.Message)) &&
 			message.DispatchWhen<ITestStarting>(args => OnTestStarting(args.Message)) &&
 			message.DispatchWhen<ITestOutput>(args => OnLiveOutput(args.Message)) &&
 			result &&
@@ -138,56 +138,59 @@ public class TestPlatformExecutionMessageSink(
 	{
 		var testUniqueID = testFinished.TestUniqueID;
 
-		if (testNodesByTestID.TryRemove(testUniqueID, out var testNode) && testFinished.Attachments.Count != 0)
+		if (testNodesByTestID.TryRemove(testUniqueID, out var testNode))
 		{
-			try
-			{
-				var basePath = Path.Combine(Path.GetTempPath(), testUniqueID);
-				Directory.CreateDirectory(basePath);
-
-				foreach (var kvp in testFinished.Attachments)
+			if (testFinished.Attachments.Count != 0)
+				try
 				{
-					var localFilePath = Path.Combine(basePath, SanitizeFileName(kvp.Key));
+					var basePath = Path.Combine(Path.GetTempPath(), testUniqueID);
+					Directory.CreateDirectory(basePath);
 
-					try
+					foreach (var kvp in testFinished.Attachments)
 					{
-						var attachmentType = kvp.Value.AttachmentType;
+						var localFilePath = Path.Combine(basePath, SanitizeFileName(kvp.Key));
 
-						if (attachmentType == TestAttachmentType.String)
+						try
 						{
-							if (Path.GetExtension(localFilePath) != ".txt")
-								localFilePath += ".txt";
+							var attachmentType = kvp.Value.AttachmentType;
 
-							File.WriteAllText(localFilePath, kvp.Value.AsString());
+							if (attachmentType == TestAttachmentType.String)
+							{
+								if (Path.GetExtension(localFilePath) != ".txt")
+									localFilePath += ".txt";
+
+								File.WriteAllText(localFilePath, kvp.Value.AsString());
+							}
+							else if (attachmentType == TestAttachmentType.ByteArray)
+							{
+								var (byteArray, mediaType) = kvp.Value.AsByteArray();
+								var fileExtension = MediaTypeUtility.GetFileExtension(mediaType);
+								if (Path.GetExtension(localFilePath) != fileExtension)
+									localFilePath += fileExtension;
+
+								File.WriteAllBytes(localFilePath, byteArray);
+							}
+							else
+							{
+								outputDevice.DisplayAsync(this, ToMessageWithColor(string.Format(CultureInfo.CurrentCulture, "[{0}] Unknown test attachment type '{1}' for attachment '{2}'", testNode.DisplayName, attachmentType, kvp.Key), ConsoleColor.Yellow)).SpinWait();
+								localFilePath = null;
+							}
+
+							if (localFilePath is not null)
+								testNode.Properties.Add(new FileArtifactProperty(new FileInfo(localFilePath), kvp.Key));
 						}
-						else if (attachmentType == TestAttachmentType.ByteArray)
+						catch (Exception ex)
 						{
-							var (byteArray, mediaType) = kvp.Value.AsByteArray();
-							var fileExtension = MediaTypeUtility.GetFileExtension(mediaType);
-							if (Path.GetExtension(localFilePath) != fileExtension)
-								localFilePath += fileExtension;
-
-							File.WriteAllBytes(localFilePath, byteArray);
+							outputDevice.DisplayAsync(this, ToMessageWithColor(string.Format(CultureInfo.CurrentCulture, "[{0}] Exception while adding attachment '{1}' in '{2}': {3}", testNode.DisplayName, kvp.Key, localFilePath, ex), ConsoleColor.Yellow)).SpinWait();
 						}
-						else
-						{
-							outputDevice.DisplayAsync(this, ToMessageWithColor(string.Format(CultureInfo.CurrentCulture, "[{0}] Unknown test attachment type '{1}' for attachment '{2}'", testNode.DisplayName, attachmentType, kvp.Key), ConsoleColor.Yellow)).SpinWait();
-							localFilePath = null;
-						}
-
-						if (localFilePath is not null)
-							new TestNodeFileArtifact(sessionUid, testNode, new FileInfo(localFilePath), kvp.Key).SendArtifact(this, testNodeMessageBus);
-					}
-					catch (Exception ex)
-					{
-						outputDevice.DisplayAsync(this, ToMessageWithColor(string.Format(CultureInfo.CurrentCulture, "[{0}] Exception while adding attachment '{1}' in '{2}': {3}", testNode.DisplayName, kvp.Key, localFilePath, ex), ConsoleColor.Yellow)).SpinWait();
 					}
 				}
-			}
-			catch (Exception ex)
-			{
-				outputDevice.DisplayAsync(this, ToMessageWithColor(string.Format(CultureInfo.CurrentCulture, "[{0}] Exception while adding attachments: {1}", testNode.DisplayName, ex), ConsoleColor.Yellow)).SpinWait();
-			}
+				catch (Exception ex)
+				{
+					outputDevice.DisplayAsync(this, ToMessageWithColor(string.Format(CultureInfo.CurrentCulture, "[{0}] Exception while adding attachments: {1}", testNode.DisplayName, ex), ConsoleColor.Yellow)).SpinWait();
+				}
+
+			testNode.SendUpdate(this, sessionUid, testNodeMessageBus);
 		}
 
 		metadataCache.TryRemove(testFinished);
@@ -211,7 +214,7 @@ public class TestPlatformExecutionMessageSink(
 			testsByMethodID.TryAdd(testStarting.TestMethodUniqueID, testStarting);
 		testsByTestID.TryAdd(testStarting.TestUniqueID, testStarting);
 
-		SendTestResult(testStarting);
+		SendTestNodeUpdate(testStarting);
 	}
 
 	static string SanitizeFileName(string fileName)
@@ -242,7 +245,7 @@ public class TestPlatformExecutionMessageSink(
 		}
 	}
 
-	void SendTestResult(ITestMessage testMessage)
+	void SendTestNodeUpdate(ITestMessage testMessage)
 	{
 		// If we're running inside Visual Studio, we don't want to report the test as skipped,
 		// because we want their UI to continue to say "not run" (or report the last run status).
@@ -299,7 +302,9 @@ public class TestPlatformExecutionMessageSink(
 				result.AddTrxMetadata(testCaseMetadata, testMessage, testStarting.Traits);
 		}
 
-		result.SendUpdate(this, sessionUid, testNodeMessageBus);
+		// Don't send test results, because we need to wait for test finished for attachments
+		if (testResult is null)
+			result.SendUpdate(this, sessionUid, testNodeMessageBus);
 
 		if (testMessage is not ITestStarting)
 			testNodesByTestID.TryAdd(testMessage.TestUniqueID, result);

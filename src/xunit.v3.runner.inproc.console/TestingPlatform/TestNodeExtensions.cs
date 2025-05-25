@@ -24,6 +24,7 @@ internal static class TestNodeExtensions
 					testCase.TestClassNamespace ?? string.Empty,
 					testCase.TestClassName,
 					testCase.TestMethodName,
+					MethodArity: 0,
 					testCase.TestMethodParameterTypesVSTest ?? [],
 					testCase.TestMethodReturnTypeVSTest ?? typeof(void).ToVSTestTypeName()
 				)
@@ -78,12 +79,6 @@ internal static class TestNodeExtensions
 		if (testMessage is ITestFailed testFailed)
 			result.Properties.Add(new TrxExceptionProperty(ExceptionUtility.CombineMessages(testFailed), ExceptionUtility.CombineStackTraces(testFailed)));
 	}
-
-	public static void SendArtifact(
-		this TestNodeFileArtifact testNodeFileArtifact,
-		IDataProducer producer,
-		IMessageBus messageBus) =>
-			messageBus.PublishAsync(producer, testNodeFileArtifact).SpinWait();
 
 	public static void SendUpdate(
 		this TestNode testNode,
