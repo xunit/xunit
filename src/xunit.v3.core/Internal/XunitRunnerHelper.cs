@@ -363,6 +363,7 @@ public static class XunitRunnerHelper
 			if (!messageBus.QueueMessage(new TestMethodStarting
 			{
 				AssemblyUniqueID = assemblyUniqueID,
+				MethodArity = testCase.TestMethod.MethodArity,
 				MethodName = testCase.TestMethod.MethodName,
 				TestClassUniqueID = testClassUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID,
@@ -387,6 +388,7 @@ public static class XunitRunnerHelper
 				TestClassSimpleName = testCase.TestClassSimpleName,
 				TestClassUniqueID = testClassUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID,
+				TestMethodArity = testCase.TestMethodArity,
 				TestMethodMetadataToken = testCase.TestMethodMetadataToken,
 				TestMethodName = testCase.TestMethod?.MethodName,
 				TestMethodParameterTypesVSTest = testCase.TestMethodParameterTypesVSTest,

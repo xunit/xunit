@@ -155,6 +155,7 @@ public abstract class TestMethodRunner<TContext, TTestMethod, TTestCase>
 		return new(ctxt.MessageBus.QueueMessage(new TestMethodStarting
 		{
 			AssemblyUniqueID = ctxt.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID,
+			MethodArity = ctxt.TestMethod.MethodArity,
 			MethodName = Guard.ArgumentNotNull(ctxt).TestMethod.MethodName,
 			TestClassUniqueID = ctxt.TestMethod.TestClass.UniqueID,
 			TestCollectionUniqueID = ctxt.TestMethod.TestClass.TestCollection.UniqueID,

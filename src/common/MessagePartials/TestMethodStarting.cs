@@ -24,6 +24,7 @@ sealed partial class TestMethodStarting : TestMethodMessage, ITestMethodStarting
 
 		base.Serialize(serializer);
 
+		serializer.Serialize(nameof(MethodArity), MethodArity);
 		serializer.Serialize(nameof(MethodName), MethodName);
 		serializer.SerializeTraits(nameof(Traits), Traits);
 	}

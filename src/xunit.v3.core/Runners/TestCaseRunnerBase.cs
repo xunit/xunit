@@ -153,6 +153,7 @@ public abstract class TestCaseRunnerBase<TContext, TTestCase>
 			TestClassSimpleName = ctxt.TestCase.TestClassSimpleName,
 			TestClassUniqueID = ctxt.TestCase.TestClass?.UniqueID,
 			TestCollectionUniqueID = ctxt.TestCase.TestCollection.UniqueID,
+			TestMethodArity = ctxt.TestCase.TestMethodArity,
 			TestMethodMetadataToken = ctxt.TestCase.TestMethodMetadataToken,
 			TestMethodName = ctxt.TestCase.TestMethodName,
 			TestMethodParameterTypesVSTest = ctxt.TestCase.TestMethodParameterTypesVSTest,

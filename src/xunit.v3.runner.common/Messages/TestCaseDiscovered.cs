@@ -70,6 +70,12 @@ public partial class TestCaseDiscovered
 	/// <remarks>
 	/// Note: Will be <c>null</c> if there was no value provided during deserialization.
 	/// </remarks>
+	public required int? TestMethodArity { get; set; }
+
+	/// <inheritdoc/>
+	/// <remarks>
+	/// Note: Will be <c>null</c> if there was no value provided during deserialization.
+	/// </remarks>
 	public required int? TestMethodMetadataToken { get; set; }
 
 	/// <inheritdoc/>
@@ -113,6 +119,7 @@ public partial class TestCaseDiscovered
 		TestClassName = JsonDeserializer.TryGetString(root, nameof(TestClassName));
 		TestClassNamespace = JsonDeserializer.TryGetString(root, nameof(TestClassNamespace));
 		TestClassSimpleName = JsonDeserializer.TryGetString(root, nameof(TestClassSimpleName));
+		TestMethodArity = JsonDeserializer.TryGetInt(root, nameof(TestMethodArity));
 		TestMethodMetadataToken = JsonDeserializer.TryGetInt(root, nameof(TestMethodMetadataToken));
 		TestMethodName = JsonDeserializer.TryGetString(root, nameof(TestMethodName));
 		TestMethodParameterTypesVSTest = JsonDeserializer.TryGetArrayOfString(root, nameof(TestMethodParameterTypesVSTest));

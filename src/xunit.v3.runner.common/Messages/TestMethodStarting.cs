@@ -8,6 +8,12 @@ public partial class TestMethodStarting
 {
 	/// <inheritdoc/>
 	/// <remarks>
+	/// Note: Will be <c>null</c> if there was no value provided during deserialization.
+	/// </remarks>
+	public required int? MethodArity { get; set; }
+
+	/// <inheritdoc/>
+	/// <remarks>
 	/// Note: Will be <see cref="MessageSinkMessage.UnsetStringPropertyValue"/> if there was no value provided during deserialization.
 	/// </remarks>
 	public required string MethodName { get; set; } = UnsetStringPropertyValue;
@@ -25,6 +31,7 @@ public partial class TestMethodStarting
 
 		base.Deserialize(root);
 
+		MethodArity = JsonDeserializer.TryGetInt(root, nameof(MethodArity));
 		MethodName = JsonDeserializer.TryGetString(root, nameof(MethodName)) ?? MethodName;
 		Traits = JsonDeserializer.TryGetTraits(root, nameof(Traits)) ?? Traits;
 	}

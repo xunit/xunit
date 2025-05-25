@@ -31,6 +31,28 @@ public class XunitTestCaseTests
 	}
 
 	[Theory]
+	[InlineData(nameof(ArityTestClass<int, long>.ZeroArity), 0)]
+	[InlineData(nameof(ArityTestClass<int, long>.OneArity), 1)]
+	public static void TestMethodArity(
+		string methodName,
+		int expectedArity)
+	{
+		var testMethod = TestData.XunitTestCase<ArityTestClass<int, long>>(methodName);
+
+		Assert.Equal(expectedArity, testMethod.TestMethodArity);
+	}
+
+	class ArityTestClass<X, Y>
+	{
+		[Fact]
+		public void ZeroArity() { }
+
+		[Theory]
+		[InlineData(42)]
+		public void OneArity<T>(T _) { }
+	}
+
+	[Theory]
 	[InlineData(null, null)]
 	[InlineData("skipUnless", null)]
 	[InlineData(null, "skipWhen")]

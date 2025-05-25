@@ -380,6 +380,7 @@ public static partial class TestData
 			type.Name,
 			testClassUniqueID,
 			DefaultTestCollectionUniqueID,
+			methodInfo.GetArity(),
 			methodInfo.MetadataToken,
 			testMethod,
 			methodInfo.GetParameters().Select(p => p.ParameterType.ToVSTestTypeName()).ToArray(),
@@ -404,6 +405,7 @@ public static partial class TestData
 		string? testClassSimpleName = null,
 		string? testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
+		int? testMethodArity = null,
 		int? testMethodMetadataToken = null,
 		string? testMethodName = null,
 		string[]? testMethodParameterTypesVSTest = null,
@@ -426,6 +428,7 @@ public static partial class TestData
 				TestClassSimpleName = testClassSimpleName,
 				TestClassUniqueID = testClassUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID,
+				TestMethodArity = testMethodArity,
 				TestMethodMetadataToken = testMethodMetadataToken,
 				TestMethodName = testMethodName,
 				TestMethodParameterTypesVSTest = testMethodParameterTypesVSTest ?? [],
@@ -490,6 +493,7 @@ public static partial class TestData
 			type.Name,
 			testClassUniqueID,
 			DefaultTestCollectionUniqueID,
+			methodInfo.GetArity(),
 			methodInfo.MetadataToken,
 			testMethod,
 			methodInfo.GetParameters().Select(p => p.ParameterType.ToVSTestTypeName()).ToArray(),
@@ -513,6 +517,7 @@ public static partial class TestData
 		string? testClassSimpleName = DefaultTestClassSimpleName,
 		string? testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
+		int? testMethodArity = null,
 		int? testMethodMetadataToken = 2112,
 		string? testMethodName = DefaultMethodName,
 		string[]? testMethodParameterTypesVSTest = null,
@@ -534,6 +539,7 @@ public static partial class TestData
 				TestClassSimpleName = testClassSimpleName,
 				TestClassUniqueID = testClassUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID,
+				TestMethodArity = testMethodArity,
 				TestMethodMetadataToken = testMethodMetadataToken,
 				TestMethodName = testMethodName,
 				TestMethodParameterTypesVSTest = testMethodParameterTypesVSTest ?? DefaultMethodParameterTypes,
@@ -870,6 +876,7 @@ public static partial class TestData
 
 	public static ITestMethodStarting TestMethodStarting(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
+		int? methodArity = null,
 		string methodName = DefaultMethodName,
 		string testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
@@ -878,6 +885,7 @@ public static partial class TestData
 			new Xunit.Runner.Common.TestMethodStarting()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
+				MethodArity = methodArity,
 				MethodName = methodName,
 				TestClassUniqueID = testClassUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID,

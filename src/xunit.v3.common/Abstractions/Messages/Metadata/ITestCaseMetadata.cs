@@ -71,6 +71,12 @@ public interface ITestCaseMetadata
 	string? TestClassSimpleName { get; }
 
 	/// <summary>
+	/// Gets the arity (number of generic types) on the method itself. If the test did not originate
+	/// in a method, will return <c>null</c>.
+	/// </summary>
+	int? TestMethodArity { get; }
+
+	/// <summary>
 	/// Gets the <see cref="MemberInfo.MetadataToken"/> for the test method. If the test did not
 	/// originate in a method, or the test framework did not provide this information, will return <c>null</c>.
 	/// </summary>

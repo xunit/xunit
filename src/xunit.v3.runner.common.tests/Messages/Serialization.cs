@@ -151,6 +151,7 @@ public class Serialization
 			TestClassSimpleName = "test-class",
 			TestClassUniqueID = "class-id",
 			TestCollectionUniqueID = "collection-id",
+			TestMethodArity = 4224,
 			TestMethodMetadataToken = 2112,
 			TestMethodName = "test-method",
 			TestMethodParameterTypesVSTest = ["System.Int32", "System.String"],
@@ -186,6 +187,7 @@ public class Serialization
 			TestClassSimpleName = "test-class",
 			TestClassUniqueID = "class-id",
 			TestCollectionUniqueID = "collection-id",
+			TestMethodArity = 4224,
 			TestMethodMetadataToken = 2112,
 			TestMethodName = "test-method",
 			TestMethodParameterTypesVSTest = ["System.Int32", "System.String"],
@@ -362,6 +364,7 @@ public class Serialization
 		new TestMethodStarting
 		{
 			AssemblyUniqueID = "asm-id",
+			MethodArity = 4224,
 			MethodName = "test-method",
 			TestClassUniqueID = "class-id",
 			TestCollectionUniqueID = "collection-id",

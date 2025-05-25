@@ -284,6 +284,7 @@ public class Xunit2MessageAdapter(
 			TestClassNamespace = @namespace,
 			TestClassSimpleName = simpleName,
 			TestClassUniqueID = testClassUniqueID,
+			TestMethodArity = null,
 			TestMethodMetadataToken = null,
 			TestMethodName = testCase.TestMethod?.Method.Name,
 			TestMethodParameterTypesVSTest = null,
@@ -345,6 +346,7 @@ public class Xunit2MessageAdapter(
 			TestClassSimpleName = simpleName,
 			TestClassUniqueID = testClassUniqueID,
 			TestCollectionUniqueID = testCollectionUniqueID,
+			TestMethodArity = null,
 			TestMethodMetadataToken = null,
 			TestMethodName = message.TestCase.TestMethod?.Method.Name,
 			TestMethodParameterTypesVSTest = null,
@@ -655,6 +657,7 @@ public class Xunit2MessageAdapter(
 		return new TestMethodStarting()
 		{
 			AssemblyUniqueID = assemblyUniqueID,
+			MethodArity = null,
 			MethodName = message.TestMethod.Method.Name,
 			TestCollectionUniqueID = testCollectionUniqueID,
 			TestClassUniqueID = testClassUniqueID,

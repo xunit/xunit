@@ -24,7 +24,7 @@ internal static class TestNodeExtensions
 					testCase.TestClassNamespace ?? string.Empty,
 					testCase.TestClassName,
 					testCase.TestMethodName,
-					MethodArity: 0,
+					testCase.TestMethodArity ?? 0,
 					testCase.TestMethodParameterTypesVSTest ?? [],
 					testCase.TestMethodReturnTypeVSTest ?? typeof(void).ToVSTestTypeName()
 				)
