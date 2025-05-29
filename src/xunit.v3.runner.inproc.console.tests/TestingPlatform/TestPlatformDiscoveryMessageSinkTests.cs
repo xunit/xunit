@@ -47,11 +47,11 @@ public class TestPlatformDiscoveryMessageSinkTests
 			var discovered = TestData.TestCaseDiscovered(
 				sourceFilePath: "/path/to/file.cs",
 				sourceLineNumber: 42,
-				testClassName: "test-class",
+				testClassNamespace: "ns",
+				testClassSimpleName: "test-class",
 				testMethodName: "test-method",
 				testMethodParameterTypesVSTest: ["System.Int32", "System.String"],
 				testMethodReturnTypeVSTest: "System.Void",
-				testClassNamespace: "ns",
 				traits: TestData.DefaultTraits
 			);
 			var classUnderTest = TestableTestPlatformDiscoveryMessageSink.Create();
