@@ -251,8 +251,10 @@ public class TestPlatformTestFramework :
 				ConfigReader_Json.Load(projectAssembly.Configuration, projectAssembly.AssemblyFileName, projectAssembly.ConfigFileName);
 				project.Add(projectAssembly);
 
-				// Read command line options
-				CommandLineOptionsProvider.Parse(serviceProvider.GetConfiguration(), commandLineOptions, projectAssembly);
+				// Read configuration and command line options
+				var configuration = serviceProvider.GetConfiguration();
+				TestConfig.Parse(configuration, projectAssembly);
+				CommandLineOptionsProvider.Parse(configuration, commandLineOptions, projectAssembly);
 
 				// Get a diagnostic message sink
 				var diagnosticMessages = projectAssembly.Configuration.DiagnosticMessagesOrDefault;
