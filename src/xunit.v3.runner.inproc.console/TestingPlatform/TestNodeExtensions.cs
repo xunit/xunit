@@ -17,12 +17,12 @@ internal static class TestNodeExtensions
 		ITestResultMessage? testResult = null,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null)
 	{
-		if (testCase.TestClassName is not null && testCase.TestMethodName is not null)
+		if (testCase.TestClassSimpleName is not null && testCase.TestMethodName is not null)
 			result.Properties.Add(
 				new TestMethodIdentifierProperty(
 					assemblyFullName,
 					testCase.TestClassNamespace ?? string.Empty,
-					testCase.TestClassName,
+					testCase.TestClassSimpleName,
 					testCase.TestMethodName,
 					testCase.TestMethodArity ?? 0,
 					testCase.TestMethodParameterTypesVSTest ?? [],

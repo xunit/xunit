@@ -306,7 +306,7 @@ public class TestPlatformExecutionMessageSinkTests
 			Assert.Equal(TestData.DefaultTestClassNamespace, testMethod.Namespace);
 			Assert.Equivalent(TestData.DefaultMethodParameterTypes, testMethod.ParameterTypeFullNames);
 			Assert.Equal(TestData.DefaultMethodReturnType, testMethod.ReturnTypeFullName);
-			Assert.Equal(TestData.DefaultTestClassName, testMethod.TypeName);
+			Assert.Equal(TestData.DefaultTestClassSimpleName, testMethod.TypeName);
 
 			var testLocation = testNode.Properties.Single<TestFileLocationProperty>();
 			Assert.Equal("/source/file/path.cs", testLocation.FilePath);
