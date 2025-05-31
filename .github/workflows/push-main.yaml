@@ -34,9 +34,6 @@ jobs:
         run: dotnet --info
         continue-on-error: true
 
-      - name: Switch to detached HEAD
-        run: "git switch --detach HEAD ; git submodule foreach 'git switch --detach HEAD'"
-
       - name: "Build target: BuildAll & DocFX & PublishPackages"
         env:
           PUSH_APIKEY: ${{ secrets.PUSH_APIKEY }}
