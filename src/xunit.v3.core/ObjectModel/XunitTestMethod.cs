@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Xunit.Internal;
 using Xunit.Sdk;
 
@@ -141,12 +143,30 @@ public class XunitTestMethod : IXunitTestMethod, IXunitSerializable
 			method = method.MakeGenericMethod(genericArguments);
 	}
 
-	/// <inheritdoc/>
+	/// <summary>
+	/// Please use the version which accepts label. This overload will be removed in the next major version.
+	/// </summary>
+	[EditorBrowsable(EditorBrowsableState.Never)]
+	[OverloadResolutionPriority(-1)]
+	[Obsolete("Please use the version which accepts label. This overload will be removed in the next major version.")]
 	public string GetDisplayName(
 		string baseDisplayName,
 		object?[]? testMethodArguments,
 		Type[]? methodGenericTypes) =>
-			Method.GetDisplayNameWithArguments(baseDisplayName, testMethodArguments, methodGenericTypes);
+			GetDisplayName(baseDisplayName, label: null, testMethodArguments, methodGenericTypes);
+
+	/// <inheritdoc/>
+	public string GetDisplayName(
+		string baseDisplayName,
+		string? label,
+		object?[]? testMethodArguments,
+		Type[]? methodGenericTypes) =>
+			label switch
+			{
+				null => Method.GetDisplayNameWithArguments(baseDisplayName, testMethodArguments, methodGenericTypes),
+				"" => baseDisplayName,
+				_ => string.Format(CultureInfo.CurrentCulture, "{0} [{1}]", baseDisplayName, label),
+			};
 
 	/// <inheritdoc/>
 	public MethodInfo MakeGenericMethod(Type[] genericTypes) =>

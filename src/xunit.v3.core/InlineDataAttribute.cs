@@ -33,6 +33,7 @@ public sealed class InlineDataAttribute(params object?[]? data) : DataAttribute
 			new TheoryDataRow(Data)
 			{
 				Explicit = ExplicitAsNullable,
+				Label = Label,
 				Skip = Skip,
 				TestDisplayName = TestDisplayName,
 				Timeout = TimeoutAsNullable,

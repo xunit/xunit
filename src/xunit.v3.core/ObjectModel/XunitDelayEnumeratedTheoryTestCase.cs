@@ -114,7 +114,7 @@ public class XunitDelayEnumeratedTheoryTestCase : XunitTestCase, IXunitDelayEnum
 				convertedDataRow = TypeHelper.ConvertArguments(convertedDataRow, parameterTypes);
 
 				var baseDisplayName = dataRow.TestDisplayName ?? dataAttribute.TestDisplayName ?? TestCaseDisplayName;
-				var theoryDisplayName = testMethod.GetDisplayName(baseDisplayName, convertedDataRow, resolvedTypes);
+				var theoryDisplayName = testMethod.GetDisplayName(baseDisplayName, dataRow.Label, convertedDataRow, resolvedTypes);
 				var traits = TestIntrospectionHelper.GetTraits(testMethod, dataRow);
 				var timeout = dataRow.Timeout ?? dataAttribute.Timeout ?? Timeout;
 				var skipReason = dataRow.Skip ?? dataAttribute.Skip ?? SkipReason;

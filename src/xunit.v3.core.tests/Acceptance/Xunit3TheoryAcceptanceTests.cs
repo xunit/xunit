@@ -700,6 +700,65 @@ public class Xunit3TheoryAcceptanceTests
 		[Theory]
 		[InlineData(true)]
 		[InlineData(false)]
+		public async ValueTask LabelAcceptanceTests(bool preEnumerateTheories)
+		{
+			var testMessages = await RunForResultsAsync(typeof(ClassUnderTest_LabelAcceptanceTests), preEnumerateTheories);
+
+			Assert.Collection(
+				testMessages.OfType<TestPassedWithDisplayName>().OrderBy(x => x.TestDisplayName),
+				passed => Assert.Equal($"{typeof(ClassUnderTest_LabelAcceptanceTests).FullName}.{nameof(ClassUnderTest_LabelAcceptanceTests.TestMethod_Inline)} [Custom inline]", passed.TestDisplayName),
+				passed => Assert.Equal($"{typeof(ClassUnderTest_LabelAcceptanceTests).FullName}.{nameof(ClassUnderTest_LabelAcceptanceTests.TestMethod_Inline)}(x: 42, _: \"Inline unset\")", passed.TestDisplayName),
+				passed => Assert.Equal($"{typeof(ClassUnderTest_LabelAcceptanceTests).FullName}.{nameof(ClassUnderTest_LabelAcceptanceTests.TestMethod_Member)} [Custom member]", passed.TestDisplayName),
+				passed => Assert.Equal($"{typeof(ClassUnderTest_LabelAcceptanceTests).FullName}.{nameof(ClassUnderTest_LabelAcceptanceTests.TestMethod_Member)}(x: 42, _: \"Member unset\")", passed.TestDisplayName),
+				passed => Assert.Equal($"{typeof(ClassUnderTest_LabelAcceptanceTests).FullName}.{nameof(ClassUnderTest_LabelAcceptanceTests.TestMethod_MemberWithBaseLabel)} [Base label]", passed.TestDisplayName),
+				passed => Assert.Equal($"{typeof(ClassUnderTest_LabelAcceptanceTests).FullName}.{nameof(ClassUnderTest_LabelAcceptanceTests.TestMethod_MemberWithBaseLabel)} [Custom member]", passed.TestDisplayName)
+			);
+			Assert.Collection(
+				testMessages.OfType<TestFailedWithDisplayName>().OrderBy(x => x.TestDisplayName),
+				failed => Assert.Equal($"{typeof(ClassUnderTest_LabelAcceptanceTests).FullName}.{nameof(ClassUnderTest_LabelAcceptanceTests.TestMethod_Inline)}", failed.TestDisplayName),
+				failed => Assert.Equal($"{typeof(ClassUnderTest_LabelAcceptanceTests).FullName}.{nameof(ClassUnderTest_LabelAcceptanceTests.TestMethod_Member)}", failed.TestDisplayName),
+				failed => Assert.Equal($"{typeof(ClassUnderTest_LabelAcceptanceTests).FullName}.{nameof(ClassUnderTest_LabelAcceptanceTests.TestMethod_MemberWithBaseLabel)}", failed.TestDisplayName)
+			);
+			Assert.Empty(testMessages.OfType<TestSkippedWithDisplayName>());
+			Assert.Empty(testMessages.OfType<TestNotRunWithDisplayName>());
+		}
+
+		class ClassUnderTest_LabelAcceptanceTests
+		{
+			public static TheoryDataRow<int, string>[] MemberDataSource =
+			[
+				new(42, "Member unset"),
+				new(0, "Member empty") { Label = "" },
+				new(2112, "Member set") { Label = "Custom member" },
+			];
+
+			[Theory]
+			[InlineData(42, "Inline unset")]
+			[InlineData(0, "Inline empty", Label = "")]
+			[InlineData(2112, "Inline set", Label = "Custom inline")]
+			public void TestMethod_Inline(int x, string _)
+			{
+				Assert.NotEqual(0, x);
+			}
+
+			[Theory]
+			[MemberData(nameof(MemberDataSource))]
+			public void TestMethod_Member(int x, string _)
+			{
+				Assert.NotEqual(0, x);
+			}
+
+			[Theory]
+			[MemberData(nameof(MemberDataSource), Label = "Base label")]
+			public void TestMethod_MemberWithBaseLabel(int x, string _)
+			{
+				Assert.NotEqual(0, x);
+			}
+		}
+
+		[Theory]
+		[InlineData(true)]
+		[InlineData(false)]
 		public async ValueTask SkipAcceptanceTest(bool preEnumerateTheories)
 		{
 			var testMessages = await RunForResultsAsync(typeof(ClassUnderTest_SkipTests), preEnumerateTheories);

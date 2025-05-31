@@ -511,7 +511,7 @@ public static partial class Mocks
 		result.TestMethodArguments.Returns(testMethodArguments ?? []);
 		result.Traits.Returns(traits);
 		result.UniqueID.Returns(uniqueID);
-		result.GetDisplayName("", null, null).ReturnsForAnyArgs(args => displayName ?? args.Arg<string>());
+		result.GetDisplayName("", null, null, null).ReturnsForAnyArgs(args => displayName ?? (string)args[0]);
 		// No simple way to implement these, so throw for now until we find a test that needs them
 		result.MakeGenericMethod([]).ThrowsForAnyArgs(new InvalidOperationException("Using IXunitTestMethod.MakeGenericMethod while testing is prohibited"));
 		result.ResolveGenericTypes([]).ThrowsForAnyArgs(new InvalidOperationException("Using IXunitTestMethod.ResolveGenericTypes while testing is prohibited"));

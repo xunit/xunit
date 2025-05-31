@@ -17,6 +17,9 @@ public abstract class TheoryDataRowBase : ITheoryDataRow
 	public bool? Explicit { get; set; }
 
 	/// <inheritdoc/>
+	public string? Label { get; set; }
+
+	/// <inheritdoc/>
 	public string? Skip { get; set; }
 
 	/// <inheritdoc/>

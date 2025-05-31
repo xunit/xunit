@@ -64,9 +64,14 @@ public interface IXunitTestMethod : ITestMethod
 	/// Gets the display name for the test method, factoring in arguments and generic types.
 	/// </summary>
 	/// <param name="baseDisplayName">The base display name.</param>
+	/// <param name="label">The label for the test display name.</param>
 	/// <param name="testMethodArguments">The test method arguments.</param>
 	/// <param name="methodGenericTypes">The generic types of the method.</param>
-	string GetDisplayName(string baseDisplayName, object?[]? testMethodArguments, Type[]? methodGenericTypes);
+	string GetDisplayName(
+		string baseDisplayName,
+		string? label,
+		object?[]? testMethodArguments,
+		Type[]? methodGenericTypes);
 
 	/// <summary>
 	/// Creates a generic version of the test method with the given generic types.
