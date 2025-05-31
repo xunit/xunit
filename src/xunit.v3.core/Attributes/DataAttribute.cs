@@ -55,6 +55,9 @@ public abstract class DataAttribute : Attribute, IDataAttribute
 	protected bool? ExplicitAsNullable { get; set; }
 
 	/// <inheritdoc/>
+	public string? Label { get; set; }
+
+	/// <inheritdoc/>
 	public string? Skip { get; set; }
 
 	// TODO: We don't have SkipType/SkipUnless/SkipWhen here, should we? We'd need to plumb
@@ -116,6 +119,7 @@ public abstract class DataAttribute : Attribute, IDataAttribute
 			return new TheoryDataRow(theoryDataRow.GetData())
 			{
 				Explicit = theoryDataRow.Explicit ?? ExplicitAsNullable,
+				Label = theoryDataRow.Label ?? Label,
 				Skip = theoryDataRow.Skip ?? Skip,
 				TestDisplayName = theoryDataRow.TestDisplayName ?? TestDisplayName,
 				Timeout = theoryDataRow.Timeout ?? TimeoutAsNullable,
@@ -130,6 +134,7 @@ public abstract class DataAttribute : Attribute, IDataAttribute
 			return new TheoryDataRow(array)
 			{
 				Explicit = ExplicitAsNullable,
+				Label = Label,
 				Skip = Skip,
 				TestDisplayName = TestDisplayName,
 				Timeout = TimeoutAsNullable,
@@ -151,6 +156,7 @@ public abstract class DataAttribute : Attribute, IDataAttribute
 					return new TheoryDataRow(data)
 					{
 						Explicit = ExplicitAsNullable,
+						Label = Label,
 						Skip = Skip,
 						TestDisplayName = TestDisplayName,
 						Timeout = TimeoutAsNullable,

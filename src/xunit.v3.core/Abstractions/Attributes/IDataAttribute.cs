@@ -21,6 +21,17 @@ public interface IDataAttribute
 	bool? Explicit { get; }
 
 	/// <summary>
+	/// Gets the label to use for the data row. This value is used to help format the display name
+	/// of the test.
+	/// </summary>
+	/// <remarks>
+	/// * If the value is <c>null</c> (or not set), use the default behavior: <c>MethodName(...argument list...)</c><br/>
+	/// * If the value is an empty string, use just the method name: <c>MethodName</c><br/>
+	/// * For any other values, appends the label: <c>MethodName [label]</c>
+	/// </remarks>
+	string? Label { get; }
+
+	/// <summary>
 	/// Gets a skip reason for all the data rows provided by this data provider. If
 	/// not <c>null</c>, then all rows will be skipped with the given reason; if <c>null</c>,
 	/// then the rows will inherit their skip reason from <see cref="IFactAttribute.Skip"/>.

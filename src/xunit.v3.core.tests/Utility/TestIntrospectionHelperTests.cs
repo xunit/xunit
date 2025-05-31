@@ -22,8 +22,9 @@ public class TestIntrospectionHelperTests
 	) _GetTestCaseDetails(
 		ITestFrameworkDiscoveryOptions discoveryOptions,
 		IXunitTestMethod testMethod,
-		object?[]? testMethodArguments = null) =>
-			TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, testMethod.FactAttributes.First(), testMethodArguments);
+		object?[]? testMethodArguments = null,
+		string? label = null) =>
+			TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, testMethod.FactAttributes.First(), testMethodArguments, label: label);
 
 	public class GuardClauses
 	{
@@ -126,14 +127,19 @@ public class TestIntrospectionHelperTests
 			Assert.Equal("Custom Display Name", details.TestCaseDisplayName);
 		}
 
-		[Fact]
-		public void CustomDisplayNameWithArguments()
+		[Theory]
+		[InlineData(null, "(_1: 42, _2: \"Hello, world!\", _3: 'A')")]
+		[InlineData("", "")]
+		[InlineData("Custom label", " [Custom label]")]
+		public void CustomDisplayNameWithArguments(
+			string? label,
+			string expectedDisplayNameSuffix)
 		{
 			var testMethod = TestData.XunitTestMethod<CustomDisplayNameWithArgumentsTestClass>(nameof(CustomDisplayNameWithArgumentsTestClass.TestMethod));
 
-			var details = _GetTestCaseDetails(discoveryOptions, testMethod, [42, "Hello, world!", 'A']);
+			var details = _GetTestCaseDetails(discoveryOptions, testMethod, [42, "Hello, world!", 'A'], label);
 
-			Assert.Equal("Custom Display Name(_1: 42, _2: \"Hello, world!\", _3: 'A')", details.TestCaseDisplayName);
+			Assert.Equal("Custom Display Name" + expectedDisplayNameSuffix, details.TestCaseDisplayName);
 		}
 
 		[Fact]

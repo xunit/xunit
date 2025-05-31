@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using Xunit.Internal;
 using Xunit.Sdk;
 
@@ -14,15 +16,11 @@ namespace Xunit.v3;
 public static class TestIntrospectionHelper
 {
 	/// <summary>
-	/// Retrieve the details for a test case that is a test method decorated with an
-	/// instance of <see cref="IFactAttribute"/> (or derived).
+	/// Please use the version which accepts label. This overload will be removed in the next major version.
 	/// </summary>
-	/// <param name="discoveryOptions">The options used for discovery.</param>
-	/// <param name="testMethod">The test method.</param>
-	/// <param name="factAttribute">The fact attribute that decorates the test method.</param>
-	/// <param name="testMethodArguments">The optional test method arguments.</param>
-	/// <param name="timeout">The optional timeout; if not provided, will be looked up from the <paramref name="factAttribute"/>.</param>
-	/// <param name="baseDisplayName">The optional base display name for the test method.</param>
+	[EditorBrowsable(EditorBrowsableState.Never)]
+	[OverloadResolutionPriority(-1)]
+	[Obsolete("Please use the version which accepts label. This overload will be removed in the next major version.")]
 	public static (
 		string TestCaseDisplayName,
 		bool Explicit,
@@ -40,7 +38,39 @@ public static class TestIntrospectionHelper
 		IFactAttribute factAttribute,
 		object?[]? testMethodArguments = null,
 		int? timeout = null,
-		string? baseDisplayName = null)
+		string? baseDisplayName = null) =>
+			GetTestCaseDetails(discoveryOptions, testMethod, factAttribute, testMethodArguments, timeout, baseDisplayName, label: null);
+
+	/// <summary>
+	/// Retrieve the details for a test case that is a test method decorated with an
+	/// instance of <see cref="IFactAttribute"/> (or derived).
+	/// </summary>
+	/// <param name="discoveryOptions">The options used for discovery.</param>
+	/// <param name="testMethod">The test method.</param>
+	/// <param name="factAttribute">The fact attribute that decorates the test method.</param>
+	/// <param name="testMethodArguments">The optional test method arguments.</param>
+	/// <param name="timeout">The optional timeout; if not provided, will be looked up from the <paramref name="factAttribute"/>.</param>
+	/// <param name="baseDisplayName">The optional base display name for the test method.</param>
+	/// <param name="label">The optional label to be used to help format the test case display name.</param>
+	public static (
+		string TestCaseDisplayName,
+		bool Explicit,
+		Type[]? SkipExceptions,
+		string? SkipReason,
+		Type? SkipType,
+		string? SkipUnless,
+		string? SkipWhen,
+		int Timeout,
+		string UniqueID,
+		IXunitTestMethod ResolvedTestMethod
+	) GetTestCaseDetails(
+		ITestFrameworkDiscoveryOptions discoveryOptions,
+		IXunitTestMethod testMethod,
+		IFactAttribute factAttribute,
+		object?[]? testMethodArguments = null,
+		int? timeout = null,
+		string? baseDisplayName = null,
+		string? label = null)
 	{
 		Guard.ArgumentNotNull(discoveryOptions);
 		Guard.ArgumentNotNull(testMethod);
@@ -67,7 +97,7 @@ public static class TestIntrospectionHelper
 				testMethod = new XunitTestMethod(testMethod.TestClass, testMethod.MakeGenericMethod(methodGenericTypes), testMethodArguments);
 		}
 
-		var testCaseDisplayName = testMethod.GetDisplayName(baseDisplayName, testMethodArguments, methodGenericTypes);
+		var testCaseDisplayName = testMethod.GetDisplayName(baseDisplayName, label, testMethodArguments, methodGenericTypes);
 		var uniqueID = UniqueIDGenerator.ForTestCase(testMethod.UniqueID, methodGenericTypes, testMethodArguments);
 
 		return (
@@ -118,7 +148,7 @@ public static class TestIntrospectionHelper
 		Guard.ArgumentNotNull(dataRow);
 		Guard.ArgumentNotNull(testMethodArguments);
 
-		var result = GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute, testMethodArguments, dataRow.Timeout, dataRow.TestDisplayName);
+		var result = GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute, testMethodArguments, dataRow.Timeout, dataRow.TestDisplayName, dataRow.Label);
 
 		if (dataRow.Explicit.HasValue)
 			result.Explicit = dataRow.Explicit.Value;

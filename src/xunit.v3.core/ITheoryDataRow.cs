@@ -16,6 +16,17 @@ public interface ITheoryDataRow
 	bool? Explicit { get; }
 
 	/// <summary>
+	/// Gets the label to use for the data row. This value is used to help format the display name
+	/// of the test.
+	/// </summary>
+	/// <remarks>
+	/// * If the value is <c>null</c> (or not set), use the default behavior: <c>MethodName(...argument list...)</c><br/>
+	/// * If the value is an empty string, use just the method name: <c>MethodName</c><br/>
+	/// * For any other values, appends the label: <c>MethodName [label]</c>
+	/// </remarks>
+	string? Label { get; }
+
+	/// <summary>
 	/// Gets the reason for skipping this row of data; if <c>null</c> is returned, then the data
 	/// row isn't skipped.
 	/// </summary>
