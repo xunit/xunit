@@ -26,11 +26,11 @@
     <!-- Used by xunit.v3.core for IAsyncDisposable -->
     <Microsoft_Bcl_AsyncInterfaces_Version>6.0.0</Microsoft_Bcl_AsyncInterfaces_Version>
 
+    <!-- Used by xunit.v3.runner.common to determine the target framework of an assembly without load-locking it -->
+    <Mono_Cecil_Version>0.11.6</Mono_Cecil_Version>
+
     <!-- Used by xunit.v3.runner.msbuild to reference MSBuild types -->
     <Microsoft_Build_Tasks_Core_Version>16.11.6</Microsoft_Build_Tasks_Core_Version>
-
-    <!-- Used by xunit.v3.runner.utility to determine the target framework of an assembly without load-locking it -->
-    <Mono_Cecil_Version>0.11.6</Mono_Cecil_Version>
 
     <!-- Used by xunit.v3.runner.utility to support running v2 test projects -->
     <xunit_abstractions_Version>2.0.3</xunit_abstractions_Version>
