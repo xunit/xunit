@@ -8,9 +8,4 @@
     <TargetFrameworks>net472;net8.0</TargetFrameworks>
   </PropertyGroup>
 
-  <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' != '.NETCoreApp' ">
-    <PackageReference Include="System.Collections.Immutable" Version="[$(System_Collections_Immutable_Version)]" />
-    <PackageReference Include="System.Memory" Version="[$(System_Memory_Version)]" />
-  </ItemGroup>
-
 </Project>
