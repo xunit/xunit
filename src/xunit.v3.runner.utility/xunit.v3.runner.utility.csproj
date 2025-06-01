@@ -10,6 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="$(System_Runtime_CompilerServices_Unsafe_Version)" />
     <PackageReference Include="xunit.abstractions" Version="$(xunit_abstractions_Version)" />
   </ItemGroup>
 

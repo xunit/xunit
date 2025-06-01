@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <PackageReference Include="Mono.Cecil" Version="$(Mono_Cecil_Version)" PrivateAssets="all" />
+    <PackageReference Include="System.Reflection.Metadata" Version="$(System_Reflection_Metadata_Version)" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
@@ -33,7 +34,11 @@
 
   <Target Name="PreILRepack" BeforeTargets="ILRepack" DependsOnTargets="Build">
     <ItemGroup>
-      <ILRepackExclusions Include="$(OutputPath)xunit.*.dll;$(OutputPath)Microsoft.*.dll;$(OutputPath)System.*.dll" />
+      <ILRepackExclusions
+        Include="$(OutputPath)xunit.*.dll;
+                 $(OutputPath)Microsoft.Bcl.AsyncInterfaces.dll;
+                 $(OutputPath)System.Runtime.CompilerServices.Unsafe.dll;
+                 $(OutputPath)System.Threading.Tasks.Extensions.dll" />
     </ItemGroup>
   </Target>
 

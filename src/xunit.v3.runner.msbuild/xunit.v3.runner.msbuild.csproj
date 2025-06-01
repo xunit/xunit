@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Build.Tasks.Core" Version="[$(Microsoft_Build_Tasks_Core_Version)]" />
+    <PackageReference Include="System.Collections.Immutable" Version="$(System_Collections_Immutable_Version)" />
   </ItemGroup>
 
   <Target Name="PreILRepack" BeforeTargets="ILRepack" DependsOnTargets="Build">

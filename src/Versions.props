@@ -19,8 +19,11 @@
     <xunit_analyzers_Version>1.21.0</xunit_analyzers_Version>
     <xunit_runner_visualstudio_Version>3.1.0</xunit_runner_visualstudio_Version>
 
-    <!-- Used by xunit.v3.assert for immutable collection and memory/span support -->
+    <!-- Used by multiple projects to unify .NET and .NET Framework dependencies -->
     <System_Collections_Immutable_Version>6.0.0</System_Collections_Immutable_Version>
+    <System_Runtime_CompilerServices_Unsafe_Version>6.0.0</System_Runtime_CompilerServices_Unsafe_Version>
+
+    <!-- Used by xunit.v3.assert for memory/span support -->
     <System_Memory_Version>4.5.5</System_Memory_Version>
 
     <!-- Used by xunit.v3.core for IAsyncDisposable -->
@@ -28,6 +31,7 @@
 
     <!-- Used by xunit.v3.runner.common to determine the target framework of an assembly without load-locking it -->
     <Mono_Cecil_Version>0.11.6</Mono_Cecil_Version>
+    <System_Reflection_Metadata_Version>6.0.0</System_Reflection_Metadata_Version>
 
     <!-- Used by xunit.v3.runner.msbuild to reference MSBuild types -->
     <Microsoft_Build_Tasks_Core_Version>16.11.6</Microsoft_Build_Tasks_Core_Version>
