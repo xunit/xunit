@@ -82,15 +82,13 @@ public sealed class CecilSourceInformationProvider : ISourceInformationProvider
 	}
 
 	/// <summary>
-	/// Creates a source provider for the given test assembly, and any <c>*.dll</c> file that exists
-	/// in the same folder.
+	/// Creates a source provider for the given test assembly.
 	/// </summary>
-	/// <remarks>
-	/// If the symbols are valid and readable, this will return an instance of <see cref="CecilSourceInformationProvider"/>.
-	/// If there are no symbols, or the symbols do not match the binary, then this will return an
-	/// instance of <see cref="NullSourceInformationProvider"/>.
-	/// </remarks>
 	/// <param name="assemblyFileName">The test assembly filename</param>
+	/// <remarks>
+	/// This may return an instance of <see cref="NullSourceInformationProvider"/> if source information
+	/// collection is turned off, or if the provided assembly does not exist on disk.
+	/// </remarks>
 	public static ISourceInformationProvider Create(string? assemblyFileName)
 	{
 		if (!RunSettingsUtility.CollectSourceInformation)
