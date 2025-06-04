@@ -5,7 +5,7 @@ using Xunit.Runner.Common;
 
 public class MetadataSourceInformationProviderTests
 {
-	[Fact]
+	[Fact(Skip = "This test is not supported on Mono", SkipWhen = nameof(EnvironmentHelper.IsMono), SkipType = typeof(EnvironmentHelper))]
 	public void CanRetrieveSourceInformation()
 	{
 		var provider = MetadataSourceInformationProviderHelper.CreateForTesting(typeof(MetadataSourceInformationProviderTests).Assembly.Location);
@@ -21,7 +21,7 @@ public class MetadataSourceInformationProviderTests
 #endif
 	}
 
-	[Fact]
+	[Fact(Skip = "This test is not supported on Mono", SkipWhen = nameof(EnvironmentHelper.IsMono), SkipType = typeof(EnvironmentHelper))]
 	public void AssemblyNotFound_ReturnsNullProvider()
 	{
 		var provider = MetadataSourceInformationProviderHelper.CreateForTesting("/foo/bar/baz.dll");

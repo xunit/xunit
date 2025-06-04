@@ -23,12 +23,16 @@ public sealed class MetadataSourceInformationProvider : ISourceInformationProvid
 
 	internal MetadataSourceInformationProvider(string assemblyFileName)
 	{
-		AppDomain.CurrentDomain.AssemblyLoad += OnAssemblyLoad;
+		try
+		{
+			AppDomain.CurrentDomain.AssemblyLoad += OnAssemblyLoad;
 
-		AddAssembly(assemblyFileName);
+			AddAssembly(assemblyFileName);
 
-		foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
-			AddAssembly(assembly);
+			foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+				AddAssembly(assembly);
+		}
+		catch { }
 	}
 
 	void AddAssembly(string assemblyFileName)
@@ -106,7 +110,11 @@ public sealed class MetadataSourceInformationProvider : ISourceInformationProvid
 	/// <inheritdoc/>
 	public ValueTask DisposeAsync()
 	{
-		AppDomain.CurrentDomain.AssemblyLoad -= OnAssemblyLoad;
+		try
+		{
+			AppDomain.CurrentDomain.AssemblyLoad -= OnAssemblyLoad;
+		}
+		catch { }
 
 		foreach (var (peReader, _, pdbMetadataReaderProvider) in assemblies.Values)
 		{
@@ -122,33 +130,37 @@ public sealed class MetadataSourceInformationProvider : ISourceInformationProvid
 		string? testClassName,
 		string? testMethodName)
 	{
-		if (testClassName is null || testMethodName is null)
-			return SourceInformation.Null;
-
-		if (!types.TryGetValue(testClassName, out var tuple))
-			return SourceInformation.Null;
-
-		var (metadataReader, pdbMetadataReaderProvider, typeDefinitionHandle) = tuple;
-		var pdbMetadataReader = pdbMetadataReaderProvider.GetMetadataReader();
-
-		foreach (var methodDebugInformationHandle in pdbMetadataReader.MethodDebugInformation)
+		try
 		{
-			var methodDefinition = metadataReader.GetMethodDefinition(methodDebugInformationHandle.ToDefinitionHandle());
-			if (methodDefinition.GetDeclaringType() != typeDefinitionHandle)
-				continue;
+			if (testClassName is null || testMethodName is null)
+				return SourceInformation.Null;
 
-			var name = metadataReader.GetString(methodDefinition.Name);
-			if (name != testMethodName)
-				continue;
+			if (!types.TryGetValue(testClassName, out var tuple))
+				return SourceInformation.Null;
 
-			var methodDebugInformation = pdbMetadataReader.GetMethodDebugInformation(methodDebugInformationHandle);
-			var sequencePoint = methodDebugInformation.GetSequencePoints().FirstOrDefault(sp => !sp.IsHidden);
-			if (sequencePoint.Document.IsNil)
-				break;
+			var (metadataReader, pdbMetadataReaderProvider, typeDefinitionHandle) = tuple;
+			var pdbMetadataReader = pdbMetadataReaderProvider.GetMetadataReader();
 
-			var document = pdbMetadataReader.GetDocument(sequencePoint.Document);
-			return new SourceInformation(pdbMetadataReader.GetString(document.Name), sequencePoint.StartLine);
+			foreach (var methodDebugInformationHandle in pdbMetadataReader.MethodDebugInformation)
+			{
+				var methodDefinition = metadataReader.GetMethodDefinition(methodDebugInformationHandle.ToDefinitionHandle());
+				if (methodDefinition.GetDeclaringType() != typeDefinitionHandle)
+					continue;
+
+				var name = metadataReader.GetString(methodDefinition.Name);
+				if (name != testMethodName)
+					continue;
+
+				var methodDebugInformation = pdbMetadataReader.GetMethodDebugInformation(methodDebugInformationHandle);
+				var sequencePoint = methodDebugInformation.GetSequencePoints().FirstOrDefault(sp => !sp.IsHidden);
+				if (sequencePoint.Document.IsNil)
+					break;
+
+				var document = pdbMetadataReader.GetDocument(sequencePoint.Document);
+				return new SourceInformation(pdbMetadataReader.GetString(document.Name), sequencePoint.StartLine);
+			}
 		}
+		catch { }
 
 		return SourceInformation.Null;
 	}
