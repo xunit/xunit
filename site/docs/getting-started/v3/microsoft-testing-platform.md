@@ -6,7 +6,7 @@ breadcrumb: Documentation
 
 # Microsoft Testing Platform support in xUnit.net v3
 
-_Last updated: 2025 April 2_
+_Last updated: 2025 June 4_
 
 Starting with build `0.4.0-pre.10`, we have added support for the new [Microsoft Testing Platform](https://learn.microsoft.com/dotnet/core/testing/unit-testing-platform-intro) natively into xUnit.net v3.
 
@@ -287,21 +287,11 @@ Note that starting with .NET 10 SDK, it's not recommended to use the MTP compati
 
 ## Enabling the Test Explorer experience
 
-_**Note:** As of the writing of this document, the Microsoft Testing Platform Test Explorer experience is still experimental, and is only available in preview versions of Visual Studio 2022. The screen shots below were taken with VS2022 17.12 Preview 2._
+_**Note:** As of the updating of this document, the current version of Visual Studio 2022 (17.14.4) has the Microsoft Testing Platform Test Explorer experience enabled by default._
 
 Like all Microsoft Testing Platform test framework projects, xUnit.net v3 projects are automatically enabled for the new Microsoft Testing Platform Test Explorer experience.
 
-The visual differences from Test Explorer in "VSTest mode" and Test Explorer in "Microsoft Testing Platform mode" with xUnit.net v3 projects are quite subtle, and most of the available functionality is the same. There is one notable improvement for F# projects: the metadata given to Test Explorer in Microsoft Testing Platform mode relating to test namespaces vs. class names allows it to properly understand [test names with periods in them](https://github.com/xunit/xunit/issues/3013).
-
-From a UI perspective, here is what you'll see in VSTest mode:
-
-![Test Explorer (VSTest mode)](/images/getting-started/v3/test-explorer-vstest-mode.png){: .border }
-
-And here is what you'll see in Microsoft Testing Platform mode:
-
-![Test Explorer (Microsoft Testing Platform mode)](/images/getting-started/v3/test-explorer-mtp-mode.png){: .border }
-
-You should be able to simply use Test Explorer in either mode to run and debug your tests. If you experience any issues with Test Explorer in Microsoft Testing Platform mode, you can disable it by adding the following property to your project file (.csproj/.fsproj/.vbproj):
+While we don't anticipate any issues, if you think you are experiencing an issues with Test Explorer in Microsoft Testing Platform mode, you can temporarily disable it by adding the following property to your project file (.csproj/.fsproj/.vbproj) and then restarting Visual Studio:
 
 ```xml
 <PropertyGroup>
@@ -309,4 +299,6 @@ You should be able to simply use Test Explorer in either mode to run and debug y
 </PropertyGroup>
 ```
 
-Just remember that VSTest mode requires the package references to `xunit.runner.visualstudio` and `Microsoft.NET.Test.Sdk`. We recommend you keep these package references for backward compatibility, not only with 3rd party runners like Resharper/Rider/CodeRush/VSCode, but also for older versions of Visual Studio that do not support Microsoft Testing Platform.
+If you do find such an issue, please be sure to let us and/or the Visual Studio know about it, so we can determine where the issue resides.
+
+Just remember that VSTest mode requires the package references to `xunit.runner.visualstudio` and `Microsoft.NET.Test.Sdk`. We recommend you keep these package references if you are using any test runners which have not been updated for Microsoft Testing Platform (for example, the need to use older versions of Visual Studio).
