@@ -159,7 +159,7 @@ public class SerializationHelperTests
 			Assert.StartsWith("Tried to deserialize unknown type index 'abc'", argEx.Message);
 		}
 
-		[CulturedTheory("en-US", "fo-FO")]
+		[CulturedTheory(["en-US", "fo-FO"])]
 		[MemberData(nameof(NullSuccessData), MemberType = typeof(SerializationHelperTests), DisableDiscoveryEnumeration = true)]
 		public void NullSuccessCases(
 			Type _,
@@ -178,7 +178,7 @@ public class SerializationHelperTests
 			Assert.Null(result);
 		}
 
-		[CulturedTheory("en-US", "fo-FO", DisableDiscoveryEnumeration = true)]
+		[CulturedTheory(["en-US", "fo-FO"], DisableDiscoveryEnumeration = true)]
 		[MemberData(nameof(NonNullSuccessData), MemberType = typeof(SerializationHelperTests))]
 		public void NonNullSuccessCases<T>(
 			T? expectedValue,
@@ -421,7 +421,7 @@ public class SerializationHelperTests
 			typeof(MyCustomType),
 		];
 
-		[CulturedTheory("en-US", "fo-FO")]
+		[CulturedTheory(["en-US", "fo-FO"])]
 		[MemberData(nameof(SupportedTypes), DisableDiscoveryEnumeration = true)]
 		public void SuccessCases(Type type)
 		{
@@ -477,7 +477,7 @@ public class SerializationHelperTests
 
 	public class Serialize
 	{
-		[CulturedTheory("en-US", "fo-FO")]
+		[CulturedTheory(["en-US", "fo-FO"])]
 		[MemberData(nameof(NullSuccessData), MemberType = typeof(SerializationHelperTests), DisableDiscoveryEnumeration = true)]
 		public void NullSuccessCases(
 			Type nullableType,
@@ -498,7 +498,7 @@ public class SerializationHelperTests
 			Assert.Equal("[]", result);
 		}
 
-		[CulturedTheory("en-US", "fo-FO", DisableDiscoveryEnumeration = true)]
+		[CulturedTheory(["en-US", "fo-FO"], DisableDiscoveryEnumeration = true)]
 		[MemberData(nameof(NonNullSuccessData), MemberType = typeof(SerializationHelperTests))]
 		public void NonNullSuccessCases<T>(
 			T? value,
@@ -549,7 +549,7 @@ public class SerializationHelperTests
 			public void GenericMethod<U>() { }
 		}
 
-		[CulturedTheory("en-US", "fo-FO", DisableDiscoveryEnumeration = true)]
+		[CulturedTheory(["en-US", "fo-FO"], DisableDiscoveryEnumeration = true)]
 		[MemberData(nameof(FailureData))]
 		public void FailureCases(
 			object? value,

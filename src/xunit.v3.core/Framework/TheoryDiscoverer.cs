@@ -51,6 +51,8 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 			details.SkipWhen,
 			traits,
 			testMethodArguments,
+			sourceFilePath: details.SourceFilePath,
+			sourceLineNumber: details.SourceLineNumber,
 			timeout: details.Timeout
 		);
 
@@ -94,6 +96,8 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 					details.SkipUnless,
 					details.SkipWhen,
 					testMethod.Traits.ToReadWrite(StringComparer.OrdinalIgnoreCase),
+					sourceFilePath: details.SourceFilePath,
+					sourceLineNumber: details.SourceLineNumber,
 					timeout: details.Timeout
 				)
 				: (IXunitTestCase)new XunitDelayEnumeratedTheoryTestCase(
@@ -108,6 +112,8 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 					details.SkipUnless,
 					details.SkipWhen,
 					testMethod.Traits.ToReadWrite(StringComparer.OrdinalIgnoreCase),
+					sourceFilePath: details.SourceFilePath,
+					sourceLineNumber: details.SourceLineNumber,
 					timeout: details.Timeout
 				);
 
@@ -176,6 +182,8 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 								details.ResolvedTestMethod,
 								details.TestCaseDisplayName,
 								details.UniqueID,
+								details.SourceFilePath,
+								details.SourceLineNumber,
 								string.Format(
 									CultureInfo.CurrentCulture,
 									"Test data returned null for {0}.{1}. Make sure it is statically initialized before this test method is called.",
@@ -245,7 +253,7 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 					if (theoryAttribute.SkipTestWithoutData)
 						results.Add(new XunitTestCase(details.ResolvedTestMethod, details.TestCaseDisplayName, details.UniqueID, details.Explicit, skipReason: message));
 					else
-						results.Add(new ExecutionErrorTestCase(details.ResolvedTestMethod, details.TestCaseDisplayName, details.UniqueID, errorMessage: message));
+						results.Add(new ExecutionErrorTestCase(details.ResolvedTestMethod, details.TestCaseDisplayName, details.UniqueID, details.SourceFilePath, details.SourceLineNumber, errorMessage: message));
 				}
 
 				return results;

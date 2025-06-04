@@ -263,7 +263,7 @@ public class XunitTestMethodRunnerTests
 			{ }
 
 			public SelfExecutingTestCase(IXunitTestMethod testMethod) :
-					base(testMethod, "Display Name", "Unique ID", @explicit: false)
+				base(testMethod, "Display Name", "Unique ID", @explicit: false)
 			{ }
 
 			public ValueTask<RunSummary> Run(

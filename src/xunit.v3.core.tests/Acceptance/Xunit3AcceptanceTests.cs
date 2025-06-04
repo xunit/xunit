@@ -792,6 +792,8 @@ public class Xunit3AcceptanceTests
 			public Type? SkipType => null;
 			public string? SkipUnless => null;
 			public string? SkipWhen => null;
+			public string? SourceFilePath => null;
+			public int? SourceLineNumber => null;
 			public int Timeout => 0;
 		}
 	}

@@ -29,14 +29,8 @@ public class Xunit3 : IFrontController
 		IMessageSink? diagnosticMessageSink,
 		ITestProcessLauncher testProcessLauncher)
 	{
-		if (sourceInformationProvider is null)
-		{
-			sourceInformationProvider = CecilSourceInformationProvider.Create(projectAssembly.AssemblyFileName);
-			disposalTracker.Add(sourceInformationProvider);
-		}
-
 		this.projectAssembly = projectAssembly;
-		this.sourceInformationProvider = sourceInformationProvider;
+		this.sourceInformationProvider = sourceInformationProvider ?? NullSourceInformationProvider.Instance;
 		this.diagnosticMessageSink = diagnosticMessageSink;
 		this.testProcessLauncher = AdaptLauncher(testProcessLauncher);
 

@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
-using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Runner.v3;
 using Xunit.Sdk;
@@ -114,7 +113,7 @@ public class Xunit3Tests
 	{
 		Assembly.Configuration.SynchronousMessageReporting = synchronousMessageReporting;
 
-		await using var xunit3 = Xunit3.ForDiscoveryAndExecution(Assembly, CecilSourceInformationProviderHelper.CreateForTesting(Assembly.AssemblyFileName), testProcessLauncher: runInProcess ? InProcessTestProcessLauncher.Instance : LocalOutOfProcessTestProcessLauncher.Instance);
+		await using var xunit3 = Xunit3.ForDiscoveryAndExecution(Assembly, testProcessLauncher: runInProcess ? InProcessTestProcessLauncher.Instance : LocalOutOfProcessTestProcessLauncher.Instance);
 
 		// Find
 		var fullyQualifiedMethodName = typeName + "." + methodName;
@@ -161,7 +160,7 @@ public class Xunit3Tests
 	public ValueTask CanFindFilteredTestsAndRunThem_UsingFind_UsingRun_Self(
 		bool runInProcess,
 		bool synchronousMessageReporting) =>
-			CanFindFilteredTestsAndRunThem_UsingFind_UsingRun(runInProcess, synchronousMessageReporting, typeof(Xunit3Tests).SafeName(), nameof(GuardClauses_Ctor), "Xunit3Tests.cs", 35);
+			CanFindFilteredTestsAndRunThem_UsingFind_UsingRun(runInProcess, synchronousMessageReporting, typeof(Xunit3Tests).SafeName(), nameof(GuardClauses_Ctor), "Xunit3Tests.cs", 32);
 
 	[Theory]
 	[InlineData(false, false)]
@@ -174,7 +173,7 @@ public class Xunit3Tests
 	{
 		UseAssertTests();
 
-		return CanFindFilteredTestsAndRunThem_UsingFind_UsingRun(runInProcess, synchronousMessageReporting, "BooleanAssertsTests+True", "AssertTrue", "BooleanAssertsTests.cs", 59);
+		return CanFindFilteredTestsAndRunThem_UsingFind_UsingRun(runInProcess, synchronousMessageReporting, "BooleanAssertsTests+True", "AssertTrue", "BooleanAssertsTests.cs", 57);
 	}
 
 	async ValueTask CanFindFilteredTestsAndRunThem_UsingFindAndRun(

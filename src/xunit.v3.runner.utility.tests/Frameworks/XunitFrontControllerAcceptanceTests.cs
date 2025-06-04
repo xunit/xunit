@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Xunit;
-using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
 
@@ -101,7 +100,7 @@ public class XunitFrontControllerAcceptanceTests
 			var projectAssembly = new XunitProjectAssembly(new XunitProject(), assemblyFileName, assemblyMetadata);
 			projectAssembly.Configuration.IncludeSourceInformation = true;
 
-			var frontController = XunitFrontController.Create(projectAssembly, CecilSourceInformationProviderHelper.CreateForTesting(assemblyFileName));
+			var frontController = XunitFrontController.Create(projectAssembly);
 			Assert.NotNull(frontController);
 
 			// Discovery
@@ -169,7 +168,7 @@ public class XunitFrontControllerAcceptanceTests
 			var projectAssembly = new XunitProjectAssembly(new XunitProject(), assemblyFileName, assemblyMetadata);
 			projectAssembly.Configuration.IncludeSourceInformation = true;
 
-			var frontController = XunitFrontController.Create(projectAssembly, CecilSourceInformationProviderHelper.CreateForTesting(assemblyFileName));
+			var frontController = XunitFrontController.Create(projectAssembly);
 			Assert.NotNull(frontController);
 
 			// Discovery
@@ -213,7 +212,7 @@ public class XunitFrontControllerAcceptanceTests
 #endif  // NETFRAMEWORK
 
 		[Fact]
-		public void v3()
+		public void v3_Fact()
 		{
 			var assemblyFileName = typeof(DiscoveryStartingCompleteMessageSinkTests).Assembly.Location;
 			var assemblyMetadata = AssemblyUtility.GetAssemblyMetadata(assemblyFileName);
@@ -223,7 +222,7 @@ public class XunitFrontControllerAcceptanceTests
 			var projectAssembly = new XunitProjectAssembly(new XunitProject(), assemblyFileName, assemblyMetadata);
 			projectAssembly.Configuration.IncludeSourceInformation = true;
 
-			var frontController = XunitFrontController.Create(projectAssembly, CecilSourceInformationProviderHelper.CreateForTesting(assemblyFileName));
+			var frontController = XunitFrontController.Create(projectAssembly);
 			Assert.NotNull(frontController);
 
 			// Discovery
@@ -247,12 +246,7 @@ public class XunitFrontControllerAcceptanceTests
 
 					Assert.Equal("DiscoveryStartingCompleteMessageSinkTests.NoTestCases", discovered.TestCaseDisplayName);
 					Assert.Equal("DiscoveryStartingCompleteMessageSinkTests.cs", Path.GetFileName(discovered.SourceFilePath));
-#if DEBUG
-					Assert.Equal(9, discovered.SourceLineNumber);
-#else
-					// We test for range here, because release PDBs can be slightly unpredictable, especially on Mono
-					Assert.InRange(discovered.SourceLineNumber ?? -1, 1, 0xFEEFED);
-#endif
+					Assert.Equal(7, discovered.SourceLineNumber);
 				},
 				discovered =>
 				{
@@ -260,12 +254,7 @@ public class XunitFrontControllerAcceptanceTests
 
 					Assert.Equal("DiscoveryStartingCompleteMessageSinkTests.TwoTestCases", discovered.TestCaseDisplayName);
 					Assert.Equal("DiscoveryStartingCompleteMessageSinkTests.cs", Path.GetFileName(discovered.SourceFilePath));
-#if DEBUG
-					Assert.Equal(38, discovered.SourceLineNumber);
-#else
-					// We test for range here, because release PDBs can be slightly unpredictable, especially on Mono
-					Assert.InRange(discovered.SourceLineNumber ?? -1, 1, 0xFEEFED);
-#endif
+					Assert.Equal(36, discovered.SourceLineNumber);
 				}
 			);
 
@@ -284,23 +273,86 @@ public class XunitFrontControllerAcceptanceTests
 				{
 					Assert.Equal("DiscoveryStartingCompleteMessageSinkTests.NoTestCases", starting.TestCaseDisplayName);
 					Assert.Equal("DiscoveryStartingCompleteMessageSinkTests.cs", Path.GetFileName(starting.SourceFilePath));
-#if DEBUG
-					Assert.Equal(9, starting.SourceLineNumber);
-#else
-					// We test for range here, because release PDBs can be slightly unpredictable, especially on Mono
-					Assert.InRange(starting.SourceLineNumber ?? -1, 1, 0xFEEFED);
-#endif
+					Assert.Equal(7, starting.SourceLineNumber);
 				},
 				starting =>
 				{
 					Assert.Equal("DiscoveryStartingCompleteMessageSinkTests.TwoTestCases", starting.TestCaseDisplayName);
 					Assert.Equal("DiscoveryStartingCompleteMessageSinkTests.cs", Path.GetFileName(starting.SourceFilePath));
-#if DEBUG
-					Assert.Equal(38, starting.SourceLineNumber);
-#else
-					// We test for range here, because release PDBs can be slightly unpredictable, especially on Mono
-					Assert.InRange(starting.SourceLineNumber ?? -1, 1, 0xFEEFED);
-#endif
+					Assert.Equal(36, starting.SourceLineNumber);
+				}
+			);
+		}
+
+		[Fact]
+		public void v3_Theory()
+		{
+			var assemblyFileName = typeof(DiscoveryStartingCompleteMessageSinkTests).Assembly.Location;
+			var assemblyMetadata = AssemblyUtility.GetAssemblyMetadata(assemblyFileName);
+			Assert.NotNull(assemblyMetadata);
+			Assert.Equal(3, assemblyMetadata.XunitVersion);
+
+			var projectAssembly = new XunitProjectAssembly(new XunitProject(), assemblyFileName, assemblyMetadata);
+			projectAssembly.Configuration.IncludeSourceInformation = true;
+
+			var frontController = XunitFrontController.Create(projectAssembly);
+			Assert.NotNull(frontController);
+
+			// Discovery
+
+			var findSink = SpyMessageSink<IDiscoveryComplete>.Create();
+			var findFilters = new XunitFilters();
+			findFilters.AddIncludedClassFilter("MessageSplitMessageSinkTests");
+			var findOptions = TestFrameworkOptions.ForDiscovery(projectAssembly.Configuration);
+			var findSettings = new FrontControllerFindSettings(findOptions, findFilters);
+			frontController.Find(findSink, findSettings);
+
+			findSink.Finished.WaitOne();
+
+			var serializedTestCases = new List<string>();
+
+			Assert.Collection(
+				findSink.Messages.OfType<ITestCaseDiscovered>().OrderBy(d => d.TestCaseDisplayName),
+				discovered =>
+				{
+					serializedTestCases.Add(discovered.Serialization);
+
+					Assert.Equal("MessageSplitMessageSinkTests.DiagnosticMessages", discovered.TestCaseDisplayName);
+					Assert.Equal("MessageSplitMessageSinkTests.cs", Path.GetFileName(discovered.SourceFilePath));
+					Assert.Equal(16, discovered.SourceLineNumber);
+				},
+				discovered =>
+				{
+					serializedTestCases.Add(discovered.Serialization);
+
+					Assert.Equal("MessageSplitMessageSinkTests.NonDiagnosticMessages", discovered.TestCaseDisplayName);
+					Assert.Equal("MessageSplitMessageSinkTests.cs", Path.GetFileName(discovered.SourceFilePath));
+					Assert.Equal(36, discovered.SourceLineNumber);
+				}
+			);
+
+			// Execution
+
+			var runSink = SpyMessageSink<ITestAssemblyFinished>.Create();
+			var runOptions = TestFrameworkOptions.ForExecution(projectAssembly.Configuration);
+			var runSettings = new FrontControllerRunSettings(runOptions, serializedTestCases);
+			frontController.Run(runSink, runSettings);
+
+			runSink.Finished.WaitOne();
+
+			Assert.Collection(
+				runSink.Messages.OfType<ITestCaseStarting>().OrderBy(d => d.TestCaseDisplayName),
+				starting =>
+				{
+					Assert.Equal("MessageSplitMessageSinkTests.DiagnosticMessages", starting.TestCaseDisplayName);
+					Assert.Equal("MessageSplitMessageSinkTests.cs", Path.GetFileName(starting.SourceFilePath));
+					Assert.Equal(16, starting.SourceLineNumber);
+				},
+				starting =>
+				{
+					Assert.Equal("MessageSplitMessageSinkTests.NonDiagnosticMessages", starting.TestCaseDisplayName);
+					Assert.Equal("MessageSplitMessageSinkTests.cs", Path.GetFileName(starting.SourceFilePath));
+					Assert.Equal(36, starting.SourceLineNumber);
 				}
 			);
 		}

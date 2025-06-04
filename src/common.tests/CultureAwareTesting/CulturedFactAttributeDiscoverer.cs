@@ -39,6 +39,8 @@ public class CulturedFactAttributeDiscoverer : IXunitTestCaseDiscoverer
 						details.SkipUnless,
 						details.SkipWhen,
 						testMethod.Traits.ToReadWrite(StringComparer.OrdinalIgnoreCase),
+						sourceFilePath: details.SourceFilePath,
+						sourceLineNumber: details.SourceLineNumber,
 						timeout: details.Timeout
 					)
 				)

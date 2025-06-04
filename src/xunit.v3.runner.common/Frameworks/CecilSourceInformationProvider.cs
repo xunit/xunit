@@ -34,12 +34,16 @@ public sealed class CecilSourceInformationProvider : ISourceInformationProvider
 
 	internal CecilSourceInformationProvider(string assemblyFileName)
 	{
-		AppDomain.CurrentDomain.AssemblyLoad += OnAssemblyLoad;
+		try
+		{
+			AppDomain.CurrentDomain.AssemblyLoad += OnAssemblyLoad;
 
-		AddAssembly(assemblyFileName);
+			AddAssembly(assemblyFileName);
 
-		foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
-			AddAssembly(assembly);
+			foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+				AddAssembly(assembly);
+		}
+		catch { }
 	}
 
 	void AddAssembly(string assemblyFileName)
@@ -103,7 +107,11 @@ public sealed class CecilSourceInformationProvider : ISourceInformationProvider
 	/// <inheritdoc/>
 	public ValueTask DisposeAsync()
 	{
-		AppDomain.CurrentDomain.AssemblyLoad -= OnAssemblyLoad;
+		try
+		{
+			AppDomain.CurrentDomain.AssemblyLoad -= OnAssemblyLoad;
+		}
+		catch { }
 
 		foreach (var moduleDefinition in moduleDefinitions.Distinct())
 			moduleDefinition.SafeDispose();

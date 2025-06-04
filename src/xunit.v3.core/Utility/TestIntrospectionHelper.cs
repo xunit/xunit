@@ -29,6 +29,8 @@ public static class TestIntrospectionHelper
 		Type? SkipType,
 		string? SkipUnless,
 		string? SkipWhen,
+		string? SourceFilePath,
+		int? SourceLineNumber,
 		int Timeout,
 		string UniqueID,
 		IXunitTestMethod ResolvedTestMethod
@@ -60,6 +62,8 @@ public static class TestIntrospectionHelper
 		Type? SkipType,
 		string? SkipUnless,
 		string? SkipWhen,
+		string? SourceFilePath,
+		int? SourceLineNumber,
 		int Timeout,
 		string UniqueID,
 		IXunitTestMethod ResolvedTestMethod
@@ -108,6 +112,8 @@ public static class TestIntrospectionHelper
 			factAttribute.SkipType,
 			factAttribute.SkipUnless,
 			factAttribute.SkipWhen,
+			factAttribute.SourceFilePath,
+			factAttribute.SourceLineNumber,
 			Debugger.IsAttached ? 0 : timeout.Value,
 			uniqueID,
 			testMethod
@@ -132,6 +138,8 @@ public static class TestIntrospectionHelper
 		Type? SkipType,
 		string? SkipUnless,
 		string? SkipWhen,
+		string? SourceFilePath,
+		int? SourceLineNumber,
 		int Timeout,
 		string UniqueID,
 		IXunitTestMethod ResolvedTestMethod

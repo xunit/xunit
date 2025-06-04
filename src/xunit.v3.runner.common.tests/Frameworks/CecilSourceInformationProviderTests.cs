@@ -8,7 +8,7 @@ public class CecilSourceInformationProviderTests
 	[Fact]
 	public void CanRetrieveSourceInformation()
 	{
-		var provider = CecilSourceInformationProviderHelper.CreateForTesting(typeof(CecilSourceInformationProviderTests).Assembly.Location);
+		var provider = CecilSourceInformationProviderHelper.ForceCreate(typeof(CecilSourceInformationProviderTests).Assembly.Location);
 
 		var sourceInformation = provider.GetSourceInformation(typeof(CecilSourceInformationProviderTests).FullName, nameof(CanRetrieveSourceInformation));
 
@@ -24,7 +24,7 @@ public class CecilSourceInformationProviderTests
 	[Fact]
 	public void AssemblyNotFound_ReturnsNullProvider()
 	{
-		var provider = CecilSourceInformationProviderHelper.CreateForTesting("/foo/bar/baz.dll");
+		var provider = CecilSourceInformationProviderHelper.ForceCreate("/foo/bar/baz.dll");
 
 		Assert.IsType<NullSourceInformationProvider>(provider);
 	}

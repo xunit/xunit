@@ -188,9 +188,8 @@ public class TestPlatformTestFramework :
 
 			try
 			{
-				await using var sourceInformationProvider = CecilSourceInformationProvider.Create(testAssembly.Location);
 				using var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-				var projectRunner = new ProjectAssemblyRunner(testAssembly, AutomatedMode.Off, sourceInformationProvider, cancellationTokenSource);
+				var projectRunner = new ProjectAssemblyRunner(testAssembly, AutomatedMode.Off, NullSourceInformationProvider.Instance, cancellationTokenSource);
 				await callback(projectRunner, pipelineStartup);
 				operationComplete();
 			}

@@ -1,12 +1,14 @@
+using System.Runtime.CompilerServices;
 using Xunit.v3;
 
 namespace Xunit;
 
 [XunitTestCaseDiscoverer(typeof(CulturedFactAttributeDiscoverer))]
-public sealed class CulturedFactAttribute : FactAttribute
+public sealed class CulturedFactAttribute(
+	string[]? cultures = null,
+	[CallerFilePath] string? sourceFilePath = null,
+	[CallerLineNumber] int sourceLineNumber = -1) :
+		FactAttribute(sourceFilePath, sourceLineNumber)
 {
-	public CulturedFactAttribute(params string[] cultures) =>
-		Cultures = cultures;
-
-	public string[] Cultures { get; }
+	public string[] Cultures { get; } = cultures ?? [];
 }

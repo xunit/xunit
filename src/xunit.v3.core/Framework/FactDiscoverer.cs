@@ -40,6 +40,8 @@ public class FactDiscoverer : IXunitTestCaseDiscoverer
 			details.SkipUnless,
 			details.SkipWhen,
 			testMethod.Traits.ToReadWrite(StringComparer.OrdinalIgnoreCase),
+			sourceFilePath: details.SourceFilePath,
+			sourceLineNumber: details.SourceLineNumber,
 			timeout: details.Timeout
 		);
 	}
@@ -88,6 +90,8 @@ public class FactDiscoverer : IXunitTestCaseDiscoverer
 			details.ResolvedTestMethod,
 			details.TestCaseDisplayName,
 			details.UniqueID,
+			details.SourceFilePath,
+			details.SourceLineNumber,
 			message
 		);
 	}

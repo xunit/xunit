@@ -1,12 +1,14 @@
+using System.Runtime.CompilerServices;
 using Xunit.v3;
 
 namespace Xunit;
 
 [XunitTestCaseDiscoverer(typeof(CulturedTheoryAttributeDiscoverer))]
-public sealed class CulturedTheoryAttribute : TheoryAttribute
+public sealed class CulturedTheoryAttribute(
+	string[]? cultures = null,
+	[CallerFilePath] string? sourceFilePath = null,
+	[CallerLineNumber] int sourceLineNumber = -1) :
+		TheoryAttribute(sourceFilePath, sourceLineNumber)
 {
-	public CulturedTheoryAttribute(params string[] cultures) =>
-		Cultures = cultures;
-
-	public string[] Cultures { get; }
+	public string[] Cultures { get; } = cultures ?? [];
 }

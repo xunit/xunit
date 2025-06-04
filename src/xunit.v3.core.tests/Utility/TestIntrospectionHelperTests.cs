@@ -16,6 +16,8 @@ public class TestIntrospectionHelperTests
 		Type? SkipType,
 		string? SkipUnless,
 		string? SkipWhen,
+		string? SourceFilePath,
+		int? SourceLineNumber,
 		int Timeout,
 		string UniqueID,
 		IXunitTestMethod ResolvedTestMethod

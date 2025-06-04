@@ -8,8 +8,11 @@ namespace Xunit.Internal;
 /// </summary>
 public static class CecilSourceInformationProviderHelper
 {
-	/// <summary/>
-	public static ISourceInformationProvider CreateForTesting(string? assemblyFileName)
+	/// <summary>
+	/// This is like <see cref="CecilSourceInformationProvider.Create"/> except that it ignores
+	/// the value from <see cref="RunSettingsUtility.CollectSourceInformation"/>.
+	/// </summary>
+	public static ISourceInformationProvider ForceCreate(string? assemblyFileName)
 	{
 		if (!File.Exists(assemblyFileName))
 			return NullSourceInformationProvider.Instance;

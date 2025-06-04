@@ -102,6 +102,8 @@ public sealed class ExecutionErrorTestCaseTests : IDisposable
 			testMethod,
 			"test-case-display-name",
 			"test-case-unique-id",
+			sourceFilePath: null,
+			sourceLineNumber: null,
 			message
 		);
 	}

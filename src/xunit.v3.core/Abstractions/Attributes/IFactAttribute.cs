@@ -74,6 +74,18 @@ public interface IFactAttribute
 	string? SkipWhen { get; }
 
 	/// <summary>
+	/// Gets the source file name. A <c>null</c> value indicates that the
+	/// source file name is not known.
+	/// </summary>
+	string? SourceFilePath { get; }
+
+	/// <summary>
+	/// Gets the source file line number. A <c>null</c> value indicates that the
+	/// source file line number is not known.
+	/// </summary>
+	int? SourceLineNumber { get; }
+
+	/// <summary>
 	/// Gets the timeout for test (in milliseconds). When <c>0</c> is returned, the test
 	/// will not have a timeout.
 	/// </summary>
