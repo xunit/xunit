@@ -18,8 +18,8 @@ public sealed class MetadataSourceInformationProvider : ISourceInformationProvid
 {
 	static readonly byte[] PublicKeyXunit = [0, 36, 0, 0, 4, 128, 0, 0, 148, 0, 0, 0, 6, 2, 0, 0, 0, 36, 0, 0, 82, 83, 65, 49, 0, 4, 0, 0, 1, 0, 1, 0, 37, 46, 4, 154, 221, 234, 135, 243, 15, 153, 214, 237, 142, 188, 24, 155, 192, 91, 140, 145, 104, 118, 93, 240, 143, 134, 224, 33, 68, 113, 220, 137, 132, 79, 31, 75, 156, 74, 38, 137, 77, 2, 148, 101, 132, 135, 113, 188, 117, 143, 237, 32, 55, 18, 128, 237, 162, 35, 169, 246, 74, 224, 95, 72, 179, 32, 228, 240, 226, 12, 66, 130, 221, 112, 30, 152, 87, 17, 188, 51, 181, 185, 230, 171, 63, 175, 171, 108, 183, 142, 34, 14, 226, 184, 225, 85, 5, 115, 224, 63, 138, 214, 101, 192, 81, 198, 63, 188, 83, 89, 212, 149, 212, 177, 198, 16, 36, 239, 118, 237, 156, 30, 187, 71, 31, 237, 89, 201];
 
-	readonly Dictionary<string, (FileStream, PEReader, MetadataReader, MetadataReaderProvider?)> assemblies = [];
-	readonly Dictionary<string, (MetadataReader, TypeDefinitionHandle, MetadataReaderProvider?)> types = [];
+	readonly Dictionary<string, (PEReader, MetadataReader, MetadataReaderProvider)> assemblies = [];
+	readonly Dictionary<string, (MetadataReader, MetadataReaderProvider, TypeDefinitionHandle)> types = [];
 
 	internal MetadataSourceInformationProvider(string assemblyFileName)
 	{
@@ -33,81 +33,48 @@ public sealed class MetadataSourceInformationProvider : ISourceInformationProvid
 
 	void AddAssembly(string assemblyFileName)
 	{
+		FileStream? stream = null;
+		PEReader? peReader = null;
+		MetadataReaderProvider? pdbMetadataReaderProvider = null;
+		bool added = false;
+
 		try
 		{
 			if (!File.Exists(assemblyFileName) || assemblies.ContainsKey(assemblyFileName))
 				return;
 
-			var stream = new FileStream(assemblyFileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-			var peReader = new PEReader(stream);
+			stream = new FileStream(assemblyFileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+			peReader = new PEReader(stream);
 			var metadataReader = peReader.GetMetadataReader();
-
-			if (!peReader.TryOpenAssociatedPortablePdb(
-				assemblyFileName,
-				(pdbFile) => File.Exists(pdbFile)
-					? new FileStream(pdbFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)
-					: null,
-				out var pdbMetadataReaderProvider,
-				out var pdfPath))
-			{
-				return;
-			}
 
 			// Skip anything signed with our public key
 			var publicKeyBytes = metadataReader.GetBlobBytes(metadataReader.GetAssemblyDefinition().PublicKey);
 			if (ByteArrayComparer.Instance.Equals(publicKeyBytes, PublicKeyXunit))
-			{
-				pdbMetadataReaderProvider?.Dispose();
-				peReader.Dispose();
-				stream.Dispose();
 				return;
-			}
 
-			//// If there's no debug metadata, there's no reason to enumerate
-			//if (metadataReader.DebugMetadataHeader is null)
-			//{
-			//	peReader.Dispose();
-			//	stream.Dispose();
-			//	return;
-			//}
+#pragma warning disable CA2000  // pdbMetadataReaderProvider is disposed in DisposeAsync or the finally block below
+			if (!peReader.TryOpenAssociatedPortablePdb(assemblyFileName, OpenPDB, out pdbMetadataReaderProvider, out var pdbPath))
+#pragma warning restore CA2000
+				return;
 
-			assemblies[assemblyFileName] = (stream, peReader, metadataReader, pdbMetadataReaderProvider);
+			if (pdbMetadataReaderProvider is null)
+				return;
+
+			assemblies[assemblyFileName] = (peReader, metadataReader, pdbMetadataReaderProvider);
+			added = true;
 
 			foreach (var typeDefinitionHandle in metadataReader.TypeDefinitions)
-				processTypeDefinition(metadataReader, typeDefinitionHandle, pdbMetadataReaderProvider, string.Empty);
+				ProcessTypeDefinition(metadataReader, pdbMetadataReaderProvider, typeDefinitionHandle, string.Empty);
 		}
 		catch { }
-
-		void processTypeDefinition(
-			MetadataReader metadataReader,
-			TypeDefinitionHandle typeDefinitionHandle,
-			MetadataReaderProvider? pdbMetadataReaderProvider,
-			string typeNamePrefix)
+		finally
 		{
-			var typeDefinition = metadataReader.GetTypeDefinition(typeDefinitionHandle);
-			if (typeDefinition.IsNested && typeNamePrefix.Length == 0)
-				return;
-
-			var visibility = typeDefinition.Attributes & TypeAttributes.VisibilityMask;
-			if (visibility != TypeAttributes.Public && visibility != TypeAttributes.NestedPublic)
-				return;
-
-			var name = metadataReader.GetString(typeDefinition.Name);
-
-			// Nested class already have the namespace in the prefix
-			if (typeNamePrefix.Length != 0)
-				name = typeNamePrefix + name;
-			else
+			if (!added)
 			{
-				var @namespace = metadataReader.GetString(typeDefinition.Namespace);
-				if (!string.IsNullOrWhiteSpace(@namespace))
-					name = @namespace + "." + name;
+				pdbMetadataReaderProvider.SafeDispose();
+				peReader.SafeDispose();
+				stream.SafeDispose();
 			}
-
-			types[name] = (metadataReader, typeDefinitionHandle, pdbMetadataReaderProvider);
-
-			foreach (var nestedTypeDefinitionHandle in typeDefinition.GetNestedTypes())
-				processTypeDefinition(metadataReader, nestedTypeDefinitionHandle, pdbMetadataReaderProvider, name + "+");
 		}
 	}
 
@@ -141,11 +108,10 @@ public sealed class MetadataSourceInformationProvider : ISourceInformationProvid
 	{
 		AppDomain.CurrentDomain.AssemblyLoad -= OnAssemblyLoad;
 
-		foreach (var (stream, peReader, _, pdbMetadataReaderProvider) in assemblies.Values)
+		foreach (var (peReader, _, pdbMetadataReaderProvider) in assemblies.Values)
 		{
 			pdbMetadataReaderProvider.SafeDispose();
 			peReader.SafeDispose();
-			stream.SafeDispose();
 		}
 
 		return default;
@@ -162,11 +128,7 @@ public sealed class MetadataSourceInformationProvider : ISourceInformationProvid
 		if (!types.TryGetValue(testClassName, out var tuple))
 			return SourceInformation.Null;
 
-		var (metadataReader, typeDefinitionHandle, pdbMetadataReaderProvider) = tuple;
-
-		if (pdbMetadataReaderProvider is null)
-			return SourceInformation.Null;
-
+		var (metadataReader, pdbMetadataReaderProvider, typeDefinitionHandle) = tuple;
 		var pdbMetadataReader = pdbMetadataReaderProvider.GetMetadataReader();
 
 		foreach (var methodDebugInformationHandle in pdbMetadataReader.MethodDebugInformation)
@@ -195,6 +157,43 @@ public sealed class MetadataSourceInformationProvider : ISourceInformationProvid
 		object? sender,
 		AssemblyLoadEventArgs args) =>
 			AddAssembly(args.LoadedAssembly);
+
+	static FileStream? OpenPDB(string pdbFileName) =>
+		File.Exists(pdbFileName)
+			? new FileStream(pdbFileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)
+			: null;
+
+	void ProcessTypeDefinition(
+		MetadataReader metadataReader,
+		MetadataReaderProvider pdbMetadataReaderProvider,
+		TypeDefinitionHandle typeDefinitionHandle,
+		string typeNamePrefix)
+	{
+		var typeDefinition = metadataReader.GetTypeDefinition(typeDefinitionHandle);
+		if (typeDefinition.IsNested && typeNamePrefix.Length == 0)
+			return;
+
+		var visibility = typeDefinition.Attributes & TypeAttributes.VisibilityMask;
+		if (visibility != TypeAttributes.Public && visibility != TypeAttributes.NestedPublic)
+			return;
+
+		var name = metadataReader.GetString(typeDefinition.Name);
+
+		// Nested classes already have the namespace in the prefix
+		if (typeNamePrefix.Length != 0)
+			name = typeNamePrefix + name;
+		else
+		{
+			var @namespace = metadataReader.GetString(typeDefinition.Namespace);
+			if (!string.IsNullOrWhiteSpace(@namespace))
+				name = @namespace + "." + name;
+		}
+
+		types[name] = (metadataReader, pdbMetadataReaderProvider, typeDefinitionHandle);
+
+		foreach (var nestedTypeDefinitionHandle in typeDefinition.GetNestedTypes())
+			ProcessTypeDefinition(metadataReader, pdbMetadataReaderProvider, nestedTypeDefinitionHandle, name + "+");
+	}
 
 	sealed class ByteArrayComparer : IEqualityComparer<byte[]>
 	{

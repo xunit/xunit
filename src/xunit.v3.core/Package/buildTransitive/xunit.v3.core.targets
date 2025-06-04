@@ -16,25 +16,17 @@
     <Error Text="xUnit.net v3 test projects must build an app host (set project property '&lt;UseAppHost&gt;true&lt;/UseAppHost&gt;'). If this is not a test project, reference xunit.v3.extensibility.core instead." Condition=" '$(UseAppHost)' != 'true' AND '$(TargetFrameworkIdentifier)' == '.NETCoreApp' " />
   </Target>
 
-  <!-- Make sure we generate the PDB type that TPv1 and TPv2/MTP expect -->
+  <!-- By default, generate debug symbols preferred by System.Reflection.Metadata -->
   <PropertyGroup>
     <DebugSymbols Condition=" '$(DebugSymbols)' == '' ">true</DebugSymbols>
+    <DebugType Condition=" '$(DebugType)' == '' ">portable</DebugType>
   </PropertyGroup>
 
-  <Choose>
-    <When Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
-      <PropertyGroup>
-        <AutoGenerateBindingRedirects Condition=" '$(AutoGenerateBindingRedirects)' == '' ">true</AutoGenerateBindingRedirects>
-        <DebugType Condition=" '$(DebugType)' == '' ">full</DebugType>
-        <GenerateBindingRedirectsOutputType Condition=" '$(GenerateBindingRedirectsOutputType)' == '' ">true</GenerateBindingRedirectsOutputType>
-      </PropertyGroup>
-    </When>
-    <Otherwise>
-      <PropertyGroup>
-        <DebugType Condition=" '$(DebugType)' == '' ">portable</DebugType>
-      </PropertyGroup>
-    </Otherwise>
-  </Choose>
+  <!-- Ensure .NET Framework projects generate binding redirects -->
+  <PropertyGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
+    <AutoGenerateBindingRedirects Condition=" '$(AutoGenerateBindingRedirects)' == '' ">true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType Condition=" '$(GenerateBindingRedirectsOutputType)' == '' ">true</GenerateBindingRedirectsOutputType>
+  </PropertyGroup>
 
   <!--
   Generate the entry point, adapted from

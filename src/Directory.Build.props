@@ -7,8 +7,6 @@
   <PropertyGroup>
     <AssemblyName Condition=" '$(AssemblyName)' == '' ">$(MSBuildProjectName)</AssemblyName>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <DebugType Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">full</DebugType>
-    <DebugType Condition=" '$(TargetFrameworkIdentifier)' != '.NETFramework' ">embedded</DebugType>
     <DefineConstants>$(DefineConstants);XUNIT_NULLABLE</DefineConstants>
     <LangVersion>13.0</LangVersion>
     <MSBuildCopyContentTransitively>false</MSBuildCopyContentTransitively>

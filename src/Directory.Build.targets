@@ -1,6 +1,24 @@
 <Project>
 
   <Choose>
+    <!-- Production assemblies should embed debug information for .NET -->
+    <When Condition=" !$(MSBuildProjectName.EndsWith('.tests')) ">
+      <PropertyGroup>
+        <DebugType Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">portable</DebugType>
+        <DebugType Condition=" '$(TargetFrameworkIdentifier)' != '.NETFramework' ">embedded</DebugType>
+      </PropertyGroup>
+    </When>
+
+    <!-- Test assemblies should not embed debug information, since it's less efficient for System.Reflection.Metadata -->
+    <Otherwise>
+      <PropertyGroup>
+        <DebugType>portable</DebugType>
+      </PropertyGroup>
+    </Otherwise>
+  </Choose>
+
+  <!-- Includes -->
+  <Choose>
     <When Condition=" '$(_XunitIncludeCommonItems)' != 'false' ">
       <ItemGroup>
         <Compile Include="$(MSBuildThisFileDirectory)common\EnvironmentVariables.cs" LinkBase="Common" />
