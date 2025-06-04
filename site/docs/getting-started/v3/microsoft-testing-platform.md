@@ -299,6 +299,6 @@ While we don't anticipate any issues, if you think you are experiencing an issue
 </PropertyGroup>
 ```
 
-If you do find such an issue, please be sure to let us and/or the Visual Studio know about it, so we can determine where the issue resides.
+If you do find such an issue, please be sure to let us and/or the Visual Studio team know about it, so we can determine where the issue resides.
 
-Just remember that VSTest mode requires the package references to `xunit.runner.visualstudio` and `Microsoft.NET.Test.Sdk`. We recommend you keep these package references if you are using any test runners which have not been updated for Microsoft Testing Platform (for example, the need to use older versions of Visual Studio).
+Just a reminder that VSTest mode requires the package references to `xunit.runner.visualstudio` and `Microsoft.NET.Test.Sdk`. We recommend you keep these package references if you are using any test runners which have not been updated for Microsoft Testing Platform (for example, the need to use older versions of Visual Studio).
