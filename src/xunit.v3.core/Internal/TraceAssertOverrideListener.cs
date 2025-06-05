@@ -26,6 +26,7 @@ public class TraceAssertOverrideListener : TraceListener
 			defaultTraceListener.AssertUiEnabled = false;
 		}
 
+		Name = "xUnit.net";
 		Trace.Listeners.Add(this);
 	}
 
