@@ -55,7 +55,8 @@ public interface IFactAttribute
 	/// </summary>
 	/// <remarks>
 	/// This property cannot be set if <see cref="SkipWhen"/> is set. Setting both will
-	/// result in a failed test.
+	/// result in a failed test.<br />
+	/// <br />
 	/// To ensure compile-time safety and easier refactoring, use the <c>nameof</c> operator,
 	/// e.g., <c>SkipUnless = nameof(IsConditionMet)</c>.
 	/// </remarks>
@@ -67,9 +68,10 @@ public interface IFactAttribute
 	/// </summary>
 	/// <remarks>
 	/// This property cannot be set if <see cref="SkipUnless"/> is set. Setting both will
-	/// result in a failed test.
-	/// To avoid issues during refactoring, it is recommended to use the <c>nameof</c> operator
-	/// to reference the property, e.g., <c>SkipWhen = nameof(IsTestSkipped)</c>.
+	/// result in a failed test.<br />
+	/// <br />
+	/// To ensure compile-time safety and easier refactoring, use the <c>nameof</c> operator,
+	/// e.g., <c>SkipWhen = nameof(IsConditionMet)</c>.
 	/// </remarks>
 	string? SkipWhen { get; }
 

@@ -1,5 +1,6 @@
 #pragma warning disable CA2225  // We don't want to add implicit operator overloads, this is just to support TheoryData changes
 
+using System;
 using System.Collections.Generic;
 using Xunit.Internal;
 
@@ -21,6 +22,15 @@ public abstract class TheoryDataRowBase : ITheoryDataRow
 
 	/// <inheritdoc/>
 	public string? Skip { get; set; }
+
+	/// <inheritdoc/>
+	public Type? SkipType { get; set; }
+
+	/// <inheritdoc/>
+	public string? SkipUnless { get; set; }
+
+	/// <inheritdoc/>
+	public string? SkipWhen { get; set; }
 
 	/// <inheritdoc/>
 	public string? TestDisplayName { get; set; }

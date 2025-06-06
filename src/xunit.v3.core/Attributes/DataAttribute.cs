@@ -60,9 +60,14 @@ public abstract class DataAttribute : Attribute, IDataAttribute
 	/// <inheritdoc/>
 	public string? Skip { get; set; }
 
-	// TODO: We don't have SkipType/SkipUnless/SkipWhen here, should we? We'd need to plumb
-	// them into IXunitTest since an override during delay enumeration has to be reflected into
-	// the test, and can't live just in the test case.
+	/// <inheritdoc/>
+	public Type? SkipType { get; set; }
+
+	/// <inheritdoc/>
+	public string? SkipUnless { get; set; }
+
+	/// <inheritdoc/>
+	public string? SkipWhen { get; set; }
 
 	/// <inheritdoc/>
 	public string? TestDisplayName { get; set; }

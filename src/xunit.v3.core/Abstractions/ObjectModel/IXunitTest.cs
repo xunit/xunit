@@ -1,3 +1,4 @@
+using System;
 using Xunit.Sdk;
 
 namespace Xunit.v3;
@@ -20,6 +21,42 @@ public interface IXunitTest : ITest
 	/// individual data rows during delay enumeration.
 	/// </remarks>
 	string? SkipReason { get; }
+
+	/// <summary>
+	/// When set, indicates the type to use when resolving <see cref="SkipUnless"/> or
+	/// <see cref="SkipWhen"/>. If not set, uses the test class type.
+	/// </summary>
+	/// <remarks>
+	/// This value may not line up the with <see cref="IXunitTestCase.SkipType"/>, as you can skip
+	/// individual data rows during delay enumeration.
+	/// </remarks>
+	Type? SkipType { get; }
+
+	/// <summary>
+	/// When set, indicates a public static property that is used at runtime to determine
+	/// whether the test is skipped or not (<c>true</c> to run, <c>false</c> to skip).
+	/// </summary>
+	/// <remarks>
+	/// Note: It is an error condition for both <see cref="SkipUnless"/> and <see cref="SkipWhen"/>
+	/// to return a non-<c>null</c> value.<br />
+	/// <br />
+	/// This value may not line up the with <see cref="IXunitTestCase.SkipUnless"/>, as you can skip
+	/// individual data rows during delay enumeration.
+	/// </remarks>
+	string? SkipUnless { get; }
+
+	/// <summary>
+	/// When set, indicates a public static property that is used at runtime to determine
+	/// whether the test is skipped or not (<c>false</c> to run, <c>true</c> to skip).
+	/// </summary>
+	/// <remarks>
+	/// Note: It is an error condition for both <see cref="SkipUnless"/> and <see cref="SkipWhen"/>
+	/// to return a non-<c>null</c> value.
+	/// <br />
+	/// This value may not line up the with <see cref="IXunitTestCase.SkipWhen"/>, as you can skip
+	/// individual data rows during delay enumeration.
+	/// </remarks>
+	string? SkipWhen { get; }
 
 	/// <summary>
 	/// Gets the test case this test belongs to.

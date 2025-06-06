@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Xunit.Sdk;
 using Xunit.v3;
@@ -27,10 +28,46 @@ public interface ITheoryDataRow
 	string? Label { get; }
 
 	/// <summary>
-	/// Gets the reason for skipping this row of data; if <c>null</c> is returned, then the data
-	/// row isn't skipped.
+	/// Gets the skip reason for the test. When <c>null</c> is returned, the test is
+	/// not skipped.
 	/// </summary>
+	/// <remarks>
+	/// Skipping is conditional based on whether <see cref="SkipWhen"/> or <see cref="SkipUnless"/>
+	/// is set.
+	/// </remarks>
 	string? Skip { get; }
+
+	/// <summary>
+	/// Gets the type to retrieve <see cref="SkipUnless"/> or <see cref="SkipWhen"/> from. If not set,
+	/// then the property will be retrieved from the unit test class.
+	/// </summary>
+	Type? SkipType { get; }
+
+	/// <summary>
+	/// Gets the name of a public static property on the test class which returns <c>bool</c>
+	/// to indicate whether the test should be skipped (<c>false</c>) or not (<c>true</c>).
+	/// </summary>
+	/// <remarks>
+	/// This property cannot be set if <see cref="SkipWhen"/> is set. Setting both will
+	/// result in a failed test.<br />
+	/// <br />
+	/// To ensure compile-time safety and easier refactoring, use the <c>nameof</c> operator,
+	/// e.g., <c>SkipUnless = nameof(IsConditionMet)</c>.
+	/// </remarks>
+	string? SkipUnless { get; }
+
+	/// <summary>
+	/// Gets the name of a public static property on the test class which returns <c>bool</c>
+	/// to indicate whether the test should be skipped (<c>true</c>) or not (<c>false</c>).
+	/// </summary>
+	/// <remarks>
+	/// This property cannot be set if <see cref="SkipUnless"/> is set. Setting both will
+	/// result in a failed test.<br />
+	/// <br />
+	/// To ensure compile-time safety and easier refactoring, use the <c>nameof</c> operator,
+	/// e.g., <c>SkipWhen = nameof(IsConditionMet)</c>.
+	/// </remarks>
+	string? SkipWhen { get; }
 
 	/// <summary>
 	/// Gets the display name for the test (replacing the default behavior, which would be to

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xunit.Internal;
@@ -20,6 +21,9 @@ public class XunitTest : IXunitTest
 	/// <param name="testMethod">The test method to be run; may differ from the test method embedded into the test case</param>
 	/// <param name="explicit">A flag to indicate the test was marked as explicit; if not set, will fall back to the test case</param>
 	/// <param name="skipReason">The skip reason for this test.</param>
+	/// <param name="skipType">The type used for <paramref name="skipUnless"/> or <paramref name="skipWhen"/>.</param>
+	/// <param name="skipUnless">The property used to determine if a test is skipped (<c>true</c> to run, <c>false</c> to skip)</param>
+	/// <param name="skipWhen">The property used to determine if a test is skipped (<c>false</c> to run, <c>true</c> to skip)</param>
 	/// <param name="testDisplayName">The display name for this test.</param>
 	/// <param name="testIndex">The index of this test inside the test case. Used for computing <see cref="UniqueID"/>.</param>
 	/// <param name="traits">The traits for the given test.</param>
@@ -30,6 +34,9 @@ public class XunitTest : IXunitTest
 		IXunitTestMethod testMethod,
 		bool? @explicit,
 		string? skipReason,
+		Type? skipType,
+		string? skipUnless,
+		string? skipWhen,
 		string testDisplayName,
 		int testIndex,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>> traits,
@@ -40,6 +47,9 @@ public class XunitTest : IXunitTest
 		TestMethod = Guard.ArgumentNotNull(testMethod);
 		Explicit = @explicit ?? TestCase.Explicit;
 		SkipReason = skipReason;
+		SkipType = skipType;
+		SkipUnless = skipUnless;
+		SkipWhen = skipWhen;
 		TestDisplayName = Guard.ArgumentNotNull(testDisplayName);
 		UniqueID = UniqueIDGenerator.ForTest(testCase.UniqueID, testIndex);
 		Timeout = timeout ?? TestCase.Timeout;
@@ -61,6 +71,9 @@ public class XunitTest : IXunitTest
 		IXunitTestMethod testMethod,
 		bool? @explicit,
 		string? skipReason,
+		Type? skipType,
+		string? skipUnless,
+		string? skipWhen,
 		string testDisplayName,
 		string uniqueID,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
@@ -71,6 +84,9 @@ public class XunitTest : IXunitTest
 		TestMethod = Guard.ArgumentNotNull(testMethod);
 		Explicit = @explicit ?? TestCase.Explicit;
 		SkipReason = skipReason;
+		SkipType = skipType;
+		SkipUnless = skipUnless;
+		SkipWhen = skipWhen;
 		TestDisplayName = Guard.ArgumentNotNull(testDisplayName);
 		UniqueID = Guard.ArgumentNotNull(uniqueID);
 		Timeout = timeout ?? TestCase.Timeout;
@@ -92,6 +108,15 @@ public class XunitTest : IXunitTest
 
 	/// <inheritdoc/>
 	public string? SkipReason { get; }
+
+	/// <inheritdoc/>
+	public Type? SkipType { get; }
+
+	/// <inheritdoc/>
+	public string? SkipUnless { get; }
+
+	/// <inheritdoc/>
+	public string? SkipWhen { get; }
 
 	/// <summary>
 	/// Gets the xUnit v3 test case.

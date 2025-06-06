@@ -162,7 +162,12 @@ public static class TestIntrospectionHelper
 			result.Explicit = dataRow.Explicit.Value;
 
 		if (dataRow.Skip is not null)
+		{
 			result.SkipReason = dataRow.Skip;
+			result.SkipType = dataRow.SkipType;
+			result.SkipUnless = dataRow.SkipUnless;
+			result.SkipWhen = dataRow.SkipWhen;
+		}
 
 		return result;
 	}

@@ -117,12 +117,20 @@ public class XunitDelayEnumeratedTheoryTestCase : XunitTestCase, IXunitDelayEnum
 				var theoryDisplayName = testMethod.GetDisplayName(baseDisplayName, dataRow.Label, convertedDataRow, resolvedTypes);
 				var traits = TestIntrospectionHelper.GetTraits(testMethod, dataRow);
 				var timeout = dataRow.Timeout ?? dataAttribute.Timeout ?? Timeout;
-				var skipReason = dataRow.Skip ?? dataAttribute.Skip ?? SkipReason;
+				var (skipReason, skipType, skipUnless, skipWhen) = (dataRow.Skip, dataAttribute.Skip) switch
+				{
+					(null, null) => (SkipReason, SkipType, SkipUnless, SkipWhen),
+					(null, _) => (dataAttribute.Skip, dataAttribute.SkipType, dataAttribute.SkipUnless, dataAttribute.SkipWhen),
+					_ => (dataRow.Skip, dataRow.SkipType, dataRow.SkipUnless, dataRow.SkipWhen),
+				};
 				var test = new XunitTest(
 					this,
 					testMethod,
 					dataRow.Explicit,
 					skipReason,
+					skipType,
+					skipUnless,
+					skipWhen,
 					theoryDisplayName,
 					testIndex++,
 					traits.ToReadOnly(),

@@ -70,11 +70,9 @@ public class XunitTestRunnerBaseContext<TTest> : TestRunnerContext<TTest>
 		// invocation, so recording the exception will result in a test failure.
 		Aggregator.Run(() =>
 		{
-			// TODO: Tests should have SkipUnless, SkipWhen, and SkipType as well, so that we can allow
-			// data rows to not just temporarily skip, but conditionally skip, just like whole tests.
 			var skipReason = Test.SkipReason;
-			var skipUnless = Test.TestCase.SkipUnless;
-			var skipWhen = Test.TestCase.SkipWhen;
+			var skipUnless = Test.SkipUnless;
+			var skipWhen = Test.SkipWhen;
 
 			if (skipUnless is null && skipWhen is null)
 				return skipReason;
@@ -97,7 +95,7 @@ public class XunitTestRunnerBaseContext<TTest> : TestRunnerContext<TTest>
 					)
 				);
 
-			var propertyType = Test.TestCase.SkipType ?? Test.TestCase.TestClass.Class;
+			var propertyType = Test.SkipType ?? Test.TestCase.TestClass.Class;
 			var propertyName = (skipUnless ?? skipWhen)!;
 			var property =
 				propertyType.GetProperty(propertyName, BindingFlags.Public | BindingFlags.Static)

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -37,6 +38,36 @@ public interface IDataAttribute
 	/// then the rows will inherit their skip reason from <see cref="IFactAttribute.Skip"/>.
 	/// </summary>
 	string? Skip { get; }
+
+	/// <summary>
+	/// Gets the type to retrieve <see cref="SkipUnless"/> or <see cref="SkipWhen"/> from. If not set,
+	/// then the property will be retrieved from the unit test class.
+	/// </summary>
+	Type? SkipType { get; }
+
+	/// <summary>
+	/// Gets the name of a public static property on the test class which returns <c>bool</c>
+	/// to indicate whether the test should be skipped (<c>false</c>) or not (<c>true</c>).
+	/// </summary>
+	/// <remarks>
+	/// This property cannot be set if <see cref="SkipWhen"/> is set. Setting both will
+	/// result in a failed test.
+	/// To ensure compile-time safety and easier refactoring, use the <c>nameof</c> operator,
+	/// e.g., <c>SkipUnless = nameof(IsConditionMet)</c>.
+	/// </remarks>
+	string? SkipUnless { get; }
+
+	/// <summary>
+	/// Gets the name of a public static property on the test class which returns <c>bool</c>
+	/// to indicate whether the test should be skipped (<c>true</c>) or not (<c>false</c>).
+	/// </summary>
+	/// <remarks>
+	/// This property cannot be set if <see cref="SkipUnless"/> is set. Setting both will
+	/// result in a failed test.
+	/// To ensure compile-time safety and easier refactoring, use the <c>nameof</c> operator
+	/// e.g., <c>SkipWhen = nameof(IsConditionMet)</c>.
+	/// </remarks>
+	string? SkipWhen { get; }
 
 	/// <summary>
 	/// Gets the test display name for the test (replacing the default behavior, which

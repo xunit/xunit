@@ -763,11 +763,28 @@ public class Xunit3TheoryAcceptanceTests
 		{
 			var testMessages = await RunForResultsAsync(typeof(ClassUnderTest_SkipTests), preEnumerateTheories);
 
-			var passed = Assert.Single(testMessages.OfType<TestPassedWithDisplayName>());
-			Assert.Equal($"{typeof(ClassUnderTest_SkipTests).FullName}.{nameof(ClassUnderTest_SkipTests.TestWithNoSkipOnTheory)}(_: 42)", passed.TestDisplayName);
+			Assert.Collection(
+				testMessages.OfType<TestPassedWithDisplayName>().OrderBy(x => x.TestDisplayName),
+				// Two passing for TestWithDynamicSkipOnTheory
+				passed => Assert.Equal($"{typeof(ClassUnderTest_SkipTests).FullName}.{nameof(ClassUnderTest_SkipTests.TestWithDynamicSkipOnTheory)}(_: 1)", passed.TestDisplayName),
+				passed => Assert.Equal($"{typeof(ClassUnderTest_SkipTests).FullName}.{nameof(ClassUnderTest_SkipTests.TestWithDynamicSkipOnTheory)}(_: 2)", passed.TestDisplayName),
+				// Single passing for TestWithNoSkipOnTheory
+				passed => Assert.Equal($"{typeof(ClassUnderTest_SkipTests).FullName}.{nameof(ClassUnderTest_SkipTests.TestWithNoSkipOnTheory)}(_: 42)", passed.TestDisplayName)
+			);
 			Assert.Collection(
 				testMessages.OfType<TestSkippedWithDisplayName>().OrderBy(x => x.TestDisplayName),
-				// Skip per data row
+				// Skipped tests for TestWithDynamicSkipOnTheory
+				skipped =>
+				{
+					Assert.Equal($"{typeof(ClassUnderTest_SkipTests).FullName}.{nameof(ClassUnderTest_SkipTests.TestWithDynamicSkipOnTheory)}(_: 3)", skipped.TestDisplayName);
+					Assert.Equal("Always skipped", skipped.Reason);
+				},
+				skipped =>
+				{
+					Assert.Equal($"{typeof(ClassUnderTest_SkipTests).FullName}.{nameof(ClassUnderTest_SkipTests.TestWithDynamicSkipOnTheory)}(_: 4)", skipped.TestDisplayName);
+					Assert.Equal("Skip dynamically flipped", skipped.Reason);
+				},
+				// Skip per data row for TestWithNoSkipOnTheory
 				skipped =>
 				{
 					Assert.Equal($"{typeof(ClassUnderTest_SkipTests).FullName}.{nameof(ClassUnderTest_SkipTests.TestWithNoSkipOnTheory)}(_: 2112)", skipped.TestDisplayName);
@@ -783,7 +800,7 @@ public class Xunit3TheoryAcceptanceTests
 					Assert.Equal($"{typeof(ClassUnderTest_SkipTests).FullName}.{nameof(ClassUnderTest_SkipTests.TestWithNoSkipOnTheory)}(_: 43)", skipped.TestDisplayName);
 					Assert.Equal("Skip from MemberData", skipped.Reason);
 				},
-				// Single skipped theory, not one per data row
+				// Single skipped theory, not one per data row, for TestWithSkipOnTheory
 				skipped =>
 				{
 					Assert.Equal($"{typeof(ClassUnderTest_SkipTests).FullName}.{nameof(ClassUnderTest_SkipTests.TestWithSkipOnTheory)}", skipped.TestDisplayName);
@@ -812,6 +829,16 @@ public class Xunit3TheoryAcceptanceTests
 			[InlineData(2112, Skip = "Skip from InlineData")]
 			[MemberData(nameof(DataSource), Skip = "Skip from MemberData")]
 			public void TestWithSkipOnTheory(int _)
+			{ }
+
+			public static bool AlwaysTrue => true;
+
+			[Theory(Skip = "Dynamically skipped", SkipUnless = nameof(AlwaysTrue))]
+			[InlineData(1)]
+			[InlineData(2)]
+			[InlineData(3, Skip = "Always skipped")]
+			[InlineData(4, Skip = "Skip dynamically flipped", SkipWhen = nameof(AlwaysTrue))]
+			public void TestWithDynamicSkipOnTheory(int _)
 			{ }
 		}
 
