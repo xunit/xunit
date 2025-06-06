@@ -375,7 +375,11 @@ public abstract class TestRunner<TContext, TTest> :
 			async void runTest(object? _)
 			{
 				SynchronizationContext.SetSynchronizationContext(syncContext);
-				UpdateTestContext(testClassInstance);
+
+				var currentException = ctxt.Aggregator.ToException();
+				var classCreationState = currentException == null ? null : TestResultState.FromException(0m, currentException);
+
+				UpdateTestContext(testClassInstance, classCreationState);
 
 				try
 				{
@@ -383,28 +387,42 @@ public abstract class TestRunner<TContext, TTest> :
 					{
 						elapsedTime += ExecutionTimer.Measure(() => ctxt.Aggregator.Run(() => PreInvoke(ctxt)));
 
+						currentException = ctxt.Aggregator.ToException();
+						if (currentException is not null)
+							UpdateTestContext(testClassInstance, TestResultState.FromException(0m, currentException));
+
 						if (!ctxt.Aggregator.HasExceptions)
 						{
 							elapsedTime += await ctxt.Aggregator.RunAsync(() => InvokeTest(ctxt, testClassInstance), TimeSpan.Zero);
 
 							// Set an early version of TestResultState so anything done in PostInvoke can understand whether
 							// it looks like the test is passing, failing, or dynamically skipped
-							var currentException = ctxt.Aggregator.ToException();
-							var currentSkipReason = ctxt.GetSkipReason(currentException);
-							var currentExecutionTime = (decimal)elapsedTime.TotalMilliseconds;
+							currentException = ctxt.Aggregator.ToException();
+							var skipReason = ctxt.GetSkipReason(currentException);
 							var testResultState =
-								currentSkipReason is not null
-									? TestResultState.ForSkipped(currentExecutionTime)
-									: TestResultState.FromException(currentExecutionTime, currentException);
+								skipReason is not null
+									? TestResultState.ForSkipped((decimal)elapsedTime.TotalMilliseconds)
+									: TestResultState.FromException((decimal)elapsedTime.TotalMilliseconds, currentException);
 
 							UpdateTestContext(testClassInstance, testResultState);
 
 							elapsedTime += ExecutionTimer.Measure(() => ctxt.Aggregator.Run(() => PostInvoke(ctxt)));
+
+							var postInvokeException = ctxt.Aggregator.ToException();
+							if (currentException != postInvokeException)
+							{
+								currentException = postInvokeException;
+								UpdateTestContext(testClassInstance, TestResultState.FromException((decimal)elapsedTime.TotalMilliseconds, postInvokeException));
+							}
 						}
 
 						elapsedTime += await ExecutionTimer.MeasureAsync(() => ctxt.Aggregator.RunAsync(() => DisposeTestClass(ctxt, testClassInstance)));
 
-						UpdateTestContext(null, TestContext.Current.TestState);
+						var postDisposeException = ctxt.Aggregator.ToException();
+						if (currentException != postDisposeException)
+							UpdateTestContext(null, TestResultState.FromException((decimal)elapsedTime.TotalMilliseconds, postDisposeException));
+						else
+							UpdateTestContext(null, TestContext.Current.TestState);
 					}
 
 					finished.TrySetResult(null);

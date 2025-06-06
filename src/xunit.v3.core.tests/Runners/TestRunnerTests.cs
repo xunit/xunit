@@ -134,20 +134,28 @@ public class TestRunnerTests
 
 			VerifyRunSummary(summary);
 			Assert.False(runner.Aggregator.HasExceptions);
-			Assert.Equal(new[]
-			{
-				"IsTestClassCreatable",
-				"OnTestClassConstructionStarting",
-				"CreateTestClassInstance",
-				"OnTestClassConstructionFinished",
-				"PreInvoke",
-				"InvokeTest(testClassInstance: typeof(object))",
-				"PostInvoke",
-				"IsTestClassDisposable",
-				"OnTestClassDisposeStarting",
-				"DisposeTestClassInstance",
-				"OnTestClassDisposeFinished",
-			}, runner.Invocations);
+			Assert.Collection(
+				runner.Invocations,
+				msg => Assert.Equal("SetTextContext(testStatus: Initializing, testState: null)", msg),
+				msg => Assert.Equal("SetTextContext(testStatus: Running, testState: null)", msg),
+				msg => Assert.Equal("IsTestClassCreatable", msg),
+				msg => Assert.Equal("OnTestClassConstructionStarting", msg),
+				msg => Assert.Equal("CreateTestClassInstance", msg),
+				msg => Assert.Equal("OnTestClassConstructionFinished", msg),
+				msg => Assert.Equal("UpdateTestContext(testClassInstance: typeof(object), testState: null)", msg),
+				msg => Assert.Equal("PreInvoke", msg),
+				// UpdateTestContext
+				msg => Assert.Equal("InvokeTest(testClassInstance: typeof(object))", msg),
+				msg => Assert.Equal("UpdateTestContext(testClassInstance: typeof(object), testState: Passed)", msg),
+				msg => Assert.Equal("PostInvoke", msg),
+				// UpdateTestContext
+				msg => Assert.Equal("IsTestClassDisposable", msg),
+				msg => Assert.Equal("OnTestClassDisposeStarting", msg),
+				msg => Assert.Equal("DisposeTestClassInstance", msg),
+				msg => Assert.Equal("OnTestClassDisposeFinished", msg),
+				msg => Assert.Equal("UpdateTestContext(testClassInstance: null, testState: Passed)", msg),
+				msg => Assert.Equal("SetTextContext(testStatus: CleaningUp, testState: Passed)", msg)
+			);
 			Assert.Collection(
 				runner.MessageBus.Messages,
 				msg => Assert.IsAssignableFrom<ITestStarting>(msg),
@@ -174,27 +182,35 @@ public class TestRunnerTests
 
 			VerifyRunSummary(summary, failed: 1);
 			Assert.False(runner.Aggregator.HasExceptions);
-			Assert.Equal(new[]
-			{
-				"IsTestClassCreatable",
+			Assert.Collection(
+				runner.Invocations,
+				msg => Assert.Equal("SetTextContext(testStatus: Initializing, testState: null)", msg),
+				msg => Assert.Equal("SetTextContext(testStatus: Running, testState: null)", msg),
+				msg => Assert.Equal("IsTestClassCreatable", msg),
 				// OnTestClassConstructionStarting
 				// CreateTestClassInstance
 				// OnTestClassConstructionFinished
-				"PreInvoke",
-				"InvokeTest(testClassInstance: null)",
-				"PostInvoke",
+				msg => Assert.Equal("UpdateTestContext(testClassInstance: null, testState: null)", msg),
+				msg => Assert.Equal("PreInvoke", msg),
+				// UpdateTestContext
+				msg => Assert.Equal("InvokeTest(testClassInstance: null)", msg),
+				msg => Assert.Equal("UpdateTestContext(testClassInstance: null, testState: Failed)", msg),
+				msg => Assert.Equal("PostInvoke", msg),
+				// UpdateTestContext
 				// IsTestClassDisposable
 				// OnTestClassDisposeStarting
 				// DisposeTestClassInstance
 				// OnTestClassDisposeFinished
-			}, runner.Invocations);
+				msg => Assert.Equal("UpdateTestContext(testClassInstance: null, testState: Failed)", msg),
+				msg => Assert.Equal("SetTextContext(testStatus: CleaningUp, testState: Failed)", msg)
+			);
 			Assert.Collection(
 				runner.MessageBus.Messages,
 				msg => Assert.IsAssignableFrom<ITestStarting>(msg),
-				//msg => Assert.IsAssignableFrom<ITestClassConstructionStarting>(msg),
-				//msg => Assert.IsAssignableFrom<ITestClassConstructionFinished>(msg),
-				//msg => Assert.IsAssignableFrom<ITestClassDisposeStarting>(msg),
-				//msg => Assert.IsAssignableFrom<ITestClassDisposeFinished>(msg),
+				// ITestClassConstructionStarting
+				// ITestClassConstructionFinished
+				// ITestClassDisposeStarting
+				// ITestClassDisposeFinished
 				msg => Assert.IsAssignableFrom<ITestFailed>(msg),
 				msg => Assert.IsAssignableFrom<ITestFinished>(msg)
 			);
@@ -209,25 +225,35 @@ public class TestRunnerTests
 
 			VerifyRunSummary(summary, skipped: 1);
 			Assert.False(runner.Aggregator.HasExceptions);
-			Assert.Equal(new string[]
-			{
+			Assert.Collection(
+				runner.Invocations,
+				msg => Assert.Equal("SetTextContext(testStatus: Initializing, testState: null)", msg),
+				msg => Assert.Equal("SetTextContext(testStatus: Running, testState: null)", msg),
 				// IsTestClassCreatable
 				// OnTestClassConstructionStarting
 				// CreateTestClassInstance
 				// OnTestClassConstructionFinished
+				// UpdateTestContext
+				// PreInvoke
+				// UpdateTestContext
 				// InvokeTest
+				// UpdateTestContext
+				// PostInvoke
+				// UpdateTestContext
 				// IsTestClassDisposable
 				// OnTestClassDisposeStarting
 				// DisposeTestClassInstance
 				// OnTestClassDisposeFinished
-			}, runner.Invocations);
+				// UpdateTestContext
+				msg => Assert.Equal("SetTextContext(testStatus: CleaningUp, testState: Skipped)", msg)
+			);
 			Assert.Collection(
 				runner.MessageBus.Messages,
 				msg => Assert.IsAssignableFrom<ITestStarting>(msg),
-				//msg => Assert.IsAssignableFrom<ITestClassConstructionStarting>(msg),
-				//msg => Assert.IsAssignableFrom<ITestClassConstructionFinished>(msg),
-				//msg => Assert.IsAssignableFrom<ITestClassDisposeStarting>(msg),
-				//msg => Assert.IsAssignableFrom<ITestClassDisposeFinished>(msg),
+				// ITestClassConstructionStarting
+				// ITestClassConstructionFinished
+				// ITestClassDisposeStarting
+				// ITestClassDisposeFinished
 				msg => Assert.IsAssignableFrom<ITestSkipped>(msg),
 				msg => Assert.IsAssignableFrom<ITestFinished>(msg)
 			);
@@ -242,25 +268,35 @@ public class TestRunnerTests
 
 			VerifyRunSummary(summary, notRun: 1);
 			Assert.False(runner.Aggregator.HasExceptions);
-			Assert.Equal(new string[]
-			{
+			Assert.Collection(
+				runner.Invocations,
+				msg => Assert.Equal("SetTextContext(testStatus: Initializing, testState: null)", msg),
+				msg => Assert.Equal("SetTextContext(testStatus: Running, testState: null)", msg),
 				// IsTestClassCreatable
 				// OnTestClassConstructionStarting
 				// CreateTestClassInstance
 				// OnTestClassConstructionFinished
+				// UpdateTestContext
+				// PreInvoke
+				// UpdateTestContext
 				// InvokeTest
+				// UpdateTestContext
+				// PostInvoke
+				// UpdateTestContext
 				// IsTestClassDisposable
 				// OnTestClassDisposeStarting
 				// DisposeTestClassInstance
 				// OnTestClassDisposeFinished
-			}, runner.Invocations);
+				// UpdateTestContext
+				msg => Assert.Equal("SetTextContext(testStatus: CleaningUp, testState: NotRun)", msg)
+			);
 			Assert.Collection(
 				runner.MessageBus.Messages,
 				msg => Assert.IsAssignableFrom<ITestStarting>(msg),
-				//msg => Assert.IsAssignableFrom<ITestClassConstructionStarting>(msg),
-				//msg => Assert.IsAssignableFrom<ITestClassConstructionFinished>(msg),
-				//msg => Assert.IsAssignableFrom<ITestClassDisposeStarting>(msg),
-				//msg => Assert.IsAssignableFrom<ITestClassDisposeFinished>(msg),
+				// ITestClassConstructionStarting
+				// ITestClassConstructionFinished
+				// ITestClassDisposeStarting
+				// ITestClassDisposeFinished
 				msg => Assert.IsAssignableFrom<ITestNotRun>(msg),
 				msg => Assert.IsAssignableFrom<ITestFinished>(msg)
 			);
@@ -278,18 +314,28 @@ public class TestRunnerTests
 
 			VerifyRunSummary(summary, failed: 1);
 			Assert.False(runner.Aggregator.HasExceptions);
-			Assert.Equal(new[]
-			{
-				"IsTestClassCreatable",
-				"OnTestClassConstructionStarting",
-				"CreateTestClassInstance",
-				"OnTestClassConstructionFinished",
+			Assert.Collection(
+				runner.Invocations,
+				msg => Assert.Equal("SetTextContext(testStatus: Initializing, testState: null)", msg),
+				msg => Assert.Equal("SetTextContext(testStatus: Running, testState: null)", msg),
+				msg => Assert.Equal("IsTestClassCreatable", msg),
+				msg => Assert.Equal("OnTestClassConstructionStarting", msg),
+				msg => Assert.Equal("CreateTestClassInstance", msg),
+				msg => Assert.Equal("OnTestClassConstructionFinished", msg),
+				msg => Assert.Equal("UpdateTestContext(testClassInstance: null, testState: Failed)", msg),
+				// PreInvoke
+				// UpdateTestContext
 				// InvokeTest
+				// UpdateTestContext
+				// PostInvoke
+				// UpdateTestContext
 				// IsTestClassDisposable
 				// OnTestClassDisposeStarting
 				// DisposeTestClassInstance
 				// OnTestClassDisposeFinished
-			}, runner.Invocations);
+				// UpdateTestContext
+				msg => Assert.Equal("SetTextContext(testStatus: CleaningUp, testState: Failed)", msg)
+			);
 			Assert.Contains(runner.MessageBus.Messages, msg => msg is ITestFailed);
 		}
 
@@ -307,20 +353,28 @@ public class TestRunnerTests
 			VerifyRunSummary(summary, failed: 1);
 			Assert.False(runner.TokenSource.IsCancellationRequested);
 			Assert.False(runner.Aggregator.HasExceptions);
-			Assert.Equal(new[]
-			{
-				"IsTestClassCreatable",
-				"OnTestClassConstructionStarting",
-				"CreateTestClassInstance",
-				"OnTestClassConstructionFinished",
-				"PreInvoke",
-				"InvokeTest(testClassInstance: typeof(object))",
-				"PostInvoke",
-				"IsTestClassDisposable",
-				"OnTestClassDisposeStarting",
-				"DisposeTestClassInstance",
-				"OnTestClassDisposeFinished",
-			}, runner.Invocations);
+			Assert.Collection(
+				runner.Invocations,
+				msg => Assert.Equal("SetTextContext(testStatus: Initializing, testState: null)", msg),
+				msg => Assert.Equal("SetTextContext(testStatus: Running, testState: null)", msg),
+				msg => Assert.Equal("IsTestClassCreatable", msg),
+				msg => Assert.Equal("OnTestClassConstructionStarting", msg),
+				msg => Assert.Equal("CreateTestClassInstance", msg),
+				msg => Assert.Equal("OnTestClassConstructionFinished", msg),
+				msg => Assert.Equal("UpdateTestContext(testClassInstance: typeof(object), testState: null)", msg),
+				msg => Assert.Equal("PreInvoke", msg),
+				// UpdateTestContext
+				msg => Assert.Equal("InvokeTest(testClassInstance: typeof(object))", msg),
+				msg => Assert.Equal("UpdateTestContext(testClassInstance: typeof(object), testState: Passed)", msg),
+				msg => Assert.Equal("PostInvoke", msg),
+				// UpdateTestContext
+				msg => Assert.Equal("IsTestClassDisposable", msg),
+				msg => Assert.Equal("OnTestClassDisposeStarting", msg),
+				msg => Assert.Equal("DisposeTestClassInstance", msg),
+				msg => Assert.Equal("OnTestClassDisposeFinished", msg),
+				msg => Assert.Equal("UpdateTestContext(testClassInstance: null, testState: Failed)", msg),
+				msg => Assert.Equal("SetTextContext(testStatus: CleaningUp, testState: Failed)", msg)
+			);
 			Assert.Contains(runner.MessageBus.Messages, msg => msg is ITestFailed);
 		}
 
@@ -333,18 +387,28 @@ public class TestRunnerTests
 
 			VerifyRunSummary(summary, failed: 1);
 			Assert.False(runner.Aggregator.HasExceptions);
-			Assert.Equal(new[]
-			{
-				"IsTestClassCreatable",
+			Assert.Collection(
+				runner.Invocations,
+				msg => Assert.Equal("SetTextContext(testStatus: Initializing, testState: null)", msg),
+				msg => Assert.Equal("SetTextContext(testStatus: Running, testState: null)", msg),
+				msg => Assert.Equal("IsTestClassCreatable", msg),
 				// OnTestClassConstructionStarting
 				// CreateTestClassInstance
 				// OnTestClassConstructionFinished
+				msg => Assert.Equal("UpdateTestContext(testClassInstance: null, testState: Failed)", msg),
+				// PreInvoke
+				// UpdateTestContext
 				// InvokeTest
+				// UpdateTestContext
+				// PostInvoke
+				// UpdateTestContext
 				// IsTestClassDisposable
 				// OnTestClassDisposeStarting
 				// DisposeTestClassInstance
 				// OnTestClassDisposeFinished
-			}, runner.Invocations);
+				// UpdateTestContext
+				msg => Assert.Equal("SetTextContext(testStatus: CleaningUp, testState: Failed)", msg)
+			);
 			Assert.Contains(runner.MessageBus.Messages, msg => msg is ITestFailed);
 		}
 
@@ -361,20 +425,28 @@ public class TestRunnerTests
 
 			VerifyRunSummary(summary, failed: 1);
 			Assert.False(runner.Aggregator.HasExceptions);
-			Assert.Equal(new[]
-			{
-				"IsTestClassCreatable",
-				"OnTestClassConstructionStarting",
-				"CreateTestClassInstance",
-				"OnTestClassConstructionFinished",
-				"PreInvoke",
-				"InvokeTest(testClassInstance: typeof(object))",
-				"PostInvoke",
-				"IsTestClassDisposable",
+			Assert.Collection(
+				runner.Invocations,
+				msg => Assert.Equal("SetTextContext(testStatus: Initializing, testState: null)", msg),
+				msg => Assert.Equal("SetTextContext(testStatus: Running, testState: null)", msg),
+				msg => Assert.Equal("IsTestClassCreatable", msg),
+				msg => Assert.Equal("OnTestClassConstructionStarting", msg),
+				msg => Assert.Equal("CreateTestClassInstance", msg),
+				msg => Assert.Equal("OnTestClassConstructionFinished", msg),
+				msg => Assert.Equal("UpdateTestContext(testClassInstance: typeof(object), testState: null)", msg),
+				msg => Assert.Equal("PreInvoke", msg),
+				// UpdateTestContext
+				msg => Assert.Equal("InvokeTest(testClassInstance: typeof(object))", msg),
+				msg => Assert.Equal("UpdateTestContext(testClassInstance: typeof(object), testState: Passed)", msg),
+				msg => Assert.Equal("PostInvoke", msg),
+				// UpdateTestContext
+				msg => Assert.Equal("IsTestClassDisposable", msg),
 				// OnTestClassDisposeStarting
 				// DisposeTestClassInstance
 				// OnTestClassDisposeFinished
-			}, runner.Invocations);
+				msg => Assert.Equal("UpdateTestContext(testClassInstance: null, testState: Failed)", msg),
+				msg => Assert.Equal("SetTextContext(testStatus: CleaningUp, testState: Failed)", msg)
+			);
 			Assert.Contains(runner.MessageBus.Messages, msg => msg is ITestFailed);
 		}
 
@@ -387,18 +459,28 @@ public class TestRunnerTests
 
 			VerifyRunSummary(summary, failed: 1);
 			Assert.False(runner.Aggregator.HasExceptions);
-			Assert.Equal(new[]
-			{
-				"IsTestClassCreatable",
-				"OnTestClassConstructionStarting",
-				"CreateTestClassInstance",
-				"OnTestClassConstructionFinished",
+			Assert.Collection(
+				runner.Invocations,
+				msg => Assert.Equal("SetTextContext(testStatus: Initializing, testState: null)", msg),
+				msg => Assert.Equal("SetTextContext(testStatus: Running, testState: null)", msg),
+				msg => Assert.Equal("IsTestClassCreatable", msg),
+				msg => Assert.Equal("OnTestClassConstructionStarting", msg),
+				msg => Assert.Equal("CreateTestClassInstance", msg),
+				msg => Assert.Equal("OnTestClassConstructionFinished", msg),
+				msg => Assert.Equal("UpdateTestContext(testClassInstance: null, testState: Failed)", msg),
+				// PreInvoke
+				// UpdateTestContext
 				// InvokeTest
+				// UpdateTestContext
+				// PostInvoke
+				// UpdateTestContext
 				// IsTestClassDisposable
 				// OnTestClassDisposeStarting
 				// DisposeTestClassInstance
 				// OnTestClassDisposeFinished
-			}, runner.Invocations);
+				// UpdateTestContext
+				msg => Assert.Equal("SetTextContext(testStatus: CleaningUp, testState: Failed)", msg)
+			);
 			Assert.Contains(runner.MessageBus.Messages, msg => msg is ITestFailed);
 		}
 
@@ -411,18 +493,28 @@ public class TestRunnerTests
 
 			VerifyRunSummary(summary, failed: 1);
 			Assert.False(runner.Aggregator.HasExceptions);
-			Assert.Equal(new[]
-			{
-				"IsTestClassCreatable",
-				"OnTestClassConstructionStarting",
+			Assert.Collection(
+				runner.Invocations,
+				msg => Assert.Equal("SetTextContext(testStatus: Initializing, testState: null)", msg),
+				msg => Assert.Equal("SetTextContext(testStatus: Running, testState: null)", msg),
+				msg => Assert.Equal("IsTestClassCreatable", msg),
+				msg => Assert.Equal("OnTestClassConstructionStarting", msg),
 				// CreateTestClassInstance
 				// OnTestClassConstructionFinished
+				msg => Assert.Equal("UpdateTestContext(testClassInstance: null, testState: Failed)", msg),
+				// PreInvoke
+				// UpdateTestContext
 				// InvokeTest
+				// UpdateTestContext
+				// PostInvoke
+				// UpdateTestContext
 				// IsTestClassDisposable
 				// OnTestClassDisposeStarting
 				// DisposeTestClassInstance
 				// OnTestClassDisposeFinished
-			}, runner.Invocations);
+				// UpdateTestContext
+				msg => Assert.Equal("SetTextContext(testStatus: CleaningUp, testState: Failed)", msg)
+			);
 			Assert.Contains(runner.MessageBus.Messages, msg => msg is ITestFailed);
 		}
 
@@ -439,20 +531,28 @@ public class TestRunnerTests
 
 			VerifyRunSummary(summary, failed: 1);
 			Assert.False(runner.Aggregator.HasExceptions);
-			Assert.Equal(new[]
-			{
-				"IsTestClassCreatable",
-				"OnTestClassConstructionStarting",
-				"CreateTestClassInstance",
-				"OnTestClassConstructionFinished",
-				"PreInvoke",
-				"InvokeTest(testClassInstance: typeof(object))",
-				"PostInvoke",
-				"IsTestClassDisposable",
-				"OnTestClassDisposeStarting",
-				"DisposeTestClassInstance",
-				"OnTestClassDisposeFinished",
-			}, runner.Invocations);
+			Assert.Collection(
+				runner.Invocations,
+				msg => Assert.Equal("SetTextContext(testStatus: Initializing, testState: null)", msg),
+				msg => Assert.Equal("SetTextContext(testStatus: Running, testState: null)", msg),
+				msg => Assert.Equal("IsTestClassCreatable", msg),
+				msg => Assert.Equal("OnTestClassConstructionStarting", msg),
+				msg => Assert.Equal("CreateTestClassInstance", msg),
+				msg => Assert.Equal("OnTestClassConstructionFinished", msg),
+				msg => Assert.Equal("UpdateTestContext(testClassInstance: typeof(object), testState: null)", msg),
+				msg => Assert.Equal("PreInvoke", msg),
+				// UpdateTestContext
+				msg => Assert.Equal("InvokeTest(testClassInstance: typeof(object))", msg),
+				msg => Assert.Equal("UpdateTestContext(testClassInstance: typeof(object), testState: Passed)", msg),
+				msg => Assert.Equal("PostInvoke", msg),
+				// UpdateTestContext
+				msg => Assert.Equal("IsTestClassDisposable", msg),
+				msg => Assert.Equal("OnTestClassDisposeStarting", msg),
+				msg => Assert.Equal("DisposeTestClassInstance", msg),
+				msg => Assert.Equal("OnTestClassDisposeFinished", msg),
+				msg => Assert.Equal("UpdateTestContext(testClassInstance: null, testState: Failed)", msg),
+				msg => Assert.Equal("SetTextContext(testStatus: CleaningUp, testState: Failed)", msg)
+			);
 			Assert.Contains(runner.MessageBus.Messages, msg => msg is ITestFailed);
 		}
 
@@ -469,20 +569,106 @@ public class TestRunnerTests
 
 			VerifyRunSummary(summary, failed: 1);
 			Assert.False(runner.Aggregator.HasExceptions);
-			Assert.Equal(new[]
+			Assert.Collection(
+				runner.Invocations,
+				msg => Assert.Equal("SetTextContext(testStatus: Initializing, testState: null)", msg),
+				msg => Assert.Equal("SetTextContext(testStatus: Running, testState: null)", msg),
+				msg => Assert.Equal("IsTestClassCreatable", msg),
+				msg => Assert.Equal("OnTestClassConstructionStarting", msg),
+				msg => Assert.Equal("CreateTestClassInstance", msg),
+				msg => Assert.Equal("OnTestClassConstructionFinished", msg),
+				msg => Assert.Equal("UpdateTestContext(testClassInstance: typeof(object), testState: null)", msg),
+				msg => Assert.Equal("PreInvoke", msg),
+				// UpdateTestContext
+				msg => Assert.Equal("InvokeTest(testClassInstance: typeof(object))", msg),
+				msg => Assert.Equal("UpdateTestContext(testClassInstance: typeof(object), testState: Passed)", msg),
+				msg => Assert.Equal("PostInvoke", msg),
+				// UpdateTestContext
+				msg => Assert.Equal("IsTestClassDisposable", msg),
+				msg => Assert.Equal("OnTestClassDisposeStarting", msg),
+				msg => Assert.Equal("DisposeTestClassInstance", msg),
+				msg => Assert.Equal("OnTestClassDisposeFinished", msg),
+				msg => Assert.Equal("UpdateTestContext(testClassInstance: null, testState: Failed)", msg),
+				msg => Assert.Equal("SetTextContext(testStatus: CleaningUp, testState: Failed)", msg)
+			);
+			Assert.Contains(runner.MessageBus.Messages, msg => msg is ITestFailed);
+		}
+
+		[Fact]
+		public static async ValueTask PostInvoke()
+		{
+			var runner = new TestableTestRunner
 			{
-				"IsTestClassCreatable",
-				"OnTestClassConstructionStarting",
-				"CreateTestClassInstance",
-				"OnTestClassConstructionFinished",
-				"PreInvoke",
-				"InvokeTest(testClassInstance: typeof(object))",
-				"PostInvoke",
-				"IsTestClassDisposable",
-				"OnTestClassDisposeStarting",
-				"DisposeTestClassInstance",
-				"OnTestClassDisposeFinished",
-			}, runner.Invocations);
+				CreateTestClassInstance__Result = new object(),
+				PostInvoke__Lambda = () => throw new DivideByZeroException(),
+			};
+
+			var summary = await runner.Run();
+
+			VerifyRunSummary(summary, failed: 1);
+			Assert.False(runner.TokenSource.IsCancellationRequested);
+			Assert.False(runner.Aggregator.HasExceptions);
+			Assert.Collection(
+				runner.Invocations,
+				msg => Assert.Equal("SetTextContext(testStatus: Initializing, testState: null)", msg),
+				msg => Assert.Equal("SetTextContext(testStatus: Running, testState: null)", msg),
+				msg => Assert.Equal("IsTestClassCreatable", msg),
+				msg => Assert.Equal("OnTestClassConstructionStarting", msg),
+				msg => Assert.Equal("CreateTestClassInstance", msg),
+				msg => Assert.Equal("OnTestClassConstructionFinished", msg),
+				msg => Assert.Equal("UpdateTestContext(testClassInstance: typeof(object), testState: null)", msg),
+				msg => Assert.Equal("PreInvoke", msg),
+				// UpdateTestContext
+				msg => Assert.Equal("InvokeTest(testClassInstance: typeof(object))", msg),
+				msg => Assert.Equal("UpdateTestContext(testClassInstance: typeof(object), testState: Passed)", msg),
+				msg => Assert.Equal("PostInvoke", msg),
+				msg => Assert.Equal("UpdateTestContext(testClassInstance: typeof(object), testState: Failed)", msg),
+				msg => Assert.Equal("IsTestClassDisposable", msg),
+				msg => Assert.Equal("OnTestClassDisposeStarting", msg),
+				msg => Assert.Equal("DisposeTestClassInstance", msg),
+				msg => Assert.Equal("OnTestClassDisposeFinished", msg),
+				msg => Assert.Equal("UpdateTestContext(testClassInstance: null, testState: Failed)", msg),
+				msg => Assert.Equal("SetTextContext(testStatus: CleaningUp, testState: Failed)", msg)
+			);
+			Assert.Contains(runner.MessageBus.Messages, msg => msg is ITestFailed);
+		}
+
+		[Fact]
+		public static async ValueTask PreInvoke()
+		{
+			var runner = new TestableTestRunner
+			{
+				CreateTestClassInstance__Result = new object(),
+				PreInvoke__Lambda = () => throw new DivideByZeroException(),
+			};
+
+			var summary = await runner.Run();
+
+			VerifyRunSummary(summary, failed: 1);
+			Assert.False(runner.TokenSource.IsCancellationRequested);
+			Assert.False(runner.Aggregator.HasExceptions);
+			Assert.Collection(
+				runner.Invocations,
+				msg => Assert.Equal("SetTextContext(testStatus: Initializing, testState: null)", msg),
+				msg => Assert.Equal("SetTextContext(testStatus: Running, testState: null)", msg),
+				msg => Assert.Equal("IsTestClassCreatable", msg),
+				msg => Assert.Equal("OnTestClassConstructionStarting", msg),
+				msg => Assert.Equal("CreateTestClassInstance", msg),
+				msg => Assert.Equal("OnTestClassConstructionFinished", msg),
+				msg => Assert.Equal("UpdateTestContext(testClassInstance: typeof(object), testState: null)", msg),
+				msg => Assert.Equal("PreInvoke", msg),
+				msg => Assert.Equal("UpdateTestContext(testClassInstance: typeof(object), testState: Failed)", msg),
+				// InvokeTest
+				// UpdateTestContext
+				// PostInvoke
+				// UpdateTestContext
+				msg => Assert.Equal("IsTestClassDisposable", msg),
+				msg => Assert.Equal("OnTestClassDisposeStarting", msg),
+				msg => Assert.Equal("DisposeTestClassInstance", msg),
+				msg => Assert.Equal("OnTestClassDisposeFinished", msg),
+				msg => Assert.Equal("UpdateTestContext(testClassInstance: null, testState: Failed)", msg),
+				msg => Assert.Equal("SetTextContext(testStatus: CleaningUp, testState: Failed)", msg)
+			);
 			Assert.Contains(runner.MessageBus.Messages, msg => msg is ITestFailed);
 		}
 	}
@@ -689,6 +875,17 @@ public class TestRunnerTests
 			return await Run(ctxt);
 		}
 
+		protected override void SetTestContext(
+			TestRunnerContext<ITest> ctxt,
+			TestEngineStatus testStatus,
+			TestResultState? testState = null,
+			object? testClassInstance = null)
+		{
+			Invocations.Add($"SetTextContext(testStatus: {testStatus}, testState: {testState?.Result.ToString() ?? "null"})");
+
+			base.SetTestContext(ctxt, testStatus, testState, testClassInstance);
+		}
+
 		public bool ShouldTestRun__Result = true;
 
 		protected override bool ShouldTestRun(TestRunnerContext<ITest> ctxt) =>
@@ -696,6 +893,15 @@ public class TestRunnerTests
 
 		static string TypeName(object? value) =>
 			value is null ? "null" : $"typeof({ArgumentFormatter.FormatTypeName(value.GetType())})";
+
+		protected override void UpdateTestContext(
+			object? testClassInstance,
+			TestResultState? testState = null)
+		{
+			Invocations.Add($"UpdateTestContext(testClassInstance: {TypeName(testClassInstance)}, testState: {testState?.Result.ToString() ?? "null"})");
+
+			base.UpdateTestContext(testClassInstance, testState);
+		}
 
 		static void _TestMethod() { }
 	}

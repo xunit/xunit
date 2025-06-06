@@ -530,7 +530,7 @@ public abstract class TestRunnerBase<TContext, TTest>
 	/// itself. This preserves the values in the existing context (notably, the cancellation token, which
 	/// is wrapped and passed, and as such cannot be replaced).
 	/// </summary>
-	protected void UpdateTestContext(
+	protected virtual void UpdateTestContext(
 		object? testClassInstance,
 		TestResultState? testState = null)
 	{
