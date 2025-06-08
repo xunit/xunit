@@ -41,12 +41,12 @@ xUnit.net is a free, open source, community-focused unit testing tool for the .N
 ### Latest Release Notes
 
 {: .table .latest }
-|                           | Stable                                             |
-| ------------------------- | -------------------------------------------------- | ----------------------------------------
-| v3 core framework         | [2.0.3](/releases/v3/2.0.3){: .release }           | ([all releases](/releases/v3/))
-| v2 core framework         | [2.9.3](/releases/v2/2.9.3){: .release }           | ([all releases](/releases/v2/))
-| xunit.analyzers           | [1.22.0](/releases/analyzers/1.22.0){: .release }  | ([all releases](/releases/analyzers/))
-| xunit.runner.visualstudio | [3.1.1](/releases/visualstudio/3.1.1){: .release } | ([all releases](/releases/visualstudio/))
+|                           | Stable                                             | Prerelease                                                       |
+| ------------------------- | -------------------------------------------------- | ---------------------------------------------------------------- | -------------------------------
+| v3 core framework         | [2.0.3](/releases/v3/2.0.3){: .release }           | [3.0.0-pre.15](/releases/v3/3.0.0-pre.15){: .prerelease }        | ([all releases](/releases/v3/))
+| v2 core framework         | [2.9.3](/releases/v2/2.9.3){: .release }           |                                                                  | ([all releases](/releases/v2/))
+| xunit.analyzers           | [1.22.0](/releases/analyzers/1.22.0){: .release }  | [1.23.0-pre.2](/releases/analyzers/1.23.0-pre.2){: .prerelease } | ([all releases](/releases/analyzers/))
+| xunit.runner.visualstudio | [3.1.1](/releases/visualstudio/3.1.1){: .release } |                                                                  | ([all releases](/releases/visualstudio/))
 
 
 ## Documentation
@@ -95,6 +95,7 @@ _New to xUnit.net? These guides will help you get started._
 
 * [Configuration files](/docs/configuration-files) (aka <code>xunit.runner.json</code>)
 * [What is the JSON schema for <code>xunit.runner.json</code>?](/schema/)
+* [Using `testconfig.json` with Microsoft Testing Platform](/docs/testconfig-json-mtp)
 * [RunSettings and <code>xunit.runner.visualstudio</code>](/docs/runsettings)
 
 ### Unit Test Parallelism

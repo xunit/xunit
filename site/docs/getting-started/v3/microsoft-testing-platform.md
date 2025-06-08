@@ -6,7 +6,7 @@ breadcrumb: Documentation
 
 # Microsoft Testing Platform support in xUnit.net v3
 
-_Last updated: 2025 June 4_
+_Last updated: 2025 June 7_
 
 Starting with build `0.4.0-pre.10`, we have added support for the new [Microsoft Testing Platform](https://learn.microsoft.com/dotnet/core/testing/unit-testing-platform-intro) natively into xUnit.net v3.
 
@@ -23,6 +23,12 @@ The xUnit.net integration with Microsoft Testing Platform comes at three levels:
 3. You can run tests with the new Microsoft Testing Platform integrated Test Explorer ([&#x1F517;](#enabling-the-test-explorer-experience))
 
 Unlike our support for VSTest, our support for Microsoft Testing Platform is built natively into xUnit.net v3. If you want to rely solely on Microsoft Testing Platform support, you can remove the package references to `xunit.runner.visualstudio` and `Microsoft.NET.Test.Sdk`. However, for backward compatibility reasons, we recommend you leave these in place, because as of the writing of this document, third party runners (like Resharper and CodeRush) still rely on VSTest to be able to run xUnit.net tests. Once all runners can support Microsoft Testing Platform, then we'll be able to deprecate `xunit.runner.visualstudio`. Supporting VSTest is separate from (and does not interfere with) our support for Microsoft Testing Platform.
+
+### Configuration with `testconfig.json`
+
+Starting with build `3.0.0-pre.15`, you can use `testconfig.json` to provide xUnit.net configuration options for your test project. Note that this configuration is only applied when running in Microsoft Testing Platform more.
+
+For more information, see [Using `testconfig.json` with Microsoft Testing Platform](/docs/testconfig-json-mtp).
 
 ## Enabling the command line experience
 
