@@ -1,5 +1,3 @@
-#pragma warning disable xUnit2015 // Do not use typeof expression to check the exception type
-
 using System;
 using System.Threading.Tasks;
 using Xunit;
@@ -7,6 +5,8 @@ using Xunit.Sdk;
 
 public class ExceptionAssertsTests
 {
+#pragma warning disable xUnit2015 // Do not use typeof expression to check the exception type
+
 	public class Throws_NonGeneric
 	{
 		public class WithAction
@@ -14,7 +14,7 @@ public class ExceptionAssertsTests
 			[Fact]
 			public static void GuardClauses()
 			{
-				void testCode() { }
+				static void testCode() { }
 
 				Assert.Throws<ArgumentNullException>("exceptionType", () => Assert.Throws(null!, testCode));
 				Assert.Throws<ArgumentNullException>("testCode", () => Assert.Throws(typeof(Exception), default(Action)!));
@@ -23,7 +23,7 @@ public class ExceptionAssertsTests
 			[Fact]
 			public static void NoExceptionThrown()
 			{
-				void testCode() { }
+				static void testCode() { }
 
 				var ex = Record.Exception(() => Assert.Throws(typeof(ArgumentException), testCode));
 
@@ -39,7 +39,7 @@ public class ExceptionAssertsTests
 			[Fact]
 			public static void CorrectExceptionThrown()
 			{
-				void testCode() => throw new ArgumentException();
+				static void testCode() => throw new ArgumentException();
 
 				Assert.Throws(typeof(ArgumentException), testCode);
 			}
@@ -86,7 +86,7 @@ public class ExceptionAssertsTests
 			[Fact]
 			public static void GuardClauses()
 			{
-				object testCode() => 42;
+				static object testCode() => 42;
 
 				Assert.Throws<ArgumentNullException>("exceptionType", () => Assert.Throws(null!, testCode));
 				Assert.Throws<ArgumentNullException>("testCode", () => Assert.Throws(typeof(Exception), default(Func<object>)!));
@@ -106,7 +106,7 @@ public class ExceptionAssertsTests
 			[Fact]
 			public static void NoExceptionThrown()
 			{
-				object testCode() => 42;
+				static object testCode() => 42;
 
 				var ex = Record.Exception(() => Assert.Throws(typeof(ArgumentException), testCode));
 
@@ -122,7 +122,7 @@ public class ExceptionAssertsTests
 			[Fact]
 			public static void CorrectExceptionThrown()
 			{
-				object testCode() => throw new ArgumentException();
+				static object testCode() => throw new ArgumentException();
 
 				Assert.Throws(typeof(ArgumentException), testCode);
 			}
@@ -164,6 +164,7 @@ public class ExceptionAssertsTests
 			}
 		}
 	}
+
 #pragma warning restore xUnit2015 // Do not use typeof expression to check the exception type
 
 	public class Throws_Generic
@@ -179,7 +180,7 @@ public class ExceptionAssertsTests
 			[Fact]
 			public static void NoExceptionThrown()
 			{
-				void testCode() { }
+				static void testCode() { }
 
 				var ex = Record.Exception(() => Assert.Throws<ArgumentException>(testCode));
 
@@ -195,7 +196,7 @@ public class ExceptionAssertsTests
 			[Fact]
 			public static void CorrectExceptionThrown()
 			{
-				void testCode() => throw new ArgumentException();
+				static void testCode() => throw new ArgumentException();
 
 				Assert.Throws<ArgumentException>(testCode);
 			}
@@ -259,7 +260,7 @@ public class ExceptionAssertsTests
 			[Fact]
 			public static void NoExceptionThrown()
 			{
-				object testCode() => 42;
+				static object testCode() => 42;
 
 				var ex = Record.Exception(() => Assert.Throws<ArgumentException>(testCode));
 
@@ -275,7 +276,7 @@ public class ExceptionAssertsTests
 			[Fact]
 			public static void CorrectExceptionThrown()
 			{
-				object testCode() => throw new ArgumentException();
+				static object testCode() => throw new ArgumentException();
 
 				Assert.Throws<ArgumentException>(testCode);
 			}
@@ -331,7 +332,7 @@ public class ExceptionAssertsTests
 			[Fact]
 			public static void NoExceptionThrown()
 			{
-				void testCode() { }
+				static void testCode() { }
 
 				var ex = Record.Exception(() => Assert.Throws<ArgumentException>("paramName", testCode));
 
@@ -347,7 +348,7 @@ public class ExceptionAssertsTests
 			[Fact]
 			public static void CorrectExceptionThrown()
 			{
-				void testCode() => throw new ArgumentException("Hello world", "paramName");
+				static void testCode() => throw new ArgumentException("Hello world", "paramName");
 
 				Assert.Throws<ArgumentException>("paramName", testCode);
 			}
@@ -355,7 +356,7 @@ public class ExceptionAssertsTests
 			[Fact]
 			public static void IncorrectParameterName()
 			{
-				void testCode() => throw new ArgumentException("Hello world", "paramName1");
+				static void testCode() => throw new ArgumentException("Hello world", "paramName1");
 
 				var ex = Record.Exception(() => Assert.Throws<ArgumentException>("paramName2", testCode));
 
@@ -417,7 +418,7 @@ public class ExceptionAssertsTests
 			[Fact]
 			public static void NoExceptionThrown()
 			{
-				object testCode() => 42;
+				static object testCode() => 42;
 
 				var ex = Record.Exception(() => Assert.Throws<ArgumentException>("paramName", testCode));
 
@@ -433,7 +434,7 @@ public class ExceptionAssertsTests
 			[Fact]
 			public static void CorrectExceptionThrown()
 			{
-				object testCode() => throw new ArgumentException("Hello world", "paramName");
+				static object testCode() => throw new ArgumentException("Hello world", "paramName");
 
 				Assert.Throws<ArgumentException>("paramName", testCode);
 			}
@@ -441,7 +442,7 @@ public class ExceptionAssertsTests
 			[Fact]
 			public static void IncorrectParameterName()
 			{
-				object testCode() => throw new ArgumentException("Hello world", "paramName1");
+				static object testCode() => throw new ArgumentException("Hello world", "paramName1");
 
 				var ex = Record.Exception(() => Assert.Throws<ArgumentException>("paramName2", testCode));
 
@@ -506,7 +507,7 @@ public class ExceptionAssertsTests
 			[Fact]
 			public static void NoExceptionThrown()
 			{
-				void testCode() { }
+				static void testCode() { }
 
 				var ex = Record.Exception(() => Assert.ThrowsAny<ArgumentException>(testCode));
 
@@ -522,7 +523,7 @@ public class ExceptionAssertsTests
 			[Fact]
 			public static void CorrectExceptionThrown()
 			{
-				void testCode() => throw new ArgumentException();
+				static void testCode() => throw new ArgumentException();
 
 				Assert.ThrowsAny<ArgumentException>(testCode);
 			}
@@ -548,7 +549,7 @@ public class ExceptionAssertsTests
 			[Fact]
 			public static void DerivedExceptionThrown()
 			{
-				void testCode() => throw new ArgumentNullException();
+				static void testCode() => throw new ArgumentNullException();
 
 				Assert.ThrowsAny<ArgumentException>(testCode);
 			}
@@ -576,7 +577,7 @@ public class ExceptionAssertsTests
 			[Fact]
 			public static void NoExceptionThrown()
 			{
-				object testCode() => 42;
+				static object testCode() => 42;
 
 				var ex = Record.Exception(() => Assert.ThrowsAny<ArgumentException>(testCode));
 
@@ -592,7 +593,7 @@ public class ExceptionAssertsTests
 			[Fact]
 			public static void CorrectExceptionThrown()
 			{
-				object testCode() => throw new ArgumentException();
+				static object testCode() => throw new ArgumentException();
 
 				Assert.ThrowsAny<ArgumentException>(testCode);
 			}
@@ -618,7 +619,7 @@ public class ExceptionAssertsTests
 			[Fact]
 			public static void DerivedExceptionThrown()
 			{
-				object testCode() => throw new ArgumentNullException();
+				static object testCode() => throw new ArgumentNullException();
 
 				Assert.ThrowsAny<ArgumentException>(testCode);
 			}
@@ -630,13 +631,13 @@ public class ExceptionAssertsTests
 		[Fact]
 		public static async Task GuardClause()
 		{
-			await Assert.ThrowsAsync<ArgumentNullException>("testCode", () => Assert.ThrowsAnyAsync<ArgumentException>(default(Func<Task>)!));
+			await Assert.ThrowsAsync<ArgumentNullException>("testCode", () => Assert.ThrowsAnyAsync<ArgumentException>(default!));
 		}
 
 		[Fact]
 		public static async Task NoExceptionThrown()
 		{
-			Task testCode() => Task.FromResult(42);
+			static Task testCode() => Task.FromResult(42);
 
 			var ex = await Record.ExceptionAsync(() => Assert.ThrowsAnyAsync<ArgumentException>(testCode));
 
@@ -652,7 +653,7 @@ public class ExceptionAssertsTests
 		[Fact]
 		public static async Task CorrectExceptionThrown()
 		{
-			Task testCode() => throw new ArgumentException();
+			static Task testCode() => throw new ArgumentException();
 
 			await Assert.ThrowsAnyAsync<ArgumentException>(testCode);
 		}
@@ -678,7 +679,7 @@ public class ExceptionAssertsTests
 		[Fact]
 		public static async Task DerivedExceptionThrown()
 		{
-			Task testCode() => throw new ArgumentNullException();
+			static Task testCode() => throw new ArgumentNullException();
 
 			await Assert.ThrowsAnyAsync<ArgumentException>(testCode);
 		}
@@ -689,13 +690,13 @@ public class ExceptionAssertsTests
 		[Fact]
 		public static async Task GuardClause()
 		{
-			await Assert.ThrowsAsync<ArgumentNullException>("testCode", () => Assert.ThrowsAsync<ArgumentException>(default(Func<Task>)!));
+			await Assert.ThrowsAsync<ArgumentNullException>("testCode", () => Assert.ThrowsAsync<ArgumentException>(default!));
 		}
 
 		[Fact]
 		public static async Task NoExceptionThrown()
 		{
-			Task testCode() => Task.FromResult(42);
+			static Task testCode() => Task.FromResult(42);
 
 			var ex = await Record.ExceptionAsync(() => Assert.ThrowsAsync<ArgumentException>(testCode));
 
@@ -711,7 +712,7 @@ public class ExceptionAssertsTests
 		[Fact]
 		public static async Task CorrectExceptionThrown()
 		{
-			Task testCode() => throw new ArgumentException();
+			static Task testCode() => throw new ArgumentException();
 
 			await Assert.ThrowsAsync<ArgumentException>(testCode);
 		}
@@ -758,13 +759,13 @@ public class ExceptionAssertsTests
 		[Fact]
 		public static async Task GuardClause()
 		{
-			await Assert.ThrowsAsync<ArgumentNullException>("testCode", () => Assert.ThrowsAsync<ArgumentException>("paramName", default(Func<Task>)!));
+			await Assert.ThrowsAsync<ArgumentNullException>("testCode", () => Assert.ThrowsAsync<ArgumentException>("paramName", default!));
 		}
 
 		[Fact]
 		public static async Task NoExceptionThrown()
 		{
-			Task testCode() => Task.FromResult(42);
+			static Task testCode() => Task.FromResult(42);
 
 			var ex = await Record.ExceptionAsync(() => Assert.ThrowsAsync<ArgumentException>("paramName", testCode));
 
@@ -780,7 +781,7 @@ public class ExceptionAssertsTests
 		[Fact]
 		public static async Task CorrectExceptionThrown()
 		{
-			Task testCode() => throw new ArgumentException("Hello world", "paramName");
+			static Task testCode() => throw new ArgumentException("Hello world", "paramName");
 
 			await Assert.ThrowsAsync<ArgumentException>("paramName", testCode);
 		}
@@ -788,7 +789,7 @@ public class ExceptionAssertsTests
 		[Fact]
 		public static async Task IncorrectParameterName()
 		{
-			Task testCode() => throw new ArgumentException("Hello world", "paramName1");
+			static Task testCode() => throw new ArgumentException("Hello world", "paramName1");
 
 			var ex = await Record.ExceptionAsync(() => Assert.ThrowsAsync<ArgumentException>("paramName2", testCode));
 
