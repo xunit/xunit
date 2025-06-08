@@ -707,7 +707,12 @@ public class Xunit3AcceptanceTests
 			Assert.Equal("Xunit3AcceptanceTests+CustomFacts+ClassWithCustomFact.Passing", displayName);
 		}
 
+
+#pragma warning disable xUnit3003 // Classes which extend FactAttribute (directly or indirectly) should provide a public constructor for source information
+
 		class MyCustomFact : FactAttribute { }
+
+#pragma warning restore xUnit3003
 
 		class ClassWithCustomFact
 		{
@@ -727,10 +732,14 @@ public class Xunit3AcceptanceTests
 			Assert.Equal("Xunit3AcceptanceTests+CustomFacts+ClassWithCustomArrayFact.Passing", displayName);
 		}
 
+#pragma warning disable xUnit3003 // Classes which extend FactAttribute (directly or indirectly) should provide a public constructor for source information
+
 		class MyCustomArrayFact : FactAttribute
 		{
 			public MyCustomArrayFact(params string[] values) { }
 		}
+
+#pragma warning restore xUnit3003
 
 		class ClassWithCustomArrayFact
 		{

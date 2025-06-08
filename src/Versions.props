@@ -16,7 +16,7 @@
 
     <!-- Used by NuGet packages (xunit.v3 and xunit.v3.templates) -->
     <Microsoft_NET_Test_Sdk_Version>17.13.0</Microsoft_NET_Test_Sdk_Version>
-    <xunit_analyzers_Version>1.22.0</xunit_analyzers_Version>
+    <xunit_analyzers_Version>1.23.0-pre.3</xunit_analyzers_Version>
     <xunit_runner_visualstudio_Version>3.1.1</xunit_runner_visualstudio_Version>
 
     <!-- Used by xunit.v3.assert for immutable collection and memory/span support -->
