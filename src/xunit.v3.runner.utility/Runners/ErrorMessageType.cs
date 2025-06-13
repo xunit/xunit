@@ -1,8 +1,11 @@
+using System;
+
 namespace Xunit.Runners;
 
 /// <summary>
 /// An enumeration which indicates the type of error message (for <see cref="AssemblyRunner.OnErrorMessage"/>).
 /// </summary>
+[Obsolete("Please use the ErrorMessageType enum from the Xunit.SimpleRunner namespace. This class will be removed in the next major release.")]
 public enum ErrorMessageType
 {
 	/// <summary>An unhandled exception occurred that disrupted the execution engine</summary>

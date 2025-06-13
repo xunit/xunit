@@ -1,8 +1,11 @@
+using System;
+
 namespace Xunit.Runners;
 
 /// <summary>
 /// Represents test assembly execution being finished.
 /// </summary>
+[Obsolete("Please use the ExecutionCompleteInfo class from the Xunit.SimpleRunner namespace. This class will be removed in the next major release.")]
 public class ExecutionCompleteInfo(
 	int totalTests,
 	int testsFailed,

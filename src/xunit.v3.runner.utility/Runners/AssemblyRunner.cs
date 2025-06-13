@@ -13,6 +13,7 @@ namespace Xunit.Runners;
 /// <summary>
 /// A class which makes it simpler for casual runner authors to find and run tests and get results.
 /// </summary>
+[Obsolete("Please use the AssemblyRunner class from the Xunit.SimpleRunner namespace. This class will be removed in the next major release.")]
 public class AssemblyRunner : IAsyncDisposable, IMessageSink
 {
 	static readonly Dictionary<Type, string> MessageTypeNames;
@@ -87,36 +88,43 @@ public class AssemblyRunner : IAsyncDisposable, IMessageSink
 	/// <summary>
 	/// Set to get notification of diagnostic messages.
 	/// </summary>
+	[Obsolete("This property has moved to Xunit.SimpleRunner.AssemblyRunnerOptions.")]
 	public Action<DiagnosticMessageInfo>? OnDiagnosticMessage { get; set; }
 
 	/// <summary>
 	/// Set to get notification of when test discovery is complete.
 	/// </summary>
+	[Obsolete("This property has moved to Xunit.SimpleRunner.AssemblyRunnerOptions.")]
 	public Action<DiscoveryCompleteInfo>? OnDiscoveryComplete { get; set; }
 
 	/// <summary>
 	/// Set to get notification of error messages (unhandled exceptions outside of tests).
 	/// </summary>
+	[Obsolete("This property has moved to Xunit.SimpleRunner.AssemblyRunnerOptions.")]
 	public Action<ErrorMessageInfo>? OnErrorMessage { get; set; }
 
 	/// <summary>
 	/// Set to get notification of when test execution is complete.
 	/// </summary>
+	[Obsolete("This property has moved to Xunit.SimpleRunner.AssemblyRunnerOptions.")]
 	public Action<ExecutionCompleteInfo>? OnExecutionComplete { get; set; }
 
 	/// <summary>
 	/// Set to get notification of internal diagnostic messages.
 	/// </summary>
+	[Obsolete("This property has moved to Xunit.SimpleRunner.AssemblyRunnerOptions.")]
 	public Action<InternalDiagnosticMessageInfo>? OnInternalDiagnosticMessage { get; set; }
 
 	/// <summary>
 	/// Set to get notification of failed tests.
 	/// </summary>
+	[Obsolete("This property has moved to Xunit.SimpleRunner.AssemblyRunnerOptions.")]
 	public Action<TestFailedInfo>? OnTestFailed { get; set; }
 
 	/// <summary>
 	/// Set to get notification of finished tests (regardless of outcome).
 	/// </summary>
+	[Obsolete("This property has moved to Xunit.SimpleRunner.AssemblyRunnerOptions.")]
 	public Action<TestFinishedInfo>? OnTestFinished { get; set; }
 
 	/// <summary>
@@ -124,26 +132,31 @@ public class AssemblyRunner : IAsyncDisposable, IMessageSink
 	/// Note that output is captured and reported back to all the test completion Info>s
 	/// in addition to being sent to this Info>.
 	/// </summary>
+	[Obsolete("This property has moved to Xunit.SimpleRunner.AssemblyRunnerOptions.")]
 	public Action<TestOutputInfo>? OnTestOutput { get; set; }
 
 	/// <summary>
 	/// Set to get notification of passing tests.
 	/// </summary>
+	[Obsolete("This property has moved to Xunit.SimpleRunner.AssemblyRunnerOptions.")]
 	public Action<TestPassedInfo>? OnTestPassed { get; set; }
 
 	/// <summary>
 	/// Set to get notification of skipped tests.
 	/// </summary>
+	[Obsolete("This property has moved to Xunit.SimpleRunner.AssemblyRunnerOptions.")]
 	public Action<TestSkippedInfo>? OnTestSkipped { get; set; }
 
 	/// <summary>
 	/// Set to get notification of when tests start running.
 	/// </summary>
+	[Obsolete("This property has moved to Xunit.SimpleRunner.AssemblyRunnerOptions.")]
 	public Action<TestStartingInfo>? OnTestStarting { get; set; }
 
 	/// <summary>
 	/// Gets the current status of the assembly runner
 	/// </summary>
+	[Obsolete("This property is no longer available on Xunit.SimpleRunner.AssemblyRunner.")]
 	public AssemblyRunnerStatus Status =>
 		!discoveryCompleteEvent.WaitOne(0)
 			? AssemblyRunnerStatus.Discovering
@@ -155,6 +168,7 @@ public class AssemblyRunner : IAsyncDisposable, IMessageSink
 	/// Set to be able to filter the test cases to decide which ones to run. If this is not set,
 	/// then all test cases will be run.
 	/// </summary>
+	[Obsolete("This property has moved to Xunit.SimpleRunner.AssemblyRunnerOptions.")]
 	public Func<ITestCaseDiscovered, bool>? TestCaseFilter { get; set; }
 
 	static void AddMessageTypeName<T>() => MessageTypeNames.Add(typeof(T), typeof(T).FullName!);
@@ -392,6 +406,7 @@ public class AssemblyRunner : IAsyncDisposable, IMessageSink
 	/// Callers can check <see cref="Status"/> to find out the current status.
 	/// </summary>
 	/// <param name="startOptions">The optional start options.</param>
+	[Obsolete("The Start method has been replaced by the Run method on Xunit.SimpleRunner.AssemblyRunner")]
 	public void Start(AssemblyRunnerStartOptions? startOptions = null)
 	{
 		startOptions ??= AssemblyRunnerStartOptions.Empty;
@@ -435,6 +450,7 @@ public class AssemblyRunner : IAsyncDisposable, IMessageSink
 	}
 
 #if NETFRAMEWORK
+
 	/// <summary>
 	/// Creates an assembly runner that discovers and run tests in a separate app domain.
 	/// </summary>
@@ -444,6 +460,7 @@ public class AssemblyRunner : IAsyncDisposable, IMessageSink
 	/// tests to be discovered and run without locking assembly files on disk.</param>
 	/// <param name="shadowCopyFolder">The path on disk to use for shadow copying; if <c>null</c>, a folder
 	/// will be automatically (randomly) generated</param>
+	[Obsolete("Create an instance of Xunit.SimpleRunner.AssemblyRunner directly instead")]
 	public static AssemblyRunner WithAppDomain(
 		string assemblyFileName,
 		string? configFileName = null,
@@ -455,12 +472,14 @@ public class AssemblyRunner : IAsyncDisposable, IMessageSink
 
 		return new AssemblyRunner(AppDomainSupport.Required, assemblyFileName, configFileName, shadowCopy, shadowCopyFolder);
 	}
+
 #endif
 
 	/// <summary>
 	/// Creates an assembly runner that discovers and runs tests without a separate app domain.
 	/// </summary>
 	/// <param name="assemblyFileName">The test assembly.</param>
+	[Obsolete("Create an instance of Xunit.SimpleRunner.AssemblyRunner directly instead")]
 	public static AssemblyRunner WithoutAppDomain(string assemblyFileName)
 	{
 		Guard.FileExists(assemblyFileName);

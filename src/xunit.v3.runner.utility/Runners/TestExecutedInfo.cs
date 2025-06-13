@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace Xunit.Runners;
@@ -5,6 +6,7 @@ namespace Xunit.Runners;
 /// <summary>
 /// Represents information about a test that was executed.
 /// </summary>
+[Obsolete("Please use the TestFinishedInfo class from the Xunit.SimpleRunner namespace. This class will be removed in the next major release.")]
 public abstract class TestExecutedInfo(
 	string typeName,
 	string methodName,

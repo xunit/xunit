@@ -1,9 +1,11 @@
+using System;
+
 namespace Xunit.Runners;
 
 /// <summary>
 /// Represents an error that happened outside the scope of a running test.
 /// </summary>
-/// <summary/>
+[Obsolete("Please use the ErrorMessageInfo class from the Xunit.SimpleRunner namespace. This class will be removed in the next major release.")]
 public class ErrorMessageInfo(
 	ErrorMessageType messageType,
 	string? exceptionType,

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Xunit.Internal;
 
@@ -6,6 +7,7 @@ namespace Xunit.Runners;
 /// <summary>
 /// Represents a test that was skipped.
 /// </summary>
+[Obsolete("Please use the TestSkippedInfo class from the Xunit.SimpleRunner namespace. This class will be removed in the next major release.")]
 public class TestSkippedInfo : TestInfo
 {
 	/// <summary/>

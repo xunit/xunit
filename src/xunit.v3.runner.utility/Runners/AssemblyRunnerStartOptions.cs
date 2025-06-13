@@ -6,6 +6,7 @@ namespace Xunit.Runners;
 /// <summary>
 /// Represents options to be used when calling <see cref="AssemblyRunner.Start"/>.
 /// </summary>
+[Obsolete("Please use the AssemblyRunnerOptions class from the Xunit.SimpleRunner namespace. This class will be removed in the next major release.")]
 public class AssemblyRunnerStartOptions
 {
 	string[] typesToRun = [];

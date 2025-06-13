@@ -7,6 +7,7 @@ namespace Xunit.Runners;
 /// <summary>
 /// A base class which contains information about a test.
 /// </summary>
+[Obsolete("Please use the TestInfo class from the Xunit.SimpleRunner namespace. This class will be removed in the next major release.")]
 public abstract class TestInfo
 {
 	/// <summary/>

@@ -1,8 +1,11 @@
+using System;
+
 namespace Xunit.Runners;
 
 /// <summary>
 /// Represents test discovery being completed.
 /// </summary>
+[Obsolete("Please use the DiscoveryCompleteInfo class from the Xunit.SimpleRunner namespace. This class will be removed in the next major release.")]
 public class DiscoveryCompleteInfo(
 	int testCasesDiscovered,
 	int testCasesToRun)
