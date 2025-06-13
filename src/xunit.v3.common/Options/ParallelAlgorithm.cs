@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Xunit.Sdk;
 
 /// <summary>
@@ -21,4 +23,22 @@ public enum ParallelAlgorithm
 	/// again.
 	/// </summary>
 	Aggressive = 1,
+}
+
+/// <summary>
+/// Extension methods for <see cref="ParallelAlgorithm"/>
+/// </summary>
+public static class ParallelAlgorithmExtensions
+{
+	static readonly HashSet<ParallelAlgorithm> validValues =
+	[
+		ParallelAlgorithm.Conservative,
+		ParallelAlgorithm.Aggressive,
+	];
+
+	/// <summary>
+	/// Determines if the value is a valid enum value.
+	/// </summary>
+	public static bool IsValid(this ParallelAlgorithm value) =>
+		validValues.Contains(value);
 }

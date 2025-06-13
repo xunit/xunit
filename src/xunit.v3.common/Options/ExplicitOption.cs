@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Xunit.Sdk;
 
 /// <summary>
@@ -20,4 +22,23 @@ public enum ExplicitOption
 	/// Indicates that non-explicit tests should not be run, and explicit tests should be run.
 	/// </summary>
 	Only,
+}
+
+/// <summary>
+/// Extension methods for <see cref="ExplicitOption"/>
+/// </summary>
+public static class ExplicitOptionExtensions
+{
+	static readonly HashSet<ExplicitOption> validValues =
+	[
+		ExplicitOption.Off,
+		ExplicitOption.On,
+		ExplicitOption.Only,
+	];
+
+	/// <summary>
+	/// Determines if the value is a valid enum value.
+	/// </summary>
+	public static bool IsValid(this ExplicitOption value) =>
+		validValues.Contains(value);
 }

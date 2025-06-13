@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Xunit.Runner.Common;
 
 /// <summary>
@@ -23,4 +25,23 @@ public enum AppDomainSupport
 	/// Requires that v1 and v2 tests be run in the runner's app domain.
 	/// </summary>
 	Denied = 3
+}
+
+/// <summary>
+/// Extension methods for <see cref="AppDomainSupport"/>
+/// </summary>
+public static class AppDomainSupportExtensions
+{
+	static readonly HashSet<AppDomainSupport> validValues =
+	[
+		AppDomainSupport.IfAvailable,
+		AppDomainSupport.Required,
+		AppDomainSupport.Denied,
+	];
+
+	/// <summary>
+	/// Determines if the value is a valid enum value.
+	/// </summary>
+	public static bool IsValid(this AppDomainSupport value) =>
+		validValues.Contains(value);
 }

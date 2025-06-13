@@ -1,4 +1,7 @@
 using System;
+using System.Globalization;
+using System.Linq;
+using Xunit.Internal;
 
 namespace Xunit.Sdk;
 
@@ -55,4 +58,26 @@ public enum TestMethodDisplayOptions
 	/// Enables all method display options.
 	/// </summary>
 	All = ReplaceUnderscoreWithSpace | UseOperatorMonikers | UseEscapeSequences | ReplacePeriodWithComma
+}
+
+/// <summary>
+/// Extension methods for <see cref="TestMethodDisplayOptions"/>
+/// </summary>
+public static class TestMethodDisplayOptionsExtensions
+{
+	static readonly int[] validFlags =
+		new[] {
+			TestMethodDisplayOptions.ReplaceUnderscoreWithSpace,
+			TestMethodDisplayOptions.UseOperatorMonikers,
+			TestMethodDisplayOptions.UseEscapeSequences,
+			TestMethodDisplayOptions.ReplaceUnderscoreWithSpace,
+		}
+		.Select(v => Convert.ToInt32(v, CultureInfo.InvariantCulture))
+		.ToArray();
+
+	/// <summary>
+	/// Determines if the value is a valid enum value.
+	/// </summary>
+	public static bool IsValid(this TestMethodDisplayOptions value) =>
+		EnumUtility.ContainsValidFlags((int)value, validFlags);
 }
