@@ -22,6 +22,7 @@ public class XunitFilters : ITestCaseFilter
 	/// <summary>
 	/// Adds a simple filter which excludes a fully qualified class name.
 	/// </summary>
+	/// <param name="query">The filter query</param>
 	/// <remarks>
 	/// The query may begin and/or end with <c>*</c> to add as a wildcard. No other wildcards
 	/// are permitted in any other locations.
@@ -32,21 +33,44 @@ public class XunitFilters : ITestCaseFilter
 		simpleFilters.AddExcludedClassFilter(query);
 	}
 
-	/// <summary/>
+	/// <summary>
+	/// Adds a simple filter which excludes a fully qualified method name. A fully qualified
+	/// method name is in the form of <c>"FullyQualifiedTypeName.MethodName"</c>.
+	/// </summary>
+	/// <param name="query">The filter query</param>
+	/// <remarks>
+	/// The query may begin and/or end with <c>*</c> to add as a wildcard. No other wildcards
+	/// are permitted in any other locations.
+	/// </remarks>
 	public void AddExcludedMethodFilter(string query)
 	{
 		GuardEmptyQueryFilters();
 		simpleFilters.AddExcludedMethodFilter(query);
 	}
 
-	/// <summary/>
+	/// <summary>
+	/// Adds a simple filter which excludes a namespace.
+	/// </summary>
+	/// <param name="query">The filter query</param>
+	/// <remarks>
+	/// The query may begin and/or end with <c>*</c> to add as a wildcard. No other wildcards
+	/// are permitted in any other locations.
+	/// </remarks>
 	public void AddExcludedNamespaceFilter(string query)
 	{
 		GuardEmptyQueryFilters();
 		simpleFilters.AddExcludedNamespaceFilter(query);
 	}
 
-	/// <summary/>
+	/// <summary>
+	/// Adds a simple filter which excludes tests with the given name/value pair.
+	/// </summary>
+	/// <param name="name">The name of the trait</param>
+	/// <param name="value">The value of the trait</param>
+	/// <remarks>
+	/// The name and/or value may begin and/or end with <c>*</c> to add as a wildcard. No other wildcards
+	/// are permitted in any other locations.
+	/// </remarks>
 	public void AddExcludedTraitFilter(
 		string name,
 		string value)
@@ -68,21 +92,44 @@ public class XunitFilters : ITestCaseFilter
 		simpleFilters.AddIncludedClassFilter(query);
 	}
 
-	/// <summary/>
+	/// <summary>
+	/// Adds a simple filter which matches a fully qualified method name. A fully qualified
+	/// method name is in the form of <c>"FullyQualifiedTypeName.MethodName"</c>.
+	/// </summary>
+	/// <param name="query">The filter query</param>
+	/// <remarks>
+	/// The query may begin and/or end with <c>*</c> to add as a wildcard. No other wildcards
+	/// are permitted in any other locations.
+	/// </remarks>
 	public void AddIncludedMethodFilter(string query)
 	{
 		GuardEmptyQueryFilters();
 		simpleFilters.AddIncludedMethodFilter(query);
 	}
 
-	/// <summary/>
+	/// <summary>
+	/// Adds a simple filter which matches a namespace.
+	/// </summary>
+	/// <param name="query">The filter query</param>
+	/// <remarks>
+	/// The query may begin and/or end with <c>*</c> to add as a wildcard. No other wildcards
+	/// are permitted in any other locations.
+	/// </remarks>
 	public void AddIncludedNamespaceFilter(string query)
 	{
 		GuardEmptyQueryFilters();
 		simpleFilters.AddIncludedNamespaceFilter(query);
 	}
 
-	/// <summary/>
+	/// <summary>
+	/// Adds a simple filter which matches tests with the given name/value pair.
+	/// </summary>
+	/// <param name="name">The name of the trait</param>
+	/// <param name="value">The value of the trait</param>
+	/// <remarks>
+	/// The name and/or value may begin and/or end with <c>*</c> to add as a wildcard. No other wildcards
+	/// are permitted in any other locations.
+	/// </remarks>
 	public void AddIncludedTraitFilter(
 		string name,
 		string value)
