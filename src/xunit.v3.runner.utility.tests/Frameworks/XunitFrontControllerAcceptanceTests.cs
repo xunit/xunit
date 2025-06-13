@@ -116,28 +116,8 @@ public class XunitFrontControllerAcceptanceTests
 
 			Assert.Collection(
 				findSink.Messages.OfType<ITestCaseDiscovered>().OrderBy(d => d.TestCaseDisplayName),
-				discovered =>
-				{
-					Assert.Equal("Xunit1.TrueTests.AssertTrue", discovered.TestCaseDisplayName);
-					Assert.Equal("TrueTests.cs", Path.GetFileName(discovered.SourceFilePath));
-#if DEBUG
-					Assert.Equal(10, discovered.SourceLineNumber);
-#else
-					// We test for range here, because release PDBs can be slightly unpredictable, especially on Mono
-					Assert.InRange(discovered.SourceLineNumber ?? -1, 1, 0xFEEFED);
-#endif
-				},
-				discovered =>
-				{
-					Assert.Equal("Xunit1.TrueTests.AssertTrueThrowsExceptionWhenFalse", discovered.TestCaseDisplayName);
-					Assert.Equal("TrueTests.cs", Path.GetFileName(discovered.SourceFilePath));
-#if DEBUG
-					Assert.Equal(16, discovered.SourceLineNumber);
-#else
-					// We test for range here, because release PDBs can be slightly unpredictable, especially on Mono
-					Assert.InRange(discovered.SourceLineNumber ?? -1, 1, 0xFEEFED);
-#endif
-				}
+				discovered => Assert.Equal("Xunit1.TrueTests.AssertTrue", discovered.TestCaseDisplayName),
+				discovered => Assert.Equal("Xunit1.TrueTests.AssertTrueThrowsExceptionWhenFalse", discovered.TestCaseDisplayName)
 			);
 		}
 
@@ -184,28 +164,8 @@ public class XunitFrontControllerAcceptanceTests
 
 			Assert.Collection(
 				findSink.Messages.OfType<ITestCaseDiscovered>().OrderBy(d => d.TestCaseDisplayName),
-				discovered =>
-				{
-					Assert.Equal("AsyncAcceptanceTests.AsyncTaskTestsRunCorrectly", discovered.TestCaseDisplayName);
-					Assert.Equal("AsyncAcceptanceTests.cs", Path.GetFileName(discovered.SourceFilePath));
-#if DEBUG
-					Assert.Equal(10, discovered.SourceLineNumber);
-#else
-					// We test for range here, because release PDBs can be slightly unpredictable, especially on Mono
-					Assert.InRange(discovered.SourceLineNumber ?? -1, 1, 0xFEEFED);
-#endif
-				},
-				discovered =>
-				{
-					Assert.Equal("AsyncAcceptanceTests.AsyncVoidTestsRunCorrectly", discovered.TestCaseDisplayName);
-					Assert.Equal("AsyncAcceptanceTests.cs", Path.GetFileName(discovered.SourceFilePath));
-#if DEBUG
-					Assert.Equal(20, discovered.SourceLineNumber);
-#else
-					// We test for range here, because release PDBs can be slightly unpredictable, especially on Mono
-					Assert.InRange(discovered.SourceLineNumber ?? -1, 1, 0xFEEFED);
-#endif
-				}
+				discovered => Assert.Equal("AsyncAcceptanceTests.AsyncTaskTestsRunCorrectly", discovered.TestCaseDisplayName),
+				discovered => Assert.Equal("AsyncAcceptanceTests.AsyncVoidTestsRunCorrectly", discovered.TestCaseDisplayName)
 			);
 		}
 

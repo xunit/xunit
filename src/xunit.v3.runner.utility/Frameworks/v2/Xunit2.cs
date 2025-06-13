@@ -96,13 +96,7 @@ public class Xunit2 : IFrontController
 		this.configFileName = configFileName;
 		TestAssemblyUniqueID = UniqueIDGenerator.ForAssembly(this.assemblyInfo.AssemblyPath, configFileName);
 
-		if (sourceInformationProvider is null)
-		{
-			sourceInformationProvider = CecilSourceInformationProvider.Create(assemblyFileName);
-			DisposalTracker.Add(sourceInformationProvider);
-		}
-
-		var v2SourceInformationProvider = Xunit2SourceInformationProviderAdapter.Adapt(sourceInformationProvider);
+		var v2SourceInformationProvider = Xunit2SourceInformationProviderAdapter.Adapt(sourceInformationProvider ?? NullSourceInformationProvider.Instance);
 		var v2DiagnosticMessageSink = new Xunit2MessageSink(DiagnosticMessageSink);
 		remoteFramework = Guard.NotNull(
 			"Could not create Xunit.Sdk.TestFrameworkProxy for v2 unit test",

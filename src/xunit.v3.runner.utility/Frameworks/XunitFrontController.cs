@@ -72,25 +72,12 @@ public class XunitFrontController : IFrontController
 		{
 			// We don't use GetSourceInformationProvider for v3, because we rely on FactAttribute decorations rather than Cecil
 			3 => new XunitFrontController(Xunit3.ForDiscoveryAndExecution(projectAssembly, sourceInformationProvider, diagnosticMessageSink, testProcessLauncher)),
-			2 => new XunitFrontController(Xunit2.ForDiscoveryAndExecution(projectAssembly, GetSourceInformationProvider(sourceInformationProvider, projectAssembly), diagnosticMessageSink)),
+			2 => new XunitFrontController(Xunit2.ForDiscoveryAndExecution(projectAssembly, sourceInformationProvider, diagnosticMessageSink)),
 #if NETFRAMEWORK
-			1 => new XunitFrontController(Xunit1.ForDiscoveryAndExecution(projectAssembly, GetSourceInformationProvider(sourceInformationProvider, projectAssembly), diagnosticMessageSink)),
+			1 => new XunitFrontController(Xunit1.ForDiscoveryAndExecution(projectAssembly, sourceInformationProvider, diagnosticMessageSink)),
 #endif
 			_ => null,
 		};
-	}
-
-	static ISourceInformationProvider GetSourceInformationProvider(
-		ISourceInformationProvider? sourceInformationProvider,
-		XunitProjectAssembly projectAssembly)
-	{
-		if (sourceInformationProvider is not null)
-			return sourceInformationProvider;
-
-		if (!projectAssembly.Configuration.IncludeSourceInformationOrDefault)
-			return NullSourceInformationProvider.Instance;
-
-		return CecilSourceInformationProviderHelper.ForceCreate(projectAssembly.AssemblyFileName);
 	}
 
 	/// <inheritdoc/>

@@ -17,6 +17,7 @@ namespace Xunit;
 /// <summary>
 /// An implementation of <see cref="ISourceInformationProvider"/> backed by <c>Mono.Cecil</c>.
 /// </summary>
+[Obsolete("This class have been obsoleted by using [CallerFileInfo] and [CallerLineNumber] on FactAttribute. It will be removed in the next major release.")]
 public sealed class CecilSourceInformationProvider : ISourceInformationProvider
 {
 	// 0xFEEFEE marks a "hidden" line, per https://mono-cecil.narkive.com/gFuvydFp/trouble-with-sequencepoint
