@@ -6,9 +6,11 @@ using Xunit;
 using Xunit.Sdk;
 
 [assembly: ReflectionExtensionsTests.GetMatchingCustomAttributes.AttributeUnderTest]
+[assembly: ReflectionExtensionsTests.GetMatchingCustomAttributes.ThrowingAttributeUnderTest]
 
 #if !NETFRAMEWORK
 [assembly: ReflectionExtensionsTests.GetMatchingCustomAttributes.AttributeUnderTest<int>]
+[assembly: ReflectionExtensionsTests.GetMatchingCustomAttributes.ThrowingAttributeUnderTest<int>]
 #endif
 
 public class ReflectionExtensionsTests
@@ -65,13 +67,25 @@ public class ReflectionExtensionsTests
 		[AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Parameter)]
 		public sealed class AttributeUnderTest : Attribute, IAttributeUnderTest { }
 
+		[AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Parameter)]
+		public sealed class ThrowingAttributeUnderTest : Attribute, IAttributeUnderTest
+		{
+			public ThrowingAttributeUnderTest() => throw new DivideByZeroException();
+		}
+
 #if !NETFRAMEWORK
 		[AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Parameter)]
 		public sealed class AttributeUnderTest<T> : Attribute, IAttributeUnderTest { }
+
+		[AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Parameter)]
+		public sealed class ThrowingAttributeUnderTest<T> : Attribute, IAttributeUnderTest
+		{
+			public ThrowingAttributeUnderTest() => throw new DivideByZeroException();
+		}
 #endif
 
 		[Fact]
-		public void ForAssembly()
+		public void ForAssembly_NonGeneric()
 		{
 			var attrs = typeof(ReflectionExtensionsTests).Assembly.GetMatchingCustomAttributes(typeof(IAttributeUnderTest));
 
@@ -82,7 +96,18 @@ public class ReflectionExtensionsTests
 		}
 
 		[Fact]
-		public void ForAttribute()
+		public void ForAssembly_Generic()
+		{
+			var attrs = typeof(ReflectionExtensionsTests).Assembly.GetMatchingCustomAttributes<IAttributeUnderTest>();
+
+			Assert.Contains(attrs, attr => attr is AttributeUnderTest);
+#if !NETFRAMEWORK
+			Assert.Contains(attrs, attr => attr is AttributeUnderTest<int>);
+#endif
+		}
+
+		[Fact]
+		public void ForAttribute_NonGeneric()
 		{
 			var attrs = new AttributeWithAttribute().GetMatchingCustomAttributes(typeof(IAttributeUnderTest));
 
@@ -92,14 +117,27 @@ public class ReflectionExtensionsTests
 #endif
 		}
 
+		[Fact]
+		public void ForAttribute_Generic()
+		{
+			var attrs = new AttributeWithAttribute().GetMatchingCustomAttributes<IAttributeUnderTest>();
+
+			Assert.Contains(attrs, attr => attr is AttributeUnderTest);
+#if !NETFRAMEWORK
+			Assert.Contains(attrs, attr => attr is AttributeUnderTest<int>);
+#endif
+		}
+
 		[AttributeUnderTest]
+		[ThrowingAttributeUnderTest]
 #if !NETFRAMEWORK
 		[AttributeUnderTest<int>]
+		[ThrowingAttributeUnderTest<int>]
 #endif
 		class AttributeWithAttribute : Attribute { }
 
 		[Fact]
-		public void ForMethod()
+		public void ForMethod_NonGeneric()
 		{
 			var attrs = typeof(GetMatchingCustomAttributes).GetMethod(nameof(MethodWithAttribute), BindingFlags.NonPublic | BindingFlags.Static)?.GetMatchingCustomAttributes(typeof(IAttributeUnderTest)) ?? [];
 
@@ -109,14 +147,28 @@ public class ReflectionExtensionsTests
 #endif
 		}
 
+
+		[Fact]
+		public void ForMethod_Generic()
+		{
+			var attrs = typeof(GetMatchingCustomAttributes).GetMethod(nameof(MethodWithAttribute), BindingFlags.NonPublic | BindingFlags.Static)?.GetMatchingCustomAttributes<IAttributeUnderTest>() ?? [];
+
+			Assert.Contains(attrs, attr => attr is AttributeUnderTest);
+#if !NETFRAMEWORK
+			Assert.Contains(attrs, attr => attr is AttributeUnderTest<int>);
+#endif
+		}
+
 		[AttributeUnderTest]
+		[ThrowingAttributeUnderTest]
 #if !NETFRAMEWORK
 		[AttributeUnderTest<int>]
+		[ThrowingAttributeUnderTest<int>]
 #endif
 		static void MethodWithAttribute() { }
 
 		[Fact]
-		public void ForParameter()
+		public void ForParameter_NonGeneric()
 		{
 			var method = typeof(GetMatchingCustomAttributes).GetMethod(nameof(MethodWithParameter), BindingFlags.NonPublic | BindingFlags.Static);
 			Assert.NotNull(method);
@@ -128,17 +180,32 @@ public class ReflectionExtensionsTests
 #endif
 		}
 
+		[Fact]
+		public void ForParameter_Generic()
+		{
+			var method = typeof(GetMatchingCustomAttributes).GetMethod(nameof(MethodWithParameter), BindingFlags.NonPublic | BindingFlags.Static);
+			Assert.NotNull(method);
+			var attrs = method.GetParameters()[0].GetMatchingCustomAttributes<IAttributeUnderTest>();
+
+			Assert.Contains(attrs, attr => attr is AttributeUnderTest);
+#if !NETFRAMEWORK
+			Assert.Contains(attrs, attr => attr is AttributeUnderTest<int>);
+#endif
+		}
+
 		static void MethodWithParameter(
 			[AttributeUnderTest]
+			[ThrowingAttributeUnderTest]
 #if !NETFRAMEWORK
 			[AttributeUnderTest<int>]
+			[ThrowingAttributeUnderTest<int>]
 #endif
 			int _
 		)
 		{ }
 
 		[Fact]
-		public void ForType()
+		public void ForType_NonGeneric()
 		{
 			var attrs = typeof(ClassWithAttribute).GetMatchingCustomAttributes(typeof(IAttributeUnderTest));
 
@@ -148,9 +215,22 @@ public class ReflectionExtensionsTests
 #endif
 		}
 
+		[Fact]
+		public void ForType_Generic()
+		{
+			var attrs = typeof(ClassWithAttribute).GetMatchingCustomAttributes<IAttributeUnderTest>();
+
+			Assert.Contains(attrs, attr => attr is AttributeUnderTest);
+#if !NETFRAMEWORK
+			Assert.Contains(attrs, attr => attr is AttributeUnderTest<int>);
+#endif
+		}
+
 		[AttributeUnderTest]
+		[ThrowingAttributeUnderTest]
 #if !NETFRAMEWORK
 		[AttributeUnderTest<int>]
+		[ThrowingAttributeUnderTest<int>]
 #endif
 		class ClassWithAttribute { }
 	}

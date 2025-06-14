@@ -21,7 +21,7 @@ public static partial class ExtensibilityPointFactory
 		Type testClass,
 		IReadOnlyCollection<IBeforeAfterTestAttribute> collectionBeforeAfterAttributes) =>
 			Guard.ArgumentNotNull(collectionBeforeAfterAttributes)
-				.Concat(Guard.ArgumentNotNull(testClass).GetMatchingCustomAttributes(typeof(IBeforeAfterTestAttribute)).Cast<IBeforeAfterTestAttribute>())
+				.Concat(Guard.ArgumentNotNull(testClass).GetMatchingCustomAttributes<IBeforeAfterTestAttribute>())
 				.CastOrToReadOnlyCollection();
 
 	/// <summary>
@@ -49,7 +49,7 @@ public static partial class ExtensibilityPointFactory
 	{
 		Guard.ArgumentNotNull(testClass);
 
-		var ordererAttributes = testClass.GetMatchingCustomAttributes(typeof(ITestCaseOrdererAttribute));
+		var ordererAttributes = testClass.GetMatchingCustomAttributes<ITestCaseOrdererAttribute>();
 		if (ordererAttributes.Count > 1)
 			throw new InvalidOperationException(
 				string.Format(
@@ -99,7 +99,7 @@ public static partial class ExtensibilityPointFactory
 				result.AddOrGet(trait.Key).AddRange(trait.Value);
 
 		if (testClass is not null)
-			foreach (var traitAttribute in testClass.GetMatchingCustomAttributes(typeof(ITraitAttribute)).Cast<ITraitAttribute>())
+			foreach (var traitAttribute in testClass.GetMatchingCustomAttributes<ITraitAttribute>())
 				foreach (var kvp in traitAttribute.GetTraits())
 					result.AddOrGet(kvp.Key).Add(kvp.Value);
 

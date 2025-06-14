@@ -131,7 +131,7 @@ public sealed class ProjectAssemblyRunner(
 
 		var result = default(ITestPipelineStartup);
 
-		var pipelineStartupAttributes = testAssembly.GetMatchingCustomAttributes(typeof(ITestPipelineStartupAttribute));
+		var pipelineStartupAttributes = testAssembly.GetMatchingCustomAttributes<ITestPipelineStartupAttribute>();
 		if (pipelineStartupAttributes.Count > 1)
 			throw new TestPipelineException("More than one pipeline startup attribute was specified: " + pipelineStartupAttributes.Select(a => a.GetType()).ToCommaSeparatedList());
 

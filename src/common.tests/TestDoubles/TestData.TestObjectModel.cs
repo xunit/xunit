@@ -142,7 +142,7 @@ public static partial class TestData
 		Dictionary<string, HashSet<string>>? traits = null,
 		string uniqueID = DefaultTestCaseUniqueID)
 	{
-		var factAttribute = testMethod.Method.GetMatchingCustomAttributes(typeof(IFactAttribute)).FirstOrDefault() as IFactAttribute;
+		var factAttribute = testMethod.Method.GetMatchingCustomAttributes<IFactAttribute>().FirstOrDefault();
 		Assert.NotNull(factAttribute);
 
 		var discoveryOptions = TestFrameworkDiscoveryOptions(methodDisplay: methodDisplay, methodDisplayOptions: methodDisplayOptions);

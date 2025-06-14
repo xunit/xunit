@@ -21,7 +21,7 @@ public static partial class ExtensibilityPointFactory
 		MethodInfo testMethod,
 		IReadOnlyCollection<IBeforeAfterTestAttribute> classBeforeAfterAttributes) =>
 			Guard.ArgumentNotNull(classBeforeAfterAttributes)
-				.Concat(Guard.ArgumentNotNull(testMethod).GetMatchingCustomAttributes(typeof(IBeforeAfterTestAttribute)).Cast<IBeforeAfterTestAttribute>())
+				.Concat(Guard.ArgumentNotNull(testMethod).GetMatchingCustomAttributes<IBeforeAfterTestAttribute>())
 				.CastOrToReadOnlyCollection();
 
 	/// <summary>
@@ -30,11 +30,7 @@ public static partial class ExtensibilityPointFactory
 	/// <param name="testMethod">The test method</param>
 	public static IReadOnlyCollection<IDataAttribute> GetMethodDataAttributes(MethodInfo testMethod)
 	{
-		var result =
-			Guard.ArgumentNotNull(testMethod)
-				.GetMatchingCustomAttributes(typeof(IDataAttribute))
-				.Cast<IDataAttribute>()
-				.CastOrToReadOnlyCollection();
+		var result = Guard.ArgumentNotNull(testMethod).GetMatchingCustomAttributes<IDataAttribute>();
 
 		foreach (var typeAwareAttribute in result.OfType<ITypeAwareDataAttribute>())
 			typeAwareAttribute.MemberType ??= testMethod.ReflectedType;
@@ -47,10 +43,7 @@ public static partial class ExtensibilityPointFactory
 	/// </summary>
 	/// <param name="testMethod">The test method</param>
 	public static IReadOnlyCollection<IFactAttribute> GetMethodFactAttributes(MethodInfo testMethod) =>
-		Guard.ArgumentNotNull(testMethod)
-			.GetMatchingCustomAttributes(typeof(IFactAttribute))
-			.Cast<IFactAttribute>()
-			.CastOrToReadOnlyCollection();
+		Guard.ArgumentNotNull(testMethod).GetMatchingCustomAttributes<IFactAttribute>();
 
 	/// <summary>
 	/// Gets the traits that are attached to the test method via <see cref="ITraitAttribute"/>s.
@@ -69,7 +62,7 @@ public static partial class ExtensibilityPointFactory
 			foreach (var trait in testClassTraits)
 				result.AddOrGet(trait.Key).AddRange(trait.Value);
 
-		foreach (var traitAttribute in testMethod.GetMatchingCustomAttributes(typeof(ITraitAttribute)).Cast<ITraitAttribute>())
+		foreach (var traitAttribute in testMethod.GetMatchingCustomAttributes<ITraitAttribute>())
 			foreach (var kvp in traitAttribute.GetTraits())
 				result.AddOrGet(kvp.Key).Add(kvp.Value);
 

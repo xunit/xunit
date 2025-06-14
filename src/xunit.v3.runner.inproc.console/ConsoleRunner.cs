@@ -289,7 +289,9 @@ public class ConsoleRunner(
 			{
 				consoleHelper.WriteLine("error: {0}", ex.Message);
 
+#if !DEBUG
 				if (internalDiagnosticMessages)
+#endif
 				{
 					if (!noColor)
 						consoleHelper.SetForegroundColor(ConsoleColor.DarkGray);

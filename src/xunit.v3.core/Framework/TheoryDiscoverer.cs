@@ -157,6 +157,8 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 			discoveryOptions.PreEnumerateTheoriesOrDefault()
 			&& !theoryAttribute.DisableDiscoveryEnumeration;
 
+		var testClassName = testMethod.TestClass.TestClassName;
+
 		if (preEnumerate)
 		{
 			DisposalTracker disposalTracker = new();

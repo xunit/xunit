@@ -204,13 +204,7 @@ public class SerializationHelper
 	{
 		Guard.ArgumentNotNull(assembly);
 
-		var registrations =
-			assembly
-				.GetCustomAttributes()
-				.OfType<IRegisterXunitSerializerAttribute>()
-				.ToArray();
-
-		AddSerializers(registrations, warnings);
+		AddSerializers(assembly.GetMatchingCustomAttributes<IRegisterXunitSerializerAttribute>(), warnings);
 	}
 
 	/// <summary>
@@ -227,7 +221,7 @@ public class SerializationHelper
 	/// * An exception is thrown while creating the serializer
 	/// </remarks>
 	protected void AddSerializers(
-		IRegisterXunitSerializerAttribute[] registrations,
+		IReadOnlyCollection<IRegisterXunitSerializerAttribute> registrations,
 		List<string>? warnings = null)
 	{
 		Guard.ArgumentNotNull(registrations);

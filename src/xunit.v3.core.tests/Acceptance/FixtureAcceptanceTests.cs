@@ -663,6 +663,7 @@ public class FixtureAcceptanceTests
 
 		public class GenericArgument { }
 
+		// TODO: Attributes are not being inherited because of GetCustomAttributesData
 		class GenericTests : GenericTestBase<GenericArgument>
 		{
 			public GenericTests(GenericFixture<GenericArgument> fixture) : base(fixture) { }

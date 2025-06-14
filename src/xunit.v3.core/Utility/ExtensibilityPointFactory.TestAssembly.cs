@@ -17,10 +17,7 @@ public static partial class ExtensibilityPointFactory
 	/// </summary>
 	/// <param name="testAssembly">The test assembly</param>
 	public static IReadOnlyCollection<IBeforeAfterTestAttribute> GetAssemblyBeforeAfterTestAttributes(Assembly testAssembly) =>
-		Guard.ArgumentNotNull(testAssembly)
-			.GetMatchingCustomAttributes(typeof(IBeforeAfterTestAttribute))
-			.Cast<IBeforeAfterTestAttribute>()
-			.CastOrToReadOnlyCollection();
+		Guard.ArgumentNotNull(testAssembly).GetMatchingCustomAttributes<IBeforeAfterTestAttribute>();
 
 	/// <summary>
 	/// Gets the fixture types that are attached to the test assembly via <see cref="IAssemblyFixtureAttribute"/>s.
@@ -28,8 +25,7 @@ public static partial class ExtensibilityPointFactory
 	/// <param name="testAssembly">The test assembly</param>
 	public static IReadOnlyCollection<Type> GetAssemblyFixtureTypes(Assembly testAssembly) =>
 		Guard.ArgumentNotNull(testAssembly)
-			.GetMatchingCustomAttributes(typeof(IAssemblyFixtureAttribute))
-			.OfType<IAssemblyFixtureAttribute>()
+			.GetMatchingCustomAttributes<IAssemblyFixtureAttribute>()
 			.Select(a => a.AssemblyFixtureType)
 			.CastOrToReadOnlyCollection();
 
@@ -42,7 +38,7 @@ public static partial class ExtensibilityPointFactory
 	{
 		Guard.ArgumentNotNull(testAssembly);
 
-		var ordererAttributes = testAssembly.GetMatchingCustomAttributes(typeof(ITestCaseOrdererAttribute));
+		var ordererAttributes = testAssembly.GetMatchingCustomAttributes<ITestCaseOrdererAttribute>();
 		if (ordererAttributes.Count > 1)
 			throw new InvalidOperationException(
 				string.Format(
@@ -81,7 +77,7 @@ public static partial class ExtensibilityPointFactory
 	/// <param name="testAssembly">The test assembly</param>
 	public static ITestCollectionOrderer? GetAssemblyTestCollectionOrderer(Assembly testAssembly)
 	{
-		var ordererAttributes = testAssembly.GetMatchingCustomAttributes(typeof(ITestCollectionOrdererAttribute));
+		var ordererAttributes = testAssembly.GetMatchingCustomAttributes<ITestCollectionOrdererAttribute>();
 		if (ordererAttributes.Count > 1)
 			throw new InvalidOperationException(
 				string.Format(
@@ -123,7 +119,7 @@ public static partial class ExtensibilityPointFactory
 
 		var result = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
-		foreach (var traitAttribute in testAssembly.GetMatchingCustomAttributes(typeof(ITraitAttribute)).Cast<ITraitAttribute>())
+		foreach (var traitAttribute in testAssembly.GetMatchingCustomAttributes<ITraitAttribute>())
 			foreach (var kvp in traitAttribute.GetTraits())
 				result.AddOrGet(kvp.Key).Add(kvp.Value);
 

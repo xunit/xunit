@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -14,6 +15,10 @@ namespace Xunit.Sdk;
 /// </summary>
 public static class ReflectionExtensions
 {
+	readonly static AttributeUsageAttribute DefaultAttributeUsageAttribute = new(AttributeTargets.All);
+	readonly static MethodInfo EnumerableCast = typeof(Enumerable).GetRuntimeMethods().First(m => m.Name == "Cast");
+	readonly static MethodInfo EnumerableToArray = typeof(Enumerable).GetRuntimeMethods().First(m => m.Name == "ToArray");
+
 	static readonly ConcurrentDictionary<Type, bool> isFromLocalAssemblyCache = new();
 	static readonly ConcurrentDictionary<Type, bool> isNullableCache = new();
 	static readonly ConcurrentDictionary<Type, bool> isNullableEnumCache = new();
@@ -24,42 +29,61 @@ public static class ReflectionExtensions
 			yield return current;
 	}
 
-	internal static IReadOnlyCollection<Attribute> FindCustomAttributes(
-		this IEnumerable<Attribute> attributes,
+	static IReadOnlyCollection<Attribute> FindCustomAttributes(
+		this IList<CustomAttributeData> customAttributeDatas,
 		Type attributeType)
 	{
-		Guard.ArgumentNotNull(attributes);
+		Guard.ArgumentNotNull(customAttributeDatas);
 		Guard.ArgumentNotNull(attributeType);
 
 		List<Attribute>? result = null;
 
-		foreach (var attr in attributes)
-		{
-			var attrType = attr.GetType();
-
-			if (attributeType.IsAssignableFrom(attrType))
+		foreach (var customAttributeData in customAttributeDatas)
+			try
 			{
-				result ??= [];
-				result.Add(attr);
+				if (attributeType.IsAssignableFrom(customAttributeData.AttributeType) || attributeType.IsOpenGenericOf(customAttributeData.AttributeType))
+					if (ToAttribute(customAttributeData) is Attribute attribute)
+					{
+						result ??= [];
+						result.Add(attribute);
+					}
 			}
-			else if (attributeType.IsGenericTypeDefinition
-				&& attrType.IsConstructedGenericType
-				&& attrType.GetGenericTypeDefinition() == attributeType)
-			{
-				result ??= [];
-				result.Add(attr);
-			}
-		}
+			catch { }
 
 		result?.Sort((left, right) => string.Compare(left.GetType().SafeName(), right.GetType().SafeName(), StringComparison.Ordinal));
 
-		return result ?? (IReadOnlyCollection<Attribute>)[];
+		return result ?? [];
 	}
 
-	internal static IReadOnlyCollection<Attribute> FindCustomAttributes(
-		this IEnumerable<Attribute> attributes,
+	static IReadOnlyCollection<Attribute> FindCustomAttributes(
+		this IList<CustomAttributeData> customAttributeDatas,
 		string assemblyQualifiedTypeName) =>
-			FindCustomAttributes(attributes, TypeHelper.GetTypeStrict(assemblyQualifiedTypeName));
+			FindCustomAttributes(customAttributeDatas, TypeHelper.GetTypeStrict(assemblyQualifiedTypeName));
+
+	static IReadOnlyCollection<T> FindCustomAttributes<T>(this IList<CustomAttributeData> customAttributeDatas)
+		where T : notnull
+	{
+		Guard.ArgumentNotNull(customAttributeDatas);
+
+		var typeName = typeof(T).FullName;
+
+		List<T>? result = null;
+
+		foreach (var customAttributeData in customAttributeDatas.Where(cad => typeof(T).IsAssignableFrom(cad.AttributeType)))
+			try
+			{
+				if (ToAttribute(customAttributeData) is T attribute)
+				{
+					result ??= [];
+					result.Add(attribute);
+				}
+			}
+			catch { }
+
+		result?.Sort((left, right) => string.Compare(left.GetType().SafeName(), right.GetType().SafeName(), StringComparison.Ordinal));
+
+		return result ?? [];
+	}
 
 	/// <summary>
 	/// Gets the arity (number of generic types) of the method.
@@ -68,6 +92,106 @@ public static class ReflectionExtensions
 		Guard.ArgumentNotNull(method).IsGenericMethod
 			? method.GetGenericArguments().Length
 			: 0;
+
+	static IList<CustomAttributeData> GetCustomAttributesDataWithInheritance<T>(
+		T current,
+		Func<T, IList<CustomAttributeData>> attributeAccessor,
+		Func<T, T?> parentAccessor)
+	{
+		return getAttributes(current, attributeAccessor, parentAccessor, [], [], topLevel: true);
+
+		static List<CustomAttributeData> getAttributes(
+			T? current,
+			Func<T, IList<CustomAttributeData>> attributeAccessor,
+			Func<T, T?> parentAccessor,
+			Dictionary<Type, AttributeUsageAttribute> usages,
+			List<CustomAttributeData> results,
+			bool topLevel)
+		{
+			if (current is null)
+				return results;
+
+			foreach (var attributeData in attributeAccessor(current))
+			{
+				if (!usages.TryGetValue(attributeData.AttributeType, out var usage))
+				{
+					// First time we've seen this attribute
+					usage = attributeData.AttributeType.GetCustomAttribute<AttributeUsageAttribute>() ?? DefaultAttributeUsageAttribute;
+					usages[attributeData.AttributeType] = usage;
+				}
+				else
+				{
+					// Not the first time we've seen this attribute
+					if (!usage.AllowMultiple)
+						continue;
+				}
+
+				if (!topLevel && !usage.Inherited)
+					continue;
+
+				results.Add(attributeData);
+			}
+
+			return getAttributes(parentAccessor(current), attributeAccessor, parentAccessor, usages, results, topLevel: false);
+		}
+	}
+
+	static IList<CustomAttributeData> GetCustomAttributesDataWithInheritance(this MethodInfo method)
+	{
+		return GetCustomAttributesDataWithInheritance(method, m => m.GetCustomAttributesData(), getParent);
+
+		static IEnumerable<MethodInfo> getMatchingMethods(
+			Type type,
+			MethodInfo methodInfo) =>
+				from method in methodInfo.IsStatic ? type.GetRuntimeMethods() : type.GetTypeInfo().DeclaredMethods
+				where method.IsPublic == methodInfo.IsPublic && method.IsStatic == methodInfo.IsStatic
+				select method;
+
+		static MethodInfo? getParent(MethodInfo method)
+		{
+			if (!method.IsVirtual)
+				return null;
+
+			var methodParameters = method.GetParameters();
+			var methodGenericArgCount = method.GetGenericArguments().Length;
+
+			var currentType = method.DeclaringType;
+
+			while (currentType is not null && currentType != typeof(object))
+			{
+				currentType = currentType.GetTypeInfo().BaseType;
+				if (currentType == null)
+					return null;
+
+				foreach (MethodInfo m in getMatchingMethods(currentType, method))
+				{
+					if (m.Name == method.Name &&
+						m.GetGenericArguments().Length == methodGenericArgCount &&
+						parametersHaveSameTypes(methodParameters, m.GetParameters()))
+						return m;
+				}
+			}
+
+			return null;
+		}
+
+		static bool parametersHaveSameTypes(
+			ParameterInfo[] left,
+			ParameterInfo[] right)
+		{
+			if (left.Length != right.Length)
+				return false;
+
+			for (int i = 0; i < left.Length; i++)
+				if (!GenericTypeComparer.Instance.Equals(left[i].ParameterType, right[i].ParameterType))
+					return false;
+
+			return true;
+		}
+	}
+
+	static IList<CustomAttributeData> GetCustomAttributesDataWithInheritance(this Type type) =>
+		GetCustomAttributesDataWithInheritance(type, t => t.GetCustomAttributesData(), t => t.BaseType);
 
 	/// <summary>
 	/// Returns the default value for the given type. For value types, this means a 0-initialized
@@ -132,10 +256,13 @@ public static class ReflectionExtensions
 	/// closed generic, and open generic. When provided an open generic type (e.g., MyAttribute&lt;&gt;) it will
 	/// return matching closed generic attributes (e.g., MyAttribute&gt;int&lt;)</param>
 	/// <returns>The matching attributes that decorate the assembly</returns>
+	/// <remarks>
+	/// This method safely skips attributes that throw in their constructor.
+	/// </remarks>
 	public static IReadOnlyCollection<Attribute> GetMatchingCustomAttributes(
 		this Assembly assembly,
 		Type attributeType) =>
-			FindCustomAttributes(assembly.GetCustomAttributes(), attributeType);
+			FindCustomAttributes(Guard.ArgumentNotNull(assembly).GetCustomAttributesData(), attributeType);
 
 	/// <summary>
 	/// Gets all the custom attributes for the assembly that are of the given attribute type.
@@ -145,10 +272,25 @@ public static class ReflectionExtensions
 	/// closed generic, and open generic. When provided an open generic type (e.g., MyAttribute&lt;&gt;) it will
 	/// return matching closed generic attributes (e.g., MyAttribute&gt;int&lt;)</param>
 	/// <returns>The matching attributes that decorate the assembly</returns>
+	/// <remarks>
+	/// This method safely skips attributes that throw in their constructor.
+	/// </remarks>
 	public static IReadOnlyCollection<Attribute> GetMatchingCustomAttributes(
 		this Assembly assembly,
 		string assemblyQualifiedTypeName) =>
-			FindCustomAttributes(assembly.GetCustomAttributes(), assemblyQualifiedTypeName);
+			FindCustomAttributes(Guard.ArgumentNotNull(assembly).GetCustomAttributesData(), assemblyQualifiedTypeName);
+
+	/// <summary>
+	/// Gets all the custom attributes for the assembly that are of the given attribute type.
+	/// </summary>
+	/// <param name="assembly">The assembly to get custom attributes for.</param>
+	/// <returns>The matching attributes that decorate the assembly</returns>
+	/// <remarks>
+	/// This method safely skips attributes that throw in their constructor.
+	/// </remarks>
+	public static IReadOnlyCollection<T> GetMatchingCustomAttributes<T>(this Assembly assembly)
+		where T : notnull =>
+			FindCustomAttributes<T>(Guard.ArgumentNotNull(assembly).GetCustomAttributesData());
 
 	/// <summary>
 	/// Gets all the custom attributes for the attribute that are of the given attribute type.
@@ -158,10 +300,13 @@ public static class ReflectionExtensions
 	/// closed generic, and open generic. When provided an open generic type (e.g., MyAttribute&lt;&gt;) it will
 	/// return matching closed generic attributes (e.g., MyAttribute&gt;int&lt;)</param>
 	/// <returns>The matching attributes that decorate the attribute</returns>
+	/// <remarks>
+	/// This method safely skips attributes that throw in their constructor.
+	/// </remarks>
 	public static IReadOnlyCollection<Attribute> GetMatchingCustomAttributes(
 		this Attribute attribute,
 		Type attributeType) =>
-			FindCustomAttributes(Guard.ArgumentNotNull(attribute).GetType().GetCustomAttributes(), attributeType);
+			FindCustomAttributes(Guard.ArgumentNotNull(attribute).GetType().GetCustomAttributesDataWithInheritance(), attributeType);
 
 	/// <summary>
 	/// Gets all the custom attributes for the attribute that are of the given attribute type.
@@ -171,10 +316,25 @@ public static class ReflectionExtensions
 	/// closed generic, and open generic. When provided an open generic type (e.g., MyAttribute&lt;&gt;) it will
 	/// return matching closed generic attributes (e.g., MyAttribute&gt;int&lt;)</param>
 	/// <returns>The matching attributes that decorate the attribute</returns>
+	/// <remarks>
+	/// This method safely skips attributes that throw in their constructor.
+	/// </remarks>
 	public static IReadOnlyCollection<Attribute> GetMatchingCustomAttributes(
 		this Attribute attribute,
 		string assemblyQualifiedTypeName) =>
-			FindCustomAttributes(Guard.ArgumentNotNull(attribute).GetType().GetCustomAttributes(), assemblyQualifiedTypeName);
+			FindCustomAttributes(Guard.ArgumentNotNull(attribute).GetType().GetCustomAttributesDataWithInheritance(), assemblyQualifiedTypeName);
+
+	/// <summary>
+	/// Gets all the custom attributes for the attribute that are of the given attribute type.
+	/// </summary>
+	/// <param name="attribute">The attribute to get custom attributes for.</param>
+	/// <returns>The matching attributes that decorate the attribute</returns>
+	/// <remarks>
+	/// This method safely skips attributes that throw in their constructor.
+	/// </remarks>
+	public static IReadOnlyCollection<T> GetMatchingCustomAttributes<T>(this Attribute attribute)
+		where T : notnull =>
+			FindCustomAttributes<T>(Guard.ArgumentNotNull(attribute).GetType().GetCustomAttributesDataWithInheritance());
 
 	/// <summary>
 	/// Gets all the custom attributes for the method that are of the given attribute type.
@@ -184,10 +344,13 @@ public static class ReflectionExtensions
 	/// closed generic, and open generic. When provided an open generic type (e.g., MyAttribute&lt;&gt;) it will
 	/// return matching closed generic attributes (e.g., MyAttribute&gt;int&lt;)</param>
 	/// <returns>The matching attributes that decorate the method</returns>
+	/// <remarks>
+	/// This method safely skips attributes that throw in their constructor.
+	/// </remarks>
 	public static IReadOnlyCollection<Attribute> GetMatchingCustomAttributes(
 		this MethodInfo method,
 		Type attributeType) =>
-			FindCustomAttributes(Guard.ArgumentNotNull(method).GetCustomAttributes(), attributeType);
+			FindCustomAttributes(Guard.ArgumentNotNull(method).GetCustomAttributesDataWithInheritance(), attributeType);
 
 	/// <summary>
 	/// Gets all the custom attributes for the method that are of the given attribute type.
@@ -197,10 +360,25 @@ public static class ReflectionExtensions
 	/// closed generic, and open generic. When provided an open generic type (e.g., MyAttribute&lt;&gt;) it will
 	/// return matching closed generic attributes (e.g., MyAttribute&gt;int&lt;)</param>
 	/// <returns>The matching attributes that decorate the method</returns>
+	/// <remarks>
+	/// This method safely skips attributes that throw in their constructor.
+	/// </remarks>
 	public static IReadOnlyCollection<Attribute> GetMatchingCustomAttributes(
 		this MethodInfo method,
 		string assemblyQualifiedTypeName) =>
-			FindCustomAttributes(Guard.ArgumentNotNull(method).GetCustomAttributes(), assemblyQualifiedTypeName);
+			FindCustomAttributes(Guard.ArgumentNotNull(method).GetCustomAttributesDataWithInheritance(), assemblyQualifiedTypeName);
+
+	/// <summary>
+	/// Gets all the custom attributes for the method that are of the given attribute type.
+	/// </summary>
+	/// <param name="method">The method to get custom attributes for.</param>
+	/// <returns>The matching attributes that decorate the method</returns>
+	/// <remarks>
+	/// This method safely skips attributes that throw in their constructor.
+	/// </remarks>
+	public static IReadOnlyCollection<T> GetMatchingCustomAttributes<T>(this MethodInfo method)
+		where T : notnull =>
+			FindCustomAttributes<T>(Guard.ArgumentNotNull(method).GetCustomAttributesDataWithInheritance());
 
 	/// <summary>
 	/// Gets all the custom attributes for the parameter that are of the given attribute type.
@@ -210,10 +388,13 @@ public static class ReflectionExtensions
 	/// closed generic, and open generic. When provided an open generic type (e.g., MyAttribute&lt;&gt;) it will
 	/// return matching closed generic attributes (e.g., MyAttribute&gt;int&lt;)</param>
 	/// <returns>The matching attributes that decorate the parameter</returns>
+	/// <remarks>
+	/// This method safely skips attributes that throw in their constructor.
+	/// </remarks>
 	public static IReadOnlyCollection<Attribute> GetMatchingCustomAttributes(
 		this ParameterInfo parameter,
 		Type attributeType) =>
-			FindCustomAttributes(Guard.ArgumentNotNull(parameter).GetCustomAttributes(), attributeType);
+			FindCustomAttributes(Guard.ArgumentNotNull(parameter).GetCustomAttributesData(), attributeType);
 
 	/// <summary>
 	/// Gets all the custom attributes for the parameter that are of the given attribute type.
@@ -223,10 +404,25 @@ public static class ReflectionExtensions
 	/// closed generic, and open generic. When provided an open generic type (e.g., MyAttribute&lt;&gt;) it will
 	/// return matching closed generic attributes (e.g., MyAttribute&gt;int&lt;)</param>
 	/// <returns>The matching attributes that decorate the parameter</returns>
+	/// <remarks>
+	/// This method safely skips attributes that throw in their constructor.
+	/// </remarks>
 	public static IReadOnlyCollection<Attribute> GetMatchingCustomAttributes(
 		this ParameterInfo parameter,
 		string assemblyQualifiedTypeName) =>
-			FindCustomAttributes(Guard.ArgumentNotNull(parameter).GetCustomAttributes(), assemblyQualifiedTypeName);
+			FindCustomAttributes(Guard.ArgumentNotNull(parameter).GetCustomAttributesData(), assemblyQualifiedTypeName);
+
+	/// <summary>
+	/// Gets all the custom attributes for the parameter that are of the given attribute type.
+	/// </summary>
+	/// <param name="parameter">The parameter to get custom attributes for.</param>
+	/// <returns>The matching attributes that decorate the parameter</returns>
+	/// <remarks>
+	/// This method safely skips attributes that throw in their constructor.
+	/// </remarks>
+	public static IReadOnlyCollection<T> GetMatchingCustomAttributes<T>(this ParameterInfo parameter)
+		where T : notnull =>
+			FindCustomAttributes<T>(Guard.ArgumentNotNull(parameter).GetCustomAttributesData());
 
 	/// <summary>
 	/// Gets all the custom attributes for the type that are of the given attribute type.
@@ -236,10 +432,13 @@ public static class ReflectionExtensions
 	/// closed generic, and open generic. When provided an open generic type (e.g., MyAttribute&lt;&gt;) it will
 	/// return matching closed generic attributes (e.g., MyAttribute&gt;int&lt;)</param>
 	/// <returns>The matching attributes that decorate the type</returns>
+	/// <remarks>
+	/// This method safely skips attributes that throw in their constructor.
+	/// </remarks>
 	public static IReadOnlyCollection<Attribute> GetMatchingCustomAttributes(
 		this Type type,
 		Type attributeType) =>
-			FindCustomAttributes(Guard.ArgumentNotNull(type).GetCustomAttributes(), attributeType);
+			FindCustomAttributes(Guard.ArgumentNotNull(type).GetCustomAttributesDataWithInheritance(), attributeType);
 
 	/// <summary>
 	/// Gets all the custom attributes for the type that are of the given attribute type.
@@ -249,10 +448,25 @@ public static class ReflectionExtensions
 	/// closed generic, and open generic. When provided an open generic type (e.g., MyAttribute&lt;&gt;) it will
 	/// return matching closed generic attributes (e.g., MyAttribute&gt;int&lt;)</param>
 	/// <returns>The matching attributes that decorate the type</returns>
+	/// <remarks>
+	/// This method safely skips attributes that throw in their constructor.
+	/// </remarks>
 	public static IReadOnlyCollection<Attribute> GetMatchingCustomAttributes(
 		this Type type,
 		string assemblyQualifiedTypeName) =>
-			FindCustomAttributes(Guard.ArgumentNotNull(type).GetCustomAttributes(), assemblyQualifiedTypeName);
+			FindCustomAttributes(Guard.ArgumentNotNull(type).GetCustomAttributesDataWithInheritance(), assemblyQualifiedTypeName);
+
+	/// <summary>
+	/// Gets all the custom attributes for the type that are of the given attribute type.
+	/// </summary>
+	/// <param name="type">The type to get custom attributes for.</param>
+	/// <returns>The matching attributes that decorate the type</returns>
+	/// <remarks>
+	/// This method safely skips attributes that throw in their constructor.
+	/// </remarks>
+	public static IReadOnlyCollection<T> GetMatchingCustomAttributes<T>(this Type type)
+		where T : notnull =>
+			FindCustomAttributes<T>(Guard.ArgumentNotNull(type).GetCustomAttributesDataWithInheritance());
 
 	static string GetParameterName(
 		ParameterInfo[] parameters,
@@ -281,6 +495,13 @@ public static class ReflectionExtensions
 		// The type can't be a byreflike type if the property doesn't exist.
 		return false;
 	}
+
+	static bool IsOpenGenericOf(
+		this Type openGenericType,
+		Type concreteType) =>
+			openGenericType.IsGenericTypeDefinition &&
+			concreteType.IsConstructedGenericType &&
+			concreteType.GetGenericTypeDefinition() == openGenericType;
 
 	/// <summary>
 	/// Determines if the given type is from a local assembly.
@@ -628,6 +849,100 @@ public static class ReflectionExtensions
 		return type.FullName ?? type.Name;
 	}
 
+	static object? ToArgument(
+		object? arg,
+		Type type)
+	{
+		if (arg is not null && !type.IsAssignableFrom(arg.GetType()))
+			try
+			{
+				if (!type.IsArray)
+					return Convert.ChangeType(arg, type, CultureInfo.CurrentCulture);
+
+				var elementType = type.GetElementType()!;
+				var collectionValues = arg switch
+				{
+					IReadOnlyCollection<CustomAttributeTypedArgument> typedArguments => typedArguments.Select(ToTypedArgument),
+					IEnumerable<object> enumerable => enumerable,
+					_ => throw new InvalidOperationException("Unknown data type"),
+				};
+				var castMethod = EnumerableCast.MakeGenericMethod(elementType);
+				var toArrayMethod = EnumerableToArray.MakeGenericMethod(elementType);
+
+				return toArrayMethod.Invoke(null, [castMethod.Invoke(null, [collectionValues])]);
+			}
+			catch { }
+
+		return arg;
+	}
+
+	static object?[] ToArguments(
+		object?[]? args,
+		Type[]? types)
+	{
+		args ??= [];
+		types ??= [];
+
+		if (args.Length == types.Length)
+			for (var idx = 0; idx < args.Length; idx++)
+				args[idx] = ToArgument(args[idx], types[idx]);
+
+		return args;
+	}
+
+
+	static object? ToAttribute(CustomAttributeData attributeData)
+	{
+		var attributeTypeName = attributeData.AttributeType.FullName;
+		var ctorArgs = ToTypedArguments(attributeData.ConstructorArguments).ToArray();
+		Type[] ctorArgTypes = [];
+
+		if (ctorArgs.Length > 0)
+		{
+			ctorArgTypes = new Type[attributeData.ConstructorArguments.Count];
+			for (int i = 0; i < ctorArgTypes.Length; i++)
+				ctorArgTypes[i] = attributeData.ConstructorArguments[i].ArgumentType;
+		}
+
+		var attribute = attributeData.Constructor.Invoke(ToArguments(ctorArgs, ctorArgTypes));
+		var attributeType = attribute.GetType();
+
+		for (int i = 0; i < attributeData.NamedArguments.Count; i++)
+		{
+			var namedArg = attributeData.NamedArguments[i];
+			var typedValue = ToTypedArgument(namedArg.TypedValue);
+			var memberName = namedArg.MemberName;
+
+			var propInfo = attributeType.GetRuntimeProperty(memberName);
+			if (propInfo is not null)
+				try
+				{
+					propInfo.SetValue(attribute, typedValue);
+				}
+				catch
+				{
+					return null;
+				}
+			else
+			{
+				var fieldInfo = attributeType.GetRuntimeField(memberName);
+				if (fieldInfo is null)
+					return null;
+
+				try
+				{
+					fieldInfo.SetValue(attribute, typedValue);
+				}
+				catch
+				{
+					return null;
+				}
+			}
+		}
+
+		return attribute;
+	}
+
 	/// <summary>
 	/// Convert a collection of <see cref="Type"/> objects into a comma-separated list
 	/// for display purposes.
@@ -682,6 +997,42 @@ public static class ReflectionExtensions
 					: type.FullName.StartsWith(type.Namespace, StringComparison.Ordinal)
 						? type.FullName.Substring(type.Namespace.Length + 1)
 						: type.FullName;
+	}
+
+	static object? ToTypedArgument(CustomAttributeTypedArgument arg)
+	{
+		if (arg.Value is not IReadOnlyCollection<CustomAttributeTypedArgument> collect)
+			return arg.Value;
+
+		var argType = arg.ArgumentType.GetElementType()!;
+		Array destinationArray = Array.CreateInstance(argType, collect.Count);
+
+		if (argType.IsEnum)
+			Array.Copy(collect.Select(x => Enum.ToObject(argType, x.Value!)).ToArray(), destinationArray, collect.Count);
+		else
+			Array.Copy(collect.Select(x => x.Value).ToArray(), destinationArray, collect.Count);
+
+		return destinationArray;
+	}
+
+	static IEnumerable<object?> ToTypedArguments(IEnumerable<CustomAttributeTypedArgument> arguments)
+	{
+		foreach (var argument in arguments)
+		{
+			var value = argument.Value;
+
+			// Collections are recursively IEnumerable<CustomAttributeTypedArgument> rather than
+			// being the exact matching type, so the inner values must be converted.
+			if (value is IEnumerable<CustomAttributeTypedArgument> valueAsEnumerable)
+				value = ToTypedArguments(valueAsEnumerable).ToArray();
+			else if (value != null && value.GetType() != argument.ArgumentType && argument.ArgumentType.GetTypeInfo().IsEnum)
+				value = Enum.ToObject(argument.ArgumentType, value);
+
+			if (value != null && value.GetType() != argument.ArgumentType && argument.ArgumentType.GetTypeInfo().IsArray)
+				value = ToArgument(value, argument.ArgumentType);
+
+			yield return value;
+		}
 	}
 
 	/// <summary>
@@ -771,4 +1122,34 @@ public static class ReflectionExtensions
 		Guard.ArgumentNotNull(type).IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>)
 			? type.GetGenericArguments()[0]
 			: type;
+
+	sealed class GenericTypeComparer : IEqualityComparer
+	{
+		public static IEqualityComparer Instance { get; } = new GenericTypeComparer();
+
+		bool IEqualityComparer.Equals(
+			object? x,
+			object? y)
+		{
+			if (x is null)
+				return y is null;
+			if (y is null)
+				return false;
+
+			var typeX = (Type)x;
+			var typeY = (Type)y;
+
+			if (typeX.IsGenericParameter && typeY.IsGenericParameter)
+				return typeX.GenericParameterPosition == typeY.GenericParameterPosition;
+
+			return typeX == typeY;
+		}
+
+		int IEqualityComparer.GetHashCode(object obj)
+		{
+			Guard.ArgumentNotNull(nameof(obj), obj);
+
+			return obj.GetHashCode();
+		}
+	}
 }

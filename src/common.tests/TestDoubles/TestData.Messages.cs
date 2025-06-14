@@ -356,7 +356,7 @@ public static partial class TestData
 	{
 		var type = typeof(TClass);
 		var methodInfo = Guard.NotNull($"Could not find method '{testMethod}' in type '{type.FullName}'", type.GetMethod(testMethod));
-		var factAttribute = methodInfo.GetMatchingCustomAttributes(typeof(IFactAttribute)).FirstOrDefault() as IFactAttribute;
+		var factAttribute = methodInfo.GetMatchingCustomAttributes<IFactAttribute>().FirstOrDefault();
 		var @explicit = factAttribute?.Explicit ?? false;
 		var skipReason = factAttribute?.Skip;
 		var traits = ExtensibilityPointFactory.GetMethodTraits(methodInfo, testClassTraits: null);
@@ -470,7 +470,7 @@ public static partial class TestData
 	{
 		var type = typeof(TClass);
 		var methodInfo = Guard.NotNull($"Could not find method '{testMethod}' in type '{type.FullName}'", type.GetMethod(testMethod));
-		var factAttribute = methodInfo.GetMatchingCustomAttributes(typeof(IFactAttribute)).FirstOrDefault() as IFactAttribute;
+		var factAttribute = methodInfo.GetMatchingCustomAttributes<IFactAttribute>().FirstOrDefault();
 		var @explicit = factAttribute?.Explicit ?? false;
 		var skipReason = factAttribute?.Skip;
 		var traits = ExtensibilityPointFactory.GetMethodTraits(methodInfo, testClassTraits: null);

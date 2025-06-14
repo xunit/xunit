@@ -34,7 +34,7 @@ public abstract class TestCollectionFactoryBase(IXunitTestAssembly testAssembly)
 	{
 		Guard.ArgumentNotNull(testClass);
 
-		var attributes = testClass.GetMatchingCustomAttributes(typeof(ICollectionAttribute));
+		var attributes = testClass.GetMatchingCustomAttributes<ICollectionAttribute>();
 
 		return attributes.Count > 1
 			? throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "More than one collection attribute was found on test class {0}: {1}", testClass.SafeName(), string.Join(", ", attributes.Select(a => a.GetType()).ToCommaSeparatedList())))

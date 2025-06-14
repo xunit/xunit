@@ -15,7 +15,7 @@ namespace Xunit.Runner.Common;
 public static class RegisteredRunnerReporters
 {
 	/// <summary>
-	/// Gets the list of rrunner reporters registered for the given assembly. 
+	/// Gets the list of rrunner reporters registered for the given assembly.
 	/// </summary>
 	/// <param name="assembly">The assembly</param>
 	/// <param name="messages">Messages that were generated during discovery</param>
@@ -27,7 +27,7 @@ public static class RegisteredRunnerReporters
 		messages = [];
 		var result = new List<IRunnerReporter>();
 
-		foreach (var attribute in assembly.GetCustomAttributes().OfType<IRegisterRunnerReporterAttribute>())
+		foreach (var attribute in assembly.GetMatchingCustomAttributes<IRegisterRunnerReporterAttribute>())
 		{
 			var reporterType = attribute.RunnerReporterType;
 			if (reporterType is null)

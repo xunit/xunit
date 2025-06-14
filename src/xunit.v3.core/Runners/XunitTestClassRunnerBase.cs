@@ -76,7 +76,6 @@ public abstract class XunitTestClassRunnerBase<TContext, TTestClass, TTestMethod
 				string.Join(", ", unusedArguments.Select(arg => string.Format(CultureInfo.CurrentCulture, "{0} {1}", arg.Item2.ParameterType.Name, arg.Item2.Name)))
 			);
 
-
 	/// <summary>
 	/// Tries to supply a test class constructor argument.
 	/// </summary>

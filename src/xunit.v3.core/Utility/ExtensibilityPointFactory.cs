@@ -68,7 +68,7 @@ public static partial class ExtensibilityPointFactory
 	{
 		Guard.ArgumentNotNull(testAssembly);
 
-		var testFrameworkAttribute = testAssembly.GetMatchingCustomAttributes(typeof(ITestFrameworkAttribute)).FirstOrDefault() as ITestFrameworkAttribute;
+		var testFrameworkAttribute = testAssembly.GetMatchingCustomAttributes<ITestFrameworkAttribute>().FirstOrDefault();
 		var testFrameworkType = testFrameworkAttribute?.FrameworkType ?? typeof(XunitTestFramework);
 		if (!typeof(ITestFramework).IsAssignableFrom(testFrameworkType))
 			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Test framework type '{0}' does not implement '{1}'", testFrameworkType.SafeName(), typeof(ITestFramework).SafeName()));

@@ -28,7 +28,7 @@ public static partial class ExtensibilityPointFactory
 			collectionDefinition is null
 				? assemblyBeforeAfterTestAttributes
 				: assemblyBeforeAfterTestAttributes
-					.Concat(collectionDefinition.GetMatchingCustomAttributes(typeof(IBeforeAfterTestAttribute)).Cast<IBeforeAfterTestAttribute>())
+					.Concat(collectionDefinition.GetMatchingCustomAttributes<IBeforeAfterTestAttribute>())
 					.CastOrToReadOnlyCollection();
 	}
 
@@ -40,10 +40,10 @@ public static partial class ExtensibilityPointFactory
 	{
 		Guard.ArgumentNotNull(testAssembly);
 
-		var collectionBehaviorAttributes = testAssembly.GetMatchingCustomAttributes(typeof(ICollectionBehaviorAttribute));
+		var collectionBehaviorAttributes = testAssembly.GetMatchingCustomAttributes<ICollectionBehaviorAttribute>();
 		return
 			collectionBehaviorAttributes.Count <= 1
-				? collectionBehaviorAttributes.FirstOrDefault() as ICollectionBehaviorAttribute
+				? collectionBehaviorAttributes.FirstOrDefault()
 				: throw new InvalidOperationException(
 					string.Format(
 						CultureInfo.CurrentCulture,
@@ -125,7 +125,7 @@ public static partial class ExtensibilityPointFactory
 		if (collectionDefinition is null)
 			return null;
 
-		var ordererAttributes = collectionDefinition.GetMatchingCustomAttributes(typeof(ITestCaseOrdererAttribute));
+		var ordererAttributes = collectionDefinition.GetMatchingCustomAttributes<ITestCaseOrdererAttribute>();
 		if (ordererAttributes.Count > 1)
 			throw new InvalidOperationException(
 				string.Format(
@@ -175,7 +175,7 @@ public static partial class ExtensibilityPointFactory
 				result.AddOrGet(trait.Key).AddRange(trait.Value);
 
 		if (testCollectionDefinition is not null)
-			foreach (var traitAttribute in testCollectionDefinition.GetMatchingCustomAttributes(typeof(ITraitAttribute)).Cast<ITraitAttribute>())
+			foreach (var traitAttribute in testCollectionDefinition.GetMatchingCustomAttributes<ITraitAttribute>())
 				foreach (var kvp in traitAttribute.GetTraits())
 					result.AddOrGet(kvp.Key).Add(kvp.Value);
 
