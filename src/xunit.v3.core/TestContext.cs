@@ -26,8 +26,8 @@ public sealed class TestContext : ITestContext, IDisposable
 	readonly FixtureMappingManager? fixtures;
 	IMessageSink? internalDiagnosticMessageSink;
 	readonly ConcurrentDictionary<string, object?>? keyValueStorage;
-	readonly CancellationTokenSource testCancellationTokenSource = new();
 	readonly CancellationTokenSource linkedCancellationTokenSource;
+	readonly CancellationTokenSource testCancellationTokenSource = new();
 	readonly List<string>? warnings;
 
 	TestContext(
