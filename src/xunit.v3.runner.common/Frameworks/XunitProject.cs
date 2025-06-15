@@ -73,6 +73,7 @@ public class XunitProject
 			new(
 				new(
 					Guard.ArgumentNotNull(other).Configuration.AssemblyInfo,
+					other.Configuration.CrashDetectionSinkTimeout,
 					other.Configuration.Debug,
 					other.Configuration.IgnoreFailures,
 					other.Configuration.List,

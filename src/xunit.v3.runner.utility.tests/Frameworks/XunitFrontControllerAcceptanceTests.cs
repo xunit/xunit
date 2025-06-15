@@ -43,6 +43,7 @@ public class XunitFrontControllerAcceptanceTests
 			Assert.NotNull(assemblyMetadata);
 
 			var projectAssembly = new XunitProjectAssembly(new XunitProject(), testAssembly.FileName, assemblyMetadata);
+			projectAssembly.Project.Configuration.CrashDetectionSinkTimeout = 10;
 			var frontController = XunitFrontController.Create(projectAssembly);
 			Assert.NotNull(frontController);
 

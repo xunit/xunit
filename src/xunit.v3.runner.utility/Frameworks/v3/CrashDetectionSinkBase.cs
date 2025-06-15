@@ -11,10 +11,10 @@ namespace Xunit.v3;
 /// Base class for crash detection, to be used by <see cref="Xunit3"/> during discovery and execution
 /// so that we can always ensure runners get starting and finished messages.
 /// </summary>
-/// <typeparam name="TStart"></typeparam>
-/// <typeparam name="TFinish"></typeparam>
-/// <param name="projectAssembly"></param>
-/// <param name="innerSink"></param>
+/// <typeparam name="TStart">The start message type</typeparam>
+/// <typeparam name="TFinish">The finish message type</typeparam>
+/// <param name="projectAssembly">The test project assembly</param>
+/// <param name="innerSink">The inner sink</param>
 public abstract class CrashDetectionSinkBase<TStart, TFinish>(
 	XunitProjectAssembly projectAssembly,
 	IMessageSink innerSink) :
@@ -34,7 +34,7 @@ public abstract class CrashDetectionSinkBase<TStart, TFinish>(
 	/// This override is for testing purposes.
 	/// </summary>
 	protected virtual int FinishWaitMilliseconds =>
-		5_000;
+		projectAssembly.Project.Configuration.CrashDetectionSinkTimeoutOrDefault;
 
 	/// <summary>
 	/// Gets the inner sink for message delegation.

@@ -20,6 +20,7 @@ public class TestProjectConfiguration
 
 	internal TestProjectConfiguration(
 		bool? assemblyInfo,
+		int? crashDetectionSinkTimeout,
 		bool? debug,
 		bool? ignoreFailures,
 		(ListOption Option, ListFormat Format)? list,
@@ -33,6 +34,7 @@ public class TestProjectConfiguration
 		bool? waitForDebugger)
 	{
 		AssemblyInfo = assemblyInfo;
+		CrashDetectionSinkTimeout = crashDetectionSinkTimeout;
 		Debug = debug;
 		IgnoreFailures = ignoreFailures;
 		List = list;
@@ -63,6 +65,19 @@ public class TestProjectConfiguration
 	/// Gets the environment variable name used to test for the user requesting no color output.
 	/// </summary>
 	public const string EnvNameNoColor = "NO_COLOR";
+
+	/// <summary>
+	/// Gets the time (in milliseconds) that the crash detection sink will wait after process termination
+	/// for timely message dispatch, to determine if the process exited cleanly or crashed.
+	/// </summary>
+	public int? CrashDetectionSinkTimeout { get; set; }
+
+	/// <summary>
+	/// Gets the time (in milliseconds) that the crash detection sink will wait after process termination
+	/// for timely message dispatch, to determine if the process exited cleanly or crashed. If the value
+	/// isn't set, returns the default value (60 seconds).
+	/// </summary>
+	public int CrashDetectionSinkTimeoutOrDefault => CrashDetectionSinkTimeout ?? 60_000;
 
 	/// <summary>
 	/// Gets or sets a flag which indicates whether the runner should attempt to attach the debugger
