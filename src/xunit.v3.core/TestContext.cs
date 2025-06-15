@@ -27,6 +27,7 @@ public sealed class TestContext : ITestContext, IDisposable
 	IMessageSink? internalDiagnosticMessageSink;
 	readonly ConcurrentDictionary<string, object?>? keyValueStorage;
 	readonly CancellationTokenSource testCancellationTokenSource = new();
+ 	readonly CancellationTokenSource linkedCancellationTokenSource;
 	readonly List<string>? warnings;
 
 	TestContext(
@@ -43,7 +44,8 @@ public sealed class TestContext : ITestContext, IDisposable
 		InternalDiagnosticMessageSink = internalDiagnosticMessageSink;
 		this.keyValueStorage = keyValueStorage;
 		PipelineStage = pipelineStage;
-		CancellationToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, testCancellationTokenSource.Token).Token;
+  		this.linkedCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, testCancellationTokenSource.Token);
+		CancellationToken = linkedCancellationTokenSource.Token;
 		this.attachments = attachments;
 		this.fixtures = fixtures;
 		this.warnings = warnings;
@@ -203,8 +205,11 @@ public sealed class TestContext : ITestContext, IDisposable
 		testCancellationTokenSource.Cancel();
 
 	/// <inheritdoc/>
-	public void Dispose() =>
+	public void Dispose()
+ 	{
 		testCancellationTokenSource.Dispose();
+  		linkedCancellationTokenSource.Dispose();
+  	}
 
 	/// <inheritdoc/>
 	public ValueTask<object?> GetFixture(Type fixtureType)
