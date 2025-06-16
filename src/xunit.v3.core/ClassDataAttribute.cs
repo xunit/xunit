@@ -97,3 +97,16 @@ public class ClassDataAttribute(Type @class) : DataAttribute
 	public override bool SupportsDiscoveryEnumeration() =>
 		!typeof(IDisposable).IsAssignableFrom(Class) && !typeof(IAsyncDisposable).IsAssignableFrom(Class);
 }
+
+/// <summary>
+/// Provides a data source for a data theory, with the data coming from a class
+/// which must implement IEnumerable&lt;object?[]&gt;.
+/// </summary>
+/// <typeparam name="TClass">The class that provides the data.</typeparam>
+/// <remarks>
+/// .NET Framework does not support generic attributes. Please use the non-generic <see cref="ClassDataAttribute"/>
+/// when targeting .NET Framework.
+/// </remarks>
+public class ClassDataAttribute<TClass>() :
+	ClassDataAttribute(typeof(TClass))
+{ }

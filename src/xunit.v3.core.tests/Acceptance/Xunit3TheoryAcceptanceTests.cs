@@ -1264,6 +1264,164 @@ public class Xunit3TheoryAcceptanceTests
 		}
 	}
 
+#if !NETFRAMEWORK
+
+	public class ClassDataTests_Generic : AcceptanceTestV3
+	{
+		[Fact]
+		public async ValueTask IncompatibleDataReturnType_Throws()
+		{
+			var testMessages = await RunForResultsAsync(typeof(ClassUnderTest_IncompatibleReturnType));
+
+			var result = Assert.Single(testMessages.OfType<TestFailedWithDisplayName>());
+			Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests_Generic+ClassUnderTest_IncompatibleReturnType.TestMethod", result.TestDisplayName);
+			Assert.Equal("System.ArgumentException", result.ExceptionTypes.Single());
+			Assert.Equal(
+				"'Xunit3TheoryAcceptanceTests+ClassDataTests_Generic+ClassWithIncompatibleReturnType' must implement one of the following interfaces to be used as ClassData:" + Environment.NewLine +
+				"- IEnumerable<ITheoryDataRow>" + Environment.NewLine +
+				"- IEnumerable<object[]>" + Environment.NewLine +
+				"- IAsyncEnumerable<ITheoryDataRow>" + Environment.NewLine +
+				"- IAsyncEnumerable<object[]>",
+				result.Messages.Single()
+			);
+		}
+
+		class ClassWithIncompatibleReturnType { }
+
+		class ClassUnderTest_IncompatibleReturnType
+		{
+			[Theory]
+#pragma warning disable xUnit1007 // ClassData must point at a valid class
+			[ClassData<ClassWithIncompatibleReturnType>]
+#pragma warning restore xUnit1007 // ClassData must point at a valid class
+			public void TestMethod(int _) { }
+		}
+
+		[Fact]
+		public async ValueTask IncompatibleDataValueType_Throws()
+		{
+			var testMessages = await RunForResultsAsync(typeof(ClassUnderTest_IncomptableValueData));
+
+			var result = Assert.Single(testMessages.OfType<TestFailedWithDisplayName>());
+			Assert.Equal("Xunit3TheoryAcceptanceTests+ClassDataTests_Generic+ClassUnderTest_IncomptableValueData.TestMethod", result.TestDisplayName);
+			Assert.Equal("System.ArgumentException", result.ExceptionTypes.Single());
+			Assert.StartsWith("Class 'Xunit3TheoryAcceptanceTests+ClassDataTests_Generic+ClassWithIncompatibleValueData' yielded an item of type 'System.Int32' which is not an 'object?[]', 'Xunit.ITheoryDataRow' or 'System.Runtime.CompilerServices.ITuple'", result.Messages.Single());
+		}
+
+		class ClassWithIncompatibleValueData : IEnumerable
+		{
+			public IEnumerator GetEnumerator()
+			{
+				yield return 42;
+			}
+		}
+
+		class ClassUnderTest_IncomptableValueData
+		{
+			[Theory]
+#pragma warning disable xUnit1007 // ClassData must point at a valid class
+			[ClassData<ClassWithIncompatibleValueData>]
+#pragma warning restore xUnit1007 // ClassData must point at a valid class
+			public void TestMethod(int _) { }
+		}
+
+		class ClassDataSource
+		{
+			public static readonly object[] Data =
+			[
+				new object?[] { "Hello from class source", 2600 },
+				Tuple.Create("Hello from Tuple", 42),
+				("Class source will fail", 2112),
+				new TheoryDataRow("Class source would fail if I ran", 96) { Skip = "Do not run" },
+				new TheoryDataRow<string, int>("I only run explicitly", 9600) { Explicit = true },
+			];
+		}
+
+		[Fact]
+		public async ValueTask ClassDisposable_DisposesOfClass()
+		{
+			Assert.Equal(0, DataSource_ClassDisposable.DisposeCount);
+
+			var testMessages = await RunForResultsAsync(typeof(ClassUnderTest_ClassDisposable));
+
+			Assert.Equal(3, testMessages.OfType<TestPassedWithDisplayName>().Count());
+			Assert.Single(testMessages.OfType<TestSkippedWithDisplayName>());
+			Assert.Single(testMessages.OfType<TestNotRunWithDisplayName>());
+			Assert.Equal(1, DataSource_ClassDisposable.DisposeCount);
+		}
+
+		class ClassUnderTest_ClassDisposable
+		{
+			[Theory]
+#pragma warning disable xUnit1007 // ClassData must point at a valid class
+			[ClassData<DataSource_ClassDisposable>]
+#pragma warning restore xUnit1007 // ClassData must point at a valid class
+			public void TestMethod(string _1, int _2) { }
+		}
+
+		// This is IEnumerable instead of strongly typed because it returns all the various forms of
+		// data that are valid in a data source.
+		public class DataSource_ClassDisposable : IEnumerable, IDisposable
+		{
+			public static int DisposeCount;
+
+			public void Dispose() =>
+				Interlocked.Increment(ref DisposeCount);
+
+			IEnumerator IEnumerable.GetEnumerator() =>
+				ClassDataSource.Data.GetEnumerator();
+		}
+
+		[Fact]
+		public async ValueTask ClassAsyncDisposable_DisposesOfClass()
+		{
+			Assert.Equal(0, DataSource_ClassAsyncDisposable.DisposeCount);
+			Assert.Equal(0, DataSource_ClassAsyncDisposable.InitializeCount);
+
+			var testMessages = await RunForResultsAsync(typeof(ClassUnderTest_ClassAsyncDisposable));
+
+			Assert.Equal(3, testMessages.OfType<TestPassedWithDisplayName>().Count());
+			Assert.Single(testMessages.OfType<TestSkippedWithDisplayName>());
+			Assert.Single(testMessages.OfType<TestNotRunWithDisplayName>());
+			Assert.Equal(1, DataSource_ClassAsyncDisposable.DisposeCount);
+			Assert.Equal(1, DataSource_ClassAsyncDisposable.InitializeCount);
+		}
+
+		class ClassUnderTest_ClassAsyncDisposable
+		{
+			[Theory]
+#pragma warning disable xUnit1007 // ClassData must point at a valid class
+			[ClassData<DataSource_ClassAsyncDisposable>]
+#pragma warning restore xUnit1007 // ClassData must point at a valid class
+			public void TestMethod(string _1, int _2) { }
+		}
+
+		// This is IEnumerable instead of strongly typed because it returns all the various forms of
+		// data that are valid in a data source.
+		public class DataSource_ClassAsyncDisposable : IEnumerable, IAsyncLifetime
+		{
+			public static int DisposeCount;
+			public static int InitializeCount;
+
+			public ValueTask DisposeAsync()
+			{
+				Interlocked.Increment(ref DisposeCount);
+				return default;
+			}
+
+			public ValueTask InitializeAsync()
+			{
+				Interlocked.Increment(ref InitializeCount);
+				return default;
+			}
+
+			IEnumerator IEnumerable.GetEnumerator() =>
+				ClassDataSource.Data.GetEnumerator();
+		}
+	}
+
+#endif  // !NETFRAMEWORK
+
 	public class MissingDataTests : AcceptanceTestV3
 	{
 		[Fact]
