@@ -431,11 +431,12 @@ Failed! - Failed: 2, Passed: 3, Skipped: 0, Total: 5, Duration: 6 ms - MyFirstUn
 <h2 id="run-tests-visualstudio">Running tests with Visual Studio</h2>
 
 <p class="important">
-  <strong>If you're having problems discovering or running tests,</strong> you may be a victim
-  of a corrupted runner cache inside Visual Studio. To clear this cache, shut down all instances
-  of Visual Studio, then delete the folder <code>%TEMP%\VisualStudioTestExplorerExtensions</code>.
-  Also make sure your solution is only linked against a single version of the Visual Studio runner
-  NuGet package (<code>xunit.runner.visualstudio</code>).
+  <strong>If you're having problems discovering or running tests,</strong> it may be the case that
+  Visual Studio is using an old version of the <code>xunit.runner.visualstudio</code> package. First,
+  make sure you only link against a single version for all your test projects. Second, try shutting
+  down all instances of Visual Studio and trying again. Third, you may also want to see if there is
+  a cache folder in <code>%TEMP\VisualStudioTestExplorerExtensions</code>, and if so, delete it before
+  restarting Visual Studio.
 </p>
 
 <p>
