@@ -4,7 +4,7 @@
   <PropertyGroup>
 
     <!-- Used for building -->
-    <ILRepack_Version>2.0.43</ILRepack_Version>
+    <ILRepack_Version>2.0.44</ILRepack_Version>
     <Microsoft_NetCore_App_Ref_Version>9.0.4</Microsoft_NetCore_App_Ref_Version>
     <Microsoft_NETFramework_ReferenceAssemblies_Version>1.0.3</Microsoft_NETFramework_ReferenceAssemblies_Version>
     <Microsoft_SourceLink_GitHub_Version>8.0.0</Microsoft_SourceLink_GitHub_Version>
