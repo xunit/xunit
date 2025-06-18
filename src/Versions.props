@@ -4,7 +4,7 @@
   <PropertyGroup>
 
     <!-- Used for building -->
-    <ILRepack_Version>2.0.43</ILRepack_Version>
+    <ILRepack_Version>2.0.44</ILRepack_Version>
     <Microsoft_NetCore_App_Ref_Version>9.0.4</Microsoft_NetCore_App_Ref_Version>
     <Microsoft_NETFramework_ReferenceAssemblies_Version>1.0.3</Microsoft_NETFramework_ReferenceAssemblies_Version>
     <Microsoft_SourceLink_GitHub_Version>8.0.0</Microsoft_SourceLink_GitHub_Version>
@@ -12,7 +12,7 @@
     <TunnelVisionLabs_ReferenceAssemblyAnnotator_Version>1.0.0-alpha.160</TunnelVisionLabs_ReferenceAssemblyAnnotator_Version>
 
     <!-- Used for Microsoft.Testing.* (xunit.v3.core NuGet package and xunit.v3.runner.inproc.console) -->
-    <Microsoft_Testing_Version>1.7.1</Microsoft_Testing_Version>
+    <Microsoft_Testing_Version>1.7.3</Microsoft_Testing_Version>
 
     <!-- Used by NuGet packages (xunit.v3 and xunit.v3.templates) -->
     <Microsoft_NET_Test_Sdk_Version>17.13.0</Microsoft_NET_Test_Sdk_Version>
