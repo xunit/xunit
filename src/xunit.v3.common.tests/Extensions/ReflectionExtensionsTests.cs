@@ -87,44 +87,60 @@ public class ReflectionExtensionsTests
 		[Fact]
 		public void ForAssembly_NonGeneric()
 		{
-			var attrs = typeof(ReflectionExtensionsTests).Assembly.GetMatchingCustomAttributes(typeof(IAttributeUnderTest));
+			var warnings = new List<string>();
+
+			var attrs = typeof(ReflectionExtensionsTests).Assembly.GetMatchingCustomAttributes(typeof(IAttributeUnderTest), warnings);
 
 			Assert.Contains(attrs, attr => attr is AttributeUnderTest);
+			Assert.Contains(warnings, warning => warning.StartsWith($"Custom attribute type '{typeof(ThrowingAttributeUnderTest).FullName}' threw '{typeof(DivideByZeroException).FullName}' during construction:"));
 #if !NETFRAMEWORK
 			Assert.Contains(attrs, attr => attr is AttributeUnderTest<int>);
+			Assert.Contains(warnings, warning => warning.StartsWith($"Custom attribute type '{typeof(ThrowingAttributeUnderTest<int>).FullName}' threw '{typeof(DivideByZeroException).FullName}' during construction:"));
 #endif
 		}
 
 		[Fact]
 		public void ForAssembly_Generic()
 		{
-			var attrs = typeof(ReflectionExtensionsTests).Assembly.GetMatchingCustomAttributes<IAttributeUnderTest>();
+			var warnings = new List<string>();
+
+			var attrs = typeof(ReflectionExtensionsTests).Assembly.GetMatchingCustomAttributes<IAttributeUnderTest>(warnings);
 
 			Assert.Contains(attrs, attr => attr is AttributeUnderTest);
+			Assert.Contains(warnings, warning => warning.StartsWith($"Custom attribute type '{typeof(ThrowingAttributeUnderTest).FullName}' threw '{typeof(DivideByZeroException).FullName}' during construction:"));
 #if !NETFRAMEWORK
 			Assert.Contains(attrs, attr => attr is AttributeUnderTest<int>);
+			Assert.Contains(warnings, warning => warning.StartsWith($"Custom attribute type '{typeof(ThrowingAttributeUnderTest<int>).FullName}' threw '{typeof(DivideByZeroException).FullName}' during construction:"));
 #endif
 		}
 
 		[Fact]
 		public void ForAttribute_NonGeneric()
 		{
-			var attrs = new AttributeWithAttribute().GetMatchingCustomAttributes(typeof(IAttributeUnderTest));
+			var warnings = new List<string>();
+
+			var attrs = new AttributeWithAttribute().GetMatchingCustomAttributes(typeof(IAttributeUnderTest), warnings);
 
 			Assert.Contains(attrs, attr => attr is AttributeUnderTest);
+			Assert.Contains(warnings, warning => warning.StartsWith($"Custom attribute type '{typeof(ThrowingAttributeUnderTest).FullName}' threw '{typeof(DivideByZeroException).FullName}' during construction:"));
 #if !NETFRAMEWORK
 			Assert.Contains(attrs, attr => attr is AttributeUnderTest<int>);
+			Assert.Contains(warnings, warning => warning.StartsWith($"Custom attribute type '{typeof(ThrowingAttributeUnderTest<int>).FullName}' threw '{typeof(DivideByZeroException).FullName}' during construction:"));
 #endif
 		}
 
 		[Fact]
 		public void ForAttribute_Generic()
 		{
-			var attrs = new AttributeWithAttribute().GetMatchingCustomAttributes<IAttributeUnderTest>();
+			var warnings = new List<string>();
+
+			var attrs = new AttributeWithAttribute().GetMatchingCustomAttributes<IAttributeUnderTest>(warnings);
 
 			Assert.Contains(attrs, attr => attr is AttributeUnderTest);
+			Assert.Contains(warnings, warning => warning.StartsWith($"Custom attribute type '{typeof(ThrowingAttributeUnderTest).FullName}' threw '{typeof(DivideByZeroException).FullName}' during construction:"));
 #if !NETFRAMEWORK
 			Assert.Contains(attrs, attr => attr is AttributeUnderTest<int>);
+			Assert.Contains(warnings, warning => warning.StartsWith($"Custom attribute type '{typeof(ThrowingAttributeUnderTest<int>).FullName}' threw '{typeof(DivideByZeroException).FullName}' during construction:"));
 #endif
 		}
 
@@ -139,11 +155,15 @@ public class ReflectionExtensionsTests
 		[Fact]
 		public void ForMethod_NonGeneric()
 		{
-			var attrs = typeof(GetMatchingCustomAttributes).GetMethod(nameof(MethodWithAttribute), BindingFlags.NonPublic | BindingFlags.Static)?.GetMatchingCustomAttributes(typeof(IAttributeUnderTest)) ?? [];
+			var warnings = new List<string>();
+
+			var attrs = typeof(GetMatchingCustomAttributes).GetMethod(nameof(MethodWithAttribute), BindingFlags.NonPublic | BindingFlags.Static)?.GetMatchingCustomAttributes(typeof(IAttributeUnderTest), warnings) ?? [];
 
 			Assert.Contains(attrs, attr => attr is AttributeUnderTest);
+			Assert.Contains(warnings, warning => warning.StartsWith($"Custom attribute type '{typeof(ThrowingAttributeUnderTest).FullName}' threw '{typeof(DivideByZeroException).FullName}' during construction:"));
 #if !NETFRAMEWORK
 			Assert.Contains(attrs, attr => attr is AttributeUnderTest<int>);
+			Assert.Contains(warnings, warning => warning.StartsWith($"Custom attribute type '{typeof(ThrowingAttributeUnderTest<int>).FullName}' threw '{typeof(DivideByZeroException).FullName}' during construction:"));
 #endif
 		}
 
@@ -151,11 +171,15 @@ public class ReflectionExtensionsTests
 		[Fact]
 		public void ForMethod_Generic()
 		{
-			var attrs = typeof(GetMatchingCustomAttributes).GetMethod(nameof(MethodWithAttribute), BindingFlags.NonPublic | BindingFlags.Static)?.GetMatchingCustomAttributes<IAttributeUnderTest>() ?? [];
+			var warnings = new List<string>();
+
+			var attrs = typeof(GetMatchingCustomAttributes).GetMethod(nameof(MethodWithAttribute), BindingFlags.NonPublic | BindingFlags.Static)?.GetMatchingCustomAttributes<IAttributeUnderTest>(warnings) ?? [];
 
 			Assert.Contains(attrs, attr => attr is AttributeUnderTest);
+			Assert.Contains(warnings, warning => warning.StartsWith($"Custom attribute type '{typeof(ThrowingAttributeUnderTest).FullName}' threw '{typeof(DivideByZeroException).FullName}' during construction:"));
 #if !NETFRAMEWORK
 			Assert.Contains(attrs, attr => attr is AttributeUnderTest<int>);
+			Assert.Contains(warnings, warning => warning.StartsWith($"Custom attribute type '{typeof(ThrowingAttributeUnderTest<int>).FullName}' threw '{typeof(DivideByZeroException).FullName}' during construction:"));
 #endif
 		}
 
@@ -170,26 +194,34 @@ public class ReflectionExtensionsTests
 		[Fact]
 		public void ForParameter_NonGeneric()
 		{
+			var warnings = new List<string>();
 			var method = typeof(GetMatchingCustomAttributes).GetMethod(nameof(MethodWithParameter), BindingFlags.NonPublic | BindingFlags.Static);
 			Assert.NotNull(method);
-			var attrs = method.GetParameters()[0].GetMatchingCustomAttributes(typeof(IAttributeUnderTest));
+
+			var attrs = method.GetParameters()[0].GetMatchingCustomAttributes(typeof(IAttributeUnderTest), warnings);
 
 			Assert.Contains(attrs, attr => attr is AttributeUnderTest);
+			Assert.Contains(warnings, warning => warning.StartsWith($"Custom attribute type '{typeof(ThrowingAttributeUnderTest).FullName}' threw '{typeof(DivideByZeroException).FullName}' during construction:"));
 #if !NETFRAMEWORK
 			Assert.Contains(attrs, attr => attr is AttributeUnderTest<int>);
+			Assert.Contains(warnings, warning => warning.StartsWith($"Custom attribute type '{typeof(ThrowingAttributeUnderTest<int>).FullName}' threw '{typeof(DivideByZeroException).FullName}' during construction:"));
 #endif
 		}
 
 		[Fact]
 		public void ForParameter_Generic()
 		{
+			var warnings = new List<string>();
 			var method = typeof(GetMatchingCustomAttributes).GetMethod(nameof(MethodWithParameter), BindingFlags.NonPublic | BindingFlags.Static);
 			Assert.NotNull(method);
-			var attrs = method.GetParameters()[0].GetMatchingCustomAttributes<IAttributeUnderTest>();
+
+			var attrs = method.GetParameters()[0].GetMatchingCustomAttributes<IAttributeUnderTest>(warnings);
 
 			Assert.Contains(attrs, attr => attr is AttributeUnderTest);
+			Assert.Contains(warnings, warning => warning.StartsWith($"Custom attribute type '{typeof(ThrowingAttributeUnderTest).FullName}' threw '{typeof(DivideByZeroException).FullName}' during construction:"));
 #if !NETFRAMEWORK
 			Assert.Contains(attrs, attr => attr is AttributeUnderTest<int>);
+			Assert.Contains(warnings, warning => warning.StartsWith($"Custom attribute type '{typeof(ThrowingAttributeUnderTest<int>).FullName}' threw '{typeof(DivideByZeroException).FullName}' during construction:"));
 #endif
 		}
 
@@ -207,22 +239,30 @@ public class ReflectionExtensionsTests
 		[Fact]
 		public void ForType_NonGeneric()
 		{
-			var attrs = typeof(ClassWithAttribute).GetMatchingCustomAttributes(typeof(IAttributeUnderTest));
+			var warnings = new List<string>();
+
+			var attrs = typeof(ClassWithAttribute).GetMatchingCustomAttributes(typeof(IAttributeUnderTest), warnings);
 
 			Assert.Contains(attrs, attr => attr is AttributeUnderTest);
+			Assert.Contains(warnings, warning => warning.StartsWith($"Custom attribute type '{typeof(ThrowingAttributeUnderTest).FullName}' threw '{typeof(DivideByZeroException).FullName}' during construction:"));
 #if !NETFRAMEWORK
 			Assert.Contains(attrs, attr => attr is AttributeUnderTest<int>);
+			Assert.Contains(warnings, warning => warning.StartsWith($"Custom attribute type '{typeof(ThrowingAttributeUnderTest<int>).FullName}' threw '{typeof(DivideByZeroException).FullName}' during construction:"));
 #endif
 		}
 
 		[Fact]
 		public void ForType_Generic()
 		{
-			var attrs = typeof(ClassWithAttribute).GetMatchingCustomAttributes<IAttributeUnderTest>();
+			var warnings = new List<string>();
+
+			var attrs = typeof(ClassWithAttribute).GetMatchingCustomAttributes<IAttributeUnderTest>(warnings);
 
 			Assert.Contains(attrs, attr => attr is AttributeUnderTest);
+			Assert.Contains(warnings, warning => warning.StartsWith($"Custom attribute type '{typeof(ThrowingAttributeUnderTest).FullName}' threw '{typeof(DivideByZeroException).FullName}' during construction:"));
 #if !NETFRAMEWORK
 			Assert.Contains(attrs, attr => attr is AttributeUnderTest<int>);
+			Assert.Contains(warnings, warning => warning.StartsWith($"Custom attribute type '{typeof(ThrowingAttributeUnderTest<int>).FullName}' threw '{typeof(DivideByZeroException).FullName}' during construction:"));
 #endif
 		}
 

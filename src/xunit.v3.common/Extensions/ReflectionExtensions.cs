@@ -31,7 +31,8 @@ public static class ReflectionExtensions
 
 	static IReadOnlyCollection<Attribute> FindCustomAttributes(
 		this IList<CustomAttributeData> customAttributeDatas,
-		Type attributeType)
+		Type attributeType,
+		List<string>? warnings = null)
 	{
 		Guard.ArgumentNotNull(customAttributeDatas);
 		Guard.ArgumentNotNull(attributeType);
@@ -48,7 +49,25 @@ public static class ReflectionExtensions
 						result.Add(attribute);
 					}
 			}
-			catch { }
+			catch (Exception ex)
+			{
+				if (warnings is not null)
+				{
+					var innerEx = ex.Unwrap();
+
+					warnings.Add(
+						string.Format(
+							CultureInfo.CurrentCulture,
+							"Custom attribute type '{0}' threw '{1}' during construction: {2}{3}{4}",
+							customAttributeData.AttributeType.SafeName(),
+							innerEx.GetType().SafeName(),
+							innerEx.Message,
+							Environment.NewLine,
+							innerEx.StackTrace
+						)
+					);
+				}
+			}
 
 		result?.Sort((left, right) => string.Compare(left.GetType().SafeName(), right.GetType().SafeName(), StringComparison.Ordinal));
 
@@ -57,11 +76,14 @@ public static class ReflectionExtensions
 
 	static IReadOnlyCollection<Attribute> FindCustomAttributes(
 		this IList<CustomAttributeData> customAttributeDatas,
-		string assemblyQualifiedTypeName) =>
-			FindCustomAttributes(customAttributeDatas, TypeHelper.GetTypeStrict(assemblyQualifiedTypeName));
+		string assemblyQualifiedTypeName,
+		List<string>? warnings = null) =>
+			FindCustomAttributes(customAttributeDatas, TypeHelper.GetTypeStrict(assemblyQualifiedTypeName), warnings);
 
-	static IReadOnlyCollection<T> FindCustomAttributes<T>(this IList<CustomAttributeData> customAttributeDatas)
-		where T : notnull
+	static IReadOnlyCollection<T> FindCustomAttributes<T>(
+		this IList<CustomAttributeData> customAttributeDatas,
+		List<string>? warnings = null)
+			where T : notnull
 	{
 		Guard.ArgumentNotNull(customAttributeDatas);
 
@@ -78,7 +100,25 @@ public static class ReflectionExtensions
 					result.Add(attribute);
 				}
 			}
-			catch { }
+			catch (Exception ex)
+			{
+				if (warnings is not null)
+				{
+					var innerEx = ex.Unwrap();
+
+					warnings.Add(
+						string.Format(
+							CultureInfo.CurrentCulture,
+							"Custom attribute type '{0}' threw '{1}' during construction: {2}{3}{4}",
+							customAttributeData.AttributeType.SafeName(),
+							innerEx.GetType().SafeName(),
+							innerEx.Message,
+							Environment.NewLine,
+							innerEx.StackTrace
+						)
+					);
+				}
+			}
 
 		result?.Sort((left, right) => string.Compare(left.GetType().SafeName(), right.GetType().SafeName(), StringComparison.Ordinal));
 
@@ -268,6 +308,24 @@ public static class ReflectionExtensions
 	/// Gets all the custom attributes for the assembly that are of the given attribute type.
 	/// </summary>
 	/// <param name="assembly">The assembly to get custom attributes for.</param>
+	/// <param name="attributeType">The type of the attribute to find. Will accept attribute types that are concrete,
+	/// closed generic, and open generic. When provided an open generic type (e.g., MyAttribute&lt;&gt;) it will
+	/// return matching closed generic attributes (e.g., MyAttribute&gt;int&lt;)</param>
+	/// <param name="warnings">A collection to fill with warning messages about attribute construction failure</param>
+	/// <returns>The matching attributes that decorate the assembly</returns>
+	/// <remarks>
+	/// This method safely skips attributes that throw in their constructor.
+	/// </remarks>
+	public static IReadOnlyCollection<Attribute> GetMatchingCustomAttributes(
+		this Assembly assembly,
+		Type attributeType,
+		List<string> warnings) =>
+			FindCustomAttributes(Guard.ArgumentNotNull(assembly).GetCustomAttributesData(), attributeType, warnings);
+
+	/// <summary>
+	/// Gets all the custom attributes for the assembly that are of the given attribute type.
+	/// </summary>
+	/// <param name="assembly">The assembly to get custom attributes for.</param>
 	/// <param name="assemblyQualifiedTypeName">The type of the attribute to find. Will accept attribute types that are concrete,
 	/// closed generic, and open generic. When provided an open generic type (e.g., MyAttribute&lt;&gt;) it will
 	/// return matching closed generic attributes (e.g., MyAttribute&gt;int&lt;)</param>
@@ -284,6 +342,24 @@ public static class ReflectionExtensions
 	/// Gets all the custom attributes for the assembly that are of the given attribute type.
 	/// </summary>
 	/// <param name="assembly">The assembly to get custom attributes for.</param>
+	/// <param name="assemblyQualifiedTypeName">The type of the attribute to find. Will accept attribute types that are concrete,
+	/// closed generic, and open generic. When provided an open generic type (e.g., MyAttribute&lt;&gt;) it will
+	/// return matching closed generic attributes (e.g., MyAttribute&gt;int&lt;)</param>
+	/// <param name="warnings">A collection to fill with warning messages about attribute construction failure</param>
+	/// <returns>The matching attributes that decorate the assembly</returns>
+	/// <remarks>
+	/// This method safely skips attributes that throw in their constructor.
+	/// </remarks>
+	public static IReadOnlyCollection<Attribute> GetMatchingCustomAttributes(
+		this Assembly assembly,
+		string assemblyQualifiedTypeName,
+		List<string> warnings) =>
+			FindCustomAttributes(Guard.ArgumentNotNull(assembly).GetCustomAttributesData(), assemblyQualifiedTypeName, warnings);
+
+	/// <summary>
+	/// Gets all the custom attributes for the assembly that are of the given attribute type.
+	/// </summary>
+	/// <param name="assembly">The assembly to get custom attributes for.</param>
 	/// <returns>The matching attributes that decorate the assembly</returns>
 	/// <remarks>
 	/// This method safely skips attributes that throw in their constructor.
@@ -291,6 +367,21 @@ public static class ReflectionExtensions
 	public static IReadOnlyCollection<T> GetMatchingCustomAttributes<T>(this Assembly assembly)
 		where T : notnull =>
 			FindCustomAttributes<T>(Guard.ArgumentNotNull(assembly).GetCustomAttributesData());
+
+	/// <summary>
+	/// Gets all the custom attributes for the assembly that are of the given attribute type.
+	/// </summary>
+	/// <param name="assembly">The assembly to get custom attributes for.</param>
+	/// <param name="warnings">A collection to fill with warning messages about attribute construction failure</param>
+	/// <returns>The matching attributes that decorate the assembly</returns>
+	/// <remarks>
+	/// This method safely skips attributes that throw in their constructor.
+	/// </remarks>
+	public static IReadOnlyCollection<T> GetMatchingCustomAttributes<T>(
+		this Assembly assembly,
+		List<string> warnings)
+			where T : notnull =>
+				FindCustomAttributes<T>(Guard.ArgumentNotNull(assembly).GetCustomAttributesData(), warnings);
 
 	/// <summary>
 	/// Gets all the custom attributes for the attribute that are of the given attribute type.
@@ -312,6 +403,24 @@ public static class ReflectionExtensions
 	/// Gets all the custom attributes for the attribute that are of the given attribute type.
 	/// </summary>
 	/// <param name="attribute">The attribute to get custom attributes for.</param>
+	/// <param name="attributeType">The type of the attribute to find. Will accept attribute types that are concrete,
+	/// closed generic, and open generic. When provided an open generic type (e.g., MyAttribute&lt;&gt;) it will
+	/// return matching closed generic attributes (e.g., MyAttribute&gt;int&lt;)</param>
+	/// <param name="warnings">A collection to fill with warning messages about attribute construction failure</param>
+	/// <returns>The matching attributes that decorate the attribute</returns>
+	/// <remarks>
+	/// This method safely skips attributes that throw in their constructor.
+	/// </remarks>
+	public static IReadOnlyCollection<Attribute> GetMatchingCustomAttributes(
+		this Attribute attribute,
+		Type attributeType,
+		List<string> warnings) =>
+			FindCustomAttributes(Guard.ArgumentNotNull(attribute).GetType().GetCustomAttributesDataWithInheritance(), attributeType, warnings);
+
+	/// <summary>
+	/// Gets all the custom attributes for the attribute that are of the given attribute type.
+	/// </summary>
+	/// <param name="attribute">The attribute to get custom attributes for.</param>
 	/// <param name="assemblyQualifiedTypeName">The type of the attribute to find. Will accept attribute types that are concrete,
 	/// closed generic, and open generic. When provided an open generic type (e.g., MyAttribute&lt;&gt;) it will
 	/// return matching closed generic attributes (e.g., MyAttribute&gt;int&lt;)</param>
@@ -328,6 +437,24 @@ public static class ReflectionExtensions
 	/// Gets all the custom attributes for the attribute that are of the given attribute type.
 	/// </summary>
 	/// <param name="attribute">The attribute to get custom attributes for.</param>
+	/// <param name="assemblyQualifiedTypeName">The type of the attribute to find. Will accept attribute types that are concrete,
+	/// closed generic, and open generic. When provided an open generic type (e.g., MyAttribute&lt;&gt;) it will
+	/// return matching closed generic attributes (e.g., MyAttribute&gt;int&lt;)</param>
+	/// <param name="warnings">A collection to fill with warning messages about attribute construction failure</param>
+	/// <returns>The matching attributes that decorate the attribute</returns>
+	/// <remarks>
+	/// This method safely skips attributes that throw in their constructor.
+	/// </remarks>
+	public static IReadOnlyCollection<Attribute> GetMatchingCustomAttributes(
+		this Attribute attribute,
+		string assemblyQualifiedTypeName,
+		List<string> warnings) =>
+			FindCustomAttributes(Guard.ArgumentNotNull(attribute).GetType().GetCustomAttributesDataWithInheritance(), assemblyQualifiedTypeName, warnings);
+
+	/// <summary>
+	/// Gets all the custom attributes for the attribute that are of the given attribute type.
+	/// </summary>
+	/// <param name="attribute">The attribute to get custom attributes for.</param>
 	/// <returns>The matching attributes that decorate the attribute</returns>
 	/// <remarks>
 	/// This method safely skips attributes that throw in their constructor.
@@ -335,6 +462,21 @@ public static class ReflectionExtensions
 	public static IReadOnlyCollection<T> GetMatchingCustomAttributes<T>(this Attribute attribute)
 		where T : notnull =>
 			FindCustomAttributes<T>(Guard.ArgumentNotNull(attribute).GetType().GetCustomAttributesDataWithInheritance());
+
+	/// <summary>
+	/// Gets all the custom attributes for the attribute that are of the given attribute type.
+	/// </summary>
+	/// <param name="attribute">The attribute to get custom attributes for.</param>
+	/// <param name="warnings">A collection to fill with warning messages about attribute construction failure</param>
+	/// <returns>The matching attributes that decorate the attribute</returns>
+	/// <remarks>
+	/// This method safely skips attributes that throw in their constructor.
+	/// </remarks>
+	public static IReadOnlyCollection<T> GetMatchingCustomAttributes<T>(
+		this Attribute attribute,
+		List<string> warnings)
+			where T : notnull =>
+				FindCustomAttributes<T>(Guard.ArgumentNotNull(attribute).GetType().GetCustomAttributesDataWithInheritance(), warnings);
 
 	/// <summary>
 	/// Gets all the custom attributes for the method that are of the given attribute type.
@@ -356,6 +498,24 @@ public static class ReflectionExtensions
 	/// Gets all the custom attributes for the method that are of the given attribute type.
 	/// </summary>
 	/// <param name="method">The method to get custom attributes for.</param>
+	/// <param name="attributeType">The type of the attribute to find. Will accept attribute types that are concrete,
+	/// closed generic, and open generic. When provided an open generic type (e.g., MyAttribute&lt;&gt;) it will
+	/// return matching closed generic attributes (e.g., MyAttribute&gt;int&lt;)</param>
+	/// <param name="warnings">A collection to fill with warning messages about attribute construction failure</param>
+	/// <returns>The matching attributes that decorate the method</returns>
+	/// <remarks>
+	/// This method safely skips attributes that throw in their constructor.
+	/// </remarks>
+	public static IReadOnlyCollection<Attribute> GetMatchingCustomAttributes(
+		this MethodInfo method,
+		Type attributeType,
+		List<string> warnings) =>
+			FindCustomAttributes(Guard.ArgumentNotNull(method).GetCustomAttributesDataWithInheritance(), attributeType, warnings);
+
+	/// <summary>
+	/// Gets all the custom attributes for the method that are of the given attribute type.
+	/// </summary>
+	/// <param name="method">The method to get custom attributes for.</param>
 	/// <param name="assemblyQualifiedTypeName">The type of the attribute to find. Will accept attribute types that are concrete,
 	/// closed generic, and open generic. When provided an open generic type (e.g., MyAttribute&lt;&gt;) it will
 	/// return matching closed generic attributes (e.g., MyAttribute&gt;int&lt;)</param>
@@ -372,6 +532,24 @@ public static class ReflectionExtensions
 	/// Gets all the custom attributes for the method that are of the given attribute type.
 	/// </summary>
 	/// <param name="method">The method to get custom attributes for.</param>
+	/// <param name="assemblyQualifiedTypeName">The type of the attribute to find. Will accept attribute types that are concrete,
+	/// closed generic, and open generic. When provided an open generic type (e.g., MyAttribute&lt;&gt;) it will
+	/// return matching closed generic attributes (e.g., MyAttribute&gt;int&lt;)</param>
+	/// <param name="warnings">A collection to fill with warning messages about attribute construction failure</param>
+	/// <returns>The matching attributes that decorate the method</returns>
+	/// <remarks>
+	/// This method safely skips attributes that throw in their constructor.
+	/// </remarks>
+	public static IReadOnlyCollection<Attribute> GetMatchingCustomAttributes(
+		this MethodInfo method,
+		string assemblyQualifiedTypeName,
+		List<string> warnings) =>
+			FindCustomAttributes(Guard.ArgumentNotNull(method).GetCustomAttributesDataWithInheritance(), assemblyQualifiedTypeName, warnings);
+
+	/// <summary>
+	/// Gets all the custom attributes for the method that are of the given attribute type.
+	/// </summary>
+	/// <param name="method">The method to get custom attributes for.</param>
 	/// <returns>The matching attributes that decorate the method</returns>
 	/// <remarks>
 	/// This method safely skips attributes that throw in their constructor.
@@ -379,6 +557,21 @@ public static class ReflectionExtensions
 	public static IReadOnlyCollection<T> GetMatchingCustomAttributes<T>(this MethodInfo method)
 		where T : notnull =>
 			FindCustomAttributes<T>(Guard.ArgumentNotNull(method).GetCustomAttributesDataWithInheritance());
+
+	/// <summary>
+	/// Gets all the custom attributes for the method that are of the given attribute type.
+	/// </summary>
+	/// <param name="method">The method to get custom attributes for.</param>
+	/// <param name="warnings">A collection to fill with warning messages about attribute construction failure</param>
+	/// <returns>The matching attributes that decorate the method</returns>
+	/// <remarks>
+	/// This method safely skips attributes that throw in their constructor.
+	/// </remarks>
+	public static IReadOnlyCollection<T> GetMatchingCustomAttributes<T>(
+		this MethodInfo method,
+		List<string> warnings)
+			where T : notnull =>
+				FindCustomAttributes<T>(Guard.ArgumentNotNull(method).GetCustomAttributesDataWithInheritance(), warnings);
 
 	/// <summary>
 	/// Gets all the custom attributes for the parameter that are of the given attribute type.
@@ -400,6 +593,24 @@ public static class ReflectionExtensions
 	/// Gets all the custom attributes for the parameter that are of the given attribute type.
 	/// </summary>
 	/// <param name="parameter">The parameter to get custom attributes for.</param>
+	/// <param name="attributeType">The type of the attribute to find. Will accept attribute types that are concrete,
+	/// closed generic, and open generic. When provided an open generic type (e.g., MyAttribute&lt;&gt;) it will
+	/// return matching closed generic attributes (e.g., MyAttribute&gt;int&lt;)</param>
+	/// <param name="warnings">A collection to fill with warning messages about attribute construction failure</param>
+	/// <returns>The matching attributes that decorate the parameter</returns>
+	/// <remarks>
+	/// This method safely skips attributes that throw in their constructor.
+	/// </remarks>
+	public static IReadOnlyCollection<Attribute> GetMatchingCustomAttributes(
+		this ParameterInfo parameter,
+		Type attributeType,
+		List<string> warnings) =>
+			FindCustomAttributes(Guard.ArgumentNotNull(parameter).GetCustomAttributesData(), attributeType, warnings);
+
+	/// <summary>
+	/// Gets all the custom attributes for the parameter that are of the given attribute type.
+	/// </summary>
+	/// <param name="parameter">The parameter to get custom attributes for.</param>
 	/// <param name="assemblyQualifiedTypeName">The type of the attribute to find. Will accept attribute types that are concrete,
 	/// closed generic, and open generic. When provided an open generic type (e.g., MyAttribute&lt;&gt;) it will
 	/// return matching closed generic attributes (e.g., MyAttribute&gt;int&lt;)</param>
@@ -416,6 +627,24 @@ public static class ReflectionExtensions
 	/// Gets all the custom attributes for the parameter that are of the given attribute type.
 	/// </summary>
 	/// <param name="parameter">The parameter to get custom attributes for.</param>
+	/// <param name="assemblyQualifiedTypeName">The type of the attribute to find. Will accept attribute types that are concrete,
+	/// closed generic, and open generic. When provided an open generic type (e.g., MyAttribute&lt;&gt;) it will
+	/// return matching closed generic attributes (e.g., MyAttribute&gt;int&lt;)</param>
+	/// <param name="warnings">A collection to fill with warning messages about attribute construction failure</param>
+	/// <returns>The matching attributes that decorate the parameter</returns>
+	/// <remarks>
+	/// This method safely skips attributes that throw in their constructor.
+	/// </remarks>
+	public static IReadOnlyCollection<Attribute> GetMatchingCustomAttributes(
+		this ParameterInfo parameter,
+		string assemblyQualifiedTypeName,
+		List<string> warnings) =>
+			FindCustomAttributes(Guard.ArgumentNotNull(parameter).GetCustomAttributesData(), assemblyQualifiedTypeName, warnings);
+
+	/// <summary>
+	/// Gets all the custom attributes for the parameter that are of the given attribute type.
+	/// </summary>
+	/// <param name="parameter">The parameter to get custom attributes for.</param>
 	/// <returns>The matching attributes that decorate the parameter</returns>
 	/// <remarks>
 	/// This method safely skips attributes that throw in their constructor.
@@ -423,6 +652,21 @@ public static class ReflectionExtensions
 	public static IReadOnlyCollection<T> GetMatchingCustomAttributes<T>(this ParameterInfo parameter)
 		where T : notnull =>
 			FindCustomAttributes<T>(Guard.ArgumentNotNull(parameter).GetCustomAttributesData());
+
+	/// <summary>
+	/// Gets all the custom attributes for the parameter that are of the given attribute type.
+	/// </summary>
+	/// <param name="parameter">The parameter to get custom attributes for.</param>
+	/// <param name="warnings">A collection to fill with warning messages about attribute construction failure</param>
+	/// <returns>The matching attributes that decorate the parameter</returns>
+	/// <remarks>
+	/// This method safely skips attributes that throw in their constructor.
+	/// </remarks>
+	public static IReadOnlyCollection<T> GetMatchingCustomAttributes<T>(
+		this ParameterInfo parameter,
+		List<string> warnings)
+			where T : notnull =>
+				FindCustomAttributes<T>(Guard.ArgumentNotNull(parameter).GetCustomAttributesData(), warnings);
 
 	/// <summary>
 	/// Gets all the custom attributes for the type that are of the given attribute type.
@@ -444,6 +688,24 @@ public static class ReflectionExtensions
 	/// Gets all the custom attributes for the type that are of the given attribute type.
 	/// </summary>
 	/// <param name="type">The type to get custom attributes for.</param>
+	/// <param name="attributeType">The type of the attribute to find. Will accept attribute types that are concrete,
+	/// closed generic, and open generic. When provided an open generic type (e.g., MyAttribute&lt;&gt;) it will
+	/// return matching closed generic attributes (e.g., MyAttribute&gt;int&lt;)</param>
+	/// <param name="warnings">A collection to fill with warning messages about attribute construction failure</param>
+	/// <returns>The matching attributes that decorate the type</returns>
+	/// <remarks>
+	/// This method safely skips attributes that throw in their constructor.
+	/// </remarks>
+	public static IReadOnlyCollection<Attribute> GetMatchingCustomAttributes(
+		this Type type,
+		Type attributeType,
+		List<string> warnings) =>
+			FindCustomAttributes(Guard.ArgumentNotNull(type).GetCustomAttributesDataWithInheritance(), attributeType, warnings);
+
+	/// <summary>
+	/// Gets all the custom attributes for the type that are of the given attribute type.
+	/// </summary>
+	/// <param name="type">The type to get custom attributes for.</param>
 	/// <param name="assemblyQualifiedTypeName">The type of the attribute to find. Will accept attribute types that are concrete,
 	/// closed generic, and open generic. When provided an open generic type (e.g., MyAttribute&lt;&gt;) it will
 	/// return matching closed generic attributes (e.g., MyAttribute&gt;int&lt;)</param>
@@ -460,6 +722,24 @@ public static class ReflectionExtensions
 	/// Gets all the custom attributes for the type that are of the given attribute type.
 	/// </summary>
 	/// <param name="type">The type to get custom attributes for.</param>
+	/// <param name="assemblyQualifiedTypeName">The type of the attribute to find. Will accept attribute types that are concrete,
+	/// closed generic, and open generic. When provided an open generic type (e.g., MyAttribute&lt;&gt;) it will
+	/// return matching closed generic attributes (e.g., MyAttribute&gt;int&lt;)</param>
+	/// <param name="warnings">A collection to fill with warning messages about attribute construction failure</param>
+	/// <returns>The matching attributes that decorate the type</returns>
+	/// <remarks>
+	/// This method safely skips attributes that throw in their constructor.
+	/// </remarks>
+	public static IReadOnlyCollection<Attribute> GetMatchingCustomAttributes(
+		this Type type,
+		string assemblyQualifiedTypeName,
+		List<string> warnings) =>
+			FindCustomAttributes(Guard.ArgumentNotNull(type).GetCustomAttributesDataWithInheritance(), assemblyQualifiedTypeName, warnings);
+
+	/// <summary>
+	/// Gets all the custom attributes for the type that are of the given attribute type.
+	/// </summary>
+	/// <param name="type">The type to get custom attributes for.</param>
 	/// <returns>The matching attributes that decorate the type</returns>
 	/// <remarks>
 	/// This method safely skips attributes that throw in their constructor.
@@ -467,6 +747,21 @@ public static class ReflectionExtensions
 	public static IReadOnlyCollection<T> GetMatchingCustomAttributes<T>(this Type type)
 		where T : notnull =>
 			FindCustomAttributes<T>(Guard.ArgumentNotNull(type).GetCustomAttributesDataWithInheritance());
+
+	/// <summary>
+	/// Gets all the custom attributes for the type that are of the given attribute type.
+	/// </summary>
+	/// <param name="type">The type to get custom attributes for.</param>
+	/// <param name="warnings">A collection to fill with warning messages about attribute construction failure</param>
+	/// <returns>The matching attributes that decorate the type</returns>
+	/// <remarks>
+	/// This method safely skips attributes that throw in their constructor.
+	/// </remarks>
+	public static IReadOnlyCollection<T> GetMatchingCustomAttributes<T>(
+		this Type type,
+		List<string> warnings)
+			where T : notnull =>
+				FindCustomAttributes<T>(Guard.ArgumentNotNull(type).GetCustomAttributesDataWithInheritance(), warnings);
 
 	static string GetParameterName(
 		ParameterInfo[] parameters,
