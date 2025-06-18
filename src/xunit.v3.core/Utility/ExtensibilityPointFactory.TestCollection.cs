@@ -24,12 +24,22 @@ public static partial class ExtensibilityPointFactory
 	{
 		Guard.ArgumentNotNull(assemblyBeforeAfterTestAttributes);
 
-		return
-			collectionDefinition is null
+		var warnings = new List<string>();
+
+		try
+		{
+			return
+				collectionDefinition is null
 				? assemblyBeforeAfterTestAttributes
 				: assemblyBeforeAfterTestAttributes
-					.Concat(collectionDefinition.GetMatchingCustomAttributes<IBeforeAfterTestAttribute>())
+					.Concat(collectionDefinition.GetMatchingCustomAttributes<IBeforeAfterTestAttribute>(warnings))
 					.CastOrToReadOnlyCollection();
+		}
+		finally
+		{
+			foreach (var warning in warnings)
+				TestContext.Current.SendDiagnosticMessage(warning);
+		}
 	}
 
 	/// <summary>
@@ -40,17 +50,27 @@ public static partial class ExtensibilityPointFactory
 	{
 		Guard.ArgumentNotNull(testAssembly);
 
-		var collectionBehaviorAttributes = testAssembly.GetMatchingCustomAttributes<ICollectionBehaviorAttribute>();
-		return
-			collectionBehaviorAttributes.Count <= 1
-				? collectionBehaviorAttributes.FirstOrDefault()
-				: throw new InvalidOperationException(
-					string.Format(
-						CultureInfo.CurrentCulture,
-						"More than one assembly-level ICollectionBehaviorAttribute was discovered: {0}",
-						string.Join(", ", collectionBehaviorAttributes.Select(a => a.GetType()).ToCommaSeparatedList())
-					)
-				);
+		var warnings = new List<string>();
+
+		try
+		{
+			var collectionBehaviorAttributes = testAssembly.GetMatchingCustomAttributes<ICollectionBehaviorAttribute>(warnings);
+			return
+				collectionBehaviorAttributes.Count <= 1
+					? collectionBehaviorAttributes.FirstOrDefault()
+					: throw new InvalidOperationException(
+						string.Format(
+							CultureInfo.CurrentCulture,
+							"More than one assembly-level ICollectionBehaviorAttribute was discovered: {0}",
+							string.Join(", ", collectionBehaviorAttributes.Select(a => a.GetType()).ToCommaSeparatedList())
+						)
+					);
+		}
+		finally
+		{
+			foreach (var warning in warnings)
+				TestContext.Current.SendDiagnosticMessage(warning);
+		}
 	}
 
 	/// <summary>
@@ -125,38 +145,48 @@ public static partial class ExtensibilityPointFactory
 		if (collectionDefinition is null)
 			return null;
 
-		var ordererAttributes = collectionDefinition.GetMatchingCustomAttributes<ITestCaseOrdererAttribute>();
-		if (ordererAttributes.Count > 1)
-			throw new InvalidOperationException(
-				string.Format(
-					CultureInfo.CurrentCulture,
-					"Found more than one test case orderer for test collection '{0}': {1}",
-					collectionDefinition.SafeName(),
-					string.Join(", ", ordererAttributes.Select(a => a.GetType()).ToCommaSeparatedList())
-				)
-			);
+		var warnings = new List<string>();
 
-		if (ordererAttributes.FirstOrDefault() is ITestCaseOrdererAttribute ordererAttribute)
-			try
-			{
-				return Get<ITestCaseOrderer>(ordererAttribute.OrdererType);
-			}
-			catch (Exception ex)
-			{
-				var innerEx = ex.Unwrap();
-
-				TestContext.Current.SendDiagnosticMessage(
-					"Collection-level test case orderer '{0}' for test collection '{1}' threw '{2}' during construction: {3}{4}{5}",
-					ordererAttribute.OrdererType.SafeName(),
-					collectionDefinition.SafeName(),
-					innerEx.GetType().SafeName(),
-					innerEx.Message,
-					Environment.NewLine,
-					innerEx.StackTrace
+		try
+		{
+			var ordererAttributes = collectionDefinition.GetMatchingCustomAttributes<ITestCaseOrdererAttribute>(warnings);
+			if (ordererAttributes.Count > 1)
+				throw new InvalidOperationException(
+					string.Format(
+						CultureInfo.CurrentCulture,
+						"Found more than one test case orderer for test collection '{0}': {1}",
+						collectionDefinition.SafeName(),
+						string.Join(", ", ordererAttributes.Select(a => a.GetType()).ToCommaSeparatedList())
+					)
 				);
-			}
 
-		return null;
+			if (ordererAttributes.FirstOrDefault() is ITestCaseOrdererAttribute ordererAttribute)
+				try
+				{
+					return Get<ITestCaseOrderer>(ordererAttribute.OrdererType);
+				}
+				catch (Exception ex)
+				{
+					var innerEx = ex.Unwrap();
+
+					TestContext.Current.SendDiagnosticMessage(
+						"Collection-level test case orderer '{0}' for test collection '{1}' threw '{2}' during construction: {3}{4}{5}",
+						ordererAttribute.OrdererType.SafeName(),
+						collectionDefinition.SafeName(),
+						innerEx.GetType().SafeName(),
+						innerEx.Message,
+						Environment.NewLine,
+						innerEx.StackTrace
+					);
+				}
+
+			return null;
+		}
+		finally
+		{
+			foreach (var warning in warnings)
+				TestContext.Current.SendDiagnosticMessage(warning);
+		}
 	}
 
 	/// <summary>
@@ -168,17 +198,27 @@ public static partial class ExtensibilityPointFactory
 		Type? testCollectionDefinition,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? testAssemblyTraits)
 	{
-		var result = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
+		var warnings = new List<string>();
 
-		if (testAssemblyTraits is not null)
-			foreach (var trait in testAssemblyTraits)
-				result.AddOrGet(trait.Key).AddRange(trait.Value);
+		try
+		{
+			var result = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
-		if (testCollectionDefinition is not null)
-			foreach (var traitAttribute in testCollectionDefinition.GetMatchingCustomAttributes<ITraitAttribute>())
-				foreach (var kvp in traitAttribute.GetTraits())
-					result.AddOrGet(kvp.Key).Add(kvp.Value);
+			if (testAssemblyTraits is not null)
+				foreach (var trait in testAssemblyTraits)
+					result.AddOrGet(trait.Key).AddRange(trait.Value);
 
-		return result.ToReadOnly();
+			if (testCollectionDefinition is not null)
+				foreach (var traitAttribute in testCollectionDefinition.GetMatchingCustomAttributes<ITraitAttribute>(warnings))
+					foreach (var kvp in traitAttribute.GetTraits())
+						result.AddOrGet(kvp.Key).Add(kvp.Value);
+
+			return result.ToReadOnly();
+		}
+		finally
+		{
+			foreach (var warning in warnings)
+				TestContext.Current.SendDiagnosticMessage(warning);
+		}
 	}
 }

@@ -27,7 +27,7 @@ public static class RegisteredRunnerReporters
 		messages = [];
 		var result = new List<IRunnerReporter>();
 
-		foreach (var attribute in assembly.GetMatchingCustomAttributes<IRegisterRunnerReporterAttribute>())
+		foreach (var attribute in assembly.GetMatchingCustomAttributes<IRegisterRunnerReporterAttribute>(messages))
 		{
 			var reporterType = attribute.RunnerReporterType;
 			if (reporterType is null)

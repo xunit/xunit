@@ -204,7 +204,10 @@ public class SerializationHelper
 	{
 		Guard.ArgumentNotNull(assembly);
 
-		AddSerializers(assembly.GetMatchingCustomAttributes<IRegisterXunitSerializerAttribute>(), warnings);
+		if (warnings is not null)
+			AddSerializers(assembly.GetMatchingCustomAttributes<IRegisterXunitSerializerAttribute>(warnings), warnings);
+		else
+			AddSerializers(assembly.GetMatchingCustomAttributes<IRegisterXunitSerializerAttribute>());
 	}
 
 	/// <summary>

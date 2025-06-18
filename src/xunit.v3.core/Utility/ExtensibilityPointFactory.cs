@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -68,19 +69,29 @@ public static partial class ExtensibilityPointFactory
 	{
 		Guard.ArgumentNotNull(testAssembly);
 
-		var testFrameworkAttribute = testAssembly.GetMatchingCustomAttributes<ITestFrameworkAttribute>().FirstOrDefault();
-		var testFrameworkType = testFrameworkAttribute?.FrameworkType ?? typeof(XunitTestFramework);
-		if (!typeof(ITestFramework).IsAssignableFrom(testFrameworkType))
-			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Test framework type '{0}' does not implement '{1}'", testFrameworkType.SafeName(), typeof(ITestFramework).SafeName()));
+		var warnings = new List<string>();
 
-		var obj =
-			Activator.CreateInstance(testFrameworkType)
-				?? throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Failed to create instance of test framework type '{0}'", testFrameworkType.SafeName()));
+		try
+		{
+			var testFrameworkAttribute = testAssembly.GetMatchingCustomAttributes<ITestFrameworkAttribute>(warnings).FirstOrDefault();
+			var testFrameworkType = testFrameworkAttribute?.FrameworkType ?? typeof(XunitTestFramework);
+			if (!typeof(ITestFramework).IsAssignableFrom(testFrameworkType))
+				throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Test framework type '{0}' does not implement '{1}'", testFrameworkType.SafeName(), typeof(ITestFramework).SafeName()));
 
-		return
-			obj is ITestFramework result
-				? result
-				: throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Test framework type '{0}' could not be cast to '{1}'", testFrameworkType.SafeName(), typeof(ITestFramework).SafeName()));
+			var obj =
+				Activator.CreateInstance(testFrameworkType)
+					?? throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Failed to create instance of test framework type '{0}'", testFrameworkType.SafeName()));
+
+			return
+				obj is ITestFramework result
+					? result
+					: throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Test framework type '{0}' could not be cast to '{1}'", testFrameworkType.SafeName(), typeof(ITestFramework).SafeName()));
+		}
+		finally
+		{
+			foreach (var warning in warnings)
+				TestContext.Current.SendDiagnosticMessage(warning);
+		}
 	}
 
 	/// <summary>

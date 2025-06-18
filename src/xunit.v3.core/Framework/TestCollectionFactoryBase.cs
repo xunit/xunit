@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Xunit.Internal;
@@ -34,13 +35,23 @@ public abstract class TestCollectionFactoryBase(IXunitTestAssembly testAssembly)
 	{
 		Guard.ArgumentNotNull(testClass);
 
-		var attributes = testClass.GetMatchingCustomAttributes<ICollectionAttribute>();
+		var warnings = new List<string>();
 
-		return attributes.Count > 1
-			? throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "More than one collection attribute was found on test class {0}: {1}", testClass.SafeName(), string.Join(", ", attributes.Select(a => a.GetType()).ToCommaSeparatedList())))
-			: attributes.FirstOrDefault() is ICollectionAttribute attribute
-				? testCollections.GetOrAdd(attribute.Name, _ => CreateCollection(attribute))
-				: GetDefaultTestCollection(testClass);
+		try
+		{
+			var attributes = testClass.GetMatchingCustomAttributes<ICollectionAttribute>(warnings);
+
+			return attributes.Count > 1
+				? throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "More than one collection attribute was found on test class {0}: {1}", testClass.SafeName(), string.Join(", ", attributes.Select(a => a.GetType()).ToCommaSeparatedList())))
+				: attributes.FirstOrDefault() is ICollectionAttribute attribute
+					? testCollections.GetOrAdd(attribute.Name, _ => CreateCollection(attribute))
+					: GetDefaultTestCollection(testClass);
+		}
+		finally
+		{
+			foreach (var warning in warnings)
+				TestContext.Current.SendDiagnosticMessage(warning);
+		}
 	}
 
 	/// <summary>

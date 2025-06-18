@@ -19,10 +19,23 @@ public static partial class ExtensibilityPointFactory
 	/// to be merged into the result.</param>
 	public static IReadOnlyCollection<IBeforeAfterTestAttribute> GetMethodBeforeAfterTestAttributes(
 		MethodInfo testMethod,
-		IReadOnlyCollection<IBeforeAfterTestAttribute> classBeforeAfterAttributes) =>
-			Guard.ArgumentNotNull(classBeforeAfterAttributes)
-				.Concat(Guard.ArgumentNotNull(testMethod).GetMatchingCustomAttributes<IBeforeAfterTestAttribute>())
-				.CastOrToReadOnlyCollection();
+		IReadOnlyCollection<IBeforeAfterTestAttribute> classBeforeAfterAttributes)
+	{
+		var warnings = new List<string>();
+
+		try
+		{
+			return
+				Guard.ArgumentNotNull(classBeforeAfterAttributes)
+					.Concat(Guard.ArgumentNotNull(testMethod).GetMatchingCustomAttributes<IBeforeAfterTestAttribute>(warnings))
+					.CastOrToReadOnlyCollection();
+		}
+		finally
+		{
+			foreach (var warning in warnings)
+				TestContext.Current.SendDiagnosticMessage(warning);
+		}
+	}
 
 	/// <summary>
 	/// Gets the <see cref="IDataAttribute"/>s attached to the given test method.
@@ -30,20 +43,42 @@ public static partial class ExtensibilityPointFactory
 	/// <param name="testMethod">The test method</param>
 	public static IReadOnlyCollection<IDataAttribute> GetMethodDataAttributes(MethodInfo testMethod)
 	{
-		var result = Guard.ArgumentNotNull(testMethod).GetMatchingCustomAttributes<IDataAttribute>();
+		var warnings = new List<string>();
 
-		foreach (var typeAwareAttribute in result.OfType<ITypeAwareDataAttribute>())
-			typeAwareAttribute.MemberType ??= testMethod.ReflectedType;
+		try
+		{
+			var result = Guard.ArgumentNotNull(testMethod).GetMatchingCustomAttributes<IDataAttribute>(warnings);
 
-		return result;
+			foreach (var typeAwareAttribute in result.OfType<ITypeAwareDataAttribute>())
+				typeAwareAttribute.MemberType ??= testMethod.ReflectedType;
+
+			return result;
+		}
+		finally
+		{
+			foreach (var warning in warnings)
+				TestContext.Current.SendDiagnosticMessage(warning);
+		}
 	}
 
 	/// <summary>
 	/// Gets the <see cref="IFactAttribute"/>s attached to the given test method.
 	/// </summary>
 	/// <param name="testMethod">The test method</param>
-	public static IReadOnlyCollection<IFactAttribute> GetMethodFactAttributes(MethodInfo testMethod) =>
-		Guard.ArgumentNotNull(testMethod).GetMatchingCustomAttributes<IFactAttribute>();
+	public static IReadOnlyCollection<IFactAttribute> GetMethodFactAttributes(MethodInfo testMethod)
+	{
+		var warnings = new List<string>();
+
+		try
+		{
+			return Guard.ArgumentNotNull(testMethod).GetMatchingCustomAttributes<IFactAttribute>(warnings);
+		}
+		finally
+		{
+			foreach (var warning in warnings)
+				TestContext.Current.SendDiagnosticMessage(warning);
+		}
+	}
 
 	/// <summary>
 	/// Gets the traits that are attached to the test method via <see cref="ITraitAttribute"/>s.
@@ -56,16 +91,26 @@ public static partial class ExtensibilityPointFactory
 	{
 		Guard.ArgumentNotNull(testMethod);
 
-		var result = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
+		var warnings = new List<string>();
 
-		if (testClassTraits is not null)
-			foreach (var trait in testClassTraits)
-				result.AddOrGet(trait.Key).AddRange(trait.Value);
+		try
+		{
+			var result = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
-		foreach (var traitAttribute in testMethod.GetMatchingCustomAttributes<ITraitAttribute>())
-			foreach (var kvp in traitAttribute.GetTraits())
-				result.AddOrGet(kvp.Key).Add(kvp.Value);
+			if (testClassTraits is not null)
+				foreach (var trait in testClassTraits)
+					result.AddOrGet(trait.Key).AddRange(trait.Value);
 
-		return result.ToReadOnly();
+			foreach (var traitAttribute in testMethod.GetMatchingCustomAttributes<ITraitAttribute>(warnings))
+				foreach (var kvp in traitAttribute.GetTraits())
+					result.AddOrGet(kvp.Key).Add(kvp.Value);
+
+			return result.ToReadOnly();
+		}
+		finally
+		{
+			foreach (var warning in warnings)
+				TestContext.Current.SendDiagnosticMessage(warning);
+		}
 	}
 }

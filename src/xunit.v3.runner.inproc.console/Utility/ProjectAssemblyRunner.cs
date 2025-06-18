@@ -129,34 +129,45 @@ public sealed class ProjectAssemblyRunner(
 	{
 		Guard.ArgumentNotNull(testAssembly);
 
-		var result = default(ITestPipelineStartup);
+		var warnings = new List<string>();
 
-		var pipelineStartupAttributes = testAssembly.GetMatchingCustomAttributes<ITestPipelineStartupAttribute>();
-		if (pipelineStartupAttributes.Count > 1)
-			throw new TestPipelineException("More than one pipeline startup attribute was specified: " + pipelineStartupAttributes.Select(a => a.GetType()).ToCommaSeparatedList());
-
-		if (pipelineStartupAttributes.FirstOrDefault() is ITestPipelineStartupAttribute pipelineStartupAttribute)
+		try
 		{
-			var pipelineStartupType = pipelineStartupAttribute.TestPipelineStartupType;
-			if (!typeof(ITestPipelineStartup).IsAssignableFrom(pipelineStartupType))
-				throw new TestPipelineException(string.Format(CultureInfo.CurrentCulture, "Pipeline startup type '{0}' does not implement '{1}'", pipelineStartupType.SafeName(), typeof(ITestPipelineStartup).SafeName()));
+			var result = default(ITestPipelineStartup);
 
-			try
+			var pipelineStartupAttributes = testAssembly.GetMatchingCustomAttributes<ITestPipelineStartupAttribute>(warnings);
+			if (pipelineStartupAttributes.Count > 1)
+				throw new TestPipelineException("More than one pipeline startup attribute was specified: " + pipelineStartupAttributes.Select(a => a.GetType()).ToCommaSeparatedList());
+
+			if (pipelineStartupAttributes.FirstOrDefault() is ITestPipelineStartupAttribute pipelineStartupAttribute)
 			{
-				result = Activator.CreateInstance(pipelineStartupType) as ITestPipelineStartup;
-			}
-			catch (Exception ex)
-			{
-				throw new TestPipelineException(string.Format(CultureInfo.CurrentCulture, "Pipeline startup type '{0}' threw during construction", pipelineStartupType.SafeName()), ex);
+				var pipelineStartupType = pipelineStartupAttribute.TestPipelineStartupType;
+				if (!typeof(ITestPipelineStartup).IsAssignableFrom(pipelineStartupType))
+					throw new TestPipelineException(string.Format(CultureInfo.CurrentCulture, "Pipeline startup type '{0}' does not implement '{1}'", pipelineStartupType.SafeName(), typeof(ITestPipelineStartup).SafeName()));
+
+				try
+				{
+					result = Activator.CreateInstance(pipelineStartupType) as ITestPipelineStartup;
+				}
+				catch (Exception ex)
+				{
+					throw new TestPipelineException(string.Format(CultureInfo.CurrentCulture, "Pipeline startup type '{0}' threw during construction", pipelineStartupType.SafeName()), ex);
+				}
+
+				if (result is null)
+					throw new TestPipelineException(string.Format(CultureInfo.CurrentCulture, "Pipeline startup type '{0}' does not implement '{1}'", pipelineStartupType.SafeName(), typeof(ITestPipelineStartup).SafeName()));
+
+				await result.StartAsync(diagnosticMessageSink ?? NullMessageSink.Instance);
 			}
 
-			if (result is null)
-				throw new TestPipelineException(string.Format(CultureInfo.CurrentCulture, "Pipeline startup type '{0}' does not implement '{1}'", pipelineStartupType.SafeName(), typeof(ITestPipelineStartup).SafeName()));
-
-			await result.StartAsync(diagnosticMessageSink ?? NullMessageSink.Instance);
+			return result;
 		}
-
-		return result;
+		finally
+		{
+			if (diagnosticMessageSink is not null)
+				foreach (var warning in warnings)
+					diagnosticMessageSink.OnMessage(new DiagnosticMessage(warning));
+		}
 	}
 
 	/// <summary>

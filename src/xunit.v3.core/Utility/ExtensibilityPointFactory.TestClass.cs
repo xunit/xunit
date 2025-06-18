@@ -19,10 +19,23 @@ public static partial class ExtensibilityPointFactory
 	/// to be merged into the result.</param>
 	public static IReadOnlyCollection<IBeforeAfterTestAttribute> GetClassBeforeAfterTestAttributes(
 		Type testClass,
-		IReadOnlyCollection<IBeforeAfterTestAttribute> collectionBeforeAfterAttributes) =>
-			Guard.ArgumentNotNull(collectionBeforeAfterAttributes)
-				.Concat(Guard.ArgumentNotNull(testClass).GetMatchingCustomAttributes<IBeforeAfterTestAttribute>())
+		IReadOnlyCollection<IBeforeAfterTestAttribute> collectionBeforeAfterAttributes)
+	{
+		var warnings = new List<string>();
+
+		try
+		{
+			return
+				Guard.ArgumentNotNull(collectionBeforeAfterAttributes)
+				.Concat(Guard.ArgumentNotNull(testClass).GetMatchingCustomAttributes<IBeforeAfterTestAttribute>(warnings))
 				.CastOrToReadOnlyCollection();
+		}
+		finally
+		{
+			foreach (var warning in warnings)
+				TestContext.Current.SendDiagnosticMessage(warning);
+		}
+	}
 
 	/// <summary>
 	/// Gets the fixture types that are attached to the test class via <see cref="IClassFixture{TFixture}"/>.
@@ -49,38 +62,48 @@ public static partial class ExtensibilityPointFactory
 	{
 		Guard.ArgumentNotNull(testClass);
 
-		var ordererAttributes = testClass.GetMatchingCustomAttributes<ITestCaseOrdererAttribute>();
-		if (ordererAttributes.Count > 1)
-			throw new InvalidOperationException(
-				string.Format(
-					CultureInfo.CurrentCulture,
-					"Found more than one test case orderer for test class '{0}': {1}",
-					testClass.SafeName(),
-					string.Join(", ", ordererAttributes.Select(a => a.GetType()).ToCommaSeparatedList())
-				)
-			);
+		var warnings = new List<string>();
 
-		if (ordererAttributes.FirstOrDefault() is ITestCaseOrdererAttribute ordererAttribute)
-			try
-			{
-				return Get<ITestCaseOrderer>(ordererAttribute.OrdererType);
-			}
-			catch (Exception ex)
-			{
-				var innerEx = ex.Unwrap();
-
-				TestContext.Current.SendDiagnosticMessage(
-					"Class-level test case orderer '{0}' for test class '{1}' threw '{2}' during construction: {3}{4}{5}",
-					ordererAttribute.OrdererType,
-					testClass.SafeName(),
-					innerEx.GetType().SafeName(),
-					innerEx.Message,
-					Environment.NewLine,
-					innerEx.StackTrace
+		try
+		{
+			var ordererAttributes = testClass.GetMatchingCustomAttributes<ITestCaseOrdererAttribute>(warnings);
+			if (ordererAttributes.Count > 1)
+				throw new InvalidOperationException(
+					string.Format(
+						CultureInfo.CurrentCulture,
+						"Found more than one test case orderer for test class '{0}': {1}",
+						testClass.SafeName(),
+						string.Join(", ", ordererAttributes.Select(a => a.GetType()).ToCommaSeparatedList())
+					)
 				);
-			}
 
-		return null;
+			if (ordererAttributes.FirstOrDefault() is ITestCaseOrdererAttribute ordererAttribute)
+				try
+				{
+					return Get<ITestCaseOrderer>(ordererAttribute.OrdererType);
+				}
+				catch (Exception ex)
+				{
+					var innerEx = ex.Unwrap();
+
+					TestContext.Current.SendDiagnosticMessage(
+						"Class-level test case orderer '{0}' for test class '{1}' threw '{2}' during construction: {3}{4}{5}",
+						ordererAttribute.OrdererType,
+						testClass.SafeName(),
+						innerEx.GetType().SafeName(),
+						innerEx.Message,
+						Environment.NewLine,
+						innerEx.StackTrace
+					);
+				}
+
+			return null;
+		}
+		finally
+		{
+			foreach (var warning in warnings)
+				TestContext.Current.SendDiagnosticMessage(warning);
+		}
 	}
 
 	/// <summary>
@@ -92,17 +115,27 @@ public static partial class ExtensibilityPointFactory
 		Type? testClass,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? testCollectionTraits)
 	{
-		var result = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
+		var warnings = new List<string>();
 
-		if (testCollectionTraits is not null)
-			foreach (var trait in testCollectionTraits)
-				result.AddOrGet(trait.Key).AddRange(trait.Value);
+		try
+		{
+			var result = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
-		if (testClass is not null)
-			foreach (var traitAttribute in testClass.GetMatchingCustomAttributes<ITraitAttribute>())
-				foreach (var kvp in traitAttribute.GetTraits())
-					result.AddOrGet(kvp.Key).Add(kvp.Value);
+			if (testCollectionTraits is not null)
+				foreach (var trait in testCollectionTraits)
+					result.AddOrGet(trait.Key).AddRange(trait.Value);
 
-		return result.ToReadOnly();
+			if (testClass is not null)
+				foreach (var traitAttribute in testClass.GetMatchingCustomAttributes<ITraitAttribute>(warnings))
+					foreach (var kvp in traitAttribute.GetTraits())
+						result.AddOrGet(kvp.Key).Add(kvp.Value);
+
+			return result.ToReadOnly();
+		}
+		finally
+		{
+			foreach (var warning in warnings)
+				TestContext.Current.SendDiagnosticMessage(warning);
+		}
 	}
 }
