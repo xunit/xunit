@@ -28,9 +28,10 @@ public class AcceptanceTestV3
 
 		ThreadPool.QueueUserWorkItem(async _ =>
 		{
+			TestContext.SetForInitialization(diagnosticMessageSink, diagnosticMessages: diagnosticMessageSink is not null, internalDiagnosticMessages: diagnosticMessageSink is not null);
+
 			try
 			{
-				TestContext.SetForInitialization(diagnosticMessageSink, diagnosticMessages: diagnosticMessageSink is not null, internalDiagnosticMessages: diagnosticMessageSink is not null);
 
 				await using var testFramework = new XunitTestFramework();
 
@@ -54,6 +55,14 @@ public class AcceptanceTestV3
 			catch (Exception ex)
 			{
 				tcs.TrySetException(ex);
+			}
+			finally
+			{
+				try
+				{
+					TestContextInternal.Current.Dispose();
+				}
+				catch { }
 			}
 		});
 

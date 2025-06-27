@@ -115,6 +115,8 @@ public sealed class ProjectAssemblyRunner(
 						: new(!cancellationTokenSource.IsCancellationRequested);
 			}
 		);
+
+		TestContextInternal.Current.SafeDispose();
 	}
 
 	/// <summary>
@@ -226,106 +228,113 @@ public sealed class ProjectAssemblyRunner(
 
 			TestContext.SetForInitialization(diagnosticMessageSink, diagnosticMessages, internalDiagnosticMessages);
 
-			await using var disposalTracker = new DisposalTracker();
-			var testFramework = ExtensibilityPointFactory.GetTestFramework(testAssembly);
-			disposalTracker.Add(testFramework);
-
-			if (pipelineStartup is not null)
-				testFramework.SetTestPipelineStartup(pipelineStartup);
-
-			var frontController = new InProcessFrontController(testFramework, testAssembly, assembly.ConfigFileName);
-
-			var sinkOptions = new ExecutionSinkOptions
+			try
 			{
-				AssemblyElement = assemblyElement,
-				CancelThunk = () => cancellationTokenSource.IsCancellationRequested,
-				DiagnosticMessageSink = diagnosticMessageSink,
-				FailSkips = assembly.Configuration.FailSkipsOrDefault,
-				FailWarn = assembly.Configuration.FailTestsWithWarningsOrDefault,
-				LongRunningTestTime = TimeSpan.FromSeconds(longRunningSeconds),
-			};
+				await using var disposalTracker = new DisposalTracker();
+				var testFramework = ExtensibilityPointFactory.GetTestFramework(testAssembly);
+				disposalTracker.Add(testFramework);
 
-			using var resultsSink = new ExecutionSink(assembly, discoveryOptions, executionOptions, AppDomainOption.NotAvailable, shadowCopy: false, messageSink, sinkOptions, sourceInformationProvider);
-			var testCases =
-				assembly
-					.TestCasesToRun
-					.Select(s => SerializationHelper.Instance.Deserialize(s) as ITestCase)
-					.WhereNotNull()
-					.ToArray();
+				if (pipelineStartup is not null)
+					testFramework.SetTestPipelineStartup(pipelineStartup);
 
-			if (testCases.Length != 0)
-			{
-				await frontController.Run(resultsSink, executionOptions, testCases, cancellationTokenSource);
+				var frontController = new InProcessFrontController(testFramework, testAssembly, assembly.ConfigFileName);
 
-				foreach (var testCase in testCases)
-					if (testCase is IAsyncDisposable asyncDisposable)
-						await asyncDisposable.SafeDisposeAsync();
-					else if (testCase is IDisposable disposable)
-						disposable.SafeDispose();
-			}
-			else
-			{
-				// If we were given test case IDs to filter by, we need to see if they asked for
-				// just explicit tests, and then flip the explicit option to support running them,
-				// because the explicit information is not available from MTP.
-				if (testCaseIDsToRun is not null)
+				var sinkOptions = new ExecutionSinkOptions
 				{
-					List<ITestCase> testCasesToRun = [];
-					var allExplicit = true;
+					AssemblyElement = assemblyElement,
+					CancelThunk = () => cancellationTokenSource.IsCancellationRequested,
+					DiagnosticMessageSink = diagnosticMessageSink,
+					FailSkips = assembly.Configuration.FailSkipsOrDefault,
+					FailWarn = assembly.Configuration.FailTestsWithWarningsOrDefault,
+					LongRunningTestTime = TimeSpan.FromSeconds(longRunningSeconds),
+				};
 
-					await frontController.Find(
-						resultsSink,
-						discoveryOptions,
-						testCase => assembly.Configuration.Filters.Filter(Path.GetFileNameWithoutExtension(assembly.AssemblyFileName), testCase),
-						cancellationTokenSource,
-						discoveryCallback: (testCase, passedFilter) =>
-						{
-							if (passedFilter && testCaseIDsToRun.Contains(testCase.UniqueID))
-							{
-								testCasesToRun.Add(testCase);
-								if (!testCase.Explicit)
-									allExplicit = false;
-							}
+				using var resultsSink = new ExecutionSink(assembly, discoveryOptions, executionOptions, AppDomainOption.NotAvailable, shadowCopy: false, messageSink, sinkOptions, sourceInformationProvider);
+				var testCases =
+					assembly
+						.TestCasesToRun
+						.Select(s => SerializationHelper.Instance.Deserialize(s) as ITestCase)
+						.WhereNotNull()
+						.ToArray();
 
-							return new(true);
-						}
-					);
+				if (testCases.Length != 0)
+				{
+					await frontController.Run(resultsSink, executionOptions, testCases, cancellationTokenSource);
 
-					if (allExplicit)
-						executionOptions.SetExplicitOption(ExplicitOption.Only);
-
-					await frontController.Run(resultsSink, executionOptions, testCasesToRun, cancellationTokenSource);
-
-					foreach (var testCase in testCasesToRun)
+					foreach (var testCase in testCases)
 						if (testCase is IAsyncDisposable asyncDisposable)
 							await asyncDisposable.SafeDisposeAsync();
 						else if (testCase is IDisposable disposable)
 							disposable.SafeDispose();
 				}
 				else
-					await frontController.FindAndRun(
-						resultsSink,
-						discoveryOptions,
-						executionOptions,
-						testCase => assembly.Configuration.Filters.Filter(Path.GetFileNameWithoutExtension(assembly.AssemblyFileName), testCase),
-						cancellationTokenSource
-					);
-			}
+				{
+					// If we were given test case IDs to filter by, we need to see if they asked for
+					// just explicit tests, and then flip the explicit option to support running them,
+					// because the explicit information is not available from MTP.
+					if (testCaseIDsToRun is not null)
+					{
+						List<ITestCase> testCasesToRun = [];
+						var allExplicit = true;
 
-			TestExecutionSummaries.Add(frontController.TestAssemblyUniqueID, resultsSink.ExecutionSummary);
+						await frontController.Find(
+							resultsSink,
+							discoveryOptions,
+							testCase => assembly.Configuration.Filters.Filter(Path.GetFileNameWithoutExtension(assembly.AssemblyFileName), testCase),
+							cancellationTokenSource,
+							discoveryCallback: (testCase, passedFilter) =>
+							{
+								if (passedFilter && testCaseIDsToRun.Contains(testCase.UniqueID))
+								{
+									testCasesToRun.Add(testCase);
+									if (!testCase.Explicit)
+										allExplicit = false;
+								}
 
-			if (resultsSink.ExecutionSummary.Failed != 0 && executionOptions.GetStopOnTestFailOrDefault())
-			{
-				if (automatedMode != AutomatedMode.Off)
-					runnerLogger.WriteMessage(new DiagnosticMessage("Cancelling due to test failure"));
-				else
-					runnerLogger.LogMessage("Cancelling due to test failure...");
+								return new(true);
+							}
+						);
+
+						if (allExplicit)
+							executionOptions.SetExplicitOption(ExplicitOption.Only);
+
+						await frontController.Run(resultsSink, executionOptions, testCasesToRun, cancellationTokenSource);
+
+						foreach (var testCase in testCasesToRun)
+							if (testCase is IAsyncDisposable asyncDisposable)
+								await asyncDisposable.SafeDisposeAsync();
+							else if (testCase is IDisposable disposable)
+								disposable.SafeDispose();
+					}
+					else
+						await frontController.FindAndRun(
+							resultsSink,
+							discoveryOptions,
+							executionOptions,
+							testCase => assembly.Configuration.Filters.Filter(Path.GetFileNameWithoutExtension(assembly.AssemblyFileName), testCase),
+							cancellationTokenSource
+						);
+				}
+
+				TestExecutionSummaries.Add(frontController.TestAssemblyUniqueID, resultsSink.ExecutionSummary);
+
+				if (resultsSink.ExecutionSummary.Failed != 0 && executionOptions.GetStopOnTestFailOrDefault())
+				{
+					if (automatedMode != AutomatedMode.Off)
+						runnerLogger.WriteMessage(new DiagnosticMessage("Cancelling due to test failure"));
+					else
+						runnerLogger.LogMessage("Cancelling due to test failure...");
 
 #if NET8_0_OR_GREATER
-				await cancellationTokenSource.CancelAsync();
+					await cancellationTokenSource.CancelAsync();
 #else
-				cancellationTokenSource.Cancel();
+					cancellationTokenSource.Cancel();
 #endif
+				}
+			}
+			finally
+			{
+				TestContextInternal.Current.SafeDispose();
 			}
 		}
 		catch (Exception ex)
@@ -341,7 +350,11 @@ public sealed class ProjectAssemblyRunner(
 				{
 					runnerLogger.LogMessage("{0}: {1}", e.GetType().SafeName(), e.Message);
 
+#if DEBUG
+					if (e.StackTrace is not null)
+#else
 					if (assembly.Configuration.InternalDiagnosticMessagesOrDefault && e.StackTrace is not null)
+#endif
 						runnerLogger.LogMessage(e.StackTrace);
 				}
 

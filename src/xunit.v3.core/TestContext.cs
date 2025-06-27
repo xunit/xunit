@@ -17,12 +17,14 @@ namespace Xunit;
 /// </summary>
 public sealed class TestContext : ITestContext, IDisposable
 {
-	static readonly TestContext idleTestContext = new(null, null, null, TestPipelineStage.Unknown, default);
+	static readonly TestContext idleTestContext = new(null, null, null, TestPipelineStage.Unknown, default, disposable: false);
 	static readonly AsyncLocal<TestContext?> local = new();
 	static readonly HashSet<TestEngineStatus> validExecutionStatuses = [TestEngineStatus.Initializing, TestEngineStatus.Running, TestEngineStatus.CleaningUp];
 
 	readonly Dictionary<string, TestAttachment>? attachments;
 	IMessageSink? diagnosticMessageSink;
+	readonly bool disposable;
+	bool disposed;
 	readonly FixtureMappingManager? fixtures;
 	IMessageSink? internalDiagnosticMessageSink;
 	readonly ConcurrentDictionary<string, object?>? keyValueStorage;
@@ -38,24 +40,34 @@ public sealed class TestContext : ITestContext, IDisposable
 		CancellationToken cancellationToken,
 		Dictionary<string, TestAttachment>? attachments = null,
 		FixtureMappingManager? fixtures = null,
-		List<string>? warnings = null)
+		List<string>? warnings = null,
+		bool disposable = true)
 	{
 		DiagnosticMessageSink = diagnosticMessageSink;
 		InternalDiagnosticMessageSink = internalDiagnosticMessageSink;
 		this.keyValueStorage = keyValueStorage;
 		PipelineStage = pipelineStage;
-		this.linkedCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, testCancellationTokenSource.Token);
-		CancellationToken = linkedCancellationTokenSource.Token;
+		linkedCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, testCancellationTokenSource.Token);
 		this.attachments = attachments;
 		this.fixtures = fixtures;
 		this.warnings = warnings;
+		this.disposable = disposable;
 	}
 
 	/// <inheritdoc/>
 	public IReadOnlyDictionary<string, TestAttachment>? Attachments => attachments;
 
 	/// <inheritdoc/>
-	public CancellationToken CancellationToken { get; }
+	public CancellationToken CancellationToken
+	{
+		get
+		{
+			if (disposed)
+				throw new ObjectDisposedException(nameof(TestContext));
+
+			return linkedCancellationTokenSource.Token;
+		}
+	}
 
 	/// <summary>
 	/// Gets the current test context. If called outside of the test discovery or execution path,
@@ -201,12 +213,22 @@ public sealed class TestContext : ITestContext, IDisposable
 	}
 
 	/// <inheritdoc/>
-	public void CancelCurrentTest() =>
+	public void CancelCurrentTest()
+	{
+		if (disposed)
+			throw new ObjectDisposedException(nameof(TestContext));
+
 		testCancellationTokenSource.Cancel();
+	}
 
 	/// <inheritdoc/>
 	public void Dispose()
 	{
+		if (disposed || !disposable)
+			return;
+
+		disposed = true;
+
 		testCancellationTokenSource.Dispose();
 		linkedCancellationTokenSource.Dispose();
 	}
@@ -221,8 +243,8 @@ public sealed class TestContext : ITestContext, IDisposable
 	}
 
 	/// <inheritdoc/>
-	public void SendDiagnosticMessage(string message)
-		=> DiagnosticMessageSink?.OnMessage(new DiagnosticMessage(message));
+	public void SendDiagnosticMessage(string message) =>
+		DiagnosticMessageSink?.OnMessage(new DiagnosticMessage(message));
 
 	/// <inheritdoc/>
 	public void SendDiagnosticMessage(

@@ -173,14 +173,14 @@ public abstract class TestMethodRunner<TContext, TTestMethod, TTestCase>
 	{
 		Guard.ArgumentNotNull(ctxt);
 
-		SetTestContext(ctxt, TestEngineStatus.Initializing);
+		SetTestContext(ctxt, TestEngineStatus.Initializing, dispose: false);
 
 		var summary = default(RunSummary);
 
 		if (!await ctxt.Aggregator.RunAsync(() => OnTestMethodStarting(ctxt), true))
 			ctxt.CancellationTokenSource.Cancel();
 
-		SetTestContext(ctxt, TestEngineStatus.Running);
+		SetTestContext(ctxt, TestEngineStatus.Running, dispose: true);
 
 		var startingException = ctxt.Aggregator.ToException();
 		ctxt.Aggregator.Clear();
@@ -188,7 +188,7 @@ public abstract class TestMethodRunner<TContext, TTestMethod, TTestCase>
 		if (!ctxt.CancellationTokenSource.IsCancellationRequested)
 			summary = await ctxt.Aggregator.RunAsync(() => RunTestCases(ctxt, startingException), default);
 
-		SetTestContext(ctxt, TestEngineStatus.CleaningUp);
+		SetTestContext(ctxt, TestEngineStatus.CleaningUp, dispose: true);
 
 		if (!await ctxt.Aggregator.RunAsync(() => OnTestMethodFinished(ctxt, summary), true))
 			ctxt.CancellationTokenSource.Cancel();
@@ -198,6 +198,8 @@ public abstract class TestMethodRunner<TContext, TTestMethod, TTestCase>
 				ctxt.CancellationTokenSource.Cancel();
 
 		ctxt.Aggregator.Clear();
+
+		TestContext.CurrentInternal.SafeDispose();
 
 		return summary;
 	}
@@ -266,5 +268,17 @@ public abstract class TestMethodRunner<TContext, TTestMethod, TTestCase>
 		Guard.ArgumentNotNull(ctxt);
 
 		TestContext.SetForTestMethod(ctxt.TestMethod, testMethodStatus, ctxt.CancellationTokenSource.Token);
+	}
+
+	void SetTestContext(
+		TContext ctxt,
+		TestEngineStatus testMethodStatus,
+		bool dispose)
+	{
+		var current = dispose ? TestContext.CurrentInternal : null;
+
+		SetTestContext(ctxt, testMethodStatus);
+
+		current.SafeDispose();
 	}
 }

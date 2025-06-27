@@ -207,7 +207,7 @@ public abstract class TestAssemblyRunner<TContext, TTestAssembly, TTestCollectio
 	{
 		Guard.ArgumentNotNull(ctxt);
 
-		SetTestContext(ctxt, TestEngineStatus.Initializing);
+		SetTestContext(ctxt, TestEngineStatus.Initializing, dispose: false);
 
 		// We eventually want clock time, not aggregated run time
 		var clockTimeStopwatch = Stopwatch.StartNew();
@@ -216,7 +216,7 @@ public abstract class TestAssemblyRunner<TContext, TTestAssembly, TTestCollectio
 		if (!await ctxt.Aggregator.RunAsync(() => OnTestAssemblyStarting(ctxt), true))
 			ctxt.CancellationTokenSource.Cancel();
 
-		SetTestContext(ctxt, TestEngineStatus.Running);
+		SetTestContext(ctxt, TestEngineStatus.Running, dispose: true);
 
 		var startingException = ctxt.Aggregator.ToException();
 		ctxt.Aggregator.Clear();
@@ -224,7 +224,7 @@ public abstract class TestAssemblyRunner<TContext, TTestAssembly, TTestCollectio
 		if (!ctxt.CancellationTokenSource.IsCancellationRequested)
 			summary = await ctxt.Aggregator.RunAsync(() => RunTestCollections(ctxt, startingException), default);
 
-		SetTestContext(ctxt, TestEngineStatus.CleaningUp);
+		SetTestContext(ctxt, TestEngineStatus.CleaningUp, dispose: true);
 
 		summary.Time = (decimal)clockTimeStopwatch.Elapsed.TotalSeconds;
 
@@ -236,6 +236,8 @@ public abstract class TestAssemblyRunner<TContext, TTestAssembly, TTestCollectio
 				ctxt.CancellationTokenSource.Cancel();
 
 		ctxt.Aggregator.Clear();
+
+		TestContext.CurrentInternal.SafeDispose();
 
 		return summary;
 	}
@@ -303,5 +305,17 @@ public abstract class TestAssemblyRunner<TContext, TTestAssembly, TTestCollectio
 		Guard.ArgumentNotNull(ctxt);
 
 		TestContext.SetForTestAssembly(ctxt.TestAssembly, testAssemblyStatus, ctxt.CancellationTokenSource.Token);
+	}
+
+	void SetTestContext(
+		TContext ctxt,
+		TestEngineStatus testAssemblyStatus,
+		bool dispose)
+	{
+		var current = dispose ? TestContext.CurrentInternal : null;
+
+		SetTestContext(ctxt, testAssemblyStatus);
+
+		current.SafeDispose();
 	}
 }
