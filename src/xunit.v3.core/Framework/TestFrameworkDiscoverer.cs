@@ -87,6 +87,8 @@ public abstract class TestFrameworkDiscoverer<TTestClass>(ITestAssembly testAsse
 				}
 			}
 
+			TestContext.CurrentInternal.SafeDispose();
+
 			tcs.SetResult(null);
 		});
 

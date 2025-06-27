@@ -390,7 +390,7 @@ public abstract class TestRunnerBase<TContext, TTest>
 	{
 		Guard.ArgumentNotNull(ctxt);
 
-		SetTestContext(ctxt, TestEngineStatus.Initializing);
+		SetTestContext(ctxt, TestEngineStatus.Initializing, dispose: false);
 
 		var summary = new RunSummary();
 		var output = string.Empty;
@@ -404,7 +404,7 @@ public abstract class TestRunnerBase<TContext, TTest>
 		var @continue = true;
 		TestResultState? resultState = null;
 
-		SetTestContext(ctxt, TestEngineStatus.Running);
+		SetTestContext(ctxt, TestEngineStatus.Running, dispose: true);
 
 		if (!ctxt.CancellationTokenSource.IsCancellationRequested)
 		{
@@ -457,7 +457,7 @@ public abstract class TestRunnerBase<TContext, TTest>
 		if (!@continue)
 			ctxt.CancellationTokenSource.Cancel();
 
-		SetTestContext(ctxt, TestEngineStatus.CleaningUp, resultState ?? TestResultState.ForNotRun());
+		SetTestContext(ctxt, TestEngineStatus.CleaningUp, dispose: true, resultState ?? TestResultState.ForNotRun());
 
 		if (!await ctxt.Aggregator.RunAsync(() => OnTestFinished(ctxt, summary.Time, output, warnings, attachments), true))
 			ctxt.CancellationTokenSource.Cancel();
@@ -467,6 +467,8 @@ public abstract class TestRunnerBase<TContext, TTest>
 				ctxt.CancellationTokenSource.Cancel();
 
 		ctxt.Aggregator.Clear();
+
+		TestContext.CurrentInternal.SafeDispose();
 
 		return summary;
 	}
@@ -509,6 +511,20 @@ public abstract class TestRunnerBase<TContext, TTest>
 			testStatus == TestEngineStatus.Initializing ? new TestOutputHelper() : TestContext.Current.TestOutputHelper,
 			testClassInstance: testClassInstance
 		);
+	}
+
+	void SetTestContext(
+		TContext ctxt,
+		TestEngineStatus testStatus,
+		bool dispose,
+		TestResultState? testState = null,
+		object? testClassInstance = null)
+	{
+		var current = dispose ? TestContext.CurrentInternal : null;
+
+		SetTestContext(ctxt, testStatus, testState, testClassInstance);
+
+		current.SafeDispose();
 	}
 
 	/// <summary>

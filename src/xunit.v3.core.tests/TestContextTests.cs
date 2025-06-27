@@ -1,5 +1,6 @@
 using System;
 using Xunit;
+using Xunit.Internal;
 
 [CollectionDefinition]
 public class TestContextTestsCollection : ICollectionFixture<TestContextTests.MyCollectionFixture> { }
@@ -44,6 +45,28 @@ public sealed class TestContextTests : IClassFixture<TestContextTests.MyClassFix
 		Assert.Equal(2112, TestContext.Current.KeyValueStorage["classValue"]);
 
 		TestContext.Current.KeyValueStorage["testValue"] = 2600;
+	}
+
+	[Fact]
+	public static void CannotAccessCancellationTokenOfDisposedContext()
+	{
+		TestContextInternal.Current.Dispose();
+
+		var ex = Record.Exception(() => TestContext.Current.CancellationToken);
+
+		var odex = Assert.IsType<ObjectDisposedException>(ex);
+		Assert.Equal(nameof(TestContext), odex.ObjectName);
+	}
+
+	[Fact]
+	public static void CannotCancelTestWithDisposedContext()
+	{
+		TestContextInternal.Current.Dispose();
+
+		var ex = Record.Exception(() => TestContext.Current.CancelCurrentTest());
+
+		var odex = Assert.IsType<ObjectDisposedException>(ex);
+		Assert.Equal(nameof(TestContext), odex.ObjectName);
 	}
 
 	public sealed class MyClassFixture : IDisposable

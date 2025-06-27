@@ -1,3 +1,4 @@
+using System;
 using Xunit.Sdk;
 
 namespace Xunit.Internal;
@@ -5,7 +6,7 @@ namespace Xunit.Internal;
 /// <summary>
 /// INTERNAL CLASS. DO NOT USE.
 /// </summary>
-public class TestContextInternal
+public sealed class TestContextInternal : IDisposable
 {
 	readonly TestContext testContext;
 
@@ -53,6 +54,12 @@ public class TestContextInternal
 		get => testContext.TestState;
 		set => testContext.TestState = value;
 	}
+
+	/// <summary>
+	/// INTERNAL METHOD. DO NOT USE.
+	/// </summary>
+	public void Dispose() =>
+		testContext.Dispose();
 
 	/// <summary>
 	/// INTERNAL METHOD. DO NOT USE.
