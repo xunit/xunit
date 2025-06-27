@@ -104,12 +104,19 @@ public class FixtureMappingManager(
 	/// </summary>
 	/// <param name="fixtureType">The type of the fixture</param>
 	/// <returns>Returns the value if the fixture type is found, or <c>null</c> if it's not.</returns>
-	public async ValueTask<object?> GetFixture(Type fixtureType)
+	public ValueTask<object?> GetFixture(Type fixtureType)
+	{
+		var visitedTypes = new HashSet<Type> { fixtureType };
+		return GetFixtureInternal(fixtureType, visitedTypes);
+	}
+
+	private async ValueTask<object?> GetFixtureInternal(Type fixtureType, ISet<Type> visitedFixtureTypes)
 	{
 		if (disposed)
 			throw new ObjectDisposedException(nameof(FixtureMappingManager));
 
 		Guard.ArgumentNotNull(fixtureType);
+		Guard.ArgumentNotNull(visitedFixtureTypes);
 
 		// Pull from the cache if present
 		if (fixtureCache.TryGetValue(fixtureType, out var result))
@@ -151,6 +158,23 @@ public class FixtureMappingManager(
 				arg = TestContext.CurrentInternal.DiagnosticMessageSink ?? NullMessageSink.Instance;
 			else if (parameter.ParameterType == typeof(ITestContextAccessor))
 				arg = TestContextAccessor.Instance;
+			else if (knownTypes.Contains(parameter.ParameterType))
+			{
+				if (fixtureCache.TryGetValue(parameter.ParameterType, out var cachedFixture))
+					arg = cachedFixture;
+				else if (!visitedFixtureTypes.Add(parameter.ParameterType))
+					throw new TestPipelineException(
+						string.Format(
+							CultureInfo.CurrentCulture,
+							"{0} fixture type '{1}' has circular dependence on: '{2}'",
+							fixtureCategory,
+							fixtureType.SafeName(),
+							parameter.ParameterType.SafeName()
+						)
+					);
+				else
+					arg = await GetFixtureInternal(parameter.ParameterType, visitedFixtureTypes);
+			}
 			else if (parentMappingManager is not null)
 				arg = await parentMappingManager.GetFixture(parameter.ParameterType);
 
@@ -205,6 +229,7 @@ public class FixtureMappingManager(
 	{
 		Guard.ArgumentNotNull(fixtureTypes);
 
+		var fixturesToInstantiate = new List<Type>();
 		foreach (var fixtureType in fixtureTypes)
 		{
 			var knownType = fixtureType;
@@ -218,10 +243,39 @@ public class FixtureMappingManager(
 
 			knownTypes.Add(knownType);
 
-			// Pre-create the fixture type, because we want to make sure all concrete fixtures are
-			// instantiated even if nobody comes along later to get the instance.
 			if (knownType == fixtureType)
-				await GetFixture(knownType);
+				fixturesToInstantiate.Add(knownType);
+
+			var stack = new Stack<Type>();
+			stack.Push(knownType);
+
+			var visitedTypes = new HashSet<Type>();
+			while (stack.Count > 0)
+			{
+				var type = stack.Pop();
+
+				// We've already processed this dependency, skip it.
+				// We'll do circular reference check during fixture creation.
+				if (!visitedTypes.Add(type))
+					continue;
+
+				var dependencies = type.GetInterfaces()
+					.Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IClassFixture<>))
+					.Select(x => x.GetGenericArguments()[0]);
+				foreach (var dependency in dependencies)
+				{
+					stack.Push(dependency);
+				}
+
+				knownTypes.Add(type);
+			}
+		}
+
+		// Pre-create the fixture type, because we want to make sure all concrete fixtures are
+		// instantiated even if nobody comes along later to get the instance.
+		foreach (var fixtureType in fixturesToInstantiate)
+		{
+			await GetFixture(fixtureType);
 		}
 	}
 }
