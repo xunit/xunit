@@ -1,6 +1,7 @@
+#pragma warning disable CA1812  // CaptureConsoleImpl is instantiated dynamically as an assembly fixture
+#pragma warning disable CA1822  // The attribute properties cannot be static, because that's not how attribute properties are supposed to work
+
 using System;
-using System.Reflection;
-using System.Threading;
 using Xunit.Internal;
 using Xunit.v3;
 
@@ -11,45 +12,41 @@ namespace Xunit;
 /// and reports it to the test output helper.
 /// </summary>
 [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = false, Inherited = false)]
-public sealed class CaptureConsoleAttribute : BeforeAfterTestAttribute
+public sealed class CaptureConsoleAttribute : Attribute, IAssemblyFixtureAttribute
 {
-	static int initializedCounter;
-	static readonly ManualResetEventSlim initializedEvent = new(initialState: false);
+	static bool captureError = true;
+	static bool captureOut = true;
+
+	Type IAssemblyFixtureAttribute.AssemblyFixtureType =>
+		typeof(CaptureConsoleImpl);
 
 	/// <summary>
 	/// Gets or sets a flag to indicate whether to override <see cref="Console.Error"/>.
 	/// </summary>
-	public bool CaptureError { get; set; } = true;
+	public bool CaptureError
+	{
+		get => captureError;
+		set => captureError = value;
+	}
 
 	/// <summary>
 	/// Gets or sets a flag to indicate whether to override <see cref="Console.Out"/>
 	/// (which includes the <c>Write</c> and <c>WriteLine</c> methods on <see cref="Console"/>).
 	/// </summary>
-	public bool CaptureOut { get; set; } = true;
-
-	/// <inheritdoc/>
-	public override void Before(
-		MethodInfo methodUnderTest,
-		IXunitTest test)
+	public bool CaptureOut
 	{
-		if (Interlocked.Exchange(ref initializedCounter, 1) == 0)
-		{
-#pragma warning disable CA1806
-#pragma warning disable CA2000
+		get => captureOut;
+		set => captureOut = value;
+	}
 
-			// We don't need to retain or dispose of the value, because all the work is done in the
-			// constructor, and usage here is intended to be a system-wide hook.
-			new ConsoleCaptureTestOutputWriter(TestContextAccessor.Instance, CaptureError, CaptureOut);
+	sealed class CaptureConsoleImpl : IDisposable
+	{
+		readonly ConsoleCaptureTestOutputWriter writer;
 
-#pragma warning restore CA2000
-#pragma warning restore CA1806
+		public CaptureConsoleImpl() =>
+			writer = new ConsoleCaptureTestOutputWriter(TestContextAccessor.Instance, captureError, captureOut);
 
-			// Use MRES to ensure nobody starts running until the initializer has finished. The wait
-			// time for MRES.Wait() for something that's already signaled is as close to zero as we
-			// can get, because it just checks a local field and returns when already signaled.
-			initializedEvent.Set();
-		}
-		else
-			initializedEvent.Wait();
+		public void Dispose() =>
+			writer.SafeDispose();
 	}
 }
