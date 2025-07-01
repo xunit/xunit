@@ -24,15 +24,15 @@ public enum TestMethodDisplayOptions
 
 	/// <summary>
 	/// Replace well-known monikers with their equivalent operator.
-	/// </summary>
 	/// <list type="bullet">
-	/// <item><description>lt : &lt;</description></item>
-	/// <item><description>le : &lt;=</description></item>
-	/// <item><description>eq : =</description></item>
-	/// <item><description>ne : !=</description></item>
-	/// <item><description>gt : &gt;</description></item>
-	/// <item><description>ge : &gt;=</description></item>
+	/// <item><description><c>lt</c> becomes <c>&lt;</c></description></item>
+	/// <item><description><c>le</c> becomes <c>&lt;=</c></description></item>
+	/// <item><description><c>eq</c> becomes <c>=</c></description></item>
+	/// <item><description><c>ne</c> becomes <c>!=</c></description></item>
+	/// <item><description><c>gt</c> becomes <c>&gt;</c></description></item>
+	/// <item><description><c>ge</c> becomes <c>&gt;=</c></description></item>
 	/// </list>
+	/// </summary>
 	UseOperatorMonikers = 0x02,
 
 	/// <summary>
