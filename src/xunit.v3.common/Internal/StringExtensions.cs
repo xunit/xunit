@@ -50,7 +50,7 @@ public static class StringExtensions
 					break;
 
 				case ',':
-					if (depth == 0)
+					if (depth == 0 && (endIndex == 0 || value[endIndex - 1] != '\\'))
 					{
 						results.Add(
 							trimWhitespace

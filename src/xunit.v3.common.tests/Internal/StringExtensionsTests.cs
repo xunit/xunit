@@ -38,5 +38,29 @@ public class StringExtensionsTests
 				part => Assert.Equal(" friend", part)
 			);
 		}
+
+		[Fact]
+		public void StartingComma()
+		{
+			var result = StringExtensions.SplitAtOuterCommas(",hello");
+
+			Assert.Collection(
+				result,
+				part => Assert.Equal(string.Empty, part),
+				part => Assert.Equal("hello", part)
+			);
+		}
+
+		[Fact]
+		public void EscapedCommas()
+		{
+			var result = StringExtensions.SplitAtOuterCommas("hello\\, [there, my], friend");
+
+			Assert.Collection(
+				result,
+				part => Assert.Equal("hello\\, [there, my]", part),
+				part => Assert.Equal(" friend", part)
+			);
+		}
 	}
 }
