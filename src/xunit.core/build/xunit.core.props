@@ -7,7 +7,6 @@
 
   <PropertyGroup>
     <DebugSymbols>true</DebugSymbols>
-    <IsTestProject>true</IsTestProject>
   </PropertyGroup>
 
   <!-- Support for importing props via the runner -->
