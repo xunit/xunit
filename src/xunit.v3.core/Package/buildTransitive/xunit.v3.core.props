@@ -8,7 +8,6 @@
     <GenerateSelfRegisteredExtensions>true</GenerateSelfRegisteredExtensions>
     <!-- Turn off Microsoft.Testing.Platform.MSBuild's auto-generated entrypoint -->
     <GenerateTestingPlatformEntryPoint>false</GenerateTestingPlatformEntryPoint>
-    <IsTestProject>true</IsTestProject>
     <TestProject>true</TestProject>
     <!-- Force the app host for .NET builds, since it's required for xunit.v3.runner.utility to run v3 projects -->
     <UseAppHost>true</UseAppHost>

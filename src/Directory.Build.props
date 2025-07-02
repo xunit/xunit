@@ -90,7 +90,6 @@
         <GenerateProgramFile>false</GenerateProgramFile>
         <GenerateSelfRegisteredExtensions>true</GenerateSelfRegisteredExtensions>
         <GenerateTestingPlatformEntryPoint>false</GenerateTestingPlatformEntryPoint>
-        <IsTestProject>true</IsTestProject>
         <NoWarn>$(NoWarn);xUnit1000</NoWarn>
         <Nullable>enable</Nullable>
         <OutputType>Exe</OutputType>
