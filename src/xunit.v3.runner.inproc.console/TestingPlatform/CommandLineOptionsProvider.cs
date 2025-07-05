@@ -255,7 +255,7 @@ public sealed class CommandLineOptionsProvider() :
 		{ "report-xunit-trx-filename", "report-xunit-trx" },
 	};
 	// Match the format used by Microsoft.Testing.Extensions.TrxReport
-	static readonly string reportFileNameRoot = string.Format(CultureInfo.InvariantCulture, "{0}_{1}_{2:yyyy-MM-dd_HH_mm_ss.fff}.", Environment.UserName, Environment.MachineName, DateTimeOffset.UtcNow);
+	static readonly string reportFileNameRoot = string.Format(CultureInfo.InvariantCulture, "{0}_{1}_{2:yyyy-MM-dd_HH_mm_ss.ffffff}.", Environment.UserName, Environment.MachineName, DateTimeOffset.UtcNow);
 
 	/// <inheritdoc/>
 	public IReadOnlyCollection<CommandLineOption> GetCommandLineOptions() =>

@@ -487,8 +487,8 @@ public class CommandLineOptionsProviderTests
 
 			var output = Assert.Single(projectAssembly.Project.Configuration.Output);
 			Assert.Equal(outputKey, output.Key);
-			// Format: <user>_<machine>_yyyy-MM-dd_hh_mm_ss.fff.<extension>
-			Assert.Matches($"{Environment.UserName}_{Environment.MachineName}_(\\d){{4}}-(\\d){{2}}-(\\d){{2}}_(\\d){{2}}_(\\d){{2}}_(\\d){{2}}\\.(\\d){{3}}\\.{extension}", output.Value);
+			// Format: <user>_<machine>_yyyy-MM-dd_hh_mm_ss.ffffff.<extension>
+			Assert.Matches($"{Environment.UserName}_{Environment.MachineName}_(\\d){{4}}-(\\d){{2}}-(\\d){{2}}_(\\d){{2}}_(\\d){{2}}_(\\d){{2}}\\.(\\d){{6}}\\.{extension}", output.Value);
 		}
 
 		[Theory]
