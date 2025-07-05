@@ -1984,6 +1984,28 @@ public class EquivalenceAssertsTests
 					d => d.Shallow!.Value2
 				);
 			}
+
+			// https://github.com/xunit/xunit/issues/3338
+			[Fact]
+			public void PartialDeepComparisonBug()
+			{
+				var ex = Record.Exception(() =>
+					Assert.EquivalentWithExclusions(
+						new DeepClass { Value3 = 21.12m, Shallow = new ShallowClass { Value1 = 4, Value2 = "Hello" } },
+						new DeepClass { Value3 = 42.24m, Shallow = new ShallowClass { Value1 = 2, Value2 = "World" } },
+						d => d.Value3,
+						d => d.Shallow!.Value2
+					)
+				);
+
+				Assert.IsType<EquivalentException>(ex);
+				Assert.Equal(
+					"Assert.Equivalent() Failure: Mismatched value on member 'Shallow.Value1'" + Environment.NewLine +
+					"Expected: 4" + Environment.NewLine +
+					"Actual:   2",
+					ex.Message
+				);
+			}
 		}
 
 		public class ByString
@@ -2006,6 +2028,28 @@ public class EquivalenceAssertsTests
 					new DeepClass { Value3 = 42.24m, Shallow = new ShallowClass { Value1 = 42, Value2 = "World" } },
 					"Value3",
 					"Shallow.Value2"
+				);
+			}
+
+			// https://github.com/xunit/xunit/issues/3338
+			[Fact]
+			public void PartialDeepComparisonBug()
+			{
+				var ex = Record.Exception(() =>
+					Assert.EquivalentWithExclusions(
+						new DeepClass { Value3 = 21.12m, Shallow = new ShallowClass { Value1 = 4, Value2 = "Hello" } },
+						new DeepClass { Value3 = 42.24m, Shallow = new ShallowClass { Value1 = 2, Value2 = "World" } },
+						"Value3",
+						"Shallow.Value2"
+					)
+				);
+
+				Assert.IsType<EquivalentException>(ex);
+				Assert.Equal(
+					"Assert.Equivalent() Failure: Mismatched value on member 'Shallow.Value1'" + Environment.NewLine +
+					"Expected: 4" + Environment.NewLine +
+					"Actual:   2",
+					ex.Message
 				);
 			}
 		}
