@@ -198,6 +198,18 @@ public interface ITestContext
 		string value);
 
 	/// <summary>
+	/// Adds an attachment that is a string value.
+	/// </summary>
+	/// <param name="name">The name of the attachment</param>
+	/// <param name="value">The value of the attachment</param>
+	/// <param name="replaceExistingValue">Set to <c>true</c> to allow an existing value to be replaced;
+	/// set to <c>false</c> to throw an exception if an existing value already exists.</param>
+	void AddAttachment(
+		string name,
+		string value,
+		bool replaceExistingValue);
+
+	/// <summary>
 	/// Adds an attachment that is a binary value (represented by a byte array and media type).
 	/// </summary>
 	/// <param name="name">The name of the attachment</param>
@@ -212,6 +224,26 @@ public interface ITestContext
 	void AddAttachment(
 		string name,
 		byte[] value,
+		string mediaType = "application/octet-stream");
+
+	/// <summary>
+	/// Adds an attachment that is a binary value (represented by a byte array and media type).
+	/// </summary>
+	/// <param name="name">The name of the attachment</param>
+	/// <param name="value">The value of the attachment</param>
+	/// <param name="replaceExistingValue">Set to <c>true</c> to allow an existing value to be replaced;
+	/// set to <c>false</c> to throw an exception if an existing value already exists.</param>
+	/// <param name="mediaType">The media type of the attachment; defaults to "application/octet-stream"</param>
+	/// <remarks>
+	/// The <paramref name="mediaType"/> value must be in the MIME "type/subtype" form, and does not support
+	/// parameter values. The subtype is allowed to have a single "+" to denote specialization of the
+	/// subtype (i.e., "application/xhtml+xml"). For more information on media types, see
+	/// <see href="https://datatracker.ietf.org/doc/html/rfc2045#section-5.1"/>.
+	/// </remarks>
+	void AddAttachment(
+		string name,
+		byte[] value,
+		bool replaceExistingValue,
 		string mediaType = "application/octet-stream");
 
 	/// <summary>

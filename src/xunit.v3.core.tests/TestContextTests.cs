@@ -1,6 +1,7 @@
 using System;
 using Xunit;
 using Xunit.Internal;
+using Xunit.Sdk;
 
 [CollectionDefinition]
 public class TestContextTestsCollection : ICollectionFixture<TestContextTests.MyCollectionFixture> { }
@@ -67,6 +68,56 @@ public sealed class TestContextTests : IClassFixture<TestContextTests.MyClassFix
 
 		var odex = Assert.IsType<ObjectDisposedException>(ex);
 		Assert.Equal(nameof(TestContext), odex.ObjectName);
+	}
+
+	[Fact]
+	public static void StringAttachmentCannotBeReplacedByDefault()
+	{
+		TestContext.Current.AddAttachment("foo", "bar");
+
+		var ex = Record.Exception(() => TestContext.Current.AddAttachment("foo", "baz"));
+
+		var argEx = Assert.IsType<ArgumentException>(ex);
+		Assert.Equal("name", argEx.ParamName);
+		Assert.StartsWith("Attempted to add an attachment with an existing name: 'foo'", argEx.Message);
+	}
+
+	[Fact]
+	public static void StringAttachmentCanBeReplaced()
+	{
+		TestContext.Current.AddAttachment("foo", "bar");
+
+		TestContext.Current.AddAttachment("foo", "baz", replaceExistingValue: true);
+
+		var value = default(TestAttachment);
+		TestContext.Current.Attachments?.TryGetValue("foo", out value);
+		Assert.NotNull(value);
+		Assert.Equal("baz", value.AsString());
+	}
+
+	[Fact]
+	public static void BinaryAttachmentCannotBeReplacedByDefault()
+	{
+		TestContext.Current.AddAttachment("foo", [1, 2, 3]);
+
+		var ex = Record.Exception(() => TestContext.Current.AddAttachment("foo", [4, 5, 6]));
+
+		var argEx = Assert.IsType<ArgumentException>(ex);
+		Assert.Equal("name", argEx.ParamName);
+		Assert.StartsWith("Attempted to add an attachment with an existing name: 'foo'", argEx.Message);
+	}
+
+	[Fact]
+	public static void BinaryAttachmentCanBeReplaced()
+	{
+		TestContext.Current.AddAttachment("foo", [1, 2, 3]);
+
+		TestContext.Current.AddAttachment("foo", [4, 5, 6], replaceExistingValue: true);
+
+		var value = default(TestAttachment);
+		TestContext.Current.Attachments?.TryGetValue("foo", out value);
+		Assert.NotNull(value);
+		Assert.Equal([4, 5, 6], value.AsByteArray().ByteArray);
 	}
 
 	public sealed class MyClassFixture : IDisposable

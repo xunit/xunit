@@ -165,7 +165,14 @@ public sealed class TestContext : ITestContext, IDisposable
 	/// <inheritdoc/>
 	public void AddAttachment(
 		string name,
-		string value)
+		string value) =>
+			AddAttachment(name, value, replaceExistingValue: false);
+
+	/// <inheritdoc/>
+	public void AddAttachment(
+		string name,
+		string value,
+		bool replaceExistingValue)
 	{
 		Guard.ArgumentNotNull(name);
 		Guard.ArgumentNotNull(value);
@@ -174,18 +181,24 @@ public sealed class TestContext : ITestContext, IDisposable
 			SendDiagnosticMessage("Attempted to add an attachment while not running a test (pipeline stage = {0}); name: {1}", PipelineStage, name);
 		else
 			lock (attachments)
-			{
-				if (attachments.ContainsKey(name))
-					throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Attempted to add an attachment with an existing name: '{0}'", name));
-				else
-					attachments.Add(name, TestAttachment.Create(value));
-			}
+				attachments[name] =
+					replaceExistingValue || !attachments.ContainsKey(name)
+						? TestAttachment.Create(value)
+						: throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Attempted to add an attachment with an existing name: '{0}'", name), nameof(name));
 	}
 
 	/// <inheritdoc/>
 	public void AddAttachment(
 		string name,
 		byte[] value,
+		string mediaType = "application/octet-stream") =>
+			AddAttachment(name, value, replaceExistingValue: false, mediaType);
+
+	/// <inheritdoc/>
+	public void AddAttachment(
+		string name,
+		byte[] value,
+		bool replaceExistingValue,
 		string mediaType = "application/octet-stream")
 	{
 		Guard.ArgumentNotNull(name);
@@ -195,12 +208,10 @@ public sealed class TestContext : ITestContext, IDisposable
 			SendDiagnosticMessage("Attempted to add an attachment while not running a test (pipeline stage = {0}); name: {1}", PipelineStage, name);
 		else
 			lock (attachments)
-			{
 				attachments[name] =
-					!attachments.ContainsKey(name)
+					replaceExistingValue || !attachments.ContainsKey(name)
 						? TestAttachment.Create(value, mediaType)
-						: throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Attempted to add an attachment with an existing name: '{0}'", name));
-			}
+						: throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Attempted to add an attachment with an existing name: '{0}'", name), nameof(name));
 	}
 
 	/// <inheritdoc/>
