@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -43,11 +44,38 @@ public static class TestMTP
 			// Go up three directories, for 'bin/{configuration}/{framework}'
 			var projectFolder = Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(testAssembly))));
 
-			await context.Exec(
-				x86 ? x86DotNet! : "dotnet",
-				$"test {projectFolder} --configuration {context.ConfigurationText} --framework {framework} --no-build",
-				workingDirectory: context.BaseFolder
-			);
+			try
+			{
+				await context.Exec(
+					x86 ? x86DotNet! : "dotnet",
+					$"test {projectFolder} --configuration {context.ConfigurationText} --framework {framework} --no-build",
+					workingDirectory: context.BaseFolder
+				);
+			}
+			catch
+			{
+				var logFile = Path.Join(
+					context.BaseFolder,
+					projectFolder,
+					"bin",
+					context.ConfigurationText,
+					framework,
+					"TestResults",
+					Path.GetFileNameWithoutExtension(testAssembly) + "_" + framework + "_" + (x86 ? "x86" : "x64") + ".log"
+				);
+
+				if (File.Exists(logFile))
+				{
+					Console.WriteLine();
+					context.WriteLineColor(ConsoleColor.Red, "=== Log file contents ===");
+					Console.WriteLine();
+
+					foreach (var line in File.ReadAllLines(logFile))
+						context.WriteLineColor(ConsoleColor.DarkGray, "  " + line);
+				}
+
+				throw;
+			}
 		}
 
 		// Clean out all the 'dotnet test' log files, because if we got this far everything succeeded
