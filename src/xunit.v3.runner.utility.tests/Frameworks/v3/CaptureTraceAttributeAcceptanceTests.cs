@@ -9,7 +9,7 @@ using Xunit.Sdk;
 
 public class CaptureTraceAttributeAcceptanceTests
 {
-	[Fact]
+	[Fact(Skip = "This test does not pass on Mono", SkipWhen = nameof(EnvironmentHelper.IsMono), SkipType = typeof(EnvironmentHelper))]
 	public async ValueTask CaptureAvailableInConstructor()
 	{
 		// We use Debug rather than Trace, because we're making a Debug build. Using Trace requires
