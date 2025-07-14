@@ -5,7 +5,7 @@
 
     <!-- Used for building -->
     <ILRepack_Version>2.0.44</ILRepack_Version>
-    <Microsoft_NetCore_App_Ref_Version>9.0.4</Microsoft_NetCore_App_Ref_Version>
+    <Microsoft_NetCore_App_Ref_Version>9.0.7</Microsoft_NetCore_App_Ref_Version>
     <Microsoft_NETFramework_ReferenceAssemblies_Version>1.0.3</Microsoft_NETFramework_ReferenceAssemblies_Version>
     <Microsoft_SourceLink_GitHub_Version>8.0.0</Microsoft_SourceLink_GitHub_Version>
     <Nerdbank_GitVersioning_Version>3.7.115</Nerdbank_GitVersioning_Version>
@@ -16,8 +16,8 @@
 
     <!-- Used by NuGet packages (xunit.v3 and xunit.v3.templates) -->
     <Microsoft_NET_Test_Sdk_Version>17.13.0</Microsoft_NET_Test_Sdk_Version>
-    <xunit_analyzers_Version>1.23.0-pre.3</xunit_analyzers_Version>
-    <xunit_runner_visualstudio_Version>3.1.1</xunit_runner_visualstudio_Version>
+    <xunit_analyzers_Version>1.23.0</xunit_analyzers_Version>
+    <xunit_runner_visualstudio_Version>3.1.2</xunit_runner_visualstudio_Version>
 
     <!-- Used by xunit.v3.assert for immutable collection and memory/span support -->
     <System_Collections_Immutable_Version>6.0.0</System_Collections_Immutable_Version>
