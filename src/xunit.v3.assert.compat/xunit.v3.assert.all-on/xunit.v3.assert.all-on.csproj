@@ -1,8 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AnalysisLevel>latest-All</AnalysisLevel>
-    <DefineConstants>$(DefineConstants);XUNIT_NULLABLE</DefineConstants>
+    <DefineConstants>$(DefineConstants);XUNIT_NULLABLE;XUNIT_POINTERS</DefineConstants>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

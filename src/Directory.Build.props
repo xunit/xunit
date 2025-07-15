@@ -9,7 +9,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <DebugType Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">full</DebugType>
     <DebugType Condition=" '$(TargetFrameworkIdentifier)' != '.NETFramework' ">embedded</DebugType>
-    <DefineConstants>$(DefineConstants);XUNIT_NULLABLE</DefineConstants>
+    <DefineConstants>$(DefineConstants);XUNIT_NULLABLE;XUNIT_POINTERS</DefineConstants>
     <LangVersion>13.0</LangVersion>
     <MSBuildCopyContentTransitively>false</MSBuildCopyContentTransitively>
     <PackageId>$(MSBuildProjectName)</PackageId>
@@ -25,6 +25,13 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
+
+  <!-- ============================== -->
+  <!-- Assertion projects (and tests) -->
+
+  <PropertyGroup Condition=" $(MSBuildProjectName.Contains('.assert')) ">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
 
   <!-- ======================================== -->
   <!-- Production-specific properties and items -->

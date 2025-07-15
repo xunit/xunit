@@ -1,3 +1,6 @@
+#pragma warning disable CS8500 // This takes the address of, gets the size of, or declares a pointer to a managed type
+#pragma warning disable xUnit2002 // TEMPORARY: Do not use null check on value type
+
 using System;
 using Xunit;
 using Xunit.Sdk;
@@ -23,6 +26,14 @@ public class NullAssertsTests
 			Assert.Equal(42, result);
 		}
 
+		[Theory]
+		[InlineData(42)]
+		[InlineData("Hello, world")]
+		public unsafe void Success_Pointer<T>(T data)
+		{
+			Assert.NotNull(&data);
+		}
+
 		[Fact]
 		public void Failure_Reference()
 		{
@@ -42,6 +53,15 @@ public class NullAssertsTests
 			Assert.IsType<NotNullException>(ex);
 			Assert.Equal("Assert.NotNull() Failure: Value of type 'Nullable<int>' does not have a value", ex.Message);
 		}
+
+		[Fact]
+		public unsafe void Failure_Pointer()
+		{
+			var ex = Record.Exception(() => Assert.NotNull((object*)null));
+
+			Assert.IsType<NotNullException>(ex);
+			Assert.Equal("Assert.NotNull() Failure: Value of type 'object*' is null", ex.Message);
+		}
 	}
 
 	public class Null
@@ -58,6 +78,12 @@ public class NullAssertsTests
 			int? x = null;
 
 			Assert.Null(x);
+		}
+
+		[Fact]
+		public unsafe void Success_Pointer()
+		{
+			Assert.Null((object*)null);
 		}
 
 		[Fact]
@@ -88,6 +114,19 @@ public class NullAssertsTests
 				"Actual:   42",
 				ex.Message
 			);
+		}
+
+		[Theory]
+		[InlineData(42)]
+		[InlineData("Hello, world")]
+		public unsafe void Failure_Pointer<T>(T data)
+		{
+			var ptr = &data;
+
+			var ex = Record.Exception(() => Assert.Null(ptr));
+
+			Assert.IsType<NullException>(ex);
+			Assert.Equal($"Assert.Null() Failure: Value of type '{ArgumentFormatter.FormatTypeName(typeof(T))}*' is not null", ex.Message);
 		}
 	}
 }
