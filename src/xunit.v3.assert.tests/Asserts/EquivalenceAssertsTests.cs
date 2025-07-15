@@ -1986,15 +1986,17 @@ public class EquivalenceAssertsTests
 			}
 
 			// https://github.com/xunit/xunit/issues/3338
+			// https://github.com/xunit/xunit/issues/3347
 			[Fact]
 			public void PartialDeepComparisonBug()
 			{
 				var ex = Record.Exception(() =>
 					Assert.EquivalentWithExclusions(
-						new DeepClass { Value3 = 21.12m, Shallow = new ShallowClass { Value1 = 4, Value2 = "Hello" } },
-						new DeepClass { Value3 = 42.24m, Shallow = new ShallowClass { Value1 = 2, Value2 = "World" } },
+						new DeepClass { Value3 = 21.12m, Shallow = new ShallowClass { Value1 = 4, Value2 = "Hello" }, Other = new ShallowClass { Value1 = 10, Value2 = "world" } },
+						new DeepClass { Value3 = 42.24m, Shallow = new ShallowClass { Value1 = 2, Value2 = "Hello" }, Other = new ShallowClass { Value1 = 15, Value2 = "world" } },
 						d => d.Value3,
-						d => d.Shallow!.Value2
+						d => d.Shallow!.Value2,
+						d => d.Other!.Value1
 					)
 				);
 
@@ -2032,15 +2034,17 @@ public class EquivalenceAssertsTests
 			}
 
 			// https://github.com/xunit/xunit/issues/3338
+			// https://github.com/xunit/xunit/issues/3347
 			[Fact]
 			public void PartialDeepComparisonBug()
 			{
 				var ex = Record.Exception(() =>
 					Assert.EquivalentWithExclusions(
-						new DeepClass { Value3 = 21.12m, Shallow = new ShallowClass { Value1 = 4, Value2 = "Hello" } },
-						new DeepClass { Value3 = 42.24m, Shallow = new ShallowClass { Value1 = 2, Value2 = "World" } },
+						new DeepClass { Value3 = 21.12m, Shallow = new ShallowClass { Value1 = 4, Value2 = "Hello" }, Other = new ShallowClass { Value1 = 10, Value2 = "world" } },
+						new DeepClass { Value3 = 42.24m, Shallow = new ShallowClass { Value1 = 2, Value2 = "Hello" }, Other = new ShallowClass { Value1 = 15, Value2 = "world" } },
 						"Value3",
-						"Shallow.Value2"
+						"Shallow.Value2",
+						"Other.Value1"
 					)
 				);
 
@@ -2171,14 +2175,15 @@ public class EquivalenceAssertsTests
 	class DeepClass
 	{
 		public decimal Value3;
-
 		public ShallowClass? Shallow { get; set; }
+		public ShallowClass? Other { get; set; }
 	}
 
 	class DeepClass2
 	{
 		public decimal Value3 { get; set; }
 		public ShallowClass? Shallow;
+		public ShallowClass? Other => null;
 	}
 
 	struct DeepStruct
