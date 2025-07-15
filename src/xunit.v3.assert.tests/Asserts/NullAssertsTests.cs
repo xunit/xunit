@@ -1,5 +1,4 @@
 #pragma warning disable CS8500 // This takes the address of, gets the size of, or declares a pointer to a managed type
-#pragma warning disable xUnit2002 // TEMPORARY: Do not use null check on value type
 
 using System;
 using Xunit;
