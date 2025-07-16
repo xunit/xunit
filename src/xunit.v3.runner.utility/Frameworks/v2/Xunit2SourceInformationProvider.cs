@@ -1,10 +1,10 @@
 #pragma warning disable xUnit3000 // This class does not have direct access to v2 xunit.runner.utility, so it can't derive from v2's LLMBRO
 
 using System;
-using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Internal;
-using Xunit.Sdk;
+using V2SourceInformationProvider = Xunit.Abstractions.ISourceInformationProvider;
+using V3SourceInformationProvider = Xunit.Runner.Common.ISourceInformationProvider;
 
 namespace Xunit.Runner.v2;
 
@@ -12,35 +12,17 @@ namespace Xunit.Runner.v2;
 /// An implementation of xUnit.net v2's <see cref="Abstractions.ISourceInformationProvider"/> which
 /// delegates calls to an xUnit.net v3 implementation of <see cref="Common.ISourceInformationProvider"/>.
 /// </summary>
-public class Xunit2SourceInformationProvider : MarshalByRefObject, Abstractions.ISourceInformationProvider
+/// <param name="v3Provider">The xUnit.net v3 provider that is being wrapped</param>
+public sealed class Xunit2SourceInformationProvider(V3SourceInformationProvider v3Provider) :
+	MarshalByRefObject, V2SourceInformationProvider
 {
-#pragma warning disable CA2213 // This is disposed on a background thread (because of the contract of ISourceInformationProvider)
-	readonly DisposalTracker disposalTracker = new();
+#pragma warning disable CA2213 // This object's lifetime isn't owned by the wrapper
+	readonly V3SourceInformationProvider v3Provider = Guard.ArgumentNotNull(v3Provider);
 #pragma warning restore CA2213
-#pragma warning disable CA2213 // This is disposed by DisposalTracker
-	readonly Common.ISourceInformationProvider v3Provider;
-#pragma warning restore CA2213
-
-	/// <summary>
-	/// Initializes a new instance of the <see cref="Xunit2SourceInformationProvider"/> class.
-	/// </summary>
-	/// <param name="v3Provider">The xUnit.net v3 provider that is being wrapped</param>
-	public Xunit2SourceInformationProvider(Common.ISourceInformationProvider v3Provider)
-	{
-		this.v3Provider = Guard.ArgumentNotNull(v3Provider);
-
-		disposalTracker.Add(v3Provider);
-	}
 
 	/// <inheritdoc/>
 	public void Dispose()
-	{
-		GC.SuppressFinalize(this);
-
-		// Have to do disposal on a background thread, since we can't guarantee that disposal
-		// will be synchronous (and we can't change the contract of ISourceInformationProvider).
-		Task.Run(async () => await disposalTracker.SafeDisposeAsync());
-	}
+	{ }
 
 	/// <inheritdoc/>
 	public ISourceInformation? GetSourceInformation(Abstractions.ITestCase testCase)
