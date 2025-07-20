@@ -71,3 +71,11 @@ jobs:
           path: artifacts/packages
           compression-level: 0
         if: always()
+
+      - name: Publish Test Report
+        uses: ctrf-io/github-test-reporter@v1
+        with:
+          report-path: './artifacts/test/*.ctrf'
+          summary-report: true
+          github-report: true
+        if: always()

@@ -59,3 +59,15 @@ jobs:
           path: artifacts/test
           compression-level: 9
         if: always()
+
+      - name: Publish Test Report
+        uses: ctrf-io/github-test-reporter@v1
+        with:
+          report-path: './artifacts/test/*.ctrf'
+          summary-report: true
+          github-report: true
+          pull-request: true
+          update-comment: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: always()
