@@ -19,7 +19,7 @@ public class Serialization
 		var success = JsonDeserializer.TryDeserialize(serialized, out var deserialized);
 
 		Assert.True(success);
-		var rootObject = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(deserialized);
+		var rootObject = Assert.IsType<IReadOnlyDictionary<string, object?>>(deserialized, exactMatch: false);
 		var updated = Activator.CreateInstance(original.GetType()) as IJsonDeserializable;
 		Assert.NotNull(updated);
 		updated.FromJson(rootObject);

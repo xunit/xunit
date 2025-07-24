@@ -7,13 +7,13 @@ public class SpyLogger : TaskLoggingHelper
 {
 	readonly bool includeSourceInformation;
 
-	public List<string> Messages = new();
+	public List<string> Messages = [];
 
 	SpyLogger(
 		IBuildEngine buildEngine,
 		string taskName,
-		bool includeSourceInformation)
-			: base(buildEngine, taskName)
+		bool includeSourceInformation) :
+			base(buildEngine, taskName)
 	{
 		this.includeSourceInformation = includeSourceInformation;
 

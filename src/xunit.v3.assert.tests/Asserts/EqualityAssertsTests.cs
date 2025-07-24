@@ -1,3 +1,5 @@
+#pragma warning disable CA1512 // Use ArgumentOutOfRangeException throw helper
+
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
@@ -1115,7 +1117,8 @@ public class EqualityAssertsTests
 			{
 				readonly List<T> values = [];
 
-				public void Add(T value) => values.Add(value);
+				public void Add(T value) =>
+					values.Add(value);
 
 				public bool Equals(EnumerableEquatable<T>? other)
 				{
@@ -1125,9 +1128,17 @@ public class EqualityAssertsTests
 					return !values.Except(other.values).Any() && !other.values.Except(values).Any();
 				}
 
-				public IEnumerator<T> GetEnumerator() => values.GetEnumerator();
+				public override bool Equals(object? obj) =>
+					Equals(obj as EnumerableEquatable<T>);
 
-				IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+				public IEnumerator<T> GetEnumerator() =>
+					values.GetEnumerator();
+
+				IEnumerator IEnumerable.GetEnumerator() =>
+					GetEnumerator();
+
+				public override int GetHashCode() =>
+					values.GetHashCode();
 			}
 		}
 
@@ -1730,6 +1741,12 @@ public class EqualityAssertsTests
 
 				public bool Equals(EquatableObject? other) =>
 					other != null && other.Char == Char;
+
+				public override bool Equals(object? obj) =>
+					Equals(obj as EquatableObject);
+
+				public override int GetHashCode() =>
+					Char.GetHashCode();
 			}
 		}
 
@@ -3286,9 +3303,17 @@ public class EqualityAssertsTests
 					return !values.Except(other.values).Any() && !other.values.Except(values).Any();
 				}
 
-				public IEnumerator<T> GetEnumerator() => values.GetEnumerator();
+				public override bool Equals(object? obj) =>
+					Equals(obj as EnumerableEquatable<T>);
 
-				IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+				public IEnumerator<T> GetEnumerator() =>
+					values.GetEnumerator();
+
+				IEnumerator IEnumerable.GetEnumerator() =>
+					GetEnumerator();
+
+				public override int GetHashCode() =>
+					values.GetHashCode();
 			}
 		}
 
@@ -3888,6 +3913,12 @@ public class EqualityAssertsTests
 
 				public bool Equals(EquatableObject? other) =>
 					other != null && other.Char == Char;
+
+				public override bool Equals(object? obj) =>
+					Equals(obj as EquatableObject);
+
+				public override int GetHashCode() =>
+					Char.GetHashCode();
 			}
 		}
 
@@ -4351,9 +4382,11 @@ public class EqualityAssertsTests
 		public int CompareTo(ComparableThrower? other) =>
 			throw new InvalidOperationException();
 
-		public override bool Equals(object? obj) => Value == ((ComparableThrower?)obj)!.Value;
+		public override bool Equals(object? obj) =>
+			Value == ((ComparableThrower?)obj)!.Value;
 
-		public override int GetHashCode() => Value;
+		public override int GetHashCode() =>
+			Value;
 	}
 
 	class EquatableBaseClass(int value) :
@@ -4361,7 +4394,14 @@ public class EqualityAssertsTests
 	{
 		public int Value { get; } = value;
 
-		public bool Equals(EquatableBaseClass? other) => Value == other!.Value;
+		public bool Equals(EquatableBaseClass? other) =>
+			Value == other!.Value;
+
+		public override bool Equals(object? obj) =>
+			Equals(obj as EquatableBaseClass);
+
+		public override int GetHashCode() =>
+			Value.GetHashCode();
 	}
 
 	class EquatableSubClassA(int value) :
@@ -4372,13 +4412,18 @@ public class EqualityAssertsTests
 		EquatableBaseClass(value)
 	{ }
 
+#pragma warning disable CA1067 // Override Object.Equals(object) when implementing IEquatable<T>
+
 	class StringWrapper(string value) :
 		IEquatable<StringWrapper>
 	{
 		public string Value { get; } = value;
 
-		bool IEquatable<StringWrapper>.Equals(StringWrapper? other) => Value == other!.Value;
+		bool IEquatable<StringWrapper>.Equals(StringWrapper? other) =>
+			Value == other!.Value;
 	}
+
+#pragma warning restore CA1067 // Override Object.Equals(object) when implementing IEquatable<T>
 
 	class NonGenericSet : HashSet<string> { }
 
@@ -4471,13 +4516,21 @@ public class EqualityAssertsTests
 
 			return result;
 		}
+
+		public override bool Equals(object? obj) =>
+			Equals(obj as SpyEquatable);
+
+		public override int GetHashCode() =>
+			42;
 	}
 
 	class NonComparableObject(bool result = true)
 	{
-		public override bool Equals(object? obj) => result;
+		public override bool Equals(object? obj) =>
+			result;
 
-		public override int GetHashCode() => 42;
+		public override int GetHashCode() =>
+			42;
 	}
 
 	sealed class RunOnceEnumerable<T>(IEnumerable<T> source) :

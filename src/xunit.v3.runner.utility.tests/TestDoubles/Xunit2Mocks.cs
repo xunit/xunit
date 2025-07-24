@@ -60,13 +60,13 @@ namespace Xunit.Runner.v2
 			IReflectionAttributeInfo[]? attributes = null,
 			string? assemblyFileName = null)
 		{
-			attributes ??= new IReflectionAttributeInfo[0];
+			attributes ??= [];
 
 			var result = Substitute.For<IAssemblyInfo, InterfaceProxy<IAssemblyInfo>>();
 			result.Name.Returns(assemblyFileName is null ? "assembly:" + Guid.NewGuid().ToString("n") : Path.GetFileNameWithoutExtension(assemblyFileName));
 			result.AssemblyPath.Returns(assemblyFileName);
 			result.GetType("").ReturnsForAnyArgs(types?.FirstOrDefault());
-			result.GetTypes(true).ReturnsForAnyArgs(types ?? new ITypeInfo[0]);
+			result.GetTypes(true).ReturnsForAnyArgs(types ?? []);
 			result.GetCustomAttributes("").ReturnsForAnyArgs(callInfo => LookupAttribute(callInfo.Arg<string>(), attributes));
 			return result;
 		}
@@ -128,11 +128,11 @@ namespace Xunit.Runner.v2
 			IReflectionAttributeInfo[]? attributes)
 		{
 			if (attributes is null)
-				return Enumerable.Empty<IAttributeInfo>();
+				return [];
 
 			var attributeType = Type.GetType(fullyQualifiedTypeName);
 			if (attributeType is null)
-				return Enumerable.Empty<IAttributeInfo>();
+				return [];
 
 			return attributes.Where(attribute => attributeType.IsAssignableFrom(attribute.Attribute.GetType())).ToList();
 		}
@@ -155,7 +155,7 @@ namespace Xunit.Runner.v2
 
 			var result = Substitute.For<IReflectionAttributeInfo, InterfaceProxy<IReflectionAttributeInfo>>();
 			result.Attribute.Returns(attribute);
-			result.GetConstructorArguments().Returns(new object[] { frameworkName });
+			result.GetConstructorArguments().Returns([frameworkName]);
 			return result;
 		}
 
@@ -180,8 +180,8 @@ namespace Xunit.Runner.v2
 
 			var targetFrameworkAttr = TargetFrameworkAttribute(targetFrameworkName);
 
-			attributes ??= Array.Empty<IReflectionAttributeInfo>();
-			attributes = attributes.Concat(new[] { targetFrameworkAttr }).ToArray();
+			attributes ??= [];
+			attributes = [.. attributes, targetFrameworkAttr];
 
 			var assemblyInfo = AssemblyInfo(types, attributes, assemblyFileName);
 
@@ -778,7 +778,7 @@ namespace Xunit.Runner.v2
 		{
 			var result = Substitute.For<ITypeInfo, InterfaceProxy<ITypeInfo>>();
 			result.Name.Returns(typeName ?? "type:" + Guid.NewGuid().ToString("n"));
-			result.GetMethods(false).ReturnsForAnyArgs(methods ?? new IMethodInfo[0]);
+			result.GetMethods(false).ReturnsForAnyArgs(methods ?? []);
 			var assemblyInfo = AssemblyInfo(assemblyFileName: assemblyFileName);
 			result.Assembly.Returns(assemblyInfo);
 			result.GetCustomAttributes("").ReturnsForAnyArgs(callInfo => LookupAttribute(callInfo.Arg<string>(), attributes));

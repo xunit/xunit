@@ -18,41 +18,41 @@ public class FixtureAcceptanceTests
 
 			Assert.Collection(
 				messages,
-				message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
-				message => Assert.IsAssignableFrom<ITestCollectionStarting>(message),
-				message => Assert.IsAssignableFrom<ITestClassStarting>(message),
+				message => Assert.IsType<ITestAssemblyStarting>(message, exactMatch: false),
+				message => Assert.IsType<ITestCollectionStarting>(message, exactMatch: false),
+				message => Assert.IsType<ITestClassStarting>(message, exactMatch: false),
 
 				// TestMethod1
-				message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-				message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
-				message => Assert.IsAssignableFrom<ITestStarting>(message),
+				message => Assert.IsType<ITestMethodStarting>(message, exactMatch: false),
+				message => Assert.IsType<ITestCaseStarting>(message, exactMatch: false),
+				message => Assert.IsType<ITestStarting>(message, exactMatch: false),
 				message =>
 				{
-					var failedMessage = Assert.IsAssignableFrom<ITestFailed>(message);
+					var failedMessage = Assert.IsType<ITestFailed>(message, exactMatch: false);
 					Assert.Equal(typeof(TestPipelineException).SafeName(), failedMessage.ExceptionTypes.Single());
 					Assert.Equal("A test class may only define a single public constructor.", failedMessage.Messages.Single());
 				},
-				message => Assert.IsAssignableFrom<ITestFinished>(message),
-				message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
-				message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
+				message => Assert.IsType<ITestFinished>(message, exactMatch: false),
+				message => Assert.IsType<ITestCaseFinished>(message, exactMatch: false),
+				message => Assert.IsType<ITestMethodFinished>(message, exactMatch: false),
 
 				// TestMethod2
-				message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-				message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
-				message => Assert.IsAssignableFrom<ITestStarting>(message),
+				message => Assert.IsType<ITestMethodStarting>(message, exactMatch: false),
+				message => Assert.IsType<ITestCaseStarting>(message, exactMatch: false),
+				message => Assert.IsType<ITestStarting>(message, exactMatch: false),
 				message =>
 				{
-					var failedMessage = Assert.IsAssignableFrom<ITestFailed>(message);
+					var failedMessage = Assert.IsType<ITestFailed>(message, exactMatch: false);
 					Assert.Equal(typeof(TestPipelineException).SafeName(), failedMessage.ExceptionTypes.Single());
 					Assert.Equal("A test class may only define a single public constructor.", failedMessage.Messages.Single());
 				},
-				message => Assert.IsAssignableFrom<ITestFinished>(message),
-				message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
-				message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
+				message => Assert.IsType<ITestFinished>(message, exactMatch: false),
+				message => Assert.IsType<ITestCaseFinished>(message, exactMatch: false),
+				message => Assert.IsType<ITestMethodFinished>(message, exactMatch: false),
 
-				message => Assert.IsAssignableFrom<ITestClassFinished>(message),
-				message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
-				message => Assert.IsAssignableFrom<ITestAssemblyFinished>(message)
+				message => Assert.IsType<ITestClassFinished>(message, exactMatch: false),
+				message => Assert.IsType<ITestCollectionFinished>(message, exactMatch: false),
+				message => Assert.IsType<ITestAssemblyFinished>(message, exactMatch: false)
 			);
 		}
 
@@ -79,24 +79,24 @@ public class FixtureAcceptanceTests
 
 			Assert.Collection(
 				messages,
-				message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
-				message => Assert.IsAssignableFrom<ITestCollectionStarting>(message),
-				message => Assert.IsAssignableFrom<ITestClassStarting>(message),
-				message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-				message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
-				message => Assert.IsAssignableFrom<ITestStarting>(message),
+				message => Assert.IsType<ITestAssemblyStarting>(message, exactMatch: false),
+				message => Assert.IsType<ITestCollectionStarting>(message, exactMatch: false),
+				message => Assert.IsType<ITestClassStarting>(message, exactMatch: false),
+				message => Assert.IsType<ITestMethodStarting>(message, exactMatch: false),
+				message => Assert.IsType<ITestCaseStarting>(message, exactMatch: false),
+				message => Assert.IsType<ITestStarting>(message, exactMatch: false),
 				message =>
 				{
-					var failedMessage = Assert.IsAssignableFrom<ITestFailed>(message);
+					var failedMessage = Assert.IsType<ITestFailed>(message, exactMatch: false);
 					Assert.Equal(typeof(TestPipelineException).SafeName(), failedMessage.ExceptionTypes.Single());
 					Assert.Equal("The following constructor parameters did not have matching fixture data: Int32 _1, String _3", failedMessage.Messages.Single());
 				},
-				message => Assert.IsAssignableFrom<ITestFinished>(message),
-				message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
-				message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
-				message => Assert.IsAssignableFrom<ITestClassFinished>(message),
-				message => Assert.IsAssignableFrom<ITestCollectionFinished>(message),
-				message => Assert.IsAssignableFrom<ITestAssemblyFinished>(message)
+				message => Assert.IsType<ITestFinished>(message, exactMatch: false),
+				message => Assert.IsType<ITestCaseFinished>(message, exactMatch: false),
+				message => Assert.IsType<ITestMethodFinished>(message, exactMatch: false),
+				message => Assert.IsType<ITestClassFinished>(message, exactMatch: false),
+				message => Assert.IsType<ITestCollectionFinished>(message, exactMatch: false),
+				message => Assert.IsType<ITestAssemblyFinished>(message, exactMatch: false)
 			);
 		}
 

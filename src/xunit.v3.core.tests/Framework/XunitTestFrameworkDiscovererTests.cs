@@ -154,10 +154,14 @@ public class XunitTestFrameworkDiscovererTests
 			Assert.Empty(discoverer.FindTestsForType_TestCases);
 		}
 
+#pragma warning disable CA1822 // Mark members as static
+
 		class ClassWithNoTests
 		{
 			public void TestMethod() { }
 		}
+
+#pragma warning restore CA1822 // Mark members as static
 
 		[Fact]
 		public static async ValueTask DiscoversFactDecoratedTestMethod()
@@ -319,7 +323,7 @@ public class XunitTestFrameworkDiscovererTests
 
 			Assert.IsType<CollectionPerClassTestCollectionFactory>(discoverer.TestCollectionFactory);
 			var message = Assert.Single(spyMessageSink.Messages);
-			var diagMessage = Assert.IsAssignableFrom<IDiagnosticMessage>(message);
+			var diagMessage = Assert.IsType<IDiagnosticMessage>(message, exactMatch: false);
 			Assert.Equal("Test collection factory type 'System.Object' does not implement IXunitTestCollectionFactory", diagMessage.Message);
 		}
 	}

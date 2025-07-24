@@ -61,7 +61,7 @@ public class JsonDeserializerTests
 	};
 
 	[Theory]
-	[MemberData(nameof(IntrinsicValueData))]
+	[MemberData(nameof(IntrinsicValueData), DisableDiscoveryEnumeration = true)]
 	public void CanDeserializeIntrinsicValues(
 		string json,
 		object? expected)
@@ -73,7 +73,7 @@ public class JsonDeserializerTests
 	}
 
 	[Theory]
-	[MemberData(nameof(IntrinsicValueData))]
+	[MemberData(nameof(IntrinsicValueData), DisableDiscoveryEnumeration = true)]
 	public void CanDeserializeArrays(
 		string itemJson,
 		object? expectedItem)
@@ -91,7 +91,7 @@ public class JsonDeserializerTests
 	}
 
 	[Theory]
-	[MemberData(nameof(IntrinsicValueData))]
+	[MemberData(nameof(IntrinsicValueData), DisableDiscoveryEnumeration = true)]
 	public void CanDeserializeObjectsAsDictionaries(
 		string itemJson,
 		object? expectedItem)
@@ -101,7 +101,7 @@ public class JsonDeserializerTests
 		var success = JsonDeserializer.TryDeserialize(json, out var result);
 
 		Assert.True(success);
-		var obj = Assert.IsAssignableFrom<IDictionary<string, object?>>(result);
+		var obj = Assert.IsType<IDictionary<string, object?>>(result, exactMatch: false);
 		Assert.Equal(["array", "item", "nullValue"], obj.Keys.OrderBy(x => x));
 		Assert.Null(obj["nullValue"]);
 		Assert.Equal(expectedItem, obj["item"]);

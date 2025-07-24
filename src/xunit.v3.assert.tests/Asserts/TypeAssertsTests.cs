@@ -12,6 +12,9 @@ using System.Xml;
 
 public class TypeAssertsTests
 {
+
+#pragma warning disable xUnit2032 // Type assertions based on 'assignable from' are confusingly named
+
 	public class IsAssignableFrom_Generic
 	{
 		[Fact]
@@ -277,6 +280,8 @@ public class TypeAssertsTests
 			Assert.IsNotAssignableFrom(typeof(InvalidCastException), new InvalidOperationException());
 		}
 	}
+
+#pragma warning restore xUnit2032 // Type assertions based on 'assignable from' are confusingly named
 
 	public class IsNotType_Generic
 	{

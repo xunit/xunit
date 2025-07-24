@@ -5,9 +5,9 @@ using System.Collections.Generic;
 
 static class EnvironmentHelper
 {
-	static readonly Lazy<bool> isMono = new Lazy<bool>(() => Type.GetType("Mono.Runtime") is not null);
+	static readonly Lazy<bool> isMono = new(() => Type.GetType("Mono.Runtime") is not null);
 	static readonly string[] reporterEnvironmentVariables =
-	{
+	[
 		// AppVeyorReporter
 		"APPVEYOR_API_URL",
 		// TeamCityReporter
@@ -18,7 +18,7 @@ static class EnvironmentHelper
 		"SYSTEM_TEAMFOUNDATIONCOLLECTIONURI",
 		"SYSTEM_TEAMPROJECT",
 		"BUILD_BUILDID",
-	};
+	];
 
 	/// <summary>
 	/// Returns <c>true</c> if you're currently running in Mono; <c>false</c> if you're running in .NET Framework.
@@ -40,7 +40,7 @@ static class EnvironmentHelper
 
 	class EnvironmentRestorer : IDisposable
 	{
-		Dictionary<string, string?> savedVariables = new();
+		readonly Dictionary<string, string?> savedVariables = [];
 
 		public EnvironmentRestorer(string[] variables)
 		{

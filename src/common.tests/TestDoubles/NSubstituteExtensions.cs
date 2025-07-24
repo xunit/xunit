@@ -28,10 +28,8 @@ public static class NSubstituteExtensions
 			router
 				.ReceivedCalls()
 				.Where(c => c.GetMethodInfo() == method)
-				.ElementAtOrDefault(callNumber);
-
-		if (call is null)
-			throw new Exception("Cannot find matching call.");
+				.ElementAtOrDefault(callNumber)
+					?? throw new Exception("Cannot find matching call.");
 
 		var methodParameters = call.GetParameterInfos();
 		var arguments = new Argument[methodParameters.Length];
@@ -67,45 +65,30 @@ public static class NSubstituteExtensions
 		return new WhenCalledAny<T>(context, substitute, substituteCall, MatchArgs.Any);
 	}
 
-	public class WhenCalledAny<T> : WhenCalled<T>
-		where T : class
+	public class WhenCalledAny<T>(
+		ISubstitutionContext context,
+		T substitute,
+		Action<T> call,
+		MatchArgs matchArgs) :
+			WhenCalled<T>(context, substitute, call, matchArgs)
+				where T : class
 	{
-		public WhenCalledAny(
-			ISubstitutionContext context,
-			T substitute,
-			Action<T> call,
-			MatchArgs matchArgs) :
-				base(context, substitute, call, matchArgs)
-		{ }
-
-		public void Do<T1>(Action<T1> callbackWithArguments)
-		{
+		public void Do<T1>(Action<T1> callbackWithArguments) =>
 			Do(callInfo => callbackWithArguments((T1)callInfo[0]));
-		}
 
-		public void Do<T1, T2>(Action<T1, T2> callbackWithArguments)
-		{
+		public void Do<T1, T2>(Action<T1, T2> callbackWithArguments) =>
 			Do(callInfo => callbackWithArguments((T1)callInfo[0], (T2)callInfo[1]));
-		}
 
-		public void Do<T1, T2, T3>(Action<T1, T2, T3> callbackWithArguments)
-		{
+		public void Do<T1, T2, T3>(Action<T1, T2, T3> callbackWithArguments) =>
 			Do(callInfo => callbackWithArguments((T1)callInfo[0], (T2)callInfo[1], (T3)callInfo[2]));
-		}
 
-		public void Do<T1, T2, T3, T4>(Action<T1, T2, T3, T4> callbackWithArguments)
-		{
+		public void Do<T1, T2, T3, T4>(Action<T1, T2, T3, T4> callbackWithArguments) =>
 			Do(callInfo => callbackWithArguments((T1)callInfo[0], (T2)callInfo[1], (T3)callInfo[2], (T4)callInfo[3]));
-		}
 
-		public void Do<T1, T2, T3, T4, T5>(Action<T1, T2, T3, T4, T5> callbackWithArguments)
-		{
+		public void Do<T1, T2, T3, T4, T5>(Action<T1, T2, T3, T4, T5> callbackWithArguments) =>
 			Do(callInfo => callbackWithArguments((T1)callInfo[0], (T2)callInfo[1], (T3)callInfo[2], (T4)callInfo[3], (T5)callInfo[4]));
-		}
 
-		public void Do<T1, T2, T3, T4, T5, T6>(Action<T1, T2, T3, T4, T5, T6> callbackWithArguments)
-		{
+		public void Do<T1, T2, T3, T4, T5, T6>(Action<T1, T2, T3, T4, T5, T6> callbackWithArguments) =>
 			Do(callInfo => callbackWithArguments((T1)callInfo[0], (T2)callInfo[1], (T3)callInfo[2], (T4)callInfo[3], (T5)callInfo[4], (T6)callInfo[5]));
-		}
 	}
 }

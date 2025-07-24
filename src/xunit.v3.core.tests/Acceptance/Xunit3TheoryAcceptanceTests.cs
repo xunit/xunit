@@ -1,3 +1,5 @@
+#pragma warning disable xUnit1042 // The member referenced by the MemberData attribute returns untyped data rows
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -166,33 +168,35 @@ public class Xunit3TheoryAcceptanceTests
 			[InlineData(1)]
 			public void OneParameter_OnePassed_NonArray(params object?[] array)
 			{
-				Assert.Equal(new object?[] { 1 }, array);
+				Assert.Equal([1], array);
 			}
 
 			[Theory]
-			[InlineData(new object?[] { new object?[] { 1 } })]
+			[InlineData([new object?[] { 1 }])]
 			public void OneParameter_OnePassed_MatchingArray(params object?[] array)
 			{
-				Assert.Equal(new object?[] { 1 }, array);
+				Assert.Equal([1], array);
 			}
 
 			[Theory]
 			[InlineData(new int[] { 1 })]
 			public void OneParameter_OnePassed_NonMatchingArray(params object?[] array)
 			{
-				Assert.Equal(new object?[] { new int[] { 1 } }, array);
+				Assert.Equal([new int[] { 1 }], array);
 			}
 
 			[Theory]
 			[InlineData(1, 2, 3, 4, 5, 6)]
 			public void OneParameter_ManyPassed(params object?[] array)
 			{
-				Assert.Equal(new object?[] { 1, 2, 3, 4, 5, 6 }, array);
+				Assert.Equal([1, 2, 3, 4, 5, 6], array);
 			}
 
 			[Theory]
 			[InlineData(1)]
-			public void TwoParameters_OnePassed(int i, params object?[] array)
+			public void TwoParameters_OnePassed(
+				int i,
+				params object?[] array)
 			{
 				Assert.Equal(1, i);
 				Assert.Empty(array);
@@ -200,7 +204,9 @@ public class Xunit3TheoryAcceptanceTests
 
 			[Theory]
 			[InlineData(1, null)]
-			public void TwoParameters_NullPassed(int i, params object?[] array)
+			public void TwoParameters_NullPassed(
+				int i,
+				params object?[] array)
 			{
 				Assert.Equal(1, i);
 				Assert.Null(array);
@@ -208,39 +214,50 @@ public class Xunit3TheoryAcceptanceTests
 
 			[Theory]
 			[InlineData(1, 2)]
-			public void TwoParameters_OnePassed_NonArray(int i, params object?[] array)
+			public void TwoParameters_OnePassed_NonArray(
+				int i,
+				params object?[] array)
 			{
 				Assert.Equal(1, i);
-				Assert.Equal(new object?[] { 2 }, array);
+				Assert.Equal([2], array);
 			}
 
 			[Theory]
 			[InlineData(1, new object?[] { 2 })]
-			public void TwoParameters_OnePassed_MatchingArray(int i, params object?[] array)
+			public void TwoParameters_OnePassed_MatchingArray(
+				int i,
+				params object?[] array)
 			{
 				Assert.Equal(1, i);
-				Assert.Equal(new object?[] { 2 }, array);
+				Assert.Equal([2], array);
 			}
 
 			[Theory]
 			[InlineData(1, new int[] { 2 })]
-			public void TwoParameters_OnePassed_NonMatchingArray(int i, params object?[] array)
+			public void TwoParameters_OnePassed_NonMatchingArray(
+				int i,
+				params object?[] array)
 			{
 				Assert.Equal(1, i);
-				Assert.Equal(new object?[] { new int[] { 2 } }, array);
+				Assert.Equal([new int[] { 2 }], array);
 			}
 
 			[Theory]
 			[InlineData(1, 2, 3, 4, 5, 6)]
-			public void TwoParameters_ManyPassed(int i, params object?[] array)
+			public void TwoParameters_ManyPassed(
+				int i,
+				params object?[] array)
 			{
 				Assert.Equal(1, i);
-				Assert.Equal(new object?[] { 2, 3, 4, 5, 6 }, array);
+				Assert.Equal([2, 3, 4, 5, 6], array);
 			}
 
 			[Theory]
 			[InlineData]
-			public void OptionalParameters_NonePassed(string s = "abc", int i = 1, params object?[] array)
+			public void OptionalParameters_NonePassed(
+				string s = "abc",
+				int i = 1,
+				params object?[] array)
 			{
 				Assert.Equal("abc", s);
 				Assert.Equal(1, i);
@@ -249,11 +266,14 @@ public class Xunit3TheoryAcceptanceTests
 
 			[Theory]
 			[InlineData("def", 2, 3, 4, 5)]
-			public void OptionalParameters_ManyPassed(string s = "abc", int i = 1, params object?[] array)
+			public void OptionalParameters_ManyPassed(
+				string s = "abc",
+				int i = 1,
+				params object?[] array)
 			{
 				Assert.Equal("def", s);
 				Assert.Equal(2, i);
-				Assert.Equal(new object?[] { 3, 4, 5 }, array);
+				Assert.Equal([3, 4, 5], array);
 			}
 		}
 
@@ -296,7 +316,7 @@ public class Xunit3TheoryAcceptanceTests
 			}
 
 			public static IEnumerable<object?[]> ExplicitArgument =
-				new[] { new[] { new Explicit { Value = "abc" } } };
+				[[new Explicit { Value = "abc" }]];
 
 			// Explicit conversion defined on the argument's type
 			[Theory]
@@ -307,7 +327,7 @@ public class Xunit3TheoryAcceptanceTests
 			}
 
 			public static IEnumerable<object?[]> ImplicitArgument =
-				new[] { new[] { new Implicit { Value = "abc" } } };
+				[[new Implicit { Value = "abc" }]];
 
 			// Implicit conversion defined on the argument's type
 			[Theory]
@@ -537,7 +557,7 @@ public class Xunit3TheoryAcceptanceTests
 
 			public struct Empty<T>
 			{
-				public override string ToString() => $"Empty<{typeof(T).Name}>";
+				public override readonly string ToString() => $"Empty<{typeof(T).Name}>";
 			}
 
 			public static IEnumerable<object?[]> GenericData_Simple()
@@ -669,19 +689,21 @@ public class Xunit3TheoryAcceptanceTests
 
 		class ClassUnderTest_ExplicitAcceptanceTests
 		{
-			public static List<TheoryDataRow<int, string>> MemberDataSource = new()
-			{
+			public static List<TheoryDataRow<int, string>> MemberDataSource =
+			[
 				new(43, "Member inherited"),
 				new(0, "Member forced true") { Explicit = true },
 				new(2113, "Member forced false") { Explicit = false },
-			};
+			];
 
 			[Theory]
 			[InlineData(42, "Inline inherited")]
 			[InlineData(0, "Inline forced true", Explicit = true)]
 			[InlineData(2112, "Inline forced false", Explicit = false)]
 			[MemberData(nameof(MemberDataSource))]
-			public void TestWithTheoryExplicitFalse(int x, string _)
+			public void TestWithTheoryExplicitFalse(
+				int x,
+				string _)
 			{
 				Assert.NotEqual(0, x);
 			}
@@ -691,7 +713,9 @@ public class Xunit3TheoryAcceptanceTests
 			[InlineData(0, "Inline forced true", Explicit = true)]
 			[InlineData(2112, "Inline forced false", Explicit = false)]
 			[MemberData(nameof(MemberDataSource))]
-			public void TestWithTheoryExplicitTrue(int x, string _)
+			public void TestWithTheoryExplicitTrue(
+				int x,
+				string _)
 			{
 				Assert.NotEqual(0, x);
 			}
@@ -811,11 +835,11 @@ public class Xunit3TheoryAcceptanceTests
 
 		class ClassUnderTest_SkipTests
 		{
-			public static List<TheoryDataRow<int>> DataSource = new()
-			{
+			public static List<TheoryDataRow<int>> DataSource =
+			[
 				new(43),
 				new(2113) { Skip = "Skip from theory data row" }
-			};
+			];
 
 			[Theory]
 			[InlineData(42)]
@@ -864,11 +888,11 @@ public class Xunit3TheoryAcceptanceTests
 
 		class ClassUnderTest_TestDisplayNameTests
 		{
-			public static List<TheoryDataRow<int>> DefaultMemberDataSource = new()
-			{
+			public static List<TheoryDataRow<int>> DefaultMemberDataSource =
+			[
 				new(43),
 				new(1) { TestDisplayName = "One Test Default (Member)" },
-			};
+			];
 
 			[Theory]
 			[InlineData(42)]
@@ -877,11 +901,11 @@ public class Xunit3TheoryAcceptanceTests
 			public void TestWithDefaultName(int _)
 			{ }
 
-			public static List<TheoryDataRow<int>> OverrideMemberDataSource = new()
-			{
+			public static List<TheoryDataRow<int>> OverrideMemberDataSource =
+			[
 				new(45),
 				new(3) { TestDisplayName = "Three Test Override (Member)" },
-			};
+			];
 
 			[Theory(DisplayName = "Theory Display Name")]
 			[InlineData(44)]
@@ -940,11 +964,11 @@ public class Xunit3TheoryAcceptanceTests
 		[Trait("Location", "Class")]
 		class ClassUnderTests_TraitsTests
 		{
-			public static List<TheoryDataRow<int>> MemberDataSource = new()
-			{
+			public static List<TheoryDataRow<int>> MemberDataSource =
+			[
 				new TheoryDataRow<int>(2112),
 				new TheoryDataRow<int>(42).WithTrait("Location", "TheoryDataRow"),
-			};
+			];
 
 			[Theory]
 			[Trait("Location", "Method")]
@@ -991,17 +1015,18 @@ public class Xunit3TheoryAcceptanceTests
 
 		class ClassUnderTest
 		{
-			public static List<TheoryDataRow<int>> MemberDataSource = new()
-			{
+			public static List<TheoryDataRow<int>> MemberDataSource =
+			[
 				new TheoryDataRow<int>(11000),
 				new TheoryDataRow<int>(100) { Timeout = 10000 },
-			};
+			];
 
 			[Theory(Timeout = 42)]
 			[InlineData(10000)]
 			[InlineData(10, Timeout = 10000)]
 			[MemberData(nameof(MemberDataSource), Timeout = 10)]
-			public Task LongRunningTask(int delay) => Task.Delay(delay, TestContext.Current.CancellationToken);
+			public Task LongRunningTask(int delay) =>
+				Task.Delay(delay, TestContext.Current.CancellationToken);
 		}
 	}
 
@@ -1205,7 +1230,7 @@ public class Xunit3TheoryAcceptanceTests
 
 		// This is IEnumerable instead of strongly typed because it returns all the various forms of
 		// data that are valid in a data source.
-		public class DataSource_ClassDisposable : IEnumerable, IDisposable
+		public sealed class DataSource_ClassDisposable : IEnumerable, IDisposable
 		{
 			public static int DisposeCount;
 
@@ -1242,7 +1267,7 @@ public class Xunit3TheoryAcceptanceTests
 
 		// This is IEnumerable instead of strongly typed because it returns all the various forms of
 		// data that are valid in a data source.
-		public class DataSource_ClassAsyncDisposable : IEnumerable, IAsyncLifetime
+		public sealed class DataSource_ClassAsyncDisposable : IEnumerable, IAsyncLifetime
 		{
 			public static int DisposeCount;
 			public static int InitializeCount;
@@ -1361,7 +1386,7 @@ public class Xunit3TheoryAcceptanceTests
 
 		// This is IEnumerable instead of strongly typed because it returns all the various forms of
 		// data that are valid in a data source.
-		public class DataSource_ClassDisposable : IEnumerable, IDisposable
+		public sealed class DataSource_ClassDisposable : IEnumerable, IDisposable
 		{
 			public static int DisposeCount;
 
@@ -1398,7 +1423,7 @@ public class Xunit3TheoryAcceptanceTests
 
 		// This is IEnumerable instead of strongly typed because it returns all the various forms of
 		// data that are valid in a data source.
-		public class DataSource_ClassAsyncDisposable : IEnumerable, IAsyncLifetime
+		public sealed class DataSource_ClassAsyncDisposable : IEnumerable, IAsyncLifetime
 		{
 			public static int DisposeCount;
 			public static int InitializeCount;
@@ -1586,7 +1611,7 @@ public class Xunit3TheoryAcceptanceTests
 
 		class ClassWithIConvertibleData
 		{
-			public static IEnumerable<ITheoryDataRow> Data = new TheoryData<MyConvertible> { new MyConvertible() };
+			public static IEnumerable<ITheoryDataRow> Data = new TheoryData<MyConvertible>(new MyConvertible());
 
 			[Theory]
 			[MemberData(nameof(Data))]
@@ -1625,6 +1650,7 @@ public class Xunit3TheoryAcceptanceTests
 		}
 
 #pragma warning disable xUnit1017 // MemberData must reference a static member
+#pragma warning disable CA1822 // Mark members as static
 
 		class ClassWithNonStaticData
 		{
@@ -1647,6 +1673,7 @@ public class Xunit3TheoryAcceptanceTests
 			public void PropertyTestMethod(int _1, double _2, string _3) { }
 		}
 
+#pragma warning restore CA1822 // Mark members as static
 #pragma warning restore xUnit1017 // MemberData must reference a static member
 
 		[Fact]
@@ -1760,11 +1787,11 @@ public class Xunit3TheoryAcceptanceTests
 
 		class ClassWithIncompatibleValueData
 		{
-			public static IEnumerable<int> IncompatibleFieldData = new[] { 42 };
+			public static IEnumerable<int> IncompatibleFieldData = [42];
 
-			public static IEnumerable<int> IncompatibleMethodData() => new[] { 42 };
+			public static IEnumerable<int> IncompatibleMethodData() => [42];
 
-			public static IEnumerable<int> IncompatiblePropertyData => new[] { 42 };
+			public static IEnumerable<int> IncompatiblePropertyData => [42];
 
 			[Theory]
 			[MemberData(nameof(IncompatibleFieldData))]
@@ -2175,12 +2202,11 @@ public class Xunit3TheoryAcceptanceTests
 		}
 
 		class ClassUnderTest_StaticInterfaceMethod : Repro<ClassUnderTest_StaticInterfaceMethod>, IInterfaceWithStaticVirtualMember
-		{
-		}
+		{ }
 
 		public interface IInterfaceWithStaticVirtualMember
 		{
-			static virtual TheoryData<int> TestData => new() { 1, 2, 3 };
+			static virtual TheoryData<int> TestData => [1, 2, 3];
 		}
 
 		[Fact]
@@ -2213,6 +2239,8 @@ public class Xunit3TheoryAcceptanceTests
 			Assert.Equal("Could not find public static member (property, field, or method) named 'DataSource' on 'Xunit3TheoryAcceptanceTests+MethodDataTests+ClassWithMismatchedMethodData' with parameter types: System.Double", failed.Messages.Single());
 		}
 
+#pragma warning disable IDE0060 // Remove unused parameter
+
 		class ClassWithMismatchedMethodData
 		{
 			public static IEnumerable<object?[]>? DataSource(int x) => null;
@@ -2221,6 +2249,8 @@ public class Xunit3TheoryAcceptanceTests
 			[MemberData(nameof(DataSource), 21.12)]
 			public void TestViaMethodData(int _1, double _2, string _3) { }
 		}
+
+#pragma warning restore IDE0060 // Remove unused parameter
 
 		[Fact]
 		public async ValueTask SubTypeInheritsTestsFromBaseType()
@@ -2286,6 +2316,8 @@ public class Xunit3TheoryAcceptanceTests
 			Assert.Empty(testMessages.OfType<ITestSkipped>());
 		}
 
+#pragma warning disable IDE0060 // Remove unused parameter
+
 		class ClassWithDowncastedMethodData
 		{
 			public static IEnumerable<object?[]> DataSource(object x, string? y) { yield return new object?[] { 42, 21.12, "Hello world" }; }
@@ -2295,6 +2327,8 @@ public class Xunit3TheoryAcceptanceTests
 			[MemberData(nameof(DataSource), 21.12, null)]
 			public void TestViaMethodData(int _1, double _2, string _3) { }
 		}
+
+#pragma warning restore IDE0060 // Remove unused parameter
 
 		[Fact]
 		public async ValueTask CanUseMethodDataInSubTypeFromTestInBaseType()
@@ -2514,6 +2548,8 @@ public class Xunit3TheoryAcceptanceTests
 			{ }
 		}
 
+#pragma warning disable IDE0060 // Remove unused parameter
+
 		internal class MyDataAttribute : DataAttribute
 		{
 			public MyDataAttribute(object? value)
@@ -2532,6 +2568,8 @@ public class Xunit3TheoryAcceptanceTests
 			public override bool SupportsDiscoveryEnumeration() => true;
 		}
 
+#pragma warning restore IDE0060 // Remove unused parameter
+
 		[Fact]
 		public async ValueTask MemberDataAttributeBaseSubclass_Success()
 		{
@@ -2546,14 +2584,11 @@ public class Xunit3TheoryAcceptanceTests
 			);
 		}
 
-		private class SingleMemberDataAttribute : MemberDataAttributeBase
+		private class SingleMemberDataAttribute(
+			string memberName,
+			params object?[] parameters) :
+				MemberDataAttributeBase(memberName, parameters)
 		{
-			public SingleMemberDataAttribute(
-				string memberName,
-				params object?[] parameters) :
-					base(memberName, parameters)
-			{ }
-
 			protected override ITheoryDataRow ConvertDataRow(object dataRow) =>
 				new TheoryDataRow(dataRow);
 		}
@@ -2603,6 +2638,8 @@ public class Xunit3TheoryAcceptanceTests
 			Assert.Contains("Assert.NotNull() Failure", notNullFailure.Messages.Single());
 		}
 
+#pragma warning disable xUnit1042 // The member referenced by the MemberData attribute returns untyped data rows
+
 		class ClassUnderTest
 		{
 			public static IEnumerable<object?[]> Data
@@ -2623,6 +2660,8 @@ public class Xunit3TheoryAcceptanceTests
 			}
 		}
 	}
+
+#pragma warning restore xUnit1042 // The member referenced by the MemberData attribute returns untyped data rows
 
 	public class OverloadedMethodTests : AcceptanceTestV3
 	{

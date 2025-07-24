@@ -113,10 +113,10 @@ public class CommandLineTests
 		];
 
 		public static readonly TheoryData<string, Expression<Func<XunitProjectAssembly, bool>>> SwitchesLowerCase =
-			new(SwitchOptionsList);
+			[.. SwitchOptionsList];
 
 		public static readonly TheoryData<string, Expression<Func<XunitProjectAssembly, bool>>> SwitchesUpperCase =
-			new(SwitchOptionsList.Select(t => (t.Switch.ToUpperInvariant(), t.Accessor)));
+			[.. SwitchOptionsList.Select(t => (t.Switch.ToUpperInvariant(), t.Accessor))];
 
 		[Theory(DisableDiscoveryEnumeration = true)]
 		[MemberData(nameof(SwitchesLowerCase))]
@@ -550,10 +550,10 @@ public class CommandLineTests
 		];
 
 		public static readonly TheoryData<string> SwitchesLowerCase =
-			new(SwitchOptionsList);
+			[.. SwitchOptionsList];
 
 		public static readonly TheoryData<string> SwitchesUpperCase =
-			new(SwitchOptionsList.Select(t => t.ToUpperInvariant()));
+			[.. SwitchOptionsList.Select(t => t.ToUpperInvariant())];
 
 		[Theory]
 		[MemberData(nameof(SwitchesLowerCase))]
@@ -623,16 +623,16 @@ public class CommandLineTests
 			];
 
 			public static readonly TheoryData<string> SwitchesLowerCase =
-				new(SwitchOptionsList);
+				[.. SwitchOptionsList];
 
 			public static readonly TheoryData<string> SwitchesUpperCase =
-				new(SwitchOptionsList.Select(x => x.ToUpperInvariant()));
+				[.. SwitchOptionsList.Select(x => x.ToUpperInvariant())];
 
 			public static readonly TheoryData<string, string> SwitchesWithOptionsLowerCase =
-				new(SwitchOptionsList.SelectMany(@switch => BadFormatValues.Select(value => (@switch, value))));
+				[.. SwitchOptionsList.SelectMany(@switch => BadFormatValues.Select(value => (@switch, value)))];
 
 			public static readonly TheoryData<string, string> SwitchesWithOptionsUpperCase =
-				new(SwitchOptionsList.SelectMany(@switch => BadFormatValues.Select(value => (@switch.ToUpperInvariant(), value))));
+				[.. SwitchOptionsList.SelectMany(@switch => BadFormatValues.Select(value => (@switch.ToUpperInvariant(), value)))];
 
 			[Theory]
 			[MemberData(nameof(SwitchesLowerCase))]
@@ -701,10 +701,10 @@ public class CommandLineTests
 	public class Transforms
 	{
 		public static readonly TheoryData<string> SwitchesLowerCase =
-			new(TransformFactory.AvailableTransforms.Select(x => $"-{x.ID}"));
+			[.. TransformFactory.AvailableTransforms.Select(x => $"-{x.ID}")];
 
 		public static readonly TheoryData<string> SwitchesUpperCase =
-			new(TransformFactory.AvailableTransforms.Select(x => $"-{x.ID.ToUpperInvariant()}"));
+			[.. TransformFactory.AvailableTransforms.Select(x => $"-{x.ID.ToUpperInvariant()}")];
 
 		[Theory]
 		[MemberData(nameof(SwitchesLowerCase))]

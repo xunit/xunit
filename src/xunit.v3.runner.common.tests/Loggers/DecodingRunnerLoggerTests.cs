@@ -16,7 +16,7 @@ public class DecodingRunnerLoggerTests
 		logger.LogMessage(json);
 
 		Assert.Empty(spySink.Messages);
-		var message = Assert.IsAssignableFrom<IDiagnosticMessage>(Assert.Single(spyDiagnosticSink.Messages));
+		var message = Assert.IsType<IDiagnosticMessage>(Assert.Single(spyDiagnosticSink.Messages), exactMatch: false);
 		Assert.Equal("message", message.Message);
 	}
 
@@ -31,7 +31,7 @@ public class DecodingRunnerLoggerTests
 		logger.LogMessage(json);
 
 		Assert.Empty(spySink.Messages);
-		var message = Assert.IsAssignableFrom<IInternalDiagnosticMessage>(Assert.Single(spyDiagnosticSink.Messages));
+		var message = Assert.IsType<IInternalDiagnosticMessage>(Assert.Single(spyDiagnosticSink.Messages), exactMatch: false);
 		Assert.Equal("message", message.Message);
 	}
 
@@ -45,7 +45,7 @@ public class DecodingRunnerLoggerTests
 
 		logger.LogMessage(json);
 
-		var message = Assert.IsAssignableFrom<IDiscoveryComplete>(Assert.Single(spySink.Messages));
+		var message = Assert.IsType<IDiscoveryComplete>(Assert.Single(spySink.Messages), exactMatch: false);
 		Assert.Equal("asm-id", message.AssemblyUniqueID);
 		Assert.Equal(42, message.TestCasesToRun);
 		Assert.Empty(spyDiagnosticSink.Messages);
@@ -71,7 +71,7 @@ public class DecodingRunnerLoggerTests
 		logger.LogMessage(json);
 
 		Assert.Empty(spySink.Messages);
-		var message = Assert.IsAssignableFrom<IInternalDiagnosticMessage>(Assert.Single(spyDiagnosticSink.Messages));
-		Assert.Equal<object>(expectedDiagnostic, message.Message);
+		var message = Assert.IsType<IInternalDiagnosticMessage>(Assert.Single(spyDiagnosticSink.Messages), exactMatch: false);
+		Assert.Equal(expectedDiagnostic, message.Message);
 	}
 }

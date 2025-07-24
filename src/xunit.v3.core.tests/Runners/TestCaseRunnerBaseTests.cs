@@ -20,7 +20,7 @@ public class TestCaseRunnerBaseTests
 			await runner.OnError(ex!);
 
 			var message = Assert.Single(runner.MessageBus.Messages);
-			var error = Assert.IsAssignableFrom<IErrorMessage>(message);
+			var error = Assert.IsType<IErrorMessage>(message, exactMatch: false);
 
 			Assert.Equal(-1, error.ExceptionParentIndices.Single());
 			Assert.Equal(typeof(DivideByZeroException).FullName, error.ExceptionTypes.Single());
@@ -37,7 +37,7 @@ public class TestCaseRunnerBaseTests
 			await runner.OnTestCaseCleanupFailure(ex!);
 
 			var message = Assert.Single(runner.MessageBus.Messages);
-			var failure = Assert.IsAssignableFrom<ITestCaseCleanupFailure>(message);
+			var failure = Assert.IsType<ITestCaseCleanupFailure>(message, exactMatch: false);
 
 			VerifyTestCaseMessage(failure);
 			Assert.Equal(-1, failure.ExceptionParentIndices.Single());
@@ -55,7 +55,7 @@ public class TestCaseRunnerBaseTests
 			await runner.OnTestCaseFinished(summary);
 
 			var message = Assert.Single(runner.MessageBus.Messages);
-			var finished = Assert.IsAssignableFrom<ITestCaseFinished>(message);
+			var finished = Assert.IsType<ITestCaseFinished>(message, exactMatch: false);
 
 			VerifyTestCaseMessage(finished);
 			Assert.Equal(123.45m, finished.ExecutionTime);
@@ -79,7 +79,7 @@ public class TestCaseRunnerBaseTests
 			await runner.OnTestCaseStarting();
 
 			var message = Assert.Single(runner.MessageBus.Messages);
-			var starting = Assert.IsAssignableFrom<ITestCaseStarting>(message);
+			var starting = Assert.IsType<ITestCaseStarting>(message, exactMatch: false);
 
 			VerifyTestCaseMessage(starting);
 			Assert.True(starting.Explicit);

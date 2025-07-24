@@ -54,7 +54,7 @@ public class TestRunnerBaseTests
 				runner.MessageBus.Messages,
 				message =>
 				{
-					var starting = Assert.IsAssignableFrom<ITestStarting>(message);
+					var starting = Assert.IsType<ITestStarting>(message, exactMatch: false);
 					verifyTestMessage(starting);
 
 					starting_StartTime = starting.StartTime;
@@ -65,7 +65,7 @@ public class TestRunnerBaseTests
 				},
 				message =>
 				{
-					var passed = Assert.IsAssignableFrom<ITestPassed>(message);
+					var passed = Assert.IsType<ITestPassed>(message, exactMatch: false);
 					verifyTestMessage(passed);
 
 					passed_ExecutionTime = passed.ExecutionTime;
@@ -78,7 +78,7 @@ public class TestRunnerBaseTests
 				},
 				message =>
 				{
-					var finished = Assert.IsAssignableFrom<ITestFinished>(message);
+					var finished = Assert.IsType<ITestFinished>(message, exactMatch: false);
 					verifyTestMessage(finished);
 
 					var attachment = Assert.Single(finished.Attachments);
@@ -136,10 +136,10 @@ public class TestRunnerBaseTests
 			}, runner.Invocations);
 			Assert.Collection(
 				runner.MessageBus.Messages,
-				message => Assert.IsAssignableFrom<ITestStarting>(message),
+				message => Assert.IsType<ITestStarting>(message, exactMatch: false),
 				message =>
 				{
-					var failed = Assert.IsAssignableFrom<ITestFailed>(message);
+					var failed = Assert.IsType<ITestFailed>(message, exactMatch: false);
 					Assert.Equal(FailureCause.Assertion, failed.Cause);
 					Assert.Equal(-1, failed.ExceptionParentIndices.Single());
 					Assert.Equal(typeof(TrueException).FullName, failed.ExceptionTypes.Single());
@@ -147,7 +147,7 @@ public class TestRunnerBaseTests
 					Assert.Equal("the output", failed.Output);
 					Assert.NotEmpty(failed.StackTraces);
 				},
-				message => Assert.IsAssignableFrom<ITestFinished>(message)
+				message => Assert.IsType<ITestFinished>(message, exactMatch: false)
 			);
 		}
 
@@ -178,13 +178,13 @@ public class TestRunnerBaseTests
 			}, runner.Invocations);
 			Assert.Collection(
 				runner.MessageBus.Messages,
-				message => Assert.IsAssignableFrom<ITestStarting>(message),
+				message => Assert.IsType<ITestStarting>(message, exactMatch: false),
 				message =>
 				{
-					var skipped = Assert.IsAssignableFrom<ITestSkipped>(message);
+					var skipped = Assert.IsType<ITestSkipped>(message, exactMatch: false);
 					Assert.Equal("Don't run me", skipped.Reason);
 				},
-				message => Assert.IsAssignableFrom<ITestFinished>(message)
+				message => Assert.IsType<ITestFinished>(message, exactMatch: false)
 			);
 		}
 
@@ -219,9 +219,9 @@ public class TestRunnerBaseTests
 			}, runner.Invocations);
 			Assert.Collection(
 				runner.MessageBus.Messages,
-				message => Assert.IsAssignableFrom<ITestStarting>(message),
-				message => Assert.IsAssignableFrom<ITestNotRun>(message),
-				message => Assert.IsAssignableFrom<ITestFinished>(message)
+				message => Assert.IsType<ITestStarting>(message, exactMatch: false),
+				message => Assert.IsType<ITestNotRun>(message, exactMatch: false),
+				message => Assert.IsType<ITestFinished>(message, exactMatch: false)
 			);
 		}
 	}

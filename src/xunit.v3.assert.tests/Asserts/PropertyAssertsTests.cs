@@ -66,7 +66,7 @@ public class PropertyAssertsTests
 		public async Task GuardClauses()
 		{
 			await Assert.ThrowsAsync<ArgumentNullException>("object", () => Assert.PropertyChangedAsync(null!, "propertyName", () => Task.FromResult(0)));
-			await Assert.ThrowsAsync<ArgumentNullException>("testCode", () => Assert.PropertyChangedAsync(Substitute.For<INotifyPropertyChanged>(), "propertyName", default(Func<Task>)!));
+			await Assert.ThrowsAsync<ArgumentNullException>("testCode", () => Assert.PropertyChangedAsync(Substitute.For<INotifyPropertyChanged>(), "propertyName", default!));
 		}
 
 		[Fact]

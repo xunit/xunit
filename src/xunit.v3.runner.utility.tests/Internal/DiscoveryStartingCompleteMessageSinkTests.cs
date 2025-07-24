@@ -18,7 +18,7 @@ public class DiscoveryStartingCompleteMessageSinkTests
 			spySink.Messages,
 			msg =>
 			{
-				var starting = Assert.IsAssignableFrom<IDiscoveryStarting>(msg);
+				var starting = Assert.IsType<IDiscoveryStarting>(msg, exactMatch: false);
 				Assert.Equal("display-name", starting.AssemblyName);
 				Assert.Equal("assembly-file", starting.AssemblyPath);
 				Assert.Equal(assemblyUniqueID, starting.AssemblyUniqueID);
@@ -26,7 +26,7 @@ public class DiscoveryStartingCompleteMessageSinkTests
 			},
 			msg =>
 			{
-				var complete = Assert.IsAssignableFrom<IDiscoveryComplete>(msg);
+				var complete = Assert.IsType<IDiscoveryComplete>(msg, exactMatch: false);
 				Assert.Equal(assemblyUniqueID, complete.AssemblyUniqueID);
 				Assert.Equal(0, complete.TestCasesToRun);
 			}
@@ -52,7 +52,7 @@ public class DiscoveryStartingCompleteMessageSinkTests
 			spySink.Messages,
 			msg =>
 			{
-				var starting = Assert.IsAssignableFrom<IDiscoveryStarting>(msg);
+				var starting = Assert.IsType<IDiscoveryStarting>(msg, exactMatch: false);
 				Assert.Equal("display-name", starting.AssemblyName);
 				Assert.Equal("assembly-file", starting.AssemblyPath);
 				Assert.Equal("assembly-id-1", starting.AssemblyUniqueID);
@@ -62,7 +62,7 @@ public class DiscoveryStartingCompleteMessageSinkTests
 			msg => Assert.Same(discovery2, msg),
 			msg =>
 			{
-				var complete = Assert.IsAssignableFrom<IDiscoveryComplete>(msg);
+				var complete = Assert.IsType<IDiscoveryComplete>(msg, exactMatch: false);
 				Assert.Equal("assembly-id-1", complete.AssemblyUniqueID);
 				Assert.Equal(2, complete.TestCasesToRun);
 			}

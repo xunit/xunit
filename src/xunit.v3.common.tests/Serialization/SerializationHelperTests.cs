@@ -456,7 +456,9 @@ public class SerializationHelperTests
 
 		class ClassWithGenericMethod
 		{
+#pragma warning disable CA1822 // Mark members as static
 			public void GenericMethod<U>() { }
+#pragma warning restore CA1822 // Mark members as static
 		}
 
 		[Fact]
@@ -546,7 +548,9 @@ public class SerializationHelperTests
 
 		class ClassWithGenericMethod
 		{
+#pragma warning disable CA1822 // Mark members as static
 			public void GenericMethod<U>() { }
+#pragma warning restore CA1822 // Mark members as static
 		}
 
 		[CulturedTheory(["en-US", "fo-FO"], DisableDiscoveryEnumeration = true)]

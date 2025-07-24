@@ -20,9 +20,9 @@ public class TestCaseRunnerTests
 
 			Assert.Collection(
 				runner.MessageBus.Messages,
-				message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
+				message => Assert.IsType<ITestCaseStarting>(message, exactMatch: false),
 				// We're delegating to RunTest (abstract) so no lower messages
-				message => Assert.IsAssignableFrom<ITestCaseFinished>(message)
+				message => Assert.IsType<ITestCaseFinished>(message, exactMatch: false)
 			);
 		}
 
@@ -36,19 +36,19 @@ public class TestCaseRunnerTests
 
 			Assert.Collection(
 				runner.MessageBus.Messages,
-				message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
+				message => Assert.IsType<ITestCaseStarting>(message, exactMatch: false),
 				// FailTest sends all the failure messages
-				message => Assert.IsAssignableFrom<ITestStarting>(message),
+				message => Assert.IsType<ITestStarting>(message, exactMatch: false),
 				message =>
 				{
-					var failed = Assert.IsAssignableFrom<ITestFailed>(message);
+					var failed = Assert.IsType<ITestFailed>(message, exactMatch: false);
 					Assert.Equal(new[] { -1 }, failed.ExceptionParentIndices);
 					Assert.Equal(new[] { "System.DivideByZeroException" }, failed.ExceptionTypes);
 					Assert.Equal(new[] { "Attempted to divide by zero." }, failed.Messages);
 					Assert.NotEmpty(failed.StackTraces.Single()!);
 				},
-				message => Assert.IsAssignableFrom<ITestFinished>(message),
-				message => Assert.IsAssignableFrom<ITestCaseFinished>(message)
+				message => Assert.IsType<ITestFinished>(message, exactMatch: false),
+				message => Assert.IsType<ITestCaseFinished>(message, exactMatch: false)
 			);
 		}
 

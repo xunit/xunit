@@ -111,6 +111,8 @@ public class RecordTests
 			Assert.Null(ex);
 		}
 
+#pragma warning disable CA1822 // Mark members as static
+
 		class StubAccessor
 		{
 			public int SuccessfulProperty { get; set; }
@@ -120,5 +122,7 @@ public class RecordTests
 				get { throw new InvalidOperationException(); }
 			}
 		}
+
+#pragma warning restore CA1822 // Mark members as static
 	}
 }

@@ -23,7 +23,7 @@ public static class TestAssemblyRunnerTests
 			await runner.OnError(ex!);
 
 			var message = Assert.Single(runner.MessageSink.Messages);
-			var error = Assert.IsAssignableFrom<IErrorMessage>(message);
+			var error = Assert.IsType<IErrorMessage>(message, exactMatch: false);
 
 			Assert.Equal(-1, error.ExceptionParentIndices.Single());
 			Assert.Equal(typeof(DivideByZeroException).FullName, error.ExceptionTypes.Single());
@@ -40,7 +40,7 @@ public static class TestAssemblyRunnerTests
 			await runner.OnTestAssemblyCleanupFailure(ex!);
 
 			var message = Assert.Single(runner.MessageSink.Messages);
-			var failure = Assert.IsAssignableFrom<ITestAssemblyCleanupFailure>(message);
+			var failure = Assert.IsType<ITestAssemblyCleanupFailure>(message, exactMatch: false);
 
 			VerifyTestAssemblyMessage(failure);
 			Assert.Equal(-1, failure.ExceptionParentIndices.Single());
@@ -58,7 +58,7 @@ public static class TestAssemblyRunnerTests
 			await runner.OnTestAssemblyFinished(summary);
 
 			var message = Assert.Single(runner.MessageSink.Messages);
-			var finished = Assert.IsAssignableFrom<ITestAssemblyFinished>(message);
+			var finished = Assert.IsType<ITestAssemblyFinished>(message, exactMatch: false);
 
 			VerifyTestAssemblyMessage(finished);
 			Assert.Equal(123.45m, finished.ExecutionTime);
@@ -77,7 +77,7 @@ public static class TestAssemblyRunnerTests
 			await runner.OnTestAssemblyStarting();
 
 			var message = Assert.Single(runner.MessageSink.Messages);
-			var starting = Assert.IsAssignableFrom<ITestAssemblyStarting>(message);
+			var starting = Assert.IsType<ITestAssemblyStarting>(message, exactMatch: false);
 
 			VerifyTestAssemblyMessage(starting);
 			Assert.Equal("test-assembly", starting.AssemblyName);

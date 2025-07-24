@@ -142,12 +142,16 @@ namespace SomeNamespace
 				throw new NotImplementedException();
 	}
 
+#pragma warning disable CA1822 // Mark members as static
+
 	abstract class BaseClass
 	{
 		public void BaseMethod() { }
 
 		public static void BaseStaticMethod() { }
 	}
+
+#pragma warning restore CA1822 // Mark members as static
 
 	[BeforeAfterOnCollection]
 	class BeforeAfterCollection { }
@@ -158,6 +162,8 @@ namespace SomeNamespace
 		public void InterfaceMethod() { }
 #endif
 	}
+
+#pragma warning disable CA1822 // Mark members as static
 
 	[BeforeAfterOnClass]
 	[Collection("foo")]
@@ -177,4 +183,6 @@ namespace SomeNamespace
 
 		void PrivateMethod() { }
 	}
+
+#pragma warning restore CA1822 // Mark members as static
 }

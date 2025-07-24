@@ -43,7 +43,7 @@ public class CrashDetectionExecutionSinkTests
 			innerSink.Messages,
 			msg =>
 			{
-				var starting = Assert.IsAssignableFrom<ITestAssemblyStarting>(msg);
+				var starting = Assert.IsType<ITestAssemblyStarting>(msg, exactMatch: false);
 				Assert.Equal(Path.GetFileNameWithoutExtension(assemblyFileName), starting.AssemblyName);
 				Assert.Equal(assemblyFileName, starting.AssemblyPath);
 				Assert.Equal(assemblyUniqueID, starting.AssemblyUniqueID);
@@ -57,7 +57,7 @@ public class CrashDetectionExecutionSinkTests
 			},
 			msg =>
 			{
-				var error = Assert.IsAssignableFrom<IErrorMessage>(msg);
+				var error = Assert.IsType<IErrorMessage>(msg, exactMatch: false);
 				Assert.Equal(-1, error.ExceptionParentIndices.Single());
 				Assert.Equal(typeof(TestPipelineException).SafeName(), error.ExceptionTypes.Single());
 				Assert.Equal("Test process crashed or communication channel was lost.", error.Messages.Single());
@@ -66,7 +66,7 @@ public class CrashDetectionExecutionSinkTests
 			msg =>
 			{
 				// We don't know what the final totals are supposed to be, so we set it as 1 run, 1 failed
-				var finished = Assert.IsAssignableFrom<ITestAssemblyFinished>(msg);
+				var finished = Assert.IsType<ITestAssemblyFinished>(msg, exactMatch: false);
 				Assert.Equal(assemblyUniqueID, finished.AssemblyUniqueID);
 				Assert.Equal(0, finished.ExecutionTime);
 				Assert.Equal(now, finished.FinishTime);
@@ -94,7 +94,7 @@ public class CrashDetectionExecutionSinkTests
 			msg => Assert.Same(starting, msg),
 			msg =>
 			{
-				var error = Assert.IsAssignableFrom<IErrorMessage>(msg);
+				var error = Assert.IsType<IErrorMessage>(msg, exactMatch: false);
 				Assert.Equal(-1, error.ExceptionParentIndices.Single());
 				Assert.Equal(typeof(TestPipelineException).SafeName(), error.ExceptionTypes.Single());
 				Assert.Equal("Test process crashed with exit code 42.", error.Messages.Single());
@@ -102,7 +102,7 @@ public class CrashDetectionExecutionSinkTests
 			},
 			msg =>
 			{
-				var finished = Assert.IsAssignableFrom<ITestAssemblyFinished>(msg);
+				var finished = Assert.IsType<ITestAssemblyFinished>(msg, exactMatch: false);
 				Assert.Equal(starting.AssemblyUniqueID, finished.AssemblyUniqueID);
 				Assert.Equal(0, finished.ExecutionTime);
 				Assert.Equal(now, finished.FinishTime);

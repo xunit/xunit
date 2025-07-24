@@ -1,3 +1,5 @@
+#pragma warning disable IDE0056 // Use index operator
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -83,7 +85,7 @@ public class xunitTests
 	}
 
 	[Collection(nameof(EnvironmentHelper.NullifyEnvironmentalReporters))]
-	public class GetReporter : IDisposable
+	public sealed class GetReporter : IDisposable
 	{
 		readonly IDisposable environmentCleanup;
 
@@ -133,7 +135,7 @@ public class xunitTests
 			var explicitReporter = Mocks.RunnerReporter("switch");
 			var implicitReporter = Mocks.RunnerReporter(isEnvironmentallyEnabled: true);
 			var xunit = new Testable_xunit { Reporter = "switch" };
-			xunit.AvailableReporters.AddRange(new[] { explicitReporter, implicitReporter });
+			xunit.AvailableReporters.AddRange([explicitReporter, implicitReporter]);
 
 			var reporter = xunit.GetReporter();
 
@@ -159,7 +161,7 @@ public class xunitTests
 			var implicitReporter1 = Mocks.RunnerReporter(isEnvironmentallyEnabled: true);
 			var implicitReporter2 = Mocks.RunnerReporter(isEnvironmentallyEnabled: true);
 			var xunit = new Testable_xunit();
-			xunit.AvailableReporters.AddRange(new[] { explicitReporter, implicitReporter1, implicitReporter2 });
+			xunit.AvailableReporters.AddRange([explicitReporter, implicitReporter1, implicitReporter2]);
 
 			var reporter = xunit.GetReporter();
 
@@ -182,7 +184,7 @@ public class xunitTests
 		public void BadChosenReporter_WithAvailableReporters()
 		{
 			var xunit = new Testable_xunit { Reporter = "foo" };
-			xunit.AvailableReporters.AddRange(new[] { Mocks.RunnerReporter("switch1"), Mocks.RunnerReporter("switch2") });
+			xunit.AvailableReporters.AddRange([Mocks.RunnerReporter("switch1"), Mocks.RunnerReporter("switch2")]);
 
 			var reporter = xunit.GetReporter();
 
@@ -203,7 +205,7 @@ public class xunitTests
 		public Testable_xunit(int exitCode)
 		{
 			BuildEngine = Substitute.For<IBuildEngine>();
-			Assemblies = new ITaskItem[0];
+			Assemblies = [];
 			ExitCode = exitCode;
 		}
 

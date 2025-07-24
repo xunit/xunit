@@ -84,7 +84,7 @@ public abstract class AcceptanceTestAssembly :
 		ResolveReferenceFrom(reference, TargetFrameworkReferencePaths) ??
 		reference;
 
-	protected string? ResolveReferenceFrom(
+	protected static string? ResolveReferenceFrom(
 		string reference,
 		params string[] paths)
 	{

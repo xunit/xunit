@@ -39,9 +39,10 @@ public class InProcessFrontControllerTests
 		[Fact]
 		public async ValueTask GuardClauses()
 		{
+			static bool filter(ITestCase testCase) => true;
+
 			var frontController = TestableInProcessFrontController.Create();
 			var options = TestData.TestFrameworkDiscoveryOptions();
-			var filter = (ITestCase testCase) => true;
 			using var cts = new CancellationTokenSource();
 
 			await Assert.ThrowsAsync<ArgumentNullException>("options", () => frontController.Find(null, null!, filter, cts).AsTask());
@@ -52,10 +53,11 @@ public class InProcessFrontControllerTests
 		[Fact]
 		public async ValueTask SendsStartingAndCompleteMessages()
 		{
+			static bool filter(ITestCase testCase) => true;
+
 			var frontController = TestableInProcessFrontController.Create(configFilePath: "/path/to/config.json");
 			var messageSink = SpyMessageSink.Capture();
 			var options = TestData.TestFrameworkDiscoveryOptions();
-			var filter = (ITestCase testCase) => true;
 			using var cts = new CancellationTokenSource();
 
 			await frontController.Find(messageSink, options, filter, cts);
@@ -64,7 +66,7 @@ public class InProcessFrontControllerTests
 				messageSink.Messages,
 				msg =>
 				{
-					var starting = Assert.IsAssignableFrom<IDiscoveryStarting>(msg);
+					var starting = Assert.IsType<IDiscoveryStarting>(msg, exactMatch: false);
 #if BUILD_X86 && NETFRAMEWORK
 					Assert.StartsWith("xunit.v3.core.netfx.x86.tests", starting.AssemblyName);
 					Assert.Equal("xunit.v3.core.netfx.x86.tests", Path.GetFileNameWithoutExtension(starting.AssemblyPath));
@@ -83,7 +85,7 @@ public class InProcessFrontControllerTests
 				},
 				msg =>
 				{
-					var complete = Assert.IsAssignableFrom<IDiscoveryComplete>(msg);
+					var complete = Assert.IsType<IDiscoveryComplete>(msg, exactMatch: false);
 					Assert.Equal(frontController.TestAssemblyUniqueID, complete.AssemblyUniqueID);
 					Assert.Equal(0, complete.TestCasesToRun);
 				}
@@ -98,19 +100,21 @@ public class InProcessFrontControllerTests
 			var options = TestData.TestFrameworkDiscoveryOptions();
 			var validTestCase = Mocks.XunitTestCase<Find>(nameof(ReportsDiscoveredTestCasesAndCountsTestCasesWhichPassFilter));
 			var invalidTestCase = Mocks.XunitTestCase<Find>(nameof(SendsStartingAndCompleteMessages));
-			var filter = (ITestCase testCase) => testCase == validTestCase;
+			bool filter(ITestCase testCase) => testCase == validTestCase;
 			using var cts = new CancellationTokenSource();
 			var callbackCalls = new List<(ITestCase testCase, bool passedFilter)>();
+
+#pragma warning disable CA2012 // Use ValueTasks correctly
+#pragma warning disable xUnit1031  // Test methods must not use blocking task operations
+
 			frontController
 				.Discoverer
 				.WhenForAnyArgs(d => d.Find(null!, null!))
 				.Do(callInfo =>
 				{
 					var callback = callInfo.Arg<Func<ITestCase, ValueTask<bool>>>();
-#pragma warning disable xUnit1031  // Test methods must not use blocking task operations
 					callback(validTestCase).GetAwaiter().GetResult();
 					callback(invalidTestCase).GetAwaiter().GetResult();
-#pragma warning restore xUnit1031  // Test methods must not use blocking task operations
 				});
 			ValueTask<bool> frontControllerCallback(
 				ITestCase testCase,
@@ -119,6 +123,9 @@ public class InProcessFrontControllerTests
 				callbackCalls.Add((testCase, passedFilter));
 				return new(true);
 			}
+
+#pragma warning restore xUnit1031  // Test methods must not use blocking task operations
+#pragma warning restore CA2012 // Use ValueTasks correctly
 
 			await frontController.Find(messageSink, options, filter, cts, discoveryCallback: frontControllerCallback);
 
@@ -145,11 +152,12 @@ public class InProcessFrontControllerTests
 		[Fact]
 		public async ValueTask GuardClauses()
 		{
+			static bool filter(ITestCase testCase) => true;
+
 			var frontController = TestableInProcessFrontController.Create();
 			var messageSink = SpyMessageSink.Capture();
 			var discoveryOptions = TestData.TestFrameworkDiscoveryOptions();
 			var executionOptions = TestData.TestFrameworkExecutionOptions();
-			var filter = (ITestCase testCase) => true;
 			using var cts = new CancellationTokenSource();
 
 			await Assert.ThrowsAsync<ArgumentNullException>("messageSink", () => frontController.FindAndRun(null!, discoveryOptions, executionOptions, filter, cts).AsTask());
@@ -168,24 +176,29 @@ public class InProcessFrontControllerTests
 			var executionOptions = TestData.TestFrameworkExecutionOptions();
 			var validTestCase = Mocks.XunitTestCase<FindAndRun>(nameof(RunsTestCasesWhichPassFilter));
 			var invalidTestCase = Mocks.XunitTestCase<Find>(nameof(GuardClauses));
-			var filter = (ITestCase testCase) => testCase == validTestCase;
+			bool filter(ITestCase testCase) => testCase == validTestCase;
 			using var cts = new CancellationTokenSource();
 			var executedTestCases = default(IReadOnlyCollection<ITestCase>?);
+
+#pragma warning disable CA2012 // Use ValueTasks correctly
+#pragma warning disable xUnit1031  // Test methods must not use blocking task operations
+
 			frontController
 				.Discoverer
 				.WhenForAnyArgs(d => d.Find(null!, null!))
 				.Do(callInfo =>
 				{
 					var callback = callInfo.Arg<Func<ITestCase, ValueTask<bool>>>();
-#pragma warning disable xUnit1031  // Test methods must not use blocking task operations
 					callback(validTestCase).GetAwaiter().GetResult();
 					callback(invalidTestCase).GetAwaiter().GetResult();
-#pragma warning restore xUnit1031  // Test methods must not use blocking task operations
 				});
 			frontController
 				.Executor
 				.WhenForAnyArgs(e => e.RunTestCases(null!, null!, null!))
 				.Do(callInfo => executedTestCases = callInfo.Arg<IReadOnlyCollection<ITestCase>>());
+
+#pragma warning restore xUnit1031  // Test methods must not use blocking task operations
+#pragma warning restore CA2012 // Use ValueTasks correctly
 
 			await frontController.FindAndRun(messageSink, discoveryOptions, executionOptions, filter, cts);
 
@@ -206,21 +219,26 @@ public class InProcessFrontControllerTests
 			using var cts = new CancellationTokenSource();
 			var asyncDisposableTestCase = Mocks.XunitTestCase<FindAndRun>(nameof(RunsTestCasesWhichPassFilter), asyncDisposeCallback: () => asyncDisposeCalled = true);
 			var disposableTestCase = Mocks.XunitTestCase<Find>(nameof(GuardClauses), disposeCallback: () => disposeCalled = true);
+
+#pragma warning disable CA2012 // Use ValueTasks correctly
+#pragma warning disable xUnit1031  // Test methods must not use blocking task operations
+
 			frontController
 				.Discoverer
 				.WhenForAnyArgs(d => d.Find(null!, null!))
 				.Do(callInfo =>
 				{
 					var callback = callInfo.Arg<Func<ITestCase, ValueTask<bool>>>();
-#pragma warning disable xUnit1031  // Test methods must not use blocking task operations
 					callback(asyncDisposableTestCase).GetAwaiter().GetResult();
 					callback(disposableTestCase).GetAwaiter().GetResult();
-#pragma warning restore xUnit1031  // Test methods must not use blocking task operations
 				});
 			frontController
 				.Executor
 				.WhenForAnyArgs(e => e.RunTestCases(null!, null!, null!))
 				.Do(callInfo => { });
+
+#pragma warning restore xUnit1031  // Test methods must not use blocking task operations
+#pragma warning restore CA2012 // Use ValueTasks correctly
 
 			// Use a false filter to ensure that test cases to disposed even if they weren't run
 			await frontController.FindAndRun(messageSink, discoveryOptions, executionOptions, filter: testCase => false, cts);

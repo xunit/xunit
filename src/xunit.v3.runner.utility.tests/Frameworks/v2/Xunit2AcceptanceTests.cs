@@ -23,7 +23,7 @@ public class Xunit2AcceptanceTests
 			controller.Find(sink, settings);
 			sink.Finished.WaitOne();
 
-			Assert.IsAssignableFrom<IDiscoveryStarting>(sink.Messages.First());
+			Assert.IsType<IDiscoveryStarting>(sink.Messages.First(), exactMatch: false);
 			Assert.DoesNotContain(sink.Messages, msg => msg is ITestCaseDiscovered);
 		}
 
@@ -182,13 +182,9 @@ let CustomName() =
 					testCase =>
 					{
 						Assert.Equal("FSharpTests.Trait", testCase.TestCaseDisplayName);
-						Assert.Collection(testCase.Traits,
-							kvp =>
-							{
-								Assert.Equal("Name!", kvp.Key);
-								Assert.Equal("Value!", kvp.Value.Single());
-							}
-						);
+						var kvp = Assert.Single(testCase.Traits);
+						Assert.Equal("Name!", kvp.Key);
+						Assert.Equal("Value!", kvp.Value.Single());
 					}
 				);
 			}

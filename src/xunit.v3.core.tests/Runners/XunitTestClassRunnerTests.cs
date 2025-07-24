@@ -25,7 +25,7 @@ public class XunitTestClassRunnerTests
 				runner.MessageBus.Messages,
 				msg =>
 				{
-					var starting = Assert.IsAssignableFrom<ITestClassStarting>(msg);
+					var starting = Assert.IsType<ITestClassStarting>(msg, exactMatch: false);
 					verifyTestClassMessage(starting);
 					Assert.Equal(typeof(ClassUnderTest).SafeName(), starting.TestClassName);
 					Assert.Null(starting.TestClassNamespace);
@@ -36,19 +36,19 @@ public class XunitTestClassRunnerTests
 					var value = Assert.Single(trait.Value);
 					Assert.Equal("Trait", value);
 				},
-				msg => Assert.IsAssignableFrom<ITestMethodStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestCaseStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestClassConstructionStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestClassConstructionFinished>(msg),
+				msg => Assert.IsType<ITestMethodStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestCaseStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestClassConstructionStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestClassConstructionFinished>(msg, exactMatch: false),
 				// ...invocation happens here...
-				msg => Assert.IsAssignableFrom<ITestClassDisposeStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestClassDisposeFinished>(msg),
-				msg => Assert.IsAssignableFrom<ITestPassed>(msg),
-				msg => Assert.IsAssignableFrom<ITestFinished>(msg),
-				msg => Assert.IsAssignableFrom<ITestCaseFinished>(msg),
-				msg => Assert.IsAssignableFrom<ITestMethodFinished>(msg),
-				msg => verifyTestClassMessage(Assert.IsAssignableFrom<ITestClassFinished>(msg))
+				msg => Assert.IsType<ITestClassDisposeStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestClassDisposeFinished>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestPassed>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestFinished>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestCaseFinished>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestMethodFinished>(msg, exactMatch: false),
+				msg => verifyTestClassMessage(Assert.IsType<ITestClassFinished>(msg, exactMatch: false))
 			);
 
 			static void verifyTestClassMessage(ITestClassMessage message)
@@ -69,16 +69,16 @@ public class XunitTestClassRunnerTests
 
 			Assert.Collection(
 				runner.MessageBus.Messages,
-				msg => Assert.IsAssignableFrom<ITestClassStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestMethodStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestCaseStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestStarting>(msg),
+				msg => Assert.IsType<ITestClassStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestMethodStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestCaseStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestStarting>(msg, exactMatch: false),
 				// ...invocation happens here...
-				msg => Assert.IsAssignableFrom<ITestPassed>(msg),
-				msg => Assert.IsAssignableFrom<ITestFinished>(msg),
-				msg => Assert.IsAssignableFrom<ITestCaseFinished>(msg),
-				msg => Assert.IsAssignableFrom<ITestMethodFinished>(msg),
-				msg => Assert.IsAssignableFrom<ITestClassFinished>(msg)
+				msg => Assert.IsType<ITestPassed>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestFinished>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestCaseFinished>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestMethodFinished>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestClassFinished>(msg, exactMatch: false)
 			);
 		}
 
@@ -92,25 +92,25 @@ public class XunitTestClassRunnerTests
 
 			Assert.Collection(
 				runner.MessageBus.Messages,
-				msg => Assert.IsAssignableFrom<ITestClassStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestMethodStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestCaseStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestClassConstructionStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestClassConstructionFinished>(msg),
+				msg => Assert.IsType<ITestClassStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestMethodStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestCaseStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestClassConstructionStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestClassConstructionFinished>(msg, exactMatch: false),
 				// ...invocation happens here...
-				msg => Assert.IsAssignableFrom<ITestClassDisposeStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestClassDisposeFinished>(msg),
+				msg => Assert.IsType<ITestClassDisposeStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestClassDisposeFinished>(msg, exactMatch: false),
 				msg =>
 				{
-					var failed = Assert.IsAssignableFrom<ITestFailed>(msg);
+					var failed = Assert.IsType<ITestFailed>(msg, exactMatch: false);
 					Assert.Equal(-1, failed.ExceptionParentIndices.Single());
 					Assert.Equal("Xunit.Sdk.TrueException", failed.ExceptionTypes.Single());
 				},
-				msg => Assert.IsAssignableFrom<ITestFinished>(msg),
-				msg => Assert.IsAssignableFrom<ITestCaseFinished>(msg),
-				msg => Assert.IsAssignableFrom<ITestMethodFinished>(msg),
-				msg => Assert.IsAssignableFrom<ITestClassFinished>(msg)
+				msg => Assert.IsType<ITestFinished>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestCaseFinished>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestMethodFinished>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestClassFinished>(msg, exactMatch: false)
 			);
 		}
 
@@ -124,20 +124,20 @@ public class XunitTestClassRunnerTests
 
 			Assert.Collection(
 				runner.MessageBus.Messages,
-				msg => Assert.IsAssignableFrom<ITestClassStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestMethodStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestCaseStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestStarting>(msg),
+				msg => Assert.IsType<ITestClassStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestMethodStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestCaseStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestStarting>(msg, exactMatch: false),
 				// ...no invocation since it's skipped...
 				msg =>
 				{
-					var skipped = Assert.IsAssignableFrom<ITestSkipped>(msg);
+					var skipped = Assert.IsType<ITestSkipped>(msg, exactMatch: false);
 					Assert.Equal("Don't run me", skipped.Reason);
 				},
-				msg => Assert.IsAssignableFrom<ITestFinished>(msg),
-				msg => Assert.IsAssignableFrom<ITestCaseFinished>(msg),
-				msg => Assert.IsAssignableFrom<ITestMethodFinished>(msg),
-				msg => Assert.IsAssignableFrom<ITestClassFinished>(msg)
+				msg => Assert.IsType<ITestFinished>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestCaseFinished>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestMethodFinished>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestClassFinished>(msg, exactMatch: false)
 			);
 		}
 
@@ -151,24 +151,24 @@ public class XunitTestClassRunnerTests
 
 			Assert.Collection(
 				runner.MessageBus.Messages,
-				msg => Assert.IsAssignableFrom<ITestClassStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestMethodStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestCaseStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestClassConstructionStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestClassConstructionFinished>(msg),
+				msg => Assert.IsType<ITestClassStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestMethodStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestCaseStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestClassConstructionStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestClassConstructionFinished>(msg, exactMatch: false),
 				// ...invocation happens here...
-				msg => Assert.IsAssignableFrom<ITestClassDisposeStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestClassDisposeFinished>(msg),
+				msg => Assert.IsType<ITestClassDisposeStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestClassDisposeFinished>(msg, exactMatch: false),
 				msg =>
 				{
-					var skipped = Assert.IsAssignableFrom<ITestSkipped>(msg);
+					var skipped = Assert.IsType<ITestSkipped>(msg, exactMatch: false);
 					Assert.Equal("This isn't a good time", skipped.Reason);
 				},
-				msg => Assert.IsAssignableFrom<ITestFinished>(msg),
-				msg => Assert.IsAssignableFrom<ITestCaseFinished>(msg),
-				msg => Assert.IsAssignableFrom<ITestMethodFinished>(msg),
-				msg => Assert.IsAssignableFrom<ITestClassFinished>(msg)
+				msg => Assert.IsType<ITestFinished>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestCaseFinished>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestMethodFinished>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestClassFinished>(msg, exactMatch: false)
 			);
 		}
 
@@ -182,24 +182,24 @@ public class XunitTestClassRunnerTests
 
 			Assert.Collection(
 				runner.MessageBus.Messages,
-				msg => Assert.IsAssignableFrom<ITestClassStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestMethodStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestCaseStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestClassConstructionStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestClassConstructionFinished>(msg),
+				msg => Assert.IsType<ITestClassStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestMethodStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestCaseStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestClassConstructionStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestClassConstructionFinished>(msg, exactMatch: false),
 				// ...invocation happens here...
-				msg => Assert.IsAssignableFrom<ITestClassDisposeStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestClassDisposeFinished>(msg),
+				msg => Assert.IsType<ITestClassDisposeStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestClassDisposeFinished>(msg, exactMatch: false),
 				msg =>
 				{
-					var skipped = Assert.IsAssignableFrom<ITestSkipped>(msg);
+					var skipped = Assert.IsType<ITestSkipped>(msg, exactMatch: false);
 					Assert.Equal("Dividing by zero is really tough", skipped.Reason);
 				},
-				msg => Assert.IsAssignableFrom<ITestFinished>(msg),
-				msg => Assert.IsAssignableFrom<ITestCaseFinished>(msg),
-				msg => Assert.IsAssignableFrom<ITestMethodFinished>(msg),
-				msg => Assert.IsAssignableFrom<ITestClassFinished>(msg)
+				msg => Assert.IsType<ITestFinished>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestCaseFinished>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestMethodFinished>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestClassFinished>(msg, exactMatch: false)
 			);
 		}
 
@@ -213,15 +213,15 @@ public class XunitTestClassRunnerTests
 
 			Assert.Collection(
 				runner.MessageBus.Messages,
-				msg => Assert.IsAssignableFrom<ITestClassStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestMethodStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestCaseStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestNotRun>(msg),
-				msg => Assert.IsAssignableFrom<ITestFinished>(msg),
-				msg => Assert.IsAssignableFrom<ITestCaseFinished>(msg),
-				msg => Assert.IsAssignableFrom<ITestMethodFinished>(msg),
-				msg => Assert.IsAssignableFrom<ITestClassFinished>(msg)
+				msg => Assert.IsType<ITestClassStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestMethodStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestCaseStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestNotRun>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestFinished>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestCaseFinished>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestMethodFinished>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestClassFinished>(msg, exactMatch: false)
 			);
 		}
 
@@ -261,20 +261,20 @@ public class XunitTestClassRunnerTests
 
 			Assert.Collection(
 				runner.MessageBus.Messages,
-				msg => Assert.IsAssignableFrom<ITestClassStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestMethodStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestCaseStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestStarting>(msg),
+				msg => Assert.IsType<ITestClassStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestMethodStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestCaseStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestStarting>(msg, exactMatch: false),
 				msg =>
 				{
-					var failed = Assert.IsAssignableFrom<ITestFailed>(msg);
+					var failed = Assert.IsType<ITestFailed>(msg, exactMatch: false);
 					Assert.Equal(typeof(TestPipelineException).SafeName(), Assert.Single(failed.ExceptionTypes));
 					Assert.Equal("A test class may not be decorated with ICollectionFixture<> (decorate the test collection class instead).", Assert.Single(failed.Messages));
 				},
-				msg => Assert.IsAssignableFrom<ITestFinished>(msg),
-				msg => Assert.IsAssignableFrom<ITestCaseFinished>(msg),
-				msg => Assert.IsAssignableFrom<ITestMethodFinished>(msg),
-				msg => Assert.IsAssignableFrom<ITestClassFinished>(msg)
+				msg => Assert.IsType<ITestFinished>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestCaseFinished>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestMethodFinished>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestClassFinished>(msg, exactMatch: false)
 			);
 		}
 
@@ -294,20 +294,20 @@ public class XunitTestClassRunnerTests
 
 			Assert.Collection(
 				runner.MessageBus.Messages,
-				msg => Assert.IsAssignableFrom<ITestClassStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestMethodStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestCaseStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestStarting>(msg),
+				msg => Assert.IsType<ITestClassStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestMethodStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestCaseStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestStarting>(msg, exactMatch: false),
 				msg =>
 				{
-					var failed = Assert.IsAssignableFrom<ITestFailed>(msg);
+					var failed = Assert.IsType<ITestFailed>(msg, exactMatch: false);
 					Assert.Equal(typeof(TestPipelineException).SafeName(), Assert.Single(failed.ExceptionTypes));
 					Assert.Equal("A test class may only define a single public constructor.", Assert.Single(failed.Messages));
 				},
-				msg => Assert.IsAssignableFrom<ITestFinished>(msg),
-				msg => Assert.IsAssignableFrom<ITestCaseFinished>(msg),
-				msg => Assert.IsAssignableFrom<ITestMethodFinished>(msg),
-				msg => Assert.IsAssignableFrom<ITestClassFinished>(msg)
+				msg => Assert.IsType<ITestFinished>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestCaseFinished>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestMethodFinished>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestClassFinished>(msg, exactMatch: false)
 			);
 		}
 
@@ -421,20 +421,20 @@ public class XunitTestClassRunnerTests
 
 			Assert.Collection(
 				runner.MessageBus.Messages,
-				msg => Assert.IsAssignableFrom<ITestClassStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestMethodStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestCaseStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestStarting>(msg),
+				msg => Assert.IsType<ITestClassStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestMethodStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestCaseStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestStarting>(msg, exactMatch: false),
 				msg =>
 				{
-					var failed = Assert.IsAssignableFrom<ITestFailed>(msg);
+					var failed = Assert.IsType<ITestFailed>(msg, exactMatch: false);
 					Assert.Equal(typeof(TestPipelineException).SafeName(), Assert.Single(failed.ExceptionTypes));
 					Assert.Equal($"Class fixture type '{typeof(ClassFixtureWithMultipleConstructors).SafeName()}' may only define a single public constructor.", Assert.Single(failed.Messages));
 				},
-				msg => Assert.IsAssignableFrom<ITestFinished>(msg),
-				msg => Assert.IsAssignableFrom<ITestCaseFinished>(msg),
-				msg => Assert.IsAssignableFrom<ITestMethodFinished>(msg),
-				msg => Assert.IsAssignableFrom<ITestClassFinished>(msg)
+				msg => Assert.IsType<ITestFinished>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestCaseFinished>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestMethodFinished>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestClassFinished>(msg, exactMatch: false)
 			);
 		}
 
@@ -460,20 +460,20 @@ public class XunitTestClassRunnerTests
 
 			Assert.Collection(
 				runner.MessageBus.Messages,
-				msg => Assert.IsAssignableFrom<ITestClassStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestMethodStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestCaseStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestStarting>(msg),
+				msg => Assert.IsType<ITestClassStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestMethodStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestCaseStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestStarting>(msg, exactMatch: false),
 				msg =>
 				{
-					var failed = Assert.IsAssignableFrom<ITestFailed>(msg);
+					var failed = Assert.IsType<ITestFailed>(msg, exactMatch: false);
 					Assert.Equal(typeof(TestPipelineException).SafeName(), Assert.Single(failed.ExceptionTypes));
 					Assert.Equal($"Class fixture type '{typeof(ClassFixtureWithCollectionFixtureDependency).SafeName()}' had one or more unresolved constructor arguments: {nameof(DependentCollectionFixture)} collectionFixture", Assert.Single(failed.Messages));
 				},
-				msg => Assert.IsAssignableFrom<ITestFinished>(msg),
-				msg => Assert.IsAssignableFrom<ITestCaseFinished>(msg),
-				msg => Assert.IsAssignableFrom<ITestMethodFinished>(msg),
-				msg => Assert.IsAssignableFrom<ITestClassFinished>(msg)
+				msg => Assert.IsType<ITestFinished>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestCaseFinished>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestMethodFinished>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestClassFinished>(msg, exactMatch: false)
 			);
 		}
 
@@ -488,18 +488,18 @@ public class XunitTestClassRunnerTests
 
 			Assert.Collection(
 				runner.MessageBus.Messages,
-				msg => Assert.IsAssignableFrom<ITestClassStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestMethodStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestCaseStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestClassConstructionStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestClassConstructionFinished>(msg),
+				msg => Assert.IsType<ITestClassStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestMethodStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestCaseStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestClassConstructionStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestClassConstructionFinished>(msg, exactMatch: false),
 				// ...invocation happens here...
-				msg => Assert.IsAssignableFrom<ITestPassed>(msg),
-				msg => Assert.IsAssignableFrom<ITestFinished>(msg),
-				msg => Assert.IsAssignableFrom<ITestCaseFinished>(msg),
-				msg => Assert.IsAssignableFrom<ITestMethodFinished>(msg),
-				msg => Assert.IsAssignableFrom<ITestClassFinished>(msg)
+				msg => Assert.IsType<ITestPassed>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestFinished>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestCaseFinished>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestMethodFinished>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestClassFinished>(msg, exactMatch: false)
 			);
 		}
 
@@ -621,16 +621,17 @@ public class XunitTestClassRunnerTests
 
 	class CollectionUnderTest : IClassFixture<object> { }
 
-	[TestCaseOrderer(typeof(CustomTestCaseOrderer))]
-	class ClassUnderTest : IClassFixture<FixtureUnderTest>
-	{
 #pragma warning disable xUnit1041 // Fixture arguments to test classes must have fixture sources
-		public ClassUnderTest(FixtureUnderTest _1, string _2, decimal _3) { }
-#pragma warning restore xUnit1041
 
+	[TestCaseOrderer(typeof(CustomTestCaseOrderer))]
+	class ClassUnderTest(FixtureUnderTest _1, string _2, decimal _3) :
+		IClassFixture<FixtureUnderTest>
+	{
 		[Fact]
 		public void Passing() { }
 	}
+
+#pragma warning restore xUnit1041
 
 	class CustomTestCaseOrderer : ITestCaseOrderer
 	{

@@ -87,8 +87,8 @@ public class TestClassCallbackHandlerTests
 		string uiCulture) :
 			BeforeAfterTestAttribute
 	{
-		readonly Lazy<CultureInfo> culture = new Lazy<CultureInfo>(() => new CultureInfo(culture, useUserOverride: false));
-		readonly Lazy<CultureInfo> uiCulture = new Lazy<CultureInfo>(() => new CultureInfo(uiCulture, useUserOverride: false));
+		readonly Lazy<CultureInfo> culture = new(() => new CultureInfo(culture, useUserOverride: false));
+		readonly Lazy<CultureInfo> uiCulture = new(() => new CultureInfo(uiCulture, useUserOverride: false));
 
 		CultureInfo? originalCulture;
 		CultureInfo? originalUICulture;

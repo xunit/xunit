@@ -7,7 +7,7 @@ using Xunit.Sdk;
 
 public class DisposalTrackerTests
 {
-	public class AfterDisposed : IAsyncLifetime
+	public sealed class AfterDisposed : IAsyncLifetime
 	{
 		readonly DisposableClass classToDispose = new();
 		readonly DisposalTracker classUnderTest = new();
@@ -194,36 +194,20 @@ public class DisposalTrackerTests
 			);
 		}
 
-		class TrackingDisposable : IDisposable
+		class TrackingDisposable(
+			string id,
+			List<string> messages) :
+				IDisposable
 		{
-			readonly string id;
-			readonly List<string> messages;
-
-			public TrackingDisposable(
-				string id,
-				List<string> messages)
-			{
-				this.id = id;
-				this.messages = messages;
-			}
-
 			public void Dispose() =>
 				messages.Add($"{id}: Dispose");
 		}
 
-		class TrackingAsyncDisposable : IAsyncDisposable
+		class TrackingAsyncDisposable(
+			string id,
+			List<string> messages) :
+				IAsyncDisposable
 		{
-			readonly string id;
-			readonly List<string> messages;
-
-			public TrackingAsyncDisposable(
-				string id,
-				List<string> messages)
-			{
-				this.id = id;
-				this.messages = messages;
-			}
-
 			public ValueTask DisposeAsync()
 			{
 				messages.Add($"{id}: DisposeAsync");
@@ -231,19 +215,11 @@ public class DisposalTrackerTests
 			}
 		}
 
-		class TrackingMixedDisposable : IDisposable, IAsyncDisposable
+		class TrackingMixedDisposable(
+			string id,
+			List<string> messages) :
+				IDisposable, IAsyncDisposable
 		{
-			readonly string id;
-			readonly List<string> messages;
-
-			public TrackingMixedDisposable(
-				string id,
-				List<string> messages)
-			{
-				this.id = id;
-				this.messages = messages;
-			}
-
 			public void Dispose() =>
 				messages.Add($"{id}: Dispose");
 
@@ -336,7 +312,9 @@ public class DisposalTrackerTests
 		{
 			await classUnderTest.DisposeAsync();
 
+#pragma warning disable CA2012 // Use ValueTasks correctly
 			_ = expected.Received().DisposeAsync();
+#pragma warning restore CA2012 // Use ValueTasks correctly
 		}
 	}
 
@@ -396,7 +374,7 @@ public class DisposalTrackerTests
 
 		class MixedDisposableObject : IDisposable, IAsyncDisposable
 		{
-			public List<string> Operations = new();
+			public List<string> Operations = [];
 
 			public void Dispose() =>
 				Operations.Add("Dispose");

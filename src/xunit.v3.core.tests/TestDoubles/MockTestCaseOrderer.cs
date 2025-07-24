@@ -3,15 +3,9 @@ using System.Linq;
 using Xunit.Sdk;
 using Xunit.v3;
 
-public class MockTestCaseOrderer : ITestCaseOrderer
+public class MockTestCaseOrderer(bool reverse = false) :
+	ITestCaseOrderer
 {
-	private readonly bool reverse;
-
-	public MockTestCaseOrderer(bool reverse = false)
-	{
-		this.reverse = reverse;
-	}
-
 	public IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> testCases)
 		where TTestCase : notnull, ITestCase
 	{

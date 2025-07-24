@@ -5,6 +5,7 @@ using Xunit.v3;
 public class SpyBeforeAfterTest : BeforeAfterTestAttribute
 {
 	public bool ThrowInBefore { get; set; }
+
 	public bool ThrowInAfter { get; set; }
 
 	public override void Before(

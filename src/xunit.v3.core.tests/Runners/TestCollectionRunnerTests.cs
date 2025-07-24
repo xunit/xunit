@@ -20,7 +20,7 @@ public static class TestCollectionRunnerTests
 			await runner.OnError(ex!);
 
 			var message = Assert.Single(runner.MessageBus.Messages);
-			var error = Assert.IsAssignableFrom<IErrorMessage>(message);
+			var error = Assert.IsType<IErrorMessage>(message, exactMatch: false);
 
 			Assert.Equal(-1, error.ExceptionParentIndices.Single());
 			Assert.Equal(typeof(DivideByZeroException).FullName, error.ExceptionTypes.Single());
@@ -37,7 +37,7 @@ public static class TestCollectionRunnerTests
 			await runner.OnTestCollectionCleanupFailure(ex!);
 
 			var message = Assert.Single(runner.MessageBus.Messages);
-			var failure = Assert.IsAssignableFrom<ITestCollectionCleanupFailure>(message);
+			var failure = Assert.IsType<ITestCollectionCleanupFailure>(message, exactMatch: false);
 
 			VerifyTestCollectionMessage(failure);
 			Assert.Equal(-1, failure.ExceptionParentIndices.Single());
@@ -55,7 +55,7 @@ public static class TestCollectionRunnerTests
 			await runner.OnTestCollectionFinished(summary);
 
 			var message = Assert.Single(runner.MessageBus.Messages);
-			var finished = Assert.IsAssignableFrom<ITestCollectionFinished>(message);
+			var finished = Assert.IsType<ITestCollectionFinished>(message, exactMatch: false);
 
 			VerifyTestCollectionMessage(finished);
 			Assert.Equal(123.45m, finished.ExecutionTime);
@@ -73,7 +73,7 @@ public static class TestCollectionRunnerTests
 			await runner.OnTestCollectionStarting();
 
 			var message = Assert.Single(runner.MessageBus.Messages);
-			var starting = Assert.IsAssignableFrom<ITestCollectionStarting>(message);
+			var starting = Assert.IsType<ITestCollectionStarting>(message, exactMatch: false);
 
 			VerifyTestCollectionMessage(starting);
 			Assert.Null(starting.TestCollectionClassName);

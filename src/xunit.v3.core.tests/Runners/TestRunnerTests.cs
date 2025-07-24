@@ -73,9 +73,9 @@ public class TestRunnerTests
 
 			Assert.Collection(
 				runner.MessageBus.Messages,
-				message => Assert.IsAssignableFrom<ITestStarting>(message),
+				message => Assert.IsType<ITestStarting>(message, exactMatch: false),
 				// No result message
-				message => Assert.IsAssignableFrom<ITestFinished>(message)
+				message => Assert.IsType<ITestFinished>(message, exactMatch: false)
 			);
 		}
 
@@ -158,14 +158,14 @@ public class TestRunnerTests
 			);
 			Assert.Collection(
 				runner.MessageBus.Messages,
-				msg => Assert.IsAssignableFrom<ITestStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestClassConstructionStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestClassConstructionFinished>(msg),
+				msg => Assert.IsType<ITestStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestClassConstructionStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestClassConstructionFinished>(msg, exactMatch: false),
 				// InvokeTest
-				msg => Assert.IsAssignableFrom<ITestClassDisposeStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestClassDisposeFinished>(msg),
-				msg => Assert.IsAssignableFrom<ITestPassed>(msg),
-				msg => Assert.IsAssignableFrom<ITestFinished>(msg)
+				msg => Assert.IsType<ITestClassDisposeStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestClassDisposeFinished>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestPassed>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestFinished>(msg, exactMatch: false)
 			);
 		}
 
@@ -206,13 +206,13 @@ public class TestRunnerTests
 			);
 			Assert.Collection(
 				runner.MessageBus.Messages,
-				msg => Assert.IsAssignableFrom<ITestStarting>(msg),
+				msg => Assert.IsType<ITestStarting>(msg, exactMatch: false),
 				// ITestClassConstructionStarting
 				// ITestClassConstructionFinished
 				// ITestClassDisposeStarting
 				// ITestClassDisposeFinished
-				msg => Assert.IsAssignableFrom<ITestFailed>(msg),
-				msg => Assert.IsAssignableFrom<ITestFinished>(msg)
+				msg => Assert.IsType<ITestFailed>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestFinished>(msg, exactMatch: false)
 			);
 		}
 
@@ -249,13 +249,13 @@ public class TestRunnerTests
 			);
 			Assert.Collection(
 				runner.MessageBus.Messages,
-				msg => Assert.IsAssignableFrom<ITestStarting>(msg),
+				msg => Assert.IsType<ITestStarting>(msg, exactMatch: false),
 				// ITestClassConstructionStarting
 				// ITestClassConstructionFinished
 				// ITestClassDisposeStarting
 				// ITestClassDisposeFinished
-				msg => Assert.IsAssignableFrom<ITestSkipped>(msg),
-				msg => Assert.IsAssignableFrom<ITestFinished>(msg)
+				msg => Assert.IsType<ITestSkipped>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestFinished>(msg, exactMatch: false)
 			);
 		}
 
@@ -292,13 +292,13 @@ public class TestRunnerTests
 			);
 			Assert.Collection(
 				runner.MessageBus.Messages,
-				msg => Assert.IsAssignableFrom<ITestStarting>(msg),
+				msg => Assert.IsType<ITestStarting>(msg, exactMatch: false),
 				// ITestClassConstructionStarting
 				// ITestClassConstructionFinished
 				// ITestClassDisposeStarting
 				// ITestClassDisposeFinished
-				msg => Assert.IsAssignableFrom<ITestNotRun>(msg),
-				msg => Assert.IsAssignableFrom<ITestFinished>(msg)
+				msg => Assert.IsType<ITestNotRun>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestFinished>(msg, exactMatch: false)
 			);
 		}
 	}

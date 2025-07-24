@@ -28,7 +28,7 @@ public class SetAssertsTests
 		{
 			var set = new HashSet<string>() { "eleventeen" };
 
-			void assertFailure(Action action)
+			static void assertFailure(Action action)
 			{
 				var ex = Record.Exception(action);
 
@@ -74,7 +74,7 @@ public class SetAssertsTests
 		{
 			var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "forty-two" };
 
-			void assertFailure(Action action)
+			static void assertFailure(Action action)
 			{
 				var ex = Record.Exception(action);
 

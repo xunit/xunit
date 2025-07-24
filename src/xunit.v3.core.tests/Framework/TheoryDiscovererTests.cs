@@ -42,6 +42,8 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		Assert.Equal($"Member '{nameof(NullDataClass.InitializedInConstructor)}' on '{typeof(NullDataClass).FullName}' returned null when queried for test data", failure.Messages.Single());
 	}
 
+#pragma warning disable xUnit1042 // The member referenced by the MemberData attribute returns untyped data rows
+
 	class NullDataClass
 	{
 		public static IEnumerable<object[]>? InitializedInConstructor;
@@ -55,6 +57,8 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		[MemberData(nameof(InitializedInConstructor))]
 		public void NullMemberData(string _1, string _2) { }
 	}
+
+#pragma warning restore xUnit1042 // The member referenced by the MemberData attribute returns untyped data rows
 
 	[Theory]
 	[InlineData(true)]
@@ -295,6 +299,8 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		Assert.Equal($"{typeof(NonDiscoveryOnTheoryAttribute).FullName}.{nameof(NonDiscoveryOnTheoryAttribute.TheoryMethod)}", testCase.TestCaseDisplayName);
 	}
 
+#pragma warning disable xUnit1042 // The member referenced by the MemberData attribute returns untyped data rows
+
 	class NonDiscoveryOnTheoryAttribute
 	{
 		public static IEnumerable<object[]> foo => [];
@@ -305,6 +311,8 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		[MemberData(nameof(bar))]
 		public static void TheoryMethod(int _) { }
 	}
+
+#pragma warning restore xUnit1042 // The member referenced by the MemberData attribute returns untyped data rows
 
 	[Fact]
 	public async ValueTask DiscoveryDisabledOnMemberData_YieldsSingleTheoryTestCase()
@@ -320,6 +328,8 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		Assert.Equal($"{typeof(NonDiscoveryEnumeratedData).FullName}.{nameof(NonDiscoveryEnumeratedData.TheoryMethod)}", testCase.TestCaseDisplayName);
 	}
 
+#pragma warning disable xUnit1042 // The member referenced by the MemberData attribute returns untyped data rows
+
 	class NonDiscoveryEnumeratedData
 	{
 		public static IEnumerable<object[]> foo => [];
@@ -330,6 +340,8 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		[MemberData(nameof(bar), DisableDiscoveryEnumeration = true)]
 		public static void TheoryMethod(int _) { }
 	}
+
+#pragma warning restore xUnit1042 // The member referenced by the MemberData attribute returns untyped data rows
 
 	[Fact]
 	public async ValueTask MixedDiscoveryEnumerationOnMemberData_YieldsSingleTheoryTestCase()
@@ -345,6 +357,8 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		Assert.Equal($"{typeof(MixedDiscoveryEnumeratedData).FullName}.{nameof(MixedDiscoveryEnumeratedData.TheoryMethod)}", testCase.TestCaseDisplayName);
 	}
 
+#pragma warning disable xUnit1042 // The member referenced by the MemberData attribute returns untyped data rows
+
 	class MixedDiscoveryEnumeratedData
 	{
 		public static IEnumerable<object[]> foo => [];
@@ -355,6 +369,8 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		[MemberData(nameof(bar), DisableDiscoveryEnumeration = true)]
 		public static void TheoryMethod(int _) { }
 	}
+
+#pragma warning restore xUnit1042 // The member referenced by the MemberData attribute returns untyped data rows
 
 	[Fact]
 	public async ValueTask SkippedTheoryWithNoData()
@@ -465,6 +481,8 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		);
 	}
 
+#pragma warning disable xUnit1042 // The member referenced by the MemberData attribute returns untyped data rows
+
 	class ClassWithSkippedTheoryDataRows
 	{
 		public static IEnumerable<ITheoryDataRow> Data =>
@@ -475,6 +493,8 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		public void TestWithSomeSkippedTheoryRows(int x) =>
 			Assert.Equal(96, x);
 	}
+
+#pragma warning restore xUnit1042 // The member referenced by the MemberData attribute returns untyped data rows
 
 	[Fact]
 	public async ValueTask CanAddTraitsFromTheoryDataRow_PreEnumerated()
@@ -555,6 +575,8 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		);
 	}
 
+#pragma warning disable xUnit1042 // The member referenced by the MemberData attribute returns untyped data rows
+
 	[Trait("Class", "ClassWithTraitsOnTheoryDataRows")]
 	class ClassWithTraitsOnTheoryDataRows
 	{
@@ -572,6 +594,8 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 			Assert.Equal(96, x);
 		}
 	}
+
+#pragma warning restore xUnit1042 // The member referenced by the MemberData attribute returns untyped data rows
 
 	[Fact]
 	public async ValueTask CanSetDisplayNameFromTheoryDataRow_PreEnumerated()
@@ -605,6 +629,8 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		);
 	}
 
+#pragma warning disable xUnit1042 // The member referenced by the MemberData attribute returns untyped data rows
+
 	class ClassWithDisplayNameOnTheoryDataRows
 	{
 		public static IEnumerable<ITheoryDataRow> Data =>
@@ -621,6 +647,8 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 			Assert.Equal(96, x);
 		}
 	}
+
+#pragma warning restore xUnit1042 // The member referenced by the MemberData attribute returns untyped data rows
 
 	[Fact]
 	public async ValueTask DataDiscoverAddsDataToTracker_YieldsDelayEnumeratedTestCase()

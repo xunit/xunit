@@ -1196,8 +1196,8 @@ public class EquivalenceAssertsTests
 		[Fact]
 		public void SuccessWithArrayValues()
 		{
-			var expected = new Dictionary<string, int[]> { ["Foo"] = new[] { 42 } };
-			var actual = new Dictionary<string, int[]> { ["Foo"] = new[] { 42 }, ["Bar"] = new[] { 2112 } };
+			var expected = new Dictionary<string, int[]> { ["Foo"] = [42] };
+			var actual = new Dictionary<string, int[]> { ["Foo"] = [42], ["Bar"] = [2112] };
 
 			Assert.Equivalent(expected, actual, strict: false);
 		}
@@ -1205,8 +1205,8 @@ public class EquivalenceAssertsTests
 		[Fact]
 		public void SuccessWithListValues()
 		{
-			var expected = new Dictionary<string, List<int>> { ["Foo"] = new List<int> { 42 } };
-			var actual = new Dictionary<string, List<int>> { ["Foo"] = new List<int> { 42 }, ["Bar"] = new List<int> { 2112 } };
+			var expected = new Dictionary<string, List<int>> { ["Foo"] = [42] };
+			var actual = new Dictionary<string, List<int>> { ["Foo"] = [42], ["Bar"] = [2112] };
 
 			Assert.Equivalent(expected, actual, strict: false);
 		}
@@ -1240,8 +1240,8 @@ public class EquivalenceAssertsTests
 		[Fact]
 		public void FailureWithArrayValues()
 		{
-			var expected = new Dictionary<string, int[]> { ["Foo"] = new[] { 16 } };
-			var actual = new Dictionary<string, int[]> { ["Foo"] = new[] { 42 }, ["Bar"] = new[] { 2112 } };
+			var expected = new Dictionary<string, int[]> { ["Foo"] = [16] };
+			var actual = new Dictionary<string, int[]> { ["Foo"] = [42], ["Bar"] = [2112] };
 
 			var ex = Record.Exception(() => Assert.Equivalent(expected, actual, strict: false));
 
@@ -1257,8 +1257,8 @@ public class EquivalenceAssertsTests
 		[Fact]
 		public void FailureWithListValues()
 		{
-			var expected = new Dictionary<string, List<int>> { ["Foo"] = new List<int> { 16 } };
-			var actual = new Dictionary<string, List<int>> { ["Foo"] = new List<int> { 42 }, ["Bar"] = new List<int> { 2112 } };
+			var expected = new Dictionary<string, List<int>> { ["Foo"] = [16] };
+			var actual = new Dictionary<string, List<int>> { ["Foo"] = [42], ["Bar"] = [2112] };
 
 			var ex = Record.Exception(() => Assert.Equivalent(expected, actual, strict: false));
 
@@ -1383,8 +1383,8 @@ public class EquivalenceAssertsTests
 		[Fact]
 		public void Success()
 		{
-			var expected = new KeyValuePair<int, int[]>(42, new[] { 1, 4 });
-			var actual = new KeyValuePair<int, int[]>(42, new[] { 9, 4, 1 });
+			var expected = new KeyValuePair<int, int[]>(42, [1, 4]);
+			var actual = new KeyValuePair<int, int[]>(42, [9, 4, 1]);
 
 			Assert.Equivalent(expected, actual, strict: false);
 		}
@@ -1392,8 +1392,8 @@ public class EquivalenceAssertsTests
 		[Fact]
 		public void Failure_Key()
 		{
-			var expected = new KeyValuePair<int, int[]>(42, new[] { 1, 4 });
-			var actual = new KeyValuePair<int, int[]>(41, new[] { 9, 4, 1 });
+			var expected = new KeyValuePair<int, int[]>(42, [1, 4]);
+			var actual = new KeyValuePair<int, int[]>(41, [9, 4, 1]);
 
 			var ex = Record.Exception(() => Assert.Equivalent(expected, actual, strict: false));
 
@@ -1409,8 +1409,8 @@ public class EquivalenceAssertsTests
 		[Fact]
 		public void Failure_Value()
 		{
-			var expected = new KeyValuePair<int, int[]>(42, new[] { 1, 6 });
-			var actual = new KeyValuePair<int, int[]>(42, new[] { 9, 4, 1 });
+			var expected = new KeyValuePair<int, int[]>(42, [1, 6]);
+			var actual = new KeyValuePair<int, int[]>(42, [9, 4, 1]);
 
 			var ex = Record.Exception(() => Assert.Equivalent(expected, actual, strict: false));
 
@@ -1429,8 +1429,8 @@ public class EquivalenceAssertsTests
 		[Fact]
 		public void Success()
 		{
-			var expected = new KeyValuePair<int, int[]>(42, new[] { 1, 4 });
-			var actual = new KeyValuePair<int, int[]>(42, new[] { 4, 1 });
+			var expected = new KeyValuePair<int, int[]>(42, [1, 4]);
+			var actual = new KeyValuePair<int, int[]>(42, [4, 1]);
 
 			Assert.Equivalent(expected, actual, strict: true);
 		}
@@ -1438,8 +1438,8 @@ public class EquivalenceAssertsTests
 		[Fact]
 		public void Failure_Key()
 		{
-			var expected = new KeyValuePair<int, int[]>(42, new[] { 1, 4 });
-			var actual = new KeyValuePair<int, int[]>(41, new[] { 4, 1 });
+			var expected = new KeyValuePair<int, int[]>(42, [1, 4]);
+			var actual = new KeyValuePair<int, int[]>(41, [4, 1]);
 
 			var ex = Record.Exception(() => Assert.Equivalent(expected, actual, strict: true));
 
@@ -1455,8 +1455,8 @@ public class EquivalenceAssertsTests
 		[Fact]
 		public void Failure_Value()
 		{
-			var expected = new KeyValuePair<int, int[]>(42, new[] { 1, 6 });
-			var actual = new KeyValuePair<int, int[]>(42, new[] { 4, 1 });
+			var expected = new KeyValuePair<int, int[]>(42, [1, 6]);
+			var actual = new KeyValuePair<int, int[]>(42, [4, 1]);
 
 			var ex = Record.Exception(() => Assert.Equivalent(expected, actual, strict: true));
 
@@ -1853,7 +1853,9 @@ public class EquivalenceAssertsTests
 
 		class InfiniteRecursionClass
 		{
+#pragma warning disable CA1822 // Mark members as static
 			public InfiniteRecursionClass Parent => new();
+#pragma warning restore CA1822 // Mark members as static
 		}
 	}
 
@@ -2160,16 +2162,12 @@ public class EquivalenceAssertsTests
 		public string? Value2;
 	}
 
-	class PrivateMembersClass
+	class PrivateMembersClass(int value1, string value2)
 	{
-		public PrivateMembersClass(int value1, string value2)
-		{
-			Value1 = value1;
-			Value2 = value2;
-		}
-
-		private readonly int Value1;
-		private string Value2 { get; }
+		readonly int Value1 = value1;
+#pragma warning disable IDE0051
+		string Value2 { get; } = value2;
+#pragma warning restore IDE0051
 	}
 
 	class DeepClass
@@ -2183,17 +2181,14 @@ public class EquivalenceAssertsTests
 	{
 		public decimal Value3 { get; set; }
 		public ShallowClass? Shallow;
+#pragma warning disable CA1822 // Mark members as static
 		public ShallowClass? Other => null;
+#pragma warning restore CA1822 // Mark members as static
 	}
 
-	struct DeepStruct
+	readonly struct DeepStruct(ShallowClass shallow)
 	{
-		public DeepStruct(ShallowClass shallow)
-		{
-			Shallow = shallow;
-		}
-
-		public ShallowClass Shallow { get; }
+		public ShallowClass Shallow { get; } = shallow;
 	}
 
 	class SelfReferential

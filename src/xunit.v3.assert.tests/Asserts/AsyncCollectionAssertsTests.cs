@@ -19,8 +19,8 @@ public class AsyncCollectionAssertsTests
 		public static void GuardClauses()
 		{
 			Assert.Throws<ArgumentNullException>("collection", () => Assert.All(default(IAsyncEnumerable<object>)!, _ => { }));
-			Assert.Throws<ArgumentNullException>("action", () => Assert.All(new object[0].ToAsyncEnumerable(), (Action<object>)null!));
-			Assert.Throws<ArgumentNullException>("action", () => Assert.All(new object[0].ToAsyncEnumerable(), (Action<object, int>)null!));
+			Assert.Throws<ArgumentNullException>("action", () => Assert.All(Array.Empty<object>().ToAsyncEnumerable(), (Action<object>)null!));
+			Assert.Throws<ArgumentNullException>("action", () => Assert.All(Array.Empty<object>().ToAsyncEnumerable(), (Action<object, int>)null!));
 		}
 
 		[Fact]
@@ -71,8 +71,8 @@ public class AsyncCollectionAssertsTests
 		public static async Task GuardClauses()
 		{
 			await Assert.ThrowsAsync<ArgumentNullException>("collection", () => Assert.AllAsync(default(IAsyncEnumerable<object>)!, async _ => await Task.Yield()));
-			await Assert.ThrowsAsync<ArgumentNullException>("action", () => Assert.AllAsync(new object[0].ToAsyncEnumerable(), (Func<object, Task>)null!));
-			await Assert.ThrowsAsync<ArgumentNullException>("action", () => Assert.AllAsync(new object[0].ToAsyncEnumerable(), (Func<object, int, Task>)null!));
+			await Assert.ThrowsAsync<ArgumentNullException>("action", () => Assert.AllAsync(Array.Empty<object>().ToAsyncEnumerable(), (Func<object, Task>)null!));
+			await Assert.ThrowsAsync<ArgumentNullException>("action", () => Assert.AllAsync(Array.Empty<object>().ToAsyncEnumerable(), (Func<object, int, Task>)null!));
 		}
 
 		[Fact]
@@ -135,9 +135,11 @@ public class AsyncCollectionAssertsTests
 			var list = new List<int>().ToAsyncEnumerable();
 
 			var ex = Record.Exception(
+#pragma warning disable xUnit2023 // Do not use collection methods for single-item collections
 				() => Assert.Collection(list,
 					item => Assert.True(false)
 				)
+#pragma warning restore xUnit2023 // Do not use collection methods for single-item collections
 			);
 
 			var collEx = Assert.IsType<CollectionException>(ex);
@@ -206,9 +208,11 @@ public class AsyncCollectionAssertsTests
 			var list = new List<int>().ToAsyncEnumerable();
 
 			var ex = await Record.ExceptionAsync(
+#pragma warning disable xUnit2023 // Do not use collection methods for single-item collections
 				() => Assert.CollectionAsync(list,
 					async item => await Task.Yield()
 				)
+#pragma warning restore xUnit2023 // Do not use collection methods for single-item collections
 			);
 
 			var collEx = Assert.IsType<CollectionException>(ex);
@@ -332,7 +336,7 @@ public class AsyncCollectionAssertsTests
 			var comparer = Substitute.For<IEqualityComparer<int>>();
 
 			Assert.Throws<ArgumentNullException>("collection", () => Assert.Contains(14, default(IAsyncEnumerable<int>)!, comparer));
-			Assert.Throws<ArgumentNullException>("comparer", () => Assert.Contains(14, new int[0].ToAsyncEnumerable(), null!));
+			Assert.Throws<ArgumentNullException>("comparer", () => Assert.Contains(14, Array.Empty<int>().ToAsyncEnumerable(), null!));
 		}
 
 		[Fact]
@@ -345,9 +349,11 @@ public class AsyncCollectionAssertsTests
 
 		class MyComparer : IEqualityComparer<int>
 		{
-			public bool Equals(int x, int y) => true;
+			public bool Equals(int x, int y) =>
+				true;
 
-			public int GetHashCode(int obj) => throw new NotImplementedException();
+			public int GetHashCode(int obj) =>
+				throw new NotImplementedException();
 		}
 	}
 
@@ -357,7 +363,7 @@ public class AsyncCollectionAssertsTests
 		public static void GuardClauses()
 		{
 			Assert.Throws<ArgumentNullException>("collection", () => Assert.Contains(default(IAsyncEnumerable<int>)!, item => true));
-			Assert.Throws<ArgumentNullException>("filter", () => Assert.Contains(new int[0].ToAsyncEnumerable(), (Predicate<int>)null!));
+			Assert.Throws<ArgumentNullException>("filter", () => Assert.Contains(Array.Empty<int>().ToAsyncEnumerable(), (Predicate<int>)null!));
 		}
 
 		[Fact]
@@ -365,7 +371,7 @@ public class AsyncCollectionAssertsTests
 		{
 			var list = new[] { "Hello", "world" }.ToAsyncEnumerable();
 
-			Assert.Contains(list, item => item.StartsWith("w"));
+			Assert.Contains(list, item => item.StartsWith("wo"));
 		}
 
 		[Fact]
@@ -373,7 +379,7 @@ public class AsyncCollectionAssertsTests
 		{
 			var list = new[] { "Hello", "world" }.ToAsyncEnumerable();
 
-			var ex = Record.Exception(() => Assert.Contains(list, item => item.StartsWith("q")));
+			var ex = Record.Exception(() => Assert.Contains(list, item => item.StartsWith("qu")));
 
 			Assert.IsType<ContainsException>(ex);
 			Assert.Equal(
@@ -390,7 +396,7 @@ public class AsyncCollectionAssertsTests
 		public static void GuardClauses()
 		{
 			Assert.Throws<ArgumentNullException>("collection", () => Assert.Distinct(default(IAsyncEnumerable<int>)!));
-			Assert.Throws<ArgumentNullException>("comparer", () => Assert.Distinct(new object[0].ToAsyncEnumerable(), null!));
+			Assert.Throws<ArgumentNullException>("comparer", () => Assert.Distinct(Array.Empty<object>().ToAsyncEnumerable(), null!));
 		}
 
 		[Fact]
@@ -517,7 +523,7 @@ public class AsyncCollectionAssertsTests
 			var comparer = Substitute.For<IEqualityComparer<int>>();
 
 			Assert.Throws<ArgumentNullException>("collection", () => Assert.DoesNotContain(14, default(IAsyncEnumerable<int>)!, comparer));
-			Assert.Throws<ArgumentNullException>("comparer", () => Assert.DoesNotContain(14, new int[0].ToAsyncEnumerable(), null!));
+			Assert.Throws<ArgumentNullException>("comparer", () => Assert.DoesNotContain(14, Array.Empty<int>().ToAsyncEnumerable(), null!));
 		}
 
 		[Fact]
@@ -530,9 +536,11 @@ public class AsyncCollectionAssertsTests
 
 		class MyComparer : IEqualityComparer<int>
 		{
-			public bool Equals(int x, int y) => false;
+			public bool Equals(int x, int y) =>
+				false;
 
-			public int GetHashCode(int obj) => throw new NotImplementedException();
+			public int GetHashCode(int obj) =>
+				throw new NotImplementedException();
 		}
 	}
 
@@ -542,7 +550,7 @@ public class AsyncCollectionAssertsTests
 		public static void GuardClauses()
 		{
 			Assert.Throws<ArgumentNullException>("collection", () => Assert.DoesNotContain(default(IAsyncEnumerable<int>)!, item => true));
-			Assert.Throws<ArgumentNullException>("filter", () => Assert.DoesNotContain(new int[0].ToAsyncEnumerable(), (Predicate<int>)null!));
+			Assert.Throws<ArgumentNullException>("filter", () => Assert.DoesNotContain(Array.Empty<int>().ToAsyncEnumerable(), (Predicate<int>)null!));
 		}
 
 		[Fact]
@@ -550,7 +558,7 @@ public class AsyncCollectionAssertsTests
 		{
 			var list = new[] { "Hello", "world" }.ToAsyncEnumerable();
 
-			var ex = Record.Exception(() => Assert.DoesNotContain(list, item => item.StartsWith("w")));
+			var ex = Record.Exception(() => Assert.DoesNotContain(list, item => item.StartsWith("wo")));
 
 			Assert.IsType<DoesNotContainException>(ex);
 			Assert.Equal(
@@ -566,7 +574,7 @@ public class AsyncCollectionAssertsTests
 		{
 			var list = new[] { "Hello", "world" }.ToAsyncEnumerable();
 
-			Assert.DoesNotContain(list, item => item.StartsWith("q"));
+			Assert.DoesNotContain(list, item => item.StartsWith("qu"));
 		}
 	}
 
@@ -629,10 +637,10 @@ public class AsyncCollectionAssertsTests
 			[Fact]
 			public static void EmptyExpectedNullActual()
 			{
-				var expected = new int[0];
+				var expected = Array.Empty<int>();
 				var actual = default(IAsyncEnumerable<int>);
 
-				void validateError(
+				static void validateError(
 					Action action,
 					string expectedType)
 				{
@@ -654,9 +662,9 @@ public class AsyncCollectionAssertsTests
 			[Fact]
 			public static void NullExpectedEmptyActual()
 			{
-				var actual = new int[0].ToAsyncEnumerable();
+				var actual = Array.Empty<int>().ToAsyncEnumerable();
 
-				void validateError(Action action)
+				static void validateError(Action action)
 				{
 					var ex = Record.Exception(action);
 
@@ -783,7 +791,7 @@ public class AsyncCollectionAssertsTests
 				var expected = new[] { 1, 2, 3, 4, 5 };
 				var actual = expected.ToAsyncEnumerable();
 
-				void validateError(
+				static void validateError(
 					Action action,
 					string expectedType,
 					string actualType)
@@ -816,15 +824,9 @@ public class AsyncCollectionAssertsTests
 				Assert.Equal(expected.ToAsyncEnumerable(), actual, new IntComparer(true));
 			}
 
-			class IntComparer : IEqualityComparer<int>
+			class IntComparer(bool answer) :
+				IEqualityComparer<int>
 			{
-				readonly bool answer;
-
-				public IntComparer(bool answer)
-				{
-					this.answer = answer;
-				}
-
 				public bool Equals(int x, int y) => answer;
 
 				public int GetHashCode(int obj) => throw new NotImplementedException();
@@ -834,8 +836,8 @@ public class AsyncCollectionAssertsTests
 			[Fact]
 			public void CollectionItemIsEnumerable()
 			{
-				List<EnumerableItem> actual = new List<EnumerableItem> { new(0), new(2) };
-				List<EnumerableItem> expected = new List<EnumerableItem> { new(1), new(3) };
+				List<EnumerableItem> actual = [new(0), new(2)];
+				List<EnumerableItem> expected = [new(1), new(3)];
 
 				Assert.Equal(expected, actual.ToAsyncEnumerable(), new EnumerableItemComparer());
 				Assert.Equal(expected.ToAsyncEnumerable(), actual.ToAsyncEnumerable(), new EnumerableItemComparer());
@@ -850,21 +852,22 @@ public class AsyncCollectionAssertsTests
 					throw new NotImplementedException();
 			}
 
-			public sealed class EnumerableItem : IEnumerable<string>
+			public sealed class EnumerableItem(int value) :
+				IEnumerable<string>
 			{
-				public int Value { get; }
+				public int Value { get; } = value;
 
-				public EnumerableItem(int value) => Value = value;
+				public IEnumerator<string> GetEnumerator() =>
+					Enumerable.Repeat("", Value).GetEnumerator();
 
-				public IEnumerator<string> GetEnumerator() => Enumerable.Repeat("", Value).GetEnumerator();
-
-				IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+				IEnumerator IEnumerable.GetEnumerator() =>
+					GetEnumerator();
 			}
 
 			[Fact]
 			public void WithThrow_PrintsPointerWhereThrowOccurs_RecordsInnerException()
 			{
-				void validateError(
+				static void validateError(
 					Action action,
 					string expectedType,
 					string actualType)
@@ -884,7 +887,9 @@ public class AsyncCollectionAssertsTests
 					Assert.IsType<DivideByZeroException>(ex.InnerException);
 				}
 
+#pragma warning disable IDE0300 // Simplify collection initialization
 				validateError(() => Assert.Equal(new[] { 1, 2 }, new[] { 1, 3 }.ToAsyncEnumerable(), new ThrowingComparer()), "int[] ", "<generated> ");
+#pragma warning restore IDE0300 // Simplify collection initialization
 				validateError(() => Assert.Equal(new[] { 1, 2 }.ToAsyncEnumerable(), new[] { 1, 3 }.ToAsyncEnumerable(), new ThrowingComparer()), "", "");
 			}
 
@@ -916,7 +921,7 @@ public class AsyncCollectionAssertsTests
 				var expected = new[] { new EquatableObject { Char = 'a' } };
 				var actual = new[] { new EquatableObject { Char = 'b' } }.ToAsyncEnumerable();
 
-				void validateError(
+				static void validateError(
 					Action action,
 					string expectedType,
 					string actualType)
@@ -945,6 +950,12 @@ public class AsyncCollectionAssertsTests
 
 				public bool Equals(EquatableObject? other) =>
 					other != null && other.Char == Char;
+
+				public override bool Equals(object? obj) =>
+					Equals(obj as EquatableObject);
+
+				public override int GetHashCode() =>
+					Char.GetHashCode();
 			}
 		}
 
@@ -954,9 +965,9 @@ public class AsyncCollectionAssertsTests
 			public static void AlwaysFalse()
 			{
 				var expected = new[] { 1, 2, 3, 4, 5 };
-				var actual = new List<int>(new int[] { 1, 2, 3, 4, 5 }).ToAsyncEnumerable();
+				var actual = new List<int>([1, 2, 3, 4, 5]).ToAsyncEnumerable();
 
-				void validateError(
+				static void validateError(
 					Action action,
 					string expectedType,
 					string actualType)
@@ -983,7 +994,7 @@ public class AsyncCollectionAssertsTests
 			public static void AlwaysTrue()
 			{
 				var expected = new[] { 1, 2, 3, 4, 5 };
-				var actual = new List<int>(new int[] { 0, 0, 0, 0, 0 }).ToAsyncEnumerable();
+				var actual = new List<int>([0, 0, 0, 0, 0]).ToAsyncEnumerable();
 
 				Assert.Equal(expected, actual, (x, y) => true);
 				Assert.Equal(expected.ToAsyncEnumerable(), actual, (int x, int y) => true);
@@ -1000,15 +1011,16 @@ public class AsyncCollectionAssertsTests
 				Assert.Equal(expected.ToAsyncEnumerable(), actual, (x, y) => x.Value / 2 == y.Value / 2);
 			}
 
-			public sealed class EnumerableItem : IEnumerable<string>
+			public sealed class EnumerableItem(int value) :
+				IEnumerable<string>
 			{
-				public int Value { get; }
+				public int Value { get; } = value;
 
-				public EnumerableItem(int value) => Value = value;
+				public IEnumerator<string> GetEnumerator() =>
+					Enumerable.Repeat("", Value).GetEnumerator();
 
-				public IEnumerator<string> GetEnumerator() => Enumerable.Repeat("", Value).GetEnumerator();
-
-				IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+				IEnumerator IEnumerable.GetEnumerator() =>
+					GetEnumerator();
 			}
 
 			[Fact]
@@ -1017,7 +1029,7 @@ public class AsyncCollectionAssertsTests
 				var expected = new[] { 1, 2 };
 				var actual = new[] { 1, 3 }.ToAsyncEnumerable();
 
-				void validateError(
+				static void validateError(
 					Action action,
 					string expectedType,
 					string actualType)
@@ -1037,7 +1049,7 @@ public class AsyncCollectionAssertsTests
 					Assert.IsType<DivideByZeroException>(ex.InnerException);
 				}
 
-				validateError(() => Assert.Equal(expected, actual, (int e, int a) => throw new DivideByZeroException()), "int[] ", "<generated> ");
+				validateError(() => Assert.Equal(expected, actual, (e, a) => throw new DivideByZeroException()), "int[] ", "<generated> ");
 				validateError(() => Assert.Equal(expected.ToAsyncEnumerable(), actual, (int e, int a) => throw new DivideByZeroException()), "", "");
 			}
 		}
@@ -1088,7 +1100,7 @@ public class AsyncCollectionAssertsTests
 				var nullEnumerable = default(IEnumerable<int>);
 				var nullAsyncEnumerable = default(IAsyncEnumerable<int>);
 
-				void validateError(Action action)
+				static void validateError(Action action)
 				{
 					var ex = Record.Exception(action);
 					Assert.IsType<NotEqualException>(ex);
@@ -1107,7 +1119,7 @@ public class AsyncCollectionAssertsTests
 			[Fact]
 			public static void EmptyExpectedNullActual()
 			{
-				var expected = new int[0];
+				var expected = Array.Empty<int>();
 				var actual = default(IAsyncEnumerable<int>);
 
 				Assert.NotEqual(expected, actual);
@@ -1117,7 +1129,7 @@ public class AsyncCollectionAssertsTests
 			[Fact]
 			public static void NullExpectedEmptyActual()
 			{
-				var actual = new int[0].ToAsyncEnumerable();
+				var actual = Array.Empty<int>().ToAsyncEnumerable();
 
 				Assert.NotEqual(default(IEnumerable<int>), actual);
 				Assert.NotEqual(default(IAsyncEnumerable<int>), actual);
@@ -1132,7 +1144,7 @@ public class AsyncCollectionAssertsTests
 				var expected = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 				var actual = new List<int>(expected).ToAsyncEnumerable();
 
-				void validateError(
+				static void validateError(
 					Action action,
 					string expectedType,
 					string actualType)
@@ -1157,7 +1169,7 @@ public class AsyncCollectionAssertsTests
 			public static void NotEqual()
 			{
 				var expected = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-				var actual = new List<int>(new[] { 1, 2, 3, 4, 0, 6, 7, 8, 9, 10 }).ToAsyncEnumerable();
+				var actual = new List<int>([1, 2, 3, 4, 0, 6, 7, 8, 9, 10]).ToAsyncEnumerable();
 
 				Assert.NotEqual(expected, actual);
 				Assert.NotEqual(expected.ToAsyncEnumerable(), actual);
@@ -1170,7 +1182,7 @@ public class AsyncCollectionAssertsTests
 			public static void AlwaysFalse()
 			{
 				var expected = new[] { 1, 2, 3, 4, 5 };
-				var actual = new List<int>(new int[] { 1, 2, 3, 4, 5 }).ToAsyncEnumerable();
+				var actual = new List<int>([1, 2, 3, 4, 5]).ToAsyncEnumerable();
 
 				Assert.NotEqual(expected, actual, new IntComparer(false));
 				Assert.NotEqual(expected.ToAsyncEnumerable(), actual, new IntComparer(false));
@@ -1180,9 +1192,9 @@ public class AsyncCollectionAssertsTests
 			public static void AlwaysTrue()
 			{
 				var expected = new[] { 1, 2, 3, 4, 5 };
-				var actual = new List<int>(new int[] { 0, 0, 0, 0, 0 }).ToAsyncEnumerable();
+				var actual = new List<int>([0, 0, 0, 0, 0]).ToAsyncEnumerable();
 
-				void validateError(
+				static void validateError(
 					Action action,
 					string expectedType,
 					string actualType)
@@ -1203,18 +1215,14 @@ public class AsyncCollectionAssertsTests
 				validateError(() => Assert.NotEqual(expected.ToAsyncEnumerable(), actual, new IntComparer(true)), "", "");
 			}
 
-			class IntComparer : IEqualityComparer<int>
+			class IntComparer(bool answer) :
+				IEqualityComparer<int>
 			{
-				readonly bool answer;
+				public bool Equals(int x, int y) =>
+					answer;
 
-				public IntComparer(bool answer)
-				{
-					this.answer = answer;
-				}
-
-				public bool Equals(int x, int y) => answer;
-
-				public int GetHashCode(int obj) => throw new NotImplementedException();
+				public int GetHashCode(int obj) =>
+					throw new NotImplementedException();
 			}
 
 			[Fact]
@@ -1223,7 +1231,7 @@ public class AsyncCollectionAssertsTests
 				var expected = new[] { 1, 2 };
 				var actual = new[] { 1, 2 }.ToAsyncEnumerable();
 
-				void validateError(
+				static void validateError(
 					Action action,
 					string expectedType,
 					string actualType)
@@ -1265,7 +1273,7 @@ public class AsyncCollectionAssertsTests
 				var expected = new[] { new EquatableObject { Char = 'a' } };
 				var actual = new[] { new EquatableObject { Char = 'a' } }.ToAsyncEnumerable();
 
-				void validateError(
+				static void validateError(
 					Action action,
 					string expectedType,
 					string actualType)
@@ -1302,6 +1310,12 @@ public class AsyncCollectionAssertsTests
 
 				public bool Equals(EquatableObject? other) =>
 					other != null && other.Char == Char;
+
+				public override bool Equals(object? obj) =>
+					Equals(obj as EquatableObject);
+
+				public override int GetHashCode() =>
+					Char.GetHashCode();
 			}
 		}
 
@@ -1311,7 +1325,7 @@ public class AsyncCollectionAssertsTests
 			public static void AlwaysFalse()
 			{
 				var expected = new[] { 1, 2, 3, 4, 5 };
-				var actual = new List<int>(new int[] { 1, 2, 3, 4, 5 }).ToAsyncEnumerable();
+				var actual = new List<int>([1, 2, 3, 4, 5]).ToAsyncEnumerable();
 
 				Assert.NotEqual(expected, actual, (x, y) => false);
 				Assert.NotEqual(expected.ToAsyncEnumerable(), actual, (int x, int y) => false);
@@ -1321,9 +1335,9 @@ public class AsyncCollectionAssertsTests
 			public static void AlwaysTrue()
 			{
 				var expected = new[] { 1, 2, 3, 4, 5 };
-				var actual = new List<int>(new int[] { 0, 0, 0, 0, 0 }).ToAsyncEnumerable();
+				var actual = new List<int>([0, 0, 0, 0, 0]).ToAsyncEnumerable();
 
-				void validateError(
+				static void validateError(
 					Action action,
 					string expectedType,
 					string actualType)
@@ -1350,7 +1364,7 @@ public class AsyncCollectionAssertsTests
 				var expected = new[] { 1, 2 };
 				var actual = new[] { 1, 2 }.ToAsyncEnumerable();
 
-				void validateError(
+				static void validateError(
 					Action action,
 					string expectedType,
 					string actualType)
@@ -1370,7 +1384,7 @@ public class AsyncCollectionAssertsTests
 					Assert.IsType<DivideByZeroException>(ex.InnerException);
 				}
 
-				validateError(() => Assert.NotEqual(expected, actual, (int e, int a) => throw new DivideByZeroException()), "int[] ", "<generated> ");
+				validateError(() => Assert.NotEqual(expected, actual, (e, a) => throw new DivideByZeroException()), "int[] ", "<generated> ");
 				validateError(() => Assert.NotEqual(expected.ToAsyncEnumerable(), actual, (int e, int a) => throw new DivideByZeroException()), "", "");
 			}
 		}
@@ -1387,7 +1401,7 @@ public class AsyncCollectionAssertsTests
 		[Fact]
 		public static void EmptyCollection()
 		{
-			var collection = new object[0].ToAsyncEnumerable();
+			var collection = Array.Empty<object>().ToAsyncEnumerable();
 
 			var ex = Record.Exception(() => Assert.Single(collection));
 
@@ -1467,7 +1481,7 @@ public class AsyncCollectionAssertsTests
 		public static void GuardClauses()
 		{
 			Assert.Throws<ArgumentNullException>("collection", () => Assert.Single(default(IAsyncEnumerable<object>)!, _ => true));
-			Assert.Throws<ArgumentNullException>("predicate", () => Assert.Single(new object[0].ToAsyncEnumerable(), null!));
+			Assert.Throws<ArgumentNullException>("predicate", () => Assert.Single(Array.Empty<object>().ToAsyncEnumerable(), null!));
 		}
 
 		[Fact]
@@ -1475,7 +1489,7 @@ public class AsyncCollectionAssertsTests
 		{
 			var collection = new[] { "Hello", "World" }.ToAsyncEnumerable();
 
-			var result = Assert.Single(collection, item => item.StartsWith("H"));
+			var result = Assert.Single(collection, static item => item.StartsWith('H'));
 
 			Assert.Equal("Hello", result);
 		}
@@ -1557,19 +1571,16 @@ public class AsyncCollectionAssertsTests
 		}
 	}
 
-	sealed class SpyEnumerator<T> : IAsyncEnumerable<T>, IAsyncEnumerator<T>
+	sealed class SpyEnumerator<T>(IAsyncEnumerable<T> enumerable) :
+		IAsyncEnumerable<T>, IAsyncEnumerator<T>
 	{
-		IAsyncEnumerator<T>? innerEnumerator;
-
-		public SpyEnumerator(IAsyncEnumerable<T> enumerable)
-		{
-			innerEnumerator = enumerable.GetAsyncEnumerator();
-		}
+		IAsyncEnumerator<T>? innerEnumerator = enumerable.GetAsyncEnumerator();
 
 		public T Current =>
 			GuardNotNull("Tried to get Current on a disposed enumerator", innerEnumerator).Current;
 
-		public bool IsDisposed => innerEnumerator is null;
+		public bool IsDisposed =>
+			innerEnumerator is null;
 
 		public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default) => this;
 

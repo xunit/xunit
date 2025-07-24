@@ -428,7 +428,7 @@ public class MemoryAssertsTests
 		[Fact]
 		public void Failure()
 		{
-			void assertFailure(Action action)
+			static void assertFailure(Action action)
 			{
 				var ex = Record.Exception(action);
 
@@ -450,7 +450,7 @@ public class MemoryAssertsTests
 		[Fact]
 		public void CaseSensitiveByDefault()
 		{
-			void assertFailure(Action action)
+			static void assertFailure(Action action)
 			{
 				var ex = Record.Exception(action);
 
@@ -481,7 +481,7 @@ public class MemoryAssertsTests
 		[Fact]
 		public void NullStringIsEmpty()
 		{
-			void assertFailure(Action action)
+			static void assertFailure(Action action)
 			{
 				var ex = Record.Exception(action);
 
@@ -504,7 +504,7 @@ public class MemoryAssertsTests
 			var expected = "This is a long string that we're looking for at the end";
 			var actual = "This is the long string that we expected to find this ending inside";
 
-			void assertFailure(Action action)
+			static void assertFailure(Action action)
 			{
 				var ex = Record.Exception(action);
 
@@ -652,7 +652,7 @@ public class MemoryAssertsTests
 			[Fact]
 			public void Truncation()
 			{
-				void assertFailure(Action action)
+				static void assertFailure(Action action)
 				{
 					var ex = Record.Exception(action);
 
@@ -729,7 +729,7 @@ public class MemoryAssertsTests
 			[Fact]
 			public void Failure_MidCollection()
 			{
-				void assertFailure(Action action)
+				static void assertFailure(Action action)
 				{
 					var ex = Record.Exception(action);
 
@@ -753,7 +753,7 @@ public class MemoryAssertsTests
 			[Fact]
 			public void Failure_BeyondEnd()
 			{
-				void assertFailure(Action action)
+				static void assertFailure(Action action)
 				{
 					var ex = Record.Exception(action);
 
@@ -809,7 +809,7 @@ public class MemoryAssertsTests
 			[Fact]
 			public void Failure()
 			{
-				void assertFailure(Action action)
+				static void assertFailure(Action action)
 				{
 					var ex = Record.Exception(action);
 
@@ -845,7 +845,7 @@ public class MemoryAssertsTests
 		[Fact]
 		public void Failure()
 		{
-			void assertFailure(Action action)
+			static void assertFailure(Action action)
 			{
 				var ex = Record.Exception(action);
 
@@ -867,7 +867,7 @@ public class MemoryAssertsTests
 		[Fact]
 		public void CaseSensitiveByDefault()
 		{
-			void assertFailure(Action action)
+			static void assertFailure(Action action)
 			{
 				var ex = Record.Exception(action);
 
@@ -898,7 +898,7 @@ public class MemoryAssertsTests
 		[Fact]
 		public void NullStringIsEmpty()
 		{
-			void assertFailure(Action action)
+			static void assertFailure(Action action)
 			{
 				var ex = Record.Exception(action);
 
@@ -921,7 +921,7 @@ public class MemoryAssertsTests
 			var expected = "This is a long string that we're looking for at the start";
 			var actual = "This is the long string that we expected to find this starting inside";
 
-			void assertFailure(Action action)
+			static void assertFailure(Action action)
 			{
 				var ex = Record.Exception(action);
 

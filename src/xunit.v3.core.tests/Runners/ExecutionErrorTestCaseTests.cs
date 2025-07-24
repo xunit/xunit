@@ -29,10 +29,10 @@ public sealed class ExecutionErrorTestCaseTests : IDisposable
 		Assert.Equal(0m, result.Time);
 		Assert.Collection(
 			messageBus.Messages,
-			msg => Assert.IsAssignableFrom<ITestStarting>(msg),
+			msg => Assert.IsType<ITestStarting>(msg, exactMatch: false),
 			msg =>
 			{
-				var failed = Assert.IsAssignableFrom<ITestFailed>(msg);
+				var failed = Assert.IsType<ITestFailed>(msg, exactMatch: false);
 				Assert.Equal(0m, failed.ExecutionTime);
 				Assert.Empty(failed.Output);
 				var exceptionType = Assert.Single(failed.ExceptionTypes);
@@ -42,7 +42,7 @@ public sealed class ExecutionErrorTestCaseTests : IDisposable
 			},
 			msg =>
 			{
-				var testFinished = Assert.IsAssignableFrom<ITestFinished>(msg);
+				var testFinished = Assert.IsType<ITestFinished>(msg, exactMatch: false);
 				Assert.Equal(0m, testFinished.ExecutionTime);
 				Assert.Empty(testFinished.Output);
 			}
@@ -61,10 +61,10 @@ public sealed class ExecutionErrorTestCaseTests : IDisposable
 		Assert.Equal(0m, result.Time);
 		Assert.Collection(
 			messageBus.Messages,
-			msg => Assert.IsAssignableFrom<ITestStarting>(msg),
+			msg => Assert.IsType<ITestStarting>(msg, exactMatch: false),
 			msg =>
 			{
-				var failed = Assert.IsAssignableFrom<ITestFailed>(msg);
+				var failed = Assert.IsType<ITestFailed>(msg, exactMatch: false);
 				Assert.Equal(0m, failed.ExecutionTime);
 				Assert.Empty(failed.Output);
 				Assert.Equal([-1, 0, 0], failed.ExceptionParentIndices);
@@ -73,7 +73,7 @@ public sealed class ExecutionErrorTestCaseTests : IDisposable
 			},
 			msg =>
 			{
-				var testFinished = Assert.IsAssignableFrom<ITestFinished>(msg);
+				var testFinished = Assert.IsType<ITestFinished>(msg, exactMatch: false);
 				Assert.Equal(0m, testFinished.ExecutionTime);
 				Assert.Empty(testFinished.Output);
 			}

@@ -225,12 +225,12 @@ public class TeamCityReporterMessageHandlerTests
 		{
 			var startingMessage = TestData.TestStarting(testDisplayName: "This is my display name \t\r\n", testCollectionUniqueID: "test-collection-id\t\r\n");
 			var failedMessage = TestData.TestFailed(
-				exceptionParentIndices: new[] { -1 },
-				exceptionTypes: new[] { "ExceptionType" },
+				exceptionParentIndices: [-1],
+				exceptionTypes: ["ExceptionType"],
 				executionTime: 1.2345m,
-				messages: new[] { "This is my message \t\r\n" },
+				messages: ["This is my message \t\r\n"],
 				output: "This is\t\r\noutput",
-				stackTraces: new[] { "Line 1\r\nLine 2\r\nLine 3" },
+				stackTraces: ["Line 1\r\nLine 2\r\nLine 3"],
 				testCollectionUniqueID: "test-collection-id\t\r\n"
 			);
 			var handler = TestableTeamCityReporterMessageHandler.Create();
@@ -258,7 +258,7 @@ public class TeamCityReporterMessageHandlerTests
 			handler.OnMessage(startingMessage);
 			handler.OnMessage(finishedMessage);
 
-			var msg = handler.Messages.Last();
+			var msg = handler.Messages[handler.Messages.Count - 1];
 			Assert.Collection(
 				handler.Messages.Where(msg => msg.Contains("##teamcity")),
 				msg => { }, // testStarted
@@ -276,7 +276,7 @@ public class TeamCityReporterMessageHandlerTests
 			handler.OnMessage(startingMessage);
 			handler.OnMessage(finishedMessage);
 
-			var msg = handler.Messages.Last();
+			var msg = handler.Messages[handler.Messages.Count - 1];
 			Assert.Collection(
 				handler.Messages.Where(msg => msg.Contains("##teamcity")),
 				msg => { }, // testStarted
@@ -325,8 +325,6 @@ public class TeamCityReporterMessageHandlerTests
 
 	class TestableTeamCityReporterMessageHandler : TeamCityReporterMessageHandler
 	{
-		DateTimeOffset now = new DateTimeOffset(2023, 5, 3, 21, 12, 0, TimeSpan.Zero);
-
 		public IReadOnlyList<string> Messages;
 
 		TestableTeamCityReporterMessageHandler(
@@ -337,11 +335,9 @@ public class TeamCityReporterMessageHandlerTests
 			Messages = logger.Messages;
 		}
 
-		protected override DateTimeOffset UtcNow => now;
+		protected override DateTimeOffset UtcNow { get; } = new(2023, 5, 3, 21, 12, 0, TimeSpan.Zero);
 
-		public static TestableTeamCityReporterMessageHandler Create(string? rootFlowId = null)
-		{
-			return new TestableTeamCityReporterMessageHandler(new SpyRunnerLogger(), rootFlowId);
-		}
+		public static TestableTeamCityReporterMessageHandler Create(string? rootFlowId = null) =>
+			new(new SpyRunnerLogger(), rootFlowId);
 	}
 }

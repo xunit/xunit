@@ -136,7 +136,7 @@ public class CollectionTrackerTests
 		[Fact]
 		public static void Empty()
 		{
-			var tracker = new object[0].AsTracker();
+			var tracker = Array.Empty<object>().AsTracker();
 
 			Assert.Equal("[]", tracker.FormatStart());
 		}
@@ -144,7 +144,7 @@ public class CollectionTrackerTests
 		[Fact]
 		public static void ExceededDepth()
 		{
-			var tracker = new object[0].AsTracker();
+			var tracker = Array.Empty<object>().AsTracker();
 
 			Assert.Equal($"[{ArgumentFormatter.Ellipsis}]", tracker.FormatStart(ArgumentFormatter.MaxEnumerableLength + 1));
 		}
@@ -160,7 +160,7 @@ public class CollectionTrackerTests
 		[CulturedFact]
 		public static void Long()
 		{
-			var tracker = new object[] { 1, 2.3M, "Hello, world!", 42, 2112, new object() }.AsTracker();
+			var tracker = new object[] { 1, 2.3M, "Hello, world!", 42, 2112, new() }.AsTracker();
 
 			Assert.Equal($"[1, {2.3M}, \"Hello, world!\", 42, 2112, {ArgumentFormatter.Ellipsis}]", tracker.FormatStart());
 		}
@@ -171,7 +171,7 @@ public class CollectionTrackerTests
 		[Fact]
 		public static void Empty()
 		{
-			IEnumerable<object> collection = new object[0];
+			IEnumerable<object> collection = [];
 
 			Assert.Equal("[]", CollectionTracker<object>.FormatStart(collection));
 		}
@@ -179,7 +179,7 @@ public class CollectionTrackerTests
 		[Fact]
 		public static void ExceededDepth()
 		{
-			IEnumerable<object> collection = new object[0];
+			IEnumerable<object> collection = [];
 
 			Assert.Equal($"[{ArgumentFormatter.Ellipsis}]", CollectionTracker<object>.FormatStart(collection, ArgumentFormatter.MaxEnumerableLength + 1));
 		}
@@ -187,7 +187,7 @@ public class CollectionTrackerTests
 		[CulturedFact]
 		public static void Short()
 		{
-			IEnumerable<object> collection = new object[] { 1, 2.3M, "Hello, world!" };
+			IEnumerable<object> collection = [1, 2.3M, "Hello, world!"];
 
 			Assert.Equal($"[1, {2.3M}, \"Hello, world!\"]", CollectionTracker<object>.FormatStart(collection));
 		}
@@ -195,7 +195,7 @@ public class CollectionTrackerTests
 		[CulturedFact]
 		public static void Long()
 		{
-			IEnumerable<object> collection = new object[] { 1, 2.3M, "Hello, world!", 42, 2112, new object() };
+			IEnumerable<object> collection = [1, 2.3M, "Hello, world!", 42, 2112, new object()];
 
 			Assert.Equal($"[1, {2.3M}, \"Hello, world!\", 42, 2112, {ArgumentFormatter.Ellipsis}]", CollectionTracker<object>.FormatStart(collection));
 		}
@@ -206,7 +206,7 @@ public class CollectionTrackerTests
 		[Fact]
 		public static void Empty()
 		{
-			var span = new object[0].AsSpan();
+			var span = Array.Empty<object>().AsSpan();
 
 			Assert.Equal("[]", CollectionTracker<object>.FormatStart(span));
 		}
@@ -214,7 +214,7 @@ public class CollectionTrackerTests
 		[Fact]
 		public static void ExceededDepth()
 		{
-			var span = new object[0].AsSpan();
+			var span = Array.Empty<object>().AsSpan();
 
 			Assert.Equal($"[{ArgumentFormatter.Ellipsis}]", CollectionTracker<object>.FormatStart(span, ArgumentFormatter.MaxEnumerableLength + 1));
 		}
@@ -230,7 +230,7 @@ public class CollectionTrackerTests
 		[CulturedFact]
 		public static void Long()
 		{
-			var span = new object[] { 1, 2.3M, "Hello, world!", 42, 2112, new object() }.AsSpan();
+			var span = new object[] { 1, 2.3M, "Hello, world!", 42, 2112, new() }.AsSpan();
 
 			Assert.Equal($"[1, {2.3M}, \"Hello, world!\", 42, 2112, {ArgumentFormatter.Ellipsis}]", CollectionTracker<object>.FormatStart(span));
 		}

@@ -1188,7 +1188,6 @@ public static class ReflectionExtensions
 
 	static object? ToAttribute(CustomAttributeData attributeData)
 	{
-		var attributeTypeName = attributeData.AttributeType.FullName;
 		var ctorArgs = ToTypedArguments(attributeData.ConstructorArguments).ToArray();
 		Type[] ctorArgTypes = [];
 

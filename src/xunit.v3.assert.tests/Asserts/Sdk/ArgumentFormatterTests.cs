@@ -47,13 +47,13 @@ public class ArgumentFormatterTests
 		// For more information, see the following links:
 		// - http://stackoverflow.com/q/36104766/4077294
 		// - http://codeblog.jonskeet.uk/2014/11/07/when-is-a-string-not-a-string/
-		public static IEnumerable<object[]> StringValue_TestData()
-		{
-			yield return new object[] { "\uD800", @"""\xd800""" };
-			yield return new object[] { "\uDC00", @"""\xdc00""" };
-			yield return new object[] { "\uDC00\uD800", @"""\xdc00\xd800""" };
-			yield return new object[] { "\uFFFD", "\"\uFFFD\"" };
-		}
+		public static IEnumerable<TheoryDataRow<string, string>> StringValue_TestData =
+		[
+			new("\uD800", @"""\xd800"""),
+			new("\uDC00", @"""\xdc00"""),
+			new("\uDC00\uD800", @"""\xdc00\xd800"""),
+			new("\uFFFD", "\"\uFFFD\""),
+		];
 
 		[Theory]
 		[InlineData("Hello, world!", "\"Hello, world!\"")]
@@ -79,13 +79,13 @@ public class ArgumentFormatterTests
 			Assert.Equal(expected.Replace("$$ELLIPSIS$$", ArgumentFormatter.Ellipsis), ArgumentFormatter.Format(value));
 		}
 
-		public static IEnumerable<object[]> CharValue_TestData()
-		{
-			yield return new object[] { '\uD800', "0xd800" };
-			yield return new object[] { '\uDC00', "0xdc00" };
-			yield return new object[] { '\uFFFD', "'\uFFFD'" };
-			yield return new object[] { '\uFFFE', "0xfffe" };
-		}
+		public static IEnumerable<TheoryDataRow<char, string>> CharValue_TestData =
+		[
+			new('\uD800', "0xd800"),
+			new('\uDC00', "0xdc00"),
+			new('\uFFFD', "'\uFFFD'"),
+			new('\uFFFE', "0xfffe"),
+		];
 
 		[Theory]
 
@@ -174,27 +174,27 @@ public class ArgumentFormatterTests
 			Assert.Equal("Task<int> { Status = Faulted }", ArgumentFormatter.Format(taskCompletionSource.Task));
 		}
 
-		public static TheoryData<Type, string> TypeValueData = new()
-		{
-			{ typeof(string), "typeof(string)" },
-			{ typeof(int[]), "typeof(int[])" },
-			{ typeof(int).MakeArrayType(1), "typeof(int[*])" },
-			{ typeof(int).MakeArrayType(2), "typeof(int[,])" },
-			{ typeof(int).MakeArrayType(3), "typeof(int[,,])" },
-			{ typeof(DateTime[,]), "typeof(System.DateTime[,])" },
-			{ typeof(decimal[][,]), "typeof(decimal[][,])" },
-			{ typeof(IEnumerable<>), "typeof(System.Collections.Generic.IEnumerable<>)" },
-			{ typeof(IEnumerable<int>), "typeof(System.Collections.Generic.IEnumerable<int>)" },
-			{ typeof(IDictionary<,>), "typeof(System.Collections.Generic.IDictionary<,>)" },
-			{ typeof(IDictionary<string, DateTime>), "typeof(System.Collections.Generic.IDictionary<string, DateTime>)" },
-			{ typeof(IDictionary<string[,], DateTime[,][]>), "typeof(System.Collections.Generic.IDictionary<string[,], DateTime[,][]>)" },
-			{ typeof(bool?), "typeof(bool?)" },
-			{ typeof(bool?[]), "typeof(bool?[])" },
-			{ typeof(nint), "typeof(nint)" },
-			{ typeof(IntPtr), "typeof(nint)" },
-			{ typeof(nuint), "typeof(nuint)" },
-			{ typeof(UIntPtr), "typeof(nuint)" },
-		};
+		public static IEnumerable<TheoryDataRow<Type, string>> TypeValueData =
+		[
+			new(typeof(string), "typeof(string)"),
+			new(typeof(int[]), "typeof(int[])"),
+			new(typeof(int).MakeArrayType(1), "typeof(int[*])"),
+			new(typeof(int).MakeArrayType(2), "typeof(int[,])"),
+			new(typeof(int).MakeArrayType(3), "typeof(int[,,])"),
+			new(typeof(DateTime[,]), "typeof(System.DateTime[,])"),
+			new(typeof(decimal[][,]), "typeof(decimal[][,])"),
+			new(typeof(IEnumerable<>), "typeof(System.Collections.Generic.IEnumerable<>)"),
+			new(typeof(IEnumerable<int>), "typeof(System.Collections.Generic.IEnumerable<int>)"),
+			new(typeof(IDictionary<,>), "typeof(System.Collections.Generic.IDictionary<,>)"),
+			new(typeof(IDictionary<string, DateTime>), "typeof(System.Collections.Generic.IDictionary<string, DateTime>)"),
+			new(typeof(IDictionary<string[,], DateTime[,][]>), "typeof(System.Collections.Generic.IDictionary<string[,], DateTime[,][]>)"),
+			new(typeof(bool?), "typeof(bool?)"),
+			new(typeof(bool?[]), "typeof(bool?[])"),
+			new(typeof(nint), "typeof(nint)"),
+			new(typeof(IntPtr), "typeof(nint)"),
+			new(typeof(nuint), "typeof(nuint)"),
+			new(typeof(UIntPtr), "typeof(nuint)"),
+		];
 
 		[Theory]
 		[MemberData(nameof(TypeValueData), DisableDiscoveryEnumeration = true)]
@@ -254,7 +254,7 @@ public class ArgumentFormatterTests
 		[CulturedFact]
 		public static void KeyValuePairValue()
 		{
-			var kvp = new KeyValuePair<object, List<object>>(42, new() { 21.12M, "2600" });
+			var kvp = new KeyValuePair<object, List<object>>(42, [21.12M, "2600"]);
 			var expected = $"[42] = [{21.12M}, \"2600\"]";
 
 			Assert.Equal(expected, ArgumentFormatter.Format(kvp));
@@ -263,12 +263,16 @@ public class ArgumentFormatterTests
 
 	public class Enumerables
 	{
+#pragma warning disable xUnit1047 // Avoid using TheoryDataRow arguments that might not be serializable
+
 		// Both tracked and untracked should be the same
 		public static TheoryData<IEnumerable<object>> Collections =
 		[
-			new TheoryDataRow<IEnumerable<object>>([1, 2.3M, "Hello, world!"]),
-			new TheoryDataRow<IEnumerable<object>>(CollectionTracker<object>.Wrap([1, 2.3M, "Hello, world!"])),
+			new([1, 2.3M, "Hello, world!"]),
+			new(CollectionTracker<object>.Wrap([1, 2.3M, "Hello, world!"])),
 		];
+
+#pragma warning restore xUnit1047
 
 		[CulturedTheory]
 		[MemberData(nameof(Collections), DisableDiscoveryEnumeration = true)]
@@ -292,11 +296,15 @@ public class ArgumentFormatterTests
 			Assert.Equal(expected, ArgumentFormatter.Format(value));
 		}
 
+#pragma warning disable xUnit1047 // Avoid using TheoryDataRow arguments that might not be serializable
+
 		public static TheoryData<IEnumerable<object>> LongCollections =
 		[
-			new TheoryDataRow<IEnumerable<object>>([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
-			new TheoryDataRow<IEnumerable<object>>(CollectionTracker<object>.Wrap([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])),
+			new([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
+			new(CollectionTracker<object>.Wrap([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])),
 		];
+
+#pragma warning restore xUnit1047
 
 		[CulturedTheory]
 		[MemberData(nameof(LongCollections), DisableDiscoveryEnumeration = true)]
@@ -346,9 +354,9 @@ public class ArgumentFormatterTests
 
 		public class MyComplexType
 		{
-#pragma warning disable 414
-			private string MyPrivateField = "Hello, world";
-#pragma warning restore 414
+#pragma warning disable CS0414
+			readonly string MyPrivateField = "Hello, world";
+#pragma warning restore CS0414
 
 			public static int MyPublicStaticField = 2112;
 

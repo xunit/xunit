@@ -255,8 +255,8 @@ public class Xunit1Tests
 
 			Assert.Collection(
 				sink.DiscoveredTestCases,
-				testCase => Assert.IsAssignableFrom<Xunit1TestCase>(xunit1.Deserialize(testCase.Serialization!)),
-				testCase => Assert.IsAssignableFrom<Xunit1TestCase>(xunit1.Deserialize(testCase.Serialization!))
+				testCase => Assert.IsType<Xunit1TestCase>(xunit1.Deserialize(testCase.Serialization!), exactMatch: false),
+				testCase => Assert.IsType<Xunit1TestCase>(xunit1.Deserialize(testCase.Serialization!), exactMatch: false)
 			);
 		}
 
@@ -340,7 +340,7 @@ public class Xunit1Tests
 				sink.Messages,
 				message =>
 				{
-					var assemblyStarting = Assert.IsAssignableFrom<ITestAssemblyStarting>(message);
+					var assemblyStarting = Assert.IsType<ITestAssemblyStarting>(message, exactMatch: false);
 					Assert.Equal("assembly", assemblyStarting.AssemblyName);
 					Assert.Equal("assembly.dll", assemblyStarting.AssemblyPath);
 					Assert.Equal(":v1:assembly:assembly.dll:config", assemblyStarting.AssemblyUniqueID);
@@ -351,7 +351,7 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var collectionStarting = Assert.IsAssignableFrom<ITestCollectionStarting>(message);
+					var collectionStarting = Assert.IsType<ITestCollectionStarting>(message, exactMatch: false);
 					Assert.Equal("asm-id: assembly.dll:config", collectionStarting.AssemblyUniqueID);
 					Assert.Null(collectionStarting.TestCollectionClassName);
 					Assert.Equal("xUnit.net v1 Tests for assembly.dll", collectionStarting.TestCollectionDisplayName);
@@ -359,7 +359,7 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testClassStarting = Assert.IsAssignableFrom<ITestClassStarting>(message);
+					var testClassStarting = Assert.IsType<ITestClassStarting>(message, exactMatch: false);
 					Assert.Equal("asm-id: assembly.dll:config", testClassStarting.AssemblyUniqueID);
 					Assert.Equal("type1", testClassStarting.TestClassName);
 					Assert.Equal("class-id: type1:assembly.dll:config", testClassStarting.TestClassUniqueID);
@@ -367,7 +367,7 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testMethodStarting = Assert.IsAssignableFrom<ITestMethodStarting>(message);
+					var testMethodStarting = Assert.IsType<ITestMethodStarting>(message, exactMatch: false);
 					Assert.Equal("asm-id: assembly.dll:config", testMethodStarting.AssemblyUniqueID);
 					Assert.Equal("class-id: type1:assembly.dll:config", testMethodStarting.TestClassUniqueID);
 					Assert.Equal("collection-id: assembly.dll:config", testMethodStarting.TestCollectionUniqueID);
@@ -376,7 +376,7 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testCaseStarting = Assert.IsAssignableFrom<ITestCaseStarting>(message);
+					var testCaseStarting = Assert.IsType<ITestCaseStarting>(message, exactMatch: false);
 					Assert.Equal("asm-id: assembly.dll:config", testCaseStarting.AssemblyUniqueID);
 					Assert.Null(testCaseStarting.SkipReason);
 					Assert.Null(testCaseStarting.SourceFilePath);
@@ -390,7 +390,7 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testStarting = Assert.IsAssignableFrom<ITestStarting>(message);
+					var testStarting = Assert.IsType<ITestStarting>(message, exactMatch: false);
 					Assert.Equal("asm-id: assembly.dll:config", testStarting.AssemblyUniqueID);
 					Assert.Equal("case-id: type1:passing:assembly.dll:config", testStarting.TestCaseUniqueID);
 					Assert.Equal("class-id: type1:assembly.dll:config", testStarting.TestClassUniqueID);
@@ -401,7 +401,7 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testPassed = Assert.IsAssignableFrom<ITestPassed>(message);
+					var testPassed = Assert.IsType<ITestPassed>(message, exactMatch: false);
 					Assert.Equal("asm-id: assembly.dll:config", testPassed.AssemblyUniqueID);
 					Assert.Equal(1M, testPassed.ExecutionTime);
 					Assert.Empty(testPassed.Output);
@@ -413,7 +413,7 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testFinished = Assert.IsAssignableFrom<ITestFinished>(message);
+					var testFinished = Assert.IsType<ITestFinished>(message, exactMatch: false);
 					Assert.Equal("asm-id: assembly.dll:config", testFinished.AssemblyUniqueID);
 					Assert.Equal(1M, testFinished.ExecutionTime);
 					Assert.Empty(testFinished.Output);
@@ -425,7 +425,7 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testCaseFinished = Assert.IsAssignableFrom<ITestCaseFinished>(message);
+					var testCaseFinished = Assert.IsType<ITestCaseFinished>(message, exactMatch: false);
 					Assert.Equal("asm-id: assembly.dll:config", testCaseFinished.AssemblyUniqueID);
 					Assert.Equal(1M, testCaseFinished.ExecutionTime);
 					Assert.Equal("case-id: type1:passing:assembly.dll:config", testCaseFinished.TestCaseUniqueID);
@@ -439,7 +439,7 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testMethodFinished = Assert.IsAssignableFrom<ITestMethodFinished>(message);
+					var testMethodFinished = Assert.IsType<ITestMethodFinished>(message, exactMatch: false);
 					Assert.Equal("asm-id: assembly.dll:config", testMethodFinished.AssemblyUniqueID);
 					Assert.Equal(1M, testMethodFinished.ExecutionTime);
 					Assert.Equal("class-id: type1:assembly.dll:config", testMethodFinished.TestClassUniqueID);
@@ -452,22 +452,22 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testMethodStarting = Assert.IsAssignableFrom<ITestMethodStarting>(message);
+					var testMethodStarting = Assert.IsType<ITestMethodStarting>(message, exactMatch: false);
 					Assert.Equal("failing", testMethodStarting.MethodName);
 				},
 				message =>
 				{
-					var testCaseStarting = Assert.IsAssignableFrom<ITestCaseStarting>(message);
+					var testCaseStarting = Assert.IsType<ITestCaseStarting>(message, exactMatch: false);
 					Assert.Equal("type1.failing", testCaseStarting.TestCaseDisplayName);
 				},
 				message =>
 				{
-					var testStarting = Assert.IsAssignableFrom<ITestStarting>(message);
+					var testStarting = Assert.IsType<ITestStarting>(message, exactMatch: false);
 					Assert.Equal("type1.failing", testStarting.TestDisplayName);
 				},
 				message =>
 				{
-					var testFailed = Assert.IsAssignableFrom<ITestFailed>(message);
+					var testFailed = Assert.IsType<ITestFailed>(message, exactMatch: false);
 					Assert.Equal("asm-id: assembly.dll:config", testFailed.AssemblyUniqueID);
 					Assert.Equal(-1, testFailed.ExceptionParentIndices.Single());
 					Assert.Equal("Xunit.MockFailureException", testFailed.ExceptionTypes.Single());
@@ -483,12 +483,12 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testFinished = Assert.IsAssignableFrom<ITestFinished>(message);
+					var testFinished = Assert.IsType<ITestFinished>(message, exactMatch: false);
 					Assert.Equal(0.234M, testFinished.ExecutionTime);
 				},
 				message =>
 				{
-					var testCaseFinished = Assert.IsAssignableFrom<ITestCaseFinished>(message);
+					var testCaseFinished = Assert.IsType<ITestCaseFinished>(message, exactMatch: false);
 					Assert.Equal(0.234M, testCaseFinished.ExecutionTime);
 					Assert.Equal(1, testCaseFinished.TestsFailed);
 					Assert.Equal(0, testCaseFinished.TestsNotRun);
@@ -497,7 +497,7 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testMethodFinished = Assert.IsAssignableFrom<ITestMethodFinished>(message);
+					var testMethodFinished = Assert.IsType<ITestMethodFinished>(message, exactMatch: false);
 					Assert.Equal(0.234M, testMethodFinished.ExecutionTime);
 					Assert.Equal(1, testMethodFinished.TestsFailed);
 					Assert.Equal(0, testMethodFinished.TestsNotRun);
@@ -506,7 +506,7 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testClassFinished = Assert.IsAssignableFrom<ITestClassFinished>(message);
+					var testClassFinished = Assert.IsType<ITestClassFinished>(message, exactMatch: false);
 					Assert.Equal("asm-id: assembly.dll:config", testClassFinished.AssemblyUniqueID);
 					Assert.Equal(1.234M, testClassFinished.ExecutionTime);
 					Assert.Equal("class-id: type1:assembly.dll:config", testClassFinished.TestClassUniqueID);
@@ -518,27 +518,27 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testClassStarting = Assert.IsAssignableFrom<ITestClassStarting>(message);
+					var testClassStarting = Assert.IsType<ITestClassStarting>(message, exactMatch: false);
 					Assert.Equal("type2", testClassStarting.TestClassName);
 				},
 				message =>
 				{
-					var testMethodStarting = Assert.IsAssignableFrom<ITestMethodStarting>(message);
+					var testMethodStarting = Assert.IsType<ITestMethodStarting>(message, exactMatch: false);
 					Assert.Equal("skipping", testMethodStarting.MethodName);
 				},
 				message =>
 				{
-					var testCaseStarting = Assert.IsAssignableFrom<ITestCaseStarting>(message);
+					var testCaseStarting = Assert.IsType<ITestCaseStarting>(message, exactMatch: false);
 					Assert.Equal("type2.skipping", testCaseStarting.TestCaseDisplayName);
 				},
 				message =>
 				{
-					var testStarting = Assert.IsAssignableFrom<ITestStarting>(message);
+					var testStarting = Assert.IsType<ITestStarting>(message, exactMatch: false);
 					Assert.Equal("type2.skipping", testStarting.TestDisplayName);
 				},
 				message =>
 				{
-					var testSkipped = Assert.IsAssignableFrom<ITestSkipped>(message);
+					var testSkipped = Assert.IsType<ITestSkipped>(message, exactMatch: false);
 					Assert.Equal("asm-id: assembly.dll:config", testSkipped.AssemblyUniqueID);
 					Assert.Equal(0M, testSkipped.ExecutionTime);
 					Assert.Empty(testSkipped.Output);
@@ -551,12 +551,12 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testFinished = Assert.IsAssignableFrom<ITestFinished>(message);
+					var testFinished = Assert.IsType<ITestFinished>(message, exactMatch: false);
 					Assert.Equal(0M, testFinished.ExecutionTime);
 				},
 				message =>
 				{
-					var testCaseFinished = Assert.IsAssignableFrom<ITestCaseFinished>(message);
+					var testCaseFinished = Assert.IsType<ITestCaseFinished>(message, exactMatch: false);
 					Assert.Equal(0M, testCaseFinished.ExecutionTime);
 					Assert.Equal(0, testCaseFinished.TestsFailed);
 					Assert.Equal(0, testCaseFinished.TestsNotRun);
@@ -565,7 +565,7 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testMethodFinished = Assert.IsAssignableFrom<ITestMethodFinished>(message);
+					var testMethodFinished = Assert.IsType<ITestMethodFinished>(message, exactMatch: false);
 					Assert.Equal(0M, testMethodFinished.ExecutionTime);
 					Assert.Equal(0, testMethodFinished.TestsFailed);
 					Assert.Equal(0, testMethodFinished.TestsNotRun);
@@ -574,33 +574,33 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testMethodStarting = Assert.IsAssignableFrom<ITestMethodStarting>(message);
+					var testMethodStarting = Assert.IsType<ITestMethodStarting>(message, exactMatch: false);
 					Assert.Equal("skipping_with_start", testMethodStarting.MethodName);
 				},
 				message =>
 				{
-					var testCaseStarting = Assert.IsAssignableFrom<ITestCaseStarting>(message);
+					var testCaseStarting = Assert.IsType<ITestCaseStarting>(message, exactMatch: false);
 					Assert.Equal("type2.skipping_with_start", testCaseStarting.TestCaseDisplayName);
 				},
 				message =>
 				{
-					var testStarting = Assert.IsAssignableFrom<ITestStarting>(message);
+					var testStarting = Assert.IsType<ITestStarting>(message, exactMatch: false);
 					Assert.Equal("type2.skipping_with_start", testStarting.TestDisplayName);
 				},
 				message =>
 				{
-					var testSkipped = Assert.IsAssignableFrom<ITestSkipped>(message);
+					var testSkipped = Assert.IsType<ITestSkipped>(message, exactMatch: false);
 					Assert.Equal(0M, testSkipped.ExecutionTime);
 					Assert.Equal("Skip message", testSkipped.Reason);
 				},
 				message =>
 				{
-					var testFinished = Assert.IsAssignableFrom<ITestFinished>(message);
+					var testFinished = Assert.IsType<ITestFinished>(message, exactMatch: false);
 					Assert.Equal(0M, testFinished.ExecutionTime);
 				},
 				message =>
 				{
-					var testCaseFinished = Assert.IsAssignableFrom<ITestCaseFinished>(message);
+					var testCaseFinished = Assert.IsType<ITestCaseFinished>(message, exactMatch: false);
 					Assert.Equal(0M, testCaseFinished.ExecutionTime);
 					Assert.Equal(0, testCaseFinished.TestsFailed);
 					Assert.Equal(0, testCaseFinished.TestsNotRun);
@@ -609,7 +609,7 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testMethodFinished = Assert.IsAssignableFrom<ITestMethodFinished>(message);
+					var testMethodFinished = Assert.IsType<ITestMethodFinished>(message, exactMatch: false);
 					Assert.Equal(0M, testMethodFinished.ExecutionTime);
 					Assert.Equal(0, testMethodFinished.TestsFailed);
 					Assert.Equal(0, testMethodFinished.TestsNotRun);
@@ -618,7 +618,7 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testClassFinished = Assert.IsAssignableFrom<ITestClassFinished>(message);
+					var testClassFinished = Assert.IsType<ITestClassFinished>(message, exactMatch: false);
 					Assert.Equal(0M, testClassFinished.ExecutionTime);
 					Assert.Equal(0, testClassFinished.TestsFailed);
 					Assert.Equal(0, testClassFinished.TestsNotRun);
@@ -627,7 +627,7 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testCollectionFinished = Assert.IsAssignableFrom<ITestCollectionFinished>(message);
+					var testCollectionFinished = Assert.IsType<ITestCollectionFinished>(message, exactMatch: false);
 					Assert.Equal("asm-id: assembly.dll:config", testCollectionFinished.AssemblyUniqueID);
 					Assert.Equal(1.234M, testCollectionFinished.ExecutionTime);
 					Assert.Equal("collection-id: assembly.dll:config", testCollectionFinished.TestCollectionUniqueID);
@@ -638,7 +638,7 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var assemblyFinished = Assert.IsAssignableFrom<ITestAssemblyFinished>(message);
+					var assemblyFinished = Assert.IsType<ITestAssemblyFinished>(message, exactMatch: false);
 					Assert.Equal(":v1:assembly:assembly.dll:config", assemblyFinished.AssemblyUniqueID);
 					Assert.Equal(1.234M, assemblyFinished.ExecutionTime);
 					Assert.Equal(1, assemblyFinished.TestsFailed);
@@ -671,15 +671,15 @@ public class Xunit1Tests
 			xunit1.Executor.ReceivedWithAnyArgs(0).RunTests(null!, null!, null!);
 			Assert.Collection(
 				sink.Messages,
-				message => Assert.IsAssignableFrom<ITestAssemblyStarting>(message),
-				message => Assert.IsAssignableFrom<ITestCollectionStarting>(message),
-				message => Assert.IsAssignableFrom<ITestClassStarting>(message),  // type1
-				message => Assert.IsAssignableFrom<ITestMethodStarting>(message),  // type1.passing
-				message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
-				message => Assert.IsAssignableFrom<ITestStarting>(message),
+				message => Assert.IsType<ITestAssemblyStarting>(message, exactMatch: false),
+				message => Assert.IsType<ITestCollectionStarting>(message, exactMatch: false),
+				message => Assert.IsType<ITestClassStarting>(message, exactMatch: false),  // type1
+				message => Assert.IsType<ITestMethodStarting>(message, exactMatch: false),  // type1.passing
+				message => Assert.IsType<ITestCaseStarting>(message, exactMatch: false),
+				message => Assert.IsType<ITestStarting>(message, exactMatch: false),
 				message =>
 				{
-					var testNotRun = Assert.IsAssignableFrom<ITestNotRun>(message);
+					var testNotRun = Assert.IsType<ITestNotRun>(message, exactMatch: false);
 					Assert.Equal("asm-id: assembly.dll:config", testNotRun.AssemblyUniqueID);
 					Assert.Equal(0m, testNotRun.ExecutionTime);
 					Assert.Empty(testNotRun.Output);
@@ -689,10 +689,10 @@ public class Xunit1Tests
 					Assert.Equal("method-id: type1:passing:assembly.dll:config", testNotRun.TestMethodUniqueID);
 					Assert.Equal("33cb20ccf6a9f14e4742076700b8a16bd365ea577fe38cca329d1dcb3839c5f5", testNotRun.TestUniqueID);
 				},
-				message => Assert.IsAssignableFrom<ITestFinished>(message),
+				message => Assert.IsType<ITestFinished>(message, exactMatch: false),
 				message =>
 				{
-					var testCaseFinished = Assert.IsAssignableFrom<ITestCaseFinished>(message);
+					var testCaseFinished = Assert.IsType<ITestCaseFinished>(message, exactMatch: false);
 					Assert.Equal(0, testCaseFinished.TestsFailed);
 					Assert.Equal(1, testCaseFinished.TestsNotRun);
 					Assert.Equal(0, testCaseFinished.TestsSkipped);
@@ -700,18 +700,18 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testMethodFinished = Assert.IsAssignableFrom<ITestMethodFinished>(message);
+					var testMethodFinished = Assert.IsType<ITestMethodFinished>(message, exactMatch: false);
 					Assert.Equal(0, testMethodFinished.TestsFailed);
 					Assert.Equal(1, testMethodFinished.TestsNotRun);
 					Assert.Equal(0, testMethodFinished.TestsSkipped);
 					Assert.Equal(1, testMethodFinished.TestsTotal);
 				},
-				message => Assert.IsAssignableFrom<ITestMethodStarting>(message),  // type1.failing
-				message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
-				message => Assert.IsAssignableFrom<ITestStarting>(message),
+				message => Assert.IsType<ITestMethodStarting>(message, exactMatch: false),  // type1.failing
+				message => Assert.IsType<ITestCaseStarting>(message, exactMatch: false),
+				message => Assert.IsType<ITestStarting>(message, exactMatch: false),
 				message =>
 				{
-					var testNotRun = Assert.IsAssignableFrom<ITestNotRun>(message);
+					var testNotRun = Assert.IsType<ITestNotRun>(message, exactMatch: false);
 					Assert.Equal("asm-id: assembly.dll:config", testNotRun.AssemblyUniqueID);
 					Assert.Equal(0m, testNotRun.ExecutionTime);
 					Assert.Empty(testNotRun.Output);
@@ -721,10 +721,10 @@ public class Xunit1Tests
 					Assert.Equal("method-id: type1:failing:assembly.dll:config", testNotRun.TestMethodUniqueID);
 					Assert.Equal("28b3cec4f75a80983fe5780fc3c2c2720b642f5a76b44706b5839456dc80a122", testNotRun.TestUniqueID);
 				},
-				message => Assert.IsAssignableFrom<ITestFinished>(message),
+				message => Assert.IsType<ITestFinished>(message, exactMatch: false),
 				message =>
 				{
-					var testCaseFinished = Assert.IsAssignableFrom<ITestCaseFinished>(message);
+					var testCaseFinished = Assert.IsType<ITestCaseFinished>(message, exactMatch: false);
 					Assert.Equal(0, testCaseFinished.TestsFailed);
 					Assert.Equal(1, testCaseFinished.TestsNotRun);
 					Assert.Equal(0, testCaseFinished.TestsSkipped);
@@ -732,7 +732,7 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testMethodFinished = Assert.IsAssignableFrom<ITestMethodFinished>(message);
+					var testMethodFinished = Assert.IsType<ITestMethodFinished>(message, exactMatch: false);
 					Assert.Equal(0, testMethodFinished.TestsFailed);
 					Assert.Equal(1, testMethodFinished.TestsNotRun);
 					Assert.Equal(0, testMethodFinished.TestsSkipped);
@@ -740,19 +740,19 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testClassFinished = Assert.IsAssignableFrom<ITestClassFinished>(message);
+					var testClassFinished = Assert.IsType<ITestClassFinished>(message, exactMatch: false);
 					Assert.Equal(0, testClassFinished.TestsFailed);
 					Assert.Equal(2, testClassFinished.TestsNotRun);
 					Assert.Equal(0, testClassFinished.TestsSkipped);
 					Assert.Equal(2, testClassFinished.TestsTotal);
 				},
-				message => Assert.IsAssignableFrom<ITestClassStarting>(message),  // type2
-				message => Assert.IsAssignableFrom<ITestMethodStarting>(message),  // type2.skipping
-				message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
-				message => Assert.IsAssignableFrom<ITestStarting>(message),
+				message => Assert.IsType<ITestClassStarting>(message, exactMatch: false),  // type2
+				message => Assert.IsType<ITestMethodStarting>(message, exactMatch: false),  // type2.skipping
+				message => Assert.IsType<ITestCaseStarting>(message, exactMatch: false),
+				message => Assert.IsType<ITestStarting>(message, exactMatch: false),
 				message =>
 				{
-					var testNotRun = Assert.IsAssignableFrom<ITestNotRun>(message);
+					var testNotRun = Assert.IsType<ITestNotRun>(message, exactMatch: false);
 					Assert.Equal("asm-id: assembly.dll:config", testNotRun.AssemblyUniqueID);
 					Assert.Equal(0m, testNotRun.ExecutionTime);
 					Assert.Empty(testNotRun.Output);
@@ -762,10 +762,10 @@ public class Xunit1Tests
 					Assert.Equal("method-id: type2:skipping:assembly.dll:config", testNotRun.TestMethodUniqueID);
 					Assert.Equal("649b06349999e7f3720d1403096cdfc4727b3274479fbdb943af513b5a7ddb15", testNotRun.TestUniqueID);
 				},
-				message => Assert.IsAssignableFrom<ITestFinished>(message),
+				message => Assert.IsType<ITestFinished>(message, exactMatch: false),
 				message =>
 				{
-					var testCaseFinished = Assert.IsAssignableFrom<ITestCaseFinished>(message);
+					var testCaseFinished = Assert.IsType<ITestCaseFinished>(message, exactMatch: false);
 					Assert.Equal(0, testCaseFinished.TestsFailed);
 					Assert.Equal(1, testCaseFinished.TestsNotRun);
 					Assert.Equal(0, testCaseFinished.TestsSkipped);
@@ -773,20 +773,20 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testMethodFinished = Assert.IsAssignableFrom<ITestMethodFinished>(message);
+					var testMethodFinished = Assert.IsType<ITestMethodFinished>(message, exactMatch: false);
 					Assert.Equal(0, testMethodFinished.TestsFailed);
 					Assert.Equal(1, testMethodFinished.TestsNotRun);
 					Assert.Equal(0, testMethodFinished.TestsSkipped);
 					Assert.Equal(1, testMethodFinished.TestsTotal);
 				},
-				message => Assert.IsAssignableFrom<ITestMethodStarting>(message),  // type2.skipping_with_start
-				message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
-				message => Assert.IsAssignableFrom<ITestStarting>(message),
-				message => Assert.IsAssignableFrom<ITestNotRun>(message),
-				message => Assert.IsAssignableFrom<ITestFinished>(message),
+				message => Assert.IsType<ITestMethodStarting>(message, exactMatch: false),  // type2.skipping_with_start
+				message => Assert.IsType<ITestCaseStarting>(message, exactMatch: false),
+				message => Assert.IsType<ITestStarting>(message, exactMatch: false),
+				message => Assert.IsType<ITestNotRun>(message, exactMatch: false),
+				message => Assert.IsType<ITestFinished>(message, exactMatch: false),
 				message =>
 				{
-					var testCaseFinished = Assert.IsAssignableFrom<ITestCaseFinished>(message);
+					var testCaseFinished = Assert.IsType<ITestCaseFinished>(message, exactMatch: false);
 					Assert.Equal(0, testCaseFinished.TestsFailed);
 					Assert.Equal(1, testCaseFinished.TestsNotRun);
 					Assert.Equal(0, testCaseFinished.TestsSkipped);
@@ -794,7 +794,7 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testMethodFinished = Assert.IsAssignableFrom<ITestMethodFinished>(message);
+					var testMethodFinished = Assert.IsType<ITestMethodFinished>(message, exactMatch: false);
 					Assert.Equal(0, testMethodFinished.TestsFailed);
 					Assert.Equal(1, testMethodFinished.TestsNotRun);
 					Assert.Equal(0, testMethodFinished.TestsSkipped);
@@ -802,7 +802,7 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testClassFinished = Assert.IsAssignableFrom<ITestClassFinished>(message);
+					var testClassFinished = Assert.IsType<ITestClassFinished>(message, exactMatch: false);
 					Assert.Equal(0, testClassFinished.TestsFailed);
 					Assert.Equal(2, testClassFinished.TestsNotRun);
 					Assert.Equal(0, testClassFinished.TestsSkipped);
@@ -810,7 +810,7 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var testCollectionFinished = Assert.IsAssignableFrom<ITestCollectionFinished>(message);
+					var testCollectionFinished = Assert.IsType<ITestCollectionFinished>(message, exactMatch: false);
 					Assert.Equal("asm-id: assembly.dll:config", testCollectionFinished.AssemblyUniqueID);
 					Assert.Equal(0m, testCollectionFinished.ExecutionTime);
 					Assert.Equal("collection-id: assembly.dll:config", testCollectionFinished.TestCollectionUniqueID);
@@ -821,7 +821,7 @@ public class Xunit1Tests
 				},
 				message =>
 				{
-					var assemblyFinished = Assert.IsAssignableFrom<ITestAssemblyFinished>(message);
+					var assemblyFinished = Assert.IsType<ITestAssemblyFinished>(message, exactMatch: false);
 					Assert.Equal(":v1:assembly:assembly.dll:config", assemblyFinished.AssemblyUniqueID);
 					Assert.Equal(0m, assemblyFinished.ExecutionTime);
 					Assert.Equal(0, assemblyFinished.TestsFailed);
@@ -1144,15 +1144,15 @@ public class AmbiguouslyNamedTestMethods
 
 			Assert.Collection(
 				spy.Messages,
-				msg => Assert.IsAssignableFrom<IDiscoveryStarting>(msg),
-				msg => Assert.IsAssignableFrom<IDiscoveryComplete>(msg),
-				msg => Assert.IsAssignableFrom<ITestAssemblyStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestCollectionStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestClassStarting>(msg),
-				msg => Assert.IsAssignableFrom<ITestClassFinished>(msg),
-				msg => Assert.IsAssignableFrom<ITestCollectionFinished>(msg),
-				msg => Assert.IsAssignableFrom<IErrorMessage>(msg),
-				msg => Assert.IsAssignableFrom<ITestAssemblyFinished>(msg)
+				msg => Assert.IsType<IDiscoveryStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<IDiscoveryComplete>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestAssemblyStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestCollectionStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestClassStarting>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestClassFinished>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestCollectionFinished>(msg, exactMatch: false),
+				msg => Assert.IsType<IErrorMessage>(msg, exactMatch: false),
+				msg => Assert.IsType<ITestAssemblyFinished>(msg, exactMatch: false)
 			);
 		}
 	}

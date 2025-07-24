@@ -1,3 +1,5 @@
+#pragma warning disable SYSLIB1045 // Convert to 'GeneratedRegexAttribute'.
+
 using System;
 using System.Text.RegularExpressions;
 using Xunit;
@@ -24,7 +26,7 @@ public class StringAssertsTests
 		[Fact]
 		public void SubstringContainsIsCaseSensitiveByDefault()
 		{
-			void verify(Action action)
+			static void verify(Action action)
 			{
 				var ex = Record.Exception(action);
 
@@ -51,7 +53,7 @@ public class StringAssertsTests
 		[Fact]
 		public void SubstringNotFound()
 		{
-			void verify(Action action)
+			static void verify(Action action)
 			{
 				var ex = Record.Exception(action);
 
@@ -95,7 +97,7 @@ public class StringAssertsTests
 			var expected = "We are looking for something that is actually very long as well";
 			var actual = "This is a relatively long string so that we can see the truncation in action";
 
-			void verify(Action action)
+			static void verify(Action action)
 			{
 				var ex = Record.Exception(action);
 
@@ -167,7 +169,7 @@ public class StringAssertsTests
 		[Fact]
 		public void SubstringFound()
 		{
-			void verify(Action action)
+			static void verify(Action action)
 			{
 				var ex = Record.Exception(action);
 
@@ -201,7 +203,7 @@ public class StringAssertsTests
 		[Fact]
 		public void VeryLongString_FoundAtFront()
 		{
-			void verify(Action action)
+			static void verify(Action action)
 			{
 				var ex = Record.Exception(action);
 
@@ -229,7 +231,7 @@ public class StringAssertsTests
 		[Fact]
 		public void VeryLongString_FoundInMiddle()
 		{
-			void verify(Action action)
+			static void verify(Action action)
 			{
 				var ex = Record.Exception(action);
 
@@ -257,7 +259,7 @@ public class StringAssertsTests
 		[Fact]
 		public void VeryLongString_FoundAtEnd()
 		{
-			void verify(Action action)
+			static void verify(Action action)
 			{
 				var ex = Record.Exception(action);
 
@@ -285,7 +287,7 @@ public class StringAssertsTests
 		[Fact]
 		public void CanSearchForSubstringsCaseInsensitive()
 		{
-			void verify(Action action)
+			static void verify(Action action)
 			{
 				var ex = Record.Exception(action);
 
@@ -376,7 +378,7 @@ public class StringAssertsTests
 		[Fact]
 		public static void GuardClause()
 		{
-			Assert.Throws<ArgumentNullException>("value", () => Assert.Empty(default(string)!));
+			Assert.Throws<ArgumentNullException>("value", () => Assert.Empty(default!));
 		}
 
 		[Fact]
@@ -418,7 +420,7 @@ public class StringAssertsTests
 		[Fact]
 		public void Failure()
 		{
-			void verify(Action action)
+			static void verify(Action action)
 			{
 				var ex = Record.Exception(action);
 
@@ -445,7 +447,7 @@ public class StringAssertsTests
 		[Fact]
 		public void CaseSensitiveByDefault()
 		{
-			void verify(Action action)
+			static void verify(Action action)
 			{
 				var ex = Record.Exception(action);
 
@@ -503,7 +505,7 @@ public class StringAssertsTests
 			var expected = "This is a long string that we're looking for at the end";
 			var actual = "This is the long string that we expected to find this ending inside";
 
-			void verify(Action action)
+			static void verify(Action action)
 			{
 				var ex = Record.Exception(action);
 
@@ -664,7 +666,7 @@ public class StringAssertsTests
 			var expected = "Why hello there world, you're a long string with some truncation!";
 			var actual = "Why hello there world! You're a long string!";
 
-			void verify(Action action)
+			static void verify(Action action)
 			{
 				var ex = Record.Exception(action);
 
@@ -802,7 +804,7 @@ public class StringAssertsTests
 		[Fact]
 		public void Failure()
 		{
-			void verify(Action action)
+			static void verify(Action action)
 			{
 				var ex = Record.Exception(action);
 
@@ -829,7 +831,7 @@ public class StringAssertsTests
 		[Fact]
 		public void CaseSensitiveByDefault()
 		{
-			void verify(Action action)
+			static void verify(Action action)
 			{
 				var ex = Record.Exception(action);
 
@@ -870,7 +872,7 @@ public class StringAssertsTests
 		[Fact]
 		public void NullStrings()
 		{
-			var ex = Record.Exception(() => Assert.StartsWith(default(string), default(string)));
+			var ex = Record.Exception(() => Assert.StartsWith(default(string), default));
 
 			Assert.IsType<StartsWithException>(ex);
 			Assert.Equal(
@@ -887,7 +889,7 @@ public class StringAssertsTests
 			var expected = "This is a long string that we're looking for at the start";
 			var actual = "This is the long string that we expected to find this starting inside";
 
-			void verify(Action action)
+			static void verify(Action action)
 			{
 				var ex = Record.Exception(action);
 

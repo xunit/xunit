@@ -52,12 +52,16 @@ public class ExtensibilityPointFactoryTests
 		[CollectionBeforeAfter]
 		class MyCollection { }
 
+#pragma warning disable CA1822 // Mark members as static
+
 		[ClassBeforeAfter]
 		class MyTestClass
 		{
 			[MethodBeforeAfter]
 			public void TestMethod() { }
 		}
+
+#pragma warning restore CA1822 // Mark members as static
 
 		class AssemblyBeforeAfter : BeforeAfterTestAttribute { }
 		class CollectionBeforeAfter : BeforeAfterTestAttribute { }

@@ -52,6 +52,9 @@ public class ReflectionExtensionsTests
 		Assert.Equal(expectedDisplayName, result);
 	}
 
+#pragma warning disable CA1822 // Mark members as static
+#pragma warning disable IDE0060 // Remove unused parameter
+
 	class DisplayNameClass
 	{
 		public void Parameterless() { }
@@ -59,6 +62,9 @@ public class ReflectionExtensionsTests
 		public void OneGeneric<T>(T x) { }
 		public void Optional(int x = 2112) { }
 	}
+
+#pragma warning restore IDE0060 // Remove unused parameter
+#pragma warning restore CA1822 // Mark members as static
 
 	public class GetMatchingCustomAttributes
 	{
@@ -150,6 +156,7 @@ public class ReflectionExtensionsTests
 		[AttributeUnderTest<int>]
 		[ThrowingAttributeUnderTest<int>]
 #endif
+		[AttributeUsage(AttributeTargets.All)]
 		class AttributeWithAttribute : Attribute { }
 
 		[Fact]
@@ -522,6 +529,9 @@ public class ReflectionExtensionsTests
 			Assert.Equal(expected, actual);
 		}
 
+#pragma warning disable CA1822 // Mark members as static
+#pragma warning disable IDE0060 // Remove unused parameter
+
 		public class GenericMethodContainer
 		{
 			public static void NoGenericParameters_NoParameters() { }
@@ -585,6 +595,9 @@ public class ReflectionExtensionsTests
 			public static void OneGenericParameter_GenericInterface<T>(Generic1Interface<T> x) { }
 			public static void TwoGenericParameters_GenericInterface<T, U>(Generic2Interface<T, U> x) { }
 		}
+
+#pragma warning restore IDE0060 // Remove unused parameter
+#pragma warning restore CA1822 // Mark members as static
 
 		public class GenericClass<T> { }
 		public class GenericClass2<T, U> { }
@@ -706,7 +719,7 @@ public class ReflectionExtensionsTests
 
 			var result = Assert.Single(results);
 			var resultArray = Assert.IsType<int[]>(result);
-			Assert.Equal(new[] { 42, 2112 }, resultArray);
+			Assert.Equal([42, 2112], resultArray);
 		}
 
 		[Fact]

@@ -561,7 +561,7 @@ public class ExecutionSinkTests
 				executionTime: 123.4567809m,
 				messages: ["Exception Message"],
 				output: "test output",
-				stackTraces: [default(string)]
+				stackTraces: [default]
 			);
 
 			var assemblyElement = new XElement("assembly");
@@ -714,26 +714,23 @@ public class ExecutionSinkTests
 			Assert.Equal("value2", name2Element.Attribute("value")!.Value);
 		}
 
-		public static IEnumerable<object[]> IllegalXmlTestData()
-		{
-			yield return new object[]
-			{
+		public static IEnumerable<TheoryDataRow<string, string>> IllegalXmlTestData =>
+		[
+			(
 				new string(Enumerable.Range(0, 32).Select(x => (char)x).ToArray()),
 				@"\0\x01\x02\x03\x04\x05\x06\a\b\t\n\v\f\r\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f"
-			};
+			),
 			// Invalid surrogate characters should be added as \x----, where ---- is the hex value of the char
-			yield return new object[]
-			{
+			(
 				"\xd800 Hello.World \xdc00",
 				@"\xd800 Hello.World \xdc00"
-			};
+			),
 			// ...but valid ones should be outputted like normal
-			yield return new object[]
-			{
+			(
 				"\xd800\xdfff This.Is.Valid \xda00\xdd00",
 				"\xd800\xdfff This.Is.Valid \xda00\xdd00" // note: no @
-			};
-		}
+			),
+		];
 
 		[Theory]
 		[MemberData(nameof(IllegalXmlTestData))]
@@ -1004,34 +1001,27 @@ public class ExecutionSinkTests
 		}
 	}
 
-	class TestableExecutionSink : ExecutionSink
+	class TestableExecutionSink(
+		XunitProjectAssembly assembly,
+		ITestFrameworkDiscoveryOptions discoveryOptions,
+		ITestFrameworkExecutionOptions executionOptions,
+		AppDomainOption appDomainOption,
+		bool shadowCopy,
+		SpyMessageSink innerSink,
+		SpyMessageSink diagnosticMessageSink,
+		ExecutionSinkOptions options) :
+			ExecutionSink(assembly, discoveryOptions, executionOptions, appDomainOption, shadowCopy, innerSink, options)
 	{
 		volatile bool stop = false;
 		volatile int stopEventTriggerCount;
 		DateTimeOffset utcNow = DateTimeOffset.UtcNow;
 		readonly AutoResetEvent workEvent = new(initialState: false);
 
-		public TestableExecutionSink(
-			XunitProjectAssembly assembly,
-			ITestFrameworkDiscoveryOptions discoveryOptions,
-			ITestFrameworkExecutionOptions executionOptions,
-			AppDomainOption appDomainOption,
-			bool shadowCopy,
-			SpyMessageSink innerSink,
-			SpyMessageSink diagnosticMessageSink,
-			ExecutionSinkOptions options) :
-				base(assembly, discoveryOptions, executionOptions, appDomainOption, shadowCopy, innerSink, options)
-		{
-			InnerSink = innerSink;
-			DiagnosticMessageSink = diagnosticMessageSink;
-			Options = options;
-		}
+		public SpyMessageSink DiagnosticMessageSink { get; } = diagnosticMessageSink;
 
-		public SpyMessageSink DiagnosticMessageSink { get; }
+		public SpyMessageSink InnerSink { get; } = innerSink;
 
-		public SpyMessageSink InnerSink { get; }
-
-		public ExecutionSinkOptions Options { get; }
+		public ExecutionSinkOptions Options { get; } = options;
 
 		protected override DateTimeOffset UtcNow => utcNow;
 
@@ -1107,13 +1097,13 @@ public class ExecutionSinkTests
 			AppDomainOption? appDomainOption = null,
 			bool shadowCopy = false,
 			XElement? assemblyElement = null,
-			CancellationToken cancellationToken = default,
 			Action<ExecutionSummary>? finishedCallback = null,
 			bool failSkips = false,
 			bool failWarn = false,
 			Action<LongRunningTestsSummary>? longRunningTestCallback = null,
 			long longRunningSeconds = 0L,
-			Func<IMessageSinkMessage, bool>? innerSinkCallback = null)
+			Func<IMessageSinkMessage, bool>? innerSinkCallback = null,
+			CancellationToken cancellationToken = default)
 		{
 			var diagnosticMessageSink = SpyMessageSink.Capture();
 

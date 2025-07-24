@@ -148,6 +148,7 @@ public class XunitTestMethodTests
 	[Collection("foo")]
 	class ClassUnderTest
 	{
+#pragma warning disable IDE0060 // Remove unused parameter
 #pragma warning disable xUnit1001 // Fact methods cannot have parameters
 #pragma warning disable xUnit1002 // Test methods cannot have multiple Fact or Theory attributes
 #pragma warning disable xUnit1026 // Theory methods should use all of their parameters
@@ -162,6 +163,7 @@ public class XunitTestMethodTests
 #pragma warning restore xUnit1026 // Theory methods should use all of their parameters
 #pragma warning restore xUnit1002 // Test methods cannot have multiple Fact or Theory attributes
 #pragma warning restore xUnit1001 // Fact methods cannot have parameters
+#pragma warning restore IDE0060 // Remove unused parameter
 
 		[Theory]
 		[InlineData("data")]

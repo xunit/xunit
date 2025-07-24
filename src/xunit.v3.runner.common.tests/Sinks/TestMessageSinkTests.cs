@@ -61,7 +61,7 @@ public class TestMessageSinkTests
 	{
 		var message = Activator.CreateInstance(type);
 		Assert.NotNull(message);
-		var typedMessage = Assert.IsAssignableFrom<IMessageSinkMessage>(message);
+		var typedMessage = Assert.IsType<IMessageSinkMessage>(message, exactMatch: false);
 		var sink = new SpyTestMessageSink();
 
 		sink.OnMessage(typedMessage);

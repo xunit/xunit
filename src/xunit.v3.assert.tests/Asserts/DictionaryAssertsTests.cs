@@ -33,7 +33,7 @@ public class DictionaryAssertsTests
 				["eleventeen"] = 110
 			};
 
-			void assertFailure(Action action)
+			static void assertFailure(Action action)
 			{
 				var ex = Record.Exception(action);
 
@@ -81,7 +81,7 @@ public class DictionaryAssertsTests
 				["forty-two"] = 42
 			};
 
-			void assertFailure(Action action)
+			static void assertFailure(Action action)
 			{
 				var ex = Record.Exception(action);
 

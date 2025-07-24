@@ -20,27 +20,27 @@ public class CollectionAcceptanceTests : AcceptanceTestV3
 		AssertMessageSequence(explicitResults, "CollectionAcceptanceTests+ClassInExplicitCollection.Passing");
 	}
 
-	private void AssertMessageSequence(IEnumerable<IMessageSinkMessage> results, string testDisplayName)
+	static void AssertMessageSequence(IEnumerable<IMessageSinkMessage> results, string testDisplayName)
 	{
 		Assert.Collection(
 			results,
-			message => Assert.IsAssignableFrom<ITestCollectionStarting>(message),
-			message => Assert.IsAssignableFrom<ITestClassStarting>(message),
-			message => Assert.IsAssignableFrom<ITestMethodStarting>(message),
-			message => Assert.IsAssignableFrom<ITestCaseStarting>(message),
+			message => Assert.IsType<ITestCollectionStarting>(message, exactMatch: false),
+			message => Assert.IsType<ITestClassStarting>(message, exactMatch: false),
+			message => Assert.IsType<ITestMethodStarting>(message, exactMatch: false),
+			message => Assert.IsType<ITestCaseStarting>(message, exactMatch: false),
 			message =>
 			{
-				var testStarting = Assert.IsAssignableFrom<ITestStarting>(message);
+				var testStarting = Assert.IsType<ITestStarting>(message, exactMatch: false);
 				Assert.Equal(testDisplayName, testStarting.TestDisplayName);
 			},
-			message => Assert.IsAssignableFrom<ITestClassConstructionStarting>(message),
-			message => Assert.IsAssignableFrom<ITestClassConstructionFinished>(message),
-			message => Assert.IsAssignableFrom<ITestPassed>(message),
-			message => Assert.IsAssignableFrom<ITestFinished>(message),
-			message => Assert.IsAssignableFrom<ITestCaseFinished>(message),
-			message => Assert.IsAssignableFrom<ITestMethodFinished>(message),
-			message => Assert.IsAssignableFrom<ITestClassFinished>(message),
-			message => Assert.IsAssignableFrom<ITestCollectionFinished>(message)
+			message => Assert.IsType<ITestClassConstructionStarting>(message, exactMatch: false),
+			message => Assert.IsType<ITestClassConstructionFinished>(message, exactMatch: false),
+			message => Assert.IsType<ITestPassed>(message, exactMatch: false),
+			message => Assert.IsType<ITestFinished>(message, exactMatch: false),
+			message => Assert.IsType<ITestCaseFinished>(message, exactMatch: false),
+			message => Assert.IsType<ITestMethodFinished>(message, exactMatch: false),
+			message => Assert.IsType<ITestClassFinished>(message, exactMatch: false),
+			message => Assert.IsType<ITestCollectionFinished>(message, exactMatch: false)
 		);
 	}
 

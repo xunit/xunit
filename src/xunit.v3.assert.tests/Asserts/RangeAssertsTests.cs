@@ -191,15 +191,12 @@ public class RangeAssertsTests
 		}
 	}
 
-	class DoubleComparer : IComparer<double>
+	class DoubleComparer(int returnValue) :
+		IComparer<double>
 	{
-		readonly int returnValue;
-
-		public DoubleComparer(int returnValue)
-		{
-			this.returnValue = returnValue;
-		}
-
-		public int Compare(double x, double y) => returnValue;
+		public int Compare(
+			double x,
+			double y) =>
+				returnValue;
 	}
 }

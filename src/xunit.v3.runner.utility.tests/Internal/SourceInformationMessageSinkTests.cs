@@ -17,7 +17,7 @@ public class SourceInformationMessageSinkTests
 
 		sink.OnMessage(message);
 
-		var result = Assert.IsAssignableFrom<ITestCaseDiscovered>(Assert.Single(spySink.Messages));
+		var result = Assert.IsType<ITestCaseDiscovered>(Assert.Single(spySink.Messages), exactMatch: false);
 		Assert.Equal("file-path", result.SourceFilePath);
 		Assert.Equal(42, result.SourceLineNumber);
 	}
@@ -33,7 +33,7 @@ public class SourceInformationMessageSinkTests
 
 		sink.OnMessage(message);
 
-		var result = Assert.IsAssignableFrom<ITestCaseStarting>(Assert.Single(spySink.Messages));
+		var result = Assert.IsType<ITestCaseStarting>(Assert.Single(spySink.Messages), exactMatch: false);
 		Assert.Equal("file-path", result.SourceFilePath);
 		Assert.Equal(42, result.SourceLineNumber);
 	}
@@ -49,7 +49,7 @@ public class SourceInformationMessageSinkTests
 
 		sink.OnMessage(message);
 
-		var result = Assert.IsAssignableFrom<ITestCaseDiscovered>(Assert.Single(spySink.Messages));
+		var result = Assert.IsType<ITestCaseDiscovered>(Assert.Single(spySink.Messages), exactMatch: false);
 		Assert.Equal("other-path", result.SourceFilePath);
 		Assert.Equal(2112, result.SourceLineNumber);
 	}
@@ -65,7 +65,7 @@ public class SourceInformationMessageSinkTests
 
 		sink.OnMessage(message);
 
-		var result = Assert.IsAssignableFrom<ITestCaseStarting>(Assert.Single(spySink.Messages));
+		var result = Assert.IsType<ITestCaseStarting>(Assert.Single(spySink.Messages), exactMatch: false);
 		Assert.Equal("other-path", result.SourceFilePath);
 		Assert.Equal(2112, result.SourceLineNumber);
 	}

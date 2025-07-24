@@ -9,15 +9,15 @@ public class JsonArraySerializerTests
 	public static IEnumerable<TheoryDataRow<Action<JsonArraySerializer>, string>> ValueFuncs()
 	{
 		// Empty
-		yield return new(s => { }, @"[]");
+		yield return new(s => { }, /* lang=json */"""[]""");
 
 		// int?
-		yield return new(s => s.Serialize(42), @"[42]");
-		yield return new(s => s.Serialize(default(int?)), @"[null]");
+		yield return new(s => s.Serialize(42), /* lang=json */"""[42]""");
+		yield return new(s => s.Serialize(default(int?)), /* lang=json */"""[null]""");
 
 		// string?
-		yield return new(s => s.Serialize("Hello"), @"[""Hello""]");
-		yield return new(s => s.Serialize(default(string?)), @"[null]");
+		yield return new(s => s.Serialize("Hello"), /* lang=json */"""["Hello"]""");
+		yield return new(s => s.Serialize(default(string?)), /* lang=json */"""[null]""");
 
 		// Multi-value
 		yield return new(s =>
@@ -25,7 +25,7 @@ public class JsonArraySerializerTests
 			s.Serialize(42);
 			s.Serialize("Hello");
 			s.Serialize(2112);
-		}, @"[42,""Hello"",2112]");
+		}, /* lang=json */"""[42,"Hello",2112]""");
 
 		// Complex result
 		yield return new(s =>
@@ -36,12 +36,10 @@ public class JsonArraySerializerTests
 				a.Serialize(2112);
 				a.Serialize("Hello");
 			}
-			using (var o = s.SerializeObject())
-			{
-				o.Serialize("first", "Brad");
-				o.Serialize("last", "Wilson");
-			}
-		}, @"[42,[2112,""Hello""],{""first"":""Brad"",""last"":""Wilson""}]");
+			using var o = s.SerializeObject();
+			o.Serialize("first", "Brad");
+			o.Serialize("last", "Wilson");
+		}, /* lang=json */"""[42,[2112,"Hello"],{"first":"Brad","last":"Wilson"}]""");
 	}
 
 	[Theory(DisableDiscoveryEnumeration = true)]

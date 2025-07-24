@@ -7,7 +7,7 @@ namespace Xunit.Sdk;
 
 internal sealed class FormattableAndParsableSerializer : IXunitSerializer
 {
-	static Type? typeParsable = Type.GetType("System.IParsable`1");
+	static readonly Type? typeParsable = Type.GetType("System.IParsable`1");
 
 	public static bool IsSupported =>
 		typeParsable is not null;

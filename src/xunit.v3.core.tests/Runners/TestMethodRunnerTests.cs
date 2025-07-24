@@ -21,7 +21,7 @@ public class TestMethodRunnerTests
 			await runner.OnError(ex!);
 
 			var message = Assert.Single(runner.MessageBus.Messages);
-			var error = Assert.IsAssignableFrom<IErrorMessage>(message);
+			var error = Assert.IsType<IErrorMessage>(message, exactMatch: false);
 
 			Assert.Equal(-1, error.ExceptionParentIndices.Single());
 			Assert.Equal(typeof(DivideByZeroException).FullName, error.ExceptionTypes.Single());
@@ -38,7 +38,7 @@ public class TestMethodRunnerTests
 			await runner.OnTestMethodCleanupFailure(ex!);
 
 			var message = Assert.Single(runner.MessageBus.Messages);
-			var failure = Assert.IsAssignableFrom<ITestMethodCleanupFailure>(message);
+			var failure = Assert.IsType<ITestMethodCleanupFailure>(message, exactMatch: false);
 
 			VerifyTestMethodMessage(failure);
 			Assert.Equal(-1, failure.ExceptionParentIndices.Single());
@@ -56,7 +56,7 @@ public class TestMethodRunnerTests
 			await runner.OnTestMethodFinished(summary);
 
 			var message = Assert.Single(runner.MessageBus.Messages);
-			var finished = Assert.IsAssignableFrom<ITestMethodFinished>(message);
+			var finished = Assert.IsType<ITestMethodFinished>(message, exactMatch: false);
 
 			VerifyTestMethodMessage(finished);
 			Assert.Equal(123.45m, finished.ExecutionTime);
@@ -74,7 +74,7 @@ public class TestMethodRunnerTests
 			await runner.OnTestMethodStarting();
 
 			var message = Assert.Single(runner.MessageBus.Messages);
-			var starting = Assert.IsAssignableFrom<ITestMethodStarting>(message);
+			var starting = Assert.IsType<ITestMethodStarting>(message, exactMatch: false);
 
 			VerifyTestMethodMessage(starting);
 			Assert.Equal("test-method", starting.MethodName);

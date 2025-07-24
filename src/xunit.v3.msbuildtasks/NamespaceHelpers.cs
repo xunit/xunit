@@ -1,3 +1,5 @@
+#pragma warning disable IDE0056 // Use index operator
+
 // This source is copied from
 // https://github.com/microsoft/testfx/blob/3564400fca5863f716d89fc84326e420f0b33d1a/src/Platform/Microsoft.Testing.Platform.MSBuild/Tasks/NamespaceHelpers.cs
 // because we need the namespace to be identical to what's generated in SelfRegisteredExtensions.cs
