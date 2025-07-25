@@ -1,0 +1,61 @@
+name: "xUnit.net CI Build (unsigned)"
+on:
+  push:
+    branches-ignore:
+      - main
+      - 'rel/**'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: "Build"
+    runs-on: windows-latest
+    env:
+      DOTNET_CLI_WORKLOAD_UPDATE_NOTIFY_DISABLE: true
+      DOTNET_NOLOGO: true
+    steps:
+      - name: Clone source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: true
+
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+
+      - name: Get .NET information
+        run: dotnet --info
+        continue-on-error: true
+
+      - name: "Build target: BuildAll"
+        run: dotnet run --project tools/builder --no-launch-profile -- BuildAll --timing --no-x86
+
+      - name: "Upload artifact: test"
+        uses: actions/upload-artifact@v4
+        with:
+          name: test
+          path: artifacts/test
+          compression-level: 9
+        if: always()
+
+      - name: "Upload artifact: packages"
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages
+          path: artifacts/packages
+          compression-level: 0
+        if: always()
+
+      - name: Publish Test Report
+        uses: ctrf-io/github-test-reporter@v1
+        with:
+          report-path: './artifacts/test/*.ctrf'
+          github-report: true
+        if: always()

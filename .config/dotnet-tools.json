@@ -3,7 +3,7 @@
   "isRoot": true,
   "tools": {
     "sign": {
-      "version": "0.9.1-beta.23203.3",
+      "version": "0.9.1-beta.25330.2",
       "commands": [
         "sign"
       ],

@@ -1,4 +1,4 @@
-name: "xUnit.net CI Build (main)"
+name: "xUnit.net CI Build (signed)"
 on:
   push:
     branches:
@@ -7,9 +7,12 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  deployment:
     name: "Build"
     runs-on: windows-latest
+    environment: signing
+    permissions:
+      id-token: write  # Required for Azure CLI Login
     env:
       DOTNET_CLI_WORKLOAD_UPDATE_NOTIFY_DISABLE: true
       DOTNET_NOLOGO: true
@@ -34,17 +37,21 @@ jobs:
         run: dotnet --info
         continue-on-error: true
 
+      - name: Login to Azure CLI
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.KEYVAULT_APP_ID }}
+          tenant-id: ${{ vars.KEYVAULT_TENANT_ID }}
+          subscription-id: ${{ vars.KEYVAULT_SUBSCRIPTION_ID }}
+
       - name: "Build target: BuildAll & DocFX & PublishPackages"
         env:
-          PUSH_APIKEY: ${{ secrets.PUSH_APIKEY }}
-          PUSH_URI: ${{ secrets.PUSH_URI }}
-          SIGN_APP_ID: ${{ secrets.SIGN_APP_ID }}
-          SIGN_APP_SECRET: ${{ secrets.SIGN_APP_SECRET }}
-          SIGN_CERT_NAME: ${{ secrets.SIGN_CERT_NAME }}
-          SIGN_SUBSCRIPTION: ${{ secrets.SIGN_SUBSCRIPTION }}
-          SIGN_TENANT: ${{ secrets.SIGN_TENANT }}
-          SIGN_TIMESTAMP_URI: ${{ secrets.SIGN_TIMESTAMP_URI }}
-          SIGN_VAULT_URI: ${{ secrets.SIGN_VAULT_URI }}
+          PUSH_APIKEY: ${{ secrets.FEEDZ_PUSH_KEY }}
+          PUSH_URI: ${{ vars.FEEDZ_PUSH_URL }}
+          SIGN_APP_ID: ${{ vars.KEYVAULT_APP_ID }}
+          SIGN_CERT_NAME: ${{ vars.KEYVAULT_CERT_NAME }}
+          SIGN_TIMESTAMP_URI: ${{ vars.KEYVAULT_TIMESTAMP_URL }}
+          SIGN_VAULT_URI: ${{ vars.KEYVAULT_URL }}
         run: dotnet run --project tools/builder --no-launch-profile -- BuildAll DocFX PublishPackages --timing --no-x86
 
       - name: "Upload artifact: docfx"
@@ -76,6 +83,5 @@ jobs:
         uses: ctrf-io/github-test-reporter@v1
         with:
           report-path: './artifacts/test/*.ctrf'
-          summary-report: true
           github-report: true
         if: always()

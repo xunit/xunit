@@ -139,7 +139,7 @@ $([System.IO.File]::ReadAllText($(MSBuildThisFileDirectory)..\README.md))
     </ReadLinesFromFile>
     <PropertyGroup>
       <SignedPath />
-      <SignedPath Condition=" '$(SIGN_APP_SECRET)' != '' ">signed\</SignedPath>
+      <SignedPath Condition=" '$(SIGN_APP_ID)' != '' ">signed\</SignedPath>
       <!-- Local builds should have a '-dev' suffix on the build number -->
       <PrereleaseSuffix Condition=" '$(GITHUB_ACTIONS)' != 'true' ">-dev</PrereleaseSuffix>
       <!-- Never put the Git hash in the package version -->
