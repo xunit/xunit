@@ -230,9 +230,9 @@ public class TransformFactory
 					if (assemblyXml.Attribute("target-framework") is XAttribute targetFrameworkXml)
 						suiteJson.Serialize("targetFramework", targetFrameworkXml.Value);
 					if (xml.Attribute("start-rtf") is XAttribute startRtfXml)
-						suiteJson.Serialize("start", DateTimeOffset.Parse(startRtfXml.Value, CultureInfo.InvariantCulture).ToUnixTimeSeconds());
+						suiteJson.Serialize("start", DateTimeOffset.Parse(startRtfXml.Value, CultureInfo.InvariantCulture).ToUnixTimeMilliseconds());
 					if (xml.Attribute("finish-rtf") is XAttribute finishRtfXml)
-						suiteJson.Serialize("stop", DateTimeOffset.Parse(finishRtfXml.Value, CultureInfo.InvariantCulture).ToUnixTimeSeconds());
+						suiteJson.Serialize("stop", DateTimeOffset.Parse(finishRtfXml.Value, CultureInfo.InvariantCulture).ToUnixTimeMilliseconds());
 					if (assemblyXml.Attribute("time") is XAttribute timeXml)
 						suiteJson.Serialize("duration", (long)(decimal.Parse(timeXml.Value, CultureInfo.InvariantCulture) * 1000));
 
@@ -284,11 +284,11 @@ public class TransformFactory
 			{
 				var start = 0L;
 				if (xml.Attribute("start-rtf") is XAttribute startRtfXml)
-					start = DateTimeOffset.Parse(startRtfXml.Value, CultureInfo.InvariantCulture).ToUnixTimeSeconds();
+					start = DateTimeOffset.Parse(startRtfXml.Value, CultureInfo.InvariantCulture).ToUnixTimeMilliseconds();
 
 				var stop = 0L;
 				if (xml.Attribute("finish-rtf") is XAttribute finishRtfXml)
-					stop = DateTimeOffset.Parse(finishRtfXml.Value, CultureInfo.InvariantCulture).ToUnixTimeSeconds();
+					stop = DateTimeOffset.Parse(finishRtfXml.Value, CultureInfo.InvariantCulture).ToUnixTimeMilliseconds();
 
 				summaryJson.Serialize("tests", totalRun);
 				summaryJson.Serialize("passed", totalPassed);
