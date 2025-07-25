@@ -12,8 +12,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "git", "git", "{0AC3A933-286
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{3519D969-1A2E-4F06-9710-D2CB45BA908C}"
 	ProjectSection(SolutionItems) = preProject
+		.github\workflows\ci-signed.yaml = .github\workflows\ci-signed.yaml
+		.github\workflows\ci-unsigned.yaml = .github\workflows\ci-unsigned.yaml
 		.github\workflows\pull-request.yaml = .github\workflows\pull-request.yaml
-		.github\workflows\push-main.yaml = .github\workflows\push-main.yaml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{DD6C7641-EDB5-445C-8563-15068910979E}"
