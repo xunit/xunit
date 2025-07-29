@@ -224,11 +224,14 @@ public abstract class TestCollectionRunner<TContext, TTestCollection, TTestClass
 		TContext ctxt,
 		Exception? exception)
 	{
-		Guard.ArgumentNotNull(ctxt);
-
 		var summary = new RunSummary();
+		var groups =
+			Guard.ArgumentNotNull(ctxt)
+				.TestCases
+				.GroupBy(tc => tc.TestClass, TestClassComparer.Instance)
+				.OrderBy(grouping => grouping.Key, TestClassComparer.Instance);
 
-		foreach (var testCasesByClass in ctxt.TestCases.GroupBy(tc => tc.TestClass, TestClassComparer.Instance))
+		foreach (var testCasesByClass in groups)
 		{
 			var testClass = testCasesByClass.Key as TTestClass;
 			var testCases = testCasesByClass.CastOrToReadOnlyCollection();

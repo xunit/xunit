@@ -1,13 +1,14 @@
+using System;
 using System.Collections.Generic;
 using Xunit.Sdk;
 
 namespace Xunit.v3;
 
 /// <summary>
-/// An implementation of <see cref="IEqualityComparer{T}"/> for <see cref="ITestClass"/>.
-/// Compares the fully qualified names of the types.
+/// An implementation of <see cref="IEqualityComparer{T}"/> and <see cref="IComparer{T}"/>
+/// for <see cref="ITestClass"/>, using the unique ID for the comparison.
 /// </summary>
-public class TestClassComparer : IEqualityComparer<ITestClass?>
+public class TestClassComparer : IEqualityComparer<ITestClass?>, IComparer<ITestClass?>
 {
 	/// <summary>
 	/// The singleton instance of the comparer.
@@ -15,10 +16,16 @@ public class TestClassComparer : IEqualityComparer<ITestClass?>
 	public static readonly TestClassComparer Instance = new();
 
 	/// <inheritdoc/>
+	public int Compare(
+		ITestClass? x,
+		ITestClass? y) =>
+			string.CompareOrdinal(x?.UniqueID, y?.UniqueID);
+
+	/// <inheritdoc/>
 	public bool Equals(
 		ITestClass? x,
 		ITestClass? y) =>
-			(x is null && y is null) || (x is not null && y is not null && x.UniqueID == y.UniqueID);
+			string.Equals(x?.UniqueID, y?.UniqueID, StringComparison.Ordinal);
 
 	/// <inheritdoc/>
 	public int GetHashCode(ITestClass? obj) =>

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -5,12 +6,12 @@ using Xunit.Sdk;
 namespace Xunit.v3;
 
 /// <summary>
-/// An implementation of <see cref="IEqualityComparer{T}"/> for <see cref="ITestCollection"/>.
-/// Compares the IDs of the test collections.
+/// An implementation of <see cref="IEqualityComparer{T}"/> and <see cref="IComparer{T}"/>
+/// for <see cref="ITestCollection"/>, using the unique ID for the comparison.
 /// </summary>
 /// <typeparam name="TTestCollection">The type of the test collection. Must derive
 /// from <see cref="ITestCollection"/>.</typeparam>
-public class TestCollectionComparer<TTestCollection> : IEqualityComparer<TTestCollection>
+public class TestCollectionComparer<TTestCollection> : IEqualityComparer<TTestCollection>, IComparer<TTestCollection>
 	where TTestCollection : class, ITestCollection
 {
 	/// <summary>
@@ -19,10 +20,16 @@ public class TestCollectionComparer<TTestCollection> : IEqualityComparer<TTestCo
 	public static readonly TestCollectionComparer<TTestCollection> Instance = new();
 
 	/// <inheritdoc/>
+	public int Compare(
+		TTestCollection? x,
+		TTestCollection? y) =>
+			string.CompareOrdinal(x?.UniqueID, y?.UniqueID);
+
+	/// <inheritdoc/>
 	public bool Equals(
 		TTestCollection? x,
 		TTestCollection? y) =>
-			(x is null && y is null) || (x is not null && y is not null && x.UniqueID == y.UniqueID);
+			string.Equals(x?.UniqueID, y?.UniqueID, StringComparison.Ordinal);
 
 	/// <inheritdoc/>
 	public int GetHashCode(TTestCollection obj) =>
