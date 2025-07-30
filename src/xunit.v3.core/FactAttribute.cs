@@ -10,6 +10,8 @@ namespace Xunit;
 /// Attribute that is applied to a method to indicate that it is a fact that should be run
 /// by the default test runner.
 /// </summary>
+/// <param name="sourceFilePath">This parameter is provided automatically by the compiler. Do not pass a value for it.</param>
+/// <param name="sourceLineNumber">This parameter is provided automatically by the compiler. Do not pass a value for it.</param>
 [XunitTestCaseDiscoverer(typeof(FactDiscoverer))]
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
 public class FactAttribute(

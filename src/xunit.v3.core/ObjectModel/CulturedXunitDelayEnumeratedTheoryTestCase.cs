@@ -6,7 +6,10 @@ using Xunit.Sdk;
 
 namespace Xunit.v3;
 
-public class CulturedXunitTestCase : XunitTestCase
+/// <summary>
+/// An instance of <see cref="XunitDelayEnumeratedTheoryTestCase"/> which has a cultural override.
+/// </summary>
+public class CulturedXunitDelayEnumeratedTheoryTestCase : XunitDelayEnumeratedTheoryTestCase
 {
 	string? culture;
 	CultureInfo? originalCulture;
@@ -16,37 +19,55 @@ public class CulturedXunitTestCase : XunitTestCase
 	/// Called by the de-serializer; should only be called by deriving classes for de-serialization purposes
 	/// </summary>
 	[Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
-	public CulturedXunitTestCase()
+	public CulturedXunitDelayEnumeratedTheoryTestCase()
 	{ }
 
-	public CulturedXunitTestCase(
+	/// <summary>
+	/// Initializes a new instance of the <see cref="CulturedXunitDelayEnumeratedTheoryTestCase"/> class.
+	/// </summary>
+	/// <param name="culture">The culture to run the theory under.</param>
+	/// <param name="testMethod">The test method this test case belongs to.</param>
+	/// <param name="testCaseDisplayName">The display name for the test case.</param>
+	/// <param name="uniqueID">The optional unique ID for the test case; if not provided, will be calculated.</param>
+	/// <param name="explicit">Indicates whether the test case was marked as explicit.</param>
+	/// <param name="skipTestWithoutData">Set to <c>true</c> to skip if the test has no data, rather than fail.</param>
+	/// <param name="skipExceptions">The value from <see cref="IFactAttribute.SkipExceptions"/>.</param>
+	/// <param name="skipReason">The value from <see cref="IFactAttribute.Skip"/></param>
+	/// <param name="skipType">The value from <see cref="IFactAttribute.SkipType"/> </param>
+	/// <param name="skipUnless">The value from <see cref="IFactAttribute.SkipUnless"/></param>
+	/// <param name="skipWhen">The value from <see cref="IFactAttribute.SkipWhen"/></param>
+	/// <param name="traits">The optional traits list.</param>
+	/// <param name="sourceFilePath">The optional source file in where this test case originated.</param>
+	/// <param name="sourceLineNumber">The optional source line number where this test case originated.</param>
+	/// <param name="timeout">The optional timeout for the test case (in milliseconds).</param>
+	public CulturedXunitDelayEnumeratedTheoryTestCase(
 		string culture,
 		IXunitTestMethod testMethod,
 		string testCaseDisplayName,
 		string uniqueID,
 		bool @explicit,
+		bool skipTestWithoutData,
 		Type[]? skipExceptions = null,
 		string? skipReason = null,
 		Type? skipType = null,
 		string? skipUnless = null,
 		string? skipWhen = null,
 		Dictionary<string, HashSet<string>>? traits = null,
-		object?[]? testMethodArguments = null,
 		string? sourceFilePath = null,
 		int? sourceLineNumber = null,
-		int? timeout = null) :
-			base(
+		int? timeout = null)
+			: base(
 				testMethod,
 				$"{testCaseDisplayName}[{culture}]",
 				$"{uniqueID}[{culture}]",
 				@explicit,
+				skipTestWithoutData,
 				skipExceptions,
 				skipReason,
 				skipType,
 				skipUnless,
 				skipWhen,
 				traits,
-				testMethodArguments,
 				sourceFilePath,
 				sourceLineNumber,
 				timeout
@@ -57,9 +78,13 @@ public class CulturedXunitTestCase : XunitTestCase
 		Traits.Add("Culture", Culture);
 	}
 
+	/// <summary>
+	/// Gets the culture the theory will be run under.
+	/// </summary>
 	public string Culture =>
 		this.ValidateNullablePropertyValue(culture, nameof(Culture));
 
+	/// <inheritdoc/>
 	protected override void Deserialize(IXunitSerializationInfo info)
 	{
 		base.Deserialize(info);
@@ -67,6 +92,7 @@ public class CulturedXunitTestCase : XunitTestCase
 		culture = Guard.NotNull("Could not retrieve Culture from serialization", info.GetValue<string>("cul"));
 	}
 
+	/// <inheritdoc/>
 	public override void PostInvoke()
 	{
 		if (originalCulture is not null)
@@ -77,6 +103,7 @@ public class CulturedXunitTestCase : XunitTestCase
 		base.PostInvoke();
 	}
 
+	/// <inheritdoc/>
 	public override void PreInvoke()
 	{
 		base.PreInvoke();
@@ -89,6 +116,7 @@ public class CulturedXunitTestCase : XunitTestCase
 		CultureInfo.CurrentUICulture = cultureInfo;
 	}
 
+	/// <inheritdoc/>
 	protected override void Serialize(IXunitSerializationInfo info)
 	{
 		base.Serialize(info);
