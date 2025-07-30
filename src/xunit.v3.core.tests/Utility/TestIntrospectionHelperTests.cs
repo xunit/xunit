@@ -154,7 +154,7 @@ public class TestIntrospectionHelperTests
 			Assert.Equal("Custom Display Name(_1: 42, _2: ???, _3: ???)", details.TestCaseDisplayName);
 		}
 
-		[CulturedFact]
+		[CulturedFact(["en-US", "fr-FR"])]
 		public void TooManyTestArguments()
 		{
 			var testMethod = TestData.XunitTestMethod<CustomDisplayNameWithArgumentsTestClass>(nameof(CustomDisplayNameWithArgumentsTestClass.TestMethod));

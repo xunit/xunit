@@ -331,7 +331,7 @@ public class ExecutionSinkTests
 			Assert.Null(assemblyElement.Attribute("target-framework"));
 		}
 
-		[CulturedFact]
+		[CulturedFact(["en-US", "fr-FR"])]
 		public void AddsAssemblyFinishedInformationToXml()
 		{
 			var assemblyFinished = TestData.TestAssemblyFinished(
@@ -362,7 +362,7 @@ public class ExecutionSinkTests
 			Assert.Equal("1", assemblyElement.Attribute("errors")!.Value);
 		}
 
-		[CulturedFact]
+		[CulturedFact(["en-US", "fr-FR"])]
 		public void AddsTestCollectionElementsToXml()
 		{
 			var assemblyFinished = TestData.TestAssemblyFinished();
@@ -386,7 +386,7 @@ public class ExecutionSinkTests
 			Assert.Equal(123.457M.ToString(CultureInfo.InvariantCulture), collectionElement.Attribute("time")!.Value);
 		}
 
-		[CulturedFact]
+		[CulturedFact(["en-US", "fr-FR"])]
 		public void AddsPassingTestElementToXml()
 		{
 			var assemblyFinished = TestData.TestAssemblyFinished();
@@ -424,7 +424,7 @@ public class ExecutionSinkTests
 			Assert.Empty(testElement.Elements("reason"));
 		}
 
-		[CulturedFact]
+		[CulturedFact(["en-US", "fr-FR"])]
 		public void EmptyOutputStringDoesNotShowUpInResultingXml()
 		{
 			var assemblyFinished = TestData.TestAssemblyFinished();
@@ -462,7 +462,7 @@ public class ExecutionSinkTests
 			Assert.Empty(testElement.Elements("reason"));
 		}
 
-		[CulturedFact]
+		[CulturedFact(["en-US", "fr-FR"])]
 		public void OutputStringStripsANSIInResultingXml()
 		{
 			var assemblyFinished = TestData.TestAssemblyFinished();
@@ -500,7 +500,7 @@ public class ExecutionSinkTests
 			Assert.Empty(testElement.Elements("reason"));
 		}
 
-		[CulturedFact]
+		[CulturedFact(["en-US", "fr-FR"])]
 		public void AddsFailingTestElementToXml()
 		{
 			var assemblyFinished = TestData.TestAssemblyFinished();
@@ -581,7 +581,7 @@ public class ExecutionSinkTests
 			Assert.Empty(failureElement.Elements("stack-trace").Single().Value);
 		}
 
-		[CulturedFact]
+		[CulturedFact(["en-US", "fr-FR"])]
 		public void AddsSkippedTestElementToXml()
 		{
 			var assemblyFinished = TestData.TestAssemblyFinished();
@@ -616,7 +616,7 @@ public class ExecutionSinkTests
 			Assert.Empty(testElement.Elements("failure"));
 		}
 
-		[CulturedFact]
+		[CulturedFact(["en-US", "fr-FR"])]
 		public void AddsNotRunTestElementToXml()
 		{
 			var assemblyFinished = TestData.TestAssemblyFinished();
