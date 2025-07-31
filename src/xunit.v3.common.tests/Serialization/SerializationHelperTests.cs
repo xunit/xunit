@@ -516,7 +516,6 @@ public class SerializationHelperTests
 		public static IEnumerable<TheoryDataRow<object?, Type, string>> FailureData()
 		{
 #if NETFRAMEWORK
-
 			// GAC'd enums can't be serialized (Mono doesn't have a GAC, so skip it there)
 			if (!EnvironmentHelper.IsMono)
 				yield return new(ConformanceLevel.Auto, typeof(ConformanceLevel), "Cannot serialize enum of type 'System.Xml.ConformanceLevel' because it lives in the GAC");
@@ -529,9 +528,9 @@ public class SerializationHelperTests
 			yield return new(new SerializationHelperTests(), typeof(SerializationHelperTests), "Cannot serialize a value of type 'SerializationHelperTests': unsupported type for serialization");
 
 			// If IXunitSerializable return false, the value can't be serialized
-			yield return new(new Unserializable(), typeof(Unserializable), $"I always fail");
+			yield return new(new Unserializable(), typeof(Unserializable), "I always fail");
 
-			// Non-null value, incompatible type)
+			// Non-null value, incompatible type
 			yield return new(new object(), typeof(MyEnum), "Cannot serialize a value of type 'System.Object' as type 'SerializationHelperTests+MyEnum' because it's type-incompatible");
 
 			// Null value, non-nullable type
