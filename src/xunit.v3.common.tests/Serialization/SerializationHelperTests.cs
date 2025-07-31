@@ -53,7 +53,7 @@ public class SerializationHelperTests
 		// Types are serialized as their type name
 		{ typeof(string), "-4:System.String" },
 
-		// Enums, IXunitSerializable types, and types supported by IXunitSerializer contain embedded type information in addition to a type index
+		// Enums, tuples, IXunitSerializable types, and types supported by IXunitSerializer contain embedded type information in addition to a type index
 		{ new MySerializable(1, "2", 3.4m), $"-3:{ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof(MySerializable)))}:{ToBase64($"p1:6:1\np2:0:{ToBase64("2")}\np3:12:3.4")}" },
 		{ MyEnum.MyValue, $"-3:{ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof(MyEnum)))}:{ToBase64("123")}" },
 		{ (MyEnum)int.MinValue, $"-3:{ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof(MyEnum)))}:{ToBase64("-2147483648")}" },
@@ -63,6 +63,9 @@ public class SerializationHelperTests
 #if NETFRAMEWORK
 		{ PerformanceCounterType.AverageCount64, $"-3:{ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof(PerformanceCounterType)))}:{ToBase64(((int)PerformanceCounterType.AverageCount64).ToString())}" },
 #endif
+		{ (Greeting: "Hello world", Value: 42), $"-3:{ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof((string Greeting, int Value))))}:{ToBase64($"0:{ToBase64("Hello world")}\n6:42")}" },
+		{ Tuple.Create(default(string), 2112), $"-3:{ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof(Tuple<string, int>)))}:{ToBase64($"-1\n6:2112")}" },
+		{ ValueTuple.Create(default(object), 2600), $"-3:{ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof(ValueTuple<object, int>)))}:{ToBase64($"-1\n6:2600")}" },
 		{ new MyCustomType { Age = 42, Name = "Someone" }, $"-3:{ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof(MyCustomType)))}:{ToBase64("42:Someone")}" },
 
 		// Types which implement both IFormattable and IParsable<T>
@@ -101,6 +104,9 @@ public class SerializationHelperTests
 	{
 		{ typeof(Type), "-4" },
 		{ typeof(MyCustomType), "-3" },
+		{ typeof((string Greeting, int Value)?), "-3" },
+		{ typeof(Tuple<string, int>), "-3" },
+		{ typeof(ValueTuple<string, int>?), "-3" },
 		{ typeof(MySerializable), "-3" },
 		{ typeof(MyEnum?), "-3" },
 		{ typeof(Dictionary<string, HashSet<string>>), "-2" },
@@ -418,6 +424,9 @@ public class SerializationHelperTests
 			typeof(PerformanceCounterType),
 #endif
 			typeof(MyEnum),
+			typeof((string, int)),
+			typeof(Tuple<string, int>),
+			typeof(ValueTuple<string, int>),
 			typeof(MyCustomType),
 		];
 
@@ -541,6 +550,10 @@ public class SerializationHelperTests
 
 			// Cannot serialize generic argument types
 			yield return new(typeof(ClassWithGenericMethod).GetMethod(nameof(ClassWithGenericMethod.GenericMethod))!.GetGenericArguments()[0], typeof(Type), "Cannot serialize typeof(U) because it has no full name");
+
+			// Values in tuples must be serializable
+			yield return new(Tuple.Create(new object()), typeof(Tuple<object>), "Exception serializing tuple value of type 'Tuple<object>': Cannot serialize a non-null value of type 'System.Object'");
+			yield return new(ValueTuple.Create(new Exception()), typeof(ValueTuple<Exception>), "Exception serializing tuple value of type 'ValueTuple<Exception>': Cannot serialize a value of type 'System.Exception': unsupported type for serialization");
 		}
 
 #pragma warning restore xUnit1047

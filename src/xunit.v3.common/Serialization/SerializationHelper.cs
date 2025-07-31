@@ -178,6 +178,8 @@ public class SerializationHelper
 
 		if (FormattableAndParsableSerializer.IsSupported)
 			xunitSeralizersByType.Add(typeof(IFormattable), new FormattableAndParsableSerializer());
+		if (TupleSerializer.IsSupported)
+			xunitSeralizersByType.Add(TupleSerializer.TupleType, new TupleSerializer());
 	}
 
 	/// <summary>
