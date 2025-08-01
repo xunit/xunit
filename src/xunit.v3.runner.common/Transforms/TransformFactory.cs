@@ -449,13 +449,14 @@ public class TransformFactory
 	{
 		var ns = XNamespace.Get("http://microsoft.com/schemas/VisualStudio/TeamTest/2010");
 
-		var reportId = xml.Attribute("id")!.Value;
-		var user = xml.Attribute("user")!.Value;
-		var computer = xml.Attribute("computer")!.Value;
-		var startRtf = xml.Attribute("start-rtf")!.Value;
+		var reportId = xml.Attribute("id")?.Value ?? Guid.NewGuid().ToString();
+		var user = xml.Attribute("user")?.Value ?? "unknown";
+		var computer = xml.Attribute("computer")?.Value ?? "unknown";
+		var startRtf = xml.Attribute("start-rtf")?.Value ?? DateTimeOffset.UtcNow.ToString("O", CultureInfo.InvariantCulture);
+		var finishRtf = xml.Attribute("finish-rtf")?.Value ?? DateTimeOffset.UtcNow.ToString("O", CultureInfo.InvariantCulture);
 
 		var assemblies = xml.XPathSelectElements("assembly").CastOrToReadOnlyCollection();
-		var tests = xml.XPathSelectElements("assembly/collection/test").CastOrToReadOnlyCollection();
+		var tests = xml.XPathSelectElements("assembly/collection/test").Where(test => test.Attribute("id") is not null).CastOrToReadOnlyCollection();
 
 		var totalRun = assemblies.Sum(assembly => int.Parse(assembly.Attribute("total")?.Value ?? "0", CultureInfo.InvariantCulture));
 		var totalPassed = assemblies.Sum(assembly => int.Parse(assembly.Attribute("passed")?.Value ?? "0", CultureInfo.InvariantCulture));
@@ -473,7 +474,7 @@ public class TransformFactory
 					new XAttribute("creation", startRtf),
 					new XAttribute("queuing", startRtf),
 					new XAttribute("start", startRtf),
-					new XAttribute("finish", xml.Attribute("finish-rtf")!.Value)
+					new XAttribute("finish", finishRtf)
 				),
 				new XElement(ns + "TestSettings",
 					new XAttribute("name", "default"),
@@ -485,23 +486,27 @@ public class TransformFactory
 						var testId = test.Attribute("id")!.Value;
 						var element =
 							new XElement(ns + "UnitTestResult",
-								new XAttribute("testName", test.Attribute("name")!.Value),
-								new XAttribute("outcome", test.Attribute("result")!.Value switch
+								new XAttribute("testName", test.Attribute("name")?.Value ?? "unknown"),
+								new XAttribute("outcome", test.Attribute("result")?.Value switch
 								{
 									"Pass" => "Passed",
 									"Fail" => "Failed",
 									"Skip" => "NotExecuted",
 									_ => "NotRunnable"
 								}),
-								new XAttribute("duration", test.Attribute("time-rtf")!.Value),
 								new XAttribute("testType", "13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b"),
 								new XAttribute("testListId", "8c84fa94-04c1-424b-9868-57a2d4851a1d"),
 								new XAttribute("testId", testId),
 								new XAttribute("executionId", testId),
-								new XAttribute("computerName", computer),
-								new XAttribute("startTime", test.Attribute("start-rtf")!.Value),
-								new XAttribute("endTime", test.Attribute("finish-rtf")!.Value)
+								new XAttribute("computerName", computer)
 							);
+
+						if (test.Attribute("time-rtf") is XAttribute timeRtf)
+							element.Add(new XAttribute("duration", timeRtf.Value));
+						if (test.Attribute("start-rtf") is XAttribute testStartRtf)
+							element.Add(new XAttribute("startTime", testStartRtf.Value));
+						if (test.Attribute("finish-rtf") is XAttribute testFinishRtf)
+							element.Add(new XAttribute("endTime", testFinishRtf.Value));
 
 						if (test.XPathSelectElement("attachments") is XElement attachments)
 						{
@@ -510,27 +515,28 @@ public class TransformFactory
 							Directory.CreateDirectory(basePath);
 
 							foreach (var attachment in attachments.XPathSelectElements("attachment"))
-							{
-								var fileName = attachment.Attribute("name")!.Value;
-								string localFilePath;
-
-								if (attachment.Attribute("media-type") is XAttribute mediaType)
+								if (attachment.Attribute("name") is XAttribute attachmentName)
 								{
-									localFilePath = Path.Combine(basePath, MediaTypeUtility.GetSanitizedFileNameWithExtension(fileName, mediaType.Value));
-									File.WriteAllBytes(localFilePath, Convert.FromBase64String(attachment.Value));
-								}
-								else
-								{
-									localFilePath = Path.Combine(basePath, MediaTypeUtility.GetSanitizedFileNameWithExtension(fileName, "text/plain"));
-									File.WriteAllText(localFilePath, attachment.Value);
-								}
+									var fileName = attachmentName.Value;
+									string localFilePath;
 
-								resultFiles.Add(
-									new XElement(ns + "ResultFile",
-										new XAttribute("path", localFilePath)
-									)
-								);
-							}
+									if (attachment.Attribute("media-type") is XAttribute mediaType)
+									{
+										localFilePath = Path.Combine(basePath, MediaTypeUtility.GetSanitizedFileNameWithExtension(fileName, mediaType.Value));
+										File.WriteAllBytes(localFilePath, Convert.FromBase64String(attachment.Value));
+									}
+									else
+									{
+										localFilePath = Path.Combine(basePath, MediaTypeUtility.GetSanitizedFileNameWithExtension(fileName, "text/plain"));
+										File.WriteAllText(localFilePath, attachment.Value);
+									}
+
+									resultFiles.Add(
+										new XElement(ns + "ResultFile",
+											new XAttribute("path", localFilePath)
+										)
+									);
+								}
 
 							element.Add(resultFiles);
 						}
@@ -572,26 +578,36 @@ public class TransformFactory
 				new XElement(ns + "TestDefinitions",
 					assemblies.Select(assembly =>
 					{
-						var assemblyPath = assembly.Attribute("name")!.Value;
+						var assemblyPath = assembly.Attribute("name")?.Value;
 						var results = new List<XElement>();
 
-						foreach (var test in assembly.XPathSelectElements("collection/test"))
-							results.Add(
-								new XElement(ns + "UnitTest",
-									new XAttribute("name", test.Attribute("name")!.Value),
-									new XAttribute("storage", assemblyPath),
-									new XAttribute("id", test.Attribute("id")!.Value),
-									new XElement(ns + "Execution",
-										new XAttribute("id", test.Attribute("id")!.Value)
-									),
-									new XElement(ns + "TestMethod",
-										new XAttribute("codeBase", assemblyPath),
-										new XAttribute("className", test.Attribute("type")!.Value),
-										new XAttribute("name", test.Attribute("method")!.Value),
-										new XAttribute("adapterTypeName", $"executor://{reportId}/{ThisAssembly.AssemblyFileVersion}")
-									)
+						foreach (var test in assembly.XPathSelectElements("collection/test").Where(test => test.Attribute("id") is not null))
+						{
+							var unitTest = new XElement(ns + "UnitTest",
+								new XAttribute("name", test.Attribute("name")?.Value ?? "unknown"),
+								new XAttribute("id", test.Attribute("id")!.Value),
+								new XElement(ns + "Execution",
+									new XAttribute("id", test.Attribute("id")!.Value)
 								)
 							);
+
+							if (assemblyPath is not null)
+							{
+								unitTest.Add(new XAttribute("storage", assemblyPath));
+
+								if (test.Attribute("type") is XAttribute type && test.Attribute("method") is XAttribute method)
+									unitTest.Add(
+										new XElement(ns + "TestMethod",
+											new XAttribute("codeBase", assemblyPath),
+											new XAttribute("className", test.Attribute("type")!.Value),
+											new XAttribute("name", test.Attribute("method")!.Value),
+											new XAttribute("adapterTypeName", $"executor://{reportId}/{ThisAssembly.AssemblyFileVersion}")
+										)
+									);
+							}
+
+							results.Add(unitTest);
+						}
 
 						return results;
 					})
