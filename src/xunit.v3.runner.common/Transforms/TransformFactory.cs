@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
+using System.Xml.XPath;
 using System.Xml.Xsl;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -58,7 +59,7 @@ public class TransformFactory
 			new Transform(
 				"trx",
 				"output results to TRX XML file",
-				(xml, outputFileName) => Handler_XslTransform("TRX.xslt", xml, outputFileName)
+				Handler_TRX
 			),
 		];
 
@@ -415,6 +416,205 @@ public class TransformFactory
 
 		using var textWriter = new XmlTextWriter(outputFileName, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
 		xml.Save(textWriter);
+	}
+
+	static void Handler_TRX(
+		XElement xml,
+		string outputFileName)
+	{
+		var ns = XNamespace.Get("http://microsoft.com/schemas/VisualStudio/TeamTest/2010");
+
+		var reportId = xml.Attribute("id")!.Value;
+		var user = xml.Attribute("user")!.Value;
+		var computer = xml.Attribute("computer")!.Value;
+		var startRtf = xml.Attribute("start-rtf")!.Value;
+
+		var assemblies = xml.XPathSelectElements("assembly").CastOrToReadOnlyCollection();
+		var tests = xml.XPathSelectElements("assembly/collection/test").CastOrToReadOnlyCollection();
+
+		var totalRun = assemblies.Sum(assembly => int.Parse(assembly.Attribute("total")?.Value ?? "0", CultureInfo.InvariantCulture));
+		var totalPassed = assemblies.Sum(assembly => int.Parse(assembly.Attribute("passed")?.Value ?? "0", CultureInfo.InvariantCulture));
+		var totalFailed = assemblies.Sum(assembly => int.Parse(assembly.Attribute("failed")?.Value ?? "0", CultureInfo.InvariantCulture));
+		var totalSkipped = assemblies.Sum(assembly => int.Parse(assembly.Attribute("skipped")?.Value ?? "0", CultureInfo.InvariantCulture));
+		var totalNotRun = assemblies.Sum(assembly => int.Parse(assembly.Attribute("not-run")?.Value ?? "0", CultureInfo.InvariantCulture));
+		var totalErrors = assemblies.Sum(assembly => int.Parse(assembly.Attribute("errors")?.Value ?? "0", CultureInfo.InvariantCulture));
+
+		var result = new XDocument(new XDeclaration(version: "1.0", encoding: "utf-8", standalone: null),
+			new XElement(ns + "TestRun",
+				new XAttribute("id", reportId),
+				new XAttribute("name", $"{user}@{computer} {startRtf}"),
+				new XAttribute("runUser", user),
+				new XElement(ns + "Times",
+					new XAttribute("creation", startRtf),
+					new XAttribute("queuing", startRtf),
+					new XAttribute("start", startRtf),
+					new XAttribute("finish", xml.Attribute("finish-rtf")!.Value)
+				),
+				new XElement(ns + "TestSettings",
+					new XAttribute("name", "default"),
+					new XAttribute("id", "6c4d5628-128d-4c3b-a1a4-ab366a4594ad")
+				),
+				new XElement(ns + "Results",
+					tests.Select(test =>
+					{
+						var testId = test.Attribute("id")!.Value;
+						var element =
+							new XElement(ns + "UnitTestResult",
+								new XAttribute("testName", test.Attribute("name")!.Value),
+								new XAttribute("outcome", test.Attribute("result")!.Value switch
+								{
+									"Pass" => "Passed",
+									"Fail" => "Failed",
+									"Skip" => "NotExecuted",
+									_ => "NotRunnable"
+								}),
+								new XAttribute("duration", test.Attribute("time-rtf")!.Value),
+								new XAttribute("testType", "13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b"),
+								new XAttribute("testListId", "8c84fa94-04c1-424b-9868-57a2d4851a1d"),
+								new XAttribute("testId", testId),
+								new XAttribute("executionId", testId),
+								new XAttribute("computerName", computer),
+								new XAttribute("startTime", test.Attribute("start-rtf")!.Value),
+								new XAttribute("endTime", test.Attribute("finish-rtf")!.Value)
+							);
+
+						if (test.XPathSelectElement("attachments") is XElement attachments)
+						{
+							var resultFiles = new XElement(ns + "ResultFiles");
+							var basePath = Path.Combine(Path.GetTempPath(), testId);
+							Directory.CreateDirectory(basePath);
+
+							foreach (var attachment in attachments.XPathSelectElements("attachment"))
+							{
+								var fileName = attachment.Attribute("name")!.Value;
+								string localFilePath;
+
+								if (attachment.Attribute("media-type") is XAttribute mediaType)
+								{
+									localFilePath = Path.Combine(basePath, MediaTypeUtility.GetSanitizedFileNameWithExtension(fileName, mediaType.Value));
+									File.WriteAllBytes(localFilePath, Convert.FromBase64String(attachment.Value));
+								}
+								else
+								{
+									localFilePath = Path.Combine(basePath, MediaTypeUtility.GetSanitizedFileNameWithExtension(fileName, "text/plain"));
+									File.WriteAllText(localFilePath, attachment.Value);
+								}
+
+								resultFiles.Add(
+									new XElement(ns + "ResultFile",
+										new XAttribute("path", localFilePath)
+									)
+								);
+							}
+
+							element.Add(resultFiles);
+						}
+
+						var output = new XElement(ns + "Output");
+						var textMessages = new XElement(ns + "TextMessages");
+
+						if (test.XPathSelectElement("output") is XElement outputMessages)
+							foreach (var line in outputMessages.Value.TrimEnd('\r', '\n').Split(["\r\n"], StringSplitOptions.None))
+								textMessages.Add(new XElement(ns + "Message", new XText(line)));
+
+						if (test.XPathSelectElement("warnings") is XElement warnings)
+							foreach (var warning in warnings.XPathSelectElements("warning"))
+								textMessages.Add(new XElement(ns + "Message", new XText("WARNING: " + warning.Value)));
+
+						if (!textMessages.IsEmpty)
+							output.Add(textMessages);
+
+						if (test.XPathSelectElement("failure") is XElement failure)
+						{
+							var errorInfo = new XElement(ns + "ErrorInfo");
+
+							if (failure.XPathSelectElement("message") is XElement message)
+								errorInfo.Add(new XElement(ns + "Message", new XText(message.Value)));
+							if (failure.XPathSelectElement("stack-trace") is XElement stackTrace)
+								errorInfo.Add(new XElement(ns + "StackTrace", new XText(stackTrace.Value)));
+
+							output.Add(errorInfo);
+						}
+						if (test.XPathSelectElement("reason") is XElement reason)
+							output.Add(new XElement(ns + "StdOut", new XText(reason.Value)));
+
+						if (!output.IsEmpty)
+							element.Add(output);
+
+						return element;
+					})
+				),
+				new XElement(ns + "TestDefinitions",
+					assemblies.Select(assembly =>
+					{
+						var assemblyPath = assembly.Attribute("name")!.Value;
+						var results = new List<XElement>();
+
+						foreach (var test in assembly.XPathSelectElements("collection/test"))
+							results.Add(
+								new XElement(ns + "UnitTest",
+									new XAttribute("name", test.Attribute("name")!.Value),
+									new XAttribute("storage", assemblyPath),
+									new XAttribute("id", test.Attribute("id")!.Value),
+									new XElement(ns + "Execution",
+										new XAttribute("id", test.Attribute("id")!.Value)
+									),
+									new XElement(ns + "TestMethod",
+										new XAttribute("codeBase", assemblyPath),
+										new XAttribute("className", test.Attribute("type")!.Value),
+										new XAttribute("name", test.Attribute("method")!.Value),
+										new XAttribute("adapterTypeName", $"executor://{reportId}/{ThisAssembly.AssemblyFileVersion}")
+									)
+								)
+							);
+
+						return results;
+					})
+				),
+				new XElement(ns + "TestEntries",
+					tests.Select(test =>
+						new XElement(ns + "TestEntry",
+							new XAttribute("testListId", "8c84fa94-04c1-424b-9868-57a2d4851a1d"),
+							new XAttribute("testId", test.Attribute("id")!.Value),
+							new XAttribute("executionId", test.Attribute("id")!.Value)
+						)
+					)
+				),
+				new XElement(ns + "TestLists",
+					new XElement(ns + "TestList",
+						new XAttribute("name", "Results Not in a List"),
+						new XAttribute("id", "8c84fa94-04c1-424b-9868-57a2d4851a1d")
+					),
+					new XElement(ns + "TestList",
+						new XAttribute("name", "All Loaded Results"),
+						new XAttribute("id", "19431567-8539-422a-85d7-44ee4e166bda")
+					)
+				),
+				new XElement(ns + "ResultSummary",
+					new XAttribute("outcome", totalErrors + totalFailed > 0 ? "Failed" : "Complete"),
+					new XElement(ns + "Counters",
+						new XAttribute("total", totalRun),
+						new XAttribute("executed", totalRun - totalSkipped - totalNotRun),
+						new XAttribute("passed", totalPassed),
+						new XAttribute("failed", totalFailed),
+						new XAttribute("error", totalErrors),
+						new XAttribute("timeout", 0),
+						new XAttribute("aborted", 0),
+						new XAttribute("inconclusive", 0),
+						new XAttribute("passedButRunAborted", 0),
+						new XAttribute("notRunnable", totalNotRun),
+						new XAttribute("notExecuted", totalSkipped),
+						new XAttribute("disconnected", 0),
+						new XAttribute("warning", 0),
+						new XAttribute("completed", 0),
+						new XAttribute("inProgress", 0),
+						new XAttribute("pending", 0)
+					)
+				)
+			)
+		);
+
+		File.WriteAllText(outputFileName, result.ToString(), new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
 	}
 
 	static void Handler_XslTransform(

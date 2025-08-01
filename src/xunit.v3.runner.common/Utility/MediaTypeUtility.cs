@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.InteropServices;
+using System.Text;
 using Microsoft.Win32;
+using Xunit.Internal;
 
 namespace Xunit;
 
@@ -9,14 +12,10 @@ namespace Xunit;
 /// This class provides mappings from media types (stored in attachments) to the intended file system extension
 /// when storing the attachment on disk.
 /// </summary>
-#if XUNIT_RUNNER_UTILITY
-public
-#else
-internal
-#endif
-static class MediaTypeUtility
+public static class MediaTypeUtility
 {
 	const string DefaultExtension = ".bin";
+	static readonly HashSet<char> InvalidFileNameChars = [.. Path.GetInvalidFileNameChars()];
 
 	static readonly Dictionary<string, string> mediaTypeMappings = new(StringComparer.OrdinalIgnoreCase)
 	{
@@ -103,7 +102,7 @@ static class MediaTypeUtility
 	/// </summary>
 	/// <param name="mediaType">The media type to get the file extension from</param>
 	/// <remarks>
-	/// This list is pre-populated with media types from https://developer.mozilla.org/en-US/docs/Web/HTTP/MIME_types/Common_types.
+	/// The media type list is pre-populated with media types from <see href="https://developer.mozilla.org/en-US/docs/Web/HTTP/MIME_types/Common_types"/>.
 	/// On Windows, an unknown media type will attempt to find the file extension in the system registry, under
 	/// <c>HKEY_CLASSES_ROOT\MIME\Database\Content Type</c>; on non-Windows OSes, there is no fallback.
 	/// The pre-populated cache was last populated on 2025 February 5.
@@ -120,5 +119,42 @@ static class MediaTypeUtility
 		}
 
 		return extension;
+	}
+
+	/// <summary>
+	/// This takes a filename that may contain illegal characters (per <see cref="Path.GetInvalidFileNameChars"/>),
+	/// replaces them with underscores, and ensures that the file extension matches the provided MIME media type.
+	/// If the media type does not have a known extension, <c>.bin</c> will be used.
+	/// </summary>
+	/// <param name="fileName">The filename</param>
+	/// <param name="mediaType">The media type</param>
+	/// <returns>The sanitized filename with the correct file extension applied</returns>
+	/// <remarks>
+	/// The media type list is pre-populated with media types from <see href="https://developer.mozilla.org/en-US/docs/Web/HTTP/MIME_types/Common_types"/>.
+	/// On Windows, an unknown media type will attempt to find the file extension in the system registry, under
+	/// <c>HKEY_CLASSES_ROOT\MIME\Database\Content Type</c>; on non-Windows OSes, there is no fallback.
+	/// The pre-populated cache was last populated on 2025 February 5.
+	/// </remarks>
+	public static string GetSanitizedFileNameWithExtension(
+		string fileName,
+		string mediaType)
+	{
+		Guard.ArgumentNotNull(fileName);
+
+		var builder = new StringBuilder(fileName.Length);
+
+		foreach (var c in fileName)
+			if (InvalidFileNameChars.Contains(c))
+				builder.Append('_');
+			else
+				builder.Append(c);
+
+		var result = builder.ToString();
+		var fileExtension = GetFileExtension(mediaType);
+
+		if (Path.GetExtension(result) != fileExtension)
+			result += fileExtension;
+
+		return result;
 	}
 }

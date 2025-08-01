@@ -29,6 +29,9 @@
     <!-- Used by xunit.v3.runner.common to determine the target framework of an assembly without load-locking it -->
     <Mono_Cecil_Version>0.11.6</Mono_Cecil_Version>
 
+    <!-- Used by xunit.v3.runner.common to keep a cache of media type => extension mappings -->
+    <Microsoft_Win32_Registry_Version>5.0.0</Microsoft_Win32_Registry_Version>
+
     <!-- Used by xunit.v3.runner.msbuild to reference MSBuild types -->
     <Microsoft_Build_Tasks_Core_Version>16.11.6</Microsoft_Build_Tasks_Core_Version>
 

@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using Microsoft.Testing.Platform.Extensions.Messages;
 using Microsoft.Testing.Platform.Messages;
@@ -45,8 +43,6 @@ public class TestPlatformExecutionMessageSink(
 	CancellationToken cancellationToken) :
 		OutputDeviceDataProducerBase("execution message sink", "fa7e6681-c892-4741-9980-724bd818f1f1"), IMessageSink, IDataProducer
 {
-	static readonly HashSet<char> InvalidFileNameChars = Path.GetInvalidFileNameChars().ToHashSet();
-
 	readonly MessageMetadataCache metadataCache = new();
 	readonly ConcurrentDictionary<string, TestNode> testNodesByTestID = [];
 	readonly ConcurrentDictionary<string, ConcurrentBag<ITestStarting>> testsByAssemblyID = [];
@@ -148,7 +144,7 @@ public class TestPlatformExecutionMessageSink(
 
 					foreach (var kvp in testFinished.Attachments)
 					{
-						var localFilePath = Path.Combine(basePath, SanitizeFileName(kvp.Key));
+						var localFilePath = default(string);
 
 						try
 						{
@@ -156,25 +152,17 @@ public class TestPlatformExecutionMessageSink(
 
 							if (attachmentType == TestAttachmentType.String)
 							{
-								if (Path.GetExtension(localFilePath) != ".txt")
-									localFilePath += ".txt";
-
+								localFilePath = Path.Combine(basePath, MediaTypeUtility.GetSanitizedFileNameWithExtension(kvp.Key, "text/plain"));
 								File.WriteAllText(localFilePath, kvp.Value.AsString());
 							}
 							else if (attachmentType == TestAttachmentType.ByteArray)
 							{
 								var (byteArray, mediaType) = kvp.Value.AsByteArray();
-								var fileExtension = MediaTypeUtility.GetFileExtension(mediaType);
-								if (Path.GetExtension(localFilePath) != fileExtension)
-									localFilePath += fileExtension;
-
+								localFilePath = Path.Combine(basePath, MediaTypeUtility.GetSanitizedFileNameWithExtension(kvp.Key, mediaType));
 								File.WriteAllBytes(localFilePath, byteArray);
 							}
 							else
-							{
 								outputDevice.DisplayAsync(this, ToMessageWithColor(string.Format(CultureInfo.CurrentCulture, "[{0}] Unknown test attachment type '{1}' for attachment '{2}'", testNode.DisplayName, attachmentType, kvp.Key), ConsoleColor.Yellow)).SpinWait();
-								localFilePath = null;
-							}
 
 							if (localFilePath is not null)
 								testNode.Properties.Add(new FileArtifactProperty(new FileInfo(localFilePath), kvp.Key));
@@ -215,19 +203,6 @@ public class TestPlatformExecutionMessageSink(
 		testsByTestID.TryAdd(testStarting.TestUniqueID, testStarting);
 
 		SendTestNodeUpdate(testStarting);
-	}
-
-	static string SanitizeFileName(string fileName)
-	{
-		var result = new StringBuilder(fileName.Length);
-
-		foreach (var c in fileName)
-			if (InvalidFileNameChars.Contains(c))
-				result.Append('_');
-			else
-				result.Append(c);
-
-		return result.ToString();
 	}
 
 	void SendError(

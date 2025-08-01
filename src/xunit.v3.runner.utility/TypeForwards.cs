@@ -9,3 +9,4 @@ using Xunit;
 [assembly: TypeForwardedTo(typeof(FrontControllerSettingsBase))]
 [assembly: TypeForwardedTo(typeof(IFrontController))]
 [assembly: TypeForwardedTo(typeof(IFrontControllerDiscoverer))]
+[assembly: TypeForwardedTo(typeof(MediaTypeUtility))]
