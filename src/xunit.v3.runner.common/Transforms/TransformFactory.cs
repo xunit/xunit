@@ -182,8 +182,13 @@ public class TransformFactory
 		var totalSuites = 0L;
 
 		using (var rootJson = new JsonObjectSerializer(buffer))
-		using (var resultsJson = rootJson.SerializeObject("results"))
 		{
+			rootJson.Serialize("reportFormat", "CTRF");
+			rootJson.Serialize("specVersion", "0.0.0");
+			rootJson.Serialize("reportId", Guid.NewGuid().ToString());
+			rootJson.Serialize("timestamp", DateTimeOffset.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture));
+
+			using var resultsJson = rootJson.SerializeObject("results");
 			using (var toolJson = resultsJson.SerializeObject("tool"))
 			{
 				toolJson.Serialize("name", "xUnit.net v3");
@@ -336,6 +341,8 @@ public class TransformFactory
 								testJson.Serialize("suite", suiteID);
 							if (testXml.Attribute("source-file") is XAttribute sourceFileXml)
 								testJson.Serialize("filePath", sourceFileXml.Value);
+							if (testXml.Attribute("source-line") is XAttribute sourceLineXml)
+								testJson.Serialize("line", long.Parse(sourceLineXml.Value, CultureInfo.InvariantCulture));
 
 							var failureXml = testXml.Element("failure");
 							if (failureXml is not null)
@@ -354,12 +361,12 @@ public class TransformFactory
 										tags.Serialize(categoryValue);
 
 							using var extraJson = testJson.SerializeObject("extra");
-							if (testXml.Attribute("id") is XAttribute idXml)
-								extraJson.Serialize("id", idXml.Value);
+							var testID = testXml.Attribute("id")?.Value;
+
+							if (testID is not null)
+								extraJson.Serialize("id", testID);
 							if (collectionID is not null)
 								extraJson.Serialize("collection", collectionID);
-							if (testXml.Attribute("source-line") is XAttribute sourceLineXml)
-								extraJson.Serialize("fileLine", long.Parse(sourceLineXml.Value, CultureInfo.InvariantCulture));
 							if (testXml.Attribute("type") is XAttribute typeXml)
 								extraJson.Serialize("type", typeXml.Value);
 							if (testXml.Attribute("method") is XAttribute methodXml)
@@ -383,19 +390,37 @@ public class TransformFactory
 
 							var attachmentsXml = testXml.Element("attachments")?.Elements("attachment");
 							if (attachmentsXml is not null)
-								using (var attachmentsJson = extraJson.SerializeObject("attachments"))
+								using (var attachmentsJson = extraJson.SerializeArray("attachments"))
+								{
+									var basePath = Path.Combine(Path.GetTempPath(), testID ?? Guid.NewGuid().ToString());
+									Directory.CreateDirectory(basePath);
+
 									foreach (var attachmentXml in attachmentsXml)
 										if (attachmentXml.Attribute("name") is XAttribute nameXml)
 										{
-											if (attachmentXml.Attribute("media-type") is not XAttribute mediaTypeXml)
-												attachmentsJson.Serialize(nameXml.Value, attachmentXml.Value);
+											string contentType;
+											byte[] content;
+
+											if (attachmentXml.Attribute("media-type") is XAttribute mediaTypeXml)
+											{
+												contentType = mediaTypeXml.Value;
+												content = Convert.FromBase64String(attachmentXml.Value);
+											}
 											else
-												using (var attachmentJson = attachmentsJson.SerializeObject(nameXml.Value))
-												{
-													attachmentJson.Serialize("media-type", mediaTypeXml.Value);
-													attachmentJson.Serialize("value", attachmentXml.Value);
-												}
+											{
+												contentType = "text/plain";
+												content = Encoding.UTF8.GetBytes(attachmentXml.Value);
+											}
+
+											var localFilePath = Path.Combine(basePath, MediaTypeUtility.GetSanitizedFileNameWithExtension(nameXml.Value, contentType));
+											File.WriteAllBytes(localFilePath, content);
+
+											using var attachmentJson = attachmentsJson.SerializeObject();
+											attachmentJson.Serialize("name", nameXml.Value);
+											attachmentJson.Serialize("contentType", contentType);
+											attachmentJson.Serialize("path", localFilePath);
 										}
+								}
 
 							if (failureXml is not null && failureXml.Attribute("exception-type") is XAttribute exceptionXml)
 								extraJson.Serialize("exception", exceptionXml.Value);
