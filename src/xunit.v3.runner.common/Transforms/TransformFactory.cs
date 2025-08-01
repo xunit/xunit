@@ -599,8 +599,8 @@ public class TransformFactory
 									unitTest.Add(
 										new XElement(ns + "TestMethod",
 											new XAttribute("codeBase", assemblyPath),
-											new XAttribute("className", test.Attribute("type")!.Value),
-											new XAttribute("name", test.Attribute("method")!.Value),
+											new XAttribute("className", type.Value),
+											new XAttribute("name", method.Value),
 											new XAttribute("adapterTypeName", $"executor://{reportId}/{ThisAssembly.AssemblyFileVersion}")
 										)
 									);
