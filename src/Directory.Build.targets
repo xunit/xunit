@@ -152,7 +152,6 @@ $([System.IO.File]::ReadAllText($(MSBuildThisFileDirectory)..\README.md))
         GitCommitId=$(GitCommitId);
         Microsoft_Bcl_AsyncInterfaces_Version=$(Microsoft_Bcl_AsyncInterfaces_Version);
         Microsoft_Testing_Version=$(Microsoft_Testing_Version);
-        Mono_Cecil_Version=$(Mono_Cecil_Version);
         PackageVersion=$(PackageVersion);
         SignedPath=$(SignedPath);
         System_Collections_Immutable_Version=$(System_Collections_Immutable_Version);

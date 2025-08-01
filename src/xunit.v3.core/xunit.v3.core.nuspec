@@ -31,10 +31,8 @@
 		<file target="_content\" src="Package\content\*" />
 		<file target="_content\" src="..\..\tools\media\logo-128-transparent.png" />
 		<file target="_content\README.md" src="obj\xunit.v3.core.README.md" />
-		<file target="_content\runners\netcore\" src="..\xunit.v3.runner.utility\bin\$Configuration$\net8.0\Mono.Cecil*.dll" />
 		<file target="_content\runners\netcore\" src="..\xunit.v3.runner.utility\bin\$Configuration$\net8.0\xunit.abstractions.dll" />
 		<file target="_content\runners\netcore\" src="..\xunit.v3.runner.utility\bin\$Configuration$\net8.0\xunit.v3.runner.utility.netcore.dll" />
-		<file target="_content\runners\netfx\" src="..\xunit.v3.runner.utility\bin\$Configuration$\net472\Mono.Cecil*.dll" />
 		<file target="_content\runners\netfx\" src="..\xunit.v3.runner.utility\bin\$Configuration$\net472\xunit.abstractions.dll" />
 		<file target="_content\runners\netfx\" src="..\xunit.v3.runner.utility\bin\$Configuration$\net472\xunit.v3.runner.utility.netfx.dll" />
 		<file target="_content\tasks\netcore\" src="..\xunit.v3.msbuildtasks\bin\$Configuration$\net8.0\$SignedPath$xunit.v3.msbuildtasks.dll" />
