@@ -4,7 +4,6 @@
     <When Condition=" '$(_XunitIncludeCommonItems)' != 'false' ">
       <ItemGroup>
         <Compile Include="$(MSBuildThisFileDirectory)common\EnvironmentVariables.cs" LinkBase="Common" />
-        <Compile Include="$(MSBuildThisFileDirectory)common\OverloadResolutionPriorityAttribute.cs" LinkBase="Common" />
         <Compile Include="$(MSBuildThisFileDirectory)common\RequiredMemberAttribute.cs" LinkBase="Common" />
       </ItemGroup>
 
