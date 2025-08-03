@@ -379,7 +379,7 @@ public class SerializationHelperTests
 					"Hello world";
 		}
 
-#endif
+#endif  // NET8_0_OR_GREATER
 	}
 
 	public class IsSerializable
@@ -601,7 +601,7 @@ public class SerializationHelperTests
 				throw new NotImplementedException();
 		}
 
-#endif
+#endif  // NET8_0_OR_GREATER
 	}
 
 	public class SerializerRegistration
@@ -948,7 +948,7 @@ public class SerializationHelperTests
 		}
 	}
 
-#endif
+#endif  // NET8_0_OR_GREATER
 
 	class TestableSerializationHelper : SerializationHelper
 	{

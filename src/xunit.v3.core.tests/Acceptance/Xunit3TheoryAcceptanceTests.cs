@@ -2222,8 +2222,7 @@ public class Xunit3TheoryAcceptanceTests
 			);
 		}
 
-#endif
-
+#endif  // NET8_0_OR_GREATER
 	}
 
 	public class MethodDataTests : AcceptanceTestV3

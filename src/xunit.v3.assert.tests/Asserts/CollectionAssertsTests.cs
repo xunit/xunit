@@ -338,6 +338,7 @@ public class CollectionAssertsTests
 		}
 
 #if NET8_0_OR_GREATER
+
 		[Fact]
 		public static void ReadOnlySetsAreTreatedSpecially()
 		{
@@ -345,7 +346,8 @@ public class CollectionAssertsTests
 
 			Assert.Contains("HI THERE", set);
 		}
-#endif
+
+#endif  // NET8_0_OR_GREATER
 	}
 
 	public class Contains_Comparer
@@ -566,6 +568,7 @@ public class CollectionAssertsTests
 		}
 
 #if NET8_0_OR_GREATER
+
 		[Fact]
 		public static void ReadOnlySetsAreTreatedSpecially()
 		{
@@ -582,7 +585,8 @@ public class CollectionAssertsTests
 				ex.Message
 			);
 		}
-#endif
+
+#endif  // NET8_0_OR_GREATER
 	}
 
 	public class DoesNotContain_Comparer
