@@ -149,7 +149,7 @@ public class CollectionTrackerTests
 			Assert.Equal($"[{ArgumentFormatter.Ellipsis}]", tracker.FormatStart(ArgumentFormatter.MaxEnumerableLength + 1));
 		}
 
-		[CulturedFact(["en-US", "fr-FR"])]
+		[CulturedFactDefault]
 		public static void Short()
 		{
 			var tracker = new object[] { 1, 2.3M, "Hello, world!" }.AsTracker();
@@ -157,7 +157,7 @@ public class CollectionTrackerTests
 			Assert.Equal($"[1, {2.3M}, \"Hello, world!\"]", tracker.FormatStart());
 		}
 
-		[CulturedFact(["en-US", "fr-FR"])]
+		[CulturedFactDefault]
 		public static void Long()
 		{
 			var tracker = new object[] { 1, 2.3M, "Hello, world!", 42, 2112, new() }.AsTracker();
@@ -184,7 +184,7 @@ public class CollectionTrackerTests
 			Assert.Equal($"[{ArgumentFormatter.Ellipsis}]", CollectionTracker<object>.FormatStart(collection, ArgumentFormatter.MaxEnumerableLength + 1));
 		}
 
-		[CulturedFact(["en-US", "fr-FR"])]
+		[CulturedFactDefault]
 		public static void Short()
 		{
 			IEnumerable<object> collection = [1, 2.3M, "Hello, world!"];
@@ -192,7 +192,7 @@ public class CollectionTrackerTests
 			Assert.Equal($"[1, {2.3M}, \"Hello, world!\"]", CollectionTracker<object>.FormatStart(collection));
 		}
 
-		[CulturedFact(["en-US", "fr-FR"])]
+		[CulturedFactDefault]
 		public static void Long()
 		{
 			IEnumerable<object> collection = [1, 2.3M, "Hello, world!", 42, 2112, new object()];
@@ -219,7 +219,7 @@ public class CollectionTrackerTests
 			Assert.Equal($"[{ArgumentFormatter.Ellipsis}]", CollectionTracker<object>.FormatStart(span, ArgumentFormatter.MaxEnumerableLength + 1));
 		}
 
-		[CulturedFact(["en-US", "fr-FR"])]
+		[CulturedFactDefault]
 		public static void Short()
 		{
 			var span = new object[] { 1, 2.3M, "Hello, world!" }.AsSpan();
@@ -227,7 +227,7 @@ public class CollectionTrackerTests
 			Assert.Equal($"[1, {2.3M}, \"Hello, world!\"]", CollectionTracker<object>.FormatStart(span));
 		}
 
-		[CulturedFact(["en-US", "fr-FR"])]
+		[CulturedFactDefault]
 		public static void Long()
 		{
 			var span = new object[] { 1, 2.3M, "Hello, world!", 42, 2112, new() }.AsSpan();

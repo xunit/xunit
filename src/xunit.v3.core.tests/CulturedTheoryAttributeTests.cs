@@ -69,7 +69,7 @@ public class CulturedTheoryAttributeTests : AcceptanceTestV3
 
 	class TestClassWithMultipleCultures
 	{
-		[CulturedTheory(["en-US", "fr-FR"])]
+		[CulturedTheoryDefault]
 		[InlineData(42)]
 		[InlineData(2112)]
 		public void TestMethod(int _) =>

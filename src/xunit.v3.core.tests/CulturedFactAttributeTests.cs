@@ -54,7 +54,7 @@ public class CulturedFactAttributeTests : AcceptanceTestV3
 
 	class TestClassWithMultipleCultures
 	{
-		[CulturedFact(["en-US", "fr-FR"])]
+		[CulturedFactDefault]
 		public void TestMethod() =>
 			Assert.Equal("fr-FR", CultureInfo.CurrentCulture.Name);
 	}
