@@ -33,7 +33,7 @@ public class SerializationHelper
 
 	readonly Dictionary<TypeIndex, Func<string, object?>> deserializersByTypeIdx;
 	readonly Dictionary<TypeIndex, Func<object, Type, string>> serializersByTypeIdx;
-	readonly Dictionary<Type, IXunitSerializer> xunitSeralizersByType;
+	readonly LinkedList<(Type Type, IXunitSerializer Serializer)> xunitSerializers = [];
 
 	static SerializationHelper()
 	{
@@ -170,16 +170,13 @@ public class SerializationHelper
 		if (rangeCtor is not null)
 			serializersByTypeIdx.Add(TypeIndex.Range, (v, _) => v.ToString() ?? throw new InvalidOperationException("Range value returned null from ToString()"));
 
-		xunitSeralizersByType = new()
-		{
-			{ typeof(IXunitSerializable), new XunitSerializableSerializer(this) },
-			{ typeof(Enum), new EnumSerializer() },
-		};
+		xunitSerializers.AddLast((typeof(IXunitSerializable), new XunitSerializableSerializer(this)));
+		xunitSerializers.AddLast((typeof(Enum), new EnumSerializer()));
 
 		if (FormattableAndParsableSerializer.IsSupported)
-			xunitSeralizersByType.Add(typeof(IFormattable), new FormattableAndParsableSerializer());
+			xunitSerializers.AddLast((typeof(IFormattable), new FormattableAndParsableSerializer()));
 		if (TupleSerializer.IsSupported)
-			xunitSeralizersByType.Add(TupleSerializer.TupleType, new TupleSerializer());
+			xunitSerializers.AddLast((TupleSerializer.TupleType, new TupleSerializer()));
 	}
 
 	/// <summary>
@@ -258,15 +255,16 @@ public class SerializationHelper
 
 				foreach (var supportedType in registration.SupportedTypesForSerialization)
 				{
-					if (xunitSeralizersByType.TryGetValue(supportedType, out var existingSerializer))
+					var existingSerializer = xunitSerializers.FirstOrDefault(s => s.Type == supportedType);
+					if (existingSerializer.Type is not null)
 						warnings?.Add(string.Format(
 							CultureInfo.CurrentCulture,
 							"Serializer type '{0}' tried to register for type '{1}' which is already supported by serializer type '{2}'",
 							registration.SerializerType.SafeName(),
 							supportedType.SafeName(),
-							existingSerializer.GetType().SafeName()
+							existingSerializer.Serializer.GetType().SafeName()
 						));
-					else if (IsSerializable(null, supportedType))
+					else if (IsSerializable(null, supportedType, skipXunitSerializers: true))
 						warnings?.Add(string.Format(
 							CultureInfo.CurrentCulture,
 							"Serializer type '{0}' tried to register for type '{1}' which is supported by a built-in serializer",
@@ -281,7 +279,7 @@ public class SerializationHelper
 							supportedType.SafeName()
 						));
 					else
-						xunitSeralizersByType[supportedType] = serializer;
+						xunitSerializers.AddFirst((supportedType, serializer));
 				}
 			}
 			catch (Exception ex)
@@ -448,19 +446,22 @@ public class SerializationHelper
 		return Encoding.UTF8.GetString(bytes, 0, bytes.Length);
 	}
 
-	IXunitSerializer? FindXunitSerializer(Type type)
+	/// <summary>
+	/// INTERNAL METHOD. DO NOT USE.
+	/// </summary>
+	protected IXunitSerializer? FindXunitSerializer(Type type)
 	{
 		var inexactMatch = default(IXunitSerializer);
 
-		foreach (var kvp in xunitSeralizersByType)
+		foreach (var (serializerType, serializer) in xunitSerializers)
 		{
 			// Exact match always prevails
-			if (kvp.Key == type)
-				return kvp.Value;
+			if (serializerType == type)
+				return serializer;
 
 			// Keep the first compatible match
-			if (inexactMatch is null && kvp.Key.IsAssignableFrom(type))
-				inexactMatch = kvp.Value;
+			if (inexactMatch is null && serializerType.IsAssignableFrom(type))
+				inexactMatch = serializer;
 		}
 
 		return inexactMatch;
@@ -487,7 +488,13 @@ public class SerializationHelper
 	/// <returns>Returns <c>true</c> if objects of the given type can be serialized; <c>false</c>, otherwise.</returns>
 	public bool IsSerializable(
 		object? value,
-		Type? type)
+		Type? type) =>
+			IsSerializable(value, type, skipXunitSerializers: false);
+
+	bool IsSerializable(
+		object? value,
+		Type? type,
+		bool skipXunitSerializers)
 	{
 		if (type is null || type == typeof(object))
 			return value is null;
@@ -515,7 +522,7 @@ public class SerializationHelper
 		type = type.UnwrapNullable();
 		return
 			typeIndicesByType.ContainsKey(type) ||
-			FindXunitSerializer(type)?.IsSerializable(type, value, out _) == true;
+			(!skipXunitSerializers && FindXunitSerializer(type)?.IsSerializable(type, value, out _) == true);
 	}
 
 	/// <summary>

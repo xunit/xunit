@@ -672,6 +672,17 @@ public class SerializationHelperTests
 			var warning = Assert.Single(helper.Warnings);
 			Assert.Equal($"Serializer type '{typeof(MyCustomTypeSerializer).SafeName()}' tried to register for an array type ('{typeof(MyCustomType[]).SafeName()}'); arrays for supported types are automatically supported (register for the base type instead)", warning);
 		}
+
+		[Fact]
+		public void CustomSerializerChosenBeforeBuiltInSerializer()
+		{
+			var attr = Mocks.RegisterXunitSerializerAttribute(typeof(MyCustomTypeSerializer), typeof(IMyCustomType));
+			var helper = new TestableSerializationHelper(attr);
+
+			var serializer = helper.FindXunitSerializer(typeof(MyCustomType));
+
+			Assert.IsType<MyCustomTypeSerializer>(serializer);
+		}
 	}
 
 	public class TypeNameSerialization
@@ -769,10 +780,22 @@ public class SerializationHelperTests
 		}
 	}
 
-	sealed class MyCustomType
+	interface IMyCustomType
+	{
+		int Age { get; }
+		string Name { get; }
+	}
+
+	sealed class MyCustomType : IXunitSerializable, IMyCustomType
 	{
 		public required int Age { get; set; }
 		public required string Name { get; set; }
+
+		public void Deserialize(IXunitSerializationInfo info) =>
+			throw new NotImplementedException();
+
+		public void Serialize(IXunitSerializationInfo info) =>
+			throw new NotImplementedException();
 	}
 
 	class MyCustomTypeSerializer : IXunitSerializer
@@ -956,6 +979,9 @@ public class SerializationHelperTests
 			AddSerializers(serializers, Warnings);
 
 		public List<string> Warnings { get; } = [];
+
+		public new IXunitSerializer? FindXunitSerializer(Type type) =>
+			base.FindXunitSerializer(type);
 
 		public new static TestableSerializationHelper Instance { get; } = new(
 #if NETFRAMEWORK
