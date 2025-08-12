@@ -2,6 +2,6 @@
   "$schema": "https://xunit.net/schema/current/xunit.runner.schema.json",
   "culture": "invariant",
   "diagnosticMessages": true,
-  "longRunningTestSeconds": 10,
+  "longRunningTestSeconds": 30,
   "parallelizeAssembly": true
 }
