@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
 
@@ -18,6 +19,7 @@ public abstract class CommandLineParserBase
 	readonly Dictionary<string, (CommandLineGroup Group, string? ArgumentDisplay, string[] Descriptions, Action<KeyValuePair<string, string?>> Handler)> parsers = new(StringComparer.OrdinalIgnoreCase);
 	readonly string? reporterFolder;
 	IReadOnlyList<IRunnerReporter>? runnerReporters;
+	readonly IList<string> extraArgs;
 
 	/// <summary/>
 	protected CommandLineParserBase(
@@ -28,6 +30,7 @@ public abstract class CommandLineParserBase
 	{
 		this.runnerReporters = runnerReporters;
 		this.reporterFolder = reporterFolder;
+		this.extraArgs = new List<string>();
 
 		ConsoleHelper = Guard.ArgumentNotNull(consoleHelper);
 		Args = GetArguments(Guard.ArgumentNotNull(args));
@@ -115,6 +118,7 @@ public abstract class CommandLineParserBase
 		);
 		AddParser("noColor", OnNoColor, CommandLineGroup.General, null, "do not output results with colors");
 		AddParser("noLogo", OnNoLogo, CommandLineGroup.General, null, "do not show the copyright message");
+		AddParser("optionsfile", OnOptionsFile, CommandLineGroup.General, "<file>", "load options from a file");
 		AddParser("parallelAlgorithm", OnParallelAlgorithm, CommandLineGroup.General, "<option>",
 			"set the parallelization algoritm",
 			"  conservative - start the minimum number of tests [default]",
@@ -620,6 +624,79 @@ public abstract class CommandLineParserBase
 		Project.Configuration.NoLogo = true;
 	}
 
+	void OnOptionsFile(KeyValuePair<string, string?> option)
+	{
+		if (option.Value is null)
+			throw new ArgumentException("missing argument for -optionsfile");
+		if (string.IsNullOrEmpty(option.Value))
+			throw new ArgumentException("invalid empty argument for -optionsfile");
+		if (!FileExists(option.Value))
+			throw new ArgumentException("options file does not exist: " + option.Value);
+
+		using (var fileStream = new FileStream(option.Value, FileMode.Open, FileAccess.Read))
+		using (var reader = new StreamReader(fileStream, Encoding.UTF8, true))
+		{
+			int charCode;
+			var stringBuilder = new StringBuilder();
+			bool inQuote = false;
+			while ((charCode = reader.Read()) != -1)
+			{
+				char c = (char)charCode;
+				if (inQuote)
+				{
+					if (c == '"')
+					{
+						inQuote = false;
+						this.extraArgs.Add(stringBuilder.ToString());
+						stringBuilder.Clear();
+					}
+					else if (c == '\\')
+					{
+						// Handle escaped quotes
+						int nextCharCode = reader.Read();
+						if (nextCharCode == -1)
+							stringBuilder.Append('\\');
+						else
+						{
+							char nextChar = (char)nextCharCode;
+							if (nextChar == '"' || nextChar == '\\')
+								stringBuilder.Append(nextChar);
+							else
+							{
+								stringBuilder.Append('\\');
+								stringBuilder.Append(nextChar);
+							}
+						}
+					}
+					else
+						stringBuilder.Append(c);
+				}
+				else
+				{
+					if (char.IsWhiteSpace(c))
+					{
+						if (stringBuilder.Length > 0)
+						{
+							this.extraArgs.Add(stringBuilder.ToString());
+							stringBuilder.Clear();
+						}
+					}
+					else if (c == '"')
+					{
+						if (stringBuilder.Length > 0)
+							stringBuilder.Append(c);
+						else
+							inQuote = true;
+					}
+					else
+						stringBuilder.Append(c);
+				}
+			}
+			if (inQuote || stringBuilder.Length > 0)
+				this.extraArgs.Add(stringBuilder.ToString());
+		}
+	}
+
 	/// <summary/>
 	protected void OnParallel(KeyValuePair<string, string?> option)
 	{
@@ -812,6 +889,7 @@ public abstract class CommandLineParserBase
 	/// <summary/>
 	protected XunitProject ParseInternal(int argStartIndex)
 	{
+		this.extraArgs.Clear();
 		var arguments = new Stack<string>();
 
 		for (var i = Args.Count - 1; i >= argStartIndex; i--)
@@ -843,6 +921,13 @@ public abstract class CommandLineParserBase
 				}
 				else
 					throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "unknown option: {0}", option.Key));
+			}
+
+			if (this.extraArgs.Count > 0)
+			{
+				foreach (var arg in this.extraArgs.Reverse())
+					arguments.Push(arg);
+				this.extraArgs.Clear();
 			}
 		}
 

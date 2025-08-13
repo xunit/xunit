@@ -477,6 +477,103 @@ public class CommandLineTests
 			}
 		}
 
+		public class OptionFiles : IDisposable
+		{
+			Dictionary<string, string> optionFileNames;
+
+			public OptionFiles()
+			{
+				optionFileNames = new Dictionary<string, string>();
+				Func<string> randomFilePath = () => Path.Combine(
+					Path.GetTempPath(),
+					Path.GetRandomFileName().Replace(".", "_") + ".txt"
+				);
+
+				string option1FileName = randomFilePath();
+				File.WriteAllText(option1FileName, "\t-culture \"foobar\"\r\n\t-maxThreads   5");
+				optionFileNames.Add("options1.txt", option1FileName);
+
+				string option2FileName = randomFilePath();
+				File.WriteAllText(option2FileName, "-method ab\"cd -culture \"f\\oo\\\"bar\\");
+				optionFileNames.Add("options2.txt", option2FileName);
+			}
+
+			public void Dispose()
+			{
+				foreach (var kvp in optionFileNames)
+				{
+					if (File.Exists(kvp.Value))
+						File.Delete(kvp.Value);
+				}
+			}
+
+			[Fact]
+			public static void MissingValue()
+			{
+				var commandLine = new TestableCommandLine(typeof(CommandLineTests).Assembly.Location, "no-config.json", "-optionsfile");
+
+				var exception = Record.Exception(() => commandLine.Parse());
+
+				Assert.IsType<ArgumentException>(exception);
+				Assert.Equal("missing argument for -optionsfile", exception.Message);
+			}
+
+			[Fact]
+			public static void EmptyValue()
+			{
+				var commandLine = new TestableCommandLine(typeof(CommandLineTests).Assembly.Location, "no-config.json", "-optionsfile", "");
+
+				var exception = Record.Exception(() => commandLine.Parse());
+
+				Assert.IsType<ArgumentException>(exception);
+				Assert.Equal("invalid empty argument for -optionsfile", exception.Message);
+			}
+
+			[Fact]
+			public static void NonExistsFile()
+			{
+				string filePath = "bad-options.txt";
+				var commandLine = new TestableCommandLine(typeof(CommandLineTests).Assembly.Location, "no-config.json", "-optionsfile", filePath);
+
+				var exception = Record.Exception(() => commandLine.Parse());
+
+				Assert.IsType<ArgumentException>(exception);
+				Assert.Equal("options file does not exist: " + filePath, exception.Message);
+			}
+
+			[Fact]
+			public void ReadOptions1FromFile()
+			{
+				var optionFileName = optionFileNames["options1.txt"];
+				var commandLine = new TestableCommandLine(typeof(CommandLineTests).Assembly.Location, "no-config.json", "-optionsfile", optionFileName);
+				var project = commandLine.Parse();
+
+				foreach (var assembly in project.Assemblies)
+				{
+					Assert.Equal("foobar", assembly.Configuration.Culture);
+					Assert.Equal(5, assembly.Configuration.MaxParallelThreads);
+				}
+			}
+
+			[Fact]
+			public void ReadOptions2FromFile()
+			{
+				var optionFileName = optionFileNames["options2.txt"];
+				var commandLine = new TestableCommandLine(typeof(CommandLineTests).Assembly.Location, "no-config.json", "-optionsfile", optionFileName);
+				var project = commandLine.Parse();
+
+				foreach (var assembly in project.Assemblies)
+				{
+					Assert.Collection(
+						assembly.Configuration.Filters.ToXunit3Arguments(),
+						arg => Assert.Equal("-method", arg),
+						arg => Assert.Equal("ab\"cd", arg)
+					);
+					Assert.Equal("f\\oo\"bar\\", assembly.Configuration.Culture);
+				}
+			}
+		}
+
 		public class Parallelization
 		{
 			[Fact]
