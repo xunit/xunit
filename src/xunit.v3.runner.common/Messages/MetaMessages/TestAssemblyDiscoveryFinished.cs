@@ -41,6 +41,11 @@ public class TestAssemblyDiscoveryFinished : IMessageSinkMessage
 	/// </summary>
 	public int TestCasesToRun { get; set; }
 
+	/// <summary>
+	/// Gets the test assembly's unique ID.
+	/// </summary>
+	public required string UniqueID { get; set; }
+
 	/// <inheritdoc/>
 	public string? ToJson() =>
 		null;

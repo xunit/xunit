@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using Xunit.Internal;
@@ -94,6 +95,18 @@ public sealed class UniqueIDGenerator : IDisposable
 		string? configFilePath)
 	{
 		Guard.ArgumentNotNull(assemblyPath);
+
+		var assemblyFolder = Path.GetDirectoryName(assemblyPath);
+		if (Directory.Exists(assemblyFolder))
+		{
+			var uniqueIDPath = Path.Combine(assemblyFolder, Path.GetFileNameWithoutExtension(assemblyPath) + ".uniqueid");
+			if (File.Exists(uniqueIDPath))
+			{
+				var uniqueID = File.ReadAllLines(uniqueIDPath).Select(l => l.Trim()).Where(l => l.Length > 0).FirstOrDefault();
+				if (uniqueID is not null && uniqueID.Length != 0)
+					return uniqueID;
+			}
+		}
 
 		using var generator = new UniqueIDGenerator();
 		generator.Add(assemblyPath);

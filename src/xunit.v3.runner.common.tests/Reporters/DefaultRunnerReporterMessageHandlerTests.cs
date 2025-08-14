@@ -281,7 +281,7 @@ public class DefaultRunnerReporterMessageHandlerTests
 
 			Assert.Collection(handler.Messages,
 				msg => Assert.Equal($"[Imp] => === TEST EXECUTION SUMMARY ===", msg),
-				msg => Assert.Equal($"[Imp] =>    assembly  Total: 2112, Errors: 6, Failed: 42, Skipped: 8, Not Run: 3, Time: {1.235m}s", msg)
+				msg => Assert.Equal($"[Imp] =>    assembly  Total: 2112, Errors: 6, Failed: 42, Skipped: 8, Not Run: 3, Time: {1.235m}s, ID: 'asm-id'", msg)
 			);
 		}
 
@@ -305,9 +305,9 @@ public class DefaultRunnerReporterMessageHandlerTests
 
 			Assert.Collection(handler.Messages,
 				msg => Assert.Equal($"[Imp] => === TEST EXECUTION SUMMARY ===", msg),
-				msg => Assert.Equal($"[Imp] =>    longerName  Total: 10240, Errors:  7, Failed:  96, Skipped:  4, Not Run:  7, Time: {3.457m}s", msg),
+				msg => Assert.Equal($"[Imp] =>    longerName  Total: 10240, Errors:  7, Failed:  96, Skipped:  4, Not Run:  7, Time: {3.457m}s, ID: 'asm-longer'", msg),
 				msg => Assert.Equal($"[Imp] =>    nothing     Total:     0", msg),
-				msg => Assert.Equal($"[Imp] =>    short       Total:  2112, Errors:  6, Failed:  42, Skipped:  8, Not Run:  3, Time: {1.235m}s", msg),
+				msg => Assert.Equal($"[Imp] =>    short       Total:  2112, Errors:  6, Failed:  42, Skipped:  8, Not Run:  3, Time: {1.235m}s, ID: 'asm-short'", msg),
 				msg => Assert.Equal($"[Imp] =>                       -----          --          ---           --           --        ------", msg),
 				msg => Assert.Equal($"[Imp] =>          GRAND TOTAL: 12352          13          138           12           10        {4.691m}s ({12.346m}s)", msg)
 			);

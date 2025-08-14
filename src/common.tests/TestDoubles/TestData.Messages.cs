@@ -194,7 +194,8 @@ public static partial class TestData
 		TestMethodDisplay methodDisplay = TestMethodDisplay.ClassAndMethod,
 		TestMethodDisplayOptions methodDisplayOptions = TestMethodDisplayOptions.None,
 		bool preEnumerateTheories = false,
-		int testCasesToRun = 42)
+		int testCasesToRun = 42,
+		string uniqueID = DefaultAssemblyUniqueID)
 	{
 		var project = new XunitProject();
 		var assembly = new XunitProjectAssembly(project, assemblyPath, assemblyMetadata ?? new(3, DefaultTargetFramework)) { ConfigFileName = configFilePath };
@@ -211,6 +212,7 @@ public static partial class TestData
 			Assembly = assembly,
 			DiscoveryOptions = discoveryOptions,
 			TestCasesToRun = testCasesToRun,
+			UniqueID = uniqueID,
 		};
 	}
 
@@ -224,7 +226,8 @@ public static partial class TestData
 		TestMethodDisplay methodDisplay = TestMethodDisplay.ClassAndMethod,
 		TestMethodDisplayOptions methodDisplayOptions = TestMethodDisplayOptions.None,
 		bool preEnumerateTheories = false,
-		bool shadowCopy = false)
+		bool shadowCopy = false,
+		string uniqueID = DefaultAssemblyUniqueID)
 	{
 		var project = new XunitProject();
 		var assembly = new XunitProjectAssembly(project, assemblyPath, assemblyMetadata ?? new(3, DefaultTargetFramework)) { ConfigFileName = configFilePath };
@@ -242,6 +245,7 @@ public static partial class TestData
 			Assembly = assembly,
 			DiscoveryOptions = discoveryOptions,
 			ShadowCopy = shadowCopy,
+			UniqueID = uniqueID,
 		};
 	}
 
@@ -258,7 +262,8 @@ public static partial class TestData
 		int testsFailed = DefaultCountFailed,
 		int testsNotRun = DefaultCountNotRun,
 		int testsSkipped = DefaultCountSkipped,
-		int testsTotal = DefaultCountTotal)
+		int testsTotal = DefaultCountTotal,
+		string uniqueID = DefaultAssemblyUniqueID)
 	{
 		var project = new XunitProject();
 		var assembly = new XunitProjectAssembly(project, assemblyPath, assemblyMetadata ?? new(3, DefaultTargetFramework)) { ConfigFileName = configFilePath };
@@ -284,6 +289,7 @@ public static partial class TestData
 			Assembly = assembly,
 			ExecutionOptions = executionOptions,
 			ExecutionSummary = executionSummary,
+			UniqueID = uniqueID,
 		};
 	}
 
@@ -300,7 +306,8 @@ public static partial class TestData
 		bool? stopOnFail = null,
 		int? seed = null,
 		string? culture = null,
-		bool? showLiveOutput = null)
+		bool? showLiveOutput = null,
+		string uniqueID = DefaultAssemblyUniqueID)
 	{
 		var project = new XunitProject();
 		var assembly = new XunitProjectAssembly(project, assemblyPath, assemblyMetadata ?? new(3, DefaultTargetFramework)) { ConfigFileName = configFilePath };
@@ -322,6 +329,7 @@ public static partial class TestData
 			Assembly = assembly,
 			ExecutionOptions = executionOptions,
 			Seed = seed,
+			UniqueID = uniqueID,
 		};
 	}
 

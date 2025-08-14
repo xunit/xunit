@@ -147,21 +147,24 @@ public class ExecutionSink : IMessageSink, IDisposable
 				Assembly = assembly,
 				DiscoveryOptions = discoveryOptions,
 				TestCasesToRun = discoveryComplete.TestCasesToRun,
+				UniqueID = discoveryComplete.AssemblyUniqueID,
 			});
-		else if (message is IDiscoveryStarting)
+		else if (message is IDiscoveryStarting discoveryStarting)
 			innerSink.OnMessage(new TestAssemblyDiscoveryStarting
 			{
 				AppDomain = appDomainOption,
 				Assembly = assembly,
 				DiscoveryOptions = discoveryOptions,
 				ShadowCopy = shadowCopy,
+				UniqueID = discoveryStarting.AssemblyUniqueID,
 			});
-		else if (message is ITestAssemblyFinished)
+		else if (message is ITestAssemblyFinished assemblyFinished)
 			innerSink.OnMessage(new TestAssemblyExecutionFinished
 			{
 				Assembly = assembly,
 				ExecutionOptions = executionOptions,
 				ExecutionSummary = ExecutionSummary,
+				UniqueID = assemblyFinished.AssemblyUniqueID,
 			});
 		else if (message is ITestAssemblyStarting testAssemblyStarting)
 			innerSink.OnMessage(new TestAssemblyExecutionStarting
@@ -169,6 +172,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 				Assembly = assembly,
 				ExecutionOptions = executionOptions,
 				Seed = testAssemblyStarting.Seed,
+				UniqueID = testAssemblyStarting.UniqueID,
 			});
 	}
 

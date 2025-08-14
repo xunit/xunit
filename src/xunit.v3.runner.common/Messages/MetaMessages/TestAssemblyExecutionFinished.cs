@@ -46,6 +46,11 @@ public class TestAssemblyExecutionFinished : IMessageSinkMessage
 		set => executionSummary = Guard.ArgumentNotNull(value, nameof(ExecutionSummary));
 	}
 
+	/// <summary>
+	/// Gets the test assembly's unique ID.
+	/// </summary>
+	public required string UniqueID { get; set; }
+
 	/// <inheritdoc/>
 	public string? ToJson() =>
 		null;

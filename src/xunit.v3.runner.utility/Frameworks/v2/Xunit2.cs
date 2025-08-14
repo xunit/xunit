@@ -94,7 +94,7 @@ public class Xunit2 : IFrontController
 		this.assemblyInfo = assemblyInfo;
 		assemblyName = assemblyInfo.Name.Split(',')[0];
 		this.configFileName = configFileName;
-		TestAssemblyUniqueID = UniqueIDGenerator.ForAssembly(this.assemblyInfo.AssemblyPath, configFileName);
+		TestAssemblyUniqueID = string.Format(CultureInfo.InvariantCulture, ":v2:assembly:{0}:{1}", this.assemblyInfo.AssemblyPath, configFileName ?? "(null)");
 
 		var v2SourceInformationProvider = Xunit2SourceInformationProviderAdapter.Adapt(sourceInformationProvider ?? NullSourceInformationProvider.Instance);
 		var v2DiagnosticMessageSink = new Xunit2MessageSink(DiagnosticMessageSink);
@@ -595,7 +595,7 @@ public class Xunit2 : IFrontController
 		{
 			AssemblyName = assemblyInfo.Name,
 			AssemblyPath = assemblyInfo.AssemblyPath,
-			AssemblyUniqueID = UniqueIDGenerator.ForAssembly(assemblyInfo.AssemblyPath, configFileName),
+			AssemblyUniqueID = TestAssemblyUniqueID,
 			ConfigFilePath = configFileName,
 		};
 
@@ -610,7 +610,7 @@ public class Xunit2 : IFrontController
 		// messages, and need to send a single one when we're finished.
 		var discoveryComplete = new DiscoveryComplete
 		{
-			AssemblyUniqueID = UniqueIDGenerator.ForAssembly(assemblyInfo.AssemblyPath, configFileName),
+			AssemblyUniqueID = TestAssemblyUniqueID,
 			TestCasesToRun = testCasesToRun,
 		};
 

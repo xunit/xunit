@@ -726,16 +726,21 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 				var skipped = summary.Skipped.ToString(CultureInfo.CurrentCulture).PadLeft(allSkipped.Length);
 				var notRun = summary.NotRun.ToString(CultureInfo.CurrentCulture).PadLeft(allNotRun.Length);
 				var time = summary.Time.ToString("0.000s", CultureInfo.CurrentCulture).PadLeft(allTime.Length);
+				var id =
+					assemblyUniqueID is null || assemblyUniqueID.StartsWith(":v1:assembly:", StringComparison.InvariantCulture) || assemblyUniqueID.StartsWith(":v2:assembly:", StringComparison.InvariantCulture)
+						? ""
+						: string.Format(CultureInfo.CurrentCulture, ", ID: '{0}'", assemblyUniqueID);
 
 				logger.LogImportantMessage(
-					"   {0}  Total: {1}, Errors: {2}, Failed: {3}, Skipped: {4}, Not Run: {5}, Time: {6}",
+					"   {0}  Total: {1}, Errors: {2}, Failed: {3}, Skipped: {4}, Not Run: {5}, Time: {6}{7}",
 					assemblyDisplayName.PadRight(longestAssemblyName),
 					total,
 					errors,
 					failed,
 					skipped,
 					notRun,
-					time
+					time,
+					id
 				);
 			}
 		}
