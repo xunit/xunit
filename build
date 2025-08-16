@@ -19,8 +19,6 @@ else
 	guard_bin mono "please install Mono from https://www.mono-project.com/"
 fi
 
-[ $(dotnet --version | cut -d. -f1) -ge 8 ] || write_error ".NET SDK version $(dotnet --version) is too low; please install version 8.0 or later from https://dot.net/"
-
 git submodule status | while read line; do
 	if [ "$(echo $line | cut -b1)" == "-" ]; then
 		pieces=( $line )

@@ -24,11 +24,6 @@ if ((get-content variable:IsLinux -ErrorAction Ignore) -or (get-content variable
 	GuardBin msbuild.exe "please run this from a Visual Studio developer shell"
 }
 
-$version = [Version]$([regex]::matches((&dotnet --version), '^(\d+\.)?(\d+\.)?(\*|\d+)').value)
-if ($version.Major -lt 8) {
-	throw ".NET SDK version ($version) is too low; please install version 8.0 or later from https://dot.net/"
-}
-
 & git submodule status | ForEach-Object {
 	if ($_[0] -eq '-') {
 		$pieces = $_.Split(' ')
