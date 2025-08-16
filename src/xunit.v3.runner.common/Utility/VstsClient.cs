@@ -255,7 +255,7 @@ sealed class VstsClient : IDisposable
 		var method = isAdd ? HttpMethod.Post : PatchHttpMethod;
 		var bodyString = ToJson(body);
 
-		var url = string.Format(CultureInfo.InvariantCulture, "{0}/{1}/results?api-version=3.0-preview", baseUri, runId);
+		var url = string.Format(CultureInfo.InvariantCulture, "{0}/{1}/results?api-version=7.2-preview", baseUri, runId);
 
 		try
 		{
