@@ -48,7 +48,7 @@ public static class TestMTP
 			{
 				await context.Exec(
 					x86 ? x86DotNet! : "dotnet",
-					$"test {projectFolder} --configuration {context.ConfigurationText} --framework {framework} --no-build",
+					$"test --directory {projectFolder} --configuration {context.ConfigurationText} --framework {framework} --no-build",
 					workingDirectory: context.BaseFolder
 				);
 			}

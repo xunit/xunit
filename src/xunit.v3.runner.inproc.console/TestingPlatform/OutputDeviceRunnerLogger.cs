@@ -31,7 +31,7 @@ public sealed class OutputDeviceRunnerLogger(
 		string message)
 	{
 		if (!rawOnly)
-			outputDevice.DisplayAsync(this, ToMessageWithColor(message, ConsoleColor.Red)).SpinWait();
+			outputDevice.DisplayAsync(this, ToMessageWithColor(message, ConsoleColor.Red), default).SpinWait();
 
 		innerLogger?.LogError(stackFrame, message);
 	}
@@ -42,7 +42,7 @@ public sealed class OutputDeviceRunnerLogger(
 		string message)
 	{
 		if (!rawOnly)
-			outputDevice.DisplayAsync(this, new TextOutputDeviceData(message)).SpinWait();
+			outputDevice.DisplayAsync(this, new TextOutputDeviceData(message), default).SpinWait();
 
 		innerLogger?.LogImportantMessage(stackFrame, message);
 	}
@@ -53,7 +53,7 @@ public sealed class OutputDeviceRunnerLogger(
 		string message)
 	{
 		if (!rawOnly)
-			outputDevice.DisplayAsync(this, ToMessageWithColor(message, ConsoleColor.DarkGray)).SpinWait();
+			outputDevice.DisplayAsync(this, ToMessageWithColor(message, ConsoleColor.DarkGray), default).SpinWait();
 
 		innerLogger?.LogMessage(stackFrame, message);
 	}
@@ -61,7 +61,7 @@ public sealed class OutputDeviceRunnerLogger(
 	/// <inheritdoc/>
 	public void LogRaw(string message)
 	{
-		outputDevice.DisplayAsync(this, new TextOutputDeviceData(message)).SpinWait();
+		outputDevice.DisplayAsync(this, new TextOutputDeviceData(message), default).SpinWait();
 		innerLogger?.LogRaw(message);
 	}
 
@@ -71,7 +71,7 @@ public sealed class OutputDeviceRunnerLogger(
 		string message)
 	{
 		if (!rawOnly)
-			outputDevice.DisplayAsync(this, ToMessageWithColor(message, ConsoleColor.Yellow)).SpinWait();
+			outputDevice.DisplayAsync(this, ToMessageWithColor(message, ConsoleColor.Yellow), default).SpinWait();
 
 		innerLogger?.LogWarning(stackFrame, message);
 	}
