@@ -319,6 +319,7 @@ public class TransformFactory
 					foreach (var testXml in collectionXml.Elements("test"))
 						using (var testJson = testsJson.SerializeObject())
 						{
+							var testID = testXml.Attribute("id")?.Value;
 							var name = testXml.Attribute("name")?.Value ?? "<unnamed test>";
 							var status = testXml.Attribute("result")?.Value.ToUpperInvariant() switch
 							{
@@ -360,37 +361,9 @@ public class TransformFactory
 									foreach (var categoryValue in categories)
 										tags.Serialize(categoryValue);
 
-							using var extraJson = testJson.SerializeObject("extra");
-							var testID = testXml.Attribute("id")?.Value;
-
-							if (testID is not null)
-								extraJson.Serialize("id", testID);
-							if (collectionID is not null)
-								extraJson.Serialize("collection", collectionID);
-							if (testXml.Attribute("type") is XAttribute typeXml)
-								extraJson.Serialize("type", typeXml.Value);
-							if (testXml.Attribute("method") is XAttribute methodXml)
-								extraJson.Serialize("method", methodXml.Value);
-
-							if (testXml.Element("reason") is XElement reasonXml)
-								extraJson.Serialize("reason", reasonXml.Value);
-							if (testXml.Element("output") is XElement outputXml)
-								extraJson.Serialize("output", outputXml.Value);
-							if (testXml.Element("warnings")?.Elements("warning") is IEnumerable<XElement> warningsXml)
-								using (var warningsJson = extraJson.SerializeArray("warnings"))
-									foreach (var warningXml in warningsXml)
-										warningsJson.Serialize(warningXml.Value);
-
-							if (traits.Count != 0)
-								using (var traitsJson = extraJson.SerializeObject("traits"))
-									foreach (var kvp in traits)
-										using (var traitNameJson = traitsJson.SerializeArray(kvp.Key))
-											foreach (var value in kvp.Value)
-												traitNameJson.Serialize(value);
-
 							var attachmentsXml = testXml.Element("attachments")?.Elements("attachment");
 							if (attachmentsXml is not null)
-								using (var attachmentsJson = extraJson.SerializeArray("attachments"))
+								using (var attachmentsJson = testJson.SerializeArray("attachments"))
 								{
 									var basePath = Path.Combine(Path.GetTempPath(), testID ?? Guid.NewGuid().ToString());
 									Directory.CreateDirectory(basePath);
@@ -421,6 +394,33 @@ public class TransformFactory
 											attachmentJson.Serialize("path", localFilePath);
 										}
 								}
+
+							using var extraJson = testJson.SerializeObject("extra");
+
+							if (testID is not null)
+								extraJson.Serialize("id", testID);
+							if (collectionID is not null)
+								extraJson.Serialize("collection", collectionID);
+							if (testXml.Attribute("type") is XAttribute typeXml)
+								extraJson.Serialize("type", typeXml.Value);
+							if (testXml.Attribute("method") is XAttribute methodXml)
+								extraJson.Serialize("method", methodXml.Value);
+
+							if (testXml.Element("reason") is XElement reasonXml)
+								extraJson.Serialize("reason", reasonXml.Value);
+							if (testXml.Element("output") is XElement outputXml)
+								extraJson.Serialize("output", outputXml.Value);
+							if (testXml.Element("warnings")?.Elements("warning") is IEnumerable<XElement> warningsXml)
+								using (var warningsJson = extraJson.SerializeArray("warnings"))
+									foreach (var warningXml in warningsXml)
+										warningsJson.Serialize(warningXml.Value);
+
+							if (traits.Count != 0)
+								using (var traitsJson = extraJson.SerializeObject("traits"))
+									foreach (var kvp in traits)
+										using (var traitNameJson = traitsJson.SerializeArray(kvp.Key))
+											foreach (var value in kvp.Value)
+												traitNameJson.Serialize(value);
 
 							if (failureXml is not null && failureXml.Attribute("exception-type") is XAttribute exceptionXml)
 								extraJson.Serialize("exception", exceptionXml.Value);
