@@ -102,8 +102,6 @@
         <NoWarn>$(NoWarn);xUnit1000</NoWarn>
         <Nullable>enable</Nullable>
         <OutputType>Exe</OutputType>
-        <!-- TODO: Remove this once 'dotnet test' for M.T.P has officially shipped -->
-        <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
         <TestProject>true</TestProject>
         <!-- To convert to Microsoft Testing Platform command line experience, uncomment this line: -->
         <!--<DefineConstants>$(DefineConstants);USE_MICROSOFT_TESTING_PLATFORM_RUNNER</DefineConstants>-->
