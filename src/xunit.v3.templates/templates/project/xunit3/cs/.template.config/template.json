@@ -37,6 +37,19 @@
           "TestProject.csproj"
         ]
       }
+    },
+    {
+      "condition": "(Framework == \"net10.0\")",
+      "description": "Create or update 'dotnet.config' file required by Microsoft.Testing.Platform.",
+      "manualInstructions": [{ "text": "Manually create 'dotnet.config' file setting the test runner to Microsoft.Testing.Platform." }],
+      "actionId": "597E7933-0D87-452C-B094-8FA0EEF7FD97",
+      "id": "createOrUpdateDotnetConfig",
+      "args": {
+        "section": "dotnet.test.runner",
+        "key": "name",
+        "value": "Microsoft.Testing.Platform",
+      },
+      "continueOnError": true
     }
   ],
   "symbols": {
@@ -66,6 +79,10 @@
         {
           "choice": "net9.0",
           "description": ".NET 9"
+        },
+        {
+          "choice": "net10.0",
+          "description": ".NET 10"
         }
       ]
     },

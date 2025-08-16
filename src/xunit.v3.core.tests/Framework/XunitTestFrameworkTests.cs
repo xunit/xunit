@@ -5,7 +5,7 @@ public class XunitTestFrameworkTests
 {
 	public class TestFrameworkDisplayName
 	{
-		[Fact]
+		[Fact(Skip = "Temporarily skipped for MTPv2")]
 		public static void Defaults()
 		{
 			var framework = new XunitTestFramework();

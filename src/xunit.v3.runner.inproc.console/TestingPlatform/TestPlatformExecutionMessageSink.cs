@@ -96,7 +96,7 @@ public class TestPlatformExecutionMessageSink(
 
 		var testMetadata = metadataCache.TryGetTestMetadata(testOutput);
 
-		outputDevice.DisplayAsync(this, ToMessageWithColor(string.Format(CultureInfo.CurrentCulture, "OUTPUT: [{0}] {1}", testMetadata?.TestDisplayName ?? "<unknown test>", testOutput.Output.TrimEnd()), ConsoleColor.DarkGray)).SpinWait();
+		outputDevice.DisplayAsync(this, ToMessageWithColor(string.Format(CultureInfo.CurrentCulture, "OUTPUT: [{0}] {1}", testMetadata?.TestDisplayName ?? "<unknown test>", testOutput.Output.TrimEnd()), ConsoleColor.DarkGray), default).SpinWait();
 	}
 
 	void OnTestAssemblyCleanupFailure(ITestAssemblyCleanupFailure failure)
@@ -162,20 +162,20 @@ public class TestPlatformExecutionMessageSink(
 								File.WriteAllBytes(localFilePath, byteArray);
 							}
 							else
-								outputDevice.DisplayAsync(this, ToMessageWithColor(string.Format(CultureInfo.CurrentCulture, "[{0}] Unknown test attachment type '{1}' for attachment '{2}'", testNode.DisplayName, attachmentType, kvp.Key), ConsoleColor.Yellow)).SpinWait();
+								outputDevice.DisplayAsync(this, ToMessageWithColor(string.Format(CultureInfo.CurrentCulture, "[{0}] Unknown test attachment type '{1}' for attachment '{2}'", testNode.DisplayName, attachmentType, kvp.Key), ConsoleColor.Yellow), default).SpinWait();
 
 							if (localFilePath is not null)
 								testNode.Properties.Add(new FileArtifactProperty(new FileInfo(localFilePath), kvp.Key));
 						}
 						catch (Exception ex)
 						{
-							outputDevice.DisplayAsync(this, ToMessageWithColor(string.Format(CultureInfo.CurrentCulture, "[{0}] Exception while adding attachment '{1}' in '{2}': {3}", testNode.DisplayName, kvp.Key, localFilePath, ex), ConsoleColor.Yellow)).SpinWait();
+							outputDevice.DisplayAsync(this, ToMessageWithColor(string.Format(CultureInfo.CurrentCulture, "[{0}] Exception while adding attachment '{1}' in '{2}': {3}", testNode.DisplayName, kvp.Key, localFilePath, ex), ConsoleColor.Yellow), default).SpinWait();
 						}
 					}
 				}
 				catch (Exception ex)
 				{
-					outputDevice.DisplayAsync(this, ToMessageWithColor(string.Format(CultureInfo.CurrentCulture, "[{0}] Exception while adding attachments: {1}", testNode.DisplayName, ex), ConsoleColor.Yellow)).SpinWait();
+					outputDevice.DisplayAsync(this, ToMessageWithColor(string.Format(CultureInfo.CurrentCulture, "[{0}] Exception while adding attachments: {1}", testNode.DisplayName, ex), ConsoleColor.Yellow), default).SpinWait();
 				}
 
 			testNode.SendUpdate(this, sessionUid, testNodeMessageBus);
@@ -264,7 +264,7 @@ public class TestPlatformExecutionMessageSink(
 
 			if (testResult.Warnings is not null)
 				foreach (var warning in testResult.Warnings)
-					outputDevice.DisplayAsync(this, ToMessageWithColor(string.Format(CultureInfo.CurrentCulture, "WARNING: [{0}] {1}", testStarting.TestDisplayName, warning), ConsoleColor.Yellow)).SpinWait();
+					outputDevice.DisplayAsync(this, ToMessageWithColor(string.Format(CultureInfo.CurrentCulture, "WARNING: [{0}] {1}", testStarting.TestDisplayName, warning), ConsoleColor.Yellow), default).SpinWait();
 		}
 
 		var testAssemblyMetadata = metadataCache.TryGetAssemblyMetadata(testMessage);

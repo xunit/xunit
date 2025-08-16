@@ -175,7 +175,7 @@ public class TestPlatformTestFramework :
 		return OnRequest(session.OperationCounter, operationComplete, async (projectRunner, pipelineStartup) =>
 		{
 			if (Debugger.IsAttached)
-				await outputDevice.DisplayAsync(this, ToMessageWithColor("* Note: Long running test detection and test timeouts are disabled due to an attached debugger *" + Environment.NewLine, ConsoleColor.Yellow));
+				await outputDevice.DisplayAsync(this, ToMessageWithColor("* Note: Long running test detection and test timeouts are disabled due to an attached debugger *" + Environment.NewLine, ConsoleColor.Yellow), cancellationToken);
 
 			var testCaseIDsToRun = filter switch
 			{

@@ -32,9 +32,9 @@ public sealed class OutputDeviceDiagnosticMessageSink(
 	public bool OnMessage(IMessageSinkMessage message)
 	{
 		if (diagnosticMessages && message is IDiagnosticMessage diagnosticMessage)
-			outputDevice.DisplayAsync(this, ToMessageWithColor(diagnosticMessage.Message, ConsoleColor.Yellow)).SpinWait();
+			outputDevice.DisplayAsync(this, ToMessageWithColor(diagnosticMessage.Message, ConsoleColor.Yellow), default).SpinWait();
 		if (internalDiagnosticMessages && message is IInternalDiagnosticMessage internalDiagnosticMessage)
-			outputDevice.DisplayAsync(this, ToMessageWithColor(internalDiagnosticMessage.Message, ConsoleColor.DarkGray)).SpinWait();
+			outputDevice.DisplayAsync(this, ToMessageWithColor(internalDiagnosticMessage.Message, ConsoleColor.DarkGray), default).SpinWait();
 
 		return InnerSink.OnMessage(message);
 	}
