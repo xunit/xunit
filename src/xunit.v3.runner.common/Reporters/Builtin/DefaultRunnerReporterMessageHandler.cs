@@ -315,7 +315,12 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 		Guard.ArgumentNotNull(args);
 
 		var executionFinished = args.Message;
-		Logger.LogImportantMessage("  Finished:    {0}", GetAssemblyDisplayName(executionFinished.Assembly));
+		var message = string.Format(CultureInfo.CurrentCulture, "  Finished:    {0}", GetAssemblyDisplayName(executionFinished.Assembly));
+		var uniqueID = executionFinished.UniqueID;
+		if (uniqueID is not null && !uniqueID.StartsWith(":v1:assembly:", StringComparison.Ordinal) && !uniqueID.StartsWith(":v2:assembly:", StringComparison.Ordinal))
+			message += string.Format(CultureInfo.CurrentCulture, " (ID = '{0}')", uniqueID);
+
+		Logger.LogImportantMessage(message);
 
 		RemoveExecutionOptions(executionFinished.Assembly.Identifier);
 	}
@@ -385,11 +390,13 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 	/// Called when <see cref="ITestAssemblyFinished"/> is raised.
 	/// </summary>
 	/// <param name="args">An object that contains the event data.</param>
-	protected virtual void HandleTestAssemblyFinished(MessageHandlerArgs<ITestAssemblyFinished> args) =>
+	protected virtual void HandleTestAssemblyFinished(MessageHandlerArgs<ITestAssemblyFinished> args)
+	{
 		// We don't remove this metadata from the cache, because the assembly ID is how we map
 		// execution results. We need the cache to still contain that mapping so we can print
 		// results at the end of execution.
 		Guard.ArgumentNotNull(args);
+	}
 
 	/// <summary>
 	/// Called when <see cref="ITestAssemblyStarting"/> is raised.
@@ -726,21 +733,16 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 				var skipped = summary.Skipped.ToString(CultureInfo.CurrentCulture).PadLeft(allSkipped.Length);
 				var notRun = summary.NotRun.ToString(CultureInfo.CurrentCulture).PadLeft(allNotRun.Length);
 				var time = summary.Time.ToString("0.000s", CultureInfo.CurrentCulture).PadLeft(allTime.Length);
-				var id =
-					assemblyUniqueID is null || assemblyUniqueID.StartsWith(":v1:assembly:", StringComparison.InvariantCulture) || assemblyUniqueID.StartsWith(":v2:assembly:", StringComparison.InvariantCulture)
-						? ""
-						: string.Format(CultureInfo.CurrentCulture, ", ID: '{0}'", assemblyUniqueID);
 
 				logger.LogImportantMessage(
-					"   {0}  Total: {1}, Errors: {2}, Failed: {3}, Skipped: {4}, Not Run: {5}, Time: {6}{7}",
+					"   {0}  Total: {1}, Errors: {2}, Failed: {3}, Skipped: {4}, Not Run: {5}, Time: {6}",
 					assemblyDisplayName.PadRight(longestAssemblyName),
 					total,
 					errors,
 					failed,
 					skipped,
 					notRun,
-					time,
-					id
+					time
 				);
 			}
 		}
