@@ -40,7 +40,10 @@ public class XunitTestAssemblyRunnerBase<TContext, TTestAssembly, TTestCollectio
 		Guard.ArgumentNotNull(ctxt);
 
 		var result = await base.OnTestAssemblyStarting(ctxt);
-		await ctxt.Aggregator.RunAsync(() => ctxt.AssemblyFixtureMappings.InitializeAsync(ctxt.TestAssembly.AssemblyFixtureTypes));
+		await ctxt.Aggregator.RunAsync(() => ctxt.AssemblyFixtureMappings.InitializeAsync(
+			ctxt.TestAssembly.AssemblyFixtureTypes,
+			createInstances: ctxt.TestCases.Any(tc => !tc.IsStaticallySkipped())
+		));
 		return result;
 	}
 

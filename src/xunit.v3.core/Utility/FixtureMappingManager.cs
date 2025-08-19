@@ -196,12 +196,32 @@ public class FixtureMappingManager(
 		return result;
 	}
 
-	/// <inheritdoc/>
+	/// <summary>
+	/// Initializes the known fixture types, always creating instances.
+	/// </summary>
+	/// <param name="fixtureTypes">The known fixture types</param>
+	/// <remarks>
+	/// This method is for testing purposes only. Production code should call <see cref="InitializeAsync(IReadOnlyCollection{Type}, bool)"/>.
+	/// </remarks>
 	public ValueTask InitializeAsync(params Type[] fixtureTypes) =>
-		InitializeAsync((IReadOnlyCollection<Type>)fixtureTypes);
+		InitializeAsync(fixtureTypes, createInstances: true);
 
-	/// <inheritdoc/>
-	public async ValueTask InitializeAsync(IReadOnlyCollection<Type> fixtureTypes)
+	/// <summary>
+	/// Please used the overload with the createInstances parameter. This overload will be removed in the next major version.
+	/// </summary>
+	[Obsolete("Please used the overload with the createInstances parameter. This overload will be removed in the next major version.")]
+	public ValueTask InitializeAsync(IReadOnlyCollection<Type> fixtureTypes) =>
+		InitializeAsync(fixtureTypes, createInstances: true);
+
+	/// <summary>
+	/// Initializes the known fixture types, optionally creating the instances ahead of
+	/// time.
+	/// </summary>
+	/// <param name="fixtureTypes">The known fixture types</param>
+	/// <param name="createInstances">A flag indicating whether the create the instances</param>
+	public async ValueTask InitializeAsync(
+		IReadOnlyCollection<Type> fixtureTypes,
+		bool createInstances)
 	{
 		Guard.ArgumentNotNull(fixtureTypes);
 
@@ -220,7 +240,7 @@ public class FixtureMappingManager(
 
 			// Pre-create the fixture type, because we want to make sure all concrete fixtures are
 			// instantiated even if nobody comes along later to get the instance.
-			if (knownType == fixtureType)
+			if (createInstances && knownType == fixtureType)
 				await GetFixture(knownType);
 		}
 	}

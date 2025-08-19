@@ -128,7 +128,10 @@ public abstract class XunitTestClassRunnerBase<TContext, TTestClass, TTestMethod
 				? throw new TestPipelineException("A test class may not be decorated with ICollectionFixture<> (decorate the test collection class instead).")
 				: ctxt.TestClass.Constructors?.Count > 1
 					? throw new TestPipelineException("A test class may only define a single public constructor.")
-					: ctxt.ClassFixtureMappings.InitializeAsync(ctxt.TestClass.ClassFixtureTypes)
+					: ctxt.ClassFixtureMappings.InitializeAsync(
+						ctxt.TestClass.ClassFixtureTypes,
+						createInstances: ctxt.TestCases.Any(tc => !tc.IsStaticallySkipped())
+					)
 		);
 		return result;
 	}

@@ -316,6 +316,23 @@ public class FixtureAcceptanceTests
 
 			public IMessageSink MessageSink { get; }
 		}
+
+		// https://github.com/xunit/xunit/issues/3371
+		[Fact]
+		public async ValueTask FixtureWithAllSkippedTestsIsNotCreated()
+		{
+			var messages = await RunForResultsAsync(typeof(ClassWithSkippedTests));
+
+			var message = Assert.Single(messages);
+			var skipped = Assert.IsType<TestSkippedWithDisplayName>(message);
+			Assert.Equal("FixtureAcceptanceTests+ClassFixture+ClassWithSkippedTests.Skipped", skipped.TestDisplayName);
+		}
+
+		class ClassWithSkippedTests : IClassFixture<ThrowingCtorFixture>
+		{
+			[Fact(Skip = "Do not run me")]
+			public void Skipped() { }
+		}
 	}
 
 	public class AsyncClassFixture : AcceptanceTestV3
@@ -703,6 +720,28 @@ public class FixtureAcceptanceTests
 				MessageSink = messageSink;
 
 			public IMessageSink MessageSink { get; }
+		}
+
+		// https://github.com/xunit/xunit/issues/3371
+		[Fact]
+		public async ValueTask FixtureWithAllSkippedTestsIsNotCreated()
+		{
+			var messages = await RunForResultsAsync(typeof(ClassWithSkippedTests));
+
+			var message = Assert.Single(messages);
+			var skipped = Assert.IsType<TestSkippedWithDisplayName>(message);
+			Assert.Equal("FixtureAcceptanceTests+CollectionFixture+ClassWithSkippedTests.Skipped", skipped.TestDisplayName);
+		}
+
+		[CollectionDefinition("Class with skipped tests")]
+		public class ClassWithSkippedTestsCollection : ICollectionFixture<ThrowingCtorFixture>
+		{ }
+
+		[Collection("Class with skipped tests")]
+		class ClassWithSkippedTests
+		{
+			[Fact(Skip = "Do not run me")]
+			public void Skipped() { }
 		}
 	}
 

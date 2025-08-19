@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit.Internal;
 
@@ -39,7 +40,10 @@ public abstract class XunitTestCollectionRunnerBase<TContext, TTestCollection, T
 		Guard.ArgumentNotNull(ctxt);
 
 		var result = await base.OnTestCollectionStarting(ctxt);
-		await ctxt.Aggregator.RunAsync(() => ctxt.CollectionFixtureMappings.InitializeAsync(ctxt.TestCollection.CollectionFixtureTypes));
+		await ctxt.Aggregator.RunAsync(() => ctxt.CollectionFixtureMappings.InitializeAsync(
+			ctxt.TestCollection.CollectionFixtureTypes,
+			createInstances: ctxt.TestCases.Any(tc => !tc.IsStaticallySkipped())
+		));
 		return result;
 	}
 }
