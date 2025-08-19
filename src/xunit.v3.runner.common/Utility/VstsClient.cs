@@ -136,11 +136,11 @@ sealed class VstsClient : IDisposable
 			messageSerializer.Serialize("name", string.Format(CultureInfo.CurrentCulture, "xUnit Runner Test Run on {0:o}", DateTime.UtcNow));
 			using (var buildSerializer = messageSerializer.SerializeObject("build"))
 				buildSerializer.Serialize("id", buildId);
-			messageSerializer.Serialize("isAutomated", true);
+			messageSerializer.Serialize("automated", true);
 		}
 
 		var bodyString = buffer.ToString();
-		var url = baseUri + "?api-version=1.0";
+		var url = baseUri + "?api-version=7.1";
 		var responseString = default(string);
 
 		try
@@ -182,11 +182,11 @@ sealed class VstsClient : IDisposable
 		using (var messageSerializer = new JsonObjectSerializer(buffer))
 		{
 			messageSerializer.Serialize("completedDate", DateTimeOffset.UtcNow);
-			messageSerializer.Serialize("state", "completed");
+			messageSerializer.Serialize("state", "Completed");
 		}
 
 		var bodyString = buffer.ToString();
-		var url = string.Format(CultureInfo.InvariantCulture, "{0}/{1}?api-version=1.0", baseUri, testRunId);
+		var url = string.Format(CultureInfo.InvariantCulture, "{0}/{1}?api-version=7.1", baseUri, testRunId);
 
 		try
 		{
@@ -255,7 +255,7 @@ sealed class VstsClient : IDisposable
 		var method = isAdd ? HttpMethod.Post : PatchHttpMethod;
 		var bodyString = ToJson(body);
 
-		var url = string.Format(CultureInfo.InvariantCulture, "{0}/{1}/results?api-version=3.0-preview", baseUri, runId);
+		var url = string.Format(CultureInfo.InvariantCulture, "{0}/{1}/results?api-version=7.1", baseUri, runId);
 
 		try
 		{
