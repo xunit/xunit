@@ -322,12 +322,12 @@ public class xunit : MSBuildTask, ICancelableTask, IDisposable
 					}
 
 #if NETCOREAPP
-				if (metadata.XunitVersion < 3)
-				{
-					lock (logLock)
-						Log.LogError("Assembly '{0}' is not supported (only v3+ tests are supported in dotnet msbuild)", assemblyFileName);
-					return false;
-				}
+					if (metadata.XunitVersion < 3)
+					{
+						lock (logLock)
+							Log.LogError("Assembly '{0}' is not supported (only v3+ tests are supported in dotnet msbuild)", assemblyFileName);
+						return false;
+					}
 #endif
 
 					var projectAssembly = new XunitProjectAssembly(project, assemblyFileName, metadata) { ConfigFileName = configFileName };
