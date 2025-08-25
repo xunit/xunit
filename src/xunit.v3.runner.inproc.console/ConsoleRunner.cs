@@ -206,7 +206,7 @@ public class ConsoleRunner(
 			try
 			{
 				var reporter = automatedMode != AutomatedMode.Off ? new JsonReporter() : project.RunnerReporter;
-				var reporterMessageHandler = await reporter.CreateMessageHandler(logger, diagnosticMessageSink);
+				await using var reporterMessageHandler = await reporter.CreateMessageHandler(logger, diagnosticMessageSink);
 
 				if (!reporter.ForceNoLogo && !project.Configuration.NoLogoOrDefault)
 					consoleHelper.WriteLine(ProjectAssemblyRunner.Banner);

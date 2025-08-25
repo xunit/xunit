@@ -15,53 +15,56 @@ public class TestPlatformTestFrameworkTests
 	public class SessionManagement
 	{
 		[Fact]
-		public void CanCreateAndCloseSession()
+		public async ValueTask CanCreateAndCloseSession()
 		{
 			var uid = new SessionUid("abc");
 			var framework = TestableTestPlatformTestFramework.Create();
 
-			var createResult = framework.CreateTestSession(uid);
+			var createResult = await framework.CreateTestSession(uid);
 
 			Assert.True(createResult.IsSuccess);
+			Assert.True(framework.RunnerReporter.HandlerCreated);
+			Assert.False(framework.RunnerReporter.HandlerDisposed);
 
-			var closeResult = framework.CloseTestSession(uid);
+			var closeResult = await framework.CloseTestSession(uid);
 
 			Assert.True(closeResult.IsSuccess);
+			Assert.True(framework.RunnerReporter.HandlerDisposed);
 		}
 
 		[Fact]
-		public void CreateSession_WithLogo()
+		public async ValueTask CreateSession_WithLogo()
 		{
 			var uid = new SessionUid("abc");
 			var framework = TestableTestPlatformTestFramework.Create();
 			framework.ProjectAssembly.Project.Configuration.NoLogo = false;
 
-			framework.CreateTestSession(uid);
+			await framework.CreateTestSession(uid);
 
 			var log = Assert.Single(framework.RunnerLogger.Messages);
 			Assert.StartsWith("[Imp] xUnit.net v3 In-Process Runner", log);
 		}
 
 		[Fact]
-		public void CreateSession_WithoutLogo()
+		public async ValueTask CreateSession_WithoutLogo()
 		{
 			var uid = new SessionUid("abc");
 			var framework = TestableTestPlatformTestFramework.Create();
 			framework.ProjectAssembly.Project.Configuration.NoLogo = true;
 
-			framework.CreateTestSession(uid);
+			await framework.CreateTestSession(uid);
 
 			Assert.Empty(framework.RunnerLogger.Messages);
 		}
 
 		[Fact]
-		public void CannotCreateSameSessionTwice()
+		public async ValueTask CannotCreateSameSessionTwice()
 		{
 			var uid = new SessionUid("abc");
 			var framework = TestableTestPlatformTestFramework.Create();
 
-			var firstResult = framework.CreateTestSession(uid);
-			var secondResult = framework.CreateTestSession(uid);
+			var firstResult = await framework.CreateTestSession(uid);
+			var secondResult = await framework.CreateTestSession(uid);
 
 			Assert.True(firstResult.IsSuccess);
 			Assert.False(secondResult.IsSuccess);
@@ -69,26 +72,26 @@ public class TestPlatformTestFrameworkTests
 		}
 
 		[Fact]
-		public void CannotCloseUnstartedSession()
+		public async ValueTask CannotCloseUnstartedSession()
 		{
 			var uid = new SessionUid("abc");
 			var framework = TestableTestPlatformTestFramework.Create();
 
-			var result = framework.CloseTestSession(uid);
+			var result = await framework.CloseTestSession(uid);
 
 			Assert.False(result.IsSuccess);
 			Assert.Equal("Attempted to close unknown session UID 'abc'", result.ErrorMessage);
 		}
 
 		[Fact]
-		public void CannotRecloseSession()
+		public async ValueTask CannotRecloseSession()
 		{
 			var uid = new SessionUid("abc");
 			var framework = TestableTestPlatformTestFramework.Create();
 
-			framework.CreateTestSession(uid);
-			var firstResult = framework.CloseTestSession(uid);
-			var secondResult = framework.CloseTestSession(uid);
+			await framework.CreateTestSession(uid);
+			var firstResult = await framework.CloseTestSession(uid);
+			var secondResult = await framework.CloseTestSession(uid);
 
 			Assert.True(firstResult.IsSuccess);
 			Assert.False(secondResult.IsSuccess);
@@ -119,7 +122,7 @@ public class TestPlatformTestFrameworkTests
 
 			Assert.False(completionCalled);
 			Assert.IsType<ArgumentException>(ex);
-			Assert.StartsWith("Attempted to execute request against unknown session UID 'abc'", ex.Message);
+			Assert.StartsWith("Attempted to run discovery request against unknown session UID 'abc'", ex.Message);
 		}
 
 		[Fact]
@@ -134,7 +137,7 @@ public class TestPlatformTestFrameworkTests
 
 			Assert.False(completionCalled);
 			Assert.IsType<ArgumentException>(ex);
-			Assert.StartsWith("Attempted to execute request against unknown session UID 'abc'", ex.Message);
+			Assert.StartsWith("Attempted to run execution request against unknown session UID 'abc'", ex.Message);
 		}
 
 		[Fact]
@@ -145,7 +148,7 @@ public class TestPlatformTestFrameworkTests
 			var messageBus = new SpyTestPlatformMessageBus();
 			var framework = TestableTestPlatformTestFramework.Create();
 			framework.ProjectAssembly.Configuration.Filters.AddIncludedClassFilter(typeof(SessionManagement).FullName!);
-			framework.CreateTestSession(uid);
+			await framework.CreateTestSession(uid);
 
 			// Discover tests
 
@@ -205,18 +208,20 @@ public class TestPlatformTestFrameworkTests
 
 	class TestableTestPlatformTestFramework(
 		SpyRunnerLogger runnerLogger,
-		SpyMessageSink innerSink,
+		SpyRunnerReporter runnerReporter,
 		SpyMessageSink diagnosticMessageSink,
 		XunitProjectAssembly projectAssembly,
 		Assembly testAssembly,
 		XunitTrxCapability trxCapability,
 		SpyTestPlatformOutputDevice outputDevice,
 		bool serverMode) :
-			TestPlatformTestFramework(runnerLogger, innerSink, diagnosticMessageSink, projectAssembly, testAssembly, trxCapability, outputDevice, serverMode)
+			TestPlatformTestFramework(runnerLogger, runnerReporter, diagnosticMessageSink, projectAssembly, testAssembly, trxCapability, outputDevice, serverMode)
 	{
 		public XunitProjectAssembly ProjectAssembly { get; } = projectAssembly;
 
 		public SpyRunnerLogger RunnerLogger { get; } = runnerLogger;
+
+		public SpyRunnerReporter RunnerReporter { get; } = runnerReporter;
 
 		public static TestableTestPlatformTestFramework Create()
 		{
@@ -227,7 +232,7 @@ public class TestPlatformTestFrameworkTests
 
 			return new TestableTestPlatformTestFramework(
 				new SpyRunnerLogger(),
-				SpyMessageSink.Capture(),
+				new SpyRunnerReporter(),
 				SpyMessageSink.Capture(),
 				projectAssembly,
 				testAssembly,

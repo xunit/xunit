@@ -111,7 +111,7 @@ sealed class ConsoleRunner(string[] args) :
 			logger = new ConsoleRunnerLogger(!noColor, useAnsiColor, consoleHelper, waitForAcknowledgment: false);
 			var globalDiagnosticMessageSink = ConsoleDiagnosticMessageSink.TryCreate(consoleHelper, noColor, globalDiagnosticMessages, globalInternalDiagnosticMessages);
 			var reporter = project.RunnerReporter;
-			var reporterMessageHandler = await reporter.CreateMessageHandler(logger, globalDiagnosticMessageSink);
+			await using var reporterMessageHandler = await reporter.CreateMessageHandler(logger, globalDiagnosticMessageSink);
 
 			if (!reporter.ForceNoLogo && !project.Configuration.NoLogoOrDefault)
 				PrintHeader();

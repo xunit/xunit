@@ -30,24 +30,29 @@ namespace Xunit.Runner.InProc.SystemConsole.TestingPlatform;
 /// <summary>
 /// Implementation of <see cref="ITestPlatformTestFramework"/> to run xUnit.net v3 test projects.
 /// </summary>
+/// <remarks>
+/// This class is an implementation detail for Microsoft.Testing.Platform that is public for testing purposes.
+/// Use this class at your own risk, as breaking changes may occur as needed. The only guaranteed stable API
+/// in this class is <see cref="RunAsync(string[], Action{ITestApplicationBuilder, string[]})"/>.
+/// </remarks>
 [ExcludeFromCodeCoverage]
 public class TestPlatformTestFramework :
 	OutputDeviceDataProducerBase, ITestPlatformTestFramework, IDataProducer
 {
 	readonly IMessageSink? diagnosticMessageSink;
-	readonly IMessageSink innerSink;
 	readonly IOutputDevice outputDevice;
 	readonly XunitProjectAssembly projectAssembly;
-	readonly ConcurrentDictionary<SessionUid, CountdownEvent> operationCounterBySessionUid = new();
+	readonly ConcurrentDictionary<SessionUid, (CountdownEvent OperationCounter, IRunnerReporterMessageHandler MessageHandler)> sessions = new();
 	readonly IRunnerLogger runnerLogger;
+	readonly IRunnerReporter runnerReporter;
 	readonly bool serverMode;
 	readonly Assembly testAssembly;
 	readonly XunitTrxCapability trxCapability;
 
-	/// <inheritdoc/>
+	/// <summary/>
 	protected TestPlatformTestFramework(
 		IRunnerLogger runnerLogger,
-		IMessageSink innerSink,
+		IRunnerReporter runnerReporter,
 		IMessageSink? diagnosticMessageSink,
 		XunitProjectAssembly projectAssembly,
 		Assembly testAssembly,
@@ -57,7 +62,7 @@ public class TestPlatformTestFramework :
 			base("test framework", "30ea7c6e-dd24-4152-a360-1387158cd41d")
 	{
 		this.runnerLogger = runnerLogger;
-		this.innerSink = innerSink;
+		this.runnerReporter = runnerReporter;
 		this.diagnosticMessageSink = diagnosticMessageSink;
 		this.projectAssembly = projectAssembly;
 		this.testAssembly = testAssembly;
@@ -72,27 +77,44 @@ public class TestPlatformTestFramework :
 	public Type[] DataTypesProduced =>
 		[typeof(SessionFileArtifact)];
 
-	/// <inheritdoc/>
-	public CloseTestSessionResult CloseTestSession(SessionUid sessionUid)
+	/// <summary/>
+	public async Task<CloseTestSessionResult> CloseTestSession(SessionUid sessionUid)
 	{
-		if (!operationCounterBySessionUid.TryRemove(sessionUid, out var operationCounter))
+		if (!sessions.TryRemove(sessionUid, out var session))
 			return new CloseTestSessionResult { IsSuccess = false, ErrorMessage = string.Format(CultureInfo.CurrentCulture, "Attempted to close unknown session UID '{0}'", sessionUid.Value) };
 
-		operationCounter.Signal();
-		operationCounter.Wait();
-		operationCounter.Dispose();
+		session.OperationCounter.Signal();
+		session.OperationCounter.Wait();
+		session.OperationCounter.SafeDispose();
+
+		await session.MessageHandler.SafeDisposeAsync();
 
 		return new CloseTestSessionResult { IsSuccess = true };
 	}
 
-	Task<CloseTestSessionResult> ITestPlatformTestFramework.CloseTestSessionAsync(CloseTestSessionContext context) =>
-		Task.FromResult(CloseTestSession(Guard.ArgumentNotNull(context).SessionUid));
-
-	/// <inheritdoc/>
-	public CreateTestSessionResult CreateTestSession(SessionUid sessionUid)
+	Task<CloseTestSessionResult> ITestPlatformTestFramework.CloseTestSessionAsync(CloseTestSessionContext context)
 	{
-		if (!operationCounterBySessionUid.TryAdd(sessionUid, new CountdownEvent(1)))
+		if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(EnvironmentVariables.TestingPlatformDebug)))
+			Debugger.Launch();
+
+		return CloseTestSession(Guard.ArgumentNotNull(context).SessionUid);
+	}
+
+	/// <summary/>
+	public async Task<CreateTestSessionResult> CreateTestSession(SessionUid sessionUid)
+	{
+		var countdownEvent = new CountdownEvent(1);
+		var reporterMessageHandler = await runnerReporter.CreateMessageHandler(runnerLogger, diagnosticMessageSink);
+
+		Guard.NotNull(() => string.Format(CultureInfo.CurrentCulture, "Call to {0}.CreateMessageHandler returned a null value", runnerReporter.GetType().SafeName()), reporterMessageHandler);
+
+		if (!sessions.TryAdd(sessionUid, (countdownEvent, reporterMessageHandler)))
+		{
+			countdownEvent.SafeDispose();
+			await reporterMessageHandler.SafeDisposeAsync();
+
 			return new CreateTestSessionResult { IsSuccess = false, ErrorMessage = string.Format(CultureInfo.CurrentCulture, "Attempted to reuse session UID '{0}' already in progress", sessionUid.Value) };
+		}
 
 		if (!projectAssembly.Project.Configuration.NoLogoOrDefault)
 			runnerLogger.LogImportantMessage(ProjectAssemblyRunner.Banner);
@@ -105,7 +127,7 @@ public class TestPlatformTestFramework :
 		if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(EnvironmentVariables.TestingPlatformDebug)))
 			Debugger.Launch();
 
-		return Task.FromResult(CreateTestSession(Guard.ArgumentNotNull(context).SessionUid));
+		return CreateTestSession(Guard.ArgumentNotNull(context).SessionUid);
 	}
 
 	async Task ITestPlatformTestFramework.ExecuteRequestAsync(ExecuteRequestContext context)
@@ -113,72 +135,79 @@ public class TestPlatformTestFramework :
 		Guard.ArgumentNotNull(context);
 
 		if (context.Request is DiscoverTestExecutionRequest discoverRequest)
-			await OnDiscover(discoverRequest.Session.SessionUid, context.MessageBus, context.Complete, context.CancellationToken);
+			await OnDiscover(context.Request.Session.SessionUid, context.MessageBus, context.Complete, context.CancellationToken);
 		else if (context.Request is RunTestExecutionRequest executionRequest)
-			await OnExecute(executionRequest.Session.SessionUid, executionRequest.Filter, context.MessageBus, context.Complete, context.CancellationToken);
+			await OnExecute(context.Request.Session.SessionUid, executionRequest.Filter, context.MessageBus, context.Complete, context.CancellationToken);
 	}
 
-	/// <inheritdoc/>
+	/// <summary/>
 	public ValueTask OnDiscover(
 		SessionUid sessionUid,
 		ITestPlatformMessageBus messageBus,
 		Action operationComplete,
-		CancellationToken cancellationToken) =>
-			OnRequest(sessionUid, operationComplete, async (projectRunner, pipelineStartup) =>
-			{
-				// Default to true for Testing Platform
-				// TODO: We'd prefer true for Test Explorer and false for `dotnet test`
-				projectAssembly.Configuration.PreEnumerateTheories ??= true;
+		CancellationToken cancellationToken)
+	{
+		if (!sessions.TryGetValue(sessionUid, out var session))
+			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Attempted to run discovery request against unknown session UID '{0}'", sessionUid.Value), nameof(sessionUid));
 
-				var messageHandler = new TestPlatformDiscoveryMessageSink(innerSink, projectAssembly.Assembly!.FullName!, sessionUid, messageBus, cancellationToken);
-				await projectRunner.Discover(projectAssembly, pipelineStartup, messageHandler);
-			}, cancellationToken);
+		return OnRequest(session.OperationCounter, operationComplete, async (projectRunner, pipelineStartup) =>
+		{
+			// Default to true for Testing Platform
+			// TODO: We'd prefer true for Test Explorer and false for `dotnet test`
+			projectAssembly.Configuration.PreEnumerateTheories ??= true;
 
-	/// <inheritdoc/>
+			var messageHandler = new TestPlatformDiscoveryMessageSink(session.MessageHandler, projectAssembly.Assembly!.FullName!, sessionUid, messageBus, cancellationToken);
+			await projectRunner.Discover(projectAssembly, pipelineStartup, messageHandler);
+		}, cancellationToken);
+	}
+
+	/// <summary/>
 	public ValueTask OnExecute(
 		SessionUid sessionUid,
 		ITestExecutionFilter? filter,
 		ITestPlatformMessageBus messageBus,
 		Action operationComplete,
-		CancellationToken cancellationToken) =>
-			OnRequest(sessionUid, operationComplete, async (projectRunner, pipelineStartup) =>
+		CancellationToken cancellationToken)
+	{
+		if (!sessions.TryGetValue(sessionUid, out var session))
+			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Attempted to run execution request against unknown session UID '{0}'", sessionUid.Value), nameof(sessionUid));
+
+		return OnRequest(session.OperationCounter, operationComplete, async (projectRunner, pipelineStartup) =>
+		{
+			if (Debugger.IsAttached)
+				await outputDevice.DisplayAsync(this, ToMessageWithColor("* Note: Long running test detection and test timeouts are disabled due to an attached debugger *" + Environment.NewLine, ConsoleColor.Yellow));
+
+			var testCaseIDsToRun = filter switch
 			{
-				if (Debugger.IsAttached)
-					await outputDevice.DisplayAsync(this, ToMessageWithColor("* Note: Long running test detection and test timeouts are disabled due to an attached debugger *" + Environment.NewLine, ConsoleColor.Yellow));
+				TestNodeUidListFilter filter => filter.TestNodeUids.Select(u => u.Value).ToHashSet(StringComparer.OrdinalIgnoreCase),
+				_ => null,
+			};
 
-				var testCaseIDsToRun = filter switch
-				{
-					TestNodeUidListFilter filter => filter.TestNodeUids.Select(u => u.Value).ToHashSet(StringComparer.OrdinalIgnoreCase),
-					_ => null,
-				};
+			// Default to true for Testing Platform
+			// TODO: We'd prefer true for Test Explorer and false for `dotnet test`
+			projectAssembly.Configuration.PreEnumerateTheories ??= true;
 
-				// Default to true for Testing Platform
-				// TODO: We'd prefer true for Test Explorer and false for `dotnet test`
-				projectAssembly.Configuration.PreEnumerateTheories ??= true;
+			// If the user wants live output, we'll turn it off in the configuration (so the default reporter doesn't
+			// report it) and instead tell the message sink to display it.
+			var showLiveOutput = projectAssembly.Configuration.ShowLiveOutputOrDefault;
+			projectAssembly.Configuration.ShowLiveOutput = false;
 
-				// If the user wants live output, we'll turn it off in the configuration (so the default reporter doesn't
-				// report it) and instead tell the message sink to display it.
-				var showLiveOutput = projectAssembly.Configuration.ShowLiveOutputOrDefault;
-				projectAssembly.Configuration.ShowLiveOutput = false;
+			var messageHandler = new TestPlatformExecutionMessageSink(session.MessageHandler, sessionUid, messageBus, trxCapability, outputDevice, showLiveOutput, serverMode, cancellationToken);
+			await projectRunner.Run(projectAssembly, messageHandler, diagnosticMessageSink, runnerLogger, pipelineStartup, testCaseIDsToRun);
 
-				var messageHandler = new TestPlatformExecutionMessageSink(innerSink, sessionUid, messageBus, trxCapability, outputDevice, showLiveOutput, serverMode, cancellationToken);
-				await projectRunner.Run(projectAssembly, messageHandler, diagnosticMessageSink, runnerLogger, pipelineStartup, testCaseIDsToRun);
-
-				foreach (var output in projectAssembly.Project.Configuration.Output)
-					await messageBus.PublishAsync(this, new SessionFileArtifact(sessionUid, new FileInfo(output.Value), Path.GetFileNameWithoutExtension(output.Value)));
-			}, cancellationToken);
+			foreach (var output in projectAssembly.Project.Configuration.Output)
+				await messageBus.PublishAsync(this, new SessionFileArtifact(sessionUid, new FileInfo(output.Value), Path.GetFileNameWithoutExtension(output.Value)));
+		}, cancellationToken);
+	}
 
 	async ValueTask OnRequest(
-		SessionUid sessionUid,
+		CountdownEvent operationCounter,
 		Action operationComplete,
 		Func<ProjectAssemblyRunner, ITestPipelineStartup?, ValueTask> callback,
 		CancellationToken cancellationToken)
 	{
 		Guard.ArgumentNotNull(operationComplete);
 		Guard.ArgumentNotNull(callback);
-
-		if (!operationCounterBySessionUid.TryGetValue(sessionUid, out var operationCounter))
-			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Attempted to execute request against unknown session UID '{0}'", sessionUid.Value), nameof(sessionUid));
 
 		operationCounter.AddCount();
 
@@ -210,7 +239,7 @@ public class TestPlatformTestFramework :
 	/// </summary>
 	/// <param name="args">The command line arguments that were passed to the executable</param>
 	/// <param name="extensionRegistration">The extension registration callback</param>
-	/// <returns>The return code to be returned from Main</returns>
+	/// <returns>The return code to be returned from <c>Main</c></returns>
 	public static async Task<int> RunAsync(
 		string[] args,
 		Action<ITestApplicationBuilder, string[]> extensionRegistration)
@@ -272,9 +301,8 @@ public class TestPlatformTestFramework :
 				var reporters = RegisteredRunnerReporters.Get(testAssembly, out var _1);
 				var autoReporter = supportAutoReporters ? reporters.FirstOrDefault(r => r.IsEnvironmentallyEnabled) : default;
 				var reporter = autoReporter ?? reporters.FirstOrDefault(r => "default".Equals(r.RunnerSwitch, StringComparison.OrdinalIgnoreCase)) ?? new DefaultRunnerReporter();
-				var reporterMessageHandler = reporter.CreateMessageHandler(runnerLogger, diagnosticMessageSink).SpinWait();
 
-				return new TestPlatformTestFramework(runnerLogger, reporterMessageHandler, diagnosticMessageSink, projectAssembly, testAssembly, trxCapability, outputDevice, serverMode);
+				return new TestPlatformTestFramework(runnerLogger, reporter, diagnosticMessageSink, projectAssembly, testAssembly, trxCapability, outputDevice, serverMode);
 			}
 		);
 

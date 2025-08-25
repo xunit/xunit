@@ -82,6 +82,18 @@ public class xunitTests
 
 			Assert.False(result);
 		}
+
+		[Fact]
+		public void ReporterMessageHandlerIsDisposed()
+		{
+			var xunit = new Testable_xunit();
+			var reporter = new SpyRunnerReporter(isEnvironmentallyEnabled: true);
+			xunit.AvailableReporters.Add(reporter);
+
+			xunit.Execute();
+
+			Assert.True(reporter.HandlerDisposed);
+		}
 	}
 
 	[Collection(nameof(EnvironmentHelper.NullifyEnvironmentalReporters))]

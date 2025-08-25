@@ -37,7 +37,7 @@ public class xunit : MSBuildTask, ICancelableTask, IDisposable
 	bool? parallelizeAssemblies;
 	bool? parallelizeTestCollections;
 	bool? preEnumerateTheories;
-	IMessageSink? reporterMessageHandler;
+	IRunnerReporterMessageHandler? reporterMessageHandler;
 	bool? shadowCopy;
 	bool? showLiveOutput;
 	bool? stopOnFail;
@@ -282,42 +282,44 @@ public class xunit : MSBuildTask, ICancelableTask, IDisposable
 			logger = new MSBuildLogger(Log);
 			reporterMessageHandler = await reporter.CreateMessageHandler(logger, globalDiagnosticsMessageSink);
 
-			if (!NoLogo)
-				lock (logLock)
-					Log.LogMessage(MessageImportance.High, "xUnit.net v3 MSBuild Runner v{0} ({1}-bit {2})", ThisAssembly.AssemblyInformationalVersion, IntPtr.Size * 8, RuntimeInformation.FrameworkDescription);
-
-			if (Debugger.IsAttached)
-				lock (logLock)
-					Log.LogWarning("Long running test detection is disabled due to an attached debugger");
-
-			var project = new XunitProject();
-			foreach (var assembly in Assemblies)
+			try
 			{
-				var assemblyFileName = assembly.GetMetadata("FullPath");
-				if (!File.Exists(assemblyFileName))
-				{
+				if (!NoLogo)
 					lock (logLock)
-						Log.LogError("Assembly '{0}' does not exist", assemblyFileName);
-					return false;
-				}
+						Log.LogMessage(MessageImportance.High, "xUnit.net v3 MSBuild Runner v{0} ({1}-bit {2})", ThisAssembly.AssemblyInformationalVersion, IntPtr.Size * 8, RuntimeInformation.FrameworkDescription);
 
-				var configFileName = assembly.GetMetadata("ConfigFile");
-				if (configFileName is not null && configFileName.Length == 0)
-					configFileName = null;
-				if (configFileName is not null && !File.Exists(configFileName))
-				{
+				if (Debugger.IsAttached)
 					lock (logLock)
-						Log.LogError("Configuration file '{0}' does not exist", configFileName);
-					return false;
-				}
+						Log.LogWarning("Long running test detection is disabled due to an attached debugger");
 
-				var metadata = AssemblyUtility.GetAssemblyMetadata(assemblyFileName);
-				if (metadata is null)
+				var project = new XunitProject();
+				foreach (var assembly in Assemblies)
 				{
-					lock (logLock)
-						Log.LogError("Assembly '{0}' is not a valid .NET assembly", assemblyFileName);
-					return false;
-				}
+					var assemblyFileName = assembly.GetMetadata("FullPath");
+					if (!File.Exists(assemblyFileName))
+					{
+						lock (logLock)
+							Log.LogError("Assembly '{0}' does not exist", assemblyFileName);
+						return false;
+					}
+
+					var configFileName = assembly.GetMetadata("ConfigFile");
+					if (configFileName is not null && configFileName.Length == 0)
+						configFileName = null;
+					if (configFileName is not null && !File.Exists(configFileName))
+					{
+						lock (logLock)
+							Log.LogError("Configuration file '{0}' does not exist", configFileName);
+						return false;
+					}
+
+					var metadata = AssemblyUtility.GetAssemblyMetadata(assemblyFileName);
+					if (metadata is null)
+					{
+						lock (logLock)
+							Log.LogError("Assembly '{0}' is not a valid .NET assembly", assemblyFileName);
+						return false;
+					}
 
 #if NETCOREAPP
 				if (metadata.XunitVersion < 3)
@@ -328,88 +330,94 @@ public class xunit : MSBuildTask, ICancelableTask, IDisposable
 				}
 #endif
 
-				var projectAssembly = new XunitProjectAssembly(project, assemblyFileName, metadata) { ConfigFileName = configFileName };
+					var projectAssembly = new XunitProjectAssembly(project, assemblyFileName, metadata) { ConfigFileName = configFileName };
 
-				var warnings = new List<string>();
-				ConfigReader.Load(projectAssembly.Configuration, assemblyFileName, configFileName, warnings);
+					var warnings = new List<string>();
+					ConfigReader.Load(projectAssembly.Configuration, assemblyFileName, configFileName, warnings);
 
-				foreach (var warning in warnings)
-					logger.LogWarning(warning);
+					foreach (var warning in warnings)
+						logger.LogWarning(warning);
 
-				if (appDomains.HasValue)
-					projectAssembly.Configuration.AppDomain = appDomains;
-				if (Culture is not null)
-					projectAssembly.Configuration.Culture = Culture.ToUpperInvariant() switch
-					{
-						"DEFAULT" => null,
-						"INVARIANT" => string.Empty,
-						_ => Culture,
-					};
-				if (diagnosticMessages.HasValue)
-					projectAssembly.Configuration.DiagnosticMessages = diagnosticMessages;
-				if (explicitOption.HasValue)
-					projectAssembly.Configuration.ExplicitOption = explicitOption;
-				if (internalDiagnosticMessages.HasValue)
-					projectAssembly.Configuration.InternalDiagnosticMessages = internalDiagnosticMessages;
-				if (failSkips.HasValue)
-					projectAssembly.Configuration.FailSkips = failSkips;
-				if (failWarns.HasValue)
-					projectAssembly.Configuration.FailTestsWithWarnings = failWarns;
-				if (maxParallelThreads.HasValue)
-					projectAssembly.Configuration.MaxParallelThreads = maxParallelThreads;
-				if (methodDisplay.HasValue)
-					projectAssembly.Configuration.MethodDisplay = methodDisplay;
-				if (methodDisplayOptions.HasValue)
-					projectAssembly.Configuration.MethodDisplayOptions = methodDisplayOptions;
-				if (parallelAlgorithm.HasValue)
-					projectAssembly.Configuration.ParallelAlgorithm = parallelAlgorithm;
-				if (parallelizeTestCollections.HasValue)
-					projectAssembly.Configuration.ParallelizeTestCollections = parallelizeTestCollections;
-				if (preEnumerateTheories.HasValue)
-					projectAssembly.Configuration.PreEnumerateTheories = preEnumerateTheories;
-				if (shadowCopy.HasValue)
-					projectAssembly.Configuration.ShadowCopy = shadowCopy;
-				if (showLiveOutput.HasValue)
-					projectAssembly.Configuration.ShowLiveOutput = showLiveOutput;
-				if (stopOnFail.HasValue)
-					projectAssembly.Configuration.StopOnFail = stopOnFail;
+					if (appDomains.HasValue)
+						projectAssembly.Configuration.AppDomain = appDomains;
+					if (Culture is not null)
+						projectAssembly.Configuration.Culture = Culture.ToUpperInvariant() switch
+						{
+							"DEFAULT" => null,
+							"INVARIANT" => string.Empty,
+							_ => Culture,
+						};
+					if (diagnosticMessages.HasValue)
+						projectAssembly.Configuration.DiagnosticMessages = diagnosticMessages;
+					if (explicitOption.HasValue)
+						projectAssembly.Configuration.ExplicitOption = explicitOption;
+					if (internalDiagnosticMessages.HasValue)
+						projectAssembly.Configuration.InternalDiagnosticMessages = internalDiagnosticMessages;
+					if (failSkips.HasValue)
+						projectAssembly.Configuration.FailSkips = failSkips;
+					if (failWarns.HasValue)
+						projectAssembly.Configuration.FailTestsWithWarnings = failWarns;
+					if (maxParallelThreads.HasValue)
+						projectAssembly.Configuration.MaxParallelThreads = maxParallelThreads;
+					if (methodDisplay.HasValue)
+						projectAssembly.Configuration.MethodDisplay = methodDisplay;
+					if (methodDisplayOptions.HasValue)
+						projectAssembly.Configuration.MethodDisplayOptions = methodDisplayOptions;
+					if (parallelAlgorithm.HasValue)
+						projectAssembly.Configuration.ParallelAlgorithm = parallelAlgorithm;
+					if (parallelizeTestCollections.HasValue)
+						projectAssembly.Configuration.ParallelizeTestCollections = parallelizeTestCollections;
+					if (preEnumerateTheories.HasValue)
+						projectAssembly.Configuration.PreEnumerateTheories = preEnumerateTheories;
+					if (shadowCopy.HasValue)
+						projectAssembly.Configuration.ShadowCopy = shadowCopy;
+					if (showLiveOutput.HasValue)
+						projectAssembly.Configuration.ShowLiveOutput = showLiveOutput;
+					if (stopOnFail.HasValue)
+						projectAssembly.Configuration.StopOnFail = stopOnFail;
 
-				project.Add(projectAssembly);
-			}
+					project.Add(projectAssembly);
+				}
 
-			if (WorkingFolder is not null)
-				Directory.SetCurrentDirectory(WorkingFolder);
+				if (WorkingFolder is not null)
+					Directory.SetCurrentDirectory(WorkingFolder);
 
-			var clockTime = Stopwatch.StartNew();
+				var clockTime = Stopwatch.StartNew();
 
-			if (!parallelizeAssemblies.HasValue)
-				parallelizeAssemblies = project.Assemblies.All(assembly => assembly.Configuration.ParallelizeAssemblyOrDefault);
+				if (!parallelizeAssemblies.HasValue)
+					parallelizeAssemblies = project.Assemblies.All(assembly => assembly.Configuration.ParallelizeAssemblyOrDefault);
 
-			if (parallelizeAssemblies.GetValueOrDefault())
-			{
-				var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(assembly, appDomains).AsTask()));
-				var results = await Task.WhenAll(tasks);
-				foreach (var assemblyElement in results.WhereNotNull())
-					assembliesElement!.Add(assemblyElement);
-			}
-			else
-			{
-				foreach (var assembly in project.Assemblies)
+				if (parallelizeAssemblies.GetValueOrDefault())
 				{
-					var assemblyElement = await ExecuteAssembly(assembly, appDomains);
-					if (assemblyElement is not null)
+					var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(assembly, appDomains).AsTask()));
+					var results = await Task.WhenAll(tasks);
+					foreach (var assemblyElement in results.WhereNotNull())
 						assembliesElement!.Add(assemblyElement);
 				}
+				else
+				{
+					foreach (var assembly in project.Assemblies)
+					{
+						var assemblyElement = await ExecuteAssembly(assembly, appDomains);
+						if (assemblyElement is not null)
+							assembliesElement!.Add(assemblyElement);
+					}
+				}
+
+				clockTime.Stop();
+
+				if (!completionMessages.IsEmpty)
+				{
+					var summaries = new TestExecutionSummaries { ElapsedClockTime = clockTime.Elapsed };
+					foreach (var completionMessage in completionMessages.OrderBy(kvp => kvp.Key))
+						summaries.Add(completionMessage.Key, completionMessage.Value);
+					reporterMessageHandler.OnMessage(summaries);
+				}
 			}
-
-			clockTime.Stop();
-
-			if (!completionMessages.IsEmpty)
+			finally
 			{
-				var summaries = new TestExecutionSummaries { ElapsedClockTime = clockTime.Elapsed };
-				foreach (var completionMessage in completionMessages.OrderBy(kvp => kvp.Key))
-					summaries.Add(completionMessage.Key, completionMessage.Value);
-				reporterMessageHandler.OnMessage(summaries);
+				await reporterMessageHandler.SafeDisposeAsync();
+				reporterMessageHandler = null;
 			}
 		}
 
