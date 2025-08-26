@@ -48,6 +48,8 @@
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+        <IsPackable>true</IsPackable>
+        <IsTestingPlatformApplication>false</IsTestingPlatformApplication>
         <Nullable>enable</Nullable>
         <PackageIcon>_content/logo-128-transparent.png</PackageIcon>
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
