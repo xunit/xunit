@@ -186,7 +186,26 @@ public abstract class TestMethodRunner<TContext, TTestMethod, TTestCase>
 		ctxt.Aggregator.Clear();
 
 		if (!ctxt.CancellationTokenSource.IsCancellationRequested)
-			summary = await ctxt.Aggregator.RunAsync(() => RunTestCases(ctxt, startingException), default);
+		{
+			var logEnabled = TestEventSource.Log.IsEnabled();
+			var methodName = string.Empty;
+
+			if (logEnabled)
+			{
+				methodName = ctxt.TestMethod.TestClass.TestClassName + "." + ctxt.TestMethod.MethodName;
+				TestEventSource.Log.TestMethodStart(methodName);
+			}
+
+			try
+			{
+				summary = await ctxt.Aggregator.RunAsync(() => RunTestCases(ctxt, startingException), default);
+			}
+			finally
+			{
+				if (logEnabled)
+					TestEventSource.Log.TestMethodStop(methodName);
+			}
+		}
 
 		SetTestContext(ctxt, TestEngineStatus.CleaningUp, dispose: true);
 

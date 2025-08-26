@@ -191,7 +191,22 @@ public abstract class TestCollectionRunner<TContext, TTestCollection, TTestClass
 		ctxt.Aggregator.Clear();
 
 		if (!ctxt.CancellationTokenSource.IsCancellationRequested)
-			summary = await ctxt.Aggregator.RunAsync(() => RunTestClasses(ctxt, startingException), default);
+		{
+			var logEnabled = TestEventSource.Log.IsEnabled();
+
+			if (logEnabled)
+				TestEventSource.Log.TestCollectionStart(ctxt.TestCollection.TestCollectionDisplayName);
+
+			try
+			{
+				summary = await ctxt.Aggregator.RunAsync(() => RunTestClasses(ctxt, startingException), default);
+			}
+			finally
+			{
+				if (logEnabled)
+					TestEventSource.Log.TestCollectionStop(ctxt.TestCollection.TestCollectionDisplayName);
+			}
+		}
 
 		SetTestContext(ctxt, TestEngineStatus.CleaningUp, dispose: true);
 

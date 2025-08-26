@@ -185,7 +185,22 @@ public abstract class TestCaseRunnerBase<TContext, TTestCase>
 		ctxt.Aggregator.Clear();
 
 		if (!ctxt.CancellationTokenSource.IsCancellationRequested)
-			summary = await ctxt.Aggregator.RunAsync(() => RunTestCase(ctxt, startupException), default);
+		{
+			var logEnabled = TestEventSource.Log.IsEnabled();
+
+			if (logEnabled)
+				TestEventSource.Log.TestCaseStart(ctxt.TestCase.TestCaseDisplayName);
+
+			try
+			{
+				summary = await ctxt.Aggregator.RunAsync(() => RunTestCase(ctxt, startupException), default);
+			}
+			finally
+			{
+				if (logEnabled)
+					TestEventSource.Log.TestCaseStop(ctxt.TestCase.TestCaseDisplayName);
+			}
+		}
 
 		SetTestContext(ctxt, TestEngineStatus.CleaningUp, dispose: true);
 

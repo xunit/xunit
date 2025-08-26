@@ -221,7 +221,22 @@ public abstract class TestClassRunner<TContext, TTestClass, TTestMethod, TTestCa
 		ctxt.Aggregator.Clear();
 
 		if (!ctxt.CancellationTokenSource.IsCancellationRequested)
-			summary = await ctxt.Aggregator.RunAsync(() => RunTestMethods(ctxt, startingException), default);
+		{
+			var logEnabled = TestEventSource.Log.IsEnabled();
+
+			if (logEnabled)
+				TestEventSource.Log.TestClassStart(ctxt.TestClass.TestClassName);
+
+			try
+			{
+				summary = await ctxt.Aggregator.RunAsync(() => RunTestMethods(ctxt, startingException), default);
+			}
+			finally
+			{
+				if (logEnabled)
+					TestEventSource.Log.TestClassStop(ctxt.TestClass.TestClassName);
+			}
+		}
 
 		SetTestContext(ctxt, TestEngineStatus.CleaningUp, dispose: true);
 

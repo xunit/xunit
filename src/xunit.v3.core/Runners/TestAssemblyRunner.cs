@@ -223,7 +223,22 @@ public abstract class TestAssemblyRunner<TContext, TTestAssembly, TTestCollectio
 		ctxt.Aggregator.Clear();
 
 		if (!ctxt.CancellationTokenSource.IsCancellationRequested)
-			summary = await ctxt.Aggregator.RunAsync(() => RunTestCollections(ctxt, startingException), default);
+		{
+			var logEnabled = TestEventSource.Log.IsEnabled();
+
+			if (logEnabled)
+				TestEventSource.Log.TestAssemblyStart(ctxt.TestAssembly.AssemblyPath ?? "<dynamic>", ctxt.TestAssembly.ConfigFilePath ?? "<none>");
+
+			try
+			{
+				summary = await ctxt.Aggregator.RunAsync(() => RunTestCollections(ctxt, startingException), default);
+			}
+			finally
+			{
+				if (logEnabled)
+					TestEventSource.Log.TestAssemblyStop(ctxt.TestAssembly.AssemblyPath ?? "<dynamic>", ctxt.TestAssembly.ConfigFilePath ?? "<none>");
+			}
+		}
 
 		SetTestContext(ctxt, TestEngineStatus.CleaningUp, dispose: true);
 
