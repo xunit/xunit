@@ -21,8 +21,10 @@ internal sealed class TestEventSource : EventSource
 		WriteEvent(Events.TestStart, testName);
 
 	[Event(Events.TestStop, Level = EventLevel.Informational, Task = Tasks.Test, Opcode = EventOpcode.Stop)]
-	internal void TestStop(string testName) =>
-		WriteEvent(Events.TestStop, testName);
+	internal void TestStop(
+		string testName,
+		TestResult result) =>
+			WriteEvent(Events.TestStop, testName, result);
 
 	// Start/stop for test case
 
