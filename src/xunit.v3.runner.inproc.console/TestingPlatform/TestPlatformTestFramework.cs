@@ -183,9 +183,8 @@ public class TestPlatformTestFramework :
 				_ => null,
 			};
 
-			// Default to true for Testing Platform
-			// TODO: We'd prefer true for Test Explorer and false for `dotnet test`
-			projectAssembly.Configuration.PreEnumerateTheories ??= true;
+			// Default to true for Test Explorer, false otherwise
+			projectAssembly.Configuration.PreEnumerateTheories ??= serverMode;
 
 			// If the user wants live output, we'll turn it off in the configuration (so the default reporter doesn't
 			// report it) and instead tell the message sink to display it.
