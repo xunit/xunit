@@ -89,6 +89,7 @@ public static class ConsoleProjectLister
 				{
 					Assembly = tuple.assemblyFileName,
 					DisplayName = tuple.testCase.TestCaseDisplayName,
+					ID = tuple.testCase.UniqueID,
 					Class = tuple.testCase.TestClassName,
 					Method = tuple.testCase.TestMethodName,
 					Skip = tuple.testCase.SkipReason,
@@ -106,6 +107,7 @@ public static class ConsoleProjectLister
 
 					testCaseSerializer.Serialize("Assembly", testCase.Assembly);
 					testCaseSerializer.Serialize("DisplayName", testCase.DisplayName);
+					testCaseSerializer.Serialize("ID", testCase.ID);
 					testCaseSerializer.Serialize("Class", testCase.Class);
 					testCaseSerializer.Serialize("Method", testCase.Method);
 
@@ -132,6 +134,8 @@ public static class ConsoleProjectLister
 						consoleHelper.WriteLine("    Test method:  {0}.{1}", testCase.Class, testCase.Method);
 					else if (testCase.Class is not null)
 						consoleHelper.WriteLine("    Test class:   {0}", testCase.Class);
+
+					consoleHelper.WriteLine("    ID:           {0}", testCase.ID);
 
 					if (testCase.Skip is not null)
 						consoleHelper.WriteLine("    Skip reason:  \"{0}\"", Escape(testCase.Skip));
