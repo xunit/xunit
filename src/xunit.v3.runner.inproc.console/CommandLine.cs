@@ -87,6 +87,10 @@ public class CommandLine : CommandLineParserBase
 		Project.Add(projectAssembly);
 	}
 
+	XunitProjectAssembly GetAssembly() =>
+		Project.Assemblies.FirstOrDefault()
+			?? throw new ArgumentException("no assembly in the project");
+
 	/// <summary/>
 	protected override IReadOnlyList<IRunnerReporter> GetAvailableRunnerReporters()
 	{
@@ -163,12 +167,8 @@ public class CommandLine : CommandLineParserBase
 
 	void OnAutomated(KeyValuePair<string, string?> option)
 	{
-		var assembly =
-			Project.Assemblies.FirstOrDefault()
-				?? throw new ArgumentException("no assembly in the project");
-
 		if (option.Value is not null)
-			assembly.Configuration.SynchronousMessageReporting = option.Value.ToUpperInvariant() switch
+			GetAssembly().Configuration.SynchronousMessageReporting = option.Value.ToUpperInvariant() switch
 			{
 				"ASYNC" => false,
 				"SYNC" => true,
@@ -181,11 +181,7 @@ public class CommandLine : CommandLineParserBase
 		if (option.Value is null)
 			throw new ArgumentException("missing argument for -run");
 
-		var assembly =
-			Project.Assemblies.FirstOrDefault()
-				?? throw new ArgumentException("no assembly in the project");
-
-		assembly.TestCasesToRun.Add(option.Value);
+		GetAssembly().TestCasesToRun.Add(option.Value);
 	}
 
 	void OnWaitForDebugger(KeyValuePair<string, string?> option)
