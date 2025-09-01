@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -78,9 +77,8 @@ public static class ConsoleRunnerInProcess
 			var automatedMode = assembly.Configuration.SynchronousMessageReportingOrDefault ? AutomatedMode.Sync : AutomatedMode.Async;
 			var projectRunner = new ProjectAssemblyRunner(testAssembly, automatedMode, cancellationTokenSource);
 			var logger = new DecodingRunnerLogger(messageSink, diagnosticMessageSink);
-			var testCaseIDsToRun = assembly.TestCasesToRun.Count == 0 ? null : assembly.TestCasesToRun.ToHashSet();
 
-			await projectRunner.Run(assembly, messageSink, diagnosticMessageSink, logger, startStop.PipelineStartup, testCaseIDsToRun);
+			await projectRunner.Run(assembly, messageSink, diagnosticMessageSink, logger, startStop.PipelineStartup);
 		}
 		finally
 		{
