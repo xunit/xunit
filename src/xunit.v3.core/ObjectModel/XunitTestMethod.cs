@@ -144,11 +144,11 @@ public class XunitTestMethod : IXunitTestMethod, IXunitSerializable
 	}
 
 	/// <summary>
-	/// Please use the version which accepts label. This overload will be removed in the next major version.
+	/// Please use <see cref="GetDisplayName(string, string?, object?[], Type[])"/>. This overload will be removed in the next major version.
 	/// </summary>
 	[EditorBrowsable(EditorBrowsableState.Never)]
 	[OverloadResolutionPriority(-1)]
-	[Obsolete("Please use the version which accepts label. This overload will be removed in the next major version.")]
+	[Obsolete("Please use the overload which accepts label. This overload will be removed in the next major version.")]
 	public string GetDisplayName(
 		string baseDisplayName,
 		object?[]? testMethodArguments,

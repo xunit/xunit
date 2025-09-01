@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -22,8 +24,11 @@ public class ExecutionErrorTestCase : XunitTestCase
 	{ }
 
 	/// <summary>
-	/// Please use the constructor which accepts sourceFilePath and sourceLineNumber. This overload will be removed in the next major version.
+	/// Please use <see cref="ExecutionErrorTestCase(IXunitTestMethod, string, string, string?, int?, string)"/>.
+	/// This overload will be removed in the next major version.
 	/// </summary>
+	[EditorBrowsable(EditorBrowsableState.Never)]
+	[OverloadResolutionPriority(-1)]
 	[Obsolete("Please use the constructor which accepts sourceFilePath and sourceLineNumber. This overload will be removed in the next major version.")]
 	public ExecutionErrorTestCase(
 		IXunitTestMethod testMethod,

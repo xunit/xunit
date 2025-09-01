@@ -16,11 +16,12 @@ namespace Xunit.v3;
 public static class TestIntrospectionHelper
 {
 	/// <summary>
-	/// Please use the version which accepts label. This overload will be removed in the next major version.
+	/// Please use <see cref="GetTestCaseDetails(ITestFrameworkDiscoveryOptions, IXunitTestMethod, IFactAttribute, object?[], int?, string?, string?)"/>.
+	/// This overload will be removed in the next major version.
 	/// </summary>
 	[EditorBrowsable(EditorBrowsableState.Never)]
 	[OverloadResolutionPriority(-1)]
-	[Obsolete("Please use the version which accepts label. This overload will be removed in the next major version.")]
+	[Obsolete("Please use the overload which accepts label. This overload will be removed in the next major version.")]
 	public static (
 		string TestCaseDisplayName,
 		bool Explicit,

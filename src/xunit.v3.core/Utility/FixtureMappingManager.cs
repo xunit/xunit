@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -207,9 +209,11 @@ public class FixtureMappingManager(
 		InitializeAsync(fixtureTypes, createInstances: true);
 
 	/// <summary>
-	/// Please used the overload with the createInstances parameter. This overload will be removed in the next major version.
+	/// Please use <see cref="InitializeAsync(IReadOnlyCollection{Type}, bool)"/>. This overload will be removed in the next major version.
 	/// </summary>
-	[Obsolete("Please used the overload with the createInstances parameter. This overload will be removed in the next major version.")]
+	[EditorBrowsable(EditorBrowsableState.Never)]
+	[OverloadResolutionPriority(-1)]
+	[Obsolete("Please use the overload which accepts createInstances. This overload will be removed in the next major version.")]
 	public ValueTask InitializeAsync(IReadOnlyCollection<Type> fixtureTypes) =>
 		InitializeAsync(fixtureTypes, createInstances: true);
 
