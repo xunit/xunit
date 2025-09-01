@@ -126,21 +126,21 @@ public static class ConsoleProjectLister
 
 				foreach (var testCase in assemblyGroup.OrderBy(x => x.Class).ThenBy(x => x.Method))
 				{
-					consoleHelper.WriteLine("      - Display name: \"{0}\"", Escape(testCase.DisplayName));
+					consoleHelper.WriteLine("  - Display name: \"{0}\"", Escape(testCase.DisplayName));
 
 					if (testCase.Method is not null)
-						consoleHelper.WriteLine("        Test method:  {0}.{1}", testCase.Class, testCase.Method);
+						consoleHelper.WriteLine("    Test method:  {0}.{1}", testCase.Class, testCase.Method);
 					else if (testCase.Class is not null)
-						consoleHelper.WriteLine("        Test class:   {0}", testCase.Class);
+						consoleHelper.WriteLine("    Test class:   {0}", testCase.Class);
 
 					if (testCase.Skip is not null)
-						consoleHelper.WriteLine("        Skip reason:  \"{0}\"", Escape(testCase.Skip));
+						consoleHelper.WriteLine("    Skip reason:  \"{0}\"", Escape(testCase.Skip));
 
 					if (testCase.Traits is not null)
 					{
-						consoleHelper.WriteLine("        Traits:");
+						consoleHelper.WriteLine("    Traits:");
 						foreach (var trait in testCase.Traits)
-							consoleHelper.WriteLine("          \"{0}\": [{1}]", Escape(trait.Key), string.Join(", ", trait.Value.OrderBy(v => v).Select(v => '"' + Escape(v) + '"')));
+							consoleHelper.WriteLine("      \"{0}\": [{1}]", Escape(trait.Key), string.Join(", ", trait.Value.OrderBy(v => v).Select(v => '"' + Escape(v) + '"')));
 					}
 				}
 			}
