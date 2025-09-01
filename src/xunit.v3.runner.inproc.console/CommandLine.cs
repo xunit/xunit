@@ -47,6 +47,7 @@ public class CommandLine : CommandLineParserBase
 			"  async   - asynchronously report messages (and don't wait)",
 			"  sync    - synchronously report messages (and wait for a carriage return after each)"
 		);
+		AddParser("id", OnID, CommandLineGroup.General, "<id>", "run a test case (by unique ID)");
 		AddParser(
 			"parallel", OnParallel, CommandLineGroup.General, "<option>",
 			"set parallelization based on option",
@@ -54,7 +55,7 @@ public class CommandLine : CommandLineParserBase
 			"  collections - parallelize by collections [default]"
 		);
 		AddParser("pause", OnPause, CommandLineGroup.General, null, "wait for input before running tests (ignored with -automated)");
-		AddParser("run", OnRun, CommandLineGroup.General, "<serialization>", "Run a test case");
+		AddParser("run", OnRun, CommandLineGroup.General, "<serialization>", "run a test case (by serialization)");
 		AddParser("wait", OnWait, CommandLineGroup.General, null, "wait for input after completion (ignored with -automated)");
 		AddParser("waitForDebugger", OnWaitForDebugger, CommandLineGroup.General, null, "pauses execution until a debugger has been attached");
 	}
@@ -174,6 +175,14 @@ public class CommandLine : CommandLineParserBase
 				"SYNC" => true,
 				_ => throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "invalid automated option '{0}'", option.Value)),
 			};
+	}
+
+	void OnID(KeyValuePair<string, string?> option)
+	{
+		if (option.Value is null)
+			throw new ArgumentException("missing argument for -id");
+
+		GetAssembly().TestCaseIDsToRun.Add(option.Value);
 	}
 
 	void OnRun(KeyValuePair<string, string?> option)

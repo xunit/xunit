@@ -186,6 +186,11 @@ public class TestPlatformTestFramework :
 			// Default to true for Test Explorer, false otherwise
 			projectAssembly.Configuration.PreEnumerateTheories ??= serverMode;
 
+			// If the user asked to run specific tests, then we auto-enable explicit support since
+			// the Test Explorer UX has no way to turn support for explicit tests on/off
+			if (serverMode && testCaseIDsToRun is not null)
+				projectAssembly.AutoEnableExplicit = true;
+
 			// If the user wants live output, we'll turn it off in the configuration (so the default reporter doesn't
 			// report it) and instead tell the message sink to display it.
 			var showLiveOutput = projectAssembly.Configuration.ShowLiveOutputOrDefault;

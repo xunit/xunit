@@ -250,33 +250,31 @@ public sealed class ProjectAssemblyRunner(
 				};
 
 				using var resultsSink = new ExecutionSink(assembly, discoveryOptions, executionOptions, AppDomainOption.NotAvailable, shadowCopy: false, messageSink, sinkOptions, sourceInformationProvider);
-				var testCases =
-					assembly
-						.TestCasesToRun
-						.Select(s => SerializationHelper.Instance.Deserialize(s) as ITestCase)
-						.WhereNotNull()
-						.ToArray();
+				var testCasesToRun = new List<ITestCase>();
 
-				if (testCases.Length != 0)
-				{
-					await frontController.Run(resultsSink, executionOptions, testCases, cancellationTokenSource);
+				foreach (var testCaseToRun in assembly.TestCasesToRun)
+					try
+					{
+						if (SerializationHelper.Instance.Deserialize(testCaseToRun) is ITestCase testCase)
+							testCasesToRun.Add(testCase);
+					}
+					catch { }
 
-					foreach (var testCase in testCases)
-						if (testCase is IAsyncDisposable asyncDisposable)
-							await asyncDisposable.SafeDisposeAsync();
-						else if (testCase is IDisposable disposable)
-							disposable.SafeDispose();
-				}
+				testCaseIDsToRun ??= [];
+				testCaseIDsToRun.AddRange(assembly.TestCaseIDsToRun);
+
+				if (testCasesToRun.Count == 0 && testCaseIDsToRun.Count == 0)
+					await frontController.FindAndRun(
+						resultsSink,
+						discoveryOptions,
+						executionOptions,
+						testCase => assembly.Configuration.Filters.Filter(Path.GetFileNameWithoutExtension(assembly.AssemblyFileName), testCase),
+						cancellationTokenSource
+					);
 				else
 				{
-					// If we were given test case IDs to filter by, we need to see if they asked for
-					// just explicit tests, and then flip the explicit option to support running them,
-					// because the explicit information is not available from MTP.
-					if (testCaseIDsToRun is not null)
-					{
-						List<ITestCase> testCasesToRun = [];
-						var allExplicit = true;
-
+					// Convert test case IDs into test cases via discovery
+					if (testCaseIDsToRun.Count != 0)
 						await frontController.Find(
 							resultsSink,
 							discoveryOptions,
@@ -285,35 +283,22 @@ public sealed class ProjectAssemblyRunner(
 							discoveryCallback: (testCase, passedFilter) =>
 							{
 								if (passedFilter && testCaseIDsToRun.Contains(testCase.UniqueID))
-								{
 									testCasesToRun.Add(testCase);
-									if (!testCase.Explicit)
-										allExplicit = false;
-								}
 
 								return new(true);
 							}
 						);
 
-						if (allExplicit)
-							executionOptions.SetExplicitOption(ExplicitOption.Only);
+					if (assembly.AutoEnableExplicit && testCasesToRun.All(testCase => testCase.Explicit))
+						executionOptions.SetExplicitOption(ExplicitOption.Only);
 
-						await frontController.Run(resultsSink, executionOptions, testCasesToRun, cancellationTokenSource);
+					await frontController.Run(resultsSink, executionOptions, testCasesToRun, cancellationTokenSource);
 
-						foreach (var testCase in testCasesToRun)
-							if (testCase is IAsyncDisposable asyncDisposable)
-								await asyncDisposable.SafeDisposeAsync();
-							else if (testCase is IDisposable disposable)
-								disposable.SafeDispose();
-					}
-					else
-						await frontController.FindAndRun(
-							resultsSink,
-							discoveryOptions,
-							executionOptions,
-							testCase => assembly.Configuration.Filters.Filter(Path.GetFileNameWithoutExtension(assembly.AssemblyFileName), testCase),
-							cancellationTokenSource
-						);
+					foreach (var testCase in testCasesToRun)
+						if (testCase is IAsyncDisposable asyncDisposable)
+							await asyncDisposable.SafeDisposeAsync();
+						else if (testCase is IDisposable disposable)
+							disposable.SafeDispose();
 				}
 
 				TestExecutionSummaries.Add(frontController.TestAssemblyUniqueID, resultsSink.ExecutionSummary);

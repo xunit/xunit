@@ -56,6 +56,7 @@ public static class Xunit3ArgumentFactory
 			serializedTestCases: null,
 			stopOnTestFail: null,
 			options.GetSynchronousMessageReporting(),
+			testCaseIDs: null,
 			waitForDebugger
 		);
 	}
@@ -101,6 +102,7 @@ public static class Xunit3ArgumentFactory
 			serializedTestCases: null,
 			executionOptions.GetStopOnTestFail(),
 			executionOptions.GetSynchronousMessageReporting() ?? discoveryOptions.GetSynchronousMessageReporting(),
+			testCaseIDs: null,
 			waitForDebugger
 		);
 	}
@@ -122,12 +124,26 @@ public static class Xunit3ArgumentFactory
 			);
 
 	/// <summary>
+	/// Please use <see cref="ForRun(Version, ITestFrameworkExecutionOptions, IReadOnlyCollection{string}, IReadOnlyCollection{string}, string?, bool)"/>.
+	/// This overload will be removed in the next major version.
+	/// </summary>
+	[Obsolete("Please use the overload which accepts testCaseIDs. This overload will be removed in the next major version.")]
+	public static List<string> ForRun(
+		Version coreFrameworkVersion,
+		ITestFrameworkExecutionOptions options,
+		IReadOnlyCollection<string> serializedTestCases,
+		string? configFileName = null,
+		bool waitForDebugger = false) =>
+			ForRun(coreFrameworkVersion, options, serializedTestCases, [], configFileName, waitForDebugger);
+
+	/// <summary>
 	/// Gets command line switches based on a call to <c>Run</c> on <see cref="Xunit3"/>.
 	/// </summary>
 	public static List<string> ForRun(
 		Version coreFrameworkVersion,
 		ITestFrameworkExecutionOptions options,
 		IReadOnlyCollection<string> serializedTestCases,
+		IReadOnlyCollection<string> testCaseIDs,
 		string? configFileName = null,
 		bool waitForDebugger = false)
 	{
@@ -161,6 +177,7 @@ public static class Xunit3ArgumentFactory
 			serializedTestCases,
 			options.GetStopOnTestFail(),
 			options.GetSynchronousMessageReporting(),
+			testCaseIDs,
 			waitForDebugger
 		);
 	}
@@ -191,6 +208,7 @@ public static class Xunit3ArgumentFactory
 		IReadOnlyCollection<string>? serializedTestCases,
 		bool? stopOnTestFail,
 		bool? synchronousMessages,
+		IReadOnlyCollection<string>? testCaseIDs,
 		bool waitForDebugger)
 	{
 		var result = new List<string>();
@@ -242,6 +260,10 @@ public static class Xunit3ArgumentFactory
 			false => ["-failWarns-"],
 			_ => [],
 		});
+
+		if (testCaseIDs?.Count > 0)
+			foreach (var testCaseID in testCaseIDs)
+				result.AddRange(["-id", testCaseID]);
 
 		if (internalDiagnosticMessages == true)
 			result.Add("-internalDiagnostics");
@@ -335,6 +357,7 @@ public static class Xunit3ArgumentFactory
 					coreFrameworkVersion,
 					executionOptions,
 					projectAssembly.TestCasesToRun,
+					projectAssembly.TestCaseIDsToRun,
 					projectAssembly.ConfigFileName,
 					projectAssembly.Project.Configuration.WaitForDebuggerOrDefault
 				)

@@ -26,6 +26,7 @@ public class XunitProjectAssembly
 		AssemblyMetadata = Guard.ArgumentNotNull(assemblyMetadata);
 		Configuration = new();
 		Project = Guard.ArgumentNotNull(project);
+		TestCaseIDsToRun = [];
 		TestCasesToRun = [];
 	}
 
@@ -33,17 +34,21 @@ public class XunitProjectAssembly
 		Assembly? assembly,
 		string assemblyFileName,
 		AssemblyMetadata assemblyMetadata,
+		bool autoEnableExplicit,
 		string? configFileName,
 		TestAssemblyConfiguration configuration,
 		XunitProject project,
+		List<string> testCaseIDsToRun,
 		List<string> testCasesToRun)
 	{
 		Assembly = assembly;
 		AssemblyFileName = Guard.ArgumentNotNull(assemblyFileName);
 		AssemblyMetadata = Guard.ArgumentNotNull(assemblyMetadata);
+		AutoEnableExplicit = autoEnableExplicit;
 		ConfigFileName = configFileName;
 		Configuration = Guard.ArgumentNotNull(configuration);
 		Project = Guard.ArgumentNotNull(project);
+		TestCaseIDsToRun = testCaseIDsToRun;
 		TestCasesToRun = testCasesToRun;
 	}
 
@@ -70,6 +75,12 @@ public class XunitProjectAssembly
 	public AssemblyMetadata AssemblyMetadata { get; set; }
 
 	/// <summary>
+	/// Gets or sets a flag which will auto-enable explicit test support, if the list of tests
+	/// to be run only includes explicit tests.
+	/// </summary>
+	public bool AutoEnableExplicit { get; set; }
+
+	/// <summary>
 	/// Gets or sets the config file name.
 	/// </summary>
 	public string? ConfigFileName { get; set; }
@@ -94,8 +105,14 @@ public class XunitProjectAssembly
 	public XunitProject Project { get; }
 
 	/// <summary>
-	/// Gets a list of serialized test cases to be run. If the list is empty, then all test cases
-	/// (that match the filters) will be run.
+	/// Gets a list of test case IDs to be run. If this list and <see cref="TestCasesToRun"/> are empty, then all test
+	/// cases (that match the filters) will be run.
+	/// </summary>
+	public List<string> TestCaseIDsToRun { get; }
+
+	/// <summary>
+	/// Gets a list of serialized test cases to be run. If this list and <see cref="TestCaseIDsToRun"/> are empty, then
+	/// all test cases (that match the filters) will be run.
 	/// </summary>
 	public List<string> TestCasesToRun { get; }
 
@@ -108,6 +125,7 @@ public class XunitProjectAssembly
 			Assembly,
 			AssemblyFileName,
 			AssemblyMetadata,
+			AutoEnableExplicit,
 			ConfigFileName,
 			new(
 				Configuration.AppDomain,
@@ -140,6 +158,7 @@ public class XunitProjectAssembly
 				settings.Options.GetSynchronousMessageReporting() ?? Configuration.SynchronousMessageReporting
 			),
 			XunitProject.WithLaunchOptions(Project, settings.LaunchOptions),
+			TestCaseIDsToRun,
 			TestCasesToRun
 		);
 
@@ -152,6 +171,7 @@ public class XunitProjectAssembly
 			Assembly,
 			AssemblyFileName,
 			AssemblyMetadata,
+			AutoEnableExplicit,
 			ConfigFileName,
 			new(
 				Configuration.AppDomain,
@@ -194,6 +214,7 @@ public class XunitProjectAssembly
 				settings.ExecutionOptions.GetSynchronousMessageReporting() ?? settings.DiscoveryOptions.GetSynchronousMessageReporting() ?? Configuration.SynchronousMessageReporting
 			),
 			XunitProject.WithLaunchOptions(Project, settings.LaunchOptions),
+			TestCaseIDsToRun,
 			TestCasesToRun
 		);
 
@@ -206,6 +227,7 @@ public class XunitProjectAssembly
 			Assembly,
 			AssemblyFileName,
 			AssemblyMetadata,
+			AutoEnableExplicit,
 			ConfigFileName,
 			new(
 				Configuration.AppDomain,
@@ -248,6 +270,7 @@ public class XunitProjectAssembly
 				settings.Options.GetSynchronousMessageReporting() ?? Configuration.SynchronousMessageReporting
 			),
 			XunitProject.WithLaunchOptions(Project, settings.LaunchOptions),
+			TestCaseIDsToRun,
 			settings.SerializedTestCases.CastOrToList()
 		);
 }

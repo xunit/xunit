@@ -273,6 +273,33 @@ public class CommandLineTests
 			}
 		}
 
+		public class ID
+		{
+			[Fact]
+			public static void DefaultIsEmpty()
+			{
+				var commandLine = new TestableCommandLine("no-config.json");
+
+				var assembly = commandLine.Parse();
+
+				Assert.Empty(assembly.TestCaseIDsToRun);
+			}
+
+			[Fact]
+			public static void AddsIDsToList()
+			{
+				var commandLine = new TestableCommandLine("no-config.json", "-id", "abc", "-id", "-1");
+
+				var assembly = commandLine.Parse();
+
+				Assert.Collection(
+					assembly.TestCaseIDsToRun,
+					id => Assert.Equal("abc", id),
+					id => Assert.Equal("-1", id)
+				);
+			}
+		}
+
 		public class LongRunning
 		{
 			[Fact]

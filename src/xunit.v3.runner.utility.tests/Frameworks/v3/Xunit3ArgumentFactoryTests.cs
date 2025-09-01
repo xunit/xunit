@@ -471,11 +471,15 @@ public class Xunit3ArgumentFactoryTests
 		{
 			var options = TestData.TestFrameworkExecutionOptions();
 
-			var arguments = Xunit3ArgumentFactory.ForRun(Version_0_3_0, options, ["abc", "123"]);
+			var arguments = Xunit3ArgumentFactory.ForRun(Version_0_3_0, options, ["abc", "123"], ["def", "456"]);
 
 			Assert.Collection(
 				arguments,
 				arg => Assert.Equal("-automated", arg),
+				arg => Assert.Equal("-id", arg),
+				arg => Assert.Equal("def", arg),
+				arg => Assert.Equal("-id", arg),
+				arg => Assert.Equal("456", arg),
 				arg => Assert.Equal("-run", arg),
 				arg => Assert.Equal("abc", arg),
 				arg => Assert.Equal("-run", arg),
@@ -511,7 +515,7 @@ public class Xunit3ArgumentFactoryTests
 				synchronousMessageReporting: true
 			);
 
-			var arguments = Xunit3ArgumentFactory.ForRun(Version_0_3_0, options, ["abc"]);
+			var arguments = Xunit3ArgumentFactory.ForRun(Version_0_3_0, options, ["abc"], ["def"]);
 
 			Assert.Collection(
 				arguments,
@@ -527,6 +531,8 @@ public class Xunit3ArgumentFactoryTests
 				arg => Assert.Equal("On", arg),
 				arg => Assert.Equal("-failSkips", arg),
 				arg => Assert.Equal("-failWarns", arg),
+				arg => Assert.Equal("-id", arg),
+				arg => Assert.Equal("def", arg),
 				arg => Assert.Equal("-internalDiagnostics", arg),
 				arg => Assert.Equal("-maxThreads", arg),
 				arg => Assert.Equal("42", arg),
@@ -559,11 +565,13 @@ public class Xunit3ArgumentFactoryTests
 				printMaxStringLength: -1
 			);
 
-			var arguments = Xunit3ArgumentFactory.ForRun(Version_0_3_0, options, ["abc"]);
+			var arguments = Xunit3ArgumentFactory.ForRun(Version_0_3_0, options, ["abc"], ["def"]);
 
 			Assert.Collection(
 				arguments,
 				arg => Assert.Equal("-automated", arg),
+				arg => Assert.Equal("-id", arg),
+				arg => Assert.Equal("def", arg),
 				arg => Assert.Equal("-run", arg),
 				arg => Assert.Equal("abc", arg)
 			);
@@ -581,11 +589,13 @@ public class Xunit3ArgumentFactoryTests
 		{
 			var options = TestData.TestFrameworkExecutionOptions(maxParallelThreads: maxParallelThreadsValue);
 
-			var arguments = Xunit3ArgumentFactory.ForRun(Version_0_3_0, options, ["abc"]);
+			var arguments = Xunit3ArgumentFactory.ForRun(Version_0_3_0, options, ["abc"], ["def"]);
 
 			Assert.Collection(
 				arguments,
 				arg => Assert.Equal("-automated", arg),
+				arg => Assert.Equal("-id", arg),
+				arg => Assert.Equal("def", arg),
 				arg => Assert.Equal("-maxThreads", arg),
 				arg => Assert.Equal(expectedArgumentValue, arg),
 				arg => Assert.Equal("-run", arg),
@@ -598,11 +608,13 @@ public class Xunit3ArgumentFactoryTests
 		{
 			var options = TestData.TestFrameworkExecutionOptions(synchronousMessageReporting: true);
 
-			var arguments = Xunit3ArgumentFactory.ForRun(Version_0_2_999, options, ["abc"]);
+			var arguments = Xunit3ArgumentFactory.ForRun(Version_0_2_999, options, ["abc"], ["def"]);
 
 			Assert.Collection(
 				arguments,
 				arg => Assert.Equal("-automated", arg),
+				arg => Assert.Equal("-id", arg),
+				arg => Assert.Equal("def", arg),
 				arg => Assert.Equal("-run", arg),
 				arg => Assert.Equal("abc", arg)
 			);
@@ -613,12 +625,14 @@ public class Xunit3ArgumentFactoryTests
 		{
 			var options = TestData.TestFrameworkExecutionOptions();
 
-			var arguments = Xunit3ArgumentFactory.ForRun(Version_0_3_0, options, ["abc"], configFileName: "/config/file/name.json");
+			var arguments = Xunit3ArgumentFactory.ForRun(Version_0_3_0, options, ["abc"], ["def"], configFileName: "/config/file/name.json");
 
 			Assert.Collection(
 				arguments,
 				arg => Assert.Equal("/config/file/name.json", arg),
 				arg => Assert.Equal("-automated", arg),
+				arg => Assert.Equal("-id", arg),
+				arg => Assert.Equal("def", arg),
 				arg => Assert.Equal("-run", arg),
 				arg => Assert.Equal("abc", arg)
 			);
@@ -629,11 +643,13 @@ public class Xunit3ArgumentFactoryTests
 		{
 			var options = TestData.TestFrameworkExecutionOptions();
 
-			var arguments = Xunit3ArgumentFactory.ForRun(Version_0_3_0, options, ["abc"], waitForDebugger: true);
+			var arguments = Xunit3ArgumentFactory.ForRun(Version_0_3_0, options, ["abc"], ["def"], waitForDebugger: true);
 
 			Assert.Collection(
 				arguments,
 				arg => Assert.Equal("-automated", arg),
+				arg => Assert.Equal("-id", arg),
+				arg => Assert.Equal("def", arg),
 				arg => Assert.Equal("-run", arg),
 				arg => Assert.Equal("abc", arg),
 				arg => Assert.Equal("-waitForDebugger", arg)
