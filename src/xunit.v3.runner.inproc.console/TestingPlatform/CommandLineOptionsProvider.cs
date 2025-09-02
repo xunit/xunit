@@ -129,7 +129,7 @@ public sealed class CommandLineOptionsProvider() :
 
 		// Query filtering
 		{ "filter-query", ("""
-			Filter based on the filter query lanaugage. Pass one or more filter queries (in the
+			Filter based on the filter query language. Pass one or more filter queries (in the
 			'/assemblyName/namespace/type/method[trait=value]' format. For more information, see
 			https://xunit.net/docs/query-filter-language
 			    Note: Specifying more than one is an OR operation.
@@ -146,7 +146,7 @@ public sealed class CommandLineOptionsProvider() :
 			""", ArgumentArity.OneOrMore, options => OnFilter(options.Arguments, options.AssemblyConfig.Filters.AddIncludedClassFilter)) },
 		{ "filter-not-class", ("""
 			Do not run any methods in the given test class. Pass one or more fully qualified type names
-			(i.e., 'MyNamspace.MyClass', or 'MyNamspace.MyClass+InnerClass'). Wildcard '*' is supported at
+			(i.e., 'MyNamespace.MyClass', or 'MyNamespace.MyClass+InnerClass'). Wildcard '*' is supported at
 			the beginning and/or end of each filter.
 			    Note: Specifying more than one is an AND operation.
 			          This is categorized as a simple filter. You cannot use both simple filters and query filters.
@@ -160,7 +160,7 @@ public sealed class CommandLineOptionsProvider() :
 			""", ArgumentArity.OneOrMore, options => OnFilter(options.Arguments, options.AssemblyConfig.Filters.AddIncludedMethodFilter)) },
 		{ "filter-not-method", ("""
 			Do not run a given test method. Pass one or more fully qualified method names (i.e.,
-			'MyNamspace.MyClass.MyTestMethod'). Wildcard '*' is supported at the beginning and/or end
+			'MyNamespace.MyClass.MyTestMethod'). Wildcard '*' is supported at the beginning and/or end
 			of each filter.
 			    Note: Specifying more than one is an AND operation.
 			          This is categorized as a simple filter. You cannot use both simple filters and query filters.
