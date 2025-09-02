@@ -644,7 +644,7 @@ public class EquivalenceAssertsTests
 
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
-				"Assert.Equivalent() Failure: Collection value not found in member 'x'" + Environment.NewLine +
+				"Assert.Equivalent() Failure: Collection value not found in member 'x[]'" + Environment.NewLine +
 				"Expected: 6" + Environment.NewLine +
 				"In:       [9, 4, 1]",
 				ex.Message
@@ -707,7 +707,7 @@ public class EquivalenceAssertsTests
 
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
-				"Assert.Equivalent() Failure: Collection value not found in member 'x'" + Environment.NewLine +
+				"Assert.Equivalent() Failure: Collection value not found in member 'x[]'" + Environment.NewLine +
 				"Expected: 6" + Environment.NewLine +
 				"In:       [9, 4, 1]",
 				ex.Message
@@ -724,7 +724,7 @@ public class EquivalenceAssertsTests
 
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
-				"Assert.Equivalent() Failure: Extra values found in member 'x'" + Environment.NewLine +
+				"Assert.Equivalent() Failure: Extra values found in member 'x[]'" + Environment.NewLine +
 				"Expected: [1, 9, 4]" + Environment.NewLine +
 				"Actual:   [6, 12] left over from [6, 9, 4, 1, 12]",
 				ex.Message
@@ -773,7 +773,7 @@ public class EquivalenceAssertsTests
 
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
-				"Assert.Equivalent() Failure: Collection value not found in member 'x'" + Environment.NewLine +
+				"Assert.Equivalent() Failure: Collection value not found in member 'x[]'" + Environment.NewLine +
 				"Expected: 6" + Environment.NewLine +
 				"In:       [9, 4, 1]",
 				ex.Message
@@ -836,7 +836,7 @@ public class EquivalenceAssertsTests
 
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
-				"Assert.Equivalent() Failure: Collection value not found in member 'x'" + Environment.NewLine +
+				"Assert.Equivalent() Failure: Collection value not found in member 'x[]'" + Environment.NewLine +
 				"Expected: 6" + Environment.NewLine +
 				"In:       [9, 4, 1]",
 				ex.Message
@@ -853,7 +853,7 @@ public class EquivalenceAssertsTests
 
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
-				"Assert.Equivalent() Failure: Extra values found in member 'x'" + Environment.NewLine +
+				"Assert.Equivalent() Failure: Extra values found in member 'x[]'" + Environment.NewLine +
 				"Expected: [1, 9, 4]" + Environment.NewLine +
 				"Actual:   [6, 12] left over from [6, 9, 4, 1, 12]",
 				ex.Message
@@ -908,7 +908,7 @@ public class EquivalenceAssertsTests
 
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
-				"Assert.Equivalent() Failure: Collection value not found in member 'x'" + Environment.NewLine +
+				"Assert.Equivalent() Failure: Collection value not found in member 'x[]'" + Environment.NewLine +
 				"Expected: { Foo = \"Biff\" }" + Environment.NewLine +
 				"In:       [{ Foo = \"Baz\" }, { Foo = \"Bar\" }]",
 				ex.Message
@@ -980,7 +980,7 @@ public class EquivalenceAssertsTests
 
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
-				"Assert.Equivalent() Failure: Collection value not found in member 'x'" + Environment.NewLine +
+				"Assert.Equivalent() Failure: Collection value not found in member 'x[]'" + Environment.NewLine +
 				"Expected: { Foo = \"Biff\" }" + Environment.NewLine +
 				"In:       [{ Foo = \"Baz\" }, { Foo = \"Bar\" }]",
 				ex.Message
@@ -997,7 +997,7 @@ public class EquivalenceAssertsTests
 
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
-				"Assert.Equivalent() Failure: Extra values found in member 'x'" + Environment.NewLine +
+				"Assert.Equivalent() Failure: Extra values found in member 'x[]'" + Environment.NewLine +
 				"Expected: [{ Foo = \"Bar\" }]" + Environment.NewLine +
 				"Actual:   [{ Foo = \"Baz\" }] left over from [{ Foo = \"Baz\" }, { Foo = \"Bar\" }]",
 				ex.Message
@@ -1052,7 +1052,7 @@ public class EquivalenceAssertsTests
 
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
-				"Assert.Equivalent() Failure: Collection value not found in member 'x'" + Environment.NewLine +
+				"Assert.Equivalent() Failure: Collection value not found in member 'x[]'" + Environment.NewLine +
 				"Expected: { Foo = \"Biff\" }" + Environment.NewLine +
 				"In:       [{ Foo = \"Baz\" }, { Foo = \"Bar\" }]",
 				ex.Message
@@ -1124,7 +1124,7 @@ public class EquivalenceAssertsTests
 
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
-				"Assert.Equivalent() Failure: Collection value not found in member 'x'" + Environment.NewLine +
+				"Assert.Equivalent() Failure: Collection value not found in member 'x[]'" + Environment.NewLine +
 				"Expected: { Foo = \"Biff\" }" + Environment.NewLine +
 				"In:       [{ Foo = \"Baz\" }, { Foo = \"Bar\" }]",
 				ex.Message
@@ -1141,7 +1141,7 @@ public class EquivalenceAssertsTests
 
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
-				"Assert.Equivalent() Failure: Extra values found in member 'x'" + Environment.NewLine +
+				"Assert.Equivalent() Failure: Extra values found in member 'x[]'" + Environment.NewLine +
 				"Expected: [{ Foo = \"Bar\" }]" + Environment.NewLine +
 				"Actual:   [{ Foo = \"Baz\" }] left over from [{ Foo = \"Baz\" }, { Foo = \"Bar\" }]",
 				ex.Message
@@ -1281,7 +1281,7 @@ public class EquivalenceAssertsTests
 
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
-				"Assert.Equivalent() Failure: Collection value not found in member 'x'" + Environment.NewLine +
+				"Assert.Equivalent() Failure: Collection value not found in member 'x[]'" + Environment.NewLine +
 				"Expected: [\"Foo\"] = 16" + Environment.NewLine +
 				"In:       [[\"Foo\"] = 42, [\"Bar\"] = 2112]",
 				ex.Message
@@ -1353,7 +1353,7 @@ public class EquivalenceAssertsTests
 
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
-				"Assert.Equivalent() Failure: Collection value not found in member 'x'" + Environment.NewLine +
+				"Assert.Equivalent() Failure: Collection value not found in member 'x[]'" + Environment.NewLine +
 				"Expected: [\"Foo\"] = 16" + Environment.NewLine +
 				"In:       [[\"Foo\"] = 42, [\"Bar\"] = 2112]",
 				ex.Message
@@ -1370,7 +1370,7 @@ public class EquivalenceAssertsTests
 
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
-				"Assert.Equivalent() Failure: Extra values found in member 'x'" + Environment.NewLine +
+				"Assert.Equivalent() Failure: Extra values found in member 'x[]'" + Environment.NewLine +
 				"Expected: [[\"Bar\"] = 2112, [\"Foo\"] = 42]" + Environment.NewLine +
 				"Actual:   [[\"Biff\"] = 2600] left over from [[\"Foo\"] = 42, [\"Biff\"] = 2600, [\"Bar\"] = 2112]",
 				ex.Message
@@ -1416,7 +1416,7 @@ public class EquivalenceAssertsTests
 
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
-				"Assert.Equivalent() Failure: Collection value not found in member 'Value'" + Environment.NewLine +
+				"Assert.Equivalent() Failure: Collection value not found in member 'Value[]'" + Environment.NewLine +
 				"Expected: 6" + Environment.NewLine +
 				"In:       [9, 4, 1]",
 				ex.Message
@@ -1462,7 +1462,7 @@ public class EquivalenceAssertsTests
 
 			Assert.IsType<EquivalentException>(ex);
 			Assert.Equal(
-				"Assert.Equivalent() Failure: Collection value not found in member 'Value'" + Environment.NewLine +
+				"Assert.Equivalent() Failure: Collection value not found in member 'Value[]'" + Environment.NewLine +
 				"Expected: 6" + Environment.NewLine +
 				"In:       [4, 1]",
 				ex.Message
@@ -2057,6 +2057,72 @@ public class EquivalenceAssertsTests
 					"Actual:   2",
 					ex.Message
 				);
+			}
+
+			// https://github.com/xunit/xunit/issues/3394
+			[Fact]
+			public void Collections()
+			{
+				var expected = new DeepRecord()
+				{
+					Value1 = 35,
+					Shallow = [
+						new() { Value2 = 42, Value3 = 10 },
+					],
+				};
+				var actual = new DeepRecord()
+				{
+					Value1 = 35,
+					Shallow = [
+						new() { Value2 = 42, Value3 = 15 },
+						new() { Value2 = 50, Value3 = 3 },
+					],
+				};
+
+				Assert.EquivalentWithExclusions(expected, actual, strict: false, "Shallow[].Value3");
+			}
+
+			// https://github.com/xunit/xunit/issues/3394
+			[Fact]
+			public void Collections_Strict()
+			{
+				var expected = new DeepRecord()
+				{
+					Value1 = 35,
+					Shallow = [
+						new() { Value2 = 42, Value3 = 10 },
+					],
+				};
+				var actual = new DeepRecord()
+				{
+					Value1 = 35,
+					Shallow = [
+						new() { Value2 = 42, Value3 = 15 },
+						new() { Value2 = 50, Value3 = 3 },
+					],
+				};
+
+				var ex = Record.Exception(() => Assert.EquivalentWithExclusions(expected, actual, strict: true, "Shallow[].Value3"));
+
+				Assert.IsType<EquivalentException>(ex);
+				Assert.Equal(
+					"Assert.Equivalent() Failure: Extra values found in member 'Shallow[]'" + Environment.NewLine +
+					"Expected: [ShallowRecord { Value2 = 42, Value3 = 10 }]" + Environment.NewLine +
+					"Actual:   [ShallowRecord { Value2 = 50, Value3 = 3 }] left over from [ShallowRecord { Value2 = 42, Value3 = 15 }, ShallowRecord { Value2 = 50, Value3 = 3 }]",
+					ex.Message
+				);
+			}
+
+			class DeepRecord
+			{
+				public required int Value1 { get; set; }
+				public required List<ShallowRecord> Shallow { get; set; }
+			}
+
+			class ShallowRecord
+			{
+				public required int Value2 { get; set; }
+				public required int Value3 { get; set; }
 			}
 		}
 	}
