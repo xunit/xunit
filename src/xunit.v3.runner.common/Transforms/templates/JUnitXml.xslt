@@ -20,7 +20,7 @@
       <xsl:attribute name="errors">
         <xsl:value-of select="sum(assembly/@errors)"/>
       </xsl:attribute>
-      <xsl:attribute name="skipped">
+      <xsl:attribute name="disabled">
         <xsl:value-of select="sum(assembly/@skipped)"/>
       </xsl:attribute>
       <xsl:apply-templates select="assembly/collection"/>
@@ -73,51 +73,7 @@
       </xsl:if>
       <xsl:apply-templates select="failure"/>
       <xsl:apply-templates select="reason"/>
-      <xsl:if test="attachments or traits or warnings">
-        <properties>
-          <xsl:if test="attachments">
-            <xsl:apply-templates select="attachments/attachment"/>
-          </xsl:if>
-          <xsl:if test="traits">
-            <xsl:apply-templates select="traits/trait"/>
-          </xsl:if>
-          <xsl:if test="warnings">
-            <xsl:apply-templates select="warnings/warning"/>
-          </xsl:if>
-        </properties>
-      </xsl:if>
     </testcase>
-  </xsl:template>
-
-  <xsl:template match="attachment">
-    <property>
-      <xsl:attribute name="name">attachment:<xsl:value-of select="@name"/></xsl:attribute>
-      <xsl:choose>
-        <xsl:when test="@media-type">data:<xsl:value-of select="@media-type"/>;base64,<xsl:value-of select="."/></xsl:when>
-        <xsl:otherwise>
-          <xsl:value-of select="."/>
-        </xsl:otherwise>
-      </xsl:choose>
-      <xsl:if test="@media-type"></xsl:if>
-    </property>
-  </xsl:template>
-
-  <xsl:template match="trait">
-    <property>
-      <xsl:attribute name="name">trait:<xsl:value-of select="@name"/></xsl:attribute>
-      <xsl:attribute name="value">
-        <xsl:value-of select="@value"/>
-      </xsl:attribute>
-    </property>
-  </xsl:template>
-
-  <xsl:template match="warning">
-    <property>
-      <xsl:attribute name="name">warning</xsl:attribute>
-      <xsl:attribute name="value">
-        <xsl:value-of select="."/>
-      </xsl:attribute>
-    </property>
   </xsl:template>
 
   <xsl:template match="failure">
