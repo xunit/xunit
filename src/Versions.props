@@ -12,7 +12,7 @@
     <TunnelVisionLabs_ReferenceAssemblyAnnotator_Version>1.0.0-alpha.160</TunnelVisionLabs_ReferenceAssemblyAnnotator_Version>
 
     <!-- Used for Microsoft.Testing.* (xunit.v3.core NuGet package and xunit.v3.runner.inproc.console) -->
-    <Microsoft_Testing_Version>2.0.0-preview.25452.10</Microsoft_Testing_Version>
+    <Microsoft_Testing_Version>2.0.0-preview.25454.2</Microsoft_Testing_Version>
 
     <!-- Used by NuGet packages (xunit.v3 and xunit.v3.templates) -->
     <Microsoft_NET_Test_Sdk_Version>17.13.0</Microsoft_NET_Test_Sdk_Version>
