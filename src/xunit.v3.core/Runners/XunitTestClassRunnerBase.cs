@@ -24,6 +24,9 @@ public abstract class XunitTestClassRunnerBase<TContext, TTestClass, TTestMethod
 	{
 		Guard.ArgumentNotNull(ctxt);
 
+		if (ctxt.TestCases.All(tc => tc.IsStaticallySkipped()))
+			return [];
+
 		if (!ctxt.Aggregator.HasExceptions)
 		{
 			var ctor = SelectTestClassConstructor(ctxt);

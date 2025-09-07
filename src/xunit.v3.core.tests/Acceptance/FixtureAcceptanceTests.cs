@@ -333,6 +333,24 @@ public class FixtureAcceptanceTests
 			[Fact(Skip = "Do not run me")]
 			public void Skipped() { }
 		}
+
+		// https://github.com/xunit/xunit/issues/3371
+		[Fact]
+		public async ValueTask FixtureWithAllSkippedTestsIsNotCreated_WithConstructor()
+		{
+			var messages = await RunForResultsAsync(typeof(ClassWithSkippedTests_WithConstructor));
+
+			var message = Assert.Single(messages);
+			var skipped = Assert.IsType<TestSkippedWithDisplayName>(message);
+			Assert.Equal("FixtureAcceptanceTests+ClassFixture+ClassWithSkippedTests_WithConstructor.Skipped", skipped.TestDisplayName);
+		}
+
+		class ClassWithSkippedTests_WithConstructor(ThrowingCtorFixture fixture) :
+			IClassFixture<ThrowingCtorFixture>
+		{
+			[Fact(Skip = "Do not run me")]
+			public void Skipped() { }
+		}
 	}
 
 	public class AsyncClassFixture : AcceptanceTestV3
@@ -739,6 +757,28 @@ public class FixtureAcceptanceTests
 
 		[Collection("Class with skipped tests")]
 		class ClassWithSkippedTests
+		{
+			[Fact(Skip = "Do not run me")]
+			public void Skipped() { }
+		}
+
+		// https://github.com/xunit/xunit/issues/3371
+		[Fact]
+		public async ValueTask FixtureWithAllSkippedTestsIsNotCreated_WithConstructor()
+		{
+			var messages = await RunForResultsAsync(typeof(ClassWithSkippedTests_WithConstructor));
+
+			var message = Assert.Single(messages);
+			var skipped = Assert.IsType<TestSkippedWithDisplayName>(message);
+			Assert.Equal("FixtureAcceptanceTests+CollectionFixture+ClassWithSkippedTests_WithConstructor.Skipped", skipped.TestDisplayName);
+		}
+
+		[CollectionDefinition("Class with skipped tests and constructor")]
+		public class ClassWithSkippedTestsCollection_WithConstructor : ICollectionFixture<ThrowingCtorFixture>
+		{ }
+
+		[Collection("Class with skipped tests and constructor")]
+		class ClassWithSkippedTests_WithConstructor(ThrowingCtorFixture fixture)
 		{
 			[Fact(Skip = "Do not run me")]
 			public void Skipped() { }
