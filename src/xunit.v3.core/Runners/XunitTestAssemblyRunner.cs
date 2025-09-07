@@ -43,7 +43,13 @@ public class XunitTestAssemblyRunner :
 		Guard.ArgumentNotNull(executionMessageSink);
 		Guard.ArgumentNotNull(executionOptions);
 
-		await using var ctxt = new XunitTestAssemblyRunnerContext(testAssembly, testCases, executionMessageSink, executionOptions, cancellationToken);
+		await using var ctxt = new XunitTestAssemblyRunnerContext(
+			testAssembly,
+			testCases,
+			executionMessageSink,
+			executionOptions,
+			cancellationToken
+		);
 		await ctxt.InitializeAsync();
 
 		return await Run(ctxt);

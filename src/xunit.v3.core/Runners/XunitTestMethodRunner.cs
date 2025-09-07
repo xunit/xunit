@@ -45,7 +45,15 @@ public class XunitTestMethodRunner : XunitTestMethodRunnerBase<XunitTestMethodRu
 		Guard.ArgumentNotNull(messageBus);
 		Guard.ArgumentNotNull(constructorArguments);
 
-		await using var ctxt = new XunitTestMethodRunnerContext(testMethod, testCases, explicitOption, messageBus, aggregator, cancellationTokenSource, constructorArguments);
+		await using var ctxt = new XunitTestMethodRunnerContext(
+			testMethod,
+			testCases,
+			explicitOption,
+			messageBus,
+			aggregator,
+			cancellationTokenSource,
+			constructorArguments
+		);
 		await ctxt.InitializeAsync();
 
 		return await Run(ctxt);

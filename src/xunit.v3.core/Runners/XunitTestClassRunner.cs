@@ -52,7 +52,16 @@ public class XunitTestClassRunner :
 		Guard.ArgumentNotNull(cancellationTokenSource);
 		Guard.ArgumentNotNull(collectionFixtureMappings);
 
-		await using var ctxt = new XunitTestClassRunnerContext(testClass, @testCases, explicitOption, messageBus, testCaseOrderer, aggregator, cancellationTokenSource, collectionFixtureMappings);
+		await using var ctxt = new XunitTestClassRunnerContext(
+			testClass,
+			@testCases,
+			explicitOption,
+			messageBus,
+			testCaseOrderer,
+			aggregator,
+			cancellationTokenSource,
+			collectionFixtureMappings
+		);
 		await ctxt.InitializeAsync();
 
 		return await ctxt.Aggregator.RunAsync(() => Run(ctxt), default);
@@ -69,17 +78,23 @@ public class XunitTestClassRunner :
 
 		// Technically not possible because of the design of TTestClass, but this signature is imposed
 		// by the base class, which allows method-less tests
-		return
-			testMethod is null
-				? new(XunitRunnerHelper.FailTestCases(ctxt.MessageBus, ctxt.CancellationTokenSource, testCases, "Test case '{0}' does not have an associated method and cannot be run by XunitTestMethodRunner", sendTestMethodMessages: true))
-				: XunitTestMethodRunner.Instance.Run(
-					testMethod,
-					testCases,
-					ctxt.ExplicitOption,
-					ctxt.MessageBus,
-					ctxt.Aggregator.Clone(),
-					ctxt.CancellationTokenSource,
-					constructorArguments
-				);
+		if (testMethod is null)
+			return new(XunitRunnerHelper.FailTestCases(
+				ctxt.MessageBus,
+				ctxt.CancellationTokenSource,
+				testCases,
+				"Test case '{0}' does not have an associated method and cannot be run by XunitTestMethodRunner",
+				sendTestMethodMessages: true
+			));
+
+		return XunitTestMethodRunner.Instance.Run(
+			testMethod,
+			testCases,
+			ctxt.ExplicitOption,
+			ctxt.MessageBus,
+			ctxt.Aggregator.Clone(),
+			ctxt.CancellationTokenSource,
+			constructorArguments
+		);
 	}
 }

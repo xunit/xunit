@@ -51,7 +51,16 @@ public class XunitTestCollectionRunner :
 		Guard.ArgumentNotNull(cancellationTokenSource);
 		Guard.ArgumentNotNull(assemblyFixtureMappings);
 
-		await using var ctxt = new XunitTestCollectionRunnerContext(testCollection, testCases, explicitOption, messageBus, testCaseOrderer, aggregator, cancellationTokenSource, assemblyFixtureMappings);
+		await using var ctxt = new XunitTestCollectionRunnerContext(
+			testCollection,
+			testCases,
+			explicitOption,
+			messageBus,
+			testCaseOrderer,
+			aggregator,
+			cancellationTokenSource,
+			assemblyFixtureMappings
+		);
 		await ctxt.InitializeAsync();
 
 		return await Run(ctxt);
