@@ -159,7 +159,9 @@ public class XunitTestRunnerBase<TContext, TTest> : TestRunner<TContext, TTest>
 			{
 				try
 				{
-					throw TestTimeoutException.ForTimedOutTest(timeout);
+					var timeoutException = TestTimeoutException.ForTimedOutTest(timeout);
+					UpdateTestContext(null, TestResultState.FromException(timeout * 1000, timeoutException));
+					throw timeoutException;
 				}
 				finally
 				{

@@ -417,7 +417,22 @@ public abstract class TestRunnerBase<TContext, TTest>
 			var skipReason = ctxt.GetSkipReason(exception: null);
 
 			if (!ctxt.Aggregator.HasExceptions && shouldRun && skipReason is null)
-				elapsedTime += await ctxt.Aggregator.RunAsync(() => RunTest(ctxt), TimeSpan.Zero);
+			{
+				var logEnabled = TestEventSource.Log.IsEnabled();
+
+				if (logEnabled)
+					TestEventSource.Log.TestStart(ctxt.Test.TestDisplayName);
+
+				try
+				{
+					elapsedTime += await ctxt.Aggregator.RunAsync(() => RunTest(ctxt), TimeSpan.Zero);
+				}
+				finally
+				{
+					if (logEnabled && TestContext.Current.TestState is not null)
+						TestEventSource.Log.TestStop(ctxt.Test.TestDisplayName, TestContext.Current.TestState.Result);
+				}
+			}
 
 			output = await ctxt.Aggregator.RunAsync(() => GetTestOutput(ctxt), string.Empty);
 			warnings = await ctxt.Aggregator.RunAsync(() => GetWarnings(ctxt), null);

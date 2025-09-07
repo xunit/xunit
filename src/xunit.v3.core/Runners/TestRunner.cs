@@ -373,64 +373,52 @@ public abstract class TestRunner<TContext, TTest> :
 					if (!ctxt.Aggregator.HasExceptions)
 					{
 						var testResultState = TestResultState.ForPassed();
-						var logEnabled = TestEventSource.Log.IsEnabled();
 
-						if (logEnabled)
-							TestEventSource.Log.TestStart(ctxt.Test.TestDisplayName);
+						elapsedTime += ExecutionTimer.Measure(() => ctxt.Aggregator.Run(() => PreInvoke(ctxt)));
 
-						try
+						currentException = ctxt.Aggregator.ToException();
+						if (currentException is not null)
 						{
-							elapsedTime += ExecutionTimer.Measure(() => ctxt.Aggregator.Run(() => PreInvoke(ctxt)));
+							testResultState = TestResultState.FromException(0m, currentException);
+							UpdateTestContext(testClassInstance, testResultState);
+						}
 
+						if (!ctxt.Aggregator.HasExceptions)
+						{
+							elapsedTime += await ctxt.Aggregator.RunAsync(() => InvokeTest(ctxt, testClassInstance), TimeSpan.Zero);
+
+							// Set an early version of TestResultState so anything done in PostInvoke can understand whether
+							// it looks like the test is passing, failing, or dynamically skipped
 							currentException = ctxt.Aggregator.ToException();
-							if (currentException is not null)
+							var skipReason = ctxt.GetSkipReason(currentException);
+							testResultState =
+								skipReason is not null
+									? TestResultState.ForSkipped((decimal)elapsedTime.TotalMilliseconds)
+									: TestResultState.FromException((decimal)elapsedTime.TotalMilliseconds, currentException);
+
+							UpdateTestContext(testClassInstance, testResultState);
+
+							elapsedTime += ExecutionTimer.Measure(() => ctxt.Aggregator.Run(() => PostInvoke(ctxt)));
+
+							var postInvokeException = ctxt.Aggregator.ToException();
+							if (currentException != postInvokeException)
 							{
-								testResultState = TestResultState.FromException(0m, currentException);
+								currentException = postInvokeException;
+								testResultState = TestResultState.FromException((decimal)elapsedTime.TotalMilliseconds, postInvokeException);
 								UpdateTestContext(testClassInstance, testResultState);
 							}
-
-							if (!ctxt.Aggregator.HasExceptions)
-							{
-								elapsedTime += await ctxt.Aggregator.RunAsync(() => InvokeTest(ctxt, testClassInstance), TimeSpan.Zero);
-
-								// Set an early version of TestResultState so anything done in PostInvoke can understand whether
-								// it looks like the test is passing, failing, or dynamically skipped
-								currentException = ctxt.Aggregator.ToException();
-								var skipReason = ctxt.GetSkipReason(currentException);
-								testResultState =
-									skipReason is not null
-										? TestResultState.ForSkipped((decimal)elapsedTime.TotalMilliseconds)
-										: TestResultState.FromException((decimal)elapsedTime.TotalMilliseconds, currentException);
-
-								UpdateTestContext(testClassInstance, testResultState);
-
-								elapsedTime += ExecutionTimer.Measure(() => ctxt.Aggregator.Run(() => PostInvoke(ctxt)));
-
-								var postInvokeException = ctxt.Aggregator.ToException();
-								if (currentException != postInvokeException)
-								{
-									currentException = postInvokeException;
-									testResultState = TestResultState.FromException((decimal)elapsedTime.TotalMilliseconds, postInvokeException);
-									UpdateTestContext(testClassInstance, testResultState);
-								}
-							}
-
-							elapsedTime += await ExecutionTimer.MeasureAsync(() => ctxt.Aggregator.RunAsync(() => DisposeTestClass(ctxt, testClassInstance)));
-
-							var postDisposeException = ctxt.Aggregator.ToException();
-							if (currentException != postDisposeException)
-							{
-								testResultState = TestResultState.FromException((decimal)elapsedTime.TotalMilliseconds, postDisposeException);
-								UpdateTestContext(null, testResultState);
-							}
-							else
-								UpdateTestContext(null, TestContext.Current.TestState);
 						}
-						finally
+
+						elapsedTime += await ExecutionTimer.MeasureAsync(() => ctxt.Aggregator.RunAsync(() => DisposeTestClass(ctxt, testClassInstance)));
+
+						var postDisposeException = ctxt.Aggregator.ToException();
+						if (currentException != postDisposeException)
 						{
-							if (logEnabled)
-								TestEventSource.Log.TestStop(ctxt.Test.TestDisplayName, testResultState.Result);
+							testResultState = TestResultState.FromException((decimal)elapsedTime.TotalMilliseconds, postDisposeException);
+							UpdateTestContext(null, testResultState);
 						}
+						else
+							UpdateTestContext(null, TestContext.Current.TestState);
 					}
 
 					finished.TrySetResult(null);
