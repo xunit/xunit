@@ -40,14 +40,18 @@
     },
     {
       "condition": "(Framework == \"net10.0\")",
-      "description": "Create or update 'dotnet.config' file required by Microsoft.Testing.Platform.",
-      "manualInstructions": [{ "text": "Manually create 'dotnet.config' file setting the test runner to Microsoft.Testing.Platform." }],
-      "actionId": "597E7933-0D87-452C-B094-8FA0EEF7FD97",
-      "id": "createOrUpdateDotnetConfig",
+      "description": "Create or update 'global.json' file required by Microsoft.Testing.Platform.",
+      "manualInstructions": [{ "text": "Manually update or create 'global.json' file setting the test runner to Microsoft.Testing.Platform" }],
+      "actionId": "695A3659-EB40-4FF5-A6A6-C9C4E629FCB0",
+      "id": "addJsonProperty",
       "args": {
-        "section": "dotnet.test.runner",
-        "key": "name",
-        "value": "Microsoft.Testing.Platform",
+        "allowFileCreation": true,
+        "allowPathCreation": true,
+        "jsonFileName": "global.json",
+        "parentPropertyPath": "test",
+        "newJsonPropertyName": "runner",
+        "newJsonPropertyValue": "Microsoft.Testing.Platform",
+        "detectRepositoryRootForFileCreation": true
       },
       "continueOnError": true
     }
