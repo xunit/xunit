@@ -37,6 +37,9 @@ jobs:
         run: dotnet --info
         continue-on-error: true
 
+      - name: "Build target: AnalyzeSource & Test & DocFX"
+        run: dotnet run --project tools/builder --no-launch-profile -- AnalyzeSource Test DocFX --timing --no-x86
+
       - name: Login to Azure CLI
         uses: azure/login@v2
         with:
@@ -44,7 +47,7 @@ jobs:
           tenant-id: ${{ vars.KEYVAULT_TENANT_ID }}
           subscription-id: ${{ vars.KEYVAULT_SUBSCRIPTION_ID }}
 
-      - name: "Build target: BuildAll & DocFX & PublishPackages"
+      - name: "Build target: SignAssemblies & Packages & PublishPackages"
         env:
           PUSH_APIKEY: ${{ secrets.FEEDZ_PUSH_KEY }}
           PUSH_URI: ${{ vars.FEEDZ_PUSH_URL }}
@@ -52,7 +55,7 @@ jobs:
           SIGN_CERT_NAME: ${{ vars.KEYVAULT_CERT_NAME }}
           SIGN_TIMESTAMP_URI: ${{ vars.KEYVAULT_TIMESTAMP_URL }}
           SIGN_VAULT_URI: ${{ vars.KEYVAULT_URL }}
-        run: dotnet run --project tools/builder --no-launch-profile -- BuildAll DocFX PublishPackages --timing --no-x86
+        run: dotnet run --project tools/builder --no-launch-profile -- SignAssemblies Packages PublishPackages --skip-dependencies --timing
 
       - name: "Upload artifact: docfx"
         uses: actions/upload-artifact@v4
