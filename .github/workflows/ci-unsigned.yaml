@@ -34,8 +34,11 @@ jobs:
         run: dotnet --info
         continue-on-error: true
 
-      - name: "Build target: BuildAll"
-        run: dotnet run --project tools/builder --no-launch-profile -- BuildAll --timing --no-x86
+      - name: "Build target: CI"
+        run: dotnet run --project tools/builder --no-launch-profile -- CI --timing --no-x86
+
+      - name: "Build target: Packages"
+        run: dotnet run --project tools/builder --no-launch-profile -- Packages --timing
 
       - name: "Upload artifact: test"
         uses: actions/upload-artifact@v4
