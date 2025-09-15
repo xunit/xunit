@@ -458,15 +458,15 @@ public abstract class TestRunnerBase<TContext, TTest>
 			else if (skipReason is not null)
 			{
 				summary.Skipped = 1;
-				(@continue, resultState) = await ctxt.Aggregator.RunAsync(() => OnTestSkipped(ctxt, skipReason, 0m, output, warnings), (true, TestResultState.ForNotRun()));
+				(@continue, resultState) = await ctxt.Aggregator.RunAsync(() => OnTestSkipped(ctxt, skipReason, 0m, output, warnings), (true, TestResultState.ForSkipped()));
 			}
 			else if (exception is not null)
 			{
 				summary.Failed = 1;
-				(@continue, resultState) = await ctxt.Aggregator.RunAsync(() => OnTestFailed(ctxt, exception, summary.Time, output, warnings), (true, TestResultState.ForNotRun()));
+				(@continue, resultState) = await ctxt.Aggregator.RunAsync(() => OnTestFailed(ctxt, exception, summary.Time, output, warnings), (true, TestResultState.FromException(summary.Time, exception)));
 			}
 			else
-				(@continue, resultState) = await ctxt.Aggregator.RunAsync(() => OnTestPassed(ctxt, summary.Time, output, warnings), (true, TestResultState.ForNotRun()));
+				(@continue, resultState) = await ctxt.Aggregator.RunAsync(() => OnTestPassed(ctxt, summary.Time, output, warnings), (true, TestResultState.ForPassed(summary.Time)));
 		}
 
 		if (!@continue)
