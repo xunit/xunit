@@ -1,3 +1,4 @@
+using System.IO;
 using System.Threading.Tasks;
 using Xunit.BuildTools.Models;
 
@@ -9,6 +10,8 @@ public static partial class Build
 	{
 		context.BuildStep("Compiling binaries");
 
-		await context.Exec("dotnet", $"msbuild -nologo -maxCpuCount -restore:False -verbosity:{context.Verbosity} -p:Configuration={context.ConfigurationText}");
+		var buildLog = Path.Combine(context.BuildLogOutputFolder, "build.binlog");
+
+		await context.Exec("dotnet", $"msbuild -nologo -maxCpuCount -restore:False -verbosity:{context.Verbosity} -p:Configuration={context.ConfigurationText} -bl:{buildLog}");
 	}
 }
