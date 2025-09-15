@@ -9,7 +9,6 @@ namespace Xunit.BuildTools.Models;
 
 public partial class BuildContext
 {
-	string? buildLogOutputFolder;
 	string? consoleRunnerExe;
 	string? consoleRunner32Exe;
 	string? docFXOutputFolder;
@@ -17,12 +16,6 @@ public partial class BuildContext
 	bool dotnet32SdkInstalled;
 
 	// Calculated properties
-
-	public string BuildLogOutputFolder
-	{
-		get => buildLogOutputFolder ?? throw new InvalidOperationException($"Tried to retrieve unset {nameof(BuildContext)}.{nameof(BuildLogOutputFolder)}");
-		private set => buildLogOutputFolder = value ?? throw new ArgumentNullException(nameof(BuildLogOutputFolder));
-	}
 
 	public string ConsoleRunnerExe
 	{
@@ -68,9 +61,6 @@ public partial class BuildContext
 	{
 		ConsoleRunnerExe = Path.Combine(BaseFolder, "src", "xunit.v3.runner.console", "bin", ConfigurationText, "net472", "merged", "xunit.v3.runner.console.exe");
 		ConsoleRunner32Exe = Path.Combine(BaseFolder, "src", "xunit.v3.runner.console.x86", "bin", ConfigurationText, "net472", "merged", "xunit.v3.runner.console.x86.exe");
-
-		BuildLogOutputFolder = Path.Combine(ArtifactsFolder, "build");
-		Directory.CreateDirectory(BuildLogOutputFolder);
 
 		DocFXOutputFolder = Path.Combine(ArtifactsFolder, "docfx");
 

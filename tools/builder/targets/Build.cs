@@ -10,8 +10,8 @@ public static partial class Build
 	{
 		context.BuildStep("Compiling binaries");
 
-		var buildLog = Path.Combine(context.BuildLogOutputFolder, "build.binlog");
+		var buildLog = Path.Combine(context.BuildArtifactsFolder, "build.binlog");
 
-		await context.Exec("dotnet", $"msbuild -nologo -maxCpuCount -restore:False -verbosity:{context.Verbosity} -p:Configuration={context.ConfigurationText} -bl:{buildLog}");
+		await context.Exec("dotnet", $"msbuild -nologo -maxCpuCount -restore:False -verbosity:{context.Verbosity} -property:Configuration={context.ConfigurationText} -binaryLogger:{buildLog}");
 	}
 }
