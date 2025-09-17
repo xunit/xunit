@@ -42,7 +42,7 @@ internal sealed class TupleSerializer : IXunitSerializer
 		object? value,
 		[NotNullWhen(false)] out string? failureReason)
 	{
-		if (tupleType is null)
+		if (tupleType is null || tupleItem is null || tupleLength is null)
 		{
 			failureReason = NotSupported;
 			return false;
@@ -66,21 +66,9 @@ internal sealed class TupleSerializer : IXunitSerializer
 
 	public string Serialize(object value)
 	{
-		Guard.NotNull(NotSupported, tupleItem);
-		Guard.NotNull(NotSupported, tupleLength);
-
 		try
 		{
-			var length =
-				(int)(tupleLength.GetValue(value)
-					?? throw new InvalidOperationException("Unexpected null calling ITuple.Length"));
-
-			var values = new List<string>();
-
-			for (var idx = 0; idx < length; ++idx)
-				values.Add(SerializationHelper.Instance.Serialize(tupleItem.GetValue(value, [idx])));
-
-			return string.Join("\n", values);
+			return Serialize(value, value.GetType(), 0);
 		}
 		catch (Exception ex)
 		{
@@ -88,8 +76,37 @@ internal sealed class TupleSerializer : IXunitSerializer
 		}
 	}
 
+	static string Serialize(
+		object tuple,
+		Type type,
+		int startIndex)
+	{
+		if (!type.IsGenericType)
+			throw new ArgumentException(TypeMustBeGeneric(type), nameof(tuple));
+
+		if (!tupleType!.IsAssignableFrom(type))
+			throw new ArgumentException(TypeIsNotTuple(type, tupleType), nameof(tuple));
+
+		var argumentTypes = type.GenericTypeArguments;
+		var values = new List<string>();
+
+		for (var idx = 0; idx < argumentTypes.Length; ++idx)
+			values.Add(
+				tupleType.IsAssignableFrom(argumentTypes[idx])
+					? SerializationHelper.SerializeForXunitSerializer(argumentTypes[idx], Serialize(tuple, argumentTypes[idx], startIndex + idx))
+					: SerializationHelper.Instance.Serialize(tupleItem?.GetValue(tuple, [startIndex + idx]))
+			);
+
+		return string.Join("\n", values);
+	}
+
 	static string TypeDoesNotHaveConstructor(Type type) =>
 		string.Format(CultureInfo.CurrentCulture, "Tuple type '{0}' must have a constructor which accepts all the tuple values", ArgumentFormatter.FormatTypeName(type));
+
+	static string TypeIsNotTuple(
+		Type type,
+		Type tupleType) =>
+			string.Format(CultureInfo.CurrentCulture, "Type '{0}' does not implement tuple interface '{1}'", ArgumentFormatter.FormatTypeName(type), ArgumentFormatter.FormatTypeName(tupleType));
 
 	static string TypeMustBeGeneric(Type type) =>
 		string.Format(CultureInfo.CurrentCulture, "Tuple type '{0}' must be generic for serialization", ArgumentFormatter.FormatTypeName(type));

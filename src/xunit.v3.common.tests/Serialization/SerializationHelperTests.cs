@@ -68,6 +68,23 @@ public class SerializationHelperTests
 		{ ValueTuple.Create(default(object), 2600), $"-3:{ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof(ValueTuple<object, int>)))}:{ToBase64($"-1\n6:2600")}" },
 		{ new MyCustomType { Age = 42, Name = "Someone" }, $"-3:{ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof(MyCustomType)))}:{ToBase64("42:Someone")}" },
 
+		// Tuples > 8 items in length are chained (https://github.com/xunit/xunit/issues/3401)
+		{ (15, 16, 17), $"-3:{
+			ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof((int, int, int))))}:{ToBase64("6:15\n6:16\n6:17")
+		}" },
+		{ (8, 9, 10, 11, 12, 13, 14, 15, 16, 17), $"-3:{
+			ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof((int, int, int, int, int, int, int, int, int, int))))}:{ToBase64($"6:8\n6:9\n6:10\n6:11\n6:12\n6:13\n6:14\n-3:{
+				ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof((int, int, int))))}:{ToBase64("6:15\n6:16\n6:17")
+			}")
+		}" },
+		{ (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17), $"-3:{
+			ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof((int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int, int))))}:{ToBase64($"6:1\n6:2\n6:3\n6:4\n6:5\n6:6\n6:7\n-3:{
+				ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof((int, int, int, int, int, int, int, int, int, int))))}:{ToBase64($"6:8\n6:9\n6:10\n6:11\n6:12\n6:13\n6:14\n-3:{
+					ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof((int, int, int))))}:{ToBase64("6:15\n6:16\n6:17")
+				}")
+			}")
+		}" },
+
 		// Types which implement both IFormattable and IParsable<T>
 #if NET8_0_OR_GREATER
 		{ new FormattableAndParsableStringWrapper("Hello world"), $"-3:{ToBase64(SerializationHelper.TypeToSerializedTypeName(typeof(FormattableAndParsableStringWrapper)))}:{ToBase64("Hello world")}" },

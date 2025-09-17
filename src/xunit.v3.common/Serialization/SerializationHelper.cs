@@ -634,6 +634,11 @@ public class SerializationHelper
 	public static Type? SerializedTypeNameToType(string assemblyQualifiedTypeName) =>
 		TypeHelper.GetType(assemblyQualifiedTypeName);
 
+	internal static string SerializeForXunitSerializer(
+		Type type,
+		string serializedArguments) =>
+			$"{(int)TypeIndex.IXunitSerializer}:{ToBase64(TypeToSerializedTypeName(type))}:{ToBase64(serializedArguments)}";
+
 	/// <summary>
 	/// Gets an assembly qualified type name for serialization.
 	/// </summary>
