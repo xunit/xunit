@@ -266,7 +266,8 @@ public class TestPlatformTestFramework :
 			{
 				var logger = serviceProvider.GetLoggerFactory().CreateLogger("xUnit.net");
 				var commandLineOptions = serviceProvider.GetCommandLineOptions();
-				var serverMode = commandLineOptions.IsOptionSet("server");
+				var hasServerOption = commandLineOptions.TryGetOptionArgumentList("server", out var protocolNames);
+				var serverMode = hasServerOption && (protocolNames is null || protocolNames.Length == 0 || protocolNames[0].Equals("jsonrpc", StringComparison.OrdinalIgnoreCase));
 
 				// Create the XunitProject and XunitProjectAssembly
 				var project = new XunitProject();
