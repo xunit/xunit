@@ -8,7 +8,7 @@
     <Microsoft_NetCore_App_Ref_Version>9.0.7</Microsoft_NetCore_App_Ref_Version>
     <Microsoft_NETFramework_ReferenceAssemblies_Version>1.0.3</Microsoft_NETFramework_ReferenceAssemblies_Version>
     <Microsoft_SourceLink_GitHub_Version>8.0.0</Microsoft_SourceLink_GitHub_Version>
-    <Nerdbank_GitVersioning_Version>3.7.115</Nerdbank_GitVersioning_Version>
+    <Nerdbank_GitVersioning_Version>3.8.118</Nerdbank_GitVersioning_Version>
     <TunnelVisionLabs_ReferenceAssemblyAnnotator_Version>1.0.0-alpha.160</TunnelVisionLabs_ReferenceAssemblyAnnotator_Version>
 
     <!-- Used for Microsoft.Testing.* (xunit.v3.core NuGet package and xunit.v3.runner.inproc.console) -->
