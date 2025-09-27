@@ -6,13 +6,9 @@
     <RootNamespace>TestProject</RootNamespace>
     <TargetFramework>net8.0</TargetFramework>
     <!--
-    To enable the Microsoft Testing Platform 'dotnet test' experience, add property:
-      <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
-
-    To enable the Microsoft Testing Platform native command line experience, add property:
-      <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
-
-    For more information on Microsoft Testing Platform support in xUnit.net, please visit:
+    This template uses native xUnit.net command line options when using 'dotnet run' and
+    VSTest by default when using 'dotnet test'. For more information on how to enable support
+    for Microsoft Testing Platform, please visit:
       https://xunit.net/docs/getting-started/v3/microsoft-testing-platform
     -->
   </PropertyGroup>
