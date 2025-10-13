@@ -53,30 +53,6 @@ public class RecordTests
 		}
 	}
 
-	public class MethodsReturningValueTask
-	{
-		[Fact]
-		public async ValueTask Exception()
-		{
-			static Task testCode() => throw new InvalidOperationException();
-
-			var ex = await Record.ExceptionAsync(testCode);
-
-			Assert.NotNull(ex);
-			Assert.IsType<InvalidOperationException>(ex);
-		}
-
-		[Fact]
-		public async ValueTask NoException()
-		{
-			static Task testCode() => Task.CompletedTask;
-
-			var ex = await Record.ExceptionAsync(testCode);
-
-			Assert.Null(ex);
-		}
-	}
-
 	public class MethodsWithReturnValues
 	{
 		[Fact]
