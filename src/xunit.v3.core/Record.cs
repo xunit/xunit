@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Xunit.Internal;
+using Xunit.v3;
 
 namespace Xunit;
 
@@ -16,6 +17,10 @@ public static class Record
 	/// </summary>
 	/// <param name="testCode">The code which may throw an exception.</param>
 	/// <returns>Returns the exception that was thrown by the code; null, otherwise.</returns>
+	/// <remarks>
+	/// If the thrown exception is determined to be a "skip exception", it's not recorded, but
+	/// instead is allowed to escape this function uncaught.
+	/// </remarks>
 	public static Exception? Exception(Action testCode)
 	{
 		Guard.ArgumentNotNull(testCode);
@@ -27,6 +32,9 @@ public static class Record
 		}
 		catch (Exception ex)
 		{
+			if (ex.Message.StartsWith(DynamicSkipToken.Value, StringComparison.Ordinal))
+				throw;
+
 			return ex;
 		}
 	}
@@ -37,6 +45,10 @@ public static class Record
 	/// </summary>
 	/// <param name="testCode">The code which may throw an exception.</param>
 	/// <returns>Returns the exception that was thrown by the code; null, otherwise.</returns>
+	/// <remarks>
+	/// If the thrown exception is determined to be a "skip exception", it's not recorded, but
+	/// instead is allowed to escape this function uncaught.
+	/// </remarks>
 	public static Exception? Exception(Func<object?> testCode)
 	{
 		Guard.ArgumentNotNull(testCode);
@@ -48,6 +60,9 @@ public static class Record
 		}
 		catch (Exception ex)
 		{
+			if (ex.Message.StartsWith(DynamicSkipToken.Value, StringComparison.Ordinal))
+				throw;
+
 			return ex;
 		}
 
@@ -69,6 +84,10 @@ public static class Record
 	/// </summary>
 	/// <param name="testCode">The task which may throw an exception.</param>
 	/// <returns>Returns the exception that was thrown by the code; null, otherwise.</returns>
+	/// <remarks>
+	/// If the thrown exception is determined to be a "skip exception", it's not recorded, but
+	/// instead is allowed to escape this function uncaught.
+	/// </remarks>
 	public static async ValueTask<Exception?> ExceptionAsync(Func<Task> testCode)
 	{
 		Guard.ArgumentNotNull(testCode);
@@ -80,6 +99,9 @@ public static class Record
 		}
 		catch (Exception ex)
 		{
+			if (ex.Message.StartsWith(DynamicSkipToken.Value, StringComparison.Ordinal))
+				throw;
+
 			return ex;
 		}
 	}

@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.v3;
 
 public class RecordTests
 {
@@ -27,6 +28,22 @@ public class RecordTests
 
 			Assert.Null(ex);
 		}
+
+		[Fact]
+		public void SkipExceptionEscapes()
+		{
+			static void testCode() => Assert.Skip("This is a skipped test");
+
+			try
+			{
+				Record.Exception(testCode);
+				Assert.Fail("The exception should not be caught");
+			}
+			catch (Exception ex)
+			{
+				Assert.Equal(DynamicSkipToken.Value + "This is a skipped test", ex.Message);
+			}
+		}
 	}
 
 	public class MethodsReturningTask
@@ -50,6 +67,22 @@ public class RecordTests
 			var ex = await Record.ExceptionAsync(testCode);
 
 			Assert.Null(ex);
+		}
+
+		[Fact]
+		public async ValueTask SkipExceptionEscapes()
+		{
+			static Task testCode() => Task.Run(() => Assert.Skip("This is a skipped test"), TestContext.Current.CancellationToken);
+
+			try
+			{
+				await Record.ExceptionAsync(testCode);
+				Assert.Fail("The exception should not be caught");
+			}
+			catch (Exception ex)
+			{
+				Assert.Equal(DynamicSkipToken.Value + "This is a skipped test", ex.Message);
+			}
 		}
 	}
 
@@ -87,6 +120,22 @@ public class RecordTests
 			Assert.Null(ex);
 		}
 
+		[Fact]
+		public void SkipExceptionEscapes()
+		{
+			var accessor = new StubAccessor();
+
+			try
+			{
+				Record.Exception(() => accessor.SkippedProperty);
+				Assert.Fail("The exception should not be caught");
+			}
+			catch (Exception ex)
+			{
+				Assert.Equal(DynamicSkipToken.Value + "This is a skipped test", ex.Message);
+			}
+		}
+
 #pragma warning disable CA1822 // Mark members as static
 
 		class StubAccessor
@@ -96,6 +145,11 @@ public class RecordTests
 			public int FailingProperty
 			{
 				get { throw new InvalidOperationException(); }
+			}
+
+			public int SkippedProperty
+			{
+				get { Assert.Skip("This is a skipped test"); return 42; }
 			}
 		}
 

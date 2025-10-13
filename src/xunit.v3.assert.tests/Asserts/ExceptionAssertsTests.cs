@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Sdk;
+using Xunit.v3;
 
 public class ExceptionAssertsTests
 {
@@ -78,6 +79,22 @@ public class ExceptionAssertsTests
 					ex.Message
 				);
 				Assert.Same(thrown, ex.InnerException);
+			}
+
+			[Fact]
+			public static void SkipExceptionEscapes()
+			{
+				static void testCode() => Assert.Skip("This is a skipped test");
+
+				try
+				{
+					Assert.Throws(typeof(Exception), testCode);
+					Assert.Fail("The exception should not be caught");
+				}
+				catch (Exception ex)
+				{
+					Assert.Equal(DynamicSkipToken.Value + "This is a skipped test", ex.Message);
+				}
 			}
 		}
 
@@ -179,6 +196,22 @@ public class ExceptionAssertsTests
 				);
 				Assert.Same(thrown, ex.InnerException);
 			}
+
+			[Fact]
+			public static void SkipExceptionEscapes()
+			{
+				static void testCode() => Assert.Skip("This is a skipped test");
+
+				try
+				{
+					Assert.Throws(typeof(Exception), testCode, _ => null);
+					Assert.Fail("The exception should not be caught");
+				}
+				catch (Exception ex)
+				{
+					Assert.Equal(DynamicSkipToken.Value + "This is a skipped test", ex.Message);
+				}
+			}
 		}
 
 		public class WithFunc
@@ -261,6 +294,22 @@ public class ExceptionAssertsTests
 					ex.Message
 				);
 				Assert.Same(thrown, ex.InnerException);
+			}
+
+			[Fact]
+			public static void SkipExceptionEscapes()
+			{
+				static object testCode() { Assert.Skip("This is a skipped test"); return null; }
+
+				try
+				{
+					Assert.Throws(typeof(Exception), testCode);
+					Assert.Fail("The exception should not be caught");
+				}
+				catch (Exception ex)
+				{
+					Assert.Equal(DynamicSkipToken.Value + "This is a skipped test", ex.Message);
+				}
 			}
 		}
 
@@ -373,6 +422,22 @@ public class ExceptionAssertsTests
 				);
 				Assert.Same(thrown, ex.InnerException);
 			}
+
+			[Fact]
+			public static void SkipExceptionEscapes()
+			{
+				static object testCode() { Assert.Skip("This is a skipped test"); return null; }
+
+				try
+				{
+					Assert.Throws(typeof(Exception), testCode, _ => null);
+					Assert.Fail("The exception should not be caught");
+				}
+				catch (Exception ex)
+				{
+					Assert.Equal(DynamicSkipToken.Value + "This is a skipped test", ex.Message);
+				}
+			}
 		}
 	}
 
@@ -446,6 +511,22 @@ public class ExceptionAssertsTests
 					ex.Message
 				);
 				Assert.Same(thrown, ex.InnerException);
+			}
+
+			[Fact]
+			public static void SkipExceptionEscapes()
+			{
+				static void testCode() => Assert.Skip("This is a skipped test");
+
+				try
+				{
+					Assert.Throws<Exception>(testCode);
+					Assert.Fail("The exception should not be caught");
+				}
+				catch (Exception ex)
+				{
+					Assert.Equal(DynamicSkipToken.Value + "This is a skipped test", ex.Message);
+				}
 			}
 		}
 
@@ -543,6 +624,22 @@ public class ExceptionAssertsTests
 				);
 				Assert.Same(thrown, ex.InnerException);
 			}
+
+			[Fact]
+			public static void SkipExceptionEscapes()
+			{
+				static void testCode() => Assert.Skip("This is a skipped test");
+
+				try
+				{
+					Assert.Throws<Exception>(testCode, _ => null);
+					Assert.Fail("The exception should not be caught");
+				}
+				catch (Exception ex)
+				{
+					Assert.Equal(DynamicSkipToken.Value + "This is a skipped test", ex.Message);
+				}
+			}
 		}
 
 		public class WithFunc
@@ -622,6 +719,22 @@ public class ExceptionAssertsTests
 					ex.Message
 				);
 				Assert.Same(thrown, ex.InnerException);
+			}
+
+			[Fact]
+			public static void SkipExceptionEscapes()
+			{
+				static object testCode() { Assert.Skip("This is a skipped test"); return null; }
+
+				try
+				{
+					Assert.Throws<Exception>(testCode);
+					Assert.Fail("The exception should not be caught");
+				}
+				catch (Exception ex)
+				{
+					Assert.Equal(DynamicSkipToken.Value + "This is a skipped test", ex.Message);
+				}
 			}
 		}
 
@@ -727,6 +840,22 @@ public class ExceptionAssertsTests
 					ex.Message
 				);
 				Assert.Same(thrown, ex.InnerException);
+			}
+
+			[Fact]
+			public static void SkipExceptionEscapes()
+			{
+				static object testCode() { Assert.Skip("This is a skipped test"); return null; }
+
+				try
+				{
+					Assert.Throws<Exception>(testCode, _ => null);
+					Assert.Fail("The exception should not be caught");
+				}
+				catch (Exception ex)
+				{
+					Assert.Equal(DynamicSkipToken.Value + "This is a skipped test", ex.Message);
+				}
 			}
 		}
 	}
@@ -965,6 +1094,22 @@ public class ExceptionAssertsTests
 
 				Assert.ThrowsAny<ArgumentException>(testCode);
 			}
+
+			[Fact]
+			public static void SkipExceptionEscapes()
+			{
+				static void testCode() => Assert.Skip("This is a skipped test");
+
+				try
+				{
+					Assert.ThrowsAny<Exception>(testCode);
+					Assert.Fail("The exception should not be caught");
+				}
+				catch (Exception ex)
+				{
+					Assert.Equal(DynamicSkipToken.Value + "This is a skipped test", ex.Message);
+				}
+			}
 		}
 
 		public class WithActionAndInspector
@@ -1074,6 +1219,22 @@ public class ExceptionAssertsTests
 				Assert.Equal("Assert.ThrowsAny() Failure: Exception thrown by inspector", ex.Message);
 				Assert.Same(thrownByInspector, ex.InnerException);
 			}
+
+			[Fact]
+			public static void SkipExceptionEscapes()
+			{
+				static void testCode() => Assert.Skip("This is a skipped test");
+
+				try
+				{
+					Assert.ThrowsAny<Exception>(testCode, _ => null);
+					Assert.Fail("The exception should not be caught");
+				}
+				catch (Exception ex)
+				{
+					Assert.Equal(DynamicSkipToken.Value + "This is a skipped test", ex.Message);
+				}
+			}
 		}
 
 		public class WithFunc
@@ -1143,6 +1304,22 @@ public class ExceptionAssertsTests
 				static object testCode() => throw new ArgumentNullException();
 
 				Assert.ThrowsAny<ArgumentException>(testCode);
+			}
+
+			[Fact]
+			public static void SkipExceptionEscapes()
+			{
+				static object testCode() { Assert.Skip("This is a skipped test"); return null; }
+
+				try
+				{
+					Assert.ThrowsAny<Exception>(testCode);
+					Assert.Fail("The exception should not be caught");
+				}
+				catch (Exception ex)
+				{
+					Assert.Equal(DynamicSkipToken.Value + "This is a skipped test", ex.Message);
+				}
 			}
 		}
 
@@ -1264,6 +1441,22 @@ public class ExceptionAssertsTests
 				Assert.Equal("Assert.ThrowsAny() Failure: Exception thrown by inspector", ex.Message);
 				Assert.Same(thrownByInspector, ex.InnerException);
 			}
+
+			[Fact]
+			public static void SkipExceptionEscapes()
+			{
+				static object testCode() { Assert.Skip("This is a skipped test"); return null; }
+
+				try
+				{
+					Assert.ThrowsAny<Exception>(testCode, _ => null);
+					Assert.Fail("The exception should not be caught");
+				}
+				catch (Exception ex)
+				{
+					Assert.Equal(DynamicSkipToken.Value + "This is a skipped test", ex.Message);
+				}
+			}
 		}
 	}
 
@@ -1325,6 +1518,22 @@ public class ExceptionAssertsTests
 				static Task testCode() => throw new ArgumentNullException();
 
 				await Assert.ThrowsAnyAsync<ArgumentException>(testCode);
+			}
+
+			[Fact]
+			public static async Task SkipExceptionEscapes()
+			{
+				static Task testCode() { Assert.Skip("This is a skipped test"); return Task.CompletedTask; }
+
+				try
+				{
+					await Assert.ThrowsAnyAsync<Exception>(testCode);
+					Assert.Fail("The exception should not be caught");
+				}
+				catch (Exception ex)
+				{
+					Assert.Equal(DynamicSkipToken.Value + "This is a skipped test", ex.Message);
+				}
 			}
 		}
 
@@ -1435,6 +1644,22 @@ public class ExceptionAssertsTests
 				Assert.Equal("Assert.ThrowsAny() Failure: Exception thrown by inspector", ex.Message);
 				Assert.Same(thrownByInspector, ex.InnerException);
 			}
+
+			[Fact]
+			public static async Task SkipExceptionEscapes()
+			{
+				static Task testCode() { Assert.Skip("This is a skipped test"); return Task.CompletedTask; }
+
+				try
+				{
+					await Assert.ThrowsAnyAsync<Exception>(testCode, _ => null);
+					Assert.Fail("The exception should not be caught");
+				}
+				catch (Exception ex)
+				{
+					Assert.Equal(DynamicSkipToken.Value + "This is a skipped test", ex.Message);
+				}
+			}
 		}
 	}
 
@@ -1506,6 +1731,22 @@ public class ExceptionAssertsTests
 					ex.Message
 				);
 				Assert.Same(thrown, ex.InnerException);
+			}
+
+			[Fact]
+			public static async Task SkipExceptionEscapes()
+			{
+				static Task testCode() { Assert.Skip("This is a skipped test"); return Task.CompletedTask; }
+
+				try
+				{
+					await Assert.ThrowsAsync<Exception>(testCode);
+					Assert.Fail("The exception should not be caught");
+				}
+				catch (Exception ex)
+				{
+					Assert.Equal(DynamicSkipToken.Value + "This is a skipped test", ex.Message);
+				}
 			}
 		}
 
@@ -1600,6 +1841,22 @@ public class ExceptionAssertsTests
 					ex.Message
 				);
 				Assert.Same(thrown, ex.InnerException);
+			}
+
+			[Fact]
+			public static async Task SkipExceptionEscapes()
+			{
+				static Task testCode() { Assert.Skip("This is a skipped test"); return Task.CompletedTask; }
+
+				try
+				{
+					await Assert.ThrowsAsync<Exception>(testCode, _ => null);
+					Assert.Fail("The exception should not be caught");
+				}
+				catch (Exception ex)
+				{
+					Assert.Equal(DynamicSkipToken.Value + "This is a skipped test", ex.Message);
+				}
 			}
 		}
 	}
