@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package>
 	<metadata>
-		<id>xunit.v3</id>
+		<id>xunit.v3.mtp-v1</id>
 		<version>$PackageVersion$</version>
-		<title>xUnit.net v3</title>
+		<title>xUnit.net v3 [with Microsoft.Testing.Platform v1]</title>
 		<authors>jnewkirk,bradwilson</authors>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<license type="expression">Apache-2.0</license>
@@ -13,21 +13,25 @@
 		<releaseNotes>https://xunit.net/releases/v3/$PackageVersion$</releaseNotes>
 		<description>xUnit.net is a developer testing framework, built to support Test Driven Development, with a design goal of extreme simplicity and alignment with framework features. Supports .NET Framework 4.7.2 or later and .NET 8 or later.
 
-Installing this package installs xunit.v3.mtp-v1.</description>
+Installing this package installs xunit.v3.core.mtp-v1, xunit.v3.assert, and xunit.analyzers.</description>
 		<copyright>Copyright (C) .NET Foundation</copyright>
 		<repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
 		<dependencies>
 			<group targetFramework="net472">
-				<dependency id="xunit.v3.mtp-v1" version="[$PackageVersion$]" />
+				<dependency id="xunit.v3.core.mtp-v1" version="[$PackageVersion$]" />
+				<dependency id="xunit.v3.assert" version="[$PackageVersion$]" />
+				<dependency id="xunit.analyzers" version="$xunit_analyzers_Version$" />
 			</group>
 			<group targetFramework="net8.0">
-				<dependency id="xunit.v3.mtp-v1" version="[$PackageVersion$]" />
+				<dependency id="xunit.v3.core.mtp-v1" version="[$PackageVersion$]" />
+				<dependency id="xunit.v3.assert" version="[$PackageVersion$]" />
+				<dependency id="xunit.analyzers" version="$xunit_analyzers_Version$" />
 			</group>
 		</dependencies>
 	</metadata>
 	<files>
 		<file target="_content\" src="..\..\tools\media\logo-128-transparent.png" />
-		<file target="_content\README.md" src="obj\xunit.v3.README.md" />
+		<file target="_content\README.md" src="obj\xunit.v3.mtp-v1.README.md" />
 
 		<file target="lib\net472\_._" src="..\build\_._" />
 
