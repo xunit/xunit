@@ -5,7 +5,7 @@ using Microsoft.Testing.Platform.OutputDevice;
 using Xunit.Internal;
 using Xunit.Sdk;
 
-namespace Xunit.Runner.InProc.SystemConsole.TestingPlatform;
+namespace Xunit.MicrosoftTestingPlatform;
 
 /// <summary>
 /// Implementation of <see cref="IMessageSink"/> and <see cref="IOutputDeviceDataProducer"/> that

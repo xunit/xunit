@@ -1,6 +1,6 @@
 using Microsoft.Testing.Extensions.TrxReport.Abstractions;
 
-namespace Xunit.Runner.InProc.SystemConsole.TestingPlatform;
+namespace Xunit.MicrosoftTestingPlatform;
 
 /// <summary>
 /// Implementation of <see cref="ITrxReportCapability"/> to supplement TRX reporting

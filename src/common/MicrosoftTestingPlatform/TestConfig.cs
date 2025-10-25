@@ -5,7 +5,7 @@ using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
 
-namespace Xunit.Runner.InProc.SystemConsole.TestingPlatform;
+namespace Xunit.MicrosoftTestingPlatform;
 
 /// <summary>
 /// Consumer of <see cref="IConfiguration"/> for xUnit.net v3.

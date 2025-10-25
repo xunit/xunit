@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <!-- Turn off Microsoft.NET.Test.Sdk's auto-generated entrypoint -->
+    <GenerateProgramFile>false</GenerateProgramFile>
+    <TestProject>true</TestProject>
+    <!-- Force the app host for .NET builds, since it's required for xunit.v3.runner.utility to run v3 projects -->
+    <UseAppHost>true</UseAppHost>
+  </PropertyGroup>
+
+</Project>

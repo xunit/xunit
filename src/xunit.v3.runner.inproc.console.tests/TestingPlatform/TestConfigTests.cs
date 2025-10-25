@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using Microsoft.Testing.Platform.Configurations;
 using Xunit;
 using Xunit.Runner.Common;
-using Xunit.Runner.InProc.SystemConsole.TestingPlatform;
+using Xunit.MicrosoftTestingPlatform;
 using Xunit.Sdk;
 
 public class TestConfigTests

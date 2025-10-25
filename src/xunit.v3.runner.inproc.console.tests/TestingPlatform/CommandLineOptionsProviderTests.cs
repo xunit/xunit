@@ -10,7 +10,7 @@ using Microsoft.Testing.Platform.Configurations;
 using NSubstitute;
 using Xunit;
 using Xunit.Runner.Common;
-using Xunit.Runner.InProc.SystemConsole.TestingPlatform;
+using Xunit.MicrosoftTestingPlatform;
 using Xunit.Sdk;
 
 public class CommandLineOptionsProviderTests

@@ -2,7 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Xunit.Runner.InProc.SystemConsole.TestingPlatform;
+namespace Xunit.MicrosoftTestingPlatform;
 
 [ExcludeFromCodeCoverage]
 internal static class TaskExtensions

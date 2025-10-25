@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using Xunit;
-using Xunit.Runner.InProc.SystemConsole.TestingPlatform;
+using Xunit.MicrosoftTestingPlatform;
 using Xunit.Sdk;
 
 public class LoggerDiagnosticMessageSinkTests

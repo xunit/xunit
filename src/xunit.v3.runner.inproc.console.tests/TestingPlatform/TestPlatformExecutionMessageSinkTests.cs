@@ -7,7 +7,7 @@ using Microsoft.Testing.Platform.Extensions.Messages;
 using Microsoft.Testing.Platform.OutputDevice;
 using Microsoft.Testing.Platform.TestHost;
 using Xunit;
-using Xunit.Runner.InProc.SystemConsole.TestingPlatform;
+using Xunit.MicrosoftTestingPlatform;
 using Xunit.Sdk;
 
 public class TestPlatformExecutionMessageSinkTests

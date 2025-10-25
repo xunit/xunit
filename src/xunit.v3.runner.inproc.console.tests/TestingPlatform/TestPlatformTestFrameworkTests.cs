@@ -8,7 +8,7 @@ using Microsoft.Testing.Platform.Requests;
 using Microsoft.Testing.Platform.TestHost;
 using Xunit;
 using Xunit.Runner.Common;
-using Xunit.Runner.InProc.SystemConsole.TestingPlatform;
+using Xunit.MicrosoftTestingPlatform;
 
 public class TestPlatformTestFrameworkTests
 {

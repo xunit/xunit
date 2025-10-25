@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using Microsoft.Testing.Platform.Extensions;
 
-namespace Xunit.Runner.InProc.SystemConsole.TestingPlatform;
+namespace Xunit.MicrosoftTestingPlatform;
 
 /// <summary>
 /// Base class for all Microsoft.Testing.Platform classes which are extensions.

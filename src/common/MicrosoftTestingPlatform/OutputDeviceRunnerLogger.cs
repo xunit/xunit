@@ -3,7 +3,7 @@ using Microsoft.Testing.Platform.Extensions.OutputDevice;
 using Microsoft.Testing.Platform.OutputDevice;
 using Xunit.Runner.Common;
 
-namespace Xunit.Runner.InProc.SystemConsole.TestingPlatform;
+namespace Xunit.MicrosoftTestingPlatform;
 
 /// <summary>
 /// Implementation of <see cref="IRunnerLogger"/> and <see cref="IOutputDeviceDataProducer"/>

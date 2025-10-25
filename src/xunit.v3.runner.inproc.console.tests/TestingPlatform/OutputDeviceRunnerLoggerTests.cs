@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Testing.Platform.OutputDevice;
 using Xunit;
 using Xunit.Runner.Common;
-using Xunit.Runner.InProc.SystemConsole.TestingPlatform;
+using Xunit.MicrosoftTestingPlatform;
 
 public class OutputDeviceRunnerLoggerTests
 {

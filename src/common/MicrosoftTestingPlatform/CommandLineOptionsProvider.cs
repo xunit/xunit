@@ -12,7 +12,7 @@ using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
 
-namespace Xunit.Runner.InProc.SystemConsole.TestingPlatform;
+namespace Xunit.MicrosoftTestingPlatform;
 
 /// <summary>
 /// Implementation of <see cref="ICommandLineOptionsProvider"/> for xUnit.net v3.

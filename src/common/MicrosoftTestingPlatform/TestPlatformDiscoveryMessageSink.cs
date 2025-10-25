@@ -8,7 +8,7 @@ using Microsoft.Testing.Platform.TestHost;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
 
-namespace Xunit.Runner.InProc.SystemConsole.TestingPlatform;
+namespace Xunit.MicrosoftTestingPlatform;
 
 /// <summary>
 /// Implementation of <see cref="IMessageSink"/> and <see cref="IDataProducer"/> in order to convert

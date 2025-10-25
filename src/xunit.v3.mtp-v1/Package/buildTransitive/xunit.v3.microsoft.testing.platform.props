@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <!-- Turn on Microsoft.Testing.Platform.MSBuild's auto-generated registration function -->
+    <GenerateSelfRegisteredExtensions>true</GenerateSelfRegisteredExtensions>
+    <!-- Turn off Microsoft.Testing.Platform.MSBuild's auto-generated entrypoint -->
+    <GenerateTestingPlatformEntryPoint>false</GenerateTestingPlatformEntryPoint>
+  </PropertyGroup>
+
+</Project>

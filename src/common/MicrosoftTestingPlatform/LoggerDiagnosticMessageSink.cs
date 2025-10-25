@@ -1,7 +1,7 @@
 using Microsoft.Testing.Platform.Logging;
 using Xunit.Sdk;
 
-namespace Xunit.Runner.InProc.SystemConsole.TestingPlatform;
+namespace Xunit.MicrosoftTestingPlatform;
 
 /// <summary>
 /// Implementation of <see cref="IMessageSink"/> which forwards diagnostic messages to

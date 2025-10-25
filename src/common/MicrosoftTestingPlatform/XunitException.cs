@@ -1,7 +1,7 @@
 using System;
 using Xunit.Sdk;
 
-namespace Xunit.Runner.InProc.SystemConsole.TestingPlatform;
+namespace Xunit.MicrosoftTestingPlatform;
 
 /// <summary>
 /// An exception type that is used to <see cref="TestPlatformExecutionMessageSink"/> to report failed

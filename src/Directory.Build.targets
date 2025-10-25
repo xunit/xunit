@@ -150,7 +150,8 @@ $([System.IO.File]::ReadAllText($(MSBuildThisFileDirectory)..\README.md))
         GitAssertModuleCommitId=$(GitAssertModuleCommitId);
         GitCommitId=$(GitCommitId);
         Microsoft_Bcl_AsyncInterfaces_Version=$(Microsoft_Bcl_AsyncInterfaces_Version);
-        Microsoft_Testing_Version=$(Microsoft_Testing_Version);
+        Microsoft_Testing_v1_Version=$(Microsoft_Testing_v1_Version);
+        Microsoft_Testing_v2_Version=$(Microsoft_Testing_v2_Version);
         Microsoft_Win32_Registry_Version=$(Microsoft_Win32_Registry_Version);
         PackageVersion=$(PackageVersion);
         SignedPath=$(SignedPath);

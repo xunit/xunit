@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package>
+	<metadata>
+		<id>xunit.v3.core.mtp-v1</id>
+		<version>$PackageVersion$</version>
+		<title>xUnit.net v3 [Core Unit Testing Framework]</title>
+		<authors>jnewkirk,bradwilson</authors>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<license type="expression">Apache-2.0</license>
+		<licenseUrl>https://licenses.nuget.org/Apache-2.0</licenseUrl>
+		<icon>_content/logo-128-transparent.png</icon>
+		<readme>_content/README.md</readme>
+		<releaseNotes>https://xunit.net/releases/v3/$PackageVersion$</releaseNotes>
+		<description>Includes the core library (xunit.v3.core.dll), to be used for writing tests; extensibility authors should include xunit.v3.extensibility.core instead. Includes support for Microsoft.Testing.Platform v1. Supports .NET Framework 4.7.2 or later and .NET 8 or later.</description>
+		<copyright>Copyright (C) .NET Foundation</copyright>
+		<repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
+		<dependencies>
+			<group targetFramework="net472">
+				<dependency id="Microsoft.Testing.Extensions.TrxReport.Abstractions" version="$Microsoft_Testing_v1_Version$" />
+				<dependency id="Microsoft.Testing.Platform" version="$Microsoft_Testing_v1_Version$" />
+				<dependency id="Microsoft.Testing.Platform.MSBuild" version="$Microsoft_Testing_v1_Version$" />
+ 				<dependency id="xunit.v3.extensibility.core" version="[$PackageVersion$]" />
+				<dependency id="xunit.v3.runner.inproc.console" version="[$PackageVersion$]" />
+			</group>
+			<group targetFramework="net8.0">
+				<dependency id="Microsoft.Testing.Extensions.TrxReport.Abstractions" version="$Microsoft_Testing_v1_Version$" />
+				<dependency id="Microsoft.Testing.Platform" version="$Microsoft_Testing_v1_Version$" />
+				<dependency id="Microsoft.Testing.Platform.MSBuild" version="$Microsoft_Testing_v1_Version$" />
+				<dependency id="xunit.v3.extensibility.core" version="[$PackageVersion$]" />
+				<dependency id="xunit.v3.runner.inproc.console" version="[$PackageVersion$]" />
+			</group>
+		</dependencies>
+	</metadata>
+	<files>
+		<file target="_content\" src="Package\content\*" />
+		<file target="_content\" src="..\..\tools\media\logo-128-transparent.png" />
+		<file target="_content\README.md" src="obj\xunit.v3.core.mtp-v1.README.md" />
+		<file target="_content\runners\netcore\" src="..\xunit.v3.runner.utility\bin\$Configuration$\net8.0\xunit.abstractions.dll" />
+		<file target="_content\runners\netcore\" src="..\xunit.v3.runner.utility\bin\$Configuration$\net8.0\$SignedPath$xunit.v3.runner.utility.netcore.dll" />
+		<file target="_content\runners\netfx\" src="..\xunit.v3.runner.utility\bin\$Configuration$\net472\xunit.abstractions.dll" />
+		<file target="_content\runners\netfx\" src="..\xunit.v3.runner.utility\bin\$Configuration$\net472\$SignedPath$xunit.v3.runner.utility.netfx.dll" />
+		<file target="_content\tasks\netcore\" src="..\xunit.v3.msbuildtasks\bin\$Configuration$\net8.0\$SignedPath$xunit.v3.msbuildtasks.dll" />
+		<file target="_content\tasks\netfx\" src="..\xunit.v3.msbuildtasks\bin\$Configuration$\net472\$SignedPath$xunit.v3.msbuildtasks.dll" />
+
+		<file target="buildTransitive\xunit.v3.core.mtp-v1.props" src="Package\buildTransitive\xunit.v3.core.props" />
+		<file target="buildTransitive\xunit.v3.core.mtp-v1.targets" src="Package\buildTransitive\xunit.v3.core.targets" />
+
+		<file target="lib\net472\" src="..\xunit.v3.mtp-v1\bin\$Configuration$\net472\$SignedPath$xunit.v3.mtp-v1.dll" />
+
+		<file target="lib\net8.0\" src="..\xunit.v3.mtp-v1\bin\$Configuration$\net8.0\$SignedPath$xunit.v3.mtp-v1.dll" />
+	</files>
+</package>

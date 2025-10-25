@@ -20,12 +20,13 @@ using Microsoft.Testing.Platform.Services;
 using Microsoft.Testing.Platform.TestHost;
 using Xunit.Internal;
 using Xunit.Runner.Common;
+using Xunit.Runner.InProc.SystemConsole;
 using Xunit.Sdk;
 using Xunit.v3;
 using ITestPlatformMessageBus = Microsoft.Testing.Platform.Messages.IMessageBus;
 using ITestPlatformTestFramework = Microsoft.Testing.Platform.Extensions.TestFramework.ITestFramework;
 
-namespace Xunit.Runner.InProc.SystemConsole.TestingPlatform;
+namespace Xunit.MicrosoftTestingPlatform;
 
 /// <summary>
 /// Implementation of <see cref="ITestPlatformTestFramework"/> to run xUnit.net v3 test projects.

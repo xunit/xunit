@@ -69,6 +69,7 @@ public class CSharpAcceptanceTestV3Assembly :
 				"xunit.v3.assert.dll",
 				"xunit.v3.common.dll",
 				"xunit.v3.core.dll",
+				"xunit.v3.mtp-v1.dll",
 				"xunit.v3.runner.common.dll",
 				"xunit.v3.runner.inproc.console.dll",
 			]);

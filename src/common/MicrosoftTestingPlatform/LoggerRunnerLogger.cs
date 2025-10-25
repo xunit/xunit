@@ -1,7 +1,7 @@
 using Microsoft.Testing.Platform.Logging;
 using Xunit.Runner.Common;
 
-namespace Xunit.Runner.InProc.SystemConsole.TestingPlatform;
+namespace Xunit.MicrosoftTestingPlatform;
 
 /// <summary>
 /// Implementation of <see cref="IRunnerLogger"/> which forwards the messages onto

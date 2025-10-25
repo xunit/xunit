@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Xunit;
 using Xunit.Runner.Common;
-using Xunit.Runner.InProc.SystemConsole.TestingPlatform;
+using Xunit.MicrosoftTestingPlatform;
 
 public class LoggerRunnerLoggerTests
 {
