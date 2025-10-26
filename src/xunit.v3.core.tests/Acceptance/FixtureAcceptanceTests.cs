@@ -85,6 +85,8 @@ public class FixtureAcceptanceTests
 				message => Assert.IsType<ITestMethodStarting>(message, exactMatch: false),
 				message => Assert.IsType<ITestCaseStarting>(message, exactMatch: false),
 				message => Assert.IsType<ITestStarting>(message, exactMatch: false),
+				message => Assert.IsType<ITestClassConstructionStarting>(message, exactMatch: false),
+				message => Assert.IsType<ITestClassConstructionFinished>(message, exactMatch: false),
 				message =>
 				{
 					var failedMessage = Assert.IsType<ITestFailed>(message, exactMatch: false);

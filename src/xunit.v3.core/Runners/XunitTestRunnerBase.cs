@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,6 +23,7 @@ public class XunitTestRunnerBase<TContext, TTest> : TestRunner<TContext, TTest>
 		Guard.ArgumentNotNull(ctxt);
 
 		var @class = ctxt.Test.TestMethod.TestClass.Class;
+		var ctor = @class.GetConstructors().Where(ci => !ci.IsStatic && ci.IsPublic).Single();
 
 		// We allow for Func<T> when the argument is T, such that we should be able to get the value just before
 		// invoking the test. So we need to do a transform on the arguments.
@@ -29,12 +31,7 @@ public class XunitTestRunnerBase<TContext, TTest> : TestRunner<TContext, TTest>
 
 		if (ctxt.ConstructorArguments is not null)
 		{
-			var ctorParams =
-				@class
-					.GetConstructors()
-					.Where(ci => !ci.IsStatic && ci.IsPublic)
-					.Single()
-					.GetParameters();
+			var ctorParams = ctor.GetParameters();
 
 			actualCtorArguments = new object?[ctxt.ConstructorArguments.Length];
 
@@ -57,7 +54,17 @@ public class XunitTestRunnerBase<TContext, TTest> : TestRunner<TContext, TTest>
 			}
 		}
 
-		var instance = Activator.CreateInstance(@class, actualCtorArguments);
+		var instance = TypeActivator.Current.CreateInstance(
+			ctor,
+			actualCtorArguments,
+			(_, missingArguments) =>
+				string.Format(
+					CultureInfo.CurrentCulture,
+					"The following constructor parameters did not have matching fixture data: {0}",
+					string.Join(", ", missingArguments.Select(a => a.ParameterType.Name + " " + a.Name))
+				)
+		);
+
 		if (instance is IAsyncLifetime asyncLifetime)
 			await asyncLifetime.InitializeAsync();
 

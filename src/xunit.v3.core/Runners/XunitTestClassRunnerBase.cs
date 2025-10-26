@@ -32,7 +32,6 @@ public abstract class XunitTestClassRunnerBase<TContext, TTestClass, TTestMethod
 			var ctor = SelectTestClassConstructor(ctxt);
 			if (ctor is not null)
 			{
-				var unusedArguments = new List<Tuple<int, ParameterInfo>>();
 				var parameters = ctor.GetParameters();
 
 				var constructorArguments = new object?[parameters.Length];
@@ -50,11 +49,8 @@ public abstract class XunitTestClassRunnerBase<TContext, TTestClass, TTestMethod
 					else if (parameter.GetCustomAttribute<ParamArrayAttribute>() is not null)
 						constructorArguments[idx] = Array.CreateInstance(parameter.ParameterType, 0);
 					else
-						unusedArguments.Add(Tuple.Create(idx, parameter));
+						constructorArguments[idx] = Missing.Value;
 				}
-
-				if (unusedArguments.Count > 0)
-					ctxt.Aggregator.Add(new TestPipelineException(FormatConstructorArgsMissingMessage(ctxt, ctor, unusedArguments)));
 
 				return constructorArguments;
 			}
@@ -69,6 +65,7 @@ public abstract class XunitTestClassRunnerBase<TContext, TTestClass, TTestMethod
 	/// <param name="ctxt">The context that describes the current test class</param>
 	/// <param name="constructor">The constructor that was selected</param>
 	/// <param name="unusedArguments">The arguments that had no matching parameter values</param>
+	[Obsolete("This is no longer called, as the type activator is responsible for resolving missing values. It will be removed in the next major version.")]
 	protected virtual string FormatConstructorArgsMissingMessage(
 		TContext ctxt,
 		ConstructorInfo constructor,

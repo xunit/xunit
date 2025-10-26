@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -32,7 +33,9 @@ public abstract class TestClassRunner<TContext, TTestClass, TTestMethod, TTestCa
 
 	/// <summary>
 	/// Creates the arguments for the test class constructor. By default just returns an empty
-	/// set of arguments. Override to find the arguments for the constructor.
+	/// set of arguments. Override to find the arguments for the constructor. Arguments without
+	/// matching values may be returned as <see cref="Missing.Value"/>, as the <see cref="ITypeActivator"/>
+	/// is responsible for determining how to resolve unknown arguments.
 	/// </summary>
 	/// <remarks>
 	/// This method runs during <see cref="TestEngineStatus.Initializing"/> and any exceptions thrown will
