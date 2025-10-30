@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Testing.Extensions.Telemetry" Version="$(Microsoft_Testing_v2_Version)" />
     <PackageReference Include="Microsoft.Testing.Extensions.TrxReport.Abstractions" Version="$(Microsoft_Testing_v2_Version)" />
     <PackageReference Include="Microsoft.Testing.Platform" Version="$(Microsoft_Testing_v2_Version)" />
   </ItemGroup>
