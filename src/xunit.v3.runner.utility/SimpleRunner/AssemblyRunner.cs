@@ -142,26 +142,31 @@ public sealed class AssemblyRunner :
 
 	void OnTestAssemblyFinished(ITestAssemblyFinished assemblyFinished)
 	{
-		if (metadataCache.TryRemove(assemblyFinished) is not ITestAssemblyStarting assemblyStarting || options.OnExecutionComplete is null)
-			return;
-
-		options.OnExecutionComplete(new()
+		try
 		{
-			ExecutionTime = assemblyFinished.ExecutionTime,
-			FinishTime = assemblyFinished.FinishTime,
-			Seed = assemblyStarting.Seed,
-			StartTime = assemblyStarting.StartTime,
-			TargetFramework = assemblyStarting.TargetFramework,
-			TestEnvironment = assemblyStarting.TestEnvironment,
-			TestFrameworkDisplayName = assemblyStarting.TestFrameworkDisplayName,
-			TestsFailed = assemblyFinished.TestsFailed,
-			TestsNotRun = assemblyFinished.TestsNotRun,
-			TestsSkipped = assemblyFinished.TestsSkipped,
-			TestsTotal = assemblyFinished.TestsTotal,
-			TotalErrors = totalErrors,
-		});
+			if (metadataCache.TryRemove(assemblyFinished) is not ITestAssemblyStarting assemblyStarting || options.OnExecutionComplete is null)
+				return;
 
-		finishedEvent.Set();
+			options.OnExecutionComplete(new()
+			{
+				ExecutionTime = assemblyFinished.ExecutionTime,
+				FinishTime = assemblyFinished.FinishTime,
+				Seed = assemblyStarting.Seed,
+				StartTime = assemblyStarting.StartTime,
+				TargetFramework = assemblyStarting.TargetFramework,
+				TestEnvironment = assemblyStarting.TestEnvironment,
+				TestFrameworkDisplayName = assemblyStarting.TestFrameworkDisplayName,
+				TestsFailed = assemblyFinished.TestsFailed,
+				TestsNotRun = assemblyFinished.TestsNotRun,
+				TestsSkipped = assemblyFinished.TestsSkipped,
+				TestsTotal = assemblyFinished.TestsTotal,
+				TotalErrors = totalErrors,
+			});
+		}
+		finally
+		{
+			finishedEvent.Set();
+		}
 	}
 
 	void OnTestAssemblyStarting(ITestAssemblyStarting assemblyStarting)
