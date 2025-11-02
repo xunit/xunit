@@ -43,6 +43,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 	}
 
 #pragma warning disable xUnit1042 // The member referenced by the MemberData attribute returns untyped data rows
+#pragma warning disable xUnit1053 // The static member used as theory data must be statically initialized
 
 	class NullDataClass
 	{
@@ -58,6 +59,7 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		public void NullMemberData(string _1, string _2) { }
 	}
 
+#pragma warning restore xUnit1053 // The static member used as theory data must be statically initialized
 #pragma warning restore xUnit1042 // The member referenced by the MemberData attribute returns untyped data rows
 
 	[Theory]
