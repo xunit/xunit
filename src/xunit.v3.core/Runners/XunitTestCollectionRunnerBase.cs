@@ -14,15 +14,6 @@ public abstract class XunitTestCollectionRunnerBase<TContext, TTestCollection, T
 		where TTestClass : class, IXunitTestClass
 		where TTestCase : class, IXunitTestCase
 {
-	/// <summary>
-	/// Gives an opportunity to override test case orderer. By default, this method gets the
-	/// orderer from the collection definition. If this function returns <see langword="null"/>, the
-	/// test case orderer passed into the constructor will be used.
-	/// </summary>
-	/// <param name="ctxt">The context that describes the current test collection</param>
-	protected virtual ITestCaseOrderer? GetTestCaseOrderer(TContext ctxt) =>
-		Guard.ArgumentNotNull(ctxt).TestCollection.TestCaseOrderer;
-
 	/// <inheritdoc/>
 	protected override async ValueTask<bool> OnTestCollectionFinished(
 		TContext ctxt,
