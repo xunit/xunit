@@ -1,6 +1,4 @@
-using System.ComponentModel;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using Xunit.Sdk;
 
 namespace Xunit.v3;
@@ -11,35 +9,6 @@ namespace Xunit.v3;
 /// </summary>
 public static class TestIntrospectionHelper
 {
-	/// <summary>
-	/// Please use <see cref="GetTestCaseDetails(ITestFrameworkDiscoveryOptions, IXunitTestMethod, IFactAttribute, object?[], int?, string?, string?)"/>.
-	/// This overload will be removed in the next major version.
-	/// </summary>
-	[EditorBrowsable(EditorBrowsableState.Never)]
-	[OverloadResolutionPriority(-1)]
-	[Obsolete("Please use the overload which accepts label. This overload will be removed in the next major version.")]
-	public static (
-		string TestCaseDisplayName,
-		bool Explicit,
-		Type[]? SkipExceptions,
-		string? SkipReason,
-		Type? SkipType,
-		string? SkipUnless,
-		string? SkipWhen,
-		string? SourceFilePath,
-		int? SourceLineNumber,
-		int Timeout,
-		string UniqueID,
-		IXunitTestMethod ResolvedTestMethod
-	) GetTestCaseDetails(
-		ITestFrameworkDiscoveryOptions discoveryOptions,
-		IXunitTestMethod testMethod,
-		IFactAttribute factAttribute,
-		object?[]? testMethodArguments = null,
-		int? timeout = null,
-		string? baseDisplayName = null) =>
-			GetTestCaseDetails(discoveryOptions, testMethod, factAttribute, testMethodArguments, timeout, baseDisplayName, label: null);
-
 	/// <summary>
 	/// Retrieve the details for a test case that is a test method decorated with an
 	/// instance of <see cref="IFactAttribute"/> (or derived).

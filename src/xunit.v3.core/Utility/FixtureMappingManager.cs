@@ -1,7 +1,5 @@
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using Xunit.Sdk;
 
 namespace Xunit.v3;
@@ -200,15 +198,6 @@ public class FixtureMappingManager(
 	/// This method is for testing purposes only. Production code should call <see cref="InitializeAsync(IReadOnlyCollection{Type}, bool)"/>.
 	/// </remarks>
 	public ValueTask InitializeAsync(params Type[] fixtureTypes) =>
-		InitializeAsync(fixtureTypes, createInstances: true);
-
-	/// <summary>
-	/// Please use <see cref="InitializeAsync(IReadOnlyCollection{Type}, bool)"/>. This overload will be removed in the next major version.
-	/// </summary>
-	[EditorBrowsable(EditorBrowsableState.Never)]
-	[OverloadResolutionPriority(-1)]
-	[Obsolete("Please use the overload which accepts createInstances. This overload will be removed in the next major version.")]
-	public ValueTask InitializeAsync(IReadOnlyCollection<Type> fixtureTypes) =>
 		InitializeAsync(fixtureTypes, createInstances: true);
 
 	/// <summary>
