@@ -124,19 +124,6 @@ public static class Xunit3ArgumentFactory
 			);
 
 	/// <summary>
-	/// Please use <see cref="ForRun(Version, ITestFrameworkExecutionOptions, IReadOnlyCollection{string}, IReadOnlyCollection{string}, string?, bool)"/>.
-	/// This overload will be removed in the next major version.
-	/// </summary>
-	[Obsolete("Please use the overload which accepts testCaseIDs. This overload will be removed in the next major version.")]
-	public static List<string> ForRun(
-		Version coreFrameworkVersion,
-		ITestFrameworkExecutionOptions options,
-		IReadOnlyCollection<string> serializedTestCases,
-		string? configFileName = null,
-		bool waitForDebugger = false) =>
-			ForRun(coreFrameworkVersion, options, serializedTestCases, [], configFileName, waitForDebugger);
-
-	/// <summary>
 	/// Gets command line switches based on a call to <see cref="Xunit3.Run"/>.
 	/// </summary>
 	public static List<string> ForRun(
