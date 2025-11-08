@@ -60,23 +60,6 @@ public abstract class XunitTestClassRunnerBase<TContext, TTestClass, TTestMethod
 	}
 
 	/// <summary>
-	/// Gets the message to be used when the constructor is missing arguments.
-	/// </summary>
-	/// <param name="ctxt">The context that describes the current test class</param>
-	/// <param name="constructor">The constructor that was selected</param>
-	/// <param name="unusedArguments">The arguments that had no matching parameter values</param>
-	[Obsolete("This is no longer called, as the type activator is responsible for resolving missing values. It will be removed in the next major version.")]
-	protected virtual string FormatConstructorArgsMissingMessage(
-		TContext ctxt,
-		ConstructorInfo constructor,
-		IReadOnlyList<Tuple<int, ParameterInfo>> unusedArguments) =>
-			string.Format(
-				CultureInfo.CurrentCulture,
-				"The following constructor parameters did not have matching fixture data: {0}",
-				string.Join(", ", unusedArguments.Select(arg => string.Format(CultureInfo.CurrentCulture, "{0} {1}", arg.Item2.ParameterType.Name, arg.Item2.Name)))
-			);
-
-	/// <summary>
 	/// Tries to supply a test class constructor argument.
 	/// </summary>
 	/// <param name="ctxt">The context that describes the current test class</param>

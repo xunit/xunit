@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -21,21 +19,6 @@ public class ExecutionErrorTestCase : XunitTestCase
 	/// </summary>
 	[Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
 	public ExecutionErrorTestCase()
-	{ }
-
-	/// <summary>
-	/// Please use <see cref="ExecutionErrorTestCase(IXunitTestMethod, string, string, string?, int?, string)"/>.
-	/// This overload will be removed in the next major version.
-	/// </summary>
-	[EditorBrowsable(EditorBrowsableState.Never)]
-	[OverloadResolutionPriority(-1)]
-	[Obsolete("Please use the constructor which accepts sourceFilePath and sourceLineNumber. This overload will be removed in the next major version.")]
-	public ExecutionErrorTestCase(
-		IXunitTestMethod testMethod,
-		string testCaseDisplayName,
-		string uniqueID,
-		string errorMessage) :
-			this(testMethod, testCaseDisplayName, uniqueID, null, null, errorMessage)
 	{ }
 
 	/// <summary>

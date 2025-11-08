@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using Xunit.Internal;
 using Xunit.Sdk;
 
@@ -142,18 +140,6 @@ public class XunitTestMethod : IXunitTestMethod, IXunitSerializable
 		if (genericArguments is not null)
 			method = method.MakeGenericMethod(genericArguments);
 	}
-
-	/// <summary>
-	/// Please use <see cref="GetDisplayName(string, string?, object?[], Type[])"/>. This overload will be removed in the next major version.
-	/// </summary>
-	[EditorBrowsable(EditorBrowsableState.Never)]
-	[OverloadResolutionPriority(-1)]
-	[Obsolete("Please use the overload which accepts label. This overload will be removed in the next major version.")]
-	public string GetDisplayName(
-		string baseDisplayName,
-		object?[]? testMethodArguments,
-		Type[]? methodGenericTypes) =>
-			GetDisplayName(baseDisplayName, label: null, testMethodArguments, methodGenericTypes);
 
 	/// <inheritdoc/>
 	public string GetDisplayName(
