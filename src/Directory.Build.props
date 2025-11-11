@@ -120,7 +120,7 @@
       </ItemGroup>
 
       <ItemGroup>
-        <PackageReference Include="Microsoft.Testing.Platform.MSBuild" Version="$(Microsoft_Testing_v1_Version)" />
+        <PackageReference Include="Microsoft.Testing.Platform.MSBuild" Version="[$(Microsoft_Testing_v1_Version),2.0.0)" />
         <PackageReference Include="NSubstitute" Version="$(NSubstitute_Version)" />
         <PackageReference Include="xunit.analyzers" Version="$(xunit_analyzers_Version)" PrivateAssets="all" />
       </ItemGroup>
