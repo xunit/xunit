@@ -29,6 +29,7 @@ jobs:
           dotnet-version: |
             8.0.x
             9.0.x
+            10.0.x
 
       - name: Get .NET information
         run: dotnet --info
