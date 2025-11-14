@@ -246,6 +246,7 @@ dotnet_diagnostic.CA1200.severity    = none     # Avoid using cref tags with a p
 dotnet_diagnostic.CA1303.severity    = none     # Do not pass literals as localized parameters
 dotnet_diagnostic.CA1515.severity    = none     # Consider making public types internal
 dotnet_diagnostic.CA1707.severity    = none     # Remove the underscores from type name
+dotnet_diagnostic.CA1708.severity    = none     # Identifiers should differ by more than case
 dotnet_diagnostic.CA1710.severity    = none     # Identifiers should have correct suffix
 dotnet_diagnostic.CA1711.severity    = none     # Identifiers should not have incorrect suffix
 dotnet_diagnostic.CA1716.severity    = none     # Rename virtual/interface member so that it no longer conflicts with the reserved language keyword

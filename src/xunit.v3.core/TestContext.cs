@@ -21,7 +21,7 @@ public sealed class TestContext : ITestContext, IDisposable
 	static readonly AsyncLocal<TestContext?> local = new();
 	static readonly HashSet<TestEngineStatus> validExecutionStatuses = [TestEngineStatus.Initializing, TestEngineStatus.Running, TestEngineStatus.CleaningUp];
 
-	readonly Dictionary<string, TestAttachment>? attachments;
+	internal readonly Dictionary<string, TestAttachment>? attachments;
 	IMessageSink? diagnosticMessageSink;
 	readonly bool disposable;
 	bool disposed;

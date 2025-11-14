@@ -58,6 +58,12 @@ public sealed class TestContextInternal : IDisposable
 	/// <summary>
 	/// INTERNAL METHOD. DO NOT USE.
 	/// </summary>
+	public void ClearAttachments() =>
+		testContext.attachments?.Clear();
+
+	/// <summary>
+	/// INTERNAL METHOD. DO NOT USE.
+	/// </summary>
 	public void Dispose() =>
 		testContext.Dispose();
 

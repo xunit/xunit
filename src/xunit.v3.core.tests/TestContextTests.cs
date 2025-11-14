@@ -1,7 +1,9 @@
 using System;
+using System.Reflection;
 using Xunit;
 using Xunit.Internal;
 using Xunit.Sdk;
+using Xunit.v3;
 
 [CollectionDefinition]
 public class TestContextTestsCollection : ICollectionFixture<TestContextTests.MyCollectionFixture> { }
@@ -71,6 +73,7 @@ public sealed class TestContextTests : IClassFixture<TestContextTests.MyClassFix
 	}
 
 	[Fact]
+	[ClearAttachments]
 	public static void StringAttachmentCannotBeReplacedByDefault()
 	{
 		TestContext.Current.AddAttachment("foo", "bar");
@@ -83,6 +86,7 @@ public sealed class TestContextTests : IClassFixture<TestContextTests.MyClassFix
 	}
 
 	[Fact]
+	[ClearAttachments]
 	public static void StringAttachmentCanBeReplaced()
 	{
 		TestContext.Current.AddAttachment("foo", "bar");
@@ -96,6 +100,7 @@ public sealed class TestContextTests : IClassFixture<TestContextTests.MyClassFix
 	}
 
 	[Fact]
+	[ClearAttachments]
 	public static void BinaryAttachmentCannotBeReplacedByDefault()
 	{
 		TestContext.Current.AddAttachment("foo", [1, 2, 3]);
@@ -108,6 +113,7 @@ public sealed class TestContextTests : IClassFixture<TestContextTests.MyClassFix
 	}
 
 	[Fact]
+	[ClearAttachments]
 	public static void BinaryAttachmentCanBeReplaced()
 	{
 		TestContext.Current.AddAttachment("foo", [1, 2, 3]);
@@ -148,5 +154,13 @@ public sealed class TestContextTests : IClassFixture<TestContextTests.MyClassFix
 			Assert.Equal(2112, TestContext.Current.KeyValueStorage["classValue"]);
 			Assert.Equal(2600, TestContext.Current.KeyValueStorage["testValue"]);
 		}
+	}
+
+	class ClearAttachmentsAttribute : BeforeAfterTestAttribute
+	{
+		public override void After(
+			MethodInfo methodUnderTest,
+			IXunitTest test) =>
+				TestContextInternal.Current.ClearAttachments();
 	}
 }
