@@ -210,7 +210,9 @@ public static partial class Mocks
 		Guid? moduleVersionID = null,
 		string targetFramework = TestData.DefaultTargetFramework,
 		ITestCaseOrderer? testCaseOrderer = null,
+		ITestClassOrderer? testClassOrderer = null,
 		ITestCollectionOrderer? testCollectionOrderer = null,
+		ITestMethodOrderer? testMethodOrderer = null,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
 		string uniqueID = TestData.DefaultAssemblyUniqueID,
 		Version? version = null)
@@ -229,7 +231,9 @@ public static partial class Mocks
 		result.ModuleVersionID.Returns(moduleVersionID ?? TestData.DefaultModuleVersionID);
 		result.TargetFramework.Returns(targetFramework);
 		result.TestCaseOrderer.Returns(testCaseOrderer);
+		result.TestClassOrderer.Returns(testClassOrderer);
 		result.TestCollectionOrderer.Returns(testCollectionOrderer);
+		result.TestMethodOrderer.Returns(testMethodOrderer);
 		result.Traits.Returns(traits ?? TestData.EmptyTraits);
 		result.UniqueID.Returns(uniqueID);
 		result.Version.Returns(version);
@@ -310,6 +314,8 @@ public static partial class Mocks
 		result.Traits.Returns(traits);
 		result.UniqueID.Returns(uniqueID);
 
+		result.CreateTests().Returns([]);
+
 		var resultBase = (ITestCase)result;
 		resultBase.TestClass.Returns(testClass);
 		resultBase.TestClassMetadataToken.Returns(testClassMetadataToken);
@@ -374,6 +380,7 @@ public static partial class Mocks
 		string testClassName = TestData.DefaultTestClassName,
 		string testClassNamespace = TestData.DefaultTestClassNamespace,
 		string testClassSimpleName = TestData.DefaultTestClassSimpleName,
+		ITestMethodOrderer? testMethodOrderer = null,
 		IXunitTestCollection? testCollection = null,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
 		string uniqueID = TestData.DefaultTestClassUniqueID)
@@ -392,6 +399,7 @@ public static partial class Mocks
 		result.TestClassNamespace.Returns(testClassNamespace);
 		result.TestClassSimpleName.Returns(testClassSimpleName);
 		result.TestCollection.Returns(testCollection);
+		result.TestMethodOrderer.Returns(testMethodOrderer);
 		result.Traits.Returns(traits);
 		result.UniqueID.Returns(uniqueID);
 
@@ -410,6 +418,7 @@ public static partial class Mocks
 		string testClassName = TestData.DefaultTestClassName,
 		string testClassNamespace = TestData.DefaultTestClassNamespace,
 		string testClassSimpleName = TestData.DefaultTestClassSimpleName,
+		ITestMethodOrderer? testMethodOrderer = null,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
 		string uniqueID = TestData.DefaultTestClassUniqueID) =>
 			XunitTestClass(
@@ -421,6 +430,7 @@ public static partial class Mocks
 				testClassName,
 				testClassNamespace,
 				testClassSimpleName,
+				testMethodOrderer,
 				TestData.XunitTestCollection(TestData.XunitTestAssembly(typeof(TClassUnderTest).Assembly)),
 				traits,
 				uniqueID
@@ -433,6 +443,8 @@ public static partial class Mocks
 		bool disableParallelization = false,
 		IXunitTestAssembly? testAssembly = null,
 		ITestCaseOrderer? testCaseOrderer = null,
+		ITestClassOrderer? testClassOrderer = null,
+		ITestMethodOrderer? testMethodOrderer = null,
 		string? testCollectionClassName = null,
 		string testCollectionDisplayName = TestData.DefaultTestCollectionDisplayName,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
@@ -448,8 +460,10 @@ public static partial class Mocks
 		result.DisableParallelization.Returns(disableParallelization);
 		result.TestAssembly.Returns(testAssembly);
 		result.TestCaseOrderer.Returns(testCaseOrderer);
+		result.TestClassOrderer.Returns(testClassOrderer);
 		result.TestCollectionClassName.Returns(testCollectionClassName);
 		result.TestCollectionDisplayName.Returns(testCollectionDisplayName);
+		result.TestMethodOrderer.Returns(testMethodOrderer);
 		result.Traits.Returns(traits ?? TestData.DefaultTraits);
 		result.UniqueID.Returns(uniqueID);
 
@@ -458,29 +472,6 @@ public static partial class Mocks
 
 		return result;
 	}
-
-	public static IXunitTestCollection XunitTestCollection<TClassUnderTest>(
-		IReadOnlyCollection<IBeforeAfterTestAttribute>? beforeAfterTestAttributes = null,
-		IReadOnlyCollection<Type>? classFixtureTypes = null,
-		IReadOnlyCollection<Type>? collectionFixtureTypes = null,
-		bool disableParallelization = false,
-		ITestCaseOrderer? testCaseOrderer = null,
-		string? testCollectionClassName = null,
-		string testCollectionDisplayName = TestData.DefaultTestCollectionDisplayName,
-		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
-		string uniqueID = TestData.DefaultTestCollectionUniqueID) =>
-			XunitTestCollection(
-				beforeAfterTestAttributes,
-				classFixtureTypes,
-				collectionFixtureTypes,
-				disableParallelization,
-				TestData.XunitTestAssembly(typeof(TClassUnderTest).Assembly),
-				testCaseOrderer,
-				testCollectionClassName,
-				testCollectionDisplayName,
-				traits,
-				uniqueID
-			);
 
 	public static IXunitTestMethod XunitTestMethod(
 		IReadOnlyCollection<IBeforeAfterTestAttribute>? beforeAfterTestAttributes = null,
@@ -491,6 +482,7 @@ public static partial class Mocks
 		string methodName = TestData.DefaultMethodName,
 		IReadOnlyCollection<ParameterInfo>? parameters = null,
 		Type? returnType = null,
+		ITestCaseOrderer? testCaseOrderer = null,
 		IXunitTestClass? testClass = null,
 		object?[]? testMethodArguments = null,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
@@ -509,6 +501,7 @@ public static partial class Mocks
 		result.MethodName.Returns(methodName);
 		result.Parameters.Returns(parameters ?? []);
 		result.ReturnType.Returns(returnType ?? typeof(void));
+		result.TestCaseOrderer.Returns(testCaseOrderer);
 		result.TestClass.Returns(testClass);
 		result.TestMethodArguments.Returns(testMethodArguments ?? []);
 		result.Traits.Returns(traits);
@@ -534,6 +527,7 @@ public static partial class Mocks
 		string methodName = TestData.DefaultMethodName,
 		IReadOnlyCollection<ParameterInfo>? parameters = null,
 		Type? returnType = null,
+		ITestCaseOrderer? testCaseOrderer = null,
 		object?[]? testMethodArguments = null,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
 		string uniqueID = TestData.DefaultTestMethodUniqueID) =>
@@ -546,6 +540,7 @@ public static partial class Mocks
 				methodName,
 				parameters,
 				returnType,
+				testCaseOrderer,
 				TestData.XunitTestClass<TClassUnderTest>(),
 				testMethodArguments,
 				traits,

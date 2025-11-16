@@ -1,7 +1,5 @@
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using Xunit.Sdk;
 
 namespace Xunit.v3;

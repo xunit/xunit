@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using Xunit.Sdk;
 
 namespace Xunit.v3;
@@ -7,15 +8,16 @@ namespace Xunit.v3;
 /// an unpredictable and unstable order, so that repeated test runs of the
 /// identical test assembly run test collections in a random order.
 /// </summary>
-public class DefaultTestCollectionOrderer : ITestCollectionOrderer
+[method: Obsolete("Please use the singleton instance available via the Instance property")]
+[method: EditorBrowsable(EditorBrowsableState.Never)]
+public class DefaultTestCollectionOrderer() : ITestCollectionOrderer
 {
-	DefaultTestCollectionOrderer()
-	{ }
-
 	/// <summary>
 	/// Get the singleton instance of <see cref="DefaultTestCollectionOrderer"/>.
 	/// </summary>
+#pragma warning disable CS0618 // Type or member is obsolete
 	public static DefaultTestCollectionOrderer Instance { get; } = new();
+#pragma warning restore CS0618 // Type or member is obsolete
 
 	/// <inheritdoc/>
 	public IReadOnlyCollection<TTestCollection> OrderTestCollections<TTestCollection>(IReadOnlyCollection<TTestCollection> testCollections)
@@ -33,14 +35,9 @@ public class DefaultTestCollectionOrderer : ITestCollectionOrderer
 		TTestCollection y)
 			where TTestCollection : ITestCollection
 	{
-		var xHash = x.UniqueID.GetHashCode();
-		var yHash = y.UniqueID.GetHashCode();
+		Guard.ArgumentNotNull(x.UniqueID);
+		Guard.ArgumentNotNull(y.UniqueID);
 
-		return
-			xHash == yHash
-			? 0
-			: xHash < yHash
-				? -1
-				: 1;
+		return string.CompareOrdinal(x.UniqueID, y.UniqueID);
 	}
 }

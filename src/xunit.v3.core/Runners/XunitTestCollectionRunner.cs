@@ -1,3 +1,5 @@
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using Xunit.Sdk;
 
 namespace Xunit.v3;
@@ -20,12 +22,43 @@ public class XunitTestCollectionRunner :
 	public static XunitTestCollectionRunner Instance { get; } = new();
 
 	/// <summary>
+	/// Please call <see cref="Run(IXunitTestCollection, IReadOnlyCollection{IXunitTestCase}, ExplicitOption, IMessageBus, ITestClassOrderer, ITestMethodOrderer, ITestCaseOrderer, ExceptionAggregator, CancellationTokenSource, FixtureMappingManager)"/>.
+	/// This overload will be removed in the next major version.
+	/// </summary>
+	[Obsolete("Please use the overload which accepts testClassOrderer. This overload will be removed in the next major version.")]
+	[EditorBrowsable(EditorBrowsableState.Never)]
+	[OverloadResolutionPriority(-1)]
+	public ValueTask<RunSummary> Run(
+		IXunitTestCollection testCollection,
+		IReadOnlyCollection<IXunitTestCase> testCases,
+		ExplicitOption explicitOption,
+		IMessageBus messageBus,
+		ITestCaseOrderer testCaseOrderer,
+		ExceptionAggregator aggregator,
+		CancellationTokenSource cancellationTokenSource,
+		FixtureMappingManager assemblyFixtureMappings) =>
+			Run(
+				testCollection,
+				testCases,
+				explicitOption,
+				messageBus,
+				DefaultTestClassOrderer.Instance,
+				DefaultTestMethodOrderer.Instance,
+				testCaseOrderer,
+				aggregator,
+				cancellationTokenSource,
+				assemblyFixtureMappings
+			);
+
+	/// <summary>
 	/// Runs the test collection.
 	/// </summary>
 	/// <param name="testCollection">The test collection to be run.</param>
 	/// <param name="testCases">The test cases to be run. Cannot be empty.</param>
 	/// <param name="explicitOption">A flag to indicate how explicit tests should be treated.</param>
 	/// <param name="messageBus">The message bus to report run status to.</param>
+	/// <param name="testClassOrderer">The test class orderer that was applied at the assembly level.</param>
+	/// <param name="testMethodOrderer">The test method orderer that was applied at the assembly level.</param>
 	/// <param name="testCaseOrderer">The test case orderer that was applied at the assembly level.</param>
 	/// <param name="aggregator">The exception aggregator used to run code and collection exceptions.</param>
 	/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
@@ -35,6 +68,8 @@ public class XunitTestCollectionRunner :
 		IReadOnlyCollection<IXunitTestCase> testCases,
 		ExplicitOption explicitOption,
 		IMessageBus messageBus,
+		ITestClassOrderer testClassOrderer,
+		ITestMethodOrderer testMethodOrderer,
 		ITestCaseOrderer testCaseOrderer,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource,
@@ -43,6 +78,8 @@ public class XunitTestCollectionRunner :
 		Guard.ArgumentNotNull(testCollection);
 		Guard.ArgumentNotNull(testCases);
 		Guard.ArgumentNotNull(messageBus);
+		Guard.ArgumentNotNull(testClassOrderer);
+		Guard.ArgumentNotNull(testMethodOrderer);
 		Guard.ArgumentNotNull(testCaseOrderer);
 		Guard.ArgumentNotNull(cancellationTokenSource);
 		Guard.ArgumentNotNull(assemblyFixtureMappings);
@@ -52,6 +89,8 @@ public class XunitTestCollectionRunner :
 			testCases,
 			explicitOption,
 			messageBus,
+			testClassOrderer,
+			testMethodOrderer,
 			testCaseOrderer,
 			aggregator,
 			cancellationTokenSource,
@@ -87,6 +126,7 @@ public class XunitTestCollectionRunner :
 				testCases,
 				ctxt.ExplicitOption,
 				ctxt.MessageBus,
+				ctxt.TestMethodOrderer,
 				ctxt.TestCaseOrderer,
 				ctxt.Aggregator.Clone(),
 				ctxt.CancellationTokenSource,

@@ -2700,7 +2700,7 @@ public class Xunit3TheoryAcceptanceTests
 			new(new(), "abc123") { Label = "abc123" },
 		];
 
-		[Theory]
+		[Theory(DisableDiscoveryEnumeration = true)]
 		[MemberData(nameof(NonSerializableData))]
 		public void LabelAvailable_NonSerializableData(object _, string? expectedLabel) =>
 			Assert.Equal(expectedLabel, TestContext.Current.Test!.TestLabel);

@@ -9,6 +9,7 @@ namespace Xunit.v3;
 /// <param name="testCases">The test cases from the test method</param>
 /// <param name="explicitOption">The user's choice on how to treat explicit tests</param>
 /// <param name="messageBus">The message bus to send execution messages to</param>
+/// <param name="testCaseOrderer">The orderer used to sort the test cases in the method</param>
 /// <param name="aggregator">The exception aggregator</param>
 /// <param name="cancellationTokenSource">The cancellation token source</param>
 /// <param name="constructorArguments">The constructor arguments for the test class</param>
@@ -17,6 +18,7 @@ public class XunitTestMethodRunnerBaseContext<TTestMethod, TTestCase>(
 	IReadOnlyCollection<TTestCase> testCases,
 	ExplicitOption explicitOption,
 	IMessageBus messageBus,
+	ITestCaseOrderer testCaseOrderer,
 	ExceptionAggregator aggregator,
 	CancellationTokenSource cancellationTokenSource,
 	object?[] constructorArguments) :
@@ -24,8 +26,32 @@ public class XunitTestMethodRunnerBaseContext<TTestMethod, TTestCase>(
 			where TTestMethod : class, IXunitTestMethod
 			where TTestCase : class, IXunitTestCase
 {
+	ITestCaseOrderer testCaseOrderer = Guard.ArgumentNotNull(testCaseOrderer);
+
 	/// <summary>
 	/// Gets the arguments to send to the test class constructor.
 	/// </summary>
 	public object?[] ConstructorArguments { get; } = Guard.ArgumentNotNull(constructorArguments);
+
+	/// <summary>
+	/// Gets or sets the orderer used to order the test cases.
+	/// </summary>
+	public ITestCaseOrderer TestCaseOrderer
+	{
+		get => testCaseOrderer;
+		set => testCaseOrderer = Guard.ArgumentNotNull(value, nameof(TestCaseOrderer));
+	}
+
+	/// <inheritdoc/>
+	public async override ValueTask InitializeAsync()
+	{
+		await base.InitializeAsync();
+
+		TestCaseOrderer =
+			TestMethod.TestCaseOrderer
+				?? TestMethod.TestClass.TestCaseOrderer
+				?? TestMethod.TestClass.TestCollection.TestCaseOrderer
+				?? TestMethod.TestClass.TestCollection.TestAssembly.TestCaseOrderer
+				?? TestCaseOrderer;
+	}
 }

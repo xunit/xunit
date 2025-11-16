@@ -1,7 +1,7 @@
 using Xunit;
 using Xunit.v3;
 
-public class DefaultTestCollectionOrdererTests
+public class UnorderedTestCollectionOrdererTests
 {
 	static readonly IXunitTestCollection[] TestCollections =
 	[
@@ -14,25 +14,12 @@ public class DefaultTestCollectionOrdererTests
 	];
 
 	[Fact]
-	public static void OrderIsStable()
+	public static void OrderIsPredictable()
 	{
-		var orderer = DefaultTestCollectionOrderer.Instance;
-
-		var result1 = orderer.OrderTestCollections(TestCollections);
-		var result2 = orderer.OrderTestCollections(TestCollections);
-		var result3 = orderer.OrderTestCollections(TestCollections);
-
-		Assert.Equal(result1, result2);
-		Assert.Equal(result2, result3);
-	}
-
-	[Fact]
-	public static void OrderIsUnpredictable()
-	{
-		var orderer = DefaultTestCollectionOrderer.Instance;
+		var orderer = UnorderedTestCollectionOrderer.Instance;
 
 		var result = orderer.OrderTestCollections(TestCollections);
 
-		Assert.NotEqual(TestCollections, result);
+		Assert.Equal(TestCollections, result);
 	}
 }

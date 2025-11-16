@@ -19,6 +19,8 @@ public class XunitTestCollection : IXunitTestCollection, IXunitSerializable
 	readonly Lazy<IReadOnlyCollection<Type>> classFixtureTypes;
 	readonly Lazy<IReadOnlyCollection<Type>> collectionFixtureTypes;
 	readonly Lazy<ITestCaseOrderer?> testCaseOrderer;
+	readonly Lazy<ITestClassOrderer?> testClassOrderer;
+	readonly Lazy<ITestMethodOrderer?> testMethodOrderer;
 	readonly Lazy<IReadOnlyDictionary<string, IReadOnlyCollection<string>>> traits;
 
 	/// <summary>
@@ -31,6 +33,8 @@ public class XunitTestCollection : IXunitTestCollection, IXunitSerializable
 		classFixtureTypes = new(() => ExtensibilityPointFactory.GetCollectionClassFixtureTypes(CollectionDefinition));
 		collectionFixtureTypes = new(() => ExtensibilityPointFactory.GetCollectionCollectionFixtureTypes(CollectionDefinition));
 		testCaseOrderer = new(() => ExtensibilityPointFactory.GetCollectionTestCaseOrderer(CollectionDefinition));
+		testClassOrderer = new(() => ExtensibilityPointFactory.GetCollectionTestClassOrderer(CollectionDefinition));
+		testMethodOrderer = new(() => ExtensibilityPointFactory.GetCollectionTestMethodOrderer(CollectionDefinition));
 		traits = new(() => ExtensibilityPointFactory.GetCollectionTraits(CollectionDefinition, TestAssembly.Traits));
 	}
 
@@ -88,12 +92,20 @@ public class XunitTestCollection : IXunitTestCollection, IXunitSerializable
 		testCaseOrderer.Value;
 
 	/// <inheritdoc/>
+	public ITestClassOrderer? TestClassOrderer =>
+		testClassOrderer.Value;
+
+	/// <inheritdoc/>
 	public string? TestCollectionClassName =>
 		CollectionDefinition?.SafeName();
 
 	/// <inheritdoc/>
 	public string TestCollectionDisplayName =>
 		this.ValidateNullablePropertyValue(testCollectionDisplayName, nameof(TestCollectionDisplayName));
+
+	/// <inheritdoc/>
+	public ITestMethodOrderer? TestMethodOrderer =>
+		testMethodOrderer.Value;
 
 	/// <inheritdoc/>
 	public IReadOnlyDictionary<string, IReadOnlyCollection<string>> Traits =>
