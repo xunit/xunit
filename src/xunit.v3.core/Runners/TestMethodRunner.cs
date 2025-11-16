@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -165,6 +166,20 @@ public abstract class TestMethodRunner<TContext, TTestMethod, TTestCase>
 	}
 
 	/// <summary>
+	/// Orders the test cases in the method. By default does not reorder the test cases.
+	/// </summary>
+	/// <remarks>
+	/// Override this to provide custom test case ordering.<br />
+	/// <br />
+	/// This method runs during <see cref="TestEngineStatus.Running"/> and any exceptions thrown will
+	/// contribute to test case failure.
+	/// </remarks>
+	/// <param name="ctxt">The context that describes the current test case</param>
+	/// <returns>Test cases in run order.</returns>
+	protected virtual IReadOnlyCollection<TTestCase> OrderTestCases(TContext ctxt) =>
+		Guard.ArgumentNotNull(ctxt).TestCases;
+
+	/// <summary>
 	/// Runs the tests in the test method.
 	/// </summary>
 	/// <param name="ctxt">The context that describes the current test method</param>
@@ -241,8 +256,9 @@ public abstract class TestMethodRunner<TContext, TTestMethod, TTestCase>
 		Guard.ArgumentNotNull(ctxt);
 
 		var summary = new RunSummary();
+		var orderedTestCases = OrderTestCases(ctxt);
 
-		foreach (var testCase in ctxt.TestCases)
+		foreach (var testCase in orderedTestCases)
 		{
 			if (exception is not null)
 				summary.Aggregate(await FailTestCase(ctxt, testCase, exception));

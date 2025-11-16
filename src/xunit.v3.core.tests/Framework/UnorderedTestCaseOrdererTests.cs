@@ -2,7 +2,7 @@ using Xunit;
 using Xunit.Sdk;
 using Xunit.v3;
 
-public class DefaultTestCaseOrdererTests
+public class UnorderedTestCaseOrdererTests
 {
 	static readonly ITestCase[] TestCases =
 	[
@@ -15,25 +15,12 @@ public class DefaultTestCaseOrdererTests
 	];
 
 	[Fact]
-	public static void OrderIsStable()
+	public static void OrderIsPredictable()
 	{
-		var orderer = DefaultTestCaseOrderer.Instance;
-
-		var result1 = orderer.OrderTestCases(TestCases);
-		var result2 = orderer.OrderTestCases(TestCases);
-		var result3 = orderer.OrderTestCases(TestCases);
-
-		Assert.Equal(result1, result2);
-		Assert.Equal(result2, result3);
-	}
-
-	[Fact]
-	public static void OrderIsUnpredictable()
-	{
-		var orderer = DefaultTestCaseOrderer.Instance;
+		var orderer = UnorderedTestCaseOrderer.Instance;
 
 		var result = orderer.OrderTestCases(TestCases);
 
-		Assert.NotEqual(TestCases, result);
+		Assert.Equal(TestCases, result);
 	}
 }

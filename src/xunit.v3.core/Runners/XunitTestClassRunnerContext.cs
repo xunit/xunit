@@ -11,7 +11,8 @@ namespace Xunit.v3;
 /// <param name="testCases">The test from the test class</param>
 /// <param name="explicitOption">The user's choice on how to treat explicit tests</param>
 /// <param name="messageBus">The message bus to send execution messages to</param>
-/// <param name="testCaseOrderer">The orderer used to sort the test cases for executiong</param>
+/// <param name="testMethodOrderer">The orderer used to sort the test methods for execution</param>
+/// <param name="testCaseOrderer">The orderer used to sort the test cases for execution</param>
 /// <param name="aggregator">The exception aggregator</param>
 /// <param name="cancellationTokenSource">The cancellation token source</param>
 /// <param name="collectionFixtureMappings">The fixtures attached to the test collection</param>
@@ -20,9 +21,20 @@ public class XunitTestClassRunnerContext(
 	IReadOnlyCollection<IXunitTestCase> testCases,
 	ExplicitOption explicitOption,
 	IMessageBus messageBus,
+	ITestMethodOrderer testMethodOrderer,
 	ITestCaseOrderer testCaseOrderer,
 	ExceptionAggregator aggregator,
 	CancellationTokenSource cancellationTokenSource,
 	FixtureMappingManager collectionFixtureMappings) :
-		XunitTestClassRunnerBaseContext<IXunitTestClass, IXunitTestCase>(testClass, testCases, explicitOption, messageBus, testCaseOrderer, aggregator, cancellationTokenSource, collectionFixtureMappings)
+		XunitTestClassRunnerBaseContext<IXunitTestClass, IXunitTestCase>(
+			testClass,
+			testCases,
+			explicitOption,
+			messageBus,
+			testMethodOrderer,
+			testCaseOrderer,
+			aggregator,
+			cancellationTokenSource,
+			collectionFixtureMappings
+		)
 { }

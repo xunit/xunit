@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using System.Security;
 using System.Threading;
 using System.Threading.Tasks;
@@ -42,9 +44,19 @@ public class XunitTestAssemblyRunnerBaseContext<TTestAssembly, TTestCase>(
 	public ITestCaseOrderer? AssemblyTestCaseOrderer { get; private set; }
 
 	/// <summary>
+	/// Gets the assembly-level test class orderer, if one is present.
+	/// </summary>
+	public ITestClassOrderer? AssemblyTestClassOrderer { get; private set; }
+
+	/// <summary>
 	/// Gets the assembly-level test collection orderer, if one is present.
 	/// </summary>
 	public ITestCollectionOrderer? AssemblyTestCollectionOrderer { get; private set; }
+
+	/// <summary>
+	/// Gets the assembly-level test method orderer, if one is present.
+	/// </summary>
+	public ITestMethodOrderer? AssemblyTestMethodOrderer { get; private set; }
 
 	/// <summary>
 	/// Gets a flag which indicates whether the user has requested that parallelization be disabled.
@@ -143,9 +155,24 @@ public class XunitTestAssemblyRunnerBaseContext<TTestAssembly, TTestCase>(
 				MaxParallelThreads = Environment.ProcessorCount;
 
 			AssemblyTestCaseOrderer = TestAssembly.TestCaseOrderer;
+			AssemblyTestClassOrderer = TestAssembly.TestClassOrderer;
 			AssemblyTestCollectionOrderer = TestAssembly.TestCollectionOrderer;
+			AssemblyTestMethodOrderer = TestAssembly.TestMethodOrderer;
 		});
 	}
+
+	/// <summary>
+	/// Please use <see cref="RunTestCollection(IXunitTestCollection, IReadOnlyCollection{TTestCase}, ITestClassOrderer, ITestMethodOrderer, ITestCaseOrderer)"/>.
+	/// This overload will be removed in the next major version.
+	/// </summary>
+	[Obsolete("Please use the overload which accepts testClassOrderer and testMethodOrderer. This overload will be removed in the next major version.")]
+	[EditorBrowsable(EditorBrowsableState.Never)]
+	[OverloadResolutionPriority(-1)]
+	public ValueTask<RunSummary> RunTestCollection(
+		IXunitTestCollection testCollection,
+		IReadOnlyCollection<TTestCase> testCases,
+		ITestCaseOrderer testCaseOrderer) =>
+			RunTestCollection(testCollection, testCases, DefaultTestClassOrderer.Instance, DefaultTestMethodOrderer.Instance, testCaseOrderer);
 
 	/// <summary>
 	/// Delegation of <see cref="XunitTestAssemblyRunnerBase{TContext, TTestAssembly, TTestCollection, TTestCase}.RunTestCollection"/>
@@ -154,6 +181,8 @@ public class XunitTestAssemblyRunnerBaseContext<TTestAssembly, TTestCase>(
 	public async ValueTask<RunSummary> RunTestCollection(
 		IXunitTestCollection testCollection,
 		IReadOnlyCollection<TTestCase> testCases,
+		ITestClassOrderer testClassOrderer,
+		ITestMethodOrderer testMethodOrderer,
 		ITestCaseOrderer testCaseOrderer)
 	{
 		if (parallelSemaphore is not null)
@@ -166,6 +195,8 @@ public class XunitTestAssemblyRunnerBaseContext<TTestAssembly, TTestCase>(
 				testCases,
 				ExplicitOption,
 				MessageBus,
+				testClassOrderer,
+				testMethodOrderer,
 				testCaseOrderer,
 				Aggregator.Clone(),
 				CancellationTokenSource,

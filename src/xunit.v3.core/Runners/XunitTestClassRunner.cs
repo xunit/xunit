@@ -30,6 +30,7 @@ public class XunitTestClassRunner :
 	/// <param name="testCases">The test cases to be run. Cannot be empty.</param>
 	/// <param name="explicitOption">A flag to indicate how explicit tests should be treated.</param>
 	/// <param name="messageBus">The message bus to report run status to.</param>
+	/// <param name="testMethodOrderer">The test method orderer that will be used to decide how to order the test.</param>
 	/// <param name="testCaseOrderer">The test case orderer that will be used to decide how to order the test.</param>
 	/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 	/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
@@ -40,6 +41,7 @@ public class XunitTestClassRunner :
 		IReadOnlyCollection<IXunitTestCase> testCases,
 		ExplicitOption explicitOption,
 		IMessageBus messageBus,
+		ITestMethodOrderer testMethodOrderer,
 		ITestCaseOrderer testCaseOrderer,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource,
@@ -48,6 +50,7 @@ public class XunitTestClassRunner :
 		Guard.ArgumentNotNull(testClass);
 		Guard.ArgumentNotNull(testCases);
 		Guard.ArgumentNotNull(messageBus);
+		Guard.ArgumentNotNull(testMethodOrderer);
 		Guard.ArgumentNotNull(testCaseOrderer);
 		Guard.ArgumentNotNull(cancellationTokenSource);
 		Guard.ArgumentNotNull(collectionFixtureMappings);
@@ -57,6 +60,7 @@ public class XunitTestClassRunner :
 			@testCases,
 			explicitOption,
 			messageBus,
+			testMethodOrderer,
 			testCaseOrderer,
 			aggregator,
 			cancellationTokenSource,
@@ -76,7 +80,7 @@ public class XunitTestClassRunner :
 	{
 		Guard.ArgumentNotNull(ctxt);
 
-		// Technically not possible because of the design of TTestClass, but this signature is imposed
+		// Technically not possible because of the design of IXunitTestCase, but this signature is imposed
 		// by the base class, which allows method-less tests
 		if (testMethod is null)
 			return new(XunitRunnerHelper.FailTestCases(
@@ -92,6 +96,7 @@ public class XunitTestClassRunner :
 			testCases,
 			ctxt.ExplicitOption,
 			ctxt.MessageBus,
+			ctxt.TestCaseOrderer,
 			ctxt.Aggregator.Clone(),
 			ctxt.CancellationTokenSource,
 			constructorArguments

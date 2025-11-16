@@ -26,6 +26,7 @@ public class XunitTestMethod : IXunitTestMethod, IXunitSerializable
 	readonly Lazy<IReadOnlyCollection<IDataAttribute>> dataAttributes;
 	readonly Lazy<IReadOnlyCollection<IFactAttribute>> factAttributes;
 	readonly Lazy<IReadOnlyCollection<ParameterInfo>> parameters;
+	readonly Lazy<ITestCaseOrderer?> testCaseOrderer;
 	readonly Lazy<IReadOnlyDictionary<string, IReadOnlyCollection<string>>> traits;
 
 	/// <summary>
@@ -41,6 +42,7 @@ public class XunitTestMethod : IXunitTestMethod, IXunitSerializable
 #pragma warning disable IDE0200 // The lambda is necessary to prevent prematurely dereferencing the Method properly
 		parameters = new(() => Method.GetParameters());
 #pragma warning restore IDE0200
+		testCaseOrderer = new(() => ExtensibilityPointFactory.GetMethodTestCaseOrderer(Method));
 		traits = new(() => ExtensibilityPointFactory.GetMethodTraits(Method, TestClass.Traits));
 	}
 
@@ -105,6 +107,10 @@ public class XunitTestMethod : IXunitTestMethod, IXunitSerializable
 	/// <inheritdoc/>
 	public Type ReturnType =>
 		Method.ReturnType;
+
+	/// <inheritdoc/>
+	public ITestCaseOrderer? TestCaseOrderer =>
+		testCaseOrderer.Value;
 
 	/// <inheritdoc/>
 	public IXunitTestClass TestClass =>

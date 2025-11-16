@@ -51,14 +51,19 @@ public interface IXunitTestMethod : ITestMethod
 	Type ReturnType { get; }
 
 	/// <summary>
-	/// Gets the arguments that will be passed to the test method.
+	/// Gets the test case orderer for the test method, if present.
 	/// </summary>
-	object?[] TestMethodArguments { get; }
+	ITestCaseOrderer? TestCaseOrderer { get; }
 
 	/// <summary>
 	/// Gets the test class that this test method belongs to.
 	/// </summary>
 	new IXunitTestClass TestClass { get; }
+
+	/// <summary>
+	/// Gets the arguments that will be passed to the test method.
+	/// </summary>
+	object?[] TestMethodArguments { get; }
 
 	/// <summary>
 	/// Gets the display name for the test method, factoring in arguments and generic types.

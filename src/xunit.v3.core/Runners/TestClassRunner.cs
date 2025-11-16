@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -191,16 +192,36 @@ public abstract class TestClassRunner<TContext, TTestClass, TTestMethod, TTestCa
 	}
 
 	/// <summary>
-	/// Orders the test cases in the class. By default does not re-order the test cases.
-	/// Override this to provide custom test case ordering.
+	/// Please override <see cref="OrderTestMethods(TContext)"/> to order test methods, or override
+	/// <see cref="TestMethodRunner{TContext, TTestMethod, TTestCase}.OrderTestCases(TContext)"/> to order
+	/// test cases. This method is no longer used here and will be removed in the next major version.
 	/// </summary>
-	/// <remarks>
-	/// This method runs during <see cref="TestEngineStatus.Running"/> and any exceptions thrown will
-	/// contribute to test class failure
-	/// </remarks>
-	/// <param name="ctxt">The context that describes the current test class</param>
+	[Obsolete("Please override OrderTestMethods instead. This method will be removed in the next major version.")]
+	[EditorBrowsable(EditorBrowsableState.Never)]
 	protected virtual IReadOnlyCollection<TTestCase> OrderTestCases(TContext ctxt) =>
 		Guard.ArgumentNotNull(ctxt).TestCases;
+
+	/// <summary>
+	/// Orders the test methods in the class. By default groups the test cases by method in order of
+	/// appearance, and does not reorder the methods.
+	/// </summary>
+	/// <remarks>
+	/// Override this to provide custom test class ordering.<br />
+	/// <br />
+	/// This method runs during <see cref="TestEngineStatus.Running"/> and any exceptions thrown will
+	/// contribute to test class failure.
+	/// </remarks>
+	/// <param name="ctxt">The context that describes the current test class</param>
+	/// <returns>Test methods in run order (and associated, not-yet-ordered test cases).</returns>
+	protected virtual List<(TTestMethod? Method, List<TTestCase> TestCases)> OrderTestMethods(TContext ctxt) =>
+		OrderTestMethodsDefault(ctxt);
+
+	static List<(TTestMethod? Method, List<TTestCase> TestCases)> OrderTestMethodsDefault(TContext ctxt) =>
+		Guard.ArgumentNotNull(ctxt)
+			.TestCases
+			.GroupBy(tc => tc.TestMethod as TTestMethod, TestMethodComparer<TTestMethod>.Instance)
+			.Select(grouping => (Class: grouping.Key, TestCases: grouping.ToList()))
+			.ToList();
 
 	/// <summary>
 	/// Runs the tests in the test class.
@@ -276,31 +297,24 @@ public abstract class TestClassRunner<TContext, TTestClass, TTestMethod, TTestCa
 		Guard.ArgumentNotNull(ctxt);
 
 		var summary = new RunSummary();
-		IReadOnlyCollection<TTestCase> orderedTestCases;
+		var orderedTestMethods = exception is null ? OrderTestMethods(ctxt) : OrderTestMethodsDefault(ctxt);
 		object?[] constructorArguments;
 
 		if (exception is null)
 		{
-			orderedTestCases = OrderTestCases(ctxt);
 			constructorArguments = await CreateTestClassConstructorArguments(ctxt);
 			exception = ctxt.Aggregator.ToException();
 			ctxt.Aggregator.Clear();
 		}
 		else
-		{
-			orderedTestCases = ctxt.TestCases;
 			constructorArguments = [];
-		}
 
-		foreach (var method in orderedTestCases.GroupBy(tc => tc.TestMethod, TestMethodComparer.Instance))
+		foreach (var testMethod in orderedTestMethods)
 		{
-			var testMethod = method.Key as TTestMethod;
-			var testCases = method.CastOrToReadOnlyCollection();
-
 			if (exception is not null)
-				summary.Aggregate(await FailTestMethod(ctxt, testMethod, testCases, constructorArguments, exception));
+				summary.Aggregate(await FailTestMethod(ctxt, testMethod.Method, testMethod.TestCases, constructorArguments, exception));
 			else
-				summary.Aggregate(await RunTestMethod(ctxt, testMethod, testCases, constructorArguments));
+				summary.Aggregate(await RunTestMethod(ctxt, testMethod.Method, testMethod.TestCases, constructorArguments));
 
 			if (ctxt.CancellationTokenSource.IsCancellationRequested)
 				break;

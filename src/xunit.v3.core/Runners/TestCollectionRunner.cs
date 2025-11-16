@@ -170,6 +170,28 @@ public abstract class TestCollectionRunner<TContext, TTestCollection, TTestClass
 	}
 
 	/// <summary>
+	/// Orders the test classes in the collection. By default groups the test cases by class in order of
+	/// appearance, and does not reorder the classes.
+	/// </summary>
+	/// <remarks>
+	/// Override this to provide custom test class ordering.<br />
+	/// <br />
+	/// This method runs during <see cref="TestEngineStatus.Running"/> and any exceptions thrown will
+	/// contribute to test collection failure.
+	/// </remarks>
+	/// <param name="ctxt">The context that describes the current test collection</param>
+	/// <returns>Test classes in run order (and associated, not-yet-ordered test cases).</returns>
+	protected virtual List<(TTestClass? Class, List<TTestCase> TestCases)> OrderTestClasses(TContext ctxt) =>
+		OrderTestClassesDefault(ctxt);
+
+	static List<(TTestClass? Class, List<TTestCase> TestCases)> OrderTestClassesDefault(TContext ctxt) =>
+		Guard.ArgumentNotNull(ctxt)
+			.TestCases
+			.GroupBy(tc => tc.TestClass as TTestClass, TestClassComparer<TTestClass>.Instance)
+			.Select(grouping => (Class: grouping.Key, TestCases: grouping.ToList()))
+			.ToList();
+
+	/// <summary>
 	/// Runs the tests in the test collection.
 	/// </summary>
 	/// <param name="ctxt">The context that describes the current test collection</param>
@@ -239,22 +261,17 @@ public abstract class TestCollectionRunner<TContext, TTestCollection, TTestClass
 		TContext ctxt,
 		Exception? exception)
 	{
+		Guard.ArgumentNotNull(ctxt);
+
 		var summary = new RunSummary();
-		var groups =
-			Guard.ArgumentNotNull(ctxt)
-				.TestCases
-				.GroupBy(tc => tc.TestClass, TestClassComparer.Instance)
-				.OrderBy(grouping => grouping.Key, TestClassComparer.Instance);
+		var orderedTestClasses = exception is null ? OrderTestClasses(ctxt) : OrderTestClassesDefault(ctxt);
 
-		foreach (var testCasesByClass in groups)
+		foreach (var testClass in orderedTestClasses)
 		{
-			var testClass = testCasesByClass.Key as TTestClass;
-			var testCases = testCasesByClass.CastOrToReadOnlyCollection();
-
 			if (exception is not null)
-				summary.Aggregate(await FailTestClass(ctxt, testClass, testCases, exception));
+				summary.Aggregate(await FailTestClass(ctxt, testClass.Class, testClass.TestCases, exception));
 			else
-				summary.Aggregate(await RunTestClass(ctxt, testClass, testCases));
+				summary.Aggregate(await RunTestClass(ctxt, testClass.Class, testClass.TestCases));
 
 			if (ctxt.CancellationTokenSource.IsCancellationRequested)
 				break;

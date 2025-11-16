@@ -7,7 +7,7 @@ namespace Xunit.v3;
 /// A class implements this interface to participate in ordering tests for the test runner.
 /// Test case orderers are applied using an implementation of <see cref="ITestCaseOrdererAttribute"/>
 /// (most commonly <see cref="TestCaseOrdererAttribute"/>), which can be applied at the assembly,
-/// test collection, and test class level.
+/// test collection, test class level, and test method level.
 /// </summary>
 public interface ITestCaseOrderer
 {

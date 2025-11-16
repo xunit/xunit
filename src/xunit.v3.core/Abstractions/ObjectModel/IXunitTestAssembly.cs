@@ -51,9 +51,19 @@ public interface IXunitTestAssembly : ITestAssembly
 	ITestCaseOrderer? TestCaseOrderer { get; }
 
 	/// <summary>
+	/// Gets the test class orderer for the test assembly, if present.
+	/// </summary>
+	ITestClassOrderer? TestClassOrderer { get; }
+
+	/// <summary>
 	/// Gets the test collection orderer for the test assembly, if present.
 	/// </summary>
 	ITestCollectionOrderer? TestCollectionOrderer { get; }
+
+	/// <summary>
+	/// Gets the test method orderer for the test assembly, if present.
+	/// </summary>
+	ITestMethodOrderer? TestMethodOrderer { get; }
 
 	/// <summary>
 	/// Gets the assembly version.

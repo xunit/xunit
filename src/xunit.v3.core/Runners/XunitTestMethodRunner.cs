@@ -29,6 +29,7 @@ public class XunitTestMethodRunner : XunitTestMethodRunnerBase<XunitTestMethodRu
 	/// <param name="testCases">The test cases to be run. Cannot be empty.</param>
 	/// <param name="explicitOption">A flag to indicate how explicit tests should be treated.</param>
 	/// <param name="messageBus">The message bus to report run status to.</param>
+	/// <param name="testCaseOrderer">The orderer used to sort the test cases in the method</param>
 	/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 	/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 	/// <param name="constructorArguments">The constructor arguments for the test class.</param>
@@ -37,6 +38,7 @@ public class XunitTestMethodRunner : XunitTestMethodRunnerBase<XunitTestMethodRu
 		IReadOnlyCollection<IXunitTestCase> testCases,
 		ExplicitOption explicitOption,
 		IMessageBus messageBus,
+		ITestCaseOrderer testCaseOrderer,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource,
 		object?[] constructorArguments)
@@ -50,6 +52,7 @@ public class XunitTestMethodRunner : XunitTestMethodRunnerBase<XunitTestMethodRu
 			testCases,
 			explicitOption,
 			messageBus,
+			testCaseOrderer,
 			aggregator,
 			cancellationTokenSource,
 			constructorArguments
