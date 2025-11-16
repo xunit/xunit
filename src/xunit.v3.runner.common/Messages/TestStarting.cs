@@ -26,6 +26,9 @@ public partial class TestStarting
 	public required string TestDisplayName { get; set; } = UnsetStringPropertyValue;
 
 	/// <inheritdoc/>
+	public required string? TestLabel { get; set; }
+
+	/// <inheritdoc/>
 	/// <remarks>
 	/// Note: Will be <c>0</c> if there was no value provided during deserialization.
 	/// </remarks>
@@ -47,6 +50,7 @@ public partial class TestStarting
 		Explicit = JsonDeserializer.TryGetBoolean(root, nameof(Explicit)) ?? Explicit;
 		StartTime = JsonDeserializer.TryGetDateTimeOffset(root, nameof(StartTime)) ?? StartTime;
 		TestDisplayName = JsonDeserializer.TryGetString(root, nameof(TestDisplayName)) ?? TestDisplayName;
+		TestLabel = JsonDeserializer.TryGetString(root, nameof(TestLabel)) ?? TestLabel;
 		Timeout = JsonDeserializer.TryGetInt(root, nameof(Timeout)) ?? Timeout;
 		Traits = JsonDeserializer.TryGetTraits(root, nameof(Traits)) ?? Traits;
 	}

@@ -135,7 +135,8 @@ public class XunitDelayEnumeratedTheoryTestCase : XunitTestCase, IXunitDelayEnum
 					testIndex++,
 					traits.ToReadOnly(),
 					Debugger.IsAttached ? 0 : timeout,
-					convertedDataRow
+					convertedDataRow,
+					dataRow.Label
 				);
 
 				result.Add(test);

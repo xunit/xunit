@@ -371,6 +371,7 @@ public abstract class TestRunnerBase<TContext, TTest>
 			TestClassUniqueID = ctxt.Test.TestCase.TestClass?.UniqueID,
 			TestCollectionUniqueID = ctxt.Test.TestCase.TestCollection.UniqueID,
 			TestDisplayName = ctxt.Test.TestDisplayName,
+			TestLabel = ctxt.Test.TestLabel,
 			TestMethodUniqueID = ctxt.Test.TestCase.TestMethod?.UniqueID,
 			TestUniqueID = ctxt.Test.UniqueID,
 			Timeout = timeout,

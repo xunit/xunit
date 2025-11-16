@@ -14,8 +14,7 @@ namespace Xunit.v3;
 public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 {
 	/// <summary>
-	/// Creates test cases for a single row of data. By default, returns a single instance of <see cref="XunitTestCase"/>
-	/// with the data row inside of it.
+	/// Creates test cases for a single row of data.
 	/// </summary>
 	/// <param name="discoveryOptions">The discovery options to be used.</param>
 	/// <param name="testMethod">The test method the test cases belong to.</param>
@@ -23,6 +22,9 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 	/// <param name="dataRow">The data row that generated <paramref name="testMethodArguments"/>.</param>
 	/// <param name="testMethodArguments">The arguments for the test method.</param>
 	/// <returns>The test cases</returns>
+	/// <remarks>
+	/// By default, returns a single instance of <see cref="XunitTestCase"/> with the data row inside of it.
+	/// </remarks>
 	protected virtual ValueTask<IReadOnlyCollection<IXunitTestCase>> CreateTestCasesForDataRow(
 		ITestFrameworkDiscoveryOptions discoveryOptions,
 		IXunitTestMethod testMethod,
@@ -44,6 +46,7 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 			details.TestCaseDisplayName,
 			details.UniqueID,
 			details.Explicit,
+			dataRow.Label,
 			details.SkipExceptions,
 			details.SkipReason,
 			details.SkipType,
@@ -64,15 +67,17 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 	/// <summary>
 	/// Creates test cases for the entire theory. This is used when one or more of the theory data items
 	/// are not serializable, or if the user has requested to skip theory pre-enumeration, or if the user
-	/// has requested the entire theory be skipped. By default, returns a single instance
-	/// of <see cref="XunitDelayEnumeratedTheoryTestCase"/> (which performs the
-	/// data discovery at runtime, for non-skipped theories) or <see cref="XunitTestCase"/>
-	/// (for skipped theories).
+	/// has requested the entire theory be skipped.
 	/// </summary>
 	/// <param name="discoveryOptions">The discovery options to be used.</param>
 	/// <param name="testMethod">The test method the test cases belong to.</param>
 	/// <param name="theoryAttribute">The theory attribute attached to the test method.</param>
 	/// <returns>The test case</returns>
+	/// <remarks>
+	/// By default, returns a single instance of <see cref="XunitDelayEnumeratedTheoryTestCase"/> (which
+	/// performs the data discovery at runtime, for non-skipped theories) or <see cref="XunitTestCase"/>
+	/// (for skipped theories).
+	/// </remarks>
 	protected virtual ValueTask<IReadOnlyCollection<IXunitTestCase>> CreateTestCasesForTheory(
 		ITestFrameworkDiscoveryOptions discoveryOptions,
 		IXunitTestMethod testMethod,

@@ -505,6 +505,7 @@ public sealed class Xunit1TestCase : IXunitSerializable
 				TestClassUniqueID = TestClassUniqueID,
 				TestCollectionUniqueID = TestCollectionUniqueID,
 				TestDisplayName = testDisplayName,
+				TestLabel = null,
 				TestMethodUniqueID = TestMethodUniqueID,
 				TestUniqueID = UniqueIDGenerator.ForTest(TestCaseUniqueID, currentTestIndex),
 				Timeout = 0,

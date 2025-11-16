@@ -27,6 +27,7 @@ sealed partial class TestStarting : TestMessage, ITestStarting
 		serializer.Serialize(nameof(Explicit), Explicit);
 		serializer.Serialize(nameof(StartTime), StartTime);
 		serializer.Serialize(nameof(TestDisplayName), TestDisplayName);
+		serializer.Serialize(nameof(TestLabel), TestLabel);
 		serializer.Serialize(nameof(Timeout), Timeout);
 		serializer.SerializeTraits(nameof(Traits), Traits);
 	}

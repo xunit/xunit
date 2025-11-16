@@ -750,6 +750,7 @@ public class Xunit2MessageAdapter(
 			TestCollectionUniqueID = testCollectionUniqueID,
 			TestClassUniqueID = testClassUniqueID,
 			TestDisplayName = message.Test.DisplayName,
+			TestLabel = null,
 			TestMethodUniqueID = testMethodUniqueID,
 			TestUniqueID = testUniqueID,
 			Timeout = 0,

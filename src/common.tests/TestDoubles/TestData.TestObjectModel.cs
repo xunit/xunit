@@ -60,6 +60,7 @@ public static partial class TestData
 		string? skipUnless = null,
 		string? skipWhen = null,
 		string? testDisplayName = null,
+		string? testLabel = null,
 		object?[]? testMethodArguments = null,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
 		int? timeout = null,
@@ -76,6 +77,7 @@ public static partial class TestData
 			skipUnless,
 			skipWhen,
 			testDisplayName ?? $"{testMethod.TestClass.Class.FullName}.{testMethod.MethodName}",
+			testLabel,
 			uniqueID,
 			traits ?? testMethod.Traits,
 			timeout,
@@ -91,6 +93,7 @@ public static partial class TestData
 		string? skipUnless = null,
 		string? skipWhen = null,
 		string? testDisplayName = null,
+		string? testLabel = null,
 		object?[]? testMethodArguments = null,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
 		int? timeout = null,
@@ -107,6 +110,7 @@ public static partial class TestData
 			skipUnless ?? testCase.SkipUnless,
 			skipWhen ?? testCase.SkipWhen,
 			testDisplayName,
+			testLabel,
 			testMethodArguments,
 			traits,
 			timeout,
@@ -137,6 +141,7 @@ public static partial class TestData
 		Type? skipType = null,
 		string? skipUnless = null,
 		string? skipWhen = null,
+		string? testLabel = null,
 		object?[]? testMethodArguments = null,
 		int? timeout = null,
 		Dictionary<string, HashSet<string>>? traits = null,
@@ -153,6 +158,7 @@ public static partial class TestData
 			details.TestCaseDisplayName,
 			uniqueID ?? details.UniqueID,
 			@explicit ?? details.Explicit,
+			testLabel,
 			skipExceptions ?? details.SkipExceptions,
 			skipReason ?? details.SkipReason,
 			skipType ?? details.SkipType,
@@ -175,6 +181,7 @@ public static partial class TestData
 		string? skipUnless = null,
 		string? skipWhen = null,
 		IXunitTestCollection? testCollection = null,
+		string? testLabel = null,
 		object?[]? testMethodArguments = null,
 		int? timeout = null,
 		Dictionary<string, HashSet<string>>? traits = null,
@@ -185,7 +192,7 @@ public static partial class TestData
 
 		var testClass = XunitTestClass<TClassUnderTest>(testCollection);
 		var testMethod = XunitTestMethod(testClass, methodInfo, testMethodArguments);
-		return XunitTestCase(testMethod, @explicit, methodDisplay, methodDisplayOptions, skipExceptions, skipReason, skipType, skipUnless, skipWhen, testMethodArguments, timeout, traits, uniqueID);
+		return XunitTestCase(testMethod, @explicit, methodDisplay, methodDisplayOptions, skipExceptions, skipReason, skipType, skipUnless, skipWhen, testLabel, testMethodArguments, timeout, traits, uniqueID);
 	}
 
 	public static XunitTestClass XunitTestClass(

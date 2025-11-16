@@ -430,6 +430,7 @@ public class Serialization
 			TestClassUniqueID = "class-id",
 			TestCollectionUniqueID = "collection-id",
 			TestDisplayName = "test-name",
+			TestLabel = "test-label",
 			TestMethodUniqueID = "method-id",
 			TestUniqueID = "test-id",
 			Timeout = 2600,
