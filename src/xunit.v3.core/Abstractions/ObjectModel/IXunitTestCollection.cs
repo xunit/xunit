@@ -57,4 +57,14 @@ public interface IXunitTestCollection : ITestCollection
 	/// Gets the test case orderer for the test collection, if present.
 	/// </summary>
 	ITestCaseOrderer? TestCaseOrderer { get; }
+
+	/// <summary>
+	/// Gets the test class orderer for the test collection, if present.
+	/// </summary>
+	ITestClassOrderer? TestClassOrderer { get; }
+
+	/// <summary>
+	/// Gets the test method orderer for the test collection, if present.
+	/// </summary>
+	ITestMethodOrderer? TestMethodOrderer { get; }
 }

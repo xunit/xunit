@@ -183,9 +183,15 @@ public abstract class TestAssemblyRunner<TContext, TTestAssembly, TTestCollectio
 	}
 
 	/// <summary>
-	/// Orders the test collections in the assembly. By default does not re-order the test collections.
-	/// Override this to provide custom test collection ordering.
+	/// Orders the test collections in the assembly. By default groups the test cases by collection in order of
+	/// appearance, and does not reorder the collections.
 	/// </summary>
+	/// <remarks>
+	/// Override this to provide custom test collection ordering.<br />
+	/// <br />
+	/// This method runs during <see cref="TestEngineStatus.Running"/> and any exceptions thrown will
+	/// contribute to test assembly failure.
+	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test assembly</param>
 	/// <returns>Test collections in run order (and associated, not-yet-ordered test cases).</returns>
 	protected virtual List<(TTestCollection Collection, List<TTestCase> TestCases)> OrderTestCollections(TContext ctxt) =>
@@ -195,7 +201,6 @@ public abstract class TestAssemblyRunner<TContext, TTestAssembly, TTestCollectio
 		Guard.ArgumentNotNull(ctxt)
 			.TestCases
 			.GroupBy(tc => (TTestCollection)tc.TestCollection, TestCollectionComparer<TTestCollection>.Instance)
-			.OrderBy(grouping => grouping.Key, TestCollectionComparer<TTestCollection>.Instance)
 			.Select(grouping => (Collection: grouping.Key, TestCases: grouping.ToList()))
 			.ToList();
 

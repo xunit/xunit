@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Xunit.Internal;
@@ -59,7 +58,38 @@ public static partial class ExtensibilityPointFactory
 	/// isn't one attached.
 	/// </summary>
 	/// <param name="testAssembly">The test assembly</param>
-	public static ITestCaseOrderer? GetAssemblyTestCaseOrderer(Assembly testAssembly)
+	public static ITestCaseOrderer? GetAssemblyTestCaseOrderer(Assembly testAssembly) =>
+		GetAssemblyTestOrderer<ITestCaseOrderer, ITestCaseOrdererAttribute>(testAssembly, "case");
+
+	/// <summary>
+	/// Gets the test class orderer that's attached to a test assembly. Returns <see langword="null"/> if there
+	/// isn't one attached.
+	/// </summary>
+	/// <param name="testAssembly">The test assembly</param>
+	public static ITestClassOrderer? GetAssemblyTestClassOrderer(Assembly testAssembly) =>
+		GetAssemblyTestOrderer<ITestClassOrderer, ITestClassOrdererAttribute>(testAssembly, "class");
+
+	/// <summary>
+	/// Gets the test collection orderer that's attached to a test assembly. Returns <see langword="null"/> if there
+	/// isn't one attached.
+	/// </summary>
+	/// <param name="testAssembly">The test assembly</param>
+	public static ITestCollectionOrderer? GetAssemblyTestCollectionOrderer(Assembly testAssembly) =>
+		GetAssemblyTestOrderer<ITestCollectionOrderer, ITestCollectionOrdererAttribute>(testAssembly, "collection");
+
+	/// <summary>
+	/// Gets the test method orderer that's attached to a test assembly. Returns <see langword="null"/> if there
+	/// isn't one attached.
+	/// </summary>
+	/// <param name="testAssembly">The test assembly</param>
+	public static ITestMethodOrderer? GetAssemblyTestMethodOrderer(Assembly testAssembly) =>
+		GetAssemblyTestOrderer<ITestMethodOrderer, ITestMethodOrdererAttribute>(testAssembly, "method");
+
+	static TTestOrderer? GetAssemblyTestOrderer<TTestOrderer, TTestOrdererAttribute>(
+		Assembly testAssembly,
+		string ordererType)
+			where TTestOrderer : class
+			where TTestOrdererAttribute : ITestOrdererAttribute
 	{
 		Guard.ArgumentNotNull(testAssembly);
 
@@ -67,77 +97,27 @@ public static partial class ExtensibilityPointFactory
 
 		try
 		{
-			var ordererAttributes = testAssembly.GetMatchingCustomAttributes<ITestCaseOrdererAttribute>(warnings);
+			var ordererAttributes = testAssembly.GetMatchingCustomAttributes<TTestOrdererAttribute>(warnings);
 			if (ordererAttributes.Count > 1)
-				throw new InvalidOperationException(
-					string.Format(
-						CultureInfo.CurrentCulture,
-						"Found more than one test case orderer for test assembly: {0}",
-						string.Join(", ", ordererAttributes.Select(a => a.GetType()).ToCommaSeparatedList())
-					)
+				TestContext.Current.SendDiagnosticMessage(
+					"Found more than one assembly-level test {0} orderer: {1}",
+					ordererType,
+					string.Join(", ", ordererAttributes.Select(a => a.GetType()).ToCommaSeparatedList())
 				);
 
-			if (ordererAttributes.FirstOrDefault() is ITestCaseOrdererAttribute ordererAttribute)
+			if (ordererAttributes.FirstOrDefault() is TTestOrdererAttribute ordererAttribute)
 				try
 				{
-					return Get<ITestCaseOrderer>(ordererAttribute.OrdererType);
+					return Get<TTestOrderer>(ordererAttribute.OrdererType);
 				}
 				catch (Exception ex)
 				{
 					var innerEx = ex.Unwrap();
 
 					TestContext.Current.SendDiagnosticMessage(
-						"Assembly-level test case orderer '{0}' threw '{1}' during construction: {2}{3}{4}",
-						ordererAttribute.OrdererType.SafeName(),
-						innerEx.GetType().SafeName(),
-						innerEx.Message ?? "(null message)",
-						Environment.NewLine,
-						innerEx.StackTrace
-					);
-				}
-
-			return null;
-		}
-		finally
-		{
-			foreach (var warning in warnings)
-				TestContext.Current.SendDiagnosticMessage(warning);
-		}
-	}
-
-	/// <summary>
-	/// Gets the test collection orderer that's attached to a test assembly. Returns <see langword="null"/> if there
-	/// isn't one attached.
-	/// </summary>
-	/// <param name="testAssembly">The test assembly</param>
-	public static ITestCollectionOrderer? GetAssemblyTestCollectionOrderer(Assembly testAssembly)
-	{
-		var warnings = new List<string>();
-
-		try
-		{
-			var ordererAttributes = testAssembly.GetMatchingCustomAttributes<ITestCollectionOrdererAttribute>(warnings);
-			if (ordererAttributes.Count > 1)
-				throw new InvalidOperationException(
-					string.Format(
-						CultureInfo.CurrentCulture,
-						"Found more than one test collection orderer for test assembly: {0}",
-						string.Join(", ", ordererAttributes.Select(a => a.GetType()).ToCommaSeparatedList())
-					)
-				);
-
-			if (ordererAttributes.FirstOrDefault() is ITestCollectionOrdererAttribute ordererAttribute)
-				try
-				{
-					return Get<ITestCollectionOrderer>(ordererAttribute.OrdererType);
-				}
-				catch (Exception ex)
-				{
-					var innerEx = ex.Unwrap();
-
-					TestContext.Current.SendDiagnosticMessage(
-						"Assembly-level test collection orderer '{0}' threw '{1}' during construction: {2}{3}{4}",
-						ordererAttribute.OrdererType.SafeName(),
+						"Assembly-level test {0} orderer '{1}' threw '{2}' during construction: {3}{4}{5}",
+						ordererType,
+						ordererAttribute.OrdererType,
 						innerEx.GetType().SafeName(),
 						innerEx.Message ?? "(null message)",
 						Environment.NewLine,

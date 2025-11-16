@@ -8,26 +8,26 @@ using Xunit.Sdk;
 namespace Xunit.v3;
 
 /// <summary>
-/// Default implementation of <see cref="ITestCaseOrderer"/>. Orders tests in
+/// Default implementation of <see cref="ITestMethodOrderer"/>. Orders tests in
 /// an unpredictable but stable order, so that repeated test runs of the
 /// identical test assembly run tests in the same order.
 /// </summary>
 [method: Obsolete("Please use the singleton instance available via the Instance property")]
 [method: EditorBrowsable(EditorBrowsableState.Never)]
-public class DefaultTestCaseOrderer() : ITestCaseOrderer
+public class DefaultTestMethodOrderer() : ITestMethodOrderer
 {
 	/// <summary>
-	/// Gets the singleton instance of <see cref="DefaultTestCaseOrderer"/>.
+	/// Gets the singleton instance of <see cref="DefaultTestMethodOrderer"/>.
 	/// </summary>
 #pragma warning disable CS0618 // Type or member is obsolete
-	public static DefaultTestCaseOrderer Instance { get; } = new();
+	public static DefaultTestMethodOrderer Instance { get; } = new();
 #pragma warning restore CS0618 // Type or member is obsolete
 
 	/// <inheritdoc/>
-	public IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> testCases)
-		where TTestCase : notnull, ITestCase
+	public IReadOnlyCollection<TTestMethod?> OrderTestMethods<TTestMethod>(IReadOnlyCollection<TTestMethod?> testMethods)
+		where TTestMethod : notnull, ITestMethod
 	{
-		var result = testCases.ToList();
+		var result = testMethods.ToList();
 
 		try
 		{
@@ -35,7 +35,7 @@ public class DefaultTestCaseOrderer() : ITestCaseOrderer
 		}
 		catch (Exception ex)
 		{
-			TestContext.Current.SendDiagnosticMessage("Exception thrown in DefaultTestCaseOrderer.OrderTestCases(); falling back to random order.{0}{1}", Environment.NewLine, ex);
+			TestContext.Current.SendDiagnosticMessage("Exception thrown in DefaultTestMethodOrderer.OrderTestMethods(); falling back to random order.{0}{1}", Environment.NewLine, ex);
 			result = Randomize(result);
 		}
 
@@ -44,9 +44,9 @@ public class DefaultTestCaseOrderer() : ITestCaseOrderer
 
 #pragma warning disable CA5394 // Cryptograph randomness is not necessary here
 
-	static List<TTestCase> Randomize<TTestCase>(List<TTestCase> testCases)
+	static List<TTestMethod> Randomize<TTestMethod>(List<TTestMethod> testCases)
 	{
-		var result = new List<TTestCase>(testCases.Count);
+		var result = new List<TTestMethod>(testCases.Count);
 		var randomizer = Randomizer.Current;
 
 		while (testCases.Count > 0)
@@ -61,11 +61,16 @@ public class DefaultTestCaseOrderer() : ITestCaseOrderer
 
 #pragma warning restore CA5394
 
-	static int Compare<TTestCase>(
-		TTestCase x,
-		TTestCase y)
-			where TTestCase : notnull, ITestCase
+	static int Compare<TTestMethod>(
+		TTestMethod? x,
+		TTestMethod? y)
+			where TTestMethod : notnull, ITestMethod
 	{
+		if (x is null)
+			return y is null ? 0 : -1;
+		if (y is null)
+			return 1;
+
 		Guard.ArgumentNotNull(x.UniqueID);
 		Guard.ArgumentNotNull(y.UniqueID);
 

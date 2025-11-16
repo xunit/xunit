@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Internal;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -235,6 +236,124 @@ public class XunitTestMethodRunnerTests
 		}
 	}
 
+	public class TestCaseOrderer
+	{
+		[Theory]
+		[InlineData(typeof(AssemblyLevel))]
+		[InlineData(typeof(CollectionLevel))]
+		[InlineData(typeof(ClassLevel))]
+		[InlineData(typeof(MethodLevel))]
+		public static async ValueTask UsesCustomTestOrderer(Type testClassType)
+		{
+			var testAssembly =
+				testClassType == typeof(AssemblyLevel)
+					? Mocks.XunitTestAssembly(testCaseOrderer: new CustomTestCaseOrderer())
+					: TestData.XunitTestAssembly(testClassType.Assembly);
+			var testCollection = new CollectionPerClassTestCollectionFactory(testAssembly).Get(testClassType);
+			var testClass = TestData.XunitTestClass(testClassType, testCollection);
+			var testMethod = TestData.XunitTestMethod(testClass, testClassType.GetMethod("Passing") ?? throw new InvalidOperationException("Passing method not found"));
+			var testCase = TestData.XunitTestCase(testMethod);
+			var runner = new TestableXunitTestMethodRunner(testCase);
+
+			await runner.RunAsync();
+
+			Assert.IsType<CustomTestCaseOrderer>(runner.RunTestCases_TestCaseOrderer);
+		}
+
+		[Fact]
+		public static async ValueTask OrdersTestCases()
+		{
+			var testAssembly = Mocks.XunitTestAssembly(testCaseOrderer: UnorderedTestCaseOrderer.Instance);
+			var testCollection = Mocks.XunitTestCollection(testAssembly: testAssembly);
+			var testClass = Mocks.XunitTestClass(testCollection: testCollection, testClassName: "test-class");
+			var testMethod = Mocks.XunitTestMethod(testClass: testClass, methodName: "test-method");
+			var testCase1 = Mocks.XunitTestCase(testMethod: testMethod, testCaseDisplayName: "test-case-1");
+			var testCase2 = Mocks.XunitTestCase(testMethod: testMethod, testCaseDisplayName: "test-case-2");
+			var testCase3 = Mocks.XunitTestCase(testMethod: testMethod, testCaseDisplayName: "test-case-3");
+			var runner = new TestableXunitTestMethodRunner(testCase3, testCase1, testCase2);
+
+			await runner.RunAsync();
+
+			Assert.IsType<UnorderedTestCaseOrderer>(runner.RunTestCases_TestCaseOrderer);
+			Assert.Collection(
+				runner.RunTestCase__TestCasesRun,
+				tc => Assert.Equal("test-case-3", tc.TestCaseDisplayName),
+				tc => Assert.Equal("test-case-1", tc.TestCaseDisplayName),
+				tc => Assert.Equal("test-case-2", tc.TestCaseDisplayName)
+			);
+		}
+
+		[Fact]
+		public static async ValueTask SettingTestCaseOrdererWithThrowingConstructorLogsDiagnosticMessage()
+		{
+			var spy = SpyMessageSink.Capture();
+			TestContextInternal.Current.DiagnosticMessageSink = spy;
+			var testCase = TestData.XunitTestCase<TestClassWithCtorThrowingTestCaseOrder>(nameof(MethodLevel.Passing));
+			var runner = new TestableXunitTestMethodRunner(testCase);
+
+			await runner.RunAsync();
+
+			var diagnosticMessage = Assert.Single(spy.Messages.Cast<IDiagnosticMessage>());
+			Assert.StartsWith($"Class-level test case orderer '{typeof(MyCtorThrowingTestCaseOrderer).SafeName()}' for test class '{typeof(TestClassWithCtorThrowingTestCaseOrder).SafeName()}' threw 'System.DivideByZeroException' during construction: Attempted to divide by zero.", diagnosticMessage.Message);
+		}
+
+		class AssemblyLevel  // Attribute injected via mock assembly
+		{
+			[Fact]
+			public void Passing() { }
+		}
+
+		[TestCaseOrderer(typeof(CustomTestCaseOrderer))]
+		public class CollectionLevelCollection { }
+
+		[Collection(typeof(CollectionLevelCollection))]
+		class CollectionLevel()
+		{
+			[Fact]
+			public void Passing() { }
+		}
+
+		[TestCaseOrderer(typeof(CustomTestCaseOrderer))]
+		class ClassLevel()
+		{
+			[Fact]
+			public void Passing() { }
+		}
+
+		class MethodLevel()
+		{
+			[Fact]
+			[TestCaseOrderer(typeof(CustomTestCaseOrderer))]
+			public void Passing() { }
+		}
+
+		class CustomTestCaseOrderer : ITestCaseOrderer
+		{
+			public IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> testCases)
+				where TTestCase : notnull, ITestCase =>
+					testCases;
+		}
+
+		[TestCaseOrderer(typeof(MyCtorThrowingTestCaseOrderer))]
+		class TestClassWithCtorThrowingTestCaseOrder
+		{
+			[Fact]
+			public void Passing() { }
+		}
+
+		class MyCtorThrowingTestCaseOrderer : ITestCaseOrderer
+		{
+			public MyCtorThrowingTestCaseOrderer()
+			{
+				throw new DivideByZeroException();
+			}
+
+			public IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> testCases)
+				where TTestCase : notnull, ITestCase =>
+					[];
+		}
+	}
+
 	public class SelfExecution
 	{
 		[Fact]
@@ -276,15 +395,45 @@ public class XunitTestMethodRunnerTests
 		}
 	}
 
-	class TestableXunitTestMethodRunner(IXunitTestCase testCase) :
+	class TestableXunitTestMethodRunner(params IXunitTestCase[] testCases) :
 		XunitTestMethodRunner
 	{
 		public readonly ExceptionAggregator Aggregator = new();
 		public readonly CancellationTokenSource CancellationTokenSource = new();
-		public readonly List<string> Invocations = [];
 		public readonly SpyMessageBus MessageBus = new();
 
 		public ValueTask<RunSummary> RunAsync() =>
-			Run(testCase.TestMethod, [testCase], ExplicitOption.Off, MessageBus, Aggregator, CancellationTokenSource, []);
+			Run(
+				testCases[0].TestMethod,
+				testCases,
+				ExplicitOption.Off,
+				MessageBus,
+				DefaultTestCaseOrderer.Instance,
+				Aggregator,
+				CancellationTokenSource,
+				[]
+			);
+
+		public List<IXunitTestCase> RunTestCase__TestCasesRun = [];
+
+		protected override ValueTask<RunSummary> RunTestCase(
+			XunitTestMethodRunnerContext ctxt,
+			IXunitTestCase testCase)
+		{
+			RunTestCase__TestCasesRun.Add(testCase);
+
+			return base.RunTestCase(ctxt, testCase);
+		}
+
+		public ITestCaseOrderer? RunTestCases_TestCaseOrderer;
+
+		protected override ValueTask<RunSummary> RunTestCases(
+			XunitTestMethodRunnerContext ctxt,
+			Exception? exception)
+		{
+			RunTestCases_TestCaseOrderer = ctxt.TestCaseOrderer;
+
+			return base.RunTestCases(ctxt, exception);
+		}
 	}
 }

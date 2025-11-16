@@ -119,14 +119,30 @@ public abstract class XunitTestClassRunnerBase<TContext, TTestClass, TTestMethod
 		return result;
 	}
 
+	/// <summary>
+	/// Orders the test methods using the test method orderer from
+	/// <see cref="XunitTestClassRunnerBaseContext{TTestClass, TTestCase}.TestMethodOrderer"/>.
+	/// If the user hasn't provided an override, the default orderer is <see cref="DefaultTestMethodOrderer"/>,
+	/// which orders them in an unpredictable but stable order based on their unique ID.
+	/// </summary>
 	/// <inheritdoc/>
-	protected override IReadOnlyCollection<TTestCase> OrderTestCases(TContext ctxt)
+	protected override List<(TTestMethod? Method, List<TTestCase> TestCases)> OrderTestMethods(TContext ctxt)
 	{
 		Guard.ArgumentNotNull(ctxt);
 
+		var testCasesByMethod =
+			ctxt.TestCases
+				.GroupBy(tc => tc.TestMethod as TTestMethod, TestMethodComparer<TTestMethod>.Instance)
+				.ToDictionary(group => new Maybe<TTestMethod>(group.Key), group => group.ToList());
+
 		try
 		{
-			return ctxt.TestCaseOrderer.OrderTestCases(ctxt.TestCases);
+			var orderedTestMethods = ctxt.TestMethodOrderer.OrderTestMethods(testCasesByMethod.Keys.Select(k => k.Value).CastOrToReadOnlyCollection());
+
+			return
+				orderedTestMethods
+					.Select(testClass => (testClass, testCasesByMethod[testClass]))
+					.ToList();
 		}
 		catch (Exception ex)
 		{
@@ -139,8 +155,8 @@ public abstract class XunitTestClassRunnerBase<TContext, TTestClass, TTestMethod
 				Messages = [
 					string.Format(
 						CultureInfo.CurrentCulture,
-						"Test case orderer '{0}' threw '{1}' during ordering: {2}",
-						ctxt.TestCaseOrderer.GetType().SafeName(),
+						"Test method orderer '{0}' threw '{1}' during ordering: {2}",
+						ctxt.TestMethodOrderer.GetType().SafeName(),
 						innerEx.GetType().SafeName(),
 						innerEx.Message ?? "(null message)"
 					)

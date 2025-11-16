@@ -596,7 +596,7 @@ public class Xunit3AcceptanceTests
 		}
 
 		[CollectionDefinition("Ordered Collection")]
-		[TestCaseOrderer(typeof(AlphabeticalOrderer))]
+		[TestMethodOrderer(typeof(AlphabeticalOrderer))]
 		public class CollectionClass { }
 
 		[Collection("Ordered Collection")]
@@ -625,8 +625,8 @@ public class Xunit3AcceptanceTests
 			);
 		}
 
-		[TestCaseOrderer(typeof(AlphabeticalOrderer))]
-		public class TestClassWithoutCollection
+		[TestMethodOrderer(typeof(AlphabeticalOrderer))]
+		class TestClassWithoutCollection
 		{
 			[Fact]
 			public void Test1() { }
@@ -638,15 +638,11 @@ public class Xunit3AcceptanceTests
 			public void Test2() { }
 		}
 
-		public class AlphabeticalOrderer : ITestCaseOrderer
+		public class AlphabeticalOrderer : ITestMethodOrderer
 		{
-			public IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> testCases)
-				where TTestCase : notnull, ITestCase
-			{
-				var result = testCases.ToList();
-				result.Sort((x, y) => StringComparer.OrdinalIgnoreCase.Compare(x.TestMethod?.MethodName, y.TestMethod?.MethodName));
-				return result;
-			}
+			public IReadOnlyCollection<TTestMethod?> OrderTestMethods<TTestMethod>(IReadOnlyCollection<TTestMethod?> testMethods)
+				where TTestMethod : notnull, ITestMethod =>
+					testMethods.OrderBy(tm => tm?.MethodName).ToList();
 		}
 	}
 
@@ -667,7 +663,7 @@ public class Xunit3AcceptanceTests
 		}
 
 		[CollectionDefinition("Parallel Ordered Collection")]
-		[TestCaseOrderer(typeof(TestOrdering.AlphabeticalOrderer))]
+		[TestMethodOrderer(typeof(TestOrdering.AlphabeticalOrderer))]
 		public class CollectionClass { }
 
 		[Collection("Parallel Ordered Collection")]
@@ -681,7 +677,7 @@ public class Xunit3AcceptanceTests
 		}
 
 		[CollectionDefinition("Non-Parallel Collection", DisableParallelization = true)]
-		[TestCaseOrderer(typeof(TestOrdering.AlphabeticalOrderer))]
+		[TestMethodOrderer(typeof(TestOrdering.AlphabeticalOrderer))]
 		public class TestClassNonParallelCollectionDefinition { }
 
 		[Collection("Non-Parallel Collection")]

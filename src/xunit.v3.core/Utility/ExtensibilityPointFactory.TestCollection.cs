@@ -140,7 +140,30 @@ public static partial class ExtensibilityPointFactory
 	/// isn't one attached.
 	/// </summary>
 	/// <param name="collectionDefinition">The test collection definition</param>
-	public static ITestCaseOrderer? GetCollectionTestCaseOrderer(Type? collectionDefinition)
+	public static ITestCaseOrderer? GetCollectionTestCaseOrderer(Type? collectionDefinition) =>
+		GetCollectionTestOrderer<ITestCaseOrderer, ITestCaseOrdererAttribute>(collectionDefinition, "case");
+
+	/// <summary>
+	/// Gets the test class orderer that's attached to a test collection. Returns <see langword="null"/> if there
+	/// isn't one attached.
+	/// </summary>
+	/// <param name="collectionDefinition">The test collection definition</param>
+	public static ITestClassOrderer? GetCollectionTestClassOrderer(Type? collectionDefinition) =>
+		GetCollectionTestOrderer<ITestClassOrderer, ITestClassOrdererAttribute>(collectionDefinition, "class");
+
+	/// <summary>
+	/// Gets the test method orderer that's attached to a test collection. Returns <see langword="null"/> if there
+	/// isn't one attached.
+	/// </summary>
+	/// <param name="collectionDefinition">The test collection definition</param>
+	public static ITestMethodOrderer? GetCollectionTestMethodOrderer(Type? collectionDefinition) =>
+		GetCollectionTestOrderer<ITestMethodOrderer, ITestMethodOrdererAttribute>(collectionDefinition, "method");
+
+	static TTestOrderer? GetCollectionTestOrderer<TTestOrderer, TTestOrdererAttribute>(
+		Type? collectionDefinition,
+		string ordererType)
+			where TTestOrderer : class
+			where TTestOrdererAttribute : ITestOrdererAttribute
 	{
 		if (collectionDefinition is null)
 			return null;
@@ -149,29 +172,28 @@ public static partial class ExtensibilityPointFactory
 
 		try
 		{
-			var ordererAttributes = collectionDefinition.GetMatchingCustomAttributes<ITestCaseOrdererAttribute>(warnings);
+			var ordererAttributes = collectionDefinition.GetMatchingCustomAttributes<TTestOrdererAttribute>(warnings);
 			if (ordererAttributes.Count > 1)
-				throw new InvalidOperationException(
-					string.Format(
-						CultureInfo.CurrentCulture,
-						"Found more than one test case orderer for test collection '{0}': {1}",
-						collectionDefinition.SafeName(),
-						string.Join(", ", ordererAttributes.Select(a => a.GetType()).ToCommaSeparatedList())
-					)
+				TestContext.Current.SendDiagnosticMessage(
+					"Found more than one collection-level test {0} orderer for test collection '{1}': {2}",
+					ordererType,
+					collectionDefinition.SafeName(),
+					string.Join(", ", ordererAttributes.Select(a => a.GetType()).ToCommaSeparatedList())
 				);
 
-			if (ordererAttributes.FirstOrDefault() is ITestCaseOrdererAttribute ordererAttribute)
+			if (ordererAttributes.FirstOrDefault() is TTestOrdererAttribute ordererAttribute)
 				try
 				{
-					return Get<ITestCaseOrderer>(ordererAttribute.OrdererType);
+					return Get<TTestOrderer>(ordererAttribute.OrdererType);
 				}
 				catch (Exception ex)
 				{
 					var innerEx = ex.Unwrap();
 
 					TestContext.Current.SendDiagnosticMessage(
-						"Collection-level test case orderer '{0}' for test collection '{1}' threw '{2}' during construction: {3}{4}{5}",
-						ordererAttribute.OrdererType.SafeName(),
+						"Collection-level test {0} orderer '{1}' for test collection '{2}' threw '{3}' during construction: {4}{5}{6}",
+						ordererType,
+						ordererAttribute.OrdererType,
 						collectionDefinition.SafeName(),
 						innerEx.GetType().SafeName(),
 						innerEx.Message ?? "(null message)",

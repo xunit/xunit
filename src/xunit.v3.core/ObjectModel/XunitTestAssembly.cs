@@ -27,7 +27,9 @@ public class XunitTestAssembly : IXunitTestAssembly, IXunitSerializable
 	readonly Lazy<IReadOnlyDictionary<string, (Type Type, CollectionDefinitionAttribute Attribute)>> collectionDefinitions;
 	readonly Lazy<string> targetFramework;
 	readonly Lazy<ITestCaseOrderer?> testCaseOrderer;
+	readonly Lazy<ITestClassOrderer?> testClassOrderer;
 	readonly Lazy<ITestCollectionOrderer?> testCollectionOrderer;
+	readonly Lazy<ITestMethodOrderer?> testMethodOrderer;
 	readonly Lazy<IReadOnlyDictionary<string, IReadOnlyCollection<string>>> traits;
 
 	/// <summary>
@@ -45,7 +47,9 @@ public class XunitTestAssembly : IXunitTestAssembly, IXunitSerializable
 		targetFramework = new(() => Assembly.GetTargetFramework());
 #pragma warning restore IDE0200
 		testCaseOrderer = new(() => ExtensibilityPointFactory.GetAssemblyTestCaseOrderer(Assembly));
+		testClassOrderer = new(() => ExtensibilityPointFactory.GetAssemblyTestClassOrderer(Assembly));
 		testCollectionOrderer = new(() => ExtensibilityPointFactory.GetAssemblyTestCollectionOrderer(Assembly));
+		testMethodOrderer = new(() => ExtensibilityPointFactory.GetAssemblyTestMethodOrderer(Assembly));
 		traits = new(() => ExtensibilityPointFactory.GetAssemblyTraits(Assembly));
 	}
 
@@ -119,8 +123,16 @@ public class XunitTestAssembly : IXunitTestAssembly, IXunitSerializable
 		testCaseOrderer.Value;
 
 	/// <inheritdoc/>
+	public ITestClassOrderer? TestClassOrderer =>
+		testClassOrderer.Value;
+
+	/// <inheritdoc/>
 	public ITestCollectionOrderer? TestCollectionOrderer =>
 		testCollectionOrderer.Value;
+
+	/// <inheritdoc/>
+	public ITestMethodOrderer? TestMethodOrderer =>
+		testMethodOrderer.Value;
 
 	/// <inheritdoc/>
 	public IReadOnlyDictionary<string, IReadOnlyCollection<string>> Traits =>

@@ -81,6 +81,68 @@ public static partial class ExtensibilityPointFactory
 	}
 
 	/// <summary>
+	/// Gets the test case orderer that's attached to a test method. Returns <see langword="null"/> if there
+	/// isn't one attached.
+	/// </summary>
+	/// <param name="testMethod">The test method</param>
+	public static ITestCaseOrderer? GetMethodTestCaseOrderer(MethodInfo testMethod) =>
+		GetMethodTestOrderer<ITestCaseOrderer, ITestCaseOrdererAttribute>(testMethod, "case");
+
+	static TTestOrderer? GetMethodTestOrderer<TTestOrderer, TTestOrdererAttribute>(
+		MethodInfo testMethod,
+		string ordererType)
+			where TTestOrderer : class
+			where TTestOrdererAttribute : ITestOrdererAttribute
+	{
+		Guard.ArgumentNotNull(testMethod);
+		var methodType = Guard.NotNull("Test methods must come from a type", testMethod.ReflectedType ?? testMethod.DeclaringType);
+
+		var warnings = new List<string>();
+
+		try
+		{
+			var ordererAttributes = testMethod.GetMatchingCustomAttributes<TTestOrdererAttribute>(warnings);
+			if (ordererAttributes.Count > 1)
+				TestContext.Current.SendDiagnosticMessage(
+					"Found more than one method-level test {0} orderer for test method '{1}.{2}': {3}",
+					ordererType,
+					methodType.SafeName(),
+					methodType.Name,
+					string.Join(", ", ordererAttributes.Select(a => a.GetType()).ToCommaSeparatedList())
+				);
+
+			if (ordererAttributes.FirstOrDefault() is TTestOrdererAttribute ordererAttribute)
+				try
+				{
+					return Get<TTestOrderer>(ordererAttribute.OrdererType);
+				}
+				catch (Exception ex)
+				{
+					var innerEx = ex.Unwrap();
+
+					TestContext.Current.SendDiagnosticMessage(
+						"Method-level test {0} orderer '{1}' for test method '{2}.{3}' threw '{4}' during construction: {5}{6}{7}",
+						ordererType,
+						ordererAttribute.OrdererType,
+						methodType.SafeName(),
+						methodType.Name,
+						innerEx.GetType().SafeName(),
+						innerEx.Message,
+						Environment.NewLine,
+						innerEx.StackTrace
+					);
+				}
+
+			return null;
+		}
+		finally
+		{
+			foreach (var warning in warnings)
+				TestContext.Current.SendDiagnosticMessage(warning);
+		}
+	}
+
+	/// <summary>
 	/// Gets the traits that are attached to the test method via <see cref="ITraitAttribute"/>s.
 	/// </summary>
 	/// <param name="testMethod">The test method</param>

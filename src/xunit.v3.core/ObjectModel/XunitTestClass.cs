@@ -26,6 +26,7 @@ public class XunitTestClass : IXunitTestClass, IXunitSerializable
 	readonly Lazy<IReadOnlyCollection<ConstructorInfo>?> constructors;
 	readonly Lazy<IReadOnlyCollection<MethodInfo>> methods;
 	readonly Lazy<ITestCaseOrderer?> testCaseOrderer;
+	readonly Lazy<ITestMethodOrderer?> testMethodOrderer;
 	readonly Lazy<IReadOnlyDictionary<string, IReadOnlyCollection<string>>> traits;
 
 	/// <summary>
@@ -39,6 +40,7 @@ public class XunitTestClass : IXunitTestClass, IXunitSerializable
 		constructors = new(() => Class.IsAbstract && Class.IsSealed ? null : Class.GetConstructors().Where(ci => !ci.IsStatic && ci.IsPublic).CastOrToReadOnlyCollection());
 		methods = new(() => Class.GetMethods(MethodBindingFlags).Concat(Class.GetInterfaces().SelectMany(i => i.GetMethods(MethodBindingFlags))).CastOrToReadOnlyCollection());
 		testCaseOrderer = new(() => ExtensibilityPointFactory.GetClassTestCaseOrderer(Class));
+		testMethodOrderer = new(() => ExtensibilityPointFactory.GetClassTestMethodOrderer(Class));
 		traits = new(() => ExtensibilityPointFactory.GetClassTraits(Class, TestCollection.Traits));
 	}
 
@@ -103,6 +105,10 @@ public class XunitTestClass : IXunitTestClass, IXunitSerializable
 
 	/// <inheritdoc/>
 	ITestCollection ITestClass.TestCollection => TestCollection;
+
+	/// <inheritdoc/>
+	public ITestMethodOrderer? TestMethodOrderer =>
+		testMethodOrderer.Value;
 
 	/// <inheritdoc/>
 	public IReadOnlyDictionary<string, IReadOnlyCollection<string>> Traits =>

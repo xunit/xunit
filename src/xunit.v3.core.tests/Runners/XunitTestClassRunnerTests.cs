@@ -356,9 +356,9 @@ public class XunitTestClassRunnerTests
 
 			await runner.RunAsync();
 
-			Assert.NotNull(runner.RunTestMethodsAsync_ClassFixtures);
+			Assert.NotNull(runner.RunTestMethods_ClassFixtures);
 			Assert.Collection(
-				runner.RunTestMethodsAsync_ClassFixtures.OrderBy(kvp => kvp.Key.SafeName()),
+				runner.RunTestMethods_ClassFixtures.OrderBy(kvp => kvp.Key.SafeName()),
 				kvp => Assert.Equal(typeof(object), kvp.Key),
 				kvp => Assert.Equal(typeof(FixtureUnderTest), kvp.Key)
 			);
@@ -372,8 +372,8 @@ public class XunitTestClassRunnerTests
 
 			await runner.RunAsync();
 
-			Assert.NotNull(runner.RunTestMethodsAsync_ClassFixtures);
-			var fixture = Assert.Single(runner.RunTestMethodsAsync_ClassFixtures.Select(kvp => kvp.Value).OfType<FixtureUnderTest>());
+			Assert.NotNull(runner.RunTestMethods_ClassFixtures);
+			var fixture = Assert.Single(runner.RunTestMethods_ClassFixtures.Select(kvp => kvp.Value).OfType<FixtureUnderTest>());
 			Assert.True(fixture.Disposed);
 		}
 
@@ -385,8 +385,8 @@ public class XunitTestClassRunnerTests
 
 			await runner.RunAsync();
 
-			Assert.NotNull(runner.RunTestMethodsAsync_ClassFixtures);
-			var fixture = Assert.Single(runner.RunTestMethodsAsync_ClassFixtures.Select(kvp => kvp.Value).OfType<FixtureAsyncDisposableUnderTest>());
+			Assert.NotNull(runner.RunTestMethods_ClassFixtures);
+			var fixture = Assert.Single(runner.RunTestMethods_ClassFixtures.Select(kvp => kvp.Value).OfType<FixtureAsyncDisposableUnderTest>());
 			Assert.True(fixture.AsyncDisposed);
 			Assert.False(fixture.Disposed);
 		}
@@ -565,17 +565,64 @@ public class XunitTestClassRunnerTests
 		}
 	}
 
-	public class TestCaseOrderer
+	public class TestMethodOrderer
 	{
-		[Fact]
-		public static async ValueTask UsesCustomTestOrderer()
+		[Theory]
+		[InlineData(typeof(AssemblyLevel))]
+		[InlineData(typeof(CollectionLevel))]
+		[InlineData(typeof(ClassLevel))]
+		public static async ValueTask UsesCustomTestOrderer(Type testClassType)
 		{
-			var testCase = TestData.XunitTestCase<ClassUnderTest>(nameof(ClassUnderTest.Passing));
+			var testAssembly =
+				testClassType == typeof(AssemblyLevel)
+					? Mocks.XunitTestAssembly(testMethodOrderer: new CustomTestMethodOrderer())
+					: TestData.XunitTestAssembly(testClassType.Assembly);
+			var testCollection = new CollectionPerClassTestCollectionFactory(testAssembly).Get(testClassType);
+			var testClass = TestData.XunitTestClass(testClassType, testCollection);
+			var testMethod = TestData.XunitTestMethod(testClass, testClassType.GetMethod("Passing") ?? throw new InvalidOperationException("Passing method not found"));
+			var testCase = TestData.XunitTestCase(testMethod);
 			var runner = new TestableXunitTestClassRunner(testCase);
 
 			await runner.RunAsync();
 
-			Assert.IsType<CustomTestCaseOrderer>(runner.RunTestMethodsAsync_TestCaseOrderer);
+			Assert.IsType<CustomTestMethodOrderer>(runner.RunTestMethods_TestMethodOrderer);
+		}
+
+		[Fact]
+		public static async ValueTask OrdersTestMethods()
+		{
+			var testAssembly = Mocks.XunitTestAssembly(testMethodOrderer: UnorderedTestMethodOrderer.Instance);
+			var testCollection = TestData.XunitTestCollection(testAssembly);
+			var testClass = TestData.XunitTestClass(typeof(AssemblyLevel), testCollection);
+			var testMethod1 = TestData.XunitTestMethod(testClass, typeof(AssemblyLevel).GetMethod("Passing")!, uniqueID: "test-method-1");
+			var testCase1 = TestData.XunitTestCase(testMethod1, uniqueID: "test-case-1");
+			var testMethod2 = TestData.XunitTestMethod(testClass, typeof(AssemblyLevel).GetMethod("Passing")!, uniqueID: "test-method-2");
+			var testCase2 = TestData.XunitTestCase(testMethod2, uniqueID: "test-case-2");
+			var testMethod3 = TestData.XunitTestMethod(testClass, typeof(AssemblyLevel).GetMethod("Passing")!, uniqueID: "test-method-3");
+			var testCase3 = TestData.XunitTestCase(testMethod3, uniqueID: "test-case-3");
+			var runner = new TestableXunitTestClassRunner(testCase3, testCase1, testCase2);
+
+			await runner.RunAsync();
+
+			Assert.IsType<UnorderedTestMethodOrderer>(runner.RunTestMethods_TestMethodOrderer);
+			Assert.Collection(
+				runner.RunTestMethod__MethodsRun,
+				tm =>
+				{
+					Assert.Equal("test-method-3", tm.TestMethod!.UniqueID);
+					Assert.Equal(["test-case-3"], tm.TestCases.Select(tc => tc.UniqueID));
+				},
+				tm =>
+				{
+					Assert.Equal("test-method-1", tm.TestMethod!.UniqueID);
+					Assert.Equal(["test-case-1"], tm.TestCases.Select(tc => tc.UniqueID));
+				},
+				tm =>
+				{
+					Assert.Equal("test-method-2", tm.TestMethod!.UniqueID);
+					Assert.Equal(["test-case-2"], tm.TestCases.Select(tc => tc.UniqueID));
+				}
+			);
 		}
 
 		[Fact]
@@ -583,32 +630,62 @@ public class XunitTestClassRunnerTests
 		{
 			var spy = SpyMessageSink.Capture();
 			TestContextInternal.Current.DiagnosticMessageSink = spy;
-			var testCase = TestData.XunitTestCase<TestClassWithCtorThrowingTestCaseOrder>(nameof(ClassUnderTest.Passing));
+			var testCase = TestData.XunitTestCase<TestClassWithCtorThrowingTestMethodOrder>(nameof(ClassUnderTest.Passing));
 			var runner = new TestableXunitTestClassRunner(testCase);
 
 			await runner.RunAsync();
 
 			var diagnosticMessage = Assert.Single(spy.Messages.Cast<IDiagnosticMessage>());
-			Assert.StartsWith("Class-level test case orderer 'XunitTestClassRunnerTests+TestCaseOrderer+MyCtorThrowingTestCaseOrderer' for test class 'XunitTestClassRunnerTests+TestCaseOrderer+TestClassWithCtorThrowingTestCaseOrder' threw 'System.DivideByZeroException' during construction: Attempted to divide by zero.", diagnosticMessage.Message);
+			Assert.StartsWith($"Class-level test method orderer '{typeof(MyCtorThrowingTestMethodOrderer).SafeName()}' for test class '{typeof(TestClassWithCtorThrowingTestMethodOrder).SafeName()}' threw 'System.DivideByZeroException' during construction: Attempted to divide by zero.", diagnosticMessage.Message);
 		}
 
-		[TestCaseOrderer(typeof(MyCtorThrowingTestCaseOrderer))]
-		class TestClassWithCtorThrowingTestCaseOrder
+		class AssemblyLevel  // Attribute injected via mock assembly
 		{
 			[Fact]
 			public void Passing() { }
 		}
 
-		class MyCtorThrowingTestCaseOrderer : ITestCaseOrderer
+		[TestMethodOrderer(typeof(CustomTestMethodOrderer))]
+		public class CollectionLevelCollection { }
+
+		[Collection(typeof(CollectionLevelCollection))]
+		class CollectionLevel
 		{
-			public MyCtorThrowingTestCaseOrderer()
+			[Fact]
+			public void Passing() { }
+		}
+
+		[TestMethodOrderer(typeof(CustomTestMethodOrderer))]
+		class ClassLevel
+		{
+			[Fact]
+			public void Passing() { }
+		}
+
+		class CustomTestMethodOrderer : ITestMethodOrderer
+		{
+			public IReadOnlyCollection<TTestMethod?> OrderTestMethods<TTestMethod>(IReadOnlyCollection<TTestMethod?> testMethods)
+				where TTestMethod : notnull, ITestMethod =>
+					testMethods;
+		}
+
+		[TestMethodOrderer(typeof(MyCtorThrowingTestMethodOrderer))]
+		class TestClassWithCtorThrowingTestMethodOrder
+		{
+			[Fact]
+			public void Passing() { }
+		}
+
+		class MyCtorThrowingTestMethodOrderer : ITestMethodOrderer
+		{
+			public MyCtorThrowingTestMethodOrderer()
 			{
 				throw new DivideByZeroException();
 			}
 
-			public IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> testCases)
-				where TTestCase : notnull, ITestCase
-					=> [];
+			public IReadOnlyCollection<TTestMethod?> OrderTestMethods<TTestMethod>(IReadOnlyCollection<TTestMethod?> testMethods)
+				where TTestMethod : notnull, ITestMethod =>
+					[];
 		}
 	}
 
@@ -623,7 +700,6 @@ public class XunitTestClassRunnerTests
 
 #pragma warning disable xUnit1041 // Fixture arguments to test classes must have fixture sources
 
-	[TestCaseOrderer(typeof(CustomTestCaseOrderer))]
 	class ClassUnderTest(FixtureUnderTest _1, string _2, decimal _3) :
 		IClassFixture<FixtureUnderTest>
 	{
@@ -633,14 +709,7 @@ public class XunitTestClassRunnerTests
 
 #pragma warning restore xUnit1041
 
-	class CustomTestCaseOrderer : ITestCaseOrderer
-	{
-		public IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> testCases)
-			where TTestCase : notnull, ITestCase
-				=> testCases;
-	}
-
-	class TestableXunitTestClassRunner(IXunitTestCase testCase) :
+	class TestableXunitTestClassRunner(params IXunitTestCase[] testCases) :
 		XunitTestClassRunner
 	{
 		public readonly ExceptionAggregator Aggregator = new();
@@ -649,25 +718,63 @@ public class XunitTestClassRunnerTests
 		public readonly SpyMessageBus MessageBus = new();
 
 		public ValueTask<RunSummary> RunAsync() =>
-			Run(testCase.TestClass, [testCase], ExplicitOption.Off, MessageBus, DefaultTestCaseOrderer.Instance, Aggregator, CancellationTokenSource, CollectionFixtureMappingManager);
+			Run(
+				testCases[0].TestClass,
+				testCases,
+				ExplicitOption.Off,
+				MessageBus,
+				DefaultTestMethodOrderer.Instance,
+				DefaultTestCaseOrderer.Instance,
+				Aggregator,
+				CancellationTokenSource,
+				CollectionFixtureMappingManager
+			);
 
 		public object?[]? CreateTestClassConstructorArguments_ConstructorArguments;
 
 		protected override async ValueTask<object?[]> CreateTestClassConstructorArguments(XunitTestClassRunnerContext ctxt)
 		{
 			CreateTestClassConstructorArguments_ConstructorArguments = await base.CreateTestClassConstructorArguments(ctxt);
+
 			return CreateTestClassConstructorArguments_ConstructorArguments;
 		}
 
-		public IReadOnlyDictionary<Type, object>? RunTestMethodsAsync_ClassFixtures;
-		public ITestCaseOrderer? RunTestMethodsAsync_TestCaseOrderer;
+		//// Override this because it needs a real test class, and we're using mocks. We'll just remove
+		//// the exception that's thrown here (because we have no way to call the grandparent method).
+		//protected override async ValueTask<bool> OnTestClassStarting(XunitTestClassRunnerContext ctxt)
+		//{
+		//	try
+		//	{
+		//		return await base.OnTestClassStarting(ctxt);
+		//	}
+		//	finally
+		//	{
+		//		ctxt.Aggregator.Clear();
+		//	}
+		//}
+
+		public List<(IXunitTestMethod? TestMethod, IReadOnlyCollection<IXunitTestCase> TestCases)> RunTestMethod__MethodsRun = [];
+
+		protected override ValueTask<RunSummary> RunTestMethod(
+			XunitTestClassRunnerContext ctxt,
+			IXunitTestMethod? testMethod,
+			IReadOnlyCollection<IXunitTestCase> testCases,
+			object?[] constructorArguments)
+		{
+			RunTestMethod__MethodsRun.Add((testMethod, testCases));
+
+			return base.RunTestMethod(ctxt, testMethod, testCases, constructorArguments);
+		}
+
+		public IReadOnlyDictionary<Type, object>? RunTestMethods_ClassFixtures;
+		public ITestMethodOrderer? RunTestMethods_TestMethodOrderer;
 
 		protected override ValueTask<RunSummary> RunTestMethods(
 			XunitTestClassRunnerContext ctxt,
 			Exception? exception)
 		{
-			RunTestMethodsAsync_ClassFixtures = ctxt.ClassFixtureMappings.GetFixtureCache();
-			RunTestMethodsAsync_TestCaseOrderer = ctxt.TestCaseOrderer;
+			RunTestMethods_ClassFixtures = ctxt.ClassFixtureMappings.GetFixtureCache();
+			RunTestMethods_TestMethodOrderer = ctxt.TestMethodOrderer;
 
 			return base.RunTestMethods(ctxt, exception);
 		}

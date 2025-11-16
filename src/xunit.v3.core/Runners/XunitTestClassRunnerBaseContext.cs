@@ -13,7 +13,8 @@ namespace Xunit.v3;
 /// <param name="testCases">The test from the test class</param>
 /// <param name="explicitOption">The user's choice on how to treat explicit tests</param>
 /// <param name="messageBus">The message bus to send execution messages to</param>
-/// <param name="testCaseOrderer">The orderer used to sort the test cases for executiong</param>
+/// <param name="testMethodOrderer">The orderer used to sort the test methods in the class</param>
+/// <param name="testCaseOrderer">The orderer used to sort the test cases in the class</param>
 /// <param name="aggregator">The exception aggregator</param>
 /// <param name="cancellationTokenSource">The cancellation token source</param>
 /// <param name="collectionFixtureMappings">The fixtures attached to the test collection</param>
@@ -22,6 +23,7 @@ public class XunitTestClassRunnerBaseContext<TTestClass, TTestCase>(
 	IReadOnlyCollection<TTestCase> testCases,
 	ExplicitOption explicitOption,
 	IMessageBus messageBus,
+	ITestMethodOrderer testMethodOrderer,
 	ITestCaseOrderer testCaseOrderer,
 	ExceptionAggregator aggregator,
 	CancellationTokenSource cancellationTokenSource,
@@ -31,6 +33,7 @@ public class XunitTestClassRunnerBaseContext<TTestClass, TTestCase>(
 			where TTestCase : class, IXunitTestCase
 {
 	ITestCaseOrderer testCaseOrderer = Guard.ArgumentNotNull(testCaseOrderer);
+	ITestMethodOrderer testMethodOrderer = Guard.ArgumentNotNull(testMethodOrderer);
 
 	/// <summary>
 	/// Gets the mapping manager for class-level fixtures.
@@ -46,13 +49,29 @@ public class XunitTestClassRunnerBaseContext<TTestClass, TTestCase>(
 		set => testCaseOrderer = Guard.ArgumentNotNull(value, nameof(TestCaseOrderer));
 	}
 
+	/// <summary>
+	/// Gets or sets the orderer used to order the test cases.
+	/// </summary>
+	public ITestMethodOrderer TestMethodOrderer
+	{
+		get => testMethodOrderer;
+		set => testMethodOrderer = Guard.ArgumentNotNull(value, nameof(TestMethodOrderer));
+	}
+
 	/// <inheritdoc/>
 	public override async ValueTask InitializeAsync()
 	{
 		await base.InitializeAsync();
 
-		var testCaseOrderer = TestClass.TestCaseOrderer;
-		if (testCaseOrderer is not null)
-			TestCaseOrderer = testCaseOrderer;
+		TestCaseOrderer =
+			TestClass.TestCaseOrderer
+				?? TestClass.TestCollection.TestCaseOrderer
+				?? TestClass.TestCollection.TestAssembly.TestCaseOrderer
+				?? TestCaseOrderer;
+		TestMethodOrderer =
+			TestClass.TestMethodOrderer
+				?? TestClass.TestCollection.TestMethodOrderer
+				?? TestClass.TestCollection.TestAssembly.TestMethodOrderer
+				?? TestMethodOrderer;
 	}
 }

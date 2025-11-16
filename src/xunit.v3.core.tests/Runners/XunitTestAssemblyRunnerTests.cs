@@ -385,35 +385,40 @@ public class XunitTestAssemblyRunnerTests
 		}
 	}
 
-	public class OrderTestCollections
+	public class TestCollectionOrderer
 	{
 		[Fact]
-		public static async ValueTask UsesCustomOrderers()
+		public static async ValueTask OrdersTestCollections()
 		{
-			var testAssembly = Mocks.XunitTestAssembly(testCaseOrderer: new CustomTestCaseOrderer(), testCollectionOrderer: new CustomTestCollectionOrderer());
-			var testCollection1 = Mocks.XunitTestCollection(testAssembly: testAssembly, testCollectionDisplayName: "1", uniqueID: "1");
-			var testCase1a = testCaseForCollection(testCollection1, "1a");
-			var testCase1b = testCaseForCollection(testCollection1, "1b");
-			var testCollection2 = Mocks.XunitTestCollection(testAssembly: testAssembly, testCollectionDisplayName: "2", uniqueID: "2");
-			var testCase2a = testCaseForCollection(testCollection2, "2a");
-			var testCase2b = testCaseForCollection(testCollection2, "2b");
+			var testAssembly = Mocks.XunitTestAssembly(testCollectionOrderer: UnorderedTestCollectionOrderer.Instance);
+			var testCollection1 = Mocks.XunitTestCollection(testAssembly: testAssembly, testCollectionDisplayName: "test-collection-1", uniqueID: "1");
+			var testCase1 = testCaseForCollection(testCollection1, "test-case-1");
+			var testCollection2 = Mocks.XunitTestCollection(testAssembly: testAssembly, testCollectionDisplayName: "test-collection-2", uniqueID: "2");
+			var testCase2 = testCaseForCollection(testCollection2, "test-case-2");
+			var testCollection3 = Mocks.XunitTestCollection(testAssembly: testAssembly, testCollectionDisplayName: "test-collection-3", uniqueID: "3");
+			var testCase3 = testCaseForCollection(testCollection3, "test-case-3");
 			var options = TestData.TestFrameworkExecutionOptions(disableParallelization: true);
-			var runner = new TestableXunitTestAssemblyRunner(testCase1a, testCase2a, testCase2b, testCase1b) { ExecutionOptions = options };
+			var runner = new TestableXunitTestAssemblyRunner(testCase3, testCase1, testCase2) { ExecutionOptions = options };
 
 			await runner.RunAsync();
 
-			Assert.IsType<CustomTestCollectionOrderer>(runner.RunTestCollectionsAsync_TestCollectionOrderer);
+			Assert.IsType<UnorderedTestCollectionOrderer>(runner.RunTestCollections_TestCollectionOrderer);
 			Assert.Collection(
 				runner.TestCollectionsRun,
-				first =>
+				tc =>
 				{
-					Assert.Equal("2", first.TestCollection.TestCollectionDisplayName);
-					Assert.Equal(["2b", "2a"], first.TestCases.Select(tc => tc.TestCaseDisplayName));
+					Assert.Equal("test-collection-3", tc.TestCollection.TestCollectionDisplayName);
+					Assert.Equal(["test-case-3"], tc.TestCases.Select(tc => tc.TestCaseDisplayName));
 				},
-				second =>
+				tc =>
 				{
-					Assert.Equal("1", second.TestCollection.TestCollectionDisplayName);
-					Assert.Equal(["1b", "1a"], second.TestCases.Select(tc => tc.TestCaseDisplayName));
+					Assert.Equal("test-collection-1", tc.TestCollection.TestCollectionDisplayName);
+					Assert.Equal(["test-case-1"], tc.TestCases.Select(tc => tc.TestCaseDisplayName));
+				},
+				tc =>
+				{
+					Assert.Equal("test-collection-2", tc.TestCollection.TestCollectionDisplayName);
+					Assert.Equal(["test-case-2"], tc.TestCases.Select(tc => tc.TestCaseDisplayName));
 				}
 			);
 
@@ -421,20 +426,6 @@ public class XunitTestAssemblyRunnerTests
 				IXunitTestCollection testCollection,
 				string testCaseDisplayName) =>
 					Mocks.XunitTestCase(testMethod: Mocks.XunitTestMethod(testClass: Mocks.XunitTestClass(testCollection: testCollection)), testCaseDisplayName: testCaseDisplayName);
-		}
-
-		class CustomTestCaseOrderer : ITestCaseOrderer
-		{
-			public IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> testCases)
-				where TTestCase : notnull, ITestCase =>
-					testCases.OrderByDescending(tc => tc.TestCaseDisplayName).CastOrToReadOnlyCollection();
-		}
-
-		class CustomTestCollectionOrderer : ITestCollectionOrderer
-		{
-			public IReadOnlyCollection<TTestCollection> OrderTestCollections<TTestCollection>(IReadOnlyCollection<TTestCollection> testCollections)
-				where TTestCollection : ITestCollection =>
-					testCollections.OrderByDescending(tc => tc.TestCollectionDisplayName).CastOrToReadOnlyCollection();
 		}
 	}
 
@@ -456,7 +447,7 @@ public class XunitTestAssemblyRunnerTests
 
 				await runner.RunAsync();
 
-				Assert.Equal(expectedSyncContextType, runner.RunTestCollectionAsync_SyncContext?.GetType());
+				Assert.Equal(expectedSyncContextType, runner.RunTestCollection_SyncContext?.GetType());
 			}, TestContext.Current.CancellationToken);
 		}
 
@@ -577,10 +568,7 @@ public class XunitTestAssemblyRunnerTests
 			IReadOnlyCollection<IXunitTestCase> testCases,
 			Exception exception)
 		{
-			// The usage of the test case orderer is in another component, so we'll just order the test cases
-			// here before putting them into the list, so that we can show the proposed impact of the orderer
-			var testCaseOrderer = ctxt.AssemblyTestCaseOrderer ?? DefaultTestCaseOrderer.Instance;
-			TestCollectionsRun.Add((testCollection, testCaseOrderer.OrderTestCases(testCases), exception));
+			TestCollectionsRun.Add((testCollection, testCases, exception));
 
 			return base.FailTestCollection(ctxt, testCollection, testCases, exception);
 		}
@@ -588,30 +576,27 @@ public class XunitTestAssemblyRunnerTests
 		public ValueTask<RunSummary> RunAsync() =>
 			Run(TestCases.First().TestCollection.TestAssembly, TestCases, MessageSink, ExecutionOptions, default);
 
-		public SynchronizationContext? RunTestCollectionAsync_SyncContext;
+		public SynchronizationContext? RunTestCollection_SyncContext;
 
 		protected override ValueTask<RunSummary> RunTestCollection(
 			XunitTestAssemblyRunnerContext ctxt,
 			IXunitTestCollection testCollection,
 			IReadOnlyCollection<IXunitTestCase> testCases)
 		{
-			RunTestCollectionAsync_SyncContext = SynchronizationContext.Current;
+			RunTestCollection_SyncContext = SynchronizationContext.Current;
 
-			// The usage of the test case orderer is in another component, so we'll just order the test cases
-			// here before putting them into the list, so that we can show the proposed impact of the orderer
-			var testCaseOrderer = ctxt.AssemblyTestCaseOrderer ?? DefaultTestCaseOrderer.Instance;
-			TestCollectionsRun.Add((testCollection, testCaseOrderer.OrderTestCases(testCases), null));
+			TestCollectionsRun.Add((testCollection, testCases, null));
 
 			return base.RunTestCollection(ctxt, testCollection, testCases);
 		}
 
-		public ITestCollectionOrderer? RunTestCollectionsAsync_TestCollectionOrderer;
+		public ITestCollectionOrderer? RunTestCollections_TestCollectionOrderer;
 
 		protected override ValueTask<RunSummary> RunTestCollections(
 			XunitTestAssemblyRunnerContext ctxt,
 			Exception? exception)
 		{
-			RunTestCollectionsAsync_TestCollectionOrderer = ctxt.TestAssembly.TestCollectionOrderer;
+			RunTestCollections_TestCollectionOrderer = ctxt.TestAssembly.TestCollectionOrderer;
 
 			return base.RunTestCollections(ctxt, exception);
 		}

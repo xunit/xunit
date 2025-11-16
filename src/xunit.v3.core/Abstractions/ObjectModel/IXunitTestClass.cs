@@ -49,4 +49,9 @@ public interface IXunitTestClass : ITestClass
 	/// Gets the test collection this test class belongs to.
 	/// </summary>
 	new IXunitTestCollection TestCollection { get; }
+
+	/// <summary>
+	/// Gets the test method orderer for the test class, if present.
+	/// </summary>
+	ITestMethodOrderer? TestMethodOrderer { get; }
 }

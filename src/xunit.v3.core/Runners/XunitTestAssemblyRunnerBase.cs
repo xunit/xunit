@@ -47,6 +47,12 @@ public class XunitTestAssemblyRunnerBase<TContext, TTestAssembly, TTestCollectio
 		return result;
 	}
 
+	/// <summary>
+	/// Orders the test collections using the test collection orderer from
+	/// <see cref="XunitTestAssemblyRunnerBaseContext{TTestAssembly, TTestCase}.AssemblyTestCollectionOrderer"/>.
+	/// If the user hasn't provided an override, the default orderer is <see cref="DefaultTestCollectionOrderer"/>,
+	/// which orders them in an unpredictable but stable order based on their unique ID.
+	/// </summary>
 	/// <inheritdoc/>
 	protected override List<(TTestCollection Collection, List<TTestCase> TestCases)> OrderTestCollections(TContext ctxt)
 	{
@@ -58,11 +64,14 @@ public class XunitTestAssemblyRunnerBase<TContext, TTestAssembly, TTestCollectio
 				.GroupBy(tc => (TTestCollection)tc.TestCollection, TestCollectionComparer<TTestCollection>.Instance)
 				.ToDictionary(collectionGroup => collectionGroup.Key, collectionGroup => collectionGroup.ToList());
 
-		IReadOnlyCollection<TTestCollection> orderedTestCollections;
-
 		try
 		{
-			orderedTestCollections = testCollectionOrderer.OrderTestCollections(testCasesByCollection.Keys);
+			var orderedTestCollections = testCollectionOrderer.OrderTestCollections(testCasesByCollection.Keys);
+
+			return
+				orderedTestCollections
+					.Select(collection => (collection, testCasesByCollection[collection]))
+					.ToList();
 		}
 		catch (Exception ex)
 		{
@@ -75,7 +84,7 @@ public class XunitTestAssemblyRunnerBase<TContext, TTestAssembly, TTestCollectio
 				Messages = [
 					string.Format(
 						CultureInfo.CurrentCulture,
-						"Assembly-level test collection orderer '{0}' threw '{1}' during ordering: {2}",
+						"Test collection orderer '{0}' threw '{1}' during ordering: {2}",
 						testCollectionOrderer.GetType().SafeName(),
 						innerEx.GetType().SafeName(),
 						innerEx.Message ?? "(null message)"
@@ -86,11 +95,6 @@ public class XunitTestAssemblyRunnerBase<TContext, TTestAssembly, TTestCollectio
 
 			return [];
 		}
-
-		return
-			orderedTestCollections
-				.Select(collection => (collection, testCasesByCollection[collection]))
-				.ToList();
 	}
 
 #pragma warning disable CA2012 // We guarantee that parallel ValueTasks are only awaited once
@@ -169,7 +173,9 @@ public class XunitTestAssemblyRunnerBase<TContext, TTestAssembly, TTestCollectio
 		Guard.ArgumentNotNull(testCases);
 
 		var testCaseOrderer = ctxt.AssemblyTestCaseOrderer ?? DefaultTestCaseOrderer.Instance;
+		var testClassOrderer = ctxt.AssemblyTestClassOrderer ?? DefaultTestClassOrderer.Instance;
+		var testMethodOrderer = ctxt.AssemblyTestMethodOrderer ?? DefaultTestMethodOrderer.Instance;
 
-		return ctxt.RunTestCollection(testCollection, testCases, testCaseOrderer);
+		return ctxt.RunTestCollection(testCollection, testCases, testClassOrderer, testMethodOrderer, testCaseOrderer);
 	}
 }

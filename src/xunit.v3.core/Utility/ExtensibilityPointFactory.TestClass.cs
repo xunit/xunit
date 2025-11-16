@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -58,7 +57,22 @@ public static partial class ExtensibilityPointFactory
 	/// isn't one attached.
 	/// </summary>
 	/// <param name="testClass">The test class</param>
-	public static ITestCaseOrderer? GetClassTestCaseOrderer(Type testClass)
+	public static ITestCaseOrderer? GetClassTestCaseOrderer(Type testClass) =>
+		GetClassTestOrderer<ITestCaseOrderer, ITestCaseOrdererAttribute>(testClass, "case");
+
+	/// <summary>
+	/// Gets the test method orderer that's attached to a test class. Returns <see langword="null"/> if there
+	/// isn't one attached.
+	/// </summary>
+	/// <param name="testClass">The test class</param>
+	public static ITestMethodOrderer? GetClassTestMethodOrderer(Type testClass) =>
+		GetClassTestOrderer<ITestMethodOrderer, ITestMethodOrdererAttribute>(testClass, "method");
+
+	static TTestOrderer? GetClassTestOrderer<TTestOrderer, TTestOrdererAttribute>(
+		Type testClass,
+		string ordererType)
+			where TTestOrderer : class
+			where TTestOrdererAttribute : ITestOrdererAttribute
 	{
 		Guard.ArgumentNotNull(testClass);
 
@@ -66,28 +80,31 @@ public static partial class ExtensibilityPointFactory
 
 		try
 		{
-			var ordererAttributes = testClass.GetMatchingCustomAttributes<ITestCaseOrdererAttribute>(warnings);
+			var ordererAttributes = testClass.GetMatchingCustomAttributes<TTestOrdererAttribute>(warnings);
 			if (ordererAttributes.Count > 1)
-				throw new InvalidOperationException(
-					string.Format(
-						CultureInfo.CurrentCulture,
-						"Found more than one test case orderer for test class '{0}': {1}",
-						testClass.SafeName(),
-						string.Join(", ", ordererAttributes.Select(a => a.GetType()).ToCommaSeparatedList())
-					)
+			{
+				TestContext.Current.SendDiagnosticMessage(
+					"Found more than one class-level test {0} orderer for test class '{1}': {2}",
+					ordererType,
+					testClass.SafeName(),
+					string.Join(", ", ordererAttributes.Select(a => a.GetType()).ToCommaSeparatedList())
 				);
 
-			if (ordererAttributes.FirstOrDefault() is ITestCaseOrdererAttribute ordererAttribute)
+				return null;
+			}
+
+			if (ordererAttributes.FirstOrDefault() is TTestOrdererAttribute ordererAttribute)
 				try
 				{
-					return Get<ITestCaseOrderer>(ordererAttribute.OrdererType);
+					return Get<TTestOrderer>(ordererAttribute.OrdererType);
 				}
 				catch (Exception ex)
 				{
 					var innerEx = ex.Unwrap();
 
 					TestContext.Current.SendDiagnosticMessage(
-						"Class-level test case orderer '{0}' for test class '{1}' threw '{2}' during construction: {3}{4}{5}",
+						"Class-level test {0} orderer '{1}' for test class '{2}' threw '{3}' during construction: {4}{5}{6}",
+						ordererType,
 						ordererAttribute.OrdererType,
 						testClass.SafeName(),
 						innerEx.GetType().SafeName(),
