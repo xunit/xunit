@@ -632,7 +632,7 @@ public class TransformFactory
 					)
 				),
 				new XElement(ns + "ResultSummary",
-					new XAttribute("outcome", totalErrors + totalFailed > 0 ? "Failed" : "Complete"),
+					new XAttribute("outcome", totalErrors + totalFailed > 0 ? "Failed" : "Completed"),
 					new XElement(ns + "Counters",
 						new XAttribute("total", totalRun),
 						new XAttribute("executed", totalRun - totalSkipped - totalNotRun),
