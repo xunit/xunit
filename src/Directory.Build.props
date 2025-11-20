@@ -10,7 +10,7 @@
     <DebugType Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">full</DebugType>
     <DebugType Condition=" '$(TargetFrameworkIdentifier)' != '.NETFramework' ">embedded</DebugType>
     <DefineConstants>$(DefineConstants);XUNIT_NULLABLE;XUNIT_POINTERS</DefineConstants>
-    <LangVersion>13.0</LangVersion>
+    <LangVersion>14.0</LangVersion>
     <MSBuildCopyContentTransitively>false</MSBuildCopyContentTransitively>
     <PackageId>$(MSBuildProjectName)</PackageId>
     <PlatformTarget>AnyCPU</PlatformTarget>
