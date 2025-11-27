@@ -15,7 +15,6 @@ namespace Xunit.Runner.InProc.SystemConsole;
 // be modified without creating forks inside InProcessTestProcessLauncher.
 
 /// <summary/>
-/// <summary/>
 public static class ConsoleRunnerInProcess
 {
 	/// <summary/>
@@ -137,7 +136,7 @@ public static class ConsoleRunnerInProcess
 			Assembly testAssembly,
 			IMessageSink? messageSink,
 			IMessageSink? diagnosticMessageSink) =>
-				new StartStop(
+				new(
 					testAssembly,
 					messageSink,
 					diagnosticMessageSink,
