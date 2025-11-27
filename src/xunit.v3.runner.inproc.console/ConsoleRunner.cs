@@ -389,7 +389,39 @@ public class ConsoleRunner(
 	{
 		using var runner = new ConsoleRunner(args);
 
-		return await runner.EntryPoint();
+		var result = await runner.EntryPoint();
+
+		ThreadPool.QueueUserWorkItem(async _ =>
+		{
+			await Task.Delay(1_000);
+
+			if (runner.automatedMode == AutomatedMode.Off)
+				Console.WriteLine("Waiting 10 seconds for foreground threads to exit...");
+			else
+				runner.logger?.WriteMessage(new DiagnosticMessage("Waiting 30 seconds for foreground threads to exit"));
+
+			await Task.Delay(10_000);
+
+			if (runner.automatedMode == AutomatedMode.Off)
+			{
+				runner.consoleHelper.SetForegroundColor(ConsoleColor.Red);
+				Console.Error.WriteLine("[FATAL ERROR] Foreground threads were left running, forcing process exit");
+				runner.consoleHelper.ResetColor();
+			}
+			else
+				try
+				{
+					throw new TestPipelineException("Foreground threads were left running, forcing process exit");
+				}
+				catch (Exception ex)
+				{
+					runner.logger?.WriteMessage(ErrorMessage.FromException(ex));
+				}
+
+			Environment.Exit(1);
+		});
+
+		return result;
 	}
 
 	/// <summary>

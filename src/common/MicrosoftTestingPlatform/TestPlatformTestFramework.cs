@@ -8,6 +8,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Testing.Platform.Builder;
@@ -313,6 +314,20 @@ public class TestPlatformTestFramework :
 		);
 
 		var app = await builder.BuildAsync();
-		return await app.RunAsync();
+		var result = await app.RunAsync();
+
+		ThreadPool.QueueUserWorkItem(async _ =>
+		{
+			await Task.Delay(1_000);
+
+			Console.WriteLine("Waiting 10 seconds for foreground threads to exit...");
+
+			await Task.Delay(10_000);
+
+			Console.Error.WriteLine("[FATAL ERROR] Foreground threads were left running, forcing process exit");
+			Environment.Exit(1);
+		});
+
+		return result;
 	}
 }
