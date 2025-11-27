@@ -35,6 +35,7 @@ public class ConsoleRunner(
 	readonly CancellationTokenSource cancellationTokenSource = new();
 	ConsoleHelper consoleHelper = default!;
 	bool executed;
+	readonly ManualResetEventSlim finishEvent = new(initialState: false);
 	IRunnerLogger? logger;
 	ITestPipelineStartup? pipelineStartup;
 	bool started;
@@ -54,6 +55,7 @@ public class ConsoleRunner(
 		GC.SuppressFinalize(this);
 
 		cancellationTokenSource.Dispose();
+		finishEvent.Dispose();
 	}
 
 	/// <summary>
@@ -160,12 +162,16 @@ public class ConsoleRunner(
 
 			logger = new ConsoleRunnerLogger(!noColor, useAnsiColor, consoleHelper, waitForAcknowledgment: automatedMode == AutomatedMode.Sync);
 
+			var reporterMessageHandler = default(IRunnerReporterMessageHandler);
+
 			AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
 			{
 				if (e.ExceptionObject is Exception ex)
 				{
 					if (automatedMode != AutomatedMode.Off)
 						logger.WriteMessage(ErrorMessage.FromException(ex));
+					else if (reporterMessageHandler is not null)
+						reporterMessageHandler.OnMessage(ErrorMessage.FromException(ex));
 					else
 						consoleHelper.WriteLine(ex.ToString());
 				}
@@ -177,7 +183,8 @@ public class ConsoleRunner(
 						consoleHelper.WriteLine("Error of unknown type thrown in application domain");
 				}
 
-				Environment.Exit(1);
+				finishEvent.Wait();
+				Environment.Exit(2);
 			};
 
 			Console.CancelKeyPress += (sender, e) =>
@@ -206,7 +213,7 @@ public class ConsoleRunner(
 			try
 			{
 				var reporter = automatedMode != AutomatedMode.Off ? new JsonReporter() : project.RunnerReporter;
-				await using var reporterMessageHandler = await reporter.CreateMessageHandler(logger, diagnosticMessageSink);
+				reporterMessageHandler = await reporter.CreateMessageHandler(logger, diagnosticMessageSink);
 
 				if (!reporter.ForceNoLogo && !project.Configuration.NoLogoOrDefault)
 					consoleHelper.WriteLine(ProjectAssemblyRunner.Banner);
@@ -262,8 +269,23 @@ public class ConsoleRunner(
 			}
 			finally
 			{
-				if (pipelineStartup is not null)
-					await pipelineStartup.StopAsync();
+				try
+				{
+					if (pipelineStartup is not null)
+						await pipelineStartup.StopAsync();
+				}
+				catch (Exception ex)
+				{
+					reporterMessageHandler?.OnMessage(ErrorMessage.FromException(ex));
+					failCount = 1;
+				}
+				finally
+				{
+					var tempHandler = reporterMessageHandler;
+					reporterMessageHandler = null;
+
+					await tempHandler.SafeDisposeAsync();
+				}
 			}
 
 			if (project.Configuration.WaitOrDefault && automatedMode == AutomatedMode.Off)
@@ -275,6 +297,8 @@ public class ConsoleRunner(
 
 				consoleHelper.WriteLine();
 			}
+
+			finishEvent.Set();
 
 			return project.Configuration.IgnoreFailures == true || failCount == 0 ? 0 : 1;
 		}
