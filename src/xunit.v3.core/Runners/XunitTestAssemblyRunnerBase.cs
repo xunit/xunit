@@ -78,7 +78,7 @@ public class XunitTestAssemblyRunnerBase<TContext, TTestAssembly, TTestCollectio
 						"Assembly-level test collection orderer '{0}' threw '{1}' during ordering: {2}",
 						testCollectionOrderer.GetType().SafeName(),
 						innerEx.GetType().SafeName(),
-						innerEx.Message
+						innerEx.Message ?? "(null message)"
 					)
 				],
 				StackTraces = [innerEx.StackTrace],

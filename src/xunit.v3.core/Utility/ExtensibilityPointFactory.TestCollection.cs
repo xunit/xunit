@@ -174,7 +174,7 @@ public static partial class ExtensibilityPointFactory
 						ordererAttribute.OrdererType.SafeName(),
 						collectionDefinition.SafeName(),
 						innerEx.GetType().SafeName(),
-						innerEx.Message,
+						innerEx.Message ?? "(null message)",
 						Environment.NewLine,
 						innerEx.StackTrace
 					);

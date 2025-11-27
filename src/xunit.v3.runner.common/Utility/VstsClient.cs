@@ -89,7 +89,7 @@ sealed class VstsClient : IDisposable
 		}
 		catch (Exception e)
 		{
-			logger.LogError("VstsClient.RunLoop: Could not create test run. Message: {0}", e.Message);
+			logger.LogError("VstsClient.RunLoop: Could not create test run. Message: {0}", e.Message ?? "(null message)");
 		}
 		finally
 		{
@@ -102,7 +102,7 @@ sealed class VstsClient : IDisposable
 			}
 			catch (Exception e)
 			{
-				logger.LogError("VstsClient.RunLoop: Could not finish test run. Message: {0}", e.Message);
+				logger.LogError("VstsClient.RunLoop: Could not finish test run. Message: {0}", e.Message ?? "(null message)");
 			}
 
 			finished.Set();
@@ -170,7 +170,13 @@ sealed class VstsClient : IDisposable
 		}
 		catch (Exception ex)
 		{
-			logger.LogError("When sending 'POST {0}' with body '{1}'\nexception was thrown: {2}\nresponse string:\n{3}", url, bodyString, ex.Message, responseString);
+			logger.LogError(
+				"When sending 'POST {0}' with body '{1}'\nexception was thrown: {2}\nresponse string:\n{3}",
+				url,
+				bodyString,
+				ex.Message ?? "(null message)",
+				responseString
+			);
 			throw;
 		}
 	}
@@ -206,7 +212,7 @@ sealed class VstsClient : IDisposable
 		}
 		catch (Exception ex)
 		{
-			logger.LogError("When sending 'PATCH {0}' with body '{1}', exception was thrown: {2}", url, bodyString, ex.Message);
+			logger.LogError("When sending 'PATCH {0}' with body '{1}', exception was thrown: {2}", url, bodyString, ex.Message ?? "(null message)");
 			throw;
 		}
 	}
@@ -302,7 +308,7 @@ sealed class VstsClient : IDisposable
 		}
 		catch (Exception ex)
 		{
-			logger.LogError("When sending '{0} {1}' with body '{2}', exception was thrown: {3}", method, url, bodyString, ex.Message);
+			logger.LogError("When sending '{0} {1}' with body '{2}', exception was thrown: {3}", method, url, bodyString, ex.Message ?? "(null message)");
 			throw;
 		}
 	}

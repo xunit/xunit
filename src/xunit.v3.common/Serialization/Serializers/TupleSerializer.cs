@@ -72,7 +72,15 @@ internal sealed class TupleSerializer : IXunitSerializer
 		}
 		catch (Exception ex)
 		{
-			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Exception serializing tuple value of type '{0}': {1}", ArgumentFormatter.FormatTypeName(value.GetType()), ex.Message), nameof(value));
+			throw new ArgumentException(
+				string.Format(
+					CultureInfo.CurrentCulture,
+					"Exception serializing tuple value of type '{0}': {1}",
+					ArgumentFormatter.FormatTypeName(value.GetType()),
+					ex.Message ?? "(null message)"
+				),
+				nameof(value)
+			);
 		}
 	}
 

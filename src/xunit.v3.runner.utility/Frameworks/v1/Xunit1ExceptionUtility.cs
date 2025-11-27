@@ -29,7 +29,7 @@ static class Xunit1ExceptionUtility
 				stackTrace = stackTrace!.Substring(0, rethrowIndex);
 
 			exceptionTypes.Add(exception.GetType().FullName);
-			messages.Add(exception.Message);
+			messages.Add(exception.Message ?? "(null message)");
 			stackTraces.Add(stackTrace);
 			indices.Add(parentIndex);
 

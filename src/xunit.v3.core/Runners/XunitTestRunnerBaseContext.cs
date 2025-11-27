@@ -159,11 +159,14 @@ public class XunitTestRunnerBaseContext<TTest> : TestRunnerContext<TTest>
 		if (exception is not null)
 		{
 			if (Test.TestCase.SkipExceptions?.Contains(exception.GetType()) == true)
-				return exception.Message.Length != 0 ? exception.Message : string.Format(CultureInfo.CurrentCulture, "Exception of type '{0}' was thrown", exception.GetType().SafeName());
+				return
+					exception.Message is not null && exception.Message.Length != 0
+						? exception.Message
+						: string.Format(CultureInfo.CurrentCulture, "Exception of type '{0}' was thrown", exception.GetType().SafeName());
 
 			// We don't want a strongly typed contract here; any exception can be a "dynamically
 			// skipped" exception so long as its message starts with the special token.
-			if (exception.Message.StartsWith(DynamicSkipToken.Value, StringComparison.Ordinal))
+			if (exception.Message?.StartsWith(DynamicSkipToken.Value, StringComparison.Ordinal) == true)
 				return exception.Message.Substring(DynamicSkipToken.Value.Length);
 		}
 

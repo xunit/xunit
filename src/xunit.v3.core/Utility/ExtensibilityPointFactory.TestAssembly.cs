@@ -90,7 +90,7 @@ public static partial class ExtensibilityPointFactory
 						"Assembly-level test case orderer '{0}' threw '{1}' during construction: {2}{3}{4}",
 						ordererAttribute.OrdererType.SafeName(),
 						innerEx.GetType().SafeName(),
-						innerEx.Message,
+						innerEx.Message ?? "(null message)",
 						Environment.NewLine,
 						innerEx.StackTrace
 					);
@@ -139,7 +139,7 @@ public static partial class ExtensibilityPointFactory
 						"Assembly-level test collection orderer '{0}' threw '{1}' during construction: {2}{3}{4}",
 						ordererAttribute.OrdererType.SafeName(),
 						innerEx.GetType().SafeName(),
-						innerEx.Message,
+						innerEx.Message ?? "(null message)",
 						Environment.NewLine,
 						innerEx.StackTrace
 					);

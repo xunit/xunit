@@ -126,7 +126,7 @@ sealed class AppVeyorClient : IDisposable
 					method,
 					baseUri,
 					bodyString,
-					ex.Message
+					ex.Message ?? "(null message)"
 				)
 			);
 

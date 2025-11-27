@@ -32,7 +32,7 @@ public static class Record
 		}
 		catch (Exception ex)
 		{
-			if (ex.Message.StartsWith(DynamicSkipToken.Value, StringComparison.Ordinal))
+			if (ex.Message?.StartsWith(DynamicSkipToken.Value, StringComparison.Ordinal) == true)
 				throw;
 
 			return ex;
@@ -60,7 +60,7 @@ public static class Record
 		}
 		catch (Exception ex)
 		{
-			if (ex.Message.StartsWith(DynamicSkipToken.Value, StringComparison.Ordinal))
+			if (ex.Message?.StartsWith(DynamicSkipToken.Value, StringComparison.Ordinal) == true)
 				throw;
 
 			return ex;
@@ -99,7 +99,7 @@ public static class Record
 		}
 		catch (Exception ex)
 		{
-			if (ex.Message.StartsWith(DynamicSkipToken.Value, StringComparison.Ordinal))
+			if (ex.Message?.StartsWith(DynamicSkipToken.Value, StringComparison.Ordinal) == true)
 				throw;
 
 			return ex;

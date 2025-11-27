@@ -225,7 +225,7 @@ public static class XunitRunnerHelper
 
 		if (aggregator.ToException() is Exception ex)
 		{
-			if (ex.Message.StartsWith(DynamicSkipToken.Value, StringComparison.Ordinal))
+			if (ex.Message?.StartsWith(DynamicSkipToken.Value, StringComparison.Ordinal) == true)
 				return SkipTestCases(
 					messageBus,
 					cancellationTokenSource,
@@ -238,7 +238,9 @@ public static class XunitRunnerHelper
 					messageBus,
 					cancellationTokenSource,
 					[testCase],
-					ex.Message.Length != 0 ? ex.Message : string.Format(CultureInfo.CurrentCulture, "Exception of type '{0}' was thrown", ex.GetType().SafeName()),
+					ex.Message is not null && ex.Message.Length != 0
+						? ex.Message
+						: string.Format(CultureInfo.CurrentCulture, "Exception of type '{0}' was thrown", ex.GetType().SafeName()),
 					sendTestCaseMessages: false
 				);
 			else

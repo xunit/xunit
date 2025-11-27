@@ -120,7 +120,14 @@ public class TestProcessLauncherAdapter(ITestProcessLauncher launcher) :
 		}
 		catch (ArgumentException ex)
 		{
-			throw new InvalidOperationException("Test process did not return valid JSON (" + ex.Message + ")." + (output.Length > 0 ? (" Output:" + Environment.NewLine + output) : string.Empty));
+			throw new InvalidOperationException(
+				string.Format(
+					CultureInfo.CurrentCulture,
+					"Test process did not return valid JSON{0}.{1}",
+					ex.Message is not null ? " (" + ex.Message + ")" : string.Empty,
+					output.Length > 0 ? (" Output:" + Environment.NewLine + output) : string.Empty
+				)
+			);
 		}
 	}
 

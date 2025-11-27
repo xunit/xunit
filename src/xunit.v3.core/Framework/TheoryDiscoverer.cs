@@ -237,7 +237,7 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 								"Error creating theory test case for for '{0}.{1}'; falling back to single test case. Exception message: '{2}'",
 								testMethod.TestClass.TestClassName,
 								testMethod.MethodName,
-								ex.Message
+								ex.Message ?? "(null message)"
 							);
 
 							return await CreateTestCasesForTheory(discoveryOptions, testMethod, theoryAttribute);
@@ -248,12 +248,34 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 				if (results.Count == 0)
 				{
 					var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, theoryAttribute);
-					var message = string.Format(CultureInfo.CurrentCulture, "No data found for {0}.{1}", testMethod.TestClass.TestClassName, testMethod.MethodName);
+					var message = string.Format(
+						CultureInfo.CurrentCulture,
+						"No data found for {0}.{1}",
+						testMethod.TestClass.TestClassName,
+						testMethod.MethodName
+					);
 
 					if (theoryAttribute.SkipTestWithoutData)
-						results.Add(new XunitTestCase(details.ResolvedTestMethod, details.TestCaseDisplayName, details.UniqueID, details.Explicit, skipReason: message));
+						results.Add(
+							new XunitTestCase(
+								details.ResolvedTestMethod,
+								details.TestCaseDisplayName,
+								details.UniqueID,
+								details.Explicit,
+								skipReason: message
+							)
+						);
 					else
-						results.Add(new ExecutionErrorTestCase(details.ResolvedTestMethod, details.TestCaseDisplayName, details.UniqueID, details.SourceFilePath, details.SourceLineNumber, errorMessage: message));
+						results.Add(
+							new ExecutionErrorTestCase(
+								details.ResolvedTestMethod,
+								details.TestCaseDisplayName,
+								details.UniqueID,
+								details.SourceFilePath,
+								details.SourceLineNumber,
+								errorMessage: message
+							)
+						);
 				}
 
 				return results;

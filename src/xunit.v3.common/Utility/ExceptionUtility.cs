@@ -81,16 +81,28 @@ public static class ExceptionUtility
 		}
 		catch (Exception thrown)
 		{
-			exceptionTypes.Add(string.Format(CultureInfo.CurrentCulture, "<exception thrown while retrieving exception type: {0}>", thrown.Message));
+			exceptionTypes.Add(
+				string.Format(
+					CultureInfo.CurrentCulture,
+					"<exception thrown while retrieving exception type: {0}>",
+					thrown.Message ?? "(null message)"
+				)
+			);
 		}
 
 		try
 		{
-			messages.Add(ex.Message);
+			messages.Add(ex.Message ?? "(null message)");
 		}
 		catch (Exception thrown)
 		{
-			messages.Add(string.Format(CultureInfo.CurrentCulture, "<exception thrown while retrieving exception message: {0}>", thrown.Message));
+			messages.Add(
+				string.Format(
+					CultureInfo.CurrentCulture,
+					"<exception thrown while retrieving exception message: {0}>",
+					thrown.Message ?? "(null message)"
+				)
+			);
 		}
 
 		try
@@ -99,7 +111,13 @@ public static class ExceptionUtility
 		}
 		catch (Exception thrown)
 		{
-			stackTraces.Add(string.Format(CultureInfo.CurrentCulture, "<exception thrown while retrieving exception stack trace: {0}>", thrown.Message));
+			stackTraces.Add(
+				string.Format(
+					CultureInfo.CurrentCulture,
+					"<exception thrown while retrieving exception stack trace: {0}>",
+					thrown.Message ?? "(null message)"
+				)
+			);
 		}
 
 		indices.Add(parentIndex);

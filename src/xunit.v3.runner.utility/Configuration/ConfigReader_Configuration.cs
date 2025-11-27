@@ -83,7 +83,14 @@ public static class ConfigReader_Configuration
 		}
 		catch (Exception ex)
 		{
-			warnings?.Add(string.Format(CultureInfo.CurrentCulture, "Exception loading config file '{0}': {1}", configFileName, ex.Message));
+			warnings?.Add(
+				string.Format(
+					CultureInfo.CurrentCulture,
+					"Exception loading config file '{0}': {1}",
+					configFileName,
+					ex.Message ?? "(null message)"
+				)
+			);
 		}
 
 		return false;

@@ -71,7 +71,14 @@ public static class ConfigReader_Json
 		}
 		catch (Exception ex)
 		{
-			warnings?.Add(string.Format(CultureInfo.CurrentCulture, "Exception loading config file '{0}': {1}", configFileName, ex.Message));
+			warnings?.Add(
+				string.Format(
+					CultureInfo.CurrentCulture,
+					"Exception loading config file '{0}': {1}",
+					configFileName,
+					ex.Message ?? "(null message)"
+				)
+			);
 			return false;
 		}
 	}
@@ -239,7 +246,7 @@ public static class ConfigReader_Json
 		}
 		catch (Exception ex)
 		{
-			warnings?.Add(string.Format(CultureInfo.CurrentCulture, "Exception parsing {0}: {1}", sourceName, ex.Message));
+			warnings?.Add(string.Format(CultureInfo.CurrentCulture, "Exception parsing {0}: {1}", sourceName, ex.Message ?? "(null message)"));
 		}
 
 		return false;

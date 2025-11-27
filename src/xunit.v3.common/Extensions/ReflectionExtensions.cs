@@ -61,7 +61,7 @@ public static class ReflectionExtensions
 							"Custom attribute type '{0}' threw '{1}' during construction: {2}{3}{4}",
 							customAttributeData.AttributeType.SafeName(),
 							innerEx.GetType().SafeName(),
-							innerEx.Message,
+							innerEx.Message ?? "(null message)",
 							Environment.NewLine,
 							innerEx.StackTrace
 						)
@@ -112,7 +112,7 @@ public static class ReflectionExtensions
 							"Custom attribute type '{0}' threw '{1}' during construction: {2}{3}{4}",
 							customAttributeData.AttributeType.SafeName(),
 							innerEx.GetType().SafeName(),
-							innerEx.Message,
+							innerEx.Message ?? "(null message)",
 							Environment.NewLine,
 							innerEx.StackTrace
 						)

@@ -333,7 +333,7 @@ public sealed class ProjectAssemblyRunner(
 					runnerLogger.WriteMessage(ErrorMessage.FromException(e));
 				else
 				{
-					runnerLogger.LogMessage("{0}: {1}", e.GetType().SafeName(), e.Message);
+					runnerLogger.LogMessage("{0}: {1}", e.GetType().SafeName(), e.Message ?? "(null message)");
 
 #if DEBUG
 					if (e.StackTrace is not null)

@@ -525,7 +525,7 @@ public sealed class CommandLineOptionsProvider() :
 			}
 			catch (ArgumentException argEx)
 			{
-				return ValidationResult.InvalidTask(argEx.Message);
+				return ValidationResult.InvalidTask(argEx.Message ?? "(null message)");
 			}
 		}
 

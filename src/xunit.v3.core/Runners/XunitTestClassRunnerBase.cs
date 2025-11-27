@@ -159,7 +159,7 @@ public abstract class XunitTestClassRunnerBase<TContext, TTestClass, TTestMethod
 						"Test case orderer '{0}' threw '{1}' during ordering: {2}",
 						ctxt.TestCaseOrderer.GetType().SafeName(),
 						innerEx.GetType().SafeName(),
-						innerEx.Message
+						innerEx.Message ?? "(null message)"
 					)
 				],
 				StackTraces = [innerEx.StackTrace],

@@ -284,10 +284,10 @@ public class ConsoleRunner(
 				consoleHelper.SetForegroundColor(ConsoleColor.Red);
 
 			if (automatedMode != AutomatedMode.Off)
-				logger?.WriteMessage(new DiagnosticMessage("error: " + ex.Message));
+				logger?.WriteMessage(new DiagnosticMessage("error: " + ex.Message ?? "(null message)"));
 			else
 			{
-				consoleHelper.WriteLine("error: {0}", ex.Message);
+				consoleHelper.WriteLine("error: {0}", ex.Message ?? "(null message)");
 
 #if !DEBUG
 				if (internalDiagnosticMessages)

@@ -91,7 +91,7 @@ public static partial class ExtensibilityPointFactory
 						ordererAttribute.OrdererType,
 						testClass.SafeName(),
 						innerEx.GetType().SafeName(),
-						innerEx.Message,
+						innerEx.Message ?? "(null message)",
 						Environment.NewLine,
 						innerEx.StackTrace
 					);

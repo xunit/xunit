@@ -157,7 +157,7 @@ sealed class ConsoleRunner(string[] args) :
 			if (!noColor)
 				consoleHelper.SetForegroundColor(ConsoleColor.Red);
 
-			consoleHelper.WriteLine("error: {0}", ex.Message);
+			consoleHelper.WriteLine("error: {0}", ex.Message ?? "(null message)");
 
 			if (globalInternalDiagnosticMessages)
 			{
@@ -393,7 +393,7 @@ sealed class ConsoleRunner(string[] args) :
 			var e = ex;
 			while (e is not null)
 			{
-				consoleHelper.WriteLine("{0}: {1}", e.GetType().SafeName(), e.Message);
+				consoleHelper.WriteLine("{0}: {1}", e.GetType().SafeName(), e.Message ?? "(null message)");
 
 				if (assembly.Configuration.InternalDiagnosticMessagesOrDefault)
 					consoleHelper.WriteLine(e.StackTrace);

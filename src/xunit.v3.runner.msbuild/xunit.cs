@@ -525,7 +525,7 @@ public class xunit : MSBuildTask, ICancelableTask, IDisposable
 			lock (logLock)
 				while (e is not null)
 				{
-					Log.LogError("{0}: {1}", e.GetType().SafeName(), e.Message);
+					Log.LogError("{0}: {1}", e.GetType().SafeName(), e.Message ?? "(null message)");
 
 					if (e.StackTrace is not null)
 						foreach (var stackLine in e.StackTrace.Split([Environment.NewLine], StringSplitOptions.RemoveEmptyEntries))
