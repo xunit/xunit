@@ -691,6 +691,132 @@ public class StringAssertsTests
 			verify(() => Assert.Equal(expected.Spanify(), actual.AsSpan()));
 			verify(() => Assert.Equal(expected.AsSpan(), actual.AsSpan()));
 		}
+
+		[Fact]
+		public void Overrun_LongerExpected()
+		{
+			var expected = "012345678901234567890123456789012345678901234567890123456789";
+			var actual = "01234567890123456789012345678901234567890123456789";
+
+			static void verify(Action action)
+			{
+				var ex = Record.Exception(action);
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Strings differ" + Environment.NewLine +
+					"                                                      ↓ (pos 50)" + Environment.NewLine +
+					$"Expected: {ArgumentFormatter.Ellipsis}\"01234567890123456789012345678901234567890123456789\"" + Environment.NewLine +
+					$"Actual:   {ArgumentFormatter.Ellipsis}\"0123456789012345678901234567890123456789\"",
+					ex.Message
+				);
+			}
+
+			verify(() => Assert.Equal(expected, actual));
+			verify(() => Assert.Equal(expected.Memoryify(), actual.Memoryify()));
+			verify(() => Assert.Equal(expected.AsMemory(), actual.Memoryify()));
+			verify(() => Assert.Equal(expected.Memoryify(), actual.AsMemory()));
+			verify(() => Assert.Equal(expected.AsMemory(), actual.AsMemory()));
+			verify(() => Assert.Equal(expected.Spanify(), actual.Spanify()));
+			verify(() => Assert.Equal(expected.AsSpan(), actual.Spanify()));
+			verify(() => Assert.Equal(expected.Spanify(), actual.AsSpan()));
+			verify(() => Assert.Equal(expected.AsSpan(), actual.AsSpan()));
+		}
+
+		[Fact]
+		public void Overrun_LongerActual()
+		{
+			var expected = "01234567890123456789012345678901234567890123456789";
+			var actual = "012345678901234567890123456789012345678901234567890123456789";
+
+			static void verify(Action action)
+			{
+				var ex = Record.Exception(action);
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Strings differ" + Environment.NewLine +
+					$"Expected: {ArgumentFormatter.Ellipsis}\"0123456789012345678901234567890123456789\"" + Environment.NewLine +
+					$"Actual:   {ArgumentFormatter.Ellipsis}\"01234567890123456789012345678901234567890123456789\"" + Environment.NewLine +
+					"                                                      ↑ (pos 50)",
+					ex.Message
+				);
+			}
+
+			verify(() => Assert.Equal(expected, actual));
+			verify(() => Assert.Equal(expected.Memoryify(), actual.Memoryify()));
+			verify(() => Assert.Equal(expected.AsMemory(), actual.Memoryify()));
+			verify(() => Assert.Equal(expected.Memoryify(), actual.AsMemory()));
+			verify(() => Assert.Equal(expected.AsMemory(), actual.AsMemory()));
+			verify(() => Assert.Equal(expected.Spanify(), actual.Spanify()));
+			verify(() => Assert.Equal(expected.AsSpan(), actual.Spanify()));
+			verify(() => Assert.Equal(expected.Spanify(), actual.AsSpan()));
+			verify(() => Assert.Equal(expected.AsSpan(), actual.AsSpan()));
+		}
+
+		[Fact]
+		public void MismatchedAtEnd_LongerExpected()
+		{
+			var expected = "012345678901234567890123456789012345678901234567890123456789";
+			var actual = "01234567890123456789012345678901234567890123456789_1234";
+
+			static void verify(Action action)
+			{
+				var ex = Record.Exception(action);
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Strings differ" + Environment.NewLine +
+					"                                                      ↓ (pos 50)" + Environment.NewLine +
+					$"Expected: {ArgumentFormatter.Ellipsis}\"01234567890123456789012345678901234567890123456789\"" + Environment.NewLine +
+					$"Actual:   {ArgumentFormatter.Ellipsis}\"0123456789012345678901234567890123456789_1234\"" + Environment.NewLine +
+					"                                                      ↑ (pos 50)",
+					ex.Message
+				);
+			}
+
+			verify(() => Assert.Equal(expected, actual));
+			verify(() => Assert.Equal(expected.Memoryify(), actual.Memoryify()));
+			verify(() => Assert.Equal(expected.AsMemory(), actual.Memoryify()));
+			verify(() => Assert.Equal(expected.Memoryify(), actual.AsMemory()));
+			verify(() => Assert.Equal(expected.AsMemory(), actual.AsMemory()));
+			verify(() => Assert.Equal(expected.Spanify(), actual.Spanify()));
+			verify(() => Assert.Equal(expected.AsSpan(), actual.Spanify()));
+			verify(() => Assert.Equal(expected.Spanify(), actual.AsSpan()));
+			verify(() => Assert.Equal(expected.AsSpan(), actual.AsSpan()));
+		}
+
+		[Fact]
+		public void MismatchedAtEnd_LongerActual()
+		{
+			var expected = "01234567890123456789012345678901234567890123456789_1234";
+			var actual = "012345678901234567890123456789012345678901234567890123456789";
+
+			static void verify(Action action)
+			{
+				var ex = Record.Exception(action);
+
+				Assert.IsType<EqualException>(ex);
+				Assert.Equal(
+					"Assert.Equal() Failure: Strings differ" + Environment.NewLine +
+					"                                                      ↓ (pos 50)" + Environment.NewLine +
+					$"Expected: {ArgumentFormatter.Ellipsis}\"0123456789012345678901234567890123456789_1234\"" + Environment.NewLine +
+					$"Actual:   {ArgumentFormatter.Ellipsis}\"01234567890123456789012345678901234567890123456789\"" + Environment.NewLine +
+					"                                                      ↑ (pos 50)",
+					ex.Message
+				);
+			}
+
+			verify(() => Assert.Equal(expected, actual));
+			verify(() => Assert.Equal(expected.Memoryify(), actual.Memoryify()));
+			verify(() => Assert.Equal(expected.AsMemory(), actual.Memoryify()));
+			verify(() => Assert.Equal(expected.Memoryify(), actual.AsMemory()));
+			verify(() => Assert.Equal(expected.AsMemory(), actual.AsMemory()));
+			verify(() => Assert.Equal(expected.Spanify(), actual.Spanify()));
+			verify(() => Assert.Equal(expected.AsSpan(), actual.Spanify()));
+			verify(() => Assert.Equal(expected.Spanify(), actual.AsSpan()));
+			verify(() => Assert.Equal(expected.AsSpan(), actual.AsSpan()));
+		}
 	}
 
 	public class Matches_Pattern
