@@ -398,7 +398,7 @@ public class ConsoleRunner(
 			if (runner.automatedMode == AutomatedMode.Off)
 				Console.WriteLine("Waiting 10 seconds for foreground threads to exit...");
 			else
-				runner.logger?.WriteMessage(new DiagnosticMessage("Waiting 30 seconds for foreground threads to exit"));
+				runner.logger?.WriteMessage(new DiagnosticMessage("Waiting 10 seconds for foreground threads to exit"));
 
 			await Task.Delay(10_000);
 
