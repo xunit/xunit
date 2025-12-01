@@ -1,3 +1,5 @@
+#if !XUNIT_AOT  // Assert.Equivalent is not available in Native AOT
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -2278,3 +2280,5 @@ public class EquivalenceAssertsTests
 		public string this[int idx] => idx.ToString();
 	}
 }
+
+#endif

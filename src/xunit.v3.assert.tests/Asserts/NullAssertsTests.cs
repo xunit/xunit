@@ -94,7 +94,11 @@ public class NullAssertsTests
 			Assert.Equal(
 				"Assert.Null() Failure: Value is not null" + Environment.NewLine +
 				"Expected: null" + Environment.NewLine +
+#if XUNIT_AOT
+				$"Actual:   Object {{ {ArgumentFormatter.Ellipsis} }}",
+#else
 				"Actual:   Object { }",
+#endif
 				ex.Message
 			);
 		}

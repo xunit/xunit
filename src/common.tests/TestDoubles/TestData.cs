@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
-using System.Runtime.Versioning;
 using Xunit;
 using Xunit.Internal;
 using Xunit.Runner.Common;
@@ -130,18 +128,5 @@ public static partial class TestData
 		result.SetSynchronousMessageReporting(synchronousMessageReporting);
 
 		return result;
-	}
-
-	public static XunitProjectAssembly XunitProjectAssembly<TTestClass>(
-		XunitProject? project = null,
-		int xUnitVersion = 3)
-	{
-		var assemblyFileName = typeof(TTestClass).Assembly.Location;
-		var targetFrameworkAttribute =
-			typeof(TTestClass).Assembly.GetCustomAttribute<TargetFrameworkAttribute>()
-				?? throw new InvalidOperationException($"Assembly '{assemblyFileName}' does not have an assembly-level TargetFrameworkAttribute");
-
-		var assemblyMetadata = new AssemblyMetadata(xUnitVersion, targetFrameworkAttribute.FrameworkName);
-		return new(project ?? new XunitProject(), assemblyFileName, assemblyMetadata);
 	}
 }

@@ -7,7 +7,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using NSubstitute;
 using Xunit;
 using Xunit.Sdk;
 
@@ -333,7 +332,7 @@ public class AsyncCollectionAssertsTests
 		[Fact]
 		public static void GuardClauses()
 		{
-			var comparer = Substitute.For<IEqualityComparer<int>>();
+			var comparer = new MyComparer();
 
 			Assert.Throws<ArgumentNullException>("collection", () => Assert.Contains(14, default(IAsyncEnumerable<int>)!, comparer));
 			Assert.Throws<ArgumentNullException>("comparer", () => Assert.Contains(14, Array.Empty<int>().ToAsyncEnumerable(), null!));
@@ -520,7 +519,7 @@ public class AsyncCollectionAssertsTests
 		[Fact]
 		public static void GuardClauses()
 		{
-			var comparer = Substitute.For<IEqualityComparer<int>>();
+			var comparer = new MyComparer();
 
 			Assert.Throws<ArgumentNullException>("collection", () => Assert.DoesNotContain(14, default(IAsyncEnumerable<int>)!, comparer));
 			Assert.Throws<ArgumentNullException>("comparer", () => Assert.DoesNotContain(14, Array.Empty<int>().ToAsyncEnumerable(), null!));
@@ -933,8 +932,13 @@ public class AsyncCollectionAssertsTests
 					Assert.Equal(
 						"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
 						"          " + new string(' ', padding) + " ↓ (pos 0)" + Environment.NewLine +
+#if XUNIT_AOT
+						"Expected: " + expectedType.PadRight(padding) + $"[EquatableObject {{ {ArgumentFormatter.Ellipsis} }}]" + Environment.NewLine +
+						"Actual:   " + actualType.PadRight(padding) + $"[EquatableObject {{ {ArgumentFormatter.Ellipsis} }}]" + Environment.NewLine +
+#else
 						"Expected: " + expectedType.PadRight(padding) + "[EquatableObject { Char = 'a' }]" + Environment.NewLine +
 						"Actual:   " + actualType.PadRight(padding) + "[EquatableObject { Char = 'b' }]" + Environment.NewLine +
+#endif
 						"          " + new string(' ', padding) + " ↑ (pos 0)",
 						ex.Message
 					);
@@ -1284,8 +1288,13 @@ public class AsyncCollectionAssertsTests
 					Assert.IsType<NotEqualException>(ex);
 					Assert.Equal(
 						"Assert.NotEqual() Failure: Collections are equal" + Environment.NewLine +
+#if XUNIT_AOT
+						"Expected: Not " + expectedType.PadRight(padding) + $"[EquatableObject {{ {ArgumentFormatter.Ellipsis} }}]" + Environment.NewLine +
+						"Actual:       " + actualType.PadRight(padding) + $"[EquatableObject {{ {ArgumentFormatter.Ellipsis} }}]",
+#else
 						"Expected: Not " + expectedType.PadRight(padding) + "[EquatableObject { Char = 'a' }]" + Environment.NewLine +
 						"Actual:       " + actualType.PadRight(padding) + "[EquatableObject { Char = 'a' }]",
+#endif
 						ex.Message
 					);
 				}

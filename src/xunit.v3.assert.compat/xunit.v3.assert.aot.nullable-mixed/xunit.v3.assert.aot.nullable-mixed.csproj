@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);XUNIT_AOT</DefineConstants>
+    <LangVersion>13.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <PublishAot>true</PublishAot>
+    <TargetFramework>net9.0</TargetFramework>
+  </PropertyGroup>
+
+</Project>
