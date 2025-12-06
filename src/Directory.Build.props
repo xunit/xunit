@@ -9,11 +9,14 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <DebugType Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">full</DebugType>
     <DebugType Condition=" '$(TargetFrameworkIdentifier)' != '.NETFramework' ">embedded</DebugType>
-    <DefineConstants>$(DefineConstants);XUNIT_NULLABLE;XUNIT_POINTERS</DefineConstants>
+    <DefineConstants>$(DefineConstants);XUNIT_NULLABLE;XUNIT_OVERLOAD_RESOLUTION_PRIORITY;XUNIT_POINTERS</DefineConstants>
+    <DefineConstants Condition=" $(MSBuildProjectName.Contains('.aot')) ">$(DefineConstants);XUNIT_AOT</DefineConstants>
+    <IsAotCompatible Condition=" $(MSBuildProjectName.Contains('.aot')) ">true</IsAotCompatible>
     <LangVersion>14.0</LangVersion>
     <MSBuildCopyContentTransitively>false</MSBuildCopyContentTransitively>
     <PackageId>$(MSBuildProjectName)</PackageId>
     <PlatformTarget>AnyCPU</PlatformTarget>
+    <PublishAot Condition=" $(MSBuildProjectName.Contains('.aot')) ">true</PublishAot>
     <RootNamespace>Xunit</RootNamespace>
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -55,6 +58,7 @@
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
         <PackageReadmeFile>_content/README.md</PackageReadmeFile>
         <Product>xUnit.net v3 Testing Framework</Product>
+        <Product Condition=" '$(PublishAot)' == 'true' ">xUnit.net v3 Testing Framework [Native AOT]</Product>
         <RepositoryUrl>https://github.com/xunit/xunit</RepositoryUrl>
         <SignAssembly>true</SignAssembly>
       </PropertyGroup>
@@ -119,12 +123,18 @@
 
       <ItemGroup>
         <PackageReference Include="Microsoft.Testing.Platform.MSBuild" Version="[$(Microsoft_Testing_v1_Version),2.0.0)" />
-        <PackageReference Include="NSubstitute" Version="$(NSubstitute_Version)" />
+        <PackageReference Include="NSubstitute" Version="$(NSubstitute_Version)" Condition=" '$(PublishAot)' != 'true' " />
         <PackageReference Include="xunit.analyzers" Version="$(xunit_analyzers_Version)" PrivateAssets="all" />
       </ItemGroup>
 
-      <ItemGroup>
+      <ItemGroup Condition=" '$(PublishAot)' != 'true' ">
         <ProjectReference Include="..\xunit.v3.assert\xunit.v3.assert.csproj" />
+        <ProjectReference Include="..\xunit.v3.core\xunit.v3.core.csproj" />
+        <ProjectReference Include="..\xunit.v3.mtp-v1\xunit.v3.mtp-v1.csproj" />
+      </ItemGroup>
+
+      <ItemGroup Condition=" '$(PublishAot)' == 'true' ">
+        <ProjectReference Include="..\xunit.v3.assert.aot\xunit.v3.assert.aot.csproj" />
         <ProjectReference Include="..\xunit.v3.core\xunit.v3.core.csproj" />
         <ProjectReference Include="..\xunit.v3.mtp-v1\xunit.v3.mtp-v1.csproj" />
       </ItemGroup>

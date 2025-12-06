@@ -9,7 +9,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using NSubstitute;
 using Xunit;
 using Xunit.Sdk;
 
@@ -355,7 +354,7 @@ public class CollectionAssertsTests
 		[Fact]
 		public static void GuardClauses()
 		{
-			var comparer = Substitute.For<IEqualityComparer<int>>();
+			var comparer = new MyComparer();
 
 			Assert.Throws<ArgumentNullException>("collection", () => Assert.Contains(14, default(IEnumerable<int>)!, comparer));
 			Assert.Throws<ArgumentNullException>("comparer", () => Assert.Contains(14, [], null!));
@@ -594,7 +593,7 @@ public class CollectionAssertsTests
 		[Fact]
 		public static void GuardClauses()
 		{
-			var comparer = Substitute.For<IEqualityComparer<int>>();
+			var comparer = new MyComparer();
 
 			Assert.Throws<ArgumentNullException>("collection", () => Assert.DoesNotContain(14, default(IEnumerable<int>)!, comparer));
 			Assert.Throws<ArgumentNullException>("comparer", () => Assert.DoesNotContain(14, [], null!));
@@ -887,7 +886,7 @@ public class CollectionAssertsTests
 			[Fact]
 			public void SameValueDifferentType()
 			{
-				var ex = Record.Exception(() => Assert.Equal<object[]>([1, 2, 3], [1, 2, 3L]));
+				var ex = Record.Exception(() => Assert.Equal(new object[] { 1, 2, 3 }, [1, 2, 3L]));
 
 				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
@@ -1138,6 +1137,8 @@ public class CollectionAssertsTests
 			}
 		}
 
+#if !XUNIT_AOT  // Embedded IEquatable<T> cannot be done in Native AOT because of the reflection restrictions
+
 		public class CollectionsWithEquatable
 		{
 			[Fact]
@@ -1182,6 +1183,8 @@ public class CollectionAssertsTests
 					Char.GetHashCode();
 			}
 		}
+
+#endif  // !XUNIT_AOT
 
 		public class CollectionsWithFunc
 		{
@@ -1290,8 +1293,13 @@ public class CollectionAssertsTests
 				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
 					"Assert.Equal() Failure: Dictionaries differ" + Environment.NewLine +
+#if XUNIT_AOT
+					"Expected: [[a, 1], [b, 2], [c, 3]]" + Environment.NewLine +
+					"Actual:   [[a, 1], [b, 2]]",
+#else
 					"Expected: [[\"a\"] = 1, [\"b\"] = 2, [\"c\"] = 3]" + Environment.NewLine +
 					"Actual:   [[\"a\"] = 1, [\"b\"] = 2]",
+#endif
 					ex.Message
 				);
 			}
@@ -1307,8 +1315,13 @@ public class CollectionAssertsTests
 				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
 					"Assert.Equal() Failure: Dictionaries differ" + Environment.NewLine +
+#if XUNIT_AOT
+					"Expected: [[a, 1], [b, 2]]" + Environment.NewLine +
+					"Actual:   [[a, 1], [b, 2], [c, 3]]",
+#else
 					"Expected: [[\"a\"] = 1, [\"b\"] = 2]" + Environment.NewLine +
 					"Actual:   [[\"a\"] = 1, [\"b\"] = 2, [\"c\"] = 3]",
+#endif
 					ex.Message
 				);
 			}
@@ -1340,8 +1353,13 @@ public class CollectionAssertsTests
 				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
 					"Assert.Equal() Failure: Dictionaries differ" + Environment.NewLine +
+#if XUNIT_AOT
+					$"Expected: [[a, 1], [be, 2], [c, 3], [d, 4], [e, 5], {ArgumentFormatter.Ellipsis}]" + Environment.NewLine +
+					$"Actual:   [[a, 1], [ba, 2], [c, 3], [d, 4], [e, 5], {ArgumentFormatter.Ellipsis}]",
+#else
 					$"Expected: [[\"a\"] = 1, [\"be\"] = 2, [\"c\"] = 3, [\"d\"] = 4, [\"e\"] = 5, {ArgumentFormatter.Ellipsis}]" + Environment.NewLine +
 					$"Actual:   [[\"a\"] = 1, [\"ba\"] = 2, [\"c\"] = 3, [\"d\"] = 4, [\"e\"] = 5, {ArgumentFormatter.Ellipsis}]",
+#endif
 					ex.Message
 				);
 			}
@@ -1396,11 +1414,18 @@ public class CollectionAssertsTests
 				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
 					"Assert.Equal() Failure: Dictionaries differ" + Environment.NewLine +
+#if XUNIT_AOT
+					"Expected: [[toAddresses, System.Collections.Generic.List`1[System.String]], [ccAddresses, System.Collections.Generic.List`1[System.String]]]" + Environment.NewLine +
+					"Actual:   [[toAddresses, System.String[]], [ccAddresses, System.String[]]]",
+#else
 					"Expected: [[\"toAddresses\"] = [\"test1@example.com\"], [\"ccAddresses\"] = [\"test2@example.com\"]]" + Environment.NewLine +
 					"Actual:   [[\"toAddresses\"] = [\"test1@example.com\"], [\"ccAddresses\"] = [\"test3@example.com\"]]",
+#endif
 					ex.Message
 				);
 			}
+
+#if !XUNIT_AOT  // Embedded IEquatable<T> cannot be done in Native AOT because of the reflection restrictions
 
 			[Fact]
 			public void EquatableValues_Equal()
@@ -1441,6 +1466,8 @@ public class CollectionAssertsTests
 				public override int GetHashCode() =>
 					Char.GetHashCode();
 			}
+
+#endif  // !XUNIT_AOT
 
 			[Fact]
 			public void ComplexEmbeddedValues_Equal()
@@ -1510,8 +1537,13 @@ public class CollectionAssertsTests
 				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
 					"Assert.Equal() Failure: Dictionaries differ" + Environment.NewLine +
+#if XUNIT_AOT
+					"Expected: [[key, System.Collections.Generic.Dictionary`2[System.String,System.Object]]]" + Environment.NewLine +
+					"Actual:   [[key, System.Collections.Generic.Dictionary`2[System.String,System.Object]]]",
+#else
 					"Expected: [[\"key\"] = [[\"key\"] = [[[\"key\"] = [\"value1\"]]]]]" + Environment.NewLine +
 					"Actual:   [[\"key\"] = [[\"key\"] = [[[\"key\"] = [\"value2\"]]]]]",
+#endif
 					ex.Message
 				);
 			}
@@ -1843,6 +1875,8 @@ public class CollectionAssertsTests
 			}
 		}
 
+#if !XUNIT_AOT  // Embedded IEquatable<T> cannot be done in Native AOT because of the reflection restrictions
+
 		public class CollectionsWithEquatable
 		{
 			[Fact]
@@ -1885,6 +1919,8 @@ public class CollectionAssertsTests
 					Char.GetHashCode();
 			}
 		}
+
+#endif  // !XUNIT_AOT
 
 		public class CollectionsWithFunc
 		{
@@ -1951,8 +1987,13 @@ public class CollectionAssertsTests
 				Assert.IsType<NotEqualException>(ex);
 				Assert.Equal(
 					"Assert.NotEqual() Failure: Dictionaries are equal" + Environment.NewLine +
+#if XUNIT_AOT
+					"Expected: Not [[a, 1], [b, 2], [c, 3]]" + Environment.NewLine +
+					"Actual:       [[a, 1], [b, 2], [c, 3]]",
+#else
 					"Expected: Not [[\"a\"] = 1, [\"b\"] = 2, [\"c\"] = 3]" + Environment.NewLine +
 					"Actual:       [[\"a\"] = 1, [\"b\"] = 2, [\"c\"] = 3]",
+#endif
 					ex.Message
 				);
 			}
@@ -1968,8 +2009,13 @@ public class CollectionAssertsTests
 				Assert.IsType<NotEqualException>(ex);
 				Assert.Equal(
 					"Assert.NotEqual() Failure: Dictionaries are equal" + Environment.NewLine +
+#if XUNIT_AOT
+					"Expected: Not [[a, 1], [b, 2], [c, 3]]" + Environment.NewLine +
+					"Actual:       [[b, 2], [c, 3], [a, 1]]",
+#else
 					"Expected: Not [[\"a\"] = 1, [\"b\"] = 2, [\"c\"] = 3]" + Environment.NewLine +
 					"Actual:       [[\"b\"] = 2, [\"c\"] = 3, [\"a\"] = 1]",
+#endif
 					ex.Message
 				);
 			}
@@ -2043,8 +2089,13 @@ public class CollectionAssertsTests
 				Assert.IsType<NotEqualException>(ex);
 				Assert.Equal(
 					"Assert.NotEqual() Failure: Dictionaries are equal" + Environment.NewLine +
+#if XUNIT_AOT
+					"Expected: Not [[toAddresses, System.Collections.Generic.List`1[System.String]], [ccAddresses, System.Collections.Generic.List`1[System.String]]]" + Environment.NewLine +
+					"Actual:       [[toAddresses, System.String[]], [ccAddresses, System.String[]]]",
+#else
 					"Expected: Not [[\"toAddresses\"] = [\"test1@example.com\"], [\"ccAddresses\"] = [\"test2@example.com\"]]" + Environment.NewLine +
 					"Actual:       [[\"toAddresses\"] = [\"test1@example.com\"], [\"ccAddresses\"] = [\"test2@example.com\"]]",
+#endif
 					ex.Message
 				);
 			}
@@ -2072,6 +2123,8 @@ public class CollectionAssertsTests
 
 				Assert.NotEqual(expected, actual);
 			}
+
+#if !XUNIT_AOT  // Embedded IEquatable<T> cannot be done in Native AOT because of the reflection restrictions
 
 			[Fact]
 			public void EquatableValues_Equal()
@@ -2113,6 +2166,8 @@ public class CollectionAssertsTests
 					Char.GetHashCode();
 			}
 
+#endif  // !XUNIT_AOT
+
 			[Fact]
 			public void ComplexEmbeddedValues_Equal()
 			{
@@ -2148,8 +2203,13 @@ public class CollectionAssertsTests
 				Assert.IsType<NotEqualException>(ex);
 				Assert.Equal(
 					"Assert.NotEqual() Failure: Dictionaries are equal" + Environment.NewLine +
+#if XUNIT_AOT
+					"Expected: Not [[key, System.Collections.Generic.Dictionary`2[System.String,System.Object]]]" + Environment.NewLine +
+					"Actual:       [[key, System.Collections.Generic.Dictionary`2[System.String,System.Object]]]",
+#else
 					"Expected: Not [[\"key\"] = [[\"key\"] = [[[\"key\"] = [\"value\"]]]]]" + Environment.NewLine +
 					"Actual:       [[\"key\"] = [[\"key\"] = [[[\"key\"] = [\"value\"]]]]]",
+#endif
 					ex.Message
 				);
 			}

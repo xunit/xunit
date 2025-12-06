@@ -22,6 +22,7 @@ public static partial class SignAssemblies
 			new[] {
 				Path.Combine(context.BaseFolder, "src", "xunit.v3.assert",                "bin", context.ConfigurationText, "netstandard2.0",           "xunit.v3.assert.dll"),
 				Path.Combine(context.BaseFolder, "src", "xunit.v3.assert",                "bin", context.ConfigurationText, "net8.0",                   "xunit.v3.assert.dll"),
+				Path.Combine(context.BaseFolder, "src", "xunit.v3.assert.aot",            "bin", context.ConfigurationText, "net9.0",                   "xunit.v3.assert.aot.dll"),
 				Path.Combine(context.BaseFolder, "src", "xunit.v3.common",                "bin", context.ConfigurationText, "netstandard2.0",           "xunit.v3.common.dll"),
 				Path.Combine(context.BaseFolder, "src", "xunit.v3.core",                  "bin", context.ConfigurationText, "netstandard2.0",           "xunit.v3.core.dll"),
 				Path.Combine(context.BaseFolder, "src", "xunit.v3.msbuildtasks",          "bin", context.ConfigurationText, "net472",                   "xunit.v3.msbuildtasks.dll"),

@@ -1,5 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+  <!--
+  We don't turn on XUNIT_OVERLOAD_RESOLUTION_PRIORITY or C# 13 here because of bugs in nullable support
+  library TunnelVisionLabs.ReferenceAssemblyAnnotator. That's acceptable, as we're using this project
+  for build verification, not for production code.
+  -->
   <PropertyGroup>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AnalysisLevel>latest-All</AnalysisLevel>

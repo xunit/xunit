@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PublishAot>true</PublishAot>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)\..\xunit.v3.assert.tests\**\*.cs" Exclude="**\obj\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Collections.Immutable" Version="[$(System_Collections_Immutable_Version)]" />
+    <PackageReference Include="System.Memory" Version="[$(System_Memory_Version)]" />
+  </ItemGroup>
+
+</Project>

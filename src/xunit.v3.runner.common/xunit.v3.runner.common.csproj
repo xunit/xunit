@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\xunit.v3.assert\Asserts\Sdk\ArgumentFormatter.cs" LinkBase="Common\Asserts" />
+    <Compile Include="..\xunit.v3.assert\Asserts\Sdk\ArgumentFormatter*.cs" LinkBase="Common\Asserts" />
     <Compile Include="..\common\MessagePartials\**\*.cs" LinkBase="Common\MessagePartials" />
   </ItemGroup>
 

@@ -1,3 +1,5 @@
+#if !XUNIT_AOT
+
 using System;
 using System.Linq;
 using System.Linq.Expressions;
@@ -92,3 +94,5 @@ public static class NSubstituteExtensions
 			Do(callInfo => callbackWithArguments((T1)callInfo[0], (T2)callInfo[1], (T3)callInfo[2], (T4)callInfo[3], (T5)callInfo[4], (T6)callInfo[5]));
 	}
 }
+
+#endif

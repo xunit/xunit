@@ -1,3 +1,5 @@
+#if !XUNIT_AOT
+
 using NSubstitute;
 using Xunit.Runner.Common;
 
@@ -21,3 +23,5 @@ public static partial class Mocks
 		return result;
 	}
 }
+
+#endif

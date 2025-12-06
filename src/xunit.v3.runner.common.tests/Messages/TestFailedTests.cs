@@ -20,7 +20,7 @@ public class TestFailedTests
 		[Fact]
 		public void BuiltInAssertionException()
 		{
-			var ex = EqualException.ForMismatchedValues(42, 2112);
+			var ex = EqualException.ForMismatchedValues("42", "2112");
 
 			var failed = TestFailed.FromException(ex, "asm-id", "coll-id", "class-id", "method-id", "case-id", "test-id", 21.12M, null, null);
 

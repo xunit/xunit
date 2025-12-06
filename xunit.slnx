@@ -37,12 +37,16 @@
     <Project Path="src/xunit.v3.runner.utility/xunit.v3.runner.utility.csproj" />
     <Project Path="src/xunit.v3.templates/xunit.v3.templates.csproj" />
   </Folder>
+  <Folder Name="/src/aot/">
+    <Project Path="src/xunit.v3.assert.aot/xunit.v3.assert.aot.csproj" />
+  </Folder>
   <Folder Name="/src/assert-compat/">
     <File Path="src/xunit.v3.assert.compat/Directory.Build.props" />
     <File Path="src/xunit.v3.assert.compat/Directory.Build.targets" />
     <File Path="src/xunit.v3.assert.compat/README.md" />
     <Project Path="src/xunit.v3.assert.compat/xunit.v3.assert.all-off/xunit.v3.assert.all-off.csproj" />
     <Project Path="src/xunit.v3.assert.compat/xunit.v3.assert.all-on/xunit.v3.assert.all-on.csproj" />
+    <Project Path="src/xunit.v3.assert.compat/xunit.v3.assert.aot.nullable-mixed/xunit.v3.assert.aot.nullable-mixed.csproj" />
     <Project Path="src/xunit.v3.assert.compat/xunit.v3.assert.nullable-mixed/xunit.v3.assert.nullable-mixed.csproj" />
   </Folder>
   <Folder Name="/test/">
@@ -56,6 +60,9 @@
     <Project Path="src/xunit.v3.runner.utility.tests/xunit.v3.runner.utility.tests.csproj">
       <BuildDependency Project="src/xunit.v3.assert.tests/xunit.v3.assert.tests.csproj" />
     </Project>
+  </Folder>
+  <Folder Name="/test/aot/">
+    <Project Path="src/xunit.v3.assert.aot.tests/xunit.v3.assert.aot.tests.csproj" />
   </Folder>
   <Folder Name="/test/back-compat/">
     <Project Path="src/xunit.v1.tests/xunit.v1.tests.csproj" />

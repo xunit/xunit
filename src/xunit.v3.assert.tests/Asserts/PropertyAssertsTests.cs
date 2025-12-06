@@ -1,7 +1,6 @@
 using System;
 using System.ComponentModel;
 using System.Threading.Tasks;
-using NSubstitute;
 using Xunit;
 using Xunit.Sdk;
 
@@ -13,7 +12,7 @@ public class PropertyAssertsTests
 		public void GuardClauses()
 		{
 			Assert.Throws<ArgumentNullException>("object", () => Assert.PropertyChanged(null!, "propertyName", delegate { }));
-			Assert.Throws<ArgumentNullException>("testCode", () => Assert.PropertyChanged(Substitute.For<INotifyPropertyChanged>(), "propertyName", (Action)null!));
+			Assert.Throws<ArgumentNullException>("testCode", () => Assert.PropertyChanged(new NotifiedClass(), "propertyName", (Action)null!));
 		}
 
 		[Fact]
@@ -66,7 +65,7 @@ public class PropertyAssertsTests
 		public async Task GuardClauses()
 		{
 			await Assert.ThrowsAsync<ArgumentNullException>("object", () => Assert.PropertyChangedAsync(null!, "propertyName", () => Task.FromResult(0)));
-			await Assert.ThrowsAsync<ArgumentNullException>("testCode", () => Assert.PropertyChangedAsync(Substitute.For<INotifyPropertyChanged>(), "propertyName", default!));
+			await Assert.ThrowsAsync<ArgumentNullException>("testCode", () => Assert.PropertyChangedAsync(new NotifiedClass(), "propertyName", default(Func<Task>)!));
 		}
 
 		[Fact]

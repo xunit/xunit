@@ -1,3 +1,5 @@
+#if !XUNIT_AOT
+
 using System.Reflection;
 using NSubstitute;
 using Xunit.Sdk;
@@ -37,3 +39,5 @@ public static partial class Mocks
 	public static ITestFrameworkExecutor TestFrameworkExecutor() =>
 		Substitute.For<ITestFrameworkExecutor, InterfaceProxy<ITestFrameworkExecutor>>();
 }
+
+#endif
