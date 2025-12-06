@@ -1,0 +1,74 @@
+<Solution>
+  <Folder Name="/git/">
+    <File Path=".gitattributes" />
+    <File Path=".github/ISSUE_TEMPLATE.md" />
+    <File Path=".github/PULL_REQUEST_TEMPLATE.md" />
+    <File Path=".gitignore" />
+  </Folder>
+  <Folder Name="/git/workflows/">
+    <File Path=".github/workflows/ci-signed.yaml" />
+    <File Path=".github/workflows/ci-unsigned.yaml" />
+    <File Path=".github/workflows/pull-request.yaml" />
+  </Folder>
+  <Folder Name="/src/">
+    <File Path=".editorconfig" />
+    <File Path="build" />
+    <File Path="build.ps1" />
+    <File Path="BUILDING.md" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+    <File Path="src/Directory.Build.props" />
+    <File Path="src/Directory.Build.targets" />
+    <File Path="src/Versions.props" />
+    <File Path="version.json" />
+    <Project Path="src/xunit.v3.assert/xunit.v3.assert.csproj" />
+    <Project Path="src/xunit.v3.common/xunit.v3.common.csproj" />
+    <Project Path="src/xunit.v3.core/xunit.v3.core.csproj" />
+    <Project Path="src/xunit.v3.msbuildtasks/xunit.v3.msbuildtasks.csproj" />
+    <Project Path="src/xunit.v3.mtp-v1/xunit.v3.mtp-v1.csproj" />
+    <Project Path="src/xunit.v3.mtp-v2/xunit.v3.mtp-v2.csproj" />
+    <Project Path="src/xunit.v3.runner.common/xunit.v3.runner.common.csproj" />
+    <Project Path="src/xunit.v3.runner.console.x86/xunit.v3.runner.console.x86.csproj" />
+    <Project Path="src/xunit.v3.runner.console/xunit.v3.runner.console.csproj" />
+    <Project Path="src/xunit.v3.runner.inproc.console/xunit.v3.runner.inproc.console.csproj" />
+    <Project Path="src/xunit.v3.runner.msbuild/xunit.v3.runner.msbuild.csproj" />
+    <Project Path="src/xunit.v3.runner.utility/xunit.v3.runner.utility.csproj" />
+    <Project Path="src/xunit.v3.templates/xunit.v3.templates.csproj" />
+  </Folder>
+  <Folder Name="/src/assert-compat/">
+    <File Path="src/xunit.v3.assert.compat/Directory.Build.props" />
+    <File Path="src/xunit.v3.assert.compat/Directory.Build.targets" />
+    <File Path="src/xunit.v3.assert.compat/README.md" />
+    <Project Path="src/xunit.v3.assert.compat/xunit.v3.assert.all-off/xunit.v3.assert.all-off.csproj" />
+    <Project Path="src/xunit.v3.assert.compat/xunit.v3.assert.all-on/xunit.v3.assert.all-on.csproj" />
+    <Project Path="src/xunit.v3.assert.compat/xunit.v3.assert.nullable-mixed/xunit.v3.assert.nullable-mixed.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="src/xunit.v3.assert.tests/xunit.v3.assert.tests.csproj" />
+    <Project Path="src/xunit.v3.common.tests/xunit.v3.common.tests.csproj" />
+    <Project Path="src/xunit.v3.core.tests/xunit.v3.core.tests.csproj" />
+    <Project Path="src/xunit.v3.runner.common.tests/xunit.v3.runner.common.tests.csproj" />
+    <Project Path="src/xunit.v3.runner.console.tests/xunit.v3.runner.console.tests.csproj" />
+    <Project Path="src/xunit.v3.runner.inproc.console.tests/xunit.v3.runner.inproc.console.tests.csproj" />
+    <Project Path="src/xunit.v3.runner.msbuild.tests/xunit.v3.runner.msbuild.tests.csproj" />
+    <Project Path="src/xunit.v3.runner.utility.tests/xunit.v3.runner.utility.tests.csproj">
+      <BuildDependency Project="src/xunit.v3.assert.tests/xunit.v3.assert.tests.csproj" />
+    </Project>
+  </Folder>
+  <Folder Name="/test/back-compat/">
+    <Project Path="src/xunit.v1.tests/xunit.v1.tests.csproj" />
+    <Project Path="src/xunit.v2.tests/xunit.v2.tests.csproj" />
+  </Folder>
+  <Folder Name="/test/x86/">
+    <Project Path="src/xunit.v3.assert.x86.tests/xunit.v3.assert.x86.tests.csproj" />
+    <Project Path="src/xunit.v3.common.x86.tests/xunit.v3.common.x86.tests.csproj" />
+    <Project Path="src/xunit.v3.core.x86.tests/xunit.v3.core.x86.tests.csproj" />
+    <Project Path="src/xunit.v3.runner.common.x86.tests/xunit.v3.runner.common.x86.tests.csproj" />
+    <Project Path="src/xunit.v3.runner.console.x86.tests/xunit.v3.runner.console.x86.tests.csproj" />
+    <Project Path="src/xunit.v3.runner.inproc.console.x86.tests/xunit.v3.runner.inproc.console.x86.tests.csproj" />
+    <Project Path="src/xunit.v3.runner.msbuild.x86.tests/xunit.v3.runner.msbuild.x86.tests.csproj" />
+    <Project Path="src/xunit.v3.runner.utility.x86.tests/xunit.v3.runner.utility.x86.tests.csproj">
+      <BuildDependency Project="src/xunit.v3.assert.x86.tests/xunit.v3.assert.x86.tests.csproj" />
+    </Project>
+  </Folder>
+</Solution>
