@@ -1,5 +1,7 @@
 #if !NET7_0_OR_GREATER
 
+#pragma warning disable IDE0290  // Use primary constructor
+
 namespace System.Runtime.CompilerServices
 {
 	/// <summary/>
@@ -9,11 +11,14 @@ namespace System.Runtime.CompilerServices
 
 	/// <summary/>
 	[AttributeUsage(AttributeTargets.All, AllowMultiple = true, Inherited = false)]
-	internal sealed class CompilerFeatureRequiredAttribute(string featureName) :
+	internal sealed class CompilerFeatureRequiredAttribute :
 		Attribute
 	{
+		public CompilerFeatureRequiredAttribute(string featureName) =>
+			FeatureName = featureName;
+
 		/// <summary/>
-		public string FeatureName { get; } = featureName;
+		public string FeatureName { get; }
 
 		/// <summary/>
 		public bool IsOptional { get; set; }
