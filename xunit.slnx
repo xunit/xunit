@@ -10,7 +10,7 @@
     <File Path=".github/workflows/ci-unsigned.yaml" />
     <File Path=".github/workflows/pull-request.yaml" />
   </Folder>
-  <Folder Name="/src/">
+  <Folder Name="/meta/">
     <File Path=".editorconfig" />
     <File Path="build" />
     <File Path="build.ps1" />
@@ -21,6 +21,8 @@
     <File Path="src/Directory.Build.targets" />
     <File Path="src/Versions.props" />
     <File Path="version.json" />
+  </Folder>
+  <Folder Name="/src/">
     <Project Path="src/xunit.v3.assert/xunit.v3.assert.csproj" />
     <Project Path="src/xunit.v3.common/xunit.v3.common.csproj" />
     <Project Path="src/xunit.v3.core/xunit.v3.core.csproj" />
