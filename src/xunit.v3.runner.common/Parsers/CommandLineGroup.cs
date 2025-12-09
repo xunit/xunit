@@ -22,4 +22,7 @@ public enum CommandLineGroup
 
 	/// <summary/>
 	ArgumentDisplay,
+
+	/// <summary/>
+	ResultFormat,
 }

@@ -23,7 +23,9 @@ public class TransformFactory
 			new Transform(
 				"xml",
 				"output results to xUnit.net v2+ XML file",
-				Handler_DirectWrite
+				Handler_DirectWrite,
+				"xUnit.net (v2+ XML)",
+				"xunit.xml"
 			),
 			new Transform(
 				"xmlV1",
@@ -33,27 +35,34 @@ public class TransformFactory
 			new Transform(
 				"ctrf",
 				"output results to CTRF file",
-				Handler_CTRF
+				Handler_CTRF,
+				"CTRF (JSON)"
 			),
 			new Transform(
 				"html",
 				"output results to HTML file",
-				(xml, outputFileName) => Handler_XslTransform("HTML.xslt", xml, outputFileName)
+				(xml, outputFileName) => Handler_XslTransform("HTML.xslt", xml, outputFileName),
+				"HTML"
 			),
 			new Transform(
 				"nUnit",
 				"output results to NUnit v2.5 XML file",
-				(xml, outputFileName) => Handler_XslTransform("NUnitXml.xslt", xml, outputFileName)
+				(xml, outputFileName) => Handler_XslTransform("NUnitXml.xslt", xml, outputFileName),
+				"NUnit (v2.5 XML)",
+				"nunit.xml"
 			),
 			new Transform(
 				"jUnit",
 				"output results to JUnit XML file",
-				(xml, outputFileName) => Handler_XslTransform("JUnitXml.xslt", xml, outputFileName)
+				(xml, outputFileName) => Handler_XslTransform("JUnitXml.xslt", xml, outputFileName),
+				"JUnit (XML)",
+				"junit.xml"
 			),
 			new Transform(
 				"trx",
 				"output results to TRX XML file",
-				Handler_TRX
+				Handler_TRX,
+				"TRX"
 			),
 		];
 
