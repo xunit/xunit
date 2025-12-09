@@ -217,20 +217,6 @@ public sealed class CommandLineOptionsProvider() :
 			    (integer) - maximum string length to print, followed by an ellipsis
 			""", ArgumentArity.ExactlyOne, options => OnIntValueWithMinimum(options, 0, value => options.AssemblyConfig.PrintMaxStringLength = value)) },
 
-		// Reports
-		{ "report-ctrf", ("Enable generating CTRF (JSON) report", ArgumentArity.Zero, options => OnReport(options.Configuration, options.CommandLineOptions, "ctrf", "report-ctrf-filename", "ctrf", options.ProjectConfig)) },
-		{ "report-ctrf-filename", ("The name of the generated CTRF report", ArgumentArity.ExactlyOne, OnReportFilename) },
-		{ "report-junit", ("Enable generating JUnit (XML) report", ArgumentArity.Zero, options => OnReport(options.Configuration, options.CommandLineOptions, "junit", "report-junit-filename", "junit", options.ProjectConfig)) },
-		{ "report-junit-filename", ("The name of the generated JUnit report", ArgumentArity.ExactlyOne, OnReportFilename) },
-		{ "report-nunit", ("Enable generating NUnit (v2.5 XML) report", ArgumentArity.Zero, options => OnReport(options.Configuration, options.CommandLineOptions, "nunit", "report-nunit-filename", "nunit", options.ProjectConfig)) },
-		{ "report-nunit-filename", ("The name of the generated NUnit report", ArgumentArity.ExactlyOne, OnReportFilename) },
-		{ "report-xunit", ("Enable generating xUnit.net (v2+ XML) report", ArgumentArity.Zero, options => OnReport(options.Configuration, options.CommandLineOptions, "xml", "report-xunit-filename", "xunit", options.ProjectConfig)) },
-		{ "report-xunit-filename", ("The name of the generated xUnit.net report", ArgumentArity.ExactlyOne, OnReportFilename) },
-		{ "report-xunit-html", ("Enable generating xUnit.net HTML report", ArgumentArity.Zero, options => OnReport(options.Configuration, options.CommandLineOptions, "html", "report-xunit-html-filename", "html", options.ProjectConfig)) },
-		{ "report-xunit-html-filename", ("The name of the generated xUnit.net HTML report", ArgumentArity.ExactlyOne, OnReportFilename) },
-		{ "report-xunit-trx", ("Enable generating xUnit.net TRX report", ArgumentArity.Zero, options => OnReport(options.Configuration, options.CommandLineOptions, "trx", "report-xunit-trx-filename", "trx", options.ProjectConfig)) },
-		{ "report-xunit-trx-filename", ("The name of the generated xUnit.net TRX report", ArgumentArity.ExactlyOne, OnReportFilename) },
-
 		// Non-configuration options (read externally)
 		{ "auto-reporters", (
 			"""
@@ -245,17 +231,38 @@ public sealed class CommandLineOptionsProvider() :
 			""", ArgumentArity.ExactlyOne, OnConfigFilename) },
 		{ "xunit-info", ("Show xUnit.net headers and information", ArgumentArity.Zero, NoOp) },
 	};
-	static readonly Dictionary<string, string> optionDependencies = new()
-	{
-		{ "report-ctrf-filename", "report-ctrf" },
-		{ "report-junit-filename", "report-junit" },
-		{ "report-nunit-filename", "report-nunit" },
-		{ "report-xunit-filename", "report-xunit" },
-		{ "report-xunit-html-filename", "report-xunit-html" },
-		{ "report-xunit-trx-filename", "report-xunit-trx" },
-	};
+	static readonly Dictionary<string, string> optionDependencies = new();
 	// Match the format used by Microsoft.Testing.Extensions.TrxReport
 	static readonly string reportFileNameRoot = string.Format(CultureInfo.InvariantCulture, "{0}_{1}_{2:yyyy-MM-dd_HH_mm_ss.ffffff}.", Environment.UserName, Environment.MachineName, DateTimeOffset.UtcNow);
+
+	static CommandLineOptionsProvider()
+	{
+		foreach (var transform in TransformFactory.AvailableTransforms)
+		{
+			if (transform.MTPDescription is null || transform.MTPFileNameDescription is null)
+				continue;
+
+#pragma warning disable CA1308 // This is for UX purposes, not comparison purposes
+			var baseID = transform.ID.ToLowerInvariant();
+#pragma warning restore CA1308
+
+			var optionKey = "report-xunit-" + baseID;
+			var filenameKey = "report-xunit-" + baseID + "-filename";
+			var extension = transform.MTPFileExtension;
+
+			options.Add(optionKey, (
+				transform.MTPDescription,
+				ArgumentArity.Zero,
+				opts => OnReport(opts.Configuration, opts.CommandLineOptions, baseID, filenameKey, extension, opts.ProjectConfig)
+			));
+			options.Add(filenameKey, (
+				transform.MTPFileNameDescription,
+				ArgumentArity.ExactlyOne,
+				OnReportFilename
+			));
+			optionDependencies.Add(filenameKey, optionKey);
+		}
+	}
 
 	/// <inheritdoc/>
 	public IReadOnlyCollection<CommandLineOption> GetCommandLineOptions() =>

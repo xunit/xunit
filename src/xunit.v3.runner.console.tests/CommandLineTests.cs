@@ -820,7 +820,7 @@ public class CommandLineTests
 			var exception = Record.Exception(() => commandLine.Parse());
 
 			Assert.IsType<ArgumentException>(exception);
-			Assert.Equal($"missing filename for {@switch}", exception.Message);
+			Assert.Equal($"missing filename for -result{@switch}", exception.Message);
 		}
 
 		[Theory]

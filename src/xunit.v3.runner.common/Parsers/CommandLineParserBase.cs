@@ -214,6 +214,13 @@ public abstract class CommandLineParserBase
 		// Reporter is hidden because the available list is dynamic
 		AddHiddenParser("reporter", OnReporter);
 
+		// Add both `-result-<id>` and deprecated `-<id>` for result output
+		foreach (var transform in TransformFactory.AvailableTransforms)
+		{
+			AddParser("result-" + transform.ID, kvp => OnResult(new("-" + transform.ID, kvp.Value)), CommandLineGroup.ResultFormat, "<filename>", transform.Description);
+			AddHiddenParser(transform.ID, OnResult);
+		}
+
 		// Deprecated reporter switches
 		AddHiddenParser("json", kvp => OnReporter(new("-reporter", "json")));
 		AddHiddenParser("quiet", kvp => OnReporter(new("-reporter", "quiet")));
@@ -221,7 +228,7 @@ public abstract class CommandLineParserBase
 		AddHiddenParser("teamcity", kvp => OnReporter(new("-reporter", "teamcity")));
 		AddHiddenParser("verbose", kvp => OnReporter(new("-reporter", "verbose")));
 
-		// Deprecated filters
+		// Deprecated filter switches
 		AddHiddenParser("noclass", OnClassMinus);
 		AddHiddenParser("nomethod", OnMethodMinus);
 		AddHiddenParser("nonamespace", OnNamespaceMinus);
@@ -748,6 +755,20 @@ public abstract class CommandLineParserBase
 				);
 	}
 
+	void OnResult(KeyValuePair<string, string?> option)
+	{
+		var optionName = option.Key.Substring(1);
+
+		if (!TransformFactory.AvailableTransforms.Any(t => t.ID.Equals(optionName, StringComparison.OrdinalIgnoreCase)))
+			throw new ArgumentException("unknown result type " + optionName);
+
+		if (option.Value is null)
+			throw new ArgumentException("missing filename for -result-" + optionName);
+
+		EnsurePathExists(option.Value);
+		Project.Configuration.Output.Add(optionName, option.Value);
+	}
+
 	void OnShowLiveOutput(KeyValuePair<string, string?> option)
 	{
 		GuardNoOptionValue(option);
@@ -827,23 +848,10 @@ public abstract class CommandLineParserBase
 
 			optionName = optionName.Substring(1);
 
-			if (parsers.TryGetValue(optionName, out var parser))
-				parser.Handler(option);
-			else
-			{
-				// Might be a result output file...
-				if (TransformFactory.AvailableTransforms.Any(t => t.ID.Equals(optionName, StringComparison.OrdinalIgnoreCase)))
-				{
-					if (option.Value is null)
-						throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "missing filename for {0}", option.Key));
+			if (!parsers.TryGetValue(optionName, out var parser))
+				throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "unknown option: {0}", option.Key));
 
-					EnsurePathExists(option.Value);
-
-					Project.Configuration.Output.Add(optionName, option.Value);
-				}
-				else
-					throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "unknown option: {0}", option.Key));
-			}
+			parser.Handler(option);
 		}
 
 		var autoReporter =
@@ -921,16 +929,7 @@ public abstract class CommandLineParserBase
 			}
 		}
 
-		if (TransformFactory.AvailableTransforms.Count != 0)
-		{
-			ConsoleHelper.WriteLine();
-			ConsoleHelper.WriteLine("Result formats (optional, choose one or more)");
-			ConsoleHelper.WriteLine();
-
-			var longestTransform = TransformFactory.AvailableTransforms.Max(t => t.ID.Length);
-			foreach (var transform in TransformFactory.AvailableTransforms.OrderBy(t => t.ID))
-				ConsoleHelper.WriteLine("  -{0} : {1}", string.Format(CultureInfo.CurrentCulture, "{0} <filename>", transform.ID).PadRight(longestTransform + 11), transform.Description);
-		}
+		PrintUsageGroup(CommandLineGroup.ResultFormat, "Result format (optional, choose one or more)");
 	}
 
 	void PrintUsageGroup(

@@ -9,8 +9,8 @@ using Microsoft.Testing.Platform.CommandLine;
 using Microsoft.Testing.Platform.Configurations;
 using NSubstitute;
 using Xunit;
-using Xunit.Runner.Common;
 using Xunit.MicrosoftTestingPlatform;
+using Xunit.Runner.Common;
 using Xunit.Sdk;
 
 public class CommandLineOptionsProviderTests
@@ -438,13 +438,13 @@ public class CommandLineOptionsProviderTests
 
 	public class Reports : CommandLineOptionsProviderTests
 	{
-		public static TheoryData<string> ReportOptions = ["ctrf", "junit", "nunit", "xunit", "xunit-html", "xunit-trx"];
+		public static TheoryData<string> ReportOptions = ["ctrf", "html", "junit", "nunit", "trx", "xml"];
 
 		[Theory]
 		[MemberData(nameof(ReportOptions))]
 		public void PathValidation(string option)
 		{
-			commandLineOptions.Set($"report-{option}-filename", ["/path/to/report-file"]);
+			commandLineOptions.Set($"report-xunit-{option}-filename", ["/path/to/report-file"]);
 
 			var ex = Record.Exception(() => CommandLineOptionsProvider.Parse(configuration, commandLineOptions, projectAssembly));
 
@@ -456,22 +456,22 @@ public class CommandLineOptionsProviderTests
 		[MemberData(nameof(ReportOptions))]
 		public async Task FileNameRequiresEnablementOption(string option)
 		{
-			commandLineOptions.Set($"report-{option}-filename", ["report-file"]);
+			commandLineOptions.Set($"report-xunit-{option}-filename", ["report-file"]);
 
 			var result = await new CommandLineOptionsProvider().ValidateCommandLineOptionsAsync(commandLineOptions);
 
 			Assert.False(result.IsValid);
-			Assert.Equal($"'--report-{option}-filename' requires '--report-{option}' to be enabled", result.ErrorMessage);
+			Assert.Equal($"'--report-xunit-{option}-filename' requires '--report-xunit-{option}' to be enabled", result.ErrorMessage);
 		}
 
 		public static TheoryData<string, string, string> ReportOptionsKeyExtension =
 		[
 			("ctrf", "ctrf", "ctrf"),
+			("html", "html", "html"),
 			("junit", "junit", "junit"),
 			("nunit", "nunit", "nunit"),
-			("xunit", "xml", "xunit"),
-			("xunit-html", "html", "html"),
-			("xunit-trx", "trx", "trx"),
+			("trx", "trx", "trx"),
+			("xml", "xml", "xunit"),
 		];
 
 		[Theory]
@@ -481,7 +481,7 @@ public class CommandLineOptionsProviderTests
 			string outputKey,
 			string extension)
 		{
-			commandLineOptions.Set($"report-{option}", []);
+			commandLineOptions.Set($"report-xunit-{option}", []);
 
 			CommandLineOptionsProvider.Parse(configuration, commandLineOptions, projectAssembly);
 
@@ -499,8 +499,8 @@ public class CommandLineOptionsProviderTests
 			string _)
 		{
 			configuration.GetTestResultDirectory().Returns("/path/to/results");
-			commandLineOptions.Set($"report-{option}", []);
-			commandLineOptions.Set($"report-{option}-filename", ["report-file"]);
+			commandLineOptions.Set($"report-xunit-{option}", []);
+			commandLineOptions.Set($"report-xunit-{option}-filename", ["report-file"]);
 
 			CommandLineOptionsProvider.Parse(configuration, commandLineOptions, projectAssembly);
 
