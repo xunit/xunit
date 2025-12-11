@@ -8,6 +8,10 @@ namespace Xunit;
 /// </summary>
 public class CulturedTheoryAttributeDiscoverer : TheoryDiscoverer
 {
+	/// <remarks>
+	/// For each culture, returns one instance of <see cref="CulturedXunitTestCase"/>. May also return a
+	/// single <see cref="ExecutionErrorTestCase"/> for error conditions.
+	/// </remarks>
 	/// <inheritdoc/>
 	protected override ValueTask<IReadOnlyCollection<IXunitTestCase>> CreateTestCasesForDataRow(
 		ITestFrameworkDiscoveryOptions discoveryOptions,
@@ -52,6 +56,7 @@ public class CulturedTheoryAttributeDiscoverer : TheoryDiscoverer
 						details.TestCaseDisplayName,
 						details.UniqueID,
 						details.Explicit,
+						dataRow.Label,
 						details.SkipExceptions,
 						details.SkipReason,
 						details.SkipType,
@@ -66,6 +71,11 @@ public class CulturedTheoryAttributeDiscoverer : TheoryDiscoverer
 		);
 	}
 
+	/// <remarks>
+	/// For each culture, returns one instance of <see cref="CulturedXunitDelayEnumeratedTheoryTestCase"/>
+	/// (which performs the data discovery at runtime, for non-skipped theories) or <see cref="CulturedXunitTestCase"/>
+	/// (for skipped theories). May also return a single <see cref="ExecutionErrorTestCase"/> for error conditions.
+	/// </remarks>
 	/// <inheritdoc/>
 	protected override ValueTask<IReadOnlyCollection<IXunitTestCase>> CreateTestCasesForTheory(
 		ITestFrameworkDiscoveryOptions discoveryOptions,
@@ -98,21 +108,39 @@ public class CulturedTheoryAttributeDiscoverer : TheoryDiscoverer
 		return new(
 			cultures
 				.Select(
-					culture => new CulturedXunitDelayEnumeratedTheoryTestCase(
-						culture,
-						details.ResolvedTestMethod,
-						details.TestCaseDisplayName,
-						details.UniqueID,
-						details.Explicit,
-						theoryAttribute.SkipTestWithoutData,
-						details.SkipExceptions,
-						details.SkipReason,
-						details.SkipType,
-						details.SkipUnless,
-						details.SkipWhen,
-						testMethod.Traits.ToReadWrite(StringComparer.OrdinalIgnoreCase),
-						timeout: details.Timeout
-					)
+					culture =>
+						details.SkipReason is not null && details.SkipUnless is null && details.SkipWhen is null
+							? new CulturedXunitTestCase(
+								culture,
+								details.ResolvedTestMethod,
+								details.TestCaseDisplayName,
+								details.UniqueID,
+								details.Explicit,
+								details.SkipExceptions,
+								details.SkipReason,
+								details.SkipType,
+								details.SkipUnless,
+								details.SkipWhen,
+								testMethod.Traits.ToReadWrite(StringComparer.OrdinalIgnoreCase),
+								sourceFilePath: details.SourceFilePath,
+								sourceLineNumber: details.SourceLineNumber,
+								timeout: details.Timeout
+							)
+							: (IXunitTestCase)new CulturedXunitDelayEnumeratedTheoryTestCase(
+								culture,
+								details.ResolvedTestMethod,
+								details.TestCaseDisplayName,
+								details.UniqueID,
+								details.Explicit,
+								theoryAttribute.SkipTestWithoutData,
+								details.SkipExceptions,
+								details.SkipReason,
+								details.SkipType,
+								details.SkipUnless,
+								details.SkipWhen,
+								testMethod.Traits.ToReadWrite(StringComparer.OrdinalIgnoreCase),
+								timeout: details.Timeout
+							)
 				)
 				.CastOrToReadOnlyCollection()
 		);

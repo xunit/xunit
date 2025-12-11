@@ -113,9 +113,22 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		var testCases = (await discoverer.Discover(discoveryOptions, testMethod, factAttribute)).ToList();
 
 		Assert.Collection(
-			testCases.Select(tc => tc.TestCaseDisplayName).OrderBy(x => x),
-			displayName => Assert.Equal($"{typeof(MultipleDataClass).FullName}.{nameof(MultipleDataClass.TheoryMethod)}(_: 2112)", displayName),
-			displayName => Assert.Equal($"{typeof(MultipleDataClass).FullName}.{nameof(MultipleDataClass.TheoryMethod)}(_: 42)", displayName)
+			testCases.Cast<XunitTestCase>().OrderBy(x => x.TestCaseDisplayName),
+			testCase =>
+			{
+				Assert.Equal($"{typeof(MultipleDataClass).FullName}.{nameof(MultipleDataClass.TheoryMethod)}", testCase.TestCaseDisplayName);
+				Assert.Equal(string.Empty, testCase.TestLabel);
+			},
+			testCase =>
+			{
+				Assert.Equal($"{typeof(MultipleDataClass).FullName}.{nameof(MultipleDataClass.TheoryMethod)} [abc123]", testCase.TestCaseDisplayName);
+				Assert.Equal("abc123", testCase.TestLabel);
+			},
+			testCase =>
+			{
+				Assert.Equal($"{typeof(MultipleDataClass).FullName}.{nameof(MultipleDataClass.TheoryMethod)}(_: 2600)", testCase.TestCaseDisplayName);
+				Assert.Null(testCase.TestLabel);
+			}
 		);
 	}
 
@@ -130,8 +143,9 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		var testCases = await discoverer.Discover(discoveryOptions, testMethod, factAttribute);
 
 		var testCase = Assert.Single(testCases);
-		Assert.IsType<XunitDelayEnumeratedTheoryTestCase>(testCase);
+		var xunitTestCase = Assert.IsType<XunitDelayEnumeratedTheoryTestCase>(testCase);
 		Assert.Equal($"{typeof(MultipleDataClass).FullName}.{nameof(MultipleDataClass.TheoryMethod)}", testCase.TestCaseDisplayName);
+		Assert.Null(xunitTestCase.TestLabel);
 	}
 
 	class MultipleDataAttribute : DataAttribute
@@ -139,7 +153,11 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 		public override ValueTask<IReadOnlyCollection<ITheoryDataRow>> GetData(
 			MethodInfo testMethod,
 			DisposalTracker disposalTracker) =>
-				new([ConvertDataRow(new object?[] { 42 }), ConvertDataRow(new object?[] { 2112 })]);
+				new([
+					new TheoryDataRow([42]) { Label = "abc123", Skip = Skip },
+					new TheoryDataRow([2112]) { Label = "", Skip = Skip },
+					new TheoryDataRow([2600]) { Skip = Skip }
+				]);
 
 		public override bool SupportsDiscoveryEnumeration() => true;
 	}
@@ -164,12 +182,17 @@ public class TheoryDiscovererTests : AcceptanceTestV3
 			testCases.OrderBy(tc => tc.TestCaseDisplayName),
 			testCase =>
 			{
-				Assert.Equal($"{typeof(MultipleDataClassSkipped).FullName}.{nameof(MultipleDataClassSkipped.TheoryMethod)}(_: 2112)", testCase.TestCaseDisplayName);
+				Assert.Equal($"{typeof(MultipleDataClassSkipped).FullName}.{nameof(MultipleDataClassSkipped.TheoryMethod)}", testCase.TestCaseDisplayName);
 				Assert.Equal("Skip this attribute", testCase.SkipReason);
 			},
 			testCase =>
 			{
-				Assert.Equal($"{typeof(MultipleDataClassSkipped).FullName}.{nameof(MultipleDataClassSkipped.TheoryMethod)}(_: 42)", testCase.TestCaseDisplayName);
+				Assert.Equal($"{typeof(MultipleDataClassSkipped).FullName}.{nameof(MultipleDataClassSkipped.TheoryMethod)} [abc123]", testCase.TestCaseDisplayName);
+				Assert.Equal("Skip this attribute", testCase.SkipReason);
+			},
+			testCase =>
+			{
+				Assert.Equal($"{typeof(MultipleDataClassSkipped).FullName}.{nameof(MultipleDataClassSkipped.TheoryMethod)}(_: 2600)", testCase.TestCaseDisplayName);
 				Assert.Equal("Skip this attribute", testCase.SkipReason);
 			}
 		);
