@@ -34,6 +34,9 @@ public partial class TestStarting
 	}
 
 	/// <inheritdoc/>
+	public required string? TestLabel { get; set; }
+
+	/// <inheritdoc/>
 	public required int Timeout
 	{
 		get => this.ValidateNullablePropertyValue(timeout, nameof(Timeout));

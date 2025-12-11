@@ -2692,4 +2692,33 @@ public class Xunit3TheoryAcceptanceTests
 
 #pragma warning restore xUnit1024 // Test methods cannot have overloads
 	}
+
+	public class LabelTests
+	{
+		[Theory(DisableDiscoveryEnumeration = false)]
+		[InlineData(null)]
+		[InlineData("", Label = "")]
+		[InlineData("abc123", Label = "abc123")]
+		public void LabelAvailable_SerializableData_WithPreEnumeration(string? expectedLabel) =>
+			Assert.Equal(expectedLabel, TestContext.Current.Test!.TestLabel);
+
+		[Theory(DisableDiscoveryEnumeration = true)]
+		[InlineData(null)]
+		[InlineData("", Label = "")]
+		[InlineData("abc123", Label = "abc123")]
+		public void LabelAvailable_SerializableData_NoPreEnumeration(string? expectedLabel) =>
+			Assert.Equal(expectedLabel, TestContext.Current.Test!.TestLabel);
+
+		public static IEnumerable<TheoryDataRow<object, string?>> NonSerializableData =>
+		[
+			new(new(), null),
+			new(new(), "") { Label = "" },
+			new(new(), "abc123") { Label = "abc123" },
+		];
+
+		[Theory]
+		[MemberData(nameof(NonSerializableData))]
+		public void LabelAvailable_NonSerializableData(object _, string? expectedLabel) =>
+			Assert.Equal(expectedLabel, TestContext.Current.Test!.TestLabel);
+	}
 }

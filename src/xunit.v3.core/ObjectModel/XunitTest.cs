@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using Xunit.Internal;
 using Xunit.Sdk;
 
@@ -13,6 +15,43 @@ namespace Xunit.v3;
 public class XunitTest : IXunitTest
 {
 	static readonly IReadOnlyDictionary<string, IReadOnlyCollection<string>> EmptyDictionary = new Dictionary<string, IReadOnlyCollection<string>>();
+
+	/// <summary>
+	/// Please use <see cref="XunitTest(IXunitTestCase, IXunitTestMethod, bool?, string?, Type?, string?, string?, string, int, IReadOnlyDictionary{string, IReadOnlyCollection{string}}, int?, object?[], string?)"/>.
+	/// This overload will be removed in the next major version.
+	/// </summary>
+	[Obsolete("Please use the constructor which accepts testLabel. This overload will be removed in the next major version.")]
+	[EditorBrowsable(EditorBrowsableState.Never)]
+	[OverloadResolutionPriority(-1)]
+	public XunitTest(
+		IXunitTestCase testCase,
+		IXunitTestMethod testMethod,
+		bool? @explicit,
+		string? skipReason,
+		Type? skipType,
+		string? skipUnless,
+		string? skipWhen,
+		string testDisplayName,
+		int testIndex,
+		IReadOnlyDictionary<string, IReadOnlyCollection<string>> traits,
+		int? timeout,
+		object?[] testMethodArguments) :
+			this(
+				testCase,
+				testMethod,
+				@explicit,
+				skipReason,
+				skipType,
+				skipUnless,
+				skipWhen,
+				testDisplayName,
+				testIndex,
+				traits,
+				timeout,
+				testMethodArguments,
+				testLabel: null
+			)
+	{ }
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="XunitTest"/> class.
@@ -29,6 +68,7 @@ public class XunitTest : IXunitTest
 	/// <param name="traits">The traits for the given test.</param>
 	/// <param name="timeout">The timeout for the test; if not set, will fall back to the test case</param>
 	/// <param name="testMethodArguments">The arguments to be passed to the test method</param>
+	/// <param name="testLabel">The value obtained from <see cref="IDataAttribute.Label"/>, if present.</param>
 	public XunitTest(
 		IXunitTestCase testCase,
 		IXunitTestMethod testMethod,
@@ -41,7 +81,8 @@ public class XunitTest : IXunitTest
 		int testIndex,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>> traits,
 		int? timeout,
-		object?[] testMethodArguments)
+		object?[] testMethodArguments,
+		string? testLabel)
 	{
 		TestCase = Guard.ArgumentNotNull(testCase);
 		TestMethod = Guard.ArgumentNotNull(testMethod);
@@ -51,6 +92,7 @@ public class XunitTest : IXunitTest
 		SkipUnless = skipUnless;
 		SkipWhen = skipWhen;
 		TestDisplayName = Guard.ArgumentNotNull(testDisplayName);
+		TestLabel = testLabel;
 		UniqueID = UniqueIDGenerator.ForTest(testCase.UniqueID, testIndex);
 		Timeout = timeout ?? TestCase.Timeout;
 		TestMethodArguments = Guard.ArgumentNotNull(testMethodArguments);
@@ -75,6 +117,7 @@ public class XunitTest : IXunitTest
 		string? skipUnless,
 		string? skipWhen,
 		string testDisplayName,
+		string? testLabel,
 		string uniqueID,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
 		int? timeout = null,
@@ -88,6 +131,7 @@ public class XunitTest : IXunitTest
 		SkipUnless = skipUnless;
 		SkipWhen = skipWhen;
 		TestDisplayName = Guard.ArgumentNotNull(testDisplayName);
+		TestLabel = testLabel;
 		UniqueID = Guard.ArgumentNotNull(uniqueID);
 		Timeout = timeout ?? TestCase.Timeout;
 		TestMethodArguments = testMethodArguments ?? [];
@@ -128,6 +172,9 @@ public class XunitTest : IXunitTest
 
 	/// <inheritdoc/>
 	public string TestDisplayName { get; }
+
+	/// <inheritdoc/>
+	public string? TestLabel { get; }
 
 	/// <inheritdoc/>
 	public IXunitTestMethod TestMethod { get; }

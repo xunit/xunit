@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -48,11 +50,70 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 	/// <param name="sourceFilePath">The optional source file in where this test case originated.</param>
 	/// <param name="sourceLineNumber">The optional source line number where this test case originated.</param>
 	/// <param name="timeout">The optional timeout for the test case (in milliseconds).</param>
+	/// <remarks>
+	/// This overload is used by test cases without a test label, which typically means non-data driven tests.
+	/// </remarks>
 	public XunitTestCase(
 		IXunitTestMethod testMethod,
 		string testCaseDisplayName,
 		string uniqueID,
 		bool @explicit,
+		Type[]? skipExceptions = null,
+		string? skipReason = null,
+		Type? skipType = null,
+		string? skipUnless = null,
+		string? skipWhen = null,
+		Dictionary<string, HashSet<string>>? traits = null,
+		object?[]? testMethodArguments = null,
+		string? sourceFilePath = null,
+		int? sourceLineNumber = null,
+		int? timeout = null) :
+			this(
+				testMethod,
+				testCaseDisplayName,
+				uniqueID,
+				@explicit,
+				testLabel: null,
+				skipExceptions,
+				skipReason,
+				skipType,
+				skipUnless,
+				skipWhen,
+				traits,
+				testMethodArguments,
+				sourceFilePath,
+				sourceLineNumber,
+				timeout
+			)
+	{ }
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="XunitTestCase"/> class.
+	/// </summary>
+	/// <param name="testMethod">The test method this test case belongs to.</param>
+	/// <param name="testCaseDisplayName">The display name for the test case.</param>
+	/// <param name="uniqueID">The unique ID for the test case.</param>
+	/// <param name="explicit">Indicates whether the test case was marked as explicit.</param>
+	/// <param name="testLabel">The value obtained from <see cref="IDataAttribute.Label"/>, if present.</param>
+	/// <param name="skipExceptions">The value obtained from <see cref="IFactAttribute.SkipExceptions"/>.</param>
+	/// <param name="skipReason">The value obtained from <see cref="IFactAttribute.Skip"/>.</param>
+	/// <param name="skipType">The value obtained from <see cref="IFactAttribute.SkipType"/>.</param>
+	/// <param name="skipUnless">The value obtained from <see cref="IFactAttribute.SkipUnless"/>.</param>
+	/// <param name="skipWhen">The value obtained from <see cref="IFactAttribute.SkipWhen"/>.</param>
+	/// <param name="traits">The optional traits list.</param>
+	/// <param name="testMethodArguments">The optional arguments for the test method.</param>
+	/// <param name="sourceFilePath">The optional source file in where this test case originated.</param>
+	/// <param name="sourceLineNumber">The optional source line number where this test case originated.</param>
+	/// <param name="timeout">The optional timeout for the test case (in milliseconds).</param>
+	/// <remarks>
+	/// This overload is used by test cases with a test label, which typically means data driven tests.
+	/// </remarks>
+	public XunitTestCase(
+		IXunitTestMethod testMethod,
+		string testCaseDisplayName,
+		string uniqueID,
+		bool @explicit,
+		string? testLabel,
 		Type[]? skipExceptions = null,
 		string? skipReason = null,
 		Type? skipType = null,
@@ -76,6 +137,7 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 		SourceFilePath = sourceFilePath;
 		SourceLineNumber = sourceLineNumber;
 		Timeout = timeout ?? 0;
+		TestLabel = testLabel;
 
 		this.traits = new(StringComparer.OrdinalIgnoreCase);
 		if (traits is not null)
@@ -156,6 +218,13 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 	public string TestClassSimpleName =>
 		TestMethod.TestClass.Class.ToSimpleName();
 
+	/// <summary>
+	/// This is the value to be used when constructing <see cref="XunitTest"/> for the test label.
+	/// This is generally only present when pre-enumerating data theories yields one test case
+	/// per data row.
+	/// </summary>
+	public string? TestLabel { get; }
+
 	/// <inheritdoc/>
 	public IXunitTestMethod TestMethod =>
 		this.ValidateNullablePropertyValue(testMethod, nameof(TestMethod));
@@ -223,9 +292,10 @@ public class XunitTestCase : IXunitTestCase, IXunitSerializable, IAsyncDisposabl
 				SkipWhen,
 				TestCaseDisplayName,
 				testIndex: 0,
-				Traits.ToReadOnly(),
-				Timeout,
-				ResolveTestMethodArguments(TestMethod.Parameters.CastOrToArray(), TestMethodArguments)
+				traits: Traits.ToReadOnly(),
+				timeout: Timeout,
+				testMethodArguments: ResolveTestMethodArguments(TestMethod.Parameters.CastOrToArray(), TestMethodArguments),
+				TestLabel
 			)
 		]);
 

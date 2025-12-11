@@ -40,6 +40,9 @@ public sealed class CulturedXunitTestCase : XunitTestCase
 	/// <param name="sourceFilePath">The optional source file in where this test case originated.</param>
 	/// <param name="sourceLineNumber">The optional source line number where this test case originated.</param>
 	/// <param name="timeout">The optional timeout for the test case (in milliseconds).</param>
+	/// <remarks>
+	/// This overload is used by test cases without a test label, which typically means non-data driven tests.
+	/// </remarks>
 	public CulturedXunitTestCase(
 		string culture,
 		IXunitTestMethod testMethod,
@@ -56,11 +59,71 @@ public sealed class CulturedXunitTestCase : XunitTestCase
 		string? sourceFilePath = null,
 		int? sourceLineNumber = null,
 		int? timeout = null) :
+			this(
+				culture,
+				testMethod,
+				testCaseDisplayName,
+				uniqueID,
+				@explicit,
+				testLabel: null,
+				skipExceptions,
+				skipReason,
+				skipType,
+				skipUnless,
+				skipWhen,
+				traits,
+				testMethodArguments,
+				sourceFilePath,
+				sourceLineNumber,
+				timeout
+			)
+	{ }
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="CulturedXunitTestCase"/> class.
+	/// </summary>
+	/// <param name="culture">The culture to run the test under</param>
+	/// <param name="testMethod">The test method this test case belongs to.</param>
+	/// <param name="testCaseDisplayName">The display name for the test case.</param>
+	/// <param name="uniqueID">The unique ID for the test case.</param>
+	/// <param name="explicit">Indicates whether the test case was marked as explicit.</param>
+	/// <param name="testLabel">The value obtained from <see cref="IDataAttribute.Label"/>, if present.</param>
+	/// <param name="skipExceptions">The value obtained from <see cref="IFactAttribute.SkipExceptions"/>.</param>
+	/// <param name="skipReason">The value obtained from <see cref="IFactAttribute.Skip"/>.</param>
+	/// <param name="skipType">The value obtained from <see cref="IFactAttribute.SkipType"/>.</param>
+	/// <param name="skipUnless">The value obtained from <see cref="IFactAttribute.SkipUnless"/>.</param>
+	/// <param name="skipWhen">The value obtained from <see cref="IFactAttribute.SkipWhen"/>.</param>
+	/// <param name="traits">The optional traits list.</param>
+	/// <param name="testMethodArguments">The optional arguments for the test method.</param>
+	/// <param name="sourceFilePath">The optional source file in where this test case originated.</param>
+	/// <param name="sourceLineNumber">The optional source line number where this test case originated.</param>
+	/// <param name="timeout">The optional timeout for the test case (in milliseconds).</param>
+	/// <remarks>
+	/// This overload is used by test cases with a test label, which typically means data driven tests.
+	/// </remarks>
+	public CulturedXunitTestCase(
+		string culture,
+		IXunitTestMethod testMethod,
+		string testCaseDisplayName,
+		string uniqueID,
+		bool @explicit,
+		string? testLabel,
+		Type[]? skipExceptions = null,
+		string? skipReason = null,
+		Type? skipType = null,
+		string? skipUnless = null,
+		string? skipWhen = null,
+		Dictionary<string, HashSet<string>>? traits = null,
+		object?[]? testMethodArguments = null,
+		string? sourceFilePath = null,
+		int? sourceLineNumber = null,
+		int? timeout = null) :
 			base(
 				testMethod,
 				$"{testCaseDisplayName}[{culture}]",
 				$"{uniqueID}[{culture}]",
 				@explicit,
+				testLabel,
 				skipExceptions,
 				skipReason,
 				skipType,

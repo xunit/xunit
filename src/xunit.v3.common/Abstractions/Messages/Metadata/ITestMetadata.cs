@@ -13,6 +13,15 @@ public interface ITestMetadata
 	string TestDisplayName { get; }
 
 	/// <summary>
+	/// Gets the test label.
+	/// </summary>
+	/// <remarks>
+	/// For the default test framework implementation, the test label is used to help decide how to construct
+	/// the <see cref="TestDisplayName"/> value.
+	/// </remarks>
+	string? TestLabel { get; }
+
+	/// <summary>
 	/// Gets the trait values associated with this test case. If
 	/// there are none, or the framework does not support traits,
 	/// this should return an empty dictionary (not <see langword="null"/>).
