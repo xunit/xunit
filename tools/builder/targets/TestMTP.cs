@@ -21,7 +21,6 @@ public static class TestMTP
 
 		var x86DotNet = context.GetDotnetX86Path(requireSdk: true);
 		var noNetCoreX86 = x86DotNet is null;
-		var noNetFrameworkX86 = context.NeedMono;
 
 		var testAssemblies = new List<(string assembly, bool x86, string framework)>();
 
@@ -32,10 +31,10 @@ public static class TestMTP
 				testAssemblies.AddRange(FindTestAssemblies(context, "xunit.v3.*.tests.dll", "net8.0", x86: true));
 		}
 
-		if (context.TestFramework != Framework.Net)
+		if (context.TestFramework != Framework.Net && context.IsWindows)
 		{
 			testAssemblies.AddRange(FindTestAssemblies(context, "xunit.v3.*.tests.exe", "net472", x86: false));
-			if (!context.NoX86 && !noNetCoreX86 && !noNetFrameworkX86)
+			if (!context.NoX86 && !noNetCoreX86)
 				testAssemblies.AddRange(FindTestAssemblies(context, "xunit.v3.*.tests.exe", "net472", x86: true));
 		}
 

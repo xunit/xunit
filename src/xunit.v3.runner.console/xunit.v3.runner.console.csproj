@@ -5,7 +5,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <OutputType>Exe</OutputType>
     <RunILRepack>true</RunILRepack>
-    <TargetFrameworks>net472;net48;net481</TargetFrameworks>
+    <TargetFrameworks>net472;net48;net481;net8.0</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>

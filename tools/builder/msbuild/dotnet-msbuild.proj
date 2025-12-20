@@ -25,10 +25,10 @@
 			<!-- .NET Framework -->
 			<V3Assemblies
 				Include="$(SolutionDir)src\**\bin\$(Configuration)\net472\xunit.v3.*.tests.exe"
-				Condition=" '$(TestFramework)' != 'Net' " />
+				Condition=" '$(SkipNetFx)' != true AND '$(TestFramework)' != 'Net' " />
 			<V3Assemblies
 				Remove="$(SolutionDir)src\**\bin\$(Configuration)\net472\xunit.v3.*.x86.tests.exe"
-				Condition=" '$(SkipX86)' == 'true' OR '$(SkipNetFxX86)' == 'true' " />
+				Condition=" '$(SkipX86)' == 'true' " />
 		</ItemGroup>
 
 		<Message Text=" " Importance="High" />

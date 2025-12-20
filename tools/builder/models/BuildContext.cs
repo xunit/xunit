@@ -59,7 +59,11 @@ public partial class BuildContext
 
 	partial void Initialize()
 	{
-		ConsoleRunnerExe = Path.Combine(BaseFolder, "src", "xunit.v3.runner.console", "bin", ConfigurationText, "net472", "merged", "xunit.v3.runner.console.exe");
+		if (IsWindows)
+			ConsoleRunnerExe = Path.Combine(BaseFolder, "src", "xunit.v3.runner.console", "bin", ConfigurationText, "net472", "merged", "xunit.v3.runner.console.exe");
+		else
+			ConsoleRunnerExe = Path.Combine(BaseFolder, "src", "xunit.v3.runner.console", "bin", ConfigurationText, "net8.0", "xunit.v3.runner.console");
+
 		ConsoleRunner32Exe = Path.Combine(BaseFolder, "src", "xunit.v3.runner.console.x86", "bin", ConfigurationText, "net472", "merged", "xunit.v3.runner.console.x86.exe");
 
 		DocFXOutputFolder = Path.Combine(ArtifactsFolder, "docfx");
