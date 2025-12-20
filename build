@@ -15,8 +15,6 @@ guard_bin dotnet "please install the .NET SDK from https://dot.net/"
 
 if [ `uname -o` = Msys ]; then
 	guard_bin msbuild.exe "please run this from a Visual Studio developer shell"
-else
-	guard_bin mono "please install Mono from https://www.mono-project.com/"
 fi
 
 git submodule status | while read line; do

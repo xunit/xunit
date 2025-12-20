@@ -19,7 +19,6 @@ public static class TestConsole
 		context.BuildStep($"Running tests [via xunit.v3.runner.console]");
 
 		var noNetCoreX86 = context.GetDotnetX86Path(requireSdk: false) is null;
-		var noNetFrameworkX86 = context.NeedMono;
 
 		// ------------- v3 -------------
 
@@ -32,30 +31,30 @@ public static class TestConsole
 				v3TestAssemblies.AddRange(FindTestAssemblies(context, "xunit.v3.*.tests.dll", "net8.0", x86: true));
 		}
 
-		if (context.TestFramework != Framework.Net)
+		if (context.TestFramework != Framework.Net && context.IsWindows)
 		{
 			v3TestAssemblies.AddRange(FindTestAssemblies(context, "xunit.v3.*.tests.exe", "net472", x86: false));
-			if (!context.NoX86 && !noNetFrameworkX86)
+			if (!context.NoX86)
 				v3TestAssemblies.AddRange(FindTestAssemblies(context, "xunit.v3.*.tests.exe", "net472", x86: true));
 		}
 
 		await RunTests(context, v3TestAssemblies, Path.Combine(context.TestOutputFolder, $"v3"));
 
-		if (context.V3Only || context.NeedMono)
+		if (context.V3Only || !context.IsWindows)
 			return;
 
 		// ------------- v2 -------------
 
 		var v2Folder = Path.Combine(context.BaseFolder, "src", "xunit.v2.tests", "bin", context.ConfigurationText, "net452");
 		await RunTests(context, [Path.Combine(v2Folder, "xunit.v2.tests.dll")], Path.Combine(context.TestOutputFolder, "v2"), "-appdomains required");
-		if (!context.NoX86 && !noNetFrameworkX86)
+		if (!context.NoX86)
 			await RunTests(context, [Path.Combine(v2Folder, "xunit.v2.tests.dll")], Path.Combine(context.TestOutputFolder, "v2-x86"), "-appdomains required", context.ConsoleRunner32Exe);
 
 		// ------------- v1 -------------
 
 		var v1Folder = Path.Combine(context.BaseFolder, "src", "xunit.v1.tests", "bin", context.ConfigurationText, "net45");
 		await RunTests(context, [Path.Combine(v1Folder, "xunit.v1.tests.dll")], Path.Combine(context.TestOutputFolder, "v1"), "-appdomains required");
-		if (!context.NoX86 && !noNetFrameworkX86)
+		if (!context.NoX86)
 			await RunTests(context, [Path.Combine(v1Folder, "xunit.v1.tests.dll")], Path.Combine(context.TestOutputFolder, "v1-x86"), "-appdomains required", context.ConsoleRunner32Exe);
 	}
 

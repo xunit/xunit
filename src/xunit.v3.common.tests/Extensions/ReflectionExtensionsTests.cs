@@ -298,8 +298,7 @@ public class ReflectionExtensionsTests
 	{
 		Assert.True(typeof(MyEnum).IsFromLocalAssembly());
 #if NETFRAMEWORK
-		if (!EnvironmentHelper.IsMono)
-			Assert.False(typeof(System.Xml.ConformanceLevel).IsFromLocalAssembly());
+		Assert.False(typeof(System.Xml.ConformanceLevel).IsFromLocalAssembly());
 #endif
 	}
 

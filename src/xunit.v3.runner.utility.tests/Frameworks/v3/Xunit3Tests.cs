@@ -133,7 +133,7 @@ public class Xunit3Tests
 #if DEBUG
 		Assert.Equal(expectedLineNumber, testCase.SourceLineNumber);
 #else
-		// We test for range here, because release PDBs can be slightly unpredictable, especially on Mono
+		// We test for range here, because release PDBs can be slightly unpredictable
 		Assert.InRange(testCase.SourceLineNumber ?? -1, 1, 0xFEEFED);
 #endif
 

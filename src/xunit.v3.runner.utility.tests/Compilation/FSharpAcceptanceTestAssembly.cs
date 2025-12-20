@@ -21,9 +21,6 @@ public abstract class FSharpAcceptanceTestAssembly(string? basePath = null) :
 		string[] code,
 		params string[] references)
 	{
-		if (EnvironmentHelper.IsMono)
-			throw SkipException.ForSkip("F# is not supported on Mono https://github.com/dotnet/fsharp/issues/14770");
-
 		var compilerArgs = new List<string> { "fsc" };
 
 		foreach (var codeText in code)

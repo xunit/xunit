@@ -17,25 +17,19 @@ namespace Xunit1.Extensions
 		[Fact]
 		public void CallingSecuredMethodWillThrow()
 		{
-			// Mono does not appear to properly support PrincipalPermission
-			if (!EnvironmentHelper.IsMono)
-				Assert.Throws<SecurityException>(() => DefeatVillian());
+			Assert.Throws<SecurityException>(() => DefeatVillian());
 		}
 
 		[Fact, AssumeIdentity("Q")]
 		public void CallingSecuredMethodWithWrongIdentityWillThrow()
 		{
-			// Mono does not appear to properly support PrincipalPermission
-			if (!EnvironmentHelper.IsMono)
-				Assert.Throws<SecurityException>(() => DefeatVillian());
+			Assert.Throws<SecurityException>(() => DefeatVillian());
 		}
 
 		[Fact, AssumeIdentity("007")]
 		public void CallingSecuredMethodWithAssumedIdentityPasses()
 		{
-			// Mono does not appear to properly support PrincipalPermission
-			if (!EnvironmentHelper.IsMono)
-				Assert.DoesNotThrow(() => DefeatVillian());
+			Assert.DoesNotThrow(() => DefeatVillian());
 		}
 
 		[PrincipalPermission(SecurityAction.Demand, Role = "007")]

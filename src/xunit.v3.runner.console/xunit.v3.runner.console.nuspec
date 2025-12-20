@@ -11,7 +11,7 @@
 		<icon>_content/logo-128-transparent.png</icon>
 		<readme>_content/README.md</readme>
 		<releaseNotes>https://xunit.net/releases/v3/$PackageVersion$</releaseNotes>
-		<description>Console runner for the xUnit.net framework. Capable of running xUnit.net v1, v2, and v3 tests. Requires .NET Framework 4.7.2 or later (or Mono, on non-Windows machines).</description>
+		<description>Console runner for the xUnit.net framework. Capable of running xUnit.net v1, v2, and v3 tests. Requires .NET Framework 4.7.2 or later.</description>
 		<copyright>Copyright (C) .NET Foundation</copyright>
 		<repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
 		<developmentDependency>true</developmentDependency>

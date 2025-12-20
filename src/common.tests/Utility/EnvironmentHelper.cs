@@ -5,7 +5,6 @@ using System.Collections.Generic;
 
 static class EnvironmentHelper
 {
-	static readonly Lazy<bool> isMono = new(() => Type.GetType("Mono.Runtime") is not null);
 	static readonly string[] reporterEnvironmentVariables =
 	[
 		// AppVeyorReporter
@@ -19,11 +18,6 @@ static class EnvironmentHelper
 		"SYSTEM_TEAMPROJECT",
 		"BUILD_BUILDID",
 	];
-
-	/// <summary>
-	/// Returns <see langword="true"/> if you're currently running in Mono; <see langword="false"/> if you're running in .NET Framework.
-	/// </summary>
-	public static bool IsMono => isMono.Value;
 
 	public static IDisposable NullifyEnvironmentalReporters()
 	{

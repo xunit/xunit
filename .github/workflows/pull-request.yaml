@@ -37,23 +37,6 @@ jobs:
         run: dotnet --info
         continue-on-error: true
 
-      - name: Install Mono (Ubuntu)
-        run: >
-          sudo apt-get -y install apt-transport-https dirmngr gnupg ca-certificates software-properties-common &&
-          curl 'https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3fa7e0328081bff6a14da29aa6a19b38d3d831ef' | sudo tee /etc/apt/trusted.gpg.d/mono-official-stable.asc &&
-          sudo apt-add-repository -y --no-update 'deb https://download.mono-project.com/repo/ubuntu stable-focal main' &&
-          sudo apt-get update &&
-          sudo apt-get -y install mono-complete mono-vbnc
-        if: ${{ matrix.os == 'ubuntu-latest' }}
-
-      - name: Install Mono (macOS)
-        run: brew install mono
-        if: ${{ matrix.os == 'macOS-latest' }}
-
-      - name: Get Mono information
-        run: mono --version
-        if: ${{ matrix.os != 'windows-latest' }}
-
       - name: "Build target: BuildAll"
         run: dotnet run --project tools/builder --no-launch-profile -- BuildAll --timing --no-x86
 

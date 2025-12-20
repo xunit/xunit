@@ -6,6 +6,10 @@ using System.Globalization;
 using System.Reflection;
 using Xunit.Runner.Common;
 
+#if !NETFRAMEWORK
+using System.IO;
+#endif
+
 namespace Xunit.Internal;
 
 /// <summary>
@@ -138,7 +142,11 @@ public class CommandLine : CommandLineParserBase
 
 		while (argsStartIndex < Args.Count)
 		{
+#if NET
+			if (Args[argsStartIndex].StartsWith('-'))
+#else
 			if (Args[argsStartIndex].StartsWith("-", StringComparison.Ordinal))
+#endif
 				break;
 
 			var assemblyFileName = Args[argsStartIndex++];
@@ -162,7 +170,11 @@ public class CommandLine : CommandLineParserBase
 			if (argsStartIndex < Args.Count)
 			{
 				var value = Args[argsStartIndex];
+#if NET
+				if (!value.StartsWith('-') && IsConfigFile(value))
+#else
 				if (!value.StartsWith("-", StringComparison.Ordinal) && IsConfigFile(value))
+#endif
 				{
 					configFileName = value;
 					++argsStartIndex;

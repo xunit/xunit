@@ -18,9 +18,8 @@ function GuardBin {
 GuardBin git "please install the Git CLI from https://git-scm.com/"
 GuardBin dotnet "please install the .NET SDK from https://dot.net/"
 
-if ((get-content variable:IsLinux -ErrorAction Ignore) -or (get-content variable:IsMacOS -ErrorAction Ignore)) {
-	GuardBin mono "please install Mono from https://www.mono-project.com/"
-} else {
+$isWindowsVar = get-content variable:IsWindows -ErrorAction Ignore
+if (($null -eq $isWindowsVar) -or ($isWindowsVar)) {
 	GuardBin msbuild.exe "please run this from a Visual Studio developer shell"
 }
 

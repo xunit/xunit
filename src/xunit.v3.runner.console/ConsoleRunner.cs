@@ -233,6 +233,8 @@ sealed class ConsoleRunner(string[] args) :
 		var buildTarget = "net48" +
 #elif NET481
 		var buildTarget = "net481" +
+#elif NET8_0
+		var buildTarget = "net8.0" +
 #else
 #error Unknown target framework
 #endif
@@ -383,7 +385,11 @@ sealed class ConsoleRunner(string[] args) :
 			{
 				consoleHelper.WriteLine("Cancelling due to test failure...");
 
+#if NET
+				await cancellationTokenSource.CancelAsync();
+#else
 				cancellationTokenSource.Cancel();
+#endif
 			}
 		}
 		catch (Exception ex)

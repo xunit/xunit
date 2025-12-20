@@ -20,6 +20,10 @@ public abstract class OutOfProcessTestProcessLauncherBase : ITestProcessLauncher
 	/// Return <see langword="true"/> if running under Windows; return <see langword="false"/> if running elsewhere (and
 	/// Mono is required for .NET Framework support). By default uses <see cref="RuntimeInformation"/>.
 	/// </summary>
+	/// <remarks>
+	/// Support for Mono is unofficial. It only exists here because it would be impossible to use Mono
+	/// without this hook, but this is solely to unbreak people using Mono, not to officially support it.
+	/// </remarks>
 	public virtual bool IsWindows =>
 		RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
