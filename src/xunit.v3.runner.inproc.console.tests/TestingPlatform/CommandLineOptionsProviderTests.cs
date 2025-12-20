@@ -449,7 +449,7 @@ public class CommandLineOptionsProviderTests
 			var ex = Record.Exception(() => CommandLineOptionsProvider.Parse(configuration, commandLineOptions, projectAssembly));
 
 			Assert.IsType<ArgumentException>(ex);
-			Assert.Equal("Report file name may not contain a path (use --results-directory to set the report output path)", ex.Message);
+			Assert.Equal("Report file name '/path/to/report-file' may not contain a path (use --results-directory to set the report output path)", ex.Message);
 		}
 
 		[Theory]

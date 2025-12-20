@@ -428,7 +428,7 @@ public sealed class CommandLineOptionsProvider() :
 	{
 		// Pure validation only, actual setting of configuration value is done in OnReport
 		if (!string.IsNullOrWhiteSpace(Path.GetDirectoryName(options.Arguments[0])))
-			throw new ArgumentException("Report file name may not contain a path (use --results-directory to set the report output path)");
+			throw new ArgumentException($"Report file name '{options.Arguments[0]}' may not contain a path (use --results-directory to set the report output path)");
 	}
 
 	static void OnShowLiveOutput(ParseOptions options) =>
