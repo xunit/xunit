@@ -1,10 +1,7 @@
-#if NETFRAMEWORK
-
 using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Reflection;
-using System.Security;
 using Xunit.Internal;
 using Xunit.Sdk;
 
@@ -64,9 +61,11 @@ public class AssemblyHelper : MarshalByRefObject, IDisposable
 		AppDomain.CurrentDomain.AssemblyResolve -= Resolve;
 	}
 
+#if NETFRAMEWORK
 	/// <inheritdoc/>
-	[SecurityCritical]
+	[System.Security.SecurityCritical]
 	public sealed override object InitializeLifetimeService() => null!;
+#endif
 
 	Assembly? LoadAssembly(AssemblyName assemblyName)
 	{
@@ -82,9 +81,9 @@ public class AssemblyHelper : MarshalByRefObject, IDisposable
 		if (diagnosticMessageSink is not null)
 		{
 			if (result is null)
-				diagnosticMessageSink.OnMessage(new InternalDiagnosticMessage("[AssemblyHelper_Desktop.LoadAssembly] Resolution for '{0}' failed, passed down to next resolver", assemblyName.Name));
+				diagnosticMessageSink.OnMessage(new InternalDiagnosticMessage("[AssemblyHelper.LoadAssembly] Resolution for '{0}' failed, passed down to next resolver", assemblyName.Name));
 			else
-				diagnosticMessageSink.OnMessage(new InternalDiagnosticMessage("[AssemblyHelper_Desktop.LoadAssembly] Resolved '{0}' to '{1}'", assemblyName.Name, resolvedAssemblyPath));
+				diagnosticMessageSink.OnMessage(new InternalDiagnosticMessage("[AssemblyHelper.LoadAssembly] Resolved '{0}' to '{1}'", assemblyName.Name, resolvedAssemblyPath));
 		}
 
 		lookupCache[assemblyName.Name] = result;
@@ -148,5 +147,3 @@ public class AssemblyHelper : MarshalByRefObject, IDisposable
 		return new AssemblyHelper(Path.GetDirectoryName(typeInAssembly.Assembly.Location)!, diagnosticMessageSink);
 	}
 }
-
-#endif

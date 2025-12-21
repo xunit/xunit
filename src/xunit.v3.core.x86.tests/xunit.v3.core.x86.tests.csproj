@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <Compile Include="..\xunit.v3.core.tests\**\*.cs" Exclude="**\obj\**\*.cs" />
-    <Compile Include="..\xunit.v3.runner.utility\AssemblyResolution\AssemblyHelper_NetFx.cs" LinkBase="Common" />
+    <Compile Include="..\xunit.v3.runner.utility\AssemblyResolution\AssemblyHelper.cs" LinkBase="Common" />
   </ItemGroup>
 
 </Project>
