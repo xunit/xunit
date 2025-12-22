@@ -5,7 +5,6 @@ using Xunit.Sdk;
 
 #if NETFRAMEWORK
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.Xml;
 #endif
 

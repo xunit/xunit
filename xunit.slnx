@@ -47,6 +47,7 @@
     <Project Path="src/xunit.v3.assert.compat/xunit.v3.assert.all-off/xunit.v3.assert.all-off.csproj" />
     <Project Path="src/xunit.v3.assert.compat/xunit.v3.assert.all-on/xunit.v3.assert.all-on.csproj" />
     <Project Path="src/xunit.v3.assert.compat/xunit.v3.assert.aot.nullable-mixed/xunit.v3.assert.aot.nullable-mixed.csproj" />
+    <Project Path="src/xunit.v3.assert.compat/xunit.v3.assert.nullable/xunit.v3.assert.nullable.csproj" />
     <Project Path="src/xunit.v3.assert.compat/xunit.v3.assert.nullable-mixed/xunit.v3.assert.nullable-mixed.csproj" />
   </Folder>
   <Folder Name="/test/">
