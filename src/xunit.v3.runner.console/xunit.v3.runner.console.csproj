@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <Compile Include="..\xunit.v3.core\Package\content\DefaultRunnerReporters.cs" LinkBase="Common" />
+    <Compile Include="..\common\DotNetApiPolyfills.cs" LinkBase="Common" />
   </ItemGroup>
 
   <ItemGroup>

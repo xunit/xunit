@@ -10,6 +10,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\common\DotNetApiPolyfills.cs" LinkBase="Common" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="xunit.abstractions" Version="$(xunit_abstractions_Version)" />
   </ItemGroup>
 

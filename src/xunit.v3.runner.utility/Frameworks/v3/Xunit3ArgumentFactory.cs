@@ -265,11 +265,7 @@ public static class Xunit3ArgumentFactory
 			result.AddRange(["-methodDisplay", methodDisplay.Value.ToString()]);
 
 		if (methodDisplayOptions.HasValue)
-#if NETFRAMEWORK
-			result.AddRange(["-methodDisplayOptions", methodDisplayOptions.Value.ToString().Replace(" ", "")]);
-#else
-			result.AddRange(["-methodDisplayOptions", methodDisplayOptions.Value.ToString().Replace(" ", "", StringComparison.Ordinal)]);
-#endif
+			result.AddRange(["-methodDisplayOptions", methodDisplayOptions.Value.ToString().ReplaceOrdinal(" ", "")]);
 
 		result.AddRange(disableParallelization switch
 		{

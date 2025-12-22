@@ -16,7 +16,7 @@ namespace Xunit;
 /// <summary>
 /// This class provides assistance with assembly resolution for missing assemblies.
 /// </summary>
-public class AssemblyHelper : MarshalByRefObject, IDisposable
+public class AssemblyHelper : LongLivedMarshalByRefObject, IDisposable
 {
 	static readonly string[] Extensions = [".dll", ".exe"];
 
@@ -60,12 +60,6 @@ public class AssemblyHelper : MarshalByRefObject, IDisposable
 
 		AppDomain.CurrentDomain.AssemblyResolve -= Resolve;
 	}
-
-#if NETFRAMEWORK
-	/// <inheritdoc/>
-	[System.Security.SecurityCritical]
-	public sealed override object InitializeLifetimeService() => null!;
-#endif
 
 	Assembly? LoadAssembly(AssemblyName assemblyName)
 	{

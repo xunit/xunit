@@ -385,11 +385,7 @@ sealed class ConsoleRunner(string[] args) :
 			{
 				consoleHelper.WriteLine("Cancelling due to test failure...");
 
-#if NET
 				await cancellationTokenSource.CancelAsync();
-#else
-				cancellationTokenSource.Cancel();
-#endif
 			}
 		}
 		catch (Exception ex)
