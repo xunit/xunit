@@ -41,7 +41,7 @@ public class XunitTestFrameworkDiscoverer : TestFrameworkDiscoverer<IXunitTestCl
 	/// <summary>
 	/// Gets the mapping dictionary of fact attribute type to discoverer type. The key
 	/// is a type that implements <see cref="IFactAttribute"/>; the value is the
-	/// discoverer type, if known; <c>null</c> if not.
+	/// discoverer type, if known; <see langword="null"/> if not.
 	/// </summary>
 	protected Dictionary<Type, Type?> DiscovererTypeCache { get; } = [];
 
@@ -79,7 +79,7 @@ public class XunitTestFrameworkDiscoverer : TestFrameworkDiscoverer<IXunitTestCl
 	/// <param name="testMethod">The test method.</param>
 	/// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
 	/// <param name="discoveryCallback">The callback that is called for each discovered test case.</param>
-	/// <returns>Return <c>true</c> to continue test discovery, <c>false</c>, otherwise.</returns>
+	/// <returns>Return <see langword="true"/> to continue test discovery, <see langword="false"/>, otherwise.</returns>
 	protected virtual async ValueTask<bool> FindTestsForMethod(
 		IXunitTestMethod testMethod,
 		ITestFrameworkDiscoveryOptions discoveryOptions,
@@ -173,7 +173,7 @@ public class XunitTestFrameworkDiscoverer : TestFrameworkDiscoverer<IXunitTestCl
 	/// and reused, since they should not be stateful.
 	/// </summary>
 	/// <param name="discovererType">The discoverer type.</param>
-	/// <returns>Returns the test case discoverer instance, if known; may return <c>null</c>
+	/// <returns>Returns the test case discoverer instance, if known; may return <see langword="null"/>
 	/// when an error occurs (which is logged to the diagnostic message sink).</returns>
 	protected static IXunitTestCaseDiscoverer? GetDiscoverer(Type discovererType)
 	{

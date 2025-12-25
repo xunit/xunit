@@ -44,7 +44,7 @@ public abstract class XunitSerializer<T> : IXunitSerializer
 	/// </summary>
 	/// <param name="value">The value to test</param>
 	/// <param name="failureReason">Returns a failure reason when the value isn't serializable</param>
-	/// <returns>Return <c>true</c> if the value is serializable; <c>false</c>, otherwise</returns>
+	/// <returns>Return <see langword="true"/> if the value is serializable; <see langword="false"/>, otherwise</returns>
 	/// <remarks>
 	/// This will be called by <see cref="SerializationHelper.IsSerializable(object?)"/>,
 	/// <see cref="SerializationHelper.IsSerializable(object?, Type?)"/>, and
@@ -56,7 +56,7 @@ public abstract class XunitSerializer<T> : IXunitSerializer
 	/// in the array. This differs in behavior from <see cref="IXunitSerializer.IsSerializable"/>, which
 	/// is only called once with the array passed in <paramref name="value"/>.<br />
 	/// <br />
-	/// The default implementation of this method just returns <c>true</c>; you only need to override
+	/// The default implementation of this method just returns <see langword="true"/>; you only need to override
 	/// this if there are situations values might not be serializable (for example, if the custom type
 	/// contains potentially non-serializable data).
 	/// </remarks>
@@ -114,7 +114,7 @@ public abstract class XunitSerializer<T> : IXunitSerializer
 	/// <param name="value">The value to be serialized</param>
 	/// <returns>The serialized value</returns>
 	/// <remarks>
-	/// This method will never be called with <c>null</c> values, because those are already
+	/// This method will never be called with <see langword="null"/> values, because those are already
 	/// special cased by the serialization system. You may assume that <see cref="IsSerializable"/>
 	/// is called before this, so any validation done there need not be repeated here.
 	/// </remarks>

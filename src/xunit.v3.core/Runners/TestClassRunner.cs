@@ -53,7 +53,7 @@ public abstract class TestClassRunner<TContext, TTestClass, TTestMethod, TTestCa
 	/// By default, using <see cref="XunitRunnerHelper"/> to fail the test cases.
 	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test class</param>
-	/// <param name="testMethod">The test method that contains the test cases. May be <c>null</c> for test cases that do not
+	/// <param name="testMethod">The test method that contains the test cases. May be <see langword="null"/> for test cases that do not
 	/// support classes and methods.</param>
 	/// <param name="testCases">The test cases to be failed.</param>
 	/// <param name="constructorArguments">The constructor arguments that would have been used to create the test class.</param>
@@ -99,7 +99,7 @@ public abstract class TestClassRunner<TContext, TTestClass, TTestMethod, TTestCa
 	/// <param name="ctxt">The context that describes the current test class</param>
 	/// <param name="exception">The exception that caused the cleanup failure (may be an instance
 	/// of <see cref="AggregateException"/> if more than one exception occurred).</param>
-	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
+	/// <returns>Return <see langword="true"/> if test execution should continue; <see langword="false"/> if it should be shut down.</returns>
 	protected virtual ValueTask<bool> OnTestClassCleanupFailure(
 		TContext ctxt,
 		Exception exception)
@@ -133,7 +133,7 @@ public abstract class TestClassRunner<TContext, TTestClass, TTestMethod, TTestCa
 	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test class</param>
 	/// <param name="summary">The execution summary for the test class</param>
-	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
+	/// <returns>Return <see langword="true"/> if test execution should continue; <see langword="false"/> if it should be shut down.</returns>
 	protected virtual async ValueTask<bool> OnTestClassFinished(
 		TContext ctxt,
 		RunSummary summary)
@@ -173,7 +173,7 @@ public abstract class TestClassRunner<TContext, TTestClass, TTestMethod, TTestCa
 	/// this method records exceptions, <see cref="OnTestClassFinished"/> will be called.
 	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test class</param>
-	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
+	/// <returns>Return <see langword="true"/> if test execution should continue; <see langword="false"/> if it should be shut down.</returns>
 	protected virtual ValueTask<bool> OnTestClassStarting(TContext ctxt)
 	{
 		Guard.ArgumentNotNull(ctxt);
@@ -317,7 +317,7 @@ public abstract class TestClassRunner<TContext, TTestClass, TTestMethod, TTestCa
 	/// contribute to test class cleanup failure.
 	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test class</param>
-	/// <param name="testMethod">The test method that contains the test cases. May be <c>null</c> for test cases that do not
+	/// <param name="testMethod">The test method that contains the test cases. May be <see langword="null"/> for test cases that do not
 	/// support classes and methods.</param>
 	/// <param name="testCases">The test cases to be run.</param>
 	/// <param name="constructorArguments">The constructor arguments that will be used to create the test class.</param>

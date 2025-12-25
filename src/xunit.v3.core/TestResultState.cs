@@ -79,7 +79,7 @@ public class TestResultState
 
 	/// <summary>
 	/// Creates an instance based on the presence or absence of an exception. If the exception
-	/// is <c>null</c>, then it will be for <see cref="TestResult.Passed"/>; otherwise, it will
+	/// is <see langword="null"/>, then it will be for <see cref="TestResult.Passed"/>; otherwise, it will
 	/// be for <see cref="TestResult.Failed"/>;
 	/// </summary>
 	/// <param name="executionTime">The time spent executing the test</param>

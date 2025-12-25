@@ -21,12 +21,12 @@ public interface ITestProcessBase : IDisposable
 	/// <summary>
 	/// Cancels the test pipeline, forcefully if necessary.
 	/// </summary>
-	/// <param name="forceCancellation">When set to <c>false</c>, this should request graceful termination
-	/// of the test pipeline; when set to <c>true</c>, the test process should be forcefully shut down as
+	/// <param name="forceCancellation">When set to <see langword="false"/>, this should request graceful termination
+	/// of the test pipeline; when set to <see langword="true"/>, the test process should be forcefully shut down as
 	/// quickly as possible.</param>
 	/// <remarks>
-	/// Note that repeated calls to this method with <paramref name="forceCancellation"/> set to <c>false</c>
-	/// may be possible, since it may be dispatched every time a remote runner returns <c>false</c> from
+	/// Note that repeated calls to this method with <paramref name="forceCancellation"/> set to <see langword="false"/>
+	/// may be possible, since it may be dispatched every time a remote runner returns <see langword="false"/> from
 	/// a message sink/message bus call. For out of process runners using Ctrl+C via standard input, it
 	/// should only send Ctrl+C the first time this is called (since double Ctrl+C is the forceful
 	/// cancellation signal).
@@ -37,6 +37,6 @@ public interface ITestProcessBase : IDisposable
 	/// Wait for the specified number of milliseconds for the test process to exit.
 	/// </summary>
 	/// <param name="milliseconds">The amount of time, in milliseconds, to wait</param>
-	/// <returns>Returns <c>true</c> if the process exited; <c>false</c>, otherwise</returns>
+	/// <returns>Returns <see langword="true"/> if the process exited; <see langword="false"/>, otherwise</returns>
 	bool WaitForExit(int milliseconds);
 }

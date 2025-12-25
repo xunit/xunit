@@ -11,7 +11,7 @@ public class ExceptionInfo
 {
 	/// <summary>
 	/// Gets the fully qualified type name of the exception. If the type is unknown
-	/// or not a CLR type, this may return <c>null</c>.
+	/// or not a CLR type, this may return <see langword="null"/>.
 	/// </summary>
 	public required string? FullType { get; set; }
 

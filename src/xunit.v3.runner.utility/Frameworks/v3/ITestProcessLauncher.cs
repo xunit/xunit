@@ -13,7 +13,7 @@ namespace Xunit.v3;
 public interface ITestProcessLauncher
 {
 	/// <summary>
-	/// Launches the test process. Returns <c>null</c> if the process could not be launched.
+	/// Launches the test process. Returns <see langword="null"/> if the process could not be launched.
 	/// </summary>
 	/// <param name="projectAssembly">The test project assembly</param>
 	/// <param name="arguments">The list of arguments to be passed to the in-process runner</param>

@@ -7,7 +7,7 @@ public static class TestProcessExtensions
 {
 	/// <summary>
 	/// Determines if the test process implements <see cref="ITestProcessWithExitCode"/>, and if it does,
-	/// returns <see cref="ITestProcessWithExitCode.ExitCode"/>; if not, returns <c>null</c>.
+	/// returns <see cref="ITestProcessWithExitCode.ExitCode"/>; if not, returns <see langword="null"/>.
 	/// </summary>
 	public static int? TryGetExitCode(this ITestProcessBase testProcess) =>
 		(testProcess as ITestProcessWithExitCode)?.ExitCode;

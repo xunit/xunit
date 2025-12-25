@@ -34,11 +34,11 @@ public interface IXunitTest : ITest
 
 	/// <summary>
 	/// When set, indicates a public static property that is used at runtime to determine
-	/// whether the test is skipped or not (<c>true</c> to run, <c>false</c> to skip).
+	/// whether the test is skipped or not (<see langword="true"/> to run, <see langword="false"/> to skip).
 	/// </summary>
 	/// <remarks>
 	/// Note: It is an error condition for both <see cref="SkipUnless"/> and <see cref="SkipWhen"/>
-	/// to return a non-<c>null</c> value.<br />
+	/// to return a non-<see langword="null"/> value.<br />
 	/// <br />
 	/// This value may not line up the with <see cref="IXunitTestCase.SkipUnless"/>, as you can skip
 	/// individual data rows during delay enumeration.
@@ -47,11 +47,11 @@ public interface IXunitTest : ITest
 
 	/// <summary>
 	/// When set, indicates a public static property that is used at runtime to determine
-	/// whether the test is skipped or not (<c>false</c> to run, <c>true</c> to skip).
+	/// whether the test is skipped or not (<see langword="false"/> to run, <see langword="true"/> to skip).
 	/// </summary>
 	/// <remarks>
 	/// Note: It is an error condition for both <see cref="SkipUnless"/> and <see cref="SkipWhen"/>
-	/// to return a non-<c>null</c> value.
+	/// to return a non-<see langword="null"/> value.
 	/// <br />
 	/// This value may not line up the with <see cref="IXunitTestCase.SkipWhen"/>, as you can skip
 	/// individual data rows during delay enumeration.

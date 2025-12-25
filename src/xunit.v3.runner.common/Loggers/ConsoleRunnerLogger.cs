@@ -107,7 +107,7 @@ public class ConsoleRunnerLogger : IRunnerLogger
 	}
 
 	/// <summary>
-	/// Writes a (non-colored) message. If <see cref="useColors"/> is <c>false</c>, all ANSI-SGR sequences will be
+	/// Writes a (non-colored) message. If <see cref="useColors"/> is <see langword="false"/>, all ANSI-SGR sequences will be
 	/// removed prior to writing.
 	/// </summary>
 	/// <param name="message">Message to write</param>

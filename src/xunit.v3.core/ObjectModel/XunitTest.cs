@@ -22,8 +22,8 @@ public class XunitTest : IXunitTest
 	/// <param name="explicit">A flag to indicate the test was marked as explicit; if not set, will fall back to the test case</param>
 	/// <param name="skipReason">The skip reason for this test.</param>
 	/// <param name="skipType">The type used for <paramref name="skipUnless"/> or <paramref name="skipWhen"/>.</param>
-	/// <param name="skipUnless">The property used to determine if a test is skipped (<c>true</c> to run, <c>false</c> to skip)</param>
-	/// <param name="skipWhen">The property used to determine if a test is skipped (<c>false</c> to run, <c>true</c> to skip)</param>
+	/// <param name="skipUnless">The property used to determine if a test is skipped (<see langword="true"/> to run, <see langword="false"/> to skip)</param>
+	/// <param name="skipWhen">The property used to determine if a test is skipped (<see langword="false"/> to run, <see langword="true"/> to skip)</param>
 	/// <param name="testDisplayName">The display name for this test.</param>
 	/// <param name="testIndex">The index of this test inside the test case. Used for computing <see cref="UniqueID"/>.</param>
 	/// <param name="traits">The traits for the given test.</param>

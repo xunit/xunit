@@ -47,7 +47,7 @@ public class XunitFrontController : IFrontController
 
 	/// <summary>
 	/// Returns an implementation of <see cref="IFrontController"/> which can be used for both discovery and execution.
-	/// If the assembly does not appear to be a test assembly, returns <c>null</c>.
+	/// If the assembly does not appear to be a test assembly, returns <see langword="null"/>.
 	/// </summary>
 	/// <param name="projectAssembly">The test project assembly.</param>
 	/// <param name="sourceInformationProvider">The optional source information provider.</param>

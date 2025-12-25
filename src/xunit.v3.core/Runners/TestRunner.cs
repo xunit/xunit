@@ -116,7 +116,7 @@ public abstract class TestRunner<TContext, TTest> :
 	/// contribute to test failure.
 	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test</param>
-	/// <param name="testClassInstance">The instance of the test class (may be <c>null</c> when
+	/// <param name="testClassInstance">The instance of the test class (may be <see langword="null"/> when
 	/// running a static test method)</param>
 	/// <returns>Returns the execution time (in seconds) spent running the test method.</returns>
 	protected virtual ValueTask<TimeSpan> InvokeTest(
@@ -178,7 +178,7 @@ public abstract class TestRunner<TContext, TTest> :
 	/// Called by <see cref="InvokeTest"/> to invoke the test method.
 	/// </summary>
 	/// <param name="ctxt">The context that describes the current test</param>
-	/// <param name="testClassInstance">The instance of the test class (may be <c>null</c> when
+	/// <param name="testClassInstance">The instance of the test class (may be <see langword="null"/> when
 	/// running a static test method)</param>
 	/// <returns>Returns the result of the test method invocation. This value is evaluated to determine
 	/// if it indicates asynchronous execution (by calling <see cref="AsyncUtility.TryConvertToValueTask"/>)
@@ -205,7 +205,7 @@ public abstract class TestRunner<TContext, TTest> :
 
 	/// <summary>
 	/// Determine whether a test class instance should be disposed. The pipeline will only call
-	/// <see cref="DisposeTestClassInstance"/> if this returns <c>true</c>. By default, looks to
+	/// <see cref="DisposeTestClassInstance"/> if this returns <see langword="true"/>. By default, looks to
 	/// see if the class implements <see cref="IAsyncDisposable"/> or <see cref="IDisposable"/>.
 	/// </summary>
 	/// <remarks>
@@ -228,7 +228,7 @@ public abstract class TestRunner<TContext, TTest> :
 	/// contribute to test failure.
 	/// </remarks>
 	/// <param name="ctxt">The invoker context</param>
-	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
+	/// <returns>Return <see langword="true"/> if test execution should continue; <see langword="false"/> if it should be shut down.</returns>
 	protected virtual ValueTask<bool> OnTestClassConstructionFinished(TContext ctxt)
 	{
 		Guard.ArgumentNotNull(ctxt);
@@ -253,7 +253,7 @@ public abstract class TestRunner<TContext, TTest> :
 	/// contribute to test failure (and test class creation will not take place).
 	/// </remarks>
 	/// <param name="ctxt">The invoker context</param>
-	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
+	/// <returns>Return <see langword="true"/> if test execution should continue; <see langword="false"/> if it should be shut down.</returns>
 	protected virtual ValueTask<bool> OnTestClassConstructionStarting(TContext ctxt)
 	{
 		Guard.ArgumentNotNull(ctxt);
@@ -278,7 +278,7 @@ public abstract class TestRunner<TContext, TTest> :
 	/// contribute to test failure.
 	/// </remarks>
 	/// <param name="ctxt">The invoker context</param>
-	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
+	/// <returns>Return <see langword="true"/> if test execution should continue; <see langword="false"/> if it should be shut down.</returns>
 	protected virtual ValueTask<bool> OnTestClassDisposeFinished(TContext ctxt)
 	{
 		Guard.ArgumentNotNull(ctxt);
@@ -303,7 +303,7 @@ public abstract class TestRunner<TContext, TTest> :
 	/// contribute to test failure.
 	/// </remarks>
 	/// <param name="ctxt">The invoker context</param>
-	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
+	/// <returns>Return <see langword="true"/> if test execution should continue; <see langword="false"/> if it should be shut down.</returns>
 	protected virtual ValueTask<bool> OnTestClassDisposeStarting(TContext ctxt)
 	{
 		Guard.ArgumentNotNull(ctxt);

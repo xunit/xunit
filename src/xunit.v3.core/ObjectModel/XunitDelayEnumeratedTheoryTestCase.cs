@@ -34,7 +34,7 @@ public class XunitDelayEnumeratedTheoryTestCase : XunitTestCase, IXunitDelayEnum
 	/// <param name="testCaseDisplayName">The display name for the test case.</param>
 	/// <param name="uniqueID">The optional unique ID for the test case; if not provided, will be calculated.</param>
 	/// <param name="explicit">Indicates whether the test case was marked as explicit.</param>
-	/// <param name="skipTestWithoutData">Set to <c>true</c> to skip if the test has no data, rather than fail.</param>
+	/// <param name="skipTestWithoutData">Set to <see langword="true"/> to skip if the test has no data, rather than fail.</param>
 	/// <param name="skipExceptions">The value obtained from <see cref="IFactAttribute.SkipExceptions"/>.</param>
 	/// <param name="skipReason">The value from <see cref="IFactAttribute.Skip"/></param>
 	/// <param name="skipType">The value from <see cref="IFactAttribute.SkipType"/> </param>

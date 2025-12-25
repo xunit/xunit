@@ -13,7 +13,7 @@ public static class TestOptionsNames
 	public static class Discovery
 	{
 		/// <summary>
-		/// The culture to be used for discovery. <c>null</c> means the default system culture,
+		/// The culture to be used for discovery. <see langword="null"/> means the default system culture,
 		/// <see cref="string.Empty"/> means the invariant culture, and any other value is assumed
 		/// to be a culture name that the system understands.
 		/// </summary>
@@ -24,7 +24,7 @@ public static class TestOptionsNames
 		public static readonly string Culture = "xunit.discovery.Culture";
 
 		/// <summary>
-		/// Set to <c>true</c> to enable display of diagnostic messages.
+		/// Set to <see langword="true"/> to enable display of diagnostic messages.
 		/// </summary>
 		/// <remarks>
 		/// Value type: <see cref="bool"/><br/>
@@ -33,7 +33,7 @@ public static class TestOptionsNames
 		public static readonly string DiagnosticMessages = "xunit.discovery.DiagnosticMessages";
 
 		/// <summary>
-		/// Set to <c>true</c> to include source information during discovery, when possible. (Note that
+		/// Set to <see langword="true"/> to include source information during discovery, when possible. (Note that
 		/// most source information is applied by the runner, not the discoverer, because it utilizes the
 		/// <c>DiaSession</c> support provided by Visual Studio, which means it's applied after the fact
 		/// by <c>xunit.runner.visualstudio</c>. This flag, then, is a signal for custom test frameworks
@@ -46,7 +46,7 @@ public static class TestOptionsNames
 		public static readonly string IncludeSourceInformation = "xunit.discovery.IncludeSourceInformation";
 
 		/// <summary>
-		/// Set to <c>true</c> to enable display of internal diagnostic messages.
+		/// Set to <see langword="true"/> to enable display of internal diagnostic messages.
 		/// </summary>
 		/// <remarks>
 		/// Value type: <see cref="bool"/><br/>
@@ -74,7 +74,7 @@ public static class TestOptionsNames
 		public static readonly string MethodDisplayOptions = "xunit.discovery.MethodDisplayOptions";
 
 		/// <summary>
-		/// Set to <c>true</c> to enable pre-enumeration of theories during discovery.
+		/// Set to <see langword="true"/> to enable pre-enumeration of theories during discovery.
 		/// </summary>
 		/// <remarks>
 		/// Value type: <see cref="bool"/><br/>
@@ -119,7 +119,7 @@ public static class TestOptionsNames
 		public static readonly string PrintMaxStringLength = "xunit.discovery.PrintMaxStringLength";
 
 		/// <summary>
-		/// Set to <c>true</c> to enable synchronous message reporting; set to <c>false</c> to enable
+		/// Set to <see langword="true"/> to enable synchronous message reporting; set to <see langword="false"/> to enable
 		/// asynchronous message reporting. Synchronous in this case means the system will wait for the
 		/// runner to process a message before delivering the next one.
 		/// </summary>
@@ -145,7 +145,7 @@ public static class TestOptionsNames
 		public static readonly string AssertEquivalentMaxDepth = "xunit.execution.AssertEquivalentMaxDepth";
 
 		/// <summary>
-		/// The culture to be used for execution. <c>null</c> means the default system culture,
+		/// The culture to be used for execution. <see langword="null"/> means the default system culture,
 		/// <see cref="string.Empty"/> means the invariant culture, and any other value is assumed
 		/// to be a culture name that the system understands.
 		/// </summary>
@@ -156,7 +156,7 @@ public static class TestOptionsNames
 		public static readonly string Culture = "xunit.execution.Culture";
 
 		/// <summary>
-		/// Set to <c>true</c> to enable display of diagnostic messages.
+		/// Set to <see langword="true"/> to enable display of diagnostic messages.
 		/// </summary>
 		/// <remarks>
 		/// Value type: <see cref="bool"/><br/>
@@ -165,7 +165,7 @@ public static class TestOptionsNames
 		public static readonly string DiagnosticMessages = "xunit.execution.DiagnosticMessages";
 
 		/// <summary>
-		/// Set to <c>true</c> to disable running tests in parallel.
+		/// Set to <see langword="true"/> to disable running tests in parallel.
 		/// </summary>
 		/// <remarks>
 		/// Value type: <see cref="bool"/><br/>
@@ -183,7 +183,7 @@ public static class TestOptionsNames
 		public static readonly string ExplicitOption = "xunit.execution.ExplicitOption";
 
 		/// <summary>
-		/// Set to <c>true</c> to convert skipped tests into failed tests.
+		/// Set to <see langword="true"/> to convert skipped tests into failed tests.
 		/// </summary>
 		/// <remarks>
 		/// Value type: <see cref="bool"/><br/>
@@ -192,7 +192,7 @@ public static class TestOptionsNames
 		public static readonly string FailSkips = "xunit.execution.FailSkips";
 
 		/// <summary>
-		/// Set to <c>true</c> to convert passing tests with warnings into failed tests.
+		/// Set to <see langword="true"/> to convert passing tests with warnings into failed tests.
 		/// </summary>
 		/// <remarks>
 		/// Value type: <see cref="bool"/><br/>
@@ -201,7 +201,7 @@ public static class TestOptionsNames
 		public static readonly string FailTestsWithWarnings = "xunit.execution.FailTestsWithWarnings";
 
 		/// <summary>
-		/// Set to <c>true</c> to enable display of internal diagnostic messages.
+		/// Set to <see langword="true"/> to enable display of internal diagnostic messages.
 		/// </summary>
 		/// <remarks>
 		/// Value type: <see cref="bool"/><br/>
@@ -267,7 +267,7 @@ public static class TestOptionsNames
 		public static readonly string PrintMaxStringLength = "xunit.execution.PrintMaxStringLength";
 
 		/// <summary>
-		/// Set the seed to use for randomization. When unset (or set to <c>null</c>), will use the default
+		/// Set the seed to use for randomization. When unset (or set to <see langword="null"/>), will use the default
 		/// system-computed seed.
 		/// </summary>
 		/// <remarks>
@@ -277,7 +277,7 @@ public static class TestOptionsNames
 		public static readonly string Seed = "xunit.execution.Seed";
 
 		/// <summary>
-		/// Set to <c>true</c> to show output live while tests are running, in addition to showing collected output
+		/// Set to <see langword="true"/> to show output live while tests are running, in addition to showing collected output
 		/// when the test has finished.
 		/// </summary>
 		/// <remarks>
@@ -287,7 +287,7 @@ public static class TestOptionsNames
 		public static readonly string ShowLiveOutput = "xunit.execution.ShowLiveOutput";
 
 		/// <summary>
-		/// Set to <c>true</c> to attempt to stop execution as soon the first test fails.
+		/// Set to <see langword="true"/> to attempt to stop execution as soon the first test fails.
 		/// </summary>
 		/// <remarks>
 		/// Value type: <see cref="bool"/><br/>
@@ -296,7 +296,7 @@ public static class TestOptionsNames
 		public static readonly string StopOnFail = "xunit.execution.StopOnFail";
 
 		/// <summary>
-		/// Set to <c>true</c> to enable synchronous message reporting; set to <c>false</c> to enable
+		/// Set to <see langword="true"/> to enable synchronous message reporting; set to <see langword="false"/> to enable
 		/// asynchronous message reporting. Synchronous in this case means the system will wait for the
 		/// runner to process a message before delivering the next one.
 		/// </summary>

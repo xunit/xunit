@@ -83,7 +83,7 @@ public abstract class XunitTestClassRunnerBase<TContext, TTestClass, TTestMethod
 	/// <param name="constructor">The constructor that will be used to create the test class.</param>
 	/// <param name="index">The parameter index.</param>
 	/// <param name="parameter">The parameter information.</param>
-	/// <returns>Returns the constructor argument if available, <c>null</c> otherwise.</returns>
+	/// <returns>Returns the constructor argument if available, <see langword="null"/> otherwise.</returns>
 	protected virtual async ValueTask<object?> GetConstructorArgument(
 		TContext ctxt,
 		ConstructorInfo constructor,

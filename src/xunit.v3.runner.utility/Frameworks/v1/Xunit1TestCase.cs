@@ -46,7 +46,7 @@ public sealed class Xunit1TestCase : IXunitSerializable
 	}
 
 	/// <summary>
-	/// Gets the reason this test is being skipped; will return <c>null</c> when
+	/// Gets the reason this test is being skipped; will return <see langword="null"/> when
 	/// the test is not skipped.
 	/// </summary>
 	public string? SkipReason { get; set; }

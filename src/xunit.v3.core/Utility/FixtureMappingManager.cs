@@ -102,10 +102,10 @@ public class FixtureMappingManager(
 	}
 
 	/// <summary>
-	/// Get a value for the given fixture type. If the fixture type is unknown, then returns <c>null</c>.
+	/// Get a value for the given fixture type. If the fixture type is unknown, then returns <see langword="null"/>.
 	/// </summary>
 	/// <param name="fixtureType">The type of the fixture</param>
-	/// <returns>Returns the value if the fixture type is found, or <c>null</c> if it's not.</returns>
+	/// <returns>Returns the value if the fixture type is found, or <see langword="null"/> if it's not.</returns>
 	public async ValueTask<object?> GetFixture(Type fixtureType)
 	{
 		if (disposed)

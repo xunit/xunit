@@ -53,7 +53,7 @@ public class XunitProjectAssembly
 	}
 
 	/// <summary>
-	/// Gets or sets the assembly under test. May be <c>null</c> when the test assembly is not
+	/// Gets or sets the assembly under test. May be <see langword="null"/> when the test assembly is not
 	/// loaded into the current <see cref="AppDomain"/>.
 	/// </summary>
 	public Assembly? Assembly { get; set; }

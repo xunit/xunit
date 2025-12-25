@@ -71,7 +71,7 @@ public abstract class TestMethodRunner<TContext, TTestMethod, TTestCase>
 	/// <param name="ctxt">The context that describes the current test method</param>
 	/// <param name="exception">The exception that caused the cleanup failure (may be an instance
 	/// of <see cref="AggregateException"/> if more than one exception occurred).</param>
-	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
+	/// <returns>Return <see langword="true"/> if test execution should continue; <see langword="false"/> if it should be shut down.</returns>
 	protected virtual ValueTask<bool> OnTestMethodCleanupFailure(
 		TContext ctxt,
 		Exception exception)
@@ -106,7 +106,7 @@ public abstract class TestMethodRunner<TContext, TTestMethod, TTestCase>
 	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test method</param>
 	/// <param name="summary">The execution summary for the test method</param>
-	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
+	/// <returns>Return <see langword="true"/> if test execution should continue; <see langword="false"/> if it should be shut down.</returns>
 	protected virtual async ValueTask<bool> OnTestMethodFinished(
 		TContext ctxt,
 		RunSummary summary)
@@ -147,7 +147,7 @@ public abstract class TestMethodRunner<TContext, TTestMethod, TTestCase>
 	/// this method records exceptions, <see cref="OnTestMethodFinished"/> will be called.
 	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test method</param>
-	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
+	/// <returns>Return <see langword="true"/> if test execution should continue; <see langword="false"/> if it should be shut down.</returns>
 	protected virtual ValueTask<bool> OnTestMethodStarting(TContext ctxt)
 	{
 		Guard.ArgumentNotNull(ctxt);

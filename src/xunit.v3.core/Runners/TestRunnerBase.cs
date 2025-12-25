@@ -31,7 +31,7 @@ public abstract class TestRunnerBase<TContext, TTest>
 
 	/// <summary>
 	/// Gets the attachments for the test. If the test framework did not collect attachments
-	/// (or does not support attachments), then it should return <c>null</c>.
+	/// (or does not support attachments), then it should return <see langword="null"/>.
 	/// </summary>
 	/// <remarks>
 	/// By default, this method returns <see cref="ITestContext.Attachments"/> from the current context.
@@ -56,7 +56,7 @@ public abstract class TestRunnerBase<TContext, TTest>
 		new(string.Empty);
 
 	/// <summary>
-	/// Gets the warnings that will be reported during test results. By default, returns <c>null</c>,
+	/// Gets the warnings that will be reported during test results. By default, returns <see langword="null"/>,
 	/// indicating that there were no warnings
 	/// </summary>
 	/// <remarks>
@@ -93,7 +93,7 @@ public abstract class TestRunnerBase<TContext, TTest>
 	/// <param name="ctxt">The context that describes the current test</param>
 	/// <param name="exception">The exception that caused the cleanup failure (may be an instance
 	/// of <see cref="AggregateException"/> if more than one exception occurred).</param>
-	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
+	/// <returns>Return <see langword="true"/> if test execution should continue; <see langword="false"/> if it should be shut down.</returns>
 	protected virtual ValueTask<bool> OnTestCleanupFailure(
 		TContext ctxt,
 		Exception exception)
@@ -130,7 +130,7 @@ public abstract class TestRunnerBase<TContext, TTest>
 	/// <param name="executionTime">The time spent running the test</param>
 	/// <param name="output">The output from the test</param>
 	/// <param name="warnings">The warnings that were generated during the test</param>
-	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
+	/// <returns>Return <see langword="true"/> if test execution should continue; <see langword="false"/> if it should be shut down.</returns>
 	protected virtual ValueTask<(bool Continue, TestResultState ResultState)> OnTestFailed(
 		TContext ctxt,
 		Exception exception,
@@ -180,7 +180,7 @@ public abstract class TestRunnerBase<TContext, TTest>
 	/// <param name="output">The output from the test</param>
 	/// <param name="warnings">The warnings that were generated during the test</param>
 	/// <param name="attachments">The attachments that were assocated with the test</param>
-	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
+	/// <returns>Return <see langword="true"/> if test execution should continue; <see langword="false"/> if it should be shut down.</returns>
 	protected virtual async ValueTask<bool> OnTestFinished(
 		TContext ctxt,
 		decimal executionTime,
@@ -229,7 +229,7 @@ public abstract class TestRunnerBase<TContext, TTest>
 	/// <param name="ctxt">The context that describes the current test</param>
 	/// <param name="output">The output from the test</param>
 	/// <param name="warnings">The warnings that were generated during the test</param>
-	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
+	/// <returns>Return <see langword="true"/> if test execution should continue; <see langword="false"/> if it should be shut down.</returns>
 	protected virtual ValueTask<(bool Continue, TestResultState ResultState)> OnTestNotRun(
 		TContext ctxt,
 		string output,
@@ -265,7 +265,7 @@ public abstract class TestRunnerBase<TContext, TTest>
 	/// <param name="executionTime">The time spent running the test</param>
 	/// <param name="output">The output from the test</param>
 	/// <param name="warnings">The warnings that were generated during the test</param>
-	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
+	/// <returns>Return <see langword="true"/> if test execution should continue; <see langword="false"/> if it should be shut down.</returns>
 	protected virtual ValueTask<(bool Continue, TestResultState ResultState)> OnTestPassed(
 		TContext ctxt,
 		decimal executionTime,
@@ -303,7 +303,7 @@ public abstract class TestRunnerBase<TContext, TTest>
 	/// <param name="executionTime">The time spent running the test</param>
 	/// <param name="output">The output from the test</param>
 	/// <param name="warnings">The warnings that were generated during the test</param>
-	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
+	/// <returns>Return <see langword="true"/> if test execution should continue; <see langword="false"/> if it should be shut down.</returns>
 	protected virtual ValueTask<(bool Continue, TestResultState ResultState)> OnTestSkipped(
 		TContext ctxt,
 		string skipReason,
@@ -342,7 +342,7 @@ public abstract class TestRunnerBase<TContext, TTest>
 	/// exceptions, <see cref="OnTestFinished"/> will be called.
 	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test</param>
-	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
+	/// <returns>Return <see langword="true"/> if test execution should continue; <see langword="false"/> if it should be shut down.</returns>
 	protected virtual ValueTask<bool> OnTestStarting(TContext ctxt) =>
 		OnTestStarting(ctxt, false, 0);
 
@@ -543,9 +543,9 @@ public abstract class TestRunnerBase<TContext, TTest>
 	}
 
 	/// <summary>
-	/// Override this to determine whether a test should be run or not (meaning, if you return <c>false</c>,
+	/// Override this to determine whether a test should be run or not (meaning, if you return <see langword="false"/>,
 	/// it will be reported with a status of <see cref="TestResult.NotRun"/>). By default, this method will
-	/// return <c>true</c>. This is typically used to implement the ability to exclude specific tests
+	/// return <see langword="true"/>. This is typically used to implement the ability to exclude specific tests
 	/// unless they've been explicitly asked to be run.
 	/// </summary>
 	/// <remarks>

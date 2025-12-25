@@ -14,7 +14,7 @@ public interface ITestClassMetadata
 	string TestClassName { get; }
 
 	/// <summary>
-	/// Gets the namespace of the class where the test is defined. Will return <c>null</c> for
+	/// Gets the namespace of the class where the test is defined. Will return <see langword="null"/> for
 	/// classes not residing in a namespace.
 	/// </summary>
 	string? TestClassNamespace { get; }
@@ -27,7 +27,7 @@ public interface ITestClassMetadata
 	/// <summary>
 	/// Gets the trait values associated with this test class (and the test collection, and test
 	/// assembly). If there are none, or the framework does not support traits, this returns an
-	/// empty dictionary (not <c>null</c>).
+	/// empty dictionary (not <see langword="null"/>).
 	/// </summary>
 	IReadOnlyDictionary<string, IReadOnlyCollection<string>> Traits { get; }
 

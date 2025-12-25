@@ -126,7 +126,7 @@ public static class TypeHelper
 	/// a <see cref="Type"/> object.
 	/// </summary>
 	/// <param name="assemblyQualifiedTypeName">The assembly qualified type name.</param>
-	/// <returns>The instance of the <see cref="Type"/>, if available; <c>null</c>, otherwise.</returns>
+	/// <returns>The instance of the <see cref="Type"/>, if available; <see langword="null"/>, otherwise.</returns>
 	public static Type? GetType(string assemblyQualifiedTypeName) =>
 		typeCache.GetOrAdd(
 			Guard.ArgumentNotNull(assemblyQualifiedTypeName),
@@ -214,7 +214,7 @@ public static class TypeHelper
 	/// </summary>
 	/// <param name="assemblyName">The assembly name.</param>
 	/// <param name="typeName">The type name.</param>
-	/// <returns>The instance of the <see cref="Type"/>, if available; <c>null</c>, otherwise.</returns>
+	/// <returns>The instance of the <see cref="Type"/>, if available; <see langword="null"/>, otherwise.</returns>
 	public static Type? GetType(
 		string assemblyName,
 		string typeName)

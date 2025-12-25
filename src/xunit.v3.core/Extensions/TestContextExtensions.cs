@@ -9,16 +9,16 @@ namespace Xunit;
 public static class TestContextExtensions
 {
 	/// <summary>
-	/// Gets a fixture that was attached to the test class. Will return <c>null</c> if there is
+	/// Gets a fixture that was attached to the test class. Will return <see langword="null"/> if there is
 	/// no exact match for the requested fixture type, or if there is no test class (that is,
-	/// if <see cref="ITestContext.TestClass"/> returns <c>null</c>).
+	/// if <see cref="ITestContext.TestClass"/> returns <see langword="null"/>).
 	/// </summary>
 	/// <remarks>
 	/// This may be a fixture attached via <see cref="IClassFixture{TFixture}"/>, <see cref="ICollectionFixture{TFixture}"/>,
 	/// or <see cref="AssemblyFixtureAttribute"/>.
 	/// </remarks>
 	/// <typeparam name="TFixture">The exact type of the fixture</typeparam>
-	/// <returns>The fixture, if available; <c>null</c>, otherwise</returns>
+	/// <returns>The fixture, if available; <see langword="null"/>, otherwise</returns>
 	public static async ValueTask<TFixture?> GetFixture<TFixture>(this ITestContext ctxt)
 	{
 		Guard.ArgumentNotNull(ctxt);

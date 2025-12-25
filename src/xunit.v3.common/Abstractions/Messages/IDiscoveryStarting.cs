@@ -19,7 +19,7 @@ public interface IDiscoveryStarting : ITestAssemblyMessage
 
 	/// <summary>
 	/// Gets the full path of the configuration file name, if one is present.
-	/// May be <c>null</c> if there is no configuration file.
+	/// May be <see langword="null"/> if there is no configuration file.
 	/// </summary>
 	string? ConfigFilePath { get; }
 }

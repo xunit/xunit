@@ -90,8 +90,8 @@ public class ConsoleDiagnosticMessageSink : IMessageSink
 	/// <summary>
 	/// Tries to create a new instance of the <see cref="ConsoleDiagnosticMessageSink"/> which will display instances
 	/// of <see cref="IDiagnosticMessage"/> and <see cref="IInternalDiagnosticMessage"/> to the <see cref="Console"/>.
-	/// May return <c>null</c> if both <paramref name="showDiagnosticMessages"/> and <paramref name="showInternalDiagnosticMessages"/>
-	/// are <c>false</c>.
+	/// May return <see langword="null"/> if both <paramref name="showDiagnosticMessages"/> and <paramref name="showInternalDiagnosticMessages"/>
+	/// are <see langword="false"/>.
 	/// </summary>
 	/// <param name="consoleHelper">The helper used to write console messages</param>
 	/// <param name="noColor">A flag to indicate that the user has asked for no color</param>

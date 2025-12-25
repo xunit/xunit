@@ -471,9 +471,9 @@ public class SerializationHelper
 	/// Determines if an object instance is serializable.
 	/// </summary>
 	/// <param name="value">The object to test for serializability.</param>
-	/// <returns>Returns <c>true</c> if the object can be serialized; <c>false</c>, otherwise.</returns>
+	/// <returns>Returns <see langword="true"/> if the object can be serialized; <see langword="false"/>, otherwise.</returns>
 	/// <remarks>
-	/// As <c>null</c> values always return <c>true</c>, even if the underlying type (which is unknown)
+	/// As <see langword="null"/> values always return <see langword="true"/>, even if the underlying type (which is unknown)
 	/// might not be serializable, it's better to test via <see cref="IsSerializable(object?, Type?)"/>
 	/// whenever possible.
 	/// </remarks>
@@ -485,7 +485,7 @@ public class SerializationHelper
 	/// </summary>
 	/// <param name="value">The object to test for serializability.</param>
 	/// <param name="type">The type to test for serializability.</param>
-	/// <returns>Returns <c>true</c> if objects of the given type can be serialized; <c>false</c>, otherwise.</returns>
+	/// <returns>Returns <see langword="true"/> if objects of the given type can be serialized; <see langword="false"/>, otherwise.</returns>
 	public bool IsSerializable(
 		object? value,
 		Type? type) =>
@@ -535,7 +535,7 @@ public class SerializationHelper
 	/// Serializes an object.
 	/// </summary>
 	/// <param name="value">The value to be serialized</param>
-	/// <param name="type">The type of the value to be serialized (cannot be <c>null</c> if <paramref name="value"/> is <c>null</c>)</param>
+	/// <param name="type">The type of the value to be serialized (cannot be <see langword="null"/> if <paramref name="value"/> is <see langword="null"/>)</param>
 	/// <returns>The serialized object</returns>
 	public string Serialize(
 		object? value,
@@ -630,7 +630,7 @@ public class SerializationHelper
 	/// all others) into a <see cref="Type"/> object.
 	/// </summary>
 	/// <param name="assemblyQualifiedTypeName">The assembly qualified type name ("TypeName,AssemblyName")</param>
-	/// <returns>The instance of the <see cref="Type"/>, if available; <c>null</c>, otherwise.</returns>
+	/// <returns>The instance of the <see cref="Type"/>, if available; <see langword="null"/>, otherwise.</returns>
 	public static Type? SerializedTypeNameToType(string assemblyQualifiedTypeName) =>
 		TypeHelper.GetType(assemblyQualifiedTypeName);
 

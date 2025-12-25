@@ -64,7 +64,7 @@ public class TestAssemblyRunnerContext<TTestAssembly, TTestCase>(
 		this.ValidateNullablePropertyValue(messageBus, nameof(MessageBus));
 
 	/// <summary>
-	/// Gets the target framework that the test assembly is targeting. By default, this returns <c>null</c>.
+	/// Gets the target framework that the test assembly is targeting. By default, this returns <see langword="null"/>.
 	/// Test frameworks that are based on .NET runtime assemblies can look for <see cref="TargetFrameworkAttribute"/>
 	/// decorated at the assembly level, which is added automatically by the compiler.
 	/// </summary>

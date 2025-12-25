@@ -235,7 +235,7 @@ public static class ReflectionExtensions
 
 	/// <summary>
 	/// Returns the default value for the given type. For value types, this means a 0-initialized
-	/// instance of the type; for reference types, this means <c>null</c>.
+	/// instance of the type; for reference types, this means <see langword="null"/>.
 	/// </summary>
 	/// <param name="type">The type to get the default value of.</param>
 	/// <returns>The default value for the given type.</returns>
@@ -775,7 +775,7 @@ public static class ReflectionExtensions
 	/// </summary>
 	/// <param name="type">The type to check</param>
 	/// <param name="interfaceType">The interface type to look for</param>
-	/// <returns>Returns <c>true</c> if the type implements the interface; <c>false</c>, otherwise</returns>
+	/// <returns>Returns <see langword="true"/> if the type implements the interface; <see langword="false"/>, otherwise</returns>
 	public static bool Implements(
 		this Type type,
 		Type interfaceType) =>
@@ -802,7 +802,7 @@ public static class ReflectionExtensions
 	/// Determines if the given type is from a local assembly.
 	/// </summary>
 	/// <param name="type">The type to verify</param>
-	/// <returns>Returns <c>true</c> if the type originates in a local assembly; <c>false</c> if the type originates in the GAC.</returns>
+	/// <returns>Returns <see langword="true"/> if the type originates in a local assembly; <see langword="false"/> if the type originates in the GAC.</returns>
 	public static bool IsFromLocalAssembly(this Type type) =>
 		isFromLocalAssemblyCache.GetOrAdd(
 			Guard.ArgumentNotNull(type),
@@ -1135,7 +1135,7 @@ public static class ReflectionExtensions
 	/// <summary>
 	/// Gets a fully qualified type name (i.e., <see cref="Type.FullName"/>), falling back to a simple
 	/// type name (i.e., <see cref="MemberInfo.Name"/>) when a fully qualified name is not available. Typically
-	/// used when presenting type names to the user, or to guarantee the type name is never <c>null</c>.
+	/// used when presenting type names to the user, or to guarantee the type name is never <see langword="null"/>.
 	/// </summary>
 	public static string SafeName(this Type type)
 	{

@@ -13,12 +13,12 @@ public readonly struct SourceInformation(string? sourceFile, int? sourceLine)
 	public static SourceInformation Null { get; } = new(null, null);
 
 	/// <summary>
-	/// Gets the source file, if known; <c>null</c>, otherwise
+	/// Gets the source file, if known; <see langword="null"/>, otherwise
 	/// </summary>
 	public string? SourceFile { get; } = sourceFile;
 
 	/// <summary>
-	/// Gets the source line number, if known; <c>null</c>, otherwise
+	/// Gets the source line number, if known; <see langword="null"/>, otherwise
 	/// </summary>
 	public int? SourceLine { get; } = sourceLine;
 }

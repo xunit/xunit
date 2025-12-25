@@ -8,7 +8,7 @@ namespace Xunit.Sdk;
 public interface ITestCollectionMetadata
 {
 	/// <summary>
-	/// Gets the type that the test collection was defined with, if available; may be <c>null</c>
+	/// Gets the type that the test collection was defined with, if available; may be <see langword="null"/>
 	/// if the test collection didn't have a definition type.
 	/// </summary>
 	string? TestCollectionClassName { get; }
@@ -21,7 +21,7 @@ public interface ITestCollectionMetadata
 	/// <summary>
 	/// Gets the trait values associated with this test collection (and the test assembly).
 	/// If there are none, or the framework does not support traits, this returns an empty
-	/// dictionary (not <c>null</c>).
+	/// dictionary (not <see langword="null"/>).
 	/// </summary>
 	IReadOnlyDictionary<string, IReadOnlyCollection<string>> Traits { get; }
 

@@ -16,7 +16,7 @@ public interface IExecutionMetadata
 	string Output { get; }
 
 	/// <summary>
-	/// Gets a list of the warning messages that were recorded during execution. Will be <c>null</c>
+	/// Gets a list of the warning messages that were recorded during execution. Will be <see langword="null"/>
 	/// if there were no warnings.
 	/// </summary>
 	string[]? Warnings { get; }

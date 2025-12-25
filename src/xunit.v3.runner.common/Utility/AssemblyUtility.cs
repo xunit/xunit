@@ -18,7 +18,7 @@ public static class AssemblyUtility
 	/// This uses Mono Cecil to prevent officially loading the assembly into memory.
 	/// </summary>
 	/// <param name="assemblyFileName">The assembly filename.</param>
-	/// <returns>The assembly metadata, if the assembly was found; <c>null</c>, otherwise.</returns>
+	/// <returns>The assembly metadata, if the assembly was found; <see langword="null"/>, otherwise.</returns>
 	public static AssemblyMetadata? GetAssemblyMetadata(string assemblyFileName)
 	{
 		if (!string.IsNullOrWhiteSpace(assemblyFileName) && File.Exists(assemblyFileName))

@@ -8,16 +8,23 @@ using Xunit.Internal;
 namespace Xunit.Sdk;
 
 /// <summary>
-/// A special-purpose untyped deserializer for JSON. JSON strings are returned as <see cref="string"/>,
-/// JSON numbers are returned as <see cref="decimal"/>, JSON booleans are returns as <see cref="bool"/>,
-/// JSON objects are returned as <c>IReadOnlyDictionary&lt;string, object?&gt;</c>, JSON arrays are
-/// returned as <c>object?[]</c>, and JSON null values are returned as <c>null</c>. Static methods exist
-/// here to help retrieve values from object dictionaries as well as convert to the commonly supported
-/// data types (<see cref="bool"/>, <see cref="DateTimeOffset"/>, <see cref="decimal"/>, <see cref="Enum"/>,
-/// <see cref="int"/>, <see cref="long"/>, <see cref="string"/>, and trait dictionaries (which are
-/// decoded to <c>IReadOnlyDictionary&lt;string, IReadOnlyList&lt;string&gt;&gt;</c>), as well as arrays
+/// A special-purpose untyped deserializer for JSON.
+/// <list type="bullet">
+/// <item>JSON strings are returned as <see cref="string"/></item>
+/// <item>JSON numbers are returned as <see cref="decimal"/></item>
+/// <item>JSON booleans are returns as <see cref="bool"/></item>
+/// <item>JSON objects are returned as <see cref="IReadOnlyDictionary{TKey, TValue}"/>
+/// (of <see cref="string"/>, <see cref="object"/>?</item>)
+/// <item>JSON arrays are returned as <see cref="object"/>?[]</item>
+/// <item>JSON null values are returned as <see langword="null"/></item>
+/// </list>
+/// Static methods exist here to help retrieve values from object dictionaries as well as
+/// convert to the commonly supported data types (<see cref="DateTimeOffset"/>, <see cref="decimal"/>,
+/// <see cref="Enum"/>, <see cref="int"/>, <see cref="long"/>, <see cref="string"/>, and trait
+/// dictionaries (which are decoded to <see cref="IReadOnlyDictionary{TKey, TValue}"/> (of
+/// <see cref="string"/>, <see cref="IReadOnlyList{T}"/> of <see cref="string"/>), as well as arrays
 /// of all the supported types (except trait dictionaries). Developers who need support for other types
-/// are encouraged to encode and decode then as strings as needed (for examples, you can see how
+/// are encouraged to encode and decode them as strings as needed (for examples, you can see how
 /// <see cref="Enum"/> and <see cref="DateTimeOffset"/> values are handled here).
 /// </summary>
 /// <remarks>
@@ -287,7 +294,7 @@ public static class JsonDeserializer
 	/// <summary>
 	/// Tries to get an array of <see cref="bool"/> values from a deserialized JSON
 	/// object. If the value isn't an array, or if any of the values in the array
-	/// aren't compatible with <see cref="bool"/>, then returns <c>null</c>.
+	/// aren't compatible with <see cref="bool"/>, then returns <see langword="null"/>.
 	/// Null values in the array are not permitted.
 	/// </summary>
 	/// <param name="obj">The deserialized JSON object</param>
@@ -300,7 +307,7 @@ public static class JsonDeserializer
 	/// <summary>
 	/// Tries to get an array of <see cref="bool"/> values from a deserialized JSON
 	/// value. If the value isn't an array, or if any of the values in the array
-	/// aren't compatible with <see cref="bool"/>, then returns <c>null</c>.
+	/// aren't compatible with <see cref="bool"/>, then returns <see langword="null"/>.
 	/// Null values in the array are not permitted.
 	/// </summary>
 	/// <param name="value">The deserialized JSON value</param>
@@ -310,7 +317,7 @@ public static class JsonDeserializer
 	/// <summary>
 	/// Tries to get an array of <see cref="DateTimeOffset"/> values from a deserialized JSON
 	/// object. If the value isn't an array, or if any of the values in the array
-	/// aren't compatible with <see cref="DateTimeOffset"/>, then returns <c>null</c>.
+	/// aren't compatible with <see cref="DateTimeOffset"/>, then returns <see langword="null"/>.
 	/// Null values in the array are not permitted.
 	/// </summary>
 	/// <param name="obj">The deserialized JSON object</param>
@@ -323,7 +330,7 @@ public static class JsonDeserializer
 	/// <summary>
 	/// Tries to get an array of <see cref="DateTimeOffset"/> values from a deserialized JSON
 	/// value. If the value isn't an array, or if any of the values in the array
-	/// aren't compatible with <see cref="DateTimeOffset"/>, then returns <c>null</c>.
+	/// aren't compatible with <see cref="DateTimeOffset"/>, then returns <see langword="null"/>.
 	/// Null values in the array are not permitted.
 	/// </summary>
 	/// <param name="value">The deserialized JSON value</param>
@@ -333,7 +340,7 @@ public static class JsonDeserializer
 	/// <summary>
 	/// Tries to get an array of <see cref="decimal"/> values from a deserialized JSON
 	/// object. If the value isn't an array, or if any of the values in the array
-	/// aren't compatible with <see cref="decimal"/>, then returns <c>null</c>.
+	/// aren't compatible with <see cref="decimal"/>, then returns <see langword="null"/>.
 	/// Null values in the array are not permitted.
 	/// </summary>
 	/// <param name="obj">The deserialized JSON object</param>
@@ -346,7 +353,7 @@ public static class JsonDeserializer
 	/// <summary>
 	/// Tries to get an array of <see cref="decimal"/> values from a deserialized JSON
 	/// value. If the value isn't an array, or if any of the values in the array
-	/// aren't compatible with <see cref="decimal"/>, then returns <c>null</c>.
+	/// aren't compatible with <see cref="decimal"/>, then returns <see langword="null"/>.
 	/// Null values in the array are not permitted.
 	/// </summary>
 	/// <param name="value">The deserialized JSON value</param>
@@ -356,7 +363,7 @@ public static class JsonDeserializer
 	/// <summary>
 	/// Tries to get an array of <typeparamref name="TEnum"/> values from a deserialized JSON
 	/// object. If the value isn't an array, or if any of the values in the array
-	/// aren't compatible with <typeparamref name="TEnum"/>, then returns <c>null</c>.
+	/// aren't compatible with <typeparamref name="TEnum"/>, then returns <see langword="null"/>.
 	/// Null values in the array are not permitted.
 	/// </summary>
 	/// <param name="obj">The deserialized JSON object</param>
@@ -370,7 +377,7 @@ public static class JsonDeserializer
 	/// <summary>
 	/// Tries to get an array of <typeparamref name="TEnum"/> values from a deserialized JSON
 	/// value. If the value isn't an array, or if any of the values in the array
-	/// aren't compatible with <typeparamref name="TEnum"/>, then returns <c>null</c>.
+	/// aren't compatible with <typeparamref name="TEnum"/>, then returns <see langword="null"/>.
 	/// Null values in the array are not permitted.
 	/// </summary>
 	/// <param name="value">The deserialized JSON value</param>
@@ -381,7 +388,7 @@ public static class JsonDeserializer
 	/// <summary>
 	/// Tries to get an array of <see cref="int"/> values from a deserialized JSON
 	/// object. If the value isn't an array, or if any of the values in the array
-	/// aren't compatible with <see cref="int"/>, then returns <c>null</c>.
+	/// aren't compatible with <see cref="int"/>, then returns <see langword="null"/>.
 	/// Null values in the array are not permitted.
 	/// </summary>
 	/// <param name="obj">The deserialized JSON object</param>
@@ -394,7 +401,7 @@ public static class JsonDeserializer
 	/// <summary>
 	/// Tries to get an array of <see cref="int"/> values from a deserialized JSON
 	/// value. If the value isn't an array, or if any of the values in the array
-	/// aren't compatible with <see cref="int"/>, then returns <c>null</c>.
+	/// aren't compatible with <see cref="int"/>, then returns <see langword="null"/>.
 	/// Null values in the array are not permitted.
 	/// </summary>
 	/// <param name="value">The deserialized JSON value</param>
@@ -404,7 +411,7 @@ public static class JsonDeserializer
 	/// <summary>
 	/// Tries to get an array of <see cref="long"/> values from a deserialized JSON
 	/// object. If the value isn't an array, or if any of the values in the array
-	/// aren't compatible with <see cref="long"/>, then returns <c>null</c>.
+	/// aren't compatible with <see cref="long"/>, then returns <see langword="null"/>.
 	/// Null values in the array are not permitted.
 	/// </summary>
 	/// <param name="obj">The deserialized JSON object</param>
@@ -417,7 +424,7 @@ public static class JsonDeserializer
 	/// <summary>
 	/// Tries to get an array of <see cref="long"/> values from a deserialized JSON
 	/// value. If the value isn't an array, or if any of the values in the array
-	/// aren't compatible with <see cref="long"/>, then returns <c>null</c>.
+	/// aren't compatible with <see cref="long"/>, then returns <see langword="null"/>.
 	/// Null values in the array are not permitted.
 	/// </summary>
 	/// <param name="value">The deserialized JSON value</param>
@@ -427,7 +434,7 @@ public static class JsonDeserializer
 	/// <summary>
 	/// Tries to get an array of <see cref="string"/> values from a deserialized JSON
 	/// object. If the value isn't an array, or if any of the values in the array
-	/// aren't compatible with <see cref="string"/>, then returns <c>null</c>.
+	/// aren't compatible with <see cref="string"/>, then returns <see langword="null"/>.
 	/// Null values in the array are permitted.
 	/// </summary>
 	/// <param name="obj">The deserialized JSON object</param>
@@ -440,7 +447,7 @@ public static class JsonDeserializer
 	/// <summary>
 	/// Tries to get an array of <see cref="string"/> values from a deserialized JSON
 	/// value. If the value isn't an array, or if any of the values in the array
-	/// aren't compatible with <see cref="string"/>, then returns <c>null</c>.
+	/// aren't compatible with <see cref="string"/>, then returns <see langword="null"/>.
 	/// Null values in the array are permitted.
 	/// </summary>
 	/// <param name="value">The deserialized JSON value</param>
@@ -450,7 +457,7 @@ public static class JsonDeserializer
 	/// <summary>
 	/// Tries to get an array of <see cref="string"/> values from a deserialized JSON
 	/// object. If the value isn't an array, or if any of the values in the array
-	/// aren't compatible with <see cref="string"/>, then returns <c>null</c>.
+	/// aren't compatible with <see cref="string"/>, then returns <see langword="null"/>.
 	/// Null values in the array are not permitted.
 	/// </summary>
 	/// <param name="obj">The deserialized JSON object</param>
@@ -463,7 +470,7 @@ public static class JsonDeserializer
 	/// <summary>
 	/// Tries to get an array of <see cref="string"/> values from a deserialized JSON
 	/// value. If the value isn't an array, or if any of the values in the array
-	/// aren't compatible with <see cref="string"/>, then returns <c>null</c>.
+	/// aren't compatible with <see cref="string"/>, then returns <see langword="null"/>.
 	/// Null values in the array are not permitted.
 	/// </summary>
 	/// <param name="value">The deserialized JSON value</param>
@@ -596,8 +603,8 @@ public static class JsonDeserializer
 	/// </summary>
 	/// <param name="obj">The deserialized JSON object</param>
 	/// <param name="key">The key for the value</param>
-	/// <param name="defaultEmptyString">Flag to indicate if a default empty string should be returned instead of <c>null</c></param>
-	/// <returns>Returns the value if present; <c>null</c>, otherwise.</returns>
+	/// <param name="defaultEmptyString">Flag to indicate if a default empty string should be returned instead of <see langword="null"/></param>
+	/// <returns>Returns the value if present; <see langword="null"/>, otherwise.</returns>
 	public static string? TryGetString(
 		IReadOnlyDictionary<string, object?> obj,
 		string key,
@@ -608,8 +615,8 @@ public static class JsonDeserializer
 	/// Tries to get an <see cref="long"/> value from a deserialized JSON value.
 	/// </summary>
 	/// <param name="value">The deserialized JSON value</param>
-	/// <param name="defaultEmptyString">Flag to indicate if a default empty string should be returned instead of <c>null</c></param>
-	/// <returns>Returns the value if present; <c>null</c>, otherwise.</returns>
+	/// <param name="defaultEmptyString">Flag to indicate if a default empty string should be returned instead of <see langword="null"/></param>
+	/// <returns>Returns the value if present; <see langword="null"/>, otherwise.</returns>
 	public static string? TryGetString(
 		object? value,
 		bool defaultEmptyString = false) =>
@@ -620,7 +627,7 @@ public static class JsonDeserializer
 	/// </summary>
 	/// <param name="obj">The deserialized JSON object</param>
 	/// <param name="key">The key for the value</param>
-	/// <param name="defaultEmptyDictionary">Flag to indicate if a default empty dictionary should be returned instead of <c>null</c></param>
+	/// <param name="defaultEmptyDictionary">Flag to indicate if a default empty dictionary should be returned instead of <see langword="null"/></param>
 	public static IReadOnlyDictionary<string, IReadOnlyCollection<string>>? TryGetTraits(
 		IReadOnlyDictionary<string, object?> obj,
 		string key,
@@ -648,7 +655,7 @@ public static class JsonDeserializer
 	/// Tries to get a <see cref="string"/> value from a deserialized JSON value.
 	/// </summary>
 	/// <param name="value">The deserialized JSON value</param>
-	/// <returns>Returns the value if present; <c>null</c>, otherwise.</returns>
+	/// <returns>Returns the value if present; <see langword="null"/>, otherwise.</returns>
 	public static IReadOnlyDictionary<string, IReadOnlyCollection<string>>? TryGetTraits(object? value)
 	{
 		if (TryGetObject(value) is not IReadOnlyDictionary<string, object?> traits)

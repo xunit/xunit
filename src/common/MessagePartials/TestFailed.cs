@@ -25,7 +25,7 @@ sealed partial class TestFailed : TestResultMessage, ITestFailed
 	/// <param name="testMethodUniqueID">The (optional) unique ID of the test method</param>
 	/// <param name="testCaseUniqueID">The unique ID of the test case</param>
 	/// <param name="testUniqueID">The unique ID of the test</param>
-	/// <param name="executionTime">The execution time of the test (may be <c>null</c> if the test wasn't executed)</param>
+	/// <param name="executionTime">The execution time of the test (may be <see langword="null"/> if the test wasn't executed)</param>
 	/// <param name="output">The (optional) output from the test</param>
 	/// <param name="warnings">The (optional) warnings that were recorded during test execution</param>
 	/// <param name="finishTime">The time when the test finished executing; defaults to <see cref="DateTimeOffset.UtcNow"/></param>

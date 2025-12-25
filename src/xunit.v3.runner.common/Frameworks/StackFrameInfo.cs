@@ -18,12 +18,12 @@ public readonly partial struct StackFrameInfo(
 	static readonly Regex stackFrameRegex = GetStackFrameRegex();
 
 	/// <summary>
-	/// Gets the filename of the stack frame. May be <c>null</c> if the stack frame is not known.
+	/// Gets the filename of the stack frame. May be <see langword="null"/> if the stack frame is not known.
 	/// </summary>
 	public string? FileName { get; } = fileName;
 
 	/// <summary>
-	/// Returns <c>true</c> if this is an empty stack frame (e.g., <see cref="None"/>).
+	/// Returns <see langword="true"/> if this is an empty stack frame (e.g., <see cref="None"/>).
 	/// </summary>
 	public bool IsEmpty => string.IsNullOrEmpty(FileName) && LineNumber == 0;
 

@@ -13,7 +13,7 @@ namespace Xunit.v3;
 public interface IFactAttribute
 {
 	/// <summary>
-	/// Gets the name of the test to be used when the test is skipped. When <c>null</c>
+	/// Gets the name of the test to be used when the test is skipped. When <see langword="null"/>
 	/// is returned, will cause a default display name to be used.
 	/// </summary>
 	string? DisplayName { get; }
@@ -26,7 +26,7 @@ public interface IFactAttribute
 	bool Explicit { get; }
 
 	/// <summary>
-	/// Gets the skip reason for the test. When <c>null</c> is returned, the test is
+	/// Gets the skip reason for the test. When <see langword="null"/> is returned, the test is
 	/// not skipped.
 	/// </summary>
 	/// <remarks>
@@ -50,8 +50,8 @@ public interface IFactAttribute
 	Type? SkipType { get; }
 
 	/// <summary>
-	/// Gets the name of a public static property on the test class which returns <c>bool</c>
-	/// to indicate whether the test should be skipped (<c>false</c>) or not (<c>true</c>).
+	/// Gets the name of a public static property on the test class which returns <see cref="bool"/>
+	/// to indicate whether the test should be skipped (<see langword="false"/>) or not (<see langword="true"/>).
 	/// </summary>
 	/// <remarks>
 	/// This property cannot be set if <see cref="SkipWhen"/> is set. Setting both will
@@ -63,8 +63,8 @@ public interface IFactAttribute
 	string? SkipUnless { get; }
 
 	/// <summary>
-	/// Gets the name of a public static property on the test class which returns <c>bool</c>
-	/// to indicate whether the test should be skipped (<c>true</c>) or not (<c>false</c>).
+	/// Gets the name of a public static property on the test class which returns <see cref="bool"/>
+	/// to indicate whether the test should be skipped (<see langword="true"/>) or not (<see langword="false"/>).
 	/// </summary>
 	/// <remarks>
 	/// This property cannot be set if <see cref="SkipUnless"/> is set. Setting both will
@@ -76,13 +76,13 @@ public interface IFactAttribute
 	string? SkipWhen { get; }
 
 	/// <summary>
-	/// Gets the source file name. A <c>null</c> value indicates that the
+	/// Gets the source file name. A <see langword="null"/> value indicates that the
 	/// source file name is not known.
 	/// </summary>
 	string? SourceFilePath { get; }
 
 	/// <summary>
-	/// Gets the source file line number. A <c>null</c> value indicates that the
+	/// Gets the source file line number. A <see langword="null"/> value indicates that the
 	/// source file line number is not known.
 	/// </summary>
 	int? SourceLineNumber { get; }

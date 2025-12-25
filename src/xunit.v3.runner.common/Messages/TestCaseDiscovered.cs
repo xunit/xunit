@@ -8,7 +8,7 @@ public partial class TestCaseDiscovered
 {
 	/// <inheritdoc/>
 	/// <remarks>
-	/// Note: Will be <c>false</c> if there was no value provided during deserialization.
+	/// Note: Will be <see langword="false"/> if there was no value provided during deserialization.
 	/// </remarks>
 	public required bool Explicit { get; set; }
 
@@ -20,19 +20,19 @@ public partial class TestCaseDiscovered
 
 	/// <inheritdoc/>
 	/// <remarks>
-	/// Note: Will be <c>null</c> if there was no value provided during deserialization.
+	/// Note: Will be <see langword="null"/> if there was no value provided during deserialization.
 	/// </remarks>
 	public required string? SkipReason { get; set; }
 
 	/// <inheritdoc/>
 	/// <remarks>
-	/// Note: Will be <c>null</c> if there was no value provided during deserialization.
+	/// Note: Will be <see langword="null"/> if there was no value provided during deserialization.
 	/// </remarks>
 	public required string? SourceFilePath { get; set; }
 
 	/// <inheritdoc/>
 	/// <remarks>
-	/// Note: Will be <c>null</c> if there was no value provided during deserialization.
+	/// Note: Will be <see langword="null"/> if there was no value provided during deserialization.
 	/// </remarks>
 	public required int? SourceLineNumber { get; set; }
 
@@ -44,55 +44,55 @@ public partial class TestCaseDiscovered
 
 	/// <inheritdoc/>
 	/// <remarks>
-	/// Note: Will be <c>null</c> if there was no value provided during deserialization.
+	/// Note: Will be <see langword="null"/> if there was no value provided during deserialization.
 	/// </remarks>
 	public required int? TestClassMetadataToken { get; set; }
 
 	/// <inheritdoc/>
 	/// <remarks>
-	/// Note: Will be <c>null</c> if there was no value provided during deserialization.
+	/// Note: Will be <see langword="null"/> if there was no value provided during deserialization.
 	/// </remarks>
 	public required string? TestClassName { get; set; }
 
 	/// <inheritdoc/>
 	/// <remarks>
-	/// Note: Will be <c>null</c> if there was no value provided during deserialization.
+	/// Note: Will be <see langword="null"/> if there was no value provided during deserialization.
 	/// </remarks>
 	public required string? TestClassNamespace { get; set; }
 
 	/// <inheritdoc/>
 	/// <remarks>
-	/// Note: Will be <c>null</c> if there was no value provided during deserialization.
+	/// Note: Will be <see langword="null"/> if there was no value provided during deserialization.
 	/// </remarks>
 	public required string? TestClassSimpleName { get; set; }
 
 	/// <inheritdoc/>
 	/// <remarks>
-	/// Note: Will be <c>null</c> if there was no value provided during deserialization.
+	/// Note: Will be <see langword="null"/> if there was no value provided during deserialization.
 	/// </remarks>
 	public required int? TestMethodArity { get; set; }
 
 	/// <inheritdoc/>
 	/// <remarks>
-	/// Note: Will be <c>null</c> if there was no value provided during deserialization.
+	/// Note: Will be <see langword="null"/> if there was no value provided during deserialization.
 	/// </remarks>
 	public required int? TestMethodMetadataToken { get; set; }
 
 	/// <inheritdoc/>
 	/// <remarks>
-	/// Note: Will be <c>null</c> if there was no value provided during deserialization.
+	/// Note: Will be <see langword="null"/> if there was no value provided during deserialization.
 	/// </remarks>
 	public required string? TestMethodName { get; set; }
 
 	/// <inheritdoc/>
 	/// <remarks>
-	/// Note: Will be <c>null</c> if there was no value provided during deserialization.
+	/// Note: Will be <see langword="null"/> if there was no value provided during deserialization.
 	/// </remarks>
 	public required string[]? TestMethodParameterTypesVSTest { get; set; }
 
 	/// <inheritdoc/>
 	/// <remarks>
-	/// Note: Will be <c>null</c> if there was no value provided during deserialization.
+	/// Note: Will be <see langword="null"/> if there was no value provided during deserialization.
 	/// </remarks>
 	public required string? TestMethodReturnTypeVSTest { get; set; }
 

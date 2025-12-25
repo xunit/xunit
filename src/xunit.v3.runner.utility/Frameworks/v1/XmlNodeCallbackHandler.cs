@@ -43,7 +43,7 @@ public class XmlNodeCallbackHandler(
 	/// Called when an XML node arrives. Dispatches the XML node to the callback.
 	/// </summary>
 	/// <param name="node">The arriving XML node.</param>
-	/// <returns>Return <c>true</c> to continue running tests; <c>false</c> to stop running tests.</returns>
+	/// <returns>Return <see langword="true"/> to continue running tests; <see langword="false"/> to stop running tests.</returns>
 	public virtual bool OnXmlNode(XmlNode? node) =>
 		callback is null || callback(node);
 

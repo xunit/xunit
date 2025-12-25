@@ -153,7 +153,7 @@ public class XunitTestRunnerBaseContext<TTest> : TestRunnerContext<TTest>
 	/// dynamically skipped.
 	/// </summary>
 	/// <param name="exception">The exception to inspect</param>
-	/// <returns>The skip reason, if the test is skipped; <c>null</c>, otherwise</returns>
+	/// <returns>The skip reason, if the test is skipped; <see langword="null"/>, otherwise</returns>
 	public override string? GetSkipReason(Exception? exception)
 	{
 		if (exception is not null)

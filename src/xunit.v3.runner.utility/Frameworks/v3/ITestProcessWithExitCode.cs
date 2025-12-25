@@ -7,7 +7,7 @@ public interface ITestProcessWithExitCode
 {
 	/// <summary>
 	/// Gets the exit code that the process exited with. If the process has not yet exited,
-	/// or the exit code was unknown, will return <c>null</c>.
+	/// or the exit code was unknown, will return <see langword="null"/>.
 	/// </summary>
 	/// <remarks>
 	/// Since disposing of <see cref="ITestProcess"/> ensures for the orderly shutdown of the

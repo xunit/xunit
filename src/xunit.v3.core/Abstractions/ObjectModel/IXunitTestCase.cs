@@ -21,9 +21,9 @@ public interface IXunitTestCase : ITestCase
 	/// </summary>
 	/// <remarks>
 	/// This differs from the contract of <see cref="ITestCaseMetadata.SkipReason"/> by virtue
-	/// of the fact that when this value is non-<c>null</c>, it may indicate that a test is
+	/// of the fact that when this value is non-<see langword="null"/>, it may indicate that a test is
 	/// statically skipped (if both <see cref="SkipUnless"/> and <see cref="SkipWhen"/> are
-	/// <c>null</c>) or dynamically skipped (if one is non-<c>null</c>).
+	/// <see langword="null"/>) or dynamically skipped (if one is non-<see langword="null"/>).
 	/// </remarks>
 	new string? SkipReason { get; }
 
@@ -35,21 +35,21 @@ public interface IXunitTestCase : ITestCase
 
 	/// <summary>
 	/// When set, indicates a public static property that is used at runtime to determine
-	/// whether the test is skipped or not (<c>true</c> to run, <c>false</c> to skip).
+	/// whether the test is skipped or not (<see langword="true"/> to run, <see langword="false"/> to skip).
 	/// </summary>
 	/// <remarks>
 	/// Note: It is an error condition for both <see cref="SkipUnless"/> and <see cref="SkipWhen"/>
-	/// to return a non-<c>null</c> value.
+	/// to return a non-<see langword="null"/> value.
 	/// </remarks>
 	string? SkipUnless { get; }
 
 	/// <summary>
 	/// When set, indicates a public static property that is used at runtime to determine
-	/// whether the test is skipped or not (<c>false</c> to run, <c>true</c> to skip).
+	/// whether the test is skipped or not (<see langword="false"/> to run, <see langword="true"/> to skip).
 	/// </summary>
 	/// <remarks>
 	/// Note: It is an error condition for both <see cref="SkipUnless"/> and <see cref="SkipWhen"/>
-	/// to return a non-<c>null</c> value.
+	/// to return a non-<see langword="null"/> value.
 	/// </remarks>
 	string? SkipWhen { get; }
 

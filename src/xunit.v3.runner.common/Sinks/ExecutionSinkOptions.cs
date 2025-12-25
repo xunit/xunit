@@ -12,7 +12,7 @@ namespace Xunit.Runner.Common;
 public class ExecutionSinkOptions
 {
 	/// <summary>
-	/// Gets or sets the assembly element used for creating XML. If this is <c>null</c>,
+	/// Gets or sets the assembly element used for creating XML. If this is <see langword="null"/>,
 	/// then XML will not be created.
 	/// </summary>
 	public XElement? AssemblyElement { get; set; }
@@ -24,7 +24,7 @@ public class ExecutionSinkOptions
 
 	/// <summary>
 	/// Gets or sets the diagnostic message sink to report diagnostic messages to. In order
-	/// for long running tests to be reported, this must not be <c>null</c>.
+	/// for long running tests to be reported, this must not be <see langword="null"/>.
 	/// </summary>
 	public IMessageSink? DiagnosticMessageSink { get; set; }
 
@@ -35,13 +35,13 @@ public class ExecutionSinkOptions
 
 	/// <summary>
 	/// Gets or sets a flag indicating whether skipped tests should be reported as failed
-	/// tests. If this is not <c>true</c>, then skipped tests will be reported as skipped.
+	/// tests. If this is not <see langword="true"/>, then skipped tests will be reported as skipped.
 	/// </summary>
 	public bool FailSkips { get; set; }
 
 	/// <summary>
 	/// Gets or sets a flag indicating whether passing tests with warnings should be
-	/// reported as failed tests. If this is not <c>true</c>, then passing tests with
+	/// reported as failed tests. If this is not <see langword="true"/>, then passing tests with
 	/// warnings will be reported as passing tests.
 	/// </summary>
 	public bool FailWarn { get; set; }

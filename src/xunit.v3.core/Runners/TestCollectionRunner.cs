@@ -37,7 +37,7 @@ public abstract class TestCollectionRunner<TContext, TTestCollection, TTestClass
 	/// By default, using <see cref="XunitRunnerHelper"/> to fail the test cases.
 	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test collection</param>
-	/// <param name="testClass">The test class that is being failed. May be <c>null</c> for test cases that do not
+	/// <param name="testClass">The test class that is being failed. May be <see langword="null"/> for test cases that do not
 	/// support classes and methods.</param>
 	/// <param name="testCases">The test cases to be failed.</param>
 	/// <param name="exception">The exception that was caused during startup.</param>
@@ -82,7 +82,7 @@ public abstract class TestCollectionRunner<TContext, TTestCollection, TTestClass
 	/// <param name="ctxt">The context that describes the current test collection</param>
 	/// <param name="exception">The exception that caused the cleanup failure (may be an instance
 	/// of <see cref="AggregateException"/> if more than one exception occurred).</param>
-	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
+	/// <returns>Return <see langword="true"/> if test execution should continue; <see langword="false"/> if it should be shut down.</returns>
 	protected virtual ValueTask<bool> OnTestCollectionCleanupFailure(
 		TContext ctxt,
 		Exception exception)
@@ -115,7 +115,7 @@ public abstract class TestCollectionRunner<TContext, TTestCollection, TTestClass
 	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test collection</param>
 	/// <param name="summary">The execution summary for the test collection</param>
-	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
+	/// <returns>Return <see langword="true"/> if test execution should continue; <see langword="false"/> if it should be shut down.</returns>
 	protected virtual async ValueTask<bool> OnTestCollectionFinished(
 		TContext ctxt,
 		RunSummary summary)
@@ -154,7 +154,7 @@ public abstract class TestCollectionRunner<TContext, TTestCollection, TTestClass
 	/// this method records exceptions, <see cref="OnTestCollectionFinished"/> will be called.
 	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test collection</param>
-	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
+	/// <returns>Return <see langword="true"/> if test execution should continue; <see langword="false"/> if it should be shut down.</returns>
 	protected virtual ValueTask<bool> OnTestCollectionStarting(TContext ctxt)
 	{
 		Guard.ArgumentNotNull(ctxt);
@@ -271,7 +271,7 @@ public abstract class TestCollectionRunner<TContext, TTestCollection, TTestClass
 	/// contribute to test collection cleanup failure.
 	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test collection</param>
-	/// <param name="testClass">The test class to be run. May be <c>null</c> for test cases that do not
+	/// <param name="testClass">The test class to be run. May be <see langword="null"/> for test cases that do not
 	/// support classes and methods.</param>
 	/// <param name="testCases">The test cases to be run.</param>
 	/// <returns>Returns summary information about the tests that were run.</returns>

@@ -55,7 +55,7 @@ public interface IRunnerReporter
 
 	/// <summary>
 	/// Gets a value which indicates a runner switch which can be used
-	/// to explicitly enable the runner. If the return value is <c>null</c>,
+	/// to explicitly enable the runner. If the return value is <see langword="null"/>,
 	/// then the reported can only be environmentally enabled (implicitly).
 	/// This value is used either as a command line switch (with the console or
 	/// .NET CLI runner) or as a runner configuration value (with the MSBuild runner).

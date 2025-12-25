@@ -11,7 +11,7 @@ namespace Xunit;
 public interface ITheoryDataRow
 {
 	/// <summary>
-	/// Gets a flag that indicates that the data row should only be run explicitly. If the value is <c>null</c>,
+	/// Gets a flag that indicates that the data row should only be run explicitly. If the value is <see langword="null"/>,
 	/// then it inherits its explicitness from the value of <see cref="IFactAttribute.Explicit"/>.
 	/// </summary>
 	bool? Explicit { get; }
@@ -21,14 +21,14 @@ public interface ITheoryDataRow
 	/// of the test.
 	/// </summary>
 	/// <remarks>
-	/// * If the value is <c>null</c> (or not set), use the default behavior: <c>MethodName(...argument list...)</c><br/>
+	/// * If the value is <see langword="null"/> (or not set), use the default behavior: <c>MethodName(...argument list...)</c><br/>
 	/// * If the value is an empty string, use just the method name: <c>MethodName</c><br/>
 	/// * For any other values, appends the label: <c>MethodName [label]</c>
 	/// </remarks>
 	string? Label { get; }
 
 	/// <summary>
-	/// Gets the skip reason for the test. When <c>null</c> is returned, the test is
+	/// Gets the skip reason for the test. When <see langword="null"/> is returned, the test is
 	/// not skipped.
 	/// </summary>
 	/// <remarks>
@@ -44,8 +44,8 @@ public interface ITheoryDataRow
 	Type? SkipType { get; }
 
 	/// <summary>
-	/// Gets the name of a public static property on the test class which returns <c>bool</c>
-	/// to indicate whether the test should be skipped (<c>false</c>) or not (<c>true</c>).
+	/// Gets the name of a public static property on the test class which returns <see cref="bool"/>
+	/// to indicate whether the test should be skipped (<see langword="false"/>) or not (<see langword="true"/>).
 	/// </summary>
 	/// <remarks>
 	/// This property cannot be set if <see cref="SkipWhen"/> is set. Setting both will
@@ -57,8 +57,8 @@ public interface ITheoryDataRow
 	string? SkipUnless { get; }
 
 	/// <summary>
-	/// Gets the name of a public static property on the test class which returns <c>bool</c>
-	/// to indicate whether the test should be skipped (<c>true</c>) or not (<c>false</c>).
+	/// Gets the name of a public static property on the test class which returns <see cref="bool"/>
+	/// to indicate whether the test should be skipped (<see langword="true"/>) or not (<see langword="false"/>).
 	/// </summary>
 	/// <remarks>
 	/// This property cannot be set if <see cref="SkipUnless"/> is set. Setting both will
@@ -79,7 +79,7 @@ public interface ITheoryDataRow
 
 	/// <summary>
 	/// A value greater than zero marks the test as having a timeout, and gets or sets the
-	/// timeout (in milliseconds). A non-<c>null</c> value here overrides any inherited value
+	/// timeout (in milliseconds). A non-<see langword="null"/> value here overrides any inherited value
 	/// from the <see cref="IDataAttribute"/> or the <see cref="ITheoryAttribute"/>.
 	/// </summary>
 	/// <remarks>
@@ -91,7 +91,7 @@ public interface ITheoryDataRow
 
 	/// <summary>
 	/// Gets the trait values associated with this theory data row. If there are none, you may either
-	/// return a <c>null</c> or empty dictionary.
+	/// return a <see langword="null"/> or empty dictionary.
 	/// </summary>
 	Dictionary<string, HashSet<string>>? Traits { get; }
 

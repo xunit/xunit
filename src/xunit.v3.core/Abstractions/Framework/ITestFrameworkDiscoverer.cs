@@ -20,11 +20,11 @@ public interface ITestFrameworkDiscoverer
 	/// <summary>
 	/// Finds tests inside an assembly. Calls the callback for each discovered test.
 	/// </summary>
-	/// <param name="callback">Called for each discovered test. Return <c>true</c> to continue test
-	/// discovery; return <c>false</c> to cancel test discovery.</param>
+	/// <param name="callback">Called for each discovered test. Return <see langword="true"/> to continue test
+	/// discovery; return <see langword="false"/> to cancel test discovery.</param>
 	/// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
-	/// <param name="types">When passed a non-<c>null</c> collection, only returns tests found
-	/// from one of the provided types; when passed a <c>null</c> collection, discovers all
+	/// <param name="types">When passed a non-<see langword="null"/> collection, only returns tests found
+	/// from one of the provided types; when passed a <see langword="null"/> collection, discovers all
 	/// tests in the assembly.</param>
 	/// <param name="cancellationToken">The optional cancellation token which can be used to cancel the test
 	/// discovery process.</param>

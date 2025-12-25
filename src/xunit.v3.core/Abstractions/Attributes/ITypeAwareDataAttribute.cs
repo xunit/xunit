@@ -20,7 +20,7 @@ public interface ITypeAwareDataAttribute
 	/// Gets or sets the reflected type of the method that this data attribute was attached to.
 	/// </summary>
 	/// <remarks>
-	/// <see cref="ExtensibilityPointFactory"/> will not be overwrite this value if it's already non-<c>null</c>.
+	/// <see cref="ExtensibilityPointFactory"/> will not be overwrite this value if it's already non-<see langword="null"/>.
 	/// </remarks>
 	Type? MemberType { get; set; }
 }

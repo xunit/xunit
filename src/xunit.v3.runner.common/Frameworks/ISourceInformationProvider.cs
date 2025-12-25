@@ -16,7 +16,7 @@ public interface ISourceInformationProvider : IAsyncDisposable
 	/// <param name="testClassName">The test class name, if known</param>
 	/// <param name="testMethodName">The test method name, if known</param>
 	/// <returns>The source information, with null string and int values when the information is not available.
-	/// Note: return value should never be <c>null</c>, only the interior data values inside.</returns>
+	/// Note: return value should never be <see langword="null"/>, only the interior data values inside.</returns>
 	SourceInformation GetSourceInformation(
 		string? testClassName,
 		string? testMethodName);

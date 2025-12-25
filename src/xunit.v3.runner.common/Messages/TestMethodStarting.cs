@@ -8,7 +8,7 @@ public partial class TestMethodStarting
 {
 	/// <inheritdoc/>
 	/// <remarks>
-	/// Note: Will be <c>null</c> if there was no value provided during deserialization.
+	/// Note: Will be <see langword="null"/> if there was no value provided during deserialization.
 	/// </remarks>
 	public required int? MethodArity { get; set; }
 

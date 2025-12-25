@@ -18,7 +18,7 @@ public interface IXunitSerializationInfo
 	/// <param name="key">The key to store the value with</param>
 	/// <param name="value">The value to be stored</param>
 	/// <param name="valueType">The type of the value to be stored; optional, unless the
-	/// value of <paramref name="value"/> is <c>null</c>.</param>
+	/// value of <paramref name="value"/> is <see langword="null"/>.</param>
 	/// <exception cref="ArgumentException">Thrown if the value is not a supported type.</exception>
 	void AddValue(
 		string key,
@@ -29,6 +29,6 @@ public interface IXunitSerializationInfo
 	/// Gets a value from the serialization.
 	/// </summary>
 	/// <param name="key">The key of the value to retrieve</param>
-	/// <returns>The value, if present; <c>null</c>, otherwise</returns>
+	/// <returns>The value, if present; <see langword="null"/>, otherwise</returns>
 	object? GetValue(string key);
 }

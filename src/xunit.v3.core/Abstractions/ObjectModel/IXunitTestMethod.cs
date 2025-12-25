@@ -81,7 +81,7 @@ public interface IXunitTestMethod : ITestMethod
 
 	/// <summary>
 	/// Resolves the generic types for the test method given the method's arguments. If the method
-	/// is not generic, will return <c>null</c>.
+	/// is not generic, will return <see langword="null"/>.
 	/// </summary>
 	/// <param name="arguments">The method arguments</param>
 	Type[]? ResolveGenericTypes(object?[] arguments);

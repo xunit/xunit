@@ -258,7 +258,7 @@ public class AssemblyRunner : IAsyncDisposable, IMessageSink
 	/// never throw exceptions.
 	/// </summary>
 	/// <param name="message">The message from the message bus</param>
-	/// <returns>Return <c>true</c> to continue running tests, or <c>false</c> to stop.</returns>
+	/// <returns>Return <see langword="true"/> to continue running tests, or <see langword="false"/> to stop.</returns>
 	protected virtual bool OnMessage(IMessageSinkMessage message)
 	{
 		// Discovery
@@ -456,9 +456,9 @@ public class AssemblyRunner : IAsyncDisposable, IMessageSink
 	/// </summary>
 	/// <param name="assemblyFileName">The test assembly.</param>
 	/// <param name="configFileName">The test assembly configuration file.</param>
-	/// <param name="shadowCopy">If set to <c>true</c>, runs tests in a shadow copied app domain, which allows
+	/// <param name="shadowCopy">If set to <see langword="true"/>, runs tests in a shadow copied app domain, which allows
 	/// tests to be discovered and run without locking assembly files on disk.</param>
-	/// <param name="shadowCopyFolder">The path on disk to use for shadow copying; if <c>null</c>, a folder
+	/// <param name="shadowCopyFolder">The path on disk to use for shadow copying; if <see langword="null"/>, a folder
 	/// will be automatically (randomly) generated</param>
 	[Obsolete("Create an instance of Xunit.SimpleRunner.AssemblyRunner directly instead")]
 	public static AssemblyRunner WithAppDomain(

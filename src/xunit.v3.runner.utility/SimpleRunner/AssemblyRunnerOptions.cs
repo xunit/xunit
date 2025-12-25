@@ -150,7 +150,7 @@ public class AssemblyRunnerOptions
 	/// </summary>
 	/// <remarks>
 	/// <list type="bullet">
-	///   <item><c>null</c> = use the current culture</item>
+	///   <item><see langword="null"/> = use the current culture</item>
 	///   <item>Empty string = use the invariant culture</item>
 	///   <item>Non-empty string = use the specified culture</item>
 	/// </list>
@@ -467,7 +467,7 @@ public class AssemblyRunnerOptions
 	/// Determines if shadow copying is enabled when app domains are being used.
 	/// </summary>
 	/// <remarks>
-	/// <para>The default value is <c>false</c>.</para>
+	/// <para>The default value is <see langword="false"/>.</para>
 	/// <para><em>App domains are only valid for xUnit.net v1 and xUnit.net v2 test projects that target .NET Framework.</em></para>
 	/// </remarks>
 	public bool? ShadowCopy

@@ -9,7 +9,7 @@ public partial class TestStarting
 {
 	/// <inheritdoc/>
 	/// <remarks>
-	/// Note: Will be <c>false</c> if there was no value provided during deserialization.
+	/// Note: Will be <see langword="false"/> if there was no value provided during deserialization.
 	/// </remarks>
 	public required bool Explicit { get; set; }
 

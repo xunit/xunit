@@ -57,7 +57,7 @@ public class TestProjectConfiguration
 	/// <summary>
 	/// Gets a flag which indicates whether the runner should return assembly information
 	/// rather than listing or executing tests. If the flag is not specified, returns the
-	/// default value (<c>false</c>).
+	/// default value (<see langword="false"/>).
 	/// </summary>
 	public bool AssemblyInfoOrDefault => AssemblyInfo ?? false;
 
@@ -88,7 +88,7 @@ public class TestProjectConfiguration
 	/// <summary>
 	/// Gets a flag which indicates whether the runner should attempt to attach the debugger
 	/// before running any tests. If the flag is not specified, returns the default value
-	/// (<c>false</c>).
+	/// (<see langword="false"/>).
 	/// </summary>
 	public bool DebugOrDefault => Debug ?? false;
 
@@ -99,7 +99,7 @@ public class TestProjectConfiguration
 
 	/// <summary>
 	/// Gets a flag which indicates whether the runner should ignore test failures. If the
-	/// flag is not specified, returns the default value (<c>false</c>).
+	/// flag is not specified, returns the default value (<see langword="false"/>).
 	/// </summary>
 	public bool IgnoreFailuresOrDefault => IgnoreFailures ?? false;
 
@@ -126,7 +126,7 @@ public class TestProjectConfiguration
 	/// <summary>
 	/// Gets a flag indicating that the test runner should not attempt to use any automatically
 	/// (aka environmentally) enabled reporters. If the flag is not set, returns the default
-	/// value (<c>false</c>).
+	/// value (<see langword="false"/>).
 	/// </summary>
 	public bool NoAutoReportersOrDefault => NoAutoReporters ?? false;
 
@@ -138,8 +138,8 @@ public class TestProjectConfiguration
 
 	/// <summary>
 	/// Gets a flag indicating that the test runner should not output any color codes when writing
-	/// text to the console. If the flag is not set, returns <c>true</c> if the user has defined
-	/// the NO_COLOR environment variable, or <c>false</c> otherwise.
+	/// text to the console. If the flag is not set, returns <see langword="true"/> if the user has defined
+	/// the NO_COLOR environment variable, or <see langword="false"/> otherwise.
 	/// </summary>
 	public bool NoColorOrDefault => NoColor ?? Environment.GetEnvironmentVariable(EnvNameNoColor) is not null;
 
@@ -151,7 +151,7 @@ public class TestProjectConfiguration
 
 	/// <summary>
 	/// Gets a flag indicating that the test runner hsould not output the copyright information.
-	/// If the flag is not set, returns the default value (<c>false</c>).
+	/// If the flag is not set, returns the default value (<see langword="false"/>).
 	/// </summary>
 	public bool NoLogoOrDefault => NoLogo ?? false;
 
@@ -163,7 +163,7 @@ public class TestProjectConfiguration
 
 	/// <summary>
 	/// Gets a flag indicating that the test runner should pause before running any tests.
-	/// If the flag is not set, returns the default value (<c>false</c>).
+	/// If the flag is not set, returns the default value (<see langword="false"/>).
 	/// </summary>
 	public bool PauseOrDefault => Pause ?? false;
 
@@ -175,7 +175,7 @@ public class TestProjectConfiguration
 
 	/// <summary>
 	/// Gets a flag indicating that ANSI color usage should be forced on Windows. ANSI color is
-	/// always used for non-Windows. If the flag is not set, returns the default value (<c>false</c>).
+	/// always used for non-Windows. If the flag is not set, returns the default value (<see langword="false"/>).
 	/// </summary>
 	public bool UseAnsiColorOrDefault => UseAnsiColor ?? false;
 
@@ -187,7 +187,7 @@ public class TestProjectConfiguration
 
 	/// <summary>
 	/// Gets a flag indicating that the test runner should pause after all tests have run.
-	/// If the flag is not set, returns the default value (<c>false</c>).
+	/// If the flag is not set, returns the default value (<see langword="false"/>).
 	/// </summary>
 	public bool WaitOrDefault => Wait ?? false;
 
@@ -199,7 +199,7 @@ public class TestProjectConfiguration
 
 	/// <summary>
 	/// Gets a flag indicating that the test runner should wait for a debugger to be attached
-	/// before performing any actions. If the flag is not set, returns the default value (<c>false</c>).
+	/// before performing any actions. If the flag is not set, returns the default value (<see langword="false"/>).
 	/// </summary>
 	public bool WaitForDebuggerOrDefault => WaitForDebugger ?? false;
 }

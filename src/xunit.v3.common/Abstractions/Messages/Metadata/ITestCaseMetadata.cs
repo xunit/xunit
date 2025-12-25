@@ -17,19 +17,19 @@ public interface ITestCaseMetadata
 
 	/// <summary>
 	/// Gets the display text for the reason a test is being skipped; if the test
-	/// is not statically skipped, returns <c>null</c>. (A test may be dynamically
-	/// skipped at runtime while still returning <c>null</c>.)
+	/// is not statically skipped, returns <see langword="null"/>. (A test may be dynamically
+	/// skipped at runtime while still returning <see langword="null"/>.)
 	/// </summary>
 	string? SkipReason { get; }
 
 	/// <summary>
-	/// Gets the source file name. A <c>null</c> value indicates that the
+	/// Gets the source file name. A <see langword="null"/> value indicates that the
 	/// source file name is not known.
 	/// </summary>
 	string? SourceFilePath { get; }
 
 	/// <summary>
-	/// Gets the source file line number. A <c>null</c> value indicates that the
+	/// Gets the source file line number. A <see langword="null"/> value indicates that the
 	/// source file line number is not known.
 	/// </summary>
 	int? SourceLineNumber { get; }
@@ -41,17 +41,17 @@ public interface ITestCaseMetadata
 
 	/// <summary>
 	/// Gets the <see cref="MemberInfo.MetadataToken"/> for the test class. If the test did not
-	/// originate in a class, will return <c>null</c>.
+	/// originate in a class, will return <see langword="null"/>.
 	/// </summary>
 	/// <remarks>
-	/// This value is only populated for xUnit.net v3 or later test cases, and will return <c>null</c>
-	/// for v1 or v2 test cases, regardless of whether <see cref="TestClassName"/> is <c>null</c>.
+	/// This value is only populated for xUnit.net v3 or later test cases, and will return <see langword="null"/>
+	/// for v1 or v2 test cases, regardless of whether <see cref="TestClassName"/> is <see langword="null"/>.
 	/// </remarks>
 	int? TestClassMetadataToken { get; }
 
 	/// <summary>
 	/// Gets the full name of the class where the test is defined (i.e., <see cref="Type.FullName"/>).
-	/// If the test did not originiate in a class, will return <c>null</c>.
+	/// If the test did not originiate in a class, will return <see langword="null"/>.
 	/// </summary>
 	[NotNullIfNotNull(nameof(TestMethodName))]
 	string? TestClassName { get; }
@@ -59,42 +59,42 @@ public interface ITestCaseMetadata
 	/// <summary>
 	/// Gets the namespace of the class where the test is defined. If the test did not
 	/// originate in a class, or the class it originated in does not reside in a namespace,
-	/// will return <c>null</c>.
+	/// will return <see langword="null"/>.
 	/// </summary>
 	string? TestClassNamespace { get; }
 
 	/// <summary>
 	/// Gets the simple name of the class where the test is defined (the class name without namespace).
-	/// If the test did not originiate in a class, will return <c>null</c>.
+	/// If the test did not originiate in a class, will return <see langword="null"/>.
 	/// </summary>
 	[NotNullIfNotNull(nameof(TestMethodName))]
 	string? TestClassSimpleName { get; }
 
 	/// <summary>
 	/// Gets the arity (number of generic types) on the method itself. If the test did not originate
-	/// in a method, will return <c>null</c>.
+	/// in a method, will return <see langword="null"/>.
 	/// </summary>
 	int? TestMethodArity { get; }
 
 	/// <summary>
 	/// Gets the <see cref="MemberInfo.MetadataToken"/> for the test method. If the test did not
-	/// originate in a method, or the test framework did not provide this information, will return <c>null</c>.
+	/// originate in a method, or the test framework did not provide this information, will return <see langword="null"/>.
 	/// </summary>
 	/// <remarks>
-	/// This value is only populated for xUnit.net v3 or later test cases, and will return <c>null</c>
-	/// for v1 or v2 test cases, regardless of whether <see cref="TestMethodName"/> is <c>null</c>.
+	/// This value is only populated for xUnit.net v3 or later test cases, and will return <see langword="null"/>
+	/// for v1 or v2 test cases, regardless of whether <see cref="TestMethodName"/> is <see langword="null"/>.
 	/// </remarks>
 	int? TestMethodMetadataToken { get; }
 
 	/// <summary>
 	/// Gets the method name where the test is defined, in the <see cref="TestClassName"/> class.
-	/// If the test did not originiate in a method, will return <c>null</c>.
+	/// If the test did not originiate in a method, will return <see langword="null"/>.
 	/// </summary>
 	string? TestMethodName { get; }
 
 	/// <summary>
 	/// Gets the types for the test method parameters. If the test did not originate in a method,
-	/// or the test framework does not provide this information, will return <c>null</c>; if the test
+	/// or the test framework does not provide this information, will return <see langword="null"/>; if the test
 	/// method has no parameters, will return an empty array.
 	/// </summary>
 	/// <remarks>
@@ -106,7 +106,7 @@ public interface ITestCaseMetadata
 
 	/// <summary>
 	/// Gets the test method return type. If the test did not originate in a method, or the test framework
-	/// did not provide this information, will return <c>null</c>.
+	/// did not provide this information, will return <see langword="null"/>.
 	/// </summary>
 	/// <remarks>
 	/// The value here is formatted according to
@@ -117,7 +117,7 @@ public interface ITestCaseMetadata
 
 	/// <summary>
 	/// Gets the trait values associated with this test case. If there are none, or the framework
-	/// does not support traits, this should return an empty dictionary (not <c>null</c>).
+	/// does not support traits, this should return an empty dictionary (not <see langword="null"/>).
 	/// </summary>
 	IReadOnlyDictionary<string, IReadOnlyCollection<string>> Traits { get; }
 

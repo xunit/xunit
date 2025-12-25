@@ -31,7 +31,7 @@ public interface IXunitTestClass : ITestClass
 	IReadOnlyCollection<Type> ClassFixtureTypes { get; }
 
 	/// <summary>
-	/// Gets the public constructors on the test class. If the test class is static, will return <c>null</c>.
+	/// Gets the public constructors on the test class. If the test class is static, will return <see langword="null"/>.
 	/// </summary>
 	IReadOnlyCollection<ConstructorInfo>? Constructors { get; }
 

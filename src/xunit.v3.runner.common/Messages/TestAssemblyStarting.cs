@@ -21,13 +21,13 @@ public partial class TestAssemblyStarting
 
 	/// <inheritdoc/>
 	/// <remarks>
-	/// Note: Will be <c>null</c> if there was no value provided during deserialization.
+	/// Note: Will be <see langword="null"/> if there was no value provided during deserialization.
 	/// </remarks>
 	public required string? ConfigFilePath { get; set; }
 
 	/// <inheritdoc/>
 	/// <remarks>
-	/// Note: Will be <c>null</c> if there was no value provided during deserialization.
+	/// Note: Will be <see langword="null"/> if there was no value provided during deserialization.
 	/// </remarks>
 	public required int? Seed { get; set; }
 
@@ -39,7 +39,7 @@ public partial class TestAssemblyStarting
 
 	/// <inheritdoc/>
 	/// <remarks>
-	/// Note: Will be <c>null</c> if there was no value provided during deserialization.
+	/// Note: Will be <see langword="null"/> if there was no value provided during deserialization.
 	/// </remarks>
 	public required string? TargetFramework { get; set; }
 

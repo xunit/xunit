@@ -33,7 +33,7 @@ public class TestRunnerBaseContext<TTest>(
 	/// Gets the runtime skip reason for the test.
 	/// </summary>
 	/// <param name="exception">The exception that was thrown during test invocation</param>
-	/// <returns>The skip reason, if the test is skipped; <c>null</c>, otherwise</returns>
+	/// <returns>The skip reason, if the test is skipped; <see langword="null"/>, otherwise</returns>
 	public virtual string? GetSkipReason(Exception? exception) =>
 		skipReason;
 }

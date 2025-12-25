@@ -13,8 +13,8 @@ public class AssemblyRunnerStartOptions
 
 	/// <summary>
 	/// Indicates whether diagnostic messages should be generated. If unset (or set
-	/// to <c>null</c>), will use the value from the configuration file (and if that
-	/// isn't set, will use the default value of <c>false</c>).
+	/// to <see langword="null"/>), will use the value from the configuration file (and if that
+	/// isn't set, will use the default value of <see langword="false"/>).
 	/// </summary>
 	public bool? DiagnosticMessages { get; set; }
 
@@ -27,9 +27,9 @@ public class AssemblyRunnerStartOptions
 	/// Indicates whether internal diagnostic messages should be generated (these are
 	/// typically low level diagnostic messages from the test engine itself that may
 	/// be requested by xUnit.net developers when debugging issues inside xUnit.net
-	/// itself). If unset (or set to <c>null</c>), will use the value from the
+	/// itself). If unset (or set to <see langword="null"/>), will use the value from the
 	/// configuraiton file (and if that isn't set, will use the default value
-	/// of <c>false</c>).
+	/// of <see langword="false"/>).
 	/// </summary>
 	public bool? InternalDiagnosticMessages { get; set; }
 
@@ -39,13 +39,13 @@ public class AssemblyRunnerStartOptions
 	/// no thread limit; a value of <c>0</c> indicates a desire for the default
 	/// limit (which is <see cref="Environment.ProcessorCount"/>); a value greater
 	/// than 0 indicates an exact thread count is desired. If unset (or set to
-	/// <c>null</c>), will use the value from the configuration file (and if that
+	/// <see langword="null"/>), will use the value from the configuration file (and if that
 	/// isn't set, will use the default value of <see cref="Environment.ProcessorCount"/>).
 	/// </summary>
 	public int? MaxParallelThreads { get; set; }
 
 	/// <summary>
-	/// Indicates how to display test methods. If unset (or set to <c>null</c>),
+	/// Indicates how to display test methods. If unset (or set to <see langword="null"/>),
 	/// will use the value from the configuration file (and if that isn't set,
 	/// will use the default value of <see cref="TestMethodDisplay.ClassAndMethod"/>).
 	/// </summary>
@@ -53,15 +53,15 @@ public class AssemblyRunnerStartOptions
 
 	/// <summary>
 	/// Indicates how to interpret test method names for display. If unset (or set
-	/// to <c>null</c>), will use the value from the configuration file (and if that
+	/// to <see langword="null"/>), will use the value from the configuration file (and if that
 	/// isn't set, will use the default value of <see cref="TestMethodDisplayOptions.None"/>).
 	/// </summary>
 	public TestMethodDisplayOptions? MethodDisplayOptions { get; set; }
 
 	/// <summary>
 	/// Indicates whether to run test collections in parallel. If unset (or set to
-	/// <c>null</c>), will use the value from the configuration file (and if that
-	/// isn't set, will use the default value of <c>true</c>). Note that test
+	/// <see langword="null"/>), will use the value from the configuration file (and if that
+	/// isn't set, will use the default value of <see langword="true"/>). Note that test
 	/// collection parallelization is only available in v2 test projects.
 	/// </summary>
 	public bool? Parallel { get; set; }
@@ -69,7 +69,7 @@ public class AssemblyRunnerStartOptions
 	/// <summary>
 	/// Indicates which algorithm to use when parallelizing tests (will have no effect
 	/// if parallelism is turned off or if the max parallel threads is set to <c>-1</c>).
-	/// If unset (or set to <c>null</c>), will use the value from the configuration
+	/// If unset (or set to <see langword="null"/>), will use the value from the configuration
 	/// file (and if that isn't set, will use the default value of
 	/// <see cref="ParallelAlgorithm.Conservative"/>. For more information on the
 	/// parallelism algorithms, see
@@ -79,9 +79,9 @@ public class AssemblyRunnerStartOptions
 
 	/// <summary>
 	/// Indicates whether theories should be pre-enumerated (that is, enumerated during
-	/// discovery rather than during execution). If unset (or set to <c>null</c>),
+	/// discovery rather than during execution). If unset (or set to <see langword="null"/>),
 	/// will use the value from the configuration file (and if that isn't set,
-	/// will use the default value of <c>false</c>).
+	/// will use the default value of <see langword="false"/>).
 	/// </summary>
 	public bool? PreEnumerateTheories { get; set; }
 

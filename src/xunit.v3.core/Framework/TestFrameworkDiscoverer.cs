@@ -102,8 +102,8 @@ public abstract class TestFrameworkDiscoverer<TTestClass>(ITestAssembly testAsse
 	/// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
 	/// <param name="discoveryCallback">The callback that is called for each discovered test case.
 	/// The return value of the callback indicates the same thing as the return value of this function:
-	/// return <c>true</c> to continue discovery, or <c>false</c> to halt it.</param>
-	/// <returns>Returns <c>true</c> if discovery should continue; <c>false</c> otherwise.</returns>
+	/// return <see langword="true"/> to continue discovery, or <see langword="false"/> to halt it.</param>
+	/// <returns>Returns <see langword="true"/> if discovery should continue; <see langword="false"/> otherwise.</returns>
 	protected abstract ValueTask<bool> FindTestsForType(
 		TTestClass testClass,
 		ITestFrameworkDiscoveryOptions discoveryOptions,
@@ -120,7 +120,7 @@ public abstract class TestFrameworkDiscoverer<TTestClass>(ITestAssembly testAsse
 	/// are not desirable. The default implementation filters out abstract (non-static) classes.
 	/// </summary>
 	/// <param name="type">The type.</param>
-	/// <returns>Returns <c>true</c> if the type can contain tests; <c>false</c>, otherwise.</returns>
+	/// <returns>Returns <see langword="true"/> if the type can contain tests; <see langword="false"/>, otherwise.</returns>
 	protected virtual bool IsValidTestClass(Type type)
 	{
 		Guard.ArgumentNotNull(type);

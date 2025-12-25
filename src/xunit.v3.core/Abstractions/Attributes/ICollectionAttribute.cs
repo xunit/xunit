@@ -14,7 +14,7 @@ public interface ICollectionAttribute
 	string Name { get; }
 
 	/// <summary>
-	/// Gets the collection definition type. Returns <c>null</c> if the collection is purely
+	/// Gets the collection definition type. Returns <see langword="null"/> if the collection is purely
 	/// based on name.
 	/// </summary>
 	Type? Type { get; }

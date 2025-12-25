@@ -21,7 +21,7 @@ namespace Xunit.Runner.InProc.SystemConsole;
 /// xUnit.net v3 test projects.
 /// </summary>
 /// <param name="args">The arguments passed to the application; typically pulled from the Main method.</param>
-/// <param name="testAssembly">The optional test assembly; if <c>null</c>, <see cref="Assembly.GetEntryAssembly"/> is used
+/// <param name="testAssembly">The optional test assembly; if <see langword="null"/>, <see cref="Assembly.GetEntryAssembly"/> is used
 /// to find the current assembly as the test assembly</param>
 // The signature of this constructor is used at runtime via reflection, and as such must not
 // be modified without creating forks inside InProcessTestProcessLauncher.

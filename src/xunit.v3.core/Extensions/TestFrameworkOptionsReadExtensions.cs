@@ -14,7 +14,7 @@ public static class TestFrameworkOptionsReadExtensions
 	// ======================================
 
 	/// <summary>
-	/// Gets the culture to use for discovering tests. <c>null</c> uses the default OS culture;
+	/// Gets the culture to use for discovering tests. <see langword="null"/> uses the default OS culture;
 	/// <see cref="string.Empty"/> uses the invariant culture; any other value passes the
 	/// provided value to <see cref="CultureInfo(string)"/> and uses the resulting object
 	/// with <see cref="CultureInfo.DefaultThreadCurrentCulture"/> and
@@ -39,7 +39,7 @@ public static class TestFrameworkOptionsReadExtensions
 
 	/// <summary>
 	/// Gets a flag that determines whether diagnostic messages will be emitted. If the flag is not present,
-	/// returns the default value (<c>false</c>).
+	/// returns the default value (<see langword="false"/>).
 	/// </summary>
 	public static bool DiagnosticMessagesOrDefault(this ITestFrameworkDiscoveryOptions discoveryOptions) =>
 		DiagnosticMessages(discoveryOptions) ?? false;
@@ -60,7 +60,7 @@ public static class TestFrameworkOptionsReadExtensions
 	/// Gets a flag that determines whether discovered test cases should include source information.
 	/// Note that not all runners have access to source information, so this flag does not guarantee
 	/// that source information will be provided. If the flag is not present, returns the default
-	/// value (<c>false</c>).
+	/// value (<see langword="false"/>).
 	/// </summary>
 	public static bool IncludeSourceInformationOrDefault(this ITestFrameworkDiscoveryOptions discoveryOptions) =>
 		IncludeSourceInformation(discoveryOptions) ?? false;
@@ -117,7 +117,7 @@ public static class TestFrameworkOptionsReadExtensions
 	/// Gets a flag that determines whether theories are pre-enumerated. If enabled, then the
 	/// discovery system will return a test case for each row of test data; if disabled, then the
 	/// discovery system will return a single test case for the theory. If the flag is not present,
-	/// returns the default value (<c>false</c>).
+	/// returns the default value (<see langword="false"/>).
 	/// </summary>
 	public static bool PreEnumerateTheoriesOrDefault(this ITestFrameworkDiscoveryOptions discoveryOptions) =>
 		PreEnumerateTheories(discoveryOptions) ?? false;
@@ -174,7 +174,7 @@ public static class TestFrameworkOptionsReadExtensions
 
 	/// <summary>
 	/// Gets a flag that determines whether xUnit.net should report test results synchronously.
-	/// If the flag is not set, returns the default value (<c>false</c>).
+	/// If the flag is not set, returns the default value (<see langword="false"/>).
 	/// </summary>
 	public static bool SynchronousMessageReportingOrDefault(this ITestFrameworkDiscoveryOptions discoveryOptions) =>
 		SynchronousMessageReporting(discoveryOptions) ?? false;
@@ -194,7 +194,7 @@ public static class TestFrameworkOptionsReadExtensions
 	}
 
 	/// <summary>
-	/// Gets the culture to use for running tests. <c>null</c> uses the default OS culture;
+	/// Gets the culture to use for running tests. <see langword="null"/> uses the default OS culture;
 	/// <see cref="string.Empty"/> uses the invariant culture; any other value passes the
 	/// provided value to <see cref="CultureInfo(string)"/> and uses the resulting object
 	/// with <see cref="CultureInfo.DefaultThreadCurrentCulture"/> and
@@ -219,7 +219,7 @@ public static class TestFrameworkOptionsReadExtensions
 
 	/// <summary>
 	/// Gets a flag that determines whether diagnostic messages will be emitted. If the flag is not
-	/// present, returns the default value (<c>false</c>).
+	/// present, returns the default value (<see langword="false"/>).
 	/// </summary>
 	public static bool DiagnosticMessagesOrDefault(this ITestFrameworkExecutionOptions executionOptions) =>
 		DiagnosticMessages(executionOptions) ?? false;
@@ -236,7 +236,7 @@ public static class TestFrameworkOptionsReadExtensions
 
 	/// <summary>
 	/// Gets a flag to disable parallelization. If the flag is not present, returns the
-	/// default value (<c>false</c>).
+	/// default value (<see langword="false"/>).
 	/// </summary>
 	public static bool DisableParallelizationOrDefault(this ITestFrameworkExecutionOptions executionOptions) =>
 		DisableParallelization(executionOptions) ?? false;
@@ -271,7 +271,7 @@ public static class TestFrameworkOptionsReadExtensions
 
 	/// <summary>
 	/// Gets a flag to fail skipped tests. If the flag is not present, returns the
-	/// default value (<c>false</c>).
+	/// default value (<see langword="false"/>).
 	/// </summary>
 	public static bool FailSkipsOrDefault(this ITestFrameworkExecutionOptions executionOptions) =>
 		FailSkips(executionOptions) ?? false;
@@ -288,7 +288,7 @@ public static class TestFrameworkOptionsReadExtensions
 
 	/// <summary>
 	/// Gets a flag to fail passing tests with warnings. If the flag is not present, returns the
-	/// default value (<c>false</c>).
+	/// default value (<see langword="false"/>).
 	/// </summary>
 	public static bool FailTestsWithWarningsOrDefault(this ITestFrameworkExecutionOptions executionOptions) =>
 		FailTestsWithWarnings(executionOptions) ?? false;
@@ -398,7 +398,7 @@ public static class TestFrameworkOptionsReadExtensions
 	/// <summary>
 	/// Gets a flag which indicates if the developer wishes to see output from <see cref="ITestOutputHelper"/>
 	/// live while it's being reported (in addition to seeing it collected together when the test is finished).
-	/// If the flag is not present, returns the default value (<c>false</c>).
+	/// If the flag is not present, returns the default value (<see langword="false"/>).
 	/// </summary>
 	public static bool ShowLiveOutputOrDefault(this ITestFrameworkExecutionOptions executionOptions) =>
 		ShowLiveOutput(executionOptions) ?? false;
@@ -415,7 +415,7 @@ public static class TestFrameworkOptionsReadExtensions
 
 	/// <summary>
 	/// Gets a flag to stop testing on test failure. If the flag is not present, returns the
-	/// default value (<c>false</c>).
+	/// default value (<see langword="false"/>).
 	/// </summary>
 	public static bool StopOnTestFailOrDefault(this ITestFrameworkExecutionOptions executionOptions) =>
 		StopOnTestFail(executionOptions) ?? false;
@@ -432,7 +432,7 @@ public static class TestFrameworkOptionsReadExtensions
 
 	/// <summary>
 	/// Gets a flag that determines whether xUnit.net should report test results synchronously.
-	/// If the flag is not set, returns the default value (<c>false</c>).
+	/// If the flag is not set, returns the default value (<see langword="false"/>).
 	/// </summary>
 	public static bool SynchronousMessageReportingOrDefault(this ITestFrameworkExecutionOptions executionOptions) =>
 		SynchronousMessageReporting(executionOptions) ?? false;

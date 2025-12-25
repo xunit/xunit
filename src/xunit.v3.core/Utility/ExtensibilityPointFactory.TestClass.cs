@@ -54,7 +54,7 @@ public static partial class ExtensibilityPointFactory
 				.CastOrToReadOnlyCollection();
 
 	/// <summary>
-	/// Gets the test case orderer that's attached to a test class. Returns <c>null</c> if there
+	/// Gets the test case orderer that's attached to a test class. Returns <see langword="null"/> if there
 	/// isn't one attached.
 	/// </summary>
 	/// <param name="testClass">The test class</param>

@@ -28,7 +28,7 @@ public struct ExceptionAggregator
 		exceptions = new(exceptionsToClone ?? []);
 
 	/// <summary>
-	/// Returns <c>true</c> if the aggregator has at least one exception inside it.
+	/// Returns <see langword="true"/> if the aggregator has at least one exception inside it.
 	/// </summary>
 	public bool HasExceptions =>
 		GetExceptions().Count > 0;
@@ -171,7 +171,7 @@ public struct ExceptionAggregator
 	/// Returns an exception that represents the exceptions thrown by the code
 	/// passed to the <see cref="Run"/> or RunAsync methods.
 	/// </summary>
-	/// <returns>Returns <c>null</c> if no exceptions were thrown; returns the
+	/// <returns>Returns <see langword="null"/> if no exceptions were thrown; returns the
 	/// exact exception if a single exception was thrown; returns <see cref="AggregateException"/>
 	/// if more than one exception was thrown.</returns>
 	public Exception? ToException()

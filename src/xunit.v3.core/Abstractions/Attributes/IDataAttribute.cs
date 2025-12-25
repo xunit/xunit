@@ -14,9 +14,9 @@ public interface IDataAttribute
 {
 	/// <summary>
 	/// Gets a value that determines whether the data rows provided by this data
-	/// provider should be considered explicit or not. If <c>true</c>, then the data
-	/// rows will all be considered explicit; if <c>false</c>, then the data rows
-	/// will all be considered not explicit; if <c>null</c>, then the data rows will
+	/// provider should be considered explicit or not. If <see langword="true"/>, then the data
+	/// rows will all be considered explicit; if <see langword="false"/>, then the data rows
+	/// will all be considered not explicit; if <see langword="null"/>, then the data rows will
 	/// inherit their explicitness from <see cref="IFactAttribute.Explicit"/>.
 	/// </summary>
 	bool? Explicit { get; }
@@ -26,7 +26,7 @@ public interface IDataAttribute
 	/// of the test.
 	/// </summary>
 	/// <remarks>
-	/// * If the value is <c>null</c> (or not set), use the default behavior: <c>MethodName(...argument list...)</c><br/>
+	/// * If the value is <see langword="null"/> (or not set), use the default behavior: <c>MethodName(...argument list...)</c><br/>
 	/// * If the value is an empty string, use just the method name: <c>MethodName</c><br/>
 	/// * For any other values, appends the label: <c>MethodName [label]</c>
 	/// </remarks>
@@ -34,7 +34,7 @@ public interface IDataAttribute
 
 	/// <summary>
 	/// Gets a skip reason for all the data rows provided by this data provider. If
-	/// not <c>null</c>, then all rows will be skipped with the given reason; if <c>null</c>,
+	/// not <see langword="null"/>, then all rows will be skipped with the given reason; if <see langword="null"/>,
 	/// then the rows will inherit their skip reason from <see cref="IFactAttribute.Skip"/>.
 	/// </summary>
 	string? Skip { get; }
@@ -47,7 +47,7 @@ public interface IDataAttribute
 
 	/// <summary>
 	/// Gets the name of a public static property on the test class which returns <c>bool</c>
-	/// to indicate whether the test should be skipped (<c>false</c>) or not (<c>true</c>).
+	/// to indicate whether the test should be skipped (<see langword="false"/>) or not (<see langword="true"/>).
 	/// </summary>
 	/// <remarks>
 	/// This property cannot be set if <see cref="SkipWhen"/> is set. Setting both will
@@ -59,7 +59,7 @@ public interface IDataAttribute
 
 	/// <summary>
 	/// Gets the name of a public static property on the test class which returns <c>bool</c>
-	/// to indicate whether the test should be skipped (<c>true</c>) or not (<c>false</c>).
+	/// to indicate whether the test should be skipped (<see langword="true"/>) or not (<see langword="false"/>).
 	/// </summary>
 	/// <remarks>
 	/// This property cannot be set if <see cref="SkipUnless"/> is set. Setting both will
@@ -80,7 +80,7 @@ public interface IDataAttribute
 	/// <summary>
 	/// Gets a value to determine if the data rows provided by this data provider should
 	/// include a timeout (in milliseconds). If greater than zero, the data rows will have
-	/// the given timeout; if zero or less, the data rows will not have a timeout; if <c>null</c>,
+	/// the given timeout; if zero or less, the data rows will not have a timeout; if <see langword="null"/>,
 	/// the data rows will inherit their timeout from <see cref="IFactAttribute.Timeout"/>.
 	/// </summary>
 	int? Timeout { get; }
@@ -108,9 +108,9 @@ public interface IDataAttribute
 		DisposalTracker disposalTracker);
 
 	/// <summary>
-	/// Returns <c>true</c> if the data attribute supports enumeration during
-	/// discovery; <c>false</c> otherwise. Data attributes with expensive computational
-	/// costs and/or randomized data sets should return <c>false</c>.
+	/// Returns <see langword="true"/> if the data attribute supports enumeration during
+	/// discovery; <see langword="false"/> otherwise. Data attributes with expensive computational
+	/// costs and/or randomized data sets should return <see langword="false"/>.
 	/// </summary>
 	bool SupportsDiscoveryEnumeration();
 }

@@ -13,7 +13,7 @@ namespace Xunit;
 /// <summary>
 /// Represents information about the current state of the test engine. It may be available at
 /// various points during the execution pipeline, so consumers must always take care to ensure
-/// that they check for <c>null</c> values from the various properties.
+/// that they check for <see langword="null"/> values from the various properties.
 /// </summary>
 public sealed class TestContext : ITestContext, IDisposable
 {
@@ -336,9 +336,9 @@ public sealed class TestContext : ITestContext, IDisposable
 	/// <param name="testState">The state of the test (only required when <paramref name="testStatus"/>
 	/// is <see cref="TestEngineStatus.CleaningUp"/>).</param>
 	/// <param name="testOutputHelper">The test output helper that the test can use to write output. Must be passed
-	/// when <paramref name="testStatus"/> is <see cref="TestEngineStatus.Initializing"/>; can be <c>null</c> for
+	/// when <paramref name="testStatus"/> is <see cref="TestEngineStatus.Initializing"/>; can be <see langword="null"/> for
 	/// other statuses (as it will be pulled from the existing test context).</param>
-	/// <param name="testClassInstance">The instance of the test class (may be <c>null</c> for static class and
+	/// <param name="testClassInstance">The instance of the test class (may be <see langword="null"/> for static class and
 	/// before the test class has been created)</param>
 	public static void SetForTest(
 		ITest test,

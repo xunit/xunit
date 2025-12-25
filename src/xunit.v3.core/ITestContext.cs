@@ -16,7 +16,7 @@ public interface ITestContext
 {
 	/// <summary>
 	/// Gets the attachments for the current test, if the engine is currently in the process of running a test;
-	/// will return <c>null</c> outside of the context of a test.
+	/// will return <see langword="null"/> outside of the context of a test.
 	/// </summary>
 	[NotNullIfNotNull(nameof(Test))]
 	IReadOnlyDictionary<string, TestAttachment>? Attachments { get; }
@@ -48,7 +48,7 @@ public interface ITestContext
 
 	/// <summary>
 	/// Gets the current test, if the engine is currently in the process of running a test;
-	/// will return <c>null</c> outside of the context of a test.
+	/// will return <see langword="null"/> outside of the context of a test.
 	/// </summary>
 	/// <remarks>
 	/// When running with the default test framework implementation, the value here is likely
@@ -58,7 +58,7 @@ public interface ITestContext
 
 	/// <summary>
 	/// Gets the current test assembly, if the engine is currently in the process of running or
-	/// discovering tests in assembly; will return <c>null</c> out of this context (this typically
+	/// discovering tests in assembly; will return <see langword="null"/> out of this context (this typically
 	/// means the test framework itself is being created and initialized).
 	/// </summary>
 	/// <remarks>
@@ -76,7 +76,7 @@ public interface ITestContext
 
 	/// <summary>
 	/// Gets the current test case, if the engine is currently in the process of running a
-	/// test case; will return <c>null</c> outside of the context of a test case.
+	/// test case; will return <see langword="null"/> outside of the context of a test case.
 	/// </summary>
 	/// <remarks>
 	/// When running with the default test framework implementation, the value here is likely
@@ -87,16 +87,16 @@ public interface ITestContext
 
 	/// <summary>
 	/// Gets the current test engine status for the test case. Will only be available when <see cref="TestCase"/>
-	/// is not <c>null</c>.
+	/// is not <see langword="null"/>.
 	/// </summary>
 	[NotNullIfNotNull(nameof(TestCase))]
 	TestEngineStatus? TestCaseStatus { get; }
 
 	/// <summary>
 	/// Gets the current test method, if the engine is currently in the process of running
-	/// a test class; will return <c>null</c> outside of the context of a test class. Note that
+	/// a test class; will return <see langword="null"/> outside of the context of a test class. Note that
 	/// not all test framework implementations require that tests be based on classes, so this
-	/// value may be <c>null</c> even if <see cref="TestCase"/> is not <c>null</c>.
+	/// value may be <see langword="null"/> even if <see cref="TestCase"/> is not <see langword="null"/>.
 	/// </summary>
 	/// <remarks>
 	/// When running with the default test framework implementation, the value here is likely
@@ -106,27 +106,27 @@ public interface ITestContext
 	ITestClass? TestClass { get; }
 
 	/// <summary>
-	/// Gets the instance of the test class; will return <c>null</c> outside of the context of
-	/// a test. Static test methods do not create test class instances, so this will always be <c>null</c>
+	/// Gets the instance of the test class; will return <see langword="null"/> outside of the context of
+	/// a test. Static test methods do not create test class instances, so this will always be <see langword="null"/>
 	/// for static test methods.
 	/// </summary>
 	/// <remarks>
 	/// This value will only be available when <see cref="PipelineStage"/> is <see cref="TestPipelineStage.TestExecution"/>
 	/// and <see cref="TestStatus"/> is <see cref="TestEngineStatus.Running"/>, and only after the test class has been
-	/// created. It will become <c>null</c> again immediately after the test class has been disposed.
+	/// created. It will become <see langword="null"/> again immediately after the test class has been disposed.
 	/// </remarks>
 	object? TestClassInstance { get; }
 
 	/// <summary>
 	/// Gets the current test engine status for the test class. Will only be available when <see cref="TestClass"/>
-	/// is not <c>null</c>.
+	/// is not <see langword="null"/>.
 	/// </summary>
 	[NotNullIfNotNull(nameof(TestClass))]
 	TestEngineStatus? TestClassStatus { get; }
 
 	/// <summary>
 	/// Gets the current test collection, if the engine is currently in the process of running
-	/// a test collection; will return <c>null</c> outside of the context of a test collection.
+	/// a test collection; will return <see langword="null"/> outside of the context of a test collection.
 	/// </summary>
 	/// <remarks>
 	/// When running with the default test framework implementation, the value here is likely
@@ -138,16 +138,16 @@ public interface ITestContext
 
 	/// <summary>
 	/// Gets the current test engine status for the test collection. Will only be available when
-	/// <see cref="TestCollection"/> is not <c>null</c>.
+	/// <see cref="TestCollection"/> is not <see langword="null"/>.
 	/// </summary>
 	[NotNullIfNotNull(nameof(TestCollection))]
 	TestEngineStatus? TestCollectionStatus { get; }
 
 	/// <summary>
 	/// Gets the current test method, if the engine is currently in the process of running
-	/// a test method; will return <c>null</c> outside of the context of a test method. Note that
+	/// a test method; will return <see langword="null"/> outside of the context of a test method. Note that
 	/// not all test framework implementations require that tests be based on methods, so this
-	/// value may be <c>null</c> even if <see cref="TestCase"/> is not <c>null</c>.
+	/// value may be <see langword="null"/> even if <see cref="TestCase"/> is not <see langword="null"/>.
 	/// </summary>
 	/// <remarks>
 	/// When running with the default test framework implementation, the value here is likely
@@ -157,15 +157,15 @@ public interface ITestContext
 
 	/// <summary>
 	/// Gets the current test engine status for the test method. Will only be available when <see cref="TestMethod"/>
-	/// is not <c>null</c>.
+	/// is not <see langword="null"/>.
 	/// </summary>
 	[NotNullIfNotNull(nameof(TestMethod))]
 	TestEngineStatus? TestMethodStatus { get; }
 
 	/// <summary>
 	/// Gets the output helper, which can be used to add output to the test. Will only be
-	/// available when <see cref="Test"/> is not <c>null</c>. Note that the value may still
-	/// be <c>null</c> when <see cref="Test"/> is not <c>null</c>, if the test framework
+	/// available when <see cref="Test"/> is not <see langword="null"/>. Note that the value may still
+	/// be <see langword="null"/> when <see cref="Test"/> is not <see langword="null"/>, if the test framework
 	/// implementation does not provide output helper support.
 	/// </summary>
 	ITestOutputHelper? TestOutputHelper { get; }
@@ -177,14 +177,14 @@ public interface ITestContext
 
 	/// <summary>
 	/// Gets the current test engine status for the test. Will only be available when <see cref="Test"/>
-	/// is not <c>null</c>.
+	/// is not <see langword="null"/>.
 	/// </summary>
 	[NotNullIfNotNull(nameof(Test))]
 	TestEngineStatus? TestStatus { get; }
 
 	/// <summary>
 	/// Gets the set of warnings associated with the current test. Will only be available when <see cref="Test"/>
-	/// is not <c>null</c>; will also return <c>null</c> if there have been no warnings issued.
+	/// is not <see langword="null"/>; will also return <see langword="null"/> if there have been no warnings issued.
 	/// </summary>
 	IReadOnlyList<string>? Warnings { get; }
 
@@ -202,8 +202,8 @@ public interface ITestContext
 	/// </summary>
 	/// <param name="name">The name of the attachment</param>
 	/// <param name="value">The value of the attachment</param>
-	/// <param name="replaceExistingValue">Set to <c>true</c> to allow an existing value to be replaced;
-	/// set to <c>false</c> to throw an exception if an existing value already exists.</param>
+	/// <param name="replaceExistingValue">Set to <see langword="true"/> to allow an existing value to be replaced;
+	/// set to <see langword="false"/> to throw an exception if an existing value already exists.</param>
 	void AddAttachment(
 		string name,
 		string value,
@@ -231,8 +231,8 @@ public interface ITestContext
 	/// </summary>
 	/// <param name="name">The name of the attachment</param>
 	/// <param name="value">The value of the attachment</param>
-	/// <param name="replaceExistingValue">Set to <c>true</c> to allow an existing value to be replaced;
-	/// set to <c>false</c> to throw an exception if an existing value already exists.</param>
+	/// <param name="replaceExistingValue">Set to <see langword="true"/> to allow an existing value to be replaced;
+	/// set to <see langword="false"/> to throw an exception if an existing value already exists.</param>
 	/// <param name="mediaType">The media type of the attachment; defaults to "application/octet-stream"</param>
 	/// <remarks>
 	/// The <paramref name="mediaType"/> value must be in the MIME "type/subtype" form, and does not support
@@ -259,16 +259,16 @@ public interface ITestContext
 	void CancelCurrentTest();
 
 	/// <summary>
-	/// Gets a fixture that was attached to the test class. Will return <c>null</c> if there is
+	/// Gets a fixture that was attached to the test class. Will return <see langword="null"/> if there is
 	/// no exact match for the requested fixture type, or if there is no test class (that is,
-	/// if <see cref="TestClass"/> returns <c>null</c>).
+	/// if <see cref="TestClass"/> returns <see langword="null"/>).
 	/// </summary>
 	/// <remarks>
 	/// This may be a fixture attached via <see cref="IClassFixture{TFixture}"/>, <see cref="ICollectionFixture{TFixture}"/>,
 	/// or <see cref="AssemblyFixtureAttribute"/>.
 	/// </remarks>
 	/// <param name="fixtureType">The exact type of the fixture</param>
-	/// <returns>The fixture, if available; <c>null</c>, otherwise</returns>
+	/// <returns>The fixture, if available; <see langword="null"/>, otherwise</returns>
 	ValueTask<object?> GetFixture(Type fixtureType);
 
 	/// <summary>

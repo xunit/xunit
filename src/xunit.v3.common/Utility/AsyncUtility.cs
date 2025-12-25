@@ -28,7 +28,7 @@ public static class AsyncUtility
 	/// recreate the compiler's await machinery at runtime.
 	/// </summary>
 	/// <param name="method">The method to test</param>
-	/// <returns>Returns <c>true</c> if the method is async; returns <c>false</c> otherwise.</returns>
+	/// <returns>Returns <see langword="true"/> if the method is async; returns <see langword="false"/> otherwise.</returns>
 	public static bool IsAsync(MethodInfo method)
 	{
 		Guard.ArgumentNotNull(method);
@@ -45,20 +45,20 @@ public static class AsyncUtility
 	/// and <see cref="void"/> return type on the method definition.
 	/// </summary>
 	/// <param name="method">The method to test</param>
-	/// <returns>Returns <c>true</c> if the method is async void; returns <c>false</c> otherwise.</returns>
+	/// <returns>Returns <see langword="true"/> if the method is async void; returns <see langword="false"/> otherwise.</returns>
 	public static bool IsAsyncVoid(MethodInfo method) =>
 		Guard.ArgumentNotNull(method).ReturnType == typeof(void) && method.GetCustomAttribute<AsyncStateMachineAttribute>() is not null;
 
 	/// <summary>
 	/// Given an object, will attempt to convert instances of <see cref="Task"/> or
 	/// <see cref="T:Microsoft.FSharp.Control.FSharpAsync`1"/> into <see cref="ValueTask"/>
-	/// as appropriate. Will return <c>null</c> if the object is not a task of any supported type.
+	/// as appropriate. Will return <see langword="null"/> if the object is not a task of any supported type.
 	/// Note that this list of supported tasks is purposefully identical to the list used
 	/// by <see cref="IsAsync"/>.
 	/// </summary>
 	/// <param name="obj">The object to convert</param>
 	/// <returns>Returns a <see cref="ValueTask"/> for the given object, if it's compatible;
-	/// returns <c>null</c> otherwise.</returns>
+	/// returns <see langword="null"/> otherwise.</returns>
 	public static ValueTask? TryConvertToValueTask(object? obj)
 	{
 		if (obj is null)

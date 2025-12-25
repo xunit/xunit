@@ -37,7 +37,7 @@ public class TestAssemblyExecutionStarting : IMessageSinkMessage
 	}
 
 	/// <summary>
-	/// Gets the seed value used for randomization. If <c>null</c>, then the test framework does not
+	/// Gets the seed value used for randomization. If <see langword="null"/>, then the test framework does not
 	/// support setting a randomization seed. (For stock versions of xUnit.net, support for settable
 	/// randomization seeds started with v3.)
 	/// </summary>

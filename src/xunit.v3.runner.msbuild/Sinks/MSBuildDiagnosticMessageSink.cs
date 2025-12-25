@@ -14,8 +14,8 @@ internal sealed class MSBuildDiagnosticMessageSink : TestMessageSink
 	/// <summary>
 	/// Tries to create a new instance of the <see cref="MSBuildDiagnosticMessageSink"/> which will display instances
 	/// of <see cref="IDiagnosticMessage"/> and <see cref="IInternalDiagnosticMessage"/> to the <paramref name="log"/>.
-	/// May return <c>null</c> if both <paramref name="showDiagnosticMessages"/> and <paramref name="showInternalDiagnosticMessages"/>
-	/// are <c>false</c>.
+	/// May return <see langword="null"/> if both <paramref name="showDiagnosticMessages"/> and <paramref name="showInternalDiagnosticMessages"/>
+	/// are <see langword="false"/>.
 	/// </summary>
 	/// <param name="log">The MSBuild task logging helper</param>
 	/// <param name="logLock">The lock object used to prevent multi-threaded code from overlapping out to the log</param>

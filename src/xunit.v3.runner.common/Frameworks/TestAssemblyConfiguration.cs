@@ -94,7 +94,7 @@ public class TestAssemblyConfiguration
 	public int? AssertEquivalentMaxDepth { get; set; }
 
 	/// <summary>
-	/// Gets or sets the desired culture to run the tests under. Use <c>null</c> (default) to
+	/// Gets or sets the desired culture to run the tests under. Use <see langword="null"/> (default) to
 	/// indicate that we should use the default OS culture; use an empty string to indicate that
 	/// we should use the invariant culture; or use any culture value that is valid for
 	/// calling <see cref="CultureInfo(string)"/>.
@@ -110,7 +110,7 @@ public class TestAssemblyConfiguration
 	/// <summary>
 	/// Gets a flag indicating that the end user wants diagnostic messages
 	/// from the test framework. If the flag is not set, returns the default
-	/// value (<c>false</c>).
+	/// value (<see langword="false"/>).
 	/// </summary>
 	public bool DiagnosticMessagesOrDefault => DiagnosticMessages ?? false;
 
@@ -133,7 +133,7 @@ public class TestAssemblyConfiguration
 
 	/// <summary>
 	/// Gets a flag indicating that skipped tests should be converted into failed
-	/// tests. If the flag is not set, returns the default value (<c>false</c>).
+	/// tests. If the flag is not set, returns the default value (<see langword="false"/>).
 	/// </summary>
 	public bool FailSkipsOrDefault => FailSkips ?? false;
 
@@ -146,7 +146,7 @@ public class TestAssemblyConfiguration
 	/// <summary>
 	/// Gets or sets a flag indicating that passing tests with warnings should be
 	/// converted into failed tests. If the flag is not set, returns the default
-	/// value (<c>false</c>).
+	/// value (<see langword="false"/>).
 	/// </summary>
 	public bool FailTestsWithWarningsOrDefault => FailTestsWithWarnings ?? false;
 
@@ -163,7 +163,7 @@ public class TestAssemblyConfiguration
 
 	/// <summary>
 	/// Gets a flag indicating that discovery should include source information for the
-	/// test cases. If the flag is not set, returns the default value (<c>false</c>).
+	/// test cases. If the flag is not set, returns the default value (<see langword="false"/>).
 	/// </summary>
 	public bool IncludeSourceInformationOrDefault => IncludeSourceInformation ?? false;
 
@@ -176,7 +176,7 @@ public class TestAssemblyConfiguration
 	/// <summary>
 	/// Gets a flag indicating that the end user wants internal diagnostic messages
 	/// from the test framework. If the flag is not set, returns the default
-	/// value (<c>false</c>).
+	/// value (<see langword="false"/>).
 	/// </summary>
 	public bool InternalDiagnosticMessagesOrDefault => InternalDiagnosticMessages ?? false;
 
@@ -193,7 +193,7 @@ public class TestAssemblyConfiguration
 	public int LongRunningTestSecondsOrDefault => LongRunningTestSeconds ?? -1;
 
 	/// <summary>
-	/// Gets or sets the maximum number of thread to use when parallelizing this assembly. A value of <c>null</c>
+	/// Gets or sets the maximum number of thread to use when parallelizing this assembly. A value of <see langword="null"/>
 	/// or 0 indicates that the default should be used (<see cref="Environment.ProcessorCount"/>); a value of
 	/// -1 indicates that tests should run with an unlimited-sized thread pool.
 	/// </summary>
@@ -248,7 +248,7 @@ public class TestAssemblyConfiguration
 
 	/// <summary>
 	/// Gets a flag indicating that this assembly is safe to parallelize against
-	/// other assemblies. If the flag is not set, returns the default value (<c>false</c>).
+	/// other assemblies. If the flag is not set, returns the default value (<see langword="false"/>).
 	/// </summary>
 	public bool ParallelizeAssemblyOrDefault => ParallelizeAssembly ?? false;
 
@@ -261,7 +261,7 @@ public class TestAssemblyConfiguration
 	/// <summary>
 	/// Gets a flag indicating that this test assembly wants to run test collections
 	/// in parallel against one another. If the flag is not set, returns the default
-	/// value (<c>true</c>).
+	/// value (<see langword="true"/>).
 	/// </summary>
 	public bool ParallelizeTestCollectionsOrDefault => ParallelizeTestCollections ?? true;
 
@@ -303,7 +303,7 @@ public class TestAssemblyConfiguration
 
 	/// <summary>
 	/// Gets a flag indicating whether shadow copies should be used. If the flag is not set,
-	/// returns the default value (<c>true</c>).
+	/// returns the default value (<see langword="true"/>).
 	/// </summary>
 	public bool ShadowCopyOrDefault => ShadowCopy ?? true;
 
@@ -322,7 +322,7 @@ public class TestAssemblyConfiguration
 	/// <summary>
 	/// Gets a flag indicating whether output from <see cref="T:Xunit.ITestOutputHelper"/> should be
 	/// shown live as they're logged (in addition to being collected together after the test finishes).
-	/// If the flag is not set, returns the default value (<c>false</c>).
+	/// If the flag is not set, returns the default value (<see langword="false"/>).
 	/// </summary>
 	public bool ShowLiveOutputOrDefault => ShowLiveOutput ?? false;
 
@@ -333,7 +333,7 @@ public class TestAssemblyConfiguration
 
 	/// <summary>
 	/// Gets a flag indicating whether testing should stop on a test failure. If the flag is not set,
-	/// returns the default value (<c>false</c>).
+	/// returns the default value (<see langword="false"/>).
 	/// </summary>
 	public bool StopOnFailOrDefault => StopOnFail ?? false;
 
@@ -344,7 +344,7 @@ public class TestAssemblyConfiguration
 
 	/// <summary>
 	/// Gets a flag indicating that synchronous message reporting is desired. If the flag is not set,
-	/// returns the default value (<c>false</c>).
+	/// returns the default value (<see langword="false"/>).
 	/// </summary>
 	public bool SynchronousMessageReportingOrDefault => SynchronousMessageReporting ?? false;
 }

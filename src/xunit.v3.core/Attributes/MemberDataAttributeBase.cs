@@ -45,7 +45,7 @@ public abstract class MemberDataAttributeBase(
 	public object?[] Arguments { get; } = Guard.ArgumentNotNull(arguments);
 
 	/// <summary>
-	/// Returns <c>true</c> if the data attribute wants to skip enumerating data during discovery.
+	/// Returns <see langword="true"/> if the data attribute wants to skip enumerating data during discovery.
 	/// This will cause the theory to yield a single test case for all data, and the data discovery
 	/// will be during test execution instead of discovery.
 	/// </summary>

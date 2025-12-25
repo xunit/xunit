@@ -15,8 +15,8 @@ public interface IMessageSinkWithTypes : IDisposable
 	/// This method should never throw exceptions.
 	/// </summary>
 	/// <param name="message">The message from the message bus.</param>
-	/// <param name="messageTypes">The list of message types, or <c>null</c>.</param>
-	/// <returns>Return <c>true</c> to continue running tests, or <c>false</c> to stop.</returns>
+	/// <param name="messageTypes">The list of message types, or <see langword="null"/>.</param>
+	/// <returns>Return <see langword="true"/> to continue running tests, or <see langword="false"/> to stop.</returns>
 	bool OnMessageWithTypes(
 		IMessageSinkMessage message,
 		HashSet<string>? messageTypes

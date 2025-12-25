@@ -25,7 +25,7 @@ public static class TheoryDataRowBaseExtensions
 	/// Sets the skip reason on a theory data row.
 	/// </summary>
 	/// <param name="theoryDataRow">The theory data row</param>
-	/// <param name="skip">The value to use for the skip reason; pass <c>null</c> to not skip</param>
+	/// <param name="skip">The value to use for the skip reason; pass <see langword="null"/> to not skip</param>
 	public static TTheoryDataRow WithSkip<TTheoryDataRow>(
 		this TTheoryDataRow theoryDataRow,
 		string? skip)
@@ -39,7 +39,7 @@ public static class TheoryDataRowBaseExtensions
 	/// Sets the test display name on a theory data row.
 	/// </summary>
 	/// <param name="theoryDataRow">The theory data row</param>
-	/// <param name="testDisplayName">The value to use for the test display name; pass <c>null</c>
+	/// <param name="testDisplayName">The value to use for the test display name; pass <see langword="null"/>
 	/// to use the default display name</param>
 	public static TTheoryDataRow WithTestDisplayName<TTheoryDataRow>(
 		this TTheoryDataRow theoryDataRow,
@@ -54,7 +54,7 @@ public static class TheoryDataRowBaseExtensions
 	/// Sets the timeout on a theory data row.
 	/// </summary>
 	/// <param name="theoryDataRow">The theory data row</param>
-	/// <param name="timeout">The value to use for timeout, in seconds; pass <c>null</c> to not
+	/// <param name="timeout">The value to use for timeout, in seconds; pass <see langword="null"/> to not
 	/// have a timeout</param>
 	public static TTheoryDataRow WithTimeout<TTheoryDataRow>(
 		this TTheoryDataRow theoryDataRow,

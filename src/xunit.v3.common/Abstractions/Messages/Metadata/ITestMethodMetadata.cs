@@ -8,7 +8,7 @@ namespace Xunit.Sdk;
 public interface ITestMethodMetadata
 {
 	/// <summary>
-	/// Gets the arity (number of generic types) of the test method. May return <c>null</c> if
+	/// Gets the arity (number of generic types) of the test method. May return <see langword="null"/> if
 	/// the arity of the test method is unknown (for example, for v1 or v2 test methods where
 	/// arity information was not collected).
 	/// </summary>
@@ -22,7 +22,7 @@ public interface ITestMethodMetadata
 	/// <summary>
 	/// Gets the trait values associated with this test method (and the test class,
 	/// test collection, and test assembly). If there are none, or the framework does
-	/// not support traits, this returns an empty dictionary (not <c>null</c>).
+	/// not support traits, this returns an empty dictionary (not <see langword="null"/>).
 	/// </summary>
 	IReadOnlyDictionary<string, IReadOnlyCollection<string>> Traits { get; }
 

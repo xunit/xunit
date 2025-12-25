@@ -11,9 +11,9 @@ public abstract class TestInfo
 	/// Gets the name of the method that contains the test.
 	/// </summary>
 	/// <remarks>
-	/// For typical xUnit.net tests, this will not be <c>null</c>. However, some custom test
+	/// For typical xUnit.net tests, this will not be <see langword="null"/>. However, some custom test
 	/// frameworks may generate tests from sources other than methods, in which case this
-	/// value may be <c>null</c>.
+	/// value may be <see langword="null"/>.
 	/// </remarks>
 	public required string? MethodName { get; set; }
 
@@ -36,9 +36,9 @@ public abstract class TestInfo
 	/// Gets the fully qualified type name of the class that contains the test.
 	/// </summary>
 	/// <remarks>
-	/// For typical xUnit.net tests, this will not be <c>null</c>. However, some custom test
+	/// For typical xUnit.net tests, this will not be <see langword="null"/>. However, some custom test
 	/// frameworks may generate tests from sources other than classes, in which case this
-	/// value may be <c>null</c>.
+	/// value may be <see langword="null"/>.
 	/// </remarks>
 	public required string? TypeName { get; set; }
 }

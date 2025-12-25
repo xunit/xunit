@@ -15,7 +15,7 @@ public interface ITestMetadata
 	/// <summary>
 	/// Gets the trait values associated with this test case. If
 	/// there are none, or the framework does not support traits,
-	/// this should return an empty dictionary (not <c>null</c>).
+	/// this should return an empty dictionary (not <see langword="null"/>).
 	/// </summary>
 	IReadOnlyDictionary<string, IReadOnlyCollection<string>> Traits { get; }
 

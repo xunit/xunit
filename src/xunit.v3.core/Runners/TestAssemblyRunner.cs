@@ -91,7 +91,7 @@ public abstract class TestAssemblyRunner<TContext, TTestAssembly, TTestCollectio
 	/// <param name="ctxt">The context that describes the current test assembly</param>
 	/// <param name="exception">The exception that caused the cleanup failure (may be an instance
 	/// of <see cref="AggregateException"/> if more than one exception occurred).</param>
-	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
+	/// <returns>Return <see langword="true"/> if test execution should continue; <see langword="false"/> if it should be shut down.</returns>
 	protected virtual ValueTask<bool> OnTestAssemblyCleanupFailure(
 		TContext ctxt,
 		Exception exception)
@@ -123,7 +123,7 @@ public abstract class TestAssemblyRunner<TContext, TTestAssembly, TTestCollectio
 	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test assembly</param>
 	/// <param name="summary">The execution summary for the test assembly</param>
-	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
+	/// <returns>Return <see langword="true"/> if test execution should continue; <see langword="false"/> if it should be shut down.</returns>
 	protected virtual async ValueTask<bool> OnTestAssemblyFinished(
 		TContext ctxt,
 		RunSummary summary)
@@ -162,7 +162,7 @@ public abstract class TestAssemblyRunner<TContext, TTestAssembly, TTestCollectio
 	/// method records exceptions, <see cref="OnTestAssemblyFinished"/> will be called.
 	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test assembly</param>
-	/// <returns>Return <c>true</c> if test execution should continue; <c>false</c> if it should be shut down.</returns>
+	/// <returns>Return <see langword="true"/> if test execution should continue; <see langword="false"/> if it should be shut down.</returns>
 	protected virtual async ValueTask<bool> OnTestAssemblyStarting(TContext ctxt)
 	{
 		Guard.ArgumentNotNull(ctxt);

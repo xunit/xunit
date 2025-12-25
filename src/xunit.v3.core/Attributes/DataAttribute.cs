@@ -34,8 +34,8 @@ public abstract class DataAttribute : Attribute, IDataAttribute
 
 	/// <summary>
 	/// Sets a value that determines whether the data rows provided by this data
-	/// provider should be considered explicit or not. If <c>true</c>, then the data
-	/// rows will all be considered explicit; if <c>false</c>, then the data rows
+	/// provider should be considered explicit or not. If <see langword="true"/>, then the data
+	/// rows will all be considered explicit; if <see langword="false"/>, then the data rows
 	/// will all be considered not explicit; if unset, then the data rows will
 	/// inherit their explicitness from <see cref="IFactAttribute.Explicit"/>.
 	/// </summary>

@@ -55,7 +55,7 @@ public static partial class ExtensibilityPointFactory
 	}
 
 	/// <summary>
-	/// Gets the test case orderer that's attached to a test assembly. Returns <c>null</c> if there
+	/// Gets the test case orderer that's attached to a test assembly. Returns <see langword="null"/> if there
 	/// isn't one attached.
 	/// </summary>
 	/// <param name="testAssembly">The test assembly</param>
@@ -106,7 +106,7 @@ public static partial class ExtensibilityPointFactory
 	}
 
 	/// <summary>
-	/// Gets the test collection orderer that's attached to a test assembly. Returns <c>null</c> if there
+	/// Gets the test collection orderer that's attached to a test assembly. Returns <see langword="null"/> if there
 	/// isn't one attached.
 	/// </summary>
 	/// <param name="testAssembly">The test assembly</param>

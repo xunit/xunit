@@ -10,8 +10,8 @@ namespace Xunit.Sdk;
 public interface ITestCase : ITestCaseMetadata
 {
 	/// <summary>
-	/// Gets the test class that this test case belongs to; may be <c>null</c> if the test isn't backed by
-	/// a class, but will not be <c>null</c> if <see cref="TestMethod"/> is not <c>null</c> (and must be
+	/// Gets the test class that this test case belongs to; may be <see langword="null"/> if the test isn't backed by
+	/// a class, but will not be <see langword="null"/> if <see cref="TestMethod"/> is not <see langword="null"/> (and must be
 	/// the same instance returned via <see cref="TestMethod"/>).
 	/// </summary>
 	[NotNullIfNotNull(nameof(TestMethod))]
@@ -19,12 +19,12 @@ public interface ITestCase : ITestCaseMetadata
 
 	/// <summary>
 	/// Gets the test collection this test case belongs to. Must be the same instance returned
-	/// via <see cref="TestMethod"/> and/or <see cref="TestClass"/> when they are not <c>null</c>.
+	/// via <see cref="TestMethod"/> and/or <see cref="TestClass"/> when they are not <see langword="null"/>.
 	/// </summary>
 	ITestCollection TestCollection { get; }
 
 	/// <summary>
-	/// Gets the test method this test case belongs to; may be <c>null</c> if the test isn't backed by
+	/// Gets the test method this test case belongs to; may be <see langword="null"/> if the test isn't backed by
 	/// a method.
 	/// </summary>
 	ITestMethod? TestMethod { get; }

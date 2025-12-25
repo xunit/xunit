@@ -21,7 +21,7 @@ static class EnvironmentHelper
 	];
 
 	/// <summary>
-	/// Returns <c>true</c> if you're currently running in Mono; <c>false</c> if you're running in .NET Framework.
+	/// Returns <see langword="true"/> if you're currently running in Mono; <see langword="false"/> if you're running in .NET Framework.
 	/// </summary>
 	public static bool IsMono => isMono.Value;
 

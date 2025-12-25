@@ -167,7 +167,7 @@ public sealed class UniqueIDGenerator : IDisposable
 	/// </summary>
 	/// <param name="testCollectionUniqueID">The unique ID of the parent test collection for the test class</param>
 	/// <param name="className">The optional fully qualified type name of the test class</param>
-	/// <returns>The computed unique ID for the test class (may return <c>null</c> if <paramref name="className"/>
+	/// <returns>The computed unique ID for the test class (may return <see langword="null"/> if <paramref name="className"/>
 	/// is null)</returns>
 	[return: NotNullIfNotNull(nameof(className))]
 	public static string? ForTestClass(
@@ -212,7 +212,7 @@ public sealed class UniqueIDGenerator : IDisposable
 	/// </summary>
 	/// <param name="testClassUniqueID">The unique ID of the parent test class for the test method</param>
 	/// <param name="methodName">The optional test method name</param>
-	/// <returns>The computed unique ID for the test method (may return <c>null</c> if either the class
+	/// <returns>The computed unique ID for the test method (may return <see langword="null"/> if either the class
 	/// unique ID or the method name is null)</returns>
 	[return: NotNullIfNotNull(nameof(methodName))]
 	public static string? ForTestMethod(

@@ -20,14 +20,14 @@ public interface IAssemblyMetadata
 
 	/// <summary>
 	/// Gets the full path of the configuration file name, if one is present.
-	/// May be <c>null</c> if there is no configuration file.
+	/// May be <see langword="null"/> if there is no configuration file.
 	/// </summary>
 	string? ConfigFilePath { get; }
 
 	/// <summary>
 	/// Gets the trait values associated with this test assembly. If
 	/// there are none, or the framework does not support traits,
-	/// this should return an empty dictionary (not <c>null</c>).
+	/// this should return an empty dictionary (not <see langword="null"/>).
 	/// </summary>
 	IReadOnlyDictionary<string, IReadOnlyCollection<string>> Traits { get; }
 

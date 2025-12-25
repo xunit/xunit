@@ -59,7 +59,7 @@ public static class AssemblyExtensions
 	/// Safely gets the code base of an assembly.
 	/// </summary>
 	/// <param name="assembly">The assembly.</param>
-	/// <returns>If the assembly is null, or is dynamic, then it returns <c>null</c>; otherwise, it returns the value
+	/// <returns>If the assembly is null, or is dynamic, then it returns <see langword="null"/>; otherwise, it returns the value
 	/// from <see cref="Assembly.CodeBase"/>.</returns>
 	[return: NotNullIfNotNull(nameof(assembly))]
 	public static string? GetSafeCodeBase(this Assembly? assembly) =>
@@ -69,7 +69,7 @@ public static class AssemblyExtensions
 	/// Safely gets the location of an assembly.
 	/// </summary>
 	/// <param name="assembly">The assembly.</param>
-	/// <returns>If the assembly is null, or is dynamic, then it returns <c>null</c>; otherwise, it returns the value
+	/// <returns>If the assembly is null, or is dynamic, then it returns <see langword="null"/>; otherwise, it returns the value
 	/// from <see cref="Assembly.Location"/>.</returns>
 	[return: NotNullIfNotNull(nameof(assembly))]
 	public static string? GetSafeLocation(this Assembly? assembly) =>

@@ -12,8 +12,8 @@ public class ExecutionStartingInfo
 	/// Gets the seed value used for randomization.
 	/// </summary>
 	/// <remarks>
-	/// For v1 and v2 test projects, this value will be <c>null</c>, as they do not support custom seeds.<br />
-	/// For v3 test projects, this value will usually not be <c>null</c>.<br />
+	/// For v1 and v2 test projects, this value will be <see langword="null"/>, as they do not support custom seeds.<br />
+	/// For v3 test projects, this value will usually not be <see langword="null"/>.<br />
 	/// There is no guarantee that custom test frameworks will support custom seeds.
 	/// </remarks>
 	public required int? Seed { get; set; }

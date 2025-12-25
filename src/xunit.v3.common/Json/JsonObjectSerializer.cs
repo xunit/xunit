@@ -32,7 +32,7 @@ public sealed class JsonObjectSerializer(
 	/// </summary>
 	/// <param name="key">The name of the value</param>
 	/// <param name="value">The value</param>
-	/// <param name="includeNullValues">Set to <c>true</c> to serialize a <c>null</c> value, or <c>false</c> to skip it</param>
+	/// <param name="includeNullValues">Set to <see langword="true"/> to serialize a <see langword="null"/> value, or <see langword="false"/> to skip it</param>
 	public void Serialize(
 		string key,
 		bool? value,
@@ -52,7 +52,7 @@ public sealed class JsonObjectSerializer(
 	/// </summary>
 	/// <param name="key">The name of the value</param>
 	/// <param name="value">The value</param>
-	/// <param name="includeNullValues">Set to <c>true</c> to serialize a <c>null</c> value, or <c>false</c> to skip it</param>
+	/// <param name="includeNullValues">Set to <see langword="true"/> to serialize a <see langword="null"/> value, or <see langword="false"/> to skip it</param>
 	public void Serialize(
 		string key,
 		DateTimeOffset? value,
@@ -72,7 +72,7 @@ public sealed class JsonObjectSerializer(
 	/// </summary>
 	/// <param name="key">The name of the value</param>
 	/// <param name="value">The value</param>
-	/// <param name="includeNullValues">Set to <c>true</c> to serialize a <c>null</c> value, or <c>false</c> to skip it</param>
+	/// <param name="includeNullValues">Set to <see langword="true"/> to serialize a <see langword="null"/> value, or <see langword="false"/> to skip it</param>
 	public void Serialize(
 		string key,
 		decimal? value,
@@ -92,7 +92,7 @@ public sealed class JsonObjectSerializer(
 	/// </summary>
 	/// <param name="key">The name of the value</param>
 	/// <param name="value">The value</param>
-	/// <param name="includeNullValues">Set to <c>true</c> to serialize a <c>null</c> value, or <c>false</c> to skip it</param>
+	/// <param name="includeNullValues">Set to <see langword="true"/> to serialize a <see langword="null"/> value, or <see langword="false"/> to skip it</param>
 	public void Serialize(
 		string key,
 		Enum? value,
@@ -112,7 +112,7 @@ public sealed class JsonObjectSerializer(
 	/// </summary>
 	/// <param name="key">The name of the value</param>
 	/// <param name="value">The value</param>
-	/// <param name="includeNullValues">Set to <c>true</c> to serialize a <c>null</c> value, or <c>false</c> to skip it</param>
+	/// <param name="includeNullValues">Set to <see langword="true"/> to serialize a <see langword="null"/> value, or <see langword="false"/> to skip it</param>
 	public void Serialize(
 		string key,
 		int? value,
@@ -132,7 +132,7 @@ public sealed class JsonObjectSerializer(
 	/// </summary>
 	/// <param name="key">The name of the value</param>
 	/// <param name="value">The value</param>
-	/// <param name="includeNullValues">Set to <c>true</c> to serialize a <c>null</c> value, or <c>false</c> to skip it</param>
+	/// <param name="includeNullValues">Set to <see langword="true"/> to serialize a <see langword="null"/> value, or <see langword="false"/> to skip it</param>
 	public void Serialize(
 		string key,
 		long? value,
@@ -152,8 +152,8 @@ public sealed class JsonObjectSerializer(
 	/// </summary>
 	/// <param name="key">The name of the value</param>
 	/// <param name="value">The value</param>
-	/// <param name="includeNullValues">Set to <c>true</c> to serialize a <c>null</c> value, or <c>false</c> to skip it</param>
-	/// <param name="includeEmptyValues">Set to <c>true</c> to serialize empty strings, or <c>false</c> to skip it</param>
+	/// <param name="includeNullValues">Set to <see langword="true"/> to serialize a <see langword="null"/> value, or <see langword="false"/> to skip it</param>
+	/// <param name="includeEmptyValues">Set to <see langword="true"/> to serialize empty strings, or <see langword="false"/> to skip it</param>
 	public void Serialize(
 		string key,
 		string? value,
@@ -181,7 +181,7 @@ public sealed class JsonObjectSerializer(
 	/// </summary>
 	/// <param name="key">The name of the value</param>
 	/// <param name="value">The value</param>
-	/// <param name="includeNullValues">Set to <c>true</c> to serialize a <c>null</c> value, or <c>false</c> to skip it</param>
+	/// <param name="includeNullValues">Set to <see langword="true"/> to serialize a <see langword="null"/> value, or <see langword="false"/> to skip it</param>
 	public void Serialize(
 		string key,
 		Version? value,

@@ -17,7 +17,7 @@ namespace Xunit.v3;
 public abstract class OutOfProcessTestProcessLauncherBase : ITestProcessLauncher
 {
 	/// <summary>
-	/// Return <c>true</c> if running under Windows; return <c>false</c> if running elsewhere (and
+	/// Return <see langword="true"/> if running under Windows; return <see langword="false"/> if running elsewhere (and
 	/// Mono is required for .NET Framework support). By default uses <see cref="RuntimeInformation"/>.
 	/// </summary>
 	public virtual bool IsWindows =>

@@ -37,7 +37,7 @@ public partial class MessageSinkMessage
 	protected abstract void ValidateObjectState(HashSet<string> invalidProperties);
 
 	/// <summary>
-	/// Validates that the property value is not <c>null</c>, and if it is, adds the given
+	/// Validates that the property value is not <see langword="null"/>, and if it is, adds the given
 	/// property name to the invalid property hash set.
 	/// </summary>
 	/// <param name="propertyValue">The property value</param>

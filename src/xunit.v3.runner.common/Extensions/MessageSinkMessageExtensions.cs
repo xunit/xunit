@@ -14,7 +14,7 @@ public static partial class MessageSinkMessageExtensions
 	/// </summary>
 	/// <param name="message">The message to dispatch.</param>
 	/// <param name="callback">The callback to dispatch the message to.</param>
-	/// <returns>Returns <c>true</c> if processing should continue; <c>false</c> otherwise.</returns>
+	/// <returns>Returns <see langword="true"/> if processing should continue; <see langword="false"/> otherwise.</returns>
 	public static bool DispatchWhen<TMessage>(
 		this IMessageSinkMessage message,
 		MessageHandler<TMessage>? callback)

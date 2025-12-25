@@ -75,8 +75,8 @@ public class InProcessFrontController
 	/// <param name="options">The options to be used for discovery.</param>
 	/// <param name="filter">The filter function for filtering test cases.</param>
 	/// <param name="cancellationTokenSource">The cancellation token source used to cancel discovery.</param>
-	/// <param name="types">When passed a non-<c>null</c> collection, only returns tests found
-	/// from one of the provided types; when passed a <c>null</c> collection, discovers all
+	/// <param name="types">When passed a non-<see langword="null"/> collection, only returns tests found
+	/// from one of the provided types; when passed a <see langword="null"/> collection, discovers all
 	/// tests in the assembly.</param>
 	/// <param name="discoveryCallback">An optional callback to be called for each discovered test case.
 	/// It provides both the test case and a flag which indicates if it passed the provided filter.</param>
@@ -148,8 +148,8 @@ public class InProcessFrontController
 	/// <param name="executionOptions">The options to be used for execution.</param>
 	/// <param name="filter">The filter function for filtering test cases.</param>
 	/// <param name="cancellationTokenSource">The cancellation token sourced used to cancel discovery/execution.</param>
-	/// <param name="types">When passed a non-<c>null</c> collection, discovery/filtering/execution
-	/// only looks for tests from one of the provided types; when passed a <c>null</c> collection,
+	/// <param name="types">When passed a non-<see langword="null"/> collection, discovery/filtering/execution
+	/// only looks for tests from one of the provided types; when passed a <see langword="null"/> collection,
 	/// discovery/filtering/execution looks at all types in the assembly.</param>
 	public async ValueTask FindAndRun(
 		IMessageSink messageSink,

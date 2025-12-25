@@ -31,8 +31,8 @@ public class Xunit1Executor : IXunit1Executor
 	/// <param name="useAppDomain">Determines whether tests should be run in a separate app domain.</param>
 	/// <param name="testAssemblyFileName">The filename of the test assembly.</param>
 	/// <param name="configFileName">The filename of the configuration file.</param>
-	/// <param name="shadowCopy">Set to <c>true</c> to enable shadow copying the assemblies.</param>
-	/// <param name="shadowCopyFolder">The path on disk to use for shadow copying; if <c>null</c>, a folder
+	/// <param name="shadowCopy">Set to <see langword="true"/> to enable shadow copying the assemblies.</param>
+	/// <param name="shadowCopyFolder">The path on disk to use for shadow copying; if <see langword="null"/>, a folder
 	/// will be automatically (randomly) generated</param>
 	public Xunit1Executor(
 		IMessageSink diagnosticMessageSink,
