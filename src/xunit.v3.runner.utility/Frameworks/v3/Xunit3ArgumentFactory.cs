@@ -17,7 +17,7 @@ public static class Xunit3ArgumentFactory
 	static readonly Version Version_0_3_0 = new(0, 3, 0);
 
 	/// <summary>
-	/// Gets command line switches based on a call to <c>Find</c> on <see cref="Xunit3"/>.
+	/// Gets command line switches based on a call to <see cref="Xunit3.Find"/>.
 	/// </summary>
 	public static List<string> ForFind(
 		Version coreFrameworkVersion,
@@ -62,7 +62,7 @@ public static class Xunit3ArgumentFactory
 	}
 
 	/// <summary>
-	/// Gets command line switches based on a call to <c>FindAndRun</c> <see cref="Xunit3"/>.
+	/// Gets command line switches based on a call to <see cref="Xunit3.FindAndRun"/>.
 	/// </summary>
 	public static List<string> ForFindAndRun(
 		Version coreFrameworkVersion,
@@ -108,7 +108,7 @@ public static class Xunit3ArgumentFactory
 	}
 
 	/// <summary>
-	/// Gets command line switches based on a call to <c>Find</c> on <see cref="TestProcessLauncherAdapter"/>.
+	/// Gets command line switches based on a call to <see cref="TestProcessLauncherAdapter.Find(XunitProjectAssembly, TestAssemblyInfo, IMessageSink, IMessageSink?, ISourceInformationProvider?)"/>.
 	/// </summary>
 	public static List<string> ForFindInProcess(
 		Version coreFrameworkVersion,
@@ -137,7 +137,7 @@ public static class Xunit3ArgumentFactory
 			ForRun(coreFrameworkVersion, options, serializedTestCases, [], configFileName, waitForDebugger);
 
 	/// <summary>
-	/// Gets command line switches based on a call to <c>Run</c> on <see cref="Xunit3"/>.
+	/// Gets command line switches based on a call to <see cref="Xunit3.Run"/>.
 	/// </summary>
 	public static List<string> ForRun(
 		Version coreFrameworkVersion,
@@ -340,7 +340,7 @@ public static class Xunit3ArgumentFactory
 	}
 
 	/// <summary>
-	/// Gets command line switches based on a call to <c>Run</c> on <see cref="TestProcessLauncherAdapter"/>.
+	/// Gets command line switches based on a call to <see cref="TestProcessLauncherAdapter.Run(XunitProjectAssembly, TestAssemblyInfo, IMessageSink, IMessageSink?, ISourceInformationProvider?)"/>.
 	/// </summary>
 	public static List<string> ForRunInProcess(
 		Version coreFrameworkVersion,

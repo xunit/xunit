@@ -13,11 +13,11 @@ namespace Xunit.v3;
 /// <summary>
 /// Provides a base class for attributes that will provide member data.
 /// </summary>
-/// <param name="memberName">
-/// The name of the public static member on the test class that will provide the test data
-/// It is recommended to use the <c>nameof</c> operator to ensure compile-time safety, e.g., <c>nameof(SomeMemberName)</c>.
-/// </param>
-/// <param name="arguments">The arguments to be passed to the member (only supported for methods; ignored for everything else)</param>
+/// <param name="memberName">The name of the public static member on the test class that will provide the test data.
+/// It is recommended to use the <see langword="nameof"/> operator to ensure compile-time safety, e.g.,
+/// <c>nameof(SomeMemberName)</c>.</param>
+/// <param name="arguments">The arguments to be passed to the member (only supported for methods; ignored for
+/// everything else)</param>
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
 public abstract class MemberDataAttributeBase(
 	string memberName,

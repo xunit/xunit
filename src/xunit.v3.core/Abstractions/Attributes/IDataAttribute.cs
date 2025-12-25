@@ -46,25 +46,25 @@ public interface IDataAttribute
 	Type? SkipType { get; }
 
 	/// <summary>
-	/// Gets the name of a public static property on the test class which returns <c>bool</c>
+	/// Gets the name of a public static property on the test class which returns <see cref="bool"/>
 	/// to indicate whether the test should be skipped (<see langword="false"/>) or not (<see langword="true"/>).
 	/// </summary>
 	/// <remarks>
 	/// This property cannot be set if <see cref="SkipWhen"/> is set. Setting both will
 	/// result in a failed test.
-	/// To ensure compile-time safety and easier refactoring, use the <c>nameof</c> operator,
+	/// To ensure compile-time safety and easier refactoring, use the <see langword="nameof"/> operator,
 	/// e.g., <c>SkipUnless = nameof(IsConditionMet)</c>.
 	/// </remarks>
 	string? SkipUnless { get; }
 
 	/// <summary>
-	/// Gets the name of a public static property on the test class which returns <c>bool</c>
+	/// Gets the name of a public static property on the test class which returns <see cref="bool"/>
 	/// to indicate whether the test should be skipped (<see langword="true"/>) or not (<see langword="false"/>).
 	/// </summary>
 	/// <remarks>
 	/// This property cannot be set if <see cref="SkipUnless"/> is set. Setting both will
 	/// result in a failed test.
-	/// To ensure compile-time safety and easier refactoring, use the <c>nameof</c> operator
+	/// To ensure compile-time safety and easier refactoring, use the <see langword="nameof"/> operator
 	/// e.g., <c>SkipWhen = nameof(IsConditionMet)</c>.
 	/// </remarks>
 	string? SkipWhen { get; }

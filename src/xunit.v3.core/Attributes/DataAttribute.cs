@@ -98,15 +98,14 @@ public abstract class DataAttribute : Attribute, IDataAttribute
 
 	/// <summary>
 	/// Converts an item yielded by the data attribute to an <see cref="ITheoryDataRow"/>, for return
-	/// from <see cref="GetData"/>. Items yielded will typically be <c>object[]</c>, <see cref="ITheoryDataRow"/>,
+	/// from <see cref="GetData"/>. Items yielded will typically be <see cref="object"/>[], <see cref="ITheoryDataRow"/>,
 	/// or <see cref="T:System.Runtime.CompilerServices.ITuple"/>, but this override will allow derived
 	/// attribute types to support additional data items. If the data item cannot be converted, this method
 	/// will throw <see cref="ArgumentException"/>.
 	/// </summary>
 	/// <param name="dataRow">An item yielded from the data member.</param>
 	/// <returns>An <see cref="ITheoryDataRow"/> suitable for return from <see cref="GetData"/>.</returns>
-	/// <exception cref="ArgumentException">Thrown when <paramref name="dataRow"/> does not point to a valid data
-	/// row (must be compatible with <c>object[]</c> or <see cref="ITheoryDataRow"/>).</exception>
+	/// <exception cref="ArgumentException">Thrown when <paramref name="dataRow"/> does not point to a valid data row.</exception>
 	protected virtual ITheoryDataRow ConvertDataRow(object dataRow)
 	{
 		Guard.ArgumentNotNull(dataRow);
