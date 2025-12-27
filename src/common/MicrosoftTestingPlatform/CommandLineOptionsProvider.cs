@@ -129,6 +129,11 @@ public sealed class CommandLineOptionsProvider() :
 			          This is categorized as a query filter. You cannot use both query filters and simple filters.
 			""", ArgumentArity.OneOrMore, OnFilterQuery) },
 
+		// VSTest filtering
+		{ "filter", ("""
+			Filter using the VSTest filter syntax. You cannot use this with any other filters.
+			""", ArgumentArity.ExactlyOne, OnVSTestFilter) },
+
 		// Simple filtering
 		{ "filter-class", ("""
 			Run all methods in a given test class. Pass one or more fully qualified type names (i.e.,
@@ -315,6 +320,9 @@ public sealed class CommandLineOptionsProvider() :
 
 	static void OnFilterQuery(ParseOptions options) =>
 		options.Arguments.ForEach(options.AssemblyConfig.Filters.AddQueryFilter);
+
+	static void OnVSTestFilter(ParseOptions options) =>
+		options.AssemblyConfig.Filters.SetVSTestFilter(options.Arguments[0]);
 
 	static void OnFilterTrait(
 		string[] arguments,
