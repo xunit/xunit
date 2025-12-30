@@ -601,7 +601,7 @@ public class TransformFactory
 											new XAttribute("codeBase", assemblyPath),
 											new XAttribute("className", type.Value),
 											new XAttribute("name", method.Value),
-											new XAttribute("adapterTypeName", $"executor://{reportId}/{ThisAssembly.AssemblyFileVersion}")
+											new XAttribute("adapterTypeName", $"executor://{reportId}/xunit.v3/{ThisAssembly.AssemblyFileVersion}")
 										)
 									);
 							}
