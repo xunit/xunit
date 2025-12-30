@@ -220,7 +220,7 @@ public class TransformTests
 			Assert.Equal(@"W:\test\test.dll", testMethod.Attribute("codeBase")!.Value);
 			Assert.Equal("TestNamespace.TestClass", testMethod.Attribute("className")!.Value);
 			Assert.Equal("TestMethod", testMethod.Attribute("name")!.Value);
-			Assert.Equal($"executor://0e6bd160-a817-488e-984a-42d67b04e8ed/{ThisAssembly.AssemblyFileVersion}", testMethod.Attribute("adapterTypeName")!.Value);
+			Assert.Equal($"executor://0e6bd160-a817-488e-984a-42d67b04e8ed/xunit.v3/{ThisAssembly.AssemblyFileVersion}", testMethod.Attribute("adapterTypeName")!.Value);
 		}
 
 		[Fact]
