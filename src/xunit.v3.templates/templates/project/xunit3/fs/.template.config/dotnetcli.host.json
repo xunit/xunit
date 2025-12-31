@@ -7,6 +7,14 @@
     "skipRestore": {
       "longName": "no-restore",
       "shortName": ""
+    },
+    "TestRunner": {
+      "longName": "test-runner",
+      "shortName": ""
+    },
+    "CommandLine": {
+      "longName": "command-line",
+      "shortName": ""
     }
   },
   "usageExamples": [

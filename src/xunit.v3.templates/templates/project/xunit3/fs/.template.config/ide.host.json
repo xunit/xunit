@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json.schemastore.org/ide.host",
+  "symbolInfo": [
+    {
+      "id": "TestRunner",
+      "isVisible": true,
+      "persistenceScope": "shared"
+    },
+    {
+      "id": "CommandLine",
+      "isVisible": true,
+      "persistenceScope": "shared"
+    }
+  ]
+}

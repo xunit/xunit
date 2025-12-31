@@ -4,7 +4,9 @@
   "description": "New project template for xUnit.net v3 (VB)",
   "classifications": [
     "Test",
-    "xUnit"
+    "xUnit",
+    "Desktop",
+    "Web"
   ],
   "name": "xUnit.net v3 Test Project",
   "identity": "xunit.v3.project.vb",
@@ -37,6 +39,25 @@
           "TestProject.vbproj"
         ]
       }
+    },
+    {
+      "condition": "(TestRunner != \"vstest\")",
+      "description": "Create or update 'global.json' file required by Microsoft.Testing.Platform.",
+      "manualInstructions": [ { "text": "If using .NET 10 SDK or later, manually update or create 'global.json' as per https://xunit.net/docs/getting-started/v3/microsoft-testing-platform#using-net-sdk-version-10-or-later" } ],
+      "actionId": "695A3659-EB40-4FF5-A6A6-C9C4E629FCB0",
+      "id": "addJsonProperty",
+      "args": {
+        "allowFileCreation": true,
+        "allowPathCreation": true,
+        "jsonFileName": "global.json",
+        "parentPropertyPath": "test",
+        "newJsonPropertyName": "runner",
+        "newJsonPropertyValue": "Microsoft.Testing.Platform",
+        "detectRepositoryRoot": true,
+        "includeAllDirectoriesInSearch": false,
+        "includeAllParentDirectoriesInSearch": true
+      },
+      "continueOnError": true
     }
   ],
   "symbols": {
@@ -79,6 +100,52 @@
       "description": "If specified, skips the automatic restore of the project on create.",
       "defaultValue": "false",
       "displayName": "Skip restore"
+    },
+    "TestRunner": {
+      "type": "parameter",
+      "datatype": "choice",
+      "defaultValue": "mtp-v2",
+      "enableQuotelessLiterals": true,
+      "displayName": "Test runner for 'dotnet test' and Test Explorer",
+      "description": "Test runner for 'dotnet test' and Test Explorer",
+      "choices": [
+        {
+          "choice": "mtp-v2",
+          "displayName": "Microsoft.Testing.Platform v2",
+          "description": "Microsoft.Testing.Platform v2"
+        },
+        {
+          "choice": "mtp-v1",
+          "displayName": "Microsoft.Testing.Platform v1",
+          "description": "Microsoft.Testing.Platform v1"
+        },
+        {
+          "choice": "vstest",
+          "displayName": "VSTest",
+          "description": "VSTest"
+        }
+      ]
+    },
+    "CommandLine": {
+      "type": "parameter",
+      "datatype": "choice",
+      "isEnabled": "(TestRunner != \"vstest\")",
+      "defaultValue": "xunit",
+      "enableQuotelessLiterals": true,
+      "displayName": "Command line experience for 'dotnet run'",
+      "description": "Command line experience for 'dotnet run'",
+      "choices": [
+        {
+          "choice": "xunit",
+          "displayName": "xUnit.net native command line",
+          "description": "xUnit.net native command line"
+        },
+        {
+          "choice": "mtp",
+          "displayName": "Microsoft.Testing.Platform command line",
+          "description": "Microsoft.Testing.Platform command line"
+        }
+      ]
     }
   }
 }
