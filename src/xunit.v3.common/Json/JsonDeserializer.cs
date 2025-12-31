@@ -609,7 +609,9 @@ public static class JsonDeserializer
 		IReadOnlyDictionary<string, object?> obj,
 		string key,
 		bool defaultEmptyString = false) =>
-			Guard.ArgumentNotNull(obj).TryGetValue(key, out var value) ? TryGetString(value) : (defaultEmptyString ? string.Empty : null);
+			Guard.ArgumentNotNull(obj).TryGetValue(key, out var value)
+				? TryGetString(value, defaultEmptyString)
+				: (defaultEmptyString ? string.Empty : null);
 
 	/// <summary>
 	/// Tries to get an <see cref="long"/> value from a deserialized JSON value.
@@ -632,7 +634,35 @@ public static class JsonDeserializer
 		IReadOnlyDictionary<string, object?> obj,
 		string key,
 		bool defaultEmptyDictionary = true) =>
-			Guard.ArgumentNotNull(obj).TryGetValue(key, out var value) ? TryGetTraits(value) : (defaultEmptyDictionary ? emptyTraits : null);
+			Guard.ArgumentNotNull(obj).TryGetValue(key, out var value)
+				? TryGetTraits(value, defaultEmptyDictionary)
+				: (defaultEmptyDictionary ? emptyTraits : null);
+
+	/// <summary>
+	/// Tries to get a <see cref="string"/> value from a deserialized JSON value.
+	/// </summary>
+	/// <param name="value">The deserialized JSON value</param>
+	/// <param name="defaultEmptyDictionary">Flag to indicate if a default empty dictionary should be returned instead of <see langword="null"/></param>
+	/// <returns>Returns the value if present; <see langword="null"/>, otherwise.</returns>
+	public static IReadOnlyDictionary<string, IReadOnlyCollection<string>>? TryGetTraits(
+		object? value,
+		bool defaultEmptyDictionary = true)
+	{
+		if (TryGetObject(value) is not IReadOnlyDictionary<string, object?> traits)
+			return defaultEmptyDictionary ? emptyTraits : null;
+
+		var result = new Dictionary<string, IReadOnlyCollection<string>>();
+
+		foreach (var kvp in traits)
+		{
+			if (TryGetArrayOfString(kvp.Value) is not string[] valuesArray)
+				return null;
+
+			result[kvp.Key] = valuesArray;
+		}
+
+		return result;
+	}
 
 	/// <summary>
 	/// Tries to get a <see cref="Version"/> value from a deserialized JSON object.
@@ -650,29 +680,6 @@ public static class JsonDeserializer
 	/// <param name="value">The deserialized JSON value</param>
 	public static Version? TryGetVersion(object? value) =>
 		value is string stringValue && Version.TryParse(stringValue, out var version) ? version : null;
-
-	/// <summary>
-	/// Tries to get a <see cref="string"/> value from a deserialized JSON value.
-	/// </summary>
-	/// <param name="value">The deserialized JSON value</param>
-	/// <returns>Returns the value if present; <see langword="null"/>, otherwise.</returns>
-	public static IReadOnlyDictionary<string, IReadOnlyCollection<string>>? TryGetTraits(object? value)
-	{
-		if (TryGetObject(value) is not IReadOnlyDictionary<string, object?> traits)
-			return null;
-
-		var result = new Dictionary<string, IReadOnlyCollection<string>>();
-
-		foreach (var kvp in traits)
-		{
-			if (TryGetArrayOfString(kvp.Value) is not string[] valuesArray)
-				return null;
-
-			result[kvp.Key] = valuesArray;
-		}
-
-		return result;
-	}
 
 	static bool TryParseCollection(
 		char closing,
