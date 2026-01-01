@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading;
 using Microsoft.Testing.Platform.Extensions.Messages;
@@ -5,6 +6,7 @@ using Microsoft.Testing.Platform.TestHost;
 using Xunit;
 using Xunit.Internal;
 using Xunit.MicrosoftTestingPlatform;
+using Xunit.Sdk;
 
 public class TestPlatformDiscoveryMessageSinkTests
 {
@@ -87,20 +89,45 @@ public class TestPlatformDiscoveryMessageSinkTests
 				keyValue => Assert.Equal("'foo' = 'baz'", keyValue)
 			);
 		}
+
+		[Fact]
+		public void Unfiltered()
+		{
+			var discovered = TestData.TestCaseDiscovered();
+			var classUnderTest = TestableTestPlatformDiscoveryMessageSink.Create(_ => true);
+
+			var result = classUnderTest.OnMessage(discovered);
+
+			var message = Assert.Single(classUnderTest.TestNodeMessageBus.PublishedData);
+			var updateMessage = Assert.IsType<TestNodeUpdateMessage>(message);
+			Assert.Equal(discovered.TestCaseUniqueID, updateMessage.TestNode.Uid.Value);
+		}
+
+		[Fact]
+		public void Filtered()
+		{
+			var message = TestData.TestCaseDiscovered();
+			var classUnderTest = TestableTestPlatformDiscoveryMessageSink.Create(_ => false);
+
+			var result = classUnderTest.OnMessage(message);
+
+			Assert.Empty(classUnderTest.TestNodeMessageBus.PublishedData);
+		}
 	}
 
 	class TestableTestPlatformDiscoveryMessageSink(
 		SpyMessageSink innerSink,
 		SessionUid sessionUid,
+		Func<ITestCaseDiscovered, bool> filter,
 		SpyTestPlatformMessageBus testNodeMessageBus,
 		CancellationTokenSource cancellationTokenSource) :
-			TestPlatformDiscoveryMessageSink(innerSink, AssemblyFullName, sessionUid, testNodeMessageBus, cancellationTokenSource.Token)
+			TestPlatformDiscoveryMessageSink(innerSink, AssemblyFullName, sessionUid, filter, testNodeMessageBus, cancellationTokenSource.Token)
 	{
 		public CancellationTokenSource CancellationTokenSource { get; } = cancellationTokenSource;
 		public SpyMessageSink InnerSink { get; } = innerSink;
 		public SpyTestPlatformMessageBus TestNodeMessageBus { get; } = testNodeMessageBus;
 
-		public static TestableTestPlatformDiscoveryMessageSink Create() =>
-			new(SpyMessageSink.Capture(), new(), new(), new());
+		public static TestableTestPlatformDiscoveryMessageSink Create(Func<ITestCaseDiscovered, bool>? filter = null) =>
+			new(SpyMessageSink.Capture(), new(), filter ?? (_ => true), new(), new());
 	}
 }

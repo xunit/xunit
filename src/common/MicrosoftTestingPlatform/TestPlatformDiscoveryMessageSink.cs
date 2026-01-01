@@ -17,6 +17,7 @@ namespace Xunit.MicrosoftTestingPlatform;
 /// <param name="innerSink">The inner sink to delegate messages to</param>
 /// <param name="assemblyFullName">The full name of the test assembly (via <see cref="Assembly.FullName"/>)</param>
 /// <param name="sessionUid">The MTP session UID</param>
+/// <param name="filter">The discovery message filter (return <see langword="true"/> to pass through discovery)</param>
 /// <param name="testNodeMessageBus">The message bus for reporting MTP messages to</param>
 /// <param name="cancellationToken">The cancellation token provided by MTP</param>
 /// <remarks>
@@ -28,6 +29,7 @@ public class TestPlatformDiscoveryMessageSink(
 	IMessageSink innerSink,
 	string assemblyFullName,
 	SessionUid sessionUid,
+	Func<ITestCaseDiscovered, bool> filter,
 	IMessageBus testNodeMessageBus,
 	CancellationToken cancellationToken) :
 		ExtensionBase("discovery message sink", "b1ef01c2-95f4-4411-b6ef-19e290225124"), IMessageSink, IDataProducer
@@ -51,9 +53,12 @@ public class TestPlatformDiscoveryMessageSink(
 	{
 		var discovered = args.Message;
 
-		var result = new TestNode { Uid = discovered.TestCaseUniqueID, DisplayName = discovered.TestCaseDisplayName };
-		result.Properties.Add(DiscoveredTestNodeStateProperty.CachedInstance);
-		result.AddMetadata(discovered, assemblyFullName);
-		result.SendUpdate(this, sessionUid, testNodeMessageBus);
+		if (filter(discovered))
+		{
+			var result = new TestNode { Uid = discovered.TestCaseUniqueID, DisplayName = discovered.TestCaseDisplayName };
+			result.Properties.Add(DiscoveredTestNodeStateProperty.CachedInstance);
+			result.AddMetadata(discovered, assemblyFullName);
+			result.SendUpdate(this, sessionUid, testNodeMessageBus);
+		}
 	}
 }

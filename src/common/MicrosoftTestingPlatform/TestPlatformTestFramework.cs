@@ -136,7 +136,7 @@ public class TestPlatformTestFramework :
 		Guard.ArgumentNotNull(context);
 
 		if (context.Request is DiscoverTestExecutionRequest discoverRequest)
-			await OnDiscover(context.Request.Session.SessionUid, context.MessageBus, context.Complete, context.CancellationToken);
+			await OnDiscover(context.Request.Session.SessionUid, discoverRequest.Filter, context.MessageBus, context.Complete, context.CancellationToken);
 		else if (context.Request is RunTestExecutionRequest executionRequest)
 			await OnExecute(context.Request.Session.SessionUid, executionRequest.Filter, context.MessageBus, context.Complete, context.CancellationToken);
 	}
@@ -144,6 +144,7 @@ public class TestPlatformTestFramework :
 	/// <summary/>
 	public ValueTask OnDiscover(
 		SessionUid sessionUid,
+		ITestExecutionFilter? filter,
 		ITestPlatformMessageBus messageBus,
 		Action operationComplete,
 		CancellationToken cancellationToken)
@@ -157,7 +158,21 @@ public class TestPlatformTestFramework :
 			// TODO: We'd prefer true for Test Explorer and false for `dotnet test`
 			projectAssembly.Configuration.PreEnumerateTheories ??= true;
 
-			var messageHandler = new TestPlatformDiscoveryMessageSink(session.MessageHandler, projectAssembly.Assembly!.FullName!, sessionUid, messageBus, cancellationToken);
+			Func<ITestCaseDiscovered, bool> discoveryFilter;
+
+#pragma warning disable TPEXP
+			if (filter is null || filter is NopFilter)
+#pragma warning restore TPEXP
+				discoveryFilter = _ => true;
+			else if (filter is TestNodeUidListFilter uidFilter)
+			{
+				var uids = uidFilter.TestNodeUids.Select(u => u.Value).ToHashSet(StringComparer.OrdinalIgnoreCase);
+				discoveryFilter = discovered => uids.Contains(discovered.TestCaseUniqueID);
+			}
+			else
+				throw new ArgumentException($"Unsupported discovery filter type '{filter.GetType().SafeName()}'", nameof(filter));
+
+			var messageHandler = new TestPlatformDiscoveryMessageSink(session.MessageHandler, projectAssembly.Assembly!.FullName!, sessionUid, discoveryFilter, messageBus, cancellationToken);
 			await projectRunner.Discover(projectAssembly, pipelineStartup, messageHandler);
 		}, cancellationToken);
 	}
@@ -180,8 +195,12 @@ public class TestPlatformTestFramework :
 
 			var testCaseIDsToRun = filter switch
 			{
+#pragma warning disable TPEXP
+				NopFilter => null,
+#pragma warning restore TPEXP
 				TestNodeUidListFilter filter => filter.TestNodeUids.Select(u => u.Value).ToHashSet(StringComparer.OrdinalIgnoreCase),
-				_ => null,
+				null => null,
+				_ => throw new ArgumentException($"Unsupported execution filter type '{filter.GetType().SafeName()}'", nameof(filter)),
 			};
 
 			// Default to true for Test Explorer, false otherwise

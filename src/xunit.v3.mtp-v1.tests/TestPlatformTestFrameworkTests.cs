@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Testing.Platform.Extensions.Messages;
 using Microsoft.Testing.Platform.Requests;
 using Microsoft.Testing.Platform.TestHost;
+using NSubstitute;
 using Xunit;
 using Xunit.MicrosoftTestingPlatform;
 using Xunit.Runner.Common;
@@ -118,7 +119,7 @@ public class TestPlatformTestFrameworkTests
 			var messageBus = new SpyTestPlatformMessageBus();
 			var framework = TestableTestPlatformTestFramework.Create();
 
-			var ex = await Record.ExceptionAsync(async () => await framework.OnDiscover(uid, messageBus, () => completionCalled = true, CancellationToken.None));
+			var ex = await Record.ExceptionAsync(async () => await framework.OnDiscover(uid, filter: null, messageBus, () => completionCalled = true, CancellationToken.None));
 
 			Assert.False(completionCalled);
 			Assert.IsType<ArgumentException>(ex);
@@ -141,6 +142,42 @@ public class TestPlatformTestFrameworkTests
 		}
 
 		[Fact]
+		public async ValueTask UnsupportedDiscoveryFilter()
+		{
+			var completionCalled = false;
+			var uid = new SessionUid("abc");
+			var messageBus = new SpyTestPlatformMessageBus();
+			var framework = TestableTestPlatformTestFramework.Create();
+			await framework.CreateTestSession(uid);
+			var filter = Substitute.For<ITestExecutionFilter, InterfaceProxy<ITestExecutionFilter>>();
+
+			var ex = await Record.ExceptionAsync(async () => await framework.OnDiscover(uid, filter, messageBus, () => completionCalled = true, CancellationToken.None));
+
+			Assert.False(completionCalled);
+			var argEx = Assert.IsType<ArgumentException>(ex);
+			Assert.Equal("filter", argEx.ParamName);
+			Assert.StartsWith($"Unsupported discovery filter type '{filter.GetType().FullName}'", ex.Message);
+		}
+
+		[Fact]
+		public async ValueTask UnsupportedExecutionFilter()
+		{
+			var completionCalled = false;
+			var uid = new SessionUid("abc");
+			var messageBus = new SpyTestPlatformMessageBus();
+			var framework = TestableTestPlatformTestFramework.Create();
+			await framework.CreateTestSession(uid);
+			var filter = Substitute.For<ITestExecutionFilter, InterfaceProxy<ITestExecutionFilter>>();
+
+			var ex = await Record.ExceptionAsync(async () => await framework.OnExecute(uid, filter, messageBus, () => completionCalled = true, CancellationToken.None));
+
+			Assert.False(completionCalled);
+			var argEx = Assert.IsType<ArgumentException>(ex);
+			Assert.Equal("filter", argEx.ParamName);
+			Assert.StartsWith($"Unsupported execution filter type '{filter.GetType().FullName}'", ex.Message);
+		}
+
+		[Fact]
 		public async ValueTask CanDiscoverAndExecuteTests()
 		{
 			var completionCalled = false;
@@ -152,7 +189,7 @@ public class TestPlatformTestFrameworkTests
 
 			// Discover tests
 
-			await framework.OnDiscover(uid, messageBus, () => completionCalled = true, CancellationToken.None);
+			await framework.OnDiscover(uid, filter: null, messageBus, () => completionCalled = true, CancellationToken.None);
 
 			Assert.True(completionCalled);
 			var testNodeUpdates = messageBus.PublishedData.OfType<TestNodeUpdateMessage>().ToArray();
