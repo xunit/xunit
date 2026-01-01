@@ -61,7 +61,7 @@ public class XunitFiltersTests
 
 		var argEx = Assert.IsType<ArgumentException>(ex);
 		Assert.Equal("query", argEx.ParamName);
-		Assert.StartsWith("Cannot add query filter; simple filters already exist", argEx.Message);
+		Assert.StartsWith("Cannot add query filter or VSTest filter; simple filters already exist", argEx.Message);
 	}
 
 	public static IEnumerable<TheoryDataRow<Action<XunitFilters>>> SimpleFilterActions =
@@ -87,7 +87,7 @@ public class XunitFiltersTests
 
 		var argEx = Assert.IsType<ArgumentException>(ex);
 		Assert.Equal("query", argEx.ParamName);
-		Assert.StartsWith("Cannot add simple filter; query filters already exist", argEx.Message);
+		Assert.StartsWith("Cannot add simple filter or VSTest filter; query filters already exist", argEx.Message);
 	}
 
 	public class QueryFilters
