@@ -53,6 +53,8 @@
     <Project Path="src/xunit.v3.assert.tests/xunit.v3.assert.tests.csproj" />
     <Project Path="src/xunit.v3.common.tests/xunit.v3.common.tests.csproj" />
     <Project Path="src/xunit.v3.core.tests/xunit.v3.core.tests.csproj" />
+    <Project Path="src/xunit.v3.mtp-v1.tests/xunit.v3.mtp-v1.tests.csproj" />
+    <Project Path="src/xunit.v3.mtp-v2.tests/xunit.v3.mtp-v2.tests.csproj" />
     <Project Path="src/xunit.v3.runner.common.tests/xunit.v3.runner.common.tests.csproj" />
     <Project Path="src/xunit.v3.runner.console.tests/xunit.v3.runner.console.tests.csproj" />
     <Project Path="src/xunit.v3.runner.inproc.console.tests/xunit.v3.runner.inproc.console.tests.csproj" />
@@ -72,6 +74,8 @@
     <Project Path="src/xunit.v3.assert.x86.tests/xunit.v3.assert.x86.tests.csproj" />
     <Project Path="src/xunit.v3.common.x86.tests/xunit.v3.common.x86.tests.csproj" />
     <Project Path="src/xunit.v3.core.x86.tests/xunit.v3.core.x86.tests.csproj" />
+    <Project Path="src/xunit.v3.mtp-v1.x86.tests/xunit.v3.mtp-v1.x86.tests.csproj" />
+    <Project Path="src/xunit.v3.mtp-v2.x86.tests/xunit.v3.mtp-v2.x86.tests.csproj" />
     <Project Path="src/xunit.v3.runner.common.x86.tests/xunit.v3.runner.common.x86.tests.csproj" />
     <Project Path="src/xunit.v3.runner.console.x86.tests/xunit.v3.runner.console.x86.tests.csproj" />
     <Project Path="src/xunit.v3.runner.inproc.console.x86.tests/xunit.v3.runner.inproc.console.x86.tests.csproj" />

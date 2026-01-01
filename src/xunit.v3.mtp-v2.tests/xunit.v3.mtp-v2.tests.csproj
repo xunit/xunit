@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName Condition=" '$(TargetFramework)' == 'net472' ">xunit.v3.mtp-v2.netfx.tests</AssemblyName>
+    <AssemblyName Condition=" '$(TargetFramework)' == 'net8.0' ">xunit.v3.mtp-v2.netcore.tests</AssemblyName>
+    <DefineConstants>$(DefineConstants);MTP_V2</DefineConstants>
+    <TargetFrameworks>net472;net8.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\xunit.v3.mtp-v2\xunit.v3.mtp-v2.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\xunit.v3.mtp-v1.tests\**\*.cs" Exclude="**\obj\**\*.cs" />
+  </ItemGroup>
+
+</Project>
