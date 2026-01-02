@@ -13,15 +13,15 @@
 		<releaseNotes>https://xunit.net/releases/v3/$PackageVersion$</releaseNotes>
 		<description>xUnit.net is a developer testing framework, built to support Test Driven Development, with a design goal of extreme simplicity and alignment with framework features. Supports .NET Framework 4.7.2 or later and .NET 8 or later.
 
-Installing this package installs xunit.v3.mtp-v1.</description>
+Installing this package installs xunit.v3.mtp-v2.</description>
 		<copyright>Copyright (C) .NET Foundation</copyright>
 		<repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
 		<dependencies>
 			<group targetFramework="net472">
-				<dependency id="xunit.v3.mtp-v1" version="[$PackageVersion$]" />
+				<dependency id="xunit.v3.mtp-v2" version="[$PackageVersion$]" />
 			</group>
 			<group targetFramework="net8.0">
-				<dependency id="xunit.v3.mtp-v1" version="[$PackageVersion$]" />
+				<dependency id="xunit.v3.mtp-v2" version="[$PackageVersion$]" />
 			</group>
 		</dependencies>
 	</metadata>
