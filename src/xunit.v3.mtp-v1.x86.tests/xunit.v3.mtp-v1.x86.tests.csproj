@@ -8,11 +8,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\xunit.v3.mtp-v1.tests\**\*.cs" Exclude="**\obj\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\xunit.v3.mtp-v1\xunit.v3.mtp-v1.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\xunit.v3.mtp-v1.tests\**\*.cs" Exclude="**\obj\**\*.cs" />
+    <PackageReference Include="Microsoft.Testing.Platform.MSBuild" Version="[$(Microsoft_Testing_v1_Version),2.0.0)" />
   </ItemGroup>
 
 </Project>
