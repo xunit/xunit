@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -11,6 +12,12 @@ public partial class TestCollectionFinished
 	/// Note: Will be <c>0</c> if there was no value provided during deserialization.
 	/// </remarks>
 	public required decimal ExecutionTime { get; set; }
+
+	/// <inheritdoc/>
+	/// <remarks>
+	/// Note: Will be <see cref="DateTimeOffset.UtcNow"/> if there was no value provided during deserialization.
+	/// </remarks>
+	public required DateTimeOffset FinishTime { get; set; }
 
 	/// <inheritdoc/>
 	/// <remarks>
@@ -44,6 +51,7 @@ public partial class TestCollectionFinished
 		base.Deserialize(root);
 
 		ExecutionTime = JsonDeserializer.TryGetDecimal(root, nameof(ExecutionTime)) ?? ExecutionTime;
+		FinishTime = JsonDeserializer.TryGetDateTimeOffset(root, nameof(FinishTime)) ?? DateTimeOffset.UtcNow;
 		TestsFailed = JsonDeserializer.TryGetInt(root, nameof(TestsFailed)) ?? TestsFailed;
 		TestsNotRun = JsonDeserializer.TryGetInt(root, nameof(TestsNotRun)) ?? TestsNotRun;
 		TestsSkipped = JsonDeserializer.TryGetInt(root, nameof(TestsSkipped)) ?? TestsSkipped;

@@ -1,3 +1,4 @@
+using System;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
 
@@ -20,6 +21,7 @@ public class CrashDetectionDiscoverySink(
 		InnerSink.OnMessage(new DiscoveryComplete
 		{
 			AssemblyUniqueID = assemblyUniqueID,
+			FinishTime = DateTimeOffset.UtcNow,
 			TestCasesToRun = 0,
 		});
 
@@ -31,5 +33,6 @@ public class CrashDetectionDiscoverySink(
 			AssemblyPath = ProjectAssembly.AssemblyFileName,
 			AssemblyUniqueID = assemblyUniqueID,
 			ConfigFilePath = ProjectAssembly.ConfigFileName,
+			StartTime = DateTimeOffset.UtcNow,
 		});
 }

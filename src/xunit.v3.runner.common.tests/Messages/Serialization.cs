@@ -163,6 +163,7 @@ public class Serialization
 		{
 			AssemblyUniqueID = "asm-id",
 			ExecutionTime = 123m,
+			FinishTime = DateTimeOffset.UtcNow,
 			TestCaseUniqueID = "case-id",
 			TestClassUniqueID = "class-id",
 			TestCollectionUniqueID = "collection-id",
@@ -179,6 +180,7 @@ public class Serialization
 			SkipReason = "skip-reason",
 			SourceFilePath = "source-file",
 			SourceLineNumber = 42,
+			StartTime = DateTimeOffset.UtcNow,
 			TestCaseDisplayName = "test-case",
 			TestCaseUniqueID = "case-id",
 			TestClassMetadataToken = 2600,
@@ -245,6 +247,7 @@ public class Serialization
 		{
 			AssemblyUniqueID = "asm-id",
 			ExecutionTime = 123m,
+			FinishTime = DateTimeOffset.UtcNow,
 			TestClassUniqueID = "class-id",
 			TestCollectionUniqueID = "collection-id",
 			TestsFailed = 42,
@@ -255,6 +258,7 @@ public class Serialization
 		new TestClassStarting
 		{
 			AssemblyUniqueID = "asm-id",
+			StartTime = DateTimeOffset.UtcNow,
 			TestClassName = "test-class",
 			TestClassNamespace = "test-class-namespace",
 			TestClassSimpleName = "test-class",
@@ -288,6 +292,7 @@ public class Serialization
 		{
 			AssemblyUniqueID = "asm-id",
 			ExecutionTime = 123m,
+			FinishTime = DateTimeOffset.UtcNow,
 			TestCollectionUniqueID = "collection-id",
 			TestsFailed = 42,
 			TestsNotRun = 21,
@@ -297,6 +302,7 @@ public class Serialization
 		new TestCollectionStarting
 		{
 			AssemblyUniqueID = "asm-id",
+			StartTime = DateTimeOffset.UtcNow,
 			TestCollectionClassName = "test-collection-class",
 			TestCollectionDisplayName = "test-collection",
 			TestCollectionUniqueID = "collection-id",
@@ -353,6 +359,7 @@ public class Serialization
 		{
 			AssemblyUniqueID = "asm-id",
 			ExecutionTime = 123m,
+			FinishTime = DateTimeOffset.UtcNow,
 			TestClassUniqueID = "class-id",
 			TestCollectionUniqueID = "collection-id",
 			TestMethodUniqueID = "method-id",
@@ -366,6 +373,7 @@ public class Serialization
 			AssemblyUniqueID = "asm-id",
 			MethodArity = 4224,
 			MethodName = "test-method",
+			StartTime = DateTimeOffset.UtcNow,
 			TestClassUniqueID = "class-id",
 			TestCollectionUniqueID = "collection-id",
 			TestMethodUniqueID = "method-id",

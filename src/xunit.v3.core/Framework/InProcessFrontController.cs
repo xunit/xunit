@@ -100,6 +100,7 @@ public class InProcessFrontController
 			AssemblyPath = testAssembly.Location,
 			AssemblyUniqueID = TestAssemblyUniqueID,
 			ConfigFilePath = configFilePath,
+			StartTime = DateTimeOffset.UtcNow,
 		});
 
 		try
@@ -132,6 +133,7 @@ public class InProcessFrontController
 			messageSink?.OnMessage(new DiscoveryComplete
 			{
 				AssemblyUniqueID = TestAssemblyUniqueID,
+				FinishTime = DateTimeOffset.UtcNow,
 				TestCasesToRun = testCasesToRun,
 			});
 		}

@@ -22,6 +22,7 @@ sealed partial class TestMethodFinished : TestMethodMessage, ITestMethodFinished
 		base.Serialize(serializer);
 
 		serializer.Serialize(nameof(ExecutionTime), ExecutionTime);
+		serializer.Serialize(nameof(FinishTime), FinishTime);
 		serializer.Serialize(nameof(TestsFailed), TestsFailed);
 		serializer.Serialize(nameof(TestsNotRun), TestsNotRun);
 		serializer.Serialize(nameof(TestsSkipped), TestsSkipped);

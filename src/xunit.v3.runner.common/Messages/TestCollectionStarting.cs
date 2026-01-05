@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -6,6 +7,12 @@ namespace Xunit.Runner.Common;
 
 public partial class TestCollectionStarting
 {
+	/// <inheritdoc/>
+	/// <remarks>
+	/// Note: Will be <see cref="DateTimeOffset.UtcNow"/> if there was no value provided during deserialization.
+	/// </remarks>
+	public required DateTimeOffset StartTime { get; set; }
+
 	/// <inheritdoc/>
 	/// <remarks>
 	/// Note: Will be <see langword="null"/> if there was no value provided during deserialization.
@@ -31,6 +38,7 @@ public partial class TestCollectionStarting
 
 		base.Deserialize(root);
 
+		StartTime = JsonDeserializer.TryGetDateTimeOffset(root, nameof(StartTime)) ?? DateTimeOffset.UtcNow;
 		TestCollectionClassName = JsonDeserializer.TryGetString(root, nameof(TestCollectionClassName));
 		TestCollectionDisplayName = JsonDeserializer.TryGetString(root, nameof(TestCollectionDisplayName)) ?? TestCollectionDisplayName;
 		Traits = JsonDeserializer.TryGetTraits(root, nameof(Traits)) ?? Traits;

@@ -1,4 +1,3 @@
-using System;
 using System.Runtime.Versioning;
 
 namespace Xunit.Sdk;
@@ -7,7 +6,7 @@ namespace Xunit.Sdk;
 /// This message indicates that the execution process is about to start for
 /// the requested assembly.
 /// </summary>
-public interface ITestAssemblyStarting : ITestAssemblyMessage, IAssemblyMetadata
+public interface ITestAssemblyStarting : ITestAssemblyMessage, IAssemblyMetadata, IStartingMessage
 {
 	/// <summary>
 	/// Gets the seed value used for randomization. If <see langword="null"/>, then the test framework
@@ -15,11 +14,6 @@ public interface ITestAssemblyStarting : ITestAssemblyMessage, IAssemblyMetadata
 	/// support for settable randomization seeds started with v3.)
 	/// </summary>
 	int? Seed { get; }
-
-	/// <summary>
-	/// Gets the date and time when the test assembly execution began.
-	/// </summary>
-	DateTimeOffset StartTime { get; }
 
 	/// <summary>
 	/// Gets the target framework that the assembly was compiled against.

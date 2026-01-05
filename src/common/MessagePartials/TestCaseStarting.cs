@@ -28,6 +28,7 @@ sealed partial class TestCaseStarting : TestCaseMessage, ITestCaseStarting
 		serializer.Serialize(nameof(SkipReason), SkipReason);
 		serializer.Serialize(nameof(SourceFilePath), SourceFilePath);
 		serializer.Serialize(nameof(SourceLineNumber), SourceLineNumber);
+		serializer.Serialize(nameof(StartTime), StartTime);
 		serializer.Serialize(nameof(TestCaseDisplayName), TestCaseDisplayName);
 		serializer.Serialize(nameof(TestClassMetadataToken), TestClassMetadataToken);
 		serializer.Serialize(nameof(TestClassName), TestClassName);

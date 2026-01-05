@@ -127,6 +127,7 @@ public abstract class TestMethodRunner<TContext, TTestMethod, TTestCase>
 		{
 			AssemblyUniqueID = ctxt.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID,
 			ExecutionTime = summary.Time,
+			FinishTime = DateTimeOffset.UtcNow,
 			TestClassUniqueID = ctxt.TestMethod.TestClass.UniqueID,
 			TestCollectionUniqueID = ctxt.TestMethod.TestClass.TestCollection.UniqueID,
 			TestMethodUniqueID = ctxt.TestMethod.UniqueID,
@@ -158,6 +159,7 @@ public abstract class TestMethodRunner<TContext, TTestMethod, TTestCase>
 			AssemblyUniqueID = ctxt.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID,
 			MethodArity = ctxt.TestMethod.MethodArity,
 			MethodName = Guard.ArgumentNotNull(ctxt).TestMethod.MethodName,
+			StartTime = DateTimeOffset.UtcNow,
 			TestClassUniqueID = ctxt.TestMethod.TestClass.UniqueID,
 			TestCollectionUniqueID = ctxt.TestMethod.TestClass.TestCollection.UniqueID,
 			TestMethodUniqueID = ctxt.TestMethod.UniqueID,

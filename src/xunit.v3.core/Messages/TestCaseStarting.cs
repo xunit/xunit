@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Xunit.Internal;
@@ -6,6 +7,7 @@ namespace Xunit.v3;
 
 public partial class TestCaseStarting
 {
+	DateTimeOffset? startTime;
 	string? testCaseDisplayName;
 	IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits;
 
@@ -20,6 +22,13 @@ public partial class TestCaseStarting
 
 	/// <inheritdoc/>
 	public required int? SourceLineNumber { get; set; }
+
+	/// <inheritdoc/>
+	public required DateTimeOffset StartTime
+	{
+		get => this.ValidateNullablePropertyValue(startTime, nameof(StartTime));
+		set => startTime = value;
+	}
 
 	/// <inheritdoc/>
 	public required string TestCaseDisplayName
@@ -69,6 +78,7 @@ public partial class TestCaseStarting
 	{
 		base.ValidateObjectState(invalidProperties);
 
+		ValidatePropertyIsNotNull(startTime, nameof(StartTime), invalidProperties);
 		ValidatePropertyIsNotNull(testCaseDisplayName, nameof(TestCaseDisplayName), invalidProperties);
 		ValidatePropertyIsNotNull(traits, nameof(Traits), invalidProperties);
 

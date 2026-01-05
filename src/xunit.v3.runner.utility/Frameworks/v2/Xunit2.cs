@@ -351,6 +351,8 @@ public class Xunit2 : IFrontController
 		IReadOnlyList<Abstractions.ITestCase?> testCases,
 		Sdk.IMessageSink messageSink)
 	{
+		var now = DateTimeOffset.UtcNow;
+
 		messageSink.OnMessage(new TestAssemblyStarting
 		{
 			AssemblyName = assemblyInfo.Name,
@@ -358,7 +360,7 @@ public class Xunit2 : IFrontController
 			AssemblyUniqueID = TestAssemblyUniqueID,
 			ConfigFilePath = configFileName,
 			Seed = null,
-			StartTime = DateTimeOffset.Now,
+			StartTime = now,
 			TargetFramework = TargetFramework,
 			TestEnvironment = string.Format(CultureInfo.CurrentCulture, "{0}-bit {1}", IntPtr.Size * 8, RuntimeInformation.FrameworkDescription),  // This may not be exactly right, but without the remote app domain, we don't know for sure
 			TestFrameworkDisplayName = TestFrameworkDisplayName,
@@ -371,6 +373,7 @@ public class Xunit2 : IFrontController
 		messageSink.OnMessage(new TestCollectionStarting
 		{
 			AssemblyUniqueID = TestAssemblyUniqueID,
+			StartTime = now,
 			TestCollectionClassName = null,
 			TestCollectionDisplayName = testCollectionDisplayName,
 			TestCollectionUniqueID = testCollectionUniqueID,
@@ -392,6 +395,7 @@ public class Xunit2 : IFrontController
 				messageSink.OnMessage(new TestClassStarting
 				{
 					AssemblyUniqueID = TestAssemblyUniqueID,
+					StartTime = now,
 					TestClassName = typeName,
 					TestClassNamespace = @namespace,
 					TestClassSimpleName = simpleName,
@@ -412,6 +416,7 @@ public class Xunit2 : IFrontController
 						AssemblyUniqueID = TestAssemblyUniqueID,
 						MethodArity = null,
 						MethodName = testCasesByMethod.Key,
+						StartTime = now,
 						TestClassUniqueID = testClassUniqueID,
 						TestCollectionUniqueID = testCollectionUniqueID,
 						TestMethodUniqueID = testMethodUniqueID,
@@ -435,6 +440,7 @@ public class Xunit2 : IFrontController
 						SkipReason = null,
 						SourceFilePath = null,
 						SourceLineNumber = null,
+						StartTime = now,
 						TestCaseDisplayName = testCase.DisplayName,
 						TestCaseUniqueID = testCase.UniqueID,
 						TestClassMetadataToken = null,
@@ -453,7 +459,6 @@ public class Xunit2 : IFrontController
 					});
 
 					var testUniqueID = UniqueIDGenerator.ForTest(testCase.UniqueID, currentTestIdx++);
-					var now = DateTimeOffset.UtcNow;
 
 					messageSink.OnMessage(new TestStarting
 					{
@@ -504,6 +509,7 @@ public class Xunit2 : IFrontController
 					{
 						AssemblyUniqueID = TestAssemblyUniqueID,
 						ExecutionTime = 0m,
+						FinishTime = now,
 						TestCaseUniqueID = testCase.UniqueID,
 						TestClassUniqueID = testClassUniqueID,
 						TestCollectionUniqueID = testCollectionUniqueID,
@@ -520,6 +526,7 @@ public class Xunit2 : IFrontController
 					{
 						AssemblyUniqueID = TestAssemblyUniqueID,
 						ExecutionTime = 0m,
+						FinishTime = now,
 						TestClassUniqueID = testClassUniqueID,
 						TestCollectionUniqueID = testCollectionUniqueID,
 						TestMethodUniqueID = testMethodUniqueID,
@@ -535,6 +542,7 @@ public class Xunit2 : IFrontController
 				{
 					AssemblyUniqueID = TestAssemblyUniqueID,
 					ExecutionTime = 0m,
+					FinishTime = now,
 					TestClassUniqueID = testClassUniqueID,
 					TestCollectionUniqueID = testCollectionUniqueID,
 					TestsFailed = 0,
@@ -548,6 +556,7 @@ public class Xunit2 : IFrontController
 		{
 			AssemblyUniqueID = TestAssemblyUniqueID,
 			ExecutionTime = 0m,
+			FinishTime = now,
 			TestCollectionUniqueID = testCollectionUniqueID,
 			TestsFailed = 0,
 			TestsNotRun = testCases.Count,
@@ -559,7 +568,7 @@ public class Xunit2 : IFrontController
 		{
 			AssemblyUniqueID = TestAssemblyUniqueID,
 			ExecutionTime = 0m,
-			FinishTime = DateTimeOffset.Now,
+			FinishTime = now,
 			TestsFailed = 0,
 			TestsNotRun = testCases.Count,
 			TestsSkipped = 0,
@@ -598,6 +607,7 @@ public class Xunit2 : IFrontController
 			AssemblyPath = assemblyInfo.AssemblyPath,
 			AssemblyUniqueID = TestAssemblyUniqueID,
 			ConfigFilePath = configFileName,
+			StartTime = DateTimeOffset.UtcNow,
 		};
 
 		messageSink.OnMessage(discoveryStarting);
@@ -612,6 +622,7 @@ public class Xunit2 : IFrontController
 		var discoveryComplete = new DiscoveryComplete
 		{
 			AssemblyUniqueID = TestAssemblyUniqueID,
+			FinishTime = DateTimeOffset.UtcNow,
 			TestCasesToRun = testCasesToRun,
 		};
 

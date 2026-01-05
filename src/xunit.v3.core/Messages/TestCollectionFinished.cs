@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Xunit.Internal;
 
@@ -6,6 +7,7 @@ namespace Xunit.v3;
 public partial class TestCollectionFinished
 {
 	decimal? executionTime;
+	DateTimeOffset? finishTime;
 	int? testsFailed;
 	int? testsNotRun;
 	int? testsSkipped;
@@ -16,6 +18,13 @@ public partial class TestCollectionFinished
 	{
 		get => this.ValidateNullablePropertyValue(executionTime, nameof(ExecutionTime));
 		set => executionTime = value;
+	}
+
+	/// <inheritdoc/>
+	public required DateTimeOffset FinishTime
+	{
+		get => this.ValidateNullablePropertyValue(finishTime, nameof(FinishTime));
+		set => finishTime = value;
 	}
 
 	/// <inheritdoc/>
@@ -52,6 +61,7 @@ public partial class TestCollectionFinished
 		base.ValidateObjectState(invalidProperties);
 
 		ValidatePropertyIsNotNull(executionTime, nameof(ExecutionTime), invalidProperties);
+		ValidatePropertyIsNotNull(finishTime, nameof(FinishTime), invalidProperties);
 		ValidatePropertyIsNotNull(testsFailed, nameof(TestsFailed), invalidProperties);
 		ValidatePropertyIsNotNull(testsNotRun, nameof(TestsNotRun), invalidProperties);
 		ValidatePropertyIsNotNull(testsSkipped, nameof(TestsSkipped), invalidProperties);

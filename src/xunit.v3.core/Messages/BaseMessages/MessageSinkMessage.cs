@@ -53,4 +53,23 @@ public partial class MessageSinkMessage
 		if (propertyValue is null)
 			invalidProperties.Add(propertyName);
 	}
+
+	/// <summary>
+	/// Validates that the property value is not <see langword="null"/>, and if it is, adds the given
+	/// property name to the invalid property hash set.
+	/// </summary>
+	/// <param name="propertyValue">The property value</param>
+	/// <param name="propertyName">The property name</param>
+	/// <param name="invalidProperties">The hash set to contain the invalid property name list</param>
+	protected static void ValidatePropertyIsNotNull<T>(
+		T? propertyValue,
+		string propertyName,
+		HashSet<string> invalidProperties)
+			where T : struct
+	{
+		Guard.ArgumentNotNull(invalidProperties);
+
+		if (!propertyValue.HasValue)
+			invalidProperties.Add(propertyName);
+	}
 }

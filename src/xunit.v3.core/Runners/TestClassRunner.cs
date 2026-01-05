@@ -154,6 +154,7 @@ public abstract class TestClassRunner<TContext, TTestClass, TTestMethod, TTestCa
 		{
 			AssemblyUniqueID = ctxt.TestClass.TestCollection.TestAssembly.UniqueID,
 			ExecutionTime = summary.Time,
+			FinishTime = DateTimeOffset.UtcNow,
 			TestClassUniqueID = ctxt.TestClass.UniqueID,
 			TestCollectionUniqueID = ctxt.TestClass.TestCollection.UniqueID,
 			TestsFailed = summary.Failed,
@@ -182,6 +183,7 @@ public abstract class TestClassRunner<TContext, TTestClass, TTestMethod, TTestCa
 		return new(ctxt.MessageBus.QueueMessage(new TestClassStarting
 		{
 			AssemblyUniqueID = ctxt.TestClass.TestCollection.TestAssembly.UniqueID,
+			StartTime = DateTimeOffset.UtcNow,
 			TestClassName = Guard.ArgumentNotNull(ctxt).TestClass.TestClassName,
 			TestClassNamespace = ctxt.TestClass.TestClassNamespace,
 			TestClassSimpleName = ctxt.TestClass.TestClassSimpleName,

@@ -29,7 +29,7 @@ public class MessageSplitMessageSinkTests
 
 	public static IEnumerable<TheoryDataRow<IMessageSinkMessage>> NonDiagnosticMessageData =
 	[
-		new DiscoveryComplete { AssemblyUniqueID = "asm-id", TestCasesToRun = 42 },
+		new DiscoveryComplete { AssemblyUniqueID = "asm-id", FinishTime = DateTimeOffset.UtcNow, TestCasesToRun = 42 },
 		new(ErrorMessage.FromException(new DivideByZeroException())),
 	];
 

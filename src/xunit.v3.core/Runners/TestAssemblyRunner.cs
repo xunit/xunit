@@ -142,7 +142,7 @@ public abstract class TestAssemblyRunner<TContext, TTestAssembly, TTestCollectio
 		return ctxt.MessageBus.QueueMessage(new TestAssemblyFinished
 		{
 			AssemblyUniqueID = ctxt.TestAssembly.UniqueID,
-			FinishTime = DateTimeOffset.Now,
+			FinishTime = DateTimeOffset.UtcNow,
 			ExecutionTime = summary.Time,
 			TestsFailed = summary.Failed,
 			TestsNotRun = summary.NotRun,
@@ -174,7 +174,7 @@ public abstract class TestAssemblyRunner<TContext, TTestAssembly, TTestCollectio
 			AssemblyUniqueID = ctxt.TestAssembly.UniqueID,
 			ConfigFilePath = ctxt.TestAssembly.ConfigFilePath,
 			Seed = Randomizer.Seed,
-			StartTime = DateTimeOffset.Now,
+			StartTime = DateTimeOffset.UtcNow,
 			TargetFramework = ctxt.TargetFramework,
 			TestEnvironment = ctxt.TestEnvironment,
 			TestFrameworkDisplayName = await GetTestFrameworkDisplayName(ctxt),

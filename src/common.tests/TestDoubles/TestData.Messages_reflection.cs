@@ -1,5 +1,6 @@
 #if !XUNIT_AOT
 
+using System;
 using System.Linq;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -54,6 +55,7 @@ partial class TestData
 		string testMethod,
 		string? sourceFilePath = null,
 		int? sourceLineNumber = null,
+		DateTimeOffset? startTime = null,
 		string? testCaseDisplayName = null)
 	{
 		var type = typeof(TClass);
@@ -73,6 +75,7 @@ partial class TestData
 			skipReason,
 			sourceFilePath,
 			sourceLineNumber,
+			startTime,
 			testCaseDisplayName ?? $"{type.FullName}.{testMethod}",
 			testCaseUniqueID,
 			type.MetadataToken,

@@ -130,6 +130,7 @@ public class Xunit1 : IFrontController
 			var discoveryComplete = new DiscoveryComplete
 			{
 				AssemblyUniqueID = TestAssemblyUniqueID,
+				FinishTime = DateTimeOffset.UtcNow,
 				TestCasesToRun = testCasesToRun,
 			};
 			messageSink.OnMessage(discoveryComplete);
@@ -162,6 +163,7 @@ public class Xunit1 : IFrontController
 			AssemblyPath = assemblyFileName,
 			AssemblyUniqueID = TestAssemblyUniqueID,
 			ConfigFilePath = configFileName,
+			StartTime = DateTimeOffset.UtcNow,
 		};
 		messageSink.OnMessage(discoveryStarting);
 
@@ -268,6 +270,7 @@ public class Xunit1 : IFrontController
 			var discoveryComplete = new DiscoveryComplete
 			{
 				AssemblyUniqueID = TestAssemblyUniqueID,
+				FinishTime = DateTimeOffset.UtcNow,
 				TestCasesToRun = testCases.Count,
 			};
 			messageSink.OnMessage(discoveryComplete);
@@ -315,7 +318,7 @@ public class Xunit1 : IFrontController
 			AssemblyUniqueID = TestAssemblyUniqueID,
 			ConfigFilePath = configFileName,
 			Seed = null,
-			StartTime = DateTimeOffset.Now,
+			StartTime = DateTimeOffset.UtcNow,
 			TestEnvironment = environment,
 			TestFrameworkDisplayName = TestFrameworkDisplayName,
 			TargetFramework = null,
@@ -347,7 +350,7 @@ public class Xunit1 : IFrontController
 				{
 					AssemblyUniqueID = testAssemblyStartingMessage.AssemblyUniqueID,
 					ExecutionTime = results.Time,
-					FinishTime = DateTimeOffset.Now,
+					FinishTime = DateTimeOffset.UtcNow,
 					TestsFailed = results.Failed,
 					TestsNotRun = results.NotRun,
 					TestsTotal = results.Total,
@@ -387,6 +390,7 @@ public class Xunit1 : IFrontController
 		var collectionStarting = new TestCollectionStarting
 		{
 			AssemblyUniqueID = testCases[0].AssemblyUniqueID,
+			StartTime = DateTimeOffset.UtcNow,
 			TestCollectionClassName = null,
 			TestCollectionDisplayName = string.Format(CultureInfo.CurrentCulture, "xUnit.net v1 Tests for {0}", assemblyFileName),
 			TestCollectionUniqueID = testCases[0].TestCollectionUniqueID,
@@ -415,6 +419,7 @@ public class Xunit1 : IFrontController
 			{
 				AssemblyUniqueID = collectionStarting.AssemblyUniqueID,
 				ExecutionTime = results.Time,
+				FinishTime = DateTimeOffset.UtcNow,
 				TestCollectionUniqueID = collectionStarting.TestCollectionUniqueID,
 				TestsFailed = results.Failed,
 				TestsNotRun = results.NotRun,
@@ -445,6 +450,7 @@ public class Xunit1 : IFrontController
 		var testClassStarting = new TestClassStarting
 		{
 			AssemblyUniqueID = testCases[0].AssemblyUniqueID,
+			StartTime = DateTimeOffset.UtcNow,
 			TestClassName = typeName,
 			TestClassNamespace = @namespace,
 			TestClassSimpleName = simpleName,
@@ -489,6 +495,7 @@ public class Xunit1 : IFrontController
 			{
 				AssemblyUniqueID = testClassStarting.AssemblyUniqueID,
 				ExecutionTime = results.Time,
+				FinishTime = DateTimeOffset.UtcNow,
 				TestClassUniqueID = testClassStarting.TestClassUniqueID,
 				TestCollectionUniqueID = testClassStarting.TestCollectionUniqueID,
 				TestsFailed = results.Failed,

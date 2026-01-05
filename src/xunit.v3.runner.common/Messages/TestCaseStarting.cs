@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -29,6 +30,12 @@ public partial class TestCaseStarting
 	/// Note: Will be <see langword="null"/> if there was no value provided during deserialization.
 	/// </remarks>
 	public required int? SourceLineNumber { get; set; }
+
+	/// <inheritdoc/>
+	/// <remarks>
+	/// Note: Will be <see cref="DateTimeOffset.UtcNow"/> if there was no value provided during deserialization.
+	/// </remarks>
+	public required DateTimeOffset StartTime { get; set; }
 
 	/// <inheritdoc/>
 	/// <remarks>
@@ -107,6 +114,7 @@ public partial class TestCaseStarting
 		SkipReason = JsonDeserializer.TryGetString(root, nameof(SkipReason));
 		SourceFilePath = JsonDeserializer.TryGetString(root, nameof(SourceFilePath));
 		SourceLineNumber = JsonDeserializer.TryGetInt(root, nameof(SourceLineNumber));
+		StartTime = JsonDeserializer.TryGetDateTimeOffset(root, nameof(StartTime)) ?? DateTimeOffset.UtcNow;
 		TestCaseDisplayName = JsonDeserializer.TryGetString(root, nameof(TestCaseDisplayName)) ?? TestCaseDisplayName;
 		TestClassMetadataToken = JsonDeserializer.TryGetInt(root, nameof(TestClassMetadataToken));
 		TestClassName = JsonDeserializer.TryGetString(root, nameof(TestClassName));

@@ -4,7 +4,7 @@ namespace Xunit.Sdk;
 /// This message indicates that the discovery process is starting for
 /// the requested assembly.
 /// </summary>
-public interface IDiscoveryStarting : ITestAssemblyMessage
+public interface IDiscoveryStarting : ITestAssemblyMessage, IStartingMessage
 {
 	/// <summary>
 	/// Gets the assembly name. May return a simple assembly name (i.e., "mscorlib"), or may return a

@@ -38,15 +38,17 @@ public class DecodingRunnerLoggerTests
 	[Fact]
 	public void StandardMessage()
 	{
+		var now = DateTimeOffset.UtcNow;
 		var spySink = SpyMessageSink.Capture();
 		var spyDiagnosticSink = SpyMessageSink.Capture();
-		var json = new DiscoveryComplete { AssemblyUniqueID = "asm-id", TestCasesToRun = 42 }.ToJson();
+		var json = new DiscoveryComplete { AssemblyUniqueID = "asm-id", FinishTime = now, TestCasesToRun = 42 }.ToJson();
 		var logger = new DecodingRunnerLogger(spySink, spyDiagnosticSink);
 
 		logger.LogMessage(json);
 
 		var message = Assert.IsType<IDiscoveryComplete>(Assert.Single(spySink.Messages), exactMatch: false);
 		Assert.Equal("asm-id", message.AssemblyUniqueID);
+		Assert.Equal(now, message.FinishTime);
 		Assert.Equal(42, message.TestCasesToRun);
 		Assert.Empty(spyDiagnosticSink.Messages);
 	}

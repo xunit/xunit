@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Xunit.Internal;
 
@@ -7,6 +8,7 @@ public partial class DiscoveryStarting
 {
 	string? assemblyName;
 	string? assemblyPath;
+	DateTimeOffset? startTime;
 
 	/// <inheritdoc/>
 	public required string AssemblyName
@@ -26,11 +28,19 @@ public partial class DiscoveryStarting
 	public required string? ConfigFilePath { get; set; }
 
 	/// <inheritdoc/>
+	public required DateTimeOffset StartTime
+	{
+		get => this.ValidateNullablePropertyValue(startTime, nameof(StartTime));
+		set => startTime = value;
+	}
+
+	/// <inheritdoc/>
 	protected override void ValidateObjectState(HashSet<string> invalidProperties)
 	{
 		base.ValidateObjectState(invalidProperties);
 
 		ValidatePropertyIsNotNull(assemblyName, nameof(AssemblyName), invalidProperties);
 		ValidatePropertyIsNotNull(assemblyPath, nameof(AssemblyPath), invalidProperties);
+		ValidatePropertyIsNotNull(startTime, nameof(StartTime), invalidProperties);
 	}
 }

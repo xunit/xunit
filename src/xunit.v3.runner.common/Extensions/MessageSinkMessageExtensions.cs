@@ -145,6 +145,7 @@ public static partial class MessageSinkMessageExtensions
 					SkipReason = starting.SkipReason,
 					SourceFilePath = sourceFilePath,
 					SourceLineNumber = sourceLineNumber,
+					StartTime = starting.StartTime,
 					TestCaseDisplayName = starting.TestCaseDisplayName,
 					TestCaseUniqueID = starting.TestCaseUniqueID,
 					TestClassMetadataToken = starting.TestClassMetadataToken,

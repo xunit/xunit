@@ -5,7 +5,7 @@ namespace Xunit.Sdk;
 /// <summary>
 /// This message indicates that a test has finished executing.
 /// </summary>
-public interface ITestFinished : ITestResultMessage
+public interface ITestFinished : ITestResultMessage, IFinishedMessage
 {
 	/// <summary>
 	/// Gets any attachments that were added to the test result via <see cref="M:Xunit.TestContext.AddAttachment"/>.

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -25,6 +26,12 @@ public partial class DiscoveryStarting
 	public required string? ConfigFilePath { get; set; }
 
 	/// <inheritdoc/>
+	/// <remarks>
+	/// Note: Will be <see cref="DateTimeOffset.UtcNow"/> if there was no value provided during deserialization.
+	/// </remarks>
+	public required DateTimeOffset StartTime { get; set; }
+
+	/// <inheritdoc/>
 	protected override void Deserialize(IReadOnlyDictionary<string, object?> root)
 	{
 		Guard.ArgumentNotNull(root);
@@ -34,5 +41,6 @@ public partial class DiscoveryStarting
 		AssemblyName = JsonDeserializer.TryGetString(root, nameof(AssemblyName)) ?? AssemblyName;
 		AssemblyPath = JsonDeserializer.TryGetString(root, nameof(AssemblyPath)) ?? AssemblyPath;
 		ConfigFilePath = JsonDeserializer.TryGetString(root, nameof(ConfigFilePath));
+		StartTime = JsonDeserializer.TryGetDateTimeOffset(root, nameof(StartTime)) ?? DateTimeOffset.UtcNow;
 	}
 }

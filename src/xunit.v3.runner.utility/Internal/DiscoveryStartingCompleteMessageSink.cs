@@ -1,3 +1,4 @@
+using System;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
 
@@ -66,6 +67,7 @@ public sealed class DiscoveryStartingCompleteMessageSink(
 		innerSink.OnMessage(new DiscoveryComplete
 		{
 			AssemblyUniqueID = uniqueID,
+			FinishTime = DateTimeOffset.UtcNow,
 			TestCasesToRun = testCaseCount,
 		});
 
@@ -76,5 +78,6 @@ public sealed class DiscoveryStartingCompleteMessageSink(
 			AssemblyPath = assemblyFileName,
 			AssemblyUniqueID = uniqueID,
 			ConfigFilePath = configFileName,
+			StartTime = DateTimeOffset.UtcNow,
 		});
 }

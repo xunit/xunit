@@ -24,6 +24,7 @@ sealed partial class TestCollectionStarting : TestCollectionMessage, ITestCollec
 
 		base.Serialize(serializer);
 
+		serializer.Serialize(nameof(StartTime), StartTime);
 		serializer.Serialize(nameof(TestCollectionClassName), TestCollectionClassName);
 		serializer.Serialize(nameof(TestCollectionDisplayName), TestCollectionDisplayName);
 		serializer.SerializeTraits(nameof(Traits), Traits);
