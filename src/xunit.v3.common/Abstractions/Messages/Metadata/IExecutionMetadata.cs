@@ -3,7 +3,7 @@ namespace Xunit.Sdk;
 /// <summary>
 /// This is metadata describing the execution of a single test.
 /// </summary>
-public interface IExecutionMetadata
+public interface IExecutionMetadata : IFinishedMessage
 {
 	/// <summary>
 	/// The time spent executing the test, in seconds. Will be 0 if the test was not executed.

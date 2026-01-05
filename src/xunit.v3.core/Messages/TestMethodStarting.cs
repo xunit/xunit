@@ -3,6 +3,7 @@ namespace Xunit.v3;
 public partial class TestMethodStarting
 {
 	string? methodName;
+	DateTimeOffset? startTime;
 	IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits;
 
 	/// <inheritdoc/>
@@ -13,6 +14,13 @@ public partial class TestMethodStarting
 	{
 		get => this.ValidateNullablePropertyValue(methodName, nameof(MethodName));
 		set => methodName = Guard.ArgumentNotNullOrEmpty(value, nameof(MethodName));
+	}
+
+	/// <inheritdoc/>
+	public required DateTimeOffset StartTime
+	{
+		get => this.ValidateNullablePropertyValue(startTime, nameof(StartTime));
+		set => startTime = value;
 	}
 
 	/// <inheritdoc/>
@@ -28,6 +36,7 @@ public partial class TestMethodStarting
 		base.ValidateObjectState(invalidProperties);
 
 		ValidatePropertyIsNotNull(methodName, nameof(MethodName), invalidProperties);
+		ValidatePropertyIsNotNull(startTime, nameof(StartTime), invalidProperties);
 		ValidatePropertyIsNotNull(traits, nameof(Traits), invalidProperties);
 	}
 }

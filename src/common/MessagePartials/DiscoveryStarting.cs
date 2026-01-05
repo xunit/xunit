@@ -22,6 +22,7 @@ sealed partial class DiscoveryStarting : TestAssemblyMessage, IDiscoveryStarting
 		serializer.Serialize(nameof(AssemblyName), AssemblyName);
 		serializer.Serialize(nameof(AssemblyPath), AssemblyPath);
 		serializer.Serialize(nameof(ConfigFilePath), ConfigFilePath);
+		serializer.Serialize(nameof(StartTime), StartTime);
 	}
 
 	/// <inheritdoc/>

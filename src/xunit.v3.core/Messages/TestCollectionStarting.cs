@@ -2,8 +2,16 @@ namespace Xunit.v3;
 
 public partial class TestCollectionStarting
 {
+	DateTimeOffset? startTime;
 	string? testCollectionDisplayName;
 	IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits;
+
+	/// <inheritdoc/>
+	public required DateTimeOffset StartTime
+	{
+		get => this.ValidateNullablePropertyValue(startTime, nameof(StartTime));
+		set => startTime = value;
+	}
 
 	/// <inheritdoc/>
 	public required string? TestCollectionClassName { get; set; }
@@ -27,6 +35,7 @@ public partial class TestCollectionStarting
 	{
 		base.ValidateObjectState(invalidProperties);
 
+		ValidatePropertyIsNotNull(startTime, nameof(StartTime), invalidProperties);
 		ValidatePropertyIsNotNull(testCollectionDisplayName, nameof(TestCollectionDisplayName), invalidProperties);
 		ValidatePropertyIsNotNull(traits, nameof(Traits), invalidProperties);
 	}

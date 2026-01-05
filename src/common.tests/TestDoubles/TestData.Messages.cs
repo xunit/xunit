@@ -85,10 +85,12 @@ partial class TestData
 
 	public static IDiscoveryComplete DiscoveryComplete(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
+		DateTimeOffset? finishTime = null,
 		int testCasesToRun = DefaultCountTotal) =>
 			new Xunit.Runner.Common.DiscoveryComplete()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
+				FinishTime = finishTime ?? DefaultFinishTime,
 				TestCasesToRun = testCasesToRun,
 			};
 
@@ -96,13 +98,15 @@ partial class TestData
 		string assemblyName = DefaultAssemblyName,
 		string assemblyPath = DefaultAssemblyPath,
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
-		string? configFilePath = DefaultConfigFilePath) =>
+		string? configFilePath = DefaultConfigFilePath,
+		DateTimeOffset? startTime = null) =>
 			new Xunit.Runner.Common.DiscoveryStarting()
 			{
 				AssemblyName = assemblyName,
 				AssemblyPath = assemblyPath,
 				AssemblyUniqueID = assemblyUniqueID,
 				ConfigFilePath = configFilePath,
+				StartTime = startTime ?? DefaultStartTime,
 			};
 
 	public static IErrorMessage ErrorMessage(
@@ -401,6 +405,7 @@ partial class TestData
 	public static ITestCaseFinished TestCaseFinished(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		decimal executionTime = 123.4567m,
+		DateTimeOffset? finishTime = null,
 		string testCaseUniqueID = DefaultTestCaseUniqueID,
 		string? testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
@@ -413,6 +418,7 @@ partial class TestData
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = executionTime,
+				FinishTime = finishTime ?? DefaultFinishTime,
 				TestCaseUniqueID = testCaseUniqueID,
 				TestClassUniqueID = testClassUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID,
@@ -429,6 +435,7 @@ partial class TestData
 		string? skipReason = null,
 		string? sourceFilePath = null,
 		int? sourceLineNumber = null,
+		DateTimeOffset? startTime = null,
 		string testCaseDisplayName = DefaultTestCaseDisplayName,
 		string testCaseUniqueID = DefaultTestCaseUniqueID,
 		int? testClassMetadataToken = 42,
@@ -451,6 +458,7 @@ partial class TestData
 				SkipReason = skipReason,
 				SourceFilePath = sourceFilePath,
 				SourceLineNumber = sourceLineNumber,
+				StartTime = startTime ?? DefaultStartTime,
 				TestCaseDisplayName = testCaseDisplayName,
 				TestCaseUniqueID = testCaseUniqueID,
 				TestClassMetadataToken = testClassMetadataToken,
@@ -558,6 +566,7 @@ partial class TestData
 	public static ITestClassFinished TestClassFinished(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		decimal executionTime = DefaultExecutionTime,
+		DateTimeOffset? finishTime = null,
 		string? testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 		int testsFailed = DefaultCountFailed,
@@ -568,6 +577,7 @@ partial class TestData
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = executionTime,
+				FinishTime = finishTime ?? DefaultFinishTime,
 				TestClassUniqueID = testClassUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestsFailed = testsFailed,
@@ -578,6 +588,7 @@ partial class TestData
 
 	public static ITestClassStarting TestClassStarting(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
+		DateTimeOffset? startTime = null,
 		string testClassName = DefaultTestClassName,
 		string testClassNamespace = DefaultTestClassNamespace,
 		string testClassSimpleName = DefaultTestClassSimpleName,
@@ -587,6 +598,7 @@ partial class TestData
 			new Xunit.Runner.Common.TestClassStarting()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
+				StartTime = startTime ?? DefaultStartTime,
 				TestClassName = testClassName,
 				TestClassNamespace = testClassNamespace,
 				TestClassSimpleName = testClassSimpleName,
@@ -640,6 +652,7 @@ partial class TestData
 	public static ITestCollectionFinished TestCollectionFinished(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		decimal executionTime = DefaultExecutionTime,
+		DateTimeOffset? finishTime = null,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 		int testsFailed = DefaultCountFailed,
 		int testsNotRun = DefaultCountNotRun,
@@ -649,6 +662,7 @@ partial class TestData
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = executionTime,
+				FinishTime = finishTime ?? DefaultFinishTime,
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestsFailed = testsFailed,
 				TestsNotRun = testsNotRun,
@@ -658,6 +672,7 @@ partial class TestData
 
 	public static ITestCollectionStarting TestCollectionStarting(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
+		DateTimeOffset? startTime = null,
 		string? testCollectionClass = DefaultTestCollectionClass,
 		string testCollectionDisplayName = DefaultTestCollectionDisplayName,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
@@ -665,6 +680,7 @@ partial class TestData
 			new Xunit.Runner.Common.TestCollectionStarting()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
+				StartTime = startTime ?? DefaultStartTime,
 				TestCollectionClassName = testCollectionClass,
 				TestCollectionDisplayName = testCollectionDisplayName,
 				TestCollectionUniqueID = testCollectionUniqueID,
@@ -774,6 +790,7 @@ partial class TestData
 	public static ITestMethodFinished TestMethodFinished(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		decimal executionTime = DefaultExecutionTime,
+		DateTimeOffset? finishTime = null,
 		string? testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 		string? testMethodUniqueID = DefaultTestMethodUniqueID,
@@ -785,6 +802,7 @@ partial class TestData
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = executionTime,
+				FinishTime = finishTime ?? DefaultFinishTime,
 				TestClassUniqueID = testClassUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestMethodUniqueID = testMethodUniqueID,
@@ -798,6 +816,7 @@ partial class TestData
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		int? methodArity = null,
 		string methodName = DefaultMethodName,
+		DateTimeOffset? startTime = null,
 		string testClassUniqueID = DefaultTestClassUniqueID,
 		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
 		string testMethodUniqueID = DefaultTestMethodUniqueID,
@@ -807,6 +826,7 @@ partial class TestData
 				AssemblyUniqueID = assemblyUniqueID,
 				MethodArity = methodArity,
 				MethodName = methodName,
+				StartTime = startTime ?? DefaultStartTime,
 				TestClassUniqueID = testClassUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestMethodUniqueID = testMethodUniqueID,

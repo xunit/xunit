@@ -108,6 +108,7 @@ public abstract class TestCaseRunnerBase<TContext, TTestCase>
 		{
 			AssemblyUniqueID = ctxt.TestCase.TestCollection.TestAssembly.UniqueID,
 			ExecutionTime = summary.Time,
+			FinishTime = DateTimeOffset.UtcNow,
 			TestCaseUniqueID = ctxt.TestCase.UniqueID,
 			TestClassUniqueID = ctxt.TestCase.TestClass?.UniqueID,
 			TestCollectionUniqueID = ctxt.TestCase.TestCollection.UniqueID,
@@ -142,6 +143,7 @@ public abstract class TestCaseRunnerBase<TContext, TTestCase>
 			SkipReason = Guard.ArgumentNotNull(ctxt).TestCase.SkipReason,
 			SourceFilePath = ctxt.TestCase.SourceFilePath,
 			SourceLineNumber = ctxt.TestCase.SourceLineNumber,
+			StartTime = DateTimeOffset.UtcNow,
 			TestCaseDisplayName = ctxt.TestCase.TestCaseDisplayName,
 			TestCaseUniqueID = ctxt.TestCase.UniqueID,
 			TestClassMetadataToken = ctxt.TestCase.TestClassMetadataToken,

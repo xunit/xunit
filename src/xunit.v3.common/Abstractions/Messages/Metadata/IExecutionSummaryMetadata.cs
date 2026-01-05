@@ -5,7 +5,7 @@ namespace Xunit.Sdk;
 /// test case, test class, test collection, and assembly). It describes the aggregation of
 /// zero or more tests being executed.
 /// </summary>
-public interface IExecutionSummaryMetadata
+public interface IExecutionSummaryMetadata : IFinishedMessage
 {
 	/// <summary>
 	/// Gets the execution time (in seconds) for this execution.

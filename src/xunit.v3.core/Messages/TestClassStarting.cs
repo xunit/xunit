@@ -2,9 +2,17 @@ namespace Xunit.v3;
 
 public partial class TestClassStarting
 {
+	DateTimeOffset? startTime;
 	string? testClassName;
 	string? testClassSimpleName;
 	IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits;
+
+	/// <inheritdoc/>
+	public required DateTimeOffset StartTime
+	{
+		get => this.ValidateNullablePropertyValue(startTime, nameof(StartTime));
+		set => startTime = value;
+	}
 
 	/// <inheritdoc/>
 	public required string TestClassName
@@ -35,6 +43,7 @@ public partial class TestClassStarting
 	{
 		base.ValidateObjectState(invalidProperties);
 
+		ValidatePropertyIsNotNull(startTime, nameof(StartTime), invalidProperties);
 		ValidatePropertyIsNotNull(testClassName, nameof(TestClassName), invalidProperties);
 		ValidatePropertyIsNotNull(traits, nameof(Traits), invalidProperties);
 	}

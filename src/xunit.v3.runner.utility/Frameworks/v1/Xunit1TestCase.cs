@@ -225,6 +225,7 @@ public sealed class Xunit1TestCase : IXunitSerializable
 		{
 			AssemblyUniqueID = AssemblyUniqueID,
 			ExecutionTime = testCaseResults.Time,
+			FinishTime = DateTimeOffset.UtcNow,
 			TestCaseUniqueID = TestCaseUniqueID,
 			TestClassUniqueID = TestClassUniqueID,
 			TestCollectionUniqueID = TestCollectionUniqueID,
@@ -244,6 +245,7 @@ public sealed class Xunit1TestCase : IXunitSerializable
 		{
 			AssemblyUniqueID = AssemblyUniqueID,
 			ExecutionTime = 0m,
+			FinishTime = DateTimeOffset.UtcNow,
 			TestCaseUniqueID = TestCaseUniqueID,
 			TestClassUniqueID = TestClassUniqueID,
 			TestCollectionUniqueID = TestCollectionUniqueID,
@@ -270,6 +272,7 @@ public sealed class Xunit1TestCase : IXunitSerializable
 			SkipReason = SkipReason,
 			SourceFilePath = SourceFilePath,
 			SourceLineNumber = SourceLineNumber,
+			StartTime = DateTimeOffset.UtcNow,
 			TestCaseDisplayName = TestCaseDisplayName,
 			TestCaseUniqueID = TestCaseUniqueID,
 			TestClassMetadataToken = null,
@@ -371,6 +374,7 @@ public sealed class Xunit1TestCase : IXunitSerializable
 		{
 			AssemblyUniqueID = AssemblyUniqueID,
 			ExecutionTime = testMethodResults.Time,
+			FinishTime = DateTimeOffset.UtcNow,
 			TestClassUniqueID = TestClassUniqueID,
 			TestCollectionUniqueID = TestCollectionUniqueID,
 			TestMethodUniqueID = TestMethodUniqueID,
@@ -389,6 +393,7 @@ public sealed class Xunit1TestCase : IXunitSerializable
 		{
 			AssemblyUniqueID = AssemblyUniqueID,
 			ExecutionTime = 0m,
+			FinishTime = DateTimeOffset.UtcNow,
 			TestClassUniqueID = TestClassUniqueID,
 			TestCollectionUniqueID = TestCollectionUniqueID,
 			TestMethodUniqueID = TestMethodUniqueID,
@@ -407,6 +412,7 @@ public sealed class Xunit1TestCase : IXunitSerializable
 			AssemblyUniqueID = AssemblyUniqueID,
 			MethodArity = null,
 			MethodName = TestMethod,
+			StartTime = DateTimeOffset.UtcNow,
 			TestClassUniqueID = TestClassUniqueID,
 			TestCollectionUniqueID = TestCollectionUniqueID,
 			TestMethodUniqueID = TestMethodUniqueID,

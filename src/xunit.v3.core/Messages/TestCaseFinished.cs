@@ -3,6 +3,7 @@ namespace Xunit.v3;
 public partial class TestCaseFinished
 {
 	decimal? executionTime;
+	DateTimeOffset? finishTime;
 	int? testsFailed;
 	int? testsNotRun;
 	int? testsSkipped;
@@ -13,6 +14,13 @@ public partial class TestCaseFinished
 	{
 		get => this.ValidateNullablePropertyValue(executionTime, nameof(ExecutionTime));
 		set => executionTime = value;
+	}
+
+	/// <inheritdoc/>
+	public required DateTimeOffset FinishTime
+	{
+		get => this.ValidateNullablePropertyValue(finishTime, nameof(FinishTime));
+		set => finishTime = value;
 	}
 
 	/// <inheritdoc/>
@@ -49,6 +57,7 @@ public partial class TestCaseFinished
 		base.ValidateObjectState(invalidProperties);
 
 		ValidatePropertyIsNotNull(executionTime, nameof(ExecutionTime), invalidProperties);
+		ValidatePropertyIsNotNull(finishTime, nameof(FinishTime), invalidProperties);
 		ValidatePropertyIsNotNull(testsFailed, nameof(TestsFailed), invalidProperties);
 		ValidatePropertyIsNotNull(testsNotRun, nameof(TestsNotRun), invalidProperties);
 		ValidatePropertyIsNotNull(testsSkipped, nameof(TestsSkipped), invalidProperties);

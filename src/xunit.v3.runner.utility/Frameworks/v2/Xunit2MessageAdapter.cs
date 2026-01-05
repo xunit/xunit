@@ -164,6 +164,7 @@ public class Xunit2MessageAdapter(
 		new DiscoveryComplete()
 		{
 			AssemblyUniqueID = assemblyUniqueID,
+			FinishTime = DateTimeOffset.UtcNow,
 			TestCasesToRun = 0,  // TODO: Do we know this number?
 		};
 
@@ -191,7 +192,7 @@ public class Xunit2MessageAdapter(
 		{
 			AssemblyUniqueID = assemblyUniqueID,
 			ExecutionTime = message.ExecutionTime,
-			FinishTime = DateTimeOffset.Now,
+			FinishTime = DateTimeOffset.UtcNow,
 			TestsFailed = message.TestsFailed,
 			TestsNotRun = 0,
 			TestsSkipped = message.TestsSkipped,
@@ -304,6 +305,7 @@ public class Xunit2MessageAdapter(
 		{
 			AssemblyUniqueID = assemblyUniqueID,
 			ExecutionTime = message.ExecutionTime,
+			FinishTime = DateTimeOffset.UtcNow,
 			TestCaseUniqueID = testCaseUniqueID,
 			TestCollectionUniqueID = testCollectionUniqueID,
 			TestClassUniqueID = testClassUniqueID,
@@ -333,6 +335,7 @@ public class Xunit2MessageAdapter(
 			SkipReason = message.TestCase.SkipReason,
 			SourceFilePath = message.TestCase.SourceInformation?.FileName,
 			SourceLineNumber = message.TestCase.SourceInformation?.LineNumber,
+			StartTime = DateTimeOffset.UtcNow,
 			TestCaseDisplayName = message.TestCase.DisplayName,
 			TestCaseUniqueID = message.TestCase.UniqueID,
 			TestClassMetadataToken = null,
@@ -453,6 +456,7 @@ public class Xunit2MessageAdapter(
 		{
 			AssemblyUniqueID = assemblyUniqueID,
 			ExecutionTime = message.ExecutionTime,
+			FinishTime = DateTimeOffset.UtcNow,
 			TestClassUniqueID = testClassUniqueID,
 			TestCollectionUniqueID = testCollectionUniqueID,
 			TestsFailed = message.TestsFailed,
@@ -475,6 +479,7 @@ public class Xunit2MessageAdapter(
 		return new TestClassStarting()
 		{
 			AssemblyUniqueID = assemblyUniqueID,
+			StartTime = DateTimeOffset.UtcNow,
 			TestClassName = message.TestClass.Class.Name,
 			TestClassNamespace = @namespace,
 			TestClassSimpleName = simpleName,
@@ -530,6 +535,7 @@ public class Xunit2MessageAdapter(
 		{
 			AssemblyUniqueID = assemblyUniqueID,
 			ExecutionTime = message.ExecutionTime,
+			FinishTime = DateTimeOffset.UtcNow,
 			TestCollectionUniqueID = testCollectionUniqueID,
 			TestsFailed = message.TestsFailed,
 			TestsNotRun = 0,
@@ -545,6 +551,7 @@ public class Xunit2MessageAdapter(
 		return new TestCollectionStarting()
 		{
 			AssemblyUniqueID = assemblyUniqueID,
+			StartTime = DateTimeOffset.UtcNow,
 			TestCollectionClassName = message.TestCollection.CollectionDefinition?.Name,
 			TestCollectionDisplayName = message.TestCollection.DisplayName,
 			TestCollectionUniqueID = testCollectionUniqueID,
@@ -633,6 +640,7 @@ public class Xunit2MessageAdapter(
 		{
 			AssemblyUniqueID = assemblyUniqueID,
 			ExecutionTime = message.ExecutionTime,
+			FinishTime = DateTimeOffset.UtcNow,
 			TestCollectionUniqueID = testCollectionUniqueID,
 			TestClassUniqueID = testClassUniqueID,
 			TestMethodUniqueID = testMethodUniqueID,
@@ -654,6 +662,7 @@ public class Xunit2MessageAdapter(
 			AssemblyUniqueID = assemblyUniqueID,
 			MethodArity = null,
 			MethodName = message.TestMethod.Method.Name,
+			StartTime = DateTimeOffset.UtcNow,
 			TestCollectionUniqueID = testCollectionUniqueID,
 			TestClassUniqueID = testClassUniqueID,
 			TestMethodUniqueID = testMethodUniqueID,

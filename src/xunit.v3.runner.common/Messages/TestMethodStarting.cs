@@ -18,6 +18,12 @@ public partial class TestMethodStarting
 
 	/// <inheritdoc/>
 	/// <remarks>
+	/// Note: Will be <see cref="DateTimeOffset.UtcNow"/> if there was no value provided during deserialization.
+	/// </remarks>
+	public required DateTimeOffset StartTime { get; set; }
+
+	/// <inheritdoc/>
+	/// <remarks>
 	/// Note: Will be an empty dictionary if there was no value provided during deserialization.
 	/// </remarks>
 	public required IReadOnlyDictionary<string, IReadOnlyCollection<string>> Traits { get; set; } = EmptyTraits;
@@ -31,6 +37,7 @@ public partial class TestMethodStarting
 
 		MethodArity = JsonDeserializer.TryGetInt(root, nameof(MethodArity));
 		MethodName = JsonDeserializer.TryGetString(root, nameof(MethodName)) ?? MethodName;
+		StartTime = JsonDeserializer.TryGetDateTimeOffset(root, nameof(StartTime)) ?? DateTimeOffset.UtcNow;
 		Traits = JsonDeserializer.TryGetTraits(root, nameof(Traits)) ?? Traits;
 	}
 }

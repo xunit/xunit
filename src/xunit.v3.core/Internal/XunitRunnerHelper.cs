@@ -335,6 +335,7 @@ public static class XunitRunnerHelper
 			if (!messageBus.QueueMessage(new TestCollectionStarting
 			{
 				AssemblyUniqueID = assemblyUniqueID,
+				StartTime = now,
 				TestCollectionClassName = testCase.TestCollection.TestCollectionClassName,
 				TestCollectionDisplayName = testCase.TestCollection.TestCollectionDisplayName,
 				TestCollectionUniqueID = testCollectionUniqueID,
@@ -346,6 +347,7 @@ public static class XunitRunnerHelper
 			if (!messageBus.QueueMessage(new TestClassStarting
 			{
 				AssemblyUniqueID = assemblyUniqueID,
+				StartTime = now,
 				TestClassName = testCase.TestClass.TestClassName,
 				TestClassNamespace = testCase.TestClass.TestClassNamespace,
 				TestClassSimpleName = testCase.TestClass.TestClassSimpleName,
@@ -361,6 +363,7 @@ public static class XunitRunnerHelper
 				AssemblyUniqueID = assemblyUniqueID,
 				MethodArity = testCase.TestMethod.MethodArity,
 				MethodName = testCase.TestMethod.MethodName,
+				StartTime = now,
 				TestClassUniqueID = testClassUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestMethodUniqueID = testMethodUniqueID,
@@ -376,6 +379,7 @@ public static class XunitRunnerHelper
 				SkipReason = testCase.SkipReason,
 				SourceFilePath = testCase.SourceFilePath,
 				SourceLineNumber = testCase.SourceLineNumber,
+				StartTime = now,
 				TestCaseDisplayName = testCase.TestCaseDisplayName,
 				TestCaseUniqueID = testCaseUniqueID,
 				TestClassMetadataToken = testCase.TestClassMetadataToken,
@@ -439,6 +443,7 @@ public static class XunitRunnerHelper
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = 0m,
+				FinishTime = now,
 				TestCaseUniqueID = testCaseUniqueID,
 				TestClassUniqueID = testClassUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID,
@@ -455,6 +460,7 @@ public static class XunitRunnerHelper
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = 0m,
+				FinishTime = now,
 				TestClassUniqueID = testClassUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestMethodUniqueID = testMethodUniqueID,
@@ -470,6 +476,7 @@ public static class XunitRunnerHelper
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = 0m,
+				FinishTime = now,
 				TestClassUniqueID = testClassUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestsFailed = 1,
@@ -484,6 +491,7 @@ public static class XunitRunnerHelper
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				ExecutionTime = 0m,
+				FinishTime = now,
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestsFailed = 1,
 				TestsNotRun = 0,

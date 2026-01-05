@@ -19,6 +19,7 @@ sealed partial class DiscoveryComplete : TestAssemblyMessage, IDiscoveryComplete
 
 		base.Serialize(serializer);
 
+		serializer.Serialize(nameof(FinishTime), FinishTime);
 		serializer.Serialize(nameof(TestCasesToRun), TestCasesToRun);
 	}
 

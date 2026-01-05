@@ -589,6 +589,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 			{
 				AssemblyUniqueID = testCaseFinished.AssemblyUniqueID,
 				ExecutionTime = testCaseFinished.ExecutionTime,
+				FinishTime = testCaseFinished.FinishTime,
 				TestCaseUniqueID = testCaseFinished.TestCaseUniqueID,
 				TestClassUniqueID = testCaseFinished.TestClassUniqueID,
 				TestCollectionUniqueID = testCaseFinished.TestCollectionUniqueID,
@@ -602,6 +603,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 			{
 				AssemblyUniqueID = testMethodFinished.AssemblyUniqueID,
 				ExecutionTime = testMethodFinished.ExecutionTime,
+				FinishTime = testMethodFinished.FinishTime,
 				TestClassUniqueID = testMethodFinished.TestClassUniqueID,
 				TestCollectionUniqueID = testMethodFinished.TestCollectionUniqueID,
 				TestMethodUniqueID = testMethodFinished.TestMethodUniqueID,
@@ -614,6 +616,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 			{
 				AssemblyUniqueID = testClassFinished.AssemblyUniqueID,
 				ExecutionTime = testClassFinished.ExecutionTime,
+				FinishTime = testClassFinished.FinishTime,
 				TestClassUniqueID = testClassFinished.TestClassUniqueID,
 				TestCollectionUniqueID = testClassFinished.TestCollectionUniqueID,
 				TestsFailed = testClassFinished.TestsFailed + testClassFinished.TestsSkipped,
@@ -625,6 +628,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 			{
 				AssemblyUniqueID = testCollectionFinished.AssemblyUniqueID,
 				ExecutionTime = testCollectionFinished.ExecutionTime,
+				FinishTime = testCollectionFinished.FinishTime,
 				TestCollectionUniqueID = testCollectionFinished.TestCollectionUniqueID,
 				TestsFailed = testCollectionFinished.TestsFailed + testCollectionFinished.TestsSkipped,
 				TestsNotRun = testCollectionFinished.TestsNotRun,
@@ -691,6 +695,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 			{
 				AssemblyUniqueID = testCaseFinished.AssemblyUniqueID,
 				ExecutionTime = testCaseFinished.ExecutionTime,
+				FinishTime = testCaseFinished.FinishTime,
 				TestCaseUniqueID = testCaseFinished.TestCaseUniqueID,
 				TestClassUniqueID = testCaseFinished.TestClassUniqueID,
 				TestCollectionUniqueID = testCaseFinished.TestCollectionUniqueID,
@@ -715,6 +720,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 			{
 				AssemblyUniqueID = testMethodFinished.AssemblyUniqueID,
 				ExecutionTime = testMethodFinished.ExecutionTime,
+				FinishTime = testMethodFinished.FinishTime,
 				TestClassUniqueID = testMethodFinished.TestClassUniqueID,
 				TestCollectionUniqueID = testMethodFinished.TestCollectionUniqueID,
 				TestMethodUniqueID = testMethodFinished.TestMethodUniqueID,
@@ -738,6 +744,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 			{
 				AssemblyUniqueID = testClassFinished.AssemblyUniqueID,
 				ExecutionTime = testClassFinished.ExecutionTime,
+				FinishTime = testClassFinished.FinishTime,
 				TestClassUniqueID = testClassFinished.TestClassUniqueID,
 				TestCollectionUniqueID = testClassFinished.TestCollectionUniqueID,
 				TestsFailed = testClassFinished.TestsFailed + failedByClass,
@@ -759,6 +766,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 			{
 				AssemblyUniqueID = testCollectionFinished.AssemblyUniqueID,
 				ExecutionTime = testCollectionFinished.ExecutionTime,
+				FinishTime = testCollectionFinished.FinishTime,
 				TestCollectionUniqueID = testCollectionFinished.TestCollectionUniqueID,
 				TestsFailed = testCollectionFinished.TestsFailed + failedByCollection,
 				TestsNotRun = testCollectionFinished.TestsNotRun,
