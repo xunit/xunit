@@ -154,8 +154,7 @@ public class TestPlatformTestFramework :
 
 		return OnRequest(session.OperationCounter, operationComplete, async (projectRunner, pipelineStartup) =>
 		{
-			// Default to true for Testing Platform
-			// TODO: We'd prefer true for Test Explorer and false for `dotnet test`
+			// Pre-enumerate by default so --list-tests will show individual data rows
 			projectAssembly.Configuration.PreEnumerateTheories ??= true;
 
 			Func<ITestCaseDiscovered, bool> discoveryFilter;
@@ -203,8 +202,8 @@ public class TestPlatformTestFramework :
 				_ => throw new ArgumentException($"Unsupported execution filter type '{filter.GetType().SafeName()}'", nameof(filter)),
 			};
 
-			// Default to true for Test Explorer, false otherwise
-			projectAssembly.Configuration.PreEnumerateTheories ??= serverMode;
+			// Pre-enumerate by default so the user can run tests with test IDs from --list-tests
+			projectAssembly.Configuration.PreEnumerateTheories ??= true;
 
 			// If the user asked to run specific tests, then we auto-enable explicit support since
 			// the Test Explorer UX has no way to turn support for explicit tests on/off
