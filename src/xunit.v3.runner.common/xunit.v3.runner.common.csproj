@@ -10,10 +10,6 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Include="Transforms\templates\*.xslt" />
-  </ItemGroup>
-
   <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETStandard' ">
     <EmbeddedResource Include="Resources\*.rd.xml" />
   </ItemGroup>
