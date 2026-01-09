@@ -112,12 +112,14 @@ partial class TestData
 			};
 
 	public static IErrorMessage ErrorMessage(
+		string? assemblyUniqueID = DefaultAssemblyUniqueID,
 		int[]? exceptionParentIndices = null,
 		string?[]? exceptionTypes = null,
 		string[]? messages = null,
 		string?[]? stackTraces = null) =>
 			new Xunit.Runner.Common.ErrorMessage()
 			{
+				AssemblyUniqueID = assemblyUniqueID,
 				ExceptionParentIndices = exceptionParentIndices ?? DefaultExceptionParentIndices,
 				ExceptionTypes = exceptionTypes ?? DefaultExceptionTypes,
 				Messages = messages ?? DefaultExceptionMessages,

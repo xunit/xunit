@@ -725,13 +725,21 @@ public class CommandLineTests
 		}
 	}
 
-	public class Transforms
+	public class ResultWriters
 	{
+		static readonly IReadOnlyDictionary<string, IConsoleResultWriter> ConsoleResultWriters = RegisteredConsoleResultWriters.Get(typeof(ResultWriters).Assembly);
+
 		public static readonly TheoryData<string> SwitchesLowerCase =
-			[.. TransformFactory.AvailableTransforms.Select(x => $"-{x.ID}")];
+			[
+				.. ConsoleResultWriters.Select(kvp => $"-result-{kvp.Key.ToLowerInvariant()}"),
+				.. ConsoleResultWriters.Where(kvp => kvp.Value.LegacyID is not null).Select(kvp => $"-{kvp.Value.LegacyID?.ToLowerInvariant()}"),
+			];
 
 		public static readonly TheoryData<string> SwitchesUpperCase =
-			[.. TransformFactory.AvailableTransforms.Select(x => $"-{x.ID.ToUpperInvariant()}")];
+			[
+				.. ConsoleResultWriters.Select(kvp => $"-result-{kvp.Key.ToUpperInvariant()}"),
+				.. ConsoleResultWriters.Where(kvp => kvp.Value.LegacyID is not null).Select(kvp => $"-{kvp.Value.LegacyID?.ToUpperInvariant()}"),
+			];
 
 		[Theory]
 		[MemberData(nameof(SwitchesLowerCase))]
@@ -743,7 +751,7 @@ public class CommandLineTests
 			var exception = Record.Exception(commandLine.Parse);
 
 			Assert.IsType<ArgumentException>(exception);
-			Assert.Equal($"missing filename for -result{@switch}", exception.Message);
+			Assert.Equal($"missing filename for {@switch}", exception.Message);
 		}
 
 		[Theory]
@@ -751,12 +759,13 @@ public class CommandLineTests
 		[MemberData(nameof(SwitchesUpperCase))]
 		public static void Output(string @switch)
 		{
+			var switchRoot = @switch.StartsWith("-result-") ? @switch.Substring(8) : @switch.Substring(1);
 			var commandLine = new TestableCommandLine("no-config.json", @switch, "outputFile");
 
 			var assembly = commandLine.Parse();
 
 			var output = Assert.Single(assembly.Project.Configuration.Output);
-			Assert.Equal(@switch.Substring(1), output.Key, ignoreCase: true);
+			Assert.Equal(switchRoot, output.Key, ignoreCase: true);
 			Assert.Equal("outputFile", output.Value);
 		}
 	}

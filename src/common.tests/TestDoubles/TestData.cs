@@ -21,7 +21,7 @@ public static partial class TestData
 	public static readonly string[] DefaultExceptionMessages = ["Attempted to divide by zero. Did you really think that was going to work?"];
 	public static readonly string?[] DefaultExceptionTypes = [typeof(DivideByZeroException).FullName];
 	public const decimal DefaultExecutionTime = 123.4567m;
-	public static DateTimeOffset DefaultFinishTime = new(2024, 07, 04, 21, 12, 9, TimeSpan.Zero);
+	public static DateTimeOffset DefaultFinishTime = new(2024, 07, 04, 21, 12, 28, TimeSpan.Zero);
 	public const string DefaultMethodName = "test-method";
 	public static string[] DefaultMethodParameterTypes = [typeof(int).ToVSTestTypeName(), typeof(string).ToVSTestTypeName()];
 	public static string DefaultMethodReturnType = typeof(void).ToVSTestTypeName();

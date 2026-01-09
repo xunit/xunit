@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
@@ -359,7 +360,7 @@ public sealed class AssemblyRunner :
 
 		var tcs = new TaskCompletionSource<object?>();
 
-		ThreadPool.QueueUserWorkItem(_ =>
+		ThreadPool.QueueUserWorkItem(async _ =>
 		{
 			try
 			{
@@ -371,15 +372,31 @@ public sealed class AssemblyRunner :
 
 				var settings = new FrontControllerFindAndRunSettings(discoveryOptions, executionOptions, options.ProjectAssembly.Configuration.Filters);
 
-				var assembliesElement = default(XElement);
 				IMessageSink messageSink = this;
-				if (options.ProjectAssembly.Project.Configuration.Output.Count != 0)
+				var resultWriterMessageHandlers = new List<IResultWriterMessageHandler>();
+				var entryAssembly = Assembly.GetEntryAssembly();
+				if (entryAssembly is not null && options.ProjectAssembly.Project.Configuration.Output.Count != 0)
 				{
-					var assemblyElement = new XElement("assembly");
-					var executionSinkOptions = new ExecutionSinkOptions { AssemblyElement = assemblyElement };
+					var messages = new List<string>();
+					var resultWriters = RegisteredConsoleResultWriters.Get(entryAssembly, messages);
 
-					assembliesElement = TransformFactory.CreateAssembliesElement();
-					assembliesElement.Add(assemblyElement);
+					if (messages.Count != 0)
+						OnDiagnosticMessage(
+							new DiagnosticMessage(
+								"One or more errors occurred during result writer registration:{0}{0}{1}",
+								Environment.NewLine,
+								string.Join(Environment.NewLine, messages.Select(m => "* " + m))
+							)
+						);
+
+					foreach (var kvp in options.ProjectAssembly.Project.Configuration.Output)
+						if (resultWriters.TryGetValue(kvp.Key, out var resultWriter))
+							resultWriterMessageHandlers.Add(await resultWriter.CreateMessageHandler(kvp.Value, diagnosticMessageSink: this));
+						else
+							OnDiagnosticMessage(new DiagnosticMessage("User requested result writer '{0}' which does not exist", kvp.Key));
+
+					var executionSinkOptions = new ExecutionSinkOptions { ResultWriterMessageHandlers = resultWriterMessageHandlers };
+
 					messageSink = new ExecutionSink(
 						options.ProjectAssembly,
 						discoveryOptions,
@@ -405,13 +422,8 @@ public sealed class AssemblyRunner :
 				controller.FindAndRun(messageSink, settings);
 				finishedEvent.Wait();
 
-				if (assembliesElement is not null)
-				{
-					TransformFactory.FinishAssembliesElement(assembliesElement);
-
-					foreach (var kvp in options.ProjectAssembly.Project.Configuration.Output)
-						TransformFactory.Transform(kvp.Key, assembliesElement, kvp.Value);
-				}
+				foreach (var resultWriterMessageHandler in resultWriterMessageHandlers)
+					await resultWriterMessageHandler.SafeDisposeAsync();
 
 				tcs.TrySetResult(null);
 			}

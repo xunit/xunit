@@ -17,6 +17,7 @@ namespace Xunit.Runner.v1;
 /// </summary>
 public class TestClassCallbackHandler : XmlNodeCallbackHandler
 {
+	readonly string assemblyUniqueID;
 	volatile int currentTestIndex;
 	readonly Dictionary<string, Predicate<XmlNode>> handlers;
 	readonly IMessageSink messageSink;
@@ -28,20 +29,31 @@ public class TestClassCallbackHandler : XmlNodeCallbackHandler
 	bool startSeen;
 
 	/// <summary>
+	/// Please use <see cref="TestClassCallbackHandler(string, IList{Xunit1TestCase}, IMessageSink)"/>.
+	/// This overload will be removed in the next major version.
+	/// </summary>
+	[Obsolete("Please use the constructor which accepts assemblyUniqueID. This overload will be removed in the next major version.", error: true)]
+	public TestClassCallbackHandler(
+		IList<Xunit1TestCase> testCases,
+		IMessageSink messageSink)
+			: base(lastNodeName: "class") =>
+				throw new NotSupportedException("Please use the constructor which accepts assemblyUniqueID");
+
+	/// <summary>
 	/// Initializes a new instance of the <see cref="TestClassCallbackHandler" /> class.
 	/// </summary>
+	/// <param name="assemblyUniqueID">The assembly unique ID.</param>
 	/// <param name="testCases">The test cases that are being run.</param>
 	/// <param name="messageSink">The message sink to call with the translated results.</param>
 	public TestClassCallbackHandler(
+		string assemblyUniqueID,
 		IList<Xunit1TestCase> testCases,
 		IMessageSink messageSink)
 			: base(lastNodeName: "class")
 	{
-		Guard.ArgumentNotNull(testCases);
-		Guard.ArgumentNotNull(messageSink);
-
-		this.messageSink = messageSink;
-		this.testCases = testCases;
+		this.assemblyUniqueID = Guard.ArgumentNotNull(assemblyUniqueID);
+		this.messageSink = Guard.ArgumentNotNull(messageSink);
+		this.testCases = Guard.ArgumentNotNull(testCases);
 
 		handlers = new Dictionary<string, Predicate<XmlNode>>
 		{
@@ -72,6 +84,7 @@ public class TestClassCallbackHandler : XmlNodeCallbackHandler
 			var (exceptionTypes, messages, stackTraces, exceptionParentIndices) = Xunit1ExceptionUtility.ConvertToErrorMetadata(failureNode);
 			var errorMessage = new ErrorMessage
 			{
+				AssemblyUniqueID = assemblyUniqueID,
 				ExceptionParentIndices = exceptionParentIndices,
 				ExceptionTypes = exceptionTypes,
 				Messages = messages,

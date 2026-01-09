@@ -18,6 +18,7 @@ public class DefaultRunnerReporterMessageHandlerTests
 		{
 			var errorMessage = new ErrorMessage
 			{
+				AssemblyUniqueID = "asm-id",
 				ExceptionParentIndices = exceptionParentIndices,
 				ExceptionTypes = exceptionTypes,
 				Messages = messages,

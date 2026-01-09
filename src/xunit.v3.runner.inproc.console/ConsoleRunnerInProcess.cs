@@ -70,6 +70,7 @@ public static class ConsoleRunnerInProcess
 		var testAssembly = Guard.ArgumentNotNull(assembly.Assembly);
 
 		var startStop = await StartStop.Start(testAssembly, messageSink, diagnosticMessageSink);
+		var resultWriters = RegisteredConsoleResultWriters.Get(testAssembly);
 
 		try
 		{
@@ -77,7 +78,7 @@ public static class ConsoleRunnerInProcess
 			var projectRunner = new ProjectAssemblyRunner(testAssembly, automatedMode, cancellationTokenSource);
 			var logger = new DecodingRunnerLogger(messageSink, diagnosticMessageSink);
 
-			await projectRunner.Run(assembly, messageSink, diagnosticMessageSink, logger, startStop.PipelineStartup);
+			await projectRunner.Run(assembly, messageSink, diagnosticMessageSink, logger, resultWriters, startStop.PipelineStartup);
 		}
 		finally
 		{
@@ -127,7 +128,7 @@ public static class ConsoleRunnerInProcess
 			UnhandledExceptionEventArgs e)
 		{
 			if (e.ExceptionObject is Exception ex)
-				messageSink?.OnMessage(ErrorMessage.FromException(ex));
+				messageSink?.OnMessage(ErrorMessage.FromException(ex, null));
 			else
 				diagnosticMessageSink?.OnMessage(new DiagnosticMessage("Error of unknown type thrown in application domain"));
 		}

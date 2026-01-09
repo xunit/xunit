@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -252,8 +253,10 @@ public class TestPlatformTestFrameworkTests
 		XunitTrxCapability trxCapability,
 		SpyTestPlatformOutputDevice outputDevice,
 		bool serverMode) :
-			TestPlatformTestFramework(runnerLogger, runnerReporter, diagnosticMessageSink, projectAssembly, testAssembly, trxCapability, outputDevice, serverMode)
+			TestPlatformTestFramework(runnerLogger, runnerReporter, diagnosticMessageSink, projectAssembly, testAssembly, trxCapability, outputDevice, serverMode, EmptyResultWriters)
 	{
+		static readonly Dictionary<string, IMicrosoftTestingPlatformResultWriter> EmptyResultWriters = [];
+
 		public XunitProjectAssembly ProjectAssembly { get; } = projectAssembly;
 
 		public SpyRunnerLogger RunnerLogger { get; } = runnerLogger;

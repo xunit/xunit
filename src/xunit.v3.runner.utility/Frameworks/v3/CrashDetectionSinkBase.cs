@@ -114,6 +114,7 @@ public abstract class CrashDetectionSinkBase<TStart, TFinish>(
 
 		InnerSink.OnMessage(new ErrorMessage
 		{
+			AssemblyUniqueID = assemblyUniqueID,
 			ExceptionParentIndices = [-1],
 			ExceptionTypes = ["Xunit.Sdk.TestPipelineException"],
 			Messages = [message],

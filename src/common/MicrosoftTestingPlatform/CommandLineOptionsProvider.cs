@@ -231,38 +231,37 @@ public sealed class CommandLineOptionsProvider() :
 			""", ArgumentArity.ExactlyOne, OnConfigFilename) },
 		{ "xunit-info", ("Show xUnit.net headers and information", ArgumentArity.Zero, NoOp) },
 	};
-	static readonly Dictionary<string, string> optionDependencies = new();
+	static readonly Dictionary<string, string> optionDependencies = [];
 	// Match the format used by Microsoft.Testing.Extensions.TrxReport
 	static readonly string reportFileNameRoot = string.Format(CultureInfo.InvariantCulture, "{0}_{1}_{2:yyyy-MM-dd_HH_mm_ss.ffffff}.", Environment.UserName, Environment.MachineName, DateTimeOffset.UtcNow);
 
-	static CommandLineOptionsProvider()
+	/// <summary>
+	/// INTERNAL METHOD. DO NOT CALL.
+	/// </summary>
+	public static void Initialize(IReadOnlyDictionary<string, IMicrosoftTestingPlatformResultWriter> resultWriters)
 	{
-		foreach (var transform in TransformFactory.AvailableTransforms)
+		foreach (var kvp in Guard.ArgumentNotNull(resultWriters))
 		{
-			if (transform.MTPDescription is null || transform.MTPFileNameDescription is null)
-				continue;
-
-#pragma warning disable CA1308 // This is for UX purposes, not comparison purposes
-			var baseID = transform.ID.ToLowerInvariant();
-#pragma warning restore CA1308
-
+			var baseID = kvp.Key;
 			var optionKey = "report-xunit-" + baseID;
 			var filenameKey = "report-xunit-" + baseID + "-filename";
-			var extension = transform.MTPFileExtension;
+			var extension = kvp.Value.DefaultFileExtension;
 
-			options.Add(optionKey, (
-				transform.MTPDescription,
+			options[optionKey] = (
+				kvp.Value.Description,
 				ArgumentArity.Zero,
 				opts => OnReport(opts.Configuration, opts.CommandLineOptions, baseID, filenameKey, extension, opts.ProjectConfig)
-			));
-			options.Add(filenameKey, (
-				transform.MTPFileNameDescription,
+			);
+			options[filenameKey] = (
+				kvp.Value.FileNameDescription,
 				ArgumentArity.ExactlyOne,
 				OnReportFilename
-			));
-			optionDependencies.Add(filenameKey, optionKey);
+			);
+			optionDependencies[filenameKey] = optionKey;
 		}
 	}
+
+	internal static List<string> Warnings = [];
 
 	/// <inheritdoc/>
 	public IReadOnlyCollection<CommandLineOption> GetCommandLineOptions() =>

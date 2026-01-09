@@ -79,7 +79,7 @@ public abstract class TestRunnerBase<TContext, TTest>
 	protected virtual ValueTask<bool> OnError(
 		TContext ctxt,
 		Exception exception) =>
-			new(Guard.ArgumentNotNull(ctxt).MessageBus.QueueMessage(ErrorMessage.FromException(exception)));
+			new(Guard.ArgumentNotNull(ctxt).MessageBus.QueueMessage(ErrorMessage.FromException(exception, ctxt.Test.TestCase.TestCollection.TestAssembly.UniqueID)));
 
 	/// <summary>
 	/// This method is called when an exception was thrown while cleaning up, after the test has run.

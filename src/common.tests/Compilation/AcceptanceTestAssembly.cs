@@ -4,8 +4,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Xunit.Internal;
 
-public abstract class AcceptanceTestAssembly :
-	IDisposable
+public abstract class AcceptanceTestAssembly : IDisposable
 {
 	string[]? targetFrameworkReferencePaths;
 
@@ -70,14 +69,19 @@ public abstract class AcceptanceTestAssembly :
 	[
 		"System.dll",
 		"System.Core.dll",
-		"System.Data.dll",
 		"System.Runtime.dll",
-		"System.Xml.dll",
 	];
 
-	// The version here must match the PackageDownload in $/src/Directory.Build.props
+	// The versions here must match the PackageDownload in $/src/Directory.Build.props
 	protected virtual string[] GetTargetFrameworkReferencePaths(string nuGetPackageCachePath) =>
-		[Path.Combine(nuGetPackageCachePath, "netstandard.library", "2.0.0", "build", "netstandard2.0", "ref")];
+	[
+#if NETFRAMEWORK
+		Path.Combine(nuGetPackageCachePath, "microsoft.netframework.referenceassemblies.net472", "1.0.3", "build", ".NETFramework", "v4.7.2"),
+		Path.Combine(nuGetPackageCachePath, "microsoft.netframework.referenceassemblies.net472", "1.0.3", "build", ".NETFramework", "v4.7.2", "Facades"),
+#else
+		Path.Combine(nuGetPackageCachePath, "netstandard.library", "2.0.0", "build", "netstandard2.0", "ref"),
+#endif
+	];
 
 	protected string ResolveReference(string reference) =>
 		ResolveReferenceFrom(reference, BasePath) ??

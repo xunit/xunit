@@ -11,6 +11,9 @@ public partial class ErrorMessage
 	string?[]? stackTraces;
 
 	/// <inheritdoc/>
+	public required string? AssemblyUniqueID { get; set; }
+
+	/// <inheritdoc/>
 	public required int[] ExceptionParentIndices
 	{
 		get => this.ValidateNullablePropertyValue(exceptionParentIndices, nameof(ExceptionParentIndices));

@@ -13,7 +13,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 using Microsoft.Build.Framework;
 using Xunit.Internal;
 using Xunit.Runner.Common;
@@ -38,6 +37,7 @@ public class xunit : MSBuildTask, ICancelableTask, IDisposable
 	bool? parallelizeTestCollections;
 	bool? preEnumerateTheories;
 	IRunnerReporterMessageHandler? reporterMessageHandler;
+	readonly IReadOnlyDictionary<string, IConsoleResultWriter> resultWriters = RegisteredConsoleResultWriters.Get(typeof(xunit).Assembly);
 	bool? shadowCopy;
 	bool? showLiveOutput;
 	bool? stopOnFail;
@@ -121,10 +121,6 @@ public class xunit : MSBuildTask, ICancelableTask, IDisposable
 	public string? MethodDisplayOptions { get; set; }
 
 	/// <summary/>
-	protected bool NeedsXml =>
-		Xml is not null || XmlV1 is not null || Html is not null || NUnit is not null || JUnit is not null || Ctrf is not null || Trx is not null;
-
-	/// <summary/>
 	public bool NoAutoReporters { get; set; }
 
 	/// <summary/>
@@ -190,11 +186,6 @@ public class xunit : MSBuildTask, ICancelableTask, IDisposable
 		Guard.ArgumentNotNull(Assemblies);
 
 		RemotingUtility.CleanUpRegisteredChannels();
-
-		XElement? assembliesElement = null;
-
-		if (NeedsXml)
-			assembliesElement = TransformFactory.CreateAssembliesElement();
 
 		// Parse strings into structured values
 
@@ -281,6 +272,8 @@ public class xunit : MSBuildTask, ICancelableTask, IDisposable
 
 			logger = new MSBuildLogger(Log);
 			reporterMessageHandler = await reporter.CreateMessageHandler(logger, globalDiagnosticsMessageSink);
+
+			var resultWriterMessageHandlers = new List<IResultWriterMessageHandler>();
 
 			try
 			{
@@ -379,6 +372,21 @@ public class xunit : MSBuildTask, ICancelableTask, IDisposable
 					project.Add(projectAssembly);
 				}
 
+				if (Ctrf is not null)
+					resultWriterMessageHandlers.Add(await resultWriters["ctrf"].CreateMessageHandler(Ctrf.ItemSpec, globalDiagnosticsMessageSink));
+				if (Html is not null)
+					resultWriterMessageHandlers.Add(await resultWriters["html"].CreateMessageHandler(Html.ItemSpec, globalDiagnosticsMessageSink));
+				if (JUnit is not null)
+					resultWriterMessageHandlers.Add(await resultWriters["junit"].CreateMessageHandler(JUnit.ItemSpec, globalDiagnosticsMessageSink));
+				if (NUnit is not null)
+					resultWriterMessageHandlers.Add(await resultWriters["nunit"].CreateMessageHandler(NUnit.ItemSpec, globalDiagnosticsMessageSink));
+				if (Trx is not null)
+					resultWriterMessageHandlers.Add(await resultWriters["trx"].CreateMessageHandler(Trx.ItemSpec, globalDiagnosticsMessageSink));
+				if (Xml is not null)
+					resultWriterMessageHandlers.Add(await resultWriters["xml"].CreateMessageHandler(Xml.ItemSpec, globalDiagnosticsMessageSink));
+				if (XmlV1 is not null)
+					resultWriterMessageHandlers.Add(await resultWriters["xmlv1"].CreateMessageHandler(XmlV1.ItemSpec, globalDiagnosticsMessageSink));
+
 				if (WorkingFolder is not null)
 					Directory.SetCurrentDirectory(WorkingFolder);
 
@@ -388,21 +396,14 @@ public class xunit : MSBuildTask, ICancelableTask, IDisposable
 					parallelizeAssemblies = project.Assemblies.All(assembly => assembly.Configuration.ParallelizeAssemblyOrDefault);
 
 				if (parallelizeAssemblies.GetValueOrDefault())
-				{
-					var tasks = project.Assemblies.Select(assembly => Task.Run(() => ExecuteAssembly(assembly, appDomains).AsTask()));
-					var results = await Task.WhenAll(tasks);
-					foreach (var assemblyElement in results.WhereNotNull())
-						assembliesElement!.Add(assemblyElement);
-				}
+					await Task.WhenAll(
+						project.Assemblies.Select(
+							assembly => Task.Run(() => ExecuteAssembly(assembly, appDomains, resultWriterMessageHandlers).AsTask())
+						)
+					);
 				else
-				{
 					foreach (var assembly in project.Assemblies)
-					{
-						var assemblyElement = await ExecuteAssembly(assembly, appDomains);
-						if (assemblyElement is not null)
-							assembliesElement!.Add(assemblyElement);
-					}
-				}
+						await ExecuteAssembly(assembly, appDomains, resultWriterMessageHandlers);
 
 				clockTime.Stop();
 
@@ -416,37 +417,14 @@ public class xunit : MSBuildTask, ICancelableTask, IDisposable
 			}
 			finally
 			{
+				Directory.SetCurrentDirectory(WorkingFolder ?? originalWorkingFolder);
+
+				foreach (var resultWriterMessageHandler in resultWriterMessageHandlers)
+					await resultWriterMessageHandler.SafeDisposeAsync();
+
 				await reporterMessageHandler.SafeDisposeAsync();
 				reporterMessageHandler = null;
 			}
-		}
-
-		Directory.SetCurrentDirectory(WorkingFolder ?? originalWorkingFolder);
-
-		if (NeedsXml && assembliesElement is not null)
-		{
-			TransformFactory.FinishAssembliesElement(assembliesElement);
-
-			if (Xml is not null)
-				TransformFactory.Transform("xml", assembliesElement, Xml.GetMetadata("FullPath"));
-
-			if (XmlV1 is not null)
-				TransformFactory.Transform("xmlv1", assembliesElement, XmlV1.GetMetadata("FullPath"));
-
-			if (Html is not null)
-				TransformFactory.Transform("html", assembliesElement, Html.GetMetadata("FullPath"));
-
-			if (NUnit is not null)
-				TransformFactory.Transform("nunit", assembliesElement, NUnit.GetMetadata("FullPath"));
-
-			if (JUnit is not null)
-				TransformFactory.Transform("junit", assembliesElement, JUnit.GetMetadata("FullPath"));
-
-			if (Ctrf is not null)
-				TransformFactory.Transform("ctrf", assembliesElement, Ctrf.GetMetadata("FullPath"));
-
-			if (Trx is not null)
-				TransformFactory.Transform("trx", assembliesElement, Trx.GetMetadata("FullPath"));
 		}
 
 		// ExitCode is set to 1 for test failures and -1 for Exceptions.
@@ -454,18 +432,17 @@ public class xunit : MSBuildTask, ICancelableTask, IDisposable
 	}
 
 	/// <summary/>
-	protected virtual async ValueTask<XElement?> ExecuteAssembly(
+	protected virtual async ValueTask ExecuteAssembly(
 		XunitProjectAssembly assembly,
-		AppDomainSupport? appDomains)
+		AppDomainSupport? appDomains,
+		IReadOnlyCollection<IResultWriterMessageHandler> resultWriterMessageHandlers)
 	{
 		Guard.ArgumentNotNull(assembly);
 
 		if (cancellationTokenSource.IsCancellationRequested)
-			return null;
+			return;
 
 		Guard.NotNull("Runner is misconfigured ('reporterMessageHandler' is null)", reporterMessageHandler);
-
-		var assemblyElement = NeedsXml ? new XElement("assembly") : null;
 
 		try
 		{
@@ -492,13 +469,13 @@ public class xunit : MSBuildTask, ICancelableTask, IDisposable
 
 			var sinkOptions = new ExecutionSinkOptions
 			{
-				AssemblyElement = assemblyElement,
 				CancelThunk = () => cancellationTokenSource.IsCancellationRequested,
 				DiagnosticMessageSink = diagnosticMessageSink,
 				FailSkips = assembly.Configuration.FailSkipsOrDefault,
 				FailWarn = assembly.Configuration.FailTestsWithWarningsOrDefault,
 				FinishedCallback = summary => completionMessages.TryAdd(controller.TestAssemblyUniqueID, summary),
 				LongRunningTestTime = TimeSpan.FromSeconds(longRunningSeconds),
+				ResultWriterMessageHandlers = resultWriterMessageHandlers,
 			};
 
 			using var resultsSink = new ExecutionSink(assembly, discoveryOptions, executionOptions, appDomain, assembly.Configuration.ShadowCopyOrDefault, reporterMessageHandler, sinkOptions);
@@ -536,8 +513,6 @@ public class xunit : MSBuildTask, ICancelableTask, IDisposable
 
 			ExitCode = -1;
 		}
-
-		return assemblyElement;
 	}
 
 	/// <summary/>

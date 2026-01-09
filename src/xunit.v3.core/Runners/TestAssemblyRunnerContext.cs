@@ -108,7 +108,7 @@ public class TestAssemblyRunnerContext<TTestAssembly, TTestCase>(
 	protected virtual IMessageBus CreateMessageBus() =>
 		ExecutionOptions.SynchronousMessageReportingOrDefault()
 			? new SynchronousMessageBus(ExecutionMessageSink, ExecutionOptions.StopOnTestFailOrDefault())
-			: new MessageBus(ExecutionMessageSink, ExecutionOptions.StopOnTestFailOrDefault());
+			: new MessageBus(testAssembly.UniqueID, ExecutionMessageSink, ExecutionOptions.StopOnTestFailOrDefault());
 
 	/// <inheritdoc/>
 	public virtual ValueTask DisposeAsync()

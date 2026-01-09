@@ -8,7 +8,6 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
@@ -31,6 +30,8 @@ public sealed class ProjectAssemblyRunner(
 	ISourceInformationProvider sourceInformationProvider,
 	CancellationTokenSource cancellationTokenSource)
 {
+	static readonly IReadOnlyDictionary<string, IResultWriter> EmptyResultWriterDictionary = new Dictionary<string, IResultWriter>();
+
 	readonly AutomatedMode automatedMode = automatedMode;
 	readonly CancellationTokenSource cancellationTokenSource = Guard.ArgumentNotNull(cancellationTokenSource);
 	bool failed;
@@ -185,35 +186,46 @@ public sealed class ProjectAssemblyRunner(
 		);
 
 	/// <summary>
+	/// Please call <see cref="Run{TResultWriter}(XunitProjectAssembly, IMessageSink, IMessageSink?, IRunnerLogger, IReadOnlyDictionary{string, TResultWriter}, ITestPipelineStartup?, HashSet{string}?)"/>.
+	/// This overload will be removed in the next major version.
+	/// </summary>
+	[Obsolete("Please call the overload which accepts resultWriterMessageHandlers. This overload will be removed in the next major version.")]
+	public ValueTask<int> Run(
+		XunitProjectAssembly assembly,
+		IMessageSink messageSink,
+		IMessageSink? diagnosticMessageSink,
+		IRunnerLogger runnerLogger,
+		ITestPipelineStartup? pipelineStartup,
+		HashSet<string>? testCaseIDsToRun = null) =>
+			Run(assembly, messageSink, diagnosticMessageSink, runnerLogger, EmptyResultWriterDictionary, pipelineStartup, testCaseIDsToRun);
+
+	/// <summary>
 	/// Runs the given test project.
 	/// </summary>
 	/// <param name="assembly">The test project assembly</param>
 	/// <param name="messageSink">The message sink to send messages to</param>
 	/// <param name="diagnosticMessageSink">The optional message sink to send diagnostic messages to</param>
 	/// <param name="runnerLogger">The runner logger, to log console output to</param>
+	/// <param name="resultWriters">The available result writers</param>
 	/// <param name="pipelineStartup">The pipeline startup object</param>
 	/// <param name="testCaseIDsToRun">An optional list of test case unique IDs to run</param>
 	/// <returns>Returns <c>0</c> if there were no failures; non-<c>zero</c> failure count, otherwise</returns>
-	public async ValueTask<int> Run(
+	public async ValueTask<int> Run<TResultWriter>(
 		XunitProjectAssembly assembly,
 		IMessageSink messageSink,
 		IMessageSink? diagnosticMessageSink,
 		IRunnerLogger runnerLogger,
+		IReadOnlyDictionary<string, TResultWriter> resultWriters,
 		ITestPipelineStartup? pipelineStartup,
 		HashSet<string>? testCaseIDsToRun = null)
+			where TResultWriter : IResultWriter
 	{
 		Guard.ArgumentNotNull(assembly);
 		Guard.ArgumentNotNull(messageSink);
 		Guard.ArgumentNotNull(runnerLogger);
+		Guard.ArgumentNotNull(resultWriters);
 
-		XElement? assemblyElement = null;
 		var clockTime = Stopwatch.StartNew();
-		var xmlTransformers = TransformFactory.GetXmlTransformers(assembly.Project);
-		var needsXml = xmlTransformers.Count > 0;
-
-		if (needsXml)
-			assemblyElement = new XElement("assembly");
-
 		var originalWorkingFolder = Directory.GetCurrentDirectory();
 
 		try
@@ -228,6 +240,8 @@ public sealed class ProjectAssemblyRunner(
 
 			TestContext.SetForInitialization(diagnosticMessageSink, diagnosticMessages, internalDiagnosticMessages);
 
+			var resultWriterMessageHandlers = new List<IResultWriterMessageHandler>();
+
 			try
 			{
 				await using var disposalTracker = new DisposalTracker();
@@ -239,14 +253,20 @@ public sealed class ProjectAssemblyRunner(
 
 				var frontController = new InProcessFrontController(testFramework, testAssembly, assembly.ConfigFileName);
 
+				foreach (var kvp in assembly.Project.Configuration.Output)
+					if (!resultWriters.TryGetValue(kvp.Key, out var resultWriter))
+						diagnosticMessageSink?.OnMessage(new DiagnosticMessage("Project contains unknown result writer ID: {0}", kvp.Key));
+					else
+						resultWriterMessageHandlers.Add(await resultWriter.CreateMessageHandler(kvp.Value, diagnosticMessageSink));
+
 				var sinkOptions = new ExecutionSinkOptions
 				{
-					AssemblyElement = assemblyElement,
 					CancelThunk = () => cancellationTokenSource.IsCancellationRequested,
 					DiagnosticMessageSink = diagnosticMessageSink,
 					FailSkips = assembly.Configuration.FailSkipsOrDefault,
 					FailWarn = assembly.Configuration.FailTestsWithWarningsOrDefault,
 					LongRunningTestTime = TimeSpan.FromSeconds(longRunningSeconds),
+					ResultWriterMessageHandlers = resultWriterMessageHandlers,
 				};
 
 				using var resultsSink = new ExecutionSink(assembly, discoveryOptions, executionOptions, AppDomainOption.NotAvailable, shadowCopy: false, messageSink, sinkOptions, sourceInformationProvider);
@@ -315,6 +335,9 @@ public sealed class ProjectAssemblyRunner(
 			}
 			finally
 			{
+				foreach (var resultWriterMessageHandler in resultWriterMessageHandlers)
+					await resultWriterMessageHandler.SafeDisposeAsync();
+
 				TestContextInternal.Current.SafeDispose();
 			}
 		}
@@ -326,7 +349,7 @@ public sealed class ProjectAssemblyRunner(
 			while (e is not null)
 			{
 				if (automatedMode != AutomatedMode.Off)
-					runnerLogger.WriteMessage(ErrorMessage.FromException(e));
+					runnerLogger.WriteMessage(ErrorMessage.FromException(e, null));
 				else
 				{
 					runnerLogger.LogMessage("{0}: {1}", e.GetType().SafeName(), e.Message ?? "(null message)");
@@ -349,15 +372,6 @@ public sealed class ProjectAssemblyRunner(
 		messageSink.OnMessage(TestExecutionSummaries);
 
 		Directory.SetCurrentDirectory(originalWorkingFolder);
-
-		if (assemblyElement is not null)
-		{
-			var assembliesElement = TransformFactory.CreateAssembliesElement();
-			assembliesElement.Add(assemblyElement);
-			TransformFactory.FinishAssembliesElement(assembliesElement);
-
-			xmlTransformers.ForEach(transformer => transformer(assembliesElement));
-		}
 
 		return failed ? 1 : TestExecutionSummaries.SummariesByAssemblyUniqueID.Sum(s => s.Summary.Failed + s.Summary.Errors);
 	}

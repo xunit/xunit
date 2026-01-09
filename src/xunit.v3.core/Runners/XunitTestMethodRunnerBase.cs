@@ -37,6 +37,7 @@ public class XunitTestMethodRunnerBase<TContext, TTestMethod, TTestCase> :
 
 			ctxt.MessageBus.QueueMessage(new ErrorMessage
 			{
+				AssemblyUniqueID = ctxt.TestMethod.TestClass.TestCollection.TestAssembly.UniqueID,
 				ExceptionParentIndices = [-1],
 				ExceptionTypes = [typeof(TestPipelineException).SafeName()],
 				Messages = [

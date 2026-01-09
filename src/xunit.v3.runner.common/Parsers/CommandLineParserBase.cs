@@ -29,11 +29,17 @@ public abstract class CommandLineParserBase
 		this.runnerReporters = runnerReporters;
 		this.reporterFolder = reporterFolder;
 
+		var entryAssembly = Assembly.GetEntryAssembly();
+		ResultWriters =
+			entryAssembly is not null
+				? RegisteredConsoleResultWriters.Get(entryAssembly, ParseWarnings)
+				: new Dictionary<string, IConsoleResultWriter>();
+
 		ConsoleHelper = Guard.ArgumentNotNull(consoleHelper);
 		Args = GetArguments(Guard.ArgumentNotNull(args));
 
 		if (string.IsNullOrWhiteSpace(this.reporterFolder))
-			this.reporterFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
+			this.reporterFolder = Path.GetDirectoryName(entryAssembly?.Location);
 
 		// General options
 		AddParser(
@@ -214,11 +220,28 @@ public abstract class CommandLineParserBase
 		// Reporter is hidden because the available list is dynamic
 		AddHiddenParser("reporter", OnReporter);
 
-		// Add both `-result-<id>` and deprecated `-<id>` for result output
-		foreach (var transform in TransformFactory.AvailableTransforms)
+		// Add both `-result-<id>` and deprecated `-<id>` for result writers
+		foreach (var resultWriter in ResultWriters)
 		{
-			AddParser("result-" + transform.ID, kvp => OnResult(new("-" + transform.ID, kvp.Value)), CommandLineGroup.ResultFormat, "<filename>", transform.Description);
-			AddHiddenParser(transform.ID, OnResult);
+			try
+			{
+				AddParser("result-" + resultWriter.Key, OnResult, CommandLineGroup.ResultFormat, "<filename>", resultWriter.Value.Description);
+
+				if (resultWriter.Value.LegacyID is not null)
+					AddHiddenParser(resultWriter.Value.LegacyID, OnResult);
+			}
+			catch (Exception ex)
+			{
+				ParseWarnings.Add(
+					string.Format(
+						CultureInfo.CurrentCulture,
+						"Exception thrown by {0}.{1}: {2}",
+						resultWriter.Value.GetType().SafeName(),
+						nameof(IConsoleResultWriter.Description),
+						ex
+					)
+				);
+			}
 		}
 
 		// Deprecated reporter switches
@@ -250,6 +273,9 @@ public abstract class CommandLineParserBase
 
 	/// <summary/>
 	protected XunitProject Project { get; } = new();
+
+	/// <summary/>
+	public IReadOnlyDictionary<string, IConsoleResultWriter> ResultWriters { get; }
 
 	/// <summary/>
 	protected IReadOnlyList<IRunnerReporter> RunnerReporters
@@ -757,13 +783,16 @@ public abstract class CommandLineParserBase
 
 	void OnResult(KeyValuePair<string, string?> option)
 	{
-		var optionName = option.Key.Substring(1);
+		var optionName =
+			option.Key.StartsWith("-result-", StringComparison.InvariantCultureIgnoreCase)
+				? option.Key.Substring(8)
+				: option.Key.Substring(1);
 
-		if (!TransformFactory.AvailableTransforms.Any(t => t.ID.Equals(optionName, StringComparison.OrdinalIgnoreCase)))
+		if (!ResultWriters.ContainsKey(optionName))
 			throw new ArgumentException("unknown result type " + optionName);
 
 		if (option.Value is null)
-			throw new ArgumentException("missing filename for -result-" + optionName);
+			throw new ArgumentException("missing filename for " + option.Key);
 
 		EnsurePathExists(option.Value);
 		Project.Configuration.Output.Add(optionName, option.Value);

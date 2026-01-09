@@ -160,6 +160,7 @@ $([System.IO.File]::ReadAllText($(MSBuildThisFileDirectory)..\README.md))
     <When Condition=" $(MSBuildProjectName.Contains('.v3.')) AND $(MSBuildProjectName.EndsWith('.tests')) ">
       <ItemGroup>
         <Compile Include="$(MSBuildThisFileDirectory)xunit.v3.core\Package\content\DefaultRunnerReporters.cs" LinkBase="Common" />
+        <Compile Include="$(MSBuildThisFileDirectory)xunit.v3.core\Package\content\DefaultResultWriters.cs" LinkBase="Common" />
       </ItemGroup>
     </When>
   </Choose>

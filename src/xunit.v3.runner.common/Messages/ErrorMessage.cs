@@ -6,6 +6,9 @@ namespace Xunit.Runner.Common;
 public partial class ErrorMessage
 {
 	/// <inheritdoc/>
+	public required string? AssemblyUniqueID { get; set; }
+
+	/// <inheritdoc/>
 	/// <remarks>
 	/// Note: Will be an empty array if there was no value provided during deserialization.
 	/// </remarks>
@@ -32,6 +35,7 @@ public partial class ErrorMessage
 	/// <inheritdoc/>
 	protected override void Deserialize(IReadOnlyDictionary<string, object?> root)
 	{
+		AssemblyUniqueID = JsonDeserializer.TryGetString(root, nameof(AssemblyUniqueID));
 		ExceptionParentIndices = JsonDeserializer.TryGetArrayOfInt(root, nameof(ExceptionParentIndices)) ?? ExceptionParentIndices;
 		ExceptionTypes = JsonDeserializer.TryGetArrayOfNullableString(root, nameof(ExceptionTypes)) ?? ExceptionTypes;
 		Messages = JsonDeserializer.TryGetArrayOfString(root, nameof(Messages)) ?? Messages;

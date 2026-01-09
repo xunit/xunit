@@ -10,7 +10,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
@@ -137,7 +136,7 @@ sealed class ConsoleRunner(string[] args) :
 			if (project.Configuration.List is not null)
 				await ListProject(project);
 			else
-				failCount = await RunProject(project, reporterMessageHandler);
+				failCount = await RunProject(project, reporterMessageHandler, commandLine.ResultWriters, globalDiagnosticMessageSink);
 
 			if (cancellationTokenSource.IsCancellationRequested)
 				return -1073741510;    // 0xC000013A: The application terminated as a result of a CTRL+C
@@ -256,50 +255,32 @@ sealed class ConsoleRunner(string[] args) :
 
 	async ValueTask<int> RunProject(
 		XunitProject project,
-		IMessageSink reporterMessageHandler)
+		IMessageSink reporterMessageHandler,
+		IReadOnlyDictionary<string, IConsoleResultWriter> resultWriters,
+		IMessageSink? diagnosticMessageSink)
 	{
-		XElement? assembliesElement = null;
 		var clockTime = Stopwatch.StartNew();
-		var xmlTransformers = TransformFactory.GetXmlTransformers(project);
-		var needsXml = xmlTransformers.Count > 0;
+
 		// TODO: Parallelize the ones that will parallelize, and then run the rest sequentially?
 		var parallelizeAssemblies = project.Assemblies.All(assembly => assembly.Configuration.ParallelizeAssemblyOrDefault);
-
-		if (needsXml)
-			assembliesElement = TransformFactory.CreateAssembliesElement();
-
 		var originalWorkingFolder = Directory.GetCurrentDirectory();
 
+		var resultWriterMessageHandlers = new List<IResultWriterMessageHandler>();
+		foreach (var kvp in project.Configuration.Output)
+			if (!resultWriters.TryGetValue(kvp.Key, out var resultWriter))
+				diagnosticMessageSink?.OnMessage(new DiagnosticMessage("Project contains unknown result writer ID: {0}", kvp.Key));
+			else
+				resultWriterMessageHandlers.Add(await resultWriter.CreateMessageHandler(kvp.Value, diagnosticMessageSink));
+
 		if (parallelizeAssemblies)
-		{
-			var tasks = project.Assemblies.Select(
-				assembly => Task.Run(
-					() => RunProjectAssembly(
-						assembly,
-						needsXml,
-						reporterMessageHandler
-					).AsTask()
+			await Task.WhenAll(
+				project.Assemblies.Select(
+					assembly => Task.Run(() => RunProjectAssembly(assembly, reporterMessageHandler, resultWriterMessageHandlers).AsTask())
 				)
 			);
-
-			var results = Task.WhenAll(tasks).GetAwaiter().GetResult();
-			foreach (var assemblyElement in results.WhereNotNull())
-				assembliesElement?.Add(assemblyElement);
-		}
 		else
-		{
 			foreach (var assembly in project.Assemblies)
-			{
-				var assemblyElement = await RunProjectAssembly(
-					assembly,
-					needsXml,
-					reporterMessageHandler
-				);
-
-				if (assemblyElement is not null)
-					assembliesElement?.Add(assemblyElement);
-			}
-		}
+				await RunProjectAssembly(assembly, reporterMessageHandler, resultWriterMessageHandlers);
 
 		clockTime.Stop();
 
@@ -313,24 +294,19 @@ sealed class ConsoleRunner(string[] args) :
 
 		Directory.SetCurrentDirectory(originalWorkingFolder);
 
-		if (assembliesElement is not null)
-		{
-			TransformFactory.FinishAssembliesElement(assembliesElement);
-			xmlTransformers.ForEach(transformer => transformer(assembliesElement));
-		}
+		foreach (var resultWriterMessageHandler in resultWriterMessageHandlers)
+			await resultWriterMessageHandler.SafeDisposeAsync();
 
 		return failed ? 1 : completionMessages.Values.Sum(summary => summary.Failed + summary.Errors);
 	}
 
-	async ValueTask<XElement?> RunProjectAssembly(
+	async ValueTask RunProjectAssembly(
 		XunitProjectAssembly assembly,
-		bool needsXml,
-		IMessageSink reporterMessageHandler)
+		IMessageSink reporterMessageHandler,
+		IReadOnlyCollection<IResultWriterMessageHandler> resultWriterMessageHandlers)
 	{
 		if (cancellationTokenSource.IsCancellationRequested)
-			return null;
-
-		var assemblyElement = needsXml ? new XElement("assembly") : null;
+			return;
 
 		try
 		{
@@ -367,13 +343,13 @@ sealed class ConsoleRunner(string[] args) :
 
 			var sinkOptions = new ExecutionSinkOptions
 			{
-				AssemblyElement = assemblyElement,
 				CancelThunk = () => cancellationTokenSource.IsCancellationRequested,
 				DiagnosticMessageSink = diagnosticMessageSink,
 				FailSkips = assembly.Configuration.FailSkipsOrDefault,
 				FailWarn = assembly.Configuration.FailTestsWithWarningsOrDefault,
 				FinishedCallback = summary => completionMessages.TryAdd(controller.TestAssemblyUniqueID, summary),
 				LongRunningTestTime = TimeSpan.FromSeconds(longRunningSeconds),
+				ResultWriterMessageHandlers = resultWriterMessageHandlers,
 			};
 
 			using var resultsSink = new ExecutionSink(assembly, discoveryOptions, executionOptions, appDomain, shadowCopy, reporterMessageHandler, sinkOptions);
@@ -403,7 +379,5 @@ sealed class ConsoleRunner(string[] args) :
 				e = e.InnerException;
 			}
 		}
-
-		return assemblyElement;
 	}
 }

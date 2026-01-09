@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq.Expressions;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Testing.Platform.CommandLine;
 using Microsoft.Testing.Platform.Configurations;
@@ -19,8 +20,19 @@ public class CommandLineOptionsProviderTests
 	readonly StubCommandLineOptions commandLineOptions;
 	readonly XunitProjectAssembly projectAssembly;
 
+	static int initialized;
+	static readonly object initLock = new();
+
 	public CommandLineOptionsProviderTests()
 	{
+		lock (initLock)
+			if (Interlocked.Exchange(ref initialized, 1) == 0)
+			{
+				var resultWriters = RegisteredMicrosoftTestingPlatformResultWriters.Get(typeof(CommandLineOptionsProviderTests).Assembly);
+
+				CommandLineOptionsProvider.Initialize(resultWriters);
+			}
+
 		configuration = Substitute.For<IConfiguration, InterfaceProxy<IConfiguration>>();
 		commandLineOptions = new();
 		projectAssembly = new(

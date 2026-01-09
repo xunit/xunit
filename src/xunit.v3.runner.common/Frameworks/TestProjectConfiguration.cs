@@ -15,7 +15,7 @@ public class TestProjectConfiguration
 	/// </summary>
 	public TestProjectConfiguration()
 	{
-		Output = [];
+		Output = new(StringComparer.InvariantCultureIgnoreCase);
 	}
 
 	internal TestProjectConfiguration(
@@ -112,8 +112,8 @@ public class TestProjectConfiguration
 	/// <summary>
 	/// The output files that should be generated from the test run. The key is
 	/// the output type, and the value is the output filename. The output type matches
-	/// the <see cref="Transform.ID"/> property on the transforms available in
-	/// <see cref="TransformFactory"/>.<see cref="TransformFactory.AvailableTransforms"/>.
+	/// the key registered with <see cref="RegisteredConsoleResultWriters"/> and/or
+	/// <see cref="RegisteredMicrosoftTestingPlatformResultWriters"/>.
 	/// </summary>
 	public Dictionary<string, string> Output { get; }
 

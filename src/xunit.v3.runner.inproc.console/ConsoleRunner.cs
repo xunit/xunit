@@ -169,9 +169,9 @@ public class ConsoleRunner(
 				if (e.ExceptionObject is Exception ex)
 				{
 					if (automatedMode != AutomatedMode.Off)
-						logger.WriteMessage(ErrorMessage.FromException(ex));
+						logger.WriteMessage(ErrorMessage.FromException(ex, null));
 					else if (reporterMessageHandler is not null)
-						reporterMessageHandler.OnMessage(ErrorMessage.FromException(ex));
+						reporterMessageHandler.OnMessage(ErrorMessage.FromException(ex, null));
 					else
 						consoleHelper.WriteLine(ex.ToString());
 				}
@@ -261,7 +261,7 @@ public class ConsoleRunner(
 					// Default to false for console runners
 					projectAssembly.Configuration.PreEnumerateTheories ??= false;
 
-					failCount = await projectRunner.Run(projectAssembly, reporterMessageHandler, diagnosticMessageSink, logger, pipelineStartup);
+					failCount = await projectRunner.Run(projectAssembly, reporterMessageHandler, diagnosticMessageSink, logger, commandLine.ResultWriters, pipelineStartup);
 				}
 
 				if (cancellationTokenSource.IsCancellationRequested)
@@ -276,7 +276,7 @@ public class ConsoleRunner(
 				}
 				catch (Exception ex)
 				{
-					reporterMessageHandler?.OnMessage(ErrorMessage.FromException(ex));
+					reporterMessageHandler?.OnMessage(ErrorMessage.FromException(ex, null));
 					failCount = 1;
 				}
 				finally
@@ -415,7 +415,7 @@ public class ConsoleRunner(
 				}
 				catch (Exception ex)
 				{
-					runner.logger?.WriteMessage(ErrorMessage.FromException(ex));
+					runner.logger?.WriteMessage(ErrorMessage.FromException(ex, null));
 				}
 
 			Environment.Exit(1);

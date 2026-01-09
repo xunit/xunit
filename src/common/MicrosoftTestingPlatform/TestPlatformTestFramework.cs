@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
@@ -14,6 +15,7 @@ using Microsoft.Testing.Platform.Builder;
 using Microsoft.Testing.Platform.Capabilities.TestFramework;
 using Microsoft.Testing.Platform.Extensions.Messages;
 using Microsoft.Testing.Platform.Extensions.TestFramework;
+using Microsoft.Testing.Platform.Logging;
 using Microsoft.Testing.Platform.OutputDevice;
 using Microsoft.Testing.Platform.Requests;
 using Microsoft.Testing.Platform.Services;
@@ -43,9 +45,10 @@ public class TestPlatformTestFramework :
 	readonly IMessageSink? diagnosticMessageSink;
 	readonly IOutputDevice outputDevice;
 	readonly XunitProjectAssembly projectAssembly;
-	readonly ConcurrentDictionary<SessionUid, (CountdownEvent OperationCounter, IRunnerReporterMessageHandler MessageHandler)> sessions = new();
+	readonly IReadOnlyDictionary<string, IMicrosoftTestingPlatformResultWriter> resultWriters;
 	readonly IRunnerLogger runnerLogger;
 	readonly IRunnerReporter runnerReporter;
+	readonly ConcurrentDictionary<SessionUid, (CountdownEvent OperationCounter, IRunnerReporterMessageHandler MessageHandler)> sessions = new();
 	readonly bool serverMode;
 	readonly Assembly testAssembly;
 	readonly XunitTrxCapability trxCapability;
@@ -59,7 +62,8 @@ public class TestPlatformTestFramework :
 		Assembly testAssembly,
 		XunitTrxCapability trxCapability,
 		IOutputDevice outputDevice,
-		bool serverMode) :
+		bool serverMode,
+		IReadOnlyDictionary<string, IMicrosoftTestingPlatformResultWriter> resultWriters) :
 			base("test framework", "30ea7c6e-dd24-4152-a360-1387158cd41d")
 	{
 		this.runnerLogger = runnerLogger;
@@ -70,6 +74,7 @@ public class TestPlatformTestFramework :
 		this.trxCapability = trxCapability;
 		this.outputDevice = outputDevice;
 		this.serverMode = serverMode;
+		this.resultWriters = resultWriters;
 
 		SerializationHelper.Instance.AddRegisteredSerializers(testAssembly);
 	}
@@ -217,7 +222,7 @@ public class TestPlatformTestFramework :
 			projectAssembly.Configuration.ShowLiveOutput = false;
 
 			var messageHandler = new TestPlatformExecutionMessageSink(session.MessageHandler, sessionUid, messageBus, trxCapability, outputDevice, showLiveOutput, serverMode, cancellationToken);
-			await projectRunner.Run(projectAssembly, messageHandler, diagnosticMessageSink, runnerLogger, pipelineStartup, testCaseIDsToRun);
+			await projectRunner.Run(projectAssembly, messageHandler, diagnosticMessageSink, runnerLogger, resultWriters, pipelineStartup, testCaseIDsToRun);
 
 			foreach (var output in projectAssembly.Project.Configuration.Output)
 				await messageBus.PublishAsync(this, new SessionFileArtifact(sessionUid, new FileInfo(output.Value), Path.GetFileNameWithoutExtension(output.Value)));
@@ -278,6 +283,10 @@ public class TestPlatformTestFramework :
 
 		var bannerCapability = new XunitBannerCapability();
 		var trxCapability = new XunitTrxCapability();
+		var testAssembly = Assembly.GetEntryAssembly() ?? throw new TestPipelineException("Could not find entry assembly");
+		var resultWriterWarnings = new List<string>();
+		var resultWriters = RegisteredMicrosoftTestingPlatformResultWriters.Get(testAssembly, resultWriterWarnings);
+		CommandLineOptionsProvider.Initialize(resultWriters);
 
 		builder.CommandLine.AddProvider(() => new CommandLineOptionsProvider());
 		builder.RegisterTestFramework(
@@ -285,13 +294,16 @@ public class TestPlatformTestFramework :
 			(capabilities, serviceProvider) =>
 			{
 				var logger = serviceProvider.GetLoggerFactory().CreateLogger("xUnit.net");
+
+				foreach (var warning in resultWriterWarnings)
+					logger.LogWarning(warning);
+
 				var commandLineOptions = serviceProvider.GetCommandLineOptions();
 				var hasServerOption = commandLineOptions.TryGetOptionArgumentList("server", out var protocolNames);
 				var serverMode = hasServerOption && (protocolNames is null || protocolNames.Length == 0 || protocolNames[0].Equals("jsonrpc", StringComparison.OrdinalIgnoreCase));
 
 				// Create the XunitProject and XunitProjectAssembly
 				var project = new XunitProject();
-				var testAssembly = Assembly.GetEntryAssembly() ?? throw new TestPipelineException("Could not find entry assembly");
 				var assemblyFileName = Path.GetFullPath(testAssembly.GetSafeLocation() ?? throw new TestPipelineException("Test assembly must have an on-disk location"));
 				var assemblyFolder = Path.GetDirectoryName(assemblyFileName) ?? throw new TestPipelineException("Test assembly must have an on-disk location");
 				var targetFramework = testAssembly.GetTargetFramework();
@@ -327,7 +339,7 @@ public class TestPlatformTestFramework :
 				var autoReporter = supportAutoReporters ? reporters.FirstOrDefault(r => r.IsEnvironmentallyEnabled) : default;
 				var reporter = autoReporter ?? reporters.FirstOrDefault(r => "default".Equals(r.RunnerSwitch, StringComparison.OrdinalIgnoreCase)) ?? new DefaultRunnerReporter();
 
-				return new TestPlatformTestFramework(runnerLogger, reporter, diagnosticMessageSink, projectAssembly, testAssembly, trxCapability, outputDevice, serverMode);
+				return new TestPlatformTestFramework(runnerLogger, reporter, diagnosticMessageSink, projectAssembly, testAssembly, trxCapability, outputDevice, serverMode, resultWriters);
 			}
 		);
 

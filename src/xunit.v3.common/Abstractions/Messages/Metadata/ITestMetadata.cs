@@ -22,7 +22,7 @@ public interface ITestMetadata
 	string? TestLabel { get; }
 
 	/// <summary>
-	/// Gets the trait values associated with this test case. If
+	/// Gets the trait values associated with this test. If
 	/// there are none, or the framework does not support traits,
 	/// this should return an empty dictionary (not <see langword="null"/>).
 	/// </summary>

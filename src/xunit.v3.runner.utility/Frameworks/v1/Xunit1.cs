@@ -337,6 +337,7 @@ public class Xunit1 : IFrontController
 				var (exceptionTypes, messages, stackTraces, exceptionParentIndices) = Xunit1ExceptionUtility.ConvertToErrorMetadata(ex);
 				var errorMessage = new ErrorMessage
 				{
+					AssemblyUniqueID = TestAssemblyUniqueID,
 					ExceptionParentIndices = exceptionParentIndices,
 					ExceptionTypes = exceptionTypes,
 					Messages = messages,
@@ -445,7 +446,7 @@ public class Xunit1 : IFrontController
 		var @namespace = lastDotIdx > -1 ? typeName.Substring(0, lastDotIdx) : null;
 		var simpleName = lastDotIdx > -1 ? typeName.Substring(lastDotIdx + 1) : typeName;
 
-		var handler = new TestClassCallbackHandler(testCases, messageSink);
+		var handler = new TestClassCallbackHandler(TestAssemblyUniqueID, testCases, messageSink);
 		var results = handler.TestClassResults;
 		var testClassStarting = new TestClassStarting
 		{

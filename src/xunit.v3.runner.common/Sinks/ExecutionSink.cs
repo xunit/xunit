@@ -1,12 +1,9 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Xml.Linq;
 using Xunit.Internal;
 using Xunit.Sdk;
 
@@ -14,7 +11,7 @@ namespace Xunit.Runner.Common;
 
 /// <summary>
 /// This is the execution sink which most runners will use, which can perform several operations
-/// (including recording XML results, detecting long running tests, failing skipped tests,
+/// (including supporting result writers, detecting long running tests, failing skipped tests,
 /// failing tests with warnings, and converting the top-level discovery and execution messages
 /// into their runner counterparts).
 /// </summary>
@@ -24,22 +21,18 @@ public class ExecutionSink : IMessageSink, IDisposable
 	readonly XunitProjectAssembly assembly;
 	readonly ITestFrameworkDiscoveryOptions discoveryOptions;
 	volatile int errors;
-	readonly Lazy<XElement> errorsElement;
 	readonly Dictionary<string, (ITestCaseMetadata TestCaseMetadata, DateTimeOffset StartTime)>? executingTestCases;
 	readonly ITestFrameworkExecutionOptions executionOptions;
 	readonly Dictionary<string, int> failCountsByUniqueID = [];
 	readonly IMessageSink innerSink;
 	readonly ExecutionSinkOptions options;
 	DateTimeOffset lastTestActivity;
-	readonly MessageMetadataCache metadataCache = new();
 	readonly bool shadowCopy;
 #pragma warning disable CA2213  // This object is owned by the creator, not this class
 	readonly ISourceInformationProvider sourceInformationProvider;
 #pragma warning restore CA2213
 	ManualResetEvent? stopEvent;
 	bool stopRequested;
-	readonly Dictionary<string, XElement> testCollectionElements = [];
-	readonly ConcurrentDictionary<string, XElement> testResultElements = [];
 	ManualResetEvent? workerFinished;
 
 	/// <summary>
@@ -99,16 +92,6 @@ public class ExecutionSink : IMessageSink, IDisposable
 
 		if (options.LongRunningTestTime > TimeSpan.Zero && !Debugger.IsAttached)
 			executingTestCases = [];
-
-		errorsElement =
-			options.AssemblyElement is null
-				? new(() => new XElement("errors"))
-				: new(() =>
-				{
-					var result = new XElement("errors");
-					options.AssemblyElement.Add(result);
-					return result;
-				});
 	}
 
 	/// <inheritdoc/>
@@ -121,23 +104,6 @@ public class ExecutionSink : IMessageSink, IDisposable
 	/// Returns the current time in UTC. Overrideable for testing purposes.
 	/// </summary>
 	protected virtual DateTimeOffset UtcNow => DateTimeOffset.UtcNow;
-
-	void AddError(
-		string type,
-		string? name,
-		IErrorMetadata errorMetadata)
-	{
-		var errorElement = new XElement(
-			"error",
-			new XAttribute("type", type),
-			CreateFailureElement(errorMetadata)
-		);
-
-		if (name is not null)
-			errorElement.Add(new XAttribute("name", name));
-
-		errorsElement.Value.Add(errorElement);
-	}
 
 	void ConvertToRunnerMessageAndDispatch(IMessageSinkMessage message)
 	{
@@ -176,100 +142,6 @@ public class ExecutionSink : IMessageSink, IDisposable
 			});
 	}
 
-	static XElement CreateFailureElement(IErrorMetadata errorMetadata)
-	{
-		var result = new XElement("failure");
-
-		var exceptionType = errorMetadata.ExceptionTypes[0];
-		if (exceptionType is not null)
-			result.Add(new XAttribute("exception-type", exceptionType));
-
-		var message = ExceptionUtility.CombineMessages(errorMetadata);
-		if (!string.IsNullOrWhiteSpace(message))
-			result.Add(new XElement("message", new XCData(XmlEscape(message, escapeNewlines: false))));
-
-		var stackTrace = ExceptionUtility.CombineStackTraces(errorMetadata);
-		if (stackTrace is not null)
-			result.Add(new XElement("stack-trace", new XCData(stackTrace)));
-
-		return result;
-	}
-
-	XElement CreateTestResultElement(
-		ITestResultMessage testResult,
-		string resultText)
-	{
-		var testMetadata = Guard.NotNull(() => string.Format(CultureInfo.CurrentCulture, "Cannot find test metadata for ID {0}", testResult.TestUniqueID), metadataCache.TryGetTestMetadata(testResult));
-		var testStartTime = (testMetadata as ITestStarting)?.StartTime ?? testResult.FinishTime;
-		var testCaseMetadata = Guard.NotNull(() => string.Format(CultureInfo.CurrentCulture, "Cannot find test case metadata for ID {0}", testResult.TestCaseUniqueID), metadataCache.TryGetTestCaseMetadata(testResult));
-		var testMethodMetadata = metadataCache.TryGetMethodMetadata(testResult);
-		var testClassMetadata = metadataCache.TryGetClassMetadata(testResult);
-
-		var collectionElement = GetTestCollectionElement(testResult.TestCollectionUniqueID);
-		var testResultElement =
-			new XElement("test",
-				new XAttribute("id", Guid.NewGuid().ToString("d")),
-				new XAttribute("name", XmlEscape(testMetadata.TestDisplayName)),
-				new XAttribute("result", resultText),
-				new XAttribute("time", testResult.ExecutionTime.ToString(CultureInfo.InvariantCulture)),
-				new XAttribute("time-rtf", TimeSpan.FromSeconds((double)testResult.ExecutionTime).ToString(@"hh\:mm\:ss\.fffffff", CultureInfo.InvariantCulture)),
-				new XAttribute("start-rtf", testStartTime.ToString("O", CultureInfo.InvariantCulture)),
-				new XAttribute("finish-rtf", testResult.FinishTime.ToString("O", CultureInfo.InvariantCulture))
-			);
-
-		var type = testClassMetadata?.TestClassName;
-		if (type is not null)
-			testResultElement.Add(new XAttribute("type", type));
-
-		var method = testMethodMetadata?.MethodName;
-		if (method is not null)
-			testResultElement.Add(new XAttribute("method", method));
-
-		var testOutput = testResult.Output;
-		if (!string.IsNullOrWhiteSpace(testOutput))
-			testResultElement.Add(new XElement("output", new XCData(AnsiUtility.RemoveAnsiEscapeCodes(testOutput))));
-
-		if (testResult.Warnings is not null && testResult.Warnings.Length > 0)
-		{
-			var warningsElement = new XElement("warnings");
-
-			foreach (var warning in testResult.Warnings)
-				warningsElement.Add(new XElement("warning", new XCData(warning)));
-
-			testResultElement.Add(warningsElement);
-		}
-
-		var fileName = testCaseMetadata.SourceFilePath;
-		if (fileName is not null)
-			testResultElement.Add(new XAttribute("source-file", fileName));
-
-		var lineNumber = testCaseMetadata.SourceLineNumber;
-		if (lineNumber is not null)
-			testResultElement.Add(new XAttribute("source-line", lineNumber.GetValueOrDefault()));
-
-		var traits = testCaseMetadata.Traits;
-		if (traits is not null && traits.Count > 0)
-		{
-			var traitsElement = new XElement("traits");
-
-			foreach (var keyValuePair in traits)
-				foreach (var val in keyValuePair.Value)
-					traitsElement.Add(
-						new XElement("trait",
-							new XAttribute("name", XmlEscape(keyValuePair.Key)),
-							new XAttribute("value", XmlEscape(val))
-						)
-					);
-
-			testResultElement.Add(traitsElement);
-		}
-
-		collectionElement.Add(testResultElement);
-
-		testResultElements[testResult.TestUniqueID] = testResultElement;
-		return testResultElement;
-	}
-
 	/// <inheritdoc/>
 	public virtual void Dispose()
 	{
@@ -286,27 +158,11 @@ public class ExecutionSink : IMessageSink, IDisposable
 		workerFinished?.SafeDispose();
 	}
 
-	XElement GetTestCollectionElement(string testCollectionUniqueID)
-	{
-		lock (testCollectionElements)
-			return testCollectionElements.AddOrGet(testCollectionUniqueID, () => new XElement("collection"));
-	}
-
-	void HandleErrorMessage(MessageHandlerArgs<IErrorMessage> args)
-	{
+	void HandleErrorMessage(MessageHandlerArgs<IErrorMessage> args) =>
 		Interlocked.Increment(ref errors);
 
-		if (options.AssemblyElement is not null)
-			AddError("fatal", null, args.Message);
-	}
-
-	void HandleTestAssemblyCleanupFailure(MessageHandlerArgs<ITestAssemblyCleanupFailure> args)
-	{
+	void HandleTestAssemblyCleanupFailure(MessageHandlerArgs<ITestAssemblyCleanupFailure> args) =>
 		Interlocked.Increment(ref errors);
-
-		if (options.AssemblyElement is not null)
-			AddError("assembly-cleanup", metadataCache.TryGetAssemblyMetadata(args.Message)?.AssemblyPath, args.Message);
-	}
 
 	void HandleTestAssemblyFinished(MessageHandlerArgs<ITestAssemblyFinished> args)
 	{
@@ -323,26 +179,6 @@ public class ExecutionSink : IMessageSink, IDisposable
 
 		options.FinishedCallback?.Invoke(ExecutionSummary);
 
-		if (options.AssemblyElement is not null)
-		{
-			options.AssemblyElement.Add(
-				new XAttribute("errors", ExecutionSummary.Errors),
-				new XAttribute("failed", ExecutionSummary.Failed),
-				new XAttribute("finish-rtf", args.Message.FinishTime.ToString("O", CultureInfo.InvariantCulture)),
-				new XAttribute("not-run", ExecutionSummary.NotRun),
-				new XAttribute("passed", ExecutionSummary.Total - ExecutionSummary.Failed - ExecutionSummary.Skipped - ExecutionSummary.NotRun),
-				new XAttribute("skipped", ExecutionSummary.Skipped),
-				new XAttribute("time", ExecutionSummary.Time.ToString("0.000", CultureInfo.InvariantCulture)),
-				new XAttribute("time-rtf", TimeSpan.FromSeconds((double)ExecutionSummary.Time).ToString("c", CultureInfo.InvariantCulture)),
-				new XAttribute("total", ExecutionSummary.Total)
-			);
-
-			foreach (var element in testCollectionElements.Values)
-				options.AssemblyElement.Add(element);
-
-			metadataCache.TryRemove(args.Message);
-		}
-
 		stopRequested = true;
 	}
 
@@ -355,46 +191,16 @@ public class ExecutionSink : IMessageSink, IDisposable
 			lastTestActivity = UtcNow;
 			ThreadPool.QueueUserWorkItem(ThreadWorker);
 		}
-
-		if (options.AssemblyElement is not null)
-		{
-			var assemblyStarting = args.Message;
-
-			options.AssemblyElement.Add(
-				new XAttribute("environment", assemblyStarting.TestEnvironment),
-				new XAttribute("id", Guid.NewGuid().ToString("d")),
-				new XAttribute("name", assemblyStarting.AssemblyPath ?? "<dynamic>"),
-				new XAttribute("run-date", assemblyStarting.StartTime.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)),
-				new XAttribute("run-time", assemblyStarting.StartTime.ToString("HH:mm:ss", CultureInfo.InvariantCulture)),
-				new XAttribute("start-rtf", assemblyStarting.StartTime.ToString("O", CultureInfo.InvariantCulture)),
-				new XAttribute("test-framework", assemblyStarting.TestFrameworkDisplayName)
-			);
-
-			if (assemblyStarting.ConfigFilePath is not null)
-				options.AssemblyElement.Add(new XAttribute("config-file", assemblyStarting.ConfigFilePath));
-			if (assemblyStarting.TargetFramework is not null)
-				options.AssemblyElement.Add(new XAttribute("target-framework", assemblyStarting.TargetFramework));
-
-			metadataCache.Set(assemblyStarting);
-		}
 	}
 
-	void HandleTestCaseCleanupFailure(MessageHandlerArgs<ITestCaseCleanupFailure> args)
-	{
+	void HandleTestCaseCleanupFailure(MessageHandlerArgs<ITestCaseCleanupFailure> args) =>
 		Interlocked.Increment(ref errors);
-
-		if (options.AssemblyElement is not null)
-			AddError("test-case-cleanup", metadataCache.TryGetTestCaseMetadata(args.Message)?.TestCaseDisplayName, args.Message);
-	}
 
 	void HandleTestCaseFinished(MessageHandlerArgs<ITestCaseFinished> args)
 	{
 		if (executingTestCases is not null)
 			lock (executingTestCases)
 				executingTestCases.Remove(args.Message.TestCaseUniqueID);
-
-		if (options.AssemblyElement is not null)
-			metadataCache.TryRemove(args.Message);
 	}
 
 	void HandleTestCaseStarting(MessageHandlerArgs<ITestCaseStarting> args)
@@ -402,173 +208,19 @@ public class ExecutionSink : IMessageSink, IDisposable
 		if (executingTestCases is not null)
 			lock (executingTestCases)
 				executingTestCases.Add(args.Message.TestCaseUniqueID, (args.Message, UtcNow));
-
-		if (options.AssemblyElement is not null)
-			metadataCache.Set(args.Message);
 	}
 
-	void HandleTestClassCleanupFailure(MessageHandlerArgs<ITestClassCleanupFailure> args)
-	{
+	void HandleTestClassCleanupFailure(MessageHandlerArgs<ITestClassCleanupFailure> args) =>
 		Interlocked.Increment(ref errors);
 
-		if (options.AssemblyElement is not null)
-			AddError("test-class-cleanup", metadataCache.TryGetClassMetadata(args.Message)?.TestClassName, args.Message);
-	}
-
-	void HandleTestClassFinished(MessageHandlerArgs<ITestClassFinished> args)
-	{
-		if (options.AssemblyElement is not null)
-			metadataCache.TryRemove(args.Message);
-	}
-
-	void HandleTestClassStarting(MessageHandlerArgs<ITestClassStarting> args)
-	{
-		if (options.AssemblyElement is not null)
-			metadataCache.Set(args.Message);
-	}
-
-	void HandleTestCleanupFailure(MessageHandlerArgs<ITestCleanupFailure> args)
-	{
+	void HandleTestCleanupFailure(MessageHandlerArgs<ITestCleanupFailure> args) =>
 		Interlocked.Increment(ref errors);
 
-		if (options.AssemblyElement is not null)
-			AddError("test-cleanup", metadataCache.TryGetTestMetadata(args.Message)?.TestDisplayName, args.Message);
-	}
-
-	void HandleTestCollectionCleanupFailure(MessageHandlerArgs<ITestCollectionCleanupFailure> args)
-	{
+	void HandleTestCollectionCleanupFailure(MessageHandlerArgs<ITestCollectionCleanupFailure> args) =>
 		Interlocked.Increment(ref errors);
 
-		if (options.AssemblyElement is not null)
-			AddError("test-collection-cleanup", metadataCache.TryGetCollectionMetadata(args.Message)?.TestCollectionDisplayName, args.Message);
-	}
-
-	void HandleTestCollectionFinished(MessageHandlerArgs<ITestCollectionFinished> args)
-	{
-		if (options.AssemblyElement is not null)
-		{
-			var testCollectionFinished = args.Message;
-			var collectionElement = GetTestCollectionElement(testCollectionFinished.TestCollectionUniqueID);
-
-			collectionElement.Add(
-				new XAttribute("failed", testCollectionFinished.TestsFailed),
-				new XAttribute("not-run", testCollectionFinished.TestsNotRun),
-				new XAttribute("passed", testCollectionFinished.TestsTotal - testCollectionFinished.TestsFailed - testCollectionFinished.TestsSkipped - testCollectionFinished.TestsNotRun),
-				new XAttribute("skipped", testCollectionFinished.TestsSkipped),
-				new XAttribute("time", testCollectionFinished.ExecutionTime.ToString("0.000", CultureInfo.InvariantCulture)),
-				new XAttribute("time-rtf", TimeSpan.FromSeconds((double)testCollectionFinished.ExecutionTime).ToString("c", CultureInfo.InvariantCulture)),
-				new XAttribute("total", testCollectionFinished.TestsTotal)
-			);
-
-			metadataCache.TryRemove(testCollectionFinished);
-		}
-	}
-
-	void HandleTestCollectionStarting(MessageHandlerArgs<ITestCollectionStarting> args)
-	{
-		if (options.AssemblyElement is not null)
-		{
-			var testCollectionStarting = args.Message;
-			var collectionElement = GetTestCollectionElement(testCollectionStarting.TestCollectionUniqueID);
-
-			collectionElement.Add(
-				new XAttribute("name", XmlEscape(testCollectionStarting.TestCollectionDisplayName)),
-				new XAttribute("id", Guid.NewGuid().ToString("d"))
-			);
-
-			metadataCache.Set(testCollectionStarting);
-		}
-	}
-
-	void HandleTestFailed(MessageHandlerArgs<ITestFailed> args)
-	{
-		if (options.AssemblyElement is not null)
-		{
-			var testFailed = args.Message;
-			var testElement = CreateTestResultElement(testFailed, "Fail");
-
-			testElement.Add(CreateFailureElement(testFailed));
-		}
-	}
-
-	void HandleTestFinished(MessageHandlerArgs<ITestFinished> args)
-	{
-		var finished = args.Message;
-		if (finished.Attachments.Count != 0 && testResultElements.TryRemove(finished.TestUniqueID, out var testResultElement))
-		{
-			var attachmentsElement = new XElement("attachments");
-
-			foreach (var attachment in finished.Attachments)
-			{
-				var attachmentElement = new XElement("attachment", new XAttribute("name", attachment.Key));
-				if (attachment.Value.AttachmentType == TestAttachmentType.String)
-					attachmentElement.Add(new XCData(attachment.Value.AsString()));
-				else
-				{
-					var (byteArray, mediaType) = attachment.Value.AsByteArray();
-
-					attachmentElement.Add(new XAttribute("media-type", mediaType));
-					attachmentElement.SetValue(Convert.ToBase64String(byteArray));
-				}
-
-				attachmentsElement.Add(attachmentElement);
-			}
-
-			testResultElement.Add(attachmentsElement);
-		}
-
-		if (options.AssemblyElement is not null)
-			metadataCache.TryRemove(finished);
-	}
-
-	void HandleTestMethodCleanupFailure(MessageHandlerArgs<ITestMethodCleanupFailure> args)
-	{
+	void HandleTestMethodCleanupFailure(MessageHandlerArgs<ITestMethodCleanupFailure> args) =>
 		Interlocked.Increment(ref errors);
-
-		if (options.AssemblyElement is not null)
-			AddError("test-method-cleanup", metadataCache.TryGetMethodMetadata(args.Message)?.MethodName, args.Message);
-	}
-
-	void HandleTestMethodFinished(MessageHandlerArgs<ITestMethodFinished> args)
-	{
-		if (options.AssemblyElement is not null)
-			metadataCache.TryRemove(args.Message);
-	}
-
-	void HandleTestMethodStarting(MessageHandlerArgs<ITestMethodStarting> args)
-	{
-		if (options.AssemblyElement is not null)
-			metadataCache.Set(args.Message);
-	}
-
-	void HandleTestNotRun(MessageHandlerArgs<ITestNotRun> args)
-	{
-		if (options.AssemblyElement is not null)
-			CreateTestResultElement(args.Message, "NotRun");
-	}
-
-	void HandleTestPassed(MessageHandlerArgs<ITestPassed> args)
-	{
-		if (options.AssemblyElement is not null)
-			CreateTestResultElement(args.Message, "Pass");
-	}
-
-	void HandleTestSkipped(MessageHandlerArgs<ITestSkipped> args)
-	{
-		if (options.AssemblyElement is not null)
-		{
-			var testSkipped = args.Message;
-			var testElement = CreateTestResultElement(testSkipped, "Skip");
-
-			testElement.Add(new XElement("reason", new XCData(XmlEscape(testSkipped.Reason, escapeNewlines: false))));
-		}
-	}
-
-	void HandleTestStarting(MessageHandlerArgs<ITestStarting> args)
-	{
-		if (options.AssemblyElement is not null)
-			metadataCache.Set(args.Message);
-	}
 
 	static IMessageSinkMessage MutateForFailSkips(IMessageSinkMessage message) =>
 		message switch
@@ -832,25 +484,13 @@ public class ExecutionSink : IMessageSink, IDisposable
 			&& message.DispatchWhen<ITestCollectionCleanupFailure>(HandleTestCollectionCleanupFailure)
 			&& message.DispatchWhen<ITestMethodCleanupFailure>(HandleTestMethodCleanupFailure);
 
-		// XML-only handlers
-		if (options.AssemblyElement is not null)
-			result =
-				message.DispatchWhen<ITestClassFinished>(HandleTestClassFinished)
-				&& message.DispatchWhen<ITestClassStarting>(HandleTestClassStarting)
-				&& message.DispatchWhen<ITestCollectionFinished>(HandleTestCollectionFinished)
-				&& message.DispatchWhen<ITestCollectionStarting>(HandleTestCollectionStarting)
-				&& message.DispatchWhen<ITestFailed>(HandleTestFailed)
-				&& message.DispatchWhen<ITestFinished>(HandleTestFinished)
-				&& message.DispatchWhen<ITestMethodFinished>(HandleTestMethodFinished)
-				&& message.DispatchWhen<ITestMethodStarting>(HandleTestMethodStarting)
-				&& message.DispatchWhen<ITestNotRun>(HandleTestNotRun)
-				&& message.DispatchWhen<ITestPassed>(HandleTestPassed)
-				&& message.DispatchWhen<ITestSkipped>(HandleTestSkipped)
-				&& message.DispatchWhen<ITestStarting>(HandleTestStarting)
-				&& result;
-
 		// Do the message conversions last, since they consume values created by the general handlers
 		ConvertToRunnerMessageAndDispatch(message);
+
+		// Dispatch to the result writer message handlers
+		if (options.ResultWriterMessageHandlers is not null)
+			foreach (var resultWriter in options.ResultWriterMessageHandlers.WhereNotNull())
+				result = resultWriter.OnMessage(message) && result;
 
 		// Dispatch to the reporter handler
 		result =
@@ -930,47 +570,4 @@ public class ExecutionSink : IMessageSink, IDisposable
 	/// </summary>
 	protected virtual bool WaitForStopEvent(int millionsecondsDelay)
 		=> stopEvent?.WaitOne(millionsecondsDelay) ?? true;
-
-	static string XmlEscape(
-		string? value,
-		bool escapeNewlines = true)
-	{
-		if (value == null)
-			return string.Empty;
-
-		var escapedValue = new StringBuilder(value.Length + 20);
-		for (var idx = 0; idx < value.Length; ++idx)
-		{
-			var ch = value[idx];
-			if (ch < 32)
-				escapedValue.Append(ch switch
-				{
-					'\0' => "\\0",
-					'\a' => "\\a",
-					'\b' => "\\b",
-					'\f' => "\\f",
-					'\n' => escapeNewlines ? "\\n" : "\n",
-					'\r' => escapeNewlines ? "\\r" : "\r",
-					'\t' => "\\t",
-					'\v' => "\\v",
-					_ => string.Format(CultureInfo.InvariantCulture, @"\x{0:x2}", +ch),
-				});
-			else if (ch == '"')
-				escapedValue.Append("\\\"");
-			else if (ch == '\\')
-				escapedValue.Append("\\\\");
-			else if (char.IsSurrogatePair(value, idx)) // Takes care of the case when idx + 1 == value.Length
-			{
-				escapedValue.Append(ch); // Append valid surrogate chars like normal
-				escapedValue.Append(value[++idx]);
-			}
-			// Check for invalid chars and append them like \x----
-			else if (char.IsSurrogate(ch) || ch == '\uFFFE' || ch == '\uFFFF')
-				escapedValue.Append(string.Format(CultureInfo.InvariantCulture, @"\x{0:x4}", +ch));
-			else
-				escapedValue.Append(ch);
-		}
-
-		return escapedValue.ToString();
-	}
 }
