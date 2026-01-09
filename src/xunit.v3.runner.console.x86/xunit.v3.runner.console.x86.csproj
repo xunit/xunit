@@ -11,6 +11,7 @@
   <ItemGroup>
     <Compile Include="..\xunit.v3.runner.console\**\*.cs" Exclude="**\obj\**\*.cs" />
     <Compile Include="..\xunit.v3.core\Package\content\DefaultRunnerReporters.cs" LinkBase="Common" />
+    <Compile Include="..\xunit.v3.core\Package\content\DefaultResultWriters.cs" LinkBase="Common" />
     <Compile Include="..\common\DotNetApiPolyfills.cs" LinkBase="Common" />
   </ItemGroup>
 

@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using FSharp.Compiler.CodeAnalysis;
 using Microsoft.FSharp.Control;
 using Microsoft.FSharp.Core;
-using Xunit.Sdk;
 
 public abstract class FSharpAcceptanceTestAssembly(string? basePath = null) :
 	AcceptanceTestAssembly(basePath)

@@ -20,7 +20,7 @@ public class TestClassCallbackHandlerTests
 	[Fact]
 	public static void WithClassNode_ParsesNumbersWithInvariantCulture()
 	{
-		var handler = new TestClassCallbackHandler([], Substitute.For<IMessageSink>());
+		var handler = new TestClassCallbackHandler("assembly", [], Substitute.For<IMessageSink>());
 		var xml = new XmlDocument();
 		xml.LoadXml("<class time='1.234' total='4' failed='3' skipped='2' />");
 
@@ -38,7 +38,7 @@ public class TestClassCallbackHandlerTests
 		var messages = new List<IMessageSinkMessage>();
 		var sink = SpyMessageSink.Create(messages: messages);
 		var testCase = CreateTestCase("assembly", "config", "foo", "bar", "foo.bar");
-		var handler = new TestClassCallbackHandler([testCase], sink);
+		var handler = new TestClassCallbackHandler("assembly", [testCase], sink);
 		var startXml = new XmlDocument();
 		startXml.LoadXml("<start type='foo' method='bar' name='foo.bar'></start>");
 		var passXml = new XmlDocument();
@@ -57,7 +57,7 @@ public class TestClassCallbackHandlerTests
 		var messages = new List<IMessageSinkMessage>();
 		var sink = SpyMessageSink.Create(messages: messages);
 		var testCase = CreateTestCase("assembly", "config", "foo", "bar", "foo.bar");
-		var handler = new TestClassCallbackHandler([testCase], sink);
+		var handler = new TestClassCallbackHandler("assembly", [testCase], sink);
 		var startXml = new XmlDocument();
 		startXml.LoadXml("<start type='foo' method='bar' name='foo.bar'></start>");
 		var passXml = new XmlDocument();

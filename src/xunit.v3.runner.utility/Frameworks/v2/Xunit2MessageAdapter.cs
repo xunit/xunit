@@ -171,6 +171,7 @@ public class Xunit2MessageAdapter(
 	Sdk.IErrorMessage AdaptErrorMessage(IErrorMessage message) =>
 		new ErrorMessage()
 		{
+			AssemblyUniqueID = assemblyUniqueID,
 			ExceptionParentIndices = message.ExceptionParentIndices,
 			ExceptionTypes = message.ExceptionTypes,
 			Messages = message.Messages,

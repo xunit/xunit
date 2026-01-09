@@ -144,6 +144,7 @@ public abstract class XunitTestClassRunnerBase<TContext, TTestClass, TTestMethod
 
 			ctxt.MessageBus.QueueMessage(new ErrorMessage
 			{
+				AssemblyUniqueID = ctxt.TestClass.TestCollection.TestAssembly.UniqueID,
 				ExceptionParentIndices = [-1],
 				ExceptionTypes = [typeof(TestPipelineException).SafeName()],
 				Messages = [

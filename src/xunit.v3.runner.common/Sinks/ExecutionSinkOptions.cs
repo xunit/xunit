@@ -11,9 +11,9 @@ namespace Xunit.Runner.Common;
 public class ExecutionSinkOptions
 {
 	/// <summary>
-	/// Gets or sets the assembly element used for creating XML. If this is <see langword="null"/>,
-	/// then XML will not be created.
+	/// This value is no longer used by ExecutionSink, and will be removed in the next major version.
 	/// </summary>
+	[Obsolete("This value is no longer used by ExecutionSink, and will be removed in the next major version.")]
 	public XElement? AssemblyElement { get; set; }
 
 	/// <summary>
@@ -56,4 +56,10 @@ public class ExecutionSinkOptions
 	/// tests will not be detected.
 	/// </summary>
 	public TimeSpan LongRunningTestTime { get; set; }
+
+	/// <summary>
+	/// Gets or sets the list of result writer message handlers that will be supported by the
+	/// execution sink.
+	/// </summary>
+	public IReadOnlyCollection<IResultWriterMessageHandler>? ResultWriterMessageHandlers { get; set; }
 }

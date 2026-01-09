@@ -9,6 +9,7 @@ namespace Xunit.Internal;
 /// </summary>
 public class MessageBus : IMessageBus
 {
+	readonly string assemblyUniqueID;
 	volatile bool continueRunning = true;
 	bool disposed;
 	readonly IMessageSink messageSink;
@@ -20,9 +21,11 @@ public class MessageBus : IMessageBus
 
 	/// <summary/>
 	public MessageBus(
+		string assemblyUniqueID,
 		IMessageSink messageSink,
 		bool stopOnFail = false)
 	{
+		this.assemblyUniqueID = assemblyUniqueID;
 		this.messageSink = messageSink;
 		this.stopOnFail = stopOnFail;
 
@@ -41,7 +44,7 @@ public class MessageBus : IMessageBus
 			{
 				try
 				{
-					var errorMessage = ErrorMessage.FromException(ex);
+					var errorMessage = ErrorMessage.FromException(ex, assemblyUniqueID);
 					if (!messageSink.OnMessage(errorMessage))
 						continueRunning = false;
 				}

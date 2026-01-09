@@ -17,6 +17,7 @@ public class TeamCityReporterMessageHandlerTests
 		{
 			var errorMessage = new ErrorMessage
 			{
+				AssemblyUniqueID = assemblyID,
 				ExceptionParentIndices = exceptionParentIndices,
 				ExceptionTypes = exceptionTypes,
 				Messages = messages,

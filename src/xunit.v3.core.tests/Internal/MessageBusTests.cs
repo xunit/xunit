@@ -13,7 +13,7 @@ public class MessageBusTests
 		var msg2 = TestData.DiagnosticMessage("msg2");
 		var msg3 = TestData.DiagnosticMessage("msg3");
 
-		using (var bus = new MessageBus(sink))
+		using (var bus = new MessageBus("asm", sink))
 		{
 			bus.QueueMessage(msg1);
 			bus.QueueMessage(msg2);
@@ -31,7 +31,7 @@ public class MessageBusTests
 	[Fact]
 	public static void TryingToQueueMessageAfterDisposingThrows()
 	{
-		var bus = new MessageBus(SpyMessageSink.Create());
+		var bus = new MessageBus("asm", SpyMessageSink.Create());
 		bus.Dispose();
 
 		var exception = Record.Exception(
@@ -62,7 +62,7 @@ public class MessageBusTests
 				return false;
 			});
 
-		using (var bus = new MessageBus(sink))
+		using (var bus = new MessageBus("asm", sink))
 		{
 			bus.QueueMessage(msg1);
 			bus.QueueMessage(msg2);
@@ -91,7 +91,7 @@ public class MessageBusTests
 		var msg2 = TestData.TestFailed();
 		var msg3 = TestData.DiagnosticMessage("msg3");
 
-		using (var bus = new MessageBus(sink))
+		using (var bus = new MessageBus("asm", sink))
 		{
 			Assert.True(bus.QueueMessage(msg1));
 			Assert.True(bus.QueueMessage(msg2));
@@ -115,7 +115,7 @@ public class MessageBusTests
 		var msg2 = TestData.TestFailed();
 		var msg3 = TestData.DiagnosticMessage("msg3");
 
-		using (var bus = new MessageBus(sink, true))
+		using (var bus = new MessageBus("asm", sink, true))
 		{
 			Assert.True(bus.QueueMessage(msg1));
 			Assert.False(bus.QueueMessage(msg2));

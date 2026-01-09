@@ -16,6 +16,15 @@ public class ExecutionSummary
 	public int Failed { get; set; }
 
 	/// <summary>
+	/// Gets the number of passed tests.
+	/// </summary>
+	/// <remarks>
+	/// This value is computed to be the total number of tests, minus the number of failed, skipped, and not run tests.
+	/// </remarks>
+	public virtual int Passed =>
+		Total - Failed - Skipped - NotRun;
+
+	/// <summary>
 	/// Gets or sets the number of skipped tests.
 	/// </summary>
 	public int Skipped { get; set; }

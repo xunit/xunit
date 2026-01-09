@@ -81,6 +81,7 @@ public class Serialization
 		},
 		new ErrorMessage
 		{
+			AssemblyUniqueID = "asm-id",
 			ExceptionParentIndices = [-1, 0],
 			ExceptionTypes = ["parent-type", "child-type"],
 			Messages = ["parent-message", "child-message"],

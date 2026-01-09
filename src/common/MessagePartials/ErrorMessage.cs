@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using Xunit.Sdk;
 
 #if XUNIT_RUNNER_COMMON
@@ -13,10 +14,22 @@ namespace Xunit.v3;
 sealed partial class ErrorMessage : MessageSinkMessage, IErrorMessage
 {
 	/// <summary>
+	/// Please use <see cref="FromException(Exception, string?)"/>.
+	/// This overload will be removed in the next major version.
+	/// </summary>
+	[EditorBrowsable(EditorBrowsableState.Never)]
+	[Obsolete("Please use the factory function which accepts assemblyUniqueID. This overload will be removed in the next major version.")]
+	public static IErrorMessage FromException(Exception ex) =>
+		FromException(ex, null);
+
+	/// <summary>
 	/// Creates a new <see cref="IErrorMessage"/> constructed from an <see cref="Exception"/> object.
 	/// </summary>
 	/// <param name="ex">The exception to use</param>
-	public static IErrorMessage FromException(Exception ex)
+	/// <param name="assemblyUniqueID">The optional assembly unique ID, if this error belongs to an assembly.</param>
+	public static IErrorMessage FromException(
+		Exception ex,
+		string? assemblyUniqueID)
 	{
 		Guard.ArgumentNotNull(ex);
 
@@ -24,6 +37,7 @@ sealed partial class ErrorMessage : MessageSinkMessage, IErrorMessage
 
 		return new ErrorMessage
 		{
+			AssemblyUniqueID = assemblyUniqueID,
 			ExceptionTypes = errorMetadata.ExceptionTypes,
 			Messages = errorMetadata.Messages,
 			StackTraces = errorMetadata.StackTraces,
@@ -36,6 +50,7 @@ sealed partial class ErrorMessage : MessageSinkMessage, IErrorMessage
 	{
 		Guard.ArgumentNotNull(serializer);
 
+		serializer.Serialize(nameof(AssemblyUniqueID), AssemblyUniqueID);
 		serializer.SerializeIntArray(nameof(ExceptionParentIndices), ExceptionParentIndices);
 		serializer.SerializeStringArray(nameof(ExceptionTypes), ExceptionTypes);
 		serializer.SerializeStringArray(nameof(Messages), Messages);
