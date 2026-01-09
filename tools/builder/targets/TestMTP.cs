@@ -46,11 +46,11 @@ public static class TestMTP
 
 			try
 			{
-				await context.Exec(
-					x86 ? x86DotNet! : "dotnet",
-					$"test --project {projectFolder} --configuration {context.ConfigurationText} --framework {framework} --no-build",
-					workingDirectory: context.BaseFolder
-				);
+				var cmdLine = $"test --project {projectFolder} --configuration {context.ConfigurationText} --framework {framework} --no-build --no-launch-profile";
+				if (Environment.GetEnvironmentVariable("GITHUB_ACTIONS") == "true")
+					cmdLine += " --no-progress";
+
+				await context.Exec(x86 ? x86DotNet! : "dotnet", cmdLine, workingDirectory: context.BaseFolder);
 			}
 			catch
 			{
