@@ -480,7 +480,7 @@ public class xunit : MSBuildTask, ICancelableTask, IDisposable
 
 			await using var controller =
 				XunitFrontController.Create(assembly, diagnosticMessageSink: diagnosticMessageSink)
-					?? throw new ArgumentException("not an xUnit.net test assembly: {0}", assembly.AssemblyFileName);
+					?? throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "not an xUnit.net test assembly: {0}", assembly.AssemblyFileName));
 
 			var appDomain = (controller.CanUseAppDomains, appDomainSupport) switch
 			{

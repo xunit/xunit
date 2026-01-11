@@ -53,6 +53,7 @@
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <IsPackable>true</IsPackable>
         <IsTestingPlatformApplication>false</IsTestingPlatformApplication>
+        <IsTrimmable Condition=" '$(PublishAot)' == 'true' ">true</IsTrimmable>
         <Nullable>enable</Nullable>
         <PackageIcon>_content/logo-128-transparent.png</PackageIcon>
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
@@ -61,6 +62,7 @@
         <Product Condition=" '$(PublishAot)' == 'true' ">xUnit.net v3 Testing Framework [Native AOT]</Product>
         <RepositoryUrl>https://github.com/xunit/xunit</RepositoryUrl>
         <SignAssembly>true</SignAssembly>
+        <TrimmerSingleWarn Condition=" '$(PublishAot)' == 'true' ">false</TrimmerSingleWarn>
       </PropertyGroup>
 
       <ItemGroup>
