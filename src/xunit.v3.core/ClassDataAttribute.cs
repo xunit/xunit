@@ -14,7 +14,13 @@ namespace Xunit;
 
 /// <summary>
 /// Provides a data source for a data theory, with the data coming from a class
-/// which must implement IEnumerable&lt;object?[]&gt;.
+/// which must implement <see cref="IEnumerable{T}"/> or <see cref="IAsyncEnumerable{T}"/>
+/// of one of:
+/// <list type="bullet">
+/// <item><c><see cref="object"/>?[]</c></item>
+/// <item><c><see cref="ITheoryDataRow"/></c></item>
+/// <item><c><see cref="T:System.Runtime.CompilerServices.ITuple"/></c></item>
+/// </list>
 /// </summary>
 /// <param name="class">The class that provides the data.</param>
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
@@ -100,7 +106,13 @@ public class ClassDataAttribute(Type @class) : DataAttribute
 
 /// <summary>
 /// Provides a data source for a data theory, with the data coming from a class
-/// which must implement IEnumerable&lt;object?[]&gt;.
+/// which must implement <see cref="IEnumerable{T}"/> or <see cref="IAsyncEnumerable{T}"/>
+/// of one of:
+/// <list type="bullet">
+/// <item><c><see cref="object"/>?[]</c></item>
+/// <item><c><see cref="ITheoryDataRow"/></c></item>
+/// <item><c><see cref="T:System.Runtime.CompilerServices.ITuple"/></c></item>
+/// </list>
 /// </summary>
 /// <typeparam name="TClass">The class that provides the data.</typeparam>
 /// <remarks>
