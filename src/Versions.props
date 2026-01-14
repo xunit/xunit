@@ -7,7 +7,7 @@
     <ILRepack_Version>2.0.44</ILRepack_Version>
     <Microsoft_NetCore_App_Ref_Version>10.0.0</Microsoft_NetCore_App_Ref_Version>
     <Microsoft_NETFramework_ReferenceAssemblies_Version>1.0.3</Microsoft_NETFramework_ReferenceAssemblies_Version>
-    <Microsoft_SourceLink_GitHub_Version>8.0.0</Microsoft_SourceLink_GitHub_Version>
+    <Microsoft_SourceLink_GitHub_Version>10.0.102</Microsoft_SourceLink_GitHub_Version>
     <Nerdbank_GitVersioning_Version>3.9.50</Nerdbank_GitVersioning_Version>
     <TunnelVisionLabs_ReferenceAssemblyAnnotator_Version>1.0.0-alpha.160</TunnelVisionLabs_ReferenceAssemblyAnnotator_Version>
 
