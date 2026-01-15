@@ -1,10 +1,13 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
+
+#if !NETCOREAPP
+using System.Reflection;
+#endif
 
 namespace Xunit.Runner.SystemConsole;
 
@@ -35,14 +38,22 @@ sealed class ConsoleRunner(string[] args) :
 
 		try
 		{
+#if NETCOREAPP
+			var runnerFolder = AppContext.BaseDirectory;
+#else
 			var runnerFolder = Path.GetDirectoryName(typeof(Program).Assembly.Location);
+#endif
 			var commandLine = new CommandLine(consoleHelper, runnerFolder, args);
 
 			if (args.Length == 0 || commandLine.HelpRequested)
 			{
 				PrintHeader();
 
+#if NETCOREAPP
+				var executableName = "xunit.v3.runner.console";
+#else
 				var executableName = Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().GetLocalCodeBase());
+#endif
 
 				consoleHelper.WriteLine("Copyright (C) .NET Foundation.");
 				consoleHelper.WriteLine();
@@ -57,9 +68,14 @@ sealed class ConsoleRunner(string[] args) :
 
 				consoleHelper.WriteLine("usage: {0} <assemblyFile>[:seed] [configFile] [assemblyFile[:seed] [configFile]...] [options] [reporter] [resultFormat filename [...]]", executableName);
 				consoleHelper.WriteLine();
+#if NETCOREAPP
+				consoleHelper.WriteLine("Note: Only v3 test projects are supported (v1 and v2 are not supported by this runner)");
+				consoleHelper.WriteLine("      Configuration files must by JSON format, and the filename must end in .json");
+#else
 				consoleHelper.WriteLine("Note: Configuration files must end in .json (for JSON) or .config (for XML)");
 				consoleHelper.WriteLine("      XML is supported for v1 and v2 only, on .NET Framework only");
 				consoleHelper.WriteLine("      JSON is supported for v2 and later, on all supported platforms");
+#endif
 
 				commandLine.PrintUsage();
 
@@ -167,6 +183,33 @@ sealed class ConsoleRunner(string[] args) :
 		}
 	}
 
+#if NETFRAMEWORK && BUILD_X86
+	static string GetRuntimeIdentifier() => "x86";
+#elif NETFRAMEWORK
+	static string GetRuntimeIdentifier() => "AnyCPU";
+#else
+	static string GetRuntimeIdentifier()
+	{
+		var os =
+			RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+				? "win"
+				: RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
+					? "linux"
+					: RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
+						? "osx"
+						: "unknown";
+
+		return os + "-" + RuntimeInformation.OSArchitecture switch
+		{
+			Architecture.X86 => "x86",
+			Architecture.X64 => "x64",
+			Architecture.Arm => "arm",
+			Architecture.Arm64 => "arm64",
+			_ => "unknown",
+		};
+	}
+#endif
+
 	async ValueTask ListProject(XunitProject project)
 	{
 		var (listOption, listFormat) = project.Configuration.List!.Value;
@@ -175,6 +218,18 @@ sealed class ConsoleRunner(string[] args) :
 		foreach (var assembly in project.Assemblies)
 		{
 			var assemblyFileName = Guard.ArgumentNotNull(assembly.AssemblyFileName);
+
+#if NETCOREAPP
+			if (assembly.AssemblyMetadata.XunitVersion < 3)
+				throw new ArgumentException(
+					string.Format(
+						CultureInfo.CurrentCulture,
+						"xUnit.net v{0} is not supported in this runner: {1}",
+						assembly.AssemblyMetadata.XunitVersion,
+						assemblyFileName
+					)
+				);
+#endif
 
 			// Default to false for console runners
 			assembly.Configuration.PreEnumerateTheories ??= false;
@@ -224,31 +279,32 @@ sealed class ConsoleRunner(string[] args) :
 
 	void PrintHeader()
 	{
+#if NETCOREAPP
+		consoleHelper.WriteLine(
+			"xUnit.net v3 Console Runner v{0} [{1}]",
+			ThisAssembly.AssemblyInformationalVersion,
+			GetRuntimeIdentifier()
+		);
+#else
 #if NET472
-		var buildTarget = "net472" +
+		var buildTarget = "net472";
 #elif NET48
-		var buildTarget = "net48" +
+		var buildTarget = "net48";
 #elif NET481
-		var buildTarget = "net481" +
-#elif NET8_0
-		var buildTarget = "net8.0" +
+		var buildTarget = "net481";
 #else
 #error Unknown target framework
 #endif
 
-#if BUILD_X86
-		"/x86";
-#else
-		"/AnyCPU";
-#endif
-
 		consoleHelper.WriteLine(
-			"xUnit.net v3 Console Runner v{0} [{1}] ({2}-bit {3})",
-			ThisAssembly.AssemblyInformationalVersion,
-			buildTarget,
-			IntPtr.Size * 8,
-			RuntimeInformation.FrameworkDescription
-		);
+			"xUnit.net v3 Console Runner v{0} [{1}/{2}] ({3}-bit {4})",
+ 			ThisAssembly.AssemblyInformationalVersion,
+ 			buildTarget,
+			GetRuntimeIdentifier(),
+ 			IntPtr.Size * 8,
+ 			RuntimeInformation.FrameworkDescription
+ 		);
+#endif
 	}
 
 	async ValueTask<int> RunProject(
@@ -309,6 +365,18 @@ sealed class ConsoleRunner(string[] args) :
 		try
 		{
 			var assemblyFileName = Guard.ArgumentNotNull(assembly.AssemblyFileName);
+
+#if NETCOREAPP
+			if (assembly.AssemblyMetadata.XunitVersion < 3)
+				throw new ArgumentException(
+					string.Format(
+						CultureInfo.CurrentCulture,
+						"xUnit.net v{0} is not supported in this runner: {1}",
+						assembly.AssemblyMetadata.XunitVersion,
+						assemblyFileName
+					)
+				);
+#endif
 
 			// Default to false for console runners
 			assembly.Configuration.PreEnumerateTheories ??= false;

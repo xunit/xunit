@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DotNetCliTool Version="2">
+	<Commands>
+		<Command Name="xunit-console" />
+	</Commands>
+	<RuntimeIdentifierPackages>
+		<RuntimeIdentifierPackage RuntimeIdentifier="linux-arm" Id="xunit-console-tool.linux-arm" />
+		<RuntimeIdentifierPackage RuntimeIdentifier="linux-arm64" Id="xunit-console-tool.linux-arm64" />
+		<RuntimeIdentifierPackage RuntimeIdentifier="linux-x64" Id="xunit-console-tool.linux-x64" />
+		<RuntimeIdentifierPackage RuntimeIdentifier="osx-arm64" Id="xunit-console-tool.osx-arm64" />
+		<RuntimeIdentifierPackage RuntimeIdentifier="osx-x64" Id="xunit-console-tool.osx-x64" />
+		<RuntimeIdentifierPackage RuntimeIdentifier="win-arm64" Id="xunit-console-tool.win-arm64" />
+		<RuntimeIdentifierPackage RuntimeIdentifier="win-x86" Id="xunit-console-tool.win-x86" />
+		<RuntimeIdentifierPackage RuntimeIdentifier="win-x64" Id="xunit-console-tool.win-x64" />
+	</RuntimeIdentifierPackages>
+</DotNetCliTool>

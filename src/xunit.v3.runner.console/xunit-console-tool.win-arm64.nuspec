@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package>
+	<metadata>
+		<id>xunit-console-tool.win-arm64</id>
+		<version>$PackageVersion$</version>
+		<title>.NET tool for xunit-console [win-arm64]</title>
+		<authors>jnewkirk,bradwilson</authors>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<license type="expression">Apache-2.0</license>
+		<licenseUrl>https://licenses.nuget.org/Apache-2.0</licenseUrl>
+		<icon>_content/logo-128-transparent.png</icon>
+		<readme>_content/README.md</readme>
+		<releaseNotes>https://xunit.net/releases/v3/$PackageVersion$</releaseNotes>
+		<description>xunit.v3.runner.console, provided as a dotnet tool ('xunit-console'), for Windows on Arm.
+
+Capable of running v3 .NET test projects only. Neither .NET Framework nor v1/v2 test projects are supported.</description>
+		<copyright>Copyright (C) .NET Foundation</copyright>
+		<repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
+		<packageTypes>
+			<packageType name="DotnetToolRidPackage" />
+		</packageTypes>
+	</metadata>
+	<!-- Remember to update tools\builder\targets\SignAssemblies.cs when assemblies are added or removed -->
+	<files>
+		<file target="_content\" src="..\..\tools\media\logo-128-transparent.png" />
+		<file target="_content\README.md" src="obj\xunit-console-tool.win-arm64.README.md" />
+
+		<file target="tools\net10.0\win-arm64\" src="Package\tools\net10.0\windows\*" />
+		<file target="tools\net10.0\win-arm64\" src="bin\$Configuration$\net10.0\win-arm64\Microsoft.Bcl.AsyncInterfaces.dll" />
+		<file target="tools\net10.0\win-arm64\" src="bin\$Configuration$\net10.0\win-arm64\Mono.Cecil.dll" />
+		<file target="tools\net10.0\win-arm64\" src="bin\$Configuration$\net10.0\win-arm64\xunit.abstractions.dll" />
+		<file target="tools\net10.0\win-arm64\" src="bin\$Configuration$\net10.0\win-arm64\$SignedPath$xunit.v3.runner.console.exe" />
+		<file target="tools\net10.0\win-arm64\" src="bin\$Configuration$\net10.0\win-arm64\xunit.v3.runner.console.deps.json" />
+		<file target="tools\net10.0\win-arm64\" src="bin\$Configuration$\net10.0\win-arm64\xunit.v3.runner.console.dll" />
+		<file target="tools\net10.0\win-arm64\" src="bin\$Configuration$\net10.0\win-arm64\xunit.v3.runner.console.dll.config" />
+		<file target="tools\net10.0\win-arm64\" src="bin\$Configuration$\net10.0\win-arm64\xunit.v3.runner.console.runtimeconfig.json" />
+		<file target="tools\net10.0\win-arm64\" src="..\xunit.v3.common\bin\$Configuration$\netstandard2.0\$SignedPath$xunit.v3.common.dll" />
+		<file target="tools\net10.0\win-arm64\" src="..\xunit.v3.runner.common\bin\$Configuration$\netstandard2.0\$SignedPath$xunit.v3.runner.common.dll" />
+		<file target="tools\net10.0\win-arm64\" src="..\xunit.v3.runner.utility\bin\$Configuration$\net8.0\$SignedPath$xunit.v3.runner.utility.netcore.dll" />
+	</files>
+</package>
