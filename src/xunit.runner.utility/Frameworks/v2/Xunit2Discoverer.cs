@@ -206,7 +206,7 @@ namespace Xunit
                     catch (TypeLoadException) { }    // Only be willing to eat "Xunit.Sdk.TestCaseDescriptorFactory" doesn't exist
                 }
 
-                defaultTestCaseDescriptorProvider = new DefaultTestCaseDescriptorProvider(RemoteDiscoverer);
+                defaultTestCaseDescriptorProvider = new DefaultTestCaseDescriptorProvider(RemoteDiscoverer, DiagnosticMessageSink);
             }
 
             return defaultTestCaseDescriptorProvider.GetTestCaseDescriptors(testCases, includeSerialization);
