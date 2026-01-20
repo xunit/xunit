@@ -15,24 +15,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <T4Transform Include="MatrixTheoryData.tt" />
-    <Compile Update="MatrixTheoryData.cs" DependentUpon="MatrixTheoryData.tt" />
-    <T4Transform Include="TheoryData.tt" />
-    <Compile Update="TheoryData.cs" DependentUpon="TheoryData.tt" />
-    <T4Transform Include="TheoryDataRow.tt" />
-    <Compile Update="TheoryDataRow.cs" DependentUpon="TheoryDataRow.tt" />
-  </ItemGroup>
-
-  <ItemGroup>
     <EmbeddedResource Include="Resources\*.rd.xml" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\xunit.v3.common\xunit.v3.common.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="T4.BuildTools" Version="3.0.0" PrivateAssets="All" />
   </ItemGroup>
 
 </Project>
