@@ -33,6 +33,13 @@ public class CollectionAssertsTests
 		}
 
 		[Fact]
+		public static void EmptyCollection_ThrowIfEmptyFalse_Success()
+		{
+			var items = Array.Empty<int>();
+			Assert.All(items, item => Assert.Equal(1, item), false);
+		}
+
+		[Fact]
 		public static void Failure()
 		{
 			var items = new[] { 1, 1, 42, 2112, 1, 1 };
@@ -50,6 +57,20 @@ public class CollectionAssertsTests
 				"     Error: Assert.Equal() Failure: Values differ" + Environment.NewLine +
 				"            Expected: 1" + Environment.NewLine +
 				"            Actual:   2112",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public static void EmptyCollection_ThrowIfEmptyTrue_Failure()
+		{
+			var items = Array.Empty<int>();
+			var ex = Record.Exception(() => Assert.All(items, item => Assert.Equal(1, item), true));
+
+			Assert.IsType<AllException>(ex);
+			Assert.Equal(
+				"Assert.All() Failure: The collection was empty." + Environment.NewLine +
+				"At least one item was expected.",
 				ex.Message
 			);
 		}
@@ -85,6 +106,13 @@ public class CollectionAssertsTests
 		}
 
 		[Fact]
+		public static async Task EmptyCollection_ThrowIfEmptyFalse_Success()
+		{
+			var items = Array.Empty<int>();
+			await Assert.AllAsync(items, async item => { await Task.Yield(); Assert.Equal(1, item); }, false);
+		}
+
+		[Fact]
 		public static void Failure()
 		{
 			var items = new[] { 1, 1, 42, 2112, 1, 1 };
@@ -102,6 +130,20 @@ public class CollectionAssertsTests
 				"     Error: Assert.Equal() Failure: Values differ" + Environment.NewLine +
 				"            Expected: 1" + Environment.NewLine +
 				"            Actual:   2112",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public static async Task EmptyCollection_ThrowIfEmptyTrue_Failure()
+		{
+			var items = Array.Empty<int>();
+			var ex = await Record.ExceptionAsync(() => Assert.AllAsync(items, async item => { await Task.Yield(); Assert.Equal(1, item); }, true));
+
+			Assert.IsType<AllException>(ex);
+			Assert.Equal(
+				"Assert.All() Failure: The collection was empty." + Environment.NewLine +
+				"At least one item was expected.",
 				ex.Message
 			);
 		}
