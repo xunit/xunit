@@ -3,6 +3,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Security.Cryptography;
+using System.Text;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using Xunit.Internal;
@@ -21,7 +23,7 @@ public sealed class XunitGenerateEntryPoint : Task
 	string? rootNamespace;
 
 	[Required]
-	public ITaskItem Language { get; set; }
+	public string Language { get; set; }
 
 	public string RootNamespace
 	{
@@ -32,18 +34,22 @@ public sealed class XunitGenerateEntryPoint : Task
 	[Required]
 	public ITaskItem SourcePath { get; set; }
 
+	[Required]
+	public string SuffixSeed { get; set; }
+
 	public string? UseMicrosoftTestingPlatformRunner { get; set; }
 
 	public override bool Execute()
 	{
 		Log.LogMessage(MessageImportance.Normal, $"SourcePath: '{SourcePath.ItemSpec}'");
-		Log.LogMessage(MessageImportance.Normal, $"Language: '{Language.ItemSpec}'");
+		Log.LogMessage(MessageImportance.Normal, $"Language: '{Language}'");
 		Log.LogMessage(MessageImportance.Normal, $"RootNamespace: '{RootNamespace}'");
+		Log.LogMessage(MessageImportance.Normal, $"SuffixSeed: '{SuffixSeed}'");
 
-		if (!languages.Contains(Language.ItemSpec))
-			Log.LogError($"Language '{Language.ItemSpec}' is not supported.");
+		if (!languages.Contains(Language))
+			Log.LogError($"Language '{Language}' is not supported.");
 		else
-			GenerateEntryPoint(Language.ItemSpec, RootNamespace, UseMicrosoftTestingPlatformRunner ?? "FALSE", SourcePath, Log);
+			GenerateEntryPoint(Language, RootNamespace, UseMicrosoftTestingPlatformRunner ?? "FALSE", SuffixSeed, SourcePath.ItemSpec, Log);
 
 		return !Log.HasLoggedErrors;
 	}
@@ -52,7 +58,8 @@ public sealed class XunitGenerateEntryPoint : Task
 		string language,
 		string rootNamespace,
 		string useMicrosoftTestingPlatformRunner,
-		ITaskItem sourcePath,
+		string suffixSeed,
+		string sourcePath,
 		TaskLoggingHelper log)
 	{
 		var selfRegisteredExtensionsNamespace =
@@ -62,12 +69,12 @@ public sealed class XunitGenerateEntryPoint : Task
 
 		var entryPointSource = (language.ToUpperInvariant(), useMicrosoftTestingPlatformRunner.ToUpperInvariant()) switch
 		{
-			(LanguageCS, "FALSE") => XunitEntryPointGenerator.GetXunitEntryPointCSharp(selfRegisteredExtensionsNamespace),
-			(LanguageCS, "TRUE") => XunitEntryPointGenerator.GetMTPEntryPointCSharp(selfRegisteredExtensionsNamespace),
-			(LanguageCS, "OFF") => XunitEntryPointGenerator.GetNonMTPEntryPointCSharp(),
-			(LanguageFS, "FALSE") => XunitEntryPointGenerator.GetXunitEntryPointFSharp(selfRegisteredExtensionsNamespace),
-			(LanguageFS, "TRUE") => XunitEntryPointGenerator.GetMTPEntryPointFSharp(selfRegisteredExtensionsNamespace),
-			(LanguageFS, "OFF") => XunitEntryPointGenerator.GetNonMTPEntryPointFSharp(),
+			(LanguageCS, "FALSE") => XunitEntryPointGenerator.GetXunitEntryPointCSharp(GetNamespaceSuffix(suffixSeed), selfRegisteredExtensionsNamespace),
+			(LanguageCS, "TRUE") => XunitEntryPointGenerator.GetMTPEntryPointCSharp(GetNamespaceSuffix(suffixSeed), selfRegisteredExtensionsNamespace),
+			(LanguageCS, "OFF") => XunitEntryPointGenerator.GetNonMTPEntryPointCSharp(GetNamespaceSuffix(suffixSeed)),
+			(LanguageFS, "FALSE") => XunitEntryPointGenerator.GetXunitEntryPointFSharp(GetNamespaceSuffix(suffixSeed), selfRegisteredExtensionsNamespace),
+			(LanguageFS, "TRUE") => XunitEntryPointGenerator.GetMTPEntryPointFSharp(GetNamespaceSuffix(suffixSeed), selfRegisteredExtensionsNamespace),
+			(LanguageFS, "OFF") => XunitEntryPointGenerator.GetNonMTPEntryPointFSharp(GetNamespaceSuffix(suffixSeed)),
 			(LanguageVB, "FALSE") => XunitEntryPointGenerator.GetXunitEntryPointVB(selfRegisteredExtensionsNamespace),
 			(LanguageVB, "TRUE") => XunitEntryPointGenerator.GetMTPEntryPointVB(selfRegisteredExtensionsNamespace),
 			(LanguageVB, "OFF") => XunitEntryPointGenerator.GetNonMTPEntryPointVB(),
@@ -76,6 +83,24 @@ public sealed class XunitGenerateEntryPoint : Task
 
 		log.LogMessage(MessageImportance.Normal, $"Entrypoint source:{Environment.NewLine}'{entryPointSource}'");
 
-		File.WriteAllText(sourcePath.ItemSpec, entryPointSource);
+		File.WriteAllText(sourcePath, entryPointSource);
+	}
+
+	static string GetNamespaceSuffix(string suffixSeed)
+	{
+#if NETFRAMEWORK
+		using var hasher = SHA256.Create();
+		return
+			Convert
+				.ToBase64String(hasher.ComputeHash(Encoding.UTF8.GetBytes(suffixSeed)))
+#else
+		return
+			Convert
+				.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(suffixSeed)))
+#endif
+				.Substring(0, 9)
+				.Replace('+', 'à')
+				.Replace('/', 'á')
+				.Replace('=', 'â');
 	}
 }

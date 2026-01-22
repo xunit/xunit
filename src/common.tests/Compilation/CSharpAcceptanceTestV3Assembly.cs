@@ -56,7 +56,7 @@ public class CSharpAcceptanceTestV3Assembly :
 			""";
 
 		// Simulate the generated entry point, since we can't use xunit.v3.msbuildtasks to generate one
-		yield return XunitEntryPointGenerator.GetXunitEntryPointCSharp("Xunit.");
+		yield return XunitEntryPointGenerator.GetXunitEntryPointCSharp("abc123", "Xunit.");
 	}
 
 	protected override IEnumerable<string> GetStandardReferences() =>
