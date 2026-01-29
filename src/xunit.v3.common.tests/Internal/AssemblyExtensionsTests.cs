@@ -1,6 +1,4 @@
-using System;
 using Xunit;
-using Xunit.Internal;
 
 public class AssemblyExtensionsTests
 {

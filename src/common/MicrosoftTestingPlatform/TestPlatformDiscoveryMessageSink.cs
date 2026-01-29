@@ -1,7 +1,4 @@
-using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
-using System.Threading;
 using Microsoft.Testing.Platform.Extensions.Messages;
 using Microsoft.Testing.Platform.Messages;
 using Microsoft.Testing.Platform.TestHost;

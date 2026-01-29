@@ -1,16 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Linq.Expressions;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using Microsoft.Testing.Platform.CommandLine;
 using Microsoft.Testing.Platform.Configurations;
 using NSubstitute;
 using Xunit;
-using Xunit.Runner.Common;
 using Xunit.MicrosoftTestingPlatform;
+using Xunit.Runner.Common;
 using Xunit.Sdk;
 
 public class CommandLineOptionsProviderTests

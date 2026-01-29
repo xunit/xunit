@@ -1,10 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
 using System.Runtime.Versioning;
 using Xunit.Abstractions;
-using Xunit.Internal;
 using Xunit.Runner.Common;
 
 namespace Xunit.Runner.v2;

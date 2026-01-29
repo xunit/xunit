@@ -1,5 +1,3 @@
-using System.IO;
-
 namespace Xunit.v3;
 
 /// <summary>

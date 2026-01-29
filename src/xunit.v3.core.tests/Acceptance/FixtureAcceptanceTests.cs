@@ -1,9 +1,6 @@
 #pragma warning disable IDE0290  // Lots of things in here can't use primary constructors
 
-using System;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using Xunit;
 using Xunit.Sdk;
 

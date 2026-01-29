@@ -1,4 +1,3 @@
-using System;
 using Xunit.v3;
 
 namespace Xunit;

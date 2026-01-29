@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using Microsoft.Testing.Platform.Extensions.OutputDevice;
 using Microsoft.Testing.Platform.OutputDevice;
 

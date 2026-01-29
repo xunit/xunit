@@ -1,5 +1,3 @@
-using System;
-
 internal static class MemoryExtensions
 {
 	public static Memory<T> Memoryify<T>(this T[]? values) =>

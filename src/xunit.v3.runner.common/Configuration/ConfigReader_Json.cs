@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using Xunit.Internal;
 using Xunit.Sdk;
 
 namespace Xunit.Runner.Common;

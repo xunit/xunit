@@ -1,7 +1,3 @@
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using Xunit.Internal;
-
 namespace Xunit.v3;
 
 public partial class TestCaseDiscovered

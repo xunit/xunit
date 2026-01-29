@@ -1,6 +1,3 @@
-using System;
-using System.Diagnostics.CodeAnalysis;
-
 namespace Xunit.Sdk;
 
 /// <summary>

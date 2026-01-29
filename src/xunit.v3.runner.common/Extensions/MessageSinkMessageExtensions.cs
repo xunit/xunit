@@ -1,4 +1,3 @@
-using Xunit.Internal;
 using Xunit.Runner.Common;
 
 namespace Xunit.Sdk;

@@ -1,6 +1,4 @@
-using System;
 using System.Xml.Linq;
-using Xunit.Internal;
 
 namespace Xunit.Runner.Common;
 

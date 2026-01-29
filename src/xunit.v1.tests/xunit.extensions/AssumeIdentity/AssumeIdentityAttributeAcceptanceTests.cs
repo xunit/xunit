@@ -1,6 +1,5 @@
 using System.Security;
 using System.Security.Permissions;
-using System.Threading;
 using Xunit;
 using Xunit.Extensions;
 

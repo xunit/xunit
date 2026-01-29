@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Xunit;
 using Xunit.Sdk;

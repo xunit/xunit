@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
-using Xunit.Internal;
 using Xunit.Sdk;
 
 namespace Xunit.v3;

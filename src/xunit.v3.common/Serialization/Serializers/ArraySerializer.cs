@@ -1,6 +1,3 @@
-using System;
-using System.Globalization;
-
 namespace Xunit.Sdk;
 
 internal static class ArraySerializer

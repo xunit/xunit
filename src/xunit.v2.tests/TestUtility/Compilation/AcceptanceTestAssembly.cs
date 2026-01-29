@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Reflection;
-using Xunit.Internal;
 
 public abstract class AcceptanceTestAssembly : IDisposable
 {

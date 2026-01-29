@@ -4,8 +4,6 @@
 //
 // Licensed by Microsoft under the MIT license. https://github.com/microsoft/testfx/blob/3564400fca5863f716d89fc84326e420f0b33d1a/LICENSE
 
-using System.Globalization;
-
 namespace Xunit.Internal;
 
 /// <summary>

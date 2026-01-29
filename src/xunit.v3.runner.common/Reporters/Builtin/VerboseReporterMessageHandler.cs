@@ -1,5 +1,3 @@
-using Xunit.Internal;
-
 namespace Xunit.Runner.Common;
 
 /// <summary>

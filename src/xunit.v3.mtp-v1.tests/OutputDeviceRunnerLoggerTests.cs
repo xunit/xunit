@@ -1,9 +1,7 @@
-using System;
-using System.Collections.Generic;
 using Microsoft.Testing.Platform.OutputDevice;
 using Xunit;
-using Xunit.Runner.Common;
 using Xunit.MicrosoftTestingPlatform;
+using Xunit.Runner.Common;
 
 public class OutputDeviceRunnerLoggerTests
 {

@@ -1,6 +1,4 @@
-using System.Threading;
 using Xunit;
-using Xunit.Internal;
 using Xunit.v3;
 
 public class TokenSourceCancellationMessageSinkTests

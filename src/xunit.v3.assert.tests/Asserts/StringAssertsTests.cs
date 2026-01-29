@@ -1,6 +1,5 @@
 #pragma warning disable SYSLIB1045 // Convert to 'GeneratedRegexAttribute'.
 
-using System;
 using System.Text.RegularExpressions;
 using Xunit;
 using Xunit.Sdk;

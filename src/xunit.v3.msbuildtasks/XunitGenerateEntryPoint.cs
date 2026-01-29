@@ -1,19 +1,16 @@
 #pragma warning disable CS8618 // Properties are set by MSBuild
 
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
-using Xunit.Internal;
+using MSBuildTask = Microsoft.Build.Utilities.Task;
 
 namespace Xunit.v3.MSBuildTasks;
 
 // Adapted from https://github.com/microsoft/testfx/blob/a047150c9fcedb16d29d5da35a459352d80c7818/src/Platform/Microsoft.Testing.Platform.MSBuild/Tasks/TestingPlatformEntryPointTask.cs
 
-public sealed class XunitGenerateEntryPoint : Task
+public sealed class XunitGenerateEntryPoint : MSBuildTask
 {
 	const string LanguageCS = "C#";
 	const string LanguageFS = "F#";

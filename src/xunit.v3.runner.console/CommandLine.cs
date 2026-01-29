@@ -1,8 +1,5 @@
 #pragma warning disable CA1852  // This type is not sealed because it's derived from in unit tests
 
-using System;
-using System.Collections.Generic;
-using System.Globalization;
 using System.Reflection;
 using Xunit.Runner.Common;
 

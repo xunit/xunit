@@ -1,7 +1,3 @@
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Runner.v3;
@@ -160,7 +156,7 @@ public class Xunit3Tests
 	public ValueTask CanFindFilteredTestsAndRunThem_UsingFind_UsingRun_Self(
 		bool runInProcess,
 		bool synchronousMessageReporting) =>
-			CanFindFilteredTestsAndRunThem_UsingFind_UsingRun(runInProcess, synchronousMessageReporting, typeof(Xunit3Tests).SafeName(), nameof(GuardClauses_Ctor), "Xunit3Tests.cs", 32);
+			CanFindFilteredTestsAndRunThem_UsingFind_UsingRun(runInProcess, synchronousMessageReporting, typeof(Xunit3Tests).SafeName(), nameof(GuardClauses_Ctor), "Xunit3Tests.cs", 28);
 
 	[Theory]
 	[InlineData(false, false)]
@@ -173,7 +169,7 @@ public class Xunit3Tests
 	{
 		UseAssertTests();
 
-		return CanFindFilteredTestsAndRunThem_UsingFind_UsingRun(runInProcess, synchronousMessageReporting, "BooleanAssertsTests+True", "AssertTrue", "BooleanAssertsTests.cs", 57);
+		return CanFindFilteredTestsAndRunThem_UsingFind_UsingRun(runInProcess, synchronousMessageReporting, "BooleanAssertsTests+True", "AssertTrue", "BooleanAssertsTests.cs", 56);
 	}
 
 	async ValueTask CanFindFilteredTestsAndRunThem_UsingFindAndRun(

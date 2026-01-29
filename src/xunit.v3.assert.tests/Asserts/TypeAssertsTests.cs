@@ -1,12 +1,8 @@
-using System;
 using Xunit;
 using Xunit.Sdk;
 
 #if NETFRAMEWORK
-using System.Collections.Generic;
-using System.IO;
 using System.Reflection;
-using System.Threading.Tasks;
 using System.Xml;
 #endif
 

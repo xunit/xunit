@@ -1,7 +1,5 @@
 #pragma warning disable CA5394  // Cryptographically secure randomness is not needed here
 
-using System;
-
 namespace Xunit.Sdk;
 
 /// <summary>

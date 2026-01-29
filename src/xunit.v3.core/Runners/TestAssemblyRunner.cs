@@ -1,10 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Xunit.Internal;
 using Xunit.Sdk;
 
 namespace Xunit.v3;

@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Concurrent;
-using System.Threading;
 using Xunit.Sdk;
 using Xunit.v3;
 

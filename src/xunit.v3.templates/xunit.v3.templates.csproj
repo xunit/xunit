@@ -3,6 +3,7 @@
   <PropertyGroup>
     <BeforePack>_UpdateTemplates</BeforePack>
     <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+    <ImplicitUsings>false</ImplicitUsings>
     <NoWarn>$(NoWarn);NU5128</NoWarn>
     <TargetFramework>netstandard2.0</TargetFramework>
     <XunitArtifactsPath>$(MSBuildThisFileDirectory)..\..\artifacts\xunit.v3.templates\</XunitArtifactsPath>

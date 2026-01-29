@@ -1,7 +1,5 @@
 #pragma warning disable xUnit3001 // This class is not created at runtime by the framework
 
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Xunit.Sdk;
 
 namespace Xunit.Runner.Common;

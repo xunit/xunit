@@ -1,10 +1,6 @@
-using System;
-using System.Linq;
-using System.Threading;
 using Microsoft.Testing.Platform.Extensions.Messages;
 using Microsoft.Testing.Platform.TestHost;
 using Xunit;
-using Xunit.Internal;
 using Xunit.MicrosoftTestingPlatform;
 using Xunit.Sdk;
 

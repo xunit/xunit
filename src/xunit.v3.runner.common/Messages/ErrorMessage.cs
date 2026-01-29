@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Xunit.Sdk;
 
 namespace Xunit.Runner.Common;

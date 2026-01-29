@@ -1,9 +1,5 @@
 #pragma warning disable IDE0056 // Use index operator
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using Microsoft.Build.Framework;

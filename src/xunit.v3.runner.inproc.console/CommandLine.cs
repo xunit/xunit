@@ -1,10 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Linq;
 using System.Reflection;
-using Xunit.Internal;
 using Xunit.Runner.Common;
 
 namespace Xunit.Runner.InProc.SystemConsole;

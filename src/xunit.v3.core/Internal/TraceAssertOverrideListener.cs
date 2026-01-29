@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Linq;
 using Xunit.Sdk;
 
 namespace Xunit.Internal;

@@ -1,8 +1,5 @@
 #nullable enable
 
-using System;
-using System.Collections.Generic;
-
 static class EnvironmentHelper
 {
 	static readonly Lazy<bool> isMono = new(() => Type.GetType("Mono.Runtime") is not null);

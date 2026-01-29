@@ -1,9 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using Xunit.Internal;
-
 namespace Xunit.Sdk;
 
 internal sealed class EnumSerializer : IXunitSerializer

@@ -3,19 +3,11 @@
 #pragma warning disable CA1724 // The name of this type is a shipped contract (and part of the MSBuild UX)
 #pragma warning disable CS8981 // The name of this type is a shipped contract (and part of the MSBuild UX)
 
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
-using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.Build.Framework;
-using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
 using MSBuildTask = Microsoft.Build.Utilities.Task;

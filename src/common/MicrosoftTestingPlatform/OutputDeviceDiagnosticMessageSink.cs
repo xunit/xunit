@@ -1,8 +1,6 @@
-using System;
 using Microsoft.Testing.Platform.Extensions.OutputDevice;
 using Microsoft.Testing.Platform.Logging;
 using Microsoft.Testing.Platform.OutputDevice;
-using Xunit.Internal;
 using Xunit.Sdk;
 
 namespace Xunit.MicrosoftTestingPlatform;

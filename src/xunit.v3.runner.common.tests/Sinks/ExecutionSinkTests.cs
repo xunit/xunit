@@ -1,12 +1,5 @@
 #pragma warning disable xUnit1051  // The TestableExecutionSink factory function does not always need a cancellation token
 
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using Xunit;

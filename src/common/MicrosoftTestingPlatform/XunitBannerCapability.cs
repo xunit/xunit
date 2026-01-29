@@ -1,9 +1,6 @@
 #pragma warning disable TPEXP  // IBannerMessageOwnerCapability is experimental
 
-using System;
-using System.Globalization;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using Microsoft.Testing.Platform.Capabilities.TestFramework;
 
 namespace Xunit.MicrosoftTestingPlatform;

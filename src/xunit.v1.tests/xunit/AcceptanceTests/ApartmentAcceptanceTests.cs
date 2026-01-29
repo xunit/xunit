@@ -1,4 +1,3 @@
-using System.Threading;
 using Xunit;
 
 namespace Xunit1

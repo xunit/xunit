@@ -1,5 +1,3 @@
-using System;
-using System.Linq;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
 

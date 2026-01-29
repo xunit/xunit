@@ -1,4 +1,3 @@
-using System;
 using Microsoft.Testing.Platform.Extensions.OutputDevice;
 using Microsoft.Testing.Platform.OutputDevice;
 using Xunit.Runner.Common;

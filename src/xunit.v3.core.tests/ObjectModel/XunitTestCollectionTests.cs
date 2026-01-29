@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using SomeNamespace;
 using Xunit;
 using Xunit.Sdk;

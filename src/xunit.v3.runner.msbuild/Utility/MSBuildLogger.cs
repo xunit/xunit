@@ -1,6 +1,5 @@
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
-using Xunit.Internal;
 using Xunit.Runner.Common;
 
 namespace Xunit.Runner.MSBuild;

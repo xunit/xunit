@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.Text;
-using Xunit.Internal;
 using Xunit.Sdk;
 
 namespace Xunit.v3;

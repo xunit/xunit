@@ -1,8 +1,6 @@
-using System;
 using System.Diagnostics;
 using NSubstitute;
 using Xunit;
-using Xunit.Internal;
 using Xunit.v3;
 
 [Collection(typeof(TraceCaptureTestOutputWriterTestsCollection))]

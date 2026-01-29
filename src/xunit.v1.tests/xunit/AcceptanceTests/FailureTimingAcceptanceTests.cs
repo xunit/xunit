@@ -1,5 +1,3 @@
-using System.Linq;
-using System.Threading;
 using TestUtility;
 using Xunit;
 using Xunit.Sdk;

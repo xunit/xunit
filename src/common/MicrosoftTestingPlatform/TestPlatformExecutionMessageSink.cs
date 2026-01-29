@@ -1,15 +1,8 @@
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using System.IO;
-using System.Threading;
 using Microsoft.Testing.Platform.Extensions.Messages;
 using Microsoft.Testing.Platform.Messages;
 using Microsoft.Testing.Platform.OutputDevice;
 using Microsoft.Testing.Platform.TestHost;
-using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
 

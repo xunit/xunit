@@ -1,5 +1,4 @@
 using Xunit;
-using Xunit.Internal;
 
 public class StringExtensionsTests
 {

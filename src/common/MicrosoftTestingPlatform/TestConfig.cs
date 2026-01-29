@@ -1,7 +1,4 @@
-using System;
-using System.Globalization;
 using Microsoft.Testing.Platform.Configurations;
-using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
 

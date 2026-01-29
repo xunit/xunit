@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace Xunit.Runner.v2;
 
 /// <summary>

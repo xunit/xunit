@@ -1,5 +1,3 @@
-using System;
-
 namespace Xunit.Runners;
 
 /// <summary>

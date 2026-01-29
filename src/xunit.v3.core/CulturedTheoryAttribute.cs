@@ -1,6 +1,5 @@
 #pragma warning disable CA1813 // This attribute is unsealed because it's an extensibility point
 
-using System.Globalization;
 using System.Runtime.CompilerServices;
 using Xunit.v3;
 

@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using Xunit.Internal;
-
 namespace Xunit.v3;
 
 public partial class TestStarting

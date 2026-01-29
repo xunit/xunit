@@ -1,7 +1,5 @@
-using System;
 using System.Reflection;
 using Xunit;
-using Xunit.Internal;
 using Xunit.Sdk;
 using Xunit.v3;
 

@@ -1,5 +1,3 @@
-using System.IO;
-using System.Linq;
 using NSubstitute;
 using Xunit;
 using Xunit.Runner.Common;

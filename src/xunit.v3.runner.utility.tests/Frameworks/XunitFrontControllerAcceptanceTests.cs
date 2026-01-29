@@ -1,14 +1,6 @@
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
-
-#if NETFRAMEWORK
-using System;
-using System.Threading.Tasks;
-#endif
 
 public class XunitFrontControllerAcceptanceTests
 {
@@ -207,7 +199,7 @@ public class XunitFrontControllerAcceptanceTests
 
 					Assert.Equal("DiscoveryStartingCompleteMessageSinkTests.NoTestCases", discovered.TestCaseDisplayName);
 					Assert.Equal("DiscoveryStartingCompleteMessageSinkTests.cs", Path.GetFileName(discovered.SourceFilePath));
-					Assert.Equal(7, discovered.SourceLineNumber);
+					Assert.Equal(6, discovered.SourceLineNumber);
 				},
 				discovered =>
 				{
@@ -215,7 +207,7 @@ public class XunitFrontControllerAcceptanceTests
 
 					Assert.Equal("DiscoveryStartingCompleteMessageSinkTests.TwoTestCases", discovered.TestCaseDisplayName);
 					Assert.Equal("DiscoveryStartingCompleteMessageSinkTests.cs", Path.GetFileName(discovered.SourceFilePath));
-					Assert.Equal(36, discovered.SourceLineNumber);
+					Assert.Equal(35, discovered.SourceLineNumber);
 				}
 			);
 
@@ -234,13 +226,13 @@ public class XunitFrontControllerAcceptanceTests
 				{
 					Assert.Equal("DiscoveryStartingCompleteMessageSinkTests.NoTestCases", starting.TestCaseDisplayName);
 					Assert.Equal("DiscoveryStartingCompleteMessageSinkTests.cs", Path.GetFileName(starting.SourceFilePath));
-					Assert.Equal(7, starting.SourceLineNumber);
+					Assert.Equal(6, starting.SourceLineNumber);
 				},
 				starting =>
 				{
 					Assert.Equal("DiscoveryStartingCompleteMessageSinkTests.TwoTestCases", starting.TestCaseDisplayName);
 					Assert.Equal("DiscoveryStartingCompleteMessageSinkTests.cs", Path.GetFileName(starting.SourceFilePath));
-					Assert.Equal(36, starting.SourceLineNumber);
+					Assert.Equal(35, starting.SourceLineNumber);
 				}
 			);
 		}
@@ -280,7 +272,7 @@ public class XunitFrontControllerAcceptanceTests
 
 					Assert.Equal("MessageSplitMessageSinkTests.DiagnosticMessages", discovered.TestCaseDisplayName);
 					Assert.Equal("MessageSplitMessageSinkTests.cs", Path.GetFileName(discovered.SourceFilePath));
-					Assert.Equal(16, discovered.SourceLineNumber);
+					Assert.Equal(13, discovered.SourceLineNumber);
 				},
 				discovered =>
 				{
@@ -288,7 +280,7 @@ public class XunitFrontControllerAcceptanceTests
 
 					Assert.Equal("MessageSplitMessageSinkTests.NonDiagnosticMessages", discovered.TestCaseDisplayName);
 					Assert.Equal("MessageSplitMessageSinkTests.cs", Path.GetFileName(discovered.SourceFilePath));
-					Assert.Equal(36, discovered.SourceLineNumber);
+					Assert.Equal(33, discovered.SourceLineNumber);
 				}
 			);
 
@@ -307,13 +299,13 @@ public class XunitFrontControllerAcceptanceTests
 				{
 					Assert.Equal("MessageSplitMessageSinkTests.DiagnosticMessages", starting.TestCaseDisplayName);
 					Assert.Equal("MessageSplitMessageSinkTests.cs", Path.GetFileName(starting.SourceFilePath));
-					Assert.Equal(16, starting.SourceLineNumber);
+					Assert.Equal(13, starting.SourceLineNumber);
 				},
 				starting =>
 				{
 					Assert.Equal("MessageSplitMessageSinkTests.NonDiagnosticMessages", starting.TestCaseDisplayName);
 					Assert.Equal("MessageSplitMessageSinkTests.cs", Path.GetFileName(starting.SourceFilePath));
-					Assert.Equal(36, starting.SourceLineNumber);
+					Assert.Equal(33, starting.SourceLineNumber);
 				}
 			);
 		}

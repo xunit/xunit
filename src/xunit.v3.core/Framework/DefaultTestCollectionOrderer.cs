@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
-using Xunit.Internal;
 using Xunit.Sdk;
 
 namespace Xunit.v3;

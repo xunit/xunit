@@ -1,11 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using Microsoft.Testing.Platform.Configurations;
 using Xunit;
-using Xunit.Runner.Common;
 using Xunit.MicrosoftTestingPlatform;
+using Xunit.Runner.Common;
 using Xunit.Sdk;
 
 public class TestConfigTests

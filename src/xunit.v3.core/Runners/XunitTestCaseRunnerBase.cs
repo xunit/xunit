@@ -1,7 +1,3 @@
-using System;
-using System.Threading.Tasks;
-using Xunit.Internal;
-
 namespace Xunit.v3;
 
 /// <summary>

@@ -1,5 +1,3 @@
-using System;
-using System.IO;
 using Xunit;
 using Xunit.Runner.Common;
 

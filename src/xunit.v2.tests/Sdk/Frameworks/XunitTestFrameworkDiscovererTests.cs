@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;

@@ -1,8 +1,3 @@
-using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using Xunit.Internal;
-
 namespace Xunit.Sdk;
 
 /// <summary>

@@ -1,6 +1,4 @@
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using Xunit.Internal;
 using Xunit.Sdk;
 
 #if XUNIT_RUNNER_COMMON

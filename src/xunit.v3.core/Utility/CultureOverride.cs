@@ -1,6 +1,3 @@
-using System;
-using System.Globalization;
-
 namespace Xunit.v3;
 
 sealed class CultureOverride : IDisposable

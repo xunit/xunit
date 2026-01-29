@@ -1,11 +1,5 @@
-using System;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
-using Xunit.Internal;
-
-#if !NETFRAMEWORK
-using System.Globalization;
-#endif
 
 namespace Xunit;
 

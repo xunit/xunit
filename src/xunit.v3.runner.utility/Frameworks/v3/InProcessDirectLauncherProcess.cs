@@ -1,8 +1,4 @@
-using System;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
 

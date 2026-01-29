@@ -1,12 +1,7 @@
 #pragma warning disable CA1813 // This attribute is unsealed because it's an extensibility point
 
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Globalization;
 using System.Reflection;
-using System.Threading.Tasks;
-using Xunit.Internal;
 using Xunit.Sdk;
 using Xunit.v3;
 

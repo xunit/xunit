@@ -1,8 +1,5 @@
-using System;
 using System.Collections.Concurrent;
-using System.IO;
 using System.Reflection;
-using Xunit.Internal;
 using Xunit.Sdk;
 
 #if XUNIT_RUNNER_UTILITY

@@ -1,9 +1,5 @@
 #pragma warning disable CA2225  // We don't want to add implicit operator overloads, this is just to support TheoryData changes
 
-using System;
-using System.Collections.Generic;
-using Xunit.Internal;
-
 namespace Xunit;
 
 /// <summary>

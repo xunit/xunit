@@ -1,5 +1,3 @@
-using System;
-using System.Globalization;
 using Xunit.v3;
 
 // This lives in Xunit.Sdk instead of Xunit.v3 because our message filter will only simplify exception

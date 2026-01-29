@@ -1,10 +1,6 @@
-using System;
 using System.Collections.Concurrent;
-using System.Globalization;
-using System.Linq;
 using System.Reflection;
 using System.Text;
-using Xunit.Internal;
 using Xunit.Sdk;
 
 #if XUNIT_RUNNER_COMMON

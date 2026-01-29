@@ -1,4 +1,3 @@
-using System;
 using System.Runtime.Serialization;
 
 // This lives in Xunit.Sdk instead of Xunit.v3 because our message filter will only simplify exception

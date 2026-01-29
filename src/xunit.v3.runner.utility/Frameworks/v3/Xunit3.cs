@@ -1,6 +1,3 @@
-using System;
-using System.Threading.Tasks;
-using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
 using Xunit.v3;

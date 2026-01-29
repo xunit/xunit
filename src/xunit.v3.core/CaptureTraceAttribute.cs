@@ -1,8 +1,6 @@
 #pragma warning disable CA1812  // CaptureTraceImpl is instantiated dynamically as an assembly fixture
 
-using System;
 using System.Diagnostics;
-using Xunit.Internal;
 using Xunit.v3;
 
 namespace Xunit;

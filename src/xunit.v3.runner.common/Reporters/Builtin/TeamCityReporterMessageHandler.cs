@@ -1,8 +1,4 @@
-using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Text;
-using Xunit.Internal;
 using Xunit.Sdk;
 
 namespace Xunit.Runner.Common;

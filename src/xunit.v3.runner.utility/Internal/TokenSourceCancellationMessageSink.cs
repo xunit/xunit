@@ -1,4 +1,3 @@
-using System.Threading;
 using Xunit.Sdk;
 
 namespace Xunit.Internal;

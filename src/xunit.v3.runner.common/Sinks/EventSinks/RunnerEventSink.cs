@@ -1,6 +1,5 @@
 #pragma warning disable CA1003 // The properties here are not intended to be .NET events
 
-using Xunit.Internal;
 using Xunit.Sdk;
 
 namespace Xunit.Runner.Common;

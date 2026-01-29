@@ -1,4 +1,3 @@
-using System;
 using Xunit;
 
 public class FixtureSpy : IUseFixture<FixtureSpyData>, IDisposable

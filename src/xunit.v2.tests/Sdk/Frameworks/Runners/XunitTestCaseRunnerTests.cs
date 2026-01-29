@@ -1,4 +1,3 @@
-using System.Threading;
 using NSubstitute;
 using Xunit;
 using Xunit.Sdk;

@@ -1,5 +1,3 @@
-using System;
-
 internal static class SpanExtensions
 {
 	public static Span<T> Spanify<T>(this T[]? values) =>

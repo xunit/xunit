@@ -11,6 +11,7 @@
     <DebugType Condition=" '$(TargetFrameworkIdentifier)' != '.NETFramework' ">embedded</DebugType>
     <DefineConstants>$(DefineConstants);XUNIT_NULLABLE;XUNIT_OVERLOAD_RESOLUTION_PRIORITY;XUNIT_POINTERS</DefineConstants>
     <DefineConstants Condition=" $(MSBuildProjectName.Contains('.aot')) ">$(DefineConstants);XUNIT_AOT</DefineConstants>
+    <ImplicitUsings Condition=" '$(ImplicitUsings)' == '' ">true</ImplicitUsings>
     <IsAotCompatible Condition=" $(MSBuildProjectName.Contains('.aot')) ">true</IsAotCompatible>
     <LangVersion>14.0</LangVersion>
     <MSBuildCopyContentTransitively>false</MSBuildCopyContentTransitively>
@@ -21,6 +22,10 @@
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
+
+  <ItemGroup Condition=" '$(ImplicitUsings)' == 'true' ">
+    <Using Include="System.Diagnostics.CodeAnalysis; System.Globalization; Xunit.Internal"/>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Nerdbank.GitVersioning" Version="$(Nerdbank_GitVersioning_Version)">

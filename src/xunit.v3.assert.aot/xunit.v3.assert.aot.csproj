@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <ImplicitUsings>false</ImplicitUsings>
     <TargetFramework>net9.0</TargetFramework>
   </PropertyGroup>
 

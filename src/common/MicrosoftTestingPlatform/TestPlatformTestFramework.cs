@@ -1,15 +1,8 @@
 #pragma warning disable CA1033  // Interface hiding is used explicitly here so that tests call the right methods
 
-using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Testing.Platform.Builder;
 using Microsoft.Testing.Platform.Capabilities.TestFramework;
 using Microsoft.Testing.Platform.Extensions.Messages;
@@ -18,7 +11,6 @@ using Microsoft.Testing.Platform.OutputDevice;
 using Microsoft.Testing.Platform.Requests;
 using Microsoft.Testing.Platform.Services;
 using Microsoft.Testing.Platform.TestHost;
-using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Runner.InProc.SystemConsole;
 using Xunit.Sdk;

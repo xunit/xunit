@@ -1,4 +1,3 @@
-using System;
 using NSubstitute;
 using Xunit;
 using Xunit.Sdk;

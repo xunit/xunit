@@ -1,6 +1,3 @@
-using System.Globalization;
-using Xunit.Internal;
-
 namespace Xunit.Runner.Common;
 
 /// <summary>

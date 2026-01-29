@@ -1,8 +1,3 @@
-using System;
-using System.Globalization;
-using System.Linq;
-using Xunit.Internal;
-
 namespace Xunit.Sdk;
 
 /// <summary>

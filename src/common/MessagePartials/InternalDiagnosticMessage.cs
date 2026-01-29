@@ -1,6 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using Xunit.Internal;
 using Xunit.Sdk;
 
 #if XUNIT_RUNNER_COMMON

@@ -1,4 +1,3 @@
-using Xunit.Internal;
 using Xunit.Sdk;
 
 // TODO: Should this have an interface, to match up with the core messages usage?

@@ -1,5 +1,4 @@
 using System.Reflection;
-using System.Threading;
 using System.Xml;
 using Xunit;
 using Xunit.Sdk;

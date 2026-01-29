@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Runtime.Versioning;
 using Mono.Cecil;
 using Xunit.Runner.Common;

@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Text;
 
 namespace Xunit.v3;

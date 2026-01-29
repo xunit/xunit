@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Reflection;
 using Xunit;
 using Xunit.Extensions;

@@ -1,8 +1,6 @@
 #pragma warning disable CA1812  // CaptureConsoleImpl is instantiated dynamically as an assembly fixture
 #pragma warning disable CA1822  // The attribute properties cannot be static, because that's not how attribute properties are supposed to work
 
-using System;
-using Xunit.Internal;
 using Xunit.v3;
 
 namespace Xunit;

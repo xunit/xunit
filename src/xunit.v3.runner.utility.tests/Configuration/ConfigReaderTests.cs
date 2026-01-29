@@ -1,9 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Reflection;
 using Xunit;
-using Xunit.Internal;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
 

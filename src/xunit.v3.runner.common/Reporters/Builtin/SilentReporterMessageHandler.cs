@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using Xunit.Sdk;
 
 namespace Xunit.Runner.Common;

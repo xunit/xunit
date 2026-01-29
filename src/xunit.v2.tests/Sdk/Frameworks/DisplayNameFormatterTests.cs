@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using Xunit;
 using Xunit.Sdk;
 using static Xunit.Sdk.TestMethodDisplay;

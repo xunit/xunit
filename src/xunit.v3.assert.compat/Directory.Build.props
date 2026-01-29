@@ -5,6 +5,7 @@
 
   <PropertyGroup>
     <!-- LangVersion 7.3 aligns with the default C# for net472. -->
+    <ImplicitUsings>false</ImplicitUsings>
     <LangVersion>7.3</LangVersion>
 
     <!-- Sign assemblies so they can used if needed -->

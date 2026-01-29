@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace Xunit.Runner.Common;
 
 public class SpyRunnerLogger : IRunnerLogger

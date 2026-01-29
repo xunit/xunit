@@ -1,9 +1,5 @@
 #nullable enable  // This file is temporarily shared with xunit.v1.tests and xunit.v2.tests, which are not nullable-enabled
 
-using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using System.IO;
 using System.Reflection;
 using System.Runtime.Versioning;
 

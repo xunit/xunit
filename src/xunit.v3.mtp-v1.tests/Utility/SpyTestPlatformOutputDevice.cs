@@ -1,11 +1,5 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.Testing.Platform.Extensions.OutputDevice;
 using Microsoft.Testing.Platform.OutputDevice;
-
-#if !MTP_V1
-using System.Threading;
-#endif
 
 public class SpyTestPlatformOutputDevice : IOutputDevice
 {
