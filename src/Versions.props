@@ -15,7 +15,7 @@
     <Microsoft_Testing_v1_Version>1.9.1</Microsoft_Testing_v1_Version>
 
     <!-- Used by xunit.v3.mtp-v2 -->
-    <Microsoft_Testing_v2_Version>2.0.2</Microsoft_Testing_v2_Version>
+    <Microsoft_Testing_v2_Version>2.1.0</Microsoft_Testing_v2_Version>
 
     <!-- Used by NuGet packages (xunit.v3 and xunit.v3.templates) -->
     <Microsoft_NET_Test_Sdk_Version>18.0.1</Microsoft_NET_Test_Sdk_Version>
