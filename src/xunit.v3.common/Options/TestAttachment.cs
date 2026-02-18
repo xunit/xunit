@@ -73,7 +73,7 @@ public class TestAttachment
 	{
 		Guard.ArgumentNotNull(value);
 		Guard.ArgumentNotNull(mediaType);
-		Guard.ArgumentValid("Media type is an invalid format", MediaTypeRegex.Match(mediaType).Success, nameof(mediaType));
+		Guard.ArgumentValid("Media type is an invalid format", MediaTypeRegex.IsMatch(mediaType), nameof(mediaType));
 
 		return new(value, mediaType);
 	}
