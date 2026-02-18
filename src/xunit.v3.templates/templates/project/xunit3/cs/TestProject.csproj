@@ -8,7 +8,7 @@
     <!--#endif -->
     <Nullable>enable</Nullable>
     <OutputType>Exe</OutputType>
-    <RootNamespace>TestProject</RootNamespace>
+    <RootNamespace Condition="'$(name)' != '$(name{-VALUE-FORMS-}safe_namespace)'">TestProject</RootNamespace>
     <TargetFramework>net8.0</TargetFramework>
     <!--#if (TestRunner != "vstest") -->
     <!--#if (Framework != "net10.0") -->
