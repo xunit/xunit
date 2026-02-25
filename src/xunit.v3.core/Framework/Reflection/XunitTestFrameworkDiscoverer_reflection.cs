@@ -1,0 +1,185 @@
+using System.Reflection;
+using Xunit.Sdk;
+
+namespace Xunit.v3;
+
+/// <summary>
+/// The implementation of <see cref="ITestFrameworkDiscoverer"/> that supports discovery
+/// of unit tests linked against xunit.v3.core.dll.
+/// </summary>
+/// <param name="testAssembly">The test assembly</param>
+/// <param name="collectionFactory">The test collection factory used to look up test collections.</param>
+public class XunitTestFrameworkDiscoverer(
+	IXunitTestAssembly testAssembly,
+	IXunitTestCollectionFactory? collectionFactory = null) :
+		TestFrameworkDiscoverer<IXunitTestClass>(testAssembly)
+{
+	static readonly FactAttribute defaultFactAttribute = new();
+
+	/// <summary>
+	/// Gets the mapping dictionary of fact attribute type to discoverer type. The key
+	/// is a type that implements <see cref="IFactAttribute"/>; the value is the
+	/// discoverer type, if known; <see langword="null"/> if not.
+	/// </summary>
+	protected Dictionary<Type, Type?> DiscovererTypeCache { get; } = [];
+
+	/// <summary>
+	/// Gets the test assembly.
+	/// </summary>
+	public new IXunitTestAssembly TestAssembly { get; } = Guard.ArgumentNotNull(testAssembly);
+
+	/// <summary>
+	/// Gets the test collection factory that makes test collections.
+	/// </summary>
+	public IXunitTestCollectionFactory TestCollectionFactory { get; } =
+		collectionFactory ?? RegisteredEngineConfig.GetTestCollectionFactory(testAssembly);
+
+	/// <inheritdoc/>
+	protected override ValueTask<IXunitTestClass> CreateTestClass(Type @class) =>
+		new(new XunitTestClass(@class, TestCollectionFactory.Get(@class)));
+
+	/// <inheritdoc/>
+	public override ValueTask Find(
+		Func<ITestCase, ValueTask<bool>> callback,
+		ITestFrameworkDiscoveryOptions discoveryOptions,
+		Type[]? types = null, CancellationToken? cancellationToken = null)
+	{
+		Guard.ArgumentNotNull(discoveryOptions);
+
+		SetEnvironment(EnvironmentVariables.PrintMaxEnumerableLength, discoveryOptions.PrintMaxEnumerableLength());
+		SetEnvironment(EnvironmentVariables.PrintMaxObjectDepth, discoveryOptions.PrintMaxObjectDepth());
+		SetEnvironment(EnvironmentVariables.PrintMaxObjectMemberCount, discoveryOptions.PrintMaxObjectMemberCount());
+		SetEnvironment(EnvironmentVariables.PrintMaxStringLength, discoveryOptions.PrintMaxStringLength());
+
+		return base.Find(callback, discoveryOptions, types, cancellationToken);
+	}
+
+	/// <summary>
+	/// Finds the tests on a test method.
+	/// </summary>
+	/// <param name="testMethod">The test method.</param>
+	/// <param name="discoveryOptions">The options used by the test framework during discovery.</param>
+	/// <param name="discoveryCallback">The callback that is called for each discovered test case.</param>
+	/// <returns>Return <see langword="true"/> to continue test discovery, <see langword="false"/>, otherwise.</returns>
+	protected virtual async ValueTask<bool> FindTestsForMethod(
+		IXunitTestMethod testMethod,
+		ITestFrameworkDiscoveryOptions discoveryOptions,
+		Func<ITestCase, ValueTask<bool>> discoveryCallback)
+	{
+		Guard.ArgumentNotNull(testMethod);
+		Guard.ArgumentNotNull(discoveryOptions);
+		Guard.ArgumentNotNull(discoveryCallback);
+
+		var factAttributes = testMethod.FactAttributes;
+		var factAttribute = factAttributes.FirstOrDefault();
+		if (factAttribute is null)
+			return true;
+
+		if (factAttributes.Count > 1)
+		{
+			var message = string.Format(CultureInfo.CurrentCulture, "Test method '{0}.{1}' has multiple [Fact]-derived attributes", testMethod.TestClass.TestClassName, testMethod.MethodName);
+			var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, factAttribute!);
+#pragma warning disable CA2000  // Ownership of this object is handed off to the callback
+			var testCase = new ExecutionErrorTestCase(details.ResolvedTestMethod, details.TestCaseDisplayName, details.UniqueID, details.SourceFilePath, details.SourceLineNumber, message);
+#pragma warning restore CA2000
+			return await discoveryCallback(testCase);
+		}
+
+		var factAttributeType = factAttribute.GetType();
+
+		if (!DiscovererTypeCache.TryGetValue(factAttributeType, out var discovererType))
+		{
+			var testCaseDiscovererAttribute = factAttributeType.GetCustomAttribute<XunitTestCaseDiscovererAttribute>();
+			if (testCaseDiscovererAttribute is not null)
+				discovererType = testCaseDiscovererAttribute.Type;
+
+			DiscovererTypeCache[factAttributeType] = discovererType;
+		}
+
+		if (discovererType is null)
+			return true;
+
+		var discoverer = GetDiscoverer(discovererType);
+		if (discoverer is null)
+			return true;
+
+		foreach (var testCase in await discoverer.Discover(discoveryOptions, testMethod, factAttribute))
+			if (!await discoveryCallback(testCase))
+				return false;
+
+		return true;
+	}
+
+	/// <inheritdoc/>
+	protected override async ValueTask<bool> FindTestsForType(
+		IXunitTestClass testClass,
+		ITestFrameworkDiscoveryOptions discoveryOptions,
+		Func<ITestCase, ValueTask<bool>> discoveryCallback)
+	{
+		Guard.ArgumentNotNull(testClass);
+		Guard.ArgumentNotNull(discoveryOptions);
+		Guard.ArgumentNotNull(discoveryCallback);
+
+		foreach (var method in testClass.Methods)
+		{
+			var testMethod = new XunitTestMethod(testClass, method, []);
+
+			try
+			{
+				if (!await FindTestsForMethod(testMethod, discoveryOptions, discoveryCallback))
+					return false;
+			}
+			catch (Exception ex)
+			{
+				var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, defaultFactAttribute);
+#pragma warning disable CA2000  // Ownership of this object is handed off to the callback
+				var errorTestCase = new ExecutionErrorTestCase(
+					testMethod,
+					details.TestCaseDisplayName,
+					details.UniqueID,
+					details.SourceFilePath,
+					details.SourceLineNumber,
+					string.Format(CultureInfo.CurrentCulture, "Exception during discovery:{0}{1}", Environment.NewLine, ex.Unwrap())
+				);
+#pragma warning restore CA2000
+				await discoveryCallback(errorTestCase);
+			}
+		}
+
+		return true;
+	}
+
+	/// <summary>
+	/// Gets the test case discover instance for the given discoverer type. The instances are cached
+	/// and reused, since they should not be stateful.
+	/// </summary>
+	/// <param name="discovererType">The discoverer type.</param>
+	/// <returns>Returns the test case discoverer instance, if known; may return <see langword="null"/>
+	/// when an error occurs (which is logged to the diagnostic message sink).</returns>
+	protected static IXunitTestCaseDiscoverer? GetDiscoverer(Type discovererType)
+	{
+		Guard.ArgumentNotNull(discovererType);
+
+		try
+		{
+			return ExtensibilityPointFactory.GetXunitTestCaseDiscoverer(discovererType);
+		}
+		catch (Exception ex)
+		{
+			TestContext.Current.SendDiagnosticMessage("Discoverer type '{0}' could not be created or does not implement IXunitTestCaseDiscoverer: {1}", discovererType.SafeName(), ex.Unwrap());
+			return null;
+		}
+	}
+
+	/// <inheritdoc/>
+	protected override Type[] GetExportedTypes() =>
+		TestAssembly.Assembly.GetExportedTypes();
+
+	static void SetEnvironment(
+		string environmentVariableName,
+		int? value)
+	{
+		if (value.HasValue)
+			Environment.SetEnvironmentVariable(environmentVariableName, value.Value.ToString(CultureInfo.InvariantCulture));
+	}
+}

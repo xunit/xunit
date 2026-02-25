@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <Compile Include="..\xunit.v3.runner.utility.tests\**\*.cs" Exclude="**\obj\**\*.cs" />
-    <Compile Include="..\xunit.v3.runner.utility\Frameworks\v1\Xunit1ExceptionUtility.cs" LinkBase="Frameworks\v1" />
+    <Compile Include="..\xunit.v3.runner.utility\Frameworks\v1\Xunit1ExceptionUtility_reflection.cs" LinkBase="Frameworks\v1" />
   </ItemGroup>
 
   <ItemGroup>

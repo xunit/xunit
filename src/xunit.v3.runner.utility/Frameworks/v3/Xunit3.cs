@@ -126,7 +126,13 @@ public class Xunit3 : IFrontController
 	{
 		Guard.ArgumentNotNull(messageSink);
 		Guard.ArgumentNotNull(settings);
-		Guard.ArgumentNotNullOrEmpty(settings.SerializedTestCases);
+#if XUNIT_AOT
+		Guard.ArgumentNotNullOrEmpty(settings.TestCaseIDsToRun);
+#else
+		Guard.ArgumentNotNull(settings.SerializedTestCases);
+		Guard.ArgumentNotNull(settings.TestCaseIDsToRun);
+		Guard.ArgumentValid("The list of test cases to run must contain at least 1 test case", settings.SerializedTestCases.Count + settings.TestCaseIDsToRun.Count > 0);
+#endif
 
 		var projectAssembly = this.projectAssembly.WithSettings(settings);
 		var crashDetectionSink = new CrashDetectionExecutionSink(projectAssembly, messageSink);

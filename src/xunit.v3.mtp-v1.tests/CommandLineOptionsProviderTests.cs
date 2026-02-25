@@ -2,7 +2,6 @@ using System.Linq.Expressions;
 using System.Runtime.InteropServices;
 using Microsoft.Testing.Platform.CommandLine;
 using Microsoft.Testing.Platform.Configurations;
-using NSubstitute;
 using Xunit;
 using Xunit.MicrosoftTestingPlatform;
 using Xunit.Runner.Common;
@@ -22,26 +21,33 @@ public class CommandLineOptionsProviderTests
 		lock (initLock)
 			if (Interlocked.Exchange(ref initialized, 1) == 0)
 			{
-				var resultWriters = RegisteredMicrosoftTestingPlatformResultWriters.Get(typeof(CommandLineOptionsProviderTests).Assembly);
+				var resultWriters = RegisteredRunnerConfig.GetMicrosoftTestingPlatformResultWriters(typeof(CommandLineOptionsProviderTests).Assembly);
 
 				CommandLineOptionsProvider.Initialize(resultWriters);
 			}
 
-		configuration = Substitute.For<IConfiguration, InterfaceProxy<IConfiguration>>();
+		configuration = new StubConfiguration();
 		commandLineOptions = new();
 		projectAssembly = new(
 			new XunitProject(),
+#if XUNIT_AOT
+			Path.Combine(AppContext.BaseDirectory, typeof(CommandLineOptionsProviderTests).Assembly.GetName().Name + ".dll").FindTestAssembly(),
+#else
 			typeof(CommandLineOptionsProviderTests).Assembly.Location,
+#endif
 			new(3, TestData.DefaultTargetFramework)
 		);
 	}
 
-	[Fact]
-	public void GuardClauses()
+	public class Parse : CommandLineOptionsProviderTests
 	{
-		Assert.Throws<ArgumentNullException>("configuration", () => CommandLineOptionsProvider.Parse(null!, commandLineOptions, projectAssembly));
-		Assert.Throws<ArgumentNullException>("commandLineOptions", () => CommandLineOptionsProvider.Parse(configuration, null!, projectAssembly));
-		Assert.Throws<ArgumentNullException>("projectAssembly", () => CommandLineOptionsProvider.Parse(configuration, commandLineOptions, null!));
+		[Fact]
+		public void GuardClauses()
+		{
+			Assert.Throws<ArgumentNullException>("configuration", () => CommandLineOptionsProvider.Parse(null!, commandLineOptions, projectAssembly));
+			Assert.Throws<ArgumentNullException>("commandLineOptions", () => CommandLineOptionsProvider.Parse(configuration, null!, projectAssembly));
+			Assert.Throws<ArgumentNullException>("projectAssembly", () => CommandLineOptionsProvider.Parse(configuration, commandLineOptions, null!));
+		}
 	}
 
 	public class OnOffSwitches : CommandLineOptionsProviderTests
@@ -136,27 +142,27 @@ public class CommandLineOptionsProviderTests
 	public class ArgumentSwitches : CommandLineOptionsProviderTests
 	{
 		[Theory]
-		[InlineData("Invalid value '0' (must be an integer between 1 and 2147483647)", "assert-equivalent-max-depth", "0")]
-		[InlineData("Invalid value 'abc' (must be an integer between 1 and 2147483647)", "assert-equivalent-max-depth", "abc")]
-		[InlineData("Invalid value '123'", "culture", "123")]
-		[InlineData("Invalid value 'abc' (must be one of: 'off', 'on', 'only')", "explicit", "abc")]
-		[InlineData("Invalid value 'abc' (must be an integer between 0 and 2147483647)", "long-running", "abc")]
-		[InlineData("Invalid value 'abc' (must be one of: 'default', 'unlimited', a positive number, a multiplier in the form of '0.0x')", "max-threads", "abc")]
-		[InlineData("Invalid value 'abc' (must be one of: 'classAndMethod', 'method')", "method-display", "abc")]
-		[InlineData("Invalid value 'abc' (must be one of: 'none', 'replaceUnderscoreWithSpace', 'useOperatorMonikers', 'useEscapeSequences', 'replacePeriodWithComma', 'all')", "method-display-options", "abc")]
-		[InlineData("Cannot specify 'all' with any other values", "method-display-options", "all", "replacePeriodWithComma")]
-		[InlineData("Cannot specify 'none' with any other values", "method-display-options", "replacePeriodWithComma", "none")]
-		[InlineData("Invalid value 'abc' (must be one of: 'none', 'collections')", "parallel", "abc")]
-		[InlineData("Invalid value 'abc' (must be one of: 'conservative', 'aggressive')", "parallel-algorithm", "abc")]
-		[InlineData("Invalid value 'abc' (must be an integer between 0 and 2147483647)", "print-max-enumerable-length", "abc")]
-		[InlineData("Invalid value 'abc' (must be an integer between 0 and 2147483647)", "print-max-object-depth", "abc")]
-		[InlineData("Invalid value 'abc' (must be an integer between 0 and 2147483647)", "print-max-object-member-count", "abc")]
-		[InlineData("Invalid value 'abc' (must be an integer between 0 and 2147483647)", "print-max-string-length", "abc")]
-		[InlineData("Invalid value 'abc' (must be an integer between 0 and 2147483647)", "seed", "abc")]
+		[InlineData("Invalid value '0' (must be an integer between 1 and 2147483647)", "assert-equivalent-max-depth", new[] { "0" })]
+		[InlineData("Invalid value 'abc' (must be an integer between 1 and 2147483647)", "assert-equivalent-max-depth", new[] { "abc" })]
+		[InlineData("Invalid value '123'", "culture", new[] { "123" })]
+		[InlineData("Invalid value 'abc' (must be one of: 'off', 'on', 'only')", "explicit", new[] { "abc" })]
+		[InlineData("Invalid value 'abc' (must be an integer between 0 and 2147483647)", "long-running", new[] { "abc" })]
+		[InlineData("Invalid value 'abc' (must be one of: 'default', 'unlimited', a positive number, a multiplier in the form of '0.0x')", "max-threads", new[] { "abc" })]
+		[InlineData("Invalid value 'abc' (must be one of: 'classAndMethod', 'method')", "method-display", new[] { "abc" })]
+		[InlineData("Invalid value 'abc' (must be one of: 'none', 'replaceUnderscoreWithSpace', 'useOperatorMonikers', 'useEscapeSequences', 'replacePeriodWithComma', 'all')", "method-display-options", new[] { "abc" })]
+		[InlineData("Cannot specify 'all' with any other values", "method-display-options", new[] { "all", "replacePeriodWithComma" })]
+		[InlineData("Cannot specify 'none' with any other values", "method-display-options", new[] { "replacePeriodWithComma", "none" })]
+		[InlineData("Invalid value 'abc' (must be one of: 'none', 'collections')", "parallel", new[] { "abc" })]
+		[InlineData("Invalid value 'abc' (must be one of: 'conservative', 'aggressive')", "parallel-algorithm", new[] { "abc" })]
+		[InlineData("Invalid value 'abc' (must be an integer between 0 and 2147483647)", "print-max-enumerable-length", new[] { "abc" })]
+		[InlineData("Invalid value 'abc' (must be an integer between 0 and 2147483647)", "print-max-object-depth", new[] { "abc" })]
+		[InlineData("Invalid value 'abc' (must be an integer between 0 and 2147483647)", "print-max-object-member-count", new[] { "abc" })]
+		[InlineData("Invalid value 'abc' (must be an integer between 0 and 2147483647)", "print-max-string-length", new[] { "abc" })]
+		[InlineData("Invalid value 'abc' (must be an integer between 0 and 2147483647)", "seed", new[] { "abc" })]
 		public void Validation(
 			string expectedMessage,
 			string @switch,
-			params string[] argValues)
+			string[] argValues)
 		{
 			if (@switch == "culture")
 				Assert.SkipUnless(RuntimeInformation.IsOSPlatform(OSPlatform.Windows), "This value only throws on Windows");
@@ -266,16 +272,16 @@ public class CommandLineOptionsProviderTests
 		}
 
 		[Theory]
-		[InlineData(TestMethodDisplayOptions.All, "all")]
-		[InlineData(TestMethodDisplayOptions.None, "none")]
-		[InlineData(TestMethodDisplayOptions.ReplacePeriodWithComma, "replacePeriodWithComma")]
-		[InlineData(TestMethodDisplayOptions.ReplaceUnderscoreWithSpace, "replaceUnderscoreWithSpace")]
-		[InlineData(TestMethodDisplayOptions.UseEscapeSequences, "useEscapeSequences")]
-		[InlineData(TestMethodDisplayOptions.UseOperatorMonikers, "useOperatorMonikers")]
-		[InlineData(TestMethodDisplayOptions.ReplacePeriodWithComma | TestMethodDisplayOptions.ReplaceUnderscoreWithSpace, "replacePeriodWithComma", "replaceUnderscoreWithSpace")]
+		[InlineData(TestMethodDisplayOptions.All, new[] { "all" })]
+		[InlineData(TestMethodDisplayOptions.None, new[] { "none" })]
+		[InlineData(TestMethodDisplayOptions.ReplacePeriodWithComma, new[] { "replacePeriodWithComma" })]
+		[InlineData(TestMethodDisplayOptions.ReplaceUnderscoreWithSpace, new[] { "replaceUnderscoreWithSpace" })]
+		[InlineData(TestMethodDisplayOptions.UseEscapeSequences, new[] { "useEscapeSequences" })]
+		[InlineData(TestMethodDisplayOptions.UseOperatorMonikers, new[] { "useOperatorMonikers" })]
+		[InlineData(TestMethodDisplayOptions.ReplacePeriodWithComma | TestMethodDisplayOptions.ReplaceUnderscoreWithSpace, new[] { "replacePeriodWithComma", "replaceUnderscoreWithSpace" })]
 		public void MethodDisplayOptions(
 			TestMethodDisplayOptions expected,
-			params string[] argValues)
+			string[] argValues)
 		{
 			commandLineOptions.Set("method-display-options", argValues);
 
@@ -504,7 +510,6 @@ public class CommandLineOptionsProviderTests
 			string outputKey,
 			string _)
 		{
-			configuration.GetTestResultDirectory().Returns("/path/to/results");
 			commandLineOptions.Set($"report-xunit-{option}", []);
 			commandLineOptions.Set($"report-xunit-{option}-filename", ["report-file"]);
 

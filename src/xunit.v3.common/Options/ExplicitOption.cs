@@ -27,16 +27,22 @@ public enum ExplicitOption
 /// </summary>
 public static class ExplicitOptionExtensions
 {
-	static readonly HashSet<ExplicitOption> validValues =
-	[
-		ExplicitOption.Off,
-		ExplicitOption.On,
-		ExplicitOption.Only,
-	];
+	extension(ExplicitOption)
+	{
+		/// <summary>
+		/// Gets the valid values for <see cref="ExplicitOption"/>.
+		/// </summary>
+		public static HashSet<ExplicitOption> ValidValues =>
+		[
+			ExplicitOption.Off,
+			ExplicitOption.On,
+			ExplicitOption.Only,
+		];
+	}
 
 	/// <summary>
 	/// Determines if the value is a valid enum value.
 	/// </summary>
 	public static bool IsValid(this ExplicitOption value) =>
-		validValues.Contains(value);
+		ExplicitOption.ValidValues.Contains(value);
 }

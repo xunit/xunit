@@ -2,7 +2,7 @@ using Xunit;
 using Xunit.Sdk;
 using Xunit.v3;
 
-public class TestRunnerBaseTests
+public partial class TestRunnerBaseTests
 {
 	public class InvocationsAndMessages
 	{
@@ -37,7 +37,11 @@ public class TestRunnerBaseTests
 				"GetAttachments",
 				"OnTestPassed(output: \"the output\")",
 				// OnTestCleanupFailure
+#if XUNIT_AOT
+				"OnTestFinished(output: \"the output\", attachments: [[foo, s:bar]])",
+#else
 				"OnTestFinished(output: \"the output\", attachments: [[\"foo\"] = s:bar])",
+#endif
 				// OnError
 			}, runner.Invocations);
 
@@ -632,10 +636,15 @@ public class TestRunnerBaseTests
 		int total = 1,
 		int failed = 0,
 		int notRun = 0,
-		int skipped = 0) =>
-			Assert.Equivalent(new { Total = total, Failed = failed, NotRun = notRun, Skipped = skipped }, summary);
+		int skipped = 0)
+	{
+		Assert.Equal(total, summary.Total);
+		Assert.Equal(failed, summary.Failed);
+		Assert.Equal(notRun, summary.NotRun);
+		Assert.Equal(skipped, summary.Skipped);
+	}
 
-	class TestableTestRunnerBase(ITest? test = null) :
+	public class TestableTestRunnerBase(ITest? test = null) :
 		TestRunnerBase<TestRunnerBaseContext<ITest>, ITest>
 	{
 		public readonly ExceptionAggregator Aggregator = new();
@@ -913,6 +922,6 @@ public class TestRunnerBaseTests
 		}
 
 		static string TypeName(object? value) =>
-		value is null ? "null" : $"typeof({ArgumentFormatter.FormatTypeName(value.GetType())})";
+			value is null ? "null" : $"typeof({ArgumentFormatter.FormatTypeName(value.GetType())})";
 	}
 }

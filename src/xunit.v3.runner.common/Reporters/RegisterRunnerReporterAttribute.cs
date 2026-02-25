@@ -8,7 +8,10 @@ namespace Xunit.Runner.Common;
 /// must implement <see cref="IRunnerReporter"/>.</param>
 [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true, Inherited = false)]
 public sealed class RegisterRunnerReporterAttribute(Type runnerReporterType) :
-	Attribute, IRegisterRunnerReporterAttribute
+	Attribute
+#if !XUNIT_AOT
+	, IRegisterRunnerReporterAttribute
+#endif
 {
 	/// <inheritdoc/>
 	public Type RunnerReporterType { get; } = runnerReporterType;

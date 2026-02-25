@@ -1,71 +1,70 @@
-#pragma warning disable xUnit3002  // We use the concrete message types here because we Activator.Create them
-
 using Xunit;
-using Xunit.Runner.Common;
 using Xunit.Sdk;
 
 public class TestMessageSinkTests
 {
-	[Theory]
+	public static IEnumerable<TheoryDataRow<IMessageSinkMessage>> MessageData =
+	[
+		// Diagnostics
+		new(TestData.DiagnosticMessage()),
+		new(TestData.ErrorMessage()),
 
-	// Diagnostics
-	[InlineData(typeof(DiagnosticMessage))]
-	[InlineData(typeof(ErrorMessage))]
+		// Discovery
+		new(TestData.DiscoveryComplete()),
+		new(TestData.DiscoveryStarting()),
+		new(TestData.TestCaseDiscovered()),
 
-	// Discovery
-	[InlineData(typeof(DiscoveryComplete))]
-	[InlineData(typeof(DiscoveryStarting))]
-	[InlineData(typeof(TestCaseDiscovered))]
+		// Execution
+		new(TestData.AfterTestFinished()),
+		new(TestData.AfterTestStarting()),
+		new(TestData.BeforeTestFinished()),
+		new(TestData.BeforeTestStarting()),
+		new(TestData.TestAssemblyCleanupFailure()),
+		new(TestData.TestAssemblyFinished()),
+		new(TestData.TestAssemblyStarting()),
+		new(TestData.TestCaseCleanupFailure()),
+		new(TestData.TestCaseFinished()),
+		new(TestData.TestCaseStarting()),
+		new(TestData.TestClassCleanupFailure()),
+		new(TestData.TestClassConstructionFinished()),
+		new(TestData.TestClassConstructionStarting()),
+		new(TestData.TestClassDisposeFinished()),
+		new(TestData.TestClassDisposeStarting()),
+		new(TestData.TestClassFinished()),
+		new(TestData.TestClassStarting()),
+		new(TestData.TestCollectionCleanupFailure()),
+		new(TestData.TestCollectionFinished()),
+		new(TestData.TestCollectionStarting()),
+		new(TestData.TestCleanupFailure()),
+		new(TestData.TestFailed()),
+		new(TestData.TestFinished()),
+		new(TestData.TestMethodCleanupFailure()),
+		new(TestData.TestMethodFinished()),
+		new(TestData.TestMethodStarting()),
+		new(TestData.TestNotRun()),
+		new(TestData.TestOutput()),
+		new(TestData.TestPassed()),
+		new(TestData.TestSkipped()),
+		new(TestData.TestStarting()),
 
-	// Execution
-	[InlineData(typeof(AfterTestFinished))]
-	[InlineData(typeof(AfterTestStarting))]
-	[InlineData(typeof(BeforeTestFinished))]
-	[InlineData(typeof(BeforeTestStarting))]
-	[InlineData(typeof(TestAssemblyCleanupFailure))]
-	[InlineData(typeof(TestAssemblyFinished))]
-	[InlineData(typeof(TestAssemblyStarting))]
-	[InlineData(typeof(TestCaseCleanupFailure))]
-	[InlineData(typeof(TestCaseFinished))]
-	[InlineData(typeof(TestCaseStarting))]
-	[InlineData(typeof(TestClassCleanupFailure))]
-	[InlineData(typeof(TestClassConstructionFinished))]
-	[InlineData(typeof(TestClassConstructionStarting))]
-	[InlineData(typeof(TestClassDisposeFinished))]
-	[InlineData(typeof(TestClassDisposeStarting))]
-	[InlineData(typeof(TestClassFinished))]
-	[InlineData(typeof(TestClassStarting))]
-	[InlineData(typeof(TestCollectionCleanupFailure))]
-	[InlineData(typeof(TestCollectionFinished))]
-	[InlineData(typeof(TestCollectionStarting))]
-	[InlineData(typeof(TestCleanupFailure))]
-	[InlineData(typeof(TestFailed))]
-	[InlineData(typeof(TestFinished))]
-	[InlineData(typeof(TestMethodCleanupFailure))]
-	[InlineData(typeof(TestMethodFinished))]
-	[InlineData(typeof(TestMethodStarting))]
-	[InlineData(typeof(TestNotRun))]
-	[InlineData(typeof(TestOutput))]
-	[InlineData(typeof(TestPassed))]
-	[InlineData(typeof(TestSkipped))]
-	[InlineData(typeof(TestStarting))]
+		// Runner
+		TestData.TestAssemblyExecutionStarting(),
+		TestData.TestAssemblyExecutionFinished(),
+		TestData.TestAssemblyDiscoveryStarting(),
+		TestData.TestAssemblyDiscoveryFinished(),
+		TestData.TestExecutionSummaries(),
+	];
 
-	// Runner
-	[InlineData(typeof(TestAssemblyExecutionStarting))]
-	[InlineData(typeof(TestAssemblyExecutionFinished))]
-	[InlineData(typeof(TestAssemblyDiscoveryStarting))]
-	[InlineData(typeof(TestAssemblyDiscoveryFinished))]
-	[InlineData(typeof(TestExecutionSummaries))]
-	public void ProcessesVisitorTypes(Type type)
+	[Theory(DisableDiscoveryEnumeration = true)]
+	[MemberData(nameof(MessageData))]
+	public static void ProcessesVisitorTypes(IMessageSinkMessage message)
 	{
-		var message = Activator.CreateInstance(type);
-		Assert.NotNull(message);
 		var typedMessage = Assert.IsType<IMessageSinkMessage>(message, exactMatch: false);
 		var sink = new SpyTestMessageSink();
 
 		sink.OnMessage(typedMessage);
 
 		var msg = Assert.Single(sink.Calls);
-		Assert.Equal(type.Name, msg);
+		Assert.Equal(message.GetType().Name, msg);
 	}
 }

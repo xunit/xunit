@@ -47,6 +47,15 @@ public sealed class ProjectAssemblyRunner(
 	/// Gets a one-line banner to be printed when the runner is executed.
 	/// </summary>
 	public static string Banner =>
+#if XUNIT_AOT
+		string.Format(
+			CultureInfo.CurrentCulture,
+			"xUnit.net v3 In-Process Runner v{0} [native/{1}] ({2})",
+			ThisAssembly.AssemblyInformationalVersion,
+			GetRuntimeIdentifier(),
+			RuntimeInformation.FrameworkDescription
+		);
+#else
 		string.Format(
 			CultureInfo.CurrentCulture,
 			"xUnit.net v3 In-Process Runner v{0} ({1}-bit {2})",
@@ -54,6 +63,7 @@ public sealed class ProjectAssemblyRunner(
 			IntPtr.Size * 8,
 			RuntimeInformation.FrameworkDescription
 		);
+#endif
 
 	/// <summary>
 	/// Gets the summaries of the test execution, once it is finished.
@@ -85,18 +95,22 @@ public sealed class ProjectAssemblyRunner(
 		TestContext.SetForInitialization(diagnosticMessageSink, diagnosticMessages, internalDiagnosticMessages);
 
 		await using var disposalTracker = new DisposalTracker();
-		var testFramework = ExtensibilityPointFactory.GetTestFramework(testAssembly);
+		var testFramework = RegisteredEngineConfig.GetTestFramework(testAssembly, assembly.ConfigFileName);
 		disposalTracker.Add(testFramework);
 
 		if (pipelineStartup is not null)
 			testFramework.SetTestPipelineStartup(pipelineStartup);
 
 		var frontController = new InProcessFrontController(testFramework, testAssembly, assembly.ConfigFileName);
+		var assemblyName =
+			assembly.AssemblyFileName.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) || assembly.AssemblyFileName.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)
+				? Path.GetFileNameWithoutExtension(assembly.AssemblyFileName)
+				: Path.GetFileName(assembly.AssemblyFileName);
 
 		await frontController.Find(
 			messageSink,
 			discoveryOptions,
-			testCase => assembly.Configuration.Filters.Filter(Path.GetFileNameWithoutExtension(assembly.AssemblyFileName), testCase),
+			testCase => assembly.Configuration.Filters.Filter(assemblyName, testCase),
 			cancellationTokenSource,
 			discoveryCallback: (testCase, passedFilter) =>
 			{
@@ -111,6 +125,31 @@ public sealed class ProjectAssemblyRunner(
 
 		TestContextInternal.Current.SafeDispose();
 	}
+
+#if XUNIT_AOT
+
+	static string GetRuntimeIdentifier()
+	{
+		var os =
+			RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+				? "win"
+				: RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
+					? "linux"
+					: RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
+						? "osx"
+						: "unknown";
+
+		return os + "-" + RuntimeInformation.OSArchitecture switch
+		{
+			Architecture.X86 => "x86",
+			Architecture.X64 => "x64",
+			Architecture.Arm => "arm",
+			Architecture.Arm64 => "arm64",
+			_ => "unknown",
+		};
+	}
+
+#endif  // XUNIT_AOT
 
 	/// <summary>
 	/// Invoke the instance of <see cref="ITestPipelineStartup"/>, if it exists, and returns the instance
@@ -128,32 +167,9 @@ public sealed class ProjectAssemblyRunner(
 
 		try
 		{
-			var result = default(ITestPipelineStartup);
-
-			var pipelineStartupAttributes = testAssembly.GetMatchingCustomAttributes<ITestPipelineStartupAttribute>(warnings);
-			if (pipelineStartupAttributes.Count > 1)
-				throw new TestPipelineException("More than one pipeline startup attribute was specified: " + pipelineStartupAttributes.Select(a => a.GetType()).ToCommaSeparatedList());
-
-			if (pipelineStartupAttributes.FirstOrDefault() is ITestPipelineStartupAttribute pipelineStartupAttribute)
-			{
-				var pipelineStartupType = pipelineStartupAttribute.TestPipelineStartupType;
-				if (!typeof(ITestPipelineStartup).IsAssignableFrom(pipelineStartupType))
-					throw new TestPipelineException(string.Format(CultureInfo.CurrentCulture, "Pipeline startup type '{0}' does not implement '{1}'", pipelineStartupType.SafeName(), typeof(ITestPipelineStartup).SafeName()));
-
-				try
-				{
-					result = Activator.CreateInstance(pipelineStartupType) as ITestPipelineStartup;
-				}
-				catch (Exception ex)
-				{
-					throw new TestPipelineException(string.Format(CultureInfo.CurrentCulture, "Pipeline startup type '{0}' threw during construction", pipelineStartupType.SafeName()), ex);
-				}
-
-				if (result is null)
-					throw new TestPipelineException(string.Format(CultureInfo.CurrentCulture, "Pipeline startup type '{0}' does not implement '{1}'", pipelineStartupType.SafeName(), typeof(ITestPipelineStartup).SafeName()));
-
+			var result = RegisteredEngineConfig.GetTestPipelineStartup(testAssembly, warnings);
+			if (result is not null)
 				await result.StartAsync(diagnosticMessageSink ?? NullMessageSink.Instance);
-			}
 
 			return result;
 		}
@@ -237,7 +253,7 @@ public sealed class ProjectAssemblyRunner(
 			try
 			{
 				await using var disposalTracker = new DisposalTracker();
-				var testFramework = ExtensibilityPointFactory.GetTestFramework(testAssembly);
+				var testFramework = RegisteredEngineConfig.GetTestFramework(testAssembly, assembly.ConfigFileName);
 				disposalTracker.Add(testFramework);
 
 				if (pipelineStartup is not null)
@@ -264,6 +280,7 @@ public sealed class ProjectAssemblyRunner(
 				using var resultsSink = new ExecutionSink(assembly, discoveryOptions, executionOptions, AppDomainOption.NotAvailable, shadowCopy: false, messageSink, sinkOptions, sourceInformationProvider);
 				var testCasesToRun = new List<ITestCase>();
 
+#if !XUNIT_AOT
 				foreach (var testCaseToRun in assembly.TestCasesToRun)
 					try
 					{
@@ -271,16 +288,22 @@ public sealed class ProjectAssemblyRunner(
 							testCasesToRun.Add(testCase);
 					}
 					catch { }
+#endif
 
 				testCaseIDsToRun ??= [];
 				testCaseIDsToRun.AddRange(assembly.TestCaseIDsToRun);
+
+				var assemblyName =
+					assembly.AssemblyFileName.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) || assembly.AssemblyFileName.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)
+						? Path.GetFileNameWithoutExtension(assembly.AssemblyFileName)
+						: Path.GetFileName(assembly.AssemblyFileName);
 
 				if (testCasesToRun.Count == 0 && testCaseIDsToRun.Count == 0)
 					await frontController.FindAndRun(
 						resultsSink,
 						discoveryOptions,
 						executionOptions,
-						testCase => assembly.Configuration.Filters.Filter(Path.GetFileNameWithoutExtension(assembly.AssemblyFileName), testCase),
+						testCase => assembly.Configuration.Filters.Filter(assemblyName, testCase),
 						cancellationTokenSource
 					);
 				else
@@ -290,7 +313,7 @@ public sealed class ProjectAssemblyRunner(
 						await frontController.Find(
 							resultsSink,
 							discoveryOptions,
-							testCase => assembly.Configuration.Filters.Filter(Path.GetFileNameWithoutExtension(assembly.AssemblyFileName), testCase),
+							testCase => assembly.Configuration.Filters.Filter(assemblyName, testCase),
 							cancellationTokenSource,
 							discoveryCallback: (testCase, passedFilter) =>
 							{

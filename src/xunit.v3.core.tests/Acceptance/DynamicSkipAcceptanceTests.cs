@@ -1,9 +1,10 @@
 using Xunit;
-using Xunit.Sdk;
 
-public class DynamicSkipAcceptanceTests
+public partial class DynamicSkipAcceptanceTests
 {
-	public class Skip : AcceptanceTestV3
+	static readonly string Ellipsis = new string((char)0x00B7, 3);
+
+	public partial class Skip : AcceptanceTestV3
 	{
 		[Fact]
 		public void GuardClause()
@@ -14,23 +15,19 @@ public class DynamicSkipAcceptanceTests
 		[Fact]
 		public async Task AcceptanceTest()
 		{
-			var results = await RunAsync(typeof(ClassUnderTest));
+#if XUNIT_AOT
+			var results = await RunForResultsAsync("DynamicSkipAcceptanceTests+Skip+ClassUnderTest");
+#else
+			var results = await RunForResultsAsync(typeof(ClassUnderTest));
+#endif
 
-			var skipResult = Assert.Single(results.OfType<ITestSkipped>());
+			var skipResult = Assert.Single(results.OfType<TestSkippedWithMetadata>());
+			Assert.Equal("DynamicSkipAcceptanceTests+Skip+ClassUnderTest.Unconditional", skipResult.Test.TestDisplayName);
 			Assert.Equal("This test was skipped", skipResult.Reason);
-		}
-
-		class ClassUnderTest
-		{
-			[Fact]
-			public void Unconditional()
-			{
-				Assert.Skip("This test was skipped");
-			}
 		}
 	}
 
-	public class SkipUnless : AcceptanceTestV3
+	public partial class SkipUnless : AcceptanceTestV3
 	{
 		[Fact]
 		public void GuardClause()
@@ -41,34 +38,21 @@ public class DynamicSkipAcceptanceTests
 		[Fact]
 		public async Task AcceptanceTest()
 		{
-			var results = await RunAsync(typeof(ClassUnderTest));
+#if XUNIT_AOT
+			var results = await RunForResultsAsync("DynamicSkipAcceptanceTests+SkipUnless+ClassUnderTest");
+#else
+			var results = await RunForResultsAsync(typeof(ClassUnderTest));
+#endif
 
-			var skipResult = Assert.Single(results.OfType<ITestSkipped>());
-			var skipMethodStarting = Assert.Single(results.OfType<ITestMethodStarting>(), s => s.TestMethodUniqueID == skipResult.TestMethodUniqueID);
-			Assert.Equal("Skipped", skipMethodStarting.MethodName);
+			var skipResult = Assert.Single(results.OfType<TestSkippedWithMetadata>());
+			Assert.Equal("DynamicSkipAcceptanceTests+SkipUnless+ClassUnderTest.Skipped", skipResult.Test.TestDisplayName);
 			Assert.Equal("This test was skipped", skipResult.Reason);
-			var passResult = Assert.Single(results.OfType<ITestPassed>());
-			var passMethodStarting = results.OfType<ITestMethodStarting>().Where(ts => ts.TestMethodUniqueID == passResult.TestMethodUniqueID).Single();
-			Assert.Equal("Passed", passMethodStarting.MethodName);
-		}
-
-		class ClassUnderTest
-		{
-			[Fact]
-			public void Skipped()
-			{
-				Assert.SkipUnless(false, "This test was skipped");
-			}
-
-			[Fact]
-			public void Passed()
-			{
-				Assert.SkipUnless(true, "This test is not skipped");
-			}
+			var passResult = Assert.Single(results.OfType<TestPassedWithMetadata>());
+			Assert.Equal("DynamicSkipAcceptanceTests+SkipUnless+ClassUnderTest.Passed", passResult.Test.TestDisplayName);
 		}
 	}
 
-	public class SkipWhen : AcceptanceTestV3
+	public partial class SkipWhen : AcceptanceTestV3
 	{
 		[Fact]
 		public void GuardClause()
@@ -79,97 +63,61 @@ public class DynamicSkipAcceptanceTests
 		[Fact]
 		public async Task AcceptanceTest()
 		{
-			var results = await RunAsync(typeof(ClassUnderTest));
+#if XUNIT_AOT
+			var results = await RunForResultsAsync("DynamicSkipAcceptanceTests+SkipWhen+ClassUnderTest");
+#else
+			var results = await RunForResultsAsync(typeof(ClassUnderTest));
+#endif
 
-			var skipResult = Assert.Single(results.OfType<ITestSkipped>());
-			var skipMethodStarting = Assert.Single(results.OfType<ITestMethodStarting>(), s => s.TestMethodUniqueID == skipResult.TestMethodUniqueID);
-			Assert.Equal("Skipped", skipMethodStarting.MethodName);
+			var skipResult = Assert.Single(results.OfType<TestSkippedWithMetadata>());
+			Assert.Equal("DynamicSkipAcceptanceTests+SkipWhen+ClassUnderTest.Skipped", skipResult.Test.TestDisplayName);
 			Assert.Equal("This test was skipped", skipResult.Reason);
-			var passResult = Assert.Single(results.OfType<ITestPassed>());
-			var passMethodStarting = results.OfType<ITestMethodStarting>().Where(ts => ts.TestMethodUniqueID == passResult.TestMethodUniqueID).Single();
-			Assert.Equal("Passed", passMethodStarting.MethodName);
-		}
-
-		class ClassUnderTest
-		{
-			[Fact]
-			public void Skipped()
-			{
-				Assert.SkipWhen(true, "This test was skipped");
-			}
-
-			[Fact]
-			public void Passed()
-			{
-				Assert.SkipWhen(false, "This test is not skipped");
-			}
+			var passResult = Assert.Single(results.OfType<TestPassedWithMetadata>());
+			Assert.Equal("DynamicSkipAcceptanceTests+SkipWhen+ClassUnderTest.Passed", passResult.Test.TestDisplayName);
 		}
 	}
 
-	public class SkipExceptions : AcceptanceTestV3
+	public partial class SkipExceptions : AcceptanceTestV3
 	{
-		[Theory]
-		[InlineData(typeof(NotImplementedException))]
-		[InlineData(typeof(NotSupportedException))]
-		public async ValueTask WithMessage(Type exceptionType)
-		{
-			ClassUnderTest.ExceptionToThrow = Activator.CreateInstance(exceptionType, ["The exception message"]) as Exception;
-
-			var results = await RunForResultsAsync(typeof(ClassUnderTest));
-
-			Assert.Empty(results.OfType<TestPassedWithDisplayName>());
-			Assert.Empty(results.OfType<TestFailedWithDisplayName>());
-			Assert.Empty(results.OfType<TestNotRunWithDisplayName>());
-			var skipResult = Assert.Single(results.OfType<TestSkippedWithDisplayName>());
-			Assert.Equal($"{typeof(ClassUnderTest).FullName}.{nameof(ClassUnderTest.TestMethod)}", skipResult.TestDisplayName);
-			Assert.Equal("The exception message", skipResult.Reason);
-		}
-
 		[Fact]
-		public async ValueTask WithoutMessage()
+		public async Task AcceptanceTest()
 		{
-			ClassUnderTest.ExceptionToThrow = new MessagelessException();
-
+#if XUNIT_AOT
+			var results = await RunForResultsAsync("DynamicSkipAcceptanceTests+SkipExceptions+ClassUnderTest");
+#else
 			var results = await RunForResultsAsync(typeof(ClassUnderTest));
+#endif
 
-			Assert.Empty(results.OfType<TestPassedWithDisplayName>());
-			Assert.Empty(results.OfType<TestFailedWithDisplayName>());
-			Assert.Empty(results.OfType<TestNotRunWithDisplayName>());
-			var skipResult = Assert.Single(results.OfType<TestSkippedWithDisplayName>());
-			Assert.Equal($"{typeof(ClassUnderTest).FullName}.{nameof(ClassUnderTest.TestMethod)}", skipResult.TestDisplayName);
-			Assert.Equal($"Exception of type '{typeof(MessagelessException).FullName}' was thrown", skipResult.Reason);
-		}
-
-		[Fact]
-		public async ValueTask NonSkippedException()
-		{
-			ClassUnderTest.ExceptionToThrow = new DivideByZeroException();
-
-			var results = await RunForResultsAsync(typeof(ClassUnderTest));
-
-			Assert.Empty(results.OfType<TestPassedWithDisplayName>());
-			Assert.Empty(results.OfType<TestSkippedWithDisplayName>());
-			Assert.Empty(results.OfType<TestNotRunWithDisplayName>());
-			var failedResult = Assert.Single(results.OfType<TestFailedWithDisplayName>());
-			Assert.Equal($"{typeof(ClassUnderTest).FullName}.{nameof(ClassUnderTest.TestMethod)}", failedResult.TestDisplayName);
-			Assert.Equal(typeof(DivideByZeroException).FullName, failedResult.ExceptionTypes.Single());
-		}
-
-		class MessagelessException : Exception
-		{
-			public override string Message => string.Empty;
-		}
-
-		class ClassUnderTest
-		{
-			public static Exception? ExceptionToThrow;
-
-			[Fact(SkipExceptions = [typeof(NotImplementedException), typeof(NotSupportedException), typeof(MessagelessException)])]
-			public static void TestMethod()
-			{
-				if (ExceptionToThrow is not null)
-					throw ExceptionToThrow;
-			}
+			var failedResult = Assert.Single(results.OfType<TestFailedWithMetadata>());
+			Assert.StartsWith("DynamicSkipAcceptanceTests+SkipExceptions+ClassUnderTest.TestMethod(ex: System.DivideByZeroException:", failedResult.Test.TestDisplayName);
+			Assert.Empty(results.OfType<TestNotRunWithMetadata>());
+			Assert.Empty(results.OfType<TestPassedWithMetadata>());
+			Assert.Collection(
+				results.OfType<TestSkippedWithMetadata>().OrderBy(t => t.Test.TestDisplayName),
+				skipResult =>
+				{
+#if XUNIT_AOT  // Differences in behavior of ArgumentFormatter
+					Assert.Equal($"DynamicSkipAcceptanceTests+SkipExceptions+ClassUnderTest.TestMethod(ex: MessagelessException {{ {Ellipsis} }})", skipResult.Test.TestDisplayName);
+#else
+					Assert.Equal("DynamicSkipAcceptanceTests+SkipExceptions+ClassUnderTest.TestMethod(ex: DynamicSkipAcceptanceTests+SkipExceptions+MessagelessException)", skipResult.Test.TestDisplayName);
+#endif
+					Assert.Equal("Exception of type 'DynamicSkipAcceptanceTests+SkipExceptions+MessagelessException' was thrown", skipResult.Reason);
+				},
+				skipResult =>
+				{
+#if XUNIT_AOT  // Differences in behavior of ArgumentFormatter
+					Assert.Equal($"DynamicSkipAcceptanceTests+SkipExceptions+ClassUnderTest.TestMethod(ex: NullMessageException {{ {Ellipsis} }})", skipResult.Test.TestDisplayName);
+#else
+					Assert.Equal("DynamicSkipAcceptanceTests+SkipExceptions+ClassUnderTest.TestMethod(ex: DynamicSkipAcceptanceTests+SkipExceptions+NullMessageException)", skipResult.Test.TestDisplayName);
+#endif
+					Assert.Equal("Exception of type 'DynamicSkipAcceptanceTests+SkipExceptions+NullMessageException' was thrown", skipResult.Reason);
+				},
+				skipResult =>
+				{
+					Assert.Equal("DynamicSkipAcceptanceTests+SkipExceptions+ClassUnderTest.TestMethod(ex: System.NotImplementedException: The exception message)", skipResult.Test.TestDisplayName);
+					Assert.Equal("The exception message", skipResult.Reason);
+				}
+			);
 		}
 	}
 }

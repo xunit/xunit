@@ -43,7 +43,9 @@ public static partial class MessageSinkMessageExtensions
 		{
 			AssemblyUniqueID = testCase.TestCollection.TestAssembly.UniqueID,
 			Explicit = testCase.Explicit,
+#if !XUNIT_AOT
 			Serialization = SerializationHelper.Instance.Serialize(testCase),
+#endif
 			SkipReason = testCase.SkipReason,
 			SourceFilePath = testCase.SourceFilePath,
 			SourceLineNumber = testCase.SourceLineNumber,
@@ -82,7 +84,9 @@ public static partial class MessageSinkMessageExtensions
 				{
 					AssemblyUniqueID = discovered.AssemblyUniqueID,
 					Explicit = discovered.Explicit,
+#if !XUNIT_AOT
 					Serialization = discovered.Serialization,
+#endif
 					SkipReason = discovered.SkipReason,
 					SourceFilePath = sourceFilePath,
 					SourceLineNumber = sourceLineNumber,

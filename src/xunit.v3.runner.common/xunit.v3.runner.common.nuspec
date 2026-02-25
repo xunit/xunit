@@ -10,7 +10,7 @@
 		<icon>_content/logo-128-transparent.png</icon>
 		<readme>_content/README.md</readme>
 		<releaseNotes>https://xunit.net/releases/v3/$PackageVersion$</releaseNotes>
-		<description>Includes common code shared between in-process runners (like xunit.v3.runner.inproc.console) and xunit.v3.runner.utility (used by 1st and 3rd party external runners). Supports .NET Standard 2.0.</description>
+		<description>Includes common code shared between in-process runners (like xunit.v3.runner.inproc.console) and xunit.v3.runner.utility (used by 1st and 3rd party external runners). Supports .NET Standard 2.0 or later.</description>
 		<copyright>Copyright (C) .NET Foundation</copyright>
 		<repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
 		<dependencies>

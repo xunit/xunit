@@ -4,7 +4,7 @@ using Xunit;
 using Xunit.Sdk;
 using Xunit.v3;
 
-public static class TestAssemblyRunnerTests
+public static partial class TestAssemblyRunnerTests
 {
 	public class Messages
 	{
@@ -82,7 +82,7 @@ public static class TestAssemblyRunnerTests
 			Assert.Null(starting.TargetFramework);  // Can be overriden in the context as needed, defaults to null
 			Assert.Matches($"^{IntPtr.Size * 8}-bit \\({Regex.Escape(RuntimeInformation.ProcessArchitecture.ToDisplayName())}\\) {Regex.Escape(RuntimeInformation.FrameworkDescription)}$", starting.TestEnvironment);
 			Assert.Equal("Stub Testing Framework", starting.TestFrameworkDisplayName);
-			Assert.Equivalent(TestData.DefaultTraits, starting.Traits);
+			Assert.Equal(TestData.DefaultTraits, starting.Traits);
 		}
 
 		static void ThrowException() =>
@@ -192,13 +192,16 @@ public static class TestAssemblyRunnerTests
 		[Fact]
 		public static async ValueTask NoExceptions()
 		{
-			var summary = new RunSummary { Total = 9, Failed = 2, Skipped = 1, NotRun = 3, Time = 21.12m };
+			var summary = new RunSummary { Total = 9, Failed = 2, Skipped = 1, NotRun = 3, Time = 0m };
 			var runner = new TestableTestAssemblyRunner { RunTestCollectionAsync__Result = summary };
 
 			var result = await runner.RunAsync();
 
-			// Can't verify time because it's overwritten with clock time
-			Assert.Equivalent(new { Total = 9, Failed = 2, Skipped = 1, NotRun = 3 }, result);
+			Assert.Equal(9, result.Total);
+			Assert.Equal(2, result.Failed);
+			Assert.Equal(1, result.Skipped);
+			Assert.Equal(3, result.NotRun);
+			Assert.NotEqual(0m, result.Time);  // Can't verify exact time because it's overwritten with clock time
 			Assert.NotNull(runner.CancellationTokenSource);
 			Assert.False(runner.CancellationTokenSource.IsCancellationRequested);
 			Assert.False(runner.Aggregator.HasExceptions);
@@ -275,10 +278,10 @@ public static class TestAssemblyRunnerTests
 		}
 	}
 
-	public class OrderTestCollections
+	public class Run
 	{
 		[Fact]
-		public static async ValueTask DefaultTestOrdering()
+		public static async ValueTask DefaultTestCollectionOrdering()
 		{
 			var collection1 = Mocks.TestCollection(testCollectionDisplayName: "1", uniqueID: "collection-1");
 			var testCase1a = testCaseForCollection(collection1, "1a");
@@ -304,21 +307,10 @@ public static class TestAssemblyRunnerTests
 		}
 	}
 
-	class TestableTestAssemblyRunnerContext(
-		ITestAssembly testAssembly,
-		IReadOnlyCollection<ITestCase> testCases,
-		IMessageSink executionMessageSink,
-		ITestFrameworkExecutionOptions executionOptions,
-		ExceptionAggregator aggregator) :
-			TestAssemblyRunnerContext<ITestAssembly, ITestCase>(testAssembly, testCases, executionMessageSink, executionOptions, default)
-	{
-		public override ExceptionAggregator Aggregator => aggregator;
-	}
-
 	class TestableTestAssemblyRunner(
 		IReadOnlyCollection<ITestCase>? testCases = null,
 		ITestAssembly? TestAssembly = null) :
-			TestAssemblyRunner<TestableTestAssemblyRunnerContext, ITestAssembly, ITestCollection, ITestCase>
+			TestAssemblyRunner<TestableTestAssemblyRunner.TestableContext, ITestAssembly, ITestCollection, ITestCase>
 	{
 		readonly IReadOnlyCollection<ITestCase> testCases = testCases ?? [Mocks.TestCase()];
 		readonly ITestAssembly TestAssembly = TestAssembly ?? Mocks.TestAssembly();
@@ -332,7 +324,7 @@ public static class TestAssemblyRunnerTests
 		public RunSummary FailTestCollection__Result = new();
 
 		protected override ValueTask<RunSummary> FailTestCollection(
-			TestableTestAssemblyRunnerContext ctxt,
+			TestableContext ctxt,
 			ITestCollection testCollection,
 			IReadOnlyCollection<ITestCase> testCases,
 			Exception? exception)
@@ -342,12 +334,12 @@ public static class TestAssemblyRunnerTests
 			return new(FailTestCollection__Result);
 		}
 
-		protected override ValueTask<string> GetTestFrameworkDisplayName(TestableTestAssemblyRunnerContext ctxt) =>
+		protected override ValueTask<string> GetTestFrameworkDisplayName(TestableContext ctxt) =>
 			new("Stub Testing Framework");
 
 		public async ValueTask<bool> OnError(Exception exception)
 		{
-			await using var ctxt = new TestableTestAssemblyRunnerContext(TestAssembly, testCases, MessageSink, ExecutionOptions, Aggregator);
+			await using var ctxt = new TestableContext(TestAssembly, testCases, MessageSink, ExecutionOptions, Aggregator);
 			await ctxt.InitializeAsync();
 
 			return await OnError(ctxt, exception);
@@ -356,7 +348,7 @@ public static class TestAssemblyRunnerTests
 		public bool OnError__Result = true;
 
 		protected override async ValueTask<bool> OnError(
-			TestableTestAssemblyRunnerContext ctxt,
+			TestableContext ctxt,
 			Exception exception)
 		{
 			try
@@ -373,7 +365,7 @@ public static class TestAssemblyRunnerTests
 
 		public async ValueTask<bool> OnTestAssemblyCleanupFailure(Exception exception)
 		{
-			await using var ctxt = new TestableTestAssemblyRunnerContext(TestAssembly, testCases, MessageSink, ExecutionOptions, Aggregator);
+			await using var ctxt = new TestableContext(TestAssembly, testCases, MessageSink, ExecutionOptions, Aggregator);
 			await ctxt.InitializeAsync();
 
 			return await OnTestAssemblyCleanupFailure(ctxt, exception);
@@ -383,7 +375,7 @@ public static class TestAssemblyRunnerTests
 		public bool OnTestAssemblyCleanupFailure__Result = true;
 
 		protected override async ValueTask<bool> OnTestAssemblyCleanupFailure(
-			TestableTestAssemblyRunnerContext ctxt,
+			TestableContext ctxt,
 			Exception exception)
 		{
 			try
@@ -402,7 +394,7 @@ public static class TestAssemblyRunnerTests
 
 		public async ValueTask<bool> OnTestAssemblyFinished(RunSummary summary)
 		{
-			await using var ctxt = new TestableTestAssemblyRunnerContext(TestAssembly, testCases, MessageSink, ExecutionOptions, Aggregator);
+			await using var ctxt = new TestableContext(TestAssembly, testCases, MessageSink, ExecutionOptions, Aggregator);
 			await ctxt.InitializeAsync();
 
 			return await OnTestAssemblyFinished(ctxt, summary);
@@ -412,7 +404,7 @@ public static class TestAssemblyRunnerTests
 		public bool OnTestAssemblyFinished__Result = true;
 
 		protected override async ValueTask<bool> OnTestAssemblyFinished(
-			TestableTestAssemblyRunnerContext ctxt,
+			TestableContext ctxt,
 			RunSummary summary)
 		{
 			try
@@ -435,7 +427,7 @@ public static class TestAssemblyRunnerTests
 
 		public async ValueTask<bool> OnTestAssemblyStarting()
 		{
-			await using var ctxt = new TestableTestAssemblyRunnerContext(TestAssembly, testCases, MessageSink, ExecutionOptions, Aggregator);
+			await using var ctxt = new TestableContext(TestAssembly, testCases, MessageSink, ExecutionOptions, Aggregator);
 			await ctxt.InitializeAsync();
 
 			return await OnTestAssemblyStarting(ctxt);
@@ -444,7 +436,7 @@ public static class TestAssemblyRunnerTests
 		public Action? OnTestAssemblyStarting__Lambda = null;
 		public bool OnTestAssemblyStarting__Result = true;
 
-		protected override async ValueTask<bool> OnTestAssemblyStarting(TestableTestAssemblyRunnerContext ctxt)
+		protected override async ValueTask<bool> OnTestAssemblyStarting(TestableContext ctxt)
 		{
 			try
 			{
@@ -465,7 +457,7 @@ public static class TestAssemblyRunnerTests
 		public RunSummary RunTestCollectionAsync__Result = new();
 
 		protected override ValueTask<RunSummary> RunTestCollection(
-			TestableTestAssemblyRunnerContext ctxt,
+			TestableContext ctxt,
 			ITestCollection testCollection,
 			IReadOnlyCollection<ITestCase> testCases)
 		{
@@ -476,7 +468,7 @@ public static class TestAssemblyRunnerTests
 
 		public async ValueTask<RunSummary> RunAsync()
 		{
-			await using var ctxt = new TestableTestAssemblyRunnerContext(TestAssembly, testCases, MessageSink, ExecutionOptions, Aggregator);
+			await using var ctxt = new TestableContext(TestAssembly, testCases, MessageSink, ExecutionOptions, Aggregator);
 			await ctxt.InitializeAsync();
 
 			return await Run(ctxt);
@@ -484,5 +476,16 @@ public static class TestAssemblyRunnerTests
 
 		static string TypeName(object? obj) =>
 			obj is null ? "null" : $"typeof({ArgumentFormatter.FormatTypeName(obj.GetType())})";
+
+		public class TestableContext(
+			ITestAssembly testAssembly,
+			IReadOnlyCollection<ITestCase> testCases,
+			IMessageSink executionMessageSink,
+			ITestFrameworkExecutionOptions executionOptions,
+			ExceptionAggregator aggregator) :
+				TestAssemblyRunnerContext<ITestAssembly, ITestCase>(testAssembly, testCases, executionMessageSink, executionOptions, default)
+		{
+			public override ExceptionAggregator Aggregator => aggregator;
+		}
 	}
 }

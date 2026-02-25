@@ -14,11 +14,12 @@
   <Target Name="_XunitValidateBuild" BeforeTargets="BeforeBuild" Condition=" '$(TargetFramework)' != '' ">
     <Error Text="xUnit.net v3 test projects must be executable (set project property '&lt;OutputType&gt;Exe&lt;/OutputType&gt;'). If this is not a test project, reference xunit.v3.extensibility.core instead." Condition=" '$(OutputType)' != 'Exe' " />
     <Error Text="xUnit.net v3 test projects must build an app host (set project property '&lt;UseAppHost&gt;true&lt;/UseAppHost&gt;'). If this is not a test project, reference xunit.v3.extensibility.core instead." Condition=" '$(UseAppHost)' != 'true' AND '$(TargetFrameworkIdentifier)' == '.NETCoreApp' " />
-    <Error Text="xunit.v3.core.mtp-off does not support '&lt;UseMicrosoftTestingPlatformRunner&gt;true&lt;/UseMicrosoftTestingPlatformRunner&gt;'" Condition=" '$(UseMicrosoftTestingPlatformRunner)' == 'true' " />
+    <Error Text="xUnit.net v3 Native AOT only supports C# at this time" Condition=" $(MSBuildThisFileName.Contains('.aot')) AND '$(Language)' != 'C#' " />
+    <Error Text="$(MSBuildThisFileName) does not support '&lt;UseMicrosoftTestingPlatformRunner&gt;true&lt;/UseMicrosoftTestingPlatformRunner&gt;'" Condition=" '$(UseMicrosoftTestingPlatformRunner)' == 'true' " />
   </Target>
 
   <!-- Make sure we generate the PDB type that TPv1 and TPv2/MTP expect -->
-  <PropertyGroup>
+  <PropertyGroup Condition=" !$(MSBuildThisFileName.Contains('.aot')) ">
     <DebugSymbols Condition=" '$(DebugSymbols)' == '' ">true</DebugSymbols>
   </PropertyGroup>
 
@@ -120,7 +121,7 @@
   </Target>
 
   <!-- Copy dependencies used by dynamic linked runners like NCrunch -->
-  <Target Name="_XunitCopyRunnerDependencies" AfterTargets="Build">
+  <Target Name="_XunitCopyRunnerDependencies" AfterTargets="Build" Condition=" !$(MSBuildThisFileName.Contains('.aot')) ">
     <ItemGroup>
       <XunitRunnerDependencies Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' " Include="$(MSBuildThisFileDirectory)..\_content\runners\netfx\*" />
       <XunitRunnerDependencies Condition=" '$(TargetFrameworkIdentifier)' == '.NETCoreApp' "   Include="$(MSBuildThisFileDirectory)..\_content\runners\netcore\*" />

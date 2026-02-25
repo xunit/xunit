@@ -9,6 +9,8 @@ namespace Xunit.v3;
 /// <summary>
 /// Default implementation of <see cref="ITestNotRun"/>.
 /// </summary>
-[JsonTypeID("test-not-run")]
+[JsonTypeID(TypeID)]
 sealed partial class TestNotRun : TestResultMessage, ITestNotRun
-{ }
+{
+	internal const string TypeID = "test-not-run";
+}

@@ -10,6 +10,8 @@ namespace Xunit.Internal;
 /// </summary>
 public static class Guard
 {
+#if !XUNIT_GENERATOR
+
 	/// <summary>
 	/// Ensures that an enum value is valid by comparing against a list of valid values.
 	/// </summary>
@@ -26,6 +28,8 @@ public static class Guard
 				ArgumentNotNull(validValues).Contains(argValue)
 					? argValue
 					: throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Enum value {0} not in valid set: [{1}]", argValue, string.Join(", ", validValues)), argName?.TrimStart('@'));
+
+#endif
 
 	/// <summary>
 	/// Ensures that a nullable value type argument is not null.
@@ -173,6 +177,8 @@ public static class Guard
 			throw new ArgumentException(messageFunc?.Invoke(), argName);
 	}
 
+#if !XUNIT_GENERATOR
+
 	/// <summary>
 	/// Ensures that a filename argument is not null or empty, and that the file exists on disk.
 	/// </summary>
@@ -189,6 +195,8 @@ public static class Guard
 
 		return fileName;
 	}
+
+#endif
 
 	/// <summary>
 	/// Ensures that a value is not default value. This is used for values of generic types

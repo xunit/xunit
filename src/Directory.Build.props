@@ -5,25 +5,30 @@
   <!-- Universal properties and items -->
 
   <PropertyGroup>
+    <_XunitIsAotProject>false</_XunitIsAotProject>
+    <_XunitIsAotProject Condition=" $(MSBuildProjectName.Contains('.aot')) AND !$(MSBuildProjectName.Contains('.generators')) ">true</_XunitIsAotProject>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <AssemblyName Condition=" '$(AssemblyName)' == '' ">$(MSBuildProjectName)</AssemblyName>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <DebugType Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">full</DebugType>
     <DebugType Condition=" '$(TargetFrameworkIdentifier)' != '.NETFramework' ">embedded</DebugType>
     <DefineConstants>$(DefineConstants);XUNIT_NULLABLE;XUNIT_OVERLOAD_RESOLUTION_PRIORITY;XUNIT_POINTERS</DefineConstants>
-    <DefineConstants Condition=" $(MSBuildProjectName.Contains('.aot')) ">$(DefineConstants);XUNIT_AOT</DefineConstants>
-    <ImplicitUsings Condition=" '$(ImplicitUsings)' == '' ">true</ImplicitUsings>
-    <IsAotCompatible Condition=" $(MSBuildProjectName.Contains('.aot')) ">true</IsAotCompatible>
+    <DefineConstants Condition=" $(_XunitIsAotProject) ">$(DefineConstants);XUNIT_AOT</DefineConstants>
+    <ImplicitUsings Condition=" '$(ImplicitUsings)' == '' ">enable</ImplicitUsings>
+    <IsAotCompatible Condition=" $(_XunitIsAotProject) AND '$(IsAotCompatible)' == '' ">true</IsAotCompatible>
     <LangVersion>14.0</LangVersion>
     <MSBuildCopyContentTransitively>false</MSBuildCopyContentTransitively>
     <PackageId>$(MSBuildProjectName)</PackageId>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <PublishAot Condition=" $(MSBuildProjectName.Contains('.aot')) ">true</PublishAot>
+    <PublishAot Condition=" $(_XunitIsAotProject) AND '$(PublishAot)' != '' ">true</PublishAot>
     <RootNamespace>Xunit</RootNamespace>
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
-  <ItemGroup Condition=" '$(ImplicitUsings)' == 'true' ">
+  <ItemGroup Condition=" '$(ImplicitUsings)' == 'enable' ">
     <Using Include="System.Diagnostics.CodeAnalysis; System.Globalization; Xunit.Internal"/>
   </ItemGroup>
 
@@ -86,6 +91,37 @@
         </PackageReference>
         <PackageReference Include="xunit.analyzers" Version="$(xunit_analyzers_Version)" PrivateAssets="all" />
       </ItemGroup>
+
+      <Choose>
+        <When Condition=" $(MSBuildProjectName.EndsWith('.generators')) ">
+          <PropertyGroup>
+            <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
+            <DefineConstants>$(DefineConstants);XUNIT_GENERATOR</DefineConstants>
+            <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+            <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+            <IsRoslynComponent>true</IsRoslynComponent>
+            <RootNamespace>Xunit.Generators</RootNamespace>
+          </PropertyGroup>
+
+          <ItemGroup>
+            <Compile Include="..\xunit.v3.common\Internal\CallerArgumentExpressionAttribute.cs" LinkBase="Common" />
+            <Compile Include="..\xunit.v3.common\Internal\Guard.cs" LinkBase="Common" />
+            <Compile Include="..\xunit.v3.msbuildtasks\NamespaceHelpers.cs" LinkBase="Common" />
+            <Compile Include="..\xunit.v3.msbuildtasks\UnicodeCharacterUtilities.cs" LinkBase="Common" />
+            <Compile Include="..\common.generators\*.cs" LinkBase="Common.Generators" />
+          </ItemGroup>
+
+          <ItemGroup>
+            <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="[$(Microsoft_Bcl_AsyncInterfaces_Version)]" />
+            <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0">
+              <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+              <PrivateAssets>all</PrivateAssets>
+            </PackageReference>
+            <!-- This version is tied to Roslyn 4.8 being shipped as part of .NET 8 SDK, our current minimum target -->
+            <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="[4.8.0]" />
+          </ItemGroup>
+        </When>
+      </Choose>
     </When>
   </Choose>
 
@@ -124,26 +160,12 @@
       </ItemGroup>
 
       <ItemGroup>
-        <Compile Include="..\common.tests\**\*.cs" LinkBase="Common.Tests" />
         <Compile Include="..\xunit.v3.msbuildtasks\XunitEntryPointGenerator.cs" LinkBase="Common.Tests\MSBuildTasks" />
       </ItemGroup>
 
       <ItemGroup>
         <PackageReference Include="Microsoft.Testing.Platform.MSBuild" Version="[$(Microsoft_Testing_v2_Version),3.0.0)" Condition=" !$(MSBuildProjectName.Contains('.mtp')) " />
-        <PackageReference Include="NSubstitute" Version="$(NSubstitute_Version)" Condition=" '$(PublishAot)' != 'true' " />
         <PackageReference Include="xunit.analyzers" Version="$(xunit_analyzers_Version)" PrivateAssets="all" />
-      </ItemGroup>
-
-      <ItemGroup Condition=" '$(PublishAot)' != 'true' ">
-        <ProjectReference Include="..\xunit.v3.assert\xunit.v3.assert.csproj" />
-        <ProjectReference Include="..\xunit.v3.core\xunit.v3.core.csproj" />
-        <ProjectReference Include="..\xunit.v3.mtp-v2\xunit.v3.mtp-v2.csproj" Condition=" !$(MSBuildProjectName.Contains('.mtp')) " />
-      </ItemGroup>
-
-      <ItemGroup Condition=" '$(PublishAot)' == 'true' ">
-        <ProjectReference Include="..\xunit.v3.assert.aot\xunit.v3.assert.aot.csproj" />
-        <ProjectReference Include="..\xunit.v3.core\xunit.v3.core.csproj" />
-        <ProjectReference Include="..\xunit.v3.mtp-v2\xunit.v3.mtp-v2.csproj" Condition=" !$(MSBuildProjectName.Contains('.mtp')) " />
       </ItemGroup>
 
       <!-- Required for AcceptanceTestAssembly -->
@@ -151,6 +173,37 @@
         <PackageDownload Include="Microsoft.NETFramework.ReferenceAssemblies.net472" Version="[1.0.3]" />
         <PackageDownload Include="NetStandard.Library" Version="[2.0.0]" />
       </ItemGroup>
+
+      <Choose>
+        <When Condition=" $(_XunitIsAotProject) ">
+
+          <ItemGroup>
+            <Compile Include="..\common.tests\**\*.cs" Exclude="**/*_reflection.cs" LinkBase="Common.Tests" />
+          </ItemGroup>
+
+          <ItemGroup>
+            <CompilerVisibleProperty Include="MSBuildProjectFullPath" />
+            <ProjectReference Include="..\xunit.v3.assert.aot\xunit.v3.assert.aot.csproj" />
+            <ProjectReference Include="..\xunit.v3.core.aot.generators\xunit.v3.core.aot.generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+            <ProjectReference Include="..\xunit.v3.mtp-v2.aot\xunit.v3.mtp-v2.aot.csproj" Condition=" !$(MSBuildProjectName.Contains('.mtp')) " />
+            <ProjectReference Include="..\xunit.v3.runner.common.aot.generators\xunit.v3.runner.common.aot.generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+          </ItemGroup>
+
+        </When>
+        <Otherwise>
+
+          <ItemGroup>
+            <Compile Include="..\common.tests\**\*.cs" Exclude="**/*_aot.cs" LinkBase="Common.Tests" />
+          </ItemGroup>
+
+          <ItemGroup>
+            <PackageReference Include="NSubstitute" Version="$(NSubstitute_Version)" />
+            <ProjectReference Include="..\xunit.v3.assert\xunit.v3.assert.csproj" />
+            <ProjectReference Include="..\xunit.v3.mtp-v2\xunit.v3.mtp-v2.csproj" Condition=" !$(MSBuildProjectName.Contains('.mtp')) " />
+          </ItemGroup>
+
+        </Otherwise>
+      </Choose>
 
     </When>
   </Choose>

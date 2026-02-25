@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>xunit.v3.runner.console</AssemblyName>
+    <Nullable>enable</Nullable>
+    <OutputType>Exe</OutputType>
+    <PublishAot>true</PublishAot>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\xunit.v3.core\Package\content\DefaultResultWriters.cs" LinkBase="Common" />
+    <Compile Include="..\xunit.v3.core\Package\content\DefaultRunnerReporters.cs" LinkBase="Common" />
+    <Compile Include="..\xunit.v3.runner.console\**\*.cs" Exclude="**\*_reflection.cs;**\obj\**\*.cs" />
+    <Compile Include="..\common\DotNetApiPolyfills.cs" LinkBase="Common" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\xunit.v3.runner.common.aot.generators\xunit.v3.runner.common.aot.generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\xunit.v3.runner.utility.aot\xunit.v3.runner.utility.aot.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,3 +1,5 @@
+// This lives in Xunit.Sdk instead of Xunit.v3 because our message filter will only simplify exception
+// names in the "Xunit.Sdk" namespace. See ExceptionUtility.GetMessage for more information.
 namespace Xunit.Sdk;
 
 /// <summary>

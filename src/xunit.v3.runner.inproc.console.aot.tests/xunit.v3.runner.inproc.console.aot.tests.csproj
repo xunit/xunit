@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PublishAot>true</PublishAot>
+    <TargetFramework>net9.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)\..\xunit.v3.runner.inproc.console.tests\**\*.cs" Exclude="**\*_reflection.cs;**\obj\**\*.cs" />
+  </ItemGroup>
+
+</Project>

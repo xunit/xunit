@@ -1,147 +1,38 @@
-using System.Reflection;
-using Xunit;
 using Xunit.Sdk;
-using Xunit.v3;
 
-public class AcceptanceTestV3
+public partial class AcceptanceTestV3
 {
-	public static ValueTask<List<IMessageSinkMessage>> RunAsync(
-		Type type,
-		bool preEnumerateTheories = true,
-		ExplicitOption? explicitOption = null,
-		IMessageSink? diagnosticMessageSink = null) =>
-			RunAsync([type], preEnumerateTheories, explicitOption, diagnosticMessageSink);
-
-	public static ValueTask<List<IMessageSinkMessage>> RunAsync(
-		Type[] types,
-		bool preEnumerateTheories = true,
-		ExplicitOption? explicitOption = null,
-		IMessageSink? diagnosticMessageSink = null)
-	{
-		var tcs = new TaskCompletionSource<List<IMessageSinkMessage>>();
-
-		ThreadPool.QueueUserWorkItem(async _ =>
-		{
-			TestContext.SetForInitialization(diagnosticMessageSink, diagnosticMessages: diagnosticMessageSink is not null, internalDiagnosticMessages: diagnosticMessageSink is not null);
-
-			try
-			{
-
-				await using var testFramework = new XunitTestFramework();
-
-				var testAssembly = Assembly.GetEntryAssembly()!;
-				var discoverer = testFramework.GetDiscoverer(testAssembly);
-				var testCases = new List<ITestCase>();
-				await discoverer.Find(testCase => { testCases.Add(testCase); return new(true); }, TestData.TestFrameworkDiscoveryOptions(preEnumerateTheories: preEnumerateTheories), types);
-
-				using var runSink = SpyMessageSink<ITestAssemblyFinished>.Create();
-				var executor = testFramework.GetExecutor(testAssembly);
-				await executor.RunTestCases(testCases, runSink, TestData.TestFrameworkExecutionOptions(explicitOption: explicitOption));
-
-				foreach (var testCase in testCases)
-					if (testCase is IAsyncDisposable asyncDisposable)
-						await asyncDisposable.DisposeAsync();
-					else if (testCase is IDisposable disposable)
-						disposable.Dispose();
-
-				tcs.TrySetResult(runSink.Messages.ToList());
-			}
-			catch (Exception ex)
-			{
-				tcs.TrySetException(ex);
-			}
-			finally
-			{
-				try
-				{
-					TestContextInternal.Current.Dispose();
-				}
-				catch { }
-			}
-		});
-
-		return new(tcs.Task);
-	}
-
-	public async static ValueTask<List<TMessageType>> RunAsync<TMessageType>(
-		Type type,
-		bool preEnumerateTheories = true,
-		ExplicitOption? explicitOption = null,
-		IMessageSink? diagnosticMessageSink = null)
-			where TMessageType : IMessageSinkMessage
-	{
-		var results = await RunAsync(type, preEnumerateTheories, explicitOption, diagnosticMessageSink);
-		return results.OfType<TMessageType>().ToList();
-	}
-
-	public async static ValueTask<List<TMessageType>> RunAsync<TMessageType>(
-		Type[] types,
-		bool preEnumerateTheories = true,
-		ExplicitOption? explicitOption = null,
-		IMessageSink? diagnosticMessageSink = null)
-			where TMessageType : IMessageSinkMessage
-	{
-		var results = await RunAsync(types, preEnumerateTheories, explicitOption, diagnosticMessageSink);
-		return results.OfType<TMessageType>().ToList();
-	}
-
-	public static ValueTask<List<ITestResultWithDisplayName>> RunForResultsAsync(
-		Type type,
-		bool preEnumerateTheories = true,
-		ExplicitOption? explicitOption = null,
-		IMessageSink? diagnosticMessageSink = null) =>
-			RunForResultsAsync([type], preEnumerateTheories, explicitOption, diagnosticMessageSink);
-
-	public async static ValueTask<List<ITestResultWithDisplayName>> RunForResultsAsync(
-		Type[] types,
-		bool preEnumerateTheories = true,
-		ExplicitOption? explicitOption = null,
-		IMessageSink? diagnosticMessageSink = null)
-	{
-		var results = await RunAsync(types, preEnumerateTheories, explicitOption, diagnosticMessageSink);
-		return
-			results
-				.OfType<ITestResultMessage>()
-				.Select(result => TestResultFactory(result, results.OfType<ITestStarting>().Where(ts => ts.TestUniqueID == result.TestUniqueID).Single().TestDisplayName))
-				.WhereNotNull()
-				.ToList();
-	}
-
-	public async static ValueTask<List<TResult>> RunForResultsAsync<TResult>(
-		Type type,
-		bool preEnumerateTheories = true,
-		ExplicitOption? explicitOption = null,
-		IMessageSink? diagnosticMessageSink = null)
-			where TResult : ITestResultWithDisplayName
-	{
-		var results = await RunForResultsAsync(type, preEnumerateTheories, explicitOption, diagnosticMessageSink);
-		return results.OfType<TResult>().ToList();
-	}
-
-	public async static ValueTask<List<TResult>> RunForResultsAsync<TResult>(
-		Type[] types,
-		bool preEnumerateTheories = true,
-		ExplicitOption? explicitOption = null,
-		IMessageSink? diagnosticMessageSink = null)
-			where TResult : ITestResultWithDisplayName
-	{
-		var results = await RunForResultsAsync(types, preEnumerateTheories, explicitOption, diagnosticMessageSink);
-		return results.OfType<TResult>().ToList();
-	}
-
-	public static ITestResultWithDisplayName? TestResultFactory(
+	static ITestResultWithMetadata? TestResultFactory(
 		ITestResultMessage result,
-		string testDisplayName)
-	{
-		if (result is ITestPassed passed)
-			return TestPassedWithDisplayName.FromTestPassed(passed, testDisplayName);
-		if (result is ITestFailed failed)
-			return TestFailedWithDisplayName.FromTestFailed(failed, testDisplayName);
-		if (result is ITestSkipped skipped)
-			return TestSkippedWithDisplayName.FromTestSkipped(skipped, testDisplayName);
-		if (result is ITestNotRun notRun)
-			return TestNotRunWithDisplayName.FromTestNotRun(notRun, testDisplayName);
+		List<IMessageSinkMessage> messages) =>
+			result switch
+			{
+				ITestFailed failed => TestResultFactory(failed, messages, TestFailedWithMetadata.FromTestFailed),
+				ITestNotRun notRun => TestResultFactory(notRun, messages, TestNotRunWithMetadata.FromTestNotRun),
+				ITestPassed passed => TestResultFactory(passed, messages, TestPassedWithMetadata.FromTestPassed),
+				ITestSkipped skipped => TestResultFactory(skipped, messages, TestSkippedWithMetadata.FromTestSkipped),
+				_ => null,
+			};
 
-		return null;
+	// TODO: This should use a message metadata cache to speed up the lookups
+	static ITestResultWithMetadata? TestResultFactory<TResult>(
+		TResult result,
+		List<IMessageSinkMessage> messages,
+		Func<TResult, IAssemblyMetadata, ITestCollectionMetadata, ITestClassMetadata?, ITestMethodMetadata?, ITestCaseMetadata, ITestMetadata, ITestResultWithMetadata> factory)
+			where TResult : ITestResultMessage
+	{
+		if (messages.OfType<IAssemblyMetadata>().FirstOrDefault(a => a.UniqueID == result.AssemblyUniqueID) is not IAssemblyMetadata testAssembly)
+			return null;
+		if (messages.OfType<ITestCollectionMetadata>().FirstOrDefault(tc => tc.UniqueID == result.TestCollectionUniqueID) is not ITestCollectionMetadata testCollection)
+			return null;
+		if (messages.OfType<ITestCaseMetadata>().FirstOrDefault(tc => tc.UniqueID == result.TestCaseUniqueID) is not ITestCaseMetadata testCase)
+			return null;
+		if (messages.OfType<ITestMetadata>().FirstOrDefault(t => t.UniqueID == result.TestUniqueID) is not ITestMetadata test)
+			return null;
+
+		var testClass = result.TestClassUniqueID is null ? null : messages.OfType<ITestClassMetadata>().FirstOrDefault(tc => tc.UniqueID == result.TestClassUniqueID);
+		var testMethod = result.TestMethodUniqueID is null ? null : messages.OfType<ITestMethodMetadata>().FirstOrDefault(tm => tm.UniqueID == result.TestMethodUniqueID);
+
+		return factory(result, testAssembly, testCollection, testClass, testMethod, testCase, test);
 	}
 }

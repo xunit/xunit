@@ -1,4 +1,6 @@
+#if !XUNIT_AOT
 using Xunit.v3;
+#endif
 
 // This lives in Xunit.Sdk instead of Xunit.v3 because our message filter will only simplify exception
 // names in the "Xunit.Sdk" namespace. See ExceptionUtility.GetMessage for more information.
@@ -8,7 +10,10 @@ namespace Xunit.Sdk;
 /// Thrown if a test exceeds the specified timeout.
 /// </summary>
 [Serializable]
-public class TestTimeoutException : Exception, ITestTimeoutException
+public class TestTimeoutException : Exception
+#if !XUNIT_AOT
+	, ITestTimeoutException
+#endif
 {
 	TestTimeoutException(string message)
 		: base(message)

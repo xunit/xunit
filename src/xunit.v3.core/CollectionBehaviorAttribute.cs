@@ -4,10 +4,13 @@ using Xunit.v3;
 namespace Xunit;
 
 /// <summary>
-/// Default implementation of <see cref="ICollectionBehaviorAttribute"/>.
+/// Used to declare the default test collection behavior for the assembly.
 /// </summary>
 [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = false)]
-public sealed class CollectionBehaviorAttribute : Attribute, ICollectionBehaviorAttribute
+public sealed class CollectionBehaviorAttribute : Attribute
+#if !XUNIT_AOT
+	, ICollectionBehaviorAttribute
+#endif
 {
 	/// <summary>
 	/// Initializes a new instance of the <see cref="CollectionBehaviorAttribute" /> class.

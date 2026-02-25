@@ -1,10 +1,5 @@
-#if !XUNIT_AOT
-
-using System;
-using System.Collections.Generic;
 using System.Reflection;
 using Xunit;
-using Xunit.Internal;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -52,6 +47,40 @@ partial class TestData
 		);
 	}
 
+	public static XunitTest XunitTest(
+		IXunitTestCase testCase,
+		IXunitTestMethod? testMethod = null,
+		bool? @explicit = null,
+		string? skipReason = null,
+		Type? skipType = null,
+		string? skipUnless = null,
+		string? skipWhen = null,
+		string? testDisplayName = null,
+		string? testLabel = null,
+		object?[]? testMethodArguments = null,
+		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
+		int? timeout = null,
+		string uniqueID = DefaultTestUniqueID)
+	{
+		testMethod ??= testCase.TestMethod;
+
+		return new(
+			testCase,
+			testMethod,
+			@explicit,
+			skipReason,
+			skipType,
+			skipUnless,
+			skipWhen,
+			testDisplayName ?? $"{testMethod.TestClass.Class.FullName}.{testMethod.MethodName}",
+			testLabel,
+			uniqueID,
+			traits ?? testMethod.Traits,
+			timeout,
+			testMethodArguments
+		);
+	}
+
 	public static XunitTest XunitTest<TClassUnderTest>(
 		string methodName,
 		bool? @explicit = null,
@@ -82,6 +111,58 @@ partial class TestData
 			traits,
 			timeout,
 			uniqueID
+		);
+	}
+
+	public static XunitTestAssembly XunitTestAssembly(
+		Assembly assembly,
+		string? configFileName = null,
+		Version? version = null,
+		string uniqueID = DefaultAssemblyUniqueID) =>
+			new(assembly, configFileName, version, uniqueID);
+
+	public static XunitTestAssembly XunitTestAssembly<TClassUnderTest>(
+		string? configFileName = null,
+		Version? version = null,
+		string uniqueID = DefaultAssemblyUniqueID) =>
+			XunitTestAssembly(typeof(TClassUnderTest).Assembly, configFileName, version, uniqueID);
+
+	public static XunitTestCase XunitTestCase(
+		IXunitTestMethod testMethod,
+		bool? @explicit = null,
+		TestMethodDisplay methodDisplay = TestMethodDisplay.ClassAndMethod,
+		TestMethodDisplayOptions methodDisplayOptions = TestMethodDisplayOptions.None,
+		Type[]? skipExceptions = null,
+		string? skipReason = null,
+		Type? skipType = null,
+		string? skipUnless = null,
+		string? skipWhen = null,
+		string? testLabel = null,
+		object?[]? testMethodArguments = null,
+		int? timeout = null,
+		Dictionary<string, HashSet<string>>? traits = null,
+		string uniqueID = DefaultTestCaseUniqueID)
+	{
+		var factAttribute = testMethod.Method.GetMatchingCustomAttributes<IFactAttribute>().FirstOrDefault();
+		Assert.NotNull(factAttribute);
+
+		var discoveryOptions = TestFrameworkDiscoveryOptions(methodDisplay: methodDisplay, methodDisplayOptions: methodDisplayOptions);
+		var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, factAttribute);
+
+		return new(
+			details.ResolvedTestMethod,
+			details.TestCaseDisplayName,
+			uniqueID ?? details.UniqueID,
+			@explicit ?? details.Explicit,
+			testLabel,
+			skipExceptions ?? details.SkipExceptions,
+			skipReason ?? details.SkipReason,
+			skipType ?? details.SkipType,
+			skipUnless ?? details.SkipUnless,
+			skipWhen ?? details.SkipWhen,
+			traits ?? testMethod.Traits.ToReadWrite(StringComparer.OrdinalIgnoreCase),
+			testMethodArguments,
+			timeout: timeout ?? factAttribute.Timeout
 		);
 	}
 
@@ -126,6 +207,47 @@ partial class TestData
 		);
 	}
 
+	public static XunitTestClass XunitTestClass(
+		Type @class,
+		IXunitTestCollection? testCollection = null,
+		string uniqueID = DefaultTestClassUniqueID) =>
+			new(@class, testCollection ?? XunitTestCollection(XunitTestAssembly(@class.Assembly)), uniqueID);
+
+	public static XunitTestClass XunitTestClass<TClassUnderTest>(
+		IXunitTestCollection? collection = null,
+		string uniqueID = DefaultTestClassUniqueID) =>
+			XunitTestClass(typeof(TClassUnderTest), collection ?? XunitTestCollection<TClassUnderTest>(), uniqueID);
+
+	public static XunitTestCollection XunitTestCollection(
+		IXunitTestAssembly assembly,
+		Type? collectionDefinition = null,
+		bool? disableParallelization = null,
+		string? displayName = null,
+		string uniqueID = DefaultTestCollectionUniqueID) =>
+			new(assembly, collectionDefinition, disableParallelization ?? false, displayName ?? $"[Unit Test] Collection for '{assembly.AssemblyName}'", uniqueID);
+
+	public static XunitTestCollection XunitTestCollection<TClassUnderTest>(
+		Type? collectionDefinition = null,
+		bool? disableParallelization = null,
+		string? displayName = null,
+		string uniqueID = DefaultTestCollectionUniqueID)
+	{
+		var testAssembly = XunitTestAssembly<TClassUnderTest>();
+		var standardCollection = new CollectionPerClassTestCollectionFactory(testAssembly).Get(typeof(TClassUnderTest));
+		collectionDefinition ??= standardCollection.CollectionDefinition;
+		disableParallelization ??= standardCollection.DisableParallelization;
+		displayName ??= standardCollection.TestCollectionDisplayName;
+
+		return XunitTestCollection(testAssembly, collectionDefinition, disableParallelization, displayName, uniqueID);
+	}
+
+	public static XunitTestMethod XunitTestMethod(
+		IXunitTestClass testClass,
+		MethodInfo methodInfo,
+		object?[]? testMethodArguments = null,
+		string uniqueID = DefaultTestMethodUniqueID) =>
+			new(testClass, methodInfo, testMethodArguments ?? [], uniqueID);
+
 	public static XunitTestMethod XunitTestMethod<TClassUnderTest>(
 		string methodName,
 		object?[]? testMethodArguments = null,
@@ -138,5 +260,3 @@ partial class TestData
 		return XunitTestMethod(testClass, methodInfo, testMethodArguments, uniqueID);
 	}
 }
-
-#endif  // !XUNIT_AOT

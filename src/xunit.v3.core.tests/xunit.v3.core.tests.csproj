@@ -7,12 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\xunit.v3.runner.utility\AssemblyResolution\AssemblyHelper.cs" LinkBase="Common" />
-    <Compile Include="..\xunit.v3.runner.utility\Frameworks\v2\LongLivedMarshalByRefObject.cs" LinkBase="Common" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="TestDoubles\" />
+    <Compile Include="..\xunit.v3.runner.utility\AssemblyResolution\AssemblyHelper_reflection.cs" LinkBase="Common" />
+    <Compile Include="..\xunit.v3.runner.utility\Frameworks\LongLivedMarshalByRefObject.cs" LinkBase="Common" />
+    <Compile Include="..\xunit.v3.acceptance.aot.tests\**\*.cs" Exclude="**\obj\**\*.cs;**\*_aot.cs" />
   </ItemGroup>
 
 </Project>

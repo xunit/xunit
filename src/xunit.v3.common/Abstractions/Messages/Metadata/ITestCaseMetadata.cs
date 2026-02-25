@@ -97,7 +97,7 @@ public interface ITestCaseMetadata
 	/// <remarks>
 	/// The values here are formatted according to
 	/// <see href="https://github.com/microsoft/vstest/blob/main/docs/RFCs/0017-Managed-TestCase-Properties.md">VSTest rules</see>
-	/// in order to support Test Explorer. Note that this is not the same as <see cref="Type.FullName"/>.
+	/// in order to support Test Explorer. Note that these type names are not the same as <see cref="Type.FullName"/>.
 	/// </remarks>
 	string[]? TestMethodParameterTypesVSTest { get; }
 

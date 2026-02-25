@@ -1,35 +1,34 @@
-#if !XUNIT_AOT
-
-using System;
-using System.Collections.Generic;
 using System.Reflection;
-using NSubstitute;
-using NSubstitute.ExceptionExtensions;
-using Xunit;
-using Xunit.Internal;
 using Xunit.Sdk;
 using Xunit.v3;
 
-// This file manufactures mocks of the test object model interfaces. The generic version based on a
-// real test class will use live objects from TestData for the parents.
-public static partial class Mocks
+// This file manufactures mocks of the test object model interfaces.
+partial class Mocks
 {
-	// ITestXxx
+	// ===== ITestXxx =====
 
 	public static ITest Test(
 		ITestCase? testCase = null,
 		string testDisplayName = TestData.DefaultTestDisplayName,
+		string? testLabel = null,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
-		string uniqueID = TestData.DefaultTestUniqueID)
-	{
-		testCase ??= TestCase();
+		string uniqueID = TestData.DefaultTestUniqueID) =>
+			new MockTest
+			{
+				TestCase = testCase ?? TestCase(),
+				TestDisplayName = testDisplayName,
+				TestLabel = testLabel,
+				Traits = traits ?? TestData.DefaultTraits,
+				UniqueID = uniqueID,
+			};
 
-		var result = Substitute.For<ITest, InterfaceProxy<ITest>>();
-		result.TestCase.Returns(testCase);
-		result.TestDisplayName.Returns(testDisplayName);
-		result.Traits.Returns(traits ?? TestData.DefaultTraits);
-		result.UniqueID.Returns(uniqueID);
-		return result;
+	class MockTest : ITest
+	{
+		public required ITestCase TestCase { get; set; }
+		public required string TestDisplayName { get; set; }
+		public required string? TestLabel { get; set; }
+		public required IReadOnlyDictionary<string, IReadOnlyCollection<string>> Traits { get; set; }
+		public required string UniqueID { get; set; }
 	}
 
 	public static ITestAssembly TestAssembly(
@@ -38,16 +37,25 @@ public static partial class Mocks
 		string? configFilePath = null,
 		Guid? moduleVersionID = null,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
-		string uniqueID = TestData.DefaultAssemblyUniqueID)
+		string uniqueID = TestData.DefaultAssemblyUniqueID) =>
+			new MockTestAssembly
+			{
+				AssemblyName = assemblyName,
+				AssemblyPath = assemblyPath,
+				ConfigFilePath = configFilePath,
+				ModuleVersionID = moduleVersionID ?? TestData.DefaultModuleVersionID,
+				Traits = traits ?? TestData.DefaultTraits,
+				UniqueID = uniqueID,
+			};
+
+	class MockTestAssembly : ITestAssembly
 	{
-		var result = Substitute.For<ITestAssembly, InterfaceProxy<ITestAssembly>>();
-		result.AssemblyName.Returns(assemblyName);
-		result.AssemblyPath.Returns(assemblyPath);
-		result.ConfigFilePath.Returns(configFilePath);
-		result.ModuleVersionID.Returns(moduleVersionID ?? TestData.DefaultModuleVersionID);
-		result.Traits.Returns(traits ?? TestData.DefaultTraits);
-		result.UniqueID.Returns(uniqueID);
-		return result;
+		public required string AssemblyName { get; set; }
+		public required string AssemblyPath { get; set; }
+		public required string? ConfigFilePath { get; set; }
+		public required Guid ModuleVersionID { get; set; }
+		public required IReadOnlyDictionary<string, IReadOnlyCollection<string>> Traits { get; set; }
+		public required string UniqueID { get; set; }
 	}
 
 	public static ITestCase TestCase(
@@ -66,53 +74,195 @@ public static partial class Mocks
 	{
 		testMethod ??= TestMethod();
 
-		var testCollection = testMethod.TestClass.TestCollection;
-		var testClass = testMethod.TestClass;
-		var testClassName = testClass.TestClassName;
-		var testClassNamespace = testClass.TestClassNamespace;
-		var testClassSimpleName = testClass.TestClassSimpleName;
-		var testMethodName = testMethod.MethodName;
+		return new MockTestCase
+		{
+			Explicit = @explicit,
+			SkipReason = skipReason,
+			SourceFilePath = sourceFilePath,
+			SourceLineNumber = sourceLineNumber,
+			TestCaseDisplayName = testCaseDisplayName,
+			TestCollection = testMethod.TestClass.TestCollection,
+			TestClass = testMethod.TestClass,
+			TestClassMetadataToken = testClassMetadataToken,
+			TestMethod = testMethod,
+			TestMethodMetadataToken = testMethodMetadataToken,
+			TestMethodParameterTypesVSTest = testMethodParameterTypesVSTest,
+			TestMethodReturnTypeVSTest = testMethodReturnTypeVSTest,
+			Traits = traits ?? TestData.DefaultTraits,
+			UniqueID = uniqueID,
+		};
+	}
 
-		var result = Substitute.For<ITestCase, InterfaceProxy<ITestCase>>();
-		result.Explicit.Returns(@explicit);
-		result.SkipReason.Returns(skipReason);
-		result.SourceFilePath.Returns(sourceFilePath);
-		result.SourceLineNumber.Returns(sourceLineNumber);
-		result.TestCaseDisplayName.Returns(testCaseDisplayName);
-		result.TestClass.Returns(testClass);
-		result.TestClassMetadataToken.Returns(testClassMetadataToken);
-		result.TestClassName.Returns(testClassName);
-		result.TestClassNamespace.Returns(testClassNamespace);
-		result.TestClassSimpleName.Returns(testClassSimpleName);
-		result.TestCollection.Returns(testCollection);
-		result.TestMethod.Returns(testMethod);
-		result.TestMethodMetadataToken.Returns(testMethodMetadataToken);
-		result.TestMethodName.Returns(testMethodName);
-		result.TestMethodParameterTypesVSTest.Returns(testMethodParameterTypesVSTest ?? []);
-		result.TestMethodReturnTypeVSTest.Returns(testMethodReturnTypeVSTest);
-		result.Traits.Returns(traits ?? TestData.DefaultTraits);
-		result.UniqueID.Returns(uniqueID);
-		return result;
+	public static ITestCase TestCase(
+		ITestCollection testCollection,
+		bool @explicit = false,
+		string? skipReason = null,
+		string? sourceFilePath = null,
+		int? sourceLineNumber = null,
+		string testCaseDisplayName = TestData.DefaultTestCaseDisplayName,
+		ITestClass? testClass = null,
+		int testClassMetadataToken = TestData.DefaultTestClassMetadataToken,
+		ITestMethod? testMethod = null,
+		int testMethodMetadataToken = TestData.DefaultTestMethodMetadataToken,
+		string[]? testMethodParameterTypesVSTest = null,
+		string testMethodReturnTypeVSTest = "System.Void",
+		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
+		string uniqueID = TestData.DefaultTestCaseUniqueID) =>
+			new MockTestCase
+			{
+				Explicit = @explicit,
+				SkipReason = skipReason,
+				SourceFilePath = sourceFilePath,
+				SourceLineNumber = sourceLineNumber,
+				TestCaseDisplayName = testCaseDisplayName,
+				TestCollection = testCollection,
+				TestClass = testClass,
+				TestClassMetadataToken = testClassMetadataToken,
+				TestMethod = testMethod,
+				TestMethodMetadataToken = testMethodMetadataToken,
+				TestMethodParameterTypesVSTest = testMethodParameterTypesVSTest,
+				TestMethodReturnTypeVSTest = testMethodReturnTypeVSTest,
+				Traits = traits ?? TestData.DefaultTraits,
+				UniqueID = uniqueID,
+			};
+
+	class MockTestCase : ITestCase
+	{
+		public required bool Explicit { get; set; }
+		public required string? SkipReason { get; set; }
+		public required string? SourceFilePath { get; set; }
+		public required int? SourceLineNumber { get; set; }
+		public required ITestClass? TestClass { get; set; }
+		public required string TestCaseDisplayName { get; set; }
+		public required ITestCollection TestCollection { get; set; }
+		public required int? TestClassMetadataToken { get; set; }
+		public required ITestMethod? TestMethod { get; set; }
+		public required int? TestMethodMetadataToken { get; set; }
+		public required string[]? TestMethodParameterTypesVSTest { get; set; }
+		public required string? TestMethodReturnTypeVSTest { get; set; }
+		public required IReadOnlyDictionary<string, IReadOnlyCollection<string>> Traits { get; set; }
+		public required string UniqueID { get; set; }
+
+		public string? TestClassName => TestClass?.TestClassName;
+		public string? TestClassNamespace => TestClass?.TestClassNamespace;
+		public string? TestClassSimpleName => TestClass?.TestClassSimpleName;
+		public int? TestMethodArity => TestMethod?.MethodArity;
+		public string? TestMethodName => TestMethod?.MethodName;
+	}
+
+	public static ITestCase TestCaseAsyncDisposable(
+		Action asyncDisposeCallback,
+		bool @explicit = false,
+		string? skipReason = null,
+		string? sourceFilePath = null,
+		int? sourceLineNumber = null,
+		string testCaseDisplayName = TestData.DefaultTestCaseDisplayName,
+		int testClassMetadataToken = TestData.DefaultTestClassMetadataToken,
+		ITestMethod? testMethod = null,
+		int testMethodMetadataToken = TestData.DefaultTestMethodMetadataToken,
+		string[]? testMethodParameterTypesVSTest = null,
+		string testMethodReturnTypeVSTest = "System.Void",
+		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
+		string uniqueID = TestData.DefaultTestCaseUniqueID)
+	{
+		testMethod ??= TestMethod();
+
+		return new MockTestCaseAsyncDisposable(asyncDisposeCallback)
+		{
+			Explicit = @explicit,
+			SkipReason = skipReason,
+			SourceFilePath = sourceFilePath,
+			SourceLineNumber = sourceLineNumber,
+			TestCaseDisplayName = testCaseDisplayName,
+			TestCollection = testMethod.TestClass.TestCollection,
+			TestClass = testMethod.TestClass,
+			TestClassMetadataToken = testClassMetadataToken,
+			TestMethod = testMethod,
+			TestMethodMetadataToken = testMethodMetadataToken,
+			TestMethodParameterTypesVSTest = testMethodParameterTypesVSTest,
+			TestMethodReturnTypeVSTest = testMethodReturnTypeVSTest,
+			Traits = traits ?? TestData.DefaultTraits,
+			UniqueID = uniqueID,
+		};
+	}
+
+	class MockTestCaseAsyncDisposable(Action asyncDisposeCallback) :
+		MockTestCase, IAsyncDisposable
+	{
+		public ValueTask DisposeAsync()
+		{
+			asyncDisposeCallback();
+			return default;
+		}
+	}
+
+	public static ITestCase TestCaseDisposable(
+		Action disposeCallback,
+		bool @explicit = false,
+		string? skipReason = null,
+		string? sourceFilePath = null,
+		int? sourceLineNumber = null,
+		string testCaseDisplayName = TestData.DefaultTestCaseDisplayName,
+		int testClassMetadataToken = TestData.DefaultTestClassMetadataToken,
+		ITestMethod? testMethod = null,
+		int testMethodMetadataToken = TestData.DefaultTestMethodMetadataToken,
+		string[]? testMethodParameterTypesVSTest = null,
+		string testMethodReturnTypeVSTest = "System.Void",
+		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
+		string uniqueID = TestData.DefaultTestCaseUniqueID)
+	{
+		testMethod ??= TestMethod();
+
+		return new MockTestCaseDisposable(disposeCallback)
+		{
+			Explicit = @explicit,
+			SkipReason = skipReason,
+			SourceFilePath = sourceFilePath,
+			SourceLineNumber = sourceLineNumber,
+			TestCaseDisplayName = testCaseDisplayName,
+			TestCollection = testMethod.TestClass.TestCollection,
+			TestClass = testMethod.TestClass,
+			TestClassMetadataToken = testClassMetadataToken,
+			TestMethod = testMethod,
+			TestMethodMetadataToken = testMethodMetadataToken,
+			TestMethodParameterTypesVSTest = testMethodParameterTypesVSTest,
+			TestMethodReturnTypeVSTest = testMethodReturnTypeVSTest,
+			Traits = traits ?? TestData.DefaultTraits,
+			UniqueID = uniqueID,
+		};
+	}
+
+	class MockTestCaseDisposable(Action disposeCallback) :
+		MockTestCase, IDisposable
+	{
+		public void Dispose() => disposeCallback();
 	}
 
 	public static ITestClass TestClass(
 		string testClassName = TestData.DefaultTestClassName,
-		string testClassNamespace = TestData.DefaultTestClassNamespace,
+		string? testClassNamespace = null,
 		string testClassSimpleName = TestData.DefaultTestClassSimpleName,
 		ITestCollection? testCollection = null,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
-		string uniqueID = TestData.DefaultTestClassUniqueID)
-	{
-		testCollection ??= TestCollection();
+		string uniqueID = TestData.DefaultTestClassUniqueID) =>
+			new MockTestClass
+			{
+				TestClassName = testClassName,
+				TestClassNamespace = testClassNamespace,
+				TestClassSimpleName = testClassSimpleName,
+				TestCollection = testCollection ?? TestCollection(),
+				Traits = traits ?? TestData.DefaultTraits,
+				UniqueID = uniqueID,
+			};
 
-		var result = Substitute.For<ITestClass, InterfaceProxy<ITestClass>>();
-		result.TestClassName.Returns(testClassName);
-		result.TestClassNamespace.Returns(testClassNamespace);
-		result.TestClassSimpleName.Returns(testClassSimpleName);
-		result.TestCollection.Returns(testCollection);
-		result.Traits.Returns(traits ?? TestData.DefaultTraits);
-		result.UniqueID.Returns(uniqueID);
-		return result;
+	class MockTestClass : ITestClass
+	{
+		public required string TestClassName { get; set; }
+		public required string? TestClassNamespace { get; set; }
+		public required string TestClassSimpleName { get; set; }
+		public required ITestCollection TestCollection { get; set; }
+		public required IReadOnlyDictionary<string, IReadOnlyCollection<string>> Traits { get; set; }
+		public required string UniqueID { get; set; }
 	}
 
 	public static ITestCollection TestCollection(
@@ -120,94 +270,91 @@ public static partial class Mocks
 		string? testCollectionClassName = null,
 		string testCollectionDisplayName = TestData.DefaultTestCollectionDisplayName,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
-		string uniqueID = TestData.DefaultTestCollectionUniqueID)
-	{
-		testAssembly ??= TestAssembly();
+		string uniqueID = TestData.DefaultTestCollectionUniqueID) =>
+			new MockTestCollection
+			{
+				TestAssembly = testAssembly ?? TestAssembly(),
+				TestCollectionClassName = testCollectionClassName,
+				TestCollectionDisplayName = testCollectionDisplayName,
+				Traits = traits ?? TestData.DefaultTraits,
+				UniqueID = uniqueID,
+			};
 
-		var result = Substitute.For<ITestCollection, InterfaceProxy<ITestCollection>>();
-		result.TestAssembly.Returns(testAssembly);
-		result.TestCollectionClassName.Returns(testCollectionClassName);
-		result.TestCollectionDisplayName.Returns(testCollectionDisplayName);
-		result.Traits.Returns(traits ?? TestData.DefaultTraits);
-		result.UniqueID.Returns(uniqueID);
-		return result;
+	class MockTestCollection : ITestCollection
+	{
+		public required ITestAssembly TestAssembly { get; set; }
+		public required string? TestCollectionClassName { get; set; }
+		public required string TestCollectionDisplayName { get; set; }
+		public required IReadOnlyDictionary<string, IReadOnlyCollection<string>> Traits { get; set; }
+		public required string UniqueID { get; set; }
 	}
 
 	public static ITestMethod TestMethod(
+		int methodArity = 0,
 		string methodName = TestData.DefaultMethodName,
 		ITestClass? testClass = null,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
-		string uniqueID = TestData.DefaultTestMethodUniqueID)
-	{
-		testClass ??= TestClass();
+		string uniqueID = TestData.DefaultTestMethodUniqueID) =>
+			new MockTestMethod
+			{
+				MethodArity = methodArity,
+				MethodName = methodName,
+				TestClass = testClass ?? TestClass(),
+				Traits = traits ?? TestData.DefaultTraits,
+				UniqueID = uniqueID,
+			};
 
-		var result = Substitute.For<ITestMethod, InterfaceProxy<ITestMethod>>();
-		result.MethodName.Returns(methodName);
-		result.TestClass.Returns(testClass);
-		result.Traits.Returns(traits ?? TestData.DefaultTraits);
-		result.UniqueID.Returns(uniqueID);
-		return result;
+	class MockTestMethod : ITestMethod
+	{
+		public required int? MethodArity { get; set; }
+		public required string MethodName { get; set; }
+		public required ITestClass TestClass { get; set; }
+		public required IReadOnlyDictionary<string, IReadOnlyCollection<string>> Traits { get; set; }
+		public required string UniqueID { get; set; }
 	}
 
-	// IXunitTestXxx
+	// ===== ICoreTestXxx =====
 
-	public static IXunitTest XunitTest(
+	public static ICoreTest CoreTest(
 		bool @explicit = false,
-		IXunitTestCase? testCase = null,
+		ICoreTestCase? testCase = null,
 		string testDisplayName = TestData.DefaultTestDisplayName,
-		object?[]? testMethodArguments = null,
-		int timeout = 0,
-		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
-		string uniqueID = TestData.DefaultTestUniqueID)
-	{
-		testCase ??= XunitTestCase();
-		traits ??= testCase.Traits;
-
-		var testMethod = testCase.TestMethod;
-
-		var result = Substitute.For<IXunitTest, InterfaceProxy<IXunitTest>>();
-		result.Explicit.Returns(@explicit);
-		result.TestCase.Returns(testCase);
-		result.TestDisplayName.Returns(testDisplayName);
-		result.TestMethod.Returns(testMethod);
-		result.TestMethodArguments.Returns(testMethodArguments ?? []);
-		result.Timeout.Returns(timeout);
-		result.Traits.Returns(traits);
-		result.UniqueID.Returns(uniqueID);
-
-		var resultBase = (ITest)result;
-		resultBase.TestCase.Returns(testCase);
-
-		return result;
-	}
-
-	public static IXunitTest XunitTest<TClassUnderTest>(
-		string methodName,
-		bool @explicit = false,
-		string testDisplayName = TestData.DefaultTestDisplayName,
-		object?[]? testMethodArguments = null,
+		string? testLabel = null,
 		int timeout = 0,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
 		string uniqueID = TestData.DefaultTestUniqueID) =>
-			XunitTest(
-				@explicit,
-				TestData.XunitTestCase<TClassUnderTest>(methodName),
-				testDisplayName,
-				testMethodArguments,
-				timeout,
-				traits,
-				uniqueID
-			);
+			new MockCoreTest
+			{
+				Explicit = @explicit,
+				TestCase = testCase ?? CoreTestCase(),
+				TestDisplayName = testDisplayName,
+				TestLabel = testLabel,
+				Timeout = timeout,
+				Traits = traits ?? TestData.DefaultTraits,
+				UniqueID = uniqueID,
+			};
 
-	public static IXunitTestAssembly XunitTestAssembly(
-		IReadOnlyCollection<Type>? assemblyFixtureTypes = null,
+	class MockCoreTest : ICoreTest
+	{
+		public required bool Explicit { get; set; }
+		public required ICoreTestCase TestCase { get; set; }
+		public required string TestDisplayName { get; set; }
+		public required string? TestLabel { get; set; }
+		public required int Timeout { get; set; }
+		public required IReadOnlyDictionary<string, IReadOnlyCollection<string>> Traits { get; set; }
+		public required string UniqueID { get; set; }
+
+		ITestCase ITest.TestCase => TestCase;
+	}
+
+	public static ICoreTestAssembly CoreTestAssembly(
 		string assemblyName = TestData.DefaultAssemblyName,
 		string assemblyPath = TestData.DefaultAssemblyPath,
-		IReadOnlyCollection<IBeforeAfterTestAttribute>? beforeAfterTestAttributes = null,
-		ICollectionBehaviorAttribute? collectionBehavior = null,
-		IReadOnlyDictionary<string, (Type Type, CollectionDefinitionAttribute Attribute)>? collectionDefinitions = null,
 		string? configFilePath = null,
+		bool? disableParallelization = null,
+		int? maxParallelThreads = null,
 		Guid? moduleVersionID = null,
+		ParallelAlgorithm? parallelAlgorithm = null,
 		string targetFramework = TestData.DefaultTargetFramework,
 		ITestCaseOrderer? testCaseOrderer = null,
 		ITestClassOrderer? testClassOrderer = null,
@@ -215,337 +362,219 @@ public static partial class Mocks
 		ITestMethodOrderer? testMethodOrderer = null,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
 		string uniqueID = TestData.DefaultAssemblyUniqueID,
-		Version? version = null)
-	{
-		version ??= new Version(2112, 42, 2600);
+		Version? version = null) =>
+			new MockCoreTestAssembly
+			{
+				AssemblyName = assemblyName,
+				AssemblyPath = assemblyPath,
+				ConfigFilePath = configFilePath,
+				DisableParallelization = disableParallelization,
+				MaxParallelThreads = maxParallelThreads,
+				ModuleVersionID = moduleVersionID ?? TestData.DefaultModuleVersionID,
+				ParallelAlgorithm = parallelAlgorithm,
+				TargetFramework = targetFramework,
+				TestCaseOrderer = testCaseOrderer,
+				TestClassOrderer = testClassOrderer,
+				TestCollectionOrderer = testCollectionOrderer,
+				TestMethodOrderer = testMethodOrderer,
+				Traits = traits ?? TestData.DefaultTraits,
+				UniqueID = uniqueID,
+				Version = version ?? new Version(2112, 42, 2600),
+			};
 
-		var result = Substitute.For<IXunitTestAssembly, InterfaceProxy<IXunitTestAssembly>>();
-		result.Assembly.Throws(new InvalidOperationException("Using IXunitTestAssembly.Assembly while testing is prohibited"));
-		result.AssemblyFixtureTypes.Returns(assemblyFixtureTypes ?? []);
-		result.AssemblyName.Returns(assemblyName);
-		result.AssemblyPath.Returns(assemblyPath);
-		result.BeforeAfterTestAttributes.Returns(beforeAfterTestAttributes ?? []);
-		result.CollectionBehavior.Returns(collectionBehavior);
-		result.CollectionDefinitions.Returns(collectionDefinitions ?? TestData.EmptyCollectionDefinitions);
-		result.ConfigFilePath.Returns(configFilePath);
-		result.ModuleVersionID.Returns(moduleVersionID ?? TestData.DefaultModuleVersionID);
-		result.TargetFramework.Returns(targetFramework);
-		result.TestCaseOrderer.Returns(testCaseOrderer);
-		result.TestClassOrderer.Returns(testClassOrderer);
-		result.TestCollectionOrderer.Returns(testCollectionOrderer);
-		result.TestMethodOrderer.Returns(testMethodOrderer);
-		result.Traits.Returns(traits ?? TestData.EmptyTraits);
-		result.UniqueID.Returns(uniqueID);
-		result.Version.Returns(version);
-		return result;
+	class MockCoreTestAssembly : ICoreTestAssembly
+	{
+		public required string AssemblyName { get; set; }
+		public required string AssemblyPath { get; set; }
+		public required string? ConfigFilePath { get; set; }
+		public required bool? DisableParallelization { get; set; }
+		public required int? MaxParallelThreads { get; set; }
+		public required Guid ModuleVersionID { get; set; }
+		public required ParallelAlgorithm? ParallelAlgorithm { get; set; }
+		public required string TargetFramework { get; set; }
+		public required ITestCaseOrderer? TestCaseOrderer { get; set; }
+		public required ITestClassOrderer? TestClassOrderer { get; set; }
+		public required ITestCollectionOrderer? TestCollectionOrderer { get; set; }
+		public required ITestMethodOrderer? TestMethodOrderer { get; set; }
+		public required IReadOnlyDictionary<string, IReadOnlyCollection<string>> Traits { get; set; }
+		public required string UniqueID { get; set; }
+		public required Version Version { get; set; }
+
+		public Assembly Assembly => throw new NotSupportedException("Using ICoreTestAssembly.Assembly while testing is prohibited");
 	}
 
-	public static IXunitTestCase XunitTestCase(
-		Action? asyncDisposeCallback = null,
-		Action? disposeCallback = null,
+	public static ICoreTestCase CoreTestCase(
 		bool @explicit = false,
+		Action? postInvoke = null,
+		Action? preInvoke = null,
+		Type[]? skipExceptions = null,
 		string? skipReason = null,
-		Type? skipType = null,
-		string? skipUnless = null,
-		string? skipWhen = null,
 		string? sourceFilePath = null,
 		int? sourceLineNumber = null,
 		string testCaseDisplayName = TestData.DefaultTestCaseDisplayName,
 		int testClassMetadataToken = TestData.DefaultTestClassMetadataToken,
-		IXunitTestMethod? testMethod = null,
+		ICoreTestMethod? testMethod = null,
 		int testMethodMetadataToken = TestData.DefaultTestMethodMetadataToken,
 		string[]? testMethodParameterTypesVSTest = null,
 		string testMethodReturnTypeVSTest = "System.Void",
 		int timeout = 0,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
-		string uniqueID = TestData.DefaultTestCaseUniqueID)
-	{
-		testMethod ??= XunitTestMethod();
-		traits ??= testMethod.Traits;
-
-		var testCollection = testMethod.TestClass.TestCollection;
-		var testClass = testMethod.TestClass;
-		var testClassName = testClass.TestClassName;
-		var testClassNamespace = testClass.TestClassNamespace;
-		var testClassSimpleName = testClass.TestClassSimpleName;
-		var testMethodName = testMethod.MethodName;
-
-		Guard.ArgumentValid("Can only define one disposal callback", asyncDisposeCallback is null || disposeCallback is null);
-
-		IXunitTestCase result;
-
-		if (asyncDisposeCallback is not null)
-		{
-			result = Substitute.For<IXunitTestCase, IAsyncDisposable, InterfaceProxy<IXunitTestCase>>();
-#pragma warning disable CA2012  // This is a mock, not a real object
-			((IAsyncDisposable)result).DisposeAsync().Returns(_ => { asyncDisposeCallback(); return default; });
-#pragma warning restore CA2012
-		}
-		else if (disposeCallback is not null)
-		{
-			result = Substitute.For<IXunitTestCase, IDisposable, InterfaceProxy<IXunitTestCase>>();
-			((IDisposable)result).When(x => x.Dispose()).Do(_ => disposeCallback());
-		}
-		else
-		{
-			result = Substitute.For<IXunitTestCase, InterfaceProxy<IXunitTestCase>>();
-		}
-
-		result.Explicit.Returns(@explicit);
-		result.SkipReason.Returns(skipReason);
-		result.SkipType.Returns(skipType);
-		result.SkipUnless.Returns(skipUnless);
-		result.SkipWhen.Returns(skipWhen);
-		result.SourceFilePath.Returns(sourceFilePath);
-		result.SourceLineNumber.Returns(sourceLineNumber);
-		result.TestCaseDisplayName.Returns(testCaseDisplayName);
-		result.TestClass.Returns(testClass);
-		result.TestClassMetadataToken.Returns(testClassMetadataToken);
-		result.TestClassName.Returns(testClassName);
-		result.TestClassNamespace.Returns(testClassNamespace);
-		result.TestClassSimpleName.Returns(testClassSimpleName);
-		result.TestCollection.Returns(testCollection);
-		result.TestMethod.Returns(testMethod);
-		result.TestMethodMetadataToken.Returns(testMethodMetadataToken);
-		result.TestMethodName.Returns(testMethodName);
-		result.TestMethodParameterTypesVSTest.Returns(testMethodParameterTypesVSTest ?? []);
-		result.TestMethodReturnTypeVSTest.Returns(testMethodReturnTypeVSTest);
-		result.Timeout.Returns(timeout);
-		result.Traits.Returns(traits);
-		result.UniqueID.Returns(uniqueID);
-
-		result.CreateTests().Returns([]);
-
-		var resultBase = (ITestCase)result;
-		resultBase.TestClass.Returns(testClass);
-		resultBase.TestClassMetadataToken.Returns(testClassMetadataToken);
-		resultBase.TestClassName.Returns(testClassName);
-		resultBase.TestClassSimpleName.Returns(testClassSimpleName);
-		resultBase.TestCollection.Returns(testCollection);
-		resultBase.TestMethod.Returns(testMethod);
-		resultBase.TestMethodMetadataToken.Returns(testMethodMetadataToken);
-		resultBase.TestMethodName.Returns(testMethodName);
-		resultBase.TestMethodParameterTypesVSTest.Returns(testMethodParameterTypesVSTest ?? []);
-		resultBase.TestMethodReturnTypeVSTest.Returns(testMethodReturnTypeVSTest);
-
-		return result;
-	}
-
-	public static IXunitTestCase XunitTestCase<TClassUnderTest>(
-		string methodName,
-		Action? asyncDisposeCallback = null,
-		Action? disposeCallback = null,
-		bool @explicit = false,
-		string? skipReason = null,
-		Type? skipType = null,
-		string? skipUnless = null,
-		string? skipWhen = null,
-		string? sourceFilePath = null,
-		int? sourceLineNumber = null,
-		string testCaseDisplayName = TestData.DefaultTestCaseDisplayName,
-		int testClassMetadataToken = TestData.DefaultTestClassMetadataToken,
-		int testMethodMetadataToken = TestData.DefaultTestMethodMetadataToken,
-		string[]? testMethodParameterTypes = null,
-		string testMethodReturnType = "System.Void",
-		int timeout = 0,
-		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
 		string uniqueID = TestData.DefaultTestCaseUniqueID) =>
-			XunitTestCase(
-				asyncDisposeCallback,
-				disposeCallback,
-				@explicit,
-				skipReason,
-				skipType,
-				skipUnless,
-				skipWhen,
-				sourceFilePath,
-				sourceLineNumber,
-				testCaseDisplayName,
-				testClassMetadataToken,
-				TestData.XunitTestMethod<TClassUnderTest>(methodName),
-				testMethodMetadataToken,
-				testMethodParameterTypes,
-				testMethodReturnType,
-				timeout,
-				traits,
-				uniqueID
-			);
+			new MockCoreTestCase(preInvoke, postInvoke)
+			{
+				Explicit = @explicit,
+				SkipExceptions = skipExceptions,
+				SkipReason = skipReason,
+				SourceFilePath = sourceFilePath,
+				SourceLineNumber = sourceLineNumber,
+				TestCaseDisplayName = testCaseDisplayName,
+				TestClassMetadataToken = testClassMetadataToken,
+				TestMethod = testMethod ?? CoreTestMethod(),
+				TestMethodMetadataToken = testMethodMetadataToken,
+				TestMethodParameterTypesVSTest = testMethodParameterTypesVSTest,
+				TestMethodReturnTypeVSTest = testMethodReturnTypeVSTest,
+				Timeout = timeout,
+				Traits = traits ?? TestData.DefaultTraits,
+				UniqueID = uniqueID,
+			};
 
-	public static IXunitTestClass XunitTestClass(
-		IReadOnlyCollection<IBeforeAfterTestAttribute>? beforeAfterTestAttributes = null,
-		IReadOnlyCollection<Type>? classFixtureTypes = null,
-		IReadOnlyCollection<ConstructorInfo>? constructors = null,
-		IReadOnlyCollection<MethodInfo>? methods = null,
-		ITestCaseOrderer? testCaseOrderer = null,
-		string testClassName = TestData.DefaultTestClassName,
-		string testClassNamespace = TestData.DefaultTestClassNamespace,
-		string testClassSimpleName = TestData.DefaultTestClassSimpleName,
-		ITestMethodOrderer? testMethodOrderer = null,
-		IXunitTestCollection? testCollection = null,
-		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
-		string uniqueID = TestData.DefaultTestClassUniqueID)
+	class MockCoreTestCase(
+		Action? preInvoke,
+		Action? postInvoke) :
+			ICoreTestCase
 	{
-		testCollection ??= XunitTestCollection();
-		traits ??= testCollection.TestAssembly.Traits;
+		public required bool Explicit { get; set; }
+		public required Type[]? SkipExceptions { get; set; }
+		public required string? SkipReason { get; set; }
+		public required string? SourceFilePath { get; set; }
+		public required int? SourceLineNumber { get; set; }
+		public required string TestCaseDisplayName { get; set; }
+		public required int? TestClassMetadataToken { get; set; }
+		public required ICoreTestMethod TestMethod { get; set; }
+		public required int? TestMethodMetadataToken { get; set; }
+		public required string[]? TestMethodParameterTypesVSTest { get; set; }
+		public required string? TestMethodReturnTypeVSTest { get; set; }
+		public required int Timeout { get; set; }
+		public required IReadOnlyDictionary<string, IReadOnlyCollection<string>> Traits { get; set; }
+		public required string UniqueID { get; set; }
 
-		var result = Substitute.For<IXunitTestClass, InterfaceProxy<IXunitTestClass>>();
-		result.BeforeAfterTestAttributes.Returns(beforeAfterTestAttributes ?? []);
-		result.Class.Throws(new InvalidOperationException("Using IXunitTestClass.Class while testing is prohibited"));
-		result.ClassFixtureTypes.Returns(classFixtureTypes ?? []);
-		result.Constructors.Returns(constructors);
-		result.Methods.Returns(methods ?? []);
-		result.TestCaseOrderer.Returns(testCaseOrderer);
-		result.TestClassName.Returns(testClassName);
-		result.TestClassNamespace.Returns(testClassNamespace);
-		result.TestClassSimpleName.Returns(testClassSimpleName);
-		result.TestCollection.Returns(testCollection);
-		result.TestMethodOrderer.Returns(testMethodOrderer);
-		result.Traits.Returns(traits);
-		result.UniqueID.Returns(uniqueID);
+		public ICoreTestClass TestClass => TestMethod.TestClass;
+		ITestClass? ITestCase.TestClass => TestClass;
+		public string TestClassName => TestClass.TestClassName;
+		public string? TestClassNamespace => TestClass.TestClassNamespace;
+		public string TestClassSimpleName => TestClass.TestClassSimpleName;
+		public ICoreTestCollection TestCollection => TestClass.TestCollection;
+		ITestCollection ITestCase.TestCollection => TestCollection;
+		ITestMethod? ITestCase.TestMethod => TestMethod;
+		public int TestMethodArity => TestMethod.MethodArity;
+		int? ITestCaseMetadata.TestMethodArity => TestMethodArity;
+		public string TestMethodName => TestMethod.MethodName;
 
-		var resultBase = (ITestClass)result;
-		resultBase.TestCollection.Returns(testCollection);
-
-		return result;
+		public void PostInvoke() => postInvoke?.Invoke();
+		public void PreInvoke() => preInvoke?.Invoke();
 	}
 
-	public static IXunitTestClass XunitTestClass<TClassUnderTest>(
-		IReadOnlyCollection<IBeforeAfterTestAttribute>? beforeAfterTestAttributes = null,
-		IReadOnlyCollection<Type>? classFixtureTypes = null,
-		IReadOnlyCollection<ConstructorInfo>? constructors = null,
-		IReadOnlyCollection<MethodInfo>? methods = null,
+	public static ICoreTestClass CoreTestClass(
 		ITestCaseOrderer? testCaseOrderer = null,
 		string testClassName = TestData.DefaultTestClassName,
 		string testClassNamespace = TestData.DefaultTestClassNamespace,
 		string testClassSimpleName = TestData.DefaultTestClassSimpleName,
+		ICoreTestCollection? testCollection = null,
 		ITestMethodOrderer? testMethodOrderer = null,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
 		string uniqueID = TestData.DefaultTestClassUniqueID) =>
-			XunitTestClass(
-				beforeAfterTestAttributes,
-				classFixtureTypes,
-				constructors,
-				methods,
-				testCaseOrderer,
-				testClassName,
-				testClassNamespace,
-				testClassSimpleName,
-				testMethodOrderer,
-				TestData.XunitTestCollection(TestData.XunitTestAssembly(typeof(TClassUnderTest).Assembly)),
-				traits,
-				uniqueID
-			);
+			new MockCoreTestClass
+			{
+				TestCaseOrderer = testCaseOrderer,
+				TestClassName = testClassName,
+				TestClassNamespace = testClassNamespace,
+				TestClassSimpleName = testClassSimpleName,
+				TestCollection = testCollection ?? CoreTestCollection(),
+				TestMethodOrderer = testMethodOrderer,
+				Traits = traits ?? TestData.DefaultTraits,
+				UniqueID = uniqueID,
+			};
 
-	public static IXunitTestCollection XunitTestCollection(
-		IReadOnlyCollection<IBeforeAfterTestAttribute>? beforeAfterTestAttributes = null,
-		IReadOnlyCollection<Type>? classFixtureTypes = null,
-		IReadOnlyCollection<Type>? collectionFixtureTypes = null,
+	class MockCoreTestClass : ICoreTestClass
+	{
+		public required ITestCaseOrderer? TestCaseOrderer { get; set; }
+		public required string TestClassName { get; set; }
+		public required string? TestClassNamespace { get; set; }
+		public required string TestClassSimpleName { get; set; }
+		public required ICoreTestCollection TestCollection { get; set; }
+		public required ITestMethodOrderer? TestMethodOrderer { get; set; }
+		public required IReadOnlyDictionary<string, IReadOnlyCollection<string>> Traits { get; set; }
+		public required string UniqueID { get; set; }
+
+		public Type Class => throw new NotSupportedException("Using ICoreTestClass.Class while testing is prohibited");
+		ITestCollection ITestClass.TestCollection => TestCollection;
+	}
+
+	public static ICoreTestCollection CoreTestCollection(
 		bool disableParallelization = false,
-		IXunitTestAssembly? testAssembly = null,
+		ICoreTestAssembly? testAssembly = null,
 		ITestCaseOrderer? testCaseOrderer = null,
 		ITestClassOrderer? testClassOrderer = null,
-		ITestMethodOrderer? testMethodOrderer = null,
 		string? testCollectionClassName = null,
 		string testCollectionDisplayName = TestData.DefaultTestCollectionDisplayName,
+		ITestMethodOrderer? testMethodOrderer = null,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
-		string uniqueID = TestData.DefaultTestCollectionUniqueID)
+		string uniqueID = TestData.DefaultTestCollectionUniqueID) =>
+			new MockCoreTestCollection
+			{
+				DisableParallelization = disableParallelization,
+				TestAssembly = testAssembly ?? CoreTestAssembly(),
+				TestCaseOrderer = testCaseOrderer,
+				TestClassOrderer = testClassOrderer,
+				TestCollectionClassName = testCollectionClassName,
+				TestCollectionDisplayName = testCollectionDisplayName,
+				TestMethodOrderer = testMethodOrderer,
+				Traits = traits ?? TestData.DefaultTraits,
+				UniqueID = uniqueID,
+			};
+
+	class MockCoreTestCollection : ICoreTestCollection
 	{
-		testAssembly ??= XunitTestAssembly();
+		public required bool DisableParallelization { get; set; }
+		public required ICoreTestAssembly TestAssembly { get; set; }
+		public required ITestCaseOrderer? TestCaseOrderer { get; set; }
+		public required ITestClassOrderer? TestClassOrderer { get; set; }
+		public required string? TestCollectionClassName { get; set; }
+		public required string TestCollectionDisplayName { get; set; }
+		public required ITestMethodOrderer? TestMethodOrderer { get; set; }
+		public required IReadOnlyDictionary<string, IReadOnlyCollection<string>> Traits { get; set; }
+		public required string UniqueID { get; set; }
 
-		var result = Substitute.For<IXunitTestCollection, InterfaceProxy<IXunitTestCollection>>();
-		result.BeforeAfterTestAttributes.Returns(beforeAfterTestAttributes ?? []);
-		result.ClassFixtureTypes.Returns(classFixtureTypes ?? []);
-		result.CollectionDefinition.Throws(new InvalidOperationException("Using IXunitTestCollection.CollectionDefinition while testing is prohibited"));
-		result.CollectionFixtureTypes.Returns(collectionFixtureTypes ?? []);
-		result.DisableParallelization.Returns(disableParallelization);
-		result.TestAssembly.Returns(testAssembly);
-		result.TestCaseOrderer.Returns(testCaseOrderer);
-		result.TestClassOrderer.Returns(testClassOrderer);
-		result.TestCollectionClassName.Returns(testCollectionClassName);
-		result.TestCollectionDisplayName.Returns(testCollectionDisplayName);
-		result.TestMethodOrderer.Returns(testMethodOrderer);
-		result.Traits.Returns(traits ?? TestData.DefaultTraits);
-		result.UniqueID.Returns(uniqueID);
-
-		var resultBase = (ITestCollection)result;
-		resultBase.TestAssembly.Returns(testAssembly);
-
-		return result;
+		ITestAssembly ITestCollection.TestAssembly => TestAssembly;
 	}
 
-	public static IXunitTestMethod XunitTestMethod(
-		IReadOnlyCollection<IBeforeAfterTestAttribute>? beforeAfterTestAttributes = null,
-		IReadOnlyCollection<IDataAttribute>? dataAttributes = null,
-		string? displayName = null,
-		IReadOnlyCollection<IFactAttribute>? factAttributes = null,
-		bool isGenericMethodDefinition = false,
+	public static ICoreTestMethod CoreTestMethod(
+		int methodArity = 0,
 		string methodName = TestData.DefaultMethodName,
-		IReadOnlyCollection<ParameterInfo>? parameters = null,
-		Type? returnType = null,
 		ITestCaseOrderer? testCaseOrderer = null,
-		IXunitTestClass? testClass = null,
-		object?[]? testMethodArguments = null,
-		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
-		string uniqueID = TestData.DefaultTestMethodUniqueID)
-	{
-		factAttributes ??= [FactAttribute()];
-		testClass ??= XunitTestClass();
-		traits ??= testClass.Traits;
-
-		var result = Substitute.For<IXunitTestMethod, InterfaceProxy<IXunitTestMethod>>();
-		result.BeforeAfterTestAttributes.Returns(beforeAfterTestAttributes ?? []);
-		result.DataAttributes.Returns(dataAttributes ?? []);
-		result.FactAttributes.Returns(factAttributes);
-		result.IsGenericMethodDefinition.Returns(isGenericMethodDefinition);
-		result.Method.Throws(new InvalidOperationException("Using IXunitTestMethod.Method while testing is prohibited"));
-		result.MethodName.Returns(methodName);
-		result.Parameters.Returns(parameters ?? []);
-		result.ReturnType.Returns(returnType ?? typeof(void));
-		result.TestCaseOrderer.Returns(testCaseOrderer);
-		result.TestClass.Returns(testClass);
-		result.TestMethodArguments.Returns(testMethodArguments ?? []);
-		result.Traits.Returns(traits);
-		result.UniqueID.Returns(uniqueID);
-		result.GetDisplayName("", null, null, null).ReturnsForAnyArgs(args => displayName ?? (string)args[0]);
-		// No simple way to implement these, so throw for now until we find a test that needs them
-		result.MakeGenericMethod([]).ThrowsForAnyArgs(new InvalidOperationException("Using IXunitTestMethod.MakeGenericMethod while testing is prohibited"));
-		result.ResolveGenericTypes([]).ThrowsForAnyArgs(new InvalidOperationException("Using IXunitTestMethod.ResolveGenericTypes while testing is prohibited"));
-		result.ResolveMethodArguments([]).ThrowsForAnyArgs(new InvalidOperationException("Using IXunitTestMethod.ResolveMethodArguments while testing is prohibited"));
-
-		var resultBase = (ITestMethod)result;
-		resultBase.TestClass.Returns(testClass);
-
-		return result;
-	}
-
-	public static IXunitTestMethod XunitTestMethod<TClassUnderTest>(
-		IReadOnlyCollection<IBeforeAfterTestAttribute>? beforeAfterTestAttributes = null,
-		IReadOnlyCollection<IDataAttribute>? dataAttributes = null,
-		string? displayName = null,
-		IReadOnlyCollection<IFactAttribute>? factAttributes = null,
-		bool isGenericMethodDefinition = false,
-		string methodName = TestData.DefaultMethodName,
-		IReadOnlyCollection<ParameterInfo>? parameters = null,
-		Type? returnType = null,
-		ITestCaseOrderer? testCaseOrderer = null,
-		object?[]? testMethodArguments = null,
+		ICoreTestClass? testClass = null,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
 		string uniqueID = TestData.DefaultTestMethodUniqueID) =>
-			XunitTestMethod(
-				beforeAfterTestAttributes,
-				dataAttributes,
-				displayName,
-				factAttributes,
-				isGenericMethodDefinition,
-				methodName,
-				parameters,
-				returnType,
-				testCaseOrderer,
-				TestData.XunitTestClass<TClassUnderTest>(),
-				testMethodArguments,
-				traits,
-				uniqueID
-			);
-}
+			new MockCoreTestMethod
+			{
+				MethodArity = methodArity,
+				MethodName = methodName,
+				TestCaseOrderer = testCaseOrderer,
+				TestClass = testClass ?? CoreTestClass(),
+				Traits = traits ?? TestData.DefaultTraits,
+				UniqueID = uniqueID,
+			};
 
-#endif
+	class MockCoreTestMethod : ICoreTestMethod
+	{
+		public required int MethodArity { get; set; }
+		public required string MethodName { get; set; }
+		public required ITestCaseOrderer? TestCaseOrderer { get; set; }
+		public required ICoreTestClass TestClass { get; set; }
+		public required IReadOnlyDictionary<string, IReadOnlyCollection<string>> Traits { get; set; }
+		public required string UniqueID { get; set; }
+
+		ITestClass ITestMethod.TestClass => TestClass;
+		int? ITestMethodMetadata.MethodArity => MethodArity;
+	}
+}

@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);XUNIT_ARGUMENTFORMATTER_PRIVATE</DefineConstants>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <RootNamespace>Xunit.Sdk</RootNamespace>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)\..\xunit.v3.common\**\*.cs" Exclude="**\*_reflection.cs;**\obj\**\*.cs" />
+    <Compile Include="..\xunit.v3.assert\Asserts\Sdk\ArgumentFormatter*.cs" LinkBase="Common\Asserts" />
+  </ItemGroup>
+
+</Project>

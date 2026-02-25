@@ -19,6 +19,14 @@
 				Include="$(SolutionDir)src\**\bin\$(Configuration)\net8.0\xunit.v3.*.tests.dll"
 				Condition=" '$(TestFramework)' != 'NetFx' " />
 			<V3Assemblies
+				Include="$(SolutionDir)src\**\bin\$(Configuration)\net9.0\xunit.v3.*.tests.dll"
+				Condition=" '$(TestFramework)' != 'NetFx' " />
+			<V3Assemblies
+				Include="$(SolutionDir)src\**\bin\$(Configuration)\net10.0\xunit.v3.*.tests.dll"
+				Condition=" '$(TestFramework)' != 'NetFx' " />
+			<V3Assemblies Remove="$(SolutionDir)src\**\bin\$(Configuration)\net8.0\xunit.v3.acceptance.netcore.tests.dll" />
+			<V3Assemblies Remove="$(SolutionDir)src\**\bin\$(Configuration)\net9.0\xunit.v3.acceptance.aot.tests.dll" />
+			<V3Assemblies
 				Remove="$(SolutionDir)src\**\bin\$(Configuration)\net8.0\xunit.v3.*.x86.tests.dll"
 				Condition=" '$(SkipX86)' == 'true' OR '$(SkipNetCoreX86)' == 'true' " />
 
@@ -26,8 +34,9 @@
 			<V3Assemblies
 				Include="$(SolutionDir)src\**\bin\$(Configuration)\net472\xunit.v3.*.tests.exe"
 				Condition=" '$(SkipNetFx)' != true AND '$(TestFramework)' != 'Net' " />
+			<V3Assemblies Remove="$(SolutionDir)src\**\bin\$(Configuration)\net472\xunit.v3.acceptance.netfx.tests.exe" />
 			<V3Assemblies
-				Remove="$(SolutionDir)src\**\bin\$(Configuration)\net472\xunit.v3.*.x86.tests.exe"
+				Remove="$(SolutionDir)src\**\bin\$(Configuration)\net472\xunit.v3.*.x86.tests.exe;**\*.acceptance.tests.*"
 				Condition=" '$(SkipX86)' == 'true' " />
 		</ItemGroup>
 

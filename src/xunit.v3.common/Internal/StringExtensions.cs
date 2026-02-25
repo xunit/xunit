@@ -1,3 +1,5 @@
+#pragma warning disable CA1845 // Use span-based 'string.Concat'
+
 namespace Xunit.Internal;
 
 /// <summary>
@@ -5,6 +7,16 @@ namespace Xunit.Internal;
 /// </summary>
 public static class StringExtensions
 {
+	/// <summary/>
+	public static bool ContainsOrdinal(
+		this string? value,
+		string subString) =>
+#if NETCOREAPP2_1_OR_GREATER
+			value?.Contains(subString, StringComparison.Ordinal) == true;
+#else
+			value?.Contains(subString) == true;
+#endif
+
 	/// <summary/>
 	public static string Quoted(this string? value) =>
 		value is null ? "null" : '"' + value + '"';

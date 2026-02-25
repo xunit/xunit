@@ -1,4 +1,3 @@
-using NSubstitute;
 using Xunit;
 using Xunit.v3;
 
@@ -8,8 +7,7 @@ public class ProcessCancellationMessageSinkTests
 	public void True_NoCancellation()
 	{
 		var callCounter = 0;
-		var process = Substitute.For<ITestProcessBase>();
-		process.WhenForAnyArgs(p => p.Cancel(true)).Do(_ => callCounter++);
+		var process = new SpyTestProcessBase { OnCancel = _ => callCounter++ };
 		var spySink = SpyMessageSink.Create(returnResult: true);
 		var sink = new ProcessCancellationMessageSink(spySink, process);
 
@@ -22,8 +20,7 @@ public class ProcessCancellationMessageSinkTests
 	public void False_Cancellation()
 	{
 		var callCounter = 0;
-		var process = Substitute.For<ITestProcessBase>();
-		process.WhenForAnyArgs(p => p.Cancel(true)).Do(_ => callCounter++);
+		var process = new SpyTestProcessBase { OnCancel = _ => callCounter++ };
 		var spySink = SpyMessageSink.Create(returnResult: false);
 		var sink = new ProcessCancellationMessageSink(spySink, process);
 

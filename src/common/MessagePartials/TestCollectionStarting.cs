@@ -9,9 +9,11 @@ namespace Xunit.v3;
 /// <summary>
 /// Default implementation of <see cref="ITestCollectionStarting"/>.
 /// </summary>
-[JsonTypeID("test-collection-starting")]
+[JsonTypeID(TypeID)]
 sealed partial class TestCollectionStarting : TestCollectionMessage, ITestCollectionStarting
 {
+	internal const string TypeID = "test-collection-starting";
+
 	string ITestCollectionMetadata.UniqueID =>
 		TestCollectionUniqueID;
 

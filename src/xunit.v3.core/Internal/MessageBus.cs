@@ -16,7 +16,6 @@ public class MessageBus : IMessageBus
 	readonly ConcurrentQueue<IMessageSinkMessage> reporterQueue = new();
 	readonly Thread reporterThread;
 	readonly AutoResetEvent reporterWorkEvent = new(initialState: false);
-	volatile bool shutdownRequested;
 	readonly bool stopOnFail;
 
 	/// <summary/>
@@ -62,8 +61,6 @@ public class MessageBus : IMessageBus
 
 		GC.SuppressFinalize(this);
 
-		shutdownRequested = true;
-
 		reporterWorkEvent.Set();
 		reporterThread.Join();
 		reporterWorkEvent.Dispose();
@@ -74,8 +71,7 @@ public class MessageBus : IMessageBus
 	{
 		Guard.ArgumentNotNull(message);
 
-		if (shutdownRequested)
-			throw new ObjectDisposedException("MessageBus");
+		ObjectDisposedException.ThrowIf(disposed, this);
 
 		if (stopOnFail && message is ITestFailed)
 			continueRunning = false;
@@ -87,13 +83,13 @@ public class MessageBus : IMessageBus
 
 	void ReporterWorker()
 	{
-		while (!shutdownRequested)
+		while (!disposed)
 		{
 			reporterWorkEvent.WaitOne();
 			DispatchMessages();
 		}
 
-		// One final dispatch pass
+		// One final dispatch pass to clear the queue
 		DispatchMessages();
 	}
 }

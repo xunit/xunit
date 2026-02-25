@@ -2,7 +2,7 @@ using Xunit;
 using Xunit.Sdk;
 using Xunit.v3;
 
-public class TestCaseRunnerBaseTests
+public partial class TestCaseRunnerBaseTests
 {
 	public class Messages
 	{
@@ -83,10 +83,10 @@ public class TestCaseRunnerBaseTests
 			Assert.Equal(42, starting.SourceLineNumber);
 			Assert.Equal("test-case-display-name", starting.TestCaseDisplayName);
 			Assert.Equal("test-class-name", starting.TestClassName);
-			Assert.Equal("test-class-namespace", starting.TestClassNamespace);
+			Assert.Null(starting.TestClassNamespace);
 			Assert.Equal("test-class-simple-name", starting.TestClassSimpleName);
 			Assert.Equal("test-method", starting.TestMethodName);
-			Assert.Equivalent(TestData.DefaultTraits, starting.Traits);
+			Assert.Equal(TestData.DefaultTraits, starting.Traits);
 		}
 
 		static void ThrowException() =>

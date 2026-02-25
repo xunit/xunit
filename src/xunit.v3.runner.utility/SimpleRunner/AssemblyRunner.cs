@@ -371,7 +371,7 @@ public sealed class AssemblyRunner :
 				if (entryAssembly is not null && options.ProjectAssembly.Project.Configuration.Output.Count != 0)
 				{
 					var messages = new List<string>();
-					var resultWriters = RegisteredConsoleResultWriters.Get(entryAssembly, messages);
+					var resultWriters = RegisteredRunnerConfig.GetConsoleResultWriters(entryAssembly, messages);
 
 					if (messages.Count != 0)
 						OnDiagnosticMessage(

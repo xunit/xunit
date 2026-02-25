@@ -6,10 +6,10 @@ using Xunit.Sdk;
 
 public class ExecutionSinkTests
 {
-	public class Cancellation
+	public static class Cancellation
 	{
 		[Fact]
-		public void ReturnsFalseWhenCancellationTokenCancellationRequested()
+		public static void ReturnsFalseWhenCancellationTokenCancellationRequested()
 		{
 			var cancellationTokenSource = new CancellationTokenSource();
 			cancellationTokenSource.Cancel();
@@ -21,7 +21,7 @@ public class ExecutionSinkTests
 		}
 
 		[Fact]
-		public void ReturnsTrueWhenCancellationTokenCancellationHasNotBeenRequested()
+		public static void ReturnsTrueWhenCancellationTokenCancellationHasNotBeenRequested()
 		{
 			var cancellationTokenSource = new CancellationTokenSource();
 			using var sink = TestableExecutionSink.Create(cancellationToken: cancellationTokenSource.Token);
@@ -32,12 +32,12 @@ public class ExecutionSinkTests
 		}
 	}
 
-	public class DiscoveryMessageConversion
+	public static class DiscoveryMessageConversion
 	{
 		[Theory]
 		[InlineData(AppDomainOption.Enabled, true)]
 		[InlineData(AppDomainOption.Disabled, false)]
-		public void ConvertsDiscoveryStarting(
+		public static void ConvertsDiscoveryStarting(
 			AppDomainOption appDomain,
 			bool shadowCopy)
 		{
@@ -56,7 +56,7 @@ public class ExecutionSinkTests
 		}
 
 		[Fact]
-		public void ConvertsDiscoveryComplete()
+		public static void ConvertsDiscoveryComplete()
 		{
 			var assembly = TestData.XunitProjectAssembly<ExecutionSinkTests>();
 			var discoveryOptions = TestData.TestFrameworkDiscoveryOptions(culture: "fr-FR");
@@ -72,10 +72,10 @@ public class ExecutionSinkTests
 		}
 	}
 
-	public class ExecutionMessageConversion
+	public static class ExecutionMessageConversion
 	{
 		[Fact]
-		public void ConvertsTestAssemblyStarting()
+		public static void ConvertsTestAssemblyStarting()
 		{
 			var assembly = TestData.XunitProjectAssembly<ExecutionSinkTests>();
 			var executionOptions = TestData.TestFrameworkExecutionOptions(culture: "fr-FR");
@@ -90,7 +90,7 @@ public class ExecutionSinkTests
 		}
 
 		[Fact]
-		public void ConvertsTestAssemblyFinished()
+		public static void ConvertsTestAssemblyFinished()
 		{
 			var assembly = TestData.XunitProjectAssembly<ExecutionSinkTests>();
 			var executionOptions = TestData.TestFrameworkExecutionOptions(culture: "fr-FR");
@@ -106,7 +106,7 @@ public class ExecutionSinkTests
 		}
 
 		[Fact]
-		public void CountsErrors()
+		public static void CountsErrors()
 		{
 			var assembly = TestData.XunitProjectAssembly<ExecutionSinkTests>();
 			var executionOptions = TestData.TestFrameworkExecutionOptions(culture: "fr-FR");
@@ -121,10 +121,10 @@ public class ExecutionSinkTests
 		}
 	}
 
-	public class FailSkips
+	public static class FailSkips
 	{
 		[Fact]
-		public void OnTestSkipped_TransformsToTestFailed()
+		public static void OnTestSkipped_TransformsToTestFailed()
 		{
 			var startingMessage = TestData.TestStarting();
 			var skippedMessage = TestData.TestSkipped(reason: "The skip reason");
@@ -154,7 +154,7 @@ public class ExecutionSinkTests
 
 		[Theory(DisableDiscoveryEnumeration = true)]
 		[MemberData(nameof(FinishedMessages))]
-		public void OnFinished_CountsSkipsAsFails(IMessageSinkMessage finishedMessage)
+		public static void OnFinished_CountsSkipsAsFails(IMessageSinkMessage finishedMessage)
 		{
 			var inputSummary = (IExecutionSummaryMetadata)finishedMessage;
 			using var sink = TestableExecutionSink.Create(failSkips: true);
@@ -169,10 +169,10 @@ public class ExecutionSinkTests
 		}
 	}
 
-	public class FailWarn
+	public static class FailWarn
 	{
 		[Fact]
-		public void OnTestPassed_WithWarnings_TransformsToTestFailed()
+		public static void OnTestPassed_WithWarnings_TransformsToTestFailed()
 		{
 			var startingMessage = TestData.TestStarting();
 			var passedMessage = TestData.TestPassed(warnings: ["warning"]);
@@ -205,7 +205,7 @@ public class ExecutionSinkTests
 
 		[Theory(DisableDiscoveryEnumeration = true)]
 		[MemberData(nameof(OtherWarningMessages))]
-		public void OtherResultMessages_PassesThrough(ITestResultMessage inputResult)
+		public static void OtherResultMessages_PassesThrough(ITestResultMessage inputResult)
 		{
 			var startingMessage = TestData.TestStarting();
 			using var sink = TestableExecutionSink.Create(failWarn: true);
@@ -228,7 +228,7 @@ public class ExecutionSinkTests
 
 		[Theory(DisableDiscoveryEnumeration = true)]
 		[MemberData(nameof(FinishedMessages))]
-		public void OnFinished_CountsWarnsAsFails(IMessageSinkMessage finishedMessage)
+		public static void OnFinished_CountsWarnsAsFails(IMessageSinkMessage finishedMessage)
 		{
 			var startingMessage = TestData.TestStarting();
 			var passedMessage = TestData.TestPassed(warnings: ["warning"]);
@@ -247,10 +247,10 @@ public class ExecutionSinkTests
 		}
 	}
 
-	public class MessageTiming
+	public static class MessageTiming
 	{
 		[Fact]
-		public void EnsureInnerHandlerIsCalledBeforeFinishedIsSet()
+		public static void EnsureInnerHandlerIsCalledBeforeFinishedIsSet()
 		{
 			TestableExecutionSink? sink = default;
 			bool? isFinishedDuringDispatch = default;

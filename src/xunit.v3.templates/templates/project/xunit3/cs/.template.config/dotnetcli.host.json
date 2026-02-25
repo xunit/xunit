@@ -8,6 +8,10 @@
       "longName": "no-restore",
       "shortName": ""
     },
+    "NativeAOT": {
+      "longName": "native-aot",
+      "shortName": ""
+    },
     "TestRunner": {
       "longName": "test-runner",
       "shortName": ""

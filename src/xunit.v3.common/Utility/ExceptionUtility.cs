@@ -1,15 +1,11 @@
-using System.Collections.Concurrent;
-using System.Reflection;
 
 namespace Xunit.Sdk;
 
 /// <summary>
 /// Utility class for dealing with <see cref="Exception"/> and <see cref="IErrorMetadata"/> objects.
 /// </summary>
-public static class ExceptionUtility
+public static partial class ExceptionUtility
 {
-	static readonly ConcurrentDictionary<Type, MethodInfo?> innerExceptionsPropertyByType = new();
-
 	/// <summary>
 	/// Combines multiple levels of messages into a single message.
 	/// </summary>
@@ -39,17 +35,9 @@ public static class ExceptionUtility
 		var messages = new List<string>();
 		var stackTraces = new List<string?>();
 		var indices = new List<int>();
+		var cause = GetFailureCause(ex);
 
 		ExtractMetadata(ex, -1, exceptionTypes, messages, stackTraces, indices);
-
-		var interfaces = ex.GetType().GetInterfaces();
-
-		var cause =
-			interfaces.Any(i => i.Name == "ITestTimeoutException")
-				? FailureCause.Timeout
-				: interfaces.Any(i => i.Name == "IAssertionException")
-					? FailureCause.Assertion
-					: FailureCause.Exception;
 
 		return (
 			exceptionTypes.ToArray(),
@@ -128,19 +116,6 @@ public static class ExceptionUtility
 				ExtractMetadata(ex.InnerException, myIndex, exceptionTypes, messages, stackTraces, indices);
 		}
 		catch { }
-	}
-
-	static IEnumerable<Exception>? GetInnerExceptions(Exception ex)
-	{
-		if (ex is AggregateException aggEx)
-			return aggEx.InnerExceptions;
-
-		var prop = innerExceptionsPropertyByType.GetOrAdd(
-			ex.GetType(),
-			t => t.GetProperties().FirstOrDefault(p => p.Name == "InnerExceptions" && p.CanRead)?.GetGetMethod()
-		);
-
-		return prop?.Invoke(ex, null) as IEnumerable<Exception>;
 	}
 
 	static bool FilterStackFrame(string stackFrame)

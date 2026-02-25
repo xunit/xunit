@@ -7,7 +7,10 @@ namespace Xunit;
 /// </summary>
 /// <param name="frameworkType">The framework type; must implement <see cref="ITestFramework"/></param>
 [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = false)]
-public sealed class TestFrameworkAttribute(Type frameworkType) : Attribute, ITestFrameworkAttribute
+public sealed class TestFrameworkAttribute(Type frameworkType) : Attribute
+#if !XUNIT_AOT
+	, ITestFrameworkAttribute
+#endif
 {
 	/// <inheritdoc/>
 	public Type FrameworkType { get; } = frameworkType;

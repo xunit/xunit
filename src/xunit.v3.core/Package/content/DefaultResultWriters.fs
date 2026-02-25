@@ -7,6 +7,6 @@ module internal XunitDefaultResultWriters
 [<assembly: global.Xunit.Runner.Common.RegisterResultWriter("junit", typeof<global.Xunit.Runner.Common.JUnitResultWriter>)>]
 [<assembly: global.Xunit.Runner.Common.RegisterResultWriter("nunit", typeof<global.Xunit.Runner.Common.NUnitResultWriter>)>]
 [<assembly: global.Xunit.Runner.Common.RegisterResultWriter("trx", typeof<global.Xunit.Runner.Common.TrxResultWriter>)>]
-[<assembly: global.Xunit.Runner.Common.RegisterResultWriter("xml", typeof<global.Xunit.Runner.Common.XunitV2ResultWriter>)>]
-[<assembly: global.Xunit.Runner.Common.RegisterConsoleResultWriter("xmlV1", typeof<global.Xunit.Runner.Common.XunitV1ResultWriter>)>]
+[<assembly: global.Xunit.Runner.Common.RegisterResultWriter("xml", typeof<global.Xunit.Runner.Common.XmlV2ResultWriter>)>]
+[<assembly: global.Xunit.Runner.Common.RegisterConsoleResultWriter("xmlV1", typeof<global.Xunit.Runner.Common.XmlV1ResultWriter>)>]
 do()

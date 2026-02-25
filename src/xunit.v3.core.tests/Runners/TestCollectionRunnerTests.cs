@@ -2,7 +2,7 @@ using Xunit;
 using Xunit.Sdk;
 using Xunit.v3;
 
-public static class TestCollectionRunnerTests
+public static partial class TestCollectionRunnerTests
 {
 	public class Messages
 	{
@@ -73,7 +73,7 @@ public static class TestCollectionRunnerTests
 			VerifyTestCollectionMessage(starting);
 			Assert.Null(starting.TestCollectionClassName);
 			Assert.Equal("test-collection-display-name", starting.TestCollectionDisplayName);
-			Assert.Equivalent(TestData.DefaultTraits, starting.Traits);
+			Assert.Equal(TestData.DefaultTraits, starting.Traits);
 		}
 
 		static void ThrowException() =>
@@ -256,6 +256,35 @@ public static class TestCollectionRunnerTests
 				"OnTestCollectionFinished(summary: { Total = 0 })",
 				"OnError(exception: typeof(DivideByZeroException))",
 			}, runner.Invocations);
+		}
+	}
+
+	public class Run
+	{
+		[Fact]
+		public static async ValueTask DefaultTestClassOrdering()
+		{
+			var class1 = Mocks.TestClass(testClassName: "1", uniqueID: "class-1");
+			var testCase1a = testCaseForClass(class1, "1a");
+			var testCase1b = testCaseForClass(class1, "1b");
+			var class2 = Mocks.TestClass(testClassName: "2", uniqueID: "class-2");
+			var testCase2a = testCaseForClass(class2, "2a");
+			var testCase2b = testCaseForClass(class2, "2b");
+			var runner = new TestableTestCollectionRunner([testCase1a, testCase2a, testCase2b, testCase1b]);
+
+			await runner.RunAsync();
+
+			Assert.Equal([
+				"OnTestCollectionStarting",
+				"RunTestClassAsync(testClass: '1', testCases: ['1a','1b'])",
+				"RunTestClassAsync(testClass: '2', testCases: ['2a','2b'])",
+				"OnTestCollectionFinished(summary: { Total = 0 })",
+			], runner.Invocations);
+
+			static ITestCase testCaseForClass(
+				ITestClass testClass,
+				string testCaseDisplayName) =>
+					Mocks.TestCase(testMethod: Mocks.TestMethod(testClass: testClass), testCaseDisplayName: testCaseDisplayName);
 		}
 	}
 

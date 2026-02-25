@@ -30,5 +30,5 @@ public class TestCollectionComparer<TTestCollection> : IEqualityComparer<TTestCo
 
 	/// <inheritdoc/>
 	public int GetHashCode(TTestCollection obj) =>
-		Guard.ArgumentNotNull(obj).UniqueID.GetHashCode();
+		Guard.ArgumentNotNull(obj).UniqueID.GetHashCodeOrdinal();
 }

@@ -38,7 +38,13 @@ public class InProcessFrontController
 		this.testAssembly = Guard.ArgumentNotNull(testAssembly);
 		this.configFilePath = configFilePath;
 
-		TestAssemblyUniqueID = UniqueIDGenerator.ForAssembly(testAssembly.Location, configFilePath);
+#if XUNIT_AOT
+		var testAssemblyLocation = testAssembly.GetSafeLocation() ?? throw new ArgumentException("Test assembly must have on-disk representation");
+#else
+		var testAssemblyLocation = testAssembly.Location;
+#endif
+
+		TestAssemblyUniqueID = UniqueIDGenerator.ForAssembly(testAssemblyLocation, configFilePath);
 
 		discoverer = new(() => testFramework.GetDiscoverer(testAssembly));
 		executor = new(() => testFramework.GetExecutor(testAssembly));
@@ -87,11 +93,21 @@ public class InProcessFrontController
 		Guard.ArgumentNotNull(cancellationTokenSource);
 
 		var testCasesToRun = 0;
+		var assemblyName = testAssembly.GetName().Name
+			?? throw new InvalidOperationException("Dynamic test assemblies are not supported");
+
+#if XUNIT_AOT
+		var testAssemblyLocation = Path.Combine(AppContext.BaseDirectory, assemblyName + ".dll");
+		if (!File.Exists(testAssemblyLocation))
+			testAssemblyLocation = Path.Combine(AppContext.BaseDirectory, assemblyName + CodeGenHelper.ExecutableExtension);
+#else
+		var testAssemblyLocation = testAssembly.Location;
+#endif
 
 		messageSink?.OnMessage(new DiscoveryStarting
 		{
-			AssemblyName = Path.GetFileNameWithoutExtension(testAssembly.Location),
-			AssemblyPath = testAssembly.Location,
+			AssemblyName = assemblyName,
+			AssemblyPath = testAssemblyLocation,
 			AssemblyUniqueID = TestAssemblyUniqueID,
 			ConfigFilePath = configFilePath,
 			StartTime = DateTimeOffset.UtcNow,
@@ -112,7 +128,7 @@ public class InProcessFrontController
 						result = await discoveryCallback(testCase, willRun);
 
 						if (!result)
-							cancellationTokenSource.Cancel();
+							await cancellationTokenSource.CancelAsync();
 					}
 
 					return result;

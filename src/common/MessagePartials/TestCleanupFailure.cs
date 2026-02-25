@@ -9,9 +9,11 @@ namespace Xunit.v3;
 /// <summary>
 /// Default implementation of <see cref="ITestCleanupFailure"/>.
 /// </summary>
-[JsonTypeID("test-cleanup-failure")]
+[JsonTypeID(TypeID)]
 sealed partial class TestCleanupFailure : TestMessage, ITestCleanupFailure
 {
+	internal const string TypeID = "test-cleanup-failure";
+
 	/// <summary>
 	/// Creates a new <see cref="ITestCleanupFailure"/> constructed from an <see cref="Exception"/> object.
 	/// </summary>

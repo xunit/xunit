@@ -1,3 +1,5 @@
+#pragma warning disable CA2263 // Prefer generic overload when type is known
+
 namespace Xunit.Sdk;
 
 /// <summary>

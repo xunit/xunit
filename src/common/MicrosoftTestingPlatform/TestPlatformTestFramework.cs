@@ -19,6 +19,10 @@ using Xunit.v3;
 using ITestPlatformMessageBus = Microsoft.Testing.Platform.Messages.IMessageBus;
 using ITestPlatformTestFramework = Microsoft.Testing.Platform.Extensions.TestFramework.ITestFramework;
 
+#if XUNIT_AOT
+using System.Runtime.ExceptionServices;
+#endif
+
 namespace Xunit.MicrosoftTestingPlatform;
 
 /// <summary>
@@ -67,7 +71,9 @@ public class TestPlatformTestFramework :
 		this.serverMode = serverMode;
 		this.resultWriters = resultWriters;
 
+#if !XUNIT_AOT
 		SerializationHelper.Instance.AddRegisteredSerializers(testAssembly);
+#endif
 	}
 
 	/// <inheritdoc/>
@@ -268,6 +274,16 @@ public class TestPlatformTestFramework :
 
 		using var _ = new TraceAssertOverrideListener();
 
+#if XUNIT_AOT
+		await using var runnerInit = await RunnerInitialization.Start(Assembly.GetEntryAssembly());
+		if (runnerInit.InitException is not null)
+			ExceptionDispatchInfo.Throw(runnerInit.InitException);
+
+		await using var engineInit = await EngineInitialization.Start(Assembly.GetEntryAssembly());
+		if (engineInit.InitException is not null)
+			ExceptionDispatchInfo.Throw(engineInit.InitException);
+#endif
+
 		var builder = await TestApplication.CreateBuilderAsync(args);
 		extensionRegistration(builder, args);
 
@@ -275,7 +291,7 @@ public class TestPlatformTestFramework :
 		var trxCapability = new XunitTrxCapability();
 		var testAssembly = Assembly.GetEntryAssembly() ?? throw new TestPipelineException("Could not find entry assembly");
 		var resultWriterWarnings = new List<string>();
-		var resultWriters = RegisteredMicrosoftTestingPlatformResultWriters.Get(testAssembly, resultWriterWarnings);
+		var resultWriters = RegisteredRunnerConfig.GetMicrosoftTestingPlatformResultWriters(testAssembly, resultWriterWarnings);
 		CommandLineOptionsProvider.Initialize(resultWriters);
 
 		builder.CommandLine.AddProvider(() => new CommandLineOptionsProvider());
@@ -325,7 +341,7 @@ public class TestPlatformTestFramework :
 				if (commandLineOptions.TryGetOptionArgumentList("auto-reporters", out var autoReportersArguments))
 					supportAutoReporters = string.Equals(autoReportersArguments[0], "on", StringComparison.OrdinalIgnoreCase);
 
-				var reporters = RegisteredRunnerReporters.Get(testAssembly, out var _1);
+				var reporters = RegisteredRunnerConfig.GetRunnerReporters(testAssembly, out var _1);
 				var autoReporter = supportAutoReporters ? reporters.FirstOrDefault(r => r.IsEnvironmentallyEnabled) : default;
 				var reporter = autoReporter ?? reporters.FirstOrDefault(r => "default".Equals(r.RunnerSwitch, StringComparison.OrdinalIgnoreCase)) ?? new DefaultRunnerReporter();
 

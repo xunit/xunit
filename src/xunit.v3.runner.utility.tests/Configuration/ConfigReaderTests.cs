@@ -1,7 +1,10 @@
-using System.Reflection;
 using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
+
+#if !XUNIT_AOT
+using System.Reflection;
+#endif
 
 public class ConfigReaderTests
 {
@@ -10,7 +13,11 @@ public class ConfigReaderTests
 
 	static ConfigReaderTests()
 	{
+#if XUNIT_AOT
+		AssemblyFileName = Path.Combine(AppContext.BaseDirectory, typeof(ConfigReaderTests).Assembly.GetName().Name + ".dll").FindTestAssembly();
+#else
 		AssemblyFileName = Assembly.GetExecutingAssembly().GetLocalCodeBase();
+#endif
 		AssemblyPath = Path.GetDirectoryName(AssemblyFileName)!;
 	}
 

@@ -167,7 +167,11 @@ public class XunitFrontControllerAcceptanceTests
 		[Fact]
 		public void v3_Fact()
 		{
+#if XUNIT_AOT
+			var assemblyFileName = Path.Combine(AppContext.BaseDirectory, typeof(DiscoveryStartingCompleteMessageSinkTests).Assembly.GetName().Name + ".dll").FindTestAssembly();
+#else
 			var assemblyFileName = typeof(DiscoveryStartingCompleteMessageSinkTests).Assembly.Location;
+#endif
 			var assemblyMetadata = AssemblyUtility.GetAssemblyMetadata(assemblyFileName);
 			Assert.NotNull(assemblyMetadata);
 			Assert.Equal(3, assemblyMetadata.XunitVersion);
@@ -189,13 +193,21 @@ public class XunitFrontControllerAcceptanceTests
 
 			findSink.Finished.WaitOne();
 
+#if XUNIT_AOT
+			var testCaseIDs = new List<string>();
+#else
 			var serializedTestCases = new List<string>();
+#endif
 
 			Assert.Collection(
 				findSink.Messages.OfType<ITestCaseDiscovered>().OrderBy(d => d.TestCaseDisplayName),
 				discovered =>
 				{
+#if XUNIT_AOT
+					testCaseIDs.Add(discovered.UniqueID);
+#else
 					serializedTestCases.Add(discovered.Serialization);
+#endif
 
 					Assert.Equal("DiscoveryStartingCompleteMessageSinkTests.NoTestCases", discovered.TestCaseDisplayName);
 					Assert.Equal("DiscoveryStartingCompleteMessageSinkTests.cs", Path.GetFileName(discovered.SourceFilePath));
@@ -203,7 +215,11 @@ public class XunitFrontControllerAcceptanceTests
 				},
 				discovered =>
 				{
+#if XUNIT_AOT
+					testCaseIDs.Add(discovered.UniqueID);
+#else
 					serializedTestCases.Add(discovered.Serialization);
+#endif
 
 					Assert.Equal("DiscoveryStartingCompleteMessageSinkTests.TwoTestCases", discovered.TestCaseDisplayName);
 					Assert.Equal("DiscoveryStartingCompleteMessageSinkTests.cs", Path.GetFileName(discovered.SourceFilePath));
@@ -215,7 +231,11 @@ public class XunitFrontControllerAcceptanceTests
 
 			var runSink = SpyMessageSink<ITestAssemblyFinished>.Create();
 			var runOptions = TestFrameworkOptions.ForExecution(projectAssembly.Configuration);
-			var runSettings = new FrontControllerRunSettings(runOptions, serializedTestCases);
+#if XUNIT_AOT
+			var runSettings = FrontControllerRunSettings.WithTestCaseIDs(runOptions, testCaseIDs);
+#else
+			var runSettings = FrontControllerRunSettings.WithSerializedTestCases(runOptions, serializedTestCases);
+#endif
 			frontController.Run(runSink, runSettings);
 
 			runSink.Finished.WaitOne();
@@ -240,7 +260,11 @@ public class XunitFrontControllerAcceptanceTests
 		[Fact]
 		public void v3_Theory()
 		{
+#if XUNIT_AOT
+			var assemblyFileName = Path.Combine(AppContext.BaseDirectory, typeof(DiscoveryStartingCompleteMessageSinkTests).Assembly.GetName().Name + ".dll").FindTestAssembly();
+#else
 			var assemblyFileName = typeof(DiscoveryStartingCompleteMessageSinkTests).Assembly.Location;
+#endif
 			var assemblyMetadata = AssemblyUtility.GetAssemblyMetadata(assemblyFileName);
 			Assert.NotNull(assemblyMetadata);
 			Assert.Equal(3, assemblyMetadata.XunitVersion);
@@ -262,13 +286,21 @@ public class XunitFrontControllerAcceptanceTests
 
 			findSink.Finished.WaitOne();
 
+#if XUNIT_AOT
+			var testCaseIDs = new List<string>();
+#else
 			var serializedTestCases = new List<string>();
+#endif
 
 			Assert.Collection(
 				findSink.Messages.OfType<ITestCaseDiscovered>().OrderBy(d => d.TestCaseDisplayName),
 				discovered =>
 				{
+#if XUNIT_AOT
+					testCaseIDs.Add(discovered.UniqueID);
+#else
 					serializedTestCases.Add(discovered.Serialization);
+#endif
 
 					Assert.Equal("MessageSplitMessageSinkTests.DiagnosticMessages", discovered.TestCaseDisplayName);
 					Assert.Equal("MessageSplitMessageSinkTests.cs", Path.GetFileName(discovered.SourceFilePath));
@@ -276,7 +308,11 @@ public class XunitFrontControllerAcceptanceTests
 				},
 				discovered =>
 				{
+#if XUNIT_AOT
+					testCaseIDs.Add(discovered.UniqueID);
+#else
 					serializedTestCases.Add(discovered.Serialization);
+#endif
 
 					Assert.Equal("MessageSplitMessageSinkTests.NonDiagnosticMessages", discovered.TestCaseDisplayName);
 					Assert.Equal("MessageSplitMessageSinkTests.cs", Path.GetFileName(discovered.SourceFilePath));
@@ -288,7 +324,11 @@ public class XunitFrontControllerAcceptanceTests
 
 			var runSink = SpyMessageSink<ITestAssemblyFinished>.Create();
 			var runOptions = TestFrameworkOptions.ForExecution(projectAssembly.Configuration);
-			var runSettings = new FrontControllerRunSettings(runOptions, serializedTestCases);
+#if XUNIT_AOT
+			var runSettings = FrontControllerRunSettings.WithTestCaseIDs(runOptions, testCaseIDs);
+#else
+			var runSettings = FrontControllerRunSettings.WithSerializedTestCases(runOptions, serializedTestCases);
+#endif
 			frontController.Run(runSink, runSettings);
 
 			runSink.Finished.WaitOne();

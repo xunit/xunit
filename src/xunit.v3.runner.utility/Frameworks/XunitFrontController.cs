@@ -1,11 +1,14 @@
 using Xunit.Runner.Common;
-using Xunit.Runner.v2;
 using Xunit.Runner.v3;
 using Xunit.Sdk;
 using Xunit.v3;
 
 #if NETFRAMEWORK
 using Xunit.Runner.v1;
+#endif
+
+#if !XUNIT_AOT
+using Xunit.Runner.v2;
 #endif
 
 namespace Xunit;
@@ -15,10 +18,15 @@ namespace Xunit;
 /// Default implementation of <see cref="IFrontController"/> which supports running tests from
 /// xUnit.net v1, v2, and v3.
 /// </summary>
-#else
+#elif !XUNIT_AOT
 /// <summary>
 /// Default implementation of <see cref="IFrontController"/> which supports running tests from
 /// xUnit.net v2 and v3.
+/// </summary>
+#else
+/// <summary>
+/// Default implementation of <see cref="IFrontController"/> which supports running tests from
+/// xUnit.net v3.
 /// </summary>
 #endif
 public class XunitFrontController : IFrontController
@@ -68,7 +76,9 @@ public class XunitFrontController : IFrontController
 		{
 			// We don't use GetSourceInformationProvider for v3, because we rely on FactAttribute decorations rather than Cecil
 			3 => new XunitFrontController(Xunit3.ForDiscoveryAndExecution(projectAssembly, sourceInformationProvider, diagnosticMessageSink, testProcessLauncher)),
+#if !XUNIT_AOT
 			2 => new XunitFrontController(Xunit2.ForDiscoveryAndExecution(projectAssembly, sourceInformationProvider, diagnosticMessageSink)),
+#endif
 #if NETFRAMEWORK
 			1 => new XunitFrontController(Xunit1.ForDiscoveryAndExecution(projectAssembly, sourceInformationProvider, diagnosticMessageSink)),
 #endif

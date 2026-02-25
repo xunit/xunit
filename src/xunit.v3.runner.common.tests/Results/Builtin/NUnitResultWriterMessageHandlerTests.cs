@@ -6,11 +6,12 @@ using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
 
+[Collection(typeof(CleanEnvironmentAttribute))]
 [CleanEnvironment("COMPUTERNAME", "HOSTNAME", "NAME", "HOST", "USERNAME", "LOGNAME", "USER", "USERDOMAIN")]
 public class NUnitResultWriterMessageHandlerTests
 {
-	[CulturedFactDefault]
-	public async ValueTask TestRunElement()
+	[CulturedFact(["en-US", "fr-FR"])]
+	public static async ValueTask TestRunElement()
 	{
 		await using var handler = TestableNUnitResultWriterMessageHandler.Create();
 
@@ -38,7 +39,7 @@ public class NUnitResultWriterMessageHandlerTests
 		Assert.Empty(testRunElement.Elements("test-suite"));
 	}
 
-	[CulturedTheoryDefault]
+	[CulturedTheory(["en-US", "fr-FR"])]
 	// Windows
 	[InlineData("COMPUTERNAME", "USERNAME", "USERDOMAIN")]
 	// Linux
@@ -49,7 +50,7 @@ public class NUnitResultWriterMessageHandlerTests
 	// macOS
 	[InlineData("HOST", "LOGNAME", null)]
 	[InlineData("HOST", "USER", null)]
-	public async ValueTask TestAssemblies(
+	public static async ValueTask TestAssemblies(
 		string computerEnvName,
 		string userEnvName,
 		string? domainEnvName)
@@ -145,10 +146,10 @@ public class NUnitResultWriterMessageHandlerTests
 		}
 	}
 
-	[CulturedTheoryDefault]
+	[CulturedTheory(["en-US", "fr-FR"])]
 	[InlineData("Class Name", 0)]
 	[InlineData(null, 42)]
-	public async ValueTask TestCollections(
+	public static async ValueTask TestCollections(
 		string? testCollectionClass,
 		int testsFailed)
 	{
@@ -179,10 +180,10 @@ public class NUnitResultWriterMessageHandlerTests
 		VerifyTestSuite(testSuiteElement, "TestSuite", "1-1000", testCollectionFinished, "Collection Name", testCollectionClass);
 	}
 
-	[CulturedTheoryDefault]
+	[CulturedTheory(["en-US", "fr-FR"])]
 	[InlineData(0)]
 	[InlineData(42)]
-	public async ValueTask TestClasses(int testsFailed)
+	public static async ValueTask TestClasses(int testsFailed)
 	{
 		var assemblyStarting = TestData.TestAssemblyStarting();
 		var assemblyFinished = TestData.TestAssemblyFinished();
@@ -215,8 +216,8 @@ public class NUnitResultWriterMessageHandlerTests
 		VerifyTestSuite(testFixtureElement, "TestFixture", "1-1001", testClassFinished, "TestClass", "TestNamespace.TestClass");
 	}
 
-	[CulturedFactDefault]
-	public async ValueTask TestPassed()
+	[CulturedFact(["en-US", "fr-FR"])]
+	public static async ValueTask TestPassed()
 	{
 		var assemblyStarting = TestData.TestAssemblyStarting();
 		var collectionStarting = TestData.TestCollectionStarting();
@@ -281,8 +282,8 @@ public class NUnitResultWriterMessageHandlerTests
 		Assert.Null(testCaseElement.Element("attachments"));
 	}
 
-	[CulturedFactDefault]
-	public async ValueTask TestPassed_WithOneWarning()
+	[CulturedFact(["en-US", "fr-FR"])]
+	public static async ValueTask TestPassed_WithOneWarning()
 	{
 		var assemblyStarting = TestData.TestAssemblyStarting();
 		var collectionStarting = TestData.TestCollectionStarting();
@@ -336,8 +337,8 @@ public class NUnitResultWriterMessageHandlerTests
 		Assert.Equal(string.Empty, assertionElement.Element("stack-trace")?.Value);
 	}
 
-	[CulturedFactDefault]
-	public async ValueTask TestPassed_WithMultipleWarnings()
+	[CulturedFact(["en-US", "fr-FR"])]
+	public static async ValueTask TestPassed_WithMultipleWarnings()
 	{
 		var assemblyStarting = TestData.TestAssemblyStarting();
 		var collectionStarting = TestData.TestCollectionStarting();
@@ -410,8 +411,8 @@ public class NUnitResultWriterMessageHandlerTests
 		);
 	}
 
-	[CulturedFactDefault]
-	public async ValueTask TestFailed()
+	[CulturedFact(["en-US", "fr-FR"])]
+	public static async ValueTask TestFailed()
 	{
 		var assemblyStarting = TestData.TestAssemblyStarting();
 		var collectionStarting = TestData.TestCollectionStarting();
@@ -474,8 +475,8 @@ public class NUnitResultWriterMessageHandlerTests
 		Assert.Equal("Exception Stack Trace", assertionElement.Element("stack-trace")?.Value);
 	}
 
-	[CulturedFactDefault]
-	public async ValueTask TestFailed_NullStackTrace()
+	[CulturedFact(["en-US", "fr-FR"])]
+	public static async ValueTask TestFailed_NullStackTrace()
 	{
 		var assemblyStarting = TestData.TestAssemblyStarting();
 		var collectionStarting = TestData.TestCollectionStarting();
@@ -536,8 +537,8 @@ public class NUnitResultWriterMessageHandlerTests
 		Assert.Equal(string.Empty, assertionElement.Element("stack-trace")?.Value);
 	}
 
-	[CulturedFactDefault]
-	public async ValueTask TestFailed_WithWarning()
+	[CulturedFact(["en-US", "fr-FR"])]
+	public static async ValueTask TestFailed_WithWarning()
 	{
 		var assemblyStarting = TestData.TestAssemblyStarting();
 		var collectionStarting = TestData.TestCollectionStarting();
@@ -616,8 +617,8 @@ public class NUnitResultWriterMessageHandlerTests
 		);
 	}
 
-	[CulturedFactDefault]
-	public async ValueTask TestSkipped()
+	[CulturedFact(["en-US", "fr-FR"])]
+	public static async ValueTask TestSkipped()
 	{
 		var assemblyStarting = TestData.TestAssemblyStarting();
 		var collectionStarting = TestData.TestCollectionStarting();
@@ -673,8 +674,8 @@ public class NUnitResultWriterMessageHandlerTests
 		Assert.Equal("I don't want to run", propertyElement.Attribute("value")?.Value);
 	}
 
-	[CulturedFactDefault]
-	public async ValueTask TestSkipped_WithTraits()
+	[CulturedFact(["en-US", "fr-FR"])]
+	public static async ValueTask TestSkipped_WithTraits()
 	{
 		var assemblyStarting = TestData.TestAssemblyStarting();
 		var collectionStarting = TestData.TestCollectionStarting();
@@ -750,8 +751,8 @@ public class NUnitResultWriterMessageHandlerTests
 		);
 	}
 
-	[CulturedFactDefault]
-	public async ValueTask TestNotRun()
+	[CulturedFact(["en-US", "fr-FR"])]
+	public static async ValueTask TestNotRun()
 	{
 		var assemblyStarting = TestData.TestAssemblyStarting();
 		var collectionStarting = TestData.TestCollectionStarting();
@@ -799,8 +800,8 @@ public class NUnitResultWriterMessageHandlerTests
 		Assert.Equal("0", testCaseElement.Attribute("asserts")?.Value);
 	}
 
-	[CulturedFactDefault]
-	public async ValueTask TestResult_WithAttachments()
+	[CulturedFact(["en-US", "fr-FR"])]
+	public static async ValueTask TestResult_WithAttachments()
 	{
 		var attachments = new Dictionary<string, TestAttachment>
 		{
@@ -879,7 +880,7 @@ public class NUnitResultWriterMessageHandlerTests
 
 	[Theory(DisableDiscoveryEnumeration = true)]
 	[MemberData(nameof(AssemblyErrorData))]
-	public async ValueTask SingleAssemblyError(IMessageSinkMessage errorMessage)
+	public static async ValueTask SingleAssemblyError(IMessageSinkMessage errorMessage)
 	{
 		var assemblyStarting = TestData.TestAssemblyStarting();
 		var assemblyFinished = TestData.TestAssemblyFinished(testsFailed: 0, testsNotRun: 0, testsSkipped: 0, testsTotal: 0);
@@ -955,7 +956,7 @@ public class NUnitResultWriterMessageHandlerTests
 
 	[Theory(DisableDiscoveryEnumeration = true)]
 	[MemberData(nameof(FixtureErrorData))]
-	public async ValueTask TestFixtureErrors(IMessageSinkMessage errorMessage)
+	public static async ValueTask TestFixtureErrors(IMessageSinkMessage errorMessage)
 	{
 		var assemblyStarting = TestData.TestAssemblyStarting();
 		var collectionStarting = TestData.TestCollectionStarting();
@@ -1075,22 +1076,13 @@ public class NUnitResultWriterMessageHandlerTests
 		public async ValueTask TestMethod() { }
 	}
 
-	class TestableNUnitResultWriterMessageHandler :
-			NUnitResultWriterMessageHandler
+	class TestableNUnitResultWriterMessageHandler(
+		StringWriter stringWriter,
+		XmlWriter xmlWriter,
+		IFileSystem fileSystem) :
+			NUnitResultWriterMessageHandler(xmlWriter, fileSystem)
 	{
-		private readonly StringWriter stringWriter;
-
-		public TestableNUnitResultWriterMessageHandler(
-			StringWriter stringWriter,
-			XmlWriter xmlWriter,
-			IFileSystem fileSystem) :
-				base(xmlWriter, fileSystem)
-		{
-			this.stringWriter = stringWriter;
-			FileSystem = fileSystem;
-		}
-
-		public IFileSystem FileSystem { get; }
+		public IFileSystem FileSystem { get; } = fileSystem;
 
 		public async ValueTask<XElement> TestRunElement()
 		{

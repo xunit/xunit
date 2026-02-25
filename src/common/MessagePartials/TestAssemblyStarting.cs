@@ -9,9 +9,11 @@ namespace Xunit.v3;
 /// <summary>
 /// Default implementation of <see cref="ITestAssemblyStarting"/>.
 /// </summary>
-[JsonTypeID("test-assembly-starting")]
+[JsonTypeID(TypeID)]
 sealed partial class TestAssemblyStarting : TestAssemblyMessage, ITestAssemblyStarting
 {
+	internal const string TypeID = "test-assembly-starting";
+
 	string IAssemblyMetadata.UniqueID =>
 		AssemblyUniqueID;
 

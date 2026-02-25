@@ -161,7 +161,12 @@ public class TestFrameworkDiscovererTests
 		}
 
 		protected override ValueTask<ITestClass> CreateTestClass(Type @class) =>
-			new(TestData.XunitTestClass(@class));
+			new(Mocks.TestClass(
+				testClassName: @class.SafeName(),
+				testClassNamespace: @class.Namespace,
+				testClassSimpleName: @class.Name,
+				uniqueID: @class.SafeName()
+			));
 
 		public ValueTask Find(
 			ITestFrameworkDiscoveryOptions? discoveryOptions = null,
@@ -190,6 +195,6 @@ public class TestFrameworkDiscovererTests
 		protected override Type[] GetExportedTypes() => exportedTypes;
 
 		public static TestableTestFrameworkDiscoverer Create(params Type[] exportedTypes) =>
-			new(Mocks.XunitTestAssembly(), exportedTypes);
+			new(Mocks.TestAssembly(), exportedTypes);
 	}
 }

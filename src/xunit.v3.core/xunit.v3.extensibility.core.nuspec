@@ -11,7 +11,7 @@
 		<icon>_content/logo-128-transparent.png</icon>
 		<readme>_content/README.md</readme>
 		<releaseNotes>https://xunit.net/releases/v3/$PackageVersion$</releaseNotes>
-		<description>Includes the core library (xunit.v3.core.dll), to be used for extensibility; test authors should include xunit.v3.core instead. Supports .NET Standard 2.0.</description>
+		<description>Includes the core library (xunit.v3.core.dll), to be used for extensibility; test authors should include xunit.v3.core instead. Supports .NET Standard 2.0 or later.</description>
 		<copyright>Copyright (C) .NET Foundation</copyright>
 		<repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
 		<dependencies>

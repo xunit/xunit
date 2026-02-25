@@ -9,6 +9,8 @@ namespace Xunit.v3;
 /// <summary>
 /// Default implementation of <see cref="ITestClassConstructionFinished"/>.
 /// </summary>
-[JsonTypeID("test-class-construction-finished")]
+[JsonTypeID(TypeID)]
 sealed partial class TestClassConstructionFinished : TestMessage, ITestClassConstructionFinished
-{ }
+{
+	internal const string TypeID = "test-class-construction-finished";
+}

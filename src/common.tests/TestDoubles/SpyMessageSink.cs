@@ -24,7 +24,9 @@ public class SpyMessageSink : IMessageSink
 
 	public virtual bool OnMessage(IMessageSinkMessage message)
 	{
-		Messages.Add(message);
+		lock (Messages)
+			Messages.Add(message);
+
 		return Callback?.Invoke(message) ?? true;
 	}
 

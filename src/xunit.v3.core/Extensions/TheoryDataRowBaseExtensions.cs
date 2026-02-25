@@ -1,9 +1,9 @@
 namespace Xunit;
 
 /// <summary>
-/// Extension methods for <see cref="TheoryDataRowBase"/>.
+/// Extension methods for <see cref="TheoryDataRowBase"/> and <c><see cref="object"/>?[]</c>.
 /// </summary>
-public static class TheoryDataRowBaseExtensions
+public static partial class TheoryDataRowBaseExtensions
 {
 	/// <summary>
 	/// Sets the explicit flag on a theory data row.

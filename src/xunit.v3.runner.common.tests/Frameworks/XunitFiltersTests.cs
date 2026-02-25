@@ -1,23 +1,65 @@
 using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
-using ClassWithTraits = NamespaceTwo.ClassWithTraits;
-using InnerClassOne = NamespaceOne.ClassInNamespace1.InnerClassOne;
-using InnerClassTwo = NamespaceOne.ClassInNamespace1.InnerClassTwo;
 
 public class XunitFiltersTests
 {
-	static readonly ITestCaseDiscovered InnerClassOne_NameOne = TestData.TestCaseDiscovered<InnerClassOne>(nameof(InnerClassOne.NameOne));
-	static readonly ITestCaseDiscovered InnerClassOne_NameTwo = TestData.TestCaseDiscovered<InnerClassOne>(nameof(InnerClassOne.NameTwo));
-	static readonly ITestCaseDiscovered InnerClassOne_NameThree = TestData.TestCaseDiscovered<InnerClassOne>(nameof(InnerClassOne.NameThree));
-	static readonly ITestCaseDiscovered InnerClassTwo_NameThree = TestData.TestCaseDiscovered<InnerClassTwo>(nameof(InnerClassTwo.NameThree));
-	static readonly ITestCaseDiscovered MethodWithFooBarTrait = TestData.TestCaseDiscovered<ClassWithTraits>(nameof(ClassWithTraits.FooBar));
-	static readonly ITestCaseDiscovered MethodWithBazBiffTrait = TestData.TestCaseDiscovered<ClassWithTraits>(nameof(ClassWithTraits.BazBiff));
-	static readonly ITestCaseDiscovered MethodWithNoTraits = TestData.TestCaseDiscovered<ClassWithTraits>(nameof(ClassWithTraits.NoTraits));
-	static readonly ITestCaseDiscovered NonClassTest = TestData.TestCaseDiscovered(traits: TestData.EmptyTraits);
+	static readonly ITestCaseDiscovered InnerClassOne_NameOne = TestData.TestCaseDiscovered(
+		testClassName: "NamespaceOne.ClassInNamespace1+InnerClassOne",
+		testClassNamespace: "NamespaceOne",
+		testClassSimpleName: "InnerClassOne",
+		testMethodName: "NameOne",
+		traits: TestData.EmptyTraits
+	);
+	static readonly ITestCaseDiscovered InnerClassOne_NameTwo = TestData.TestCaseDiscovered(
+		testClassName: "NamespaceOne.ClassInNamespace1+InnerClassOne",
+		testClassNamespace: "NamespaceOne",
+		testClassSimpleName: "InnerClassOne",
+		testMethodName: "NameTwo",
+		traits: TestData.EmptyTraits
+	);
+	static readonly ITestCaseDiscovered InnerClassOne_NameThree = TestData.TestCaseDiscovered(
+		testClassName: "NamespaceOne.ClassInNamespace1+InnerClassOne",
+		testClassNamespace: "NamespaceOne",
+		testClassSimpleName: "InnerClassOne",
+		testMethodName: "NameThree",
+		traits: TestData.EmptyTraits
+	);
+	static readonly ITestCaseDiscovered InnerClassTwo_NameThree = TestData.TestCaseDiscovered(
+		testClassName: "NamespaceOne.ClassInNamespace1+InnerClassTwo",
+		testClassNamespace: "NamespaceOne",
+		testClassSimpleName: "InnerClassTwo",
+		testMethodName: "NameThree",
+		traits: TestData.EmptyTraits
+	);
+	static readonly ITestCaseDiscovered MethodWithFooBarTrait = TestData.TestCaseDiscovered(
+		testClassName: "NamespaceTwo.ClassWithTraits",
+		testClassNamespace: "NamespaceTwo",
+		testClassSimpleName: "ClassWithTraits",
+		testMethodName: "FooBar",
+		traits: new Dictionary<string, IReadOnlyCollection<string>> { ["foo"] = ["bar"] }
+	);
+	static readonly ITestCaseDiscovered MethodWithBazBiffTrait = TestData.TestCaseDiscovered(
+		testClassName: "NamespaceTwo.ClassWithTraits",
+		testClassNamespace: "NamespaceTwo",
+		testClassSimpleName: "ClassWithTraits",
+		testMethodName: "BazBiff",
+		traits: new Dictionary<string, IReadOnlyCollection<string>> { ["baz"] = ["biff"] }
+	);
+	static readonly ITestCaseDiscovered MethodWithNoTraits = TestData.TestCaseDiscovered(
+		testClassName: "NamespaceTwo.ClassWithTraits",
+		testClassNamespace: "NamespaceTwo",
+		testClassSimpleName: "ClassWithTraits",
+		testMethodName: "NoTraits",
+		traits: TestData.EmptyTraits
+	);
+	static readonly ITestCaseDiscovered NonClassTest = TestData.TestCaseDiscovered(
+		traits: TestData.EmptyTraits
+	);
 	static readonly ITestCaseDiscovered NonMethodTest = TestData.TestCaseDiscovered(
-		testClassName: typeof(ClassWithTraits).FullName,
-		testClassNamespace: typeof(ClassWithTraits).Namespace,
+		testClassName: "NamespaceTwo.ClassWithTraits",
+		testClassNamespace: "NamespaceTwo",
+		testClassSimpleName: "ClassWithTraits",
 		traits: TestData.EmptyTraits
 	);
 
@@ -97,7 +139,7 @@ public class XunitFiltersTests
 		public static void SingleFilter_MatchesQuery()
 		{
 			var filters = new XunitFilters();
-			filters.AddQueryFilter($"/asm1/{typeof(InnerClassOne).Namespace}/{typeof(InnerClassOne).Name}/{nameof(InnerClassOne.NameOne)}");
+			filters.AddQueryFilter("/asm1/NamespaceOne/InnerClassOne/NameOne");
 
 			Assert.False(filters.Filter("asm1", NonClassTest));
 			Assert.False(filters.Filter("asm1", NonMethodTest));
@@ -111,8 +153,8 @@ public class XunitFiltersTests
 		public static void MultipleFilters_ActsAsAnOrOperation()
 		{
 			var filters = new XunitFilters();
-			filters.AddQueryFilter($"/asm1/{typeof(InnerClassOne).Namespace}/{typeof(InnerClassOne).Name}");
-			filters.AddQueryFilter($"/asm1/{typeof(InnerClassOne).Namespace}/{typeof(InnerClassTwo).Name}");
+			filters.AddQueryFilter("/asm1/NamespaceOne/InnerClassOne");
+			filters.AddQueryFilter("/asm1/NamespaceOne/InnerClassTwo");
 
 			Assert.False(filters.Filter("asm1", NonClassTest));
 			Assert.False(filters.Filter("asm1", NonMethodTest));
@@ -127,19 +169,19 @@ public class XunitFiltersTests
 	{
 		public static IEnumerable<TheoryDataRow<string>> ClassNameData()
 		{
-			foreach (var value in WithWildcards(typeof(InnerClassOne).FullName!))
+			foreach (var value in WithWildcards("NamespaceOne.ClassInNamespace1+InnerClassOne"))
 				yield return value;
 		}
 
 		public static IEnumerable<TheoryDataRow<string>> MethodNameData()
 		{
-			foreach (var value in WithWildcards($"{typeof(InnerClassOne).FullName}.{nameof(InnerClassOne.NameOne)}"))
+			foreach (var value in WithWildcards("NamespaceOne.ClassInNamespace1+InnerClassOne.NameOne"))
 				yield return value;
 		}
 
 		public static IEnumerable<TheoryDataRow<string>> NamespaceData()
 		{
-			foreach (var value in WithWildcards(typeof(InnerClassOne).Namespace!))
+			foreach (var value in WithWildcards("NamespaceOne"))
 				yield return value;
 		}
 
@@ -171,8 +213,8 @@ public class XunitFiltersTests
 			public static void MultipleFilters_ActsAsAnOrOperation()
 			{
 				var filters = new XunitFilters();
-				filters.AddExcludedClassFilter(typeof(InnerClassOne).FullName!);
-				filters.AddExcludedClassFilter(typeof(InnerClassTwo).FullName!.ToUpperInvariant());
+				filters.AddExcludedClassFilter("NamespaceOne.ClassInNamespace1+InnerClassOne");
+				filters.AddExcludedClassFilter("NAMESPACEONE.CLASSINNAMESPACE1+INNERCLASSTWO");
 
 				Assert.True(filters.Filter("asm1", NonClassTest));
 				Assert.True(filters.Filter("asm1", NonMethodTest));
@@ -204,8 +246,8 @@ public class XunitFiltersTests
 			public static void MultipleFilters_ActsAsOrOperation()
 			{
 				var filters = new XunitFilters();
-				filters.AddExcludedMethodFilter($"{typeof(InnerClassOne).FullName}.{nameof(InnerClassOne.NameOne)}");
-				filters.AddExcludedMethodFilter($"*.nAmEtWo");
+				filters.AddExcludedMethodFilter("NamespaceOne.ClassInNamespace1+InnerClassOne.NameOne");
+				filters.AddExcludedMethodFilter("*.nAmEtWo");
 
 				Assert.True(filters.Filter("asm1", NonClassTest));
 				Assert.True(filters.Filter("asm1", NonMethodTest));
@@ -240,8 +282,8 @@ public class XunitFiltersTests
 			public static void MultipleFilters_ActsAsAnOrOperation()
 			{
 				var filters = new XunitFilters();
-				filters.AddExcludedNamespaceFilter(typeof(InnerClassOne).Namespace!);
-				filters.AddExcludedNamespaceFilter(typeof(ClassWithTraits).Namespace!.ToUpperInvariant());
+				filters.AddExcludedNamespaceFilter("NamespaceOne");
+				filters.AddExcludedNamespaceFilter("NAMESPACETWO");
 
 				Assert.True(filters.Filter("asm1", NonClassTest));
 				Assert.False(filters.Filter("asm1", NonMethodTest));
@@ -309,8 +351,8 @@ public class XunitFiltersTests
 			public static void MultipleFilters_ActsAsAnAndOperation()
 			{
 				var filters = new XunitFilters();
-				filters.AddIncludedClassFilter(typeof(InnerClassOne).FullName!);
-				filters.AddIncludedClassFilter(typeof(InnerClassTwo).FullName!.ToUpperInvariant());
+				filters.AddIncludedClassFilter("NamespaceOne.ClassInNamespace1+InnerClassOne");
+				filters.AddIncludedClassFilter("NAMESPACEONE.CLASSINNAMESPACE1+INNERCLASSTWO");
 
 				Assert.False(filters.Filter("asm1", NonClassTest));
 				Assert.False(filters.Filter("asm1", NonMethodTest));
@@ -342,8 +384,8 @@ public class XunitFiltersTests
 			public static void MultipleFilters_ActsAsAndOperation()
 			{
 				var filters = new XunitFilters();
-				filters.AddIncludedMethodFilter($"{typeof(InnerClassOne).FullName}.{nameof(InnerClassOne.NameOne)}");
-				filters.AddIncludedMethodFilter($"*.{nameof(InnerClassOne.NameTwo).ToUpperInvariant()}");
+				filters.AddIncludedMethodFilter("NamespaceOne.ClassInNamespace1+InnerClassOne.NameOne");
+				filters.AddIncludedMethodFilter("*.NAMETWO");
 
 				Assert.False(filters.Filter("asm1", NonClassTest));
 				Assert.False(filters.Filter("asm1", NonMethodTest));
@@ -378,8 +420,8 @@ public class XunitFiltersTests
 			public static void MultipleFilters_ActsAsAnOrOperation()
 			{
 				var filters = new XunitFilters();
-				filters.AddIncludedNamespaceFilter(typeof(InnerClassOne).Namespace!);
-				filters.AddIncludedNamespaceFilter(typeof(ClassWithTraits).Namespace!.ToUpperInvariant());
+				filters.AddIncludedNamespaceFilter("NamespaceOne");
+				filters.AddIncludedNamespaceFilter("NAMESPACETWO");
 
 				Assert.False(filters.Filter("asm1", NonClassTest));
 				Assert.True(filters.Filter("asm1", NonMethodTest));
@@ -432,7 +474,7 @@ public class XunitFiltersTests
 			public static void ActsAsAnAndOperation()
 			{
 				var filters = new XunitFilters();
-				filters.AddIncludedClassFilter(typeof(InnerClassOne).FullName!);
+				filters.AddIncludedClassFilter("NamespaceOne.ClassInNamespace1+InnerClassOne");
 				filters.AddIncludedMethodFilter("*.nAmEtHrEe");
 
 				Assert.False(filters.Filter("asm1", NonClassTest));

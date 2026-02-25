@@ -5,8 +5,12 @@ using System.Text;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
 
-#if !NETCOREAPP
+#if XUNIT_AOT || NETFRAMEWORK
 using System.Reflection;
+#endif
+
+#if XUNIT_AOT
+using System.Runtime.ExceptionServices;
 #endif
 
 namespace Xunit.Runner.SystemConsole;
@@ -36,14 +40,15 @@ sealed class ConsoleRunner(string[] args) :
 		var globalInternalDiagnosticMessages = false;
 		var noColor = false;
 
+#if XUNIT_AOT
+		await using var runnerInit = await RunnerInitialization.Start(Assembly.GetEntryAssembly());
+		if (runnerInit.InitException is not null)
+			ExceptionDispatchInfo.Throw(runnerInit.InitException);
+#endif
+
 		try
 		{
-#if NETCOREAPP
-			var runnerFolder = AppContext.BaseDirectory;
-#else
-			var runnerFolder = Path.GetDirectoryName(typeof(Program).Assembly.Location);
-#endif
-			var commandLine = new CommandLine(consoleHelper, runnerFolder, args);
+			var commandLine = new CommandLine(consoleHelper, args);
 
 			if (args.Length == 0 || commandLine.HelpRequested)
 			{
@@ -237,7 +242,11 @@ sealed class ConsoleRunner(string[] args) :
 			// Setup discovery and execution options with command-line overrides
 			var discoveryOptions = TestFrameworkOptions.ForDiscovery(assembly.Configuration);
 
-			var assemblyDisplayName = Path.GetFileNameWithoutExtension(assemblyFileName);
+			var assemblyDisplayName =
+				assemblyFileName.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) || assemblyFileName.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)
+					? Path.GetFileNameWithoutExtension(assemblyFileName)
+					: Path.GetFileName(assemblyFileName);
+
 			var appDomainSupport = assembly.Configuration.AppDomainOrDefault;
 			var shadowCopy = assembly.Configuration.ShadowCopyOrDefault;
 			var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
@@ -298,12 +307,12 @@ sealed class ConsoleRunner(string[] args) :
 
 		consoleHelper.WriteLine(
 			"xUnit.net v3 Console Runner v{0} [{1}/{2}] ({3}-bit {4})",
- 			ThisAssembly.AssemblyInformationalVersion,
- 			buildTarget,
+			ThisAssembly.AssemblyInformationalVersion,
+			buildTarget,
 			GetRuntimeIdentifier(),
- 			IntPtr.Size * 8,
- 			RuntimeInformation.FrameworkDescription
- 		);
+			IntPtr.Size * 8,
+			RuntimeInformation.FrameworkDescription
+		);
 #endif
 	}
 
@@ -385,7 +394,11 @@ sealed class ConsoleRunner(string[] args) :
 			var discoveryOptions = TestFrameworkOptions.ForDiscovery(assembly.Configuration);
 			var executionOptions = TestFrameworkOptions.ForExecution(assembly.Configuration);
 
-			var assemblyDisplayName = Path.GetFileNameWithoutExtension(assemblyFileName);
+			var assemblyDisplayName =
+				assemblyFileName.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) || assemblyFileName.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)
+					? Path.GetFileNameWithoutExtension(assemblyFileName)
+					: Path.GetFileName(assemblyFileName);
+
 			var noColor = assembly.Project.Configuration.NoColorOrDefault;
 			var diagnosticMessages = assembly.Configuration.DiagnosticMessagesOrDefault;
 			var internalDiagnosticMessages = assembly.Configuration.InternalDiagnosticMessagesOrDefault;

@@ -8,9 +8,13 @@ namespace Xunit.Sdk;
 /// </summary>
 public interface ITestCaseDiscovered : ITestCaseMessage, ITestCaseMetadata
 {
+#if !XUNIT_AOT
+
 	/// <summary>
 	/// Gets the serialized value of the test case, which allows it to be transferred across
 	/// process boundaries.
 	/// </summary>
 	string Serialization { get; }
+
+#endif  // !XUNIT_AOT
 }

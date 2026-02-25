@@ -1,57 +1,52 @@
-using System.Reflection;
+using System.Collections.Concurrent;
 using Xunit.Sdk;
 
 namespace Xunit.Runner.Common;
 
-/// <summary>
-/// A class which understands how to deserialize <see cref="IMessageSinkMessage"/> instances that are decorated
-/// with <see cref="JsonTypeIDAttribute"/>. The built-in messages are registered by default, and additional messages
-/// can be registered via <see cref="RegisterMessageSinkMessageType"/>.
-/// </summary>
-public static class MessageSinkMessageDeserializer
+public static partial class MessageSinkMessageDeserializer
 {
 	static readonly List<string> errors = [];
-	static readonly Dictionary<string, Type> typeIdToTypeMappings = [];
+	static readonly ConcurrentDictionary<string, Func<object?>> typeIDToFactoryMappings = [];
 
 	static MessageSinkMessageDeserializer()
 	{
-		RegisterMessageSinkMessageType(typeof(AfterTestFinished));
-		RegisterMessageSinkMessageType(typeof(AfterTestStarting));
-		RegisterMessageSinkMessageType(typeof(BeforeTestFinished));
-		RegisterMessageSinkMessageType(typeof(BeforeTestStarting));
-		RegisterMessageSinkMessageType(typeof(DiagnosticMessage));
-		RegisterMessageSinkMessageType(typeof(DiscoveryComplete));
-		RegisterMessageSinkMessageType(typeof(DiscoveryStarting));
-		RegisterMessageSinkMessageType(typeof(ErrorMessage));
-		RegisterMessageSinkMessageType(typeof(InternalDiagnosticMessage));
-		RegisterMessageSinkMessageType(typeof(TestAssemblyCleanupFailure));
-		RegisterMessageSinkMessageType(typeof(TestAssemblyFinished));
-		RegisterMessageSinkMessageType(typeof(TestAssemblyStarting));
-		RegisterMessageSinkMessageType(typeof(TestCaseCleanupFailure));
-		RegisterMessageSinkMessageType(typeof(TestCaseDiscovered));
-		RegisterMessageSinkMessageType(typeof(TestCaseFinished));
-		RegisterMessageSinkMessageType(typeof(TestCaseStarting));
-		RegisterMessageSinkMessageType(typeof(TestClassCleanupFailure));
-		RegisterMessageSinkMessageType(typeof(TestClassConstructionFinished));
-		RegisterMessageSinkMessageType(typeof(TestClassConstructionStarting));
-		RegisterMessageSinkMessageType(typeof(TestClassDisposeFinished));
-		RegisterMessageSinkMessageType(typeof(TestClassDisposeStarting));
-		RegisterMessageSinkMessageType(typeof(TestClassFinished));
-		RegisterMessageSinkMessageType(typeof(TestClassStarting));
-		RegisterMessageSinkMessageType(typeof(TestCleanupFailure));
-		RegisterMessageSinkMessageType(typeof(TestCollectionCleanupFailure));
-		RegisterMessageSinkMessageType(typeof(TestCollectionFinished));
-		RegisterMessageSinkMessageType(typeof(TestCollectionStarting));
-		RegisterMessageSinkMessageType(typeof(TestFailed));
-		RegisterMessageSinkMessageType(typeof(TestFinished));
-		RegisterMessageSinkMessageType(typeof(TestMethodCleanupFailure));
-		RegisterMessageSinkMessageType(typeof(TestMethodFinished));
-		RegisterMessageSinkMessageType(typeof(TestMethodStarting));
-		RegisterMessageSinkMessageType(typeof(TestNotRun));
-		RegisterMessageSinkMessageType(typeof(TestOutput));
-		RegisterMessageSinkMessageType(typeof(TestPassed));
-		RegisterMessageSinkMessageType(typeof(TestSkipped));
-		RegisterMessageSinkMessageType(typeof(TestStarting));
+		RegisterMessageSinkMessageType(AfterTestFinished.TypeID, Activator.CreateInstance<AfterTestFinished>);
+		RegisterMessageSinkMessageType(AfterTestStarting.TypeID, Activator.CreateInstance<AfterTestStarting>);
+		RegisterMessageSinkMessageType(BeforeTestFinished.TypeID, Activator.CreateInstance<BeforeTestFinished>);
+		RegisterMessageSinkMessageType(BeforeTestStarting.TypeID, Activator.CreateInstance<BeforeTestStarting>);
+		RegisterMessageSinkMessageType(DiagnosticMessage.TypeID, Activator.CreateInstance<DiagnosticMessage>);
+		RegisterMessageSinkMessageType(DiscoveryComplete.TypeID, Activator.CreateInstance<DiscoveryComplete>);
+		RegisterMessageSinkMessageType(DiscoveryStarting.TypeID, Activator.CreateInstance<DiscoveryStarting>);
+		RegisterMessageSinkMessageType(ErrorMessage.TypeID, Activator.CreateInstance<ErrorMessage>);
+		RegisterMessageSinkMessageType(InternalDiagnosticMessage.TypeID, Activator.CreateInstance<InternalDiagnosticMessage>);
+		RegisterMessageSinkMessageType(TestAssemblyCleanupFailure.TypeID, Activator.CreateInstance<TestAssemblyCleanupFailure>);
+		RegisterMessageSinkMessageType(TestAssemblyFinished.TypeID, Activator.CreateInstance<TestAssemblyFinished>);
+		RegisterMessageSinkMessageType(TestAssemblyStarting.TypeID, Activator.CreateInstance<TestAssemblyStarting>);
+		RegisterMessageSinkMessageType(TestCaseCleanupFailure.TypeID, Activator.CreateInstance<TestCaseCleanupFailure>);
+		RegisterMessageSinkMessageType(TestCaseDiscovered.TypeID, Activator.CreateInstance<TestCaseDiscovered>);
+		RegisterMessageSinkMessageType(TestCaseFinished.TypeID, Activator.CreateInstance<TestCaseFinished>);
+		RegisterMessageSinkMessageType(TestCaseStarting.TypeID, Activator.CreateInstance<TestCaseStarting>);
+		RegisterMessageSinkMessageType(TestClassCleanupFailure.TypeID, Activator.CreateInstance<TestClassCleanupFailure>);
+		RegisterMessageSinkMessageType(TestClassConstructionFinished.TypeID, Activator.CreateInstance<TestClassConstructionFinished>);
+		RegisterMessageSinkMessageType(TestClassConstructionStarting.TypeID, Activator.CreateInstance<TestClassConstructionStarting>);
+		RegisterMessageSinkMessageType(TestClassDisposeFinished.TypeID, Activator.CreateInstance<TestClassDisposeFinished>);
+		RegisterMessageSinkMessageType(TestClassDisposeStarting.TypeID, Activator.CreateInstance<TestClassDisposeStarting>);
+		RegisterMessageSinkMessageType(TestClassFinished.TypeID, Activator.CreateInstance<TestClassFinished>);
+		RegisterMessageSinkMessageType(TestClassStarting.TypeID, Activator.CreateInstance<TestClassStarting>);
+		RegisterMessageSinkMessageType(TestCleanupFailure.TypeID, Activator.CreateInstance<TestCleanupFailure>);
+		RegisterMessageSinkMessageType(TestCollectionCleanupFailure.TypeID, Activator.CreateInstance<TestCollectionCleanupFailure>);
+		RegisterMessageSinkMessageType(TestCollectionFinished.TypeID, Activator.CreateInstance<TestCollectionFinished>);
+		RegisterMessageSinkMessageType(TestCollectionStarting.TypeID, Activator.CreateInstance<TestCollectionStarting>);
+		RegisterMessageSinkMessageType(TestFailed.TypeID, Activator.CreateInstance<TestFailed>);
+		RegisterMessageSinkMessageType(TestFinished.TypeID, Activator.CreateInstance<TestFinished>);
+		RegisterMessageSinkMessageType(TestMethodCleanupFailure.TypeID, Activator.CreateInstance<TestMethodCleanupFailure>);
+		RegisterMessageSinkMessageType(TestMethodFinished.TypeID, Activator.CreateInstance<TestMethodFinished>);
+		RegisterMessageSinkMessageType(TestMethodStarting.TypeID, Activator.CreateInstance<TestMethodStarting>);
+		RegisterMessageSinkMessageType(TestNotRun.TypeID, Activator.CreateInstance<TestNotRun>);
+		RegisterMessageSinkMessageType(TestOutput.TypeID, Activator.CreateInstance<TestOutput>);
+		RegisterMessageSinkMessageType(TestPassed.TypeID, Activator.CreateInstance<TestPassed>);
+		RegisterMessageSinkMessageType(TestSkipped.TypeID, Activator.CreateInstance<TestSkipped>);
+		RegisterMessageSinkMessageType(TestStarting.TypeID, Activator.CreateInstance<TestStarting>);
 	}
 
 	/// <summary>
@@ -79,21 +74,28 @@ public static class MessageSinkMessageDeserializer
 			return null;
 		}
 
-		if (!typeIdToTypeMappings.TryGetValue(typeName, out var type))
+		if (!typeIDToFactoryMappings.TryGetValue(typeName, out var factory))
 		{
 			diagnosticMessageSink?.OnMessage(new InternalDiagnosticMessage("JSON message deserialization failure: message '$type' {0} does not have an associated registration", typeName));
 			return null;
 		}
 
-		if (Activator.CreateInstance(type) is not IMessageSinkMessage message)
+		var obj = factory();
+		if (obj is null)
 		{
-			diagnosticMessageSink?.OnMessage(new InternalDiagnosticMessage("Registered JSON message type '{0}' does not implement '{1}'", type.SafeName(), typeof(IMessageSinkMessage).SafeName()));
+			diagnosticMessageSink?.OnMessage(new InternalDiagnosticMessage("Registered JSON message type '{0}' factory returned null", typeName));
 			return null;
 		}
 
-		if (message is not IJsonDeserializable deserializable)
+		if (obj is not IMessageSinkMessage message)
 		{
-			diagnosticMessageSink?.OnMessage(new InternalDiagnosticMessage("Registered JSON message type '{0}' does not implement '{1}'", type.SafeName(), typeof(IJsonDeserializable).SafeName()));
+			diagnosticMessageSink?.OnMessage(new InternalDiagnosticMessage("Registered JSON message type '{0}' does not implement '{1}'", typeName, typeof(IMessageSinkMessage).SafeName()));
+			return null;
+		}
+
+		if (obj is not IJsonDeserializable deserializable)
+		{
+			diagnosticMessageSink?.OnMessage(new InternalDiagnosticMessage("Registered JSON message type '{0}' does not implement '{1}'", typeName, typeof(IJsonDeserializable).SafeName()));
 			return null;
 		}
 
@@ -102,39 +104,30 @@ public static class MessageSinkMessageDeserializer
 	}
 
 	/// <summary>
-	/// Registers an implementation of <see cref="IMessageSinkMessage"/> and <see cref="IJsonDeserializable"/>, decorated
-	/// with <see cref="JsonTypeIDAttribute"/> so that it can be deserialized by the runner pipeline.
+	/// Registers a deserializable JSON container message sink message object.
 	/// </summary>
-	/// <param name="type">The message type to register</param>
-	public static void RegisterMessageSinkMessageType(Type type)
+	/// <param name="jsonTypeID">The JSON type ID used to identify this type instance</param>
+	/// <param name="factory">The factory used to create instances of the object during deserialization</param>
+	/// <remarks>
+	/// The object returned from <paramref name="factory"/> must implement both <see cref="IMessageSinkMessage"/> and <see cref="IJsonDeserializable"/>.
+	/// </remarks>
+	public static void RegisterMessageSinkMessageType(
+		string jsonTypeID,
+		Func<object?> factory)
 	{
-		Guard.ArgumentNotNull(type);
-
-		if (!typeof(IMessageSinkMessage).IsAssignableFrom(type))
+		if (string.IsNullOrWhiteSpace(jsonTypeID))
 		{
-			errors.Add(string.Format(CultureInfo.CurrentCulture, "Message sink message type '{0}' must implement '{1}'", type.SafeName(), typeof(IMessageSinkMessage).SafeName()));
+			errors.Add("Message sink message ID must be non-null, non-whitespace");
 			return;
 		}
 
-		if (!typeof(IJsonDeserializable).IsAssignableFrom(type))
+		if (factory is null)
 		{
-			errors.Add(string.Format(CultureInfo.CurrentCulture, "Message sink message type '{0}' must implement '{1}'", type.SafeName(), typeof(IJsonDeserializable).SafeName()));
+			errors.Add(string.Format(CultureInfo.CurrentCulture, "Message factory for type ID '{0}' must not be null", jsonTypeID));
 			return;
 		}
 
-		var attr = type.GetCustomAttribute<JsonTypeIDAttribute>();
-		if (attr is null)
-		{
-			errors.Add(string.Format(CultureInfo.CurrentCulture, "Message sink message type '{0}' is missing [JsonTypeID]", type.SafeName()));
-			return;
-		}
-
-		if (typeIdToTypeMappings.TryGetValue(attr.ID, out var existingType))
-		{
-			errors.Add(string.Format(CultureInfo.CurrentCulture, "Could not add type '{0}' with JSON type ID of '{1}' because it's already assigned to '{2}'", type.SafeName(), attr.ID, existingType.SafeName()));
-			return;
-		}
-
-		typeIdToTypeMappings[attr.ID] = type;
+		if (!typeIDToFactoryMappings.TryAdd(jsonTypeID, factory))
+			errors.Add(string.Format(CultureInfo.CurrentCulture, "Could not add deserializer with JSON type ID of '{0}' because it's already registered", jsonTypeID));
 	}
 }

@@ -1,13 +1,12 @@
 using System.Collections.Concurrent;
 using Xunit.Sdk;
-using Xunit.v3;
 
 namespace Xunit;
 
 /// <summary>
 /// Represents the current state of the test pipeline.
 /// </summary>
-public interface ITestContext
+public partial interface ITestContext
 {
 	/// <summary>
 	/// Gets the attachments for the current test, if the engine is currently in the process of running a test;
@@ -42,43 +41,10 @@ public interface ITestContext
 	TestPipelineStage PipelineStage { get; }
 
 	/// <summary>
-	/// Gets the current test, if the engine is currently in the process of running a test;
-	/// will return <see langword="null"/> outside of the context of a test.
-	/// </summary>
-	/// <remarks>
-	/// When running with the default test framework implementation, the value here is likely
-	/// to implement <see cref="IXunitTest"/>.
-	/// </remarks>
-	ITest? Test { get; }
-
-	/// <summary>
-	/// Gets the current test assembly, if the engine is currently in the process of running or
-	/// discovering tests in assembly; will return <see langword="null"/> out of this context (this typically
-	/// means the test framework itself is being created and initialized).
-	/// </summary>
-	/// <remarks>
-	/// When running with the default test framework implementation, the value here is likely
-	/// to implement <see cref="IXunitTestAssembly"/>.
-	/// </remarks>
-	[NotNullIfNotNull(nameof(TestCollection))]
-	ITestAssembly? TestAssembly { get; }
-
-	/// <summary>
 	/// Gets the current test engine status for the test assembly.
 	/// </summary>
 	[NotNullIfNotNull(nameof(TestAssembly))]
 	TestEngineStatus? TestAssemblyStatus { get; }
-
-	/// <summary>
-	/// Gets the current test case, if the engine is currently in the process of running a
-	/// test case; will return <see langword="null"/> outside of the context of a test case.
-	/// </summary>
-	/// <remarks>
-	/// When running with the default test framework implementation, the value here is likely
-	/// to implement <see cref="IXunitTestCase"/>.
-	/// </remarks>
-	[NotNullIfNotNull(nameof(Test))]
-	ITestCase? TestCase { get; }
 
 	/// <summary>
 	/// Gets the current test engine status for the test case. Will only be available when <see cref="TestCase"/>
@@ -86,19 +52,6 @@ public interface ITestContext
 	/// </summary>
 	[NotNullIfNotNull(nameof(TestCase))]
 	TestEngineStatus? TestCaseStatus { get; }
-
-	/// <summary>
-	/// Gets the current test method, if the engine is currently in the process of running
-	/// a test class; will return <see langword="null"/> outside of the context of a test class. Note that
-	/// not all test framework implementations require that tests be based on classes, so this
-	/// value may be <see langword="null"/> even if <see cref="TestCase"/> is not <see langword="null"/>.
-	/// </summary>
-	/// <remarks>
-	/// When running with the default test framework implementation, the value here is likely
-	/// to implement <see cref="IXunitTestClass"/>.
-	/// </remarks>
-	[NotNullIfNotNull(nameof(TestMethod))]
-	ITestClass? TestClass { get; }
 
 	/// <summary>
 	/// Gets the instance of the test class; will return <see langword="null"/> outside of the context of
@@ -120,35 +73,11 @@ public interface ITestContext
 	TestEngineStatus? TestClassStatus { get; }
 
 	/// <summary>
-	/// Gets the current test collection, if the engine is currently in the process of running
-	/// a test collection; will return <see langword="null"/> outside of the context of a test collection.
-	/// </summary>
-	/// <remarks>
-	/// When running with the default test framework implementation, the value here is likely
-	/// to implement <see cref="IXunitTestCollection"/>.
-	/// </remarks>
-	[NotNullIfNotNull(nameof(TestClass))]
-	[NotNullIfNotNull(nameof(TestCase))]
-	ITestCollection? TestCollection { get; }
-
-	/// <summary>
 	/// Gets the current test engine status for the test collection. Will only be available when
 	/// <see cref="TestCollection"/> is not <see langword="null"/>.
 	/// </summary>
 	[NotNullIfNotNull(nameof(TestCollection))]
 	TestEngineStatus? TestCollectionStatus { get; }
-
-	/// <summary>
-	/// Gets the current test method, if the engine is currently in the process of running
-	/// a test method; will return <see langword="null"/> outside of the context of a test method. Note that
-	/// not all test framework implementations require that tests be based on methods, so this
-	/// value may be <see langword="null"/> even if <see cref="TestCase"/> is not <see langword="null"/>.
-	/// </summary>
-	/// <remarks>
-	/// When running with the default test framework implementation, the value here is likely
-	/// to implement <see cref="IXunitTestMethod"/>.
-	/// </remarks>
-	ITestMethod? TestMethod { get; }
 
 	/// <summary>
 	/// Gets the current test engine status for the test method. Will only be available when <see cref="TestMethod"/>
@@ -265,6 +194,19 @@ public interface ITestContext
 	/// <param name="fixtureType">The exact type of the fixture</param>
 	/// <returns>The fixture, if available; <see langword="null"/>, otherwise</returns>
 	ValueTask<object?> GetFixture(Type fixtureType);
+
+	/// <summary>
+	/// Gets a fixture that was attached to the test class. Will return <see langword="default"/> if there is
+	/// no exact match for the requested fixture type, or if there is no test class (that is,
+	/// if <see cref="TestClass"/> returns <see langword="null"/>).
+	/// </summary>
+	/// <remarks>
+	/// This may be a fixture attached via <see cref="IClassFixture{TFixture}"/>, <see cref="ICollectionFixture{TFixture}"/>,
+	/// or <see cref="AssemblyFixtureAttribute"/>.
+	/// </remarks>
+	/// <typeparam name="T">The exact type of the fixture</typeparam>
+	/// <returns>The fixture, if available; <see langword="default"/>, otherwise</returns>
+	ValueTask<T?> GetFixture<T>();
 
 	/// <summary>
 	/// Sends a diagnostic message. Will only be visible if the end user has enabled diagnostic messages.

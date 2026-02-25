@@ -9,9 +9,11 @@ namespace Xunit.v3;
 /// <summary>
 /// Default implementation of <see cref="ITestFailed"/>.
 /// </summary>
-[JsonTypeID("test-failed")]
+[JsonTypeID(TypeID)]
 sealed partial class TestFailed : TestResultMessage, ITestFailed
 {
+	internal const string TypeID = "test-failed";
+
 	/// <summary>
 	/// Creates a new <see cref="ITestFailed"/> constructed from an <see cref="Exception"/> object.
 	/// </summary>

@@ -60,6 +60,22 @@ public enum TestMethodDisplayOptions
 /// </summary>
 public static class TestMethodDisplayOptionsExtensions
 {
+	extension(TestMethodDisplayOptions)
+	{
+		/// <summary>
+		/// Gets the valid values for <see cref="TestMethodDisplayOptions"/>.
+		/// </summary>
+		public static HashSet<TestMethodDisplayOptions> ValidValues =>
+		[
+			TestMethodDisplayOptions.None,
+			TestMethodDisplayOptions.ReplaceUnderscoreWithSpace,
+			TestMethodDisplayOptions.UseOperatorMonikers,
+			TestMethodDisplayOptions.UseEscapeSequences,
+			TestMethodDisplayOptions.ReplacePeriodWithComma,
+			TestMethodDisplayOptions.All,
+		];
+	}
+
 	static readonly int[] validFlags =
 		new[] {
 			TestMethodDisplayOptions.ReplaceUnderscoreWithSpace,

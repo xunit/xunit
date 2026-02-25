@@ -1,7 +1,4 @@
-#if !XUNIT_AOT
-
 using System.Reflection;
-using NSubstitute;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -11,33 +8,66 @@ public static partial class Mocks
 	public static ITestFramework TestFramework(
 		ITestFrameworkDiscoverer? discoverer = null,
 		ITestFrameworkExecutor? executor = null,
-		string testFrameworkDisplayName = TestData.DefaultTestFrameworkDisplayName)
+		string testFrameworkDisplayName = TestData.DefaultTestFrameworkDisplayName) =>
+			new MockTestFramework(discoverer ?? TestFrameworkDiscoverer(), executor ?? TestFrameworkExecutor(), testFrameworkDisplayName);
+
+	class MockTestFramework(
+		ITestFrameworkDiscoverer discoverer,
+		ITestFrameworkExecutor executor,
+		string testFrameworkDisplayName) :
+			ITestFramework
 	{
-		var result = Substitute.For<ITestFramework, InterfaceProxy<ITestFramework>>();
+		public string TestFrameworkDisplayName =>
+			testFrameworkDisplayName;
 
-		discoverer ??= TestFrameworkDiscoverer();
-		executor ??= TestFrameworkExecutor();
+		public ITestFrameworkDiscoverer GetDiscoverer(Assembly assembly) =>
+			discoverer;
 
-		result.TestFrameworkDisplayName.Returns(testFrameworkDisplayName);
-		result.GetDiscoverer(Arg.Any<Assembly>()).Returns(discoverer);
-		result.GetExecutor(Arg.Any<Assembly>()).Returns(executor);
+		public ITestFrameworkExecutor GetExecutor(Assembly assembly) =>
+			executor;
 
-		return result;
+		public void SetTestPipelineStartup(ITestPipelineStartup pipelineStartup)
+		{ }
 	}
 
-	public static ITestFrameworkDiscoverer TestFrameworkDiscoverer(ITestAssembly? testAssembly = null)
+	public static ITestFrameworkDiscoverer TestFrameworkDiscoverer(
+		ITestAssembly? testAssembly = null,
+		Func<Func<ITestCase, ValueTask<bool>>, ITestFrameworkDiscoveryOptions, Type[]?, CancellationToken?, ValueTask>? find = null) =>
+			new MockTestFrameworkDiscoverer(testAssembly ?? TestAssembly(), find);
+
+	class MockTestFrameworkDiscoverer(
+		ITestAssembly testAssembly,
+		Func<Func<ITestCase, ValueTask<bool>>, ITestFrameworkDiscoveryOptions, Type[]?, CancellationToken?, ValueTask>? find) :
+			ITestFrameworkDiscoverer
 	{
-		var result = Substitute.For<ITestFrameworkDiscoverer, InterfaceProxy<ITestFrameworkDiscoverer>>();
+		public ITestAssembly TestAssembly =>
+			testAssembly;
 
-		testAssembly ??= XunitTestAssembly();
-
-		result.TestAssembly.Returns(testAssembly);
-
-		return result;
+		public async ValueTask Find(
+			Func<ITestCase, ValueTask<bool>> callback,
+			ITestFrameworkDiscoveryOptions discoveryOptions,
+			Type[]? types = null,
+			CancellationToken? cancellationToken = null)
+		{
+			if (find is not null)
+				await find(callback, discoveryOptions, types, cancellationToken);
+		}
 	}
 
-	public static ITestFrameworkExecutor TestFrameworkExecutor() =>
-		Substitute.For<ITestFrameworkExecutor, InterfaceProxy<ITestFrameworkExecutor>>();
+	public static ITestFrameworkExecutor TestFrameworkExecutor(Func<IReadOnlyCollection<ITestCase>, IMessageSink, ITestFrameworkExecutionOptions, CancellationToken?, ValueTask>? runTestCases = null) =>
+		new MockTestFrameworkExecutor(runTestCases);
+
+	class MockTestFrameworkExecutor(Func<IReadOnlyCollection<ITestCase>, IMessageSink, ITestFrameworkExecutionOptions, CancellationToken?, ValueTask>? runTestCases) :
+		ITestFrameworkExecutor
+	{
+		public async ValueTask RunTestCases(
+			IReadOnlyCollection<ITestCase> testCases,
+			IMessageSink executionMessageSink,
+			ITestFrameworkExecutionOptions executionOptions,
+			CancellationToken? cancellationToken = null)
+		{
+			if (runTestCases is not null)
+				await runTestCases(testCases, executionMessageSink, executionOptions, cancellationToken);
+		}
+	}
 }
-
-#endif

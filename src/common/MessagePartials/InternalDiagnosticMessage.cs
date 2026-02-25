@@ -9,9 +9,11 @@ namespace Xunit.v3;
 /// <summary>
 /// Default implementation of <see cref="IInternalDiagnosticMessage"/>.
 /// </summary>
-[JsonTypeID("internal-diagnostic")]
+[JsonTypeID(TypeID)]
 sealed partial class InternalDiagnosticMessage : MessageSinkMessage, IInternalDiagnosticMessage
 {
+	internal const string TypeID = "internal-diagnostic";
+
 	/// <summary>
 	/// Creates a new instance of the <see cref="InternalDiagnosticMessage"/> class.
 	/// </summary>

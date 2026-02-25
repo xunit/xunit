@@ -109,8 +109,8 @@ public class TestProjectConfiguration
 	/// <summary>
 	/// The output files that should be generated from the test run. The key is
 	/// the output type, and the value is the output filename. The output type matches
-	/// the key registered with <see cref="RegisteredConsoleResultWriters"/> and/or
-	/// <see cref="RegisteredMicrosoftTestingPlatformResultWriters"/>.
+	/// the key registered with <see cref="RegisteredRunnerConfig.GetConsoleResultWriters"/> and/or
+	/// <see cref="RegisteredRunnerConfig.GetMicrosoftTestingPlatformResultWriters"/>.
 	/// </summary>
 	public Dictionary<string, string> Output { get; }
 

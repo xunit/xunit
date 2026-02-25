@@ -324,7 +324,7 @@ public class TestPlatformExecutionMessageSinkTests
 			Assert.Equal(TestData.DefaultAssemblyName, testMethod.AssemblyFullName);
 			Assert.Equal(TestData.DefaultMethodName, testMethod.MethodName);
 			Assert.Equal(TestData.DefaultTestClassNamespace, testMethod.Namespace);
-			Assert.Equivalent(TestData.DefaultMethodParameterTypes, testMethod.ParameterTypeFullNames);
+			Assert.Equal(TestData.DefaultMethodParameterTypes, testMethod.ParameterTypeFullNames);
 			Assert.Equal(TestData.DefaultMethodReturnType, testMethod.ReturnTypeFullName);
 			Assert.Equal(TestData.DefaultTestClassSimpleName, testMethod.TypeName);
 

@@ -1,3 +1,8 @@
+#pragma warning disable CA1307 // Specify StringComparison for clarity
+#pragma warning disable CA1847 // Use char literal for a single character lookup
+#pragma warning disable CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
+#pragma warning disable CA1865 // Use char overload
+
 using System.Text.RegularExpressions;
 
 namespace Xunit.Runner.Common;
@@ -280,9 +285,7 @@ public static class QueryFilterParser
 
 		return (startsWith, endsWith) switch
 		{
-#pragma warning disable CA1862  // netstandard2.0 does not offer a Contains overload with StringComparison
 			(true, true) => value => value?.ToUpperInvariant().Contains(mutatedSearchString.ToUpperInvariant()) == true,
-#pragma warning restore CA1862
 			(true, false) => value => value?.StartsWith(mutatedSearchString, StringComparison.OrdinalIgnoreCase) == true,
 			(false, true) => value => value?.EndsWith(mutatedSearchString, StringComparison.OrdinalIgnoreCase) == true,
 			_ => value => value?.Equals(mutatedSearchString, StringComparison.OrdinalIgnoreCase) == true,

@@ -1,4 +1,3 @@
-using NSubstitute;
 using Xunit;
 using Xunit.Sdk;
 
@@ -52,45 +51,42 @@ public class DisposalTrackerTests
 		public async ValueTask NoExceptions_DoesNotThrow()
 		{
 			var classUnderTest = new DisposalTracker();
-			var obj = Substitute.For<IDisposable, InterfaceProxy<IDisposable>>();
+			var obj = new SpyDisposable();
 			classUnderTest.Add(obj);
 
 			var ex = await Record.ExceptionAsync(async () => await classUnderTest.DisposeAsync());
 
 			Assert.Null(ex);
-			obj.Received().Dispose();
+			Assert.Equal(1, obj.DisposeCalled);
 		}
 
 		[Fact]
 		public async ValueTask SingleException_CleansUpAllObjects_ThrowsTheSingleException()
 		{
 			var classUnderTest = new DisposalTracker();
-			var obj1 = Substitute.For<IDisposable, InterfaceProxy<IDisposable>>();
+			var obj1 = new SpyDisposable();
 			classUnderTest.Add(obj1);
 			var thrown = new DivideByZeroException();
-			var obj2 = Substitute.For<IDisposable, InterfaceProxy<IDisposable>>();
-			obj2.When(x => x.Dispose()).Throw(thrown);
+			var obj2 = new SpyDisposable { DisposeException = thrown };
 			classUnderTest.Add(obj2);
-			var obj3 = Substitute.For<IDisposable, InterfaceProxy<IDisposable>>();
+			var obj3 = new SpyDisposable();
 			classUnderTest.Add(obj3);
 
 			var ex = await Record.ExceptionAsync(async () => await classUnderTest.DisposeAsync());
 
 			Assert.Same(thrown, ex);
-			obj1.Received().Dispose();
-			obj2.Received().Dispose();
-			obj3.Received().Dispose();
+			Assert.Equal(1, obj1.DisposeCalled);
+			Assert.Equal(1, obj2.DisposeCalled);
+			Assert.Equal(1, obj3.DisposeCalled);
 		}
 
 		[Fact]
 		public async ValueTask MultipleExceptions_ThrowsAggregateException()
 		{
 			var classUnderTest = new DisposalTracker();
-			var obj1 = Substitute.For<IDisposable, InterfaceProxy<IDisposable>>();
-			obj1.When(x => x.Dispose()).Throw<DivideByZeroException>();
+			var obj1 = new SpyDisposable { DisposeException = new DivideByZeroException() };
 			classUnderTest.Add(obj1);
-			var obj2 = Substitute.For<IDisposable, InterfaceProxy<IDisposable>>();
-			obj2.When(x => x.Dispose()).Throw<InvalidOperationException>();
+			var obj2 = new SpyDisposable { DisposeException = new InvalidOperationException() };
 			classUnderTest.Add(obj2);
 
 			var ex = await Record.ExceptionAsync(async () => await classUnderTest.DisposeAsync());
@@ -171,13 +167,13 @@ public class DisposalTrackerTests
 		[Fact]
 		public void TrackedObjectsReturnsReverseOrder()
 		{
-			var obj1 = Substitute.For<IDisposable, InterfaceProxy<IDisposable>>();
+			var obj1 = new SpyDisposable();
 			classUnderTest.Add(obj1);
-			var obj2 = Substitute.For<IAsyncDisposable, InterfaceProxy<IAsyncDisposable>>();
+			var obj2 = new SpyAsyncDisposable();
 			classUnderTest.Add(obj2);
-			var obj3 = Substitute.For<IDisposable, InterfaceProxy<IDisposable>>();
+			var obj3 = new SpyDisposable();
 			classUnderTest.Add(obj3);
-			var obj4 = Substitute.For<IAsyncDisposable, InterfaceProxy<IAsyncDisposable>>();
+			var obj4 = new SpyAsyncDisposable();
 			classUnderTest.Add(obj4);
 
 			var trackedObjects = classUnderTest.TrackedObjects;
@@ -289,7 +285,7 @@ public class DisposalTrackerTests
 	public class WithAsyncDisposable
 	{
 		readonly DisposalTracker classUnderTest = new();
-		readonly IAsyncDisposable expected = Substitute.For<IAsyncDisposable, InterfaceProxy<IAsyncDisposable>>();
+		readonly SpyAsyncDisposable expected = new();
 
 		public WithAsyncDisposable() =>
 			classUnderTest.Add(expected);
@@ -309,16 +305,14 @@ public class DisposalTrackerTests
 		{
 			await classUnderTest.DisposeAsync();
 
-#pragma warning disable CA2012 // Use ValueTasks correctly
-			_ = expected.Received().DisposeAsync();
-#pragma warning restore CA2012 // Use ValueTasks correctly
+			Assert.Equal(1, expected.DisposeAsyncCalled);
 		}
 	}
 
 	public class WithDisposable
 	{
 		readonly DisposalTracker classUnderTest = new();
-		readonly IDisposable expected = Substitute.For<IDisposable, InterfaceProxy<IDisposable>>();
+		readonly SpyDisposable expected = new();
 
 		public WithDisposable() =>
 			classUnderTest.Add(expected);
@@ -338,7 +332,7 @@ public class DisposalTrackerTests
 		{
 			await classUnderTest.DisposeAsync();
 
-			expected.Received().Dispose();
+			Assert.Equal(1, expected.DisposeCalled);
 		}
 	}
 

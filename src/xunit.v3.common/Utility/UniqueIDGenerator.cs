@@ -7,7 +7,7 @@ namespace Xunit.Sdk;
 /// Generates unique IDs from multiple string inputs. Used to compute the unique
 /// IDs that are used inside the test framework.
 /// </summary>
-public sealed class UniqueIDGenerator : IDisposable
+public sealed partial class UniqueIDGenerator : IDisposable
 {
 	bool disposed;
 	readonly HashAlgorithm hasher;
@@ -90,17 +90,26 @@ public sealed class UniqueIDGenerator : IDisposable
 	{
 		Guard.ArgumentNotNull(assemblyPath);
 
+#if !XUNIT_GENERATOR  // Source generators don't support .uniqueid files
+
 		var assemblyFolder = Path.GetDirectoryName(assemblyPath);
 		if (Directory.Exists(assemblyFolder))
 		{
-			var uniqueIDPath = Path.Combine(assemblyFolder, Path.GetFileNameWithoutExtension(assemblyPath) + ".uniqueid");
+			var assemblyFileName =
+				assemblyPath.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) || assemblyPath.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)
+					? Path.GetFileNameWithoutExtension(assemblyPath)
+					: Path.GetFileName(assemblyPath);
+
+			var uniqueIDPath = Path.Combine(assemblyFolder, assemblyFileName + ".uniqueid");
 			if (File.Exists(uniqueIDPath))
 			{
-				var uniqueID = File.ReadAllLines(uniqueIDPath).Select(l => l.Trim()).Where(l => l.Length > 0).FirstOrDefault();
+				var uniqueID = File.ReadAllLines(uniqueIDPath).Select(l => l.Trim()).FirstOrDefault(l => l.Length > 0);
 				if (uniqueID is not null && uniqueID.Length != 0)
 					return uniqueID;
 			}
 		}
+
+#endif  // !XUNIT_GENERATOR
 
 		using var generator = new UniqueIDGenerator();
 		generator.Add(assemblyPath);
@@ -132,26 +141,20 @@ public sealed class UniqueIDGenerator : IDisposable
 	/// <param name="parentUniqueID">The unique ID of the parent in the hierarchy; typically the test method
 	/// unique ID, but may also be the test class or test collection unique ID, when test method (and
 	/// possibly test class) don't exist.</param>
-	/// <param name="testMethodGenericTypes">The test method's generic types</param>
-	/// <param name="testMethodArguments">The test method's arguments</param>
+	/// <param name="index">The index of this test case</param>
 	/// <returns>The computed unique ID for the test case</returns>
+	/// <remarks>This overload is typically used for Native AOT or other circumstances where the reflection-based
+	/// overload is not supported/supportable.</remarks>
 	public static string ForTestCase(
 		string parentUniqueID,
-		Type[]? testMethodGenericTypes,
-		object?[]? testMethodArguments)
+		int index = 0)
 	{
 		Guard.ArgumentNotNull(parentUniqueID);
 
 		using var generator = new UniqueIDGenerator();
 
 		generator.Add(parentUniqueID);
-
-		if (testMethodArguments is not null)
-			generator.Add(SerializationHelper.Instance.Serialize(testMethodArguments));
-
-		if (testMethodGenericTypes is not null)
-			for (var idx = 0; idx < testMethodGenericTypes.Length; idx++)
-				generator.Add(testMethodGenericTypes[idx].SafeName());
+		generator.Add(index.ToString(CultureInfo.InvariantCulture));
 
 		return generator.Compute();
 	}
@@ -236,7 +239,7 @@ public sealed class UniqueIDGenerator : IDisposable
 		// Assembly name may include some parts that are less stable, so for now, split on comma
 		var assemblyParts = type.Assembly.FullName.Split(',');
 		generator.Add(assemblyParts[0]);
-		generator.Add(type.SafeName());
+		generator.Add(type.FullName ?? type.Name);
 		return generator.Compute();
 	}
 

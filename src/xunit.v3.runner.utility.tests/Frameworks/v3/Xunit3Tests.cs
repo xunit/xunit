@@ -58,7 +58,7 @@ public class Xunit3Tests
 	{
 		await using var xunit3 = Xunit3.ForDiscoveryAndExecution(Assembly);
 
-		Assert.Throws<ArgumentNullException>("messageSink", () => xunit3.Run(null!, new FrontControllerRunSettings(ExecutionOptions, [])));
+		Assert.Throws<ArgumentNullException>("messageSink", () => xunit3.Run(null!, FrontControllerRunSettings.WithTestCaseIDs(ExecutionOptions, [])));
 		Assert.Throws<ArgumentNullException>("settings", () => xunit3.Run(SpyMessageSink.Capture(), null!));
 	}
 
@@ -69,13 +69,15 @@ public class Xunit3Tests
 			Assembly.ConfigFileName
 		);
 
-		await using var xunit3 = Xunit3.ForDiscoveryAndExecution(Assembly, testProcessLauncher: runInProcess ? InProcessTestProcessLauncher.Instance : LocalOutOfProcessTestProcessLauncher.Instance);
+		await using var xunit3 = Xunit3.ForDiscoveryAndExecution(Assembly, testProcessLauncher: GetTestProcessLauncher(runInProcess));
 
 		Assert.False(xunit3.CanUseAppDomains);
 #if NET472
 		Assert.Equal(".NETFramework,Version=v4.7.2", xunit3.TargetFramework);
 #elif NET8_0
 		Assert.Equal(".NETCoreApp,Version=v8.0", xunit3.TargetFramework);
+#elif NET9_0
+		Assert.Equal(".NETCoreApp,Version=v9.0", xunit3.TargetFramework);
 #else
 #error Unknown target framework
 #endif
@@ -85,13 +87,17 @@ public class Xunit3Tests
 
 	[Theory]
 	[InlineData(false)]
+#if !XUNIT_AOT
 	[InlineData(true)]
+#endif
 	public ValueTask GathersAssemblyInformation_Self(bool runInProcess) =>
 		GathersAssemblyInformation(runInProcess);
 
 	[Theory]
 	[InlineData(false)]
+#if !XUNIT_AOT
 	[InlineData(true)]
+#endif
 	public ValueTask GathersAssemblyInformation_Other(bool runInProcess)
 	{
 		UseAssertTests();
@@ -109,7 +115,7 @@ public class Xunit3Tests
 	{
 		Assembly.Configuration.SynchronousMessageReporting = synchronousMessageReporting;
 
-		await using var xunit3 = Xunit3.ForDiscoveryAndExecution(Assembly, testProcessLauncher: runInProcess ? InProcessTestProcessLauncher.Instance : LocalOutOfProcessTestProcessLauncher.Instance);
+		await using var xunit3 = Xunit3.ForDiscoveryAndExecution(Assembly, testProcessLauncher: GetTestProcessLauncher(runInProcess));
 
 		// Find
 		var fullyQualifiedMethodName = typeName + "." + methodName;
@@ -135,7 +141,11 @@ public class Xunit3Tests
 
 		// Run
 		var runMessageSink = SpyMessageSink<ITestAssemblyFinished>.Create();
-		xunit3.Run(runMessageSink, new FrontControllerRunSettings(ExecutionOptions, [testCase.Serialization]));
+#if XUNIT_AOT
+		xunit3.Run(runMessageSink, FrontControllerRunSettings.WithTestCaseIDs(ExecutionOptions, [testCase.UniqueID]));
+#else
+		xunit3.Run(runMessageSink, FrontControllerRunSettings.WithSerializedTestCases(ExecutionOptions, [testCase.Serialization]));
+#endif
 
 		var runFinished = runMessageSink.Finished.WaitOne(60_000);
 		Assert.True(runFinished, "Message sink did not see ITestAssemblyFinished within 60 seconds");
@@ -151,8 +161,10 @@ public class Xunit3Tests
 	[Theory]
 	[InlineData(false, false)]
 	[InlineData(false, true)]
+#if !XUNIT_AOT
 	[InlineData(true, false)]
 	[InlineData(true, true)]
+#endif
 	public ValueTask CanFindFilteredTestsAndRunThem_UsingFind_UsingRun_Self(
 		bool runInProcess,
 		bool synchronousMessageReporting) =>
@@ -161,8 +173,10 @@ public class Xunit3Tests
 	[Theory]
 	[InlineData(false, false)]
 	[InlineData(false, true)]
+#if !XUNIT_AOT
 	[InlineData(true, false)]
 	[InlineData(true, true)]
+#endif
 	public ValueTask CanFindFilteredTestsAndRunThem_UsingFind_UsingRun_Other(
 		bool runInProcess,
 		bool synchronousMessageReporting)
@@ -182,7 +196,7 @@ public class Xunit3Tests
 
 		var fullyQualifiedMethodName = typeName + "." + methodName;
 
-		await using var xunit3 = Xunit3.ForDiscoveryAndExecution(Assembly, testProcessLauncher: runInProcess ? InProcessTestProcessLauncher.Instance : LocalOutOfProcessTestProcessLauncher.Instance);
+		await using var xunit3 = Xunit3.ForDiscoveryAndExecution(Assembly, testProcessLauncher: GetTestProcessLauncher(runInProcess));
 		var filters = new XunitFilters();
 		filters.AddIncludedMethodFilter(fullyQualifiedMethodName);
 		var messageSink = SpyMessageSink<ITestAssemblyFinished>.Create();
@@ -203,8 +217,10 @@ public class Xunit3Tests
 	[Theory]
 	[InlineData(false, false)]
 	[InlineData(false, true)]
+#if !XUNIT_AOT
 	[InlineData(true, false)]
 	[InlineData(true, true)]
+#endif
 	public ValueTask CanFindFilteredTestsAndRunThem_UsingFindAndRun_Self(
 		bool runInProcess,
 		bool synchronousMessageReporting) =>
@@ -213,8 +229,10 @@ public class Xunit3Tests
 	[Theory]
 	[InlineData(false, false)]
 	[InlineData(false, true)]
+#if !XUNIT_AOT
 	[InlineData(true, false)]
 	[InlineData(true, true)]
+#endif
 	public ValueTask CanFindFilteredTestsAndRunThem_UsingFindAndRun_Other(
 		bool runInProcess,
 		bool synchronousMessageReporting)
@@ -223,4 +241,13 @@ public class Xunit3Tests
 
 		return CanFindFilteredTestsAndRunThem_UsingFindAndRun(runInProcess, synchronousMessageReporting, "BooleanAssertsTests+True", "AssertTrue");
 	}
+
+	static ITestProcessLauncher GetTestProcessLauncher(bool runInProcess) =>
+		runInProcess
+#if XUNIT_AOT
+			? throw new NotSupportedException("Native AOT does not support in-process testing")
+#else
+			? InProcessTestProcessLauncher.Instance
+#endif
+			: LocalOutOfProcessTestProcessLauncher.Instance;
 }

@@ -1,4 +1,6 @@
+#if !XUNIT_AOT
 using System.Runtime.Serialization;
+#endif
 
 // This lives in Xunit.Sdk instead of Xunit.v3 because our message filter will only simplify exception
 // names in the "Xunit.Sdk" namespace. See ExceptionUtility.GetMessage for more information.
@@ -9,7 +11,9 @@ namespace Xunit.Sdk;
 /// means there were problems identifying the correct test class constructor, problems creating the
 /// fixture data, etc.
 /// </summary>
+#if !XUNIT_AOT
 [Serializable]
+#endif
 public class TestPipelineException : Exception
 {
 	/// <summary>
@@ -31,10 +35,12 @@ public class TestPipelineException : Exception
 			: base(message, innerException)
 	{ }
 
+#if !XUNIT_AOT
 	/// <inheritdoc/>
 	protected TestPipelineException(
 		SerializationInfo info,
 		StreamingContext context)
 			: base(info, context)
 	{ }
+#endif
 }

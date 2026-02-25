@@ -50,7 +50,7 @@
   <Target
       Name="ILRepack"
       AfterTargets="Build"
-      Condition=" '$(TargetFramework)' != '' AND '$(RunILRepack)' == 'true' ">
+      Condition=" '$(TargetFramework)' != '' AND '$(RunILRepack)' == 'true' AND '$(PublishAot)' != 'true' ">
     <PropertyGroup>
       <OutputAssembly>$([System.IO.Path]::Combine($(TargetDir), "merged", "$(TargetFileName)"))</OutputAssembly>
     </PropertyGroup>

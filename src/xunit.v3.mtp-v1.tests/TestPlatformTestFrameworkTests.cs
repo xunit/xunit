@@ -2,7 +2,6 @@ using System.Reflection;
 using Microsoft.Testing.Platform.Extensions.Messages;
 using Microsoft.Testing.Platform.Requests;
 using Microsoft.Testing.Platform.TestHost;
-using NSubstitute;
 using Xunit;
 using Xunit.MicrosoftTestingPlatform;
 using Xunit.Runner.Common;
@@ -145,7 +144,7 @@ public class TestPlatformTestFrameworkTests
 			var messageBus = new SpyTestPlatformMessageBus();
 			var framework = TestableTestPlatformTestFramework.Create();
 			await framework.CreateTestSession(uid);
-			var filter = Substitute.For<ITestExecutionFilter, InterfaceProxy<ITestExecutionFilter>>();
+			var filter = new StubTestExecutionFilter();
 
 			var ex = await Record.ExceptionAsync(async () => await framework.OnDiscover(uid, filter, messageBus, () => completionCalled = true, CancellationToken.None));
 
@@ -163,7 +162,7 @@ public class TestPlatformTestFrameworkTests
 			var messageBus = new SpyTestPlatformMessageBus();
 			var framework = TestableTestPlatformTestFramework.Create();
 			await framework.CreateTestSession(uid);
-			var filter = Substitute.For<ITestExecutionFilter, InterfaceProxy<ITestExecutionFilter>>();
+			var filter = new StubTestExecutionFilter();
 
 			var ex = await Record.ExceptionAsync(async () => await framework.OnExecute(uid, filter, messageBus, () => completionCalled = true, CancellationToken.None));
 
@@ -262,7 +261,12 @@ public class TestPlatformTestFrameworkTests
 		{
 			var testAssembly = typeof(TestPlatformTestFrameworkTests).Assembly;
 			var assemblyMetadata = new AssemblyMetadata(3, "TargetFramework/1.0");
-			var projectAssembly = new XunitProjectAssembly(new XunitProject(), testAssembly.Location, assemblyMetadata) { Assembly = testAssembly };
+#if XUNIT_AOT
+			var testAssemblyLocation = Path.Combine(AppContext.BaseDirectory, testAssembly.GetName().Name + ".dll").FindTestAssembly();
+#else
+			var testAssemblyLocation = testAssembly.Location;
+#endif
+			var projectAssembly = new XunitProjectAssembly(new XunitProject(), testAssemblyLocation, assemblyMetadata) { Assembly = testAssembly };
 			var trxCapability = new XunitTrxCapability();
 
 			return new TestableTestPlatformTestFramework(

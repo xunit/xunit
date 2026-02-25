@@ -42,7 +42,11 @@ public static class ConfigReader_Json
 		if (string.IsNullOrWhiteSpace(assemblyFileName))
 			return false;
 
-		var assemblyName = Path.GetFileNameWithoutExtension(assemblyFileName);
+		var assemblyName =
+			assemblyFileName.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) || assemblyFileName.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)
+				? Path.GetFileNameWithoutExtension(assemblyFileName)
+				: Path.GetFileName(assemblyFileName);
+
 		var directoryName = Path.GetDirectoryName(assemblyFileName)!;
 
 		// {assembly}.xunit.runner.json takes priority over xunit.runner.json

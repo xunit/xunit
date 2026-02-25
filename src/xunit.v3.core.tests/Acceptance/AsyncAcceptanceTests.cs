@@ -1,64 +1,25 @@
-using System.Reflection;
 using System.Security.Principal;
 using Xunit;
 using Xunit.Sdk;
 using Xunit.v3;
 
-public class AsyncAcceptanceTests : AcceptanceTestV3
+#if !XUNIT_AOT
+using System.Reflection;
+#endif
+
+public partial class AsyncAcceptanceTests
 {
-	[Theory]
-	[InlineData(typeof(ClassWithAsyncValueTask))]
-	[InlineData(typeof(ClassWithAsyncTask))]
-	public async ValueTask AsyncTestsRunCorrectly(Type classUnderTest)
+	public class AsyncLocalUsage
 	{
-		var results = await RunAsync<ITestFailed>(classUnderTest);
+		static readonly AsyncLocal<int> asyncLocal = new();
 
-		var failed = Assert.Single(results);
-		Assert.Equal(typeof(EqualException).FullName, failed.ExceptionTypes.Single());
-	}
+		public AsyncLocalUsage() =>
+			asyncLocal.Value = 42;
 
-	class ClassWithAsyncValueTask
-	{
+		// https://github.com/xunit/xunit/issues/3033
 		[Fact]
-		public async ValueTask AsyncTest()
-		{
-			var result = await Task.FromResult(21);
-
-			Assert.Equal(42, result);
-		}
-	}
-
-	class ClassWithAsyncTask
-	{
-		[Fact]
-		public async Task AsyncTest()
-		{
-			var result = await Task.FromResult(21);
-
-			Assert.Equal(42, result);
-		}
-	}
-
-	// https://github.com/xunit/xunit/issues/3153
-	[Fact]
-	public async ValueTask AsyncMethodWhichThrowsTaskCancelledException()
-	{
-		var results = await RunForResultsAsync(typeof(ClassWithTaskCancelledException));
-
-		var failed = Assert.Single(results.OfType<TestFailedWithDisplayName>());
-		Assert.Equal($"{typeof(ClassWithTaskCancelledException).FullName}.{nameof(ClassWithTaskCancelledException.TestMethod)}", failed.TestDisplayName);
-		var exception = Assert.Single(failed.ExceptionTypes);
-		Assert.Equal(typeof(TaskCanceledException).FullName, exception);
-	}
-
-	class ClassWithTaskCancelledException
-	{
-		[Fact]
-		public async Task TestMethod()
-		{
-			await Task.Yield();
-			throw new TaskCanceledException("manually throwing");
-		}
+		public void Test() =>
+			Assert.Equal(42, asyncLocal.Value);
 	}
 
 	public sealed class CustomSynchronizationContext : IDisposable
@@ -84,44 +45,79 @@ public class AsyncAcceptanceTests : AcceptanceTestV3
 		}
 	}
 
-	public class AsyncLocalUsage
-	{
-		static readonly AsyncLocal<int> asyncLocal = new();
-
-		public AsyncLocalUsage() =>
-			asyncLocal.Value = 42;
-
-		// https://github.com/xunit/xunit/issues/3033
-		[Fact]
-		public void Test() =>
-			Assert.Equal(42, asyncLocal.Value);
-	}
-
 	[PrincipalBeforeAfter]
 	public class PrincipalUsage
 	{
 		[Fact]
 		public void Test() =>
 			Assert.Equal("xUnit", Thread.CurrentPrincipal?.Identity?.Name);
+
+		public class PrincipalBeforeAfterAttribute : BeforeAfterTestAttribute
+		{
+			IPrincipal? originalPrincipal;
+
+#if XUNIT_AOT
+			public override void After(ICodeGenTest test)
+#else
+			public override void After(
+				MethodInfo methodUnderTest,
+				IXunitTest test)
+#endif
+			{
+				if (originalPrincipal is not null)
+					Thread.CurrentPrincipal = originalPrincipal;
+			}
+
+#if XUNIT_AOT
+			public override void Before(ICodeGenTest test)
+#else
+			public override void Before(
+				MethodInfo methodUnderTest,
+				IXunitTest test)
+#endif
+			{
+				originalPrincipal = Thread.CurrentPrincipal;
+
+				var identity = new GenericIdentity("xUnit");
+				var principal = new GenericPrincipal(identity, ["role1"]);
+				Thread.CurrentPrincipal = principal;
+			}
+		}
 	}
 
-	public class PrincipalBeforeAfterAttribute : BeforeAfterTestAttribute
+	public partial class Tasks : AcceptanceTestV3
 	{
-		IPrincipal? originalPrincipal;
-
-		public override void After(MethodInfo methodUnderTest, IXunitTest test)
+		[Theory]
+#if XUNIT_AOT
+		[InlineData("AsyncAcceptanceTests+Tasks+ClassWithAsyncValueTask")]
+		[InlineData("AsyncAcceptanceTests+Tasks+ClassWithAsyncTask")]
+		public async ValueTask AsyncTestsRunCorrectly(string classUnderTest)
+#else
+		[InlineData(typeof(ClassWithAsyncValueTask))]
+		[InlineData(typeof(ClassWithAsyncTask))]
+		public async ValueTask AsyncTestsRunCorrectly(Type classUnderTest)
+#endif
 		{
-			if (originalPrincipal is not null)
-				Thread.CurrentPrincipal = originalPrincipal;
+			var results = await RunAsync<ITestFailed>(classUnderTest);
+
+			var failed = Assert.Single(results);
+			Assert.Equal(typeof(EqualException).FullName, failed.ExceptionTypes.Single());
 		}
 
-		public override void Before(MethodInfo methodUnderTest, IXunitTest test)
+		// https://github.com/xunit/xunit/issues/3153
+		[Fact]
+		public async ValueTask AsyncMethodWhichThrowsTaskCancelledException()
 		{
-			originalPrincipal = Thread.CurrentPrincipal;
+#if XUNIT_AOT
+			var results = await RunForResultsAsync("AsyncAcceptanceTests+Tasks+ClassWithTaskCancelledException");
+#else
+			var results = await RunForResultsAsync(typeof(ClassWithTaskCancelledException));
+#endif
 
-			var identity = new GenericIdentity("xUnit");
-			var principal = new GenericPrincipal(identity, ["role1"]);
-			Thread.CurrentPrincipal = principal;
+			var failed = Assert.Single(results.OfType<TestFailedWithMetadata>());
+			Assert.Equal("AsyncAcceptanceTests+Tasks+ClassWithTaskCancelledException.TestMethod", failed.Test.TestDisplayName);
+			var exception = Assert.Single(failed.ExceptionTypes);
+			Assert.Equal(typeof(TaskCanceledException).FullName, exception);
 		}
 	}
 }

@@ -39,6 +39,17 @@
   </Folder>
   <Folder Name="/src/aot/">
     <Project Path="src/xunit.v3.assert.aot/xunit.v3.assert.aot.csproj" />
+    <Project Path="src/xunit.v3.common.aot/xunit.v3.common.aot.csproj" />
+    <Project Path="src/xunit.v3.core.aot/xunit.v3.core.aot.csproj">
+      <BuildDependency Project="src/xunit.v3.core/xunit.v3.core.csproj" />
+    </Project>
+    <Project Path="src/xunit.v3.core.aot.generators/xunit.v3.core.aot.generators.csproj" />
+    <Project Path="src/xunit.v3.mtp-v2.aot/xunit.v3.mtp-v2.aot.csproj" />
+    <Project Path="src/xunit.v3.runner.common.aot/xunit.v3.runner.common.aot.csproj" />
+    <Project Path="src/xunit.v3.runner.common.aot.generators/xunit.v3.runner.common.aot.generators.csproj" />
+    <Project Path="src/xunit.v3.runner.console.aot/xunit.v3.runner.console.aot.csproj" />
+    <Project Path="src/xunit.v3.runner.inproc.console.aot/xunit.v3.runner.inproc.console.aot.csproj" />
+    <Project Path="src/xunit.v3.runner.utility.aot/xunit.v3.runner.utility.aot.csproj" />
   </Folder>
   <Folder Name="/src/assert-compat/">
     <File Path="src/xunit.v3.assert.compat/Directory.Build.props" />
@@ -65,7 +76,17 @@
     </Project>
   </Folder>
   <Folder Name="/test/aot/">
+    <Project Path="src/xunit.v3.acceptance.aot.tests/xunit.v3.acceptance.aot.tests.csproj" />
     <Project Path="src/xunit.v3.assert.aot.tests/xunit.v3.assert.aot.tests.csproj" />
+    <Project Path="src/xunit.v3.common.aot.tests/xunit.v3.common.aot.tests.csproj" />
+    <Project Path="src/xunit.v3.core.aot.tests/xunit.v3.core.aot.tests.csproj">
+      <BuildDependency Project="src/xunit.v3.acceptance.aot.tests/xunit.v3.acceptance.aot.tests.csproj" />
+    </Project>
+    <Project Path="src/xunit.v3.mtp-v2.aot.tests/xunit.v3.mtp-v2.aot.tests.csproj" />
+    <Project Path="src/xunit.v3.runner.common.aot.tests/xunit.v3.runner.common.aot.tests.csproj" />
+    <Project Path="src/xunit.v3.runner.console.aot.tests/xunit.v3.runner.console.aot.tests.csproj" />
+    <Project Path="src/xunit.v3.runner.inproc.console.aot.tests/xunit.v3.runner.inproc.console.aot.tests.csproj" />
+    <Project Path="src/xunit.v3.runner.utility.aot.tests/xunit.v3.runner.utility.aot.tests.csproj" />
   </Folder>
   <Folder Name="/test/back-compat/">
     <Project Path="src/xunit.v1.tests/xunit.v1.tests.csproj" />

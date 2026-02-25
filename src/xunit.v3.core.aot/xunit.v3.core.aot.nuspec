@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package>
+	<metadata>
+		<id>xunit.v3.core.aot</id>
+		<version>$PackageVersion$</version>
+		<title>xUnit.net v3 [Core Unit Testing Framework (Native AOT compatible)]</title>
+		<authors>jnewkirk,bradwilson</authors>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<license type="expression">Apache-2.0</license>
+		<licenseUrl>https://licenses.nuget.org/Apache-2.0</licenseUrl>
+		<icon>_content/logo-128-transparent.png</icon>
+		<readme>_content/README.md</readme>
+		<releaseNotes>https://xunit.net/releases/v3/$PackageVersion$</releaseNotes>
+		<description>Includes the core library (xunit.v3.core.aot.dll), to be used for writing tests; extensibility authors should include xunit.v3.extensibility.core.aot instead. Includes support for Microsoft.Testing.Platform v2. Supports .NET 8 or later.
+
+Installing this package installs xunit.v3.core.aot.mtp-v2.</description>
+		<copyright>Copyright (C) .NET Foundation</copyright>
+		<repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
+		<dependencies>
+			<group targetFramework="net8.0">
+				<dependency id="xunit.v3.core.aot.mtp-v2" version="[$PackageVersion$]" />
+			</group>
+		</dependencies>
+	</metadata>
+	<files>
+		<file target="_content\" src="..\..\tools\media\logo-128-transparent.png" />
+		<file target="_content\README.md" src="obj\xunit.v3.core.aot.README.md" />
+
+		<file target="lib\net8.0\_._" src="..\build\_._" />
+	</files>
+</package>

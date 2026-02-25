@@ -37,5 +37,5 @@ public class TestMethodComparer<TTestMethod> : IEqualityComparer<TTestMethod?>, 
 
 	/// <inheritdoc/>
 	public int GetHashCode(TTestMethod? obj) =>
-		obj is null ? 0 : obj.MethodName.GetHashCode();
+		obj is null ? 0 : obj.MethodName.GetHashCodeOrdinal();
 }

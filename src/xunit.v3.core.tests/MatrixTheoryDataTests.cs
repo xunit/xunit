@@ -1,7 +1,7 @@
 using Xunit;
 using Xunit.Sdk;
 
-public class MatrixTheoryDataTests : AcceptanceTestV3
+public partial class MatrixTheoryDataTests : AcceptanceTestV3
 {
 	[Fact]
 	public void GuardClauses()
@@ -20,7 +20,11 @@ public class MatrixTheoryDataTests : AcceptanceTestV3
 	[Fact]
 	public async ValueTask InvokesTestsForDataMatrix()
 	{
+#if XUNIT_AOT
+		var messages = await RunAsync("MatrixTheoryDataTests+SampleUsage");
+#else
 		var messages = await RunAsync(typeof(SampleUsage));
+#endif
 
 		Assert.Collection(
 			messages.OfType<ITestPassed>().Select(passed => messages.OfType<ITestStarting>().Single(ts => ts.TestUniqueID == passed.TestUniqueID).TestDisplayName).OrderBy(x => x),
@@ -34,19 +38,5 @@ public class MatrixTheoryDataTests : AcceptanceTestV3
 			displayName => Assert.Equal("MatrixTheoryDataTests+SampleUsage.MyTestMethod(x: \"world!\", y: 42)", displayName),
 			displayName => Assert.Equal("MatrixTheoryDataTests+SampleUsage.MyTestMethod(x: \"world!\", y: 5)", displayName)
 		);
-	}
-
-	class SampleUsage
-	{
-		public static int[] Numbers = [42, 5, 6];
-		public static string[] Strings = ["Hello", "world!"];
-		public static MatrixTheoryData<string, int> MatrixData = new(Strings, Numbers);
-
-		[Theory]
-		[MemberData(nameof(MatrixData))]
-		public void MyTestMethod(string x, int y)
-		{
-			Assert.Equal(y, x.Length);
-		}
 	}
 }

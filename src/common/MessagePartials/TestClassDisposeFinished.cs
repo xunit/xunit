@@ -9,6 +9,8 @@ namespace Xunit.v3;
 /// <summary>
 /// Default implementation of <see cref="ITestClassDisposeFinished"/>.
 /// </summary>
-[JsonTypeID("test-class-dispose-finished")]
+[JsonTypeID(TypeID)]
 sealed partial class TestClassDisposeFinished : TestMessage, ITestClassDisposeFinished
-{ }
+{
+	internal const string TypeID = "test-class-dispose-finished";
+}

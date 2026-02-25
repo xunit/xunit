@@ -27,6 +27,8 @@ public static class TestMTP
 		if (context.TestFramework != Framework.NetFx)
 		{
 			testAssemblies.AddRange(FindTestAssemblies(context, "xunit.v3.*.tests.dll", "net8.0", x86: false));
+			testAssemblies.AddRange(FindTestAssemblies(context, "xunit.v3.*.tests.dll", "net9.0", x86: false));
+			testAssemblies.AddRange(FindTestAssemblies(context, "xunit.v3.*.tests.dll", "net10.0", x86: false));
 			if (!context.NoX86 && !noNetCoreX86)
 				testAssemblies.AddRange(FindTestAssemblies(context, "xunit.v3.*.tests.dll", "net8.0", x86: true));
 		}
@@ -37,6 +39,8 @@ public static class TestMTP
 			if (!context.NoX86 && !noNetCoreX86)
 				testAssemblies.AddRange(FindTestAssemblies(context, "xunit.v3.*.tests.exe", "net472", x86: true));
 		}
+
+		testAssemblies.RemoveAll(a => a.assembly.Contains(".acceptance."));
 
 		foreach (var (testAssembly, x86, framework) in testAssemblies)
 		{
@@ -93,7 +97,7 @@ public static class TestMTP
 		return
 			Directory
 				.GetFiles(context.BaseFolder, pattern, SearchOption.AllDirectories)
-				.Where(x => x.Contains(binSubPath) && !x.Contains(refSubPath) && (x.Contains(".x86") == x86))
+				.Where(x => Path.GetDirectoryName(x)?.EndsWith(binSubPath) == true && !x.Contains(refSubPath) && (x.Contains(".x86") == x86))
 				.OrderBy(x => x)
 				.Select(x => (x.Substring(context.BaseFolder.Length + 1), x86, framework));
 	}

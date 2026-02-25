@@ -1,3 +1,5 @@
+#pragma warning disable CA1846 // Prefer 'AsSpan' over 'Substring'
+
 namespace Xunit.Runner.Common;
 
 /// <summary>

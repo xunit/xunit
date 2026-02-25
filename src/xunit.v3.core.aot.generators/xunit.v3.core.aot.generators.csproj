@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);XUNIT_GENERATOR_CORE</DefineConstants>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\xunit.v3.common\Internal\DictionaryExtensions.cs" LinkBase="Common" />
+    <Compile Include="..\xunit.v3.common\Utility\UniqueIDGenerator.cs" LinkBase="Common" />
+    <Compile Include="..\xunit.v3.core.aot\Configuration\CodeGenTestClassRegistration_aot.cs" LinkBase="Common" />
+    <Compile Include="..\xunit.v3.core.aot\Configuration\CodeGenTestCollectionRegistration_aot.cs" LinkBase="Common" />
+    <Compile Include="..\xunit.v3.core.aot\Configuration\CodeGenTestMethodRegistration_aot.cs" LinkBase="Common" />
+  </ItemGroup>
+
+</Project>

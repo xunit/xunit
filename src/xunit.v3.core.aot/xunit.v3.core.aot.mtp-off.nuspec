@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package>
+	<metadata>
+		<id>xunit.v3.core.aot.mtp-off</id>
+		<version>$PackageVersion$</version>
+		<title>xUnit.net v3 [Core Unit Testing Framework (Native AOT compatible)]</title>
+		<authors>jnewkirk,bradwilson</authors>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<license type="expression">Apache-2.0</license>
+		<licenseUrl>https://licenses.nuget.org/Apache-2.0</licenseUrl>
+		<icon>_content/logo-128-transparent.png</icon>
+		<readme>_content/README.md</readme>
+		<releaseNotes>https://xunit.net/releases/v3/$PackageVersion$</releaseNotes>
+		<description>Includes the core library (xunit.v3.core.aot.dll), to be used for writing tests; extensibility authors should include xunit.v3.extensibility.core.aot instead. Does not support Microsoft.Testing.Platform. Supports .NET 8 or later.</description>
+		<copyright>Copyright (C) .NET Foundation</copyright>
+		<repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
+		<dependencies>
+			<group targetFramework="net8.0">
+				<dependency id="xunit.v3.extensibility.core.aot" version="[$PackageVersion$]" />
+				<dependency id="xunit.v3.runner.inproc.console.aot" version="[$PackageVersion$]" />
+			</group>
+		</dependencies>
+	</metadata>
+	<files>
+		<file target="_content\" src="..\xunit.v3.core\Package\content\*" />
+		<file target="_content\" src="..\..\tools\media\logo-128-transparent.png" />
+		<file target="_content\README.md" src="obj\xunit.v3.core.aot.mtp-off.README.md" />
+		<file target="_content\tasks\netcore\" src="..\xunit.v3.msbuildtasks\bin\$Configuration$\net8.0\$SignedPath$xunit.v3.msbuildtasks.dll" />
+		<file target="_content\tasks\netfx\" src="..\xunit.v3.msbuildtasks\bin\$Configuration$\net472\$SignedPath$xunit.v3.msbuildtasks.dll" />
+
+		<file target="analyzers\dotnet\cs\" src="..\xunit.v3.core.aot.generators\bin\$Configuration$\netstandard2.0\$SignedPath$xunit.v3.core.aot.generators.dll" />
+
+		<file target="buildTransitive\xunit.v3.core.aot.mtp-off.props" src="..\xunit.v3.core\Package\buildTransitive\xunit.v3.core.mtp-off.props" />
+		<file target="buildTransitive\xunit.v3.core.aot.mtp-off.targets" src="..\xunit.v3.core\Package\buildTransitive\xunit.v3.core.mtp-off.targets" />
+
+		<file target="lib\net8.0\_._" src="..\build\_._" />
+	</files>
+</package>

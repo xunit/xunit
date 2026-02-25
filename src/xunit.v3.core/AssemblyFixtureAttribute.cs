@@ -1,4 +1,8 @@
+#pragma warning disable CA1813 // This attribute is unsealed because it's an extensibility point
+
+#if !XUNIT_AOT
 using Xunit.v3;
+#endif
 
 namespace Xunit;
 
@@ -14,7 +18,10 @@ namespace Xunit;
 /// </summary>
 /// <param name="assemblyFixtureType">The assembly fixture class type</param>
 [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true, Inherited = false)]
-public sealed class AssemblyFixtureAttribute(Type assemblyFixtureType) : Attribute, IAssemblyFixtureAttribute
+public class AssemblyFixtureAttribute(Type assemblyFixtureType) : Attribute
+#if !XUNIT_AOT
+	, IAssemblyFixtureAttribute
+#endif
 {
 	/// <inheritdoc/>
 	public Type AssemblyFixtureType { get; } = assemblyFixtureType;

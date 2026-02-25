@@ -8,17 +8,12 @@ namespace Xunit.Internal;
 /// <summary>
 /// INTERNAL CLASS. DO NOT USE.
 /// </summary>
-public static class AssemblyExtensions
+public static partial class AssemblyExtensions
 {
 	/// <summary>
 	/// Gets the value for an unknown target framework.
 	/// </summary>
 	public const string UnknownTargetFramework = "UnknownTargetFramework";
-
-	/// <summary/>
-	[return: NotNullIfNotNull(nameof(assembly))]
-	public static string? GetLocalCodeBase(this Assembly? assembly) =>
-		GetLocalCodeBase(assembly?.GetSafeCodeBase(), Path.DirectorySeparatorChar);
 
 	/// <summary/>
 	[return: NotNullIfNotNull(nameof(codeBase))]
@@ -50,26 +45,6 @@ public static class AssemblyExtensions
 
 		throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Unknown directory separator '{0}'; must be one of '/' or '\\'.", directorySeparator), nameof(directorySeparator));
 	}
-
-	/// <summary>
-	/// Safely gets the code base of an assembly.
-	/// </summary>
-	/// <param name="assembly">The assembly.</param>
-	/// <returns>If the assembly is null, or is dynamic, then it returns <see langword="null"/>; otherwise, it returns the value
-	/// from <see cref="Assembly.CodeBase"/>.</returns>
-	[return: NotNullIfNotNull(nameof(assembly))]
-	public static string? GetSafeCodeBase(this Assembly? assembly) =>
-		assembly?.CodeBase;
-
-	/// <summary>
-	/// Safely gets the location of an assembly.
-	/// </summary>
-	/// <param name="assembly">The assembly.</param>
-	/// <returns>If the assembly is null, or is dynamic, then it returns <see langword="null"/>; otherwise, it returns the value
-	/// from <see cref="Assembly.Location"/>.</returns>
-	[return: NotNullIfNotNull(nameof(assembly))]
-	public static string? GetSafeLocation(this Assembly? assembly) =>
-		assembly?.Location;
 
 	/// <summary>
 	/// Gets the target framework name for the given assembly.

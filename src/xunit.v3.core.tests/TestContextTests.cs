@@ -1,7 +1,10 @@
-using System.Reflection;
 using Xunit;
 using Xunit.Sdk;
 using Xunit.v3;
+
+#if !XUNIT_AOT
+using System.Reflection;
+#endif
 
 [CollectionDefinition]
 public class TestContextTestsCollection : ICollectionFixture<TestContextTests.MyCollectionFixture> { }
@@ -56,7 +59,7 @@ public sealed class TestContextTests : IClassFixture<TestContextTests.MyClassFix
 		var ex = Record.Exception(() => TestContext.Current.CancellationToken);
 
 		var odex = Assert.IsType<ObjectDisposedException>(ex);
-		Assert.Equal(nameof(TestContext), odex.ObjectName);
+		Assert.Equal(typeof(TestContext).FullName, odex.ObjectName);
 	}
 
 	[Fact]
@@ -67,7 +70,7 @@ public sealed class TestContextTests : IClassFixture<TestContextTests.MyClassFix
 		var ex = Record.Exception(() => TestContext.Current.CancelCurrentTest());
 
 		var odex = Assert.IsType<ObjectDisposedException>(ex);
-		Assert.Equal(nameof(TestContext), odex.ObjectName);
+		Assert.Equal(typeof(TestContext).FullName, odex.ObjectName);
 	}
 
 	[Fact]
@@ -154,11 +157,16 @@ public sealed class TestContextTests : IClassFixture<TestContextTests.MyClassFix
 		}
 	}
 
-	class ClearAttachmentsAttribute : BeforeAfterTestAttribute
+	internal class ClearAttachmentsAttribute : BeforeAfterTestAttribute
 	{
+#if XUNIT_AOT
+		public override void After(ICodeGenTest test) =>
+			TestContextInternal.Current.ClearAttachments();
+#else
 		public override void After(
 			MethodInfo methodUnderTest,
 			IXunitTest test) =>
 				TestContextInternal.Current.ClearAttachments();
+#endif
 	}
 }

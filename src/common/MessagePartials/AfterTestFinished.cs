@@ -9,9 +9,11 @@ namespace Xunit.v3;
 /// <summary>
 /// Default implementation of <see cref="IAfterTestFinished"/>.
 /// </summary>
-[JsonTypeID("after-test-finished")]
+[JsonTypeID(TypeID)]
 sealed partial class AfterTestFinished : TestMessage, IAfterTestFinished
 {
+	internal const string TypeID = "after-test-finished";
+
 	/// <inheritdoc/>
 	protected override void Serialize(JsonObjectSerializer serializer)
 	{

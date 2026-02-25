@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Nullable>enable</Nullable>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\common\DotNetApiPolyfills.cs" LinkBase="Common" />
+    <Compile Include="..\xunit.v3.runner.inproc.console\**\*.cs" Exclude="**\*_reflection.cs;**\obj\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\xunit.v3.core.aot\xunit.v3.core.aot.csproj" />
+    <ProjectReference Include="..\xunit.v3.runner.common.aot\xunit.v3.runner.common.aot.csproj" />
+  </ItemGroup>
+
+</Project>

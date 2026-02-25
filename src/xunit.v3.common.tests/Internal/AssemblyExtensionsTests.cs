@@ -4,6 +4,8 @@ public class AssemblyExtensionsTests
 {
 	public class GetLocalCodeBase
 	{
+#if !XUNIT_AOT
+
 		[Fact]
 		public void NullAssembly_ReturnsNull()
 		{
@@ -11,6 +13,8 @@ public class AssemblyExtensionsTests
 
 			Assert.Null(result);
 		}
+
+#endif  // !XUNIT_AOT
 
 		[Fact]
 		public void NullCodeBase_ReturnsNull()
@@ -82,6 +86,10 @@ public class AssemblyExtensionsTests
 		var expected = ".NETFramework,Version=v4.7.2";
 #elif NET8_0
 		var expected = ".NETCoreApp,Version=v8.0";
+#elif NET9_0
+		var expected = ".NETCoreApp,Version=v9.0";
+#elif NET10_0
+		var expected = ".NETCoreApp,Version=v10.0";
 #else
 #error Unknown target framework
 #endif

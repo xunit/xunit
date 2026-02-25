@@ -2,6 +2,11 @@
   "$schema": "https://json.schemastore.org/ide.host",
   "symbolInfo": [
     {
+      "id": "NativeAOT",
+      "isVisible": true,
+      "persistenceScope": "shared"
+    },
+    {
       "id": "TestRunner",
       "isVisible": true,
       "persistenceScope": "shared"

@@ -4,6 +4,7 @@ using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
 
+[Collection(typeof(CleanEnvironmentAttribute))]
 [CleanEnvironment("COMPUTERNAME", "HOSTNAME", "NAME", "HOST", "USERNAME", "LOGNAME", "USER")]
 public class TrxResultWriterMessageHandlerTests
 {
@@ -20,7 +21,7 @@ public class TrxResultWriterMessageHandlerTests
 	// macOS
 	[InlineData("HOST", "LOGNAME")]
 	[InlineData("HOST", "USER")]
-	public async ValueTask TestRunElement(
+	public static async ValueTask TestRunElement(
 		string computerEnvName,
 		string userEnvName)
 	{
@@ -77,8 +78,8 @@ public class TrxResultWriterMessageHandlerTests
 		VerifyResultSummary(testRunElement, "Completed");
 	}
 
-	[CulturedFactDefault]
-	public async ValueTask TestAssemblyStartingAndFinished_RecordsTimesAndTotals()
+	[CulturedFact(["en-US", "fr-FR"])]
+	public static async ValueTask TestAssemblyStartingAndFinished_RecordsTimesAndTotals()
 	{
 		var assemblyStarting = TestData.TestAssemblyStarting(
 			startTime: new DateTimeOffset(2013, 7, 6, 16, 24, 32, TimeSpan.Zero)
@@ -109,7 +110,7 @@ public class TrxResultWriterMessageHandlerTests
 		VerifyResultSummary(testRunElement, "Failed", failed: 42, notRun: 3, skipped: 6, passed: 2061);
 	}
 
-	[CulturedFactDefault]
+	[CulturedFact(["en-US", "fr-FR"])]
 	public async ValueTask TestPassed()
 	{
 		var assemblyFinished = TestData.TestAssemblyFinished(testsFailed: 0, testsNotRun: 0, testsSkipped: 0, testsTotal: 1);
@@ -138,7 +139,7 @@ public class TrxResultWriterMessageHandlerTests
 		VerifyResult(testRunElement, testID, "Passed");
 	}
 
-	[CulturedFactDefault]
+	[CulturedFact(["en-US", "fr-FR"])]
 	public async ValueTask TestFailed()
 	{
 		var assemblyFinished = TestData.TestAssemblyFinished(testsFailed: 1, testsNotRun: 0, testsSkipped: 0, testsTotal: 1);
@@ -221,7 +222,7 @@ public class TrxResultWriterMessageHandlerTests
 		Assert.Empty(errorInfoElement.Elements(ns + "StackTrace"));
 	}
 
-	[CulturedFactDefault]
+	[CulturedFact(["en-US", "fr-FR"])]
 	public async ValueTask TestSkipped()
 	{
 		var assemblyFinished = TestData.TestAssemblyFinished(testsFailed: 0, testsNotRun: 0, testsSkipped: 1, testsTotal: 1);
@@ -256,7 +257,7 @@ public class TrxResultWriterMessageHandlerTests
 		Assert.Equal("test output", messageElement.Value);
 	}
 
-	[CulturedFactDefault]
+	[CulturedFact(["en-US", "fr-FR"])]
 	public async ValueTask TestNotRun()
 	{
 		var assemblyFinished = TestData.TestAssemblyFinished(testsFailed: 0, testsNotRun: 1, testsSkipped: 0, testsTotal: 1);
@@ -286,7 +287,7 @@ public class TrxResultWriterMessageHandlerTests
 		VerifyResult(testRunElement, testID, "NotRunnable", expectedDuration: "00:00:00.0000000");
 	}
 
-	[CulturedFactDefault]
+	[CulturedFact(["en-US", "fr-FR"])]
 	public async ValueTask TestResult_EmptyOutput()
 	{
 		var assemblyFinished = TestData.TestAssemblyFinished();
@@ -315,7 +316,7 @@ public class TrxResultWriterMessageHandlerTests
 		Assert.Null(resultElement.Element(ns + "Output"));
 	}
 
-	[CulturedFactDefault]
+	[CulturedFact(["en-US", "fr-FR"])]
 	public async ValueTask TestResult_OutputIsSplitOnCRLFs()
 	{
 		var assemblyFinished = TestData.TestAssemblyFinished();
@@ -416,7 +417,7 @@ public class TrxResultWriterMessageHandlerTests
 
 	[Theory(DisableDiscoveryEnumeration = true)]
 	[MemberData(nameof(ErrorsData))]
-	public async ValueTask ErrorMessage(IMessageSinkMessage errorMessage)
+	public static async ValueTask ErrorMessage(IMessageSinkMessage errorMessage)
 	{
 		var assemblyFinished = TestData.TestAssemblyFinished(testsFailed: 0, testsNotRun: 0, testsSkipped: 0, testsTotal: 0);
 		var assemblyStarting = TestData.TestAssemblyStarting();
@@ -531,21 +532,13 @@ public class TrxResultWriterMessageHandlerTests
 		public async ValueTask TestMethod() { }
 	}
 
-	class TestableTrxResultWriterMessageHandler : TrxResultWriterMessageHandler
+	class TestableTrxResultWriterMessageHandler(
+		StringWriter stringWriter,
+		XmlWriter xmlWriter,
+		IFileSystem fileSystem) :
+			TrxResultWriterMessageHandler(xmlWriter, fileSystem)
 	{
-		private readonly StringWriter stringWriter;
-
-		public TestableTrxResultWriterMessageHandler(
-			StringWriter stringWriter,
-			XmlWriter xmlWriter,
-			IFileSystem fileSystem) :
-				base(xmlWriter, fileSystem)
-		{
-			this.stringWriter = stringWriter;
-			FileSystem = fileSystem;
-		}
-
-		public IFileSystem FileSystem { get; }
+		public IFileSystem FileSystem { get; } = fileSystem;
 
 		public async ValueTask<XElement> TestRunElement()
 		{

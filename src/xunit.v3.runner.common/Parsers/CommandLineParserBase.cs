@@ -1,3 +1,5 @@
+#pragma warning disable CA1865 // Use char overload
+
 using System.Reflection;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
@@ -10,30 +12,24 @@ namespace Xunit.Internal;
 public abstract class CommandLineParserBase
 {
 	readonly Dictionary<string, (CommandLineGroup Group, string? ArgumentDisplay, string[] Descriptions, Action<KeyValuePair<string, string?>> Handler)> parsers = new(StringComparer.OrdinalIgnoreCase);
-	readonly string? reporterFolder;
 	IReadOnlyList<IRunnerReporter>? runnerReporters;
 
 	/// <summary/>
 	protected CommandLineParserBase(
 		ConsoleHelper consoleHelper,
 		IReadOnlyList<IRunnerReporter>? runnerReporters,
-		string? reporterFolder,
 		string[] args)
 	{
 		this.runnerReporters = runnerReporters;
-		this.reporterFolder = reporterFolder;
 
 		var entryAssembly = Assembly.GetEntryAssembly();
 		ResultWriters =
 			entryAssembly is not null
-				? RegisteredConsoleResultWriters.Get(entryAssembly, ParseWarnings)
+				? RegisteredRunnerConfig.GetConsoleResultWriters(entryAssembly, ParseWarnings)
 				: new Dictionary<string, IConsoleResultWriter>();
 
 		ConsoleHelper = Guard.ArgumentNotNull(consoleHelper);
 		Args = GetArguments(Guard.ArgumentNotNull(args));
-
-		if (string.IsNullOrWhiteSpace(this.reporterFolder))
-			this.reporterFolder = Path.GetDirectoryName(entryAssembly?.Location);
 
 		// General options
 		AddParser(
@@ -356,9 +352,6 @@ public abstract class CommandLineParserBase
 			fileName.EndsWith(".config", StringComparison.OrdinalIgnoreCase) ||
 			fileName.EndsWith(".json", StringComparison.OrdinalIgnoreCase);
 	}
-
-	/// <summary/>
-	protected abstract Assembly LoadAssembly(string dllFile);
 
 	/// <summary/>
 	protected void OnAssertEquivalentMaxDepth(KeyValuePair<string, string?> option)

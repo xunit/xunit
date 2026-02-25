@@ -9,9 +9,11 @@ namespace Xunit.v3;
 /// <summary>
 /// Default implementation of <see cref="ITestClassStarting"/>.
 /// </summary>
-[JsonTypeID("test-class-starting")]
+[JsonTypeID(TypeID)]
 sealed partial class TestClassStarting : TestClassMessage, ITestClassStarting
 {
+	internal const string TypeID = "test-class-starting";
+
 	string ITestClassMetadata.UniqueID =>
 		this.ValidateNullablePropertyValue(TestClassUniqueID, nameof(TestClassUniqueID));
 

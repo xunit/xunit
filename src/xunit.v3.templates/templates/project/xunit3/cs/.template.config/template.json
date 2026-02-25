@@ -101,11 +101,20 @@
       "defaultValue": "false",
       "displayName": "Skip restore"
     },
+    "NativeAOT": {
+      "type": "parameter",
+      "datatype": "bool",
+      "isEnabled": "(Framework == \"net9.0\" || Framework == \"net10.0\")",
+      "description": "If specified, builds the tests for Native AOT",
+      "defaultValue": "false",
+      "displayName": "Build for Native AOT"
+    },
     "TestRunner": {
       "type": "parameter",
       "datatype": "choice",
       "defaultValue": "mtp-v2",
       "enableQuotelessLiterals": true,
+      "isEnabled": "(NativeAOT != true)",
       "displayName": "Test runner for 'dotnet test' and Test Explorer",
       "description": "Test runner for 'dotnet test' and Test Explorer",
       "choices": [
@@ -129,7 +138,7 @@
     "CommandLine": {
       "type": "parameter",
       "datatype": "choice",
-      "isEnabled": "(TestRunner != \"vstest\")",
+      "isEnabled": "(NativeAOT == true || TestRunner != \"vstest\")",
       "defaultValue": "xunit",
       "enableQuotelessLiterals": true,
       "displayName": "Command line experience for 'dotnet run'",

@@ -1,6 +1,5 @@
 #pragma warning disable CA1852  // This type is not sealed because it's derived from in unit tests
 
-using System.Reflection;
 using Xunit.Runner.Common;
 
 namespace Xunit.Internal;
@@ -15,15 +14,14 @@ public class CommandLine : CommandLineParserBase
 		ConsoleHelper consoleHelper,
 		IReadOnlyList<IRunnerReporter> reporters,
 		string[] args)
-			: base(consoleHelper, reporters, null, args) =>
+			: base(consoleHelper, reporters, args) =>
 				AddParsers();
 
 	/// <summary/>
 	public CommandLine(
 		ConsoleHelper consoleHelper,
-		string? reporterFolder,
 		string[] args)
-			: base(consoleHelper, null, reporterFolder, args) =>
+			: base(consoleHelper, null, args) =>
 				AddParsers();
 
 	void AddParsers()
@@ -84,15 +82,7 @@ public class CommandLine : CommandLineParserBase
 
 	/// <summary/>
 	protected override IReadOnlyList<IRunnerReporter> GetAvailableRunnerReporters() =>
-		RegisteredRunnerReporters.Get(typeof(CommandLine).Assembly, out _);
-
-	/// <summary/>
-	protected override Assembly LoadAssembly(string dllFile) =>
-#if NETFRAMEWORK
-		Assembly.LoadFile(dllFile);
-#else
-		Assembly.Load(new AssemblyName(Path.GetFileNameWithoutExtension(dllFile)));
-#endif
+		RegisteredRunnerConfig.GetRunnerReporters(typeof(CommandLine).Assembly, out _);
 
 	void OnAppDomains(KeyValuePair<string, string?> option)
 	{

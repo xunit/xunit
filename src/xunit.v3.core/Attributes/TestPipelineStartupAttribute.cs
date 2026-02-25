@@ -6,7 +6,10 @@ namespace Xunit.v3;
 /// </summary>
 [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = false, Inherited = false)]
 public sealed class TestPipelineStartupAttribute(Type testPipelineStartupType) :
-	Attribute, ITestPipelineStartupAttribute
+	Attribute
+#if !XUNIT_AOT
+	, ITestPipelineStartupAttribute
+#endif
 {
 	/// <inheritdoc/>
 	public Type TestPipelineStartupType { get; } = testPipelineStartupType;

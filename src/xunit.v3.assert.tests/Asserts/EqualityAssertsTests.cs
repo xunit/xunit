@@ -1955,7 +1955,7 @@ public class EqualityAssertsTests
 				Assert.Equal(expected, actual);
 			}
 
-			[CulturedFactDefault]
+			[CulturedFact(["en-US", "fr-FR"])]
 			public void NotEqual()
 			{
 				var expected = new DateTime(2023, 2, 11, 15, 4, 0);
@@ -1986,7 +1986,7 @@ public class EqualityAssertsTests
 				Assert.Equal(date2, date1, precision);  // expected later than actual
 			}
 
-			[CulturedFactDefault]
+			[CulturedFact(["en-US", "fr-FR"])]
 			public void OutOfRange()
 			{
 				var date1 = new DateTime(2023, 2, 11, 15, 4, 0);
@@ -2033,7 +2033,7 @@ public class EqualityAssertsTests
 				Assert.Equal(expected, actual);
 			}
 
-			[CulturedFactDefault]
+			[CulturedFact(["en-US", "fr-FR"])]
 			public void NotEqual()
 			{
 				var expected = new DateTimeOffset(2023, 2, 11, 15, 4, 0, TimeSpan.Zero);
@@ -2062,7 +2062,7 @@ public class EqualityAssertsTests
 				Assert.Equal(expected, actual);
 			}
 
-			[CulturedFactDefault]
+			[CulturedFact(["en-US", "fr-FR"])]
 			public void NotEqual()
 			{
 				var expected = new DateTimeOffset(2023, 2, 11, 15, 4, 0, TimeSpan.Zero);
@@ -2093,7 +2093,7 @@ public class EqualityAssertsTests
 				Assert.Equal(date2, date1, precision);  // expected later than actual
 			}
 
-			[CulturedFactDefault]
+			[CulturedFact(["en-US", "fr-FR"])]
 			public void OutOfRange()
 			{
 				var date1 = new DateTimeOffset(2023, 2, 11, 15, 4, 0, TimeSpan.Zero);
@@ -2138,7 +2138,7 @@ public class EqualityAssertsTests
 				Assert.Equal(date2, date1, precision);  // expected later than actual
 			}
 
-			[CulturedFactDefault]
+			[CulturedFact(["en-US", "fr-FR"])]
 			public void OutOfRange()
 			{
 				var date1 = new DateTimeOffset(2023, 2, 11, 15, 4, 0, TimeSpan.Zero);
@@ -2179,7 +2179,7 @@ public class EqualityAssertsTests
 			Assert.Equal(0.11111M, 0.11444M, 2);
 		}
 
-		[CulturedFactDefault]
+		[CulturedFact(["en-US", "fr-FR"])]
 		public void NotEqual()
 		{
 			var ex = Record.Exception(() => Assert.Equal(0.11111M, 0.11444M, 3));
@@ -2204,7 +2204,7 @@ public class EqualityAssertsTests
 				Assert.Equal(0.11111, 0.11444, 2);
 			}
 
-			[CulturedFactDefault]
+			[CulturedFact(["en-US", "fr-FR"])]
 			public void NotEqual()
 			{
 				var ex = Record.Exception(() => Assert.Equal(0.11111, 0.11444, 3));
@@ -2227,7 +2227,7 @@ public class EqualityAssertsTests
 				Assert.Equal(10.565, 10.566, 2, MidpointRounding.AwayFromZero);
 			}
 
-			[CulturedFactDefault]
+			[CulturedFact(["en-US", "fr-FR"])]
 			public void NotEqual()
 			{
 				var ex = Record.Exception(() => Assert.Equal(0.11113, 0.11115, 4, MidpointRounding.ToEven));
@@ -2260,7 +2260,7 @@ public class EqualityAssertsTests
 				Assert.Equal(10.566, 10.565, 0.01);
 			}
 
-			[CulturedFactDefault]
+			[CulturedFact(["en-US", "fr-FR"])]
 			public void NotEqual()
 			{
 				var ex = Record.Exception(() => Assert.Equal(0.11113, 0.11115, 0.00001));
@@ -2280,7 +2280,7 @@ public class EqualityAssertsTests
 				Assert.Equal(double.NaN, double.NaN, 1000.0);
 			}
 
-			[CulturedFactDefault]
+			[CulturedFact(["en-US", "fr-FR"])]
 			public void NaN_NotEqual()
 			{
 				var ex = Record.Exception(() => Assert.Equal(20210102.2208, double.NaN, 20000000.0));
@@ -2300,7 +2300,7 @@ public class EqualityAssertsTests
 				Assert.Equal(double.MinValue, double.MaxValue, double.PositiveInfinity);
 			}
 
-			[CulturedFactDefault]
+			[CulturedFact(["en-US", "fr-FR"])]
 			public void PositiveInfinity_NotEqual()
 			{
 				var ex = Record.Exception(() => Assert.Equal(double.PositiveInfinity, 77.7, 1.0));
@@ -2314,7 +2314,7 @@ public class EqualityAssertsTests
 				);
 			}
 
-			[CulturedFactDefault]
+			[CulturedFact(["en-US", "fr-FR"])]
 			public void NegativeInfinity_NotEqual()
 			{
 				var ex = Record.Exception(() => Assert.Equal(0.0, double.NegativeInfinity, 1.0));
@@ -2340,7 +2340,7 @@ public class EqualityAssertsTests
 				Assert.Equal(0.11111f, 0.11444f, 2);
 			}
 
-			[CulturedFactDefault]
+			[CulturedFact(["en-US", "fr-FR"])]
 			public void NotEqual()
 			{
 				var ex = Record.Exception(() => Assert.Equal(0.11111f, 0.11444f, 3));
@@ -2363,7 +2363,7 @@ public class EqualityAssertsTests
 				Assert.Equal(10.5655f, 10.5666f, 2, MidpointRounding.AwayFromZero);
 			}
 
-			[CulturedFactDefault]
+			[CulturedFact(["en-US", "fr-FR"])]
 			public void NotEqual()
 			{
 				var ex = Record.Exception(() => Assert.Equal(0.111133f, 0.111155f, 4, MidpointRounding.ToEven));
@@ -2396,7 +2396,7 @@ public class EqualityAssertsTests
 				Assert.Equal(10.569f, 10.562f, 0.01f);
 			}
 
-			[CulturedFactDefault]
+			[CulturedFact(["en-US", "fr-FR"])]
 			public void NotEqual()
 			{
 				var ex = Record.Exception(() => Assert.Equal(0.11113f, 0.11115f, 0.00001f));
@@ -2416,7 +2416,7 @@ public class EqualityAssertsTests
 				Assert.Equal(float.NaN, float.NaN, 1000.0f);
 			}
 
-			[CulturedFactDefault]
+			[CulturedFact(["en-US", "fr-FR"])]
 			public void NaN_NotEqual()
 			{
 				var ex = Record.Exception(() => Assert.Equal(20210102.2208f, float.NaN, 20000000.0f));
@@ -2436,7 +2436,7 @@ public class EqualityAssertsTests
 				Assert.Equal(float.MinValue, float.MaxValue, float.PositiveInfinity);
 			}
 
-			[CulturedFactDefault]
+			[CulturedFact(["en-US", "fr-FR"])]
 			public void PositiveInfinity_NotEqual()
 			{
 				var ex = Record.Exception(() => Assert.Equal(float.PositiveInfinity, 77.7f, 1.0f));
@@ -2450,7 +2450,7 @@ public class EqualityAssertsTests
 				);
 			}
 
-			[CulturedFactDefault]
+			[CulturedFact(["en-US", "fr-FR"])]
 			public void NegativeInfinity_NotEqual()
 			{
 				var ex = Record.Exception(() => Assert.Equal(0.0f, float.NegativeInfinity, 1.0f));
@@ -4264,7 +4264,7 @@ public class EqualityAssertsTests
 
 	public class NotEqual_Decimal
 	{
-		[CulturedFactDefault]
+		[CulturedFact(["en-US", "fr-FR"])]
 		public void Equal()
 		{
 			var ex = Record.Exception(() => Assert.NotEqual(0.11111M, 0.11444M, 2));
@@ -4289,7 +4289,7 @@ public class EqualityAssertsTests
 	{
 		public class WithPrecision
 		{
-			[CulturedFactDefault]
+			[CulturedFact(["en-US", "fr-FR"])]
 			public void Equal()
 			{
 				var ex = Record.Exception(() => Assert.NotEqual(0.11111, 0.11444, 2));
@@ -4312,7 +4312,7 @@ public class EqualityAssertsTests
 
 		public class WithMidPointRounding
 		{
-			[CulturedFactDefault]
+			[CulturedFact(["en-US", "fr-FR"])]
 			public void Equal()
 			{
 				var ex = Record.Exception(() => Assert.NotEqual(10.565, 10.566, 2, MidpointRounding.AwayFromZero));
@@ -4345,7 +4345,7 @@ public class EqualityAssertsTests
 				Assert.Equal("tolerance", argEx.ParamName);
 			}
 
-			[CulturedFactDefault]
+			[CulturedFact(["en-US", "fr-FR"])]
 			public void Equal()
 			{
 				var ex = Record.Exception(() => Assert.NotEqual(10.566, 10.565, 0.01));
@@ -4365,7 +4365,7 @@ public class EqualityAssertsTests
 				Assert.NotEqual(0.11113, 0.11115, 0.00001);
 			}
 
-			[CulturedFactDefault]
+			[CulturedFact(["en-US", "fr-FR"])]
 			public void NaN_Equal()
 			{
 				var ex = Record.Exception(() => Assert.NotEqual(double.NaN, double.NaN, 1000.0));
@@ -4385,7 +4385,7 @@ public class EqualityAssertsTests
 				Assert.NotEqual(20210102.2208, double.NaN, 20000000.0);
 			}
 
-			[CulturedFactDefault]
+			[CulturedFact(["en-US", "fr-FR"])]
 			public void InfiniteTolerance_Equal()
 			{
 				var ex = Record.Exception(() => Assert.NotEqual(double.MinValue, double.MaxValue, double.PositiveInfinity));
@@ -4417,7 +4417,7 @@ public class EqualityAssertsTests
 	{
 		public class WithPrecision
 		{
-			[CulturedFactDefault]
+			[CulturedFact(["en-US", "fr-FR"])]
 			public void Equal()
 			{
 				var ex = Record.Exception(() => Assert.NotEqual(0.11111f, 0.11444f, 2));
@@ -4440,7 +4440,7 @@ public class EqualityAssertsTests
 
 		public class WithMidPointRounding
 		{
-			[CulturedFactDefault]
+			[CulturedFact(["en-US", "fr-FR"])]
 			public void Equal()
 			{
 				var ex = Record.Exception(() => Assert.NotEqual(10.5655f, 10.5666f, 2, MidpointRounding.AwayFromZero));
@@ -4473,7 +4473,7 @@ public class EqualityAssertsTests
 				Assert.Equal("tolerance", argEx.ParamName);
 			}
 
-			[CulturedFactDefault]
+			[CulturedFact(["en-US", "fr-FR"])]
 			public void Equal()
 			{
 				var ex = Record.Exception(() => Assert.NotEqual(10.569f, 10.562f, 0.01f));
@@ -4493,7 +4493,7 @@ public class EqualityAssertsTests
 				Assert.NotEqual(0.11113f, 0.11115f, 0.00001f);
 			}
 
-			[CulturedFactDefault]
+			[CulturedFact(["en-US", "fr-FR"])]
 			public void NaN_Equal()
 			{
 				var ex = Record.Exception(() => Assert.NotEqual(float.NaN, float.NaN, 1000.0f));
@@ -4513,7 +4513,7 @@ public class EqualityAssertsTests
 				Assert.NotEqual(20210102.2208f, float.NaN, 20000000.0f);
 			}
 
-			[CulturedFactDefault]
+			[CulturedFact(["en-US", "fr-FR"])]
 			public void InfiniteTolerance_Equal()
 			{
 				var ex = Record.Exception(() => Assert.NotEqual(float.MinValue, float.MaxValue, float.PositiveInfinity));

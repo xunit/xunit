@@ -1,3 +1,5 @@
+#pragma warning disable CA1307 // Specify StringComparison for clarity
+
 using Xunit.Sdk;
 
 namespace Xunit.Runner.Common;
@@ -84,8 +86,15 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 		ITestFrameworkExecutionOptions executionOptions)
 	{
 		if (assemblyFileName is not null)
+		{
+			var assemblyName =
+				assemblyFileName.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) || assemblyFileName.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)
+					? Path.GetFileNameWithoutExtension(assemblyFileName)
+					: Path.GetFileName(assemblyFileName);
+
 			using (ReaderWriterLockWrapper.WriteLock())
-				executionOptionsByAssembly[Path.GetFileNameWithoutExtension(assemblyFileName)] = executionOptions;
+				executionOptionsByAssembly[assemblyName] = executionOptions;
+		}
 	}
 
 	/// <summary>
@@ -131,9 +140,16 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 	protected ITestFrameworkExecutionOptions GetExecutionOptions(string? assemblyFileName)
 	{
 		if (assemblyFileName is not null)
+		{
+			var assemblyName =
+				assemblyFileName.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) || assemblyFileName.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)
+					? Path.GetFileNameWithoutExtension(assemblyFileName)
+					: Path.GetFileName(assemblyFileName);
+
 			using (ReaderWriterLockWrapper.ReadLock())
-				if (executionOptionsByAssembly.TryGetValue(Path.GetFileNameWithoutExtension(assemblyFileName), out var result))
+				if (executionOptionsByAssembly.TryGetValue(assemblyName, out var result))
 					return result;
+		}
 
 		return defaultExecutionOptions;
 	}

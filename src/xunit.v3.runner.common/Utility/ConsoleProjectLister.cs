@@ -1,3 +1,5 @@
+#pragma warning disable CA1307 // Specify StringComparison for clarity
+
 using System.Text;
 using Xunit.Sdk;
 

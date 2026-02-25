@@ -8,13 +8,16 @@
     <!--#endif -->
     <Nullable>enable</Nullable>
     <OutputType>Exe</OutputType>
+    <!--#if (NativeAOT == true) -->
+    <PublishAot>true</PublishAot>
+    <!--#endif-->
     <RootNamespace Condition="'$(name)' != '$(name{-VALUE-FORMS-}safe_namespace)'">TestProject</RootNamespace>
     <TargetFramework>net8.0</TargetFramework>
     <!--#if (TestRunner != "vstest") -->
-    <!--#if (Framework != "net10.0") -->
+    <!--#if (Framework != "net10.0" && NativeAOT != true) -->
     <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
     <!--#endif-->
-    <!--#if (CommandLine == "mtp") -->
+    <!--#if (CommandLine != "xunit") -->
     <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
     <!--#endif-->
     <!--#endif-->
@@ -29,15 +32,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!--#if (TestRunner == "vstest") -->
+    <!--#if (NativeAOT == true) -->
+    <PackageReference Include="xunit.v3.aot.mtp-v2" Version="PACKAGE_VERSION" />
+    <!--#elseif (TestRunner == "vstest") -->
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="MICROSOFT_NET_TEST_SDK_VERSION" />
     <PackageReference Include="xunit.runner.visualstudio" Version="XUNIT_RUNNER_VISUALSTUDIO_VERSION" />
     <PackageReference Include="xunit.v3.mtp-off" Version="PACKAGE_VERSION" />
-    <!--#endif-->
-    <!--#if (TestRunner == "mtp-v1") -->
+    <!--#elseif (TestRunner == "mtp-v1") -->
     <PackageReference Include="xunit.v3.mtp-v1" Version="PACKAGE_VERSION" />
-    <!--#endif-->
-    <!--#if (TestRunner == "mtp-v2") -->
+    <!--#else-->
     <PackageReference Include="xunit.v3.mtp-v2" Version="PACKAGE_VERSION" />
     <!--#endif-->
   </ItemGroup>

@@ -11,7 +11,7 @@
 		<icon>_content/logo-128-transparent.png</icon>
 		<readme>_content/README.md</readme>
 		<releaseNotes>https://xunit.net/releases/v3/$PackageVersion$</releaseNotes>
-		<description>xUnit.net is a developer testing framework, built to support Test Driven Development, with a design goal of extreme simplicity and alignment with framework features. Supports .NET Framework 4.7.2 or later and .NET 8 or later.
+		<description>xUnit.net is a developer testing framework, built to support Test Driven Development, with a design goal of extreme simplicity and alignment with framework features. Supports .NET Framework 4.7.2 or later, and .NET 8 or later.
 
 Installing this package installs xunit.v3.core.mtp-off, xunit.v3.assert, and xunit.analyzers.</description>
 		<copyright>Copyright (C) .NET Foundation</copyright>

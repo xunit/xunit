@@ -1,4 +1,3 @@
-using NSubstitute;
 using Xunit;
 using Xunit.Sdk;
 
@@ -44,23 +43,21 @@ public class MessageBusTests
 	[Fact]
 	public static void WhenSinkThrowsMessagesContinueToBeDelivered()
 	{
-		var sink = Substitute.For<IMessageSink>();
 		var msg1 = TestData.DiagnosticMessage("msg1");
 		var msg2 = TestData.DiagnosticMessage("msg2");
 		var msg3 = TestData.DiagnosticMessage("msg3");
 		var messages = new List<IMessageSinkMessage>();
-		sink
-			.OnMessage(Arg.Any<IMessageSinkMessage>())
-			.Returns(callInfo =>
+		var sink = SpyMessageSink.Capture(
+			msg =>
 			{
-				var msg = (IMessageSinkMessage)callInfo[0];
 				if (msg == msg2)
 					throw new DivideByZeroException("whee!");
 				else
 					messages.Add(msg);
 
 				return false;
-			});
+			}
+		);
 
 		using (var bus = new MessageBus("asm", sink))
 		{

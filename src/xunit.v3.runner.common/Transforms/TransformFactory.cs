@@ -4,11 +4,12 @@ using System.Xml.Linq;
 namespace Xunit.Runner.Common;
 
 /// <summary>
-/// Please use <see cref="RegisteredConsoleResultWriters"/> for console usage, or
-/// <see cref="RegisteredMicrosoftTestingPlatformResultWriters"/> for MTP usage.
-/// This class will be removed in the next major version.
+/// Please use <see cref="RegisteredRunnerConfig.GetConsoleResultWriters"/> for console usage, or
+/// <see cref="RegisteredRunnerConfig.GetMicrosoftTestingPlatformResultWriters"/> for Microsoft
+/// Testing Platform usage. This class will be removed in the next major version.
 /// </summary>
-[Obsolete("Please use RegisteredConsoleResultWriters for console usage, or RegisteredMicrosoftTestingPlatformResultWriters for MTP usage. This class will be removed in the next major version.", error: true)]
+[Obsolete("Please use RegisteredRunnerConfig.GetConsoleResultWriters for console usage, or RegisteredRunnerConfig.GetMicrosoftTestingPlatformResultWriters for Microsoft Testing Platform usage. This class will be removed in the next major version.", error: true)]
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class TransformFactory
 {
 	/// <summary/>

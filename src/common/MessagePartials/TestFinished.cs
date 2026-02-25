@@ -10,9 +10,11 @@ namespace Xunit.v3;
 /// <summary>
 /// Default implementation of <see cref="ITestFinished"/>.
 /// </summary>
-[JsonTypeID("test-finished")]
+[JsonTypeID(TypeID)]
 sealed partial class TestFinished : TestResultMessage, ITestFinished
 {
+	internal const string TypeID = "test-finished";
+
 	/// <summary>
 	/// An empty set of attachments that can be used when none are provided.
 	/// </summary>

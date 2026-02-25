@@ -66,7 +66,7 @@ public class TestPlatformDiscoveryMessageSinkTests
 			Assert.Equal(AssemblyFullName, testMethodProperty.AssemblyFullName);
 			Assert.Equal("test-method", testMethodProperty.MethodName);
 			Assert.Equal("ns", testMethodProperty.Namespace);
-			Assert.Equivalent(new[] { "System.Int32", "System.String" }, testMethodProperty.ParameterTypeFullNames);
+			Assert.Equal(new[] { "System.Int32", "System.String" }, testMethodProperty.ParameterTypeFullNames);
 			Assert.Equal("System.Void", testMethodProperty.ReturnTypeFullName);
 			Assert.Equal("test-class", testMethodProperty.TypeName);
 

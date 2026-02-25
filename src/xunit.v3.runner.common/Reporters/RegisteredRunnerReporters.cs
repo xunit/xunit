@@ -1,61 +1,20 @@
+using System.ComponentModel;
 using System.Reflection;
-using Xunit.Sdk;
 
 namespace Xunit.Runner.Common;
 
-/// <summary>
-/// Utility class for enumerating the runner reporters registered for the given assembly.
-/// </summary>
+/// <summary/>
+[EditorBrowsable(EditorBrowsableState.Never)]
 public static class RegisteredRunnerReporters
 {
 	/// <summary>
-	/// Gets the list of runner reporters registered for the given assembly.
+	/// Please use <see cref="RegisteredRunnerConfig.GetRunnerReporters"/>.
+	/// This method will be removed in the next major version.
 	/// </summary>
-	/// <param name="assembly">The assembly</param>
-	/// <param name="messages">Messages that were generated during discovery</param>
-	/// <returns>List of available reporters</returns>
+	[Obsolete("Please use RegisteredRunnerConfig.GetRunnerReporters. This method will be removed in the next major version.")]
+	[EditorBrowsable(EditorBrowsableState.Never)]
 	public static List<IRunnerReporter> Get(
 		Assembly assembly,
-		out List<string> messages)
-	{
-		messages = [];
-		var result = new List<IRunnerReporter>();
-
-		foreach (var attribute in assembly.GetMatchingCustomAttributes<IRegisterRunnerReporterAttribute>(messages))
-		{
-			var reporterType = attribute.RunnerReporterType;
-			if (reporterType is null)
-			{
-				messages.Add(string.Format(CultureInfo.CurrentCulture, "Runner reporter type '{0}' returned null from {1}", attribute.GetType().SafeName(), nameof(IRegisterRunnerReporterAttribute.RunnerReporterType)));
-				continue;
-			}
-
-			try
-			{
-				if (Activator.CreateInstance(reporterType) is not IRunnerReporter reporter)
-				{
-					messages.Add(string.Format(CultureInfo.CurrentCulture, "Runner reporter type '{0}' does not implement '{1}'", reporterType.SafeName(), typeof(IRunnerReporter).SafeName()));
-					continue;
-				}
-
-				if (!string.IsNullOrWhiteSpace(reporter.RunnerSwitch))
-				{
-					var existingReporter = result.FirstOrDefault(r => reporter.RunnerSwitch.Equals(r.RunnerSwitch, StringComparison.OrdinalIgnoreCase));
-					if (existingReporter is not null)
-					{
-						messages.Add(string.Format(CultureInfo.CurrentCulture, "Runner reporter type '{0}' conflicts with existing runner reporter type '{1}' with the same switch", reporterType.SafeName(), existingReporter.GetType().SafeName()));
-						continue;
-					}
-				}
-
-				result.Add(reporter);
-			}
-			catch (Exception ex)
-			{
-				messages.Add(string.Format(CultureInfo.CurrentCulture, "Exception creating runner reporter type '{0}': {1}", reporterType.SafeName(), ex.Unwrap()));
-			}
-		}
-
-		return result;
-	}
+		out List<string> messages) =>
+			RegisteredRunnerConfig.GetRunnerReporters(assembly, out messages).ToList();
 }

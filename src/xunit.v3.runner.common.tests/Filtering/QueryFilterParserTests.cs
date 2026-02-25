@@ -246,13 +246,11 @@ public class QueryFilterParserTests
 		string? traitKey = null,
 		string? traitValue = null)
 	{
-		var testClass = Mocks.TestClass(testClassSimpleName: @class, testClassNamespace: @namespace);
-		var testMethod = Mocks.TestMethod(methodName: method, testClass: testClass);
 		var traits = new Dictionary<string, IReadOnlyCollection<string>>();
 		if (traitKey is not null && traitValue is not null)
 			traits[traitKey] = [traitValue];
 
-		return Mocks.TestCase(testMethod: testMethod, traits: traits);
+		return TestData.TestCaseMetadata(testClassNamespace: @namespace, testClassSimpleName: @class, testMethodName: method, traits: traits);
 	}
 
 	static IEnumerable<string> MakeWildcards(string value)

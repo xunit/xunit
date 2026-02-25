@@ -32,36 +32,31 @@ public abstract class OutOfProcessTestProcessLauncherBase : ITestProcessLauncher
 
 		if (projectAssembly?.AssemblyFileName is null)
 			return default;
-		if (projectAssembly.AssemblyMetadata is null || projectAssembly.AssemblyMetadata.TargetFrameworkIdentifier == TargetFrameworkIdentifier.UnknownTargetFramework)
-			return default;
 
 		string? responseFile = default;
 		string executable;
 		var executableArguments = string.Empty;
 
-		if (projectAssembly.AssemblyMetadata.TargetFrameworkIdentifier == TargetFrameworkIdentifier.DotNetCore)
-		{
-			// We want to run the executable stub rather than 'dotnet exec' because it will seek out the appropriate
-			// bitness of the .NET SDK when appropriate.
-			executable = projectAssembly.AssemblyFileName;
+		// Start assuming they gave us an executable we can launch (.NET Framework or published Native AOT)
+		executable = projectAssembly.AssemblyFileName;
 
-			// We always expect them to pass .dll here, because that's the actual test assembly. The executable stub won't
-			// have appropriate metadata, but we'll just be safe here anyways.
-			if (executable.EndsWith(".dll", StringComparison.OrdinalIgnoreCase))
-				executable = executable.Substring(0, projectAssembly.AssemblyFileName.Length - 4);
+		// If it ends with '.dll', then it's a non-AOT (or non-published) .NET project, and we look for the app host
+		if (Path.GetExtension(executable).Equals(".dll", StringComparison.OrdinalIgnoreCase))
+		{
+			executable = executable.Substring(0, projectAssembly.AssemblyFileName.Length - 4);
 			if (IsWindows)
 				executable += ".exe";
 
 			if (!File.Exists(executable))
 				throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Could not find app host executable '{0}'. Make sure you did not disable the app host when building the test project.", executable));
 		}
-		else if (!IsWindows)
+
+		// If we end up with a .exe file on non-Windows, assume it's .NET Framework and Mono will be required
+		if (!IsWindows && Path.GetExtension(executable).Equals(".exe", StringComparison.OrdinalIgnoreCase))
 		{
+			executableArguments = string.Format(CultureInfo.InvariantCulture, "\"{0}\"", executable);
 			executable = "mono";
-			executableArguments = string.Format(CultureInfo.InvariantCulture, "\"{0}\"", projectAssembly.AssemblyFileName);
 		}
-		else
-			executable = projectAssembly.AssemblyFileName;
 
 		if (arguments.Count != 0)
 		{

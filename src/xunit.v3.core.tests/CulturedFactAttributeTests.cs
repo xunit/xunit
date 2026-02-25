@@ -1,58 +1,35 @@
 using Xunit;
 using Xunit.Sdk;
 
-public class CulturedFactAttributeTests : AcceptanceTestV3
+public partial class CulturedFactAttributeTests : AcceptanceTestV3
 {
-	[Fact]
-	public async ValueTask NoCultures()
-	{
-		var results = await RunForResultsAsync(typeof(TestClassWithNoCultures));
-
-		var result = Assert.Single(results);
-		var failed = Assert.IsType<TestFailedWithDisplayName>(result);
-		Assert.Equal($"{typeof(TestClassWithNoCultures).FullName}.{nameof(TestClassWithNoCultures.TestMethod)}", failed.TestDisplayName);
-		Assert.Equal("Xunit.CulturedFactAttribute did not provide any cultures", failed.Messages.Single());
-	}
-
-	class TestClassWithNoCultures
-	{
-		[CulturedFact([])]
-		public void TestMethod() { }
-	}
-
 	[Fact]
 	public async ValueTask SingleCulture()
 	{
+#if XUNIT_AOT
+		var results = await RunForResultsAsync("CulturedFactAttributeTests+TestClassWithSingleCulture");
+#else
 		var results = await RunForResultsAsync(typeof(TestClassWithSingleCulture));
+#endif
 
 		var result = Assert.Single(results);
-		var passed = Assert.IsType<TestPassedWithDisplayName>(result);
-		Assert.Equal($"{typeof(TestClassWithSingleCulture).FullName}.{nameof(TestClassWithSingleCulture.TestMethod)}[fr-FR]", passed.TestDisplayName);
-	}
-
-	class TestClassWithSingleCulture
-	{
-		[CulturedFact(["fr-FR"])]
-		public void TestMethod() =>
-			Assert.Equal("fr-FR", CultureInfo.CurrentCulture.Name);
+		var passed = Assert.IsType<TestPassedWithMetadata>(result);
+		Assert.Equal("CulturedFactAttributeTests+TestClassWithSingleCulture.TestMethod[fr-FR]", passed.Test.TestDisplayName);
 	}
 
 	[Fact]
 	public async ValueTask MultipleCultures()
 	{
+#if XUNIT_AOT
+		var results = await RunForResultsAsync("CulturedFactAttributeTests+TestClassWithMultipleCultures");
+#else
 		var results = await RunForResultsAsync(typeof(TestClassWithMultipleCultures));
+#endif
 
-		var passed = Assert.Single(results.OfType<TestPassedWithDisplayName>());
-		Assert.Equal($"{typeof(TestClassWithMultipleCultures).FullName}.{nameof(TestClassWithMultipleCultures.TestMethod)}[fr-FR]", passed.TestDisplayName);
-		var failed = Assert.Single(results.OfType<TestFailedWithDisplayName>());
-		Assert.Equal($"{typeof(TestClassWithMultipleCultures).FullName}.{nameof(TestClassWithMultipleCultures.TestMethod)}[en-US]", failed.TestDisplayName);
+		var passed = Assert.Single(results.OfType<TestPassedWithMetadata>());
+		Assert.Equal("CulturedFactAttributeTests+TestClassWithMultipleCultures.TestMethod[fr-FR]", passed.Test.TestDisplayName);
+		var failed = Assert.Single(results.OfType<TestFailedWithMetadata>());
+		Assert.Equal("CulturedFactAttributeTests+TestClassWithMultipleCultures.TestMethod[en-US]", failed.Test.TestDisplayName);
 		Assert.Equal(typeof(EqualException).FullName, failed.ExceptionTypes.Single());
-	}
-
-	class TestClassWithMultipleCultures
-	{
-		[CulturedFactDefault]
-		public void TestMethod() =>
-			Assert.Equal("fr-FR", CultureInfo.CurrentCulture.Name);
 	}
 }

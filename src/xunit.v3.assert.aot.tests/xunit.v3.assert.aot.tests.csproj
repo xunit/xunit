@@ -2,11 +2,11 @@
 
   <PropertyGroup>
     <PublishAot>true</PublishAot>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)\..\xunit.v3.assert.tests\**\*.cs" Exclude="**\obj\**\*.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)\..\xunit.v3.assert.tests\**\*.cs" Exclude="**\*_reflection.cs;**\obj\**\*.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -23,10 +23,10 @@ public class CommandLine : CommandLineParserBase
 		Assembly assembly,
 		string[] args,
 		IReadOnlyList<IRunnerReporter>? runnerReporters)
-			: base(consoleHelper, runnerReporters, Path.GetDirectoryName(assembly.GetSafeLocation()), args)
+			: base(consoleHelper, runnerReporters, args)
 	{
 		this.assembly = assembly;
-		assemblyFileName = assembly.GetSafeLocation();
+		assemblyFileName = assembly.GetSafeLocation() ?? throw new ArgumentException("Test assembly must have an on-disk representation");
 
 		// General options
 		AddParser("assemblyInfo", OnAssemblyInfo, CommandLineGroup.General, null, "return test assembly information; does not find or run tests (implies -noColor and -noLogo)");
@@ -49,7 +49,9 @@ public class CommandLine : CommandLineParserBase
 			"  collections - parallelize by collections [default]"
 		);
 		AddParser("pause", OnPause, CommandLineGroup.General, null, "wait for input before running tests (ignored with -automated)");
+#if !XUNIT_AOT
 		AddParser("run", OnRun, CommandLineGroup.General, "<serialization>", "run a test case (by serialization)");
+#endif
 		AddParser("wait", OnWait, CommandLineGroup.General, null, "wait for input after completion (ignored with -automated)");
 		AddParser("waitForDebugger", OnWaitForDebugger, CommandLineGroup.General, null, "pauses execution until a debugger has been attached");
 	}
@@ -89,7 +91,7 @@ public class CommandLine : CommandLineParserBase
 	/// <summary/>
 	protected override IReadOnlyList<IRunnerReporter> GetAvailableRunnerReporters()
 	{
-		var result = RegisteredRunnerReporters.Get(assembly, out var messages);
+		var result = RegisteredRunnerConfig.GetRunnerReporters(assembly, out var messages);
 
 		if (messages.Count != 0)
 		{
@@ -105,14 +107,6 @@ public class CommandLine : CommandLineParserBase
 
 		return result;
 	}
-
-	/// <summary/>
-	protected override Assembly LoadAssembly(string dllFile) =>
-#if NETFRAMEWORK
-		Assembly.LoadFile(dllFile);
-#else
-		Assembly.Load(new AssemblyName(Path.GetFileNameWithoutExtension(dllFile)));
-#endif
 
 	/// <summary/>
 	public XunitProjectAssembly Parse()
@@ -171,6 +165,8 @@ public class CommandLine : CommandLineParserBase
 		GetAssembly().TestCaseIDsToRun.Add(option.Value);
 	}
 
+#if !XUNIT_AOT
+
 	void OnRun(KeyValuePair<string, string?> option)
 	{
 		if (option.Value is null)
@@ -178,6 +174,8 @@ public class CommandLine : CommandLineParserBase
 
 		GetAssembly().TestCasesToRun.Add(option.Value);
 	}
+
+#endif
 
 	void OnWaitForDebugger(KeyValuePair<string, string?> option)
 	{

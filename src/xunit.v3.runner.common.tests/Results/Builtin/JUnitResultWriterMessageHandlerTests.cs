@@ -5,11 +5,12 @@ using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
 
+[Collection(typeof(CleanEnvironmentAttribute))]
 [CleanEnvironment("COMPUTERNAME", "HOSTNAME", "NAME", "HOST")]
 public class JUnitResultWriterMessageHandlerTests
 {
-	[CulturedFactDefault]
-	public async ValueTask TestSuitesElement()
+	[CulturedFact(["en-US", "fr-FR"])]
+	public static async ValueTask TestSuitesElement()
 	{
 		await using var handler = TestableJUnitResultWriterMessageHandler.Create();
 
@@ -26,7 +27,7 @@ public class JUnitResultWriterMessageHandlerTests
 		Assert.Empty(testSuitesElement.Elements("testsuite"));
 	}
 
-	[CulturedTheoryDefault]
+	[CulturedTheory(["en-US", "fr-FR"])]
 	// Windows
 	[InlineData("COMPUTERNAME")]
 	// Linux
@@ -34,7 +35,7 @@ public class JUnitResultWriterMessageHandlerTests
 	[InlineData("NAME")]
 	// macOS
 	[InlineData("HOST")]
-	public async ValueTask TestAssemblies(string computerEnvName)
+	public static async ValueTask TestAssemblies(string computerEnvName)
 	{
 		var assembly1Starting = TestData.TestAssemblyStarting(assemblyUniqueID: "asm1", assemblyPath: "asm1.dll");
 		var assembly2Starting = TestData.TestAssemblyStarting(assemblyUniqueID: "asm2", assemblyPath: "asm2.dll", startTime: TestData.DefaultStartTime.AddSeconds(1));
@@ -88,9 +89,9 @@ public class JUnitResultWriterMessageHandlerTests
 		new(TestData.TestMethodCleanupFailure()),
 	];
 
-	[CulturedTheoryDefault(DisableDiscoveryEnumeration = true)]
+	[CulturedTheory(["en-US", "fr-FR"], DisableDiscoveryEnumeration = true)]
 	[MemberData(nameof(ErrorsData))]
-	public async ValueTask TestAssembly_WithError(IMessageSinkMessage errorMessage)
+	public static async ValueTask TestAssembly_WithError(IMessageSinkMessage errorMessage)
 	{
 		var assemblyStarting = TestData.TestAssemblyStarting();
 		var assemblyFinished = TestData.TestAssemblyFinished();
@@ -113,8 +114,8 @@ public class JUnitResultWriterMessageHandlerTests
 			""", testSuiteElement.Element("system-err")?.Value, ignoreLineEndingDifferences: true);
 	}
 
-	[CulturedFactDefault]
-	public async ValueTask TestPassed()
+	[CulturedFact(["en-US", "fr-FR"])]
+	public static async ValueTask TestPassed()
 	{
 		var assemblyStarting = TestData.TestAssemblyStarting();
 		var testStarting = TestData.TestStarting();
@@ -148,8 +149,8 @@ public class JUnitResultWriterMessageHandlerTests
 		Assert.Null(testCaseElement.Element("system-out"));
 	}
 
-	[CulturedFactDefault]
-	public async ValueTask TestFailed()
+	[CulturedFact(["en-US", "fr-FR"])]
+	public static async ValueTask TestFailed()
 	{
 		var assemblyStarting = TestData.TestAssemblyStarting();
 		var testStarting = TestData.TestStarting();
@@ -188,8 +189,8 @@ public class JUnitResultWriterMessageHandlerTests
 		Assert.Null(testCaseElement.Element("system-out"));
 	}
 
-	[CulturedFactDefault]
-	public async ValueTask TestFailed_NullStackTrace()
+	[CulturedFact(["en-US", "fr-FR"])]
+	public static async ValueTask TestFailed_NullStackTrace()
 	{
 		var assemblyStarting = TestData.TestAssemblyStarting();
 		var testStarting = TestData.TestStarting();
@@ -224,8 +225,8 @@ public class JUnitResultWriterMessageHandlerTests
 		Assert.Null(testCaseElement.Element("system-out"));
 	}
 
-	[CulturedFactDefault]
-	public async ValueTask TestSkipped()
+	[CulturedFact(["en-US", "fr-FR"])]
+	public static async ValueTask TestSkipped()
 	{
 		var assemblyStarting = TestData.TestAssemblyStarting();
 		var testStarting = TestData.TestStarting();
@@ -259,8 +260,8 @@ public class JUnitResultWriterMessageHandlerTests
 		Assert.Null(testCaseElement.Element("system-out"));
 	}
 
-	[CulturedFactDefault]
-	public async ValueTask TestNotRun()
+	[CulturedFact(["en-US", "fr-FR"])]
+	public static async ValueTask TestNotRun()
 	{
 		var assemblyStarting = TestData.TestAssemblyStarting();
 		var testStarting = TestData.TestStarting();

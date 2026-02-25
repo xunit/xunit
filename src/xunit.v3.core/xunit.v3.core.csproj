@@ -11,6 +11,7 @@
   <ItemGroup>
     <Compile Remove="Package\**\*" />
     <None Include="Package\**\*" />
+    <Compile Include="..\common\DotNetApiPolyfills.cs" LinkBase="Common" />
     <Compile Include="..\common\MessagePartials\**\*.cs" LinkBase="Common\MessagePartials" />
   </ItemGroup>
 

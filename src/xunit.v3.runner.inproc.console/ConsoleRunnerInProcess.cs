@@ -42,7 +42,7 @@ public static class ConsoleRunnerInProcess
 	/// <summary/>
 	public static TestAssemblyInfo GetTestAssemblyInfo(Assembly testAssembly)
 	{
-		var testFramework = ExtensibilityPointFactory.GetTestFramework(testAssembly);
+		var testFramework = RegisteredEngineConfig.GetTestFramework(testAssembly, configFileName: null);
 
 		return new(
 			// Technically these next two are the versions of xunit.v3.runner.inproc.console and not xunit.v3.core; however,
@@ -66,7 +66,7 @@ public static class ConsoleRunnerInProcess
 		var testAssembly = Guard.ArgumentNotNull(assembly.Assembly);
 
 		var startStop = await StartStop.Start(testAssembly, messageSink, diagnosticMessageSink);
-		var resultWriters = RegisteredConsoleResultWriters.Get(testAssembly);
+		var resultWriters = RegisteredRunnerConfig.GetConsoleResultWriters(testAssembly);
 
 		try
 		{
@@ -102,14 +102,18 @@ public static class ConsoleRunnerInProcess
 			overrideListener = new TraceAssertOverrideListener();
 			PipelineStartup = pipelineStartup;
 
+#if !XUNIT_AOT
 			SerializationHelper.Instance.AddRegisteredSerializers(testAssembly, []);
+#endif
 		}
 
 		public ITestPipelineStartup? PipelineStartup { get; }
 
 		public async ValueTask DisposeAsync()
 		{
+#if !XUNIT_AOT
 			SerializationHelper.ResetInstance();
+#endif
 
 			overrideListener.Dispose();
 

@@ -1,4 +1,3 @@
-using System.Reflection;
 using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
@@ -8,7 +7,7 @@ public class ConfigReader_JsonTests
 	static readonly string AssemblyPath;
 
 	static ConfigReader_JsonTests() =>
-		AssemblyPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetLocalCodeBase())!;
+		AssemblyPath = AppContext.BaseDirectory;
 
 	[Fact]
 	public static void EmptyConfigurationFile_ReturnsDefaultValues()

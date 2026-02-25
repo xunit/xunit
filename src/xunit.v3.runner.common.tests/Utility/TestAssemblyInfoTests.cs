@@ -11,6 +11,13 @@ public class TestAssemblyInfoTests
 		var json = expected.ToJson();
 		var actual = TestAssemblyInfo.FromJson(json);
 
-		Assert.Equivalent(expected, actual);
+		Assert.Equal(expected.ArchOS, actual.ArchOS);
+		Assert.Equal(expected.ArchProcess, actual.ArchProcess);
+		Assert.Equal(expected.CoreFramework, actual.CoreFramework);
+		Assert.Equal(expected.CoreFrameworkInformational, actual.CoreFrameworkInformational);
+		Assert.Equal(expected.PointerSize, actual.PointerSize);
+		Assert.Equal(expected.RuntimeFramework, actual.RuntimeFramework);
+		Assert.Equal(expected.TargetFramework, actual.TargetFramework);
+		Assert.Equal(expected.TestFramework, actual.TestFramework);
 	}
 }

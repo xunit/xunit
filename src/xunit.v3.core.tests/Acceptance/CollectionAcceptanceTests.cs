@@ -1,12 +1,16 @@
 using Xunit;
 using Xunit.Sdk;
 
-public class CollectionAcceptanceTests : AcceptanceTestV3
+public partial class CollectionAcceptanceTests : AcceptanceTestV3
 {
 	[Fact]
 	public async ValueTask TwoClasses_OneInExplicitCollection_OneInDefaultCollection()
 	{
+#if XUNIT_AOT
+		var results = await RunAsync(["CollectionAcceptanceTests+ClassInExplicitCollection", "CollectionAcceptanceTests+ClassInDefaultCollection"]);
+#else
 		var results = await RunAsync([typeof(ClassInExplicitCollection), typeof(ClassInDefaultCollection)]);
+#endif
 
 		var defaultCollectionStarting = Assert.Single(results.OfType<ITestCollectionStarting>(), x => x.TestCollectionDisplayName.StartsWith("Test collection for "));
 		var defaultResults = results.OfType<ITestCollectionMessage>().Where(x => x.TestCollectionUniqueID == defaultCollectionStarting.TestCollectionUniqueID);
@@ -39,18 +43,5 @@ public class CollectionAcceptanceTests : AcceptanceTestV3
 			message => Assert.IsType<ITestClassFinished>(message, exactMatch: false),
 			message => Assert.IsType<ITestCollectionFinished>(message, exactMatch: false)
 		);
-	}
-
-	[Collection("Explicit Collection")]
-	class ClassInExplicitCollection
-	{
-		[Fact]
-		public void Passing() { }
-	}
-
-	class ClassInDefaultCollection
-	{
-		[Fact]
-		public void Passing() { }
 	}
 }

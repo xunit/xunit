@@ -10,13 +10,11 @@ namespace Xunit;
 /// and reports it to the test output helper.
 /// </summary>
 [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = false, Inherited = false)]
-public sealed class CaptureConsoleAttribute : Attribute, IAssemblyFixtureAttribute
+public sealed class CaptureConsoleAttribute() :
+	AssemblyFixtureAttribute(typeof(CaptureConsoleImpl))
 {
 	static bool captureError = true;
 	static bool captureOut = true;
-
-	Type IAssemblyFixtureAttribute.AssemblyFixtureType =>
-		typeof(CaptureConsoleImpl);
 
 	/// <summary>
 	/// Gets or sets a flag to indicate whether to override <see cref="Console.Error"/>.

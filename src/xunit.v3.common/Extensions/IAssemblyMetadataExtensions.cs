@@ -17,7 +17,16 @@ public static class IAssemblyMetadataExtensions
 		Guard.ArgumentNotNullOrEmpty(assemblyMetadata.AssemblyName);
 
 		var parsedAssemblyName = new AssemblyName(assemblyMetadata.AssemblyName);
-		Guard.ArgumentNotNullOrEmpty(() => string.Format(CultureInfo.CurrentCulture, "{0}.{1} must include a name component", nameof(assemblyMetadata), nameof(IAssemblyMetadata.AssemblyName)), parsedAssemblyName.Name, "assemblyMetadata.AssemblyName");
+		Guard.ArgumentNotNullOrEmpty(
+			() => string.Format(
+				CultureInfo.CurrentCulture,
+				"{0}.{1} must include a name component",
+				nameof(assemblyMetadata),
+				nameof(IAssemblyMetadata.AssemblyName)
+			),
+			parsedAssemblyName.Name,
+			"assemblyMetadata.AssemblyName"
+		);
 
 		return parsedAssemblyName.Name;
 	}

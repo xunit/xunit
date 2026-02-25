@@ -12,7 +12,10 @@ namespace Xunit.Runner.Common;
 /// <see cref="IMicrosoftTestingPlatformResultWriter"/>.</param>
 [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true, Inherited = false)]
 public sealed class RegisterResultWriterAttribute(string id, Type resultWriterType)
-	: Attribute, IRegisterConsoleResultWriterAttribute, IRegisterMicrosoftTestingPlatformResultWriterAttribute
+	: Attribute
+#if !XUNIT_AOT
+	, IRegisterConsoleResultWriterAttribute, IRegisterMicrosoftTestingPlatformResultWriterAttribute
+#endif
 {
 	/// <inheritdoc/>
 	public string ID { get; } = id;

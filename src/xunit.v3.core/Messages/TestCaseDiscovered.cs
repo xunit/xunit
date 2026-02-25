@@ -2,12 +2,15 @@ namespace Xunit.v3;
 
 public partial class TestCaseDiscovered
 {
-	string? serialization;
 	string? testCaseDisplayName;
 	IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits;
 
 	/// <inheritdoc/>
 	public required bool Explicit { get; set; }
+
+#if !XUNIT_AOT
+
+	string? serialization;
 
 	/// <inheritdoc/>
 	public required string Serialization
@@ -15,6 +18,8 @@ public partial class TestCaseDiscovered
 		get => this.ValidateNullablePropertyValue(serialization, nameof(Serialization));
 		set => serialization = Guard.ArgumentNotNull(value, nameof(Serialization));
 	}
+
+#endif  // !XUNIT_AOT
 
 	/// <inheritdoc/>
 	public required string? SkipReason { get; set; }
@@ -73,7 +78,9 @@ public partial class TestCaseDiscovered
 	{
 		base.ValidateObjectState(invalidProperties);
 
+#if !XUNIT_AOT
 		ValidatePropertyIsNotNull(serialization, nameof(Serialization), invalidProperties);
+#endif
 		ValidatePropertyIsNotNull(testCaseDisplayName, nameof(TestCaseDisplayName), invalidProperties);
 		ValidatePropertyIsNotNull(traits, nameof(Traits), invalidProperties);
 

@@ -1,4 +1,3 @@
-using NSubstitute;
 using Xunit;
 using Xunit.Sdk;
 
@@ -11,15 +10,14 @@ public class IAssemblyMetadataExtensionsTests
 		{
 			Assert.Throws<ArgumentNullException>("assemblyMetadata", () => IAssemblyMetadataExtensions.SimpleAssemblyName(null!));
 
-			var metadata = Substitute.For<IAssemblyMetadata, InterfaceProxy<IAssemblyMetadata>>();
-			metadata.AssemblyName.Returns(default(string));
+			var metadata = TestData.AssemblyMetadata(assemblyName: null!);
 			Assert.Throws<ArgumentNullException>("assemblyMetadata.AssemblyName", () => IAssemblyMetadataExtensions.SimpleAssemblyName(metadata));
 		}
 
 		[Fact]
 		public void ReturnsSimpleName()
 		{
-			var metadata = Mocks.AssemblyMetadata("mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089");
+			var metadata = TestData.AssemblyMetadata(assemblyName: "mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089");
 
 			var result = IAssemblyMetadataExtensions.SimpleAssemblyName(metadata);
 

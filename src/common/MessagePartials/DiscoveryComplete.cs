@@ -9,9 +9,11 @@ namespace Xunit.v3;
 /// <summary>
 /// Default implementation of <see cref="IDiscoveryComplete"/>.
 /// </summary>
-[JsonTypeID("discovery-complete")]
+[JsonTypeID(TypeID)]
 sealed partial class DiscoveryComplete : TestAssemblyMessage, IDiscoveryComplete
 {
+	internal const string TypeID = "discovery-complete";
+
 	/// <inheritdoc/>
 	protected override void Serialize(JsonObjectSerializer serializer)
 	{

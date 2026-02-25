@@ -10,7 +10,10 @@ namespace Xunit.Runner.Common;
 /// implement <see cref="IConsoleResultWriter"/>.</param>
 [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true, Inherited = false)]
 public sealed class RegisterConsoleResultWriterAttribute(string id, Type resultWriterType) :
-	Attribute, IRegisterConsoleResultWriterAttribute
+	Attribute
+#if !XUNIT_AOT
+	, IRegisterConsoleResultWriterAttribute
+#endif
 {
 	/// <inheritdoc/>
 	public string ID { get; } = id;

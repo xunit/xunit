@@ -41,8 +41,8 @@ public class XmlV1ResultWriterMessageHandlerTests
 		Assert.Null(assemblyElement.Attribute("configFile"));
 	}
 
-	[CulturedFactDefault]
-	public async ValueTask AssemblyFinished()
+	[CulturedFact(["en-US", "fr-FR"])]
+	public static async ValueTask AssemblyFinished()
 	{
 		var assemblyStarting = TestData.TestAssemblyStarting();
 		var assemblyFinished = TestData.TestAssemblyFinished(
@@ -65,8 +65,8 @@ public class XmlV1ResultWriterMessageHandlerTests
 		Assert.Equal("2112", assemblyElement.Attribute("total")?.Value);
 	}
 
-	[CulturedFactDefault]
-	public async ValueTask TestClasses()
+	[CulturedFact(["en-US", "fr-FR"])]
+	public static async ValueTask TestClasses()
 	{
 		var assemblyStarting = TestData.TestAssemblyStarting();
 		var assemblyFinished = TestData.TestAssemblyFinished();
@@ -89,7 +89,7 @@ public class XmlV1ResultWriterMessageHandlerTests
 		Assert.Equal(123.457M.ToString(CultureInfo.InvariantCulture), classElement.Attribute("time")?.Value);
 	}
 
-	[CulturedFactDefault]
+	[CulturedFact(["en-US", "fr-FR"])]
 	public async ValueTask TestPassed()
 	{
 		var assemblyFinished = TestData.TestAssemblyFinished();
@@ -123,7 +123,7 @@ public class XmlV1ResultWriterMessageHandlerTests
 		Assert.Empty(testElement.Elements("traits"));
 	}
 
-	[CulturedFactDefault]
+	[CulturedFact(["en-US", "fr-FR"])]
 	public async ValueTask TestFailed()
 	{
 		var assemblyFinished = TestData.TestAssemblyFinished();
@@ -200,7 +200,7 @@ public class XmlV1ResultWriterMessageHandlerTests
 		Assert.Empty(failureElement.Elements("stack-trace").Single().Value);
 	}
 
-	[CulturedFactDefault]
+	[CulturedFact(["en-US", "fr-FR"])]
 	public async ValueTask TestSkipped()
 	{
 		var assemblyFinished = TestData.TestAssemblyFinished();

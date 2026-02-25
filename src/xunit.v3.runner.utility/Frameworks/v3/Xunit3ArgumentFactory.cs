@@ -132,7 +132,9 @@ public static class Xunit3ArgumentFactory
 	{
 		Guard.ArgumentNotNull(coreFrameworkVersion);
 		Guard.ArgumentNotNull(options);
-		Guard.ArgumentNotNullOrEmpty(serializedTestCases);
+		Guard.ArgumentNotNull(serializedTestCases);
+		Guard.ArgumentNotNull(testCaseIDs);
+		Guard.ArgumentValid("Must include at least one serialized test case or test case ID", serializedTestCases.Count + testCaseIDs.Count != 0);
 
 		return ToArguments(
 			options.GetAssertEquivalentMaxDepth(),
@@ -329,18 +331,27 @@ public static class Xunit3ArgumentFactory
 		Guard.ArgumentNotNull(projectAssembly);
 
 		var executionOptions = TestFrameworkOptions.ForExecution(projectAssembly.Configuration);
+		var hasTestCases =
+#if !XUNIT_AOT
+			projectAssembly.TestCasesToRun.Count != 0 ||
+#endif
+			projectAssembly.TestCaseIDsToRun.Count != 0;
 
 		return
-			projectAssembly.TestCasesToRun.Count != 0
+			hasTestCases
 				? ForRun(
 					coreFrameworkVersion,
 					executionOptions,
+#if XUNIT_AOT
+					[],
+#else
 					projectAssembly.TestCasesToRun,
+#endif
 					projectAssembly.TestCaseIDsToRun,
 					projectAssembly.ConfigFileName,
 					projectAssembly.Project.Configuration.WaitForDebuggerOrDefault
-				)
-				: ForFindAndRun(
+				) :
+				ForFindAndRun(
 					coreFrameworkVersion,
 					TestFrameworkOptions.ForDiscovery(projectAssembly.Configuration),
 					executionOptions,

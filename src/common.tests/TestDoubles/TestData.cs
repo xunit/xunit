@@ -1,4 +1,3 @@
-using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
 
@@ -9,7 +8,9 @@ public static partial class TestData
 	public const string DefaultAssemblyName = "test-assembly";
 	public const string DefaultAssemblyPath = "./test-assembly.dll";
 	public const string DefaultAssemblyUniqueID = "assembly-id";
+	public static TimeSpan DefaultClockTime = TimeSpan.FromSeconds((double)DefaultExecutionTime);
 	public const string DefaultConfigFilePath = "./test-assembly.json";
+	public const int DefaultCountErrors = 1;
 	public const int DefaultCountFailed = 42;
 	public const int DefaultCountTotal = 2112;
 	public const int DefaultCountSkipped = 6;
@@ -48,7 +49,6 @@ public static partial class TestData
 	public static readonly IReadOnlyDictionary<string, IReadOnlyCollection<string>> DefaultTraits = new Dictionary<string, HashSet<string>>() { ["foo"] = ["bar", "baz"], ["biff"] = ["bang"] }.ToReadOnly();
 	public static readonly IReadOnlyDictionary<string, IReadOnlyCollection<string>> DefaultTraitsWithCategory = new Dictionary<string, HashSet<string>>() { ["foo"] = ["bar", "baz"], ["biff"] = ["bang"], ["category"] = ["interesting"] }.ToReadOnly();
 	public static readonly IReadOnlyDictionary<string, TestAttachment> EmptyAttachments = new Dictionary<string, TestAttachment>();
-	public static readonly Dictionary<string, (Type, CollectionDefinitionAttribute)> EmptyCollectionDefinitions = [];
 	public static readonly IReadOnlyDictionary<string, IReadOnlyCollection<string>> EmptyTraits = new Dictionary<string, IReadOnlyCollection<string>>();
 
 	public static ITestFrameworkDiscoveryOptions TestFrameworkDiscoveryOptions(

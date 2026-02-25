@@ -2,7 +2,7 @@ using Xunit;
 using Xunit.Sdk;
 using Xunit.v3;
 
-public class TestMethodRunnerTests
+public partial class TestMethodRunnerTests
 {
 	public class Messages
 	{
@@ -72,7 +72,7 @@ public class TestMethodRunnerTests
 
 			VerifyTestMethodMessage(starting);
 			Assert.Equal("test-method", starting.MethodName);
-			Assert.Equivalent(TestData.DefaultTraits, starting.Traits);
+			Assert.Equal(TestData.DefaultTraits, starting.Traits);
 		}
 
 		static void ThrowException() =>
@@ -105,7 +105,7 @@ public class TestMethodRunnerTests
 			Assert.Equal(new[]
 			{
 				"OnTestMethodStarting",
-				"RunTestCaseAsync(testCase: \"test-case-display-name\")",
+				"RunTestCase(testCase: 'test-case-display-name')",
 				// OnTestMethodCleanupFailure
 				"OnTestMethodFinished(summary: { Total = 0 })",
 				"OnError(exception: typeof(DivideByZeroException))",
@@ -126,7 +126,7 @@ public class TestMethodRunnerTests
 			Assert.Equal(new[]
 			{
 				"OnTestMethodStarting",
-				"RunTestCaseAsync(testCase: \"test-case-display-name\")",
+				"RunTestCase(testCase: 'test-case-display-name')",
 				"OnTestMethodCleanupFailure(exception: typeof(DivideByZeroException))",
 				"OnTestMethodFinished(summary: { Total = 0 })",
 				// OnError
@@ -145,7 +145,7 @@ public class TestMethodRunnerTests
 			Assert.Equal(new[]
 			{
 				"OnTestMethodStarting",
-				"RunTestCaseAsync(testCase: \"test-case-display-name\")",
+				"RunTestCase(testCase: 'test-case-display-name')",
 				// OnTestMethodCleanupFailure
 				"OnTestMethodFinished(summary: { Total = 0 })",
 				// OnError
@@ -159,7 +159,7 @@ public class TestMethodRunnerTests
 			var runner = new TestableTestMethodRunner
 			{
 				OnTestMethodStarting__Result = false,
-				RunTestCaseAsync__Result = summary,
+				RunTestCase__Result = summary,
 			};
 
 			await runner.RunAsync();
@@ -169,7 +169,7 @@ public class TestMethodRunnerTests
 			Assert.Equal(new[]
 			{
 				"OnTestMethodStarting",
-				// RunTestCaseAsync
+				// RunTestCase
 				// OnTestMethodCleanupFailure
 				"OnTestMethodFinished(summary: { Total = 0 })",
 				// OnError
@@ -183,7 +183,7 @@ public class TestMethodRunnerTests
 		public static async ValueTask NoExceptions()
 		{
 			var summary = new RunSummary { Total = 9, Failed = 2, Skipped = 1, NotRun = 3, Time = 21.12m };
-			var runner = new TestableTestMethodRunner { RunTestCaseAsync__Result = summary };
+			var runner = new TestableTestMethodRunner { RunTestCase__Result = summary };
 
 			var result = await runner.RunAsync();
 
@@ -193,7 +193,7 @@ public class TestMethodRunnerTests
 			Assert.Equal(new[]
 			{
 				"OnTestMethodStarting",
-				"RunTestCaseAsync(testCase: \"test-case-display-name\")",
+				"RunTestCase(testCase: 'test-case-display-name')",
 				// OnTestMethodCleanupFailure
 				"OnTestMethodFinished(summary: { Total = 9, Failed = 2, Skipped = 1, NotRun = 3, Time = 21.12 })",
 				// OnError
@@ -214,7 +214,7 @@ public class TestMethodRunnerTests
 			Assert.Equal(new[]
 			{
 				"OnTestMethodStarting",
-				"RunTestCaseAsync(testCase: \"test-case-display-name\")",
+				"RunTestCase(testCase: 'test-case-display-name')",
 				"OnTestMethodCleanupFailure(exception: typeof(ArgumentException))",
 				"OnTestMethodFinished(summary: { Total = 0 })",
 				"OnError(exception: typeof(DivideByZeroException))",
@@ -233,7 +233,7 @@ public class TestMethodRunnerTests
 			Assert.Equal(new[]
 			{
 				"OnTestMethodStarting",
-				"RunTestCaseAsync(testCase: \"test-case-display-name\")",
+				"RunTestCase(testCase: 'test-case-display-name')",
 				// OnTestMethodCleanupFailure
 				"OnTestMethodFinished(summary: { Total = 0 })",
 				"OnError(exception: typeof(DivideByZeroException))",
@@ -252,7 +252,7 @@ public class TestMethodRunnerTests
 			Assert.Equal(new[]
 			{
 				"OnTestMethodStarting",
-				"FailTestCase(testCase: \"test-case-display-name\", exception: typeof(DivideByZeroException))",
+				"FailTestCase(testCase: 'test-case-display-name', exception: typeof(DivideByZeroException))",
 				// OnTestMethodCleanupFailure
 				"OnTestMethodFinished(summary: { Total = 0 })",
 				// OnError
@@ -260,16 +260,40 @@ public class TestMethodRunnerTests
 		}
 	}
 
-	class TestableTestMethodRunner(ITestCase? testCase = null) :
+	public class Run
+	{
+		[Fact]
+		public static async ValueTask DefaultTestCaseOrdering()
+		{
+			var method = Mocks.TestMethod();
+			var testCase1 = Mocks.TestCase(testMethod: method, testCaseDisplayName: "1", uniqueID: "test-case-1");
+			var testCase2 = Mocks.TestCase(testMethod: method, testCaseDisplayName: "2", uniqueID: "test-case-2");
+			var testCase3 = Mocks.TestCase(testMethod: method, testCaseDisplayName: "3", uniqueID: "test-case-3");
+			var testCase4 = Mocks.TestCase(testMethod: method, testCaseDisplayName: "4", uniqueID: "test-case-4");
+			var runner = new TestableTestMethodRunner([testCase1, testCase3, testCase4, testCase2]);
+
+			await runner.RunAsync();
+
+			Assert.Equal([
+				"OnTestMethodStarting",
+				"RunTestCase(testCase: '1')",
+				"RunTestCase(testCase: '3')",
+				"RunTestCase(testCase: '4')",
+				"RunTestCase(testCase: '2')",
+				"OnTestMethodFinished(summary: { Total = 0 })",
+			], runner.Invocations);
+		}
+	}
+
+	class TestableTestMethodRunner(ITestCase[]? testCases = null) :
 		TestMethodRunner<TestMethodRunnerContext<ITestMethod, ITestCase>, ITestMethod, ITestCase>
 	{
-		readonly ITestCase testCase = testCase ?? Mocks.TestCase();
-
 		public readonly ExceptionAggregator Aggregator = new();
 		public readonly CancellationTokenSource CancellationTokenSource = new();
 		public readonly List<string> Invocations = [];
 		public readonly SpyMessageBus MessageBus = new();
-		ITestMethod TestMethod => Guard.ArgumentNotNull(testCase.TestMethod);
+		ITestCase[] TestCases { get; } = testCases ?? [Mocks.TestCase()];
+		ITestMethod TestMethod => Guard.ArgumentNotNull(TestCases[0].TestMethod);
 
 		public RunSummary FailTestCase__Result = new();
 
@@ -278,14 +302,14 @@ public class TestMethodRunnerTests
 			ITestCase testCase,
 			Exception? exception)
 		{
-			Invocations.Add($"FailTestCase(testCase: \"{testCase.TestCaseDisplayName}\", exception: {TypeName(exception)})");
+			Invocations.Add($"FailTestCase(testCase: '{testCase.TestCaseDisplayName}', exception: {TypeName(exception)})");
 
 			return new(FailTestCase__Result);
 		}
 
 		public async ValueTask<bool> OnError(Exception exception)
 		{
-			await using var ctxt = new TestMethodRunnerContext<ITestMethod, ITestCase>(TestMethod, [testCase], ExplicitOption.Off, MessageBus, Aggregator, CancellationTokenSource);
+			await using var ctxt = new TestMethodRunnerContext<ITestMethod, ITestCase>(TestMethod, TestCases, ExplicitOption.Off, MessageBus, Aggregator, CancellationTokenSource);
 			await ctxt.InitializeAsync();
 
 			return await OnError(ctxt, exception);
@@ -311,7 +335,7 @@ public class TestMethodRunnerTests
 
 		public async ValueTask<bool> OnTestMethodCleanupFailure(Exception exception)
 		{
-			await using var ctxt = new TestMethodRunnerContext<ITestMethod, ITestCase>(TestMethod, [testCase], ExplicitOption.Off, MessageBus, Aggregator, CancellationTokenSource);
+			await using var ctxt = new TestMethodRunnerContext<ITestMethod, ITestCase>(TestMethod, TestCases, ExplicitOption.Off, MessageBus, Aggregator, CancellationTokenSource);
 			await ctxt.InitializeAsync();
 
 			return await OnTestMethodCleanupFailure(ctxt, exception);
@@ -340,7 +364,7 @@ public class TestMethodRunnerTests
 
 		public async ValueTask<bool> OnTestMethodFinished(RunSummary summary)
 		{
-			await using var ctxt = new TestMethodRunnerContext<ITestMethod, ITestCase>(TestMethod, [testCase], ExplicitOption.Off, MessageBus, Aggregator, CancellationTokenSource);
+			await using var ctxt = new TestMethodRunnerContext<ITestMethod, ITestCase>(TestMethod, TestCases, ExplicitOption.Off, MessageBus, Aggregator, CancellationTokenSource);
 			await ctxt.InitializeAsync();
 
 			return await OnTestMethodFinished(ctxt, summary);
@@ -369,7 +393,7 @@ public class TestMethodRunnerTests
 
 		public async ValueTask<bool> OnTestMethodStarting()
 		{
-			await using var ctxt = new TestMethodRunnerContext<ITestMethod, ITestCase>(TestMethod, [testCase], ExplicitOption.Off, MessageBus, Aggregator, CancellationTokenSource);
+			await using var ctxt = new TestMethodRunnerContext<ITestMethod, ITestCase>(TestMethod, TestCases, ExplicitOption.Off, MessageBus, Aggregator, CancellationTokenSource);
 			await ctxt.InitializeAsync();
 
 			return await OnTestMethodStarting(ctxt);
@@ -396,21 +420,21 @@ public class TestMethodRunnerTests
 
 		public async ValueTask<RunSummary> RunAsync()
 		{
-			await using var ctxt = new TestMethodRunnerContext<ITestMethod, ITestCase>(TestMethod, [testCase], ExplicitOption.Off, MessageBus, Aggregator, CancellationTokenSource);
+			await using var ctxt = new TestMethodRunnerContext<ITestMethod, ITestCase>(TestMethod, TestCases, ExplicitOption.Off, MessageBus, Aggregator, CancellationTokenSource);
 			await ctxt.InitializeAsync();
 
 			return await Run(ctxt);
 		}
 
-		public RunSummary RunTestCaseAsync__Result = new();
+		public RunSummary RunTestCase__Result = new();
 
 		protected override ValueTask<RunSummary> RunTestCase(
 			TestMethodRunnerContext<ITestMethod, ITestCase> ctxt,
 			ITestCase testCase)
 		{
-			Invocations.Add($"RunTestCaseAsync(testCase: \"{testCase.TestCaseDisplayName}\")");
+			Invocations.Add($"RunTestCase(testCase: '{testCase.TestCaseDisplayName}')");
 
-			return new(RunTestCaseAsync__Result);
+			return new(RunTestCase__Result);
 		}
 
 		static string TypeName(object? obj) =>

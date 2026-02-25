@@ -1,3 +1,6 @@
+#pragma warning disable CA1307 // Specify StringComparison for clarity
+#pragma warning disable SYSLIB1045 // Convert to 'GeneratedRegexAttribute'
+
 using System.Text.RegularExpressions;
 
 namespace Xunit.Sdk;

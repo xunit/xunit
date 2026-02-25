@@ -74,7 +74,9 @@ public class XunitProjectAssemblyTests
 			Assert.Equal(78, updatedAssembly.Configuration.PrintMaxStringLength);
 			Assert.True(updatedAssembly.Configuration.SynchronousMessageReporting);
 			Assert.True(updatedAssembly.Project.Configuration.WaitForDebugger);
+#if !XUNIT_AOT
 			Assert.Empty(updatedAssembly.TestCasesToRun);
+#endif
 			Assert.Same(filters, updatedAssembly.Configuration.Filters);
 		}
 
@@ -110,7 +112,9 @@ public class XunitProjectAssemblyTests
 			Assert.False(updatedAssembly.Configuration.StopOnFail);
 			Assert.False(updatedAssembly.Configuration.SynchronousMessageReporting);
 			Assert.True(updatedAssembly.Project.Configuration.WaitForDebugger);
+#if !XUNIT_AOT
 			Assert.Empty(updatedAssembly.TestCasesToRun);
+#endif
 			Assert.Same(filters, updatedAssembly.Configuration.Filters);
 		}
 
@@ -118,7 +122,11 @@ public class XunitProjectAssemblyTests
 		public void RunSettings()
 		{
 			var projectAssembly = TestData.XunitProjectAssembly<XunitProjectAssemblyTests>();
-			var settings = new FrontControllerRunSettings(executionOptions, ["test-1", "test-2"]);
+#if XUNIT_AOT
+			var settings = FrontControllerRunSettings.WithTestCaseIDs(executionOptions, ["id-1", "id-2"]);
+#else
+			var settings = FrontControllerRunSettings.WithSerializedTestCasesAndTestCaseIDs(executionOptions, ["test-1", "test-2"], ["id-1", "id-2"]);
+#endif
 			settings.LaunchOptions.WaitForDebugger = true;
 
 			var updatedAssembly = projectAssembly.WithSettings(settings);
@@ -141,7 +149,10 @@ public class XunitProjectAssemblyTests
 			Assert.False(updatedAssembly.Configuration.ShowLiveOutput);
 			Assert.False(updatedAssembly.Configuration.StopOnFail);
 			Assert.False(updatedAssembly.Configuration.SynchronousMessageReporting);
+			Assert.Equal(["id-1", "id-2"], updatedAssembly.TestCaseIDsToRun);
+#if !XUNIT_AOT
 			Assert.Equal(["test-1", "test-2"], updatedAssembly.TestCasesToRun);
+#endif
 			Assert.True(updatedAssembly.Project.Configuration.WaitForDebugger);
 		}
 	}

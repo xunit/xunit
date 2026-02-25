@@ -1,3 +1,5 @@
+#pragma warning disable CA1513 // Use ObjectDisposedException throw helper
+
 using System.Runtime.ExceptionServices;
 
 namespace Xunit.Sdk;

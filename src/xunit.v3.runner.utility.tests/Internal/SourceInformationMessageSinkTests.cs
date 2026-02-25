@@ -1,4 +1,3 @@
-using NSubstitute;
 using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
@@ -8,9 +7,8 @@ public class SourceInformationMessageSinkTests
 	[Fact]
 	public void TestCaseDiscovered_WhenNull_Overwrites()
 	{
-		var provider = Substitute.For<ISourceInformationProvider>();
-		provider.GetSourceInformation(null, null).ReturnsForAnyArgs(new SourceInformation("file-path", 42));
-		var message = TestData.TestCaseDiscovered<SourceInformationMessageSinkTests>(nameof(TestCaseDiscovered_WhenNull_Overwrites));
+		var provider = new SpySourceInformationProvider { OnGetSourceInformation = (c, m) => new SourceInformation("file-path", 42) };
+		var message = TestData.TestCaseDiscovered();
 		var spySink = SpyMessageSink.Capture();
 		var sink = new SourceInformationMessageSink(spySink, provider);
 
@@ -24,9 +22,8 @@ public class SourceInformationMessageSinkTests
 	[Fact]
 	public void TestCaseStarting_WhenNull_Overwrites()
 	{
-		var provider = Substitute.For<ISourceInformationProvider>();
-		provider.GetSourceInformation(null, null).ReturnsForAnyArgs(new SourceInformation("file-path", 42));
-		var message = TestData.TestCaseStarting<SourceInformationMessageSinkTests>(nameof(TestCaseStarting_WhenNull_Overwrites));
+		var provider = new SpySourceInformationProvider { OnGetSourceInformation = (c, m) => new SourceInformation("file-path", 42) };
+		var message = TestData.TestCaseStarting();
 		var spySink = SpyMessageSink.Capture();
 		var sink = new SourceInformationMessageSink(spySink, provider);
 
@@ -40,9 +37,8 @@ public class SourceInformationMessageSinkTests
 	[Fact]
 	public void TestCaseDiscovered_WhenNonNull_DoesNotOverwrite()
 	{
-		var provider = Substitute.For<ISourceInformationProvider>();
-		provider.GetSourceInformation(null, null).ReturnsForAnyArgs(new SourceInformation("file-path", 42));
-		var message = TestData.TestCaseDiscovered<SourceInformationMessageSinkTests>(nameof(TestCaseDiscovered_WhenNonNull_DoesNotOverwrite), sourceFilePath: "other-path", sourceLineNumber: 2112);
+		var provider = new SpySourceInformationProvider { OnGetSourceInformation = (c, m) => new SourceInformation("file-path", 42) };
+		var message = TestData.TestCaseDiscovered(sourceFilePath: "other-path", sourceLineNumber: 2112);
 		var spySink = SpyMessageSink.Capture();
 		var sink = new SourceInformationMessageSink(spySink, provider);
 
@@ -56,9 +52,8 @@ public class SourceInformationMessageSinkTests
 	[Fact]
 	public void TestCaseStarting_WhenNonNull_DoesNotOverwrite()
 	{
-		var provider = Substitute.For<ISourceInformationProvider>();
-		provider.GetSourceInformation(null, null).ReturnsForAnyArgs(new SourceInformation("file-path", 42));
-		var message = TestData.TestCaseStarting<SourceInformationMessageSinkTests>(nameof(TestCaseStarting_WhenNonNull_DoesNotOverwrite), sourceFilePath: "other-path", sourceLineNumber: 2112);
+		var provider = new SpySourceInformationProvider { OnGetSourceInformation = (c, m) => new SourceInformation("file-path", 42) };
+		var message = TestData.TestCaseStarting(sourceFilePath: "other-path", sourceLineNumber: 2112);
 		var spySink = SpyMessageSink.Capture();
 		var sink = new SourceInformationMessageSink(spySink, provider);
 

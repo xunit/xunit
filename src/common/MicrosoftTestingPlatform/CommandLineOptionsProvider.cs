@@ -306,7 +306,7 @@ public sealed class CommandLineOptionsProvider() :
 		options.AssemblyConfig.DiagnosticMessages = ParseOnOff(options.Arguments[0]);
 
 	static void OnExplicit(ParseOptions options) =>
-		options.AssemblyConfig.ExplicitOption = ParseEnum<ExplicitOption>(options.Arguments[0]);
+		options.AssemblyConfig.ExplicitOption = ParseEnum(options.Arguments[0], ExplicitOption.ValidValues);
 
 	static void OnFailSkips(ParseOptions options) =>
 		options.AssemblyConfig.FailSkips = ParseOnOff(options.Arguments[0]);
@@ -360,7 +360,7 @@ public sealed class CommandLineOptionsProvider() :
 		};
 
 	static void OnMethodDisplay(ParseOptions options) =>
-		options.AssemblyConfig.MethodDisplay = ParseEnum<TestMethodDisplay>(options.Arguments[0]);
+		options.AssemblyConfig.MethodDisplay = ParseEnum(options.Arguments[0], TestMethodDisplay.ValidValues);
 
 	static void OnMethodDisplayOptions(ParseOptions options)
 	{
@@ -383,7 +383,7 @@ public sealed class CommandLineOptionsProvider() :
 			options.AssemblyConfig.MethodDisplayOptions = TestMethodDisplayOptions.None;
 
 			foreach (var argument in options.Arguments)
-				options.AssemblyConfig.MethodDisplayOptions |= ParseEnum<TestMethodDisplayOptions>(argument);
+				options.AssemblyConfig.MethodDisplayOptions |= ParseEnum(argument, TestMethodDisplayOptions.ValidValues);
 		}
 	}
 
@@ -396,7 +396,7 @@ public sealed class CommandLineOptionsProvider() :
 		};
 
 	static void OnParallelAlgorithm(ParseOptions options) =>
-		options.AssemblyConfig.ParallelAlgorithm = ParseEnum<ParallelAlgorithm>(options.Arguments[0]);
+		options.AssemblyConfig.ParallelAlgorithm = ParseEnum(options.Arguments[0], ParallelAlgorithm.ValidValues);
 
 	static void OnPreEnumerateTheories(ParseOptions options) =>
 		options.AssemblyConfig.PreEnumerateTheories = ParseOnOff(options.Arguments[0]);
@@ -456,11 +456,13 @@ public sealed class CommandLineOptionsProvider() :
 				option.Value.Parse(new ParseOptions(arguments, projectAssembly.Configuration, projectAssembly.Project.Configuration, configuration, commandLineOptions));
 	}
 
-	static TEnum ParseEnum<TEnum>(string value)
-		where TEnum : struct =>
-			Enum.TryParse<TEnum>(value, ignoreCase: true, out var result)
-				? result
-				: throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Invalid value '{0}' (must be one of: {1})", value, string.Join(", ", Enum.GetValues(typeof(TEnum)).OfType<object>().Select(e => "'" + ToCamelCaseString(e) + "'"))));
+	static TEnum ParseEnum<TEnum>(
+		string value,
+		IReadOnlyCollection<TEnum> validValues)
+			where TEnum : struct =>
+				Enum.TryParse<TEnum>(value, ignoreCase: true, out var result)
+					? result
+					: throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Invalid value '{0}' (must be one of: {1})", value, string.Join(", ", validValues.Select(e => "'" + ToCamelCaseString(e) + "'"))));
 
 	static int ParseMaxThreadsValue(string value)
 	{

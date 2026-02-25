@@ -1,0 +1,8 @@
+<Project>
+
+  <ItemGroup>
+    <!-- Give the code generator access to the output path -->
+    <CompilerVisibleProperty Include="MSBuildProjectFullPath" />
+  </ItemGroup>
+
+</Project>

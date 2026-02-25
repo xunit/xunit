@@ -37,5 +37,5 @@ public class TestClassComparer<TTestClass> : IEqualityComparer<TTestClass?>, ICo
 
 	/// <inheritdoc/>
 	public int GetHashCode(TTestClass? obj) =>
-		obj is null ? 0 : obj.TestClassName.GetHashCode();
+		obj is null ? 0 : obj.TestClassName.GetHashCodeOrdinal();
 }

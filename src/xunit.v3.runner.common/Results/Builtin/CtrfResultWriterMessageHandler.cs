@@ -65,7 +65,7 @@ public class CtrfResultWriterMessageHandler : ResultMetadataMessageHandlerBase<C
 		new();
 
 	/// <inheritdoc/>
-	public ValueTask DisposeAsync()
+	public async ValueTask DisposeAsync()
 	{
 		GC.SuppressFinalize(this);
 
@@ -226,7 +226,7 @@ public class CtrfResultWriterMessageHandler : ResultMetadataMessageHandlerBase<C
 				}
 
 				using (var streamWriter = new StreamWriter(stream.Value, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false)))
-					streamWriter.Write(buffer);
+					await streamWriter.WriteAsync(buffer.ToString());
 
 				stream.Value.SafeDispose();
 
@@ -236,8 +236,6 @@ public class CtrfResultWriterMessageHandler : ResultMetadataMessageHandlerBase<C
 			{
 				disposed = true;
 			}
-
-		return default;
 	}
 
 	void HandleErrorMessage(MessageHandlerArgs<IErrorMessage> args)

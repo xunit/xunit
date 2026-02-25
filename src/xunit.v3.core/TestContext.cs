@@ -56,8 +56,7 @@ public sealed class TestContext : ITestContext, IDisposable
 	{
 		get
 		{
-			if (disposed)
-				throw new ObjectDisposedException(nameof(TestContext));
+			ObjectDisposedException.ThrowIf(disposed, this);
 
 			return linkedCancellationTokenSource.Token;
 		}
@@ -220,8 +219,7 @@ public sealed class TestContext : ITestContext, IDisposable
 	/// <inheritdoc/>
 	public void CancelCurrentTest()
 	{
-		if (disposed)
-			throw new ObjectDisposedException(nameof(TestContext));
+		ObjectDisposedException.ThrowIf(disposed, this);
 
 		testCancellationTokenSource.Cancel();
 	}
@@ -242,9 +240,18 @@ public sealed class TestContext : ITestContext, IDisposable
 	public ValueTask<object?> GetFixture(Type fixtureType)
 	{
 		if (fixtures is null)
-			return new(null);
+			return new(default(object));
 
 		return fixtures.GetFixture(fixtureType);
+	}
+
+	/// <inheritdoc/>
+	public async ValueTask<T?> GetFixture<T>()
+	{
+		if (fixtures is null)
+			return default;
+
+		return await fixtures.GetFixture<T>();
 	}
 
 	/// <inheritdoc/>

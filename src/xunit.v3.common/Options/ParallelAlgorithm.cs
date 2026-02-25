@@ -28,15 +28,21 @@ public enum ParallelAlgorithm
 /// </summary>
 public static class ParallelAlgorithmExtensions
 {
-	static readonly HashSet<ParallelAlgorithm> validValues =
-	[
-		ParallelAlgorithm.Conservative,
-		ParallelAlgorithm.Aggressive,
-	];
+	extension(ParallelAlgorithm)
+	{
+		/// <summary>
+		/// Gets the valid values for <see cref="ParallelAlgorithm"/>.
+		/// </summary>
+		public static HashSet<ParallelAlgorithm> ValidValues =>
+		[
+			ParallelAlgorithm.Conservative,
+			ParallelAlgorithm.Aggressive,
+		];
+	}
 
 	/// <summary>
 	/// Determines if the value is a valid enum value.
 	/// </summary>
 	public static bool IsValid(this ParallelAlgorithm value) =>
-		validValues.Contains(value);
+		ParallelAlgorithm.ValidValues.Contains(value);
 }

@@ -6,47 +6,8 @@ namespace Xunit.Runner.Common;
 /// <summary>
 /// Represents an assembly in an <see cref="XunitProject"/>.
 /// </summary>
-public class XunitProjectAssembly
+public partial class XunitProjectAssembly
 {
-	/// <summary>Initializes a new instance of the <see cref="XunitProjectAssembly"/> class</summary>
-	/// <param name="project">The project this assembly belongs to.</param>
-	/// <param name="assemblyFileName">The assembly filename</param>
-	/// <param name="assemblyMetadata">The assembly metadata</param>
-	public XunitProjectAssembly(
-		XunitProject project,
-		string assemblyFileName,
-		AssemblyMetadata assemblyMetadata)
-	{
-		AssemblyFileName = Guard.ArgumentNotNull(assemblyFileName);
-		AssemblyMetadata = Guard.ArgumentNotNull(assemblyMetadata);
-		Configuration = new();
-		Project = Guard.ArgumentNotNull(project);
-		TestCaseIDsToRun = [];
-		TestCasesToRun = [];
-	}
-
-	internal XunitProjectAssembly(
-		Assembly? assembly,
-		string assemblyFileName,
-		AssemblyMetadata assemblyMetadata,
-		bool autoEnableExplicit,
-		string? configFileName,
-		TestAssemblyConfiguration configuration,
-		XunitProject project,
-		List<string> testCaseIDsToRun,
-		List<string> testCasesToRun)
-	{
-		Assembly = assembly;
-		AssemblyFileName = Guard.ArgumentNotNull(assemblyFileName);
-		AssemblyMetadata = Guard.ArgumentNotNull(assemblyMetadata);
-		AutoEnableExplicit = autoEnableExplicit;
-		ConfigFileName = configFileName;
-		Configuration = Guard.ArgumentNotNull(configuration);
-		Project = Guard.ArgumentNotNull(project);
-		TestCaseIDsToRun = testCaseIDsToRun;
-		TestCasesToRun = testCasesToRun;
-	}
-
 	/// <summary>
 	/// Gets or sets the assembly under test. May be <see langword="null"/> when the test assembly is not
 	/// loaded into the current <see cref="AppDomain"/>.
@@ -56,8 +17,13 @@ public class XunitProjectAssembly
 	/// <summary>
 	/// Gets the assembly display name.
 	/// </summary>
-	public string AssemblyDisplayName =>
-		Path.GetFileNameWithoutExtension(AssemblyFileName);
+	public string AssemblyDisplayName
+	{
+		get =>
+			AssemblyFileName.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) || AssemblyFileName.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)
+				? Path.GetFileNameWithoutExtension(AssemblyFileName)
+				: Path.GetFileName(AssemblyFileName);
+	}
 
 	/// <summary>
 	/// Gets or sets the assembly file name.
@@ -98,18 +64,6 @@ public class XunitProjectAssembly
 	/// Gets the project that this project assembly belongs to.
 	/// </summary>
 	public XunitProject Project { get; }
-
-	/// <summary>
-	/// Gets a list of test case IDs to be run. If this list and <see cref="TestCasesToRun"/> are empty, then all test
-	/// cases (that match the filters) will be run.
-	/// </summary>
-	public List<string> TestCaseIDsToRun { get; }
-
-	/// <summary>
-	/// Gets a list of serialized test cases to be run. If this list and <see cref="TestCaseIDsToRun"/> are empty, then
-	/// all test cases (that match the filters) will be run.
-	/// </summary>
-	public List<string> TestCasesToRun { get; }
 
 	/// <summary>
 	/// Create an instance of <see cref="XunitProjectAssembly"/> populated by front controller settings.
@@ -153,8 +107,10 @@ public class XunitProjectAssembly
 				settings.Options.GetSynchronousMessageReporting() ?? Configuration.SynchronousMessageReporting
 			),
 			XunitProject.WithLaunchOptions(Project, settings.LaunchOptions),
-			TestCaseIDsToRun,
-			TestCasesToRun
+			TestCaseIDsToRun
+#if !XUNIT_AOT
+			, TestCasesToRun
+#endif
 		);
 
 	/// <summary>
@@ -209,8 +165,10 @@ public class XunitProjectAssembly
 				settings.ExecutionOptions.GetSynchronousMessageReporting() ?? settings.DiscoveryOptions.GetSynchronousMessageReporting() ?? Configuration.SynchronousMessageReporting
 			),
 			XunitProject.WithLaunchOptions(Project, settings.LaunchOptions),
-			TestCaseIDsToRun,
-			TestCasesToRun
+			TestCaseIDsToRun
+#if !XUNIT_AOT
+			, TestCasesToRun
+#endif
 		);
 
 	/// <summary>
@@ -265,7 +223,9 @@ public class XunitProjectAssembly
 				settings.Options.GetSynchronousMessageReporting() ?? Configuration.SynchronousMessageReporting
 			),
 			XunitProject.WithLaunchOptions(Project, settings.LaunchOptions),
-			TestCaseIDsToRun,
-			settings.SerializedTestCases.CastOrToList()
+			settings.TestCaseIDsToRun.CastOrToList()
+#if !XUNIT_AOT
+			, settings.SerializedTestCases.CastOrToList()
+#endif
 		);
 }

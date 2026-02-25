@@ -5,6 +5,7 @@ using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
 
+[Collection(typeof(CleanEnvironmentAttribute))]
 [CleanEnvironment("COMPUTERNAME", "HOSTNAME", "NAME", "HOST", "USERNAME", "LOGNAME", "USER")]
 public class XmlV2ResultWriterMessageHandlerTests
 {
@@ -19,7 +20,7 @@ public class XmlV2ResultWriterMessageHandlerTests
 	// macOS
 	[InlineData("HOST", "LOGNAME")]
 	[InlineData("HOST", "USER")]
-	public async ValueTask AssembliesElement(
+	public static async ValueTask AssembliesElement(
 		string computerEnvName,
 		string userEnvName)
 	{
@@ -86,8 +87,8 @@ public class XmlV2ResultWriterMessageHandlerTests
 		Assert.Null(assemblyElement.Attribute("target-framework"));
 	}
 
-	[CulturedFactDefault]
-	public async ValueTask AssemblyFinished()
+	[CulturedFact(["en-US", "fr-FR"])]
+	public static async ValueTask AssemblyFinished()
 	{
 		var finishTime = new DateTimeOffset(2013, 7, 6, 17, 32, 48, TimeSpan.Zero);
 		var assemblyStarting = TestData.TestAssemblyStarting();
@@ -123,8 +124,8 @@ public class XmlV2ResultWriterMessageHandlerTests
 		Assert.Equal("2112", assemblyElement.Attribute("total")?.Value);
 	}
 
-	[CulturedFactDefault]
-	public async ValueTask TestCollections()
+	[CulturedFact(["en-US", "fr-FR"])]
+	public static async ValueTask TestCollections()
 	{
 		var assemblyStarting = TestData.TestAssemblyStarting();
 		var assemblyFinished = TestData.TestAssemblyFinished();
@@ -148,7 +149,7 @@ public class XmlV2ResultWriterMessageHandlerTests
 		Assert.Equal(123.457M.ToString(CultureInfo.InvariantCulture), collectionElement.Attribute("time")?.Value);
 	}
 
-	[CulturedFactDefault]
+	[CulturedFact(["en-US", "fr-FR"])]
 	public async ValueTask TestPassed()
 	{
 		var assemblyFinished = TestData.TestAssemblyFinished();
@@ -185,7 +186,7 @@ public class XmlV2ResultWriterMessageHandlerTests
 		Assert.Empty(testElement.Elements("reason"));
 	}
 
-	[CulturedFactDefault]
+	[CulturedFact(["en-US", "fr-FR"])]
 	public async ValueTask TestFailed()
 	{
 		var assemblyFinished = TestData.TestAssemblyFinished();
@@ -264,7 +265,7 @@ public class XmlV2ResultWriterMessageHandlerTests
 		Assert.Empty(failureElement.Elements("stack-trace").Single().Value);
 	}
 
-	[CulturedFactDefault]
+	[CulturedFact(["en-US", "fr-FR"])]
 	public async ValueTask TestSkipped()
 	{
 		var assemblyFinished = TestData.TestAssemblyFinished();
@@ -298,7 +299,7 @@ public class XmlV2ResultWriterMessageHandlerTests
 		Assert.Empty(testElement.Elements("failure"));
 	}
 
-	[CulturedFactDefault]
+	[CulturedFact(["en-US", "fr-FR"])]
 	public async ValueTask TestNotRun()
 	{
 		var assemblyFinished = TestData.TestAssemblyFinished();
@@ -330,7 +331,7 @@ public class XmlV2ResultWriterMessageHandlerTests
 		Assert.Empty(testElement.Elements("failure"));
 	}
 
-	[CulturedFactDefault]
+	[CulturedFact(["en-US", "fr-FR"])]
 	public async ValueTask TestResult_EmptyOutput()
 	{
 		var assemblyFinished = TestData.TestAssemblyFinished();
@@ -367,7 +368,7 @@ public class XmlV2ResultWriterMessageHandlerTests
 		Assert.Empty(testElement.Elements("reason"));
 	}
 
-	[CulturedFactDefault]
+	[CulturedFact(["en-US", "fr-FR"])]
 	public async ValueTask TestResult_OutputIsEscaped()
 	{
 		var assemblyFinished = TestData.TestAssemblyFinished();

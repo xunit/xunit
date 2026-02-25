@@ -1,3 +1,4 @@
+#pragma warning disable CA1307 // Specify StringComparison for clarity
 #pragma warning disable CA2002  // The console writer is not cross app-domain
 
 using Xunit.Sdk;

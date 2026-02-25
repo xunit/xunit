@@ -1,7 +1,10 @@
-using System.Reflection;
 using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
+
+#if !XUNIT_AOT
+using System.Reflection;
+#endif
 
 public class MessageSinkMessageTests
 {
@@ -100,6 +103,8 @@ public class MessageSinkMessageTests
 		Assert.Equal(expected, json);
 	}
 
+#if !XUNIT_AOT
+
 	[Fact]
 	public void ValidatesAllDerivedTypesAreSupported()
 	{
@@ -126,4 +131,6 @@ public class MessageSinkMessageTests
 		if (missingTypes.Count > 0)
 			throw new XunitException($"The following message classes are missing [JsonTypeID]:{Environment.NewLine}{string.Join(Environment.NewLine, missingTypes.Select(t => $"  - {t.SafeName()}").OrderBy(t => t))}");
 	}
+
+#endif  // !XUNIT_AOT
 }

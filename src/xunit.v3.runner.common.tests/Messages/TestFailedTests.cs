@@ -26,6 +26,8 @@ public class TestFailedTests
 			Assert.Equal(FailureCause.Assertion, failed.Cause);
 		}
 
+#if !XUNIT_AOT  // No custom exception detection since it requires reflection
+
 		[Fact]
 		public void CustomAssertionException()
 		{
@@ -35,6 +37,8 @@ public class TestFailedTests
 
 			Assert.Equal(FailureCause.Assertion, failed.Cause);
 		}
+
+#endif  // !XUNIT_AOT
 
 		interface IAssertionException
 		{ }
@@ -51,6 +55,8 @@ public class TestFailedTests
 
 			Assert.Equal(FailureCause.Timeout, failed.Cause);
 		}
+
+#if !XUNIT_AOT  // No custom exception detection since it requires reflection
 
 		[Fact]
 		public void CustomTimeoutException()
@@ -69,7 +75,7 @@ public class TestFailedTests
 		{ }
 
 		[Fact]
-		public void TimeoutExceptionTrumpsAssertionException()
+		public void TimeoutExceptionTakesPriorityOverAssertionException()
 		{
 			var ex = new MyMultiException();
 
@@ -80,5 +86,7 @@ public class TestFailedTests
 
 		class MyMultiException : Exception, IAssertionException, ITestTimeoutException
 		{ }
+
+#endif  // !XUNIT_AOT
 	}
 }

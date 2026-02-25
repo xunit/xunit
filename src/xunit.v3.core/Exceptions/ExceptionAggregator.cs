@@ -20,7 +20,7 @@ public struct ExceptionAggregator
 		exceptions = [];
 
 	ExceptionAggregator(IEnumerable<Exception>? exceptionsToClone) =>
-		exceptions = new(exceptionsToClone ?? []);
+		exceptions = [.. exceptionsToClone ?? []];
 
 	/// <summary>
 	/// Returns <see langword="true"/> if the aggregator has at least one exception inside it.

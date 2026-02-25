@@ -1,30 +1,11 @@
-using System.Diagnostics;
-using System.Reflection;
 using Xunit.Sdk;
 
 namespace Xunit.v3;
 
-/// <summary>
-/// Maps fixture objects, including support for generic collection fixtures.
-/// </summary>
-/// <remarks>
-/// Initializes a new instance of the <see cref="FixtureMappingManager"/> class.
-/// </remarks>
-/// <param name="fixtureCategory">The category of fixture (i.e., "Assembly"); used in exception messages</param>
-/// <param name="parentMappingManager">The parent mapping manager (used to resolve constructor arguments)</param>
-[DebuggerDisplay("category = {fixtureCategory}, cache count = {fixtureCache.Count}, known type count = {knownTypes.Count}")]
-public class FixtureMappingManager(
-	string fixtureCategory,
-	FixtureMappingManager? parentMappingManager = null) :
-		IAsyncDisposable
+partial class FixtureMappingManager
 {
 	volatile bool disposed;
 	readonly Dictionary<Type, object> fixtureCache = [];
-	readonly string fixtureCategory = fixtureCategory;
-	readonly HashSet<Type> knownTypes = [];
-#pragma warning disable CA2213  // We don't own the lifetime of this, so we shouldn't dispose of it
-	readonly FixtureMappingManager? parentMappingManager = parentMappingManager;
-#pragma warning restore CA2213
 
 	/// <summary>
 	/// FOR TESTING PURPOSES ONLY.
@@ -37,19 +18,6 @@ public class FixtureMappingManager(
 		foreach (var cachedFixtureValue in Guard.ArgumentNotNull(cachedFixtureValues))
 			fixtureCache[cachedFixtureValue.GetType()] = cachedFixtureValue;
 	}
-
-	internal IReadOnlyDictionary<Type, object> FixtureCache => fixtureCache;
-
-	/// <summary>
-	/// Returns a list of the known fixture types at this category level. This will not include fixture
-	/// types known from parent categories and above.
-	/// </summary>
-	public IReadOnlyCollection<Type> LocalFixtureTypes => knownTypes;
-
-	/// <summary>
-	/// Returns a list of all known fixture types at all category levels.
-	/// </summary>
-	public IReadOnlyCollection<Type> GlobalFixtureTypes => fixtureCache.Keys;
 
 	/// <inheritdoc/>
 	public async ValueTask DisposeAsync()
@@ -100,135 +68,83 @@ public class FixtureMappingManager(
 	/// <returns>Returns the value if the fixture type is found, or <see langword="null"/> if it's not.</returns>
 	public async ValueTask<object?> GetFixture(Type fixtureType)
 	{
-		if (disposed)
-			throw new ObjectDisposedException(nameof(FixtureMappingManager));
+		ObjectDisposedException.ThrowIf(disposed, this);
 
-		Guard.ArgumentNotNull(fixtureType);
-
-		// Pull from the cache if present
-		if (fixtureCache.TryGetValue(fixtureType, out var result))
-			return result;
-
-		// Ensure this is a type that's known to come from this fixture level; otherwise, ask the
-		// parent mapping manager to generate the type (or return null if it's not)
-		var isKnownType = knownTypes.Contains(fixtureType);
-		if (!isKnownType && fixtureType.IsGenericType)
-			isKnownType = knownTypes.Contains(fixtureType.GetGenericTypeDefinition());
-
-		if (!isKnownType)
-			return
-				parentMappingManager is not null
-					? await parentMappingManager.GetFixture(fixtureType)
-					: null;
-
-		// Ensure there is a single public constructor
-		var ctors =
-			fixtureType
-				.GetConstructors()
-				.Where(ci => !ci.IsStatic && ci.IsPublic)
-				.ToList();
-
-		if (ctors.Count != 1)
-			throw new TestPipelineException(string.Format(CultureInfo.CurrentCulture, "{0} fixture type '{1}' may only define a single public constructor.", fixtureCategory, fixtureType.SafeName()));
-
-		// Make sure we can accommodate all the constructor arguments from either known types or the parent
-		var ctor = ctors[0];
-		var parameters = ctor.GetParameters();
-		var ctorArgs = new object[parameters.Length];
-		var ctorIdx = 0;
-		var missingParameters = new List<ParameterInfo>();
-
-		foreach (var parameter in parameters)
-		{
-			object? arg = null;
-			if (parameter.ParameterType == typeof(IMessageSink))
-				arg = TestContext.CurrentInternal.DiagnosticMessageSink ?? NullMessageSink.Instance;
-			else if (parameter.ParameterType == typeof(ITestContextAccessor))
-				arg = TestContextAccessor.Instance;
-			else if (parentMappingManager is not null)
-				arg = await parentMappingManager.GetFixture(parameter.ParameterType);
-
-			if (arg is null)
-				missingParameters.Add(parameter);
-			else
-				ctorArgs[ctorIdx++] = arg;
-		}
-
-		if (missingParameters.Count > 0)
-			throw new TestPipelineException(
-				string.Format(
-					CultureInfo.CurrentCulture,
-					"{0} fixture type '{1}' had one or more unresolved constructor arguments: {2}",
-					fixtureCategory,
-					fixtureType.SafeName(),
-					string.Join(", ", missingParameters.Select(p => string.Format(CultureInfo.CurrentCulture, "{0} {1}", p.ParameterType.Name, p.Name)))
-				)
-			);
-
-		// Create the object
-		try
-		{
-			result = ctor.Invoke(ctorArgs);
-			fixtureCache[fixtureType] = result;
-		}
-		catch (Exception ex)
-		{
-			throw new TestPipelineException(string.Format(CultureInfo.CurrentCulture, "{0} fixture type '{1}' threw in its constructor", fixtureCategory, fixtureType.SafeName()), ex.Unwrap());
-		}
-
-		// Do async initialization
-		if (result is IAsyncLifetime asyncLifetime)
-			try
-			{
-				await asyncLifetime.InitializeAsync();
-			}
-			catch (Exception ex)
-			{
-				throw new TestPipelineException(string.Format(CultureInfo.CurrentCulture, "{0} fixture type '{1}' threw in InitializeAsync", fixtureCategory, fixtureType.SafeName()), ex.Unwrap());
-			}
-
-		return result;
+		var fixture = await TryGetFixture(fixtureType);
+		return fixture.Result;
 	}
 
 	/// <summary>
-	/// Initializes the known fixture types, always creating instances.
+	/// Get a value for the given fixture type. If the fixture type is unknown, then returns <see langword="default"/>.
 	/// </summary>
-	/// <param name="fixtureTypes">The known fixture types</param>
-	/// <remarks>
-	/// This method is for testing purposes only. Production code should call <see cref="InitializeAsync(IReadOnlyCollection{Type}, bool)"/>.
-	/// </remarks>
-	public ValueTask InitializeAsync(params Type[] fixtureTypes) =>
-		InitializeAsync(fixtureTypes, createInstances: true);
+	/// <typeparam name="T">The type of the fixture</typeparam>
+	public async ValueTask<T?> GetFixture<T>() =>
+		(await TryGetFixture<T>()).Result;
 
 	/// <summary>
-	/// Initializes the known fixture types, optionally creating the instances ahead of
-	/// time.
+	/// Tries to get a strongly typed fixture value.
 	/// </summary>
-	/// <param name="fixtureTypes">The known fixture types</param>
-	/// <param name="createInstances">A flag indicating whether the create the instances</param>
-	public async ValueTask InitializeAsync(
-		IReadOnlyCollection<Type> fixtureTypes,
-		bool createInstances)
+	/// <typeparam name="T">The fixture type</typeparam>
+	/// <returns>The result with a flag which indicates whether it was successful</returns>
+	/// <remarks>
+	/// This only returns fixture values, which differs from <see cref="TryGetFixtureArgument{T}()"/>
+	/// which will also return values for supported non-fixture argument types (like
+	/// <see cref="ITestContextAccessor"/> or <see cref="ITestOutputHelper"/>).
+	/// </remarks>
+	public async ValueTask<(bool Success, T? Result)> TryGetFixture<T>()
 	{
-		Guard.ArgumentNotNull(fixtureTypes);
+		ObjectDisposedException.ThrowIf(disposed, this);
 
-		foreach (var fixtureType in fixtureTypes)
-		{
-			var knownType = fixtureType;
+		var fixture = await TryGetFixture(typeof(T));
+		if (fixture.Success && fixture.Result is T resultAsT)
+			return (true, resultAsT);
 
-			// If this looks like FixtureType<T> instead of FixtureType<int>, we want the known type to be
-			// the open generic (i.e. FixtureType<>), which also means we can't directly create it now.
-			// We may be asked to create it later as a dependency, at which point we'll know the concrete
-			// type for the dependency.
-			if (fixtureType.IsGenericType && fixtureType.GenericTypeArguments.Any(t => t.IsGenericParameter))
-				knownType = fixtureType.GetGenericTypeDefinition();
+		return (false, default);
+	}
 
-			knownTypes.Add(knownType);
+	/// <summary>
+	/// Tries to get a fixture argument to help construct a fixture. The potential fixed argument
+	/// types are supported (e.g., <see cref="IMessageSink"/> and <see cref="ITestContextAccessor"/>),
+	/// as well as consulting the parent mapping manager.
+	/// </summary>
+	/// <typeparam name="T">The fixture argument type to supply</typeparam>
+	/// <remarks>
+	/// This differs from <see cref="TryGetFixture{T}()"/>, which only returns fixture values and not
+	/// additional supported argument types.
+	/// </remarks>
+	public ValueTask<(bool Success, T? Result)> TryGetFixtureArgument<T>()
+	{
+		ObjectDisposedException.ThrowIf(disposed, this);
 
-			// Pre-create the fixture type, because we want to make sure all concrete fixtures are
-			// instantiated even if nobody comes along later to get the instance.
-			if (createInstances && knownType == fixtureType)
-				await GetFixture(knownType);
-		}
+		return TryGetFixtureArgument<T>(this);
+	}
+
+	/// <summary>
+	/// Tries to get a fixture argument to help construct a fixture. The potential fixed argument
+	/// types are supported (e.g., <see cref="IMessageSink"/>, <see cref="ITestContextAccessor"/>,
+	/// and <see cref="ITestOutputHelper"/>), as well as consulting the parent mapping manager.
+	/// </summary>
+	/// <param name="mappingManager">The fixture mapping manager to get fixture instances from</param>
+	/// <typeparam name="T">The fixture argument type to supply</typeparam>
+	/// <remarks>
+	/// This is typically only used in Native AOT, since the current lifetime management for reflection-based
+	/// testing would require a delayed retrieval of <see cref="ITestOutputHelper"/>, whereas the code generation-based
+	/// runners delay resolution until just as the test is about to run.
+	/// </remarks>
+	public static async ValueTask<(bool Success, T? Result)> TryGetFixtureArgument<T>(FixtureMappingManager? mappingManager)
+	{
+		if (typeof(T) == typeof(IMessageSink))
+			return (true, (T)(TestContext.CurrentInternal.DiagnosticMessageSink ?? NullMessageSink.Instance));
+
+		if (typeof(T) == typeof(ITestContextAccessor))
+			return (true, (T)(ITestContextAccessor)TestContextAccessor.Instance);
+
+		if (typeof(T) == typeof(ITestOutputHelper))
+			return (true, (T)TestContext.Current.TestOutputHelper!);
+
+		if (mappingManager is not null)
+			return await mappingManager.TryGetFixture<T>();
+
+		return (false, default);
 	}
 }

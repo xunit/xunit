@@ -9,9 +9,11 @@ namespace Xunit.v3;
 /// <summary>
 /// Default implementation of <see cref="ITestCaseDiscovered"/>.
 /// </summary>
-[JsonTypeID("test-case-discovered")]
+[JsonTypeID(TypeID)]
 sealed partial class TestCaseDiscovered : TestCaseMessage, ITestCaseDiscovered
 {
+	internal const string TypeID = "test-case-discovered";
+
 	string ITestCaseMetadata.UniqueID =>
 		TestCaseUniqueID;
 
@@ -23,7 +25,9 @@ sealed partial class TestCaseDiscovered : TestCaseMessage, ITestCaseDiscovered
 		base.Serialize(serializer);
 
 		serializer.Serialize(nameof(Explicit), Explicit);
+#if !XUNIT_AOT
 		serializer.Serialize(nameof(Serialization), Serialization);
+#endif
 		serializer.Serialize(nameof(SkipReason), SkipReason);
 		serializer.Serialize(nameof(SourceFilePath), SourceFilePath);
 		serializer.Serialize(nameof(SourceLineNumber), SourceLineNumber);

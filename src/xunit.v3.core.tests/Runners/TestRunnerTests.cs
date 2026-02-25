@@ -8,60 +8,28 @@ public class TestRunnerTests
 	public class Run
 	{
 		[Fact]
-		public static async ValueTask Passing()
+		public static async ValueTask NoPreExistingError_NotCancelled()
 		{
-			var test = TestData.XunitTest<ClassUnderTest>(nameof(ClassUnderTest.Passing));
-			var runner = new SimpleXunitTestRunner(test);
+			var test = Mocks.Test();
+			var runner = new TestableTestRunner(test);
 
 			await runner.Run();
 
-			Assert.Single(runner.MessageBus.Messages.OfType<ITestPassed>());
-			var starting = Assert.Single(runner.MessageBus.Messages.OfType<ITestStarting>());
-			Assert.Equal($"{typeof(ClassUnderTest).FullName}.Passing", starting.TestDisplayName);
+			Assert.Collection(
+				runner.MessageBus.Messages,
+				message => Assert.IsType<ITestStarting>(message, exactMatch: false),
+				message => Assert.IsType<ITestClassConstructionStarting>(message, exactMatch: false),
+				message => Assert.IsType<ITestClassConstructionFinished>(message, exactMatch: false),
+				message => Assert.IsType<ITestPassed>(message, exactMatch: false),
+				message => Assert.IsType<ITestFinished>(message, exactMatch: false)
+			);
 		}
 
 		[Fact]
-		public static async ValueTask Failing()
+		public static async ValueTask Cancelled()
 		{
-			var test = TestData.XunitTest<ClassUnderTest>(nameof(ClassUnderTest.Failing));
-			var runner = new SimpleXunitTestRunner(test);
-
-			await runner.Run();
-
-			Assert.Single(runner.MessageBus.Messages.OfType<ITestFailed>());
-			var starting = Assert.Single(runner.MessageBus.Messages.OfType<ITestStarting>());
-			Assert.Equal($"{typeof(ClassUnderTest).FullName}.Failing", starting.TestDisplayName);
-		}
-
-		[Fact]
-		public static async ValueTask TooManyParameterValues()
-		{
-			var test = TestData.XunitTest<ClassUnderTest>(nameof(ClassUnderTest.Passing), testMethodArguments: [42]);
-			var runner = new SimpleXunitTestRunner(test);
-
-			await runner.Run();
-
-			var failed = Assert.Single(runner.MessageBus.Messages.OfType<ITestFailed>());
-			Assert.Equal("The test method expected 0 parameter values, but 1 parameter value was provided.", failed.Messages.Single());
-		}
-
-		[Fact]
-		public static async ValueTask NotEnoughParameterValues()
-		{
-			var test = TestData.XunitTest<ClassUnderTest>(nameof(ClassUnderTest.FactWithParameter));
-			var runner = new SimpleXunitTestRunner(test);
-
-			await runner.Run();
-
-			var failed = Assert.Single(runner.MessageBus.Messages.OfType<ITestFailed>());
-			Assert.Equal("The test method expected 1 parameter value, but 0 parameter values were provided.", failed.Messages.Single());
-		}
-
-		[Fact]
-		public static async ValueTask CancelledTestDoesNotRun()
-		{
-			var test = TestData.XunitTest<ClassUnderTest>(nameof(ClassUnderTest.Failing));
-			var runner = new SimpleXunitTestRunner(test);
+			var test = Mocks.Test();
+			var runner = new TestableTestRunner(test);
 			runner.TokenSource.Cancel();
 
 			await runner.Run();
@@ -69,44 +37,40 @@ public class TestRunnerTests
 			Assert.Collection(
 				runner.MessageBus.Messages,
 				message => Assert.IsType<ITestStarting>(message, exactMatch: false),
+				// ITestClassConstructionStarting
+				// ITestClassConstructionFinished
 				// No result message
 				message => Assert.IsType<ITestFinished>(message, exactMatch: false)
 			);
 		}
 
 		[Fact]
-		public static async ValueTask TestWithPreExistingErrorsFailsWithPreExistingError()
+		public static async ValueTask PreExistingError()
 		{
-			var test = TestData.XunitTest<ClassUnderTest>(nameof(ClassUnderTest.Failing));
-			var runner = new SimpleXunitTestRunner(test);
+			var test = Mocks.Test();
+			var runner = new TestableTestRunner(test);
 			runner.Aggregator.Add(new DivideByZeroException());
 
 			await runner.Run();
 
-			var failed = Assert.Single(runner.MessageBus.Messages.OfType<ITestFailed>());
-			Assert.Equal(typeof(DivideByZeroException).FullName, failed.ExceptionTypes.Single());
+			Assert.Collection(
+				runner.MessageBus.Messages,
+				message => Assert.IsType<ITestStarting>(message, exactMatch: false),
+				// ITestClassConstructionStarting
+				// ITestClassConstructionFinished
+				message =>
+				{
+					var failed = Assert.IsType<ITestFailed>(message, exactMatch: false);
+					Assert.Equal(typeof(DivideByZeroException).FullName, failed.ExceptionTypes.Single());
+				},
+				message => Assert.IsType<ITestFinished>(message, exactMatch: false)
+			);
 		}
 
 		class ClassUnderTest
 		{
 			[Fact]
-			public static void StaticPassing() { }
-
-			[Fact]
-			public void Passing() { }
-
-			[Fact]
-			public void Failing()
-			{
-				Assert.True(false);
-			}
-
-#pragma warning disable xUnit1001 // Fact methods cannot have parameters
-
-			[Fact]
-			public void FactWithParameter(int _) { }
-
-#pragma warning restore xUnit1001 // Fact methods cannot have parameters
+			public static void Passing() { }
 		}
 	}
 
@@ -673,40 +637,12 @@ public class TestRunnerTests
 		int total = 1,
 		int failed = 0,
 		int notRun = 0,
-		int skipped = 0) =>
-			Assert.Equivalent(new { Total = total, Failed = failed, NotRun = notRun, Skipped = skipped }, summary);
-
-	// This is a lightweight version of XunitTestRunner, with just enough implementation to allow it to
-	// create instances of test classes (without concern for things like ctor arguments or IAsyncLifetime).
-	class SimpleXunitTestRunner(IXunitTest test) :
-		TestRunner<TestRunnerContext<IXunitTest>, IXunitTest>
+		int skipped = 0)
 	{
-		public readonly ExceptionAggregator Aggregator = new();
-		public readonly SpyMessageBus MessageBus = new();
-		public readonly CancellationTokenSource TokenSource = new();
-
-		protected override ValueTask<(object? Instance, SynchronizationContext? SyncContext, ExecutionContext? ExecutionContext)> CreateTestClassInstance(TestRunnerContext<IXunitTest> ctxt) =>
-			new((Activator.CreateInstance(ctxt.Test.TestCase.TestClass.Class, []), SynchronizationContext.Current, ExecutionContext.Capture()));
-
-		protected override bool IsTestClassCreatable(TestRunnerContext<IXunitTest> ctxt) =>
-			!ctxt.Test.TestCase.TestMethod.Method.IsStatic;
-
-		public async ValueTask<RunSummary> Run()
-		{
-			await using var ctxt = new TestRunnerContext<IXunitTest>(
-				test,
-				MessageBus,
-				test.TestCase.SkipReason,
-				ExplicitOption.Off,
-				Aggregator,
-				TokenSource,
-				test.TestMethod.Method,
-				test.TestMethodArguments
-			);
-			await ctxt.InitializeAsync();
-
-			return await Run(ctxt);
-		}
+		Assert.Equal(total, summary.Total);
+		Assert.Equal(failed, summary.Failed);
+		Assert.Equal(notRun, summary.NotRun);
+		Assert.Equal(skipped, summary.Skipped);
 	}
 
 	// This is an inspectable version of TestRunner, which logs extensibility method calls and assumes that the provided test is
@@ -864,7 +800,7 @@ public class TestRunnerTests
 
 		public async ValueTask<RunSummary> Run(string? skipReason = null)
 		{
-			await using var ctxt = new TestRunnerContext<ITest>(Test, MessageBus, skipReason, ExplicitOption.Off, Aggregator, TokenSource, TestMethod, []);
+			await using var ctxt = new TestRunnerContext<ITest>(Test, MessageBus, skipReason, ExplicitOption.Off, Aggregator, TokenSource);
 			await ctxt.InitializeAsync();
 
 			return await Run(ctxt);

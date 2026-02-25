@@ -13,4 +13,9 @@
     <UseAppHost>true</UseAppHost>
   </PropertyGroup>
 
+  <ItemGroup>
+    <!-- Give the code generator access to the project path -->
+    <CompilerVisibleProperty Include="MSBuildProjectFullPath" />
+  </ItemGroup>
+
 </Project>

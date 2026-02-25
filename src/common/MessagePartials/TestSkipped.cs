@@ -9,9 +9,10 @@ namespace Xunit.v3;
 /// <summary>
 /// Default implementation of <see cref="ITestSkipped"/>.
 /// </summary>
-[JsonTypeID("test-skipped")]
+[JsonTypeID(TypeID)]
 sealed partial class TestSkipped : TestResultMessage, ITestSkipped
 {
+	internal const string TypeID = "test-skipped";
 	/// <inheritdoc/>
 	protected override void Serialize(JsonObjectSerializer serializer)
 	{

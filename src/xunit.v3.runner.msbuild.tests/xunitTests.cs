@@ -116,7 +116,7 @@ public class xunitTests
 		[Fact]
 		public void NoExplicitReporter_NoEnvironmentallyEnabledReporters_UsesDefaultReporter()
 		{
-			var implicitReporter = Mocks.RunnerReporter(isEnvironmentallyEnabled: false);
+			var implicitReporter = new SpyRunnerReporter(isEnvironmentallyEnabled: false);
 			var xunit = new Testable_xunit();
 			xunit.AvailableReporters.Add(implicitReporter);
 
@@ -128,7 +128,7 @@ public class xunitTests
 		[Fact]
 		public void ExplicitReporter_NoEnvironmentalOverride_UsesExplicitReporter()
 		{
-			var explicitReporter = Mocks.RunnerReporter("switch");
+			var explicitReporter = new SpyRunnerReporter(runnerSwitch: "switch");
 			var xunit = new Testable_xunit { Reporter = "switch" };
 			xunit.AvailableReporters.Add(explicitReporter);
 
@@ -140,8 +140,8 @@ public class xunitTests
 		[Fact]
 		public void ExplicitReporter_WithEnvironmentalOverride_UsesEnvironmentalOverride()
 		{
-			var explicitReporter = Mocks.RunnerReporter("switch");
-			var implicitReporter = Mocks.RunnerReporter(isEnvironmentallyEnabled: true);
+			var explicitReporter = new SpyRunnerReporter(runnerSwitch: "switch");
+			var implicitReporter = new SpyRunnerReporter(isEnvironmentallyEnabled: true);
 			var xunit = new Testable_xunit { Reporter = "switch" };
 			xunit.AvailableReporters.AddRange([explicitReporter, implicitReporter]);
 
@@ -153,7 +153,7 @@ public class xunitTests
 		[Fact]
 		public void WithEnvironmentalOverride_WithEnvironmentalOverridesDisabled_UsesDefaultReporter()
 		{
-			var implicitReporter = Mocks.RunnerReporter(isEnvironmentallyEnabled: true);
+			var implicitReporter = new SpyRunnerReporter(isEnvironmentallyEnabled: true);
 			var xunit = new Testable_xunit { NoAutoReporters = true };
 			xunit.AvailableReporters.Add(implicitReporter);
 
@@ -165,9 +165,9 @@ public class xunitTests
 		[Fact]
 		public void NoExplicitReporter_SelectsFirstEnvironmentallyEnabledReporter()
 		{
-			var explicitReporter = Mocks.RunnerReporter("switch");
-			var implicitReporter1 = Mocks.RunnerReporter(isEnvironmentallyEnabled: true);
-			var implicitReporter2 = Mocks.RunnerReporter(isEnvironmentallyEnabled: true);
+			var explicitReporter = new SpyRunnerReporter(runnerSwitch: "switch");
+			var implicitReporter1 = new SpyRunnerReporter(isEnvironmentallyEnabled: true);
+			var implicitReporter2 = new SpyRunnerReporter(isEnvironmentallyEnabled: true);
 			var xunit = new Testable_xunit();
 			xunit.AvailableReporters.AddRange([explicitReporter, implicitReporter1, implicitReporter2]);
 
@@ -192,7 +192,7 @@ public class xunitTests
 		public void BadChosenReporter_WithAvailableReporters()
 		{
 			var xunit = new Testable_xunit { Reporter = "foo" };
-			xunit.AvailableReporters.AddRange([Mocks.RunnerReporter("switch1"), Mocks.RunnerReporter("switch2")]);
+			xunit.AvailableReporters.AddRange([new SpyRunnerReporter(runnerSwitch: "switch1"), new SpyRunnerReporter(runnerSwitch: "switch2")]);
 
 			var reporter = xunit.GetReporter();
 

@@ -1,0 +1,109 @@
+using Xunit;
+using Xunit.Sdk;
+using Xunit.v3;
+
+public sealed class ExecutionErrorTestCaseTests : IDisposable
+{
+	readonly ExceptionAggregator aggregator = new();
+	readonly FixtureMappingManager mappingManager = new("Mock", TestData.EmptyFixtureFactories);
+	readonly SpyMessageBus messageBus = new();
+	readonly CancellationTokenSource tokenSource = new();
+
+	public void Dispose()
+	{
+		messageBus.Dispose();
+		tokenSource.Dispose();
+	}
+
+	[Fact]
+	public async ValueTask Messages_WithoutAggregatedError()
+	{
+		var testCase = ExecutionErrorTestCase("This is my error message");
+
+		var result = await XunitRunnerHelper.RunCodeGenTestCase(testCase, messageBus, tokenSource, aggregator, ExplicitOption.Off, mappingManager);
+
+		Assert.Equal(1, result.Total);
+		Assert.Equal(0m, result.Time);
+		Assert.Collection(
+			messageBus.Messages,
+			msg => Assert.IsType<ITestCaseStarting>(msg, exactMatch: false),
+			msg => Assert.IsType<ITestStarting>(msg, exactMatch: false),
+			msg =>
+			{
+				var failed = Assert.IsType<ITestFailed>(msg, exactMatch: false);
+				Assert.Equal(0m, failed.ExecutionTime);
+				Assert.Empty(failed.Output);
+				var exceptionType = Assert.Single(failed.ExceptionTypes);
+				Assert.Equal(typeof(TestPipelineException).SafeName(), exceptionType);
+				var type = Assert.Single(failed.Messages);
+				Assert.Equal("This is my error message", type);
+			},
+			msg =>
+			{
+				var testFinished = Assert.IsType<ITestFinished>(msg, exactMatch: false);
+				Assert.Equal(0m, testFinished.ExecutionTime);
+				Assert.Empty(testFinished.Output);
+			},
+			msg => Assert.IsType<ITestCaseFinished>(msg, exactMatch: false)
+		);
+	}
+
+	[Fact]
+	public async ValueTask Messages_WithAggregatedError()
+	{
+		var testCase = ExecutionErrorTestCase("This is my error message");
+		aggregator.Add(new DivideByZeroException());
+
+		var result = await XunitRunnerHelper.RunCodeGenTestCase(testCase, messageBus, tokenSource, aggregator, ExplicitOption.Off, mappingManager);
+
+		Assert.Equal(1, result.Total);
+		Assert.Equal(0m, result.Time);
+		Assert.Collection(
+			messageBus.Messages,
+			msg => Assert.IsType<ITestCaseStarting>(msg, exactMatch: false),
+			msg => Assert.IsType<ITestStarting>(msg, exactMatch: false),
+			msg =>
+			{
+				var failed = Assert.IsType<ITestFailed>(msg, exactMatch: false);
+				Assert.Equal(0m, failed.ExecutionTime);
+				Assert.Empty(failed.Output);
+				Assert.Equal([-1, 0, 0], failed.ExceptionParentIndices);
+				Assert.Equal(new[] { typeof(AggregateException).SafeName(), typeof(DivideByZeroException).SafeName(), typeof(TestPipelineException).SafeName() }, failed.ExceptionTypes);
+				Assert.Equal(["Attempted to divide by zero.", "This is my error message"], failed.Messages.Skip(1));
+			},
+			msg =>
+			{
+				var testFinished = Assert.IsType<ITestFinished>(msg, exactMatch: false);
+				Assert.Equal(0m, testFinished.ExecutionTime);
+				Assert.Empty(testFinished.Output);
+			},
+			msg => Assert.IsType<ITestCaseFinished>(msg, exactMatch: false)
+		);
+	}
+
+	[Theory]
+	[InlineData(typeof(ITestStarting))]
+	[InlineData(typeof(ITestFailed))]
+	[InlineData(typeof(ITestFinished))]
+	public async ValueTask Cancellation_TriggersCancellationTokenSource(Type messageTypeToCancelOn)
+	{
+		var testCase = ExecutionErrorTestCase("This is my error message");
+		var messageBus = new SpyMessageBus(msg => !messageTypeToCancelOn.IsAssignableFrom(msg.GetType()));
+
+		await XunitRunnerHelper.RunCodeGenTestCase(testCase, messageBus, tokenSource, aggregator, ExplicitOption.Off, mappingManager);
+
+		Assert.True(tokenSource.IsCancellationRequested);
+	}
+
+	public static ExecutionErrorTestCase ExecutionErrorTestCase(string message) =>
+		new(
+			message,
+			@explicit: false,
+			sourceFilePath: null,
+			sourceLineNumber: null,
+			testCaseDisplayName: "test-case-display-name",
+			testMethod: Mocks.CodeGenTestMethod(isStatic: true),
+			traits: TestData.EmptyTraits,
+			uniqueID: "test-case-unique-id"
+		);
+}

@@ -9,9 +9,11 @@ namespace Xunit.v3;
 /// <summary>
 /// Default implementation of <see cref="IBeforeTestStarting"/>.
 /// </summary>
-[JsonTypeID("before-test-starting")]
+[JsonTypeID(TypeID)]
 sealed partial class BeforeTestStarting : TestMessage, IBeforeTestStarting
 {
+	internal const string TypeID = "before-test-starting";
+
 	/// <inheritdoc/>
 	protected override void Serialize(JsonObjectSerializer serializer)
 	{

@@ -1,8 +1,3 @@
-#if !XUNIT_AOT
-
-using System;
-using System.Linq;
-using Xunit.Internal;
 using Xunit.Sdk;
 using Xunit.v3;
 
@@ -94,5 +89,3 @@ partial class TestData
 		);
 	}
 }
-
-#endif  // !XUNIT_AOT

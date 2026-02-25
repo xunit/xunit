@@ -1,159 +1,25 @@
+using System.ComponentModel;
 using System.Reflection;
-using Xunit.Sdk;
 
 namespace Xunit.v3;
 
-// Extensibility point factories related to test assemblies
-
-public static partial class ExtensibilityPointFactory
+partial class ExtensibilityPointFactory
 {
 	/// <summary>
-	/// Gets the <see cref="IBeforeAfterTestAttribute"/>s attached to the given test assembly.
+	/// Please call <see cref="RegisteredEngineConfig.GetAssemblyTestCaseOrderer"/>.
+	/// This method will be removed in the next major version.
 	/// </summary>
-	/// <param name="testAssembly">The test assembly</param>
-	public static IReadOnlyCollection<IBeforeAfterTestAttribute> GetAssemblyBeforeAfterTestAttributes(Assembly testAssembly)
-	{
-		var warnings = new List<string>();
-
-		try
-		{
-			return Guard.ArgumentNotNull(testAssembly).GetMatchingCustomAttributes<IBeforeAfterTestAttribute>(warnings);
-		}
-		finally
-		{
-			foreach (var warning in warnings)
-				TestContext.Current.SendDiagnosticMessage(warning);
-		}
-	}
-
-	/// <summary>
-	/// Gets the fixture types that are attached to the test assembly via <see cref="IAssemblyFixtureAttribute"/>s.
-	/// </summary>
-	/// <param name="testAssembly">The test assembly</param>
-	public static IReadOnlyCollection<Type> GetAssemblyFixtureTypes(Assembly testAssembly)
-	{
-		var warnings = new List<string>();
-
-		try
-		{
-			return
-				Guard.ArgumentNotNull(testAssembly)
-					.GetMatchingCustomAttributes<IAssemblyFixtureAttribute>(warnings)
-					.Select(a => a.AssemblyFixtureType)
-					.CastOrToReadOnlyCollection();
-		}
-		finally
-		{
-			foreach (var warning in warnings)
-				TestContext.Current.SendDiagnosticMessage(warning);
-		}
-	}
-
-	/// <summary>
-	/// Gets the test case orderer that's attached to a test assembly. Returns <see langword="null"/> if there
-	/// isn't one attached.
-	/// </summary>
-	/// <param name="testAssembly">The test assembly</param>
+	[Obsolete("Please call RegisteredEngineConfig.GetAssemblyTestCaseOrderer. This method will be removed in the next major version.")]
+	[EditorBrowsable(EditorBrowsableState.Never)]
 	public static ITestCaseOrderer? GetAssemblyTestCaseOrderer(Assembly testAssembly) =>
-		GetAssemblyTestOrderer<ITestCaseOrderer, ITestCaseOrdererAttribute>(testAssembly, "case");
+		RegisteredEngineConfig.GetAssemblyTestCaseOrderer(testAssembly);
 
 	/// <summary>
-	/// Gets the test class orderer that's attached to a test assembly. Returns <see langword="null"/> if there
-	/// isn't one attached.
+	/// Please call <see cref="RegisteredEngineConfig.GetAssemblyTestCollectionOrderer"/>.
+	/// This method will be removed in the next major version.
 	/// </summary>
-	/// <param name="testAssembly">The test assembly</param>
-	public static ITestClassOrderer? GetAssemblyTestClassOrderer(Assembly testAssembly) =>
-		GetAssemblyTestOrderer<ITestClassOrderer, ITestClassOrdererAttribute>(testAssembly, "class");
-
-	/// <summary>
-	/// Gets the test collection orderer that's attached to a test assembly. Returns <see langword="null"/> if there
-	/// isn't one attached.
-	/// </summary>
-	/// <param name="testAssembly">The test assembly</param>
+	[Obsolete("Please call RegisteredEngineConfig.GetAssemblyTestCollectionOrderer. This method will be removed in the next major version.")]
+	[EditorBrowsable(EditorBrowsableState.Never)]
 	public static ITestCollectionOrderer? GetAssemblyTestCollectionOrderer(Assembly testAssembly) =>
-		GetAssemblyTestOrderer<ITestCollectionOrderer, ITestCollectionOrdererAttribute>(testAssembly, "collection");
-
-	/// <summary>
-	/// Gets the test method orderer that's attached to a test assembly. Returns <see langword="null"/> if there
-	/// isn't one attached.
-	/// </summary>
-	/// <param name="testAssembly">The test assembly</param>
-	public static ITestMethodOrderer? GetAssemblyTestMethodOrderer(Assembly testAssembly) =>
-		GetAssemblyTestOrderer<ITestMethodOrderer, ITestMethodOrdererAttribute>(testAssembly, "method");
-
-	static TTestOrderer? GetAssemblyTestOrderer<TTestOrderer, TTestOrdererAttribute>(
-		Assembly testAssembly,
-		string ordererType)
-			where TTestOrderer : class
-			where TTestOrdererAttribute : ITestOrdererAttribute
-	{
-		Guard.ArgumentNotNull(testAssembly);
-
-		var warnings = new List<string>();
-
-		try
-		{
-			var ordererAttributes = testAssembly.GetMatchingCustomAttributes<TTestOrdererAttribute>(warnings);
-			if (ordererAttributes.Count > 1)
-				TestContext.Current.SendDiagnosticMessage(
-					"Found more than one assembly-level test {0} orderer: {1}",
-					ordererType,
-					string.Join(", ", ordererAttributes.Select(a => a.GetType()).ToCommaSeparatedList())
-				);
-
-			if (ordererAttributes.FirstOrDefault() is TTestOrdererAttribute ordererAttribute)
-				try
-				{
-					return Get<TTestOrderer>(ordererAttribute.OrdererType);
-				}
-				catch (Exception ex)
-				{
-					var innerEx = ex.Unwrap();
-
-					TestContext.Current.SendDiagnosticMessage(
-						"Assembly-level test {0} orderer '{1}' threw '{2}' during construction: {3}{4}{5}",
-						ordererType,
-						ordererAttribute.OrdererType,
-						innerEx.GetType().SafeName(),
-						innerEx.Message ?? "(null message)",
-						Environment.NewLine,
-						innerEx.StackTrace
-					);
-				}
-
-			return null;
-		}
-		finally
-		{
-			foreach (var warning in warnings)
-				TestContext.Current.SendDiagnosticMessage(warning);
-		}
-	}
-
-	/// <summary>
-	/// Gets the traits that are attached to the test assembly via <see cref="ITraitAttribute"/>s.
-	/// </summary>
-	/// <param name="testAssembly">The test assembly</param>
-	public static IReadOnlyDictionary<string, IReadOnlyCollection<string>> GetAssemblyTraits(Assembly testAssembly)
-	{
-		Guard.ArgumentNotNull(testAssembly);
-
-		var warnings = new List<string>();
-
-		try
-		{
-			var result = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
-
-			foreach (var traitAttribute in testAssembly.GetMatchingCustomAttributes<ITraitAttribute>(warnings))
-				foreach (var kvp in traitAttribute.GetTraits())
-					result.AddOrGet(kvp.Key).Add(kvp.Value);
-
-			return result.ToReadOnly();
-		}
-		finally
-		{
-			foreach (var warning in warnings)
-				TestContext.Current.SendDiagnosticMessage(warning);
-		}
-	}
+		RegisteredEngineConfig.GetAssemblyTestCollectionOrderer(testAssembly);
 }

@@ -27,6 +27,8 @@ public static class TestConsole
 		if (context.TestFramework != Framework.NetFx)
 		{
 			v3TestAssemblies.AddRange(FindTestAssemblies(context, "xunit.v3.*.tests.dll", "net8.0", x86: false));
+			v3TestAssemblies.AddRange(FindTestAssemblies(context, "xunit.v3.*.tests.dll", "net9.0", x86: false));
+			v3TestAssemblies.AddRange(FindTestAssemblies(context, "xunit.v3.*.tests.dll", "net10.0", x86: false));
 			if (!context.NoX86 && !noNetCoreX86)
 				v3TestAssemblies.AddRange(FindTestAssemblies(context, "xunit.v3.*.tests.dll", "net8.0", x86: true));
 		}
@@ -37,6 +39,8 @@ public static class TestConsole
 			if (!context.NoX86)
 				v3TestAssemblies.AddRange(FindTestAssemblies(context, "xunit.v3.*.tests.exe", "net472", x86: true));
 		}
+
+		v3TestAssemblies.RemoveAll(a => a.Contains(".acceptance."));
 
 		await RunTests(context, v3TestAssemblies, Path.Combine(context.TestOutputFolder, $"v3"));
 
@@ -69,7 +73,7 @@ public static class TestConsole
 		return
 			Directory
 				.GetFiles(context.BaseFolder, pattern, SearchOption.AllDirectories)
-				.Where(x => x.Contains(binSubPath) && !x.Contains(refSubPath) && (x.Contains(".x86") == x86))
+				.Where(x => Path.GetDirectoryName(x)?.EndsWith(binSubPath) == true && !x.Contains(refSubPath) && (x.Contains(".x86") == x86))
 				.OrderBy(x => x)
 				.Select(x => x.Substring(context.BaseFolder.Length + 1));
 	}

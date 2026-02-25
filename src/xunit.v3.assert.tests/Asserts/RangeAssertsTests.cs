@@ -5,7 +5,7 @@ public class RangeAssertsTests
 {
 	public class InRange
 	{
-		[CulturedFactDefault]
+		[CulturedFact(["en-US", "fr-FR"])]
 		public void DoubleNotWithinRange()
 		{
 			var ex = Record.Exception(() => Assert.InRange(1.50, .75, 1.25));
@@ -88,7 +88,7 @@ public class RangeAssertsTests
 			Assert.InRange(400.0, .75, 1.25, new DoubleComparer(-1));
 		}
 
-		[CulturedFactDefault]
+		[CulturedFact(["en-US", "fr-FR"])]
 		public void DoubleValueNotWithinRange()
 		{
 			var ex = Record.Exception(() => Assert.InRange(1.0, .75, 1.25, new DoubleComparer(1)));

@@ -10,11 +10,9 @@ namespace Xunit;
 /// test output helper.
 /// </summary>
 [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = false, Inherited = false)]
-public sealed class CaptureTraceAttribute : Attribute, IAssemblyFixtureAttribute
+public sealed class CaptureTraceAttribute() :
+	AssemblyFixtureAttribute(typeof(CaptureTraceImpl))
 {
-	Type IAssemblyFixtureAttribute.AssemblyFixtureType =>
-		typeof(CaptureTraceImpl);
-
 	sealed class CaptureTraceImpl : IDisposable
 	{
 		readonly TraceCaptureTestOutputWriter writer;

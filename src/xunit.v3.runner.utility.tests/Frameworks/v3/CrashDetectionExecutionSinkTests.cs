@@ -1,4 +1,3 @@
-using NSubstitute;
 using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
@@ -13,17 +12,19 @@ public class CrashDetectionExecutionSinkTests
 
 	static CrashDetectionExecutionSinkTests()
 	{
+#if XUNIT_AOT
+		assemblyFileName = Path.Combine(AppContext.BaseDirectory, typeof(CrashDetectionExecutionSinkTests).Assembly.GetName().Name + ".dll").FindTestAssembly();
+#else
 		assemblyFileName = typeof(CrashDetectionExecutionSinkTests).Assembly.Location;
+#endif
 		var assemblyMetadata = AssemblyUtility.GetAssemblyMetadata(assemblyFileName);
 
 		Assert.NotNull(assemblyMetadata);
 
 		projectAssembly = new(new(), assemblyFileName, assemblyMetadata);
 
-		testProcess = Substitute.For<ITestProcess>();
-
-		testProcessWithExitCode = Substitute.For<ITestProcessBase, ITestProcessWithExitCode>();
-		((ITestProcessWithExitCode)testProcessWithExitCode).ExitCode.Returns(42);
+		testProcess = new SpyTestProcessBase();
+		testProcessWithExitCode = new SpyTestProcessBaseWithExitCode { ExitCode = 42 };
 	}
 
 	[Fact]
@@ -36,12 +37,17 @@ public class CrashDetectionExecutionSinkTests
 
 		sink.OnProcessFinished(testProcess.TryGetExitCode());
 
+		var assemblyName =
+			assemblyFileName.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) || assemblyFileName.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)
+				? Path.GetFileNameWithoutExtension(assemblyFileName)
+				: Path.GetFileName(assemblyFileName);
+
 		Assert.Collection(
 			innerSink.Messages,
 			msg =>
 			{
 				var starting = Assert.IsType<ITestAssemblyStarting>(msg, exactMatch: false);
-				Assert.Equal(Path.GetFileNameWithoutExtension(assemblyFileName), starting.AssemblyName);
+				Assert.Equal(assemblyName, starting.AssemblyName);
 				Assert.Equal(assemblyFileName, starting.AssemblyPath);
 				Assert.Equal(assemblyUniqueID, starting.AssemblyUniqueID);
 				Assert.Null(starting.ConfigFilePath);

@@ -221,8 +221,7 @@ public class CollectionAssertsTests
 				"Collection: [42, 2112]" + Environment.NewLine +
 				"Error:      Assert.Equal() Failure: Values differ" + Environment.NewLine +
 				"            Expected: 2113" + Environment.NewLine +
-				"            Actual:   2112" + Environment.NewLine +
-				"            Stack Trace:",
+				"            Actual:   2112",
 				ex.Message
 			);
 		}

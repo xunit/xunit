@@ -7,7 +7,12 @@ namespace Xunit;
 /// </summary>
 /// <param name="ordererType">The orderer type; must implement <see cref="ITestClassOrderer"/></param>
 [AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Class, Inherited = true, AllowMultiple = false)]
-public sealed class TestClassOrdererAttribute(Type ordererType) : Attribute, ITestClassOrdererAttribute
+public sealed class TestClassOrdererAttribute(Type ordererType) : Attribute
+#if XUNIT_AOT
+	, ITestOrdererAttribute
+#else
+	, ITestClassOrdererAttribute
+#endif
 {
 	/// <inheritdoc/>
 	public Type OrdererType { get; } = ordererType;

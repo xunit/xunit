@@ -3,6 +3,7 @@ using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
 
+[Collection(typeof(CleanEnvironmentAttribute))]
 [CleanEnvironment("COMPUTERNAME", "HOSTNAME", "NAME", "HOST", "USERNAME", "LOGNAME", "USER")]
 public class CtrfResultWriterMessageHandlerTests
 {
@@ -30,7 +31,7 @@ public class CtrfResultWriterMessageHandlerTests
 	// macOS
 	[InlineData("HOST", "LOGNAME")]
 	[InlineData("HOST", "USER")]
-	public async ValueTask CoreData(
+	public static async ValueTask CoreData(
 		string computerEnvName,
 		string userEnvName)
 	{
@@ -138,7 +139,7 @@ public class CtrfResultWriterMessageHandlerTests
 		);
 	}
 
-	[CulturedFactDefault]
+	[CulturedFact(["en-US", "fr-FR"])]
 	public async ValueTask TestPassed()
 	{
 		var assemblyStarting = TestData.TestAssemblyStarting();
@@ -178,7 +179,7 @@ public class CtrfResultWriterMessageHandlerTests
 		VerifyTest(handler.FileSystem, Assert.Single(tests), testPassed, classStarting, methodStarting, caseStarting, testStarting);
 	}
 
-	[CulturedFactDefault]
+	[CulturedFact(["en-US", "fr-FR"])]
 	public async ValueTask TestFailed()
 	{
 		var assemblyStarting = TestData.TestAssemblyStarting();
@@ -218,7 +219,7 @@ public class CtrfResultWriterMessageHandlerTests
 		VerifyTest(handler.FileSystem, Assert.Single(tests), testFailed, classStarting, methodStarting, caseStarting, testStarting);
 	}
 
-	[CulturedFactDefault]
+	[CulturedFact(["en-US", "fr-FR"])]
 	public async ValueTask TestSkipped()
 	{
 		var assemblyStarting = TestData.TestAssemblyStarting();
@@ -258,7 +259,7 @@ public class CtrfResultWriterMessageHandlerTests
 		VerifyTest(handler.FileSystem, Assert.Single(tests), testSkipped, classStarting, methodStarting, caseStarting, testStarting);
 	}
 
-	[CulturedFactDefault]
+	[CulturedFact(["en-US", "fr-FR"])]
 	public async ValueTask TestNotRun()
 	{
 		var assemblyStarting = TestData.TestAssemblyStarting();

@@ -187,9 +187,6 @@ public class TestProcessLauncherAdapter(ITestProcessLauncher launcher) :
 						}
 						else
 							@continue = splitSink.OnMessage(message) && @continue;
-
-						if (message is ITestAssemblyFinished)
-							break;
 					}
 					finally
 					{

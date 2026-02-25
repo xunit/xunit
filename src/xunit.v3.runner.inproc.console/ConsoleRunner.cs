@@ -7,6 +7,10 @@ using Xunit.v3;
 using DiagnosticMessage = Xunit.Runner.Common.DiagnosticMessage;
 using ErrorMessage = Xunit.Runner.Common.ErrorMessage;
 
+#if XUNIT_AOT
+using System.Runtime.ExceptionServices;
+#endif
+
 namespace Xunit.Runner.InProc.SystemConsole;
 
 /// <summary>
@@ -76,6 +80,16 @@ public class ConsoleRunner(
 		var internalDiagnosticMessages = false;
 		var noColor = false;
 
+#if XUNIT_AOT
+		await using var runnerInit = await RunnerInitialization.Start(Assembly.GetEntryAssembly());
+		if (runnerInit.InitException is not null)
+			ExceptionDispatchInfo.Throw(runnerInit.InitException);
+
+		await using var engineInit = await EngineInitialization.Start(Assembly.GetEntryAssembly());
+		if (engineInit.InitException is not null)
+			ExceptionDispatchInfo.Throw(engineInit.InitException);
+#endif
+
 		try
 		{
 			var commandLine = new CommandLine(consoleHelper, testAssembly, args);
@@ -101,7 +115,9 @@ public class ConsoleRunner(
 				return 2;
 			}
 
+#if !XUNIT_AOT
 			SerializationHelper.Instance.AddRegisteredSerializers(testAssembly, warnings);
+#endif
 
 			// We pick up the -automated flag early, because Parse() can throw and we want to use automated output
 			// to report any command line parsing problems.
@@ -131,7 +147,7 @@ public class ConsoleRunner(
 			if (project.Configuration.AssemblyInfoOrDefault)
 			{
 				noColor = true;
-				PrintAssemblyInfo();
+				PrintAssemblyInfo(projectAssembly.ConfigFileName);
 				return 0;
 			}
 
@@ -194,10 +210,19 @@ public class ConsoleRunner(
 				}
 			};
 
+#if XUNIT_AOT
+			var assemblyDisplayName = testAssembly.GetName().Name;
+#else
+			var assemblyDisplayName =
+				testAssembly.Location.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) || testAssembly.Location.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)
+					? Path.GetFileNameWithoutExtension(testAssembly.Location)
+					: Path.GetFileName(testAssembly.Location);
+#endif
+
 			IMessageSink? diagnosticMessageSink =
 				automatedMode != AutomatedMode.Off
 					? new AutomatedDiagnosticMessageSink(logger)
-					: ConsoleDiagnosticMessageSink.TryCreate(consoleHelper, noColor, diagnosticMessages, internalDiagnosticMessages, assemblyDisplayName: Path.GetFileNameWithoutExtension(testAssembly.Location));
+					: ConsoleDiagnosticMessageSink.TryCreate(consoleHelper, noColor, diagnosticMessages, internalDiagnosticMessages, assemblyDisplayName: assemblyDisplayName);
 
 			pipelineStartup = await ProjectAssemblyRunner.InvokePipelineStartup(testAssembly, diagnosticMessageSink);
 
@@ -356,9 +381,9 @@ public class ConsoleRunner(
 				logger.WriteMessage(testCase.ToTestCaseDiscovered());
 	}
 
-	void PrintAssemblyInfo()
+	void PrintAssemblyInfo(string? configFileName)
 	{
-		var testFramework = ExtensibilityPointFactory.GetTestFramework(testAssembly);
+		var testFramework = RegisteredEngineConfig.GetTestFramework(testAssembly, configFileName);
 		var assemblyInfo = new TestAssemblyInfo(
 			// Technically these next two are the versions of xunit.v3.runner.inproc.console and not xunit.v3.core; however,
 			// since they're all compiled and versioned together, we'll take the path of least resistance.

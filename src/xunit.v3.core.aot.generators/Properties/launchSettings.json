@@ -1,0 +1,40 @@
+{
+  "profiles": {
+    "Generator (acceptance)": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "..\\xunit.v3.acceptance.aot.tests\\xunit.v3.acceptance.aot.tests.csproj"
+    },
+    "Generator (assert)": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "..\\xunit.v3.assert.aot.tests\\xunit.v3.assert.aot.tests.csproj"
+    },
+    "Generator (common)": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "..\\xunit.v3.common.aot.tests\\xunit.v3.common.aot.tests.csproj"
+    },
+    "Generator (core)": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "..\\xunit.v3.core.aot.tests\\xunit.v3.core.aot.tests.csproj"
+    },
+    "Generator (mtp-v2)": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "..\\xunit.v3.mtp-v2.aot.tests\\xunit.v3.mtp-v2.aot.tests.csproj"
+    },
+    "Generator (runner.common)": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "..\\xunit.v3.runner.common.aot.tests\\xunit.v3.runner.common.aot.tests.csproj"
+    },
+    "Generator (runner.console)": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "..\\xunit.v3.runner.console.aot.tests\\xunit.v3.runner.console.aot.tests.csproj"
+    },
+    "Generator (runner.inproc.console)": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "..\\xunit.v3.runner.inproc.console.aot.tests\\xunit.v3.runner.inproc.console.aot.tests.csproj"
+    },
+    "Generator (runner.utility)": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "..\\xunit.v3.runner.utility.aot.tests\\xunit.v3.runner.utility.aot.tests.csproj"
+    }
+  }
+}

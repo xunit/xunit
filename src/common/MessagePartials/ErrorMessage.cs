@@ -10,9 +10,11 @@ namespace Xunit.v3;
 /// <summary>
 /// Default implementation of <see cref="IErrorMessage"/>.
 /// </summary>
-[JsonTypeID("error")]
+[JsonTypeID(TypeID)]
 sealed partial class ErrorMessage : MessageSinkMessage, IErrorMessage
 {
+	internal const string TypeID = "error";
+
 	/// <summary>
 	/// Please use <see cref="FromException(Exception, string?)"/>.
 	/// This overload will be removed in the next major version.

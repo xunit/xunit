@@ -9,6 +9,8 @@ namespace Xunit.v3;
 /// <summary>
 /// Default implementation of <see cref="ITestPassed"/>.
 /// </summary>
-[JsonTypeID("test-passed")]
+[JsonTypeID(TypeID)]
 sealed partial class TestPassed : TestResultMessage, ITestPassed
-{ }
+{
+	internal const string TypeID = "test-passed";
+}

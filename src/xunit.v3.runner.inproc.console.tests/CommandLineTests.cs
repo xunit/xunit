@@ -6,6 +6,17 @@ using Xunit.Runner.InProc.SystemConsole;
 
 public class CommandLineTests
 {
+	public static string? CommandLineTestsLocation { get; }
+
+	static CommandLineTests()
+	{
+#if XUNIT_AOT
+		CommandLineTestsLocation = typeof(CommandLineTests).Assembly.GetSafeLocation();
+#else
+		CommandLineTestsLocation = typeof(CommandLineTests).Assembly.Location;
+#endif
+	}
+
 	public class UnknownOption
 	{
 		[Fact]
@@ -13,7 +24,7 @@ public class CommandLineTests
 		{
 			var commandLine = new TestableCommandLine("-unknown");
 
-			var exception = Record.Exception(() => commandLine.Parse());
+			var exception = Record.Exception(commandLine.Parse);
 
 			Assert.IsType<ArgumentException>(exception);
 			Assert.Equal("unknown option: -unknown", exception.Message);
@@ -29,7 +40,7 @@ public class CommandLineTests
 
 			var assembly = commandLine.Parse();
 
-			Assert.Equal($"/full/path/{typeof(CommandLineTests).Assembly.Location}", assembly.AssemblyFileName);
+			Assert.Equal($"/full/path/{CommandLineTestsLocation}", assembly.AssemblyFileName);
 			Assert.Null(assembly.ConfigFileName);
 		}
 
@@ -38,7 +49,7 @@ public class CommandLineTests
 		{
 			var commandLine = new TestableCommandLine("badConfig.json");
 
-			var exception = Record.Exception(() => commandLine.Parse());
+			var exception = Record.Exception(commandLine.Parse);
 
 			Assert.IsType<ArgumentException>(exception);
 			Assert.Equal("config file not found: badConfig.json", exception.Message);
@@ -49,7 +60,7 @@ public class CommandLineTests
 		{
 			var commandLine = new TestableCommandLine("assembly1.config");
 
-			var exception = Record.Exception(() => commandLine.Parse());
+			var exception = Record.Exception(commandLine.Parse);
 
 			Assert.IsType<ArgumentException>(exception);
 			Assert.Equal("unknown option: assembly1.config", exception.Message);
@@ -60,7 +71,7 @@ public class CommandLineTests
 		{
 			var commandLine = new TestableCommandLine("assembly1.json", "assembly2.json");
 
-			var exception = Record.Exception(() => commandLine.Parse());
+			var exception = Record.Exception(commandLine.Parse);
 
 			Assert.IsType<ArgumentException>(exception);
 			Assert.Equal("unknown option: assembly2.json", exception.Message);
@@ -360,7 +371,7 @@ public class CommandLineTests
 			{
 				var commandLine = new TestableCommandLine("no-config.json", "-maxthreads");
 
-				var exception = Record.Exception(() => commandLine.Parse());
+				var exception = Record.Exception(commandLine.Parse);
 
 				Assert.IsType<ArgumentException>(exception);
 				Assert.Equal("missing argument for -maxThreads", exception.Message);
@@ -723,7 +734,7 @@ public class CommandLineTests
 
 	public class ResultWriters
 	{
-		static readonly IReadOnlyDictionary<string, IConsoleResultWriter> ConsoleResultWriters = RegisteredConsoleResultWriters.Get(typeof(ResultWriters).Assembly);
+		static readonly IReadOnlyDictionary<string, IConsoleResultWriter> ConsoleResultWriters = RegisteredRunnerConfig.GetConsoleResultWriters(typeof(ResultWriters).Assembly);
 
 		public static readonly TheoryData<string> SwitchesLowerCase =
 			[
@@ -790,7 +801,7 @@ public class CommandLineTests
 		[Fact]
 		public void NoExplicitReporter_NoEnvironmentallyEnabledReporters_UsesDefaultReporter()
 		{
-			var implicitReporter = Mocks.RunnerReporter(isEnvironmentallyEnabled: false);
+			var implicitReporter = new SpyRunnerReporter(isEnvironmentallyEnabled: false);
 			var commandLine = new TestableCommandLine([implicitReporter], "no-config.json");
 
 			var assembly = commandLine.Parse();
@@ -801,7 +812,7 @@ public class CommandLineTests
 		[Fact]
 		public void ExplicitReporter_NoEnvironmentalOverride_UsesExplicitReporter()
 		{
-			var explicitReporter = Mocks.RunnerReporter("switch");
+			var explicitReporter = new SpyRunnerReporter(runnerSwitch: "switch");
 			var commandLine = new TestableCommandLine([explicitReporter], "no-config.json", "-reporter", "switch");
 
 			var assembly = commandLine.Parse();
@@ -812,8 +823,8 @@ public class CommandLineTests
 		[Fact]
 		public void ExplicitReporter_WithEnvironmentalOverride_UsesEnvironmentalOverride()
 		{
-			var explicitReporter = Mocks.RunnerReporter("switch");
-			var implicitReporter = Mocks.RunnerReporter(isEnvironmentallyEnabled: true);
+			var explicitReporter = new SpyRunnerReporter(runnerSwitch: "switch");
+			var implicitReporter = new SpyRunnerReporter(isEnvironmentallyEnabled: true);
 			var commandLine = new TestableCommandLine([explicitReporter, implicitReporter], "no-config.json", "-reporter", "switch");
 
 			var assembly = commandLine.Parse();
@@ -824,7 +835,7 @@ public class CommandLineTests
 		[Fact]
 		public void WithEnvironmentalOverride_WithEnvironmentalOverridesDisabled_UsesDefaultReporter()
 		{
-			var implicitReporter = Mocks.RunnerReporter(isEnvironmentallyEnabled: true);
+			var implicitReporter = new SpyRunnerReporter(isEnvironmentallyEnabled: true);
 			var commandLine = new TestableCommandLine([implicitReporter], "no-config.json", "-noautoreporters");
 
 			var assembly = commandLine.Parse();
@@ -835,9 +846,9 @@ public class CommandLineTests
 		[Fact]
 		public void NoExplicitReporter_SelectsFirstEnvironmentallyEnabledReporter()
 		{
-			var explicitReporter = Mocks.RunnerReporter("switch");
-			var implicitReporter1 = Mocks.RunnerReporter(isEnvironmentallyEnabled: true);
-			var implicitReporter2 = Mocks.RunnerReporter(isEnvironmentallyEnabled: true);
+			var explicitReporter = new SpyRunnerReporter(runnerSwitch: "switch");
+			var implicitReporter1 = new SpyRunnerReporter(isEnvironmentallyEnabled: true);
+			var implicitReporter2 = new SpyRunnerReporter(isEnvironmentallyEnabled: true);
 			var commandLine = new TestableCommandLine([explicitReporter, implicitReporter1, implicitReporter2], "no-config.json");
 
 			var assembly = commandLine.Parse();

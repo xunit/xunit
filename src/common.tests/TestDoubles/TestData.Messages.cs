@@ -124,6 +124,23 @@ partial class TestData
 				StackTraces = stackTraces ?? DefaultStackTraces,
 			};
 
+	public static ExecutionSummary ExecutionSummary(
+		int errors = DefaultCountErrors,
+		int failed = DefaultCountFailed,
+		int notRun = DefaultCountNotRun,
+		int skipped = DefaultCountSkipped,
+		decimal time = DefaultExecutionTime,
+		int total = DefaultCountTotal) =>
+			new()
+			{
+				Errors = errors,
+				Failed = failed,
+				NotRun = notRun,
+				Skipped = skipped,
+				Time = time,
+				Total = total,
+			};
+
 	public static IInternalDiagnosticMessage InternalDiagnosticMessage(string message = "Hello world!") =>
 		new Xunit.Runner.Common.InternalDiagnosticMessage(message);
 
@@ -360,7 +377,9 @@ partial class TestData
 	public static ITestCaseDiscovered TestCaseDiscovered(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		bool @explicit = false,
+#if !XUNIT_AOT
 		string serialization = DefaultTestCaseSerialization,
+#endif
 		string? skipReason = null,
 		string? sourceFilePath = null,
 		int? sourceLineNumber = null,
@@ -383,7 +402,9 @@ partial class TestData
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				Explicit = @explicit,
+#if !XUNIT_AOT
 				Serialization = serialization,
+#endif
 				SkipReason = skipReason,
 				SourceFilePath = sourceFilePath,
 				SourceLineNumber = sourceLineNumber,
@@ -690,16 +711,16 @@ partial class TestData
 			};
 
 	public static TestExecutionSummaries TestExecutionSummaries(
-		TimeSpan clockTime,
-		string assemblyUniqueID,
-		ExecutionSummary summary) =>
-			TestExecutionSummaries(clockTime, (assemblyUniqueID, summary));
+		TimeSpan? clockTime = null,
+		string assemblyUniqueID = DefaultAssemblyUniqueID,
+		ExecutionSummary? summary = null) =>
+			TestExecutionSummaries(clockTime, (assemblyUniqueID, summary ?? TestData.ExecutionSummary()));
 
 	public static TestExecutionSummaries TestExecutionSummaries(
-		TimeSpan clockTime,
+		TimeSpan? clockTime = null,
 		params (string assemblyUniqueID, ExecutionSummary summary)[] summaries)
 	{
-		var result = new TestExecutionSummaries { ElapsedClockTime = clockTime };
+		var result = new TestExecutionSummaries { ElapsedClockTime = clockTime ?? DefaultClockTime };
 		foreach (var summary in summaries)
 			result.Add(summary.assemblyUniqueID, summary.summary);
 

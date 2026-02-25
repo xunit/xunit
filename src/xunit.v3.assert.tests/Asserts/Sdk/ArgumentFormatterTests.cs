@@ -6,7 +6,7 @@ public class ArgumentFormatterTests
 {
 	public class SimpleValues
 	{
-		[CulturedFactDefault]
+		[CulturedFact(["en-US", "fr-FR"])]
 		public static void NullValue()
 		{
 			Assert.Equal("null", ArgumentFormatter.Format(null));
@@ -116,7 +116,7 @@ public class ArgumentFormatterTests
 			Assert.Equal(expected, ArgumentFormatter.Format(value));
 		}
 
-		[CulturedFactDefault]
+		[CulturedFact(["en-US", "fr-FR"])]
 		public static void FloatValue()
 		{
 			var floatPI = (float)Math.PI;
@@ -124,19 +124,19 @@ public class ArgumentFormatterTests
 			Assert.Equal(floatPI.ToString("G9"), ArgumentFormatter.Format(floatPI));
 		}
 
-		[CulturedFactDefault]
+		[CulturedFact(["en-US", "fr-FR"])]
 		public static void DoubleValue()
 		{
 			Assert.Equal(Math.PI.ToString("G17"), ArgumentFormatter.Format(Math.PI));
 		}
 
-		[CulturedFactDefault]
+		[CulturedFact(["en-US", "fr-FR"])]
 		public static void DecimalValue()
 		{
 			Assert.Equal(123.45M.ToString(), ArgumentFormatter.Format(123.45M));
 		}
 
-		[CulturedFactDefault]
+		[CulturedFact(["en-US", "fr-FR"])]
 		public static void DateTimeValue()
 		{
 			var now = DateTime.UtcNow;
@@ -144,7 +144,7 @@ public class ArgumentFormatterTests
 			Assert.Equal(now.ToString("o"), ArgumentFormatter.Format(now));
 		}
 
-		[CulturedFactDefault]
+		[CulturedFact(["en-US", "fr-FR"])]
 		public static void DateTimeOffsetValue()
 		{
 			var now = DateTimeOffset.UtcNow;
@@ -210,7 +210,7 @@ public class ArgumentFormatterTests
 			Value1 = 1
 		}
 
-		[CulturedTheoryDefault]
+		[CulturedTheory(["en-US", "fr-FR"])]
 #pragma warning disable xUnit1010 // The value is not convertible to the method parameter type
 		[InlineData(0, "Value0")]
 		[InlineData(1, "Value1")]
@@ -231,7 +231,7 @@ public class ArgumentFormatterTests
 			Value2 = 2,
 		}
 
-		[CulturedTheoryDefault]
+		[CulturedTheory(["en-US", "fr-FR"])]
 #pragma warning disable xUnit1010 // The value is not convertible to the method parameter type
 		[InlineData(0, "Nothing")]
 		[InlineData(1, "Value1")]
@@ -249,7 +249,7 @@ public class ArgumentFormatterTests
 
 	public class KeyValuePair
 	{
-		[CulturedFactDefault]
+		[CulturedFact(["en-US", "fr-FR"])]
 		public static void KeyValuePairValue()
 		{
 			var kvp = new KeyValuePair<object, List<object>>(42, [21.12M, "2600"]);
@@ -272,7 +272,7 @@ public class ArgumentFormatterTests
 
 #pragma warning restore xUnit1047
 
-		[CulturedTheoryDefault]
+		[CulturedTheory(["en-US", "fr-FR"])]
 		[MemberData(nameof(Collections), DisableDiscoveryEnumeration = true)]
 		public static void EnumerableValue(IEnumerable collection)
 		{
@@ -281,7 +281,7 @@ public class ArgumentFormatterTests
 			Assert.Equal(expected, ArgumentFormatter.Format(collection));
 		}
 
-		[CulturedFactDefault]
+		[CulturedFact(["en-US", "fr-FR"])]
 		public static void DictionaryValue()
 		{
 			var value = new Dictionary<object, List<object>>
@@ -308,14 +308,14 @@ public class ArgumentFormatterTests
 
 #pragma warning restore xUnit1047
 
-		[CulturedTheoryDefault]
+		[CulturedTheory(["en-US", "fr-FR"])]
 		[MemberData(nameof(LongCollections), DisableDiscoveryEnumeration = true)]
 		public static void OnlyFirstFewValuesOfEnumerableAreRendered(IEnumerable collection)
 		{
 			Assert.Equal($"[0, 1, 2, 3, 4, {ArgumentFormatter.Ellipsis}]", ArgumentFormatter.Format(collection));
 		}
 
-		[CulturedFactDefault]
+		[CulturedFact(["en-US", "fr-FR"])]
 		public static void EnumerablesAreRenderedWithMaximumDepthToPreventInfiniteRecursion()
 		{
 			var looping = new object[2];
@@ -356,7 +356,7 @@ public class ArgumentFormatterTests
 
 	public class ComplexTypes
 	{
-		[CulturedFactDefault]
+		[CulturedFact(["en-US", "fr-FR"])]
 		public static void Empty()
 		{
 #if XUNIT_AOT
@@ -372,7 +372,7 @@ public class ArgumentFormatterTests
 
 #if !XUNIT_AOT  // Native AOT cannot render properties and fields of object
 
-		[CulturedFactDefault]
+		[CulturedFact(["en-US", "fr-FR"])]
 		public static void ReturnsValuesInAlphabeticalOrder()
 		{
 			var expected = $"MyComplexType {{ MyPublicField = 42, MyPublicProperty = {21.12M} }}";
@@ -400,7 +400,7 @@ public class ArgumentFormatterTests
 			}
 		}
 
-		[CulturedFactDefault]
+		[CulturedFact(["en-US", "fr-FR"])]
 		public static void ComplexTypeInsideComplexType()
 		{
 			var expected = $"MyComplexTypeWrapper {{ c = 'A', s = \"Hello, world!\", t = MyComplexType {{ MyPublicField = 42, MyPublicProperty = {21.12M} }} }}";
@@ -417,7 +417,7 @@ public class ArgumentFormatterTests
 			public string s = "Hello, world!";
 		}
 
-		[CulturedFactDefault]
+		[CulturedFact(["en-US", "fr-FR"])]
 		public static void WithThrowingPropertyGetter()
 		{
 			var result = ArgumentFormatter.Format(new ThrowingGetter());
@@ -430,7 +430,7 @@ public class ArgumentFormatterTests
 			public string MyThrowingProperty { get { throw new NotImplementedException(); } }
 		}
 
-		[CulturedFactDefault]
+		[CulturedFact(["en-US", "fr-FR"])]
 		public static void LimitsOutputToFirstFewValues()
 		{
 			var expected = $@"Big {{ MyField1 = 42, MyField2 = ""Hello, world!"", MyProp1 = {21.12}, MyProp2 = typeof({typeof(Big).FullName}), MyProp3 = 2014-04-17T07:45:23.0000000+00:00, {ArgumentFormatter.Ellipsis} }}";
@@ -463,7 +463,7 @@ public class ArgumentFormatterTests
 			}
 		}
 
-		[CulturedFactDefault]
+		[CulturedFact(["en-US", "fr-FR"])]
 		public static void TypesAreRenderedWithMaximumDepthToPreventInfiniteRecursion()
 		{
 			var expected = $"Looping {{ Me = Looping {{ Me = Looping {{ {ArgumentFormatter.Ellipsis} }} }} }}";
@@ -480,7 +480,7 @@ public class ArgumentFormatterTests
 			public Looping() => Me = this;
 		}
 
-		[CulturedFactDefault]
+		[CulturedFact(["en-US", "fr-FR"])]
 		public static void RecursionViaCollectionsIsPreventedWithMaximumDepth()
 		{
 			var expected = $"LoopingChild {{ Parent = LoopingParent {{ ProjectsById = [{ArgumentFormatter.Ellipsis}] }} }}";

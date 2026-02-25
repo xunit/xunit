@@ -24,12 +24,14 @@ public class NullAssertsTests
 			Assert.Equal(42, result);
 		}
 
-		[Theory]
-		[InlineData(42)]
-		[InlineData("Hello, world")]
-		public unsafe void Success_Pointer<T>(T data)
+		[Fact]
+		public unsafe void Success_Pointer()
 		{
-			Assert.NotNull(&data);
+			var x = 42;
+			Assert.NotNull(&x);
+
+			var y = "Hello world";
+			Assert.NotNull(&y);
 		}
 
 		[Fact]
@@ -118,17 +120,21 @@ public class NullAssertsTests
 			);
 		}
 
-		[Theory]
-		[InlineData(42)]
-		[InlineData("Hello, world")]
-		public unsafe void Failure_Pointer<T>(T data)
+		[Fact]
+		public void Failure_Pointer()
 		{
-			var ptr = &data;
+			verifyFailure(42);
+			verifyFailure("Hello world");
 
-			var ex = Record.Exception(() => Assert.Null(ptr));
+			static unsafe void verifyFailure<T>(T data)
+			{
+				var ptr = &data;
 
-			Assert.IsType<NullException>(ex);
-			Assert.Equal($"Assert.Null() Failure: Value of type '{ArgumentFormatter.FormatTypeName(typeof(T))}*' is not null", ex.Message);
+				var ex = Record.Exception(() => Assert.Null(ptr));
+
+				Assert.IsType<NullException>(ex);
+				Assert.Equal($"Assert.Null() Failure: Value of type '{ArgumentFormatter.FormatTypeName(typeof(T))}*' is not null", ex.Message);
+			}
 		}
 	}
 }

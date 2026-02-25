@@ -29,7 +29,7 @@ public class xunit : MSBuildTask, ICancelableTask, IDisposable
 	bool? parallelizeTestCollections;
 	bool? preEnumerateTheories;
 	IRunnerReporterMessageHandler? reporterMessageHandler;
-	readonly IReadOnlyDictionary<string, IConsoleResultWriter> resultWriters = RegisteredConsoleResultWriters.Get(typeof(xunit).Assembly);
+	readonly IReadOnlyDictionary<string, IConsoleResultWriter> resultWriters = RegisteredRunnerConfig.GetConsoleResultWriters(typeof(xunit).Assembly);
 	bool? shadowCopy;
 	bool? showLiveOutput;
 	bool? stopOnFail;
@@ -442,7 +442,11 @@ public class xunit : MSBuildTask, ICancelableTask, IDisposable
 			var discoveryOptions = TestFrameworkOptions.ForDiscovery(assembly.Configuration);
 			var executionOptions = TestFrameworkOptions.ForExecution(assembly.Configuration);
 
-			var assemblyDisplayName = Path.GetFileNameWithoutExtension(assembly.AssemblyFileName)!;
+			var assemblyDisplayName =
+				assembly.AssemblyFileName.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) || assembly.AssemblyFileName.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)
+					? Path.GetFileNameWithoutExtension(assembly.AssemblyFileName)
+					: Path.GetFileName(assembly.AssemblyFileName);
+
 			await using var diagnosticMessageSink = MSBuildDiagnosticMessageSink.TryCreate(Log, logLock, diagnosticMessages ?? assembly.Configuration.DiagnosticMessagesOrDefault, internalDiagnosticMessages ?? assembly.Configuration.InternalDiagnosticMessagesOrDefault, assemblyDisplayName);
 			var appDomainSupport = assembly.Configuration.AppDomainOrDefault;
 			var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
@@ -509,7 +513,7 @@ public class xunit : MSBuildTask, ICancelableTask, IDisposable
 
 	/// <summary/>
 	protected virtual IReadOnlyList<IRunnerReporter> GetAvailableRunnerReporters() =>
-		RegisteredRunnerReporters.Get(typeof(xunit).Assembly, out _);
+		RegisteredRunnerConfig.GetRunnerReporters(typeof(xunit).Assembly, out _);
 
 	/// <summary/>
 	protected IRunnerReporter? GetReporter()

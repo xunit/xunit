@@ -1,6 +1,9 @@
+using Xunit.Runner.Common;
+
+#if !XUNIT_AOT
 using System.Runtime.Versioning;
 using Mono.Cecil;
-using Xunit.Runner.Common;
+#endif
 
 namespace Xunit;
 
@@ -22,6 +25,13 @@ public static class AssemblyUtility
 			{
 				assemblyFileName = Path.GetFullPath(assemblyFileName);
 
+#if XUNIT_AOT
+				// We don't have access to Mono.Cecil in native AOT. Start by assuming it's a v3 test
+				// project (unless we can prove otherwise) and without knowing the target framework.
+				var xunitVersion = 3;
+				var targetFramework = default(string);
+#else
+				var xunitVersion = 0;
 				using var moduleDefinition = ModuleDefinition.ReadModule(assemblyFileName);
 				var targetFrameworkAttribute =
 					moduleDefinition
@@ -29,7 +39,6 @@ public static class AssemblyUtility
 						.FirstOrDefault(ca => ca.AttributeType.FullName == typeof(TargetFrameworkAttribute).FullName);
 
 				var targetFramework = targetFrameworkAttribute?.ConstructorArguments[0].Value as string;
-				var xunitVersion = 0;
 
 				// Trust for references is stronger than what's on disk, so try those first, and
 				// we always want to consider the "highest" reference most important, since we have
@@ -43,11 +52,15 @@ public static class AssemblyUtility
 					xunitVersion = 1;
 				// Fall back to looking for one of our desired files on disk
 				else
+#endif
+				// Sibling file inspection won't apply for native AOT compiled test assemblies, but it can
+				// still help us identify if something is incompatible (because it's v1 or v2). For AOT, we
+				// already start off assuming things are v3 until proven otherwise.
 				{
 					var folder = Path.GetDirectoryName(assemblyFileName);
 					if (folder is not null)
 					{
-						if (Directory.GetFiles(folder, "xunit.v3.core.dll").Length != 0)
+						if (Directory.GetFiles(folder, "xunit.v3.core.dll").Length != 0 || Directory.GetFiles(folder, "xunit.v3.core.aot.dll").Length != 0)
 							xunitVersion = 3;
 						else if (Directory.GetFiles(folder, "xunit.core.dll").Length != 0)
 							xunitVersion = 2;
@@ -58,7 +71,13 @@ public static class AssemblyUtility
 
 				return new AssemblyMetadata(xunitVersion, targetFramework);
 			}
-			catch { }
+			catch
+			{
+				// If it might be executable, we'll just assume it's a published Native AOT binary and just
+				// hope for the best.
+				if (!assemblyFileName.EndsWith(".dll", StringComparison.OrdinalIgnoreCase))
+					return new AssemblyMetadata(3, null);
+			}
 
 		return null;
 	}
