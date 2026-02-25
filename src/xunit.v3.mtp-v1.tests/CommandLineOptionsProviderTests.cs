@@ -462,9 +462,9 @@ public class CommandLineOptionsProviderTests
 		public static TheoryData<string, string, string> ReportOptionsKeyExtension =
 		[
 			("ctrf", "ctrf", "ctrf"),
-			("junit", "junit", "junit"),
-			("nunit", "nunit", "nunit"),
-			("xunit", "xml", "xunit"),
+			("junit", "junit", "junit.xml"),
+			("nunit", "nunit", "nunit.xml"),
+			("xunit", "xml", "xunit.xml"),
 			("xunit-html", "html", "html"),
 			("xunit-trx", "trx", "trx"),
 		];
