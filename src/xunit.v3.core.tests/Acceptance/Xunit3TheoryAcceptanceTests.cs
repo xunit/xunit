@@ -1,3 +1,4 @@
+#pragma warning disable IDE0060 // Remove unused parameter
 #pragma warning disable xUnit1042 // The member referenced by the MemberData attribute returns untyped data rows
 
 using System.Collections;
@@ -2233,8 +2234,6 @@ public class Xunit3TheoryAcceptanceTests
 			Assert.Equal("Could not find public static member (property, field, or method) named 'DataSource' on 'Xunit3TheoryAcceptanceTests+MethodDataTests+ClassWithMismatchedMethodData' with parameter types: System.Double", failed.Messages.Single());
 		}
 
-#pragma warning disable IDE0060 // Remove unused parameter
-
 		class ClassWithMismatchedMethodData
 		{
 			public static IEnumerable<object?[]>? DataSource(int x) => null;
@@ -2243,8 +2242,6 @@ public class Xunit3TheoryAcceptanceTests
 			[MemberData(nameof(DataSource), 21.12)]
 			public void TestViaMethodData(int _1, double _2, string _3) { }
 		}
-
-#pragma warning restore IDE0060 // Remove unused parameter
 
 		[Fact]
 		public async ValueTask SubTypeInheritsTestsFromBaseType()
@@ -2255,7 +2252,7 @@ public class Xunit3TheoryAcceptanceTests
 			Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+SubClassWithNoTests.Test(x: 42)", passed.TestDisplayName);
 		}
 
-		public abstract class BaseClassWithTestAndData
+		abstract class BaseClassWithTestAndData
 		{
 			public static IEnumerable<object?[]> TestData()
 			{
@@ -2270,7 +2267,7 @@ public class Xunit3TheoryAcceptanceTests
 			}
 		}
 
-		public class SubClassWithNoTests : BaseClassWithTestAndData { }
+		class SubClassWithNoTests : BaseClassWithTestAndData { }
 
 		[Fact]
 		public async ValueTask CanPassParametersToDataMethod()
@@ -2310,8 +2307,6 @@ public class Xunit3TheoryAcceptanceTests
 			Assert.Empty(testMessages.OfType<ITestSkipped>());
 		}
 
-#pragma warning disable IDE0060 // Remove unused parameter
-
 		class ClassWithDowncastedMethodData
 		{
 			public static IEnumerable<object?[]> DataSource(object x, string? y) { yield return new object?[] { 42, 21.12, "Hello world" }; }
@@ -2322,8 +2317,6 @@ public class Xunit3TheoryAcceptanceTests
 			public void TestViaMethodData(int _1, double _2, string _3) { }
 		}
 
-#pragma warning restore IDE0060 // Remove unused parameter
-
 		[Fact]
 		public async ValueTask CanUseMethodDataInSubTypeFromTestInBaseType()
 		{
@@ -2333,7 +2326,7 @@ public class Xunit3TheoryAcceptanceTests
 			Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+SubClassWithTestData.Test(x: 42)", passed.TestDisplayName);
 		}
 
-		public abstract class BaseClassWithTestWithoutData
+		abstract class BaseClassWithTestWithoutData
 		{
 			[Theory]
 #pragma warning disable xUnit1015 // MemberData must reference an existing member
@@ -2345,7 +2338,7 @@ public class Xunit3TheoryAcceptanceTests
 			}
 		}
 
-		public class SubClassWithTestData : BaseClassWithTestWithoutData
+		class SubClassWithTestData : BaseClassWithTestWithoutData
 		{
 			public static IEnumerable<object?[]> TestData()
 			{
@@ -2632,8 +2625,6 @@ public class Xunit3TheoryAcceptanceTests
 			Assert.Contains("Assert.NotNull() Failure", notNullFailure.Messages.Single());
 		}
 
-#pragma warning disable xUnit1042 // The member referenced by the MemberData attribute returns untyped data rows
-
 		class ClassUnderTest
 		{
 			public static IEnumerable<object?[]> Data
@@ -2654,8 +2645,6 @@ public class Xunit3TheoryAcceptanceTests
 			}
 		}
 	}
-
-#pragma warning restore xUnit1042 // The member referenced by the MemberData attribute returns untyped data rows
 
 	public class OverloadedMethodTests : AcceptanceTestV3
 	{
