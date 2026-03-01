@@ -86,6 +86,7 @@ public static class ConsoleProjectLister
 					DisplayName = tuple.testCase.TestCaseDisplayName,
 					ID = tuple.testCase.UniqueID,
 					Class = tuple.testCase.TestClassName,
+					Explicit = tuple.testCase.Explicit,
 					Method = tuple.testCase.TestMethodName,
 					Skip = tuple.testCase.SkipReason,
 					Traits = tuple.testCase.Traits.Count > 0 ? tuple.testCase.Traits : null,
@@ -105,6 +106,7 @@ public static class ConsoleProjectLister
 					testCaseSerializer.Serialize("ID", testCase.ID);
 					testCaseSerializer.Serialize("Class", testCase.Class);
 					testCaseSerializer.Serialize("Method", testCase.Method);
+					testCaseSerializer.Serialize("Explicit", testCase.Explicit);
 
 					if (testCase.Skip is not null)
 						testCaseSerializer.Serialize("Skip", testCase.Skip);
@@ -131,6 +133,9 @@ public static class ConsoleProjectLister
 						consoleHelper.WriteLine("    Test class:   {0}", testCase.Class);
 
 					consoleHelper.WriteLine("    ID:           {0}", testCase.ID);
+
+					if (testCase.Explicit)
+						consoleHelper.WriteLine("    Explicit:     true");
 
 					if (testCase.Skip is not null)
 						consoleHelper.WriteLine("    Skip reason:  \"{0}\"", Escape(testCase.Skip));
