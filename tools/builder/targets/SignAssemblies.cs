@@ -65,9 +65,6 @@ public static partial class SignAssemblies
 				Path.Combine(context.BaseFolder, "src", "xunit.v3.runner.utility.aot",           "bin", context.ConfigurationText, "net8.0",                                 "xunit.v3.runner.utility.aot.dll"),
 			};
 
-		foreach (var runtime in PublishRuntimes.Where(rid => rid.StartsWith("win-")))
-			binaries.Add(Path.Combine(context.BaseFolder, "src", "xunit.v3.runner.console", "bin", context.ConfigurationText, "net10.0", "publish", runtime, "xunit.v3.runner.console.exe"));
-
 		var binariesToSign =
 			binaries.Select(unsignedPath =>
  			{
