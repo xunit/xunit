@@ -255,7 +255,7 @@ public class TestClassGenerator : XunitGenerator
 			{
 				var factory = CodeGenRegistration.ToFixtureFactory(
 					fixtureType,
-					classFixtureInterface.Locations.FirstOrDefault(),
+					classSymbol.Locations.FirstOrDefault(),
 					result,
 					"Class fixture type",
 					"global::Xunit.v3.FixtureMappingManager.TryGetFixtureArgument<{0}>(mappingManager)"
