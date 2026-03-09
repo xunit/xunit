@@ -26,14 +26,14 @@ Capable of running v3 .NET test projects only. Neither .NET Framework nor v1/v2 
 		<file target="_content\README.md" src="obj\xunit-console-tool.win-arm64.README.md" />
 
 		<file target="tools\net10.0\win-arm64\" src="Package\tools\net10.0\windows\*" />
-		<file target="tools\net10.0\win-arm64\" src="bin\$Configuration$\net10.0\win-arm64\Microsoft.Bcl.AsyncInterfaces.dll" />
-		<file target="tools\net10.0\win-arm64\" src="bin\$Configuration$\net10.0\win-arm64\Mono.Cecil.dll" />
-		<file target="tools\net10.0\win-arm64\" src="bin\$Configuration$\net10.0\win-arm64\xunit.abstractions.dll" />
-		<file target="tools\net10.0\win-arm64\" src="bin\$Configuration$\net10.0\win-arm64\$SignedPath$xunit.v3.runner.console.exe" />
-		<file target="tools\net10.0\win-arm64\" src="bin\$Configuration$\net10.0\win-arm64\xunit.v3.runner.console.deps.json" />
-		<file target="tools\net10.0\win-arm64\" src="bin\$Configuration$\net10.0\win-arm64\xunit.v3.runner.console.dll" />
-		<file target="tools\net10.0\win-arm64\" src="bin\$Configuration$\net10.0\win-arm64\xunit.v3.runner.console.dll.config" />
-		<file target="tools\net10.0\win-arm64\" src="bin\$Configuration$\net10.0\win-arm64\xunit.v3.runner.console.runtimeconfig.json" />
+		<file target="tools\net10.0\win-arm64\" src="bin\$Configuration$\net10.0\win-arm64\publish\Microsoft.Bcl.AsyncInterfaces.dll" />
+		<file target="tools\net10.0\win-arm64\" src="bin\$Configuration$\net10.0\win-arm64\publish\Mono.Cecil.dll" />
+		<file target="tools\net10.0\win-arm64\" src="bin\$Configuration$\net10.0\win-arm64\publish\xunit.abstractions.dll" />
+		<file target="tools\net10.0\win-arm64\" src="bin\$Configuration$\net10.0\win-arm64\publish\$SignedPath$xunit.v3.runner.console.exe" />
+		<file target="tools\net10.0\win-arm64\" src="bin\$Configuration$\net10.0\win-arm64\publish\xunit.v3.runner.console.deps.json" />
+		<file target="tools\net10.0\win-arm64\" src="bin\$Configuration$\net10.0\win-arm64\publish\xunit.v3.runner.console.dll" />
+		<file target="tools\net10.0\win-arm64\" src="bin\$Configuration$\net10.0\win-arm64\publish\xunit.v3.runner.console.dll.config" />
+		<file target="tools\net10.0\win-arm64\" src="bin\$Configuration$\net10.0\win-arm64\publish\xunit.v3.runner.console.runtimeconfig.json" />
 		<file target="tools\net10.0\win-arm64\" src="..\xunit.v3.common\bin\$Configuration$\netstandard2.0\$SignedPath$xunit.v3.common.dll" />
 		<file target="tools\net10.0\win-arm64\" src="..\xunit.v3.runner.common\bin\$Configuration$\netstandard2.0\$SignedPath$xunit.v3.runner.common.dll" />
 		<file target="tools\net10.0\win-arm64\" src="..\xunit.v3.runner.utility\bin\$Configuration$\net8.0\$SignedPath$xunit.v3.runner.utility.netcore.dll" />
