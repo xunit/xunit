@@ -153,7 +153,7 @@ public abstract class DataAttributeGeneratorBase(string fullyQualifiedAttributeT
 
 				if (property is not null)
 				{
-					if (property.Type.ToCSharp() == "bool")
+					if (property.DeclaredAccessibility == Accessibility.Public && property.Type.ToCSharp() == "bool")
 						return;
 
 					break;
