@@ -157,7 +157,7 @@ static class DiagnosticDescriptors
 	public static DiagnosticDescriptor X9000_TypeMustHaveCorrectPublicConstructor { get; } =
 		Diagnostic(
 			"xUnit9000",
-			"Type must have non-obsolete public parameterless public constructor",
+			"Type must have non-obsolete public constructor",
 			Error,
 			"Type '{0}' must have a non-obsolete public constructor: public {0}({1})"
 		);
@@ -264,5 +264,21 @@ static class DiagnosticDescriptors
 			"MemberData type must be either public or internal",
 			Error,
 			"Member data '{0}.{1}' must be in a class that is declared either public or internal"
+		);
+
+	public static DiagnosticDescriptor X9014_MemberDataParameterCannotBeParams { get; } =
+		Diagnostic(
+			"xUnit9014",
+			"MemberData parameter cannot use params modifier",
+			Error,
+			"The params modifier on parameter '{0}' of {1}.{2} cannot be used for [MemberData] in Native AOT. Remove the modifier and create the arrays the [MemberData] arguments yourself."
+		);
+
+	public static DiagnosticDescriptor X9015_MemberDataParameterCannotBeParams { get; } =
+		Diagnostic(
+			"xUnit9015",
+			"There is no matching MemberData method argument",
+			Error,
+			"There is no matching argument for {0}.{1} parameter: {2} {3}. Remove unused parameter(s), or add more argument(s)."
 		);
 }
