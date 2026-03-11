@@ -205,48 +205,51 @@ public class MemberDataAttributeGenerator() :
 				return;
 			}
 
-			parametersInit.AppendLine("""
-				var invalidParameters = new global::System.Collections.Generic.List<(string Type, string Name, string Value)>();
-			""");
-
 			var parameterNamesInCode = new List<string>();
 
-			for (var idx = 0; idx < memberMethod.Parameters.Length; ++idx)
+			if (arguments.Length > 0)
 			{
-				var parameter = memberMethod.Parameters[idx];
-				var parameterName = parameter.Name.Quoted();
-				var parameterNameInCode = "param" + idx;
-
-				if (idx >= arguments.Length)
-				{
-					if (!parameter.IsOptional && !parameter.IsParams)
-						parametersInit.AppendLine($$"""
-								invalidParameters.Add(({{parameter.Type.ToDisplayString().Quoted()}}, {{parameterName}}, "<missing value>"));
-							""");
-				}
-				else
-				{
-					var argument = arguments[idx];
-					var conversion = parameter.NullableAnnotation == NullableAnnotation.NotAnnotated ? "TryConvert" : "TryConvertNullable";
-
-					parameterNamesInCode.Add(parameterNameInCode);
-					parametersInit.AppendLine($$"""
-							if (!global::Xunit.Sdk.TypeHelper.{{conversion}}({{argument.ToCSharp()}}, out {{parameter.Type.ToCSharp()}} {{parameterNameInCode}}))
-								invalidParameters.Add(({{parameter.Type.ToDisplayString().Quoted()}}, {{parameterName}}, {{argument.ToCSharp().Quoted()}}));
-						""");
-				}
-			}
-
-			parametersInit.AppendLine($$"""
-					if (invalidParameters.Count != 0)
-						throw new global::Xunit.Sdk.TestPipelineException(
-							string.Format(
-								global::System.Globalization.CultureInfo.CurrentCulture,
-								"Member data method '{{memberType.ToDisplayString()}}.{{memberMethod.Name}}' had one or more invalid theory data arguments: {0}",
-								string.Join(", ", global::System.Linq.Enumerable.Select(invalidParameters, a => $"{a.Type} {a.Name} ({a.Value})"))
-							)
-						);
+				parametersInit.AppendLine("""
+					var invalidParameters = new global::System.Collections.Generic.List<(string Type, string Name, string Value)>();
 				""");
+
+				for (var idx = 0; idx < memberMethod.Parameters.Length; ++idx)
+				{
+					var parameter = memberMethod.Parameters[idx];
+					var parameterName = parameter.Name.Quoted();
+					var parameterNameInCode = "param" + idx;
+
+					if (idx >= arguments.Length)
+					{
+						if (!parameter.IsOptional && !parameter.IsParams)
+							parametersInit.AppendLine($$"""
+									invalidParameters.Add(({{parameter.Type.ToDisplayString().Quoted()}}, {{parameterName}}, "<missing value>"));
+								""");
+					}
+					else
+					{
+						var argument = arguments[idx];
+						var conversion = parameter.NullableAnnotation == NullableAnnotation.NotAnnotated ? "TryConvert" : "TryConvertNullable";
+
+						parameterNamesInCode.Add(parameterNameInCode);
+						parametersInit.AppendLine($$"""
+								if (!global::Xunit.Sdk.TypeHelper.{{conversion}}({{argument.ToCSharp()}}, out {{parameter.Type.ToCSharp()}} {{parameterNameInCode}}))
+									invalidParameters.Add(({{parameter.Type.ToDisplayString().Quoted()}}, {{parameterName}}, {{argument.ToCSharp().Quoted()}}));
+							""");
+					}
+				}
+
+				parametersInit.AppendLine($$"""
+						if (invalidParameters.Count != 0)
+							throw new global::Xunit.Sdk.TestPipelineException(
+								string.Format(
+									global::System.Globalization.CultureInfo.CurrentCulture,
+									"Member data method '{{memberType.ToDisplayString()}}.{{memberMethod.Name}}' had one or more invalid theory data arguments: {0}",
+									string.Join(", ", global::System.Linq.Enumerable.Select(invalidParameters, a => $"{a.Type} {a.Name} ({a.Value})"))
+								)
+							);
+					""");
+			}
 
 			parameters = $"({string.Join(", ", parameterNamesInCode)})";
 		}
