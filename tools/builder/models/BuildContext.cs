@@ -12,6 +12,7 @@ public partial class BuildContext
 	string? consoleRunnerExe;
 	string? consoleRunner32Exe;
 	string? docFXOutputFolder;
+	string? docFXOutputFolderAot;
 	string? dotnet32Path;
 	bool dotnet32SdkInstalled;
 
@@ -33,6 +34,12 @@ public partial class BuildContext
 	{
 		get => docFXOutputFolder ?? throw new InvalidOperationException($"Tried to retrieve unset {nameof(BuildContext)}.{nameof(DocFXOutputFolder)}");
 		private set => docFXOutputFolder = value ?? throw new ArgumentNullException(nameof(DocFXOutputFolder));
+	}
+
+	public string DocFXOutputFolderAot
+	{
+		get => docFXOutputFolderAot ?? throw new InvalidOperationException($"Tried to retrieve unset {nameof(BuildContext)}.{nameof(DocFXOutputFolderAot)}");
+		private set => docFXOutputFolderAot = value ?? throw new ArgumentNullException(nameof(DocFXOutputFolder));
 	}
 
 	// User-controllable command-line options
@@ -67,6 +74,7 @@ public partial class BuildContext
 		ConsoleRunner32Exe = Path.Combine(BaseFolder, "src", "xunit.v3.runner.console.x86", "bin", ConfigurationText, "net472", "merged", "xunit.v3.runner.console.x86.exe");
 
 		DocFXOutputFolder = Path.Combine(ArtifactsFolder, "docfx");
+		DocFXOutputFolderAot = Path.Combine(ArtifactsFolder, "docfx-aot");
 
 		// Get the path to the 32-bit dotnet.exe, for Windows only
 		if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))

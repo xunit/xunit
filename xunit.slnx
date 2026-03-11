@@ -22,6 +22,11 @@
     <File Path="src/Versions.props" />
     <File Path="version.json" />
   </Folder>
+  <Folder Name="/meta/docfx/">
+    <File Path="docfx/docfx-aot.json" />
+    <File Path="docfx/docfx.json" />
+    <File Path="docfx/filterConfig.yml" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src/xunit.v3.assert/xunit.v3.assert.csproj" />
     <Project Path="src/xunit.v3.common/xunit.v3.common.csproj" />

@@ -1,0 +1,22 @@
+{
+  "metadata": [
+    {
+      "src": [
+        {
+          "src": "../",
+          "files": [
+            "src/xunit.v3.assert.aot/xunit.v3.assert.aot.csproj",
+            "src/xunit.v3.common.aot/xunit.v3.common.aot.csproj",
+            "src/xunit.v3.core.aot/xunit.v3.core.aot.csproj",
+            "src/xunit.v3.runner.common.aot/xunit.v3.runner.common.aot.csproj",
+            "src/xunit.v3.runner.utility.aot/xunit.v3.runner.utility.aot.csproj"
+          ]
+        }
+      ],
+      "dest": "../artifacts/docfx-aot",
+      "namespaceLayout": "flattened",
+      "memberLayout": "separatePages",
+      "filter": "filterConfig.yml"
+    }
+  ]
+}
