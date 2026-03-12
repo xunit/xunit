@@ -24,6 +24,5 @@
 
 		<file src="..\build\.nuget.editorconfig" target="contentFiles\.editorconfig" />
 		<file target="contentFiles\cs\netstandard2.0\Asserts" src="Asserts\**\*.cs" />
-		<file target="contentFiles\cs\netstandard2.0\common" src="..\common\EnvironmentVariables.cs" />
 	</files>
 </package>

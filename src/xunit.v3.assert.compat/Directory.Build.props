@@ -17,7 +17,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)\..\common\EnvironmentVariables.cs" LinkBase="Common" />
     <Compile Include="$(MSBuildThisFileDirectory)\..\xunit.v3.assert\Asserts\**\*.cs" LinkBase="Asserts" />
   </ItemGroup>
 
