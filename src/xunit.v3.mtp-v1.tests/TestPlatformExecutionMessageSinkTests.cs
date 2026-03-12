@@ -106,7 +106,13 @@ public class TestPlatformExecutionMessageSinkTests
 
 			var testNode = AssertStandardMetadata(classUnderTest, expectTrx: trxEnabled, failure: true);
 			var failed = testNode.Properties.Single<FailedTestNodeStateProperty>();
+
+#if MTP_V2
+			Assert.Null(failed.Explanation);
+#else
 			Assert.Equal($"exception 1 : message 1{Environment.NewLine}---- exception 2 : message 2", failed.Explanation);
+#endif
+
 			Assert.NotNull(failed.Exception);
 			Assert.Equal($"exception 1 : message 1{Environment.NewLine}---- exception 2 : message 2", failed.Exception.Message);
 			Assert.Equal($"stack trace 1{Environment.NewLine}----- Inner Stack Trace -----{Environment.NewLine}stack trace 2", failed.Exception.StackTrace);
@@ -122,7 +128,13 @@ public class TestPlatformExecutionMessageSinkTests
 
 			var testNode = AssertStandardMetadata(classUnderTest);
 			var timeout = testNode.Properties.Single<TimeoutTestNodeStateProperty>();
+
+#if MTP_V2
+			Assert.Null(timeout.Explanation);
+#else
 			Assert.Equal($"exception 1 : message 1{Environment.NewLine}---- exception 2 : message 2", timeout.Explanation);
+#endif
+
 			Assert.NotNull(timeout.Exception);
 			Assert.Equal($"exception 1 : message 1{Environment.NewLine}---- exception 2 : message 2", timeout.Exception.Message);
 			Assert.Equal($"stack trace 1{Environment.NewLine}----- Inner Stack Trace -----{Environment.NewLine}stack trace 2", timeout.Exception.StackTrace);
@@ -141,7 +153,13 @@ public class TestPlatformExecutionMessageSinkTests
 
 			var testNode = AssertStandardMetadata(classUnderTest);
 			var error = testNode.Properties.Single<ErrorTestNodeStateProperty>();
+
+#if MTP_V2
+			Assert.Null(error.Explanation);
+#else
 			Assert.Equal($"exception 1 : message 1{Environment.NewLine}---- exception 2 : message 2", error.Explanation);
+#endif
+
 			Assert.NotNull(error.Exception);
 			Assert.Equal($"exception 1 : message 1{Environment.NewLine}---- exception 2 : message 2", error.Exception.Message);
 			Assert.Equal($"stack trace 1{Environment.NewLine}----- Inner Stack Trace -----{Environment.NewLine}stack trace 2", error.Exception.StackTrace);
@@ -268,7 +286,13 @@ public class TestPlatformExecutionMessageSinkTests
 			var testNode = GetTestNode(classUnderTest);
 			Assert.Equal($"[{cleanupType} Cleanup Failure (test-display-name)]", testNode.DisplayName);
 			var error = testNode.Properties.Single<ErrorTestNodeStateProperty>();
+
+#if MTP_V2
+			Assert.Null(error.Explanation);
+#else
 			Assert.Equal($"{TestData.DefaultExceptionTypes[0]} : {TestData.DefaultExceptionMessages[0]}", error.Explanation);
+#endif
+
 			Assert.NotNull(error.Exception);
 			Assert.Equal($"{TestData.DefaultExceptionTypes[0]} : {TestData.DefaultExceptionMessages[0]}", error.Exception.Message);
 			Assert.Equal(TestData.DefaultStackTraces[0], error.Exception.StackTrace);
