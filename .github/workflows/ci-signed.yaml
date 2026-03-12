@@ -78,7 +78,7 @@ jobs:
       - name: "Upload artifact: docfx-aot"
         uses: actions/upload-artifact@v4
         with:
-          name: docfx
+          name: docfx-aot
           path: artifacts/docfx-aot
           include-hidden-files: true
           compression-level: 9
