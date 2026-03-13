@@ -15,7 +15,7 @@ public static class TestAOT
 	{
 		var executableExtension = context.IsWindows ? ".exe" : string.Empty;
 
-		context.BuildStep($"Running Native AOT tests [via xunit.v3.runner.console]");
+		context.BuildStep("Running Native AOT tests [via xunit.v3.runner.console]");
 
 		var v3TestAssemblies =
 			Directory
@@ -25,5 +25,9 @@ public static class TestAOT
 				.Select(x => x.Substring(context.BaseFolder.Length + 1));
 
 		await context.Exec(context.ConsoleRunnerExe, $"{string.Join(" ", v3TestAssemblies)}", workingDirectory: context.BaseFolder);
+
+		context.BuildStep("Running Native AOT test [via xunit.v3.runner.msbuild]");
+
+		await context.Exec("dotnet", $"msbuild tools/builder/msbuild/aot-msbuild.proj -tl:off -p:Configuration={context.ConfigurationText} -v:{context.Verbosity}");
 	}
 }
