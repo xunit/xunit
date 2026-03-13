@@ -10,15 +10,11 @@ public partial class TestCaseDiscovered
 	/// </remarks>
 	public required bool Explicit { get; set; }
 
-#if !XUNIT_AOT
-
 	/// <inheritdoc/>
 	/// <remarks>
-	/// Note: Will be <see cref="MessageSinkMessage.UnsetStringPropertyValue"/> if there was no value provided during deserialization.
+	/// Note: Will be <see langword="null"/> if there was no value provided during deserialization.
 	/// </remarks>
-	public required string Serialization { get; set; } = UnsetStringPropertyValue;
-
-#endif  // !XUNIT_AOT
+	public required string? Serialization { get; set; }
 
 	/// <inheritdoc/>
 	/// <remarks>
@@ -112,9 +108,7 @@ public partial class TestCaseDiscovered
 		base.Deserialize(root);
 
 		Explicit = JsonDeserializer.TryGetBoolean(root, nameof(Explicit)) ?? false;
-#if !XUNIT_AOT
-		Serialization = JsonDeserializer.TryGetString(root, nameof(Serialization)) ?? Serialization;
-#endif
+		Serialization = JsonDeserializer.TryGetString(root, nameof(Serialization));
 		SkipReason = JsonDeserializer.TryGetString(root, nameof(SkipReason));
 		SourceFilePath = JsonDeserializer.TryGetString(root, nameof(SourceFilePath));
 		SourceLineNumber = JsonDeserializer.TryGetInt(root, nameof(SourceLineNumber));

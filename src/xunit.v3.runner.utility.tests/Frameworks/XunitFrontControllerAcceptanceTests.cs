@@ -204,8 +204,10 @@ public class XunitFrontControllerAcceptanceTests
 				discovered =>
 				{
 #if XUNIT_AOT
+					Assert.Null(discovered.Serialization);
 					testCaseIDs.Add(discovered.UniqueID);
 #else
+					Assert.NotNull(discovered.Serialization);
 					serializedTestCases.Add(discovered.Serialization);
 #endif
 
@@ -216,8 +218,10 @@ public class XunitFrontControllerAcceptanceTests
 				discovered =>
 				{
 #if XUNIT_AOT
+					Assert.Null(discovered.Serialization);
 					testCaseIDs.Add(discovered.UniqueID);
 #else
+					Assert.NotNull(discovered.Serialization);
 					serializedTestCases.Add(discovered.Serialization);
 #endif
 
@@ -297,8 +301,10 @@ public class XunitFrontControllerAcceptanceTests
 				discovered =>
 				{
 #if XUNIT_AOT
+					Assert.Null(discovered.Serialization);
 					testCaseIDs.Add(discovered.UniqueID);
 #else
+					Assert.NotNull(discovered.Serialization);
 					serializedTestCases.Add(discovered.Serialization);
 #endif
 
@@ -309,8 +315,10 @@ public class XunitFrontControllerAcceptanceTests
 				discovered =>
 				{
 #if XUNIT_AOT
+					Assert.Null(discovered.Serialization);
 					testCaseIDs.Add(discovered.UniqueID);
 #else
+					Assert.NotNull(discovered.Serialization);
 					serializedTestCases.Add(discovered.Serialization);
 #endif
 

@@ -377,9 +377,7 @@ partial class TestData
 	public static ITestCaseDiscovered TestCaseDiscovered(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		bool @explicit = false,
-#if !XUNIT_AOT
 		string serialization = DefaultTestCaseSerialization,
-#endif
 		string? skipReason = null,
 		string? sourceFilePath = null,
 		int? sourceLineNumber = null,
@@ -402,9 +400,7 @@ partial class TestData
 			{
 				AssemblyUniqueID = assemblyUniqueID,
 				Explicit = @explicit,
-#if !XUNIT_AOT
 				Serialization = serialization,
-#endif
 				SkipReason = skipReason,
 				SourceFilePath = sourceFilePath,
 				SourceLineNumber = sourceLineNumber,

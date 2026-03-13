@@ -142,8 +142,10 @@ public class Xunit3Tests
 		// Run
 		var runMessageSink = SpyMessageSink<ITestAssemblyFinished>.Create();
 #if XUNIT_AOT
+		Assert.Null(testCase.Serialization);
 		xunit3.Run(runMessageSink, FrontControllerRunSettings.WithTestCaseIDs(ExecutionOptions, [testCase.UniqueID]));
 #else
+		Assert.NotNull(testCase.Serialization);
 		xunit3.Run(runMessageSink, FrontControllerRunSettings.WithSerializedTestCases(ExecutionOptions, [testCase.Serialization]));
 #endif
 

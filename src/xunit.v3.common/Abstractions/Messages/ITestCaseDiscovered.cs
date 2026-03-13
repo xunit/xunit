@@ -8,13 +8,13 @@ namespace Xunit.Sdk;
 /// </summary>
 public interface ITestCaseDiscovered : ITestCaseMessage, ITestCaseMetadata
 {
-#if !XUNIT_AOT
-
 	/// <summary>
 	/// Gets the serialized value of the test case, which allows it to be transferred across
 	/// process boundaries.
 	/// </summary>
-	string Serialization { get; }
-
-#endif  // !XUNIT_AOT
+	/// <remarks>
+	/// Tests built for Native AOT will not have a serialized version of the test case. Running
+	/// Native AOT tests will require running them by unique ID rather than by serialization.
+	/// </remarks>
+	string? Serialization { get; }
 }

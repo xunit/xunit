@@ -8,18 +8,18 @@ public partial class TestCaseDiscovered
 	/// <inheritdoc/>
 	public required bool Explicit { get; set; }
 
-#if !XUNIT_AOT
-
-	string? serialization;
-
 	/// <inheritdoc/>
-	public required string Serialization
+	public required string? Serialization
+#if XUNIT_AOT
+	{ get; set; }
+#else
 	{
 		get => this.ValidateNullablePropertyValue(serialization, nameof(Serialization));
 		set => serialization = Guard.ArgumentNotNull(value, nameof(Serialization));
 	}
 
-#endif  // !XUNIT_AOT
+	string? serialization;
+#endif
 
 	/// <inheritdoc/>
 	public required string? SkipReason { get; set; }

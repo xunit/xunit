@@ -25,9 +25,7 @@ sealed partial class TestCaseDiscovered : TestCaseMessage, ITestCaseDiscovered
 		base.Serialize(serializer);
 
 		serializer.Serialize(nameof(Explicit), Explicit);
-#if !XUNIT_AOT
 		serializer.Serialize(nameof(Serialization), Serialization);
-#endif
 		serializer.Serialize(nameof(SkipReason), SkipReason);
 		serializer.Serialize(nameof(SourceFilePath), SourceFilePath);
 		serializer.Serialize(nameof(SourceLineNumber), SourceLineNumber);
