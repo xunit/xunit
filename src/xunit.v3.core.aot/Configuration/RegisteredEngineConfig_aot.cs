@@ -298,7 +298,7 @@ public static class RegisteredEngineConfig
 	/// Registers the presence of an xUnit.net v3 test case factory via code generation.
 	/// </summary>
 	/// <param name="testClassIndex">The dictionary index of the test class. This is the C# compilation name for
-	/// the test class (typically in a form of <c>global::Namespace.TypeName</c>).</param>
+	/// the test class (in the form of <c>global::Namespace.TypeName</c>).</param>
 	/// <param name="methodName">The test method name</param>
 	/// <param name="factory">The test case factory</param>
 	/// <remarks>
@@ -338,7 +338,7 @@ public static class RegisteredEngineConfig
 	/// Registers the presence of an xUnit.net v3 test class via code generation.
 	/// </summary>
 	/// <param name="testClassIndex">The dictionary index of the test class. This is the C# compilation name for
-	/// the test class (typically in a form of <c>global::Namespace.TypeName</c>).</param>
+	/// the test class (in the form of <c>global::Namespace.TypeName</c>).</param>
 	/// <param name="registration">The test class registration.</param>
 	/// <remarks>
 	/// This is typically called when test classes are found during code generation.
@@ -355,7 +355,7 @@ public static class RegisteredEngineConfig
 	/// Registers the presence of an xUnit.net v3 test class via code generation.
 	/// </summary>
 	/// <param name="testClassIndex">The dictionary index of the test class. This is the C# compilation name for
-	/// the test class (typically in a form of <c>global::Namespace.TypeName</c>).</param>
+	/// the test class (in the form of <c>global::Namespace.TypeName</c>).</param>
 	/// <param name="methodName">The test method name</param>
 	/// <param name="registration">The test method registration</param>
 	/// <remarks>
@@ -426,7 +426,7 @@ public static class RegisteredEngineConfig
 	/// Registers a source of theory data rows for a given test method.
 	/// </summary>
 	/// <param name="testClassIndex">The dictionary index of the test class. This is the C# compilation name for
-	/// the test class (typically in a form of <c>global::Namespace.TypeName</c>).</param>
+	/// the test class (in the form of <c>global::Namespace.TypeName</c>).</param>
 	/// <param name="methodName">The test method name</param>
 	/// <param name="factory">The factory providing theory data rows</param>
 	/// <remarks>
