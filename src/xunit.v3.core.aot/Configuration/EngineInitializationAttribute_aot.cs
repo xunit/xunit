@@ -4,12 +4,12 @@ namespace Xunit.v3;
 /// Represents generated code that must be run during engine initialization and cleanup.
 /// </summary>
 [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true, Inherited = true)]
-public abstract class EngineInitializationAttribute : Attribute, IAsyncLifetime
+public abstract class EngineInitializationAttribute : Attribute, IAsyncDisposable
 {
 	/// <summary>
-	/// Used to perform any cleanup before the engine exits.
+	/// Override to perform cleanup for anything done during <see cref="InitializeAsync"/>.
 	/// </summary>
-	public ValueTask DisposeAsync()
+	public virtual ValueTask DisposeAsync()
 	{
 		GC.SuppressFinalize(this);
 
@@ -17,8 +17,7 @@ public abstract class EngineInitializationAttribute : Attribute, IAsyncLifetime
 	}
 
 	/// <summary>
-	/// Used to perform any necessary registration.
+	/// Override to perform engine startup initialization.
 	/// </summary>
-	public virtual ValueTask InitializeAsync() =>
-		default;
+	public abstract ValueTask InitializeAsync();
 }

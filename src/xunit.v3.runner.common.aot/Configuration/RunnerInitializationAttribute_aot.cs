@@ -7,7 +7,7 @@ namespace Xunit.Runner.Common;
 public abstract class RunnerInitializationAttribute : Attribute, IAsyncDisposable
 {
 	/// <summary>
-	/// Used to perform any cleanup before the runner exits.
+	/// Override to perform cleanup for anything done during <see cref="InitializeAsync"/>.
 	/// </summary>
 	public ValueTask DisposeAsync()
 	{
@@ -17,8 +17,7 @@ public abstract class RunnerInitializationAttribute : Attribute, IAsyncDisposabl
 	}
 
 	/// <summary>
-	/// Used to perform any necessary registration.
+	/// Override to perform runner startup initialization.
 	/// </summary>
-	public virtual ValueTask InitializeAsync() =>
-		default;
+	public abstract ValueTask InitializeAsync();
 }
