@@ -242,6 +242,19 @@ public static class RegisteredEngineConfig
 	}
 
 	/// <summary>
+	/// Registers a factory for an assembly-level test fixture.
+	/// </summary>
+	/// <param name="type">The type of the test fixture</param>
+	/// <param name="factory">The factory that creates the fixture instance</param>
+	/// <remarks>
+	/// This is typically called when <see cref="AssemblyFixtureAttribute"/> is seen at the test assembly level.
+	/// </remarks>
+	public static void RegisterAssemblyFixtureFactory(
+		Type type,
+		Func<ValueTask<object>> factory) =>
+			assemblyRegistration.AssemblyFixtureFactories[type] = _ => factory();
+
+	/// <summary>
 	/// Registers the factory that creates the assembly-level <see cref="ITestCaseOrderer"/> instance.
 	/// </summary>
 	/// <param name="factory">The orderer factory</param>
@@ -270,19 +283,6 @@ public static class RegisteredEngineConfig
 	/// </remarks>
 	public static void RegisterAssemblyTestCollectionOrdererFactory(Func<ITestCollectionOrderer> factory) =>
 		assemblyRegistration.TestCollectionOrdererFactory = factory;
-
-	/// <summary>
-	/// Registers a factory for an assembly-level test fixture.
-	/// </summary>
-	/// <param name="type">The type of the test fixture</param>
-	/// <param name="factory">The factory that creates the fixture instance</param>
-	/// <remarks>
-	/// This is typically called when <see cref="AssemblyFixtureAttribute"/> is seen at the test assembly level.
-	/// </remarks>
-	public static void RegisterAssemblyFixtureFactory(
-		Type type,
-		Func<ValueTask<object>> factory) =>
-			assemblyRegistration.AssemblyFixtureFactories[type] = _ => factory();
 
 	/// <summary>
 	/// Registers the factory that creates the assembly-level <see cref="ITestMethodOrderer"/> instance.
