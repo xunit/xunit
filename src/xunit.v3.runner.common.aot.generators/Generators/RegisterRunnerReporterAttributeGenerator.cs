@@ -20,7 +20,7 @@ public class RegisterRunnerReporterAttributeGenerator() :
 				result
 					.RunnerReporters
 					.WhereNotNull()
-					.Select(type => $"global::Xunit.Runner.Common.RegisteredRunnerConfig.AddRunnerReporter(new {type}());")
+					.Select(type => $"global::Xunit.Runner.Common.RegisteredRunnerConfig.RegisterRunnerReporter(new {type}());")
 			)
 		);
 	}

@@ -7,7 +7,7 @@ public class RegisterMicrosoftTestingPlatformResultWriterAttributeGenerator() :
 	IDAndTypeGenerator(
 		Types.Xunit.Runner.Common.RegisterMicrosoftTestingPlatformResultWriterAttribute,
 		nameof(Types.Xunit.Runner.Common.RegisterMicrosoftTestingPlatformResultWriterAttribute),
-		(id, type) => $@"global::Xunit.Runner.Common.RegisteredRunnerConfig.AddMicrosoftTestingPlatformResultWriter(""{id}"", new {type}());")
+		(id, type) => $@"global::Xunit.Runner.Common.RegisteredRunnerConfig.RegisterMicrosoftTestingPlatformResultWriter(""{id}"", new {type}());")
 {
 	protected override bool ValidateType(
 		INamedTypeSymbol type,

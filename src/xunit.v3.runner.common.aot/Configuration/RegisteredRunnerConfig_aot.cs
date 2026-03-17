@@ -19,46 +19,6 @@ public static class RegisteredRunnerConfig
 	static readonly List<string> runnerReporterMessages = [];
 
 	/// <summary>
-	/// Adds a console result writer registration.
-	/// </summary>
-	/// <param name="id">The ID of the result writer</param>
-	/// <param name="resultWriter">The result writer</param>
-	/// <remarks>
-	/// The ID is used to construct the console command line option <c>"-result-{ID}"</c> and therefore
-	/// must be unique.
-	/// </remarks>
-	public static void AddConsoleResultWriter(
-		string id,
-		IConsoleResultWriter resultWriter) =>
-			RegisterResultWriter(id, resultWriter, "console", consoleResultWriters, consoleResultWriterMessages);
-
-	/// <summary>
-	/// Adds a Microsoft Testing Platform result writer registration.
-	/// </summary>
-	/// <param name="id">The ID of the result writer</param>
-	/// <param name="resultWriter">The result writer</param>
-	/// <remarks>
-	/// The ID is used to construct the MTP command line options <c>"--xunit-result-{id}"</c> and
-	/// <c>"--xunit-result-{id}-filename"</c>, and therefore must be unique.
-	/// </remarks>
-	public static void AddMicrosoftTestingPlatformResultWriter(
-		string id,
-		IMicrosoftTestingPlatformResultWriter resultWriter) =>
-			RegisterResultWriter(id, resultWriter, "Microsoft Testing Platform", mtpResultWriters, mtpResultWriterMessages);
-
-	/// <summary>
-	/// Adds a runner reporter to the available list.
-	/// </summary>
-	/// <param name="runnerReporter">The runner reporter</param>
-	public static void AddRunnerReporter(IRunnerReporter runnerReporter)
-	{
-		if (runnerReporter is null)
-			runnerReporterMessages.Add("Cannot add a null runner reporter");
-		else
-			runnerReporters.Add(runnerReporter);
-	}
-
-	/// <summary>
 	/// Gets the list of console result writers registered for the given assembly.
 	/// </summary>
 	/// <param name="assembly">The assembly</param>
@@ -98,6 +58,46 @@ public static class RegisteredRunnerConfig
 	{
 		messages = [.. runnerReporterMessages];
 		return [.. runnerReporters];
+	}
+
+	/// <summary>
+	/// Adds a console result writer registration.
+	/// </summary>
+	/// <param name="id">The ID of the result writer</param>
+	/// <param name="resultWriter">The result writer</param>
+	/// <remarks>
+	/// The ID is used to construct the console command line option <c>"-result-{ID}"</c> and therefore
+	/// must be unique.
+	/// </remarks>
+	public static void RegisterConsoleResultWriter(
+		string id,
+		IConsoleResultWriter resultWriter) =>
+			RegisterResultWriter(id, resultWriter, "console", consoleResultWriters, consoleResultWriterMessages);
+
+	/// <summary>
+	/// Adds a Microsoft Testing Platform result writer registration.
+	/// </summary>
+	/// <param name="id">The ID of the result writer</param>
+	/// <param name="resultWriter">The result writer</param>
+	/// <remarks>
+	/// The ID is used to construct the MTP command line options <c>"--xunit-result-{id}"</c> and
+	/// <c>"--xunit-result-{id}-filename"</c>, and therefore must be unique.
+	/// </remarks>
+	public static void RegisterMicrosoftTestingPlatformResultWriter(
+		string id,
+		IMicrosoftTestingPlatformResultWriter resultWriter) =>
+			RegisterResultWriter(id, resultWriter, "Microsoft Testing Platform", mtpResultWriters, mtpResultWriterMessages);
+
+	/// <summary>
+	/// Adds a runner reporter to the available list.
+	/// </summary>
+	/// <param name="runnerReporter">The runner reporter</param>
+	public static void RegisterRunnerReporter(IRunnerReporter runnerReporter)
+	{
+		if (runnerReporter is null)
+			runnerReporterMessages.Add("Cannot add a null runner reporter");
+		else
+			runnerReporters.Add(runnerReporter);
 	}
 
 	static void RegisterResultWriter<TWriter>(

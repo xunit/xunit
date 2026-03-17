@@ -7,7 +7,7 @@ public class RegisterResultConsoleWriterAttributeGenerator() :
 	IDAndTypeGenerator(
 		Types.Xunit.Runner.Common.RegisterConsoleResultWriterAttribute,
 		nameof(Types.Xunit.Runner.Common.RegisterConsoleResultWriterAttribute),
-		(id, type) => $@"global::Xunit.Runner.Common.RegisteredRunnerConfig.AddConsoleResultWriter(""{id}"", new {type}());")
+		(id, type) => $@"global::Xunit.Runner.Common.RegisteredRunnerConfig.RegisterConsoleResultWriter(""{id}"", new {type}());")
 {
 	protected override bool ValidateType(
 		INamedTypeSymbol type,

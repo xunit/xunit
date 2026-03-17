@@ -10,8 +10,8 @@ public class RegisterResultWriterAttributeGenerator() :
 		(id, type) => $$"""
 			{
 				var writer = new {{type}}();
-				global::Xunit.Runner.Common.RegisteredRunnerConfig.AddConsoleResultWriter("{{id}}", writer);
-				global::Xunit.Runner.Common.RegisteredRunnerConfig.AddMicrosoftTestingPlatformResultWriter("{{id}}", writer);
+				global::Xunit.Runner.Common.RegisteredRunnerConfig.RegisterConsoleResultWriter("{{id}}", writer);
+				global::Xunit.Runner.Common.RegisteredRunnerConfig.RegisterMicrosoftTestingPlatformResultWriter("{{id}}", writer);
 			}
 			""")
 {
