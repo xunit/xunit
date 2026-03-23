@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Win32.Registry" Version="$(Microsoft_Win32_Registry_Version)" />
+    <PackageReference Include="System.Security.AccessControl" Version="$(System_Security_AccessControl_Version)" />
     <PackageReference Include="Mono.Cecil" Version="$(Mono_Cecil_Version)" PrivateAssets="all" />
   </ItemGroup>
 
