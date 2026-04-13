@@ -1,4 +1,5 @@
 
+using Microsoft.VisualStudio.TestPlatform.Common.Filtering;
 using Xunit.Sdk;
 
 namespace Xunit.Runner.Common;
