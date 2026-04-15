@@ -39,8 +39,6 @@ static class FactRegistrar
 			initValues.Add($"SkipWhen = () => {(details.SkipType ?? classSymbol).ToCSharp()}.{details.SkipWhen}");
 		if (details.Timeout is not 0)
 			initValues.Add($"Timeout = {details.Timeout}");
-		if (details.Traits.Count != 0)
-			initValues.Add($"Traits = {CodeGenRegistration.ToTraits(details.Traits)}");
 
 		return new(
 			details.MethodName,

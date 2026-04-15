@@ -139,11 +139,4 @@ internal static class CodeGenRegistration
 
 		return ToObjectFactory(ordererType, ctor);
 	}
-
-	public static string ToTraits(IReadOnlyDictionary<string, HashSet<string>> traits) =>
-		$$"""
-		new global::System.Collections.Generic.Dictionary<string, global::System.Collections.Generic.IReadOnlyCollection<string>> {
-			{{string.Join(", ", traits.Select(kvp => $"[{kvp.Key.Quoted()}] = new[] {{ {string.Join(", ", kvp.Value.Select(v => v.Quoted()))} }}"))}}
-		}
-		""";
 }

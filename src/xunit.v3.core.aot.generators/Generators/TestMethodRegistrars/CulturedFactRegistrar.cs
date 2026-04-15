@@ -35,18 +35,6 @@ static class CulturedFactRegistrar
 		if (cultures.Length == 0)
 			return null;
 
-		var testMethod = new CodeGenTestMethodRegistration()
-		{
-			Arity = details.Arity,
-			BeforeAfterAttributeTypes = details.BeforeAfterTestAttributes,
-			DeclaredTypeIndex = details.DeclaredTypeIndex,
-			IsStatic = details.MethodIsStatic,
-			SourceFilePath = details.SourceFilePath,
-			SourceLineNumber = details.SourceLineNumber,
-			TestCaseOrdererFactory = details.TestCaseOrdererFactory,
-			Traits = details.Traits,
-		};
-
 		var initValues = new List<string>
 		{
 			$"Cultures = [{string.Join(", ", cultures.Select(culture => culture.Quoted()))}]",
@@ -67,8 +55,6 @@ static class CulturedFactRegistrar
 			initValues.Add($"SkipWhen = () => {(details.SkipType ?? classSymbol).ToCSharp()}.{details.SkipWhen}");
 		if (details.Timeout is not 0)
 			initValues.Add($"Timeout = {details.Timeout}");
-		if (details.Traits.Count != 0)
-			initValues.Add($"Traits = {CodeGenRegistration.ToTraits(details.Traits)}");
 
 		return new(
 			details.MethodName,
