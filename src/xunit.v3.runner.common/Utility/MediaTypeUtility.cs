@@ -11,7 +11,19 @@ namespace Xunit;
 public static class MediaTypeUtility
 {
 	const string DefaultExtension = ".bin";
-	static readonly HashSet<char> InvalidFileNameChars = [.. Path.GetInvalidFileNameChars()];
+
+	// Use the union of invalid filename chars across Windows/Linux/macOS rather than Path.GetInvalidFileNameChars(),
+	// which is OS-dependent. Attachments written on one OS are frequently consumed on another (e.g. attachments
+	// produced by a Linux CI run uploaded as GitHub Actions artifacts, which rejects Windows-invalid chars like ':').
+	static readonly HashSet<char> InvalidFileNameChars = BuildInvalidFileNameChars();
+
+	static HashSet<char> BuildInvalidFileNameChars()
+	{
+		var chars = new HashSet<char> { '"', '<', '>', '|', ':', '*', '?', '\\', '/' };
+		for (var c = (char)0; c < 32; c++)
+			chars.Add(c);
+		return chars;
+	}
 
 	static readonly Dictionary<string, string> mediaTypeMappings = new(StringComparer.OrdinalIgnoreCase)
 	{
