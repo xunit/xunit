@@ -27,7 +27,10 @@ public class MethodDetailsBase
 
 		var containingType = methodSymbol.ContainingType;
 		if (containingType is not null && !SymbolEqualityComparer.Default.Equals(containingType, classSymbol))
-			DeclaredTypeIndex = containingType.ToCSharp();
+			DeclaredTypeIndex =
+				containingType.IsGenericType
+					? containingType.ConstructUnboundGenericType().ToCSharp()
+					: containingType.ToCSharp();
 	}
 
 	public int Arity =>

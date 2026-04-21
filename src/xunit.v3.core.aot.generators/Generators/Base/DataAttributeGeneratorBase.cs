@@ -163,7 +163,12 @@ public abstract class DataAttributeGeneratorBase(string fullyQualifiedAttributeT
 		if (context.TargetSymbol is not IMethodSymbol methodSymbol || methodSymbol.ContainingType is not INamedTypeSymbol classSymbol)
 			return null;
 
-		var result = new GeneratorResult(context) { Type = classSymbol.ToCSharp(), MethodName = methodSymbol.Name };
+		var registrationType =
+			classSymbol.IsGenericType
+				? classSymbol.ConstructUnboundGenericType()
+				: classSymbol;
+
+		var result = new GeneratorResult(context) { Type = registrationType.ToCSharp(), MethodName = methodSymbol.Name };
 
 		foreach (var attribute in context.Attributes)
 			if (GetDataAttributeRegistration(attribute, classSymbol) is string dataAttributeRegistration)

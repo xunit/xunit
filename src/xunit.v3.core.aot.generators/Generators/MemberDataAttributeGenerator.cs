@@ -68,6 +68,10 @@ public class MemberDataAttributeGenerator() :
 		if (returnType is null)
 			return;
 
+		if (memberType is INamedTypeSymbol namedMemberType)
+			if (namedMemberType.IsGenericType && namedMemberType.TypeParameters.Any(t => t.Kind == SymbolKind.TypeParameter))
+				return;
+
 		var theoryDataInfo = returnType.GetTheoryDataInfo(result.ObjectType);
 		if (theoryDataInfo is null)
 			return;
