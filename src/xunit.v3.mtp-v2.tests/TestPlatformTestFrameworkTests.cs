@@ -1,4 +1,5 @@
 using System.Reflection;
+using Microsoft.Testing.Platform.Configurations;
 using Microsoft.Testing.Platform.Extensions.Messages;
 using Microsoft.Testing.Platform.Requests;
 using Microsoft.Testing.Platform.TestHost;
@@ -276,9 +277,10 @@ public static class TestPlatformTestFrameworkTests
 		Assembly testAssembly,
 		XunitTrxCapability trxCapability,
 		SpyTestPlatformOutputDevice outputDevice,
+		IConfiguration configuration,
 		ITestPipelineStartup? pipelineStartup,
 		bool serverMode) :
-			TestPlatformTestFramework(runnerLogger, runnerReporter, diagnosticMessageSink, projectAssembly, testAssembly, trxCapability, outputDevice, serverMode, EmptyResultWriters)
+			TestPlatformTestFramework(runnerLogger, runnerReporter, diagnosticMessageSink, projectAssembly, testAssembly, trxCapability, outputDevice, configuration, serverMode, EmptyResultWriters)
 	{
 		static readonly Dictionary<string, IMicrosoftTestingPlatformResultWriter> EmptyResultWriters = [];
 
@@ -311,6 +313,7 @@ public static class TestPlatformTestFrameworkTests
 				testAssembly,
 				trxCapability,
 				new SpyTestPlatformOutputDevice(),
+				Mocks.MicrosoftTestingPlatform.Configuration(),
 				pipelineStartup,
 				serverMode: false
 			);

@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using Microsoft.Testing.Platform.Configurations;
 using Microsoft.Testing.Platform.Extensions.Messages;
 using Microsoft.Testing.Platform.Messages;
 using Microsoft.Testing.Platform.OutputDevice;
@@ -17,6 +18,7 @@ namespace Xunit.MicrosoftTestingPlatform;
 /// <param name="testNodeMessageBus">The message bus for reporting MTP messages to</param>
 /// <param name="trxCapability">Information class that knows whether TRX reporting is enabled</param>
 /// <param name="outputDevice">The output device to write messages to</param>
+/// <param name="configuration">The MTP configuration</param>
 /// <param name="showLiveOutput">A flag to indicate whether live output should be shown</param>
 /// <param name="serverMode">A flag to indicate if we're running in server mode (inside Test Explorer)</param>
 /// <remarks>
@@ -30,6 +32,7 @@ public class TestPlatformExecutionMessageSink(
 	IMessageBus testNodeMessageBus,
 	XunitTrxCapability trxCapability,
 	IOutputDevice outputDevice,
+	IConfiguration configuration,
 	bool showLiveOutput,
 	bool serverMode) :
 		OutputDeviceDataProducerBase("execution message sink", "fa7e6681-c892-4741-9980-724bd818f1f1"), IMessageSink, IDataProducer
@@ -141,7 +144,7 @@ public class TestPlatformExecutionMessageSink(
 			if (testFinished.Attachments.Count != 0)
 				try
 				{
-					var basePath = Path.Combine(Path.GetTempPath(), testUniqueID);
+					var basePath = Path.Combine(configuration.GetTestResultDirectory(), testUniqueID);
 					Directory.CreateDirectory(basePath);
 
 					foreach (var kvp in testFinished.Attachments)

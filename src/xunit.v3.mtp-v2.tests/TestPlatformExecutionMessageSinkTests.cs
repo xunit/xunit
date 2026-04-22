@@ -1,4 +1,5 @@
 using Microsoft.Testing.Extensions.TrxReport.Abstractions;
+using Microsoft.Testing.Platform.Configurations;
 using Microsoft.Testing.Platform.Extensions.Messages;
 using Microsoft.Testing.Platform.OutputDevice;
 using Microsoft.Testing.Platform.TestHost;
@@ -22,6 +23,46 @@ public static class TestPlatformExecutionMessageSinkTests
 		Assert.Equal(returnValue, result);
 		var received = Assert.Single(classUnderTest.InnerSink.Messages);
 		Assert.Same(message, received);
+	}
+
+	public static class Attachments
+	{
+		[Fact]
+		public static void WritesAttachmentsToResultsDirectory()
+		{
+			var resultsPath = Path.Combine(Path.GetTempPath(), "attachment-test-" + Guid.NewGuid().ToString("n"));
+			Directory.CreateDirectory(resultsPath);
+
+			try
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(resultsPath: resultsPath);
+				var attachments = new Dictionary<string, TestAttachment>
+				{
+					["foo"] = TestAttachment.Create("bar"),
+					["baz"] = TestAttachment.Create([1, 2, 3], "application/octet"),
+				};
+				var testStarting = TestData.TestStarting(testUniqueID: "def456");
+				var testPassed = TestData.TestPassed(testUniqueID: "def456");
+				var testFinished = TestData.TestFinished(testUniqueID: "def456", attachments: attachments);
+
+				classUnderTest.OnMessage(testStarting);
+				classUnderTest.OnMessage(testPassed);
+				classUnderTest.OnMessage(testFinished);
+
+				var basePath = Path.Combine(resultsPath, "def456");
+				Assert.Equal("bar", File.ReadAllText(Path.Combine(basePath, "foo.txt")));
+				Assert.Equal([1, 2, 3], File.ReadAllBytes(Path.Combine(basePath, "baz.bin")));
+			}
+			finally
+			{
+				// Best effort to clean up the temp folder behind us
+				try
+				{
+					Directory.Delete(resultsPath, recursive: true);
+				}
+				catch { }
+			}
+		}
 	}
 
 	public static class MessageMapping
@@ -432,9 +473,10 @@ public static class TestPlatformExecutionMessageSinkTests
 		SpyTestPlatformMessageBus testNodeMessageBus,
 		XunitTrxCapability trxCapability,
 		SpyTestPlatformOutputDevice outputDevice,
+		IConfiguration configuration,
 		bool showLiveOutput,
 		bool serverMode) :
-			TestPlatformExecutionMessageSink(innerSink, sessionUid, testNodeMessageBus, trxCapability, outputDevice, showLiveOutput, serverMode)
+			TestPlatformExecutionMessageSink(innerSink, sessionUid, testNodeMessageBus, trxCapability, outputDevice, configuration, showLiveOutput, serverMode)
 	{
 		public SpyMessageSink InnerSink { get; } = innerSink;
 		public SpyTestPlatformOutputDevice OutputDevice { get; } = outputDevice;
@@ -443,7 +485,8 @@ public static class TestPlatformExecutionMessageSinkTests
 		public static TestableTestPlatformExecutionMessageSink Create(
 			bool trxEnabled = false,
 			bool showLiveOutput = false,
-			bool serverMode = false) =>
-				new(SpyMessageSink.Capture(), new(), new(), new(trxEnabled), new(), showLiveOutput, serverMode);
+			bool serverMode = false,
+			string? resultsPath = null) =>
+				new(SpyMessageSink.Capture(), new(), new(), new(trxEnabled), new(), Mocks.MicrosoftTestingPlatform.Configuration(resultsPath), showLiveOutput, serverMode);
 	}
 }

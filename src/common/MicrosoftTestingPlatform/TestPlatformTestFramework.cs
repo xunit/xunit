@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Reflection;
 using Microsoft.Testing.Platform.Builder;
 using Microsoft.Testing.Platform.Capabilities.TestFramework;
+using Microsoft.Testing.Platform.Configurations;
 using Microsoft.Testing.Platform.Extensions.Messages;
 using Microsoft.Testing.Platform.Extensions.TestFramework;
 using Microsoft.Testing.Platform.Logging;
@@ -37,6 +38,7 @@ namespace Xunit.MicrosoftTestingPlatform;
 public class TestPlatformTestFramework :
 	OutputDeviceDataProducerBase, ITestPlatformTestFramework, IDataProducer
 {
+	readonly IConfiguration configuration;
 	readonly ConsoleHelper consoleHelper;
 	readonly IMessageSink? diagnosticMessageSink;
 	readonly IOutputDevice outputDevice;
@@ -58,6 +60,7 @@ public class TestPlatformTestFramework :
 		Assembly testAssembly,
 		XunitTrxCapability trxCapability,
 		IOutputDevice outputDevice,
+		IConfiguration configuration,
 		bool serverMode,
 		IReadOnlyDictionary<string, IMicrosoftTestingPlatformResultWriter> resultWriters) :
 			base("test framework", "30ea7c6e-dd24-4152-a360-1387158cd41d")
@@ -71,6 +74,7 @@ public class TestPlatformTestFramework :
 		this.testAssembly = testAssembly;
 		this.trxCapability = trxCapability;
 		this.outputDevice = outputDevice;
+		this.configuration = configuration;
 		this.serverMode = serverMode;
 		this.resultWriters = resultWriters;
 
@@ -244,7 +248,7 @@ public class TestPlatformTestFramework :
 			var showLiveOutput = projectAssembly.Configuration.ShowLiveOutputOrDefault;
 			projectAssembly.Configuration.ShowLiveOutput = false;
 
-			var messageHandler = new TestPlatformExecutionMessageSink(session.MessageHandler, sessionUid, messageBus, trxCapability, outputDevice, showLiveOutput, serverMode);
+			var messageHandler = new TestPlatformExecutionMessageSink(session.MessageHandler, sessionUid, messageBus, trxCapability, outputDevice, configuration, showLiveOutput, serverMode);
 			await projectRunner.Run(projectAssembly, messageHandler, diagnosticMessageSink, runnerLogger, resultWriters, pipelineStartup, testCaseIDsToRun);
 
 			foreach (var output in projectAssembly.Project.Configuration.Output)
@@ -383,7 +387,7 @@ public class TestPlatformTestFramework :
 				var autoReporter = supportAutoReporters ? reporters.FirstOrDefault(r => r.IsEnvironmentallyEnabled) : default;
 				var reporter = autoReporter ?? reporters.FirstOrDefault(r => "default".Equals(r.RunnerSwitch, StringComparison.OrdinalIgnoreCase)) ?? new DefaultRunnerReporter();
 
-				return new TestPlatformTestFramework(runnerLogger, reporter, diagnosticMessageSink, projectAssembly, testAssembly, trxCapability, outputDevice, serverMode, resultWriters);
+				return new TestPlatformTestFramework(runnerLogger, reporter, diagnosticMessageSink, projectAssembly, testAssembly, trxCapability, outputDevice, configuration, serverMode, resultWriters);
 			}
 		);
 
