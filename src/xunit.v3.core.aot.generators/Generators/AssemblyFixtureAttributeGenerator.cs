@@ -9,7 +9,7 @@ public class AssemblyFixtureAttributeGenerator() :
 	protected override string GetRegistration(
 		string type,
 		string factory) =>
-			$"global::Xunit.v3.RegisteredEngineConfig.RegisterAssemblyFixtureFactory(typeof({Guard.ArgumentNotNull(type)}), async () => {Guard.ArgumentNotNull(factory)});";
+			$"global::Xunit.v3.RegisteredEngineConfig.RegisterAssemblyFixtureFactory(typeof({Guard.ArgumentNotNull(type)}), async {Guard.ArgumentNotNull(factory)});";
 }
 
 [Generator(LanguageNames.CSharp)]
@@ -19,5 +19,5 @@ public class AssemblyFixtureAttributeOfTGenerator() :
 	protected override string GetRegistration(
 		string type,
 		string factory) =>
-			$"global::Xunit.v3.RegisteredEngineConfig.RegisterAssemblyFixtureFactory(typeof({Guard.ArgumentNotNull(type)}), async () => {Guard.ArgumentNotNull(factory)});";
+			$"global::Xunit.v3.RegisteredEngineConfig.RegisterAssemblyFixtureFactory(typeof({Guard.ArgumentNotNull(type)}), async {Guard.ArgumentNotNull(factory)});";
 }

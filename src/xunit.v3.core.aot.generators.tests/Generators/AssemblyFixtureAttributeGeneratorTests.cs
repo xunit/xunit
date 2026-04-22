@@ -33,8 +33,8 @@ public class AssemblyFixtureAttributeGeneratorTests : CoreGeneratorTest<Assembly
 				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 				internal class AssemblyFixtureAttribute٠PFácoInw4 : global::Xunit.v3.EngineInitializationAttribute {
 					public override async global::System.Threading.Tasks.ValueTask InitializeAsync() {
-						global::Xunit.v3.RegisteredEngineConfig.RegisterAssemblyFixtureFactory(typeof(object), async () => () => new object());
-						global::Xunit.v3.RegisteredEngineConfig.RegisterAssemblyFixtureFactory(typeof(global::MyNamespace.MyFixture), async () => () => new global::MyNamespace.MyFixture());
+						global::Xunit.v3.RegisteredEngineConfig.RegisterAssemblyFixtureFactory(typeof(object), async () => new object());
+						global::Xunit.v3.RegisteredEngineConfig.RegisterAssemblyFixtureFactory(typeof(global::MyNamespace.MyFixture), async () => new global::MyNamespace.MyFixture());
 					}
 				}
 			}
