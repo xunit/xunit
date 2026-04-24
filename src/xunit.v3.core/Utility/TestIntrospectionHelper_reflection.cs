@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Xunit.Sdk;
 
 namespace Xunit.v3;
@@ -85,7 +84,7 @@ partial class TestIntrospectionHelper
 			factAttribute.SkipWhen,
 			factAttribute.SourceFilePath,
 			factAttribute.SourceLineNumber,
-			Debugger.IsAttached ? 0 : timeout.Value,
+			timeout.Value,
 			uniqueID,
 			testMethod
 		);

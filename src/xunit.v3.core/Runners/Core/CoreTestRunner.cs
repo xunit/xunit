@@ -58,7 +58,7 @@ public abstract class CoreTestRunner<TContext, TTest, TBeforeAfterAttribute> : T
 		Guard.ArgumentNotNull(ctxt);
 
 		return
-			ctxt.Test.Timeout > 0
+			ctxt.Test.Timeout > 0 && !Debugger.IsAttached
 				? RunTestWithTimeout(ctxt, ctxt.Test.Timeout)
 				: base.RunTest(ctxt);
 	}

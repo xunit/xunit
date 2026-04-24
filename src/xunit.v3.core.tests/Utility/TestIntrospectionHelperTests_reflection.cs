@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Xunit;
 using Xunit.Sdk;
 using Xunit.v3;
@@ -207,7 +206,7 @@ public static class TestIntrospectionHelperTests
 			Assert.Equal([typeof(NotImplementedException)], details.SkipExceptions);
 		}
 
-		[Fact(Skip = "Cannot run under a debugger", SkipWhen = nameof(Debugger.IsAttached), SkipType = typeof(Debugger))]
+		[Fact]
 		public void Timeout()
 		{
 			var factAttribute = Mocks.FactAttribute(timeout: 42);

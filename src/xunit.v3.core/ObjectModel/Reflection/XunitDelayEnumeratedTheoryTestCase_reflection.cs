@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Xunit.Sdk;
 
 namespace Xunit.v3;
@@ -128,7 +127,7 @@ public class XunitDelayEnumeratedTheoryTestCase : XunitTestCase, IXunitDelayEnum
 					theoryDisplayName,
 					testIndex++,
 					traits.ToReadOnly(),
-					Debugger.IsAttached ? 0 : timeout,
+					timeout,
 					convertedDataRow,
 					dataRow.Label
 				);
