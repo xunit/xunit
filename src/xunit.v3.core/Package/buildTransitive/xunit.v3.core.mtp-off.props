@@ -7,6 +7,9 @@
     <TestProject>true</TestProject>
     <!-- Force the app host for .NET builds, since it's required for xunit.v3.runner.utility to run v3 projects -->
     <UseAppHost>true</UseAppHost>
+    <!-- Signal that this is an xUnit.net test project -->
+    <XunitTestProject>true</XunitTestProject>
+    <XunitTestProjectAOT Condition="$(MSBuildThisFileName.Contains('.aot'))">true</XunitTestProjectAOT>
   </PropertyGroup>
 
   <ItemGroup>
