@@ -1,21 +1,21 @@
 namespace Xunit.v3;
 
-internal sealed class NotificationTracker<T>(
+internal sealed class NotificationTrackerAsync<T>(
 	IEnumerable<T> collection,
-	Action<T> up,
-	Action<T> down,
+	Func<T, ValueTask> up,
+	Func<T, ValueTask> down,
 	CancellationToken cancellationToken) :
-		IDisposable
+		IAsyncDisposable
 {
 	readonly Stack<T> itemsRun = [];
 
-	public void Dispose()
+	public async ValueTask DisposeAsync()
 	{
 		foreach (var item in itemsRun)
-			down(item);
+			await down(item);
 	}
 
-	public ExceptionAggregator Up()
+	public async ValueTask<ExceptionAggregator> Up()
 	{
 		var aggregator = new ExceptionAggregator();
 
@@ -26,7 +26,7 @@ internal sealed class NotificationTracker<T>(
 
 			try
 			{
-				up(item);
+				await up(item);
 				itemsRun.Push(item);
 			}
 			catch (Exception ex)

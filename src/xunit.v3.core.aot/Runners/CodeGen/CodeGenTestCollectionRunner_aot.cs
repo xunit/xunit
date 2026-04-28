@@ -94,20 +94,20 @@ public class CodeGenTestCollectionRunner :
 		if (exception is not null)
 			return await base.RunTestClasses(ctxt, exception);
 
-		await using var lifecycleTracker = new NotificationTracker<INotifyTestCollectionLifecycle>(
+		using var lifecycleTracker = new NotificationTracker<INotifyTestCollectionLifecycle>(
 			ctxt.CollectionFixtureMappings.ForNotification<INotifyTestCollectionLifecycle>(),
 			fixture => fixture.OnTestCollectionStarting(ctxt.TestCollection),
 			fixture => ctxt.Aggregator.Run(() => fixture.OnTestCollectionFinished(ctxt.TestCollection)),
 			ctxt.CancellationTokenSource.Token
 		);
-		await using var lifecycleAsyncTracker = new NotificationTracker<INotifyTestCollectionLifecycleAsync>(
+		await using var lifecycleAsyncTracker = new NotificationTrackerAsync<INotifyTestCollectionLifecycleAsync>(
 			ctxt.CollectionFixtureMappings.ForNotification<INotifyTestCollectionLifecycleAsync>(),
 			fixture => fixture.OnTestCollectionStartingAsync(ctxt.TestCollection),
 			fixture => ctxt.Aggregator.RunAsync(() => fixture.OnTestCollectionFinishedAsync(ctxt.TestCollection)),
 			ctxt.CancellationTokenSource.Token
 		);
 
-		var aggregator = await lifecycleTracker.Up();
+		var aggregator = lifecycleTracker.Up();
 
 		if (!aggregator.HasExceptions)
 			aggregator.Aggregate(await lifecycleAsyncTracker.Up());

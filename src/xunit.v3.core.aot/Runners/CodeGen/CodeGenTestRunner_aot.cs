@@ -65,20 +65,20 @@ public class CodeGenTestRunner : CoreTestRunner<CodeGenTestRunnerContext, ICodeG
 	{
 		Guard.ArgumentNotNull(ctxt);
 
-		await using var lifecycleTracker = new NotificationTracker<INotifyTestLifecycle>(
+		using var lifecycleTracker = new NotificationTracker<INotifyTestLifecycle>(
 			ctxt.TestFixtureMappings.ForNotification<INotifyTestLifecycle>(),
 			fixture => fixture.OnTestStarting(ctxt.Test),
 			fixture => ctxt.Aggregator.Run(() => fixture.OnTestFinished(ctxt.Test)),
 			ctxt.CancellationTokenSource.Token
 		);
-		await using var lifecycleAsyncTracker = new NotificationTracker<INotifyTestLifecycleAsync>(
+		await using var lifecycleAsyncTracker = new NotificationTrackerAsync<INotifyTestLifecycleAsync>(
 			ctxt.TestFixtureMappings.ForNotification<INotifyTestLifecycleAsync>(),
 			fixture => fixture.OnTestStartingAsync(ctxt.Test),
 			fixture => ctxt.Aggregator.RunAsync(() => fixture.OnTestFinishedAsync(ctxt.Test)),
 			ctxt.CancellationTokenSource.Token
 		);
 
-		ctxt.Aggregator.Aggregate(await lifecycleTracker.Up());
+		ctxt.Aggregator.Aggregate(lifecycleTracker.Up());
 
 		if (!ctxt.Aggregator.HasExceptions)
 			ctxt.Aggregator.Aggregate(await lifecycleAsyncTracker.Up());
