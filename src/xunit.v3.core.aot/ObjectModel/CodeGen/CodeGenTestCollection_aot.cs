@@ -19,8 +19,8 @@ namespace Xunit.v3;
 /// </remarks>
 public sealed class CodeGenTestCollection(
 	IReadOnlyCollection<BeforeAfterTestAttribute> beforeAfterTestAttributes,
-	IReadOnlyDictionary<Type, Func<FixtureMappingManager?, ValueTask<object>>> classFixtureFactories,
-	IReadOnlyDictionary<Type, Func<FixtureMappingManager?, ValueTask<object>>> collectionFixtureFactories,
+	IReadOnlyDictionary<Type, FixtureFactory> classFixtureFactories,
+	IReadOnlyDictionary<Type, FixtureFactory> collectionFixtureFactories,
 	bool disableParallelization,
 	ICodeGenTestAssembly testAssembly,
 	Type? testCollectionClass,
@@ -38,11 +38,11 @@ public sealed class CodeGenTestCollection(
 		Guard.ArgumentNotNull(beforeAfterTestAttributes);
 
 	/// <inheritdoc/>
-	public IReadOnlyDictionary<Type, Func<FixtureMappingManager?, ValueTask<object>>> ClassFixtureFactories { get; } =
+	public IReadOnlyDictionary<Type, FixtureFactory> ClassFixtureFactories { get; } =
 		Guard.ArgumentNotNull(classFixtureFactories);
 
 	/// <inheritdoc/>
-	public IReadOnlyDictionary<Type, Func<FixtureMappingManager?, ValueTask<object>>> CollectionFixtureFactories { get; } =
+	public IReadOnlyDictionary<Type, FixtureFactory> CollectionFixtureFactories { get; } =
 		Guard.ArgumentNotNull(collectionFixtureFactories);
 
 	/// <inheritdoc/>

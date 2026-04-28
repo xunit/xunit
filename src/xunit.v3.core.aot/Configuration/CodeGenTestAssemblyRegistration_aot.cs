@@ -11,7 +11,7 @@ internal sealed class CodeGenTestAssemblyRegistration()
 	public Assembly? Assembly =>
 		testAssembly?.Assembly;
 
-	public Dictionary<Type, Func<FixtureMappingManager?, ValueTask<object>>> AssemblyFixtureFactories { get; } = [];
+	public Dictionary<Type, FixtureFactory> AssemblyFixtureFactories { get; } = [];
 
 	public Dictionary<string, CodeGenTestCollectionRegistration> CollectionDefinitionsByName { get; } = [];
 

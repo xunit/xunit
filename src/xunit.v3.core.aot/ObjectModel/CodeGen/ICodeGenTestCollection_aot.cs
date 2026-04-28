@@ -17,12 +17,12 @@ public interface ICodeGenTestCollection : ICoreTestCollection
 	/// <summary>
 	/// Gets the fixture factories for the class-level test fixtures on the test collection.
 	/// </summary>
-	IReadOnlyDictionary<Type, Func<FixtureMappingManager?, ValueTask<object>>> ClassFixtureFactories { get; }
+	IReadOnlyDictionary<Type, FixtureFactory> ClassFixtureFactories { get; }
 
 	/// <summary>
 	/// Gets the fixture factories for the collection-level test fixtures.
 	/// </summary>
-	IReadOnlyDictionary<Type, Func<FixtureMappingManager?, ValueTask<object>>> CollectionFixtureFactories { get; }
+	IReadOnlyDictionary<Type, FixtureFactory> CollectionFixtureFactories { get; }
 
 	/// <summary>
 	/// Gets the test assembly this test collection belongs to.

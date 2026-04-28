@@ -27,7 +27,7 @@ public class CodeGenTestClassRunnerContext : CoreTestClassRunnerContext<ICodeGen
 		FixtureMappingManager collectionFixtureMappings) :
 			base(testClass, testCases, explicitOption, messageBus, aggregator, cancellationTokenSource)
 	{
-		var classFixtureFactories = new Dictionary<Type, Func<FixtureMappingManager?, ValueTask<object>>>(Guard.ArgumentNotNull(testClass).TestCollection.ClassFixtureFactories);
+		var classFixtureFactories = new Dictionary<Type, FixtureFactory>(Guard.ArgumentNotNull(testClass).TestCollection.ClassFixtureFactories);
 		foreach (var classLevelFactory in testClass.ClassFixtureFactories)
 			classFixtureFactories[classLevelFactory.Key] = classLevelFactory.Value;
 

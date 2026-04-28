@@ -4,14 +4,15 @@ using Xunit.v3;
 
 public static class CodeGenTestClassRunnerTests
 {
-	public static class ClassFixtures
+	[Collection("Shared state in FixtureWithEvents")]
+	public static class Fixtures
 	{
 		[Fact]
 		public static async ValueTask FixtureCreationFailure()
 		{
-			var testClass = Mocks.CodeGenTestClass<MyTestClass>(classFixtureFactories: new Dictionary<Type, Func<FixtureMappingManager?, ValueTask<object>>>()
+			var testClass = Mocks.CodeGenTestClass<MyTestClass>(classFixtureFactories: new Dictionary<Type, FixtureFactory>()
 			{
-				[typeof(ThrowingCtorFixture)] = async _ => new ThrowingCtorFixture()
+				[typeof(ThrowingCtorFixture)] = async (_, _) => new ThrowingCtorFixture()
 			});
 			var testMethod = Mocks.CodeGenTestMethod(testClass: testClass);
 			var testCase = Mocks.CodeGenTestCase(testMethod: testMethod);
@@ -51,9 +52,9 @@ public static class CodeGenTestClassRunnerTests
 		[Fact]
 		public static async ValueTask FixtureDisposeFailure()
 		{
-			var testClass = Mocks.CodeGenTestClass<MyTestClass>(classFixtureFactories: new Dictionary<Type, Func<FixtureMappingManager?, ValueTask<object>>>()
+			var testClass = Mocks.CodeGenTestClass<MyTestClass>(classFixtureFactories: new Dictionary<Type, FixtureFactory>()
 			{
-				[typeof(ThrowingDisposeFixture)] = async _ => new ThrowingDisposeFixture()
+				[typeof(ThrowingDisposeFixture)] = async (_, _) => new ThrowingDisposeFixture()
 			});
 			var testMethod = Mocks.CodeGenTestMethod(testClass: testClass);
 			var testCase = Mocks.CodeGenTestCase(testMethod: testMethod);
@@ -94,9 +95,9 @@ public static class CodeGenTestClassRunnerTests
 		[Fact]
 		public static async ValueTask IAsyncDisposableIsPreferredOverIDisposable()
 		{
-			var testClass = Mocks.CodeGenTestClass<MyTestClass>(classFixtureFactories: new Dictionary<Type, Func<FixtureMappingManager?, ValueTask<object>>>()
+			var testClass = Mocks.CodeGenTestClass<MyTestClass>(classFixtureFactories: new Dictionary<Type, FixtureFactory>()
 			{
-				[typeof(ThrowingDisposeWithAsyncDisposeFixture)] = async _ => new ThrowingDisposeWithAsyncDisposeFixture()
+				[typeof(ThrowingDisposeWithAsyncDisposeFixture)] = async (_, _) => new ThrowingDisposeWithAsyncDisposeFixture()
 			});
 			var testMethod = Mocks.CodeGenTestMethod(testClass: testClass);
 			var testCase = Mocks.CodeGenTestCase(testMethod: testMethod);
@@ -127,6 +128,46 @@ public static class CodeGenTestClassRunnerTests
 			public void Dispose() => throw new DivideByZeroException();
 
 			public ValueTask DisposeAsync() => default;
+		}
+
+		[Fact]
+		public static async ValueTask FixtureEvents()
+		{
+			FixtureWithEvents.Events.Clear();
+
+			var factories = new Dictionary<Type, FixtureFactory> { [typeof(FixtureWithEvents)] = (_, _) => new(new FixtureWithEvents()) };
+			var testClass = Mocks.CodeGenTestClass(classFixtureFactories: factories);
+			var testMethod = Mocks.CodeGenTestMethod(testClass: testClass);
+			var testCase = Mocks.CodeGenTestCase(testMethod: testMethod);
+			var runner = new TestableCodeGenTestClassRunner(testCase);
+
+			await runner.RunAsync();
+
+			Assert.Collection(
+				FixtureWithEvents.Events,
+				e => Assert.Equal("OnTestClassStarting", e),
+				e => Assert.Equal("OnTestClassStartingAsync", e),
+
+				e => Assert.Equal("OnTestMethodStarting", e),
+				e => Assert.Equal("OnTestMethodStartingAsync", e),
+
+				e => Assert.Equal("OnTestCaseStarting", e),
+				e => Assert.Equal("OnTestCaseStartingAsync", e),
+
+				e => Assert.Equal("OnTestStarting", e),
+				e => Assert.Equal("OnTestStartingAsync", e),
+				e => Assert.Equal("OnTestFinishedAsync", e),
+				e => Assert.Equal("OnTestFinished", e),
+
+				e => Assert.Equal("OnTestCaseFinishedAsync", e),
+				e => Assert.Equal("OnTestCaseFinished", e),
+
+				e => Assert.Equal("OnTestMethodFinishedAsync", e),
+				e => Assert.Equal("OnTestMethodFinished", e),
+
+				e => Assert.Equal("OnTestClassFinishedAsync", e),
+				e => Assert.Equal("OnTestClassFinished", e)
+			);
 		}
 	}
 

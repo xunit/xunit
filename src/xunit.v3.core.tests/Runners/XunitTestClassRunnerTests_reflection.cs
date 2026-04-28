@@ -346,6 +346,7 @@ public static class XunitTestClassRunnerTests
 		}
 	}
 
+	[Collection("Shared state in FixtureWithEvents")]
 	public static class Fixtures
 	{
 		[Fact]
@@ -637,6 +638,49 @@ public static class XunitTestClassRunnerTests
 		}
 
 #pragma warning restore xUnit1041
+
+		[Fact]
+		public static async ValueTask FixtureEvents()
+		{
+			FixtureWithEvents.Events.Clear();
+
+			var testCase = TestData.XunitTestCase<FixtureWithEventsClassUnderTest>(nameof(FixtureWithEventsClassUnderTest.TestMethod));
+			var runner = new TestableXunitTestClassRunner(testCase);
+
+			await runner.RunAsync();
+
+			Assert.Collection(
+				FixtureWithEvents.Events,
+				e => Assert.Equal("OnTestClassStarting", e),
+				e => Assert.Equal("OnTestClassStartingAsync", e),
+
+				e => Assert.Equal("OnTestMethodStarting", e),
+				e => Assert.Equal("OnTestMethodStartingAsync", e),
+
+				e => Assert.Equal("OnTestCaseStarting", e),
+				e => Assert.Equal("OnTestCaseStartingAsync", e),
+
+				e => Assert.Equal("OnTestStarting", e),
+				e => Assert.Equal("OnTestStartingAsync", e),
+				e => Assert.Equal("OnTestFinishedAsync", e),
+				e => Assert.Equal("OnTestFinished", e),
+
+				e => Assert.Equal("OnTestCaseFinishedAsync", e),
+				e => Assert.Equal("OnTestCaseFinished", e),
+
+				e => Assert.Equal("OnTestMethodFinishedAsync", e),
+				e => Assert.Equal("OnTestMethodFinished", e),
+
+				e => Assert.Equal("OnTestClassFinishedAsync", e),
+				e => Assert.Equal("OnTestClassFinished", e)
+			);
+		}
+
+		class FixtureWithEventsClassUnderTest : IClassFixture<FixtureWithEvents>
+		{
+			[Fact]
+			public void TestMethod() { }
+		}
 	}
 
 	public static class Run

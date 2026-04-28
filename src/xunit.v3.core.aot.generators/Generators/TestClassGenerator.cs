@@ -202,12 +202,7 @@ public class TestClassGenerator : XunitGenerator
 		foreach (var classFixtureInterface in classSymbol.AllInterfaces.Where(i => i.IsGeneric(Types.Xunit.IClassFixtureOfT)))
 			if (classFixtureInterface.TypeArguments[0] is INamedTypeSymbol fixtureType)
 			{
-				var fixtureFactory = CodeGenRegistration.ToObjectFactory(
-					fixtureType,
-					"Class fixture type",
-					"global::Xunit.v3.FixtureMappingManager.TryGetFixtureArgument<{0}>(mappingManager)"
-				);
-
+				var fixtureFactory = CodeGenRegistration.ToFixtureFactory(fixtureType, "Class fixture type");
 				if (fixtureFactory is not null)
 					classFixtures.Add((fixtureType.ToCSharp(), fixtureFactory));
 			}
@@ -252,12 +247,7 @@ public class TestClassGenerator : XunitGenerator
 		result.TestClass = new CodeGenTestClassRegistration()
 		{
 			Class = classSymbol.ToCSharp(),
-			ClassFactory = CodeGenRegistration.ToObjectFactory(
-				classSymbol,
-				"Test class",
-				"mappingManager.TryGetFixtureArgument<{0}>()",
-				"new global::Xunit.v3.CoreTestClassCreationResult({0})"
-			),
+			ClassFactory = CodeGenRegistration.ToObjectFactory(classSymbol, "Test class"),
 			ClassFixtures = classFixtures,
 			TestCaseOrdererFactory = testCaseOrdererFactory,
 			TestMethodOrdererFactory = testMethodOrdererFactory,

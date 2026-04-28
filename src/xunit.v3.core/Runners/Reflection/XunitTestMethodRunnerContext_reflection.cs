@@ -12,6 +12,7 @@ namespace Xunit.v3;
 /// <param name="aggregator">The exception aggregator</param>
 /// <param name="cancellationTokenSource">The cancellation token source</param>
 /// <param name="constructorArguments">The constructor arguments for the test class</param>
+/// <param name="classFixtureMappings">The fixtures attached to the test class</param>
 /// <remarks>
 /// This class is used for reflection-based tests.
 /// </remarks>
@@ -22,6 +23,16 @@ public class XunitTestMethodRunnerContext(
 	IMessageBus messageBus,
 	ExceptionAggregator aggregator,
 	CancellationTokenSource cancellationTokenSource,
-	object?[] constructorArguments) :
-		XunitTestMethodRunnerBaseContext<IXunitTestMethod, IXunitTestCase>(testMethod, testCases, explicitOption, messageBus, aggregator, cancellationTokenSource, constructorArguments)
+	object?[] constructorArguments,
+	FixtureMappingManager classFixtureMappings) :
+		XunitTestMethodRunnerBaseContext<IXunitTestMethod, IXunitTestCase>(
+			testMethod,
+			testCases,
+			explicitOption,
+			messageBus,
+			aggregator,
+			cancellationTokenSource,
+			constructorArguments,
+			classFixtureMappings
+		)
 { }

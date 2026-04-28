@@ -54,7 +54,7 @@ partial class Mocks
 
 	public static ICodeGenTestAssembly CodeGenTestAssembly(
 		Assembly? assembly = null,
-		IReadOnlyDictionary<Type, Func<FixtureMappingManager?, ValueTask<object>>>? assemblyFixtureFactories = null,
+		IReadOnlyDictionary<Type, FixtureFactory>? assemblyFixtureFactories = null,
 		string assemblyName = TestData.DefaultAssemblyName,
 		string assemblyPath = TestData.DefaultAssemblyPath,
 		IReadOnlyCollection<BeforeAfterTestAttribute>? beforeAfterTestAttributes = null,
@@ -104,7 +104,7 @@ partial class Mocks
 		}
 
 		public required Assembly Assembly { get; set; }
-		public required IReadOnlyDictionary<Type, Func<FixtureMappingManager?, ValueTask<object>>> AssemblyFixtureFactories { get; set; }
+		public required IReadOnlyDictionary<Type, FixtureFactory> AssemblyFixtureFactories { get; set; }
 		public required string AssemblyName { get; set; }
 		public required string AssemblyPath { get; set; }
 		public required IReadOnlyCollection<BeforeAfterTestAttribute> BeforeAfterTestAttributes { get; set; }
@@ -210,7 +210,7 @@ partial class Mocks
 
 	public static ICodeGenTestClass CodeGenTestClass(
 		IReadOnlyCollection<BeforeAfterTestAttribute>? beforeAfterTestAttributes = null,
-		IReadOnlyDictionary<Type, Func<FixtureMappingManager?, ValueTask<object>>>? classFixtureFactories = null,
+		IReadOnlyDictionary<Type, FixtureFactory>? classFixtureFactories = null,
 		ITestCaseOrderer? testCaseOrderer = null,
 		Func<FixtureMappingManager, ValueTask<CoreTestClassCreationResult>>? testClassFactory = null,
 		string testClassName = TestData.DefaultTestClassName,
@@ -237,7 +237,7 @@ partial class Mocks
 
 	public static ICodeGenTestClass CodeGenTestClass<TClass>(
 		IReadOnlyCollection<BeforeAfterTestAttribute>? beforeAfterTestAttributes = null,
-		IReadOnlyDictionary<Type, Func<FixtureMappingManager?, ValueTask<object>>>? classFixtureFactories = null,
+		IReadOnlyDictionary<Type, FixtureFactory>? classFixtureFactories = null,
 		ITestCaseOrderer? testCaseOrderer = null,
 		string testClassName = TestData.DefaultTestClassName,
 		string testClassNamespace = TestData.DefaultTestClassNamespace,
@@ -265,7 +265,7 @@ partial class Mocks
 	class MockCodeGenTestClass : ICodeGenTestClass
 	{
 		public required IReadOnlyCollection<BeforeAfterTestAttribute> BeforeAfterTestAttributes { get; set; }
-		public required IReadOnlyDictionary<Type, Func<FixtureMappingManager?, ValueTask<object>>> ClassFixtureFactories { get; set; }
+		public required IReadOnlyDictionary<Type, FixtureFactory> ClassFixtureFactories { get; set; }
 		public required ITestCaseOrderer? TestCaseOrderer { get; set; }
 		public required Func<FixtureMappingManager, ValueTask<CoreTestClassCreationResult>> TestClassFactory { get; set; }
 		public required string TestClassName { get; set; }
@@ -284,8 +284,8 @@ partial class Mocks
 
 	public static ICodeGenTestCollection CodeGenTestCollection(
 		IReadOnlyCollection<BeforeAfterTestAttribute>? beforeAfterTestAttributes = null,
-		IReadOnlyDictionary<Type, Func<FixtureMappingManager?, ValueTask<object>>>? classFixtureFactories = null,
-		IReadOnlyDictionary<Type, Func<FixtureMappingManager?, ValueTask<object>>>? collectionFixtureFactories = null,
+		IReadOnlyDictionary<Type, FixtureFactory>? classFixtureFactories = null,
+		IReadOnlyDictionary<Type, FixtureFactory>? collectionFixtureFactories = null,
 		bool disableParallelization = false,
 		ICodeGenTestAssembly? testAssembly = null,
 		ITestCaseOrderer? testCaseOrderer = null,
@@ -314,8 +314,8 @@ partial class Mocks
 	class MockCodeGenTestCollection : ICodeGenTestCollection
 	{
 		public required IReadOnlyCollection<BeforeAfterTestAttribute> BeforeAfterTestAttributes { get; set; }
-		public required IReadOnlyDictionary<Type, Func<FixtureMappingManager?, ValueTask<object>>> ClassFixtureFactories { get; set; }
-		public required IReadOnlyDictionary<Type, Func<FixtureMappingManager?, ValueTask<object>>> CollectionFixtureFactories { get; set; }
+		public required IReadOnlyDictionary<Type, FixtureFactory> ClassFixtureFactories { get; set; }
+		public required IReadOnlyDictionary<Type, FixtureFactory> CollectionFixtureFactories { get; set; }
 		public required bool DisableParallelization { get; set; }
 		public required ICodeGenTestAssembly TestAssembly { get; set; }
 		public required ITestCaseOrderer? TestCaseOrderer { get; set; }

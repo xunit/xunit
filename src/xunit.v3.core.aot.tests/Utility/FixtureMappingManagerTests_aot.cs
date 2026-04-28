@@ -5,8 +5,8 @@ using Xunit.v3;
 partial class FixtureMappingManagerTests
 {
 	// Approximation of what the code generator writes
-	static Func<FixtureMappingManager?, ValueTask<object>> FixtureWithDependencyFactory(FixtureMappingManager manager) =>
-		async _ =>
+	static FixtureFactory FixtureWithDependencyFactory(FixtureMappingManager manager) =>
+		async (_, _) =>
 		{
 			var obj = await manager.TryGetFixtureArgument<object>();
 			if (!obj.Success)
@@ -16,8 +16,8 @@ partial class FixtureMappingManagerTests
 		};
 
 	// Approximation of what the code generator writes
-	static Func<FixtureMappingManager?, ValueTask<object>> FixtureWithMessageSinkAndTestContextFactory(FixtureMappingManager manager) =>
-		async _ =>
+	static FixtureFactory FixtureWithMessageSinkAndTestContextFactory(FixtureMappingManager manager) =>
+		async (_, _) =>
 		{
 			var missingParameters = new List<(string Type, string Name)>();
 
@@ -37,7 +37,7 @@ partial class FixtureMappingManagerTests
 
 	class TestableFixtureMappingManager : FixtureMappingManager
 	{
-		Dictionary<Type, Func<FixtureMappingManager?, ValueTask<object>>>? fixtureFactories = null;
+		Dictionary<Type, FixtureFactory>? fixtureFactories = null;
 
 		public TestableFixtureMappingManager(FixtureMappingManager parent) :
 			base("Testable", TestData.EmptyFixtureFactories, parent)
@@ -47,12 +47,12 @@ partial class FixtureMappingManagerTests
 			base("Testable", cachedFixtureValues)
 		{ }
 
-		protected override IReadOnlyDictionary<Type, Func<FixtureMappingManager?, ValueTask<object>>> FixtureFactories =>
+		protected override IReadOnlyDictionary<Type, FixtureFactory> FixtureFactories =>
 			fixtureFactories ?? base.FixtureFactories;
 
 		public ValueTask InitializeAsync(
 			Type fixtureType,
-			Func<FixtureMappingManager?, ValueTask<object>> fixtureFactory,
+			FixtureFactory fixtureFactory,
 			bool createInstances = true)
 		{
 			fixtureFactories = new() { [fixtureType] = fixtureFactory };

@@ -8,7 +8,7 @@ partial class TestData
 		new(new CoreTestClassCreationResult(null));
 
 	public static readonly IReadOnlyDictionary<string, CodeGenTestCollectionRegistration> EmptyCollectionDefinitions = new Dictionary<string, CodeGenTestCollectionRegistration>();
-	public static readonly IReadOnlyDictionary<Type, Func<FixtureMappingManager?, ValueTask<object>>> EmptyFixtureFactories = new Dictionary<Type, Func<FixtureMappingManager?, ValueTask<object>>>();
+	public static readonly IReadOnlyDictionary<Type, FixtureFactory> EmptyFixtureFactories = new Dictionary<Type, FixtureFactory>();
 
 	public static XunitProjectAssembly XunitProjectAssembly<TTestClass>(
 		XunitProject? project = null,

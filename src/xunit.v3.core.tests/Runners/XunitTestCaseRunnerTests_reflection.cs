@@ -216,11 +216,49 @@ public static class XunitTestCaseRunnerTests
 		}
 	}
 
+	[Collection("Shared state in FixtureWithEvents")]
+	public static class Fixtures
+	{
+		[Fact]
+		public static async ValueTask FixtureEvents()
+		{
+			FixtureWithEvents.Events.Clear();
+
+			var testCase = TestData.XunitTestCase<FixtureWithEventsClassUnderTest>(nameof(FixtureWithEventsClassUnderTest.TestMethod));
+			var test = Assert.Single(await testCase.CreateTests());
+			var runner = new TestableXunitTestCaseRunner(test);
+			await runner.FixtureMappings.InitializeAsync(typeof(FixtureWithEvents));
+
+			await runner.Run();
+
+			Assert.Collection(
+				FixtureWithEvents.Events,
+				e => Assert.Equal("OnTestCaseStarting", e),
+				e => Assert.Equal("OnTestCaseStartingAsync", e),
+
+				e => Assert.Equal("OnTestStarting", e),
+				e => Assert.Equal("OnTestStartingAsync", e),
+				e => Assert.Equal("OnTestFinishedAsync", e),
+				e => Assert.Equal("OnTestFinished", e),
+
+				e => Assert.Equal("OnTestCaseFinishedAsync", e),
+				e => Assert.Equal("OnTestCaseFinished", e)
+			);
+		}
+
+		class FixtureWithEventsClassUnderTest
+		{
+			[Fact]
+			public void TestMethod() { }
+		}
+	}
+
 	class TestableXunitTestCaseRunner(IXunitTest test) :
 		XunitTestCaseRunner
 	{
 		public ExceptionAggregator Aggregator = new();
 		public CancellationTokenSource CancellationTokenSource = new();
+		public FixtureMappingManager FixtureMappings = new("Mock");
 		public SpyMessageBus MessageBus = new();
 
 		public async ValueTask<RunSummary> Run()
@@ -234,7 +272,8 @@ public static class XunitTestCaseRunnerTests
 				test.TestCase.TestCaseDisplayName,
 				test.TestCase.SkipReason,
 				ExplicitOption.Off,
-				[]
+				[],
+				FixtureMappings
 			);
 			await ctxt.InitializeAsync();
 

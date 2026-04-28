@@ -280,8 +280,8 @@ public static class RegisteredEngineConfig
 	/// </remarks>
 	public static void RegisterAssemblyFixtureFactory(
 		Type type,
-		Func<ValueTask<object>> factory) =>
-			assemblyRegistration.AssemblyFixtureFactories[type] = _ => factory();
+		Func<bool, ValueTask<object?>> factory) =>
+			assemblyRegistration.AssemblyFixtureFactories[type] = (_, forceCreation) => factory(forceCreation);
 
 	/// <summary>
 	/// Registers the factory that creates the assembly-level <see cref="ITestCaseOrderer"/> instance.

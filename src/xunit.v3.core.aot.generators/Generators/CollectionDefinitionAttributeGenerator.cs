@@ -161,12 +161,7 @@ public class CollectionDefinitionAttributeGenerator() :
 			if (nonPublicType is not null)
 				return;
 
-			var factory = CodeGenRegistration.ToObjectFactory(
-				fixtureType,
-				$"{fixtureCategory} fixture type",
-				"global::Xunit.v3.FixtureMappingManager.TryGetFixtureArgument<{0}>(mappingManager)"
-			);
-
+			var factory = CodeGenRegistration.ToFixtureFactory(fixtureType, $"{fixtureCategory} fixture type");
 			if (factory is not null)
 				collection.Add((fixtureType.ToCSharp(), factory));
 		}

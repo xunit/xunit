@@ -230,6 +230,48 @@ public static class XunitTestMethodRunnerTests
 		}
 	}
 
+	[Collection("Shared state in FixtureWithEvents")]
+	public static class Fixtures
+	{
+		[Fact]
+		public static async ValueTask FixtureEvents()
+		{
+			FixtureWithEvents.Events.Clear();
+
+			var testCase = TestData.XunitTestCase<FixtureWithEventsClassUnderTest>(nameof(FixtureWithEventsClassUnderTest.TestMethod));
+			var runner = new TestableXunitTestMethodRunner(testCase);
+			await runner.ClassFixtureMappings.InitializeAsync(typeof(FixtureWithEvents));
+
+			await runner.RunAsync();
+
+			Assert.Collection(
+				FixtureWithEvents.Events,
+				e => Assert.Equal("OnTestMethodStarting", e),
+				e => Assert.Equal("OnTestMethodStartingAsync", e),
+
+				e => Assert.Equal("OnTestCaseStarting", e),
+				e => Assert.Equal("OnTestCaseStartingAsync", e),
+
+				e => Assert.Equal("OnTestStarting", e),
+				e => Assert.Equal("OnTestStartingAsync", e),
+				e => Assert.Equal("OnTestFinishedAsync", e),
+				e => Assert.Equal("OnTestFinished", e),
+
+				e => Assert.Equal("OnTestCaseFinishedAsync", e),
+				e => Assert.Equal("OnTestCaseFinished", e),
+
+				e => Assert.Equal("OnTestMethodFinishedAsync", e),
+				e => Assert.Equal("OnTestMethodFinished", e)
+			);
+		}
+
+		class FixtureWithEventsClassUnderTest
+		{
+			[Fact]
+			public void TestMethod() { }
+		}
+	}
+
 	public static class Run
 	{
 		[Fact]
@@ -325,6 +367,7 @@ public static class XunitTestMethodRunnerTests
 	{
 		public readonly ExceptionAggregator Aggregator = new();
 		public readonly CancellationTokenSource CancellationTokenSource = new();
+		public readonly FixtureMappingManager ClassFixtureMappings = new("Class");
 		public readonly SpyMessageBus MessageBus = new();
 
 		public ValueTask<RunSummary> RunAsync() =>
@@ -335,7 +378,8 @@ public static class XunitTestMethodRunnerTests
 				MessageBus,
 				Aggregator,
 				CancellationTokenSource,
-				[]
+				[],
+				ClassFixtureMappings
 			);
 	}
 }

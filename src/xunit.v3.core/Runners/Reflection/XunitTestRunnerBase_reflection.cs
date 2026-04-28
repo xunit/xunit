@@ -85,4 +85,33 @@ public class XunitTestRunnerBase<TContext, TTest> : CoreTestRunner<TContext, TTe
 	/// <inheritdoc/>
 	protected override bool IsTestClassCreatable(TContext ctxt) =>
 		!Guard.ArgumentNotNull(ctxt).Test.TestMethod.Method.IsStatic;
+
+	/// <inheritdoc/>
+	protected override async ValueTask<TimeSpan> RunTest(TContext ctxt)
+	{
+		Guard.ArgumentNotNull(ctxt);
+
+		await using var lifecycleTracker = new NotificationTracker<INotifyTestLifecycle>(
+			ctxt.TestFixtureMappings.ForNotification<INotifyTestLifecycle>(),
+			fixture => fixture.OnTestStarting(ctxt.Test),
+			fixture => ctxt.Aggregator.Run(() => fixture.OnTestFinished(ctxt.Test)),
+			ctxt.CancellationTokenSource.Token
+		);
+		await using var lifecycleAsyncTracker = new NotificationTracker<INotifyTestLifecycleAsync>(
+			ctxt.TestFixtureMappings.ForNotification<INotifyTestLifecycleAsync>(),
+			fixture => fixture.OnTestStartingAsync(ctxt.Test),
+			fixture => ctxt.Aggregator.RunAsync(() => fixture.OnTestFinishedAsync(ctxt.Test)),
+			ctxt.CancellationTokenSource.Token
+		);
+
+		ctxt.Aggregator.Aggregate(await lifecycleTracker.Up());
+
+		if (!ctxt.Aggregator.HasExceptions)
+			ctxt.Aggregator.Aggregate(await lifecycleAsyncTracker.Up());
+
+		if (!ctxt.Aggregator.HasExceptions)
+			return await base.RunTest(ctxt);
+
+		return TimeSpan.Zero;
+	}
 }

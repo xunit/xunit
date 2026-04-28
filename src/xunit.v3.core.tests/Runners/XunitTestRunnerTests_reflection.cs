@@ -508,6 +508,37 @@ public static class XunitTestRunnerTests
 		}
 	}
 
+	[Collection("Shared state in FixtureWithEvents")]
+	public static class Fixtures
+	{
+		[Fact]
+		public static async ValueTask FixtureEvents()
+		{
+			FixtureWithEvents.Events.Clear();
+
+			var testCase = TestData.XunitTestCase<FixtureWithEventsClassUnderTest>(nameof(FixtureWithEventsClassUnderTest.TestMethod));
+			var test = Assert.Single(await testCase.CreateTests());
+			var runner = new TestableXunitTestRunner(test);
+			await runner.CaseFixtureMappings.InitializeAsync(typeof(FixtureWithEvents));
+
+			await runner.Run();
+
+			Assert.Collection(
+				FixtureWithEvents.Events,
+				e => Assert.Equal("OnTestStarting", e),
+				e => Assert.Equal("OnTestStartingAsync", e),
+				e => Assert.Equal("OnTestFinishedAsync", e),
+				e => Assert.Equal("OnTestFinished", e)
+			);
+		}
+
+		class FixtureWithEventsClassUnderTest
+		{
+			[Fact]
+			public void TestMethod() { }
+		}
+	}
+
 	[Collection(typeof(XunitTestRunnerTestsCollection))]
 	public class Timeout
 	{
@@ -574,6 +605,7 @@ public static class XunitTestRunnerTests
 		readonly IXunitTest test = test;
 
 		public readonly ExceptionAggregator Aggregator = new();
+		public readonly FixtureMappingManager CaseFixtureMappings = new("Mock");
 		public object? TestClassInstance;
 		public readonly CancellationTokenSource TokenSource = new();
 
@@ -587,7 +619,7 @@ public static class XunitTestRunnerTests
 		}
 
 		public ValueTask<RunSummary> Run() =>
-			Run(test, messageBus, constructorArguments, explicitOption, Aggregator, TokenSource, beforeAfterTestAttributes);
+			Run(test, messageBus, constructorArguments, explicitOption, Aggregator, TokenSource, beforeAfterTestAttributes, CaseFixtureMappings);
 	}
 }
 

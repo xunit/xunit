@@ -17,7 +17,7 @@ public interface ICodeGenTestClass : ICoreTestClass
 	/// <summary>
 	/// Gets the fixture factories for the class-level test fixtures on the test class.
 	/// </summary>
-	IReadOnlyDictionary<Type, Func<FixtureMappingManager?, ValueTask<object>>> ClassFixtureFactories { get; }
+	IReadOnlyDictionary<Type, FixtureFactory> ClassFixtureFactories { get; }
 
 	/// <summary>
 	/// Gets the test class factory that will be used to create test class instances while tests

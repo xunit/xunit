@@ -14,14 +14,14 @@ partial class XunitRunnerHelper
 	/// <param name="cancellationTokenSource">The cancellation token source to cancel if requested</param>
 	/// <param name="aggregator">The exception aggregator to record exceptions to</param>
 	/// <param name="explicitOption">A flag to indicate which types of tests to run (non-explicit, explicit, or both)</param>
-	/// <param name="classFixtureMappings">The mapping of class fixture types to fixtures.</param>
+	/// <param name="methodFixtureMappings">The mapping of method fixture types to fixtures.</param>
 	public static ValueTask<RunSummary> RunCodeGenTestCase(
 		ICodeGenTestCase testCase,
 		IMessageBus messageBus,
 		CancellationTokenSource cancellationTokenSource,
 		ExceptionAggregator aggregator,
 		ExplicitOption explicitOption,
-		FixtureMappingManager classFixtureMappings) =>
+		FixtureMappingManager methodFixtureMappings) =>
 			RunCoreTestCase(
 				Guard.ArgumentNotNull(testCase),
 				messageBus,
@@ -36,7 +36,7 @@ partial class XunitRunnerHelper
 					testCase.TestCaseDisplayName,
 					testCase.SkipReason,
 					cancellationTokenSource,
-					classFixtureMappings
+					methodFixtureMappings
 				),
 				cancellationTokenSource
 			);

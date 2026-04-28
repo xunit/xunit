@@ -102,6 +102,7 @@ public static class Types
 			public const string DataAttribute = ns + nameof(DataAttribute);
 			public const string ICodeGenTestAssembly = ns + nameof(ICodeGenTestAssembly);
 			public const string ICodeGenTestCollectionFactory = ns + nameof(ICodeGenTestCollectionFactory);
+			public const string INotifyLifecycle = ns + nameof(INotifyLifecycle);
 			public const string ITestCaseOrderer = ns + nameof(ITestCaseOrderer);
 			public const string ITestClassOrderer = ns + nameof(ITestClassOrderer);
 			public const string ITestCollectionOrderer = ns + nameof(ITestCollectionOrderer);

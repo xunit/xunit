@@ -22,6 +22,16 @@ public class CodeGenTestMethodRunnerContext(
 	FixtureMappingManager classFixtureMappings) :
 		CoreTestMethodRunnerContext<ICodeGenTestMethod, ICodeGenTestCase>(testMethod, testCases, explicitOption, messageBus, aggregator, cancellationTokenSource)
 {
+	/// <summary>
+	/// Gets the mapping manager for method-level fixtures.
+	/// </summary>
+	/// <remarks>
+	/// There is no mechanism for describing or attaching method-level fixtures at this time, so this currently
+	/// returns the mapping manager for the class-level fixtures. If method-level fixtures become a feature in the
+	/// future, it is anticipated that this API will return the method-level fixture mapping manager.
+	/// </remarks>
+	public FixtureMappingManager MethodFixtureMappings { get; } = Guard.ArgumentNotNull(classFixtureMappings);
+
 	/// <inheritdoc/>
 	public override ValueTask<RunSummary> RunTestCase(ICodeGenTestCase testCase) =>
 		XunitRunnerHelper.RunCodeGenTestCase(
@@ -30,6 +40,6 @@ public class CodeGenTestMethodRunnerContext(
 			CancellationTokenSource,
 			Aggregator.Clone(),
 			ExplicitOption,
-			classFixtureMappings
+			MethodFixtureMappings
 		);
 }

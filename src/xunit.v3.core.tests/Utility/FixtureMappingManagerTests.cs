@@ -39,7 +39,7 @@ public static partial class FixtureMappingManagerTests
 	{
 		var manager = new TestableFixtureMappingManager();
 #if XUNIT_AOT
-		await manager.InitializeAsync(typeof(object), async _ => new object());
+		await manager.InitializeAsync(typeof(object), async (_, _) => new object());
 #else
 		await manager.InitializeAsync(typeof(object));
 #endif
@@ -55,7 +55,7 @@ public static partial class FixtureMappingManagerTests
 		var manager = new TestableFixtureMappingManager();
 
 #if XUNIT_AOT
-		var ex = await Record.ExceptionAsync(async () => await manager.InitializeAsync(typeof(FixtureWithThrowingCtor), async _ => new FixtureWithThrowingCtor()));
+		var ex = await Record.ExceptionAsync(async () => await manager.InitializeAsync(typeof(FixtureWithThrowingCtor), async (_, _) => new FixtureWithThrowingCtor()));
 #else
 		var ex = await Record.ExceptionAsync(async () => await manager.InitializeAsync(typeof(FixtureWithThrowingCtor)));
 #endif
@@ -76,7 +76,7 @@ public static partial class FixtureMappingManagerTests
 		var manager = new TestableFixtureMappingManager();
 
 #if XUNIT_AOT
-		var ex = await Record.ExceptionAsync(async () => await manager.InitializeAsync(typeof(FixtureWithThrowingInitializeAsync), async _ => new FixtureWithThrowingInitializeAsync()));
+		var ex = await Record.ExceptionAsync(async () => await manager.InitializeAsync(typeof(FixtureWithThrowingInitializeAsync), async (_, _) => new FixtureWithThrowingInitializeAsync()));
 #else
 		var ex = await Record.ExceptionAsync(async () => await manager.InitializeAsync(typeof(FixtureWithThrowingInitializeAsync)));
 #endif
@@ -118,7 +118,7 @@ public static partial class FixtureMappingManagerTests
 		var parent = new TestableFixtureMappingManager();
 		var manager = new TestableFixtureMappingManager(parent);
 #if XUNIT_AOT
-		await parent.InitializeAsync(typeof(object), async _ => new object());
+		await parent.InitializeAsync(typeof(object), async (_, _) => new object());
 		await manager.InitializeAsync(typeof(FixtureWithDependency), FixtureWithDependencyFactory(manager));
 #else
 		await parent.InitializeAsync(typeof(object));
@@ -162,7 +162,7 @@ public static partial class FixtureMappingManagerTests
 	{
 		var manager = new TestableFixtureMappingManager();
 #if XUNIT_AOT
-		await manager.InitializeAsync(typeof(FixtureWithDispose), async _ => new FixtureWithDispose());
+		await manager.InitializeAsync(typeof(FixtureWithDispose), async (_, _) => new FixtureWithDispose());
 #else
 		await manager.InitializeAsync(typeof(FixtureWithDispose));
 #endif
@@ -189,7 +189,7 @@ public static partial class FixtureMappingManagerTests
 	{
 		var manager = new TestableFixtureMappingManager();
 #if XUNIT_AOT
-		await manager.InitializeAsync(typeof(FixtureWithThrowingDispose), async _ => new FixtureWithThrowingDispose());
+		await manager.InitializeAsync(typeof(FixtureWithThrowingDispose), async (_, _) => new FixtureWithThrowingDispose());
 #else
 		await manager.InitializeAsync(typeof(FixtureWithThrowingDispose));
 #endif
@@ -212,7 +212,7 @@ public static partial class FixtureMappingManagerTests
 	{
 		var manager = new TestableFixtureMappingManager();
 #if XUNIT_AOT
-		await manager.InitializeAsync(typeof(FixtureWithDisposeAsync), async _ => new FixtureWithDisposeAsync());
+		await manager.InitializeAsync(typeof(FixtureWithDisposeAsync), async (_, _) => new FixtureWithDisposeAsync());
 #else
 		await manager.InitializeAsync(typeof(FixtureWithDisposeAsync));
 #endif
@@ -243,7 +243,7 @@ public static partial class FixtureMappingManagerTests
 	{
 		var manager = new TestableFixtureMappingManager();
 #if XUNIT_AOT
-		await manager.InitializeAsync(typeof(FixtureWithThrowingDisposeAsync), async _ => new FixtureWithThrowingDisposeAsync());
+		await manager.InitializeAsync(typeof(FixtureWithThrowingDisposeAsync), async (_, _) => new FixtureWithThrowingDisposeAsync());
 #else
 		await manager.InitializeAsync(typeof(FixtureWithThrowingDisposeAsync));
 #endif

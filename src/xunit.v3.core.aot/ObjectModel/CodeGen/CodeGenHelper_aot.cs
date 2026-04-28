@@ -16,8 +16,8 @@ public static class CodeGenHelper
 	/// <summary>
 	/// Gets an empty fixture factory list.
 	/// </summary>
-	public static IReadOnlyDictionary<Type, Func<FixtureMappingManager?, ValueTask<object>>> EmptyFixtureFactories { get; } =
-		new Dictionary<Type, Func<FixtureMappingManager?, ValueTask<object>>>();
+	public static IReadOnlyDictionary<Type, FixtureFactory> EmptyFixtureFactories { get; } =
+		new Dictionary<Type, FixtureFactory>();
 
 	/// <summary>
 	/// Gets an empty traits dictionary.

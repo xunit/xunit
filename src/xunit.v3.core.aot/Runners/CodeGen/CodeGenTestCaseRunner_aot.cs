@@ -37,7 +37,7 @@ public class CodeGenTestCaseRunner : CoreTestCaseRunner<CodeGenTestCaseRunnerCon
 	/// <param name="displayName">The display name of the test case.</param>
 	/// <param name="skipReason">The skip reason, if the test is to be skipped.</param>
 	/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
-	/// <param name="classFixtureMappings">The mapping of class fixture types to fixtures.</param>
+	/// <param name="methodFixtureMappings">The mapping of method fixture types to fixtures.</param>
 	/// <returns>Returns summary information about the test that was run.</returns>
 	public async ValueTask<RunSummary> Run(
 		ICodeGenTestCase testCase,
@@ -48,7 +48,7 @@ public class CodeGenTestCaseRunner : CoreTestCaseRunner<CodeGenTestCaseRunnerCon
 		string displayName,
 		string? skipReason,
 		CancellationTokenSource cancellationTokenSource,
-		FixtureMappingManager classFixtureMappings)
+		FixtureMappingManager methodFixtureMappings)
 	{
 		await using var ctxt = new CodeGenTestCaseRunnerContext(
 			testCase,
@@ -59,10 +59,41 @@ public class CodeGenTestCaseRunner : CoreTestCaseRunner<CodeGenTestCaseRunnerCon
 			displayName,
 			skipReason,
 			cancellationTokenSource,
-			classFixtureMappings
+			methodFixtureMappings
 		);
 		await ctxt.InitializeAsync();
 
 		return await Run(ctxt);
+	}
+
+	/// <inheritdoc/>
+	protected override async ValueTask<RunSummary> RunTestCase(
+		CodeGenTestCaseRunnerContext ctxt,
+		Exception? exception)
+	{
+		Guard.ArgumentNotNull(ctxt);
+
+		if (exception is not null)
+			return await base.RunTestCase(ctxt, exception);
+
+		await using var lifecycleTracker = new NotificationTracker<INotifyTestCaseLifecycle>(
+			ctxt.CaseFixtureMappings.ForNotification<INotifyTestCaseLifecycle>(),
+			fixture => fixture.OnTestCaseStarting(ctxt.TestCase),
+			fixture => ctxt.Aggregator.Run(() => fixture.OnTestCaseFinished(ctxt.TestCase)),
+			ctxt.CancellationTokenSource.Token
+		);
+		await using var lifecycleAsyncTracker = new NotificationTracker<INotifyTestCaseLifecycleAsync>(
+			ctxt.CaseFixtureMappings.ForNotification<INotifyTestCaseLifecycleAsync>(),
+			fixture => fixture.OnTestCaseStartingAsync(ctxt.TestCase),
+			fixture => ctxt.Aggregator.RunAsync(() => fixture.OnTestCaseFinishedAsync(ctxt.TestCase)),
+			ctxt.CancellationTokenSource.Token
+		);
+
+		var aggregator = await lifecycleTracker.Up();
+
+		if (!aggregator.HasExceptions)
+			aggregator.Aggregate(await lifecycleAsyncTracker.Up());
+
+		return await base.RunTestCase(ctxt, aggregator.ToException());
 	}
 }

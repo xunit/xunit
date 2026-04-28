@@ -26,6 +26,7 @@ public class XunitTestRunnerBaseContext<TTest> : CoreTestRunnerContext<TTest, IB
 	/// <param name="cancellationTokenSource">The cancellation token source</param>
 	/// <param name="beforeAfterTestAttributes">The <see cref="IBeforeAfterTestAttribute"/>s that are applied to the test</param>
 	/// <param name="constructorArguments">The constructor arguments for the test class</param>
+	/// <param name="caseFixtureMappings">The fixtures attached to the test case</param>
 	public XunitTestRunnerBaseContext(
 		TTest test,
 		IMessageBus messageBus,
@@ -33,11 +34,13 @@ public class XunitTestRunnerBaseContext<TTest> : CoreTestRunnerContext<TTest, IB
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource,
 		IReadOnlyCollection<IBeforeAfterTestAttribute> beforeAfterTestAttributes,
-		object?[] constructorArguments) :
+		object?[] constructorArguments,
+		FixtureMappingManager caseFixtureMappings) :
 			base(Guard.ArgumentNotNull(test), messageBus, test.SkipReason, explicitOption, aggregator, cancellationTokenSource)
 	{
 		BeforeAfterTestAttributes = Guard.ArgumentNotNull(beforeAfterTestAttributes);
 		ConstructorArguments = Guard.ArgumentNotNull(constructorArguments);
+		TestFixtureMappings = Guard.ArgumentNotNull(caseFixtureMappings);
 
 		getRuntimeSkipReason = new(SafeGetRuntimeSkipReason);
 	}
@@ -61,6 +64,16 @@ public class XunitTestRunnerBaseContext<TTest> : CoreTestRunnerContext<TTest, IB
 	/// </summary>
 	public object?[] MethodArguments =>
 		Test.TestMethodArguments;
+
+	/// <summary>
+	/// Gets the mapping manager for test-level fixtures.
+	/// </summary>
+	/// <remarks>
+	/// There is no mechanism for describing or attaching test-level fixtures at this time, so this currently
+	/// returns the mapping manager for the class-level fixtures. If test-level fixtures become a feature in the
+	/// future, it is anticipated that this API will return the test-level fixture mapping manager.
+	/// </remarks>
+	public FixtureMappingManager TestFixtureMappings { get; }
 
 	/// <inheritdoc/>
 	protected override string? GetRuntimeSkipReason() =>

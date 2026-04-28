@@ -19,6 +19,8 @@ partial class FixtureMappingManager
 			fixtureCache[cachedFixtureValue.GetType()] = cachedFixtureValue;
 	}
 
+	internal IReadOnlyDictionary<Type, object> FixtureCache => fixtureCache;
+
 	/// <inheritdoc/>
 	public async ValueTask DisposeAsync()
 	{
@@ -62,6 +64,23 @@ partial class FixtureMappingManager
 	}
 
 	/// <summary>
+	/// Gets fixtures that desire specific test lifecycle notifications.
+	/// </summary>
+	/// <typeparam name="T">The notification type</typeparam>
+	/// <remarks>
+	/// Note that this list includes all fixtures from the current mapping manager and all parent mapping managers.
+	/// </remarks>
+	public IReadOnlyCollection<T> ForNotification<T>()
+		where T : INotifyLifecycle
+	{
+		var matching = fixtureCache.Values.OfType<T>();
+		if (parentMappingManager is not null)
+			matching = matching.Concat(parentMappingManager.ForNotification<T>());
+
+		return matching.CastOrToReadOnlyCollection();
+	}
+
+	/// <summary>
 	/// Get a value for the given fixture type. If the fixture type is unknown, then returns <see langword="null"/>.
 	/// </summary>
 	/// <param name="fixtureType">The type of the fixture</param>
@@ -70,7 +89,7 @@ partial class FixtureMappingManager
 	{
 		ObjectDisposedException.ThrowIf(disposed, this);
 
-		var fixture = await TryGetFixture(fixtureType);
+		var fixture = await TryGetFixture(fixtureType, forceCreation: true);
 		return fixture.Result;
 	}
 
@@ -95,7 +114,7 @@ partial class FixtureMappingManager
 	{
 		ObjectDisposedException.ThrowIf(disposed, this);
 
-		var fixture = await TryGetFixture(typeof(T));
+		var fixture = await TryGetFixture(typeof(T), forceCreation: true);
 		if (fixture.Success && fixture.Result is T resultAsT)
 			return (true, resultAsT);
 
@@ -122,7 +141,7 @@ partial class FixtureMappingManager
 	/// <summary>
 	/// Tries to get a fixture argument to help construct a fixture. The potential fixed argument
 	/// types are supported (e.g., <see cref="IMessageSink"/>, <see cref="ITestContextAccessor"/>,
-	/// and <see cref="ITestOutputHelper"/>), as well as consulting the parent mapping manager.
+	/// and <see cref="ITestOutputHelper"/>), as well as consulting the mapping manager.
 	/// </summary>
 	/// <param name="mappingManager">The fixture mapping manager to get fixture instances from</param>
 	/// <typeparam name="T">The fixture argument type to supply</typeparam>

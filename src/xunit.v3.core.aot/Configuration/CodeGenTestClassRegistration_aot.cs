@@ -41,7 +41,7 @@ public class CodeGenTestClassRegistration
 #if XUNIT_GENERATOR
 	public required IReadOnlyCollection<(string Type, string Factory)> ClassFixtures { get; set; }
 #else
-	public IReadOnlyDictionary<Type, Func<FixtureMappingManager?, ValueTask<object>>>? ClassFixtureFactories { get; init; }
+	public IReadOnlyDictionary<Type, FixtureFactory>? ClassFixtureFactories { get; init; }
 #endif
 
 	/// <summary>
@@ -90,7 +90,7 @@ public class CodeGenTestClassRegistration
 
 #if !XUNIT_GENERATOR
 
-	static readonly Dictionary<Type, Func<FixtureMappingManager?, ValueTask<object>>> emptyFixtureFactories = [];
+	static readonly Dictionary<Type, FixtureFactory> emptyFixtureFactories = [];
 	readonly object factoryLock = new();
 	ICodeGenTestClass? testClass;
 

@@ -14,6 +14,7 @@ namespace Xunit.v3;
 /// <param name="skipReason">The skip reason, if the test case is being skipped</param>
 /// <param name="explicitOption">The user's choice on how to treat explicit tests</param>
 /// <param name="constructorArguments">The constructor arguments for the test class</param>
+/// <param name="methodFixtureMappings">The fixtures attached to the test method</param>
 /// <remarks>
 /// This class is used for reflection-based tests.
 /// </remarks>
@@ -26,7 +27,8 @@ public class XunitTestCaseRunnerBaseContext<TTestCase, TTest>(
 	string displayName,
 	string? skipReason,
 	ExplicitOption explicitOption,
-	object?[] constructorArguments) :
+	object?[] constructorArguments,
+	FixtureMappingManager methodFixtureMappings) :
 		CoreTestCaseRunnerContext<TTestCase, TTest>(testCase, tests, explicitOption, messageBus, aggregator, displayName, skipReason, cancellationTokenSource)
 			where TTestCase : class, IXunitTestCase
 			where TTest : class, IXunitTest
@@ -36,6 +38,16 @@ public class XunitTestCaseRunnerBaseContext<TTestCase, TTest>(
 	/// </summary>
 	public IReadOnlyCollection<IBeforeAfterTestAttribute> BeforeAfterTestAttributes =>
 		TestCase.TestMethod.BeforeAfterTestAttributes;
+
+	/// <summary>
+	/// Gets the mapping manager for case-level fixtures.
+	/// </summary>
+	/// <remarks>
+	/// There is no mechanism for describing or attaching case-level fixtures at this time, so this currently
+	/// returns the mapping manager for the class-level fixtures. If case-level fixtures become a feature in the
+	/// future, it is anticipated that this API will return the case-level fixture mapping manager.
+	/// </remarks>
+	public FixtureMappingManager CaseFixtureMappings { get; } = Guard.ArgumentNotNull(methodFixtureMappings);
 
 	/// <summary>
 	/// Gets the arguments to pass to the constructor of the test class when creating it.
@@ -55,7 +67,8 @@ public class XunitTestCaseRunnerBaseContext<TTestCase, TTest>(
 			ExplicitOption,
 			Aggregator.Clone(),
 			CancellationTokenSource,
-			BeforeAfterTestAttributes
+			BeforeAfterTestAttributes,
+			CaseFixtureMappings
 		);
 	}
 }

@@ -37,7 +37,7 @@ public class CodeGenTestRunner : CoreTestRunner<CodeGenTestRunnerContext, ICodeG
 	/// <param name="explicitOption">A flag to indicate how explicit tests should be treated.</param>
 	/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 	/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
-	/// <param name="classFixtureMappings">The mapping of class fixture types to fixtures.</param>
+	/// <param name="caseFixtureMappings">The mapping of test case fixture types to fixtures.</param>
 	/// <returns>Returns summary information about the test that was run.</returns>
 	public async ValueTask<RunSummary> Run(
 		ICodeGenTest test,
@@ -45,7 +45,7 @@ public class CodeGenTestRunner : CoreTestRunner<CodeGenTestRunnerContext, ICodeG
 		ExplicitOption explicitOption,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource,
-		FixtureMappingManager classFixtureMappings)
+		FixtureMappingManager caseFixtureMappings)
 	{
 		await using var ctxt = new CodeGenTestRunnerContext(
 			Guard.ArgumentNotNull(test),
@@ -53,10 +53,39 @@ public class CodeGenTestRunner : CoreTestRunner<CodeGenTestRunnerContext, ICodeG
 			explicitOption,
 			aggregator,
 			cancellationTokenSource,
-			classFixtureMappings
+			caseFixtureMappings
 		);
 		await ctxt.InitializeAsync();
 
 		return await Run(ctxt);
+	}
+
+	/// <inheritdoc/>
+	protected override async ValueTask<TimeSpan> RunTest(CodeGenTestRunnerContext ctxt)
+	{
+		Guard.ArgumentNotNull(ctxt);
+
+		await using var lifecycleTracker = new NotificationTracker<INotifyTestLifecycle>(
+			ctxt.TestFixtureMappings.ForNotification<INotifyTestLifecycle>(),
+			fixture => fixture.OnTestStarting(ctxt.Test),
+			fixture => ctxt.Aggregator.Run(() => fixture.OnTestFinished(ctxt.Test)),
+			ctxt.CancellationTokenSource.Token
+		);
+		await using var lifecycleAsyncTracker = new NotificationTracker<INotifyTestLifecycleAsync>(
+			ctxt.TestFixtureMappings.ForNotification<INotifyTestLifecycleAsync>(),
+			fixture => fixture.OnTestStartingAsync(ctxt.Test),
+			fixture => ctxt.Aggregator.RunAsync(() => fixture.OnTestFinishedAsync(ctxt.Test)),
+			ctxt.CancellationTokenSource.Token
+		);
+
+		ctxt.Aggregator.Aggregate(await lifecycleTracker.Up());
+
+		if (!ctxt.Aggregator.HasExceptions)
+			ctxt.Aggregator.Aggregate(await lifecycleAsyncTracker.Up());
+
+		if (!ctxt.Aggregator.HasExceptions)
+			return await base.RunTest(ctxt);
+
+		return TimeSpan.Zero;
 	}
 }

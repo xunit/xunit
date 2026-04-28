@@ -31,6 +31,7 @@ public class XunitTestRunner : XunitTestRunnerBase<XunitTestRunnerContext, IXuni
 	/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 	/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 	/// <param name="beforeAfterAttributes">The list of <see cref="IBeforeAfterTestAttribute"/>s for this test.</param>
+	/// <param name="caseFixtureMappings">The fixtures attached to the test case</param>
 	/// <returns>Returns summary information about the test that was run.</returns>
 	public async ValueTask<RunSummary> Run(
 		IXunitTest test,
@@ -39,7 +40,8 @@ public class XunitTestRunner : XunitTestRunnerBase<XunitTestRunnerContext, IXuni
 		ExplicitOption explicitOption,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource,
-		IReadOnlyCollection<IBeforeAfterTestAttribute> beforeAfterAttributes)
+		IReadOnlyCollection<IBeforeAfterTestAttribute> beforeAfterAttributes,
+		FixtureMappingManager caseFixtureMappings)
 	{
 		await using var ctxt = new XunitTestRunnerContext(
 			test,
@@ -48,7 +50,8 @@ public class XunitTestRunner : XunitTestRunnerBase<XunitTestRunnerContext, IXuni
 			aggregator,
 			cancellationTokenSource,
 			beforeAfterAttributes,
-			constructorArguments
+			constructorArguments,
+			caseFixtureMappings
 		);
 		await ctxt.InitializeAsync();
 

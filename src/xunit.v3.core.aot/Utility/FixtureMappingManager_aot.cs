@@ -16,7 +16,7 @@ namespace Xunit.v3;
 [DebuggerDisplay("category = {fixtureCategory}, cache count = {fixtureCache.Count}, factory count = {FixtureFactories.Count}")]
 public partial class FixtureMappingManager(
 	string fixtureCategory,
-	IReadOnlyDictionary<Type, Func<FixtureMappingManager?, ValueTask<object>>> fixtureFactories,
+	IReadOnlyDictionary<Type, FixtureFactory> fixtureFactories,
 	FixtureMappingManager? parentMappingManager = null) :
 		IAsyncDisposable
 {
@@ -33,26 +33,25 @@ public partial class FixtureMappingManager(
 	/// <remarks>
 	/// This is overridable primarily for testing purposes.
 	/// </remarks>
-	protected virtual IReadOnlyDictionary<Type, Func<FixtureMappingManager?, ValueTask<object>>> FixtureFactories { get; } =
+	protected virtual IReadOnlyDictionary<Type, FixtureFactory> FixtureFactories { get; } =
 		Guard.ArgumentNotNull(fixtureFactories);
 
 	/// <summary>
 	/// Initializes the known fixture types, optionally creating the instances ahead of
 	/// time.
 	/// </summary>
-	/// <param name="createInstances">A flag indicating whether to create the instances</param>
+	/// <param name="createInstances">A flag indicating whether to pre-create the instances</param>
 	public async ValueTask InitializeAsync(bool createInstances)
 	{
 		ObjectDisposedException.ThrowIf(disposed, this);
 
-		if (!createInstances)
-			return;
-
 		foreach (var kvp in FixtureFactories)
-			await TryGetFixture(kvp.Key);
+			await TryGetFixture(kvp.Key, forceCreation: createInstances);
 	}
 
-	async ValueTask<(bool Success, object? Result)> TryGetFixture(Type fixtureType)
+	async ValueTask<(bool Success, object? Result)> TryGetFixture(
+		Type fixtureType,
+		bool forceCreation)
 	{
 		// Pull from the cache if present
 		if (fixtureCache.TryGetValue(fixtureType, out var result))
@@ -63,13 +62,16 @@ public partial class FixtureMappingManager(
 		if (!FixtureFactories.TryGetValue(fixtureType, out var factory))
 			return
 				parentMappingManager is not null
-					? await parentMappingManager.TryGetFixture(fixtureType)
+					? await parentMappingManager.TryGetFixture(fixtureType, forceCreation)
 					: (false, null);
 
-		// Create the object
+		// Try to create the object
 		try
 		{
-			result = await factory(parentMappingManager);
+			result = await factory(parentMappingManager, forceCreation);
+			if (result is null)
+				return (false, null);
+
 			fixtureCache[fixtureType] = result;
 		}
 		catch (TestPipelineException)  // Let anything from the factory itself percolate

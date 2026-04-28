@@ -45,7 +45,7 @@ public class CollectionDefinitionAttributeGeneratorTests : CoreGeneratorTest<Col
 			public class WithTraits { }
 
 			[CollectionDefinition]
-			public class WithFixtures : ICollectionFixture<object>, IClassFixture<TypeWithDependency> { }
+			public class WithFixtures : ICollectionFixture<object>, IClassFixture<TypeWithDependency>, IClassFixture<TypeWithMarkerInterface> { }
 
 			// Failure cases
 
@@ -53,6 +53,8 @@ public class CollectionDefinitionAttributeGeneratorTests : CoreGeneratorTest<Col
 			public class OpenGenericType<T> { }
 
 			public class TypeWithDependency(object x) { public override string ToString() => x.ToString()!; }
+
+			public class TypeWithMarkerInterface : INotifyLifecycle { }
 
 			public class MyOrderer : ITestCaseOrderer, ITestClassOrderer, ITestMethodOrderer
 			{
@@ -181,8 +183,10 @@ public class CollectionDefinitionAttributeGeneratorTests : CoreGeneratorTest<Col
 					[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 					internal class CollectionDefinitionAttribute٠WithFixtures٠zBsr2HTBG : global::Xunit.v3.EngineInitializationAttribute {
 						public override async global::System.Threading.Tasks.ValueTask InitializeAsync() {
-							global::Xunit.v3.RegisteredEngineConfig.RegisterCollectionDefinition(null, new global::Xunit.v3.CodeGenTestCollectionRegistration() { ClassFixtureFactories = new global::System.Collections.Generic.Dictionary<global::System.Type, global::System.Func<global::Xunit.v3.FixtureMappingManager?, global::System.Threading.Tasks.ValueTask<object>>> {
-								[typeof(global::TypeWithDependency)] = async mappingManager => {
+							global::Xunit.v3.RegisteredEngineConfig.RegisterCollectionDefinition(null, new global::Xunit.v3.CodeGenTestCollectionRegistration() { ClassFixtureFactories = new global::System.Collections.Generic.Dictionary<global::System.Type, global::Xunit.v3.FixtureFactory> {
+								[typeof(global::TypeWithDependency)] = async (mappingManager, forceCreation) => {
+									if (!forceCreation)
+										return null;
 									var missingParameters = new global::System.Collections.Generic.List<(string Type, string Name)>();
 									var param0 = await global::Xunit.v3.FixtureMappingManager.TryGetFixtureArgument<object>(mappingManager);
 									if (!param0.Success)
@@ -197,9 +201,14 @@ public class CollectionDefinitionAttributeGeneratorTests : CoreGeneratorTest<Col
 										);
 									var instance = new global::TypeWithDependency(param0.Result!);
 									return instance;
+								}, [typeof(global::TypeWithMarkerInterface)] = async (mappingManager, forceCreation) => {
+									var instance = new global::TypeWithMarkerInterface();
+									return instance;
 								}
-							}, CollectionFixtureFactories = new global::System.Collections.Generic.Dictionary<global::System.Type, global::System.Func<global::Xunit.v3.FixtureMappingManager?, global::System.Threading.Tasks.ValueTask<object>>> {
-								[typeof(object)] = async mappingManager => {
+							}, CollectionFixtureFactories = new global::System.Collections.Generic.Dictionary<global::System.Type, global::Xunit.v3.FixtureFactory> {
+								[typeof(object)] = async (mappingManager, forceCreation) => {
+									if (!forceCreation)
+										return null;
 									var instance = new object();
 									return instance;
 								}

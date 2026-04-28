@@ -382,6 +382,69 @@ public static class XunitTestAssemblyRunnerTests
 		}
 	}
 
+	[Collection("Shared state in FixtureWithEvents")]
+	public static class Fixtures
+	{
+		[Fact]
+		public static async ValueTask FixtureEvents()
+		{
+			FixtureWithEvents.Events.Clear();
+
+			var testAssembly = Mocks.XunitTestAssembly(assemblyFixtureTypes: [typeof(FixtureWithEvents)]);
+			var testCollection = TestData.XunitTestCollection(testAssembly);
+			var testClass = TestData.XunitTestClass<ClassUnderTest>(testCollection);
+			var testMethod = TestData.XunitTestMethod(testClass, Guard.NotNull("Could not find ClassUnderTest.TestMethod", typeof(ClassUnderTest).GetMethod(nameof(ClassUnderTest.TestMethod))));
+			var testCase = TestData.XunitTestCase(testMethod);
+			var runner = new TestableXunitTestAssemblyRunner(testCase);
+
+			await runner.RunAsync();
+
+			Assert.Collection(
+				FixtureWithEvents.Events,
+				e => Assert.Equal("OnTestAssemblyStarting", e),
+				e => Assert.Equal("OnTestAssemblyStartingAsync", e),
+
+				e => Assert.Equal("OnTestCollectionStarting", e),
+				e => Assert.Equal("OnTestCollectionStartingAsync", e),
+
+				e => Assert.Equal("OnTestClassStarting", e),
+				e => Assert.Equal("OnTestClassStartingAsync", e),
+
+				e => Assert.Equal("OnTestMethodStarting", e),
+				e => Assert.Equal("OnTestMethodStartingAsync", e),
+
+				e => Assert.Equal("OnTestCaseStarting", e),
+				e => Assert.Equal("OnTestCaseStartingAsync", e),
+
+				e => Assert.Equal("OnTestStarting", e),
+				e => Assert.Equal("OnTestStartingAsync", e),
+				e => Assert.Equal("OnTestFinishedAsync", e),
+				e => Assert.Equal("OnTestFinished", e),
+
+				e => Assert.Equal("OnTestCaseFinishedAsync", e),
+				e => Assert.Equal("OnTestCaseFinished", e),
+
+				e => Assert.Equal("OnTestMethodFinishedAsync", e),
+				e => Assert.Equal("OnTestMethodFinished", e),
+
+				e => Assert.Equal("OnTestClassFinishedAsync", e),
+				e => Assert.Equal("OnTestClassFinished", e),
+
+				e => Assert.Equal("OnTestCollectionFinishedAsync", e),
+				e => Assert.Equal("OnTestCollectionFinished", e),
+
+				e => Assert.Equal("OnTestAssemblyFinishedAsync", e),
+				e => Assert.Equal("OnTestAssemblyFinished", e)
+			);
+		}
+
+		class ClassUnderTest
+		{
+			[Fact]
+			public void TestMethod() { }
+		}
+	}
+
 	public static class Run
 	{
 		[Fact]

@@ -12,6 +12,7 @@ namespace Xunit.v3;
 /// <param name="aggregator">The exception aggregator</param>
 /// <param name="cancellationTokenSource">The cancellation token source</param>
 /// <param name="constructorArguments">The constructor arguments for the test class</param>
+/// <param name="classFixtureMappings">The fixtures attached to the test class</param>
 /// <remarks>
 /// This class is used for reflection-based tests.
 /// </remarks>
@@ -22,7 +23,8 @@ public class XunitTestMethodRunnerBaseContext<TTestMethod, TTestCase>(
 	IMessageBus messageBus,
 	ExceptionAggregator aggregator,
 	CancellationTokenSource cancellationTokenSource,
-	object?[] constructorArguments) :
+	object?[] constructorArguments,
+	FixtureMappingManager classFixtureMappings) :
 		CoreTestMethodRunnerContext<TTestMethod, TTestCase>(testMethod, testCases, explicitOption, messageBus, aggregator, cancellationTokenSource)
 			where TTestMethod : class, IXunitTestMethod
 			where TTestCase : class, IXunitTestCase
@@ -31,6 +33,16 @@ public class XunitTestMethodRunnerBaseContext<TTestMethod, TTestCase>(
 	/// Gets the arguments to send to the test class constructor.
 	/// </summary>
 	public object?[] ConstructorArguments { get; } = Guard.ArgumentNotNull(constructorArguments);
+
+	/// <summary>
+	/// Gets the mapping manager for method-level fixtures.
+	/// </summary>
+	/// <remarks>
+	/// There is no mechanism for describing or attaching method-level fixtures at this time, so this currently
+	/// returns the mapping manager for the class-level fixtures. If method-level fixtures become a feature in the
+	/// future, it is anticipated that this API will return the method-level fixture mapping manager.
+	/// </remarks>
+	public FixtureMappingManager MethodFixtureMappings { get; } = Guard.ArgumentNotNull(classFixtureMappings);
 
 	/// <inheritdoc/>
 	public override ValueTask<RunSummary> RunTestCase(TTestCase testCase)
@@ -44,7 +56,8 @@ public class XunitTestMethodRunnerBaseContext<TTestMethod, TTestCase>(
 			CancellationTokenSource,
 			Aggregator.Clone(),
 			ExplicitOption,
-			ConstructorArguments
+			ConstructorArguments,
+			MethodFixtureMappings
 		);
 	}
 }

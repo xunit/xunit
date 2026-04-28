@@ -54,6 +54,7 @@ public abstract class XunitTestClassRunnerBaseContext<TTestClass, TTestMethod, T
 				MessageBus,
 				Aggregator.Clone(),
 				CancellationTokenSource,
-				ConstructorArguments ?? throw new InvalidOperationException("Constructor arguments were not set")
+				ConstructorArguments ?? throw new InvalidOperationException("Constructor arguments were not set"),
+				ClassFixtureMappings
 			);
 }

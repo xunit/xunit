@@ -361,6 +361,7 @@ public static class XunitTestCollectionRunnerTests
 		}
 	}
 
+	[Collection("Shared state in FixtureWithEvents")]
 	public static class Fixtures
 	{
 		[Fact]
@@ -589,6 +590,59 @@ public static class XunitTestCollectionRunnerTests
 		{
 			[Fact]
 			public void Passing() { }
+		}
+
+		[Fact]
+		public static async ValueTask FixtureEvents()
+		{
+			FixtureWithEvents.Events.Clear();
+
+			var testCase = TestData.XunitTestCase<FixtureWithEventsClassUnderTest>(nameof(FixtureWithEventsClassUnderTest.TestMethod));
+			var runner = new TestableXunitTestCollectionRunner(testCase);
+
+			await runner.RunAsync();
+
+			Assert.Collection(
+				FixtureWithEvents.Events,
+				e => Assert.Equal("OnTestCollectionStarting", e),
+				e => Assert.Equal("OnTestCollectionStartingAsync", e),
+
+				e => Assert.Equal("OnTestClassStarting", e),
+				e => Assert.Equal("OnTestClassStartingAsync", e),
+
+				e => Assert.Equal("OnTestMethodStarting", e),
+				e => Assert.Equal("OnTestMethodStartingAsync", e),
+
+				e => Assert.Equal("OnTestCaseStarting", e),
+				e => Assert.Equal("OnTestCaseStartingAsync", e),
+
+				e => Assert.Equal("OnTestStarting", e),
+				e => Assert.Equal("OnTestStartingAsync", e),
+				e => Assert.Equal("OnTestFinishedAsync", e),
+				e => Assert.Equal("OnTestFinished", e),
+
+				e => Assert.Equal("OnTestCaseFinishedAsync", e),
+				e => Assert.Equal("OnTestCaseFinished", e),
+
+				e => Assert.Equal("OnTestMethodFinishedAsync", e),
+				e => Assert.Equal("OnTestMethodFinished", e),
+
+				e => Assert.Equal("OnTestClassFinishedAsync", e),
+				e => Assert.Equal("OnTestClassFinished", e),
+
+				e => Assert.Equal("OnTestCollectionFinishedAsync", e),
+				e => Assert.Equal("OnTestCollectionFinished", e)
+			);
+		}
+
+		[CollectionDefinition]
+		public class FixtureWithEventsClassUnderTestCollection : ICollectionFixture<FixtureWithEvents> { }
+
+		[Collection(typeof(FixtureWithEventsClassUnderTestCollection))]
+		class FixtureWithEventsClassUnderTest
+		{
+			[Fact]
+			public void TestMethod() { }
 		}
 	}
 

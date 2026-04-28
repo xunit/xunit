@@ -25,18 +25,18 @@ public class CodeGenTestRunnerContext : CoreTestRunnerContext<ICodeGenTest, Befo
 	/// <param name="explicitOption">The user's choice on how to treat explicit tests</param>
 	/// <param name="aggregator">The exception aggregator</param>
 	/// <param name="cancellationTokenSource">The cancellation token source</param>
-	/// <param name="classFixtureMappings">The mapping of class fixture types to fixtures.</param>
+	/// <param name="caseFixtureMappings">The mapping of test case fixture types to fixtures.</param>
 	public CodeGenTestRunnerContext(
 		ICodeGenTest test,
 		IMessageBus messageBus,
 		ExplicitOption explicitOption,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource,
-		FixtureMappingManager classFixtureMappings) :
+		FixtureMappingManager caseFixtureMappings) :
 			base(Guard.ArgumentNotNull(test), messageBus, test.SkipReason, explicitOption, aggregator, cancellationTokenSource)
 	{
 		BeforeAfterTestAttributes = Test.TestCase.TestMethod.BeforeAfterTestAttributes;
-		ClassFixtureMappings = Guard.ArgumentNotNull(classFixtureMappings);
+		TestFixtureMappings = Guard.ArgumentNotNull(caseFixtureMappings);
 
 		getRuntimeSkipReason = new(SafeGetRuntimeSkipReason);
 	}
@@ -45,9 +45,14 @@ public class CodeGenTestRunnerContext : CoreTestRunnerContext<ICodeGenTest, Befo
 	protected override IReadOnlyCollection<BeforeAfterTestAttribute> BeforeAfterTestAttributes { get; set; }
 
 	/// <summary>
-	/// Gets the class fixture mappings.
+	/// Gets the mapping manager for test-level fixtures.
 	/// </summary>
-	public FixtureMappingManager ClassFixtureMappings { get; }
+	/// <remarks>
+	/// There is no mechanism for describing or attaching test-level fixtures at this time, so this currently
+	/// returns the mapping manager for the class-level fixtures. If test-level fixtures become a feature in the
+	/// future, it is anticipated that this API will return the test-level fixture mapping manager.
+	/// </remarks>
+	public FixtureMappingManager TestFixtureMappings { get; }
 
 	/// <summary>
 	/// Creates the test class instance.
@@ -56,7 +61,7 @@ public class CodeGenTestRunnerContext : CoreTestRunnerContext<ICodeGenTest, Befo
 		Aggregator.RunAsync(
 			async () =>
 			{
-				var result = await Test.TestCase.TestClass.TestClassFactory(ClassFixtureMappings);
+				var result = await Test.TestCase.TestClass.TestClassFactory(TestFixtureMappings);
 
 				if (result.Instance is IAsyncLifetime asyncLifetime)
 					await asyncLifetime.InitializeAsync();

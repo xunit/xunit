@@ -37,7 +37,7 @@ public sealed class CodeGenTestAssembly : ICodeGenTestAssembly
 	/// <param name="uniqueID">The optional assembly unique ID</param>
 	public CodeGenTestAssembly(
 		Assembly assembly,
-		IReadOnlyDictionary<Type, Func<FixtureMappingManager?, ValueTask<object>>> assemblyFixtureFactories,
+		IReadOnlyDictionary<Type, FixtureFactory> assemblyFixtureFactories,
 		string assemblyName,
 		string assemblyPath,
 		IReadOnlyCollection<BeforeAfterTestAttribute> beforeAfterTestAttributes,
@@ -75,7 +75,7 @@ public sealed class CodeGenTestAssembly : ICodeGenTestAssembly
 	public Assembly Assembly { get; }
 
 	/// <inheritdoc/>
-	public IReadOnlyDictionary<Type, Func<FixtureMappingManager?, ValueTask<object>>> AssemblyFixtureFactories { get; }
+	public IReadOnlyDictionary<Type, FixtureFactory> AssemblyFixtureFactories { get; }
 
 	/// <inheritdoc/>
 	public string AssemblyName { get; }

@@ -11,7 +11,7 @@ public interface ICodeGenTestAssembly : ICoreTestAssembly
 	/// <summary>
 	/// Gets the fixture factories for the assembly-level test fixtures.
 	/// </summary>
-	IReadOnlyDictionary<Type, Func<FixtureMappingManager?, ValueTask<object>>> AssemblyFixtureFactories { get; }
+	IReadOnlyDictionary<Type, FixtureFactory> AssemblyFixtureFactories { get; }
 
 	/// <summary>
 	/// Gets the <see cref="BeforeAfterTestAttribute"/>s attached to the test assembly.

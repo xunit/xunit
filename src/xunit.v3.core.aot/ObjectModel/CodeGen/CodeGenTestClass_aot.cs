@@ -18,7 +18,7 @@ namespace Xunit.v3;
 public sealed class CodeGenTestClass(
 	IReadOnlyCollection<BeforeAfterTestAttribute> beforeAfterTestAttributes,
 	Type @class,
-	IReadOnlyDictionary<Type, Func<FixtureMappingManager?, ValueTask<object>>> classFixtureFactories,
+	IReadOnlyDictionary<Type, FixtureFactory> classFixtureFactories,
 	Func<FixtureMappingManager, ValueTask<CoreTestClassCreationResult>> testClassFactory,
 	ICodeGenTestCollection testCollection,
 	IReadOnlyDictionary<string, IReadOnlyCollection<string>> traits,
@@ -37,7 +37,7 @@ public sealed class CodeGenTestClass(
 		Guard.ArgumentNotNull(@class);
 
 	/// <inheritdoc/>
-	public IReadOnlyDictionary<Type, Func<FixtureMappingManager?, ValueTask<object>>> ClassFixtureFactories { get; } =
+	public IReadOnlyDictionary<Type, FixtureFactory> ClassFixtureFactories { get; } =
 		Guard.ArgumentNotNull(classFixtureFactories);
 
 	/// <inheritdoc/>

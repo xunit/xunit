@@ -6,36 +6,16 @@ namespace Xunit.Generators;
 
 internal static class CodeGenRegistration
 {
-	internal static string ToFixtureFactories(IReadOnlyCollection<(string Type, string Factory)> fixtures) =>
-		$$"""
-		new global::System.Collections.Generic.Dictionary<global::System.Type, global::System.Func<global::Xunit.v3.FixtureMappingManager?, global::System.Threading.Tasks.ValueTask<object>>> {
-			{{string.Join(", ", fixtures.Select(f => $"[typeof({f.Type})] = {f.Factory.Replace("\n", "\n\t")}"))}}
-		}
-		""";
-
-	// Use this when you don't know what ctor to call yet, but want to ensure there is only a single public non-static ctor
-	internal static string? ToObjectFactory(
+	static string ToConstructorInvocation(
+		StringBuilder factoryBuilder,
+		IMethodSymbol ctor,
 		INamedTypeSymbol type,
 		string typeDescription,
 		string argumentLookupFormat,
-		string objectFactoryFormat = "{0}")
+		string objectFactoryFormat)
 	{
-		if (type.IsStatic || type.IsAbstract)
-			return null;
-
-		var publicCtors = type.Constructors.Where(c => c.DeclaredAccessibility == Accessibility.Public && !c.IsStatic).ToImmutableArray();
-		if (publicCtors.Length != 1)
-			return null;
-
 		var testClassTypeName = type.ToCSharp();
-		var ctor = publicCtors[0];
 		var parameterNamesInCode = new List<string>();
-
-		var factoryBuilder = new StringBuilder();
-		factoryBuilder.Append("""
-			async mappingManager => {
-
-			""");
 
 		if (ctor.Parameters.Length != 0)
 		{
@@ -104,8 +84,76 @@ internal static class CodeGenRegistration
 			}
 			""");
 
-		var factory = factoryBuilder.ToString();
-		return factory;
+		return factoryBuilder.ToString();
+	}
+
+	internal static string ToFixtureFactories(IReadOnlyCollection<(string Type, string Factory)> fixtures) =>
+		$$"""
+		new global::System.Collections.Generic.Dictionary<global::System.Type, global::Xunit.v3.FixtureFactory> {
+			{{string.Join(", ", fixtures.Select(f => $"[typeof({f.Type})] = {f.Factory.Replace("\n", "\n\t")}"))}}
+		}
+		""";
+
+	internal static string? ToFixtureFactory(
+		INamedTypeSymbol type,
+		string typeDescription)
+	{
+		if (type.IsStatic || type.IsAbstract)
+			return null;
+
+		var publicCtors = type.Constructors.Where(c => c.DeclaredAccessibility == Accessibility.Public && !c.IsStatic).ToImmutableArray();
+		if (publicCtors.Length != 1)
+			return null;
+
+		var factoryBuilder = new StringBuilder();
+		factoryBuilder.Append("""
+			async (mappingManager, forceCreation) => {
+
+			""");
+
+		if (!type.Implements(Types.Xunit.v3.INotifyLifecycle))
+			factoryBuilder.Append("""
+					if (!forceCreation)
+						return null;
+
+				""");
+
+		return ToConstructorInvocation(
+			factoryBuilder,
+			publicCtors[0],
+			type,
+			typeDescription,
+			"global::Xunit.v3.FixtureMappingManager.TryGetFixtureArgument<{0}>(mappingManager)",
+			"{0}"
+		);
+	}
+
+	// Use this when you don't know what ctor to call yet, but want to ensure there is only a single public non-static ctor
+	internal static string? ToObjectFactory(
+		INamedTypeSymbol type,
+		string typeDescription)
+	{
+		if (type.IsStatic || type.IsAbstract)
+			return null;
+
+		var publicCtors = type.Constructors.Where(c => c.DeclaredAccessibility == Accessibility.Public && !c.IsStatic).ToImmutableArray();
+		if (publicCtors.Length != 1)
+			return null;
+
+		var factoryBuilder = new StringBuilder();
+		factoryBuilder.Append("""
+			async mappingManager => {
+
+			""");
+
+		return ToConstructorInvocation(
+			factoryBuilder,
+			publicCtors[0],
+			type,
+			typeDescription,
+			"mappingManager.TryGetFixtureArgument<{0}>()",
+			"new global::Xunit.v3.CoreTestClassCreationResult({0})"
+		);
 	}
 
 	// Use this when you already know the ctor you want to call

@@ -83,4 +83,35 @@ public class CodeGenTestCollectionRunner :
 
 		return await Run(ctxt);
 	}
+
+	/// <inheritdoc/>
+	protected override async ValueTask<RunSummary> RunTestClasses(
+		CodeGenTestCollectionRunnerContext ctxt,
+		Exception? exception)
+	{
+		Guard.ArgumentNotNull(ctxt);
+
+		if (exception is not null)
+			return await base.RunTestClasses(ctxt, exception);
+
+		await using var lifecycleTracker = new NotificationTracker<INotifyTestCollectionLifecycle>(
+			ctxt.CollectionFixtureMappings.ForNotification<INotifyTestCollectionLifecycle>(),
+			fixture => fixture.OnTestCollectionStarting(ctxt.TestCollection),
+			fixture => ctxt.Aggregator.Run(() => fixture.OnTestCollectionFinished(ctxt.TestCollection)),
+			ctxt.CancellationTokenSource.Token
+		);
+		await using var lifecycleAsyncTracker = new NotificationTracker<INotifyTestCollectionLifecycleAsync>(
+			ctxt.CollectionFixtureMappings.ForNotification<INotifyTestCollectionLifecycleAsync>(),
+			fixture => fixture.OnTestCollectionStartingAsync(ctxt.TestCollection),
+			fixture => ctxt.Aggregator.RunAsync(() => fixture.OnTestCollectionFinishedAsync(ctxt.TestCollection)),
+			ctxt.CancellationTokenSource.Token
+		);
+
+		var aggregator = await lifecycleTracker.Up();
+
+		if (!aggregator.HasExceptions)
+			aggregator.Aggregate(await lifecycleAsyncTracker.Up());
+
+		return await base.RunTestClasses(ctxt, aggregator.ToException());
+	}
 }

@@ -18,7 +18,7 @@ public sealed class CodeGenTestCollectionRegistration
 #if XUNIT_GENERATOR
 	public required IReadOnlyCollection<(string Type, string Factory)> ClassFixtures { get; set; }
 #else
-	public IReadOnlyDictionary<Type, Func<FixtureMappingManager?, ValueTask<object>>>? ClassFixtureFactories { get; init; }
+	public IReadOnlyDictionary<Type, FixtureFactory>? ClassFixtureFactories { get; init; }
 #endif
 
 	/// <summary>
@@ -27,7 +27,7 @@ public sealed class CodeGenTestCollectionRegistration
 #if XUNIT_GENERATOR
 	public required IReadOnlyCollection<(string Type, string Factory)> CollectionFixtures { get; set; }
 #else
-	public IReadOnlyDictionary<Type, Func<FixtureMappingManager?, ValueTask<object>>>? CollectionFixtureFactories { get; init; }
+	public IReadOnlyDictionary<Type, FixtureFactory>? CollectionFixtureFactories { get; init; }
 #endif
 
 	/// <summary>

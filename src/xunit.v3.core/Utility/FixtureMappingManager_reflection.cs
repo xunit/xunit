@@ -21,8 +21,6 @@ public partial class FixtureMappingManager(
 	readonly string fixtureCategory = fixtureCategory;
 	readonly HashSet<Type> knownTypes = [];
 
-	internal IReadOnlyDictionary<Type, object> FixtureCache => fixtureCache;
-
 	/// <summary>
 	/// Returns a list of all known fixture types at all category levels.
 	/// </summary>
@@ -76,17 +74,14 @@ public partial class FixtureMappingManager(
 
 			// Pre-create the fixture type, because we want to make sure all concrete fixtures are
 			// instantiated even if nobody comes along later to get the instance.
-			if (createInstances && knownType == fixtureType)
-				await GetFixture(knownType);
+			if (knownType == fixtureType)
+				await TryGetFixture(knownType, forceCreation: createInstances);
 		}
 	}
 
-	/// <summary>
-	/// Tries to get a value for the given fixture type. If the fixture type is unknown, will return
-	/// <see langword="false"/> for <c>Success</c>.
-	/// </summary>
-	/// <param name="fixtureType">The type of the fixture</param>
-	public async ValueTask<(bool Success, object? Result)> TryGetFixture(Type fixtureType)
+	async ValueTask<(bool Success, object? Result)> TryGetFixture(
+		Type fixtureType,
+		bool forceCreation)
 	{
 		Guard.ArgumentNotNull(fixtureType);
 
@@ -103,8 +98,12 @@ public partial class FixtureMappingManager(
 		if (!isKnownType)
 			return
 				parentMappingManager is not null
-					? await parentMappingManager.TryGetFixture(fixtureType)
+					? await parentMappingManager.TryGetFixture(fixtureType, forceCreation)
 					: (false, null);
+
+		// If we can skip the creation, then do so
+		if (!forceCreation && !typeof(INotifyLifecycle).IsAssignableFrom(fixtureType))
+			return (false, null);
 
 		// Ensure there is a single public constructor
 		var ctors =

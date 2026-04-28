@@ -13,7 +13,7 @@ namespace Xunit.v3;
 /// <param name="displayName">The display name of the test case</param>
 /// <param name="skipReason">The skip reason, if the test case is being skipped</param>
 /// <param name="cancellationTokenSource">The cancellation token source</param>
-/// <param name="classFixtureMappings">The mapping of class fixture types to fixtures.</param>
+/// <param name="methodFixtureMappings">The mapping of method fixture types to fixtures.</param>
 /// <remarks>
 /// This class is used for code generation-based tests.
 /// </remarks>
@@ -26,9 +26,19 @@ public class CodeGenTestCaseRunnerContext(
 	string displayName,
 	string? skipReason,
 	CancellationTokenSource cancellationTokenSource,
-	FixtureMappingManager classFixtureMappings) :
+	FixtureMappingManager methodFixtureMappings) :
 		CoreTestCaseRunnerContext<ICodeGenTestCase, ICodeGenTest>(testCase, tests, explicitOption, messageBus, aggregator, displayName, skipReason, cancellationTokenSource)
 {
+	/// <summary>
+	/// Gets the mapping manager for case-level fixtures.
+	/// </summary>
+	/// <remarks>
+	/// There is no mechanism for describing or attaching case-level fixtures at this time, so this currently
+	/// returns the mapping manager for the class-level fixtures. If case-level fixtures become a feature in the
+	/// future, it is anticipated that this API will return the case-level fixture mapping manager.
+	/// </remarks>
+	public FixtureMappingManager CaseFixtureMappings { get; } = Guard.ArgumentNotNull(methodFixtureMappings);
+
 	/// <inheritdoc/>
 	public override ValueTask<RunSummary> RunTest(ICodeGenTest test) =>
 		CodeGenTestRunner.Instance.Run(
@@ -37,6 +47,6 @@ public class CodeGenTestCaseRunnerContext(
 			ExplicitOption,
 			Aggregator.Clone(),
 			CancellationTokenSource,
-			classFixtureMappings
+			CaseFixtureMappings
 		);
 }

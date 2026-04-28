@@ -11,4 +11,35 @@ public abstract class XunitTestCaseRunnerBase<TContext, TTestCase, TTest> :
 		where TContext : XunitTestCaseRunnerBaseContext<TTestCase, TTest>
 		where TTestCase : class, IXunitTestCase
 		where TTest : class, IXunitTest
-{ }
+{
+	/// <inheritdoc/>
+	protected override async ValueTask<RunSummary> RunTestCase(
+		TContext ctxt,
+		Exception? exception)
+	{
+		Guard.ArgumentNotNull(ctxt);
+
+		if (exception is not null)
+			return await base.RunTestCase(ctxt, exception);
+
+		await using var lifecycleTracker = new NotificationTracker<INotifyTestCaseLifecycle>(
+			ctxt.CaseFixtureMappings.ForNotification<INotifyTestCaseLifecycle>(),
+			fixture => fixture.OnTestCaseStarting(ctxt.TestCase),
+			fixture => ctxt.Aggregator.Run(() => fixture.OnTestCaseFinished(ctxt.TestCase)),
+			ctxt.CancellationTokenSource.Token
+		);
+		await using var lifecycleAsyncTracker = new NotificationTracker<INotifyTestCaseLifecycleAsync>(
+			ctxt.CaseFixtureMappings.ForNotification<INotifyTestCaseLifecycleAsync>(),
+			fixture => fixture.OnTestCaseStartingAsync(ctxt.TestCase),
+			fixture => ctxt.Aggregator.RunAsync(() => fixture.OnTestCaseFinishedAsync(ctxt.TestCase)),
+			ctxt.CancellationTokenSource.Token
+		);
+
+		var aggregator = await lifecycleTracker.Up();
+
+		if (!aggregator.HasExceptions)
+			aggregator.Aggregate(await lifecycleAsyncTracker.Up());
+
+		return await base.RunTestCase(ctxt, aggregator.ToException());
+	}
+}
