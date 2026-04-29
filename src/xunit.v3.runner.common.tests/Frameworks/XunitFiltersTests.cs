@@ -26,6 +26,7 @@ public static class XunitFiltersTests
 		traits: TestData.EmptyTraits
 	);
 	static readonly ITestCaseDiscovered InnerClassTwo_NameThree = TestData.TestCaseDiscovered(
+		testCaseDisplayName: "I am a custom display name",
 		testClassName: "NamespaceOne.ClassInNamespace1+InnerClassTwo",
 		testClassNamespace: "NamespaceOne",
 		testClassSimpleName: "InnerClassTwo",
@@ -92,7 +93,7 @@ public static class XunitFiltersTests
 	}
 
 	[Fact]
-	public static void MixedFilters_NotAllowed_SimpleFirst()
+	public static void SimpleQueryFirst_ProhibitsQueryFilter()
 	{
 		var filters = new XunitFilters();
 		filters.AddIncludedClassFilter("class");
@@ -101,7 +102,20 @@ public static class XunitFiltersTests
 
 		var argEx = Assert.IsType<ArgumentException>(ex);
 		Assert.Equal("query", argEx.ParamName);
-		Assert.StartsWith("Cannot add query filter; simple filters already exist", argEx.Message);
+		Assert.StartsWith("Cannot add query filter or VSTest filter; simple filters already exist", argEx.Message);
+	}
+
+	[Fact]
+	public static void SimpleQueryFirst_ProhibitsVSTestFilter()
+	{
+		var filters = new XunitFilters();
+		filters.AddIncludedClassFilter("class");
+
+		var ex = Record.Exception(() => filters.SetVSTestFilter("Hello"));
+
+		var argEx = Assert.IsType<ArgumentException>(ex);
+		Assert.Equal("query", argEx.ParamName);
+		Assert.StartsWith("Cannot add query filter or VSTest filter; simple filters already exist", argEx.Message);
 	}
 
 	public static IEnumerable<TheoryDataRow<Action<XunitFilters>>> SimpleFilterActions =
@@ -118,7 +132,7 @@ public static class XunitFiltersTests
 
 	[Theory(DisableDiscoveryEnumeration = true)]
 	[MemberData(nameof(SimpleFilterActions))]
-	public static void MixedFilters_NotAllowed_QueryFirst(Action<XunitFilters> simpleFilterAction)
+	public static void QueryFilterFirst_ProhibitsSimpleFilter(Action<XunitFilters> simpleFilterAction)
 	{
 		var filters = new XunitFilters();
 		filters.AddQueryFilter("/1/2/3/4");
@@ -127,7 +141,60 @@ public static class XunitFiltersTests
 
 		var argEx = Assert.IsType<ArgumentException>(ex);
 		Assert.Equal("query", argEx.ParamName);
-		Assert.StartsWith("Cannot add simple filter; query filters already exist", argEx.Message);
+		Assert.StartsWith("Cannot add simple filter or VSTest filter; query filters already exist", argEx.Message);
+	}
+
+	[Fact]
+	public static void QueryFilterFirst_ProhibitsVSTestFilter()
+	{
+		var filters = new XunitFilters();
+		filters.AddQueryFilter("/1/2/3/4");
+
+		var ex = Record.Exception(() => filters.SetVSTestFilter("Hello"));
+
+		var argEx = Assert.IsType<ArgumentException>(ex);
+		Assert.Equal("query", argEx.ParamName);
+		Assert.StartsWith("Cannot add simple filter or VSTest filter; query filters already exist", argEx.Message);
+	}
+
+	[Fact]
+	public static void VSTestFilterFirst_ProhibitsQueryFilter()
+	{
+		var filters = new XunitFilters();
+		filters.SetVSTestFilter("Hello");
+
+		var ex = Record.Exception(() => filters.AddQueryFilter("/1/2/3/4"));
+
+		var argEx = Assert.IsType<ArgumentException>(ex);
+		Assert.Equal("query", argEx.ParamName);
+		Assert.StartsWith("Cannot add simple filter or query filter; VSTest filter already exists", argEx.Message);
+	}
+
+	[Theory(DisableDiscoveryEnumeration = true)]
+	[MemberData(nameof(SimpleFilterActions))]
+	public static void VSTestFilterFirst_ProhibitsSimpleFilter(Action<XunitFilters> simpleFilterAction)
+	{
+		var filters = new XunitFilters();
+		filters.SetVSTestFilter("Hello");
+
+		var ex = Record.Exception(() => simpleFilterAction(filters));
+
+		var argEx = Assert.IsType<ArgumentException>(ex);
+		Assert.Equal("query", argEx.ParamName);
+		Assert.StartsWith("Cannot add simple filter or query filter; VSTest filter already exists", argEx.Message);
+	}
+
+	[Fact]
+	public static void VSTestFilterFirst_ProhibitsSecondVSTestFilter()
+	{
+		var filters = new XunitFilters();
+		filters.SetVSTestFilter("Hello");
+
+		var ex = Record.Exception(() => filters.SetVSTestFilter("World"));
+
+		var argEx = Assert.IsType<ArgumentException>(ex);
+		Assert.Equal("query", argEx.ParamName);
+		Assert.StartsWith("VSTest filter can only be set a single time", argEx.Message);
 	}
 
 	public static class QueryFilters
@@ -487,6 +554,48 @@ public static class XunitFiltersTests
 				Assert.False(filters.Filter("asm1", MethodWithFooBarTrait));
 				Assert.False(filters.Filter("asm1", MethodWithBazBiffTrait));
 			}
+		}
+	}
+
+	// Based on https://learn.microsoft.com/en-us/dotnet/core/testing/selective-unit-tests?pivots=xunit as of 2026-April-29
+	public static class VSTestFilters
+	{
+		[Fact]
+		public static void FullyQualifiedName()
+		{
+			var filters = new XunitFilters();
+			filters.SetVSTestFilter("FullyQualifiedName=NamespaceOne.ClassInNamespace1+InnerClassOne.NameOne");
+
+			Assert.False(filters.Filter("asm1", NonClassTest));
+			Assert.False(filters.Filter("asm1", NonMethodTest));
+			Assert.True(filters.Filter("asm1", InnerClassOne_NameOne));
+			Assert.False(filters.Filter("asm1", InnerClassOne_NameTwo));
+			Assert.False(filters.Filter("asm1", InnerClassOne_NameThree));
+			Assert.False(filters.Filter("asm1", InnerClassTwo_NameThree));
+		}
+
+		[Fact]
+		public static void DisplayName()
+		{
+			var filters = new XunitFilters();
+			filters.SetVSTestFilter("DisplayName=I am a custom display name");
+
+			Assert.False(filters.Filter("asm1", NonClassTest));
+			Assert.False(filters.Filter("asm1", NonMethodTest));
+			Assert.False(filters.Filter("asm1", InnerClassOne_NameOne));
+			Assert.False(filters.Filter("asm1", InnerClassOne_NameTwo));
+			Assert.False(filters.Filter("asm1", InnerClassOne_NameThree));
+			Assert.True(filters.Filter("asm1", InnerClassTwo_NameThree));
+		}
+
+		[Fact]
+		public static void Traits()
+		{
+			var filters = new XunitFilters();
+			filters.SetVSTestFilter("foo=bar");
+
+			Assert.True(filters.Filter("asm1", MethodWithFooBarTrait));
+			Assert.False(filters.Filter("asm1", MethodWithBazBiffTrait));
 		}
 	}
 }

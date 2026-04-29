@@ -21,6 +21,9 @@ public enum CommandLineGroup
 	FilterQuery,
 
 	/// <summary/>
+	FilterVSTest,
+
+	/// <summary/>
 	ArgumentDisplay,
 
 	/// <summary/>

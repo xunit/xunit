@@ -1,3 +1,4 @@
+using Microsoft.VisualStudio.TestPlatform.Common.Filtering;
 using Xunit.Sdk;
 
 namespace Xunit.Runner.Common;
@@ -10,6 +11,7 @@ public class XunitFilters : ITestCaseFilter
 {
 	readonly XunitQueryFilters queryFilters = new();
 	readonly XunitSimpleFilters simpleFilters = new();
+	string? vstestFilter;
 
 	/// <summary>
 	/// Gets a flag indicating whether there are any active filters.
@@ -28,6 +30,7 @@ public class XunitFilters : ITestCaseFilter
 	public void AddExcludedClassFilter(string query)
 	{
 		GuardEmptyQueryFilters();
+		GuardEmptyVSTestFilter();
 		simpleFilters.AddExcludedClassFilter(query);
 	}
 
@@ -43,6 +46,7 @@ public class XunitFilters : ITestCaseFilter
 	public void AddExcludedMethodFilter(string query)
 	{
 		GuardEmptyQueryFilters();
+		GuardEmptyVSTestFilter();
 		simpleFilters.AddExcludedMethodFilter(query);
 	}
 
@@ -57,6 +61,7 @@ public class XunitFilters : ITestCaseFilter
 	public void AddExcludedNamespaceFilter(string query)
 	{
 		GuardEmptyQueryFilters();
+		GuardEmptyVSTestFilter();
 		simpleFilters.AddExcludedNamespaceFilter(query);
 	}
 
@@ -74,6 +79,7 @@ public class XunitFilters : ITestCaseFilter
 		string value)
 	{
 		GuardEmptyQueryFilters();
+		GuardEmptyVSTestFilter();
 		simpleFilters.AddExcludedTraitFilter(name, value);
 	}
 
@@ -87,6 +93,7 @@ public class XunitFilters : ITestCaseFilter
 	public void AddIncludedClassFilter(string query)
 	{
 		GuardEmptyQueryFilters();
+		GuardEmptyVSTestFilter();
 		simpleFilters.AddIncludedClassFilter(query);
 	}
 
@@ -102,6 +109,7 @@ public class XunitFilters : ITestCaseFilter
 	public void AddIncludedMethodFilter(string query)
 	{
 		GuardEmptyQueryFilters();
+		GuardEmptyVSTestFilter();
 		simpleFilters.AddIncludedMethodFilter(query);
 	}
 
@@ -116,6 +124,7 @@ public class XunitFilters : ITestCaseFilter
 	public void AddIncludedNamespaceFilter(string query)
 	{
 		GuardEmptyQueryFilters();
+		GuardEmptyVSTestFilter();
 		simpleFilters.AddIncludedNamespaceFilter(query);
 	}
 
@@ -133,6 +142,7 @@ public class XunitFilters : ITestCaseFilter
 		string value)
 	{
 		GuardEmptyQueryFilters();
+		GuardEmptyVSTestFilter();
 		simpleFilters.AddIncludedTraitFilter(name, value);
 	}
 
@@ -145,27 +155,71 @@ public class XunitFilters : ITestCaseFilter
 	public void AddQueryFilter(string query)
 	{
 		GuardEmptySimpleFilters();
+		GuardEmptyVSTestFilter();
 		queryFilters.AddQueryFilter(query);
+	}
+
+	/// <summary>
+	/// Adds as VSTest filter
+	/// </summary>
+	public void SetVSTestFilter(string vstestFilter)
+	{
+		GuardEmptyQueryFilters();
+		GuardEmptySimpleFilters();
+		GuardEmptyVSTestFilter("VSTest filter can only be set a single time");
+		this.vstestFilter = vstestFilter;
 	}
 
 	/// <inheritdoc/>
 	public bool Filter(
 		string assemblyName,
-		ITestCaseMetadata testCase) =>
-			!queryFilters.Empty
-				? queryFilters.Filter(assemblyName, testCase)
-				: simpleFilters.Empty || simpleFilters.Filter(assemblyName, testCase);
+		ITestCaseMetadata testCase)
+	{
+		if (!queryFilters.Empty)
+			return queryFilters.Filter(assemblyName, testCase);
+
+		if (!simpleFilters.Empty)
+			return simpleFilters.Filter(assemblyName, testCase);
+
+		if (vstestFilter is null)
+			return true;
+
+		var filterExpression = new TestCaseFilterExpression(new FilterExpressionWrapper(vstestFilter));
+		return filterExpression.MatchTestCase(propertyName =>
+		{
+			if (string.Equals(propertyName, "FullyQualifiedName", StringComparison.OrdinalIgnoreCase))
+			{
+				if (testCase.TestClassName is null || testCase.TestMethodName is null)
+					return null;
+
+				return $"{testCase.TestClassName}.{testCase.TestMethodName}";
+			}
+			else if (string.Equals(propertyName, "DisplayName", StringComparison.OrdinalIgnoreCase))
+				return testCase.TestCaseDisplayName;
+
+			_ = testCase.Traits.TryGetValue(propertyName, out var values);
+			return values?.ToArray();
+		});
+	}
 
 	void GuardEmptyQueryFilters()
 	{
 		if (!queryFilters.Empty)
-			throw new ArgumentException("Cannot add simple filter; query filters already exist", "query");
+			throw new ArgumentException("Cannot add simple filter or VSTest filter; query filters already exist", "query");
 	}
 
 	void GuardEmptySimpleFilters()
 	{
 		if (!simpleFilters.Empty)
-			throw new ArgumentException("Cannot add query filter; simple filters already exist", "query");
+			throw new ArgumentException("Cannot add query filter or VSTest filter; simple filters already exist", "query");
+	}
+
+	void GuardEmptyVSTestFilter(string? message = null)
+	{
+		if (vstestFilter is not null)
+#pragma warning disable CA2208
+			throw new ArgumentException(message ?? "Cannot add simple filter or query filter; VSTest filter already exists", "query");
+#pragma warning restore CA2208
 	}
 
 	/// <summary>
@@ -177,5 +231,7 @@ public class XunitFilters : ITestCaseFilter
 			? simpleFilters.ToXunit3Arguments()
 			: !queryFilters.Empty
 				? queryFilters.ToXunit3Arguments()
-				: [];
+				: vstestFilter is not null
+					? ["-filterVSTest", vstestFilter]
+					: [];
 }

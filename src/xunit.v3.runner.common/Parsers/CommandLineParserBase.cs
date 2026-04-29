@@ -891,11 +891,16 @@ public abstract class CommandLineParserBase
 	public void PrintUsage()
 	{
 		var isInProcessRunner = GetType().Namespace == "Xunit.Runner.InProc.SystemConsole";
+		var mixedFilterWarning =
+			parsers.Any(p => p.Value.Group == CommandLineGroup.FilterVSTest)
+				? "  Note: You cannot mix simple filtering, query filtering, or VSTest filtering."
+				: "  Note: You cannot mix simple filtering and query filtering.";
 
 		PrintUsageGroup(CommandLineGroup.General, "General options");
 		PrintUsageGroup(CommandLineGroup.NetFramework, "Options for .NET Framework projects (v1 or v2 only)");
-		PrintUsageGroup(CommandLineGroup.FilterQuery, "Query filtering (optional, choose one or more)", "If more than one query filter is specified, the filters act as an OR operation", "  Note: You cannot mix simple filtering and query filtering.");
-		PrintUsageGroup(CommandLineGroup.FilterSimple, "Simple filtering (optional, choose one or more)", "If more than one simple filter type is specified, cross-filter type filters act as an AND operation", "  Note: You cannot mix simple filtering and query filtering.");
+		PrintUsageGroup(CommandLineGroup.FilterQuery, "Query filtering (optional, choose one or more)", "If more than one query filter is specified, the filters act as an OR operation", mixedFilterWarning);
+		PrintUsageGroup(CommandLineGroup.FilterSimple, "Simple filtering (optional, choose one or more)", "If more than one simple filter type is specified, cross-filter type filters act as an AND operation", mixedFilterWarning);
+		PrintUsageGroup(CommandLineGroup.FilterVSTest, "VStest filtering (optional)", "You may only specify a single VSTest filter", mixedFilterWarning);
 		PrintUsageGroup(CommandLineGroup.ArgumentDisplay, "Argument display overrides" + (isInProcessRunner ? string.Empty : " (v3 1.1.0+ only)"));
 
 		if (RunnerReporters.Count > 0)

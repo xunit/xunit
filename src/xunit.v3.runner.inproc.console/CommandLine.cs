@@ -46,6 +46,14 @@ public class CommandLine : CommandLineParserBase
 #endif
 		AddParser("wait", OnWait, CommandLineGroup.General, null, "wait for input after completion (ignored with -automated)");
 		AddParser("waitForDebugger", OnWaitForDebugger, CommandLineGroup.General, null, "pauses execution until a debugger has been attached");
+
+		// VSTest filtering
+		AddParser(
+			"filterVSTest", OnFilterVSTest, CommandLineGroup.FilterVSTest, "\"query\"",
+			"use a VSTest filter to select tests",
+			"for more information about the filter syntax, see",
+			"https://learn.microsoft.com/dotnet/core/testing/selective-unit-tests?pivots=xunit"
+		);
 	}
 
 	/// <summary/>
@@ -127,6 +135,15 @@ public class CommandLine : CommandLineParserBase
 				"SYNC" => true,
 				_ => throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "invalid automated option '{0}'", option.Value)),
 			};
+	}
+
+	void OnFilterVSTest(KeyValuePair<string, string?> option)
+	{
+		if (option.Value is null)
+			throw new ArgumentException("missing argument for -filterVSTest");
+
+		foreach (var projectAssembly in Project.Assemblies)
+			projectAssembly.Configuration.Filters.SetVSTestFilter(option.Value);
 	}
 
 	void OnID(KeyValuePair<string, string?> option)

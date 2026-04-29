@@ -129,13 +129,21 @@ public sealed class CommandLineOptionsProvider() :
 			    traits  - list the set of trait name/value pairs used in the test assembly
 			""", ArgumentArity.ExactlyOne, OnList) },
 
+		// VSTest filtering
+		{ "filter", ("""
+			Filter using the VSTest filter syntax. For VSTest filter syntax information, see
+			https://learn.microsoft.com/dotnet/core/testing/selective-unit-tests?pivots=xunit
+			    Note: You may only specify a single VSTest filter.
+			          This is categorized as a VSTest filter. You cannot combine query filters, simple filters, or VSTest filters.
+			""", ArgumentArity.ExactlyOne, OnVSTestFilter) },
+
 		// Query filtering
 		{ "filter-query", ("""
 			Filter based on the filter query language. Pass one or more filter queries (in the
 			'/assemblyName/namespace/type/method[trait=value]' format. For more information, see
 			https://xunit.net/docs/query-filter-language
 			    Note: Specifying more than one is an OR operation.
-			          This is categorized as a query filter. You cannot use both query filters and simple filters.
+			          This is categorized as a query filter. You cannot combine query filters, simple filters, or VSTest filters.
 			""", ArgumentArity.OneOrMore, OnFilterQuery) },
 
 		// Simple filtering
@@ -144,56 +152,56 @@ public sealed class CommandLineOptionsProvider() :
 			'MyNamespace.MyClass' or 'MyNamespace.MyClass+InnerClass'). Wildcard '*' is supported at
 			the beginning and/or end of each filter.
 			    Note: Specifying more than one is an OR operation.
-			          This is categorized as a simple filter. You cannot use both simple filters and query filters.
+			          This is categorized as a simple filter. You cannot combine query filters, simple filters, or VSTest filters.
 			""", ArgumentArity.OneOrMore, options => OnFilter(options.Arguments, options.AssemblyConfig.Filters.AddIncludedClassFilter)) },
 		{ "filter-not-class", ("""
 			Do not run any methods in the given test class. Pass one or more fully qualified type names
 			(i.e., 'MyNamespace.MyClass', or 'MyNamespace.MyClass+InnerClass'). Wildcard '*' is supported at
 			the beginning and/or end of each filter.
 			    Note: Specifying more than one is an AND operation.
-			          This is categorized as a simple filter. You cannot use both simple filters and query filters.
+			          This is categorized as a simple filter. You cannot combine query filters, simple filters, or VSTest filters.
 			""", ArgumentArity.OneOrMore, options => OnFilter(options.Arguments, options.AssemblyConfig.Filters.AddExcludedClassFilter)) },
 		{ "filter-method", ("""
 			Run a given test method. Pass one or more fully qualified method names (i.e.,
 			'MyNamespace.MyClass.MyTestMethod'). Wildcard '*' is supported at the beginning and/or end
 			of each filter.
 			    Note: Specifying more than one is an OR operation.
-			          This is categorized as a simple filter. You cannot use both simple filters and query filters.
+			          This is categorized as a simple filter. You cannot combine query filters, simple filters, or VSTest filters.
 			""", ArgumentArity.OneOrMore, options => OnFilter(options.Arguments, options.AssemblyConfig.Filters.AddIncludedMethodFilter)) },
 		{ "filter-not-method", ("""
 			Do not run a given test method. Pass one or more fully qualified method names (i.e.,
 			'MyNamespace.MyClass.MyTestMethod'). Wildcard '*' is supported at the beginning and/or end
 			of each filter.
 			    Note: Specifying more than one is an AND operation.
-			          This is categorized as a simple filter. You cannot use both simple filters and query filters.
+			          This is categorized as a simple filter. You cannot combine query filters, simple filters, or VSTest filters.
 			""", ArgumentArity.OneOrMore, options => OnFilter(options.Arguments, options.AssemblyConfig.Filters.AddExcludedMethodFilter)) },
 		{ "filter-namespace", ("""
 			Run all methods in the given namespace. Pass one or more namespaces (i.e., 'MyNamespace' or
 			'MyNamespace.MySubNamespace'). Wildcard '*' is supported at the beginning and/or end of
 			each filter.
 			    Note: Specifying more than one is an OR operation.
-			          This is categorized as a simple filter. You cannot use both simple filters and query filters.
+			          This is categorized as a simple filter. You cannot combine query filters, simple filters, or VSTest filters.
 			""", ArgumentArity.OneOrMore, options => OnFilter(options.Arguments, options.AssemblyConfig.Filters.AddIncludedNamespaceFilter)) },
 		{ "filter-not-namespace", ("""
 			Do not run any methods in the given namespace. Pass one or more namespaces (i.e., 'MyNamespace'
 			or 'MyNamespace.MySubNamespace'). Wildcard '*' is supported at the beginning and/or end of
 			each filter.
 			    Note: Specifying more than one is an AND operation.
-			          This is categorized as a simple filter. You cannot use both simple filters and query filters.
+			          This is categorized as a simple filter. You cannot combine query filters, simple filters, or VSTest filters.
 			""", ArgumentArity.OneOrMore, options => OnFilter(options.Arguments, options.AssemblyConfig.Filters.AddExcludedNamespaceFilter)) },
 		{ "filter-trait", ("""
 			Run all methods with a given trait value. Pass one or more name/value pairs (i.e.,
 			'name=value'). Wildcard '*' is supported at the beginning and/or end of the trait name
 			and/or value.
 			    Note: Specifying more than one is an OR operation.
-			          This is categorized as a simple filter. You cannot use both simple filters and query filters.
+			          This is categorized as a simple filter. You cannot combine query filters, simple filters, or VSTest filters.
 			""", ArgumentArity.OneOrMore, options => OnFilterTrait(options.Arguments, options.AssemblyConfig.Filters.AddIncludedTraitFilter)) },
 		{ "filter-not-trait", ("""
 			Do not run any methods with a given trait value. Pass one or more name/value pairs (i.e.,
 			'name=value'). Wildcard '*' is supported at the beginning and/or end of the trait name
 			and/or value.
 			    Note: Specifying more than one is an AND operation.
-			          This is categorized as a simple filter. You cannot use both simple filters and query filters.
+			          This is categorized as a simple filter. You cannot combine query filters, simple filters, or VSTest filters.
 			""", ArgumentArity.OneOrMore, options => OnFilterTrait(options.Arguments, options.AssemblyConfig.Filters.AddExcludedTraitFilter)) },
 
 		// Argument display options
@@ -447,6 +455,9 @@ public sealed class CommandLineOptionsProvider() :
 
 	static void OnStopOnFail(ParseOptions options) =>
 		options.AssemblyConfig.StopOnFail = ParseOnOff(options.Arguments[0]);
+
+	static void OnVSTestFilter(ParseOptions options) =>
+		options.AssemblyConfig.Filters.SetVSTestFilter(options.Arguments[0]);
 
 	/// <summary>
 	/// Parse the command line options, placing them into the project and project assembly configuration.
