@@ -2392,6 +2392,48 @@ public static class CollectionAssertsTests
 		}
 	}
 
+	public static class Overrides
+	{
+		[Fact]
+		public static void OverrideMaxEnumerableLength_Default()
+		{
+			var expected = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+			var actual = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 11 };
+
+			var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+			Assert.IsType<EqualException>(ex);
+			Assert.Equal(
+				"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
+				"                            ↓ (pos 9)" + Environment.NewLine +
+				$"Expected: [{ArgumentFormatter.Ellipsis}, 6, 7, 8, 9, 10]" + Environment.NewLine +
+				$"Actual:   [{ArgumentFormatter.Ellipsis}, 6, 7, 8, 9, 11]" + Environment.NewLine +
+				"                            ↑ (pos 9)",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public static void OverrideMaxEnumerableLength_Override()
+		{
+			var expected = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+			var actual = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 11 };
+			Assert.OverrideMaxEnumerableLength(3);
+
+			var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+			Assert.IsType<EqualException>(ex);
+			Assert.Equal(
+				"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
+				"                      ↓ (pos 9)" + Environment.NewLine +
+				$"Expected: [{ArgumentFormatter.Ellipsis}, 8, 9, 10]" + Environment.NewLine +
+				$"Actual:   [{ArgumentFormatter.Ellipsis}, 8, 9, 11]" + Environment.NewLine +
+				"                      ↑ (pos 9)",
+				ex.Message
+			);
+		}
+	}
+
 	public static class Single_NonGeneric
 	{
 		[Fact]

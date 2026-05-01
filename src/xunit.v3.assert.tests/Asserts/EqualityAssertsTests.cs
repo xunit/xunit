@@ -4589,6 +4589,83 @@ public static class EqualityAssertsTests
 		}
 	}
 
+#if !XUNIT_AOT  // Object contents aren't printed in Native AOT
+
+	public static class Overrides
+	{
+		[Fact]
+		public static void OverrideMaxObjectDepth_Default()
+		{
+			var expected = new RecursiveObject();
+			var actual = new object();
+
+			var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+			Assert.IsType<EqualException>(ex);
+			Assert.Equal(
+				"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+				$"Expected: RecursiveObject {{ Self = RecursiveObject {{ Self = RecursiveObject {{ {ArgumentFormatter.Ellipsis} }} }} }}" + Environment.NewLine +
+				"Actual:   Object { }",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public static void OverrideMaxObjectDepth_Override()
+		{
+			var expected = new RecursiveObject();
+			var actual = new object();
+			Assert.OverrideMaxObjectDepth(1);
+
+			var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+			Assert.IsType<EqualException>(ex);
+			Assert.Equal(
+				"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+				$"Expected: RecursiveObject {{ Self = RecursiveObject {{ {ArgumentFormatter.Ellipsis} }} }}" + Environment.NewLine +
+				"Actual:   Object { }",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public static void OverrideMaxObjectMemberCount_Default()
+		{
+			var expected = new MultiPropertyObject();
+			var actual = new object();
+
+			var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+			Assert.IsType<EqualException>(ex);
+			Assert.Equal(
+				"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+				"Expected: MultiPropertyObject { DecimalValue = 21.12, IntValue = 42, StringValue = \"Hello, world\" }" + Environment.NewLine +
+				"Actual:   Object { }",
+				ex.Message
+			);
+		}
+
+		[Fact]
+		public static void OverrideMaxObjectMemberCount_Override()
+		{
+			var expected = new MultiPropertyObject();
+			var actual = new object();
+			Assert.OverrideMaxObjectMemberCount(1);
+
+			var ex = Record.Exception(() => Assert.Equal(expected, actual));
+
+			Assert.IsType<EqualException>(ex);
+			Assert.Equal(
+				"Assert.Equal() Failure: Values differ" + Environment.NewLine +
+				$"Expected: MultiPropertyObject {{ DecimalValue = 21.12, {ArgumentFormatter.Ellipsis} }}" + Environment.NewLine +
+				"Actual:   Object { }",
+				ex.Message
+			);
+		}
+	}
+
+#endif  // !XUNIT_AOT
+
 	public static class StrictEqual
 	{
 		[Fact]
@@ -4887,4 +4964,20 @@ public static class EqualityAssertsTests
 
 		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 	}
+
+#pragma warning disable CA1822
+
+	class MultiPropertyObject
+	{
+		public decimal DecimalValue => 21.12m;
+		public int IntValue => 42;
+		public string StringValue => "Hello, world";
+	}
+
+	class RecursiveObject
+	{
+		public RecursiveObject Self => this;
+	}
+
+#pragma warning restore CA1822
 }
