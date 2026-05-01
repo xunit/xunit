@@ -20,6 +20,17 @@ public partial class FixtureMappingManager(
 {
 	readonly string fixtureCategory = fixtureCategory;
 	readonly HashSet<Type> knownTypes = [];
+	readonly ITypeActivator? typeActivator;
+
+	/// <summary>
+	/// This constructor is for testing purposes only. Do not use in production code.
+	/// </summary>
+	protected FixtureMappingManager(
+		ITypeActivator typeActivator,
+		string fixtureCategory,
+		FixtureMappingManager? parentMappingManager = null) :
+			this(fixtureCategory, parentMappingManager) =>
+				this.typeActivator = typeActivator;
 
 	/// <summary>
 	/// Returns a list of all known fixture types at all category levels.
@@ -36,6 +47,11 @@ public partial class FixtureMappingManager(
 	/// types known from parent categories and above.
 	/// </summary>
 	public IReadOnlyCollection<Type> LocalFixtureTypes => knownTypes;
+
+	/// <summary>
+	/// Gets the type activator to use for creating fixture instances.
+	/// </summary>
+	protected ITypeActivator TypeActivator => typeActivator ?? v3.TypeActivator.Current;
 
 	/// <summary>
 	/// Initializes the known fixture types, always creating instances.
@@ -125,29 +141,33 @@ public partial class FixtureMappingManager(
 		// Make sure we can accommodate all the constructor arguments from either known types or the parent
 		var ctor = ctors[0];
 		var parameters = ctor.GetParameters();
-		var ctorArgs = new object[parameters.Length];
+		var ctorArgs = new object?[parameters.Length];
 		var ctorIdx = 0;
-		var missingParameters = new List<ParameterInfo>();
 
 		foreach (var parameter in parameters)
 		{
-			object? arg = null;
+			object? arg = Missing.Value;
 			if (parameter.ParameterType == typeof(IMessageSink))
 				arg = TestContext.CurrentInternal.DiagnosticMessageSink ?? NullMessageSink.Instance;
 			else if (parameter.ParameterType == typeof(ITestContextAccessor))
 				arg = TestContextAccessor.Instance;
 			else if (parentMappingManager is not null)
-				arg = await parentMappingManager.GetFixture(parameter.ParameterType);
+			{
+				var parentValue = await parentMappingManager.TryGetFixture(parameter.ParameterType, forceCreation);
+				if (parentValue.Success)
+					arg = parentValue.Result;
+			}
 
-			if (arg is null)
-				missingParameters.Add(parameter);
-			else
-				ctorArgs[ctorIdx++] = arg;
+			ctorArgs[ctorIdx++] = arg;
 		}
 
-		if (missingParameters.Count > 0)
-			throw new TestPipelineException(
-				string.Format(
+		// Create the object
+		try
+		{
+			result = TypeActivator.CreateInstance(
+				ctor,
+				ctorArgs,
+				(_, missingParameters) => string.Format(
 					CultureInfo.CurrentCulture,
 					"{0} fixture type '{1}' had one or more unresolved constructor arguments: {2}",
 					fixtureCategory,
@@ -155,12 +175,11 @@ public partial class FixtureMappingManager(
 					string.Join(", ", missingParameters.Select(p => string.Format(CultureInfo.CurrentCulture, "{0} {1}", p.ParameterType.Name, p.Name)))
 				)
 			);
-
-		// Create the object
-		try
-		{
-			result = ctor.Invoke(ctorArgs);
 			fixtureCache[fixtureType] = result;
+		}
+		catch (TestPipelineException)
+		{
+			throw;  // Assume anything that's a TestPipelineException should be reported as-is
 		}
 		catch (Exception ex)
 		{
