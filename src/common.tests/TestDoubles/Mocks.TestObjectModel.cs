@@ -1,3 +1,5 @@
+#pragma warning disable xUnit3007 // Mock test cases do not need to support serialization
+
 using System.Reflection;
 using Xunit.Sdk;
 using Xunit.v3;

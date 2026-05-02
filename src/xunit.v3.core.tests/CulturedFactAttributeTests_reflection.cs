@@ -16,7 +16,9 @@ partial class CulturedFactAttributeTests
 
 	class TestClassWithNoCultures
 	{
+#pragma warning disable xUnit1060 // Cultured test methods must have at least one culture
 		[CulturedFact([])]
+#pragma warning restore xUnit1060 // Cultured test methods must have at least one culture
 		public void TestMethod() { }
 	}
 }
