@@ -23,9 +23,9 @@ public class RunnerCommonGeneratorTest<TGenerator>
 				?? throw new InvalidOperationException($"Could not find xunit.slnx anywhere along the path chain of '{AppContext.BaseDirectory}'");
 
 		references = new MetadataReference[] {
-			MetadataReference.CreateFromFile(Path.Combine(solutionFolder, "src", "xunit.v3.runner.common.aot", "bin", configuration, "net8.0", "xunit.v3.common.aot.dll")),
-			MetadataReference.CreateFromFile(Path.Combine(solutionFolder, "src", "xunit.v3.runner.common.aot", "bin", configuration, "net8.0", "xunit.v3.runner.common.aot.dll")),
-		}.Concat(Basic.Reference.Assemblies.Net80.References.All).ToImmutableArray();
+			MetadataReference.CreateFromFile(Path.Combine(solutionFolder, "src", "xunit.v3.runner.common.aot", "bin", configuration, "net9.0", "xunit.v3.common.aot.dll")),
+			MetadataReference.CreateFromFile(Path.Combine(solutionFolder, "src", "xunit.v3.runner.common.aot", "bin", configuration, "net9.0", "xunit.v3.runner.common.aot.dll")),
+		}.Concat(Basic.Reference.Assemblies.Net90.References.All).ToImmutableArray();
 	}
 
 	protected static GeneratorRunResult Generate(string source)

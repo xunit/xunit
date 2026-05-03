@@ -5,7 +5,7 @@
     <DefineConstants>$(DefineConstants);MTP_V2</DefineConstants>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);NU5100</NoWarn>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>

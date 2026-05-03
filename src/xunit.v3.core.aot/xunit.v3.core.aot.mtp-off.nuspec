@@ -11,11 +11,11 @@
 		<icon>_content/logo-128-transparent.png</icon>
 		<readme>_content/README.md</readme>
 		<releaseNotes>https://xunit.net/releases/v3/$PackageVersion$</releaseNotes>
-		<description>Includes the core library (xunit.v3.core.aot.dll), to be used for writing tests; extensibility authors should include xunit.v3.extensibility.core.aot instead. Does not support Microsoft.Testing.Platform. Supports .NET 8 or later.</description>
+		<description>Includes the core library (xunit.v3.core.aot.dll), to be used for writing tests; extensibility authors should include xunit.v3.extensibility.core.aot instead. Does not support Microsoft.Testing.Platform. Supports .NET 9 or later.</description>
 		<copyright>Copyright (C) .NET Foundation</copyright>
 		<repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
 		<dependencies>
-			<group targetFramework="net8.0">
+			<group targetFramework="net9.0">
 				<dependency id="xunit.v3.extensibility.core.aot" version="[$PackageVersion$]" />
 				<dependency id="xunit.v3.runner.inproc.console.aot" version="[$PackageVersion$]" />
 			</group>
@@ -33,6 +33,6 @@
 		<file target="buildTransitive\xunit.v3.core.aot.mtp-off.props" src="..\xunit.v3.core\Package\buildTransitive\xunit.v3.core.mtp-off.props" />
 		<file target="buildTransitive\xunit.v3.core.aot.mtp-off.targets" src="..\xunit.v3.core\Package\buildTransitive\xunit.v3.core.mtp-off.targets" />
 
-		<file target="lib\net8.0\_._" src="..\build\_._" />
+		<file target="lib\net9.0\_._" src="..\build\_._" />
 	</files>
 </package>

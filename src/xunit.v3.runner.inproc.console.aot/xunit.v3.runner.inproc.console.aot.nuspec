@@ -11,11 +11,11 @@
 		<icon>_content/logo-128-transparent.png</icon>
 		<readme>_content/README.md</readme>
 		<releaseNotes>https://xunit.net/releases/v3/$PackageVersion$</releaseNotes>
-		<description>In-process console runner for xUnit.net framework, providing the entrypoint for self-executing unit tests. Supports .NET 8 or later.</description>
+		<description>In-process console runner for xUnit.net framework, providing the entrypoint for self-executing unit tests. Supports .NET 9 or later.</description>
 		<copyright>Copyright (C) .NET Foundation</copyright>
 		<repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
 		<dependencies>
-			<group targetFramework="net8.0">
+			<group targetFramework="net9.0">
 				<dependency id="xunit.v3.extensibility.core.aot" version="[$PackageVersion$]" />
 				<dependency id="xunit.v3.runner.common.aot" version="[$PackageVersion$]" />
 			</group>
@@ -26,7 +26,7 @@
 		<file target="_content\" src="..\..\tools\media\logo-128-transparent.png" />
 		<file target="_content\README.md" src="obj\xunit.v3.runner.inproc.console.aot.README.md" />
 
-		<file target="lib\net8.0\" src="bin\$Configuration$\net8.0\$SignedPath$xunit.v3.runner.inproc.console.aot.dll" />
-		<file target="lib\net8.0\" src="bin\$Configuration$\net8.0\xunit.v3.runner.inproc.console.aot.xml" />
+		<file target="lib\net9.0\" src="bin\$Configuration$\net9.0\$SignedPath$xunit.v3.runner.inproc.console.aot.dll" />
+		<file target="lib\net9.0\" src="bin\$Configuration$\net9.0\xunit.v3.runner.inproc.console.aot.xml" />
 	</files>
 </package>

@@ -14,7 +14,7 @@
 		<copyright>Copyright (C) .NET Foundation</copyright>
 		<repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
 		<dependencies>
-			<group targetFramework="net8.0">
+			<group targetFramework="net9.0">
 				<dependency id="xunit.v3.common.aot" version="[$PackageVersion$]" />
 			</group>
 		</dependencies>
@@ -28,7 +28,7 @@
 
 		<file target="buildTransitive\" src="Package\buildTransitive\*" />
 
-		<file target="lib\net8.0\" src="bin\$Configuration$\net8.0\$SignedPath$xunit.v3.runner.common.aot.dll" />
-		<file target="lib\net8.0\" src="bin\$Configuration$\net8.0\xunit.v3.runner.common.aot.xml" />
+		<file target="lib\net9.0\" src="bin\$Configuration$\net9.0\$SignedPath$xunit.v3.runner.common.aot.dll" />
+		<file target="lib\net9.0\" src="bin\$Configuration$\net9.0\xunit.v3.runner.common.aot.xml" />
 	</files>
 </package>

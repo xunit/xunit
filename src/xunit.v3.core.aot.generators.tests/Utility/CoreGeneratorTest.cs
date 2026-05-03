@@ -23,9 +23,9 @@ public class CoreGeneratorTest<TGenerator>
 				?? throw new InvalidOperationException($"Could not find xunit.slnx anywhere along the path chain of '{AppContext.BaseDirectory}'");
 
 		references = new MetadataReference[] {
-			MetadataReference.CreateFromFile(Path.Combine(solutionFolder, "src", "xunit.v3.core.aot", "bin", configuration, "net8.0", "xunit.v3.common.aot.dll")),
-			MetadataReference.CreateFromFile(Path.Combine(solutionFolder, "src", "xunit.v3.core.aot", "bin", configuration, "net8.0", "xunit.v3.core.aot.dll")),
-		}.Concat(Basic.Reference.Assemblies.Net80.References.All).ToImmutableArray();
+			MetadataReference.CreateFromFile(Path.Combine(solutionFolder, "src", "xunit.v3.core.aot", "bin", configuration, "net9.0", "xunit.v3.common.aot.dll")),
+			MetadataReference.CreateFromFile(Path.Combine(solutionFolder, "src", "xunit.v3.core.aot", "bin", configuration, "net9.0", "xunit.v3.core.aot.dll")),
+		}.Concat(Basic.Reference.Assemblies.Net90.References.All).ToImmutableArray();
 	}
 
 	static GeneratorRunResult Generate(string[] sources)

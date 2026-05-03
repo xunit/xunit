@@ -10,11 +10,11 @@
 		<icon>_content/logo-128-transparent.png</icon>
 		<readme>_content/README.md</readme>
 		<releaseNotes>https://xunit.net/releases/v3/$PackageVersion$</releaseNotes>
-		<description>Includes common code shared between xunit.v3.core.aot and xunit.v3.runner.common.aot (xunit.v3.common.aot.dll). Supports .NET 8 or later.</description>
+		<description>Includes common code shared between xunit.v3.core.aot and xunit.v3.runner.common.aot (xunit.v3.common.aot.dll). Supports .NET 9 or later.</description>
 		<copyright>Copyright (C) .NET Foundation</copyright>
 		<repository type="git" url="https://github.com/xunit/xunit" commit="$GitCommitId$" />
 		<dependencies>
-			<group targetFramework="net8.0" />
+			<group targetFramework="net9.0" />
 		</dependencies>
 	</metadata>
 	<!-- Remember to update tools\builder\targets\SignAssemblies.cs when assemblies are added or removed -->
@@ -22,7 +22,7 @@
 		<file target="_content\" src="..\..\tools\media\logo-128-transparent.png" />
 		<file target="_content\README.md" src="obj\xunit.v3.common.aot.README.md" />
 
-		<file target="lib\net8.0\" src="bin\$Configuration$\net8.0\$SignedPath$xunit.v3.common.aot.dll" />
-		<file target="lib\net8.0\" src="bin\$Configuration$\net8.0\xunit.v3.common.aot.xml" />
+		<file target="lib\net9.0\" src="bin\$Configuration$\net9.0\$SignedPath$xunit.v3.common.aot.dll" />
+		<file target="lib\net9.0\" src="bin\$Configuration$\net9.0\xunit.v3.common.aot.xml" />
 	</files>
 </package>
