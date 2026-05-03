@@ -70,6 +70,8 @@ public static class ArgumentFormatterTests
 		[InlineData("\f", @"""\f""")] // formfeed
 		[InlineData("----|----1----|----2----|----3----|----4----|----5-", "\"----|----1----|----2----|----3----|----4----|----5\"$$ELLIPSIS$$")] // truncation
 		[MemberData(nameof(StringValue_TestData), DisableDiscoveryEnumeration = true)]
+		// https://github.com/xunit/xunit/issues/3568
+		[InlineData("a😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀", "\"a😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀\\xd83d\"$$ELLIPSIS$$")]
 		public static void StringValue(string value, string expected)
 		{
 			Assert.Equal(expected.Replace("$$ELLIPSIS$$", ArgumentFormatter.Ellipsis), ArgumentFormatter.Format(value));

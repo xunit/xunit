@@ -960,8 +960,8 @@ public static class EqualityAssertsTests
 #if XUNIT_AOT
 						"Assert.Equal() Failure: Collections differ" + Environment.NewLine +
 						"                                      ↓ (pos 0)" + Environment.NewLine +
-						"Expected: string[]                   [\"C:\\\\Program Files (x86)\\\\Common Files\\\\Extremely L\"···]" + Environment.NewLine +
-						"Actual:   ReadOnlyCollection<string> [\"C:\\\\Program Files (x86)\\\\Common Files\\\\Extremely L\"···]" + Environment.NewLine +
+						"Expected: string[]                   [\"C:\\\\Program Files (x86)\\\\Common Files\\\\Extremely Long\"···]" + Environment.NewLine +
+						"Actual:   ReadOnlyCollection<string> [\"C:\\\\Program Files (x86)\\\\Common Files\\\\Extremely Long\"···]" + Environment.NewLine +
 						"                                      ↑ (pos 0)",
 #else
 						"Assert.Equal() Failure: Collections differ at index 0" + Environment.NewLine +
