@@ -6,7 +6,7 @@ namespace Xunit.Sdk;
 partial class TypeHelper
 {
 	/// <summary>
-	/// Please use <see cref="TryConvert{T}"/> or <see cref="TryConvertNullable{T}"/> in Native AOT
+	/// Please use <see cref="TryConvert{T}"/> or <see cref="TryConvertNullable{T}(object?, out T?)"/> in Native AOT
 	/// </summary>
 	[Obsolete("Please use TryConvert<T> or TryConvertNullable<T> in Native AOT")]
 	[EditorBrowsable(EditorBrowsableState.Never)]
@@ -16,7 +16,7 @@ partial class TypeHelper
 			throw new PlatformNotSupportedException("Please use TryConvert<T> or TryConvertNullable<T> in Native AOT");
 
 	/// <summary>
-	/// Please use <see cref="TryConvert{T}"/> or <see cref="TryConvertNullable{T}"/> in Native AOT
+	/// Please use <see cref="TryConvert{T}"/> or <see cref="TryConvertNullable{T}(object?, out T?)"/> in Native AOT
 	/// </summary>
 	[Obsolete("Please use TryConvert<T> or TryConvertNullable<T> in Native AOT")]
 	[EditorBrowsable(EditorBrowsableState.Never)]

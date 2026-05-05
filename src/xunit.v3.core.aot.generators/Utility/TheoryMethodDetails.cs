@@ -73,9 +73,15 @@ public class TheoryMethodDetails : MethodDetailsBase
 			ParameterNames.Add(parameter.Name);
 			parameterNamesInCode.Add(parameterNameInCode);
 
-			var conversion = parameter.NullableAnnotation == NullableAnnotation.NotAnnotated ? "TryGet" : "TryGetNullable";
+			var conversion =
+				parameter.NullableAnnotation == NullableAnnotation.NotAnnotated
+					? "TryGet"
+					: parameter.Type.IsReferenceType
+						? "TryGetNullableClass"
+						: "TryGetNullableStruct";
+
 			invokerFactoryBuilder.Append($$"""
-						var {{parameterNameInCode}} = data.{{conversion}}<{{parameter.Type.ToCSharp()}}>({{idx}});
+						var {{parameterNameInCode}} = data.{{conversion}}<{{parameter.Type.StripNullable().ToCSharp()}}>({{idx}});
 						if (!{{parameterNameInCode}}.Success)
 
 				""");

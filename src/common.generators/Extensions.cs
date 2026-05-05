@@ -385,6 +385,14 @@ internal static class Extensions
 		return namedType.TypeArguments.Select(RecursiveGetOpenGenericTypeParameter).FirstOrDefault(a => a is not null);
 	}
 
+	public static ITypeSymbol StripNullable(this ITypeSymbol type)
+	{
+		if (type is INamedTypeSymbol namedType && namedType.IsGenericType && namedType.OriginalDefinition.ToCSharp(includeGlobal: false) == "System.Nullable<T>")
+			return namedType.TypeArguments[0];
+
+		return type.WithNullableAnnotation(NullableAnnotation.NotAnnotated);
+	}
+
 	public static string ToCompilerSafeName(this string value)
 	{
 		using var hasher = SHA256.Create();

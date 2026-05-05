@@ -1,3 +1,4 @@
+using System.Net;
 using Xunit;
 using Xunit.Sdk;
 
@@ -83,6 +84,35 @@ public static partial class TypeHelperTests
 
 	public static class TryConvertNullable
 	{
+		[Fact]
+		public static void SameClass()
+		{
+			var success = TypeHelper.TryConvertNullable<string>("Hello", out var result);
+
+			Assert.True(success);
+			Assert.Equal("Hello", result);
+		}
+
+		[Fact]
+		public static void ConvertsStringToIntegralTypes()
+		{
+			void validate<T>(
+				string value,
+				T expected)
+					where T : struct
+			{
+				var success = TypeHelper.TryConvertNullable<T>(value, out var result);
+
+				Assert.True(success);
+				Assert.Equal(expected, result);
+			}
+
+			validate("1", 1);
+			validate("1", 1L);
+			validate("1", 1U);
+			validate("1", 1UL);
+		}
+
 		[Theory]
 		[InlineData("{5B21E154-15EB-4B1E-BC30-127E8A41ECA1}")]
 		[InlineData("4EBCD32C-A2B8-4600-9E72-3873347E285C")]
@@ -126,6 +156,30 @@ public static partial class TypeHelperTests
 
 			Assert.True(success);
 			Assert.Equal(dateTimeOffset, result);
+		}
+
+		[Theory]
+		[InlineData(404, HttpStatusCode.NotFound)]
+		[InlineData(null, null)]
+		public static void ConvertsIntToEnum(
+			int? value,
+			HttpStatusCode? expected)
+		{
+			var success = TypeHelper.TryConvertNullable<HttpStatusCode>(value, out var result);
+
+			Assert.True(success);
+			Assert.Equal(expected, result);
+		}
+
+		[Theory]
+		[InlineData(42)]
+		[InlineData(null)]
+		public static void NullableValueType(int? value)
+		{
+			var success = TypeHelper.TryConvertNullable<int>(value, out var result);
+
+			Assert.True(success);
+			Assert.Equal(value, result);
 		}
 	}
 }

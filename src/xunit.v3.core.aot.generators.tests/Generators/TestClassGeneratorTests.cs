@@ -636,7 +636,7 @@ public class TestClassGeneratorTests : CoreGeneratorTest<TestClassGenerator>
 				public Task WithAttributeParams(int _1, string? _2 = null) => Task.CompletedTask;
 
 				[Theory(Skip = "maybe???", SkipUnless = nameof(OtherClass.AlwaysFalse), SkipType = typeof(OtherClass))]
-				public ValueTask WithSkipOnOtherType([System.Runtime.InteropServices.Optional] int _1, [System.Runtime.InteropServices.Optional] string? _2) => default;
+				public ValueTask WithSkipOnOtherType([System.Runtime.InteropServices.Optional] int _1, [System.Runtime.InteropServices.Optional] ushort? _2) => default;
 
 				// Failure cases
 
@@ -810,7 +810,7 @@ public class TestClassGeneratorTests : CoreGeneratorTest<TestClassGenerator>
 									var param0 = data.TryGet<int>(0);
 									if (!param0.Success)
 										invalidArguments.Add(("int", "_1", param0.RawValue));
-									var param1 = data.TryGetNullable<string?>(1);
+									var param1 = data.TryGetNullableClass<string>(1);
 									if (!param1.Success)
 										param1.Result = (string?)default(string?)!;
 									if (invalidArguments.Count != 0)
@@ -834,13 +834,13 @@ public class TestClassGeneratorTests : CoreGeneratorTest<TestClassGenerator>
 									var param0 = data.TryGet<int>(0);
 									if (!param0.Success)
 										param0.Result = (int)default(int)!;
-									var param1 = data.TryGetNullable<string?>(1);
+									var param1 = data.TryGetNullableStruct<ushort>(1);
 									if (!param1.Success)
-										param1.Result = (string?)default(string?)!;
+										param1.Result = (ushort?)default(ushort?)!;
 									await global::Xunit.Sdk.AsyncUtility.Await(((global::TestClass)obj!).WithSkipOnOtherType(param0.Result!, param1.Result!));
 								};
 							}
-							, ParameterNames = new string?[] { "_1", "_2" }, ParameterDefaultValues = new string?[] { "default(int)", "null" }, SkipReason = "maybe???", SkipUnless = () => global::TestClass.OtherClass.AlwaysFalse });
+							, ParameterNames = new string?[] { "_1", "_2" }, ParameterDefaultValues = new string?[] { "default(int)", "default(ushort?)" }, SkipReason = "maybe???", SkipUnless = () => global::TestClass.OtherClass.AlwaysFalse });
 						}
 					}
 				}
@@ -1053,7 +1053,7 @@ public class TestClassGeneratorTests : CoreGeneratorTest<TestClassGenerator>
 				public Task WithAttributeParams(int _1, string? _2 = null) => Task.CompletedTask;
 
 				[CulturedTheory(["en-US"], Skip = "maybe???", SkipUnless = nameof(OtherClass.AlwaysFalse), SkipType = typeof(OtherClass))]
-				public ValueTask WithSkipOnOtherType([System.Runtime.InteropServices.Optional] int _1, [System.Runtime.InteropServices.Optional] string? _2) => default;
+				public ValueTask WithSkipOnOtherType([System.Runtime.InteropServices.Optional] int _1, [System.Runtime.InteropServices.Optional] ushort? _2) => default;
 
 				// Failure cases
 
@@ -1227,7 +1227,7 @@ public class TestClassGeneratorTests : CoreGeneratorTest<TestClassGenerator>
 									var param0 = data.TryGet<int>(0);
 									if (!param0.Success)
 										invalidArguments.Add(("int", "_1", param0.RawValue));
-									var param1 = data.TryGetNullable<string?>(1);
+									var param1 = data.TryGetNullableClass<string>(1);
 									if (!param1.Success)
 										param1.Result = (string?)default(string?)!;
 									if (invalidArguments.Count != 0)
@@ -1251,13 +1251,13 @@ public class TestClassGeneratorTests : CoreGeneratorTest<TestClassGenerator>
 									var param0 = data.TryGet<int>(0);
 									if (!param0.Success)
 										param0.Result = (int)default(int)!;
-									var param1 = data.TryGetNullable<string?>(1);
+									var param1 = data.TryGetNullableStruct<ushort>(1);
 									if (!param1.Success)
-										param1.Result = (string?)default(string?)!;
+										param1.Result = (ushort?)default(ushort?)!;
 									await global::Xunit.Sdk.AsyncUtility.Await(((global::TestClass)obj!).WithSkipOnOtherType(param0.Result!, param1.Result!));
 								};
 							}
-							, ParameterNames = new string?[] { "_1", "_2" }, ParameterDefaultValues = new string?[] { "default(int)", "null" }, SkipReason = "maybe???", SkipUnless = () => global::TestClass.OtherClass.AlwaysFalse });
+							, ParameterNames = new string?[] { "_1", "_2" }, ParameterDefaultValues = new string?[] { "default(int)", "default(ushort?)" }, SkipReason = "maybe???", SkipUnless = () => global::TestClass.OtherClass.AlwaysFalse });
 						}
 					}
 				}

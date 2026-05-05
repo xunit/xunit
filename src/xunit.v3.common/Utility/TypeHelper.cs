@@ -13,17 +13,21 @@ public static partial class TypeHelper
 	/// <param name="result">The resulting converted value, if the return value is <see langword="true"/>
 	/// (or <see langword="default"/> if the return value is <see langword="false"/>).</param>
 	/// <remarks>
-	/// This method is typically used for argument coercion by source generators, especially for values that
-	/// don't have appropriate support in <c>[InlineData]</c>. The supported type coercion includes:
+	/// This method is typically used for argument coercion by source generators. The steps it takes include:
 	/// <list type="bullet">
-	/// <item>String values to <see cref="DateTime"/></item>
-	/// <item>String values to <see cref="DateTimeOffset"/></item>
-	/// <item>String or integral values to <see cref="Enum"/></item>
-	/// <item>String values to <see cref="Guid"/></item>
+	/// <item>If <paramref name="arg"/> is already the correct type, returns <see langword="true"/> with <paramref name="result"/>
+	/// set to <paramref name="arg"/></item>
+	/// <item>If <typeparamref name="T"/> is an enum, calls <see cref="Enum.ToObject(Type, object)"/> and returns
+	/// <see langword="true"/> with <paramref name="result"/> set to the converted value</item>
+	/// <item>If <paramref name="arg"/> is <see cref="string"/> and <typeparamref name="T"/> is one of <see cref="Guid"/>,
+	/// <see cref="DateTime"/>, or <see cref="DateTimeOffset"/>, tries to parse the string value, and if successful,
+	/// returns <see langword="true"/> with <paramref name="result"/> set to the converted value</item>
+	/// <item>If <see cref="Convert.ChangeType(object?, Type, IFormatProvider?)"/> can convert the item to the target type,
+	/// returns <see langword="true"/> with <paramref name="result"/> set to the converted value</item>
+	/// <item>Returns <see langword="false"/> with <paramref name="result"/> set to <see langword="default"/></item>
 	/// </list>
-	/// As a final step, it will call <see cref="Convert.ChangeType(object?, Type, IFormatProvider?)"/> to support
-	/// any built-in system type coercion. Notably, this does not support implicit or explicit conversion operator
-	/// methods, which are not available via reflection in Native AOT.
+	/// Notably, this does not support implicit or explicit conversion operator methods, which are not available via reflection
+	/// in Native AOT.
 	/// </remarks>
 	public static bool TryConvert<T>(
 		object? arg,
@@ -83,32 +87,94 @@ public static partial class TypeHelper
 	}
 
 	/// <summary>
-	/// Attempts to convert a nullable value to type <c><typeparamref name="T"/>?</c>.
+	/// Attempts to convert a nullable reference type value to <c><typeparamref name="T"/>?</c>.
 	/// </summary>
 	/// <typeparam name="T">The desired destination type</typeparam>
 	/// <param name="arg">The value to try to convert</param>
 	/// <param name="result">The resulting converted value, if the return value is <see langword="true"/>
-	/// (or <see langword="default"/> if the return value is <see langword="false"/>).</param>
+	/// (or <see langword="null"/> if the return value is <see langword="false"/>).</param>
 	/// <remarks>
-	/// This method is typically used for argument coercion by source generators, especially for values that
-	/// don't have appropriate support in <c>[InlineData]</c>. The supported type coercion includes:
+	/// This method is typically used for argument coercion by source generators. The steps it takes include:
 	/// <list type="bullet">
-	/// <item>String values to <see cref="DateTime"/></item>
-	/// <item>String values to <see cref="DateTimeOffset"/></item>
-	/// <item>String or integral values to <see cref="Enum"/></item>
-	/// <item>String values to <see cref="Guid"/></item>
+	/// <item>If <paramref name="arg"/> is <see langword="null"/>, returns <see langword="true"/> with <paramref name="result"/>
+	/// set to <see langword="null"/></item>
+	/// <item>If <paramref name="arg"/> is already the correct type, returns <see langword="true"/> with <paramref name="result"/>
+	/// set to <paramref name="arg"/></item>
+	/// <item>If <see cref="Convert.ChangeType(object?, Type, IFormatProvider?)"/> can convert the item to the target type,
+	/// returns <see langword="true"/> with <paramref name="result"/> set to the converted value</item>
+	/// <item>Returns <see langword="false"/> with <paramref name="result"/> set to <see langword="null"/></item>
 	/// </list>
-	/// As a final step, it will call <see cref="Convert.ChangeType(object?, Type, IFormatProvider?)"/> to support
-	/// any built-in system type coercion. Notably, this does not support implicit or explicit conversion operator
-	/// methods, which are not available via reflection in Native AOT.
+	/// Notably, this does not support implicit or explicit conversion operator methods, which are not available via reflection
+	/// in Native AOT.
 	/// </remarks>
 	public static bool TryConvertNullable<T>(
 		object? arg,
 		out T? result)
+			where T : class
 	{
 		if (arg is null)
 		{
-			result = default;
+			result = null;
+			return true;
+		}
+
+		if (arg is T valueAsT)
+		{
+			result = valueAsT;
+			return true;
+		}
+
+		var type = typeof(T);
+
+		try
+		{
+			if (Convert.ChangeType(arg, type, CultureInfo.CurrentCulture) is T valueAsChangeType)
+			{
+				result = valueAsChangeType;
+				return true;
+			}
+		}
+		catch { }
+
+		result = null;
+		return false;
+	}
+
+
+	/// <summary>
+	/// Attempts to convert a nullable value type value to <see cref="Nullable{T}"/>.
+	/// </summary>
+	/// <typeparam name="T">The desired destination type</typeparam>
+	/// <param name="arg">The value to try to convert</param>
+	/// <param name="result">The resulting converted value, if the return value is <see langword="true"/>
+	/// (or <see langword="null"/> if the return value is <see langword="false"/>).</param>
+	/// <remarks>
+	/// This method is typically used for argument coercion by source generators. The steps it takes include:
+	/// <list type="bullet">
+	/// <item>If <paramref name="arg"/> is <see langword="null"/>, returns <see langword="true"/> with <paramref name="result"/>
+	/// set to <see langword="null"/></item>
+	/// <item>If <paramref name="arg"/> is already the correct type, returns <see langword="true"/> with <paramref name="result"/>
+	/// set to <paramref name="arg"/></item>
+	/// <item>If <typeparamref name="T"/> is an enum, calls <see cref="Enum.ToObject(Type, object)"/> and returns
+	/// <see langword="true"/> with <paramref name="result"/> set to the converted value</item>
+	/// <item>If <paramref name="arg"/> is <see cref="string"/> and <typeparamref name="T"/> is one of <see cref="Guid"/>,
+	/// <see cref="DateTime"/>, or <see cref="DateTimeOffset"/>, tries to parse the string value, and if successful,
+	/// returns <see langword="true"/> with <paramref name="result"/> set to the converted value</item>
+	/// <item>If <see cref="Convert.ChangeType(object?, Type, IFormatProvider?)"/> can convert the item to the target type,
+	/// returns <see langword="true"/> with <paramref name="result"/> set to the converted value</item>
+	/// <item>Returns <see langword="false"/> with <paramref name="result"/> set to <see langword="null"/></item>
+	/// </list>
+	/// Notably, this does not support implicit or explicit conversion operator methods, which are not available via reflection
+	/// in Native AOT.
+	/// </remarks>
+	public static bool TryConvertNullable<T>(
+		object? arg,
+		out T? result)
+			where T : struct
+	{
+		if (arg is null)
+		{
+			result = null;
 			return true;
 		}
 
@@ -158,7 +224,7 @@ public static partial class TypeHelper
 		}
 		catch { }
 
-		result = default;
+		result = null;
 		return false;
 	}
 }
