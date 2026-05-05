@@ -613,6 +613,33 @@ public static partial class Xunit3AcceptanceTests
 			Assert.Equal(2, collectionFinishedMessage.TestsTotal);
 			Assert.Equal(1, collectionFinishedMessage.TestsSkipped);
 		}
+
+		[Fact]
+		public static async ValueTask ConditionallySkippedTests_UsingBaseType()
+		{
+#if XUNIT_AOT
+			var results = await RunAsync("Xunit3AcceptanceTests+SkippedTests+ConditionallySkippedTestsClass_UsingBaseType");
+#else
+			var results = await RunAsync(typeof(ConditionallySkippedTestsClass_UsingBaseType));
+#endif
+
+			var skippedMessage = Assert.Single(results.OfType<ITestSkipped>());
+			var skippedStarting = Assert.Single(results.OfType<ITestStarting>(), s => s.TestUniqueID == skippedMessage.TestUniqueID);
+			Assert.Equal("Xunit3AcceptanceTests+SkippedTests+ConditionallySkippedTestsClass_UsingBaseType.ConditionallyAlwaysSkipped", skippedStarting.TestDisplayName);
+			Assert.Equal("I am always skipped, conditionally", skippedMessage.Reason);
+
+			var passedMessage = Assert.Single(results.OfType<ITestPassed>());
+			var passedStarting = Assert.Single(results.OfType<ITestStarting>(), s => s.TestUniqueID == passedMessage.TestUniqueID);
+			Assert.Equal("Xunit3AcceptanceTests+SkippedTests+ConditionallySkippedTestsClass_UsingBaseType.ConditionallyNeverSkipped", passedStarting.TestDisplayName);
+
+			var classFinishedMessage = Assert.Single(results.OfType<ITestClassFinished>());
+			Assert.Equal(2, classFinishedMessage.TestsTotal);
+			Assert.Equal(1, classFinishedMessage.TestsSkipped);
+
+			var collectionFinishedMessage = Assert.Single(results.OfType<ITestCollectionFinished>());
+			Assert.Equal(2, collectionFinishedMessage.TestsTotal);
+			Assert.Equal(1, collectionFinishedMessage.TestsSkipped);
+		}
 	}
 
 	public partial class StaticClassSupport : AcceptanceTestV3

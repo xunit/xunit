@@ -332,6 +332,27 @@ public partial class Xunit3AcceptanceTests
 			[Fact(Skip = "I am never skipped, conditionally", SkipType = typeof(ConditionallySkippedTestClass), SkipUnless = nameof(ConditionallySkippedTestClass.Always))]
 			public void ConditionallyNeverSkipped() { }
 		}
+
+#if XUNIT_AOT
+		public
+#endif
+		class ConditionallySkippedTestBase_BaseClass
+		{
+			public static bool Always => true;
+		}
+
+#if XUNIT_AOT
+		public
+#endif
+		class ConditionallySkippedTestsClass_UsingBaseType : ConditionallySkippedTestBase_BaseClass
+		{
+			[Fact(Skip = "I am always skipped, conditionally", SkipWhen = nameof(Always))]
+			public void ConditionallyAlwaysSkipped() =>
+				Assert.True(false);
+
+			[Fact(Skip = "I am never skipped, conditionally", SkipUnless = nameof(Always))]
+			public void ConditionallyNeverSkipped() { }
+		}
 	}
 
 	public partial class StaticClassSupport

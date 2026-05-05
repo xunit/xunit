@@ -173,7 +173,7 @@ public class XunitTestRunnerBaseContext<TTest> : CoreTestRunnerContext<TTest, IB
 			var propertyType = Test.SkipType ?? Test.TestCase.TestClass.Class;
 			var propertyName = (skipUnless ?? skipWhen)!;
 			var property =
-				propertyType.GetProperty(propertyName, BindingFlags.Public | BindingFlags.Static)
+				propertyType.GetProperty(propertyName, BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
 					?? throw new TestPipelineException(
 						string.Format(
 							CultureInfo.CurrentCulture,
