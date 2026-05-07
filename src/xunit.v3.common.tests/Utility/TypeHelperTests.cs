@@ -158,7 +158,7 @@ public static partial class TypeHelperTests
 			Assert.Equal(dateTimeOffset, result);
 		}
 
-		[Theory]
+		[Theory(DisableDiscoveryEnumeration = true)]
 		[InlineData(404, HttpStatusCode.NotFound)]
 		[InlineData(null, null)]
 		public static void ConvertsIntToEnum(
