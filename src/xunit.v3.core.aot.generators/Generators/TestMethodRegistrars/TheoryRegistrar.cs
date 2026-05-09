@@ -5,12 +5,14 @@ namespace Xunit.Generators;
 
 static class TheoryRegistrar
 {
-	public static FactMethodRegistration? GetRegistration(
+	public static CodeGenTestMethodRegistration? GetRegistration(
+		SemanticModel semanticModel,
 		INamedTypeSymbol classSymbol,
 		MethodDeclarationSyntax methodDeclaration,
 		IMethodSymbol methodSymbol,
 		AttributeData attribute)
 	{
+		Guard.ArgumentNotNull(semanticModel);
 		Guard.ArgumentNotNull(classSymbol);
 		Guard.ArgumentNotNull(methodDeclaration);
 		Guard.ArgumentNotNull(methodSymbol);
@@ -22,30 +24,30 @@ static class TheoryRegistrar
 		if (methodSymbol.Parameters.FirstOrDefault(p => p.IsParams) is { } paramsParameter)
 			return null;
 
-		var details = new TheoryMethodDetails(classSymbol, methodDeclaration, methodSymbol, attribute);
+		var details = new TheoryMethodDetails(semanticModel, classSymbol, methodDeclaration, methodSymbol, attribute);
 		if (!details.Process())
 			return null;
 
 		var initValues = new List<string>
 		{
 			$"MethodInvokerFactory = {details.MethodInvokerFactory}",
-			$"ParameterNames = new string?[] {{ {string.Join(", ", details.ParameterNames.Select(p => p.Quoted()))} }}"
+			$"ParameterNames = new string?[] {{ {string.Join(", ", details.ParameterNames.Select(p => p.ToCSharp()))} }}"
 		};
 
 		if (details.DisableDiscoveryEnumeration is not null)
 			initValues.Add($"DisableDiscoveryEnumeration = {details.DisableDiscoveryEnumeration.ToCSharp()}");
 		if (details.DisplayName is not null)
-			initValues.Add($"DisplayName = {details.DisplayName.Quoted()}");
+			initValues.Add($"DisplayName = {details.DisplayName.ToCSharp()}");
 		if (details.Explicit)
 			initValues.Add("Explicit = true");
 		if (details.IncludeTestCaseIndex)
 			initValues.Add("IncludeTestCaseIndex = true");
 		if (details.ParameterDefaultValues is not null)
-			initValues.Add($"ParameterDefaultValues = new string?[] {{ {string.Join(", ", details.ParameterDefaultValues.Select(p => p.Quoted()))} }}");
+			initValues.Add($"ParameterDefaultValues = new string?[] {{ {string.Join(", ", details.ParameterDefaultValues.Select(p => p.ToCSharp()))} }}");
 		if (details.SkipExceptions.Count != 0)
 			initValues.Add($"SkipExceptions = new global::System.Type[] {{ {string.Join(", ", details.SkipExceptions.Select(e => $"typeof({e})"))} }}");
 		if (details.SkipReason is not null)
-			initValues.Add($"SkipReason = {details.SkipReason.Quoted()}");
+			initValues.Add($"SkipReason = {details.SkipReason.ToCSharp()}");
 		if (details.SkipTestWithoutData)
 			initValues.Add("SkipTestWithoutData = true");
 		if (details.SkipUnless is not null)
@@ -55,20 +57,6 @@ static class TheoryRegistrar
 		if (details.Timeout is not 0)
 			initValues.Add($"Timeout = {details.Timeout}");
 
-		return new(
-			details.MethodName,
-			new()
-			{
-				Arity = details.Arity,
-				BeforeAfterAttributeTypes = details.BeforeAfterTestAttributes.Count != 0 ? details.BeforeAfterTestAttributes : null,
-				DeclaredTypeIndex = details.DeclaredTypeIndex,
-				IsStatic = details.MethodIsStatic,
-				SourceFilePath = details.SourceFilePath,
-				SourceLineNumber = details.SourceLineNumber,
-				TestCaseOrdererFactory = details.TestCaseOrdererFactory,
-				Traits = details.Traits,
-			},
-			$"new global::Xunit.v3.TheoryTestCaseFactory() {{ {string.Join(", ", initValues)} }}"
-		);
+		return CodeGenTestMethodRegistration.FromTestMethodDetails(details, $"new global::Xunit.v3.TheoryTestCaseFactory() {{ {string.Join(", ", initValues)} }}");
 	}
 }

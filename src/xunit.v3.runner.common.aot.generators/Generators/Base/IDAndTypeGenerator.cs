@@ -7,6 +7,9 @@ public abstract class IDAndTypeGenerator(
 	Func<string, string, string> perItemInit) :
 		XunitAttributeGenerator<IDAndTypeGenerator.GeneratorResult>(fullyQualifiedAttributeTypeName)
 {
+	protected override string BaseInitAttributeName =>
+		"global::Xunit.Runner.Common.RunnerInitializationAttribute";
+
 	protected override sealed void CreateSource(
 		SourceProductionContext context,
 		GeneratorResult result)
@@ -34,9 +37,8 @@ public abstract class IDAndTypeGenerator(
 			var (type, id) = GetTypeAndID(attribute);
 			if (type is not null)
 			{
-				var location = attribute.ApplicationSyntaxReference.Location;
-				if (type.HasParameterlessPublicCtor(out var _) && ValidateType(type, location, result))
-					result.Entries.Add((id, type.ToString()));
+				if (type.HasParameterlessPublicCtor(out var _) && ValidateType(type))
+					result.Entries.Add(new(id, type.ToString()));
 			}
 		}
 
@@ -69,16 +71,13 @@ public abstract class IDAndTypeGenerator(
 			? (type, id)
 			: (null, string.Empty);
 
-	protected virtual bool ValidateType(
-		INamedTypeSymbol type,
-		Location? location,
-		GeneratorResult result) =>
-			true;
+	protected virtual bool ValidateType(INamedTypeSymbol type) =>
+		true;
 
 	public sealed class GeneratorResult(GeneratorAttributeSyntaxContext context) :
-		XunitGeneratorResult(context.SemanticModel, context.TargetNode), IEquatable<GeneratorResult?>
+		XunitGeneratorResult(context.SemanticModel.SyntaxTree.FilePath, context.TargetNode.GetLocation()), IEquatable<GeneratorResult?>
 	{
-		public List<(string ID, string? Type)> Entries = [];
+		public List<IDAndType> Entries = [];
 
 		public override bool Equals(object? obj) =>
 			Equals(obj as GeneratorResult);
@@ -86,9 +85,37 @@ public abstract class IDAndTypeGenerator(
 		public bool Equals(GeneratorResult? other) =>
 			other is not null &&
 			base.Equals(other) &&
-			ComparerHelper.Equals(Entries, other.Entries);
+			ComparerHelper.Equal(Entries, other.Entries);
 
 		public override int GetHashCode() =>
-			Hasher.Extend(base.GetHashCode()).With(Entries);
+			HashCodeHelper.Extend(base.GetHashCode()).With(Entries);
+	}
+
+	public sealed class IDAndType : IEquatable<IDAndType>
+	{
+		public IDAndType(
+			string id,
+			string? type)
+		{
+			ID = id ?? throw new ArgumentNullException(nameof(id));
+			Type = type;
+		}
+
+		public string ID { get; }
+
+		public string? Type { get; }
+
+		public override bool Equals(object? obj) =>
+			Equals(obj as IDAndType);
+
+		public bool Equals(IDAndType? other) =>
+			other is not null &&
+			ComparerHelper.Equal(ID, other.ID) &&
+			ComparerHelper.Equal(Type, other.Type);
+
+		public override int GetHashCode() =>
+			HashCodeHelper.Start()
+				.With(ID)
+				.With(Type);
 	}
 }

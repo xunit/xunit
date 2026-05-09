@@ -9,12 +9,13 @@
     <UseAppHost>true</UseAppHost>
     <!-- Signal that this is an xUnit.net test project -->
     <XunitTestProject>true</XunitTestProject>
+    <XunitTestProjectAOT>false</XunitTestProjectAOT>
     <XunitTestProjectAOT Condition="$(MSBuildThisFileName.Contains('.aot'))">true</XunitTestProjectAOT>
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Give the code generator access to the project path -->
-    <CompilerVisibleProperty Include="MSBuildProjectFullPath" />
+    <!-- Give the code generator access to the project path and whether we're in AOT mode -->
+    <CompilerVisibleProperty Include="MSBuildProjectFullPath;XunitTestProjectAOT" />
   </ItemGroup>
 
 </Project>

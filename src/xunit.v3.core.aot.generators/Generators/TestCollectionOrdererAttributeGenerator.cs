@@ -4,13 +4,22 @@ namespace Xunit.Generators;
 
 [Generator(LanguageNames.CSharp)]
 public class TestCollectionOrdererAttributeGenerator() :
-	AssemblyFactoryAttributeGeneratorBase(Types.Xunit.TestCollectionOrdererAttribute, "RegisterAssemblyTestCollectionOrdererFactory")
+	XunitAssemblyAttributeGenerator(Types.Xunit.TestCollectionOrdererAttribute)
 {
-	protected override bool ValidateImplementationType(INamedTypeSymbol type) =>
-		type.ImplementsInterface(Types.Xunit.v3.ITestCollectionOrderer);
+	protected override void ProcessAttribute(
+		SemanticModel semanticModel,
+		CodeGenTestAssemblyRegistration registration,
+		AttributeData attribute) =>
+			(registration ?? throw new ArgumentNullException(nameof(registration))).SetTestCollectionOrderer(attribute);
 }
 
 [Generator(LanguageNames.CSharp)]
 public class TestCollectionOrdererAttributeOfTGenerator() :
-	AssemblyFactoryAttributeGeneratorBase(Types.Xunit.TestCollectionOrdererAttribute + "`1", "RegisterAssemblyTestCollectionOrdererFactory")
-{ }
+	XunitAssemblyAttributeGenerator(Types.Xunit.TestCollectionOrdererAttribute + "`1")
+{
+	protected override void ProcessAttribute(
+		SemanticModel semanticModel,
+		CodeGenTestAssemblyRegistration registration,
+		AttributeData attribute) =>
+			(registration ?? throw new ArgumentNullException(nameof(registration))).SetTestCollectionOrderer(attribute);
+}

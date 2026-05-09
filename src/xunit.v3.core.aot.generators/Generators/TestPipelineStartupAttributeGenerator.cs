@@ -4,13 +4,22 @@ namespace Xunit.Generators;
 
 [Generator(LanguageNames.CSharp)]
 public class TestPipelineStartupAttributeGenerator() :
-	AssemblyFactoryAttributeGeneratorBase(Types.Xunit.v3.TestPipelineStartupAttribute, "RegisterTestPipelineStartupFactory")
+	XunitAssemblyAttributeGenerator(Types.Xunit.v3.TestPipelineStartupAttribute)
 {
-	protected override bool ValidateImplementationType(INamedTypeSymbol type) =>
-		type.ImplementsInterface(Types.Xunit.v3.ITestPipelineStartup);
+	protected override void ProcessAttribute(
+		SemanticModel semanticModel,
+		CodeGenTestAssemblyRegistration registration,
+		AttributeData attribute) =>
+			(registration ?? throw new ArgumentNullException(nameof(registration))).SetTestPipelineStartup(attribute);
 }
 
 [Generator(LanguageNames.CSharp)]
 public class TestPipelineStartupAttributeOfTGenerator() :
-	AssemblyFactoryAttributeGeneratorBase(Types.Xunit.v3.TestPipelineStartupAttribute + "`1", "RegisterTestPipelineStartupFactory")
-{ }
+	XunitAssemblyAttributeGenerator(Types.Xunit.v3.TestPipelineStartupAttribute + "`1")
+{
+	protected override void ProcessAttribute(
+		SemanticModel semanticModel,
+		CodeGenTestAssemblyRegistration registration,
+		AttributeData attribute) =>
+			(registration ?? throw new ArgumentNullException(nameof(registration))).SetTestPipelineStartup(attribute);
+}

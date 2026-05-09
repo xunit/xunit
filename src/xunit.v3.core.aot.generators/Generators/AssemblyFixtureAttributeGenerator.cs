@@ -4,20 +4,22 @@ namespace Xunit.Generators;
 
 [Generator(LanguageNames.CSharp)]
 public class AssemblyFixtureAttributeGenerator() :
-	AssemblyFactoryAttributeGeneratorBase(Types.Xunit.AssemblyFixtureAttribute)
+	XunitAssemblyAttributeGenerator(Types.Xunit.AssemblyFixtureAttribute)
 {
-	protected override string GetRegistration(
-		string type,
-		string factory) =>
-			$"global::Xunit.v3.RegisteredEngineConfig.RegisterAssemblyFixtureFactory(typeof({Guard.ArgumentNotNull(type)}), async {Guard.ArgumentNotNull(factory)});";
+	protected override void ProcessAttribute(
+		SemanticModel semanticModel,
+		CodeGenTestAssemblyRegistration registration,
+		AttributeData attribute) =>
+			(registration ?? throw new ArgumentNullException(nameof(registration))).AddAssemblyFixture(attribute);
 }
 
 [Generator(LanguageNames.CSharp)]
 public class AssemblyFixtureAttributeOfTGenerator() :
-	AssemblyFactoryAttributeGeneratorBase(Types.Xunit.AssemblyFixtureAttribute + "`1")
+	XunitAssemblyAttributeGenerator(Types.Xunit.AssemblyFixtureAttribute + "`1")
 {
-	protected override string GetRegistration(
-		string type,
-		string factory) =>
-			$"global::Xunit.v3.RegisteredEngineConfig.RegisterAssemblyFixtureFactory(typeof({Guard.ArgumentNotNull(type)}), async {Guard.ArgumentNotNull(factory)});";
+	protected override void ProcessAttribute(
+		SemanticModel semanticModel,
+		CodeGenTestAssemblyRegistration registration,
+		AttributeData attribute) =>
+			(registration ?? throw new ArgumentNullException(nameof(registration))).AddAssemblyFixture(attribute);
 }

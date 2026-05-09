@@ -15,9 +15,7 @@ public class RegisterResultWriterAttributeGenerator() :
 			""")
 {
 	protected override bool ValidateType(
-		INamedTypeSymbol type,
-		Location? location,
-		GeneratorResult result) =>
+		INamedTypeSymbol type) =>
 			type.ImplementsInterfaces(Types.Xunit.Runner.Common.IConsoleResultWriter, Types.Xunit.Runner.Common.IMicrosoftTestingPlatformResultWriter);
 }
 

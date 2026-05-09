@@ -9,7 +9,7 @@ namespace Xunit.Generators;
 public class TestClassGenerator : XunitGenerator
 {
 	static readonly HashSet<string> validReturnTypes = ["void", Types.System.Threading.Tasks.Task, Types.System.Threading.Tasks.ValueTask];
-	readonly Dictionary<string, Func<INamedTypeSymbol, MethodDeclarationSyntax, IMethodSymbol, AttributeData, FactMethodRegistration?>> registrarsByAttribute = new()
+	readonly Dictionary<string, Func<SemanticModel, INamedTypeSymbol, MethodDeclarationSyntax, IMethodSymbol, AttributeData, CodeGenTestMethodRegistration?>> registrarsByAttribute = new()
 	{
 		[Types.Xunit.FactAttribute] = FactRegistrar.GetRegistration,
 		[Types.Xunit.CulturedFactAttribute] = CulturedFactRegistrar.GetRegistration,
@@ -19,8 +19,7 @@ public class TestClassGenerator : XunitGenerator
 
 	protected override sealed void Initialize(
 		IncrementalGeneratorInitializationContext context,
-		IncrementalValueProvider<string> projectPath,
-		IncrementalValueProvider<INamedTypeSymbol> objectType)
+		IncrementalValueProvider<XunitMSBuildProperties> properties)
 	{
 		var result =
 			context
@@ -30,10 +29,10 @@ public class TestClassGenerator : XunitGenerator
 					Transform
 				)
 				.WhereNotNull()
-				.Combine(projectPath)
+				.Combine(properties)
 				.Select((pair, _) =>
 				{
-					pair.Left.ProjectPath = pair.Right;
+					pair.Left.Initialize(pair.Right);
 					return pair.Left;
 				});
 
@@ -74,13 +73,14 @@ public class TestClassGenerator : XunitGenerator
 			// we've gated on them just the single time by virtue of the declaration-based BaseList usage.
 			foreach (var baseClassMethodSymbol in baseClassSymbol.GetMembers().OfType<IMethodSymbol>())
 				foreach (var baseClassMethodDeclaration in baseClassMethodSymbol.DeclaringSyntaxReferences.Select(sr => sr.GetSyntax(cancellationToken)).OfType<MethodDeclarationSyntax>())
-					ProcessTestMethod(classSymbol, baseClassMethodDeclaration, baseClassMethodSymbol, result);
+					ProcessTestMethod(semanticModel, classSymbol, baseClassMethodDeclaration, baseClassMethodSymbol, result);
 
 			ProcessTestClass(semanticModel, baseClassDeclaration, classSymbol, result, cancellationToken);
 		}
 	}
 
 	void ProcessTestMethod(
+		SemanticModel semanticModel,
 		INamedTypeSymbol classSymbol,
 		MethodDeclarationSyntax methodDeclaration,
 		IMethodSymbol methodSymbol,
@@ -111,55 +111,23 @@ public class TestClassGenerator : XunitGenerator
 			return;
 
 		var (attribute, registrar) = attributes[0];
-		var registration = registrar(classSymbol, methodDeclaration, methodSymbol, attribute);
+		var registration = registrar(semanticModel, classSymbol, methodDeclaration, methodSymbol, attribute);
 		if (registration is not null)
-			result
-				.TestMethods
-				.AddOrGet(registration.MethodName, () => (registration.TestMethod, []))
-				.TestCaseFactories
-				.Add(registration.TestCaseFactory);
+			result.TestMethods.Add(registration);
 	}
 
 	void Register(
 		SourceProductionContext context,
 		TestClassGeneratorResult result)
 	{
-		if (result.TestClass is null || result.TestMethods.Count == 0)
+		if (!result.ShouldGenerate || result.TestClass is null || result.TestMethods.Count == 0)
 			return;
 
 		var initialization = new StringBuilder();
-		initialization.Append($$"""
-			global::Xunit.v3.RegisteredEngineConfig.RegisterCodeGenTestClass({{result.TestClassType.Quoted()}}, {{result.TestClass.ToGeneratedInit()}});
 
-			""");
-
-		if (result.TestClass.Traits is not null)
-			foreach (var trait in result.TestClass.Traits)
-				initialization.Append($$"""
-					global::Xunit.v3.RegisteredEngineConfig.RegisterCodeGenTestClassTrait({{result.TestClassType.Quoted()}}, {{trait.Key.Quoted()}}, {{string.Join(", ", trait.Value.Select(v => v.Quoted()))}});
-
-					""");
-
-		foreach (var kvp in result.TestMethods)
-		{
-			initialization.Append($$"""
-				global::Xunit.v3.RegisteredEngineConfig.RegisterCodeGenTestMethod({{result.TestClassType.Quoted()}}, {{kvp.Key.Quoted()}}, {{kvp.Value.TestMethod.ToGeneratedInit()}});
-
-				""");
-
-			if (kvp.Value.TestMethod.Traits is not null)
-				foreach (var trait in kvp.Value.TestMethod.Traits)
-					initialization.Append($$"""
-						global::Xunit.v3.RegisteredEngineConfig.RegisterCodeGenTestMethodTrait({{result.TestClassType.Quoted()}}, {{kvp.Key.Quoted()}}, {{trait.Key.Quoted()}}, {{string.Join(", ", trait.Value.Select(v => v.Quoted()))}});
-
-						""");
-
-			foreach (var testCaseFactory in kvp.Value.TestCaseFactories)
-				initialization.Append($$"""
-					global::Xunit.v3.RegisteredEngineConfig.RegisterCodeGenTestCaseFactory({{result.TestClassType.Quoted()}}, {{kvp.Key.Quoted()}}, {{testCaseFactory}});
-
-					""");
-		}
+		result.TestClass.GenerateSource(initialization);
+		foreach (var testMethod in result.TestMethods)
+			testMethod.GenerateSource(initialization);
 
 		AddInitAttribute(context, result, initialization.ToString());
 	}
@@ -183,7 +151,7 @@ public class TestClassGenerator : XunitGenerator
 		// Other parts of partials will get their own registration based on their declaration.
 		foreach (var methodDeclaration in classDeclaration.ChildNodes().OfType<MethodDeclarationSyntax>())
 			if (context.SemanticModel.GetDeclaredSymbol(methodDeclaration, cancellationToken) is IMethodSymbol methodSymbol)
-				ProcessTestMethod(classSymbol, methodDeclaration, methodSymbol, result);
+				ProcessTestMethod(context.SemanticModel, classSymbol, methodDeclaration, methodSymbol, result);
 
 		ProcessTestClass(context.SemanticModel, classDeclaration, classSymbol, result, cancellationToken);
 
@@ -197,20 +165,24 @@ public class TestClassGenerator : XunitGenerator
 		if (classSymbol.AllInterfaces.Any(i => i.IsGeneric(Types.Xunit.ICollectionFixtureOfT)))
 			return null;
 
-		var classFixtures = new List<(string Type, string Factory)>();
+		result.TestClass = new CodeGenTestClassRegistration(classSymbol);
 
 		foreach (var classFixtureInterface in classSymbol.AllInterfaces.Where(i => i.IsGeneric(Types.Xunit.IClassFixtureOfT)))
 			if (classFixtureInterface.TypeArguments[0] is INamedTypeSymbol fixtureType)
-			{
-				var fixtureFactory = CodeGenRegistration.ToFixtureFactory(fixtureType, "Class fixture type");
-				if (fixtureFactory is not null)
-					classFixtures.Add((fixtureType.ToCSharp(), fixtureFactory));
-			}
+				result.TestClass.AddClassFixture(fixtureType);
 
-		var testCaseOrdererFactory = default(string);
-		var testMethodOrdererFactory = default(string);
-		var traits = default(Dictionary<string, HashSet<string>>);
+		// We want only the locally defined traits, so we don't double up when there are partials
+		foreach (var attributeSyntax in classDeclaration.AttributeLists.SelectMany(a => a.Attributes))
+		{
+			var attributeSymbol = context.SemanticModel.GetTypeInfo(attributeSyntax, cancellationToken);
+			if (attributeSymbol.Type?.ToString() == Types.Xunit.TraitAttribute
+					&& attributeSyntax.ArgumentList?.Arguments.Count == 2
+					&& attributeSyntax.ArgumentList.Arguments[0].Expression is LiteralExpressionSyntax nameExpression
+					&& attributeSyntax.ArgumentList.Arguments[1].Expression is LiteralExpressionSyntax valueExpression)
+				result.TestClass.AddTrait(nameExpression.Token.ValueText, valueExpression.Token.ValueText);
+		}
 
+		// We want orderers no matter where they're defined
 		foreach (var classAttribute in classSymbol.GetAttributes())
 		{
 			var attributeType =
@@ -222,37 +194,15 @@ public class TestClassGenerator : XunitGenerator
 			{
 				case Types.Xunit.TestCaseOrdererAttribute:
 				case Types.Xunit.TestCaseOrdererAttribute + "<>":
-					testCaseOrdererFactory = CodeGenRegistration.ToOrdererFactory(classAttribute, Types.Xunit.v3.ITestCaseOrderer);
+					result.TestClass.TestCaseOrdererFactory = classAttribute.ToOrdererFactory(Types.Xunit.v3.ITestCaseOrderer);
 					break;
 
 				case Types.Xunit.TestMethodOrdererAttribute:
 				case Types.Xunit.TestMethodOrdererAttribute + "<>":
-					testMethodOrdererFactory = CodeGenRegistration.ToOrdererFactory(classAttribute, Types.Xunit.v3.ITestMethodOrderer);
-					break;
-
-				case Types.Xunit.TraitAttribute:
-					if (classAttribute.ConstructorArguments.Length == 2
-							&& classAttribute.ConstructorArguments[0].Kind == TypedConstantKind.Primitive
-							&& classAttribute.ConstructorArguments[1].Kind == TypedConstantKind.Primitive
-							&& classAttribute.ConstructorArguments[0].Value is string traitName
-							&& classAttribute.ConstructorArguments[1].Value is string traitValue)
-					{
-						traits ??= new(StringComparer.Ordinal);
-						traits.Add(traitName, traitValue);
-					}
+					result.TestClass.TestMethodOrdererFactory = classAttribute.ToOrdererFactory(Types.Xunit.v3.ITestMethodOrderer);
 					break;
 			}
 		}
-
-		result.TestClass = new CodeGenTestClassRegistration()
-		{
-			Class = classSymbol.ToCSharp(),
-			ClassFactory = CodeGenRegistration.ToObjectFactory(classSymbol, "Test class"),
-			ClassFixtures = classFixtures,
-			TestCaseOrdererFactory = testCaseOrdererFactory,
-			TestMethodOrdererFactory = testMethodOrdererFactory,
-			Traits = traits,
-		};
 
 		return result;
 	}

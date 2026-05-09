@@ -1,3 +1,4 @@
+using System.Text;
 using Microsoft.CodeAnalysis;
 
 namespace Xunit.Generators;
@@ -10,31 +11,13 @@ public class CollectionDefinitionAttributeGenerator() :
 		SourceProductionContext context,
 		GeneratorResult result)
 	{
-		if (result is null || result.Registration is null)
+		if (result is null || !result.ShouldGenerate || result.Registration is null)
 			return;
 
-		var code = new List<string>
-		{
-			$$"""
-			global::Xunit.v3.RegisteredEngineConfig.RegisterCollectionDefinition({{result.Name.Quoted()}}, {{result.Registration.ToGeneratedInit()}});
-			"""
-		};
+		var builder = new StringBuilder();
+		result.Registration.GenerateSource(builder);
 
-		if (result.Registration.Traits is not null)
-		{
-			var name = result.Name.Quoted();
-			var type =
-				result.Registration.Type is null
-					? "null"
-					: $"typeof({result.Registration.Type})";
-
-			foreach (var trait in result.Registration.Traits)
-				code.Add($"""
-					global::Xunit.v3.RegisteredEngineConfig.RegisterCodeGenTestCollectionTrait({name}, {type}, {trait.Key.Quoted()}, {string.Join(", ", trait.Value.Select(v => v.Quoted()))});
-					""");
-		}
-
-		AddInitAttribute(context, result, string.Join("\n", code));
+		AddInitAttribute(context, result, builder.ToString());
 	}
 
 	protected override sealed GeneratorResult? Transform(
@@ -54,26 +37,19 @@ public class CollectionDefinitionAttributeGenerator() :
 		if (attribute.ConstructorArguments.Length == 1 && attribute.ConstructorArguments[0].Value is string stringValue)
 			name = stringValue;
 
-		var disableParallelization = false;
-		if (attribute.NamedArguments.FirstOrDefault(kvp => kvp.Key == Names.Xunit.CollectionDefinitionAttribute.DisableParallelization) is { } namedArg
-				&& namedArg.Value.Value is true)
-			disableParallelization = true;
-
-		var testCaseOrdererFactory = default(string);
-		var testClassOrdererFactory = default(string);
-		var testMethodOrdererFactory = default(string);
-		var traits = default(Dictionary<string, HashSet<string>>);
-
 		var result = new GeneratorResult(context)
 		{
 			GeneratorSuffix = context.TargetSymbol.Name + "٠",
-			Name = name,
+			Registration = new(name, context.TargetSymbol as INamedTypeSymbol),
 		};
+
+		if (attribute.NamedArguments.FirstOrDefault(kvp => kvp.Key == Names.Xunit.CollectionDefinitionAttribute.DisableParallelization) is { } namedArg
+				&& namedArg.Value.Value is true)
+			result.Registration.DisableParallelization = true;
 
 		if (context.TargetSymbol is ITypeSymbol targetType)
 		{
-			var openGenericTypeParameter = targetType.RecursiveGetOpenGenericTypeParameter();
-			if (openGenericTypeParameter is not null)
+			if (!targetType.IsSafeToReference())
 				return null;
 		}
 
@@ -88,17 +64,17 @@ public class CollectionDefinitionAttributeGenerator() :
 			{
 				case Types.Xunit.TestCaseOrdererAttribute:
 				case Types.Xunit.TestCaseOrdererAttribute + "<>":
-					testCaseOrdererFactory = CodeGenRegistration.ToOrdererFactory(classAttribute, Types.Xunit.v3.ITestCaseOrderer);
+					result.Registration.TestCaseOrdererFactory = classAttribute.ToOrdererFactory(Types.Xunit.v3.ITestCaseOrderer);
 					break;
 
 				case Types.Xunit.TestClassOrdererAttribute:
 				case Types.Xunit.TestClassOrdererAttribute + "<>":
-					testClassOrdererFactory = CodeGenRegistration.ToOrdererFactory(classAttribute, Types.Xunit.v3.ITestClassOrderer);
+					result.Registration.TestClassOrdererFactory = classAttribute.ToOrdererFactory(Types.Xunit.v3.ITestClassOrderer);
 					break;
 
 				case Types.Xunit.TestMethodOrdererAttribute:
 				case Types.Xunit.TestMethodOrdererAttribute + "<>":
-					testMethodOrdererFactory = CodeGenRegistration.ToOrdererFactory(classAttribute, Types.Xunit.v3.ITestMethodOrderer);
+					result.Registration.TestMethodOrdererFactory = classAttribute.ToOrdererFactory(Types.Xunit.v3.ITestMethodOrderer);
 					break;
 
 				case Types.Xunit.TraitAttribute:
@@ -107,71 +83,41 @@ public class CollectionDefinitionAttributeGenerator() :
 							&& classAttribute.ConstructorArguments[1].Kind == TypedConstantKind.Primitive
 							&& classAttribute.ConstructorArguments[0].Value is string traitName
 							&& classAttribute.ConstructorArguments[1].Value is string traitValue)
-					{
-						traits ??= new(StringComparer.Ordinal);
-						traits.Add(traitName, traitValue);
-					}
+						result.Registration.AddTrait(traitName, traitValue);
 					break;
 			}
 		}
-
-		var classFixtures = new List<(string, string)>();
-		var collectionFixtures = new List<(string, string)>();
 
 		if (context.TargetSymbol is INamedTypeSymbol namedTargetSymbol)
 			foreach (var interfaceSymbol in namedTargetSymbol.AllInterfaces.Where(i => i.IsGenericType))
 				switch (interfaceSymbol.ConstructUnboundGenericType().ToCSharp(includeGlobal: false))
 				{
 					case Types.Xunit.IClassFixtureOfT:
-						generateFactory(classFixtures, interfaceSymbol, "Class", context.TargetSymbol.Locations.FirstOrDefault());
+						addFixture(result.Registration.AddClassFixture, interfaceSymbol);
 						break;
 
 					case Types.Xunit.ICollectionFixtureOfT:
-						generateFactory(collectionFixtures, interfaceSymbol, "Collection", context.TargetSymbol.Locations.FirstOrDefault());
+						addFixture(result.Registration.AddCollectionFixture, interfaceSymbol);
 						break;
 				}
 
-		result.Registration = new CodeGenTestCollectionRegistration()
-		{
-			ClassFixtures = classFixtures,
-			CollectionFixtures = collectionFixtures,
-			DisableParallelization = disableParallelization,
-			TestCaseOrdererFactory = testCaseOrdererFactory,
-			TestClassOrdererFactory = testClassOrdererFactory,
-			TestMethodOrdererFactory = testMethodOrdererFactory,
-			Traits = traits,
-			Type = type,
-		};
-
 		return result;
 
-		void generateFactory(
-			List<(string, string)> collection,
-			INamedTypeSymbol interfaceSymbol,
-			string fixtureCategory,
-			Location? location)
+		static void addFixture(
+			Action<INamedTypeSymbol> registrar,
+			INamedTypeSymbol interfaceSymbol)
 		{
 			if (interfaceSymbol.TypeArguments.Length != 1)
 				return;
 
-			if (interfaceSymbol.TypeArguments[0] is not INamedTypeSymbol fixtureType)
-				return;
-
-			var nonPublicType = fixtureType.RecursiveGetNonPublicNonInternalType();
-			if (nonPublicType is not null)
-				return;
-
-			var factory = CodeGenRegistration.ToFixtureFactory(fixtureType, $"{fixtureCategory} fixture type");
-			if (factory is not null)
-				collection.Add((fixtureType.ToCSharp(), factory));
+			if (interfaceSymbol.TypeArguments[0] is INamedTypeSymbol fixtureType)
+				registrar(fixtureType);
 		}
 	}
 
 	public sealed class GeneratorResult(GeneratorAttributeSyntaxContext context) :
-		XunitGeneratorResult(context.SemanticModel, context.TargetNode), IEquatable<GeneratorResult?>
+		XunitGeneratorResult(context.SemanticModel.SyntaxTree.FilePath, context.TargetNode.GetLocation()), IEquatable<GeneratorResult?>
 	{
-		public string? Name { get; set; }
-
 		public CodeGenTestCollectionRegistration? Registration { get; set; }
 
 		public override bool Equals(object? obj) =>
@@ -180,10 +126,9 @@ public class CollectionDefinitionAttributeGenerator() :
 		public bool Equals(GeneratorResult? other) =>
 			other is not null &&
 			base.Equals(other) &&
-			ComparerHelper.Equals(Name, other.Name) &&
-			ComparerHelper.Equals(Registration, other.Registration);
+			ComparerHelper.Equal(Registration, other.Registration);
 
 		public override int GetHashCode() =>
-			Hasher.Extend(base.GetHashCode()).With(Name).With(Registration);
+			HashCodeHelper.Extend(base.GetHashCode()).With(Registration);
 	}
 }

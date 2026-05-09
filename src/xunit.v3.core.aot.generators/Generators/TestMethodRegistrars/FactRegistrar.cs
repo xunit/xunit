@@ -5,18 +5,20 @@ namespace Xunit.Generators;
 
 static class FactRegistrar
 {
-	public static FactMethodRegistration? GetRegistration(
+	public static CodeGenTestMethodRegistration? GetRegistration(
+		SemanticModel semanticModel,
 		INamedTypeSymbol classSymbol,
 		MethodDeclarationSyntax methodDeclaration,
 		IMethodSymbol methodSymbol,
 		AttributeData attribute)
 	{
+		Guard.ArgumentNotNull(semanticModel);
 		Guard.ArgumentNotNull(classSymbol);
 		Guard.ArgumentNotNull(methodDeclaration);
 		Guard.ArgumentNotNull(methodSymbol);
 		Guard.ArgumentNotNull(attribute);
 
-		var details = new FactMethodDetails(classSymbol, methodDeclaration, methodSymbol, attribute);
+		var details = new FactMethodDetails(semanticModel, classSymbol, methodDeclaration, methodSymbol, attribute);
 		if (!details.Process())
 			return null;
 
@@ -26,13 +28,13 @@ static class FactRegistrar
 		};
 
 		if (details.DisplayName is not null)
-			initValues.Add($"DisplayName = {details.DisplayName.Quoted()}");
+			initValues.Add($"DisplayName = {details.DisplayName.ToCSharp()}");
 		if (details.Explicit)
 			initValues.Add("Explicit = true");
 		if (details.SkipExceptions.Count != 0)
 			initValues.Add($"SkipExceptions = new global::System.Type[] {{ {string.Join(", ", details.SkipExceptions.Select(e => $"typeof({e})"))} }}");
 		if (details.SkipReason is not null)
-			initValues.Add($"SkipReason = {details.SkipReason.Quoted()}");
+			initValues.Add($"SkipReason = {details.SkipReason.ToCSharp()}");
 		if (details.SkipUnless is not null)
 			initValues.Add($"SkipUnless = () => {(details.SkipType ?? classSymbol).ToCSharp()}.{details.SkipUnless}");
 		if (details.SkipWhen is not null)
@@ -40,20 +42,6 @@ static class FactRegistrar
 		if (details.Timeout is not 0)
 			initValues.Add($"Timeout = {details.Timeout}");
 
-		return new(
-			details.MethodName,
-			new()
-			{
-				Arity = details.Arity,
-				BeforeAfterAttributeTypes = details.BeforeAfterTestAttributes.Count != 0 ? details.BeforeAfterTestAttributes : null,
-				DeclaredTypeIndex = details.DeclaredTypeIndex,
-				IsStatic = details.MethodIsStatic,
-				SourceFilePath = details.SourceFilePath,
-				SourceLineNumber = details.SourceLineNumber,
-				TestCaseOrdererFactory = details.TestCaseOrdererFactory,
-				Traits = details.Traits,
-			},
-			$"new global::Xunit.v3.FactTestCaseFactory() {{ {string.Join(", ", initValues)} }}"
-		);
+		return CodeGenTestMethodRegistration.FromTestMethodDetails(details, $"new global::Xunit.v3.FactTestCaseFactory() {{ {string.Join(", ", initValues)} }}");
 	}
 }

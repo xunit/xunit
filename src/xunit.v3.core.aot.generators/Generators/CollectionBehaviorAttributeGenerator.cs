@@ -4,39 +4,22 @@ namespace Xunit.Generators;
 
 [Generator(LanguageNames.CSharp)]
 public class CollectionBehaviorAttributeGenerator() :
-	AssemblyFactoryAttributeGeneratorBase(Types.Xunit.CollectionBehaviorAttribute, "RegisterTestCollectionFactoryFactory")
+	XunitAssemblyAttributeGenerator(Types.Xunit.CollectionBehaviorAttribute)
 {
-	protected override string? GetFactory(
-		INamedTypeSymbol type,
-		Location? location,
-		GeneratorResult result)
-	{
-		Guard.ArgumentNotNull(type);
-		Guard.ArgumentNotNull(result);
-
-		return
-			type.ImplementsInterface(Types.Xunit.v3.ICodeGenTestCollectionFactory) &&
-			type.HasConstructorParameters([Types.Xunit.v3.ICodeGenTestAssembly])
-				? $"(assembly) => new {type.ToCSharp()}(assembly)"
-				: null;
-	}
+	protected override void ProcessAttribute(
+		SemanticModel semanticModel,
+		CodeGenTestAssemblyRegistration registration,
+		AttributeData attribute) =>
+			(registration ?? throw new ArgumentNullException(nameof(registration))).SetTestCollectionFactory(attribute);
 }
 
 [Generator(LanguageNames.CSharp)]
 public class CollectionBehaviorAttributeOfTGenerator() :
-	AssemblyFactoryAttributeGeneratorBase(Types.Xunit.CollectionBehaviorAttribute + "`1", "RegisterTestCollectionFactoryFactory")
+	XunitAssemblyAttributeGenerator(Types.Xunit.CollectionBehaviorAttribute + "`1")
 {
-	protected override string? GetFactory(
-		INamedTypeSymbol type,
-		Location? location,
-		GeneratorResult result)
-	{
-		Guard.ArgumentNotNull(type);
-		Guard.ArgumentNotNull(result);
-
-		return
-			type.HasConstructorParameters([Types.Xunit.v3.ICodeGenTestAssembly])
-				? $"(assembly) => new {type.ToCSharp()}(assembly)"
-				: null;
-	}
+	protected override void ProcessAttribute(
+		SemanticModel semanticModel,
+		CodeGenTestAssemblyRegistration registration,
+		AttributeData attribute) =>
+			(registration ?? throw new ArgumentNullException(nameof(registration))).SetTestCollectionFactory(attribute);
 }

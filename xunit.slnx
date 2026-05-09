@@ -48,6 +48,7 @@
       <BuildDependency Project="src/xunit.v3.core/xunit.v3.core.csproj" />
     </Project>
     <Project Path="src/xunit.v3.core.aot.generators/xunit.v3.core.aot.generators.csproj" />
+    <Project Path="src/xunit.v3.generatorutility/xunit.v3.generatorutility.csproj" />
     <Project Path="src/xunit.v3.mtp-v2.aot/xunit.v3.mtp-v2.aot.csproj" />
     <Project Path="src/xunit.v3.runner.common.aot/xunit.v3.runner.common.aot.csproj" />
     <Project Path="src/xunit.v3.runner.common.aot.generators/xunit.v3.runner.common.aot.generators.csproj" />

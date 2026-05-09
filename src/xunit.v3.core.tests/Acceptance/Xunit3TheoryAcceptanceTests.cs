@@ -22,8 +22,9 @@ public static partial class Xunit3TheoryAcceptanceTests
 			var testMessages = await RunForResultsAsync(typeof(ClassUnderTest_ExplicitAcceptanceTests), preEnumerateTheories, ExplicitOption.Off);
 #endif
 
+			var passedTests = testMessages.OfType<TestPassedWithMetadata>().OrderBy(x => x.Test.TestDisplayName).ToArray();
 			Assert.Collection(
-				testMessages.OfType<TestPassedWithMetadata>().OrderBy(x => x.Test.TestDisplayName),
+				passedTests,
 				passed => Assert.Equal("Xunit3TheoryAcceptanceTests+DataAttributeTests+ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse(x: 2112, _: \"Inline forced false\")", passed.Test.TestDisplayName),
 				passed => Assert.Equal("Xunit3TheoryAcceptanceTests+DataAttributeTests+ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse(x: 2113, _: \"Member forced false\")", passed.Test.TestDisplayName),
 				passed => Assert.Equal("Xunit3TheoryAcceptanceTests+DataAttributeTests+ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse(x: 42, _: \"Inline inherited\")", passed.Test.TestDisplayName),
@@ -33,8 +34,9 @@ public static partial class Xunit3TheoryAcceptanceTests
 			);
 			Assert.Empty(testMessages.OfType<TestFailedWithMetadata>());
 			Assert.Empty(testMessages.OfType<TestSkippedWithMetadata>());
+			var testsNotRun = testMessages.OfType<TestNotRunWithMetadata>().OrderBy(x => x.Test.TestDisplayName).ToArray();
 			Assert.Collection(
-				testMessages.OfType<TestNotRunWithMetadata>().OrderBy(x => x.Test.TestDisplayName),
+				testsNotRun,
 				notRun => Assert.Equal("Xunit3TheoryAcceptanceTests+DataAttributeTests+ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse(x: 0, _: \"Inline forced true\")", notRun.Test.TestDisplayName),
 				notRun => Assert.Equal("Xunit3TheoryAcceptanceTests+DataAttributeTests+ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitFalse(x: 0, _: \"Member forced true\")", notRun.Test.TestDisplayName),
 				notRun => Assert.Equal("Xunit3TheoryAcceptanceTests+DataAttributeTests+ClassUnderTest_ExplicitAcceptanceTests.TestWithTheoryExplicitTrue(x: 0, _: \"Inline forced true\")", notRun.Test.TestDisplayName),

@@ -7,11 +7,11 @@ public class ClassDataAttributeGenerator() :
 	ClassDataAttributeGeneratorBase(Types.Xunit.ClassDataAttribute)
 {
 	protected override void ProcessAttribute(
-		INamedTypeSymbol classSymbol,
-		IMethodSymbol methodSymbol,
+		SemanticModel semanticModel,
+		INamedTypeSymbol testClass,
+		IMethodSymbol testMethod,
 		AttributeData attribute,
-		string dataAttributeRegistration,
-		GeneratorResult result,
+		DataAttributeGeneratorResult result,
 		CancellationToken cancellationToken)
 	{
 		Guard.ArgumentNotNull(attribute);
@@ -19,7 +19,11 @@ public class ClassDataAttributeGenerator() :
 		if (attribute.ConstructorArguments.Length < 1 || attribute.ConstructorArguments[0].Value is not INamedTypeSymbol classDataType)
 			return;
 
-		ProcessClassDataAttribute(classSymbol, methodSymbol, attribute, classDataType, dataAttributeRegistration, result);
+		var dataAttributeRegistration = DataAttributeRegistration.TryGenerate<DataAttributeRegistration>(semanticModel, testClass, testMethod, attribute);
+		if (dataAttributeRegistration is null)
+			return;
+
+		ProcessClassDataAttribute(semanticModel, testClass, testMethod, attribute, classDataType, dataAttributeRegistration, result);
 	}
 }
 
@@ -28,11 +32,11 @@ public class ClassDataAttributeOfTGenerator() :
 	ClassDataAttributeGeneratorBase(Types.Xunit.ClassDataAttribute + "`1")
 {
 	protected override void ProcessAttribute(
-		INamedTypeSymbol classSymbol,
-		IMethodSymbol methodSymbol,
+		SemanticModel semanticModel,
+		INamedTypeSymbol testClass,
+		IMethodSymbol testMethod,
 		AttributeData attribute,
-		string dataAttributeRegistration,
-		GeneratorResult result,
+		DataAttributeGeneratorResult result,
 		CancellationToken cancellationToken)
 	{
 		Guard.ArgumentNotNull(attribute);
@@ -40,6 +44,10 @@ public class ClassDataAttributeOfTGenerator() :
 		if (attribute.AttributeClass?.TypeArguments.Length < 1 || attribute.AttributeClass?.TypeArguments[0] is not INamedTypeSymbol classDataType)
 			return;
 
-		ProcessClassDataAttribute(classSymbol, methodSymbol, attribute, classDataType, dataAttributeRegistration, result);
+		var dataAttributeRegistration = DataAttributeRegistration.TryGenerate<DataAttributeRegistration>(semanticModel, testClass, testMethod, attribute);
+		if (dataAttributeRegistration is null)
+			return;
+
+		ProcessClassDataAttribute(semanticModel, testClass, testMethod, attribute, classDataType, dataAttributeRegistration, result);
 	}
 }

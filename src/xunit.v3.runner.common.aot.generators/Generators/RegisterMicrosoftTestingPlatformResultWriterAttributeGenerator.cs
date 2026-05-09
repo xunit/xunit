@@ -9,9 +9,7 @@ public class RegisterMicrosoftTestingPlatformResultWriterAttributeGenerator() :
 		(id, type) => $@"global::Xunit.Runner.Common.RegisteredRunnerConfig.RegisterMicrosoftTestingPlatformResultWriter(""{id}"", new {type}());")
 {
 	protected override bool ValidateType(
-		INamedTypeSymbol type,
-		Location? location,
-		GeneratorResult result) =>
+		INamedTypeSymbol type) =>
 			type.ImplementsInterface(Types.Xunit.Runner.Common.IMicrosoftTestingPlatformResultWriter);
 }
 

@@ -5,27 +5,33 @@ namespace Xunit.Generators;
 
 [Generator(LanguageNames.CSharp)]
 public class MemberDataAttributeGenerator() :
-	DataAttributeGeneratorBase(Types.Xunit.MemberDataAttribute)
+	DataAttributeGenerator(Types.Xunit.MemberDataAttribute)
 {
 	protected override void ProcessAttribute(
-		INamedTypeSymbol classSymbol,
-		IMethodSymbol methodSymbol,
+		SemanticModel semanticModel,
+		INamedTypeSymbol testClass,
+		IMethodSymbol testMethod,
 		AttributeData attribute,
-		string dataAttributeRegistration,
-		GeneratorResult result,
+		DataAttributeGeneratorResult result,
 		CancellationToken cancellationToken)
 	{
-		Guard.ArgumentNotNull(classSymbol);
-		Guard.ArgumentNotNull(methodSymbol);
+		Guard.ArgumentNotNull(semanticModel);
+		Guard.ArgumentNotNull(testClass);
+		Guard.ArgumentNotNull(testMethod);
 		Guard.ArgumentNotNull(attribute);
-		Guard.ArgumentNotNull(dataAttributeRegistration);
 		Guard.ArgumentNotNull(result);
+
+		var objectType = semanticModel.Compilation.GetSpecialType(SpecialType.System_Object);
 
 		if (attribute.ConstructorArguments.Length < 1 || attribute.ConstructorArguments[0].Value is not string memberName)
 			return;
 
+		var dataAttributeRegistration = DataAttributeRegistration.TryGenerate<DataAttributeRegistration>(semanticModel, testClass, testMethod, attribute);
+		if (dataAttributeRegistration is null)
+			return;
+
 		var disableDiscoveryEnumeration = false;
-		ITypeSymbol memberType = classSymbol;
+		ITypeSymbol memberType = testClass;
 
 		foreach (var namedArgument in attribute.NamedArguments)
 			switch (namedArgument.Key)
@@ -39,7 +45,6 @@ public class MemberDataAttributeGenerator() :
 					break;
 			}
 
-		var location = attribute.ApplicationSyntaxReference.Location;
 		var member = default(ISymbol);
 
 		for (var currentType = memberType; currentType is not null; currentType = currentType.BaseType)
@@ -72,7 +77,7 @@ public class MemberDataAttributeGenerator() :
 			if (namedMemberType.IsGenericType && namedMemberType.TypeParameters.Any(t => t.Kind == SymbolKind.TypeParameter))
 				return;
 
-		var theoryDataInfo = returnType.GetTheoryDataInfo(result.ObjectType);
+		var theoryDataInfo = returnType.GetTheoryDataInfo(objectType);
 		if (theoryDataInfo is null)
 			return;
 
@@ -109,14 +114,14 @@ public class MemberDataAttributeGenerator() :
 				for (var idx = 0; idx < memberMethod.Parameters.Length; ++idx)
 				{
 					var parameter = memberMethod.Parameters[idx];
-					var parameterName = parameter.Name.Quoted();
+					var parameterName = parameter.Name.ToCSharp();
 					var parameterNameInCode = "param" + idx;
 
 					if (idx >= arguments.Length)
 					{
 						if (!parameter.IsOptional && !parameter.IsParams)
 							parametersInit.Append($$"""
-									invalidParameters.Add(({{parameter.Type.ToDisplayString().Quoted()}}, {{parameterName}}, "<missing value>"));
+									invalidParameters.Add(({{parameter.Type.ToDisplayString().ToCSharp()}}, {{parameterName}}, "<missing value>"));
 
 								""");
 					}
@@ -128,7 +133,7 @@ public class MemberDataAttributeGenerator() :
 						parameterNamesInCode.Add(parameterNameInCode);
 						parametersInit.Append($$"""
 								if (!global::Xunit.Sdk.TypeHelper.{{conversion}}({{argument.ToCSharp()}}, out {{parameter.Type.ToCSharp()}} {{parameterNameInCode}}))
-									invalidParameters.Add(({{parameter.Type.ToDisplayString().Quoted()}}, {{parameterName}}, {{argument.ToCSharp().Quoted()}}));
+									invalidParameters.Add(({{parameter.Type.ToDisplayString().ToCSharp()}}, {{parameterName}}, {{argument.ToCSharp().ToCSharp()}}));
 
 							""");
 					}
@@ -150,12 +155,10 @@ public class MemberDataAttributeGenerator() :
 			parameters = $"({string.Join(", ", parameterNamesInCode)})";
 		}
 
-		result.GeneratorSuffix = $"{classSymbol.Name}٠{methodSymbol.Name}٠";
-
 		var factory = new StringBuilder();
 
-		var foreachAwait = theoryDataInfo.Value.IsAsyncEnumerable ? "await " : "";
-		var dataRowAwait = theoryDataInfo.Value.IsTask ? "await " : "";
+		var foreachAwait = theoryDataInfo.IsAsyncEnumerable ? "await " : "";
+		var dataRowAwait = theoryDataInfo.IsAsync ? "await " : "";
 
 		factory.Append($$"""
 			async disposalTracker => {
@@ -163,13 +166,13 @@ public class MemberDataAttributeGenerator() :
 				var result = new global::System.Collections.Generic.List<global::Xunit.ITheoryDataRow>();
 				var dataRows = {{dataRowAwait}}{{memberType.ToCSharp()}}.{{memberName}}{{parameters}};
 				if (dataRows == null)
-					throw new global::Xunit.Sdk.TestPipelineException("Test data returned null for {{classSymbol.ToDisplayString()}}.{{methodSymbol.Name}}. Make sure it is statically initialized before this test method is called.");
+					throw new global::Xunit.Sdk.TestPipelineException("Test data returned null for {{testClass.ToDisplayString()}}.{{testMethod.Name}}. Make sure it is statically initialized before this test method is called.");
 				{{foreachAwait}}foreach (var dataRow in dataRows)
 					result.Add(attr.CreateDataRow(dataRow));
 				return result;
 			}
 			""");
 
-		result.Factories.Add((factory.ToString(), disableDiscoveryEnumeration));
+		result.Factories.Add(new(factory.ToString(), disableDiscoveryEnumeration));
 	}
 }

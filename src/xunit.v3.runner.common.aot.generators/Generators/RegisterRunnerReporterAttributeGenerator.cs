@@ -5,6 +5,9 @@ namespace Xunit.Generators;
 public abstract class RegisterRunnerReporterAttributeGeneratorBase(string fullyQualifiedAttributeTypeName) :
 	XunitAttributeGenerator<RegisterRunnerReporterAttributeGeneratorBase.GeneratorResult>(fullyQualifiedAttributeTypeName)
 {
+	protected override string BaseInitAttributeName =>
+		"global::Xunit.Runner.Common.RunnerInitializationAttribute";
+
 	protected override void CreateSource(
 		SourceProductionContext context,
 		GeneratorResult result)
@@ -15,7 +18,7 @@ public abstract class RegisterRunnerReporterAttributeGeneratorBase(string fullyQ
 		var code = new List<string>();
 
 		foreach (var message in result.Messages)
-			code.Add($"global::Xunit.Runner.Common.RegisteredRunnerConfig.RegisterRunnerReporterMessage({message.Quoted()});");
+			code.Add($"global::Xunit.Runner.Common.RegisteredRunnerConfig.RegisterRunnerReporterMessage({message.ToCSharp()});");
 
 		foreach (var reporter in result.RunnerReporters.WhereNotNull())
 			code.Add($"global::Xunit.Runner.Common.RegisteredRunnerConfig.RegisterRunnerReporter(new {reporter}());");
@@ -73,7 +76,7 @@ public abstract class RegisterRunnerReporterAttributeGeneratorBase(string fullyQ
 	}
 
 	public sealed class GeneratorResult(GeneratorAttributeSyntaxContext context) :
-		XunitGeneratorResult(context.SemanticModel, context.TargetNode), IEquatable<GeneratorResult?>
+		XunitGeneratorResult(context.SemanticModel.SyntaxTree.FilePath, context.TargetNode.GetLocation()), IEquatable<GeneratorResult?>
 	{
 		public List<string> Messages = [];
 
@@ -85,11 +88,11 @@ public abstract class RegisterRunnerReporterAttributeGeneratorBase(string fullyQ
 		public bool Equals(GeneratorResult? other) =>
 			other is not null &&
 			base.Equals(other) &&
-			ComparerHelper.Equals(Messages, other.Messages) &&
-			ComparerHelper.Equals(RunnerReporters, other.RunnerReporters);
+			ComparerHelper.Equal(Messages, other.Messages) &&
+			ComparerHelper.Equal(RunnerReporters, other.RunnerReporters);
 
 		public override int GetHashCode() =>
-			Hasher.Extend(base.GetHashCode()).With(Messages).With(RunnerReporters);
+			HashCodeHelper.Extend(base.GetHashCode()).With(Messages).With(RunnerReporters);
 	}
 }
 
