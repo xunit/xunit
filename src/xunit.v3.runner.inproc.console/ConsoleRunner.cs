@@ -28,6 +28,7 @@ public class ConsoleRunner(
 		IDisposable
 {
 	readonly string[] args = Guard.ArgumentNotNull(args);
+	bool assemblyInfoMode;
 	AutomatedMode automatedMode;
 	readonly CancellationTokenSource cancellationTokenSource = new();
 	ConsoleHelper consoleHelper = default!;
@@ -154,6 +155,7 @@ public class ConsoleRunner(
 
 			if (project.Configuration.AssemblyInfoOrDefault)
 			{
+				assemblyInfoMode = true;
 				noColor = true;
 				await PrintAssemblyInfo(projectAssembly.ConfigFileName);
 				return 0;
@@ -431,28 +433,34 @@ public class ConsoleRunner(
 		{
 			await Task.Delay(1_000);
 
-			if (runner.automatedMode == AutomatedMode.Off)
-				Console.WriteLine("Waiting 10 seconds for foreground threads to exit...");
-			else
-				runner.logger?.WriteMessage(new DiagnosticMessage("Waiting 10 seconds for foreground threads to exit"));
+			if (!runner.assemblyInfoMode)
+			{
+				if (runner.automatedMode == AutomatedMode.Off)
+					Console.WriteLine("Waiting 10 seconds for foreground threads to exit...");
+				else
+					runner.logger?.WriteMessage(new DiagnosticMessage("Waiting 10 seconds for foreground threads to exit"));
+			}
 
 			await Task.Delay(10_000);
 
-			if (runner.automatedMode == AutomatedMode.Off)
+			if (!runner.assemblyInfoMode)
 			{
-				runner.consoleHelper.SetForegroundColor(ConsoleColor.Red);
-				Console.Error.WriteLine("[FATAL ERROR] Foreground threads were left running, forcing process exit");
-				runner.consoleHelper.ResetColor();
+				if (runner.automatedMode == AutomatedMode.Off)
+				{
+					runner.consoleHelper.SetForegroundColor(ConsoleColor.Red);
+					Console.Error.WriteLine("[FATAL ERROR] Foreground threads were left running, forcing process exit");
+					runner.consoleHelper.ResetColor();
+				}
+				else
+					try
+					{
+						throw new TestPipelineException("Foreground threads were left running, forcing process exit");
+					}
+					catch (Exception ex)
+					{
+						runner.logger?.WriteMessage(ErrorMessage.FromException(ex, null));
+					}
 			}
-			else
-				try
-				{
-					throw new TestPipelineException("Foreground threads were left running, forcing process exit");
-				}
-				catch (Exception ex)
-				{
-					runner.logger?.WriteMessage(ErrorMessage.FromException(ex, null));
-				}
 
 			Environment.Exit(1);
 		});
