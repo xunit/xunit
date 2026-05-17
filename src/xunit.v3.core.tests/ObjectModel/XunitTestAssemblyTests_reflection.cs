@@ -224,7 +224,7 @@ namespace SomeNamespace
 					? Path.GetFileNameWithoutExtension(assemblyPath)
 					: Path.GetFileName(assemblyPath);
 			var assembly = Assembly.Load(assemblyName);
-			testAssembly = new XunitTestAssembly(assembly);
+			testAssembly = new XunitTestAssembly(assembly, configFilePath: null);
 		}
 	}
 }

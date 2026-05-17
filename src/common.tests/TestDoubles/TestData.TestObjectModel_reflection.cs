@@ -116,16 +116,11 @@ partial class TestData
 
 	public static XunitTestAssembly XunitTestAssembly(
 		Assembly assembly,
-		string? configFileName = null,
-		Version? version = null,
-		string uniqueID = DefaultAssemblyUniqueID) =>
-			new(assembly, configFileName, version, uniqueID);
+		string? configFilePath = null) =>
+			new(assembly, configFilePath, uniqueID: DefaultAssemblyUniqueID);
 
-	public static XunitTestAssembly XunitTestAssembly<TClassUnderTest>(
-		string? configFileName = null,
-		Version? version = null,
-		string uniqueID = DefaultAssemblyUniqueID) =>
-			XunitTestAssembly(typeof(TClassUnderTest).Assembly, configFileName, version, uniqueID);
+	public static XunitTestAssembly XunitTestAssembly<TClassUnderTest>(string? configFilePath = null) =>
+		new(typeof(TClassUnderTest).Assembly, configFilePath, uniqueID: DefaultAssemblyUniqueID);
 
 	public static XunitTestCase XunitTestCase(
 		IXunitTestMethod testMethod,

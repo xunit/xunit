@@ -1,5 +1,8 @@
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.Versioning;
 using Xunit.Sdk;
 
 namespace Xunit.v3;
@@ -15,21 +18,28 @@ public class XunitTestAssembly : IXunitTestAssembly, IXunitSerializable
 {
 	// Values that must be round-tripped in serialization
 	Assembly? assembly;
+	string? assemblyName;
+	string? assemblyPath;
+	string? targetFramework;
 	string? uniqueID;
 	Version? version;
 
-	// Lazy accessors based on serialized values
-	readonly Lazy<IReadOnlyCollection<Type>> assemblyFixtureTypes;
-	readonly Lazy<string> assemblyName;
-	readonly Lazy<IReadOnlyCollection<IBeforeAfterTestAttribute>> beforeAfterTestAttributes;
-	readonly Lazy<ICollectionBehaviorAttribute?> collectionBehavior;
-	readonly Lazy<IReadOnlyDictionary<string, (Type Type, CollectionDefinitionAttribute Attribute)>> collectionDefinitions;
-	readonly Lazy<string> targetFramework;
-	readonly Lazy<ITestCaseOrderer?> testCaseOrderer;
-	readonly Lazy<ITestClassOrderer?> testClassOrderer;
-	readonly Lazy<ITestCollectionOrderer?> testCollectionOrderer;
-	readonly Lazy<ITestMethodOrderer?> testMethodOrderer;
-	readonly Lazy<IReadOnlyDictionary<string, IReadOnlyCollection<string>>> traits;
+	// Lazy accessors based on expensive-to-compute values
+	readonly Lazy<IReadOnlyCollection<Type>> lazyAssemblyFixtureTypes;
+	readonly Lazy<string> lazyAssemblyName;
+	readonly Lazy<string> lazyAssemblyPath;
+	readonly Lazy<IReadOnlyCollection<IBeforeAfterTestAttribute>> lazyBeforeAfterTestAttributes;
+	readonly Lazy<ICollectionBehaviorAttribute?> lazyCollectionBehavior;
+	readonly Lazy<IReadOnlyDictionary<string, (Type Type, CollectionDefinitionAttribute Attribute)>> lazyCollectionDefinitions;
+	readonly Lazy<Guid> lazyModuleVersionID;
+	readonly Lazy<string> lazyTargetFramework;
+	readonly Lazy<ITestCaseOrderer?> lazyTestCaseOrderer;
+	readonly Lazy<ITestClassOrderer?> lazyTestClassOrderer;
+	readonly Lazy<ITestCollectionOrderer?> lazyTestCollectionOrderer;
+	readonly Lazy<ITestMethodOrderer?> lazyTestMethodOrderer;
+	readonly Lazy<IReadOnlyDictionary<string, IReadOnlyCollection<string>>> lazyTraits;
+	readonly Lazy<string> lazyUniqueID;
+	readonly Lazy<Version> lazyVersion;
 
 	/// <summary>
 	/// Called by the de-serializer; should only be called by deriving classes for de-serialization purposes
@@ -37,44 +47,68 @@ public class XunitTestAssembly : IXunitTestAssembly, IXunitSerializable
 	[Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
 	public XunitTestAssembly()
 	{
-		assemblyFixtureTypes = new(() => ExtensibilityPointFactory.GetAssemblyFixtureTypes(Assembly));
-		assemblyName = new(() => Assembly.GetName().FullName);
-		beforeAfterTestAttributes = new(() => ExtensibilityPointFactory.GetAssemblyBeforeAfterTestAttributes(Assembly));
-		collectionBehavior = new(() => ExtensibilityPointFactory.GetCollectionBehavior(Assembly));
-		collectionDefinitions = new(() => ExtensibilityPointFactory.GetCollectionDefinitions(Assembly));
-		targetFramework = new(() => Assembly.GetTargetFramework());
-		testCaseOrderer = new(() => RegisteredEngineConfig.GetAssemblyTestCaseOrderer(Assembly));
-		testClassOrderer = new(() => RegisteredEngineConfig.GetAssemblyTestClassOrderer(Assembly));
-		testCollectionOrderer = new(() => RegisteredEngineConfig.GetAssemblyTestCollectionOrderer(Assembly));
-		testMethodOrderer = new(() => RegisteredEngineConfig.GetAssemblyTestMethodOrderer(Assembly));
-		traits = new(() => ExtensibilityPointFactory.GetAssemblyTraits(Assembly));
+		lazyAssemblyFixtureTypes = new(() => ExtensibilityPointFactory.GetAssemblyFixtureTypes(Assembly));
+		lazyAssemblyName = new(() => Assembly.GetName().FullName);
+		lazyAssemblyPath = new(() => Assembly.Location);
+		lazyBeforeAfterTestAttributes = new(() => ExtensibilityPointFactory.GetAssemblyBeforeAfterTestAttributes(Assembly));
+		lazyCollectionBehavior = new(() => ExtensibilityPointFactory.GetCollectionBehavior(Assembly));
+		lazyCollectionDefinitions = new(() => ExtensibilityPointFactory.GetCollectionDefinitions(Assembly));
+		lazyModuleVersionID = new(() => Assembly.Modules.FirstOrDefault()?.ModuleVersionId ?? Guid.Empty);
+		lazyTargetFramework = new(() => Assembly.GetTargetFramework());
+		lazyTestCaseOrderer = new(() => RegisteredEngineConfig.GetAssemblyTestCaseOrderer(Assembly));
+		lazyTestClassOrderer = new(() => RegisteredEngineConfig.GetAssemblyTestClassOrderer(Assembly));
+		lazyTestCollectionOrderer = new(() => RegisteredEngineConfig.GetAssemblyTestCollectionOrderer(Assembly));
+		lazyTestMethodOrderer = new(() => RegisteredEngineConfig.GetAssemblyTestMethodOrderer(Assembly));
+		lazyTraits = new(() => ExtensibilityPointFactory.GetAssemblyTraits(Assembly));
+		lazyUniqueID = new(() => UniqueIDGenerator.ForAssembly(AssemblyPath, ConfigFilePath));
+		lazyVersion = new(() => Assembly.GetName().Version ?? new Version(0, 0, 0, 0));
 	}
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="XunitTestAssembly"/> class.
 	/// </summary>
-	/// <param name="assembly">The test assembly.</param>
-	/// <param name="configFileName">The optional configuration filename</param>
-	/// <param name="version">The version number of the assembly (defaults to "0.0.0.0")</param>
-	/// <param name="uniqueID">The unique ID for the test assembly (only used to override default behavior in testing scenarios)</param>
+	/// <param name="assembly">The test assembly</param>
+	/// <param name="configFilePath">The configuration file path (pass <see langword="null"/> for no configuration file)</param>
+	/// <param name="assemblyName">The optional assembly name (defaults to <c><see cref="Assembly.GetName()"/>.FullName</c>)</param>
+	/// <param name="assemblyPath">The optional assembly path (defaults to <c><see cref="Assembly.Location"/></c>)</param>
+	/// <param name="targetFramework">The optional target framework (defaults to value from <see cref="TargetFrameworkAttribute"/>)</param>
+	/// <param name="uniqueID">The optional unique ID (defaults to <c><see cref="UniqueIDGenerator.ForAssembly"/></c>)</param>
+	/// <param name="version">The optional version (defaults to <c><see cref="Assembly.GetName()"/>.Version</c>)</param>
 	public XunitTestAssembly(
 		Assembly assembly,
-		string? configFileName = null,
-		Version? version = null,
-		string? uniqueID = null)
+		string? configFilePath,
+		string? assemblyName = null,
+		string? assemblyPath = null,
+		string? targetFramework = null,
+		string? uniqueID = null,
+		Version? version = null)
 #pragma warning disable CS0618
 			: this()
 #pragma warning restore CS0618
 	{
 		this.assembly = Guard.ArgumentNotNull(assembly);
-		ConfigFilePath = configFileName;
-
-		this.uniqueID = uniqueID ?? UniqueIDGenerator.ForAssembly(assembly.Location, configFileName);
-		this.version =
-			version
-				?? assembly.GetName().Version
-				?? new Version(0, 0, 0, 0);
+		ConfigFilePath = configFilePath;
+		this.assemblyName = assemblyName;
+		this.assemblyPath = assemblyPath;
+		this.targetFramework = targetFramework;
+		this.uniqueID = uniqueID;
+		this.version = version;
 	}
+
+	/// <summary>
+	/// Please call <see cref="XunitTestAssembly(Assembly, string?, string?, string?, string?, string?, Version?)"/> instead.
+	/// This overload will be removed in the next major version.
+	/// </summary>
+	[Obsolete("Please call the new overload with additional parameters. This overload will be removed in the next major version.")]
+	[EditorBrowsable(EditorBrowsableState.Never)]
+	[OverloadResolutionPriority(-1)]
+	public XunitTestAssembly(
+		Assembly assembly,
+		string? configFileName = null,
+		Version? version = null,
+		string? uniqueID = null)
+			: this(assembly, configFileName, uniqueID: uniqueID, version: version)
+	{ }
 
 	/// <inheritdoc/>
 	public Assembly Assembly =>
@@ -82,30 +116,30 @@ public class XunitTestAssembly : IXunitTestAssembly, IXunitSerializable
 
 	/// <inheritdoc/>
 	public IReadOnlyCollection<Type> AssemblyFixtureTypes =>
-		assemblyFixtureTypes.Value;
+		lazyAssemblyFixtureTypes.Value;
 
 	/// <inheritdoc/>
 	public string AssemblyName =>
-		assemblyName.Value;
+		assemblyName ?? lazyAssemblyName.Value;
 
 	/// <inheritdoc/>
 	public string AssemblyPath =>
-		Assembly.Location;
+		assemblyPath ?? lazyAssemblyPath.Value;
 
 	/// <inheritdoc/>
 	public IReadOnlyCollection<IBeforeAfterTestAttribute> BeforeAfterTestAttributes =>
-		beforeAfterTestAttributes.Value;
+		lazyBeforeAfterTestAttributes.Value;
 
 	/// <inheritdoc/>
 	public ICollectionBehaviorAttribute? CollectionBehavior =>
-		collectionBehavior.Value;
+		lazyCollectionBehavior.Value;
 
 	/// <inheritdoc/>
 	public IReadOnlyDictionary<string, (Type Type, CollectionDefinitionAttribute Attribute)> CollectionDefinitions =>
-		collectionDefinitions.Value;
+		lazyCollectionDefinitions.Value;
 
 	/// <inheritdoc/>
-	public string? ConfigFilePath { get; private set; }
+	public string? ConfigFilePath { get; set; }
 
 	/// <inheritdoc/>
 	public bool? DisableParallelization =>
@@ -121,60 +155,73 @@ public class XunitTestAssembly : IXunitTestAssembly, IXunitSerializable
 
 	/// <inheritdoc/>
 	public Guid ModuleVersionID =>
-		Assembly.Modules.FirstOrDefault()?.ModuleVersionId ?? Guid.Empty;
+		lazyModuleVersionID.Value;
 
 	/// <inheritdoc/>
 	public string TargetFramework =>
-		targetFramework.Value;
+		targetFramework ?? lazyTargetFramework.Value;
 
 	/// <inheritdoc/>
 	public ITestCaseOrderer? TestCaseOrderer =>
-		testCaseOrderer.Value;
+		lazyTestCaseOrderer.Value;
 
 	/// <inheritdoc/>
 	public ITestClassOrderer? TestClassOrderer =>
-		testClassOrderer.Value;
+		lazyTestClassOrderer.Value;
 
 	/// <inheritdoc/>
 	public ITestCollectionOrderer? TestCollectionOrderer =>
-		testCollectionOrderer.Value;
+		lazyTestCollectionOrderer.Value;
 
 	/// <inheritdoc/>
 	public ITestMethodOrderer? TestMethodOrderer =>
-		testMethodOrderer.Value;
+		lazyTestMethodOrderer.Value;
 
 	/// <inheritdoc/>
 	public IReadOnlyDictionary<string, IReadOnlyCollection<string>> Traits =>
-		traits.Value;
+		lazyTraits.Value;
 
 	/// <inheritdoc/>
 	public string UniqueID =>
-		this.ValidateNullablePropertyValue(uniqueID, nameof(UniqueID));
+		uniqueID ?? lazyUniqueID.Value;
 
 	/// <inheritdoc/>
 	public Version Version =>
-		this.ValidateNullablePropertyValue(version, nameof(Version));
+		version ?? lazyVersion.Value;
 
 	/// <inheritdoc/>
 	public void Deserialize(IXunitSerializationInfo info)
 	{
-		var versionString = Guard.NotNull("Could not retrieve Version from serialization", info.GetValue<string>("v"));
-		version = new Version(versionString);
-
-		ConfigFilePath = info.GetValue<string>("cp");
-
-		var assemblyPath = Guard.NotNull("Could not retrieve AssemblyPath from serialization", info.GetValue<string>("ap"));
+		// AssemblyPath is always required, so we can load the assembly
+		assemblyPath = Guard.NotNull("Could not retrieve AssemblyPath from serialization", info.GetValue<string>("ap"));
 		assembly = Guard.NotNull(() => "Could not load assembly " + assemblyPath, Assembly.LoadFrom(assemblyPath));
 
-		uniqueID = Guard.NotNull("Could not retrieve UniqueID from serialization", info.GetValue<string>("id"));
+		// Everything else is optional
+		assemblyName = info.GetValue<string>("an") ?? assemblyName;
+		ConfigFilePath = info.GetValue<string>("cp") ?? ConfigFilePath;
+		targetFramework = info.GetValue<string>("tf") ?? targetFramework;
+		uniqueID = info.GetValue<string>("id") ?? uniqueID;
+
+		if (info.GetValue<string>("v") is { } versionString)
+			version = new Version(versionString);
 	}
 
 	/// <inheritdoc/>
 	public void Serialize(IXunitSerializationInfo info)
 	{
+		// Always serialize the path so we can load the assembly during deserialization
 		info.AddValue("ap", AssemblyPath);
-		info.AddValue("cp", ConfigFilePath);
-		info.AddValue("v", Version.ToString());
-		info.AddValue("id", UniqueID);
+
+		// For the rest, only serialize when the user has provided an override
+		if (assemblyName is not null)
+			info.AddValue("an", assemblyName);
+		if (ConfigFilePath is not null)
+			info.AddValue("cp", ConfigFilePath);
+		if (targetFramework is not null)
+			info.AddValue("tf", targetFramework);
+		if (uniqueID is not null)
+			info.AddValue("id", uniqueID);
+		if (version is not null)
+			info.AddValue("v", version.ToString());
 	}
 }

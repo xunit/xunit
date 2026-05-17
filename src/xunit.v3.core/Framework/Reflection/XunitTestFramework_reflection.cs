@@ -36,9 +36,9 @@ public class XunitTestFramework : TestFramework
 
 	/// <inheritdoc/>
 	protected override ITestFrameworkDiscoverer CreateDiscoverer(Assembly assembly) =>
-		new XunitTestFrameworkDiscoverer(new XunitTestAssembly(Guard.ArgumentNotNull(assembly), configFileName, assembly.GetName().Version));
+		new XunitTestFrameworkDiscoverer(new XunitTestAssembly(assembly, configFileName));
 
 	/// <inheritdoc/>
 	protected override ITestFrameworkExecutor CreateExecutor(Assembly assembly) =>
-		new XunitTestFrameworkExecutor(new XunitTestAssembly(Guard.ArgumentNotNull(assembly), configFileName, assembly.GetName().Version));
+		new XunitTestFrameworkExecutor(new XunitTestAssembly(assembly, configFileName));
 }
