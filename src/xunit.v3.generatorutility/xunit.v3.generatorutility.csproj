@@ -16,7 +16,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.3.0" />
+    <!-- Stuck on 4.3.0 as a minimum requirement since we ship this as source -->
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="[4.3.0]" />
   </ItemGroup>
 
 </Project>

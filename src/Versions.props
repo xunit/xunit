@@ -4,7 +4,7 @@
   <PropertyGroup>
 
     <!-- Used for building -->
-    <ILRepack_Version>2.0.44</ILRepack_Version>
+    <ILRepack_Version>2.0.45</ILRepack_Version>
     <Microsoft_NetCore_App_Ref_Version>10.0.0</Microsoft_NetCore_App_Ref_Version>
     <Microsoft_NETFramework_ReferenceAssemblies_Version>1.0.3</Microsoft_NETFramework_ReferenceAssemblies_Version>
     <Microsoft_SourceLink_GitHub_Version>10.0.105</Microsoft_SourceLink_GitHub_Version>
@@ -16,7 +16,7 @@
     <Microsoft_CodeAnalysis_CSharp_Version>4.12.0</Microsoft_CodeAnalysis_CSharp_Version>
 
     <!-- Used by xunit.v3.mtp-v2 -->
-    <Microsoft_Testing_v2_Version>2.2.2</Microsoft_Testing_v2_Version>
+    <Microsoft_Testing_v2_Version>2.2.3</Microsoft_Testing_v2_Version>
 
     <!-- Used by NuGet packages (xunit.v3 and xunit.v3.templates) -->
     <Microsoft_NET_Test_Sdk_Version>18.3.0</Microsoft_NET_Test_Sdk_Version>
