@@ -139,7 +139,7 @@ public class XunitTestAssembly : IXunitTestAssembly, IXunitSerializable
 		lazyCollectionDefinitions.Value;
 
 	/// <inheritdoc/>
-	public string? ConfigFilePath { get; set; }
+	public string? ConfigFilePath { get; private set; }
 
 	/// <inheritdoc/>
 	public bool? DisableParallelization =>
