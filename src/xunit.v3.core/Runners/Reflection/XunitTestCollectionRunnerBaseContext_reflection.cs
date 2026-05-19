@@ -34,7 +34,7 @@ public abstract class XunitTestCollectionRunnerBaseContext<TTestCollection, TTes
 	/// Please use <see cref="XunitTestCollectionRunnerBaseContext(TTestCollection, IReadOnlyCollection{TTestCase}, ExplicitOption, IMessageBus, ExceptionAggregator, CancellationTokenSource, FixtureMappingManager)"/>.
 	/// This overload will be removed in the next major version.
 	/// </summary>
-	[Obsolete("Please use the constructor which accepts testClassOrderer and testMethodOrderer. This overload will be removed in the next major version.")]
+	[Obsolete("Please use the constructor without testCaseOrderer. This overload will be removed in the next major version.")]
 	[EditorBrowsable(EditorBrowsableState.Never)]
 	[OverloadResolutionPriority(-1)]
 	protected XunitTestCollectionRunnerBaseContext(
