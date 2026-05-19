@@ -1759,6 +1759,28 @@ public static class EquivalenceAssertsTests
 
 			Assert.Equivalent(expected, actual);
 		}
+
+		// Type
+
+		[Fact]
+		public static void Type_Success()
+		{
+			Assert.Equivalent(new { Type = typeof(int) }, new { Type = typeof(int) });
+		}
+
+		[Fact]
+		public static void Type_Failure()
+		{
+			var ex = Record.Exception(() => Assert.Equivalent(new { Type = typeof(int) }, new { Type = typeof(object) }));
+
+			Assert.IsType<EquivalentException>(ex);
+			Assert.Equal(
+				"Assert.Equivalent() Failure: Mismatched value on member 'Type'" + Environment.NewLine +
+				"Expected: typeof(int)" + Environment.NewLine +
+				"Actual:   typeof(object)",
+				ex.Message
+			);
+		}
 	}
 
 	public static class Obsolete
