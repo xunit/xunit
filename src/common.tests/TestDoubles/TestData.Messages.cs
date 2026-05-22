@@ -275,7 +275,7 @@ partial class TestData
 		decimal executionTime = 123.4567m,
 		bool internalDiagnosticMessages = false,
 		int maxParallelThreads = 2600,
-		bool parallelizeTestCollections = false,
+		ParallelismOptions? parallelismOptions = null,
 		int testsErrored = 95,
 		int testsFailed = DefaultCountFailed,
 		int testsNotRun = DefaultCountNotRun,
@@ -288,7 +288,7 @@ partial class TestData
 		// See the ForExecution method to see which TestAssemblyConfiguration options are used for discovery
 		var executionOptions = TestFrameworkExecutionOptions(
 			diagnosticMessages: diagnosticMessages,
-			disableParallelization: !parallelizeTestCollections,
+			parallelismOptions: parallelismOptions,
 			internalDiagnosticMessages: internalDiagnosticMessages,
 			maxParallelThreads: maxParallelThreads
 		);
@@ -320,7 +320,7 @@ partial class TestData
 		bool internalDiagnosticMessages = false,
 		int maxParallelThreads = 2600,
 		ParallelAlgorithm? parallelAlgorithm = null,
-		bool? parallelizeTestCollections = null,
+		ParallelismOptions? parallelismOptions = null,
 		bool? stopOnFail = null,
 		int? seed = null,
 		string? culture = null,
@@ -333,7 +333,7 @@ partial class TestData
 		var executionOptions = TestFrameworkExecutionOptions(
 			culture: culture,
 			diagnosticMessages: diagnosticMessages,
-			disableParallelization: !parallelizeTestCollections,
+			parallelismOptions: parallelismOptions,
 			explicitOption: explicitOption,
 			internalDiagnosticMessages: internalDiagnosticMessages,
 			maxParallelThreads: maxParallelThreads,

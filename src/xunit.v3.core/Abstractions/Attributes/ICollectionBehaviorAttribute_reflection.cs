@@ -14,9 +14,14 @@ public interface ICollectionBehaviorAttribute
 	Type? CollectionFactoryType { get; }
 
 	/// <summary>
-	/// Determines whether tests in this assembly are run in parallel.
+	/// Gets a value indicating whether all collections in this assembly have parallelization disabled by default.
 	/// </summary>
 	bool DisableTestParallelization { get; }
+
+	/// <summary>
+	/// Gets options which determine the amount of parallelization to allow for tests in this assembly by default.
+	/// </summary>
+	ParallelismOptions ParallelismOptions { get; }
 
 	/// <summary>
 	/// Determines how many tests can run in parallel with each other. If set to 0, the system will

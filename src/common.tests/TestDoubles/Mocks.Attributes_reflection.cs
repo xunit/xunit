@@ -8,25 +8,25 @@ public static partial class Mocks
 {
 	public static ICollectionBehaviorAttribute CollectionBehaviorAttribute(
 		CollectionBehavior collectionBehavior,
-		bool disableTestParallelization = false,
+		ParallelismOptions parallelismOptions = ParallelismOptionsAliases.Default,
 		int maxParallelThreads = 0,
 		ParallelAlgorithm parallelAlgorithm = ParallelAlgorithm.Conservative) =>
 			CollectionBehaviorAttribute(
 				collectionBehavior == CollectionBehavior.CollectionPerClass ? typeof(CollectionPerClassTestCollectionFactory) : typeof(CollectionPerAssemblyTestCollectionFactory),
-				disableTestParallelization,
+				parallelismOptions,
 				maxParallelThreads,
 				parallelAlgorithm
 			);
 
 	public static ICollectionBehaviorAttribute CollectionBehaviorAttribute(
 		Type? collectionFactoryType = null,
-		bool disableTestParallelization = false,
+		ParallelismOptions parallelismOptions = ParallelismOptionsAliases.Default,
 		int maxParallelThreads = 0,
 		ParallelAlgorithm parallelAlgorithm = ParallelAlgorithm.Conservative)
 	{
 		var result = Substitute.For<ICollectionBehaviorAttribute, InterfaceProxy<ICollectionBehaviorAttribute>>();
 		result.CollectionFactoryType.Returns(collectionFactoryType);
-		result.DisableTestParallelization.Returns(disableTestParallelization);
+		result.ParallelismOptions.Returns(parallelismOptions);
 		result.MaxParallelThreads.Returns(maxParallelThreads);
 		result.ParallelAlgorithm.Returns(parallelAlgorithm);
 		return result;

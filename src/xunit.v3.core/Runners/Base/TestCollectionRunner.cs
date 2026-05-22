@@ -181,7 +181,19 @@ public abstract class TestCollectionRunner<TContext, TTestCollection, TTestClass
 	protected virtual List<(TTestClass? Class, List<TTestCase> TestCases)> OrderTestClasses(TContext ctxt) =>
 		OrderTestClassesDefault(ctxt);
 
-	static List<(TTestClass? Class, List<TTestCase> TestCases)> OrderTestClassesDefault(TContext ctxt) =>
+	/// <summary>
+	/// Orders the test classes in the collection, grouping the test cases by class in order of
+	/// appearance, and does not reorder the classes.
+	/// </summary>
+	/// <remarks>
+	/// Override this to provide custom test class ordering.<br />
+	/// <br />
+	/// This method runs during <see cref="TestEngineStatus.Running"/> and any exceptions thrown will
+	/// contribute to test collection failure.
+	/// </remarks>
+	/// <param name="ctxt">The context that describes the current test collection</param>
+	/// <returns>Test classes in run order (and associated, not-yet-ordered test cases).</returns>
+	protected static List<(TTestClass? Class, List<TTestCase> TestCases)> OrderTestClassesDefault(TContext ctxt) =>
 		Guard.ArgumentNotNull(ctxt)
 			.TestCases
 			.GroupBy(tc => tc.TestClass as TTestClass, TestClassComparer<TTestClass>.Instance)

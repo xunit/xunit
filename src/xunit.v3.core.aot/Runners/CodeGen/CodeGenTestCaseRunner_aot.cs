@@ -38,6 +38,8 @@ public class CodeGenTestCaseRunner : CodeGenTestCaseRunnerBase<CodeGenTestCaseRu
 	/// <param name="skipReason">The skip reason, if the test is to be skipped.</param>
 	/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 	/// <param name="methodFixtureMappings">The mapping of method fixture types to fixtures.</param>
+	/// <param name="parallelismOptions">Options which determine the amount of test parallelization to allow.</param>
+	/// <param name="parallelizationSemaphore">Semaphore used to limit the number of tests running in parallel.</param>
 	/// <returns>Returns summary information about the test that was run.</returns>
 	public async ValueTask<RunSummary> Run(
 		ICodeGenTestCase testCase,
@@ -48,7 +50,9 @@ public class CodeGenTestCaseRunner : CodeGenTestCaseRunnerBase<CodeGenTestCaseRu
 		string displayName,
 		string? skipReason,
 		CancellationTokenSource cancellationTokenSource,
-		FixtureMappingManager methodFixtureMappings)
+		FixtureMappingManager methodFixtureMappings,
+		ParallelismOptions parallelismOptions,
+		SemaphoreSlim? parallelizationSemaphore)
 	{
 		await using var ctxt = new CodeGenTestCaseRunnerContext(
 			testCase,
@@ -59,7 +63,9 @@ public class CodeGenTestCaseRunner : CodeGenTestCaseRunnerBase<CodeGenTestCaseRu
 			displayName,
 			skipReason,
 			cancellationTokenSource,
-			methodFixtureMappings
+			methodFixtureMappings,
+			parallelismOptions,
+			parallelizationSemaphore
 		);
 		await ctxt.InitializeAsync();
 

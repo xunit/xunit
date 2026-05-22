@@ -15,6 +15,8 @@ namespace Xunit.v3;
 /// <param name="explicitOption">The user's choice on how to treat explicit tests</param>
 /// <param name="constructorArguments">The constructor arguments for the test class</param>
 /// <param name="methodFixtureMappings">The fixtures attached to the test method</param>
+/// <param name="parallelismOptions">Options which determine the amount of test parallelization to allow.</param>
+/// <param name="parallelizationSemaphore">Semaphore used to limit the number of tests running in parallel.</param>
 /// <remarks>
 /// This class is used for reflection-based tests.
 /// </remarks>
@@ -28,7 +30,9 @@ public class XunitTestCaseRunnerContext(
 	string? skipReason,
 	ExplicitOption explicitOption,
 	object?[] constructorArguments,
-	FixtureMappingManager methodFixtureMappings) :
+	FixtureMappingManager methodFixtureMappings,
+	ParallelismOptions parallelismOptions,
+	SemaphoreSlim? parallelizationSemaphore) :
 		XunitTestCaseRunnerBaseContext<IXunitTestCase, IXunitTest>(
 			testCase,
 			tests,
@@ -39,6 +43,8 @@ public class XunitTestCaseRunnerContext(
 			skipReason,
 			explicitOption,
 			constructorArguments,
-			methodFixtureMappings
+			methodFixtureMappings,
+			parallelismOptions,
+			parallelizationSemaphore
 		)
 { }

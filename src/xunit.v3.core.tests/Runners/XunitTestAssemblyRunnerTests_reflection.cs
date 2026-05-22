@@ -45,7 +45,7 @@ public static class XunitTestAssemblyRunnerTests
 #else
 #error Unknown target framework
 #endif
-					Assert.Matches($"^{IntPtr.Size * 8}-bit \\({Regex.Escape(RuntimeInformation.ProcessArchitecture.ToDisplayName())}\\) {Regex.Escape(RuntimeInformation.FrameworkDescription)} \\[collection-per-class, parallel \\(\\d+ threads\\)\\]$", starting.TestEnvironment);
+					Assert.Matches($"^{IntPtr.Size * 8}-bit \\({Regex.Escape(RuntimeInformation.ProcessArchitecture.ToDisplayName())}\\) {Regex.Escape(RuntimeInformation.FrameworkDescription)} \\[collection-per-class, parallel Collections \\(\\d+ threads\\)\\]$", starting.TestEnvironment);
 					Assert.Matches("^xUnit.net v3 \\d+.\\d+.\\d+", starting.TestFrameworkDisplayName);
 					// Trait comes from an assembly-level trait attribute on this test assembly
 					var trait = Assert.Single(starting.Traits);

@@ -15,13 +15,17 @@ partial class XunitRunnerHelper
 	/// <param name="aggregator">The exception aggregator to record exceptions to</param>
 	/// <param name="explicitOption">A flag to indicate which types of tests to run (non-explicit, explicit, or both)</param>
 	/// <param name="methodFixtureMappings">The mapping of method fixture types to fixtures.</param>
+	/// <param name="parallelismOptions">Options which determine the amount of test parallelization to allow.</param>
+	/// <param name="parallelizationSemaphore">Semaphore used to limit the number of tests running in parallel.</param>
 	public static ValueTask<RunSummary> RunCodeGenTestCase(
 		ICodeGenTestCase testCase,
 		IMessageBus messageBus,
 		CancellationTokenSource cancellationTokenSource,
 		ExceptionAggregator aggregator,
 		ExplicitOption explicitOption,
-		FixtureMappingManager methodFixtureMappings) =>
+		FixtureMappingManager methodFixtureMappings,
+		ParallelismOptions parallelismOptions = ParallelismOptionsAliases.Default,
+		SemaphoreSlim? parallelizationSemaphore = null) =>
 			RunCoreTestCase(
 				Guard.ArgumentNotNull(testCase),
 				messageBus,
@@ -36,7 +40,9 @@ partial class XunitRunnerHelper
 					testCase.TestCaseDisplayName,
 					testCase.SkipReason,
 					cancellationTokenSource,
-					methodFixtureMappings
+					methodFixtureMappings,
+					parallelismOptions,
+					parallelizationSemaphore
 				),
 				cancellationTokenSource
 			);

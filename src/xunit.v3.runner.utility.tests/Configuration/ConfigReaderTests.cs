@@ -82,8 +82,7 @@ public static class ConfigReaderTests
 		Assert.Equal(TestMethodDisplay.ClassAndMethod, configuration.MethodDisplayOrDefault);
 		Assert.Equal(TestMethodDisplayOptions.None, configuration.MethodDisplayOptionsOrDefault);
 		Assert.Equal(ParallelAlgorithm.Conservative, configuration.ParallelAlgorithmOrDefault);
-		Assert.False(configuration.ParallelizeAssemblyOrDefault);
-		Assert.True(configuration.ParallelizeTestCollectionsOrDefault);
+		Assert.Equal(ParallelismOptionsAliases.Default, configuration.ParallelismOptionsOrDefault);
 		Assert.Null(configuration.PreEnumerateTheories);
 		Assert.Null(configuration.PrintMaxEnumerableLength);
 		Assert.Null(configuration.PrintMaxObjectDepth);
@@ -116,8 +115,7 @@ public static class ConfigReaderTests
 		Assert.Equal(TestMethodDisplay.Method, configuration.MethodDisplayOrDefault);
 		Assert.Equal(TestMethodDisplayOptions.All, configuration.MethodDisplayOptionsOrDefault);
 		Assert.Equal(ParallelAlgorithm.Aggressive, configuration.ParallelAlgorithmOrDefault);
-		Assert.True(configuration.ParallelizeAssemblyOrDefault);
-		Assert.False(configuration.ParallelizeTestCollectionsOrDefault);
+		Assert.Equal(ParallelismOptions.Assemblies, configuration.ParallelismOptionsOrDefault);
 		Assert.False(configuration.PreEnumerateTheories);
 
 		if (configFileName.EndsWith(".json"))
@@ -158,8 +156,7 @@ public static class ConfigReaderTests
 		Assert.Equal(TestMethodDisplayOptions.None, configuration.MethodDisplayOptionsOrDefault);
 		Assert.Equal(ParallelAlgorithm.Conservative, configuration.ParallelAlgorithmOrDefault);
 		// This value was valid as a sentinel to make sure we were trying to read values from the config file
-		Assert.True(configuration.ParallelizeAssemblyOrDefault);
-		Assert.True(configuration.ParallelizeTestCollectionsOrDefault);
+		Assert.Equal(ParallelismOptions.Assemblies | ParallelismOptions.Collections, configuration.ParallelismOptionsOrDefault);
 		Assert.Null(configuration.PreEnumerateTheories);
 		Assert.Null(configuration.PrintMaxEnumerableLength);
 		Assert.Null(configuration.PrintMaxObjectDepth);

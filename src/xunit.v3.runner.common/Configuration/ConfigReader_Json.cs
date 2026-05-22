@@ -131,10 +131,6 @@ public static class ConfigReader_Json
 						configuration.FailTestsWithWarnings = booleanValue;
 					else if (string.Equals(kvp.Key, Configuration.InternalDiagnosticMessages, StringComparison.OrdinalIgnoreCase))
 						configuration.InternalDiagnosticMessages = booleanValue;
-					else if (string.Equals(kvp.Key, Configuration.ParallelizeAssembly, StringComparison.OrdinalIgnoreCase))
-						configuration.ParallelizeAssembly = booleanValue;
-					else if (string.Equals(kvp.Key, Configuration.ParallelizeTestCollections, StringComparison.OrdinalIgnoreCase))
-						configuration.ParallelizeTestCollections = booleanValue;
 					else if (string.Equals(kvp.Key, Configuration.PreEnumerateTheories, StringComparison.OrdinalIgnoreCase))
 						configuration.PreEnumerateTheories = booleanValue;
 					else if (string.Equals(kvp.Key, Configuration.ShadowCopy, StringComparison.OrdinalIgnoreCase))
@@ -238,6 +234,11 @@ public static class ConfigReader_Json
 						if (Enum.TryParse<ParallelAlgorithm>(stringValue, true, out var parallelAlgorithm))
 							configuration.ParallelAlgorithm = parallelAlgorithm;
 					}
+					else if (string.Equals(kvp.Key, Configuration.ParallelismOptions, StringComparison.OrdinalIgnoreCase))
+					{
+						if (Enum.TryParse<ParallelismOptions>(stringValue, true, out var parallelismOptions))
+							configuration.ParallelismOptions = parallelismOptions;
+					}
 				}
 			}
 
@@ -265,8 +266,7 @@ public static class ConfigReader_Json
 		public const string MethodDisplay = "methodDisplay";
 		public const string MethodDisplayOptions = "methodDisplayOptions";
 		public const string ParallelAlgorithm = "parallelAlgorithm";
-		public const string ParallelizeAssembly = "parallelizeAssembly";
-		public const string ParallelizeTestCollections = "parallelizeTestCollections";
+		public const string ParallelismOptions = "parallelismOptions";
 		public const string PreEnumerateTheories = "preEnumerateTheories";
 		public const string PrintMaxEnumerableLength = "printMaxEnumerableLength";
 		public const string PrintMaxObjectDepth = "printMaxObjectDepth";

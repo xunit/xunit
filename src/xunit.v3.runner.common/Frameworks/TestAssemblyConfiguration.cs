@@ -30,8 +30,7 @@ public class TestAssemblyConfiguration
 		TestMethodDisplay? methodDisplay,
 		TestMethodDisplayOptions? methodDisplayOptions,
 		ParallelAlgorithm? parallelAlgorithm,
-		bool? parallelizeAssembly,
-		bool? parallelizeTestCollections,
+		ParallelismOptions? parallelismOptions,
 		bool? preEnumerateTheories,
 		int? printMaxEnumerableLength,
 		int? printMaxObjectDepth,
@@ -59,8 +58,7 @@ public class TestAssemblyConfiguration
 		MethodDisplay = methodDisplay;
 		MethodDisplayOptions = methodDisplayOptions;
 		ParallelAlgorithm = parallelAlgorithm;
-		ParallelizeAssembly = parallelizeAssembly;
-		ParallelizeTestCollections = parallelizeTestCollections;
+		ParallelismOptions = parallelismOptions;
 		PreEnumerateTheories = preEnumerateTheories;
 		PrintMaxEnumerableLength = printMaxEnumerableLength;
 		PrintMaxObjectDepth = printMaxObjectDepth;
@@ -241,26 +239,69 @@ public class TestAssemblyConfiguration
 	/// Gets or sets a flag indicating that this assembly is safe to parallelize against
 	/// other assemblies.
 	/// </summary>
-	public bool? ParallelizeAssembly { get; set; }
+	[Obsolete("Use ParallelismOptions instead as this option will be removed in a future release.")]
+	public bool? ParallelizeAssembly
+	{
+		get => ParallelismOptions?.HasFlag(Sdk.ParallelismOptions.Assemblies);
+		set
+		{
+			if (value == true)
+			{
+				ParallelismOptions |= Sdk.ParallelismOptions.Assemblies;
+			}
+			else if (value == false)
+			{
+				ParallelismOptions &= ~Sdk.ParallelismOptions.Assemblies;
+			}
+		}
+	}
 
 	/// <summary>
 	/// Gets a flag indicating that this assembly is safe to parallelize against
 	/// other assemblies. If the flag is not set, returns the default value (<see langword="false"/>).
 	/// </summary>
+	[Obsolete("Use ParallelismOptions instead as this option will be removed in a future release.")]
 	public bool ParallelizeAssemblyOrDefault => ParallelizeAssembly ?? false;
 
 	/// <summary>
 	/// Gets or sets a flag indicating that this test assembly wants to run test collections
 	/// in parallel against one another.
 	/// </summary>
-	public bool? ParallelizeTestCollections { get; set; }
+	[Obsolete("Use ParallelismOptions instead as this option will be removed in a future release.")]
+	public bool? ParallelizeTestCollections
+	{
+		get => ParallelismOptions?.HasFlag(Sdk.ParallelismOptions.Collections);
+		set
+		{
+			if (value == true)
+			{
+				ParallelismOptions |= Sdk.ParallelismOptions.Collections;
+			}
+			else if (value == false)
+			{
+				ParallelismOptions &= ~Sdk.ParallelismOptions.Collections;
+			}
+		}
+	}
 
 	/// <summary>
 	/// Gets a flag indicating that this test assembly wants to run test collections
 	/// in parallel against one another. If the flag is not set, returns the default
 	/// value (<see langword="true"/>).
 	/// </summary>
+	[Obsolete("Use ParallelismOptions instead as this option will be removed in a future release.")]
 	public bool ParallelizeTestCollectionsOrDefault => ParallelizeTestCollections ?? true;
+
+	/// <summary>
+	/// Gets or sets options which determine the amount of test parallelization to allow for this assembly.
+	/// </summary>
+	public ParallelismOptions? ParallelismOptions { get; set; }
+
+	/// <summary>
+	/// Gets options which determine the amount of test parallelization to allow for this assembly .
+	/// If not set, returns the default value (<see cref="ParallelismOptionsAliases.Default"/>).
+	/// </summary>
+	public ParallelismOptions ParallelismOptionsOrDefault => ParallelismOptions ?? ParallelismOptionsAliases.Default;
 
 	/// <summary>
 	/// Gets or sets a flag indicating whether theory data should be pre-enumerated during

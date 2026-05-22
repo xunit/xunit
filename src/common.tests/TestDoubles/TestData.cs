@@ -87,7 +87,7 @@ public static partial class TestData
 		int? assertEquivalentMaxDepth = null,
 		string? culture = null,
 		bool? diagnosticMessages = null,
-		bool? disableParallelization = null,
+		ParallelismOptions? parallelismOptions = null,
 		ExplicitOption? explicitOption = null,
 		bool? failSkips = null,
 		bool? failTestsWithWarnings = null,
@@ -108,7 +108,7 @@ public static partial class TestData
 		result.SetAssertEquivalentMaxDepth(assertEquivalentMaxDepth);
 		result.SetCulture(culture);
 		result.SetDiagnosticMessages(diagnosticMessages);
-		result.SetDisableParallelization(disableParallelization);
+		result.SetParallelismOptions(parallelismOptions);
 		result.SetExplicitOption(explicitOption);
 		result.SetFailSkips(failSkips);
 		result.SetFailTestsWithWarnings(failTestsWithWarnings);

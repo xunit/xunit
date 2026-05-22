@@ -1,3 +1,4 @@
+using Xunit.Sdk;
 namespace Xunit.v3;
 
 /// <summary>
@@ -19,7 +20,29 @@ public sealed class CodeGenTestCollectionRegistration
 	/// A flag indicating whether this collection wants to run without being parallelized against
 	/// other test collections.
 	/// </summary>
-	public bool DisableParallelization { get; init; }
+	public bool DisableParallelization
+	{
+		get => ParallelismOptions?.HasFlag(Sdk.ParallelismOptions.Collections) == false;
+		init
+		{
+			if (value)
+			{
+				if (ParallelismOptions.HasValue)
+				{
+					ParallelismOptions &= ~Sdk.ParallelismOptions.Collections;
+				}
+				else
+				{
+					ParallelismOptions = Sdk.ParallelismOptions.None;
+				}
+			}
+		}
+	}
+
+	/// <summary>
+	/// Options which determine the amount of parallelization to allow for this test collection.
+	/// </summary>
+	public ParallelismOptions? ParallelismOptions { get; init; }
 
 	/// <summary>
 	/// Gets the empty test collection registration.

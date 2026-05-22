@@ -1,4 +1,5 @@
 using Xunit;
+using Xunit.Sdk;
 using Xunit.v3;
 
 public static class TestCollectionFactoryBaseTests
@@ -39,7 +40,7 @@ public static class TestCollectionFactoryBaseTests
 		Assert.Empty(testCollection.ClassFixtureTypes);
 		Assert.Equal(collectionDefinition, testCollection.CollectionDefinition);
 		Assert.Empty(testCollection.CollectionFixtureTypes);
-		Assert.False(testCollection.DisableParallelization);
+		Assert.Equal(ParallelismOptionsAliases.Default, testCollection.ParallelismOptions);
 		Assert.Same(testAssembly, testCollection.TestAssembly);
 		Assert.Null(testCollection.TestCaseOrderer);
 		Assert.Equal(testCollectionClassName, testCollection.TestCollectionClassName);
@@ -99,7 +100,7 @@ public static class TestCollectionFactoryBaseTests
 	class TestClassForFixtures { }
 
 	[Fact]
-	public static void ReadsCollectionDefinitionAttributeForParallelization()
+	public static void ReadsCollectionDefinitionAttributeForDisableParallelization()
 	{
 		// Decorated definitions are read and cached by the test assembly
 		var definitions = new Dictionary<string, (Type, CollectionDefinitionAttribute)>
@@ -111,7 +112,23 @@ public static class TestCollectionFactoryBaseTests
 
 		var testCollection = factory.Get(typeof(TestClassForParallelization));
 
-		Assert.True(testCollection.DisableParallelization);
+		Assert.Equal(ParallelismOptions.None, testCollection.ParallelismOptions);
+	}
+
+	[Fact]
+	public static void ReadsCollectionDefinitionAttributeForParallelismOptions()
+	{
+		// Decorated definitions are read and cached by the test assembly
+		var definitions = new Dictionary<string, (Type, CollectionDefinitionAttribute)>
+		{
+			["foo"] = (typeof(TestCollectionWithoutParallelization), new CollectionDefinitionAttribute { ParallelismOptions = ParallelismOptions.None })
+		};
+		var testAssembly = Mocks.XunitTestAssembly(collectionDefinitions: definitions);
+		var factory = new TestableTestCollectionFactory(testAssembly);
+
+		var testCollection = factory.Get(typeof(TestClassForParallelization));
+
+		Assert.Equal(ParallelismOptions.None, testCollection.ParallelismOptions);
 	}
 
 	class TestCollectionWithoutParallelization { }

@@ -92,8 +92,7 @@ public partial class XunitProjectAssembly
 				settings.Options.GetMethodDisplay() ?? Configuration.MethodDisplay,
 				settings.Options.GetMethodDisplayOptions() ?? Configuration.MethodDisplayOptions,
 				Configuration.ParallelAlgorithm,
-				Configuration.ParallelizeAssembly,
-				Configuration.ParallelizeTestCollections,
+				Configuration.ParallelismOptions,
 				settings.Options.GetPreEnumerateTheories() ?? Configuration.PreEnumerateTheories,
 				settings.Options.GetPrintMaxEnumerableLength() ?? Configuration.PrintMaxEnumerableLength,
 				settings.Options.GetPrintMaxObjectDepth() ?? Configuration.PrintMaxObjectDepth,
@@ -140,18 +139,7 @@ public partial class XunitProjectAssembly
 				settings.DiscoveryOptions.GetMethodDisplay() ?? Configuration.MethodDisplay,
 				settings.DiscoveryOptions.GetMethodDisplayOptions() ?? Configuration.MethodDisplayOptions,
 				settings.ExecutionOptions.GetParallelAlgorithm() ?? Configuration.ParallelAlgorithm,
-				settings.ExecutionOptions.GetDisableParallelization() switch
-				{
-					true => false,
-					false => true,
-					_ => Configuration.ParallelizeAssembly,
-				},
-				settings.ExecutionOptions.GetDisableParallelization() switch
-				{
-					true => false,
-					false => true,
-					_ => Configuration.ParallelizeTestCollections,
-				},
+				settings.ExecutionOptions.GetParallelismOptions() ?? Configuration.ParallelismOptions,
 				settings.DiscoveryOptions.GetPreEnumerateTheories() ?? Configuration.PreEnumerateTheories,
 				settings.ExecutionOptions.GetPrintMaxEnumerableLength() ?? settings.DiscoveryOptions.GetPrintMaxEnumerableLength() ?? Configuration.PrintMaxEnumerableLength,
 				settings.ExecutionOptions.GetPrintMaxObjectDepth() ?? settings.DiscoveryOptions.GetPrintMaxObjectDepth() ?? Configuration.PrintMaxObjectDepth,
@@ -198,18 +186,7 @@ public partial class XunitProjectAssembly
 				Configuration.MethodDisplay,
 				Configuration.MethodDisplayOptions,
 				settings.Options.GetParallelAlgorithm() ?? Configuration.ParallelAlgorithm,
-				settings.Options.GetDisableParallelization() switch
-				{
-					true => false,
-					false => true,
-					_ => Configuration.ParallelizeAssembly,
-				},
-				settings.Options.GetDisableParallelization() switch
-				{
-					true => false,
-					false => true,
-					_ => Configuration.ParallelizeTestCollections,
-				},
+				settings.Options.GetParallelismOptions() ?? Configuration.ParallelismOptions,
 				Configuration.PreEnumerateTheories,
 				settings.Options.GetPrintMaxEnumerableLength() ?? Configuration.PrintMaxEnumerableLength,
 				settings.Options.GetPrintMaxObjectDepth() ?? Configuration.PrintMaxObjectDepth,

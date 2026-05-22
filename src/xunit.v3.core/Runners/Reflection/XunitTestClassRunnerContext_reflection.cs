@@ -12,6 +12,8 @@ namespace Xunit.v3;
 /// <param name="aggregator">The exception aggregator</param>
 /// <param name="cancellationTokenSource">The cancellation token source</param>
 /// <param name="collectionFixtureMappings">The fixtures attached to the test collection</param>
+/// <param name="parallelismOptions">Options which determine the amount of test parallelization to allow.</param>
+/// <param name="parallelizationSemaphore">Semaphore used to limit the number of tests running in parallel.</param>
 /// <remarks>
 /// This class is used for reflection-based tests.
 /// </remarks>
@@ -22,7 +24,9 @@ public class XunitTestClassRunnerContext(
 	IMessageBus messageBus,
 	ExceptionAggregator aggregator,
 	CancellationTokenSource cancellationTokenSource,
-	FixtureMappingManager collectionFixtureMappings) :
+	FixtureMappingManager collectionFixtureMappings,
+	ParallelismOptions parallelismOptions,
+	SemaphoreSlim? parallelizationSemaphore) :
 		XunitTestClassRunnerBaseContext<IXunitTestClass, IXunitTestMethod, IXunitTestCase>(
 			testClass,
 			testCases,
@@ -30,6 +34,8 @@ public class XunitTestClassRunnerContext(
 			messageBus,
 			aggregator,
 			cancellationTokenSource,
-			collectionFixtureMappings
+			collectionFixtureMappings,
+			parallelismOptions,
+			parallelizationSemaphore
 		)
 { }

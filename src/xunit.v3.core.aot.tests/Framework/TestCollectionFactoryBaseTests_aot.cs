@@ -1,4 +1,5 @@
 using Xunit;
+using Xunit.Sdk;
 using Xunit.v3;
 
 public static class TestCollectionFactoryBaseTests
@@ -29,7 +30,7 @@ public static class TestCollectionFactoryBaseTests
 		Assert.Empty(testCollection.BeforeAfterTestAttributes);
 		Assert.Empty(testCollection.ClassFixtureFactories);
 		Assert.Empty(testCollection.CollectionFixtureFactories);
-		Assert.False(testCollection.DisableParallelization);
+		Assert.Equal(ParallelismOptionsAliases.Default, testCollection.ParallelismOptions);
 		Assert.Same(testAssembly, testCollection.TestAssembly);
 		Assert.Null(testCollection.TestCaseOrderer);
 		Assert.Equal(testCollectionClassName, testCollection.TestCollectionClassName);
@@ -44,7 +45,22 @@ public static class TestCollectionFactoryBaseTests
 	internal class TestClassForByType { }
 
 	[Fact]
-	public static void ReadsCollectionDefinitionAttributeForParallelization()
+	public static void ReadsCollectionDefinitionAttributeForParallelismOptions()
+	{
+		var collectionDefinitions = new Dictionary<string, CodeGenTestCollectionRegistration>()
+		{
+			["foo"] = new() { ParallelismOptions = ParallelismOptions.None }
+		};
+		var testAssembly = Mocks.CodeGenTestAssembly(collectionDefinitions: collectionDefinitions);
+		var factory = new TestableTestCollectionFactory(testAssembly);
+
+		var testCollection = factory.Get(typeof(TestClassForParallelization));
+
+		Assert.Equal(ParallelismOptions.None, testCollection.ParallelismOptions);
+	}
+
+	[Fact]
+	public static void ReadsCollectionDefinitionAttributeForDisableParallelization()
 	{
 		var collectionDefinitions = new Dictionary<string, CodeGenTestCollectionRegistration>()
 		{
@@ -55,7 +71,7 @@ public static class TestCollectionFactoryBaseTests
 
 		var testCollection = factory.Get(typeof(TestClassForParallelization));
 
-		Assert.True(testCollection.DisableParallelization);
+		Assert.Equal(ParallelismOptions.None, testCollection.ParallelismOptions);
 	}
 
 	[Collection("foo")]

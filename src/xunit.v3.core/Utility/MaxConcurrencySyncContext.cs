@@ -39,7 +39,13 @@ public class MaxConcurrencySyncContext : SynchronizationContext, IDisposable
 		terminate.Set();
 
 		foreach (var workerThread in workerThreads)
-			workerThread.Join();
+		{
+			// wait for all threads to complete, skipping the current thread to avoid a deadlock
+			if (workerThread != Thread.CurrentThread)
+			{
+				workerThread.Join();
+			}
+		}
 
 		terminate.Dispose();
 		workReady.Dispose();
@@ -78,7 +84,7 @@ public class MaxConcurrencySyncContext : SynchronizationContext, IDisposable
 	{
 		while (true)
 		{
-			if (WaitHandle.WaitAny([workReady, terminate]) == 1)
+			if (disposed || WaitHandle.WaitAny([workReady, terminate]) == 1)
 				return;
 
 			while (workQueue.TryDequeue(out var work))

@@ -79,7 +79,7 @@ public class TestFrameworkOptions : ITestFrameworkDiscoveryOptions, ITestFramewo
 		result.SetAssertEquivalentMaxDepth(configuration.AssertEquivalentMaxDepth);
 		result.SetCulture(configuration.Culture);
 		result.SetDiagnosticMessages(configuration.DiagnosticMessages);
-		result.SetDisableParallelization(!configuration.ParallelizeTestCollections);
+		result.SetParallelismOptions(configuration.ParallelismOptions);
 		result.SetExplicitOption(configuration.ExplicitOption);
 		result.SetFailSkips(configuration.FailSkips);
 		result.SetFailTestsWithWarnings(configuration.FailTestsWithWarnings);

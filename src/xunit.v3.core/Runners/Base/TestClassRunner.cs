@@ -229,7 +229,13 @@ public abstract class TestClassRunner<TContext, TTestClass, TTestMethod, TTestCa
 	protected virtual List<(TTestMethod? Method, List<TTestCase> TestCases)> OrderTestMethods(TContext ctxt) =>
 		OrderTestMethodsDefault(ctxt);
 
-	static List<(TTestMethod? Method, List<TTestCase> TestCases)> OrderTestMethodsDefault(TContext ctxt) =>
+	/// <summary>
+	/// Orders the test methods in the class, grouping the test cases by method in order of
+	/// appearance, and does not reorder the methods.
+	/// </summary>
+	/// <param name="ctxt">The context that describes the current test class</param>
+	/// <returns>Test methods in run order (and associated, not-yet-ordered test cases).</returns>
+	protected static List<(TTestMethod? Method, List<TTestCase> TestCases)> OrderTestMethodsDefault(TContext ctxt) =>
 		Guard.ArgumentNotNull(ctxt)
 			.TestCases
 			.GroupBy(tc => tc.TestMethod as TTestMethod, TestMethodComparer<TTestMethod>.Instance)

@@ -47,6 +47,11 @@ namespace Xunit.Generators
 		public bool DisableParallelization { get; set; }
 
 		/// <summary>
+		/// Options which determine the amount of parallelization to allow for this test collection.
+		/// </summary>
+		public int? ParallelismOptions { get; set; }
+
+		/// <summary>
 		/// Gets the factory for the collection-level test case orderer.
 		/// </summary>
 		public string? TestCaseOrdererFactory { get; set; }
@@ -114,6 +119,7 @@ namespace Xunit.Generators
 			ComparerHelper.Equal(collectionFixtures, other.collectionFixtures) &&
 			ComparerHelper.Equal(collectionType, other.collectionType) &&
 			ComparerHelper.Equal(DisableParallelization, other.DisableParallelization) &&
+			ComparerHelper.Equal(ParallelismOptions, other.ParallelismOptions) &&
 			ComparerHelper.Equal(TestCaseOrdererFactory, other.TestCaseOrdererFactory) &&
 			ComparerHelper.Equal(TestClassOrdererFactory, other.TestClassOrdererFactory) &&
 			ComparerHelper.Equal(TestMethodOrdererFactory, other.TestMethodOrdererFactory);
@@ -146,6 +152,7 @@ $@"global::Xunit.v3.RegisteredEngineConfig.RegisterCollectionDefinition({name}, 
 				.With(collectionFixtures)
 				.With(collectionType)
 				.With(DisableParallelization)
+				.With(ParallelismOptions)
 				.With(TestCaseOrdererFactory)
 				.With(TestClassOrdererFactory)
 				.With(TestMethodOrdererFactory);
@@ -158,6 +165,8 @@ $@"global::Xunit.v3.RegisteredEngineConfig.RegisterCollectionDefinition({name}, 
 				initValues.Add($"ClassFixtureFactories = {classFixtures.ToFixtureFactories()}");
 			if (collectionFixtures.Count != 0)
 				initValues.Add($"CollectionFixtureFactories = {collectionFixtures.ToFixtureFactories()}");
+			if (ParallelismOptions.HasValue)
+				initValues.Add($"ParallelismOptions = (global::Xunit.Sdk.ParallelismOptions){ParallelismOptions}");
 			if (DisableParallelization)
 				initValues.Add("DisableParallelization = true");
 			if (TestCaseOrdererFactory != null)

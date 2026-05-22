@@ -54,7 +54,9 @@ public static class CodeGenTestCaseRunnerTests
 				"Display Name",
 				skipReason: null,
 				new(),
-				fixtureMappings
+				fixtureMappings,
+				ParallelismOptionsAliases.Default,
+				parallelizationSemaphore: null
 			);
 		}
 	}

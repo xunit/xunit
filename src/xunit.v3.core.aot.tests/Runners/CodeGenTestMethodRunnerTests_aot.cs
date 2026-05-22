@@ -57,7 +57,8 @@ public static class CodeGenTestMethodRunnerTests
 				new SpyMessageBus(),
 				new(),
 				new(),
-				fixtureMappings
+				fixtureMappings,
+				ParallelismOptionsAliases.Default
 			);
 		}
 	}

@@ -54,11 +54,11 @@ public abstract class TestCollectionFactoryBase(ICodeGenTestAssembly testAssembl
 			beforeAfterTestAttributes.CastOrToReadOnlyCollection(),
 			definition.ClassFixtureFactories ?? CodeGenHelper.EmptyFixtureFactories,
 			definition.CollectionFixtureFactories ?? CodeGenHelper.EmptyFixtureFactories,
-			definition.DisableParallelization,
 			TestAssembly,
 			testCollectionClass: definition.Type,
 			attribute.Name,
-			traits
+			traits,
+			definition.ParallelismOptions
 		);
 	}
 

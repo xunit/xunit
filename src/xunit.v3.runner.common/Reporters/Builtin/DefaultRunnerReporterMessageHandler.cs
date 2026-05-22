@@ -351,12 +351,14 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 		{
 			var threadCount = executionStarting.ExecutionOptions.GetMaxParallelThreadsOrDefault();
 			var parallelAlgorithm = executionStarting.ExecutionOptions.GetParallelAlgorithmOrDefault();
-			var parallelTestCollections =
-				executionStarting.ExecutionOptions.GetDisableParallelizationOrDefault()
+			var parallelismOptions = executionStarting.ExecutionOptions.GetParallelismOptionsOrDefault();
+			var parallelizationSettings =
+				parallelismOptions == ParallelismOptions.None
 					? "off"
 					: string.Format(
 						CultureInfo.CurrentCulture,
-						"on [{0} thread{1}{2}]",
+						"{0} [{1} thread{2}{3}]",
+						parallelismOptions,
 						threadCount < 0 ? "unlimited" : threadCount.ToString(CultureInfo.CurrentCulture),
 						threadCount == 1 ? string.Empty : "s",
 						threadCount > 0 && parallelAlgorithm == ParallelAlgorithm.Aggressive ? "/aggressive" : string.Empty
@@ -369,9 +371,9 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 				culture = "invariant";
 
 			Logger.LogImportantMessage(
-				"  Starting:    {0} (parallel test collections = {1}, stop on fail = {2}, explicit = {3}{4}{5})",
+				"  Starting:    {0} (parallel = {1}, stop on fail = {2}, explicit = {3}{4}{5})",
 				assemblyDisplayName,
-				parallelTestCollections,
+				parallelizationSettings,
 				executionStarting.ExecutionOptions.GetStopOnTestFailOrDefault() ? "on" : "off",
 				@explicit,
 				executionStarting.Seed is null ? "" : string.Format(CultureInfo.CurrentCulture, ", seed = {0}", executionStarting.Seed),

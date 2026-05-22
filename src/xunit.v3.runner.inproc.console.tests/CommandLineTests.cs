@@ -3,6 +3,7 @@ using System.Reflection;
 using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Runner.InProc.SystemConsole;
+using Xunit.Sdk;
 
 public static class CommandLineTests
 {
@@ -433,13 +434,13 @@ public static class CommandLineTests
 		public static class Parallelization
 		{
 			[Fact]
-			public static void ParallelizationOptionsAreNullByDefault()
+			public static void ParallelismOptionsAreNullByDefault()
 			{
 				var commandLine = new TestableCommandLine("no-config.json");
 
 				var assembly = commandLine.Parse();
 
-				Assert.Null(assembly.Configuration.ParallelizeTestCollections);
+				Assert.Null(assembly.Configuration.ParallelismOptions);
 			}
 
 			[Fact]
@@ -457,17 +458,24 @@ public static class CommandLineTests
 			}
 
 			[Theory]
-			[InlineData("none", false)]
-			[InlineData("collections", true)]
+			[InlineData("none", ParallelismOptions.None)]
+			[InlineData("assemblies", ParallelismOptions.Assemblies)]
+			[InlineData("collections", ParallelismOptions.Collections)]
+			[InlineData("assemblies, collections", ParallelismOptions.Assemblies | ParallelismOptions.Collections)]
+			[InlineData("classes", ParallelismOptions.Classes)]
+			[InlineData("methods", ParallelismOptions.Methods)]
+			[InlineData("testcases", ParallelismOptions.TestCases)]
+			[InlineData("tests", ParallelismOptions.Tests)]
+			[InlineData("all", ParallelismOptions.All)]
 			public static void ParallelCanBeTurnedOn(
 				string parallelOption,
-				bool expectedCollectionsParallelization)
+				ParallelismOptions expected)
 			{
 				var commandLine = new TestableCommandLine("no-config.json", "-parallel", parallelOption);
 
 				var assembly = commandLine.Parse();
 
-				Assert.Equal(expectedCollectionsParallelization, assembly.Configuration.ParallelizeTestCollections);
+				Assert.Equal(expected, assembly.Configuration.ParallelismOptions);
 			}
 		}
 

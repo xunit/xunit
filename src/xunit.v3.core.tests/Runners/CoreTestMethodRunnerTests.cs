@@ -25,7 +25,7 @@ public static class CoreTestMethodRunnerTests
 			var testCase1 = Mocks.CoreTestCase(testMethod: testMethod, testCaseDisplayName: "test-case-1");
 			var testCase2 = Mocks.CoreTestCase(testMethod: testMethod, testCaseDisplayName: "test-case-2");
 			var testCase3 = Mocks.CoreTestCase(testMethod: testMethod, testCaseDisplayName: "test-case-3");
-			var runner = new TestableCoreTestMethodRunner(testCase3, testCase1, testCase2);
+			var runner = new TestableCoreTestMethodRunner([testCase3, testCase1, testCase2]);
 
 			await runner.RunAsync();
 
@@ -42,7 +42,7 @@ public static class CoreTestMethodRunnerTests
 		{
 			var testMethod = Mocks.CoreTestMethod(testCaseOrderer: new MyThrowingOrderer());
 			var testCase = Mocks.CoreTestCase(testMethod: testMethod);
-			var runner = new TestableCoreTestMethodRunner(testCase);
+			var runner = new TestableCoreTestMethodRunner([testCase]);
 
 			await runner.RunAsync();
 
@@ -67,6 +67,75 @@ public static class CoreTestMethodRunnerTests
 			);
 		}
 
+		[Fact]
+		public static async ValueTask ParallelTestCases()
+		{
+			var testCaseTcs1 = new TaskCompletionSource<bool>(TaskCreationOptions.None);
+			var testCaseTcs2 = new TaskCompletionSource<bool>(TaskCreationOptions.None);
+
+			var testMethod = Mocks.CoreTestMethod();
+			var testCase1 = Mocks.CoreTestCase(testCaseDisplayName: "TestCase1", testMethod: testMethod);
+			var testCase2 = Mocks.CoreTestCase(testCaseDisplayName: "TestCase2", testMethod: testMethod);
+
+			var timeoutTask = Task.Delay(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken);
+			var completionTask = Task.WhenAny(timeoutTask, Task.WhenAll(testCaseTcs1.Task, testCaseTcs2.Task));
+			var runner = new TestableCoreTestMethodRunner([testCase1, testCase2], runTestCase, parallelismOptions: ParallelismOptions.All);
+
+			await runner.RunAsync();
+
+			Assert.False(timeoutTask.IsCompleted, "Timed out waiting for test cases to run in parallel.");
+			async ValueTask<RunSummary> runTestCase(ICoreTestCase test)
+			{
+				if (test == testCase1)
+				{
+					testCaseTcs1.TrySetResult(true);
+				}
+				else
+				{
+					testCaseTcs2.TrySetResult(true);
+				}
+
+				await completionTask;
+				return new RunSummary { Total = 1 };
+			}
+		}
+
+		[Fact]
+		public static async ValueTask SerialTestCases()
+		{
+			var messages = new List<string>();
+			var testMethod = Mocks.CoreTestMethod();
+			var testCase1 = Mocks.CoreTestCase(testCaseDisplayName: "TestCase1", testMethod: testMethod);
+			var testCase2 = Mocks.CoreTestCase(testCaseDisplayName: "TestCase2", testMethod: testMethod);
+
+			var runner = new TestableCoreTestMethodRunner([testCase1, testCase2], runTestCaseLamda: runTestCase);
+
+			await runner.RunAsync();
+
+			// let each test finish before the next one runs, despite sleeping. However, we don't know which one
+			// gets to go first, so we look at the first one to see which one it is, and make sure the post-sleep happens
+			// directly after the pre-sleep
+			var firstMessage = messages[0];
+			Assert.Contains("pre-sleep", firstMessage);
+			Assert.Equal(firstMessage.Replace("pre-sleep", "post-sleep"), messages[1]);
+
+			var thirdMessage = messages[2];
+			Assert.NotEqual(firstMessage, thirdMessage);
+			Assert.Contains("pre-sleep", thirdMessage);
+			Assert.Equal(thirdMessage.Replace("pre-sleep", "post-sleep"), messages[3]);
+
+			async ValueTask<RunSummary> runTestCase(ICoreTestCase testCase)
+			{
+				messages.Add($"{testCase.TestCaseDisplayName} pre-sleep");
+
+				await Task.Delay(50, TestContext.Current.CancellationToken);
+
+				messages.Add($"{testCase.TestCaseDisplayName} post-sleep");
+
+				return new RunSummary { Total = 1 };
+			}
+		}
+
 		class MyThrowingOrderer : ITestCaseOrderer
 		{
 			public IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> testCases)
@@ -75,7 +144,7 @@ public static class CoreTestMethodRunnerTests
 		}
 	}
 
-	class TestableCoreTestMethodRunner(params ICoreTestCase[] testCases) :
+	class TestableCoreTestMethodRunner(ICoreTestCase[] testCases, Func<ICoreTestCase, ValueTask<RunSummary>>? runTestCaseLamda = null, ParallelismOptions parallelismOptions = ParallelismOptionsAliases.Default) :
 		CoreTestMethodRunner<TestableCoreTestMethodRunner.TestableContext, ICoreTestMethod, ICoreTestCase>
 	{
 		public ExceptionAggregator Aggregator = new();
@@ -91,6 +160,8 @@ public static class CoreTestMethodRunnerTests
 				ExplicitOption.Off,
 				MessageBus,
 				Aggregator,
+				parallelismOptions,
+				runTestCaseLamda ?? (_ => new(new RunSummary { Total = 1, })),
 				CancellationTokenSource
 			);
 			await context.InitializeAsync();
@@ -113,11 +184,12 @@ public static class CoreTestMethodRunnerTests
 			ExplicitOption explicitOption,
 			IMessageBus messageBus,
 			ExceptionAggregator aggregator,
+			ParallelismOptions parallelismOptions,
+			Func<ICoreTestCase, ValueTask<RunSummary>> runTestCaseLamda,
 			CancellationTokenSource cancellationTokenSource) :
-				CoreTestMethodRunnerContext<ICoreTestMethod, ICoreTestCase>(testMethod, testCases, explicitOption, messageBus, aggregator, cancellationTokenSource)
+				CoreTestMethodRunnerContext<ICoreTestMethod, ICoreTestCase>(testMethod, testCases, explicitOption, messageBus, aggregator, parallelismOptions, cancellationTokenSource)
 		{
-			public override ValueTask<RunSummary> RunTestCase(ICoreTestCase testCase) =>
-				new(new RunSummary());
+			public override ValueTask<RunSummary> RunTestCase(ICoreTestCase testCase) => runTestCaseLamda(testCase);
 		}
 	}
 }

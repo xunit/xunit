@@ -53,7 +53,9 @@ public class XunitTestAssemblyRunnerBaseContext<TTestAssembly, TTestCollection, 
 		TTestCollection testCollection,
 		IReadOnlyCollection<TTestCase> testCases)
 	{
-		await BeforeTestCollection();
+		Guard.ArgumentNotNull(testCollection);
+
+		await BeforeTestCollection(testCollection);
 
 		try
 		{
@@ -64,12 +66,14 @@ public class XunitTestAssemblyRunnerBaseContext<TTestAssembly, TTestCollection, 
 				MessageBus,
 				Aggregator.Clone(),
 				CancellationTokenSource,
-				AssemblyFixtureMappings
+				AssemblyFixtureMappings,
+				ParallelismOptions ?? testCollection.ParallelismOptions,
+				ParallelizationSemaphore
 			);
 		}
 		finally
 		{
-			AfterTestCollection();
+			AfterTestCollection(testCollection);
 		}
 	}
 }

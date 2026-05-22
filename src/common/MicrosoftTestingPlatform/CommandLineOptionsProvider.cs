@@ -51,7 +51,7 @@ public sealed class CommandLineOptionsProvider() :
 			    (integer) - number of seconds a test runs to be considered 'long running'
 			""", ArgumentArity.ExactlyOne, options => OnIntValueWithMinimum(options, 0, value => options.AssemblyConfig.LongRunningTestSeconds = value)) },
 		{ "max-threads", ("""
-			Set maximum thread count for collection parallelization.
+			Set maximum thread count for test parallelization.
 			    default   - run with default (1 thread per CPU thread)
 			    unlimited - run with unbounded thread count
 			    (integer) - use exactly this many threads (e.g., '2' = 2 threads)
@@ -82,9 +82,15 @@ public sealed class CommandLineOptionsProvider() :
 			                                         U + 4 hex digits (i.e., 'U0192' becomes 'ƒ')
 			""", ArgumentArity.OneOrMore, OnMethodDisplayOptions) },
 		{ "parallel", ("""
-			Change test parallelization.
-			    none        - turn off parallelization
-			    collections - parallelize by collections [default]
+			Set parallelization allowed based on option, or multiple options separated by a comma.
+			    none        - no test parallelization
+			    assemblies  - parallelize assemblies
+			    collections - parallelize test collections within a assembly [default]
+			    classes     - parallelize test classes within a test collection
+			    methods     - parallelize test methods within a test class
+			    testcases   - parallelize test cases for a test method
+			    tests       - parallelize tests for a test case
+			    all         - maximum parallelization enabled
 			""", ArgumentArity.ExactlyOne, OnParallel) },
 		{ "parallel-algorithm", ("""
 			Change the parallelization algorithm.
@@ -408,12 +414,13 @@ public sealed class CommandLineOptionsProvider() :
 	}
 
 	static void OnParallel(ParseOptions options) =>
-		options.AssemblyConfig.ParallelizeTestCollections = options.Arguments[0].ToUpperInvariant() switch
-		{
-			"NONE" => false,
-			"COLLECTIONS" => true,
-			_ => throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Invalid value '{0}' (must be one of: 'none', 'collections')", options.Arguments[0])),
-		};
+		options.AssemblyConfig.ParallelismOptions =
+			Enum.TryParse<ParallelismOptions>(options.Arguments[0], ignoreCase: true,
+				out var parallelismOptions)
+				? parallelismOptions
+				: throw new ArgumentException(string.Format(CultureInfo.CurrentCulture,
+					"Invalid value '{0}' (must be one of: {1})", options.Arguments[0],
+					string.Join(", ", ParallelismOptions.ValidValues.Select(static o => $"'{o}'"))));
 
 	static void OnParallelAlgorithm(ParseOptions options) =>
 		options.AssemblyConfig.ParallelAlgorithm = ParseEnum(options.Arguments[0], ParallelAlgorithm.ValidValues);

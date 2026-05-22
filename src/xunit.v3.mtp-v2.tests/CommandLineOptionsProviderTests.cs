@@ -152,7 +152,7 @@ public class CommandLineOptionsProviderTests
 		[InlineData("Invalid value 'abc' (must be one of: 'none', 'replaceUnderscoreWithSpace', 'useOperatorMonikers', 'useEscapeSequences', 'replacePeriodWithComma', 'removeAsyncSuffix', 'all')", "method-display-options", new[] { "abc" })]
 		[InlineData("Cannot specify 'all' with any other values", "method-display-options", new[] { "all", "replacePeriodWithComma" })]
 		[InlineData("Cannot specify 'none' with any other values", "method-display-options", new[] { "replacePeriodWithComma", "none" })]
-		[InlineData("Invalid value 'abc' (must be one of: 'none', 'collections')", "parallel", new[] { "abc" })]
+		[InlineData("Invalid value 'abc' (must be one of: 'None', 'Assemblies', 'Collections', 'Classes', 'Methods', 'TestCases', 'Tests', 'All')", "parallel", new[] { "abc" })]
 		[InlineData("Invalid value 'abc' (must be one of: 'conservative', 'aggressive')", "parallel-algorithm", new[] { "abc" })]
 		[InlineData("Invalid value 'abc' (must be an integer between 0 and 2147483647)", "print-max-enumerable-length", new[] { "abc" })]
 		[InlineData("Invalid value 'abc' (must be an integer between 0 and 2147483647)", "print-max-object-depth", new[] { "abc" })]
@@ -292,17 +292,24 @@ public class CommandLineOptionsProviderTests
 		}
 
 		[Theory]
-		[InlineData("none", false)]
-		[InlineData("collections", true)]
+		[InlineData("none", ParallelismOptions.None)]
+		[InlineData("assemblies", ParallelismOptions.Assemblies)]
+		[InlineData("collections", ParallelismOptions.Collections)]
+		[InlineData("assemblies, collections", ParallelismOptions.Assemblies | ParallelismOptions.Collections)]
+		[InlineData("classes", ParallelismOptions.Classes)]
+		[InlineData("methods", ParallelismOptions.Methods)]
+		[InlineData("testcases", ParallelismOptions.TestCases)]
+		[InlineData("tests", ParallelismOptions.Tests)]
+		[InlineData("all", ParallelismOptions.All)]
 		public void Parallel(
 			string argValue,
-			bool expected)
+			ParallelismOptions expected)
 		{
 			commandLineOptions.Set("parallel", [argValue]);
 
 			CommandLineOptionsProvider.Parse(configuration, commandLineOptions, projectAssembly);
 
-			Assert.Equal(expected, projectAssembly.Configuration.ParallelizeTestCollections);
+			Assert.Equal(expected, projectAssembly.Configuration.ParallelismOptions);
 		}
 
 		[Theory]

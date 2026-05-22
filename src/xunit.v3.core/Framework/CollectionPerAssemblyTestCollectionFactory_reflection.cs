@@ -19,7 +19,6 @@ public class CollectionPerAssemblyTestCollectionFactory : TestCollectionFactoryB
 			defaultCollection = new XunitTestCollection(
 				testAssembly,
 				collectionDefinition: null,
-				disableParallelization: false,
 				"Test collection for " + TestAssembly.AssemblyName
 			);
 

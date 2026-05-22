@@ -26,11 +26,15 @@ public class CommandLine : CommandLineParserBase
 		);
 		AddParser(
 			"parallel", OnParallel, CommandLineGroup.General, "<option>",
-			"set parallelization based on option",
-			"  none        - turn off all parallelization",
-			"  collections - only parallelize collections [default]",
-			"  assemblies  - only parallelize assemblies",
-			"  all         - parallelize assemblies & collections"
+			"Set parallelization allowed based on option, or multiple options separated by a comma.",
+			"  none        - no test parallelization",
+			"  assemblies  - parallelize assemblies",
+			"  collections - parallelize test collections within a assembly [default]",
+			"  classes     - parallelize test classes within a test collection",
+			"  methods     - parallelize test methods within a test class",
+			"  testcases   - parallelize test cases for a test method",
+			"  tests       - parallelize tests for a test case",
+			"  all         - maximum parallelization enabled"
 		);
 		AddParser("pause", OnPause, CommandLineGroup.General, null, "wait for input before running tests");
 		AddParser("wait", OnWait, CommandLineGroup.General, null, "wait for input after completion");

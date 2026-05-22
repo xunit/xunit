@@ -34,7 +34,7 @@ public class XunitTestAssemblyTests(XunitTestAssemblyTests.XunitTestAssemblyFixt
 		var behavior = testAssembly.CollectionBehavior;
 
 		Assert.NotNull(behavior);
-		Assert.True(behavior.DisableTestParallelization);
+		Assert.Equal(ParallelismOptions.None, behavior.ParallelismOptions);
 		Assert.Equal(42, behavior.MaxParallelThreads);
 	}
 
@@ -161,7 +161,7 @@ using Xunit.v3;
 [assembly: AssemblyVersion(""1.2.3.4"")]
 [assembly: AssemblyFixture(typeof(SomeNamespace.SomeFixtureClass))]
 [assembly: SomeNamespace.BeforeAfterTest1]
-[assembly: CollectionBehavior(DisableTestParallelization = true, MaxParallelThreads = 42)]
+[assembly: CollectionBehavior(ParallelismOptions = ParallelismOptions.None, MaxParallelThreads = 42)]
 [assembly: TestCaseOrderer(typeof(SomeNamespace.MyTestCaseOrderer))]
 [assembly: TestClassOrderer(typeof(SomeNamespace.MyTestClassOrderer))]
 [assembly: TestCollectionOrderer(typeof(SomeNamespace.MyTestCollectionOrderer))]

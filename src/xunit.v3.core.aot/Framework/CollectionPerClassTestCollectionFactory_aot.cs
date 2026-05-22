@@ -1,3 +1,5 @@
+using Xunit.Sdk;
+
 namespace Xunit.v3;
 
 /// <summary>
@@ -18,7 +20,6 @@ public class CollectionPerClassTestCollectionFactory(ICodeGenTestAssembly testAs
 			beforeAfterTestAttributes: TestAssembly.BeforeAfterTestAttributes,
 			classFixtureFactories: CodeGenHelper.EmptyFixtureFactories,
 			collectionFixtureFactories: CodeGenHelper.EmptyFixtureFactories,
-			disableParallelization: false,
 			TestAssembly,
 			testCollectionClass: null,
 			CollectionAttribute.GetCollectionNameForType(testClass),

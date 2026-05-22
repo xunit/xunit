@@ -163,13 +163,13 @@ public static class TestOptionsNames
 		public static readonly string DiagnosticMessages = "xunit.execution.DiagnosticMessages";
 
 		/// <summary>
-		/// Set to <see langword="true"/> to disable running tests in parallel.
+		/// Options which determine the amount of parallelization to allow within the test execution pipeline.
 		/// </summary>
 		/// <remarks>
-		/// Value type: <see cref="bool"/><br/>
+		/// Value type: <see cref="Sdk.ParallelismOptions"/><br/>
 		/// Consumed by: v2, v3
 		/// </remarks>
-		public static readonly string DisableParallelization = "xunit.execution.DisableParallelization";
+		public static readonly string ParallelismOptions = "xunit.execution.ParallelismOptions";
 
 		/// <summary>
 		/// Gets a flag which indicates the user's desire to run explicit tests.

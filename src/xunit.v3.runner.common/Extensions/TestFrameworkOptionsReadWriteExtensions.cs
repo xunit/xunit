@@ -397,21 +397,22 @@ public static class TestFrameworkOptionsReadWriteExtensions
 		GetDiagnosticMessages(executionOptions) ?? false;
 
 	/// <summary>
-	/// Gets a flag to disable parallelization.
+	/// Gets options which determine the amount of test parallelization to allow.
 	/// </summary>
-	public static bool? GetDisableParallelization(this ITestFrameworkExecutionOptions executionOptions)
+	public static ParallelismOptions? GetParallelismOptions(this ITestFrameworkExecutionOptions executionOptions)
 	{
 		Guard.ArgumentNotNull(executionOptions);
 
-		return executionOptions.GetValue<bool?>(TestOptionsNames.Execution.DisableParallelization);
+		var options = executionOptions.GetValue<string>(TestOptionsNames.Execution.ParallelismOptions);
+		return options != null ? (ParallelismOptions?)Enum.Parse(typeof(ParallelismOptions), options) : null;
 	}
 
 	/// <summary>
-	/// Gets a flag to disable parallelization. If the flag is not present, returns the
-	/// default value (<see langword="false"/>).
+	/// Gets options which determine the amount of test parallelization to allow. If not
+	/// present, returns the default value (<see cref="ParallelismOptionsAliases.Default"/>).
 	/// </summary>
-	public static bool GetDisableParallelizationOrDefault(this ITestFrameworkExecutionOptions executionOptions) =>
-		GetDisableParallelization(executionOptions) ?? false;
+	public static ParallelismOptions GetParallelismOptionsOrDefault(this ITestFrameworkExecutionOptions executionOptions) =>
+		GetParallelismOptions(executionOptions) ?? ParallelismOptionsAliases.Default;
 
 	/// <summary>
 	/// Gets a flag that indicates how explicit tests should be handled.
@@ -675,15 +676,15 @@ public static class TestFrameworkOptionsReadWriteExtensions
 	}
 
 	/// <summary>
-	/// Sets a flag to disable parallelization.
+	/// Sets the parallelism options to use by default.
 	/// </summary>
-	public static void SetDisableParallelization(
+	public static void SetParallelismOptions(
 		this ITestFrameworkExecutionOptions executionOptions,
-		bool? value)
+		ParallelismOptions? value)
 	{
 		Guard.ArgumentNotNull(executionOptions);
 
-		executionOptions.SetValue(TestOptionsNames.Execution.DisableParallelization, value);
+		executionOptions.SetValue(TestOptionsNames.Execution.ParallelismOptions, value.HasValue ? value.GetValueOrDefault().ToString() : null);
 	}
 
 	/// <summary>

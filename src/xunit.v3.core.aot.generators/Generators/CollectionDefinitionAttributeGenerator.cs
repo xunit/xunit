@@ -43,9 +43,17 @@ public class CollectionDefinitionAttributeGenerator() :
 			Registration = new(name, context.TargetSymbol as INamedTypeSymbol),
 		};
 
-		if (attribute.NamedArguments.FirstOrDefault(kvp => kvp.Key == Names.CollectionDefinitionAttribute.DisableParallelization) is { } namedArg
-				&& namedArg.Value.Value is true)
+		if (attribute.NamedArguments.FirstOrDefault(kvp =>
+				kvp.Key == Names.CollectionDefinitionAttribute.DisableParallelization) is
+			{
+				Value.Value: true
+			})
 			result.Registration.DisableParallelization = true;
+
+		if (attribute.NamedArguments.FirstOrDefault(kvp =>
+				kvp.Key == Names.CollectionDefinitionAttribute.ParallelismOptions) is
+			{ Value.Value: IConvertible parallelismOptions })
+			result.Registration.ParallelismOptions = Convert.ToInt32(parallelismOptions, CultureInfo.InvariantCulture);
 
 		if (context.TargetSymbol is ITypeSymbol targetType)
 		{

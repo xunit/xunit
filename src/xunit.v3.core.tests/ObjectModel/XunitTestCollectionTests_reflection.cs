@@ -11,7 +11,7 @@ public class XunitTestCollectionTests
 	{
 		var collectionDefinitions = new Dictionary<string, (Type, CollectionDefinitionAttribute)> { ["foo"] = (typeof(BeforeAfterCollection), new CollectionDefinitionAttribute()) };
 		var testAssembly = Mocks.XunitTestAssembly(beforeAfterTestAttributes: [new BeforeAfterOnAssembly()], collectionDefinitions: collectionDefinitions);
-		testCollection = new XunitTestCollection(testAssembly, typeof(MyCollection), true, "display name");
+		testCollection = new XunitTestCollection(testAssembly, typeof(MyCollection), "display name", Xunit.Sdk.ParallelismOptions.None);
 	}
 
 	[Fact]
@@ -53,12 +53,7 @@ public class XunitTestCollectionTests
 	}
 
 	[Fact]
-	public void DisableParallelization()
-	{
-		var disableParallelization = testCollection.DisableParallelization;
-
-		Assert.True(disableParallelization);
-	}
+	public void ParallelismOptions() => Assert.Equal(Xunit.Sdk.ParallelismOptions.None, testCollection.ParallelismOptions);
 
 	[Fact]
 	public void TestCaseOrderer()
@@ -74,7 +69,7 @@ public class XunitTestCollectionTests
 		// We can't use the XunitTestCollection backed by mocks because they don't serialize, so we'll create
 		// one here that's backed by an actual XunitTestAssembly object.
 		var testAssembly = TestData.XunitTestAssembly<ClassUnderTest>();
-		var testCollection = new XunitTestCollection(testAssembly, typeof(MyCollection), true, "display name");
+		var testCollection = new XunitTestCollection(testAssembly, typeof(MyCollection), "display name", Xunit.Sdk.ParallelismOptions.None);
 
 		var serialized = SerializationHelper.Instance.Serialize(testCollection);
 		var deserialized = SerializationHelper.Instance.Deserialize(serialized);

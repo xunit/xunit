@@ -319,26 +319,27 @@ public class AssemblyRunnerOptions
 		set
 		{
 			GuardMinimumXunitVersion(2, value, nameof(ParallelAlgorithm));
-			GuardValidValue(value, v => v.IsValid(), nameof(MethodDisplayOptions));
+			GuardValidValue(value, v => v.IsValid(), nameof(ParallelAlgorithm));
 
 			ProjectAssembly.Configuration.ParallelAlgorithm = value;
 		}
 	}
 
 	/// <summary>
-	/// Indicates whether to run test collections in parallel.
+	/// Gets or sets options which determine the amount of test parallelization to allow for this assembly by default.
 	/// </summary>
 	/// <remarks>
-	/// <em>Parallelized test collections are only valid for xUnit.net v2 and xUnit.net v3 test projects.</em>
+	/// <em>Parallelism options are only valid for xUnit.net v2 and xUnit.net v3 test projects.</em>
 	/// </remarks>
-	public bool? ParallelizeTestCollections
+	public ParallelismOptions? ParallelismOptions
 	{
-		get => ProjectAssembly.Configuration.ParallelizeTestCollections;
+		get => ProjectAssembly.Configuration.ParallelismOptions;
 		set
 		{
-			GuardMinimumXunitVersion(2, value, nameof(ParallelizeTestCollections));
+			GuardMinimumXunitVersion(2, value, nameof(ParallelismOptions));
+			GuardValidValue(value, v => (v & ~Sdk.ParallelismOptions.All) == 0, nameof(ParallelismOptions));
 
-			ProjectAssembly.Configuration.ParallelizeTestCollections = value;
+			ProjectAssembly.Configuration.ParallelismOptions = value;
 		}
 	}
 

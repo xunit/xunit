@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using Xunit.Sdk;
 
 namespace Xunit.v3;
 
@@ -10,8 +11,8 @@ public static class CodeGenHelper
 	/// <summary>
 	/// Gets an empty collection definition.
 	/// </summary>
-	public static IReadOnlyDictionary<string, (Type? Type, bool DisableParallelization)> EmptyCollectionDefinitions { get; } =
-		new Dictionary<string, (Type? Type, bool DisableParallelization)>();
+	public static IReadOnlyDictionary<string, (Type? Type, ParallelismOptions? ParallelismOptions)> EmptyCollectionDefinitions { get; } =
+		new Dictionary<string, (Type? Type, ParallelismOptions? ParallelismOptions)>();
 
 	/// <summary>
 	/// Gets an empty fixture factory list.

@@ -1,3 +1,5 @@
+using Xunit.Sdk;
+
 namespace Xunit;
 
 /// <summary>
@@ -28,12 +30,44 @@ public sealed class CollectionDefinitionAttribute : Attribute
 		Name = Guard.ArgumentNotNull(name);
 
 	/// <summary>
-	/// Determines whether tests in this collection runs in parallel with any other collections.
+	/// Gets or sets a value indicating whether this collection should not run in parallel with other collections in the assembly.
 	/// </summary>
-	public bool DisableParallelization { get; set; }
+	public bool DisableParallelization
+	{
+		get => OptionalParallelismOptions == ParallelismOptions.None;
+		set
+		{
+			if (value)
+			{
+				OptionalParallelismOptions = ParallelismOptions.None;
+			}
+		}
+	}
 
 	/// <summary>
-	/// Gets the collection defintion name, if one was provided.
+	/// Gets or sets the parallelism options to use for this test collection.
+	/// </summary>
+	/// <remarks>
+	/// Defaults to <see cref="ParallelismOptionsAliases.Default"/> when unspecified.
+	/// </remarks>
+	public ParallelismOptions ParallelismOptions
+	{
+		get => OptionalParallelismOptions ?? ParallelismOptionsAliases.Default;
+		set => OptionalParallelismOptions = value;
+	}
+
+	/// <summary>
+	/// Gets the collection definition name, if one was provided.
 	/// </summary>
 	public string? Name { get; }
+
+	/// <summary>
+	/// Gets the parallelism options to use for this test collection, or null if none have been specified.
+	/// </summary>
+	/// <remarks>
+	/// This property is required in addition to <see cref="ParallelismOptions"/> because the assembly default value
+	/// (defined by <see cref="CollectionBehaviorAttribute"/>) should be used if unspecified, and because you cannot
+	/// initialize nullable properties on attribute usages since arguments must be constant expressions.
+	/// </remarks>
+	public ParallelismOptions? OptionalParallelismOptions { get; private set; }
 }

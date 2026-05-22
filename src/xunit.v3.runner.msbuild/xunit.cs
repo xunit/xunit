@@ -25,8 +25,6 @@ public class xunit : MSBuildTask, ICancelableTask, IDisposable
 	bool? internalDiagnosticMessages;
 	IRunnerLogger? logger;
 	readonly object logLock = new();
-	bool? parallelizeAssemblies;
-	bool? parallelizeTestCollections;
 	bool? preEnumerateTheories;
 	IRunnerReporterMessageHandler? reporterMessageHandler;
 	readonly IReadOnlyDictionary<string, IConsoleResultWriter> resultWriters = RegisteredRunnerConfig.GetConsoleResultWriters(typeof(xunit).Assembly);
@@ -125,10 +123,7 @@ public class xunit : MSBuildTask, ICancelableTask, IDisposable
 	public string? ParallelAlgorithm { get; set; }
 
 	/// <summary/>
-	public bool ParallelizeAssemblies { set => parallelizeAssemblies = value; }
-
-	/// <summary/>
-	public bool ParallelizeTestCollections { set => parallelizeTestCollections = value; }
+	public string? ParallelismOptions { get; set; }
 
 	/// <summary/>
 	public bool PreEnumerateTheories { set => preEnumerateTheories = value; }
@@ -253,6 +248,9 @@ public class xunit : MSBuildTask, ICancelableTask, IDisposable
 		if (!TryParseOptionalEnum<ParallelAlgorithm>(ParallelAlgorithm, "ParallelAlgorithm value '{0}' is invalid: must be one of 'aggressive' or 'conservative'", out var parallelAlgorithm))
 			return false;
 
+		if (!TryParseOptionalEnum<ParallelismOptions>(ParallelismOptions, "ParallelismOptions value '{0}' is invalid", out var parallelismOptions))
+			return false;
+
 		var originalWorkingFolder = Directory.GetCurrentDirectory();
 		await using var globalDiagnosticsMessageSink = MSBuildDiagnosticMessageSink.TryCreate(Log, logLock, diagnosticMessages ?? false, internalDiagnosticMessages ?? false);
 
@@ -350,8 +348,8 @@ public class xunit : MSBuildTask, ICancelableTask, IDisposable
 						projectAssembly.Configuration.MethodDisplayOptions = methodDisplayOptions;
 					if (parallelAlgorithm.HasValue)
 						projectAssembly.Configuration.ParallelAlgorithm = parallelAlgorithm;
-					if (parallelizeTestCollections.HasValue)
-						projectAssembly.Configuration.ParallelizeTestCollections = parallelizeTestCollections;
+					if (parallelismOptions.HasValue)
+						projectAssembly.Configuration.ParallelismOptions = parallelismOptions;
 					if (preEnumerateTheories.HasValue)
 						projectAssembly.Configuration.PreEnumerateTheories = preEnumerateTheories;
 					if (shadowCopy.HasValue)
@@ -384,10 +382,11 @@ public class xunit : MSBuildTask, ICancelableTask, IDisposable
 
 				var clockTime = Stopwatch.StartNew();
 
-				if (!parallelizeAssemblies.HasValue)
-					parallelizeAssemblies = project.Assemblies.All(assembly => assembly.Configuration.ParallelizeAssemblyOrDefault);
+				var parallelizeAssemblies = project.Assemblies.All(assembly =>
+					assembly.Configuration.ParallelismOptions?.HasFlag(Sdk.ParallelismOptions
+						.Assemblies) == true);
 
-				if (parallelizeAssemblies.GetValueOrDefault())
+				if (parallelizeAssemblies)
 					await Task.WhenAll(
 						project.Assemblies.Select(
 							assembly => Task.Run(() => ExecuteAssembly(assembly, appDomains, resultWriterMessageHandlers).AsTask())

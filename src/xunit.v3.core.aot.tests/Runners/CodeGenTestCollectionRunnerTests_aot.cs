@@ -203,7 +203,8 @@ public static class CodeGenTestCollectionRunnerTests
 				MessageBus,
 				Aggregator,
 				CancellationTokenSource,
-				AssemblyFixtureMappingManager
+				AssemblyFixtureMappingManager,
+				ParallelismOptionsAliases.Default
 			);
 	}
 }

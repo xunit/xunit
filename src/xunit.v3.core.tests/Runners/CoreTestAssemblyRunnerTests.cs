@@ -25,7 +25,7 @@ public static class CoreTestAssemblyRunnerTests
 			var testCase2 = testCaseForCollection(testCollection2, "test-case-2");
 			var testCollection3 = Mocks.CoreTestCollection(testAssembly: testAssembly, testCollectionDisplayName: "test-collection-3", uniqueID: "3");
 			var testCase3 = testCaseForCollection(testCollection3, "test-case-3");
-			var options = TestData.TestFrameworkExecutionOptions(disableParallelization: true);
+			var options = TestData.TestFrameworkExecutionOptions(parallelismOptions: ParallelismOptions.None);
 			var runner = new TestableCoreTestAssemblyRunner([testCase3, testCase1, testCase2], options);
 
 			await runner.RunAsync();
@@ -107,6 +107,32 @@ public static class CoreTestAssemblyRunnerTests
 			}, TestContext.Current.CancellationToken);
 		}
 
+		[Theory]
+		[InlineData(ParallelAlgorithm.Aggressive, 1, null)]
+		[InlineData(ParallelAlgorithm.Aggressive, -1, null)]
+		[InlineData(ParallelAlgorithm.Conservative, -1, null)]
+		[InlineData(ParallelAlgorithm.Conservative, 1, 1)]
+		[InlineData(ParallelAlgorithm.Conservative, 16, 16)]
+		public async ValueTask AlgorithmImpactsParallelizationSemaphore(ParallelAlgorithm algorithm, int maxParallelThreads, int? expectedThreads)
+		{
+			var testAssembly = Mocks.CoreTestAssembly();
+			var options = TestData.TestFrameworkExecutionOptions(maxParallelThreads: maxParallelThreads, parallelAlgorithm: algorithm);
+
+			var messageSink = SpyMessageSink.Capture();
+			await using var context = new TestableCoreTestAssemblyRunner.TestableContext(
+				testAssembly,
+				testCases: [],
+				messageSink,
+				options,
+				CancellationToken.None,
+				testDelay: 0
+			);
+
+			context.SetupParallelism();
+
+			Assert.Equal(expectedThreads, context.ParallelizationSemaphore?.CurrentCount);
+		}
+
 		[Fact]
 		public async ValueTask Parallel_Conversative()
 		{
@@ -168,7 +194,7 @@ public static class CoreTestAssemblyRunnerTests
 			var testCase1 = Mocks.CoreTestCase(testCaseDisplayName: "TestCase1", testMethod: Mocks.CoreTestMethod(testClass: Mocks.CoreTestClass(testCollection: testCollection1)));
 			var testCollection2 = Mocks.CoreTestCollection(uniqueID: "2");
 			var testCase2 = Mocks.CoreTestCase(testCaseDisplayName: "TestCase2", testMethod: Mocks.CoreTestMethod(testClass: Mocks.CoreTestClass(testCollection: testCollection2)));
-			var options = TestData.TestFrameworkExecutionOptions(disableParallelization: true);
+			var options = TestData.TestFrameworkExecutionOptions(parallelismOptions: ParallelismOptions.None);
 			var runner = new TestableCoreTestAssemblyRunner([testCase1, testCase2], options);
 
 			await runner.RunAsync();
@@ -253,7 +279,7 @@ public static class CoreTestAssemblyRunnerTests
 				ICoreTestCollection testCollection,
 				IReadOnlyCollection<ICoreTestCase> testCases)
 			{
-				await BeforeTestCollection();
+				await BeforeTestCollection(testCollection);
 
 				try
 				{
@@ -273,7 +299,7 @@ public static class CoreTestAssemblyRunnerTests
 				}
 				finally
 				{
-					AfterTestCollection();
+					AfterTestCollection(testCollection);
 				}
 			}
 

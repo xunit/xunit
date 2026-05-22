@@ -12,6 +12,7 @@ namespace Xunit.v3;
 /// <param name="aggregator">The exception aggregator used to run code and collection exceptions.</param>
 /// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 /// <param name="assemblyFixtureMappings">The mapping manager for assembly fixtures.</param>
+/// <param name="parallelismOptions">Options which determine the amount of test parallelization to allow.</param>
 /// <remarks>
 /// This class is used for code generation-based tests.
 /// </remarks>
@@ -22,13 +23,15 @@ public class CodeGenTestCollectionRunnerContext(
 	IMessageBus messageBus,
 	ExceptionAggregator aggregator,
 	CancellationTokenSource cancellationTokenSource,
-	FixtureMappingManager assemblyFixtureMappings) :
+	FixtureMappingManager assemblyFixtureMappings,
+	ParallelismOptions parallelismOptions) :
 		CodeGenTestCollectionRunnerBaseContext<ICodeGenTestCollection, ICodeGenTestClass, ICodeGenTestCase>(
 			testCollection,
 			testCases,
 			explicitOption,
 			messageBus,
 			aggregator,
+			parallelismOptions,
 			cancellationTokenSource,
 			assemblyFixtureMappings
 		)
@@ -44,6 +47,7 @@ public class CodeGenTestCollectionRunnerContext(
 				MessageBus,
 				Aggregator.Clone(),
 				CancellationTokenSource,
-				CollectionFixtureMappings
+				CollectionFixtureMappings,
+				ParallelismOptions
 			);
 }

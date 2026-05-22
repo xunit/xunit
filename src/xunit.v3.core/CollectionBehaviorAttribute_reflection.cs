@@ -16,7 +16,14 @@ partial class CollectionBehaviorAttribute : ICollectionBehaviorAttribute
 	public Type? CollectionFactoryType { get; }
 
 	/// <inheritdoc/>
-	public bool DisableTestParallelization { get; set; }
+	public bool DisableTestParallelization
+	{
+		get => ParallelismOptions == ParallelismOptions.None;
+		set => ParallelismOptions = value ? ParallelismOptions.None : ParallelismOptions;
+	}
+
+	/// <inheritdoc/>
+	public ParallelismOptions ParallelismOptions { get; set; } = ParallelismOptionsAliases.Default;
 
 	/// <inheritdoc/>
 	public int MaxParallelThreads { get; set; }
@@ -37,7 +44,14 @@ partial class CollectionBehaviorAttribute<TCollectionFactory> : ICollectionBehav
 	public Type? CollectionFactoryType => typeof(TCollectionFactory);
 
 	/// <inheritdoc/>
-	public bool DisableTestParallelization { get; set; }
+	public bool DisableTestParallelization
+	{
+		get => ParallelismOptions == ParallelismOptions.None;
+		set => ParallelismOptions = value ? ParallelismOptions.None : ParallelismOptions;
+	}
+
+	/// <inheritdoc/>
+	public ParallelismOptions ParallelismOptions { get; set; } = ParallelismOptionsAliases.Default;
 
 	/// <inheritdoc/>
 	public int MaxParallelThreads { get; set; }

@@ -32,6 +32,8 @@ public class XunitTestMethodRunner : XunitTestMethodRunnerBase<XunitTestMethodRu
 	/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 	/// <param name="constructorArguments">The constructor arguments for the test class.</param>
 	/// <param name="classFixtureMappings">The fixtures attached to the test class</param>
+	/// <param name="parallelismOptions">Options which determine the amount of test parallelization to allow.</param>
+	/// <param name="parallelizationSemaphore">Semaphore used to limit the number of tests running in parallel.</param>
 	public async ValueTask<RunSummary> Run(
 		IXunitTestMethod testMethod,
 		IReadOnlyCollection<IXunitTestCase> testCases,
@@ -40,7 +42,9 @@ public class XunitTestMethodRunner : XunitTestMethodRunnerBase<XunitTestMethodRu
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource,
 		object?[] constructorArguments,
-		FixtureMappingManager classFixtureMappings)
+		FixtureMappingManager classFixtureMappings,
+		ParallelismOptions parallelismOptions = ParallelismOptionsAliases.Default,
+		SemaphoreSlim? parallelizationSemaphore = null)
 	{
 		Guard.ArgumentNotNull(testCases);
 		Guard.ArgumentNotNull(messageBus);
@@ -54,7 +58,9 @@ public class XunitTestMethodRunner : XunitTestMethodRunnerBase<XunitTestMethodRu
 			aggregator,
 			cancellationTokenSource,
 			constructorArguments,
-			classFixtureMappings
+			classFixtureMappings,
+			parallelismOptions,
+			parallelizationSemaphore
 		);
 		await ctxt.InitializeAsync();
 

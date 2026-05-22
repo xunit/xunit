@@ -1,4 +1,5 @@
 using Xunit.Sdk;
+using Xunit.v3.Utility;
 
 namespace Xunit.v3;
 
@@ -83,38 +84,43 @@ public abstract class CoreTestAssemblyRunner<TContext, TTestAssembly, TTestColle
 
 #pragma warning disable CA2012 // We guarantee that parallel ValueTasks are only awaited once
 
-	/// <inheritdoc/>
+	/// <summary>
+	/// Runs the list of test collections. Groups the tests by collection and runs them in parallel if
+	/// <see cref="ParallelismOptions.Collections"/> is set, and serially otherwise.
+	/// </summary>
+	/// <remarks>
+	/// This method runs during <see cref="TestEngineStatus.Running"/> and any exceptions thrown will
+	/// contribute to test assembly cleanup failure.
+	/// </remarks>
+	/// <param name="ctxt">The context that describes the current test assembly</param>
+	/// <param name="exception">The exception that was caused during startup; should be used as an indicator that the
+	/// downstream tests should fail with the provided exception rather than going through standard execution</param>
+	/// <returns>Returns summary information about the tests that were run.</returns>
 	protected override async ValueTask<RunSummary> RunTestCollections(
 		TContext ctxt,
 		Exception? exception)
 	{
 		Guard.ArgumentNotNull(ctxt);
 
-		if (ctxt.DisableParallelization || exception is not null)
+		if (ctxt.ParallelismOptions == ParallelismOptions.None || exception is not null)
 			return await base.RunTestCollections(ctxt, exception);
 
 		ctxt.SetupParallelism();
 
-		Func<Func<ValueTask<RunSummary>>, ValueTask<RunSummary>> taskRunner;
-		if (SynchronizationContext.Current is not null)
-		{
-			var scheduler = TaskScheduler.FromCurrentSynchronizationContext();
-			taskRunner = code => new(Task.Factory.StartNew(() => code().AsTask(), ctxt.CancellationTokenSource.Token, TaskCreationOptions.DenyChildAttach | TaskCreationOptions.HideScheduler, scheduler).Unwrap());
-		}
-		else
-			taskRunner = code => new(Task.Run(() => code().AsTask(), ctxt.CancellationTokenSource.Token));
-
+		var taskRunner = TestPipelineTaskRunner.Create(ctxt.CancellationTokenSource.Token);
 		List<ValueTask<RunSummary>>? parallel = null;
 		List<Func<ValueTask<RunSummary>>>? nonParallel = null;
 		var summaries = new List<RunSummary>();
 
 		foreach (var (collection, testCases) in OrderTestCollections(ctxt))
 		{
+			var parallelismOptions = ctxt.ParallelismOptions ?? collection.ParallelismOptions;
+
 			ValueTask<RunSummary> task() => RunTestCollection(ctxt, collection, testCases);
-			if (collection.DisableParallelization)
-				(nonParallel ??= []).Add(task);
-			else
+			if (parallelismOptions.HasFlag(ParallelismOptions.Collections))
 				(parallel ??= []).Add(taskRunner(task));
+			else
+				(nonParallel ??= []).Add(task);
 		}
 
 		if (parallel?.Count > 0)

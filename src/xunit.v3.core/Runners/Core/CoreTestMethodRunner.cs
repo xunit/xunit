@@ -1,4 +1,5 @@
 using Xunit.Sdk;
+using Xunit.v3.Utility;
 
 namespace Xunit.v3;
 
@@ -52,6 +53,61 @@ public class CoreTestMethodRunner<TContext, TTestMethod, TTestCase> : TestMethod
 				innerEx
 			);
 		}
+	}
+
+	/// <summary>
+	/// Runs the list of test cases. It runs the cases in order serially, or in parallel
+	/// if <see cref="ParallelismOptions.TestCases"/> is set.
+	/// </summary>
+	/// <remarks>
+	/// This method runs during <see cref="TestEngineStatus.Running"/> and any exceptions thrown will
+	/// contribute to test method cleanup failure.
+	/// </remarks>
+	/// <param name="ctxt">The context that describes the current test method</param>
+	/// <param name="exception">The exception that was caused during startup; should be used as an indicator that the
+	/// downstream tests should fail with the provided exception rather than going through standard execution</param>
+	/// <returns>Returns summary information about the tests that were run.</returns>
+	[SuppressMessage("Reliability", "CA2012:Use ValueTasks correctly",
+		Justification = "We guarantee that parallel ValueTasks are only awaited once.")]
+	protected override async ValueTask<RunSummary> RunTestCases(
+		TContext ctxt,
+		Exception? exception)
+	{
+		Guard.ArgumentNotNull(ctxt);
+
+		if (!ctxt.ParallelismOptions.HasFlag(ParallelismOptions.TestCases))
+		{
+			return await base.RunTestCases(ctxt, exception);
+		}
+
+		var summary = new RunSummary();
+		var orderedTestCases = OrderTestCases(ctxt);
+		var taskRunner = TestPipelineTaskRunner.Create(ctxt.CancellationTokenSource.Token);
+		List<ValueTask<RunSummary>> parallel = [];
+
+		foreach (var testCase in orderedTestCases)
+		{
+			if (ctxt.CancellationTokenSource.IsCancellationRequested)
+				break;
+
+			parallel.Add(taskRunner(task));
+
+			ValueTask<RunSummary> task() =>
+				exception == null ? RunTestCase(ctxt, testCase) : FailTestCase(ctxt, testCase, exception);
+		}
+
+		foreach (var task in parallel)
+		{
+			try
+			{
+				summary.Aggregate(await task);
+			}
+			catch (TaskCanceledException)
+			{
+			}
+		}
+
+		return summary;
 	}
 
 	/// <summary>

@@ -14,6 +14,8 @@ namespace Xunit.v3;
 /// <param name="skipReason">The skip reason, if the test case is being skipped</param>
 /// <param name="cancellationTokenSource">The cancellation token source</param>
 /// <param name="methodFixtureMappings">The mapping of method fixture types to fixtures.</param>
+/// <param name="parallelismOptions">Options which determine the amount of test parallelization to allow.</param>
+/// <param name="parallelizationSemaphore">Semaphore used to limit the number of tests running in parallel.</param>
 /// <remarks>
 /// This class is used for code generation-based tests.
 /// </remarks>
@@ -26,8 +28,10 @@ public class CodeGenTestCaseRunnerContext(
 	string displayName,
 	string? skipReason,
 	CancellationTokenSource cancellationTokenSource,
-	FixtureMappingManager methodFixtureMappings) :
-		CodeGenTestCaseRunnerBaseContext<ICodeGenTestCase, ICodeGenTest>(testCase, tests, explicitOption, messageBus, aggregator, displayName, skipReason, cancellationTokenSource, methodFixtureMappings)
+	FixtureMappingManager methodFixtureMappings,
+	ParallelismOptions parallelismOptions,
+	SemaphoreSlim? parallelizationSemaphore) :
+		CodeGenTestCaseRunnerBaseContext<ICodeGenTestCase, ICodeGenTest>(testCase, tests, explicitOption, messageBus, aggregator, displayName, skipReason, cancellationTokenSource, methodFixtureMappings, parallelismOptions, parallelizationSemaphore)
 {
 	/// <inheritdoc/>
 	public override ValueTask<RunSummary> RunTest(ICodeGenTest test) =>

@@ -60,7 +60,8 @@ partial class Mocks
 		IReadOnlyCollection<BeforeAfterTestAttribute>? beforeAfterTestAttributes = null,
 		string? configFilePath = null,
 		IReadOnlyDictionary<string, CodeGenTestCollectionRegistration>? collectionDefinitions = null,
-		bool? disableParallelization = null,
+		ParallelismOptions? parallelismOptions = null,
+		SemaphoreSlim? parallelizationSemaphore = null,
 		int? maxParallelThreads = null,
 		Guid? moduleVersionID = null,
 		ParallelAlgorithm? parallelAlgorithm = null,
@@ -82,7 +83,8 @@ partial class Mocks
 				BeforeAfterTestAttributes = beforeAfterTestAttributes ?? [],
 				CollectionDefinitions = collectionDefinitions ?? TestData.EmptyCollectionDefinitions,
 				ConfigFilePath = configFilePath,
-				DisableParallelization = disableParallelization,
+				ParallelismOptions = parallelismOptions,
+				ParallelizationSemaphore = parallelizationSemaphore,
 				MaxParallelThreads = maxParallelThreads,
 				ModuleVersionID = moduleVersionID ?? TestData.DefaultModuleVersionID,
 				ParallelAlgorithm = parallelAlgorithm,
@@ -110,10 +112,11 @@ partial class Mocks
 		public required IReadOnlyCollection<BeforeAfterTestAttribute> BeforeAfterTestAttributes { get; set; }
 		public required string? ConfigFilePath { get; set; }
 		public required IReadOnlyDictionary<string, CodeGenTestCollectionRegistration> CollectionDefinitions { get; set; }
-		public required bool? DisableParallelization { get; set; }
+		public required ParallelismOptions? ParallelismOptions { get; set; }
 		public required int? MaxParallelThreads { get; set; }
 		public required Guid ModuleVersionID { get; set; }
 		public required ParallelAlgorithm? ParallelAlgorithm { get; set; }
+		public required SemaphoreSlim? ParallelizationSemaphore { get; set; }
 		public required string TargetFramework { get; set; }
 		public required ITestCaseOrderer? TestCaseOrderer { get; set; }
 		public required ITestClassOrderer? TestClassOrderer { get; set; }
@@ -286,7 +289,7 @@ partial class Mocks
 		IReadOnlyCollection<BeforeAfterTestAttribute>? beforeAfterTestAttributes = null,
 		IReadOnlyDictionary<Type, FixtureFactory>? classFixtureFactories = null,
 		IReadOnlyDictionary<Type, FixtureFactory>? collectionFixtureFactories = null,
-		bool disableParallelization = false,
+		ParallelismOptions? parallelismOptions = null,
 		ICodeGenTestAssembly? testAssembly = null,
 		ITestCaseOrderer? testCaseOrderer = null,
 		ITestClassOrderer? testClassOrderer = null,
@@ -300,7 +303,7 @@ partial class Mocks
 				BeforeAfterTestAttributes = beforeAfterTestAttributes ?? [],
 				ClassFixtureFactories = classFixtureFactories ?? TestData.EmptyFixtureFactories,
 				CollectionFixtureFactories = collectionFixtureFactories ?? TestData.EmptyFixtureFactories,
-				DisableParallelization = disableParallelization,
+				ParallelismOptions = parallelismOptions ?? testAssembly?.ParallelismOptions ?? ParallelismOptionsAliases.Default,
 				TestAssembly = testAssembly ?? CodeGenTestAssembly(),
 				TestCaseOrderer = testCaseOrderer,
 				TestClassOrderer = testClassOrderer,
@@ -316,7 +319,7 @@ partial class Mocks
 		public required IReadOnlyCollection<BeforeAfterTestAttribute> BeforeAfterTestAttributes { get; set; }
 		public required IReadOnlyDictionary<Type, FixtureFactory> ClassFixtureFactories { get; set; }
 		public required IReadOnlyDictionary<Type, FixtureFactory> CollectionFixtureFactories { get; set; }
-		public required bool DisableParallelization { get; set; }
+		public required ParallelismOptions ParallelismOptions { get; set; }
 		public required ICodeGenTestAssembly TestAssembly { get; set; }
 		public required ITestCaseOrderer? TestCaseOrderer { get; set; }
 		public required ITestClassOrderer? TestClassOrderer { get; set; }

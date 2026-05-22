@@ -17,7 +17,6 @@ public class CollectionPerClassTestCollectionFactory(IXunitTestAssembly testAsse
 		new XunitTestCollection(
 			TestAssembly,
 			collectionDefinition: null,
-			disableParallelization: false,
 			CollectionAttribute.GetCollectionNameForType(testClass)
 		);
 }

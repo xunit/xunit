@@ -16,6 +16,7 @@ public class XunitTestCollection : IXunitTestCollection, IXunitSerializable
 	IXunitTestAssembly? testAssembly;
 	string? testCollectionDisplayName;
 	string? uniqueID;
+	ParallelismOptions? parallelismOptions;
 
 	// Lazy accessors based on serialized values
 	readonly Lazy<IReadOnlyCollection<IBeforeAfterTestAttribute>> beforeAfterTestAttributes;
@@ -46,14 +47,14 @@ public class XunitTestCollection : IXunitTestCollection, IXunitSerializable
 	/// </summary>
 	/// <param name="testAssembly">The test assembly the collection belongs to</param>
 	/// <param name="collectionDefinition">The optional type which contains the collection definition</param>
-	/// <param name="disableParallelization">A flag to indicate whether this test collection opts out of parallelization</param>
 	/// <param name="displayName">The display name for the test collection</param>
+	/// <param name="parallelismOptions">Options which determine the amount of test parallelization to allow.</param>
 	/// <param name="uniqueID">The unique ID for the test collection (only used to override default behavior in testing scenarios)</param>
 	public XunitTestCollection(
 		IXunitTestAssembly testAssembly,
 		Type? collectionDefinition,
-		bool disableParallelization,
 		string displayName,
+		ParallelismOptions? parallelismOptions = null,
 		string? uniqueID = null)
 #pragma warning disable CS0618
 			: this()
@@ -61,8 +62,8 @@ public class XunitTestCollection : IXunitTestCollection, IXunitSerializable
 	{
 		this.testAssembly = Guard.ArgumentNotNull(testAssembly);
 		CollectionDefinition = collectionDefinition;
-		DisableParallelization = disableParallelization;
 		testCollectionDisplayName = Guard.ArgumentNotNull(displayName);
+		this.parallelismOptions = parallelismOptions;
 		this.uniqueID = uniqueID ?? UniqueIDGenerator.ForTestCollection(testAssembly.UniqueID, testCollectionDisplayName, collectionDefinition?.SafeName());
 	}
 
@@ -82,7 +83,11 @@ public class XunitTestCollection : IXunitTestCollection, IXunitSerializable
 		collectionFixtureTypes.Value;
 
 	/// <inheritdoc/>
-	public bool DisableParallelization { get; private set; }
+	public ParallelismOptions ParallelismOptions
+	{
+		get => parallelismOptions ?? TestAssembly.ParallelismOptions ?? ParallelismOptionsAliases.Default;
+		set => parallelismOptions = value;
+	}
 
 	/// <inheritdoc/>
 	public IXunitTestAssembly TestAssembly =>
@@ -123,7 +128,7 @@ public class XunitTestCollection : IXunitTestCollection, IXunitSerializable
 	/// <inheritdoc/>
 	public void Deserialize(IXunitSerializationInfo info)
 	{
-		DisableParallelization = Guard.NotNull("Could not retrieve DisableParallelization from serialization", info.GetValue<bool?>("dp"));
+		parallelismOptions = info.GetValue<ParallelismOptions?>("po");
 		testCollectionDisplayName = Guard.NotNull("Could not retrieve TestCollectionDisplayName from serialization", info.GetValue<string>("dn"));
 		testAssembly = Guard.NotNull("Could not retrieve TestAssembly from serialization", info.GetValue<IXunitTestAssembly>("ta"));
 		uniqueID = Guard.NotNull("Could not retrieve UniqueID from serialization", info.GetValue<string>("id"));
@@ -140,7 +145,7 @@ public class XunitTestCollection : IXunitTestCollection, IXunitSerializable
 	/// <inheritdoc/>
 	public void Serialize(IXunitSerializationInfo info)
 	{
-		info.AddValue("dp", DisableParallelization);
+		info.AddValue("po", ParallelismOptions);
 		info.AddValue("ta", TestAssembly);
 		info.AddValue("dn", TestCollectionDisplayName);
 		info.AddValue("id", UniqueID);

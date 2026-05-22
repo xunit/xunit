@@ -101,9 +101,9 @@ public static class TestConfig
 		if (Enum.TryParse<ParallelAlgorithm>(parallelAlgorithmString, ignoreCase: true, out var parallelAlgorithm))
 			projectAssembly.Configuration.ParallelAlgorithm = parallelAlgorithm;
 
-		var parallelizeTestCollectionsString = configuration[Keys.ParallelizeTestCollections];
-		if (TryParseBool(parallelizeTestCollectionsString, out var parallelizeTestCollections))
-			projectAssembly.Configuration.ParallelizeTestCollections = parallelizeTestCollections;
+		var parallelismOptionsString = configuration[Keys.ParallelismOptions];
+		if (Enum.TryParse<ParallelismOptions>(parallelismOptionsString, ignoreCase: true, out var parallelismOptions))
+			projectAssembly.Configuration.ParallelismOptions = parallelismOptions;
 
 		var preEnumerateTheoriesString = configuration[Keys.PreEnumerateTheories];
 		if (TryParseBool(preEnumerateTheoriesString, out var preEnumerateTheories))
@@ -181,7 +181,7 @@ public static class TestConfig
 		/// <summary/>
 		public const string ParallelAlgorithm = "xUnit:parallelAlgorithm";
 		/// <summary/>
-		public const string ParallelizeTestCollections = "xUnit:parallelizeTestCollections";
+		public const string ParallelismOptions = "xUnit:parallelismOptions";
 		/// <summary/>
 		public const string PreEnumerateTheories = "xUnit:preEnumerateTheories";
 		/// <summary/>

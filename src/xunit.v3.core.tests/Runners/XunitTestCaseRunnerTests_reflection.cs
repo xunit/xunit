@@ -273,7 +273,9 @@ public static class XunitTestCaseRunnerTests
 				test.TestCase.SkipReason,
 				ExplicitOption.Off,
 				[],
-				FixtureMappings
+				FixtureMappings,
+				parallelismOptions: ParallelismOptionsAliases.Default,
+				parallelizationSemaphore: null
 			);
 			await ctxt.InitializeAsync();
 

@@ -93,8 +93,8 @@ public sealed class CodeGenTestAssembly : ICodeGenTestAssembly
 	public string? ConfigFilePath { get; }
 
 	/// <inheritdoc/>
-	public bool? DisableParallelization =>
-		collectionBehavior?.DisableTestParallelization;
+	public ParallelismOptions? ParallelismOptions =>
+		collectionBehavior?.ParallelismOptions;
 
 	/// <inheritdoc/>
 	public int? MaxParallelThreads =>
@@ -103,6 +103,9 @@ public sealed class CodeGenTestAssembly : ICodeGenTestAssembly
 	/// <inheritdoc/>
 	public ParallelAlgorithm? ParallelAlgorithm =>
 		collectionBehavior?.ParallelAlgorithm;
+
+	/// <inheritdoc/>
+	public SemaphoreSlim? ParallelizationSemaphore { get; set; }
 
 	/// <inheritdoc/>
 	public Guid ModuleVersionID { get; }

@@ -1,4 +1,5 @@
 using Xunit;
+using Xunit.Sdk;
 using Xunit.v3;
 
 public static class CollectionPerClassTestCollectionFactoryTests
@@ -15,7 +16,7 @@ public static class CollectionPerClassTestCollectionFactoryTests
 		Assert.Empty(testCollection.ClassFixtureTypes);
 		Assert.Null(testCollection.CollectionDefinition);
 		Assert.Empty(testCollection.CollectionFixtureTypes);
-		Assert.False(testCollection.DisableParallelization);
+		Assert.Equal(ParallelismOptionsAliases.Default, testCollection.ParallelismOptions);
 		Assert.Same(testAssembly, testCollection.TestAssembly);
 		Assert.Null(testCollection.TestCaseOrderer);
 		Assert.Null(testCollection.TestClassOrderer);

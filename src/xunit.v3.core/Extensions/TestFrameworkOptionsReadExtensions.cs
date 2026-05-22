@@ -221,21 +221,15 @@ public static class TestFrameworkOptionsReadExtensions
 		DiagnosticMessages(executionOptions) ?? false;
 
 	/// <summary>
-	/// Gets a flag to disable parallelization.
+	/// Gets options which determine the amount of parallelization to allow for tests.
 	/// </summary>
-	public static bool? DisableParallelization(this ITestFrameworkExecutionOptions executionOptions)
+	public static ParallelismOptions? ParallelismOptions(this ITestFrameworkExecutionOptions executionOptions)
 	{
 		Guard.ArgumentNotNull(executionOptions);
 
-		return executionOptions.GetValue<bool?>(TestOptionsNames.Execution.DisableParallelization);
+		var options = executionOptions.GetValue<string>(TestOptionsNames.Execution.ParallelismOptions);
+		return options != null ? Enum.Parse<ParallelismOptions>(options) : null;
 	}
-
-	/// <summary>
-	/// Gets a flag to disable parallelization. If the flag is not present, returns the
-	/// default value (<see langword="false"/>).
-	/// </summary>
-	public static bool DisableParallelizationOrDefault(this ITestFrameworkExecutionOptions executionOptions) =>
-		DisableParallelization(executionOptions) ?? false;
 
 	/// <summary>
 	/// Gets a flag that indicates how to handle explicit tests.

@@ -13,6 +13,8 @@ namespace Xunit.v3;
 /// <param name="displayName">The display name of the test case</param>
 /// <param name="skipReason">The skip reason, if the test case is being skipped</param>
 /// <param name="cancellationTokenSource">The cancellation token source</param>
+/// <param name="parallelismOptions">Options which determine the amount of test parallelization to allow.</param>
+/// <param name="parallelizationSemaphore">Semaphore used to limit the number of tests running in parallel.</param>
 /// <typeparam name="TTestCase">The type of the test case used by the test framework. Must
 /// derive from <see cref="ICoreTestCase"/>.</typeparam>
 /// <typeparam name="TTest">The type of the test used by the test framework. Must
@@ -28,6 +30,8 @@ public abstract class CoreTestCaseRunnerContext<TTestCase, TTest>(
 	ExceptionAggregator aggregator,
 	string displayName,
 	string? skipReason,
+	ParallelismOptions parallelismOptions,
+	SemaphoreSlim? parallelizationSemaphore,
 	CancellationTokenSource cancellationTokenSource) :
 		TestCaseRunnerContext<TTestCase, TTest>(testCase, explicitOption, messageBus, aggregator, cancellationTokenSource)
 			where TTestCase : class, ICoreTestCase
@@ -50,6 +54,16 @@ public abstract class CoreTestCaseRunnerContext<TTestCase, TTest>(
 	/// </summary>
 #endif
 	public string? SkipReason { get; } = skipReason;
+
+	/// <summary>
+	/// Options which determine the amount of test parallelization to allow.
+	/// </summary>
+	public ParallelismOptions ParallelismOptions { get; } = parallelismOptions;
+
+	/// <summary>
+	/// Gets the semaphore used to limit the number of tests running in parallel.
+	/// </summary>
+	public SemaphoreSlim? ParallelizationSemaphore { get; } = parallelizationSemaphore;
 
 	/// <inheritdoc/>
 	public override IReadOnlyCollection<TTest> Tests { get; } = Guard.ArgumentNotNull(tests);

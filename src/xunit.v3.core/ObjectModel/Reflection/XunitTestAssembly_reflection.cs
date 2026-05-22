@@ -142,8 +142,7 @@ public class XunitTestAssembly : IXunitTestAssembly, IXunitSerializable
 	public string? ConfigFilePath { get; private set; }
 
 	/// <inheritdoc/>
-	public bool? DisableParallelization =>
-		CollectionBehavior?.DisableTestParallelization;
+	public ParallelismOptions? ParallelismOptions => CollectionBehavior?.ParallelismOptions;
 
 	/// <inheritdoc/>
 	public int? MaxParallelThreads =>

@@ -1,4 +1,5 @@
 using Xunit.Sdk;
+using Xunit.v3.Utility;
 
 namespace Xunit.v3;
 
@@ -60,6 +61,63 @@ public class CoreTestCollectionRunner<TContext, TTestCollection, TTestClass, TTe
 				innerEx
 			);
 		}
+	}
+
+	/// <summary>
+	/// Runs the list of test classes. Groups the tests by class and runs them in parallel
+	/// if <see cref="ParallelismOptions.Classes"/> is set, and serially otherwise.
+	/// </summary>
+	/// <remarks>
+	/// This method runs during <see cref="TestEngineStatus.Running"/> and any exceptions thrown will
+	/// contribute to test collection cleanup failure.
+	/// </remarks>
+	/// <param name="ctxt">The context that describes the current test collection</param>
+	/// <param name="exception">The exception that was caused during startup; should be used as an indicator that the
+	/// downstream tests should fail with the provided exception rather than going through standard execution</param>
+	/// <returns>Returns summary information about the tests that were run.</returns>
+	[SuppressMessage("Reliability", "CA2012:Use ValueTasks correctly",
+		Justification = "We guarantee that parallel ValueTasks are only awaited once.")]
+	protected override async ValueTask<RunSummary> RunTestClasses(
+		TContext ctxt,
+		Exception? exception)
+	{
+		Guard.ArgumentNotNull(ctxt);
+
+		if (!ctxt.ParallelismOptions.HasFlag(ParallelismOptions.Classes))
+		{
+			return await base.RunTestClasses(ctxt, exception);
+		}
+
+		var summary = new RunSummary();
+		var orderedTestClasses = exception is null ? OrderTestClasses(ctxt) : OrderTestClassesDefault(ctxt);
+		var taskRunner = TestPipelineTaskRunner.Create(ctxt.CancellationTokenSource.Token);
+
+		List<ValueTask<RunSummary>> parallel = [];
+
+		foreach (var testClass in orderedTestClasses)
+		{
+			if (ctxt.CancellationTokenSource.IsCancellationRequested)
+				break;
+
+			parallel.Add(taskRunner(task));
+
+			ValueTask<RunSummary> task() => exception is null
+				? RunTestClass(ctxt, testClass.Class, testClass.TestCases)
+				: FailTestClass(ctxt, testClass.Class, testClass.TestCases, exception);
+		}
+
+		foreach (var task in parallel)
+		{
+			try
+			{
+				summary.Aggregate(await task);
+			}
+			catch (TaskCanceledException)
+			{
+			}
+		}
+
+		return summary;
 	}
 
 	/// <summary>

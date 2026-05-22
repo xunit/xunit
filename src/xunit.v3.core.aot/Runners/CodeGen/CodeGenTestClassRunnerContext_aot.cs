@@ -17,6 +17,7 @@ public class CodeGenTestClassRunnerContext : CodeGenTestClassRunnerBaseContext<I
 	/// <param name="aggregator">The exception aggregator</param>
 	/// <param name="cancellationTokenSource">The cancellation token source</param>
 	/// <param name="collectionFixtureMappings">The mapping of collection fixture types to fixtures.</param>
+	/// <param name="parallelismOptions">Options which determine the amount of test parallelization to allow.</param>
 	public CodeGenTestClassRunnerContext(
 		ICodeGenTestClass testClass,
 		IReadOnlyCollection<ICodeGenTestCase> testCases,
@@ -24,8 +25,9 @@ public class CodeGenTestClassRunnerContext : CodeGenTestClassRunnerBaseContext<I
 		IMessageBus messageBus,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource,
-		FixtureMappingManager collectionFixtureMappings) :
-			base(testClass, testCases, explicitOption, messageBus, aggregator, cancellationTokenSource, collectionFixtureMappings)
+		FixtureMappingManager collectionFixtureMappings,
+		ParallelismOptions parallelismOptions) :
+			base(testClass, testCases, explicitOption, messageBus, aggregator, parallelismOptions, cancellationTokenSource, collectionFixtureMappings)
 	{ }
 
 	/// <inheritdoc/>
@@ -39,6 +41,7 @@ public class CodeGenTestClassRunnerContext : CodeGenTestClassRunnerBaseContext<I
 				MessageBus,
 				Aggregator.Clone(),
 				CancellationTokenSource,
-				ClassFixtureMappings
+				ClassFixtureMappings,
+				ParallelismOptions
 			);
 }

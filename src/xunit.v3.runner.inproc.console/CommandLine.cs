@@ -36,9 +36,15 @@ public class CommandLine : CommandLineParserBase
 		AddParser("id", OnID, CommandLineGroup.General, "<id>", "run a test case (by unique ID)");
 		AddParser(
 			"parallel", OnParallel, CommandLineGroup.General, "<option>",
-			"set parallelization based on option",
-			"  none        - turn off parallelization",
-			"  collections - parallelize by collections [default]"
+			"Set parallelization allowed based on option, or multiple options separated by a comma.",
+			"  none        - no test parallelization",
+			"  assemblies  - parallelize assemblies",
+			"  collections - parallelize test collections within a assembly [default]",
+			"  classes     - parallelize test classes within a test collection",
+			"  methods     - parallelize test methods within a test class",
+			"  testcases   - parallelize test cases for a test method",
+			"  tests       - parallelize tests for a test case",
+			"  all         - maximum parallelization enabled"
 		);
 		AddParser("pause", OnPause, CommandLineGroup.General, null, "wait for input before running tests (ignored with -automated)");
 #if !XUNIT_AOT

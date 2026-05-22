@@ -6,7 +6,7 @@ namespace Xunit.v3;
 partial class XunitRunnerHelper
 {
 	/// <summary>
-	/// Please call <see cref="RunXunitTestCase(IXunitTestCase, IMessageBus, CancellationTokenSource, ExceptionAggregator, ExplicitOption, object?[], FixtureMappingManager)"/>.
+	/// Please call <see cref="RunXunitTestCase(IXunitTestCase, IMessageBus, CancellationTokenSource, ExceptionAggregator, ExplicitOption, object?[], FixtureMappingManager, ParallelismOptions, SemaphoreSlim?)"/>.
 	/// This overload is not supported, and will be removed from the next major version.
 	/// </summary>
 	[Obsolete("Please call the overload that accepts methodFixtureMappings. This overload is not supported, and will be removed from the next major version.", error: true)]
@@ -31,6 +31,8 @@ partial class XunitRunnerHelper
 	/// <param name="explicitOption">A flag to indicate which types of tests to run (non-explicit, explicit, or both)</param>
 	/// <param name="constructorArguments">The arguments to pass to the test class constructor</param>
 	/// <param name="methodFixtureMappings">The fixtures attached to the test method</param>
+	/// <param name="parallelismOptions">Options which determine the amount of test parallelization to allow.</param>
+	/// <param name="parallelizationSemaphore">Semaphore used to limit the number of tests running in parallel.</param>
 	public static ValueTask<RunSummary> RunXunitTestCase(
 		IXunitTestCase testCase,
 		IMessageBus messageBus,
@@ -38,7 +40,9 @@ partial class XunitRunnerHelper
 		ExceptionAggregator aggregator,
 		ExplicitOption explicitOption,
 		object?[] constructorArguments,
-		FixtureMappingManager methodFixtureMappings) =>
+		FixtureMappingManager methodFixtureMappings,
+		ParallelismOptions parallelismOptions = ParallelismOptionsAliases.Default,
+		SemaphoreSlim? parallelizationSemaphore = null) =>
 			RunCoreTestCase(
 				Guard.ArgumentNotNull(testCase),
 				messageBus,
@@ -54,7 +58,9 @@ partial class XunitRunnerHelper
 					testCase.SkipReason,
 					explicitOption,
 					constructorArguments,
-					methodFixtureMappings
+					methodFixtureMappings,
+					parallelismOptions,
+					parallelizationSemaphore
 				),
 				cancellationTokenSource
 			);

@@ -327,7 +327,7 @@ sealed class ConsoleRunner(string[] args) :
 		var clockTime = Stopwatch.StartNew();
 
 		// TODO: Parallelize the ones that will parallelize, and then run the rest sequentially?
-		var parallelizeAssemblies = project.Assemblies.All(assembly => assembly.Configuration.ParallelizeAssemblyOrDefault);
+		var parallelizeAssemblies = project.Assemblies.All(assembly => assembly.Configuration.ParallelismOptionsOrDefault.HasFlag(ParallelismOptions.Assemblies));
 		var originalWorkingFolder = Directory.GetCurrentDirectory();
 
 		var resultWriterMessageHandlers = new List<IResultWriterMessageHandler>();

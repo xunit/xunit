@@ -40,6 +40,8 @@ public class XunitTestCaseRunner :
 	/// <param name="explicitOption">A flag to indicate how explicit tests should be treated.</param>
 	/// <param name="constructorArguments">The arguments to be passed to the test class constructor.</param>
 	/// <param name="methodFixtureMappings">The fixtures attached to the test method</param>
+	/// <param name="parallelismOptions">Options which determine the amount of test parallelization to allow.</param>
+	/// <param name="parallelizationSemaphore">Semaphore used to limit the number of tests running in parallel.</param>
 	/// <returns>Returns summary information about the test that was run.</returns>
 	public async ValueTask<RunSummary> Run(
 		IXunitTestCase testCase,
@@ -51,7 +53,9 @@ public class XunitTestCaseRunner :
 		string? skipReason,
 		ExplicitOption explicitOption,
 		object?[] constructorArguments,
-		FixtureMappingManager methodFixtureMappings)
+		FixtureMappingManager methodFixtureMappings,
+		ParallelismOptions parallelismOptions,
+		SemaphoreSlim? parallelizationSemaphore)
 	{
 		await using var ctxt = new XunitTestCaseRunnerContext(
 			testCase,
@@ -63,7 +67,9 @@ public class XunitTestCaseRunner :
 			skipReason,
 			explicitOption,
 			constructorArguments,
-			methodFixtureMappings
+			methodFixtureMappings,
+			parallelismOptions,
+			parallelizationSemaphore
 		);
 		await ctxt.InitializeAsync();
 

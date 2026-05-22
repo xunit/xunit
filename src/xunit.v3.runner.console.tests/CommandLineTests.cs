@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using Xunit;
 using Xunit.Runner.Common;
+using Xunit.Sdk;
 
 public static class CommandLineTests
 {
@@ -498,7 +499,7 @@ public static class CommandLineTests
 		public static class Parallelization
 		{
 			[Fact]
-			public static void ParallelizationOptionsAreNullByDefault()
+			public static void ParallelismOptionsAreNullByDefault()
 			{
 				var commandLine = new TestableCommandLine(CommandLineTestsLocation, "no-config.json");
 
@@ -506,8 +507,7 @@ public static class CommandLineTests
 
 				foreach (var assembly in project.Assemblies)
 				{
-					Assert.Null(assembly.Configuration.ParallelizeAssembly);
-					Assert.Null(assembly.Configuration.ParallelizeTestCollections);
+					Assert.Null(assembly.Configuration.ParallelismOptions);
 				}
 			}
 
@@ -526,14 +526,18 @@ public static class CommandLineTests
 			}
 
 			[Theory]
-			[InlineData("none", false, false)]
-			[InlineData("collections", false, true)]
-			[InlineData("assemblies", true, false)]
-			[InlineData("all", true, true)]
+			[InlineData("none", ParallelismOptions.None)]
+			[InlineData("assemblies", ParallelismOptions.Assemblies)]
+			[InlineData("collections", ParallelismOptions.Collections)]
+			[InlineData("assemblies, collections", ParallelismOptions.Assemblies | ParallelismOptions.Collections)]
+			[InlineData("classes", ParallelismOptions.Classes)]
+			[InlineData("methods", ParallelismOptions.Methods)]
+			[InlineData("testcases", ParallelismOptions.TestCases)]
+			[InlineData("tests", ParallelismOptions.Tests)]
+			[InlineData("all", ParallelismOptions.All)]
 			public static void ParallelCanBeTurnedOn(
 				string parallelOption,
-				bool expectedAssembliesParallelization,
-				bool expectedCollectionsParallelization)
+				ParallelismOptions expected)
 			{
 				var commandLine = new TestableCommandLine(CommandLineTestsLocation, "no-config.json", "-parallel", parallelOption);
 
@@ -541,8 +545,7 @@ public static class CommandLineTests
 
 				foreach (var assembly in project.Assemblies)
 				{
-					Assert.Equal(expectedAssembliesParallelization, assembly.Configuration.ParallelizeAssembly);
-					Assert.Equal(expectedCollectionsParallelization, assembly.Configuration.ParallelizeTestCollections);
+					Assert.Equal(expected, assembly.Configuration.ParallelismOptions);
 				}
 			}
 		}

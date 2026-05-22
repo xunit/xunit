@@ -6,10 +6,12 @@ partial class TestData
 {
 	public static CollectionBehaviorAttribute CollectionBehaviorAttribute(
 		bool disableTestParallelization = false,
+		ParallelismOptions parallelismOptions = ParallelismOptionsAliases.Default,
 		int maxParallelThreads = 0,
 		ParallelAlgorithm parallelAlgorithm = ParallelAlgorithm.Conservative) =>
 			new()
 			{
+				ParallelismOptions = parallelismOptions,
 				DisableTestParallelization = disableTestParallelization,
 				MaxParallelThreads = maxParallelThreads,
 				ParallelAlgorithm = parallelAlgorithm
@@ -18,10 +20,12 @@ partial class TestData
 	public static CollectionBehaviorAttribute CollectionBehaviorAttribute(
 		CollectionBehavior collectionBehavior,
 		bool disableTestParallelization = false,
+		ParallelismOptions parallelismOptions = ParallelismOptionsAliases.Default,
 		int maxParallelThreads = 0,
 		ParallelAlgorithm parallelAlgorithm = ParallelAlgorithm.Conservative) =>
 			new(collectionBehavior)
 			{
+				ParallelismOptions = parallelismOptions,
 				DisableTestParallelization = disableTestParallelization,
 				MaxParallelThreads = maxParallelThreads,
 				ParallelAlgorithm = parallelAlgorithm
@@ -41,6 +45,7 @@ partial class TestData
 
 	public static CollectionBehaviorAttribute<TCollectionFactory> CollectionBehaviorAttribute<TCollectionFactory>(
 		bool disableTestParallelization = false,
+		ParallelismOptions parallelismOptions = ParallelismOptionsAliases.Default,
 		int maxParallelThreads = 0,
 		ParallelAlgorithm parallelAlgorithm = ParallelAlgorithm.Conservative)
 #if XUNIT_AOT
@@ -51,6 +56,7 @@ partial class TestData
 				new()
 				{
 					DisableTestParallelization = disableTestParallelization,
+					ParallelismOptions = parallelismOptions,
 					MaxParallelThreads = maxParallelThreads,
 					ParallelAlgorithm = parallelAlgorithm
 				};

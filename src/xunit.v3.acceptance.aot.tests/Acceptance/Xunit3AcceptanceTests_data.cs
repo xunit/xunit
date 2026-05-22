@@ -402,7 +402,7 @@ public partial class Xunit3AcceptanceTests
 			public void Test2() { }
 		}
 
-		[CollectionDefinition("Non-Parallel Collection", DisableParallelization = true)]
+		[CollectionDefinition("Non-Parallel Collection", ParallelismOptions = ParallelismOptions.None)]
 		[TestMethodOrderer(typeof(AlphabeticalMethodOrderer))]
 		public class TestClassNonParallelCollectionDefinition { }
 

@@ -19,6 +19,7 @@ partial class AcceptanceTestV3
 		IMessageSink? diagnosticMessageSink = null)
 	{
 		var tcs = new TaskCompletionSource<List<IMessageSinkMessage>>();
+		var testAssembly = Assembly.GetEntryAssembly() ?? Assembly.GetCallingAssembly();
 
 		ThreadPool.QueueUserWorkItem(async _ =>
 		{
@@ -28,7 +29,6 @@ partial class AcceptanceTestV3
 			{
 				await using var testFramework = new XunitTestFramework();
 
-				var testAssembly = Assembly.GetEntryAssembly()!;
 				var discoverer = testFramework.GetDiscoverer(testAssembly);
 				var testCases = new List<ITestCase>();
 				await discoverer.Find(testCase => { testCases.Add(testCase); return new(true); }, TestData.TestFrameworkDiscoveryOptions(preEnumerateTheories: preEnumerateTheories), types);

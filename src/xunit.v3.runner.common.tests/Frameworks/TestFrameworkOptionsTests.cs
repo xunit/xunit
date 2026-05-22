@@ -81,7 +81,7 @@ public static class TestFrameworkOptionsTests
 				Assert.Null(result.GetAssertEquivalentMaxDepth());
 				Assert.Null(result.GetCulture());
 				Assert.Null(result.GetDiagnosticMessages());
-				Assert.Null(result.GetDisableParallelization());
+				Assert.Null(result.GetParallelismOptions());
 				Assert.Null(result.GetInternalDiagnosticMessages());
 				Assert.Null(result.GetMaxParallelThreads());
 				Assert.Null(result.GetPrintMaxEnumerableLength());

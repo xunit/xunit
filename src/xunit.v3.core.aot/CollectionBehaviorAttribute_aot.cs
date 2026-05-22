@@ -20,7 +20,16 @@ sealed partial class CollectionBehaviorAttribute
 	/// <summary>
 	/// Determines whether tests in this assembly are run in parallel.
 	/// </summary>
-	public bool DisableTestParallelization { get; set; }
+	public bool DisableTestParallelization
+	{
+		get => ParallelismOptions == ParallelismOptions.None;
+		set => ParallelismOptions = value ? ParallelismOptions.None : ParallelismOptions;
+	}
+
+	/// <summary>
+	/// Gets or sets options which determine the amount of parallelization to allow for tests in this assembly by default.
+	/// </summary>
+	public ParallelismOptions ParallelismOptions { get; set; } = ParallelismOptionsAliases.Default;
 
 	/// <summary>
 	/// Determines how many tests can run in parallel with each other. If set to 0, the system will
@@ -47,7 +56,16 @@ partial class CollectionBehaviorAttribute<TCollectionFactory>
 	/// <summary>
 	/// Determines whether tests in this assembly are run in parallel.
 	/// </summary>
-	public bool DisableTestParallelization { get; set; }
+	public bool DisableTestParallelization
+	{
+		get => ParallelismOptions == ParallelismOptions.None;
+		set => ParallelismOptions = value ? ParallelismOptions.None : ParallelismOptions;
+	}
+
+	/// <summary>
+	/// Gets or sets options which determine the amount of parallelization to allow for tests in this assembly by default.
+	/// </summary>
+	public ParallelismOptions ParallelismOptions { get; set; } = ParallelismOptionsAliases.Default;
 
 	/// <summary>
 	/// Determines how many tests can run in parallel with each other. If set to 0, the system will
