@@ -1,0 +1,44 @@
+namespace Xunit.v3;
+
+/// <summary>
+/// The test method runner for xUnit.net v3 tests (with overridable context).
+/// </summary>
+/// <remarks>
+/// This class is used for code generation-based tests.
+/// </remarks>
+public abstract class CodeGenTestMethodRunnerBase<TContext, TTestMethod, TTestCase> : CoreTestMethodRunner<TContext, TTestMethod, TTestCase>
+	where TContext : CodeGenTestMethodRunnerBaseContext<TTestMethod, TTestCase>
+	where TTestMethod : class, ICodeGenTestMethod
+	where TTestCase : class, ICodeGenTestCase
+{
+	/// <inheritdoc/>
+	protected override async ValueTask<RunSummary> RunTestCases(
+		TContext ctxt,
+		Exception? exception)
+	{
+		Guard.ArgumentNotNull(ctxt);
+
+		if (exception is not null)
+			return await base.RunTestCases(ctxt, exception);
+
+		using var lifecycleTracker = new NotificationTracker<INotifyTestMethodLifecycle>(
+			ctxt.MethodFixtureMappings.ForNotification<INotifyTestMethodLifecycle>(),
+			fixture => fixture.OnTestMethodStarting(ctxt.TestMethod),
+			fixture => ctxt.Aggregator.Run(() => fixture.OnTestMethodFinished(ctxt.TestMethod)),
+			ctxt.CancellationTokenSource.Token
+		);
+		await using var lifecycleAsyncTracker = new NotificationTrackerAsync<INotifyTestMethodLifecycleAsync>(
+			ctxt.MethodFixtureMappings.ForNotification<INotifyTestMethodLifecycleAsync>(),
+			fixture => fixture.OnTestMethodStartingAsync(ctxt.TestMethod),
+			fixture => ctxt.Aggregator.RunAsync(() => fixture.OnTestMethodFinishedAsync(ctxt.TestMethod)),
+			ctxt.CancellationTokenSource.Token
+		);
+
+		var aggregator = lifecycleTracker.Up();
+
+		if (!aggregator.HasExceptions)
+			aggregator.Aggregate(await lifecycleAsyncTracker.Up());
+
+		return await base.RunTestCases(ctxt, aggregator.ToException());
+	}
+}

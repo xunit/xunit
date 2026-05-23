@@ -8,7 +8,7 @@ namespace Xunit.v3;
 /// <remarks>
 /// This class is used for code generation-based tests.
 /// </remarks>
-public class CodeGenTestClassRunnerContext : CoreTestClassRunnerContext<ICodeGenTestClass, ICodeGenTestMethod, ICodeGenTestCase>
+public class CodeGenTestClassRunnerContext : CodeGenTestClassRunnerBaseContext<ICodeGenTestClass, ICodeGenTestMethod, ICodeGenTestCase>
 {
 	/// <param name="testClass">The test class</param>
 	/// <param name="testCases">The test from the test class</param>
@@ -25,28 +25,8 @@ public class CodeGenTestClassRunnerContext : CoreTestClassRunnerContext<ICodeGen
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource,
 		FixtureMappingManager collectionFixtureMappings) :
-			base(testClass, testCases, explicitOption, messageBus, aggregator, cancellationTokenSource)
-	{
-		var classFixtureFactories = new Dictionary<Type, FixtureFactory>(Guard.ArgumentNotNull(testClass).TestCollection.ClassFixtureFactories);
-		foreach (var classLevelFactory in testClass.ClassFixtureFactories)
-			classFixtureFactories[classLevelFactory.Key] = classLevelFactory.Value;
-
-		ClassFixtureMappings = new("Class", classFixtureFactories, collectionFixtureMappings);
-	}
-
-	/// <summary>
-	/// Gets the fixture mapping manager for the test class.
-	/// </summary>
-	public FixtureMappingManager ClassFixtureMappings { get; }
-
-	/// <inheritdoc/>
-	public override async ValueTask DisposeAsync()
-	{
-		GC.SuppressFinalize(this);
-
-		await ClassFixtureMappings.SafeDisposeAsync();
-		await base.DisposeAsync();
-	}
+			base(testClass, testCases, explicitOption, messageBus, aggregator, cancellationTokenSource, collectionFixtureMappings)
+	{ }
 
 	/// <inheritdoc/>
 	public override ValueTask<RunSummary> RunTestMethod(

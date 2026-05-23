@@ -19,26 +19,14 @@ public class CodeGenTestAssemblyRunnerContext(
 	IMessageSink executionMessageSink,
 	ITestFrameworkExecutionOptions executionOptions,
 	CancellationToken cancellationToken) :
-		CoreTestAssemblyRunnerContext<ICodeGenTestAssembly, ICodeGenTestCollection, ICodeGenTestCase>(testAssembly, testCases, executionMessageSink, executionOptions, cancellationToken)
+		CodeGenTestAssemblyRunnerBaseContext<ICodeGenTestAssembly, ICodeGenTestCollection, ICodeGenTestCase>(
+			testAssembly,
+			testCases,
+			executionMessageSink,
+			executionOptions,
+			cancellationToken
+		)
 {
-	/// <summary>
-	/// Gets the mapping manager for assembly-level fixtures.
-	/// </summary>
-	public FixtureMappingManager AssemblyFixtureMappings { get; } = new("Assembly", Guard.ArgumentNotNull(testAssembly).AssemblyFixtureFactories);
-
-	/// <inheritdoc/>
-	public override async ValueTask DisposeAsync()
-	{
-		GC.SuppressFinalize(this);
-
-		await AssemblyFixtureMappings.SafeDisposeAsync();
-		await base.DisposeAsync();
-	}
-
-	/// <inheritdoc/>
-	protected override string GetTestCollectionFactoryDisplayName() =>
-		TestAssembly.TestCollectionFactory.DisplayName;
-
 	/// <inheritdoc/>
 	public override async ValueTask<RunSummary> RunTestCollection(
 		ICodeGenTestCollection testCollection,

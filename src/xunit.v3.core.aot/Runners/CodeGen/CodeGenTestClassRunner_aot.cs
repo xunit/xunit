@@ -8,7 +8,7 @@ namespace Xunit.v3;
 /// <remarks>
 /// This class is used for code generation-based tests.
 /// </remarks>
-public class CodeGenTestClassRunner : CoreTestClassRunner<CodeGenTestClassRunnerContext, ICodeGenTestClass, ICodeGenTestMethod, ICodeGenTestCase>
+public class CodeGenTestClassRunner : CodeGenTestClassRunnerBase<CodeGenTestClassRunnerContext, ICodeGenTestClass, ICodeGenTestMethod, ICodeGenTestCase>
 {
 	/// <summary>
 	/// Initializes a new instance of the <see cref="CodeGenTestClassRunner"/> class.
@@ -20,29 +20,6 @@ public class CodeGenTestClassRunner : CoreTestClassRunner<CodeGenTestClassRunner
 	/// Gets the singleton instance of <see cref="CodeGenTestClassRunner"/>.
 	/// </summary>
 	public static CodeGenTestClassRunner Instance { get; } = new();
-
-	/// <inheritdoc/>
-	protected override async ValueTask<bool> OnTestClassFinished(
-		CodeGenTestClassRunnerContext ctxt,
-		RunSummary summary)
-	{
-		Guard.ArgumentNotNull(ctxt);
-
-		await ctxt.Aggregator.RunAsync(ctxt.ClassFixtureMappings.DisposeAsync);
-		return await base.OnTestClassFinished(ctxt, summary);
-	}
-
-	/// <inheritdoc/>
-	protected override async ValueTask<bool> OnTestClassStarting(CodeGenTestClassRunnerContext ctxt)
-	{
-		Guard.ArgumentNotNull(ctxt);
-
-		var result = await base.OnTestClassStarting(ctxt);
-		await ctxt.Aggregator.RunAsync(() => ctxt.ClassFixtureMappings.InitializeAsync(
-			createInstances: ctxt.TestCases.Any(tc => !tc.IsStaticallySkipped())
-		));
-		return result;
-	}
 
 	/// <summary>
 	/// Runs the test class.
@@ -81,46 +58,5 @@ public class CodeGenTestClassRunner : CoreTestClassRunner<CodeGenTestClassRunner
 		await ctxt.InitializeAsync();
 
 		return await ctxt.Aggregator.RunAsync(() => Run(ctxt), default);
-	}
-
-	/// <inheritdoc/>
-	protected override async ValueTask<RunSummary> RunTestMethods(
-		CodeGenTestClassRunnerContext ctxt,
-		Exception? exception)
-	{
-		Guard.ArgumentNotNull(ctxt);
-
-		if (exception is not null)
-			return await base.RunTestMethods(ctxt, exception);
-
-		using var lifecycleTracker = new NotificationTracker<INotifyTestClassLifecycle>(
-			ctxt.ClassFixtureMappings.ForNotification<INotifyTestClassLifecycle>(),
-			fixture => fixture.OnTestClassStarting(ctxt.TestClass),
-			fixture => ctxt.Aggregator.Run(() => fixture.OnTestClassFinished(ctxt.TestClass)),
-			ctxt.CancellationTokenSource.Token
-		);
-		await using var lifecycleAsyncTracker = new NotificationTrackerAsync<INotifyTestClassLifecycleAsync>(
-			ctxt.ClassFixtureMappings.ForNotification<INotifyTestClassLifecycleAsync>(),
-			fixture => fixture.OnTestClassStartingAsync(ctxt.TestClass),
-			fixture => ctxt.Aggregator.RunAsync(() => fixture.OnTestClassFinishedAsync(ctxt.TestClass)),
-			ctxt.CancellationTokenSource.Token
-		);
-
-		var aggregator = lifecycleTracker.Up();
-
-		if (!aggregator.HasExceptions)
-			aggregator.Aggregate(await lifecycleAsyncTracker.Up());
-
-		return await base.RunTestMethods(ctxt, aggregator.ToException());
-	}
-
-	/// <inheritdoc/>
-	protected override void SetTestContext(
-		CodeGenTestClassRunnerContext ctxt,
-		TestEngineStatus testClassStatus)
-	{
-		Guard.ArgumentNotNull(ctxt);
-
-		TestContext.SetForTestClass(ctxt.TestClass, testClassStatus, ctxt.CancellationTokenSource.Token, ctxt.ClassFixtureMappings);
 	}
 }

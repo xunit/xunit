@@ -3,7 +3,7 @@ using Xunit.Sdk;
 namespace Xunit.v3;
 
 /// <summary>
-/// Context class for <see cref="CodeGenTestAssemblyRunner"/>.
+/// Context class for <see cref="CodeGenTestCollectionRunnerBase{TContext, TTestCollection, TTestClass, TTestCase}"/>.
 /// </summary>
 /// <param name="testCollection">The test collection to be run.</param>
 /// <param name="testCases">The test cases to be run. Cannot be empty.</param>
@@ -15,35 +15,37 @@ namespace Xunit.v3;
 /// <remarks>
 /// This class is used for code generation-based tests.
 /// </remarks>
-public class CodeGenTestCollectionRunnerContext(
-	ICodeGenTestCollection testCollection,
-	IReadOnlyCollection<ICodeGenTestCase> testCases,
+public abstract class CodeGenTestCollectionRunnerBaseContext<TTestCollection, TTestClass, TTestCase>(
+	TTestCollection testCollection,
+	IReadOnlyCollection<TTestCase> testCases,
 	ExplicitOption explicitOption,
 	IMessageBus messageBus,
 	ExceptionAggregator aggregator,
 	CancellationTokenSource cancellationTokenSource,
 	FixtureMappingManager assemblyFixtureMappings) :
-		CodeGenTestCollectionRunnerBaseContext<ICodeGenTestCollection, ICodeGenTestClass, ICodeGenTestCase>(
+		CoreTestCollectionRunnerContext<TTestCollection, TTestClass, TTestCase>(
 			testCollection,
 			testCases,
 			explicitOption,
 			messageBus,
 			aggregator,
-			cancellationTokenSource,
-			assemblyFixtureMappings
+			cancellationTokenSource
 		)
+			where TTestCollection : class, ICodeGenTestCollection
+			where TTestClass : class, ICodeGenTestClass
+			where TTestCase : class, ICodeGenTestCase
 {
+	/// <summary>
+	/// Gets the mapping manager for assembly-level fixtures.
+	/// </summary>
+	public FixtureMappingManager CollectionFixtureMappings { get; } = new("Collection", Guard.ArgumentNotNull(testCollection).CollectionFixtureFactories, assemblyFixtureMappings);
+
 	/// <inheritdoc/>
-	public override ValueTask<RunSummary> RunTestClass(
-		ICodeGenTestClass testClass,
-		IReadOnlyCollection<ICodeGenTestCase> testCases) =>
-			CodeGenTestClassRunner.Instance.Run(
-				testClass,
-				testCases,
-				ExplicitOption,
-				MessageBus,
-				Aggregator.Clone(),
-				CancellationTokenSource,
-				CollectionFixtureMappings
-			);
+	public override async ValueTask DisposeAsync()
+	{
+		GC.SuppressFinalize(this);
+
+		await CollectionFixtureMappings.SafeDisposeAsync();
+		await base.DisposeAsync();
+	}
 }

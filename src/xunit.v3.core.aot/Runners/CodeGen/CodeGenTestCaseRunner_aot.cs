@@ -8,7 +8,7 @@ namespace Xunit.v3;
 /// <remarks>
 /// This class is used for code generation-based tests.
 /// </remarks>
-public class CodeGenTestCaseRunner : CoreTestCaseRunner<CodeGenTestCaseRunnerContext, ICodeGenTestCase, ICodeGenTest>
+public class CodeGenTestCaseRunner : CodeGenTestCaseRunnerBase<CodeGenTestCaseRunnerContext, ICodeGenTestCase, ICodeGenTest>
 {
 	/// <summary>
 	/// Initializes a new instance of the <see cref="CodeGenTestCaseRunner"/> class.
@@ -64,36 +64,5 @@ public class CodeGenTestCaseRunner : CoreTestCaseRunner<CodeGenTestCaseRunnerCon
 		await ctxt.InitializeAsync();
 
 		return await Run(ctxt);
-	}
-
-	/// <inheritdoc/>
-	protected override async ValueTask<RunSummary> RunTestCase(
-		CodeGenTestCaseRunnerContext ctxt,
-		Exception? exception)
-	{
-		Guard.ArgumentNotNull(ctxt);
-
-		if (exception is not null)
-			return await base.RunTestCase(ctxt, exception);
-
-		using var lifecycleTracker = new NotificationTracker<INotifyTestCaseLifecycle>(
-			ctxt.CaseFixtureMappings.ForNotification<INotifyTestCaseLifecycle>(),
-			fixture => fixture.OnTestCaseStarting(ctxt.TestCase),
-			fixture => ctxt.Aggregator.Run(() => fixture.OnTestCaseFinished(ctxt.TestCase)),
-			ctxt.CancellationTokenSource.Token
-		);
-		await using var lifecycleAsyncTracker = new NotificationTrackerAsync<INotifyTestCaseLifecycleAsync>(
-			ctxt.CaseFixtureMappings.ForNotification<INotifyTestCaseLifecycleAsync>(),
-			fixture => fixture.OnTestCaseStartingAsync(ctxt.TestCase),
-			fixture => ctxt.Aggregator.RunAsync(() => fixture.OnTestCaseFinishedAsync(ctxt.TestCase)),
-			ctxt.CancellationTokenSource.Token
-		);
-
-		var aggregator = lifecycleTracker.Up();
-
-		if (!aggregator.HasExceptions)
-			aggregator.Aggregate(await lifecycleAsyncTracker.Up());
-
-		return await base.RunTestCase(ctxt, aggregator.ToException());
 	}
 }

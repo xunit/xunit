@@ -8,7 +8,7 @@ namespace Xunit.v3;
 /// <remarks>
 /// This class is used for code generation-based tests.
 /// </remarks>
-public class CodeGenTestRunner : CoreTestRunner<CodeGenTestRunnerContext, ICodeGenTest, BeforeAfterTestAttribute>
+public class CodeGenTestRunner : CodeGenTestRunnerBase<CodeGenTestRunnerContext, ICodeGenTest>
 {
 	/// <summary>
 	/// Initializes a new instance of the <see cref="CodeGenTestRunner"/> class.
@@ -20,14 +20,6 @@ public class CodeGenTestRunner : CoreTestRunner<CodeGenTestRunnerContext, ICodeG
 	/// Gets the singleton instance of the <see cref="CodeGenTestRunner"/>.
 	/// </summary>
 	public static CodeGenTestRunner Instance = new();
-
-	/// <inheritdoc/>
-	protected override ValueTask<(object? Instance, SynchronizationContext? SyncContext, ExecutionContext? ExecutionContext)> CreateTestClassInstance(CodeGenTestRunnerContext ctxt) =>
-		Guard.ArgumentNotNull(ctxt).CreateTestClassInstance();
-
-	/// <inheritdoc/>
-	protected override bool IsTestClassCreatable(CodeGenTestRunnerContext ctxt) =>
-		!Guard.ArgumentNotNull(ctxt).Test.TestCase.TestMethod.IsStatic;
 
 	/// <summary>
 	/// Runs the test.
@@ -58,34 +50,5 @@ public class CodeGenTestRunner : CoreTestRunner<CodeGenTestRunnerContext, ICodeG
 		await ctxt.InitializeAsync();
 
 		return await Run(ctxt);
-	}
-
-	/// <inheritdoc/>
-	protected override async ValueTask<TimeSpan> RunTest(CodeGenTestRunnerContext ctxt)
-	{
-		Guard.ArgumentNotNull(ctxt);
-
-		using var lifecycleTracker = new NotificationTracker<INotifyTestLifecycle>(
-			ctxt.TestFixtureMappings.ForNotification<INotifyTestLifecycle>(),
-			fixture => fixture.OnTestStarting(ctxt.Test),
-			fixture => ctxt.Aggregator.Run(() => fixture.OnTestFinished(ctxt.Test)),
-			ctxt.CancellationTokenSource.Token
-		);
-		await using var lifecycleAsyncTracker = new NotificationTrackerAsync<INotifyTestLifecycleAsync>(
-			ctxt.TestFixtureMappings.ForNotification<INotifyTestLifecycleAsync>(),
-			fixture => fixture.OnTestStartingAsync(ctxt.Test),
-			fixture => ctxt.Aggregator.RunAsync(() => fixture.OnTestFinishedAsync(ctxt.Test)),
-			ctxt.CancellationTokenSource.Token
-		);
-
-		ctxt.Aggregator.Aggregate(lifecycleTracker.Up());
-
-		if (!ctxt.Aggregator.HasExceptions)
-			ctxt.Aggregator.Aggregate(await lifecycleAsyncTracker.Up());
-
-		if (!ctxt.Aggregator.HasExceptions)
-			return await base.RunTest(ctxt);
-
-		return TimeSpan.Zero;
 	}
 }

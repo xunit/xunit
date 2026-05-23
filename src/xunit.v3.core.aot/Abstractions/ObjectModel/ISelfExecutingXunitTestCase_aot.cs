@@ -5,9 +5,9 @@ using System.ComponentModel;
 namespace Xunit.v3;
 
 /// <summary>
-/// Reflection-based test execution is not supported in Native AOT
+/// Please use <see cref="ISelfExecutingCodeGenTestCase"/> in Native AOT
 /// </summary>
-[Obsolete("Reflection-based test execution is not supported in Native AOT", error: true)]
+[Obsolete("Please use ISelfExecutingCodeGenTestCase in Native AOT", error: true)]
 [EditorBrowsable(EditorBrowsableState.Never)]
 public interface ISelfExecutingXunitTestCase
 { }
