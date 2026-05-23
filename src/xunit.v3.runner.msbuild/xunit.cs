@@ -528,7 +528,7 @@ public class xunit : MSBuildTask, ICancelableTask, IDisposable
 			reporter = reporters.FirstOrDefault(r => string.Equals(r.RunnerSwitch, Reporter, StringComparison.OrdinalIgnoreCase));
 			if (reporter is null)
 			{
-#pragma warning disable CA1308 // The switch list is lowercased because it's presented in the UI that way
+#pragma warning disable CA1308 // This is for UI purposes, not normalization purposes
 				var switchableReporters =
 					reporters
 						.Where(r => !string.IsNullOrWhiteSpace(r.RunnerSwitch))

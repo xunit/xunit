@@ -1,6 +1,4 @@
-#pragma warning disable CA1825 // Avoid zero-length array allocations
-#pragma warning disable CA1865 // Use char overload
-#pragma warning disable IDE0034 // Simplify 'default' expression
+#pragma warning disable CA1865 // The StartsWith char overload is not available on all target frameworks
 
 using System.Collections;
 using System.Text;
@@ -392,7 +390,9 @@ public static class CollectionAssertsTests
 		{
 			var comparer = new MyComparer();
 
+#pragma warning disable IDE0034 // Simplifying the default expression here causes a compiler ambiguity
 			Assert.Throws<ArgumentNullException>("collection", () => Assert.Contains(14, default(IEnumerable<int>)!, comparer));
+#pragma warning restore IDE0034
 			Assert.Throws<ArgumentNullException>("comparer", () => Assert.Contains(14, [], null!));
 		}
 
@@ -631,7 +631,9 @@ public static class CollectionAssertsTests
 		{
 			var comparer = new MyComparer();
 
+#pragma warning disable IDE0034 // Simplifying the default expression here causes a compiler ambiguity
 			Assert.Throws<ArgumentNullException>("collection", () => Assert.DoesNotContain(14, default(IEnumerable<int>)!, comparer));
+#pragma warning restore IDE0034
 			Assert.Throws<ArgumentNullException>("comparer", () => Assert.DoesNotContain(14, [], null!));
 		}
 
@@ -753,7 +755,7 @@ public static class CollectionAssertsTests
 			[Fact]
 			public static void EmptyExpectedNullActual()
 			{
-				var expected = new int[0];
+				var expected = Array.Empty<int>();
 				var actual = default(IEnumerable<int>);
 
 				var ex = Record.Exception(() => Assert.Equal(expected, actual));
@@ -771,7 +773,7 @@ public static class CollectionAssertsTests
 			public static void NullExpectedEmptyActual()
 			{
 				var expected = default(IEnumerable<int>);
-				var actual = new int[0];
+				var actual = Array.Empty<int>();
 
 				var ex = Record.Exception(() => Assert.Equal(expected, actual));
 
@@ -1751,7 +1753,7 @@ public static class CollectionAssertsTests
 			[Fact]
 			public static void EmptyExpectedNullActual()
 			{
-				var expected = new int[0];
+				var expected = Array.Empty<int>();
 				var actual = default(IEnumerable<int>);
 
 				Assert.NotEqual(expected, actual);
@@ -1761,7 +1763,7 @@ public static class CollectionAssertsTests
 			public static void NullExpectedEmptyActual()
 			{
 				var expected = default(IEnumerable<int>);
-				var actual = new int[0];
+				var actual = Array.Empty<int>();
 
 				Assert.NotEqual(expected, actual);
 			}
@@ -2580,7 +2582,7 @@ public static class CollectionAssertsTests
 		[Fact]
 		public static void EmptyCollection()
 		{
-			var collection = new object[0];
+			var collection = Array.Empty<object>();
 
 			var ex = Record.Exception(() => Assert.Single(collection));
 
@@ -2660,7 +2662,7 @@ public static class CollectionAssertsTests
 		public static void GuardClauses()
 		{
 			Assert.Throws<ArgumentNullException>("collection", () => Assert.Single(default(IEnumerable<object>)!, _ => true));
-			Assert.Throws<ArgumentNullException>("predicate", () => Assert.Single(new object[0], null!));
+			Assert.Throws<ArgumentNullException>("predicate", () => Assert.Single(Array.Empty<object>(), null!));
 		}
 
 		[Fact]

@@ -1,6 +1,3 @@
-#pragma warning disable CA1307 // Specify StringComparison for clarity
-#pragma warning disable SYSLIB1045 // Convert to 'GeneratedRegexAttribute'
-
 using System.Text.RegularExpressions;
 
 namespace Xunit.Sdk;
@@ -8,11 +5,17 @@ namespace Xunit.Sdk;
 /// <summary>
 /// Represents an attachment to a test result.
 /// </summary>
-public class TestAttachment
+public partial class TestAttachment
 {
 	const string BinaryHeader = "b:";
 	const string StringHeader = "s:";
+
+#if NETCOREAPP
+	static readonly Regex MediaTypeRegex = GetMediaTypeRegex();
+	[GeneratedRegex("^\\w+\\/[-.\\w]+(?:\\+[-.\\w]+)?$", RegexOptions.Compiled)] private static partial Regex GetMediaTypeRegex();
+#else
 	static readonly Regex MediaTypeRegex = new("^\\w+\\/[-.\\w]+(?:\\+[-.\\w]+)?$", RegexOptions.Compiled);
+#endif
 
 	readonly byte[]? byteArrayValue;
 	readonly string? mediaType;
@@ -101,7 +104,7 @@ public class TestAttachment
 		{
 
 			value = value.Substring(BinaryHeader.Length);
-			var semiColonIdx = value.IndexOf(';');
+			var semiColonIdx = value.IndexOfOrdinal(';');
 			if (semiColonIdx > -1)
 			{
 				var mediaType = value.Substring(0, semiColonIdx);

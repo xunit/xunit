@@ -1,4 +1,4 @@
-#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
+#pragma warning disable CS0649 // This is a shared file, and DisposeException is only assigned in some test projects
 
 internal class SpyDisposable : IDisposable
 {

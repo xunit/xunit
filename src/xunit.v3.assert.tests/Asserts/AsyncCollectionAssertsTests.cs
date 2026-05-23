@@ -879,9 +879,9 @@ public static class AsyncCollectionAssertsTests
 					Assert.IsType<DivideByZeroException>(ex.InnerException);
 				}
 
-#pragma warning disable IDE0300 // Simplify collection initialization
+#pragma warning disable IDE0300 // Need to keep this as-is for the message check
 				validateError(() => Assert.Equal(new[] { 1, 2 }, new[] { 1, 3 }.ToAsyncEnumerable(), new ThrowingComparer()), "int[] ", "<generated> ");
-#pragma warning restore IDE0300 // Simplify collection initialization
+#pragma warning restore IDE0300
 				validateError(() => Assert.Equal(new[] { 1, 2 }.ToAsyncEnumerable(), new[] { 1, 3 }.ToAsyncEnumerable(), new ThrowingComparer()), "", "");
 			}
 

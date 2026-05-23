@@ -640,7 +640,7 @@ public static partial class Xunit3TheoryAcceptanceTests
 			Assert.Equal("Xunit3TheoryAcceptanceTests+MethodDataTests+ClassWithMismatchedMethodData.TestViaMethodData", failed.Test.TestDisplayName);
 #if XUNIT_AOT
 			Assert.Equal("Xunit.Sdk.TestPipelineException", failed.ExceptionTypes.Single());
-			Assert.Equal(@"Member data method 'Xunit3TheoryAcceptanceTests.MethodDataTests.ClassWithMismatchedMethodData.DataSource' had one or more invalid theory data arguments: int x (""Hello world"")", failed.Messages.Single());
+			Assert.Equal(@"Member data method 'Xunit3TheoryAcceptanceTests.MethodDataTests.ClassWithMismatchedMethodData.DataSource' had one or more invalid theory data arguments: int _ (""Hello world"")", failed.Messages.Single());
 #else
 			Assert.Equal("System.ArgumentException", failed.ExceptionTypes.Single());
 			Assert.Equal("Could not find public static member (property, field, or method) named 'DataSource' on 'Xunit3TheoryAcceptanceTests+MethodDataTests+ClassWithMismatchedMethodData' with parameter types: System.String", failed.Messages.Single());

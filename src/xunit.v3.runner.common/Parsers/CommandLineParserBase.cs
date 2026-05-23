@@ -1,5 +1,3 @@
-#pragma warning disable CA1865 // Use char overload
-
 using System.Reflection;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
@@ -849,7 +847,11 @@ public abstract class CommandLineParserBase
 			var option = PopOption(arguments);
 			var optionName = option.Key;
 
+#if NETCOREAPP
+			if (!optionName.StartsWith('-'))
+#else
 			if (!optionName.StartsWith("-", StringComparison.Ordinal))
+#endif
 				throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "unknown option: {0}", option.Key));
 
 			optionName = optionName.Substring(1);
@@ -881,7 +883,15 @@ public abstract class CommandLineParserBase
 		var option = arguments.Pop();
 		string? value = null;
 
-		if (arguments.Count > 0 && (option.Equals("-id", StringComparison.OrdinalIgnoreCase) || option.Equals("-run", StringComparison.OrdinalIgnoreCase) || !arguments.Peek().StartsWith("-", StringComparison.Ordinal)))
+		if (arguments.Count > 0
+				&& (option.Equals("-id", StringComparison.OrdinalIgnoreCase)
+					|| option.Equals("-run", StringComparison.OrdinalIgnoreCase)
+#if NETCOREAPP
+					|| !arguments.Peek().StartsWith('-')
+#else
+					|| !arguments.Peek().StartsWith("-", StringComparison.Ordinal)
+#endif
+			))
 			value = arguments.Pop();
 
 		return new KeyValuePair<string, string?>(option, value);

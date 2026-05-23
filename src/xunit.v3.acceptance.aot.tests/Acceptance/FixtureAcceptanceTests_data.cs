@@ -1,5 +1,3 @@
-#pragma warning disable xUnit1041 // Fixture arguments to test classes must have fixture sources
-
 using System.Runtime.InteropServices;
 using Xunit;
 using Xunit.Sdk;
@@ -311,7 +309,9 @@ public partial class FixtureAcceptanceTests
 #if XUNIT_AOT
 		public
 #endif
+#pragma warning disable xUnit1041 // Fixture arguments to test classes must have fixture sources
 		class ClassWithExtraCtorArg(int _1, EmptyFixtureData _2, string _3)
+#pragma warning restore xUnit1041 // Fixture arguments to test classes must have fixture sources
 		{
 			[Fact]
 			public void TheTest() { }
@@ -524,7 +524,9 @@ public partial class FixtureAcceptanceTests
 #if XUNIT_AOT
 		public
 #endif
+#pragma warning disable xUnit1041 // Fixture arguments to test classes must have fixture sources
 		class ClassWithExtraCtorArg(int _1, EmptyFixtureData _2, string _3)
+#pragma warning restore xUnit1041 // Fixture arguments to test classes must have fixture sources
 		{
 			[Fact]
 			public void TheTest() { }
@@ -690,7 +692,9 @@ public partial class FixtureAcceptanceTests
 #if XUNIT_AOT
 		public
 #endif
+#pragma warning disable xUnit1041 // Fixture arguments to test classes must have fixture sources
 		class ClassWithExtraCtorArg(int _1, EmptyFixtureData _2, string _3)
+#pragma warning restore xUnit1041 // Fixture arguments to test classes must have fixture sources
 		{
 			[Fact]
 			public void TheTest() { }

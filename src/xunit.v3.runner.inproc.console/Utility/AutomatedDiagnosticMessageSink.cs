@@ -1,5 +1,3 @@
-#pragma warning disable CA2002  // The console writer is not cross app-domain
-
 using Xunit.Runner.Common;
 using Xunit.Sdk;
 

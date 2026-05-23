@@ -38,7 +38,7 @@ public static class NSubstituteExtensions
 			var methodParameter = methodParameters[i];
 			var argumentIndex = i;
 
-#pragma warning disable CS0618
+#pragma warning disable CS0618 // Type or member is obsolete
 			arguments[i] = new Argument(methodParameter.ParameterType, () => argumentValues[argumentIndex], _ => { });
 #pragma warning restore CS0618
 		}

@@ -174,9 +174,7 @@ public class TestPlatformTestFramework :
 
 			Func<ITestCaseDiscovered, bool> discoveryFilter;
 
-#pragma warning disable TPEXP
 			if (filter is null || filter is NopFilter)
-#pragma warning restore TPEXP
 				discoveryFilter = _ => true;
 			else if (filter is TestNodeUidListFilter uidFilter)
 			{
@@ -216,9 +214,7 @@ public class TestPlatformTestFramework :
 
 			var testCaseIDsToRun = filter switch
 			{
-#pragma warning disable TPEXP
 				NopFilter => null,
-#pragma warning restore TPEXP
 				TestNodeUidListFilter filter => filter.TestNodeUids.Select(u => u.Value).ToHashSet(StringComparer.OrdinalIgnoreCase),
 				null => null,
 				_ => throw new ArgumentException($"Unsupported execution filter type '{filter.GetType().SafeName()}'", nameof(filter)),

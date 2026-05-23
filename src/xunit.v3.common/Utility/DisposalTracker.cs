@@ -1,5 +1,3 @@
-#pragma warning disable CA1513 // Use ObjectDisposedException throw helper
-
 using System.Runtime.ExceptionServices;
 
 namespace Xunit.Sdk;
@@ -149,8 +147,12 @@ public class DisposalTracker : IAsyncDisposable
 
 	void GuardNotDisposed()
 	{
+#if NETCOREAPP
+		ObjectDisposedException.ThrowIf(disposed, this);
+#else
 		if (disposed)
 			throw new ObjectDisposedException(GetType().SafeName());
+#endif
 	}
 
 	sealed class AsyncDisposableWrapper(Func<ValueTask> cleanupAction) : IAsyncDisposable

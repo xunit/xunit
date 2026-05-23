@@ -77,7 +77,6 @@ public static class PropertyAssertsTests
 			Assert.Equal("Assert.PropertyChanged() failure: Property 'Property1' was not set", ex.Message);
 		}
 
-#pragma warning disable CS1998
 		[Fact]
 		public static async Task ExceptionThrownWhenWrongPropertyChangedAsync_Task()
 		{
@@ -113,7 +112,6 @@ public static class PropertyAssertsTests
 
 			await Assert.PropertyChangedAsync(obj, nameof(NotifiedClass.Property1), setter);
 		}
-#pragma warning restore CS1998
 	}
 
 	class NotifiedClass : INotifyPropertyChanged

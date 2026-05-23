@@ -213,11 +213,9 @@ public static class ArgumentFormatterTests
 		}
 
 		[CulturedTheory(["en-US", "fr-FR"])]
-#pragma warning disable xUnit1010 // The value is not convertible to the method parameter type
 		[InlineData(0, "Value0")]
 		[InlineData(1, "Value1")]
 		[InlineData(42, "42")]
-#pragma warning restore xUnit1010 // The value is not convertible to the method parameter type
 		public static void NonFlags(NonFlagsEnum enumValue, string expected)
 		{
 			var actual = ArgumentFormatter.Format(enumValue);
@@ -234,13 +232,11 @@ public static class ArgumentFormatterTests
 		}
 
 		[CulturedTheory(["en-US", "fr-FR"])]
-#pragma warning disable xUnit1010 // The value is not convertible to the method parameter type
 		[InlineData(0, "Nothing")]
 		[InlineData(1, "Value1")]
 		[InlineData(3, "Value1 | Value2")]
 		// This is expected, not "Value1 | Value2 | 4"
 		[InlineData(7, "7")]
-#pragma warning restore xUnit1010 // The value is not convertible to the method parameter type
 		public static void Flags(FlagsEnum enumValue, string expected)
 		{
 			var actual = ArgumentFormatter.Format(enumValue);
@@ -263,16 +259,12 @@ public static class ArgumentFormatterTests
 
 	public static class Enumerables
 	{
-#pragma warning disable xUnit1047 // Avoid using TheoryDataRow arguments that might not be serializable
-
 		// Both tracked and untracked should be the same
 		public static TheoryData<IEnumerable<object>> Collections =
 		[
 			new([1, 2.3M, "Hello, world!"]),
 			new(CollectionTracker<object>.Wrap([1, 2.3M, "Hello, world!"])),
 		];
-
-#pragma warning restore xUnit1047
 
 		[CulturedTheory(["en-US", "fr-FR"])]
 		[MemberData(nameof(Collections), DisableDiscoveryEnumeration = true)]
@@ -300,15 +292,11 @@ public static class ArgumentFormatterTests
 			Assert.Equal(expected, ArgumentFormatter.Format(value));
 		}
 
-#pragma warning disable xUnit1047 // Avoid using TheoryDataRow arguments that might not be serializable
-
 		public static TheoryData<IEnumerable<object>> LongCollections =
 		[
 			new([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
 			new(CollectionTracker<object>.Wrap([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])),
 		];
-
-#pragma warning restore xUnit1047
 
 		[CulturedTheory(["en-US", "fr-FR"])]
 		[MemberData(nameof(LongCollections), DisableDiscoveryEnumeration = true)]

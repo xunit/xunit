@@ -42,7 +42,7 @@ public class Transform(
 	/// <summary>
 	/// Gets the file extension for the Microsoft.Testing.Platform report.
 	/// </summary>
-#pragma warning disable CA1308 // This is for UX purposes, not comparison purposes
+#pragma warning disable CA1308 // This is for UI purposes, not normalization purposes
 	public string MTPFileExtension { get; } = mtpFileExtension ?? id.ToLowerInvariant();
 #pragma warning restore CA1308
 

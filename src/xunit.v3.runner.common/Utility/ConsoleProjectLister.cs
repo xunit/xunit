@@ -1,5 +1,3 @@
-#pragma warning disable CA1307 // Specify StringComparison for clarity
-
 using System.Text;
 using Xunit.Sdk;
 
@@ -11,7 +9,7 @@ namespace Xunit.Runner.Common;
 public static class ConsoleProjectLister
 {
 	static string Escape(string value) =>
-		value.Replace("\\", "\\\\").Replace("\r", "\\r").Replace("\n", "\\n").Replace("\"", "\\\"");
+		value.ReplaceOrdinal("\\", "\\\\").ReplaceOrdinal("\r", "\\r").ReplaceOrdinal("\n", "\\n").ReplaceOrdinal("\"", "\\\"");
 
 	/// <summary>
 	/// List the contents of the test cases to the console, based on the provided option and format.
@@ -88,7 +86,7 @@ public static class ConsoleProjectLister
 					DisplayName = tuple.testCase.TestCaseDisplayName,
 					ID = tuple.testCase.UniqueID,
 					Class = tuple.testCase.TestClassName,
-					Explicit = tuple.testCase.Explicit,
+					tuple.testCase.Explicit,
 					Method = tuple.testCase.TestMethodName,
 					Skip = tuple.testCase.SkipReason,
 					Traits = tuple.testCase.Traits.Count > 0 ? tuple.testCase.Traits : null,

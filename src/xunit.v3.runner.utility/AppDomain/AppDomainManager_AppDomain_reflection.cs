@@ -150,9 +150,7 @@ sealed class AppDomainManager_AppDomain : IAppDomainManager
 			}
 			catch (Exception ex)
 			{
-#pragma warning disable CA1508 // failure can be set in CleanupThread
 				if (failure is null)
-#pragma warning restore CA1508
 					failure = ex;
 				else
 					failure = new AggregateException(failure, ex);

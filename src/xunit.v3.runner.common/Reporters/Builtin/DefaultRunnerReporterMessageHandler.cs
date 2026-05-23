@@ -1,5 +1,3 @@
-#pragma warning disable CA1307 // Specify StringComparison for clarity
-
 using Xunit.Sdk;
 
 namespace Xunit.Runner.Common;
@@ -104,7 +102,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 	/// <returns>The escaped text</returns>
 	protected virtual string Escape(string? text) =>
 		text is not null
-			? text.Replace("\r", "\\r").Replace("\n", "\\n").Replace("\t", "\\t").Replace("\0", "\\0")
+			? text.ReplaceOrdinal("\r", "\\r").ReplaceOrdinal("\n", "\\n").ReplaceOrdinal("\t", "\\t").ReplaceOrdinal("\0", "\\0")
 			: string.Empty;
 
 	/// <summary>
@@ -117,7 +115,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 		string? text,
 		string indent) =>
 			text is not null
-				? text.Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", Environment.NewLine + indent).Replace("\0", "\\0")
+				? text.ReplaceOrdinal("\r\n", "\n").ReplaceOrdinal("\r", "\n").ReplaceOrdinal("\n", Environment.NewLine + indent).ReplaceOrdinal("\0", "\\0")
 				: string.Empty;
 
 	/// <summary>
@@ -361,7 +359,7 @@ public class DefaultRunnerReporterMessageHandler : TestMessageSink, IRunnerRepor
 						threadCount == 1 ? string.Empty : "s",
 						threadCount > 0 && parallelAlgorithm == ParallelAlgorithm.Aggressive ? "/aggressive" : string.Empty
 					);
-#pragma warning disable CA1308 // This is converted to lower case for display purposes, not normalization purposes
+#pragma warning disable CA1308 // This is for UI purposes, not normalization purposes
 			var @explicit = executionStarting.ExecutionOptions.GetExplicitOptionOrDefault().ToString().ToLowerInvariant();
 #pragma warning restore CA1308
 			var culture = executionStarting.ExecutionOptions.GetCulture();

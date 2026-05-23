@@ -1,5 +1,3 @@
-#pragma warning disable CA1512 // Use ArgumentOutOfRangeException throw helper
-
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
@@ -28,8 +26,10 @@ public static class EqualityAssertsTests
 				{
 					get
 					{
+#pragma warning disable CA1512 // ArgumentOutOfRangeException throw helper is not available in every target framework
 						if (index != 0)
 							throw new ArgumentOutOfRangeException(nameof(index));
+#pragma warning restore CA1512
 
 						return this;
 					}
@@ -4695,9 +4695,7 @@ public static class EqualityAssertsTests
 		[Fact]
 		public static void NotEqual_Classes()
 		{
-#pragma warning disable xUnit2006  // TODO: Fix this analyzer in the face of non-generic StrictEqual
 			var ex = Record.Exception(() => Assert.StrictEqual(new EnumerableClass("ploeh"), new EnumerableClass("fnaah")));
-#pragma warning restore xUnit2006
 
 			Assert.IsType<StrictEqualException>(ex);
 			Assert.Equal(
@@ -4711,9 +4709,7 @@ public static class EqualityAssertsTests
 		[Fact]
 		public static void DifferentTypes_Equal()
 		{
-#pragma warning disable xUnit2006  // TODO: Fix this analyzer in the face of non-generic StrictEqual
 			Assert.StrictEqual(new DerivedClass(), new BaseClass());
-#pragma warning restore xUnit2006
 		}
 	}
 

@@ -1,5 +1,3 @@
-#pragma warning disable CA1846 // Prefer 'AsSpan' over 'Substring'
-
 namespace Xunit.Runner.Common;
 
 /// <summary>
@@ -36,7 +34,11 @@ public class AssemblyMetadata
 
 			if (pieces.Length > 1 &&
 					pieces[1].StartsWith("Version=v", StringComparison.OrdinalIgnoreCase) &&
+#if NETCOREAPP
+					Version.TryParse(pieces[1].AsSpan(9), out var targetFrameworkVersion))
+#else
 					Version.TryParse(pieces[1].Substring(9), out var targetFrameworkVersion))
+#endif
 				TargetFrameworkVersion = targetFrameworkVersion;
 		}
 	}

@@ -1,4 +1,4 @@
-#pragma warning disable IDE0060 // Remove unused parameter
+#pragma warning disable CA1822 // Mark members as static
 #pragma warning disable xUnit1042 // The member referenced by the MemberData attribute returns untyped data rows
 
 using System.Collections;
@@ -577,33 +577,27 @@ public partial class Xunit3TheoryAcceptanceTests
 			public static IEnumerable PropertyDataSource => data;
 
 			[Theory]
-#pragma warning disable xUnit1019 // MemberData must reference a member providing a valid data type
 			[MemberData(nameof(FieldDataSource))]
 			[MemberData(nameof(Enumerable_FieldBaseDataSource))]
 			[MemberData(nameof(OtherDataSource.Enumerable_FieldOtherDataSource), MemberType = typeof(OtherDataSource))]
-#pragma warning restore xUnit1019 // MemberData must reference a member providing a valid data type
 			public void FieldTestMethod(string z)
 			{
 				Assert.DoesNotContain("fail", z);
 			}
 
 			[Theory]
-#pragma warning disable xUnit1019 // MemberData must reference a member providing a valid data type
 			[MemberData(nameof(MethodDataSource))]
 			[MemberData(nameof(Enumerable_MethodBaseDataSource))]
 			[MemberData(nameof(OtherDataSource.Enumerable_MethodOtherDataSource), MemberType = typeof(OtherDataSource))]
-#pragma warning restore xUnit1019 // MemberData must reference a member providing a valid data type
 			public void MethodTestMethod(string z)
 			{
 				Assert.DoesNotContain("fail", z);
 			}
 
 			[Theory]
-#pragma warning disable xUnit1019 // MemberData must reference a member providing a valid data type
 			[MemberData(nameof(PropertyDataSource))]
 			[MemberData(nameof(Enumerable_PropertyBaseDataSource))]
 			[MemberData(nameof(OtherDataSource.Enumerable_PropertyOtherDataSource), MemberType = typeof(OtherDataSource))]
-#pragma warning restore xUnit1019 // MemberData must reference a member providing a valid data type
 			public void PropertyTestMethod(string z)
 			{
 				Assert.DoesNotContain("fail", z);
@@ -622,33 +616,27 @@ public partial class Xunit3TheoryAcceptanceTests
 			public static Task<IAsyncEnumerable<object?>> PropertyDataSource => Task.FromResult(dataAsync);
 
 			[Theory]
-#pragma warning disable xUnit1019 // MemberData must reference a member providing a valid data type
 			[MemberData(nameof(FieldDataSource))]
 			[MemberData(nameof(TaskOfAsyncEnumerable_FieldBaseDataSource))]
 			[MemberData(nameof(OtherDataSource.TaskOfAsyncEnumerable_FieldOtherDataSource), MemberType = typeof(OtherDataSource))]
-#pragma warning restore xUnit1019 // MemberData must reference a member providing a valid data type
 			public void FieldTestMethod(string z)
 			{
 				Assert.DoesNotContain("fail", z);
 			}
 
 			[Theory]
-#pragma warning disable xUnit1019 // MemberData must reference a member providing a valid data type
 			[MemberData(nameof(MethodDataSource))]
 			[MemberData(nameof(TaskOfAsyncEnumerable_MethodBaseDataSource))]
 			[MemberData(nameof(OtherDataSource.TaskOfAsyncEnumerable_MethodOtherDataSource), MemberType = typeof(OtherDataSource))]
-#pragma warning restore xUnit1019 // MemberData must reference a member providing a valid data type
 			public void MethodTestMethod(string z)
 			{
 				Assert.DoesNotContain("fail", z);
 			}
 
 			[Theory]
-#pragma warning disable xUnit1019 // MemberData must reference a member providing a valid data type
 			[MemberData(nameof(PropertyDataSource))]
 			[MemberData(nameof(TaskOfAsyncEnumerable_PropertyBaseDataSource))]
 			[MemberData(nameof(OtherDataSource.TaskOfAsyncEnumerable_PropertyOtherDataSource), MemberType = typeof(OtherDataSource))]
-#pragma warning restore xUnit1019 // MemberData must reference a member providing a valid data type
 			public void PropertyTestMethod(string z)
 			{
 				Assert.DoesNotContain("fail", z);
@@ -667,33 +655,27 @@ public partial class Xunit3TheoryAcceptanceTests
 			public static Task<IEnumerable> PropertyDataSource => Task.FromResult<IEnumerable>(data);
 
 			[Theory]
-#pragma warning disable xUnit1019 // MemberData must reference a member providing a valid data type
 			[MemberData(nameof(FieldDataSource))]
 			[MemberData(nameof(TaskOfEnumerable_FieldBaseDataSource))]
 			[MemberData(nameof(OtherDataSource.TaskOfEnumerable_FieldOtherDataSource), MemberType = typeof(OtherDataSource))]
-#pragma warning restore xUnit1019 // MemberData must reference a member providing a valid data type
 			public void FieldTestMethod(string z)
 			{
 				Assert.DoesNotContain("fail", z);
 			}
 
 			[Theory]
-#pragma warning disable xUnit1019 // MemberData must reference a member providing a valid data type
 			[MemberData(nameof(MethodDataSource))]
 			[MemberData(nameof(TaskOfEnumerable_MethodBaseDataSource))]
 			[MemberData(nameof(OtherDataSource.TaskOfEnumerable_MethodOtherDataSource), MemberType = typeof(OtherDataSource))]
-#pragma warning restore xUnit1019 // MemberData must reference a member providing a valid data type
 			public void MethodTestMethod(string z)
 			{
 				Assert.DoesNotContain("fail", z);
 			}
 
 			[Theory]
-#pragma warning disable xUnit1019 // MemberData must reference a member providing a valid data type
 			[MemberData(nameof(PropertyDataSource))]
 			[MemberData(nameof(TaskOfEnumerable_PropertyBaseDataSource))]
 			[MemberData(nameof(OtherDataSource.TaskOfEnumerable_PropertyOtherDataSource), MemberType = typeof(OtherDataSource))]
-#pragma warning restore xUnit1019 // MemberData must reference a member providing a valid data type
 			public void PropertyTestMethod(string z)
 			{
 				Assert.DoesNotContain("fail", z);
@@ -712,33 +694,27 @@ public partial class Xunit3TheoryAcceptanceTests
 			public static ValueTask<IAsyncEnumerable<object?>> PropertyDataSource => new(dataAsync);
 
 			[Theory]
-#pragma warning disable xUnit1019 // MemberData must reference a member providing a valid data type
 			[MemberData(nameof(FieldDataSource))]
 			[MemberData(nameof(ValueTaskOfAsyncEnumerable_FieldBaseDataSource))]
 			[MemberData(nameof(OtherDataSource.ValueTaskOfAsyncEnumerable_FieldOtherDataSource), MemberType = typeof(OtherDataSource))]
-#pragma warning restore xUnit1019 // MemberData must reference a member providing a valid data type
 			public void FieldTestMethod(string z)
 			{
 				Assert.DoesNotContain("fail", z);
 			}
 
 			[Theory]
-#pragma warning disable xUnit1019 // MemberData must reference a member providing a valid data type
 			[MemberData(nameof(MethodDataSource))]
 			[MemberData(nameof(ValueTaskOfAsyncEnumerable_MethodBaseDataSource))]
 			[MemberData(nameof(OtherDataSource.ValueTaskOfAsyncEnumerable_MethodOtherDataSource), MemberType = typeof(OtherDataSource))]
-#pragma warning restore xUnit1019 // MemberData must reference a member providing a valid data type
 			public void MethodTestMethod(string z)
 			{
 				Assert.DoesNotContain("fail", z);
 			}
 
 			[Theory]
-#pragma warning disable xUnit1019 // MemberData must reference a member providing a valid data type
 			[MemberData(nameof(PropertyDataSource))]
 			[MemberData(nameof(ValueTaskOfAsyncEnumerable_PropertyBaseDataSource))]
 			[MemberData(nameof(OtherDataSource.ValueTaskOfAsyncEnumerable_PropertyOtherDataSource), MemberType = typeof(OtherDataSource))]
-#pragma warning restore xUnit1019 // MemberData must reference a member providing a valid data type
 			public void PropertyTestMethod(string z)
 			{
 				Assert.DoesNotContain("fail", z);
@@ -757,33 +733,27 @@ public partial class Xunit3TheoryAcceptanceTests
 			public static ValueTask<IEnumerable> PropertyDataSource => new(data);
 
 			[Theory]
-#pragma warning disable xUnit1019 // MemberData must reference a member providing a valid data type
 			[MemberData(nameof(FieldDataSource))]
 			[MemberData(nameof(ValueTaskOfEnumerable_FieldBaseDataSource))]
 			[MemberData(nameof(OtherDataSource.ValueTaskOfEnumerable_FieldOtherDataSource), MemberType = typeof(OtherDataSource))]
-#pragma warning restore xUnit1019 // MemberData must reference a member providing a valid data type
 			public void FieldTestMethod(string z)
 			{
 				Assert.DoesNotContain("fail", z);
 			}
 
 			[Theory]
-#pragma warning disable xUnit1019 // MemberData must reference a member providing a valid data type
 			[MemberData(nameof(MethodDataSource))]
 			[MemberData(nameof(ValueTaskOfEnumerable_MethodBaseDataSource))]
 			[MemberData(nameof(OtherDataSource.ValueTaskOfEnumerable_MethodOtherDataSource), MemberType = typeof(OtherDataSource))]
-#pragma warning restore xUnit1019 // MemberData must reference a member providing a valid data type
 			public void MethodTestMethod(string z)
 			{
 				Assert.DoesNotContain("fail", z);
 			}
 
 			[Theory]
-#pragma warning disable xUnit1019 // MemberData must reference a member providing a valid data type
 			[MemberData(nameof(PropertyDataSource))]
 			[MemberData(nameof(ValueTaskOfEnumerable_PropertyBaseDataSource))]
 			[MemberData(nameof(OtherDataSource.ValueTaskOfEnumerable_PropertyOtherDataSource), MemberType = typeof(OtherDataSource))]
-#pragma warning restore xUnit1019 // MemberData must reference a member providing a valid data type
 			public void PropertyTestMethod(string z)
 			{
 				Assert.DoesNotContain("fail", z);
@@ -798,7 +768,7 @@ public partial class Xunit3TheoryAcceptanceTests
 #endif
 		class ClassWithMismatchedMethodData
 		{
-			public static IEnumerable<object?[]> DataSource(int x) => null!;
+			public static IEnumerable<object?[]> DataSource(int _) => null!;
 
 			[Theory]
 #pragma warning disable xUnit1035 // The value is not convertible to the method parameter type
@@ -855,7 +825,7 @@ public partial class Xunit3TheoryAcceptanceTests
 #endif
 		class ClassWithDowncastedMethodData
 		{
-			public static IEnumerable<object?[]> DataSource(object x, string? y) { yield return new object?[] { 42, 21.12, "Hello world" }; }
+			public static IEnumerable<object?[]> DataSource(object _1, string? _2) { yield return new object?[] { 42, 21.12, "Hello world" }; }
 
 			[Theory]
 			[MemberData(nameof(DataSource), 42, "Hello world")]

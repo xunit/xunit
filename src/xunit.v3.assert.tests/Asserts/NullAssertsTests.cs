@@ -1,5 +1,3 @@
-#pragma warning disable CS8500 // This takes the address of, gets the size of, or declares a pointer to a managed type
-
 using Xunit;
 using Xunit.Sdk;
 
@@ -31,7 +29,9 @@ public static class NullAssertsTests
 			Assert.NotNull(&x);
 
 			var y = "Hello world";
+#pragma warning disable CS8500 // This takes the address of, gets the size of, or declares a pointer to a managed type
 			Assert.NotNull(&y);
+#pragma warning restore CS8500 // This takes the address of, gets the size of, or declares a pointer to a managed type
 		}
 
 		[Fact]
@@ -57,7 +57,9 @@ public static class NullAssertsTests
 		[Fact]
 		public unsafe static void Failure_Pointer()
 		{
+#pragma warning disable CS8500 // This takes the address of, gets the size of, or declares a pointer to a managed type
 			var ex = Record.Exception(() => Assert.NotNull((object*)null));
+#pragma warning restore CS8500 // This takes the address of, gets the size of, or declares a pointer to a managed type
 
 			Assert.IsType<NotNullException>(ex);
 			Assert.Equal("Assert.NotNull() Failure: Value of type 'object*' is null", ex.Message);
@@ -83,7 +85,9 @@ public static class NullAssertsTests
 		[Fact]
 		public unsafe static void Success_Pointer()
 		{
+#pragma warning disable CS8500 // This takes the address of, gets the size of, or declares a pointer to a managed type
 			Assert.Null((object*)null);
+#pragma warning restore CS8500 // This takes the address of, gets the size of, or declares a pointer to a managed type
 		}
 
 		[Fact]
@@ -128,7 +132,9 @@ public static class NullAssertsTests
 
 			static unsafe void verifyFailure<T>(T data)
 			{
+#pragma warning disable CS8500 // This takes the address of, gets the size of, or declares a pointer to a managed type
 				var ptr = &data;
+#pragma warning restore CS8500 // This takes the address of, gets the size of, or declares a pointer to a managed type
 
 				var ex = Record.Exception(() => Assert.Null(ptr));
 

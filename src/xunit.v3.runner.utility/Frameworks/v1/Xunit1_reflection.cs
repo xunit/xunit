@@ -164,9 +164,7 @@ public class Xunit1 : IFrontController
 		var handler = new XmlNodeCallbackHandler(xml => { assemblyXml = xml; return true; });
 		Executor.EnumerateTests(handler);
 
-#pragma warning disable CA1508 // This is incorrectly detected as a dead condition; the callback handler above can set the value during EnumerateTests
 		if (assemblyXml is not null)
-#pragma warning restore CA1508
 		{
 			var methodNodes = assemblyXml.SelectNodes("//method")?.Cast<XmlNode>();
 			if (methodNodes is not null)

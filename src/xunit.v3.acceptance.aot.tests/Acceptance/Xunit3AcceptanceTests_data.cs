@@ -1,4 +1,5 @@
-#pragma warning disable CA1816 // Dispose methods should call SuppressFinalize
+#pragma warning disable CA1816 // Calling SuppressFinalize on these types is pointless
+#pragma warning disable CA1822 // Mark members as static
 
 using Xunit;
 using Xunit.Sdk;

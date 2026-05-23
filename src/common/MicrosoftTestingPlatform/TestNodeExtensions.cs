@@ -28,12 +28,8 @@ internal static class TestNodeExtensions
 				)
 			);
 
-#pragma warning disable TPEXP  // StandardOutputProperty is experimental
-
 		if (testResult is not null && testResult.Output.Length != 0)
 			result.Properties.Add(new StandardOutputProperty(testResult.Output));
-
-#pragma warning restore TPEXP
 
 		var sourceFile = testCase.SourceFilePath;
 		var sourceLine = testCase.SourceLineNumber;

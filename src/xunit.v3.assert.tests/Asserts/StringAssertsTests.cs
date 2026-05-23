@@ -1,5 +1,3 @@
-#pragma warning disable SYSLIB1045 // Convert to 'GeneratedRegexAttribute'.
-
 using System.Text.RegularExpressions;
 using Xunit;
 using Xunit.Sdk;
@@ -342,6 +340,8 @@ public static class StringAssertsTests
 		}
 	}
 
+#pragma warning disable SYSLIB1045 // Convert to 'GeneratedRegexAttribute'.
+
 	public static class DoesNotMatch_Regex
 	{
 		[Fact]
@@ -371,6 +371,8 @@ public static class StringAssertsTests
 			);
 		}
 	}
+
+#pragma warning restore SYSLIB1045 // Convert to 'GeneratedRegexAttribute'.
 
 	public static class Empty
 	{
@@ -1161,6 +1163,8 @@ public static class StringAssertsTests
 		}
 	}
 
+#pragma warning disable SYSLIB1045 // Convert to 'GeneratedRegexAttribute'.
+
 	public static class Matches_Regex
 	{
 		[Fact]
@@ -1209,6 +1213,8 @@ public static class StringAssertsTests
 			);
 		}
 	}
+
+#pragma warning restore SYSLIB1045 // Convert to 'GeneratedRegexAttribute'.
 
 	public static class StartsWith
 	{

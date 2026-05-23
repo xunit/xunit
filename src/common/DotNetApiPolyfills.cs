@@ -1,5 +1,3 @@
-#pragma warning disable IDE0060 // API signatures must be respected here, since they're polyfills
-
 /// <summary>
 /// INTERNAL CLASS. DO NOT USE.
 /// </summary>

@@ -1,6 +1,3 @@
-#pragma warning disable CA1307 // Specify StringComparison for clarity
-#pragma warning disable CA2002  // The console writer is not cross app-domain
-
 using Xunit.Sdk;
 
 namespace Xunit.Runner.Common;
@@ -61,7 +58,7 @@ public class ConsoleDiagnosticMessageSink : IMessageSink
 				if (!noColor)
 					consoleHelper.SetForegroundColor(ConsoleColor.Yellow);
 
-				consoleHelper.WriteLine("{0}{1}{2}", indent, displayPrefixDiagnostic, diagnosticMessage.Message.Replace("\n", displayNewlineReplace));
+				consoleHelper.WriteLine("{0}{1}{2}", indent, displayPrefixDiagnostic, diagnosticMessage.Message.ReplaceOrdinal("\n", displayNewlineReplace));
 
 				if (!noColor)
 					consoleHelper.ResetColor();
@@ -75,7 +72,7 @@ public class ConsoleDiagnosticMessageSink : IMessageSink
 				if (!noColor)
 					consoleHelper.SetForegroundColor(ConsoleColor.DarkGray);
 
-				consoleHelper.WriteLine("{0}{1}{2}", indent, displayPrefixInternal, internalDiagnosticMessage.Message.Replace("\n", displayNewlineReplace));
+				consoleHelper.WriteLine("{0}{1}{2}", indent, displayPrefixInternal, internalDiagnosticMessage.Message.ReplaceOrdinal("\n", displayNewlineReplace));
 
 				if (!noColor)
 					consoleHelper.ResetColor();

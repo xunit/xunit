@@ -357,9 +357,7 @@ public static class TypeAssertsTests
 		{
 			var ex = new DisposableClass();
 
-#pragma warning disable xUnit2018  // TODO: Temporary until xUnit2018 is updated for the new signatures
 			var result = Record.Exception(() => Assert.IsNotType<IDisposable>(ex, exactMatch: false));
-#pragma warning restore xUnit2018
 
 			Assert.IsType<IsNotTypeException>(result);
 			Assert.Equal(
@@ -585,9 +583,7 @@ public static class TypeAssertsTests
 		{
 			var ex = new DisposableClass();
 
-#pragma warning disable xUnit2018  // TODO: Temporary until xUnit2018 is updated for the new signatures
 			Assert.IsType<IDisposable>(ex, exactMatch: false);
-#pragma warning restore xUnit2018
 		}
 
 		[Fact]

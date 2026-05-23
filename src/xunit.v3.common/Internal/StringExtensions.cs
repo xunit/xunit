@@ -1,5 +1,3 @@
-#pragma warning disable CA1845 // Use span-based 'string.Concat'
-
 namespace Xunit.Internal;
 
 /// <summary>
@@ -8,10 +6,20 @@ namespace Xunit.Internal;
 public static class StringExtensions
 {
 	/// <summary/>
+	public static bool ContainsIgnoreCase(
+		this string? value,
+		string subString) =>
+#if NETCOREAPP
+			value?.Contains(subString, StringComparison.OrdinalIgnoreCase) == true;
+#else
+			value?.ToUpperInvariant().Contains(Guard.ArgumentNotNull(subString).ToUpperInvariant()) == true;
+#endif
+
+	/// <summary/>
 	public static bool ContainsOrdinal(
 		this string? value,
 		string subString) =>
-#if NETCOREAPP2_1_OR_GREATER
+#if NETCOREAPP
 			value?.Contains(subString, StringComparison.Ordinal) == true;
 #else
 			value?.Contains(subString) == true;
@@ -22,6 +30,16 @@ public static class StringExtensions
 		index is null || index.Value == 0
 			? null
 			: $"_{index.Value.ToString("D3", CultureInfo.CurrentCulture)}";
+
+	/// <summary/>
+	public static int IndexOfOrdinal(
+		this string? str,
+		char value) =>
+#if NETCOREAPP
+			str?.IndexOf(value, StringComparison.Ordinal) ?? -1;
+#else
+			str?.IndexOf(value) ?? -1;
+#endif
 
 	/// <summary/>
 	public static string Quoted(this string? value) =>
@@ -37,8 +55,23 @@ public static class StringExtensions
 
 		maxLength ??= ArgumentFormatter.MaxStringLength;
 
+#if NETCOREAPP
+		return '"' + (value.Length > maxLength ? string.Concat(value.AsSpan(0, maxLength.Value), ArgumentFormatter.Ellipsis) : value) + '"';
+#else
 		return '"' + (value.Length > maxLength ? value.Substring(0, maxLength.Value) + ArgumentFormatter.Ellipsis : value) + '"';
+#endif
 	}
+
+	/// <summary/>
+	public static string ReplaceOrdinal(
+		this string str,
+		string oldValue,
+		string newValue) =>
+#if NETCOREAPP
+			Guard.ArgumentNotNull(str).Replace(oldValue, newValue, StringComparison.Ordinal);
+#else
+			Guard.ArgumentNotNull(str).Replace(oldValue, newValue);
+#endif
 
 	/// <summary/>
 	public static IList<string> SplitAtOuterCommas(

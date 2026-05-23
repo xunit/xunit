@@ -1,5 +1,3 @@
-#pragma warning disable CA1307 // Specify StringComparison for clarity
-
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Xunit.Sdk;
@@ -110,7 +108,7 @@ public readonly partial struct StackFrameInfo(
 		if (wordsInLine is null or "StackTrace_InFileLineNumber")
 			wordsInLine = "in {0}:line {1}";
 
-		wordsInLine = wordsInLine.Replace("{0}", "(?<file>.*)").Replace("{1}", "(?<line>\\d+)");
+		wordsInLine = wordsInLine.ReplaceOrdinal("{0}", "(?<file>.*)").ReplaceOrdinal("{1}", "(?<line>\\d+)");
 
 		return new Regex(string.Format(CultureInfo.InvariantCulture, "{0} .* {1}", wordAt, wordsInLine));
 	}

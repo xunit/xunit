@@ -1,4 +1,4 @@
-#pragma warning disable CA1040 // This is intended as a marker interface
+#pragma warning disable CA1040 // Avoid empty interfaces
 
 using System.ComponentModel;
 

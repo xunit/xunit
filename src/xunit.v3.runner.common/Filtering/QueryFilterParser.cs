@@ -1,8 +1,3 @@
-#pragma warning disable CA1307 // Specify StringComparison for clarity
-#pragma warning disable CA1847 // Use char literal for a single character lookup
-#pragma warning disable CA1862 // Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
-#pragma warning disable CA1865 // Use char overload
-
 using System.Text.RegularExpressions;
 
 namespace Xunit.Runner.Common;
@@ -13,9 +8,14 @@ namespace Xunit.Runner.Common;
 /// <remarks>
 /// See <see href="https://xunit.net/docs/query-filter-language"/> for the query filter language description.
 /// </remarks>
-public static class QueryFilterParser
+public static partial class QueryFilterParser
 {
+#if NETCOREAPP
+	static readonly Regex escapeRegex = getEscapeRegex();
+	[GeneratedRegex("&#[xX]([0-9a-fA-F]{1,4});")] private static partial Regex getEscapeRegex();
+#else
 	static readonly Regex escapeRegex = new("&#[xX]([0-9a-fA-F]{1,4});");
+#endif
 
 	static readonly List<Func<string, ITestCaseFilter>> segmentFactories =
 	[
@@ -47,7 +47,11 @@ public static class QueryFilterParser
 			var isTraitFilter = false;
 			if (filterRemainder[0] == '[')
 			{
+#if NETCOREAPP
+				if (filterRemainder[^1] != ']')
+#else
 				if (filterRemainder[filterRemainder.Length - 1] != ']')
+#endif
 					throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Query filter '{0}' is not valid: saw opening '[' without ending ']'", query), nameof(query));
 
 				isTraitFilter = true;
@@ -175,10 +179,10 @@ public static class QueryFilterParser
 		{
 			var endIdx =
 				insideParenthesis
-					? partialQuery.IndexOf(')')
+					? partialQuery.IndexOfOrdinal(')')
 					: isTraitFilter
 						? -1
-						: partialQuery.IndexOf('/');
+						: partialQuery.IndexOfOrdinal('/');
 
 			if (insideParenthesis && endIdx == -1)
 				throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Query filter '{0}' is not valid: open '(' does not have matching closing ')'", query), nameof(query));
@@ -218,7 +222,7 @@ public static class QueryFilterParser
 		if (negated)
 			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Trait expression '!{0}' is not valid: negate a trait expression with 'name!=value'", query), nameof(query));
 
-		var equalIdx = query.IndexOf('=');
+		var equalIdx = query.IndexOfOrdinal('=');
 		var equalLen = 1;
 		if (equalIdx > 0 && query[equalIdx - 1] == '!')
 		{
@@ -253,13 +257,21 @@ public static class QueryFilterParser
 		var startsWith = false;
 		var endsWith = false;
 
+#if NETCOREAPP
+		if (mutatedSearchString.StartsWith('*'))
+#else
 		if (mutatedSearchString.StartsWith("*", StringComparison.Ordinal))
+#endif
 		{
 			endsWith = true;
 			mutatedSearchString = mutatedSearchString.Substring(1);
 		}
 
+#if NETCOREAPP
+		if (mutatedSearchString.EndsWith('*'))
+#else
 		if (mutatedSearchString.EndsWith("*", StringComparison.Ordinal))
+#endif
 		{
 			startsWith = true;
 			mutatedSearchString = mutatedSearchString.Substring(0, mutatedSearchString.Length - 1);
@@ -268,7 +280,11 @@ public static class QueryFilterParser
 		if (mutatedSearchString.Length == 0)
 			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Filter expression '{0}' is not valid: wildcards must include text in the middle", query), nameof(query));
 
+#if NETCOREAPP
+		if (mutatedSearchString.Contains('*', StringComparison.Ordinal))
+#else
 		if (mutatedSearchString.Contains("*"))
+#endif
 			throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Filter expression '{0}' is not valid: wildcards may only be at the beginning and/or end of a filter expression", query), nameof(query));
 
 		while (true)
@@ -285,7 +301,7 @@ public static class QueryFilterParser
 
 		return (startsWith, endsWith) switch
 		{
-			(true, true) => value => value?.ToUpperInvariant().Contains(mutatedSearchString.ToUpperInvariant()) == true,
+			(true, true) => value => value?.ContainsIgnoreCase(mutatedSearchString) == true,
 			(true, false) => value => value?.StartsWith(mutatedSearchString, StringComparison.OrdinalIgnoreCase) == true,
 			(false, true) => value => value?.EndsWith(mutatedSearchString, StringComparison.OrdinalIgnoreCase) == true,
 			_ => value => value?.Equals(mutatedSearchString, StringComparison.OrdinalIgnoreCase) == true,

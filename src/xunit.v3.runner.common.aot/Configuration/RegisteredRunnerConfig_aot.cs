@@ -1,4 +1,4 @@
-#pragma warning disable IDE0060 // Method contracts here must match the non-AOT version
+#pragma warning disable IDE0060 // The signatures of these APIs are fixed between reflection and AOT
 
 using System.Collections.Concurrent;
 using System.Reflection;

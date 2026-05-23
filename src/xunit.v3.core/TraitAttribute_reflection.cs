@@ -27,11 +27,7 @@ public class TraitAttribute(
 	public string Value { get; } =
 		Guard.ArgumentNotNull(value);
 
-#pragma warning disable CA1024 // This is implementing an interface contract
-
 	/// <inheritdoc/>
 	public IReadOnlyCollection<KeyValuePair<string, string>> GetTraits() =>
 		[new(Name, Value)];
-
-#pragma warning restore CA1024
 }

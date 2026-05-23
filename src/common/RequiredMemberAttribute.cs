@@ -1,6 +1,6 @@
 #if !NET7_0_OR_GREATER
 
-#pragma warning disable IDE0290  // Use primary constructor
+#pragma warning disable IDE0290  // Can't use primary constructor because it's not compatible with C# 9
 
 namespace System.Runtime.CompilerServices
 {
@@ -11,8 +11,7 @@ namespace System.Runtime.CompilerServices
 
 	/// <summary/>
 	[AttributeUsage(AttributeTargets.All, AllowMultiple = true, Inherited = false)]
-	internal sealed class CompilerFeatureRequiredAttribute :
-		Attribute
+	internal sealed class CompilerFeatureRequiredAttribute : Attribute
 	{
 		public CompilerFeatureRequiredAttribute(string featureName) =>
 			FeatureName = featureName;

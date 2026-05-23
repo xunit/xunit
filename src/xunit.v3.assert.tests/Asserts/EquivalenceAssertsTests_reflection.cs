@@ -2248,9 +2248,7 @@ public static class EquivalenceAssertsTests
 	class PrivateMembersClass(int value1, string value2)
 	{
 		readonly int Value1 = value1;
-#pragma warning disable IDE0051
 		string Value2 { get; } = value2;
-#pragma warning restore IDE0051
 	}
 
 	class DeepClass
