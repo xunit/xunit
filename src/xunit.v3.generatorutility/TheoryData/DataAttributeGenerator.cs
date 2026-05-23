@@ -1,23 +1,42 @@
 #nullable enable
 
+#pragma warning disable IDE0290 // Use primary constructor
+
 using System.Text;
 using System.Threading;
 using Microsoft.CodeAnalysis;
+using Xunit.Generators;
 
 namespace Xunit.Generators
 {
 	/// <summary>
-	/// A base type for source generators for attributes derived from <c>Xunit.v3.DataAttribute</c>.
+	/// A base type for source generators for attributes derived from <c>Xunit.v3.DataAttribute</c>
+	/// with a configurable generator result type
 	/// </summary>
-	public abstract class DataAttributeGenerator : XunitAttributeGenerator<DataAttributeGeneratorResult>
+	public abstract class DataAttributeGenerator<TResult> : XunitAttributeGenerator<TResult>
+		where TResult : DataAttributeGeneratorResult
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="DataAttributeGenerator"/> class.
+		/// Initializes a new instance of the <see cref="DataAttributeGenerator{TResult}"/> class.
 		/// </summary>
 		/// <param name="fullyQualifiedAttributeType">The fully qualified attribute type name</param>
 		protected DataAttributeGenerator(string fullyQualifiedAttributeType) :
 			base(fullyQualifiedAttributeType)
 		{ }
+
+		/// <summary>
+		/// Override to create the instance of <typeparamref name="TResult"/>.
+		/// </summary>
+		/// <param name="context"></param>
+		/// <param name="testClassSymbol"></param>
+		/// <param name="testMethodSymbol"></param>
+		/// <param name="cancellationToken"></param>
+		/// <returns></returns>
+		protected abstract TResult CreateResult(
+			GeneratorAttributeSyntaxContext context,
+			INamedTypeSymbol testClassSymbol,
+			IMethodSymbol testMethodSymbol,
+			CancellationToken cancellationToken);
 
 		/// <summary>
 		/// Generates the source for the theory data row factories.
@@ -31,7 +50,7 @@ namespace Xunit.Generators
 		/// </remarks>
 		protected override sealed void CreateSource(
 			SourceProductionContext context,
-			DataAttributeGeneratorResult result)
+			TResult result)
 		{
 			if (result is null || result.Factories.Count == 0)
 				return;
@@ -62,26 +81,22 @@ $@"global::Xunit.v3.RegisteredEngineConfig.RegisterTheoryDataRowFactory({result.
 			INamedTypeSymbol testClass,
 			IMethodSymbol testMethod,
 			AttributeData attribute,
-			DataAttributeGeneratorResult result,
+			TResult result,
 			CancellationToken cancellationToken);
 
 		/// <inheritdoc/>
-		protected override DataAttributeGeneratorResult? Transform(
+		protected override TResult? Transform(
 			GeneratorAttributeSyntaxContext context,
 			CancellationToken cancellationToken)
 		{
-			var testMethod = context.TargetSymbol as IMethodSymbol;
-			if (testMethod is null)
+			if (context.TargetSymbol is not IMethodSymbol testMethod)
 				return null;
 
 			var testClass = testMethod.ContainingType;
 			if (testClass is null)
 				return null;
 
-			var result = new DataAttributeGeneratorResult(context, testClass, testMethod)
-			{
-				GeneratorSuffix = $"{testClass.Name}٠{testMethod.Name}٠",
-			};
+			var result = CreateResult(context, testClass, testMethod, cancellationToken);
 
 			foreach (var attribute in context.Attributes)
 				ProcessAttribute(
@@ -96,4 +111,27 @@ $@"global::Xunit.v3.RegisteredEngineConfig.RegisterTheoryDataRowFactory({result.
 			return result.Factories.Count == 0 ? null : result;
 		}
 	}
+}
+
+/// <summary>
+/// A base type for source generators for attributes derived from <c>Xunit.v3.DataAttribute</c>
+/// which use <see cref="DataAttributeGeneratorResult"/> as the result type
+/// </summary>
+public abstract class DataAttributeGenerator : DataAttributeGenerator<DataAttributeGeneratorResult>
+{
+	/// <summary>
+	/// Initializes a new instance of the <see cref="DataAttributeGenerator{TResult}"/> class.
+	/// </summary>
+	/// <param name="fullyQualifiedAttributeType">The fully qualified attribute type name</param>
+	protected DataAttributeGenerator(string fullyQualifiedAttributeType) :
+		base(fullyQualifiedAttributeType)
+	{ }
+
+	/// <inheritdoc/>
+	protected override DataAttributeGeneratorResult CreateResult(
+		GeneratorAttributeSyntaxContext context,
+		INamedTypeSymbol testClassSymbol,
+		IMethodSymbol testMethodSymbol,
+		CancellationToken cancellationToken) =>
+			new DataAttributeGeneratorResult(context, testClassSymbol, testMethodSymbol);
 }

@@ -3,25 +3,29 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Xunit.Generators;
 
-static class CulturedFactRegistrar
+[TestMethodGenerator(Types.Xunit.CulturedFactAttribute)]
+public class CulturedFactAttributeGenerator : ITestMethodGenerator
 {
-	public static CodeGenTestMethodRegistration? GetRegistration(
+	public CodeGenTestMethodRegistration? GetTestMethodRegistration(
 		SemanticModel semanticModel,
-		INamedTypeSymbol classSymbol,
-		MethodDeclarationSyntax methodDeclaration,
-		IMethodSymbol methodSymbol,
+		INamedTypeSymbol testClass,
+		MethodDeclarationSyntax testMethodSyntax,
+		IMethodSymbol testMethod,
 		AttributeData attribute)
 	{
 		Guard.ArgumentNotNull(semanticModel);
-		Guard.ArgumentNotNull(classSymbol);
-		Guard.ArgumentNotNull(methodDeclaration);
-		Guard.ArgumentNotNull(methodSymbol);
+		Guard.ArgumentNotNull(testClass);
+		Guard.ArgumentNotNull(testMethodSyntax);
+		Guard.ArgumentNotNull(testMethod);
 		Guard.ArgumentNotNull(attribute);
+
+		if (!testMethod.HasValidTestMethodReturnValue())
+			return null;
 
 		if (attribute.ConstructorArguments.Length < 1)
 			return null;
 
-		var details = new FactMethodDetails(semanticModel, classSymbol, methodDeclaration, methodSymbol, attribute);
+		var details = new FactMethodDetails(semanticModel, testClass, testMethodSyntax, testMethod, attribute);
 		if (!details.Process())
 			return null;
 
@@ -52,9 +56,9 @@ static class CulturedFactRegistrar
 		if (details.SkipReason is not null)
 			initValues.Add($"SkipReason = {details.SkipReason.ToCSharp()}");
 		if (details.SkipUnless is not null)
-			initValues.Add($"SkipUnless = () => {(details.SkipType ?? classSymbol).ToCSharp()}.{details.SkipUnless}");
+			initValues.Add($"SkipUnless = () => {(details.SkipType ?? testClass).ToCSharp()}.{details.SkipUnless}");
 		if (details.SkipWhen is not null)
-			initValues.Add($"SkipWhen = () => {(details.SkipType ?? classSymbol).ToCSharp()}.{details.SkipWhen}");
+			initValues.Add($"SkipWhen = () => {(details.SkipType ?? testClass).ToCSharp()}.{details.SkipWhen}");
 		if (details.Timeout is not 0)
 			initValues.Add($"Timeout = {details.Timeout}");
 

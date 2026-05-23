@@ -3,33 +3,50 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Xunit.Generators;
 
-static class TheoryRegistrar
+[TestMethodGenerator(Types.Xunit.CulturedTheoryAttribute)]
+public class CulturedTheoryAttributeGenerator : ITestMethodGenerator
 {
-	public static CodeGenTestMethodRegistration? GetRegistration(
+	public CodeGenTestMethodRegistration? GetTestMethodRegistration(
 		SemanticModel semanticModel,
-		INamedTypeSymbol classSymbol,
-		MethodDeclarationSyntax methodDeclaration,
-		IMethodSymbol methodSymbol,
+		INamedTypeSymbol testClass,
+		MethodDeclarationSyntax testMethodSyntax,
+		IMethodSymbol testMethod,
 		AttributeData attribute)
 	{
 		Guard.ArgumentNotNull(semanticModel);
-		Guard.ArgumentNotNull(classSymbol);
-		Guard.ArgumentNotNull(methodDeclaration);
-		Guard.ArgumentNotNull(methodSymbol);
+		Guard.ArgumentNotNull(testClass);
+		Guard.ArgumentNotNull(testMethodSyntax);
+		Guard.ArgumentNotNull(testMethod);
 		Guard.ArgumentNotNull(attribute);
 
-		if (methodSymbol.IsGenericMethod)
+		if (!testMethod.HasValidTestMethodReturnValue())
 			return null;
 
-		if (methodSymbol.Parameters.FirstOrDefault(p => p.IsParams) is { } paramsParameter)
+		if (testMethod.IsGenericMethod)
 			return null;
 
-		var details = new TheoryMethodDetails(semanticModel, classSymbol, methodDeclaration, methodSymbol, attribute);
+		if (testMethod.Parameters.FirstOrDefault(p => p.IsParams) is { } paramsParameter)
+			return null;
+
+		var details = new TheoryMethodDetails(semanticModel, testClass, testMethodSyntax, testMethod, attribute);
 		if (!details.Process())
+			return null;
+
+		var cultures =
+			details
+				.Attribute
+				.ConstructorArguments[0]
+				.Values
+				.Select(v => v.Value as string)
+				.WhereNotNull()
+				.ToArray();
+
+		if (cultures.Length == 0)
 			return null;
 
 		var initValues = new List<string>
 		{
+			$"Cultures = [{string.Join(", ", cultures.Select(culture => culture.ToCSharp()))}]",
 			$"MethodInvokerFactory = {details.MethodInvokerFactory}",
 			$"ParameterNames = new string?[] {{ {string.Join(", ", details.ParameterNames.Select(p => p.ToCSharp()))} }}"
 		};
@@ -51,12 +68,12 @@ static class TheoryRegistrar
 		if (details.SkipTestWithoutData)
 			initValues.Add("SkipTestWithoutData = true");
 		if (details.SkipUnless is not null)
-			initValues.Add($"SkipUnless = () => {(details.SkipType ?? classSymbol).ToCSharp()}.{details.SkipUnless}");
+			initValues.Add($"SkipUnless = () => {(details.SkipType ?? testClass).ToCSharp()}.{details.SkipUnless}");
 		if (details.SkipWhen is not null)
-			initValues.Add($"SkipWhen = () => {(details.SkipType ?? classSymbol).ToCSharp()}.{details.SkipWhen}");
+			initValues.Add($"SkipWhen = () => {(details.SkipType ?? testClass).ToCSharp()}.{details.SkipWhen}");
 		if (details.Timeout is not 0)
 			initValues.Add($"Timeout = {details.Timeout}");
 
-		return CodeGenTestMethodRegistration.FromTestMethodDetails(details, $"new global::Xunit.v3.TheoryTestCaseFactory() {{ {string.Join(", ", initValues)} }}");
+		return CodeGenTestMethodRegistration.FromTestMethodDetails(details, $"new global::Xunit.v3.CulturedTheoryTestCaseFactory() {{ {string.Join(", ", initValues)} }}");
 	}
 }

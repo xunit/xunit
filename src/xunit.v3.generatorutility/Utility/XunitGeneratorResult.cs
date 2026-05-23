@@ -1,5 +1,7 @@
 #nullable enable
 
+#pragma warning disable IDE0290 // Use primary constructor
+
 using System;
 using Microsoft.CodeAnalysis;
 
@@ -63,11 +65,21 @@ namespace Xunit.Generators
 			Equals(obj as XunitGeneratorResult);
 
 		/// <inheritdoc/>
-		public bool Equals(XunitGeneratorResult? other) =>
-			other != null &&
-			ComparerHelper.Equal(GeneratorNamespace, other.GeneratorNamespace) &&
-			ComparerHelper.Equal(GeneratorSuffix, other.GeneratorSuffix) &&
-			ComparerHelper.Equal(InitAttributeNameSuffix, other.InitAttributeNameSuffix);
+		public bool Equals(XunitGeneratorResult? other)
+		{
+			try
+			{
+				return
+					other != null &&
+					ComparerHelper.Equal(GeneratorNamespace, other.GeneratorNamespace) &&
+					ComparerHelper.Equal(GeneratorSuffix, other.GeneratorSuffix) &&
+					ComparerHelper.Equal(InitAttributeNameSuffix, other.InitAttributeNameSuffix);
+			}
+			catch
+			{
+				return false;
+			}
+		}
 
 		/// <summary>
 		/// Initializes the generator result with the MSBuild properties.
@@ -87,7 +99,16 @@ namespace Xunit.Generators
 		}
 
 		/// <inheritdoc/>
-		public override int GetHashCode() =>
-			HashCodeHelper.Start().With(GeneratorNamespace).With(GeneratorSuffix).With(InitAttributeNameSuffix);
+		public override int GetHashCode()
+		{
+			try
+			{
+				return HashCodeHelper.Start().With(GeneratorNamespace).With(GeneratorSuffix).With(InitAttributeNameSuffix);
+			}
+			catch
+			{
+				return 0;
+			}
+		}
 	}
 }

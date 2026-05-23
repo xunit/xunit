@@ -1,5 +1,7 @@
 #nullable enable
 
+#pragma warning disable IDE0290 // Use primary constructor
+
 using System;
 using System.Collections;
 using System.Threading.Tasks;

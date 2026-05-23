@@ -1,5 +1,8 @@
 #nullable enable
 
+#pragma warning disable IDE0028 // Simplify collection initialization
+#pragma warning disable IDE0090 // Use 'new(...)'
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -80,13 +83,13 @@ namespace Xunit.Generators
 			['\u001E'] = "\\u001E",
 			['\u001F'] = "\\u001F",
 		};
-		static readonly HashSet<string> genericTaskTypes = new HashSet<string> { "System.Threading.Tasks.Task<>", "System.Threading.Tasks.ValueTask<>" };
+		static readonly HashSet<string> genericTaskTypes = new HashSet<string> { Types.System.Threading.Tasks.TaskOfT, Types.System.Threading.Tasks.ValueTaskOfT };
 		static readonly Func<object?, bool> notNullTest = x => x != null;
 		static readonly HashSet<string> theoryDataTypes = new HashSet<string> {
 			"object", "object?",
 			"object[]", "object?[]",
-			"System.Runtime.CompilerServices.ITuple",
-			"Xunit.ITheoryDataRow",
+			Types.System.Runtime.CompilerServices.ITuple,
+			Types.Xunit.ITheoryDataRow,
 		};
 
 		static string Escape(char value) =>
@@ -105,22 +108,48 @@ namespace Xunit.Generators
 			return result.ToString();
 		}
 
+		/// <summary>
+		/// Gets all the members of a given type with the given name.
+		/// </summary>
+		/// <param name="type">The type</param>
+		/// <param name="name">The member name</param>
+		/// <remarks>
+		/// When a method is overridden, this list will only include the most overridden method (any method(s)
+		/// it overrides are removed from the list).
+		/// </remarks>
+		public static ImmutableArray<ISymbol> GetAllMembers(
+			this INamedTypeSymbol type,
+			string name)
+		{
+			var result = new HashSet<ISymbol>(SymbolEqualityComparer.Default);
+
+			for (var current = type; current is not null; current = current.BaseType)
+				foreach (var member in current.GetMembers(name))
+					result.Add(member);
+
+			foreach (var methodWithOverride in result.OfType<IMethodSymbol>().Where(m => m.IsOverride).ToArray())
+				if (methodWithOverride.OverriddenMethod is not null)
+					result.Remove(methodWithOverride.OverriddenMethod);
+
+			return result.ToImmutableArray();
+		}
+
 		static (bool IsAsyncEnumerable, ITypeSymbol EnumerableType)? GetEnumerable(
 			this ITypeSymbol? type,
 			INamedTypeSymbol objectType)
 		{
 			if (type is INamedTypeSymbol namedType)
 			{
-				if (namedType.ToCSharp(includeGlobal: false) == "System.Collections.IEnumerable")
+				if (namedType.ToCSharp(includeGlobal: false) == Types.System.Collections.IEnumerable)
 					return (false, objectType);
 
 				if (!namedType.IsGenericType || namedType.TypeArguments.Length != 1)
 					return null;
 
-				return namedType.ConstructUnboundGenericType().ToCSharp(includeGlobal: false) switch
+				return namedType.ToCSharp(includeGlobal: false, asOpenGeneric: true) switch
 				{
-					"System.Collections.Generic.IAsyncEnumerable<>" => (true, namedType.TypeArguments[0]),
-					"System.Collections.Generic.IEnumerable<>" => (false, namedType.TypeArguments[0]),
+					Types.System.Collections.Generic.IAsyncEnumerableOfT => (true, namedType.TypeArguments[0]),
+					Types.System.Collections.Generic.IEnumerableOfT => (false, namedType.TypeArguments[0]),
 					_ => null,
 				};
 			}
@@ -469,10 +498,19 @@ $@"	return {string.Format(CultureInfo.InvariantCulture, objectFactoryFormat, "in
 		/// <param name="symbol">The symbol to get the formatted name of</param>
 		/// <param name="includeGlobal">A flag to indicate if the name should be prepended with <c>"global::"</c>
 		/// (defaults to <see langword="true"/>)</param>
+		/// <param name="asOpenGeneric">A flag to indicate whether a type name should be converted into the open
+		/// generic form if it is a closed generic (e.g., <c>"System.Collections.Generic.List&lt;&gt;"</c>
+		/// rather than <c>"System.Collections.Generic.List&lt;int&gt;"</c>)</param>
 		public static string ToCSharp(
 			this ISymbol symbol,
-			bool includeGlobal = true) =>
-				symbol.ToDisplayString(includeGlobal ? CompilableDisplayFormat_WithGlobal : CompilableDisplayFormat_WithoutGlobal);
+			bool includeGlobal = true,
+			bool asOpenGeneric = false)
+		{
+			if (asOpenGeneric && symbol is INamedTypeSymbol namedTypeSymbol && namedTypeSymbol.IsGenericType)
+				symbol = namedTypeSymbol.ConstructUnboundGenericType();
+
+			return symbol.ToDisplayString(includeGlobal ? CompilableDisplayFormat_WithGlobal : CompilableDisplayFormat_WithoutGlobal);
+		}
 
 		/// <summary>
 		/// Gets a formatted value for a typed constant, appropriate to place into generated source.
@@ -561,7 +599,7 @@ $@"new global::System.Collections.Generic.Dictionary<global::System.Type, global
 @"async (mappingManager, forceCreation) => {
 ");
 
-			if (!type.ImplementsInterface("Xunit.v3.INotifyLifecycle"))
+			if (!type.ImplementsInterface(Types.Xunit.v3.INotifyLifecycle))
 				factoryBuilder.Append(
 @"	if (!forceCreation)
 		return null;
@@ -628,6 +666,35 @@ $@"new global::System.Collections.Generic.Dictionary<global::System.Type, global
 			};
 
 		/// <summary>
+		/// Creates a dictionary which maps key (via selector) to a list of items with that key.
+		/// </summary>
+		/// <typeparam name="TKey">The key type</typeparam>
+		/// <typeparam name="TValue">The value type</typeparam>
+		/// <param name="collection">The collection</param>
+		/// <param name="keySelector">The item key selector</param>
+		public static Dictionary<TKey, List<TValue>> ToMultiValueDictionary<TKey, TValue>(
+			this IEnumerable<TValue> collection,
+			Func<TValue, TKey> keySelector)
+				where TKey : notnull
+		{
+			var result = new Dictionary<TKey, List<TValue>>();
+
+			foreach (var value in collection)
+			{
+				var key = keySelector(value);
+				if (!result.TryGetValue(key, out var list))
+				{
+					list = new List<TValue>();
+					result[key] = list;
+				}
+
+				list.Add(value);
+			}
+
+			return result;
+		}
+
+		/// <summary>
 		/// Generate a factory to call a parameterless constructor.
 		/// </summary>
 		/// <param name="type">The type to create</param>
@@ -642,7 +709,7 @@ $@"new global::System.Collections.Generic.Dictionary<global::System.Type, global
 			INamedTypeSymbol type,
 			IMethodSymbol ctor)
 		{
-			if (!ctor.GetAttributes().Any(a => a.AttributeClass?.ToCSharp(includeGlobal: false) == "System.ObsoleteAttribute"))
+			if (!ctor.GetAttributes().Any(a => a.AttributeClass?.ToCSharp(includeGlobal: false) == Types.System.ObsoleteAttribute))
 				return $"new {type.ToCSharp()}()";
 
 			// Support our implicit "Instance" static that we use to prevent over-creation

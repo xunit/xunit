@@ -14,7 +14,7 @@ namespace Xunit.Generators
 	/// compiler will suggest that all <see cref="IEquatable{T}"/> implementations also override
 	/// <see cref="object.Equals(object?)"/> and <see cref="object.GetHashCode"/>.
 	/// </remarks>
-	internal static class ComparerHelper
+	internal static partial class ComparerHelper
 	{
 		/// <summary>
 		/// Compare two values that are equatable.
@@ -157,6 +157,42 @@ namespace Xunit.Generators
 				foreach (var value in xPair.Value)
 					if (!yValue.Contains(value))
 						return false;
+			}
+
+			return true;
+		}
+
+		/// <summary>
+		/// Compares two dictionaries of dictionaries.
+		/// </summary>
+		/// <typeparam name="TOuterKey">The outer key type</typeparam>
+		/// <typeparam name="TKey">The inner key type</typeparam>
+		/// <typeparam name="TValue">The inner value type</typeparam>
+		/// <param name="x">The first dictionary</param>
+		/// <param name="y">The second dictionary</param>
+		/// <returns>Returns <see langword="true"/> if the dictionaries are equal; <see langword="false"/> otherwise.</returns>
+		public static bool Equal<TOuterKey, TKey, TValue>(
+			Dictionary<TOuterKey, Dictionary<TKey, HashSet<TValue>>>? x,
+			Dictionary<TOuterKey, Dictionary<TKey, HashSet<TValue>>>? y)
+				where TOuterKey : IEquatable<TOuterKey>
+				where TKey : IEquatable<TKey>
+				where TValue : IEquatable<TValue>
+		{
+			if (x is null)
+				return y is null;
+			if (y is null)
+				return false;
+			if (x.Count != y.Count)
+				return false;
+
+			foreach (var xPair in x)
+			{
+				if (y.TryGetValue(xPair.Key, out var yValue) || yValue is null)
+					return false;
+				if (xPair.Value.Count != yValue.Count)
+					return false;
+				if (!Equal(xPair.Value, yValue))
+					return false;
 			}
 
 			return true;

@@ -1,5 +1,7 @@
 #nullable enable
 
+#pragma warning disable IDE0090 // Use 'new(...)'
+
 using System;
 using System.Collections.Generic;
 
@@ -12,7 +14,7 @@ namespace Xunit.Generators
 	/// This is a companion class to <see cref="ComparerHelper"/> in that it implements computing hash
 	/// codes for all the types that can be compared.
 	/// </remarks>
-	internal sealed class HashCodeHelper
+	internal sealed partial class HashCodeHelper
 	{
 		int result;
 
@@ -133,6 +135,30 @@ namespace Xunit.Generators
 					WithObject(kvp.Key);
 					foreach (var value in kvp.Value)
 						With(value);
+				}
+
+			return this;
+		}
+
+		/// <summary>
+		/// Adds the hash code for a dictionary of dictionaries, where the inner value is a hashset.
+		/// </summary>
+		/// <typeparam name="TOuterKey">The key type for the outer dictionary</typeparam>
+		/// <typeparam name="TKey">The key type for the inner dictionary</typeparam>
+		/// <typeparam name="TValue">The value type for the inner dictionary</typeparam>
+		/// <param name="dictionary">The dictionary</param>
+		public HashCodeHelper With<TOuterKey, TKey, TValue>(Dictionary<TOuterKey, Dictionary<TKey, HashSet<TValue>>>? dictionary)
+			where TOuterKey : IEquatable<TOuterKey>
+			where TKey : IEquatable<TKey>
+			where TValue : IEquatable<TValue>
+		{
+			WithObject("dictionary-of-dictionaries");
+
+			if (dictionary != null)
+				foreach (var kvp in dictionary)
+				{
+					WithObject(kvp.Key);
+					With(kvp.Value);
 				}
 
 			return this;

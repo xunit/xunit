@@ -1,8 +1,10 @@
 #nullable enable
 
+#pragma warning disable IDE0028 // Simplify collection initialization
+#pragma warning disable IDE0090 // Use 'new(...)'
+
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
 
@@ -17,7 +19,6 @@ namespace Xunit.Generators
 		readonly Dictionary<string, string> collectionFixtures = new Dictionary<string, string>();
 		readonly string? collectionName;
 		readonly string? collectionType;
-		readonly Dictionary<string, HashSet<string>> traits = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="CodeGenTestCollectionRegistration"/> class.
@@ -102,32 +103,6 @@ namespace Xunit.Generators
 				collectionFixtures[fixtureType.ToCSharp()] = factory;
 		}
 
-		/// <summary>
-		/// Adds one or more traits to the traits list.
-		/// </summary>
-		/// <param name="traitName">The trait name</param>
-		/// <param name="traitValues">The trait values</param>
-		public void AddTrait(
-			string traitName,
-			params string[] traitValues)
-		{
-			if (traitName is null)
-				throw new ArgumentNullException(nameof(traitName));
-			if (traitValues is null)
-				throw new ArgumentNullException(nameof(traitValues));
-			if (traitValues.Length == 0)
-				throw new ArgumentException("Must include at least one trait value", nameof(traitValues));
-
-			if (!traits.TryGetValue(traitName, out var hash))
-			{
-				hash = new HashSet<string>();
-				traits[traitName] = hash;
-			}
-
-			foreach (var traitValue in traitValues)
-				hash.Add(traitValue);
-		}
-
 		/// <inheritdoc/>
 		public override bool Equals(object? obj) =>
 			Equals(obj as CodeGenTestCollectionRegistration);
@@ -141,8 +116,7 @@ namespace Xunit.Generators
 			ComparerHelper.Equal(DisableParallelization, other.DisableParallelization) &&
 			ComparerHelper.Equal(TestCaseOrdererFactory, other.TestCaseOrdererFactory) &&
 			ComparerHelper.Equal(TestClassOrdererFactory, other.TestClassOrdererFactory) &&
-			ComparerHelper.Equal(TestMethodOrdererFactory, other.TestMethodOrdererFactory) &&
-			ComparerHelper.Equal(traits, other.traits);
+			ComparerHelper.Equal(TestMethodOrdererFactory, other.TestMethodOrdererFactory);
 
 		/// <summary>
 		/// Generates the source for the test collection.
@@ -163,16 +137,6 @@ namespace Xunit.Generators
 			builder.Append(
 $@"global::Xunit.v3.RegisteredEngineConfig.RegisterCollectionDefinition({name}, {ToCollectionRegistration()});
 ");
-
-			if (traits.Count != 0)
-			{
-				var type = collectionType is null ? "null" : $"typeof({collectionType})";
-
-				foreach (var trait in traits)
-					builder.Append(
-$@"global::Xunit.v3.RegisteredEngineConfig.RegisterCodeGenTestCollectionTrait({name}, {type}, {trait.Key.ToCSharp()}, {string.Join(", ", trait.Value.Select(v => v.ToCSharp()))});
-");
-			}
 		}
 
 		/// <inheritdoc/>
@@ -184,8 +148,7 @@ $@"global::Xunit.v3.RegisteredEngineConfig.RegisterCodeGenTestCollectionTrait({n
 				.With(DisableParallelization)
 				.With(TestCaseOrdererFactory)
 				.With(TestClassOrdererFactory)
-				.With(TestMethodOrdererFactory)
-				.With(traits);
+				.With(TestMethodOrdererFactory);
 
 		string ToCollectionRegistration()
 		{

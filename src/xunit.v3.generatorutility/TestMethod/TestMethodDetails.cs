@@ -64,9 +64,9 @@ namespace Xunit.Generators
 					var attributes = Attribute.AttributeConstructor.Parameters[idx].GetAttributes();
 					foreach (var attributeType in attributes.Select(a => a.AttributeClass?.ToCSharp(includeGlobal: false)))
 					{
-						if (attributeType == "System.Runtime.CompilerServices.CallerFilePathAttribute")
+						if (attributeType == Types.System.Runtime.CompilerServices.CallerFilePathAttribute)
 							SourceFilePath = argument.Value as string ?? SourceFilePath;
-						else if (attributeType == "System.Runtime.CompilerServices.CallerLineNumberAttribute")
+						else if (attributeType == Types.System.Runtime.CompilerServices.CallerLineNumberAttribute)
 							SourceLineNumber = argument.Value is int intValue ? intValue : SourceLineNumber;
 					}
 				}
@@ -281,7 +281,7 @@ namespace Xunit.Generators
 
 			switch (typeName)
 			{
-				case "Xunit.TraitAttribute":
+				case Types.Xunit.TraitAttribute:
 					if (attributeSyntax.ArgumentList?.Arguments.Count == 2
 							&& attributeSyntax.ArgumentList.Arguments[0].Expression is LiteralExpressionSyntax nameExpression
 							&& attributeSyntax.ArgumentList.Arguments[1].Expression is LiteralExpressionSyntax valueExpression)
@@ -313,13 +313,13 @@ namespace Xunit.Generators
 
 			switch (typeName)
 			{
-				case "Xunit.TestCaseOrdererAttribute":
-				case "Xunit.TestCaseOrdererAttribute<>":
-					TestCaseOrdererFactory = attribute.ToOrdererFactory("Xunit.v3.ITestCaseOrderer");
+				case Types.Xunit.TestCaseOrdererAttribute:
+				case Types.Xunit.TestCaseOrdererAttributeOfT:
+					TestCaseOrdererFactory = attribute.ToOrdererFactory(Types.Xunit.v3.ITestCaseOrderer);
 					break;
 
 				default:
-					if (attribute.AttributeClass.InheritsFrom("Xunit.v3.BeforeAfterTestAttribute"))
+					if (attribute.AttributeClass.InheritsFrom(Types.Xunit.v3.BeforeAfterTestAttribute))
 						if (attribute.AttributeClass.IsSafeToReference())
 							BeforeAfterTestAttributes.Add(typeName);
 					break;
@@ -351,35 +351,35 @@ namespace Xunit.Generators
 		{
 			switch (name)
 			{
-				case "DisplayName":
+				case Names.FactAttribute.DisplayName:
 					DisplayName = value.Value as string;
 					break;
 
-				case "Explicit":
+				case Names.FactAttribute.Explicit:
 					Explicit = value.Value is true;
 					break;
 
-				case "Skip":
+				case Names.FactAttribute.Skip:
 					SkipReason = value.Value as string;
 					break;
 
-				case "SkipExceptions":
+				case Names.FactAttribute.SkipExceptions:
 					SkipExceptions.AddRange(value.Values.ToTypeArray());
 					break;
 
-				case "SkipType":
+				case Names.FactAttribute.SkipType:
 					SkipType = value.Value as INamedTypeSymbol;
 					break;
 
-				case "SkipUnless":
+				case Names.FactAttribute.SkipUnless:
 					SkipUnless = value.Value as string;
 					break;
 
-				case "SkipWhen":
+				case Names.FactAttribute.SkipWhen:
 					SkipWhen = value.Value as string;
 					break;
 
-				case "Timeout":
+				case Names.FactAttribute.Timeout:
 					if (value.Value is int timeoutValue)
 						Timeout = timeoutValue;
 					break;

@@ -43,7 +43,7 @@ public class CollectionDefinitionAttributeGenerator() :
 			Registration = new(name, context.TargetSymbol as INamedTypeSymbol),
 		};
 
-		if (attribute.NamedArguments.FirstOrDefault(kvp => kvp.Key == Names.Xunit.CollectionDefinitionAttribute.DisableParallelization) is { } namedArg
+		if (attribute.NamedArguments.FirstOrDefault(kvp => kvp.Key == Names.CollectionDefinitionAttribute.DisableParallelization) is { } namedArg
 				&& namedArg.Value.Value is true)
 			result.Registration.DisableParallelization = true;
 
@@ -75,15 +75,6 @@ public class CollectionDefinitionAttributeGenerator() :
 				case Types.Xunit.TestMethodOrdererAttribute:
 				case Types.Xunit.TestMethodOrdererAttribute + "<>":
 					result.Registration.TestMethodOrdererFactory = classAttribute.ToOrdererFactory(Types.Xunit.v3.ITestMethodOrderer);
-					break;
-
-				case Types.Xunit.TraitAttribute:
-					if (classAttribute.ConstructorArguments.Length == 2
-							&& classAttribute.ConstructorArguments[0].Kind == TypedConstantKind.Primitive
-							&& classAttribute.ConstructorArguments[1].Kind == TypedConstantKind.Primitive
-							&& classAttribute.ConstructorArguments[0].Value is string traitName
-							&& classAttribute.ConstructorArguments[1].Value is string traitValue)
-						result.Registration.AddTrait(traitName, traitValue);
 					break;
 			}
 		}

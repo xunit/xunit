@@ -111,8 +111,7 @@
             <Compile Include="..\xunit.v3.common\Internal\Guard.cs" LinkBase="Common" />
             <Compile Include="..\xunit.v3.msbuildtasks\NamespaceHelpers.cs" LinkBase="Common" />
             <Compile Include="..\xunit.v3.msbuildtasks\UnicodeCharacterUtilities.cs" LinkBase="Common" />
-            <Compile Include="..\common.generators\*.cs" LinkBase="Common.Generators" />
-            <Compile Include="..\xunit.v3.generatorutility\**\*.cs" Exclude="..\xunit.v3.generatorutility\obj\**\*.cs" />
+            <Compile Include="..\xunit.v3.generatorutility\**\*.cs" Exclude="..\xunit.v3.generatorutility\obj\**\*.cs" LinkBase="Common.Generators" />
           </ItemGroup>
 
           <ItemGroup>

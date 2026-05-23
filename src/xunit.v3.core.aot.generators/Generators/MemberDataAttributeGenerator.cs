@@ -36,11 +36,11 @@ public class MemberDataAttributeGenerator() :
 		foreach (var namedArgument in attribute.NamedArguments)
 			switch (namedArgument.Key)
 			{
-				case Names.Xunit.v3.MemberDataAttributeBase.DisableDiscoveryEnumeration:
+				case Names.MemberDataAttributeBase.DisableDiscoveryEnumeration:
 					disableDiscoveryEnumeration = namedArgument.Value.Value is true;
 					break;
 
-				case Names.Xunit.v3.MemberDataAttributeBase.MemberType:
+				case Names.MemberDataAttributeBase.MemberType:
 					memberType = namedArgument.Value.Value as ITypeSymbol ?? memberType;
 					break;
 			}

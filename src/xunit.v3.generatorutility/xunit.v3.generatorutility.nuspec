@@ -28,7 +28,7 @@
 		<file target="_content\README.md" src="obj\xunit.v3.generatorutility.README.md" />
 
 		<file target="contentFiles\.editorconfig" src="..\build\.nuget.editorconfig" />
-		<file target="contentFiles\cs\netstandard2.0" src="**\*.cs" exclude="obj\**\*.cs" />
+		<file target="contentFiles\cs\netstandard2.0\xunit.v3.generatorutility" src="**\*.cs" exclude="obj\**\*.cs" />
 
 		<file target="lib\netstandard2.0\_._" src="..\build\_._" />
 	</files>

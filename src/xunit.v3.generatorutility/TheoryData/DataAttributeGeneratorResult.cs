@@ -1,5 +1,8 @@
 #nullable enable
 
+#pragma warning disable IDE0028 // Simplify collection initialization
+#pragma warning disable IDE0290 // Use primary constructor
+
 using System;
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
@@ -7,7 +10,7 @@ using Microsoft.CodeAnalysis;
 namespace Xunit.Generators
 {
 	/// <summary>
-	/// The generator result for <see cref="DataAttributeGenerator"/>
+	/// The generator result for <see cref="DataAttributeGenerator{TResult}"/>
 	/// </summary>
 	public class DataAttributeGeneratorResult : XunitGeneratorResult, IEquatable<DataAttributeGeneratorResult?>
 	{
@@ -25,6 +28,7 @@ namespace Xunit.Generators
 		{
 			MethodName = testMethod?.Name ?? throw new ArgumentNullException(nameof(testMethod));
 			Type = testClass?.ToTypeIndex() ?? throw new ArgumentNullException(nameof(testClass));
+			GeneratorSuffix = $"{testClass.Name}٠{testMethod.Name}٠";
 		}
 
 		/// <summary>

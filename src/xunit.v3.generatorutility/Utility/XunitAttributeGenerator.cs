@@ -1,5 +1,7 @@
 #nullable enable
 
+#pragma warning disable IDE0290 // Use primary constructor
+
 using System;
 using System.Threading;
 using Microsoft.CodeAnalysis;
@@ -17,8 +19,8 @@ namespace Xunit.Generators
 		/// Initializes a new instance of the <see cref="XunitAttributeGenerator{TResult}"/> class.
 		/// </summary>
 		/// <param name="fullyQualifiedAttributeTypeName">The fully qualified attribute name (e.g.,
-		/// <c>"Xunit.AssemblyFixtureAttribute"</c> for non-generic types, or
-		/// <c>"Xunit.AssemblyFixtureAttribute`1"</c> for generic types). This value is passed to
+		/// <c>Types.Xunit.AssemblyFixtureAttribute"</c> for non-generic types, or
+		/// <c>Types.Xunit.AssemblyFixtureAttribute`1"</c> for generic types). This value is passed to
 		/// <see cref="SyntaxValueProvider.ForAttributeWithMetadataName{T}"/>.</param>
 		protected XunitAttributeGenerator(string fullyQualifiedAttributeTypeName) =>
 			FullyQualifiedAttributeTypeName = fullyQualifiedAttributeTypeName ?? throw new ArgumentNullException(nameof(fullyQualifiedAttributeTypeName));

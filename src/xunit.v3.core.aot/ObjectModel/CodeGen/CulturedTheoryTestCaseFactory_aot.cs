@@ -6,16 +6,20 @@ namespace Xunit.v3;
 /// An implementation of <see cref="ICodeGenTestCaseFactory"/> for use by tests which
 /// are decorated by <see cref="CulturedTheoryAttribute"/>.
 /// </summary>
-public class CulturedTheoryTestCaseFactory : TheoryTestCaseFactoryBase
+public class CulturedTheoryTestCaseFactory : TheoryTestCaseFactory
 {
 	/// <summary>
 	/// Gets the cultures to be run.
 	/// </summary>
-	/// <remarks>
-	/// Each culture will result in a test case, regardless of p
-	/// </remarks>
 	public required IReadOnlyCollection<string> Cultures { get; init; }
 
+	/// <summary>
+	/// Creates one test case per culture from <see cref="Cultures"/>.
+	/// </summary>
+	/// <remarks>
+	/// The logic here follows much the same as <see cref="TheoryTestCaseFactory.GenerateDelayEnumerated"/> on a
+	/// per culture basis.
+	/// </remarks>
 	/// <inheritdoc/>
 	protected override async ValueTask<IReadOnlyCollection<ICodeGenTestCase>> GenerateDelayEnumerated(
 		ICodeGenTestMethod testMethod,
@@ -58,6 +62,13 @@ public class CulturedTheoryTestCaseFactory : TheoryTestCaseFactoryBase
 		}).CastOrToReadOnlyCollection();
 	}
 
+	/// <summary>
+	/// Creates one test case per the cross product of cultures from <see cref="Cultures"/> and the data rows.
+	/// </summary>
+	/// <remarks>
+	/// The logic here follows much the same as <see cref="TheoryTestCaseFactory.GeneratePreEnumerated"/> on a
+	/// per culture basis.
+	/// </remarks>
 	/// <inheritdoc/>
 	protected override async ValueTask<IReadOnlyCollection<ICodeGenTestCase>> GeneratePreEnumerated(
 		ICodeGenTestMethod testMethod,

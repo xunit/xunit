@@ -1,5 +1,8 @@
 #nullable enable
 
+#pragma warning disable IDE0028 // Simplify collection initialization
+#pragma warning disable IDE0090 // Use 'new(...)'
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,7 +26,6 @@ namespace Xunit.Generators
 		string? testFrameworkFactory;
 		string? testMethodOrdererFactory;
 		string? testPipelineStartupFactory;
-		readonly Dictionary<string, HashSet<string>> traits = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
 		/// <summary>
 		/// Add an assembly fixture to the registration.
@@ -64,32 +66,6 @@ namespace Xunit.Generators
 			assemblyFixtureFactories[fixtureTypeName] = $"async () => new {fixtureTypeName}()";
 		}
 
-		/// <summary>
-		/// Adds one or more traits to the traits list.
-		/// </summary>
-		/// <param name="traitName">The trait name</param>
-		/// <param name="traitValues">The trait values</param>
-		public void AddTrait(
-			string traitName,
-			params string[] traitValues)
-		{
-			if (traitName is null)
-				throw new ArgumentNullException(nameof(traitName));
-			if (traitValues is null)
-				throw new ArgumentNullException(nameof(traitValues));
-			if (traitValues.Length == 0)
-				throw new ArgumentException("Must include at least one trait value", nameof(traitValues));
-
-			if (!traits.TryGetValue(traitName, out var hash))
-			{
-				hash = new HashSet<string>();
-				traits[traitName] = hash;
-			}
-
-			foreach (var traitValue in traitValues)
-				hash.Add(traitValue);
-		}
-
 		/// <inheritdoc/>
 		public override bool Equals(object? obj) =>
 			Equals(obj as CodeGenTestAssemblyRegistration);
@@ -104,8 +80,7 @@ namespace Xunit.Generators
 			ComparerHelper.Equal(testCollectionOrdererFactory, other.testCollectionOrdererFactory) &&
 			ComparerHelper.Equal(testFrameworkFactory, other.testFrameworkFactory) &&
 			ComparerHelper.Equal(testMethodOrdererFactory, other.testMethodOrdererFactory) &&
-			ComparerHelper.Equal(testPipelineStartupFactory, other.testPipelineStartupFactory) &&
-			ComparerHelper.Equal(traits, other.traits);
+			ComparerHelper.Equal(testPipelineStartupFactory, other.testPipelineStartupFactory);
 
 		/// <summary>
 		/// Generates the assembly registration source.
@@ -155,11 +130,6 @@ $@"global::Xunit.v3.RegisteredEngineConfig.RegisterAssemblyTestMethodOrdererFact
 				builder.Append(
 $@"global::Xunit.v3.RegisteredEngineConfig.RegisterTestPipelineStartupFactory({testPipelineStartupFactory});
 ");
-
-			foreach (var trait in traits)
-				builder.Append(
-$@"global::Xunit.v3.RegisteredEngineConfig.RegisterAssemblyTrait({trait.Key.ToCSharp()}, {string.Join(", ", trait.Value.Select(v => v.ToCSharp()))});
-");
 		}
 
 		/// <inheritdoc/>
@@ -172,8 +142,7 @@ $@"global::Xunit.v3.RegisteredEngineConfig.RegisterAssemblyTrait({trait.Key.ToCS
 				.With(testCollectionOrdererFactory)
 				.With(testFrameworkFactory)
 				.With(testMethodOrdererFactory)
-				.With(testPipelineStartupFactory)
-				.With(traits);
+				.With(testPipelineStartupFactory);
 
 		static INamedTypeSymbol? GetTypeFromAttribute(AttributeData attribute)
 		{
@@ -196,7 +165,7 @@ $@"global::Xunit.v3.RegisteredEngineConfig.RegisterAssemblyTrait({trait.Key.ToCS
 			if (ordererAttribute is null)
 				throw new ArgumentNullException(nameof(ordererAttribute));
 
-			var factory = ordererAttribute.ToOrdererFactory("Xunit.v3.ITestCaseOrderer");
+			var factory = ordererAttribute.ToOrdererFactory(Types.Xunit.v3.ITestCaseOrderer);
 			if (factory != null)
 				testCaseOrdererFactory = "() => " + factory;
 		}
@@ -210,7 +179,7 @@ $@"global::Xunit.v3.RegisteredEngineConfig.RegisterAssemblyTrait({trait.Key.ToCS
 			if (ordererType is null)
 				throw new ArgumentNullException(nameof(ordererType));
 
-			var factory = ordererType.ToOrdererFactory("Xunit.v3.ITestCaseOrderer");
+			var factory = ordererType.ToOrdererFactory(Types.Xunit.v3.ITestCaseOrderer);
 			if (factory != null)
 				testCaseOrdererFactory = "() => " + factory;
 		}
@@ -224,7 +193,7 @@ $@"global::Xunit.v3.RegisteredEngineConfig.RegisterAssemblyTrait({trait.Key.ToCS
 			if (ordererAttribute is null)
 				throw new ArgumentNullException(nameof(ordererAttribute));
 
-			var factory = ordererAttribute.ToOrdererFactory("Xunit.v3.ITestClassOrderer");
+			var factory = ordererAttribute.ToOrdererFactory(Types.Xunit.v3.ITestClassOrderer);
 			if (factory != null)
 				testClassOrdererFactory = "() => " + factory;
 		}
@@ -238,7 +207,7 @@ $@"global::Xunit.v3.RegisteredEngineConfig.RegisterAssemblyTrait({trait.Key.ToCS
 			if (ordererType is null)
 				throw new ArgumentNullException(nameof(ordererType));
 
-			var factory = ordererType.ToOrdererFactory("Xunit.v3.ITestClassOrderer");
+			var factory = ordererType.ToOrdererFactory(Types.Xunit.v3.ITestClassOrderer);
 			if (factory != null)
 				testClassOrdererFactory = "() => " + factory;
 		}
@@ -265,8 +234,8 @@ $@"global::Xunit.v3.RegisteredEngineConfig.RegisterAssemblyTrait({trait.Key.ToCS
 			if (testCollectionFactoryType is null)
 				throw new ArgumentNullException(nameof(testCollectionFactoryType));
 
-			if (testCollectionFactoryType.ImplementsInterface("Xunit.v3.ICodeGenTestCollectionFactory")
-					&& testCollectionFactoryType.HasConstructorParameters("Xunit.v3.ICodeGenTestAssembly"))
+			if (testCollectionFactoryType.ImplementsInterface(Types.Xunit.v3.ICodeGenTestCollectionFactory)
+					&& testCollectionFactoryType.HasConstructorParameters(Types.Xunit.v3.ICodeGenTestAssembly))
 				testCollectionFactoryFactory = $"(assembly) => new {testCollectionFactoryType.ToCSharp()}(assembly)";
 		}
 
@@ -279,7 +248,7 @@ $@"global::Xunit.v3.RegisteredEngineConfig.RegisterAssemblyTrait({trait.Key.ToCS
 			if (ordererAttribute is null)
 				throw new ArgumentNullException(nameof(ordererAttribute));
 
-			var factory = ordererAttribute.ToOrdererFactory("Xunit.v3.ITestCollectionOrderer");
+			var factory = ordererAttribute.ToOrdererFactory(Types.Xunit.v3.ITestCollectionOrderer);
 			if (factory != null)
 				testCollectionOrdererFactory = "() => " + factory;
 		}
@@ -293,7 +262,7 @@ $@"global::Xunit.v3.RegisteredEngineConfig.RegisterAssemblyTrait({trait.Key.ToCS
 			if (ordererType is null)
 				throw new ArgumentNullException(nameof(ordererType));
 
-			var factory = ordererType.ToOrdererFactory("Xunit.v3.ITestCollectionOrderer");
+			var factory = ordererType.ToOrdererFactory(Types.Xunit.v3.ITestCollectionOrderer);
 			if (factory != null)
 				testCollectionOrdererFactory = "() => " + factory;
 		}
@@ -320,7 +289,7 @@ $@"global::Xunit.v3.RegisteredEngineConfig.RegisterAssemblyTrait({trait.Key.ToCS
 			if (testFrameworkType is null)
 				throw new ArgumentNullException(nameof(testFrameworkType));
 
-			if (!testFrameworkType.ImplementsInterface("Xunit.v3.ITestFramework") || !testFrameworkType.IsSafeToReference())
+			if (!testFrameworkType.ImplementsInterface(Types.Xunit.v3.ITestFramework) || !testFrameworkType.IsSafeToReference())
 				return;
 
 			// First check for a ctor that takes a string/string?
@@ -350,7 +319,7 @@ $@"global::Xunit.v3.RegisteredEngineConfig.RegisterAssemblyTrait({trait.Key.ToCS
 			if (ordererAttribute is null)
 				throw new ArgumentNullException(nameof(ordererAttribute));
 
-			var factory = ordererAttribute.ToOrdererFactory("Xunit.v3.ITestMethodOrderer");
+			var factory = ordererAttribute.ToOrdererFactory(Types.Xunit.v3.ITestMethodOrderer);
 			if (factory != null)
 				testMethodOrdererFactory = "() => " + factory;
 		}
@@ -364,7 +333,7 @@ $@"global::Xunit.v3.RegisteredEngineConfig.RegisterAssemblyTrait({trait.Key.ToCS
 			if (ordererType is null)
 				throw new ArgumentNullException(nameof(ordererType));
 
-			var factory = ordererType.ToOrdererFactory("Xunit.v3.ITestMethodOrderer");
+			var factory = ordererType.ToOrdererFactory(Types.Xunit.v3.ITestMethodOrderer);
 			if (factory != null)
 				testMethodOrdererFactory = "() => " + factory;
 		}
@@ -391,7 +360,7 @@ $@"global::Xunit.v3.RegisteredEngineConfig.RegisterAssemblyTrait({trait.Key.ToCS
 			if (testPipelineStartupType is null)
 				throw new ArgumentNullException(nameof(testPipelineStartupType));
 
-			if (!testPipelineStartupType.ImplementsInterface("Xunit.v3.ITestPipelineStartup") || !testPipelineStartupType.IsSafeToReference())
+			if (!testPipelineStartupType.ImplementsInterface(Types.Xunit.v3.ITestPipelineStartup) || !testPipelineStartupType.IsSafeToReference())
 				return;
 
 			var ctor = testPipelineStartupType.Constructors.FirstOrDefault(c => !c.IsStatic && c.DeclaredAccessibility == Accessibility.Public && c.Parameters.Length == 0);

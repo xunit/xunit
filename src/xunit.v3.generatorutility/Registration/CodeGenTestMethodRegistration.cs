@@ -22,7 +22,6 @@ namespace Xunit.Generators
 		readonly int? sourceLineNumber;
 		readonly IReadOnlyCollection<string> testCaseFactories;
 		readonly string? testCaseOrdererFactory;
-		readonly Dictionary<string, HashSet<string>>? traits;
 		readonly string typeIndex;
 
 		/// <summary>
@@ -37,7 +36,6 @@ namespace Xunit.Generators
 		/// <param name="sourceLineNumber">The source line number, if known</param>
 		/// <param name="testCaseFactories">The test case factories (must not be empty)</param>
 		/// <param name="testCaseOrdererFactory">The optional test case orderer factory</param>
-		/// <param name="traits">The optional traits attached to the test method</param>
 		/// <param name="typeIndex">The type index of the test class</param>
 		public CodeGenTestMethodRegistration(
 			int arity,
@@ -49,7 +47,6 @@ namespace Xunit.Generators
 			int? sourceLineNumber,
 			IReadOnlyCollection<string> testCaseFactories,
 			string? testCaseOrdererFactory,
-			Dictionary<string, HashSet<string>>? traits,
 			string typeIndex)
 		{
 			this.arity = arity;
@@ -61,7 +58,6 @@ namespace Xunit.Generators
 			this.sourceLineNumber = sourceLineNumber;
 			this.testCaseFactories = testCaseFactories ?? throw new ArgumentNullException(nameof(testCaseFactories));
 			this.testCaseOrdererFactory = testCaseOrdererFactory;
-			this.traits = traits;
 			this.typeIndex = typeIndex ?? throw new ArgumentNullException(nameof(typeIndex));
 
 			if (testCaseFactories.Count == 0)
@@ -84,7 +80,6 @@ namespace Xunit.Generators
 			ComparerHelper.Equal(sourceLineNumber, other.sourceLineNumber) &&
 			ComparerHelper.Equal(testCaseFactories, other.testCaseFactories) &&
 			ComparerHelper.Equal(testCaseOrdererFactory, other.testCaseOrdererFactory) &&
-			ComparerHelper.Equal(traits, other.traits) &&
 			ComparerHelper.Equal(typeIndex, other.typeIndex);
 
 		/// <summary>
@@ -115,7 +110,6 @@ namespace Xunit.Generators
 				testMethod.SourceLineNumber,
 				testCaseFactories,
 				testMethod.TestCaseOrdererFactory,
-				testMethod.Traits,
 				testMethod.TypeIndex
 			);
 		}
@@ -140,12 +134,6 @@ namespace Xunit.Generators
 $@"global::Xunit.v3.RegisteredEngineConfig.RegisterCodeGenTestMethod({typeIndex.ToCSharp()}, {methodName.ToCSharp()}, {ToMethodRegistration()});
 ");
 
-			if (traits is not null)
-				foreach (var trait in traits)
-					builder.Append(
-$@"global::Xunit.v3.RegisteredEngineConfig.RegisterCodeGenTestMethodTrait({typeIndex.ToCSharp()}, {methodName.ToCSharp()}, {trait.Key.ToCSharp()}, {string.Join(", ", trait.Value.Select(v => v.ToCSharp()))});
-");
-
 			foreach (var testCaseFactory in testCaseFactories)
 				builder.Append(
 $@"global::Xunit.v3.RegisteredEngineConfig.RegisterCodeGenTestCaseFactory({typeIndex.ToCSharp()}, {methodName.ToCSharp()}, {testCaseFactory});
@@ -164,7 +152,6 @@ $@"global::Xunit.v3.RegisteredEngineConfig.RegisterCodeGenTestCaseFactory({typeI
 				.With(sourceLineNumber)
 				.With(testCaseFactories)
 				.With(testCaseOrdererFactory)
-				.With(traits)
 				.With(typeIndex);
 
 		string ToMethodRegistration()

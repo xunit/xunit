@@ -1,8 +1,10 @@
 #nullable enable
 
+#pragma warning disable IDE0028 // Simplify collection initialization
+#pragma warning disable IDE0090 // Use 'new(...)'
+
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
 
@@ -15,7 +17,6 @@ namespace Xunit.Generators
 	{
 		readonly string? classFactory;
 		readonly Dictionary<string, string> classFixtures = new Dictionary<string, string>();
-		readonly Dictionary<string, HashSet<string>> traits = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 		readonly string type;
 		readonly string typeIndex;
 
@@ -57,32 +58,6 @@ namespace Xunit.Generators
 				classFixtures[fixtureType.ToCSharp()] = factory;
 		}
 
-		/// <summary>
-		/// Adds one or more traits to the traits list.
-		/// </summary>
-		/// <param name="traitName">The trait name</param>
-		/// <param name="traitValues">The trait values</param>
-		public void AddTrait(
-			string traitName,
-			params string[] traitValues)
-		{
-			if (traitName is null)
-				throw new ArgumentNullException(nameof(traitName));
-			if (traitValues is null)
-				throw new ArgumentNullException(nameof(traitValues));
-			if (traitValues.Length == 0)
-				throw new ArgumentException("Must include at least one trait value", nameof(traitValues));
-
-			if (!traits.TryGetValue(traitName, out var hash))
-			{
-				hash = new HashSet<string>();
-				traits[traitName] = hash;
-			}
-
-			foreach (var traitValue in traitValues)
-				hash.Add(traitValue);
-		}
-
 		/// <inheritdoc/>
 		public override bool Equals(object? obj) =>
 			Equals(obj as CodeGenTestClassRegistration);
@@ -94,7 +69,6 @@ namespace Xunit.Generators
 			ComparerHelper.Equal(classFixtures, other.classFixtures) &&
 			ComparerHelper.Equal(TestCaseOrdererFactory, other.TestCaseOrdererFactory) &&
 			ComparerHelper.Equal(TestMethodOrdererFactory, other.TestMethodOrdererFactory) &&
-			ComparerHelper.Equal(traits, other.traits) &&
 			ComparerHelper.Equal(type, other.type) &&
 			ComparerHelper.Equal(typeIndex, other.typeIndex);
 
@@ -114,11 +88,6 @@ namespace Xunit.Generators
 			source.Append(
 $@"global::Xunit.v3.RegisteredEngineConfig.RegisterCodeGenTestClass({typeIndex.ToCSharp()}, {ToClassRegistration()});
 ");
-
-			foreach (var trait in traits)
-				source.Append(
-$@"global::Xunit.v3.RegisteredEngineConfig.RegisterCodeGenTestClassTrait({typeIndex.ToCSharp()}, {trait.Key.ToCSharp()}, {string.Join(", ", trait.Value.Select(v => v.ToCSharp()))});
-");
 		}
 
 		/// <inheritdoc/>
@@ -128,7 +97,6 @@ $@"global::Xunit.v3.RegisteredEngineConfig.RegisterCodeGenTestClassTrait({typeIn
 				.With(classFixtures)
 				.With(TestCaseOrdererFactory)
 				.With(TestMethodOrdererFactory)
-				.With(traits)
 				.With(type)
 				.With(typeIndex);
 

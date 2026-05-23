@@ -61,7 +61,7 @@ namespace Xunit.Generators
 			if (result is null || !result.ShouldGenerate || initializeCode is null)
 				return;
 
-			var initAttributeName = $"{attributeNameBase}٠{result.InitAttributeNameSuffix}";
+			var initAttributeName = GetInitAttributeName(result);
 			var cleanupCode =
 				disposeCode is null
 					? string.Empty
@@ -88,6 +88,16 @@ namespace {result.GeneratorNamespace} {{
 
 			context.AddSource($"{initAttributeName}.g.cs", SourceText.From(source, Encoding.UTF8));
 		}
+
+		/// <summary>
+		/// Gets the name of the type that will provide the init attribute.
+		/// </summary>
+		/// <remarks>
+		/// This generally returns <c>$"{attributeNameBase}٠{result.InitAttributeNameSuffix}"</c>. Override this if you want to be
+		/// able to override some or all of this base name.
+		/// </remarks>
+		protected virtual string GetInitAttributeName(XunitGeneratorResult result) =>
+			$"{attributeNameBase}٠{(result ?? throw new ArgumentNullException(nameof(result))).InitAttributeNameSuffix}";
 
 		void IIncrementalGenerator.Initialize(IncrementalGeneratorInitializationContext context)
 		{

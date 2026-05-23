@@ -74,7 +74,10 @@ public abstract class TestCaseFactoryBase : ICodeGenTestCaseFactory
 	/// <param name="testCase">The test case the test belongs to</param>
 	/// <param name="methodInvoker">The code that will invoke the test method when the test is run</param>
 	/// <param name="testIndex">The test index (defaults to <c>0</c>)</param>
-	protected static ICodeGenTest GenerateTest(
+	/// <remarks>
+	/// By default, this method creates instances of <see cref="CodeGenTest"/>. Override to create a different test object.
+	/// </remarks>
+	protected virtual ICodeGenTest GenerateTest(
 		ICodeGenTestCase testCase,
 		Func<object?, ValueTask> methodInvoker,
 		int testIndex = 0) =>

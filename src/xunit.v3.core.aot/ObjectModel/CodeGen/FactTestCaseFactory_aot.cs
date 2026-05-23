@@ -6,8 +6,16 @@ namespace Xunit.v3;
 /// An implementation of <see cref="ICodeGenTestCaseFactory"/> for use by tests which
 /// are decorated by <see cref="FactAttribute"/>.
 /// </summary>
-public class FactTestCaseFactory : FactTestCaseFactoryBase
+public class FactTestCaseFactory : TestCaseFactoryBase
 {
+	/// <summary>
+	/// Gets the function which invokes the test method when the test runs.
+	/// </summary>
+	public required Func<object?, ValueTask> MethodInvoker { get; init; }
+
+	/// <summary>
+	/// This creates a single instance of <see cref="CodeGenTestCase"/>.
+	/// </summary>
 	/// <inheritdoc/>
 	protected override async ValueTask<IReadOnlyCollection<ICodeGenTestCase>> GenerateTestCases(
 		ITestFrameworkDiscoveryOptions discoveryOptions,

@@ -1,5 +1,6 @@
 #nullable enable
 
+#pragma warning disable IDE0028 // Simplify collection initialization
 #pragma warning disable IDE0031 // Use null propagation
 
 using System.Collections.Generic;
@@ -227,15 +228,15 @@ $@"		if (invalidArguments.Count != 0)
 		{
 			switch (name)
 			{
-				case "DisableDiscoveryEnumeration":
+				case Names.TheoryAttribute.DisableDiscoveryEnumeration:
 					DisableDiscoveryEnumeration = value.Value is true;
 					break;
 
-				case "IncludeTestCaseIndex":
+				case Names.TheoryAttribute.IncludeTestCaseIndex:
 					IncludeTestCaseIndex = value.Value is true;
 					break;
 
-				case "SkipTestWithoutData":
+				case Names.TheoryAttribute.SkipTestWithoutData:
 					SkipTestWithoutData = value.Value is true;
 					break;
 
@@ -247,7 +248,11 @@ $@"		if (invalidArguments.Count != 0)
 
 		static ITypeSymbol StripNullable(ITypeSymbol type)
 		{
-			if (type is INamedTypeSymbol namedType && namedType.IsGenericType && namedType.OriginalDefinition.ToCSharp(includeGlobal: false) == "System.Nullable<T>")
+			// We use the original definition and look for it to be "System.Nullable<T>", because the formatting engine has a
+			// strong preference to return "T?"
+			if (type is INamedTypeSymbol namedType
+					&& namedType.IsGenericType
+					&& namedType.OriginalDefinition.ToCSharp(includeGlobal: false) == "System.Nullable<T>")
 				return namedType.TypeArguments[0];
 
 			return type.WithNullableAnnotation(NullableAnnotation.NotAnnotated);

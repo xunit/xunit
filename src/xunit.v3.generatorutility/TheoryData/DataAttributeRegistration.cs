@@ -1,5 +1,7 @@
 #nullable enable
 
+#pragma warning disable IDE0028 // Simplify collection initialization
+
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -195,41 +197,41 @@ namespace Xunit.Generators
 		{
 			switch (argumentName)
 			{
-				case "Explicit":
+				case Names.DataAttribute.Explicit:
 					if (argumentValue.Value is bool @explicit)
 						Explicit = @explicit;
 					break;
 
-				case "Label":
+				case Names.DataAttribute.Label:
 					Label = argumentValue.Value as string;
 					break;
 
-				case "Skip":
+				case Names.DataAttribute.Skip:
 					Skip = argumentValue.Value as string;
 					break;
 
-				case "SkipType":
+				case Names.DataAttribute.SkipType:
 					SkipType = argumentValue.Value as ITypeSymbol;
 					break;
 
-				case "SkipUnless":
+				case Names.DataAttribute.SkipUnless:
 					SkipUnless = argumentValue.Value as string;
 					break;
 
-				case "SkipWhen":
+				case Names.DataAttribute.SkipWhen:
 					SkipWhen = argumentValue.Value as string;
 					break;
 
-				case "TestDisplayName":
+				case Names.DataAttribute.TestDisplayName:
 					TestDisplayName = argumentValue.Value as string;
 					break;
 
-				case "Timeout":
+				case Names.DataAttribute.Timeout:
 					if (argumentValue.Value is int timeout)
 						Timeout = timeout;
 					break;
 
-				case "Traits":
+				case Names.DataAttribute.Traits:
 					if (argumentValue.Kind == TypedConstantKind.Array)
 					{
 						var traitsArray = argumentValue.Values.Select(c => c.Value as string).WhereNotNull().ToArray();
