@@ -15,18 +15,18 @@ public class CodeGenTestClassRunnerContext : CodeGenTestClassRunnerBaseContext<I
 	/// <param name="explicitOption">The user's choice on how to treat explicit tests</param>
 	/// <param name="messageBus">The message bus to send execution messages to</param>
 	/// <param name="aggregator">The exception aggregator</param>
+	/// <param name="parallelismOptions">Options which determine the amount of test parallelization to allow.</param>
 	/// <param name="cancellationTokenSource">The cancellation token source</param>
 	/// <param name="collectionFixtureMappings">The mapping of collection fixture types to fixtures.</param>
-	/// <param name="parallelismOptions">Options which determine the amount of test parallelization to allow.</param>
 	public CodeGenTestClassRunnerContext(
 		ICodeGenTestClass testClass,
 		IReadOnlyCollection<ICodeGenTestCase> testCases,
 		ExplicitOption explicitOption,
 		IMessageBus messageBus,
 		ExceptionAggregator aggregator,
+		ParallelismOptions parallelismOptions,
 		CancellationTokenSource cancellationTokenSource,
-		FixtureMappingManager collectionFixtureMappings,
-		ParallelismOptions parallelismOptions) :
+		FixtureMappingManager collectionFixtureMappings) :
 			base(testClass, testCases, explicitOption, messageBus, aggregator, parallelismOptions, cancellationTokenSource, collectionFixtureMappings)
 	{ }
 

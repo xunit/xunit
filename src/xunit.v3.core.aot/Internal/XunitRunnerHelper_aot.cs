@@ -39,10 +39,10 @@ partial class XunitRunnerHelper
 					aggregator,
 					testCase.TestCaseDisplayName,
 					testCase.SkipReason,
-					cancellationTokenSource,
-					methodFixtureMappings,
 					parallelismOptions,
-					parallelizationSemaphore
+					parallelizationSemaphore,
+					cancellationTokenSource,
+					methodFixtureMappings
 				),
 				cancellationTokenSource
 			);

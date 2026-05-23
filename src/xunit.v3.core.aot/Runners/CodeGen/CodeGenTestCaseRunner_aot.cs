@@ -49,10 +49,10 @@ public class CodeGenTestCaseRunner : CodeGenTestCaseRunnerBase<CodeGenTestCaseRu
 		ExceptionAggregator aggregator,
 		string displayName,
 		string? skipReason,
-		CancellationTokenSource cancellationTokenSource,
-		FixtureMappingManager methodFixtureMappings,
 		ParallelismOptions parallelismOptions,
-		SemaphoreSlim? parallelizationSemaphore)
+		SemaphoreSlim? parallelizationSemaphore,
+		CancellationTokenSource cancellationTokenSource,
+		FixtureMappingManager methodFixtureMappings)
 	{
 		await using var ctxt = new CodeGenTestCaseRunnerContext(
 			testCase,
@@ -62,10 +62,10 @@ public class CodeGenTestCaseRunner : CodeGenTestCaseRunnerBase<CodeGenTestCaseRu
 			aggregator,
 			displayName,
 			skipReason,
-			cancellationTokenSource,
-			methodFixtureMappings,
 			parallelismOptions,
-			parallelizationSemaphore
+			parallelizationSemaphore,
+			cancellationTokenSource,
+			methodFixtureMappings
 		);
 		await ctxt.InitializeAsync();
 

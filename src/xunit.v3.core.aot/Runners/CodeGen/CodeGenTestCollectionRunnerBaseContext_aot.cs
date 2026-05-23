@@ -10,6 +10,7 @@ namespace Xunit.v3;
 /// <param name="explicitOption">A flag to indicate how explicit tests should be treated.</param>
 /// <param name="messageBus">The message bus to report run status to.</param>
 /// <param name="aggregator">The exception aggregator used to run code and collection exceptions.</param>
+/// <param name="parallelismOptions">Options which determine the amount of test parallelization to allow.</param>
 /// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 /// <param name="assemblyFixtureMappings">The mapping manager for assembly fixtures.</param>
 /// <remarks>
@@ -21,6 +22,7 @@ public abstract class CodeGenTestCollectionRunnerBaseContext<TTestCollection, TT
 	ExplicitOption explicitOption,
 	IMessageBus messageBus,
 	ExceptionAggregator aggregator,
+	ParallelismOptions parallelismOptions,
 	CancellationTokenSource cancellationTokenSource,
 	FixtureMappingManager assemblyFixtureMappings) :
 		CoreTestCollectionRunnerContext<TTestCollection, TTestClass, TTestCase>(
@@ -29,6 +31,7 @@ public abstract class CodeGenTestCollectionRunnerBaseContext<TTestCollection, TT
 			explicitOption,
 			messageBus,
 			aggregator,
+			parallelismOptions,
 			cancellationTokenSource
 		)
 			where TTestCollection : class, ICodeGenTestCollection

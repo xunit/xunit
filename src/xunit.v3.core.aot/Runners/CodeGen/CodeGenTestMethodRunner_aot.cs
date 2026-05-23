@@ -51,9 +51,9 @@ public class CodeGenTestMethodRunner : CodeGenTestMethodRunnerBase<CodeGenTestMe
 			explicitOption,
 			messageBus,
 			aggregator,
+			parallelismOptions,
 			cancellationTokenSource,
-			classFixtureMappings,
-			parallelismOptions
+			classFixtureMappings
 
 		);
 		await ctxt.InitializeAsync();
