@@ -15,6 +15,7 @@ public interface ISelfExecutingXunitTestCase : IXunitTestCase
 	/// <param name="explicitOption">A flag to indicate how explicit tests should be treated.</param>
 	/// <param name="messageBus">The message bus to report results to.</param>
 	/// <param name="constructorArguments">The arguments to pass to the constructor.</param>
+	/// <param name="methodFixtureMappings">The fixtures attached to the test method.</param>
 	/// <param name="aggregator">The error aggregator to use for catching exception.</param>
 	/// <param name="cancellationTokenSource">The cancellation token source that indicates whether cancellation has been requested.</param>
 	/// <returns>Returns the summary of the test case run.</returns>
@@ -22,6 +23,7 @@ public interface ISelfExecutingXunitTestCase : IXunitTestCase
 		ExplicitOption explicitOption,
 		IMessageBus messageBus,
 		object?[] constructorArguments,
+		FixtureMappingManager methodFixtureMappings,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource
 	);

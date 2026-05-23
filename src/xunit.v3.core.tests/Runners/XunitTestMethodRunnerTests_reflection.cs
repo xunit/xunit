@@ -356,6 +356,7 @@ public static class XunitTestMethodRunnerTests
 				ExplicitOption explicitOption,
 				IMessageBus messageBus,
 				object?[] constructorArguments,
+				FixtureMappingManager methodFixtureMappings,
 				ExceptionAggregator aggregator,
 				CancellationTokenSource cancellationTokenSource) =>
 					new(XunitRunnerHelper.SkipTestCases(messageBus, cancellationTokenSource, [this], "This is skipped via self-execution"));
