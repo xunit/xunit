@@ -15,7 +15,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 	readonly XunitProjectAssembly assembly;
 	readonly ITestFrameworkDiscoveryOptions discoveryOptions;
 	volatile int errors;
-	readonly Dictionary<string, (ITestCaseMetadata TestCaseMetadata, DateTimeOffset StartTime)>? executingTestCases;
+	readonly Dictionary<string, (ITestMetadata TestMetadata, DateTimeOffset StartTime)>? executingTests;
 	readonly ITestFrameworkExecutionOptions executionOptions;
 	readonly Dictionary<string, int> failCountsByUniqueID = [];
 	readonly IMessageSink innerSink;
@@ -85,7 +85,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 		this.sourceInformationProvider = Guard.ArgumentNotNull(sourceInformationProvider);
 
 		if (options.LongRunningTestTime > TimeSpan.Zero && !Debugger.IsAttached)
-			executingTestCases = [];
+			executingTests = [];
 	}
 
 	/// <inheritdoc/>
@@ -178,7 +178,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 
 	void HandleTestAssemblyStarting(MessageHandlerArgs<ITestAssemblyStarting> args)
 	{
-		if (executingTestCases is not null)
+		if (executingTests is not null)
 		{
 			stopEvent = new ManualResetEvent(initialState: false);
 			workerFinished = new ManualResetEvent(initialState: false);
@@ -190,18 +190,18 @@ public class ExecutionSink : IMessageSink, IDisposable
 	void HandleTestCaseCleanupFailure(MessageHandlerArgs<ITestCaseCleanupFailure> args) =>
 		Interlocked.Increment(ref errors);
 
-	void HandleTestCaseFinished(MessageHandlerArgs<ITestCaseFinished> args)
+	void HandleTestFinished(MessageHandlerArgs<ITestFinished> args)
 	{
-		if (executingTestCases is not null)
-			lock (executingTestCases)
-				executingTestCases.Remove(args.Message.TestCaseUniqueID);
+		if (executingTests is not null)
+			lock (executingTests)
+				executingTests.Remove(args.Message.TestUniqueID);
 	}
 
-	void HandleTestCaseStarting(MessageHandlerArgs<ITestCaseStarting> args)
+	void HandleTestStarting(MessageHandlerArgs<ITestStarting> args)
 	{
-		if (executingTestCases is not null)
-			lock (executingTestCases)
-				executingTestCases.Add(args.Message.TestCaseUniqueID, (args.Message, UtcNow));
+		if (executingTests is not null)
+			lock (executingTests)
+				executingTests.Add(args.Message.TestUniqueID, (args.Message, UtcNow));
 	}
 
 	void HandleTestClassCleanupFailure(MessageHandlerArgs<ITestClassCleanupFailure> args) =>
@@ -471,8 +471,8 @@ public class ExecutionSink : IMessageSink, IDisposable
 			&& message.DispatchWhen<ITestAssemblyFinished>(HandleTestAssemblyFinished)
 			&& message.DispatchWhen<ITestAssemblyStarting>(HandleTestAssemblyStarting)
 			&& message.DispatchWhen<ITestCaseCleanupFailure>(HandleTestCaseCleanupFailure)
-			&& message.DispatchWhen<ITestCaseFinished>(HandleTestCaseFinished)
-			&& message.DispatchWhen<ITestCaseStarting>(HandleTestCaseStarting)
+			&& message.DispatchWhen<ITestFinished>(HandleTestFinished)
+			&& message.DispatchWhen<ITestStarting>(HandleTestStarting)
 			&& message.DispatchWhen<ITestClassCleanupFailure>(HandleTestClassCleanupFailure)
 			&& message.DispatchWhen<ITestCleanupFailure>(HandleTestCleanupFailure)
 			&& message.DispatchWhen<ITestCollectionCleanupFailure>(HandleTestCollectionCleanupFailure)
@@ -505,29 +505,29 @@ public class ExecutionSink : IMessageSink, IDisposable
 
 	void SendLongRunningMessage()
 	{
-		if (executingTestCases is null)
+		if (executingTests is null)
 			return;
 
-		Dictionary<ITestCaseMetadata, TimeSpan> longRunningTestCases;
-		lock (executingTestCases)
+		Dictionary<ITestMetadata, TimeSpan> longRunningTests;
+		lock (executingTests)
 		{
 			var now = UtcNow;
-			longRunningTestCases =
-				executingTestCases
+			longRunningTests =
+				executingTests
 					.Where(kvp => (now - kvp.Value.StartTime) >= options.LongRunningTestTime)
-					.ToDictionary(kvp => kvp.Value.TestCaseMetadata, kvp => now - kvp.Value.StartTime);
+					.ToDictionary(kvp => kvp.Value.TestMetadata, kvp => now - kvp.Value.StartTime);
 		}
 
-		if (longRunningTestCases.Count > 0)
+		if (longRunningTests.Count > 0)
 		{
 			if (options.LongRunningTestCallback is not null)
-				options.LongRunningTestCallback(new LongRunningTestsSummary(options.LongRunningTestTime, longRunningTestCases));
+				options.LongRunningTestCallback(new LongRunningTestsSummary(options.LongRunningTestTime, longRunningTests));
 
 			options.DiagnosticMessageSink?.OnMessage(
 				new DiagnosticMessage(
 					string.Join(
 						Environment.NewLine,
-						longRunningTestCases.Select(pair => string.Format(CultureInfo.CurrentCulture, @"[Long Running Test] '{0}', Elapsed: {1:hh\:mm\:ss}", pair.Key.TestCaseDisplayName, pair.Value)).ToArray()
+						longRunningTests.Select(pair => string.Format(CultureInfo.CurrentCulture, @"[Long Running Test] '{0}', Elapsed: {1:hh\:mm\:ss}", pair.Key.TestDisplayName, pair.Value)).ToArray()
 					)
 				)
 			);

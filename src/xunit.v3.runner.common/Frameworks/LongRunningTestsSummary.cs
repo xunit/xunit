@@ -6,14 +6,14 @@ namespace Xunit.Runner.Common;
 /// Represents information about long running tests from <see cref="ExecutionSink"/>.
 /// </summary>
 /// <param name="configuredLongRunningTime">Configured notification time</param>
-/// <param name="testCases">Tests</param>
+/// <param name="tests">Tests</param>
 public class LongRunningTestsSummary(
 	TimeSpan configuredLongRunningTime,
-	IDictionary<ITestCaseMetadata, TimeSpan> testCases)
+	IDictionary<ITestMetadata, TimeSpan> tests)
 {
 	/// <inheritdoc/>
 	public TimeSpan ConfiguredLongRunningTime { get; } = configuredLongRunningTime;
 
 	/// <inheritdoc/>
-	public IDictionary<ITestCaseMetadata, TimeSpan> TestCases { get; } = Guard.ArgumentNotNull(testCases);
+	public IDictionary<ITestMetadata, TimeSpan> Tests { get; } = Guard.ArgumentNotNull(tests);
 }

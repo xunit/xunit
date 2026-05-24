@@ -36,7 +36,8 @@ public abstract class CoreTestAssemblyRunnerContext<TTestAssembly, TTestCollecti
 	/// <summary>
 	/// Gets options which determine the amount of parallelization to allow for tests in this assembly.
 	/// </summary>
-	public virtual ParallelismOptions? ParallelismOptions => ExecutionOptions.ParallelismOptions();
+	public virtual ParallelismOptions ParallelismOptions =>
+		ExecutionOptions.ParallelismOptions() ?? TestAssembly.ParallelismOptions ?? ParallelismOptionsAliases.Default;
 
 	/// <summary>
 	/// Gets a flag which indicates how explicit tests should be handled.
@@ -88,15 +89,14 @@ public abstract class CoreTestAssemblyRunnerContext<TTestAssembly, TTestCollecti
 			if (maxParallelThreads > 0 && ParallelAlgorithm == ParallelAlgorithm.Aggressive)
 				threadCountText += "/aggressive";
 
-			var parallelismOptions = ParallelismOptions ?? ParallelismOptionsAliases.Default;
 			return string.Format(
 				CultureInfo.CurrentCulture,
 				"{0} [{1}, {2}]",
 				base.TestEnvironment,
 				GetTestCollectionFactoryDisplayName(),
-				parallelismOptions == Sdk.ParallelismOptions.None
+				ParallelismOptions == ParallelismOptions.None
 					? "non-parallel"
-					: string.Format(CultureInfo.CurrentCulture, "parallel {0} ({1})", parallelismOptions, threadCountText)
+					: string.Format(CultureInfo.CurrentCulture, "parallel {0} ({1})", ParallelismOptions, threadCountText)
 			);
 		}
 	}
@@ -107,10 +107,9 @@ public abstract class CoreTestAssemblyRunnerContext<TTestAssembly, TTestCollecti
 	public void AfterTestCollection(TTestCollection testCollection)
 	{
 		Guard.ArgumentNotNull(testCollection);
-		var collectionParallelism = ParallelismOptions ?? testCollection.ParallelismOptions;
-		if (collectionParallelism.RunsTestsWithinCollectionSerially())
+		if (ParallelizationSemaphore != null && testCollection.ParallelismOptions.RunsTestsWithinCollectionSerially())
 		{
-			ParallelizationSemaphore?.Release();
+			ParallelizationSemaphore.Release();
 		}
 	}
 
@@ -120,8 +119,7 @@ public abstract class CoreTestAssemblyRunnerContext<TTestAssembly, TTestCollecti
 	public async ValueTask BeforeTestCollection(TTestCollection testCollection)
 	{
 		Guard.ArgumentNotNull(testCollection);
-		if (ParallelizationSemaphore != null &&
-			(ParallelismOptions ?? testCollection.ParallelismOptions).RunsTestsWithinCollectionSerially())
+		if (ParallelizationSemaphore != null && testCollection.ParallelismOptions.RunsTestsWithinCollectionSerially())
 		{
 			// acquire parallelization semaphore at the collection level when running the collection's tests serially
 			// to avoid creating too many tasks for other collections unnecessarily
