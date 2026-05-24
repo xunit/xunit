@@ -833,6 +833,8 @@ public static class XunitTestClassRunnerTests
 				ExplicitOption.Off,
 				MessageBus,
 				Aggregator,
+				ParallelismOptionsAliases.Default,
+				parallelizationSemaphore: null,
 				CancellationTokenSource,
 				CollectionFixtureMappingManager
 			);

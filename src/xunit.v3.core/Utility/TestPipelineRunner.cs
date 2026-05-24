@@ -1,4 +1,4 @@
-namespace Xunit.v3.Utility;
+namespace Xunit.v3;
 
 /// <summary>
 /// Provides task runner utilities for test pipeline execution, handling synchronization context awareness.

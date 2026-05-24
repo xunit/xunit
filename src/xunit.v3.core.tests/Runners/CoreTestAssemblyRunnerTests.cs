@@ -279,7 +279,7 @@ public static class CoreTestAssemblyRunnerTests
 				ICoreTestCollection testCollection,
 				IReadOnlyCollection<ICoreTestCase> testCases)
 			{
-				await BeforeTestCollection(testCollection);
+				await BeforeTestCollection();
 
 				try
 				{
@@ -299,7 +299,7 @@ public static class CoreTestAssemblyRunnerTests
 				}
 				finally
 				{
-					AfterTestCollection(testCollection);
+					AfterTestCollection();
 				}
 			}
 

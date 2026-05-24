@@ -1,5 +1,4 @@
 using Xunit.Sdk;
-using Xunit.v3.Utility;
 
 namespace Xunit.v3;
 
@@ -49,11 +48,27 @@ public class CoreTestCaseRunner<TContext, TTestCase, TTest> : TestCaseRunner<TCo
 				if (ctxt.CancellationTokenSource.IsCancellationRequested)
 					break;
 
-				parallel.Add(taskRunner(task));
+				var semaphoreReleaseHandle = ctxt.ParallelizationSemaphore != null
+					? await ctxt.ParallelizationSemaphore.WaitAsync(ctxt.CancellationTokenSource.Token)
+					: default;
 
-				ValueTask<RunSummary> task() => exception is null
-					? RunTest(ctxt, test)
-					: FailTest(ctxt, test, exception);
+				try
+				{
+					parallel.Add(taskRunner(task));
+				}
+				catch
+				{
+					semaphoreReleaseHandle.Dispose();
+					throw;
+				}
+
+				async ValueTask<RunSummary> task()
+				{
+					using var _ = semaphoreReleaseHandle;
+					return await (exception is null
+						? RunTest(ctxt, test)
+						: FailTest(ctxt, test, exception));
+				}
 			}
 
 			foreach (var task in parallel)
@@ -69,6 +84,10 @@ public class CoreTestCaseRunner<TContext, TTestCase, TTest> : TestCaseRunner<TCo
 		}
 		else
 		{
+			using var _ = ctxt.ParallelizationSemaphore != null
+				? await ctxt.ParallelizationSemaphore.WaitAsync(ctxt.CancellationTokenSource.Token)
+				: default;
+
 			summary = await base.RunTestCase(ctxt, exception);
 		}
 
@@ -77,33 +96,13 @@ public class CoreTestCaseRunner<TContext, TTestCase, TTest> : TestCaseRunner<TCo
 
 		return summary;
 	}
-
+	
 	/// <summary>
 	/// Runs the test via the context.
 	/// </summary>
 	/// <inheritdoc/>
-	protected override async ValueTask<RunSummary> RunTest(
+	protected override ValueTask<RunSummary> RunTest(
 		TContext ctxt,
-		TTest test)
-	{
-		Guard.ArgumentNotNull(ctxt);
-
-		if (ctxt.ParallelizationSemaphore != null && !ctxt.ParallelismOptions.RunsTestsWithinCollectionSerially())
-		{
-			// acquire parallelization semaphore at the test level when running the collection's tests in parallel
-			await ctxt.ParallelizationSemaphore.WaitAsync(ctxt.CancellationTokenSource.Token);
-		}
-
-		try
-		{
-			return await ctxt.RunTest(test);
-		}
-		finally
-		{
-			if (!ctxt.ParallelismOptions.RunsTestsWithinCollectionSerially())
-			{
-				ctxt.ParallelizationSemaphore?.Release();
-			}
-		}
-	}
+		TTest test) =>
+		Guard.ArgumentNotNull(ctxt).RunTest(test);
 }

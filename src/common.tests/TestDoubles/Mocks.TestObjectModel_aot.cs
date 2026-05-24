@@ -61,7 +61,7 @@ partial class Mocks
 		string? configFilePath = null,
 		IReadOnlyDictionary<string, CodeGenTestCollectionRegistration>? collectionDefinitions = null,
 		ParallelismOptions? parallelismOptions = null,
-		SemaphoreSlim? parallelizationSemaphore = null,
+		ITestPipelineSemaphore? parallelizationSemaphore = null,
 		int? maxParallelThreads = null,
 		Guid? moduleVersionID = null,
 		ParallelAlgorithm? parallelAlgorithm = null,
@@ -116,7 +116,7 @@ partial class Mocks
 		public required int? MaxParallelThreads { get; set; }
 		public required Guid ModuleVersionID { get; set; }
 		public required ParallelAlgorithm? ParallelAlgorithm { get; set; }
-		public required SemaphoreSlim? ParallelizationSemaphore { get; set; }
+		public required ITestPipelineSemaphore? ParallelizationSemaphore { get; set; }
 		public required string TargetFramework { get; set; }
 		public required ITestCaseOrderer? TestCaseOrderer { get; set; }
 		public required ITestClassOrderer? TestClassOrderer { get; set; }

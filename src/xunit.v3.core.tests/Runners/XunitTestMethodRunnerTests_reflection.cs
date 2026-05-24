@@ -378,6 +378,8 @@ public static class XunitTestMethodRunnerTests
 				ExplicitOption.Off,
 				MessageBus,
 				Aggregator,
+				ParallelismOptionsAliases.Default,
+				parallelizationSemaphore: null,
 				CancellationTokenSource,
 				[],
 				ClassFixtureMappings

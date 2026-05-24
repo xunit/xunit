@@ -50,7 +50,7 @@ public class CodeGenTestCaseRunner : CodeGenTestCaseRunnerBase<CodeGenTestCaseRu
 		string displayName,
 		string? skipReason,
 		ParallelismOptions parallelismOptions,
-		SemaphoreSlim? parallelizationSemaphore,
+		ITestPipelineSemaphore? parallelizationSemaphore,
 		CancellationTokenSource cancellationTokenSource,
 		FixtureMappingManager methodFixtureMappings)
 	{

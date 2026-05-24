@@ -28,7 +28,7 @@ public abstract class CodeGenTestCaseRunnerBaseContext<TTestCase, TTest>(
 	string displayName,
 	string? skipReason,
 	ParallelismOptions parallelismOptions,
-	SemaphoreSlim? parallelizationSemaphore,
+	ITestPipelineSemaphore? parallelizationSemaphore,
 	CancellationTokenSource cancellationTokenSource,
 	FixtureMappingManager methodFixtureMappings) :
 	CoreTestCaseRunnerContext<TTestCase, TTest>(

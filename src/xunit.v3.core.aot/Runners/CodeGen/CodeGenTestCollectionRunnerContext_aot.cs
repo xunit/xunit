@@ -10,9 +10,10 @@ namespace Xunit.v3;
 /// <param name="explicitOption">A flag to indicate how explicit tests should be treated.</param>
 /// <param name="messageBus">The message bus to report run status to.</param>
 /// <param name="aggregator">The exception aggregator used to run code and collection exceptions.</param>
+/// <param name="parallelismOptions">Options which determine the amount of test parallelization to allow.</param>
+/// <param name="parallelizationSemaphore">Semaphore used to limit the number of tests running in parallel.</param>
 /// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 /// <param name="assemblyFixtureMappings">The mapping manager for assembly fixtures.</param>
-/// <param name="parallelismOptions">Options which determine the amount of test parallelization to allow.</param>
 /// <remarks>
 /// This class is used for code generation-based tests.
 /// </remarks>
@@ -22,9 +23,10 @@ public class CodeGenTestCollectionRunnerContext(
 	ExplicitOption explicitOption,
 	IMessageBus messageBus,
 	ExceptionAggregator aggregator,
+	ParallelismOptions parallelismOptions,
+	ITestPipelineSemaphore? parallelizationSemaphore,
 	CancellationTokenSource cancellationTokenSource,
-	FixtureMappingManager assemblyFixtureMappings,
-	ParallelismOptions parallelismOptions) :
+	FixtureMappingManager assemblyFixtureMappings) :
 		CodeGenTestCollectionRunnerBaseContext<ICodeGenTestCollection, ICodeGenTestClass, ICodeGenTestCase>(
 			testCollection,
 			testCases,
@@ -32,6 +34,7 @@ public class CodeGenTestCollectionRunnerContext(
 			messageBus,
 			aggregator,
 			parallelismOptions,
+			parallelizationSemaphore,
 			cancellationTokenSource,
 			assemblyFixtureMappings
 		)
@@ -46,8 +49,9 @@ public class CodeGenTestCollectionRunnerContext(
 				ExplicitOption,
 				MessageBus,
 				Aggregator.Clone(),
+				ParallelismOptions,
+				ParallelizationSemaphore,
 				CancellationTokenSource,
-				CollectionFixtureMappings,
-				ParallelismOptions
+				CollectionFixtureMappings
 			);
 }

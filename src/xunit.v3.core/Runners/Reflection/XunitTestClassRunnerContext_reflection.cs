@@ -10,10 +10,10 @@ namespace Xunit.v3;
 /// <param name="explicitOption">The user's choice on how to treat explicit tests</param>
 /// <param name="messageBus">The message bus to send execution messages to</param>
 /// <param name="aggregator">The exception aggregator</param>
-/// <param name="cancellationTokenSource">The cancellation token source</param>
-/// <param name="collectionFixtureMappings">The fixtures attached to the test collection</param>
 /// <param name="parallelismOptions">Options which determine the amount of test parallelization to allow.</param>
 /// <param name="parallelizationSemaphore">Semaphore used to limit the number of tests running in parallel.</param>
+/// <param name="cancellationTokenSource">The cancellation token source</param>
+/// <param name="collectionFixtureMappings">The fixtures attached to the test collection</param>
 /// <remarks>
 /// This class is used for reflection-based tests.
 /// </remarks>
@@ -23,19 +23,19 @@ public class XunitTestClassRunnerContext(
 	ExplicitOption explicitOption,
 	IMessageBus messageBus,
 	ExceptionAggregator aggregator,
-	CancellationTokenSource cancellationTokenSource,
-	FixtureMappingManager collectionFixtureMappings,
 	ParallelismOptions parallelismOptions,
-	SemaphoreSlim? parallelizationSemaphore) :
+	ITestPipelineSemaphore? parallelizationSemaphore,
+	CancellationTokenSource cancellationTokenSource,
+	FixtureMappingManager collectionFixtureMappings) :
 		XunitTestClassRunnerBaseContext<IXunitTestClass, IXunitTestMethod, IXunitTestCase>(
 			testClass,
 			testCases,
 			explicitOption,
 			messageBus,
 			aggregator,
-			cancellationTokenSource,
-			collectionFixtureMappings,
 			parallelismOptions,
-			parallelizationSemaphore
+			parallelizationSemaphore,
+			cancellationTokenSource,
+			collectionFixtureMappings
 		)
 { }

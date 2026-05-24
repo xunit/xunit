@@ -11,6 +11,7 @@ namespace Xunit.v3;
 /// <param name="messageBus">The message bus to send execution messages to</param>
 /// <param name="aggregator">The exception aggregator</param>
 /// <param name="parallelismOptions">Options which determine the amount of test parallelization to allow.</param>
+/// <param name="parallelizationSemaphore">Semaphore used to limit the number of tests running in parallel.</param>
 /// <param name="cancellationTokenSource">The cancellation token source</param>
 /// <param name="classFixtureMappings">The mapping of class fixture types to fixtures.</param>
 public class CodeGenTestMethodRunnerContext(
@@ -20,9 +21,10 @@ public class CodeGenTestMethodRunnerContext(
 	IMessageBus messageBus,
 	ExceptionAggregator aggregator,
 	ParallelismOptions parallelismOptions,
+	ITestPipelineSemaphore? parallelizationSemaphore,
 	CancellationTokenSource cancellationTokenSource,
 	FixtureMappingManager classFixtureMappings) :
-		CodeGenTestMethodRunnerBaseContext<ICodeGenTestMethod, ICodeGenTestCase>(testMethod, testCases, explicitOption, messageBus, aggregator, parallelismOptions, cancellationTokenSource, classFixtureMappings)
+		CodeGenTestMethodRunnerBaseContext<ICodeGenTestMethod, ICodeGenTestCase>(testMethod, testCases, explicitOption, messageBus, aggregator, parallelismOptions, parallelizationSemaphore, cancellationTokenSource, classFixtureMappings)
 {
 	/// <inheritdoc/>
 	public override ValueTask<RunSummary> RunTestCase(ICodeGenTestCase testCase)

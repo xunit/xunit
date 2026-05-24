@@ -209,8 +209,15 @@ public static class CoreTestClassRunnerTests
 			ParallelismOptions parallelismOptions,
 			Func<ICoreTestMethod, IReadOnlyCollection<ICoreTestCase>, ValueTask<RunSummary>> runTestMethodLamda,
 			CancellationTokenSource cancellationTokenSource) :
-			CoreTestClassRunnerContext<ICoreTestClass, ICoreTestMethod, ICoreTestCase>(testClass, testCases,
-				explicitOption, messageBus, aggregator, parallelismOptions, cancellationTokenSource)
+			CoreTestClassRunnerContext<ICoreTestClass, ICoreTestMethod, ICoreTestCase>(
+				testClass,
+				testCases,
+				explicitOption,
+				messageBus,
+				aggregator,
+				parallelismOptions,
+				parallelizationSemaphore: null,
+				cancellationTokenSource)
 		{
 			public override ValueTask<RunSummary> RunTestMethod(
 				ICoreTestMethod testMethod,

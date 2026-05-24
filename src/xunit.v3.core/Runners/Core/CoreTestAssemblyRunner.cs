@@ -1,5 +1,4 @@
 using Xunit.Sdk;
-using Xunit.v3.Utility;
 
 namespace Xunit.v3;
 
@@ -102,7 +101,7 @@ public abstract class CoreTestAssemblyRunner<TContext, TTestAssembly, TTestColle
 	{
 		Guard.ArgumentNotNull(ctxt);
 
-		if (ctxt.ParallelismOptions == ParallelismOptions.None || exception is not null)
+		if (!ctxt.ParallelismOptions.HasFlag(ParallelismOptions.Collections) || exception is not null)
 			return await base.RunTestCollections(ctxt, exception);
 
 		ctxt.SetupParallelism();
@@ -114,13 +113,28 @@ public abstract class CoreTestAssemblyRunner<TContext, TTestAssembly, TTestColle
 
 		foreach (var (collection, testCases) in OrderTestCollections(ctxt))
 		{
-			var parallelismOptions = ctxt.ParallelismOptions ?? collection.ParallelismOptions;
-
-			ValueTask<RunSummary> task() => RunTestCollection(ctxt, collection, testCases);
-			if (parallelismOptions.HasFlag(ParallelismOptions.Collections))
-				(parallel ??= []).Add(taskRunner(task));
-			else
-				(nonParallel ??= []).Add(task);
+			var semaphoreReleaseHandle = ctxt.ParallelizationSemaphore != null
+				? await ctxt.ParallelizationSemaphore.WaitAsync(ctxt.CancellationTokenSource.Token)
+				: default;
+			
+			try
+			{
+				if (collection.ParallelismOptions.HasFlag(ParallelismOptions.Collections))
+					(parallel ??= []).Add(taskRunner(task));
+				else
+					(nonParallel ??= []).Add(task);
+			}
+			catch
+			{
+				semaphoreReleaseHandle.Dispose();
+				throw;
+			}
+			
+			async ValueTask<RunSummary> task()
+			{
+				using var _ = semaphoreReleaseHandle;
+				return await RunTestCollection(ctxt, collection, testCases);
+			}
 		}
 
 		if (parallel?.Count > 0)

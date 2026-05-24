@@ -28,7 +28,7 @@ public class CodeGenTestCaseRunnerContext(
 	string displayName,
 	string? skipReason,
 	ParallelismOptions parallelismOptions,
-	SemaphoreSlim? parallelizationSemaphore,
+	ITestPipelineSemaphore? parallelizationSemaphore,
 	CancellationTokenSource cancellationTokenSource,
 	FixtureMappingManager methodFixtureMappings) :
 	CodeGenTestCaseRunnerBaseContext<ICodeGenTestCase, ICodeGenTest>(

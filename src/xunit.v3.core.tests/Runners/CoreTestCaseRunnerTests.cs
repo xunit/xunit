@@ -147,7 +147,7 @@ public static class CoreTestCaseRunnerTests
 			var test1 = Mocks.CoreTest(testCase: testCase, testDisplayName: "Test1");
 			var test2 = Mocks.CoreTest(testCase: testCase, testDisplayName: "Test2");
 			var runner = new TestableCoreTestCaseRunner([test1, test2], runTest,
-				parallelismOptions: ParallelismOptions.All, parallelizationSemaphore: new SemaphoreSlim(1));
+				parallelismOptions: ParallelismOptions.All, parallelizationSemaphore: new TestPipelineSemaphore(maximumConcurrentTests: 1));
 
 			await runner.RunAsync();
 
@@ -180,7 +180,7 @@ public static class CoreTestCaseRunnerTests
 		ICoreTest[] tests,
 		Func<ICoreTest, ValueTask<RunSummary>>? runTestLamda = null,
 		ParallelismOptions parallelismOptions = ParallelismOptionsAliases.Default,
-		SemaphoreSlim? parallelizationSemaphore = null) :
+		ITestPipelineSemaphore? parallelizationSemaphore = null) :
 		CoreTestCaseRunner<TestableCoreTestCaseRunner.TestableContext, ICoreTestCase, ICoreTest>
 	{
 		public readonly ExceptionAggregator Aggregator = new();
@@ -217,7 +217,7 @@ public static class CoreTestCaseRunnerTests
 			string displayName,
 			string? skipReason,
 			ParallelismOptions parallelismOptions,
-			SemaphoreSlim? parallelizationSemaphore,
+			ITestPipelineSemaphore? parallelizationSemaphore,
 			Func<ICoreTest, ValueTask<RunSummary>> runTestLambda,
 			CancellationTokenSource cancellationTokenSource) :
 			CoreTestCaseRunnerContext<ICoreTestCase, ICoreTest>(testCase, tests, explicitOption, messageBus, aggregator,

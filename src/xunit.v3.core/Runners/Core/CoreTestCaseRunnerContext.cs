@@ -31,7 +31,7 @@ public abstract class CoreTestCaseRunnerContext<TTestCase, TTest>(
 	string displayName,
 	string? skipReason,
 	ParallelismOptions parallelismOptions,
-	SemaphoreSlim? parallelizationSemaphore,
+	ITestPipelineSemaphore? parallelizationSemaphore,
 	CancellationTokenSource cancellationTokenSource) :
 		TestCaseRunnerContext<TTestCase, TTest>(testCase, explicitOption, messageBus, aggregator, cancellationTokenSource)
 			where TTestCase : class, ICoreTestCase
@@ -63,7 +63,7 @@ public abstract class CoreTestCaseRunnerContext<TTestCase, TTest>(
 	/// <summary>
 	/// Gets the semaphore used to limit the number of tests running in parallel.
 	/// </summary>
-	public SemaphoreSlim? ParallelizationSemaphore { get; } = parallelizationSemaphore;
+	public ITestPipelineSemaphore? ParallelizationSemaphore { get; } = parallelizationSemaphore;
 
 	/// <inheritdoc/>
 	public override IReadOnlyCollection<TTest> Tests { get; } = Guard.ArgumentNotNull(tests);

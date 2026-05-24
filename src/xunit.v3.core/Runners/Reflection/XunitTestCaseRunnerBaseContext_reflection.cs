@@ -32,7 +32,7 @@ public class XunitTestCaseRunnerBaseContext<TTestCase, TTest>(
 	object?[] constructorArguments,
 	FixtureMappingManager methodFixtureMappings,
 	ParallelismOptions parallelismOptions,
-	SemaphoreSlim? parallelizationSemaphore) :
+	ITestPipelineSemaphore? parallelizationSemaphore) :
 		CoreTestCaseRunnerContext<TTestCase, TTest>(testCase, tests, explicitOption, messageBus, aggregator, displayName, skipReason, parallelismOptions, parallelizationSemaphore, cancellationTokenSource)
 			where TTestCase : class, IXunitTestCase
 			where TTest : class, IXunitTest

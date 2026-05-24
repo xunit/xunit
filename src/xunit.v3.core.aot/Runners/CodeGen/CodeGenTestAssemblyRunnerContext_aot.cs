@@ -32,7 +32,8 @@ public class CodeGenTestAssemblyRunnerContext(
 		ICodeGenTestCollection testCollection,
 		IReadOnlyCollection<ICodeGenTestCase> testCases)
 	{
-		await BeforeTestCollection(testCollection);
+		Guard.ArgumentNotNull(testCollection);
+		await BeforeTestCollection();
 
 		try
 		{
@@ -42,14 +43,15 @@ public class CodeGenTestAssemblyRunnerContext(
 				ExplicitOption,
 				MessageBus,
 				Aggregator.Clone(),
+				testCollection.ParallelismOptions,
+				ParallelizationSemaphore,
 				CancellationTokenSource,
-				AssemblyFixtureMappings,
-				ParallelismOptions ?? testCollection.ParallelismOptions
+				AssemblyFixtureMappings
 			);
 		}
 		finally
 		{
-			AfterTestCollection(testCollection);
+			AfterTestCollection();
 		}
 	}
 }

@@ -19,6 +19,7 @@ public abstract class CodeGenTestClassRunnerBaseContext<TTestClass, TTestMethod,
 	/// <param name="messageBus">The message bus to send execution messages to</param>
 	/// <param name="aggregator">The exception aggregator</param>
 	/// <param name="parallelismOptions">Options which determine the amount of test parallelization to allow.</param>
+	/// <param name="parallelizationSemaphore">Semaphore used to limit the number of tests running in parallel.</param>
 	/// <param name="cancellationTokenSource">The cancellation token source</param>
 	/// <param name="collectionFixtureMappings">The mapping of collection fixture types to fixtures.</param>
 	protected CodeGenTestClassRunnerBaseContext(
@@ -28,9 +29,10 @@ public abstract class CodeGenTestClassRunnerBaseContext<TTestClass, TTestMethod,
 		IMessageBus messageBus,
 		ExceptionAggregator aggregator,
 		ParallelismOptions parallelismOptions,
+		ITestPipelineSemaphore? parallelizationSemaphore,
 		CancellationTokenSource cancellationTokenSource,
 		FixtureMappingManager collectionFixtureMappings) :
-			base(testClass, testCases, explicitOption, messageBus, aggregator, parallelismOptions, cancellationTokenSource)
+			base(testClass, testCases, explicitOption, messageBus, aggregator, parallelismOptions, parallelizationSemaphore, cancellationTokenSource)
 	{
 		var classFixtureFactories = new Dictionary<Type, FixtureFactory>(Guard.ArgumentNotNull(testClass).TestCollection.ClassFixtureFactories);
 		foreach (var classLevelFactory in testClass.ClassFixtureFactories)

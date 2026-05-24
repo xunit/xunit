@@ -56,9 +56,10 @@ public static class CodeGenTestMethodRunnerTests
 				ExplicitOption.Off,
 				new SpyMessageBus(),
 				new(),
+				ParallelismOptionsAliases.Default,
+				parallelizationSemaphore: null,
 				new(),
-				fixtureMappings,
-				ParallelismOptionsAliases.Default
+				fixtureMappings
 			);
 		}
 	}

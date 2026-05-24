@@ -55,7 +55,7 @@ public class XunitTestCaseRunner :
 		object?[] constructorArguments,
 		FixtureMappingManager methodFixtureMappings,
 		ParallelismOptions parallelismOptions,
-		SemaphoreSlim? parallelizationSemaphore)
+		ITestPipelineSemaphore? parallelizationSemaphore)
 	{
 		await using var ctxt = new XunitTestCaseRunnerContext(
 			testCase,

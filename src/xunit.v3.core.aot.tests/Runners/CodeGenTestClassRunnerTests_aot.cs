@@ -186,6 +186,8 @@ public static class CodeGenTestClassRunnerTests
 				ExplicitOption.Off,
 				MessageBus,
 				Aggregator,
+				ParallelismOptionsAliases.Default,
+				parallelizationSemaphore: null,
 				CancellationTokenSource,
 				CollectionFixtureMappingManager
 			);

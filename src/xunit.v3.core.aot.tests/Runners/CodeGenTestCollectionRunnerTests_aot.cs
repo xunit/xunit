@@ -202,9 +202,10 @@ public static class CodeGenTestCollectionRunnerTests
 				ExplicitOption.Off,
 				MessageBus,
 				Aggregator,
+				ParallelismOptionsAliases.Default,
+				parallelizationSemaphore: null,
 				CancellationTokenSource,
-				AssemblyFixtureMappingManager,
-				ParallelismOptionsAliases.Default
+				AssemblyFixtureMappingManager
 			);
 	}
 }

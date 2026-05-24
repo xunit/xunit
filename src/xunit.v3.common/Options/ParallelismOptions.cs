@@ -78,16 +78,4 @@ public static class ParallelismOptionsExtensions
 			ParallelismOptions.Tests, ParallelismOptions.All
 		];
 	}
-
-	/// <summary>
-	/// Determines if the given parallelism options restricts tests within a collection from running in parallel.
-	/// </summary>
-	public static bool RunsTestsWithinCollectionSerially(this ParallelismOptions value)
-	{
-		const ParallelismOptions collectionParallelismOptions =
-			ParallelismOptions.Classes | ParallelismOptions.Methods |
-			ParallelismOptions.TestCases | ParallelismOptions.Tests;
-
-		return (value & collectionParallelismOptions) == 0;
-	}
 }

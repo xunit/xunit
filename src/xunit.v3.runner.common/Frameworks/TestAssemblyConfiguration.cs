@@ -245,6 +245,7 @@ public class TestAssemblyConfiguration
 		get => ParallelismOptions?.HasFlag(Sdk.ParallelismOptions.Assemblies);
 		set
 		{
+			ParallelismOptions ??= ParallelismOptionsAliases.Default;
 			if (value == true)
 			{
 				ParallelismOptions |= Sdk.ParallelismOptions.Assemblies;
@@ -273,6 +274,7 @@ public class TestAssemblyConfiguration
 		get => ParallelismOptions?.HasFlag(Sdk.ParallelismOptions.Collections);
 		set
 		{
+			ParallelismOptions ??= ParallelismOptionsAliases.Default;
 			if (value == true)
 			{
 				ParallelismOptions |= Sdk.ParallelismOptions.Collections;
@@ -298,7 +300,7 @@ public class TestAssemblyConfiguration
 	public ParallelismOptions? ParallelismOptions { get; set; }
 
 	/// <summary>
-	/// Gets options which determine the amount of test parallelization to allow for this assembly .
+	/// Gets options which determine the amount of test parallelization to allow for this assembly.
 	/// If not set, returns the default value (<see cref="ParallelismOptionsAliases.Default"/>).
 	/// </summary>
 	public ParallelismOptions ParallelismOptionsOrDefault => ParallelismOptions ?? ParallelismOptionsAliases.Default;

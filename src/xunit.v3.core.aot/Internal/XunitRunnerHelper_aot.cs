@@ -25,7 +25,7 @@ partial class XunitRunnerHelper
 		ExplicitOption explicitOption,
 		FixtureMappingManager methodFixtureMappings,
 		ParallelismOptions parallelismOptions = ParallelismOptionsAliases.Default,
-		SemaphoreSlim? parallelizationSemaphore = null) =>
+		ITestPipelineSemaphore? parallelizationSemaphore = null) =>
 			RunCoreTestCase(
 				Guard.ArgumentNotNull(testCase),
 				messageBus,

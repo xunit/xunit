@@ -55,7 +55,7 @@ public class XunitTestAssemblyRunnerBaseContext<TTestAssembly, TTestCollection, 
 	{
 		Guard.ArgumentNotNull(testCollection);
 
-		await BeforeTestCollection(testCollection);
+		await BeforeTestCollection();
 
 		try
 		{
@@ -67,13 +67,13 @@ public class XunitTestAssemblyRunnerBaseContext<TTestAssembly, TTestCollection, 
 				Aggregator.Clone(),
 				CancellationTokenSource,
 				AssemblyFixtureMappings,
-				ParallelismOptions ?? testCollection.ParallelismOptions,
+				testCollection.ParallelismOptions,
 				ParallelizationSemaphore
 			);
 		}
 		finally
 		{
-			AfterTestCollection(testCollection);
+			AfterTestCollection();
 		}
 	}
 }

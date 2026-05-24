@@ -1,5 +1,4 @@
 using Xunit.Sdk;
-using Xunit.v3.Utility;
 
 namespace Xunit.v3;
 
@@ -85,6 +84,10 @@ public class CoreTestCollectionRunner<TContext, TTestCollection, TTestClass, TTe
 
 		if (!ctxt.ParallelismOptions.HasFlag(ParallelismOptions.Classes))
 		{
+			using var _ = ctxt.ParallelizationSemaphore != null
+				? await ctxt.ParallelizationSemaphore.WaitAsync(ctxt.CancellationTokenSource.Token)
+				: default;
+			
 			return await base.RunTestClasses(ctxt, exception);
 		}
 
@@ -99,11 +102,27 @@ public class CoreTestCollectionRunner<TContext, TTestCollection, TTestClass, TTe
 			if (ctxt.CancellationTokenSource.IsCancellationRequested)
 				break;
 
-			parallel.Add(taskRunner(task));
+			var semaphoreReleaseHandle = ctxt.ParallelizationSemaphore != null
+				? await ctxt.ParallelizationSemaphore.WaitAsync(ctxt.CancellationTokenSource.Token)
+				: default;
 
-			ValueTask<RunSummary> task() => exception is null
-				? RunTestClass(ctxt, testClass.Class, testClass.TestCases)
-				: FailTestClass(ctxt, testClass.Class, testClass.TestCases, exception);
+			try
+			{
+				parallel.Add(taskRunner(task));
+			}
+			catch
+			{
+				semaphoreReleaseHandle.Dispose();
+				throw;
+			}
+
+			async ValueTask<RunSummary> task()
+			{
+				using var _ = semaphoreReleaseHandle;
+				return await (exception is null
+					? RunTestClass(ctxt, testClass.Class, testClass.TestCases)
+					: FailTestClass(ctxt, testClass.Class, testClass.TestCases, exception));
+			}
 		}
 
 		foreach (var task in parallel)

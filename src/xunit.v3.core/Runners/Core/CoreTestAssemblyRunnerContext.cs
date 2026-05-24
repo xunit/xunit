@@ -70,7 +70,7 @@ public abstract class CoreTestAssemblyRunnerContext<TTestAssembly, TTestCollecti
 	/// <summary>
 	/// Gets the semaphore used to limit the number of tests running in parallel.
 	/// </summary>
-	public SemaphoreSlim? ParallelizationSemaphore { get; private set; }
+	public ITestPipelineSemaphore? ParallelizationSemaphore { get; private set; }
 
 	/// <inheritdoc/>
 	public override string TargetFramework =>
@@ -104,28 +104,14 @@ public abstract class CoreTestAssemblyRunnerContext<TTestAssembly, TTestCollecti
 	/// <summary>
 	/// To be called after the test collection has been executed.
 	/// </summary>
-	public void AfterTestCollection(TTestCollection testCollection)
+	public void AfterTestCollection()
 	{
-		Guard.ArgumentNotNull(testCollection);
-		if (ParallelizationSemaphore != null && testCollection.ParallelismOptions.RunsTestsWithinCollectionSerially())
-		{
-			ParallelizationSemaphore.Release();
-		}
 	}
 
 	/// <summary>
 	/// To be called before executing a test collection.
 	/// </summary>
-	public async ValueTask BeforeTestCollection(TTestCollection testCollection)
-	{
-		Guard.ArgumentNotNull(testCollection);
-		if (ParallelizationSemaphore != null && testCollection.ParallelismOptions.RunsTestsWithinCollectionSerially())
-		{
-			// acquire parallelization semaphore at the collection level when running the collection's tests serially
-			// to avoid creating too many tasks for other collections unnecessarily
-			await ParallelizationSemaphore.WaitAsync(TestContext.Current.CancellationToken);
-		}
-	}
+	public ValueTask BeforeTestCollection() => default;
 
 	/// <inheritdoc/>
 	public override async ValueTask DisposeAsync()
@@ -180,7 +166,7 @@ public abstract class CoreTestAssemblyRunnerContext<TTestAssembly, TTestCollecti
 		// that the .NET Thread Pool has enough threads based on the user's requested maximum
 		else
 		{
-			ParallelizationSemaphore = new(initialCount: maxParallelThreads);
+			ParallelizationSemaphore = new TestPipelineSemaphore(maximumConcurrentTests: maxParallelThreads);
 
 			ThreadPool.GetMinThreads(out var workerThreads, out var completionPortThreads);
 			var threadFloor = Math.Min(4, maxParallelThreads);

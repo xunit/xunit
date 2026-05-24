@@ -11,6 +11,7 @@ namespace Xunit.v3;
 /// <param name="messageBus">The message bus to send execution messages to</param>
 /// <param name="aggregator">The exception aggregator</param>
 /// <param name="parallelismOptions">Options which determine the amount of test parallelization to allow.</param>
+/// <param name="parallelizationSemaphore">Semaphore used to limit the number of tests running in parallel.</param>
 /// <param name="cancellationTokenSource">The cancellation token source</param>
 /// <typeparam name="TTestCollection">The type of the test collection used by the test framework. Must
 /// derive from <see cref="ICoreTestCase"/>.</typeparam>
@@ -28,6 +29,7 @@ public abstract class CoreTestCollectionRunnerContext<TTestCollection, TTestClas
 	IMessageBus messageBus,
 	ExceptionAggregator aggregator,
 	ParallelismOptions parallelismOptions,
+	ITestPipelineSemaphore? parallelizationSemaphore,
 	CancellationTokenSource cancellationTokenSource) :
 		TestCollectionRunnerContext<TTestCollection, TTestCase>(testCollection, testCases, explicitOption, messageBus, aggregator, cancellationTokenSource)
 			where TTestCollection : class, ICoreTestCollection
@@ -39,6 +41,11 @@ public abstract class CoreTestCollectionRunnerContext<TTestCollection, TTestClas
 	/// </summary>
 	public ParallelismOptions ParallelismOptions => parallelismOptions;
 
+	/// <summary>
+	/// Gets the semaphore used to limit the number of tests running in parallel.
+	/// </summary>
+	public ITestPipelineSemaphore? ParallelizationSemaphore => parallelizationSemaphore;
+	
 	/// <summary>
 	/// Runs the test class.
 	/// </summary>

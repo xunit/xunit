@@ -29,22 +29,22 @@ public class XunitTestMethodRunner : XunitTestMethodRunnerBase<XunitTestMethodRu
 	/// <param name="explicitOption">A flag to indicate how explicit tests should be treated.</param>
 	/// <param name="messageBus">The message bus to report run status to.</param>
 	/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
+	/// <param name="parallelismOptions">Options which determine the amount of test parallelization to allow.</param>
+	/// <param name="parallelizationSemaphore">Semaphore used to limit the number of tests running in parallel.</param>
 	/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
 	/// <param name="constructorArguments">The constructor arguments for the test class.</param>
 	/// <param name="classFixtureMappings">The fixtures attached to the test class</param>
-	/// <param name="parallelismOptions">Options which determine the amount of test parallelization to allow.</param>
-	/// <param name="parallelizationSemaphore">Semaphore used to limit the number of tests running in parallel.</param>
 	public async ValueTask<RunSummary> Run(
 		IXunitTestMethod testMethod,
 		IReadOnlyCollection<IXunitTestCase> testCases,
 		ExplicitOption explicitOption,
 		IMessageBus messageBus,
 		ExceptionAggregator aggregator,
+		ParallelismOptions parallelismOptions,
+		ITestPipelineSemaphore? parallelizationSemaphore,
 		CancellationTokenSource cancellationTokenSource,
 		object?[] constructorArguments,
-		FixtureMappingManager classFixtureMappings,
-		ParallelismOptions parallelismOptions = ParallelismOptionsAliases.Default,
-		SemaphoreSlim? parallelizationSemaphore = null)
+		FixtureMappingManager classFixtureMappings)
 	{
 		Guard.ArgumentNotNull(testCases);
 		Guard.ArgumentNotNull(messageBus);
@@ -56,11 +56,11 @@ public class XunitTestMethodRunner : XunitTestMethodRunnerBase<XunitTestMethodRu
 			explicitOption,
 			messageBus,
 			aggregator,
+			parallelismOptions,
+			parallelizationSemaphore,
 			cancellationTokenSource,
 			constructorArguments,
-			classFixtureMappings,
-			parallelismOptions,
-			parallelizationSemaphore
+			classFixtureMappings
 		);
 		await ctxt.InitializeAsync();
 

@@ -12,10 +12,10 @@ namespace Xunit.v3;
 /// <param name="explicitOption">The user's choice on how to treat explicit tests</param>
 /// <param name="messageBus">The message bus to send execution messages to</param>
 /// <param name="aggregator">The exception aggregator</param>
-/// <param name="cancellationTokenSource">The cancellation token source</param>
-/// <param name="assemblyFixtureMappings">The fixtures associated with the test assembly</param>
 /// <param name="parallelismOptions">Options which determine the amount of test parallelization to allow.</param>
 /// <param name="parallelizationSemaphore">Semaphore used to limit parallelization within the test execution pipeline</param>
+/// <param name="cancellationTokenSource">The cancellation token source</param>
+/// <param name="assemblyFixtureMappings">The fixtures associated with the test assembly</param>
 /// <remarks>
 /// This class is used for reflection-based tests.
 /// </remarks>
@@ -25,14 +25,14 @@ public class XunitTestCollectionRunnerContext(
 	ExplicitOption explicitOption,
 	IMessageBus messageBus,
 	ExceptionAggregator aggregator,
-	CancellationTokenSource cancellationTokenSource,
-	FixtureMappingManager assemblyFixtureMappings,
 	ParallelismOptions parallelismOptions,
-	SemaphoreSlim? parallelizationSemaphore) :
-		XunitTestCollectionRunnerBaseContext<IXunitTestCollection, IXunitTestClass, IXunitTestCase>(testCollection, testCases, explicitOption, messageBus, aggregator, cancellationTokenSource, assemblyFixtureMappings, parallelismOptions)
+	ITestPipelineSemaphore? parallelizationSemaphore,
+	CancellationTokenSource cancellationTokenSource,
+	FixtureMappingManager assemblyFixtureMappings) :
+		XunitTestCollectionRunnerBaseContext<IXunitTestCollection, IXunitTestClass, IXunitTestCase>(testCollection, testCases, explicitOption, messageBus, aggregator, parallelismOptions, parallelizationSemaphore, cancellationTokenSource, assemblyFixtureMappings)
 {
 	/// <summary>
-	/// Please use <see cref="XunitTestCollectionRunnerContext(IXunitTestCollection, IReadOnlyCollection{IXunitTestCase}, ExplicitOption, IMessageBus, ExceptionAggregator, CancellationTokenSource, FixtureMappingManager, ParallelismOptions, SemaphoreSlim?)"/>.
+	/// Please use <see cref="XunitTestCollectionRunnerContext(IXunitTestCollection, IReadOnlyCollection{IXunitTestCase}, ExplicitOption, IMessageBus, ExceptionAggregator, ParallelismOptions, ITestPipelineSemaphore?, CancellationTokenSource, FixtureMappingManager)"/>.
 	/// This overload will be removed in the next major version.
 	/// </summary>
 	[Obsolete("Please use the constructor which accepts testClassOrderer and testMethodOrderer. This overload will be removed in the next major version.")]
@@ -53,10 +53,10 @@ public class XunitTestCollectionRunnerContext(
 				explicitOption,
 				messageBus,
 				aggregator,
-				cancellationTokenSource,
-				assemblyFixtureMappings,
 				parallelismOptions: ParallelismOptionsAliases.Default,
-				parallelizationSemaphore: null
+				parallelizationSemaphore: null,
+				cancellationTokenSource,
+				assemblyFixtureMappings
 			)
 	{ }
 
@@ -70,9 +70,9 @@ public class XunitTestCollectionRunnerContext(
 				ExplicitOption,
 				MessageBus,
 				Aggregator.Clone(),
-				CancellationTokenSource,
-				CollectionFixtureMappings,
 				ParallelismOptions,
-				parallelizationSemaphore
+				ParallelizationSemaphore,
+				CancellationTokenSource,
+				CollectionFixtureMappings
 			);
 }

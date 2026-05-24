@@ -6,7 +6,7 @@ namespace Xunit.v3;
 partial class XunitRunnerHelper
 {
 	/// <summary>
-	/// Please call <see cref="RunXunitTestCase(IXunitTestCase, IMessageBus, CancellationTokenSource, ExceptionAggregator, ExplicitOption, object?[], FixtureMappingManager, ParallelismOptions, SemaphoreSlim?)"/>.
+	/// Please call <see cref="RunXunitTestCase(IXunitTestCase, IMessageBus, CancellationTokenSource, ExceptionAggregator, ExplicitOption, object?[], FixtureMappingManager, ParallelismOptions, ITestPipelineSemaphore?)"/>.
 	/// This overload is not supported, and will be removed from the next major version.
 	/// </summary>
 	[Obsolete("Please call the overload that accepts methodFixtureMappings. This overload is not supported, and will be removed from the next major version.", error: true)]
@@ -42,7 +42,7 @@ partial class XunitRunnerHelper
 		object?[] constructorArguments,
 		FixtureMappingManager methodFixtureMappings,
 		ParallelismOptions parallelismOptions = ParallelismOptionsAliases.Default,
-		SemaphoreSlim? parallelizationSemaphore = null) =>
+		ITestPipelineSemaphore? parallelizationSemaphore = null) =>
 			RunCoreTestCase(
 				Guard.ArgumentNotNull(testCase),
 				messageBus,

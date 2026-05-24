@@ -25,7 +25,7 @@ public class XunitTestCollectionRunner :
 	public static XunitTestCollectionRunner Instance { get; } = new();
 
 	/// <summary>
-	/// Please call <see cref="Run(IXunitTestCollection, IReadOnlyCollection{IXunitTestCase}, ExplicitOption, IMessageBus, ExceptionAggregator, CancellationTokenSource, FixtureMappingManager, ParallelismOptions, SemaphoreSlim?)"/>.
+	/// Please call <see cref="Run(IXunitTestCollection, IReadOnlyCollection{IXunitTestCase}, ExplicitOption, IMessageBus, ExceptionAggregator, CancellationTokenSource, FixtureMappingManager, ParallelismOptions, ITestPipelineSemaphore?)"/>.
 	/// This overload will be removed in the next major version.
 	/// </summary>
 	[Obsolete("Please use the overload without testCaseOrderer. This overload will be removed in the next major version.")]
@@ -71,7 +71,7 @@ public class XunitTestCollectionRunner :
 		CancellationTokenSource cancellationTokenSource,
 		FixtureMappingManager assemblyFixtureMappings,
 		ParallelismOptions parallelismOptions = ParallelismOptionsAliases.Default,
-		SemaphoreSlim? parallelizationSemaphore = null)
+		ITestPipelineSemaphore? parallelizationSemaphore = null)
 	{
 		Guard.ArgumentNotNull(testCollection);
 		Guard.ArgumentNotNull(testCases);
@@ -85,10 +85,10 @@ public class XunitTestCollectionRunner :
 			explicitOption,
 			messageBus,
 			aggregator,
-			cancellationTokenSource,
-			assemblyFixtureMappings,
 			parallelismOptions,
-			parallelizationSemaphore
+			parallelizationSemaphore,
+			cancellationTokenSource,
+			assemblyFixtureMappings
 		);
 		await ctxt.InitializeAsync();
 

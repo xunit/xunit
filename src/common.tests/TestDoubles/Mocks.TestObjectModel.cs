@@ -354,7 +354,7 @@ partial class Mocks
 		string assemblyPath = TestData.DefaultAssemblyPath,
 		string? configFilePath = null,
 		ParallelismOptions? parallelismOptions = null,
-		SemaphoreSlim? parallelizationSemaphore = null,
+		ITestPipelineSemaphore? parallelizationSemaphore = null,
 		int? maxParallelThreads = null,
 		Guid? moduleVersionID = null,
 		ParallelAlgorithm? parallelAlgorithm = null,
@@ -392,7 +392,7 @@ partial class Mocks
 		public required string AssemblyPath { get; set; }
 		public required string? ConfigFilePath { get; set; }
 		public required ParallelismOptions? ParallelismOptions { get; set; }
-		public required SemaphoreSlim? ParallelizationSemaphore { get; set; }
+		public required ITestPipelineSemaphore? ParallelizationSemaphore { get; set; }
 		public required int? MaxParallelThreads { get; set; }
 		public required Guid ModuleVersionID { get; set; }
 		public required ParallelAlgorithm? ParallelAlgorithm { get; set; }

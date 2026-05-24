@@ -23,11 +23,11 @@ public abstract class XunitTestClassRunnerBaseContext<TTestClass, TTestMethod, T
 	ExplicitOption explicitOption,
 	IMessageBus messageBus,
 	ExceptionAggregator aggregator,
-	CancellationTokenSource cancellationTokenSource,
-	FixtureMappingManager collectionFixtureMappings,
 	ParallelismOptions parallelismOptions,
-	SemaphoreSlim? parallelizationSemaphore) :
-		CoreTestClassRunnerContext<TTestClass, TTestMethod, TTestCase>(testClass, testCases, explicitOption, messageBus, aggregator, parallelismOptions, cancellationTokenSource)
+	ITestPipelineSemaphore? parallelizationSemaphore,
+	CancellationTokenSource cancellationTokenSource,
+	FixtureMappingManager collectionFixtureMappings) :
+		CoreTestClassRunnerContext<TTestClass, TTestMethod, TTestCase>(testClass, testCases, explicitOption, messageBus, aggregator, parallelismOptions, parallelizationSemaphore, cancellationTokenSource)
 			where TTestClass : class, IXunitTestClass
 			where TTestMethod : class, IXunitTestMethod
 			where TTestCase : class, IXunitTestCase
@@ -57,10 +57,10 @@ public abstract class XunitTestClassRunnerBaseContext<TTestClass, TTestMethod, T
 				ExplicitOption,
 				MessageBus,
 				Aggregator.Clone(),
+				ParallelismOptions,
+				ParallelizationSemaphore,
 				CancellationTokenSource,
 				ConstructorArguments ?? throw new InvalidOperationException("Constructor arguments were not set"),
-				ClassFixtureMappings,
-				ParallelismOptions,
-				parallelizationSemaphore
+				ClassFixtureMappings
 			);
 }
