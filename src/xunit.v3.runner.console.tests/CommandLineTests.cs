@@ -507,6 +507,11 @@ public static class CommandLineTests
 
 				foreach (var assembly in project.Assemblies)
 				{
+#pragma warning disable CS0618 // Type or member is obsolete
+					Assert.Null(assembly.Configuration.ParallelizeAssembly);
+					Assert.Null(assembly.Configuration.ParallelizeTestCollections);
+#pragma warning restore CS0618 // Type or member is obsolete
+					
 					Assert.Null(assembly.Configuration.ParallelismOptions);
 				}
 			}

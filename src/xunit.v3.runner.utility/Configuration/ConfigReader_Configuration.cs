@@ -71,6 +71,10 @@ public static class ConfigReader_Configuration
 				configuration.MethodDisplay = GetEnum<TestMethodDisplay>(settings, Configuration.MethodDisplay) ?? configuration.MethodDisplay;
 				configuration.MethodDisplayOptions = GetEnum<TestMethodDisplayOptions>(settings, Configuration.MethodDisplayOptions) ?? configuration.MethodDisplayOptions;
 				configuration.ParallelAlgorithm = GetEnum<ParallelAlgorithm>(settings, Configuration.ParallelAlgorithm) ?? configuration.ParallelAlgorithm;
+#pragma warning disable CS0618 // Type or member is obsolete
+				configuration.ParallelizeAssembly = GetBoolean(settings, Configuration.ParallelizeAssembly) ?? configuration.ParallelizeAssembly;
+				configuration.ParallelizeTestCollections = GetBoolean(settings, Configuration.ParallelizeTestCollections) ?? configuration.ParallelizeTestCollections;
+#pragma warning restore CS0618 // Type or member is obsolete
 				configuration.ParallelismOptions = GetEnum<ParallelismOptions>(settings, Configuration.ParallelismOptions) ?? configuration.ParallelismOptions;
 				configuration.PreEnumerateTheories = GetBoolean(settings, Configuration.PreEnumerateTheories) ?? configuration.PreEnumerateTheories;
 				configuration.ShadowCopy = GetBoolean(settings, Configuration.ShadowCopy) ?? configuration.ShadowCopy;
@@ -159,6 +163,8 @@ public static class ConfigReader_Configuration
 		public const string MethodDisplay = "xunit.methodDisplay";
 		public const string MethodDisplayOptions = "xunit.methodDisplayOptions";
 		public const string ParallelAlgorithm = "xunit.parallelAlgorithm";
+		public const string ParallelizeAssembly = "xunit.parallelizeAssembly";
+		public const string ParallelizeTestCollections = "xunit.parallelizeTestCollections";
 		public const string ParallelismOptions = "xunit.parallelismOptions";
 		public const string PreEnumerateTheories = "xunit.preEnumerateTheories";
 		public const string ShadowCopy = "xunit.shadowCopy";

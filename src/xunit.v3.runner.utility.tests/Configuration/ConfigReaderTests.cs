@@ -291,4 +291,37 @@ public static class ConfigReaderTests
 		Assert.Empty(warnings);
 		Assert.Equal(-1, configuration.MaxParallelThreadsOrDefault);
 	}
+
+	[Theory]
+	[InlineData("ConfigReader_ParallelizeAssembly.json",
+		ParallelismOptionsAliases.Default | ParallelismOptions.Assemblies)]
+	[InlineData("ConfigReader_ParallelizeTestCollections.json",
+		ParallelismOptionsAliases.Default | ParallelismOptions.Collections)]
+	[InlineData("ConfigReader_ParallelizeAll.json",
+		ParallelismOptionsAliases.Default | ParallelismOptions.Assemblies | ParallelismOptions.Collections)]
+	public static void ConfigurationFileWithParallelizeAssembly_ReturnsParallelismOptions(string configFileName,
+		ParallelismOptions expectedOptions)
+	{
+		var configuration = new TestAssemblyConfiguration();
+		var warnings = new List<string>();
+
+		var result = ConfigReader.Load(configuration, AssemblyFileName, Path.Combine(AssemblyPath, configFileName),
+			warnings);
+
+		Assert.True(result);
+		Assert.Empty(warnings);
+		Assert.Equal(expectedOptions, configuration.ParallelismOptions);
+
+#pragma warning disable CS0618 // Type or member is obsolete
+		if (expectedOptions.HasFlag(ParallelismOptions.Collections))
+		{
+			Assert.True(configuration.ParallelizeTestCollections);
+		}
+		
+		if (expectedOptions.HasFlag(ParallelismOptions.Assemblies))
+		{
+			Assert.True(configuration.ParallelizeAssembly);
+		}
+#pragma warning restore CS0618 // Type or member is obsolete
+	}
 }
