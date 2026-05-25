@@ -105,5 +105,5 @@ public sealed class ConsoleCaptureTestOutputWriterTests : IDisposable
 	}
 }
 
-[CollectionDefinition(DisableParallelization = true)]
+[CollectionDefinition(ParallelismOptions = ParallelismOptions.None)]
 public class ConsoleCaptureTestOutputWriterTestsCollection { }

@@ -331,7 +331,7 @@ public class AssemblyRunnerOptions
 	/// <remarks>
 	/// <em>Parallelized test collections are only valid for xUnit.net v2 and xUnit.net v3 test projects.</em>
 	/// </remarks>
-	[Obsolete("Use ParallelismOptions instead as this option will be removed in a future release.")]
+	[Obsolete($"Use {nameof(ParallelismOptions)} instead. This property will be removed in the next major release.")]
 	public bool? ParallelizeTestCollections
 	{
 		get => ProjectAssembly.Configuration.ParallelizeTestCollections;
@@ -348,13 +348,14 @@ public class AssemblyRunnerOptions
 	/// </summary>
 	/// <remarks>
 	/// <em>Parallelism options are only valid for xUnit.net v2 and xUnit.net v3 test projects.</em>
+	/// <em>For more information on which options are valid, see <see cref="Sdk.ParallelismOptions"/></em>
 	/// </remarks>
 	public ParallelismOptions? ParallelismOptions
 	{
 		get => ProjectAssembly.Configuration.ParallelismOptions;
 		set
 		{
-			GuardMinimumXunitVersion(3, value, nameof(ParallelismOptions));
+			GuardMinimumXunitVersion(2, value, nameof(ParallelismOptions));
 			GuardValidValue(value, v => (v & ~Sdk.ParallelismOptions.All) == 0, nameof(ParallelismOptions));
 
 			ProjectAssembly.Configuration.ParallelismOptions = value;

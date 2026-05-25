@@ -96,7 +96,7 @@ public class CoreTestCaseRunner<TContext, TTestCase, TTest> : TestCaseRunner<TCo
 
 		return summary;
 	}
-	
+
 	/// <summary>
 	/// Runs the test via the context.
 	/// </summary>

@@ -6,7 +6,7 @@ public static class XunitFrontControllerAcceptanceTests
 {
 #if NETFRAMEWORK
 
-	[CollectionDefinition(DisableParallelization = true)]
+	[CollectionDefinition(ParallelismOptions = ParallelismOptions.None)]
 	public class CrashDetectionCollection { }
 
 	[Collection(typeof(CrashDetectionCollection))]

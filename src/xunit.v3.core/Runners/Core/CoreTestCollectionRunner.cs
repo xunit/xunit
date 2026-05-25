@@ -87,7 +87,7 @@ public class CoreTestCollectionRunner<TContext, TTestCollection, TTestClass, TTe
 			using var _ = ctxt.ParallelizationSemaphore != null
 				? await ctxt.ParallelizationSemaphore.WaitAsync(ctxt.CancellationTokenSource.Token)
 				: default;
-			
+
 			return await base.RunTestClasses(ctxt, exception);
 		}
 

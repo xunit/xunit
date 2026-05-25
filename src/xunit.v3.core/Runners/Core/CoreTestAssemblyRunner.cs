@@ -116,7 +116,7 @@ public abstract class CoreTestAssemblyRunner<TContext, TTestAssembly, TTestColle
 			var semaphoreReleaseHandle = ctxt.ParallelizationSemaphore != null
 				? await ctxt.ParallelizationSemaphore.WaitAsync(ctxt.CancellationTokenSource.Token)
 				: default;
-			
+
 			try
 			{
 				if (collection.ParallelismOptions.HasFlag(ParallelismOptions.Collections))
@@ -129,7 +129,7 @@ public abstract class CoreTestAssemblyRunner<TContext, TTestAssembly, TTestColle
 				semaphoreReleaseHandle.Dispose();
 				throw;
 			}
-			
+
 			async ValueTask<RunSummary> task()
 			{
 				using var _ = semaphoreReleaseHandle;

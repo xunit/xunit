@@ -6,7 +6,7 @@ public static class CoreTestAssemblyRunnerTests
 {
 #pragma warning disable CA1822 // Tests in here depend on the constructor to hide diagnostic messages
 
-	[CollectionDefinition(DisableParallelization = true)]
+	[CollectionDefinition(ParallelismOptions = ParallelismOptions.None)]
 	[Collection(typeof(Run))]
 	public class Run
 	{

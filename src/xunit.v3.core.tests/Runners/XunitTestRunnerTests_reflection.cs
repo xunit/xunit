@@ -623,5 +623,5 @@ public static class XunitTestRunnerTests
 	}
 }
 
-[CollectionDefinition(DisableParallelization = true)]
+[CollectionDefinition(ParallelismOptions = ParallelismOptions.None)]
 public class XunitTestRunnerTestsCollection { }

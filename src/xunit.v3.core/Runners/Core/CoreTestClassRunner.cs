@@ -111,7 +111,7 @@ public class CoreTestClassRunner<TContext, TTestClass, TTestMethod, TTestCase> :
 			using var _ = ctxt.ParallelizationSemaphore != null
 				? await ctxt.ParallelizationSemaphore.WaitAsync(ctxt.CancellationTokenSource.Token)
 				: default;
-			
+
 			return await base.RunTestMethods(ctxt, exception);
 		}
 
@@ -127,7 +127,7 @@ public class CoreTestClassRunner<TContext, TTestClass, TTestMethod, TTestCase> :
 		{
 			if (ctxt.CancellationTokenSource.IsCancellationRequested)
 				break;
-			
+
 			var semaphoreReleaseHandle = ctxt.ParallelizationSemaphore != null
 				? await ctxt.ParallelizationSemaphore.WaitAsync(ctxt.CancellationTokenSource.Token)
 				: default;

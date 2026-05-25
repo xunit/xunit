@@ -383,10 +383,10 @@ public class xunit : MSBuildTask, ICancelableTask, IDisposable
 				var clockTime = Stopwatch.StartNew();
 
 				var parallelizeAssemblies = parallelismOptions?.HasFlag(Sdk.ParallelismOptions.Assemblies) == true ||
-				                            project.Assemblies.All(assembly =>
-					                            assembly.Configuration.ParallelismOptions?.HasFlag(Sdk
-						                            .ParallelismOptions
-						                            .Assemblies) == true);
+											project.Assemblies.All(assembly =>
+												assembly.Configuration.ParallelismOptions?.HasFlag(Sdk
+													.ParallelismOptions
+													.Assemblies) == true);
 
 				if (parallelizeAssemblies)
 					await Task.WhenAll(

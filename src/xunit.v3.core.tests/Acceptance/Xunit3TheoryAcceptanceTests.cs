@@ -302,7 +302,7 @@ public static partial class Xunit3TheoryAcceptanceTests
 		}
 	}
 
-	[CollectionDefinition("Timeout Tests", DisableParallelization = true)]
+	[CollectionDefinition("Timeout Tests", ParallelismOptions = ParallelismOptions.None)]
 	public static class TimeoutTestsCollection { }
 
 	[Collection("Timeout Tests")]

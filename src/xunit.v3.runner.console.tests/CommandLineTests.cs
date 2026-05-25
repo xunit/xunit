@@ -511,7 +511,7 @@ public static class CommandLineTests
 					Assert.Null(assembly.Configuration.ParallelizeAssembly);
 					Assert.Null(assembly.Configuration.ParallelizeTestCollections);
 #pragma warning restore CS0618 // Type or member is obsolete
-					
+
 					Assert.Null(assembly.Configuration.ParallelismOptions);
 				}
 			}

@@ -317,7 +317,7 @@ public static class ConfigReaderTests
 		{
 			Assert.True(configuration.ParallelizeTestCollections);
 		}
-		
+
 		if (expectedOptions.HasFlag(ParallelismOptions.Assemblies))
 		{
 			Assert.True(configuration.ParallelizeAssembly);

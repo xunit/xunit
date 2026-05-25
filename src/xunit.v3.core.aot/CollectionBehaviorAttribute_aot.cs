@@ -20,6 +20,7 @@ sealed partial class CollectionBehaviorAttribute
 	/// <summary>
 	/// Determines whether tests in this assembly are run in parallel.
 	/// </summary>
+	[Obsolete($"Use {nameof(ParallelismOptions)} = {nameof(ParallelismOptions.None)} instead. This property will be removed in the next major release.")]
 	public bool DisableTestParallelization
 	{
 		get => ParallelismOptions == ParallelismOptions.None;
@@ -56,6 +57,7 @@ partial class CollectionBehaviorAttribute<TCollectionFactory>
 	/// <summary>
 	/// Determines whether tests in this assembly are run in parallel.
 	/// </summary>
+	[Obsolete($"Use {nameof(ParallelismOptions)} = {nameof(ParallelismOptions.None)} instead. This property will be removed in the next major release.")]
 	public bool DisableTestParallelization
 	{
 		get => ParallelismOptions == ParallelismOptions.None;

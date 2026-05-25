@@ -27,7 +27,7 @@ public sealed class TestPipelineSemaphore : ITestPipelineSemaphore
 		semaphores =
 			ParallelizedTestPipelineStages.ToDictionary(stage => stage, _ => new SemaphoreSlim(maximumConcurrentTests));
 	}
-	
+
 	/// <inheritdoc />
 	/// <exception cref="InvalidOperationException">When called outside a valid test pipeline stage.</exception>
 	public int CurrentCount => TestPipelineStageSemaphore.CurrentCount;
@@ -62,7 +62,7 @@ public sealed class TestPipelineSemaphore : ITestPipelineSemaphore
 			kv.Value.SafeDispose();
 		}
 	}
-	
+
 	private TestPipelineStage GetTestPipelineStage()
 	{
 		var stage = TestContext.Current.PipelineStage;

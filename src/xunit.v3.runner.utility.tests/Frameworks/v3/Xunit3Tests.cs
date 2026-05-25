@@ -5,7 +5,7 @@ using Xunit.Sdk;
 using Xunit.v3;
 
 [Collection(typeof(Xunit3Tests))]
-[CollectionDefinition(DisableParallelization = true)]
+[CollectionDefinition(ParallelismOptions = ParallelismOptions.None)]
 public class Xunit3Tests
 {
 	readonly XunitProjectAssembly Assembly;

@@ -79,7 +79,7 @@ public class CoreTestMethodRunner<TContext, TTestMethod, TTestCase> : TestMethod
 			using var _ = ctxt.ParallelizationSemaphore != null
 				? await ctxt.ParallelizationSemaphore.WaitAsync(ctxt.CancellationTokenSource.Token)
 				: default;
-			
+
 			return await base.RunTestCases(ctxt, exception);
 		}
 

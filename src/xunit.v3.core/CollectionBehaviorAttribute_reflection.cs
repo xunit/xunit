@@ -16,6 +16,7 @@ partial class CollectionBehaviorAttribute : ICollectionBehaviorAttribute
 	public Type? CollectionFactoryType { get; }
 
 	/// <inheritdoc/>
+	[Obsolete($"Use {nameof(ParallelismOptions)} = {nameof(ParallelismOptions.None)} instead. This property will be removed in the next major release.")]
 	public bool DisableTestParallelization
 	{
 		get => ParallelismOptions == ParallelismOptions.None;
@@ -44,6 +45,7 @@ partial class CollectionBehaviorAttribute<TCollectionFactory> : ICollectionBehav
 	public Type? CollectionFactoryType => typeof(TCollectionFactory);
 
 	/// <inheritdoc/>
+	[Obsolete($"Use {nameof(ParallelismOptions)} = {nameof(ParallelismOptions.None)} instead. This property will be removed in the next major release.")]
 	public bool DisableTestParallelization
 	{
 		get => ParallelismOptions == ParallelismOptions.None;

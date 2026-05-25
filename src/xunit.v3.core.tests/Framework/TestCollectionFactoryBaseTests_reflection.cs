@@ -105,7 +105,9 @@ public static class TestCollectionFactoryBaseTests
 		// Decorated definitions are read and cached by the test assembly
 		var definitions = new Dictionary<string, (Type, CollectionDefinitionAttribute)>
 		{
+#pragma warning disable CS0618 // Type or member is obsolete
 			["foo"] = (typeof(TestCollectionWithoutParallelization), new CollectionDefinitionAttribute { DisableParallelization = true })
+#pragma warning restore CS0618 // Type or member is obsolete
 		};
 		var testAssembly = Mocks.XunitTestAssembly(collectionDefinitions: definitions);
 		var factory = new TestableTestCollectionFactory(testAssembly);

@@ -32,6 +32,7 @@ public sealed class CollectionDefinitionAttribute : Attribute
 	/// <summary>
 	/// Gets or sets a value indicating whether this collection should not run in parallel with other collections in the assembly.
 	/// </summary>
+	[Obsolete($"Use {nameof(ParallelismOptions)} = {nameof(ParallelismOptions.None)} instead. This property will be removed in the next major release.")]
 	public bool DisableParallelization
 	{
 		get => OptionalParallelismOptions == ParallelismOptions.None;

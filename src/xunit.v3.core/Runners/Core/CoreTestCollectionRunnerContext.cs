@@ -45,7 +45,7 @@ public abstract class CoreTestCollectionRunnerContext<TTestCollection, TTestClas
 	/// Gets the semaphore used to limit the number of tests running in parallel.
 	/// </summary>
 	public ITestPipelineSemaphore? ParallelizationSemaphore => parallelizationSemaphore;
-	
+
 	/// <summary>
 	/// Runs the test class.
 	/// </summary>

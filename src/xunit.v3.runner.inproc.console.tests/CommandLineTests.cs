@@ -474,7 +474,7 @@ public static class CommandLineTests
 				var commandLine = new TestableCommandLine("no-config.json", "-parallel", parallelOption);
 
 				var assembly = commandLine.Parse();
-				
+
 				Assert.Equal(expected, assembly.Configuration.ParallelismOptions);
 			}
 		}

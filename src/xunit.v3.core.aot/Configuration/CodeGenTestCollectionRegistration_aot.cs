@@ -20,6 +20,7 @@ public sealed class CodeGenTestCollectionRegistration
 	/// A flag indicating whether this collection wants to run without being parallelized against
 	/// other test collections.
 	/// </summary>
+	[Obsolete($"Use {nameof(ParallelismOptions)} = {nameof(Sdk.ParallelismOptions.None)} instead. This property will be removed in the next major release.")]
 	public bool DisableParallelization
 	{
 		get => ParallelismOptions?.HasFlag(Sdk.ParallelismOptions.Collections) == false;

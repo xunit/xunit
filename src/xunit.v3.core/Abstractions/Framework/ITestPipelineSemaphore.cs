@@ -11,14 +11,14 @@ public interface ITestPipelineSemaphore : IDisposable
 	/// </summary>
 	/// <value>The current count of the <see cref="ITestPipelineSemaphore"/>.</value>
 	int CurrentCount { get; }
-	
+
 	/// <summary>
 	/// Exits the <see cref="ITestPipelineSemaphore"/> once.
 	/// </summary>
 	/// <returns>The previous count of the <see cref="ITestPipelineSemaphore"/>.</returns>
 	/// <exception cref="ObjectDisposedException">The current instance has already been disposed.</exception>
 	int Release();
-	
+
 	/// <summary>
 	/// Asynchronously waits to enter the <see cref="ITestPipelineSemaphore"/>, while observing a
 	/// <see cref="CancellationToken"/>.

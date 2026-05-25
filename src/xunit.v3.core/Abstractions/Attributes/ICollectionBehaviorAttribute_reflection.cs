@@ -16,6 +16,7 @@ public interface ICollectionBehaviorAttribute
 	/// <summary>
 	/// Gets a value indicating whether all collections in this assembly have parallelization disabled by default.
 	/// </summary>
+	[Obsolete($"Use {nameof(ParallelismOptions)} = {nameof(ParallelismOptions.None)} instead. This property will be removed in the next major release.")]
 	bool DisableTestParallelization { get; }
 
 	/// <summary>

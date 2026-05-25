@@ -64,7 +64,9 @@ public static class TestCollectionFactoryBaseTests
 	{
 		var collectionDefinitions = new Dictionary<string, CodeGenTestCollectionRegistration>()
 		{
+#pragma warning disable CS0618 // Type or member is obsolete
 			["foo"] = new() { DisableParallelization = true }
+#pragma warning restore CS0618 // Type or member is obsolete
 		};
 		var testAssembly = Mocks.CodeGenTestAssembly(collectionDefinitions: collectionDefinitions);
 		var factory = new TestableTestCollectionFactory(testAssembly);

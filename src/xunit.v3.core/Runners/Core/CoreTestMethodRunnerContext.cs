@@ -37,12 +37,12 @@ public abstract class CoreTestMethodRunnerContext<TTestMethod, TTestCase>(
 	/// Gets the options which determine the amount of test parallelization to allow.
 	/// </summary>
 	public ParallelismOptions ParallelismOptions => parallelismOptions;
-	
+
 	/// <summary>
 	/// Gets the semaphore used to limit the number of tests running in parallel.
 	/// </summary>
 	public ITestPipelineSemaphore? ParallelizationSemaphore => parallelizationSemaphore;
-	
+
 	/// <summary>
 	/// Runs a test case from this test method.
 	/// </summary>

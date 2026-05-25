@@ -239,7 +239,7 @@ public class TestAssemblyConfiguration
 	/// Gets or sets a flag indicating that this assembly is safe to parallelize against
 	/// other assemblies.
 	/// </summary>
-	[Obsolete("Use ParallelismOptions instead as this option will be removed in a future release.")]
+	[Obsolete($"Use {nameof(ParallelismOptions)} instead. This property will be removed in the next major release.")]
 	public bool? ParallelizeAssembly
 	{
 		get => ParallelismOptions?.HasFlag(Sdk.ParallelismOptions.Assemblies);
@@ -261,14 +261,14 @@ public class TestAssemblyConfiguration
 	/// Gets a flag indicating that this assembly is safe to parallelize against
 	/// other assemblies. If the flag is not set, returns the default value (<see langword="false"/>).
 	/// </summary>
-	[Obsolete("Use ParallelismOptions instead as this option will be removed in a future release.")]
+	[Obsolete($"Use {nameof(ParallelismOptions)} instead. This property will be removed in the next major release.")]
 	public bool ParallelizeAssemblyOrDefault => ParallelizeAssembly ?? false;
 
 	/// <summary>
 	/// Gets or sets a flag indicating that this test assembly wants to run test collections
 	/// in parallel against one another.
 	/// </summary>
-	[Obsolete("Use ParallelismOptions instead as this option will be removed in a future release.")]
+	[Obsolete($"Use {nameof(ParallelismOptions)} instead. This property will be removed in the next major release.")]
 	public bool? ParallelizeTestCollections
 	{
 		get => ParallelismOptions?.HasFlag(Sdk.ParallelismOptions.Collections);
@@ -291,12 +291,16 @@ public class TestAssemblyConfiguration
 	/// in parallel against one another. If the flag is not set, returns the default
 	/// value (<see langword="true"/>).
 	/// </summary>
-	[Obsolete("Use ParallelismOptions instead as this option will be removed in a future release.")]
+	[Obsolete($"Use {nameof(ParallelismOptions)} instead. This property will be removed in the next major release.")]
 	public bool ParallelizeTestCollectionsOrDefault => ParallelizeTestCollections ?? true;
 
 	/// <summary>
 	/// Gets or sets options which determine the amount of test parallelization to allow for this assembly.
 	/// </summary>
+	/// <remarks>
+	/// Only <see cref="Sdk.ParallelismOptions.None"/>, <see cref="Sdk.ParallelismOptions.Assemblies"/>, and
+	/// <see cref="Sdk.ParallelismOptions.Collections"/> are supported at the assembly level.
+	/// </remarks>
 	public ParallelismOptions? ParallelismOptions { get; set; }
 
 	/// <summary>

@@ -1,7 +1,8 @@
 using System.Diagnostics.Tracing;
 using Xunit;
+using Xunit.Sdk;
 
-[CollectionDefinition(DisableParallelization = true)]
+[CollectionDefinition(ParallelismOptions = ParallelismOptions.None)]
 public class SpyEventListener : EventListener
 {
 	readonly List<string> events = [];

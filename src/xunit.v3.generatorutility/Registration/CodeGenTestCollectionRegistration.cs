@@ -168,7 +168,7 @@ $@"global::Xunit.v3.RegisteredEngineConfig.RegisterCollectionDefinition({name}, 
 			if (ParallelismOptions.HasValue)
 				initValues.Add($"ParallelismOptions = (global::Xunit.Sdk.ParallelismOptions){ParallelismOptions}");
 			if (DisableParallelization)
-				initValues.Add("DisableParallelization = true");
+				initValues.Add("ParallelismOptions = global::Xunit.Sdk.ParallelismOptions.None");
 			if (TestCaseOrdererFactory != null)
 				initValues.Add($"TestCaseOrdererFactory = () => {TestCaseOrdererFactory}");
 			if (TestClassOrdererFactory != null)
