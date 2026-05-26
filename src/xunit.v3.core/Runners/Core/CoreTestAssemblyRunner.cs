@@ -113,9 +113,9 @@ public abstract class CoreTestAssemblyRunner<TContext, TTestAssembly, TTestColle
 
 		foreach (var (collection, testCases) in OrderTestCollections(ctxt))
 		{
-			var semaphoreReleaseHandle = ctxt.ParallelizationSemaphore != null
-				? await ctxt.ParallelizationSemaphore.WaitAsync(ctxt.CancellationTokenSource.Token)
-				: default;
+			var semaphoreReleaser = ctxt.ParallelizationSemaphore != null
+				? await ctxt.ParallelizationSemaphore.LockAsync(ctxt.CancellationTokenSource.Token)
+				: null;
 
 			try
 			{
@@ -126,13 +126,13 @@ public abstract class CoreTestAssemblyRunner<TContext, TTestAssembly, TTestColle
 			}
 			catch
 			{
-				semaphoreReleaseHandle.Dispose();
+				semaphoreReleaser?.Dispose();
 				throw;
 			}
 
 			async ValueTask<RunSummary> task()
 			{
-				using var _ = semaphoreReleaseHandle;
+				using var _ = semaphoreReleaser;
 				return await RunTestCollection(ctxt, collection, testCases);
 			}
 		}

@@ -85,8 +85,10 @@ public static class CoreTestCollectionRunnerTests
 			);
 		}
 
-		[Fact]
-		public static async ValueTask ParallelTestClasses()
+		[Theory]
+		[InlineData(null)]
+		[InlineData(2)]
+		public static async ValueTask RunsTestsClassesInParallel(int? maximumConcurrentTests = null)
 		{
 			var testClassTcs1 = new TaskCompletionSource<bool>(TaskCreationOptions.None);
 			var testClassTcs2 = new TaskCompletionSource<bool>(TaskCreationOptions.None);
@@ -99,9 +101,13 @@ public static class CoreTestCollectionRunnerTests
 			var testCase1 = Mocks.CoreTestCase(testCaseDisplayName: "TestCase1", testMethod: testMethod1);
 			var testCase2 = Mocks.CoreTestCase(testCaseDisplayName: "TestCase2", testMethod: testMethod2);
 
+			using var semaphore = maximumConcurrentTests.HasValue
+				? new TestPipelineSemaphore(maximumConcurrentTests.Value)
+				: null;
+
 			var timeoutTask = Task.Delay(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken);
 			var completionTask = Task.WhenAny(timeoutTask, Task.WhenAll(testClassTcs1.Task, testClassTcs2.Task));
-			var runner = new TestableCoreTestCollectionRunner([testCase1, testCase2], runTestClass, parallelismOptions: ParallelismOptions.All);
+			var runner = new TestableCoreTestCollectionRunner([testCase1, testCase2], runTestClass, parallelismOptions: ParallelismOptions.Classes, semaphore);
 
 			await runner.RunAsync();
 
@@ -122,8 +128,12 @@ public static class CoreTestCollectionRunnerTests
 			}
 		}
 
-		[Fact]
-		public static async ValueTask SerialTestClasses()
+		[Theory]
+		[InlineData(ParallelismOptions.None)]
+		[InlineData(ParallelismOptions.Classes, 1)]
+		public static async ValueTask RunsTestClassesSerially(
+			ParallelismOptions parallelismOptions,
+			int? maximumConcurrentTests = null)
 		{
 			var messages = new List<string>();
 			var testCollection = Mocks.CoreTestCollection();
@@ -134,7 +144,11 @@ public static class CoreTestCollectionRunnerTests
 			var testCase1 = Mocks.CoreTestCase(testCaseDisplayName: "TestCase1", testMethod: testMethod1);
 			var testCase2 = Mocks.CoreTestCase(testCaseDisplayName: "TestCase2", testMethod: testMethod2);
 
-			var runner = new TestableCoreTestCollectionRunner([testCase1, testCase2], runTestClass);
+			using var semaphore = maximumConcurrentTests.HasValue
+				? new TestPipelineSemaphore(maximumConcurrentTests.Value)
+				: null;
+
+			var runner = new TestableCoreTestCollectionRunner([testCase1, testCase2], runTestClass, parallelismOptions, semaphore);
 
 			await runner.RunAsync();
 
@@ -172,7 +186,8 @@ public static class CoreTestCollectionRunnerTests
 
 	class TestableCoreTestCollectionRunner(ICoreTestCase[] testCases,
 		Func<ICoreTestClass, IReadOnlyCollection<ICoreTestCase>, ValueTask<RunSummary>>? runTestClassLamda = null,
-		ParallelismOptions parallelismOptions = ParallelismOptionsAliases.Default) :
+		ParallelismOptions parallelismOptions = ParallelismOptionsAliases.Default,
+		ITestPipelineSemaphore? parallelizationSemaphore = null) :
 		CoreTestCollectionRunner<TestableCoreTestCollectionRunner.TestableContext, ICoreTestCollection, ICoreTestClass, ICoreTestCase>
 	{
 		public ExceptionAggregator Aggregator = new();
@@ -190,6 +205,7 @@ public static class CoreTestCollectionRunnerTests
 				Aggregator,
 				runTestClassLamda ?? ((_, _) => new(new RunSummary { Total = 1, })),
 				parallelismOptions,
+				parallelizationSemaphore,
 				CancellationTokenSource
 			);
 			await context.InitializeAsync();
@@ -215,6 +231,7 @@ public static class CoreTestCollectionRunnerTests
 			ExceptionAggregator aggregator,
 			Func<ICoreTestClass, IReadOnlyCollection<ICoreTestCase>, ValueTask<RunSummary>> runTestClassLamda,
 			ParallelismOptions parallelismOptions,
+			ITestPipelineSemaphore? parallelizationSemaphore,
 			CancellationTokenSource cancellationTokenSource) :
 			CoreTestCollectionRunnerContext<ICoreTestCollection, ICoreTestClass, ICoreTestCase>(
 				testCollection,
@@ -223,7 +240,7 @@ public static class CoreTestCollectionRunnerTests
 				messageBus,
 				aggregator,
 				parallelismOptions,
-				parallelizationSemaphore: null,
+				parallelizationSemaphore,
 				cancellationTokenSource)
 		{
 			public override ValueTask<RunSummary> RunTestClass(

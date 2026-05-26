@@ -48,9 +48,9 @@ public class CoreTestCaseRunner<TContext, TTestCase, TTest> : TestCaseRunner<TCo
 				if (ctxt.CancellationTokenSource.IsCancellationRequested)
 					break;
 
-				var semaphoreReleaseHandle = ctxt.ParallelizationSemaphore != null
-					? await ctxt.ParallelizationSemaphore.WaitAsync(ctxt.CancellationTokenSource.Token)
-					: default;
+				var semaphoreReleaser = ctxt.ParallelizationSemaphore != null
+					? await ctxt.ParallelizationSemaphore.LockAsync(ctxt.CancellationTokenSource.Token)
+					: null;
 
 				try
 				{
@@ -58,13 +58,13 @@ public class CoreTestCaseRunner<TContext, TTestCase, TTest> : TestCaseRunner<TCo
 				}
 				catch
 				{
-					semaphoreReleaseHandle.Dispose();
+					semaphoreReleaser?.Dispose();
 					throw;
 				}
 
 				async ValueTask<RunSummary> task()
 				{
-					using var _ = semaphoreReleaseHandle;
+					using var _ = semaphoreReleaser;
 					return await (exception is null
 						? RunTest(ctxt, test)
 						: FailTest(ctxt, test, exception));
@@ -85,8 +85,8 @@ public class CoreTestCaseRunner<TContext, TTestCase, TTest> : TestCaseRunner<TCo
 		else
 		{
 			using var _ = ctxt.ParallelizationSemaphore != null
-				? await ctxt.ParallelizationSemaphore.WaitAsync(ctxt.CancellationTokenSource.Token)
-				: default;
+				? await ctxt.ParallelizationSemaphore.LockAsync(ctxt.CancellationTokenSource.Token)
+				: null;
 
 			summary = await base.RunTestCase(ctxt, exception);
 		}

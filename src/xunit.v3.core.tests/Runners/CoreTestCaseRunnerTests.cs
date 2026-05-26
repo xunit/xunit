@@ -69,10 +69,12 @@ public static class CoreTestCaseRunnerTests
 		}
 	}
 
-	public class Parallelization
+	public static class Parallelization
 	{
-		[Fact]
-		public async ValueTask ParallelTests()
+		[Theory]
+		[InlineData(null)]
+		[InlineData(2)]
+		public static async ValueTask RunsTestsInParallel(int? maximumConcurrentTests = null)
 		{
 			var testTcs1 = new TaskCompletionSource<bool>(TaskCreationOptions.None);
 			var testTcs2 = new TaskCompletionSource<bool>(TaskCreationOptions.None);
@@ -80,9 +82,13 @@ public static class CoreTestCaseRunnerTests
 			var test1 = Mocks.CoreTest(testCase: testCase, testDisplayName: "Test1");
 			var test2 = Mocks.CoreTest(testCase: testCase, testDisplayName: "Test2");
 
+			using var semaphore = maximumConcurrentTests.HasValue
+				? new TestPipelineSemaphore(maximumConcurrentTests.Value)
+				: null;
+
 			var timeoutTask = Task.Delay(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken);
 			var completionTask = Task.WhenAny(timeoutTask, Task.WhenAll(testTcs1.Task, testTcs2.Task));
-			var runner = new TestableCoreTestCaseRunner([test1, test2], runTest, parallelismOptions: ParallelismOptions.All);
+			var runner = new TestableCoreTestCaseRunner([test1, test2], runTest, parallelismOptions: ParallelismOptions.Tests, semaphore);
 
 			await runner.RunAsync();
 
@@ -103,51 +109,23 @@ public static class CoreTestCaseRunnerTests
 			}
 		}
 
-		[Fact]
-		public async ValueTask SerialTests()
+		[Theory]
+		[InlineData(ParallelismOptions.None)]
+		[InlineData(ParallelismOptions.Tests, 1)]
+		public static async ValueTask RunsTestsSerially(
+			ParallelismOptions parallelismOptions,
+			int? maximumConcurrentTests = null)
 		{
 			var messages = new List<string>();
 			var testCase = Mocks.CoreTestCase(testCaseDisplayName: "TestCase1");
 			var test1 = Mocks.CoreTest(testCase: testCase, testDisplayName: "Test1");
 			var test2 = Mocks.CoreTest(testCase: testCase, testDisplayName: "Test2");
 
-			var runner = new TestableCoreTestCaseRunner([test1, test2], runTestLamda: runTest);
+			using var semaphore = maximumConcurrentTests.HasValue
+				? new TestPipelineSemaphore(maximumConcurrentTests.Value)
+				: null;
 
-			await runner.RunAsync();
-
-			// let each test finish before the next one runs, despite sleeping. However, we don't know which one
-			// gets to go first, so we look at the first one to see which one it is, and make sure the post-sleep happens
-			// directly after the pre-sleep
-			var firstMessage = messages[0];
-			Assert.Contains("pre-sleep", firstMessage);
-			Assert.Equal(firstMessage.Replace("pre-sleep", "post-sleep"), messages[1]);
-
-			var thirdMessage = messages[2];
-			Assert.NotEqual(firstMessage, thirdMessage);
-			Assert.Contains("pre-sleep", thirdMessage);
-			Assert.Equal(thirdMessage.Replace("pre-sleep", "post-sleep"), messages[3]);
-
-			async ValueTask<RunSummary> runTest(ICoreTest test)
-			{
-				messages.Add($"{test.TestDisplayName} pre-sleep");
-
-				await Task.Delay(50, TestContext.Current.CancellationToken);
-
-				messages.Add($"{test.TestDisplayName} post-sleep");
-
-				return new RunSummary { Total = 1 };
-			}
-		}
-
-		[Fact]
-		public async ValueTask ParallelTestsWithSemaphore()
-		{
-			var messages = new List<string>();
-			var testCase = Mocks.CoreTestCase(testCaseDisplayName: "TestCase1");
-			var test1 = Mocks.CoreTest(testCase: testCase, testDisplayName: "Test1");
-			var test2 = Mocks.CoreTest(testCase: testCase, testDisplayName: "Test2");
-			var runner = new TestableCoreTestCaseRunner([test1, test2], runTest,
-				parallelismOptions: ParallelismOptions.All, parallelizationSemaphore: new TestPipelineSemaphore(maximumConcurrentTests: 1));
+			var runner = new TestableCoreTestCaseRunner([test1, test2], runTestLamda: runTest, parallelismOptions, semaphore);
 
 			await runner.RunAsync();
 

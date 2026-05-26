@@ -24,18 +24,21 @@ public interface ITestPipelineSemaphore : IDisposable
 	/// <see cref="CancellationToken"/>.
 	/// </summary>
 	/// <returns>
+	/// A task that will complete when the semaphore has been entered.
+	/// </returns>
+	/// <param name="cancellationToken">The <see cref="CancellationToken"/> token to observe.</param>
+	/// <exception cref="ObjectDisposedException">The current instance has already been disposed.</exception>
+	Task WaitAsync(CancellationToken cancellationToken);
+
+	/// <summary>
+	/// Asynchronously waits to enter the <see cref="ITestPipelineSemaphore"/>, while observing a
+	/// <see cref="CancellationToken"/>.
+	/// </summary>
+	/// <returns>
 	/// A task that will complete when the semaphore has been entered and return a value which releases the semaphore
 	/// when disposed.
 	/// </returns>
 	/// <param name="cancellationToken">The <see cref="CancellationToken"/> token to observe.</param>
 	/// <exception cref="ObjectDisposedException">The current instance has already been disposed.</exception>
-	Task<ReleaseHandle> WaitAsync(CancellationToken cancellationToken);
-}
-
-/// <summary>Struct that releases a <see cref="SemaphoreSlim"/> when disposed.</summary>
-/// <param name="semaphore">The semaphore to release when disposed.</param>
-public readonly struct ReleaseHandle(SemaphoreSlim? semaphore) : IDisposable
-{
-	/// <inheritdoc />
-	public void Dispose() => semaphore?.Release();
+	Task<IDisposable> LockAsync(CancellationToken cancellationToken);
 }
