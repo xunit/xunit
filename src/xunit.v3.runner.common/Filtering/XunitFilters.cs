@@ -9,6 +9,8 @@ namespace Xunit.Runner.Common;
 /// </summary>
 public class XunitFilters : ITestCaseFilter
 {
+	static readonly Version Version_1_0_0 = new(1, 0, 0);
+
 	readonly XunitQueryFilters queryFilters = new();
 	readonly XunitSimpleFilters simpleFilters = new();
 	string? vstestFilter;
@@ -32,6 +34,25 @@ public class XunitFilters : ITestCaseFilter
 		GuardEmptyQueryFilters();
 		GuardEmptyVSTestFilter();
 		simpleFilters.AddExcludedClassFilter(query);
+	}
+
+	/// <summary>
+	/// Adds a simple filter which excludes a test case display name.
+	/// </summary>
+	/// <param name="query">The filter query</param>
+	/// <remarks>
+	/// The query may begin and/or end with <c>*</c> to add as a wildcard. No other wildcards
+	/// are permitted in any other locations.<br />
+	/// <br />
+	/// Note: Display name filters are supported by all v1 and v2 projects. Support for v3 projects
+	/// requires targeting <c>xunit.v3.core</c> version <c>4.0.0</c> or later (these filters will
+	/// be ignored for older versions of <c>xunit.v3.core</c>).
+	/// </remarks>
+	public void AddExcludedDisplayNameFilter(string query)
+	{
+		GuardEmptyQueryFilters();
+		GuardEmptyVSTestFilter();
+		simpleFilters.AddExcludedDisplayNameFilter(query);
 	}
 
 	/// <summary>
@@ -95,6 +116,24 @@ public class XunitFilters : ITestCaseFilter
 		GuardEmptyQueryFilters();
 		GuardEmptyVSTestFilter();
 		simpleFilters.AddIncludedClassFilter(query);
+	}
+
+	/// <summary>
+	/// Adds a simple filter matching a test case display name.
+	/// </summary>
+	/// <remarks>
+	/// The query may begin and/or end with <c>*</c> to add as a wildcard. No other wildcards
+	/// are permitted in any other locations.<br />
+	/// <br />
+	/// Note: Display name filters are supported by all v1 and v2 projects. Support for v3 projects
+	/// requires targeting <c>xunit.v3.core</c> version <c>4.0.0</c> or later (these filters will
+	/// be ignored for older versions of <c>xunit.v3.core</c>).
+	/// </remarks>
+	public void AddIncludedDisplayNameFilter(string query)
+	{
+		GuardEmptyQueryFilters();
+		GuardEmptyVSTestFilter();
+		simpleFilters.AddIncludedDisplayNameFilter(query);
 	}
 
 	/// <summary>
@@ -223,12 +262,25 @@ public class XunitFilters : ITestCaseFilter
 	}
 
 	/// <summary>
+	/// Please call <see cref="ToXunit3Arguments(Version)"/>.
+	/// This overload will be removed in the next major version.
+	/// </summary>
+	/// <remarks>
+	/// This calls <see cref="ToXunit3Arguments(Version)"/> with a version of <c>1.0.0</c>.
+	/// </remarks>
+	[Obsolete("Please call the overload which accepts a Version. This overload will be removed in the next major version.")]
+	public IReadOnlyCollection<string> ToXunit3Arguments() =>
+		ToXunit3Arguments(Version_1_0_0);
+
+	/// <summary>
 	/// Gets the command-line arguments to pass to an xUnit.net v3 test assembly to perform
 	/// the filtering contained within this filter.
 	/// </summary>
-	public IReadOnlyCollection<string> ToXunit3Arguments() =>
+	/// <param name="coreFrameworkVersion">The version of <c>xunit.v3.core</c> that is used. Will filter out
+	/// command line options that aren't available for the given version.</param>
+	public IReadOnlyCollection<string> ToXunit3Arguments(Version coreFrameworkVersion) =>
 		!simpleFilters.Empty
-			? simpleFilters.ToXunit3Arguments()
+			? simpleFilters.ToXunit3Arguments(coreFrameworkVersion)
 			: !queryFilters.Empty
 				? queryFilters.ToXunit3Arguments()
 				: vstestFilter is not null

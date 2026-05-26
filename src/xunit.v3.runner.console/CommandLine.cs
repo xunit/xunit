@@ -35,6 +35,22 @@ public class CommandLine : CommandLineParserBase
 		AddParser("pause", OnPause, CommandLineGroup.General, null, "wait for input before running tests");
 		AddParser("wait", OnWait, CommandLineGroup.General, null, "wait for input after completion");
 
+		// Simple filtering
+		AddParser(
+			"displayName", OnDisplayName, CommandLineGroup.FilterSimple, "\"name\"",
+			"run all tests with a matching test case display name (wildcard '*' is supported",
+			"at the beginning and/or end of the filter)",
+			"  if specified more than once, acts as an OR operation",
+			"    v1 and v2 projects are supported; v3 projects >= 4.0.0 are also supported"
+		);
+		AddParser(
+			"displayName-", OnDisplayNameMinus, CommandLineGroup.FilterSimple, "\"name\"",
+			"do not run tests with a matching test case display name (wildcard '*' is supported",
+			"at the beginning and/or end of the filter)",
+			"  if specified more than once, acts as an AND operation",
+			"    v1 and v2 projects are supported; v3 projects >= 4.0.0 are also supported"
+		);
+
 		// .NET Framework options
 		AddParser(
 			"appDomains", OnAppDomains, CommandLineGroup.NetFramework, "<option>",

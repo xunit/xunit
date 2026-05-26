@@ -403,6 +403,30 @@ public abstract class CommandLineParserBase
 			projectAssembly.Configuration.DiagnosticMessages = true;
 	}
 
+	/// <summary/>
+	protected void OnDisplayName(KeyValuePair<string, string?> option)
+	{
+		if (option.Value is null)
+#pragma warning disable CA1308  // This is for UI purposes, not normalization purposes
+			throw new ArgumentException("missing argument for " + option.Key.ToLowerInvariant());
+#pragma warning restore CA1308
+
+		foreach (var projectAssembly in Project.Assemblies)
+			projectAssembly.Configuration.Filters.AddIncludedDisplayNameFilter(option.Value);
+	}
+
+	/// <summary/>
+	protected void OnDisplayNameMinus(KeyValuePair<string, string?> option)
+	{
+		if (option.Value is null)
+#pragma warning disable CA1308  // This is for UI purposes, not normalization purposes
+			throw new ArgumentException("missing argument for " + option.Key.ToLowerInvariant());
+#pragma warning restore CA1308
+
+		foreach (var projectAssembly in Project.Assemblies)
+			projectAssembly.Configuration.Filters.AddExcludedDisplayNameFilter(option.Value);
+	}
+
 	void OnExplicit(KeyValuePair<string, string?> option)
 	{
 		if (option.Value is null)

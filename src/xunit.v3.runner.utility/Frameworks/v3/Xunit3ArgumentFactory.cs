@@ -315,7 +315,7 @@ public static class Xunit3ArgumentFactory
 		// FILTERS
 
 		if (filters is not null)
-			result.AddRange(filters.ToXunit3Arguments());
+			result.AddRange(filters.ToXunit3Arguments(coreFrameworkVersion));
 
 		return result;
 	}

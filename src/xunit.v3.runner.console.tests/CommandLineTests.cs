@@ -669,6 +669,8 @@ public static class CommandLineTests
 			"-class-",
 			"-method",
 			"-method-",
+			"-displayName",
+			"-displayName-",
 		];
 
 		public static readonly TheoryData<string> SwitchesLowerCase =
@@ -700,7 +702,7 @@ public static class CommandLineTests
 			var project = commandLine.Parse();
 
 			Assert.Collection(
-				project.Assemblies.Single().Configuration.Filters.ToXunit3Arguments(),
+				project.Assemblies.Single().Configuration.Filters.ToXunit3Arguments(new(4, 0, 0)),
 				arg => Assert.Equal(@switch.ToLowerInvariant(), arg),
 				arg => Assert.Equal("value1", arg)
 			);
@@ -716,12 +718,24 @@ public static class CommandLineTests
 			var project = commandLine.Parse();
 
 			Assert.Collection(
-				project.Assemblies.Single().Configuration.Filters.ToXunit3Arguments(),
+				project.Assemblies.Single().Configuration.Filters.ToXunit3Arguments(new(4, 0, 0)),
 				arg => Assert.Equal(@switch.ToLowerInvariant(), arg),
 				arg => Assert.Equal("value2", arg),
 				arg => Assert.Equal(@switch.ToLowerInvariant(), arg),
 				arg => Assert.Equal("value1", arg)
 			);
+		}
+
+		[Theory]
+		[InlineData("-displayName")]
+		[InlineData("-displayName-")]
+		public static void DisplayNameFiltersAreExcludedPriorToVersion4(string @switch)
+		{
+			var commandLine = new TestableCommandLine(CommandLineTestsLocation, "no-config.json", @switch, "value");
+
+			var project = commandLine.Parse();
+
+			Assert.Empty(project.Assemblies.Single().Configuration.Filters.ToXunit3Arguments(new(3, 99, 99)));
 		}
 
 		public static class Traits
@@ -766,7 +780,7 @@ public static class CommandLineTests
 				var project = commandLine.Parse();
 
 				Assert.Collection(
-					project.Assemblies.Single().Configuration.Filters.ToXunit3Arguments(),
+					project.Assemblies.Single().Configuration.Filters.ToXunit3Arguments(new(1, 0, 0)),
 					arg => Assert.Equal(@switch.ToLowerInvariant(), arg),
 					arg => Assert.Equal("foo=bar", arg)
 				);
@@ -782,7 +796,7 @@ public static class CommandLineTests
 				var project = commandLine.Parse();
 
 				Assert.Collection(
-					project.Assemblies.Single().Configuration.Filters.ToXunit3Arguments(),
+					project.Assemblies.Single().Configuration.Filters.ToXunit3Arguments(new(1, 0, 0)),
 					arg => Assert.Equal(@switch.ToLowerInvariant(), arg),
 					arg => Assert.Equal("foo=bar", arg),
 					arg => Assert.Equal(@switch.ToLowerInvariant(), arg),

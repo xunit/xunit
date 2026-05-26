@@ -161,6 +161,18 @@ public sealed class CommandLineOptionsProvider() :
 			    Note: Specifying more than one is an AND operation.
 			          This is categorized as a simple filter. You cannot combine query filters, simple filters, or VSTest filters.
 			""", ArgumentArity.OneOrMore, options => OnFilter(options.Arguments, options.AssemblyConfig.Filters.AddExcludedClassFilter)) },
+		{ "filter-display-name", ("""
+			Run all tests with a matching test case display name. Wildcard '*' is supported at the
+			beginning and/or end of each filter.
+			    Note: Specifying more than one is an OR operation.
+			          This is categorized as a simple filter. You cannot combine query filters, simple filters, or VSTest filters.
+			""", ArgumentArity.OneOrMore, options => OnFilter(options.Arguments, options.AssemblyConfig.Filters.AddIncludedDisplayNameFilter)) },
+		{ "filter-not-display-name", ("""
+			Do not run tests with a matching test case display name. Wildcard '*' is supported at the
+			beginning and/or end of each filter.
+			    Note: Specifying more than one is an AND operation.
+			          This is categorized as a simple filter. You cannot combine query filters, simple filters, or VSTest filters.
+			""", ArgumentArity.OneOrMore, options => OnFilter(options.Arguments, options.AssemblyConfig.Filters.AddExcludedDisplayNameFilter)) },
 		{ "filter-method", ("""
 			Run a given test method. Pass one or more fully qualified method names (i.e.,
 			'MyNamespace.MyClass.MyTestMethod'). Wildcard '*' is supported at the beginning and/or end

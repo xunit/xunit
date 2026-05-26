@@ -380,6 +380,8 @@ public class CommandLineOptionsProviderTests
 			("filter-not-method", "-method-"),
 			("filter-namespace", "-namespace"),
 			("filter-not-namespace", "-namespace-"),
+			("filter-display-name", "-displayname"),
+			("filter-not-display-name", "-displayname-"),
 		];
 
 		[Theory]
@@ -393,7 +395,7 @@ public class CommandLineOptionsProviderTests
 			CommandLineOptionsProvider.Parse(configuration, commandLineOptions, projectAssembly);
 
 			Assert.Collection(
-				projectAssembly.Configuration.Filters.ToXunit3Arguments(),
+				projectAssembly.Configuration.Filters.ToXunit3Arguments(new(4, 0, 0)),
 				arg => Assert.Equal(xunit3Switch, arg),
 				arg => Assert.Equal("foo", arg)
 			);
@@ -410,12 +412,24 @@ public class CommandLineOptionsProviderTests
 			CommandLineOptionsProvider.Parse(configuration, commandLineOptions, projectAssembly);
 
 			Assert.Collection(
-				projectAssembly.Configuration.Filters.ToXunit3Arguments(),
+				projectAssembly.Configuration.Filters.ToXunit3Arguments(new(4, 0, 0)),
 				arg => Assert.Equal(xunit3Switch, arg),
 				arg => Assert.Equal("foo", arg),
 				arg => Assert.Equal(xunit3Switch, arg),
 				arg => Assert.Equal("bar", arg)
 			);
+		}
+
+		[Theory]
+		[InlineData("filter-display-name")]
+		[InlineData("filter-not-display-name")]
+		public void DisplayNameFiltersAreExcludedPriorToVersion4(string mtpSwitch)
+		{
+			commandLineOptions.Set(mtpSwitch, ["foo", "bar"]);
+
+			CommandLineOptionsProvider.Parse(configuration, commandLineOptions, projectAssembly);
+
+			Assert.Empty(projectAssembly.Configuration.Filters.ToXunit3Arguments(new(3, 99, 99)));
 		}
 
 		[Fact]
@@ -427,7 +441,7 @@ public class CommandLineOptionsProviderTests
 			CommandLineOptionsProvider.Parse(configuration, commandLineOptions, projectAssembly);
 
 			Assert.Collection(
-				projectAssembly.Configuration.Filters.ToXunit3Arguments(),
+				projectAssembly.Configuration.Filters.ToXunit3Arguments(new(1, 0, 0)),
 				arg => Assert.Equal("-trait", arg),
 				arg => Assert.Equal("foo=bar", arg),
 				arg => Assert.Equal("-trait-", arg),
