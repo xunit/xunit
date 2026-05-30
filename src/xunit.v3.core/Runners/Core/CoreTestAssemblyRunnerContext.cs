@@ -168,7 +168,7 @@ public abstract class CoreTestAssemblyRunnerContext<TTestAssembly, TTestCollecti
 			parallelSemaphore = new(initialCount: maxParallelThreads);
 
 			ThreadPool.GetMinThreads(out var workerThreads, out var completionPortThreads);
-			var threadFloor = Math.Min(4, maxParallelThreads);
+			var threadFloor = Math.Max(4, maxParallelThreads);
 			if (workerThreads < threadFloor)
 				ThreadPool.SetMinThreads(threadFloor, completionPortThreads);
 		}
