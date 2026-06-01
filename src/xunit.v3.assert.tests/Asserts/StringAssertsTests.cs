@@ -799,9 +799,9 @@ public static class StringAssertsTests
 				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
 					"Assert.Equal() Failure: Strings differ" + Environment.NewLine +
-					$"Expected: {ArgumentFormatter.Ellipsis}\"23456789012345678901234567890123456789\"" + Environment.NewLine +
-					$"Actual:   {ArgumentFormatter.Ellipsis}\"234567890123456789012345678901234567890123456789\"" + Environment.NewLine +
-					"                                                    ↑ (pos 55)",
+					$"Expected: {ArgumentFormatter.Ellipsis}\"0123456789012345678901234567890123456789\"" + Environment.NewLine +
+					$"Actual:   {ArgumentFormatter.Ellipsis}\"01234567890123456789012345678901234567890123456789\"" + Environment.NewLine +
+					"                                                      ↑ (pos 55)",
 					ex.Message
 				);
 			}
@@ -926,10 +926,10 @@ public static class StringAssertsTests
 				Assert.IsType<EqualException>(ex);
 				Assert.Equal(
 					"Assert.Equal() Failure: Strings differ" + Environment.NewLine +
-					"                                                    ↓ (pos 53)" + Environment.NewLine +
-					$"Expected: {ArgumentFormatter.Ellipsis}\"23456789012345678901234567890123456789_1234\"" + Environment.NewLine +
-					$"Actual:   {ArgumentFormatter.Ellipsis}\"234567890123456789012345678901234567890123456789\"" + Environment.NewLine +
-					"                                                    ↑ (pos 55)",
+					"                                                      ↓ (pos 53)" + Environment.NewLine +
+					$"Expected: {ArgumentFormatter.Ellipsis}\"0123456789012345678901234567890123456789_1234\"" + Environment.NewLine +
+					$"Actual:   {ArgumentFormatter.Ellipsis}\"01234567890123456789012345678901234567890123456789\"" + Environment.NewLine +
+					"                                                      ↑ (pos 55)",
 					ex.Message
 				);
 			}
@@ -1116,6 +1116,40 @@ public static class StringAssertsTests
 				$"Actual:   {ArgumentFormatter.Ellipsis}\"56789012345678901234567890123456789012345678901234\"{ArgumentFormatter.Ellipsis}" + Environment.NewLine +
 				"                                       ↑ (pos 50)",
 				ex2.Message
+			);
+		}
+
+		// https://github.com/xunit/xunit/issues/3585
+		[Fact]
+		public static void AlignmentBug()
+		{
+			var ex = Record.Exception(() =>
+				Assert.Equal(
+					 "aaaaa aaaaaaaa            aaa            aaaaaaaaaaaaa                aa aaaaaaaaaaaaaaa a aaaaaaaaaaaaaaa" +
+					 "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa aa aaaaaaa            " +
+					 "    aaa                    aaaaaaaaaa a aaaaaaaaaaaaaaaaaaaaaa                    aaaaaaaaaaaaaaaaaaaaaaaa" +
+					 "a aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa                        aaaaaa" +
+					 "a                        aaaaaaaaaaaaa                        aaaaaaaaaaaaaaaaaa                aaa       " +
+					 "         aaaaaa                aaa                    aaaa aaaaaaaaa                aaa            aaa    " +
+					 "        aaaaaaaaaa            aaaaa",
+					 "aaaaa aaaaaaaa                aaa                aaaaaaaaaaaaa                    aa aaaaaaaaaaaaaaa a aaa" +
+					 "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa aa aaaaaaa" +
+					 "                    aaa                        aaaaaaaaaa a aaaaaaaaaaaaaaaaaaaaaa                        " +
+					 "aaaaaaaaaaaaaaaaaaaaaaaaa aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa      " +
+					 "                      aaaaaaa                            aaaaaaaaaaaaa                            aaaaaaaa" +
+					 "aaaaaaaaaa                    aaa                    aaaaaa                    aaa                        " +
+					 "aaaa aaaaaaaaa                    aaa                aaa                aaaaaaaa",
+					 ignoreAllWhiteSpace: true
+				)
+			);
+
+			Assert.IsType<EqualException>(ex);
+			Assert.Equal(
+				"Assert.Equal() Failure: Strings differ" + Environment.NewLine +
+				"                                             ↓ (pos 652)" + Environment.NewLine +
+				$"Expected: {ArgumentFormatter.Ellipsis}\"        aaa            aaaaaaaaaa            aaaaa\"" + Environment.NewLine +
+				$"Actual:   {ArgumentFormatter.Ellipsis}\"    aaa                aaaaaaaa\"",
+				ex.Message
 			);
 		}
 	}
