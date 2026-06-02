@@ -53,6 +53,8 @@ internal static class TestNodeExtensions
 		ITestMessage testMessage,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>> traits)
 	{
+		result.Properties.Add(new TrxTestDefinitionName(testCase.TestCaseDisplayName));
+
 		if (testCase.TestClassName is not null)
 			result.Properties.Add(new TrxFullyQualifiedTypeNameProperty(testCase.TestClassName));
 

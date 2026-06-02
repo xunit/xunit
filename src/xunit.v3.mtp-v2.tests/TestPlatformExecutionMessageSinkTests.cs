@@ -371,6 +371,9 @@ public static class TestPlatformExecutionMessageSinkTests
 					keyValue => Assert.Equal("'foo' = 'baz'", keyValue)
 				);
 
+				var trxTestDefinitionName = testNode.Properties.Single<TrxTestDefinitionName>();
+				Assert.Equal(TestData.DefaultTestCaseDisplayName, trxTestDefinitionName.TestDefinitionName);
+
 				var trxFQTN = testNode.Properties.Single<TrxFullyQualifiedTypeNameProperty>();
 				Assert.Equal(TestData.DefaultTestClassName, trxFQTN.FullyQualifiedTypeName);
 
