@@ -36,6 +36,7 @@ public class ConsoleRunner(
 	readonly ManualResetEventSlim finishEvent = new(initialState: false);
 	IRunnerLogger? logger;
 	ITestPipelineStartup? pipelineStartup;
+	int shutdownForegroundThreadWaitSeconds = 10;
 	bool started;
 	readonly Assembly testAssembly = Guard.NotNull("Assembly.GetEntryAssembly() returned null", testAssembly ?? Assembly.GetEntryAssembly());
 
@@ -152,6 +153,8 @@ public class ConsoleRunner(
 			var useAnsiColor = project.Configuration.UseAnsiColorOrDefault;
 			if (useAnsiColor)
 				consoleHelper.UseAnsiColor();
+
+			shutdownForegroundThreadWaitSeconds = projectAssembly.Configuration.ShutdownForegroundThreadWaitSecondsOrDefault;
 
 			if (project.Configuration.AssemblyInfoOrDefault)
 			{
@@ -431,17 +434,18 @@ public class ConsoleRunner(
 
 		ThreadPool.QueueUserWorkItem(async _ =>
 		{
+			// Wait 1 second to begin with, so we don't pop the diagnostic message earlier than necessary
 			await Task.Delay(1_000);
 
 			if (!runner.assemblyInfoMode)
 			{
 				if (runner.automatedMode == AutomatedMode.Off)
-					Console.WriteLine("Waiting 10 seconds for foreground threads to exit...");
+					Console.WriteLine("Waiting {0} seconds for foreground threads to exit...", runner.shutdownForegroundThreadWaitSeconds);
 				else
-					runner.logger?.WriteMessage(new DiagnosticMessage("Waiting 10 seconds for foreground threads to exit"));
+					runner.logger?.WriteMessage(new DiagnosticMessage("Waiting {0} seconds for foreground threads to exit", runner.shutdownForegroundThreadWaitSeconds));
 			}
 
-			await Task.Delay(10_000);
+			await Task.Delay(runner.shutdownForegroundThreadWaitSeconds * 1_000);
 
 			if (!runner.assemblyInfoMode)
 			{

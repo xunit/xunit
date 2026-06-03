@@ -103,6 +103,7 @@ public partial class XunitProjectAssembly
 				Configuration.ShadowCopy,
 				Configuration.ShadowCopyFolder,
 				Configuration.ShowLiveOutput,
+				Configuration.ShutdownForegroundThreadWaitSeconds,
 				Configuration.StopOnFail,
 				settings.Options.GetSynchronousMessageReporting() ?? Configuration.SynchronousMessageReporting
 			),
@@ -161,6 +162,7 @@ public partial class XunitProjectAssembly
 				Configuration.ShadowCopy,
 				Configuration.ShadowCopyFolder,
 				settings.ExecutionOptions.GetShowLiveOutput() ?? Configuration.ShowLiveOutput,
+				Configuration.ShutdownForegroundThreadWaitSeconds,
 				settings.ExecutionOptions.GetStopOnTestFail() ?? Configuration.StopOnFail,
 				settings.ExecutionOptions.GetSynchronousMessageReporting() ?? settings.DiscoveryOptions.GetSynchronousMessageReporting() ?? Configuration.SynchronousMessageReporting
 			),
@@ -219,6 +221,7 @@ public partial class XunitProjectAssembly
 				Configuration.ShadowCopy,
 				Configuration.ShadowCopyFolder,
 				settings.Options.GetShowLiveOutput() ?? Configuration.ShowLiveOutput,
+				Configuration.ShutdownForegroundThreadWaitSeconds,
 				settings.Options.GetStopOnTestFail() ?? Configuration.StopOnFail,
 				settings.Options.GetSynchronousMessageReporting() ?? Configuration.SynchronousMessageReporting
 			),

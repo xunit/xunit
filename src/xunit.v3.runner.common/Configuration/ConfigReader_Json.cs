@@ -190,6 +190,11 @@ public static class ConfigReader_Json
 						if (intValue >= 0)
 							configuration.Seed = intValue;
 					}
+					else if (string.Equals(kvp.Key, Configuration.ShutdownForegroundThreadWaitSeconds, StringComparison.OrdinalIgnoreCase))
+					{
+						if (intValue > 0)
+							configuration.ShutdownForegroundThreadWaitSeconds = intValue;
+					}
 				}
 				else if (kvp.Value is string stringValue)
 				{
@@ -275,6 +280,7 @@ public static class ConfigReader_Json
 		public const string Seed = "seed";
 		public const string ShadowCopy = "shadowCopy";
 		public const string ShowLiveOutput = "showLiveOutput";
+		public const string ShutdownForegroundThreadWaitSeconds = "shutdownForegroundThreadWaitSeconds";
 		public const string StopOnFail = "stopOnFail";
 		// This is undocumented but available for our own internal testing
 		public const string SynchronousReporting = "synchronousReporting";

@@ -330,6 +330,7 @@ public class TestPlatformTestFramework :
 		var testAssembly = Assembly.GetEntryAssembly() ?? throw new TestPipelineException("Could not find entry assembly");
 		var resultWriterWarnings = new List<string>();
 		var resultWriters = RegisteredRunnerConfig.GetMicrosoftTestingPlatformResultWriters(testAssembly, resultWriterWarnings);
+		var shutdownForegroundThreadWaitSeconds = 10;
 		CommandLineOptionsProvider.Initialize(resultWriters);
 
 		builder.CommandLine.AddProvider(() => new CommandLineOptionsProvider());
@@ -359,6 +360,8 @@ public class TestPlatformTestFramework :
 				var projectAssembly = new XunitProjectAssembly(project, assemblyFileName, new(3, targetFramework)) { Assembly = testAssembly, ConfigFileName = configFileName };
 				ConfigReader_Json.Load(projectAssembly.Configuration, projectAssembly.AssemblyFileName, projectAssembly.ConfigFileName);
 				project.Add(projectAssembly);
+
+				shutdownForegroundThreadWaitSeconds = projectAssembly.Configuration.ShutdownForegroundThreadWaitSecondsOrDefault;
 
 				// Read configuration and command line options
 				var configuration = serviceProvider.GetConfiguration();
@@ -392,11 +395,12 @@ public class TestPlatformTestFramework :
 
 		ThreadPool.QueueUserWorkItem(async _ =>
 		{
+			// Wait 1 second to begin with, so we don't pop the diagnostic message earlier than necessary
 			await Task.Delay(1_000);
 
-			Console.WriteLine("Waiting 10 seconds for foreground threads to exit...");
+			Console.WriteLine("Waiting {0} seconds for foreground threads to exit...", shutdownForegroundThreadWaitSeconds);
 
-			await Task.Delay(10_000);
+			await Task.Delay(shutdownForegroundThreadWaitSeconds * 1_000);
 
 			Console.Error.WriteLine("[FATAL ERROR] Foreground threads were left running, forcing process exit");
 			Environment.Exit(1);

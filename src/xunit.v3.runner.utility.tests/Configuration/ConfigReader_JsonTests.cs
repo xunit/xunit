@@ -34,6 +34,7 @@ public static class ConfigReader_JsonTests
 		Assert.Null(configuration.PreEnumerateTheories);
 		Assert.True(configuration.ShadowCopyOrDefault);
 		Assert.False(configuration.ShowLiveOutputOrDefault);
+		Assert.Equal(10, configuration.ShutdownForegroundThreadWaitSecondsOrDefault);
 		Assert.False(configuration.StopOnFailOrDefault);
 	}
 
@@ -61,6 +62,7 @@ public static class ConfigReader_JsonTests
 		Assert.False(configuration.ParallelizeTestCollectionsOrDefault);
 		Assert.False(configuration.PreEnumerateTheories);
 		Assert.True(configuration.ShowLiveOutputOrDefault);
+		Assert.Equal(42, configuration.ShutdownForegroundThreadWaitSecondsOrDefault);
 	}
 
 	[Fact]
@@ -88,6 +90,7 @@ public static class ConfigReader_JsonTests
 		Assert.Null(configuration.PreEnumerateTheories);
 		Assert.True(configuration.ShadowCopyOrDefault);
 		Assert.False(configuration.ShowLiveOutputOrDefault);
+		Assert.Equal(10, configuration.ShutdownForegroundThreadWaitSecondsOrDefault);
 		Assert.False(configuration.StopOnFailOrDefault);
 	}
 

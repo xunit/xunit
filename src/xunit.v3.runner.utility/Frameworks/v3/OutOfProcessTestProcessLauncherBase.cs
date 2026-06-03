@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Runtime.InteropServices;
 using Xunit.Runner.Common;
 
@@ -30,7 +31,7 @@ public abstract class OutOfProcessTestProcessLauncherBase : ITestProcessLauncher
 		Guard.ArgumentNotNull(projectAssembly);
 		Guard.ArgumentNotNull(arguments);
 
-		if (projectAssembly?.AssemblyFileName is null)
+		if (projectAssembly.AssemblyFileName is null)
 			return default;
 
 		string? responseFile = default;
@@ -69,8 +70,20 @@ public abstract class OutOfProcessTestProcessLauncherBase : ITestProcessLauncher
 			executableArguments += string.Format(CultureInfo.InvariantCulture, "@@ \"{0}\"", responseFile);
 		}
 
-		return StartTestProcess(executable, executableArguments, responseFile);
+		return StartTestProcess(executable, executableArguments, responseFile, projectAssembly.Configuration.ShutdownForegroundThreadWaitSecondsOrDefault + 5);
 	}
+
+	/// <summary>
+	/// Please override <see cref="StartTestProcess(string, string, string?, int)"/>. This overload will
+	/// never be called, and will be removed in the next major version.
+	/// </summary>
+	[Obsolete("Please override the version with shutdownProcessWaitSeconds. This overload will never be called, and will be removed in the next major version.", error: true)]
+	[EditorBrowsable(EditorBrowsableState.Never)]
+	protected virtual ITestProcess? StartTestProcess(
+		string executable,
+		string executableArguments,
+		string? responseFile) =>
+			throw new NotSupportedException("This method is obsolete. Please call the non-obsolete overload.");
 
 	/// <summary>
 	/// Starts the test process.
@@ -79,6 +92,9 @@ public abstract class OutOfProcessTestProcessLauncherBase : ITestProcessLauncher
 	/// may be depending on the system path to locate the executable)</param>
 	/// <param name="executableArguments">The arguments to pass to the executable</param>
 	/// <param name="responseFile">The response file that's being used, if present</param>
+	/// <param name="shutdownProcessWaitSeconds">The numbers of seconds to wait for the process to shut down before forcefully
+	/// killing it. This value comes from the project assembly configuration (with <c>5</c> added seconds), and should be passed
+	/// into whatever test process object eventually gets created.</param>
 	/// <remarks>
 	/// The response file will be part of the <paramref name="executableArguments"/>, but the actual path to
 	/// the response file is provided here in the even that it needs to be modified or copied elsewhere (at
@@ -89,5 +105,6 @@ public abstract class OutOfProcessTestProcessLauncherBase : ITestProcessLauncher
 	protected abstract ITestProcess? StartTestProcess(
 		string executable,
 		string executableArguments,
-		string? responseFile);
+		string? responseFile,
+		int shutdownProcessWaitSeconds);
 }

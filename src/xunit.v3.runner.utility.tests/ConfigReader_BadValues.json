@@ -17,5 +17,6 @@
   "printMaxStringLength": -1,
   "shadowCopy": "blarch",
   "showLiveOutput": "blarch",
+  "shutdownForegroundThreadWaitSeconds": 0,
   "stopOnFail": "blarch"
 }

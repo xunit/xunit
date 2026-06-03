@@ -19,5 +19,6 @@
   "printMaxStringLength": 500,
   "shadowCopy": false,
   "showLiveOutput": true,
+  "shutdownForegroundThreadWaitSeconds":  42,
   "stopOnFail": true
 }

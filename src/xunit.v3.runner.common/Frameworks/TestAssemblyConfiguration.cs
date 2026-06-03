@@ -41,6 +41,7 @@ public class TestAssemblyConfiguration
 		bool? shadowCopy,
 		string? shadowCopyFolder,
 		bool? showLiveOutput,
+		int? shutdownForegroundThreadWaitSeconds,
 		bool? stopOnFail,
 		bool? synchronousMessageReporting)
 	{
@@ -70,6 +71,7 @@ public class TestAssemblyConfiguration
 		ShadowCopy = shadowCopy;
 		ShadowCopyFolder = shadowCopyFolder;
 		ShowLiveOutput = showLiveOutput;
+		ShutdownForegroundThreadWaitSeconds = shutdownForegroundThreadWaitSeconds;
 		StopOnFail = stopOnFail;
 		SynchronousMessageReporting = synchronousMessageReporting;
 	}
@@ -322,6 +324,27 @@ public class TestAssemblyConfiguration
 	/// If the flag is not set, returns the default value (<see langword="false"/>).
 	/// </summary>
 	public bool ShowLiveOutputOrDefault => ShowLiveOutput ?? false;
+
+	/// <summary>
+	/// Gets or sets a number of seconds to wait for foreground threads to shut down at the end
+	/// of test execution before failing the test run.
+	/// </summary>
+	/// <remarks>
+	/// Must be a non-zero positive value.
+	/// </remarks>
+	public int? ShutdownForegroundThreadWaitSeconds { get; set; }
+
+	/// <summary>
+	/// Gets a number of seconds to wait for foreground threads to shut down at the end of
+	/// test execution before failing the test run. If the value was not set (or set to a value
+	/// less than <c>1</c>), will return the default value (<c>10</c>).
+	/// </summary>
+	public int ShutdownForegroundThreadWaitSecondsOrDefault =>
+		ShutdownForegroundThreadWaitSeconds switch
+		{
+			> 0 => ShutdownForegroundThreadWaitSeconds.Value,
+			_ => 10,
+		};
 
 	/// <summary>
 	/// Gets or sets a flag indicating whether testing should stop on a failure.

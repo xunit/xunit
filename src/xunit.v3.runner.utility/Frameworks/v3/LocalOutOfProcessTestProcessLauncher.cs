@@ -18,6 +18,7 @@ public sealed class LocalOutOfProcessTestProcessLauncher : OutOfProcessTestProce
 	protected sealed override ITestProcess? StartTestProcess(
 		string executable,
 		string executableArguments,
-		string? responseFile) =>
-			LocalTestProcess.Start(executable, executableArguments, responseFile);
+		string? responseFile,
+		int shutdownProcessWaitSeconds) =>
+			LocalTestProcess.Start(executable, executableArguments, responseFile, shutdownProcessWaitSeconds);
 }
