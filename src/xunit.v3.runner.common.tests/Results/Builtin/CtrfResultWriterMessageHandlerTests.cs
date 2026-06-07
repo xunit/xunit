@@ -388,7 +388,7 @@ public static class CtrfResultWriterMessageHandlerTests
 			ITestPassed => ("passed", null, null, null),
 			ITestFailed failed => ("failed", ExceptionUtility.CombineMessages(failed), failed.ExceptionTypes[0], ExceptionUtility.CombineStackTraces(failed)),
 			ITestSkipped skipped => ("skipped", skipped.Reason, null, null),
-			ITestNotRun => ("pending", null, null, null),
+			ITestNotRun => ("pending", "Not run (due to explicit test filtering)", null, null),
 			_ => throw new ArgumentException("Unknown test result type"),
 		};
 

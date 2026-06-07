@@ -341,7 +341,10 @@ public class CtrfResultWriterMessageHandler : ResultMetadataMessageHandlerBase<C
 		if (!TryGetResultMetadata(message.AssemblyUniqueID, out var resultMetadata))
 			return;
 
-		resultMetadata.TestResults.TryAdd(message.TestUniqueID, new(message, resultMetadata));
+		resultMetadata.TestResults.TryAdd(message.TestUniqueID, new(message, resultMetadata)
+		{
+			Message = "Not run (due to explicit test filtering)",
+		});
 	}
 
 	void HandleTestPassed(MessageHandlerArgs<ITestPassed> args)
