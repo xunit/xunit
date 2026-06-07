@@ -133,6 +133,10 @@ public static class TestConfig
 		if (TryParseBool(showLiveOutputString, out var showLiveOutput))
 			projectAssembly.Configuration.ShowLiveOutput = showLiveOutput;
 
+		var shutdownForegroundThreadWaitSecondsString = configuration[Keys.ShutdownForegroundThreadWaitSeconds];
+		if (int.TryParse(shutdownForegroundThreadWaitSecondsString, out var shutdownForegroundThreadWaitSeconds) && shutdownForegroundThreadWaitSeconds > 0)
+			projectAssembly.Configuration.ShutdownForegroundThreadWaitSeconds = shutdownForegroundThreadWaitSeconds;
+
 		var stopOnFailString = configuration[Keys.StopOnFail];
 		if (TryParseBool(stopOnFailString, out var stopOnFail))
 			projectAssembly.Configuration.StopOnFail = stopOnFail;
@@ -196,6 +200,8 @@ public static class TestConfig
 		public const string Seed = "xUnit:seed";
 		/// <summary/>
 		public const string ShowLiveOutput = "xUnit:showLiveOutput";
+		/// <summary/>
+		public const string ShutdownForegroundThreadWaitSeconds = "xUnit:shutdownForegroundThreadWaitSeconds";
 		/// <summary/>
 		public const string StopOnFail = "xUnit:stopOnFail";
 	}

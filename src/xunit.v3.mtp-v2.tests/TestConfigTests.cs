@@ -214,6 +214,7 @@ public class TestConfigTests
 			(TestConfig.Keys.PrintMaxObjectMemberCount, assembly => assembly.Configuration.PrintMaxObjectMemberCount, 0),
 			(TestConfig.Keys.PrintMaxStringLength, assembly => assembly.Configuration.PrintMaxStringLength, 0),
 			(TestConfig.Keys.Seed, assembly => assembly.Configuration.Seed, 0),
+			(TestConfig.Keys.ShutdownForegroundThreadWaitSeconds, assembly => assembly.Configuration.ShutdownForegroundThreadWaitSeconds, 1),
 		];
 
 		public static IEnumerable<TheoryDataRow<string, string, Expression<Func<XunitProjectAssembly, int?>>, int>> ValidValues()
