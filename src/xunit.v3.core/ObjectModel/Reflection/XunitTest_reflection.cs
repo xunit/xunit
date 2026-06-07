@@ -99,7 +99,7 @@ public class XunitTest : IXunitTest
 
 		Guard.ArgumentNotNull(traits);
 
-		var result = new Dictionary<string, IReadOnlyCollection<string>>(traits.Count);
+		var result = new Dictionary<string, IReadOnlyCollection<string>>(traits.Count, StringComparer.OrdinalIgnoreCase);
 		foreach (var kvp in traits)
 			result.Add(kvp.Key, kvp.Value.CastOrToReadOnlyList());
 		Traits = result;
@@ -140,7 +140,7 @@ public class XunitTest : IXunitTest
 			Traits = EmptyDictionary;
 		else
 		{
-			var result = new Dictionary<string, IReadOnlyCollection<string>>(traits.Count);
+			var result = new Dictionary<string, IReadOnlyCollection<string>>(traits.Count, StringComparer.OrdinalIgnoreCase);
 			foreach (var kvp in traits)
 				result.Add(kvp.Key, kvp.Value.CastOrToReadOnlyList());
 			Traits = result;

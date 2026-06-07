@@ -223,7 +223,7 @@ public static class ConsoleProjectLister
 		ListFormat format)
 			where TTestCase : ITestCaseMetadata
 	{
-		var combinedTraits = new Dictionary<string, HashSet<string>>();
+		var combinedTraits = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
 		foreach (var traits in testCasesByAssembly.SelectMany(kvp => kvp.Value).Select(tc => tc.Traits).WhereNotNull())
 			foreach (var kvp in traits)

@@ -646,7 +646,7 @@ public static class JsonDeserializer
 		if (TryGetObject(value) is not IReadOnlyDictionary<string, object?> traits)
 			return defaultEmptyDictionary ? emptyTraits : null;
 
-		var result = new Dictionary<string, IReadOnlyCollection<string>>();
+		var result = new Dictionary<string, IReadOnlyCollection<string>>(StringComparer.OrdinalIgnoreCase);
 
 		foreach (var kvp in traits)
 		{

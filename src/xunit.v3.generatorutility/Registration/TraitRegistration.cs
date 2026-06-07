@@ -17,7 +17,7 @@ namespace Xunit.Generators
 	public class TraitRegistration : IEquatable<TraitRegistration>
 	{
 		readonly Dictionary<string, HashSet<string>> assemblyTraits = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
-		readonly Dictionary<string, Dictionary<string, HashSet<string>>> classTraits = new Dictionary<string, Dictionary<string, HashSet<string>>>();
+		readonly Dictionary<string, Dictionary<string, HashSet<string>>> classTraits = new Dictionary<string, Dictionary<string, HashSet<string>>>(StringComparer.OrdinalIgnoreCase);
 		readonly Dictionary<(string? TestCollectionName, string TestCollectionType), Dictionary<string, HashSet<string>>> collectionTraits = new Dictionary<(string? TestCollectionName, string TestCollectionType), Dictionary<string, HashSet<string>>>();
 		readonly Dictionary<(string TestClassIndex, string MethodName), Dictionary<string, HashSet<string>>> methodTraits = new Dictionary<(string TestClassIndex, string MethodName), Dictionary<string, HashSet<string>>>();
 
