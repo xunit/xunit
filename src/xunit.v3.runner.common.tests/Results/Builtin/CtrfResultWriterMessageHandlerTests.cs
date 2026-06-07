@@ -153,6 +153,7 @@ public static class CtrfResultWriterMessageHandlerTests
 		var caseStarting = TestData.TestCaseStarting(traits: TestData.EmptyTraits);
 		var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
 		var testPassed = TestData.TestPassed(executionTime: 123.4567809m, output: "test output");
+		var testFinished = TestData.TestFinished();
 		var assemblyFinished = TestData.TestAssemblyFinished();
 		await using var handler = TestableCtrfResultWriterMessageHandler.Create();
 
@@ -163,6 +164,7 @@ public static class CtrfResultWriterMessageHandlerTests
 		handler.OnMessage(caseStarting);
 		handler.OnMessage(testStarting);
 		handler.OnMessage(testPassed);
+		handler.OnMessage(testFinished);
 		handler.OnMessage(assemblyFinished);
 
 		var root = await handler.Root();
@@ -180,7 +182,7 @@ public static class CtrfResultWriterMessageHandlerTests
 
 		var tests = JsonDeserializer.TryGetArray(results, "tests");
 		Assert.NotNull(tests);
-		VerifyTest(handler.FileSystem, Assert.Single(tests), testPassed, classStarting, methodStarting, caseStarting, testStarting);
+		VerifyTest(handler.FileSystem, Assert.Single(tests), testPassed, classStarting, methodStarting, caseStarting, testStarting, testFinished);
 	}
 
 	[CulturedFact(["en-US", "fr-FR"])]
@@ -193,6 +195,7 @@ public static class CtrfResultWriterMessageHandlerTests
 		var caseStarting = TestData.TestCaseStarting(traits: TestData.EmptyTraits);
 		var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
 		var testFailed = TestData.TestFailed(executionTime: 123.4567809m);
+		var testFinished = TestData.TestFinished();
 		var assemblyFinished = TestData.TestAssemblyFinished();
 		await using var handler = TestableCtrfResultWriterMessageHandler.Create();
 
@@ -203,6 +206,7 @@ public static class CtrfResultWriterMessageHandlerTests
 		handler.OnMessage(caseStarting);
 		handler.OnMessage(testStarting);
 		handler.OnMessage(testFailed);
+		handler.OnMessage(testFinished);
 		handler.OnMessage(assemblyFinished);
 
 		var root = await handler.Root();
@@ -220,7 +224,7 @@ public static class CtrfResultWriterMessageHandlerTests
 
 		var tests = JsonDeserializer.TryGetArray(results, "tests");
 		Assert.NotNull(tests);
-		VerifyTest(handler.FileSystem, Assert.Single(tests), testFailed, classStarting, methodStarting, caseStarting, testStarting);
+		VerifyTest(handler.FileSystem, Assert.Single(tests), testFailed, classStarting, methodStarting, caseStarting, testStarting, testFinished);
 	}
 
 	[CulturedFact(["en-US", "fr-FR"])]
@@ -233,6 +237,7 @@ public static class CtrfResultWriterMessageHandlerTests
 		var caseStarting = TestData.TestCaseStarting(traits: TestData.EmptyTraits);
 		var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
 		var testSkipped = TestData.TestSkipped(reason: "Don't run me");
+		var testFinished = TestData.TestFinished();
 		var assemblyFinished = TestData.TestAssemblyFinished();
 		await using var handler = TestableCtrfResultWriterMessageHandler.Create();
 
@@ -243,6 +248,7 @@ public static class CtrfResultWriterMessageHandlerTests
 		handler.OnMessage(caseStarting);
 		handler.OnMessage(testStarting);
 		handler.OnMessage(testSkipped);
+		handler.OnMessage(testFinished);
 		handler.OnMessage(assemblyFinished);
 
 		var root = await handler.Root();
@@ -260,7 +266,7 @@ public static class CtrfResultWriterMessageHandlerTests
 
 		var tests = JsonDeserializer.TryGetArray(results, "tests");
 		Assert.NotNull(tests);
-		VerifyTest(handler.FileSystem, Assert.Single(tests), testSkipped, classStarting, methodStarting, caseStarting, testStarting);
+		VerifyTest(handler.FileSystem, Assert.Single(tests), testSkipped, classStarting, methodStarting, caseStarting, testStarting, testFinished);
 	}
 
 	[CulturedFact(["en-US", "fr-FR"])]
@@ -273,6 +279,7 @@ public static class CtrfResultWriterMessageHandlerTests
 		var caseStarting = TestData.TestCaseStarting(traits: TestData.EmptyTraits);
 		var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
 		var testNotRun = TestData.TestNotRun();
+		var testFinished = TestData.TestFinished();
 		var assemblyFinished = TestData.TestAssemblyFinished();
 		await using var handler = TestableCtrfResultWriterMessageHandler.Create();
 
@@ -283,6 +290,7 @@ public static class CtrfResultWriterMessageHandlerTests
 		handler.OnMessage(caseStarting);
 		handler.OnMessage(testStarting);
 		handler.OnMessage(testNotRun);
+		handler.OnMessage(testFinished);
 		handler.OnMessage(assemblyFinished);
 
 		var root = await handler.Root();
@@ -300,7 +308,7 @@ public static class CtrfResultWriterMessageHandlerTests
 
 		var tests = JsonDeserializer.TryGetArray(results, "tests");
 		Assert.NotNull(tests);
-		VerifyTest(handler.FileSystem, Assert.Single(tests), testNotRun, classStarting, methodStarting, caseStarting, testStarting);
+		VerifyTest(handler.FileSystem, Assert.Single(tests), testNotRun, classStarting, methodStarting, caseStarting, testStarting, testFinished);
 	}
 
 	static void VerifySuite(
@@ -371,7 +379,7 @@ public static class CtrfResultWriterMessageHandlerTests
 		ITestMethodStarting methodStarting,
 		ITestCaseStarting caseStarting,
 		ITestStarting testStarting,
-		ITestFinished? testFinished = null)
+		ITestFinished testFinished)
 	{
 		Assert.NotNull(testObj);
 
@@ -393,6 +401,8 @@ public static class CtrfResultWriterMessageHandlerTests
 		Assert.Equal(caseStarting.SourceLineNumber, JsonDeserializer.TryGetInt(test, "line"));
 		Assert.Equal(message, JsonDeserializer.TryGetString(test, "message"));
 		Assert.Equal(trace, JsonDeserializer.TryGetString(test, "trace"));
+		Assert.Equal(testStarting.StartTime.ToUnixTimeMilliseconds(), JsonDeserializer.TryGetLong(test, "start"));
+		Assert.Equal(testFinished.FinishTime.ToUnixTimeMilliseconds(), JsonDeserializer.TryGetLong(test, "stop"));
 
 		var suites = JsonDeserializer.TryGetArrayOfString(test, "suite");
 		Assert.NotNull(suites);
@@ -405,7 +415,7 @@ public static class CtrfResultWriterMessageHandlerTests
 			Assert.Null(tags);
 
 		var attachments = JsonDeserializer.TryGetArray(test, "attachments");
-		if (testFinished?.Attachments is not null && testFinished.Attachments.Count != 0)
+		if (testFinished.Attachments is not null && testFinished.Attachments.Count != 0)
 		{
 			Assert.NotNull(attachments);
 			Assert.Equal(testFinished.Attachments.Count, attachments.Length);

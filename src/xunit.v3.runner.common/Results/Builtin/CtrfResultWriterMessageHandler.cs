@@ -201,6 +201,12 @@ public class CtrfResultWriterMessageHandler : ResultMetadataMessageHandlerBase<C
 
 								testJson.SerializeStringArray("suite", suites);
 
+								if (testResult.Start is not null && testResult.Stop is not null)
+								{
+									testJson.Serialize("start", testResult.Start);
+									testJson.Serialize("stop", testResult.Stop);
+								}
+
 								if (testResult.Traits.TryGetValue("Category", out var categories))
 									using (var tags = testJson.SerializeArray("tags"))
 										foreach (var categoryValue in categories)
@@ -414,7 +420,12 @@ public class CtrfResultWriterMessageHandler : ResultMetadataMessageHandlerBase<C
 		ITestFinished message,
 		ResultMetadata resultMetadata)
 	{
-		if (message.Attachments.Count == 0 || !resultMetadata.TestResults.TryGetValue(message.TestUniqueID, out var testResult))
+		if (!resultMetadata.TestResults.TryGetValue(message.TestUniqueID, out var testResult))
+			return;
+
+		testResult.Stop = message.FinishTime.ToUnixTimeMilliseconds();
+
+		if (message.Attachments.Count == 0)
 			return;
 
 		var basePath = Path.Combine(Path.GetTempPath(), message.TestUniqueID);
@@ -495,6 +506,7 @@ public class CtrfResultWriterMessageHandler : ResultMetadataMessageHandlerBase<C
 				ITestSkipped => "skipped",
 				_ => "other",
 			};
+			Start = (testMetadata as ITestStarting)?.StartTime.ToUnixTimeMilliseconds();
 			Suite = result.AssemblyUniqueID;
 			Traits = testMetadata?.Traits ?? EmptyTraits;
 			Type = testClassMetadata?.TestClassName;
@@ -513,6 +525,8 @@ public class CtrfResultWriterMessageHandler : ResultMetadataMessageHandlerBase<C
 		internal string Name;
 		internal string Output;
 		internal string Status;
+		internal long? Start;
+		internal long? Stop;
 		internal string Suite;
 		internal string? Trace;
 		internal IReadOnlyDictionary<string, IReadOnlyCollection<string>> Traits;
