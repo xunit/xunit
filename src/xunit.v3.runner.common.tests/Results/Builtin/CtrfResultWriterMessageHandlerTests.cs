@@ -389,11 +389,14 @@ public static class CtrfResultWriterMessageHandlerTests
 		Assert.Equal(testStarting.TestDisplayName, JsonDeserializer.TryGetString(test, "name"));
 		Assert.Equal(status, JsonDeserializer.TryGetString(test, "status"));
 		Assert.Equal((long)(testResult.ExecutionTime * 1000), JsonDeserializer.TryGetLong(test, "duration"));
-		Assert.Equal(testResult.AssemblyUniqueID, JsonDeserializer.TryGetString(test, "suite"));
 		Assert.Equal(caseStarting.SourceFilePath, JsonDeserializer.TryGetString(test, "filePath"));
 		Assert.Equal(caseStarting.SourceLineNumber, JsonDeserializer.TryGetInt(test, "line"));
 		Assert.Equal(message, JsonDeserializer.TryGetString(test, "message"));
 		Assert.Equal(trace, JsonDeserializer.TryGetString(test, "trace"));
+
+		var suites = JsonDeserializer.TryGetArrayOfString(test, "suite");
+		Assert.NotNull(suites);
+		Assert.Equal([testResult.AssemblyUniqueID, testResult.TestCollectionUniqueID, classStarting.TestClassName, methodStarting.MethodName], suites);
 
 		var tags = JsonDeserializer.TryGetArrayOfString(test, "tags");
 		if (testStarting.Traits.TryGetValue("Category", out var values))

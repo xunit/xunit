@@ -186,11 +186,20 @@ public class CtrfResultWriterMessageHandler : ResultMetadataMessageHandlerBase<C
 								testJson.Serialize("name", testResult.Name);
 								testJson.Serialize("status", testResult.Status);
 								testJson.Serialize("duration", testResult.Duration);
-								testJson.Serialize("suite", testResult.Suite);
 								testJson.Serialize("filePath", testResult.FilePath);
 								testJson.Serialize("line", testResult.Line);
 								testJson.Serialize("message", testResult.Message);
 								testJson.Serialize("trace", testResult.Trace);
+
+								var suites = new List<string> { testResult.Suite, testResult.Collection };
+								if (testResult.Type is not null)
+								{
+									suites.Add(testResult.Type);
+									if (testResult.Method is not null)
+										suites.Add(testResult.Method);
+								}
+
+								testJson.SerializeStringArray("suite", suites);
 
 								if (testResult.Traits.TryGetValue("Category", out var categories))
 									using (var tags = testJson.SerializeArray("tags"))
