@@ -99,6 +99,7 @@ public class CtrfResultWriterMessageHandler : ResultMetadataMessageHandlerBase<C
 
 					using (var environmentJson = resultsJson.SerializeObject("environment"))
 					{
+						var osDescription = RuntimeInformation.OSDescription.Trim();
 						var osPlatform = "unknown";
 						if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
 							osPlatform = "win32";
@@ -111,7 +112,8 @@ public class CtrfResultWriterMessageHandler : ResultMetadataMessageHandlerBase<C
 							osPlatform = "freebsd";
 
 						environmentJson.Serialize("osPlatform", osPlatform);
-						environmentJson.Serialize("osRelease", RuntimeInformation.OSDescription.Trim());
+						environmentJson.Serialize("osRelease", osDescription);
+						environmentJson.Serialize("osVersion", osDescription);
 					}
 
 					using (var extraJson = resultsJson.SerializeObject("extra"))

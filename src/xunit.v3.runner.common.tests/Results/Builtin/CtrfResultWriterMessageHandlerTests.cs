@@ -61,7 +61,9 @@ public static class CtrfResultWriterMessageHandlerTests
 		var environment = JsonDeserializer.TryGetObject(results, "environment");
 		Assert.NotNull(environment);
 		Assert.Equal(CurrentOsPlatform, JsonDeserializer.TryGetString(environment, "osPlatform"));
-		Assert.Equal(RuntimeInformation.OSDescription.Trim(), JsonDeserializer.TryGetString(environment, "osRelease"));
+		var osDescription = RuntimeInformation.OSDescription.Trim();
+		Assert.Equal(osDescription, JsonDeserializer.TryGetString(environment, "osRelease"));
+		Assert.Equal(osDescription, JsonDeserializer.TryGetString(environment, "osVersion"));
 
 		var extra = JsonDeserializer.TryGetObject(results, "extra");
 		Assert.NotNull(extra);
