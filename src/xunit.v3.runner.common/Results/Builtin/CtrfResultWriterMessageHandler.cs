@@ -99,13 +99,16 @@ public class CtrfResultWriterMessageHandler : ResultMetadataMessageHandlerBase<C
 
 					using (var environmentJson = resultsJson.SerializeObject("environment"))
 					{
-						var osPlatform = "Unknown";
+						var osPlatform = "unknown";
 						if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-							osPlatform = "Windows";
+							osPlatform = "win32";
 						else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-							osPlatform = "Linux";
+							osPlatform = "linux";
 						else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-							osPlatform = "macOS";
+							osPlatform = "darwin";
+						// This built-in value is not available in netstandard2.0
+						else if (RuntimeInformation.IsOSPlatform(OSPlatform.Create("FREEBSD")))
+							osPlatform = "freebsd";
 
 						environmentJson.Serialize("osPlatform", osPlatform);
 						environmentJson.Serialize("osRelease", RuntimeInformation.OSDescription.Trim());

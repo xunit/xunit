@@ -11,13 +11,15 @@ public static class CtrfResultWriterMessageHandlerTests
 
 	static CtrfResultWriterMessageHandlerTests()
 	{
-		CurrentOsPlatform = "Unknown";
+		CurrentOsPlatform = "unknown";
 		if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-			CurrentOsPlatform = "Windows";
+			CurrentOsPlatform = "win32";
 		else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-			CurrentOsPlatform = "Linux";
+			CurrentOsPlatform = "linux";
 		else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-			CurrentOsPlatform = "macOS";
+			CurrentOsPlatform = "darwin";
+		else if (RuntimeInformation.IsOSPlatform(OSPlatform.Create("FREEBSD")))
+			CurrentOsPlatform = "freebsd";
 	}
 
 	[Theory]
