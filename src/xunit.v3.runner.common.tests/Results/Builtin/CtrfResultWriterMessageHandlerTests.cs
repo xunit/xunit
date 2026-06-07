@@ -152,7 +152,7 @@ public static class CtrfResultWriterMessageHandlerTests
 		var methodStarting = TestData.TestMethodStarting(methodName: nameof(ClassUnderTest.TestMethod));
 		var caseStarting = TestData.TestCaseStarting(traits: TestData.EmptyTraits);
 		var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
-		var testPassed = TestData.TestPassed(executionTime: 123.4567809m, output: "test output");
+		var testPassed = TestData.TestPassed(executionTime: 123.4567809m, output: $"Line 1{Environment.NewLine}Line 2{Environment.NewLine}Line 3{Environment.NewLine}");
 		var testFinished = TestData.TestFinished();
 		var assemblyFinished = TestData.TestAssemblyFinished();
 		await using var handler = TestableCtrfResultWriterMessageHandler.Create();
@@ -414,6 +414,12 @@ public static class CtrfResultWriterMessageHandlerTests
 		else
 			Assert.Null(tags);
 
+		if (!string.IsNullOrWhiteSpace(testResult.Output))
+		{
+			var lines = testResult.Output.TrimEnd(Environment.NewLine.ToArray()).Split([Environment.NewLine], StringSplitOptions.None);
+			Assert.Equal(lines, JsonDeserializer.TryGetArrayOfString(test, "stdout"));
+		}
+
 		var attachments = JsonDeserializer.TryGetArray(test, "attachments");
 		if (testFinished.Attachments is not null && testFinished.Attachments.Count != 0)
 		{
@@ -457,7 +463,6 @@ public static class CtrfResultWriterMessageHandlerTests
 		Assert.Equal(classStarting.TestClassName, JsonDeserializer.TryGetString(extra, "type"));
 		Assert.Equal(methodStarting.MethodName, JsonDeserializer.TryGetString(extra, "method"));
 		Assert.Equal(exception, JsonDeserializer.TryGetString(extra, "exception"));
-		Assert.Equal(testResult.Output, JsonDeserializer.TryGetString(extra, "output") ?? string.Empty);
 
 		var warnings = JsonDeserializer.TryGetArrayOfString(extra, "warnings");
 		if (testResult.Warnings is not null && testResult.Warnings.Length != 0)

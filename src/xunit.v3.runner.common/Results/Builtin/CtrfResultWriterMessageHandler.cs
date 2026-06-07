@@ -222,6 +222,9 @@ public class CtrfResultWriterMessageHandler : ResultMetadataMessageHandlerBase<C
 											attachmentJson.Serialize("path", attachment.Path);
 										}
 
+								if (testResult.Output is not null && testResult.Output.Length != 0)
+									testJson.SerializeStringArray("stdout", testResult.Output);
+
 								using var extraJson = testJson.SerializeObject("extra");
 
 								extraJson.Serialize("id", testResult.ID);
@@ -229,9 +232,6 @@ public class CtrfResultWriterMessageHandler : ResultMetadataMessageHandlerBase<C
 								extraJson.Serialize("type", testResult.Type);
 								extraJson.Serialize("method", testResult.Method);
 								extraJson.Serialize("exception", testResult.Exception);
-
-								if (testResult.Output.Length != 0)
-									extraJson.Serialize("output", testResult.Output);
 
 								if (testResult.Warnings is not null && testResult.Warnings.Length != 0)
 									extraJson.SerializeStringArray("warnings", testResult.Warnings);
@@ -500,7 +500,6 @@ public class CtrfResultWriterMessageHandler : ResultMetadataMessageHandlerBase<C
 			Line = testCaseMetadata?.SourceLineNumber;
 			Method = testMethodMetadata?.MethodName;
 			Name = testMetadata?.TestDisplayName ?? "<unknown test>";
-			Output = result.Output;
 			Status = result switch
 			{
 				ITestFailed => "failed",
@@ -514,6 +513,9 @@ public class CtrfResultWriterMessageHandler : ResultMetadataMessageHandlerBase<C
 			Traits = testMetadata?.Traits ?? EmptyTraits;
 			Type = testClassMetadata?.TestClassName;
 			Warnings = result.Warnings;
+
+			if (!string.IsNullOrWhiteSpace(result.Output))
+				Output = result.Output.TrimEnd(Environment.NewLine.ToArray()).Split([Environment.NewLine], StringSplitOptions.None);
 		}
 
 		internal readonly List<(string Name, string ContentType, string Path)> Attachments = [];
@@ -526,7 +528,7 @@ public class CtrfResultWriterMessageHandler : ResultMetadataMessageHandlerBase<C
 		internal string? Message;
 		internal string? Method;
 		internal string Name;
-		internal string Output;
+		internal string[]? Output;
 		internal string Status;
 		internal long? Start;
 		internal long? Stop;
