@@ -138,9 +138,6 @@ namespace Xunit.Generators
 			if (methodSymbol is { ReturnsVoid: true, IsAsync: true })
 				return;
 
-			//if (!ValidReturnTypes.Contains(methodSymbol.ReturnType.ToCSharp(includeGlobal: false)))
-			//	return;
-
 			var (attribute, generator) = attributes[0];
 			var registration = generator.GetTestMethodRegistration(semanticModel, classSymbol, methodDeclaration, methodSymbol, attribute);
 			if (registration is not null)
