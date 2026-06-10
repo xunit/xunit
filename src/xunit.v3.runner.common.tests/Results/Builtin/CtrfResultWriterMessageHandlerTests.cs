@@ -8,6 +8,11 @@ using Xunit.Sdk;
 public static class CtrfResultWriterMessageHandlerTests
 {
 	static readonly string CurrentOsPlatform;
+	static readonly Dictionary<string, IReadOnlyCollection<string>> StandardTraits = new(StringComparer.OrdinalIgnoreCase)
+	{
+		["category"] = ["unit-test", "fast"],
+		["author"] = ["Brad"],
+	};
 
 	static CtrfResultWriterMessageHandlerTests()
 	{
@@ -151,7 +156,7 @@ public static class CtrfResultWriterMessageHandlerTests
 		var classStarting = TestData.TestClassStarting(testClassName: typeof(ClassUnderTest).FullName!);
 		var methodStarting = TestData.TestMethodStarting(methodName: nameof(ClassUnderTest.TestMethod));
 		var caseStarting = TestData.TestCaseStarting(traits: TestData.EmptyTraits);
-		var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
+		var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name", traits: StandardTraits);
 		var testPassed = TestData.TestPassed(executionTime: 123.4567809m, output: $"Line 1{Environment.NewLine}Line 2{Environment.NewLine}Line 3{Environment.NewLine}");
 		var testFinished = TestData.TestFinished();
 		var assemblyFinished = TestData.TestAssemblyFinished();
@@ -193,7 +198,7 @@ public static class CtrfResultWriterMessageHandlerTests
 		var classStarting = TestData.TestClassStarting(testClassName: typeof(ClassUnderTest).FullName!);
 		var methodStarting = TestData.TestMethodStarting(methodName: nameof(ClassUnderTest.TestMethod));
 		var caseStarting = TestData.TestCaseStarting(traits: TestData.EmptyTraits);
-		var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
+		var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name", traits: StandardTraits);
 		var testFailed = TestData.TestFailed(executionTime: 123.4567809m);
 		var testFinished = TestData.TestFinished();
 		var assemblyFinished = TestData.TestAssemblyFinished();
@@ -235,7 +240,7 @@ public static class CtrfResultWriterMessageHandlerTests
 		var classStarting = TestData.TestClassStarting(testClassName: typeof(ClassUnderTest).FullName!);
 		var methodStarting = TestData.TestMethodStarting(methodName: nameof(ClassUnderTest.TestMethod));
 		var caseStarting = TestData.TestCaseStarting(traits: TestData.EmptyTraits);
-		var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
+		var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name", traits: StandardTraits);
 		var testSkipped = TestData.TestSkipped(reason: "Don't run me");
 		var testFinished = TestData.TestFinished();
 		var assemblyFinished = TestData.TestAssemblyFinished();
@@ -277,7 +282,7 @@ public static class CtrfResultWriterMessageHandlerTests
 		var classStarting = TestData.TestClassStarting(testClassName: typeof(ClassUnderTest).FullName!);
 		var methodStarting = TestData.TestMethodStarting(methodName: nameof(ClassUnderTest.TestMethod));
 		var caseStarting = TestData.TestCaseStarting(traits: TestData.EmptyTraits);
-		var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
+		var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name", traits: StandardTraits);
 		var testNotRun = TestData.TestNotRun();
 		var testFinished = TestData.TestFinished();
 		var assemblyFinished = TestData.TestAssemblyFinished();
@@ -414,6 +419,20 @@ public static class CtrfResultWriterMessageHandlerTests
 		else
 			Assert.Null(tags);
 
+		var labels = JsonDeserializer.TryGetObject(test, "labels");
+		if (testStarting.Traits.Count == 0)
+			Assert.Null(labels);
+		else
+		{
+			Assert.NotNull(labels);
+
+			foreach (var kvp in testStarting.Traits)
+				if (kvp.Value.Count == 1)
+					Assert.Equal(kvp.Value.First(), JsonDeserializer.TryGetString(labels, kvp.Key));
+				else
+					Assert.Equal(kvp.Value, JsonDeserializer.TryGetArrayOfString(labels, kvp.Key));
+		}
+
 		if (!string.IsNullOrWhiteSpace(testResult.Output))
 		{
 			var lines = testResult.Output.TrimEnd(Environment.NewLine.ToArray()).Split([Environment.NewLine], StringSplitOptions.None);
@@ -469,16 +488,6 @@ public static class CtrfResultWriterMessageHandlerTests
 			Assert.Equal(testResult.Warnings, warnings);
 		else
 			Assert.Null(warnings);
-
-		var traits = JsonDeserializer.TryGetObject(extra, "traits");
-		if (testStarting.Traits.Count == 0)
-			Assert.Null(traits);
-		else
-		{
-			Assert.NotNull(traits);
-			foreach (var kvp in testStarting.Traits)
-				Assert.Equal(kvp.Value, JsonDeserializer.TryGetArrayOfString(traits, kvp.Key));
-		}
 	}
 
 	class ClassUnderTest

@@ -212,6 +212,18 @@ public class CtrfResultWriterMessageHandler : ResultMetadataMessageHandlerBase<C
 										foreach (var categoryValue in categories)
 											tags.Serialize(categoryValue);
 
+								if (testResult.Traits.Count != 0)
+									using (var traitsJson = testJson.SerializeObject("labels"))
+										foreach (var kvp in testResult.Traits)
+										{
+											if (kvp.Value.Count == 1)
+												traitsJson.Serialize(kvp.Key, kvp.Value.First());
+											else
+												using (var traitNameJson = traitsJson.SerializeArray(kvp.Key))
+													foreach (var value in kvp.Value)
+														traitNameJson.Serialize(value);
+										}
+
 								if (testResult.Attachments is not null && testResult.Attachments.Count != 0)
 									using (var attachmentsJson = testJson.SerializeArray("attachments"))
 										foreach (var attachment in testResult.Attachments)
@@ -235,13 +247,6 @@ public class CtrfResultWriterMessageHandler : ResultMetadataMessageHandlerBase<C
 
 								if (testResult.Warnings is not null && testResult.Warnings.Length != 0)
 									extraJson.SerializeStringArray("warnings", testResult.Warnings);
-
-								if (testResult.Traits.Count != 0)
-									using (var traitsJson = extraJson.SerializeObject("traits"))
-										foreach (var kvp in testResult.Traits)
-											using (var traitNameJson = traitsJson.SerializeArray(kvp.Key))
-												foreach (var value in kvp.Value)
-													traitNameJson.Serialize(value);
 							}
 				}
 
