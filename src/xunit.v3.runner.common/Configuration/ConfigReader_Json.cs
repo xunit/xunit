@@ -198,7 +198,21 @@ public static class ConfigReader_Json
 				}
 				else if (kvp.Value is string stringValue)
 				{
-					if (string.Equals(kvp.Key, Configuration.MaxParallelThreads, StringComparison.OrdinalIgnoreCase))
+					if (string.Equals(kvp.Key, Configuration.AppDomain, StringComparison.OrdinalIgnoreCase))
+					{
+						if (Enum.TryParse<AppDomainSupport>(stringValue, true, out var appDomain))
+							configuration.AppDomain = appDomain;
+					}
+					else if (string.Equals(kvp.Key, Configuration.Culture, StringComparison.OrdinalIgnoreCase))
+					{
+						configuration.Culture =
+							string.Equals("default", stringValue, StringComparison.OrdinalIgnoreCase)
+								? null
+								: string.Equals("invariant", stringValue, StringComparison.OrdinalIgnoreCase)
+									? string.Empty
+									: stringValue;
+					}
+					else if (string.Equals(kvp.Key, Configuration.MaxParallelThreads, StringComparison.OrdinalIgnoreCase))
 					{
 						if (string.Equals("default", stringValue, StringComparison.OrdinalIgnoreCase))
 							configuration.MaxParallelThreads = null;
@@ -223,20 +237,6 @@ public static class ConfigReader_Json
 					{
 						if (Enum.TryParse<TestMethodDisplayOptions>(stringValue, true, out var methodDisplayOptions))
 							configuration.MethodDisplayOptions = methodDisplayOptions;
-					}
-					else if (string.Equals(kvp.Key, Configuration.AppDomain, StringComparison.OrdinalIgnoreCase))
-					{
-						if (Enum.TryParse<AppDomainSupport>(stringValue, true, out var appDomain))
-							configuration.AppDomain = appDomain;
-					}
-					else if (string.Equals(kvp.Key, Configuration.Culture, StringComparison.OrdinalIgnoreCase))
-					{
-						configuration.Culture =
-							string.Equals("default", stringValue, StringComparison.OrdinalIgnoreCase)
-								? null
-								: string.Equals("invariant", stringValue, StringComparison.OrdinalIgnoreCase)
-									? string.Empty
-									: stringValue;
 					}
 					else if (string.Equals(kvp.Key, Configuration.ParallelAlgorithm, StringComparison.OrdinalIgnoreCase))
 					{
