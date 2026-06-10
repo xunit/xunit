@@ -20,18 +20,16 @@ namespace Xunit.Generators
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TheoryMethodDetails"/> class.
 		/// </summary>
-		/// <param name="semanticModel">The semantic model</param>
 		/// <param name="classSymbol">The test class symbol</param>
 		/// <param name="methodDeclaration">The test method declaration</param>
 		/// <param name="methodSymbol">The test method symbol</param>
 		/// <param name="attribute">The <c>[Theory]</c> or <c>[CulturedTheory]</c> attribute</param>
 		public TheoryMethodDetails(
-			SemanticModel semanticModel,
 			INamedTypeSymbol classSymbol,
 			MethodDeclarationSyntax methodDeclaration,
 			IMethodSymbol methodSymbol,
 			AttributeData attribute) :
-				base(semanticModel, classSymbol, methodDeclaration, methodSymbol, attribute)
+				base(classSymbol, methodDeclaration, methodSymbol, attribute)
 		{
 			var requiredParameterCount = methodSymbol.Parameters.Where(p => !p.IsOptional && !p.IsParams).Count();
 

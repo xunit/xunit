@@ -15,18 +15,16 @@ namespace Xunit.Generators
 		/// <summary>
 		/// Initializes a new instance of the <see cref="FactMethodDetails"/> class.
 		/// </summary>
-		/// <param name="semanticModel">The semantic model</param>
 		/// <param name="classSymbol">The test class symbol</param>
 		/// <param name="methodDeclaration">The test method declaration</param>
 		/// <param name="methodSymbol">The test method symbol</param>
 		/// <param name="attribute">The <c>[Fact]</c> or <c>[CulturedFact]</c> attribute</param>
 		public FactMethodDetails(
-			SemanticModel semanticModel,
 			INamedTypeSymbol classSymbol,
 			MethodDeclarationSyntax methodDeclaration,
 			IMethodSymbol methodSymbol,
 			AttributeData attribute) :
-				base(semanticModel, classSymbol, methodDeclaration, methodSymbol, attribute)
+				base(classSymbol, methodDeclaration, methodSymbol, attribute)
 		{
 			MethodInvoker = (classSymbol.IsStatic || MethodSymbol.IsStatic, MethodSymbol.ReturnType.SpecialType == SpecialType.System_Void) switch
 			{

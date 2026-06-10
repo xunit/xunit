@@ -30,18 +30,14 @@ namespace Xunit.Generators
 	/// </remarks>
 	public class TestMethodDetails
 	{
-		readonly SemanticModel semanticModel;
-
 		/// <summary>
 		/// Initializes a new instance of the <see cref="TestMethodDetails"/> class.
 		/// </summary>
-		/// <param name="semanticModel">The semantic model</param>
 		/// <param name="classSymbol">The test class symbol</param>
 		/// <param name="methodDeclaration">The test method declaration</param>
 		/// <param name="methodSymbol">The test method symbol</param>
 		/// <param name="attribute">The attribute (expected to be shaped like <c>[FactAttribute]</c>)</param>
 		public TestMethodDetails(
-			SemanticModel semanticModel,
 			INamedTypeSymbol classSymbol,
 			MethodDeclarationSyntax methodDeclaration,
 			IMethodSymbol methodSymbol,
@@ -51,7 +47,6 @@ namespace Xunit.Generators
 			MethodDeclaration = methodDeclaration ?? throw new ArgumentNullException(nameof(methodDeclaration));
 			MethodSymbol = methodSymbol ?? throw new ArgumentNullException(nameof(methodSymbol));
 			Attribute = attribute ?? throw new ArgumentNullException(nameof(attribute));
-			this.semanticModel = semanticModel ?? throw new ArgumentNullException(nameof(semanticModel));
 			TypeIndex = classSymbol.ToTypeIndex();
 
 			if (Attribute.AttributeConstructor != null)
@@ -186,32 +181,9 @@ namespace Xunit.Generators
 		public int Timeout { get; set; }
 
 		/// <summary>
-		/// Gets the traits attached to the test method
-		/// </summary>
-		public Dictionary<string, HashSet<string>> Traits { get; } = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
-
-		/// <summary>
 		/// Gets the type index of the test class.
 		/// </summary>
 		public string TypeIndex { get; }
-
-		/// <summary>
-		/// Adds a trait key and value to <see cref="Traits"/>.
-		/// </summary>
-		/// <param name="key">The trait key</param>
-		/// <param name="value">The trait value</param>
-		protected void AddTrait(
-			string key,
-			string value)
-		{
-			if (!Traits.TryGetValue(key, out var hashSet))
-			{
-				hashSet = new HashSet<string>();
-				Traits[key] = hashSet;
-			}
-
-			hashSet.Add(value);
-		}
 
 		/// <summary>
 		/// Processes the test method.
@@ -233,13 +205,6 @@ namespace Xunit.Generators
 			foreach (var kvp in Attribute.NamedArguments)
 				ProcessNamedArgument(kvp.Key, kvp.Value);
 
-			foreach (var methodAttributeSyntax in MethodDeclaration.AttributeLists.SelectMany(a => a.Attributes))
-			{
-				var attributeSymbol = semanticModel.GetTypeInfo(methodAttributeSyntax);
-				if (attributeSymbol.Type?.ToString() is { } attributeTypeName)
-					ProcessMethodAttributeDeclaration(attributeTypeName, methodAttributeSyntax);
-			}
-
 			foreach (var methodAttribute in MethodSymbol.GetAttributes())
 			{
 				var attributeTypeName =
@@ -257,37 +222,6 @@ namespace Xunit.Generators
 				return false;
 
 			return VerifySkipProperty(SkipUnless) && VerifySkipProperty(SkipWhen);
-		}
-
-		/// <summary>
-		/// This method processes attributes attached to the test method declarationally (meaning, this
-		/// list of attributes only includes attributes from the current source file).
-		/// </summary>
-		/// <param name="typeName">The attribute type name</param>
-		/// <param name="attributeSyntax">The attribute</param>
-		/// <remarks>
-		/// This currently processes the following attributes:
-		/// <list type="bullet">
-		/// <item><c>TraitAttribute</c></item>
-		/// </list>
-		/// You can override this to provide support for additional attributes on the test method.
-		/// </remarks>
-		protected virtual void ProcessMethodAttributeDeclaration(
-			string typeName,
-			AttributeSyntax attributeSyntax)
-		{
-			if (typeName is null || attributeSyntax is null)
-				return;
-
-			switch (typeName)
-			{
-				case Types.Xunit.TraitAttribute:
-					if (attributeSyntax.ArgumentList?.Arguments.Count == 2
-							&& attributeSyntax.ArgumentList.Arguments[0].Expression is LiteralExpressionSyntax nameExpression
-							&& attributeSyntax.ArgumentList.Arguments[1].Expression is LiteralExpressionSyntax valueExpression)
-						AddTrait(nameExpression.Token.ValueText, valueExpression.Token.ValueText);
-					break;
-			}
 		}
 
 		/// <summary>

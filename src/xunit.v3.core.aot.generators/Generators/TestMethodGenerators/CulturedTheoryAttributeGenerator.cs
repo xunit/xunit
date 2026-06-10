@@ -28,7 +28,7 @@ public class CulturedTheoryAttributeGenerator : ITestMethodGenerator
 		if (testMethod.Parameters.FirstOrDefault(p => p.IsParams) is { } paramsParameter)
 			return null;
 
-		var details = new TheoryMethodDetails(semanticModel, testClass, testMethodSyntax, testMethod, attribute);
+		var details = new TheoryMethodDetails(testClass, testMethodSyntax, testMethod, attribute);
 		if (!details.Process())
 			return null;
 
