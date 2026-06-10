@@ -7,9 +7,9 @@ partial class XunitRunnerHelper
 {
 	/// <summary>
 	/// Please call <see cref="RunXunitTestCase(IXunitTestCase, IMessageBus, CancellationTokenSource, ExceptionAggregator, ExplicitOption, object?[], FixtureMappingManager)"/>.
-	/// This overload is not supported, and will be removed from the next major version.
+	/// This overload is not supported, and will be removed in the next major version.
 	/// </summary>
-	[Obsolete("Please call the overload that accepts methodFixtureMappings. This overload is not supported, and will be removed from the next major version.", error: true)]
+	[Obsolete("Please call the overload that accepts methodFixtureMappings. This overload is not supported, and will be removed in the next major version.", error: true)]
 	[EditorBrowsable(EditorBrowsableState.Never)]
 	public static ValueTask<RunSummary> RunXunitTestCase(
 		IXunitTestCase testCase,
@@ -18,7 +18,7 @@ partial class XunitRunnerHelper
 		ExceptionAggregator aggregator,
 		ExplicitOption explicitOption,
 		object?[] constructorArguments) =>
-			throw new PlatformNotSupportedException("Please call the overload that accepts methodFixtureMappings. This overload is not supported, and will be removed from the next major version.");
+			throw new PlatformNotSupportedException("Please call the overload that accepts methodFixtureMappings. This overload is not supported, and will be removed in the next major version.");
 
 	/// <summary>
 	/// Runs a single test case (which implements <see cref="IXunitTestCase"/>) using

@@ -120,13 +120,13 @@ public abstract class TestRunner<TContext, TTest> :
 
 	/// <summary>
 	/// This functionality has moved to <see cref="CoreTestRunnerContext{TTest, TBeforeAfterAttribute}.InvokeTest"/> and is no longer called.
-	/// It will be removed from the next major version.
+	/// It will be removed in the next major version.
 	/// </summary>
-	[Obsolete("This functionality has moved to CoreTestRunnerContext.InvokeTest and is no longer called. It will be removed from the next major version.", error: true)]
+	[Obsolete("This functionality has moved to CoreTestRunnerContext.InvokeTest and is no longer called. It will be removed in the next major version.", error: true)]
 	protected object? InvokeTestMethod(
 		TContext ctxt,
 		object? testClassInstance) =>
-			throw new NotSupportedException("This method is not supported and will be removed from the next major version");
+			throw new NotSupportedException("This method is not supported and will be removed in the next major version");
 
 	/// <summary>
 	/// Override to determine whether a test class should be created.
