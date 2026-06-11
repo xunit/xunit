@@ -2,8 +2,6 @@
 
 using System.Reflection;
 using System.Runtime.InteropServices;
-using Microsoft.Build.Framework;
-using NSubstitute;
 using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Runner.MSBuild;
@@ -54,9 +52,8 @@ public static class xunitTests
 			xunit.Execute();
 
 			var versionAttribute = typeof(xunit).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
-			var eventArgs = Assert.IsType<BuildMessageEventArgs>(xunit.BuildEngine.Captured(x => x.LogMessageEvent(null)).Args().Single());
-			Assert.Equal($"xUnit.net v3 MSBuild Runner v{versionAttribute!.InformationalVersion} ({IntPtr.Size * 8}-bit {RuntimeInformation.FrameworkDescription})", eventArgs.Message);
-			Assert.Equal(MessageImportance.High, eventArgs.Importance);
+			var message = Assert.Single(xunit.EngineMessages);
+			Assert.Equal($"MESSAGE[High]: xUnit.net v3 MSBuild Runner v{versionAttribute!.InformationalVersion} ({IntPtr.Size * 8}-bit {RuntimeInformation.FrameworkDescription})", message);
 		}
 
 		[Fact]
@@ -184,8 +181,8 @@ public static class xunitTests
 			var reporter = xunit.GetReporter();
 
 			Assert.Null(reporter);
-			var eventArgs = Assert.IsType<BuildErrorEventArgs>(xunit.BuildEngine.Captured(x => x.LogErrorEvent(null)).Args().Single());
-			Assert.Equal("Reporter value 'foo' is invalid. There are no available reporters.", eventArgs.Message);
+			var message = Assert.Single(xunit.EngineMessages);
+			Assert.Equal("ERROR: Reporter value 'foo' is invalid. There are no available reporters.", message);
 		}
 
 		[Fact]
@@ -197,14 +194,17 @@ public static class xunitTests
 			var reporter = xunit.GetReporter();
 
 			Assert.Null(reporter);
-			var eventArgs = Assert.IsType<BuildErrorEventArgs>(xunit.BuildEngine.Captured(x => x.LogErrorEvent(null)).Args().Single());
-			Assert.Equal("Reporter value 'foo' is invalid. Available reporters: switch1, switch2", eventArgs.Message);
+			var message = Assert.Single(xunit.EngineMessages);
+			Assert.Equal("ERROR: Reporter value 'foo' is invalid. Available reporters: switch1, switch2", message);
 		}
 	}
 
 	public class Testable_xunit : xunit
 	{
+		readonly MockBuildEngine buildEngine = new();
 		public readonly List<IRunnerReporter> AvailableReporters = [];
+
+		public List<string> EngineMessages => buildEngine.Messages;
 
 		public Testable_xunit()
 			: this(0)
@@ -212,7 +212,7 @@ public static class xunitTests
 
 		public Testable_xunit(int exitCode)
 		{
-			BuildEngine = Substitute.For<IBuildEngine>();
+			BuildEngine = buildEngine;
 			Assemblies = [];
 			ExitCode = exitCode;
 		}

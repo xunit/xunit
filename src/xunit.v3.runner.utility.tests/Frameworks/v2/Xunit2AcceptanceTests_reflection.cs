@@ -1,6 +1,5 @@
 #if NETFRAMEWORK
 
-using NSubstitute;
 using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Runner.v2;
@@ -63,8 +62,7 @@ namespace Namespace2
 }";
 
 				using var assembly = await CSharpAcceptanceTestV2Assembly.Create(code);
-				var sourceInformationProvider = Substitute.For<ISourceInformationProvider, InterfaceProxy<ISourceInformationProvider>>();
-				sourceInformationProvider.GetSourceInformation("Namespace1.Class1", "Trait").Returns(new SourceInformation("/path/to/source/file.cs", 2112));
+				var sourceInformationProvider = Mocks.SourceInformationProvider(("Namespace1.Class1", "Trait", "/path/to/source/file.cs", 2112));
 				var controller = TestableXunit2.Create(assembly.FileName, shadowCopy: true, sourceInformationProvider: sourceInformationProvider);
 				var sink = new TestDiscoverySink();
 				var settings = new FrontControllerFindSettings(TestData.TestFrameworkDiscoveryOptions(includeSourceInformation: true));

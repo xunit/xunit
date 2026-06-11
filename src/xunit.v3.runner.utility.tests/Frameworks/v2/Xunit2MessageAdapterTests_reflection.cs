@@ -1,5 +1,4 @@
 using System.Runtime.InteropServices;
-using NSubstitute;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Runner.v2;
@@ -50,30 +49,30 @@ public static class Xunit2MessageAdapterTests
 		);
 
 		TestCollectionDefinition = Xunit2Mocks.TypeInfo();
-		TestCollection = Xunit2Mocks.TestCollection(TestAssembly, TestCollectionDefinition, "test-collection-display-name");
+		TestCollection = Xunit2Mocks.TestCollection(TestCollectionDefinition, "test-collection-display-name", TestAssembly);
 		TestCollectionUniqueID = UniqueIDGenerator.ForTestCollection(
 			TestAssemblyUniqueID,
 			TestCollection.DisplayName,
 			TestCollectionDefinition.Name
 		);
 
-		TestClassType = Xunit2Mocks.TypeInfo("TestNamespace.TestClass+EmbeddedClass");
-		TestClass = Xunit2Mocks.TestClass(TestCollection, TestClassType);
+		TestClassType = Xunit2Mocks.TypeInfo(name: "TestNamespace.TestClass+EmbeddedClass");
+		TestClass = Xunit2Mocks.TestClass(TestClassType, TestCollection);
 		TestClassUniqueID = UniqueIDGenerator.ForTestClass(
 			TestCollectionUniqueID,
 			TestClass.Class.Name
 		);
 
-		TestMethod = Xunit2Mocks.TestMethod(TestClass, "MyTestMethod");
+		TestMethod = Xunit2Mocks.TestMethod("MyTestMethod", TestClass);
 		TestMethodUniqueID = UniqueIDGenerator.ForTestMethod(
 			TestClassUniqueID,
 			TestMethod.Method.Name
 		);
 
-		TestCase = Xunit2Mocks.TestCase(TestMethod, "test-case-display-name", "skip-reason", "source-file", 2112, Traits, "test-case-id");
+		TestCase = Xunit2Mocks.TestCase(TestMethod, "test-case-display-name", "skip-reason", "source-file", 2112, testMethodArguments: null, Traits, "test-case-id");
 		TestCaseUniqueID = TestCase.UniqueID;
 
-		Test = Xunit2Mocks.Test(TestCase, "test-display-name");
+		Test = Xunit2Mocks.Test("test-display-name", TestCase);
 		TestUniqueID = UniqueIDGenerator.ForTest(TestCaseUniqueID, 0);
 	}
 
@@ -184,8 +183,7 @@ public static class Xunit2MessageAdapterTests
 		public static void TestCaseDiscoveryMessage()
 		{
 			var v2Message = Xunit2Mocks.TestCaseDiscoveryMessage(TestCase);
-			var discoverer = Substitute.For<ITestFrameworkDiscoverer>();
-			discoverer.Serialize(TestCase).Returns("abc123");
+			var discoverer = Xunit2Mocks.TestFrameworkDiscoverer((TestCase, "abc123"));
 			var v2Adapter = new Xunit2MessageAdapter(TestAssemblyUniqueID, discoverer);
 
 			var adapted = v2Adapter.Adapt(v2Message);
@@ -256,12 +254,12 @@ public static class Xunit2MessageAdapterTests
 		public static void TestAssemblyFinished()
 		{
 			var v2Message = Xunit2Mocks.TestAssemblyFinished(
-				TestAssembly,
+				executionTime: 123.4567m
+,
+				testAssembly: TestAssembly,
 				testsRun: 2112,
 				testsFailed: 42,
-				testsSkipped: 6,
-				executionTime: 123.4567m
-			);
+				testsSkipped: 6);
 			var v2Adapter = new Xunit2MessageAdapter(TestAssemblyUniqueID);
 
 			var adapted = v2Adapter.Adapt(v2Message);
@@ -287,12 +285,12 @@ public static class Xunit2MessageAdapterTests
 					? @"C:\Users\bradwilson\xunit.runner.json"
 					: "/home/bradwilson/xunit.runner.json";
 
-			var testAssembly = Xunit2Mocks.TestAssembly(assemblyPath, configFilePath, "target-framework");
+			var testAssembly = Xunit2Mocks.TestAssembly(assemblyPath, configFilePath, targetFrameworkName: "target-framework");
 			var v2Message = Xunit2Mocks.TestAssemblyStarting(
-				testAssembly,
 				new DateTime(2020, 11, 3, 17, 55, 0, DateTimeKind.Utc),
-				"test-environment",
-				"test-framework"
+				testAssembly,
+				testEnvironment: "test-environment",
+				testFrameworkDisplayName: "test-framework"
 			);
 			var v2Adapter = new Xunit2MessageAdapter(TestAssemblyUniqueID);
 

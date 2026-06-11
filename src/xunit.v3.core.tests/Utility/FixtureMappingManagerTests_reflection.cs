@@ -1,4 +1,4 @@
-using NSubstitute;
+using System.Reflection;
 using Xunit;
 using Xunit.Sdk;
 using Xunit.v3;
@@ -22,8 +22,7 @@ partial class FixtureMappingManagerTests
 	public static async ValueTask UsesTypeActivator()
 	{
 		var expected = new object();
-		var typeActivator = Substitute.For<ITypeActivator, InterfaceProxy<ITypeActivator>>();
-		typeActivator.CreateInstance(null!, null).ReturnsForAnyArgs(expected);
+		var typeActivator = new MockTypeActivator(expected);
 		var manager = new TestableFixtureMappingManager(typeActivator);
 
 		await manager.InitializeAsync(typeof(object));
@@ -71,5 +70,14 @@ partial class FixtureMappingManagerTests
 		public TestableFixtureMappingManager(params object[] cachedFixtureValues) :
 			base("Testable", cachedFixtureValues)
 		{ }
+	}
+
+	class MockTypeActivator(object result) : ITypeActivator
+	{
+		public object CreateInstance(
+			ConstructorInfo constructor,
+			object?[]? arguments,
+			Func<Type, IReadOnlyCollection<ParameterInfo>, string> missingArgumentMessageFormatter) =>
+				result;
 	}
 }

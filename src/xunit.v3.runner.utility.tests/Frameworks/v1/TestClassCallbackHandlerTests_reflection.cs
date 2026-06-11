@@ -2,7 +2,6 @@
 
 using System.Reflection;
 using System.Xml;
-using NSubstitute;
 using Xunit;
 using Xunit.Runner.v1;
 using Xunit.Sdk;
@@ -14,7 +13,7 @@ public static class TestClassCallbackHandlerTests
 	[Fact]
 	public static void WithClassNode_ParsesNumbersWithInvariantCulture()
 	{
-		var handler = new TestClassCallbackHandler("assembly", [], Substitute.For<IMessageSink>());
+		var handler = new TestClassCallbackHandler("assembly", [], SpyMessageSink.Create());
 		var xml = new XmlDocument();
 		xml.LoadXml("<class time='1.234' total='4' failed='3' skipped='2' />");
 

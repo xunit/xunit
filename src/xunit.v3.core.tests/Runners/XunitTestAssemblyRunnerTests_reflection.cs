@@ -1,7 +1,6 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
-using NSubstitute;
 using Xunit;
 using Xunit.Sdk;
 using Xunit.v3;
@@ -450,20 +449,8 @@ public static class XunitTestAssemblyRunnerTests
 		[Fact]
 		public static async ValueTask OrdererWithThrowingConstructor()
 		{
-			var testCollectionOrdererAttribute = Substitute.For<CustomAttributeData>();
-#if !NETFRAMEWORK  // Not virtual in .NET Framework
-			testCollectionOrdererAttribute.AttributeType.Returns(typeof(TestCollectionOrdererAttribute));
-#endif
-			testCollectionOrdererAttribute.Constructor.Returns(Assert.Single(typeof(TestCollectionOrdererAttribute).GetConstructors()));
-			testCollectionOrdererAttribute.ConstructorArguments.Returns([new CustomAttributeTypedArgument(typeof(Type), typeof(MyCtorThrowingOrderer))]);
-			testCollectionOrdererAttribute.NamedArguments.Returns([]);
-
-			var assembly = Substitute.For<MockAssembly>();
-			assembly.GetCustomAttributes(Arg.Any<Type>(), Arg.Any<bool>()).Returns(_ => Array.Empty<Attribute>());
-			assembly.GetCustomAttributesData().Returns(_ => [testCollectionOrdererAttribute]);
-			assembly.GetName().Returns(new AssemblyName("test-assembly"));
-			assembly.Location.Returns("/fake/path/to/test-assembly.dll");
-
+			var testCollectionOrdererAttribute = Mocks.CustomAttributeData(typeof(TestCollectionOrdererAttribute), typeof(MyCtorThrowingOrderer));
+			var assembly = new MockAssembly(testCollectionOrdererAttribute);
 			var testAssembly = TestData.XunitTestAssembly(assembly);
 			var testCollection = TestData.XunitTestCollection(testAssembly);
 			var testClass = TestData.XunitTestClass(typeof(TestClassWithCtorThrowingOrderer), testCollection);
@@ -511,9 +498,6 @@ public static class XunitTestAssemblyRunnerTests
 				where TTestCollection : ITestCollection =>
 					[];
 		}
-
-		// Needs a public constructor for mocking purposes
-		public class MockAssembly : Assembly { }
 	}
 
 	class TestableXunitTestAssemblyRunner(IXunitTestCase testCase) :
@@ -523,5 +507,14 @@ public static class XunitTestAssemblyRunnerTests
 
 		public ValueTask<RunSummary> RunAsync() =>
 			Run(testCase.TestCollection.TestAssembly, [testCase], MessageSink, TestData.TestFrameworkExecutionOptions(), default);
+	}
+
+	class MockAssembly(CustomAttributeData customAttributeData) : Assembly
+	{
+		public override string Location => "/fake/path/to/test-assembly.dll";
+
+		public override object[] GetCustomAttributes(Type attributeType, bool inherit) => Array.Empty<Attribute>();
+		public override IList<CustomAttributeData> GetCustomAttributesData() => [customAttributeData];
+		public override AssemblyName GetName() => new("test-assembly");
 	}
 }

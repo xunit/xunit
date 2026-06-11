@@ -1,10 +1,29 @@
 using System.Reflection;
+using Xunit.Runner.Common;
 using Xunit.Sdk;
 using Xunit.v3;
 
 // This file manufactures mocks of test framework interfaces
 public static partial class Mocks
 {
+	public static ISourceInformationProvider SourceInformationProvider(params (string testClassName, string testMethodName, string fileName, int lineNumber)[] mappedPaths) =>
+		new MockSourceInformationProvider(mappedPaths);
+
+	sealed class MockSourceInformationProvider((string testClassName, string testMethodName, string fileName, int lineNumber)[] mappedPaths) :
+		ISourceInformationProvider
+	{
+		public ValueTask DisposeAsync() => default;
+
+		public SourceInformation GetSourceInformation(string? testClassName, string? testMethodName)
+		{
+			var match = mappedPaths.FirstOrDefault(p => p.testClassName == testClassName && p.testMethodName == testMethodName);
+			if (match.fileName is not null)
+				return new SourceInformation(match.fileName, match.lineNumber);
+
+			return new SourceInformation($"File for {testClassName}.{testMethodName}", null);
+		}
+	}
+
 	public static ITestFramework TestFramework(
 		ITestFrameworkDiscoverer? discoverer = null,
 		ITestFrameworkExecutor? executor = null,

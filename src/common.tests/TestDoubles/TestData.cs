@@ -20,6 +20,7 @@ public static partial class TestData
 	public static readonly string?[] DefaultExceptionTypes = [typeof(DivideByZeroException).FullName];
 	public const decimal DefaultExecutionTime = 123.4567m;
 	public static DateTimeOffset DefaultFinishTime = new(2024, 07, 04, 21, 12, 28, TimeSpan.Zero);
+	public const int DefaultMethodArity = 0;
 	public const string DefaultMethodName = "test-method";
 	public static string[] DefaultMethodParameterTypes = [typeof(int).ToVSTestTypeName(), typeof(string).ToVSTestTypeName()];
 	public static string DefaultMethodReturnType = typeof(void).ToVSTestTypeName();
@@ -48,6 +49,7 @@ public static partial class TestData
 	public const string DefaultTestUniqueID = "test-id";
 	public static readonly IReadOnlyDictionary<string, IReadOnlyCollection<string>> DefaultTraits = new Dictionary<string, HashSet<string>>() { ["foo"] = ["bar", "baz"], ["biff"] = ["bang"] }.ToReadOnly();
 	public static readonly IReadOnlyDictionary<string, IReadOnlyCollection<string>> DefaultTraitsWithCategory = new Dictionary<string, HashSet<string>>() { ["foo"] = ["bar", "baz"], ["biff"] = ["bang"], ["category"] = ["interesting"] }.ToReadOnly();
+	public static readonly Version DefaultVersion = new Version(2112, 42, 2600);
 	public static readonly IReadOnlyDictionary<string, TestAttachment> EmptyAttachments = new Dictionary<string, TestAttachment>();
 	public static readonly IReadOnlyDictionary<string, IReadOnlyCollection<string>> EmptyTraits = new Dictionary<string, IReadOnlyCollection<string>>();
 

@@ -2,7 +2,6 @@
 
 using System.Runtime.InteropServices;
 using System.Web.UI;
-using NSubstitute;
 using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Runner.v1;
@@ -46,7 +45,7 @@ public static class Xunit1Tests
 
 			await xunit1.DisposeAsync();
 
-			xunit1.Executor.Received(1).Dispose();
+			Assert.True(xunit1.Executor.DisposeCalled);
 		}
 	}
 
@@ -56,7 +55,7 @@ public static class Xunit1Tests
 		public static void ReturnsDisplayNameFromExecutor()
 		{
 			var xunit1 = new TestableXunit1();
-			xunit1.Executor.TestFrameworkDisplayName.Returns("Test Framework Display Name");
+			xunit1.Executor.TestFrameworkDisplayName = "Test Framework Display Name";
 
 			var result = xunit1.TestFrameworkDisplayName;
 
@@ -86,10 +85,7 @@ public static class Xunit1Tests
 </assembly>";
 
 			var xunit1 = new TestableXunit1();
-			xunit1
-				.Executor
-				.WhenForAnyArgs(x => x.EnumerateTests(null))
-				.Do(callInfo => callInfo.Arg<ICallbackEventHandler>().RaiseCallbackEvent(xml));
+			xunit1.Executor.EnumerateTests__Result = xml;
 			var sink = new TestableTestDiscoverySink();
 
 			xunit1.Find(sink);
@@ -182,10 +178,7 @@ public static class Xunit1Tests
 </assembly>";
 
 			var xunit1 = new TestableXunit1();
-			xunit1
-				.Executor
-				.WhenForAnyArgs(x => x.EnumerateTests(null))
-				.Do(callInfo => callInfo.Arg<ICallbackEventHandler>().RaiseCallbackEvent(xml));
+			xunit1.Executor.EnumerateTests__Result = xml;
 			var sink = new TestableTestDiscoverySink();
 
 			xunit1.Find(sink, filter: msg => msg.TestClassName == "Namespace1.OuterType1+Type1");
@@ -207,14 +200,7 @@ public static class Xunit1Tests
 </assembly>";
 
 			var xunit1 = new TestableXunit1();
-			xunit1
-				.Executor
-				.WhenForAnyArgs(x => x.EnumerateTests(null))
-				.Do(callInfo => callInfo.Arg<ICallbackEventHandler>().RaiseCallbackEvent(xml));
-			xunit1
-				.SourceInformationProvider
-				.GetSourceInformation(null, null)
-				.ReturnsForAnyArgs(callInfo => new SourceInformation($"File for {callInfo.Args()[0]}.{callInfo.Args()[1]}", null));
+			xunit1.Executor.EnumerateTests__Result = xml;
 			var sink = new TestableTestDiscoverySink();
 
 			xunit1.Find(sink, includeSourceInformation: true);
@@ -238,10 +224,7 @@ public static class Xunit1Tests
 </assembly>";
 
 			var xunit1 = new TestableXunit1();
-			xunit1
-				.Executor
-				.WhenForAnyArgs(x => x.EnumerateTests(null))
-				.Do(callInfo => callInfo.Arg<ICallbackEventHandler>().RaiseCallbackEvent(xml));
+			xunit1.Executor.EnumerateTests__Result = xml;
 			var sink = new TestableTestDiscoverySink();
 
 			xunit1.Find(sink);
@@ -260,10 +243,7 @@ public static class Xunit1Tests
 			var xml = @"<assembly />";
 
 			var xunit1 = new TestableXunit1();
-			xunit1
-				.Executor
-				.WhenForAnyArgs(x => x.EnumerateTests(null))
-				.Do(callInfo => callInfo.Arg<ICallbackEventHandler>().RaiseCallbackEvent(xml));
+			xunit1.Executor.EnumerateTests__Result = xml;
 			var sink = new TestableTestDiscoverySink();
 
 			xunit1.Find(sink);
@@ -288,41 +268,34 @@ public static class Xunit1Tests
 			};
 
 			var xunit1 = new TestableXunit1("assembly.dll", "config");
-			xunit1
-				.Executor
-				.TestFrameworkDisplayName
-				.Returns("Test framework display name");
-			xunit1
-				.Executor
-				.When(x => x.RunTests("type1", Arg.Any<List<string>>(), Arg.Any<ICallbackEventHandler>()))
-				.Do(callInfo =>
+			xunit1.Executor.TestFrameworkDisplayName = "Test framework display name";
+			xunit1.Executor.RunTests__Callback = (typeName, callback) =>
+			{
+				if (typeName == "type1")
 				{
-					var callback = callInfo.Arg<ICallbackEventHandler>();
 					callback.RaiseCallbackEvent("<start name='type1.passing' type='type1' method='passing'/>");
 					callback.RaiseCallbackEvent("<test name='type1.passing' type='type1' method='passing' result='Pass' time='1.000'/>");
 					callback.RaiseCallbackEvent("<start name='type1.failing' type='type1' method='failing'/>");
 					callback.RaiseCallbackEvent("<test name='type1.failing' type='type1' method='failing' result='Fail' time='0.234'><failure exception-type='Xunit.MockFailureException'><message>Failure message</message><stack-trace>Stack trace</stack-trace></failure></test>");
 					callback.RaiseCallbackEvent("<class name='type1' time='1.234' total='2' failed='1' skipped='0'/>");
-				});
-			xunit1
-				.Executor
-				.When(x => x.RunTests("type2", Arg.Any<List<string>>(), Arg.Any<ICallbackEventHandler>()))
-				.Do(callInfo =>
+				}
+				else if (typeName == "type2")
 				{
-					var callback = callInfo.Arg<ICallbackEventHandler>();
 					// Note. Skip does not send a start packet, unless you use a custom Fact
 					callback.RaiseCallbackEvent("<test name='type2.skipping' type='type2' method='skipping' result='Skip'><reason><message>Skip message</message></reason></test>");
 					callback.RaiseCallbackEvent("<start name='type2.skipping_with_start' type='type2' method='skipping_with_start'/>");
 					callback.RaiseCallbackEvent("<test name='type2.skipping_with_start' type='type2' method='skipping_with_start' result='Skip'><reason><message>Skip message</message></reason></test>");
 					callback.RaiseCallbackEvent("<class name='type2' time='0.000' total='2' failed='0' skipped='2'/>");
-				});
+				}
+			};
+
 			using var sink = SpyMessageSink<ITestAssemblyFinished>.Create();
 
 			if (serializeTestCases)
 				testCases =
 					testCases
-						.Select(testCase => xunit1.Serialize(testCase))
-						.Select(serialized => xunit1.Deserialize(serialized))
+						.Select(xunit1.Serialize)
+						.Select(xunit1.Deserialize)
 						.WhereNotNull()
 						.ToArray();
 
@@ -653,16 +626,13 @@ public static class Xunit1Tests
 				CreateTestCase("assembly.dll", "config", "type2", "skipping_with_start", "type2.skipping_with_start"),
 			};
 			var xunit1 = new TestableXunit1("assembly.dll", "config");
-			xunit1
-				.Executor
-				.TestFrameworkDisplayName
-				.Returns("Test framework display name");
+			xunit1.Executor.TestFrameworkDisplayName = "Test framework display name";
 			using var sink = SpyMessageSink<ITestAssemblyFinished>.Create();
 
 			xunit1.Run(testCases, sink, markAllAsNotRun: true);
 			sink.Finished.WaitOne();
 
-			xunit1.Executor.ReceivedWithAnyArgs(0).RunTests(null!, null!, null!);
+			xunit1.Executor.RunTests__Callback = delegate { throw new Exception("This should not call RunTests"); };
 			Assert.Collection(
 				sink.Messages,
 				message => Assert.IsType<ITestAssemblyStarting>(message, exactMatch: false),
@@ -832,14 +802,7 @@ public static class Xunit1Tests
 			var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");
 			var testCases = new[] { CreateTestCase("assembly", "config", "type1", "passing", "type1.passing") };
 			var exception = new DivideByZeroException();
-			xunit1
-				.Executor
-				.TestFrameworkDisplayName
-				.Returns("Test framework display name");
-			xunit1
-				.Executor
-				.WhenForAnyArgs(x => x.RunTests(null!, null!, null!))
-				.Do(callInfo => { throw exception; });
+			xunit1.Executor.RunTests__Callback = delegate { throw exception; };
 			using var sink = SpyMessageSink<ITestAssemblyFinished>.Create();
 
 			xunit1.Run(testCases, sink);
@@ -857,14 +820,7 @@ public static class Xunit1Tests
 			var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");
 			var testCases = new[] { CreateTestCase("assembly", "config", "type1", "passing", "type1.passing") };
 			var exception = GetNestedExceptions();
-			xunit1
-				.Executor
-				.TestFrameworkDisplayName
-				.Returns("Test framework display name");
-			xunit1
-				.Executor
-				.WhenForAnyArgs(x => x.RunTests(null!, null!, null!))
-				.Do(callInfo => { throw exception; });
+			xunit1.Executor.RunTests__Callback = delegate { throw exception; };
 			using var sink = SpyMessageSink<ITestAssemblyFinished>.Create();
 
 			xunit1.Run(testCases, sink);
@@ -886,20 +842,12 @@ public static class Xunit1Tests
 			var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");
 			var testCases = new[] { CreateTestCase("assembly", "config", "type1", "failing", "type1.failing") };
 			var exception = GetNestedExceptions();
-			xunit1
-				.Executor
-				.TestFrameworkDisplayName
-				.Returns("Test framework display name");
-			xunit1
-				.Executor
-				.WhenForAnyArgs(x => x.RunTests(null!, null!, null!))
-				.Do(callInfo =>
-				{
-					var callback = callInfo.Arg<ICallbackEventHandler>();
-					callback.RaiseCallbackEvent("<start name='type1.failing' type='type1' method='failing'/>");
-					callback.RaiseCallbackEvent($"<test name='type1.failing' type='type1' method='failing' result='Fail' time='0.234'><failure exception-type='{exception.GetType().FullName}'><message>{GetMessage(exception)}</message><stack-trace><![CDATA[{GetStackTrace(exception)}]]></stack-trace></failure></test>");
-					callback.RaiseCallbackEvent("<class name='type1' time='1.234' total='1' failed='1' skipped='0'/>");
-				});
+			xunit1.Executor.RunTests__Callback = (_, callback) =>
+			{
+				callback.RaiseCallbackEvent("<start name='type1.failing' type='type1' method='failing'/>");
+				callback.RaiseCallbackEvent($"<test name='type1.failing' type='type1' method='failing' result='Fail' time='0.234'><failure exception-type='{exception.GetType().FullName}'><message>{GetMessage(exception)}</message><stack-trace><![CDATA[{GetStackTrace(exception)}]]></stack-trace></failure></test>");
+				callback.RaiseCallbackEvent("<class name='type1' time='1.234' total='1' failed='1' skipped='0'/>");
+			};
 			using var sink = SpyMessageSink<ITestAssemblyFinished>.Create();
 
 			xunit1.Run(testCases, sink);
@@ -921,24 +869,17 @@ public static class Xunit1Tests
 			var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");
 			var testCases = new[] { CreateTestCase("assembly", "config", "type1", "failingclass", "type1.failingclass") };
 			var exception = new InvalidOperationException("Cannot use a test class as its own fixture data");
-			xunit1
-				.Executor
-				.TestFrameworkDisplayName
-				.Returns("Test framework display name");
-			xunit1
-				.Executor
-				.When(x => x.RunTests("type1", Arg.Any<List<string>>(), Arg.Any<ICallbackEventHandler>()))
-				.Do(callInfo =>
+			xunit1.Executor.RunTests__Callback = (_, callback) =>
+			{
+				// Ensure the exception has a callstack
+				try
 				{
-					// Ensure the exception has a callstack
-					try
-					{
-						throw exception;
-					}
-					catch { }
-					var callback = callInfo.Arg<ICallbackEventHandler>();
-					callback.RaiseCallbackEvent($"<class name='type1' time='0.000' total='0' passed='0' failed='1' skipped='0'><failure exception-type='System.InvalidOperationException'><message>Cannot use a test class as its own fixture data</message><stack-trace><![CDATA[{exception.StackTrace}]]></stack-trace></failure></class>");
-				});
+					throw exception;
+				}
+				catch { }
+
+				callback.RaiseCallbackEvent($"<class name='type1' time='0.000' total='0' passed='0' failed='1' skipped='0'><failure exception-type='System.InvalidOperationException'><message>Cannot use a test class as its own fixture data</message><stack-trace><![CDATA[{exception.StackTrace}]]></stack-trace></failure></class>");
+			};
 			using var sink = SpyMessageSink<ITestAssemblyFinished>.Create();
 
 			xunit1.Run(testCases, sink);
@@ -956,26 +897,18 @@ public static class Xunit1Tests
 			var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");
 			var testCases = new[] { CreateTestCase("assembly", "config", "failingtype", "passingmethod", "failingtype.passingmethod") };
 			var exception = new InvalidOperationException("Cannot use a test class as its own fixture data");
-			xunit1
-				.Executor
-				.TestFrameworkDisplayName
-				.Returns("Test framework display name");
-			xunit1
-				.Executor
-				.When(x => x.RunTests("failingtype", Arg.Any<List<string>>(), Arg.Any<ICallbackEventHandler>()))
-				.Do(callInfo =>
+			xunit1.Executor.RunTests__Callback = (_, callback) =>
+			{
+				// Ensure the exception has a callstack
+				try
 				{
-					// Ensure the exception has a callstack
-					try
-					{
-						throw exception;
-					}
-					catch { }
-					var callback = callInfo.Arg<ICallbackEventHandler>();
-					callback.RaiseCallbackEvent("<start name='failingtype.passingmethod' type='failingtype' method='passingmethod'/>");
-					callback.RaiseCallbackEvent("<test name='failingtype.passingmethod' type='failingtype' method='passingmethod' result='Pass' time='1.000'/>");
-					callback.RaiseCallbackEvent($"<class name='failingtype' time='0.000' total='0' passed='1' failed='1' skipped='0'><failure exception-type='Xunit.Some.Exception'><message>Cannot use a test class as its own fixture data</message><stack-trace><![CDATA[{exception.StackTrace}]]></stack-trace></failure></class>");
-				});
+					throw exception;
+				}
+				catch { }
+				callback.RaiseCallbackEvent("<start name='failingtype.passingmethod' type='failingtype' method='passingmethod'/>");
+				callback.RaiseCallbackEvent("<test name='failingtype.passingmethod' type='failingtype' method='passingmethod' result='Pass' time='1.000'/>");
+				callback.RaiseCallbackEvent($"<class name='failingtype' time='0.000' total='0' passed='1' failed='1' skipped='0'><failure exception-type='Xunit.Some.Exception'><message>Cannot use a test class as its own fixture data</message><stack-trace><![CDATA[{exception.StackTrace}]]></stack-trace></failure></class>");
+			};
 			using var sink = SpyMessageSink<ITestAssemblyFinished>.Create();
 
 			xunit1.Run(testCases, sink);
@@ -993,20 +926,12 @@ public static class Xunit1Tests
 			var xunit1 = new TestableXunit1("AssemblyName.dll", "ConfigFile.config");
 			var testCases = new[] { CreateTestCase("assembly", "config", "failingtype", "passingmethod", "failingtype.passingmethod") };
 			var exception = GetNestedExceptions();
-			xunit1
-				.Executor
-				.TestFrameworkDisplayName
-				.Returns("Test framework display name");
-			xunit1
-				.Executor
-				.When(x => x.RunTests("failingtype", Arg.Any<List<string>>(), Arg.Any<ICallbackEventHandler>()))
-				.Do(callInfo =>
-				{
-					var callback = callInfo.Arg<ICallbackEventHandler>();
-					callback.RaiseCallbackEvent("<start name='failingtype.passingmethod' type='failingtype' method='passingmethod'/>");
-					callback.RaiseCallbackEvent("<test name='failingtype.passingmethod' type='failingtype' method='passingmethod' result='Pass' time='1.000'/>");
-					callback.RaiseCallbackEvent($"<class name='failingtype' time='0.000' total='0' passed='1' failed='1' skipped='0'><failure exception-type='System.InvalidOperationException'><message>{GetMessage(exception)}</message><stack-trace><![CDATA[{GetStackTrace(exception)}]]></stack-trace></failure></class>");
-				});
+			xunit1.Executor.RunTests__Callback = (_, callback) =>
+			{
+				callback.RaiseCallbackEvent("<start name='failingtype.passingmethod' type='failingtype' method='passingmethod'/>");
+				callback.RaiseCallbackEvent("<test name='failingtype.passingmethod' type='failingtype' method='passingmethod' result='Pass' time='1.000'/>");
+				callback.RaiseCallbackEvent($"<class name='failingtype' time='0.000' total='0' passed='1' failed='1' skipped='0'><failure exception-type='System.InvalidOperationException'><message>{GetMessage(exception)}</message><stack-trace><![CDATA[{GetStackTrace(exception)}]]></stack-trace></failure></class>");
+			};
 			using var sink = SpyMessageSink<ITestAssemblyFinished>.Create();
 
 			xunit1.Run(testCases, sink);
@@ -1177,7 +1102,7 @@ public class AmbiguouslyNamedTestMethods
 
 	class TestableXunit1 : Xunit1
 	{
-		public readonly IXunit1Executor Executor = Substitute.For<IXunit1Executor>();
+		public readonly TestableExecutor Executor = new();
 		public string Executor_TestAssemblyFileName;
 		public string? Executor_ConfigFileName;
 		public bool Executor_ShadowCopy;
@@ -1190,7 +1115,7 @@ public class AmbiguouslyNamedTestMethods
 			bool shadowCopy = true,
 			string? shadowCopyFolder = null,
 			AppDomainSupport appDomainSupport = AppDomainSupport.Required)
-				: this(appDomainSupport, assemblyFileName ?? OsSpecificAssemblyPath, configFileName, shadowCopy, shadowCopyFolder, Substitute.For<ISourceInformationProvider>())
+				: this(appDomainSupport, assemblyFileName ?? OsSpecificAssemblyPath, configFileName, shadowCopy, shadowCopyFolder, Mocks.SourceInformationProvider())
 		{ }
 
 		public Xunit1TestCase? Deserialize(string value) =>
@@ -1236,6 +1161,26 @@ public class AmbiguouslyNamedTestMethods
 		}
 
 		protected override IXunit1Executor CreateExecutor() => Executor;
+	}
+
+	class TestableExecutor : IXunit1Executor
+	{
+		public bool DisposeCalled { get; private set; }
+		public string EnumerateTests__Result { get; set; } = string.Empty;
+		public Action<string, ICallbackEventHandler>? RunTests__Callback { get; set; }
+		public string TestFrameworkDisplayName { get; set; } = string.Empty;
+
+		public void Dispose() =>
+			DisposeCalled = true;
+
+		public void EnumerateTests(ICallbackEventHandler? handler) =>
+			handler?.RaiseCallbackEvent(EnumerateTests__Result);
+
+		public void RunTests(
+			string type,
+			List<string> methods,
+			ICallbackEventHandler handler) =>
+				RunTests__Callback?.Invoke(type, handler);
 	}
 
 	class TestableTestDiscoverySink : TestDiscoverySink

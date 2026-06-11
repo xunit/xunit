@@ -46,7 +46,6 @@
     <!-- Used in non-product (test or back-compat) projects -->
     <FSharp_Compiler_Service_Version>43.7.200</FSharp_Compiler_Service_Version>
     <Moq_Version>4.17.2</Moq_Version>
-    <NSubstitute_Version>5.3.0</NSubstitute_Version>
     <xunit_Version_v1>1.9.2</xunit_Version_v1>
     <xunit_Version_v2>2.9.3</xunit_Version_v2>
 
