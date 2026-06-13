@@ -320,8 +320,9 @@ public class xunit : MSBuildTask, ICancelableTask, IDisposable
 					var warnings = new List<string>();
 					ConfigReader.Load(projectAssembly.Configuration, assemblyFileName, configFileName, warnings);
 
-					foreach (var warning in warnings)
-						logger.LogWarning(warning);
+					lock (logLock)
+						foreach (var warning in warnings)
+							Log.LogWarning(warning);
 
 					if (appDomains.HasValue)
 						projectAssembly.Configuration.AppDomain = appDomains;

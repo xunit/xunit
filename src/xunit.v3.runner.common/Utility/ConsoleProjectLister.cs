@@ -31,10 +31,11 @@ public static class ConsoleProjectLister
 			ListOption.Methods => Methods,
 			ListOption.Tests => Tests,
 			ListOption.Traits => Traits,
-			_ => null
+			ListOption.Discovery => throw new ArgumentException("List type 'discovery' is not supported by this runner"),
+			_ => throw new ArgumentException($"Unknown list type '{listOption}'"),
 		};
 
-		lister?.Invoke(consoleHelper, testCasesByAssembly, listFormat);
+		lister.Invoke(consoleHelper, testCasesByAssembly, listFormat);
 	}
 
 	static void Classes<TTestCase>(

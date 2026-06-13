@@ -15,15 +15,4 @@ public interface IConsoleResultWriter : IResultWriter
 	/// Example: <c>"output results to xUnit.net v2+ XML file"</c>.
 	/// </remarks>
 	string Description { get; }
-
-	/// <summary>
-	/// Gets the legacy command line ID for this result writer. When not <see langword="null"/>, will register
-	/// a hidden command line switch for <c>"-{LegacyID}"</c>, in addition to the normally registered
-	/// command line switch for <c>"-result-{RegisteredID}"</c>.
-	/// </summary>
-	/// <remarks>
-	/// Should only be set by the result writers that were built in prior to xUnit.net v3 4.0.
-	/// Other result writers should return <see langword="null"/>.
-	/// </remarks>
-	string? LegacyID { get; }
 }

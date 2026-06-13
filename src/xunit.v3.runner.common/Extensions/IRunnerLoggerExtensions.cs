@@ -1,3 +1,5 @@
+using Xunit.Sdk;
+
 namespace Xunit.Runner.Common;
 
 /// <summary>
@@ -227,5 +229,29 @@ public static class IRunnerLoggerExtensions
 
 		// Use InvariantCulture here since this is the output for things which may be later parsed
 		logger.LogRaw(string.Format(CultureInfo.InvariantCulture, messageFormat, args));
+	}
+
+	/// <summary>
+	/// Writes a message to the console, and waits for acknowledgement as appropriate.
+	/// </summary>
+	/// <remarks>
+	/// This method should only be called when you are known to be using a JSON stream output; otherwise, it
+	/// will emit JSON into an otherwise human-readable output.
+	/// </remarks>
+	/// <param name="logger">The logger</param>
+	/// <param name="message">The message to write</param>
+	public static void WriteMessageJson(
+		this IRunnerLogger logger,
+		IMessageSinkMessage message)
+	{
+		Guard.ArgumentNotNull(logger);
+		Guard.ArgumentNotNull(message);
+
+		var json = message.ToJson();
+		if (json is not null)
+		{
+			logger.LogRaw(json);
+			logger.WaitForAcknowledgment();
+		}
 	}
 }

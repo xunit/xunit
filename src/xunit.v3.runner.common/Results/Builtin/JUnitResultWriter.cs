@@ -6,7 +6,7 @@ namespace Xunit.Runner.Common;
 /// An implementation of <see cref="IConsoleResultWriter"/> and <see cref="IMicrosoftTestingPlatformResultWriter"/>
 /// that write test results in JUnit format.
 /// </summary>
-public sealed class JUnitResultWriter : IConsoleResultWriter, IMicrosoftTestingPlatformResultWriter
+public sealed class JUnitResultWriter : IConsoleResultWriter, ILegacyConsoleResultWriter, IMicrosoftTestingPlatformResultWriter
 {
 	string IMicrosoftTestingPlatformResultWriter.DefaultFileExtension =>
 		"junit.xml";
@@ -20,7 +20,7 @@ public sealed class JUnitResultWriter : IConsoleResultWriter, IMicrosoftTestingP
 	string IMicrosoftTestingPlatformResultWriter.FileNameDescription =>
 		"The name of the generated JUnit (XML) report";
 
-	string? IConsoleResultWriter.LegacyID =>
+	string ILegacyConsoleResultWriter.LegacyID =>
 		"jUnit";
 
 	/// <inheritdoc/>

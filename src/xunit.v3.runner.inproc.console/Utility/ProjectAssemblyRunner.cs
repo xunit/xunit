@@ -341,7 +341,7 @@ public sealed class ProjectAssemblyRunner(
 				if ((resultsSink.ExecutionSummary.Failed != 0 || resultsSink.ExecutionSummary.Errors != 0) && executionOptions.GetStopOnTestFailOrDefault())
 				{
 					if (automatedMode != AutomatedMode.Off)
-						runnerLogger.WriteMessage(new DiagnosticMessage("Cancelling due to test failure"));
+						runnerLogger.WriteMessageJson(new DiagnosticMessage("Cancelling due to test failure"));
 					else
 						runnerLogger.LogMessage("Cancelling due to test failure...");
 
@@ -364,7 +364,7 @@ public sealed class ProjectAssemblyRunner(
 			while (e is not null)
 			{
 				if (automatedMode != AutomatedMode.Off)
-					runnerLogger.WriteMessage(ErrorMessage.FromException(e, null));
+					runnerLogger.WriteMessageJson(ErrorMessage.FromException(e, null));
 				else
 				{
 					runnerLogger.LogMessage("{0}: {1}", e.GetType().SafeName(), e.Message ?? "(null message)");

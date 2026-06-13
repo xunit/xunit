@@ -6,7 +6,7 @@ namespace Xunit.Runner.Common;
 /// An implementation of <see cref="IConsoleResultWriter"/> and <see cref="IMicrosoftTestingPlatformResultWriter"/>
 /// that write test results in HTML format.
 /// </summary>
-public sealed class HtmlResultWriter : IConsoleResultWriter, IMicrosoftTestingPlatformResultWriter
+public sealed class HtmlResultWriter : IConsoleResultWriter, ILegacyConsoleResultWriter, IMicrosoftTestingPlatformResultWriter
 {
 	string IMicrosoftTestingPlatformResultWriter.DefaultFileExtension =>
 		"html";
@@ -20,7 +20,7 @@ public sealed class HtmlResultWriter : IConsoleResultWriter, IMicrosoftTestingPl
 	string IMicrosoftTestingPlatformResultWriter.FileNameDescription =>
 		"The name of the generated HTML report";
 
-	string? IConsoleResultWriter.LegacyID =>
+	string ILegacyConsoleResultWriter.LegacyID =>
 		"html";
 
 	/// <inheritdoc/>

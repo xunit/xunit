@@ -90,6 +90,8 @@ sealed class ConsoleRunner(string[] args) :
 			}
 
 			var project = commandLine.Parse();
+			warnings.AddRange(commandLine.ParseWarnings);
+
 			var useAnsiColor = project.Configuration.UseAnsiColorOrDefault;
 			if (useAnsiColor)
 				consoleHelper.UseAnsiColor();
@@ -127,6 +129,21 @@ sealed class ConsoleRunner(string[] args) :
 			var reporter = project.RunnerReporter;
 			await using var reporterMessageHandler = await reporter.CreateMessageHandler(logger, globalDiagnosticMessageSink);
 
+			// Don't show warnings when listing in JSON format, because it will break the JSON output
+			if (warnings.Count != 0 && project.Configuration.List?.Format != ListFormat.Json)
+			{
+				if (reporter is not JsonReporter)
+				{
+					foreach (var warning in warnings)
+						logger.LogWarning(warning);
+
+					consoleHelper.WriteLine();
+				}
+				else
+					foreach (var warning in warnings)
+						logger.WriteMessageJson(new DiagnosticMessage("warning: " + warning));
+			}
+
 			if (!reporter.ForceNoLogo && !project.Configuration.NoLogoOrDefault)
 				PrintHeader();
 
@@ -142,9 +159,6 @@ sealed class ConsoleRunner(string[] args) :
 				if (!noColor)
 					consoleHelper.ResetColor();
 			}
-
-			foreach (var warning in commandLine.ParseWarnings)
-				logger.LogWarning(warning);
 
 			var failCount = 0;
 

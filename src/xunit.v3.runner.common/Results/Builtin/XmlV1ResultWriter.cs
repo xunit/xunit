@@ -5,14 +5,12 @@ namespace Xunit.Runner.Common;
 /// <summary>
 /// An implementation of <see cref="IConsoleResultWriter"/> that write test results in xUnit.net XML v1 format.
 /// </summary>
-public sealed class XmlV1ResultWriter : IConsoleResultWriter
+public sealed class XmlV1ResultWriter : IConsoleResultWriter, ILegacyConsoleResultWriter
 {
-	/// <inheritdoc/>
-	public string Description =>
+	string IConsoleResultWriter.Description =>
 		"output results to xUnit.net v1 (XML) file";
 
-	/// <inheritdoc/>
-	public string? LegacyID =>
+	string ILegacyConsoleResultWriter.LegacyID =>
 		"xmlV1";
 
 	/// <inheritdoc/>

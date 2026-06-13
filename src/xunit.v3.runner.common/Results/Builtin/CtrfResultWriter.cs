@@ -6,7 +6,7 @@ namespace Xunit.Runner.Common;
 /// An implementation of <see cref="IConsoleResultWriter"/> and <see cref="IMicrosoftTestingPlatformResultWriter"/>
 /// that write test results in CTRF format.
 /// </summary>
-public sealed class CtrfResultWriter : IConsoleResultWriter, IMicrosoftTestingPlatformResultWriter
+public sealed class CtrfResultWriter : IConsoleResultWriter, ILegacyConsoleResultWriter, IMicrosoftTestingPlatformResultWriter
 {
 	string IMicrosoftTestingPlatformResultWriter.DefaultFileExtension =>
 		"ctrf";
@@ -20,7 +20,7 @@ public sealed class CtrfResultWriter : IConsoleResultWriter, IMicrosoftTestingPl
 	string IMicrosoftTestingPlatformResultWriter.FileNameDescription =>
 		"The name of the generated CTRF (JSON) report";
 
-	string? IConsoleResultWriter.LegacyID =>
+	string ILegacyConsoleResultWriter.LegacyID =>
 		"ctrf";
 
 	/// <inheritdoc/>

@@ -757,13 +757,13 @@ public static class CommandLineTests
 		public static readonly TheoryData<string> SwitchesLowerCase =
 			[
 				.. ConsoleResultWriters.Select(kvp => $"-result-{kvp.Key.ToLowerInvariant()}"),
-				.. ConsoleResultWriters.Where(kvp => kvp.Value.LegacyID is not null).Select(kvp => $"-{kvp.Value.LegacyID?.ToLowerInvariant()}"),
+				.. ConsoleResultWriters.Select(kvp => kvp.Value).OfType<ILegacyConsoleResultWriter>().Select(writer => $"-{writer.LegacyID.ToLowerInvariant()}"),
 			];
 
 		public static readonly TheoryData<string> SwitchesUpperCase =
 			[
 				.. ConsoleResultWriters.Select(kvp => $"-result-{kvp.Key.ToUpperInvariant()}"),
-				.. ConsoleResultWriters.Where(kvp => kvp.Value.LegacyID is not null).Select(kvp => $"-{kvp.Value.LegacyID?.ToUpperInvariant()}"),
+				.. ConsoleResultWriters.Select(kvp => kvp.Value).OfType<ILegacyConsoleResultWriter>().Select(writer => $"-{writer.LegacyID.ToUpperInvariant()}"),
 			];
 
 		[Theory]

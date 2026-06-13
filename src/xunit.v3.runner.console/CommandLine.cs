@@ -62,7 +62,11 @@ public class CommandLine : CommandLineParserBase
 		AddParser("noShadow", OnNoShadow, CommandLineGroup.NetFramework, null, "do not shadow copy assemblies");
 
 		// Deprecated options
-		AddHiddenParser("noappdomain", OnNoAppDomain);
+		AddHiddenParser("noappdomain", kvp =>
+		{
+			ParseWarnings.Add($"The '-noAppDomain' switch has been deprecated in favor of '-appDomains denied' and will be removed in the next major version");
+			OnNoAppDomain(kvp);
+		});
 	}
 
 	void AddAssembly(

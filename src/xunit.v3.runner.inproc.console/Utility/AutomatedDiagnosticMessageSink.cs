@@ -11,7 +11,7 @@ internal sealed class AutomatedDiagnosticMessageSink(IRunnerLogger logger) :
 		Guard.ArgumentNotNull(message);
 
 		if (message is IDiagnosticMessage or IInternalDiagnosticMessage)
-			logger.WriteMessage(message);
+			logger.WriteMessageJson(message);
 
 		return true;
 	}

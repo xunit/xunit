@@ -191,7 +191,7 @@ public class ConsoleRunner(
 				if (e.ExceptionObject is Exception ex)
 				{
 					if (automatedMode != AutomatedMode.Off)
-						logger.WriteMessage(ErrorMessage.FromException(ex, null));
+						logger.WriteMessageJson(ErrorMessage.FromException(ex, null));
 					else if (reporterMessageHandler is not null)
 						reporterMessageHandler.OnMessage(ErrorMessage.FromException(ex, null));
 					else
@@ -200,7 +200,7 @@ public class ConsoleRunner(
 				else
 				{
 					if (automatedMode != AutomatedMode.Off)
-						logger.WriteMessage(new DiagnosticMessage("Error of unknown type thrown in application domain"));
+						logger.WriteMessageJson(new DiagnosticMessage("Error of unknown type thrown in application domain"));
 					else
 						consoleHelper.WriteLine("Error of unknown type thrown in application domain");
 				}
@@ -214,7 +214,7 @@ public class ConsoleRunner(
 				if (started && !cancellationTokenSource.IsCancellationRequested)
 				{
 					if (automatedMode != AutomatedMode.Off)
-						logger.WriteMessage(new DiagnosticMessage("Cancellation request received"));
+						logger.WriteMessageJson(new DiagnosticMessage("Cancellation request received"));
 					else
 						consoleHelper.WriteLine("Cancelling... (Press Ctrl+C again to terminate)");
 
@@ -246,6 +246,21 @@ public class ConsoleRunner(
 				var reporter = automatedMode != AutomatedMode.Off ? new JsonReporter() : project.RunnerReporter;
 				reporterMessageHandler = await reporter.CreateMessageHandler(logger, diagnosticMessageSink);
 
+				// Don't show warnings when listing in JSON format, because it will break the JSON output
+				if (warnings.Count != 0 && project.Configuration.List?.Format != ListFormat.Json)
+				{
+					if (reporter is not JsonReporter)
+					{
+						foreach (var warning in warnings)
+							logger.LogWarning(warning);
+
+						consoleHelper.WriteLine();
+					}
+					else
+						foreach (var warning in warnings)
+							logger.WriteMessageJson(new DiagnosticMessage("warning: " + warning));
+				}
+
 				if (!reporter.ForceNoLogo && !project.Configuration.NoLogoOrDefault)
 					consoleHelper.WriteLine(ProjectAssemblyRunner.Banner);
 
@@ -262,13 +277,15 @@ public class ConsoleRunner(
 						consoleHelper.ResetColor();
 				}
 
-				foreach (var warning in warnings)
-					if (automatedMode != AutomatedMode.Off)
-						logger.WriteMessage(new DiagnosticMessage("warning: " + warning));
-					else
-						logger.LogWarning(warning);
+				// Tell the project runner it's in automated mode even if it's not, when we're using the JSON reporter, so that messages
+				// get written as JSON rather than emitted as plain-text (and therefore munging up the parsing of the JSON results).
+				var runnerAutomatedMode = automatedMode switch
+				{
+					AutomatedMode.Off => reporter is JsonReporter ? AutomatedMode.Async : AutomatedMode.Off,
+					_ => automatedMode,
+				};
 
-				var projectRunner = new ProjectAssemblyRunner(testAssembly, automatedMode, NullSourceInformationProvider.Instance, cancellationTokenSource);
+				var projectRunner = new ProjectAssemblyRunner(testAssembly, runnerAutomatedMode, NullSourceInformationProvider.Instance, cancellationTokenSource);
 				if (project.Configuration.WaitForDebuggerOrDefault)
 				{
 					if (automatedMode == AutomatedMode.Off)
@@ -339,7 +356,7 @@ public class ConsoleRunner(
 				consoleHelper.SetForegroundColor(ConsoleColor.Red);
 
 			if (automatedMode != AutomatedMode.Off)
-				logger?.WriteMessage(new DiagnosticMessage("error: " + ex.Message ?? "(null message)"));
+				logger?.WriteMessageJson(new DiagnosticMessage("error: " + ex.Message ?? "(null message)"));
 			else
 			{
 				consoleHelper.WriteLine("error: {0}", ex.Message ?? "(null message)");
@@ -376,8 +393,16 @@ public class ConsoleRunner(
 		// Default to false for console runners
 		assembly.Configuration.PreEnumerateTheories ??= false;
 
+		// Tell the project runner it's in automated mode even if it's not, when we're using the JSON list format, so that messages
+		// get written as JSON rather than emitted as plain-text (and therefore munging up the parsing of the JSON results).
+		var runnerAutomatedMode = automatedMode switch
+		{
+			AutomatedMode.Off => listFormat == ListFormat.Json ? AutomatedMode.Async : AutomatedMode.Off,
+			_ => automatedMode,
+		};
+
 		var assemblyFileName = Guard.ArgumentNotNull(assembly.AssemblyFileName);
-		var projectRunner = new ProjectAssemblyRunner(testAssembly, automatedMode, cancellationTokenSource);
+		var projectRunner = new ProjectAssemblyRunner(testAssembly, runnerAutomatedMode, cancellationTokenSource);
 		var testCases = new List<(ITestCase TestCase, bool PassedFilter)>();
 		await projectRunner.Discover(assembly, pipelineStartup, testCases: testCases);
 
@@ -391,7 +416,7 @@ public class ConsoleRunner(
 		}
 		else
 			foreach (var testCase in filteredTestCases)
-				logger.WriteMessage(testCase.ToTestCaseDiscovered());
+				logger.WriteMessageJson(testCase.ToTestCaseDiscovered());
 	}
 
 	async ValueTask PrintAssemblyInfo(string? configFileName)
@@ -442,7 +467,7 @@ public class ConsoleRunner(
 				if (runner.automatedMode == AutomatedMode.Off)
 					Console.WriteLine("Waiting {0} seconds for foreground threads to exit...", runner.shutdownForegroundThreadWaitSeconds);
 				else
-					runner.logger?.WriteMessage(new DiagnosticMessage("Waiting {0} seconds for foreground threads to exit", runner.shutdownForegroundThreadWaitSeconds));
+					runner.logger?.WriteMessageJson(new DiagnosticMessage("Waiting {0} seconds for foreground threads to exit", runner.shutdownForegroundThreadWaitSeconds));
 			}
 
 			await Task.Delay(runner.shutdownForegroundThreadWaitSeconds * 1_000);
@@ -462,7 +487,7 @@ public class ConsoleRunner(
 					}
 					catch (Exception ex)
 					{
-						runner.logger?.WriteMessage(ErrorMessage.FromException(ex, null));
+						runner.logger?.WriteMessageJson(ErrorMessage.FromException(ex, null));
 					}
 			}
 

@@ -6,7 +6,7 @@ namespace Xunit.Runner.Common;
 /// An implementation of <see cref="IConsoleResultWriter"/> and <see cref="IMicrosoftTestingPlatformResultWriter"/>
 /// that write test results in xUnit.net XML v2 format.
 /// </summary>
-public sealed class XmlV2ResultWriter : IConsoleResultWriter, IMicrosoftTestingPlatformResultWriter
+public sealed class XmlV2ResultWriter : IConsoleResultWriter, ILegacyConsoleResultWriter, IMicrosoftTestingPlatformResultWriter
 {
 	string IMicrosoftTestingPlatformResultWriter.DefaultFileExtension =>
 		"xunit.xml";
@@ -20,7 +20,7 @@ public sealed class XmlV2ResultWriter : IConsoleResultWriter, IMicrosoftTestingP
 	string IMicrosoftTestingPlatformResultWriter.FileNameDescription =>
 		"The name of the generated xUnit.net v2+ (XML) report";
 
-	string? IConsoleResultWriter.LegacyID =>
+	string ILegacyConsoleResultWriter.LegacyID =>
 		"xml";
 
 	/// <inheritdoc/>

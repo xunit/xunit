@@ -215,8 +215,12 @@ public abstract class CommandLineParserBase
 			{
 				AddParser("result-" + resultWriter.Key, OnResult, CommandLineGroup.ResultFormat, "<filename>", resultWriter.Value.Description);
 
-				if (resultWriter.Value.LegacyID is not null)
-					AddHiddenParser(resultWriter.Value.LegacyID, OnResult);
+				if (resultWriter.Value is ILegacyConsoleResultWriter legacyConsoleResultWriter)
+					AddHiddenParser(legacyConsoleResultWriter.LegacyID, kvp =>
+					{
+						ParseWarnings.Add($"The '{kvp.Key}' switch has been deprecated in favor of '-result{kvp.Key}' and will be removed in the next major version");
+						OnResult(kvp);
+					});
 			}
 			catch (Exception ex)
 			{
@@ -233,17 +237,23 @@ public abstract class CommandLineParserBase
 		}
 
 		// Deprecated reporter switches
-		AddHiddenParser("json", kvp => OnReporter(new("-reporter", "json")));
-		AddHiddenParser("quiet", kvp => OnReporter(new("-reporter", "quiet")));
-		AddHiddenParser("silent", kvp => OnReporter(new("-reporter", "silent")));
-		AddHiddenParser("teamcity", kvp => OnReporter(new("-reporter", "teamcity")));
-		AddHiddenParser("verbose", kvp => OnReporter(new("-reporter", "verbose")));
+		AddHiddenParser("json", kvp => { warnDeprecatedReporter("json"); OnReporter(new("-reporter", "json")); });
+		AddHiddenParser("quiet", kvp => { warnDeprecatedReporter("quiet"); OnReporter(new("-reporter", "quiet")); });
+		AddHiddenParser("silent", kvp => { warnDeprecatedReporter("silent"); OnReporter(new("-reporter", "silent")); });
+		AddHiddenParser("teamcity", kvp => { warnDeprecatedReporter("teamcity"); OnReporter(new("-reporter", "teamcity")); });
+		AddHiddenParser("verbose", kvp => { warnDeprecatedReporter("verbose"); OnReporter(new("-reporter", "verbose")); });
+
+		void warnDeprecatedReporter(string @switch) =>
+			ParseWarnings.Add($"The '-{@switch}' switch has been deprecated in favor of '-reporter {@switch}' and will be removed in the next major version");
 
 		// Deprecated filter switches
-		AddHiddenParser("noclass", OnClassMinus);
-		AddHiddenParser("nomethod", OnMethodMinus);
-		AddHiddenParser("nonamespace", OnNamespaceMinus);
-		AddHiddenParser("notrait", OnTraitMinus);
+		AddHiddenParser("noclass", kvp => { warnDeprecatedFilter("class"); OnClassMinus(kvp); });
+		AddHiddenParser("nomethod", kvp => { warnDeprecatedFilter("method"); OnMethodMinus(kvp); });
+		AddHiddenParser("nonamespace", kvp => { warnDeprecatedFilter("namespace"); OnNamespaceMinus(kvp); });
+		AddHiddenParser("notrait", kvp => { warnDeprecatedFilter("trait"); OnTraitMinus(kvp); });
+
+		void warnDeprecatedFilter(string @switch) =>
+			ParseWarnings.Add($"The '-no{@switch}' switch has been deprecated in favor of '-{@switch}-' and will be removed in the next major version");
 	}
 
 	/// <summary/>
@@ -509,6 +519,10 @@ public abstract class CommandLineParserBase
 			else if (Enum.TryParse<ListFormat>(pieces[1], ignoreCase: true, out var listFormat))
 				list = (listOption, listFormat);
 		}
+
+		// Discovery lists must always be in JSON mode
+		if (list?.Option == ListOption.Discovery)
+			list = (list.Value.Option, ListFormat.Json);
 
 		Project.Configuration.List = list ?? throw new ArgumentException("invalid argument for -list");
 		Project.Configuration.NoLogo = list.Value.Format == ListFormat.Json;

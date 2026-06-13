@@ -6,7 +6,7 @@ namespace Xunit.Runner.Common;
 /// An implementation of <see cref="IConsoleResultWriter"/> and <see cref="IMicrosoftTestingPlatformResultWriter"/>
 /// that write test results in Microsoft TRX format.
 /// </summary>
-public sealed class TrxResultWriter : IConsoleResultWriter, IMicrosoftTestingPlatformResultWriter
+public sealed class TrxResultWriter : IConsoleResultWriter, ILegacyConsoleResultWriter, IMicrosoftTestingPlatformResultWriter
 {
 	string IMicrosoftTestingPlatformResultWriter.DefaultFileExtension =>
 		"trx";
@@ -20,7 +20,7 @@ public sealed class TrxResultWriter : IConsoleResultWriter, IMicrosoftTestingPla
 	string IMicrosoftTestingPlatformResultWriter.FileNameDescription =>
 		"The name of the generated TRX (XML) report";
 
-	string? IConsoleResultWriter.LegacyID =>
+	string ILegacyConsoleResultWriter.LegacyID =>
 		"trx";
 
 	/// <inheritdoc/>
