@@ -26,5 +26,10 @@ abstract partial class TestResultMessage : TestMessage, ITestResultMessage
 
 	/// <inheritdoc/>
 	public override string ToString() =>
-		string.Format(CultureInfo.CurrentCulture, "{0} time={1}", base.ToString(), ExecutionTime);
+		string.Format(
+			CultureInfo.CurrentCulture,
+			"{0}{1}",
+			base.ToString(),
+			ExecutionTime != 0 ? $" time={ExecutionTime}" : string.Empty
+		);
 }

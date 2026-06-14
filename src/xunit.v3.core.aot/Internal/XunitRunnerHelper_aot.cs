@@ -12,6 +12,8 @@ partial class XunitRunnerHelper
 	/// <param name="testCase">The test case to run</param>
 	/// <param name="messageBus">The message bus to send the messages to</param>
 	/// <param name="cancellationTokenSource">The cancellation token source to cancel if requested</param>
+	/// <param name="parallelMode">The parallel mode for the test case</param>
+	/// <param name="scheduler">The scheduler used for task/test scheduling</param>
 	/// <param name="aggregator">The exception aggregator to record exceptions to</param>
 	/// <param name="explicitOption">A flag to indicate which types of tests to run (non-explicit, explicit, or both)</param>
 	/// <param name="methodFixtureMappings">The mapping of method fixture types to fixtures.</param>
@@ -19,6 +21,8 @@ partial class XunitRunnerHelper
 		ICodeGenTestCase testCase,
 		IMessageBus messageBus,
 		CancellationTokenSource cancellationTokenSource,
+		ParallelMode parallelMode,
+		ExecutionScheduler scheduler,
 		ExceptionAggregator aggregator,
 		ExplicitOption explicitOption,
 		FixtureMappingManager methodFixtureMappings) =>
@@ -36,6 +40,8 @@ partial class XunitRunnerHelper
 					testCase.TestCaseDisplayName,
 					testCase.SkipReason,
 					cancellationTokenSource,
+					parallelMode,
+					scheduler,
 					methodFixtureMappings
 				),
 				cancellationTokenSource

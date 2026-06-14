@@ -5,29 +5,30 @@ namespace Xunit.v3;
 /// <summary>
 /// Context class for <see cref="CodeGenTestClassRunner"/>.
 /// </summary>
+/// <param name="testClass">The test class</param>
+/// <param name="testCases">The test from the test class</param>
+/// <param name="explicitOption">The user's choice on how to treat explicit tests</param>
+/// <param name="messageBus">The message bus to send execution messages to</param>
+/// <param name="aggregator">The exception aggregator</param>
+/// <param name="cancellationTokenSource">The cancellation token source</param>
+/// <param name="parallelMode">The parallel mode for the test class</param>
+/// <param name="scheduler">The scheduler used for task/test scheduling</param>
+/// <param name="collectionFixtureMappings">The mapping of collection fixture types to fixtures.</param>
 /// <remarks>
 /// This class is used for code generation-based tests.
 /// </remarks>
-public class CodeGenTestClassRunnerContext : CodeGenTestClassRunnerBaseContext<ICodeGenTestClass, ICodeGenTestMethod, ICodeGenTestCase>
+public class CodeGenTestClassRunnerContext(
+	ICodeGenTestClass testClass,
+	IReadOnlyCollection<ICodeGenTestCase> testCases,
+	ExplicitOption explicitOption,
+	IMessageBus messageBus,
+	ExceptionAggregator aggregator,
+	CancellationTokenSource cancellationTokenSource,
+	ParallelMode parallelMode,
+	ExecutionScheduler scheduler,
+	FixtureMappingManager collectionFixtureMappings) :
+		CodeGenTestClassRunnerBaseContext<ICodeGenTestClass, ICodeGenTestMethod, ICodeGenTestCase>(testClass, testCases, explicitOption, messageBus, aggregator, cancellationTokenSource, parallelMode, scheduler, collectionFixtureMappings)
 {
-	/// <param name="testClass">The test class</param>
-	/// <param name="testCases">The test from the test class</param>
-	/// <param name="explicitOption">The user's choice on how to treat explicit tests</param>
-	/// <param name="messageBus">The message bus to send execution messages to</param>
-	/// <param name="aggregator">The exception aggregator</param>
-	/// <param name="cancellationTokenSource">The cancellation token source</param>
-	/// <param name="collectionFixtureMappings">The mapping of collection fixture types to fixtures.</param>
-	public CodeGenTestClassRunnerContext(
-		ICodeGenTestClass testClass,
-		IReadOnlyCollection<ICodeGenTestCase> testCases,
-		ExplicitOption explicitOption,
-		IMessageBus messageBus,
-		ExceptionAggregator aggregator,
-		CancellationTokenSource cancellationTokenSource,
-		FixtureMappingManager collectionFixtureMappings) :
-			base(testClass, testCases, explicitOption, messageBus, aggregator, cancellationTokenSource, collectionFixtureMappings)
-	{ }
-
 	/// <inheritdoc/>
 	public override ValueTask<RunSummary> RunTestMethod(
 		ICodeGenTestMethod testMethod,
@@ -39,6 +40,8 @@ public class CodeGenTestClassRunnerContext : CodeGenTestClassRunnerBaseContext<I
 				MessageBus,
 				Aggregator.Clone(),
 				CancellationTokenSource,
+				ParallelMode,
+				Scheduler,
 				ClassFixtureMappings
 			);
 }

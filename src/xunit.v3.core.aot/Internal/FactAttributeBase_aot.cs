@@ -16,6 +16,14 @@ public abstract class FactAttributeBase : Attribute
 	{ }
 
 	/// <summary>
+	/// Determines whether tests from this method run in parallel with any other tests.
+	/// </summary>
+	/// <remarks>
+	/// This value is only used when the test project <see cref="ParallelMode"/> is <see cref="ParallelMode.All"/>.
+	/// </remarks>
+	public bool DisableParallelization { get; set; }
+
+	/// <summary>
 	/// Gets the name of the test to be used when the test is skipped. When <see langword="null"/>
 	/// is returned, will cause a default display name to be used.
 	/// </summary>

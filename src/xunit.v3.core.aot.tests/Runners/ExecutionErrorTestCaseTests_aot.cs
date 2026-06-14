@@ -7,6 +7,8 @@ public sealed class ExecutionErrorTestCaseTests : IDisposable
 	readonly ExceptionAggregator aggregator = new();
 	readonly FixtureMappingManager mappingManager = new("Mock", TestData.EmptyFixtureFactories);
 	readonly SpyMessageBus messageBus = new();
+	readonly ParallelMode parallelMode = ParallelMode.Collections;
+	readonly ExecutionScheduler scheduler = ExecutionScheduler.CreateUnlimited();
 	readonly CancellationTokenSource tokenSource = new();
 
 	public void Dispose()
@@ -20,7 +22,7 @@ public sealed class ExecutionErrorTestCaseTests : IDisposable
 	{
 		var testCase = ExecutionErrorTestCase("This is my error message");
 
-		var result = await XunitRunnerHelper.RunCodeGenTestCase(testCase, messageBus, tokenSource, aggregator, ExplicitOption.Off, mappingManager);
+		var result = await XunitRunnerHelper.RunCodeGenTestCase(testCase, messageBus, tokenSource, parallelMode, scheduler, aggregator, ExplicitOption.Off, mappingManager);
 
 		Assert.Equal(1, result.Total);
 		Assert.Equal(0m, result.Time);
@@ -54,7 +56,7 @@ public sealed class ExecutionErrorTestCaseTests : IDisposable
 		var testCase = ExecutionErrorTestCase("This is my error message");
 		aggregator.Add(new DivideByZeroException());
 
-		var result = await XunitRunnerHelper.RunCodeGenTestCase(testCase, messageBus, tokenSource, aggregator, ExplicitOption.Off, mappingManager);
+		var result = await XunitRunnerHelper.RunCodeGenTestCase(testCase, messageBus, tokenSource, parallelMode, scheduler, aggregator, ExplicitOption.Off, mappingManager);
 
 		Assert.Equal(1, result.Total);
 		Assert.Equal(0m, result.Time);
@@ -90,7 +92,7 @@ public sealed class ExecutionErrorTestCaseTests : IDisposable
 		var testCase = ExecutionErrorTestCase("This is my error message");
 		var messageBus = new SpyMessageBus(msg => !messageTypeToCancelOn.IsAssignableFrom(msg.GetType()));
 
-		await XunitRunnerHelper.RunCodeGenTestCase(testCase, messageBus, tokenSource, aggregator, ExplicitOption.Off, mappingManager);
+		await XunitRunnerHelper.RunCodeGenTestCase(testCase, messageBus, tokenSource, parallelMode, scheduler, aggregator, ExplicitOption.Off, mappingManager);
 
 		Assert.True(tokenSource.IsCancellationRequested);
 	}

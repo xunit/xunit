@@ -1,4 +1,3 @@
-using Xunit.Sdk;
 using Xunit.v3;
 
 namespace Xunit;
@@ -14,15 +13,6 @@ partial class CollectionBehaviorAttribute : ICollectionBehaviorAttribute
 
 	/// <inheritdoc/>
 	public Type? CollectionFactoryType { get; }
-
-	/// <inheritdoc/>
-	public bool DisableTestParallelization { get; set; }
-
-	/// <inheritdoc/>
-	public int MaxParallelThreads { get; set; }
-
-	/// <inheritdoc/>
-	public ParallelAlgorithm ParallelAlgorithm { get; set; } = ParallelAlgorithm.Conservative;
 }
 
 /// <typeparam name="TCollectionFactory">The factory type</typeparam>
@@ -35,13 +25,4 @@ partial class CollectionBehaviorAttribute<TCollectionFactory> : ICollectionBehav
 {
 	/// <inheritdoc/>
 	public Type? CollectionFactoryType => typeof(TCollectionFactory);
-
-	/// <inheritdoc/>
-	public bool DisableTestParallelization { get; set; }
-
-	/// <inheritdoc/>
-	public int MaxParallelThreads { get; set; }
-
-	/// <inheritdoc/>
-	public ParallelAlgorithm ParallelAlgorithm { get; set; } = ParallelAlgorithm.Conservative;
 }

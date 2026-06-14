@@ -25,6 +25,7 @@ public class ExecutionErrorTestCase(
 	IReadOnlyDictionary<string, IReadOnlyCollection<string>> traits,
 	string uniqueID) :
 		CodeGenTestCaseBase(
+			disableParallelization: false,
 			@explicit,
 			skipExceptions: null,
 			skipReason: null,

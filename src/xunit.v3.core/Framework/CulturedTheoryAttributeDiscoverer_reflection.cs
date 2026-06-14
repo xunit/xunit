@@ -58,6 +58,7 @@ public class CulturedTheoryAttributeDiscoverer : TheoryDiscoverer
 						details.UniqueID,
 						details.Explicit,
 						dataRow.Label,
+						dataRow.DisableParallelization ?? false,
 						details.SkipExceptions,
 						details.SkipReason,
 						details.SkipType,

@@ -15,16 +15,19 @@ public interface ISelfExecutingXunitTestCase : IXunitTestCase
 	/// <param name="explicitOption">A flag to indicate how explicit tests should be treated.</param>
 	/// <param name="messageBus">The message bus to report results to.</param>
 	/// <param name="constructorArguments">The arguments to pass to the constructor.</param>
-	/// <param name="methodFixtureMappings">The fixtures attached to the test method.</param>
 	/// <param name="aggregator">The error aggregator to use for catching exception.</param>
 	/// <param name="cancellationTokenSource">The cancellation token source that indicates whether cancellation has been requested.</param>
+	/// <param name="parallelMode">The parallel mode for the test case</param>
+	/// <param name="scheduler">The scheduler used for task/test scheduling</param>
+	/// <param name="methodFixtureMappings">The fixtures attached to the test method.</param>
 	/// <returns>Returns the summary of the test case run.</returns>
 	ValueTask<RunSummary> Run(
 		ExplicitOption explicitOption,
 		IMessageBus messageBus,
 		object?[] constructorArguments,
-		FixtureMappingManager methodFixtureMappings,
 		ExceptionAggregator aggregator,
-		CancellationTokenSource cancellationTokenSource
-	);
+		CancellationTokenSource cancellationTokenSource,
+		ParallelMode parallelMode,
+		ExecutionScheduler scheduler,
+		FixtureMappingManager methodFixtureMappings);
 }

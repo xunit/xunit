@@ -1,4 +1,3 @@
-using System.Security;
 using Xunit.Sdk;
 
 namespace Xunit.v3;
@@ -31,14 +30,7 @@ public abstract class CoreTestAssemblyRunnerContext<TTestAssembly, TTestCollecti
 			where TTestCollection : class, ICoreTestCollection
 			where TTestCase : class, ICoreTestCase
 {
-	SemaphoreSlim? parallelSemaphore;
-	MaxConcurrencySyncContext? syncContext;
-
-	/// <summary>
-	/// Gets a flag which indicates whether the user has requested that parallelization be disabled.
-	/// </summary>
-	public virtual bool DisableParallelization =>
-		ExecutionOptions.DisableParallelization() ?? TestAssembly.DisableParallelization ?? false;
+	ExecutionScheduler? executionScheduler;
 
 	/// <summary>
 	/// Gets a flag which indicates how explicit tests should be handled.
@@ -68,6 +60,29 @@ public abstract class CoreTestAssemblyRunnerContext<TTestAssembly, TTestCollecti
 			_ => ParallelAlgorithm.Conservative,  // implicit invalid value validation/conversion to default
 		};
 
+	/// <summary>
+	/// Gets the default parallelization mode for the test assembly.
+	/// </summary>
+	public virtual ParallelMode ParallelMode =>
+		ExecutionOptions.ParallelMode() ?? TestAssembly.ParallelMode switch
+		{
+			ParallelMode.None => ParallelMode.None,
+			ParallelMode.All => ParallelMode.All,
+			_ => ParallelMode.Collections,  // implicit invalid value validation/conversion to default
+		};
+
+	/// <summary>
+	/// Gets the execution scheduler.
+	/// </summary>
+	public virtual ExecutionScheduler Scheduler
+	{
+		get
+		{
+			executionScheduler ??= CreateScheduler();
+			return executionScheduler;
+		}
+	}
+
 	/// <inheritdoc/>
 	public override string TargetFramework =>
 		TestAssembly.TargetFramework;
@@ -90,39 +105,29 @@ public abstract class CoreTestAssemblyRunnerContext<TTestAssembly, TTestCollecti
 				"{0} [{1}, {2}]",
 				base.TestEnvironment,
 				GetTestCollectionFactoryDisplayName(),
-				DisableParallelization
-					? "non-parallel"
-					: string.Format(CultureInfo.CurrentCulture, "parallel ({0})", threadCountText)
+				ParallelMode switch
+				{
+					ParallelMode.All => string.Format(CultureInfo.CurrentCulture, "parallel (all, {0})", threadCountText),
+					ParallelMode.Collections => string.Format(CultureInfo.CurrentCulture, "parallel (collections, {0})", threadCountText),
+					_ => "non-parallel",
+				}
 			);
 		}
 	}
 
 	/// <summary>
-	/// To be called after the test collection has been executed.
+	/// Creates the execution scheduler.
 	/// </summary>
-	public void AfterTestCollection() =>
-		parallelSemaphore?.Release();
-
-	/// <summary>
-	/// To be called before executing a test collection.
-	/// </summary>
-	public async ValueTask BeforeTestCollection()
-	{
-		if (parallelSemaphore is not null)
-			await parallelSemaphore.WaitAsync(TestContext.Current.CancellationToken);
-	}
+	protected virtual ExecutionScheduler CreateScheduler() =>
+		ExecutionScheduler.Create(MaxParallelThreads, ParallelAlgorithm);
 
 	/// <inheritdoc/>
 	public override async ValueTask DisposeAsync()
 	{
 		GC.SuppressFinalize(this);
 
-		if (syncContext is IAsyncDisposable asyncDisposable)
-			await asyncDisposable.SafeDisposeAsync();
-		else if (syncContext is IDisposable disposable)
-			disposable.SafeDispose();
-
-		parallelSemaphore?.Dispose();
+		if (executionScheduler is not null)
+			await executionScheduler.SafeDisposeAsync();
 
 		await base.DisposeAsync();
 	}
@@ -143,38 +148,4 @@ public abstract class CoreTestAssemblyRunnerContext<TTestAssembly, TTestCollecti
 	public abstract ValueTask<RunSummary> RunTestCollection(
 		TTestCollection testCollection,
 		IReadOnlyCollection<TTestCase> testCases);
-
-	/// <summary>
-	/// Sets up the mechanics for parallelism.
-	/// </summary>
-	public virtual void SetupParallelism()
-	{
-		var maxParallelThreads = MaxParallelThreads;
-
-		// When unlimited, we just launch everything and let the .NET Thread Pool sort it out
-		if (maxParallelThreads < 0)
-			return;
-
-		// For aggressive, we launch everything and let our sync context limit what's allowed to run
-		if (ParallelAlgorithm == ParallelAlgorithm.Aggressive)
-		{
-			syncContext = new MaxConcurrencySyncContext(maxParallelThreads);
-			SetupSyncContextInternal(syncContext);
-		}
-		// For conversative, we use a semaphore to limit the number of launched tests, and ensure
-		// that the .NET Thread Pool has enough threads based on the user's requested maximum
-		else
-		{
-			parallelSemaphore = new(initialCount: maxParallelThreads);
-
-			ThreadPool.GetMinThreads(out var workerThreads, out var completionPortThreads);
-			var threadFloor = Math.Max(4, maxParallelThreads);
-			if (workerThreads < threadFloor)
-				ThreadPool.SetMinThreads(threadFloor, completionPortThreads);
-		}
-	}
-
-	[SecuritySafeCritical]
-	static void SetupSyncContextInternal(SynchronizationContext? context) =>
-		SynchronizationContext.SetSynchronizationContext(context);
 }

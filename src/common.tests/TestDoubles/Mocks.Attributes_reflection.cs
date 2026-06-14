@@ -67,6 +67,7 @@ public static partial class Mocks
 	}
 
 	public static IFactAttribute FactAttribute(
+		bool disableParallelization = false,
 		string? displayName = null,
 		bool? @explicit = null,
 		string? skip = null,
@@ -79,6 +80,7 @@ public static partial class Mocks
 		int timeout = 0) =>
 			new MockFactAttribute
 			{
+				DisableParallelization = disableParallelization,
 				DisplayName = displayName,
 				Explicit = @explicit ?? false,
 				Skip = skip,
@@ -93,6 +95,7 @@ public static partial class Mocks
 
 	class MockFactAttribute : IFactAttribute
 	{
+		public required bool DisableParallelization { get; set; }
 		public required string? DisplayName { get; set; }
 		public required bool Explicit { get; set; }
 		public required string? Skip { get; set; }

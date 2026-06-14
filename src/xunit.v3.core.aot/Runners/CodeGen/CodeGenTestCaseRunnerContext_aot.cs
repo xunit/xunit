@@ -13,6 +13,8 @@ namespace Xunit.v3;
 /// <param name="displayName">The display name of the test case</param>
 /// <param name="skipReason">The skip reason, if the test case is being skipped</param>
 /// <param name="cancellationTokenSource">The cancellation token source</param>
+/// <param name="parallelMode">The parallel mode for the test case</param>
+/// <param name="scheduler">The scheduler used for task/test scheduling</param>
 /// <param name="methodFixtureMappings">The mapping of method fixture types to fixtures.</param>
 /// <remarks>
 /// This class is used for code generation-based tests.
@@ -26,8 +28,10 @@ public class CodeGenTestCaseRunnerContext(
 	string displayName,
 	string? skipReason,
 	CancellationTokenSource cancellationTokenSource,
+	ParallelMode parallelMode,
+	ExecutionScheduler scheduler,
 	FixtureMappingManager methodFixtureMappings) :
-		CodeGenTestCaseRunnerBaseContext<ICodeGenTestCase, ICodeGenTest>(testCase, tests, explicitOption, messageBus, aggregator, displayName, skipReason, cancellationTokenSource, methodFixtureMappings)
+		CodeGenTestCaseRunnerBaseContext<ICodeGenTestCase, ICodeGenTest>(testCase, tests, explicitOption, messageBus, aggregator, displayName, skipReason, cancellationTokenSource, parallelMode, scheduler, methodFixtureMappings)
 {
 	/// <inheritdoc/>
 	public override ValueTask<RunSummary> RunTest(ICodeGenTest test) =>
@@ -37,6 +41,8 @@ public class CodeGenTestCaseRunnerContext(
 			ExplicitOption,
 			Aggregator.Clone(),
 			CancellationTokenSource,
+			ParallelMode,
+			Scheduler,
 			CaseFixtureMappings
 		);
 }

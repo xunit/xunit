@@ -11,6 +11,8 @@ namespace Xunit.v3;
 /// <param name="messageBus">The message bus to send execution messages to</param>
 /// <param name="aggregator">The exception aggregator</param>
 /// <param name="cancellationTokenSource">The cancellation token source</param>
+/// <param name="parallelMode">The parallel mode for the test method</param>
+/// <param name="scheduler">The scheduler used for task/test scheduling</param>
 /// <typeparam name="TTestMethod">The type of the test method used by the test framework. Must
 /// derive from <see cref="ICoreTestMethod"/>.</typeparam>
 /// <typeparam name="TTestCase">The type of the test case used by the test framework. Must
@@ -24,11 +26,32 @@ public abstract class CoreTestMethodRunnerContext<TTestMethod, TTestCase>(
 	ExplicitOption explicitOption,
 	IMessageBus messageBus,
 	ExceptionAggregator aggregator,
-	CancellationTokenSource cancellationTokenSource) :
+	CancellationTokenSource cancellationTokenSource,
+	ParallelMode parallelMode,
+	ExecutionScheduler scheduler) :
 		TestMethodRunnerContext<TTestMethod, TTestCase>(testMethod, testCases, explicitOption, messageBus, aggregator, cancellationTokenSource)
 			where TTestMethod : class, ICoreTestMethod
 			where TTestCase : class, ICoreTestCase
 {
+	/// <summary>
+	/// Gets the parallel mode for the test method.
+	/// </summary>
+	/// <remarks>
+	/// Note: This will only return <see cref="ParallelMode.All"/> if that was the parallel mode passed to the constructor,
+	/// and the test method has not opted out parallelism; otherwise, it will always return <see cref="ParallelMode.None"/>.
+	/// </remarks>
+	public ParallelMode ParallelMode { get; } =
+		(parallelMode, Guard.ArgumentNotNull(testMethod).DisableParallelization) switch
+		{
+			(ParallelMode.All, false) => ParallelMode.All,
+			_ => ParallelMode.None,
+		};
+
+	/// <summary>
+	/// Gets the scheduler used for task/test scheduling.
+	/// </summary>
+	public ExecutionScheduler Scheduler { get; } = Guard.ArgumentNotNull(scheduler);
+
 	/// <summary>
 	/// Runs a test case from this test method.
 	/// </summary>

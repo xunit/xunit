@@ -31,6 +31,15 @@ public class XunitTestAssemblyRunnerBaseContext<TTestAssembly, TTestCollection, 
 	/// </summary>
 	public FixtureMappingManager AssemblyFixtureMappings { get; } = new("Assembly");
 
+	/// <summary>
+	/// Please read <see cref="CoreTestAssemblyRunnerContext{TTestAssembly, TTestCollection, TTestCase}.ParallelMode"/> instead.
+	/// This property will be removed in the next major version.
+	/// </summary>
+	[Obsolete("Please read ParallelMode instead. This property will be removed in the next major version.")]
+	[EditorBrowsable(EditorBrowsableState.Never)]
+	public bool DisableParallelization =>
+		ParallelMode == ParallelMode.None;
+
 	/// <inheritdoc/>
 	protected override string GetTestCollectionFactoryDisplayName() =>
 		RegisteredEngineConfig.GetTestCollectionFactory(TestAssembly).DisplayName;
@@ -39,7 +48,7 @@ public class XunitTestAssemblyRunnerBaseContext<TTestAssembly, TTestCollection, 
 	/// Please use <see cref="RunTestCollection(TTestCollection, IReadOnlyCollection{TTestCase})"/>.
 	/// This overload will be removed in the next major version.
 	/// </summary>
-	[Obsolete("Please use the overload which does not include testCaseOrderer. This overload will be removed in the next major version.", error: true)]
+	[Obsolete("Please use the overload which does not include testCaseOrderer. This overload will be removed in the next major version.")]
 	[EditorBrowsable(EditorBrowsableState.Never)]
 	[OverloadResolutionPriority(-1)]
 	public ValueTask<RunSummary> RunTestCollection(
@@ -49,27 +58,27 @@ public class XunitTestAssemblyRunnerBaseContext<TTestAssembly, TTestCollection, 
 			RunTestCollection(testCollection, testCases);
 
 	/// <inheritdoc/>
-	public override async ValueTask<RunSummary> RunTestCollection(
+	public override ValueTask<RunSummary> RunTestCollection(
 		TTestCollection testCollection,
-		IReadOnlyCollection<TTestCase> testCases)
-	{
-		await BeforeTestCollection();
-
-		try
-		{
-			return await XunitTestCollectionRunner.Instance.Run(
+		IReadOnlyCollection<TTestCase> testCases) =>
+			XunitTestCollectionRunner.Instance.Run(
 				testCollection,
 				testCases,
 				ExplicitOption,
 				MessageBus,
 				Aggregator.Clone(),
 				CancellationTokenSource,
+				ParallelMode,
+				Scheduler,
 				AssemblyFixtureMappings
 			);
-		}
-		finally
-		{
-			AfterTestCollection();
-		}
-	}
+
+	/// <summary>
+	/// This method has been replaced by <see cref="CoreTestAssemblyRunnerContext{TTestAssembly, TTestCollection, TTestCase}.CreateScheduler"/>,
+	/// and is no longer called. This method will be removed in the next major version.
+	/// </summary>
+	[Obsolete("This method has been replaced by CreateScheduler in the context, and is no longer called. This method will be removed in the next major version.", error: true)]
+	[EditorBrowsable(EditorBrowsableState.Never)]
+	public virtual void SetupParallelism() =>
+		throw new NotSupportedException("This method has been replaced by CreateScheduler, and is no longer called. This method will be removed in the next major version.");
 }

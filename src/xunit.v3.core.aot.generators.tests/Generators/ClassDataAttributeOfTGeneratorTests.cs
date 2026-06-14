@@ -16,7 +16,7 @@ public class ClassDataAttributeOfTGeneratorTests : CoreGeneratorTest<ClassDataAt
 			public class TestClass {
 			    // Success cases
 				[ClassData<MyClassData>]
-				[ClassData<ClassDataWithInit>(Skip = "Maybe?", SkipWhen = nameof(ClassDataWithInit.AlwaysFalse), SkipType = typeof(ClassDataWithInit), TestDisplayName = "hey")]
+				[ClassData<ClassDataWithInit>(DisableParallelization = true, Skip = "Maybe?", SkipWhen = nameof(ClassDataWithInit.AlwaysFalse), SkipType = typeof(ClassDataWithInit), TestDisplayName = "hey")]
 				[ClassData<AsyncClassData>(Explicit = true, Label = "hello", Skip = "Always", SkipUnless = nameof(AlwaysTrue), Timeout = 42, Traits = ["Foo", "Bar"])]
 				// Failure cases
 				[ClassData<NonEnumerableData>]
@@ -88,7 +88,7 @@ public class ClassDataAttributeOfTGeneratorTests : CoreGeneratorTest<ClassDataAt
 						);
 						global::Xunit.v3.RegisteredEngineConfig.RegisterTheoryDataRowFactory("global::TestClass", "TestMethod", false,
 							async disposalTracker => {
-								var attr = new global::Xunit.v3.DataAttributeRegistration() { Skip = "Maybe?", SkipWhen = () => global::ClassDataWithInit.AlwaysFalse, TestDisplayName = "hey" };
+								var attr = new global::Xunit.v3.DataAttributeRegistration() { DisableParallelization = true, Skip = "Maybe?", SkipWhen = () => global::ClassDataWithInit.AlwaysFalse, TestDisplayName = "hey" };
 								var dataRows = new global::System.Collections.Generic.List<global::Xunit.ITheoryDataRow>();
 								var classData = new global::ClassDataWithInit();
 								disposalTracker.Add(classData);

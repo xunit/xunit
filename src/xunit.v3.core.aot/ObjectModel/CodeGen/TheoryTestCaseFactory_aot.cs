@@ -64,7 +64,8 @@ public class TheoryTestCaseFactory : TestCaseFactoryBase
 		int testIndex,
 		string? displayNameSuffix = null) =>
 			new CodeGenTest(
-				Guard.ArgumentNotNull(dataRow).Explicit ?? Explicit,
+				Guard.ArgumentNotNull(dataRow).DisableParallelization ?? false,  // [Theory.DisableParallelization] is fed into the test method registration
+				dataRow.Explicit ?? Explicit,
 				methodInvoker,
 				dataRow.Skip ?? SkipReason,
 				dataRow.SkipUnless ?? SkipUnless,
@@ -93,6 +94,7 @@ public class TheoryTestCaseFactory : TestCaseFactoryBase
 		IReadOnlyCollection<Func<ICodeGenTestCase, ValueTask<IReadOnlyCollection<ICodeGenTest>>>> testFactories,
 		string? displayNameSuffix = null) =>
 			new CodeGenTestCase(
+				disableParallelization: false,  // [Theory.DisableParallelization] is fed into the test method registration
 				Explicit,
 				SkipExceptions,
 				SkipReason,
@@ -148,6 +150,7 @@ public class TheoryTestCaseFactory : TestCaseFactoryBase
 		}
 
 		return new CodeGenTestCase(
+			dataRow.DisableParallelization ?? false,  // [Theory.DisableParallelization] is fed into the test method registration
 			dataRow.Explicit ?? Explicit,
 			SkipExceptions,
 			skipReason,
@@ -158,6 +161,7 @@ public class TheoryTestCaseFactory : TestCaseFactoryBase
 			testDisplayName,
 			[
 				async testCase => [new CodeGenTest(
+					disableParallelization: false,  // Setting the value in the test case is sufficient
 					dataRow.Explicit ?? Explicit,
 					methodInvoker,
 					skipReason,

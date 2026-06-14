@@ -19,6 +19,9 @@ public class FactAttribute(
 		Attribute, IFactAttribute
 {
 	/// <inheritdoc/>
+	public bool DisableParallelization { get; set; }
+
+	/// <inheritdoc/>
 	public string? DisplayName { get; set; }
 
 	/// <inheritdoc/>

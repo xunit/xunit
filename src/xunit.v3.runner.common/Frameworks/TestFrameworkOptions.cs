@@ -79,13 +79,13 @@ public class TestFrameworkOptions : ITestFrameworkDiscoveryOptions, ITestFramewo
 		result.SetAssertEquivalentMaxDepth(configuration.AssertEquivalentMaxDepth);
 		result.SetCulture(configuration.Culture);
 		result.SetDiagnosticMessages(configuration.DiagnosticMessages);
-		result.SetDisableParallelization(!configuration.ParallelizeTestCollections);
 		result.SetExplicitOption(configuration.ExplicitOption);
 		result.SetFailSkips(configuration.FailSkips);
 		result.SetFailTestsWithWarnings(configuration.FailTestsWithWarnings);
 		result.SetInternalDiagnosticMessages(configuration.InternalDiagnosticMessages);
 		result.SetMaxParallelThreads(configuration.MaxParallelThreads);
 		result.SetParallelAlgorithm(configuration.ParallelAlgorithm);
+		result.SetParallelMode(configuration.ParallelMode);
 		result.SetPrintMaxEnumerableLength(configuration.PrintMaxEnumerableLength);
 		result.SetPrintMaxObjectDepth(configuration.PrintMaxObjectDepth);
 		result.SetPrintMaxObjectMemberCount(configuration.PrintMaxObjectMemberCount);

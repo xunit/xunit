@@ -81,6 +81,8 @@ namespace Xunit.Generators
 			/// <summary/>
 			public const string TestCaseOrdererAttributeOfT = "Xunit.TestCaseOrdererAttribute<>";
 			/// <summary/>
+			public const string TestClassAttribute = "Xunit.TestClassAttribute";
+			/// <summary/>
 			public const string TestClassOrdererAttribute = "Xunit.TestClassOrdererAttribute";
 			/// <summary/>
 			public const string TestClassOrdererAttributeOfT = "Xunit.TestClassOrdererAttribute<>";

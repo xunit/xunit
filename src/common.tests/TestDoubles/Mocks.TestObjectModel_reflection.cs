@@ -10,6 +10,7 @@ public static partial class Mocks
 	// ===== IXunitTestXxx =====
 
 	public static IXunitTest XunitTest(
+		bool disableParallelization = false,
 		bool @explicit = false,
 		string? skipReason = null,
 		Type? skipType = null,
@@ -27,6 +28,7 @@ public static partial class Mocks
 
 		return new MockXunitTest
 		{
+			DisableParallelization = disableParallelization,
 			Explicit = @explicit,
 			SkipReason = skipReason,
 			SkipType = skipType,
@@ -44,6 +46,7 @@ public static partial class Mocks
 
 	class MockXunitTest : IXunitTest
 	{
+		public required bool DisableParallelization { get; set; }
 		public required bool Explicit { get; set; }
 		public required string? SkipReason { get; set; }
 		public required Type? SkipType { get; set; }
@@ -71,7 +74,10 @@ public static partial class Mocks
 		ICollectionBehaviorAttribute? collectionBehavior = null,
 		IReadOnlyDictionary<string, (Type Type, CollectionDefinitionAttribute Attribute)>? collectionDefinitions = null,
 		string? configFilePath = null,
+		int? maxParallelThreads = null,
 		Guid? moduleVersionID = null,
+		ParallelAlgorithm? parallelAlgorithm = null,
+		ParallelMode? parallelMode = null,
 		string targetFramework = TestData.DefaultTargetFramework,
 		ITestCaseOrderer? testCaseOrderer = null,
 		ITestClassOrderer? testClassOrderer = null,
@@ -89,7 +95,10 @@ public static partial class Mocks
 				CollectionBehavior = collectionBehavior,
 				CollectionDefinitions = collectionDefinitions ?? TestData.EmptyCollectionDefinitions,
 				ConfigFilePath = configFilePath,
+				MaxParallelThreads = maxParallelThreads,
 				ModuleVersionID = moduleVersionID ?? TestData.DefaultModuleVersionID,
+				ParallelAlgorithm = parallelAlgorithm,
+				ParallelMode = parallelMode,
 				TargetFramework = targetFramework,
 				TestCaseOrderer = testCaseOrderer,
 				TestClassOrderer = testClassOrderer,
@@ -109,6 +118,9 @@ public static partial class Mocks
 		public required ICollectionBehaviorAttribute? CollectionBehavior { get; set; }
 		public required IReadOnlyDictionary<string, (Type Type, CollectionDefinitionAttribute Attribute)> CollectionDefinitions { get; set; }
 		public required string? ConfigFilePath { get; set; }
+		public required int? MaxParallelThreads { get; set; }
+		public required ParallelAlgorithm? ParallelAlgorithm { get; set; }
+		public required ParallelMode? ParallelMode { get; set; }
 		public required Guid ModuleVersionID { get; set; }
 		public required string TargetFramework { get; set; }
 		public required ITestCaseOrderer? TestCaseOrderer { get; set; }
@@ -120,13 +132,11 @@ public static partial class Mocks
 		public required Version Version { get; set; }
 
 		public Assembly Assembly => throw new InvalidOperationException("Using IXunitTestAssembly.Assembly while testing is prohibited");
-		public bool? DisableParallelization => CollectionBehavior?.DisableTestParallelization;
-		public int? MaxParallelThreads => CollectionBehavior?.MaxParallelThreads;
-		public ParallelAlgorithm? ParallelAlgorithm => CollectionBehavior?.ParallelAlgorithm;
 	}
 
 	public static IXunitTestCase XunitTestCase(
 		Action? asyncDisposeCallback = null,
+		bool disableParallelization = false,
 		Action? disposeCallback = null,
 		bool @explicit = false,
 		Type[]? skipExceptions = null,
@@ -156,6 +166,7 @@ public static partial class Mocks
 
 			return new MockXunitTestCaseAsyncDisposable(asyncDisposeCallback)
 			{
+				DisableParallelization = disableParallelization,
 				Explicit = @explicit,
 				SkipExceptions = skipExceptions,
 				SkipReason = skipReason,
@@ -178,6 +189,7 @@ public static partial class Mocks
 		else if (disposeCallback is not null)
 			return new MockXunitTestCaseDisposable(disposeCallback)
 			{
+				DisableParallelization = disableParallelization,
 				Explicit = @explicit,
 				SkipExceptions = skipExceptions,
 				SkipReason = skipReason,
@@ -199,6 +211,7 @@ public static partial class Mocks
 		else
 			return new MockXunitTestCase
 			{
+				DisableParallelization = disableParallelization,
 				Explicit = @explicit,
 				SkipExceptions = skipExceptions,
 				SkipReason = skipReason,
@@ -224,6 +237,7 @@ public static partial class Mocks
 
 	class MockXunitTestCase : IXunitTestCase
 	{
+		public required bool DisableParallelization { get; set; }
 		public required bool Explicit { get; set; }
 		public required Type[]? SkipExceptions { get; set; }
 		public required string? SkipReason { get; set; }
@@ -281,6 +295,7 @@ public static partial class Mocks
 		IReadOnlyCollection<IBeforeAfterTestAttribute>? beforeAfterTestAttributes = null,
 		IReadOnlyCollection<Type>? classFixtureTypes = null,
 		IReadOnlyCollection<ConstructorInfo>? constructors = null,
+		bool disableParallelization = false,
 		int metadataToken = TestData.DefaultTestClassMetadataToken,
 		IReadOnlyCollection<MethodInfo>? methods = null,
 		ITestCaseOrderer? testCaseOrderer = null,
@@ -299,6 +314,7 @@ public static partial class Mocks
 			BeforeAfterTestAttributes = beforeAfterTestAttributes ?? [],
 			ClassFixtureTypes = classFixtureTypes ?? [],
 			Constructors = constructors,
+			DisableParallelization = disableParallelization,
 			MetadataToken = metadataToken,
 			Methods = methods ?? [],
 			TestCaseOrderer = testCaseOrderer,
@@ -317,6 +333,7 @@ public static partial class Mocks
 		public required IReadOnlyCollection<IBeforeAfterTestAttribute> BeforeAfterTestAttributes { get; set; }
 		public required IReadOnlyCollection<Type> ClassFixtureTypes { get; set; }
 		public required IReadOnlyCollection<ConstructorInfo>? Constructors { get; set; }
+		public required bool DisableParallelization { get; set; }
 		public required int MetadataToken { get; set; }
 		public required IReadOnlyCollection<MethodInfo> Methods { get; set; }
 		public required ITestCaseOrderer? TestCaseOrderer { get; set; }
@@ -391,6 +408,7 @@ public static partial class Mocks
 	public static IXunitTestMethod XunitTestMethod(
 		IReadOnlyCollection<IBeforeAfterTestAttribute>? beforeAfterTestAttributes = null,
 		IReadOnlyCollection<IDataAttribute>? dataAttributes = null,
+		bool disableParallelization = false,
 		string? displayName = null,
 		IReadOnlyCollection<IFactAttribute>? factAttributes = null,
 		bool isGenericMethodDefinition = false,
@@ -411,6 +429,7 @@ public static partial class Mocks
 		{
 			BeforeAfterTestAttributes = beforeAfterTestAttributes ?? [],
 			DataAttributes = dataAttributes ?? [],
+			DisableParallelization = disableParallelization,
 			FactAttributes = factAttributes ?? [FactAttribute()],
 			IsGenericMethodDefinition = isGenericMethodDefinition,
 			MetadataToken = metadataToken,
@@ -430,6 +449,7 @@ public static partial class Mocks
 	{
 		public required IReadOnlyCollection<IBeforeAfterTestAttribute> BeforeAfterTestAttributes { get; set; }
 		public required IReadOnlyCollection<IDataAttribute> DataAttributes { get; set; }
+		public required bool DisableParallelization { get; set; }
 		public required IReadOnlyCollection<IFactAttribute> FactAttributes { get; set; }
 		public required bool IsGenericMethodDefinition { get; set; }
 		public required int MetadataToken { get; set; }

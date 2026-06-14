@@ -11,6 +11,11 @@ namespace Xunit.v3;
 public class DataAttributeRegistration
 {
 	/// <summary>
+	/// Gets a flag that indicates that data rows from this data attribute wish to opt out of parallelization.
+	/// </summary>
+	public bool DisableParallelization { get; set; }
+
+	/// <summary>
 	/// Gets an empty (default) data attribute registration.
 	/// </summary>
 	public static DataAttributeRegistration Empty { get; } = new();
@@ -129,6 +134,7 @@ public class DataAttributeRegistration
 
 		return new TheoryDataRow(data)
 		{
+			DisableParallelization = DisableParallelization,
 			Explicit = Explicit,
 			Label = Label,
 			Skip = Skip,
@@ -158,6 +164,7 @@ public class DataAttributeRegistration
 
 		return new TheoryDataRow(dataRow.GetData())
 		{
+			DisableParallelization = dataRow.DisableParallelization ?? DisableParallelization,
 			Explicit = dataRow.Explicit ?? Explicit,
 			Label = dataRow.Label ?? Label,
 			Skip = dataRow.Skip ?? Skip,

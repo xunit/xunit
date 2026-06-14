@@ -44,6 +44,20 @@ static class DotNetApiPolyfills
 			str.Length != 0 && str[0] == value;
 #endif
 
+#if !NETCOREAPP
+	public static bool TryAdd<TKey, TValue>(
+		this IDictionary<TKey, TValue> dictionary,
+		TKey key,
+		TValue value)
+	{
+		if (dictionary.ContainsKey(key))
+			return false;
+
+		dictionary.Add(key, value);
+		return true;
+	}
+#endif
+
 #if !NET8_0_OR_GREATER
 	extension(Enum)
 	{

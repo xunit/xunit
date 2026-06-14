@@ -6,7 +6,8 @@ using Xunit.Sdk;
 public static class Xunit3ArgumentFactoryTests
 {
 	public static readonly Version Version_0_2_999 = new(0, 2, 999);
-	public static readonly Version Version_0_3_0 = new(0, 3, 0);
+	public static readonly Version Version_3_999_999 = new(3, 999, 999);
+	public static readonly Version Version_Latest = Version.Parse(ThisAssembly.AssemblyVersion);
 
 	public static class ForFind
 	{
@@ -15,7 +16,7 @@ public static class Xunit3ArgumentFactoryTests
 		{
 			var options = TestData.TestFrameworkDiscoveryOptions();
 
-			var arguments = Xunit3ArgumentFactory.ForFind(Version_0_3_0, options);
+			var arguments = Xunit3ArgumentFactory.ForFind(Version_Latest, options);
 
 			var arg = Assert.Single(arguments);
 			Assert.Equal("-automated", arg);
@@ -44,7 +45,7 @@ public static class Xunit3ArgumentFactoryTests
 				synchronousMessageReporting: true
 			);
 
-			var arguments = Xunit3ArgumentFactory.ForFind(Version_0_3_0, options);
+			var arguments = Xunit3ArgumentFactory.ForFind(Version_Latest, options);
 
 			Assert.Collection(
 				arguments,
@@ -80,7 +81,7 @@ public static class Xunit3ArgumentFactoryTests
 				printMaxStringLength: -1
 			);
 
-			var arguments = Xunit3ArgumentFactory.ForFind(Version_0_3_0, options);
+			var arguments = Xunit3ArgumentFactory.ForFind(Version_Latest, options);
 
 			var arg = Assert.Single(arguments);
 			Assert.Equal("-automated", arg);
@@ -102,7 +103,7 @@ public static class Xunit3ArgumentFactoryTests
 		{
 			var options = TestData.TestFrameworkDiscoveryOptions();
 
-			var arguments = Xunit3ArgumentFactory.ForFind(Version_0_3_0, options, configFileName: "/config/file/name.json");
+			var arguments = Xunit3ArgumentFactory.ForFind(Version_Latest, options, configFileName: "/config/file/name.json");
 
 			Assert.Collection(
 				arguments,
@@ -137,7 +138,7 @@ public static class Xunit3ArgumentFactoryTests
 			filters.AddExcludedTraitFilter("trait4", "value4a");
 			filters.AddExcludedTraitFilter("trait4", "value4b");
 
-			var arguments = Xunit3ArgumentFactory.ForFind(Version_0_3_0, options, filters: filters);
+			var arguments = Xunit3ArgumentFactory.ForFind(Version_Latest, options, filters: filters);
 
 			Assert.Collection(
 				arguments,
@@ -203,7 +204,7 @@ public static class Xunit3ArgumentFactoryTests
 		{
 			var options = TestData.TestFrameworkDiscoveryOptions();
 
-			var arguments = Xunit3ArgumentFactory.ForFind(Version_0_3_0, options, listOption: listOption);
+			var arguments = Xunit3ArgumentFactory.ForFind(Version_Latest, options, listOption: listOption);
 
 			Assert.Collection(
 				arguments,
@@ -218,7 +219,7 @@ public static class Xunit3ArgumentFactoryTests
 		{
 			var options = TestData.TestFrameworkDiscoveryOptions();
 
-			var arguments = Xunit3ArgumentFactory.ForFind(Version_0_3_0, options, waitForDebugger: true);
+			var arguments = Xunit3ArgumentFactory.ForFind(Version_Latest, options, waitForDebugger: true);
 
 			Assert.Collection(
 				arguments,
@@ -236,7 +237,7 @@ public static class Xunit3ArgumentFactoryTests
 			var discoveryOptions = TestData.TestFrameworkDiscoveryOptions();
 			var executionOptions = TestData.TestFrameworkExecutionOptions();
 
-			var arguments = Xunit3ArgumentFactory.ForFindAndRun(Version_0_3_0, discoveryOptions, executionOptions);
+			var arguments = Xunit3ArgumentFactory.ForFindAndRun(Version_Latest, discoveryOptions, executionOptions);
 
 			var arg = Assert.Single(arguments);
 			Assert.Equal("-automated", arg);
@@ -260,13 +261,13 @@ public static class Xunit3ArgumentFactoryTests
 				assertEquivalentMaxDepth: 5,
 				culture: culture,
 				diagnosticMessages: true,
-				disableParallelization: true,
 				explicitOption: ExplicitOption.On,
 				failSkips: true,
 				failTestsWithWarnings: true,
 				internalDiagnosticMessages: true,
 				maxParallelThreads: 42,
 				parallelAlgorithm: ParallelAlgorithm.Conservative,
+				parallelMode: ParallelMode.All,
 				printMaxEnumerableLength: 1,
 				printMaxObjectDepth: 2,
 				printMaxObjectMemberCount: 3,
@@ -276,7 +277,7 @@ public static class Xunit3ArgumentFactoryTests
 				synchronousMessageReporting: true
 			);
 
-			var arguments = Xunit3ArgumentFactory.ForFindAndRun(Version_0_3_0, discoveryOptions, executionOptions);
+			var arguments = Xunit3ArgumentFactory.ForFindAndRun(Version_Latest, discoveryOptions, executionOptions);
 
 			Assert.Collection(
 				arguments,
@@ -299,10 +300,10 @@ public static class Xunit3ArgumentFactoryTests
 				arg => Assert.Equal("Method", arg),
 				arg => Assert.Equal("-methodDisplayOptions", arg),
 				arg => Assert.Equal("UseOperatorMonikers,ReplacePeriodWithComma", arg),
-				arg => Assert.Equal("-parallel", arg),
-				arg => Assert.Equal("none", arg),
 				arg => Assert.Equal("-parallelAlgorithm", arg),
 				arg => Assert.Equal("Conservative", arg),
+				arg => Assert.Equal("-parallelMode", arg),
+				arg => Assert.Equal("all", arg),
 				arg => Assert.Equal("-preEnumerateTheories", arg),
 				arg => Assert.Equal("-printMaxEnumerableLength", arg),
 				arg => Assert.Equal("1", arg),
@@ -328,7 +329,7 @@ public static class Xunit3ArgumentFactoryTests
 				printMaxStringLength: -1
 			);
 
-			var arguments = Xunit3ArgumentFactory.ForFindAndRun(Version_0_3_0, discoveryOptions, executionOptions);
+			var arguments = Xunit3ArgumentFactory.ForFindAndRun(Version_Latest, discoveryOptions, executionOptions);
 
 			var arg = Assert.Single(arguments);
 			Assert.Equal("-automated", arg);
@@ -337,7 +338,7 @@ public static class Xunit3ArgumentFactoryTests
 		[Theory]
 		[InlineData(false)]
 		[InlineData(true)]
-		public static void DoesNotSendSyncParameterToAutomatedForOlderTestProjects(bool discoverySynchronous)
+		public static void Pre_0_3_0_DoesNotSendSyncParameterToAutomated(bool discoverySynchronous)
 		{
 			// Either one turns it on, so test it both ways
 			var discoveryOptions = TestData.TestFrameworkDiscoveryOptions(synchronousMessageReporting: discoverySynchronous);
@@ -349,13 +350,34 @@ public static class Xunit3ArgumentFactoryTests
 			Assert.Equal("-automated", argument);
 		}
 
+		[Theory]
+		[InlineData(ParallelMode.All, "collections")]
+		[InlineData(ParallelMode.Collections, "collections")]
+		[InlineData(ParallelMode.None, "none")]
+		public static void Pre_4_0_0_SendsParallelModeAsParallel(
+			ParallelMode parallelMode,
+			string expectedParallel)
+		{
+			var discoveryOptions = TestData.TestFrameworkDiscoveryOptions();
+			var executionOptions = TestData.TestFrameworkExecutionOptions(parallelMode: parallelMode);
+
+			var arguments = Xunit3ArgumentFactory.ForFindAndRun(Version_3_999_999, discoveryOptions, executionOptions);
+
+			Assert.Collection(
+				arguments,
+				arg => Assert.Equal("-automated", arg),
+				arg => Assert.Equal("-parallel", arg),
+				arg => Assert.Equal(expectedParallel, arg)
+			);
+		}
+
 		[Fact]
 		public static void AddConfigFile()
 		{
 			var discoveryOptions = TestData.TestFrameworkDiscoveryOptions();
 			var executionOptions = TestData.TestFrameworkExecutionOptions();
 
-			var arguments = Xunit3ArgumentFactory.ForFindAndRun(Version_0_3_0, discoveryOptions, executionOptions, configFileName: "/config/file/name.json");
+			var arguments = Xunit3ArgumentFactory.ForFindAndRun(Version_Latest, discoveryOptions, executionOptions, configFileName: "/config/file/name.json");
 
 			Assert.Collection(
 				arguments,
@@ -391,7 +413,7 @@ public static class Xunit3ArgumentFactoryTests
 			filters.AddExcludedTraitFilter("trait4", "value4a");
 			filters.AddExcludedTraitFilter("trait4", "value4b");
 
-			var arguments = Xunit3ArgumentFactory.ForFindAndRun(Version_0_3_0, discoveryOptions, executionOptions, filters: filters);
+			var arguments = Xunit3ArgumentFactory.ForFindAndRun(Version_Latest, discoveryOptions, executionOptions, filters: filters);
 
 			Assert.Collection(
 				arguments,
@@ -453,7 +475,7 @@ public static class Xunit3ArgumentFactoryTests
 			var discoveryOptions = TestData.TestFrameworkDiscoveryOptions();
 			var executionOptions = TestData.TestFrameworkExecutionOptions();
 
-			var arguments = Xunit3ArgumentFactory.ForFindAndRun(Version_0_3_0, discoveryOptions, executionOptions, waitForDebugger: true);
+			var arguments = Xunit3ArgumentFactory.ForFindAndRun(Version_Latest, discoveryOptions, executionOptions, waitForDebugger: true);
 
 			Assert.Collection(
 				arguments,
@@ -470,7 +492,7 @@ public static class Xunit3ArgumentFactoryTests
 		{
 			var options = TestData.TestFrameworkExecutionOptions();
 
-			var arguments = Xunit3ArgumentFactory.ForRun(Version_0_3_0, options, ["abc", "123"], ["def", "456"]);
+			var arguments = Xunit3ArgumentFactory.ForRun(Version_Latest, options, ["abc", "123"], ["def", "456"]);
 
 			Assert.Collection(
 				arguments,
@@ -498,13 +520,13 @@ public static class Xunit3ArgumentFactoryTests
 				assertEquivalentMaxDepth: 5,
 				culture: culture,
 				diagnosticMessages: true,
-				disableParallelization: true,
 				explicitOption: ExplicitOption.On,
 				failSkips: true,
 				failTestsWithWarnings: true,
 				internalDiagnosticMessages: true,
 				maxParallelThreads: 42,
 				parallelAlgorithm: ParallelAlgorithm.Conservative,
+				parallelMode: ParallelMode.All,
 				printMaxEnumerableLength: 1,
 				printMaxObjectDepth: 2,
 				printMaxObjectMemberCount: 3,
@@ -514,7 +536,7 @@ public static class Xunit3ArgumentFactoryTests
 				synchronousMessageReporting: true
 			);
 
-			var arguments = Xunit3ArgumentFactory.ForRun(Version_0_3_0, options, ["abc"], ["def"]);
+			var arguments = Xunit3ArgumentFactory.ForRun(Version_Latest, options, ["abc"], ["def"]);
 
 			Assert.Collection(
 				arguments,
@@ -535,10 +557,10 @@ public static class Xunit3ArgumentFactoryTests
 				arg => Assert.Equal("-internalDiagnostics", arg),
 				arg => Assert.Equal("-maxThreads", arg),
 				arg => Assert.Equal("42", arg),
-				arg => Assert.Equal("-parallel", arg),
-				arg => Assert.Equal("none", arg),
 				arg => Assert.Equal("-parallelAlgorithm", arg),
 				arg => Assert.Equal("Conservative", arg),
+				arg => Assert.Equal("-parallelMode", arg),
+				arg => Assert.Equal("all", arg),
 				arg => Assert.Equal("-printMaxEnumerableLength", arg),
 				arg => Assert.Equal("1", arg),
 				arg => Assert.Equal("-printMaxObjectDepth", arg),
@@ -564,7 +586,7 @@ public static class Xunit3ArgumentFactoryTests
 				printMaxStringLength: -1
 			);
 
-			var arguments = Xunit3ArgumentFactory.ForRun(Version_0_3_0, options, ["abc"], ["def"]);
+			var arguments = Xunit3ArgumentFactory.ForRun(Version_Latest, options, ["abc"], ["def"]);
 
 			Assert.Collection(
 				arguments,
@@ -588,7 +610,7 @@ public static class Xunit3ArgumentFactoryTests
 		{
 			var options = TestData.TestFrameworkExecutionOptions(maxParallelThreads: maxParallelThreadsValue);
 
-			var arguments = Xunit3ArgumentFactory.ForRun(Version_0_3_0, options, ["abc"], ["def"]);
+			var arguments = Xunit3ArgumentFactory.ForRun(Version_Latest, options, ["abc"], ["def"]);
 
 			Assert.Collection(
 				arguments,
@@ -603,7 +625,7 @@ public static class Xunit3ArgumentFactoryTests
 		}
 
 		[Fact]
-		public static void DoesNotSendSyncParameterToAutomatedForOlderTestProjects()
+		public static void Pre_0_3_0_DoesNotSendSyncParameterToAutomated()
 		{
 			var options = TestData.TestFrameworkExecutionOptions(synchronousMessageReporting: true);
 
@@ -619,12 +641,36 @@ public static class Xunit3ArgumentFactoryTests
 			);
 		}
 
+		[Theory]
+		[InlineData(ParallelMode.All, "collections")]
+		[InlineData(ParallelMode.Collections, "collections")]
+		[InlineData(ParallelMode.None, "none")]
+		public static void Pre_4_0_0_SendsParallelModeAsParallel(
+			ParallelMode parallelMode,
+			string expectedParallel)
+		{
+			var options = TestData.TestFrameworkExecutionOptions(parallelMode: parallelMode);
+
+			var arguments = Xunit3ArgumentFactory.ForRun(Version_3_999_999, options, ["abc"], ["def"]);
+
+			Assert.Collection(
+				arguments,
+				arg => Assert.Equal("-automated", arg),
+				arg => Assert.Equal("-id", arg),
+				arg => Assert.Equal("def", arg),
+				arg => Assert.Equal("-parallel", arg),
+				arg => Assert.Equal(expectedParallel, arg),
+				arg => Assert.Equal("-run", arg),
+				arg => Assert.Equal("abc", arg)
+			);
+		}
+
 		[Fact]
 		public static void AddConfigFile()
 		{
 			var options = TestData.TestFrameworkExecutionOptions();
 
-			var arguments = Xunit3ArgumentFactory.ForRun(Version_0_3_0, options, ["abc"], ["def"], configFileName: "/config/file/name.json");
+			var arguments = Xunit3ArgumentFactory.ForRun(Version_Latest, options, ["abc"], ["def"], configFileName: "/config/file/name.json");
 
 			Assert.Collection(
 				arguments,
@@ -642,7 +688,7 @@ public static class Xunit3ArgumentFactoryTests
 		{
 			var options = TestData.TestFrameworkExecutionOptions();
 
-			var arguments = Xunit3ArgumentFactory.ForRun(Version_0_3_0, options, ["abc"], ["def"], waitForDebugger: true);
+			var arguments = Xunit3ArgumentFactory.ForRun(Version_Latest, options, ["abc"], ["def"], waitForDebugger: true);
 
 			Assert.Collection(
 				arguments,

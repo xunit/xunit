@@ -17,6 +17,7 @@ partial class InlineDataAttribute
 		return new([
 			new TheoryDataRow(Data)
 			{
+				DisableParallelization = DisableParallelization,
 				Explicit = ExplicitAsNullable,
 				Label = Label,
 				Skip = Skip,

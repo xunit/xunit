@@ -10,6 +10,8 @@ public class FactDiscovererTests
 	readonly FixtureMappingManager fixtureMappings;
 	readonly SpyMessageBus messageBus;
 	readonly ITestFrameworkDiscoveryOptions options;
+	readonly ParallelMode parallelMode;
+	readonly ExecutionScheduler scheduler;
 
 	public FactDiscovererTests()
 	{
@@ -19,6 +21,8 @@ public class FactDiscovererTests
 		fixtureMappings = new("Mock");
 		messageBus = new();
 		options = TestData.TestFrameworkDiscoveryOptions();
+		parallelMode = ParallelMode.Collections;
+		scheduler = ExecutionScheduler.CreateUnlimited();
 	}
 
 	[Fact]
@@ -30,7 +34,7 @@ public class FactDiscovererTests
 		var testCases = await discoverer.Discover(options, testMethod, factAttribute);
 
 		var testCase = Assert.Single(testCases);
-		await XunitRunnerHelper.RunXunitTestCase(testCase, messageBus, cancellationTokenSource, aggregator, ExplicitOption.Off, [], fixtureMappings);
+		await XunitRunnerHelper.RunXunitTestCase(testCase, messageBus, cancellationTokenSource, parallelMode, scheduler, aggregator, ExplicitOption.Off, [], fixtureMappings);
 		Assert.Single(messageBus.Messages.OfType<ITestPassed>());
 	}
 
@@ -43,7 +47,7 @@ public class FactDiscovererTests
 		var testCases = await discoverer.Discover(options, testMethod, factAttribute);
 
 		var testCase = Assert.Single(testCases);
-		await XunitRunnerHelper.RunXunitTestCase(testCase, messageBus, cancellationTokenSource, aggregator, ExplicitOption.Off, [], fixtureMappings);
+		await XunitRunnerHelper.RunXunitTestCase(testCase, messageBus, cancellationTokenSource, parallelMode, scheduler, aggregator, ExplicitOption.Off, [], fixtureMappings);
 		var failed = Assert.Single(messageBus.Messages.OfType<ITestFailed>());
 		Assert.Equal(typeof(TestPipelineException).FullName, failed.ExceptionTypes.Single());
 		Assert.Equal("[Fact] methods are not allowed to have parameters. Did you mean to use [Theory]?", failed.Messages.Single());
@@ -58,7 +62,7 @@ public class FactDiscovererTests
 		var testCases = await discoverer.Discover(options, testMethod, factAttribute);
 
 		var testCase = Assert.Single(testCases);
-		await XunitRunnerHelper.RunXunitTestCase(testCase, messageBus, cancellationTokenSource, aggregator, ExplicitOption.Off, [], fixtureMappings);
+		await XunitRunnerHelper.RunXunitTestCase(testCase, messageBus, cancellationTokenSource, parallelMode, scheduler, aggregator, ExplicitOption.Off, [], fixtureMappings);
 		var failed = Assert.Single(messageBus.Messages.OfType<ITestFailed>());
 		Assert.Equal(typeof(TestPipelineException).FullName, failed.ExceptionTypes.Single());
 		Assert.Equal("[Fact] methods are not allowed to be generic.", failed.Messages.Single());

@@ -16,6 +16,7 @@ namespace Xunit.Generators
 		readonly int arity;
 		readonly IReadOnlyCollection<string>? beforeAfterTestAttributes;
 		readonly string? declaredTypeIndex;
+		readonly bool disableParallelization;
 		readonly bool isStatic;
 		readonly string methodName;
 		readonly string? sourceFilePath;
@@ -30,6 +31,7 @@ namespace Xunit.Generators
 		/// <param name="arity">The test method arity</param>
 		/// <param name="beforeAfterTestAttributes">The before after test attribute type names, in global format (e.g., <c>"global::Namespace.Type"</c>)</param>
 		/// <param name="declaredTypeIndex">The type index of the declared type, if it's different from <paramref name="typeIndex"/></param>
+		/// <param name="disableParallelization">A flag to indicate whether the test method wishes to opt out of test parallelization</param>
 		/// <param name="isStatic">A flag to indicate if the test method is static</param>
 		/// <param name="methodName">The test method name</param>
 		/// <param name="sourceFilePath">The source file path, if known</param>
@@ -41,6 +43,7 @@ namespace Xunit.Generators
 			int arity,
 			IReadOnlyCollection<string>? beforeAfterTestAttributes,
 			string? declaredTypeIndex,
+			bool disableParallelization,
 			bool isStatic,
 			string methodName,
 			string? sourceFilePath,
@@ -52,6 +55,7 @@ namespace Xunit.Generators
 			this.arity = arity;
 			this.beforeAfterTestAttributes = beforeAfterTestAttributes;
 			this.declaredTypeIndex = declaredTypeIndex;
+			this.disableParallelization = disableParallelization;
 			this.isStatic = isStatic;
 			this.methodName = methodName ?? throw new ArgumentNullException(nameof(methodName));
 			this.sourceFilePath = sourceFilePath;
@@ -74,6 +78,7 @@ namespace Xunit.Generators
 			ComparerHelper.Equal(arity, other.arity) &&
 			ComparerHelper.Equal(beforeAfterTestAttributes, other.beforeAfterTestAttributes) &&
 			ComparerHelper.Equal(declaredTypeIndex, other.declaredTypeIndex) &&
+			ComparerHelper.Equal(disableParallelization, other.disableParallelization) &&
 			ComparerHelper.Equal(isStatic, other.isStatic) &&
 			ComparerHelper.Equal(methodName, other.methodName) &&
 			ComparerHelper.Equal(sourceFilePath, other.sourceFilePath) &&
@@ -104,6 +109,7 @@ namespace Xunit.Generators
 				testMethod.Arity,
 				testMethod.BeforeAfterTestAttributes,
 				testMethod.DeclaredTypeIndex,
+				testMethod.DisableParallelization,
 				testMethod.MethodIsStatic,
 				testMethod.MethodName,
 				testMethod.SourceFilePath,
@@ -113,7 +119,6 @@ namespace Xunit.Generators
 				testMethod.TypeIndex
 			);
 		}
-
 
 		/// <summary>
 		/// Generates the source for the test method registration.
@@ -146,6 +151,7 @@ $@"global::Xunit.v3.RegisteredEngineConfig.RegisterCodeGenTestCaseFactory({typeI
 				.With(arity)
 				.With(beforeAfterTestAttributes)
 				.With(declaredTypeIndex)
+				.With(disableParallelization)
 				.With(isStatic)
 				.With(methodName)
 				.With(sourceFilePath)
@@ -164,6 +170,8 @@ $@"global::Xunit.v3.RegisteredEngineConfig.RegisterCodeGenTestCaseFactory({typeI
 				initValues.Add($"BeforeAfterAttributesFactory = () => new global::Xunit.v3.BeforeAfterTestAttribute[] {{ {string.Join(", ", beforeAfterTestAttributes.Select(t => $"new {t}()"))} }}");
 			if (declaredTypeIndex != null)
 				initValues.Add($"DeclaredTypeIndex = {declaredTypeIndex.ToCSharp()}");
+			if (disableParallelization)
+				initValues.Add("DisableParallelization = true");
 			if (isStatic)
 				initValues.Add("IsStatic = true");
 			if (sourceFilePath != null)

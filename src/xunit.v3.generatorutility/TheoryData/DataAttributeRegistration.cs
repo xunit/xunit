@@ -22,6 +22,11 @@ namespace Xunit.Generators
 	public class DataAttributeRegistration
 	{
 		/// <summary>
+		/// Gets the value from named attribute argument <c>DisableParallelization</c>.
+		/// </summary>
+		protected bool DisableParallelization { get; set; }
+
+		/// <summary>
 		/// Gets the value from the named attribute argument <c>Explicit</c>.
 		/// </summary>
 		protected bool? Explicit { get; set; }
@@ -136,6 +141,8 @@ namespace Xunit.Generators
 
 			var result = new List<string>();
 
+			if (DisableParallelization)
+				result.Add("DisableParallelization = true");
 			if (Explicit.HasValue)
 				result.Add($"Explicit = {Explicit.ToCSharp()}");
 			if (Label != null)
@@ -197,6 +204,11 @@ namespace Xunit.Generators
 		{
 			switch (argumentName)
 			{
+				case Names.DataAttribute.DisableParallelization:
+					if (argumentValue.Kind == TypedConstantKind.Primitive && argumentValue.Value is true)
+						DisableParallelization = true;
+					break;
+
 				case Names.DataAttribute.Explicit:
 					if (argumentValue.Value is bool @explicit)
 						Explicit = @explicit;

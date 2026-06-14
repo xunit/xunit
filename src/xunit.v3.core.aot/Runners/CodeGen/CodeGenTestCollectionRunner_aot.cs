@@ -31,6 +31,8 @@ public class CodeGenTestCollectionRunner :
 	/// <param name="messageBus">The message bus to report run status to.</param>
 	/// <param name="aggregator">The exception aggregator used to run code and collection exceptions.</param>
 	/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
+	/// <param name="parallelMode">The parallel mode for the test assembly</param>
+	/// <param name="scheduler">The scheduler used for task/test scheduling</param>
 	/// <param name="assemblyFixtureMappings">The mapping manager for assembly fixtures.</param>
 	public async ValueTask<RunSummary> Run(
 		ICodeGenTestCollection testCollection,
@@ -39,6 +41,8 @@ public class CodeGenTestCollectionRunner :
 		IMessageBus messageBus,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource,
+		ParallelMode parallelMode,
+		ExecutionScheduler scheduler,
 		FixtureMappingManager assemblyFixtureMappings)
 	{
 		Guard.ArgumentNotNull(testCollection);
@@ -54,6 +58,8 @@ public class CodeGenTestCollectionRunner :
 			messageBus,
 			aggregator,
 			cancellationTokenSource,
+			parallelMode,
+			scheduler,
 			assemblyFixtureMappings
 		);
 		await ctxt.InitializeAsync();

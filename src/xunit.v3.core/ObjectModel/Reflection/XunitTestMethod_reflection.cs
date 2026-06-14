@@ -74,6 +74,10 @@ public class XunitTestMethod : IXunitTestMethod, IXunitSerializable
 		dataAttributes.Value;
 
 	/// <inheritdoc/>
+	public bool DisableParallelization =>
+		factAttributes.Value.FirstOrDefault()?.DisableParallelization ?? false;
+
+	/// <inheritdoc/>
 	public IReadOnlyCollection<IFactAttribute> FactAttributes =>
 		factAttributes.Value;
 

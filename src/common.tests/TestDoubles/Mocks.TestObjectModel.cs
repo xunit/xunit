@@ -318,6 +318,7 @@ partial class Mocks
 	// ===== ICoreTestXxx =====
 
 	public static ICoreTest CoreTest(
+		bool disableParallelization = false,
 		bool @explicit = false,
 		ICoreTestCase? testCase = null,
 		string testDisplayName = TestData.DefaultTestDisplayName,
@@ -327,6 +328,7 @@ partial class Mocks
 		string uniqueID = TestData.DefaultTestUniqueID) =>
 			new MockCoreTest
 			{
+				DisableParallelization = disableParallelization,
 				Explicit = @explicit,
 				TestCase = testCase ?? CoreTestCase(),
 				TestDisplayName = testDisplayName,
@@ -338,6 +340,7 @@ partial class Mocks
 
 	class MockCoreTest : ICoreTest
 	{
+		public required bool DisableParallelization { get; set; }
 		public required bool Explicit { get; set; }
 		public required ICoreTestCase TestCase { get; set; }
 		public required string TestDisplayName { get; set; }
@@ -346,6 +349,7 @@ partial class Mocks
 		public required IReadOnlyDictionary<string, IReadOnlyCollection<string>> Traits { get; set; }
 		public required string UniqueID { get; set; }
 
+
 		ITestCase ITest.TestCase => TestCase;
 	}
 
@@ -353,10 +357,10 @@ partial class Mocks
 		string assemblyName = TestData.DefaultAssemblyName,
 		string assemblyPath = TestData.DefaultAssemblyPath,
 		string? configFilePath = null,
-		bool? disableParallelization = null,
 		int? maxParallelThreads = null,
 		Guid? moduleVersionID = null,
 		ParallelAlgorithm? parallelAlgorithm = null,
+		ParallelMode? parallelMode = null,
 		string targetFramework = TestData.DefaultTargetFramework,
 		ITestCaseOrderer? testCaseOrderer = null,
 		ITestClassOrderer? testClassOrderer = null,
@@ -370,10 +374,10 @@ partial class Mocks
 				AssemblyName = assemblyName,
 				AssemblyPath = assemblyPath,
 				ConfigFilePath = configFilePath,
-				DisableParallelization = disableParallelization,
 				MaxParallelThreads = maxParallelThreads,
 				ModuleVersionID = moduleVersionID ?? TestData.DefaultModuleVersionID,
 				ParallelAlgorithm = parallelAlgorithm,
+				ParallelMode = parallelMode,
 				TargetFramework = targetFramework,
 				TestCaseOrderer = testCaseOrderer,
 				TestClassOrderer = testClassOrderer,
@@ -389,10 +393,10 @@ partial class Mocks
 		public required string AssemblyName { get; set; }
 		public required string AssemblyPath { get; set; }
 		public required string? ConfigFilePath { get; set; }
-		public required bool? DisableParallelization { get; set; }
 		public required int? MaxParallelThreads { get; set; }
 		public required Guid ModuleVersionID { get; set; }
 		public required ParallelAlgorithm? ParallelAlgorithm { get; set; }
+		public required ParallelMode? ParallelMode { get; set; }
 		public required string TargetFramework { get; set; }
 		public required ITestCaseOrderer? TestCaseOrderer { get; set; }
 		public required ITestClassOrderer? TestClassOrderer { get; set; }
@@ -406,6 +410,7 @@ partial class Mocks
 	}
 
 	public static ICoreTestCase CoreTestCase(
+		bool disableParallelization = false,
 		bool @explicit = false,
 		Action? postInvoke = null,
 		Action? preInvoke = null,
@@ -424,6 +429,7 @@ partial class Mocks
 		string uniqueID = TestData.DefaultTestCaseUniqueID) =>
 			new MockCoreTestCase(preInvoke, postInvoke)
 			{
+				DisableParallelization = disableParallelization,
 				Explicit = @explicit,
 				SkipExceptions = skipExceptions,
 				SkipReason = skipReason,
@@ -445,6 +451,7 @@ partial class Mocks
 		Action? postInvoke) :
 			ICoreTestCase
 	{
+		public required bool DisableParallelization { get; set; }
 		public required bool Explicit { get; set; }
 		public required Type[]? SkipExceptions { get; set; }
 		public required string? SkipReason { get; set; }
@@ -477,6 +484,7 @@ partial class Mocks
 	}
 
 	public static ICoreTestClass CoreTestClass(
+		bool disableParallelization = false,
 		ITestCaseOrderer? testCaseOrderer = null,
 		string testClassName = TestData.DefaultTestClassName,
 		string testClassNamespace = TestData.DefaultTestClassNamespace,
@@ -487,6 +495,7 @@ partial class Mocks
 		string uniqueID = TestData.DefaultTestClassUniqueID) =>
 			new MockCoreTestClass
 			{
+				DisableParallelization = disableParallelization,
 				TestCaseOrderer = testCaseOrderer,
 				TestClassName = testClassName,
 				TestClassNamespace = testClassNamespace,
@@ -499,6 +508,7 @@ partial class Mocks
 
 	class MockCoreTestClass : ICoreTestClass
 	{
+		public required bool DisableParallelization { get; set; }
 		public required ITestCaseOrderer? TestCaseOrderer { get; set; }
 		public required string TestClassName { get; set; }
 		public required string? TestClassNamespace { get; set; }
@@ -551,6 +561,7 @@ partial class Mocks
 	}
 
 	public static ICoreTestMethod CoreTestMethod(
+		bool disableParallelization = false,
 		int methodArity = 0,
 		string methodName = TestData.DefaultMethodName,
 		ITestCaseOrderer? testCaseOrderer = null,
@@ -559,6 +570,7 @@ partial class Mocks
 		string uniqueID = TestData.DefaultTestMethodUniqueID) =>
 			new MockCoreTestMethod
 			{
+				DisableParallelization = disableParallelization,
 				MethodArity = methodArity,
 				MethodName = methodName,
 				TestCaseOrderer = testCaseOrderer,
@@ -569,6 +581,7 @@ partial class Mocks
 
 	class MockCoreTestMethod : ICoreTestMethod
 	{
+		public required bool DisableParallelization { get; set; }
 		public required int MethodArity { get; set; }
 		public required string MethodName { get; set; }
 		public required ITestCaseOrderer? TestCaseOrderer { get; set; }

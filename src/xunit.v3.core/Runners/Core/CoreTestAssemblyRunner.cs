@@ -81,8 +81,6 @@ public abstract class CoreTestAssemblyRunner<TContext, TTestAssembly, TTestColle
 		IReadOnlyCollection<TTestCase> testCases) =>
 			Guard.ArgumentNotNull(ctxt).RunTestCollection(testCollection, testCases);
 
-#pragma warning disable CA2012 // We guarantee that parallel ValueTasks are only awaited once
-
 	/// <inheritdoc/>
 	protected override async ValueTask<RunSummary> RunTestCollections(
 		TContext ctxt,
@@ -90,59 +88,45 @@ public abstract class CoreTestAssemblyRunner<TContext, TTestAssembly, TTestColle
 	{
 		Guard.ArgumentNotNull(ctxt);
 
-		if (ctxt.DisableParallelization || exception is not null)
+		var parallelMode = ctxt.ParallelMode;
+		if (exception is not null || parallelMode == ParallelMode.None)
 			return await base.RunTestCollections(ctxt, exception);
 
-		ctxt.SetupParallelism();
+		List<ValueTask<RunSummary>>? parallelTasks = null;
+		List<Func<ValueTask<RunSummary>>>? nonParallelTaskFactories = null;
+		var summary = new RunSummary();
 
-		Func<Func<ValueTask<RunSummary>>, ValueTask<RunSummary>> taskRunner;
-		if (SynchronizationContext.Current is not null)
+		foreach (var (testCollection, testCases) in OrderTestCollections(ctxt))
 		{
-			var scheduler = TaskScheduler.FromCurrentSynchronizationContext();
-			taskRunner = code => new(Task.Factory.StartNew(() => code().AsTask(), ctxt.CancellationTokenSource.Token, TaskCreationOptions.DenyChildAttach | TaskCreationOptions.HideScheduler, scheduler).Unwrap());
-		}
-		else
-			taskRunner = code => new(Task.Run(() => code().AsTask(), ctxt.CancellationTokenSource.Token));
+			ValueTask<RunSummary> taskFactory() => RunTestCollection(ctxt, testCollection, testCases);
 
-		List<ValueTask<RunSummary>>? parallel = null;
-		List<Func<ValueTask<RunSummary>>>? nonParallel = null;
-		var summaries = new List<RunSummary>();
-
-		foreach (var (collection, testCases) in OrderTestCollections(ctxt))
-		{
-			ValueTask<RunSummary> task() => RunTestCollection(ctxt, collection, testCases);
-			if (collection.DisableParallelization)
-				(nonParallel ??= []).Add(task);
+			if (testCollection.DisableParallelization)
+				(nonParallelTaskFactories ??= []).Add(taskFactory);
 			else
-				(parallel ??= []).Add(taskRunner(task));
+#pragma warning disable CA2012
+				(parallelTasks ??= []).Add(parallelMode == ParallelMode.All ? taskFactory() : ctxt.Scheduler.RunParallelTask(taskFactory, ctxt.CancellationTokenSource.Token));
+#pragma warning restore CA2012
+
+			if (ctxt.CancellationTokenSource.IsCancellationRequested)
+				break;
 		}
 
-		if (parallel?.Count > 0)
-			foreach (var task in parallel)
+		if (parallelTasks?.Count > 0)
+			foreach (var parallelTask in parallelTasks)
 				try
 				{
-					summaries.Add(await task);
+					summary.Aggregate(await parallelTask);
 				}
 				catch (TaskCanceledException) { }
 
-		if (nonParallel?.Count > 0)
-			foreach (var taskFactory in nonParallel)
+		if (nonParallelTaskFactories?.Count > 0)
+			foreach (var nonParallelTaskFactory in nonParallelTaskFactories)
 				try
 				{
-					summaries.Add(await taskRunner(taskFactory));
-					if (ctxt.CancellationTokenSource.IsCancellationRequested)
-						break;
+					summary.Aggregate(await ctxt.Scheduler.RunSequentialTask(nonParallelTaskFactory, ctxt.CancellationTokenSource.Token));
 				}
 				catch (TaskCanceledException) { }
 
-		return new RunSummary()
-		{
-			Total = summaries.Sum(s => s.Total),
-			Failed = summaries.Sum(s => s.Failed),
-			NotRun = summaries.Sum(s => s.NotRun),
-			Skipped = summaries.Sum(s => s.Skipped),
-		};
+		return summary;
 	}
-
-#pragma warning restore CA2012
 }

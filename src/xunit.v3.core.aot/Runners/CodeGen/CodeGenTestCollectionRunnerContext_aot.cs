@@ -11,6 +11,8 @@ namespace Xunit.v3;
 /// <param name="messageBus">The message bus to report run status to.</param>
 /// <param name="aggregator">The exception aggregator used to run code and collection exceptions.</param>
 /// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
+/// <param name="parallelMode">The parallel mode for the test assembly</param>
+/// <param name="scheduler">The scheduler used for task/test scheduling</param>
 /// <param name="assemblyFixtureMappings">The mapping manager for assembly fixtures.</param>
 /// <remarks>
 /// This class is used for code generation-based tests.
@@ -22,16 +24,10 @@ public class CodeGenTestCollectionRunnerContext(
 	IMessageBus messageBus,
 	ExceptionAggregator aggregator,
 	CancellationTokenSource cancellationTokenSource,
+	ParallelMode parallelMode,
+	ExecutionScheduler scheduler,
 	FixtureMappingManager assemblyFixtureMappings) :
-		CodeGenTestCollectionRunnerBaseContext<ICodeGenTestCollection, ICodeGenTestClass, ICodeGenTestCase>(
-			testCollection,
-			testCases,
-			explicitOption,
-			messageBus,
-			aggregator,
-			cancellationTokenSource,
-			assemblyFixtureMappings
-		)
+		CodeGenTestCollectionRunnerBaseContext<ICodeGenTestCollection, ICodeGenTestClass, ICodeGenTestCase>(testCollection, testCases, explicitOption, messageBus, aggregator, cancellationTokenSource, parallelMode, scheduler, assemblyFixtureMappings)
 {
 	/// <inheritdoc/>
 	public override ValueTask<RunSummary> RunTestClass(
@@ -44,6 +40,8 @@ public class CodeGenTestCollectionRunnerContext(
 				MessageBus,
 				Aggregator.Clone(),
 				CancellationTokenSource,
+				ParallelMode,
+				Scheduler,
 				CollectionFixtureMappings
 			);
 }

@@ -3,6 +3,7 @@ namespace Xunit.v3;
 /// <summary>
 /// Represents a test case from xUnit.net v3 based on code generation.
 /// </summary>
+/// <param name="disableParallelization">Indicates if the tests from this test case wish to opt out of parallelization</param>
 /// <param name="explicit">A flag to indicate whether the test case is marked as explicit</param>
 /// <param name="skipExceptions">The exception types that, when thrown, will cause the test to be skipped rather than failed</param>
 /// <param name="skipReason">The display text for the reason the test case might be skipped</param>
@@ -20,6 +21,7 @@ namespace Xunit.v3;
 /// This class is used for code generation-based tests.
 /// </remarks>
 public sealed class CodeGenTestCase(
+	bool disableParallelization,
 	bool @explicit,
 	Type[]? skipExceptions,
 	string? skipReason,
@@ -33,20 +35,7 @@ public sealed class CodeGenTestCase(
 	int timeout,
 	IReadOnlyDictionary<string, IReadOnlyCollection<string>> traits,
 	string uniqueID) :
-		CodeGenTestCaseBase(
-			@explicit,
-			skipExceptions,
-			skipReason,
-			skipUnless,
-			skipWhen,
-			sourceFilePath,
-			sourceLineNumber,
-			testCaseDisplayName,
-			testMethod,
-			timeout,
-			traits,
-			uniqueID
-		)
+		CodeGenTestCaseBase(disableParallelization, @explicit, skipExceptions, skipReason, skipUnless, skipWhen, sourceFilePath, sourceLineNumber, testCaseDisplayName, testMethod, timeout, traits, uniqueID)
 {
 	/// <inheritdoc/>
 	public async override ValueTask<IReadOnlyCollection<ICodeGenTest>> CreateTests()

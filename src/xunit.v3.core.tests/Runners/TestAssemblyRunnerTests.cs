@@ -168,7 +168,7 @@ public static partial class TestAssemblyRunnerTests
 			var runner = new TestableTestAssemblyRunner
 			{
 				OnTestAssemblyStarting__Result = false,
-				RunTestCollectionAsync__Result = summary,
+				RunTestCollection__Result = summary,
 			};
 
 			await runner.RunAsync();
@@ -193,7 +193,11 @@ public static partial class TestAssemblyRunnerTests
 		public static async ValueTask NoExceptions()
 		{
 			var summary = new RunSummary { Total = 9, Failed = 2, Skipped = 1, NotRun = 3, Time = 0m };
-			var runner = new TestableTestAssemblyRunner { RunTestCollectionAsync__Result = summary };
+			var runner = new TestableTestAssemblyRunner
+			{
+				RunTestCollection__Callback = () => Thread.Sleep(5),
+				RunTestCollection__Result = summary,
+			};
 
 			var result = await runner.RunAsync();
 
@@ -201,7 +205,7 @@ public static partial class TestAssemblyRunnerTests
 			Assert.Equal(2, result.Failed);
 			Assert.Equal(1, result.Skipped);
 			Assert.Equal(3, result.NotRun);
-			Assert.NotEqual(0m, result.Time);  // Can't verify exact time because it's overwritten with clock time
+			Assert.True(result.Time >= 0.005m);  // We should've waited at least 5ms, but we don't know exactly how long we waited
 			Assert.NotNull(runner.CancellationTokenSource);
 			Assert.False(runner.CancellationTokenSource.IsCancellationRequested);
 			Assert.False(runner.Aggregator.HasExceptions);
@@ -454,7 +458,8 @@ public static partial class TestAssemblyRunnerTests
 			}
 		}
 
-		public RunSummary RunTestCollectionAsync__Result = new();
+		public RunSummary RunTestCollection__Result = new();
+		public Action? RunTestCollection__Callback;
 
 		protected override ValueTask<RunSummary> RunTestCollection(
 			TestableContext ctxt,
@@ -463,7 +468,9 @@ public static partial class TestAssemblyRunnerTests
 		{
 			Invocations.Add($"RunTestCollectionAsync(testCollection: '{testCollection.TestCollectionDisplayName}', testCases: [{string.Join(",", testCases.Select(tc => "'" + tc.TestCaseDisplayName + "'"))}])");
 
-			return new(RunTestCollectionAsync__Result);
+			RunTestCollection__Callback?.Invoke();
+
+			return new(RunTestCollection__Result);
 		}
 
 		public async ValueTask<RunSummary> RunAsync()

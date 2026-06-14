@@ -9,6 +9,9 @@ public abstract partial class TheoryDataRowBase : ITheoryDataRow
 	Dictionary<string, HashSet<string>> traits = [];
 
 	/// <inheritdoc/>
+	public bool? DisableParallelization { get; set; }
+
+	/// <inheritdoc/>
 	public bool? Explicit { get; set; }
 
 	/// <inheritdoc/>

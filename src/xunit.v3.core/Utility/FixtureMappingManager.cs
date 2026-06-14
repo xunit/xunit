@@ -19,6 +19,8 @@ partial class FixtureMappingManager
 			fixtureCache[cachedFixtureValue.GetType()] = cachedFixtureValue;
 	}
 
+	internal static FixtureMappingManager Empty { get; } = new("Empty", []);
+
 	internal IReadOnlyDictionary<Type, object> FixtureCache => fixtureCache;
 
 	/// <inheritdoc/>

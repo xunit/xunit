@@ -12,14 +12,14 @@ public abstract class CodeGenTestCaseRunnerBase<TContext, TTestCase, TTest> : Co
 	where TTest : class, ICodeGenTest
 {
 	/// <inheritdoc/>
-	protected override async ValueTask<RunSummary> RunTestCase(
+	protected override async ValueTask<RunSummary> RunTestCaseInner(
 		TContext ctxt,
 		Exception? exception)
 	{
 		Guard.ArgumentNotNull(ctxt);
 
 		if (exception is not null)
-			return await base.RunTestCase(ctxt, exception);
+			return await base.RunTestCaseInner(ctxt, exception);
 
 		using var lifecycleTracker = new NotificationTracker<INotifyTestCaseLifecycle>(
 			ctxt.CaseFixtureMappings.ForNotification<INotifyTestCaseLifecycle>(),
@@ -39,6 +39,6 @@ public abstract class CodeGenTestCaseRunnerBase<TContext, TTestCase, TTest> : Co
 		if (!aggregator.HasExceptions)
 			aggregator.Aggregate(await lifecycleAsyncTracker.Up());
 
-		return await base.RunTestCase(ctxt, aggregator.ToException());
+		return await base.RunTestCaseInner(ctxt, aggregator.ToException());
 	}
 }

@@ -17,10 +17,10 @@ public class XunitTest : IXunitTest
 	static readonly IReadOnlyDictionary<string, IReadOnlyCollection<string>> EmptyDictionary = new Dictionary<string, IReadOnlyCollection<string>>();
 
 	/// <summary>
-	/// Please use <see cref="XunitTest(IXunitTestCase, IXunitTestMethod, bool?, string?, Type?, string?, string?, string, int, IReadOnlyDictionary{string, IReadOnlyCollection{string}}, int?, object?[], string?)"/>.
+	/// Please use <see cref="XunitTest(IXunitTestCase, IXunitTestMethod, bool?, string?, Type?, string?, string?, string, int, IReadOnlyDictionary{string, IReadOnlyCollection{string}}, int?, object?[], string?, bool)"/>.
 	/// This overload will be removed in the next major version.
 	/// </summary>
-	[Obsolete("Please use the constructor which accepts testLabel. This overload will be removed in the next major version.")]
+	[Obsolete("Please use the constructor which accepts testLabel and disableParallelization. This overload will be removed in the next major version.")]
 	[EditorBrowsable(EditorBrowsableState.Never)]
 	[OverloadResolutionPriority(-1)]
 	public XunitTest(
@@ -49,7 +49,8 @@ public class XunitTest : IXunitTest
 				traits,
 				timeout,
 				testMethodArguments,
-				testLabel: null
+				testLabel: null,
+				disableParallelization: false
 			)
 	{ }
 
@@ -69,6 +70,8 @@ public class XunitTest : IXunitTest
 	/// <param name="timeout">The timeout for the test; if not set, will fall back to the test case</param>
 	/// <param name="testMethodArguments">The arguments to be passed to the test method</param>
 	/// <param name="testLabel">The value obtained from <see cref="IDataAttribute.Label"/>, if present.</param>
+	/// <param name="disableParallelization">A flag which indicates whether tests from this test case can run in parallel against other
+	/// parallelizable tests</param>
 	public XunitTest(
 		IXunitTestCase testCase,
 		IXunitTestMethod testMethod,
@@ -82,10 +85,12 @@ public class XunitTest : IXunitTest
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>> traits,
 		int? timeout,
 		object?[] testMethodArguments,
-		string? testLabel)
+		string? testLabel,
+		bool disableParallelization)
 	{
 		TestCase = Guard.ArgumentNotNull(testCase);
 		TestMethod = Guard.ArgumentNotNull(testMethod);
+		DisableParallelization = disableParallelization;
 		Explicit = @explicit ?? TestCase.Explicit;
 		SkipReason = skipReason;
 		SkipType = skipType;
@@ -93,9 +98,9 @@ public class XunitTest : IXunitTest
 		SkipWhen = skipWhen;
 		TestDisplayName = Guard.ArgumentNotNull(testDisplayName);
 		TestLabel = testLabel;
-		UniqueID = UniqueIDGenerator.ForTest(testCase.UniqueID, testIndex);
-		Timeout = timeout ?? TestCase.Timeout;
 		TestMethodArguments = Guard.ArgumentNotNull(testMethodArguments);
+		Timeout = timeout ?? TestCase.Timeout;
+		UniqueID = UniqueIDGenerator.ForTest(testCase.UniqueID, testIndex);
 
 		Guard.ArgumentNotNull(traits);
 
@@ -111,6 +116,7 @@ public class XunitTest : IXunitTest
 	public XunitTest(
 		IXunitTestCase testCase,
 		IXunitTestMethod testMethod,
+		bool disableParallelization,
 		bool? @explicit,
 		string? skipReason,
 		Type? skipType,
@@ -125,16 +131,17 @@ public class XunitTest : IXunitTest
 	{
 		TestCase = Guard.ArgumentNotNull(testCase);
 		TestMethod = Guard.ArgumentNotNull(testMethod);
+		DisableParallelization = disableParallelization;
 		Explicit = @explicit ?? TestCase.Explicit;
 		SkipReason = skipReason;
 		SkipType = skipType;
 		SkipUnless = skipUnless;
 		SkipWhen = skipWhen;
 		TestDisplayName = Guard.ArgumentNotNull(testDisplayName);
-		TestLabel = testLabel;
-		UniqueID = Guard.ArgumentNotNull(uniqueID);
-		Timeout = timeout ?? TestCase.Timeout;
 		TestMethodArguments = testMethodArguments ?? [];
+		TestLabel = testLabel;
+		Timeout = timeout ?? TestCase.Timeout;
+		UniqueID = Guard.ArgumentNotNull(uniqueID);
 
 		if (traits is null)
 			Traits = EmptyDictionary;
@@ -146,6 +153,9 @@ public class XunitTest : IXunitTest
 			Traits = result;
 		}
 	}
+
+	/// <inheritdoc/>
+	public bool DisableParallelization { get; }
 
 	/// <inheritdoc/>
 	public bool Explicit { get; }

@@ -5,6 +5,7 @@ namespace Xunit.v3;
 /// <summary>
 /// Base class implementation of <see cref="ICodeGenTestCase"/>.
 /// </summary>
+/// <param name="disableParallelization">Indicates if the tests from this test case wish to opt out of parallelization</param>
 /// <param name="explicit">A flag to indicate whether the test case is marked as explicit</param>
 /// <param name="skipExceptions">The exception types that, when thrown, will cause the test to be skipped rather than failed</param>
 /// <param name="skipReason">The display text for the reason the test case might be skipped</param>
@@ -18,6 +19,7 @@ namespace Xunit.v3;
 /// <param name="traits">The traits attached to the test case</param>
 /// <param name="uniqueID">The test case unique ID</param>
 public abstract class CodeGenTestCaseBase(
+	bool disableParallelization,
 	bool @explicit,
 	Type[]? skipExceptions,
 	string? skipReason,
@@ -32,6 +34,10 @@ public abstract class CodeGenTestCaseBase(
 	string uniqueID) :
 		ICodeGenTestCase
 {
+	/// <inheritdoc/>
+	public bool DisableParallelization =>
+		disableParallelization;
+
 	/// <inheritdoc/>
 	public bool Explicit =>
 		@explicit;

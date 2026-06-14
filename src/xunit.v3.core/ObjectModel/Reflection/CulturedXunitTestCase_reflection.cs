@@ -37,7 +37,7 @@ public sealed class CulturedXunitTestCase : XunitTestCase
 	/// <param name="sourceLineNumber">The optional source line number where this test case originated.</param>
 	/// <param name="timeout">The optional timeout for the test case (in milliseconds).</param>
 	/// <remarks>
-	/// This overload is used by test cases without a test label, which typically means non-data driven tests.
+	/// This overload is used by non-data driven tests (tests without a label or parallelization disabling).
 	/// </remarks>
 	public CulturedXunitTestCase(
 		string culture,
@@ -62,6 +62,7 @@ public sealed class CulturedXunitTestCase : XunitTestCase
 				uniqueID,
 				@explicit,
 				testLabel: null,
+				disableParallelization: false,
 				skipExceptions,
 				skipReason,
 				skipType,
@@ -83,7 +84,8 @@ public sealed class CulturedXunitTestCase : XunitTestCase
 	/// <param name="testCaseDisplayName">The display name for the test case.</param>
 	/// <param name="uniqueID">The unique ID for the test case.</param>
 	/// <param name="explicit">Indicates whether the test case was marked as explicit.</param>
-	/// <param name="testLabel">The value obtained from <see cref="IDataAttribute.Label"/>, if present.</param>
+	/// <param name="testLabel">The value obtained from <see cref="ITheoryDataRow.Label"/>, if present.</param>
+	/// <param name="disableParallelization">The value obtained from <see cref="ITheoryDataRow.DisableParallelization"/>, if present.</param>
 	/// <param name="skipExceptions">The value obtained from <see cref="IFactAttribute.SkipExceptions"/>.</param>
 	/// <param name="skipReason">The value obtained from <see cref="IFactAttribute.Skip"/>.</param>
 	/// <param name="skipType">The value obtained from <see cref="IFactAttribute.SkipType"/>.</param>
@@ -95,7 +97,7 @@ public sealed class CulturedXunitTestCase : XunitTestCase
 	/// <param name="sourceLineNumber">The optional source line number where this test case originated.</param>
 	/// <param name="timeout">The optional timeout for the test case (in milliseconds).</param>
 	/// <remarks>
-	/// This overload is used by test cases with a test label, which typically means data driven tests.
+	/// This overload is used by data-driven tests (which can include a display label and/or disable parallelization).
 	/// </remarks>
 	public CulturedXunitTestCase(
 		string culture,
@@ -104,6 +106,7 @@ public sealed class CulturedXunitTestCase : XunitTestCase
 		string uniqueID,
 		bool @explicit,
 		string? testLabel,
+		bool disableParallelization,
 		Type[]? skipExceptions = null,
 		string? skipReason = null,
 		Type? skipType = null,
@@ -120,6 +123,7 @@ public sealed class CulturedXunitTestCase : XunitTestCase
 				$"{uniqueID}[{culture}]",
 				@explicit,
 				testLabel,
+				disableParallelization,
 				skipExceptions,
 				skipReason,
 				skipType,

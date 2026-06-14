@@ -194,6 +194,8 @@ public static class CodeGenTestCollectionRunnerTests
 		public FixtureMappingManager AssemblyFixtureMappingManager = new("[Unit Test] Test Assembly", TestData.EmptyFixtureFactories);
 		public readonly CancellationTokenSource CancellationTokenSource = new();
 		public readonly SpyMessageBus MessageBus = new();
+		public ParallelMode ParallelMode = ParallelMode.Collections;
+		public ExecutionScheduler Scheduler = ExecutionScheduler.CreateUnlimited();
 
 		public ValueTask<RunSummary> RunAsync() =>
 			Run(
@@ -203,6 +205,8 @@ public static class CodeGenTestCollectionRunnerTests
 				MessageBus,
 				Aggregator,
 				CancellationTokenSource,
+				ParallelMode,
+				Scheduler,
 				AssemblyFixtureMappingManager
 			);
 	}

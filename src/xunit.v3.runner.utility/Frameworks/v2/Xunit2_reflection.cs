@@ -1,8 +1,11 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
-using Xunit.Abstractions;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
+using v2_IAssemblyInfo = Xunit.Abstractions.IAssemblyInfo;
+using v2_ITestFramework = Xunit.Abstractions.ITestFramework;
+using v2_ITestFrameworkDiscoverer = Xunit.Abstractions.ITestFrameworkDiscoverer;
+using v2_ITestFrameworkExecutor = Xunit.Abstractions.ITestFrameworkExecutor;
 
 namespace Xunit.Runner.v2;
 
@@ -28,22 +31,22 @@ public class Xunit2 : IFrontController
 	static readonly string[] SupportedPlatforms = ["dotnet"];
 #endif
 
-	readonly IAssemblyInfo assemblyInfo;
+	readonly v2_IAssemblyInfo assemblyInfo;
 	readonly string assemblyName;
 	ITestCaseBulkDeserializer? bulkDeserializer;
 	readonly string? configFileName;
 	bool disposed;
 #pragma warning disable CA2213 // These are disposed by DisposalTracker
-	readonly ITestFrameworkDiscoverer remoteDiscoverer;
-	readonly ITestFrameworkExecutor? remoteExecutor;
-	readonly ITestFramework remoteFramework;
+	readonly v2_ITestFrameworkDiscoverer remoteDiscoverer;
+	readonly v2_ITestFrameworkExecutor? remoteExecutor;
+	readonly v2_ITestFramework remoteFramework;
 #pragma warning restore CA2213
 
 	Xunit2(
-		Sdk.IMessageSink diagnosticMessageSink,
+		IMessageSink diagnosticMessageSink,
 		AppDomainSupport appDomainSupport,
-		Common.ISourceInformationProvider? sourceInformationProvider,
-		IAssemblyInfo? assemblyInfo,
+		ISourceInformationProvider? sourceInformationProvider,
+		v2_IAssemblyInfo? assemblyInfo,
 		string? assemblyFileName,
 		string xunitExecutionAssemblyPath,
 		string? configFileName,
@@ -80,7 +83,7 @@ public class Xunit2 : IFrontController
 		else
 			assemblyInfo = Guard.NotNull(
 				"Could not create Xunit.Sdk.ReflectionAssemblyInfo for v2 unit test",
-				AppDomain.CreateObject<IAssemblyInfo>(TestFrameworkAssemblyName, "Xunit.Sdk.ReflectionAssemblyInfo", assemblyFileName)
+				AppDomain.CreateObject<v2_IAssemblyInfo>(TestFrameworkAssemblyName, "Xunit.Sdk.ReflectionAssemblyInfo", assemblyFileName)
 			);
 
 		this.assemblyInfo = assemblyInfo;
@@ -92,7 +95,7 @@ public class Xunit2 : IFrontController
 		var v2DiagnosticMessageSink = new Xunit2MessageSink(DiagnosticMessageSink);
 		remoteFramework = Guard.NotNull(
 			"Could not create Xunit.Sdk.TestFrameworkProxy for v2 unit test",
-			AppDomain.CreateObject<ITestFramework>(
+			AppDomain.CreateObject<v2_ITestFramework>(
 				TestFrameworkAssemblyName,
 				"Xunit.Sdk.TestFrameworkProxy",
 				assemblyInfo,
@@ -130,7 +133,7 @@ public class Xunit2 : IFrontController
 	/// <summary>
 	/// Gets the message sink used to report diagnostic messages.
 	/// </summary>
-	public Sdk.IMessageSink DiagnosticMessageSink { get; }
+	public IMessageSink DiagnosticMessageSink { get; }
 
 	/// <summary>
 	/// Gets a tracker for disposable objects.
@@ -176,12 +179,12 @@ public class Xunit2 : IFrontController
 
 	/// <summary>
 	/// Creates a high performance cross-AppDomain message sink that utilizes <see cref="IMessageSinkWithTypes"/>
-	/// which can be passed to <see cref="ITestFrameworkDiscoverer"/> and <see cref="ITestFrameworkExecutor"/>.
+	/// which can be passed to <see cref="v2_ITestFrameworkDiscoverer"/> and <see cref="v2_ITestFrameworkExecutor"/>.
 	/// </summary>
 	/// <param name="sink">The local message sink to receive the messages.</param>
 	/// <param name="serializeDiscoveredTestCases">A flag which indicates whether test case serialization is required</param>
 	protected Abstractions.IMessageSink CreateOptimizedRemoteMessageSink(
-		Sdk.IMessageSink sink,
+		IMessageSink sink,
 		bool serializeDiscoveredTestCases = true)
 	{
 		Guard.ArgumentNotNull(sink);
@@ -215,7 +218,7 @@ public class Xunit2 : IFrontController
 
 	/// <inheritdoc/>
 	public void Find(
-		Sdk.IMessageSink messageSink,
+		IMessageSink messageSink,
 		FrontControllerFindSettings settings)
 	{
 		Guard.ArgumentNotNull(messageSink);
@@ -224,7 +227,7 @@ public class Xunit2 : IFrontController
 		ThreadPool.QueueUserWorkItem(_ =>
 		{
 			var includeSourceInformation = settings.Options.GetIncludeSourceInformationOrDefault();
-			using var filteringMessageSink = new FilteringMessageSink(messageSink, testCase => settings.Filters.Filter(assemblyName, testCase));
+			using var filteringMessageSink = new FilteringMessageSink(messageSink, DiagnosticMessageSink, testCase => settings.Filters.Filter(assemblyName, testCase));
 			var remoteMessageSink = CreateOptimizedRemoteMessageSink(filteringMessageSink);
 			var v2DiscoveryOptions = Xunit2OptionsAdapter.Adapt(settings.Options);
 
@@ -239,7 +242,7 @@ public class Xunit2 : IFrontController
 
 	/// <inheritdoc/>
 	public void FindAndRun(
-		Sdk.IMessageSink messageSink,
+		IMessageSink messageSink,
 		FrontControllerFindAndRunSettings settings)
 	{
 		Guard.NotNull(() => string.Format(CultureInfo.CurrentCulture, "This instance of {0} was created for discovery only; execution-related operations cannot be performed.", typeof(Xunit2).FullName), remoteExecutor);
@@ -253,7 +256,7 @@ public class Xunit2 : IFrontController
 
 			SendDiscoveryStartingMessage(messageSink);
 
-			using var discoverySink = new Xunit2DiscoverySink(assemblyName, settings.Filters);
+			using var discoverySink = new Xunit2DiscoverySink(assemblyName, settings.Filters, DiagnosticMessageSink);
 			var v2DiscoveryOptions = Xunit2OptionsAdapter.Adapt(settings.DiscoveryOptions);
 			var testCases = new List<Abstractions.ITestCase>();
 
@@ -326,7 +329,7 @@ public class Xunit2 : IFrontController
 
 	static string GetXunitExecutionAssemblyPath(
 		AppDomainSupport appDomainSupport,
-		IAssemblyInfo assemblyInfo)
+		v2_IAssemblyInfo assemblyInfo)
 	{
 		Guard.ArgumentNotNull(assemblyInfo);
 		Guard.ArgumentNotNullOrEmpty(assemblyInfo.AssemblyPath);
@@ -341,7 +344,7 @@ public class Xunit2 : IFrontController
 
 	void ReportTestCasesAsNotRun(
 		IReadOnlyList<Abstractions.ITestCase?> testCases,
-		Sdk.IMessageSink messageSink)
+		IMessageSink messageSink)
 	{
 		var now = DateTimeOffset.UtcNow;
 
@@ -570,7 +573,7 @@ public class Xunit2 : IFrontController
 
 	/// <inheritdoc/>
 	public void Run(
-		Sdk.IMessageSink messageSink,
+		IMessageSink messageSink,
 		FrontControllerRunSettings settings)
 	{
 		Guard.NotNull(() => string.Format(CultureInfo.CurrentCulture, "This instance of {0} was created for discovery only; execution-related operations cannot be performed.", typeof(Xunit2).FullName), remoteExecutor);
@@ -590,7 +593,7 @@ public class Xunit2 : IFrontController
 			);
 	}
 
-	void SendDiscoveryStartingMessage(Sdk.IMessageSink messageSink)
+	void SendDiscoveryStartingMessage(IMessageSink messageSink)
 	{
 		// There is no v2 equivalent to this, so we manufacture it ourselves
 		var discoveryStarting = new DiscoveryStarting
@@ -606,7 +609,7 @@ public class Xunit2 : IFrontController
 	}
 
 	void SendDiscoveryCompleteMessage(
-		Sdk.IMessageSink messageSink,
+		IMessageSink messageSink,
 		int testCasesToRun)
 	{
 		// We optimize discovery when filtering by class, so we filter out discovery complete
@@ -634,10 +637,10 @@ public class Xunit2 : IFrontController
 	/// and <see cref="IInternalDiagnosticMessage"/> messages.</param>
 	/// <param name="verifyAssembliesOnDisk">Determines whether or not to check for the existence of assembly files.</param>
 	public static IFrontControllerDiscoverer ForDiscovery(
-		IAssemblyInfo assemblyInfo,
+		v2_IAssemblyInfo assemblyInfo,
 		XunitProjectAssembly projectAssembly,
-		Common.ISourceInformationProvider? sourceInformationProvider = null,
-		Sdk.IMessageSink? diagnosticMessageSink = null,
+		ISourceInformationProvider? sourceInformationProvider = null,
+		IMessageSink? diagnosticMessageSink = null,
 		bool verifyAssembliesOnDisk = true)
 	{
 		Guard.ArgumentNotNull(assemblyInfo);
@@ -665,13 +668,13 @@ public class Xunit2 : IFrontController
 	/// </summary>
 	/// <param name="projectAssembly">The test project assembly.</param>
 	/// <param name="sourceInformationProvider">The optional source information provider.</param>
-	/// <param name="diagnosticMessageSink">The message sink which receives <see cref="Sdk.IDiagnosticMessage"/>
+	/// <param name="diagnosticMessageSink">The message sink which receives <see cref="IDiagnosticMessage"/>
 	/// and <see cref="IInternalDiagnosticMessage"/> messages.</param>
 	/// <param name="verifyAssembliesOnDisk">Determines whether or not to check for the existence of assembly files.</param>
 	public static IFrontController ForDiscoveryAndExecution(
 		XunitProjectAssembly projectAssembly,
-		Common.ISourceInformationProvider? sourceInformationProvider = null,
-		Sdk.IMessageSink? diagnosticMessageSink = null,
+		ISourceInformationProvider? sourceInformationProvider = null,
+		IMessageSink? diagnosticMessageSink = null,
 		bool verifyAssembliesOnDisk = true)
 	{
 		Guard.ArgumentNotNull(projectAssembly);
@@ -708,17 +711,16 @@ public class Xunit2 : IFrontController
 #endif
 	}
 
-	// This message sink filters out _DiscoveryComplete (to let us run multiple discoveries at once) as well
+	// This message sink filters out IDiscoveryComplete (to let us run multiple discoveries at once) as well
 	// as only reporting discovered test cases which pass the filter.
 	sealed class FilteringMessageSink(
-		Sdk.IMessageSink innerMessageSink,
+		IMessageSink innerMessageSink,
+		IMessageSink diagnosticMessageSink,
 		Predicate<ITestCaseDiscovered> filter,
 		Action<ITestCaseDiscovered>? discoveryCallback = null) :
-			Sdk.IMessageSink, IDisposable
+			IMessageSink, IDisposable
 	{
-		readonly Action<ITestCaseDiscovered>? discoveryCallback = discoveryCallback;
-		readonly Predicate<ITestCaseDiscovered> filter = filter;
-		readonly Sdk.IMessageSink innerMessageSink = innerMessageSink;
+		readonly Dictionary<string, byte> testCaseIDs = [];
 		volatile int testCasesToRun;
 
 		public AutoResetEvent Finished { get; } = new AutoResetEvent(initialState: false);
@@ -729,7 +731,7 @@ public class Xunit2 : IFrontController
 		public void Dispose() =>
 			Finished.Dispose();
 
-		public bool OnMessage(Sdk.IMessageSinkMessage message)
+		public bool OnMessage(IMessageSinkMessage message)
 		{
 			// Filter out discovery complete (and make it an event) so we can run multiple discoveries
 			// while reporting a single complete message after they're all done
@@ -741,6 +743,21 @@ public class Xunit2 : IFrontController
 
 			if (message is ITestCaseDiscovered discovered)
 			{
+				if (!testCaseIDs.TryAdd(discovered.TestCaseUniqueID, (byte)0))
+				{
+					diagnosticMessageSink.OnMessage(
+						new DiagnosticMessage(
+							"Warning: Rejecting v2 test case with duplicate unique ID{0}ID:      {1}{0}Name:    {2}{0}Method:  {3}",
+							Environment.NewLine,
+							discovered.TestCaseUniqueID,
+							discovered.TestCaseDisplayName,
+							discovered.TestClassName is null || discovered.TestMethodName is null ? "null" : $"{discovered.TestClassName}.{discovered.TestMethodName}"
+						)
+					);
+
+					return true;
+				}
+
 				if (!filter(discovered))
 					return true;
 

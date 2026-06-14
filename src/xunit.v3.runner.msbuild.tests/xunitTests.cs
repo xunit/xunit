@@ -10,7 +10,7 @@ public static class xunitTests
 {
 	public static class Execute
 	{
-		[Fact, PreserveWorkingDirectory]
+		[Fact(DisableParallelization = true), PreserveWorkingDirectory]
 		public static void ChangesCurrentDirectoryWhenWorkingFolderIsNotNull()
 		{
 			var tempFolder =

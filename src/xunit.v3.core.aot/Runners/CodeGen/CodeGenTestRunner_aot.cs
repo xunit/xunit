@@ -29,6 +29,8 @@ public class CodeGenTestRunner : CodeGenTestRunnerBase<CodeGenTestRunnerContext,
 	/// <param name="explicitOption">A flag to indicate how explicit tests should be treated.</param>
 	/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 	/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
+	/// <param name="parallelMode">The parallel mode for the test</param>
+	/// <param name="scheduler">The scheduler used for task/test scheduling</param>
 	/// <param name="caseFixtureMappings">The mapping of test case fixture types to fixtures.</param>
 	/// <returns>Returns summary information about the test that was run.</returns>
 	public async ValueTask<RunSummary> Run(
@@ -37,6 +39,8 @@ public class CodeGenTestRunner : CodeGenTestRunnerBase<CodeGenTestRunnerContext,
 		ExplicitOption explicitOption,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource,
+		ParallelMode parallelMode,
+		ExecutionScheduler scheduler,
 		FixtureMappingManager caseFixtureMappings)
 	{
 		await using var ctxt = new CodeGenTestRunnerContext(
@@ -45,6 +49,8 @@ public class CodeGenTestRunner : CodeGenTestRunnerBase<CodeGenTestRunnerContext,
 			explicitOption,
 			aggregator,
 			cancellationTokenSource,
+			parallelMode,
+			scheduler,
 			caseFixtureMappings
 		);
 		await ctxt.InitializeAsync();

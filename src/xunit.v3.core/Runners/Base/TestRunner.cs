@@ -126,7 +126,7 @@ public abstract class TestRunner<TContext, TTest> :
 	protected object? InvokeTestMethod(
 		TContext ctxt,
 		object? testClassInstance) =>
-			throw new NotSupportedException("This method is not supported and will be removed in the next major version");
+			throw new NotSupportedException("This functionality has moved to CoreTestRunnerContext.InvokeTest and is no longer called. It will be removed in the next major version.");
 
 	/// <summary>
 	/// Override to determine whether a test class should be created.

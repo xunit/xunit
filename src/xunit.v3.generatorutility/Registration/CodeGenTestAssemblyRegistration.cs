@@ -19,6 +19,9 @@ namespace Xunit.Generators
 		static readonly HashSet<string> StringTypes = new HashSet<string>() { "string", "string?" };
 
 		readonly Dictionary<string, string> assemblyFixtureFactories = new Dictionary<string, string>();
+		string? parallelAlgorithm;
+		string? parallelMaxThreads;
+		string? parallelMode;
 		string? testCaseOrdererFactory;
 		string? testClassOrdererFactory;
 		string? testCollectionFactoryFactory;
@@ -96,6 +99,21 @@ namespace Xunit.Generators
 $@"global::Xunit.v3.RegisteredEngineConfig.RegisterAssemblyFixtureFactory(typeof({kvp.Key}), {kvp.Value});
 ");
 
+			if (parallelAlgorithm is not null)
+				builder.Append(
+$@"global::Xunit.v3.RegisteredEngineConfig.RegisterParallelAlgorithm({parallelAlgorithm});
+");
+
+			if (parallelMaxThreads is not null)
+				builder.Append(
+$@"global::Xunit.v3.RegisteredEngineConfig.RegisterParallelMaxThreads({parallelMaxThreads});
+");
+
+			if (parallelMode is not null)
+				builder.Append(
+$@"global::Xunit.v3.RegisteredEngineConfig.RegisterParallelMode({parallelMode});
+");
+
 			if (testCaseOrdererFactory != null)
 				builder.Append(
 $@"global::Xunit.v3.RegisteredEngineConfig.RegisterAssemblyTestCaseOrdererFactory({testCaseOrdererFactory});
@@ -154,6 +172,32 @@ $@"global::Xunit.v3.RegisteredEngineConfig.RegisterTestPipelineStartupFactory({t
 				type = attribute.ConstructorArguments[0].Value as INamedTypeSymbol;
 
 			return type;
+		}
+
+		/// <summary>
+		/// Sets parallelization overrides for the registration.
+		/// </summary>
+		/// <param name="parallelizationAttribute">The <c>[Parallelization]</c> attribute</param>
+		public void SetParallelization(AttributeData parallelizationAttribute)
+		{
+			if (parallelizationAttribute is null)
+				throw new ArgumentNullException(nameof(parallelizationAttribute));
+
+			foreach (var namedArgument in parallelizationAttribute.NamedArguments)
+				switch (namedArgument.Key)
+				{
+					case Names.ParallelizationAttribute.Algorithm:
+						parallelAlgorithm = namedArgument.Value.ToCSharp();
+						break;
+
+					case Names.ParallelizationAttribute.MaxThreads:
+						parallelMaxThreads = namedArgument.Value.ToCSharp();
+						break;
+
+					case Names.ParallelizationAttribute.Mode:
+						parallelMode = namedArgument.Value.ToCSharp();
+						break;
+				}
 		}
 
 		/// <summary>

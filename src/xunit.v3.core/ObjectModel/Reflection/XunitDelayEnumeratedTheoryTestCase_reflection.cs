@@ -16,11 +16,6 @@ public class XunitDelayEnumeratedTheoryTestCase : XunitTestCase, IXunitDelayEnum
 	{ }
 
 	/// <summary>
-	/// Gets a flag which indicates whether a theory without data is skipped rather than failed.
-	/// </summary>
-	public bool SkipTestWithoutData { get; private set; }
-
-	/// <summary>
 	/// Initializes a new instance of the <see cref="XunitDelayEnumeratedTheoryTestCase"/> class.
 	/// </summary>
 	/// <param name="testMethod">The test method this test case belongs to.</param>
@@ -52,23 +47,13 @@ public class XunitDelayEnumeratedTheoryTestCase : XunitTestCase, IXunitDelayEnum
 		string? sourceFilePath = null,
 		int? sourceLineNumber = null,
 		int? timeout = null) :
-			base(
-				testMethod,
-				testCaseDisplayName,
-				uniqueID,
-				@explicit,
-				skipExceptions,
-				skipReason,
-				skipType,
-				skipUnless,
-				skipWhen,
-				traits,
-				testMethodArguments: null,
-				sourceFilePath,
-				sourceLineNumber,
-				timeout
-			) =>
+			base(testMethod, testCaseDisplayName, uniqueID, @explicit, skipExceptions, skipReason, skipType, skipUnless, skipWhen, traits, testMethodArguments: null, sourceFilePath, sourceLineNumber, timeout) =>
 				SkipTestWithoutData = skipTestWithoutData;
+
+	/// <summary>
+	/// Gets a flag which indicates whether a theory without data is skipped rather than failed.
+	/// </summary>
+	public bool SkipTestWithoutData { get; private set; }
 
 	/// <summary>
 	/// Enumerates the theory data and creates tests to be run.
@@ -129,7 +114,8 @@ public class XunitDelayEnumeratedTheoryTestCase : XunitTestCase, IXunitDelayEnum
 					traits.ToReadOnly(),
 					timeout,
 					convertedDataRow,
-					dataRow.Label
+					dataRow.Label,
+					dataRow.DisableParallelization ?? dataAttribute.DisableParallelization
 				);
 
 				result.Add(test);

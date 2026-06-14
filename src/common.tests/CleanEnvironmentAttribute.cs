@@ -1,9 +1,11 @@
+using Xunit;
 using Xunit.v3;
 
 #if !XUNIT_AOT
 using System.Reflection;
 #endif
 
+[CollectionDefinition(DisableParallelization = true)]
 public class CleanEnvironmentAttribute(params string[] variables) :
 	BeforeAfterTestAttribute
 {

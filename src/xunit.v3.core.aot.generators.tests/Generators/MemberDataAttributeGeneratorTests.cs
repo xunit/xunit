@@ -18,7 +18,7 @@ public class MemberDataAttributeGeneratorTests : CoreGeneratorTest<MemberDataAtt
 			public class TestClass {
 			    // Success cases
 				[MemberData(nameof(FieldData), DisableDiscoveryEnumeration = true)]
-				[MemberData(nameof(OtherClass.PropertyData), MemberType = typeof(OtherClass), Skip = "Maybe?", SkipWhen = nameof(OtherClass.AlwaysFalse), SkipType = typeof(OtherClass), TestDisplayName = "hey")]
+				[MemberData(nameof(OtherClass.PropertyData), MemberType = typeof(OtherClass), DisableParallelization = true, Skip = "Maybe?", SkipWhen = nameof(OtherClass.AlwaysFalse), SkipType = typeof(OtherClass), TestDisplayName = "hey")]
 				[MemberData(nameof(MethodData), 42, Explicit = true, Label = "hello", Skip = "Always", SkipUnless = nameof(AlwaysTrue), Timeout = 42, Traits = ["Foo", "Bar"])]
 				// Failure cases
 				[MemberData("foo")]  // Member not found
@@ -83,7 +83,7 @@ public class MemberDataAttributeGeneratorTests : CoreGeneratorTest<MemberDataAtt
 						);
 						global::Xunit.v3.RegisteredEngineConfig.RegisterTheoryDataRowFactory("global::TestClass", "TestMethod", false,
 							async disposalTracker => {
-								var attr = new global::Xunit.v3.DataAttributeRegistration() { Skip = "Maybe?", SkipWhen = () => global::OtherClass.AlwaysFalse, TestDisplayName = "hey" };
+								var attr = new global::Xunit.v3.DataAttributeRegistration() { DisableParallelization = true, Skip = "Maybe?", SkipWhen = () => global::OtherClass.AlwaysFalse, TestDisplayName = "hey" };
 								var result = new global::System.Collections.Generic.List<global::Xunit.ITheoryDataRow>();
 								var dataRows = await global::OtherClass.PropertyData;
 								if (dataRows == null)

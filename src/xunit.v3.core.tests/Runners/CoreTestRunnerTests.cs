@@ -102,6 +102,28 @@ public static class CoreTestRunnerTests
 		{
 			public override string Message => message!;
 		}
+
+		[Theory]
+		[InlineData(ParallelMode.All, true)]                                 // All: CoreTestCaseRunner already moved us through the sequential gate
+		[InlineData(ParallelMode.All, false, "RunParallelTask<TimeSpan>")]   // All: If we made it all the way here, we go through the parallel gate
+		[InlineData(ParallelMode.None, true)]                                // None: Do nothing
+		[InlineData(ParallelMode.None, false)]                               // None: Do nothing
+		public static async ValueTask ParallelModeHandling(
+			ParallelMode testParallelMode,
+			bool testDisableParallelization,
+			string? expectedOperation = null)
+		{
+			var spyScheduler = new SpyExecutionScheduler();
+			var test = Mocks.CoreTest(disableParallelization: testDisableParallelization);
+			var runner = new TestableCoreTestRunner(test) { ParallelMode = testParallelMode, Scheduler = spyScheduler };
+
+			await runner.RunAsync();
+
+			if (expectedOperation is null)
+				Assert.Empty(spyScheduler.Operations);
+			else
+				Assert.Equal(expectedOperation, Assert.Single(spyScheduler.Operations));
+		}
 	}
 
 	class TestableCoreTestRunner(
@@ -113,6 +135,8 @@ public static class CoreTestRunnerTests
 		public readonly IReadOnlyCollection<SpyBeforeAfterAttribute> BeforeAfterTestAttributes = beforeAfterTestAttributes ?? [];
 		public readonly CancellationTokenSource CancellationTokenSource = new();
 		public readonly SpyMessageBus MessageBus = new();
+		public ParallelMode ParallelMode = ParallelMode.Collections;
+		public ExecutionScheduler Scheduler = ExecutionScheduler.CreateUnlimited();
 		public readonly ICoreTest Test = test ?? Mocks.CoreTest();
 
 		public object? CreateTestClassInstance__ReturnValue_Instance = null;
@@ -152,7 +176,9 @@ public static class CoreTestRunnerTests
 				Test.TestCase.SkipReason,
 				ExplicitOption.Off,
 				Aggregator,
-				CancellationTokenSource
+				CancellationTokenSource,
+				ParallelMode,
+				Scheduler
 			);
 			await ctxt.InitializeAsync();
 
@@ -167,8 +193,10 @@ public static class CoreTestRunnerTests
 			string? runtimeSkipReason,
 			ExplicitOption explicitOption,
 			ExceptionAggregator aggregator,
-			CancellationTokenSource cancellationTokenSource) :
-				CoreTestRunnerContext<ICoreTest, SpyBeforeAfterAttribute>(test, messageBus, skipReason, explicitOption, aggregator, cancellationTokenSource)
+			CancellationTokenSource cancellationTokenSource,
+			ParallelMode parallelMode,
+			ExecutionScheduler scheduler) :
+				CoreTestRunnerContext<ICoreTest, SpyBeforeAfterAttribute>(test, explicitOption, messageBus, aggregator, skipReason, cancellationTokenSource, parallelMode, scheduler)
 		{
 			protected override IReadOnlyCollection<SpyBeforeAfterAttribute> BeforeAfterTestAttributes { get; set; } =
 				beforeAfterTestAttributes;

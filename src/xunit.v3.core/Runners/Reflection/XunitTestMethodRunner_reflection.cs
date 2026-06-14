@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using Xunit.Sdk;
 
 namespace Xunit.v3;
@@ -22,6 +23,22 @@ public class XunitTestMethodRunner : XunitTestMethodRunnerBase<XunitTestMethodRu
 	public static XunitTestMethodRunner Instance { get; } = new();
 
 	/// <summary>
+	/// Please call <see cref="Run(IXunitTestMethod, IReadOnlyCollection{IXunitTestCase}, ExplicitOption, IMessageBus, ExceptionAggregator, CancellationTokenSource, ParallelMode, ExecutionScheduler, object?[], FixtureMappingManager)"/>.
+	/// This overload is no longer valid and will be removed in the next major version.
+	/// </summary>
+	[Obsolete("Please call the overload which adds parallelMode and scheduler. This overload is no longer valid and will be removed in the next major version.", error: true)]
+	[EditorBrowsable(EditorBrowsableState.Never)]
+	public ValueTask<RunSummary> Run(
+		IXunitTestMethod testMethod,
+		IReadOnlyCollection<IXunitTestCase> testCases,
+		ExplicitOption explicitOption,
+		IMessageBus messageBus,
+		ExceptionAggregator aggregator,
+		CancellationTokenSource cancellationTokenSource,
+		object?[] constructorArguments) =>
+			throw new NotSupportedException("Please call the overload which adds parallelMode and scheduler. This overload is no longer valid and will be removed in the next major version.");
+
+	/// <summary>
 	/// Runs the test test method.
 	/// </summary>
 	/// <param name="testMethod">The test method to be run.</param>
@@ -30,6 +47,8 @@ public class XunitTestMethodRunner : XunitTestMethodRunnerBase<XunitTestMethodRu
 	/// <param name="messageBus">The message bus to report run status to.</param>
 	/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 	/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
+	/// <param name="parallelMode">The parallel mode for the test method</param>
+	/// <param name="scheduler">The scheduler used for task/test scheduling</param>
 	/// <param name="constructorArguments">The constructor arguments for the test class.</param>
 	/// <param name="classFixtureMappings">The fixtures attached to the test class</param>
 	public async ValueTask<RunSummary> Run(
@@ -39,6 +58,8 @@ public class XunitTestMethodRunner : XunitTestMethodRunnerBase<XunitTestMethodRu
 		IMessageBus messageBus,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource,
+		ParallelMode parallelMode,
+		ExecutionScheduler scheduler,
 		object?[] constructorArguments,
 		FixtureMappingManager classFixtureMappings)
 	{
@@ -53,6 +74,8 @@ public class XunitTestMethodRunner : XunitTestMethodRunnerBase<XunitTestMethodRu
 			messageBus,
 			aggregator,
 			cancellationTokenSource,
+			parallelMode,
+			scheduler,
 			constructorArguments,
 			classFixtureMappings
 		);

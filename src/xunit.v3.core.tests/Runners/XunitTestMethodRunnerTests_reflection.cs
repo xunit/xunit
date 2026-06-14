@@ -356,9 +356,11 @@ public static class XunitTestMethodRunnerTests
 				ExplicitOption explicitOption,
 				IMessageBus messageBus,
 				object?[] constructorArguments,
-				FixtureMappingManager methodFixtureMappings,
 				ExceptionAggregator aggregator,
-				CancellationTokenSource cancellationTokenSource) =>
+				CancellationTokenSource cancellationTokenSource,
+				ParallelMode parallelMode,
+				ExecutionScheduler scheduler,
+				FixtureMappingManager methodFixtureMappings) =>
 					new(XunitRunnerHelper.SkipTestCases(messageBus, cancellationTokenSource, [this], "This is skipped via self-execution"));
 		}
 	}
@@ -370,6 +372,8 @@ public static class XunitTestMethodRunnerTests
 		public readonly CancellationTokenSource CancellationTokenSource = new();
 		public readonly FixtureMappingManager ClassFixtureMappings = new("Class");
 		public readonly SpyMessageBus MessageBus = new();
+		public ParallelMode ParallelMode = ParallelMode.Collections;
+		public ExecutionScheduler Scheduler = ExecutionScheduler.CreateUnlimited();
 
 		public ValueTask<RunSummary> RunAsync() =>
 			Run(
@@ -379,6 +383,8 @@ public static class XunitTestMethodRunnerTests
 				MessageBus,
 				Aggregator,
 				CancellationTokenSource,
+				ParallelMode,
+				Scheduler,
 				[],
 				ClassFixtureMappings
 			);

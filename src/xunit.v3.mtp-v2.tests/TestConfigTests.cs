@@ -29,7 +29,7 @@ public class TestConfigTests
 		Assert.Null(projectAssembly.Configuration.MethodDisplay);
 		Assert.Null(projectAssembly.Configuration.MethodDisplayOptions);
 		Assert.Null(projectAssembly.Configuration.ParallelAlgorithm);
-		Assert.Null(projectAssembly.Configuration.ParallelizeTestCollections);
+		Assert.Null(projectAssembly.Configuration.ParallelMode);
 		Assert.Null(projectAssembly.Configuration.PrintMaxEnumerableLength);
 		Assert.Null(projectAssembly.Configuration.PrintMaxObjectDepth);
 		Assert.Null(projectAssembly.Configuration.PrintMaxObjectMemberCount);
@@ -145,6 +145,57 @@ public class TestConfigTests
 		Assert.Equal(expected, projectAssembly.Configuration.ParallelAlgorithm);
 	}
 
+	[Theory]
+	[InlineData("unknownValue", null)]
+	[InlineData("all", ParallelMode.All)]
+	[InlineData("collections", ParallelMode.Collections)]
+	[InlineData("none", ParallelMode.None)]
+	public static void ParallelModes(
+		string value,
+		ParallelMode? expected)
+	{
+		var config = new StubConfiguration((TestConfig.Keys.ParallelMode, value));
+		var projectAssembly = TestData.XunitProjectAssembly<TestConfigTests>();
+
+		TestConfig.Parse(config, projectAssembly);
+
+		Assert.Equal(expected, projectAssembly.Configuration.ParallelMode);
+	}
+
+	[Theory]
+	[InlineData("unknownValue", null)]
+	[InlineData("true", ParallelMode.Collections)]
+	[InlineData("on", ParallelMode.Collections)]
+	[InlineData("1", ParallelMode.Collections)]
+	[InlineData("false", ParallelMode.None)]
+	[InlineData("off", ParallelMode.None)]
+	[InlineData("0", ParallelMode.None)]
+	public static void ParallelModeUnset_OverriddenByParallelizeTestCollections(
+		string value,
+		ParallelMode? expected)
+	{
+		var config = new StubConfiguration((TestConfig.Keys.ParallelizeTestCollections, value));
+		var projectAssembly = TestData.XunitProjectAssembly<TestConfigTests>();
+
+		TestConfig.Parse(config, projectAssembly);
+
+		Assert.Equal(expected, projectAssembly.Configuration.ParallelMode);
+	}
+
+	[Theory]
+	[InlineData("unknownValue")]
+	[InlineData("true")]
+	[InlineData("false")]
+	public static void ParallelModeSet_ParallelizeTestCollectionsIgnored(string value)
+	{
+		var config = new StubConfiguration((TestConfig.Keys.ParallelMode, "all"), (TestConfig.Keys.ParallelizeTestCollections, value));
+		var projectAssembly = TestData.XunitProjectAssembly<TestConfigTests>();
+
+		TestConfig.Parse(config, projectAssembly);
+
+		Assert.Equal(ParallelMode.All, projectAssembly.Configuration.ParallelMode);
+	}
+
 	public static class Booleans
 	{
 		static readonly (string, Expression<Func<XunitProjectAssembly, bool?>>)[] booleanOptions =
@@ -153,7 +204,6 @@ public class TestConfigTests
 			(TestConfig.Keys.FailSkips, assembly => assembly.Configuration.FailSkips),
 			(TestConfig.Keys.FailWarns, assembly => assembly.Configuration.FailTestsWithWarnings),
 			(TestConfig.Keys.InternalDiagnosticMessages, assembly => assembly.Configuration.InternalDiagnosticMessages),
-			(TestConfig.Keys.ParallelizeTestCollections, assembly => assembly.Configuration.ParallelizeTestCollections),
 			(TestConfig.Keys.PreEnumerateTheories, assembly => assembly.Configuration.PreEnumerateTheories),
 			(TestConfig.Keys.ShowLiveOutput, assembly => assembly.Configuration.ShowLiveOutput),
 			(TestConfig.Keys.StopOnFail, assembly => assembly.Configuration.StopOnFail),

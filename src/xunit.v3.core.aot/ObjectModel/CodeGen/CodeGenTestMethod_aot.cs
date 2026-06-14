@@ -7,6 +7,7 @@ namespace Xunit.v3;
 /// </summary>
 /// <param name="beforeAfterTestAttributes">The <see cref="BeforeAfterTestAttribute"/>s attached to the test method</param>
 /// <param name="declaredTypeIndex">The type index for the declared type if it differs from the test class type</param>
+/// <param name="disableParallelization">Indicates if the tests from this test method wish to opt out of parallelization</param>
 /// <param name="isStatic">Indicates if the test method is static</param>
 /// <param name="methodArity">The test method's arity</param>
 /// <param name="methodName">The test method's name</param>
@@ -21,6 +22,7 @@ namespace Xunit.v3;
 public class CodeGenTestMethod(
 	IReadOnlyCollection<BeforeAfterTestAttribute>? beforeAfterTestAttributes,
 	string? declaredTypeIndex,
+	bool disableParallelization,
 	bool isStatic,
 	int methodArity,
 	string methodName,
@@ -40,6 +42,10 @@ public class CodeGenTestMethod(
 	/// <inheritdoc/>
 	public string? DeclaredTypeIndex { get; } =
 		declaredTypeIndex;
+
+	/// <inheritdoc/>
+	public bool DisableParallelization =>
+		disableParallelization;
 
 	/// <inheritdoc/>
 	public bool IsStatic =>

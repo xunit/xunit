@@ -95,8 +95,8 @@ public static class InProcessFrontControllerTests
 		{
 			var messageSink = SpyMessageSink.Capture();
 			var options = TestData.TestFrameworkDiscoveryOptions();
-			var validTestCase = Mocks.TestCase();
-			var invalidTestCase = Mocks.TestCase();
+			var validTestCase = Mocks.TestCase(uniqueID: "1");
+			var invalidTestCase = Mocks.TestCase(uniqueID: "2");
 			bool filter(ITestCase testCase) => testCase == validTestCase;
 			using var cts = new CancellationTokenSource();
 			var callbackCalls = new List<(ITestCase testCase, bool passedFilter)>();
@@ -134,6 +134,53 @@ public static class InProcessFrontControllerTests
 				}
 			);
 		}
+
+		[Fact(DisableParallelization = true)]
+		public static async ValueTask RejectsDuplicatedTestCaseUniqueID()
+		{
+			var diagnosticMessageSink = SpyMessageSink.Capture();
+			TestContextInternal.Current.DiagnosticMessageSink = diagnosticMessageSink;
+
+			var messageSink = SpyMessageSink.Capture();
+			var options = TestData.TestFrameworkDiscoveryOptions();
+			var validTestCase = Mocks.TestCase(uniqueID: "1", testCaseDisplayName: "valid-test-case");
+			var invalidTestCase = Mocks.TestCase(uniqueID: "1", testCaseDisplayName: "invalid-test-case");
+			bool filter(ITestCase testCase) => true;
+			using var cts = new CancellationTokenSource();
+			var callbackCalls = new List<(ITestCase testCase, bool passedFilter)>();
+			var frontController = TestableInProcessFrontController.Create(
+				find: async (callback, _, _, _) =>
+				{
+					await callback(validTestCase);
+					await callback(invalidTestCase);
+				}
+			);
+
+			await frontController.Find(messageSink, options, filter, cts, discoveryCallback: frontControllerCallback);
+
+			// Make sure we got a diagnostic message indicating the issue
+			var diagnosticMessage = Assert.Single(diagnosticMessageSink.Messages.OfType<IDiagnosticMessage>());
+			Assert.Equal(
+				"Warning: Rejecting v3 test case with duplicate unique ID" + Environment.NewLine +
+				"  Original:" + Environment.NewLine +
+				"    ID:      1" + Environment.NewLine +
+				"    Name:    valid-test-case" + Environment.NewLine +
+				"    Method:  test-class-name.test-method" + Environment.NewLine +
+				"  Duplicate:" + Environment.NewLine +
+				"    ID:      1" + Environment.NewLine +
+				"    Name:    invalid-test-case" + Environment.NewLine +
+				"    Method:  test-class-name.test-method",
+				diagnosticMessage.Message
+			);
+
+			ValueTask<bool> frontControllerCallback(
+				ITestCase testCase,
+				bool passedFilter)
+			{
+				callbackCalls.Add((testCase, passedFilter));
+				return new(true);
+			}
+		}
 	}
 
 	public static class FindAndRun
@@ -162,8 +209,8 @@ public static class InProcessFrontControllerTests
 			var messageSink = SpyMessageSink.Capture();
 			var discoveryOptions = TestData.TestFrameworkDiscoveryOptions();
 			var executionOptions = TestData.TestFrameworkExecutionOptions();
-			var validTestCase = Mocks.TestCase();
-			var invalidTestCase = Mocks.TestCase();
+			var validTestCase = Mocks.TestCase(uniqueID: "1");
+			var invalidTestCase = Mocks.TestCase(uniqueID: "2");
 			bool filter(ITestCase testCase) => testCase == validTestCase;
 			using var cts = new CancellationTokenSource();
 			var executedTestCases = default(IReadOnlyCollection<ITestCase>?);
@@ -192,8 +239,8 @@ public static class InProcessFrontControllerTests
 			var discoveryOptions = TestData.TestFrameworkDiscoveryOptions();
 			var executionOptions = TestData.TestFrameworkExecutionOptions();
 			using var cts = new CancellationTokenSource();
-			var asyncDisposableTestCase = Mocks.TestCaseAsyncDisposable(() => asyncDisposeCalled = true);
-			var disposableTestCase = Mocks.TestCaseDisposable(() => disposeCalled = true);
+			var asyncDisposableTestCase = Mocks.TestCaseAsyncDisposable(() => asyncDisposeCalled = true, uniqueID: "1");
+			var disposableTestCase = Mocks.TestCaseDisposable(() => disposeCalled = true, uniqueID: "2");
 			var frontController = TestableInProcessFrontController.Create(
 				find: async (callback, _, _, _) =>
 				{

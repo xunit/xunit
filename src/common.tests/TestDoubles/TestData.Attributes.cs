@@ -1,57 +1,19 @@
 using Xunit;
-using Xunit.Sdk;
 using Xunit.v3;
 
 partial class TestData
 {
-	public static CollectionBehaviorAttribute CollectionBehaviorAttribute(
-		bool disableTestParallelization = false,
-		int maxParallelThreads = 0,
-		ParallelAlgorithm parallelAlgorithm = ParallelAlgorithm.Conservative) =>
-			new()
-			{
-				DisableTestParallelization = disableTestParallelization,
-				MaxParallelThreads = maxParallelThreads,
-				ParallelAlgorithm = parallelAlgorithm
-			};
+	public static CollectionBehaviorAttribute CollectionBehaviorAttribute(CollectionBehavior collectionBehavior) =>
+		new(collectionBehavior);
 
-	public static CollectionBehaviorAttribute CollectionBehaviorAttribute(
-		CollectionBehavior collectionBehavior,
-		bool disableTestParallelization = false,
-		int maxParallelThreads = 0,
-		ParallelAlgorithm parallelAlgorithm = ParallelAlgorithm.Conservative) =>
-			new(collectionBehavior)
-			{
-				DisableTestParallelization = disableTestParallelization,
-				MaxParallelThreads = maxParallelThreads,
-				ParallelAlgorithm = parallelAlgorithm
-			};
+	public static CollectionBehaviorAttribute CollectionBehaviorAttribute(Type collectionFactoryType) =>
+		new(collectionFactoryType);
 
-	public static CollectionBehaviorAttribute CollectionBehaviorAttribute(
-		Type collectionFactoryType,
-		bool disableTestParallelization = false,
-		int maxParallelThreads = 0,
-		ParallelAlgorithm parallelAlgorithm = ParallelAlgorithm.Conservative) =>
-			new(collectionFactoryType)
-			{
-				DisableTestParallelization = disableTestParallelization,
-				MaxParallelThreads = maxParallelThreads,
-				ParallelAlgorithm = parallelAlgorithm
-			};
-
-	public static CollectionBehaviorAttribute<TCollectionFactory> CollectionBehaviorAttribute<TCollectionFactory>(
-		bool disableTestParallelization = false,
-		int maxParallelThreads = 0,
-		ParallelAlgorithm parallelAlgorithm = ParallelAlgorithm.Conservative)
+	public static CollectionBehaviorAttribute<TCollectionFactory> CollectionBehaviorAttribute<TCollectionFactory>()
 #if XUNIT_AOT
 			where TCollectionFactory : ICodeGenTestCollectionFactory =>
 #else
 			where TCollectionFactory : IXunitTestCollectionFactory =>
 #endif
-				new()
-				{
-					DisableTestParallelization = disableTestParallelization,
-					MaxParallelThreads = maxParallelThreads,
-					ParallelAlgorithm = parallelAlgorithm
-				};
+				new();
 }

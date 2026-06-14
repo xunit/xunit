@@ -54,6 +54,8 @@ public static class CodeGenTestCaseRunnerTests
 				"Display Name",
 				skipReason: null,
 				new(),
+				ParallelMode.Collections,
+				ExecutionScheduler.CreateUnlimited(),
 				fixtureMappings
 			);
 		}

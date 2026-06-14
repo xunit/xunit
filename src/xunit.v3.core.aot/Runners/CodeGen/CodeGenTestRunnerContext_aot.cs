@@ -13,6 +13,8 @@ namespace Xunit.v3;
 /// <param name="explicitOption">The user's choice on how to treat explicit tests</param>
 /// <param name="aggregator">The exception aggregator</param>
 /// <param name="cancellationTokenSource">The cancellation token source</param>
+/// <param name="parallelMode">The parallel mode for the test</param>
+/// <param name="scheduler">The scheduler used for task/test scheduling</param>
 /// <param name="caseFixtureMappings">The mapping of test case fixture types to fixtures.</param>
 public class CodeGenTestRunnerContext(
 	ICodeGenTest test,
@@ -20,8 +22,10 @@ public class CodeGenTestRunnerContext(
 	ExplicitOption explicitOption,
 	ExceptionAggregator aggregator,
 	CancellationTokenSource cancellationTokenSource,
+	ParallelMode parallelMode,
+	ExecutionScheduler scheduler,
 	FixtureMappingManager caseFixtureMappings) :
-		CodeGenTestRunnerBaseContext<ICodeGenTest>(test, messageBus, explicitOption, aggregator, cancellationTokenSource, caseFixtureMappings)
+		CodeGenTestRunnerBaseContext<ICodeGenTest>(test, messageBus, explicitOption, aggregator, cancellationTokenSource, parallelMode, scheduler, caseFixtureMappings)
 {
 	/// <inheritdoc/>
 	public override ValueTask<TimeSpan> InvokeTest(object? testClassInstance) =>

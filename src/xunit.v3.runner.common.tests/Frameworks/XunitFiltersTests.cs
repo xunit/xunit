@@ -254,8 +254,8 @@ public static class XunitFiltersTests
 
 		public static IEnumerable<TheoryDataRow<string, string>> TraitData()
 		{
-			foreach (var name in WithWildcards("foo"))
-				foreach (var value in WithWildcards("bar"))
+			foreach (var name in WithWildcards("fOo"))
+				foreach (var value in WithWildcards("bAr"))
 					yield return (name, value);
 		}
 

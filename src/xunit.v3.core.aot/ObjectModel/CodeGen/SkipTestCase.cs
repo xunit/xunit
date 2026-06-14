@@ -23,6 +23,7 @@ public class SkipTestCase(
 	IReadOnlyDictionary<string, IReadOnlyCollection<string>> traits,
 	string uniqueID) :
 		CodeGenTestCaseBase(
+			disableParallelization: false,
 			@explicit,
 			skipExceptions: null,
 			skipReason,
@@ -42,6 +43,7 @@ public class SkipTestCase(
 	/// </summary>
 	public override async ValueTask<IReadOnlyCollection<ICodeGenTest>> CreateTests() =>
 		[new CodeGenTest(
+			disableParallelization: false,
 			Explicit,
 			obj => default,
 			SkipReason,

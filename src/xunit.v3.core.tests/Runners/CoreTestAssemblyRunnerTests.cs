@@ -6,7 +6,6 @@ public static class CoreTestAssemblyRunnerTests
 {
 #pragma warning disable CA1822 // Tests in here depend on the constructor to hide diagnostic messages
 
-	[CollectionDefinition(DisableParallelization = true)]
 	[Collection(typeof(Run))]
 	public class Run
 	{
@@ -25,7 +24,7 @@ public static class CoreTestAssemblyRunnerTests
 			var testCase2 = testCaseForCollection(testCollection2, "test-case-2");
 			var testCollection3 = Mocks.CoreTestCollection(testAssembly: testAssembly, testCollectionDisplayName: "test-collection-3", uniqueID: "3");
 			var testCase3 = testCaseForCollection(testCollection3, "test-case-3");
-			var options = TestData.TestFrameworkExecutionOptions(disableParallelization: true);
+			var options = TestData.TestFrameworkExecutionOptions(parallelMode: ParallelMode.None);
 			var runner = new TestableCoreTestAssemblyRunner([testCase3, testCase1, testCase2], options);
 
 			await runner.RunAsync();
@@ -87,26 +86,6 @@ public static class CoreTestAssemblyRunnerTests
 					throw new DivideByZeroException();
 		}
 
-		[Theory]
-		[InlineData(ParallelAlgorithm.Aggressive, typeof(MaxConcurrencySyncContext))]
-		[InlineData(ParallelAlgorithm.Conservative, null)]
-		public async ValueTask AlgorithmImpactsSyncContext(
-			ParallelAlgorithm parallelAlgorithm,
-			Type? expectedSyncContextType)
-		{
-			// Need to use Task.Run to get ourselves a "clean" execution context
-			await Task.Run(async () =>
-			{
-				var testCase = Mocks.CoreTestCase();
-				var options = TestData.TestFrameworkExecutionOptions(parallelAlgorithm: parallelAlgorithm);
-				var runner = new TestableCoreTestAssemblyRunner([testCase], options);
-
-				await runner.RunAsync();
-
-				Assert.Equal(expectedSyncContextType, runner.RunTestCollection_SyncContext?.GetType());
-			}, TestContext.Current.CancellationToken);
-		}
-
 		[Fact]
 		public async ValueTask Parallel_Conversative()
 		{
@@ -123,6 +102,8 @@ public static class CoreTestAssemblyRunnerTests
 			// gets to go first, so we look at the first one to see which one it is, and make sure the post-sleep happens
 			// directly after the pre-sleep
 			var messages = DiagnosticMessageSink.Messages.OfType<IDiagnosticMessage>().Select(m => m.Message).ToArray();
+			Assert.Equal(4, messages.Length);
+
 			var firstMessage = messages[0];
 			Assert.Contains("pre-sleep", firstMessage);
 			Assert.Equal(firstMessage.Replace("pre-sleep", "post-sleep"), messages[1]);
@@ -168,7 +149,7 @@ public static class CoreTestAssemblyRunnerTests
 			var testCase1 = Mocks.CoreTestCase(testCaseDisplayName: "TestCase1", testMethod: Mocks.CoreTestMethod(testClass: Mocks.CoreTestClass(testCollection: testCollection1)));
 			var testCollection2 = Mocks.CoreTestCollection(uniqueID: "2");
 			var testCase2 = Mocks.CoreTestCase(testCaseDisplayName: "TestCase2", testMethod: Mocks.CoreTestMethod(testClass: Mocks.CoreTestClass(testCollection: testCollection2)));
-			var options = TestData.TestFrameworkExecutionOptions(disableParallelization: true);
+			var options = TestData.TestFrameworkExecutionOptions(parallelMode: ParallelMode.None);
 			var runner = new TestableCoreTestAssemblyRunner([testCase1, testCase2], options);
 
 			await runner.RunAsync();
@@ -184,6 +165,35 @@ public static class CoreTestAssemblyRunnerTests
 			Assert.EndsWith("pre-sleep", secondPreSleep);
 			Assert.Equal(secondPreSleep.Replace("pre-", "post-"), messages[3]);
 		}
+
+		[Theory]
+		[InlineData(ParallelMode.All, true, "RunSequentialTask<RunSummary>")]          // All: Opting out moves us through the sequential gate
+		[InlineData(ParallelMode.All, false)]                                          // All: Not opting out does noting
+		[InlineData(ParallelMode.Collections, true, "RunSequentialTask<RunSummary>")]  // Collections: Opting out moves us through the sequential gate
+		[InlineData(ParallelMode.Collections, false, "RunParallelTask<RunSummary>")]   // Collections: Not opting out moves us through the parallel gate
+		[InlineData(ParallelMode.None, true)]                                          // None: Do nothing
+		[InlineData(ParallelMode.None, false)]                                         // None: Do nothing
+		public static async ValueTask ParallelModeHandling(
+			ParallelMode testAssemblyParallelMode,
+			bool testCollectionDisableParallelization,
+			string? expectedOperation = null)
+		{
+			TestContextInternal.Current.DiagnosticMessageSink = SpyMessageSink.Capture();
+			var spyScheduler = new SpyExecutionScheduler();
+			var testCollection = Mocks.CoreTestCollection(disableParallelization: testCollectionDisableParallelization);
+			var testClass = Mocks.CoreTestClass(testCollection: testCollection);
+			var testMethod = Mocks.CoreTestMethod(testClass: testClass);
+			var testCase = Mocks.CoreTestCase(testMethod: testMethod);
+			var executionOptions = TestData.TestFrameworkExecutionOptions(parallelMode: testAssemblyParallelMode);
+			var runner = new TestableCoreTestAssemblyRunner([testCase], executionOptions: executionOptions, executionScheduler: spyScheduler);
+
+			await runner.RunAsync();
+
+			if (expectedOperation is null)
+				Assert.Empty(spyScheduler.Operations);
+			else
+				Assert.Equal(expectedOperation, Assert.Single(spyScheduler.Operations));
+		}
 	}
 
 #pragma warning restore CA1822
@@ -191,7 +201,8 @@ public static class CoreTestAssemblyRunnerTests
 	class TestableCoreTestAssemblyRunner(
 		ICoreTestCase[] testCases,
 		ITestFrameworkExecutionOptions? executionOptions = null,
-		int testDelay = 0) :
+		int testDelay = 0,
+		ExecutionScheduler? executionScheduler = null) :
 			CoreTestAssemblyRunner<TestableCoreTestAssemblyRunner.TestableContext, ICoreTestAssembly, ICoreTestCollection, ICoreTestCase>
 	{
 		public readonly SpyMessageSink MessageSink = SpyMessageSink.Capture();
@@ -208,6 +219,9 @@ public static class CoreTestAssemblyRunnerTests
 			return base.FailTestCollection(ctxt, testCollection, testCases, exception);
 		}
 
+		protected override ValueTask<string> GetTestFrameworkDisplayName(TestableContext ctxt) =>
+			new("<TestFramework>");
+
 		public async ValueTask<RunSummary> RunAsync()
 		{
 			await using var context = new TestableContext(
@@ -216,29 +230,23 @@ public static class CoreTestAssemblyRunnerTests
 				MessageSink,
 				executionOptions ?? TestData.TestFrameworkExecutionOptions(),
 				CancellationToken.None,
-				testDelay
+				testDelay,
+				executionScheduler
 			);
 			await context.InitializeAsync();
 
 			return await Run(context);
 		}
 
-		public SynchronizationContext? RunTestCollection_SyncContext;
-
 		protected override ValueTask<RunSummary> RunTestCollection(
 			TestableContext ctxt,
 			ICoreTestCollection testCollection,
 			IReadOnlyCollection<ICoreTestCase> testCases)
 		{
-			RunTestCollection_SyncContext = SynchronizationContext.Current;
-
 			TestCollectionsRun.Add((testCollection, testCases, null));
 
 			return base.RunTestCollection(ctxt, testCollection, testCases);
 		}
-
-		protected override ValueTask<string> GetTestFrameworkDisplayName(TestableContext ctxt) =>
-			new("<TestFramework>");
 
 		public class TestableContext(
 			ICoreTestAssembly testAssembly,
@@ -246,35 +254,29 @@ public static class CoreTestAssemblyRunnerTests
 			IMessageSink executionMessageSink,
 			ITestFrameworkExecutionOptions executionOptions,
 			CancellationToken cancellationToken,
-			int testDelay) :
+			int testDelay,
+			ExecutionScheduler? executionScheduler) :
 				CoreTestAssemblyRunnerContext<ICoreTestAssembly, ICoreTestCollection, ICoreTestCase>(testAssembly, testCases, executionMessageSink, executionOptions, cancellationToken)
 		{
+			public override ExecutionScheduler Scheduler => executionScheduler ?? base.Scheduler;
+
 			public override async ValueTask<RunSummary> RunTestCollection(
 				ICoreTestCollection testCollection,
 				IReadOnlyCollection<ICoreTestCase> testCases)
 			{
-				await BeforeTestCollection();
-
-				try
+				foreach (var testCase in testCases)
 				{
-					foreach (var testCase in testCases)
-					{
-						TestContext.Current.SendDiagnosticMessage($"{testCase.TestCaseDisplayName} pre-sleep");
+					TestContext.Current.SendDiagnosticMessage($"{testCase.TestCaseDisplayName} pre-sleep");
 
-						if (testDelay == 0)
-							await Task.Yield();
-						else
-							await Task.Delay(testDelay);
+					if (testDelay == 0)
+						await Task.Yield();
+					else
+						await Task.Delay(testDelay, CancellationTokenSource.Token);
 
-						TestContext.Current.SendDiagnosticMessage($"{testCase.TestCaseDisplayName} post-sleep");
-					}
-
-					return new RunSummary();
+					TestContext.Current.SendDiagnosticMessage($"{testCase.TestCaseDisplayName} post-sleep");
 				}
-				finally
-				{
-					AfterTestCollection();
-				}
+
+				return new RunSummary();
 			}
 
 			protected override string GetTestCollectionFactoryDisplayName() =>

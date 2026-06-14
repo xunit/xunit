@@ -8,6 +8,7 @@ partial class Mocks
 	// ===== ICodeGenTestXxx =====
 
 	public static ICodeGenTest CodeGenTest(
+		bool disableParallelization = false,
 		bool @explicit = false,
 		Func<object?, ValueTask>? methodInvoker = null,
 		string? skipReason = null,
@@ -21,6 +22,7 @@ partial class Mocks
 		string uniqueID = TestData.DefaultTestUniqueID) =>
 			new MockCodeGenTest
 			{
+				DisableParallelization = disableParallelization,
 				Explicit = @explicit,
 				MethodInvoker = methodInvoker ?? (_ => default),
 				SkipReason = skipReason,
@@ -36,6 +38,7 @@ partial class Mocks
 
 	class MockCodeGenTest : ICodeGenTest
 	{
+		public required bool DisableParallelization { get; set; }
 		public required bool Explicit { get; set; }
 		public required Func<object?, ValueTask> MethodInvoker { get; set; }
 		public required string? SkipReason { get; set; }
@@ -64,6 +67,7 @@ partial class Mocks
 		int? maxParallelThreads = null,
 		Guid? moduleVersionID = null,
 		ParallelAlgorithm? parallelAlgorithm = null,
+		ParallelMode? parallelMode = null,
 		string targetFramework = TestData.DefaultTargetFramework,
 		ITestCaseOrderer? testCaseOrderer = null,
 		ITestClassOrderer? testClassOrderer = null,
@@ -86,6 +90,7 @@ partial class Mocks
 				MaxParallelThreads = maxParallelThreads,
 				ModuleVersionID = moduleVersionID ?? TestData.DefaultModuleVersionID,
 				ParallelAlgorithm = parallelAlgorithm,
+				ParallelMode = parallelMode,
 				TargetFramework = targetFramework,
 				TestCaseOrderer = testCaseOrderer,
 				TestClassOrderer = testClassOrderer,
@@ -114,6 +119,7 @@ partial class Mocks
 		public required int? MaxParallelThreads { get; set; }
 		public required Guid ModuleVersionID { get; set; }
 		public required ParallelAlgorithm? ParallelAlgorithm { get; set; }
+		public required ParallelMode? ParallelMode { get; set; }
 		public required string TargetFramework { get; set; }
 		public required ITestCaseOrderer? TestCaseOrderer { get; set; }
 		public required ITestClassOrderer? TestClassOrderer { get; set; }
@@ -127,6 +133,7 @@ partial class Mocks
 
 	public static ICodeGenTestCase CodeGenTestCase(
 		Func<ICodeGenTestCase, IReadOnlyCollection<ICodeGenTest>>? createTests = null,
+		bool disableParallelization = false,
 		bool @explicit = false,
 		Action? postInvoke = null,
 		Action? preInvoke = null,
@@ -147,6 +154,7 @@ partial class Mocks
 		string uniqueID = TestData.DefaultTestCaseUniqueID) =>
 			new MockCodeGenTestCase(createTests ?? (tc => [CodeGenTest(testCase: tc)]), preInvoke, postInvoke)
 			{
+				DisableParallelization = disableParallelization,
 				Explicit = @explicit,
 				SkipExceptions = skipExceptions,
 				SkipReason = skipReason,
@@ -171,6 +179,7 @@ partial class Mocks
 		Action? postInvoke) :
 			ICodeGenTestCase
 	{
+		public required bool DisableParallelization { get; set; }
 		public required bool Explicit { get; set; }
 		public required Type[]? SkipExceptions { get; set; }
 		public required string? SkipReason { get; set; }
@@ -211,6 +220,7 @@ partial class Mocks
 	public static ICodeGenTestClass CodeGenTestClass(
 		IReadOnlyCollection<BeforeAfterTestAttribute>? beforeAfterTestAttributes = null,
 		IReadOnlyDictionary<Type, FixtureFactory>? classFixtureFactories = null,
+		bool disableParallelization = false,
 		ITestCaseOrderer? testCaseOrderer = null,
 		Func<FixtureMappingManager, ValueTask<CoreTestClassCreationResult>>? testClassFactory = null,
 		string testClassName = TestData.DefaultTestClassName,
@@ -224,6 +234,7 @@ partial class Mocks
 			{
 				BeforeAfterTestAttributes = beforeAfterTestAttributes ?? [],
 				ClassFixtureFactories = classFixtureFactories ?? TestData.EmptyFixtureFactories,
+				DisableParallelization = disableParallelization,
 				TestCaseOrderer = testCaseOrderer,
 				TestClassFactory = testClassFactory ?? TestData.DefaultClassFactory,
 				TestClassName = testClassName,
@@ -238,6 +249,7 @@ partial class Mocks
 	public static ICodeGenTestClass CodeGenTestClass<TClass>(
 		IReadOnlyCollection<BeforeAfterTestAttribute>? beforeAfterTestAttributes = null,
 		IReadOnlyDictionary<Type, FixtureFactory>? classFixtureFactories = null,
+		bool disableParallelization = false,
 		ITestCaseOrderer? testCaseOrderer = null,
 		string testClassName = TestData.DefaultTestClassName,
 		string testClassNamespace = TestData.DefaultTestClassNamespace,
@@ -251,6 +263,7 @@ partial class Mocks
 				{
 					BeforeAfterTestAttributes = beforeAfterTestAttributes ?? [],
 					ClassFixtureFactories = classFixtureFactories ?? TestData.EmptyFixtureFactories,
+					DisableParallelization = disableParallelization,
 					TestCaseOrderer = testCaseOrderer,
 					TestClassFactory = _ => new(new CoreTestClassCreationResult(new TClass())),
 					TestClassName = testClassName,
@@ -266,6 +279,7 @@ partial class Mocks
 	{
 		public required IReadOnlyCollection<BeforeAfterTestAttribute> BeforeAfterTestAttributes { get; set; }
 		public required IReadOnlyDictionary<Type, FixtureFactory> ClassFixtureFactories { get; set; }
+		public required bool DisableParallelization { get; set; }
 		public required ITestCaseOrderer? TestCaseOrderer { get; set; }
 		public required Func<FixtureMappingManager, ValueTask<CoreTestClassCreationResult>> TestClassFactory { get; set; }
 		public required string TestClassName { get; set; }
@@ -333,6 +347,7 @@ partial class Mocks
 	public static ICodeGenTestMethod CodeGenTestMethod(
 		IReadOnlyCollection<BeforeAfterTestAttribute>? beforeAfterTestAttributes = null,
 		string? declaredTypeIndex = null,
+		bool disableParallelization = false,
 		bool isStatic = false,
 		int methodArity = 0,
 		string methodName = TestData.DefaultMethodName,
@@ -346,6 +361,7 @@ partial class Mocks
 			{
 				BeforeAfterTestAttributes = beforeAfterTestAttributes ?? [],
 				DeclaredTypeIndex = declaredTypeIndex,
+				DisableParallelization = disableParallelization,
 				IsStatic = isStatic,
 				MethodArity = methodArity,
 				MethodName = methodName,
@@ -361,6 +377,7 @@ partial class Mocks
 	{
 		public required IReadOnlyCollection<BeforeAfterTestAttribute> BeforeAfterTestAttributes { get; set; }
 		public required string? DeclaredTypeIndex { get; set; }
+		public required bool DisableParallelization { get; set; }
 		public required bool IsStatic { get; set; }
 		public required int MethodArity { get; set; }
 		public required string MethodName { get; set; }

@@ -57,10 +57,15 @@ public abstract class CoreTestRunner<TContext, TTest, TBeforeAfterAttribute> : T
 	{
 		Guard.ArgumentNotNull(ctxt);
 
-		return
+		Func<ValueTask<TimeSpan>> taskFactory =
 			ctxt.Test.Timeout > 0 && !Debugger.IsAttached
-				? RunTestWithTimeout(ctxt, ctxt.Test.Timeout)
-				: base.RunTest(ctxt);
+				? () => RunTestWithTimeout(ctxt, ctxt.Test.Timeout)
+				: () => base.RunTest(ctxt);
+
+		return
+			ctxt.ParallelMode == ParallelMode.All
+				? ctxt.Scheduler.RunParallelTask(taskFactory, ctxt.CancellationTokenSource.Token)
+				: taskFactory();
 	}
 
 	async ValueTask<TimeSpan> RunTestWithTimeout(
@@ -119,6 +124,7 @@ public abstract class CoreTestRunner<TContext, TTest, TBeforeAfterAttribute> : T
 		{
 			ExplicitOption.Only => ctxt.Test.Explicit,
 			ExplicitOption.Off => !ctxt.Test.Explicit,
-			_ => true,
+			ExplicitOption.On => true,
+			{ } option => throw new TestPipelineException($"Unknown ExplicitOption value {option}"),
 		};
 }

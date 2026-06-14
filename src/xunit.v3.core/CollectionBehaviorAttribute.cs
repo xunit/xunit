@@ -1,3 +1,5 @@
+using System.ComponentModel;
+using Xunit.Sdk;
 using Xunit.v3;
 
 namespace Xunit;
@@ -35,6 +37,30 @@ public sealed partial class CollectionBehaviorAttribute : Attribute
 
 	public partial CollectionBehaviorAttribute(Type collectionFactoryType) =>
 		CollectionFactoryType = collectionFactoryType;
+
+	/// <summary>
+	/// Please set <see cref="ParallelizationAttribute.Mode"/> instead.
+	/// This property will be removed in the next major version.
+	/// </summary>
+	[Obsolete("Please set ParallelizationAttribute.Mode instead. This property will be removed in the next major version.", error: true)]
+	[EditorBrowsable(EditorBrowsableState.Never)]
+	public bool DisableTestParallelization { get; set; }
+
+	/// <summary>
+	/// Please set <see cref="ParallelizationAttribute.MaxThreads"/> instead.
+	/// This property will be removed in the next major version.
+	/// </summary>
+	[Obsolete("Please set ParallelizationAttribute.MaxThreads instead. This property will be removed in the next major version.", error: true)]
+	[EditorBrowsable(EditorBrowsableState.Never)]
+	public int MaxParallelThreads { get; set; }
+
+	/// <summary>
+	/// Please set <see cref="ParallelizationAttribute.Algorithm"/> instead.
+	/// This property will be removed in the next major version.
+	/// </summary>
+	[Obsolete("Please set ParallelizationAttribute.Algorithm instead. This property will be removed in the next major version.", error: true)]
+	[EditorBrowsable(EditorBrowsableState.Never)]
+	public ParallelAlgorithm ParallelAlgorithm { get; set; }
 }
 
 /// <summary>
@@ -42,4 +68,28 @@ public sealed partial class CollectionBehaviorAttribute : Attribute
 /// </summary>
 [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = false)]
 public sealed partial class CollectionBehaviorAttribute<TCollectionFactory> : Attribute
-{ }
+{
+	/// <summary>
+	/// Please set <see cref="ParallelizationAttribute.Mode"/> instead.
+	/// This property will be removed in the next major version.
+	/// </summary>
+	[Obsolete("Please set ParallelizationAttribute.Mode instead. This property will be removed in the next major version.", error: true)]
+	[EditorBrowsable(EditorBrowsableState.Never)]
+	public bool DisableTestParallelization { get; set; }
+
+	/// <summary>
+	/// Please set <see cref="ParallelizationAttribute.MaxThreads"/> instead.
+	/// This property will be removed in the next major version.
+	/// </summary>
+	[Obsolete("Please set ParallelizationAttribute.MaxThreads instead. This property will be removed in the next major version.", error: true)]
+	[EditorBrowsable(EditorBrowsableState.Never)]
+	public int MaxParallelThreads { get; set; }
+
+	/// <summary>
+	/// Please set <see cref="ParallelizationAttribute.Algorithm"/> instead.
+	/// This property will be removed in the next major version.
+	/// </summary>
+	[Obsolete("Please set ParallelizationAttribute.Algorithm instead. This property will be removed in the next major version.", error: true)]
+	[EditorBrowsable(EditorBrowsableState.Never)]
+	public ParallelAlgorithm ParallelAlgorithm { get; set; }
+}

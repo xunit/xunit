@@ -172,4 +172,35 @@ public static class MessageMetadataCacheTests
 		// Finish empty
 		Assert.Null(cache.TryGetMethodMetadata(failure));
 	}
+
+	[Fact]
+	public static void DuplicatesAreRefCounted()
+	{
+		var starting = TestData.TestStarting();
+		var failure = TestData.TestCleanupFailure();
+		var cache = new MessageMetadataCache();
+
+		// Starts empty
+		Assert.Null(cache.TryGetTestMetadata(failure));
+
+		// Set the cache, should be able to retrieve it
+		cache.Set(starting);
+		Assert.Same(starting, cache.TryGetTestMetadata(failure));
+		Assert.Same(starting, cache.TryGetTestMetadata(failure.TestUniqueID, remove: false));
+
+		// Set the cache again, should still be able to retrieve it
+		cache.Set(starting);
+		Assert.Same(starting, cache.TryGetTestMetadata(failure));
+		Assert.Same(starting, cache.TryGetTestMetadata(failure.TestUniqueID, remove: false));
+
+		// First removal does not remove metadata
+		Assert.Same(starting, cache.TryGetTestMetadata(failure.TestUniqueID, remove: true));
+		Assert.Same(starting, cache.TryGetTestMetadata(failure.TestUniqueID, remove: false));
+
+		// Second removal actually removes the metadata
+		Assert.Same(starting, cache.TryGetTestMetadata(failure.TestUniqueID, remove: true));
+
+		// Finish empty
+		Assert.Null(cache.TryGetTestMetadata(failure));
+	}
 }

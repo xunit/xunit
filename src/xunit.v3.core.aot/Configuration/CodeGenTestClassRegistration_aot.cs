@@ -28,6 +28,11 @@ public class CodeGenTestClassRegistration
 	public IReadOnlyDictionary<Type, FixtureFactory>? ClassFixtureFactories { get; init; }
 
 	/// <summary>
+	/// Gets a flag which indicates if the tests from this test class wish to opt out of parallelism.
+	/// </summary>
+	public bool DisableParallelization { get; init; }
+
+	/// <summary>
 	/// Gets the factory for the class-level test case orderer.
 	/// </summary>
 	public Func<ITestCaseOrderer>? TestCaseOrdererFactory { get; init; }
@@ -77,6 +82,7 @@ public class CodeGenTestClassRegistration
 					beforeAfterTestAttributes.CastOrToReadOnlyCollection(),
 					Class,
 					ClassFixtureFactories ?? emptyFixtureFactories,
+					DisableParallelization,
 					ClassFactory,
 					testCollection,
 					traits

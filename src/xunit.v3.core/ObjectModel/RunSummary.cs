@@ -7,6 +7,9 @@ namespace Xunit.v3;
 /// </summary>
 public struct RunSummary
 {
+	// Kept as long milliseconds so we can use Interlocked for thread safety
+	long longTime;
+
 	/// <summary>
 	/// The total number of tests run.
 	/// </summary>
@@ -30,7 +33,11 @@ public struct RunSummary
 	/// <summary>
 	/// The total time taken to run the tests, in seconds.
 	/// </summary>
-	public decimal Time;
+	public decimal Time
+	{
+		get => longTime / 1000m;
+		set => longTime = (long)(value * 1000);
+	}
 
 	/// <summary>
 	/// Adds a run summary's totals into this run summary.
@@ -38,15 +45,15 @@ public struct RunSummary
 	/// <param name="other">The run summary to be added.</param>
 	public void Aggregate(RunSummary other)
 	{
-		Total += other.Total;
-		Failed += other.Failed;
-		Skipped += other.Skipped;
-		NotRun += other.NotRun;
-		Time += other.Time;
+		Interlocked.Add(ref Total, other.Total);
+		Interlocked.Add(ref Failed, other.Failed);
+		Interlocked.Add(ref Skipped, other.Skipped);
+		Interlocked.Add(ref NotRun, other.NotRun);
+		Interlocked.Add(ref longTime, other.longTime);
 	}
 
 	/// <inheritdoc/>
-	public override readonly string ToString()
+	public override string ToString()
 	{
 		var result = new StringBuilder();
 

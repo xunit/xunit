@@ -11,7 +11,7 @@ namespace Xunit.Runner.Common;
 /// </summary>
 public class MessageMetadataCache
 {
-	readonly Dictionary<string, object> cache = [];
+	readonly Dictionary<string, RefCount> cache = [];
 
 	/// <summary>
 	/// Sets <see cref="IAssemblyMetadata"/> into the cache.
@@ -303,20 +303,40 @@ public class MessageMetadataCache
 
 	// Helpers
 
+	// We're using reference counts instead of throwing, in case we get two metadata with the same unique ID.
+	// We don't attempt to reconcile the differences between the two sets of metadata, since this is an illegal
+	// scenario (unique IDs must be unique), but we can at least stop throwing. We catch the most common version
+	// of this in the front controllers by rejecting test cases with duplicate IDs. The next most likely case is
+	// tests with non-unique IDs as a result of non-pre-enumerated theory data that's identical. This would result
+	// in identical metadata, so the reference counting strategy will "just work" even though the user has done
+	// something that's not supported.
+	//
+	// We use a struct rather than a class since it saves us on memory usage (no need for heap space, and no
+	// need to waste the space and indirection for a pointer). This means re-allocating the struct for the edge
+	// cases, which seems entirely reasonable.
+
 	object? InternalGetAndRemove(
 		string? uniqueID,
 		bool remove)
 	{
-		if (uniqueID is null)
-			return null;
+		if (uniqueID is not null)
+			lock (cache)
+			{
+				if (cache.TryGetValue(uniqueID, out var refCount))
+				{
+					if (remove)
+					{
+						if (refCount.Count == 1)
+							cache.Remove(uniqueID);
+						else
+							cache[uniqueID] = new(refCount.Count - 1, refCount.Value);
+					}
 
-		lock (cache)
-		{
-			if (cache.TryGetValue(uniqueID, out var metadata) && remove)
-				cache.Remove(uniqueID);
+					return refCount.Value;
+				}
+			}
 
-			return metadata;
-		}
+		return null;
 	}
 
 	void InternalSet(
@@ -325,12 +345,18 @@ public class MessageMetadataCache
 	{
 		lock (cache)
 		{
-#pragma warning disable CA1854 // This isn't getting a value, it's setting one
-			if (cache.ContainsKey(uniqueID))
-				throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Key '{0}' already exists in the message metadata cache.{1}Old item: {2}{3}New item: {4}", uniqueID, Environment.NewLine, cache[uniqueID], Environment.NewLine, metadata));
-#pragma warning restore CA1854
-
-			cache.Add(uniqueID, metadata);
+			if (cache.TryGetValue(uniqueID, out var refCount))
+				cache[uniqueID] = new(refCount.Count + 1, refCount.Value);
+			else
+				cache[uniqueID] = new(1, metadata);
 		}
+	}
+
+	readonly struct RefCount(
+		int count,
+		object value)
+	{
+		public readonly int Count => count;
+		public readonly object Value => value;
 	}
 }

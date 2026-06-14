@@ -17,10 +17,10 @@ public abstract class XunitTestClassRunnerBase<TContext, TTestClass, TTestMethod
 		where TTestCase : class, IXunitTestCase
 {
 	/// <summary>
-	/// Creates the arguments for the test class constructor. By default just returns an empty
-	/// set of arguments. Override to find the arguments for the constructor. Arguments without
-	/// matching values may be returned as <see cref="Missing.Value"/>, as the <see cref="ITypeActivator"/>
-	/// is responsible for determining how to resolve unknown arguments.
+	/// Creates the arguments for the test class constructor. Constructor arguments are resolved by
+	/// calling <see cref="GetConstructorArgument"/>. Arguments without matching values may be returned
+	/// as <see cref="Missing.Value"/>, and the <see cref="ITypeActivator"/> is responsible for determining
+	/// how to resolve these missing arguments.
 	/// </summary>
 	/// <remarks>
 	/// This method runs during <see cref="TestEngineStatus.Initializing"/> and any exceptions thrown will

@@ -4,7 +4,7 @@ using Xunit.v3;
 
 public static class CoreTestCaseRunnerTests
 {
-	public static class InvokeHandlers
+	public static class Run
 	{
 		[Fact]
 		public static async ValueTask RunsPreAndPostInvokeByDefault()
@@ -67,26 +67,59 @@ public static class CoreTestCaseRunnerTests
 			Assert.Equal(0, result.NotRun);
 			Assert.Empty(operations);
 		}
+
+		[Theory]
+		[InlineData(ParallelMode.All, true, "RunSequentialTask<RunSummary>")]  // All: Opting out moves us through the sequential gate
+		[InlineData(ParallelMode.All, false)]                                  // All: Not opting out does noting
+		[InlineData(ParallelMode.None, true)]                                  // None: Do nothing
+		[InlineData(ParallelMode.None, false)]                                 // None: Do nothing
+		public static async ValueTask ParallelModeHandling(
+			ParallelMode testCaseParallelMode,
+			bool testDisableParallelization,
+			string? expectedOperation = null)
+		{
+			var spyScheduler = new SpyExecutionScheduler();
+			var test = Mocks.CoreTest(disableParallelization: testDisableParallelization);
+			var runner = new TestableCoreTestCaseRunner(test) { ParallelMode = testCaseParallelMode, Scheduler = spyScheduler };
+
+			await runner.RunAsync();
+
+			if (expectedOperation is null)
+				Assert.Empty(spyScheduler.Operations);
+			else
+				Assert.Equal(expectedOperation, Assert.Single(spyScheduler.Operations));
+		}
 	}
 
-	class TestableCoreTestCaseRunner(ICoreTestCase testCase) :
-		CoreTestCaseRunner<TestableCoreTestCaseRunner.TestableContext, ICoreTestCase, ICoreTest>
+	class TestableCoreTestCaseRunner : CoreTestCaseRunner<TestableCoreTestCaseRunner.TestableContext, ICoreTestCase, ICoreTest>
 	{
+		readonly ICoreTest test;
+
 		public readonly ExceptionAggregator Aggregator = new();
 		public readonly CancellationTokenSource CancellationTokenSource = new();
 		public readonly SpyMessageBus MessageBus = new();
+		public ParallelMode ParallelMode = ParallelMode.Collections;
+		public ExecutionScheduler Scheduler = ExecutionScheduler.CreateUnlimited();
+
+		public TestableCoreTestCaseRunner(ICoreTest test) =>
+			this.test = test;
+
+		public TestableCoreTestCaseRunner(ICoreTestCase testCase) =>
+			test = Mocks.CoreTest(testCase: testCase);
 
 		public async ValueTask<RunSummary> RunAsync()
 		{
 			await using var ctxt = new TestableContext(
-				testCase,
-				[Mocks.CoreTest(testCase: testCase)],
+				test.TestCase,
+				[test],
 				ExplicitOption.Off,
 				MessageBus,
 				Aggregator,
-				testCase.TestCaseDisplayName,
-				testCase.SkipReason,
-				CancellationTokenSource
+				test.TestCase.TestCaseDisplayName,
+				test.TestCase.SkipReason,
+				CancellationTokenSource,
+				ParallelMode,
+				Scheduler
 			);
 			await ctxt.InitializeAsync();
 
@@ -101,8 +134,10 @@ public static class CoreTestCaseRunnerTests
 			ExceptionAggregator aggregator,
 			string displayName,
 			string? skipReason,
-			CancellationTokenSource cancellationTokenSource) :
-				CoreTestCaseRunnerContext<ICoreTestCase, ICoreTest>(testCase, tests, explicitOption, messageBus, aggregator, displayName, skipReason, cancellationTokenSource)
+			CancellationTokenSource cancellationTokenSource,
+			ParallelMode parallelMode,
+			ExecutionScheduler scheduler) :
+				CoreTestCaseRunnerContext<ICoreTestCase, ICoreTest>(testCase, tests, explicitOption, messageBus, aggregator, displayName, skipReason, cancellationTokenSource, parallelMode, scheduler)
 		{
 			public override ValueTask<RunSummary> RunTest(ICoreTest test) =>
 				new(new RunSummary { Total = 1 });
