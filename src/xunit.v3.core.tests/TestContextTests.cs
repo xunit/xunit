@@ -48,6 +48,26 @@ public sealed class TestContextTests : IClassFixture<TestContextTests.MyClassFix
 		TestContext.Current.KeyValueStorage["testValue"] = 2600;
 	}
 
+	// Run on a separate execution context so the replaced ambient context doesn't leak into
+	// the cleanup of the test that's currently running.
+	[Fact]
+	public static Task TestPlatformSessionUidIsStoredInKeyValueStorageWhenProvided() =>
+		Task.Run(() =>
+		{
+			TestContext.SetForInitialization(diagnosticMessageSink: null, diagnosticMessages: false, internalDiagnosticMessages: false, testPlatformSessionUid: "session-1234");
+
+			Assert.Equal("session-1234", TestContext.Current.KeyValueStorage[TestContext.KeyValueStorageMicrosoftTestingPlatformSessionUid]);
+		}, TestContext.Current.CancellationToken);
+
+	[Fact]
+	public static Task TestPlatformSessionUidIsAbsentFromKeyValueStorageWhenNotProvided() =>
+		Task.Run(() =>
+		{
+			TestContext.SetForInitialization(diagnosticMessageSink: null, diagnosticMessages: false, internalDiagnosticMessages: false);
+
+			Assert.False(TestContext.Current.KeyValueStorage.ContainsKey(TestContext.KeyValueStorageMicrosoftTestingPlatformSessionUid));
+		}, TestContext.Current.CancellationToken);
+
 	[Fact]
 	public static void CannotAccessCancellationTokenOfDisposedContext()
 	{

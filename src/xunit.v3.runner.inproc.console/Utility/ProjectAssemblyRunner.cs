@@ -67,12 +67,14 @@ public sealed class ProjectAssemblyRunner(
 	/// <param name="messageSink">The optional message sink to send messages to</param>
 	/// <param name="diagnosticMessageSink">The optional message sink to send diagnostic messages to</param>
 	/// <param name="testCases">A collection to contain the test cases to run, if desired</param>
+	/// <param name="testPlatformSessionUid">The optional Microsoft.Testing.Platform session ID</param>
 	public async ValueTask Discover(
 		XunitProjectAssembly assembly,
 		ITestPipelineStartup? pipelineStartup,
 		IMessageSink? messageSink = null,
 		IMessageSink? diagnosticMessageSink = null,
-		IList<(ITestCase TestCase, bool PassedFilter)>? testCases = null)
+		IList<(ITestCase TestCase, bool PassedFilter)>? testCases = null,
+		string? testPlatformSessionUid = null)
 	{
 		Guard.ArgumentNotNull(assembly);
 
@@ -81,7 +83,7 @@ public sealed class ProjectAssemblyRunner(
 		var diagnosticMessages = assembly.Configuration.DiagnosticMessagesOrDefault;
 		var internalDiagnosticMessages = assembly.Configuration.InternalDiagnosticMessagesOrDefault;
 
-		TestContext.SetForInitialization(diagnosticMessageSink, diagnosticMessages, internalDiagnosticMessages);
+		TestContext.SetForInitialization(diagnosticMessageSink, diagnosticMessages, internalDiagnosticMessages, testPlatformSessionUid);
 
 		await using var disposalTracker = new DisposalTracker();
 		var testFramework = ExtensibilityPointFactory.GetTestFramework(testAssembly);
@@ -185,6 +187,7 @@ public sealed class ProjectAssemblyRunner(
 	/// <param name="runnerLogger">The runner logger, to log console output to</param>
 	/// <param name="pipelineStartup">The pipeline startup object</param>
 	/// <param name="testCaseIDsToRun">An optional list of test case unique IDs to run</param>
+	/// <param name="testPlatformSessionUid">The optional Microsoft.Testing.Platform session ID</param>
 	/// <returns>Returns <c>0</c> if there were no failures; non-<c>zero</c> failure count, otherwise</returns>
 	public async ValueTask<int> Run(
 		XunitProjectAssembly assembly,
@@ -192,7 +195,8 @@ public sealed class ProjectAssemblyRunner(
 		IMessageSink? diagnosticMessageSink,
 		IRunnerLogger runnerLogger,
 		ITestPipelineStartup? pipelineStartup,
-		HashSet<string>? testCaseIDsToRun = null)
+		HashSet<string>? testCaseIDsToRun = null,
+		string? testPlatformSessionUid = null)
 	{
 		Guard.ArgumentNotNull(assembly);
 		Guard.ArgumentNotNull(messageSink);
@@ -218,7 +222,7 @@ public sealed class ProjectAssemblyRunner(
 			var internalDiagnosticMessages = assembly.Configuration.InternalDiagnosticMessagesOrDefault;
 			var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
 
-			TestContext.SetForInitialization(diagnosticMessageSink, diagnosticMessages, internalDiagnosticMessages);
+			TestContext.SetForInitialization(diagnosticMessageSink, diagnosticMessages, internalDiagnosticMessages, testPlatformSessionUid);
 
 			try
 			{

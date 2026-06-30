@@ -164,7 +164,7 @@ public class TestPlatformTestFramework :
 				throw new ArgumentException($"Unsupported discovery filter type '{filter.GetType().SafeName()}'", nameof(filter));
 
 			var messageHandler = new TestPlatformDiscoveryMessageSink(session.MessageHandler, projectAssembly.Assembly!.FullName!, sessionUid, discoveryFilter, messageBus, cancellationToken);
-			await projectRunner.Discover(projectAssembly, pipelineStartup, messageHandler);
+			await projectRunner.Discover(projectAssembly, pipelineStartup, messageHandler, testPlatformSessionUid: sessionUid.Value);
 		}, cancellationToken);
 	}
 
@@ -208,7 +208,7 @@ public class TestPlatformTestFramework :
 			projectAssembly.Configuration.ShowLiveOutput = false;
 
 			var messageHandler = new TestPlatformExecutionMessageSink(session.MessageHandler, sessionUid, messageBus, trxCapability, outputDevice, showLiveOutput, serverMode, cancellationToken);
-			await projectRunner.Run(projectAssembly, messageHandler, diagnosticMessageSink, runnerLogger, pipelineStartup, testCaseIDsToRun);
+			await projectRunner.Run(projectAssembly, messageHandler, diagnosticMessageSink, runnerLogger, pipelineStartup, testCaseIDsToRun, sessionUid.Value);
 
 			foreach (var output in projectAssembly.Project.Configuration.Output)
 				await messageBus.PublishAsync(this, new SessionFileArtifact(sessionUid, new FileInfo(output.Value), Path.GetFileNameWithoutExtension(output.Value)));

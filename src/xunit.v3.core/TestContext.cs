@@ -11,6 +11,15 @@ namespace Xunit;
 /// </summary>
 public sealed class TestContext : ITestContext, IDisposable
 {
+	/// <summary>
+	/// Gets the key used to store the Microsoft.Testing.Platform session ID into <see cref="KeyValueStorage"/>.
+	/// The associated value is a <see cref="string"/> that uniquely identifies the current test run session, and
+	/// can be used (for example) to synchronize data across several test projects that are run together as part of
+	/// a single session. This value is only present when the tests are run via Microsoft.Testing.Platform; it will
+	/// not be present when running through any other runner.
+	/// </summary>
+	public const string KeyValueStorageMicrosoftTestingPlatformSessionUid = "Microsoft.Testing.Platform.SessionUid";
+
 	static readonly TestContext idleTestContext = new(null, null, null, TestPipelineStage.Unknown, default, disposable: false);
 	static readonly AsyncLocal<TestContext?> local = new();
 	static readonly HashSet<TestEngineStatus> validExecutionStatuses = [TestEngineStatus.Initializing, TestEngineStatus.Running, TestEngineStatus.CleaningUp];
@@ -313,11 +322,20 @@ public sealed class TestContext : ITestContext, IDisposable
 	/// and <see cref="IInternalDiagnosticMessage"/> instances.</param>
 	/// <param name="diagnosticMessages">A flag to indicate whether the user wants to receive diagnostic messages</param>
 	/// <param name="internalDiagnosticMessages">A flag to indicate whether the user wants to receive internal diagnostic messages</param>
+	/// <param name="testPlatformSessionUid">The optional Microsoft.Testing.Platform session ID, which (when present)
+	/// is made available via <see cref="KeyValueStorage"/> using the <see cref="KeyValueStorageMicrosoftTestingPlatformSessionUid"/> key.</param>
 	public static void SetForInitialization(
 		IMessageSink? diagnosticMessageSink,
 		bool diagnosticMessages,
-		bool internalDiagnosticMessages) =>
-			local.Value = new TestContext(diagnosticMessages ? diagnosticMessageSink : null, internalDiagnosticMessages ? diagnosticMessageSink : null, [], TestPipelineStage.Initialization, default);
+		bool internalDiagnosticMessages,
+		string? testPlatformSessionUid = null)
+	{
+		var keyValueStorage = new ConcurrentDictionary<string, object?>();
+		if (testPlatformSessionUid is not null)
+			keyValueStorage[KeyValueStorageMicrosoftTestingPlatformSessionUid] = testPlatformSessionUid;
+
+		local.Value = new TestContext(diagnosticMessages ? diagnosticMessageSink : null, internalDiagnosticMessages ? diagnosticMessageSink : null, keyValueStorage, TestPipelineStage.Initialization, default);
+	}
 
 	/// <summary>
 	/// Sets the test context for execution of a test. This assumes an existing test context already exists from which
