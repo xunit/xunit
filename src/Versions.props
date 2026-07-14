@@ -37,6 +37,9 @@
     <Microsoft_Win32_Registry_Version>5.0.0</Microsoft_Win32_Registry_Version>
     <System_Security_AccessControl_Version>6.0.1</System_Security_AccessControl_Version>
 
+    <!-- Used by xunit.v3.runner.common for implementation of the VSTest filter compatibility -->
+    <Microsoft_TestPlatform_Filter_Source_Version>18.8.1</Microsoft_TestPlatform_Filter_Source_Version>
+
     <!-- Used by xunit.v3.runner.msbuild to reference MSBuild types -->
     <Microsoft_Build_Tasks_Core_Version>16.11.6</Microsoft_Build_Tasks_Core_Version>
 

@@ -17,10 +17,10 @@
   <ItemGroup>
     <Compile Include="..\xunit.v3.assert\Asserts\Sdk\ArgumentFormatter*.cs" LinkBase="Common\Asserts" />
     <Compile Include="..\common\MessagePartials\**\*.cs" LinkBase="Common\MessagePartials" />
-    <Compile Include="..\common\VSTestFilterSource\*.cs" LinkBase="Common\VSTestFilterSource" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.TestPlatform.Filter.Source" Version="$(Microsoft_TestPlatform_Filter_Source_Version)" />
     <PackageReference Include="Microsoft.Win32.Registry" Version="$(Microsoft_Win32_Registry_Version)" />
     <PackageReference Include="System.Security.AccessControl" Version="$(System_Security_AccessControl_Version)" />
     <PackageReference Include="Mono.Cecil" Version="$(Mono_Cecil_Version)" PrivateAssets="all" />
