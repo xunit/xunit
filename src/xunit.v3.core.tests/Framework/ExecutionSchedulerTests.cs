@@ -108,8 +108,6 @@ public static class ExecutionSchedulerTests
 
 		async void worker(object? index)
 		{
-			var random = new Random();
-
 			await scheduler.RunSequentialTask(async () =>
 			{
 				messages.Add($"Start {index}");
@@ -164,7 +162,7 @@ public static class ExecutionSchedulerTests
 	[Fact(Explicit = true)]
 	public static async ValueTask Conservative_FinishesEachTaskBeforeRunningNextTaskWhenQueueIsFull()
 	{
-		await using var scheduler = ExecutionScheduler.CreateConversative(1);
+		await using var scheduler = ExecutionScheduler.CreateConservative(1);
 		var messages = new List<string>();
 		var tasks = new[] { makeTask(0, 100), makeTask(1, 5), makeTask(2, 50) }.Select(tf => scheduler.RunParallelTask(tf, TestContext.Current.CancellationToken).AsTask());
 

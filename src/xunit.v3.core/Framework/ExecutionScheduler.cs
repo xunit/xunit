@@ -38,7 +38,7 @@ public abstract class ExecutionScheduler : IAsyncDisposable
 			{
 				( < 0, _) => CreateUnlimited(),
 				(_, ParallelAlgorithm.Aggressive) => CreateAggressive(maxParallelThreads),
-				(_, ParallelAlgorithm.Conservative) => CreateConversative(maxParallelThreads),
+				(_, ParallelAlgorithm.Conservative) => CreateConservative(maxParallelThreads),
 				_ => throw new ArgumentException($"Invalid parallel algorithm value {parallelAlgorithm}", nameof(parallelAlgorithm)),
 			};
 
@@ -59,7 +59,7 @@ public abstract class ExecutionScheduler : IAsyncDisposable
 	/// <remarks>
 	/// Passing <c>0</c> for <paramref name="maxParallelThreads"/> will use <see cref="Environment.ProcessorCount"/>.
 	/// </remarks>
-	public static ExecutionScheduler CreateConversative(int maxParallelThreads) =>
+	public static ExecutionScheduler CreateConservative(int maxParallelThreads) =>
 		new _Conservative(maxParallelThreads > 0 ? maxParallelThreads : Environment.ProcessorCount);
 
 	/// <summary>
@@ -320,13 +320,15 @@ public abstract class ExecutionScheduler : IAsyncDisposable
 			int newCount;
 
 			lock (scheduler.gate)
+			{
 				newCount = --scheduler.sequentialCount;
 
-			if (newCount == 0)
-			{
-				scheduler.sequentialThreadId = null;
-				scheduler.gate.Set();
+				if (newCount == 0)
+					scheduler.sequentialThreadId = null;
 			}
+
+			if (newCount == 0)
+				scheduler.gate.Set();
 		}
 	}
 }

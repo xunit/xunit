@@ -284,19 +284,19 @@ public static class RegisteredEngineConfig
 			assemblyRegistration.AssemblyFixtureFactories[type] = (_, forceCreation) => factory(forceCreation);
 
 	/// <summary>
-	/// Registers that a test assembly's parallelization algorithm.
+	/// Registers a test assembly's parallelization algorithm.
 	/// </summary>
 	public static void RegisterAssemblyParallelAlgorithm(ParallelAlgorithm algorithm) =>
 		assemblyRegistration.ParallelAlgorithm = algorithm;
 
 	/// <summary>
-	/// Registers that a test assembly's parallelization mode.
+	/// Registers a test assembly's parallelization mode.
 	/// </summary>
 	public static void RegisterAssemblyParallelMaxThreads(int maxParallelThrads) =>
 		assemblyRegistration.ParallelMaxThreads = maxParallelThrads;
 
 	/// <summary>
-	/// Registers that a test assembly's parallelization mode.
+	/// Registers a test assembly's parallelization mode.
 	/// </summary>
 	public static void RegisterAssemblyParallelizationMode(ParallelMode parallelMode) =>
 		assemblyRegistration.ParallelMode = parallelMode;
