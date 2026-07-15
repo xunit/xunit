@@ -23,6 +23,8 @@ public abstract class CodeGenTestRunnerBaseContext<TTest> : CoreTestRunnerContex
 	/// <param name="explicitOption">The user's choice on how to treat explicit tests</param>
 	/// <param name="aggregator">The exception aggregator</param>
 	/// <param name="cancellationTokenSource">The cancellation token source</param>
+	/// <param name="parallelMode">The parallel mode for the test</param>
+	/// <param name="scheduler">The scheduler used for task/test scheduling</param>
 	/// <param name="caseFixtureMappings">The mapping of test case fixture types to fixtures.</param>
 	protected CodeGenTestRunnerBaseContext(
 		TTest test,
@@ -30,8 +32,10 @@ public abstract class CodeGenTestRunnerBaseContext<TTest> : CoreTestRunnerContex
 		ExplicitOption explicitOption,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource,
+		ParallelMode parallelMode,
+		ExecutionScheduler scheduler,
 		FixtureMappingManager caseFixtureMappings) :
-			base(Guard.ArgumentNotNull(test), messageBus, test.SkipReason, explicitOption, aggregator, cancellationTokenSource)
+			base(Guard.ArgumentNotNull(test), explicitOption, messageBus, aggregator, test.SkipReason, cancellationTokenSource, parallelMode, scheduler)
 	{
 		BeforeAfterTestAttributes = Test.TestCase.TestMethod.BeforeAfterTestAttributes;
 		TestFixtureMappings = Guard.ArgumentNotNull(caseFixtureMappings);

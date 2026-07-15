@@ -19,6 +19,8 @@ public abstract class CodeGenTestClassRunnerBaseContext<TTestClass, TTestMethod,
 	/// <param name="messageBus">The message bus to send execution messages to</param>
 	/// <param name="aggregator">The exception aggregator</param>
 	/// <param name="cancellationTokenSource">The cancellation token source</param>
+	/// <param name="parallelMode">The parallel mode for the test class</param>
+	/// <param name="scheduler">The scheduler used for task/test scheduling</param>
 	/// <param name="collectionFixtureMappings">The mapping of collection fixture types to fixtures.</param>
 	protected CodeGenTestClassRunnerBaseContext(
 		TTestClass testClass,
@@ -27,8 +29,10 @@ public abstract class CodeGenTestClassRunnerBaseContext<TTestClass, TTestMethod,
 		IMessageBus messageBus,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource,
+		ParallelMode parallelMode,
+		ExecutionScheduler scheduler,
 		FixtureMappingManager collectionFixtureMappings) :
-			base(testClass, testCases, explicitOption, messageBus, aggregator, cancellationTokenSource)
+			base(testClass, testCases, explicitOption, messageBus, aggregator, cancellationTokenSource, parallelMode, scheduler)
 	{
 		var classFixtureFactories = new Dictionary<Type, FixtureFactory>(Guard.ArgumentNotNull(testClass).TestCollection.ClassFixtureFactories);
 		foreach (var classLevelFactory in testClass.ClassFixtureFactories)

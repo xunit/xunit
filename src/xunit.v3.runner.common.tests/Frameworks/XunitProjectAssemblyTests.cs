@@ -34,13 +34,13 @@ public class XunitProjectAssemblyTests
 			executionOptions = TestFrameworkOptions.ForExecutionFromSerialization("{}");
 			executionOptions.SetCulture("ef-GH");
 			executionOptions.SetDiagnosticMessages(false);
-			executionOptions.SetDisableParallelization(true);  // true instead of false because it's inverted in the result
 			executionOptions.SetExplicitOption(ExplicitOption.On);
 			executionOptions.SetFailSkips(false);
 			executionOptions.SetFailTestsWithWarnings(false);
 			executionOptions.SetInternalDiagnosticMessages(false);
 			executionOptions.SetMaxParallelThreads(2112);
 			executionOptions.SetParallelAlgorithm(ParallelAlgorithm.Aggressive);
+			executionOptions.SetParallelMode(ParallelMode.All);
 			executionOptions.SetPrintMaxEnumerableLength(21);
 			executionOptions.SetPrintMaxObjectDepth(43);
 			executionOptions.SetPrintMaxObjectMemberCount(65);
@@ -99,11 +99,10 @@ public class XunitProjectAssemblyTests
 			Assert.True(updatedAssembly.Configuration.IncludeSourceInformation);
 			Assert.False(updatedAssembly.Configuration.InternalDiagnosticMessages);
 			Assert.Equal(2112, updatedAssembly.Configuration.MaxParallelThreads);
-			Assert.Equal(ParallelAlgorithm.Aggressive, updatedAssembly.Configuration.ParallelAlgorithm);
 			Assert.Equal(TestMethodDisplay.Method, updatedAssembly.Configuration.MethodDisplay);
 			Assert.Equal(TestMethodDisplayOptions.ReplaceUnderscoreWithSpace, updatedAssembly.Configuration.MethodDisplayOptions);
-			Assert.False(updatedAssembly.Configuration.ParallelizeAssembly);
-			Assert.False(updatedAssembly.Configuration.ParallelizeTestCollections);
+			Assert.Equal(ParallelAlgorithm.Aggressive, updatedAssembly.Configuration.ParallelAlgorithm);
+			Assert.Equal(ParallelMode.All, updatedAssembly.Configuration.ParallelMode);
 			Assert.True(updatedAssembly.Configuration.PreEnumerateTheories);
 			Assert.Equal(21, updatedAssembly.Configuration.PrintMaxEnumerableLength);
 			Assert.Equal(43, updatedAssembly.Configuration.PrintMaxObjectDepth);
@@ -141,8 +140,7 @@ public class XunitProjectAssemblyTests
 			Assert.False(updatedAssembly.Configuration.InternalDiagnosticMessages);
 			Assert.Equal(2112, updatedAssembly.Configuration.MaxParallelThreads);
 			Assert.Equal(ParallelAlgorithm.Aggressive, updatedAssembly.Configuration.ParallelAlgorithm);
-			Assert.False(updatedAssembly.Configuration.ParallelizeAssembly);
-			Assert.False(updatedAssembly.Configuration.ParallelizeTestCollections);
+			Assert.Equal(ParallelMode.All, updatedAssembly.Configuration.ParallelMode);
 			Assert.Equal(21, updatedAssembly.Configuration.PrintMaxEnumerableLength);
 			Assert.Equal(43, updatedAssembly.Configuration.PrintMaxObjectDepth);
 			Assert.Equal(65, updatedAssembly.Configuration.PrintMaxObjectMemberCount);

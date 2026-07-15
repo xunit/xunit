@@ -85,6 +85,7 @@ public sealed class CommandLineOptionsProvider() :
 			Change test parallelization.
 			    none        - turn off parallelization
 			    collections - parallelize by collections [default]
+				all         - parallelize all tests
 			""", ArgumentArity.ExactlyOne, OnParallel) },
 		{ "parallel-algorithm", ("""
 			Change the parallelization algorithm.
@@ -420,11 +421,12 @@ public sealed class CommandLineOptionsProvider() :
 	}
 
 	static void OnParallel(ParseOptions options) =>
-		options.AssemblyConfig.ParallelizeTestCollections = options.Arguments[0].ToUpperInvariant() switch
+		options.AssemblyConfig.ParallelMode = options.Arguments[0].ToUpperInvariant() switch
 		{
-			"NONE" => false,
-			"COLLECTIONS" => true,
-			_ => throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Invalid value '{0}' (must be one of: 'none', 'collections')", options.Arguments[0])),
+			"NONE" => ParallelMode.None,
+			"COLLECTIONS" => ParallelMode.Collections,
+			"ALL" => ParallelMode.All,
+			_ => throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Invalid value '{0}' (must be one of: 'none', 'collections', 'all')", options.Arguments[0])),
 		};
 
 	static void OnParallelAlgorithm(ParseOptions options) =>

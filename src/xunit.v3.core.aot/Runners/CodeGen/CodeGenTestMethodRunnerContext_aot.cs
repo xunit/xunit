@@ -11,6 +11,8 @@ namespace Xunit.v3;
 /// <param name="messageBus">The message bus to send execution messages to</param>
 /// <param name="aggregator">The exception aggregator</param>
 /// <param name="cancellationTokenSource">The cancellation token source</param>
+/// <param name="parallelMode">The parallel mode for the test method</param>
+/// <param name="scheduler">The scheduler used for task/test scheduling</param>
 /// <param name="classFixtureMappings">The mapping of class fixture types to fixtures.</param>
 public class CodeGenTestMethodRunnerContext(
 	ICodeGenTestMethod testMethod,
@@ -19,19 +21,23 @@ public class CodeGenTestMethodRunnerContext(
 	IMessageBus messageBus,
 	ExceptionAggregator aggregator,
 	CancellationTokenSource cancellationTokenSource,
+	ParallelMode parallelMode,
+	ExecutionScheduler scheduler,
 	FixtureMappingManager classFixtureMappings) :
-		CodeGenTestMethodRunnerBaseContext<ICodeGenTestMethod, ICodeGenTestCase>(testMethod, testCases, explicitOption, messageBus, aggregator, cancellationTokenSource, classFixtureMappings)
+		CodeGenTestMethodRunnerBaseContext<ICodeGenTestMethod, ICodeGenTestCase>(testMethod, testCases, explicitOption, messageBus, aggregator, cancellationTokenSource, parallelMode, scheduler, classFixtureMappings)
 {
 	/// <inheritdoc/>
 	public override ValueTask<RunSummary> RunTestCase(ICodeGenTestCase testCase)
 	{
 		if (testCase is ISelfExecutingCodeGenTestCase selfExecutingTestCase)
-			return selfExecutingTestCase.Run(ExplicitOption, MessageBus, MethodFixtureMappings, Aggregator.Clone(), CancellationTokenSource);
+			return selfExecutingTestCase.Run(ExplicitOption, MessageBus, Aggregator.Clone(), CancellationTokenSource, ParallelMode, Scheduler, MethodFixtureMappings);
 
 		return XunitRunnerHelper.RunCodeGenTestCase(
 			testCase,
 			MessageBus,
 			CancellationTokenSource,
+			ParallelMode,
+			Scheduler,
 			Aggregator.Clone(),
 			ExplicitOption,
 			MethodFixtureMappings

@@ -1,5 +1,7 @@
 #pragma warning disable CA2263 // Prefer generic overload when type is known
 
+using System.ComponentModel;
+
 namespace Xunit.Sdk;
 
 /// <summary>
@@ -397,21 +399,27 @@ public static class TestFrameworkOptionsReadWriteExtensions
 		GetDiagnosticMessages(executionOptions) ?? false;
 
 	/// <summary>
-	/// Gets a flag to disable parallelization.
+	/// Please call <see cref="GetParallelMode"/> instead.
+	/// This method will be removed in the next major version.
 	/// </summary>
-	public static bool? GetDisableParallelization(this ITestFrameworkExecutionOptions executionOptions)
-	{
-		Guard.ArgumentNotNull(executionOptions);
-
-		return executionOptions.GetValue<bool?>(TestOptionsNames.Execution.DisableParallelization);
-	}
+	[Obsolete("Please call GetParallelMode instead. This method will be removed in the next major version.")]
+	[EditorBrowsable(EditorBrowsableState.Never)]
+	public static bool? GetDisableParallelization(this ITestFrameworkExecutionOptions executionOptions) =>
+		GetParallelMode(executionOptions) switch
+		{
+			null => null,
+			ParallelMode.None => true,
+			_ => false,
+		};
 
 	/// <summary>
-	/// Gets a flag to disable parallelization. If the flag is not present, returns the
-	/// default value (<see langword="false"/>).
+	/// Please call <see cref="GetParallelModeOrDefault"/> instead.
+	/// This method will be removed in the next major version.
 	/// </summary>
+	[Obsolete("Please call GetParallelModeOrDefault instead. This method will be removed in the next major version.")]
+	[EditorBrowsable(EditorBrowsableState.Never)]
 	public static bool GetDisableParallelizationOrDefault(this ITestFrameworkExecutionOptions executionOptions) =>
-		GetDisableParallelization(executionOptions) ?? false;
+		GetParallelModeOrDefault(executionOptions) == ParallelMode.None;
 
 	/// <summary>
 	/// Gets a flag that indicates how explicit tests should be handled.
@@ -526,6 +534,37 @@ public static class TestFrameworkOptionsReadWriteExtensions
 	/// </summary>
 	public static ParallelAlgorithm GetParallelAlgorithmOrDefault(this ITestFrameworkExecutionOptions executionOptions) =>
 		GetParallelAlgorithm(executionOptions) ?? ParallelAlgorithm.Conservative;
+
+	/// <summary>
+	/// Gets the default parallelization mode for the test assembly.
+	/// </summary>
+	/// <remarks>
+	/// This will fall back to reading <see cref="TestOptionsNames.Execution.DisableParallelization"/> if the
+	/// value isn't set, so that older configuration blocks can be honored for newer test projects.
+	/// </remarks>
+	public static ParallelMode? GetParallelMode(this ITestFrameworkExecutionOptions executionOptions)
+	{
+		Guard.ArgumentNotNull(executionOptions);
+
+		var parallelModeString = executionOptions.GetValue<string>(TestOptionsNames.Execution.ParallelMode);
+		if (parallelModeString is not null)
+			return (ParallelMode?)Enum.Parse(typeof(ParallelMode), parallelModeString);
+
+		var disableParallelism = executionOptions.GetValue<bool?>(TestOptionsNames.Execution.DisableParallelization);
+		return disableParallelism switch
+		{
+			true => ParallelMode.None,
+			false => ParallelMode.Collections,
+			_ => null,
+		};
+	}
+
+	/// <summary>
+	/// Gets the default parallelization mode for the test assembly. If the flag is not present, return
+	/// the default value (<see cref="ParallelMode.Collections"/>).
+	/// </summary>
+	public static ParallelMode GetParallelModeOrDefault(this ITestFrameworkExecutionOptions executionOptions) =>
+		GetParallelMode(executionOptions) ?? ParallelMode.Collections;
 
 	/// <summary>
 	/// Gets the maximum length for printing collections.
@@ -675,16 +714,20 @@ public static class TestFrameworkOptionsReadWriteExtensions
 	}
 
 	/// <summary>
-	/// Sets a flag to disable parallelization.
+	/// Please call <see cref="SetParallelMode"/> instead.
+	/// This method will be removed in the next major version.
 	/// </summary>
+	[Obsolete("Please call SetParallelMode instead. This method will be removed in the next major version.")]
+	[EditorBrowsable(EditorBrowsableState.Never)]
 	public static void SetDisableParallelization(
 		this ITestFrameworkExecutionOptions executionOptions,
-		bool? value)
-	{
-		Guard.ArgumentNotNull(executionOptions);
-
-		executionOptions.SetValue(TestOptionsNames.Execution.DisableParallelization, value);
-	}
+		bool? value) =>
+			SetParallelMode(executionOptions, value switch
+			{
+				null => null,
+				false => ParallelMode.Collections,
+				true => ParallelMode.None,
+			});
 
 	/// <summary>
 	/// Sets a flag to describe how explicit tests should be handled.
@@ -757,6 +800,26 @@ public static class TestFrameworkOptionsReadWriteExtensions
 		Guard.ArgumentNotNull(executionOptions);
 
 		executionOptions.SetValue(TestOptionsNames.Execution.ParallelAlgorithm, value.HasValue ? value.GetValueOrDefault().ToString() : null);
+	}
+
+	/// <summary>
+	/// Sets the default parallelization mode for the test assembly.
+	/// </summary>
+	public static void SetParallelMode(
+		this ITestFrameworkExecutionOptions executionOptions,
+		ParallelMode? value)
+	{
+		Guard.ArgumentNotNull(executionOptions);
+
+		executionOptions.SetValue(TestOptionsNames.Execution.ParallelMode, value.HasValue ? value.GetValueOrDefault().ToString() : null);
+
+		// We also set DisableParallelization for backward compatibility with v2 and older v3 (prior to 4.0).
+		executionOptions.SetValue<bool?>(TestOptionsNames.Execution.DisableParallelization, value switch
+		{
+			null => null,
+			ParallelMode.None => true,
+			_ => false,
+		});
 	}
 
 	/// <summary>

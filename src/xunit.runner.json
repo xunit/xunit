@@ -3,5 +3,6 @@
   "culture": "invariant",
   "diagnosticMessages": true,
   "longRunningTestSeconds": 30,
-  "parallelizeAssembly": true
+  "parallelizeAssembly": true,
+  "parallelMode":  "all"
 }

@@ -816,6 +816,8 @@ public static class XunitTestClassRunnerTests
 		public readonly CancellationTokenSource CancellationTokenSource = new();
 		public FixtureMappingManager CollectionFixtureMappingManager = new("[Unit Test] Test Collection");
 		public readonly SpyMessageBus MessageBus = new();
+		public readonly ParallelMode ParallelMode = ParallelMode.Collections;
+		public readonly ExecutionScheduler Scheduler = ExecutionScheduler.CreateUnlimited();
 
 		public object?[]? CreateTestClassConstructorArguments__ReturnValue;
 
@@ -834,6 +836,8 @@ public static class XunitTestClassRunnerTests
 				MessageBus,
 				Aggregator,
 				CancellationTokenSource,
+				ParallelMode,
+				Scheduler,
 				CollectionFixtureMappingManager
 			);
 

@@ -11,6 +11,8 @@ namespace Xunit.v3;
 /// <param name="messageBus">The message bus to report run status to.</param>
 /// <param name="aggregator">The exception aggregator used to run code and collection exceptions.</param>
 /// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
+/// <param name="parallelMode">The parallel mode for the test collection</param>
+/// <param name="scheduler">The scheduler used for task/test scheduling</param>
 /// <param name="assemblyFixtureMappings">The mapping manager for assembly fixtures.</param>
 /// <remarks>
 /// This class is used for code generation-based tests.
@@ -22,15 +24,10 @@ public abstract class CodeGenTestCollectionRunnerBaseContext<TTestCollection, TT
 	IMessageBus messageBus,
 	ExceptionAggregator aggregator,
 	CancellationTokenSource cancellationTokenSource,
+	ParallelMode parallelMode,
+	ExecutionScheduler scheduler,
 	FixtureMappingManager assemblyFixtureMappings) :
-		CoreTestCollectionRunnerContext<TTestCollection, TTestClass, TTestCase>(
-			testCollection,
-			testCases,
-			explicitOption,
-			messageBus,
-			aggregator,
-			cancellationTokenSource
-		)
+		CoreTestCollectionRunnerContext<TTestCollection, TTestClass, TTestCase>(testCollection, testCases, explicitOption, messageBus, aggregator, cancellationTokenSource, parallelMode, scheduler)
 			where TTestCollection : class, ICodeGenTestCollection
 			where TTestClass : class, ICodeGenTestClass
 			where TTestCase : class, ICodeGenTestCase

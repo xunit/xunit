@@ -31,5 +31,14 @@ sealed partial class TestAssemblyFinished : TestAssemblyMessage, ITestAssemblyFi
 
 	/// <inheritdoc/>
 	public override string ToString() =>
-		string.Format(CultureInfo.CurrentCulture, "{0} total={1} failed={2} skipped={3} notRun={4} time={5}", base.ToString(), TestsTotal, TestsFailed, TestsSkipped, TestsNotRun, ExecutionTime);
+		string.Format(
+			CultureInfo.CurrentCulture,
+			"{0} total={1}{2}{3}{4}{5}",
+			base.ToString(),
+			TestsTotal,
+			TestsFailed != 0 ? $" failed={TestsFailed}" : string.Empty,
+			TestsSkipped != 0 ? $" skipped={TestsSkipped}" : string.Empty,
+			TestsNotRun != 0 ? $" notRun={TestsNotRun}" : string.Empty,
+			ExecutionTime != 0 ? $" time={ExecutionTime}" : string.Empty
+		);
 }

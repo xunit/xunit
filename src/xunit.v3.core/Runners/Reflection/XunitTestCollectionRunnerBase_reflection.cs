@@ -1,3 +1,5 @@
+using System.ComponentModel;
+
 namespace Xunit.v3;
 
 /// <summary>
@@ -13,6 +15,14 @@ public abstract class XunitTestCollectionRunnerBase<TContext, TTestCollection, T
 		where TTestClass : class, IXunitTestClass
 		where TTestCase : class, IXunitTestCase
 {
+	/// <summary>
+	/// This method is no longer called, and will be removed in the next major version.
+	/// </summary>
+	[Obsolete("This method is no longer called, and will be removed in the next major version.", error: true)]
+	[EditorBrowsable(EditorBrowsableState.Never)]
+	protected ITestCaseOrderer? GetTestCaseOrderer(TContext ctxt) =>
+		throw new NotSupportedException("This method is no longer called, and will be removed in the next major version.");
+
 	/// <inheritdoc/>
 	protected override async ValueTask<bool> OnTestCollectionFinished(
 		TContext ctxt,

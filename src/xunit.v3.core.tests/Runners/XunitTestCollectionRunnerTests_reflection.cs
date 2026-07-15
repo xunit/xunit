@@ -728,6 +728,8 @@ public static class XunitTestCollectionRunnerTests
 		public FixtureMappingManager AssemblyFixtureMappingManager = new("[Unit Test] Test Assembly");
 		public readonly CancellationTokenSource CancellationTokenSource = new();
 		public readonly SpyMessageBus MessageBus = new();
+		public ParallelMode ParallelMode = ParallelMode.Collections;
+		public ExecutionScheduler Scheduler = ExecutionScheduler.CreateUnlimited();
 
 		public ValueTask<RunSummary> RunAsync() =>
 			Run(
@@ -737,6 +739,8 @@ public static class XunitTestCollectionRunnerTests
 				MessageBus,
 				Aggregator,
 				CancellationTokenSource,
+				ParallelMode,
+				Scheduler,
 				AssemblyFixtureMappingManager
 			);
 

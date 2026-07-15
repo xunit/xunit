@@ -12,6 +12,11 @@ namespace Xunit.v3;
 public interface ICoreTestCase : ITestCase
 {
 	/// <summary>
+	/// Determines whether tests from this test case run in parallel against any other parallelizable tests.
+	/// </summary>
+	bool DisableParallelization { get; }
+
+	/// <summary>
 	/// Gets the arity (number of generic types) on the method itself.
 	/// </summary>
 	new int TestMethodArity { get; }

@@ -3,6 +3,12 @@ namespace Xunit.v3;
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
 public abstract partial class DataAttribute : Attribute
 {
+	/// <summary>
+	/// Gets a value which indicates whether tests yielded from this data source should be run in parallel
+	/// against all other parallelizable tests.
+	/// </summary>
+	public bool DisableParallelization { get; set; }
+
 	public partial bool Explicit
 	{
 		[Obsolete("Use ExplicitAsNullable instead")]

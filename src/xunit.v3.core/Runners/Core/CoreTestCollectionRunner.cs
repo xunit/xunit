@@ -62,6 +62,54 @@ public class CoreTestCollectionRunner<TContext, TTestCollection, TTestClass, TTe
 		}
 	}
 
+	/// <inheritdoc/>
+	protected override async ValueTask<RunSummary> RunTestClasses(
+		TContext ctxt,
+		Exception? exception)
+	{
+		Guard.ArgumentNotNull(ctxt);
+
+		if (exception is not null || ctxt.ParallelMode != ParallelMode.All)
+			return await base.RunTestClasses(ctxt, exception);
+
+		List<ValueTask<RunSummary>>? parallelTasks = null;
+		List<Func<ValueTask<RunSummary>>>? nonParallelTaskFactories = null;
+		var summary = new RunSummary();
+
+		foreach (var (testClass, testCases) in OrderTestClasses(ctxt))
+		{
+			ValueTask<RunSummary> taskFactory() => RunTestClass(ctxt, testClass, testCases);
+
+			if (testClass?.DisableParallelization == true)
+				(nonParallelTaskFactories ??= []).Add(taskFactory);
+			else
+#pragma warning disable CA2012
+				(parallelTasks ??= []).Add(taskFactory());
+#pragma warning restore CA2012
+
+			if (ctxt.CancellationTokenSource.IsCancellationRequested)
+				break;
+		}
+
+		if (parallelTasks?.Count > 0)
+			foreach (var parallelTask in parallelTasks)
+				try
+				{
+					summary.Aggregate(await parallelTask);
+				}
+				catch (TaskCanceledException) { }
+
+		if (nonParallelTaskFactories?.Count > 0)
+			foreach (var nonParallelTaskFactory in nonParallelTaskFactories)
+				try
+				{
+					summary.Aggregate(await ctxt.Scheduler.RunSequentialTask(nonParallelTaskFactory, ctxt.CancellationTokenSource.Token));
+				}
+				catch (TaskCanceledException) { }
+
+		return summary;
+	}
+
 	/// <summary>
 	/// Runs the test class via the context (after validating that it's not <see langword="null"/>).
 	/// </summary>

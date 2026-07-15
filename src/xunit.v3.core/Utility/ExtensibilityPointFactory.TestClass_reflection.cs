@@ -49,6 +49,17 @@ partial class ExtensibilityPointFactory
 				.CastOrToReadOnlyCollection();
 
 	/// <summary>
+	/// Gets the <see cref="ITestClassAttribute"/> attribute that's attached to the test class, if there
+	/// is one.
+	/// </summary>
+	/// <param name="testClass">The test class</param>
+	/// <remarks>
+	/// If more than one attribute is attached, one will be chosen at random.
+	/// </remarks>
+	public static ITestClassAttribute? GetClassTestClassAttribute(Type testClass) =>
+		testClass.GetMatchingCustomAttributes<ITestClassAttribute>().FirstOrDefault();
+
+	/// <summary>
 	/// Gets the traits that are attached to the test class via <see cref="ITraitAttribute"/>s.
 	/// </summary>
 	/// <param name="testClass">The test class</param>

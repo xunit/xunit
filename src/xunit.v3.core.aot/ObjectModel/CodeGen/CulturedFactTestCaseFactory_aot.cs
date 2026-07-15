@@ -32,6 +32,7 @@ public class CulturedFactTestCaseFactory : FactTestCaseFactory
 
 		return Cultures.Select(culture =>
 			new CodeGenTestCase(
+				disableParallelization: false,  // [CulturedFact.DisableParallelization] is fed into the test method registration
 				Explicit,
 				SkipExceptions,
 				SkipReason,

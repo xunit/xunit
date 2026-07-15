@@ -50,6 +50,7 @@ partial class TestData
 	public static XunitTest XunitTest(
 		IXunitTestCase testCase,
 		IXunitTestMethod? testMethod = null,
+		bool disableParallelization = false,
 		bool? @explicit = null,
 		string? skipReason = null,
 		Type? skipType = null,
@@ -67,6 +68,7 @@ partial class TestData
 		return new(
 			testCase,
 			testMethod,
+			disableParallelization,
 			@explicit,
 			skipReason,
 			skipType,
@@ -83,6 +85,7 @@ partial class TestData
 
 	public static XunitTest XunitTest<TClassUnderTest>(
 		string methodName,
+		bool disableParallelization = false,
 		bool? @explicit = null,
 		string? skipReason = null,
 		Type? skipType = null,
@@ -100,6 +103,7 @@ partial class TestData
 		return XunitTest(
 			testCase,
 			null,
+			disableParallelization,
 			@explicit,
 			skipReason ?? testCase.SkipReason,
 			skipType ?? testCase.SkipType,
@@ -124,6 +128,7 @@ partial class TestData
 
 	public static XunitTestCase XunitTestCase(
 		IXunitTestMethod testMethod,
+		bool disableParallelization = false,
 		bool? @explicit = null,
 		TestMethodDisplay methodDisplay = TestMethodDisplay.ClassAndMethod,
 		TestMethodDisplayOptions methodDisplayOptions = TestMethodDisplayOptions.None,
@@ -150,6 +155,7 @@ partial class TestData
 			uniqueID ?? details.UniqueID,
 			@explicit ?? details.Explicit,
 			testLabel,
+			disableParallelization,
 			skipExceptions ?? details.SkipExceptions,
 			skipReason ?? details.SkipReason,
 			skipType ?? details.SkipType,
@@ -163,6 +169,7 @@ partial class TestData
 
 	public static XunitTestCase XunitTestCase<TClassUnderTest>(
 		string methodName,
+		bool disableParallelization = false,
 		bool? @explicit = null,
 		TestMethodDisplay methodDisplay = TestMethodDisplay.ClassAndMethod,
 		TestMethodDisplayOptions methodDisplayOptions = TestMethodDisplayOptions.None,
@@ -186,6 +193,7 @@ partial class TestData
 
 		return XunitTestCase(
 			testMethod,
+			disableParallelization,
 			@explicit,
 			methodDisplay,
 			methodDisplayOptions,

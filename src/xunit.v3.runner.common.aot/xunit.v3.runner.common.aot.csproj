@@ -11,6 +11,7 @@
   <ItemGroup>
     <Compile Include="..\xunit.v3.runner.common\**\*.cs" Exclude="**\*_reflection.cs;**\obj\**\*.cs" />
     <Compile Include="..\xunit.v3.assert\Asserts\Sdk\ArgumentFormatter*.cs" LinkBase="Common\Asserts" />
+    <Compile Include="..\common\DotNetApiPolyfills.cs" LinkBase="Common" />
     <Compile Include="..\common\MessagePartials\**\*.cs" LinkBase="Common\MessagePartials" />
   </ItemGroup>
 

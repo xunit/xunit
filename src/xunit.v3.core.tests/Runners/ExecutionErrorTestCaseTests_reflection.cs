@@ -8,6 +8,8 @@ public sealed class ExecutionErrorTestCaseTests : IDisposable
 	readonly FixtureMappingManager fixtureMappings = new("Mock");
 	readonly SpyMessageBus messageBus = new();
 	readonly CancellationTokenSource tokenSource = new();
+	readonly ParallelMode parallelMode = ParallelMode.Collections;
+	readonly ExecutionScheduler scheduler = ExecutionScheduler.CreateUnlimited();
 
 	public void Dispose()
 	{
@@ -20,7 +22,7 @@ public sealed class ExecutionErrorTestCaseTests : IDisposable
 	{
 		var testCase = ExecutionErrorTestCase("This is my error message");
 
-		var result = await XunitRunnerHelper.RunXunitTestCase(testCase, messageBus, tokenSource, aggregator, ExplicitOption.Off, [], fixtureMappings);
+		var result = await XunitRunnerHelper.RunXunitTestCase(testCase, messageBus, tokenSource, parallelMode, scheduler, aggregator, ExplicitOption.Off, [], fixtureMappings);
 
 		Assert.Equal(1, result.Total);
 		Assert.Equal(0m, result.Time);
@@ -54,7 +56,7 @@ public sealed class ExecutionErrorTestCaseTests : IDisposable
 		var testCase = ExecutionErrorTestCase("This is my error message");
 		aggregator.Add(new DivideByZeroException());
 
-		var result = await XunitRunnerHelper.RunXunitTestCase(testCase, messageBus, tokenSource, aggregator, ExplicitOption.Off, [], fixtureMappings);
+		var result = await XunitRunnerHelper.RunXunitTestCase(testCase, messageBus, tokenSource, parallelMode, scheduler, aggregator, ExplicitOption.Off, [], fixtureMappings);
 
 		Assert.Equal(1, result.Total);
 		Assert.Equal(0m, result.Time);
@@ -90,7 +92,7 @@ public sealed class ExecutionErrorTestCaseTests : IDisposable
 		var testCase = ExecutionErrorTestCase("This is my error message");
 		var messageBus = new SpyMessageBus(msg => !messageTypeToCancelOn.IsAssignableFrom(msg.GetType()));
 
-		await XunitRunnerHelper.RunXunitTestCase(testCase, messageBus, tokenSource, aggregator, ExplicitOption.Off, [], fixtureMappings);
+		await XunitRunnerHelper.RunXunitTestCase(testCase, messageBus, tokenSource, parallelMode, scheduler, aggregator, ExplicitOption.Off, [], fixtureMappings);
 
 		Assert.True(tokenSource.IsCancellationRequested);
 	}

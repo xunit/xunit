@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using Xunit.Runner.Common;
 using Xunit.Sdk;
 
@@ -326,11 +327,31 @@ public class AssemblyRunnerOptions
 	}
 
 	/// <summary>
-	/// Indicates whether to run test collections in parallel.
+	/// Indicates how tests will be run in parallel in the test assembly.
 	/// </summary>
 	/// <remarks>
-	/// <em>Parallelized test collections are only valid for xUnit.net v2 and xUnit.net v3 test projects.</em>
+	/// <para>The default value is <see cref="ParallelMode.Collections"/>.</para>
+	/// <para><em>Setting the value to <see cref="ParallelMode.All"/> is only valid for xUnit.net v3 (4.0.0+), and will fall
+	/// back to <see cref="ParallelMode.Collections"/> for xUnit.net v2 and older versions of xUnit.net v3.</em></para>
 	/// </remarks>
+	public ParallelMode? ParallelMode
+	{
+		get => ProjectAssembly.Configuration.ParallelMode;
+		set
+		{
+			GuardMinimumXunitVersion(2, value, nameof(ParallelMode));
+			GuardValidValue(value, v => v.IsValid(), nameof(ParallelMode));
+
+			ProjectAssembly.Configuration.ParallelMode = value;
+		}
+	}
+
+	/// <summary>
+	/// Please get/set <see cref="ParallelMode"/> instead.
+	/// This property will be removed in the next major version.
+	/// </summary>
+	[Obsolete("Please get/set ParallelMode instead. This property will be removed in the next major version.")]
+	[EditorBrowsable(EditorBrowsableState.Never)]
 	public bool? ParallelizeTestCollections
 	{
 		get => ProjectAssembly.Configuration.ParallelizeTestCollections;

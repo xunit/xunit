@@ -57,6 +57,8 @@ public static class CodeGenTestMethodRunnerTests
 				new SpyMessageBus(),
 				new(),
 				new(),
+				ParallelMode.Collections,
+				ExecutionScheduler.CreateUnlimited(),
 				fixtureMappings
 			);
 		}

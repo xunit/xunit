@@ -11,6 +11,11 @@ namespace Xunit.v3;
 public interface ICoreTest : ITest
 {
 	/// <summary>
+	/// Determines whether this test can run in parallel against any other parallelizable tests.
+	/// </summary>
+	bool DisableParallelization { get; }
+
+	/// <summary>
 	/// Gets a flag indicating whether this test was marked as explicit or not.
 	/// </summary>
 	bool Explicit { get; }

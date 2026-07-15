@@ -8,6 +8,16 @@ namespace Xunit;
 public partial interface ITheoryDataRow
 {
 	/// <summary>
+	/// Determines whether the test from this theory data row should run in parallel against any other parallelizable tests.
+	/// </summary>
+	/// <remarks>
+	/// If this value is either <see langword="true"/> or <see langword="false"/>, it overrides the setting from
+	/// the data attribute; if this value is <see langword="null"/>, then the value from the data attribute is
+	/// used instead.
+	/// </remarks>
+	bool? DisableParallelization { get; }
+
+	/// <summary>
 	/// Gets the label to use for the data row. This value is used to help format the display name
 	/// of the test.
 	/// </summary>

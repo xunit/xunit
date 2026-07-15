@@ -131,6 +131,9 @@ public class xunit : MSBuildTask, ICancelableTask, IDisposable
 	public bool ParallelizeTestCollections { set => parallelizeTestCollections = value; }
 
 	/// <summary/>
+	public string? ParallelMode { get; set; }
+
+	/// <summary/>
 	public bool PreEnumerateTheories { set => preEnumerateTheories = value; }
 
 	/// <summary/>
@@ -269,6 +272,10 @@ public class xunit : MSBuildTask, ICancelableTask, IDisposable
 
 			try
 			{
+				if (parallelizeTestCollections.HasValue)
+					lock (logLock)
+						logger.LogWarning("The ParallelizeTestCollections property has been deprecated in favor of ParallelMode, and will be removed in the next major version");
+
 				if (!NoLogo)
 					lock (logLock)
 						Log.LogMessage(MessageImportance.High, "xUnit.net v3 MSBuild Runner v{0} ({1}-bit {2})", ThisAssembly.AssemblyInformationalVersion, IntPtr.Size * 8, RuntimeInformation.FrameworkDescription);
@@ -352,7 +359,9 @@ public class xunit : MSBuildTask, ICancelableTask, IDisposable
 					if (parallelAlgorithm.HasValue)
 						projectAssembly.Configuration.ParallelAlgorithm = parallelAlgorithm;
 					if (parallelizeTestCollections.HasValue)
-						projectAssembly.Configuration.ParallelizeTestCollections = parallelizeTestCollections;
+						projectAssembly.Configuration.ParallelMode ??= parallelizeTestCollections.Value ? Sdk.ParallelMode.Collections : Sdk.ParallelMode.None;
+					if (ParallelMode is not null && Enum.TryParse<ParallelMode>(ParallelMode, out var parallelMode))
+						projectAssembly.Configuration.ParallelMode = parallelMode;
 					if (preEnumerateTheories.HasValue)
 						projectAssembly.Configuration.PreEnumerateTheories = preEnumerateTheories;
 					if (shadowCopy.HasValue)

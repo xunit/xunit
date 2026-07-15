@@ -26,7 +26,7 @@ public static class CodeGenTestAssemblyRunnerTests
 					Assert.Null(starting.ConfigFilePath);
 					Assert.NotNull(starting.Seed);  // We don't know what the seed will be, we just know it will have one
 					Assert.Equal(".NETCoreApp,Version=v9.0", starting.TargetFramework);
-					Assert.Matches($"^{IntPtr.Size * 8}-bit \\({Regex.Escape(RuntimeInformation.ProcessArchitecture.ToDisplayName())}\\) {Regex.Escape(RuntimeInformation.FrameworkDescription)} \\[collection-per-class, parallel \\(\\d+ threads\\)\\]$", starting.TestEnvironment);
+					Assert.Matches($"^{IntPtr.Size * 8}-bit \\({Regex.Escape(RuntimeInformation.ProcessArchitecture.ToDisplayName())}\\) {Regex.Escape(RuntimeInformation.FrameworkDescription)} \\[collection-per-class, parallel \\((all|collections), \\d+ threads\\)\\]$", starting.TestEnvironment);
 					Assert.Matches("^xUnit.net v3 \\d+.\\d+.\\d+", starting.TestFrameworkDisplayName);
 					var trait = Assert.Single(starting.Traits);
 					Assert.Equal("Location", trait.Key);

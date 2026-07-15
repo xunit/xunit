@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using Xunit;
 using Xunit.Runner.Common;
+using Xunit.Sdk;
 
 public static class CommandLineTests
 {
@@ -157,7 +158,7 @@ public static class CommandLineTests
 
 #pragma warning disable CA1822  // Tests in this class depend on the instance to set & clean environment
 
-	[Collection("Switches Test Collection")]
+	[TestClass(DisableParallelization = true)]
 	public sealed class Switches : IDisposable
 	{
 		readonly string? _originalNoColorValue;
@@ -507,43 +508,135 @@ public static class CommandLineTests
 				foreach (var assembly in project.Assemblies)
 				{
 					Assert.Null(assembly.Configuration.ParallelizeAssembly);
-					Assert.Null(assembly.Configuration.ParallelizeTestCollections);
+					Assert.Null(assembly.Configuration.ParallelMode);
 				}
 			}
 
 			[Fact]
-			public static void FailsWithoutOptionOrWithIncorrectOptions()
+			public static void ParallelAssembliesInvalid()
 			{
-				var commandLine1 = new TestableCommandLine(CommandLineTestsLocation, "no-config.json", "-parallel");
-				var exception1 = Record.Exception(() => commandLine1.Parse());
+				var commandLine1 = new TestableCommandLine(CommandLineTestsLocation, "no-config.json", "-parallelAssemblies");
+				var exception1 = Record.Exception(commandLine1.Parse);
 				Assert.IsType<ArgumentException>(exception1);
-				Assert.Equal("missing argument for -parallel", exception1.Message);
+				Assert.Equal("missing argument for -parallelAssemblies", exception1.Message);
 
-				var commandLine2 = new TestableCommandLine(CommandLineTestsLocation, "no-config.json", "-parallel", "nonsense");
-				var exception2 = Record.Exception(() => commandLine2.Parse());
+				var commandLine2 = new TestableCommandLine(CommandLineTestsLocation, "no-config.json", "-parallelAssemblies", "nonsense");
+				var exception2 = Record.Exception(commandLine2.Parse);
 				Assert.IsType<ArgumentException>(exception2);
-				Assert.Equal("incorrect argument value for -parallel", exception2.Message);
+				Assert.Equal("incorrect argument value for -parallelAssemblies", exception2.Message);
+			}
+
+			[Fact]
+			public static void ParallelModeInvalid()
+			{
+				var commandLine1 = new TestableCommandLine(CommandLineTestsLocation, "no-config.json", "-parallelMode");
+				var exception1 = Record.Exception(commandLine1.Parse);
+				Assert.IsType<ArgumentException>(exception1);
+				Assert.Equal("missing argument for -parallelMode", exception1.Message);
+
+				var commandLine2 = new TestableCommandLine(CommandLineTestsLocation, "no-config.json", "-parallelMode", "nonsense");
+				var exception2 = Record.Exception(commandLine2.Parse);
+				Assert.IsType<ArgumentException>(exception2);
+				Assert.Equal("incorrect argument value for -parallelMode", exception2.Message);
 			}
 
 			[Theory]
-			[InlineData("none", false, false)]
-			[InlineData("collections", false, true)]
-			[InlineData("assemblies", true, false)]
-			[InlineData("all", true, true)]
-			public static void ParallelCanBeTurnedOn(
+			[InlineData("true", true)]
+			[InlineData("on", true)]
+			[InlineData("1", true)]
+			[InlineData("false", false)]
+			[InlineData("off", false)]
+			[InlineData("0", false)]
+			public static void ParallelAssembliesValid(
+				string parallelAssembliesOption,
+				bool expectedParallelAssemblies)
+			{
+				var commandLine = new TestableCommandLine(CommandLineTestsLocation, "no-config.json", "-parallelAssemblies", parallelAssembliesOption);
+
+				var project = commandLine.Parse();
+
+				foreach (var assembly in project.Assemblies)
+					Assert.Equal(expectedParallelAssemblies, assembly.Configuration.ParallelizeAssembly);
+			}
+
+			[Theory]
+			[InlineData("all", ParallelMode.All)]
+			[InlineData("collections", ParallelMode.Collections)]
+			[InlineData("none", ParallelMode.None)]
+			public static void ParallelModeValid(
+				string parallelModeOption,
+				ParallelMode expectedParallelMode)
+			{
+				var commandLine = new TestableCommandLine(CommandLineTestsLocation, "no-config.json", "-parallelMode", parallelModeOption);
+
+				var project = commandLine.Parse();
+
+				foreach (var assembly in project.Assemblies)
+					Assert.Equal(expectedParallelMode, assembly.Configuration.ParallelMode);
+			}
+
+			[Theory]
+			[InlineData("all", true)]
+			[InlineData("assemblies", true)]
+			[InlineData("collections", false)]
+			[InlineData("none", false)]
+			public static void ParallelAssembliesUnset_OverriddenByParallel(
 				string parallelOption,
-				bool expectedAssembliesParallelization,
-				bool expectedCollectionsParallelization)
+				bool expectedParallelAssemblies)
 			{
 				var commandLine = new TestableCommandLine(CommandLineTestsLocation, "no-config.json", "-parallel", parallelOption);
 
 				var project = commandLine.Parse();
 
 				foreach (var assembly in project.Assemblies)
-				{
-					Assert.Equal(expectedAssembliesParallelization, assembly.Configuration.ParallelizeAssembly);
-					Assert.Equal(expectedCollectionsParallelization, assembly.Configuration.ParallelizeTestCollections);
-				}
+					Assert.Equal(expectedParallelAssemblies, assembly.Configuration.ParallelizeAssembly);
+			}
+
+			[Theory]
+			[InlineData("all", ParallelMode.Collections)]
+			[InlineData("assemblies", ParallelMode.None)]
+			[InlineData("collections", ParallelMode.Collections)]
+			[InlineData("none", ParallelMode.None)]
+			public static void ParallelModeUnset_OverriddenByParallel(
+				string parallelOption,
+				ParallelMode? expectedParallelMode)
+			{
+				var commandLine = new TestableCommandLine(CommandLineTestsLocation, "no-config.json", "-parallel", parallelOption);
+
+				var project = commandLine.Parse();
+
+				foreach (var assembly in project.Assemblies)
+					Assert.Equal(expectedParallelMode, assembly.Configuration.ParallelMode);
+			}
+
+			[Theory]
+			[InlineData("all")]
+			[InlineData("assemblies")]
+			[InlineData("collections")]
+			[InlineData("none")]
+			public static void ParallelAssembliesSet_ParallelIgnored(string parallelOption)
+			{
+				var commandLine = new TestableCommandLine(CommandLineTestsLocation, "no-config.json", "-parallelAssemblies", "on", "-parallel", parallelOption);
+
+				var project = commandLine.Parse();
+
+				foreach (var assembly in project.Assemblies)
+					Assert.True(assembly.Configuration.ParallelizeAssembly);
+			}
+
+			[Theory]
+			[InlineData("all")]
+			[InlineData("assemblies")]
+			[InlineData("collections")]
+			[InlineData("none")]
+			public static void ParallelModeSet_ParallelIgnored(string parallelOption)
+			{
+				var commandLine = new TestableCommandLine(CommandLineTestsLocation, "no-config.json", "-parallelMode", "all", "-parallel", parallelOption);
+
+				var project = commandLine.Parse();
+
+				foreach (var assembly in project.Assemblies)
+					Assert.Equal(ParallelMode.All, assembly.Configuration.ParallelMode);
 			}
 		}
 

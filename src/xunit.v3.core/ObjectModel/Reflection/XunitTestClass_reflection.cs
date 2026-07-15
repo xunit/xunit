@@ -24,6 +24,7 @@ public class XunitTestClass : IXunitTestClass, IXunitSerializable
 	readonly Lazy<IReadOnlyCollection<ConstructorInfo>?> constructors;
 	readonly Lazy<IReadOnlyCollection<MethodInfo>> methods;
 	readonly Lazy<ITestCaseOrderer?> testCaseOrderer;
+	readonly Lazy<ITestClassAttribute?> testClassAttribute;
 	readonly Lazy<ITestMethodOrderer?> testMethodOrderer;
 	readonly Lazy<IReadOnlyDictionary<string, IReadOnlyCollection<string>>> traits;
 
@@ -38,6 +39,7 @@ public class XunitTestClass : IXunitTestClass, IXunitSerializable
 		constructors = new(() => Class.IsStatic() ? null : Class.GetConstructors().Where(ci => !ci.IsStatic && ci.IsPublic).CastOrToReadOnlyCollection());
 		methods = new(() => Class.GetMethods(MethodBindingFlags).Concat(Class.GetInterfaces().SelectMany(i => i.GetMethods(MethodBindingFlags))).CastOrToReadOnlyCollection());
 		testCaseOrderer = new(() => RegisteredEngineConfig.GetClassTestCaseOrderer(Class));
+		testClassAttribute = new(() => ExtensibilityPointFactory.GetClassTestClassAttribute(Class));
 		testMethodOrderer = new(() => RegisteredEngineConfig.GetClassTestMethodOrderer(Class));
 		traits = new(() => ExtensibilityPointFactory.GetClassTraits(Class, TestCollection.Traits));
 	}
@@ -80,6 +82,10 @@ public class XunitTestClass : IXunitTestClass, IXunitSerializable
 	/// <inheritdoc/>
 	public IReadOnlyCollection<ConstructorInfo>? Constructors =>
 		constructors.Value;
+
+	/// <inheritdoc/>
+	public bool DisableParallelization =>
+		testClassAttribute.Value?.DisableParallelization ?? false;
 
 	/// <inheritdoc/>
 	public int MetadataToken =>

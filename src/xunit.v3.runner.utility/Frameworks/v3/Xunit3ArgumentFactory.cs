@@ -11,6 +11,7 @@ namespace Xunit.Runner.v3;
 public static class Xunit3ArgumentFactory
 {
 	static readonly Version Version_0_3_0 = new(0, 3, 0);
+	static readonly Version Version_4_0_0 = new(4, 0, 0);
 
 	/// <summary>
 	/// Gets command line switches based on a call to <see cref="Xunit3.Find"/>.
@@ -32,7 +33,6 @@ public static class Xunit3ArgumentFactory
 			configFileName,
 			options.GetCulture(),
 			options.GetDiagnosticMessages(),
-			disableParallelization: null,
 			explicitOption: null,
 			failSkips: null,
 			failTestsWithWarnings: null,
@@ -43,6 +43,7 @@ public static class Xunit3ArgumentFactory
 			options.GetMethodDisplay(),
 			options.GetMethodDisplayOptions(),
 			parallelAlgorithm: null,
+			parallelMode: null,
 			options.GetPreEnumerateTheories(),
 			options.GetPrintMaxEnumerableLength(),
 			options.GetPrintMaxObjectDepth(),
@@ -78,7 +79,6 @@ public static class Xunit3ArgumentFactory
 			configFileName,
 			executionOptions.GetCulture() ?? discoveryOptions.GetCulture(),
 			executionOptions.GetDiagnosticMessages() ?? discoveryOptions.GetDiagnosticMessages(),
-			executionOptions.GetDisableParallelization(),
 			executionOptions.GetExplicitOption(),
 			executionOptions.GetFailSkips(),
 			executionOptions.GetFailTestsWithWarnings(),
@@ -89,6 +89,7 @@ public static class Xunit3ArgumentFactory
 			discoveryOptions.GetMethodDisplay(),
 			discoveryOptions.GetMethodDisplayOptions(),
 			executionOptions.GetParallelAlgorithm(),
+			executionOptions.GetParallelMode(),
 			discoveryOptions.GetPreEnumerateTheories(),
 			executionOptions.GetPrintMaxEnumerableLength() ?? discoveryOptions.GetPrintMaxEnumerableLength(),
 			executionOptions.GetPrintMaxObjectDepth() ?? discoveryOptions.GetPrintMaxObjectDepth(),
@@ -142,7 +143,6 @@ public static class Xunit3ArgumentFactory
 			configFileName,
 			options.GetCulture(),
 			options.GetDiagnosticMessages(),
-			options.GetDisableParallelization(),
 			options.GetExplicitOption(),
 			options.GetFailSkips(),
 			options.GetFailTestsWithWarnings(),
@@ -153,6 +153,7 @@ public static class Xunit3ArgumentFactory
 			methodDisplay: null,
 			methodDisplayOptions: null,
 			options.GetParallelAlgorithm(),
+			options.GetParallelMode(),
 			preEnumerateTheories: null,
 			options.GetPrintMaxEnumerableLength(),
 			options.GetPrintMaxObjectDepth(),
@@ -173,7 +174,6 @@ public static class Xunit3ArgumentFactory
 		string? configFileName,
 		string? culture,
 		bool? diagnosicMessages,
-		bool? disableParallelization,
 		ExplicitOption? explicitOption,
 		bool? failSkips,
 		bool? failTestsWithWarnings,
@@ -184,6 +184,7 @@ public static class Xunit3ArgumentFactory
 		TestMethodDisplay? methodDisplay,
 		TestMethodDisplayOptions? methodDisplayOptions,
 		ParallelAlgorithm? parallelAlgorithm,
+		ParallelMode? parallelMode,
 		bool? preEnumerateTheories,
 		int? printMaxEnumerableLength,
 		int? printMaxObjectDepth,
@@ -265,15 +266,26 @@ public static class Xunit3ArgumentFactory
 		if (methodDisplayOptions.HasValue)
 			result.AddRange(["-methodDisplayOptions", methodDisplayOptions.Value.ToString().ReplaceOrdinal(" ", "")]);
 
-		result.AddRange(disableParallelization switch
-		{
-			true => ["-parallel", "none"],
-			false => ["-parallel", "collections"],
-			_ => [],
-		});
-
 		if (parallelAlgorithm.HasValue)
 			result.AddRange(["-parallelAlgorithm", parallelAlgorithm.Value.ToString()]);
+
+		if (coreFrameworkVersion >= Version_4_0_0)
+		{
+			result.AddRange(parallelMode switch
+			{
+				ParallelMode.None => ["-parallelMode", "none"],
+				ParallelMode.Collections => ["-parallelMode", "collections"],
+				ParallelMode.All => ["-parallelMode", "all"],
+				_ => [],
+			});
+		}
+		else
+			result.AddRange(parallelMode switch
+			{
+				null => [],
+				ParallelMode.None => ["-parallel", "none"],
+				_ => ["-parallel", "collections"],
+			});
 
 		if (preEnumerateTheories == true)
 			result.Add("-preEnumerateTheories");

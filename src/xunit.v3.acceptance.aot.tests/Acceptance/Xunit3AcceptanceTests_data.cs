@@ -213,7 +213,7 @@ public partial class Xunit3AcceptanceTests
 		class SinglePassingTestClass
 		{
 			[Fact]
-			public void TestMethod() { }
+			public void TestMethod() => Thread.Sleep(5);
 		}
 	}
 
@@ -423,7 +423,7 @@ public partial class Xunit3AcceptanceTests
 
 	public partial class TestOrdering
 	{
-		[CollectionDefinition("Ordered Collection")]
+		[CollectionDefinition("Ordered Collection", DisableParallelization = true)]
 		[TestMethodOrderer(typeof(AlphabeticalMethodOrderer))]
 		public class CollectionClass { }
 

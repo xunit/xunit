@@ -35,6 +35,12 @@ namespace Xunit.Generators
 		}
 
 		/// <summary>
+		/// Gets or sets a flag which indicates that the tests from this test class wish to opt out
+		/// of parallelization.
+		/// </summary>
+		public bool DisableParallelization { get; set; }
+
+		/// <summary>
 		/// Gets or sets the factory for the class-level test case orderer.
 		/// </summary>
 		public string? TestCaseOrdererFactory { get; set; }
@@ -111,6 +117,8 @@ $@"global::Xunit.v3.RegisteredEngineConfig.RegisterCodeGenTestClass({typeIndex.T
 				classInitValues.Add($"ClassFactory = {classFactory}");
 			if (classFixtures.Count != 0)
 				classInitValues.Add($"ClassFixtureFactories = {classFixtures.ToFixtureFactories()}");
+			if (DisableParallelization)
+				classInitValues.Add("DisableParallelization = true");
 			if (TestCaseOrdererFactory != null)
 				classInitValues.Add($"TestCaseOrdererFactory = () => {TestCaseOrdererFactory}");
 			if (TestMethodOrdererFactory != null)

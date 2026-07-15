@@ -89,13 +89,13 @@ public static partial class TestData
 		int? assertEquivalentMaxDepth = null,
 		string? culture = null,
 		bool? diagnosticMessages = null,
-		bool? disableParallelization = null,
 		ExplicitOption? explicitOption = null,
 		bool? failSkips = null,
 		bool? failTestsWithWarnings = null,
 		bool? internalDiagnosticMessages = null,
 		int? maxParallelThreads = null,
 		ParallelAlgorithm? parallelAlgorithm = null,
+		ParallelMode? parallelMode = null,
 		int? printMaxEnumerableLength = null,
 		int? printMaxObjectDepth = null,
 		int? printMaxObjectMemberCount = null,
@@ -110,13 +110,13 @@ public static partial class TestData
 		result.SetAssertEquivalentMaxDepth(assertEquivalentMaxDepth);
 		result.SetCulture(culture);
 		result.SetDiagnosticMessages(diagnosticMessages);
-		result.SetDisableParallelization(disableParallelization);
 		result.SetExplicitOption(explicitOption);
 		result.SetFailSkips(failSkips);
 		result.SetFailTestsWithWarnings(failTestsWithWarnings);
 		result.SetInternalDiagnosticMessages(internalDiagnosticMessages);
 		result.SetMaxParallelThreads(maxParallelThreads);
 		result.SetParallelAlgorithm(parallelAlgorithm);
+		result.SetParallelMode(parallelMode);
 		result.SetPrintMaxEnumerableLength(printMaxEnumerableLength);
 		result.SetPrintMaxObjectDepth(printMaxObjectDepth);
 		result.SetPrintMaxObjectMemberCount(printMaxObjectMemberCount);

@@ -266,12 +266,14 @@ public static class XunitTestCaseRunnerTests
 			await using var ctxt = new XunitTestCaseRunnerContext(
 				test.TestCase,
 				[test],
+				ExplicitOption.Off,
 				MessageBus,
 				Aggregator,
-				CancellationTokenSource,
 				test.TestCase.TestCaseDisplayName,
 				test.TestCase.SkipReason,
-				ExplicitOption.Off,
+				CancellationTokenSource,
+				ParallelMode.Collections,
+				ExecutionScheduler.CreateUnlimited(),
 				[],
 				FixtureMappings
 			);

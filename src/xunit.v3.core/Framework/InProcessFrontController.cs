@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Reflection;
 using Xunit.Sdk;
 
@@ -92,6 +93,7 @@ public class InProcessFrontController
 		Guard.ArgumentNotNull(filter);
 		Guard.ArgumentNotNull(cancellationTokenSource);
 
+		var testCasesByID = new ConcurrentDictionary<string, ITestCase>();
 		var testCasesToRun = 0;
 		var assemblyName = testAssembly.GetName().Name
 			?? throw new InvalidOperationException("Dynamic test assemblies are not supported");
@@ -118,6 +120,22 @@ public class InProcessFrontController
 			await discoverer.Value.Find(
 				async testCase =>
 				{
+					if (!testCasesByID.TryAdd(testCase.UniqueID, testCase))
+					{
+						var original = testCasesByID[testCase.UniqueID];
+						TestContext.Current.SendDiagnosticMessage(
+							"Warning: Rejecting v3 test case with duplicate unique ID{0}  Original:{0}    ID:      {1}{0}    Name:    {2}{0}    Method:  {3}{0}  Duplicate:{0}    ID:      {4}{0}    Name:    {5}{0}    Method:  {6}",
+							Environment.NewLine,
+							original.UniqueID,
+							original.TestCaseDisplayName,
+							original.TestClass is null || original.TestMethod is null ? "null" : $"{original.TestClass.TestClassName}.{original.TestMethod.MethodName}",
+							testCase.UniqueID,
+							testCase.TestCaseDisplayName,
+							testCase.TestClass is null || testCase.TestMethod is null ? "null" : $"{testCase.TestClass.TestClassName}.{testCase.TestMethod.MethodName}"
+						);
+						return true;
+					}
+
 					var willRun = filter(testCase);
 					if (willRun)
 						Interlocked.Increment(ref testCasesToRun);

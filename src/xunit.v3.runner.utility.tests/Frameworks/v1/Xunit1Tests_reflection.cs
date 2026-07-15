@@ -253,6 +253,7 @@ public static class Xunit1Tests
 		}
 	}
 
+	[TestClass(DisableParallelization = true)]
 	public static class Run
 	{
 		[Theory]

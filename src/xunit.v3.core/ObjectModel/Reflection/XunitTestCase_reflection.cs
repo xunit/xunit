@@ -47,7 +47,7 @@ public class XunitTestCase : IXunitTestCase, IAsyncDisposable, IXunitSerializabl
 	/// <param name="sourceLineNumber">The optional source line number where this test case originated.</param>
 	/// <param name="timeout">The optional timeout for the test case (in milliseconds).</param>
 	/// <remarks>
-	/// This overload is used by test cases without a test label, which typically means non-data driven tests.
+	/// This overload is used by non-data driven tests (tests without a label or parallelization disabling).
 	/// </remarks>
 	public XunitTestCase(
 		IXunitTestMethod testMethod,
@@ -70,6 +70,7 @@ public class XunitTestCase : IXunitTestCase, IAsyncDisposable, IXunitSerializabl
 				uniqueID,
 				@explicit,
 				testLabel: null,
+				disableParallelization: false,
 				skipExceptions,
 				skipReason,
 				skipType,
@@ -90,7 +91,8 @@ public class XunitTestCase : IXunitTestCase, IAsyncDisposable, IXunitSerializabl
 	/// <param name="testCaseDisplayName">The display name for the test case.</param>
 	/// <param name="uniqueID">The unique ID for the test case.</param>
 	/// <param name="explicit">Indicates whether the test case was marked as explicit.</param>
-	/// <param name="testLabel">The value obtained from <see cref="IDataAttribute.Label"/>, if present.</param>
+	/// <param name="testLabel">The value obtained from <see cref="ITheoryDataRow.Label"/>, if present.</param>
+	/// <param name="disableParallelization">The value obtained from <see cref="ITheoryDataRow.DisableParallelization"/>, if present.</param>
 	/// <param name="skipExceptions">The value obtained from <see cref="IFactAttribute.SkipExceptions"/>.</param>
 	/// <param name="skipReason">The value obtained from <see cref="IFactAttribute.Skip"/>.</param>
 	/// <param name="skipType">The value obtained from <see cref="IFactAttribute.SkipType"/>.</param>
@@ -102,7 +104,7 @@ public class XunitTestCase : IXunitTestCase, IAsyncDisposable, IXunitSerializabl
 	/// <param name="sourceLineNumber">The optional source line number where this test case originated.</param>
 	/// <param name="timeout">The optional timeout for the test case (in milliseconds).</param>
 	/// <remarks>
-	/// This overload is used by test cases with a test label, which typically means data driven tests.
+	/// This overload is used by data-driven tests (which can include a display label and/or disable parallelization).
 	/// </remarks>
 	public XunitTestCase(
 		IXunitTestMethod testMethod,
@@ -110,6 +112,7 @@ public class XunitTestCase : IXunitTestCase, IAsyncDisposable, IXunitSerializabl
 		string uniqueID,
 		bool @explicit,
 		string? testLabel,
+		bool disableParallelization,
 		Type[]? skipExceptions = null,
 		string? skipReason = null,
 		Type? skipType = null,
@@ -124,6 +127,7 @@ public class XunitTestCase : IXunitTestCase, IAsyncDisposable, IXunitSerializabl
 		this.testMethod = Guard.ArgumentNotNull(testMethod);
 		this.testCaseDisplayName = Guard.ArgumentNotNull(testCaseDisplayName);
 		this.uniqueID = Guard.ArgumentNotNull(uniqueID);
+		DisableParallelization = disableParallelization;
 		Explicit = @explicit;
 		SkipExceptions = skipExceptions;
 		SkipReason = skipReason;
@@ -144,6 +148,9 @@ public class XunitTestCase : IXunitTestCase, IAsyncDisposable, IXunitSerializabl
 		foreach (var testMethodArgument in TestMethodArguments)
 			DisposalTracker.Add(testMethodArgument);
 	}
+
+	/// <inheritdoc/>
+	public bool DisableParallelization { get; private set; }
 
 	/// <summary>
 	/// Used to dispose of test method arguments when the test case is disposed.
@@ -297,7 +304,8 @@ public class XunitTestCase : IXunitTestCase, IAsyncDisposable, IXunitSerializabl
 				traits: Traits.ToReadOnly(),
 				timeout: Timeout,
 				testMethodArguments: ResolveTestMethodArguments(TestMethod.Parameters.CastOrToArray(), TestMethodArguments),
-				TestLabel
+				TestLabel,
+				DisableParallelization
 			)
 		]);
 
@@ -311,6 +319,7 @@ public class XunitTestCase : IXunitTestCase, IAsyncDisposable, IXunitSerializabl
 		testMethod = Guard.NotNull("Could not retrieve TestMethod from serialization", info.GetValue<IXunitTestMethod>("tm"));
 		uniqueID = Guard.NotNull("Could not retrieve UniqueID from serialization", info.GetValue<string>("id"));
 
+		DisableParallelization = info.GetValue<bool?>("dp") ?? false;
 		SkipExceptions = info.GetValue<Type[]>("se");
 		SkipReason = info.GetValue<string>("sr");
 		SkipType = info.GetValue<Type>("st");
@@ -376,6 +385,8 @@ public class XunitTestCase : IXunitTestCase, IAsyncDisposable, IXunitSerializabl
 		info.AddValue("tm", TestMethod);
 		info.AddValue("id", UniqueID);
 
+		if (DisableParallelization)
+			info.AddValue("dp", true);
 		if (SkipExceptions is not null)
 			info.AddValue("se", SkipExceptions);
 		if (SkipReason is not null)

@@ -82,6 +82,7 @@ partial class Xunit3AcceptanceTests
 		[AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
 		public class ThrowingSkipFactAttribute : Attribute, IFactAttribute
 		{
+			public bool DisableParallelization => false;
 			public string? DisplayName => null;
 			public bool Explicit => false;
 			public string? Skip => throw new DivideByZeroException();

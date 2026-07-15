@@ -50,6 +50,25 @@ partial class ExtensibilityPointFactory
 	}
 
 	/// <summary>
+	/// Gets the test assembly parallelization attribute.
+	/// </summary>
+	/// <param name="testAssembly">The test assembly</param>
+	public static IParallelizationAttribute? GetAssemblyParallelization(Assembly testAssembly)
+	{
+		var parallelizationAttributes = testAssembly.GetMatchingCustomAttributes<IParallelizationAttribute>([]);
+		if (parallelizationAttributes.Count > 1)
+			throw new TestPipelineException(
+				string.Format(
+					CultureInfo.CurrentCulture,
+					"More than one parallelization attribute was specified: {0}",
+					parallelizationAttributes.Select(a => a.GetType()).ToCommaSeparatedList()
+				)
+			);
+
+		return parallelizationAttributes.FirstOrDefault();
+	}
+
+	/// <summary>
 	/// Gets the traits that are attached to the test assembly via <see cref="ITraitAttribute"/>s.
 	/// </summary>
 	/// <param name="testAssembly">The test assembly</param>

@@ -21,14 +21,6 @@ public interface ICoreTestAssembly : ITestAssembly
 	Assembly Assembly { get; }
 
 	/// <summary>
-	/// Gets a flag which indicates whether the user has requested that parallelization be disabled.
-	/// </summary>
-	/// <remarks>
-	/// If this returns <see langword="null"/>, the default value will be used (typically <see langword="false"/>).
-	/// </remarks>
-	bool? DisableParallelization { get; }
-
-	/// <summary>
 	/// Gets the maximum number of threads to use when running tests in parallel. If this returns a
 	/// positive integer, that is the maximum number of threads; if it returns -1, that indicates that
 	/// unlimited threads should be allowed.
@@ -42,11 +34,19 @@ public interface ICoreTestAssembly : ITestAssembly
 	/// Gets the algorithm used for parallelism.
 	/// </summary>
 	/// <remarks>
-	/// If this returns <see langword="null"/>, the default value will be used (typically <see cref="ParallelAlgorithm.Conservative"/>).<br />
+	/// If this returns <see langword="null"/>, the default value will be used (<see cref="ParallelAlgorithm.Conservative"/>).<br />
 	/// <br />
-	/// This will only be relevant if <see cref="DisableParallelization"/> returns <see langword="false"/>.
+	/// This will only be relevant if <see cref="ParallelMode"/> does not return <see cref="ParallelMode.None"/>.
 	/// </remarks>
 	ParallelAlgorithm? ParallelAlgorithm { get; }
+
+	/// <summary>
+	/// Gets the mode to be used for determining which tests to run in parallel.
+	/// </summary>
+	/// <remarks>
+	/// If this returns <see langword="null"/>, the default value will be used (<see cref="ParallelMode.Collections"/>).
+	/// </remarks>
+	ParallelMode? ParallelMode { get; }
 
 	/// <summary>
 	/// Gets the target framework the test assembly was compiled against. Will be in a

@@ -25,10 +25,10 @@ public class XunitTestCollectionRunner :
 	public static XunitTestCollectionRunner Instance { get; } = new();
 
 	/// <summary>
-	/// Please call <see cref="Run(IXunitTestCollection, IReadOnlyCollection{IXunitTestCase}, ExplicitOption, IMessageBus, ExceptionAggregator, CancellationTokenSource, FixtureMappingManager)"/>.
-	/// This overload will be removed in the next major version.
+	/// Please call <see cref="Run(IXunitTestCollection, IReadOnlyCollection{IXunitTestCase}, ExplicitOption, IMessageBus, ExceptionAggregator, CancellationTokenSource, ParallelMode, ExecutionScheduler, FixtureMappingManager)"/>.
+	/// This overload is no longer valid and will be removed in the next major version.
 	/// </summary>
-	[Obsolete("Please use the overload without testCaseOrderer. This overload will be removed in the next major version.")]
+	[Obsolete("Please use the overload which removes testCaseOrderer and adds parallelMode and scheduler. This overload is no longer valid and will be removed in the next major version.", error: true)]
 	[EditorBrowsable(EditorBrowsableState.Never)]
 	[OverloadResolutionPriority(-1)]
 	public ValueTask<RunSummary> Run(
@@ -40,15 +40,7 @@ public class XunitTestCollectionRunner :
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource,
 		FixtureMappingManager assemblyFixtureMappings) =>
-			Run(
-				testCollection,
-				testCases,
-				explicitOption,
-				messageBus,
-				aggregator,
-				cancellationTokenSource,
-				assemblyFixtureMappings
-			);
+			throw new NotSupportedException("Please use the overload which removes testCaseOrderer and adds parallelMode and scheduler. This overload is no longer valid and will be removed in the next major version.");
 
 	/// <summary>
 	/// Runs the test collection.
@@ -59,6 +51,8 @@ public class XunitTestCollectionRunner :
 	/// <param name="messageBus">The message bus to report run status to.</param>
 	/// <param name="aggregator">The exception aggregator used to run code and collection exceptions.</param>
 	/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
+	/// <param name="parallelMode">The parallel mode for the test collection</param>
+	/// <param name="scheduler">The scheduler used for task/test scheduling</param>
 	/// <param name="assemblyFixtureMappings">The mapping manager for assembly fixtures.</param>
 	public async ValueTask<RunSummary> Run(
 		IXunitTestCollection testCollection,
@@ -67,12 +61,15 @@ public class XunitTestCollectionRunner :
 		IMessageBus messageBus,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource,
+		ParallelMode parallelMode,
+		ExecutionScheduler scheduler,
 		FixtureMappingManager assemblyFixtureMappings)
 	{
 		Guard.ArgumentNotNull(testCollection);
 		Guard.ArgumentNotNull(testCases);
 		Guard.ArgumentNotNull(messageBus);
 		Guard.ArgumentNotNull(cancellationTokenSource);
+		Guard.ArgumentNotNull(scheduler);
 		Guard.ArgumentNotNull(assemblyFixtureMappings);
 
 		await using var ctxt = new XunitTestCollectionRunnerContext(
@@ -82,6 +79,8 @@ public class XunitTestCollectionRunner :
 			messageBus,
 			aggregator,
 			cancellationTokenSource,
+			parallelMode,
+			scheduler,
 			assemblyFixtureMappings
 		);
 		await ctxt.InitializeAsync();

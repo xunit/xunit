@@ -311,7 +311,7 @@ public static partial class Xunit3AcceptanceTests
 				{
 					var testPassed = Assert.IsType<ITestPassed>(message, exactMatch: false);
 					Assert.Equal(observedAssemblyID, testPassed.AssemblyUniqueID);
-					Assert.NotEqual(0M, testPassed.ExecutionTime);
+					Assert.True(testPassed.ExecutionTime >= 0.005m);
 					Assert.Empty(testPassed.Output);
 					Assert.Equal(observedTestCaseID, testPassed.TestCaseUniqueID);
 					Assert.Equal(observedClassID, testPassed.TestClassUniqueID);
@@ -334,7 +334,7 @@ public static partial class Xunit3AcceptanceTests
 				{
 					var testCaseFinished = Assert.IsType<ITestCaseFinished>(message, exactMatch: false);
 					Assert.Equal(observedAssemblyID, testCaseFinished.AssemblyUniqueID);
-					Assert.NotEqual(0M, testCaseFinished.ExecutionTime);
+					Assert.True(testCaseFinished.ExecutionTime >= 0.005m);
 					Assert.Equal(observedTestCaseID, testCaseFinished.TestCaseUniqueID);
 					Assert.Equal(observedClassID, testCaseFinished.TestClassUniqueID);
 					Assert.Equal(observedCollectionID, testCaseFinished.TestCollectionUniqueID);
@@ -348,7 +348,7 @@ public static partial class Xunit3AcceptanceTests
 				{
 					var testMethodFinished = Assert.IsType<ITestMethodFinished>(message, exactMatch: false);
 					Assert.Equal(observedAssemblyID, testMethodFinished.AssemblyUniqueID);
-					Assert.NotEqual(0M, testMethodFinished.ExecutionTime);
+					Assert.True(testMethodFinished.ExecutionTime >= 0.005m);
 					Assert.Equal(observedClassID, testMethodFinished.TestClassUniqueID);
 					Assert.Equal(observedCollectionID, testMethodFinished.TestCollectionUniqueID);
 					Assert.Equal(observedMethodID, testMethodFinished.TestMethodUniqueID);
@@ -361,7 +361,7 @@ public static partial class Xunit3AcceptanceTests
 				{
 					var classFinished = Assert.IsType<ITestClassFinished>(message, exactMatch: false);
 					Assert.Equal(observedAssemblyID, classFinished.AssemblyUniqueID);
-					Assert.NotEqual(0M, classFinished.ExecutionTime);
+					Assert.True(classFinished.ExecutionTime >= 0.005m);
 					Assert.Equal(observedClassID, classFinished.TestClassUniqueID);
 					Assert.Equal(observedCollectionID, classFinished.TestCollectionUniqueID);
 					Assert.Equal(0, classFinished.TestsFailed);
@@ -373,7 +373,7 @@ public static partial class Xunit3AcceptanceTests
 				{
 					var collectionFinished = Assert.IsType<ITestCollectionFinished>(message, exactMatch: false);
 					Assert.Equal(observedAssemblyID, collectionFinished.AssemblyUniqueID);
-					Assert.NotEqual(0M, collectionFinished.ExecutionTime);
+					Assert.True(collectionFinished.ExecutionTime >= 0.005m);
 					Assert.Equal(observedCollectionID, collectionFinished.TestCollectionUniqueID);
 					Assert.Equal(0, collectionFinished.TestsFailed);
 					Assert.Equal(0, collectionFinished.TestsNotRun);
@@ -384,7 +384,7 @@ public static partial class Xunit3AcceptanceTests
 				{
 					var assemblyFinished = Assert.IsType<ITestAssemblyFinished>(message, exactMatch: false);
 					Assert.Equal(observedAssemblyID, assemblyFinished.AssemblyUniqueID);
-					Assert.NotEqual(0M, assemblyFinished.ExecutionTime);
+					Assert.True(assemblyFinished.ExecutionTime >= 0.005m);
 					Assert.Equal(0, assemblyFinished.TestsFailed);
 					Assert.Equal(0, assemblyFinished.TestsNotRun);
 					Assert.Equal(0, assemblyFinished.TestsSkipped);
@@ -692,10 +692,10 @@ public static partial class Xunit3AcceptanceTests
 
 			Assert.Collection(
 				testMessages.OfType<ITestPassed>().Select(p => testMessages.OfType<ITestMethodStarting>().Single(s => s.TestMethodUniqueID == p.TestMethodUniqueID).MethodName),
-				methodName => Assert.Equal("Test1", methodName),
-				methodName => Assert.Equal("Test2", methodName),
-				methodName => Assert.Equal("IShouldBeLast1", methodName),
-				methodName => Assert.Equal("IShouldBeLast2", methodName)
+				methodName => Assert.StartsWith("Test", methodName),
+				methodName => Assert.StartsWith("Test", methodName),
+				methodName => Assert.StartsWith("IShouldBeLast", methodName),
+				methodName => Assert.StartsWith("IShouldBeLast", methodName)
 			);
 		}
 	}

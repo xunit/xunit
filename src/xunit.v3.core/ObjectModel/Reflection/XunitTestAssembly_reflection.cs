@@ -32,6 +32,7 @@ public class XunitTestAssembly : IXunitTestAssembly, IXunitSerializable
 	readonly Lazy<ICollectionBehaviorAttribute?> lazyCollectionBehavior;
 	readonly Lazy<IReadOnlyDictionary<string, (Type Type, CollectionDefinitionAttribute Attribute)>> lazyCollectionDefinitions;
 	readonly Lazy<Guid> lazyModuleVersionID;
+	readonly Lazy<IParallelizationAttribute?> lazyParallelization;
 	readonly Lazy<string> lazyTargetFramework;
 	readonly Lazy<ITestCaseOrderer?> lazyTestCaseOrderer;
 	readonly Lazy<ITestClassOrderer?> lazyTestClassOrderer;
@@ -54,6 +55,7 @@ public class XunitTestAssembly : IXunitTestAssembly, IXunitSerializable
 		lazyCollectionBehavior = new(() => ExtensibilityPointFactory.GetCollectionBehavior(Assembly));
 		lazyCollectionDefinitions = new(() => ExtensibilityPointFactory.GetCollectionDefinitions(Assembly));
 		lazyModuleVersionID = new(() => Assembly.Modules.FirstOrDefault()?.ModuleVersionId ?? Guid.Empty);
+		lazyParallelization = new(() => ExtensibilityPointFactory.GetAssemblyParallelization(Assembly));
 		lazyTargetFramework = new(() => Assembly.GetTargetFramework());
 		lazyTestCaseOrderer = new(() => RegisteredEngineConfig.GetAssemblyTestCaseOrderer(Assembly));
 		lazyTestClassOrderer = new(() => RegisteredEngineConfig.GetAssemblyTestClassOrderer(Assembly));
@@ -142,16 +144,16 @@ public class XunitTestAssembly : IXunitTestAssembly, IXunitSerializable
 	public string? ConfigFilePath { get; private set; }
 
 	/// <inheritdoc/>
-	public bool? DisableParallelization =>
-		CollectionBehavior?.DisableTestParallelization;
-
-	/// <inheritdoc/>
 	public int? MaxParallelThreads =>
-		CollectionBehavior?.MaxParallelThreads;
+		lazyParallelization.Value?.MaxThreads;
 
 	/// <inheritdoc/>
 	public ParallelAlgorithm? ParallelAlgorithm =>
-		CollectionBehavior?.ParallelAlgorithm;
+		lazyParallelization.Value?.Algorithm;
+
+	/// <inheritdoc/>
+	public ParallelMode? ParallelMode =>
+		lazyParallelization.Value?.Mode;
 
 	/// <inheritdoc/>
 	public Guid ModuleVersionID =>

@@ -57,6 +57,7 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 			details.UniqueID,
 			details.Explicit,
 			dataRow.Label,
+			dataRow.DisableParallelization ?? false,
 			details.SkipExceptions,
 			details.SkipReason,
 			details.SkipType,

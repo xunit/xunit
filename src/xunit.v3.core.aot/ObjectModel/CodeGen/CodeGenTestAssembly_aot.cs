@@ -12,7 +12,7 @@ namespace Xunit.v3;
 /// </remarks>
 public sealed class CodeGenTestAssembly : ICodeGenTestAssembly
 {
-	readonly CollectionBehaviorAttribute? collectionBehavior;
+	readonly ParallelizationAttribute? parallelization;
 	readonly Lazy<ITestCaseOrderer?> testCaseOrderer;
 	readonly Lazy<ITestClassOrderer?> testClassOrderer;
 	readonly Lazy<ICodeGenTestCollectionFactory> testCollectionFactory;
@@ -27,10 +27,10 @@ public sealed class CodeGenTestAssembly : ICodeGenTestAssembly
 	/// <param name="assemblyName">The assembly name</param>
 	/// <param name="assemblyPath">The assembly path</param>
 	/// <param name="beforeAfterTestAttributes">The <see cref="BeforeAfterTestAttribute"/>s attached to the test assembly</param>
-	/// <param name="collectionBehavior">The collection behavior attribute attached to the test assembly</param>
 	/// <param name="collectionDefinitions">The mapping of collection name to collection definition</param>
 	/// <param name="configFilePath">The configuration file path</param>
 	/// <param name="moduleVersionID">The primary module's version ID</param>
+	/// <param name="parallelization">The parallelization attribute attached to the test assembly</param>
 	/// <param name="targetFramework">The target framework (in form like <c>".NETCoreApp,Version=v8.0"</c>)</param>
 	/// <param name="traits">The assembly-level traits</param>
 	/// <param name="version">The assembly version</param>
@@ -41,10 +41,10 @@ public sealed class CodeGenTestAssembly : ICodeGenTestAssembly
 		string assemblyName,
 		string assemblyPath,
 		IReadOnlyCollection<BeforeAfterTestAttribute> beforeAfterTestAttributes,
-		CollectionBehaviorAttribute? collectionBehavior,
 		IReadOnlyDictionary<string, CodeGenTestCollectionRegistration> collectionDefinitions,
 		string? configFilePath,
 		Guid? moduleVersionID,
+		ParallelizationAttribute? parallelization,
 		string? targetFramework,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>> traits,
 		Version? version,
@@ -55,10 +55,10 @@ public sealed class CodeGenTestAssembly : ICodeGenTestAssembly
 		AssemblyName = Guard.ArgumentNotNull(assemblyName);
 		AssemblyPath = Guard.ArgumentNotNull(assemblyPath);
 		BeforeAfterTestAttributes = Guard.ArgumentNotNull(beforeAfterTestAttributes);
-		this.collectionBehavior = collectionBehavior;
 		CollectionDefinitions = Guard.ArgumentNotNull(collectionDefinitions);
 		ConfigFilePath = configFilePath;
 		ModuleVersionID = moduleVersionID ?? Guid.NewGuid();
+		this.parallelization = parallelization;
 		TargetFramework = targetFramework ?? "Unknown,Version=v0.0";
 		Traits = Guard.ArgumentNotNull(traits);
 		UniqueID = uniqueID ?? UniqueIDGenerator.ForAssembly(assemblyPath, configFilePath);
@@ -93,16 +93,16 @@ public sealed class CodeGenTestAssembly : ICodeGenTestAssembly
 	public string? ConfigFilePath { get; }
 
 	/// <inheritdoc/>
-	public bool? DisableParallelization =>
-		collectionBehavior?.DisableTestParallelization;
-
-	/// <inheritdoc/>
 	public int? MaxParallelThreads =>
-		collectionBehavior?.MaxParallelThreads;
+		parallelization?.MaxThreads;
 
 	/// <inheritdoc/>
 	public ParallelAlgorithm? ParallelAlgorithm =>
-		collectionBehavior?.ParallelAlgorithm;
+		parallelization?.Algorithm;
+
+	/// <inheritdoc/>
+	public ParallelMode? ParallelMode =>
+		parallelization?.Mode;
 
 	/// <inheritdoc/>
 	public Guid ModuleVersionID { get; }

@@ -257,6 +257,7 @@ public static class ArgumentFormatterTests
 		}
 	}
 
+	[TestClass(DisableParallelization = true)]
 	public static class Enumerables
 	{
 		// Both tracked and untracked should be the same

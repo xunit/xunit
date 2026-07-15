@@ -212,7 +212,7 @@ public abstract class TestClassRunner<TContext, TTestClass, TTestMethod, TTestCa
 	[Obsolete("Please override OrderTestMethods instead. This method will be removed in the next major version.")]
 	[EditorBrowsable(EditorBrowsableState.Never)]
 	protected virtual IReadOnlyCollection<TTestCase> OrderTestCases(TContext ctxt) =>
-		throw new NotSupportedException("This method is no longer called and will be removed in the next major version");
+		throw new NotSupportedException("Please override OrderTestMethods instead. This method will be removed in the next major version.");
 
 	/// <summary>
 	/// Orders the test methods in the class. By default groups the test cases by method in order of
@@ -372,7 +372,7 @@ public abstract class TestClassRunner<TContext, TTestClass, TTestMethod, TTestCa
 		TTestMethod? testMethod,
 		IReadOnlyCollection<TTestCase> testCases,
 		object?[] constructorArguments) =>
-			throw new NotSupportedException("This method is never called, and will be removed in the next major version.");
+			throw new NotSupportedException("Please override the overload without constructorArguments. This overload will be removed in the next major version.");
 
 	/// <summary>
 	/// Sets the current <see cref="TestContext"/> for the current test class and the given test class status.

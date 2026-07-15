@@ -11,6 +11,11 @@ namespace Xunit.v3;
 public interface ICoreTestMethod : ITestMethod
 {
 	/// <summary>
+	/// Determines whether tests from this test method run in parallel against any other parallelizable tests.
+	/// </summary>
+	bool DisableParallelization { get; }
+
+	/// <summary>
 	/// Gets the arity (number of generic types) of the test method.
 	/// </summary>
 	new int MethodArity { get; }

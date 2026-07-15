@@ -28,27 +28,18 @@ public class CodeGenTestAssemblyRunnerContext(
 		)
 {
 	/// <inheritdoc/>
-	public override async ValueTask<RunSummary> RunTestCollection(
+	public override ValueTask<RunSummary> RunTestCollection(
 		ICodeGenTestCollection testCollection,
-		IReadOnlyCollection<ICodeGenTestCase> testCases)
-	{
-		await BeforeTestCollection();
-
-		try
-		{
-			return await CodeGenTestCollectionRunner.Instance.Run(
+		IReadOnlyCollection<ICodeGenTestCase> testCases) =>
+			CodeGenTestCollectionRunner.Instance.Run(
 				testCollection,
 				testCases,
 				ExplicitOption,
 				MessageBus,
 				Aggregator.Clone(),
 				CancellationTokenSource,
+				ParallelMode,
+				Scheduler,
 				AssemblyFixtureMappings
 			);
-		}
-		finally
-		{
-			AfterTestCollection();
-		}
-	}
 }

@@ -1,6 +1,7 @@
 #nullable enable
 
 #pragma warning disable IDE0028 // Simplify collection initialization
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -211,6 +212,13 @@ namespace Xunit.Generators
 
 				switch (attributeType)
 				{
+					case Types.Xunit.TestClassAttribute:
+						if (classAttribute.NamedArguments.FirstOrDefault(arg => arg.Key == Names.TestClassAttribute.DisableParallelization) is { } namedArg
+								&& namedArg.Value.Kind == TypedConstantKind.Primitive
+								&& namedArg.Value.Value is true)
+							result.TestClass.DisableParallelization = true;
+						break;
+
 					case Types.Xunit.TestCaseOrdererAttribute:
 					case Types.Xunit.TestCaseOrdererAttributeOfT:
 						result.TestClass.TestCaseOrdererFactory = classAttribute.ToOrdererFactory(Types.Xunit.v3.ITestCaseOrderer);

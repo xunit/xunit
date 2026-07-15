@@ -201,7 +201,22 @@ public class ExecutionSink : IMessageSink, IDisposable
 	{
 		if (executingTestCases is not null)
 			lock (executingTestCases)
-				executingTestCases.Add(args.Message.TestCaseUniqueID, (args.Message, UtcNow));
+			{
+				var metadata = args.Message;
+				var uniqueID = metadata.TestCaseUniqueID;
+
+				if (!executingTestCases.TryAdd(uniqueID, (metadata, UtcNow)))
+					options.DiagnosticMessageSink?.OnMessage(
+						new DiagnosticMessage(
+							"Warning: Duplicate test case unique ID detected.{1}Old item: {2}{3}New item: {4}",
+							uniqueID,
+							Environment.NewLine,
+							executingTestCases[uniqueID],
+							Environment.NewLine,
+							metadata
+						)
+					);
+			}
 	}
 
 	void HandleTestClassCleanupFailure(MessageHandlerArgs<ITestClassCleanupFailure> args) =>

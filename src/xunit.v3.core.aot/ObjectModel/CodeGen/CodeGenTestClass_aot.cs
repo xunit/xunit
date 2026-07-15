@@ -8,6 +8,7 @@ namespace Xunit.v3;
 /// <param name="beforeAfterTestAttributes">The <see cref="BeforeAfterTestAttribute"/>s attached to the test class</param>
 /// <param name="class">The test class type</param>
 /// <param name="classFixtureFactories">The fixture factories for class-level test fixtures (on the class)</param>
+/// <param name="disableParallelization">Indicates if the tests from this test class wish to opt out of parallelization</param>
 /// <param name="testClassFactory">The test class factory that was registered during code generation</param>
 /// <param name="testCollection">The test collection this test class belongs to</param>
 /// <param name="traits">The class-level traits</param>
@@ -19,6 +20,7 @@ public sealed class CodeGenTestClass(
 	IReadOnlyCollection<BeforeAfterTestAttribute> beforeAfterTestAttributes,
 	Type @class,
 	IReadOnlyDictionary<Type, FixtureFactory> classFixtureFactories,
+	bool disableParallelization,
 	Func<FixtureMappingManager, ValueTask<CoreTestClassCreationResult>> testClassFactory,
 	ICodeGenTestCollection testCollection,
 	IReadOnlyDictionary<string, IReadOnlyCollection<string>> traits,
@@ -39,6 +41,10 @@ public sealed class CodeGenTestClass(
 	/// <inheritdoc/>
 	public IReadOnlyDictionary<Type, FixtureFactory> ClassFixtureFactories { get; } =
 		Guard.ArgumentNotNull(classFixtureFactories);
+
+	/// <inheritdoc/>
+	public bool DisableParallelization =>
+		disableParallelization;
 
 	/// <inheritdoc/>
 	public ITestCaseOrderer? TestCaseOrderer =>

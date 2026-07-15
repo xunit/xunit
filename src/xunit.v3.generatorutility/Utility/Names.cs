@@ -16,6 +16,8 @@ namespace Xunit.Generators
 		public static partial class DataAttribute
 		{
 			/// <summary/>
+			public const string DisableParallelization = nameof(DisableParallelization);
+			/// <summary/>
 			public const string Explicit = nameof(Explicit);
 			/// <summary/>
 			public const string Label = nameof(Label);
@@ -41,6 +43,8 @@ namespace Xunit.Generators
 		public static partial class FactAttribute
 		{
 			/// <summary/>
+			public const string DisableParallelization = nameof(DisableParallelization);
+			/// <summary/>
 			public const string DisplayName = nameof(DisplayName);
 			/// <summary/>
 			public const string Explicit = nameof(Explicit);
@@ -56,6 +60,28 @@ namespace Xunit.Generators
 			public const string SkipWhen = nameof(SkipWhen);
 			/// <summary/>
 			public const string Timeout = nameof(Timeout);
+		}
+
+		/// <summary>
+		/// Member names from <c>Xunit.v3.ParallelizationAttribute</c>
+		/// </summary>
+		public static class ParallelizationAttribute
+		{
+			/// <summary/>
+			public const string Algorithm = nameof(Algorithm);
+			/// <summary/>
+			public const string MaxThreads = nameof(MaxThreads);
+			/// <summary/>
+			public const string Mode = nameof(Mode);
+		}
+
+		/// <summary>
+		/// Member names from <c>Xunit.TestClassAttribute</c>
+		/// </summary>
+		public static class TestClassAttribute
+		{
+			/// <summary/>
+			public const string DisableParallelization = nameof(DisableParallelization);
 		}
 
 		/// <summary>

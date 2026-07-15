@@ -44,6 +44,7 @@ public class CollectionDefinitionAttributeGenerator() :
 		};
 
 		if (attribute.NamedArguments.FirstOrDefault(kvp => kvp.Key == Names.CollectionDefinitionAttribute.DisableParallelization) is { } namedArg
+				&& namedArg.Value.Kind == TypedConstantKind.Primitive
 				&& namedArg.Value.Value is true)
 			result.Registration.DisableParallelization = true;
 

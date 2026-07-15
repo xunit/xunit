@@ -29,16 +29,6 @@ public class XunitTestAssemblyTests(XunitTestAssemblyTests.XunitTestAssemblyFixt
 	}
 
 	[Fact]
-	public void CollectionBehavior()
-	{
-		var behavior = testAssembly.CollectionBehavior;
-
-		Assert.NotNull(behavior);
-		Assert.True(behavior.DisableTestParallelization);
-		Assert.Equal(42, behavior.MaxParallelThreads);
-	}
-
-	[Fact]
 	public void CollectionDefinitions()
 	{
 		var definitions = testAssembly.CollectionDefinitions;
@@ -59,6 +49,14 @@ public class XunitTestAssemblyTests(XunitTestAssemblyTests.XunitTestAssemblyFixt
 				Assert.Equal("SomeNamespace.UnnamedCollectionDefinition", definition.Value.Type.FullName);
 			}
 		);
+	}
+
+	[Fact]
+	public void Parallelization()
+	{
+		Assert.Equal(42, testAssembly.MaxParallelThreads);
+		Assert.Equal(ParallelAlgorithm.Aggressive, testAssembly.ParallelAlgorithm);
+		Assert.Equal(ParallelMode.All, testAssembly.ParallelMode);
 	}
 
 	[Fact]
@@ -161,7 +159,7 @@ using Xunit.v3;
 [assembly: AssemblyVersion(""1.2.3.4"")]
 [assembly: AssemblyFixture(typeof(SomeNamespace.SomeFixtureClass))]
 [assembly: SomeNamespace.BeforeAfterTest1]
-[assembly: CollectionBehavior(DisableTestParallelization = true, MaxParallelThreads = 42)]
+[assembly: Parallelization(Algorithm = ParallelAlgorithm.Aggressive, Mode = ParallelMode.All, MaxThreads = 42)]
 [assembly: TestCaseOrderer(typeof(SomeNamespace.MyTestCaseOrderer))]
 [assembly: TestClassOrderer(typeof(SomeNamespace.MyTestClassOrderer))]
 [assembly: TestCollectionOrderer(typeof(SomeNamespace.MyTestCollectionOrderer))]

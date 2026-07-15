@@ -45,6 +45,8 @@ public static class CodeGenTestRunnerTests
 				ExplicitOption.Off,
 				new(),
 				new(),
+				ParallelMode.Collections,
+				ExecutionScheduler.CreateUnlimited(),
 				fixtureMappings
 			);
 		}

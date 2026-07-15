@@ -10,6 +10,12 @@ namespace Xunit.v3;
 public interface IDataAttribute
 {
 	/// <summary>
+	/// Gets a value which indicates whether data from this data source should be run in parallel
+	/// against all other parallelizable tests.
+	/// </summary>
+	bool DisableParallelization { get; }
+
+	/// <summary>
 	/// Gets a value that determines whether the data rows provided by this data
 	/// provider should be considered explicit or not. If <see langword="true"/>, then the data
 	/// rows will all be considered explicit; if <see langword="false"/>, then the data rows

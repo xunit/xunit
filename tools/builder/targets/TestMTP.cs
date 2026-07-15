@@ -49,7 +49,7 @@ public static class TestMTP
 
 			try
 			{
-				var cmdLine = $"test --project {projectFolder} --configuration {context.ConfigurationText} --framework {framework} --no-build --no-launch-profile";
+				var cmdLine = $"test --project {projectFolder} --configuration {context.ConfigurationText} --framework {framework} --no-build --no-launch-profile --explicit on";
 				if (Environment.GetEnvironmentVariable("GITHUB_ACTIONS") == "true")
 					cmdLine += " --no-progress";
 

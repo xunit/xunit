@@ -152,7 +152,7 @@ public class CommandLineOptionsProviderTests
 		[InlineData("Invalid value 'abc' (must be one of: 'none', 'replaceUnderscoreWithSpace', 'useOperatorMonikers', 'useEscapeSequences', 'replacePeriodWithComma', 'removeAsyncSuffix', 'all')", "method-display-options", new[] { "abc" })]
 		[InlineData("Cannot specify 'all' with any other values", "method-display-options", new[] { "all", "replacePeriodWithComma" })]
 		[InlineData("Cannot specify 'none' with any other values", "method-display-options", new[] { "replacePeriodWithComma", "none" })]
-		[InlineData("Invalid value 'abc' (must be one of: 'none', 'collections')", "parallel", new[] { "abc" })]
+		[InlineData("Invalid value 'abc' (must be one of: 'none', 'collections', 'all')", "parallel", new[] { "abc" })]
 		[InlineData("Invalid value 'abc' (must be one of: 'conservative', 'aggressive')", "parallel-algorithm", new[] { "abc" })]
 		[InlineData("Invalid value 'abc' (must be an integer between 0 and 2147483647)", "print-max-enumerable-length", new[] { "abc" })]
 		[InlineData("Invalid value 'abc' (must be an integer between 0 and 2147483647)", "print-max-object-depth", new[] { "abc" })]
@@ -292,17 +292,18 @@ public class CommandLineOptionsProviderTests
 		}
 
 		[Theory]
-		[InlineData("none", false)]
-		[InlineData("collections", true)]
+		[InlineData("none", ParallelMode.None)]
+		[InlineData("collections", ParallelMode.Collections)]
+		[InlineData("all", ParallelMode.All)]
 		public void Parallel(
 			string argValue,
-			bool expected)
+			ParallelMode expected)
 		{
 			commandLineOptions.Set("parallel", [argValue]);
 
 			CommandLineOptionsProvider.Parse(configuration, commandLineOptions, projectAssembly);
 
-			Assert.Equal(expected, projectAssembly.Configuration.ParallelizeTestCollections);
+			Assert.Equal(expected, projectAssembly.Configuration.ParallelMode);
 		}
 
 		[Theory]

@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Runtime.Versioning;
+using Xunit.Sdk;
 
 namespace Xunit.v3;
 
@@ -16,6 +17,12 @@ internal sealed class CodeGenTestAssemblyRegistration()
 	public Dictionary<string, CodeGenTestCollectionRegistration> CollectionDefinitionsByName { get; } = [];
 
 	public Dictionary<string, CodeGenTestCollectionRegistration> CollectionDefinitionsByType { get; } = [];
+
+	public ParallelAlgorithm? ParallelAlgorithm { get; set; }
+
+	public int? ParallelMaxThreads { get; set; }
+
+	public ParallelMode? ParallelMode { get; set; }
 
 	public Func<ITestCaseOrderer>? TestCaseOrdererFactory { get; set; }
 
@@ -48,16 +55,24 @@ internal sealed class CodeGenTestAssemblyRegistration()
 				if (!File.Exists(assemblyPath))
 					assemblyPath = Path.Combine(AppContext.BaseDirectory, assemblyName + CodeGenHelper.ExecutableExtension);
 
+				var parallelizationAttribute = new ParallelizationAttribute();
+				if (ParallelAlgorithm.HasValue)
+					parallelizationAttribute.Algorithm = ParallelAlgorithm.Value;
+				if (ParallelMaxThreads.HasValue)
+					parallelizationAttribute.MaxThreads = ParallelMaxThreads.Value;
+				if (ParallelMode.HasValue)
+					parallelizationAttribute.Mode = ParallelMode.Value;
+
 				testAssembly = new CodeGenTestAssembly(
 					assembly,
 					AssemblyFixtureFactories,
 					assemblyName,
 					assemblyPath,
 					assembly.GetCustomAttributes<BeforeAfterTestAttribute>().CastOrToReadOnlyCollection(),
-					assembly.GetCustomAttribute<CollectionBehaviorAttribute>(),
 					CollectionDefinitionsByName,
 					configFile,
 					assembly.Modules.FirstOrDefault()?.ModuleVersionId,
+					parallelizationAttribute,
 					assembly.GetCustomAttribute<TargetFrameworkAttribute>()?.FrameworkName,
 					Traits.ToReadOnly(),
 					version: name.Version

@@ -1,12 +1,6 @@
 #if NETFRAMEWORK
 
-using System;
-using System.Collections.Generic;
 using System.Configuration;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using Xunit.Internal;
 using Xunit.Sdk;
 
 // This is in this namespace so that it aligns with ConfigReader_Json, which comes from xunit.v3.runner.common
@@ -72,11 +66,13 @@ public static class ConfigReader_Configuration
 				configuration.MethodDisplayOptions = GetEnum<TestMethodDisplayOptions>(settings, Configuration.MethodDisplayOptions) ?? configuration.MethodDisplayOptions;
 				configuration.ParallelAlgorithm = GetEnum<ParallelAlgorithm>(settings, Configuration.ParallelAlgorithm) ?? configuration.ParallelAlgorithm;
 				configuration.ParallelizeAssembly = GetBoolean(settings, Configuration.ParallelizeAssembly) ?? configuration.ParallelizeAssembly;
-				configuration.ParallelizeTestCollections = GetBoolean(settings, Configuration.ParallelizeTestCollections) ?? configuration.ParallelizeTestCollections;
 				configuration.PreEnumerateTheories = GetBoolean(settings, Configuration.PreEnumerateTheories) ?? configuration.PreEnumerateTheories;
 				configuration.ShadowCopy = GetBoolean(settings, Configuration.ShadowCopy) ?? configuration.ShadowCopy;
 				configuration.StopOnFail = GetBoolean(settings, Configuration.StopOnFail) ?? configuration.StopOnFail;
 				configuration.LongRunningTestSeconds = GetInt(settings, Configuration.LongRunningTestSeconds) ?? configuration.LongRunningTestSeconds;
+
+				if (configuration.ParallelMode is null && GetBoolean(settings, Configuration.ParallelizeTestCollections) is bool parallelizeTestCollections)
+					configuration.ParallelMode = parallelizeTestCollections ? ParallelMode.Collections : ParallelMode.None;
 
 				return true;
 			}

@@ -34,12 +34,6 @@ public class CommandLine : CommandLineParserBase
 			"  sync    - synchronously report messages (and wait for a carriage return after each)"
 		);
 		AddParser("id", OnID, CommandLineGroup.General, "<id>", "run a test case (by unique ID)");
-		AddParser(
-			"parallel", OnParallel, CommandLineGroup.General, "<option>",
-			"set parallelization based on option",
-			"  none        - turn off parallelization",
-			"  collections - parallelize by collections [default]"
-		);
 		AddParser("pause", OnPause, CommandLineGroup.General, null, "wait for input before running tests (ignored with -automated)");
 #if !XUNIT_AOT
 		AddParser("run", OnRun, CommandLineGroup.General, "<serialization>", "run a test case (by serialization)");

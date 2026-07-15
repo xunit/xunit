@@ -82,7 +82,8 @@ public abstract class TestCaseFactoryBase : ICodeGenTestCaseFactory
 		Func<object?, ValueTask> methodInvoker,
 		int testIndex = 0) =>
 			new CodeGenTest(
-				Guard.ArgumentNotNull(testCase).Explicit,
+				Guard.ArgumentNotNull(testCase).DisableParallelization,
+				testCase.Explicit,
 				methodInvoker,
 				testCase.SkipReason,
 				testCase.SkipUnless,

@@ -104,6 +104,7 @@ partial class DataAttribute : IDataAttribute
 
 			return new TheoryDataRow(theoryDataRow.GetData())
 			{
+				DisableParallelization = theoryDataRow.DisableParallelization ?? DisableParallelization,
 				Explicit = theoryDataRow.Explicit ?? ExplicitAsNullable,
 				Label = theoryDataRow.Label ?? Label,
 				Skip = theoryDataRow.Skip ?? Skip,
@@ -119,6 +120,7 @@ partial class DataAttribute : IDataAttribute
 		if (dataRow is object?[] array)
 			return new TheoryDataRow(array)
 			{
+				DisableParallelization = DisableParallelization,
 				Explicit = ExplicitAsNullable,
 				Label = Label,
 				Skip = Skip,
@@ -141,6 +143,7 @@ partial class DataAttribute : IDataAttribute
 
 					return new TheoryDataRow(data)
 					{
+						DisableParallelization = DisableParallelization,
 						Explicit = ExplicitAsNullable,
 						Label = Label,
 						Skip = Skip,

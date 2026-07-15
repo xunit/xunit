@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using Xunit.Sdk;
 
 namespace Xunit.v3;
@@ -23,6 +24,24 @@ public class XunitTestCaseRunner :
 	public static XunitTestCaseRunner Instance { get; } = new();
 
 	/// <summary>
+	/// Please call <see cref="Run(IXunitTestCase, IReadOnlyCollection{IXunitTest}, IMessageBus, ExceptionAggregator, CancellationTokenSource, ParallelMode, ExecutionScheduler, string, string?, ExplicitOption, object?[], FixtureMappingManager)"/>.
+	/// This overload is no longer supported and will be removed in the next major version.
+	/// </summary>
+	[Obsolete("Please call the overload which adds parallelMode, scheduler, and methodFixtureMappings. This overload is no longer supported and will be removed in the next major version.", error: true)]
+	[EditorBrowsable(EditorBrowsableState.Never)]
+	public async ValueTask<RunSummary> Run(
+		IXunitTestCase testCase,
+		IReadOnlyCollection<IXunitTest> tests,
+		IMessageBus messageBus,
+		ExceptionAggregator aggregator,
+		CancellationTokenSource cancellationTokenSource,
+		string displayName,
+		string? skipReason,
+		ExplicitOption explicitOption,
+		object?[] constructorArguments) =>
+			throw new NotSupportedException("Please call the overload which adds parallelMode, scheduler, and methodFixtureMappings. This overload is no longer supported and will be removed in the next major version.");
+
+	/// <summary>
 	/// Runs the test case.
 	/// </summary>
 	/// <remarks>
@@ -35,6 +54,8 @@ public class XunitTestCaseRunner :
 	/// <param name="messageBus">The message bus to report run status to.</param>
 	/// <param name="aggregator">The exception aggregator used to run code and collect exceptions.</param>
 	/// <param name="cancellationTokenSource">The task cancellation token source, used to cancel the test run.</param>
+	/// <param name="parallelMode">The parallel mode for the test case</param>
+	/// <param name="scheduler">The scheduler used for task/test scheduling</param>
 	/// <param name="displayName">The display name of the test case.</param>
 	/// <param name="skipReason">The skip reason, if the test is to be skipped.</param>
 	/// <param name="explicitOption">A flag to indicate how explicit tests should be treated.</param>
@@ -47,6 +68,8 @@ public class XunitTestCaseRunner :
 		IMessageBus messageBus,
 		ExceptionAggregator aggregator,
 		CancellationTokenSource cancellationTokenSource,
+		ParallelMode parallelMode,
+		ExecutionScheduler scheduler,
 		string displayName,
 		string? skipReason,
 		ExplicitOption explicitOption,
@@ -56,12 +79,14 @@ public class XunitTestCaseRunner :
 		await using var ctxt = new XunitTestCaseRunnerContext(
 			testCase,
 			tests,
+			explicitOption,
 			messageBus,
 			aggregator,
-			cancellationTokenSource,
 			displayName,
 			skipReason,
-			explicitOption,
+			cancellationTokenSource,
+			parallelMode,
+			scheduler,
 			constructorArguments,
 			methodFixtureMappings
 		);

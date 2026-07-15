@@ -602,6 +602,8 @@ public static class XunitTestRunnerTests
 		readonly object?[] constructorArguments = constructorArguments ?? [];
 		readonly ExplicitOption explicitOption = explicitOption ?? ExplicitOption.Off;
 		readonly IMessageBus messageBus = messageBus ?? new SpyMessageBus();
+		readonly ParallelMode parallelMode = ParallelMode.Collections;
+		readonly ExecutionScheduler scheduler = ExecutionScheduler.CreateUnlimited();
 		readonly IXunitTest test = test;
 
 		public readonly ExceptionAggregator Aggregator = new();
@@ -619,7 +621,7 @@ public static class XunitTestRunnerTests
 		}
 
 		public ValueTask<RunSummary> Run() =>
-			Run(test, messageBus, constructorArguments, explicitOption, Aggregator, TokenSource, beforeAfterTestAttributes, CaseFixtureMappings);
+			Run(test, messageBus, constructorArguments, explicitOption, Aggregator, TokenSource, parallelMode, scheduler, beforeAfterTestAttributes, CaseFixtureMappings);
 	}
 }
 

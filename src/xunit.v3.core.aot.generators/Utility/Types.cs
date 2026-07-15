@@ -20,6 +20,7 @@ partial class Types
 
 		partial class v3
 		{
+			public const string ParallelizationAttribute = "Xunit.v3.ParallelizationAttribute";
 			public const string TestPipelineStartupAttribute = "Xunit.v3.TestPipelineStartupAttribute";
 		}
 	}

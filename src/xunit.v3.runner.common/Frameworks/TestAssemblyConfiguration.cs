@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using Xunit.Sdk;
 
 namespace Xunit.Runner.Common;
@@ -31,7 +32,7 @@ public class TestAssemblyConfiguration
 		TestMethodDisplayOptions? methodDisplayOptions,
 		ParallelAlgorithm? parallelAlgorithm,
 		bool? parallelizeAssembly,
-		bool? parallelizeTestCollections,
+		ParallelMode? parallelMode,
 		bool? preEnumerateTheories,
 		int? printMaxEnumerableLength,
 		int? printMaxObjectDepth,
@@ -61,7 +62,7 @@ public class TestAssemblyConfiguration
 		MethodDisplayOptions = methodDisplayOptions;
 		ParallelAlgorithm = parallelAlgorithm;
 		ParallelizeAssembly = parallelizeAssembly;
-		ParallelizeTestCollections = parallelizeTestCollections;
+		ParallelMode = parallelMode;
 		PreEnumerateTheories = preEnumerateTheories;
 		PrintMaxEnumerableLength = printMaxEnumerableLength;
 		PrintMaxObjectDepth = printMaxObjectDepth;
@@ -252,17 +253,41 @@ public class TestAssemblyConfiguration
 	public bool ParallelizeAssemblyOrDefault => ParallelizeAssembly ?? false;
 
 	/// <summary>
-	/// Gets or sets a flag indicating that this test assembly wants to run test collections
-	/// in parallel against one another.
+	/// Please read <see cref="ParallelMode"/> instead.
+	/// This property will be removed in the next major version.
 	/// </summary>
-	public bool? ParallelizeTestCollections { get; set; }
+	[Obsolete("Please read ParallelMode instead. This property will be removed in the next major version.")]
+	[EditorBrowsable(EditorBrowsableState.Never)]
+	public bool? ParallelizeTestCollections
+	{
+		get => ParallelMode is null ? null : ParallelMode != Sdk.ParallelMode.None;
+		set => ParallelMode = value switch
+		{
+			true => Sdk.ParallelMode.Collections,
+			false => Sdk.ParallelMode.None,
+			null => null,
+		};
+	}
 
 	/// <summary>
-	/// Gets a flag indicating that this test assembly wants to run test collections
-	/// in parallel against one another. If the flag is not set, returns the default
-	/// value (<see langword="true"/>).
+	/// Please read <see cref="ParallelModeOrDefault"/> instead.
+	/// This property will be removed in the next major version.
 	/// </summary>
+	[Obsolete("Please read ParallelModeOrDefault instead. This property will be removed in the next major version.")]
+	[EditorBrowsable(EditorBrowsableState.Never)]
 	public bool ParallelizeTestCollectionsOrDefault => ParallelizeTestCollections ?? true;
+
+	/// <summary>
+	/// Gets or sets a flag that indicates how test parallelization is scheduled
+	/// by default in this test assembly.
+	/// </summary>
+	public ParallelMode? ParallelMode { get; set; }
+
+	/// <summary>
+	/// Gets a flag that indicates how test parallelization is scheduled by default in this
+	/// test assembly. If the flag is not set, returns the default value (<see cref="Sdk.ParallelMode.Collections"/>).
+	/// </summary>
+	public ParallelMode ParallelModeOrDefault => ParallelMode ?? Sdk.ParallelMode.Collections;
 
 	/// <summary>
 	/// Gets or sets a flag indicating whether theory data should be pre-enumerated during

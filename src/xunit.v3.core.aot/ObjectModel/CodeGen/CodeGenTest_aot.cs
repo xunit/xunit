@@ -5,6 +5,7 @@ namespace Xunit.v3;
 /// <summary>
 /// Default implementation of <see cref="ICodeGenTest"/> for xUnit.net v3 tests.
 /// </summary>
+/// <param name="disableParallelization">Indicates if the test wishes to opt out of parallelization</param>
 /// <param name="explicit">A flag to indicate whether the test case is marked as explicit</param>
 /// <param name="methodInvoker">The test method invoker</param>
 /// <param name="skipReason">The display text for the reason the test case might be skipped</param>
@@ -20,6 +21,7 @@ namespace Xunit.v3;
 /// This class is used for code generation-based tests.
 /// </remarks>
 public class CodeGenTest(
+	bool disableParallelization,
 	bool @explicit,
 	Func<object?, ValueTask> methodInvoker,
 	string? skipReason,
@@ -33,6 +35,10 @@ public class CodeGenTest(
 	string uniqueID) :
 		ICodeGenTest
 {
+	/// <inheritdoc/>
+	public bool DisableParallelization =>
+		disableParallelization;
+
 	/// <inheritdoc/>
 	public bool Explicit =>
 		@explicit;

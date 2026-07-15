@@ -23,6 +23,7 @@ public class FactTestCaseFactory : TestCaseFactoryBase
 		DisposalTracker disposalTracker,
 		string displayName) =>
 			[new CodeGenTestCase(
+				disableParallelization: false,  // [Fact.DisableParallelization] is fed into the test method registration
 				Explicit,
 				SkipExceptions,
 				SkipReason,

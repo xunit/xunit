@@ -25,12 +25,10 @@ public class CommandLine : CommandLineParserBase
 			$"  any integer value >= 1 is valid (default value is {EnvironmentVariables.Defaults.AssertEquivalentMaxDepth})"
 		);
 		AddParser(
-			"parallel", OnParallel, CommandLineGroup.General, "<option>",
-			"set parallelization based on option",
-			"  none        - turn off all parallelization",
-			"  collections - only parallelize collections [default]",
-			"  assemblies  - only parallelize assemblies",
-			"  all         - parallelize assemblies & collections"
+			"parallelAssemblies", OnParallelAssemblies, CommandLineGroup.General, "<option>",
+			"run assemblies in parallel to each other",
+			"  on  - run assemblies in parallel",
+			"  off - do not run assemblies in parallel [default]"
 		);
 		AddParser("pause", OnPause, CommandLineGroup.General, null, "wait for input before running tests");
 		AddParser("wait", OnWait, CommandLineGroup.General, null, "wait for input after completion");
@@ -122,6 +120,22 @@ public class CommandLine : CommandLineParserBase
 		GuardNoOptionValue(option);
 		foreach (var projectAssembly in Project.Assemblies)
 			projectAssembly.Configuration.ShadowCopy = false;
+	}
+
+	void OnParallelAssemblies(KeyValuePair<string, string?> option)
+	{
+		if (option.Value is null)
+			throw new ArgumentException("missing argument for -parallelAssemblies");
+
+		var parallelAssemblies = option.Value.ToUpperInvariant() switch
+		{
+			"ON" or "TRUE" or "1" => true,
+			"OFF" or "FALSE" or "0" => false,
+			_ => throw new ArgumentException("incorrect argument value for -parallelAssemblies")
+		};
+
+		foreach (var projectAssembly in Project.Assemblies)
+			projectAssembly.Configuration.ParallelizeAssembly = parallelAssemblies;
 	}
 
 	/// <summary/>

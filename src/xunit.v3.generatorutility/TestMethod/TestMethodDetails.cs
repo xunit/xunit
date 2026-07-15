@@ -103,6 +103,11 @@ namespace Xunit.Generators
 		public string? DeclaredTypeIndex { get; }
 
 		/// <summary>
+		/// Gets a flag which indicates whether the tests from this test method wish to opt out of parallelization
+		/// </summary>
+		public bool DisableParallelization { get; set; }
+
+		/// <summary>
 		/// Gets the display name attached to the test method, if any
 		/// </summary>
 		public string? DisplayName { get; set; }
@@ -285,6 +290,11 @@ namespace Xunit.Generators
 		{
 			switch (name)
 			{
+				case Names.FactAttribute.DisableParallelization:
+					if (value.Value is bool disableParallelizationValue)
+						DisableParallelization = disableParallelizationValue;
+					break;
+
 				case Names.FactAttribute.DisplayName:
 					DisplayName = value.Value as string;
 					break;

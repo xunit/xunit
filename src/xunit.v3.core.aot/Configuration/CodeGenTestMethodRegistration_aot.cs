@@ -29,6 +29,11 @@ public class CodeGenTestMethodRegistration
 	public string? DeclaredTypeIndex { get; init; }
 
 	/// <summary>
+	/// Gets a flag which indicates if the tests from this test method wish to opt out of parallelism.
+	/// </summary>
+	public bool DisableParallelization { get; init; }
+
+	/// <summary>
 	/// Gets a flag which indicates if the method is static
 	/// </summary>
 	public bool IsStatic { get; init; }
@@ -88,6 +93,7 @@ public class CodeGenTestMethodRegistration
 				testMethod = new CodeGenTestMethod(
 					beforeAfterTestAttributes.CastOrToReadOnlyCollection(),
 					DeclaredTypeIndex,
+					DisableParallelization,
 					IsStatic,
 					Arity,
 					methodName,

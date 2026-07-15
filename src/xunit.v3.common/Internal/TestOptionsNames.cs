@@ -167,7 +167,7 @@ public static class TestOptionsNames
 		/// </summary>
 		/// <remarks>
 		/// Value type: <see cref="bool"/><br/>
-		/// Consumed by: v2, v3
+		/// Consumed by: v2, v3 (prior to 4.0.0)
 		/// </remarks>
 		public static readonly string DisableParallelization = "xunit.execution.DisableParallelization";
 
@@ -227,6 +227,15 @@ public static class TestOptionsNames
 		/// Consumed by: v2, v3
 		/// </remarks>
 		public static readonly string ParallelAlgorithm = "xunit.execution.ParallelAlgorithm";
+
+		/// <summary>
+		/// Set the default parallelization mode for the test assembly.
+		/// </summary>
+		/// <remarks>
+		/// Value type: <see cref="Sdk.ParallelMode"/><br/>
+		/// Consumed by: v3 4.0.0+
+		/// </remarks>
+		public static readonly string ParallelMode = "xunit.execution.ParallelMode";
 
 		/// <summary>
 		/// Sets the maximum number of items to print in a collection.

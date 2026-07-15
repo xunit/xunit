@@ -87,6 +87,29 @@ public static class CoreTestClassRunnerTests
 				where TTestMethod : notnull, ITestMethod =>
 					throw new DivideByZeroException();
 		}
+
+		[Theory]
+		[InlineData(ParallelMode.All, true, "RunSequentialTask<RunSummary>")]  // All: Opting out moves us through the sequential gate
+		[InlineData(ParallelMode.All, false)]                                  // All: Not opting out does noting
+		[InlineData(ParallelMode.None, true)]                                  // None: Do nothing
+		[InlineData(ParallelMode.None, false)]                                 // None: Do nothing
+		public static async ValueTask ParallelModeHandling(
+			ParallelMode testClassParallelMode,
+			bool testMethodDisableParallelization,
+			string? expectedOperation = null)
+		{
+			var spyScheduler = new SpyExecutionScheduler();
+			var testMethod = Mocks.CoreTestMethod(disableParallelization: testMethodDisableParallelization);
+			var testCase = Mocks.CoreTestCase(testMethod: testMethod);
+			var runner = new TestableCoreTestClassRunner(testCase) { ParallelMode = testClassParallelMode, Scheduler = spyScheduler };
+
+			await runner.RunAsync();
+
+			if (expectedOperation is null)
+				Assert.Empty(spyScheduler.Operations);
+			else
+				Assert.Equal(expectedOperation, Assert.Single(spyScheduler.Operations));
+		}
 	}
 
 	class TestableCoreTestClassRunner(params ICoreTestCase[] testCases) :
@@ -95,6 +118,8 @@ public static class CoreTestClassRunnerTests
 		public ExceptionAggregator Aggregator = new();
 		public CancellationTokenSource CancellationTokenSource = new();
 		public SpyMessageBus MessageBus = new();
+		public ParallelMode ParallelMode = ParallelMode.Collections;
+		public ExecutionScheduler Scheduler = ExecutionScheduler.CreateUnlimited();
 		public List<(ICoreTestMethod TestMethod, IReadOnlyCollection<ICoreTestCase> TestCases)> TestMethodsRun = [];
 
 		public async ValueTask<RunSummary> RunAsync()
@@ -105,7 +130,9 @@ public static class CoreTestClassRunnerTests
 				ExplicitOption.Off,
 				MessageBus,
 				Aggregator,
-				CancellationTokenSource
+				CancellationTokenSource,
+				ParallelMode,
+				Scheduler
 			);
 			await context.InitializeAsync();
 
@@ -128,8 +155,10 @@ public static class CoreTestClassRunnerTests
 			ExplicitOption explicitOption,
 			IMessageBus messageBus,
 			ExceptionAggregator aggregator,
-			CancellationTokenSource cancellationTokenSource) :
-				CoreTestClassRunnerContext<ICoreTestClass, ICoreTestMethod, ICoreTestCase>(testClass, testCases, explicitOption, messageBus, aggregator, cancellationTokenSource)
+			CancellationTokenSource cancellationTokenSource,
+			ParallelMode parallelMode,
+			ExecutionScheduler scheduler) :
+				CoreTestClassRunnerContext<ICoreTestClass, ICoreTestMethod, ICoreTestCase>(testClass, testCases, explicitOption, messageBus, aggregator, cancellationTokenSource, parallelMode, scheduler)
 		{
 			public override ValueTask<RunSummary> RunTestMethod(
 				ICoreTestMethod testMethod,

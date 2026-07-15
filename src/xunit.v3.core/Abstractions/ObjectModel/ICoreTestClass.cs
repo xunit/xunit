@@ -16,6 +16,11 @@ public interface ICoreTestClass : ITestClass
 	Type Class { get; }
 
 	/// <summary>
+	/// Determines whether tests from this test class run in parallel against any other parallelizable tests.
+	/// </summary>
+	bool DisableParallelization { get; }
+
+	/// <summary>
 	/// Gets the test case orderer for the test class, if present.
 	/// </summary>
 	ITestCaseOrderer? TestCaseOrderer { get; }

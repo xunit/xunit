@@ -3,6 +3,7 @@ using System.Reflection;
 using Xunit;
 using Xunit.Runner.Common;
 using Xunit.Runner.InProc.SystemConsole;
+using Xunit.Sdk;
 
 public static class CommandLineTests
 {
@@ -90,7 +91,7 @@ public static class CommandLineTests
 
 #pragma warning disable CA1822  // Tests in this class depend on the instance to set & clean environment
 
-	[Collection("Switches Test Collection")]
+	[TestClass(DisableParallelization = true)]
 	public sealed class Switches : IDisposable
 	{
 		readonly string? _originalNoColorValue;
@@ -433,41 +434,68 @@ public static class CommandLineTests
 		public static class Parallelization
 		{
 			[Fact]
-			public static void ParallelizationOptionsAreNullByDefault()
+			public static void ParallelModeIsNullByDefault()
 			{
 				var commandLine = new TestableCommandLine("no-config.json");
 
 				var assembly = commandLine.Parse();
 
-				Assert.Null(assembly.Configuration.ParallelizeTestCollections);
+				Assert.Null(assembly.Configuration.ParallelMode);
 			}
 
 			[Fact]
-			public static void FailsWithoutOptionOrWithIncorrectOptions()
+			public static void ParallelModeInvalid()
 			{
-				var commandLine1 = new TestableCommandLine("no-config.json", "-parallel");
+				var commandLine1 = new TestableCommandLine("no-config.json", "-parallelMode");
 				var exception1 = Record.Exception(commandLine1.Parse);
 				Assert.IsType<ArgumentException>(exception1);
-				Assert.Equal("missing argument for -parallel", exception1.Message);
+				Assert.Equal("missing argument for -parallelMode", exception1.Message);
 
-				var commandLine2 = new TestableCommandLine("no-config.json", "-parallel", "nonsense");
+				var commandLine2 = new TestableCommandLine("no-config.json", "-parallelMode", "nonsense");
 				var exception2 = Record.Exception(commandLine2.Parse);
 				Assert.IsType<ArgumentException>(exception2);
-				Assert.Equal("incorrect argument value for -parallel", exception2.Message);
+				Assert.Equal("incorrect argument value for -parallelMode", exception2.Message);
 			}
 
 			[Theory]
-			[InlineData("none", false)]
-			[InlineData("collections", true)]
-			public static void ParallelCanBeTurnedOn(
+			[InlineData("none", ParallelMode.None)]
+			[InlineData("collections", ParallelMode.Collections)]
+			[InlineData("all", ParallelMode.All)]
+			public static void ParallelModeValid(
+				string parallelModeOption,
+				ParallelMode expectedParallelMode)
+			{
+				var commandLine = new TestableCommandLine("no-config.json", "-parallelMode", parallelModeOption);
+
+				var assembly = commandLine.Parse();
+
+				Assert.Equal(expectedParallelMode, assembly.Configuration.ParallelMode);
+			}
+
+			[Theory]
+			[InlineData("none", ParallelMode.None)]
+			[InlineData("collections", ParallelMode.Collections)]
+			public static void ParallelModeUnset_OverriddenByParallel(
 				string parallelOption,
-				bool expectedCollectionsParallelization)
+				ParallelMode? expectedParallelMode)
 			{
 				var commandLine = new TestableCommandLine("no-config.json", "-parallel", parallelOption);
 
 				var assembly = commandLine.Parse();
 
-				Assert.Equal(expectedCollectionsParallelization, assembly.Configuration.ParallelizeTestCollections);
+				Assert.Equal(expectedParallelMode, assembly.Configuration.ParallelMode);
+			}
+
+			[Theory]
+			[InlineData("none")]
+			[InlineData("collections")]
+			public static void ParallelModeSet_ParallelIgnored(string parallelOption)
+			{
+				var commandLine = new TestableCommandLine("no-config.json", "-parallelMode", "all", "-parallel", parallelOption);
+
+				var assembly = commandLine.Parse();
+
+				Assert.Equal(ParallelMode.All, assembly.Configuration.ParallelMode);
 			}
 		}
 

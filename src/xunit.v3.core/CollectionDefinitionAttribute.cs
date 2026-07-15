@@ -28,7 +28,7 @@ public sealed class CollectionDefinitionAttribute : Attribute
 		Name = Guard.ArgumentNotNull(name);
 
 	/// <summary>
-	/// Determines whether tests in this collection runs in parallel with any other collections.
+	/// Determines whether tests in this collection runs in parallel with any other tests.
 	/// </summary>
 	public bool DisableParallelization { get; set; }
 

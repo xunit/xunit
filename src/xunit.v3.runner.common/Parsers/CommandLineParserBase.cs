@@ -115,6 +115,12 @@ public abstract class CommandLineParserBase
 			"  aggressive   - start as many tests as possible",
 			"for more information, see https://xunit.net/docs/running-tests-in-parallel#algorithms"
 		);
+		AddParser("parallelMode", OnParallelMode, CommandLineGroup.General, "<option>",
+			"determine how tests are run in parallel within a test assembly",
+			"  none        - do not run tests in parallel",
+			"  collections - run test collections in parallel [default]",
+			"  all         - run all tests in parallel"
+		);
 		AddParser("preEnumerateTheories", OnPreEnumerateTheories, CommandLineGroup.General, null, "enable theory pre-enumeration (disabled by default)");
 		AddParser("showLiveOutput", OnShowLiveOutput, CommandLineGroup.General, null, "show output messages from tests live");
 		AddParser("stopOnFail", OnStopOnFail, CommandLineGroup.General, null, "stop on first test failure");
@@ -254,6 +260,13 @@ public abstract class CommandLineParserBase
 
 		void warnDeprecatedFilter(string @switch) =>
 			ParseWarnings.Add($"The '-no{@switch}' switch has been deprecated in favor of '-{@switch}-' and will be removed in the next major version");
+
+		// Other deprecated switches
+		AddHiddenParser("parallel", kvp =>
+		{
+			ParseWarnings.Add("The '-parallel' switch has been deprecated in favor of '-parallelMode' and will be removed in the next major version");
+			OnParallel(kvp);
+		});
 	}
 
 	/// <summary/>
@@ -685,8 +698,8 @@ public abstract class CommandLineParserBase
 
 		foreach (var projectAssembly in Project.Assemblies)
 		{
-			projectAssembly.Configuration.ParallelizeAssembly = parallelizeAssemblies;
-			projectAssembly.Configuration.ParallelizeTestCollections = parallelizeTestCollections;
+			projectAssembly.Configuration.ParallelizeAssembly ??= parallelizeAssemblies;
+			projectAssembly.Configuration.ParallelMode ??= parallelizeTestCollections ? ParallelMode.Collections : ParallelMode.None;
 		}
 	}
 
@@ -700,6 +713,18 @@ public abstract class CommandLineParserBase
 
 		foreach (var projectAssembly in Project.Assemblies)
 			projectAssembly.Configuration.ParallelAlgorithm = parallelAlgorithm;
+	}
+
+	void OnParallelMode(KeyValuePair<string, string?> option)
+	{
+		if (option.Value is null)
+			throw new ArgumentException("missing argument for -parallelMode");
+
+		if (!Enum.TryParse(option.Value, ignoreCase: true, out ParallelMode parallelMode))
+			throw new ArgumentException("incorrect argument value for -parallelMode");
+
+		foreach (var projectAssembly in Project.Assemblies)
+			projectAssembly.Configuration.ParallelMode = parallelMode;
 	}
 
 	/// <summary/>

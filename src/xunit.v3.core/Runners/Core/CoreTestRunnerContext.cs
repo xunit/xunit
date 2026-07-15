@@ -6,11 +6,13 @@ namespace Xunit.v3;
 /// Context class for <see cref="CoreTestRunner{TContext, TTest, TBeforeAfterAttribute}"/>.
 /// </summary>
 /// <param name="test">The test</param>
-/// <param name="messageBus">The message bus to send execution messages to</param>
-/// <param name="skipReason">The skip reason for the test, if it's being skipped</param>
 /// <param name="explicitOption">The user's choice on how to treat explicit tests</param>
+/// <param name="messageBus">The message bus to send execution messages to</param>
 /// <param name="aggregator">The exception aggregator</param>
+/// <param name="skipReason">The skip reason for the test, if it's being skipped</param>
 /// <param name="cancellationTokenSource">The cancellation token source</param>
+/// <param name="parallelMode">The parallel mode for the test</param>
+/// <param name="scheduler">The scheduler used for task/test scheduling</param>
 /// <typeparam name="TTest">The type of the test used by the test framework. Must
 /// derive from <see cref="ICoreTest"/>.</typeparam>
 /// <typeparam name="TBeforeAfterAttribute">The type of the before after attribute</typeparam>
@@ -19,11 +21,13 @@ namespace Xunit.v3;
 /// </remarks>
 public abstract class CoreTestRunnerContext<TTest, TBeforeAfterAttribute>(
 	TTest test,
-	IMessageBus messageBus,
-	string? skipReason,
 	ExplicitOption explicitOption,
+	IMessageBus messageBus,
 	ExceptionAggregator aggregator,
-	CancellationTokenSource cancellationTokenSource) :
+	string? skipReason,
+	CancellationTokenSource cancellationTokenSource,
+	ParallelMode parallelMode,
+	ExecutionScheduler scheduler) :
 		TestRunnerContext<TTest>(test, messageBus, skipReason, explicitOption, aggregator, cancellationTokenSource)
 			where TTest : class, ICoreTest
 			where TBeforeAfterAttribute : notnull
@@ -32,6 +36,25 @@ public abstract class CoreTestRunnerContext<TTest, TBeforeAfterAttribute>(
 	/// Gets or sets the collection of <typeparamref name="TBeforeAfterAttribute"/>s for this test.
 	/// </summary>
 	protected abstract IReadOnlyCollection<TBeforeAfterAttribute> BeforeAfterTestAttributes { get; set; }
+
+	/// <summary>
+	/// Gets the parallel mode for the test method.
+	/// </summary>
+	/// <remarks>
+	/// Note: This will only return <see cref="ParallelMode.All"/> if that was the parallel mode passed to the constructor,
+	/// and the test has not opted out parallelism; otherwise, it will always return <see cref="ParallelMode.None"/>.
+	/// </remarks>
+	public ParallelMode ParallelMode { get; } =
+		(parallelMode, Guard.ArgumentNotNull(test).DisableParallelization) switch
+		{
+			(ParallelMode.All, false) => ParallelMode.All,
+			_ => ParallelMode.None,
+		};
+
+	/// <summary>
+	/// Gets the scheduler used for task/test scheduling.
+	/// </summary>
+	public ExecutionScheduler Scheduler { get; } = Guard.ArgumentNotNull(scheduler);
 
 	/// <summary>
 	/// Implement this method to do runtime skip detection, which typically involves looking at
