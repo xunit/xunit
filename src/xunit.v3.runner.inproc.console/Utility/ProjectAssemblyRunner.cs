@@ -78,12 +78,15 @@ public sealed class ProjectAssemblyRunner(
 	/// <param name="messageSink">The optional message sink to send messages to</param>
 	/// <param name="diagnosticMessageSink">The optional message sink to send diagnostic messages to</param>
 	/// <param name="testCases">A collection to contain the test cases to run, if desired</param>
+	/// <param name="testContextInitializedCallback">An optional callback to be called immediately after
+	/// the <see cref="TestContext"/> has been initialized</param>
 	public async ValueTask Discover(
 		XunitProjectAssembly assembly,
 		ITestPipelineStartup? pipelineStartup,
 		IMessageSink? messageSink = null,
 		IMessageSink? diagnosticMessageSink = null,
-		IList<(ITestCase TestCase, bool PassedFilter)>? testCases = null)
+		IList<(ITestCase TestCase, bool PassedFilter)>? testCases = null,
+		Func<ValueTask>? testContextInitializedCallback = null)
 	{
 		Guard.ArgumentNotNull(assembly);
 
@@ -93,6 +96,8 @@ public sealed class ProjectAssemblyRunner(
 		var internalDiagnosticMessages = assembly.Configuration.InternalDiagnosticMessagesOrDefault;
 
 		TestContext.SetForInitialization(diagnosticMessageSink, diagnosticMessages, internalDiagnosticMessages);
+		if (testContextInitializedCallback is not null)
+			await testContextInitializedCallback();
 
 		await using var disposalTracker = new DisposalTracker();
 		var testFramework = RegisteredEngineConfig.GetTestFramework(testAssembly, assembly.ConfigFileName);
@@ -194,10 +199,10 @@ public sealed class ProjectAssemblyRunner(
 		);
 
 	/// <summary>
-	/// Please call <see cref="Run{TResultWriter}(XunitProjectAssembly, IMessageSink, IMessageSink?, IRunnerLogger, IReadOnlyDictionary{string, TResultWriter}, ITestPipelineStartup?, HashSet{string}?)"/>.
+	/// Please call <see cref="Run{TResultWriter}(XunitProjectAssembly, IMessageSink, IMessageSink?, IRunnerLogger, IReadOnlyDictionary{string, TResultWriter}, ITestPipelineStartup?, HashSet{string}?, Func{ValueTask}?)"/>.
 	/// This overload will be removed in the next major version.
 	/// </summary>
-	[Obsolete("Please call the overload which accepts resultWriterMessageHandlers. This overload will be removed in the next major version.")]
+	[Obsolete("Please call the overload which accepts resultWriters and testContextInitializedCallback. This overload will be removed in the next major version.")]
 	public ValueTask<int> Run(
 		XunitProjectAssembly assembly,
 		IMessageSink messageSink,
@@ -217,6 +222,8 @@ public sealed class ProjectAssemblyRunner(
 	/// <param name="resultWriters">The available result writers</param>
 	/// <param name="pipelineStartup">The pipeline startup object</param>
 	/// <param name="testCaseIDsToRun">An optional list of test case unique IDs to run</param>
+	/// <param name="testContextInitializedCallback">An optional callback to be called immediately after
+	/// the <see cref="TestContext"/> has been initialized</param>
 	/// <returns>Returns <c>0</c> if there were no failures; non-<c>zero</c> failure count, otherwise</returns>
 	public async ValueTask<int> Run<TResultWriter>(
 		XunitProjectAssembly assembly,
@@ -225,7 +232,8 @@ public sealed class ProjectAssemblyRunner(
 		IRunnerLogger runnerLogger,
 		IReadOnlyDictionary<string, TResultWriter> resultWriters,
 		ITestPipelineStartup? pipelineStartup,
-		HashSet<string>? testCaseIDsToRun = null)
+		HashSet<string>? testCaseIDsToRun = null,
+		Func<ValueTask>? testContextInitializedCallback = null)
 			where TResultWriter : IResultWriter
 	{
 		Guard.ArgumentNotNull(assembly);
@@ -247,6 +255,8 @@ public sealed class ProjectAssemblyRunner(
 			var longRunningSeconds = assembly.Configuration.LongRunningTestSecondsOrDefault;
 
 			TestContext.SetForInitialization(diagnosticMessageSink, diagnosticMessages, internalDiagnosticMessages);
+			if (testContextInitializedCallback is not null)
+				await testContextInitializedCallback();
 
 			var resultWriterMessageHandlers = new List<IResultWriterMessageHandler>();
 

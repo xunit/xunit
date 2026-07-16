@@ -185,7 +185,7 @@ public class TestPlatformTestFramework :
 				throw new ArgumentException($"Unsupported discovery filter type '{filter.GetType().SafeName()}'", nameof(filter));
 
 			var messageHandler = new TestPlatformDiscoveryMessageSink(session.MessageHandler, projectAssembly.Assembly!.FullName!, sessionUid, discoveryFilter, messageBus, cancellationToken);
-			await projectRunner.Discover(projectAssembly, pipelineStartup, messageHandler);
+			await projectRunner.Discover(projectAssembly, pipelineStartup, messageHandler, testContextInitializedCallback: async () => TestContext.Current.SetMicrosoftTestingPlatformSession(sessionUid));
 		}, cancellationToken);
 	}
 
@@ -226,7 +226,7 @@ public class TestPlatformTestFramework :
 			if (projectAssembly.Project.Configuration.List is not null)
 			{
 				var discoverySink = new TestDiscoverySink(() => cancellationToken.IsCancellationRequested);
-				await projectRunner.Discover(projectAssembly, pipelineStartup, discoverySink);
+				await projectRunner.Discover(projectAssembly, pipelineStartup, discoverySink, testContextInitializedCallback: async () => TestContext.Current.SetMicrosoftTestingPlatformSession(sessionUid));
 
 				var testCasesByAssembly = new Dictionary<string, List<ITestCaseDiscovered>> { [projectAssembly.AssemblyDisplayName] = discoverySink.TestCases };
 				ConsoleProjectLister.List(consoleHelper, testCasesByAssembly, projectAssembly.Project.Configuration.List.Value.Option, ListFormat.Text);
@@ -245,7 +245,7 @@ public class TestPlatformTestFramework :
 			projectAssembly.Configuration.ShowLiveOutput = false;
 
 			var messageHandler = new TestPlatformExecutionMessageSink(session.MessageHandler, sessionUid, messageBus, trxCapability, outputDevice, configuration, showLiveOutput, serverMode);
-			await projectRunner.Run(projectAssembly, messageHandler, diagnosticMessageSink, runnerLogger, resultWriters, pipelineStartup, testCaseIDsToRun);
+			await projectRunner.Run(projectAssembly, messageHandler, diagnosticMessageSink, runnerLogger, resultWriters, pipelineStartup, testCaseIDsToRun, testContextInitializedCallback: async () => TestContext.Current.SetMicrosoftTestingPlatformSession(sessionUid));
 
 			foreach (var output in projectAssembly.Project.Configuration.Output)
 				await messageBus.PublishAsync(this, new SessionFileArtifact(sessionUid, new FileInfo(output.Value), Path.GetFileNameWithoutExtension(output.Value)));

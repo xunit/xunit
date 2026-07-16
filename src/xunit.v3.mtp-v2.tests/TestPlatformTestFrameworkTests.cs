@@ -180,7 +180,7 @@ public static class TestPlatformTestFrameworkTests
 		{
 			var completionCalled = false;
 			var uid = new SessionUid("abc");
-			var messageBus = new SpyTestPlatformMessageBus();
+			var messageBus = new SpyTestPlatformMessageBus(validateSessionUid: true);
 			var framework = TestableTestPlatformTestFramework.Create();
 			framework.ProjectAssembly.Configuration.Filters.AddIncludedClassFilter(typeof(SessionManagement).FullName!);
 			await framework.CreateTestSession(uid);
@@ -200,10 +200,12 @@ public static class TestPlatformTestFrameworkTests
 				testCaseDisplayName => Assert.Equal($"{typeof(SessionManagement).FullName}.{nameof(SessionManagement.CreateSession_WithLogo)}", testCaseDisplayName),
 				testCaseDisplayName => Assert.Equal($"{typeof(SessionManagement).FullName}.{nameof(SessionManagement.CreateSession_WithoutLogo)}", testCaseDisplayName)
 			);
+			Assert.NotNull(messageBus.SessionUid);
+			Assert.Equal("abc", messageBus.SessionUid.Value.Value);
 
 			// Reset observation
 
-			messageBus.PublishedData.Clear();
+			messageBus.Clear();
 			completionCalled = false;
 
 			// Execute the discovered tests
@@ -235,6 +237,8 @@ public static class TestPlatformTestFrameworkTests
 				testCaseDisplayName => Assert.Equal($"{typeof(SessionManagement).FullName}.{nameof(SessionManagement.CreateSession_WithLogo)}", testCaseDisplayName),
 				testCaseDisplayName => Assert.Equal($"{typeof(SessionManagement).FullName}.{nameof(SessionManagement.CreateSession_WithoutLogo)}", testCaseDisplayName)
 			);
+			Assert.NotNull(messageBus.SessionUid);
+			Assert.Equal("abc", messageBus.SessionUid.Value.Value);
 		}
 
 		[Fact]
