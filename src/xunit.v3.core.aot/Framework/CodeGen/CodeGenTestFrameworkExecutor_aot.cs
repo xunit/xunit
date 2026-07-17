@@ -8,7 +8,7 @@ namespace Xunit.v3;
 /// </summary>
 /// <param name="testAssembly">The test assembly</param>
 public class CodeGenTestFrameworkExecutor(ICodeGenTestAssembly testAssembly) :
-	TestFrameworkExecutor<ICodeGenTestCase>(testAssembly)
+	CoreTestFrameworkExecutor<ICodeGenTestCase>(testAssembly)
 {
 	/// <summary>
 	/// Gets the test assembly that contains the test.
@@ -25,28 +25,6 @@ public class CodeGenTestFrameworkExecutor(ICodeGenTestAssembly testAssembly) :
 		IReadOnlyCollection<ICodeGenTestCase> testCases,
 		IMessageSink executionMessageSink,
 		ITestFrameworkExecutionOptions executionOptions,
-		CancellationToken cancellationToken)
-	{
-		SetEnvironment(EnvironmentVariables.AssertEquivalentMaxDepth, executionOptions.AssertEquivalentMaxDepth());
-		SetEnvironment(EnvironmentVariables.PrintMaxEnumerableLength, executionOptions.PrintMaxEnumerableLength());
-		SetEnvironment(EnvironmentVariables.PrintMaxObjectDepth, executionOptions.PrintMaxObjectDepth());
-		SetEnvironment(EnvironmentVariables.PrintMaxObjectMemberCount, executionOptions.PrintMaxObjectMemberCount());
-		SetEnvironment(EnvironmentVariables.PrintMaxStringLength, executionOptions.PrintMaxStringLength());
-
-		await CodeGenTestAssemblyRunner.Instance.Run(
-			TestAssembly,
-			testCases,
-			executionMessageSink,
-			executionOptions,
-			cancellationToken
-		);
-	}
-
-	static void SetEnvironment(
-		string environmentVariableName,
-		int? value)
-	{
-		if (value.HasValue)
-			Environment.SetEnvironmentVariable(environmentVariableName, value.Value.ToString(CultureInfo.InvariantCulture));
-	}
+		CancellationToken cancellationToken) =>
+			await CodeGenTestAssemblyRunner.Instance.Run(TestAssembly, testCases, executionMessageSink, executionOptions, cancellationToken);
 }

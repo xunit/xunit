@@ -37,22 +37,6 @@ public class XunitTestFrameworkDiscoverer(
 	protected override ValueTask<IXunitTestClass> CreateTestClass(Type @class) =>
 		new(new XunitTestClass(@class, TestCollectionFactory.Get(@class)));
 
-	/// <inheritdoc/>
-	public override ValueTask Find(
-		Func<ITestCase, ValueTask<bool>> callback,
-		ITestFrameworkDiscoveryOptions discoveryOptions,
-		Type[]? types = null, CancellationToken? cancellationToken = null)
-	{
-		Guard.ArgumentNotNull(discoveryOptions);
-
-		SetEnvironment(EnvironmentVariables.PrintMaxEnumerableLength, discoveryOptions.PrintMaxEnumerableLength());
-		SetEnvironment(EnvironmentVariables.PrintMaxObjectDepth, discoveryOptions.PrintMaxObjectDepth());
-		SetEnvironment(EnvironmentVariables.PrintMaxObjectMemberCount, discoveryOptions.PrintMaxObjectMemberCount());
-		SetEnvironment(EnvironmentVariables.PrintMaxStringLength, discoveryOptions.PrintMaxStringLength());
-
-		return base.Find(callback, discoveryOptions, types, cancellationToken);
-	}
-
 	/// <summary>
 	/// Finds the tests on a test method.
 	/// </summary>

@@ -8,7 +8,7 @@ namespace Xunit.v3;
 /// </summary>
 /// <param name="testAssembly">The test assembly</param>
 public class CodeGenTestFrameworkDiscoverer(ICodeGenTestAssembly testAssembly) :
-	TestFrameworkDiscoverer<ICodeGenTestClass>(testAssembly)
+	CoreTestFrameworkDiscoverer<ICodeGenTestClass>(testAssembly)
 {
 	/// <summary>
 	/// Gets the test assembly.

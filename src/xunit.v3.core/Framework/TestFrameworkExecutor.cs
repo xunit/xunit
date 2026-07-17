@@ -64,6 +64,13 @@ public abstract class TestFrameworkExecutor<TTestCase>(ITestAssembly testAssembl
 		IReadOnlyCollection<ITestCase> testCases,
 		IMessageSink executionMessageSink,
 		ITestFrameworkExecutionOptions executionOptions,
+		CancellationToken? cancellationToken) =>
+			RunTestCasesInternal(testCases, executionMessageSink, executionOptions, cancellationToken);
+
+	internal virtual ValueTask RunTestCasesInternal(
+		IReadOnlyCollection<ITestCase> testCases,
+		IMessageSink executionMessageSink,
+		ITestFrameworkExecutionOptions executionOptions,
 		CancellationToken? cancellationToken)
 	{
 		Guard.ArgumentNotNull(testCases);
