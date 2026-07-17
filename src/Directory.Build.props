@@ -187,7 +187,7 @@
           </ItemGroup>
 
           <ItemGroup>
-            <PackageReference Include="Basic.Reference.Assemblies.Net90" Version="1.8.8" />
+            <PackageReference Include="Basic.Reference.Assemblies.Net90" Version="$(Basic_Reference_Assemblies_Net90_Version)" />
           </ItemGroup>
 
         </When>

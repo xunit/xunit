@@ -4,24 +4,27 @@
   <PropertyGroup>
 
     <!-- Used for building -->
-    <ILRepack_Version>2.0.45</ILRepack_Version>
+    <ILRepack_Version>2.0.46</ILRepack_Version>
     <Microsoft_NetCore_App_Ref_Version>10.0.0</Microsoft_NetCore_App_Ref_Version>
     <Microsoft_NETFramework_ReferenceAssemblies_Version>1.0.3</Microsoft_NETFramework_ReferenceAssemblies_Version>
     <Microsoft_SourceLink_GitHub_Version>10.0.105</Microsoft_SourceLink_GitHub_Version>
-    <Nerdbank_GitVersioning_Version>3.9.50</Nerdbank_GitVersioning_Version>
+    <Nerdbank_GitVersioning_Version>3.10.91</Nerdbank_GitVersioning_Version>
     <TunnelVisionLabs_ReferenceAssemblyAnnotator_Version>1.0.0-alpha.160</TunnelVisionLabs_ReferenceAssemblyAnnotator_Version>
 
     <!-- Used by Roslyn source generators (4.12.0 aligns with .NET 9, minimum for Native AOT) -->
-    <Microsoft_CodeAnalysis_Analyzers_Version>5.3.0</Microsoft_CodeAnalysis_Analyzers_Version>
+    <Microsoft_CodeAnalysis_Analyzers_Version>5.6.0</Microsoft_CodeAnalysis_Analyzers_Version>
     <Microsoft_CodeAnalysis_CSharp_Version>4.12.0</Microsoft_CodeAnalysis_CSharp_Version>
+    
+    <!-- Used by Roslyn source generator tests -->
+    <Basic_Reference_Assemblies_Net90_Version>1.8.9</Basic_Reference_Assemblies_Net90_Version>
 
     <!-- Used by xunit.v3.mtp-v2 -->
-    <Microsoft_Testing_v2_Version>2.2.3</Microsoft_Testing_v2_Version>
+    <Microsoft_Testing_v2_Version>2.3.2</Microsoft_Testing_v2_Version>
 
     <!-- Used by NuGet packages (xunit.v3 and xunit.v3.templates) -->
     <Microsoft_NET_Test_Sdk_Version>18.3.0</Microsoft_NET_Test_Sdk_Version>
-    <xunit_analyzers_Version>2.0.0-pre.56</xunit_analyzers_Version>
-    <xunit_runner_visualstudio_Version>4.0.0-pre.4</xunit_runner_visualstudio_Version>
+    <xunit_analyzers_Version>2.0.0-pre.60</xunit_analyzers_Version>
+    <xunit_runner_visualstudio_Version>4.0.0-pre.5</xunit_runner_visualstudio_Version>
 
     <!-- Used by xunit.v3.assert for immutable collection and memory/span support -->
     <System_Collections_Immutable_Version>6.0.0</System_Collections_Immutable_Version>
