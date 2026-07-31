@@ -31,9 +31,9 @@ public class ParallelizationAttributeGeneratorTests : CoreGeneratorTest<Parallel
 				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 				internal sealed class ParallelizationAttribute٠PFácoInw4 : global::Xunit.v3.EngineInitializationAttribute {
 					public override async global::System.Threading.Tasks.ValueTask InitializeAsync() {
-						global::Xunit.v3.RegisteredEngineConfig.RegisterParallelAlgorithm(Xunit.Sdk.ParallelAlgorithm.Aggressive);
-						global::Xunit.v3.RegisteredEngineConfig.RegisterParallelMaxThreads(64);
-						global::Xunit.v3.RegisteredEngineConfig.RegisterParallelMode(Xunit.Sdk.ParallelMode.All);
+						global::Xunit.v3.RegisteredEngineConfig.RegisterAssemblyParallelAlgorithm(Xunit.Sdk.ParallelAlgorithm.Aggressive);
+						global::Xunit.v3.RegisteredEngineConfig.RegisterAssemblyParallelMaxThreads(64);
+						global::Xunit.v3.RegisteredEngineConfig.RegisterAssemblyParallelizationMode(Xunit.Sdk.ParallelMode.All);
 					}
 				}
 			}

@@ -101,17 +101,17 @@ $@"global::Xunit.v3.RegisteredEngineConfig.RegisterAssemblyFixtureFactory(typeof
 
 			if (parallelAlgorithm is not null)
 				builder.Append(
-$@"global::Xunit.v3.RegisteredEngineConfig.RegisterParallelAlgorithm({parallelAlgorithm});
+$@"global::Xunit.v3.RegisteredEngineConfig.RegisterAssemblyParallelAlgorithm({parallelAlgorithm});
 ");
 
 			if (parallelMaxThreads is not null)
 				builder.Append(
-$@"global::Xunit.v3.RegisteredEngineConfig.RegisterParallelMaxThreads({parallelMaxThreads});
+$@"global::Xunit.v3.RegisteredEngineConfig.RegisterAssemblyParallelMaxThreads({parallelMaxThreads});
 ");
 
 			if (parallelMode is not null)
 				builder.Append(
-$@"global::Xunit.v3.RegisteredEngineConfig.RegisterParallelMode({parallelMode});
+$@"global::Xunit.v3.RegisteredEngineConfig.RegisterAssemblyParallelizationMode({parallelMode});
 ");
 
 			if (testCaseOrdererFactory != null)
