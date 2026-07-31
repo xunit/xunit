@@ -94,15 +94,15 @@ public sealed class CodeGenTestAssembly : ICodeGenTestAssembly
 
 	/// <inheritdoc/>
 	public int? MaxParallelThreads =>
-		parallelization?.MaxThreads;
+		parallelization?.GetMaxThreads();
 
 	/// <inheritdoc/>
 	public ParallelAlgorithm? ParallelAlgorithm =>
-		parallelization?.Algorithm;
+		parallelization?.GetAlgorithm();
 
 	/// <inheritdoc/>
 	public ParallelMode? ParallelMode =>
-		parallelization?.Mode;
+		parallelization?.GetMode();
 
 	/// <inheritdoc/>
 	public Guid ModuleVersionID { get; }

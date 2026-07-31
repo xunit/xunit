@@ -287,7 +287,8 @@ public sealed class ProjectAssemblyRunner(
 					ResultWriterMessageHandlers = resultWriterMessageHandlers,
 				};
 
-				using var resultsSink = new ExecutionSink(assembly, discoveryOptions, executionOptions, AppDomainOption.NotAvailable, shadowCopy: false, messageSink, sinkOptions, sourceInformationProvider);
+				var executionSinkExecutionOptions = executionOptions.WithOverrides(frontController.MaxParallelThreads, frontController.ParallelAlgorithm, frontController.ParallelMode);
+				using var resultsSink = new ExecutionSink(assembly, discoveryOptions, executionSinkExecutionOptions, AppDomainOption.NotAvailable, shadowCopy: false, messageSink, sinkOptions, sourceInformationProvider);
 				var testCasesToRun = new List<ITestCase>();
 
 #if !XUNIT_AOT

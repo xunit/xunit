@@ -484,7 +484,8 @@ public class xunit : MSBuildTask, ICancelableTask, IDisposable
 				ResultWriterMessageHandlers = resultWriterMessageHandlers,
 			};
 
-			using var resultsSink = new ExecutionSink(assembly, discoveryOptions, executionOptions, appDomain, assembly.Configuration.ShadowCopyOrDefault, reporterMessageHandler, sinkOptions);
+			var executionSinkExecutionOptions = executionOptions.WithOverrides(controller.MaxParallelThreads, controller.ParallelAlgorithm, controller.ParallelMode);
+			using var resultsSink = new ExecutionSink(assembly, discoveryOptions, executionSinkExecutionOptions, appDomain, assembly.Configuration.ShadowCopyOrDefault, reporterMessageHandler, sinkOptions);
 			var settings = new FrontControllerFindAndRunSettings(discoveryOptions, executionOptions, assembly.Configuration.Filters);
 			controller.FindAndRun(resultsSink, settings);
 			resultsSink.Finished.WaitOne();

@@ -1,6 +1,7 @@
 #pragma warning disable CA2263 // Prefer generic overload when type is known
 
 using System.ComponentModel;
+using Xunit.Runner.Common;
 
 namespace Xunit.Sdk;
 
@@ -917,5 +918,40 @@ public static class TestFrameworkOptionsReadWriteExtensions
 		Guard.ArgumentNotNull(executionOptions);
 
 		executionOptions.SetValue(TestOptionsNames.Execution.SynchronousMessageReporting, value);
+	}
+
+	/// <summary>
+	/// Copies a set of execution options, with potential overrides from test assembly information.
+	/// </summary>
+	public static ITestFrameworkExecutionOptions WithOverrides(
+		this ITestFrameworkExecutionOptions executionOptions,
+		int? maxParallelThreads,
+		ParallelAlgorithm? parallelAlgorithm,
+		ParallelMode? parallelMode)
+	{
+		Guard.ArgumentNotNull(executionOptions);
+
+		ITestFrameworkExecutionOptions result = TestFrameworkOptions.Empty();
+
+		result.SetAssertEquivalentMaxDepth(executionOptions.GetAssertEquivalentMaxDepth());
+		result.SetCulture(executionOptions.GetCulture());
+		result.SetDiagnosticMessages(executionOptions.GetDiagnosticMessages());
+		result.SetExplicitOption(executionOptions.GetExplicitOption());
+		result.SetFailSkips(executionOptions.GetFailSkips());
+		result.SetFailTestsWithWarnings(executionOptions.GetFailTestsWithWarnings());
+		result.SetInternalDiagnosticMessages(executionOptions.GetInternalDiagnosticMessages());
+		result.SetMaxParallelThreads(executionOptions.GetMaxParallelThreads() ?? maxParallelThreads);
+		result.SetParallelAlgorithm(executionOptions.GetParallelAlgorithm() ?? parallelAlgorithm);
+		result.SetParallelMode(executionOptions.GetParallelMode() ?? parallelMode);
+		result.SetPrintMaxEnumerableLength(executionOptions.GetPrintMaxEnumerableLength());
+		result.SetPrintMaxObjectDepth(executionOptions.GetPrintMaxObjectDepth());
+		result.SetPrintMaxObjectMemberCount(executionOptions.GetPrintMaxObjectMemberCount());
+		result.SetPrintMaxStringLength(executionOptions.GetPrintMaxStringLength());
+		result.SetSeed(executionOptions.GetSeed());
+		result.SetShowLiveOutput(executionOptions.GetShowLiveOutput());
+		result.SetStopOnTestFail(executionOptions.GetStopOnTestFail());
+		result.SetSynchronousMessageReporting(executionOptions.GetSynchronousMessageReporting());
+
+		return result;
 	}
 }

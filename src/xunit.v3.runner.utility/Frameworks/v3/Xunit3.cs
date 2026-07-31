@@ -53,6 +53,18 @@ public class Xunit3 : IFrontController
 		testAssemblyInfo.CoreFrameworkInformational;
 
 	/// <inheritdoc/>
+	public int? MaxParallelThreads =>
+		testAssemblyInfo.MaxParallelThreads;
+
+	/// <inheritdoc/>
+	public ParallelAlgorithm? ParallelAlgorithm =>
+		testAssemblyInfo.ParallelAlgorithm;
+
+	/// <inheritdoc/>
+	public ParallelMode? ParallelMode =>
+		testAssemblyInfo.ParallelMode;
+
+	/// <inheritdoc/>
 	public string TargetFramework =>
 		testAssemblyInfo.TargetFramework;
 
@@ -60,7 +72,8 @@ public class Xunit3 : IFrontController
 	public string TestAssemblyUniqueID { get; }
 
 	/// <inheritdoc/>
-	public string TestFrameworkDisplayName => testAssemblyInfo.TestFramework;
+	public string TestFrameworkDisplayName =>
+		testAssemblyInfo.TestFramework;
 
 	static ITestProcessDirectLauncher AdaptLauncher(ITestProcessLauncher launcher) =>
 		launcher as ITestProcessDirectLauncher ?? new TestProcessLauncherAdapter(launcher);

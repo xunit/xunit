@@ -141,6 +141,18 @@ public class Xunit2 : IFrontController
 	protected DisposalTracker DisposalTracker { get; } = new DisposalTracker();
 
 	/// <inheritdoc/>
+	public int? MaxParallelThreads =>
+		null;
+
+	/// <inheritdoc/>
+	public ParallelAlgorithm? ParallelAlgorithm =>
+		null;
+
+	/// <inheritdoc/>
+	public ParallelMode? ParallelMode =>
+		null;
+
+	/// <inheritdoc/>
 	public string TestAssemblyUniqueID { get; protected set; }
 
 	/// <inheritdoc/>

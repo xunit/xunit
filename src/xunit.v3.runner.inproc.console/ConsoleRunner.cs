@@ -422,6 +422,10 @@ public class ConsoleRunner(
 	async ValueTask PrintAssemblyInfo(string? configFileName)
 	{
 		var testFramework = RegisteredEngineConfig.GetTestFramework(testAssembly, configFileName);
+		var maxParallelThreads = RegisteredEngineConfig.GetAssemblyParallelMaxThreads(testAssembly);
+		var parallelAlgorithm = RegisteredEngineConfig.GetAssemblyParallelAlgorithm(testAssembly);
+		var parallelMode = RegisteredEngineConfig.GetAssemblyParallelizationMode(testAssembly);
+
 		try
 		{
 			var assemblyInfo = new TestAssemblyInfo(
@@ -429,6 +433,9 @@ public class ConsoleRunner(
 				// since they're all compiled and versioned together, we'll take the path of least resistance.
 				coreFramework: new Version(ThisAssembly.AssemblyVersion),
 				coreFrameworkInformational: ThisAssembly.AssemblyInformationalVersion,
+				maxParallelThreads,
+				parallelAlgorithm,
+				parallelMode,
 				targetFramework: testAssembly.GetTargetFramework(),
 				testFramework: testFramework.TestFrameworkDisplayName
 			);

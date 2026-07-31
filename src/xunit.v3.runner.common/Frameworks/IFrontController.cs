@@ -10,6 +10,22 @@ namespace Xunit;
 public interface IFrontController : IFrontControllerDiscoverer
 {
 	/// <summary>
+	/// Gets the maximum threads to use for running tests in parallel, if the user has overridden
+	/// the default.
+	/// </summary>
+	int? MaxParallelThreads { get; }
+
+	/// <summary>
+	/// Gets the parallel algorithm, if the user has overridden the default.
+	/// </summary>
+	ParallelAlgorithm? ParallelAlgorithm { get; }
+
+	/// <summary>
+	/// Gets the parallelization mode, if the user has overridden the default.
+	/// </summary>
+	ParallelMode? ParallelMode { get; }
+
+	/// <summary>
 	/// Starts the process of finding and running tests in an assembly. Typically only used
 	/// by runner which do not present test discovery UIs to users that allow them to run
 	/// selected tests (those should instead use <see cref="IFrontControllerDiscoverer.Find"/>

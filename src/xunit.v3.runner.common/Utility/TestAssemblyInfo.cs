@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Text;
@@ -16,6 +17,9 @@ public class TestAssemblyInfo
 		string archProcess,
 		Version coreFramework,
 		string coreFrameworkInformational,
+		int? maxParallelThreads,
+		ParallelAlgorithm? parallelAlgorithm,
+		ParallelMode? parallelMode,
 		int pointerSize,
 		string runtimeFramework,
 		string targetFramework,
@@ -25,6 +29,9 @@ public class TestAssemblyInfo
 		ArchProcess = Guard.ArgumentNotNull(archProcess);
 		CoreFramework = Guard.ArgumentNotNull(coreFramework);
 		CoreFrameworkInformational = Guard.ArgumentNotNull(coreFrameworkInformational);
+		MaxParallelThreads = maxParallelThreads;
+		ParallelAlgorithm = parallelAlgorithm;
+		ParallelMode = parallelMode;
 		PointerSize = pointerSize;
 		RuntimeFramework = Guard.ArgumentNotNull(runtimeFramework);
 		TargetFramework = Guard.ArgumentNotNull(targetFramework);
@@ -36,11 +43,17 @@ public class TestAssemblyInfo
 	/// </summary>
 	/// <param name="coreFramework">The version of <c>xunit.v3.core</c></param>
 	/// <param name="coreFrameworkInformational">The informational verison of <c>xunit.v3.core</c></param>
+	/// <param name="maxParallelThreads">The maximum parallel threads, if set via <see cref="T:Xunit.v3.ParallelizationAttribute"/></param>
+	/// <param name="parallelAlgorithm">The parallel algorithm, if set via <see cref="T:Xunit.v3.ParallelizationAttribute"/></param>
+	/// <param name="parallelMode">The parallel mode, if set via <see cref="T:Xunit.v3.ParallelizationAttribute"/></param>
 	/// <param name="targetFramework">The target framework the test assembly was built against</param>
 	/// <param name="testFramework">The display name of the test framework</param>
 	public TestAssemblyInfo(
 		Version coreFramework,
 		string coreFrameworkInformational,
+		int? maxParallelThreads,
+		ParallelAlgorithm? parallelAlgorithm,
+		ParallelMode? parallelMode,
 		string targetFramework,
 		string testFramework) :
 			this(
@@ -48,12 +61,28 @@ public class TestAssemblyInfo
 				RuntimeInformation.ProcessArchitecture.ToString(),
 				coreFramework,
 				coreFrameworkInformational,
+				maxParallelThreads,
+				parallelAlgorithm,
+				parallelMode,
 				IntPtr.Size * 8,
 				RuntimeInformation.FrameworkDescription,
 				targetFramework,
 				testFramework
 			)
 	{ }
+
+	/// <summary>
+	/// Please call <see cref="TestAssemblyInfo(string, string, Version, string, int?, ParallelAlgorithm?, ParallelMode?, int, string, string, string)"/>.
+	/// This overload is no longer supported and will be removed in the next major version.
+	/// </summary>
+	[Obsolete("Please call the constructor that accepts maxParallelThreads, parallelAlgorithm, and parallelMode. This overload is no longer supported and will be removed in the next major version.", error: true)]
+	[EditorBrowsable(EditorBrowsableState.Never)]
+	public TestAssemblyInfo(
+		Version coreFramework,
+		string coreFrameworkInformational,
+		string targetFramework,
+		string testFramework) =>
+			throw new NotSupportedException("Please call the constructor that accepts maxParallelThreads, parallelAlgorithm, and parallelMode. This overload is no longer supported and will be removed in the next major version.");
 
 	/// <summary>
 	/// Gets the value returned by <see cref="RuntimeInformation.OSArchitecture"/>.
@@ -82,6 +111,21 @@ public class TestAssemblyInfo
 	/// Gets the informational assembly version of <c>xunit.v3.core.dll</c>.
 	/// </summary>
 	public string CoreFrameworkInformational { get; }
+
+	/// <summary>
+	/// Gets the maximum number of parallel threads, if set via <see cref="T:Xunit.v3.ParallelizationAttribute"/>.
+	/// </summary>
+	public int? MaxParallelThreads { get; }
+
+	/// <summary>
+	/// Gets the parallel algorithm, if set via <see cref="T:Xunit.v3.ParallelizationAttribute"/>.
+	/// </summary>
+	public ParallelAlgorithm? ParallelAlgorithm { get; }
+
+	/// <summary>
+	/// Gets the parallel mode, if set via <see cref="T:Xunit.v3.ParallelizationAttribute"/>.
+	/// </summary>
+	public ParallelMode? ParallelMode { get; }
 
 	/// <summary>
 	/// Gets the bit-size of pointers in the test process (i.e., <c><see cref="IntPtr.Size"/> * 8</c>).
@@ -119,12 +163,15 @@ public class TestAssemblyInfo
 		var archProcess = JsonDeserializer.TryGetString(root, "arch-process") ?? throw new ArgumentException("'arch-process' is missing or malformed");
 		var coreFramework = JsonDeserializer.TryGetVersion(root, "core-framework") ?? throw new ArgumentException("'core-framework' is missing or malformed");
 		var coreFrameworkInformational = JsonDeserializer.TryGetString(root, "core-framework-informational") ?? throw new ArgumentException("'core-framework-informational' is missing or malformed");
+		var maxParallelThreads = JsonDeserializer.TryGetInt(root, "max-parallel-threads");
+		var parallelAlgorithm = JsonDeserializer.TryGetEnum<ParallelAlgorithm>(root, "parallel-algorithm");
+		var parallelMode = JsonDeserializer.TryGetEnum<ParallelMode>(root, "parallel-mode");
 		var pointerSize = JsonDeserializer.TryGetInt(root, "pointer-size") ?? throw new ArgumentException("'pointer-size' is missing or malformed");
 		var runtimeFramework = JsonDeserializer.TryGetString(root, "runtime-framework") ?? throw new ArgumentException("'runtime-framework' is missing or malformed");
 		var targetFramework = JsonDeserializer.TryGetString(root, "target-framework") ?? throw new ArgumentException("'target-framework' is missing or malformed");
 		var testFramework = JsonDeserializer.TryGetString(root, "test-framework") ?? throw new ArgumentException("'test-framework' is missing or malformed");
 
-		return new(archOS, archProcess, coreFramework, coreFrameworkInformational, pointerSize, runtimeFramework, targetFramework, testFramework);
+		return new(archOS, archProcess, coreFramework, coreFrameworkInformational, maxParallelThreads, parallelAlgorithm, parallelMode, pointerSize, runtimeFramework, targetFramework, testFramework);
 	}
 
 	/// <summary>
@@ -139,6 +186,9 @@ public class TestAssemblyInfo
 			serializer.Serialize("arch-process", ArchProcess);
 			serializer.Serialize("core-framework", CoreFramework);
 			serializer.Serialize("core-framework-informational", CoreFrameworkInformational);
+			serializer.Serialize("max-parallel-threads", MaxParallelThreads);
+			serializer.Serialize("parallel-algorithm", ParallelAlgorithm);
+			serializer.Serialize("parallel-mode", ParallelMode);
 			serializer.Serialize("pointer-size", PointerSize);
 			serializer.Serialize("runtime-framework", RuntimeFramework);
 			serializer.Serialize("target-framework", TargetFramework);

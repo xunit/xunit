@@ -13,27 +13,26 @@ public interface IParallelizationAttribute
 	/// Gets the algorithm used for test parallelization.
 	/// </summary>
 	/// <remarks>
-	/// The default value is typically <see cref="ParallelAlgorithm.Conservative"/>. This value will
-	/// be ignored if <see cref="Mode"/> is <see cref="ParallelMode.None"/>.
+	/// If <see langword="null"/>, the system will use <see cref="ParallelAlgorithm.Conservative"/>. This value
+	/// will be ignored if <see cref="GetMode"/> returns <see cref="ParallelMode.None"/>.
 	/// </remarks>
-	ParallelAlgorithm Algorithm { get; }
+	ParallelAlgorithm? GetAlgorithm();
 
 	/// <summary>
-	/// Determines how many tests can run in parallel with each other. If the value is <c>0</c>, the
-	/// system will use <see cref="Environment.ProcessorCount"/>. If the value is a negative number,
-	/// then there will be no limit to the number of threads.
+	/// Determines how many tests can run in parallel with each other.
 	/// </summary>
 	/// <remarks>
-	/// The default value is typically <c>0</c>. This value will be ignored if <see cref="Mode"/>
-	/// is <see cref="ParallelMode.None"/>.
+	/// If <see langword="null"/> or <c>0</c>, the system will use <see cref="Environment.ProcessorCount"/>; if
+	/// a negative number, then there will be no limit to the number of threads (meaning, it uses the default
+	/// thread pool). This value will be ignored if <see cref="GetMode"/> returns <see cref="ParallelMode.None"/>.
 	/// </remarks>
-	public int MaxThreads { get; }
+	int? GetMaxThreads();
 
 	/// <summary>
 	/// Gets the default parallelism mode for the test assembly.
 	/// </summary>
 	/// <remarks>
-	/// The default value is typically <see cref="ParallelMode.Collections"/>.
+	/// If <see langword="null"/>, the system will use <see cref="ParallelMode.Collections"/>.
 	/// </remarks>
-	ParallelMode Mode { get; }
+	ParallelMode? GetMode();
 }

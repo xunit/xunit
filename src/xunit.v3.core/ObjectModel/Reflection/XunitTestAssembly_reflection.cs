@@ -145,15 +145,15 @@ public class XunitTestAssembly : IXunitTestAssembly, IXunitSerializable
 
 	/// <inheritdoc/>
 	public int? MaxParallelThreads =>
-		lazyParallelization.Value?.MaxThreads;
+		lazyParallelization.Value?.GetMaxThreads();
 
 	/// <inheritdoc/>
 	public ParallelAlgorithm? ParallelAlgorithm =>
-		lazyParallelization.Value?.Algorithm;
+		lazyParallelization.Value?.GetAlgorithm();
 
 	/// <inheritdoc/>
 	public ParallelMode? ParallelMode =>
-		lazyParallelization.Value?.Mode;
+		lazyParallelization.Value?.GetMode();
 
 	/// <inheritdoc/>
 	public Guid ModuleVersionID =>

@@ -60,6 +60,18 @@ public class Xunit1 : IFrontController
 		executor ??= CreateExecutor();
 
 	/// <inheritdoc/>
+	public int? MaxParallelThreads =>
+		null;
+
+	/// <inheritdoc/>
+	public ParallelAlgorithm? ParallelAlgorithm =>
+		null;
+
+	/// <inheritdoc/>
+	public ParallelMode? ParallelMode =>
+		Sdk.ParallelMode.None;
+
+	/// <inheritdoc/>
 	// This is not supported with v1, since there is no code in the remote AppDomain
 	// that would give us this information.
 	public string TargetFramework => string.Empty;

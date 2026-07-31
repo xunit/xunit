@@ -388,11 +388,12 @@ public sealed class AssemblyRunner :
 							OnDiagnosticMessage(new DiagnosticMessage("User requested result writer '{0}' which does not exist", kvp.Key));
 
 					var executionSinkOptions = new ExecutionSinkOptions { ResultWriterMessageHandlers = resultWriterMessageHandlers };
+					var executionSinkExecutionOptions = executionOptions.WithOverrides(controller.MaxParallelThreads, controller.ParallelAlgorithm, controller.ParallelMode);
 
 					messageSink = new ExecutionSink(
 						options.ProjectAssembly,
 						discoveryOptions,
-						executionOptions,
+						executionSinkExecutionOptions,
 #if NETFRAMEWORK
 						(options.XunitVersion, options.AppDomain, options.TargetFrameworkIdentifier) switch
 						{

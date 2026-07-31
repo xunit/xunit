@@ -38,16 +38,32 @@ public class XunitFrontController : IFrontController
 		this.innerController = Guard.ArgumentNotNull(innerController);
 
 	/// <inheritdoc/>
-	public bool CanUseAppDomains => innerController.CanUseAppDomains;
+	public bool CanUseAppDomains =>
+		innerController.CanUseAppDomains;
 
 	/// <inheritdoc/>
-	public string TargetFramework => innerController.TargetFramework;
+	public int? MaxParallelThreads =>
+		innerController.MaxParallelThreads;
 
 	/// <inheritdoc/>
-	public string TestAssemblyUniqueID => innerController.TestAssemblyUniqueID;
+	public ParallelAlgorithm? ParallelAlgorithm =>
+		innerController.ParallelAlgorithm;
 
 	/// <inheritdoc/>
-	public string TestFrameworkDisplayName => innerController.TestFrameworkDisplayName;
+	public ParallelMode? ParallelMode =>
+		innerController.ParallelMode;
+
+	/// <inheritdoc/>
+	public string TargetFramework =>
+		innerController.TargetFramework;
+
+	/// <inheritdoc/>
+	public string TestAssemblyUniqueID =>
+		innerController.TestAssemblyUniqueID;
+
+	/// <inheritdoc/>
+	public string TestFrameworkDisplayName =>
+		innerController.TestFrameworkDisplayName;
 
 	/// <summary>
 	/// Returns an implementation of <see cref="IFrontController"/> which can be used for both discovery and execution.

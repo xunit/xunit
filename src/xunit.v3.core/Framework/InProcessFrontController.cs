@@ -53,6 +53,25 @@ public class InProcessFrontController
 	}
 
 	/// <summary>
+	/// Gets the maximum threads to use for running tests in parallel, if the user has overridden
+	/// the default.
+	/// </summary>
+	public int? MaxParallelThreads =>
+		RegisteredEngineConfig.GetAssemblyParallelMaxThreads(testAssembly);
+
+	/// <summary>
+	/// Gets the parallel algorithm, if the user has overridden the default.
+	/// </summary>
+	public ParallelAlgorithm? ParallelAlgorithm =>
+		RegisteredEngineConfig.GetAssemblyParallelAlgorithm(testAssembly);
+
+	/// <summary>
+	/// Gets the parallelization mode, if the user has overridden the default.
+	/// </summary>
+	public ParallelMode? ParallelMode =>
+		RegisteredEngineConfig.GetAssemblyParallelizationMode(testAssembly);
+
+	/// <summary>
 	/// Gets the unique ID for the test assembly provided to the discoverer.
 	/// </summary>
 	public string TestAssemblyUniqueID { get; }

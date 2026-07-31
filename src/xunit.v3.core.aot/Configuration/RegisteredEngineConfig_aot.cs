@@ -21,6 +21,27 @@ public static class RegisteredEngineConfig
 	static readonly Dictionary<(string TestClassIndex, string TestMethodName), List<(Func<DisposalTracker, ValueTask<IReadOnlyCollection<ITheoryDataRow>>> Factory, bool DisableDiscoveryEnumeration)>> theoryDataRowFactories = [];
 
 	/// <summary>
+	/// Gets the parallel algorithm. Returns <see langword="null"/> if one has not been set.
+	/// </summary>
+	/// <param name="testAssembly">The test assembly</param>
+	public static ParallelAlgorithm? GetAssemblyParallelAlgorithm(Assembly testAssembly) =>
+		testAssembly == assemblyRegistration.Assembly ? assemblyRegistration.ParallelAlgorithm : null;
+
+	/// <summary>
+	/// Gets the parallel mode. Returns <see langword="null"/> if one has not been set.
+	/// </summary>
+	/// <param name="testAssembly">The test assembly</param>
+	public static ParallelMode? GetAssemblyParallelizationMode(Assembly testAssembly) =>
+		testAssembly == assemblyRegistration.Assembly ? assemblyRegistration.ParallelMode : null;
+
+	/// <summary>
+	/// Gets the max parallel threads. Returns <see langword="null"/> if one has not been set.
+	/// </summary>
+	/// <param name="testAssembly">The test assembly</param>
+	public static int? GetAssemblyParallelMaxThreads(Assembly testAssembly) =>
+		testAssembly == assemblyRegistration.Assembly ? assemblyRegistration.ParallelMaxThreads : null;
+
+	/// <summary>
 	/// Gets the test case orderer that's attached to a test assembly. Returns <see langword="null"/> if there
 	/// isn't one attached.
 	/// </summary>
@@ -292,14 +313,14 @@ public static class RegisteredEngineConfig
 	/// <summary>
 	/// Registers a test assembly's parallelization mode.
 	/// </summary>
-	public static void RegisterAssemblyParallelMaxThreads(int maxParallelThrads) =>
-		assemblyRegistration.ParallelMaxThreads = maxParallelThrads;
+	public static void RegisterAssemblyParallelizationMode(ParallelMode parallelMode) =>
+		assemblyRegistration.ParallelMode = parallelMode;
 
 	/// <summary>
 	/// Registers a test assembly's parallelization mode.
 	/// </summary>
-	public static void RegisterAssemblyParallelizationMode(ParallelMode parallelMode) =>
-		assemblyRegistration.ParallelMode = parallelMode;
+	public static void RegisterAssemblyParallelMaxThreads(int maxParallelThrads) =>
+		assemblyRegistration.ParallelMaxThreads = maxParallelThrads;
 
 	/// <summary>
 	/// Registers the factory that creates the assembly-level <see cref="ITestCaseOrderer"/> instance.

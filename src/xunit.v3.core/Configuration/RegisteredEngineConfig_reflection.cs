@@ -45,6 +45,27 @@ public static class RegisteredEngineConfig
 					: default;
 
 	/// <summary>
+	/// Gets the parallel algorithm. Returns <see langword="null"/> if one has not been set.
+	/// </summary>
+	/// <param name="testAssembly">The test assembly</param>
+	public static ParallelAlgorithm? GetAssemblyParallelAlgorithm(Assembly testAssembly) =>
+		ExtensibilityPointFactory.GetAssemblyParallelization(testAssembly)?.GetAlgorithm();
+
+	/// <summary>
+	/// Gets the parallel mode. Returns <see langword="null"/> if one has not been set.
+	/// </summary>
+	/// <param name="testAssembly">The test assembly</param>
+	public static ParallelMode? GetAssemblyParallelizationMode(Assembly testAssembly) =>
+		ExtensibilityPointFactory.GetAssemblyParallelization(testAssembly)?.GetMode();
+
+	/// <summary>
+	/// Gets the max parallel threads. Returns <see langword="null"/> if one has not been set.
+	/// </summary>
+	/// <param name="testAssembly">The test assembly</param>
+	public static int? GetAssemblyParallelMaxThreads(Assembly testAssembly) =>
+		ExtensibilityPointFactory.GetAssemblyParallelization(testAssembly)?.GetMaxThreads();
+
+	/// <summary>
 	/// Gets the test case orderer that's attached to a test assembly. Returns <see langword="null"/> if there
 	/// isn't one attached.
 	/// </summary>

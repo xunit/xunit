@@ -453,7 +453,8 @@ sealed class ConsoleRunner(string[] args) :
 				ResultWriterMessageHandlers = resultWriterMessageHandlers,
 			};
 
-			using var resultsSink = new ExecutionSink(assembly, discoveryOptions, executionOptions, appDomain, shadowCopy, reporterMessageHandler, sinkOptions);
+			var executionSinkExecutionOptions = executionOptions.WithOverrides(controller.MaxParallelThreads, controller.ParallelAlgorithm, controller.ParallelMode);
+			using var resultsSink = new ExecutionSink(assembly, discoveryOptions, executionSinkExecutionOptions, appDomain, shadowCopy, reporterMessageHandler, sinkOptions);
 			var settings = new FrontControllerFindAndRunSettings(discoveryOptions, executionOptions, assembly.Configuration.Filters);
 			controller.FindAndRun(resultsSink, settings);
 			resultsSink.Finished.WaitOne();
