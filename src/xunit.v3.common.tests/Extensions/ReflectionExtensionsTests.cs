@@ -121,6 +121,18 @@ public static class ReflectionExtensionsTests
 		Assert.Equal("ParentClass+ChildClass", typeof(NS1.ParentClass.ChildClass).ToSimpleName());
 	}
 
+	[Theory]
+	[InlineData(typeof(int), "System.Int32")]
+	[InlineData(typeof(int?), "System.Nullable`1<System.Int32>")]
+	[InlineData(typeof(int[]), "System.Int32[]")]
+	[InlineData(typeof(int?[]), "System.Nullable`1<System.Int32>[]")]
+	[InlineData(typeof(int[,]), "System.Int32[,]")]
+	[InlineData(typeof(int?[,]), "System.Nullable`1<System.Int32>[,]")]
+	public static void ToVSTestTypeName_NoTestClass(
+		Type type,
+		string expectedName) =>
+			Assert.Equal(expectedName, type.ToVSTestTypeName());
+
 	[Fact]
 	public static void UnwrapNullable()
 	{

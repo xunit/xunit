@@ -175,6 +175,11 @@ public static partial class ReflectionExtensions
 	{
 		Guard.ArgumentNotNull(type);
 
+		// Construct the array suffix manually (per bug https://github.com/xunit/xunit/issues/3603)
+		var arraySuffix = type.IsArray ? ('[' + new string(',', type.GetArrayRank() - 1) + ']') : string.Empty;
+		if (type.IsArray)
+			type = type.GetElementType()!;
+
 		if (type.IsGenericParameter)
 		{
 			if (testMethod is not null)
@@ -195,7 +200,7 @@ public static partial class ReflectionExtensions
 		}
 
 		if (!type.IsGenericType)
-			return type.SafeName();
+			return type.SafeName() + arraySuffix;
 
 		// We don't use .FullName here because we don't want the generic [[...]] to show up in our name.
 		// So we reconstruct starting with the simple name and work backward from the declaring types
@@ -223,7 +228,7 @@ public static partial class ReflectionExtensions
 				.GenericTypeArguments
 				.Select(t => ToVSTestTypeName(t, testMethod, testClass));
 
-		return baseTypeName + "<" + string.Join(",", genericTypes) + ">";
+		return baseTypeName + "<" + string.Join(",", genericTypes) + ">" + arraySuffix;
 	}
 
 	/// <summary>
