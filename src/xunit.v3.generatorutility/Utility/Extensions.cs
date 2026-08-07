@@ -525,6 +525,7 @@ $@"	return {string.Format(CultureInfo.InvariantCulture, objectFactoryFormat, "in
 			{
 				TypedConstantKind.Array => $"new {constant.Type?.ToCSharp()} {{ {constant.Values.ToCSharp()} }}",
 				TypedConstantKind.Primitive => constant.Value.ToFormattedPrimitive(),
+				TypedConstantKind.Type => constant.Value.ToFormattedType(),
 				_ => null,
 			} ?? constant.ToCSharpString();
 
@@ -664,6 +665,16 @@ $@"new global::System.Collections.Generic.Dictionary<global::System.Type, global
 				// Fall through and let default handling (object.ToString() or TypedConstant.ToCSharpString(), typically)
 				_ => null,
 			};
+
+		/// <summary>
+		/// Creates a formatted type value, with special handling for multi-dimensional array types (since the built-in
+		/// formatting will produce <c>typeof(MyType[*,*])</c> instead of the compiler-required <c>typeof(MyType[,])</c>)
+		/// </summary>
+		/// <param name="value">The value to be formatted</param>
+		public static string? ToFormattedType(this object? value) =>
+			value is IArrayTypeSymbol arrayTypeSymbol
+				? $"typeof({arrayTypeSymbol.ElementType.ToCSharp()}[{new string(',', arrayTypeSymbol.Rank - 1)}])"
+				: $"typeof({value.ToCSharp()})";
 
 		/// <summary>
 		/// Creates a dictionary which maps key (via selector) to a list of items with that key.
