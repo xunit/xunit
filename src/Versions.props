@@ -14,17 +14,17 @@
     <!-- Used by Roslyn source generators (4.12.0 aligns with .NET 9, minimum for Native AOT) -->
     <Microsoft_CodeAnalysis_Analyzers_Version>5.6.0</Microsoft_CodeAnalysis_Analyzers_Version>
     <Microsoft_CodeAnalysis_CSharp_Version>4.12.0</Microsoft_CodeAnalysis_CSharp_Version>
-    
+
     <!-- Used by Roslyn source generator tests -->
-    <Basic_Reference_Assemblies_Net90_Version>1.8.9</Basic_Reference_Assemblies_Net90_Version>
+    <Basic_Reference_Assemblies_Net90_Version>1.8.11</Basic_Reference_Assemblies_Net90_Version>
 
     <!-- Used by xunit.v3.mtp-v2 -->
-    <Microsoft_Testing_v2_Version>2.3.2</Microsoft_Testing_v2_Version>
+    <Microsoft_Testing_v2_Version>2.3.3</Microsoft_Testing_v2_Version>
 
     <!-- Used by NuGet packages (xunit.v3 and xunit.v3.templates) -->
     <Microsoft_NET_Test_Sdk_Version>18.3.0</Microsoft_NET_Test_Sdk_Version>
-    <xunit_analyzers_Version>2.0.0-pre.60</xunit_analyzers_Version>
-    <xunit_runner_visualstudio_Version>4.0.0-pre.5</xunit_runner_visualstudio_Version>
+    <xunit_analyzers_Version>2.0.0</xunit_analyzers_Version>
+    <xunit_runner_visualstudio_Version>4.0.0</xunit_runner_visualstudio_Version>
 
     <!-- Used by xunit.v3.assert for immutable collection and memory/span support -->
     <System_Collections_Immutable_Version>6.0.0</System_Collections_Immutable_Version>
@@ -41,7 +41,7 @@
     <System_Security_AccessControl_Version>6.0.1</System_Security_AccessControl_Version>
 
     <!-- Used by xunit.v3.runner.common for implementation of the VSTest filter compatibility -->
-    <Microsoft_TestPlatform_Filter_Source_Version>18.8.1</Microsoft_TestPlatform_Filter_Source_Version>
+    <Microsoft_TestPlatform_Filter_Source_Version>18.9.0</Microsoft_TestPlatform_Filter_Source_Version>
 
     <!-- Used by xunit.v3.runner.msbuild to reference MSBuild types -->
     <Microsoft_Build_Tasks_Core_Version>16.11.6</Microsoft_Build_Tasks_Core_Version>
