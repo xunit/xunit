@@ -1050,6 +1050,20 @@ public static class CommandLineTests
 
 			Assert.Same(implicitReporter1, project.RunnerReporter);
 		}
+
+		[Fact]
+		public void EnvironmentallyEnabledTeamCityReporter_DisablesColor()
+		{
+			using var _ = EnvironmentHelper.RestoreEnvironment(TestProjectConfiguration.EnvNameNoColor);
+			Environment.SetEnvironmentVariable(TestProjectConfiguration.EnvNameNoColor, null);
+			Environment.SetEnvironmentVariable("TEAMCITY_PROJECT_NAME", "project");
+			var commandLine = new TestableCommandLine([new TeamCityReporter()], CommandLineTestsLocation, "no-config.json");
+
+			var project = commandLine.Parse();
+
+			Assert.IsType<TeamCityReporter>(project.RunnerReporter);
+			Assert.True(project.Configuration.NoColorOrDefault);
+		}
 	}
 
 	class TestableCommandLine : CommandLine

@@ -938,6 +938,9 @@ public abstract class CommandLineParserBase
 				RunnerReporters.FirstOrDefault(r => "default".Equals(r.RunnerSwitch, StringComparison.OrdinalIgnoreCase))
 					?? new DefaultRunnerReporter();
 
+		if (Project.Configuration.NoColor is null && Project.RunnerReporter is TeamCityReporter)
+			Project.Configuration.NoColor = true;
+
 		return Project;
 	}
 
