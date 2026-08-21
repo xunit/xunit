@@ -7,10 +7,14 @@ public static class TimeAndDateExtensions
 {
 	/// <summary/>
 	public static string ToRtf(this DateTime dateTime) =>
-		dateTime.ToUniversalTime().ToString("O", CultureInfo.InvariantCulture);
+		dateTime.ToString("O", CultureInfo.InvariantCulture);
 
 	/// <summary/>
 	public static string ToRtf(this DateTimeOffset dateTime) =>
+		dateTime.ToString("O", CultureInfo.InvariantCulture);
+
+	/// <summary/>
+	public static string ToRtfUtc(this DateTimeOffset dateTime) =>
 		dateTime.ToUniversalTime().ToString("O", CultureInfo.InvariantCulture);
 
 	/// <summary/>

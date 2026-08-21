@@ -71,8 +71,8 @@ public class TrxResultWriterMessageHandler : ResultMetadataMessageHandlerBase<Tr
 		if (!disposed)
 			try
 			{
-				var timeFinishRtf = timeFinish.ToRtf();
-				var timeStartRtf = timeFinish == DateTimeOffset.MinValue ? timeFinishRtf : timeStart.ToRtf();
+				var timeFinishRtf = timeFinish.ToRtfUtc();
+				var timeStartRtf = timeFinish == DateTimeOffset.MinValue ? timeFinishRtf : timeStart.ToRtfUtc();
 
 				var testRunElement =
 					new XElement(ns + "TestRun",
@@ -317,8 +317,8 @@ public class TrxResultWriterMessageHandler : ResultMetadataMessageHandlerBase<Tr
 			new XAttribute("executionId", testId),
 			new XAttribute("computerName", computer),
 			new XAttribute("duration", testResult.ExecutionTime.ToTimespanRtf()),
-			new XAttribute("startTime", testStartTime.ToRtf()),
-			new XAttribute("endTime", testResult.FinishTime.ToRtf())
+			new XAttribute("startTime", testStartTime.ToRtfUtc()),
+			new XAttribute("endTime", testResult.FinishTime.ToRtfUtc())
 		);
 
 		if (!string.IsNullOrWhiteSpace(testResult.Output))

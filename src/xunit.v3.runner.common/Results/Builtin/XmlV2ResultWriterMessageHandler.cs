@@ -80,8 +80,8 @@ public class XmlV2ResultWriterMessageHandler : XunitXmlResultWriterMessageHandle
 				new XAttribute("result", resultText),
 				new XAttribute("time", testResult.ExecutionTime.ToString(CultureInfo.InvariantCulture)),
 				new XAttribute("time-rtf", testResult.ExecutionTime.ToTimespanRtf()),
-				new XAttribute("start-rtf", testStartTime.ToRtf()),
-				new XAttribute("finish-rtf", testResult.FinishTime.ToRtf())
+				new XAttribute("start-rtf", testStartTime.ToRtfUtc()),
+				new XAttribute("finish-rtf", testResult.FinishTime.ToRtfUtc())
 			);
 
 		var type = testClassMetadata?.TestClassName;
@@ -298,7 +298,7 @@ public class XmlV2ResultWriterMessageHandler : XunitXmlResultWriterMessageHandle
 			resultMetadata.AssemblyElement.Add(
 				new XAttribute("errors", resultMetadata.ErrorsElement.IsValueCreated ? resultMetadata.ErrorsElement.Value.Elements().Count() : 0),
 				new XAttribute("failed", message.TestsFailed),
-				new XAttribute("finish-rtf", message.FinishTime.ToRtf()),
+				new XAttribute("finish-rtf", message.FinishTime.ToRtfUtc()),
 				new XAttribute("not-run", message.TestsNotRun),
 				new XAttribute("passed", message.TestsTotal - message.TestsFailed - message.TestsSkipped - message.TestsNotRun),
 				new XAttribute("skipped", message.TestsSkipped),
@@ -324,7 +324,7 @@ public class XmlV2ResultWriterMessageHandler : XunitXmlResultWriterMessageHandle
 				new XAttribute("name", message.AssemblyPath ?? "<dynamic>"),
 				new XAttribute("run-date", message.StartTime.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)),
 				new XAttribute("run-time", message.StartTime.ToString("HH:mm:ss", CultureInfo.InvariantCulture)),
-				new XAttribute("start-rtf", message.StartTime.ToRtf()),
+				new XAttribute("start-rtf", message.StartTime.ToRtfUtc()),
 				new XAttribute("test-framework", message.TestFrameworkDisplayName)
 			);
 

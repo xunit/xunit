@@ -83,9 +83,6 @@ public class SerializationHelper
 	/// </summary>
 	protected SerializationHelper()
 	{
-		static DateTimeStyles getDateStyle(string v) =>
-			v.EndsWith("Z", StringComparison.Ordinal) ? DateTimeStyles.AdjustToUniversal : DateTimeStyles.None;
-
 		deserializersByTypeIdx = new()
 		{
 			{ TypeIndex.Type, SerializedTypeNameToType },
@@ -107,8 +104,8 @@ public class SerializationHelper
 			{ TypeIndex.Double, v => BitConverter.ToDouble((byte[])DeserializeArray(v), 0) },
 			{ TypeIndex.Decimal, v => decimal.Parse(v, CultureInfo.InvariantCulture) },
 			{ TypeIndex.Boolean, v => bool.Parse(v) },
-			{ TypeIndex.DateTime, v => DateTime.Parse(v, CultureInfo.InvariantCulture, getDateStyle(v)) },
-			{ TypeIndex.DateTimeOffset, v => DateTimeOffset.Parse(v, CultureInfo.InvariantCulture, getDateStyle(v)) },
+			{ TypeIndex.DateTime, v => DateTime.Parse(v, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind) },
+			{ TypeIndex.DateTimeOffset, v => DateTimeOffset.Parse(v, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind) },
 			{ TypeIndex.TimeSpan, v => TimeSpan.Parse(v, CultureInfo.InvariantCulture) },
 			{ TypeIndex.BigInteger, v => BigInteger.Parse(v, CultureInfo.InvariantCulture) },
 			{ TypeIndex.Version, Version.Parse },

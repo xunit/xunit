@@ -12,6 +12,13 @@ using System.Xml;
 public class SerializationHelperTests
 #pragma warning restore CA1052
 {
+	static readonly Lazy<string> LocalOffset = new(() =>
+	{
+		var now = DateTime.Now;
+		var offset = now - now.ToUniversalTime();
+		return $"{(offset.Hours >= 0 ? "+" : "")}{offset.Hours:00}:{offset.Minutes:00}";
+	});
+
 	public static TheoryData<object?, string> NonNullSuccessData = new()
 	{
 		// Supported built-in types just contain a type index and the value
@@ -31,7 +38,11 @@ public class SerializationHelperTests
 		{ 21.12m, "12:21.12" },
 		{ true, "13:True" },
 		{ new DateTime(2022, 4, 21, 23, 18, 19, 20, DateTimeKind.Utc), "14:2022-04-21T23:18:19.0200000Z" },
+		{ new DateTime(2022, 4, 21, 23, 18, 19, 20, DateTimeKind.Local), "14:2022-04-21T23:18:19.0200000" + LocalOffset.Value },
+		{ new DateTime(2022, 4, 21, 23, 18, 19, 20, DateTimeKind.Unspecified), "14:2022-04-21T23:18:19.0200000" },
 		{ new DateTimeOffset(2022, 4, 21, 23, 19, 20, 21, TimeSpan.Zero), "15:2022-04-21T23:19:20.0210000+00:00" },
+		{ new DateTimeOffset(2022, 4, 21, 23, 19, 20, 21, TimeSpan.FromHours(5)), "15:2022-04-21T23:19:20.0210000+05:00" },
+		{ new DateTimeOffset(2022, 4, 21, 23, 19, 20, 21, TimeSpan.FromHours(-5.5)), "15:2022-04-21T23:19:20.0210000-05:30" },
 		{ new TimeSpan(1, 2, 3, 4, 5), "16:1.02:03:04.0050000" },
 		{ BigInteger.Parse("123456789009876543210123456789"), "17:123456789009876543210123456789" },
 #if NET8_0_OR_GREATER

@@ -69,7 +69,7 @@ public static class XmlV2ResultWriterMessageHandlerTests
 		Assert.Equal("/path/to/assembly.dll", assemblyElement.Attribute("name")?.Value);
 		Assert.Equal("2013-07-06", assemblyElement.Attribute("run-date")?.Value);
 		Assert.Equal("16:24:32", assemblyElement.Attribute("run-time")?.Value);
-		Assert.Equal(startTime.ToRtf(), assemblyElement.Attribute("start-rtf")?.Value);
+		Assert.Equal(startTime.ToRtfUtc(), assemblyElement.Attribute("start-rtf")?.Value);
 		Assert.Equal("MentalFloss,Version=v21.12", assemblyElement.Attribute("target-framework")?.Value);
 		Assert.Equal("xUnit.net v14.42", assemblyElement.Attribute("test-framework")?.Value);
 	}
@@ -115,7 +115,7 @@ public static class XmlV2ResultWriterMessageHandlerTests
 		var assemblyElement = await handler.AssemblyElement();
 		Assert.Equal("1", assemblyElement.Attribute("errors")?.Value);
 		Assert.Equal("42", assemblyElement.Attribute("failed")?.Value);
-		Assert.Equal(finishTime.ToRtf(), assemblyElement.Attribute("finish-rtf")?.Value);
+		Assert.Equal(finishTime.ToRtfUtc(), assemblyElement.Attribute("finish-rtf")?.Value);
 		Assert.Equal("3", assemblyElement.Attribute("not-run")?.Value);
 		Assert.Equal("2061", assemblyElement.Attribute("passed")?.Value);
 		Assert.Equal("6", assemblyElement.Attribute("skipped")?.Value);
