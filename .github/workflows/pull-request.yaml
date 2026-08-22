@@ -16,17 +16,17 @@ jobs:
         os: [windows-latest, ubuntu-latest, macOS-latest]
     steps:
       - name: Clone source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           submodules: true
 
       - name: Add MSBuild to PATH
-        uses: microsoft/setup-msbuild@v2
+        uses: microsoft/setup-msbuild@v3
         if: matrix.os == 'windows-latest'
 
       - name: Install .NET SDK
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: |
             8.0.x
@@ -41,7 +41,7 @@ jobs:
         run: dotnet run --project tools/builder --no-launch-profile -- BuildAll --timing --no-x86
 
       - name: "Upload artifact: test-${{ matrix.os }}"
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-${{ matrix.os }}
           path: artifacts/test

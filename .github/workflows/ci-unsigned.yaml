@@ -15,16 +15,16 @@ jobs:
       DOTNET_NOLOGO: true
     steps:
       - name: Clone source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           submodules: true
 
       - name: Add MSBuild to PATH
-        uses: microsoft/setup-msbuild@v2
+        uses: microsoft/setup-msbuild@v3
 
       - name: Install .NET SDK
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: |
             8.0.x
@@ -42,7 +42,7 @@ jobs:
         run: dotnet run --project tools/builder --no-launch-profile -- Packages --timing
 
       - name: "Upload artifact: build"
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: build
           path: artifacts/build
@@ -50,7 +50,7 @@ jobs:
         if: always()
 
       - name: "Upload artifact: test"
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test
           path: artifacts/test
@@ -58,7 +58,7 @@ jobs:
         if: always()
 
       - name: "Upload artifact: packages"
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: packages
           path: artifacts/packages
