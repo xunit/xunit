@@ -17,10 +17,6 @@ public class CodeGenTestFrameworkExecutor(ICodeGenTestAssembly testAssembly) :
 		Guard.ArgumentNotNull(testAssembly);
 
 	/// <inheritdoc/>
-	protected override ITestFrameworkDiscoverer CreateDiscoverer() =>
-		new CodeGenTestFrameworkDiscoverer(testAssembly);
-
-	/// <inheritdoc/>
 	public override async ValueTask RunTestCases(
 		IReadOnlyCollection<ICodeGenTestCase> testCases,
 		IMessageSink executionMessageSink,

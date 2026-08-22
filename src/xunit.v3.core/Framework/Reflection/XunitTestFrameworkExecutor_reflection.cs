@@ -13,16 +13,10 @@ namespace Xunit.v3;
 public class XunitTestFrameworkExecutor(IXunitTestAssembly testAssembly) :
 	CoreTestFrameworkExecutor<IXunitTestCase>(testAssembly)
 {
-	readonly Lazy<XunitTestFrameworkDiscoverer> discoverer = new(() => new(testAssembly));
-
 	/// <summary>
 	/// Gets the test assembly that contains the test.
 	/// </summary>
 	protected new IXunitTestAssembly TestAssembly { get; } = Guard.ArgumentNotNull(testAssembly);
-
-	/// <inheritdoc/>
-	protected override ITestFrameworkDiscoverer CreateDiscoverer() =>
-		discoverer.Value;
 
 	/// <inheritdoc/>
 	public override async ValueTask RunTestCases(

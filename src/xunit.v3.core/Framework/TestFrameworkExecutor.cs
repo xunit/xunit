@@ -26,11 +26,11 @@ public abstract class TestFrameworkExecutor<TTestCase>(ITestAssembly testAssembl
 	protected ITestAssembly TestAssembly { get; } = Guard.ArgumentNotNull(testAssembly);
 
 	/// <summary>
-	/// Override to create a test framework discoverer that can be used to discover
-	/// tests when the user asks to run all test.
+	/// This method is not called, and will be removed from the next major version.
 	/// </summary>
-	/// <returns>The test framework discoverer</returns>
-	protected abstract ITestFrameworkDiscoverer CreateDiscoverer();
+	[Obsolete("This method is not called, and will be removed from the next major version.", error: true)]
+	protected ITestFrameworkDiscoverer CreateDiscoverer() =>
+		throw new NotSupportedException("This method is not called, and will be removed from the next major version.");
 
 	/// <inheritdoc/>
 	public virtual ValueTask DisposeAsync()
