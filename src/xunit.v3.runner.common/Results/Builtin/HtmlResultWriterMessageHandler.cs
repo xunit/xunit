@@ -1,20 +1,14 @@
-using System.Collections.Concurrent;
 using System.Xml;
 using System.Xml.Linq;
-using Xunit.Sdk;
 
 namespace Xunit.Runner.Common;
 
 /// <summary>
 /// The message handler for <see cref="HtmlResultWriter"/>.
 /// </summary>
-public class HtmlResultWriterMessageHandler : ResultMetadataMessageHandlerBase<ResultMetadataBase>, IResultWriterMessageHandler
+public class HtmlResultWriterMessageHandler : MarkupResultWriterMessageHandlerBase
 {
-	readonly ConcurrentBag<string> assemblies = [];
 	bool disposed;
-	readonly ConcurrentBag<TestResult> tests = [];
-	DateTimeOffset timeFinish = DateTimeOffset.MinValue;
-	readonly ExecutionSummary totals = new();
 	readonly Lazy<XmlWriter> xmlWriter;
 
 	/// <summary>
@@ -28,11 +22,8 @@ public class HtmlResultWriterMessageHandler : ResultMetadataMessageHandlerBase<R
 	HtmlResultWriterMessageHandler(Lazy<XmlWriter> xmlWriter) =>
 		this.xmlWriter = xmlWriter;
 
-	internal override ResultMetadataBase CreateMetadata() =>
-		new();
-
 	/// <inheritdoc/>
-	public ValueTask DisposeAsync()
+	public override ValueTask DisposeAsync()
 	{
 		GC.SuppressFinalize(this);
 
@@ -43,71 +34,71 @@ public class HtmlResultWriterMessageHandler : ResultMetadataMessageHandlerBase<R
 				var headerElements = new List<object>();
 				var allElements = new List<object>();
 
-				if (totals.Errors != 0)
+				if (Totals.Errors != 0)
 				{
 					totalsElements.AddRange([
 						"Errors: ",
 						new XElement("a",
 							new XAttribute("href", "#errors"),
-							new XElement("b", totals.Errors)
+							new XElement("b", Totals.Errors)
 						),
 						", "
 					]);
 					headerElements.AddRange([
 						new XElement("br"),
 						new XElement("h2", new XElement("a", new XAttribute("id", "errors")), "Errors"),
-						tests.Where(t => t.Status == TestResultStatus.Error).OrderBy(t => t.DisplayName).Select((t, idx) => RenderTestResult(t, idx % 2 == 0 ? "row" : "altrow"))
+						Tests.Where(t => t.Status == TestResultStatus.Error).OrderBy(t => t.DisplayName).Select((t, idx) => RenderTestResult(t, idx % 2 == 0 ? "row" : "altrow"))
 					]);
 				}
 
-				if (totals.Failed != 0)
+				if (Totals.Failed != 0)
 				{
 					totalsElements.AddRange([
 						"Failures: ",
 						new XElement("a",
 							new XAttribute("href", "#failed"),
-							new XElement("b", totals.Failed)
+							new XElement("b", Totals.Failed)
 						),
 						", "
 					]);
 					headerElements.AddRange([
 						new XElement("br"),
 						new XElement("h2", new XElement("a", new XAttribute("id", "failed")), "Failed tests"),
-						tests.Where(t => t.Status == TestResultStatus.Failed).OrderBy(t => t.DisplayName).Select((t, idx) => RenderTestResult(t, idx % 2 == 0 ? "row" : "altrow"))
+						Tests.Where(t => t.Status == TestResultStatus.Failed).OrderBy(t => t.DisplayName).Select((t, idx) => RenderTestResult(t, idx % 2 == 0 ? "row" : "altrow"))
 					]);
 				}
 
-				if (totals.Skipped != 0)
+				if (Totals.Skipped != 0)
 				{
 					totalsElements.AddRange([
 						"Skipped: ",
 						new XElement("a",
 							new XAttribute("href", "#skipped"),
-							new XElement("b", totals.Skipped)
+							new XElement("b", Totals.Skipped)
 						),
 						", "
 					]);
 					headerElements.AddRange([
 						new XElement("br"),
 						new XElement("h2", new XElement("a", new XAttribute("id", "skipped")), "Skipped tests"),
-						tests.Where(t => t.Status == TestResultStatus.Skipped).OrderBy(t => t.DisplayName).Select((t, idx) => RenderTestResult(t, idx % 2 == 0 ? "row" : "altrow"))
+						Tests.Where(t => t.Status == TestResultStatus.Skipped).OrderBy(t => t.DisplayName).Select((t, idx) => RenderTestResult(t, idx % 2 == 0 ? "row" : "altrow"))
 					]);
 				}
 
-				if (totals.NotRun != 0)
+				if (Totals.NotRun != 0)
 				{
 					totalsElements.AddRange([
 						"Not Run: ",
 						new XElement("a",
 							new XAttribute("href", "#notrun"),
-							new XElement("b", totals.NotRun)
+							new XElement("b", Totals.NotRun)
 						),
 						", "
 					]);
 					headerElements.AddRange([
 						new XElement("br"),
 						new XElement("h2", new XElement("a", new XAttribute("id", "notrun")), "Not run tests"),
-						tests.Where(t => t.Status == TestResultStatus.NotRun).OrderBy(t => t.DisplayName).Select((t, idx) => RenderTestResult(t, idx % 2 == 0 ? "row" : "altrow"))
+						Tests.Where(t => t.Status == TestResultStatus.NotRun).OrderBy(t => t.DisplayName).Select((t, idx) => RenderTestResult(t, idx % 2 == 0 ? "row" : "altrow"))
 					]);
 				}
 
@@ -117,7 +108,7 @@ public class HtmlResultWriterMessageHandler : ResultMetadataMessageHandlerBase<R
 					new XElement("br"),
 					new XElement("h2", new XElement("a", new XAttribute("id", "all")), "All tests"),
 					new XElement("h5", "Click test class name to expand/collapse test details"),
-					tests.Where(t => t.Status != TestResultStatus.Error).GroupBy(t => t.ClassName).OrderBy(g => g.Key).Select(group =>
+					Tests.Where(t => t.Status != TestResultStatus.Error).GroupBy(t => t.ClassName).OrderBy(g => g.Key).Select(group =>
 						new XElement("h3",
 							new XElement("span",
 								new XAttribute("class", "timing"),
@@ -211,7 +202,7 @@ public class HtmlResultWriterMessageHandler : ResultMetadataMessageHandlerBase<R
 								new XAttribute("class", "divided"),
 								new XElement("b", "Assemblies Run")
 							),
-							assemblies.OrderBy(a => a).Select(a => new XElement("div", a)),
+							Assemblies.OrderBy(a => a).Select(a => new XElement("div", a)),
 							new XElement("h3",
 								new XAttribute("class", "divided"),
 								new XElement("b", "Summary")
@@ -219,17 +210,17 @@ public class HtmlResultWriterMessageHandler : ResultMetadataMessageHandlerBase<R
 							new XElement("div",
 								"Tests run: ",
 								new XElement("a", new XAttribute("href", "#all"),
-									new XElement("b", totals.Total)
+									new XElement("b", Totals.Total)
 								),
 								" — ",
 								totalsElements,
 								"Run time: ",
 								new XElement("b",
-									totals.Time.ToString("0.000", CultureInfo.CurrentCulture),
+									Totals.Time.ToString("0.000", CultureInfo.CurrentCulture),
 									"s"
 								),
 								", Finished: ",
-								new XElement("b", timeFinish.ToLocalTime().ToString("g", CultureInfo.CurrentCulture))
+								new XElement("b", TimeFinish.ToLocalTime().ToString("g", CultureInfo.CurrentCulture))
 							),
 							headerElements,
 							allElements
@@ -247,162 +238,6 @@ public class HtmlResultWriterMessageHandler : ResultMetadataMessageHandlerBase<R
 		return default;
 	}
 
-	void HandleTestFailed(MessageHandlerArgs<ITestFailed> args)
-	{
-		var message = args.Message;
-		if (!TryGetResultMetadata(message.AssemblyUniqueID, out var resultMetadata))
-			return;
-
-		var test = resultMetadata.MetadataCache.TryGetTestMetadata(message);
-		if (test is null)
-			return;
-
-		var testClass = resultMetadata.MetadataCache.TryGetClassMetadata(message);
-
-		tests.Add(new()
-		{
-			ClassName = testClass?.TestClassName,
-			DisplayName = test.TestDisplayName,
-			Message = ExceptionUtility.CombineMessages(message),
-			Output = message.Output,
-			StackTrace = ExceptionUtility.CombineStackTraces(message),
-			Status = TestResultStatus.Failed,
-			Time = message.ExecutionTime,
-			Traits = test.Traits,
-			Warnings = message.Warnings
-		});
-	}
-
-	void HandleTestNotRun(MessageHandlerArgs<ITestNotRun> args)
-	{
-		var message = args.Message;
-		if (!TryGetResultMetadata(message.AssemblyUniqueID, out var resultMetadata))
-			return;
-
-		var test = resultMetadata.MetadataCache.TryGetTestMetadata(message);
-		if (test is null)
-			return;
-
-		var testClass = resultMetadata.MetadataCache.TryGetClassMetadata(message);
-
-		tests.Add(new()
-		{
-			ClassName = testClass?.TestClassName,
-			DisplayName = test.TestDisplayName,
-			Output = message.Output,
-			Status = TestResultStatus.NotRun,
-			Time = message.ExecutionTime,
-			Traits = test.Traits,
-			Warnings = message.Warnings
-		});
-	}
-
-	void HandleTestPassed(MessageHandlerArgs<ITestPassed> args)
-	{
-		var message = args.Message;
-		if (!TryGetResultMetadata(message.AssemblyUniqueID, out var resultMetadata))
-			return;
-
-		var test = resultMetadata.MetadataCache.TryGetTestMetadata(message);
-		if (test is null)
-			return;
-
-		var testClass = resultMetadata.MetadataCache.TryGetClassMetadata(message);
-
-		tests.Add(new()
-		{
-			ClassName = testClass?.TestClassName,
-			DisplayName = test.TestDisplayName,
-			Output = message.Output,
-			Status = TestResultStatus.Passed,
-			Time = message.ExecutionTime,
-			Traits = test.Traits,
-			Warnings = message.Warnings
-		});
-	}
-
-	void HandleTestSkipped(MessageHandlerArgs<ITestSkipped> args)
-	{
-		var message = args.Message;
-		if (!TryGetResultMetadata(message.AssemblyUniqueID, out var resultMetadata))
-			return;
-
-		var test = resultMetadata.MetadataCache.TryGetTestMetadata(message);
-		if (test is null)
-			return;
-
-		var testClass = resultMetadata.MetadataCache.TryGetClassMetadata(message);
-
-		tests.Add(new()
-		{
-			ClassName = testClass?.TestClassName,
-			DisplayName = test.TestDisplayName,
-			Message = message.Reason,
-			Output = message.Output,
-			Status = TestResultStatus.Skipped,
-			Time = message.ExecutionTime,
-			Traits = test.Traits,
-			Warnings = message.Warnings
-		});
-	}
-
-	/// <inheritdoc/>
-	public override bool OnMessage(IMessageSinkMessage message)
-	{
-		message.DispatchWhen<IErrorMessage>(a => OnError("Fatal Error", a.Message));
-		message.DispatchWhen<ITestAssemblyCleanupFailure>(a => OnError("Test Assembly Cleanup Failure", a.Message));
-		message.DispatchWhen<ITestCaseCleanupFailure>(a => OnError("Test Case Cleanup Failure", a.Message));
-		message.DispatchWhen<ITestClassCleanupFailure>(a => OnError("Test Class Cleanup Failure", a.Message));
-		message.DispatchWhen<ITestCleanupFailure>(a => OnError("Test Cleanup Failure", a.Message));
-		message.DispatchWhen<ITestCollectionCleanupFailure>(a => OnError("Test Collection Cleanup Failure", a.Message));
-		message.DispatchWhen<ITestMethodCleanupFailure>(a => OnError("Test Method Cleanup Failure", a.Message));
-
-		message.DispatchWhen<ITestFailed>(HandleTestFailed);
-		message.DispatchWhen<ITestNotRun>(HandleTestNotRun);
-		message.DispatchWhen<ITestPassed>(HandleTestPassed);
-		message.DispatchWhen<ITestSkipped>(HandleTestSkipped);
-
-		return base.OnMessage(message);
-	}
-
-	void OnError(
-		string type,
-		IErrorMetadata error)
-	{
-		tests.Add(new()
-		{
-			DisplayName = type,
-			Message = ExceptionUtility.CombineMessages(error),
-			StackTrace = ExceptionUtility.CombineStackTraces(error),
-			Status = TestResultStatus.Error,
-		});
-
-		lock (totals)
-			++totals.Errors;
-	}
-
-	internal override void OnTestAssemblyStarting(
-		ITestAssemblyStarting message,
-		ResultMetadataBase resultMetadata) =>
-			assemblies.Add(message.AssemblyPath);
-
-	internal override void OnTestAssemblyFinished(
-		ITestAssemblyFinished message,
-		ResultMetadataBase resultMetadata)
-	{
-		if (timeFinish < message.FinishTime)
-			timeFinish = message.FinishTime;
-
-		lock (totals)
-		{
-			totals.Failed += message.TestsFailed;
-			totals.NotRun += message.TestsNotRun;
-			totals.Skipped += message.TestsSkipped;
-			totals.Time += message.ExecutionTime;
-			totals.Total += message.TestsTotal;
-		}
-	}
-
 	static XElement RenderTestResult(
 		TestResult testResult,
 		string rowClass)
@@ -411,11 +246,11 @@ public class HtmlResultWriterMessageHandler : ResultMetadataMessageHandlerBase<R
 			new XAttribute("class", rowClass),
 			new XElement("span",
 				new XAttribute("class", "timing"),
-				testResult.Timing
+				Timing(testResult)
 			),
 			new XElement("span",
-				new XAttribute("class", $"{testResult.CssClass} status-icon"),
-				testResult.Symbol
+				new XAttribute("class", $"{CssClass(testResult)} status-icon"),
+				Symbol(testResult)
 			),
 			$" {testResult.DisplayName}",
 			new XElement("br", new XAttribute("clear", "all"))
@@ -461,44 +296,32 @@ public class HtmlResultWriterMessageHandler : ResultMetadataMessageHandlerBase<R
 		return resultElement;
 	}
 
-	sealed class TestResult
-	{
-		internal string? ClassName;
-		internal required string DisplayName;
-		internal string? Message;
-		internal string? Output;
-		internal string? StackTrace;
-		internal required TestResultStatus Status;
-		internal decimal Time = 0m;
-		internal IReadOnlyDictionary<string, IReadOnlyCollection<string>>? Traits;
-		internal string[]? Warnings;
-
-		internal string CssClass => Status switch
+	static string CssClass(TestResult testResult) =>
+		testResult.Status switch
 		{
 			TestResultStatus.Error or TestResultStatus.Failed => "failure",
 			TestResultStatus.NotRun => "notrun",
 			TestResultStatus.Passed => "success",
 			TestResultStatus.Skipped => "skipped",
-			_ => throw new ArgumentException($"Unknown status {Status}"),
+			_ => throw new ArgumentException($"Unknown status {testResult.Status}"),
 		};
 
-		internal string Symbol => Status switch
+	static string Symbol(TestResult testResult) =>
+		testResult.Status switch
 		{
 			TestResultStatus.Error or TestResultStatus.Failed => "✗",
 			TestResultStatus.NotRun => "🛇",
 			TestResultStatus.Passed => "✓",
 			TestResultStatus.Skipped => "?",
-			_ => throw new ArgumentException($"Unknown status {Status}"),
+			_ => throw new ArgumentException($"Unknown status {testResult.Status}"),
 		};
 
-		internal string Timing => Status switch
+	static string Timing(TestResult testResult) =>
+		testResult.Status switch
 		{
 			TestResultStatus.Error => "",
 			TestResultStatus.NotRun => "Not Run",
 			TestResultStatus.Skipped => "Skipped",
-			_ => $"{Time:0.000}s",
+			_ => $"{testResult.Time:0.000}s",
 		};
-	}
-
-	enum TestResultStatus { Passed, Failed, Skipped, NotRun, Error };
 }

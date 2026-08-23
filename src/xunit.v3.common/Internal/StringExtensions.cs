@@ -42,6 +42,16 @@ public static class StringExtensions
 #endif
 
 	/// <summary/>
+	public static string Indent(
+		this string value,
+		string indentation,
+		string? newline = null) =>
+			value
+				.ReplaceOrdinal("\r\n", "\n")
+				.ReplaceOrdinal("\r", "\n")
+				.ReplaceOrdinal("\n", (newline ?? Environment.NewLine) + indentation);
+
+	/// <summary/>
 	public static string Quoted(this string? value) =>
 		value is null ? "null" : '"' + value + '"';
 

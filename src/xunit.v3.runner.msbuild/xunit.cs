@@ -104,6 +104,9 @@ public class xunit : MSBuildTask, ICancelableTask, IDisposable
 	public ITaskItem? JUnit { get; set; }
 
 	/// <summary/>
+	public ITaskItem? Markdown { get; set; }
+
+	/// <summary/>
 	public string? MaxParallelThreads { get; set; }
 
 	/// <summary/>
@@ -380,6 +383,8 @@ public class xunit : MSBuildTask, ICancelableTask, IDisposable
 					resultWriterMessageHandlers.Add(await resultWriters["html"].CreateMessageHandler(Html.ItemSpec, globalDiagnosticsMessageSink));
 				if (JUnit is not null)
 					resultWriterMessageHandlers.Add(await resultWriters["junit"].CreateMessageHandler(JUnit.ItemSpec, globalDiagnosticsMessageSink));
+				if (Markdown is not null)
+					resultWriterMessageHandlers.Add(await resultWriters["markdown"].CreateMessageHandler(Markdown.ItemSpec, globalDiagnosticsMessageSink));
 				if (NUnit is not null)
 					resultWriterMessageHandlers.Add(await resultWriters["nunit"].CreateMessageHandler(NUnit.ItemSpec, globalDiagnosticsMessageSink));
 				if (Trx is not null)

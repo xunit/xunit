@@ -920,6 +920,7 @@ partial class TestData
 
 	public static ITestSkipped TestSkipped(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
+		decimal executionTime = 0m,
 		DateTimeOffset? finishTime = null,
 		string output = DefaultOutput,
 		string reason = DefaultSkipReason,
@@ -932,7 +933,7 @@ partial class TestData
 			new TestSkipped()
 			{
 				AssemblyUniqueID = assemblyUniqueID,
-				ExecutionTime = 0m,
+				ExecutionTime = executionTime,
 				FinishTime = finishTime ?? DefaultFinishTime,
 				Output = output,
 				Reason = reason,

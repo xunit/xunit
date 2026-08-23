@@ -84,5 +84,5 @@ public static class TestConsole
 		string outputFilePrefix,
 		string extraArgs = "-preEnumerateTheories",
 		string? runner = null) =>
-			await context.Exec(runner ?? context.ConsoleRunnerExe, $"{string.Join(" ", testAssemblies)} {extraArgs} -result-xml \"{outputFilePrefix}.xml\" -result-html \"{outputFilePrefix}.html\" -result-ctrf \"{outputFilePrefix}.ctrf\" -result-trx \"{outputFilePrefix}.trx\"", workingDirectory: context.BaseFolder);
+			await context.Exec(runner ?? context.ConsoleRunnerExe, $"{string.Join(" ", testAssemblies)} {extraArgs} -result-xml \"{outputFilePrefix}.xml\" -result-markdown \"{outputFilePrefix}.md\" -result-ctrf \"{outputFilePrefix}.ctrf\" -result-trx \"{outputFilePrefix}.trx\"", workingDirectory: context.BaseFolder);
 }

@@ -3,6 +3,7 @@
 [assembly: global::Xunit.Runner.Common.RegisterResultWriter("ctrf", typeof(global::Xunit.Runner.Common.CtrfResultWriter))]
 [assembly: global::Xunit.Runner.Common.RegisterResultWriter("html", typeof(global::Xunit.Runner.Common.HtmlResultWriter))]
 [assembly: global::Xunit.Runner.Common.RegisterResultWriter("junit", typeof(global::Xunit.Runner.Common.JUnitResultWriter))]
+[assembly: global::Xunit.Runner.Common.RegisterResultWriter("markdown", typeof(global::Xunit.Runner.Common.MarkdownResultWriter))]
 [assembly: global::Xunit.Runner.Common.RegisterResultWriter("nunit", typeof(global::Xunit.Runner.Common.NUnitResultWriter))]
 [assembly: global::Xunit.Runner.Common.RegisterResultWriter("trx", typeof(global::Xunit.Runner.Common.TrxResultWriter))]
 [assembly: global::Xunit.Runner.Common.RegisterResultWriter("xml", typeof(global::Xunit.Runner.Common.XmlV2ResultWriter))]
