@@ -4,6 +4,11 @@
   <!-- This file prevents the auto-import of the .targets file from the parent folder. -->
 
   <PropertyGroup>
+    <!-- Use NuGet package lock restore -->
+    <ContinuousIntegrationBuild Condition=" '$(GITHUB_ACTIONS)' == 'true' ">true</ContinuousIntegrationBuild>
+    <RestoreLockedMode Condition="'$(ContinuousIntegrationBuild)' == 'true'">true</RestoreLockedMode>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+
     <!-- LangVersion 7.3 aligns with the default C# for net472. -->
     <ImplicitUsings>disable</ImplicitUsings>
     <LangVersion>7.3</LangVersion>

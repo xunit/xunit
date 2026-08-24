@@ -12,6 +12,7 @@
   <PropertyGroup>
     <AssemblyName Condition=" '$(AssemblyName)' == '' ">$(MSBuildProjectName)</AssemblyName>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <ContinuousIntegrationBuild Condition=" '$(GITHUB_ACTIONS)' == 'true' ">true</ContinuousIntegrationBuild>
     <DebugType Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">full</DebugType>
     <DebugType Condition=" '$(TargetFrameworkIdentifier)' != '.NETFramework' ">embedded</DebugType>
     <DefineConstants>$(DefineConstants);XUNIT_NULLABLE;XUNIT_OVERLOAD_RESOLUTION_PRIORITY;XUNIT_POINTERS</DefineConstants>
@@ -25,6 +26,8 @@
     <PackageId>$(MSBuildProjectName)</PackageId>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <PublishAot Condition=" $(_XunitIsAotProject) AND '$(PublishAot)' != '' ">true</PublishAot>
+    <RestoreLockedMode Condition="'$(ContinuousIntegrationBuild)' == 'true'">true</RestoreLockedMode>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <RootNamespace>Xunit</RootNamespace>
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -58,7 +61,6 @@
         <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)signing.snk</AssemblyOriginatorKeyFile>
         <Authors>jnewkirk;bradwilson</Authors>
         <Company>.NET Foundation</Company>
-        <ContinuousIntegrationBuild Condition=" '$(GITHUB_ACTIONS)' == 'true' ">true</ContinuousIntegrationBuild>
         <Copyright>Copyright (C) .NET Foundation</Copyright>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>

@@ -1,0 +1,117 @@
+{
+  "version": 1,
+  "dependencies": {
+    "net9.0": {
+      "ILRepack": {
+        "type": "Direct",
+        "requested": "[2.0.46, )",
+        "resolved": "2.0.46",
+        "contentHash": "A0aJSYJQfbXQXLrKqT4J3FtF9/+y6twMNCGYuzRM8I1C9TutkNkkrlQR/15yUH7Ik3DNiWOJRlsdOkB7H3XK5Q=="
+      },
+      "Microsoft.NET.ILLink.Tasks": {
+        "type": "Direct",
+        "requested": "[9.0.19, )",
+        "resolved": "9.0.19",
+        "contentHash": "I9GkKrCVjzxGU1hsKSurOW6P/ABPPHARfc/MTnzIgDb8YjJ/votxKN2z7K+J3DvlQXGH0O7KqdtBseRj8j7eNQ=="
+      },
+      "Microsoft.SourceLink.GitHub": {
+        "type": "Direct",
+        "requested": "[10.0.105, 10.0.105]",
+        "resolved": "10.0.105",
+        "contentHash": "jAyZ1v9Dlo7+l1t+AD/tEgAYgO95bVM/KEtmP/OO8mIX7mIbkGRcep9k/CLb1ktRplhWwr+78WoM6WxwztV/Ew==",
+        "dependencies": {
+          "Microsoft.Build.Tasks.Git": "10.0.105",
+          "Microsoft.SourceLink.Common": "10.0.105"
+        }
+      },
+      "Microsoft.Testing.Extensions.Telemetry": {
+        "type": "Direct",
+        "requested": "[2.3.3, 3.0.0)",
+        "resolved": "2.3.3",
+        "contentHash": "nY8ceQyPWB9TRE1WE5Oe/sks2e10SxgPv61vBHsFYpgCeDtNwhpMZwmL29GklO3/etTdOsLdrCmNr4zJWaR2fg==",
+        "dependencies": {
+          "Microsoft.ApplicationInsights": "2.23.0",
+          "Microsoft.Testing.Platform": "2.3.3"
+        }
+      },
+      "Microsoft.Testing.Extensions.TrxReport.Abstractions": {
+        "type": "Direct",
+        "requested": "[2.3.3, 3.0.0)",
+        "resolved": "2.3.3",
+        "contentHash": "dceVNxnfTEjKnrIreLcMfkgrzzBY8kgCCJX5NAv7Lq/6vPlTP4VB5zxKeuYy0yfCoBtWuPkLjUG6qtOBMfpypA==",
+        "dependencies": {
+          "Microsoft.Testing.Platform": "2.3.3"
+        }
+      },
+      "Microsoft.Testing.Platform": {
+        "type": "Direct",
+        "requested": "[2.3.3, 3.0.0)",
+        "resolved": "2.3.3",
+        "contentHash": "ENbH4BQh9riXtOKc25KKITfiGGWhWMBJA7pZuNaF9zxzzSaVkp5AMeZxGQ6sXYaR6xb724NLz985Is6XIYqLSg=="
+      },
+      "Nerdbank.GitVersioning": {
+        "type": "Direct",
+        "requested": "[3.10.91, )",
+        "resolved": "3.10.91",
+        "contentHash": "9MtEXm/um2lQAEoek1EkF4CXNH4JuXxv2jV3Ew2XlzP0LXxFaFiECS7ji8zf1ZaMnPGYbbom+Nm6y4ADc5HNHQ=="
+      },
+      "xunit.analyzers": {
+        "type": "Direct",
+        "requested": "[2.0.0, )",
+        "resolved": "2.0.0",
+        "contentHash": "2UtauxWDa9C6bT7MvFfZkNoFulfflb00jnDU2xeVO9Y58l4Ah2Mv/HiMs4b0zdpK/SfAxpajkgKNMN8zBKa+7Q=="
+      },
+      "Microsoft.ApplicationInsights": {
+        "type": "Transitive",
+        "resolved": "2.23.0",
+        "contentHash": "nWArUZTdU7iqZLycLKWe0TDms48KKGE6pONH2terYNa8REXiqixrMOkf1sk5DHGMaUTqONU2YkS4SAXBhLStgw==",
+        "dependencies": {
+          "System.Diagnostics.DiagnosticSource": "5.0.0"
+        }
+      },
+      "Microsoft.Build.Tasks.Git": {
+        "type": "Transitive",
+        "resolved": "10.0.105",
+        "contentHash": "H7So5Ca5mENLkwVIb3Q6V1xZzXLiMdZ3XxNV9nWA77rY2KX3MNgtRzmia5F56OesXzjqnCZXLNKwvTbxSN03XQ=="
+      },
+      "Microsoft.SourceLink.Common": {
+        "type": "Transitive",
+        "resolved": "10.0.105",
+        "contentHash": "qDNxxeM6uuvh1F/KuKjlY8pg+HMQv95FqK6DHVabHxX0vix/PMl4l/CII2XL3tZr0afj0sbqk3WXa/2unyz0PQ=="
+      },
+      "Microsoft.TestPlatform.Filter.Source": {
+        "type": "Transitive",
+        "resolved": "18.9.0",
+        "contentHash": "DaGtqluOHTC41gD0oJ7FRN+F85AalD7wuPjRwKc7urEJyC9jaoR5p/qy8CPG+cYT5st5JkfTlv1+Y6H6FCfLUw=="
+      },
+      "System.Diagnostics.DiagnosticSource": {
+        "type": "Transitive",
+        "resolved": "5.0.0",
+        "contentHash": "tCQTzPsGZh/A9LhhA6zrqCRV4hOHsK90/G7q3Khxmn6tnB1PuNU0cRaKANP2AWcF9bn0zsuOoZOSrHuJk6oNBA=="
+      },
+      "xunit.v3.common.aot": {
+        "type": "Project"
+      },
+      "xunit.v3.core.aot": {
+        "type": "Project",
+        "dependencies": {
+          "xunit.v3.common.aot": "[1.0.0, )"
+        }
+      },
+      "xunit.v3.runner.common.aot": {
+        "type": "Project",
+        "dependencies": {
+          "Microsoft.TestPlatform.Filter.Source": "[18.9.0, )",
+          "xunit.v3.common.aot": "[1.0.0, )"
+        }
+      },
+      "xunit.v3.runner.inproc.console.aot": {
+        "type": "Project",
+        "dependencies": {
+          "xunit.v3.core.aot": "[1.0.0, )",
+          "xunit.v3.runner.common.aot": "[1.0.0, )"
+        }
+      }
+    }
+  }
+}

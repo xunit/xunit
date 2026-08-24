@@ -1,0 +1,99 @@
+{
+  "version": 1,
+  "dependencies": {
+    ".NETFramework,Version=v4.5.2": {
+      "Microsoft.NETFramework.ReferenceAssemblies": {
+        "type": "Direct",
+        "requested": "[1.0.3, )",
+        "resolved": "1.0.3",
+        "contentHash": "vUc9Npcs14QsyOD01tnv/m8sQUnGTGOw1BCmKcv77LBJY7OxhJ+zJF7UD/sCL3lYNFuqmQEVlkfS4Quif6FyYg==",
+        "dependencies": {
+          "Microsoft.NETFramework.ReferenceAssemblies.net452": "1.0.3"
+        }
+      },
+      "Nerdbank.GitVersioning": {
+        "type": "Direct",
+        "requested": "[3.10.91, )",
+        "resolved": "3.10.91",
+        "contentHash": "9MtEXm/um2lQAEoek1EkF4CXNH4JuXxv2jV3Ew2XlzP0LXxFaFiECS7ji8zf1ZaMnPGYbbom+Nm6y4ADc5HNHQ=="
+      },
+      "NSubstitute": {
+        "type": "Direct",
+        "requested": "[4.4.0, 4.4.0]",
+        "resolved": "4.4.0",
+        "contentHash": "aArWp0M9n/3IZHCNSb3QIHy0tkPLSft8l3KFeUa54GbznKiv0FE687TBfPhZbXf0/zGtc4EsHLEUqEEf0Bf4HQ==",
+        "dependencies": {
+          "Castle.Core": "4.4.1",
+          "System.Threading.Tasks.Extensions": "4.3.0"
+        }
+      },
+      "TunnelVisionLabs.ReferenceAssemblyAnnotator": {
+        "type": "Direct",
+        "requested": "[1.0.0-alpha.160, )",
+        "resolved": "1.0.0-alpha.160",
+        "contentHash": "ktxB8PGoPpIaYKjLk/+P94Fi2Qw2E1Dw7atBQRrKnHA57sk8WwmkI4RJmg6s5ph4k1RIaaAZMus05ah/AikEkA=="
+      },
+      "xunit.assert": {
+        "type": "Direct",
+        "requested": "[2.9.3, )",
+        "resolved": "2.9.3",
+        "contentHash": "/Kq28fCE7MjOV42YLVRAJzRF0WmEqsmflm0cfpMjGtzQ2lR5mYVj1/i0Y8uDAOLczkL3/jArrwehfMD0YogMAA=="
+      },
+      "xunit.core": {
+        "type": "Direct",
+        "requested": "[2.9.3, )",
+        "resolved": "2.9.3",
+        "contentHash": "BiAEvqGvyme19wE0wTKdADH+NloYqikiU0mcnmiNyXaF9HyHmE6sr/3DC5vnBkgsWaE6yPyWszKSPSApWdRVeQ==",
+        "dependencies": {
+          "xunit.extensibility.core": "[2.9.3]",
+          "xunit.extensibility.execution": "[2.9.3]"
+        }
+      },
+      "xunit.runner.utility": {
+        "type": "Direct",
+        "requested": "[2.9.3, )",
+        "resolved": "2.9.3",
+        "contentHash": "cAUw6GadBR19A9/345e3BFiAkhN9P5xPrxiZgks0xdRv+DxdIWiizE5vjyExKNyFzsm+r1jDhccpUyojBDT7OA==",
+        "dependencies": {
+          "xunit.abstractions": "2.0.3"
+        }
+      },
+      "Castle.Core": {
+        "type": "Transitive",
+        "resolved": "4.4.1",
+        "contentHash": "zanbjWC0Y05gbx4eGXkzVycOQqVOFVeCjVsDSyuao9P4mtN1w3WxxTo193NGC7j3o2u3AJRswaoC6hEbnGACnQ=="
+      },
+      "Microsoft.NETFramework.ReferenceAssemblies.net452": {
+        "type": "Transitive",
+        "resolved": "1.0.3",
+        "contentHash": "kuFOgilYbs29xENHlqQ6aJYa+t56u+OqHx85P7GYLVlo7HL3nsug9IQY2DoPgkOpZ2xb9btYV2EFK7Enll8S3A=="
+      },
+      "System.Threading.Tasks.Extensions": {
+        "type": "Transitive",
+        "resolved": "4.3.0",
+        "contentHash": "npvJkVKl5rKXrtl1Kkm6OhOUaYGEiF9wFbppFRWSMoApKzt2PiPHT2Bb8a5sAWxprvdOAtvaARS9QYMznEUtug=="
+      },
+      "xunit.abstractions": {
+        "type": "Transitive",
+        "resolved": "2.0.3",
+        "contentHash": "pot1I4YOxlWjIb5jmwvvQNbTrZ3lJQ+jUGkGjWE3hEFM0l5gOnBWS+H3qsex68s5cO52g+44vpGzhAt+42vwKg=="
+      },
+      "xunit.extensibility.core": {
+        "type": "Transitive",
+        "resolved": "2.9.3",
+        "contentHash": "kf3si0YTn2a8J8eZNb+zFpwfoyvIrQ7ivNk5ZYA5yuYk1bEtMe4DxJ2CF/qsRgmEnDr7MnW1mxylBaHTZ4qErA==",
+        "dependencies": {
+          "xunit.abstractions": "2.0.3"
+        }
+      },
+      "xunit.extensibility.execution": {
+        "type": "Transitive",
+        "resolved": "2.9.3",
+        "contentHash": "yMb6vMESlSrE3Wfj7V6cjQ3S4TXdXpRqYeNEI3zsX31uTsGMJjEw6oD5F5u1cHnMptjhEECnmZSsPxB6ChZHDQ==",
+        "dependencies": {
+          "xunit.extensibility.core": "[2.9.3]"
+        }
+      }
+    }
+  }
+}

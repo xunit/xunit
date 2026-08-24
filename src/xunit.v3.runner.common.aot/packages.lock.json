@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "dependencies": {
+    "net9.0": {
+      "ILRepack": {
+        "type": "Direct",
+        "requested": "[2.0.46, )",
+        "resolved": "2.0.46",
+        "contentHash": "A0aJSYJQfbXQXLrKqT4J3FtF9/+y6twMNCGYuzRM8I1C9TutkNkkrlQR/15yUH7Ik3DNiWOJRlsdOkB7H3XK5Q=="
+      },
+      "Microsoft.NET.ILLink.Tasks": {
+        "type": "Direct",
+        "requested": "[9.0.19, )",
+        "resolved": "9.0.19",
+        "contentHash": "I9GkKrCVjzxGU1hsKSurOW6P/ABPPHARfc/MTnzIgDb8YjJ/votxKN2z7K+J3DvlQXGH0O7KqdtBseRj8j7eNQ=="
+      },
+      "Microsoft.SourceLink.GitHub": {
+        "type": "Direct",
+        "requested": "[10.0.105, 10.0.105]",
+        "resolved": "10.0.105",
+        "contentHash": "jAyZ1v9Dlo7+l1t+AD/tEgAYgO95bVM/KEtmP/OO8mIX7mIbkGRcep9k/CLb1ktRplhWwr+78WoM6WxwztV/Ew==",
+        "dependencies": {
+          "Microsoft.Build.Tasks.Git": "10.0.105",
+          "Microsoft.SourceLink.Common": "10.0.105"
+        }
+      },
+      "Microsoft.TestPlatform.Filter.Source": {
+        "type": "Direct",
+        "requested": "[18.9.0, )",
+        "resolved": "18.9.0",
+        "contentHash": "DaGtqluOHTC41gD0oJ7FRN+F85AalD7wuPjRwKc7urEJyC9jaoR5p/qy8CPG+cYT5st5JkfTlv1+Y6H6FCfLUw=="
+      },
+      "Nerdbank.GitVersioning": {
+        "type": "Direct",
+        "requested": "[3.10.91, )",
+        "resolved": "3.10.91",
+        "contentHash": "9MtEXm/um2lQAEoek1EkF4CXNH4JuXxv2jV3Ew2XlzP0LXxFaFiECS7ji8zf1ZaMnPGYbbom+Nm6y4ADc5HNHQ=="
+      },
+      "xunit.analyzers": {
+        "type": "Direct",
+        "requested": "[2.0.0, )",
+        "resolved": "2.0.0",
+        "contentHash": "2UtauxWDa9C6bT7MvFfZkNoFulfflb00jnDU2xeVO9Y58l4Ah2Mv/HiMs4b0zdpK/SfAxpajkgKNMN8zBKa+7Q=="
+      },
+      "Microsoft.Build.Tasks.Git": {
+        "type": "Transitive",
+        "resolved": "10.0.105",
+        "contentHash": "H7So5Ca5mENLkwVIb3Q6V1xZzXLiMdZ3XxNV9nWA77rY2KX3MNgtRzmia5F56OesXzjqnCZXLNKwvTbxSN03XQ=="
+      },
+      "Microsoft.SourceLink.Common": {
+        "type": "Transitive",
+        "resolved": "10.0.105",
+        "contentHash": "qDNxxeM6uuvh1F/KuKjlY8pg+HMQv95FqK6DHVabHxX0vix/PMl4l/CII2XL3tZr0afj0sbqk3WXa/2unyz0PQ=="
+      },
+      "xunit.v3.common.aot": {
+        "type": "Project"
+      }
+    }
+  }
+}
