@@ -9,6 +9,7 @@ namespace Xunit.BuildTools.Targets;
 
 public static partial class SignAssemblies
 {
+	// Ensure this list matches the list in $/src/Directory.Build.props
 	static readonly string[] PublishRuntimes = ["win-arm64", "linux-x64", "linux-arm", "linux-arm64", "osx-x64", "osx-arm64"];
 
 	public static async Task OnExecute(BuildContext context)

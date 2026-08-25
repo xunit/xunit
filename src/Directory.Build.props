@@ -76,6 +76,7 @@
         <Product Condition=" '$(PublishAot)' == 'true' ">xUnit.net v3 Testing Framework [Native AOT]</Product>
         <RepositoryUrl>https://github.com/xunit/xunit</RepositoryUrl>
         <SignAssembly>true</SignAssembly>
+        <!-- Ensure this list matches the list in $/tools/builder/targets/SignAssemblies.cs -->
         <StandAloneRunnerRuntimeIdentifiers>win-arm64;linux-x64;linux-arm;linux-arm64;osx-x64;osx-arm64</StandAloneRunnerRuntimeIdentifiers>
         <TrimmerSingleWarn Condition=" '$(PublishAot)' == 'true' ">false</TrimmerSingleWarn>
       </PropertyGroup>
