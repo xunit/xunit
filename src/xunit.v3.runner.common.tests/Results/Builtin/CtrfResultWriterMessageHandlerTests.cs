@@ -374,6 +374,7 @@ public static class CtrfResultWriterMessageHandlerTests
 		Assert.Equal(suites, JsonDeserializer.TryGetInt(summary, "suites"));
 		Assert.Equal(start, JsonDeserializer.TryGetLong(summary, "start"));
 		Assert.Equal(stop, JsonDeserializer.TryGetLong(summary, "stop"));
+		Assert.Equal(stop - start, JsonDeserializer.TryGetLong(summary, "duration"));
 	}
 
 	static void VerifyTest(

@@ -167,6 +167,10 @@ public class CtrfResultWriterMessageHandler : ResultMetadataMessageHandlerBase<C
 
 					using (var summaryJson = resultsJson.SerializeObject("summary"))
 					{
+						var duration = 0L;
+						if (timeStart.HasValue && timeFinish.HasValue)
+							duration = timeFinish.Value - timeStart.Value;
+
 						summaryJson.Serialize("tests", totalRun);
 						summaryJson.Serialize("passed", totalPassed);
 						summaryJson.Serialize("failed", totalFailed);
@@ -176,6 +180,7 @@ public class CtrfResultWriterMessageHandler : ResultMetadataMessageHandlerBase<C
 						summaryJson.Serialize("suites", totalSuites);
 						summaryJson.Serialize("start", timeStart ?? 0);
 						summaryJson.Serialize("stop", timeFinish ?? 0);
+						summaryJson.Serialize("duration", duration);
 					}
 
 					using var testsJson = resultsJson.SerializeArray("tests");
