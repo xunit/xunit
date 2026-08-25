@@ -114,6 +114,10 @@ public class CtrfResultWriterMessageHandler : ResultMetadataMessageHandlerBase<C
 						environmentJson.Serialize("osPlatform", osPlatform);
 						environmentJson.Serialize("osRelease", osDescription);
 						environmentJson.Serialize("osVersion", osDescription);
+
+						using var extraJson = environmentJson.SerializeObject("extra");
+						extraJson.Serialize("machine", EnvironmentUtility.Computer);
+						extraJson.Serialize("user", EnvironmentUtility.User);
 					}
 
 					using (var extraJson = resultsJson.SerializeObject("extra"))

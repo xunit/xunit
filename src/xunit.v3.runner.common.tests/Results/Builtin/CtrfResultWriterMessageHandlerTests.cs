@@ -70,6 +70,11 @@ public static class CtrfResultWriterMessageHandlerTests
 		Assert.Equal(osDescription, JsonDeserializer.TryGetString(environment, "osRelease"));
 		Assert.Equal(osDescription, JsonDeserializer.TryGetString(environment, "osVersion"));
 
+		var environmentExtra = JsonDeserializer.TryGetObject(environment, "extra");
+		Assert.NotNull(environmentExtra);
+		Assert.Equal("expected-computer", JsonDeserializer.TryGetString(environmentExtra, "machine"));
+		Assert.Equal("expected-user", JsonDeserializer.TryGetString(environmentExtra, "user"));
+
 		var extra = JsonDeserializer.TryGetObject(results, "extra");
 		Assert.NotNull(extra);
 		Assert.Equal("expected-computer", JsonDeserializer.TryGetString(extra, "computer"));
