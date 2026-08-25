@@ -5,6 +5,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <OutputType>Exe</OutputType>
     <RunILRepack>true</RunILRepack>
+    <RuntimeIdentifiers>$(StandAloneRunnerRuntimeIdentifiers)</RuntimeIdentifiers>
     <TargetFrameworks>net472;net48;net481;net10.0</TargetFrameworks>
   </PropertyGroup>
 

@@ -4,6 +4,7 @@
     <DefineConstants>$(DefineConstants);XUNIT_ARGUMENTFORMATTER_PRIVATE</DefineConstants>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <RootNamespace>Xunit.Sdk</RootNamespace>
+    <RuntimeIdentifiers>$(StandAloneRunnerRuntimeIdentifiers)</RuntimeIdentifiers>
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 

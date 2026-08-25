@@ -7,6 +7,7 @@
     <Nullable>enable</Nullable>
     <RootNamespace>Xunit.Runner.Common</RootNamespace>
     <RunILRepack>true</RunILRepack>
+    <RuntimeIdentifiers>$(StandAloneRunnerRuntimeIdentifiers)</RuntimeIdentifiers>
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 

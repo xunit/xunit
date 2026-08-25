@@ -6,6 +6,7 @@
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <DefineConstants>$(DefineConstants);XUNIT_RUNNER_UTILITY</DefineConstants>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <RuntimeIdentifiers>$(StandAloneRunnerRuntimeIdentifiers)</RuntimeIdentifiers>
     <TargetFrameworks>net472;net8.0</TargetFrameworks>
   </PropertyGroup>
 
