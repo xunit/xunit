@@ -31,6 +31,7 @@
     <RootNamespace>Xunit</RootNamespace>
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <XunitAotRuntimeIdentifiers>win-x86;win-x64;win-arm64;linux-x64;linux-arm64;osx-x64;osx-arm64</XunitAotRuntimeIdentifiers>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(ImplicitUsings)' == 'enable' ">
@@ -174,7 +175,7 @@
 
       <!-- Required for AcceptanceTestAssembly -->
       <ItemGroup>
-        <PackageDownload Include="Microsoft.NETFramework.ReferenceAssemblies.net472" Version="[1.0.3]" />
+        <PackageDownload Include="Microsoft.NETFramework.ReferenceAssemblies.net472" Version="[$(Microsoft_NETFramework_ReferenceAssemblies_Version)]" />
         <PackageDownload Include="NetStandard.Library" Version="[2.0.0]" />
       </ItemGroup>
 
@@ -199,6 +200,7 @@
         <When Condition=" $(_XunitIsAotProject) ">
 
           <PropertyGroup>
+            <RuntimeIdentifiers>$(XunitAotRuntimeIdentifiers)</RuntimeIdentifiers>
             <XunitTestProjectAOT>true</XunitTestProjectAOT>
           </PropertyGroup>
 
@@ -239,6 +241,7 @@
   <PropertyGroup Condition=" $(MSBuildProjectName.Contains('.x86')) ">
     <DefineConstants>$(DefineConstants);BUILD_X86</DefineConstants>
     <PlatformTarget>x86</PlatformTarget>
+    <RuntimeIdentifiers>win-x86</RuntimeIdentifiers>
   </PropertyGroup>
 
 </Project>

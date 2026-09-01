@@ -1,6 +1,14 @@
 <Project>
   <!-- This file prevents the auto-import of the .targets file from the parent folder. -->
 
+  <!-- Enable building .NET Framework on non-Windows machines -->
+  <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="$(Microsoft_NETFramework_ReferenceAssemblies_Version)">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
   <!-- Enable nullable support for C# 9 targets (minimum threshold for nullable support) -->
   <Choose>
     <When Condition=" '$(LangVersion)' == '9.0' ">

@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <OutputType>Exe</OutputType>
     <PublishAot>true</PublishAot>
+    <RuntimeIdentifiers>$(XunitAotRuntimeIdentifiers)</RuntimeIdentifiers>
     <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
 
