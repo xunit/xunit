@@ -1,4 +1,5 @@
 #pragma warning disable CA1033  // Interface hiding is used explicitly here so that tests call the right methods
+#pragma warning disable TPEXP   // Grants access to IClientInfo, which is currently experimental
 
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -343,9 +344,9 @@ public class TestPlatformTestFramework :
 				foreach (var warning in resultWriterWarnings)
 					logger.LogWarning(warning);
 
-				var commandLineOptions = serviceProvider.GetCommandLineOptions();
-				var hasServerOption = commandLineOptions.TryGetOptionArgumentList("server", out var protocolNames);
-				var serverMode = hasServerOption && (protocolNames is null || protocolNames.Length == 0 || protocolNames[0].Equals("jsonrpc", StringComparison.OrdinalIgnoreCase));
+				// https://github.com/microsoft/testfx/blob/33e7b79cb2afb69df197690dbd8435b534a94e30/src/Platform/Microsoft.Testing.Extensions.VSTestBridge/ObjectModel/RunSettingsPatcher.cs#L20-L22
+				var client = serviceProvider.GetClientInfo();
+				var serverMode = client.Capabilities.IsStateful || client.Id == WellKnownClients.VisualStudio;
 
 				// Create the XunitProject and XunitProjectAssembly
 				var project = new XunitProject();
@@ -353,6 +354,7 @@ public class TestPlatformTestFramework :
 				var assemblyFolder = Path.GetDirectoryName(assemblyFileName) ?? throw new TestPipelineException("Test assembly must have an on-disk location");
 				var targetFramework = testAssembly.GetTargetFramework();
 
+				var commandLineOptions = serviceProvider.GetCommandLineOptions();
 				var configFileName = default(string);
 				if (commandLineOptions.TryGetOptionArgumentList("xunit-config-filename", out var configFilenameArguments))
 					configFileName = configFilenameArguments[0];
