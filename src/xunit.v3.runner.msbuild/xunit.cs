@@ -234,8 +234,9 @@ public class xunit : MSBuildTask, ICancelableTask, IDisposable
 
 				default:
 					var match = ConfigUtility.MultiplierStyleMaxParallelThreadsRegex.Match(MaxParallelThreads);
-					if (match.Success && decimal.TryParse(match.Groups[1].Value, out var maxThreadMultiplier))
-						maxParallelThreads = (int)(maxThreadMultiplier * Environment.ProcessorCount);
+					// A zero multiplier is rejected, and a non-zero multiplier always yields at least one thread (since 0 means "default")
+					if (match.Success && decimal.TryParse(match.Groups[1].Value, out var maxThreadMultiplier) && maxThreadMultiplier > 0)
+						maxParallelThreads = Math.Max(1, (int)(maxThreadMultiplier * Environment.ProcessorCount));
 					else if (int.TryParse(MaxParallelThreads, out var threadValue) && threadValue > 0)
 						maxParallelThreads = threadValue;
 					else

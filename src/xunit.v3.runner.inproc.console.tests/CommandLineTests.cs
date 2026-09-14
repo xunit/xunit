@@ -390,6 +390,9 @@ public static class CommandLineTests
 			// Missing leading digit
 			[InlineData(".0x")]
 			[InlineData(",0x")]
+			// Zero multiplier
+			[InlineData("0x")]
+			[InlineData("0.0x")]
 			public static void InvalidValues(string value)
 			{
 				var commandLine = new TestableCommandLine("no-config.json", "-maxthreads", value);
@@ -428,6 +431,18 @@ public static class CommandLineTests
 				var assembly = commandLine.Parse();
 
 				Assert.Equal(expected, assembly.Configuration.MaxParallelThreads);
+			}
+
+			[Theory]
+			[InlineData("0.0001x")]
+			[InlineData("0,0001x")]
+			public static void MultiplierValueRoundingDownToZero_ReturnsOne(string value)
+			{
+				var commandLine = new TestableCommandLine("no-config.json", "-maxthreads", value);
+
+				var assembly = commandLine.Parse();
+
+				Assert.Equal(1, assembly.Configuration.MaxParallelThreads);
 			}
 		}
 

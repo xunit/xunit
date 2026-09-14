@@ -508,8 +508,9 @@ public sealed class CommandLineOptionsProvider() :
 		// Use invariant format and convert ',' to '.' so we can always support both formats, regardless of locale
 		// If we stick to locale-only parsing, we could break people when moving from one locale to another (for example,
 		// from people running tests on their desktop in a comma locale vs. running them in CI with a decimal locale).
-		return match.Success && decimal.TryParse(match.Groups[1].Value.Replace(',', '.'), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var maxThreadMultiplier)
-			? (int)(maxThreadMultiplier * Environment.ProcessorCount)
+		// A zero multiplier is rejected, and a non-zero multiplier always yields at least one thread (since 0 means "default")
+		return match.Success && decimal.TryParse(match.Groups[1].Value.Replace(',', '.'), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var maxThreadMultiplier) && maxThreadMultiplier > 0
+			? Math.Max(1, (int)(maxThreadMultiplier * Environment.ProcessorCount))
 			: int.TryParse(value, out var threadValue) && threadValue > 0
 				? threadValue
 				: throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Invalid value '{0}' (must be one of: 'default', 'unlimited', a positive number, a multiplier in the form of '{1}x')", value, 0.0m));

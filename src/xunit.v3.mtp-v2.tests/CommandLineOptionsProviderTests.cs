@@ -148,6 +148,8 @@ public class CommandLineOptionsProviderTests
 		[InlineData("Invalid value 'abc' (must be one of: 'off', 'on', 'only')", "explicit", new[] { "abc" })]
 		[InlineData("Invalid value 'abc' (must be an integer between 0 and 2147483647)", "long-running", new[] { "abc" })]
 		[InlineData("Invalid value 'abc' (must be one of: 'default', 'unlimited', a positive number, a multiplier in the form of '0.0x')", "max-threads", new[] { "abc" })]
+		[InlineData("Invalid value '0x' (must be one of: 'default', 'unlimited', a positive number, a multiplier in the form of '0.0x')", "max-threads", new[] { "0x" })]
+		[InlineData("Invalid value '0.0x' (must be one of: 'default', 'unlimited', a positive number, a multiplier in the form of '0.0x')", "max-threads", new[] { "0.0x" })]
 		[InlineData("Invalid value 'abc' (must be one of: 'classAndMethod', 'method')", "method-display", new[] { "abc" })]
 		[InlineData("Invalid value 'abc' (must be one of: 'none', 'replaceUnderscoreWithSpace', 'useOperatorMonikers', 'useEscapeSequences', 'replacePeriodWithComma', 'removeAsyncSuffix', 'all')", "method-display-options", new[] { "abc" })]
 		[InlineData("Cannot specify 'all' with any other values", "method-display-options", new[] { "all", "replacePeriodWithComma" })]
@@ -242,6 +244,7 @@ public class CommandLineOptionsProviderTests
 			("unlimited", -1),
 			("42", 42),
 			("2.5x", (int)(Environment.ProcessorCount * 2.5)),
+			("0.0001x", 1),  // Multipliers that round down to zero are clamped to 1
 		];
 
 		[Theory]

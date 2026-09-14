@@ -65,6 +65,8 @@ public class TestConfigTests
 		yield return ("0,ax", 26002112);  // Non-digit
 		yield return (".0x", 26002112);   // Missing leading digit(s)
 		yield return (",0x", 26002112);   // Missing leading digit(s)
+		yield return ("0x", 26002112);    // Zero multiplier
+		yield return ("0.0x", 26002112);  // Zero multiplier
 
 		// Special values
 		yield return ("default", null);
@@ -79,6 +81,7 @@ public class TestConfigTests
 		yield return ("2x", Environment.ProcessorCount * 2);
 		yield return ("3.5x", (int)(Environment.ProcessorCount * 3.5));
 		yield return ("5,0x", Environment.ProcessorCount * 5);
+		yield return ("0.0001x", 1);  // Multipliers that round down to zero are clamped to 1
 	}
 
 	[Theory]
