@@ -1672,4 +1672,113 @@ public class TestClassGeneratorTests : CoreGeneratorTest<TestClassGenerator>
 				""", generated)
 		);
 	}
+
+	[Fact]
+	public void CrossFileInheritance_MultipleLevels()
+	{
+		var source1 = /* lang=c#-test */ """
+			using Xunit;
+
+			public abstract class A
+			{
+				[Fact]
+				public void TestA() { }
+			}
+			""";
+		var source2 = /* lang=c#-test */ """
+			using Xunit;
+
+			public abstract class B : A
+			{
+				[Fact]
+				public void TestB() { }
+			}
+			""";
+		var source3 = /* lang=c#-test */ """
+			public class C : B;
+			""";
+
+		var result = GenerateSources(source1, source2, source3);
+
+		var generated = Assert.Single(result, r => r.Contains("RegisterCodeGenTestClass(\"global::C\""));
+		Assert.Contains(/* lang=c#-test */ """
+			global::Xunit.v3.RegisteredEngineConfig.RegisterCodeGenTestMethod("global::C", "TestB", new global::Xunit.v3.CodeGenTestMethodRegistration() { DeclaredTypeIndex = "global::B", SourceFilePath = "file1.cs", SourceLineNumber = 5 });
+			""", generated);
+		Assert.Contains(/* lang=c#-test */ """
+			global::Xunit.v3.RegisteredEngineConfig.RegisterCodeGenTestMethod("global::C", "TestA", new global::Xunit.v3.CodeGenTestMethodRegistration() { DeclaredTypeIndex = "global::A", SourceFilePath = "file0.cs", SourceLineNumber = 5 });
+			""", generated);
+	}
+
+	[Theory]
+	[InlineData("MyApp.Testing.ContractTests")]
+	[InlineData("global::MyApp.Testing.ContractTests")]
+	public void QualifiedBaseClassName(string baseClassName)
+	{
+		var source1 = /* lang=c#-test */ """
+			using Xunit;
+
+			namespace MyApp.Testing;
+
+			public abstract class ContractTests
+			{
+				[Fact]
+				public void ContractTest() { }
+			}
+			""";
+		var source2 = /* lang=c#-test */ $$"""
+			public class FooTests : {{baseClassName}};
+			""";
+
+		var result = GenerateSources(source1, source2);
+
+		var generated = Assert.Single(result, r => r.Contains("RegisterCodeGenTestClass(\"global::FooTests\""));
+		Assert.Contains(/* lang=c#-test */ """
+			global::Xunit.v3.RegisteredEngineConfig.RegisterCodeGenTestMethod("global::FooTests", "ContractTest", new global::Xunit.v3.CodeGenTestMethodRegistration() { DeclaredTypeIndex = "global::MyApp.Testing.ContractTests", SourceFilePath = "file0.cs", SourceLineNumber = 7 });
+			""", generated);
+		Assert.Contains(/* lang=c#-test */ """
+			global::Xunit.v3.RegisteredEngineConfig.RegisterCodeGenTestCaseFactory("global::FooTests", "ContractTest", new global::Xunit.v3.FactTestCaseFactory() { MethodInvoker = async obj => ((global::FooTests)obj!).ContractTest() });
+			""", generated);
+	}
+
+	[Fact]
+	public void BaseClassInReferencedAssembly()
+	{
+		var referencedSource = /* lang=c#-test */ """
+			using Xunit;
+
+			namespace Contracts;
+
+			public abstract class ContractTestsBase
+			{
+				[Fact]
+				public void BaseFact() { }
+			}
+
+			public abstract class ContractTests : ContractTestsBase
+			{
+				[Fact]
+				public void ContractFact() { }
+
+				[Theory]
+				public void ContractTheory(int _) { }
+			}
+			""";
+		var source = /* lang=c#-test */ """
+			public class FooTests : Contracts.ContractTests;
+			""";
+
+		var result = GenerateSourcesWithReferencedAssembly(referencedSource, source);
+
+		var generated = Assert.Single(result);
+		Assert.Contains(/* lang=c#-test */ """
+			global::Xunit.v3.RegisteredEngineConfig.RegisterCodeGenTestMethod("global::FooTests", "ContractFact", new global::Xunit.v3.CodeGenTestMethodRegistration() { DeclaredTypeIndex = "global::Contracts.ContractTests", SourceFilePath = "referenced.cs", SourceLineNumber = 13 });
+			""", generated);
+		Assert.Contains(/* lang=c#-test */ """
+			global::Xunit.v3.RegisteredEngineConfig.RegisterCodeGenTestCaseFactory("global::FooTests", "ContractFact", new global::Xunit.v3.FactTestCaseFactory() { MethodInvoker = async obj => ((global::FooTests)obj!).ContractFact() });
+			""", generated);
+		Assert.Contains("""RegisterCodeGenTestCaseFactory("global::FooTests", "ContractTheory", new global::Xunit.v3.TheoryTestCaseFactory()""", generated);
+		Assert.Contains(/* lang=c#-test */ """
+			global::Xunit.v3.RegisteredEngineConfig.RegisterCodeGenTestMethod("global::FooTests", "BaseFact", new global::Xunit.v3.CodeGenTestMethodRegistration() { DeclaredTypeIndex = "global::Contracts.ContractTestsBase", SourceFilePath = "referenced.cs", SourceLineNumber = 7 });
+			""", generated);
+	}
 }

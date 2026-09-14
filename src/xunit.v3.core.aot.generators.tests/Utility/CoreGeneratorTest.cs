@@ -28,14 +28,16 @@ public class CoreGeneratorTest<TGenerator>
 		}.Concat(Basic.Reference.Assemblies.Net90.References.All).ToImmutableArray();
 	}
 
-	static GeneratorRunResult Generate(string[] sources)
+	static GeneratorRunResult Generate(
+		string[] sources,
+		MetadataReference[]? additionalReferences = null)
 	{
 		var cancellationToken = TestContext.Current.CancellationToken;
 
 		var compilation = CSharpCompilation.Create(
 			"TestProject",
 			[.. sources.Select((source, idx) => CSharpSyntaxTree.ParseText(source, path: $"file{idx}.cs", cancellationToken: cancellationToken))],
-			references,
+			references.AddRange(additionalReferences ?? []),
 			new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
 		);
 
@@ -61,4 +63,25 @@ public class CoreGeneratorTest<TGenerator>
 
 	protected static string[] GenerateSources(params string[] sources) =>
 		Generate(sources).GeneratedSources.Select(gs => gs.SourceText.ToString()).ToArray();
+
+	protected static string[] GenerateSourcesWithReferencedAssembly(
+		string referencedAssemblySource,
+		params string[] sources)
+	{
+		var cancellationToken = TestContext.Current.CancellationToken;
+
+		var referencedCompilation = CSharpCompilation.Create(
+			"ReferencedProject",
+			[CSharpSyntaxTree.ParseText(referencedAssemblySource, path: "referenced.cs", cancellationToken: cancellationToken)],
+			references,
+			new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
+		);
+
+		using var stream = new MemoryStream();
+		var emitResult = referencedCompilation.Emit(stream, cancellationToken: cancellationToken);
+		if (!emitResult.Success)
+			Assert.Fail($"One or more diagnostics were reported during compilation of the referenced assembly:{Environment.NewLine}{string.Join(Environment.NewLine, emitResult.Diagnostics.Select(d => d.ToString()))}");
+
+		return Generate(sources, [MetadataReference.CreateFromImage(stream.ToArray())]).GeneratedSources.Select(gs => gs.SourceText.ToString()).ToArray();
+	}
 }

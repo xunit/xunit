@@ -16,12 +16,13 @@ namespace Xunit.Generators
 		/// Initializes a new instance of the <see cref="FactMethodDetails"/> class.
 		/// </summary>
 		/// <param name="classSymbol">The test class symbol</param>
-		/// <param name="methodDeclaration">The test method declaration</param>
+		/// <param name="methodDeclaration">The test method declaration, or <see langword="null"/> when the test method
+		/// is inherited from a base class declared in a referenced assembly</param>
 		/// <param name="methodSymbol">The test method symbol</param>
 		/// <param name="attribute">The <c>[Fact]</c> or <c>[CulturedFact]</c> attribute</param>
 		public FactMethodDetails(
 			INamedTypeSymbol classSymbol,
-			MethodDeclarationSyntax methodDeclaration,
+			MethodDeclarationSyntax? methodDeclaration,
 			IMethodSymbol methodSymbol,
 			AttributeData attribute) :
 				base(classSymbol, methodDeclaration, methodSymbol, attribute)

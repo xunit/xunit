@@ -19,14 +19,15 @@ namespace Xunit.Generators
 		/// </summary>
 		/// <param name="semanticModel">The semantic model</param>
 		/// <param name="testClass">The test class symbol</param>
-		/// <param name="testMethodSyntax">The declaration syntax of the test method</param>
+		/// <param name="testMethodSyntax">The declaration syntax of the test method, or <see langword="null"/> when
+		/// the test method is inherited from a base class declared in a referenced assembly</param>
 		/// <param name="testMethod">The test method symbol</param>
 		/// <param name="attribute">The attribute instance</param>
 		/// <returns>Returns the registration, or <see langword="null"/> if the test method is invalid</returns>
 		CodeGenTestMethodRegistration? GetTestMethodRegistration(
 			SemanticModel semanticModel,
 			INamedTypeSymbol testClass,
-			MethodDeclarationSyntax testMethodSyntax,
+			MethodDeclarationSyntax? testMethodSyntax,
 			IMethodSymbol testMethod,
 			AttributeData attribute);
 	}
