@@ -51,12 +51,6 @@ namespace Xunit.Generators
 			['"'] = "\\\"",
 			['\\'] = "\\\\",
 			['\u0000'] = "\\0",
-			['\u0001'] = "\\u0001",
-			['\u0002'] = "\\u0002",
-			['\u0003'] = "\\u0003",
-			['\u0004'] = "\\u0004",
-			['\u0005'] = "\\u0005",
-			['\u0006'] = "\\u0006",
 			['\u0007'] = "\\a",
 			['\u0008'] = "\\b",
 			['\u0009'] = "\\t",
@@ -64,24 +58,7 @@ namespace Xunit.Generators
 			['\u000B'] = "\\v",
 			['\u000C'] = "\\f",
 			['\u000D'] = "\\r",
-			['\u000E'] = "\\u000E",
-			['\u000F'] = "\\u000F",
-			['\u0010'] = "\\u0010",
-			['\u0011'] = "\\u0011",
-			['\u0012'] = "\\u0012",
-			['\u0013'] = "\\u0013",
-			['\u0014'] = "\\u0014",
-			['\u0015'] = "\\u0015",
-			['\u0016'] = "\\u0016",
-			['\u0017'] = "\\u0017",
-			['\u0018'] = "\\u0018",
-			['\u0019'] = "\\u0019",
-			['\u001A'] = "\\u001A",
 			['\u001B'] = "\\e",
-			['\u001C'] = "\\u001C",
-			['\u001D'] = "\\u001D",
-			['\u001E'] = "\\u001E",
-			['\u001F'] = "\\u001F",
 		};
 		static readonly HashSet<string> genericTaskTypes = new HashSet<string> { Types.System.Threading.Tasks.TaskOfT, Types.System.Threading.Tasks.ValueTaskOfT };
 		static readonly Func<object?, bool> notNullTest = x => x != null;
@@ -102,6 +79,8 @@ namespace Xunit.Generators
 			foreach (var c in value)
 				if (escapes.TryGetValue(c, out var escaped))
 					result.Append(escaped);
+				else if (c < 0x20 || c > 0x7F)
+					result.AppendFormat(CultureInfo.InvariantCulture, "\\u{0:X4}", (ushort)c);
 				else
 					result.Append(c);
 
