@@ -32,6 +32,22 @@ namespace Xunit.Generators
 		}
 
 		/// <summary>
+		/// Initializes a new instance of the <see cref="DataAttributeGeneratorResult"/> class, for a test method
+		/// which is inherited from a base class declared in a referenced assembly.
+		/// </summary>
+		/// <param name="testClass">The test class symbol (the class which declares the test method)</param>
+		/// <param name="testMethod">The test method symbol</param>
+		public DataAttributeGeneratorResult(
+			INamedTypeSymbol testClass,
+			IMethodSymbol testMethod) :
+				base(GetInheritedMethodSourcePath(testClass, testMethod), Location.None)
+		{
+			MethodName = testMethod.Name;
+			Type = testClass.ToTypeIndex();
+			GeneratorSuffix = $"{testClass.Name}٠{testMethod.Name}٠";
+		}
+
+		/// <summary>
 		/// Gets the theory data row factories.
 		/// </summary>
 		public List<TheoryDataRowFactory> Factories { get; } = new List<TheoryDataRowFactory>();
@@ -45,6 +61,19 @@ namespace Xunit.Generators
 		/// Gets the test class type name.
 		/// </summary>
 		public string Type { get; }
+
+		// Methods from referenced assemblies have no source file, so we make one up that uniquely identifies the method
+		static string GetInheritedMethodSourcePath(
+			INamedTypeSymbol testClass,
+			IMethodSymbol testMethod)
+		{
+			if (testClass is null)
+				throw new ArgumentNullException(nameof(testClass));
+			if (testMethod is null)
+				throw new ArgumentNullException(nameof(testMethod));
+
+			return $"{testClass.ContainingAssembly?.Identity}:{testClass.ToTypeIndex()}:{testMethod.Name}";
+		}
 
 		/// <inheritdoc/>
 		public override bool Equals(object? obj) =>

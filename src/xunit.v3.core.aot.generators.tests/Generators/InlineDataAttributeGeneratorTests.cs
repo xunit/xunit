@@ -142,4 +142,94 @@ public class InlineDataAttributeGeneratorTests : CoreGeneratorTest<InlineDataAtt
 				""", generated)
 		);
 	}
+
+	[Fact]
+	public void BaseClassInReferencedAssembly()
+	{
+		var referencedSource = /* lang=c#-test */ """
+			using Xunit;
+
+			namespace Contracts;
+
+			public abstract class ContractTestsBase
+			{
+				[Theory]
+				[InlineData(1)]
+				public void BaseTheory(int _) { }
+			}
+
+			public abstract class ContractTests : ContractTestsBase
+			{
+				[Theory]
+				[InlineData(42, Skip = "Not yet")]
+				[InlineData(2112)]
+				public void ContractTheory(int _) { }
+
+				[Fact]
+				public void ContractFact() { }
+			}
+
+			public abstract class GenericContractTests<T>
+			{
+				[Theory]
+				[InlineData("hello")]
+				public void GenericContractTheory(string _) { }
+			}
+			""";
+		var source = /* lang=c#-test */ """
+			public class FooTests : Contracts.ContractTests;
+
+			// Registration is per declaring type, so this must not generate duplicates
+			public class BarTests : Contracts.ContractTests;
+
+			public class BazTests : Contracts.GenericContractTests<int>;
+			""";
+
+		var result = GenerateSourcesWithReferencedAssembly(referencedSource, source);
+
+		string GetRegistration(string typeIndex, string methodName) =>
+			Assert.Single(result, r => r.Contains($"RegisterTheoryDataRowFactory(\"{typeIndex}\", \"{methodName}\""));
+
+		Assert.Equal(3, result.Length);
+		Assert.Contains(/* lang=c#-test */ """
+						public override async global::System.Threading.Tasks.ValueTask InitializeAsync() {
+							global::Xunit.v3.RegisteredEngineConfig.RegisterTheoryDataRowFactory("global::Contracts.ContractTests", "ContractTheory", false,
+								async disposalTracker => {
+									var attr = new global::Xunit.v3.DataAttributeRegistration() { Skip = "Not yet" };
+									var data = new object?[] { 42 };
+									return new[] { attr.CreateDataRow(data) };
+								}
+							);
+							global::Xunit.v3.RegisteredEngineConfig.RegisterTheoryDataRowFactory("global::Contracts.ContractTests", "ContractTheory", false,
+								async disposalTracker => {
+									var attr = global::Xunit.v3.DataAttributeRegistration.Empty;
+									var data = new object?[] { 2112 };
+									return new[] { attr.CreateDataRow(data) };
+								}
+							);
+						}
+				""", GetRegistration("global::Contracts.ContractTests", "ContractTheory"));
+		Assert.Contains(/* lang=c#-test */ """
+						public override async global::System.Threading.Tasks.ValueTask InitializeAsync() {
+							global::Xunit.v3.RegisteredEngineConfig.RegisterTheoryDataRowFactory("global::Contracts.ContractTestsBase", "BaseTheory", false,
+								async disposalTracker => {
+									var attr = global::Xunit.v3.DataAttributeRegistration.Empty;
+									var data = new object?[] { 1 };
+									return new[] { attr.CreateDataRow(data) };
+								}
+							);
+						}
+				""", GetRegistration("global::Contracts.ContractTestsBase", "BaseTheory"));
+		Assert.Contains(/* lang=c#-test */ """
+						public override async global::System.Threading.Tasks.ValueTask InitializeAsync() {
+							global::Xunit.v3.RegisteredEngineConfig.RegisterTheoryDataRowFactory("global::Contracts.GenericContractTests<>", "GenericContractTheory", false,
+								async disposalTracker => {
+									var attr = global::Xunit.v3.DataAttributeRegistration.Empty;
+									var data = new object?[] { "hello" };
+									return new[] { attr.CreateDataRow(data) };
+								}
+							);
+						}
+				""", GetRegistration("global::Contracts.GenericContractTests<>", "GenericContractTheory"));
+	}
 }

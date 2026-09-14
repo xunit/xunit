@@ -229,4 +229,47 @@ public class MemberDataAttributeGeneratorTests : CoreGeneratorTest<MemberDataAtt
 				""", generated)
 		);
 	}
+
+	[Fact]
+	public void BaseClassInReferencedAssembly()
+	{
+		var referencedSource = /* lang=c#-test */ """
+			using System.Collections.Generic;
+			using Xunit;
+
+			namespace Contracts;
+
+			public abstract class ContractTests
+			{
+				public static IEnumerable<object[]> Data => [[42]];
+
+				[Theory]
+				[MemberData(nameof(Data))]
+				public void ContractTheory(int _) { }
+			}
+			""";
+		var source = /* lang=c#-test */ """
+			public class FooTests : Contracts.ContractTests;
+			""";
+
+		var result = GenerateSourcesWithReferencedAssembly(referencedSource, source);
+
+		var generated = Assert.Single(result);
+		Assert.Contains(/* lang=c#-test */ """
+					public override async global::System.Threading.Tasks.ValueTask InitializeAsync() {
+						global::Xunit.v3.RegisteredEngineConfig.RegisterTheoryDataRowFactory("global::Contracts.ContractTests", "ContractTheory", false,
+							async disposalTracker => {
+								var attr = global::Xunit.v3.DataAttributeRegistration.Empty;
+								var result = new global::System.Collections.Generic.List<global::Xunit.ITheoryDataRow>();
+								var dataRows = global::Contracts.ContractTests.Data;
+								if (dataRows == null)
+									throw new global::Xunit.Sdk.TestPipelineException("Test data returned null for Contracts.ContractTests.ContractTheory. Make sure it is statically initialized before this test method is called.");
+								foreach (var dataRow in dataRows)
+									result.Add(attr.CreateDataRow(dataRow));
+								return result;
+							}
+						);
+					}
+			""", generated);
+	}
 }

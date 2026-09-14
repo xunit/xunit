@@ -52,11 +52,39 @@ namespace Xunit.Generators
 			IncrementalGeneratorInitializationContext context,
 			IncrementalValueProvider<XunitMSBuildProperties> properties)
 		{
-			var result =
+			RegisterResults(
+				context,
+				properties,
 				context
 					.SyntaxProvider
 					.ForAttributeWithMetadataName(FullyQualifiedAttributeTypeName, ValidateAttribute, Transform)
 					.WhereNotNull()
+			);
+
+			if (GetAdditionalResults(context) is { } additionalResults)
+				RegisterResults(context, properties, additionalResults);
+		}
+
+		/// <summary>
+		/// Override to provide results which cannot be discovered by looking for the attribute in source
+		/// (for example, when the attribute is on a method declared in a referenced assembly).
+		/// </summary>
+		/// <param name="context">The initialization context</param>
+		/// <returns>The additional results, or <see langword="null"/> if there are none (the default behavior)</returns>
+		/// <remarks>
+		/// The init attribute name for each result must be unique, so any results which might be discovered more
+		/// than once must be de-duplicated by the provider.
+		/// </remarks>
+		protected virtual IncrementalValuesProvider<TResult>? GetAdditionalResults(IncrementalGeneratorInitializationContext context) =>
+			null;
+
+		void RegisterResults(
+			IncrementalGeneratorInitializationContext context,
+			IncrementalValueProvider<XunitMSBuildProperties> properties,
+			IncrementalValuesProvider<TResult> results)
+		{
+			var initializedResults =
+				results
 					.Combine(properties)
 					.Select((pair, _) =>
 					{
@@ -64,7 +92,7 @@ namespace Xunit.Generators
 						return pair.Left;
 					});
 
-			context.RegisterSourceOutput(result, CreateSourceInternal);
+			context.RegisterSourceOutput(initializedResults, CreateSourceInternal);
 		}
 
 		/// <summary>
