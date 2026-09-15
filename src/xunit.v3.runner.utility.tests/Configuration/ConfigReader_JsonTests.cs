@@ -230,6 +230,45 @@ public static class ConfigReader_JsonTests
 		Assert.Equal(Environment.ProcessorCount * 2, configuration.MaxParallelThreadsOrDefault);
 	}
 
+	[Theory]
+	[InlineData("0.0001x")]
+	[InlineData("0,0001x")]
+	public static void ConfigurationFileWithMaxThreadsAsMultiplierRoundingDownToZero_ReturnsOne(string multiplier)
+	{
+		var configuration = new TestAssemblyConfiguration();
+		var warnings = new List<string>();
+
+		var result = ConfigReader_Json.LoadFromJson(configuration, $$"""
+			{
+			  "maxParallelThreads": "{{multiplier}}"
+			}
+			""", warnings);
+
+		Assert.True(result);
+		Assert.Empty(warnings);
+		Assert.Equal(1, configuration.MaxParallelThreadsOrDefault);
+	}
+
+	[Theory]
+	[InlineData("0x")]
+	[InlineData("0.0x")]
+	[InlineData("0,0x")]
+	public static void ConfigurationFileWithMaxThreadsAsZeroMultiplier_IsIgnored(string multiplier)
+	{
+		var configuration = new TestAssemblyConfiguration { MaxParallelThreads = 2112 };
+		var warnings = new List<string>();
+
+		var result = ConfigReader_Json.LoadFromJson(configuration, $$"""
+			{
+			  "maxParallelThreads": "{{multiplier}}"
+			}
+			""", warnings);
+
+		Assert.True(result);
+		Assert.Empty(warnings);
+		Assert.Equal(2112, configuration.MaxParallelThreadsOrDefault);
+	}
+
 	[Fact]
 	public static void ConfigurationFileWithMaxThreadsExplicitDefault_ReturnsProcessorCount()
 	{

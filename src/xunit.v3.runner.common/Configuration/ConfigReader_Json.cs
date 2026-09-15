@@ -224,8 +224,9 @@ public static class ConfigReader_Json
 							// Use invariant format and convert ',' to '.' so we can always support both formats, regardless of locale
 							// If we stick to locale-only parsing, we could break people when moving from one locale to another (for example,
 							// from people running tests on their desktop in a comma locale vs. running them in CI with a decimal locale).
-							if (match.Success && decimal.TryParse(match.Groups[1].Value.Replace(',', '.'), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var maxThreadMultiplier))
-								configuration.MaxParallelThreads = (int)(maxThreadMultiplier * Environment.ProcessorCount);
+							// A zero multiplier is rejected, and a non-zero multiplier always yields at least one thread (since 0 means "default")
+							if (match.Success && decimal.TryParse(match.Groups[1].Value.Replace(',', '.'), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var maxThreadMultiplier) && maxThreadMultiplier > 0)
+								configuration.MaxParallelThreads = Math.Max(1, (int)(maxThreadMultiplier * Environment.ProcessorCount));
 						}
 					}
 					else if (string.Equals(kvp.Key, Configuration.MethodDisplay, StringComparison.OrdinalIgnoreCase))

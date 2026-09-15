@@ -579,12 +579,13 @@ public abstract class CommandLineParserBase
 				// Use invariant format and convert ',' to '.' so we can always support both formats, regardless of locale
 				// If we stick to locale-only parsing, we could break people when moving from one locale to another (for example,
 				// from people running tests on their desktop in a comma locale vs. running them in CI with a decimal locale).
+				// A zero multiplier is rejected, and a non-zero multiplier always yields at least one thread (since 0 means "default")
 				maxParallelThreads =
-					match.Success && decimal.TryParse(match.Groups[1].Value.Replace(',', '.'), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var maxThreadMultiplier)
-					? (int)(maxThreadMultiplier * Environment.ProcessorCount)
+					match.Success && decimal.TryParse(match.Groups[1].Value.Replace(',', '.'), NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out var maxThreadMultiplier) && maxThreadMultiplier > 0
+					? Math.Max(1, (int)(maxThreadMultiplier * Environment.ProcessorCount))
 					: int.TryParse(option.Value, out var threadValue) && threadValue > 0
 						? threadValue
-						: throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "incorrect argument value for -maxThreads (must be 'default', 'unlimited', a positive number, or a multiplier in the form of '{0}x')", 0.0m));
+						: throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "incorrect argument value for -maxThreads (must be 'default', 'unlimited', a positive number, or a multiplier in the form of '{0}x')", 1.5m));
 
 				break;
 		}
