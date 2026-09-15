@@ -513,7 +513,7 @@ public sealed class CommandLineOptionsProvider() :
 			? Math.Max(1, (int)(maxThreadMultiplier * Environment.ProcessorCount))
 			: int.TryParse(value, out var threadValue) && threadValue > 0
 				? threadValue
-				: throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Invalid value '{0}' (must be one of: 'default', 'unlimited', a positive number, a multiplier in the form of '{1}x')", value, 0.0m));
+				: throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Invalid value '{0}' (must be one of: 'default', 'unlimited', a positive number, a multiplier in the form of '{1}x')", value, 1.5m));
 	}
 
 	static bool ParseOnOff(string value) =>

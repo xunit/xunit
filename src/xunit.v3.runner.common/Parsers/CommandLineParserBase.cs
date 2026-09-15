@@ -585,7 +585,7 @@ public abstract class CommandLineParserBase
 					? Math.Max(1, (int)(maxThreadMultiplier * Environment.ProcessorCount))
 					: int.TryParse(option.Value, out var threadValue) && threadValue > 0
 						? threadValue
-						: throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "incorrect argument value for -maxThreads (must be 'default', 'unlimited', a positive number, or a multiplier in the form of '{0}x')", 0.0m));
+						: throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "incorrect argument value for -maxThreads (must be 'default', 'unlimited', a positive number, or a multiplier in the form of '{0}x')", 1.5m));
 
 				break;
 		}

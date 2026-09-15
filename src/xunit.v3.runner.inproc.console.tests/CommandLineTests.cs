@@ -400,7 +400,7 @@ public static class CommandLineTests
 				var exception = Record.Exception(commandLine.Parse);
 
 				Assert.IsType<ArgumentException>(exception);
-				Assert.Equal($"incorrect argument value for -maxThreads (must be 'default', 'unlimited', a positive number, or a multiplier in the form of '{0.0m}x')", exception.Message);
+				Assert.Equal($"incorrect argument value for -maxThreads (must be 'default', 'unlimited', a positive number, or a multiplier in the form of '{1.5m}x')", exception.Message);
 			}
 
 			[Theory]

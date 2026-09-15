@@ -242,7 +242,7 @@ public class xunit : MSBuildTask, ICancelableTask, IDisposable
 					else
 					{
 						lock (logLock)
-							Log.LogError("MaxParallelThreads value '{0}' is invalid: must be one of 'default', 'unlimited', a positive number, or a multiplier in the form of '0.0x'", MaxParallelThreads);
+							Log.LogError("MaxParallelThreads value '{0}' is invalid: must be one of 'default', 'unlimited', a positive number, or a multiplier in the form of '1.5x'", MaxParallelThreads);
 
 						return false;
 					}
