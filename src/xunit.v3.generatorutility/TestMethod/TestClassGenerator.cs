@@ -87,29 +87,20 @@ namespace Xunit.Generators
 			if (semanticModel.GetSymbolInfo(baseTypeSyntax, cancellationToken).Symbol is not INamedTypeSymbol { TypeKind: TypeKind.Class })
 				return;
 
-			// Walk the base types via symbols rather than syntax, since they may be declared in other syntax trees
-			// or in referenced assemblies (in which case they have no syntax at all).
-			for (var baseClassSymbol = classSymbol.BaseType; baseClassSymbol is not null && baseClassSymbol.SpecialType != SpecialType.System_Object; baseClassSymbol = baseClassSymbol.BaseType)
+			// Walk the base types via symbols rather than syntax, since they may be declared in other syntax trees.
+			// Native AOT only supports test methods declared in source, so we stop at the first base type which
+			// isn't declared in source (i.e., is from a referenced assembly), since none of its base types can be
+			// declared in source either.
+			for (var baseClassSymbol = classSymbol.BaseType; baseClassSymbol is not null && baseClassSymbol.DeclaringSyntaxReferences.Length != 0; baseClassSymbol = baseClassSymbol.BaseType)
 				foreach (var baseClassMethodSymbol in baseClassSymbol.GetMembers().OfType<IMethodSymbol>())
-				{
-					if (baseClassMethodSymbol.MethodKind != MethodKind.Ordinary)
-						continue;
-
-					var baseClassMethodDeclaration =
-						baseClassMethodSymbol
-							.DeclaringSyntaxReferences
-							.Select(sr => sr.GetSyntax(cancellationToken))
-							.OfType<MethodDeclarationSyntax>()
-							.FirstOrDefault();
-
-					ProcessTestMethod(semanticModel, classSymbol, baseClassMethodDeclaration, baseClassMethodSymbol, result);
-				}
+					foreach (var baseClassMethodDeclaration in baseClassMethodSymbol.DeclaringSyntaxReferences.Select(sr => sr.GetSyntax(cancellationToken)).OfType<MethodDeclarationSyntax>())
+						ProcessTestMethod(semanticModel, classSymbol, baseClassMethodDeclaration, baseClassMethodSymbol, result);
 		}
 
 		static void ProcessTestMethod(
 			SemanticModel semanticModel,
 			INamedTypeSymbol classSymbol,
-			MethodDeclarationSyntax? methodDeclaration,
+			MethodDeclarationSyntax methodDeclaration,
 			IMethodSymbol methodSymbol,
 			TestClassGeneratorResult result)
 		{

@@ -34,18 +34,17 @@ namespace Xunit.Generators
 		/// Initializes a new instance of the <see cref="TestMethodDetails"/> class.
 		/// </summary>
 		/// <param name="classSymbol">The test class symbol</param>
-		/// <param name="methodDeclaration">The test method declaration, or <see langword="null"/> when the test method
-		/// is inherited from a base class declared in a referenced assembly</param>
+		/// <param name="methodDeclaration">The test method declaration</param>
 		/// <param name="methodSymbol">The test method symbol</param>
 		/// <param name="attribute">The attribute (expected to be shaped like <c>[FactAttribute]</c>)</param>
 		public TestMethodDetails(
 			INamedTypeSymbol classSymbol,
-			MethodDeclarationSyntax? methodDeclaration,
+			MethodDeclarationSyntax methodDeclaration,
 			IMethodSymbol methodSymbol,
 			AttributeData attribute)
 		{
 			ClassSymbol = classSymbol ?? throw new ArgumentNullException(nameof(classSymbol));
-			MethodDeclaration = methodDeclaration;
+			MethodDeclaration = methodDeclaration ?? throw new ArgumentNullException(nameof(methodDeclaration));
 			MethodSymbol = methodSymbol ?? throw new ArgumentNullException(nameof(methodSymbol));
 			Attribute = attribute ?? throw new ArgumentNullException(nameof(attribute));
 			TypeIndex = classSymbol.ToTypeIndex();
@@ -79,7 +78,7 @@ namespace Xunit.Generators
 		/// Gets the arity of the test method
 		/// </summary>
 		public int Arity =>
-			MethodSymbol.Arity;
+			MethodDeclaration.Arity;
 
 		/// <summary>
 		/// Gets the attribute attached to the test method
@@ -119,10 +118,9 @@ namespace Xunit.Generators
 		public bool Explicit { get; set; }
 
 		/// <summary>
-		/// Gets the test method syntax, or <see langword="null"/> when the test method is inherited
-		/// from a base class declared in a referenced assembly
+		/// Gets the test method syntax
 		/// </summary>
-		public MethodDeclarationSyntax? MethodDeclaration { get; }
+		public MethodDeclarationSyntax MethodDeclaration { get; }
 
 		/// <summary>
 		/// Gets a flag which indicates if the test method is <see langword="static"/>

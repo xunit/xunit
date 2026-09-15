@@ -1740,45 +1740,37 @@ public class TestClassGeneratorTests : CoreGeneratorTest<TestClassGenerator>
 			""", generated);
 	}
 
+	// Native AOT only supports test methods declared in source
 	[Fact]
-	public void BaseClassInReferencedAssembly()
+	public void BaseClassInReferencedAssembly_InheritedTestMethodsAreNotRegistered()
 	{
 		var referencedSource = /* lang=c#-test */ """
 			using Xunit;
 
 			namespace Contracts;
 
-			public abstract class ContractTestsBase
-			{
-				[Fact]
-				public void BaseFact() { }
-			}
-
-			public abstract class ContractTests : ContractTestsBase
+			public abstract class ContractTests
 			{
 				[Fact]
 				public void ContractFact() { }
-
-				[Theory]
-				public void ContractTheory(int _) { }
 			}
 			""";
 		var source = /* lang=c#-test */ """
-			public class FooTests : Contracts.ContractTests;
+			using Xunit;
+
+			public class FooTests : Contracts.ContractTests
+			{
+				[Fact]
+				public void SourceFact() { }
+			}
 			""";
 
 		var result = GenerateSourcesWithReferencedAssembly(referencedSource, source);
 
 		var generated = Assert.Single(result);
 		Assert.Contains(/* lang=c#-test */ """
-			global::Xunit.v3.RegisteredEngineConfig.RegisterCodeGenTestMethod("global::FooTests", "ContractFact", new global::Xunit.v3.CodeGenTestMethodRegistration() { DeclaredTypeIndex = "global::Contracts.ContractTests", SourceFilePath = "referenced.cs", SourceLineNumber = 13 });
+			global::Xunit.v3.RegisteredEngineConfig.RegisterCodeGenTestMethod("global::FooTests", "SourceFact", new global::Xunit.v3.CodeGenTestMethodRegistration() { SourceFilePath = "file0.cs", SourceLineNumber = 5 });
 			""", generated);
-		Assert.Contains(/* lang=c#-test */ """
-			global::Xunit.v3.RegisteredEngineConfig.RegisterCodeGenTestCaseFactory("global::FooTests", "ContractFact", new global::Xunit.v3.FactTestCaseFactory() { MethodInvoker = async obj => ((global::FooTests)obj!).ContractFact() });
-			""", generated);
-		Assert.Contains("""RegisterCodeGenTestCaseFactory("global::FooTests", "ContractTheory", new global::Xunit.v3.TheoryTestCaseFactory()""", generated);
-		Assert.Contains(/* lang=c#-test */ """
-			global::Xunit.v3.RegisteredEngineConfig.RegisterCodeGenTestMethod("global::FooTests", "BaseFact", new global::Xunit.v3.CodeGenTestMethodRegistration() { DeclaredTypeIndex = "global::Contracts.ContractTestsBase", SourceFilePath = "referenced.cs", SourceLineNumber = 7 });
-			""", generated);
+		Assert.DoesNotContain("ContractFact", generated);
 	}
 }

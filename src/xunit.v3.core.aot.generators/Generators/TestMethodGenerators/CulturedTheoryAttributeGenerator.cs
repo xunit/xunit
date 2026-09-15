@@ -9,12 +9,13 @@ public class CulturedTheoryAttributeGenerator : ITestMethodGenerator
 	public CodeGenTestMethodRegistration? GetTestMethodRegistration(
 		SemanticModel semanticModel,
 		INamedTypeSymbol testClass,
-		MethodDeclarationSyntax? testMethodSyntax,
+		MethodDeclarationSyntax testMethodSyntax,
 		IMethodSymbol testMethod,
 		AttributeData attribute)
 	{
 		Guard.ArgumentNotNull(semanticModel);
 		Guard.ArgumentNotNull(testClass);
+		Guard.ArgumentNotNull(testMethodSyntax);
 		Guard.ArgumentNotNull(testMethod);
 		Guard.ArgumentNotNull(attribute);
 
