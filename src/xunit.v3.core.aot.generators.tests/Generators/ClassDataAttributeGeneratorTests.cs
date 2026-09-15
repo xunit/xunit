@@ -157,46 +157,4 @@ public class ClassDataAttributeGeneratorTests : CoreGeneratorTest<ClassDataAttri
 				""", generated)
 		);
 	}
-
-	[Fact]
-	public void BaseClassInReferencedAssembly()
-	{
-		var referencedSource = /* lang=c#-test */ """
-			using System.Collections.Generic;
-			using Xunit;
-
-			namespace Contracts;
-
-			public class ContractData() : List<object[]>(new[] { new object[] { 42 } }) { }
-
-			public abstract class ContractTests
-			{
-				[Theory]
-				[ClassData(typeof(ContractData))]
-				public void ContractTheory(int _) { }
-			}
-			""";
-		var source = /* lang=c#-test */ """
-			public class FooTests : Contracts.ContractTests;
-			""";
-
-		var result = GenerateSourcesWithReferencedAssembly(referencedSource, source);
-
-		var generated = Assert.Single(result);
-		Assert.Contains(/* lang=c#-test */ """
-					public override async global::System.Threading.Tasks.ValueTask InitializeAsync() {
-						global::Xunit.v3.RegisteredEngineConfig.RegisterTheoryDataRowFactory("global::Contracts.ContractTests", "ContractTheory", false,
-							async disposalTracker => {
-								var attr = global::Xunit.v3.DataAttributeRegistration.Empty;
-								var dataRows = new global::System.Collections.Generic.List<global::Xunit.ITheoryDataRow>();
-								var classData = new global::Contracts.ContractData();
-								disposalTracker.Add(classData);
-								foreach (var dataRow in classData)
-									dataRows.Add(attr.CreateDataRow(dataRow));
-								return dataRows;
-							}
-						);
-					}
-			""", generated);
-	}
 }

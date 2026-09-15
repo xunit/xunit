@@ -2,12 +2,9 @@
 
 #pragma warning disable IDE0290 // Use primary constructor
 
-using System.Collections.Immutable;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Xunit.Generators;
 
 namespace Xunit.Generators
@@ -40,21 +37,6 @@ namespace Xunit.Generators
 			INamedTypeSymbol testClassSymbol,
 			IMethodSymbol testMethodSymbol,
 			CancellationToken cancellationToken);
-
-		/// <summary>
-		/// Override to create the instance of <typeparamref name="TResult"/> for a test method which is inherited
-		/// from a base class declared in a referenced assembly (and therefore has no attribute syntax).
-		/// </summary>
-		/// <param name="testClassSymbol">The class which declares the test method</param>
-		/// <param name="testMethodSymbol">The test method</param>
-		/// <param name="cancellationToken">The cancellation token</param>
-		/// <returns>The result, or <see langword="null"/> to skip generating theory data for the test method
-		/// (the default behavior)</returns>
-		protected virtual TResult? CreateResultForInheritedMethod(
-			INamedTypeSymbol testClassSymbol,
-			IMethodSymbol testMethodSymbol,
-			CancellationToken cancellationToken) =>
-				null;
 
 		/// <summary>
 		/// Generates the source for the theory data row factories.
@@ -101,90 +83,6 @@ $@"global::Xunit.v3.RegisteredEngineConfig.RegisterTheoryDataRowFactory({result.
 			AttributeData attribute,
 			TResult result,
 			CancellationToken cancellationToken);
-
-		/// <inheritdoc/>
-		/// <remarks>
-		/// Attributes on test methods declared in referenced assemblies aren't visible via the attribute syntax, so
-		/// this finds them by walking the base classes of every class declared in source. Theory data is registered
-		/// against the declaring type, so each inherited test method is only generated once, regardless of how many
-		/// classes derive from its declaring type.
-		/// </remarks>
-		protected override IncrementalValuesProvider<TResult>? GetAdditionalResults(IncrementalGeneratorInitializationContext context) =>
-			context
-				.SyntaxProvider
-				.CreateSyntaxProvider(
-					(syntaxNode, _) => syntaxNode is ClassDeclarationSyntax { BaseList: not null },
-					TransformInheritedMethods
-				)
-				.SelectMany((results, _) => results)
-				.Collect()
-				.SelectMany((results, _) => results.GroupBy(result => result.InitAttributeNameSuffix).Select(group => group.First()));
-
-		static string GetFullyQualifiedMetadataName(INamedTypeSymbol type)
-		{
-			var result = type.MetadataName;
-
-			for (var containingType = type.ContainingType; containingType is not null; containingType = containingType.ContainingType)
-				result = containingType.MetadataName + "+" + result;
-
-			if (type.ContainingNamespace is { IsGlobalNamespace: false } containingNamespace)
-				result = containingNamespace.ToDisplayString() + "." + result;
-
-			return result;
-		}
-
-		ImmutableArray<TResult> TransformInheritedMethods(
-			GeneratorSyntaxContext context,
-			CancellationToken cancellationToken)
-		{
-			if (context.SemanticModel.GetDeclaredSymbol(context.Node, cancellationToken) is not INamedTypeSymbol classSymbol)
-				return ImmutableArray<TResult>.Empty;
-
-			var results = ImmutableArray.CreateBuilder<TResult>();
-
-			for (var baseClassSymbol = classSymbol.BaseType; baseClassSymbol is not null && baseClassSymbol.SpecialType != SpecialType.System_Object; baseClassSymbol = baseClassSymbol.BaseType)
-			{
-				// Base classes declared in source are handled by the attribute syntax
-				if (baseClassSymbol.DeclaringSyntaxReferences.Length != 0)
-					continue;
-
-				var testClass = baseClassSymbol.OriginalDefinition;
-
-				foreach (var testMethod in testClass.GetMembers().OfType<IMethodSymbol>())
-				{
-					if (testMethod.MethodKind != MethodKind.Ordinary)
-						continue;
-
-					var attributes =
-						testMethod
-							.GetAttributes()
-							.Where(attribute => attribute.AttributeClass is not null && GetFullyQualifiedMetadataName(attribute.AttributeClass.OriginalDefinition) == FullyQualifiedAttributeTypeName)
-							.ToArray();
-
-					if (attributes.Length == 0)
-						continue;
-
-					var result = CreateResultForInheritedMethod(testClass, testMethod, cancellationToken);
-					if (result is null)
-						continue;
-
-					foreach (var attribute in attributes)
-						ProcessAttribute(
-							context.SemanticModel,
-							testClass,
-							testMethod,
-							attribute,
-							result,
-							cancellationToken
-						);
-
-					if (result.Factories.Count != 0)
-						results.Add(result);
-				}
-			}
-
-			return results.ToImmutable();
-		}
 
 		/// <inheritdoc/>
 		protected override TResult? Transform(
@@ -236,11 +134,4 @@ public abstract class DataAttributeGenerator : DataAttributeGenerator<DataAttrib
 		IMethodSymbol testMethodSymbol,
 		CancellationToken cancellationToken) =>
 			new DataAttributeGeneratorResult(context, testClassSymbol, testMethodSymbol);
-
-	/// <inheritdoc/>
-	protected override DataAttributeGeneratorResult? CreateResultForInheritedMethod(
-		INamedTypeSymbol testClassSymbol,
-		IMethodSymbol testMethodSymbol,
-		CancellationToken cancellationToken) =>
-			new DataAttributeGeneratorResult(testClassSymbol, testMethodSymbol);
 }
