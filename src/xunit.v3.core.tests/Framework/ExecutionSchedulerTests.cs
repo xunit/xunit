@@ -1,3 +1,4 @@
+using System.Security;
 using Xunit;
 using Xunit.v3;
 
@@ -67,58 +68,64 @@ public static class ExecutionSchedulerTests
 	{
 		await using var scheduler = ExecutionScheduler.CreateUnlimited();
 
-		var threads = new List<Thread>();
 		var messages = new List<string>();
 		var finishCount = 0;
 
-		for (var i = 0; i < 10; ++i)
+		// Force to a single thread to expose https://github.com/xunit/xunit/issues/3629
+		using var syncContext = new MaxConcurrencySyncContext(1);
+
+		async ValueTask<Task[]> startTasks()
 		{
-			var thread = new Thread(worker);
-			threads.Add(thread);
-			thread.Start(i);
+			setupSyncContext(syncContext);
+
+			return Enumerable.Range(0, 10).Select(startTask).ToArray();
+
+			Task startTask(int index) =>
+				Task.Factory.StartNew(async () =>
+				{
+					await scheduler.RunSequentialTask(async () =>
+					{
+						messages.Add($"Start {index} on thread {Environment.CurrentManagedThreadId}");
+						await Task.Delay(10);
+						messages.Add($"Finish {index} on thread {Environment.CurrentManagedThreadId}");
+
+						Interlocked.Increment(ref finishCount);
+
+						return 0;
+					}, TestContext.Current.CancellationToken);
+				}, TestContext.Current.CancellationToken, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
 		}
 
-		// Wait 60 seconds for all 10 to start & finish
-		var finishWaitMax = DateTimeOffset.Now.AddSeconds(60);
-		while (finishCount != 10)
+		// Wait 60 seconds for all 10 tasks to start & finish
+		var timeout = Task.Delay(60_000, TestContext.Current.CancellationToken);
+		var tasks = await startTasks();
+		if (await Task.WhenAny(Task.WhenAll(tasks), timeout) == timeout)
+			throw new InvalidOperationException("All 10 tasks did not finish within 60 seconds");
+
+		while (finishCount < 10)
 		{
-			if (DateTimeOffset.Now > finishWaitMax)
-				throw new InvalidOperationException("All 10 threads did not finish within 60 seconds");
+			if (timeout.Status == TaskStatus.RanToCompletion)
+				throw new InvalidOperationException("All 10 tasks did not finish within 60 seconds");
 
 			await Task.Yield();
 		}
 
-		// Clean up the threads
-		foreach (var thread in threads)
-			if (!thread.Join(TimeSpan.FromSeconds(60)))
-				throw new InvalidOperationException("Thread did not finish within 60 seconds");
-
 		Assert.Equal(20, messages.Count);
 
 		// We don't know which thread will go first, we only know that it'll be pairs of start/finish messages
-		for (var i = 0; i < 10; i += 2)
+		for (var i = 0; i < 10; ++i)
 		{
-			var startMessage = messages[i];
+			var startMessage = messages[i * 2];
 			Assert.StartsWith("Start ", startMessage);
 
-			var index = int.Parse(startMessage.Substring(6));
-			var finishMessage = messages[i + 1];
-			Assert.Equal($"Finish {index}", finishMessage);
+			var trailer = startMessage.Substring(6);
+			var finishMessage = messages[i * 2 + 1];
+			Assert.Equal($"Finish {trailer}", finishMessage);
 		}
 
-		async void worker(object? index)
-		{
-			await scheduler.RunSequentialTask(async () =>
-			{
-				messages.Add($"Start {index}");
-				await Task.Delay(10);
-				messages.Add($"Finish {index}");
-
-				Interlocked.Increment(ref finishCount);
-
-				return 0;
-			}, TestContext.Current.CancellationToken);
-		}
+		[SecuritySafeCritical]
+		static void setupSyncContext(SynchronizationContext? context) =>
+			SynchronizationContext.SetSynchronizationContext(context);
 	}
 
 	// This test is explicit because it relies upon tight timing. It gets run in CI during the TestMTP target.

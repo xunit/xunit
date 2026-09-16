@@ -126,7 +126,7 @@ public abstract class ExecutionScheduler : IAsyncDisposable
 			cancellationToken.ThrowIfCancellationRequested();
 
 			lock (gate)
-				if ((parallelCount == 0 && sequentialCount == 0) || sequentialThreadId == Environment.CurrentManagedThreadId)
+				if (parallelCount == 0 && sequentialCount == 0)
 				{
 					++sequentialCount;
 					sequentialThreadId = Environment.CurrentManagedThreadId;
