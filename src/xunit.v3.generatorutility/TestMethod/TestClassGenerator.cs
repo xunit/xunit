@@ -78,37 +78,23 @@ namespace Xunit.Generators
 			TestClassGeneratorResult result,
 			CancellationToken cancellationToken)
 		{
-			// We need to process the base class, but only if it's part of the current declaration
-			if (classDeclaration.BaseList is null)
+			// We need to process the base classes, but only if the base class is part of the current declaration,
+			// so that partial classes only get the base class methods registered once.
+			if (classDeclaration.BaseList?.Types.FirstOrDefault()?.Type is not TypeSyntax baseTypeSyntax)
 				return;
 
-			if (classDeclaration.BaseList.Types.FirstOrDefault()?.Type is not SimpleNameSyntax baseClassIdentifier)
+			// The base list syntax is from the class declaration being transformed, so it's always bound with its own semantic model
+			if (semanticModel.GetSymbolInfo(baseTypeSyntax, cancellationToken).Symbol is not INamedTypeSymbol { TypeKind: TypeKind.Class })
 				return;
 
-			var baseClassSymbol = default(INamedTypeSymbol);
-
-			try
-			{
-				baseClassSymbol = semanticModel.GetSymbolInfo(baseClassIdentifier, cancellationToken).Symbol as INamedTypeSymbol;
-				if (baseClassSymbol is null)
-					return;
-			}
-			catch
-			{
-				// Sometimes this throws because the base class isn't defined in source
-				return;
-			}
-
-			foreach (var baseClassDeclaration in baseClassSymbol.DeclaringSyntaxReferences.Select(sr => sr.GetSyntax(cancellationToken)).OfType<ClassDeclarationSyntax>())
-			{
-				// We get methods from the symbol for base types, because now we don't care where they're defined; we know
-				// we've gated on them just the single time by virtue of the declaration-based BaseList usage.
+			// Walk the base types via symbols rather than syntax, since they may be declared in other syntax trees.
+			// Native AOT only supports test methods declared in source, so we stop at the first base type which
+			// isn't declared in source (i.e., is from a referenced assembly), since none of its base types can be
+			// declared in source either.
+			for (var baseClassSymbol = classSymbol.BaseType; baseClassSymbol is not null && baseClassSymbol.DeclaringSyntaxReferences.Length != 0; baseClassSymbol = baseClassSymbol.BaseType)
 				foreach (var baseClassMethodSymbol in baseClassSymbol.GetMembers().OfType<IMethodSymbol>())
 					foreach (var baseClassMethodDeclaration in baseClassMethodSymbol.DeclaringSyntaxReferences.Select(sr => sr.GetSyntax(cancellationToken)).OfType<MethodDeclarationSyntax>())
 						ProcessTestMethod(semanticModel, classSymbol, baseClassMethodDeclaration, baseClassMethodSymbol, result);
-
-				ProcessTestClass(semanticModel, baseClassDeclaration, classSymbol, result, cancellationToken);
-			}
 		}
 
 		static void ProcessTestMethod(
