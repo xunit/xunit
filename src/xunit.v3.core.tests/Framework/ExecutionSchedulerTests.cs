@@ -128,6 +128,45 @@ public static class ExecutionSchedulerTests
 			SynchronizationContext.SetSynchronizationContext(context);
 	}
 
+	// https://github.com/xunit/xunit/issues/3630
+	[Fact]
+	public static async ValueTask ParallelWaitersAllEnterWhenSequentialTaskFinishes()
+	{
+		await using var scheduler = ExecutionScheduler.CreateUnlimited();
+
+		var sequentialFinish = new TaskCompletionSource<bool>();
+		var parallelFinish = new TaskCompletionSource<bool>();
+		var parallelStartCount = 0;
+
+		// Entering the gate happens synchronously, so the sequential task holds the gate before the
+		// parallel tasks are queued, and the parallel tasks are all waiting on the gate before we
+		// release the sequential task.
+		var sequentialTask = scheduler.RunSequentialTask(async () => await sequentialFinish.Task, TestContext.Current.CancellationToken).AsTask();
+		var parallelTasks = Enumerable.Range(0, 5).Select(_ => scheduler.RunParallelTask(async () =>
+		{
+			Interlocked.Increment(ref parallelStartCount);
+			return await parallelFinish.Task;
+		}, TestContext.Current.CancellationToken).AsTask()).ToArray();
+
+		Assert.Equal(0, parallelStartCount);
+
+		sequentialFinish.SetResult(true);
+		await sequentialTask;
+
+		// All the parallel tasks must be able to start while the others are still running
+		var timeout = DateTimeOffset.Now.AddSeconds(60);
+		while (Volatile.Read(ref parallelStartCount) != 5)
+		{
+			if (DateTimeOffset.Now > timeout)
+				throw new InvalidOperationException($"Only {parallelStartCount} of 5 parallel tasks started within 60 seconds");
+
+			await Task.Delay(10, TestContext.Current.CancellationToken);
+		}
+
+		parallelFinish.SetResult(true);
+		await Task.WhenAll(parallelTasks);
+	}
+
 	// This test is explicit because it relies upon tight timing. It gets run in CI during the TestMTP target.
 	[Fact(Explicit = true)]
 	public static async ValueTask Aggressive_AllowsTasksToRunWhenOtherTasksAreSleeping()
