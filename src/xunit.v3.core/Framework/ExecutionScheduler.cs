@@ -9,7 +9,11 @@ namespace Xunit.v3;
 public abstract class ExecutionScheduler : IAsyncDisposable
 {
 	bool disposed;
+#if XUNIT_AOT
+	readonly Lock gate = new();
+#else
 	readonly object gate = new();
+#endif
 	TaskCompletionSource<bool> gateChanged = NewGateChanged();
 	int parallelCount;
 	int sequentialCount;
