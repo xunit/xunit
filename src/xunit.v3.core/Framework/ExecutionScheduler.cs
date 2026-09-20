@@ -9,10 +9,14 @@ namespace Xunit.v3;
 public abstract class ExecutionScheduler : IAsyncDisposable
 {
 	bool disposed;
-	readonly AsyncAutoResetEvent gate = new(initialState: true);
+#if XUNIT_AOT
+	readonly Lock gate = new();
+#else
+	readonly object gate = new();
+#endif
+	TaskCompletionSource<bool> gateChanged = NewGateChanged();
 	int parallelCount;
 	int sequentialCount;
-	int? sequentialThreadId;
 
 	internal static ExecutionScheduler Invalid =>
 		_Invalid.Instance;
@@ -108,14 +112,20 @@ public abstract class ExecutionScheduler : IAsyncDisposable
 		{
 			cancellationToken.ThrowIfCancellationRequested();
 
+			Task waitTask;
+
 			lock (gate)
+			{
 				if (parallelCount > 0 || sequentialCount == 0)
 				{
 					++parallelCount;
 					return new _UnlockParallel(this);
 				}
 
-			await gate.WaitAsync();
+				waitTask = gateChanged.Task;
+			}
+
+			await waitTask;
 		}
 	}
 
@@ -125,18 +135,37 @@ public abstract class ExecutionScheduler : IAsyncDisposable
 		{
 			cancellationToken.ThrowIfCancellationRequested();
 
+			Task waitTask;
+
 			lock (gate)
+			{
 				if (parallelCount == 0 && sequentialCount == 0)
 				{
 					++sequentialCount;
-					sequentialThreadId = Environment.CurrentManagedThreadId;
 
 					return new _UnlockSequential(this);
 				}
 
-			await gate.WaitAsync();
+				waitTask = gateChanged.Task;
+			}
+
+			await waitTask;
 		}
 	}
+
+	// Wakes up all waiters (rather than just one) so that every pending parallel task can enter the gate
+	// once the sequential task has finished. See https://github.com/xunit/xunit/issues/3630
+	// Must be called while holding the lock on gate, and the returned task completion source must be
+	// completed after the lock has been released.
+	TaskCompletionSource<bool> ReplaceGateChanged()
+	{
+		var result = gateChanged;
+		gateChanged = NewGateChanged();
+		return result;
+	}
+
+	static TaskCompletionSource<bool> NewGateChanged() =>
+		new(TaskCreationOptions.RunContinuationsAsynchronously);
 
 	/// <summary>
 	/// Runs a task in parallel (that is, it can run in parallel with other tasks started via this function,
@@ -303,13 +332,13 @@ public abstract class ExecutionScheduler : IAsyncDisposable
 	{
 		public void Dispose()
 		{
-			int newCount;
+			var gateChanged = default(TaskCompletionSource<bool>);
 
 			lock (scheduler.gate)
-				newCount = --scheduler.parallelCount;
+				if (--scheduler.parallelCount == 0)
+					gateChanged = scheduler.ReplaceGateChanged();
 
-			if (newCount == 0)
-				scheduler.gate.Set();
+			gateChanged?.TrySetResult(true);
 		}
 	}
 
@@ -317,18 +346,13 @@ public abstract class ExecutionScheduler : IAsyncDisposable
 	{
 		public void Dispose()
 		{
-			int newCount;
+			var gateChanged = default(TaskCompletionSource<bool>);
 
 			lock (scheduler.gate)
-			{
-				newCount = --scheduler.sequentialCount;
+				if (--scheduler.sequentialCount == 0)
+					gateChanged = scheduler.ReplaceGateChanged();
 
-				if (newCount == 0)
-					scheduler.sequentialThreadId = null;
-			}
-
-			if (newCount == 0)
-				scheduler.gate.Set();
+			gateChanged?.TrySetResult(true);
 		}
 	}
 }
