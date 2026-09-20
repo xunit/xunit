@@ -13,7 +13,6 @@ public abstract class ExecutionScheduler : IAsyncDisposable
 	TaskCompletionSource<bool> gateChanged = NewGateChanged();
 	int parallelCount;
 	int sequentialCount;
-	int? sequentialThreadId;
 
 	internal static ExecutionScheduler Invalid =>
 		_Invalid.Instance;
@@ -139,7 +138,6 @@ public abstract class ExecutionScheduler : IAsyncDisposable
 				if (parallelCount == 0 && sequentialCount == 0)
 				{
 					++sequentialCount;
-					sequentialThreadId = Environment.CurrentManagedThreadId;
 
 					return new _UnlockSequential(this);
 				}
@@ -348,10 +346,7 @@ public abstract class ExecutionScheduler : IAsyncDisposable
 
 			lock (scheduler.gate)
 				if (--scheduler.sequentialCount == 0)
-				{
-					scheduler.sequentialThreadId = null;
 					gateChanged = scheduler.ReplaceGateChanged();
-				}
 
 			gateChanged?.TrySetResult(true);
 		}
