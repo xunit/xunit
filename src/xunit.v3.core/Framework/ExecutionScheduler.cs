@@ -119,7 +119,7 @@ public abstract class ExecutionScheduler : IAsyncDisposable
 				if (parallelCount > 0 || sequentialCount == 0)
 				{
 					++parallelCount;
-					return new _UnlockParallel(this);
+					return new _Unlocker(this, () => --parallelCount);
 				}
 
 				waitTask = gateChanged.Task;
@@ -143,7 +143,7 @@ public abstract class ExecutionScheduler : IAsyncDisposable
 				{
 					++sequentialCount;
 
-					return new _UnlockSequential(this);
+					return new _Unlocker(this, () => --sequentialCount);
 				}
 
 				waitTask = gateChanged.Task;
@@ -328,28 +328,19 @@ public abstract class ExecutionScheduler : IAsyncDisposable
 			"Unlimited scheduler";
 	}
 
-	sealed class _UnlockParallel(ExecutionScheduler scheduler) : IDisposable
+	// Unlocker implementation
+
+	sealed class _Unlocker(
+		ExecutionScheduler scheduler,
+		Func<int> decrementCounter) :
+			IDisposable
 	{
 		public void Dispose()
 		{
 			var gateChanged = default(TaskCompletionSource<bool>);
 
 			lock (scheduler.gate)
-				if (--scheduler.parallelCount == 0)
-					gateChanged = scheduler.ReplaceGateChanged();
-
-			gateChanged?.TrySetResult(true);
-		}
-	}
-
-	sealed class _UnlockSequential(ExecutionScheduler scheduler) : IDisposable
-	{
-		public void Dispose()
-		{
-			var gateChanged = default(TaskCompletionSource<bool>);
-
-			lock (scheduler.gate)
-				if (--scheduler.sequentialCount == 0)
+				if (decrementCounter() == 0)
 					gateChanged = scheduler.ReplaceGateChanged();
 
 			gateChanged?.TrySetResult(true);
