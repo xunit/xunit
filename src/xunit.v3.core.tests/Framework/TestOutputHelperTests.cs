@@ -103,4 +103,27 @@ public static class TestOutputHelperTests
 		var message = Assert.Single(messageBus.Messages.OfType<ITestOutput>());
 		Assert.Equal($"5{Environment.NewLine}", message.Output);
 	}
+
+	[Fact]
+	public static void AnsiSgrSequenceCanOccurOverMultipleWrites()
+	{
+		var output = new TestOutputHelper();
+		var messageBus = new SpyMessageBus();
+		var test = Mocks.Test();
+
+		output.Initialize(messageBus, test);
+		output.Write("\u001b");
+		output.Write("[");
+		output.Write("4");
+		output.Write("m");
+		output.Write("Underlined text");
+		output.Write("\u001b");
+		output.Write("[");
+		output.Write("0");
+		output.Write("m");
+		output.Uninitialize();
+
+		var message = Assert.Single(messageBus.Messages.OfType<ITestOutput>());
+		Assert.Equal($"\u001b[4mUnderlined text\u001b[0m{Environment.NewLine}", message.Output);
+	}
 }

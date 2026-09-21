@@ -94,7 +94,7 @@ public class TestOutputHelper : ITestOutputHelper
 		readonly StringBuilder buffer = new();
 		readonly object lockObject = new();
 		readonly IMessageBus messageBus;
-		static readonly int numberOfMinimalRemainingCharsForValidAnsiSgr = 3 + Environment.NewLine.Length;  // ESC + [ + m
+		const int numberOfMinimalRemainingCharsForValidAnsiSgr = 3;  // ESC + [ + m
 		readonly StringBuilder residual = new();
 		readonly string testAssemblyUniqueID;
 		readonly string testCollectionUniqueID;
@@ -124,14 +124,12 @@ public class TestOutputHelper : ITestOutputHelper
 			get
 			{
 				lock (lockObject)
-					return buffer.ToString();
+					return EscapeInvalidHexChars(buffer.ToString());
 			}
 		}
 
 		public void OnOutput(string output)
 		{
-			output = EscapeInvalidHexChars(output);
-
 			string[]? lines = default;
 
 			lock (lockObject)
@@ -157,7 +155,7 @@ public class TestOutputHelper : ITestOutputHelper
 			messageBus.QueueMessage(new TestOutput
 			{
 				AssemblyUniqueID = testAssemblyUniqueID,
-				Output = line + Environment.NewLine,
+				Output = EscapeInvalidHexChars(line) + Environment.NewLine,
 				TestCaseUniqueID = testCaseUniqueID,
 				TestClassUniqueID = testClassUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID,
