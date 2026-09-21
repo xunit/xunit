@@ -153,6 +153,9 @@ public abstract class ExecutionScheduler : IAsyncDisposable
 		}
 	}
 
+	static TaskCompletionSource<bool> NewGateChanged() =>
+		new(TaskCreationOptions.RunContinuationsAsynchronously);
+
 	// Wakes up all waiters (rather than just one) so that every pending parallel task can enter the gate
 	// once the sequential task has finished. See https://github.com/xunit/xunit/issues/3630
 	// Must be called while holding the lock on gate, and the returned task completion source must be
@@ -163,9 +166,6 @@ public abstract class ExecutionScheduler : IAsyncDisposable
 		gateChanged = NewGateChanged();
 		return result;
 	}
-
-	static TaskCompletionSource<bool> NewGateChanged() =>
-		new(TaskCreationOptions.RunContinuationsAsynchronously);
 
 	/// <summary>
 	/// Runs a task in parallel (that is, it can run in parallel with other tasks started via this function,
