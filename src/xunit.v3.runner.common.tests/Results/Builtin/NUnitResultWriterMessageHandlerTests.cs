@@ -425,7 +425,7 @@ public static class NUnitResultWriterMessageHandlerTests
 			exceptionTypes: ["Exception Type"],
 			executionTime: 123.4567809m,
 			messages: ["Exception Message"],
-			output: "test output",
+			output: "test output\r\n\x1b[4mUnderline\x1b[0m\r\n",
 			stackTraces: ["Exception Stack Trace"]
 		);
 		var testFinished = TestData.TestFinished();
@@ -466,7 +466,7 @@ public static class NUnitResultWriterMessageHandlerTests
 		Assert.Equal("Exception Type : Exception Message", failureElement.Element("message")?.Value);
 		Assert.Equal("Exception Stack Trace", failureElement.Element("stack-trace")?.Value);
 
-		Assert.Equal("test output", testCaseElement.Element("output")?.Value);
+		Assert.Equal("test output\nUnderline\n", testCaseElement.Element("output")?.Value);
 
 		var assertionsElement = Assert.Single(testCaseElement.Elements("assertions"));
 		var assertionElement = Assert.Single(assertionsElement.Elements("assertion"));

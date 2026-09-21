@@ -1,5 +1,6 @@
 using System.Xml;
 using System.Xml.Linq;
+using Xunit.Sdk;
 
 namespace Xunit.Runner.Common;
 
@@ -265,7 +266,7 @@ public class HtmlResultWriterMessageHandler : MarkupResultWriterMessageHandlerBa
 		if (!string.IsNullOrWhiteSpace(testResult.Output))
 			resultElement.Add(
 				new XElement("h6", "Output:"),
-				new XElement("pre", testResult.Output)
+				new XElement("pre", AnsiUtility.RemoveAnsiEscapeCodes(testResult.Output))
 			);
 
 		if (testResult.Warnings is not null && testResult.Warnings.Length != 0)

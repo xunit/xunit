@@ -492,7 +492,7 @@ public class NUnitResultWriterMessageHandler : ResultMetadataMessageHandlerBase<
 		);
 
 		if (!string.IsNullOrWhiteSpace(testResult.Output))
-			testCaseElement.Add(new XElement("output", testResult.Output));
+			testCaseElement.Add(new XElement("output", AnsiUtility.RemoveAnsiEscapeCodes(testResult.Output)));
 
 		var assertions = new List<(string Result, string Message, string? StackTrace)>();
 

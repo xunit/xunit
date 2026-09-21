@@ -212,7 +212,7 @@ public class JUnitResultWriterMessageHandler : ResultMetadataMessageHandlerBase<
 		var output = default(string);
 
 		if (!string.IsNullOrWhiteSpace(testResult.Output))
-			output = "<<< Test output >>>\r\n\r\n" + testResult.Output.TrimEnd('\r', '\n');
+			output = "<<< Test output >>>\r\n\r\n" + AnsiUtility.RemoveAnsiEscapeCodes(testResult.Output.TrimEnd('\r', '\n'));
 
 		if (testResult.Warnings is not null && testResult.Warnings.Length != 0)
 		{

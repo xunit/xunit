@@ -292,7 +292,7 @@ public static class JUnitResultWriterMessageHandlerTests
 		var assemblyStarting = TestData.TestAssemblyStarting();
 		var testStarting = TestData.TestStarting();
 		var testClassStarting = TestData.TestClassStarting();
-		var testPassed = TestData.TestPassed(output: "This is the output text");
+		var testPassed = TestData.TestPassed(output: "This is the output text\r\n\x1b[4mUnderline\x1b[0m\r\n");
 		var testClassFinished = TestData.TestClassFinished();
 		var testFinished = TestData.TestFinished();
 		var assemblyFinished = TestData.TestAssemblyFinished(testsFailed: 0, testsNotRun: 0, testsSkipped: 0, testsTotal: 1);
@@ -312,6 +312,7 @@ public static class JUnitResultWriterMessageHandlerTests
 			<<< Test output >>>
 
 			This is the output text
+			Underline
 			""", testCaseElement.Element("system-out")?.Value);
 	}
 
