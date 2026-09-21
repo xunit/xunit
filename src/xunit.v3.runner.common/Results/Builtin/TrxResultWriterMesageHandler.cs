@@ -326,7 +326,8 @@ public class TrxResultWriterMessageHandler : ResultMetadataMessageHandlerBase<Tr
 			var textMessages = new XElement(ns + "TextMessages");
 			var output = new XElement(ns + "Output", textMessages);
 
-			foreach (var line in testResult.Output.TrimEnd('\r', '\n').Split(["\r\n"], StringSplitOptions.None))
+			var sanitizedOutput = AnsiUtility.RemoveAnsiEscapeCodes(testResult.Output);
+			foreach (var line in sanitizedOutput.TrimEnd('\r', '\n').Split(["\r\n"], StringSplitOptions.None))
 				textMessages.Add(new XElement(ns + "Message", new XText(line)));
 
 			unitTestResultElement.Add(output);

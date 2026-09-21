@@ -316,6 +316,36 @@ public static class TrxResultWriterMessageHandlerTests
 		Assert.Null(resultElement.Element(ns + "Output"));
 	}
 
+	[Fact]
+	public static async ValueTask TestResult_OutputRemovesAnsiEscapeCodes()
+	{
+		var assemblyFinished = TestData.TestAssemblyFinished();
+		var assemblyStarting = TestData.TestAssemblyStarting();
+		var collectionStarting = TestData.TestCollectionStarting();
+		var classStarting = TestData.TestClassStarting(testClassName: typeof(ClassUnderTest).FullName!);
+		var methodStarting = TestData.TestMethodStarting(methodName: nameof(ClassUnderTest.TestMethod));
+		var caseStarting = TestData.TestCaseStarting(traits: TestData.EmptyTraits);
+		var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
+		var testPassed = TestData.TestPassed(executionTime: 123.4567809m, output: "\u001B[4mUnderlined Text\u001B[0m");
+		await using var handler = TestableTrxResultWriterMessageHandler.Create();
+
+		handler.OnMessage(assemblyStarting);
+		handler.OnMessage(collectionStarting);
+		handler.OnMessage(classStarting);
+		handler.OnMessage(methodStarting);
+		handler.OnMessage(caseStarting);
+		handler.OnMessage(testStarting);
+		handler.OnMessage(testPassed);
+		handler.OnMessage(assemblyFinished);
+
+		var testRunElement = await handler.TestRunElement();
+		var testID = VerifyTestDefinition(testRunElement);
+		VerifyTestEntry(testRunElement, testID);
+		var resultElement = VerifyResult(testRunElement, testID, "Passed");
+		var messageElements = resultElement.Element(ns + "Output")?.Element(ns + "TextMessages")?.Elements(ns + "Message").CastOrToArray() ?? [];
+		Assert.Equal("Underlined Text", Assert.Single(messageElements).Value);
+	}
+
 	[CulturedFact(["en-US", "fr-FR"])]
 	public static async ValueTask TestResult_OutputIsSplitOnCRLFs()
 	{
