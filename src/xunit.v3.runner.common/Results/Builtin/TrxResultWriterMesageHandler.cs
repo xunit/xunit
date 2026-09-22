@@ -10,6 +10,7 @@ namespace Xunit.Runner.Common;
 /// </summary>
 public class TrxResultWriterMessageHandler : ResultMetadataMessageHandlerBase<TrxResultWriterMessageHandler.ResultMetadata>, IResultWriterMessageHandler
 {
+	static readonly char[] newLineChars = Environment.NewLine.ToCharArray();
 	static readonly XNamespace ns = XNamespace.Get("http://microsoft.com/schemas/VisualStudio/TeamTest/2010");
 
 	readonly string computer;
@@ -326,7 +327,7 @@ public class TrxResultWriterMessageHandler : ResultMetadataMessageHandlerBase<Tr
 			var textMessages = new XElement(ns + "TextMessages");
 			var output = new XElement(ns + "Output", textMessages);
 
-			foreach (var line in testResult.Output.TrimEnd('\r', '\n').Split(["\r\n"], StringSplitOptions.None))
+			foreach (var line in testResult.Output.TrimEnd(newLineChars).Split([Environment.NewLine], StringSplitOptions.None))
 				textMessages.Add(new XElement(ns + "Message", AnsiUtility.RemoveAnsiEscapeCodes(line)));
 
 			unitTestResultElement.Add(output);

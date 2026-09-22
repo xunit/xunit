@@ -317,7 +317,7 @@ public static class TrxResultWriterMessageHandlerTests
 		var methodStarting = TestData.TestMethodStarting(methodName: nameof(ClassUnderTest.TestMethod));
 		var caseStarting = TestData.TestCaseStarting(traits: TestData.EmptyTraits);
 		var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
-		var testPassed = TestData.TestPassed(executionTime: 123.4567809m, output: "Line1\r\nLine2\r\nLine3\r\n");
+		var testPassed = TestData.TestPassed(executionTime: 123.4567809m, output: $"Line1{Environment.NewLine}Line2{Environment.NewLine}Line3{Environment.NewLine}");
 		await using var handler = TestableTrxResultWriterMessageHandler.Create();
 
 		handler.OnMessage(assemblyStarting);
