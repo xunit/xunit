@@ -14,5 +14,11 @@ public interface IAsyncLifetime : IAsyncDisposable
 	/// <summary>
 	/// Called immediately after the class has been created, before it is used.
 	/// </summary>
+	/// <remarks>
+	/// If this method throws an exception, then <see cref="IAsyncDisposable.DisposeAsync"/>
+	/// will not be called. This mirrors the behavior of constructors and usage of
+	/// <see cref="IDisposable"/>/<see cref="IAsyncDisposable"/>, since this method
+	/// is intended as the equivalent of an async constructor.
+	/// </remarks>
 	ValueTask InitializeAsync();
 }
