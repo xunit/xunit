@@ -1,11 +1,13 @@
 namespace Xunit;
 
 /// <summary>
-/// Used to provide asynchronous lifetime functionality. Currently supported:<br />
-/// - Test classes<br />
-/// - Classes used in <see cref="IClassFixture{TFixture}"/><br />
-/// - Classes used in <see cref="ICollectionFixture{TFixture}"/>.<br />
-/// - Classes used in <c>[assembly: <see cref="AssemblyFixtureAttribute"/>()]</c>.
+/// Used to provide asynchronous lifetime functionality. Currently supported:
+/// <list type="bullet">
+/// <item>Test classes</item>
+/// <item>Classes used in <see cref="IClassFixture{TFixture}"/></item>
+/// <item>Classes used in <see cref="ICollectionFixture{TFixture}"/></item>
+/// <item>Classes used in <c>[assembly: <see cref="AssemblyFixtureAttribute"/>]</c></item>
+/// </list>
 /// </summary>
 public interface IAsyncLifetime : IAsyncDisposable
 {
