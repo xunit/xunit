@@ -126,8 +126,6 @@ partial class AcceptanceTestV3
 		return
 			messages
 				.OfType<ITestResultMessage>()
-				.Select(result => TestResultFactory(result, messages))
-				.WhereNotNull()
-				.ToList();
+				.SelectListNotNull(result => TestResultFactory(result, messages));
 	}
 }

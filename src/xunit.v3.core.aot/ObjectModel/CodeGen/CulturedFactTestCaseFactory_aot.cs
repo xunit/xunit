@@ -30,8 +30,8 @@ public class CulturedFactTestCaseFactory : FactTestCaseFactory
 		Guard.ArgumentNotNull(testMethod);
 		Guard.ArgumentNotNull(displayName);
 
-		return Cultures.Select(culture =>
-			new CodeGenTestCase(
+		return Cultures.SelectReadOnlyCollection(
+			culture => new CodeGenTestCase(
 				disableParallelization: false,  // [CulturedFact.DisableParallelization] is fed into the test method registration
 				Explicit,
 				SkipExceptions,
@@ -47,6 +47,6 @@ public class CulturedFactTestCaseFactory : FactTestCaseFactory
 				testMethod.Traits,
 				$"{UniqueIDGenerator.ForTestCase(testMethod.UniqueID, index: 0)}[{culture}]"
 			)
-		).CastOrToReadOnlyCollection();
+		);
 	}
 }

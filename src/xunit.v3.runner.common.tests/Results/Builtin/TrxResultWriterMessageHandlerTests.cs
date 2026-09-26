@@ -438,7 +438,7 @@ public static class TrxResultWriterMessageHandlerTests
 		Assert.Equal(expectedDuration, resultElement.Attribute("duration")?.Value);
 		Assert.Equal("2024-07-04T21:12:08.0000000+00:00", resultElement.Attribute("startTime")?.Value);
 		Assert.Equal("2024-07-04T21:12:28.0000000+00:00", resultElement.Attribute("endTime")?.Value);
-		Assert.Equal(expectedOutput ?? [TestData.DefaultOutput], (resultElement.Element(ns + "Output")?.Element(ns + "TextMessages")?.Elements() ?? []).Select(e => e.Value).ToArray());
+		Assert.Equal(expectedOutput ?? [TestData.DefaultOutput], (resultElement.Element(ns + "Output")?.Element(ns + "TextMessages")?.Elements() ?? []).Select(e => e.Value));
 
 		return resultElement;
 	}

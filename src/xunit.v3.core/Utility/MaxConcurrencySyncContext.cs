@@ -23,8 +23,7 @@ public class MaxConcurrencySyncContext : SynchronizationContext, IDisposable
 		workerThreads =
 			Enumerable
 				.Range(0, maximumConcurrencyLevel)
-				.Select(_ => { var result = new Thread(WorkerThreadProc); result.Start(); return result; })
-				.ToList();
+				.SelectList(_ => { var result = new Thread(WorkerThreadProc); result.Start(); return result; });
 
 	/// <inheritdoc/>
 	public void Dispose()

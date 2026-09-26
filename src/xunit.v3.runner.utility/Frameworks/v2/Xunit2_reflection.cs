@@ -309,7 +309,7 @@ public class Xunit2 : IFrontController
 #endif
 		}
 
-		throw new InvalidOperationException("Could not find/load any of the following assemblies: " + string.Join(", ", supportedPlatformSuffixes.Select(suffix => string.Format(CultureInfo.InvariantCulture, "xunit.execution.{0}.dll", suffix)).ToArray()));
+		throw new InvalidOperationException("Could not find/load any of the following assemblies: " + string.Join(", ", supportedPlatformSuffixes.Select(suffix => string.Format(CultureInfo.InvariantCulture, "xunit.execution.{0}.dll", suffix))));
 	}
 
 	static string[] GetSupportedPlatformSuffixes(AppDomainSupport appDomainSupport) =>
@@ -593,7 +593,7 @@ public class Xunit2 : IFrontController
 		Guard.ArgumentNotNull(messageSink);
 		Guard.ArgumentNotNull(settings);
 
-		var testCases = BulkDeserialize(settings.SerializedTestCases.ToList()).Select(kvp => kvp.Value).ToList();
+		var testCases = BulkDeserialize(settings.SerializedTestCases.ToList()).SelectList(kvp => kvp.Value);
 
 		if (settings.Options.GetExplicitOptionOrDefault() == ExplicitOption.Only)
 			ReportTestCasesAsNotRun(testCases, messageSink);

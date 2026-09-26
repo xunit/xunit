@@ -21,6 +21,5 @@ public class DefaultTestCaseBulkDeserializer : ITestCaseBulkDeserializer
 	public List<KeyValuePair<string?, ITestCase?>> BulkDeserialize(List<string> serializations) =>
 		serializations
 			.Select(serialization => executor.Deserialize(serialization))
-			.Select(testCase => new KeyValuePair<string?, ITestCase?>(testCase?.UniqueID, testCase))
-			.ToList();
+			.SelectList(testCase => new KeyValuePair<string?, ITestCase?>(testCase?.UniqueID, testCase));
 }

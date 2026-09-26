@@ -588,7 +588,7 @@ public class TestClass
 			discoverySink.Finished.WaitOne();
 
 			using var executionSink = SpyMessageSink<ITestAssemblyFinished>.Create();
-			var serializedTestCases = discoverySink.Messages.OfType<ITestCaseDiscovered>().Select(tcdm => tcdm.Serialization!).ToArray();
+			var serializedTestCases = discoverySink.Messages.OfType<ITestCaseDiscovered>().SelectArray(tcdm => tcdm.Serialization!);
 			Assert.All(serializedTestCases, Assert.NotNull);
 			var runSettings = FrontControllerRunSettings.WithSerializedTestCases(TestData.TestFrameworkExecutionOptions(explicitOption: ExplicitOption.Only), serializedTestCases);
 
@@ -631,8 +631,8 @@ public class TestClass
 				discoverySink.Finished.WaitOne();
 
 				using var executionSink = SpyMessageSink<ITestAssemblyFinished>.Create();
-				var serializedTestCases = discoverySink.Messages.OfType<ITestCaseDiscovered>().Select(tcdm => tcdm.Serialization!).ToArray();
-				Assert.All(serializedTestCases, serializedTestCase => Assert.NotNull(serializedTestCase));
+				var serializedTestCases = discoverySink.Messages.OfType<ITestCaseDiscovered>().SelectArray(tcdm => tcdm.Serialization!);
+				Assert.All(serializedTestCases, Assert.NotNull);
 				var runSettings = FrontControllerRunSettings.WithSerializedTestCases(TestData.TestFrameworkExecutionOptions(), serializedTestCases);
 
 				controller.Run(executionSink, runSettings);
@@ -669,8 +669,8 @@ public class TestClass
 				discoverySink.Finished.WaitOne();
 
 				using var executionSink = SpyMessageSink<ITestAssemblyFinished>.Create();
-				var serializedTestCases = discoverySink.Messages.OfType<ITestCaseDiscovered>().Select(tcdm => tcdm.Serialization!).ToArray();
-				Assert.All(serializedTestCases, serializedTestCase => Assert.NotNull(serializedTestCase));
+				var serializedTestCases = discoverySink.Messages.OfType<ITestCaseDiscovered>().SelectArray(tcdm => tcdm.Serialization!);
+				Assert.All(serializedTestCases, Assert.NotNull);
 				var runSettings = FrontControllerRunSettings.WithSerializedTestCases(TestData.TestFrameworkExecutionOptions(), serializedTestCases);
 
 				controller.Run(executionSink, runSettings);
@@ -710,8 +710,8 @@ let TestMethod() =
 				discoverySink.Finished.WaitOne();
 
 				using var executionSink = SpyMessageSink<ITestAssemblyFinished>.Create();
-				var serializedTestCases = discoverySink.Messages.OfType<ITestCaseDiscovered>().Select(tcdm => tcdm.Serialization!).ToArray();
-				Assert.All(serializedTestCases, serializedTestCase => Assert.NotNull(serializedTestCase));
+				var serializedTestCases = discoverySink.Messages.OfType<ITestCaseDiscovered>().SelectArray(tcdm => tcdm.Serialization!);
+				Assert.All(serializedTestCases, Assert.NotNull);
 				var runSettings = FrontControllerRunSettings.WithSerializedTestCases(TestData.TestFrameworkExecutionOptions(), serializedTestCases);
 
 				controller.Run(executionSink, runSettings);
@@ -748,8 +748,8 @@ let TestMethod(x : int) =
 				discoverySink.Finished.WaitOne();
 
 				using var executionSink = SpyMessageSink<ITestAssemblyFinished>.Create();
-				var serializedTestCases = discoverySink.Messages.OfType<ITestCaseDiscovered>().Select(tcdm => tcdm.Serialization!).ToArray();
-				Assert.All(serializedTestCases, serializedTestCase => Assert.NotNull(serializedTestCase));
+				var serializedTestCases = discoverySink.Messages.OfType<ITestCaseDiscovered>().SelectArray(tcdm => tcdm.Serialization!);
+				Assert.All(serializedTestCases, Assert.NotNull);
 				var runSettings = FrontControllerRunSettings.WithSerializedTestCases(TestData.TestFrameworkExecutionOptions(), serializedTestCases);
 
 				controller.Run(executionSink, runSettings);

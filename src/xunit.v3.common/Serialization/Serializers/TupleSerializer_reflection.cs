@@ -27,7 +27,7 @@ internal sealed class TupleSerializer : IXunitSerializer
 			type.GetConstructor(type.GenericTypeArguments)
 				?? throw new ArgumentException(TypeDoesNotHaveConstructor(type), nameof(type));
 
-		var values = serializedValue.Split('\n').Select(SerializationHelper.Instance.Deserialize).ToArray();
+		var values = serializedValue.Split('\n').SelectArray(SerializationHelper.Instance.Deserialize);
 		return ctor.Invoke(values);
 	}
 

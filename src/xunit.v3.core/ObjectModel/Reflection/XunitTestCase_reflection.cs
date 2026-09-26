@@ -260,7 +260,7 @@ public class XunitTestCase : IXunitTestCase, IAsyncDisposable, IXunitSerializabl
 
 	/// <inheritdoc/>
 	public string[] TestMethodParameterTypesVSTest =>
-		TestMethod.Parameters.Select(p => p.ParameterType.ToVSTestTypeName(TestMethod.Method, TestClass.Class)).ToArray();
+		TestMethod.Parameters.SelectArray(p => p.ParameterType.ToVSTestTypeName(TestMethod.Method, TestClass.Class));
 
 	/// <inheritdoc/>
 	public string TestMethodReturnTypeVSTest =>

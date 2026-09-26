@@ -1145,9 +1145,9 @@ partial class ReflectionExtensions
 		Array destinationArray = Array.CreateInstance(argType, collect.Count);
 
 		if (argType.IsEnum)
-			Array.Copy(collect.Select(x => Enum.ToObject(argType, x.Value!)).ToArray(), destinationArray, collect.Count);
+			Array.Copy(collect.SelectArray(x => Enum.ToObject(argType, x.Value!)), destinationArray, collect.Count);
 		else
-			Array.Copy(collect.Select(x => x.Value).ToArray(), destinationArray, collect.Count);
+			Array.Copy(collect.SelectArray(x => x.Value), destinationArray, collect.Count);
 
 		return destinationArray;
 	}

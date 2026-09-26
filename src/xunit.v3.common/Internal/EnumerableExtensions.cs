@@ -54,6 +54,126 @@ public static class EnumerableExtensions
 	}
 
 	/// <summary>
+	///  Projects each element via transformation into an array.
+	/// </summary>
+	public static TResult[] SelectArray<TSource, TResult>(
+		this IEnumerable<TSource> source,
+		Func<TSource, TResult> selector) =>
+			source.Select(selector).ToArray();
+
+	/// <summary>
+	///  Projects each element via transformation into an array.
+	/// </summary>
+	public static TResult[] SelectArray<TSource, TResult>(
+		this IEnumerable<TSource> source,
+		Func<TSource, int, TResult> selector) =>
+			source.Select(selector).ToArray();
+
+	/// <summary>
+	///  Projects each element via transformation into an array, excluding null result values.
+	/// </summary>
+	public static TResult[] SelectArrayNotNull<TSource, TResult>(
+		this IEnumerable<TSource> source,
+		Func<TSource, TResult?> selector)
+			where TResult : class =>
+				source.SelectNotNull(selector).ToArray();
+
+	/// <summary>
+	///  Projects each element via transformation into an array, excluding null result values.
+	/// </summary>
+	public static TResult[] SelectArrayNotNull<TSource, TResult>(
+		this IEnumerable<TSource> source,
+		Func<TSource, int, TResult?> selector)
+			where TResult : class =>
+				source.SelectNotNull(selector).ToArray();
+
+	/// <summary>
+	///  Projects each element via transformation into a list.
+	/// </summary>
+	public static List<TResult> SelectList<TSource, TResult>(
+		this IEnumerable<TSource> source,
+		Func<TSource, TResult> selector) =>
+			source.Select(selector).ToList();
+
+	/// <summary>
+	///  Projects each element via transformation into a list.
+	/// </summary>
+	public static List<TResult> SelectList<TSource, TResult>(
+		this IEnumerable<TSource> source,
+		Func<TSource, int, TResult> selector) =>
+			source.Select(selector).ToList();
+
+	/// <summary>
+	///  Projects each element via transformation into a list, excluding null result values.
+	/// </summary>
+	public static List<TResult> SelectListNotNull<TSource, TResult>(
+		this IEnumerable<TSource> source,
+		Func<TSource, TResult?> selector)
+			where TResult : class =>
+				source.SelectNotNull(selector).ToList();
+
+	/// <summary>
+	///  Projects each element via transformation into a list, excluding null result values.
+	/// </summary>
+	public static List<TResult> SelectListNotNull<TSource, TResult>(
+		this IEnumerable<TSource> source,
+		Func<TSource, int, TResult?> selector)
+			where TResult : class =>
+				source.SelectNotNull(selector).ToList();
+
+	/// <summary>
+	///  Projects each element via transformation, excluding null result values.
+	/// </summary>
+	public static IEnumerable<TResult> SelectNotNull<TSource, TResult>(
+		this IEnumerable<TSource> source,
+		Func<TSource, TResult?> selector)
+			where TResult : class =>
+				source.Select(selector).WhereNotNull();
+
+	/// <summary>
+	///  Projects each element via transformation, excluding null result values.
+	/// </summary>
+	public static IEnumerable<TResult> SelectNotNull<TSource, TResult>(
+		this IEnumerable<TSource> source,
+		Func<TSource, int, TResult?> selector)
+			where TResult : class =>
+				source.Select(selector).WhereNotNull();
+
+	/// <summary>
+	///  Projects each element via transformation into a read only collection.
+	/// </summary>
+	public static IReadOnlyCollection<TResult> SelectReadOnlyCollection<TSource, TResult>(
+		this IEnumerable<TSource> source,
+		Func<TSource, TResult> selector) =>
+			source.SelectArray(selector);
+
+	/// <summary>
+	///  Projects each element via transformation into a read only collection.
+	/// </summary>
+	public static IReadOnlyCollection<TResult> SelectReadOnlyCollection<TSource, TResult>(
+		this IEnumerable<TSource> source,
+		Func<TSource, int, TResult> selector) =>
+			source.SelectArray(selector);
+
+	/// <summary>
+	///  Projects each element via transformation into a read only collection, excluding null result values.
+	/// </summary>
+	public static IReadOnlyCollection<TResult> SelectReadOnlyCollectionNotNull<TSource, TResult>(
+		this IEnumerable<TSource> source,
+		Func<TSource, TResult?> selector)
+			where TResult : class =>
+				source.SelectArrayNotNull(selector);
+
+	/// <summary>
+	///  Projects each element via transformation into a read only collection, excluding null result values.
+	/// </summary>
+	public static IReadOnlyCollection<TResult> SelectReadOnlyCollectionNotNull<TSource, TResult>(
+		this IEnumerable<TSource> source,
+		Func<TSource, int, TResult?> selector)
+			where TResult : class =>
+				source.SelectArrayNotNull(selector);
+
+	/// <summary>
 	/// Returns <paramref name="source"/> as an enumerable of <typeparamref name="T"/> with
 	/// all the <see langword="null"/> items removed.
 	/// </summary>

@@ -116,7 +116,7 @@ public static partial class Xunit3AcceptanceTests
 		{
 			Assert.Collection(
 				result.Output.Split([Environment.NewLine], StringSplitOptions.RemoveEmptyEntries),
-				operations.Select<string, Action<string>>(expected => actual => Assert.Equal(expected, actual)).ToArray()
+				operations.SelectArray<string, Action<string>>(expected => actual => Assert.Equal(expected, actual))
 			);
 		}
 	}
@@ -845,7 +845,7 @@ public static partial class Xunit3AcceptanceTests
 			var results = await RunForResultsAsync(typeof(ClassWithIllegalWarnings), diagnosticMessageSink: diagnosticSink);
 #endif
 
-			var diagnosticMessages = diagnosticSink.Messages.OfType<IDiagnosticMessage>().Select(dm => dm.Message).ToArray();
+			var diagnosticMessages = diagnosticSink.Messages.OfType<IDiagnosticMessage>().SelectArray(dm => dm.Message);
 			Assert.Contains("Attempted to log a test warning message while not running a test (pipeline stage = TestClassExecution); message: This is a warning from an illegal part of the pipeline", diagnosticMessages);
 			var result = Assert.Single(results);
 			// Illegal warning messages won't show up here, and won't prevent running tests

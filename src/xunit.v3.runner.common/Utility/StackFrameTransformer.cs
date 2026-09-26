@@ -56,6 +56,5 @@ public static class StackFrameTransformer
 					stack
 						.Split([Environment.NewLine], StringSplitOptions.None)
 						.Select(frame => TransformFrame(frame, defaultDirectory))
-						.ToArray()
 				);
 }

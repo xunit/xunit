@@ -212,7 +212,7 @@ public static class RegisteredEngineConfig
 	}
 
 	internal static Type[] GetTestClassTypes() =>
-		testClassRegistrations.Select(kvp => kvp.Value.Class).ToArray();
+		testClassRegistrations.SelectArray(kvp => kvp.Value.Class);
 
 	internal static Dictionary<string, HashSet<string>>? GetTestCollectionTraits(string testCollectionName)
 	{

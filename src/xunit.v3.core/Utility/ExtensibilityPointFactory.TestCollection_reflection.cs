@@ -79,8 +79,7 @@ partial class ExtensibilityPointFactory
 			: collectionDefinition
 				.GetInterfaces()
 				.Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IClassFixture<>))
-				.Select(i => i.GenericTypeArguments[0])
-				.CastOrToReadOnlyCollection();
+				.SelectReadOnlyCollection(i => i.GenericTypeArguments[0]);
 
 	/// <summary>
 	/// Gets the fixture types that are attached to the test collection via <see cref="ICollectionFixture{TFixture}"/>.
@@ -93,8 +92,7 @@ partial class ExtensibilityPointFactory
 			: collectionDefinition
 				.GetInterfaces()
 				.Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICollectionFixture<>))
-				.Select(i => i.GenericTypeArguments[0])
-				.CastOrToReadOnlyCollection();
+				.SelectReadOnlyCollection(i => i.GenericTypeArguments[0]);
 
 	/// <summary>
 	/// Gets the <see cref="CollectionDefinitionAttribute"/>s that are attached to the test assembly.

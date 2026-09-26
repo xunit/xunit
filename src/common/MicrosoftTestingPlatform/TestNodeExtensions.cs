@@ -70,7 +70,7 @@ internal static class TestNodeExtensions
 			stdOutMessages.Add(testSkipped.Reason);
 
 		if (stdOutMessages.Count > 0)
-			result.Properties.Add(new TrxMessagesProperty(stdOutMessages.Select(msg => new StandardOutputTrxMessage(msg)).ToArray()));
+			result.Properties.Add(new TrxMessagesProperty(stdOutMessages.SelectArray(msg => new StandardOutputTrxMessage(msg))));
 
 		if (testMessage is ITestFailed testFailed)
 			result.Properties.Add(new TrxExceptionProperty(ExceptionUtility.CombineMessages(testFailed), ExceptionUtility.CombineStackTraces(testFailed)));

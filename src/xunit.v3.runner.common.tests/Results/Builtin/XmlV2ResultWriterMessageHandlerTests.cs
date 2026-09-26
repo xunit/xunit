@@ -519,7 +519,7 @@ public static class XmlV2ResultWriterMessageHandlerTests
 	public static IEnumerable<TheoryDataRow<string, string>> IllegalXmlTestData =>
 	[
 		(
-			new string(Enumerable.Range(0, 32).Select(x => (char)x).ToArray()),
+			new string(Enumerable.Range(0, 32).SelectArray(x => (char)x)),
 			@"\0\x01\x02\x03\x04\x05\x06\a\b\t\n\v\f\r\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f"
 		),
 		// Invalid surrogate characters should be added as \x----, where ---- is the hex value of the char

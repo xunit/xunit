@@ -88,7 +88,7 @@ public class XunitDelayEnumeratedTheoryTestCase : XunitTestCase, IXunitDelayEnum
 
 				var convertedDataRow = testMethod.ResolveMethodArguments(dataRowData);
 
-				var parameterTypes = testMethod.Parameters.Select(p => p.ParameterType).ToArray();
+				var parameterTypes = testMethod.Parameters.SelectArray(p => p.ParameterType);
 				convertedDataRow = TypeHelper.ConvertArguments(convertedDataRow, parameterTypes);
 
 				var baseDisplayName = dataRow.TestDisplayName ?? dataAttribute.TestDisplayName ?? TestCaseDisplayName;

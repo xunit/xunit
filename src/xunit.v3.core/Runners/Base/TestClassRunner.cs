@@ -239,8 +239,7 @@ public abstract class TestClassRunner<TContext, TTestClass, TTestMethod, TTestCa
 		Guard.ArgumentNotNull(ctxt)
 			.TestCases
 			.GroupBy(tc => tc.TestMethod as TTestMethod, TestMethodComparer<TTestMethod>.Instance)
-			.Select(grouping => (Class: grouping.Key, TestCases: grouping.ToList()))
-			.ToList();
+			.SelectList(grouping => (Class: grouping.Key, TestCases: grouping.ToList()));
 
 	/// <summary>
 	/// Runs the tests in the test class.

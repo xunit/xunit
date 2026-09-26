@@ -50,12 +50,7 @@ public static class TypeActivator
 						)
 					);
 
-				var missingArguments =
-					arguments
-						.Select((a, idx) => a is Missing ? parameters[idx] : null)
-						.WhereNotNull()
-						.CastOrToReadOnlyCollection();
-
+				var missingArguments = arguments.SelectReadOnlyCollectionNotNull((a, idx) => a is Missing ? parameters[idx] : null);
 				if (missingArguments.Count != 0)
 					throw new TestPipelineException(missingArgumentMessageFormatter(type, missingArguments));
 			}

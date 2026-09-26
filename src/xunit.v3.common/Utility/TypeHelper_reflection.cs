@@ -160,7 +160,7 @@ partial class TypeHelper
 
 							var genericArgument = aqtn.Substring(firstOpenSquare + 1, lastOpenSquare - firstOpenSquare - 2);  // Strip surrounding [ and ]
 							var innerTypeNames = genericArgument.SplitAtOuterCommas().Select(x => x.Substring(1, x.Length - 2));  // Strip surrounding [ and ] from each type name
-							var innerTypes = innerTypeNames.Select(s => GetType(s)).ToArray();
+							var innerTypes = innerTypeNames.SelectArray(s => GetType(s));
 							if (innerTypes.Any(t => t is null))
 								return null;
 
@@ -275,8 +275,7 @@ partial class TypeHelper
 			var innerTypes =
 				typeToMap
 					.GetGenericArguments()
-					.Select(t => string.Format(CultureInfo.InvariantCulture, "[{0}]", GetTypeName(t)))
-					.ToArray();
+					.SelectArray(t => string.Format(CultureInfo.InvariantCulture, "[{0}]", GetTypeName(t)));
 
 			typeName = string.Format(CultureInfo.InvariantCulture, "{0}[{1}]", typeDefinition.SafeName(), string.Join(",", innerTypes));
 

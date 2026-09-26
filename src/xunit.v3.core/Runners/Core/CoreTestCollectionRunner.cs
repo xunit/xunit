@@ -40,12 +40,10 @@ public class CoreTestCollectionRunner<TContext, TTestCollection, TTestClass, TTe
 
 		try
 		{
-			var orderedTestClasses = testClassOrderer.OrderTestClasses(testCasesByClass.Keys.Select(k => k.Value).CastOrToReadOnlyCollection());
-
 			return
-				orderedTestClasses
-					.Select(testClass => (testClass, testCasesByClass[testClass]))
-					.ToList();
+				testClassOrderer
+					.OrderTestClasses(testCasesByClass.Keys.SelectArray(k => k.Value))
+					.SelectList(testClass => (testClass, testCasesByClass[testClass]));
 		}
 		catch (Exception ex)
 		{

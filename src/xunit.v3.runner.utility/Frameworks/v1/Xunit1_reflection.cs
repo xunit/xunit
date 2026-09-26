@@ -376,9 +376,7 @@ public class Xunit1 : IFrontController
 		var testCases =
 			settings
 				.SerializedTestCases
-				.Select(SerializationHelper.Instance.Deserialize<Xunit1TestCase>)
-				.WhereNotNull()
-				.CastOrToReadOnlyCollection();
+				.SelectReadOnlyCollectionNotNull(SerializationHelper.Instance.Deserialize<Xunit1TestCase>);
 
 		Run(testCases, messageSink, settings.Options.GetExplicitOptionOrDefault() == ExplicitOption.Only);
 	}

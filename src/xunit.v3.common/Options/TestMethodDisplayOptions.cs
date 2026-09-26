@@ -90,8 +90,7 @@ public static class TestMethodDisplayOptionsExtensions
 			TestMethodDisplayOptions.ReplaceUnderscoreWithSpace,
 			TestMethodDisplayOptions.RemoveAsyncSuffix,
 		}
-		.Select(v => Convert.ToInt32(v, CultureInfo.InvariantCulture))
-		.ToArray();
+		.SelectArray(v => Convert.ToInt32(v, CultureInfo.InvariantCulture));
 
 	/// <summary>
 	/// Determines if the value is a valid enum value.

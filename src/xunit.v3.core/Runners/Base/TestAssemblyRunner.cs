@@ -198,8 +198,7 @@ public abstract class TestAssemblyRunner<TContext, TTestAssembly, TTestCollectio
 		Guard.ArgumentNotNull(ctxt)
 			.TestCases
 			.GroupBy(tc => (TTestCollection)tc.TestCollection, TestCollectionComparer<TTestCollection>.Instance)
-			.Select(grouping => (Collection: grouping.Key, TestCases: grouping.ToList()))
-			.ToList();
+			.SelectList(grouping => (Collection: grouping.Key, TestCases: grouping.ToList()));
 
 	/// <summary>
 	/// Runs the tests in the test assembly.

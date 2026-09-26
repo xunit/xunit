@@ -39,7 +39,7 @@ partial class TestData
 			methodInfo.GetArity(),
 			methodInfo.MetadataToken,
 			testMethod,
-			methodInfo.GetParameters().Select(p => p.ParameterType.ToVSTestTypeName()).ToArray(),
+			methodInfo.GetParameters().SelectArray(p => p.ParameterType.ToVSTestTypeName()),
 			methodInfo.ReturnType.ToVSTestTypeName(),
 			testMethodUniqueID,
 			traits
@@ -82,7 +82,7 @@ partial class TestData
 			methodInfo.GetArity(),
 			methodInfo.MetadataToken,
 			testMethod,
-			methodInfo.GetParameters().Select(p => p.ParameterType.ToVSTestTypeName()).ToArray(),
+			methodInfo.GetParameters().SelectArray(p => p.ParameterType.ToVSTestTypeName()),
 			methodInfo.ReturnType.ToVSTestTypeName(),
 			testMethodUniqueID,
 			traits

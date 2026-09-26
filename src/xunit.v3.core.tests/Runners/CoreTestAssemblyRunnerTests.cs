@@ -101,7 +101,7 @@ public static class CoreTestAssemblyRunnerTests
 			// Conservative will let each test finish before the next one runs, despite sleeping. However, we don't know which one
 			// gets to go first, so we look at the first one to see which one it is, and make sure the post-sleep happens
 			// directly after the pre-sleep
-			var messages = DiagnosticMessageSink.Messages.OfType<IDiagnosticMessage>().Select(m => m.Message).ToArray();
+			var messages = DiagnosticMessageSink.Messages.OfType<IDiagnosticMessage>().SelectArray(m => m.Message);
 			Assert.Equal(4, messages.Length);
 
 			var firstMessage = messages[0];
@@ -156,7 +156,7 @@ public static class CoreTestAssemblyRunnerTests
 
 			// When it's non-parallel, we should always get pre, post, pre, post, though we don't
 			// necessarily know which one comes first.
-			var messages = DiagnosticMessageSink.Messages.OfType<IDiagnosticMessage>().Select(m => m.Message).ToArray();
+			var messages = DiagnosticMessageSink.Messages.OfType<IDiagnosticMessage>().SelectArray(m => m.Message);
 			Assert.Equal(4, messages.Length);
 			var firstPreSleep = messages[0];
 			Assert.EndsWith("pre-sleep", firstPreSleep);

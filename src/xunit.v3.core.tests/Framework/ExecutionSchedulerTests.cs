@@ -78,7 +78,7 @@ public static class ExecutionSchedulerTests
 		{
 			setupSyncContext(syncContext);
 
-			return Enumerable.Range(0, 10).Select(startTask).ToArray();
+			return Enumerable.Range(0, 10).SelectArray(startTask);
 
 			Task startTask(int index) =>
 				Task.Factory.StartNew(async () =>
@@ -142,11 +142,11 @@ public static class ExecutionSchedulerTests
 		// parallel tasks are queued, and the parallel tasks are all waiting on the gate before we
 		// release the sequential task.
 		var sequentialTask = scheduler.RunSequentialTask(async () => await sequentialFinish.Task, TestContext.Current.CancellationToken).AsTask();
-		var parallelTasks = Enumerable.Range(0, 5).Select(_ => scheduler.RunParallelTask(async () =>
+		var parallelTasks = Enumerable.Range(0, 5).SelectArray(_ => scheduler.RunParallelTask(async () =>
 		{
 			Interlocked.Increment(ref parallelStartCount);
 			return await parallelFinish.Task;
-		}, TestContext.Current.CancellationToken).AsTask()).ToArray();
+		}, TestContext.Current.CancellationToken).AsTask());
 
 		Assert.Equal(0, parallelStartCount);
 

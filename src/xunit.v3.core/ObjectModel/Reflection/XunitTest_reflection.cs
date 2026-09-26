@@ -106,7 +106,7 @@ public class XunitTest : IXunitTest
 
 		var result = new Dictionary<string, IReadOnlyCollection<string>>(traits.Count, StringComparer.OrdinalIgnoreCase);
 		foreach (var kvp in traits)
-			result.Add(kvp.Key, kvp.Value.CastOrToReadOnlyList());
+			result.Add(kvp.Key, kvp.Value.CastOrToReadOnlyCollection());
 		Traits = result;
 	}
 
@@ -149,7 +149,7 @@ public class XunitTest : IXunitTest
 		{
 			var result = new Dictionary<string, IReadOnlyCollection<string>>(traits.Count, StringComparer.OrdinalIgnoreCase);
 			foreach (var kvp in traits)
-				result.Add(kvp.Key, kvp.Value.CastOrToReadOnlyList());
+				result.Add(kvp.Key, kvp.Value.CastOrToReadOnlyCollection());
 			Traits = result;
 		}
 	}

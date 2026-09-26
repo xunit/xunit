@@ -31,35 +31,37 @@ public class CulturedTheoryTestCaseFactory : TheoryTestCaseFactory
 		Guard.ArgumentNotNull(displayName);
 		Guard.ArgumentNotNull(dataRowFactories);
 
-		return Cultures.Select(culture =>
-		{
-			var displayNameSuffix = $"[{culture}]";
-			var testFactories = new List<Func<ICodeGenTestCase, ValueTask<IReadOnlyCollection<ICodeGenTest>>>>
+		return Cultures.SelectReadOnlyCollection(
+			culture =>
 			{
-				async testCase =>
+				var displayNameSuffix = $"[{culture}]";
+				var testFactories = new List<Func<ICodeGenTestCase, ValueTask<IReadOnlyCollection<ICodeGenTest>>>>
 				{
-					var result = new List<ICodeGenTest>();
-					var idx = 0;
+					async testCase =>
+					{
+						var result = new List<ICodeGenTest>();
+						var idx = 0;
 
-					foreach (var dataRowFactory in dataRowFactories)
-						foreach (var dataRow in await dataRowFactory(disposalTracker))
-							result.Add(
-								CreateDelayEnumeratedTest(
-									testCase,
-									displayName,
-									dataRow,
-									async obj => await CultureOverride.Call(culture, obj, await MethodInvokerFactory(dataRow)),
-									++idx,
-									displayNameSuffix
-								)
-							);
+						foreach (var dataRowFactory in dataRowFactories)
+							foreach (var dataRow in await dataRowFactory(disposalTracker))
+								result.Add(
+									CreateDelayEnumeratedTest(
+										testCase,
+										displayName,
+										dataRow,
+										async obj => await CultureOverride.Call(culture, obj, await MethodInvokerFactory(dataRow)),
+										++idx,
+										displayNameSuffix
+									)
+								);
 
-					return result;
-				}
-			};
+						return result;
+					}
+				};
 
-			return CreateDelayEnumeratedTestCase(testMethod, displayName, testFactories, displayNameSuffix);
-		}).CastOrToReadOnlyCollection();
+				return CreateDelayEnumeratedTestCase(testMethod, displayName, testFactories, displayNameSuffix);
+			}
+		);
 	}
 
 	/// <summary>

@@ -62,7 +62,7 @@ public class CoreGeneratorTest<TGenerator>
 		Assert.Single(GenerateSources(sources));
 
 	protected static string[] GenerateSources(params string[] sources) =>
-		Generate(sources).GeneratedSources.Select(gs => gs.SourceText.ToString()).ToArray();
+		Generate(sources).GeneratedSources.SelectArray(gs => gs.SourceText.ToString());
 
 	protected static string[] GenerateSourcesWithReferencedAssembly(
 		string referencedAssemblySource,

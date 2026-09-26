@@ -44,12 +44,12 @@ public static partial class Mocks
 		Type attributeType,
 		params object[] constructorArguments)
 	{
-		var argumentTypes = constructorArguments.Select(a => a.GetType()).ToArray();
+		var argumentTypes = constructorArguments.SelectArray(a => a.GetType());
 		var ctor =
 			attributeType.GetConstructor(argumentTypes)
 				?? throw new ArgumentException($"Could not find {attributeType.Name} constructor with argument types: {string.Join(", ", argumentTypes.Select(t => t.SafeName()))}", nameof(constructorArguments));
 
-		return new MockCustomAttributeData(attributeType, ctor, constructorArguments.Select(a => new CustomAttributeTypedArgument(a)).ToArray());
+		return new MockCustomAttributeData(attributeType, ctor, constructorArguments.SelectArray(a => new CustomAttributeTypedArgument(a)));
 	}
 
 	class MockCustomAttributeData(

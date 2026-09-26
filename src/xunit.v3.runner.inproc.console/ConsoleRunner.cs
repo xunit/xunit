@@ -407,7 +407,7 @@ public class ConsoleRunner(
 		await projectRunner.Discover(assembly, pipelineStartup, testCases: testCases);
 
 		var testCasesDiscovered = testCases.Count;
-		var filteredTestCases = testCases.Where(tc => tc.PassedFilter).Select(tc => tc.TestCase).ToList();
+		var filteredTestCases = testCases.Where(tc => tc.PassedFilter).SelectList(tc => tc.TestCase);
 
 		if (listOption != ListOption.Discovery)
 		{

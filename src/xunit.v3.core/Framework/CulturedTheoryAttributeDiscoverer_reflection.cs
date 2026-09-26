@@ -48,29 +48,25 @@ public class CulturedTheoryAttributeDiscoverer : TheoryDiscoverer
 
 		var traits = TestIntrospectionHelper.GetTraits(testMethod, dataRow);
 
-		return new(
-			cultures
-				.Select(
-					culture => new CulturedXunitTestCase(
-						culture,
-						details.ResolvedTestMethod,
-						details.TestCaseDisplayName,
-						details.UniqueID,
-						details.Explicit,
-						dataRow.Label,
-						dataRow.DisableParallelization ?? false,
-						details.SkipExceptions,
-						details.SkipReason,
-						details.SkipType,
-						details.SkipUnless,
-						details.SkipWhen,
-						traits,
-						testMethodArguments,
-						timeout: details.Timeout
-					)
-				)
-			.CastOrToReadOnlyCollection()
-		);
+		return new(cultures.SelectReadOnlyCollection(
+			culture => new CulturedXunitTestCase(
+				culture,
+				details.ResolvedTestMethod,
+				details.TestCaseDisplayName,
+				details.UniqueID,
+				details.Explicit,
+				dataRow.Label,
+				dataRow.DisableParallelization ?? false,
+				details.SkipExceptions,
+				details.SkipReason,
+				details.SkipType,
+				details.SkipUnless,
+				details.SkipWhen,
+				traits,
+				testMethodArguments,
+				timeout: details.Timeout
+			)
+		));
 	}
 
 	/// <remarks>
@@ -107,45 +103,41 @@ public class CulturedTheoryAttributeDiscoverer : TheoryDiscoverer
 				theoryAttribute.GetType().SafeName()
 			);
 
-		return new(
-			cultures
-				.Select(
-					culture =>
-						details.SkipReason is not null && details.SkipUnless is null && details.SkipWhen is null
-							? new CulturedXunitTestCase(
-								culture,
-								details.ResolvedTestMethod,
-								details.TestCaseDisplayName,
-								details.UniqueID,
-								details.Explicit,
-								details.SkipExceptions,
-								details.SkipReason,
-								details.SkipType,
-								details.SkipUnless,
-								details.SkipWhen,
-								testMethod.Traits.ToReadWrite(StringComparer.OrdinalIgnoreCase),
-								sourceFilePath: details.SourceFilePath,
-								sourceLineNumber: details.SourceLineNumber,
-								timeout: details.Timeout
-							)
-							: (IXunitTestCase)new CulturedXunitDelayEnumeratedTheoryTestCase(
-								culture,
-								details.ResolvedTestMethod,
-								details.TestCaseDisplayName,
-								details.UniqueID,
-								details.Explicit,
-								theoryAttribute.SkipTestWithoutData,
-								details.SkipExceptions,
-								details.SkipReason,
-								details.SkipType,
-								details.SkipUnless,
-								details.SkipWhen,
-								testMethod.Traits.ToReadWrite(StringComparer.OrdinalIgnoreCase),
-								timeout: details.Timeout
-							)
-				)
-				.CastOrToReadOnlyCollection()
-		);
+		return new(cultures.SelectReadOnlyCollection(
+			culture =>
+				details.SkipReason is not null && details.SkipUnless is null && details.SkipWhen is null
+					? new CulturedXunitTestCase(
+						culture,
+						details.ResolvedTestMethod,
+						details.TestCaseDisplayName,
+						details.UniqueID,
+						details.Explicit,
+						details.SkipExceptions,
+						details.SkipReason,
+						details.SkipType,
+						details.SkipUnless,
+						details.SkipWhen,
+						testMethod.Traits.ToReadWrite(StringComparer.OrdinalIgnoreCase),
+						sourceFilePath: details.SourceFilePath,
+						sourceLineNumber: details.SourceLineNumber,
+						timeout: details.Timeout
+					)
+					: (IXunitTestCase)new CulturedXunitDelayEnumeratedTheoryTestCase(
+						culture,
+						details.ResolvedTestMethod,
+						details.TestCaseDisplayName,
+						details.UniqueID,
+						details.Explicit,
+						theoryAttribute.SkipTestWithoutData,
+						details.SkipExceptions,
+						details.SkipReason,
+						details.SkipType,
+						details.SkipUnless,
+						details.SkipWhen,
+						testMethod.Traits.ToReadWrite(StringComparer.OrdinalIgnoreCase),
+						timeout: details.Timeout
+					)
+		));
 	}
 
 	static ValueTask<IReadOnlyCollection<IXunitTestCase>> Error(

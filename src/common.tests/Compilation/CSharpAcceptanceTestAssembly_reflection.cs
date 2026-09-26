@@ -18,8 +18,7 @@ public abstract class CSharpAcceptanceTestAssembly(string? basePath = null) :
 		parameters.ReferencedAssemblies.AddRange(
 			GetStandardReferences()
 				.Concat(references ?? [])
-				.Select(ResolveReference)
-				.ToArray()
+				.SelectArray(ResolveReference)
 		);
 
 		code = code.Concat(GetAdditionalCode()).ToArray();

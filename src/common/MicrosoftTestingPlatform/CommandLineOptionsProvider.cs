@@ -288,7 +288,7 @@ public sealed class CommandLineOptionsProvider() :
 
 	/// <inheritdoc/>
 	public IReadOnlyCollection<CommandLineOption> GetCommandLineOptions() =>
-		options.Select(option => new CommandLineOption(option.Key, option.Value.Description, option.Value.Arity, isHidden: false)).ToArray();
+		options.SelectArray(option => new CommandLineOption(option.Key, option.Value.Description, option.Value.Arity, isHidden: false));
 
 	static void NoOp(ParseOptions options)
 	{ }

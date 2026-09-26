@@ -296,9 +296,7 @@ public static class Xunit1Tests
 				testCases =
 					testCases
 						.Select(xunit1.Serialize)
-						.Select(xunit1.Deserialize)
-						.WhereNotNull()
-						.ToArray();
+						.SelectArrayNotNull(xunit1.Deserialize);
 
 			xunit1.Run(testCases, sink);
 

@@ -37,28 +37,24 @@ public class CulturedFactAttributeDiscoverer : IXunitTestCaseDiscoverer
 				factAttribute.GetType().SafeName()
 			);
 
-		return new(
-			cultures
-				.Select(
-					culture => new CulturedXunitTestCase(
-						culture,
-						details.ResolvedTestMethod,
-						details.TestCaseDisplayName,
-						details.UniqueID,
-						details.Explicit,
-						details.SkipExceptions,
-						details.SkipReason,
-						details.SkipType,
-						details.SkipUnless,
-						details.SkipWhen,
-						testMethod.Traits.ToReadWrite(StringComparer.OrdinalIgnoreCase),
-						sourceFilePath: details.SourceFilePath,
-						sourceLineNumber: details.SourceLineNumber,
-						timeout: details.Timeout
-					)
-				)
-				.CastOrToReadOnlyCollection()
-		);
+		return new(cultures.SelectReadOnlyCollection(
+			culture => new CulturedXunitTestCase(
+				culture,
+				details.ResolvedTestMethod,
+				details.TestCaseDisplayName,
+				details.UniqueID,
+				details.Explicit,
+				details.SkipExceptions,
+				details.SkipReason,
+				details.SkipType,
+				details.SkipUnless,
+				details.SkipWhen,
+				testMethod.Traits.ToReadWrite(StringComparer.OrdinalIgnoreCase),
+				sourceFilePath: details.SourceFilePath,
+				sourceLineNumber: details.SourceLineNumber,
+				timeout: details.Timeout
+			)
+		));
 	}
 
 	static ValueTask<IReadOnlyCollection<IXunitTestCase>> Error(

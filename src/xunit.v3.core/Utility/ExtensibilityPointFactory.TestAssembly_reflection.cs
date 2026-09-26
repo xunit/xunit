@@ -39,8 +39,7 @@ partial class ExtensibilityPointFactory
 			return
 				Guard.ArgumentNotNull(testAssembly)
 					.GetMatchingCustomAttributes<IAssemblyFixtureAttribute>(warnings)
-					.Select(a => a.AssemblyFixtureType)
-					.CastOrToReadOnlyCollection();
+					.SelectReadOnlyCollection(a => a.AssemblyFixtureType);
 		}
 		finally
 		{

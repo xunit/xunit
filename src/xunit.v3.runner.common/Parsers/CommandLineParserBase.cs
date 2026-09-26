@@ -1025,8 +1025,7 @@ public abstract class CommandLineParserBase
 			parsers
 				.Where(p => p.Value.Group == group)
 				.OrderBy(p => p.Key)
-				.Select(p => (@switch: string.Format(CultureInfo.CurrentCulture, "-{0} {1}", p.Key, p.Value.ArgumentDisplay).Trim(), descriptions: p.Value.Descriptions))
-				.ToList();
+				.SelectList(p => (@switch: string.Format(CultureInfo.CurrentCulture, "-{0} {1}", p.Key, p.Value.ArgumentDisplay).Trim(), descriptions: p.Value.Descriptions));
 
 		if (options.Count == 0)
 			return;

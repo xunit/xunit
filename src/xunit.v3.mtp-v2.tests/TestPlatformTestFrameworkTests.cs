@@ -210,7 +210,7 @@ public static class TestPlatformTestFrameworkTests
 
 			// Execute the discovered tests
 
-			var testNodeUIDs = testNodeUpdates.Select(tnu => tnu.TestNode.Uid).ToArray();
+			var testNodeUIDs = testNodeUpdates.SelectArray(tnu => tnu.TestNode.Uid);
 			var filter = new TestNodeUidListFilter(testNodeUIDs);
 
 			await framework.OnExecute(uid, filter, messageBus, () => completionCalled = true, CancellationToken.None);

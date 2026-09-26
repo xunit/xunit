@@ -155,7 +155,7 @@ partial class MemberDataAttributeBase : ITypeAwareDataAttribute
 	Func<object?>? GetMethodAccessor(Type? type)
 	{
 		MethodInfo? methodInfo = null;
-		var argumentTypes = Arguments is null ? [] : Arguments.Select(p => p?.GetType()).ToArray();
+		var argumentTypes = Arguments is null ? [] : Arguments.SelectArray(p => p?.GetType());
 		foreach (var reflectionType in GetTypesForMemberResolution(type, includeInterfaces: true))
 		{
 			var methodInfoArray =

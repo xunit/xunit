@@ -542,7 +542,7 @@ public class ExecutionSink : IMessageSink, IDisposable
 				new DiagnosticMessage(
 					string.Join(
 						Environment.NewLine,
-						longRunningTestCases.Select(pair => string.Format(CultureInfo.CurrentCulture, @"[Long Running Test] '{0}', Elapsed: {1:hh\:mm\:ss}", pair.Key.TestCaseDisplayName, pair.Value)).ToArray()
+						longRunningTestCases.Select(pair => string.Format(CultureInfo.CurrentCulture, @"[Long Running Test] '{0}', Elapsed: {1:hh\:mm\:ss}", pair.Key.TestCaseDisplayName, pair.Value))
 					)
 				)
 			);

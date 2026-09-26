@@ -41,12 +41,10 @@ public class CoreTestClassRunner<TContext, TTestClass, TTestMethod, TTestCase> :
 
 		try
 		{
-			var orderedTestMethods = testMethodOrderer.OrderTestMethods(testCasesByMethod.Keys.Select(k => k.Value).CastOrToReadOnlyCollection());
-
 			return
-				orderedTestMethods
-					.Select(testClass => (testClass, testCasesByMethod[testClass]))
-					.ToList();
+				testMethodOrderer
+					.OrderTestMethods(testCasesByMethod.Keys.SelectArray(k => k.Value))
+					.SelectList(testClass => (testClass, testCasesByMethod[testClass]));
 		}
 		catch (Exception ex)
 		{

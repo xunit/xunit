@@ -22,7 +22,7 @@ partial class Xunit3TheoryAcceptanceTests
 			Assert.Equal(3, testMessages.OfType<TestPassedWithMetadata>().Count());
 			Assert.Single(testMessages.OfType<TestSkippedWithMetadata>());
 			Assert.Single(testMessages.OfType<TestNotRunWithMetadata>());
-			var diagnosticMessages = messageSink.Messages.OfType<IDiagnosticMessage>().Select(dm => dm.Message).ToArray();
+			var diagnosticMessages = messageSink.Messages.OfType<IDiagnosticMessage>().SelectArray(dm => dm.Message);
 			Assert.Contains("Xunit3TheoryAcceptanceTests+ClassDataTests+DataSource_ClassDisposable.Dispose", diagnosticMessages);
 		}
 
@@ -65,7 +65,7 @@ partial class Xunit3TheoryAcceptanceTests
 			Assert.Equal(3, testMessages.OfType<TestPassedWithMetadata>().Count());
 			Assert.Single(testMessages.OfType<TestSkippedWithMetadata>());
 			Assert.Single(testMessages.OfType<TestNotRunWithMetadata>());
-			var diagnosticMessages = messageSink.Messages.OfType<IDiagnosticMessage>().Select(dm => dm.Message).ToArray();
+			var diagnosticMessages = messageSink.Messages.OfType<IDiagnosticMessage>().SelectArray(dm => dm.Message);
 			Assert.Contains("Xunit3TheoryAcceptanceTests+ClassDataTests+DataSource_ClassAsyncDisposable.InitializeAsync", diagnosticMessages);
 			Assert.Contains("Xunit3TheoryAcceptanceTests+ClassDataTests+DataSource_ClassAsyncDisposable.DisposeAsync", diagnosticMessages);
 		}
@@ -166,7 +166,7 @@ partial class Xunit3TheoryAcceptanceTests
 			Assert.Equal(3, testMessages.OfType<TestPassedWithMetadata>().Count());
 			Assert.Single(testMessages.OfType<TestSkippedWithMetadata>());
 			Assert.Single(testMessages.OfType<TestNotRunWithMetadata>());
-			var diagnosticMessages = messageSink.Messages.OfType<IDiagnosticMessage>().Select(dm => dm.Message).ToArray();
+			var diagnosticMessages = messageSink.Messages.OfType<IDiagnosticMessage>().SelectArray(dm => dm.Message);
 			Assert.Contains("Xunit3TheoryAcceptanceTests+ClassDataTests_Generic+DataSource_ClassDisposable.Dispose", diagnosticMessages);
 		}
 
@@ -209,7 +209,7 @@ partial class Xunit3TheoryAcceptanceTests
 			Assert.Equal(3, testMessages.OfType<TestPassedWithMetadata>().Count());
 			Assert.Single(testMessages.OfType<TestSkippedWithMetadata>());
 			Assert.Single(testMessages.OfType<TestNotRunWithMetadata>());
-			var diagnosticMessages = messageSink.Messages.OfType<IDiagnosticMessage>().Select(dm => dm.Message).ToArray();
+			var diagnosticMessages = messageSink.Messages.OfType<IDiagnosticMessage>().SelectArray(dm => dm.Message);
 			Assert.Contains("Xunit3TheoryAcceptanceTests+ClassDataTests_Generic+DataSource_ClassAsyncDisposable.InitializeAsync", diagnosticMessages);
 			Assert.Contains("Xunit3TheoryAcceptanceTests+ClassDataTests_Generic+DataSource_ClassAsyncDisposable.DisposeAsync", diagnosticMessages);
 		}

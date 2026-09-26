@@ -39,12 +39,10 @@ public abstract class CoreTestAssemblyRunner<TContext, TTestAssembly, TTestColle
 
 		try
 		{
-			var orderedTestCollections = testCollectionOrderer.OrderTestCollections(testCasesByCollection.Keys);
-
 			return
-				orderedTestCollections
-					.Select(collection => (collection, testCasesByCollection[collection]))
-					.ToList();
+				testCollectionOrderer
+					.OrderTestCollections(testCasesByCollection.Keys)
+					.SelectList(collection => (collection, testCasesByCollection[collection]));
 		}
 		catch (Exception ex)
 		{
