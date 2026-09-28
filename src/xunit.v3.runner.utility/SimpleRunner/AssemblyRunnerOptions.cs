@@ -598,15 +598,18 @@ public class AssemblyRunnerOptions
 	/// Set to get notification of finished tests (regardless of outcome).
 	/// </summary>
 	/// <remarks>
+	/// <para>
 	/// The <see cref="TestFinishedInfo"/> class is an abstract base class, and the classes which
 	/// have status information (i.e., <see cref="TestPassedInfo"/>) are derived from it. The events
 	/// for <see cref="OnTestFailed"/>, <see cref="OnTestNotRun"/>, <see cref="OnTestPassed"/>,
 	/// and <see cref="OnTestSkipped"/> can be used to have status-specific handling. The same
 	/// finished info object is sent in both cases, so you can alternatively just subscribe to this
-	/// one handler and differentiate status based on info class type.<br />
-	/// <br />
+	/// one handler and differentiate status based on info class type.
+	/// </para>
+	/// <para>
 	/// If you subscribe to both the specific handlers and this generic handler, note that the generic
 	/// handler will be called after the appropriate specific handler.
+	/// </para>
 	/// </remarks>
 	public Action<TestFinishedInfo>? OnTestFinished { get; set; }
 
@@ -614,9 +617,12 @@ public class AssemblyRunnerOptions
 	/// Set to get real-time notification of test output.
 	/// </summary>
 	/// <remarks>
-	/// Live test output is provided in addition to the complete output during test completion events.<br />
-	/// <br />
+	/// <para>
+	/// Live test output is provided in addition to the complete output during test completion events.
+	/// </para>
+	/// <para>
 	/// Live output is only available for v2 and v3 test projects.
+	/// </para>
 	/// </remarks>
 	public Action<TestOutputInfo>? OnTestOutput { get; set; }
 
@@ -624,9 +630,12 @@ public class AssemblyRunnerOptions
 	/// Set to get notification of tests which were not run.
 	/// </summary>
 	/// <remarks>
-	/// Not-run tests are those tests which didn't match the explicit test filter.<br />
-	/// <br />
+	/// <para>
+	/// Not-run tests are those tests which didn't match the explicit test filter.
+	/// </para>
+	/// <para>
 	/// Not-run tests are also reported to <see cref="OnTestFinished"/> with an instance of <see cref="TestNotRunInfo"/>.
+	/// </para>
 	/// </remarks>
 	public Action<TestNotRunInfo>? OnTestNotRun { get; set; }
 

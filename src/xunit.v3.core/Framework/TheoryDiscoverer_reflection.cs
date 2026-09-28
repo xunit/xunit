@@ -142,11 +142,13 @@ public class TheoryDiscoverer : IXunitTestCaseDiscoverer
 	/// Discover test cases from a test method.
 	/// </summary>
 	/// <remarks>
-	/// This method performs the following steps:<br/>
-	/// - If the theory attribute is marked with Skip, or pre-enumeration is off, or any of the test data is non serializable,
-	///   returns the result of <see cref="CreateTestCasesForTheory"/>;<br/>
-	/// - If there is no theory data, returns a single test case of <see cref="ExecutionErrorTestCase"/> with the error in it;<br/>
-	/// - Otherwise, it returns one test case per data row, created by calling <see cref="CreateTestCasesForDataRow(ITestFrameworkDiscoveryOptions, IXunitTestMethod, ITheoryAttribute, ITheoryDataRow, object?[], string?)"/>.
+	/// This method performs the following steps:
+	/// <list type="bullet">
+	/// <item>If the theory attribute is marked with Skip, or pre-enumeration is off, or any of the test data is non serializable,
+	/// returns the result of <see cref="CreateTestCasesForTheory"/>;</item>
+	/// <item>If there is no theory data, returns a single test case of <see cref="ExecutionErrorTestCase"/> with the error in it;</item>
+	/// <item>Otherwise, it returns one test case per data row, created by calling <see cref="CreateTestCasesForDataRow(ITestFrameworkDiscoveryOptions, IXunitTestMethod, ITheoryAttribute, ITheoryDataRow, object?[], string?)"/>.</item>
+	/// </list>
 	/// </remarks>
 	/// <param name="discoveryOptions">The discovery options to be used.</param>
 	/// <param name="testMethod">The test method the test cases belong to.</param>

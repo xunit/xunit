@@ -182,12 +182,14 @@ public class SerializationHelper
 	/// <param name="assembly">The assembly to get registrations from</param>
 	/// <param name="warnings">An optional collection to receive warnings generated during the registration</param>
 	/// <remarks>
-	/// The warnings collection will include warnings in the following circumstances:<br />
-	/// * When the serializer type that does not implement <see cref="IXunitSerializer"/><br />
-	/// * When the registration contains no support types to serialize<br />
-	/// * When a supported type to serialize is duplicated with another serializer<br />
-	/// * When a supported type is covered by a built-in serializer<br />
-	/// * An exception is thrown while creating the serializer
+	/// The warnings collection will include warnings in the following circumstances:
+	/// <list type="bullet">
+	/// <item>When the serializer type that does not implement <see cref="IXunitSerializer"/></item>
+	/// <item>When the registration contains no support types to serialize</item>
+	/// <item>When a supported type to serialize is duplicated with another serializer</item>
+	/// <item>When a supported type is covered by a built-in serializer</item>
+	/// <item>An exception is thrown while creating the serializer</item>
+	/// </list>
 	/// </remarks>
 	public void AddRegisteredSerializers(
 		Assembly assembly,
@@ -207,12 +209,14 @@ public class SerializationHelper
 	/// <param name="registrations">The serialization registrations</param>
 	/// <param name="warnings">An optional collection to receive warnings generated during the registration</param>
 	/// <remarks>
-	/// The warnings collection will include warnings in the following circumstances:<br />
-	/// * When the serializer type that does not implement <see cref="IXunitSerializer"/><br />
-	/// * When the registration contains no support types to serialize<br />
-	/// * When a supported type to serialize is duplicated with another serializer<br />
-	/// * When a supported type is covered by a built-in serializer<br />
-	/// * An exception is thrown while creating the serializer
+	/// The warnings collection will include warnings in the following circumstances:
+	/// <list type="bullet">
+	/// <item>When the serializer type that does not implement <see cref="IXunitSerializer"/></item>
+	/// <item>When the registration contains no support types to serialize</item>
+	/// <item>When a supported type to serialize is duplicated with another serializer</item>
+	/// <item>When a supported type is covered by a built-in serializer</item>
+	/// <item>An exception is thrown while creating the serializer</item>
+	/// </list>
 	/// </remarks>
 	protected void AddSerializers(
 		IReadOnlyCollection<IRegisterXunitSerializerAttribute> registrations,

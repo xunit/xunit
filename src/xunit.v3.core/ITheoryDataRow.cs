@@ -22,9 +22,11 @@ public partial interface ITheoryDataRow
 	/// of the test.
 	/// </summary>
 	/// <remarks>
-	/// * If the value is <see langword="null"/> (or not set), use the default behavior: <c>MethodName(...argument list...)</c><br/>
-	/// * If the value is an empty string, use just the method name: <c>MethodName</c><br/>
-	/// * For any other values, appends the label: <c>MethodName [label]</c>
+	/// <list type="bullet">
+	/// <item>If the value is <see langword="null"/> (or not set), use the default behavior: <c>MethodName(...argument list...)</c></item>
+	/// <item>If the value is an empty string, use just the method name: <c>MethodName</c></item>
+	/// <item>For any other values, appends the label: <c>MethodName [label]</c></item>
+	/// </list>
 	/// </remarks>
 	string? Label { get; }
 

@@ -41,12 +41,15 @@ public class XunitFilters : ITestCaseFilter
 	/// </summary>
 	/// <param name="query">The filter query</param>
 	/// <remarks>
+	/// <para>
 	/// The query may begin and/or end with <c>*</c> to add as a wildcard. No other wildcards
-	/// are permitted in any other locations.<br />
-	/// <br />
+	/// are permitted in any other locations.
+	/// </para>
+	/// <para>
 	/// Note: Display name filters are supported by all v1 and v2 projects. Support for v3 projects
 	/// requires targeting <c>xunit.v3.core</c> version <c>4.0.0</c> or later (these filters will
 	/// be ignored for older versions of <c>xunit.v3.core</c>).
+	/// </para>
 	/// </remarks>
 	public void AddExcludedDisplayNameFilter(string query)
 	{
@@ -122,12 +125,15 @@ public class XunitFilters : ITestCaseFilter
 	/// Adds a simple filter matching a test case display name.
 	/// </summary>
 	/// <remarks>
+	/// <para>
 	/// The query may begin and/or end with <c>*</c> to add as a wildcard. No other wildcards
-	/// are permitted in any other locations.<br />
-	/// <br />
+	/// are permitted in any other locations.
+	/// </para>
+	/// <para>
 	/// Note: Display name filters are supported by all v1 and v2 projects. Support for v3 projects
 	/// requires targeting <c>xunit.v3.core</c> version <c>4.0.0</c> or later (these filters will
 	/// be ignored for older versions of <c>xunit.v3.core</c>).
+	/// </para>
 	/// </remarks>
 	public void AddIncludedDisplayNameFilter(string query)
 	{

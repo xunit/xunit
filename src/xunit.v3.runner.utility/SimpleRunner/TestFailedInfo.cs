@@ -11,8 +11,10 @@ public class TestFailedInfo : TestFinishedInfo
 	/// Gets the cause of the test failure.
 	/// </summary>
 	/// <remarks>
-	/// For v1 or v2 test projects, this value will always be <see cref="FailureCause.Exception"/>.<br />
-	/// For v3 test projects, all values of <see cref="FailureCause"/> are possible.
+	/// <list type="bullet">
+	/// <item>For v1 or v2 test projects, this value will always be <see cref="FailureCause.Exception"/>.</item>
+	/// <item>For v3 test projects, all values of <see cref="FailureCause"/> are possible.</item>
+	/// </list>
 	/// </remarks>
 	public required FailureCause Cause { get; set; }
 

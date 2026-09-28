@@ -11,15 +11,18 @@ public interface IMicrosoftTestingPlatformResultWriter : IResultWriter
 	/// This should be returned in <c>"ext"</c> form.
 	/// </summary>
 	/// <remarks>
+	/// <para>
 	/// Note that default file extensions should be descriptive and unique, since they will
 	/// be how users will know which result file came from which result writer when there
-	/// are multiple writers when the user has not chosen custom filenames.<br />
-	/// <br />
+	/// are multiple writers when the user has not chosen custom filenames.
+	/// </para>
+	/// <para>
 	/// Example:
 	/// <list type="bullet">
-	/// <item>Good = <c>"xunit"</c></item>
-	/// <item>Bad = <c>"xml"</c></item>
+	/// <item>Bad = <c>"xml"</c> (too generic)</item>
+	/// <item>Good = <c>"xunit.xml"</c> (preserves <c>.xml</c> while being descriptive)</item>
 	/// </list>
+	/// </para>
 	/// </remarks>
 	string DefaultFileExtension { get; }
 

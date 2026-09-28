@@ -34,9 +34,12 @@ public interface ICoreTestAssembly : ITestAssembly
 	/// Gets the algorithm used for parallelism.
 	/// </summary>
 	/// <remarks>
-	/// If this returns <see langword="null"/>, the default value will be used (<see cref="ParallelAlgorithm.Conservative"/>).<br />
-	/// <br />
+	/// <para>
+	/// If this returns <see langword="null"/>, the default value will be used (<see cref="ParallelAlgorithm.Conservative"/>).
+	/// </para>
+	/// <para>
 	/// This will only be relevant if <see cref="ParallelMode"/> does not return <see cref="ParallelMode.None"/>.
+	/// </para>
 	/// </remarks>
 	ParallelAlgorithm? ParallelAlgorithm { get; }
 

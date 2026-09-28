@@ -41,19 +41,23 @@ public abstract class XunitSerializer<T> : IXunitSerializer
 	/// <param name="failureReason">Returns a failure reason when the value isn't serializable</param>
 	/// <returns>Return <see langword="true"/> if the value is serializable; <see langword="false"/>, otherwise</returns>
 	/// <remarks>
+	/// <para>
 	/// This will be called by <see cref="SerializationHelper.IsSerializable(object?)"/>,
 	/// <see cref="SerializationHelper.IsSerializable(object?, Type?)"/>, and
 	/// <see cref="SerializationHelper.Serialize"/>. The failure reason is used when
 	/// called from <c>Serialize</c> to format an error exception, but is otherwise ignored
-	/// from the calls from <c>IsSerializable</c>.<br />
-	/// <br />
+	/// from the calls from <c>IsSerializable</c>.
+	/// </para>
+	/// <para>
 	/// When <paramref name="value"/> is an array, this method will be called once for each element
 	/// in the array. This differs in behavior from <see cref="IXunitSerializer.IsSerializable"/>, which
-	/// is only called once with the array passed in <paramref name="value"/>.<br />
-	/// <br />
+	/// is only called once with the array passed in <paramref name="value"/>.
+	/// </para>
+	/// <para>
 	/// The default implementation of this method just returns <see langword="true"/>; you only need to override
 	/// this if there are situations values might not be serializable (for example, if the custom type
 	/// contains potentially non-serializable data).
+	/// </para>
 	/// </remarks>
 	public virtual bool IsSerializable(
 		T value,

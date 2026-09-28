@@ -11,8 +11,10 @@ public class ExecutionStartingInfo
 	/// Gets the seed value used for randomization.
 	/// </summary>
 	/// <remarks>
-	/// For v1 and v2 test projects, this value will be <see langword="null"/>, as they do not support custom seeds.<br />
-	/// For v3 test projects, this value will usually not be <see langword="null"/>.<br />
+	/// <list type="bullet">
+	/// <item>For v1 and v2 test projects, this value will be <see langword="null"/>, as they do not support custom seeds.</item>
+	/// <item>For v3 test projects, this value will usually not be <see langword="null"/>.</item>
+	/// </list>
 	/// There is no guarantee that custom test frameworks will support custom seeds.
 	/// </remarks>
 	public required int? Seed { get; set; }
@@ -23,10 +25,16 @@ public class ExecutionStartingInfo
 	public required DateTimeOffset StartTime { get; set; }
 
 	/// <summary>
-	/// Gets the target framework that the assembly was compiled against.<br />
-	/// Examples:<br />
-	/// * <c>.NETFramework,Version=v4.7.2</c><br />
-	/// * <c>.NETCoreApp,Version=v8.0</c>
+	/// <para>
+	/// Gets the target framework that the assembly was compiled against.
+	/// </para>
+	/// <para>
+	/// Examples:
+	/// </para>
+	/// <list type="bullet">
+	/// <item><c>".NETFramework,Version=v4.7.2"</c></item>
+	/// <item><c>".NETCoreApp,Version=v8.0"</c></item>
+	/// </list>
 	/// </summary>
 	/// <remarks>
 	/// This information is read from <see cref="TargetFrameworkAttribute"/> on the test assembly, which
@@ -35,16 +43,30 @@ public class ExecutionStartingInfo
 	public required string? TargetFramework { get; set; }
 
 	/// <summary>
-	/// Gets a display string that describes the test execution environment.<br />
-	/// Examples: <br />
-	/// * <c>32-bit .NET Framework 4.8.9300.0</c><br />
-	/// * <c>64-bit .NET 8.0.16</c>
+	/// <para>
+	/// Gets a display string that describes the test execution environment.
+	/// </para>
+	/// <para>
+	/// Examples:
+	/// </para>
+	/// <list type="bullet">
+	/// <item><c>"32-bit .NET Framework 4.8.9300.0"</c></item>
+	/// <item><c>"64-bit .NET 8.0.16"</c></item>
+	/// </list>
 	/// </summary>
 	public required string TestEnvironment { get; set; }
 
 	/// <summary>
+	/// <para>
 	/// Gets a display string which describes the test framework and version number.
-	/// Examples: "xUnit.net v3 0.1.0-pre.15", "xUnit.net 2.4.1"
+	/// </para>
+	/// <para>
+	/// Examples:
+	/// </para>
+	/// <list type="bullet">
+	/// <item><c>"xUnit.net v3 0.1.0-pre.15"</c></item>
+	/// <item><c>"xUnit.net 2.4.1"</c></item>
+	/// </list>
 	/// </summary>
 	public required string TestFrameworkDisplayName { get; set; }
 }

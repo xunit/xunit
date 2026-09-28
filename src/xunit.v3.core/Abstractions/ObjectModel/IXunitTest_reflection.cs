@@ -29,11 +29,14 @@ public interface IXunitTest : ICoreTest
 	/// whether the test is skipped or not (<see langword="true"/> to run, <see langword="false"/> to skip).
 	/// </summary>
 	/// <remarks>
+	/// <para>
 	/// Note: It is an error condition for both <see cref="SkipUnless"/> and <see cref="SkipWhen"/>
-	/// to return a non-<see langword="null"/> value.<br />
-	/// <br />
+	/// to return a non-<see langword="null"/> value.
+	/// </para>
+	/// <para>
 	/// This value may not line up the with <see cref="IXunitTestCase.SkipUnless"/>, as you can skip
 	/// individual data rows during delay enumeration.
+	/// </para>
 	/// </remarks>
 	string? SkipUnless { get; }
 
@@ -42,11 +45,14 @@ public interface IXunitTest : ICoreTest
 	/// whether the test is skipped or not (<see langword="false"/> to run, <see langword="true"/> to skip).
 	/// </summary>
 	/// <remarks>
+	/// <para>
 	/// Note: It is an error condition for both <see cref="SkipUnless"/> and <see cref="SkipWhen"/>
 	/// to return a non-<see langword="null"/> value.
-	/// <br />
+	/// </para>
+	/// <para>
 	/// This value may not line up the with <see cref="IXunitTestCase.SkipWhen"/>, as you can skip
 	/// individual data rows during delay enumeration.
+	/// </para>
 	/// </remarks>
 	string? SkipWhen { get; }
 

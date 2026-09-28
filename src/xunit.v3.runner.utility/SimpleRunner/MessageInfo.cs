@@ -4,8 +4,10 @@ namespace Xunit.SimpleRunner;
 /// Represents either a diagnostic or internal diagnostic message.
 /// </summary>
 /// <remarks>
-/// Diagnostic messages may come from xUnit.net or from third party extensions.<br />
-/// Internal diagnostic messages only come from xUnit.net itself.
+/// <list type="bullet">
+/// <item>Diagnostic messages may come from xUnit.net or from third party extensions.</item>
+/// <item>Internal diagnostic messages only come from xUnit.net itself.</item>
+/// </list>
 /// </remarks>
 public class MessageInfo
 {

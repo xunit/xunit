@@ -25,15 +25,18 @@ public interface IXunitSerializer
 	/// <param name="failureReason">Returns a failure reason when the value isn't serializable</param>
 	/// <returns>Return <see langword="true"/> if the value is serializable; <see langword="false"/>, otherwise</returns>
 	/// <remarks>
+	/// <para>
 	/// This will be called by <see cref="SerializationHelper.IsSerializable(object?)"/>,
 	/// <see cref="SerializationHelper.IsSerializable(object?, Type?)"/>, and
 	/// <see cref="SerializationHelper.Serialize"/>. The failure reason is used when
 	/// called from <c>Serialize</c> to format an error exception, but is otherwise ignored
-	/// from the calls from <c>IsSerializable</c>.<br />
-	/// <br />
+	/// from the calls from <c>IsSerializable</c>.
+	/// </para>
+	/// <para>
 	/// The type of <paramref name="value"/> may not directly match <paramref name="type"/>, as the type
 	/// is derived from unwrapping nullability and array element types, so use care when looking
 	/// at the value to determine serializability.
+	/// </para>
 	/// </remarks>
 	bool IsSerializable(
 		Type type,

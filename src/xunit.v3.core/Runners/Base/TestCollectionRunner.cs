@@ -171,10 +171,13 @@ public abstract class TestCollectionRunner<TContext, TTestCollection, TTestClass
 	/// appearance, and does not reorder the classes.
 	/// </summary>
 	/// <remarks>
-	/// Override this to provide custom test class ordering.<br />
-	/// <br />
+	/// <para>
+	/// Override this to provide custom test class ordering.
+	/// </para>
+	/// <para>
 	/// This method runs during <see cref="TestEngineStatus.Running"/> and any exceptions thrown will
 	/// contribute to test collection failure.
+	/// </para>
 	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test collection</param>
 	/// <returns>Test classes in run order (and associated, not-yet-ordered test cases).</returns>

@@ -16,17 +16,22 @@ namespace Xunit.Generators
 	/// is shaped like <c>Xunit.FactAttribute</c>.
 	/// </summary>
 	/// <remarks>
+	/// <para>
 	/// The attribute constructor is scanned for two parameters, decorated with <see cref="CallerFilePathAttribute"/>
 	/// and <see cref="CallerLineNumberAttribute"/>, and uses any values passed to those parameters as
-	/// the source location of the test method.<br />
-	/// <br />
-	/// It is customary to put these as the final two constructor arguments like this:<br />
-	/// <br />
-	/// <c>[CallerFilePath] string? sourceFilePath = null</c><br />
-	/// <c>[CallerLineNumber] int sourceLineNumber = -1</c><br />
-	/// <br />
+	/// the source location of the test method.
+	/// </para>
+	/// <para>
+	/// It is customary to put these as the final two constructor arguments like this:
+	/// </para>
+	/// <list type="table">
+	/// <item><c>[CallerFilePath] string? sourceFilePath = null</c></item>
+	/// <item><c>[CallerLineNumber] int sourceLineNumber = -1</c></item>
+	/// </list>
+	/// <para>
 	/// The compiler will fill in the values automatically, and this class will retrieve the compiler-provided
 	/// values to help notate the source location of the test method.
+	/// </para>
 	/// </remarks>
 	public class TestMethodDetails
 	{

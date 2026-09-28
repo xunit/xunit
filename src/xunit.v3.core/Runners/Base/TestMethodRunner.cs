@@ -167,10 +167,13 @@ public abstract class TestMethodRunner<TContext, TTestMethod, TTestCase>
 	/// Orders the test cases in the method. By default does not reorder the test cases.
 	/// </summary>
 	/// <remarks>
-	/// Override this to provide custom test case ordering.<br />
-	/// <br />
+	/// <para>
+	/// Override this to provide custom test case ordering.
+	/// </para>
+	/// <para>
 	/// This method runs during <see cref="TestEngineStatus.Running"/> and any exceptions thrown will
 	/// contribute to test case failure.
+	/// </para>
 	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test case</param>
 	/// <returns>Test cases in run order.</returns>

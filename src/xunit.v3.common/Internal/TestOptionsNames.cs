@@ -16,8 +16,10 @@ public static class TestOptionsNames
 		/// to be a culture name that the system understands.
 		/// </summary>
 		/// <remarks>
-		/// Value type: <see cref="string"/><br/>
-		/// Consumed by: v3
+		/// <list type="table">
+		/// <item>Value type: <see cref="string"/></item>
+		/// <item>Consumed by: v3</item>
+		/// </list>
 		/// </remarks>
 		public static readonly string Culture = "xunit.discovery.Culture";
 
@@ -25,8 +27,10 @@ public static class TestOptionsNames
 		/// Set to <see langword="true"/> to enable display of diagnostic messages.
 		/// </summary>
 		/// <remarks>
-		/// Value type: <see cref="bool"/><br/>
-		/// Consumed by: v2, v3
+		/// <list type="table">
+		/// <item>Value type: <see cref="bool"/></item>
+		/// <item>Consumed by: v2, v3</item>
+		/// </list>
 		/// </remarks>
 		public static readonly string DiagnosticMessages = "xunit.discovery.DiagnosticMessages";
 
@@ -38,8 +42,10 @@ public static class TestOptionsNames
 		/// that may be able to provide source information via some other mechanism.)
 		/// </summary>
 		/// <remarks>
-		/// Value type: <see cref="bool"/><br/>
-		/// Consumed by: v3
+		/// <list type="table">
+		/// <item>Value type: <see cref="bool"/></item>
+		/// <item>Consumed by: v3</item>
+		/// </list>
 		/// </remarks>
 		public static readonly string IncludeSourceInformation = "xunit.discovery.IncludeSourceInformation";
 
@@ -47,8 +53,10 @@ public static class TestOptionsNames
 		/// Set to <see langword="true"/> to enable display of internal diagnostic messages.
 		/// </summary>
 		/// <remarks>
-		/// Value type: <see cref="bool"/><br/>
-		/// Consumed by: v2, v3
+		/// <list type="table">
+		/// <item>Value type: <see cref="bool"/></item>
+		/// <item>Consumed by: v2, v3</item>
+		/// </list>
 		/// </remarks>
 		public static readonly string InternalDiagnosticMessages = "xunit.discovery.InternalDiagnosticMessages";
 
@@ -56,8 +64,10 @@ public static class TestOptionsNames
 		/// A flag which indicates how the default test method display name is calculated.
 		/// </summary>
 		/// <remarks>
-		/// Value type: <see cref="TestMethodDisplay"/><br/>
-		/// Consumed by: v2, v3
+		/// <list type="table">
+		/// <item>Value type: <see cref="TestMethodDisplay"/></item>
+		/// <item>Consumed by: v2, v3</item>
+		/// </list>
 		/// </remarks>
 		public static readonly string MethodDisplay = "xunit.discovery.MethodDisplay";
 
@@ -66,8 +76,10 @@ public static class TestOptionsNames
 		/// naming patterns.
 		/// </summary>
 		/// <remarks>
-		/// Value type: <see cref="TestMethodDisplayOptions"/><br/>
-		/// Consumed by: v2, v3
+		/// <list type="table">
+		/// <item>Value type: <see cref="TestMethodDisplayOptions"/></item>
+		/// <item>Consumed by: v2, v3</item>
+		/// </list>
 		/// </remarks>
 		public static readonly string MethodDisplayOptions = "xunit.discovery.MethodDisplayOptions";
 
@@ -75,8 +87,10 @@ public static class TestOptionsNames
 		/// Set to <see langword="true"/> to enable pre-enumeration of theories during discovery.
 		/// </summary>
 		/// <remarks>
-		/// Value type: <see cref="bool"/><br/>
-		/// Consumed by: v2, v3
+		/// <list type="table">
+		/// <item>Value type: <see cref="bool"/></item>
+		/// <item>Consumed by: v2, v3</item>
+		/// </list>
 		/// </remarks>
 		public static readonly string PreEnumerateTheories = "xunit.discovery.PreEnumerateTheories";
 
@@ -84,8 +98,10 @@ public static class TestOptionsNames
 		/// Sets the maximum number of items to print in a collection.
 		/// </summary>
 		/// <remarks>
-		/// Value type: <see cref="int"/><br />
-		/// Consumed by: v3 1.1.0+
+		/// <list type="table">
+		/// <item>Value type: <see cref="int"/></item>
+		/// <item>Consumed by: v3 1.1.0+</item>
+		/// </list>
 		/// </remarks>
 		public static readonly string PrintMaxEnumerableLength = "xunit.discovery.PrintMaxEnumerableLength";
 
@@ -93,8 +109,10 @@ public static class TestOptionsNames
 		/// Sets the maximum recursive depth when printing object values.
 		/// </summary>
 		/// <remarks>
-		/// Value type: <see cref="int"/><br />
-		/// Consumed by: v3 1.1.0+
+		/// <list type="table">
+		/// <item>Value type: <see cref="int"/></item>
+		/// <item>Consumed by: v3 1.1.0+</item>
+		/// </list>
 		/// </remarks>
 		public static readonly string PrintMaxObjectDepth = "xunit.discovery.PrintMaxObjectDepth";
 
@@ -102,8 +120,10 @@ public static class TestOptionsNames
 		/// Sets the maximum number of members to show when printing object values.
 		/// </summary>
 		/// <remarks>
-		/// Value type: <see cref="int"/><br />
-		/// Consumed by: v3 1.1.0+
+		/// <list type="table">
+		/// <item>Value type: <see cref="int"/></item>
+		/// <item>Consumed by: v3 1.1.0+</item>
+		/// </list>
 		/// </remarks>
 		public static readonly string PrintMaxObjectMemberCount = "xunit.discovery.PrintMaxObjectMemberCount";
 
@@ -111,8 +131,10 @@ public static class TestOptionsNames
 		/// Sets the maximum length when printing a string value.
 		/// </summary>
 		/// <remarks>
-		/// Value type: <see cref="int"/><br />
-		/// Consumed by: v3 1.1.0+
+		/// <list type="table">
+		/// <item>Value type: <see cref="int"/></item>
+		/// <item>Consumed by: v3 1.1.0+</item>
+		/// </list>
 		/// </remarks>
 		public static readonly string PrintMaxStringLength = "xunit.discovery.PrintMaxStringLength";
 
@@ -122,8 +144,10 @@ public static class TestOptionsNames
 		/// runner to process a message before delivering the next one.
 		/// </summary>
 		/// <remarks>
-		/// Value type: <see cref="bool"/><br/>
-		/// Consumed by: v2, v3
+		/// <list type="table">
+		/// <item>Value type: <see cref="bool"/></item>
+		/// <item>Consumed by: v2, v3</item>
+		/// </list>
 		/// </remarks>
 		public static readonly string SynchronousMessageReporting = "xunit.discovery.SynchronousMessageReporting";
 	}
@@ -137,8 +161,10 @@ public static class TestOptionsNames
 		/// The maximum recursive depth for object comparisons with <c>Assert.Equivalent</c>.
 		/// </summary>
 		/// <remarks>
-		/// Value type: <see cref="int"/><br />
-		/// Consumed by: v3 1.1.0+
+		/// <list type="table">
+		/// <item>Value type: <see cref="int"/></item>
+		/// <item>Consumed by: v3 1.1.0+</item>
+		/// </list>
 		/// </remarks>
 		public static readonly string AssertEquivalentMaxDepth = "xunit.execution.AssertEquivalentMaxDepth";
 
@@ -148,8 +174,10 @@ public static class TestOptionsNames
 		/// to be a culture name that the system understands.
 		/// </summary>
 		/// <remarks>
-		/// Value type: <see cref="string"/><br/>
-		/// Consumed by: v3
+		/// <list type="table">
+		/// <item>Value type: <see cref="string"/></item>
+		/// <item>Consumed by: v3</item>
+		/// </list>
 		/// </remarks>
 		public static readonly string Culture = "xunit.execution.Culture";
 
@@ -157,8 +185,10 @@ public static class TestOptionsNames
 		/// Set to <see langword="true"/> to enable display of diagnostic messages.
 		/// </summary>
 		/// <remarks>
-		/// Value type: <see cref="bool"/><br/>
-		/// Consumed by: v2, v3
+		/// <list type="table">
+		/// <item>Value type: <see cref="bool"/></item>
+		/// <item>Consumed by: v2, v3</item>
+		/// </list>
 		/// </remarks>
 		public static readonly string DiagnosticMessages = "xunit.execution.DiagnosticMessages";
 
@@ -166,8 +196,10 @@ public static class TestOptionsNames
 		/// Set to <see langword="true"/> to disable running tests in parallel.
 		/// </summary>
 		/// <remarks>
-		/// Value type: <see cref="bool"/><br/>
-		/// Consumed by: v2, v3 (prior to 4.0.0)
+		/// <list type="table">
+		/// <item>Value type: <see cref="bool"/></item>
+		/// <item>Consumed by: v2, v3 (prior to 4.0.0)</item>
+		/// </list>
 		/// </remarks>
 		public static readonly string DisableParallelization = "xunit.execution.DisableParallelization";
 
@@ -175,8 +207,10 @@ public static class TestOptionsNames
 		/// Gets a flag which indicates the user's desire to run explicit tests.
 		/// </summary>
 		/// <remarks>
-		/// Value type: <see cref="Sdk.ExplicitOption"/><br/>
-		/// Consumed by: v3
+		/// <list type="table">
+		/// <item>Value type: <see cref="Sdk.ExplicitOption"/></item>
+		/// <item>Consumed by: v3</item>
+		/// </list>
 		/// </remarks>
 		public static readonly string ExplicitOption = "xunit.execution.ExplicitOption";
 
@@ -184,8 +218,10 @@ public static class TestOptionsNames
 		/// Set to <see langword="true"/> to convert skipped tests into failed tests.
 		/// </summary>
 		/// <remarks>
-		/// Value type: <see cref="bool"/><br/>
-		/// Consumed by: v3
+		/// <list type="table">
+		/// <item>Value type: <see cref="bool"/></item>
+		/// <item>Consumed by: v3</item>
+		/// </list>
 		/// </remarks>
 		public static readonly string FailSkips = "xunit.execution.FailSkips";
 
@@ -193,8 +229,10 @@ public static class TestOptionsNames
 		/// Set to <see langword="true"/> to convert passing tests with warnings into failed tests.
 		/// </summary>
 		/// <remarks>
-		/// Value type: <see cref="bool"/><br/>
-		/// Consumed by: v3
+		/// <list type="table">
+		/// <item>Value type: <see cref="bool"/></item>
+		/// <item>Consumed by: v3</item>
+		/// </list>
 		/// </remarks>
 		public static readonly string FailTestsWithWarnings = "xunit.execution.FailTestsWithWarnings";
 
@@ -202,8 +240,10 @@ public static class TestOptionsNames
 		/// Set to <see langword="true"/> to enable display of internal diagnostic messages.
 		/// </summary>
 		/// <remarks>
-		/// Value type: <see cref="bool"/><br/>
-		/// Consumed by: v2, v3
+		/// <list type="table">
+		/// <item>Value type: <see cref="bool"/></item>
+		/// <item>Consumed by: v2, v3</item>
+		/// </list>
 		/// </remarks>
 		public static readonly string InternalDiagnosticMessages = "xunit.execution.InternalDiagnosticMessages";
 
@@ -214,8 +254,10 @@ public static class TestOptionsNames
 		/// that number of threads.
 		/// </summary>
 		/// <remarks>
-		/// Value type: <see cref="int"/><br/>
-		/// Consumed by: v2, v3
+		/// <list type="table">
+		/// <item>Value type: <see cref="int"/></item>
+		/// <item>Consumed by: v2, v3</item>
+		/// </list>
 		/// </remarks>
 		public static readonly string MaxParallelThreads = "xunit.execution.MaxParallelThreads";
 
@@ -223,8 +265,10 @@ public static class TestOptionsNames
 		/// Set the algorithm to use for parallelization.
 		/// </summary>
 		/// <remarks>
-		/// Value type: <see cref="Sdk.ParallelAlgorithm"/><br/>
-		/// Consumed by: v2, v3
+		/// <list type="table">
+		/// <item>Value type: <see cref="Sdk.ParallelAlgorithm"/></item>
+		/// <item>Consumed by: v2, v3</item>
+		/// </list>
 		/// </remarks>
 		public static readonly string ParallelAlgorithm = "xunit.execution.ParallelAlgorithm";
 
@@ -232,8 +276,10 @@ public static class TestOptionsNames
 		/// Set the default parallelization mode for the test assembly.
 		/// </summary>
 		/// <remarks>
-		/// Value type: <see cref="Sdk.ParallelMode"/><br/>
-		/// Consumed by: v3 4.0.0+
+		/// <list type="table">
+		/// <item>Value type: <see cref="Sdk.ParallelMode"/></item>
+		/// <item>Consumed by: v3 4.0.0+</item>
+		/// </list>
 		/// </remarks>
 		public static readonly string ParallelMode = "xunit.execution.ParallelMode";
 
@@ -241,8 +287,10 @@ public static class TestOptionsNames
 		/// Sets the maximum number of items to print in a collection.
 		/// </summary>
 		/// <remarks>
-		/// Value type: <see cref="int"/><br />
-		/// Consumed by: v3 1.1.0+
+		/// <list type="table">
+		/// <item>Value type: <see cref="int"/></item>
+		/// <item>Consumed by: v3 1.1.0+</item>
+		/// </list>
 		/// </remarks>
 		public static readonly string PrintMaxEnumerableLength = "xunit.execution.PrintMaxEnumerableLength";
 
@@ -250,8 +298,10 @@ public static class TestOptionsNames
 		/// Sets the maximum recursive depth when printing object values.
 		/// </summary>
 		/// <remarks>
-		/// Value type: <see cref="int"/><br />
-		/// Consumed by: v3 1.1.0+
+		/// <list type="table">
+		/// <item>Value type: <see cref="int"/></item>
+		/// <item>Consumed by: v3 1.1.0+</item>
+		/// </list>
 		/// </remarks>
 		public static readonly string PrintMaxObjectDepth = "xunit.execution.PrintMaxObjectDepth";
 
@@ -259,8 +309,10 @@ public static class TestOptionsNames
 		/// Sets the maximum number of members to show when printing object values.
 		/// </summary>
 		/// <remarks>
-		/// Value type: <see cref="int"/><br />
-		/// Consumed by: v3 1.1.0+
+		/// <list type="table">
+		/// <item>Value type: <see cref="int"/></item>
+		/// <item>Consumed by: v3 1.1.0+</item>
+		/// </list>
 		/// </remarks>
 		public static readonly string PrintMaxObjectMemberCount = "xunit.execution.PrintMaxObjectMemberCount";
 
@@ -268,8 +320,10 @@ public static class TestOptionsNames
 		/// Sets the maximum length when printing a string value.
 		/// </summary>
 		/// <remarks>
-		/// Value type: <see cref="int"/><br />
-		/// Consumed by: v3 1.1.0+
+		/// <list type="table">
+		/// <item>Value type: <see cref="int"/></item>
+		/// <item>Consumed by: v3 1.1.0+</item>
+		/// </list>
 		/// </remarks>
 		public static readonly string PrintMaxStringLength = "xunit.execution.PrintMaxStringLength";
 
@@ -278,8 +332,10 @@ public static class TestOptionsNames
 		/// system-computed seed.
 		/// </summary>
 		/// <remarks>
-		/// Value type: <see cref="int"/><br/>
-		/// Consumed by: v3
+		/// <list type="table">
+		/// <item>Value type: <see cref="int"/></item>
+		/// <item>Consumed by: v3</item>
+		/// </list>
 		/// </remarks>
 		public static readonly string Seed = "xunit.execution.Seed";
 
@@ -288,8 +344,10 @@ public static class TestOptionsNames
 		/// when the test has finished.
 		/// </summary>
 		/// <remarks>
-		/// Value type: <see cref="bool"/><br/>
-		/// Consumed by: v2, v3
+		/// <list type="table">
+		/// <item>Value type: <see cref="bool"/></item>
+		/// <item>Consumed by: v2, v3</item>
+		/// </list>
 		/// </remarks>
 		public static readonly string ShowLiveOutput = "xunit.execution.ShowLiveOutput";
 
@@ -297,8 +355,10 @@ public static class TestOptionsNames
 		/// Set to <see langword="true"/> to attempt to stop execution as soon the first test fails.
 		/// </summary>
 		/// <remarks>
-		/// Value type: <see cref="bool"/><br/>
-		/// Consumed by: v2, v3
+		/// <list type="table">
+		/// <item>Value type: <see cref="bool"/></item>
+		/// <item>Consumed by: v2, v3</item>
+		/// </list>
 		/// </remarks>
 		public static readonly string StopOnFail = "xunit.execution.StopOnFail";
 
@@ -308,8 +368,10 @@ public static class TestOptionsNames
 		/// runner to process a message before delivering the next one.
 		/// </summary>
 		/// <remarks>
-		/// Value type: <see cref="bool"/><br/>
-		/// Consumed by: v2, v3
+		/// <list type="table">
+		/// <item>Value type: <see cref="bool"/></item>
+		/// <item>Consumed by: v2, v3</item>
+		/// </list>
 		/// </remarks>
 		public static readonly string SynchronousMessageReporting = "xunit.execution.SynchronousMessageReporting";
 	}

@@ -36,11 +36,14 @@ namespace Xunit.Generators
 		/// Gets the base class name for the generated init attribute.
 		/// </summary>
 		/// <remarks>
+		/// <para>
 		/// By default, returns <c>"global::Xunit.v3.EngineInitializationAttribute"</c> for generating registrations
-		/// for <c>xunit.v3.core.aot</c> (for test projects).<br />
-		/// <br />
+		/// for <c>xunit.v3.core.aot</c> (for test projects).
+		/// </para>
+		/// <para>
 		/// If source is being generated for <c>xunit.v3.runner.common.aot</c>, override this to return
 		/// <c>"global::Xunit.Runner.Common.RunnerInitializationAttribute"</c> instead.
+		/// </para>
 		/// </remarks>
 		protected virtual string BaseInitAttributeName =>
 			"global::Xunit.v3.EngineInitializationAttribute";

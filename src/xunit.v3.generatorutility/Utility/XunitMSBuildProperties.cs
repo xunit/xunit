@@ -6,9 +6,10 @@ namespace Xunit.Generators
 	/// These are property values that we expect to be able to read from MSBuild.
 	/// </summary>
 	/// <remarks>
+	/// <para>
 	/// In order to property support these properties, you should add the following to the <c>.props</c>
-	/// file for the NuGet package of your source generators:<br />
-	/// <br />
+	/// file for the NuGet package of your source generators:
+	/// </para>
 	/// <code>
 	/// &lt;ItemGroup&gt;
 	///   &lt;CompilerVisibleProperty Include="MSBuildProjectFullPath;XunitTestProjectAOT" /&gt;

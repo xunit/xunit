@@ -65,11 +65,14 @@ public abstract class FactAttributeBase : Attribute
 	/// to indicate whether the test should be skipped (<see langword="false"/>) or not (<see langword="true"/>).
 	/// </summary>
 	/// <remarks>
+	/// <para>
 	/// This property cannot be set if <see cref="SkipWhen"/> is set. Setting both will
-	/// result in a failed test.<br />
-	/// <br />
+	/// result in a failed test.
+	/// </para>
+	/// <para>
 	/// To ensure compile-time safety and easier refactoring, use the <see langword="nameof"/> operator,
 	/// e.g., <c>SkipUnless = nameof(IsConditionMet)</c>.
+	/// </para>
 	/// </remarks>
 	public string? SkipUnless { get; set; }
 
@@ -78,11 +81,14 @@ public abstract class FactAttributeBase : Attribute
 	/// to indicate whether the test should be skipped (<see langword="true"/>) or not (<see langword="false"/>).
 	/// </summary>
 	/// <remarks>
+	/// <para>
 	/// This property cannot be set if <see cref="SkipUnless"/> is set. Setting both will
-	/// result in a failed test.<br />
-	/// <br />
+	/// result in a failed test.
+	/// </para>
+	/// <para>
 	/// To ensure compile-time safety and easier refactoring, use the <see langword="nameof"/> operator,
 	/// e.g., <c>SkipWhen = nameof(IsConditionMet)</c>.
+	/// </para>
 	/// </remarks>
 	public string? SkipWhen { get; set; }
 

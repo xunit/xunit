@@ -36,12 +36,15 @@ public sealed class InProcessTestProcessLauncher : ITestProcessLauncher, ITestPr
 	/// Gets or sets the assembly load context used to load the test assembly.
 	/// </summary>
 	/// <remarks>
+	/// <para>
 	/// Note: You must set this before calling any other APIs on this class, directly or via its
 	/// interfaces <see cref="ITestProcessLauncher"/> and <see cref="ITestProcessDirectLauncher"/>,
 	/// as well as any usage of <see cref="Xunit3.ForDiscoveryAndExecution"/> when passing in
-	/// the static <see cref="Instance"/> as the test process launcher.<br />
-	/// <br />
+	/// the static <see cref="Instance"/> as the test process launcher.
+	/// </para>
+	/// <para>
 	/// By default, returns <see cref="AssemblyLoadContext.Default"/>.
+	/// </para>
 	/// </remarks>
 	public static AssemblyLoadContext LoadContext
 	{

@@ -181,10 +181,13 @@ public abstract class TestAssemblyRunner<TContext, TTestAssembly, TTestCollectio
 	/// appearance, and does not reorder the collections.
 	/// </summary>
 	/// <remarks>
-	/// Override this to provide custom test collection ordering.<br />
-	/// <br />
+	/// <para>
+	/// Override this to provide custom test collection ordering.
+	/// </para>
+	/// <para>
 	/// This method runs during <see cref="TestEngineStatus.Running"/> and any exceptions thrown will
 	/// contribute to test assembly failure.
+	/// </para>
 	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test assembly</param>
 	/// <returns>Test collections in run order (and associated, not-yet-ordered test cases).</returns>

@@ -31,11 +31,14 @@ public abstract class TestClassRunner<TContext, TTestClass, TTestMethod, TTestCa
 	/// set of arguments. Override to find the arguments for the constructor.
 	/// </summary>
 	/// <remarks>
+	/// <para>
 	/// This method runs during <see cref="TestEngineStatus.Initializing"/> and any exceptions thrown will
-	/// contribute to test class failure (and will prevent the test class from running) <br />
-	/// <br />
+	/// contribute to test class failure (and will prevent the test class from running)
+	/// </para>
+	/// <para>
 	/// Note: This method is not called for code generation-based test classes, since the constructor
 	/// argument values are determined during code generation.
+	/// </para>
 	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test class</param>
 	/// <returns>The test class constructor arguments.</returns>
@@ -219,10 +222,13 @@ public abstract class TestClassRunner<TContext, TTestClass, TTestMethod, TTestCa
 	/// appearance, and does not reorder the methods.
 	/// </summary>
 	/// <remarks>
-	/// Override this to provide custom test method ordering.<br />
-	/// <br />
+	/// <para>
+	/// Override this to provide custom test method ordering.
+	/// </para>
+	/// <para>
 	/// This method runs during <see cref="TestEngineStatus.Running"/> and any exceptions thrown will
 	/// contribute to test class failure.
+	/// </para>
 	/// </remarks>
 	/// <param name="ctxt">The context that describes the current test class</param>
 	/// <returns>Test methods in run order (and associated, not-yet-ordered test cases).</returns>
@@ -352,15 +358,16 @@ public abstract class TestClassRunner<TContext, TTestClass, TTestMethod, TTestCa
 	/// Please override <see cref="RunTestMethod(TContext, TTestMethod?, IReadOnlyCollection{TTestCase})"/>.
 	/// This overload will be removed in the next major version.
 	/// </summary>
+	/// <remarks>
+	/// For code generation-based tests, the constructor arguments were determined during code generation
+	/// and folded into the generated test class factory function.
+	/// </remarks>
 #else
 	/// <summary>
 	/// Please override <see cref="RunTestMethod(TContext, TTestMethod?, IReadOnlyCollection{TTestCase})"/>.
 	/// This overload will be removed in the next major version.
 	/// </summary>
 	/// <remarks>
-	/// For code generation-based tests, the constructor arguments were determined during code generation
-	/// and folded into the generated test class factory function.<br />
-	/// <br />
 	/// For reflection-based tests, the constructor arguments have moved to
 	/// <see cref="XunitTestClassRunnerBaseContext{TTestClass, TTestMethod, TTestCase}.ConstructorArguments"/>.
 	/// </remarks>

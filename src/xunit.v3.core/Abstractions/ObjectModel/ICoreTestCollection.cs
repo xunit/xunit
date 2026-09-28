@@ -6,12 +6,15 @@ namespace Xunit.v3;
 /// Represents a test collection from xUnit.net v3.
 /// </summary>
 /// <remarks>
+/// <para>
 /// Test collections form the basis of the parallelization in xUnit.net v3. Test cases
 /// which are in the same test collection will not be run in parallel against sibling
 /// tests, but will run in parallel against tests in other collections. They also provide
-/// a level of shared context via <see cref="ICollectionFixture{TFixture}"/>.<br />
-/// <br />
+/// a level of shared context via <see cref="ICollectionFixture{TFixture}"/>.
+/// </para>
+/// <para>
 /// This interface is shared between reflection-based and code generation-based tests.
+/// </para>
 /// </remarks>
 public interface ICoreTestCollection : ITestCollection
 {

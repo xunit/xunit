@@ -1,7 +1,7 @@
 namespace Xunit.SimpleRunner;
 
 /// <summary>
-/// Represents which type of message was send.
+/// Represents the type of message that was sent.
 /// </summary>
 public enum MessageType
 {

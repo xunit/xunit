@@ -79,12 +79,15 @@ namespace Xunit.Generators
 		/// <param name="testMethod">The test method</param>
 		/// <param name="attribute">The data attribute</param>
 		/// <returns>
+		/// <para>
 		/// By default, this validates the SkipUnless/SkipWhen rules, then calls <see cref="GetInitializers"/>
 		/// to get the list of property initializers. If the initializers list is empty, the data attribute
 		/// registration is just <c>Xunit.v3.DataAttributeRegistration.Empty</c>; otherwise, it generates source
-		/// for a new instance of <c>Xunit.v3.DataAttributeRegistration</c> with the property initializers.<br />
-		/// <br />
+		/// for a new instance of <c>Xunit.v3.DataAttributeRegistration</c> with the property initializers.
+		/// </para>
+		/// <para>
 		/// Should return <see langword="null"/> if the attribute was invalid in some way.
+		/// </para>
 		/// </returns>
 		public virtual string? GenerateSource(
 			SemanticModel semanticModel,
