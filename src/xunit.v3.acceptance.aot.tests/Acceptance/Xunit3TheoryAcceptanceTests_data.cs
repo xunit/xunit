@@ -117,7 +117,8 @@ public partial class Xunit3TheoryAcceptanceTests
 			[InlineData(1)]
 			[InlineData(2)]
 			[InlineData(3, Skip = "Always skipped")]
-			[InlineData(4, Skip = "Skip dynamically flipped", SkipWhen = nameof(AlwaysTrue))]
+			[InlineData(4, Skip = "Skip dynamically flipped on", SkipWhen = nameof(AlwaysTrue))]
+			[InlineData(5, Skip = "Skip dynamically flipped off", SkipUnless = nameof(AlwaysTrue))]
 			public void TestWithDynamicSkipOnTheory(int _)
 			{ }
 		}

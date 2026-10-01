@@ -177,9 +177,10 @@ public static partial class Xunit3TheoryAcceptanceTests
 
 			Assert.Collection(
 				testMessages.OfType<TestPassedWithMetadata>().OrderBy(x => x.Test.TestDisplayName),
-				// Two passing for TestWithDynamicSkipOnTheory
+				// Three passing for TestWithDynamicSkipOnTheory
 				passed => Assert.Equal("Xunit3TheoryAcceptanceTests+DataAttributeTests+ClassUnderTest_SkipTests.TestWithDynamicSkipOnTheory(_: 1)", passed.Test.TestDisplayName),
 				passed => Assert.Equal("Xunit3TheoryAcceptanceTests+DataAttributeTests+ClassUnderTest_SkipTests.TestWithDynamicSkipOnTheory(_: 2)", passed.Test.TestDisplayName),
+				passed => Assert.Equal("Xunit3TheoryAcceptanceTests+DataAttributeTests+ClassUnderTest_SkipTests.TestWithDynamicSkipOnTheory(_: 5)", passed.Test.TestDisplayName),
 				// Single passing for TestWithNoSkipOnTheory
 				passed => Assert.Equal("Xunit3TheoryAcceptanceTests+DataAttributeTests+ClassUnderTest_SkipTests.TestWithNoSkipOnTheory(_: 42)", passed.Test.TestDisplayName)
 			);
@@ -194,7 +195,7 @@ public static partial class Xunit3TheoryAcceptanceTests
 				skipped =>
 				{
 					Assert.Equal("Xunit3TheoryAcceptanceTests+DataAttributeTests+ClassUnderTest_SkipTests.TestWithDynamicSkipOnTheory(_: 4)", skipped.Test.TestDisplayName);
-					Assert.Equal("Skip dynamically flipped", skipped.Reason);
+					Assert.Equal("Skip dynamically flipped on", skipped.Reason);
 				},
 				// Skip per data row for TestWithNoSkipOnTheory
 				skipped =>
