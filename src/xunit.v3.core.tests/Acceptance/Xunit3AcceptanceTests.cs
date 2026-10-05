@@ -509,6 +509,42 @@ public static partial class Xunit3AcceptanceTests
 		}
 	}
 
+	// https://github.com/xunit/xunit/issues/3645
+	public partial class Naming : AcceptanceTestV3
+	{
+		[Fact]
+		public static async ValueTask OverloadsAreNotSupported()
+		{
+#if XUNIT_AOT
+			// In AOT mode, we get no test case; we expect the user to have triggered xUnit1024 (since generators should not report errors)
+			var results = await RunAsync("Xunit3AcceptanceTests+Naming+ClassUnderTest");
+
+			var discoveryCompleteMessage = Assert.Single(results.OfType<IDiscoveryComplete>());
+			Assert.Equal(0, discoveryCompleteMessage.TestCasesToRun);
+#else
+			// In reflection mode, we get a runtime error test class indicating the issue
+			var results = await RunAsync(typeof(ClassUnderTest));
+
+			var failedMessage = Assert.Single(results.OfType<ITestFailed>());
+			Assert.Equal($"Test method {typeof(ClassUnderTest).SafeName()}.{nameof(ClassUnderTest.Check)} has overloads, which is not supported. See xUnit1024 for more information. https://xunit.net/xunit.analyzers/rules/xUnit1024", failedMessage.Messages.Single());
+#endif
+		}
+
+#if !XUNIT_AOT  // Serialization is only supported in reflection mode
+
+		[Fact]
+		public static async ValueTask CanSerializeAndDeserializeWithPrivateOverload()
+		{
+			var testCaseSerializations = await DiscoverAsync(typeof(ClassUnderTest));
+
+			var testCaseSerialization = Assert.Single(testCaseSerializations);
+
+			SerializationHelper.Instance.Deserialize(testCaseSerialization);
+		}
+
+#endif  // !XUNIT_AOT
+	}
+
 	public partial class NonStartedTasks : AcceptanceTestV3
 	{
 		[Fact]

@@ -277,6 +277,27 @@ public partial class Xunit3AcceptanceTests
 		}
 	}
 
+#pragma warning disable xUnit1024 // Test methods cannot have overloads
+
+	public partial class Naming
+	{
+#if XUNIT_AOT
+		public
+#endif
+		static class ClassUnderTest
+		{
+
+			[Fact]
+			public static void Check() =>
+				Check(true);
+
+			static void Check(bool value)
+			{ }
+		}
+	}
+
+#pragma warning restore xUnit1024 // Test methods cannot have overloads
+
 	public partial class NonStartedTasks
 	{
 #if XUNIT_AOT

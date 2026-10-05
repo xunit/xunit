@@ -103,31 +103,62 @@ public class XunitTestFrameworkDiscoverer(
 		Guard.ArgumentNotNull(discoveryOptions);
 		Guard.ArgumentNotNull(discoveryCallback);
 
-		foreach (var method in testClass.Methods)
-		{
-			var testMethod = new XunitTestMethod(testClass, method, []);
+		foreach (var methodGroup in testClass.Methods.GroupBy(m => m.Name).Select(group => new { group.Key, Values = group.ToArray() }))
+			foreach (var method in methodGroup.Values)
+			{
+				var testMethod = new XunitTestMethod(testClass, method, []);
 
-			try
-			{
-				if (!await FindTestsForMethod(testMethod, discoveryOptions, discoveryCallback))
-					return false;
-			}
-			catch (Exception ex)
-			{
-				var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, defaultFactAttribute);
+				try
+				{
+					var testCases = new List<ITestCase>();
+					ValueTask<bool> collector(ITestCase testCase)
+					{
+						testCases.Add(testCase);
+						return new(true);
+					}
+
+					await FindTestsForMethod(testMethod, discoveryOptions, collector);
+
+					if (testCases.Count != 0 && methodGroup.Values.Length != 1)
+					{
+						var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, defaultFactAttribute);
+						var errorTestCase = new ExecutionErrorTestCase(
+							testMethod,
+							details.TestCaseDisplayName,
+							details.UniqueID,
+							details.SourceFilePath,
+							details.SourceLineNumber,
+							string.Format(
+								CultureInfo.CurrentCulture,
+								"Test method {0}.{1} has overloads, which is not supported. See xUnit1024 for more information. https://xunit.net/xunit.analyzers/rules/xUnit1024",
+								method.DeclaringType?.SafeName() ?? "<unknown type>",
+								method.Name
+							)
+						);
+						await discoveryCallback(errorTestCase);
+						continue;
+					}
+
+					foreach (var testCase in testCases)
+						if (!await discoveryCallback(testCase))
+							return false;
+				}
+				catch (Exception ex)
+				{
+					var details = TestIntrospectionHelper.GetTestCaseDetails(discoveryOptions, testMethod, defaultFactAttribute);
 #pragma warning disable CA2000  // Ownership of this object is handed off to the callback
-				var errorTestCase = new ExecutionErrorTestCase(
-					testMethod,
-					details.TestCaseDisplayName,
-					details.UniqueID,
-					details.SourceFilePath,
-					details.SourceLineNumber,
-					string.Format(CultureInfo.CurrentCulture, "Exception during discovery:{0}{1}", Environment.NewLine, ex.Unwrap())
-				);
+					var errorTestCase = new ExecutionErrorTestCase(
+						testMethod,
+						details.TestCaseDisplayName,
+						details.UniqueID,
+						details.SourceFilePath,
+						details.SourceLineNumber,
+						string.Format(CultureInfo.CurrentCulture, "Exception during discovery:{0}{1}", Environment.NewLine, ex.Unwrap())
+					);
 #pragma warning restore CA2000
-				await discoveryCallback(errorTestCase);
+					await discoveryCallback(errorTestCase);
+				}
 			}
-		}
 
 		return true;
 	}

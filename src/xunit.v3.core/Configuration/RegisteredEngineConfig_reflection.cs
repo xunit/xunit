@@ -314,7 +314,7 @@ public static class RegisteredEngineConfig
 		Guard.ArgumentNotNull(testClass);
 		Guard.ArgumentNotNull(methodName);
 
-		var testMethod = Guard.NotNull(() => $"Cannot locate test method '{testClass.SafeName()}.{methodName}'", testClass.GetMethod(methodName, XunitTestClass.MethodBindingFlags));
+		var testMethod = Guard.NotNull(() => $"Cannot locate test method '{testClass.SafeName()}.{methodName}'", testClass.GetMethods(XunitTestClass.MethodBindingFlags).FirstOrDefault(m => m.Name == methodName));
 		var warnings = new List<string>();
 
 		try

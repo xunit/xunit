@@ -5,6 +5,60 @@ using Xunit.v3;
 
 partial class AcceptanceTestV3
 {
+	public static ValueTask<List<string>> DiscoverAsync(
+		Type type,
+		bool preEnumerateTheories = true,
+		IMessageSink? diagnosticMessageSink = null) =>
+			DiscoverAsync([type], preEnumerateTheories, diagnosticMessageSink);
+
+	public static ValueTask<List<string>> DiscoverAsync(
+		Type[] types,
+		bool preEnumerateTheories = true,
+		IMessageSink? diagnosticMessageSink = null)
+	{
+		var tcs = new TaskCompletionSource<List<string>>();
+
+		ThreadPool.QueueUserWorkItem(async _ =>
+		{
+			TestContext.SetForInitialization(diagnosticMessageSink, diagnosticMessages: diagnosticMessageSink is not null, internalDiagnosticMessages: diagnosticMessageSink is not null);
+
+			try
+			{
+				await using var testFramework = new XunitTestFramework();
+
+				var testAssembly = Assembly.GetEntryAssembly()!;
+				var discoverer = testFramework.GetDiscoverer(testAssembly);
+				var testCases = new List<string>();
+				var serializer = SerializationHelper.Instance;
+				await discoverer.Find(
+					testCase =>
+					{
+						testCases.Add(serializer.Serialize(testCase));
+						return new(true);
+					},
+					TestData.TestFrameworkDiscoveryOptions(preEnumerateTheories: preEnumerateTheories),
+					types
+				);
+
+				tcs.TrySetResult(testCases);
+			}
+			catch (Exception ex)
+			{
+				tcs.TrySetException(ex);
+			}
+			finally
+			{
+				try
+				{
+					TestContextInternal.Current.Dispose();
+				}
+				catch { }
+			}
+		});
+
+		return new(tcs.Task);
+	}
+
 	public static ValueTask<List<IMessageSinkMessage>> RunAsync(
 		Type type,
 		bool preEnumerateTheories = true,
