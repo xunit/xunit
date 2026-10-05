@@ -226,6 +226,8 @@ public class ConsoleRunner(
 			AppDomain.CurrentDomain.UnhandledException += onUnhandledException;
 			Console.CancelKeyPress += onCancelKeyPress;
 
+			var failCount = 0;
+
 			try
 			{
 #if XUNIT_AOT
@@ -243,8 +245,6 @@ public class ConsoleRunner(
 						: ConsoleDiagnosticMessageSink.TryCreate(consoleHelper, noColor, diagnosticMessages, internalDiagnosticMessages, assemblyDisplayName: assemblyDisplayName);
 
 				pipelineStartup = await ProjectAssemblyRunner.InvokePipelineStartup(testAssembly, diagnosticMessageSink);
-
-				var failCount = 0;
 
 				try
 				{
