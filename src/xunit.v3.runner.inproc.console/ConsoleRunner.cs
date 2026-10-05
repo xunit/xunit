@@ -186,7 +186,7 @@ public class ConsoleRunner(
 
 			var reporterMessageHandler = default(IRunnerReporterMessageHandler);
 
-			AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
+			void onUnhandledException(object sender, UnhandledExceptionEventArgs e)
 			{
 				if (e.ExceptionObject is Exception ex)
 				{
@@ -207,9 +207,9 @@ public class ConsoleRunner(
 
 				finishEvent.Wait();
 				Environment.Exit(2);
-			};
+			}
 
-			Console.CancelKeyPress += (sender, e) =>
+			void onCancelKeyPress(object? sender, ConsoleCancelEventArgs e)
 			{
 				if (started && !cancellationTokenSource.IsCancellationRequested)
 				{
@@ -221,10 +221,15 @@ public class ConsoleRunner(
 					e.Cancel = true;
 					cancellationTokenSource.Cancel();
 				}
-			};
+			}
 
+			AppDomain.CurrentDomain.UnhandledException += onUnhandledException;
+			Console.CancelKeyPress += onCancelKeyPress;
+
+			try
+			{
 #if XUNIT_AOT
-			var assemblyDisplayName = testAssembly.GetName().Name;
+				var assemblyDisplayName = testAssembly.GetName().Name;
 #else
 			var assemblyDisplayName =
 				testAssembly.Location.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) || testAssembly.Location.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)
@@ -232,108 +237,114 @@ public class ConsoleRunner(
 					: Path.GetFileName(testAssembly.Location);
 #endif
 
-			IMessageSink? diagnosticMessageSink =
-				automatedMode != AutomatedMode.Off
-					? new AutomatedDiagnosticMessageSink(logger)
-					: ConsoleDiagnosticMessageSink.TryCreate(consoleHelper, noColor, diagnosticMessages, internalDiagnosticMessages, assemblyDisplayName: assemblyDisplayName);
+				IMessageSink? diagnosticMessageSink =
+					automatedMode != AutomatedMode.Off
+						? new AutomatedDiagnosticMessageSink(logger)
+						: ConsoleDiagnosticMessageSink.TryCreate(consoleHelper, noColor, diagnosticMessages, internalDiagnosticMessages, assemblyDisplayName: assemblyDisplayName);
 
-			pipelineStartup = await ProjectAssemblyRunner.InvokePipelineStartup(testAssembly, diagnosticMessageSink);
+				pipelineStartup = await ProjectAssemblyRunner.InvokePipelineStartup(testAssembly, diagnosticMessageSink);
 
-			var failCount = 0;
+				var failCount = 0;
 
-			try
-			{
-				var reporter = automatedMode != AutomatedMode.Off ? new JsonReporter() : project.RunnerReporter;
-				reporterMessageHandler = await reporter.CreateMessageHandler(logger, diagnosticMessageSink);
-
-				// Don't show warnings when listing in JSON format, because it will break the JSON output
-				if (warnings.Count != 0 && project.Configuration.List?.Format != ListFormat.Json)
-				{
-					if (reporter is not JsonReporter)
-					{
-						foreach (var warning in warnings)
-							logger.LogWarning(warning);
-
-						consoleHelper.WriteLine();
-					}
-					else
-						foreach (var warning in warnings)
-							logger.WriteMessageJson(new DiagnosticMessage("warning: " + warning));
-				}
-
-				if (!reporter.ForceNoLogo && !project.Configuration.NoLogoOrDefault)
-					consoleHelper.WriteLine(ProjectAssemblyRunner.Banner);
-
-				if (Debugger.IsAttached)
-				{
-					if (!noColor)
-						consoleHelper.SetForegroundColor(ConsoleColor.Yellow);
-
-					consoleHelper.WriteLine();
-					consoleHelper.WriteLine("* Note: Long running test detection and test timeouts are disabled due to an attached debugger *");
-					consoleHelper.WriteLine();
-
-					if (!noColor)
-						consoleHelper.ResetColor();
-				}
-
-				// Tell the project runner it's in automated mode even if it's not, when we're using the JSON reporter, so that messages
-				// get written as JSON rather than emitted as plain-text (and therefore munging up the parsing of the JSON results).
-				var runnerAutomatedMode = automatedMode switch
-				{
-					AutomatedMode.Off => reporter is JsonReporter ? AutomatedMode.Async : AutomatedMode.Off,
-					_ => automatedMode,
-				};
-
-				var projectRunner = new ProjectAssemblyRunner(testAssembly, runnerAutomatedMode, NullSourceInformationProvider.Instance, cancellationTokenSource);
-				if (project.Configuration.WaitForDebuggerOrDefault)
-				{
-					if (automatedMode == AutomatedMode.Off)
-						consoleHelper.WriteLine("Waiting for debugger to be attached... (press Ctrl+C to abort)");
-
-					while (true)
-					{
-						if (Debugger.IsAttached)
-							break;
-
-						await Task.Delay(10);
-					}
-				}
-
-				started = true;
-
-				if (project.Configuration.List is not null)
-					await ListAssembly(projectAssembly, logger, cancellationTokenSource);
-				else
-				{
-					// Default to false for console runners
-					projectAssembly.Configuration.PreEnumerateTheories ??= false;
-
-					failCount = await projectRunner.Run(projectAssembly, reporterMessageHandler, diagnosticMessageSink, logger, commandLine.ResultWriters, pipelineStartup);
-				}
-
-				if (cancellationTokenSource.IsCancellationRequested)
-					return -1073741510;    // 0xC000013A: The application terminated as a result of a CTRL+C
-			}
-			finally
-			{
 				try
 				{
-					if (pipelineStartup is not null)
-						await pipelineStartup.StopAsync();
-				}
-				catch (Exception ex)
-				{
-					reporterMessageHandler?.OnMessage(ErrorMessage.FromException(ex, null));
-					failCount = 1;
+					var reporter = automatedMode != AutomatedMode.Off ? new JsonReporter() : project.RunnerReporter;
+					reporterMessageHandler = await reporter.CreateMessageHandler(logger, diagnosticMessageSink);
+
+					// Don't show warnings when listing in JSON format, because it will break the JSON output
+					if (warnings.Count != 0 && project.Configuration.List?.Format != ListFormat.Json)
+					{
+						if (reporter is not JsonReporter)
+						{
+							foreach (var warning in warnings)
+								logger.LogWarning(warning);
+
+							consoleHelper.WriteLine();
+						}
+						else
+							foreach (var warning in warnings)
+								logger.WriteMessageJson(new DiagnosticMessage("warning: " + warning));
+					}
+
+					if (!reporter.ForceNoLogo && !project.Configuration.NoLogoOrDefault)
+						consoleHelper.WriteLine(ProjectAssemblyRunner.Banner);
+
+					if (Debugger.IsAttached)
+					{
+						if (!noColor)
+							consoleHelper.SetForegroundColor(ConsoleColor.Yellow);
+
+						consoleHelper.WriteLine();
+						consoleHelper.WriteLine("* Note: Long running test detection and test timeouts are disabled due to an attached debugger *");
+						consoleHelper.WriteLine();
+
+						if (!noColor)
+							consoleHelper.ResetColor();
+					}
+
+					// Tell the project runner it's in automated mode even if it's not, when we're using the JSON reporter, so that messages
+					// get written as JSON rather than emitted as plain-text (and therefore munging up the parsing of the JSON results).
+					var runnerAutomatedMode = automatedMode switch
+					{
+						AutomatedMode.Off => reporter is JsonReporter ? AutomatedMode.Async : AutomatedMode.Off,
+						_ => automatedMode,
+					};
+
+					var projectRunner = new ProjectAssemblyRunner(testAssembly, runnerAutomatedMode, NullSourceInformationProvider.Instance, cancellationTokenSource);
+					if (project.Configuration.WaitForDebuggerOrDefault)
+					{
+						if (automatedMode == AutomatedMode.Off)
+							consoleHelper.WriteLine("Waiting for debugger to be attached... (press Ctrl+C to abort)");
+
+						while (true)
+						{
+							if (Debugger.IsAttached)
+								break;
+
+							await Task.Delay(10);
+						}
+					}
+
+					started = true;
+
+					if (project.Configuration.List is not null)
+						await ListAssembly(projectAssembly, logger, cancellationTokenSource);
+					else
+					{
+						// Default to false for console runners
+						projectAssembly.Configuration.PreEnumerateTheories ??= false;
+
+						failCount = await projectRunner.Run(projectAssembly, reporterMessageHandler, diagnosticMessageSink, logger, commandLine.ResultWriters, pipelineStartup);
+					}
+
+					if (cancellationTokenSource.IsCancellationRequested)
+						return -1073741510;    // 0xC000013A: The application terminated as a result of a CTRL+C
 				}
 				finally
 				{
-					var tempHandler = reporterMessageHandler;
-					reporterMessageHandler = null;
+					try
+					{
+						if (pipelineStartup is not null)
+							await pipelineStartup.StopAsync();
+					}
+					catch (Exception ex)
+					{
+						reporterMessageHandler?.OnMessage(ErrorMessage.FromException(ex, null));
+						failCount = 1;
+					}
+					finally
+					{
+						var tempHandler = reporterMessageHandler;
+						reporterMessageHandler = null;
 
-					await tempHandler.SafeDisposeAsync();
+						await tempHandler.SafeDisposeAsync();
+					}
 				}
+			}
+			finally
+			{
+				Console.CancelKeyPress -= onCancelKeyPress;
+				AppDomain.CurrentDomain.UnhandledException -= onUnhandledException;
 			}
 
 			if (project.Configuration.WaitOrDefault && automatedMode == AutomatedMode.Off)

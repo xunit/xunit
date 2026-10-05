@@ -98,9 +98,7 @@ sealed class ConsoleRunner(string[] args) :
 			if (project.Assemblies.Count == 0)
 				throw new ArgumentException("must specify at least one assembly");
 
-			AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
-
-			Console.CancelKeyPress += (sender, e) =>
+			void onCancelKeyPress(object? sender, ConsoleCancelEventArgs e)
 			{
 				if (!cancellationTokenSource.IsCancellationRequested)
 				{
@@ -109,76 +107,87 @@ sealed class ConsoleRunner(string[] args) :
 					e.Cancel = true;
 					cancellationTokenSource.Cancel();
 				}
-			};
-
-			if (project.Configuration.PauseOrDefault)
-			{
-				consoleHelper.Write("Press any key to start execution...");
-				Console.ReadKey(true);
-				consoleHelper.WriteLine();
 			}
 
-			if (project.Configuration.DebugOrDefault)
-				Debugger.Launch();
+			AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
+			Console.CancelKeyPress += onCancelKeyPress;
 
-			var globalDiagnosticMessages = project.Assemblies.Any(a => a.Configuration.DiagnosticMessagesOrDefault);
-			globalInternalDiagnosticMessages = project.Assemblies.Any(a => a.Configuration.InternalDiagnosticMessagesOrDefault);
-			noColor = project.Configuration.NoColorOrDefault;
-			logger = new ConsoleRunnerLogger(!noColor, useAnsiColor, consoleHelper, waitForAcknowledgment: false);
-			var globalDiagnosticMessageSink = ConsoleDiagnosticMessageSink.TryCreate(consoleHelper, noColor, globalDiagnosticMessages, globalInternalDiagnosticMessages);
-			var reporter = project.RunnerReporter;
-			await using var reporterMessageHandler = await reporter.CreateMessageHandler(logger, globalDiagnosticMessageSink);
-
-			// Don't show warnings when listing in JSON format, because it will break the JSON output
-			if (warnings.Count != 0 && project.Configuration.List?.Format != ListFormat.Json)
+			try
 			{
-				if (reporter is not JsonReporter)
+				if (project.Configuration.PauseOrDefault)
 				{
-					foreach (var warning in warnings)
-						logger.LogWarning(warning);
-
+					consoleHelper.Write("Press any key to start execution...");
+					Console.ReadKey(true);
 					consoleHelper.WriteLine();
 				}
+
+				if (project.Configuration.DebugOrDefault)
+					Debugger.Launch();
+
+				var globalDiagnosticMessages = project.Assemblies.Any(a => a.Configuration.DiagnosticMessagesOrDefault);
+				globalInternalDiagnosticMessages = project.Assemblies.Any(a => a.Configuration.InternalDiagnosticMessagesOrDefault);
+				noColor = project.Configuration.NoColorOrDefault;
+				logger = new ConsoleRunnerLogger(!noColor, useAnsiColor, consoleHelper, waitForAcknowledgment: false);
+				var globalDiagnosticMessageSink = ConsoleDiagnosticMessageSink.TryCreate(consoleHelper, noColor, globalDiagnosticMessages, globalInternalDiagnosticMessages);
+				var reporter = project.RunnerReporter;
+				await using var reporterMessageHandler = await reporter.CreateMessageHandler(logger, globalDiagnosticMessageSink);
+
+				// Don't show warnings when listing in JSON format, because it will break the JSON output
+				if (warnings.Count != 0 && project.Configuration.List?.Format != ListFormat.Json)
+				{
+					if (reporter is not JsonReporter)
+					{
+						foreach (var warning in warnings)
+							logger.LogWarning(warning);
+
+						consoleHelper.WriteLine();
+					}
+					else
+						foreach (var warning in warnings)
+							logger.WriteMessageJson(new DiagnosticMessage("warning: " + warning));
+				}
+
+				if (!reporter.ForceNoLogo && !project.Configuration.NoLogoOrDefault)
+					PrintHeader();
+
+				if (Debugger.IsAttached)
+				{
+					if (!noColor)
+						consoleHelper.SetForegroundColor(ConsoleColor.Yellow);
+
+					consoleHelper.WriteLine();
+					consoleHelper.WriteLine("* Note: Long running test detection is disabled due to an attached debugger *");
+					consoleHelper.WriteLine();
+
+					if (!noColor)
+						consoleHelper.ResetColor();
+				}
+
+				var failCount = 0;
+
+				if (project.Configuration.List is not null)
+					await ListProject(project);
 				else
-					foreach (var warning in warnings)
-						logger.WriteMessageJson(new DiagnosticMessage("warning: " + warning));
+					failCount = await RunProject(project, reporterMessageHandler, commandLine.ResultWriters, globalDiagnosticMessageSink);
+
+				if (cancellationTokenSource.IsCancellationRequested)
+					return -1073741510;    // 0xC000013A: The application terminated as a result of a CTRL+C
+
+				if (project.Configuration.WaitOrDefault)
+				{
+					consoleHelper.WriteLine();
+					consoleHelper.Write("Press any key to continue...");
+					Console.ReadKey();
+					consoleHelper.WriteLine();
+				}
+
+				return project.Configuration.IgnoreFailures == true || failCount == 0 ? 0 : 1;
 			}
-
-			if (!reporter.ForceNoLogo && !project.Configuration.NoLogoOrDefault)
-				PrintHeader();
-
-			if (Debugger.IsAttached)
+			finally
 			{
-				if (!noColor)
-					consoleHelper.SetForegroundColor(ConsoleColor.Yellow);
-
-				consoleHelper.WriteLine();
-				consoleHelper.WriteLine("* Note: Long running test detection is disabled due to an attached debugger *");
-				consoleHelper.WriteLine();
-
-				if (!noColor)
-					consoleHelper.ResetColor();
+				Console.CancelKeyPress -= onCancelKeyPress;
+				AppDomain.CurrentDomain.UnhandledException -= OnUnhandledException;
 			}
-
-			var failCount = 0;
-
-			if (project.Configuration.List is not null)
-				await ListProject(project);
-			else
-				failCount = await RunProject(project, reporterMessageHandler, commandLine.ResultWriters, globalDiagnosticMessageSink);
-
-			if (cancellationTokenSource.IsCancellationRequested)
-				return -1073741510;    // 0xC000013A: The application terminated as a result of a CTRL+C
-
-			if (project.Configuration.WaitOrDefault)
-			{
-				consoleHelper.WriteLine();
-				consoleHelper.Write("Press any key to continue...");
-				Console.ReadKey();
-				consoleHelper.WriteLine();
-			}
-
-			return project.Configuration.IgnoreFailures == true || failCount == 0 ? 0 : 1;
 		}
 		catch (Exception ex)
 		{
