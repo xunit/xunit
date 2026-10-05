@@ -231,10 +231,10 @@ public class ConsoleRunner(
 #if XUNIT_AOT
 				var assemblyDisplayName = testAssembly.GetName().Name;
 #else
-			var assemblyDisplayName =
-				testAssembly.Location.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) || testAssembly.Location.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)
-					? Path.GetFileNameWithoutExtension(testAssembly.Location)
-					: Path.GetFileName(testAssembly.Location);
+				var assemblyDisplayName =
+					testAssembly.Location.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) || testAssembly.Location.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)
+						? Path.GetFileNameWithoutExtension(testAssembly.Location)
+						: Path.GetFileName(testAssembly.Location);
 #endif
 
 				IMessageSink? diagnosticMessageSink =
