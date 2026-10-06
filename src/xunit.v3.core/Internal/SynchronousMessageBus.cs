@@ -6,7 +6,6 @@ namespace Xunit.Internal;
 /// <summary>
 /// INTERNAL CLASS. DO NOT USE.
 /// </summary>
-/// <summary/>
 public class SynchronousMessageBus(
 	IMessageSink messageSink,
 	bool stopOnFail = false) :
