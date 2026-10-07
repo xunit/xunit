@@ -37,6 +37,7 @@ public class TestConfigTests
 		Assert.Null(projectAssembly.Configuration.Seed);
 		Assert.Null(projectAssembly.Configuration.ShowLiveOutput);
 		Assert.Null(projectAssembly.Configuration.StopOnFail);
+		Assert.Null(projectAssembly.Configuration.SynchronousMessageReporting);
 	}
 
 	[Theory]
@@ -210,6 +211,7 @@ public class TestConfigTests
 			(TestConfig.Keys.PreEnumerateTheories, assembly => assembly.Configuration.PreEnumerateTheories),
 			(TestConfig.Keys.ShowLiveOutput, assembly => assembly.Configuration.ShowLiveOutput),
 			(TestConfig.Keys.StopOnFail, assembly => assembly.Configuration.StopOnFail),
+			(TestConfig.Keys.SynchronousReporting, assembly => assembly.Configuration.SynchronousMessageReporting),
 		];
 
 		public static IEnumerable<TheoryDataRow<string, string, Expression<Func<XunitProjectAssembly, bool?>>, bool?>> ValidValues()

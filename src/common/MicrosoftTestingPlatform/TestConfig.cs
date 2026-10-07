@@ -145,6 +145,10 @@ public static class TestConfig
 		var stopOnFailString = configuration[Keys.StopOnFail];
 		if (TryParseBool(stopOnFailString, out var stopOnFail))
 			projectAssembly.Configuration.StopOnFail = stopOnFail;
+
+		var synchronousReportingString = configuration[Keys.SynchronousReporting];
+		if (TryParseBool(synchronousReportingString, out var synchronousReporting))
+			projectAssembly.Configuration.SynchronousMessageReporting = synchronousReporting;
 	}
 
 	static bool TryParseBool(string? value, out bool result)
@@ -211,5 +215,7 @@ public static class TestConfig
 		public const string ShutdownForegroundThreadWaitSeconds = "xUnit:shutdownForegroundThreadWaitSeconds";
 		/// <summary/>
 		public const string StopOnFail = "xUnit:stopOnFail";
+		/// <summary/>
+		public const string SynchronousReporting = "xUnit:synchronousReporting";
 	}
 }
