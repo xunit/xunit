@@ -16,13 +16,13 @@
     <Microsoft_CodeAnalysis_CSharp_Version>4.12.0</Microsoft_CodeAnalysis_CSharp_Version>
 
     <!-- Used by Roslyn source generator tests -->
-    <Basic_Reference_Assemblies_Net90_Version>1.8.11</Basic_Reference_Assemblies_Net90_Version>
+    <Basic_Reference_Assemblies_Net90_Version>1.8.12</Basic_Reference_Assemblies_Net90_Version>
 
     <!-- Used by xunit.v3.mtp-v2 -->
-    <Microsoft_Testing_v2_Version>2.4.0</Microsoft_Testing_v2_Version>
+    <Microsoft_Testing_v2_Version>2.5.1</Microsoft_Testing_v2_Version>
 
     <!-- Used by NuGet packages (xunit.v3 and xunit.v3.templates) -->
-    <Microsoft_NET_Test_Sdk_Version>18.10.0</Microsoft_NET_Test_Sdk_Version>
+    <Microsoft_NET_Test_Sdk_Version>18.10.1</Microsoft_NET_Test_Sdk_Version>
     <xunit_analyzers_Version>2.1.0</xunit_analyzers_Version>
     <xunit_runner_visualstudio_Version>4.0.0</xunit_runner_visualstudio_Version>
 
@@ -41,7 +41,7 @@
     <System_Security_AccessControl_Version>6.0.1</System_Security_AccessControl_Version>
 
     <!-- Used by xunit.v3.runner.common for implementation of the VSTest filter compatibility -->
-    <Microsoft_TestPlatform_Filter_Source_Version>18.10.0</Microsoft_TestPlatform_Filter_Source_Version>
+    <Microsoft_TestPlatform_Filter_Source_Version>18.10.1</Microsoft_TestPlatform_Filter_Source_Version>
 
     <!-- Used by xunit.v3.runner.msbuild to reference MSBuild types -->
     <Microsoft_Build_Tasks_Core_Version>16.11.6</Microsoft_Build_Tasks_Core_Version>

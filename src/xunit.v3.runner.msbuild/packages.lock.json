@@ -111,8 +111,8 @@
       },
       "Microsoft.TestPlatform.Filter.Source": {
         "type": "Transitive",
-        "resolved": "18.10.0",
-        "contentHash": "7A+z1lw26NFOdh7hYp9q/mT/m5fAwDNyIL+IxdGuYvLEyTM4IWldHC8XNf9AWtL6XK2fHX9KvYur/x5IMuNhZw=="
+        "resolved": "18.10.1",
+        "contentHash": "v9CvtBsnaTGa1HOKg4ZjIqy4ptNnyEexvp2nOUSRWFeY1oxDd+0oQ3sm6gaILPZp2WSdxT/HdoKxFMq9Y1HiJg=="
       },
       "Microsoft.VisualStudio.Setup.Configuration.Interop": {
         "type": "Transitive",
@@ -225,7 +225,7 @@
       "xunit.v3.runner.common": {
         "type": "Project",
         "dependencies": {
-          "Microsoft.TestPlatform.Filter.Source": "[18.10.0, )",
+          "Microsoft.TestPlatform.Filter.Source": "[18.10.1, )",
           "Microsoft.Win32.Registry": "[5.0.0, )",
           "System.Security.AccessControl": "[6.0.1, )",
           "xunit.v3.common": "[1.0.0, )"
@@ -346,8 +346,8 @@
       },
       "Microsoft.TestPlatform.Filter.Source": {
         "type": "Transitive",
-        "resolved": "18.10.0",
-        "contentHash": "7A+z1lw26NFOdh7hYp9q/mT/m5fAwDNyIL+IxdGuYvLEyTM4IWldHC8XNf9AWtL6XK2fHX9KvYur/x5IMuNhZw=="
+        "resolved": "18.10.1",
+        "contentHash": "v9CvtBsnaTGa1HOKg4ZjIqy4ptNnyEexvp2nOUSRWFeY1oxDd+0oQ3sm6gaILPZp2WSdxT/HdoKxFMq9Y1HiJg=="
       },
       "Microsoft.Win32.Registry": {
         "type": "Transitive",
@@ -643,7 +643,7 @@
       "xunit.v3.runner.common": {
         "type": "Project",
         "dependencies": {
-          "Microsoft.TestPlatform.Filter.Source": "[18.10.0, )",
+          "Microsoft.TestPlatform.Filter.Source": "[18.10.1, )",
           "Microsoft.Win32.Registry": "[5.0.0, )",
           "System.Security.AccessControl": "[6.0.1, )",
           "xunit.v3.common": "[1.0.0, )"
