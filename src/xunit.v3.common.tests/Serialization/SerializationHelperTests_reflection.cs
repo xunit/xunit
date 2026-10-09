@@ -210,7 +210,9 @@ public class SerializationHelperTests
 		}
 
 		[CulturedTheory(["en-US", "fo-FO"], DisableDiscoveryEnumeration = true)]
+#pragma warning disable xUnit1045 // TODO: Should be able to remove this once https://github.com/xunit/xunit/issues/3650 is resolved
 		[MemberData(nameof(NonNullSuccessData), MemberType = typeof(SerializationHelperTests))]
+#pragma warning restore xUnit1045
 		public static void NonNullSuccessCases<T>(
 			T? expectedValue,
 			string serialization)
@@ -520,7 +522,9 @@ public class SerializationHelperTests
 		}
 
 		[CulturedTheory(["en-US", "fo-FO"], DisableDiscoveryEnumeration = true)]
+#pragma warning disable xUnit1045 // TODO: Should be able to remove this once https://github.com/xunit/xunit/issues/3650 is resolved
 		[MemberData(nameof(NonNullSuccessData), MemberType = typeof(SerializationHelperTests))]
+#pragma warning restore xUnit1045
 		public static void NonNullSuccessCases<T>(
 			T? value,
 			string? expectedSerialization)
