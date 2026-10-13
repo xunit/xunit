@@ -159,7 +159,7 @@ public static class XmlV2ResultWriterMessageHandlerTests
 		var methodStarting = TestData.TestMethodStarting(methodName: nameof(ClassUnderTest.TestMethod));
 		var caseStarting = TestData.TestCaseStarting(traits: TestData.EmptyTraits);
 		var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
-		var testPassed = TestData.TestPassed(executionTime: 123.4567809m, output: "test output");
+		var testPassed = TestData.TestPassed(executionTime: 123.4567809m, output: "test\0output", warnings: ["warning 1", "warning \x01 2"]);
 		await using var handler = TestableXmlV2ResultWriterMessageHandler.Create();
 
 		handler.OnMessage(assemblyStarting);
@@ -178,12 +178,18 @@ public static class XmlV2ResultWriterMessageHandlerTests
 		Assert.Equal("TestMethod", testElement.Attribute("method")?.Value);
 		Assert.Equal("Pass", testElement.Attribute("result")?.Value);
 		Assert.Equal(123.4567809M.ToString(CultureInfo.InvariantCulture), testElement.Attribute("time")?.Value);
-		Assert.Equal("test output", testElement.Element("output")?.Value);
+		Assert.Equal("test\\0output", testElement.Element("output")?.Value);
 		Assert.Null(testElement.Attribute("source-file"));
 		Assert.Null(testElement.Attribute("source-line"));
 		Assert.Empty(testElement.Elements("traits"));
 		Assert.Empty(testElement.Elements("failure"));
 		Assert.Empty(testElement.Elements("reason"));
+		var warnings = Assert.Single(testElement.Elements("warnings"));
+		Assert.Collection(
+			warnings.Elements("warning"),
+			warningXml => Assert.Equal("warning 1", warningXml.Value),
+			warningXml => Assert.Equal("warning \\x01 2", warningXml.Value)
+		);
 	}
 
 	[CulturedFact(["en-US", "fr-FR"])]

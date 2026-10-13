@@ -94,14 +94,14 @@ public class XmlV2ResultWriterMessageHandler : XunitXmlResultWriterMessageHandle
 
 		var testOutput = testResult.Output;
 		if (!string.IsNullOrWhiteSpace(testOutput))
-			testResultElement.Add(new XElement("output", AnsiUtility.RemoveAnsiEscapeCodes(testOutput)));
+			testResultElement.Add(new XElement("output", XmlUtility.Escape(AnsiUtility.RemoveAnsiEscapeCodes(testOutput), escapeNewlines: false)));
 
 		if (testResult.Warnings is not null && testResult.Warnings.Length > 0)
 		{
 			var warningsElement = new XElement("warnings");
 
 			foreach (var warning in testResult.Warnings)
-				warningsElement.Add(new XElement("warning", warning));
+				warningsElement.Add(new XElement("warning", XmlUtility.Escape(warning, escapeNewlines: false)));
 
 			testResultElement.Add(warningsElement);
 		}
