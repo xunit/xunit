@@ -148,7 +148,7 @@ public class TrxResultWriterMessageHandler : ResultMetadataMessageHandlerBase<Tr
 		{
 			var errorInfo = new XElement(ns + "ErrorInfo");
 
-			var exceptionMessage = ExceptionUtility.CombineMessages(message);
+			var exceptionMessage = XmlUtility.Escape(ExceptionUtility.CombineMessages(message), escapeNewlines: false);
 			if (!string.IsNullOrWhiteSpace(exceptionMessage))
 				errorInfo.Add(new XElement(ns + "Message", exceptionMessage));
 
@@ -208,7 +208,7 @@ public class TrxResultWriterMessageHandler : ResultMetadataMessageHandlerBase<Tr
 				resultElement.Add(output);
 			}
 
-			output.Add(new XElement(ns + "StdOut", message.Reason));
+			output.Add(new XElement(ns + "StdOut", XmlUtility.Escape(message.Reason, escapeNewlines: false)));
 		}
 
 		RecordTestDefinition(resultMetadata, message);
@@ -310,7 +310,7 @@ public class TrxResultWriterMessageHandler : ResultMetadataMessageHandlerBase<Tr
 		var testId = resultMetadata.TestIDs.GetOrAdd(testResult.TestUniqueID, _ => Guid.NewGuid().ToString());
 		var testStartTime = (testMetadata as ITestStarting)?.StartTime ?? testResult.FinishTime;
 		var unitTestResultElement = new XElement(ns + "UnitTestResult",
-			new XAttribute("testName", testMetadata.TestDisplayName),
+			new XAttribute("testName", XmlUtility.Escape(testMetadata.TestDisplayName)),
 			new XAttribute("outcome", outcome),
 			new XAttribute("testType", "13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b"),
 			new XAttribute("testListId", "8c84fa94-04c1-424b-9868-57a2d4851a1d"),
@@ -328,7 +328,7 @@ public class TrxResultWriterMessageHandler : ResultMetadataMessageHandlerBase<Tr
 			var output = new XElement(ns + "Output", textMessages);
 
 			foreach (var line in testResult.Output.TrimEnd(newLineChars).Split([Environment.NewLine], StringSplitOptions.None))
-				textMessages.Add(new XElement(ns + "Message", AnsiUtility.RemoveAnsiEscapeCodes(line)));
+				textMessages.Add(new XElement(ns + "Message", XmlUtility.Escape(AnsiUtility.RemoveAnsiEscapeCodes(line))));
 
 			unitTestResultElement.Add(output);
 		}
@@ -362,7 +362,7 @@ public class TrxResultWriterMessageHandler : ResultMetadataMessageHandlerBase<Tr
 
 		var unitTestElement =
 			new XElement(ns + "UnitTest",
-				new XAttribute("name", testMetadata.TestDisplayName),
+				new XAttribute("name", XmlUtility.Escape(testMetadata.TestDisplayName)),
 				new XAttribute("id", testId),
 				new XAttribute("storage", assemblyMetadata.AssemblyPath),
 				new XElement(ns + "Execution",

@@ -119,8 +119,8 @@ public static class TrxResultWriterMessageHandlerTests
 		var classStarting = TestData.TestClassStarting(testClassName: typeof(ClassUnderTest).FullName!);
 		var methodStarting = TestData.TestMethodStarting(methodName: nameof(ClassUnderTest.TestMethod));
 		var caseStarting = TestData.TestCaseStarting(traits: TestData.EmptyTraits);
-		var testStarting = TestData.TestStarting(testUniqueID: "test-id", testDisplayName: "Test Display Name");
-		var testPassed = TestData.TestPassed(executionTime: 123.4567809m, output: "\x1b[4mUnderline\x1b[0m");
+		var testStarting = TestData.TestStarting(testUniqueID: "test-id", testDisplayName: "Test\rDisplay\nName\0");
+		var testPassed = TestData.TestPassed(executionTime: 123.4567809m, output: "\x1b[4mUnderline\x1b[0m\0");
 		await using var handler = TestableTrxResultWriterMessageHandler.Create();
 
 		handler.OnMessage(assemblyStarting);
@@ -134,9 +134,9 @@ public static class TrxResultWriterMessageHandlerTests
 
 		var testRunElement = await handler.TestRunElement();
 		VerifyResultSummary(testRunElement, "Completed", passed: 1);
-		var testID = VerifyTestDefinition(testRunElement);
+		var testID = VerifyTestDefinition(testRunElement, expectedDisplayName: "Test\\rDisplay\\nName\\0");
 		VerifyTestEntry(testRunElement, testID);
-		VerifyResult(testRunElement, testID, "Passed", expectedOutput: ["Underline"]);
+		VerifyResult(testRunElement, testID, "Passed", expectedDisplayName: "Test\\rDisplay\\nName\\0", expectedOutput: ["Underline\\0"]);
 	}
 
 	[CulturedFact(["en-US", "fr-FR"])]
@@ -153,7 +153,7 @@ public static class TrxResultWriterMessageHandlerTests
 			exceptionParentIndices: [-1],
 			exceptionTypes: ["Exception Type"],
 			executionTime: 123.4567809m,
-			messages: ["Exception Message"],
+			messages: ["Exception\r\nMessage\0"],
 			stackTraces: ["Exception Stack Trace"]
 		);
 		await using var handler = TestableTrxResultWriterMessageHandler.Create();
@@ -175,7 +175,7 @@ public static class TrxResultWriterMessageHandlerTests
 		var outputElement = Assert.Single(resultElement.Elements(ns + "Output"));
 		var errorInfoElement = Assert.Single(outputElement.Elements(ns + "ErrorInfo"));
 		var errorMessageElement = Assert.Single(errorInfoElement.Elements(ns + "Message"));
-		Assert.Equal("Exception Type : Exception Message", errorMessageElement.Value);
+		Assert.Equal("Exception Type : Exception\nMessage\\0", errorMessageElement.Value);
 		var errorStackTraceElement = Assert.Single(errorInfoElement.Elements(ns + "StackTrace"));
 		Assert.Equal("Exception Stack Trace", errorStackTraceElement.Value);
 	}
@@ -227,7 +227,7 @@ public static class TrxResultWriterMessageHandlerTests
 		var methodStarting = TestData.TestMethodStarting(methodName: nameof(ClassUnderTest.TestMethod));
 		var caseStarting = TestData.TestCaseStarting();
 		var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
-		var testSkipped = TestData.TestSkipped(reason: "Skip Reason");
+		var testSkipped = TestData.TestSkipped(reason: "Skip\r\nReason\0");
 		await using var handler = TestableTrxResultWriterMessageHandler.Create();
 
 		handler.OnMessage(assemblyStarting);
@@ -246,7 +246,7 @@ public static class TrxResultWriterMessageHandlerTests
 		var resultElement = VerifyResult(testRunElement, testID, "NotExecuted", expectedDuration: "00:00:00.0000000");
 		var outputElement = Assert.Single(resultElement.Elements(ns + "Output"));
 		var stdOutElement = Assert.Single(outputElement.Elements(ns + "StdOut"));
-		Assert.Equal("Skip Reason", stdOutElement.Value);
+		Assert.Equal("Skip\nReason\\0", stdOutElement.Value);
 	}
 
 	[CulturedFact(["en-US", "fr-FR"])]
@@ -317,7 +317,7 @@ public static class TrxResultWriterMessageHandlerTests
 		var methodStarting = TestData.TestMethodStarting(methodName: nameof(ClassUnderTest.TestMethod));
 		var caseStarting = TestData.TestCaseStarting(traits: TestData.EmptyTraits);
 		var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
-		var testPassed = TestData.TestPassed(executionTime: 123.4567809m, output: $"Line1{Environment.NewLine}Line2{Environment.NewLine}Line3{Environment.NewLine}");
+		var testPassed = TestData.TestPassed(executionTime: 123.4567809m, output: $"Line1{Environment.NewLine}Line2\0{Environment.NewLine}Line3{Environment.NewLine}");
 		await using var handler = TestableTrxResultWriterMessageHandler.Create();
 
 		handler.OnMessage(assemblyStarting);
@@ -332,7 +332,7 @@ public static class TrxResultWriterMessageHandlerTests
 		var testRunElement = await handler.TestRunElement();
 		var testID = VerifyTestDefinition(testRunElement);
 		VerifyTestEntry(testRunElement, testID);
-		var resultElement = VerifyResult(testRunElement, testID, "Passed", expectedOutput: ["Line1", "Line2", "Line3"]);
+		var resultElement = VerifyResult(testRunElement, testID, "Passed", expectedOutput: ["Line1", "Line2\\0", "Line3"]);
 	}
 
 	[Fact]
@@ -420,6 +420,7 @@ public static class TrxResultWriterMessageHandlerTests
 		XElement testRunElement,
 		string testID,
 		string outcome,
+		string expectedDisplayName = "Test Display Name",
 		string? expectedDuration = null,
 		string[]? expectedOutput = null)
 	{
@@ -428,7 +429,7 @@ public static class TrxResultWriterMessageHandlerTests
 
 		expectedDuration ??= 123.4567809m.ToTimespanRtf();
 
-		Assert.Equal("Test Display Name", resultElement.Attribute("testName")?.Value);
+		Assert.Equal(expectedDisplayName, resultElement.Attribute("testName")?.Value);
 		Assert.Equal(outcome, resultElement.Attribute("outcome")?.Value);
 		Assert.Equal("13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b", resultElement.Attribute("testType")?.Value);
 		Assert.Equal("8c84fa94-04c1-424b-9868-57a2d4851a1d", resultElement.Attribute("testListId")?.Value);
@@ -477,7 +478,9 @@ public static class TrxResultWriterMessageHandlerTests
 		Assert.Equal("0", counters.Attribute("pending")?.Value);
 	}
 
-	static string VerifyTestDefinition(XElement testRunElement)
+	static string VerifyTestDefinition(
+		XElement testRunElement,
+		string expectedDisplayName = "Test Display Name")
 	{
 		var testDefinitionsElement = Assert.Single(testRunElement.Elements(ns + "TestDefinitions"));
 		var unitTestElement = Assert.Single(testDefinitionsElement.Elements(ns + "UnitTest"));
@@ -486,7 +489,7 @@ public static class TrxResultWriterMessageHandlerTests
 		Assert.NotNull(testID);
 		Guid.Parse(testID);
 
-		Assert.Equal("Test Display Name", unitTestElement.Attribute("name")?.Value);
+		Assert.Equal(expectedDisplayName, unitTestElement.Attribute("name")?.Value);
 		Assert.Equal("./test-assembly.dll", unitTestElement.Attribute("storage")?.Value);
 
 		var executionElement = Assert.Single(unitTestElement.Elements(ns + "Execution"));
