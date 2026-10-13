@@ -253,12 +253,12 @@ public class HtmlResultWriterMessageHandler : MarkupResultWriterMessageHandlerBa
 				new XAttribute("class", $"{CssClass(testResult)} status-icon"),
 				Symbol(testResult)
 			),
-			$" {testResult.DisplayName}",
+			$" {XmlUtility.Escape(testResult.DisplayName)}",
 			new XElement("br", new XAttribute("clear", "all"))
 		);
 
 		if (!string.IsNullOrWhiteSpace(testResult.Message))
-			resultElement.Add(new XElement("pre", testResult.Message));
+			resultElement.Add(new XElement("pre", XmlUtility.Escape(testResult.Message, escapeNewlines: false)));
 
 		if (!string.IsNullOrWhiteSpace(testResult.StackTrace))
 			resultElement.Add(new XElement("pre", testResult.StackTrace));
@@ -266,14 +266,14 @@ public class HtmlResultWriterMessageHandler : MarkupResultWriterMessageHandlerBa
 		if (!string.IsNullOrWhiteSpace(testResult.Output))
 			resultElement.Add(
 				new XElement("h6", "Output:"),
-				new XElement("pre", AnsiUtility.RemoveAnsiEscapeCodes(testResult.Output))
+				new XElement("pre", XmlUtility.Escape(AnsiUtility.RemoveAnsiEscapeCodes(testResult.Output), escapeNewlines: false))
 			);
 
 		if (testResult.Warnings is not null && testResult.Warnings.Length != 0)
 			resultElement.Add(
 				new XElement("h6", "Warnings:"),
 				new XElement("ul",
-					testResult.Warnings.Select(warning => new XElement("li", new XElement("pre", warning)))
+					testResult.Warnings.Select(warning => new XElement("li", new XElement("pre", XmlUtility.Escape(warning, escapeNewlines: false))))
 				)
 			);
 
@@ -286,8 +286,8 @@ public class HtmlResultWriterMessageHandler : MarkupResultWriterMessageHandlerBa
 					testResult.Traits.Select(kvp =>
 						kvp.Value.Select(value =>
 							new XElement("tr",
-								new XElement("th", kvp.Key),
-								new XElement("td", value)
+								new XElement("th", XmlUtility.Escape(kvp.Key)),
+								new XElement("td", XmlUtility.Escape(value))
 							)
 						)
 					)
