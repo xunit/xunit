@@ -95,7 +95,7 @@ public class JUnitResultWriterMessageHandler : ResultMetadataMessageHandlerBase<
 
 		if (testCaseElement is not null)
 		{
-			var failureElement = new XElement("failure", new XAttribute("message", ExceptionUtility.CombineMessages(message)));
+			var failureElement = new XElement("failure", new XAttribute("message", XmlUtility.Escape(ExceptionUtility.CombineMessages(message))));
 			var stackTrace = ExceptionUtility.CombineStackTraces(message);
 			if (!string.IsNullOrWhiteSpace(stackTrace))
 				failureElement.Add(stackTrace);
@@ -112,7 +112,7 @@ public class JUnitResultWriterMessageHandler : ResultMetadataMessageHandlerBase<
 		var message = args.Message;
 		var testCaseElement = RecordTestCase(message);
 
-		testCaseElement?.AddFirst(new XElement("skipped", message.Reason));
+		testCaseElement?.AddFirst(new XElement("skipped", XmlUtility.Escape(message.Reason)));
 	}
 
 	/// <inheritdoc/>
@@ -173,7 +173,7 @@ public class JUnitResultWriterMessageHandler : ResultMetadataMessageHandlerBase<
 			{
 				var systemErr =
 					"One or more exceptions occurred during cleanup:\r\n\r\n" +
-					string.Join("\r\n\r\n", resultMetadata.Errors.Select(a => $"{a.Message}{(string.IsNullOrWhiteSpace(a.StackTrace) ? "" : "\r\n" + a.StackTrace)}"));
+					string.Join("\r\n\r\n", resultMetadata.Errors.Select(a => $"{XmlUtility.Escape(a.Message, escapeNewlines: false)}{(string.IsNullOrWhiteSpace(a.StackTrace) ? "" : "\r\n" + a.StackTrace)}"));
 
 				resultMetadata.Element.Add(new XElement("system-err", systemErr));
 			}
@@ -202,7 +202,7 @@ public class JUnitResultWriterMessageHandler : ResultMetadataMessageHandlerBase<
 
 		var testCaseElement =
 			new XElement("testcase",
-				new XAttribute("name", test.TestDisplayName),
+				new XAttribute("name", XmlUtility.Escape(test.TestDisplayName)),
 				new XAttribute("time", testResult.ExecutionTime.ToString("0.000000", CultureInfo.InvariantCulture))
 			);
 
@@ -212,7 +212,7 @@ public class JUnitResultWriterMessageHandler : ResultMetadataMessageHandlerBase<
 		var output = default(string);
 
 		if (!string.IsNullOrWhiteSpace(testResult.Output))
-			output = "<<< Test output >>>\r\n\r\n" + AnsiUtility.RemoveAnsiEscapeCodes(testResult.Output.TrimEnd('\r', '\n'));
+			output = "<<< Test output >>>\r\n\r\n" + XmlUtility.Escape(AnsiUtility.RemoveAnsiEscapeCodes(testResult.Output.TrimEnd('\r', '\n')), escapeNewlines: false);
 
 		if (testResult.Warnings is not null && testResult.Warnings.Length != 0)
 		{
@@ -221,7 +221,7 @@ public class JUnitResultWriterMessageHandler : ResultMetadataMessageHandlerBase<
 			else
 				output += "\r\n\r\n";
 
-			output += "<<< Warnings >>>\r\n\r\n" + string.Join("\r\n\r\n", testResult.Warnings.Select((warning, idx) => $"{idx + 1}. {warning}"));
+			output += "<<< Warnings >>>\r\n\r\n" + string.Join("\r\n\r\n", testResult.Warnings.Select((warning, idx) => $"{idx + 1}. {XmlUtility.Escape(warning, escapeNewlines: false)}"));
 		}
 
 		if (output is not null)

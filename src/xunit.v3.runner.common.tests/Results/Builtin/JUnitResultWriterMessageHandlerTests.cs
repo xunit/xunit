@@ -80,7 +80,7 @@ public static class JUnitResultWriterMessageHandlerTests
 
 	public static IEnumerable<TheoryDataRow<IMessageSinkMessage>> ErrorsData =
 	[
-		new(TestData.ErrorMessage()),
+		new(TestData.ErrorMessage(messages: ["This is \r\n a message \0"])),
 		new(TestData.TestAssemblyCleanupFailure()),
 		new(TestData.TestCaseCleanupFailure()),
 		new(TestData.TestClassCleanupFailure()),
@@ -105,10 +105,10 @@ public static class JUnitResultWriterMessageHandlerTests
 		Assert.Equal("1", testSuitesElement.Attribute("errors")?.Value);
 		var testSuiteElement = Assert.Single(testSuitesElement.Elements("testsuite"));
 		Assert.Equal("1", testSuiteElement.Attribute("errors")?.Value);
-		Assert.Equal("""
+		Assert.Equal($"""
 			One or more exceptions occurred during cleanup:
 
-			System.DivideByZeroException : Attempted to divide by zero. Did you really think that was going to work?
+			System.DivideByZeroException : {((IErrorMetadata)errorMessage).Messages[0].Replace("\0", "\\0")}
 			/path/file.cs(42,0): at SomeInnerCall()
 			/path/otherFile.cs(2112,0): at SomeOuterMethod
 			""", testSuiteElement.Element("system-err")?.Value, ignoreLineEndingDifferences: true);
@@ -118,7 +118,7 @@ public static class JUnitResultWriterMessageHandlerTests
 	public static async ValueTask TestPassed()
 	{
 		var assemblyStarting = TestData.TestAssemblyStarting();
-		var testStarting = TestData.TestStarting();
+		var testStarting = TestData.TestStarting(testDisplayName: "test \r display \n name \0");
 		var testClassStarting = TestData.TestClassStarting();
 		var testPassed = TestData.TestPassed(executionTime: 123.4567809m, output: "");
 		var testClassFinished = TestData.TestClassFinished();
@@ -138,7 +138,7 @@ public static class JUnitResultWriterMessageHandlerTests
 		var testSuiteElement = Assert.Single(testSuitesElement.Elements("testsuite"));
 		VerifyTestSuiteElement(testSuiteElement, assemblyStarting, assemblyFinished);
 		var testCaseElement = Assert.Single(testSuiteElement.Elements("testcase"));
-		Assert.Equal("test-display-name", testCaseElement.Attribute("name")?.Value);
+		Assert.Equal("test \\r display \\n name \\0", testCaseElement.Attribute("name")?.Value);
 		Assert.Equal("123.456781", testCaseElement.Attribute("time")?.Value);
 		Assert.Equal("test-class-name", testCaseElement.Attribute("classname")?.Value);
 
@@ -195,7 +195,7 @@ public static class JUnitResultWriterMessageHandlerTests
 		var assemblyStarting = TestData.TestAssemblyStarting();
 		var testStarting = TestData.TestStarting();
 		var testClassStarting = TestData.TestClassStarting();
-		var testFailed = TestData.TestFailed(executionTime: 123.4567809m, output: "", stackTraces: [default]);
+		var testFailed = TestData.TestFailed(executionTime: 123.4567809m, output: "", stackTraces: [default], messages: ["This is \r\n a message \0"]);
 		var testClassFinished = TestData.TestClassFinished();
 		var testFinished = TestData.TestFinished();
 		var assemblyFinished = TestData.TestAssemblyFinished(testsFailed: 1, testsNotRun: 0, testsSkipped: 0, testsTotal: 1);
@@ -220,7 +220,7 @@ public static class JUnitResultWriterMessageHandlerTests
 		Assert.Null(testCaseElement.Element("skipped"));
 
 		var failureElement = Assert.Single(testCaseElement.Elements("failure"));
-		Assert.Equal("System.DivideByZeroException : Attempted to divide by zero. Did you really think that was going to work?", failureElement.Attribute("message")?.Value);
+		Assert.Equal("System.DivideByZeroException : This is \\r\\n a message \\0", failureElement.Attribute("message")?.Value);
 
 		Assert.Null(testCaseElement.Element("system-out"));
 	}
@@ -231,7 +231,7 @@ public static class JUnitResultWriterMessageHandlerTests
 		var assemblyStarting = TestData.TestAssemblyStarting();
 		var testStarting = TestData.TestStarting();
 		var testClassStarting = TestData.TestClassStarting();
-		var testSkipped = TestData.TestSkipped(reason: "I don't want to run", output: "");
+		var testSkipped = TestData.TestSkipped(reason: "I don't want\r\nto run\0", output: "");
 		var testClassFinished = TestData.TestClassFinished();
 		var testFinished = TestData.TestFinished();
 		var assemblyFinished = TestData.TestAssemblyFinished(testsFailed: 0, testsNotRun: 0, testsSkipped: 1, testsTotal: 1);
@@ -253,7 +253,7 @@ public static class JUnitResultWriterMessageHandlerTests
 		Assert.Equal("0.000000", testCaseElement.Attribute("time")?.Value);
 		Assert.Equal("test-class-name", testCaseElement.Attribute("classname")?.Value);
 
-		Assert.Equal("I don't want to run", testCaseElement.Element("skipped")?.Value);
+		Assert.Equal("I don't want\\r\\nto run\\0", testCaseElement.Element("skipped")?.Value);
 
 		Assert.Null(testCaseElement.Element("failure"));
 
@@ -292,7 +292,7 @@ public static class JUnitResultWriterMessageHandlerTests
 		var assemblyStarting = TestData.TestAssemblyStarting();
 		var testStarting = TestData.TestStarting();
 		var testClassStarting = TestData.TestClassStarting();
-		var testPassed = TestData.TestPassed(output: "This is the output text\r\n\x1b[4mUnderline\x1b[0m\r\n");
+		var testPassed = TestData.TestPassed(output: "This is the output text\r\n\x1b[4mUnderline\x1b[0m\r\n\0\r\n");
 		var testClassFinished = TestData.TestClassFinished();
 		var testFinished = TestData.TestFinished();
 		var assemblyFinished = TestData.TestAssemblyFinished(testsFailed: 0, testsNotRun: 0, testsSkipped: 0, testsTotal: 1);
@@ -313,6 +313,7 @@ public static class JUnitResultWriterMessageHandlerTests
 
 			This is the output text
 			Underline
+			\0
 			""", testCaseElement.Element("system-out")?.Value);
 	}
 
@@ -322,7 +323,7 @@ public static class JUnitResultWriterMessageHandlerTests
 		var assemblyStarting = TestData.TestAssemblyStarting();
 		var testStarting = TestData.TestStarting();
 		var testClassStarting = TestData.TestClassStarting();
-		var testPassed = TestData.TestPassed(output: "", warnings: ["warning 1", "warning 2\r\nmulti-line"]);
+		var testPassed = TestData.TestPassed(output: "", warnings: ["warning 1", "warning 2\r\nmulti-line \x01"]);
 		var testClassFinished = TestData.TestClassFinished();
 		var testFinished = TestData.TestFinished();
 		var assemblyFinished = TestData.TestAssemblyFinished(testsFailed: 0, testsNotRun: 0, testsSkipped: 0, testsTotal: 1);
@@ -344,7 +345,7 @@ public static class JUnitResultWriterMessageHandlerTests
 			1. warning 1
 
 			2. warning 2
-			multi-line
+			multi-line \x01
 			""", testCaseElement.Element("system-out")?.Value);
 	}
 
