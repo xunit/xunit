@@ -10,9 +10,9 @@
       },
       "Microsoft.NET.ILLink.Tasks": {
         "type": "Direct",
-        "requested": "[9.0.20, )",
-        "resolved": "9.0.20",
-        "contentHash": "oPFydtjCgow3DXnL8z5gPbq3R1zGvBpcypgRhW172Hn8asJcI8oy7isudAnAAALIWyK+uRWCDP+/+om3s0PZHA=="
+        "requested": "[9.0.21, )",
+        "resolved": "9.0.21",
+        "contentHash": "ryionTSVk0ZU5/gW6r6Kh6LxvUzuF8HIcO0CLHoHhn7ZHZLbpGGYSe3duYzaNTtZK/AOQfqtYLUEW5LfbhSw3w=="
       },
       "Microsoft.SourceLink.GitHub": {
         "type": "Direct",

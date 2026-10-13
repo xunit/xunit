@@ -4,15 +4,15 @@
     "net9.0": {
       "Microsoft.DotNet.ILCompiler": {
         "type": "Direct",
-        "requested": "[9.0.20, )",
-        "resolved": "9.0.20",
-        "contentHash": "p1T44gqUSFGVaRpVSoCgIA3DbWPo2qmlj9lBGMWgI4xK6qJsoi8y5TMjLZ6n6tasWIH9use2yQZ48uX3DbwjQA=="
+        "requested": "[9.0.21, )",
+        "resolved": "9.0.21",
+        "contentHash": "+hZHLx9jDtlvQa6lHHhnlpb0ItIkR901/+1uPNNlZ8mVEIrBsOsKKj67Aw2SKv9W6qdk+N2VZ+ruQQO3ZPZuGw=="
       },
       "Microsoft.NET.ILLink.Tasks": {
         "type": "Direct",
-        "requested": "[9.0.20, )",
-        "resolved": "9.0.20",
-        "contentHash": "oPFydtjCgow3DXnL8z5gPbq3R1zGvBpcypgRhW172Hn8asJcI8oy7isudAnAAALIWyK+uRWCDP+/+om3s0PZHA=="
+        "requested": "[9.0.21, )",
+        "resolved": "9.0.21",
+        "contentHash": "ryionTSVk0ZU5/gW6r6Kh6LxvUzuF8HIcO0CLHoHhn7ZHZLbpGGYSe3duYzaNTtZK/AOQfqtYLUEW5LfbhSw3w=="
       },
       "System.Collections.Immutable": {
         "type": "Direct",
