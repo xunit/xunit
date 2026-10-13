@@ -88,8 +88,8 @@ public static class MarkdownResultWriterMessageHandlerTests
 	public static async ValueTask TestFailed()
 	{
 		var assemblyStarting = TestData.TestAssemblyStarting();
-		var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
-		var testFailed = TestData.TestFailed(executionTime: 123.456m);
+		var testStarting = TestData.TestStarting(testDisplayName: "Test \r Display \n Name \0");
+		var testFailed = TestData.TestFailed(executionTime: 123.456m, messages: ["Multi\r\nLine\r\nMessage \0"]);
 		var testFinished = TestData.TestFinished();
 		var assemblyFinished = TestData.TestAssemblyFinished(executionTime: 123.456m, testsFailed: 1, testsNotRun: 0, testsSkipped: 0, testsTotal: 1);
 		await using var handler = TestableMarkdownResultWriterMessageHandler.Create();
@@ -111,10 +111,12 @@ public static class MarkdownResultWriterMessageHandlerTests
 
 			#### Failed ❌
 
-			* Test Display Name ⌚ {{123.456}}s
+			* Test \r Display \n Name \0 ⌚ {{123.456}}s
 				_Exception:_
 				```
-				System.DivideByZeroException : Attempted to divide by zero. Did you really think that was going to work?
+				System.DivideByZeroException : Multi
+				Line
+				Message \0
 				/path/file.cs(42,0): at SomeInnerCall()
 				/path/otherFile.cs(2112,0): at SomeOuterMethod
 				```
@@ -126,8 +128,8 @@ public static class MarkdownResultWriterMessageHandlerTests
 	public static async ValueTask TestSkipped()
 	{
 		var assemblyStarting = TestData.TestAssemblyStarting();
-		var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
-		var testSkipped = TestData.TestSkipped(executionTime: 123.456m, reason: "I am not running today");
+		var testStarting = TestData.TestStarting(testDisplayName: "Test \r Display \n Name \0");
+		var testSkipped = TestData.TestSkipped(executionTime: 123.456m, reason: "I am \r not \n running \0 today");
 		var testFinished = TestData.TestFinished();
 		var assemblyFinished = TestData.TestAssemblyFinished(executionTime: 123.456m, testsFailed: 0, testsNotRun: 0, testsSkipped: 1, testsTotal: 1);
 		await using var handler = TestableMarkdownResultWriterMessageHandler.Create();
@@ -149,7 +151,7 @@ public static class MarkdownResultWriterMessageHandlerTests
 
 			#### Skipped ❔
 
-			* Test Display Name: "I am not running today" ⌚ {{123.456}}s
+			* Test \r Display \n Name \0: "I am \r not \n running \0 today" ⌚ {{123.456}}s
 
 			""", markdown, ignoreAllWhiteSpace: true);
 	}
@@ -158,7 +160,7 @@ public static class MarkdownResultWriterMessageHandlerTests
 	public static async ValueTask TestNotRun()
 	{
 		var assemblyStarting = TestData.TestAssemblyStarting();
-		var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
+		var testStarting = TestData.TestStarting(testDisplayName: "Test \r Display \n Name \0");
 		var testNotRun = TestData.TestNotRun();
 		var testFinished = TestData.TestFinished();
 		var assemblyFinished = TestData.TestAssemblyFinished(executionTime: 123.456m, testsFailed: 0, testsNotRun: 1, testsSkipped: 0, testsTotal: 1);
@@ -181,7 +183,7 @@ public static class MarkdownResultWriterMessageHandlerTests
 
 			#### Not Run 🚫
 
-			* Test Display Name ⌚0s
+			* Test \r Display \n Name \0 ⌚0s
 
 			""", markdown, ignoreAllWhiteSpace: true);
 	}
@@ -190,7 +192,7 @@ public static class MarkdownResultWriterMessageHandlerTests
 	public static async ValueTask Error()
 	{
 		var assemblyStarting = TestData.TestAssemblyStarting();
-		var error = TestData.ErrorMessage();
+		var error = TestData.ErrorMessage(messages: ["Multi\r\nLine\r\nMessage \0"]);
 		var assemblyFinished = TestData.TestAssemblyFinished(executionTime: 123.456m, testsFailed: 0, testsNotRun: 0, testsSkipped: 0, testsTotal: 1);
 		await using var handler = TestableMarkdownResultWriterMessageHandler.Create();
 
@@ -213,7 +215,9 @@ public static class MarkdownResultWriterMessageHandlerTests
 			* Fatal Error ⌚ 0s
 			  _Exception:_
 			  ```
-			  System.DivideByZeroException : Attempted to divide by zero. Did you really think that was going to work?
+			  System.DivideByZeroException : Multi
+			  Line
+			  Message \0
 			  /path/file.cs(42,0): at SomeInnerCall()
 			  /path/otherFile.cs(2112,0): at SomeOuterMethod
 			  ```
@@ -226,7 +230,7 @@ public static class MarkdownResultWriterMessageHandlerTests
 	{
 		var assemblyStarting = TestData.TestAssemblyStarting(assemblyPath: "./assembly1.dll");
 		var assemblyStarting2 = TestData.TestAssemblyStarting(assemblyPath: "./assembly2.dll", assemblyUniqueID: "assembly-id-2");
-		var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
+		var testStarting = TestData.TestStarting(testDisplayName: "Test \r Display \n Name \0");
 		var testFailed = TestData.TestFailed(executionTime: 123.456m);
 		var testFinished = TestData.TestFinished();
 		var assemblyFinished = TestData.TestAssemblyFinished(executionTime: 123.456m, testsFailed: 1, testsNotRun: 0, testsSkipped: 0, testsTotal: 1);
@@ -253,7 +257,7 @@ public static class MarkdownResultWriterMessageHandlerTests
 
 			#### Failed ❌
 
-			* Test Display Name ⌚ {{123.456}}s (`assembly1.dll`)
+			* Test \r Display \n Name \0 ⌚ {{123.456}}s (`assembly1.dll`)
 			  _Exception:_
 			  ```
 			  System.DivideByZeroException : Attempted to divide by zero. Did you really think that was going to work?
@@ -269,7 +273,7 @@ public static class MarkdownResultWriterMessageHandlerTests
 	{
 		var assemblyStarting = TestData.TestAssemblyStarting(assemblyPath: "./path1/assembly.dll");
 		var assemblyStarting2 = TestData.TestAssemblyStarting(assemblyPath: "./path2/assembly.dll", assemblyUniqueID: "assembly-id-2");
-		var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name");
+		var testStarting = TestData.TestStarting(testDisplayName: "Test \r Display \n Name \0");
 		var testFailed = TestData.TestFailed(executionTime: 123.456m);
 		var testFinished = TestData.TestFinished();
 		var assemblyFinished = TestData.TestAssemblyFinished(executionTime: 123.456m, testsFailed: 1, testsNotRun: 0, testsSkipped: 0, testsTotal: 1);
@@ -296,7 +300,7 @@ public static class MarkdownResultWriterMessageHandlerTests
 
 			#### Failed ❌
 
-			* Test Display Name ⌚ {{123.456}}s (`./path1/assembly.dll`)
+			* Test \r Display \n Name \0 ⌚ {{123.456}}s (`./path1/assembly.dll`)
 			  _Exception:_
 			  ```
 			  System.DivideByZeroException : Attempted to divide by zero. Did you really think that was going to work?

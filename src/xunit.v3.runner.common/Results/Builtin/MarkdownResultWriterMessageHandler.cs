@@ -90,14 +90,14 @@ public class MarkdownResultWriterMessageHandler : MarkupResultWriterMessageHandl
 
 					foreach (var failed in Tests.Where(t => t.Status == TestResultStatus.Failed).OrderBy(t => t.DisplayName).ThenBy(t => t.Assembly))
 					{
-						buffer.AppendLine($"* {failed.DisplayName} {timing(failed)}{assemblyDisplay(failed)}  ");
+						buffer.AppendLine($"* {XmlUtility.Escape(failed.DisplayName)} {timing(failed)}{assemblyDisplay(failed)}  ");
 
 						if (failed.Message is not null || failed.StackTrace is not null)
 						{
 							buffer.AppendLine("  _Exception:_");
 							buffer.AppendLine("  ```");
 							if (failed.Message is not null)
-								buffer.AppendLine($"  {failed.Message.Indent("  ")}");
+								buffer.AppendLine($"  {XmlUtility.Escape(failed.Message, escapeNewlines: false).Indent("  ")}");
 							if (failed.StackTrace is not null)
 								buffer.AppendLine($"  {failed.StackTrace.Indent("  ")}");
 							buffer.AppendLine("  ```");
@@ -112,7 +112,7 @@ public class MarkdownResultWriterMessageHandler : MarkupResultWriterMessageHandl
 					buffer.AppendLine();
 
 					foreach (var skipped in Tests.Where(t => t.Status == TestResultStatus.Skipped).OrderBy(t => t.DisplayName).ThenBy(t => t.Assembly))
-						buffer.AppendLine($"* {skipped.DisplayName}: \"{skipped.Message}\" {timing(skipped)}{assemblyDisplay(skipped)}");
+						buffer.AppendLine($"* {XmlUtility.Escape(skipped.DisplayName)}: \"{XmlUtility.Escape(skipped.Message)}\" {timing(skipped)}{assemblyDisplay(skipped)}");
 				}
 
 				if (Totals.NotRun != 0)
@@ -122,7 +122,7 @@ public class MarkdownResultWriterMessageHandler : MarkupResultWriterMessageHandl
 					buffer.AppendLine();
 
 					foreach (var notRun in Tests.Where(t => t.Status == TestResultStatus.NotRun).OrderBy(t => t.DisplayName).ThenBy(t => t.Assembly))
-						buffer.AppendLine($"* {notRun.DisplayName} {timing(notRun)}{assemblyDisplay(notRun)}");
+						buffer.AppendLine($"* {XmlUtility.Escape(notRun.DisplayName)} {timing(notRun)}{assemblyDisplay(notRun)}");
 				}
 
 				if (Totals.Errors != 0)
@@ -133,14 +133,14 @@ public class MarkdownResultWriterMessageHandler : MarkupResultWriterMessageHandl
 
 					foreach (var error in Tests.Where(t => t.Status == TestResultStatus.Error).OrderBy(t => t.DisplayName).ThenBy(t => t.Assembly))
 					{
-						buffer.AppendLine($"* {error.DisplayName} {timing(error)}{assemblyDisplay(error)}  ");
+						buffer.AppendLine($"* {XmlUtility.Escape(error.DisplayName)} {timing(error)}{assemblyDisplay(error)}  ");
 
 						if (error.Message is not null || error.StackTrace is not null)
 						{
 							buffer.AppendLine("  _Exception:_");
 							buffer.AppendLine("  ```");
 							if (error.Message is not null)
-								buffer.AppendLine($"  {error.Message.Indent("  ")}");
+								buffer.AppendLine($"  {XmlUtility.Escape(error.Message, escapeNewlines: false).Indent("  ")}");
 							if (error.StackTrace is not null)
 								buffer.AppendLine($"  {error.StackTrace.Indent("  ")}");
 							buffer.AppendLine("  ```");
