@@ -223,13 +223,29 @@ public static class JsonDeserializer
 				continue;
 			}
 
-			// Make sure we have a 2nd character of the escape sequence
+			// Make sure we have (at least) a 2nd character of the escape sequence
 			if (idx >= json.Length)
 			{
 				success = false;
 				break;
 			}
 
+			// Check for Unicode encoding
+			if (json[idx] == 'u' && json.Length >= idx + 4)
+			{
+				var hexValue = json.Substring(idx + 1, 4);
+				if (!int.TryParse(hexValue, NumberStyles.AllowHexSpecifier, null, out var intValue))
+				{
+					success = false;
+					break;
+				}
+
+				stringValue.Append((char)intValue);
+				idx += 5;
+				continue;
+			}
+
+			// Check for single-character escapes
 			if (!escapesString.TryGetValue(json[idx++], out var escapedValue))
 			{
 				success = false;

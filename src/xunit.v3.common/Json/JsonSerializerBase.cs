@@ -100,18 +100,37 @@ public abstract class JsonSerializerBase : IDisposable
 
 		Buffer.Append('"');
 
-		foreach (var ch in value)
-			switch (ch)
+		// This code is mostly the same as XmlUtility.Escape, except:
+		// * The list of escaped control characters is shorter
+		// * We always escape newlines
+		// * We always use \uXXXX as the Unicode escaping
+		for (var idx = 0; idx < value.Length; ++idx)
+		{
+			var ch = value[idx];
+			if (ch < 32)
+				Buffer.Append(ch switch
+				{
+					'\b' => "\\b",
+					'\f' => "\\f",
+					'\n' => "\\n",
+					'\r' => "\\r",
+					'\t' => "\\t",
+					_ => string.Format(CultureInfo.InvariantCulture, @"\u{0:x4}", +ch),
+				});
+			else if (ch == '"')
+				Buffer.Append("\\\"");
+			else if (ch == '\\')
+				Buffer.Append("\\\\");
+			else if (char.IsSurrogatePair(value, idx))
 			{
-				case '"': Buffer.Append("\\\""); break;
-				case '\\': Buffer.Append("\\\\"); break;
-				case '\b': Buffer.Append("\\b"); break;
-				case '\f': Buffer.Append("\\f"); break;
-				case '\n': Buffer.Append("\\n"); break;
-				case '\r': Buffer.Append("\\r"); break;
-				case '\t': Buffer.Append("\\t"); break;
-				default: Buffer.Append(ch); break;
+				Buffer.Append(ch);
+				Buffer.Append(value[++idx]);
 			}
+			else if (char.IsSurrogate(ch) || ch == '\uFFFE' || ch == '\uFFFF')
+				Buffer.Append(string.Format(CultureInfo.InvariantCulture, @"\u{0:x4}", +ch));
+			else
+				Buffer.Append(ch);
+		}
 
 		Buffer.Append('"');
 	}

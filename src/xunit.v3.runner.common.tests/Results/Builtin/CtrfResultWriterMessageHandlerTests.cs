@@ -161,7 +161,7 @@ public static class CtrfResultWriterMessageHandlerTests
 		var classStarting = TestData.TestClassStarting(testClassName: typeof(ClassUnderTest).FullName!);
 		var methodStarting = TestData.TestMethodStarting(methodName: nameof(ClassUnderTest.TestMethod));
 		var caseStarting = TestData.TestCaseStarting(traits: TestData.EmptyTraits);
-		var testStarting = TestData.TestStarting(testDisplayName: "Test Display Name", traits: StandardTraits);
+		var testStarting = TestData.TestStarting(testDisplayName: "Test\rDisplay\nName\t\0", traits: StandardTraits);
 		var testPassed = TestData.TestPassed(executionTime: 123.4567809m, output: $"Line 1{Environment.NewLine}Line 2{Environment.NewLine}Line 3{Environment.NewLine}");
 		var testFinished = TestData.TestFinished();
 		var assemblyFinished = TestData.TestAssemblyFinished();
