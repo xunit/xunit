@@ -156,7 +156,7 @@ public static class NUnitResultWriterMessageHandlerTests
 		var assemblyStarting = TestData.TestAssemblyStarting();
 		var assemblyFinished = TestData.TestAssemblyFinished();
 		var testCollectionStarted = TestData.TestCollectionStarting(
-			testCollectionDisplayName: "Collection Name",
+			testCollectionDisplayName: "Collection \r\n\0 Name",
 			testCollectionClass: testCollectionClass,
 			testCollectionUniqueID: "abc123"
 		);
@@ -177,7 +177,7 @@ public static class NUnitResultWriterMessageHandlerTests
 
 		var testRunElement = await handler.TestRunElement();
 		var testSuiteElement = Assert.Single(testRunElement.XPathSelectElements("test-suite/test-suite"));
-		VerifyTestSuite(testSuiteElement, "TestSuite", "1-1000", testCollectionFinished, "Collection Name", testCollectionClass);
+		VerifyTestSuite(testSuiteElement, "TestSuite", "1-1000", testCollectionFinished, "Collection \\r\\n\\0 Name", testCollectionClass);
 	}
 
 	[CulturedTheory(["en-US", "fr-FR"])]
@@ -224,7 +224,7 @@ public static class NUnitResultWriterMessageHandlerTests
 		var classStarting = TestData.TestClassStarting();
 		var methodStarting = TestData.TestMethodStarting();
 		var caseStarting = TestData.TestCaseStarting();
-		var testStarting = TestData.TestStarting(traits: TestData.EmptyTraits);
+		var testStarting = TestData.TestStarting(traits: TestData.EmptyTraits, testDisplayName: "Test\rDisplay\nName\0");
 		var testPassed = TestData.TestPassed(executionTime: 123.4567809m, output: "");
 		var testFinished = TestData.TestFinished();
 		var caseFinished = TestData.TestCaseFinished(testsFailed: 0, testsNotRun: 0, testsSkipped: 0, testsTotal: 1);
@@ -258,7 +258,7 @@ public static class NUnitResultWriterMessageHandlerTests
 		var testCaseElement = Assert.Single(testFixtureElement.Elements("test-case"));
 		Assert.Equal("1-1002", testCaseElement.Attribute("id")?.Value);
 		Assert.Equal("test-method", testCaseElement.Attribute("name")?.Value);
-		Assert.Equal("test-display-name", testCaseElement.Attribute("fullname")?.Value);
+		Assert.Equal("Test\\rDisplay\\nName\\0", testCaseElement.Attribute("fullname")?.Value);
 		Assert.Equal("test-method", testCaseElement.Attribute("methodname")?.Value);
 		Assert.Equal("test-class-name", testCaseElement.Attribute("classname")?.Value);
 		Assert.Equal("Runnable", testCaseElement.Attribute("runstate")?.Value);
@@ -291,7 +291,7 @@ public static class NUnitResultWriterMessageHandlerTests
 		var methodStarting = TestData.TestMethodStarting();
 		var caseStarting = TestData.TestCaseStarting();
 		var testStarting = TestData.TestStarting(traits: TestData.EmptyTraits);
-		var testPassed = TestData.TestPassed(executionTime: 123.4567809m, output: "", warnings: ["This is a warning"]);
+		var testPassed = TestData.TestPassed(executionTime: 123.4567809m, output: "", warnings: ["This\r\nis\r\na\0warning"]);
 		var testFinished = TestData.TestFinished();
 		var caseFinished = TestData.TestCaseFinished(testsFailed: 0, testsNotRun: 0, testsSkipped: 0, testsTotal: 1);
 		var methodFinished = TestData.TestMethodFinished(testsFailed: 0, testsNotRun: 0, testsSkipped: 0, testsTotal: 1);
@@ -327,13 +327,13 @@ public static class NUnitResultWriterMessageHandlerTests
 		Assert.Null(testCaseElement.Attribute("label")?.Value);
 
 		var reasonElement = Assert.Single(testCaseElement.Elements("reason"));
-		Assert.Equal("This is a warning", reasonElement.Element("message")?.Value);
+		Assert.Equal("This\nis\na\\0warning", reasonElement.Element("message")?.Value);
 		Assert.Equal(string.Empty, reasonElement.Element("stack-trace")?.Value);
 
 		var assertionsElement = Assert.Single(testCaseElement.Elements("assertions"));
 		var assertionElement = Assert.Single(assertionsElement.Elements("assertion"));
 		Assert.Equal("Warning", assertionElement.Attribute("result")?.Value);
-		Assert.Equal("This is a warning", assertionElement.Element("message")?.Value);
+		Assert.Equal("This\nis\na\\0warning", assertionElement.Element("message")?.Value);
 		Assert.Equal(string.Empty, assertionElement.Element("stack-trace")?.Value);
 	}
 
@@ -346,7 +346,7 @@ public static class NUnitResultWriterMessageHandlerTests
 		var methodStarting = TestData.TestMethodStarting();
 		var caseStarting = TestData.TestCaseStarting();
 		var testStarting = TestData.TestStarting(traits: TestData.EmptyTraits);
-		var testPassed = TestData.TestPassed(executionTime: 123.4567809m, output: "", warnings: ["This is a warning", "This is a second warning"]);
+		var testPassed = TestData.TestPassed(executionTime: 123.4567809m, output: "", warnings: ["This is\r\na warning", "This is a \0 second warning"]);
 		var testFinished = TestData.TestFinished();
 		var caseFinished = TestData.TestCaseFinished(testsFailed: 0, testsNotRun: 0, testsSkipped: 0, testsTotal: 1);
 		var methodFinished = TestData.TestMethodFinished(testsFailed: 0, testsNotRun: 0, testsSkipped: 0, testsTotal: 1);
@@ -387,9 +387,10 @@ public static class NUnitResultWriterMessageHandlerTests
 		Assert.Equal("""
 			Multiple failures or warnings in test:
 
-			  1) This is a warning
+			  1) This is
+			a warning
 
-			  2) This is a second warning
+			  2) This is a \0 second warning
 			""", reasonElement.Element("message")?.Value, ignoreLineEndingDifferences: true);
 		Assert.Equal(string.Empty, reasonElement.Element("stack-trace")?.Value);
 
@@ -399,13 +400,13 @@ public static class NUnitResultWriterMessageHandlerTests
 			assertionElement =>
 			{
 				Assert.Equal("Warning", assertionElement.Attribute("result")?.Value);
-				Assert.Equal("This is a warning", assertionElement.Element("message")?.Value);
+				Assert.Equal("This is\na warning", assertionElement.Element("message")?.Value);
 				Assert.Equal(string.Empty, assertionElement.Element("stack-trace")?.Value);
 			},
 			assertionElement =>
 			{
 				Assert.Equal("Warning", assertionElement.Attribute("result")?.Value);
-				Assert.Equal("This is a second warning", assertionElement.Element("message")?.Value);
+				Assert.Equal("This is a \\0 second warning", assertionElement.Element("message")?.Value);
 				Assert.Equal(string.Empty, assertionElement.Element("stack-trace")?.Value);
 			}
 		);
@@ -424,8 +425,8 @@ public static class NUnitResultWriterMessageHandlerTests
 			exceptionParentIndices: [-1],
 			exceptionTypes: ["Exception Type"],
 			executionTime: 123.4567809m,
-			messages: ["Exception Message"],
-			output: "test output\r\n\x1b[4mUnderline\x1b[0m\r\n",
+			messages: ["Exception\r\n\0Message"],
+			output: "test output\r\n\x1b[4mUnderline\x1b[0m\r\n\0",
 			stackTraces: ["Exception Stack Trace"]
 		);
 		var testFinished = TestData.TestFinished();
@@ -463,15 +464,15 @@ public static class NUnitResultWriterMessageHandlerTests
 		Assert.Null(testCaseElement.Attribute("label")?.Value);
 
 		var failureElement = Assert.Single(testCaseElement.Elements("failure"));
-		Assert.Equal("Exception Type : Exception Message", failureElement.Element("message")?.Value);
+		Assert.Equal("Exception Type : Exception\n\\0Message", failureElement.Element("message")?.Value);
 		Assert.Equal("Exception Stack Trace", failureElement.Element("stack-trace")?.Value);
 
-		Assert.Equal("test output\nUnderline\n", testCaseElement.Element("output")?.Value);
+		Assert.Equal("test output\nUnderline\n\\0", testCaseElement.Element("output")?.Value);
 
 		var assertionsElement = Assert.Single(testCaseElement.Elements("assertions"));
 		var assertionElement = Assert.Single(assertionsElement.Elements("assertion"));
 		Assert.Equal("Failed", assertionElement.Attribute("result")?.Value);
-		Assert.Equal("Exception Type : Exception Message", assertionElement.Element("message")?.Value);
+		Assert.Equal("Exception Type : Exception\n\\0Message", assertionElement.Element("message")?.Value);
 		Assert.Equal("Exception Stack Trace", assertionElement.Element("stack-trace")?.Value);
 	}
 
@@ -553,7 +554,7 @@ public static class NUnitResultWriterMessageHandlerTests
 			messages: ["Exception Message"],
 			stackTraces: ["Exception Stack Trace"],
 			output: "",
-			warnings: ["This is a warning"]
+			warnings: ["This is\r\na\0warning"]
 		);
 		var testFinished = TestData.TestFinished();
 		var caseFinished = TestData.TestCaseFinished(testsFailed: 1, testsNotRun: 0, testsSkipped: 0, testsTotal: 1);
@@ -593,7 +594,8 @@ public static class NUnitResultWriterMessageHandlerTests
 		Assert.Equal("""
 			Multiple failures or warnings in test:
 
-			  1) This is a warning
+			  1) This is
+			a\0warning
 
 			  2) Exception Type : Exception Message
 			""", failureElement.Element("message")?.Value, ignoreLineEndingDifferences: true);
@@ -605,7 +607,7 @@ public static class NUnitResultWriterMessageHandlerTests
 			assertionElement =>
 			{
 				Assert.Equal("Warning", assertionElement.Attribute("result")?.Value);
-				Assert.Equal("This is a warning", assertionElement.Element("message")?.Value);
+				Assert.Equal("This is\na\\0warning", assertionElement.Element("message")?.Value);
 				Assert.Equal(string.Empty, assertionElement.Element("stack-trace")?.Value);
 			},
 			assertionElement =>
@@ -626,7 +628,7 @@ public static class NUnitResultWriterMessageHandlerTests
 		var methodStarting = TestData.TestMethodStarting();
 		var caseStarting = TestData.TestCaseStarting();
 		var testStarting = TestData.TestStarting(traits: TestData.EmptyTraits);
-		var testSkipped = TestData.TestSkipped(reason: "I don't want to run", output: "");
+		var testSkipped = TestData.TestSkipped(reason: "I don't\r\nwant to\0run", output: "");
 		var testFinished = TestData.TestFinished();
 		var caseFinished = TestData.TestCaseFinished(testsFailed: 0, testsNotRun: 0, testsSkipped: 0, testsTotal: 1);
 		var methodFinished = TestData.TestMethodFinished(testsFailed: 0, testsNotRun: 0, testsSkipped: 0, testsTotal: 1);
@@ -666,23 +668,24 @@ public static class NUnitResultWriterMessageHandlerTests
 		Assert.Equal("0", testCaseElement.Attribute("asserts")?.Value);
 
 		var reasonElement = Assert.Single(testCaseElement.Elements("reason"));
-		Assert.Equal("I don't want to run", reasonElement.Element("message")?.Value);
+		Assert.Equal("I don't\nwant to\\0run", reasonElement.Element("message")?.Value);
 
 		var propertiesElement = Assert.Single(testCaseElement.Elements("properties"));
 		var propertyElement = Assert.Single(propertiesElement.Elements("property"));
 		Assert.Equal("_SKIPREASON", propertyElement.Attribute("name")?.Value);
-		Assert.Equal("I don't want to run", propertyElement.Attribute("value")?.Value);
+		Assert.Equal("I don't\\r\\nwant to\\0run", propertyElement.Attribute("value")?.Value);
 	}
 
 	[CulturedFact(["en-US", "fr-FR"])]
 	public static async ValueTask TestSkipped_WithTraits()
 	{
+		var traits = new Dictionary<string, HashSet<string>>() { ["foo\r"] = ["bar\n", "baz\0"], ["biff"] = ["bang"] }.ToReadOnly();
 		var assemblyStarting = TestData.TestAssemblyStarting();
 		var collectionStarting = TestData.TestCollectionStarting();
 		var classStarting = TestData.TestClassStarting();
 		var methodStarting = TestData.TestMethodStarting();
 		var caseStarting = TestData.TestCaseStarting();
-		var testStarting = TestData.TestStarting(traits: TestData.DefaultTraits);
+		var testStarting = TestData.TestStarting(traits: traits);
 		var testSkipped = TestData.TestSkipped(reason: "I don't want to run", output: "");
 		var testFinished = TestData.TestFinished();
 		var caseFinished = TestData.TestCaseFinished(testsFailed: 0, testsNotRun: 0, testsSkipped: 0, testsTotal: 1);
@@ -740,13 +743,13 @@ public static class NUnitResultWriterMessageHandlerTests
 			},
 			propertyElement =>
 			{
-				Assert.Equal("foo", propertyElement.Attribute("name")?.Value);
-				Assert.Equal("bar", propertyElement.Attribute("value")?.Value);
+				Assert.Equal("foo\\r", propertyElement.Attribute("name")?.Value);
+				Assert.Equal("bar\\n", propertyElement.Attribute("value")?.Value);
 			},
 			propertyElement =>
 			{
-				Assert.Equal("foo", propertyElement.Attribute("name")?.Value);
-				Assert.Equal("baz", propertyElement.Attribute("value")?.Value);
+				Assert.Equal("foo\\r", propertyElement.Attribute("name")?.Value);
+				Assert.Equal("baz\\0", propertyElement.Attribute("value")?.Value);
 			}
 		);
 	}
@@ -874,7 +877,7 @@ public static class NUnitResultWriterMessageHandlerTests
 
 	public static IEnumerable<TheoryDataRow<IMessageSinkMessage>> AssemblyErrorData =
 	[
-		new(TestData.ErrorMessage()),
+		new(TestData.ErrorMessage(messages: ["This is \n an \n error \0 message"])),
 		new(TestData.TestAssemblyCleanupFailure()),
 	];
 
@@ -894,14 +897,14 @@ public static class NUnitResultWriterMessageHandlerTests
 		var assemblyElement = Assert.Single(testRunElement.Elements("test-suite"));
 		var errorMetadata = errorMessage as IErrorMetadata;
 		Assert.NotNull(errorMetadata);
-		var errors = new[] { (ExceptionUtility.CombineMessages(errorMetadata), ExceptionUtility.CombineStackTraces(errorMetadata)) };
+		var errors = new[] { (ExceptionUtility.CombineMessages(errorMetadata).Replace("\0", "\\0"), ExceptionUtility.CombineStackTraces(errorMetadata)) };
 		VerifyTestSuite(assemblyElement, "Assembly", "1-1000", assemblyFinished, "test-assembly.dll", "./test-assembly.dll", localErrors: errors);
 	}
 
 	[Fact]
 	public static async ValueTask MultipleAssemblyErrors()
 	{
-		var errorMessage1 = TestData.ErrorMessage();
+		var errorMessage1 = TestData.ErrorMessage(messages: ["This is \n an \n error \0 message"]);
 		var errorMessage2 = TestData.TestAssemblyCleanupFailure();
 
 		var assemblyStarting = TestData.TestAssemblyStarting();
@@ -914,7 +917,7 @@ public static class NUnitResultWriterMessageHandlerTests
 		handler.OnMessage(assemblyFinished);
 
 		var errors = new[] {
-			(ExceptionUtility.CombineMessages(errorMessage1), ExceptionUtility.CombineStackTraces(errorMessage1)),
+			(ExceptionUtility.CombineMessages(errorMessage1).Replace("\0", "\\0"), ExceptionUtility.CombineStackTraces(errorMessage1)),
 			(ExceptionUtility.CombineMessages(errorMessage2), ExceptionUtility.CombineStackTraces(errorMessage2)),
 		};
 		var testRunElement = await handler.TestRunElement();
@@ -927,7 +930,7 @@ public static class NUnitResultWriterMessageHandlerTests
 	{
 		var assemblyStarting = TestData.TestAssemblyStarting();
 		var collectionStarting = TestData.TestCollectionStarting();
-		var cleanupFailure = TestData.TestCollectionCleanupFailure();
+		var cleanupFailure = TestData.TestCollectionCleanupFailure(messages: ["This is \n an \n error \0 message"]);
 		var collectionFinished = TestData.TestCollectionFinished(testsFailed: 0, testsNotRun: 0, testsSkipped: 0, testsTotal: 0);
 		var assemblyFinished = TestData.TestAssemblyFinished(testsFailed: 0, testsNotRun: 0, testsSkipped: 0, testsTotal: 0);
 		await using var handler = TestableNUnitResultWriterMessageHandler.Create();
@@ -938,7 +941,7 @@ public static class NUnitResultWriterMessageHandlerTests
 		handler.OnMessage(collectionFinished);
 		handler.OnMessage(assemblyFinished);
 
-		var errors = new[] { (ExceptionUtility.CombineMessages(cleanupFailure), ExceptionUtility.CombineStackTraces(cleanupFailure)) };
+		var errors = new[] { (ExceptionUtility.CombineMessages(cleanupFailure).Replace("\0", "\\0"), ExceptionUtility.CombineStackTraces(cleanupFailure)) };
 		var testRunElement = await handler.TestRunElement();
 		var assemblyElement = Assert.Single(testRunElement.Elements("test-suite"));
 		VerifyTestSuite(assemblyElement, "Assembly", "1-1001", assemblyFinished, "test-assembly.dll", "./test-assembly.dll", childErrorCount: 1);
@@ -948,7 +951,7 @@ public static class NUnitResultWriterMessageHandlerTests
 
 	public static IEnumerable<TheoryDataRow<IMessageSinkMessage>> FixtureErrorData =
 	[
-		new(TestData.TestClassCleanupFailure()),
+		new(TestData.TestClassCleanupFailure(messages: ["This is \n an \n error \0 message"])),
 		new(TestData.TestMethodCleanupFailure()),
 		new(TestData.TestCaseCleanupFailure()),
 		new(TestData.TestCleanupFailure()),
@@ -976,7 +979,7 @@ public static class NUnitResultWriterMessageHandlerTests
 
 		var cleanupFailure = errorMessage as IErrorMetadata;
 		Assert.NotNull(cleanupFailure);
-		var errors = new[] { (ExceptionUtility.CombineMessages(cleanupFailure), ExceptionUtility.CombineStackTraces(cleanupFailure)) };
+		var errors = new[] { (ExceptionUtility.CombineMessages(cleanupFailure).Replace("\0", "\\0"), ExceptionUtility.CombineStackTraces(cleanupFailure)) };
 		var testRunElement = await handler.TestRunElement();
 		var assemblyElement = Assert.Single(testRunElement.Elements("test-suite"));
 		VerifyTestSuite(assemblyElement, "Assembly", "1-1002", assemblyFinished, "test-assembly.dll", "./test-assembly.dll", childErrorCount: 1);

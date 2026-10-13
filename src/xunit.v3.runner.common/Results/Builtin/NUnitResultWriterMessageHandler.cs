@@ -272,13 +272,13 @@ public class NUnitResultWriterMessageHandler : ResultMetadataMessageHandlerBase<
 			propertiesElement.Add(
 				new XElement("property",
 					new XAttribute("name", "_SKIPREASON"),
-					new XAttribute("value", message.Reason)
+					new XAttribute("value", XmlUtility.Escape(message.Reason))
 				)
 			);
 
 			testCaseElement.Add(
 				new XAttribute("label", "Ignored"),
-				new XElement("reason", new XElement("message", new XCData(message.Reason)))
+				new XElement("reason", new XElement("message", new XCData(XmlUtility.Escape(message.Reason, escapeNewlines: false))))
 			);
 		}
 	}
@@ -479,8 +479,8 @@ public class NUnitResultWriterMessageHandler : ResultMetadataMessageHandlerBase<
 
 		testCaseElement.Add(
 			new XAttribute("id", resultMetadata.NextID()),
-			new XAttribute("name", testMethodMetadata?.MethodName ?? testStarting.TestDisplayName),
-			new XAttribute("fullname", testStarting.TestDisplayName),
+			new XAttribute("name", testMethodMetadata?.MethodName ?? XmlUtility.Escape(testStarting.TestDisplayName)),
+			new XAttribute("fullname", XmlUtility.Escape(testStarting.TestDisplayName)),
 			new XAttribute("methodname", testMethodMetadata?.MethodName ?? string.Empty),
 			new XAttribute("classname", testClassMetadata?.TestClassName ?? string.Empty),
 			new XAttribute("runstate", runState),
@@ -492,7 +492,7 @@ public class NUnitResultWriterMessageHandler : ResultMetadataMessageHandlerBase<
 		);
 
 		if (!string.IsNullOrWhiteSpace(testResult.Output))
-			testCaseElement.Add(new XElement("output", AnsiUtility.RemoveAnsiEscapeCodes(testResult.Output)));
+			testCaseElement.Add(new XElement("output", XmlUtility.Escape(AnsiUtility.RemoveAnsiEscapeCodes(testResult.Output), escapeNewlines: false)));
 
 		var assertions = new List<(string Result, string Message, string? StackTrace)>();
 
@@ -520,14 +520,14 @@ public class NUnitResultWriterMessageHandler : ResultMetadataMessageHandlerBase<
 
 			testCaseElement.Add(
 				new XElement(result == "Failed" ? "failure" : "reason",
-					new XElement("message", new XCData(summaryMessage)),
+					new XElement("message", new XCData(XmlUtility.Escape(summaryMessage, escapeNewlines: false))),
 					new XElement("stack-trace", new XCData(summaryStackTrace ?? string.Empty))
 				),
 				new XElement("assertions",
 					assertions.Select(a =>
 						new XElement("assertion",
 							new XAttribute("result", a.Result),
-							new XElement("message", new XCData(a.Message)),
+							new XElement("message", new XCData(XmlUtility.Escape(a.Message, escapeNewlines: false))),
 							new XElement("stack-trace", new XCData(a.StackTrace ?? string.Empty))
 						)
 					)
@@ -544,7 +544,7 @@ public class NUnitResultWriterMessageHandler : ResultMetadataMessageHandlerBase<
 
 			foreach (var kvp in testStarting.Traits)
 				foreach (var value in kvp.Value)
-					propertiesElement.Add(new XElement("property", new XAttribute("name", kvp.Key), new XAttribute("value", value)));
+					propertiesElement.Add(new XElement("property", new XAttribute("name", XmlUtility.Escape(kvp.Key)), new XAttribute("value", XmlUtility.Escape(value))));
 		}
 
 		return propertiesElement;
@@ -566,7 +566,7 @@ public class NUnitResultWriterMessageHandler : ResultMetadataMessageHandlerBase<
 				new XAttribute("name", starting switch
 				{
 					ITestAssemblyStarting assemblyStarting => Path.GetFileName(assemblyStarting.AssemblyPath),
-					ITestCollectionStarting collectionStarting => collectionStarting.TestCollectionDisplayName,
+					ITestCollectionStarting collectionStarting => XmlUtility.Escape(collectionStarting.TestCollectionDisplayName),
 					ITestClassStarting classStarting => classStarting.TestClassSimpleName,
 					_ => throw new ArgumentException("Unknown starting type", nameof(starting)),
 				}),
@@ -631,7 +631,7 @@ public class NUnitResultWriterMessageHandler : ResultMetadataMessageHandlerBase<
 				"Multiple failures in clean-up:\r\n\r\n" +
 				string.Join("\r\n\r\n", errors.Select((a, idx) => $"{idx + 1}) {a.Message}{(a.StackTrace is null ? "" : "\r\n" + a.StackTrace)}"));
 
-		var result = new XElement("failure", new XElement("message", new XCData(message)));
+		var result = new XElement("failure", new XElement("message", new XCData(XmlUtility.Escape(message, escapeNewlines: false))));
 		if (stackTrace is not null)
 			result.Add(new XElement("stack-trace", stackTrace));
 
