@@ -154,6 +154,18 @@ public static class ArgumentFormatterTests
 			Assert.Equal(now.ToString("o"), ArgumentFormatter.Format(now));
 		}
 
+#if NETCOREAPP
+
+		[CulturedFact(["en-US", "fr-FR"])]
+		public static void DateOnlyValue()
+		{
+			var date = new DateOnly(2026, 10, 14);
+
+			Assert.Equal("2026-10-14", ArgumentFormatter.Format(date));
+		}
+
+#endif
+
 		[Fact]
 		public static async Task TaskValue()
 		{
