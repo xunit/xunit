@@ -250,21 +250,19 @@ public class XunitFilters : ITestCaseFilter
 	void GuardEmptyQueryFilters()
 	{
 		if (!queryFilters.Empty)
-			throw new ArgumentException("Cannot add simple filter or VSTest filter; query filters already exist", "query");
+			throw new ArgumentException("Cannot add simple filter or VSTest filter; query filters already exist");
 	}
 
 	void GuardEmptySimpleFilters()
 	{
 		if (!simpleFilters.Empty)
-			throw new ArgumentException("Cannot add query filter or VSTest filter; simple filters already exist", "query");
+			throw new ArgumentException("Cannot add query filter or VSTest filter; simple filters already exist");
 	}
 
 	void GuardEmptyVSTestFilter(string? message = null)
 	{
 		if (vstestFilter is not null)
-#pragma warning disable CA2208  // We're guarding a parameter up the call stack, so we can't use nameof
-			throw new ArgumentException(message ?? "Cannot add simple filter or query filter; VSTest filter already exists", "query");
-#pragma warning restore CA2208
+			throw new ArgumentException(message ?? "Cannot add simple filter or query filter; VSTest filter already exists");
 	}
 
 	/// <summary>

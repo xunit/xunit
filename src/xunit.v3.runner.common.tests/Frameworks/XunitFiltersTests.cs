@@ -101,7 +101,6 @@ public static class XunitFiltersTests
 		var ex = Record.Exception(() => filters.AddQueryFilter("/1/2/3/4"));
 
 		var argEx = Assert.IsType<ArgumentException>(ex);
-		Assert.Equal("query", argEx.ParamName);
 		Assert.StartsWith("Cannot add query filter or VSTest filter; simple filters already exist", argEx.Message);
 	}
 
@@ -114,7 +113,6 @@ public static class XunitFiltersTests
 		var ex = Record.Exception(() => filters.SetVSTestFilter("Hello"));
 
 		var argEx = Assert.IsType<ArgumentException>(ex);
-		Assert.Equal("query", argEx.ParamName);
 		Assert.StartsWith("Cannot add query filter or VSTest filter; simple filters already exist", argEx.Message);
 	}
 
@@ -140,7 +138,6 @@ public static class XunitFiltersTests
 		var ex = Record.Exception(() => simpleFilterAction(filters));
 
 		var argEx = Assert.IsType<ArgumentException>(ex);
-		Assert.Equal("query", argEx.ParamName);
 		Assert.StartsWith("Cannot add simple filter or VSTest filter; query filters already exist", argEx.Message);
 	}
 
@@ -153,7 +150,6 @@ public static class XunitFiltersTests
 		var ex = Record.Exception(() => filters.SetVSTestFilter("Hello"));
 
 		var argEx = Assert.IsType<ArgumentException>(ex);
-		Assert.Equal("query", argEx.ParamName);
 		Assert.StartsWith("Cannot add simple filter or VSTest filter; query filters already exist", argEx.Message);
 	}
 
@@ -166,7 +162,6 @@ public static class XunitFiltersTests
 		var ex = Record.Exception(() => filters.AddQueryFilter("/1/2/3/4"));
 
 		var argEx = Assert.IsType<ArgumentException>(ex);
-		Assert.Equal("query", argEx.ParamName);
 		Assert.StartsWith("Cannot add simple filter or query filter; VSTest filter already exists", argEx.Message);
 	}
 
@@ -180,7 +175,6 @@ public static class XunitFiltersTests
 		var ex = Record.Exception(() => simpleFilterAction(filters));
 
 		var argEx = Assert.IsType<ArgumentException>(ex);
-		Assert.Equal("query", argEx.ParamName);
 		Assert.StartsWith("Cannot add simple filter or query filter; VSTest filter already exists", argEx.Message);
 	}
 
@@ -193,7 +187,6 @@ public static class XunitFiltersTests
 		var ex = Record.Exception(() => filters.SetVSTestFilter("World"));
 
 		var argEx = Assert.IsType<ArgumentException>(ex);
-		Assert.Equal("query", argEx.ParamName);
 		Assert.StartsWith("VSTest filter can only be set a single time", argEx.Message);
 	}
 

@@ -539,9 +539,32 @@ public sealed class CommandLineOptionsProvider() :
 	{
 		Guard.ArgumentNotNull(commandLineOptions);
 
+		// Invoke full validation so we can ensure mutually exclusion options aren't set
+		var projectConfig = new TestProjectConfiguration();
+		var assemblyConfig = new TestAssemblyConfiguration();
+
+		foreach (var option in options)
+			if (commandLineOptions.TryGetOptionArgumentList(option.Key, out var arguments))
+				try
+				{
+					option.Value.Parse(new ParseOptions(arguments, assemblyConfig, projectConfig));
+				}
+				catch (ArgumentException argEx)
+				{
+					return ValidationResult.InvalidTask(
+						string.Format(
+							CultureInfo.CurrentCulture,
+							"Validation failed for '--{0}': {1}",
+							option.Key,
+							argEx.Message ?? "(null message)"
+						)
+					);
+				}
+
+		// Ensure dependent options are present
 		foreach (var optionDependency in optionDependencies)
 			if (commandLineOptions.IsOptionSet(optionDependency.Key) && !commandLineOptions.IsOptionSet(optionDependency.Value))
-				return ValidationResult.InvalidTask(string.Format(CultureInfo.CurrentCulture, "'--{0}' requires '--{1}' to be enabled", optionDependency.Key, optionDependency.Value));
+				return ValidationResult.InvalidTask(string.Format(CultureInfo.CurrentCulture, "Validation failed for '--{0}': This option requires '--{1}' to be enabled", optionDependency.Key, optionDependency.Value));
 
 		return ValidationResult.ValidTask;
 	}
@@ -549,27 +572,8 @@ public sealed class CommandLineOptionsProvider() :
 	/// <inheritdoc/>
 	public Task<ValidationResult> ValidateOptionArgumentsAsync(
 		CommandLineOption commandOption,
-		string[] arguments)
-	{
-		Guard.ArgumentNotNull(commandOption);
-		Guard.ArgumentNotNull(arguments);
-
-		if (options.TryGetValue(commandOption.Name, out var option))
-		{
-			try
-			{
-				var projectConfig = new TestProjectConfiguration();
-				var assemblyConfig = new TestAssemblyConfiguration();
-				option.Parse(new ParseOptions(arguments, assemblyConfig, projectConfig));
-			}
-			catch (ArgumentException argEx)
-			{
-				return ValidationResult.InvalidTask(argEx.Message ?? "(null message)");
-			}
-		}
-
-		return ValidationResult.ValidTask;
-	}
+		string[] arguments) =>
+			ValidationResult.ValidTask;
 
 	sealed class ParseOptions(
 		string[] arguments,

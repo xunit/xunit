@@ -102,16 +102,16 @@ public class CommandLineOptionsProviderTests
 
 		[Theory(DisableDiscoveryEnumeration = true)]
 		[MemberData(nameof(SwitchOptionsList))]
-		public void SwitchInvalid(
+		public async ValueTask SwitchInvalid(
 			string @switch,
 			Expression<Func<XunitProjectAssembly, bool?>> _)
 		{
 			commandLineOptions.Set(@switch, ["foo"]);
 
-			var ex = Record.Exception(() => CommandLineOptionsProvider.Parse(configuration, commandLineOptions, projectAssembly));
+			var result = await new CommandLineOptionsProvider().ValidateCommandLineOptionsAsync(commandLineOptions);
 
-			Assert.IsType<ArgumentException>(ex);
-			Assert.Equal("Invalid value 'foo' (must be one of: 'on', 'off')", ex.Message);
+			Assert.False(result.IsValid);
+			Assert.Equal($"Validation failed for '--{@switch}': Invalid value 'foo' (must be one of: 'on', 'off')", result.ErrorMessage);
 		}
 
 		[Theory]
@@ -128,14 +128,14 @@ public class CommandLineOptionsProviderTests
 		}
 
 		[Fact]
-		public void AutoReporters_Invalid()
+		public async ValueTask AutoReporters_Invalid()
 		{
 			commandLineOptions.Set("auto-reporters", ["foo"]);
 
-			var ex = Record.Exception(() => CommandLineOptionsProvider.Parse(configuration, commandLineOptions, projectAssembly));
+			var result = await new CommandLineOptionsProvider().ValidateCommandLineOptionsAsync(commandLineOptions);
 
-			Assert.IsType<ArgumentException>(ex);
-			Assert.Equal("Invalid value 'foo' (must be one of: 'on', 'off')", ex.Message);
+			Assert.False(result.IsValid);
+			Assert.Equal("Validation failed for '--auto-reporters': Invalid value 'foo' (must be one of: 'on', 'off')", result.ErrorMessage);
 		}
 	}
 
@@ -161,7 +161,7 @@ public class CommandLineOptionsProviderTests
 		[InlineData("Invalid value 'abc' (must be an integer between 0 and 2147483647)", "print-max-object-member-count", new[] { "abc" })]
 		[InlineData("Invalid value 'abc' (must be an integer between 0 and 2147483647)", "print-max-string-length", new[] { "abc" })]
 		[InlineData("Invalid value 'abc' (must be an integer between 0 and 2147483647)", "seed", new[] { "abc" })]
-		public void Validation(
+		public async ValueTask Validation(
 			string expectedMessage,
 			string @switch,
 			string[] argValues)
@@ -171,21 +171,21 @@ public class CommandLineOptionsProviderTests
 
 			commandLineOptions.Set(@switch, argValues);
 
-			var ex = Record.Exception(() => CommandLineOptionsProvider.Parse(configuration, commandLineOptions, projectAssembly));
+			var result = await new CommandLineOptionsProvider().ValidateCommandLineOptionsAsync(commandLineOptions);
 
-			Assert.IsType<ArgumentException>(ex);
-			Assert.Equal(expectedMessage, ex.Message);
+			Assert.False(result.IsValid);
+			Assert.Equal($"Validation failed for '--{@switch}': {expectedMessage}", result.ErrorMessage);
 		}
 
 		[Fact]
-		public void ConfigFile()
+		public async ValueTask ConfigFile()
 		{
 			commandLineOptions.Set("xunit-config-filename", ["foo-bar-baz.json"]);
 
-			var ex = Record.Exception(() => CommandLineOptionsProvider.Parse(configuration, commandLineOptions, projectAssembly));
+			var result = await new CommandLineOptionsProvider().ValidateCommandLineOptionsAsync(commandLineOptions);
 
-			Assert.IsType<ArgumentException>(ex);
-			Assert.Equal($"Config file '{Path.GetFullPath("foo-bar-baz.json")}' was not found", ex.Message);
+			Assert.False(result.IsValid);
+			Assert.Equal($"Validation failed for '--xunit-config-filename': Config file '{Path.GetFullPath("foo-bar-baz.json")}' was not found", result.ErrorMessage);
 		}
 
 		[Fact]
@@ -456,14 +456,26 @@ public class CommandLineOptionsProviderTests
 		[Theory]
 		[InlineData("filter-trait")]
 		[InlineData("filter-not-trait")]
-		public void FilterTraitsValidation(string @switch)
+		public async ValueTask FilterTraitsValidation(string @switch)
 		{
 			commandLineOptions.Set(@switch, ["foo"]);
 
-			var ex = Record.Exception(() => CommandLineOptionsProvider.Parse(configuration, commandLineOptions, projectAssembly));
+			var result = await new CommandLineOptionsProvider().ValidateCommandLineOptionsAsync(commandLineOptions);
 
-			Assert.IsType<ArgumentException>(ex);
-			Assert.Equal("Invalid trait format (must be \"name=value\")", ex.Message);
+			Assert.False(result.IsValid);
+			Assert.Equal($"Validation failed for '--{@switch}': Invalid trait format (must be \"name=value\")", result.ErrorMessage);
+		}
+
+		[Fact]
+		public async ValueTask MixedFiltersNotSupported()
+		{
+			commandLineOptions.Set("filter", ["foo"]);
+			commandLineOptions.Set("filter-method", ["bar"]);
+
+			var result = await new CommandLineOptionsProvider().ValidateCommandLineOptionsAsync(commandLineOptions);
+
+			Assert.False(result.IsValid);
+			Assert.Equal("Validation failed for '--filter-method': Cannot add simple filter or query filter; VSTest filter already exists", result.ErrorMessage);
 		}
 	}
 
@@ -473,14 +485,14 @@ public class CommandLineOptionsProviderTests
 
 		[Theory]
 		[MemberData(nameof(ReportOptions))]
-		public void PathValidation(string option)
+		public async ValueTask PathValidation(string option)
 		{
 			commandLineOptions.Set($"report-xunit-{option}-filename", ["/path/to/report-file"]);
 
-			var ex = Record.Exception(() => CommandLineOptionsProvider.Parse(configuration, commandLineOptions, projectAssembly));
+			var result = await new CommandLineOptionsProvider().ValidateCommandLineOptionsAsync(commandLineOptions);
 
-			Assert.IsType<ArgumentException>(ex);
-			Assert.Equal("Report file name '/path/to/report-file' may not contain a path (use --results-directory to set the report output path)", ex.Message);
+			Assert.False(result.IsValid);
+			Assert.Equal($"Validation failed for '--report-xunit-{option}-filename': Report file name '/path/to/report-file' may not contain a path (use --results-directory to set the report output path)", result.ErrorMessage);
 		}
 
 		[Theory]
@@ -492,7 +504,7 @@ public class CommandLineOptionsProviderTests
 			var result = await new CommandLineOptionsProvider().ValidateCommandLineOptionsAsync(commandLineOptions);
 
 			Assert.False(result.IsValid);
-			Assert.Equal($"'--report-xunit-{option}-filename' requires '--report-xunit-{option}' to be enabled", result.ErrorMessage);
+			Assert.Equal($"Validation failed for '--report-xunit-{option}-filename': This option requires '--report-xunit-{option}' to be enabled", result.ErrorMessage);
 		}
 
 		public static TheoryData<string, string, string> ReportOptionsKeyExtension =
