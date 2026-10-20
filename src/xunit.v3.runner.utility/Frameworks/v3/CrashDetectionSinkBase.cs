@@ -79,8 +79,8 @@ public abstract class CrashDetectionSinkBase<TStart, TFinish>(
 	/// <param name="exitCode">The exit code from the test process, if known</param>
 	public void OnProcessFinished(int? exitCode)
 	{
-		if (lastMessageReceived == DateTimeOffset.MinValue)
-			lastMessageReceived = DateTimeOffset.UtcNow;
+		// Ensure a full wait to prevent the race condition in https://github.com/xunit/xunit/issues/3656
+		lastMessageReceived = DateTimeOffset.UtcNow;
 
 		// Give the finish message a little time to arrive
 		while (true)
