@@ -10,6 +10,7 @@ namespace Xunit.v3;
 public static class RegisteredEngineConfig
 {
 	static readonly ConcurrentDictionary<IXunitTestAssembly, IXunitTestCollectionFactory> testCollectionFactories = [];
+	const BindingFlags testMethodBindingFlags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy;
 
 	static object? CreateInstance(
 		Type type,
@@ -153,6 +154,24 @@ public static class RegisteredEngineConfig
 	/// <param name="testClass">The test class</param>
 	public static ITestCaseOrderer? GetClassTestCaseOrderer(Type testClass) =>
 		GetClassTestOrderer<ITestCaseOrderer, ITestCaseOrdererAttribute>(testClass, "case");
+
+	/// <summary>
+	/// Gets the candidate test methods for a test class.
+	/// </summary>
+	/// <param name="testClass">The test class</param>
+	/// <remarks>
+	/// This list includes methods from the class itself as well as any default interface methods (e.g., any
+	/// non-abstract method on the interface).
+	/// </remarks>
+	public static IReadOnlyCollection<MethodInfo> GetClassTestMethodCandidates(Type testClass) =>
+		Guard.ArgumentNotNull(testClass)
+			.GetMethods(testMethodBindingFlags)
+			.Concat(
+				testClass
+					.GetInterfaces()
+					.SelectMany(i => i.GetMethods(testMethodBindingFlags).Where(m => !m.IsAbstract))
+			)
+			.CastOrToReadOnlyCollection();
 
 	/// <summary>
 	/// Gets the test method orderer that's attached to a test class. Returns <see langword="null"/> if there
@@ -314,7 +333,7 @@ public static class RegisteredEngineConfig
 		Guard.ArgumentNotNull(testClass);
 		Guard.ArgumentNotNull(methodName);
 
-		var testMethod = Guard.NotNull(() => $"Cannot locate test method '{testClass.SafeName()}.{methodName}'", testClass.GetMethods(XunitTestClass.MethodBindingFlags).FirstOrDefault(m => m.Name == methodName));
+		var testMethod = Guard.NotNull(() => $"Cannot locate test method '{testClass.SafeName()}.{methodName}'", GetClassTestMethodCandidates(testClass).FirstOrDefault(m => m.Name == methodName));
 		var warnings = new List<string>();
 
 		try

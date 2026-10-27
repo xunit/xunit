@@ -1,9 +1,8 @@
-#if NETCOREAPP
+#if NETCOREAPP  // Default interface methods are not supported on .NET Framework or Native AOT
 
 using Xunit;
 using Xunit.Sdk;
 
-// Default interface methods are not supported on .NET Framework or Native AOT
 public class DefaultInterfaceMethodAcceptanceTests : AcceptanceTestV3
 {
 	[Fact]
@@ -11,16 +10,43 @@ public class DefaultInterfaceMethodAcceptanceTests : AcceptanceTestV3
 	{
 		var results = await RunForResultsAsync(typeof(ClassUnderTest));
 
-		var passed = Assert.Single(results.OfType<TestPassedWithMetadata>());
-		Assert.Equal($"{typeof(ClassUnderTest).FullName}.{nameof(IHaveDefaultMethods.Passing)}", passed.Test.TestDisplayName);
-
-		var failed = Assert.Single(results.OfType<TestFailedWithMetadata>());
-		Assert.Equal($"{typeof(ClassUnderTest).FullName}.{nameof(IHaveDefaultMethods.Failing)}", failed.Test.TestDisplayName);
-		Assert.Equal(typeof(TrueException).FullName, failed.ExceptionTypes.Single());
-
-		var skipped = Assert.Single(results.OfType<TestSkippedWithMetadata>());
-		Assert.Equal($"{typeof(ClassUnderTest).FullName}.{nameof(IHaveDefaultMethods.Skipping)}", skipped.Test.TestDisplayName);
-		Assert.Equal("Statically skipped", skipped.Reason);
+		Assert.Collection(
+			results.OrderBy(t => t.Test.TestDisplayName),
+			result =>
+			{
+				Assert.Equal(nameof(AbstractBaseClass.AbstractTestMethod), result.TestMethod?.MethodName);
+				Assert.IsType<TestPassedWithMetadata>(result);
+			},
+			result =>
+			{
+				Assert.Equal(nameof(IHaveDefaultMethods.Failing), result.TestMethod?.MethodName);
+				var failed = Assert.IsType<TestFailedWithMetadata>(result);
+				Assert.Equal(typeof(TrueException).FullName, failed.ExceptionTypes.Single());
+			},
+			result =>
+			{
+				Assert.Equal(nameof(IHaveDefaultMethods.NonDefaultInterfaceMethodsSupported), result.TestMethod?.MethodName);
+				Assert.IsType<TestPassedWithMetadata>(result);
+			},
+			result =>
+			{
+				Assert.Equal(nameof(IHaveDefaultMethods.OverloadOfDefaultNotSupported), result.TestMethod?.MethodName);
+				var failed = Assert.IsType<TestFailedWithMetadata>(result);
+				Assert.Equal(typeof(TestPipelineException).FullName, failed.ExceptionTypes.Single());
+				Assert.Equal($"Test method {typeof(IHaveDefaultMethods).FullName}.{nameof(IHaveDefaultMethods.OverloadOfDefaultNotSupported)} has overloads, which is not supported. See xUnit1024 for more information. https://xunit.net/xunit.analyzers/rules/xUnit1024", failed.Messages.Single());
+			},
+			result =>
+			{
+				Assert.Equal(nameof(IHaveDefaultMethods.Passing), result.TestMethod?.MethodName);
+				Assert.IsType<TestPassedWithMetadata>(result);
+			},
+			result =>
+			{
+				Assert.Equal(nameof(IHaveDefaultMethods.Skipping), result.TestMethod?.MethodName);
+				var skipped = Assert.IsType<TestSkippedWithMetadata>(result);
+				Assert.Equal("Statically skipped", skipped.Reason);
+			}
+		);
 	}
 
 	interface IHaveDefaultMethods
@@ -34,12 +60,26 @@ public class DefaultInterfaceMethodAcceptanceTests : AcceptanceTestV3
 		[Fact(Skip = "Statically skipped")]
 		public void Skipping() => Assert.True(false);
 
-		void NotATest();
+		[Fact]
+		public void OverloadOfDefaultNotSupported() { }
+
+		void NonDefaultInterfaceMethodsSupported();
 	}
 
-	class ClassUnderTest : IHaveDefaultMethods
+	abstract class AbstractBaseClass
 	{
-		public void NotATest() { }
+		[Fact]
+		public abstract void AbstractTestMethod();
+	}
+
+	class ClassUnderTest : AbstractBaseClass, IHaveDefaultMethods
+	{
+		public override void AbstractTestMethod() { }
+
+		public void OverloadOfDefaultNotSupported() { }
+
+		[Fact]
+		public void NonDefaultInterfaceMethodsSupported() { }
 	}
 }
 

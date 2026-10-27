@@ -11,8 +11,6 @@ namespace Xunit.v3;
 /// </remarks>
 public class XunitTestClass : IXunitTestClass, IXunitSerializable
 {
-	internal static BindingFlags MethodBindingFlags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy;
-
 	// Values that must be round-tripped in serialization
 	Type? @class;
 	IXunitTestCollection? testCollection;
@@ -37,7 +35,7 @@ public class XunitTestClass : IXunitTestClass, IXunitSerializable
 		beforeAfterTestAttributes = new(() => ExtensibilityPointFactory.GetClassBeforeAfterTestAttributes(Class, TestCollection.BeforeAfterTestAttributes));
 		classFixtureTypes = new(() => ExtensibilityPointFactory.GetClassClassFixtureTypes(Class, TestCollection.ClassFixtureTypes));
 		constructors = new(() => Class.IsStatic() ? null : Class.GetConstructors().Where(ci => !ci.IsStatic && ci.IsPublic).CastOrToReadOnlyCollection());
-		methods = new(() => Class.GetMethods(MethodBindingFlags).Concat(Class.GetInterfaces().SelectMany(i => i.GetMethods(MethodBindingFlags))).CastOrToReadOnlyCollection());
+		methods = new(() => RegisteredEngineConfig.GetClassTestMethodCandidates(Class));
 		testCaseOrderer = new(() => RegisteredEngineConfig.GetClassTestCaseOrderer(Class));
 		testClassAttribute = new(() => ExtensibilityPointFactory.GetClassTestClassAttribute(Class));
 		testMethodOrderer = new(() => RegisteredEngineConfig.GetClassTestMethodOrderer(Class));
