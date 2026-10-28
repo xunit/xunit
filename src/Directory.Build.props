@@ -26,8 +26,6 @@
     <PackageId>$(MSBuildProjectName)</PackageId>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <PublishAot Condition=" $(_XunitIsAotProject) AND '$(PublishAot)' != '' ">true</PublishAot>
-    <RestoreLockedMode Condition="'$(ContinuousIntegrationBuild)' == 'true'">true</RestoreLockedMode>
-    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <RootNamespace>Xunit</RootNamespace>
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
