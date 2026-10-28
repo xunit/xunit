@@ -77,7 +77,7 @@ public static class TestPlatformExecutionMessageSinkTests
 
 				classUnderTest.OnMessage(TestData.TestAssemblyCleanupFailure());
 
-				AssertCleanupFailure(classUnderTest, "Test Assembly", "test-display-name", "test-case-id");
+				AssertCleanupFailure(classUnderTest, "[Test Assembly Cleanup Failure (./test-assembly.dll)]: ", "test-case-id");
 			}
 
 			[Fact]
@@ -88,17 +88,17 @@ public static class TestPlatformExecutionMessageSinkTests
 
 				classUnderTest.OnMessage(TestData.TestAssemblyCleanupFailure());
 
-				AssertCleanupFailure(classUnderTest, "Test Assembly", "./test-assembly.dll");
+				AssertCleanupFailure(classUnderTest, "[Test Assembly Cleanup Failure (./test-assembly.dll)]: ");
 			}
 
 			[Fact]
-			public static void NoMetadatae()
+			public static void NoMetadata()
 			{
 				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
 
 				classUnderTest.OnMessage(TestData.TestAssemblyCleanupFailure());
 
-				AssertCleanupFailure(classUnderTest, "Test Assembly", "<unknown test assembly>");
+				AssertCleanupFailure(classUnderTest, "[Test Assembly Cleanup Failure (<unknown test assembly>)]: ");
 			}
 		}
 
@@ -112,7 +112,7 @@ public static class TestPlatformExecutionMessageSinkTests
 
 				classUnderTest.OnMessage(TestData.TestCaseCleanupFailure());
 
-				AssertCleanupFailure(classUnderTest, "Test Case", "test-display-name", "test-case-id");
+				AssertCleanupFailure(classUnderTest, "[Test Case Cleanup Failure]: ", "test-case-id", "test-display-name");
 			}
 
 			[Fact]
@@ -123,7 +123,7 @@ public static class TestPlatformExecutionMessageSinkTests
 
 				classUnderTest.OnMessage(TestData.TestCaseCleanupFailure());
 
-				AssertCleanupFailure(classUnderTest, "Test Case", "test-case-display-name", "test-case-id");
+				AssertCleanupFailure(classUnderTest, "[Test Case Cleanup Failure]: ", "test-case-id", "test-case-display-name");
 			}
 
 			[Fact]
@@ -133,7 +133,7 @@ public static class TestPlatformExecutionMessageSinkTests
 
 				classUnderTest.OnMessage(TestData.TestCaseCleanupFailure());
 
-				AssertCleanupFailure(classUnderTest, "Test Case", "<unknown test case>", "test-case-id");
+				AssertCleanupFailure(classUnderTest, "[Test Case Cleanup Failure]: ", "test-case-id", verifyMetadata: false);
 			}
 		}
 
@@ -147,7 +147,7 @@ public static class TestPlatformExecutionMessageSinkTests
 
 				classUnderTest.OnMessage(TestData.TestClassCleanupFailure());
 
-				AssertCleanupFailure(classUnderTest, "Test Class", "test-display-name", "test-case-id");
+				AssertCleanupFailure(classUnderTest, "[Test Class Cleanup Failure (test-class-name)]: ", "test-case-id");
 			}
 
 			[Fact]
@@ -158,7 +158,7 @@ public static class TestPlatformExecutionMessageSinkTests
 
 				classUnderTest.OnMessage(TestData.TestClassCleanupFailure());
 
-				AssertCleanupFailure(classUnderTest, "Test Class", "test-class-name");
+				AssertCleanupFailure(classUnderTest, "[Test Class Cleanup Failure (test-class-name)]: ");
 			}
 
 			[Fact]
@@ -168,7 +168,7 @@ public static class TestPlatformExecutionMessageSinkTests
 
 				classUnderTest.OnMessage(TestData.TestClassCleanupFailure());
 
-				AssertCleanupFailure(classUnderTest, "Test Class", "<unknown test class>");
+				AssertCleanupFailure(classUnderTest, "[Test Class Cleanup Failure (<unknown test class>)]: ");
 			}
 		}
 
@@ -182,7 +182,7 @@ public static class TestPlatformExecutionMessageSinkTests
 
 				classUnderTest.OnMessage(TestData.TestCleanupFailure());
 
-				AssertCleanupFailure(classUnderTest, "Test", "test-display-name", "test-case-id");
+				AssertCleanupFailure(classUnderTest, "[Test Cleanup Failure]: ", "test-case-id");
 			}
 
 			[Fact]
@@ -192,7 +192,7 @@ public static class TestPlatformExecutionMessageSinkTests
 
 				classUnderTest.OnMessage(TestData.TestCleanupFailure());
 
-				AssertCleanupFailure(classUnderTest, "Test", "<unknown test>", "test-case-id");
+				AssertCleanupFailure(classUnderTest, "[Test Cleanup Failure]: ", "test-case-id", verifyMetadata: false);
 			}
 		}
 
@@ -206,7 +206,7 @@ public static class TestPlatformExecutionMessageSinkTests
 
 				classUnderTest.OnMessage(TestData.TestCollectionCleanupFailure());
 
-				AssertCleanupFailure(classUnderTest, "Test Collection", "test-display-name", "test-case-id");
+				AssertCleanupFailure(classUnderTest, "[Test Collection Cleanup Failure (test-collection-display-name)]: ", "test-case-id");
 			}
 
 			[Fact]
@@ -217,7 +217,7 @@ public static class TestPlatformExecutionMessageSinkTests
 
 				classUnderTest.OnMessage(TestData.TestCollectionCleanupFailure());
 
-				AssertCleanupFailure(classUnderTest, "Test Collection", "test-collection-display-name");
+				AssertCleanupFailure(classUnderTest, "[Test Collection Cleanup Failure (test-collection-display-name)]: ");
 			}
 
 			[Fact]
@@ -227,7 +227,7 @@ public static class TestPlatformExecutionMessageSinkTests
 
 				classUnderTest.OnMessage(TestData.TestCollectionCleanupFailure());
 
-				AssertCleanupFailure(classUnderTest, "Test Collection", "<unknown test collection>");
+				AssertCleanupFailure(classUnderTest, "[Test Collection Cleanup Failure (<unknown test collection>)]: ");
 			}
 		}
 
@@ -300,7 +300,7 @@ public static class TestPlatformExecutionMessageSinkTests
 
 				classUnderTest.OnMessage(TestData.TestMethodCleanupFailure());
 
-				AssertCleanupFailure(classUnderTest, "Test Method", "test-display-name", "test-case-id");
+				AssertCleanupFailure(classUnderTest, "[Test Method Cleanup Failure (test-class-name.test-method)]: ", "test-case-id");
 			}
 
 			[Fact]
@@ -311,7 +311,7 @@ public static class TestPlatformExecutionMessageSinkTests
 
 				classUnderTest.OnMessage(TestData.TestMethodCleanupFailure());
 
-				AssertCleanupFailure(classUnderTest, "Test Method", "test-class-name.test-method");
+				AssertCleanupFailure(classUnderTest, "[Test Method Cleanup Failure (test-class-name.test-method)]: ");
 			}
 
 			[Fact]
@@ -321,7 +321,7 @@ public static class TestPlatformExecutionMessageSinkTests
 
 				classUnderTest.OnMessage(TestData.TestMethodCleanupFailure());
 
-				AssertCleanupFailure(classUnderTest, "Test Method", "<unknown test method>");
+				AssertCleanupFailure(classUnderTest, "[Test Method Cleanup Failure (<unknown test method>)]: ");
 			}
 		}
 
@@ -436,23 +436,31 @@ public static class TestPlatformExecutionMessageSinkTests
 
 		static void AssertCleanupFailure(
 			TestableTestPlatformExecutionMessageSink classUnderTest,
-			string cleanupType,
-			string displayName,
-			string? expectedUid = null)
+			string exceptionHeader,
+			string? expectedUid = null,
+			string? expectedDisplayName = null,
+			bool verifyMetadata = true)
 		{
 			var testNode = GetTestNode(classUnderTest);
-			Assert.Equal($"[{cleanupType} Cleanup Failure ({displayName})]", testNode.DisplayName);
 
 			if (expectedUid is null)
+			{
 				Assert.True(Guid.TryParse(testNode.Uid.Value, out _));
+				Assert.Equal("Non-test cleanup failure", testNode.DisplayName);
+			}
 			else
+			{
 				Assert.Equal(expectedUid, testNode.Uid.Value);
+
+				if (verifyMetadata)
+					AssertStandardMetadata(classUnderTest, expectTiming: false, failure: true, expectedDisplayName: expectedDisplayName, exceptionHeader: exceptionHeader);
+			}
 
 			var error = testNode.Properties.Single<ErrorTestNodeStateProperty>();
 
 			Assert.Null(error.Explanation);
 			Assert.NotNull(error.Exception);
-			Assert.Equal($"{TestData.DefaultExceptionTypes[0]} : {TestData.DefaultExceptionMessages[0]}", error.Exception.Message);
+			Assert.Equal($"{exceptionHeader}{TestData.DefaultExceptionTypes[0]} : {TestData.DefaultExceptionMessages[0]}", error.Exception.Message);
 			Assert.Equal(TestData.DefaultStackTraces[0], error.Exception.StackTrace);
 		}
 
@@ -472,11 +480,13 @@ public static class TestPlatformExecutionMessageSinkTests
 			bool expectTiming = true,
 			bool expectWarnings = false,
 			bool expectTrx = false,
-			bool failure = false)
+			bool failure = false,
+			string? expectedDisplayName = null,
+			string? exceptionHeader = null)
 		{
 			var testNode = GetTestNode(classUnderTest);
-			Assert.Equal(TestData.DefaultTestDisplayName, testNode.DisplayName);
 			Assert.Equal(TestData.DefaultTestCaseUniqueID, testNode.Uid.Value);
+			Assert.Equal(expectedDisplayName ?? TestData.DefaultTestDisplayName, testNode.DisplayName);
 
 			var testMethod = testNode.Properties.Single<TestMethodIdentifierProperty>();
 			Assert.Equal(TestData.DefaultAssemblyName, testMethod.AssemblyFullName);
@@ -538,7 +548,7 @@ public static class TestPlatformExecutionMessageSinkTests
 				if (failure)
 				{
 					var trxException = testNode.Properties.Single<TrxExceptionProperty>();
-					Assert.Equal($"exception 1 : message 1{Environment.NewLine}---- exception 2 : message 2", trxException.Message);
+					Assert.Equal($"{exceptionHeader}exception 1 : message 1{Environment.NewLine}---- exception 2 : message 2", trxException.Message);
 					Assert.Equal($"stack trace 1{Environment.NewLine}----- Inner Stack Trace -----{Environment.NewLine}stack trace 2", trxException.StackTrace);
 				}
 			}
@@ -602,6 +612,7 @@ public static class TestPlatformExecutionMessageSinkTests
 
 	class TestableTestPlatformExecutionMessageSink(
 		SpyMessageSink innerSink,
+		string assemblyFullName,
 		SessionUid sessionUid,
 		SpyTestPlatformMessageBus testNodeMessageBus,
 		XunitTrxCapability trxCapability,
@@ -609,7 +620,7 @@ public static class TestPlatformExecutionMessageSinkTests
 		IConfiguration configuration,
 		bool showLiveOutput,
 		bool serverMode) :
-			TestPlatformExecutionMessageSink(innerSink, sessionUid, testNodeMessageBus, trxCapability, outputDevice, configuration, showLiveOutput, serverMode)
+			TestPlatformExecutionMessageSink(innerSink, assemblyFullName, sessionUid, testNodeMessageBus, trxCapability, outputDevice, configuration, showLiveOutput, serverMode)
 	{
 		public SpyMessageSink InnerSink { get; } = innerSink;
 		public SpyTestPlatformOutputDevice OutputDevice { get; } = outputDevice;
@@ -620,6 +631,6 @@ public static class TestPlatformExecutionMessageSinkTests
 			bool showLiveOutput = false,
 			bool serverMode = false,
 			string? resultsPath = null) =>
-				new(SpyMessageSink.Capture(), new(), new(), new(trxEnabled), new(), Mocks.MicrosoftTestingPlatform.Configuration(resultsPath), showLiveOutput, serverMode);
+				new(SpyMessageSink.Capture(), "test-assembly", new(), new(), new(trxEnabled), new(), Mocks.MicrosoftTestingPlatform.Configuration(resultsPath), showLiveOutput, serverMode);
 	}
 }

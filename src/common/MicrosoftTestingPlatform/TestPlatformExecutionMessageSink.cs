@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Reflection;
 using Microsoft.Testing.Platform.Configurations;
 using Microsoft.Testing.Platform.Extensions.Messages;
 using Microsoft.Testing.Platform.Messages;
@@ -14,6 +15,7 @@ namespace Xunit.MicrosoftTestingPlatform;
 /// xUnit.net v3 execution messages into Microsoft.Testing.Platform <see cref="TestNode"/> messages.
 /// </summary>
 /// <param name="innerSink">The inner sink to delegate messages to</param>
+/// <param name="assemblyFullName">The full name of the test assembly (via <see cref="Assembly.FullName"/>)</param>
 /// <param name="sessionUid">The MTP session UID</param>
 /// <param name="testNodeMessageBus">The message bus for reporting MTP messages to</param>
 /// <param name="trxCapability">Information class that knows whether TRX reporting is enabled</param>
@@ -28,6 +30,7 @@ namespace Xunit.MicrosoftTestingPlatform;
 [ExcludeFromCodeCoverage]
 public class TestPlatformExecutionMessageSink(
 	IMessageSink innerSink,
+	string assemblyFullName,
 	SessionUid sessionUid,
 	IMessageBus testNodeMessageBus,
 	XunitTrxCapability trxCapability,
@@ -106,42 +109,60 @@ public class TestPlatformExecutionMessageSink(
 
 	void OnTestAssemblyCleanupFailure(ITestAssemblyCleanupFailure failure)
 	{
+		var header = string.Format(
+			CultureInfo.InvariantCulture,
+			"[Test Assembly Cleanup Failure ({0})]",
+			metadataCache.TryGetAssemblyMetadata(failure)?.AssemblyPath ?? "<unknown test assembly>"
+		);
+
 		if (testsByAssemblyID.TryGetValue(failure.AssemblyUniqueID, out var tests))
-			SendError("Test Assembly Cleanup Failure", tests, failure);
+			SendError(header, tests, failure);
 		else
-			SendError("Test Assembly Cleanup Failure", metadataCache.TryGetAssemblyMetadata(failure)?.AssemblyPath ?? "<unknown test assembly>", failure);
+			SendError(header, failure);
 	}
 
 	void OnTestCaseCleanupFailure(ITestCaseCleanupFailure failure)
 	{
 		if (testsByCaseID.TryGetValue(failure.TestCaseUniqueID, out var tests))
-			SendError("Test Case Cleanup Failure", tests, failure);
+			SendError("[Test Case Cleanup Failure]", tests, failure);
 		else
-			SendError("Test Case Cleanup Failure", metadataCache.TryGetTestCaseMetadata(failure)?.TestCaseDisplayName ?? "<unknown test case>", failure, failure.TestCaseUniqueID);
+			SendError("[Test Case Cleanup Failure]", failure, failure.TestCaseUniqueID);
 	}
 
 	void OnTestClassCleanupFailure(ITestClassCleanupFailure failure)
 	{
+		var header = string.Format(
+			CultureInfo.InvariantCulture,
+			"[Test Class Cleanup Failure ({0})]",
+			metadataCache.TryGetClassMetadata(failure)?.TestClassName ?? "<unknown test class>"
+		);
+
 		if (failure.TestClassUniqueID is not null && testsByClassID.TryGetValue(failure.TestClassUniqueID, out var tests))
-			SendError("Test Class Cleanup Failure", tests, failure);
+			SendError(header, tests, failure);
 		else
-			SendError("Test Class Cleanup Failure", metadataCache.TryGetClassMetadata(failure)?.TestClassName ?? "<unknown test class>", failure);
+			SendError(header, failure);
 	}
 
 	void OnTestCleanupFailure(ITestCleanupFailure failure)
 	{
 		if (testsByTestID.TryGetValue(failure.TestUniqueID, out var test))
-			SendError("Test Cleanup Failure", [test], failure);
+			SendError("[Test Cleanup Failure]", [test], failure);
 		else
-			SendError("Test Cleanup Failure", "<unknown test>", failure, failure.TestCaseUniqueID);
+			SendError("[Test Cleanup Failure]", failure, failure.TestCaseUniqueID);
 	}
 
 	void OnTestCollectionCleanupFailure(ITestCollectionCleanupFailure failure)
 	{
+		var header = string.Format(
+			CultureInfo.InvariantCulture,
+			"[Test Collection Cleanup Failure ({0})]",
+			metadataCache.TryGetCollectionMetadata(failure)?.TestCollectionDisplayName ?? "<unknown test collection>"
+		);
+
 		if (testsByCollectionID.TryGetValue(failure.TestCollectionUniqueID, out var tests))
-			SendError("Test Collection Cleanup Failure", tests, failure);
+			SendError(header, tests, failure);
 		else
-			SendError("Test Collection Cleanup Failure", metadataCache.TryGetCollectionMetadata(failure)?.TestCollectionDisplayName ?? "<unknown test collection>", failure);
+			SendError(header, failure);
 	}
 
 	void OnTestFinished(ITestFinished testFinished)
@@ -239,19 +260,18 @@ public class TestPlatformExecutionMessageSink(
 
 	void OnTestMethodCleanupFailure(ITestMethodCleanupFailure failure)
 	{
-		if (failure.TestMethodUniqueID is not null && testsByMethodID.TryGetValue(failure.TestMethodUniqueID, out var tests))
-			SendError("Test Method Cleanup Failure", tests, failure);
-		else
-		{
-			var methodMetadata = metadataCache.TryGetMethodMetadata(failure);
-			var classMetadata = metadataCache.TryGetClassMetadata(failure);
-			var displayName =
-				methodMetadata is not null && classMetadata is not null
-					? string.Format(CultureInfo.InvariantCulture, "{0}.{1}", classMetadata.TestClassName, methodMetadata.MethodName)
-					: "<unknown test method>";
+		var methodMetadata = metadataCache.TryGetMethodMetadata(failure);
+		var classMetadata = metadataCache.TryGetClassMetadata(failure);
+		var displayName =
+			methodMetadata is not null && classMetadata is not null
+				? string.Format(CultureInfo.InvariantCulture, "{0}.{1}", classMetadata.TestClassName, methodMetadata.MethodName)
+				: "<unknown test method>";
+		var header = string.Format(CultureInfo.InvariantCulture, "[Test Method Cleanup Failure ({0})]", displayName);
 
-			SendError("Test Method Cleanup Failure", displayName, failure);
-		}
+		if (failure.TestMethodUniqueID is not null && testsByMethodID.TryGetValue(failure.TestMethodUniqueID, out var tests))
+			SendError(header, tests, failure);
+		else
+			SendError(header, failure);
 	}
 
 	void OnTestStarting(ITestStarting testStarting)
@@ -269,31 +289,42 @@ public class TestPlatformExecutionMessageSink(
 	}
 
 	void SendError(
-		string errorType,
+		string header,
 		IReadOnlyCollection<ITestStarting> tests,
 		IErrorMetadata errorMetadata)
 	{
-		var exception = new XunitException(errorMetadata);
+		var exception = new XunitException(errorMetadata, header);
 
 		foreach (var test in tests)
-			SendError(errorType, test.TestDisplayName, exception, test.TestCaseUniqueID);
+			SendError(exception, test.TestCaseUniqueID, test.TestDisplayName);
 	}
 
 	void SendError(
-		string errorType,
-		string displayName,
+		string header,
 		IErrorMetadata errorMetadata,
 		string? testCaseUniqueID = null) =>
-			SendError(errorType, displayName, new XunitException(errorMetadata), testCaseUniqueID);
+			SendError(new XunitException(errorMetadata, header), testCaseUniqueID);
 
 	void SendError(
-		string errorType,
-		string displayName,
 		Exception exception,
-		string? testCaseUniqueID)
+		string? testCaseUniqueID,
+		string? displayName = null)
 	{
-		var errorNode = new TestNode { Uid = testCaseUniqueID ?? Guid.NewGuid().ToString(), DisplayName = $"[{errorType} ({displayName})]" };
+		var testCaseMetadata =
+			testCaseUniqueID is not null
+				? metadataCache.TryGetTestCaseMetadata(testCaseUniqueID)
+				: null;
+
+		var errorNode = new TestNode
+		{
+			Uid = testCaseUniqueID ?? Guid.NewGuid().ToString(),
+			DisplayName = displayName ?? testCaseMetadata?.TestCaseDisplayName ?? "Non-test cleanup failure"
+		};
 		errorNode.Properties.Add(new ErrorTestNodeStateProperty(exception));
+
+		if (testCaseMetadata is not null)
+			errorNode.AddMetadata(testCaseMetadata, assemblyFullName);
+
 		errorNode.SendUpdate(this, sessionUid, testNodeMessageBus);
 	}
 

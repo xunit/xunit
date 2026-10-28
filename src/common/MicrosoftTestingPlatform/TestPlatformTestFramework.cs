@@ -245,7 +245,7 @@ public class TestPlatformTestFramework :
 			var showLiveOutput = projectAssembly.Configuration.ShowLiveOutputOrDefault;
 			projectAssembly.Configuration.ShowLiveOutput = false;
 
-			var messageHandler = new TestPlatformExecutionMessageSink(session.MessageHandler, sessionUid, messageBus, trxCapability, outputDevice, configuration, showLiveOutput, serverMode);
+			var messageHandler = new TestPlatformExecutionMessageSink(session.MessageHandler, projectAssembly.Assembly!.FullName!, sessionUid, messageBus, trxCapability, outputDevice, configuration, showLiveOutput, serverMode);
 			await projectRunner.Run(projectAssembly, messageHandler, diagnosticMessageSink, runnerLogger, resultWriters, pipelineStartup, testCaseIDsToRun, testContextInitializedCallback: async () => TestContext.Current.SetMicrosoftTestingPlatformSession(sessionUid));
 
 			foreach (var output in projectAssembly.Project.Configuration.Output)
