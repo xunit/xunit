@@ -67,152 +67,291 @@ public static class TestPlatformExecutionMessageSinkTests
 
 	public static class MessageMapping
 	{
-		[Fact]
-		public static void ITestAssemblyCleanupFailure()
+		public static class ITestAssemblyCleanupFailure
 		{
-			var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
-			SendStartingMessages(classUnderTest);
+			[Fact]
+			public static void WithTests()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+				SendStartingMessages(classUnderTest);
 
-			classUnderTest.OnMessage(TestData.TestAssemblyCleanupFailure());
+				classUnderTest.OnMessage(TestData.TestAssemblyCleanupFailure());
 
-			AssertCleanupFailure(classUnderTest, "Test Assembly");
+				AssertCleanupFailure(classUnderTest, "Test Assembly", "test-display-name", "test-case-id");
+			}
+
+			[Fact]
+			public static void WithoutTests()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+				SendStartingMessages(classUnderTest, includeTestStarting: false);
+
+				classUnderTest.OnMessage(TestData.TestAssemblyCleanupFailure());
+
+				AssertCleanupFailure(classUnderTest, "Test Assembly", "./test-assembly.dll");
+			}
+
+			[Fact]
+			public static void NoMetadatae()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+
+				classUnderTest.OnMessage(TestData.TestAssemblyCleanupFailure());
+
+				AssertCleanupFailure(classUnderTest, "Test Assembly", "<unknown test assembly>");
+			}
 		}
 
-		[Fact]
-		public static void ITestCaseCleanupFailure()
+		public static class ITestCaseCleanupFailure
 		{
-			var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
-			SendStartingMessages(classUnderTest);
+			[Fact]
+			public static void WithTests()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+				SendStartingMessages(classUnderTest);
 
-			classUnderTest.OnMessage(TestData.TestCaseCleanupFailure());
+				classUnderTest.OnMessage(TestData.TestCaseCleanupFailure());
 
-			AssertCleanupFailure(classUnderTest, "Test Case");
+				AssertCleanupFailure(classUnderTest, "Test Case", "test-display-name", "test-case-id");
+			}
+
+			[Fact]
+			public static void WithoutTests()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+				SendStartingMessages(classUnderTest, includeTestStarting: false);
+
+				classUnderTest.OnMessage(TestData.TestCaseCleanupFailure());
+
+				AssertCleanupFailure(classUnderTest, "Test Case", "test-case-display-name", "test-case-id");
+			}
+
+			[Fact]
+			public static void NoMetadata()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+
+				classUnderTest.OnMessage(TestData.TestCaseCleanupFailure());
+
+				AssertCleanupFailure(classUnderTest, "Test Case", "<unknown test case>", "test-case-id");
+			}
 		}
 
-		[Fact]
-		public static void ITestClassCleanupFailure()
+		public static class ITestClassCleanupFailure
 		{
-			var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
-			SendStartingMessages(classUnderTest);
+			[Fact]
+			public static void WithTests()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+				SendStartingMessages(classUnderTest);
 
-			classUnderTest.OnMessage(TestData.TestClassCleanupFailure());
+				classUnderTest.OnMessage(TestData.TestClassCleanupFailure());
 
-			AssertCleanupFailure(classUnderTest, "Test Class");
+				AssertCleanupFailure(classUnderTest, "Test Class", "test-display-name", "test-case-id");
+			}
+
+			[Fact]
+			public static void WithoutTests()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+				SendStartingMessages(classUnderTest, includeTestStarting: false);
+
+				classUnderTest.OnMessage(TestData.TestClassCleanupFailure());
+
+				AssertCleanupFailure(classUnderTest, "Test Class", "test-class-name");
+			}
+
+			[Fact]
+			public static void NoMetadata()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+
+				classUnderTest.OnMessage(TestData.TestClassCleanupFailure());
+
+				AssertCleanupFailure(classUnderTest, "Test Class", "<unknown test class>");
+			}
 		}
 
-		[Fact]
-		public static void ITestCleanupFailure()
+		public static class ITestCleanupFailure
 		{
-			var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
-			SendStartingMessages(classUnderTest);
+			[Fact]
+			public static void WithTests()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+				SendStartingMessages(classUnderTest);
 
-			classUnderTest.OnMessage(TestData.TestCleanupFailure());
+				classUnderTest.OnMessage(TestData.TestCleanupFailure());
 
-			AssertCleanupFailure(classUnderTest, "Test");
+				AssertCleanupFailure(classUnderTest, "Test", "test-display-name", "test-case-id");
+			}
+
+			[Fact]
+			public static void NoMetadata()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+
+				classUnderTest.OnMessage(TestData.TestCleanupFailure());
+
+				AssertCleanupFailure(classUnderTest, "Test", "<unknown test>", "test-case-id");
+			}
 		}
 
-		[Fact]
-		public static void ITestCollectionCleanupFailure()
+		public static class ITestCollectionCleanupFailure
 		{
-			var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
-			SendStartingMessages(classUnderTest);
+			[Fact]
+			public static void WithTests()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+				SendStartingMessages(classUnderTest);
 
-			classUnderTest.OnMessage(TestData.TestCollectionCleanupFailure());
+				classUnderTest.OnMessage(TestData.TestCollectionCleanupFailure());
 
-			AssertCleanupFailure(classUnderTest, "Test Collection");
+				AssertCleanupFailure(classUnderTest, "Test Collection", "test-display-name", "test-case-id");
+			}
+
+			[Fact]
+			public static void WithoutTests()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+				SendStartingMessages(classUnderTest, includeTestStarting: false);
+
+				classUnderTest.OnMessage(TestData.TestCollectionCleanupFailure());
+
+				AssertCleanupFailure(classUnderTest, "Test Collection", "test-collection-display-name");
+			}
+
+			[Fact]
+			public static void NoMetadata()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+
+				classUnderTest.OnMessage(TestData.TestCollectionCleanupFailure());
+
+				AssertCleanupFailure(classUnderTest, "Test Collection", "<unknown test collection>");
+			}
 		}
 
-		[Theory]
-		[InlineData(false)]
-		[InlineData(true)]
-		public static void ITestFailed_Assertion(bool trxEnabled)
+		public static class ITestFailed
 		{
-			var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(trxEnabled: trxEnabled);
-			SendStartingMessages(classUnderTest, traits: trxEnabled ? TestData.DefaultTraitsWithCategory : TestData.DefaultTraits);
+			[Theory]
+			[InlineData(false)]
+			[InlineData(true)]
+			public static void Assertion(bool trxEnabled)
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(trxEnabled: trxEnabled);
+				SendStartingMessages(classUnderTest, traits: trxEnabled ? TestData.DefaultTraitsWithCategory : TestData.DefaultTraits);
 
-			SendTestFailed(classUnderTest, FailureCause.Assertion);
+				SendTestFailed(classUnderTest, FailureCause.Assertion);
 
-			var testNode = AssertStandardMetadata(classUnderTest, expectTrx: trxEnabled, failure: true);
-			var failed = testNode.Properties.Single<FailedTestNodeStateProperty>();
+				var testNode = AssertStandardMetadata(classUnderTest, expectTrx: trxEnabled, failure: true);
+				var failed = testNode.Properties.Single<FailedTestNodeStateProperty>();
 
-			Assert.Null(failed.Explanation);
-			Assert.NotNull(failed.Exception);
-			Assert.Equal($"exception 1 : message 1{Environment.NewLine}---- exception 2 : message 2", failed.Exception.Message);
-			Assert.Equal($"stack trace 1{Environment.NewLine}----- Inner Stack Trace -----{Environment.NewLine}stack trace 2", failed.Exception.StackTrace);
+				Assert.Null(failed.Explanation);
+				Assert.NotNull(failed.Exception);
+				Assert.Equal($"exception 1 : message 1{Environment.NewLine}---- exception 2 : message 2", failed.Exception.Message);
+				Assert.Equal($"stack trace 1{Environment.NewLine}----- Inner Stack Trace -----{Environment.NewLine}stack trace 2", failed.Exception.StackTrace);
+			}
+
+			[Fact]
+			public static void Timeout()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+				SendStartingMessages(classUnderTest);
+
+				SendTestFailed(classUnderTest, FailureCause.Timeout);
+
+				var testNode = AssertStandardMetadata(classUnderTest);
+				var timeout = testNode.Properties.Single<TimeoutTestNodeStateProperty>();
+
+				Assert.Null(timeout.Explanation);
+				Assert.NotNull(timeout.Exception);
+				Assert.Equal($"exception 1 : message 1{Environment.NewLine}---- exception 2 : message 2", timeout.Exception.Message);
+				Assert.Equal($"stack trace 1{Environment.NewLine}----- Inner Stack Trace -----{Environment.NewLine}stack trace 2", timeout.Exception.StackTrace);
+			}
+
+			[Theory]
+			[InlineData(FailureCause.Exception)]
+			[InlineData(FailureCause.Other)]
+			[InlineData(FailureCause.Unknown)]
+			public static void Error(FailureCause failureCause)
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+				SendStartingMessages(classUnderTest);
+
+				SendTestFailed(classUnderTest, failureCause);
+
+				var testNode = AssertStandardMetadata(classUnderTest);
+				var error = testNode.Properties.Single<ErrorTestNodeStateProperty>();
+
+				Assert.Null(error.Explanation);
+				Assert.NotNull(error.Exception);
+				Assert.Equal($"exception 1 : message 1{Environment.NewLine}---- exception 2 : message 2", error.Exception.Message);
+				Assert.Equal($"stack trace 1{Environment.NewLine}----- Inner Stack Trace -----{Environment.NewLine}stack trace 2", error.Exception.StackTrace);
+			}
 		}
 
-		[Fact]
-		public static void ITestFailed_Timeout()
+		public static class ITestMethodCleanupFailure
 		{
-			var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
-			SendStartingMessages(classUnderTest);
+			[Fact]
+			public static void WithTests()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+				SendStartingMessages(classUnderTest);
 
-			SendTestFailed(classUnderTest, FailureCause.Timeout);
+				classUnderTest.OnMessage(TestData.TestMethodCleanupFailure());
 
-			var testNode = AssertStandardMetadata(classUnderTest);
-			var timeout = testNode.Properties.Single<TimeoutTestNodeStateProperty>();
+				AssertCleanupFailure(classUnderTest, "Test Method", "test-display-name", "test-case-id");
+			}
 
-			Assert.Null(timeout.Explanation);
-			Assert.NotNull(timeout.Exception);
-			Assert.Equal($"exception 1 : message 1{Environment.NewLine}---- exception 2 : message 2", timeout.Exception.Message);
-			Assert.Equal($"stack trace 1{Environment.NewLine}----- Inner Stack Trace -----{Environment.NewLine}stack trace 2", timeout.Exception.StackTrace);
+			[Fact]
+			public static void WithoutTests()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+				SendStartingMessages(classUnderTest, includeTestStarting: false);
+
+				classUnderTest.OnMessage(TestData.TestMethodCleanupFailure());
+
+				AssertCleanupFailure(classUnderTest, "Test Method", "test-class-name.test-method");
+			}
+
+			[Fact]
+			public static void NoMetadata()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+
+				classUnderTest.OnMessage(TestData.TestMethodCleanupFailure());
+
+				AssertCleanupFailure(classUnderTest, "Test Method", "<unknown test method>");
+			}
 		}
 
-		[Theory]
-		[InlineData(FailureCause.Exception)]
-		[InlineData(FailureCause.Other)]
-		[InlineData(FailureCause.Unknown)]
-		public static void ITestFailed_Error(FailureCause failureCause)
+		public static class ITestNotRun
 		{
-			var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
-			SendStartingMessages(classUnderTest);
+			[Fact]
+			public static void ServerModeTrue()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: true);
+				SendStartingMessages(classUnderTest);
 
-			SendTestFailed(classUnderTest, failureCause);
+				classUnderTest.OnMessage(TestData.TestNotRun());
+				classUnderTest.OnMessage(TestData.TestFinished());
 
-			var testNode = AssertStandardMetadata(classUnderTest);
-			var error = testNode.Properties.Single<ErrorTestNodeStateProperty>();
+				Assert.Empty(classUnderTest.TestNodeMessageBus.PublishedData);
+			}
 
-			Assert.Null(error.Explanation);
-			Assert.NotNull(error.Exception);
-			Assert.Equal($"exception 1 : message 1{Environment.NewLine}---- exception 2 : message 2", error.Exception.Message);
-			Assert.Equal($"stack trace 1{Environment.NewLine}----- Inner Stack Trace -----{Environment.NewLine}stack trace 2", error.Exception.StackTrace);
-		}
+			[Fact]
+			public static void ServerModeFalse()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: false);
+				SendStartingMessages(classUnderTest);
 
-		[Fact]
-		public static void ITestMethodCleanupFailure()
-		{
-			var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
-			SendStartingMessages(classUnderTest);
+				classUnderTest.OnMessage(TestData.TestNotRun());
+				classUnderTest.OnMessage(TestData.TestFinished());
 
-			classUnderTest.OnMessage(TestData.TestMethodCleanupFailure());
-
-			AssertCleanupFailure(classUnderTest, "Test Method");
-		}
-
-		[Fact]
-		public static void ITestNotRun_ServerModeTrue()
-		{
-			var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: true);
-			SendStartingMessages(classUnderTest);
-
-			classUnderTest.OnMessage(TestData.TestNotRun());
-			classUnderTest.OnMessage(TestData.TestFinished());
-
-			Assert.Empty(classUnderTest.TestNodeMessageBus.PublishedData);
-		}
-
-		[Fact]
-		public static void ITestNotRun_ServerModeFalse()
-		{
-			var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: false);
-			SendStartingMessages(classUnderTest);
-
-			classUnderTest.OnMessage(TestData.TestNotRun());
-			classUnderTest.OnMessage(TestData.TestFinished());
-
-			var testNode = AssertStandardMetadata(classUnderTest);
-			var skipped = testNode.Properties.Single<SkippedTestNodeStateProperty>();
-			Assert.Equal("Not run (due to explicit test filtering)", skipped.Explanation);
+				var testNode = AssertStandardMetadata(classUnderTest);
+				var skipped = testNode.Properties.Single<SkippedTestNodeStateProperty>();
+				Assert.Equal("Not run (due to explicit test filtering)", skipped.Explanation);
+			}
 		}
 
 		[Theory]
@@ -258,26 +397,29 @@ public static class TestPlatformExecutionMessageSinkTests
 			Assert.Null(inProgress.Explanation);
 		}
 
-		[Fact]
-		public static void ITestOutput_Off()
+		public static class ITestOutput
 		{
-			var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(showLiveOutput: false);
+			[Fact]
+			public static void Off()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(showLiveOutput: false);
 
-			classUnderTest.OnMessage(TestData.TestOutput());
+				classUnderTest.OnMessage(TestData.TestOutput());
 
-			Assert.Empty(classUnderTest.OutputDevice.DisplayedData);
-		}
+				Assert.Empty(classUnderTest.OutputDevice.DisplayedData);
+			}
 
-		[Fact]
-		public static void ITestOutput_On()
-		{
-			var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(showLiveOutput: true);
-			SendStartingMessages(classUnderTest);
+			[Fact]
+			public static void On()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(showLiveOutput: true);
+				SendStartingMessages(classUnderTest);
 
-			classUnderTest.OnMessage(TestData.TestOutput());
+				classUnderTest.OnMessage(TestData.TestOutput());
 
-			var data = Assert.Single(classUnderTest.OutputDevice.DisplayedData);
-			AssertColorOutput(data, $"OUTPUT: [{TestData.DefaultTestDisplayName}] {TestData.DefaultOutput}", ConsoleColor.DarkGray);
+				var data = Assert.Single(classUnderTest.OutputDevice.DisplayedData);
+				AssertColorOutput(data, $"OUTPUT: [{TestData.DefaultTestDisplayName}] {TestData.DefaultOutput}", ConsoleColor.DarkGray);
+			}
 		}
 
 		[Fact]
@@ -294,10 +436,18 @@ public static class TestPlatformExecutionMessageSinkTests
 
 		static void AssertCleanupFailure(
 			TestableTestPlatformExecutionMessageSink classUnderTest,
-			string cleanupType)
+			string cleanupType,
+			string displayName,
+			string? expectedUid = null)
 		{
 			var testNode = GetTestNode(classUnderTest);
-			Assert.Equal($"[{cleanupType} Cleanup Failure (test-display-name)]", testNode.DisplayName);
+			Assert.Equal($"[{cleanupType} Cleanup Failure ({displayName})]", testNode.DisplayName);
+
+			if (expectedUid is null)
+				Assert.True(Guid.TryParse(testNode.Uid.Value, out _));
+			else
+				Assert.Equal(expectedUid, testNode.Uid.Value);
+
 			var error = testNode.Properties.Single<ErrorTestNodeStateProperty>();
 
 			Assert.Null(error.Explanation);

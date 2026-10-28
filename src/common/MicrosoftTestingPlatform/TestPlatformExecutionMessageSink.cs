@@ -108,31 +108,40 @@ public class TestPlatformExecutionMessageSink(
 	{
 		if (testsByAssemblyID.TryGetValue(failure.AssemblyUniqueID, out var tests))
 			SendError("Test Assembly Cleanup Failure", tests, failure);
+		else
+			SendError("Test Assembly Cleanup Failure", metadataCache.TryGetAssemblyMetadata(failure)?.AssemblyPath ?? "<unknown test assembly>", failure);
 	}
 
 	void OnTestCaseCleanupFailure(ITestCaseCleanupFailure failure)
 	{
 		if (testsByCaseID.TryGetValue(failure.TestCaseUniqueID, out var tests))
 			SendError("Test Case Cleanup Failure", tests, failure);
+		else
+			SendError("Test Case Cleanup Failure", metadataCache.TryGetTestCaseMetadata(failure)?.TestCaseDisplayName ?? "<unknown test case>", failure, failure.TestCaseUniqueID);
 	}
 
 	void OnTestClassCleanupFailure(ITestClassCleanupFailure failure)
 	{
-		if (failure.TestClassUniqueID is not null)
-			if (testsByClassID.TryGetValue(failure.TestClassUniqueID, out var tests))
-				SendError("Test Class Cleanup Failure", tests, failure);
+		if (failure.TestClassUniqueID is not null && testsByClassID.TryGetValue(failure.TestClassUniqueID, out var tests))
+			SendError("Test Class Cleanup Failure", tests, failure);
+		else
+			SendError("Test Class Cleanup Failure", metadataCache.TryGetClassMetadata(failure)?.TestClassName ?? "<unknown test class>", failure);
 	}
 
 	void OnTestCleanupFailure(ITestCleanupFailure failure)
 	{
 		if (testsByTestID.TryGetValue(failure.TestUniqueID, out var test))
 			SendError("Test Cleanup Failure", [test], failure);
+		else
+			SendError("Test Cleanup Failure", "<unknown test>", failure, failure.TestCaseUniqueID);
 	}
 
 	void OnTestCollectionCleanupFailure(ITestCollectionCleanupFailure failure)
 	{
 		if (testsByCollectionID.TryGetValue(failure.TestCollectionUniqueID, out var tests))
 			SendError("Test Collection Cleanup Failure", tests, failure);
+		else
+			SendError("Test Collection Cleanup Failure", metadataCache.TryGetCollectionMetadata(failure)?.TestCollectionDisplayName ?? "<unknown test collection>", failure);
 	}
 
 	void OnTestFinished(ITestFinished testFinished)
@@ -230,9 +239,19 @@ public class TestPlatformExecutionMessageSink(
 
 	void OnTestMethodCleanupFailure(ITestMethodCleanupFailure failure)
 	{
-		if (failure.TestMethodUniqueID is not null)
-			if (testsByMethodID.TryGetValue(failure.TestMethodUniqueID, out var tests))
-				SendError("Test Method Cleanup Failure", tests, failure);
+		if (failure.TestMethodUniqueID is not null && testsByMethodID.TryGetValue(failure.TestMethodUniqueID, out var tests))
+			SendError("Test Method Cleanup Failure", tests, failure);
+		else
+		{
+			var methodMetadata = metadataCache.TryGetMethodMetadata(failure);
+			var classMetadata = metadataCache.TryGetClassMetadata(failure);
+			var displayName =
+				methodMetadata is not null && classMetadata is not null
+					? string.Format(CultureInfo.InvariantCulture, "{0}.{1}", classMetadata.TestClassName, methodMetadata.MethodName)
+					: "<unknown test method>";
+
+			SendError("Test Method Cleanup Failure", displayName, failure);
+		}
 	}
 
 	void OnTestStarting(ITestStarting testStarting)
@@ -257,11 +276,25 @@ public class TestPlatformExecutionMessageSink(
 		var exception = new XunitException(errorMetadata);
 
 		foreach (var test in tests)
-		{
-			var errorNode = new TestNode { Uid = test.TestCaseUniqueID, DisplayName = $"[{errorType} ({test.TestDisplayName})]" };
-			errorNode.Properties.Add(new ErrorTestNodeStateProperty(exception));
-			errorNode.SendUpdate(this, sessionUid, testNodeMessageBus);
-		}
+			SendError(errorType, test.TestDisplayName, exception, test.TestCaseUniqueID);
+	}
+
+	void SendError(
+		string errorType,
+		string displayName,
+		IErrorMetadata errorMetadata,
+		string? testCaseUniqueID = null) =>
+			SendError(errorType, displayName, new XunitException(errorMetadata), testCaseUniqueID);
+
+	void SendError(
+		string errorType,
+		string displayName,
+		Exception exception,
+		string? testCaseUniqueID)
+	{
+		var errorNode = new TestNode { Uid = testCaseUniqueID ?? Guid.NewGuid().ToString(), DisplayName = $"[{errorType} ({displayName})]" };
+		errorNode.Properties.Add(new ErrorTestNodeStateProperty(exception));
+		errorNode.SendUpdate(this, sessionUid, testNodeMessageBus);
 	}
 
 	void SendTestNodeUpdate(ITestMessage testMessage)
