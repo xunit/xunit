@@ -14,7 +14,7 @@ public class SerializationHelperTests
 {
 	static readonly Lazy<string> LocalOffset = new(() =>
 	{
-		var now = DateTime.Now;
+		var now = new DateTime(2022, 4, 21, 23, 18, 19, 20, DateTimeKind.Local);
 		var offset = now - now.ToUniversalTime();
 		return $"{(offset.Hours >= 0 ? "+" : "")}{offset.Hours:00}:{offset.Minutes:00}";
 	});
