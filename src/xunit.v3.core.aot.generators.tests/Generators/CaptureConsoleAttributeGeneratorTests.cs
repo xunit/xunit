@@ -29,7 +29,7 @@ public class CaptureConsoleAttributeGeneratorTests : CoreGeneratorTest<CaptureCo
 				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 				internal sealed class CaptureConsoleAttribute٠PFácoInw4 : global::Xunit.v3.EngineInitializationAttribute {
 					public override async global::System.Threading.Tasks.ValueTask InitializeAsync() {
-						global::Xunit.v3.RegisteredEngineConfig.RegisterAssemblyFixtureFactory(typeof(global::Xunit.CaptureConsoleAttribute.CaptureConsoleImpl), async () => new global::Xunit.CaptureConsoleAttribute.CaptureConsoleImpl());
+						global::Xunit.v3.RegisteredEngineConfig.RegisterAssemblyFixtureFactory(typeof(global::Xunit.CaptureConsoleAttribute.CaptureConsoleImpl), async (_) => new global::Xunit.CaptureConsoleAttribute.CaptureConsoleImpl());
 					}
 				}
 			}

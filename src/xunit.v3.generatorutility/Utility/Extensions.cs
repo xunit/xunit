@@ -328,7 +328,8 @@ namespace Xunit.Generators
 		/// <remarks>
 		/// This looks for a single static public constructor on a non-static, non-abstract type, and returns
 		/// code which will create an instance of the assembly fixture type. Assembly fixture factories accept
-		/// no parameters and return <c>ValueTask&lt;object?&gt;</c>.
+		/// a boolean parameter and return <c>ValueTask&lt;object?&gt;</c>. (The parameter, `forceCreation`,
+		/// is currently ignored since assembly fixtures are always created.)
 		/// </remarks>
 		public static string? ToAssemblyFixtureFactory(this INamedTypeSymbol type)
 		{
@@ -339,7 +340,7 @@ namespace Xunit.Generators
 			if (publicCtors.Length != 1 || publicCtors[0].Parameters.Length != 0)
 				return null;
 
-			return $"async () => {ToObjectFactory(type, publicCtors[0])}";
+			return $"async (_) => {ToObjectFactory(type, publicCtors[0])}";
 		}
 
 		/// <summary>

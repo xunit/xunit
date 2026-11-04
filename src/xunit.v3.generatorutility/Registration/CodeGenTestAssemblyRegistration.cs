@@ -66,7 +66,7 @@ namespace Xunit.Generators
 			if (fixtureTypeName is null)
 				throw new ArgumentNullException(nameof(fixtureTypeName));
 
-			assemblyFixtureFactories[fixtureTypeName] = $"async () => new {fixtureTypeName}()";
+			assemblyFixtureFactories[fixtureTypeName] = $"async (_) => new {fixtureTypeName}()";
 		}
 
 		/// <inheritdoc/>

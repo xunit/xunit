@@ -29,7 +29,7 @@ public class CaptureTraceAttributeGeneratorTests : CoreGeneratorTest<CaptureTrac
 				[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
 				internal sealed class CaptureTraceAttribute٠PFácoInw4 : global::Xunit.v3.EngineInitializationAttribute {
 					public override async global::System.Threading.Tasks.ValueTask InitializeAsync() {
-						global::Xunit.v3.RegisteredEngineConfig.RegisterAssemblyFixtureFactory(typeof(global::Xunit.CaptureTraceAttribute.CaptureTraceImpl), async () => new global::Xunit.CaptureTraceAttribute.CaptureTraceImpl());
+						global::Xunit.v3.RegisteredEngineConfig.RegisterAssemblyFixtureFactory(typeof(global::Xunit.CaptureTraceAttribute.CaptureTraceImpl), async (_) => new global::Xunit.CaptureTraceAttribute.CaptureTraceImpl());
 					}
 				}
 			}
