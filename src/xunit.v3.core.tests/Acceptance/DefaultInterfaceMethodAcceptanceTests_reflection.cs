@@ -76,7 +76,9 @@ public class DefaultInterfaceMethodAcceptanceTests : AcceptanceTestV3
 	{
 		public override void AbstractTestMethod() { }
 
+#pragma warning disable xUnit1024  // This is overloaded to test the runtime behavior
 		public void OverloadOfDefaultNotSupported() { }
+#pragma warning restore xUnit1024
 
 		[Fact]
 		public void NonDefaultInterfaceMethodsSupported() { }

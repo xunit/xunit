@@ -1,3 +1,5 @@
+#pragma warning disable xUnit1073  // This isn't used in every test project, but it is included in every test project
+
 using Xunit;
 using Xunit.v3;
 
