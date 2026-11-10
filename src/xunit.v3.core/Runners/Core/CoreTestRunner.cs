@@ -98,9 +98,11 @@ public abstract class CoreTestRunner<TContext, TTest, TBeforeAfterAttribute> : T
 						return tcs.Task;
 					});
 
-			var resultTask = await Task.WhenAny(baseTask, Task.Delay(timeout));
-
-			if (resultTask != baseTask)
+			var cts = new CancellationTokenSource();
+			var resultTask = await Task.WhenAny(baseTask, Task.Delay(timeout, cts.Token));
+			if (resultTask == baseTask)
+				await cts.CancelAsync();
+			else
 			{
 				try
 				{
