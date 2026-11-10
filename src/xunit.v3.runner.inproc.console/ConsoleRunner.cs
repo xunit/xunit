@@ -178,10 +178,7 @@ public class ConsoleRunner(
 
 			var diagnosticMessages = projectAssembly.Configuration.DiagnosticMessagesOrDefault;
 			internalDiagnosticMessages = projectAssembly.Configuration.InternalDiagnosticMessagesOrDefault;
-
-			if (automatedMode == AutomatedMode.Off)
-				noColor = project.Configuration.NoColorOrDefault;
-
+			noColor = automatedMode != AutomatedMode.Off || project.Configuration.List?.Format == ListFormat.Json || project.Configuration.NoColorOrDefault;
 			logger = new ConsoleRunnerLogger(!noColor, useAnsiColor, consoleHelper, waitForAcknowledgment: automatedMode == AutomatedMode.Sync);
 
 			var reporterMessageHandler = default(IRunnerReporterMessageHandler);

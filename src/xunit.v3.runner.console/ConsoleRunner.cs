@@ -126,7 +126,7 @@ sealed class ConsoleRunner(string[] args) :
 
 				var globalDiagnosticMessages = project.Assemblies.Any(a => a.Configuration.DiagnosticMessagesOrDefault);
 				globalInternalDiagnosticMessages = project.Assemblies.Any(a => a.Configuration.InternalDiagnosticMessagesOrDefault);
-				noColor = project.Configuration.NoColorOrDefault;
+				noColor = project.Configuration.List?.Format == ListFormat.Json || project.Configuration.NoColorOrDefault;
 				logger = new ConsoleRunnerLogger(!noColor, useAnsiColor, consoleHelper, waitForAcknowledgment: false);
 				var globalDiagnosticMessageSink = ConsoleDiagnosticMessageSink.TryCreate(consoleHelper, noColor, globalDiagnosticMessages, globalInternalDiagnosticMessages);
 				var reporter = project.RunnerReporter;
