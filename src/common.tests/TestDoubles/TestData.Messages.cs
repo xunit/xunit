@@ -493,6 +493,42 @@ partial class TestData
 				Traits = traits ?? DefaultTraits,
 			};
 
+	public static ITestCaseStarting TestCaseStarting_Classless(
+		string assemblyUniqueID = DefaultAssemblyUniqueID,
+		bool @explicit = false,
+		string? skipReason = null,
+		string? sourceFilePath = null,
+		int? sourceLineNumber = null,
+		DateTimeOffset? startTime = null,
+		string testCaseDisplayName = DefaultTestCaseDisplayName,
+		string testCaseUniqueID = DefaultTestCaseUniqueID,
+		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
+		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null) =>
+			new TestCaseStarting()
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				Explicit = @explicit,
+				SkipReason = skipReason,
+				SourceFilePath = sourceFilePath,
+				SourceLineNumber = sourceLineNumber,
+				StartTime = startTime ?? DefaultStartTime,
+				TestCaseDisplayName = testCaseDisplayName,
+				TestCaseUniqueID = testCaseUniqueID,
+				TestClassMetadataToken = null,
+				TestClassName = null,
+				TestClassNamespace = null,
+				TestClassSimpleName = null,
+				TestClassUniqueID = null,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestMethodArity = null,
+				TestMethodMetadataToken = null,
+				TestMethodName = null,
+				TestMethodParameterTypesVSTest = null,
+				TestMethodReturnTypeVSTest = null,
+				TestMethodUniqueID = null,
+				Traits = traits ?? DefaultTraits,
+			};
+
 	public static ITestClassCleanupFailure TestClassCleanupFailure(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		int[]? exceptionParentIndices = null,
@@ -783,6 +819,31 @@ partial class TestData
 				Warnings = warnings,
 			};
 
+	public static ITestFinished TestFinished_Classless(
+		string assemblyUniqueID = DefaultAssemblyUniqueID,
+		IReadOnlyDictionary<string, TestAttachment>? attachments = null,
+		decimal executionTime = DefaultExecutionTime,
+		DateTimeOffset? finishTime = null,
+		string output = DefaultOutput,
+		string testCaseUniqueID = DefaultTestCaseUniqueID,
+		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
+		string testUniqueID = DefaultTestUniqueID,
+		string[]? warnings = null) =>
+			new TestFinished()
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				Attachments = attachments ?? EmptyAttachments,
+				ExecutionTime = executionTime,
+				FinishTime = finishTime ?? DefaultFinishTime,
+				Output = output,
+				TestCaseUniqueID = testCaseUniqueID,
+				TestClassUniqueID = null,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestMethodUniqueID = null,
+				TestUniqueID = testUniqueID,
+				Warnings = warnings,
+			};
+
 	public static ITestMethodCleanupFailure TestMethodCleanupFailure(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		int[]? exceptionParentIndices = null,
@@ -918,6 +979,29 @@ partial class TestData
 				Warnings = warnings,
 			};
 
+	public static ITestPassed TestPassed_Classless(
+		string assemblyUniqueID = DefaultAssemblyUniqueID,
+		decimal executionTime = DefaultExecutionTime,
+		DateTimeOffset? finishTime = null,
+		string output = DefaultOutput,
+		string testCaseUniqueID = DefaultTestCaseUniqueID,
+		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
+		string testUniqueID = DefaultTestUniqueID,
+		string[]? warnings = null) =>
+			new TestPassed()
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				ExecutionTime = executionTime,
+				FinishTime = finishTime ?? DefaultFinishTime,
+				Output = output,
+				TestCaseUniqueID = testCaseUniqueID,
+				TestClassUniqueID = null,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestMethodUniqueID = null,
+				TestUniqueID = testUniqueID,
+				Warnings = warnings,
+			};
+
 	public static ITestSkipped TestSkipped(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		decimal executionTime = 0m,
@@ -969,6 +1053,33 @@ partial class TestData
 				TestDisplayName = testDisplayName,
 				TestLabel = testLabel,
 				TestMethodUniqueID = testMethodUniqueID,
+				TestUniqueID = testUniqueID,
+				Timeout = timeout,
+				Traits = traits ?? DefaultTraits,
+			};
+
+	public static ITestStarting TestStarting_Classless(
+		string assemblyUniqueID = DefaultAssemblyUniqueID,
+		bool @explicit = false,
+		DateTimeOffset? startTime = null,
+		string testCaseUniqueID = DefaultTestCaseUniqueID,
+		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
+		string testDisplayName = DefaultTestDisplayName,
+		string? testLabel = null,
+		string testUniqueID = DefaultTestUniqueID,
+		int timeout = 0,
+		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null) =>
+			new TestStarting()
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				Explicit = @explicit,
+				StartTime = startTime ?? DefaultStartTime,
+				TestCaseUniqueID = testCaseUniqueID,
+				TestClassUniqueID = null,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestDisplayName = testDisplayName,
+				TestLabel = testLabel,
+				TestMethodUniqueID = null,
 				TestUniqueID = testUniqueID,
 				Timeout = timeout,
 				Traits = traits ?? DefaultTraits,

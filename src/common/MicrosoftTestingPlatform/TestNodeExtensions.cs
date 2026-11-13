@@ -55,8 +55,9 @@ internal static class TestNodeExtensions
 	{
 		result.Properties.Add(new TrxTestDefinitionName(testCase.TestCaseDisplayName));
 
-		if (testCase.TestClassName is not null)
-			result.Properties.Add(new TrxFullyQualifiedTypeNameProperty(testCase.TestClassName));
+		// Always supply a "fully qualified type name" (perhaps synthetic) per https://github.com/microsoft/testfx/issues/12436
+		// since xUnit.net does not require tests originate in .NET types
+		result.Properties.Add(new TrxFullyQualifiedTypeNameProperty(testCase.TestClassName ?? testCase.UniqueID));
 
 		if (traits.TryGetValue("category", out var values))
 			result.Properties.Add(new TrxCategoriesProperty(values.ToArray()));

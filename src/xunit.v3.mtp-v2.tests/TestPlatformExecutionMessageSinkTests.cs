@@ -355,17 +355,21 @@ public static class TestPlatformExecutionMessageSinkTests
 		}
 
 		[Theory]
-		[InlineData(false)]
-		[InlineData(true)]
-		public static void ITestPassed(bool trxEnabled)
+		[InlineData(false, false)]
+		[InlineData(false, true)]
+		[InlineData(true, false)]
+		[InlineData(true, true)]
+		public static void ITestPassed(
+			bool trxEnabled,
+			bool classless)
 		{
 			var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(trxEnabled: trxEnabled);
-			SendStartingMessages(classUnderTest, traits: trxEnabled ? TestData.DefaultTraitsWithCategory : TestData.DefaultTraits);
+			SendStartingMessages(classUnderTest, traits: trxEnabled ? TestData.DefaultTraitsWithCategory : TestData.DefaultTraits, classless: classless);
 
-			classUnderTest.OnMessage(TestData.TestPassed());
-			classUnderTest.OnMessage(TestData.TestFinished());
+			classUnderTest.OnMessage(classless ? TestData.TestPassed_Classless() : TestData.TestPassed());
+			classUnderTest.OnMessage(classless ? TestData.TestFinished_Classless() : TestData.TestFinished());
 
-			var testNode = AssertStandardMetadata(classUnderTest, expectTrx: trxEnabled);
+			var testNode = AssertStandardMetadata(classUnderTest, expectTrx: trxEnabled, classless: classless);
 			var passed = testNode.Properties.Single<PassedTestNodeStateProperty>();
 			Assert.Null(passed.Explanation);
 		}
@@ -481,6 +485,7 @@ public static class TestPlatformExecutionMessageSinkTests
 			bool expectWarnings = false,
 			bool expectTrx = false,
 			bool failure = false,
+			bool classless = false,
 			string? expectedDisplayName = null,
 			string? exceptionHeader = null)
 		{
@@ -488,20 +493,28 @@ public static class TestPlatformExecutionMessageSinkTests
 			Assert.Equal(TestData.DefaultTestCaseUniqueID, testNode.Uid.Value);
 			Assert.Equal(expectedDisplayName ?? TestData.DefaultTestDisplayName, testNode.DisplayName);
 
-			var testMethod = testNode.Properties.Single<TestMethodIdentifierProperty>();
-			Assert.Equal(TestData.DefaultAssemblyName, testMethod.AssemblyFullName);
-			Assert.Equal(TestData.DefaultMethodName, testMethod.MethodName);
-			Assert.Equal(TestData.DefaultTestClassNamespace, testMethod.Namespace);
-			Assert.Equal(TestData.DefaultMethodParameterTypes, testMethod.ParameterTypeFullNames);
-			Assert.Equal(TestData.DefaultMethodReturnType, testMethod.ReturnTypeFullName);
-			Assert.Equal(TestData.DefaultTestClassSimpleName, testMethod.TypeName);
+			if (classless)
+			{
+				Assert.False(testNode.Properties.Any<TestMethodIdentifierProperty>());
+				Assert.False(testNode.Properties.Any<TestFileLocationProperty>());
+			}
+			else
+			{
+				var testMethod = testNode.Properties.Single<TestMethodIdentifierProperty>();
+				Assert.Equal(TestData.DefaultAssemblyName, testMethod.AssemblyFullName);
+				Assert.Equal(TestData.DefaultMethodName, testMethod.MethodName);
+				Assert.Equal(TestData.DefaultTestClassNamespace, testMethod.Namespace);
+				Assert.Equal(TestData.DefaultMethodParameterTypes, testMethod.ParameterTypeFullNames);
+				Assert.Equal(TestData.DefaultMethodReturnType, testMethod.ReturnTypeFullName);
+				Assert.Equal(TestData.DefaultTestClassSimpleName, testMethod.TypeName);
 
-			var testLocation = testNode.Properties.Single<TestFileLocationProperty>();
-			Assert.Equal("/source/file/path.cs", testLocation.FilePath);
-			Assert.Equal(42, testLocation.LineSpan.Start.Line);
-			Assert.Equal(-1, testLocation.LineSpan.Start.Column);
-			Assert.Equal(42, testLocation.LineSpan.End.Line);
-			Assert.Equal(-1, testLocation.LineSpan.End.Column);
+				var testLocation = testNode.Properties.Single<TestFileLocationProperty>();
+				Assert.Equal("/source/file/path.cs", testLocation.FilePath);
+				Assert.Equal(42, testLocation.LineSpan.Start.Line);
+				Assert.Equal(-1, testLocation.LineSpan.Start.Column);
+				Assert.Equal(42, testLocation.LineSpan.End.Line);
+				Assert.Equal(-1, testLocation.LineSpan.End.Column);
+			}
 
 			if (expectTiming)
 			{
@@ -535,7 +548,7 @@ public static class TestPlatformExecutionMessageSinkTests
 				Assert.Equal(TestData.DefaultTestCaseDisplayName, trxTestDefinitionName.TestDefinitionName);
 
 				var trxFQTN = testNode.Properties.Single<TrxFullyQualifiedTypeNameProperty>();
-				Assert.Equal(TestData.DefaultTestClassName, trxFQTN.FullyQualifiedTypeName);
+				Assert.Equal(classless ? TestData.DefaultTestCaseUniqueID : TestData.DefaultTestClassName, trxFQTN.FullyQualifiedTypeName);
 
 				var trxCategories = testNode.Properties.Single<TrxCategoriesProperty>();
 				var category = Assert.Single(trxCategories.Categories);
@@ -578,16 +591,28 @@ public static class TestPlatformExecutionMessageSinkTests
 		static void SendStartingMessages(
 			TestableTestPlatformExecutionMessageSink messageSink,
 			IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null,
-			bool includeTestStarting = true)
+			bool includeTestStarting = true,
+			bool classless = false)
 		{
 			messageSink.OnMessage(TestData.TestAssemblyStarting());
 			messageSink.OnMessage(TestData.TestCollectionStarting());
-			messageSink.OnMessage(TestData.TestClassStarting());
-			messageSink.OnMessage(TestData.TestMethodStarting());
-			messageSink.OnMessage(TestData.TestCaseStarting(sourceFilePath: "/source/file/path.cs", sourceLineNumber: 42));
 
-			if (includeTestStarting)
-				messageSink.OnMessage(TestData.TestStarting(traits: traits ?? TestData.DefaultTraits));
+			if (classless)
+			{
+				messageSink.OnMessage(TestData.TestCaseStarting_Classless());
+
+				if (includeTestStarting)
+					messageSink.OnMessage(TestData.TestStarting_Classless(traits: traits ?? TestData.DefaultTraits));
+			}
+			else
+			{
+				messageSink.OnMessage(TestData.TestClassStarting());
+				messageSink.OnMessage(TestData.TestMethodStarting());
+				messageSink.OnMessage(TestData.TestCaseStarting(sourceFilePath: "/source/file/path.cs", sourceLineNumber: 42));
+
+				if (includeTestStarting)
+					messageSink.OnMessage(TestData.TestStarting(traits: traits ?? TestData.DefaultTraits));
+			}
 
 			// Clear the published data cache of the ITestStarting translation
 			messageSink.TestNodeMessageBus.PublishedData.Clear();
