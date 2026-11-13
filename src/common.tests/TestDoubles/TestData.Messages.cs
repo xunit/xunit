@@ -792,6 +792,39 @@ partial class TestData
 				Warnings = warnings,
 			};
 
+	public static ITestFailed TestFailed_Classless(
+		string assemblyUniqueID = DefaultAssemblyUniqueID,
+		FailureCause cause = FailureCause.Assertion,
+		int[]? exceptionParentIndices = null,
+		string?[]? exceptionTypes = null,
+		decimal executionTime = DefaultExecutionTime,
+		DateTimeOffset? finishTime = null,
+		string[]? messages = null,
+		string output = DefaultOutput,
+		string?[]? stackTraces = null,
+		string testCaseUniqueID = DefaultTestCaseUniqueID,
+		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
+		string testUniqueID = DefaultTestUniqueID,
+		string[]? warnings = null) =>
+			new TestFailed()
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				Cause = cause,
+				ExceptionParentIndices = exceptionParentIndices ?? DefaultExceptionParentIndices,
+				ExceptionTypes = exceptionTypes ?? DefaultExceptionTypes,
+				ExecutionTime = executionTime,
+				FinishTime = finishTime ?? DefaultFinishTime,
+				Messages = messages ?? DefaultExceptionMessages,
+				Output = output,
+				StackTraces = stackTraces ?? DefaultStackTraces,
+				TestCaseUniqueID = testCaseUniqueID,
+				TestClassUniqueID = null,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestMethodUniqueID = null,
+				TestUniqueID = testUniqueID,
+				Warnings = warnings,
+			};
+
 	public static ITestFinished TestFinished(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		IReadOnlyDictionary<string, TestAttachment>? attachments = null,
@@ -935,6 +968,28 @@ partial class TestData
 				Warnings = warnings,
 			};
 
+	public static ITestNotRun TestNotRun_Classless(
+		string assemblyUniqueID = DefaultAssemblyUniqueID,
+		DateTimeOffset? finishTime = null,
+		string output = DefaultOutput,
+		string testCaseUniqueID = DefaultTestCaseUniqueID,
+		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
+		string testUniqueID = DefaultTestUniqueID,
+		string[]? warnings = null) =>
+			new TestNotRun()
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				ExecutionTime = 0m,
+				FinishTime = finishTime ?? DefaultFinishTime,
+				Output = output,
+				TestCaseUniqueID = testCaseUniqueID,
+				TestClassUniqueID = null,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestMethodUniqueID = null,
+				TestUniqueID = testUniqueID,
+				Warnings = warnings,
+			};
+
 	public static ITestOutput TestOutput(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		string output = DefaultOutput,
@@ -1025,6 +1080,31 @@ partial class TestData
 				TestClassUniqueID = testClassUniqueID,
 				TestCollectionUniqueID = testCollectionUniqueID,
 				TestMethodUniqueID = testMethodUniqueID,
+				TestUniqueID = testUniqueID,
+				Warnings = warnings,
+			};
+
+	public static ITestSkipped TestSkipped_Classless(
+		string assemblyUniqueID = DefaultAssemblyUniqueID,
+		decimal executionTime = 0m,
+		DateTimeOffset? finishTime = null,
+		string output = DefaultOutput,
+		string reason = DefaultSkipReason,
+		string testCaseUniqueID = DefaultTestCaseUniqueID,
+		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
+		string testUniqueID = DefaultTestUniqueID,
+		string[]? warnings = null) =>
+			new TestSkipped()
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				ExecutionTime = executionTime,
+				FinishTime = finishTime ?? DefaultFinishTime,
+				Output = output,
+				Reason = reason,
+				TestCaseUniqueID = testCaseUniqueID,
+				TestClassUniqueID = null,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestMethodUniqueID = null,
 				TestUniqueID = testUniqueID,
 				Warnings = warnings,
 			};

@@ -234,16 +234,20 @@ public static class TestPlatformExecutionMessageSinkTests
 		public static class ITestFailed
 		{
 			[Theory]
-			[InlineData(false)]
-			[InlineData(true)]
-			public static void Assertion(bool trxEnabled)
+			[InlineData(false, false)]
+			[InlineData(false, true)]
+			[InlineData(true, false)]
+			[InlineData(true, true)]
+			public static void Assertion(
+				bool trxEnabled,
+				bool classless)
 			{
 				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(trxEnabled: trxEnabled);
-				SendStartingMessages(classUnderTest, traits: trxEnabled ? TestData.DefaultTraitsWithCategory : TestData.DefaultTraits);
+				SendStartingMessages(classUnderTest, traits: trxEnabled ? TestData.DefaultTraitsWithCategory : TestData.DefaultTraits, classless: classless);
 
-				SendTestFailed(classUnderTest, FailureCause.Assertion);
+				SendTestFailed(classUnderTest, FailureCause.Assertion, classless: classless);
 
-				var testNode = AssertStandardMetadata(classUnderTest, expectTrx: trxEnabled, failure: true);
+				var testNode = AssertStandardMetadata(classUnderTest, expectTrx: trxEnabled, failure: true, classless: classless);
 				var failed = testNode.Properties.Single<FailedTestNodeStateProperty>();
 
 				Assert.Null(failed.Explanation);
@@ -339,16 +343,18 @@ public static class TestPlatformExecutionMessageSinkTests
 				Assert.Empty(classUnderTest.TestNodeMessageBus.PublishedData);
 			}
 
-			[Fact]
-			public static void ServerModeFalse()
+			[Theory]
+			[InlineData(false)]
+			[InlineData(true)]
+			public static void ServerModeFalse(bool classless)
 			{
 				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: false);
-				SendStartingMessages(classUnderTest);
+				SendStartingMessages(classUnderTest, classless: classless);
 
-				classUnderTest.OnMessage(TestData.TestNotRun());
-				classUnderTest.OnMessage(TestData.TestFinished());
+				classUnderTest.OnMessage(classless ? TestData.TestNotRun_Classless() : TestData.TestNotRun());
+				classUnderTest.OnMessage(classless ? TestData.TestFinished_Classless() : TestData.TestFinished());
 
-				var testNode = AssertStandardMetadata(classUnderTest);
+				var testNode = AssertStandardMetadata(classUnderTest, classless: classless);
 				var skipped = testNode.Properties.Single<SkippedTestNodeStateProperty>();
 				Assert.Equal("Not run (due to explicit test filtering)", skipped.Explanation);
 			}
@@ -374,16 +380,18 @@ public static class TestPlatformExecutionMessageSinkTests
 			Assert.Null(passed.Explanation);
 		}
 
-		[Fact]
-		public static void ITestSkipped()
+		[Theory]
+		[InlineData(false)]
+		[InlineData(true)]
+		public static void ITestSkipped(bool classless)
 		{
 			var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
-			SendStartingMessages(classUnderTest);
+			SendStartingMessages(classUnderTest, classless: classless);
 
-			classUnderTest.OnMessage(TestData.TestSkipped());
-			classUnderTest.OnMessage(TestData.TestFinished());
+			classUnderTest.OnMessage(classless ? TestData.TestSkipped_Classless() : TestData.TestSkipped());
+			classUnderTest.OnMessage(classless ? TestData.TestFinished_Classless() : TestData.TestFinished());
 
-			var testNode = AssertStandardMetadata(classUnderTest);
+			var testNode = AssertStandardMetadata(classUnderTest, classless: classless);
 			var skipped = testNode.Properties.Single<SkippedTestNodeStateProperty>();
 			Assert.Equal(TestData.DefaultSkipReason, skipped.Explanation);
 		}
@@ -620,16 +628,25 @@ public static class TestPlatformExecutionMessageSinkTests
 
 		static void SendTestFailed(
 			TestableTestPlatformExecutionMessageSink classUnderTest,
-			FailureCause failureCause)
+			FailureCause failureCause,
+			bool classless = false)
 		{
 			classUnderTest.OnMessage(
-				TestData.TestFailed(
-					cause: failureCause,
-					exceptionParentIndices: [-1, 0],
-					exceptionTypes: ["exception 1", "exception 2"],
-					messages: ["message 1", "message 2"],
-					stackTraces: ["stack trace 1", "stack trace 2"]
-				)
+				classless
+					? TestData.TestFailed_Classless(
+						cause: failureCause,
+						exceptionParentIndices: [-1, 0],
+						exceptionTypes: ["exception 1", "exception 2"],
+						messages: ["message 1", "message 2"],
+						stackTraces: ["stack trace 1", "stack trace 2"]
+					)
+					: TestData.TestFailed(
+						cause: failureCause,
+						exceptionParentIndices: [-1, 0],
+						exceptionTypes: ["exception 1", "exception 2"],
+						messages: ["message 1", "message 2"],
+						stackTraces: ["stack trace 1", "stack trace 2"]
+					)
 			);
 			classUnderTest.OnMessage(TestData.TestFinished());
 		}
