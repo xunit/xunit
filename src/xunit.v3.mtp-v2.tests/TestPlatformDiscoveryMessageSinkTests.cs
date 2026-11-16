@@ -86,6 +86,46 @@ public static class TestPlatformDiscoveryMessageSinkTests
 			);
 		}
 
+		[Theory]
+		[InlineData(false)]
+		[InlineData(true)]
+		public static void ITestCaseDiscovered_Classless(bool trxEnabled)
+		{
+			var discovered = TestData.TestCaseDiscovered_Classless();
+			var classUnderTest = TestableTestPlatformDiscoveryMessageSink.Create(trxEnabled: trxEnabled);
+
+			classUnderTest.OnMessage(discovered);
+
+			var message = Assert.Single(classUnderTest.TestNodeMessageBus.PublishedData);
+			var updateMessage = Assert.IsType<TestNodeUpdateMessage>(message);
+			var testNode = updateMessage.TestNode;
+			Assert.Equal("test-case-display-name", testNode.DisplayName);
+			Assert.Equal("test-case-id", testNode.Uid.Value);
+
+			if (trxEnabled)
+			{
+				var testMethodProperty = testNode.Properties.Single<TestMethodIdentifierProperty>();
+				Assert.Equal(AssemblyFullName, testMethodProperty.AssemblyFullName);
+				Assert.Equal("<non-method test>", testMethodProperty.MethodName);
+				Assert.Empty(testMethodProperty.Namespace);
+				Assert.Empty(testMethodProperty.ParameterTypeFullNames);
+				Assert.Equal(TestData.DefaultMethodReturnType, testMethodProperty.ReturnTypeFullName);
+				Assert.Equal("<non-class test>", testMethodProperty.TypeName);
+			}
+			else
+				Assert.False(testNode.Properties.Any<TestMethodIdentifierProperty>());
+
+			Assert.False(testNode.Properties.Any<TestFileLocationProperty>());
+
+			var testMetadataProperties = testNode.Properties.OfType<TestMetadataProperty>();
+			Assert.Collection(
+				testMetadataProperties.OrderBy(p => p.Key).ThenBy(p => p.Value).Select(p => $"'{p.Key}' = '{p.Value}'"),
+				keyValue => Assert.Equal("'biff' = 'bang'", keyValue),
+				keyValue => Assert.Equal("'foo' = 'bar'", keyValue),
+				keyValue => Assert.Equal("'foo' = 'baz'", keyValue)
+			);
+		}
+
 		[Fact]
 		public static void Unfiltered()
 		{
@@ -116,14 +156,17 @@ public static class TestPlatformDiscoveryMessageSinkTests
 		SessionUid sessionUid,
 		Func<ITestCaseDiscovered, bool> filter,
 		SpyTestPlatformMessageBus testNodeMessageBus,
+		XunitTrxCapability trxCapability,
 		CancellationTokenSource cancellationTokenSource) :
-			TestPlatformDiscoveryMessageSink(innerSink, AssemblyFullName, sessionUid, filter, testNodeMessageBus, cancellationTokenSource.Token)
+			TestPlatformDiscoveryMessageSink(innerSink, AssemblyFullName, sessionUid, filter, testNodeMessageBus, trxCapability, cancellationTokenSource.Token)
 	{
 		public CancellationTokenSource CancellationTokenSource { get; } = cancellationTokenSource;
 		public SpyMessageSink InnerSink { get; } = innerSink;
 		public SpyTestPlatformMessageBus TestNodeMessageBus { get; } = testNodeMessageBus;
 
-		public static TestableTestPlatformDiscoveryMessageSink Create(Func<ITestCaseDiscovered, bool>? filter = null) =>
-			new(SpyMessageSink.Capture(), new(), filter ?? (_ => true), new(), new());
+		public static TestableTestPlatformDiscoveryMessageSink Create(
+			Func<ITestCaseDiscovered, bool>? filter = null,
+			bool trxEnabled = false) =>
+				new(SpyMessageSink.Capture(), new(), filter ?? (_ => true), new(), new(trxEnabled), new());
 	}
 }

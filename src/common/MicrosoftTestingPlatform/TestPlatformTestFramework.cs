@@ -185,7 +185,7 @@ public class TestPlatformTestFramework :
 			else
 				throw new ArgumentException($"Unsupported discovery filter type '{filter.GetType().SafeName()}'", nameof(filter));
 
-			var messageHandler = new TestPlatformDiscoveryMessageSink(session.MessageHandler, projectAssembly.Assembly!.FullName!, sessionUid, discoveryFilter, messageBus, cancellationToken);
+			var messageHandler = new TestPlatformDiscoveryMessageSink(session.MessageHandler, projectAssembly.Assembly!.FullName!, sessionUid, discoveryFilter, messageBus, trxCapability, cancellationToken);
 			await projectRunner.Discover(projectAssembly, pipelineStartup, messageHandler, testContextInitializedCallback: async () => TestContext.Current.SetMicrosoftTestingPlatformSession(sessionUid));
 		}, cancellationToken);
 	}

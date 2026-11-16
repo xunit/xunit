@@ -419,6 +419,42 @@ partial class TestData
 				Traits = traits ?? DefaultTraits,
 			};
 
+	public static ITestCaseDiscovered TestCaseDiscovered_Classless(
+		string assemblyUniqueID = DefaultAssemblyUniqueID,
+		bool @explicit = false,
+		string serialization = DefaultTestCaseSerialization,
+		string? skipReason = null,
+		string? sourceFilePath = null,
+		int? sourceLineNumber = null,
+		string testCaseDisplayName = DefaultTestCaseDisplayName,
+		string testCaseUniqueID = DefaultTestCaseUniqueID,
+		string testCollectionUniqueID = DefaultTestCollectionUniqueID,
+		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null) =>
+			new TestCaseDiscovered()
+			{
+				AssemblyUniqueID = assemblyUniqueID,
+				Explicit = @explicit,
+				Serialization = serialization,
+				SkipReason = skipReason,
+				SourceFilePath = sourceFilePath,
+				SourceLineNumber = sourceLineNumber,
+				TestCaseDisplayName = testCaseDisplayName,
+				TestCaseUniqueID = testCaseUniqueID,
+				TestClassMetadataToken = null,
+				TestClassName = null,
+				TestClassNamespace = null,
+				TestClassSimpleName = null,
+				TestClassUniqueID = null,
+				TestCollectionUniqueID = testCollectionUniqueID,
+				TestMethodArity = null,
+				TestMethodMetadataToken = null,
+				TestMethodName = null,
+				TestMethodParameterTypesVSTest = null,
+				TestMethodReturnTypeVSTest = null,
+				TestMethodUniqueID = null,
+				Traits = traits ?? DefaultTraits,
+			};
+
 	public static ITestCaseFinished TestCaseFinished(
 		string assemblyUniqueID = DefaultAssemblyUniqueID,
 		decimal executionTime = 123.4567m,

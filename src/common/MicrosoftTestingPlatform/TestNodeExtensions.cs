@@ -8,10 +8,13 @@ namespace Xunit.MicrosoftTestingPlatform;
 
 internal static class TestNodeExtensions
 {
+	static string voidVSTestTypeName = typeof(void).ToVSTestTypeName();
+
 	public static void AddMetadata(
 		this TestNode result,
 		ITestCaseMetadata testCase,
 		string assemblyFullName,
+		bool isTrxEnabled,
 		ITestResultMessage? testResult = null,
 		IReadOnlyDictionary<string, IReadOnlyCollection<string>>? traits = null)
 	{
@@ -24,7 +27,7 @@ internal static class TestNodeExtensions
 					testCase.TestMethodName,
 					testCase.TestMethodArity ?? 0,
 					testCase.TestMethodParameterTypesVSTest ?? [],
-					testCase.TestMethodReturnTypeVSTest ?? typeof(void).ToVSTestTypeName()
+					testCase.TestMethodReturnTypeVSTest ?? voidVSTestTypeName
 				)
 			);
 
@@ -45,15 +48,25 @@ internal static class TestNodeExtensions
 			foreach (var kvp in traits)
 				foreach (var value in kvp.Value)
 					result.Properties.Add(new TestMetadataProperty(kvp.Key, value));
-	}
 
-	public static void AddTrxMetadata(
-		this TestNode result,
-		ITestCaseMetadata testCase,
-		ITestMessage testMessage,
-		IReadOnlyDictionary<string, IReadOnlyCollection<string>> traits)
-	{
+		if (!isTrxEnabled)
+			return;
+
 		result.Properties.Add(new TrxTestDefinitionName(testCase.TestCaseDisplayName));
+
+		// Provide TestMethodIdentifierProperty synthetically per https://github.com/microsoft/testfx/pull/12466#issuecomment-6917139465
+		if (testCase.TestMethodName is null)
+			result.Properties.Add(
+				new TestMethodIdentifierProperty(
+					assemblyFullName,
+					testCase.TestClassNamespace ?? string.Empty,
+					testCase.TestClassSimpleName ?? "<non-class test>",
+					"<non-method test>",
+					0,
+					[],
+					voidVSTestTypeName
+				)
+			);
 
 		// Always supply a "fully qualified type name" (perhaps synthetic) per https://github.com/microsoft/testfx/issues/12436
 		// since xUnit.net does not require tests originate in .NET types
@@ -64,16 +77,16 @@ internal static class TestNodeExtensions
 
 		List<string> stdOutMessages = [];
 
-		if (testMessage is ITestResultMessage testResult && testResult.Output.Length != 0)
+		if (testResult is not null && testResult.Output.Length != 0)
 			stdOutMessages.Add(testResult.Output);
 
-		if (testMessage is ITestSkipped testSkipped)
+		if (testResult is ITestSkipped testSkipped)
 			stdOutMessages.Add(testSkipped.Reason);
 
 		if (stdOutMessages.Count > 0)
 			result.Properties.Add(new TrxMessagesProperty(stdOutMessages.SelectArray(msg => new StandardOutputTrxMessage(msg))));
 
-		if (testMessage is ITestFailed testFailed)
+		if (testResult is ITestFailed testFailed)
 			result.Properties.Add(new TrxExceptionProperty(ExceptionUtility.CombineMessages(testFailed), ExceptionUtility.CombineStackTraces(testFailed)));
 	}
 

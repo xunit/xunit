@@ -503,7 +503,19 @@ public static class TestPlatformExecutionMessageSinkTests
 
 			if (classless)
 			{
-				Assert.False(testNode.Properties.Any<TestMethodIdentifierProperty>());
+				if (expectTrx)
+				{
+					var testMethod = testNode.Properties.Single<TestMethodIdentifierProperty>();
+					Assert.Equal(TestData.DefaultAssemblyName, testMethod.AssemblyFullName);
+					Assert.Equal("<non-method test>", testMethod.MethodName);
+					Assert.Empty(testMethod.Namespace);
+					Assert.Empty(testMethod.ParameterTypeFullNames);
+					Assert.Equal(TestData.DefaultMethodReturnType, testMethod.ReturnTypeFullName);
+					Assert.Equal("<non-class test>", testMethod.TypeName);
+				}
+				else
+					Assert.False(testNode.Properties.Any<TestMethodIdentifierProperty>());
+
 				Assert.False(testNode.Properties.Any<TestFileLocationProperty>());
 			}
 			else

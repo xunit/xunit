@@ -323,7 +323,7 @@ public class TestPlatformExecutionMessageSink(
 		errorNode.Properties.Add(new ErrorTestNodeStateProperty(exception));
 
 		if (testCaseMetadata is not null)
-			errorNode.AddMetadata(testCaseMetadata, assemblyFullName);
+			errorNode.AddMetadata(testCaseMetadata, assemblyFullName, trxCapability.IsTrxEnabled);
 
 		errorNode.SendUpdate(this, sessionUid, testNodeMessageBus);
 	}
@@ -390,12 +390,7 @@ public class TestPlatformExecutionMessageSink(
 		var testAssemblyMetadata = metadataCache.TryGetAssemblyMetadata(testMessage);
 		var testCaseMetadata = metadataCache.TryGetTestCaseMetadata(testMessage);
 		if (testAssemblyMetadata is not null && testCaseMetadata is not null && testStarting is not null)
-		{
-			result.AddMetadata(testCaseMetadata, testAssemblyMetadata.AssemblyName, testResult: testResult, traits: testStarting.Traits);
-
-			if (trxCapability.IsTrxEnabled)
-				result.AddTrxMetadata(testCaseMetadata, testMessage, testStarting.Traits);
-		}
+			result.AddMetadata(testCaseMetadata, testAssemblyMetadata.AssemblyName, trxCapability.IsTrxEnabled, testResult: testResult, traits: testStarting.Traits);
 
 		// Don't send test results, because we need to wait for test finished for attachments
 		if (testResult is null)

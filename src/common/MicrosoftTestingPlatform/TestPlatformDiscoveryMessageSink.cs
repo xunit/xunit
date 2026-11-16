@@ -16,6 +16,7 @@ namespace Xunit.MicrosoftTestingPlatform;
 /// <param name="sessionUid">The MTP session UID</param>
 /// <param name="filter">The discovery message filter (return <see langword="true"/> to pass through discovery)</param>
 /// <param name="testNodeMessageBus">The message bus for reporting MTP messages to</param>
+/// <param name="trxCapability">Information class that knows whether TRX reporting is enabled</param>
 /// <param name="cancellationToken">The cancellation token provided by MTP</param>
 /// <remarks>
 /// This class is an implementation detail for Microsoft.Testing.Platform that is public for testing purposes.
@@ -28,6 +29,7 @@ public class TestPlatformDiscoveryMessageSink(
 	SessionUid sessionUid,
 	Func<ITestCaseDiscovered, bool> filter,
 	IMessageBus testNodeMessageBus,
+	XunitTrxCapability trxCapability,
 	CancellationToken cancellationToken) :
 		ExtensionBase("discovery message sink", "b1ef01c2-95f4-4411-b6ef-19e290225124"), IMessageSink, IDataProducer
 {
@@ -54,7 +56,7 @@ public class TestPlatformDiscoveryMessageSink(
 		{
 			var result = new TestNode { Uid = discovered.TestCaseUniqueID, DisplayName = discovered.TestCaseDisplayName };
 			result.Properties.Add(DiscoveredTestNodeStateProperty.CachedInstance);
-			result.AddMetadata(discovered, assemblyFullName);
+			result.AddMetadata(discovered, assemblyFullName, trxCapability.IsTrxEnabled);
 			result.SendUpdate(this, sessionUid, testNodeMessageBus);
 		}
 	}
