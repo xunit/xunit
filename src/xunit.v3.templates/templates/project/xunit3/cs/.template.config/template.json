@@ -64,9 +64,9 @@
     "Framework": {
       "type": "parameter",
       "dataType": "choice",
-      "defaultValue": "net8.0",
+      "defaultValue": "net10.0",
       "description": "Target framework",
-      "replaces": "net8.0",
+      "replaces": "net10.0",
       "choices": [
         {
           "choice": "net472",
@@ -91,6 +91,10 @@
         {
           "choice": "net10.0",
           "description": ".NET 10"
+        },
+        {
+          "choice": "net11.0",
+          "description": ".NET 11"
         }
       ]
     },
@@ -104,7 +108,7 @@
     "NativeAOT": {
       "type": "parameter",
       "datatype": "bool",
-      "isEnabled": "(Framework == \"net9.0\" || Framework == \"net10.0\")",
+      "isEnabled": "(Framework == \"net9.0\" || Framework == \"net10.0\" || Framework == \"net11.0\")",
       "description": "If specified, builds the tests for Native AOT",
       "defaultValue": "false",
       "displayName": "Build for Native AOT"

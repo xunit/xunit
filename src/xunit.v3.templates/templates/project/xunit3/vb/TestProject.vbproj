@@ -4,9 +4,9 @@
     <Nullable>enable</Nullable>
     <OutputType>Exe</OutputType>
     <RootNamespace Condition="'$(name)' != '$(name{-VALUE-FORMS-}safe_namespace)'">TestProject</RootNamespace>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <!--#if (TestRunner != "vstest") -->
-    <!--#if (Framework != "net10.0") -->
+    <!--#if (Framework != "net10.0" && Framework != "net11.0") -->
     <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
     <!--#endif-->
     <!--#if (CommandLine == "mtp") -->
