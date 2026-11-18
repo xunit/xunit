@@ -2,7 +2,7 @@
   "$schema": "https://xunit.net/schema/current/xunit.runner.schema.json",
   "culture": "invariant",
   "diagnosticMessages": true,
-  "longRunningTestSeconds": 30,
+  "longRunningTestSeconds": 60,
   "parallelizeAssembly": true,
-  "parallelMode":  "all"
+  "parallelMode": "all"
 }
