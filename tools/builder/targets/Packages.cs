@@ -31,6 +31,11 @@ public static partial class Packages
 
 		// Pack the .nuspec file(s)
 		foreach (var nuspecFile in nuspecFiles.OrderBy(x => x))
-			await context.Exec("dotnet", $"pack --nologo --no-build --configuration {context.ConfigurationText} --output {context.PackageOutputFolder} --verbosity {context.Verbosity} \"{Path.GetDirectoryName(nuspecFile)}\" -p:NuspecFile={Path.GetFileName(nuspecFile)}{extraArgs}");
+		{
+			var baseName = Path.GetFileName(nuspecFile);
+			var buildLog = Path.Combine(context.BuildArtifactsFolder, $"pack-{baseName}.binlog");
+
+			await context.Exec("dotnet", $"pack --nologo --no-build --configuration {context.ConfigurationText} --output {context.PackageOutputFolder} --verbosity {context.Verbosity} \"{Path.GetDirectoryName(nuspecFile)}\" -p:NuspecFile={baseName} -binaryLogger:{buildLog}{extraArgs}");
+		}
 	}
 }
