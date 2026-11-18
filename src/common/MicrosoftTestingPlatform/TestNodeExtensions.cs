@@ -60,8 +60,8 @@ internal static class TestNodeExtensions
 				new TestMethodIdentifierProperty(
 					assemblyFullName,
 					testCase.TestClassNamespace ?? string.Empty,
-					testCase.TestClassSimpleName ?? "<non-class test>",
-					"<non-method test>",
+					testCase.TestClassSimpleName ?? testCase.UniqueID,
+					testCase.UniqueID,
 					0,
 					[],
 					voidVSTestTypeName

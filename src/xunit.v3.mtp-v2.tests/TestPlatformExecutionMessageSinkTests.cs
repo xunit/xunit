@@ -507,11 +507,11 @@ public static class TestPlatformExecutionMessageSinkTests
 				{
 					var testMethod = testNode.Properties.Single<TestMethodIdentifierProperty>();
 					Assert.Equal(TestData.DefaultAssemblyName, testMethod.AssemblyFullName);
-					Assert.Equal("<non-method test>", testMethod.MethodName);
+					Assert.Equal("test-case-id", testMethod.MethodName);
 					Assert.Empty(testMethod.Namespace);
 					Assert.Empty(testMethod.ParameterTypeFullNames);
 					Assert.Equal(TestData.DefaultMethodReturnType, testMethod.ReturnTypeFullName);
-					Assert.Equal("<non-class test>", testMethod.TypeName);
+					Assert.Equal("test-case-id", testMethod.TypeName);
 				}
 				else
 					Assert.False(testNode.Properties.Any<TestMethodIdentifierProperty>());
