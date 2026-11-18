@@ -1,13 +1,13 @@
 # Building xUnit.net
 
-The primary build system for xUnit.net is done via command line, and officially supports Linux and Windows. Users
-running macOS can generally follow the Linux instructions (while installing the macOS equivalents of the dependencies).
+The primary build system for xUnit.net is done via command line, and officially supports Linux and Windows. Users running macOS can generally follow the Linux instructions (while installing the macOS equivalents of the dependencies).
 
 # Pre-Requisites
 
 You will need the following software installed (regardless of OS):
 
-* [.NET SDK 9.0](https://dotnet.microsoft.com/download/dotnet/9.0)
+* [.NET SDK 10.0](https://dotnet.microsoft.com/download/dotnet/10.0)
+* [.NET Runtime 9.0](https://dotnet.microsoft.com/download/dotnet/9.0)
 * [.NET Runtime 8.0](https://dotnet.microsoft.com/download/dotnet/8.0)
 * [git](https://git-scm.com/downloads)
 
@@ -24,9 +24,7 @@ Windows users will additionally need:
 * .NET Framework 4.8.1 or later (part of the Windows OS)
 * PowerShell (or [PowerShell Core](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-windows))
 
-Ensure that you have configured PowerShell to be able to run local unsigned scripts (either by running
-`Set-ExecutionPolicy RemoteSigned` from within PowerShell, or by launching PowerShell with the
-`-ExecutionPolicy RemoteSigned` command line switch).
+Ensure that you have configured PowerShell to be able to run local unsigned scripts (either by running `Set-ExecutionPolicy RemoteSigned` from within PowerShell, or by launching PowerShell with the `-ExecutionPolicy RemoteSigned` command line switch).
 
 # Command-Line Build
 
@@ -47,9 +45,8 @@ Ensure that you have configured PowerShell to be able to run local unsigned scri
     * `Restore`: Perform package restore
     * `Build`: Build the source
     * `Test`: Run all unit tests
-    * `TestCore`: Run all unit tests (.NET Core)
-    * `TestFx`: Run all unit tests (.NET Framework)
     * `Packages`: Create NuGet packages
+    * `FormatSource`: Re-formats the source code
 
     You can get a list of options:
 
