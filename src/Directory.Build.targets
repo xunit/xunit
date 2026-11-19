@@ -127,7 +127,7 @@ $([System.IO.File]::ReadAllText($(MSBuildThisFileDirectory)..\README.md))
     </PropertyGroup>
   </Target>
 
-  <Target Name="UpdateNuSpecProperties" BeforeTargets="GenerateNuspec" DependsOnTargets="GetBuildVersion">
+  <Target Name="UpdateNuSpecProperties" DependsOnTargets="GetBuildVersion">
     <ReadLinesFromFile File="$(MSBuildThisFileDirectory)..\.git\modules\src\xunit.v3.assert\Asserts\HEAD">
       <Output TaskParameter="Lines" PropertyName="GitAssertModuleCommitId"/>
     </ReadLinesFromFile>

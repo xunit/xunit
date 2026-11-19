@@ -11,6 +11,7 @@
 
   <PropertyGroup>
     <AssemblyName Condition=" '$(AssemblyName)' == '' ">$(MSBuildProjectName)</AssemblyName>
+    <BeforePack>$(BeforePack);UpdateNuSpecProperties</BeforePack>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <ContinuousIntegrationBuild Condition=" '$(GITHUB_ACTIONS)' == 'true' ">true</ContinuousIntegrationBuild>
     <DebugType Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">full</DebugType>
