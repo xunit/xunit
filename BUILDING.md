@@ -6,7 +6,8 @@ The primary build system for xUnit.net is done via command line, and officially 
 
 You will need the following software installed (regardless of OS):
 
-* [.NET SDK 10.0](https://dotnet.microsoft.com/download/dotnet/10.0)
+* [.NET SDK 11.0](https://dotnet.microsoft.com/download/dotnet/11.0)
+* [.NET Runtime 10.0](https://dotnet.microsoft.com/download/dotnet/10.0)
 * [.NET Runtime 9.0](https://dotnet.microsoft.com/download/dotnet/9.0)
 * [.NET Runtime 8.0](https://dotnet.microsoft.com/download/dotnet/8.0)
 * [git](https://git-scm.com/downloads)
