@@ -17,6 +17,10 @@ namespace Xunit.MicrosoftTestingPlatform;
 public sealed class CommandLineOptionsProvider() :
 	ExtensionBase("command line options provider", "7e0a6fd0-3615-48b0-859c-6bb4f51c3095"), ICommandLineOptionsProvider
 {
+	// MTP does not support discovery list, which is only valid for runner => v3 command line execution
+	static readonly IReadOnlyCollection<ListOption> listValidValues =
+		ListOption.ValidValues.Where(o => o is not ListOption.Discovery).CastOrToReadOnlyCollection();
+
 	static readonly Dictionary<string, (string Description, ArgumentArity Arity, Action<ParseOptions> Parse)> options = new(StringComparer.OrdinalIgnoreCase)
 	{
 		// General options
@@ -381,7 +385,7 @@ public sealed class CommandLineOptionsProvider() :
 	}
 
 	static void OnList(ParseOptions options) =>
-		options.ProjectConfig.List = (ParseEnum(options.Arguments[0], ListOption.ValidValues), ListFormat.Text);
+		options.ProjectConfig.List = (ParseEnum(options.Arguments[0], listValidValues), ListFormat.Text);
 
 	static void OnMaxThreads(ParseOptions options) =>
 		options.AssemblyConfig.MaxParallelThreads = options.Arguments[0].ToUpperInvariant() switch
@@ -497,7 +501,7 @@ public sealed class CommandLineOptionsProvider() :
 		string value,
 		IReadOnlyCollection<TEnum> validValues)
 			where TEnum : struct =>
-				Enum.TryParse<TEnum>(value, ignoreCase: true, out var result)
+				Enum.TryParse<TEnum>(value, ignoreCase: true, out var result) && validValues.Contains(result)
 					? result
 					: throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, "Invalid value '{0}' (must be one of: {1})", value, string.Join(", ", validValues.Select(e => "'" + ToCamelCaseString(e) + "'"))));
 
