@@ -48,6 +48,7 @@ public class TestPlatformExecutionMessageSink(
 	readonly ConcurrentDictionary<string, ConcurrentBag<ITestStarting>> testsByCollectionID = [];
 	readonly ConcurrentDictionary<string, ConcurrentBag<ITestStarting>> testsByMethodID = [];
 	readonly ConcurrentDictionary<string, ITestStarting> testsByTestID = [];
+	readonly ConcurrentDictionary<string, bool> skippedOrNotRunTestIDs = [];
 
 	/// <inheritdoc/>
 	public Type[] DataTypesProduced =>
@@ -294,8 +295,15 @@ public class TestPlatformExecutionMessageSink(
 		IErrorMetadata errorMetadata)
 	{
 		var exception = new XunitException(errorMetadata, header);
+		var testsThatRan = tests.Where(t => !skippedOrNotRunTestIDs.ContainsKey(t.TestUniqueID)).ToList();
 
-		foreach (var test in tests)
+		if (testsThatRan.Count == 0)
+		{
+			SendError(exception, testCaseUniqueID: null);
+			return;
+		}
+		
+		foreach (var test in testsThatRan)
 			SendError(exception, test.TestCaseUniqueID, test.TestDisplayName);
 	}
 
@@ -330,6 +338,9 @@ public class TestPlatformExecutionMessageSink(
 
 	void SendTestNodeUpdate(ITestMessage testMessage)
 	{
+		if (testMessage is ITestSkipped || testMessage is ITestNotRun)
+			skippedOrNotRunTestIDs.TryAdd(testMessage.TestUniqueID, true);
+		
 		// If we're running inside Visual Studio, we don't want to report the test as skipped,
 		// because we want their UI to continue to say "not run" (or report the last run status).
 		// We only way to report the test as skipped when running from non-server mode ("dotnet test").

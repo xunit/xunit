@@ -90,6 +90,19 @@ public static class TestPlatformExecutionMessageSinkTests
 
 				AssertCleanupFailure(classUnderTest, "[Test Assembly Cleanup Failure (./test-assembly.dll)]: ");
 			}
+			
+			[Fact]
+			public static void WithRanAndSkippedTests_AttachesOnlyToRanTest()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+				SendStartingMessages(classUnderTest, includeTestStarting: false);
+				SendRanAndSkippedTests(classUnderTest);
+
+				classUnderTest.OnMessage(TestData.TestAssemblyCleanupFailure());
+
+				var testNode = GetTestNode(classUnderTest);
+				Assert.Equal("ran-case", testNode.Uid.Value);
+			}
 
 			[Fact]
 			public static void NoMetadata()
@@ -159,6 +172,57 @@ public static class TestPlatformExecutionMessageSinkTests
 				classUnderTest.OnMessage(TestData.TestClassCleanupFailure());
 
 				AssertCleanupFailure(classUnderTest, "[Test Class Cleanup Failure (test-class-name)]: ");
+			}
+			
+			[Fact]
+			public static void WithOnlySkippedTests_ReportsNonTestFailure()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+				SendStartingMessages(classUnderTest);
+				classUnderTest.OnMessage(TestData.TestSkipped());
+				classUnderTest.OnMessage(TestData.TestFinished());
+				classUnderTest.TestNodeMessageBus.PublishedData.Clear();
+
+				classUnderTest.OnMessage(TestData.TestClassCleanupFailure());
+
+				AssertCleanupFailure(classUnderTest, "[Test Class Cleanup Failure (test-class-name)]: ");
+			}
+			
+			[Fact]
+			public static void WithOnlyNotRunTests_ReportsNonTestFailure()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: true);
+				SendStartingMessages(classUnderTest);
+				classUnderTest.OnMessage(TestData.TestNotRun());
+				classUnderTest.OnMessage(TestData.TestFinished());
+				classUnderTest.TestNodeMessageBus.PublishedData.Clear();
+
+				classUnderTest.OnMessage(TestData.TestClassCleanupFailure());
+
+				AssertCleanupFailure(classUnderTest, "[Test Class Cleanup Failure (test-class-name)]: ");
+			}
+
+			[Fact]
+			public static void WithRanAndSkippedTests_AttachesOnlyToRanTest()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+				SendStartingMessages(classUnderTest, includeTestStarting: false);
+
+				classUnderTest.OnMessage(TestData.TestStarting(testUniqueID: "ran-test", testCaseUniqueID: "ran-case"));
+				classUnderTest.OnMessage(TestData.TestPassed(testUniqueID: "ran-test", testCaseUniqueID: "ran-case"));
+				classUnderTest.OnMessage(TestData.TestFinished(testUniqueID: "ran-test", testCaseUniqueID: "ran-case"));
+
+				classUnderTest.OnMessage(TestData.TestStarting(testUniqueID: "skipped-test", testCaseUniqueID: "skipped-case"));
+				classUnderTest.OnMessage(TestData.TestSkipped(testUniqueID: "skipped-test", testCaseUniqueID: "skipped-case"));
+				classUnderTest.OnMessage(TestData.TestFinished(testUniqueID: "skipped-test", testCaseUniqueID: "skipped-case"));
+
+				classUnderTest.TestNodeMessageBus.PublishedData.Clear();
+
+				classUnderTest.OnMessage(TestData.TestClassCleanupFailure());
+
+				var testNode = GetTestNode(classUnderTest);
+				Assert.Equal("ran-case", testNode.Uid.Value);
+				Assert.NotNull(testNode.Properties.Single<ErrorTestNodeStateProperty>());
 			}
 
 			[Fact]
@@ -445,6 +509,8 @@ public static class TestPlatformExecutionMessageSinkTests
 
 			AssertStandardMetadata(classUnderTest, expectWarnings: true);
 		}
+		
+		
 
 		static void AssertCleanupFailure(
 			TestableTestPlatformExecutionMessageSink classUnderTest,
@@ -661,6 +727,19 @@ public static class TestPlatformExecutionMessageSinkTests
 					)
 			);
 			classUnderTest.OnMessage(TestData.TestFinished());
+		}
+		
+		static void SendRanAndSkippedTests(TestableTestPlatformExecutionMessageSink sink)
+		{
+			sink.OnMessage(TestData.TestStarting(testUniqueID: "ran-test", testCaseUniqueID: "ran-case"));
+			sink.OnMessage(TestData.TestPassed(testUniqueID: "ran-test", testCaseUniqueID: "ran-case"));
+			sink.OnMessage(TestData.TestFinished(testUniqueID: "ran-test", testCaseUniqueID: "ran-case"));
+
+			sink.OnMessage(TestData.TestStarting(testUniqueID: "skipped-test", testCaseUniqueID: "skipped-case"));
+			sink.OnMessage(TestData.TestSkipped(testUniqueID: "skipped-test", testCaseUniqueID: "skipped-case"));
+			sink.OnMessage(TestData.TestFinished(testUniqueID: "skipped-test", testCaseUniqueID: "skipped-case"));
+
+			sink.TestNodeMessageBus.PublishedData.Clear();
 		}
 	}
 
