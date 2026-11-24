@@ -14,7 +14,11 @@ public class CommandLineOptionsProviderTests
 	readonly XunitProjectAssembly projectAssembly;
 
 	static int initialized;
+#if NET9_0_OR_GREATER
+	static readonly Lock initLock = new();
+#else
 	static readonly object initLock = new();
+#endif
 
 	public CommandLineOptionsProviderTests()
 	{
