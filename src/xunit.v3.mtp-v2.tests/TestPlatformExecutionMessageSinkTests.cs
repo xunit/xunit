@@ -67,167 +67,353 @@ public static class TestPlatformExecutionMessageSinkTests
 
 	public static class MessageMapping
 	{
-		public static class ITestAssemblyCleanupFailure
+		[Fact]
+		public static void IErrorMessage_CommandLineMode()
+		{
+			var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: false);
+			classUnderTest.OnMessage(TestData.TestAssemblyStarting());
+
+			classUnderTest.OnMessage(TestData.ErrorMessage());
+
+			AssertCleanupFailure_CommandLineMode(classUnderTest, "FATAL ERROR: ");
+		}
+
+		[Fact]
+		public static void IErrorMessage_ServerMode()
+		{
+			var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: true);
+			classUnderTest.OnMessage(TestData.TestAssemblyStarting());
+
+			classUnderTest.OnMessage(TestData.ErrorMessage());
+
+			AssertCleanupFailure_ServerMode(classUnderTest, "FATAL ERROR: ");
+		}
+
+		public static class ITestAssemblyCleanupFailure_CommandLineMode
 		{
 			[Fact]
 			public static void WithTests()
 			{
-				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: false);
 				SendStartingMessages(classUnderTest);
 
 				classUnderTest.OnMessage(TestData.TestAssemblyCleanupFailure());
 
-				AssertCleanupFailure(classUnderTest, "[Test Assembly Cleanup Failure (./test-assembly.dll)]: ", "test-case-id");
+				AssertCleanupFailure_CommandLineMode(classUnderTest, "[Test Assembly Cleanup Failure (./test-assembly.dll)]: ");
 			}
 
 			[Fact]
 			public static void WithoutTests()
 			{
-				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: false);
 				SendStartingMessages(classUnderTest, includeTestStarting: false);
 
 				classUnderTest.OnMessage(TestData.TestAssemblyCleanupFailure());
 
-				AssertCleanupFailure(classUnderTest, "[Test Assembly Cleanup Failure (./test-assembly.dll)]: ");
+				AssertCleanupFailure_CommandLineMode(classUnderTest, "[Test Assembly Cleanup Failure (./test-assembly.dll)]: ");
 			}
 
 			[Fact]
 			public static void NoMetadata()
 			{
-				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: false);
 
 				classUnderTest.OnMessage(TestData.TestAssemblyCleanupFailure());
 
-				AssertCleanupFailure(classUnderTest, "[Test Assembly Cleanup Failure (<unknown test assembly>)]: ");
+				AssertCleanupFailure_CommandLineMode(classUnderTest, "[Test Assembly Cleanup Failure (<unknown test assembly>)]: ");
 			}
 		}
 
-		public static class ITestCaseCleanupFailure
+		public static class ITestAssemblyCleanupFailure_ServerMode
 		{
 			[Fact]
 			public static void WithTests()
 			{
-				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: true);
 				SendStartingMessages(classUnderTest);
 
-				classUnderTest.OnMessage(TestData.TestCaseCleanupFailure());
+				classUnderTest.OnMessage(TestData.TestAssemblyCleanupFailure());
 
-				AssertCleanupFailure(classUnderTest, "[Test Case Cleanup Failure]: ", "test-case-id", "test-display-name");
+				AssertCleanupFailure_ServerMode(classUnderTest, "[Test Assembly Cleanup Failure (./test-assembly.dll)]: ", "test-case-id");
 			}
 
 			[Fact]
 			public static void WithoutTests()
 			{
-				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: true);
 				SendStartingMessages(classUnderTest, includeTestStarting: false);
 
-				classUnderTest.OnMessage(TestData.TestCaseCleanupFailure());
+				classUnderTest.OnMessage(TestData.TestAssemblyCleanupFailure());
 
-				AssertCleanupFailure(classUnderTest, "[Test Case Cleanup Failure]: ", "test-case-id", "test-case-display-name");
+				AssertCleanupFailure_ServerMode(classUnderTest, "[Test Assembly Cleanup Failure (./test-assembly.dll)]: ");
 			}
 
 			[Fact]
 			public static void NoMetadata()
 			{
-				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: true);
 
-				classUnderTest.OnMessage(TestData.TestCaseCleanupFailure());
+				classUnderTest.OnMessage(TestData.TestAssemblyCleanupFailure());
 
-				AssertCleanupFailure(classUnderTest, "[Test Case Cleanup Failure]: ", "test-case-id", verifyMetadata: false);
+				AssertCleanupFailure_ServerMode(classUnderTest, "[Test Assembly Cleanup Failure (<unknown test assembly>)]: ");
 			}
 		}
 
-		public static class ITestClassCleanupFailure
+		public static class ITestCaseCleanupFailure_CommandLineMode
 		{
 			[Fact]
 			public static void WithTests()
 			{
-				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: false);
 				SendStartingMessages(classUnderTest);
 
-				classUnderTest.OnMessage(TestData.TestClassCleanupFailure());
+				classUnderTest.OnMessage(TestData.TestCaseCleanupFailure());
 
-				AssertCleanupFailure(classUnderTest, "[Test Class Cleanup Failure (test-class-name)]: ", "test-case-id");
+				AssertCleanupFailure_CommandLineMode(classUnderTest, "[Test Case Cleanup Failure]: ");
 			}
 
 			[Fact]
 			public static void WithoutTests()
 			{
-				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: false);
 				SendStartingMessages(classUnderTest, includeTestStarting: false);
 
-				classUnderTest.OnMessage(TestData.TestClassCleanupFailure());
+				classUnderTest.OnMessage(TestData.TestCaseCleanupFailure());
 
-				AssertCleanupFailure(classUnderTest, "[Test Class Cleanup Failure (test-class-name)]: ");
+				AssertCleanupFailure_CommandLineMode(classUnderTest, "[Test Case Cleanup Failure]: ");
 			}
 
 			[Fact]
 			public static void NoMetadata()
 			{
-				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: false);
 
-				classUnderTest.OnMessage(TestData.TestClassCleanupFailure());
+				classUnderTest.OnMessage(TestData.TestCaseCleanupFailure());
 
-				AssertCleanupFailure(classUnderTest, "[Test Class Cleanup Failure (<unknown test class>)]: ");
+				AssertCleanupFailure_CommandLineMode(classUnderTest, "[Test Case Cleanup Failure]: ");
 			}
 		}
 
-		public static class ITestCleanupFailure
+		public static class ITestCaseCleanupFailure_ServerMode
 		{
 			[Fact]
 			public static void WithTests()
 			{
-				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: true);
+				SendStartingMessages(classUnderTest);
+
+				classUnderTest.OnMessage(TestData.TestCaseCleanupFailure());
+
+				AssertCleanupFailure_ServerMode(classUnderTest, "[Test Case Cleanup Failure]: ", "test-case-id", "test-display-name");
+			}
+
+			[Fact]
+			public static void WithoutTests()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: true);
+				SendStartingMessages(classUnderTest, includeTestStarting: false);
+
+				classUnderTest.OnMessage(TestData.TestCaseCleanupFailure());
+
+				AssertCleanupFailure_ServerMode(classUnderTest, "[Test Case Cleanup Failure]: ", "test-case-id", "test-case-display-name");
+			}
+
+			[Fact]
+			public static void NoMetadata()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: true);
+
+				classUnderTest.OnMessage(TestData.TestCaseCleanupFailure());
+
+				AssertCleanupFailure_ServerMode(classUnderTest, "[Test Case Cleanup Failure]: ", "test-case-id", verifyMetadata: false);
+			}
+		}
+
+		public static class ITestClassCleanupFailure_CommandLineMode
+		{
+			[Fact]
+			public static void WithTests()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: false);
+				SendStartingMessages(classUnderTest);
+
+				classUnderTest.OnMessage(TestData.TestClassCleanupFailure());
+
+				AssertCleanupFailure_CommandLineMode(classUnderTest, "[Test Class Cleanup Failure (test-class-name)]: ");
+			}
+
+			[Fact]
+			public static void WithoutTests()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: false);
+				SendStartingMessages(classUnderTest, includeTestStarting: false);
+
+				classUnderTest.OnMessage(TestData.TestClassCleanupFailure());
+
+				AssertCleanupFailure_CommandLineMode(classUnderTest, "[Test Class Cleanup Failure (test-class-name)]: ");
+			}
+
+			[Fact]
+			public static void NoMetadata()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: false);
+
+				classUnderTest.OnMessage(TestData.TestClassCleanupFailure());
+
+				AssertCleanupFailure_CommandLineMode(classUnderTest, "[Test Class Cleanup Failure (<non-class test>)]: ");
+			}
+		}
+
+		public static class ITestClassCleanupFailure_ServerMode
+		{
+			[Fact]
+			public static void WithTests()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: true);
+				SendStartingMessages(classUnderTest);
+
+				classUnderTest.OnMessage(TestData.TestClassCleanupFailure());
+
+				AssertCleanupFailure_ServerMode(classUnderTest, "[Test Class Cleanup Failure (test-class-name)]: ", "test-case-id");
+			}
+
+			[Fact]
+			public static void WithoutTests()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: true);
+				SendStartingMessages(classUnderTest, includeTestStarting: false);
+
+				classUnderTest.OnMessage(TestData.TestClassCleanupFailure());
+
+				AssertCleanupFailure_ServerMode(classUnderTest, "[Test Class Cleanup Failure (test-class-name)]: ");
+			}
+
+			[Fact]
+			public static void NoMetadata()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: true);
+
+				classUnderTest.OnMessage(TestData.TestClassCleanupFailure());
+
+				AssertCleanupFailure_ServerMode(classUnderTest, "[Test Class Cleanup Failure (<non-class test>)]: ");
+			}
+		}
+
+		public static class ITestCleanupFailure_CommandLineMode
+		{
+			[Fact]
+			public static void WithTests()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: false);
 				SendStartingMessages(classUnderTest);
 
 				classUnderTest.OnMessage(TestData.TestCleanupFailure());
 
-				AssertCleanupFailure(classUnderTest, "[Test Cleanup Failure]: ", "test-case-id");
+				AssertCleanupFailure_CommandLineMode(classUnderTest, "[Test Cleanup Failure]: ");
 			}
 
 			[Fact]
 			public static void NoMetadata()
 			{
-				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: false);
 
 				classUnderTest.OnMessage(TestData.TestCleanupFailure());
 
-				AssertCleanupFailure(classUnderTest, "[Test Cleanup Failure]: ", "test-case-id", verifyMetadata: false);
+				AssertCleanupFailure_CommandLineMode(classUnderTest, "[Test Cleanup Failure]: ");
 			}
 		}
 
-		public static class ITestCollectionCleanupFailure
+		public static class ITestCleanupFailure_ServerMode
 		{
 			[Fact]
 			public static void WithTests()
 			{
-				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: true);
+				SendStartingMessages(classUnderTest);
+
+				classUnderTest.OnMessage(TestData.TestCleanupFailure());
+
+				AssertCleanupFailure_ServerMode(classUnderTest, "[Test Cleanup Failure]: ", "test-case-id");
+			}
+
+			[Fact]
+			public static void NoMetadata()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: true);
+
+				classUnderTest.OnMessage(TestData.TestCleanupFailure());
+
+				AssertCleanupFailure_ServerMode(classUnderTest, "[Test Cleanup Failure]: ", "test-case-id", verifyMetadata: false);
+			}
+		}
+
+		public static class ITestCollectionCleanupFailure_CommandLineMode
+		{
+			[Fact]
+			public static void WithTests()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: false);
 				SendStartingMessages(classUnderTest);
 
 				classUnderTest.OnMessage(TestData.TestCollectionCleanupFailure());
 
-				AssertCleanupFailure(classUnderTest, "[Test Collection Cleanup Failure (test-collection-display-name)]: ", "test-case-id");
+				AssertCleanupFailure_CommandLineMode(classUnderTest, "[Test Collection Cleanup Failure (test-collection-display-name)]: ");
 			}
 
 			[Fact]
 			public static void WithoutTests()
 			{
-				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: false);
 				SendStartingMessages(classUnderTest, includeTestStarting: false);
 
 				classUnderTest.OnMessage(TestData.TestCollectionCleanupFailure());
 
-				AssertCleanupFailure(classUnderTest, "[Test Collection Cleanup Failure (test-collection-display-name)]: ");
+				AssertCleanupFailure_CommandLineMode(classUnderTest, "[Test Collection Cleanup Failure (test-collection-display-name)]: ");
 			}
 
 			[Fact]
 			public static void NoMetadata()
 			{
-				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: false);
 
 				classUnderTest.OnMessage(TestData.TestCollectionCleanupFailure());
 
-				AssertCleanupFailure(classUnderTest, "[Test Collection Cleanup Failure (<unknown test collection>)]: ");
+				AssertCleanupFailure_CommandLineMode(classUnderTest, "[Test Collection Cleanup Failure (<unknown test collection>)]: ");
+			}
+		}
+
+		public static class ITestCollectionCleanupFailure_ServerMode
+		{
+			[Fact]
+			public static void WithTests()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: true);
+				SendStartingMessages(classUnderTest);
+
+				classUnderTest.OnMessage(TestData.TestCollectionCleanupFailure());
+
+				AssertCleanupFailure_ServerMode(classUnderTest, "[Test Collection Cleanup Failure (test-collection-display-name)]: ", "test-case-id");
+			}
+
+			[Fact]
+			public static void WithoutTests()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: true);
+				SendStartingMessages(classUnderTest, includeTestStarting: false);
+
+				classUnderTest.OnMessage(TestData.TestCollectionCleanupFailure());
+
+				AssertCleanupFailure_ServerMode(classUnderTest, "[Test Collection Cleanup Failure (test-collection-display-name)]: ");
+			}
+
+			[Fact]
+			public static void NoMetadata()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: true);
+
+				classUnderTest.OnMessage(TestData.TestCollectionCleanupFailure());
+
+				AssertCleanupFailure_ServerMode(classUnderTest, "[Test Collection Cleanup Failure (<unknown test collection>)]: ");
 			}
 		}
 
@@ -294,38 +480,73 @@ public static class TestPlatformExecutionMessageSinkTests
 			}
 		}
 
-		public static class ITestMethodCleanupFailure
+		public static class ITestMethodCleanupFailure_CommandLineMode
 		{
 			[Fact]
 			public static void WithTests()
 			{
-				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: false);
 				SendStartingMessages(classUnderTest);
 
 				classUnderTest.OnMessage(TestData.TestMethodCleanupFailure());
 
-				AssertCleanupFailure(classUnderTest, "[Test Method Cleanup Failure (test-class-name.test-method)]: ", "test-case-id");
+				AssertCleanupFailure_CommandLineMode(classUnderTest, "[Test Method Cleanup Failure (test-class-name.test-method)]: ");
 			}
 
 			[Fact]
 			public static void WithoutTests()
 			{
-				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: false);
 				SendStartingMessages(classUnderTest, includeTestStarting: false);
 
 				classUnderTest.OnMessage(TestData.TestMethodCleanupFailure());
 
-				AssertCleanupFailure(classUnderTest, "[Test Method Cleanup Failure (test-class-name.test-method)]: ");
+				AssertCleanupFailure_CommandLineMode(classUnderTest, "[Test Method Cleanup Failure (test-class-name.test-method)]: ");
 			}
 
 			[Fact]
 			public static void NoMetadata()
 			{
-				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create();
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: false);
 
 				classUnderTest.OnMessage(TestData.TestMethodCleanupFailure());
 
-				AssertCleanupFailure(classUnderTest, "[Test Method Cleanup Failure (<unknown test method>)]: ");
+				AssertCleanupFailure_CommandLineMode(classUnderTest, "[Test Method Cleanup Failure (<non-method test>)]: ");
+			}
+		}
+
+		public static class ITestMethodCleanupFailure_ServerMode
+		{
+			[Fact]
+			public static void WithTests()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: true);
+				SendStartingMessages(classUnderTest);
+
+				classUnderTest.OnMessage(TestData.TestMethodCleanupFailure());
+
+				AssertCleanupFailure_ServerMode(classUnderTest, "[Test Method Cleanup Failure (test-class-name.test-method)]: ", "test-case-id");
+			}
+
+			[Fact]
+			public static void WithoutTests()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: true);
+				SendStartingMessages(classUnderTest, includeTestStarting: false);
+
+				classUnderTest.OnMessage(TestData.TestMethodCleanupFailure());
+
+				AssertCleanupFailure_ServerMode(classUnderTest, "[Test Method Cleanup Failure (test-class-name.test-method)]: ");
+			}
+
+			[Fact]
+			public static void NoMetadata()
+			{
+				var classUnderTest = TestableTestPlatformExecutionMessageSink.Create(serverMode: true);
+
+				classUnderTest.OnMessage(TestData.TestMethodCleanupFailure());
+
+				AssertCleanupFailure_ServerMode(classUnderTest, "[Test Method Cleanup Failure (<non-method test>)]: ");
 			}
 		}
 
@@ -446,7 +667,24 @@ public static class TestPlatformExecutionMessageSinkTests
 			AssertStandardMetadata(classUnderTest, expectWarnings: true);
 		}
 
-		static void AssertCleanupFailure(
+		static void AssertCleanupFailure_CommandLineMode(
+			TestableTestPlatformExecutionMessageSink classUnderTest,
+			string exceptionHeader)
+		{
+			var testNode = GetTestNode(classUnderTest);
+
+			Assert.True(Guid.TryParse(testNode.Uid.Value, out _));
+			Assert.Equal(exceptionHeader + TestData.DefaultExceptionMessages[0], testNode.DisplayName);
+
+			var error = testNode.Properties.Single<ErrorTestNodeStateProperty>();
+
+			Assert.Null(error.Explanation);
+			Assert.NotNull(error.Exception);
+			Assert.Equal($"{exceptionHeader}{TestData.DefaultExceptionTypes[0]} : {TestData.DefaultExceptionMessages[0]}", error.Exception.Message);
+			Assert.Equal(TestData.DefaultStackTraces[0], error.Exception.StackTrace);
+		}
+
+		static void AssertCleanupFailure_ServerMode(
 			TestableTestPlatformExecutionMessageSink classUnderTest,
 			string exceptionHeader,
 			string? expectedUid = null,

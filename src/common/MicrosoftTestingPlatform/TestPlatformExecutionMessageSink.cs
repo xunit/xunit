@@ -59,23 +59,19 @@ public class TestPlatformExecutionMessageSink(
 		var result = innerSink.OnMessage(message);
 
 		return
+			message.DispatchWhen<IErrorMessage>(args => OnErrorMessage(args.Message)) &&
 			message.DispatchWhen<ITestAssemblyCleanupFailure>(args => OnTestAssemblyCleanupFailure(args.Message)) &&
-			message.DispatchWhen<ITestAssemblyFinished>(args => metadataCache.TryRemove(args.Message)) &&
 			message.DispatchWhen<ITestAssemblyStarting>(args => metadataCache.Set(args.Message)) &&
 			message.DispatchWhen<ITestCaseCleanupFailure>(args => OnTestCaseCleanupFailure(args.Message)) &&
-			message.DispatchWhen<ITestCaseFinished>(args => metadataCache.TryRemove(args.Message)) &&
 			message.DispatchWhen<ITestCaseStarting>(args => metadataCache.Set(args.Message)) &&
 			message.DispatchWhen<ITestClassCleanupFailure>(args => OnTestClassCleanupFailure(args.Message)) &&
-			message.DispatchWhen<ITestClassFinished>(args => metadataCache.TryRemove(args.Message)) &&
 			message.DispatchWhen<ITestClassStarting>(args => metadataCache.Set(args.Message)) &&
 			message.DispatchWhen<ITestCleanupFailure>(args => OnTestCleanupFailure(args.Message)) &&
 			message.DispatchWhen<ITestCollectionCleanupFailure>(args => OnTestCollectionCleanupFailure(args.Message)) &&
-			message.DispatchWhen<ITestCollectionFinished>(args => metadataCache.TryRemove(args.Message)) &&
 			message.DispatchWhen<ITestCollectionStarting>(args => metadataCache.Set(args.Message)) &&
 			message.DispatchWhen<ITestFailed>(args => SendTestNodeUpdate(args.Message)) &&
 			message.DispatchWhen<ITestFinished>(args => OnTestFinished(args.Message)) &&
 			message.DispatchWhen<ITestMethodCleanupFailure>(args => OnTestMethodCleanupFailure(args.Message)) &&
-			message.DispatchWhen<ITestMethodFinished>(args => metadataCache.TryRemove(args.Message)) &&
 			message.DispatchWhen<ITestMethodStarting>(args => metadataCache.Set(args.Message)) &&
 			message.DispatchWhen<ITestNotRun>(args => SendTestNodeUpdate(args.Message)) &&
 			message.DispatchWhen<ITestPassed>(args => SendTestNodeUpdate(args.Message)) &&
@@ -84,6 +80,9 @@ public class TestPlatformExecutionMessageSink(
 			message.DispatchWhen<ITestOutput>(args => OnLiveOutput(args.Message)) &&
 			result;
 	}
+
+	void OnErrorMessage(IErrorMessage message) =>
+		SendError("FATAL ERROR", message);
 
 	void OnLiveOutput(ITestOutput testOutput)
 	{
@@ -134,7 +133,7 @@ public class TestPlatformExecutionMessageSink(
 		var header = string.Format(
 			CultureInfo.InvariantCulture,
 			"[Test Class Cleanup Failure ({0})]",
-			metadataCache.TryGetClassMetadata(failure)?.TestClassName ?? "<unknown test class>"
+			metadataCache.TryGetClassMetadata(failure)?.TestClassName ?? "<non-class test>"
 		);
 
 		if (failure.TestClassUniqueID is not null && testsByClassID.TryGetValue(failure.TestClassUniqueID, out var tests))
@@ -265,7 +264,7 @@ public class TestPlatformExecutionMessageSink(
 		var displayName =
 			methodMetadata is not null && classMetadata is not null
 				? string.Format(CultureInfo.InvariantCulture, "{0}.{1}", classMetadata.TestClassName, methodMetadata.MethodName)
-				: "<unknown test method>";
+				: "<non-method test>";
 		var header = string.Format(CultureInfo.InvariantCulture, "[Test Method Cleanup Failure ({0})]", displayName);
 
 		if (failure.TestMethodUniqueID is not null && testsByMethodID.TryGetValue(failure.TestMethodUniqueID, out var tests))
@@ -276,14 +275,19 @@ public class TestPlatformExecutionMessageSink(
 
 	void OnTestStarting(ITestStarting testStarting)
 	{
-		testsByAssemblyID.TryAdd(testStarting.AssemblyUniqueID, testStarting);
-		testsByCaseID.TryAdd(testStarting.TestCaseUniqueID, testStarting);
-		if (testStarting.TestClassUniqueID is not null)
-			testsByClassID.TryAdd(testStarting.TestClassUniqueID, testStarting);
-		testsByCollectionID.TryAdd(testStarting.TestCollectionUniqueID, testStarting);
-		if (testStarting.TestMethodUniqueID is not null)
-			testsByMethodID.TryAdd(testStarting.TestMethodUniqueID, testStarting);
-		testsByTestID.TryAdd(testStarting.TestUniqueID, testStarting);
+		// We only dispatch cleanup failures to all tests in server mode, so only need to preserve the list of mappings
+		// when we're in server mode
+		if (serverMode)
+		{
+			testsByAssemblyID.TryAdd(testStarting.AssemblyUniqueID, testStarting);
+			testsByCaseID.TryAdd(testStarting.TestCaseUniqueID, testStarting);
+			if (testStarting.TestClassUniqueID is not null)
+				testsByClassID.TryAdd(testStarting.TestClassUniqueID, testStarting);
+			testsByCollectionID.TryAdd(testStarting.TestCollectionUniqueID, testStarting);
+			if (testStarting.TestMethodUniqueID is not null)
+				testsByMethodID.TryAdd(testStarting.TestMethodUniqueID, testStarting);
+			testsByTestID.TryAdd(testStarting.TestUniqueID, testStarting);
+		}
 
 		SendTestNodeUpdate(testStarting);
 	}
@@ -293,21 +297,14 @@ public class TestPlatformExecutionMessageSink(
 		IReadOnlyCollection<ITestStarting> tests,
 		IErrorMetadata errorMetadata)
 	{
-		var exception = new XunitException(errorMetadata, header);
-
 		foreach (var test in tests)
-			SendError(exception, test.TestCaseUniqueID, test.TestDisplayName);
+			SendError(header, errorMetadata, test.TestCaseUniqueID, test.TestDisplayName);
 	}
 
 	void SendError(
 		string header,
 		IErrorMetadata errorMetadata,
-		string? testCaseUniqueID = null) =>
-			SendError(new XunitException(errorMetadata, header), testCaseUniqueID);
-
-	void SendError(
-		Exception exception,
-		string? testCaseUniqueID,
+		string? testCaseUniqueID = null,
 		string? displayName = null)
 	{
 		var testCaseMetadata =
@@ -315,15 +312,21 @@ public class TestPlatformExecutionMessageSink(
 				? metadataCache.TryGetTestCaseMetadata(testCaseUniqueID)
 				: null;
 
-		var errorNode = new TestNode
-		{
-			Uid = testCaseUniqueID ?? Guid.NewGuid().ToString(),
-			DisplayName = displayName ?? testCaseMetadata?.TestCaseDisplayName ?? "Non-test cleanup failure"
-		};
-		errorNode.Properties.Add(new ErrorTestNodeStateProperty(exception));
+		var errorNode =
+			serverMode
+				? new TestNode
+				{
+					Uid = testCaseUniqueID ?? Guid.NewGuid().ToString(),
+					DisplayName = displayName ?? testCaseMetadata?.TestCaseDisplayName ?? "Non-test cleanup failure",
+				}
+				: new TestNode
+				{
+					Uid = Guid.NewGuid().ToString(),
+					DisplayName = errorMetadata.Messages[0].Length == 0 ? header : header + ": " + errorMetadata.Messages[0],
+				};
 
-		if (testCaseMetadata is not null)
-			errorNode.AddMetadata(testCaseMetadata, assemblyFullName, trxCapability.IsTrxEnabled);
+		errorNode.Properties.Add(new ErrorTestNodeStateProperty(new XunitException(errorMetadata, header)));
+		errorNode.AddMetadata(testCaseMetadata, assemblyFullName, trxCapability.IsTrxEnabled, errorMetadata: errorMetadata);
 
 		errorNode.SendUpdate(this, sessionUid, testNodeMessageBus);
 	}
