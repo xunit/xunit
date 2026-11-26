@@ -76,7 +76,7 @@ public class XmlV2ResultWriterMessageHandler : XunitXmlResultWriterMessageHandle
 		var testResultElement =
 			new XElement("test",
 				new XAttribute("id", Guid.NewGuid().ToString("d")),
-				new XAttribute("name", XmlUtility.Escape(testMetadata.TestDisplayName)),
+				new XAttribute("name", XmlUtility.Escape(testMetadata.TestDisplayName, escapeQuotesAndBackslashes: true)),
 				new XAttribute("result", resultText),
 				new XAttribute("time", testResult.ExecutionTime.ToString(CultureInfo.InvariantCulture)),
 				new XAttribute("time-rtf", testResult.ExecutionTime.ToTimespanRtf()),
@@ -94,14 +94,14 @@ public class XmlV2ResultWriterMessageHandler : XunitXmlResultWriterMessageHandle
 
 		var testOutput = testResult.Output;
 		if (!string.IsNullOrWhiteSpace(testOutput))
-			testResultElement.Add(new XElement("output", XmlUtility.Escape(AnsiUtility.RemoveAnsiEscapeCodes(testOutput), escapeNewlines: false)));
+			testResultElement.Add(new XElement("output", XmlUtility.Escape(AnsiUtility.RemoveAnsiEscapeCodes(testOutput), escapeNewlines: false, escapeQuotesAndBackslashes: true)));
 
 		if (testResult.Warnings is not null && testResult.Warnings.Length > 0)
 		{
 			var warningsElement = new XElement("warnings");
 
 			foreach (var warning in testResult.Warnings)
-				warningsElement.Add(new XElement("warning", XmlUtility.Escape(warning, escapeNewlines: false)));
+				warningsElement.Add(new XElement("warning", XmlUtility.Escape(warning, escapeNewlines: false, escapeQuotesAndBackslashes: true)));
 
 			testResultElement.Add(warningsElement);
 		}
@@ -123,8 +123,8 @@ public class XmlV2ResultWriterMessageHandler : XunitXmlResultWriterMessageHandle
 				foreach (var val in keyValuePair.Value)
 					traitsElement.Add(
 						new XElement("trait",
-							new XAttribute("name", XmlUtility.Escape(keyValuePair.Key)),
-							new XAttribute("value", XmlUtility.Escape(val))
+							new XAttribute("name", XmlUtility.Escape(keyValuePair.Key, escapeQuotesAndBackslashes: true)),
+							new XAttribute("value", XmlUtility.Escape(val, escapeQuotesAndBackslashes: true))
 						)
 					);
 
@@ -268,7 +268,7 @@ public class XmlV2ResultWriterMessageHandler : XunitXmlResultWriterMessageHandle
 			return;
 
 		var testElement = CreateTestResultElement(resultMetadata, message, "Skip");
-		testElement.Add(new XElement("reason", XmlUtility.Escape(message.Reason, escapeNewlines: false)));
+		testElement.Add(new XElement("reason", XmlUtility.Escape(message.Reason, escapeNewlines: false, escapeQuotesAndBackslashes: true)));
 	}
 
 	/// <inheritdoc/>
@@ -361,7 +361,7 @@ public class XmlV2ResultWriterMessageHandler : XunitXmlResultWriterMessageHandle
 
 		lock (collectionElement)
 			collectionElement.Add(
-				new XAttribute("name", XmlUtility.Escape(message.TestCollectionDisplayName)),
+				new XAttribute("name", XmlUtility.Escape(message.TestCollectionDisplayName, escapeQuotesAndBackslashes: true)),
 				new XAttribute("id", Guid.NewGuid().ToString("d"))
 			);
 	}

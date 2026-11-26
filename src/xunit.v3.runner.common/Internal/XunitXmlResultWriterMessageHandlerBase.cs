@@ -28,7 +28,7 @@ public abstract class XunitXmlResultWriterMessageHandlerBase<TResultMetadata>(La
 
 		var message = ExceptionUtility.CombineMessages(errorMetadata);
 		if (!string.IsNullOrWhiteSpace(message))
-			result.Add(new XElement("message", XmlUtility.Escape(message, escapeNewlines: false)));
+			result.Add(new XElement("message", XmlUtility.Escape(message, escapeNewlines: false, escapeQuotesAndBackslashes: true)));
 
 		var stackTrace = ExceptionUtility.CombineStackTraces(errorMetadata);
 		if (stackTrace is not null)

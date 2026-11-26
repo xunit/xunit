@@ -118,7 +118,7 @@ public static class JUnitResultWriterMessageHandlerTests
 	public static async ValueTask TestPassed()
 	{
 		var assemblyStarting = TestData.TestAssemblyStarting();
-		var testStarting = TestData.TestStarting(testDisplayName: "test \r display \n name \0");
+		var testStarting = TestData.TestStarting(testDisplayName: "test \r display \n name \0 \"hello\" C:\\temp");
 		var testClassStarting = TestData.TestClassStarting();
 		var testPassed = TestData.TestPassed(executionTime: 123.4567809m, output: "");
 		var testClassFinished = TestData.TestClassFinished();
@@ -138,7 +138,7 @@ public static class JUnitResultWriterMessageHandlerTests
 		var testSuiteElement = Assert.Single(testSuitesElement.Elements("testsuite"));
 		VerifyTestSuiteElement(testSuiteElement, assemblyStarting, assemblyFinished);
 		var testCaseElement = Assert.Single(testSuiteElement.Elements("testcase"));
-		Assert.Equal("test \\r display \\n name \\0", testCaseElement.Attribute("name")?.Value);
+		Assert.Equal("test \\r display \\n name \\0 \"hello\" C:\\temp", testCaseElement.Attribute("name")?.Value);
 		Assert.Equal("123.456781", testCaseElement.Attribute("time")?.Value);
 		Assert.Equal("test-class-name", testCaseElement.Attribute("classname")?.Value);
 

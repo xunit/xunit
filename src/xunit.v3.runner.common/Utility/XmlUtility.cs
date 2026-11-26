@@ -21,7 +21,8 @@ internal static class XmlUtility
 
 	public static string Escape(
 		string? value,
-		bool escapeNewlines = true)
+		bool escapeNewlines = true,
+		bool escapeQuotesAndBackslashes = false)
 	{
 		if (value == null)
 			return string.Empty;
@@ -43,9 +44,9 @@ internal static class XmlUtility
 					'\v' => "\\v",
 					_ => string.Format(CultureInfo.InvariantCulture, @"\x{0:x2}", +ch),
 				});
-			else if (ch == '"')
+			else if (escapeQuotesAndBackslashes && ch == '"')
 				escapedValue.Append("\\\"");
-			else if (ch == '\\')
+			else if (escapeQuotesAndBackslashes && ch == '\\')
 				escapedValue.Append("\\\\");
 			else if (char.IsSurrogatePair(value, idx)) // Takes care of the case when idx + 1 == value.Length
 			{
