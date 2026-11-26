@@ -44,7 +44,7 @@ public class XmlV1ResultWriterMessageHandler : XunitXmlResultWriterMessageHandle
 		var classElement = GetTestClassElement(resultMetadata, testResult.TestClassUniqueID ?? DefaultTestClassUniqueID);
 		var testResultElement =
 			new XElement("test",
-				new XAttribute("name", XmlUtility.Escape(testMetadata.TestDisplayName)),
+				new XAttribute("name", XmlUtility.Escape(testMetadata.TestDisplayName, escapeQuotesAndBackslashes: true)),
 				new XAttribute("result", resultText),
 				new XAttribute("time", testResult.ExecutionTime.ToString(CultureInfo.InvariantCulture))
 			);
@@ -66,8 +66,8 @@ public class XmlV1ResultWriterMessageHandler : XunitXmlResultWriterMessageHandle
 				foreach (var val in keyValuePair.Value)
 					traitsElement.Add(
 						new XElement("trait",
-							new XAttribute("name", XmlUtility.Escape(keyValuePair.Key)),
-							new XAttribute("value", XmlUtility.Escape(val))
+							new XAttribute("name", XmlUtility.Escape(keyValuePair.Key, escapeQuotesAndBackslashes: true)),
+							new XAttribute("value", XmlUtility.Escape(val, escapeQuotesAndBackslashes: true))
 						)
 					);
 
@@ -111,7 +111,7 @@ public class XmlV1ResultWriterMessageHandler : XunitXmlResultWriterMessageHandle
 			return;
 
 		var testElement = CreateTestResultElement(resultMetadata, message, "Skip");
-		testElement.Add(new XElement("reason", new XElement("message", XmlUtility.Escape(message.Reason, escapeNewlines: false))));
+		testElement.Add(new XElement("reason", new XElement("message", XmlUtility.Escape(message.Reason, escapeNewlines: false, escapeQuotesAndBackslashes: true))));
 	}
 
 	/// <inheritdoc/>
@@ -185,7 +185,7 @@ public class XmlV1ResultWriterMessageHandler : XunitXmlResultWriterMessageHandle
 		var classElement = GetTestClassElement(resultMetadata, message.TestClassUniqueID ?? DefaultTestClassUniqueID);
 
 		lock (classElement)
-			classElement.Add(new XAttribute("name", XmlUtility.Escape(message.TestClassName)));
+			classElement.Add(new XAttribute("name", XmlUtility.Escape(message.TestClassName, escapeQuotesAndBackslashes: true)));
 	}
 
 	/// <summary/>
